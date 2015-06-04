@@ -8,7 +8,6 @@
  Scouter version 0.0.1 20150601
  Open Source S/W Performance Monitoring 
 ```
-### Intro
 Scouter는 Open Source S/W를 위한 성능 모니터링 툴이다.
 Tomcat, MariaDB 및 Node.js등의 오픈소스 기반은 웹서비스 미들웨어나 데이터베이스를 모니터링하기 위해 만들어 갈 것이다.
 
@@ -33,14 +32,14 @@ Scouter는 크게 3개의 모듈로 구성되었다.
  - Eclipse RCP : 독립 실행 프로그램으로 만들어졌다. 여러대의 수집서버를 클라이언트단에서 통합함으로 대규모시스템에서 컴팩트안 운영이 가능하다.
  - SWT & GEF4 : 차트와 다이어그램
 
-### Will be
+### To-be
 Scouter 단순함을 추구하는 단순함을 추구하는 모니터링 툴이다 가능한 단수한 구성으로 빠르게 OSS를 모니터링 하는 기능들을 제공할 것이다.
 - 인터넷 환경을 통해 배포되고 업그레이드 될 것이다.
 - 윈도우, MAC OSX, Linux등의 환경에서 동작하는 클아이언트을 배포하고 
 - 자동 업그레이드도 가능할 것이다.
 - 기능의 복잡도보다는 응답 분포도, 액티브 서비스, 테그카운팅 분석등의 핵심기능을  사용자에게 제공할 것이다.
 
-###License
+### License
 ```
 Copyright 2015 LG CNS.
 
