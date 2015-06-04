@@ -1,0 +1,7 @@
+scouter.agent/bin/*
+scouter.client/bin/*
+scouter.common/bin/*
+scouter.server/bin/*
+scouter.deploy/out/*
+*/.cache
+*/.svn
