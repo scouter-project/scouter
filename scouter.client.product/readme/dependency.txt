@@ -1,0 +1,5 @@
+To Run this product in 4.x
+ - Add dependency feature : 
+   org.eclipse.emf.ecore
+   org.eclipse.emf.common
+ 

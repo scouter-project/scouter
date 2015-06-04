@@ -1,0 +1,863 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+  <extension id="product" name="Scouter" point="org.eclipse.core.runtime.products">
+    <product name="Scouter" application="scouter.client.application">
+      <property name="preferenceCustomization" value="plugin_customization.ini"/>
+      <property
+            name="aboutText"
+            value="%aboutText"/>
+      <property name="aboutImage" value="icons/about_dialog.png"/>
+      <property name="appName" value="Scouter"/>
+      <property name="windowImages" value="icons/h16.png,icons/h32.png,icons/h48.png,icons/h64.png,icons/h128.png"/>
+      <property
+            name="startupForegroundColor"
+            value="000000">
+      </property>
+      <property
+            name="startupMessageRect"
+            value="10,235,445,15">
+      </property>
+      <property
+            name="startupProgressRect"
+            value="5,253,460,10">
+      </property>
+<!--
+        <property name="startupForegroundColor" value="0080FF"/>
+        <property name="startupMessageRect" value="7,252,445,20"/>
+-->
+    </product>
+  </extension>
+
+
+  <extension id="application" point="org.eclipse.core.runtime.applications"
+             name="Scouter">
+    <application icon="icons/h_app.png">
+      <run class="scouter.client.Application"/>
+    </application>
+  </extension>
+
+  <extension point="org.eclipse.ui.perspectives">
+    <perspective
+          class="scouter.client.PerspectiveService"
+          icon="icons/star.png"
+          id="scouter.client.PerspectiveService"
+          name="Service">
+    </perspective>
+  </extension>
+
+  <extension point="org.eclipse.ui.perspectiveExtensions">
+    <perspectiveExtension targetID="*">
+	    <perspectiveShortcut id="scouter.client.PerspectiveWasService"/>
+        <perspectiveShortcut id="scouter.client.PerspectiveHost"/>
+    </perspectiveExtension>
+  </extension>
+
+  <extension point="org.eclipse.ui.preferencePages">
+    <page id="scouter.client.preferences.PreferencePage"
+          class="scouter.client.preferences.ScouterPreferencePage"
+          name="Scouter" />
+    <page
+          category="scouter.client.preferences.PreferencePage"
+          class="scouter.client.preferences.CachingPreferencePage"
+          id="scouter.client.preferences.CachingPreferencePage"
+          name="Text Cache">
+    </page>
+    <page
+          category="scouter.client.preferences.PreferencePage"
+          class="scouter.client.preferences.ChartPreferencePage"
+          id="scouter.client.preferences.ChartPreferencePage"
+          name="Chart">
+    </page>
+   </extension>
+
+  <extension point="org.eclipse.ui.views">
+    <category id="scouter.client.category" name="Scouter" />
+      <view
+          name="Objects"
+          allowMultiple="false"
+          icon="icons/agent.png"
+          class="scouter.client.views.ObjectNavigationView"
+          id="scouter.client.views.ObjectNavigationView">
+      </view>
+      <view
+          allowMultiple="true"
+          class="scouter.client.xlog.views.XLogRealTimeView"
+          icon="icons/star.png"
+          id="scouter.client.xlog.views.XLogRealTimeView"
+          name="RealTimeXLog">
+      </view>
+      <view
+          allowMultiple="true"
+          class="scouter.client.xlog.views.XLogLoadTimeView"
+          icon="icons/star.png"
+          id="scouter.client.xlog.views.XLogLoadTimeView"
+          name="LoadTimeXLog"
+          restorable="false">
+      </view>
+      <view
+          allowMultiple="true"
+          class="scouter.client.counter.views.CounterLoadDateView"
+          icon="icons/perf.png"
+          id="scouter.client.counter.views.CounterLoadDateView"
+          name="LoadDateCount"
+          restorable="false">
+      </view>
+      <view
+          allowMultiple="true"
+          class="scouter.client.counter.views.CounterLoadTimeView"
+          icon="icons/perf.png"
+          id="scouter.client.counter.views.CounterLoadTimeView"
+          name="LoadDateCount"
+          restorable="false">
+      </view>
+      <view
+          allowMultiple="true"
+          class="scouter.client.counter.views.CounterRealDateView"
+          icon="icons/perf.png"
+          id="scouter.client.counter.views.CounterRealDateView"
+          name="RealDateCount">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterRealTimeAllView"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterRealTimeAllView"
+            name="RealTimeAllCount"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterRealTimeTotalView"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterRealTimeTotalView"
+            name="RealTimeTotalCount"
+            restorable="true">
+      </view>
+      <view
+          allowMultiple="true"
+          class="scouter.client.counter.views.CounterRealTimeView"
+          icon="icons/perf.png"
+          id="scouter.client.counter.views.CounterRealTimeView"
+          name="RealTimeCount">
+      </view>
+      <view
+          allowMultiple="true"
+          class="scouter.client.views.ObjectThreadListView"
+          icon="icons/thread.png"
+          id="scouter.client.views.ObjectThreadListView"
+          name="Thread List"
+          restorable="false">
+      </view>
+      <view
+          allowMultiple="true"
+          class="scouter.client.views.ObjectThreadDetailView"
+          icon="icons/thread.png"
+          id="scouter.client.views.ObjectThreadDetailView"
+          name="Thread Detail"
+          restorable="false">
+      </view>
+      <view
+          allowMultiple="true"
+          class="scouter.client.views.ServerThreadListView"
+          icon="icons/thread.png"
+          id="scouter.client.views.ServerThreadListView"
+          name="Server Thread List"
+          restorable="false">
+      </view>
+      <view
+          allowMultiple="true"
+          class="scouter.client.views.ClientThreadListView"
+          icon="icons/thread.png"
+          id="scouter.client.views.ClientThreadListView"
+          name="Client Thread List"
+          restorable="false">
+      </view>
+      <view
+          allowMultiple="true"
+          class="scouter.client.views.ServerThreadDetailView"
+          icon="icons/thread.png"
+          id="scouter.client.views.ServerThreadDetailView"
+          name="Server Thread Detail"
+          restorable="false">
+      </view>
+      <view
+          allowMultiple="true"
+          class="scouter.client.views.ClientThreadDetailView"
+          icon="icons/thread.png"
+          id="scouter.client.views.ClientThreadDetailView"
+          name="Client Thread Detail"
+          restorable="false">
+      </view>
+      <view
+          allowMultiple="true"
+          class="scouter.client.views.ObjectEnvView"
+          icon="icons/box.png"
+          id="scouter.client.views.ObjectEnvView"
+          name="Agent Env"
+          restorable="false">
+      </view>      
+      <view
+          allowMultiple="true"
+          class="scouter.client.views.AlertView"
+          icon="icons/alert.png"
+          id="scouter.client.views.AlertView"
+          name="Alert">
+      </view>      
+      <view
+          allowMultiple="true"
+          class="scouter.client.xlog.views.XLogSelectionView"
+          icon="icons/grid.png"
+          id="scouter.client.xlog.views.XLogSelectionView"
+          name="XLog List"
+          restorable="false">
+      </view>      
+      <view
+          allowMultiple="true"
+          class="scouter.client.xlog.views.XLogProfileView"
+          icon="icons/page_white_text.png"
+          id="scouter.client.xlog.views.XLogProfileView"
+          name="XLog Profile"
+          restorable="false">
+      </view>      
+	  <view
+	      allowMultiple="true"
+	      class="scouter.client.views.ObjectDailyListView"
+	      icon="icons/agent.png"
+	      id="scouter.client.views.ObjectDailyListView"
+	      name="Object Daily List"
+	      restorable="false">
+      </view>      
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ActiveSpeedView"
+            icon="icons/lorry.png"
+            id="scouter.client.views.ActiveSpeedView"
+            name="ActiveSpeed">
+      </view>      
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterTodayAllView"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterTodayAllView"
+            name="RealDateChild"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterTodayTotalView"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterTodayTotalView"
+            name="RealDateGroup"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterPastTimeAllView"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterPastTimeAllView"
+            name="LoadTimeAllCount"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterPastTimeTotalView"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterPastTimeTotalView"
+            name="LoadTimeTotalCount"
+            restorable="false">
+      </view>
+	  <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterPastLongDateAllView"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterPastLongDateAllView"
+            name="LoadLongDateAllCount"
+            restorable="false">
+      </view>
+	  <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterPastLongDateTotalView"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterPastLongDateTotalView"
+            name="LoadLongDateTotalCount"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.configuration.views.ConfigureServerView"
+            id="scouter.client.configuration.views.ConfigureServerView"
+            icon="icons/object/host.png"
+            name="Config Server"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.configuration.views.ConfigureAgentView"
+            id="scouter.client.configuration.views.ConfigureAgentView"
+            icon="icons/agent.png"
+            name="Config Agent"
+            restorable="false">
+      </view>      
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterLoadCountView"
+            id="scouter.client.counter.views.CounterLoadCountView"
+            name="Load Count"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterRealCountView"
+            id="scouter.client.counter.views.CounterRealCountView"
+            name="Real Count"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ObjectActiveServiceListView"
+            icon="icons/thread.png"
+            id="scouter.client.views.ObjectActiveServiceListView"
+            name="Active Service List"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ObjectClassListView"
+            icon="icons/thread.png"
+            id="scouter.client.views.ObjectClassListView"
+            name="Object Loaded Class List"
+            restorable="false">
+      </view>   
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.HeapHistoView"
+            icon="icons/table.png"
+            id="scouter.client.views.HeapHistoView"
+            name="HeapHistoView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ApiDebugView"
+            id="scouter.client.views.ApiDebugView"
+            icon="icons/bug.png"
+            name="Api Debug View"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ObjectThreadDumpView"
+            icon="icons/thread.png"
+            id="scouter.client.views.ObjectThreadDumpView"
+            name="ThreadDumpView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="false"
+            class="scouter.client.views.WorkspaceExplorer"
+            icon="icons/explorer.png"
+            id="scouter.client.views.WorkspaceExplorer"
+            name="Workspace Explorer">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.CsvFileView"
+            icon="icons/csv.png"
+            id="scouter.client.views.CsvFileView"
+            name="CsvFileView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.xlog.views.XLogProfilePageView"
+ 			icon="icons/page_white_text.png"
+            id="scouter.client.xlog.views.XLogProfilePageView"
+            name="XLog Profile Page View"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterTodayCountView"
+            icon="icons/report.png"
+            id="scouter.client.counter.views.CounterTodayCountView"
+            name="Counter Today Count View"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterPastCountView"
+            icon="icons/report.png"
+            id="scouter.client.counter.views.CounterPastCountView"
+            name="Counter Daliy Count View"
+            restorable="false">
+      </view>   
+      <view
+            allowMultiple="true"
+            class="scouter.client.heapdump.views.HeapDumpListView"
+            icon="icons/heap.png"
+            id="scouter.client.heapdump.views.HeapDumpListView"
+            name="Heap Dump List"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ObjectFileSocketView"
+            icon="icons/table.png"
+            id="scouter.client.views.ObjectFileSocketView"
+            name="FileSocketView"
+            restorable="false">
+      </view>  
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.GeneralTableView"
+            icon="icons/table.png"
+            id="scouter.client.views.GeneralTableView"
+            name="GeneralTableView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.AlertDetailListView"
+            icon="icons/alert.png"
+            id="scouter.client.views.AlertDetailListView"
+            name="Alert Detail List"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ObjectDumpFileListView"
+            icon="icons/table.png"
+            id="scouter.client.views.ObjectDumpFileListView"
+            name="Dump File List"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ObjectDumpFileDetailView"
+            icon="icons/table.png"
+            id="scouter.client.views.ObjectDumpFileDetailView"
+            name="DumpFileDetailView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ServerFileManagementView"
+            icon="icons/explorer.png"
+            id="scouter.client.views.ServerFileManagementView"
+            name="Data File Management"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ServiceGroupCountView"
+            icon="icons/server_chart.png"
+            id="scouter.client.views.ServiceGroupCountView"
+            name="ServiceGroup Count"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            class="scouter.client.group.view.GroupNavigationView"
+            icon="icons/group.png"
+            id="scouter.client.group.view.GroupNavigationView"
+            name="Groups">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.CounterRealTimeGroupAllView"
+            icon="icons/perf.png"
+            id="scouter.client.group.view.CounterRealTimeGroupAllView"
+            name="RealTimeGroupAll">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.CounterRealTimeGroupTotalView"
+            icon="icons/perf.png"
+            id="scouter.client.group.view.CounterRealTimeGroupTotalView"
+            name="RealTimeGroupTotal">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.CounterTodayGroupAllView"
+            icon="icons/perf.png"
+            id="scouter.client.group.view.CounterTodayGroupAllView"
+            name="TodayGroupAll">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.CounterTodayGroupTotalView"
+            icon="icons/perf.png"
+            id="scouter.client.group.view.CounterTodayGroupTotalView"
+            name="TodayGroupTotal">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.CounterPastTimeGroupAllView"
+            icon="icons/perf.png"
+            id="scouter.client.group.view.CounterPastTimeGroupAllView"
+            name="PastTimeGroupAll"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.CounterPastTimeGroupTotalView"
+            icon="icons/perf.png"
+            id="scouter.client.group.view.CounterPastTimeGroupTotalView"
+            name="PastTimeGroupTotal"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.CounterPastDateGroupAllView"
+            icon="icons/perf.png"
+            id="scouter.client.group.view.CounterPastDateGroupAllView"
+            name="PastDateGroupAll"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.CounterPastDateGroupTotalView"
+            icon="icons/perf.png"
+            id="scouter.client.group.view.CounterPastDateGroupTotalView"
+            name="PastDateGroupTotal"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.XLogRealTimeGroupView"
+            icon="icons/star.png"
+            id="scouter.client.group.view.XLogRealTimeGroupView"
+            name="RealTimeGroupXLog">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.XLogLoadTimeGroupView"
+            icon="icons/star.png"
+            id="scouter.client.group.view.XLogLoadTimeGroupView"
+            name="LoadTimeGroupXLog"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.ActiveSpeedGroupView"
+            icon="icons/lorry.png"
+            id="scouter.client.group.view.ActiveSpeedGroupView"
+            name="ActiveSpeedGroup">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ServerEnvView"
+            icon="icons/box.png"
+            id="scouter.client.views.ServerEnvView"
+            name="Server Env"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.CounterTodayGroupCountView"
+            icon="icons/report.png"
+            id="scouter.client.group.view.CounterTodayGroupCountView"
+            name="CounterTodayGroupCountView"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.CounterPastDateGroupCountView"
+            icon="icons/report.png"
+            id="scouter.client.group.view.CounterPastDateGroupCountView"
+            name="CounterPastDateGroupCountView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.EQView"
+            icon="icons/align_left.png"
+            id="scouter.client.views.EQView"
+            name="EQ"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.EQGroupView"
+            icon="icons/align_left.png"
+            id="scouter.client.group.view.EQGroupView"
+            name="EQ Group"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.statistics.views.AlertDailyLevelCountView"
+            icon="icons/alert.png"
+            id="scouter.client.statistics.views.AlertDailyLevelCountView"
+            name="AlertDailyCountView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ServiceGroupView"
+            icon="icons/sum.png"
+            id="scouter.client.views.ServiceGroupView"
+            name="Service Group"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.LoginUserView"
+            icon="icons/user.png"
+            id="scouter.client.views.LoginUserView"
+            name="LoginUser"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.ServiceGroupGroupView"
+            icon="icons/sum.png"
+            id="scouter.client.group.view.ServiceGroupGroupView"
+            name="Service Group of Group"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.WhiteBoardView"
+            icon="icons/sheet_view.png"
+            id="scouter.client.views.WhiteBoardView"
+            name="WhiteBoard"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.configuration.views.AccountListView"
+            icon="icons/user.png"
+            id="scouter.client.configuration.views.AccountListView"
+            name="AccountList"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.configuration.views.AccountGroupPolicyView"
+            icon="icons/sheet_view.png"
+            id="scouter.client.configuration.views.AccountGroupPolicyView"
+            name="GroupPolicy"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.CounterMapStackView"
+            icon="icons/sum.png"
+            id="scouter.client.views.CounterMapStackView"
+            name="CounterStackView"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.CounterMapStackTotalView"
+            icon="icons/sum.png"
+            id="scouter.client.views.CounterMapStackTotalView"
+            name="CounterStackTotalView"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ObjectDumpHtmlFileDetailView"
+            icon="icons/table.png"
+            id="scouter.client.views.ObjectDumpHtmlFileDetailView"
+            name="DumpHtmlFileDetailView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ClientEnvView"
+            icon="icons/box.png"
+            id="scouter.client.views.ClientEnvView"
+            name="Client Env"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.statistics.views.IpStatisticsView"
+            icon="icons/table.png"
+            id="scouter.client.statistics.views.IpStatisticsView"
+            name="HourlyIP"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.statistics.views.IpDailyCountView"
+            icon="icons/perf.png"
+            id="scouter.client.statistics.views.IpDailyCountView"
+            name="IPDailyCount"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.xlog.views.XLogCallView"
+            icon="icons/page_white_text.png"
+            id="scouter.client.xlog.views.XLogCallView"
+            name="XLogApiCallView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="false"
+            class="scouter.client.views.ObjectDashboardView"
+            icon="icons/agent.png"
+            id="scouter.client.views.ObjectDashboardView"
+            name="ObjectDashboard"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.xlog.views.XLogDependencyView"
+            icon="icons/page_white_text.png"
+            id="scouter.client.xlog.views.XLogDependencyView"
+            name="XLogDependencyView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.statistics.views.ApiStatisticsView"
+            icon="icons/table.png"
+            id="scouter.client.statistics.views.ApiStatisticsView"
+            name="HourlyAPI"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.statistics.views.AppSqlStatisticsView"
+            icon="icons/table.png"
+            id="scouter.client.statistics.views.AppSqlStatisticsView"
+            name="Hourly Service/SQL"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.statistics.views.AppApiStatisticsView"
+            icon="icons/table.png"
+            id="scouter.client.statistics.views.AppApiStatisticsView"
+            name="Hourly Service/API"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.xlog.views.XLogThreadProfileView"
+            icon="icons/page_white_text.png"
+            id="scouter.client.xlog.views.XLogThreadProfileView"
+            name="XLog Thread Profile"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ServerLogsView"
+            icon="icons/log.png"
+            id="scouter.client.views.ServerLogsView"
+            name="Logs"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.xlog.views.XLogZoomTimeView"
+            icon="icons/star.png"
+            id="scouter.client.xlog.views.XLogZoomTimeView"
+            name="LoadZoomTimeXLog"
+            restorable="false">
+      </view>
+  </extension>
+ <extension
+         point="org.eclipse.ui.commands">
+         <category id="scouter.client.category" name="Scouter" />
+         
+
+      
+           <command
+            name="ClientThreadList"
+            description="ClientThreadList"
+            categoryId="scouter.client.category"
+            id="scouter.client.actions.OpenClientThreadListAction">
+      </command>
+  
+      
+      
+       <command
+            name="Alert"
+            description="Alert"
+            categoryId="scouter.client.category"
+            id="scouter.client.actions.OpenAlertRealTimeAction">
+      </command>
+ 
+       <command
+             description="Restart Action"
+             id="scouter.client.actions.RestartAction"
+             name="Restart Action">
+       </command>
+       <command
+             categoryId="scouter.client.category"
+             description="Open Workspace Explorer"
+             id="scouter.client.actions.OpenWorkspaceExplorerAction"
+             name="Open Workspace Explorer">
+       </command>
+       <command
+             categoryId="scouter.client.category"
+             description="Add Server"
+             id="scouter.client.actions.AddServerAction"
+             name="AddServerAction">
+       </command>
+       
+       <!-- OBJECT NAVIGATION -->
+       <!-- END -->
+       
+       <command
+             categoryId="scouter.client.category"
+             description="Open Group Navigation"
+             id="scouter.client.actions.OpenGroupNavigationAction"
+             name="Open Group Navigation">
+       </command>
+       <command
+             categoryId="scouter.client.category"
+             description="Open Console View"
+             id="scouter.client.actions.OpenConsoleAction"
+             name="Open Console View">
+       </command>
+       <command
+             categoryId="scouter.client.category"
+             description="Open Client Env"
+             id="scouter.client.actions.OpenClientEnvViewAction"
+             name="Open Client Env">
+       </command>
+       <command
+             categoryId="scouter.client.category"
+             description="Open ObjectDashboard"
+             id="scouter.client.actions.OpenObjectDashboardAction"
+             name="Open ObjectDashboard">
+       </command>
+  </extension>
+ <extension
+       point="org.eclipse.ui.bindings">
+ </extension>
+ <extension
+       point="org.eclipse.ui.handlers">
+ </extension>
+ <extension
+       point="org.eclipse.ui.menus">
+    <menuContribution
+          allPopups="false"
+          locationURI="menu:org.eclipse.ui.main.menu">
+       <menu
+             label="About">
+          <command
+                commandId="org.eclipse.ui.help.aboutAction"
+                icon="icons/habout.png"
+                label="About Scouter"
+                style="push">
+          </command>
+       </menu>
+       
+    </menuContribution>
+ </extension>
+ <extension
+       point="org.eclipse.core.runtime.preferences">
+    <initializer
+          class="scouter.client.preferences.PreferenceInitializer">
+    </initializer>
+ </extension>
+</plugin>

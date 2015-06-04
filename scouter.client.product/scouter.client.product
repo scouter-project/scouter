@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Scouter" uid="scouter.client.product" id="scouter.client.product" application="scouter.client.application" version="1.0.0" useFeatures="true" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="icons/about_dialog.png"/>
+      <text>
+         %aboutText
+      </text>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgs>-Xms512m
+-Xmx1024m
+-XX:+UseParallelGC
+-XX:PermSize=64M
+-XX:MaxPermSize=512M</vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="icons/h16.png" i32="icons/h32.png" i48="icons/h48.png" i64="icons/h64.png" i128="icons/h128.png"/>
+
+   <splash
+      location="scouter.client"
+      startupProgressRect="5,253,460,10"
+      startupMessageRect="10,235,445,15"
+      startupForegroundColor="000000" />
+   <launcher name="scouter">
+      <macosx icon="icons/scouter.icns"/>
+      <solaris/>
+      <win useIco="true">
+         <ico path="icons/launcher.ico"/>
+         <bmp/>
+      </win>
+   </launcher>
+
+
+   <vm>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.rcp"/>
+      <feature id="scouter.client.feature"/>
+   </features>
+
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+   </configurations>
+
+</product>

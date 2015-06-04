@@ -1,0 +1,513 @@
+/*
+ *  Copyright 2015 LG CNS.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License"); 
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License. 
+ */
+
+package scouter.agent.trace;
+
+import java.sql.Connection;
+
+import scouter.agent.Configure;
+import scouter.agent.Logger;
+import scouter.agent.netio.data.DataProxy;
+import scouter.agent.stat.ServiceStat;
+import scouter.jdbc.JdbcTrace;
+import scouter.lang.AlertLevel;
+import scouter.lang.step.MessageStep;
+import scouter.lang.step.MethodStep;
+import scouter.lang.step.SqlStep;
+import scouter.util.EscapeLiteralSQL;
+import scouter.util.IntKeyLinkedMap;
+import scouter.util.IntLinkedSet;
+import scouter.util.SysJMX;
+import scouter.util.ThreadUtil;
+
+public class TraceSQL {
+	// public final static String PSTMT_PARAM_FIELD = "_param_";
+	public final static int MAX_STRING = 20;
+
+	public static void set(int idx, boolean p) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx != null) {
+			ctx.sql.put(idx, Boolean.toString(p));
+		}
+	}
+
+	public static void set(int idx, int p) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx != null) {
+			ctx.sql.put(idx, Integer.toString(p));
+		}
+	}
+
+	public static void set(int idx, float p) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx != null) {
+			ctx.sql.put(idx, Float.toString(p));
+		}
+	}
+
+	public static void set(int idx, long p) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx != null) {
+			ctx.sql.put(idx, Long.toString(p));
+		}
+	}
+
+	public static void set(int idx, double p) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx != null) {
+			ctx.sql.put(idx, Double.toString(p));
+		}
+	}
+
+	public static void set(int idx, String p) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx != null) {
+			if (p == null) {
+				ctx.sql.put(idx, "null");
+			} else {
+				if (p.length() > MAX_STRING) {
+					p = p.substring(0, MAX_STRING);
+				}
+				ctx.sql.put(idx, "'" + p + "'");
+			}
+		}
+	}
+
+	public static void set(int idx, Object p) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx != null) {
+			if (p == null) {
+				ctx.sql.put(idx, "null");
+			} else {
+				String s = p.toString();
+				if (s.length() > MAX_STRING) {
+					s = s.substring(0, MAX_STRING);
+				}
+				ctx.sql.put(idx, s);
+			}
+		}
+	}
+
+	public static void clear(Object o) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx != null) {
+			ctx.sql.clear();
+		}
+	}
+
+	public static Object start(Object o) {
+		TraceContext c = TraceContextManager.getLocalContext();
+		if (c == null) {
+			return null;
+		}
+		SqlStep step = new SqlStep();
+		step.start_time = (int) (System.currentTimeMillis() - c.startTime);
+		if (c.profile_thread_cputime) {
+			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - c.startCpu);
+		}
+
+		String sql = "unknown";
+		sql = c.sql.getSql();
+		sql=escapeLiteral(sql, step);
+		step.param = c.sql.toString(step.param);
+
+		if (sql != null) {
+			step.hash = StringHashCache.getSqlHash(sql);
+			DataProxy.sendSqlText(step.hash, sql);
+		}
+		c.profile.push(step);
+		c.sqltext = sql;
+		return new LocalContext(c, step);
+	}
+
+	public static Object start(Object o, String sql) {
+		TraceContext tctx = TraceContextManager.getLocalContext();
+		if (tctx == null) {
+			if (conf.debug_background_sql) {
+				Logger.println("BGSQL:" + sql);
+			}
+			return null;
+		}
+		SqlStep step = new SqlStep();
+		step.start_time = (int) (System.currentTimeMillis() - tctx.startTime);
+		if (tctx.profile_thread_cputime) {
+			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - tctx.startCpu);
+		}
+
+		if (sql == null) {
+			sql = "unknown";
+		} else {
+			sql = escapeLiteral(sql, step);
+		}
+		step.hash = StringHashCache.getSqlHash(sql);
+		DataProxy.sendSqlText(step.hash, sql);
+		tctx.profile.push(step);
+		tctx.sqltext = sql;
+		return new LocalContext(tctx, step);
+	}
+
+	private static class ParsedSql {
+		public ParsedSql(String sql, String param) {
+			this.sql = sql;
+			this.param = param;
+		}
+
+		String sql;
+		String param;
+	}
+
+	private static IntLinkedSet noLiteralSql = new IntLinkedSet().setMax(10000);
+	private static IntKeyLinkedMap<ParsedSql> checkedSql = new IntKeyLinkedMap<ParsedSql>().setMax(1001);
+
+	private static String escapeLiteral(String sql, SqlStep step) {
+		int sqlHash=sql.hashCode();
+		if (noLiteralSql.contains(sqlHash)){
+			return sql;
+		}
+		ParsedSql psql = checkedSql.get(sqlHash);
+		if (psql != null) {
+			step.param = psql.param;
+			return psql.sql;
+		}
+		EscapeLiteralSQL els = new EscapeLiteralSQL(sql);
+		els.process();
+		String parsed = els.getParsedSql();
+		if (parsed.hashCode() == sqlHash) {
+			noLiteralSql.put(sqlHash);
+		} else {
+			checkedSql.put(sqlHash, new ParsedSql(parsed, els.getParameter()));
+		}
+		return parsed;
+	}
+
+	public static void end(Object stat, Throwable thr) {
+		if (stat == null) {
+			if (conf.debug_background_sql && thr != null) {
+				Logger.println("BG-SQL:" + thr);
+			}
+			return;
+		}
+		LocalContext lctx = (LocalContext) stat;
+		TraceContext tctx = lctx.context;
+		SqlStep ps = (SqlStep) lctx.stepSingle;
+
+		ps.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - ps.start_time;
+		if (tctx.profile_thread_cputime) {
+			ps.cputime = (int) (SysJMX.getCurrentThreadCPU() - tctx.startCpu) - ps.start_cpu;
+		}
+		if (thr != null) {
+			String msg = thr.toString();
+			int hash = StringHashCache.getErrHash(msg);
+			if (tctx.error == 0) {
+				tctx.error = hash;
+			}
+
+			ps.error = hash;
+			DataProxy.sendError(hash, msg);
+			AlertProxy.sendAlert(AlertLevel.ERROR, "SQL_EXCEPTION", msg);
+
+		} else if (ps.elapsed > conf.alert_sql_time) {
+			String msg = "warning slow sql, over " + conf.alert_sql_time + " ms";
+			int hash = StringHashCache.getErrHash(msg);
+
+			if (tctx.error == 0) {
+				tctx.error = hash;
+			}
+			DataProxy.sendError(hash, msg);
+			AlertProxy.sendAlertSlowSql(AlertLevel.WARN, "SLOW_SQL", msg, tctx.sqltext, ps.elapsed, tctx.txid);
+		}
+
+		tctx.sqltext = null;
+		tctx.sqlCount++;
+		tctx.sqlTime += ps.elapsed;
+
+		tctx.profile.pop(ps);
+		statistics.process(tctx.serviceHash, ps);
+	}
+	private static ServiceStat statistics=ServiceStat.getInstance();
+	
+	public static void prepare(Object o, String sql) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx != null) {
+			ctx.sql.clear();
+			ctx.sql.setSql(sql);
+		}
+	}
+
+	public static boolean rsnext(boolean b) {
+		TraceContext c = TraceContextManager.getLocalContext();
+		if (c != null) {
+			if (b) {
+				if (c.rs_start == 0) {
+					c.rs_start = System.currentTimeMillis();
+				}
+				c.rs_count++;
+			} 
+			//RS CLOSE할때만 FETCH 메세지를 출력한다.
+//			else {
+//				if (c.rs_start != 0) {
+//					fetch(c);
+//				}
+//				c.rs_start = 0;
+//				c.rs_count = 0;
+//			}
+		}
+		return b;
+	}
+
+	private static Configure conf = Configure.getInstance();
+
+	private static void fetch(TraceContext c) {
+		MessageStep p = new MessageStep();
+
+		long time = System.currentTimeMillis() - c.rs_start;
+
+		
+		// p.start_time = (int) (System.currentTimeMillis() - c.startTime -
+		// time);
+		p.start_time = (int) (System.currentTimeMillis() - c.startTime);
+		if (c.profile_thread_cputime) {
+			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - c.startCpu);
+		}
+
+		p.message = new StringBuffer(50).append("RESULT ").append(c.rs_count).append(" ").append(time).append(" ms")
+				.toString();
+		c.profile.add(p);
+
+		if (c.rs_count > conf.alert_fetch_count) {
+
+			String msg = "warning too many resultset, over #" + conf.alert_fetch_count;
+			int hash = StringHashCache.getErrHash(msg);
+			if (c.error == 0) {
+				c.error = hash;
+			}
+			DataProxy.sendError(hash, msg);
+			AlertProxy.sendAlertTooManyFetch(AlertLevel.WARN, "TOO_MANY_RESULT", msg, c.serviceName, c.rs_count, c.txid);
+		}
+	}
+
+	public static void rsclose() {
+		TraceContext c = TraceContextManager.getLocalContext();
+		if (c != null) {
+			if (c.rs_start != 0) {
+				fetch(c);
+			}
+			c.rs_start = 0;
+			c.rs_count = 0;
+		}
+	}
+
+	// ////////////////////////////
+	// JDBC_REDEFINED==false
+
+	public final static String PSTMT_PARAM_FIELD = "_param_";
+
+	public static void set(SqlParameter args, int idx, boolean p) {
+		if (args != null) {
+			args.put(idx, Boolean.toString(p));
+		}
+	}
+
+	public static void set(SqlParameter args, int idx, int p) {
+		if (args != null) {
+			args.put(idx, Integer.toString(p));
+		}
+	}
+
+	public static void set(SqlParameter args, int idx, float p) {
+		if (args != null) {
+			args.put(idx, Float.toString(p));
+		}
+	}
+
+	public static void set(SqlParameter args, int idx, long p) {
+		if (args != null) {
+			args.put(idx, Long.toString(p));
+		}
+	}
+
+	public static void set(SqlParameter args, int idx, double p) {
+		if (args != null) {
+			args.put(idx, Double.toString(p));
+		}
+	}
+
+	public static void set(SqlParameter args, int idx, String p) {
+		if (args != null) {
+			if (p == null) {
+				args.put(idx, "null");
+			} else {
+				if (p.length() > MAX_STRING) {
+					p = p.substring(0, MAX_STRING);
+				}
+				args.put(idx, "'" + p + "'");
+			}
+		}
+	}
+
+	public static void set(SqlParameter args, int idx, Object p) {
+		if (args != null) {
+			if (p == null) {
+				args.put(idx, "null");
+			} else {
+				String s = p.toString();
+				if (s.length() > MAX_STRING) {
+					s = s.substring(0, MAX_STRING);
+				}
+				args.put(idx, s);
+			}
+		}
+	}
+
+	public static void clear(Object o, SqlParameter args) {
+		if (args != null) {
+			args.clear();
+		}
+	}
+
+	public static Object start(Object o, SqlParameter args) {
+		TraceContext c = TraceContextManager.getLocalContext();
+		if (c == null) {
+			if (conf.debug_background_sql && args != null) {
+				Logger.println("BG-SQL:" + args.getSql());
+			}
+			return null;
+		}
+		SqlStep step = new SqlStep();
+		step.start_time = (int) (System.currentTimeMillis() - c.startTime);
+		if (c.profile_thread_cputime) {
+			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - c.startCpu);
+		}
+
+		String sql = "unknown";
+		if (args != null) {
+			sql = args.getSql();
+			sql = escapeLiteral(sql, step);
+			step.param=args.toString(step.param);
+		}
+		if (sql != null) {
+			step.hash = StringHashCache.getSqlHash(sql);
+			DataProxy.sendSqlText(step.hash, sql);
+		}
+		c.profile.push(step);
+		c.sqltext = sql;
+		return new LocalContext(c, step);
+	}
+
+	public static void prepare(Object o, SqlParameter args, String sql) {
+		if (args != null) {
+			args.setSql(sql);
+		}
+	}
+
+	// DB2에서 사용함..
+	public static Object startCreateDBC(String url) {
+		String name = "CREATE-DBC " + url;
+		int hash = StringHashCache.getErrHash(name);
+		DataProxy.sendMethodName(hash, name);
+		return TraceSQL.dbcOpenStart(hash, name);
+	}
+
+	// WRAPPER방식으로 추적할때 사용되면 DB2는 반드시 이방식을 사용해야함..
+	// 2014.12.11 
+	public static Connection endCreateDBC(Connection conn, Object stat) {
+		if (conn == null) {
+			TraceSQL.dbcOpenEnd(stat, null);
+			return conn;
+		}
+		TraceSQL.dbcOpenEnd(stat, null);
+		return JdbcTrace.connect(conn);
+	}
+
+	public static void endCreateDBC(Object stat, Throwable thr) {
+		TraceSQL.dbcOpenEnd(stat, thr);
+	}
+
+	public static Object dbcOpenStart(int hash, String msg) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null)
+			return null;
+
+		MethodStep p = new MethodStep();
+
+		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+		}
+		p.hash = hash;
+		ctx.profile.push(p);
+
+		if (conf.debug_connection_stack) {
+			String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace());
+			MessageStep ms = new MessageStep(stack);
+			ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+			ctx.profile.add(ms);
+		}
+
+		return new LocalContext(ctx, p);
+	}
+
+	public static void dbcOpenEnd(Object stat, Throwable thr) {
+		if (stat == null)
+			return;
+
+		LocalContext lctx = (LocalContext) stat;
+
+		MethodStep step = (MethodStep) lctx.stepSingle;
+		if (step == null)
+			return;
+		TraceContext tctx = lctx.context;
+		if (tctx == null)
+			return;
+
+		step.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
+		if (tctx.profile_thread_cputime) {
+			step.cputime = (int) (SysJMX.getCurrentThreadCPU() - tctx.startCpu) - step.start_cpu;
+		}
+
+		if (thr != null) {
+			String msg = thr.toString();
+			int hash = StringHashCache.getSqlHash(msg);
+			if (tctx.error == 0) {
+				tctx.error = hash;
+			}
+			DataProxy.sendError(hash, msg);
+			AlertProxy.sendAlert(AlertLevel.ERROR, "OPEN-DBC", msg);
+		} else {
+			tctx.opencon++;
+		}
+		tctx.profile.pop(step);
+
+	}
+
+	public static void dbcClose(int hash, String msg) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null)
+			return;
+
+		ctx.opencon--;
+
+		MethodStep p = new MethodStep();
+		p.hash = hash;
+		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+		}
+
+		ctx.profile.add(p);
+	}
+
+}

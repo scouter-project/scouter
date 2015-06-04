@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Scouter
+Bundle-SymbolicName: scouter.client;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: scouter.client.Activator
+Bundle-Localization: localization
+Bundle-Vendor: Scouter Project
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.ui.console,
+ org.eclipse.draw2d,
+ org.eclipse.jface.text,
+ org.eclipse.zest.core,
+ org.eclipse.zest.layouts
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .,
+ lib/scouter.common.jar

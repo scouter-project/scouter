@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+mtrcpu : Meter CPU
+txreal : XLog Real-time
+txload : XLog Load-time
+srcxlog : Search XLog
+totactsp : XLog Active-Speed
+acteq : Active Service EQ
+actthrli : Active Thread List
+tdservcnt : Today Service Count
+dservcnt : Daily Service Count
+svcgrp : Service Group
+scrbrd : Score Board
+rdsbrd : Redis Board
+-->
+<Counters>
+	<Familys>
+		<Family name="host" master="Cpu" mtrcpu="true">
+			<Counter name="Cpu" disp="CPU" unit="%" icon="cpu.png" />
+			<Counter name="ErrOut" disp="Net | Error Out" unit="cnt" icon="error_count.png" />
+			<Counter name="WriteBytes" disp="Disk | Write Bytes" unit="bytes" icon="disk_write.png" />
+			<Counter name="WriteCount" disp="Disk | Write Count" unit="cnt" icon="disk_write.png" />
+			<Counter name="Mem" disp="Memory" unit="%" icon="memory.png" />
+			<Counter name="MemA" disp="Memory | Avaliable" unit="MB" icon="memory.png" />
+			<Counter name="MemU" disp="Memory | Used" unit="MB" icon="memory.png" />
+			<Counter name="MemT" disp="Memory | Total" unit="MB" icon="memory.png" />
+			<Counter name="ReadBytes" disp="Disk | Read Bytes" unit="bytes" icon="disk_read.png" />
+			<Counter name="BytesRecv" disp="Net | Bytes Received" unit="bytes" icon="bytes_recv.png" />
+			<Counter name="DropOut" disp="Net | Drop Out" unit="cnt" icon="drop.png" />
+			<Counter name="ReadTime" disp="Disk | Read Time" unit="sec" icon="time_read.png" />
+			<Counter name="WriteTime" disp="Disk | Write Time" unit="sec" 	icon="time_write.png" />
+			<Counter name="BytesSent" disp="Net | Bytes Sent" unit="bytes" icon="bytes_sent.png" />
+			<Counter name="PacketsSent" disp="Net | Packets Sent" unit="cnt" icon="packet_sent.png" />
+			<Counter name="SwapT" disp="Swap | Total" unit="MB" icon="swap.png" />
+			<Counter name="Swap" disp="Swap" unit="%" icon="swap.png" />
+			<Counter name="SwapU" disp="Swap | Used" unit="MB" icon="swap.png" />
+			<Counter name="PacketsRecv" disp="Net | Packets Recevied" unit="cnt" icon="packet_recv.png" />
+			<Counter name="ErrIn" disp="Net | Error In" unit="cnt" icon="error_count.png" />
+			<Counter name="ReadCount" disp="Disk | Read Count" unit="cnt" icon="disk_read.png" />
+			<Counter name="DropIn" disp="Net | Drop In" unit="cnt" icon="drop.png" />
+		</Family>
+		<Family name="javaee" master="ActiveService" txreal="true"  txload="true" totactsp="true"  acteq="true"  actthrli="true" dservcnt="true" tdservcnt="true" svcgrp="true" srcxlog="true">
+			<Counter name="visit5m" disp="Visitor" unit="cnt" icon="visitor.png" />
+			<Counter name="HeapTotUsage" disp="Heap Total Usage" unit="MB" icon="memory.png" all="false" total="false"  />
+			<Counter name="GcCount" disp="GC Count" unit="cnt" icon="gc.png" />
+			<Counter name="ServiceCount" disp="Service Count" unit="cnt" icon="service_count.png" />
+			<Counter name="ErrorRate" disp="Error Rate" unit="%" icon="rate.png" />
+			<Counter name="HeapUsed" disp="Heap Used" unit="MB" icon="memory.png" total="false"/>
+			<Counter name="ElapsedTime" disp="Elapsed Time" unit="ms" icon="time.png" />
+			<Counter name="ActiveService" disp="Active Service" unit="cnt" icon="act_service.png" />
+			<Counter name="GcTime" disp="GC Time" unit="ms" icon="gc.png" />
+			<Counter name="visit0" disp="Visitor New" unit="cnt" icon="visitor.png" />
+			<Counter name="TPS" disp="TPS" unit="tps" 	icon="transaction.png" />
+			<Counter name="CpuTime" disp="CpuTime" unit="ms"  icon="cpu.png" />
+		</Family>
+		<Family name="database" master="Com_select">
+			<Counter name="Com_delete" disp="Com Delete" unit="cnt" icon="database_delete.png" />
+			<Counter name="Slow_queries" disp="Slow Queries" unit="cnt" icon="database.png" />
+			<Counter name="innodb_lock" disp="Innodb Lock" unit="cnt" icon="database_error.png" />
+			<Counter name="Threads_running" disp="Threads Running" unit="cnt" icon="database_gear.png" />
+			<Counter name="Com_update" disp="Com Update" unit="cnt" icon="database_edit.png" />
+			<Counter name="Seconds_Behind_Master" disp="Replication Lag" unit="cnt" icon="database_edit.png"/>
+			<Counter name="Com_select" disp="Com Select" unit="cnt" icon="database_refresh.png" />
+			<Counter name="Questions" disp="Questions" unit="cnt" icon="database.png" />
+			<Counter name="Threads_connected" disp="Threads Connected" unit="cnt" icon="database_connect.png" />
+			<Counter name="Com_insert" disp="Com Insert" unit="cnt" icon="database_add.png" />
+			<Counter name="Queries" disp="Queries" unit="cnt"  icon="database_lightning.png" />
+			<Counter name="ABORTED_CONNECTS" disp="Aborted Connects" unit="cnt"  icon="database_error.png" />
+			<Counter name="Threadpool_idle_threads" disp="Threadpool Idle Threads" unit="cnt"  icon="database_key.png" />
+			<Counter name="Threadpool_threads" disp="Threadpool Threads" unit="cnt"  icon="database_key.png" />
+			<Counter name="Created_tmp_tables" disp="Created Tmp Tables" unit="cnt"  icon="database_table.png" />
+			<Counter name="Created_tmp_disk_tables" disp="Created Tmp Disk Tables" unit="cnt"  icon="database_table.png" />
+			<Counter name="Select_full_join" disp="Select Full Join" unit="cnt"  icon="database_link.png" />
+			<Counter name="Select_range_check" disp="Select Range Check" unit="cnt"  icon="database_refresh.png" />
+			<Counter name="Select_scan" disp="Select Scan" unit="cnt"  icon="database_refresh.png" />
+			<Counter name="handler_read_first" disp="Handler Read First" unit="cnt"  icon="database_go.png" />
+			<Counter name="handler_read_key" disp="Handler Read Key" unit="cnt"  icon="database_go.png" />
+			<Counter name="handler_read_next" disp="Handler Read Next" unit="cnt"  icon="database_go.png" />
+			<Counter name="handler_read_rnd" disp="Handler Read Rnd" unit="cnt"  icon="database_go.png" />
+			<Counter name="handler_read_rnd_next" disp="Handler Read Rnd Next" unit="cnt"  icon="database_go.png" />
+		</Family>
+		<Family name="apache" master="ReqPerSec" scrbrd="true">
+			<Counter name="BytesPerReq" disp="Bytes Per Request" unit="bytes" icon="bytes_per_sec.png" />
+			<Counter name="BytesPerSec" disp="Bytes Per Second" unit="bytes" icon="bytes_per_sec.png" />
+			<Counter name="ReqPerSec" disp="Request Per Second" unit="cnt" icon="request_per_sec.png" />
+			<Counter name="BusyWorkers" disp="Busy Workers" unit="cnt" icon="worker.png" />
+			<Counter name="CPULoad" disp="CPU Load" unit="%" icon="cpu.png" />
+			<Counter name="IdleWorkers" disp="IdleWorkers" unit="cnt" icon="worker.png"/>
+			<Counter name="G" disp="(G)Gracefully finishing" unit="cnt" icon="service_count.png" />
+			<Counter name="L" disp="(L)Logging" unit="cnt" icon="service_count.png" />
+			<Counter name="K" disp="(K)Keepalive" unit="cnt" icon="service_count.png" />
+			<Counter name="I" disp="(I)Idle cleanup of worker" unit="cnt" icon="service_count.png" />
+			<Counter name="S" disp="(S)Starting up" unit="cnt" icon="service_count.png" />
+			<Counter name="R" disp="(R)Reading Request" unit="cnt" icon="service_count.png" />
+			<Counter name="W" disp="(W)Sending Reply" unit="cnt" icon="service_count.png" />
+			<Counter name="_" disp="(_)Waiting for Connection" unit="cnt" icon="service_count.png" />
+			<Counter name="D" disp="(D)DNS" unit="cnt" icon="service_count.png" />
+			<Counter name="C" disp="(C)Closing connection" unit="cnt" icon="service_count.png" />
+		</Family>
+		<Family name="datasource" master="ConnActive">
+			<Counter name="ConnIdle" disp="Conn Idle" unit="cnt" icon="conn_idle.png" />
+			<Counter name="ConnActive" disp="Conn Active" unit="cnt" icon="conn_act.png" />
+		</Family>
+		<Family name="reqproc" master="BytesSent">
+			<Counter name="ErrorCount" disp="Error Count" unit="cnt" icon="error_count.png" />
+			<Counter name="BytesSent" disp="Bytes Sent" unit="bytes" icon="bytes_sent.png" />
+			<Counter name="RequestCount" disp="Request Count" unit="cnt" icon="req_count.gif" />
+			<Counter name="ProcessingTime" disp="Processing Time" unit="sec" icon="proc_time.png" />
+			<Counter name="BytesReceived" disp="Bytes Received" unit="bytes" icon="bytes_recv.png" />
+		</Family>
+	</Familys>
+	<Types>
+		<ObjectType name="linux" family="host" disp="Linux" />
+		<ObjectType name="windows" family="host" disp="Windows"  />
+		<ObjectType name="osx" family="host" disp="OSX" />
+		<ObjectType name="host" family="host" disp="Host" />
+		<ObjectType name="tomcat" family="javaee" disp="Tomcat" />
+		<ObjectType name="java" family="javaee" disp="Java" />
+		<ObjectType name="jboss" family="javaee" disp="JBoss" />
+		<ObjectType name="jetty" family="javaee" disp="Jetty" />
+		<ObjectType name="mariadb" family="database" disp="MariaDB" />
+		<ObjectType name="apache" family="apache" disp="Apache" />
+		<ObjectType name="datasource" family="datasource" disp="DataSource" sub-object="true" />
+		<ObjectType name="reqproc" family="reqproc" disp="RequestProc" sub-object="true"/>
+	</Types>
+</Counters>

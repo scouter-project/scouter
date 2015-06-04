@@ -1,0 +1,579 @@
+/*
+ *  Copyright 2015 LG CNS.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License"); 
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License. 
+ *
+ */
+package scouter.client.util;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.csstudio.swt.xygraph.dataprovider.IDataProvider;
+import org.csstudio.swt.xygraph.dataprovider.ISample;
+import org.csstudio.swt.xygraph.figures.Trace;
+import org.csstudio.swt.xygraph.figures.XYGraph;
+import org.eclipse.draw2d.FigureCanvas;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.window.DefaultToolTip;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.PaletteData;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Display;
+
+import scouter.client.Images;
+import scouter.client.constants.MenuStr;
+import scouter.client.group.GroupManager;
+import scouter.client.model.AgentModelThread;
+import scouter.client.model.AgentObject;
+import scouter.client.net.INetReader;
+import scouter.client.net.TcpProxy;
+import scouter.io.DataInputX;
+import scouter.lang.TimeTypeEnum;
+import scouter.lang.counters.CounterConstants;
+import scouter.lang.pack.MapPack;
+import scouter.lang.pack.Pack;
+import scouter.lang.value.ListValue;
+import scouter.lang.value.Value;
+import scouter.lang.value.ValueEnum;
+import scouter.net.RequestCmd;
+import scouter.util.CastUtil;
+import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
+import scouter.util.LinkedMap;
+
+public class ScouterUtil {
+
+	public static String listToComma(List list) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < list.size(); i++) {
+			sb.append(String.valueOf(list.get(i)));
+			if (i < list.size() - 1) {
+				sb.append(",");
+			}
+		}
+		return sb.toString();
+	}
+
+	public static double getRealTotalValue(String counter, List<Pack> result, String mode) {
+		// if (CounterConstants.WAS_ELAPSED_TIME.equalsIgnoreCase(counter)) {
+		// return getRealElapsedAvgValue(result);
+		// }
+		int count = 0;
+		double value = 0.0;
+		for (Pack p : result) {
+			MapPack m = (MapPack) p;
+			ListValue valueLv = m.getList("value");
+			for (int i = 0; i < valueLv.size(); i++) {
+				value += CastUtil.cdouble(valueLv.get(i));
+				count++;
+			}
+		}
+		if (count > 0 && "avg".equals(mode)) {
+			value = value / count;
+		}
+		return value;
+	}
+
+	private static double getRealElapsedAvgValue(List<Pack> result) {
+		double totalValue = 0.0d;
+		double tpsSum = 0.0d;
+		for (Pack p : result) {
+			MapPack m = (MapPack) p;
+			ListValue objHashLv = m.getList("objHash");
+			ListValue valueLv = m.getList("value");
+			for (int i = 0; i < objHashLv.size(); i++) {
+				int objHash = (int) objHashLv.getLong(i);
+				double elapsed = CastUtil.cdouble(valueLv.get(i));
+				AgentObject agent = AgentModelThread.getInstance().getAgentObject(objHash);
+				if (agent == null) {
+					continue;
+				}
+				final List<Double> tpsValue = new ArrayList<Double>(1);
+				TcpProxy tcp = TcpProxy.getTcpProxy(agent.getServerId());
+				try {
+					MapPack param = new MapPack();
+					param.put("objHash", objHash);
+					param.put("counter", CounterConstants.WAS_TPS);
+					param.put("timetype", TimeTypeEnum.REALTIME);
+					tcp.process(RequestCmd.COUNTER_REAL_TIME, param, new INetReader() {
+						public void process(DataInputX in) throws IOException {
+							Value v = in.readValue();
+							if (v != null && v.getValueType() != ValueEnum.NULL) {
+								tpsValue.add(CastUtil.cdouble(v));
+							}
+						}
+					});
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					TcpProxy.putTcpProxy(tcp);
+				}
+				double tps = tpsValue.get(0);
+				totalValue += (elapsed * tps);
+				tpsSum += tps;
+			}
+		}
+		if (totalValue == 0 || tpsSum == 0) {
+			return 0;
+		}
+		return totalValue / tpsSum;
+	}
+
+	public static Map<Long, Double> getLoadTotalMap(String counter, List<Pack> result, String mode, byte timeTypeCode) {
+		// if (CounterConstants.WAS_ELAPSED_TIME.equalsIgnoreCase(counter)) {
+		// return getLoadElapsedAvgMap(result, timeTypeCode);
+		// }
+		long now = TimeUtil.getCurrentTime();
+		TimedSeries<Integer, Double> sereis = new TimedSeries<Integer, Double>();
+		for (Pack p : result) {
+			MapPack m = (MapPack) p;
+			int objHash = m.getInt("objHash");
+			ListValue timeLv = m.getList("time");
+			ListValue valueLv = m.getList("value");
+			for (int i = 0; i < timeLv.size(); i++) {
+				long time = CastUtil.clong(timeLv.get(i));
+				double value = CastUtil.cdouble(valueLv.get(i));
+				if (time > now) {
+					break;
+				}
+				sereis.add(objHash, time, value);
+			}
+		}
+		Map<Long, Double> tempMap = new HashMap<Long, Double>();
+		if (sereis.getSeriesCount() > 0) {
+			long stime = sereis.getMinTime();
+			long etime = sereis.getMaxTime();
+			boolean isAvg = "avg".equals(mode);
+			while (stime <= etime) {
+				double sum = 0.0d;
+				List<Double> list = sereis.getInTimeList(stime, getKeepTime(timeTypeCode));
+				for (int i = 0; i < list.size(); i++) {
+					sum += list.get(i);
+				}
+				if (isAvg) {
+					if (list.size() > 0) {
+						tempMap.put(stime, sum / list.size());
+					}
+				} else {
+					tempMap.put(stime, sum);
+				}
+				stime += TimeTypeEnum.getTime(timeTypeCode);
+			}
+		}
+		return new TreeMap<Long, Double>(tempMap);
+	}
+
+	private static Map<Long, Double> getLoadElapsedAvgMap(List<Pack> elapsedList, byte timeTypeCode) {
+		long now = TimeUtil.getCurrentTime();
+		Set<Integer> objHashSet = new HashSet<Integer>();
+		TimedSeries<Integer, Double> elapsedSeries = new TimedSeries<Integer, Double>();
+		for (Pack p : elapsedList) {
+			MapPack m = (MapPack) p;
+			int objHash = m.getInt("objHash");
+			objHashSet.add(objHash);
+			ListValue timeLv = m.getList("time");
+			ListValue valueLv = m.getList("value");
+			for (int i = 0; i < timeLv.size(); i++) {
+				long time = CastUtil.clong(timeLv.get(i));
+				double value = CastUtil.cdouble(valueLv.get(i));
+				if (time > now) {
+					break;
+				}
+				elapsedSeries.add(objHash, time, value);
+			}
+		}
+		TimedSeries<Integer, Double> totalSeries = new TimedSeries<Integer, Double>();
+		TimedSeries<Integer, Double> tpsSeries = new TimedSeries<Integer, Double>();
+		long stime = elapsedSeries.getMinTime();
+		long etime = elapsedSeries.getMaxTime();
+		for (int objHash : objHashSet) {
+			AgentObject agent = AgentModelThread.getInstance().getAgentObject(objHash);
+			if (agent == null) {
+				continue;
+			}
+			TcpProxy tcp = TcpProxy.getTcpProxy(agent.getServerId());
+			try {
+				MapPack param = new MapPack();
+				param.put("objHash", objHash);
+				param.put("counter", CounterConstants.WAS_TPS);
+				String requestCmd = null;
+				if (TimeTypeEnum.REALTIME == timeTypeCode) {
+					requestCmd = RequestCmd.COUNTER_PAST_TIME;
+					param.put("stime", stime);
+					param.put("etime", etime);
+				} else if (TimeTypeEnum.FIVE_MIN == timeTypeCode) {
+					requestCmd = RequestCmd.COUNTER_PAST_DATE;
+					param.put("date", DateUtil.yyyymmdd(stime));
+				}
+				Pack p = tcp.getSingle(requestCmd, param);
+				if (p == null) {
+					continue;
+				}
+				MapPack m = (MapPack) p;
+				ListValue timeLv = m.getList("time");
+				ListValue valueLv = m.getList("value");
+				for (int i = 0; i < timeLv.size(); i++) {
+					long time = CastUtil.clong(timeLv.get(i));
+					double tps = CastUtil.cdouble(valueLv.get(i));
+					Double elapsed = elapsedSeries.getInTime(objHash, time, getKeepTime(timeTypeCode));
+					if (elapsed == null) {
+						continue;
+					}
+					totalSeries.add(objHash, time, tps * elapsed.doubleValue());
+					tpsSeries.add(objHash, time, tps);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				TcpProxy.putTcpProxy(tcp);
+			}
+		}
+
+		long minTime = totalSeries.getMinTime();
+		long maxTime = totalSeries.getMaxTime();
+		Map<Long, Double> tempMap = new HashMap<Long, Double>();
+		while (minTime < maxTime) {
+			double totalSum = 0.0d;
+			double tpsSum = 0.0d;
+			List<Double> totalList = totalSeries.getInTimeList(minTime, getKeepTime(timeTypeCode));
+			for (int i = 0; i < totalList.size(); i++) {
+				totalSum += (double) totalList.get(i);
+			}
+			List<Double> tpsList = tpsSeries.getInTimeList(minTime, getKeepTime(timeTypeCode));
+			for (int i = 0; i < tpsList.size(); i++) {
+				tpsSum += (double) tpsList.get(i);
+			}
+			double v = totalSum / tpsSum;
+			tempMap.put(minTime, v);
+			minTime += TimeTypeEnum.getTime(timeTypeCode);
+		}
+		return new TreeMap<Long, Double>(tempMap);
+	}
+
+	private static long getKeepTime(byte timeType) {
+		switch (timeType) {
+		case TimeTypeEnum.REALTIME:
+			return 10000;
+		case TimeTypeEnum.ONE_MIN:
+			return DateUtil.MILLIS_PER_MINUTE + 3000;
+		case TimeTypeEnum.FIVE_MIN:
+			return DateUtil.MILLIS_PER_MINUTE * 5 + 3000;
+		case TimeTypeEnum.TEN_MIN:
+			return DateUtil.MILLIS_PER_MINUTE * 10 + 3000;
+		case TimeTypeEnum.HOUR:
+			return DateUtil.MILLIS_PER_HOUR + 3000;
+		default:
+			return 30 * 10000;
+		}
+	}
+
+	public static void addShowTotalValueListener(FigureCanvas canvas, final XYGraph xyGraph) {
+		final DefaultToolTip toolTip = new DefaultToolTip(canvas, DefaultToolTip.RECREATE, true);
+		toolTip.setFont(new Font(null, "Arial", 10, SWT.BOLD));
+		toolTip.setBackgroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+		canvas.addMouseListener(new MouseListener() {
+			public void mouseUp(MouseEvent e) {
+				toolTip.hide();
+			}
+
+			public void mouseDown(MouseEvent e) {
+				Image image = new Image(e.display, 1, 10);
+				GC gc = new GC((FigureCanvas) e.widget);
+				gc.copyArea(image, e.x, e.y > 5 ? e.y - 5 : 0);
+				ImageData imageData = image.getImageData();
+				PaletteData palette = imageData.palette;
+				int point = 5;
+				int offset = 0;
+				while (point >= 0 && point < 10) {
+					int pixelValue = imageData.getPixel(0, point);
+					RGB rgb = palette.getRGB(pixelValue);
+					if (ColorUtil.getInstance().TOTAL_CHART_COLOR.getRGB().equals(rgb)) {
+						double time = xyGraph.primaryXAxis.getPositionValue(e.x, true);
+						Trace t = xyGraph.getPlotArea().getTraceList().get(0);
+						if (t == null) {
+							return;
+						}
+						double d = getNearestValue(t.getDataProvider(), time);
+						String value = FormatUtil.print(d, "#,###.##");
+						toolTip.setText("value : " + value);
+						toolTip.show(new Point(e.x, e.y));
+						break;
+					}
+					offset = offset >= 0 ? offset + 1 : offset - 1;
+					offset *= -1;
+					point += offset;
+				}
+				gc.dispose();
+				image.dispose();
+			}
+
+			public void mouseDoubleClick(MouseEvent e) {
+			}
+		});
+	}
+
+	public static void collectGroupObjcts(String grpName, Map<Integer, ListValue> serverObjMap) {
+		serverObjMap.clear();
+		Set<Integer> objHashs = GroupManager.getInstance().getObjectsByGroup(grpName);
+		for (int objHash : objHashs) {
+			AgentObject agentObj = AgentModelThread.getInstance().getAgentObject(objHash);
+			if (agentObj == null) {
+				continue;
+			}
+			int serverId = agentObj.getServerId();
+			ListValue lv = serverObjMap.get(serverId);
+			if (lv == null) {
+				lv = new ListValue();
+				serverObjMap.put(serverId, lv);
+			}
+			lv.add(objHash);
+		}
+	}
+
+	public static String getFullObjName(int objHash) {
+		try {
+			AgentObject agent = AgentModelThread.getInstance().getAgentObject(objHash);
+			String objName = agent.getObjName();
+			return objName;
+		} catch (Exception e) {
+		}
+		return "";
+	}
+
+	public static String getShortObjName(int objHash) {
+		try {
+			AgentObject agent = AgentModelThread.getInstance().getAgentObject(objHash);
+			String objName = agent.getObjName();
+			if (objName.lastIndexOf("/") > -1) {
+				objName = objName.substring(objName.lastIndexOf("/") + 1, objName.length());
+			}
+			return objName;
+		} catch (Exception e) {
+		}
+		return "";
+	}
+
+	static Set<String> liveMenuSet = new HashSet<String>();
+	static {
+		liveMenuSet.add(CounterConstants.REAL_TIME);
+		liveMenuSet.add(CounterConstants.TODAY);
+		liveMenuSet.add(CounterConstants.REAL_TIME_ALL);
+		liveMenuSet.add(CounterConstants.REAL_TIME_TOTAL);
+		liveMenuSet.add(CounterConstants.TODAY_ALL);
+		liveMenuSet.add(CounterConstants.TODAY_TOTAL);
+	}
+
+	public static boolean isLiveMenu(String menu) {
+		boolean result = false;
+		if (liveMenuSet.contains(menu)) {
+			result = true;
+		}
+		return result;
+	}
+
+	public static String getActionName(String key) {
+		if (CounterConstants.REAL_TIME_ALL.equals(key) || CounterConstants.PAST_TIME_ALL.equals(key)) {
+			return MenuStr.TIME_ALL;
+		} else if (CounterConstants.REAL_TIME_TOTAL.equals(key) || CounterConstants.PAST_TIME_TOTAL.equals(key)) {
+			return MenuStr.TIME_TOTAL;
+		} else if (CounterConstants.TODAY_ALL.equals(key) || CounterConstants.PAST_DATE_ALL.equals(key)) {
+			return MenuStr.DAILY_ALL;
+		} else if (CounterConstants.TODAY_TOTAL.equals(key) || CounterConstants.PAST_DATE_TOTAL.equals(key)) {
+			return MenuStr.DAILY_TOTAL;
+		} else {
+			return "";
+		}
+	}
+
+	public static ImageDescriptor getActionIconName(String key) {
+		if (CounterConstants.REAL_TIME_ALL.equals(key) || CounterConstants.TODAY_ALL.equals(key)) {
+			return ImageUtil.getImageDescriptor(Images.all);
+		} else if (CounterConstants.REAL_TIME_TOTAL.equals(key) || CounterConstants.TODAY_TOTAL.equals(key)) {
+			return ImageUtil.getImageDescriptor(Images.sum);
+		} else if (CounterConstants.PAST_TIME_ALL.equals(key) || CounterConstants.PAST_DATE_ALL.equals(key)) {
+			return ImageUtil.getImageDescriptor(Images.all);
+		} else if (CounterConstants.PAST_TIME_TOTAL.equals(key) || CounterConstants.PAST_DATE_TOTAL.equals(key)) {
+			return ImageUtil.getImageDescriptor(Images.sum);
+		} else {
+			return null;
+		}
+	}
+
+	public static String mapPackToTableString(MapPack m) {
+		if (m == null) {
+			return null;
+		}
+		StringBuilder sb = new StringBuilder();
+		ArrayList<String> keyList = new ArrayList<String>();
+		HashMap<Integer, Integer> maxLenMap = new HashMap<Integer, Integer>();
+		LinkedMap<Integer, ArrayList<String>> valueMap = new LinkedMap<Integer, ArrayList<String>>();
+		int width = 1;
+		Iterator<String> itr = m.keys();
+		int index = 0;
+		while (itr.hasNext()) {
+			String key = itr.next();
+			Value v = m.get(key);
+			int maxLen = key.length();
+			if (v instanceof ListValue) {
+				ListValue lv = (ListValue) v;
+				for (int i = 0; i < lv.size(); i++) {
+					String s = lv.get(i).toString();
+					if (s.length() > maxLen) {
+						maxLen = s.length();
+					}
+					ArrayList<String> list = valueMap.get(i);
+					if (list == null) {
+						list = new ArrayList<String>();
+						valueMap.put(i, list);
+					}
+					list.add(s);
+				}
+				width += (maxLen + 3);
+				maxLenMap.put(index, maxLen);
+				keyList.add(key);
+				index++;
+			}
+		}
+		if (keyList.size() > 0) {
+			// 1. draw header
+			sb.append("\n+");
+			for (int i = 0; i < width - 2; i++) {
+				sb.append("-");
+			}
+			sb.append("+\n");
+
+			sb.append("|");
+			for (int i = 0; i < keyList.size(); i++) {
+				int maxLen = maxLenMap.get(i);
+				String key = keyList.get(i);
+				sb.append(" " + key);
+				int gap = maxLen - key.length();
+				while (gap > 0) {
+					sb.append(" ");
+					gap--;
+				}
+				sb.append(" |");
+			}
+			sb.append("\n");
+
+			for (int i = 0; i < width; i++) {
+				sb.append("-");
+			}
+			sb.append("\n");
+
+			// 2. draw content
+			while (valueMap.size() > 0) {
+				ArrayList<String> list = valueMap.removeFirst();
+				sb.append("|");
+				for (int i = 0; i < list.size(); i++) {
+					int maxLen = maxLenMap.get(i);
+					String s = list.get(i);
+					sb.append(" " + s);
+					int gap = maxLen - s.length();
+					while (gap > 0) {
+						sb.append(" ");
+						gap--;
+					}
+					sb.append(" |");
+				}
+				sb.append("\n");
+				if (valueMap.size() == 0) {
+					sb.append("+");
+					for (int i = 0; i < width - 2; i++) {
+						sb.append("-");
+					}
+					sb.append("+\n");
+				} else {
+					for (int i = 0; i < width; i++) {
+						sb.append("-");
+					}
+					sb.append("\n");
+				}
+			}
+		}
+		return sb.toString();
+	}
+
+	public static double getNearestValue(IDataProvider provider, double time) {
+		int high = provider.getSize() - 1;
+		int low = 0;
+		while (true) {
+			int mid = (high + low) / 2;
+			ISample s = provider.getSample(mid);
+			double x = s.getXValue();
+			if (x == time) {
+				return s.getYValue();
+			} else {
+				if (x > time) {
+					high = mid;
+				} else {
+					low = mid;
+				}
+				if ((high - low) <= 1) {
+					ISample highSample = provider.getSample(high);
+					ISample lowSample = provider.getSample(low);
+					if (highSample == null && lowSample == null) {
+						return 0.0d;
+					}
+					if (highSample == null) {
+						return lowSample.getYValue();
+					}
+					if (lowSample == null) {
+						return highSample.getYValue();
+					}
+					double highGap = highSample.getXValue() - time;
+					double lowGqp = time - lowSample.getXValue();
+					if (highGap < lowGqp) {
+						return highSample.getYValue();
+					} else {
+						return lowSample.getYValue();
+					}
+				}
+			}
+		}
+	}
+
+	public static String humanReadableByteCount(long bytes, boolean si) {
+		int unit = 1024;
+		if (bytes < unit)
+			return bytes + " B";
+		int exp = (int) (Math.log(bytes) / Math.log(unit));
+		String pre = "KMGTPE".charAt(exp - 1) + (si ? "" : "i");
+		return String.format("%.1f %s", bytes / Math.pow(unit, exp), pre);
+	}
+
+	public static String humanReadableByteCount(double bytes, boolean si) {
+		int unit = 1024;
+		if (bytes < unit)
+			return bytes + " B";
+		int exp = (int) (Math.log(bytes) / Math.log(unit));
+		String pre = "KMGTPE".charAt(exp - 1) + (si ? "" : "i");
+		return String.format("%.1f %s", bytes / Math.pow(unit, exp), pre);
+	}
+}

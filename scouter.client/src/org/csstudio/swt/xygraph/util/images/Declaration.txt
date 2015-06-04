@@ -1,0 +1,6 @@
+Part of the icons in this project are from Internet.
+
+camera.gif is from  http://www.lgkp265.com/images/camera-icon.gif
+Configure.png is from http://www.iconseeker.com/search-icon/kids-icons/configure-3.html
+Undo.png is from http://www.iconarchive.com/show/kids-icons-icons-by-everaldo/undo-icon.html
+Redo.png is from http://www.iconarchive.com/show/kids-icons-icons-by-everaldo/redo-icon.html
