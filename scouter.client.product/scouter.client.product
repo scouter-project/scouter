@@ -34,11 +34,10 @@
       <macosx icon="icons/scouter.icns"/>
       <solaris/>
       <win useIco="true">
-         <ico path="icons/launcher.ico"/>
+         <ico path="icons/scouter.ico"/>
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>

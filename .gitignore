@@ -5,3 +5,4 @@ scouter.server/bin/*
 scouter.deploy/*
 */.cache
 */.svn
+scouter.client/lib/scouter.common.jar

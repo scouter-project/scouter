@@ -16,7 +16,6 @@
 
 package scouter.agent.asm;
 
-
 import java.util.HashSet;
 
 import scouter.agent.ClassDesc;
@@ -29,35 +28,34 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
-
-
 public class HttpServiceASM implements IASM, Opcodes {
 
-	public  HashSet<String> servlets = new HashSet<String>();
+	public HashSet<String> servlets = new HashSet<String>();
 
 	public HttpServiceASM() {
 		servlets.add("javax/servlet/http/HttpServlet");
 	}
+
 	public boolean isTarget(String className) {
 		if (servlets.contains(className)) {
 			return true;
 		}
 		return false;
 	}
+
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (servlets.contains(className)) {
-			return new HttpServiceCV(cv,className);
+			return new HttpServiceCV(cv, className);
 		}
 		for (int i = 0; classDesc.interfaces != null && i < classDesc.interfaces.length; i++) {
 			if ("javax/servlet/Filter".equals(classDesc.interfaces[i])) {
-				return new HttpServiceCV(cv,className);
+				return new HttpServiceCV(cv, className);
 			}
 		}
 		return cv;
 	}
 }
 
-// ///////////////////////////////////////////////////////////////////////////
 class HttpServiceCV extends ClassVisitor implements Opcodes {
 	private static String TARGET_SERVICE = "service";
 	private static String TARGET_DOFILTER = "doFilter";
@@ -68,6 +66,7 @@ class HttpServiceCV extends ClassVisitor implements Opcodes {
 		super(ASM4, cv);
 		this.className = className;
 	}
+
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
@@ -80,7 +79,7 @@ class HttpServiceCV extends ClassVisitor implements Opcodes {
 				return new HttpServiceMV(access, desc, mv, true);
 			} else if (TARGET_DOFILTER.equals(name)) {
 				Logger.println("SA03", "FILTER " + className);
-				return new HttpServiceMV(access, desc, mv,false);
+				return new HttpServiceMV(access, desc, mv, false);
 			}
 		}
 		return mv;
@@ -103,9 +102,9 @@ class HttpServiceMV extends LocalVariablesSorter implements Opcodes {
 	private boolean httpservlet;
 
 	public HttpServiceMV(int access, String desc, MethodVisitor mv, boolean httpservlet) {
-		super(ASM4,access, desc, mv);
-		this.desc=desc;
-		this.httpservlet=httpservlet;
+		super(ASM4, access, desc, mv);
+		this.desc = desc;
+		this.httpservlet = httpservlet;
 	}
 
 	private int statIdx;
@@ -114,27 +113,26 @@ class HttpServiceMV extends LocalVariablesSorter implements Opcodes {
 	public void visitCode() {
 		mv.visitVarInsn(Opcodes.ALOAD, 1);
 		mv.visitVarInsn(Opcodes.ALOAD, 2);
-		if(httpservlet){
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_SERVICE, START_SIGNATURE,false);
-		}else{
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_FILTER, START_SIGNATURE,false);			
+		if (httpservlet) {
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_SERVICE, START_SIGNATURE, false);
+		} else {
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_FILTER, START_SIGNATURE, false);
 		}
 
 		statIdx = newLocal(Type.getType(Object.class));
-		
+
 		mv.visitVarInsn(Opcodes.ASTORE, statIdx);
 		mv.visitLabel(startFinally);
-		//////////////////////////////////////////////////////////////
+
 		mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 		mv.visitVarInsn(Opcodes.ALOAD, 1);
 		mv.visitVarInsn(Opcodes.ALOAD, 2);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, REJECT, REJECT_SIGNATURE,false);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, REJECT, REJECT_SIGNATURE, false);
 		Label end = new Label();
 		mv.visitJumpInsn(IFNULL, end);
-        mv.visitInsn(Opcodes.RETURN);   
+		mv.visitInsn(Opcodes.RETURN);
 		mv.visitLabel(end);
-		
-		//////////////////////////////////////////////////////////////
+
 		mv.visitCode();
 	}
 
@@ -143,7 +141,7 @@ class HttpServiceMV extends LocalVariablesSorter implements Opcodes {
 		if ((opcode >= IRETURN && opcode <= RETURN)) {
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 			mv.visitInsn(Opcodes.ACONST_NULL);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, END_METHOD, END_SIGNATURE,false);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, END_METHOD, END_SIGNATURE, false);
 		}
 		mv.visitInsn(opcode);
 	}
@@ -159,7 +157,7 @@ class HttpServiceMV extends LocalVariablesSorter implements Opcodes {
 
 		mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 		mv.visitVarInsn(Opcodes.ALOAD, errIdx);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, END_METHOD, END_SIGNATURE,false);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, END_METHOD, END_SIGNATURE, false);
 		mv.visitInsn(ATHROW);
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
 	}
