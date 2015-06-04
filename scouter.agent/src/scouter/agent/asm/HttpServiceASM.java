@@ -37,22 +37,14 @@ public class HttpServiceASM implements IASM, Opcodes {
 
 	public HttpServiceASM() {
 		servlets.add("javax/servlet/http/HttpServlet");
-		servlets.add("weblogic/servlet/jsp/JspBase");
 	}
-
 	public boolean isTarget(String className) {
 		if (servlets.contains(className)) {
 			return true;
 		}
-//		for (int i = 0; classDesc.interfaces != null && i < classDesc.interfaces.length; i++) {
-//			if ("javax/servlet/Filter".equals(classDesc.interfaces[i])) {
-//				return true;
-//			}
-//		}
 		return false;
 	}
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-
 		if (servlets.contains(className)) {
 			return new HttpServiceCV(cv,className);
 		}
