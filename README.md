@@ -47,7 +47,6 @@ Licensed under the Apache License, Version 2.0 (the "License");
 http://www.maxmind.com
 
 - Download MaxMind GeoIP Data :  http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
-add configure:  geoip_data_city=<download path>/GeoLiteCity.dat
 
 - Icons from : 
 http://www.famfamfam.com/lab/icons/silk/
