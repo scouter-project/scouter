@@ -228,6 +228,7 @@ public class StringUtil {
 			return "[]";
 		}
 	}
+
 	public static String toString(IntEnumer enu) {
 		if (enu.hasMoreElements()) {
 			StringBuffer sb = new StringBuffer();
@@ -241,6 +242,7 @@ public class StringUtil {
 			return "[]";
 		}
 	}
+
 	public static String toString(LongEnumer enu) {
 		if (enu.hasMoreElements()) {
 			StringBuffer sb = new StringBuffer();
@@ -253,5 +255,9 @@ public class StringUtil {
 		} else {
 			return "[]";
 		}
+	}
+
+	public static String truncate(String str, int len) {
+		return str == null || str.length() <= len ? str : str.substring(0, len);
 	}
 }

@@ -29,6 +29,7 @@ import scouter.lang.step.SqlStep;
 import scouter.util.EscapeLiteralSQL;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.IntLinkedSet;
+import scouter.util.StringUtil;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 
@@ -76,9 +77,7 @@ public class TraceSQL {
 			if (p == null) {
 				ctx.sql.put(idx, "null");
 			} else {
-				if (p.length() > MAX_STRING) {
-					p = p.substring(0, MAX_STRING);
-				}
+				p =StringUtil.truncate(p, MAX_STRING);
 				ctx.sql.put(idx, "'" + p + "'");
 			}
 		}
@@ -90,10 +89,7 @@ public class TraceSQL {
 			if (p == null) {
 				ctx.sql.put(idx, "null");
 			} else {
-				String s = p.toString();
-				if (s.length() > MAX_STRING) {
-					s = s.substring(0, MAX_STRING);
-				}
+				String s = StringUtil.truncate(p.toString(), MAX_STRING);
 				ctx.sql.put(idx, s);
 			}
 		}
@@ -253,14 +249,6 @@ public class TraceSQL {
 				}
 				c.rs_count++;
 			}
-			// RS CLOSE할때만 FETCH 메세지를 출력한다.
-			// else {
-			// if (c.rs_start != 0) {
-			// fetch(c);
-			// }
-			// c.rs_start = 0;
-			// c.rs_count = 0;
-			// }
 		}
 		return b;
 	}
@@ -272,8 +260,6 @@ public class TraceSQL {
 
 		long time = System.currentTimeMillis() - c.rs_start;
 
-		// p.start_time = (int) (System.currentTimeMillis() - c.startTime -
-		// time);
 		p.start_time = (int) (System.currentTimeMillis() - c.startTime);
 		if (c.profile_thread_cputime) {
 			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - c.startCpu);
@@ -307,9 +293,7 @@ public class TraceSQL {
 		}
 	}
 
-	// ////////////////////////////
 	// JDBC_REDEFINED==false
-
 	public final static String PSTMT_PARAM_FIELD = "_param_";
 
 	public static void set(SqlParameter args, int idx, boolean p) {
@@ -379,7 +363,7 @@ public class TraceSQL {
 		TraceContext c = TraceContextManager.getLocalContext();
 		if (c == null) {
 			if (conf.debug_background_sql && args != null) {
-				Logger.println("BG-SQL:" + args.getSql());
+				Logger.println("BG=>" + args.getSql());
 			}
 			return null;
 		}
@@ -410,7 +394,13 @@ public class TraceSQL {
 		}
 	}
 
-	// DB2에서 사용함..
+	/**
+	 * JDBC Wrapper is only available for the DB2 Driver
+	 * 
+	 * @param url
+	 *            : JDBC Connection URL
+	 * @return - trace object
+	 */
 	public static Object startCreateDBC(String url) {
 		String name = "CREATE-DBC " + url;
 		int hash = StringHashCache.getErrHash(name);
@@ -418,8 +408,6 @@ public class TraceSQL {
 		return TraceSQL.dbcOpenStart(hash, name);
 	}
 
-	// WRAPPER방식으로 추적할때 사용되면 DB2는 반드시 이방식을 사용해야함..
-	// 2014.12.11
 	public static Connection endCreateDBC(Connection conn, Object stat) {
 		if (conn == null) {
 			TraceSQL.dbcOpenEnd(stat, null);

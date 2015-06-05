@@ -153,7 +153,6 @@ public class Configure extends Thread {
 
 	public String dataudp_host = "0.0.0.0";
 	public int dataudp_port = NetConstants.DATAUDP_SERVER_PORT;
-	public int datatcp_port = NetConstants.DATATCP_SERVER_PORT;
 	public int service_port = NetConstants.SERVICE_SERVER_PORT;
 	public int service_so_timeout = 10000;
 	public String scouter_hostname = SysJMX.getHostName();
@@ -224,8 +223,7 @@ public class Configure extends Thread {
 
 		this.dataudp_host = getValue("dataudp_host", getValue("dataudp.host", "0.0.0.0"));
 		this.dataudp_port = getInt("dataudp_port", getInt("dataudp.port", NetConstants.DATAUDP_SERVER_PORT));
-		this.datatcp_port = getInt("datatcp_port", getInt("datatcp.port", NetConstants.DATATCP_SERVER_PORT));
-		this.service_port = getInt("service_port", getInt("service.port", NetConstants.SERVICE_SERVER_PORT));
+			this.service_port = getInt("service_port", getInt("service.port", NetConstants.SERVICE_SERVER_PORT));
 		this.service_so_timeout = getInt("service_so_timeout", getInt("service.so.timeout", 10000));
 
 		this.scouter_hostname = getValue("scouter_hostname", getValue("scouter.hostname", SysJMX.getHostName()));
