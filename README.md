@@ -40,18 +40,14 @@ Scouter 단순함을 추구하는 단순함을 추구하는 모니터링 툴이�
 - 기능의 복잡도보다는 응답 분포도, 액티브 서비스, 테그카운팅 분석등의 핵심기능을  사용자에게 제공할 것이다.
 
 ### License
-```
-Copyright 2015 LG CNS.
-
 Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+### Using Components & Icons
+- This product includes GeoLite data created by MaxMind, available from
+http://www.maxmind.com
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+- Download MaxMind GeoIP Data :  http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+add configure:  geoip_data_city=<download path>/GeoLiteCity.dat
+
+- Icons from : 
+http://www.famfamfam.com/lab/icons/silk/
