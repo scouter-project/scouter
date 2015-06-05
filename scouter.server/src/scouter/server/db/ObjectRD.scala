@@ -86,7 +86,7 @@ object ObjectRD {
                     e.printStackTrace();
                     false
                 }
-                case _=> false
+                case _:Throwable=> false
             }
              true
         })
