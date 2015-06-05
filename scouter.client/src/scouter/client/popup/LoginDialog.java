@@ -51,7 +51,6 @@ import scouter.client.util.UIUtil;
 import scouter.net.NetConstants;
 import scouter.util.CipherUtil;
 import scouter.util.StringUtil;
-import scouter.util.SystemUtil;
 
 public class LoginDialog {
 	public static final String ID = LoginDialog.class.getName();
