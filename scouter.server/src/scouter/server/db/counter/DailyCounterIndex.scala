@@ -17,7 +17,6 @@
 
 package scouter.server.db.counter
 import java.util.Hashtable
-import scouter.server.db.TableReader
 import scouter.server.db.io.IndexKeyFile
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
@@ -61,7 +60,7 @@ class DailyCounterIndex(_file: String) extends IClose {
         if (buf == null) -1 else DataInputX.toLong5(buf, 0)
     }
 
-    def read(handler: (Array[Byte], Array[Byte]) => Unit, reader: TableReader) {
+    def read(handler: (Array[Byte], Array[Byte]) => Unit, reader: (Long)=>Array[Byte]) {
         if (this.index == null) {
             this.index = new IndexKeyFile(file);
         }

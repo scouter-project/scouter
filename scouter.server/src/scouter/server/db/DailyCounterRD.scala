@@ -66,7 +66,7 @@ object DailyCounterRD {
         try {
             idx = DailyCounterIndex.open(file);
             reader = DailyCounterData.open(file);
-            idx.read(handler, reader.asInstanceOf[TableReader]);
+            idx.read(handler, reader.read);
         } catch {
             case e: Exception => e.printStackTrace();
         } finally {

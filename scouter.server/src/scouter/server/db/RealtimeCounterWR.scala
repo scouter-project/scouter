@@ -47,14 +47,14 @@ object RealtimeCounterWR {
                     wdb = writeOpen(m);
                 }
                 wdb.activeTime = System.currentTimeMillis();
-                wdb.header.intern(m.data.keySet());
+                wdb.counterDbHeader.intern(m.data.keySet());
 
                 PlugInManager.counter(m);
 
-                val tagbytes = RealtimeCounterDBHelper.getTagBytes(wdb.header.getTagStrInt(), m.data)
-                val posTags = wdb.items.write(tagbytes);
+                val tagbytes = RealtimeCounterDBHelper.getTagBytes(wdb.counterDbHeader.getTagStrInt(), m.data)
+                val posTags = wdb.counterData.write(tagbytes);
 
-                wdb.index.write(HashUtil.hash(m.objName), m.time, posTags);
+                wdb.counterIndex.write(HashUtil.hash(m.objName), m.time, posTags);
             } catch {
                 case t: Throwable => Logger.println("RealtimeCounterWR", 10, t.toString());
             }

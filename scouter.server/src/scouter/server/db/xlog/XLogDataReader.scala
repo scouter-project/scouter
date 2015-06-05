@@ -21,7 +21,6 @@ import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
 import java.util.Hashtable
-import scouter.server.db.TableReader
 import scouter.server.db.io.zip.GZipStore
 import scouter.util.FileUtil
 import scouter.util.IClose
@@ -44,7 +43,7 @@ object XLogDataReader {
     }
 
 }
-class XLogDataReader(date: String, file: String) extends TableReader with IClose {
+class XLogDataReader(date: String, file: String) extends IClose {
 
     var refrence = 0;
     val conf = Configure.getInstance()

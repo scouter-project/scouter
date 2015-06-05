@@ -23,7 +23,6 @@ import java.util.TreeSet
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.server.Logger
-import scouter.server.db.TableReader
 import scouter.server.util.EnumerScala
 import scouter.util.BytesUtil
 import scouter.util.CompareUtil
@@ -151,7 +150,7 @@ class IndexTimeFile(_path: String) extends IClose {
         }
     }
 
-    def read(_stime: Long, etime: Long, handler: (Long, Array[Byte]) => Any, reader: TableReader) {
+    def read(_stime: Long, etime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long)=>Array[Byte]) {
         if (this.keyFile == null)
             return
 
@@ -161,7 +160,7 @@ class IndexTimeFile(_path: String) extends IClose {
             val data = getSecAll(stime);
 
             EnumerScala.forward(data, (tv: TimeValue) => {
-                handler(tv.time, reader.read(DataInputX.toLong5(tv.value, 0)))
+                handler(tv.time, reader(DataInputX.toLong5(tv.value, 0)))
             })
 
             i += 1
@@ -169,7 +168,7 @@ class IndexTimeFile(_path: String) extends IClose {
         }
     }
 
-    def readFromEnd(stime: Long, _etime: Long, handler: (Long, Array[Byte]) => Any, reader: TableReader) {
+    def readFromEnd(stime: Long, _etime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long)=>Array[Byte]) {
         if (this.keyFile == null)
             return
 
@@ -179,7 +178,7 @@ class IndexTimeFile(_path: String) extends IClose {
             val data = getSecAll(etime);
 
             EnumerScala.backward(data, (tv: TimeValue) => {
-                handler(tv.time, reader.read(DataInputX.toLong5(tv.value, 0)))
+                handler(tv.time, reader(DataInputX.toLong5(tv.value, 0)))
             })
             i += 1
             etime = etime - 1000L

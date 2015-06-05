@@ -27,7 +27,6 @@ import scouter.lang.value.Value
 import scouter.lang.value.ValueEnum
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
-import scouter.server.db.TableReader
 import scouter.util.FileUtil
 import scouter.util.IClose
 
@@ -49,7 +48,7 @@ object DailyCounterData  {
 	}
 
 }
- class DailyCounterData(file:String) extends TableReader with IClose {
+ class DailyCounterData(file:String) extends IClose {
 	
 
    var refrence = 0;

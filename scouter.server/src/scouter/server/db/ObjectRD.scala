@@ -106,7 +106,7 @@ object ObjectRD {
         try {
             idx = ObjectIndex.open(file);
             reader = ObjectData.open(file);
-            idx.read(handler, reader);
+            idx.read(handler, reader.read);
         } catch {
             case e: Exception => e.printStackTrace();
         } finally {

@@ -37,7 +37,7 @@ object XLogRD {
             try {
                 reader = XLogDataReader.open(date, file);
                 table = new IndexTimeFile(file + XLogIndex.POSTFIX_TIME);
-                table.read(fromTime, toTime, handler, reader)
+                table.read(fromTime, toTime, handler, reader.read )
             } catch {
                 case e: Throwable => e.printStackTrace()
             } finally {
@@ -55,7 +55,7 @@ object XLogRD {
             var reader: XLogDataReader = null;
             var table: IndexTimeFile = null;
             try {
-                table.readFromEnd(fromTime, toTime, handler, reader)
+                table.readFromEnd(fromTime, toTime, handler, reader.read)
             } catch {
                 case e: Throwable => e.printStackTrace();
             } finally {
@@ -143,7 +143,7 @@ object XLogRD {
         try {
             idx = XLogIndex.open(file);
             reader = XLogDataReader.open(date, file);
-            idx.readByTxid(handler, reader);
+            idx.readByTxid(handler, reader.read);
         } catch {
             case e: Exception => e.printStackTrace();
         } finally {
@@ -167,7 +167,7 @@ object XLogRD {
             idx = XLogIndex.open(file);
             reader = XLogDataReader.open(date, file);
 
-            idx.readByGxid(handler, reader);
+            idx.readByGxid(handler, reader.read);
         } catch {
             case e: Exception => e.printStackTrace();
         } finally {

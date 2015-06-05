@@ -20,7 +20,6 @@ package scouter.server.db.obj;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import scouter.server.db.TableReader;
 import scouter.server.db.io.IndexKeyFile;
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
@@ -69,7 +68,7 @@ class ObjectIndex(_file: String) extends IClose {
         }
         this.index.delete(DataOutputX.toBytes(key));
     }
-    def read(handler: (Array[Byte], Array[Byte]) => Any, reader: TableReader) {
+    def read(handler: (Array[Byte], Array[Byte]) => Any, reader: (Long)=>Array[Byte]) {
         if (this.index == null) {
             this.index = new IndexKeyFile(file);
         }

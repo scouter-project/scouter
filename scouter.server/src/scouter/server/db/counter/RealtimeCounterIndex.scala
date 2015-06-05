@@ -20,7 +20,6 @@ package scouter.server.db.counter;
 import java.util.Hashtable
 
 import scouter.lang.value.MapValue
-import scouter.server.db.TableReader
 import scouter.util.FileUtil
 import scouter.util.IClose
 import scouter.util.IntKeyMap
@@ -56,7 +55,7 @@ class RealtimeCounterIndex(_file: String) extends IClose {
     }
 
     def read(objHash: Int, stime: Long, etime: Long, handler: (Long, MapValue) => Boolean, dataMap: IntKeyMap[String],
-        reader: TableReader) {
+        reader: (Long)=>Array[Byte]) {
         if (this.index == null) {
             this.index = new RealtimeCounterKeyFile(file);
         }
@@ -64,7 +63,7 @@ class RealtimeCounterIndex(_file: String) extends IClose {
     }
 
     def readFromEnd(objHash: Int, stime: Long, etime: Long, handler: (Long, MapValue) => Boolean, dataMap: IntKeyMap[String],
-        reader: TableReader) {
+        reader: (Long)=>Array[Byte]) {
         if (this.index == null) {
             this.index = new RealtimeCounterKeyFile(file);
         }

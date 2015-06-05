@@ -37,7 +37,7 @@ object AlertRD {
             try {
                 reader = AlertReader.open(file)
                 index = AlertIndex.open(file)
-                index.read(fromTime, toTime, handler, reader)
+                index.read(fromTime, toTime, handler, reader.read)
             } catch {
                 case e: Throwable => e.printStackTrace()
             } finally {
@@ -57,7 +57,7 @@ object AlertRD {
             try {
                 reader = AlertReader.open(file)
                 index = AlertIndex.open(file)
-                index.readFromEnd(fromTime, toTime, handler, reader)
+                index.readFromEnd(fromTime, toTime, handler, reader.read)
             } catch {
                 case e: Throwable => e.printStackTrace()
             } finally {

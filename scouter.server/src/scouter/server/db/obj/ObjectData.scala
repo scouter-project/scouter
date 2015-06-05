@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Hashtable;
 
-import scouter.server.db.TableReader;
 import scouter.util.IClose;
 
 object ObjectData {
@@ -40,7 +39,7 @@ object ObjectData {
     }
 }
 
-class ObjectData(file: String) extends TableReader with IClose {
+class ObjectData(file: String) extends  IClose {
 
     var refrence = 0;
     val dataFile = new RandomAccessFile(file + ".data", "rw");

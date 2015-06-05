@@ -35,7 +35,7 @@ object StatusRD {
       try {
         reader = StatusReader.open(file)
         table = StatusIndex.open(file)
-        table.read(fromTime, toTime, handler, reader) 
+        table.read(fromTime, toTime, handler, reader.read) 
       } catch {
         case e: Throwable => e.printStackTrace();
       } finally {
@@ -67,7 +67,7 @@ object StatusRD {
       try {
         reader = StatusReader.open(file);
         table = StatusIndex.open(file);
-        table.readFromEnd(fromTime, toTime, handler, reader) 
+        table.readFromEnd(fromTime, toTime, handler, reader.read) 
       } catch {
         case e: Throwable => e.printStackTrace();
       } finally {

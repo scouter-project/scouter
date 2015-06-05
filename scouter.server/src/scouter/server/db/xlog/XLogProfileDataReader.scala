@@ -24,7 +24,6 @@ import java.util.Hashtable;
 import java.util.Properties;
 
 import scouter.server.Configure;
-import scouter.server.db.TableReader;
 import scouter.server.db.io.zip.GZipStore;
 import scouter.util.FileUtil;
 import scouter.util.IClose;
@@ -46,7 +45,7 @@ object XLogProfileDataReader {
     }
 }
 
-class XLogProfileDataReader(date: String, file: String) extends TableReader with IClose {
+class XLogProfileDataReader(date: String, file: String) extends  IClose {
 
     var refrence = 0;
     val conf = Configure.getInstance();

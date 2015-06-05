@@ -68,14 +68,14 @@ class AlertIndex(file: String) extends IClose {
         }
     }
 
-    def read(fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any, reader: AlertReader) {
+    def read(fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long)=>Array[Byte]) {
         if (this.timeIndex == null) {
             this.timeIndex = new IndexTimeFile(file + POSTFIX_TIME);
         }
          this.timeIndex.read(fromTime, toTime, handler, reader);
     }
 
-    def readFromEnd(fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any, reader: AlertReader) {
+    def readFromEnd(fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long)=>Array[Byte]) {
         if (this.timeIndex == null) {
             this.timeIndex = new IndexTimeFile(file + POSTFIX_TIME);
         }

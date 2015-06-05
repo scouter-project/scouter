@@ -22,7 +22,7 @@ object RealtimeCounterRD {
             perfdb = new RealtimeCounterDBHelper().open(objName, date, true);
             if (perfdb == null)
                 return ;
-            perfdb.index.read(HashUtil.hash(objName), stime, etime, handler, perfdb.header.getTagIntStr(), perfdb.items);
+            perfdb.counterIndex.read(HashUtil.hash(objName), stime, etime, handler, perfdb.counterDbHeader.getTagIntStr(), perfdb.counterData.read);
         } catch {
             case e: Exception => e.printStackTrace();
         } finally {
@@ -38,7 +38,7 @@ object RealtimeCounterRD {
             logdb = new RealtimeCounterDBHelper().open(objName, date, true);
             if (logdb == null)
                 return null;
-            return logdb.header.getTagStrInt().keys();
+            return logdb.counterDbHeader.getTagStrInt().keys();
         } catch {
             case e: Exception => e.printStackTrace();
         } finally {
@@ -60,8 +60,8 @@ object RealtimeCounterRD {
             if (logdb == null)
                 return ;
 
-            logdb.index.readFromEnd(HashUtil.hash(objName), stime, etime, handler, logdb.header.getTagIntStr(),
-                logdb.items);
+            logdb.counterIndex.readFromEnd(HashUtil.hash(objName), stime, etime, handler, logdb.counterDbHeader.getTagIntStr(),
+                logdb.counterData.read);
         } catch {
             case e: Exception => e.printStackTrace();
         } finally {
@@ -75,7 +75,7 @@ object RealtimeCounterRD {
             logdb = new RealtimeCounterDBHelper().open(objName, date, true);
             if (logdb == null)
                 return null;
-            return logdb.header.getTagStrInt().keys();
+            return logdb.counterDbHeader.getTagStrInt().keys();
         } catch {
             case e: Exception => e.printStackTrace();
         } finally {

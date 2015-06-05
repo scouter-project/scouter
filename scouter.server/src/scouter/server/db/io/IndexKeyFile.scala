@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import scouter.server.Logger;
-import scouter.server.db.TableReader;
 import scouter.io.DataInputX;
 import scouter.util.CompareUtil;
 import scouter.util.HashUtil;
@@ -179,7 +178,7 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
         }
     }
 
-    def read(handler: (Array[Byte], Array[Byte]) => Any, reader: TableReader) {
+    def read(handler: (Array[Byte], Array[Byte]) => Any, reader: (Long)=>Array[Byte]) {
         if (this.keyFile == null)
             return ;
         var pos = this.keyFile.getFirstPos();
@@ -189,7 +188,7 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
             while (pos < length) {
                 val r = this.keyFile.getRecord(pos);
                 if (r.deleted == false) {
-                    handler(r.key, reader.read(DataInputX.toLong5(r.value, 0)))
+                    handler(r.key, reader(DataInputX.toLong5(r.value, 0)))
                 }
                 done += 1;
                 pos = r.next;

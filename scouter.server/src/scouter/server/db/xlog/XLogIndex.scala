@@ -25,7 +25,6 @@ import java.util.Iterator
 import java.util.List
 import java.util.Map
 import java.util.Set
-import scouter.server.db.TableReader
 import scouter.server.db.io.IndexKeyFile
 import scouter.server.db.io.IndexTimeFile
 import scouter.io.DataInputX
@@ -122,14 +121,14 @@ class XLogIndex(_file: String) extends IClose {
         return olist;
     }
 
-    def readByTxid(handler: (Array[Byte], Array[Byte]) => Any, dr: TableReader) {
+    def readByTxid(handler: (Array[Byte], Array[Byte]) => Any, dr: (Long)=>Array[Byte]) {
         if (this.txidIndex == null) {
             this.txidIndex = new IndexKeyFile(file + XLogIndex.POSTFIX_TID);
         }
         this.txidIndex.read(handler, dr);
     }
 
-    def readByGxid(handler: (Array[Byte], Array[Byte]) => Any, dr: TableReader) {
+    def readByGxid(handler: (Array[Byte], Array[Byte]) => Any, dr: (Long)=>Array[Byte]) {
         if (this.gxidIndex == null) {
             this.gxidIndex = new IndexKeyFile(file + XLogIndex.POSTFIX_GID);
         }

@@ -77,9 +77,9 @@ object RealtimeCounterDBHelper {
     }
 }
 class RealtimeCounterDBHelper extends IClose {
-    var header: RealtimeCounterDBHeader = null
-    var index: RealtimeCounterIndex = null
-    var items: RealtimeCounterData = null
+    var counterDbHeader: RealtimeCounterDBHeader = null
+    var counterIndex: RealtimeCounterIndex = null
+    var counterData: RealtimeCounterData = null
     var currentDateUnit = 0L
     var activeTime = 0L
 
@@ -104,9 +104,9 @@ class RealtimeCounterDBHelper extends IClose {
         }
         val file = path + "/real";
 
-        this.header = RealtimeCounterDBHeader.open(file);
-        this.index = RealtimeCounterIndex.open(file);
-        this.items = RealtimeCounterData.open(file);
+        this.counterDbHeader = RealtimeCounterDBHeader.open(file);
+        this.counterIndex = RealtimeCounterIndex.open(file);
+        this.counterData = RealtimeCounterData.open(file);
         this.activeTime = System.currentTimeMillis();
 
         return this;
@@ -116,11 +116,11 @@ class RealtimeCounterDBHelper extends IClose {
     }
 
     override def close() {
-        FileUtil.close(index);
-        FileUtil.close(items);
-        FileUtil.close(header);
-        index = null;
-        items = null;
+        FileUtil.close(counterIndex);
+        FileUtil.close(counterData);
+        FileUtil.close(counterDbHeader);
+        counterIndex = null;
+        counterData = null;
     }
 
     def close(dbs: Map[String, RealtimeCounterDBHelper]) {

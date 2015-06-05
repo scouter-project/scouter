@@ -17,12 +17,9 @@
 
 package scouter.server.db.counter;
 
-import java.io.IOException
-import java.util.Map
-import scouter.server.db.TableReader
-import scouter.lang.value.MapValue
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
+import scouter.lang.value.MapValue
 import scouter.server.db.io.IndexTimeFile
 import scouter.util.IntKeyMap
 
@@ -36,7 +33,7 @@ class RealtimeCounterKeyFile(path: String) extends IndexTimeFile(path) {
     }
 
     def read(objHash: Int, stime: Long, etime: Long, handler: (Long, MapValue) => Boolean,
-        dataMap: IntKeyMap[String], reader: TableReader): Boolean = {
+        dataMap: IntKeyMap[String], reader: (Long)=>Array[Byte]): Boolean = {
         try {
             super.read(stime, etime, (time: Long, data: Array[Byte]) => {
                 try {
@@ -52,7 +49,7 @@ class RealtimeCounterKeyFile(path: String) extends IndexTimeFile(path) {
                     if (hash != objHash)
                         return true;
 
-                    val items = RealtimeCounterDBHelper.setTagBytes(dataMap, reader.read(pos));
+                    val items = RealtimeCounterDBHelper.setTagBytes(dataMap, reader(pos));
                     if (handler(time, items) == false) {
                         return false;
                     }
@@ -68,7 +65,7 @@ class RealtimeCounterKeyFile(path: String) extends IndexTimeFile(path) {
     }
 
     def readFromEnd(objHash: Int, stime: Long, etime: Long, handler: (Long, MapValue) => Boolean,
-        dataMap: IntKeyMap[String], reader: TableReader): Boolean = {
+        dataMap: IntKeyMap[String], reader: (Long)=>Array[Byte]): Boolean = {
         try {
 
             super.readFromEnd(stime, etime, (time: Long, data: Array[Byte]) => {
@@ -85,7 +82,7 @@ class RealtimeCounterKeyFile(path: String) extends IndexTimeFile(path) {
                     if (hash != objHash)
                         return true;
 
-                    val items = RealtimeCounterDBHelper.setTagBytes(dataMap, reader.read(pos));
+                    val items = RealtimeCounterDBHelper.setTagBytes(dataMap, reader(pos));
                     if (handler(time, items) == false) {
                         return false;
                     }

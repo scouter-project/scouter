@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Hashtable;
 
-import scouter.server.db.TableReader;
 import scouter.util.FileUtil;
 import scouter.util.IClose;
 
@@ -43,7 +42,7 @@ object AlertReader {
     }
 }
 
-class AlertReader(file: String) extends TableReader with IClose {
+class AlertReader(file: String) extends  IClose {
 
     var refrence = 0;
     private val pointFile = new RandomAccessFile(file + ".alert", "rw");

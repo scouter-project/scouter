@@ -21,7 +21,6 @@ import java.io.IOException
 import java.util.ArrayList
 import java.util.Hashtable
 import java.util.List
-import scouter.server.db.TableReader
 import scouter.server.db.io.IndexKeyFile
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
@@ -92,7 +91,7 @@ class XLogProfileIndex(_file: String) extends IClose {
         return olist;
     }
     
-    def read(handler: (Array[Byte], Array[Byte]) => Unit, dr: TableReader) {
+    def read(handler: (Array[Byte], Array[Byte]) => Unit, dr: (Long)=>Array[Byte]) {
         checkOpen();
         this.profileX.read(handler, dr);
     }
