@@ -117,21 +117,4 @@ public class MemHashBlock implements IFlushable {
 	public void close() {
 		FlushCtr.getInstance().unregist(this);
 	}
-
-	public boolean renameTo(String newPath) throws IOException {
-		if (this.file == null)
-			return false;
-		close();
-		boolean ok = this.file.renameTo(new File(newPath + ".hfile"));
-		open(ok ? newPath : this.path, 0);
-		return ok;
-	}
-
-	public synchronized void terminate() {
-		close();
-		try {
-			file.delete();
-		} catch (Throwable t) {
-		}
-	}
 }

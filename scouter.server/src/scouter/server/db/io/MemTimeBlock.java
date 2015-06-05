@@ -118,18 +118,4 @@ public class MemTimeBlock implements IFlushable {
 		FlushCtr.getInstance().unregist(this);
 	}
 
-	public boolean renameTo(String newPath) throws IOException {
-		if (this.file == null)
-			return false;
-		close();
-		boolean ok = this.file.renameTo(new File(newPath + ".hfile"));
-		open(ok ? newPath : this.path);
-		return ok;
-	}
-
-	public void terminate() {
-		close();
-		this.file.delete();
-	}
-
 }
