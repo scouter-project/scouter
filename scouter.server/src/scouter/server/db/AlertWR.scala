@@ -20,7 +20,6 @@ package scouter.server.db
 import scouter.lang.pack.AlertPack
 import scouter.io.DataOutputX
 import scouter.server.Logger
-import scouter.server.core.Alert5mSummary
 import scouter.server.db.alert.AlertIndex
 import scouter.server.db.alert.AlertWriter
 import scouter.server.plugin.PlugInManager
@@ -42,7 +41,6 @@ object AlertWR {
         while (DBCtr.running) {
             val p = queue.get()
             try {
-                Alert5mSummary.add(p)
                 PlugInManager.alert(p)
 
                 if (currentDateUnit != DateUtil.getDateUnit(p.time)) {

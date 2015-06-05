@@ -45,7 +45,6 @@ object ServiceCore {
         if (conf.enable_geoip) {
             GeoIpUtil.setNationAndCity(m);
         }
-        Appls5mSummary.add(m);
         XLogGroupPerf.add(m);
     }
     ThreadScala.startDaemon("ServiceCore", { CoreRun.running }) {
@@ -53,7 +52,6 @@ object ServiceCore {
 
         m.xType match {
             case XLogTypes.WEB_SERVICE =>
-                Ip5mSummary.add(m);
                 calc(m)
             case XLogTypes.APP_SERVICE =>
                 calc(m)
@@ -68,7 +66,7 @@ object ServiceCore {
             XLogTagCount.add(m)
         }
         XLogWR.add(m.endTime, m.txid, m.gxid, m.elapsed, b);
-        
+
     }
 
     def add(p: XLogPack) {

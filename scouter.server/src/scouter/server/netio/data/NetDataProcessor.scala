@@ -17,14 +17,11 @@
 
 package scouter.server.netio.data;
 
-import java.io.IOException
 import java.net.InetAddress
-import java.text.DecimalFormat
-import java.util.HashSet
-import java.util.Set
+
+import scouter.io.DataInputX
 import scouter.lang.TextTypes
 import scouter.lang.pack.AlertPack
-import scouter.lang.pack.MapPack
 import scouter.lang.pack.ObjectPack
 import scouter.lang.pack.Pack
 import scouter.lang.pack.PackEnum
@@ -33,26 +30,22 @@ import scouter.lang.pack.StatusPack
 import scouter.lang.pack.TextPack
 import scouter.lang.pack.XLogPack
 import scouter.lang.pack.XLogProfilePack
-import scouter.io.DataInputX
 import scouter.net.NetCafe
 import scouter.net.SocketAddr
 import scouter.server.Configure
 import scouter.server.Logger
 import scouter.server.core.AgentManager
 import scouter.server.core.AlertCore
-import scouter.server.core.MapPackCore
 import scouter.server.core.PerfCountCore
 import scouter.server.core.ProfileCore
 import scouter.server.core.ServiceCore
 import scouter.server.core.StatusCore
 import scouter.server.core.TextCore
 import scouter.server.core.cache.TextCache
+import scouter.server.util.ThreadScala
 import scouter.util.BytesUtil
-import scouter.util.Queue
 import scouter.util.RequestQueue
 import scouter.util.StringUtil
-import scouter.util.ThreadUtil;
-import scouter.server.util.ThreadScala
 
 object NetDataProcessor {
 
@@ -196,11 +189,6 @@ object NetDataProcessor {
                 if (conf.debug_udp_object) {
                     System.out.println("DEBUG UDP OBJECT: " + p);
                 }
-            case PackEnum.MAP =>
-                if (conf.debug_tcp_stat) {
-                    System.out.println("DEBUG TCP STAT: " + p);
-                }
-                MapPackCore.add(p.asInstanceOf[MapPack]);
             case PackEnum.PERF_STATUS =>
                 StatusCore.add(p.asInstanceOf[StatusPack]);
                 if (conf.debug_udp_status) {

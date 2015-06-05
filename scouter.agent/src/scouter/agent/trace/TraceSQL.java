@@ -21,7 +21,6 @@ import java.sql.Connection;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
-import scouter.agent.stat.ServiceStat;
 import scouter.jdbc.JdbcTrace;
 import scouter.lang.AlertLevel;
 import scouter.lang.step.MessageStep;
@@ -34,7 +33,6 @@ import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 
 public class TraceSQL {
-	// public final static String PSTMT_PARAM_FIELD = "_param_";
 	public final static int MAX_STRING = 20;
 
 	public static void set(int idx, boolean p) {
@@ -121,7 +119,7 @@ public class TraceSQL {
 
 		String sql = "unknown";
 		sql = c.sql.getSql();
-		sql=escapeLiteral(sql, step);
+		sql = escapeLiteral(sql, step);
 		step.param = c.sql.toString(step.param);
 
 		if (sql != null) {
@@ -173,8 +171,8 @@ public class TraceSQL {
 	private static IntKeyLinkedMap<ParsedSql> checkedSql = new IntKeyLinkedMap<ParsedSql>().setMax(1001);
 
 	private static String escapeLiteral(String sql, SqlStep step) {
-		int sqlHash=sql.hashCode();
-		if (noLiteralSql.contains(sqlHash)){
+		int sqlHash = sql.hashCode();
+		if (noLiteralSql.contains(sqlHash)) {
 			return sql;
 		}
 		ParsedSql psql = checkedSql.get(sqlHash);
@@ -235,10 +233,9 @@ public class TraceSQL {
 		tctx.sqlTime += ps.elapsed;
 
 		tctx.profile.pop(ps);
-		statistics.process(tctx.serviceHash, ps);
+
 	}
-	private static ServiceStat statistics=ServiceStat.getInstance();
-	
+
 	public static void prepare(Object o, String sql) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx != null) {
@@ -255,15 +252,15 @@ public class TraceSQL {
 					c.rs_start = System.currentTimeMillis();
 				}
 				c.rs_count++;
-			} 
-			//RS CLOSE할때만 FETCH 메세지를 출력한다.
-//			else {
-//				if (c.rs_start != 0) {
-//					fetch(c);
-//				}
-//				c.rs_start = 0;
-//				c.rs_count = 0;
-//			}
+			}
+			// RS CLOSE할때만 FETCH 메세지를 출력한다.
+			// else {
+			// if (c.rs_start != 0) {
+			// fetch(c);
+			// }
+			// c.rs_start = 0;
+			// c.rs_count = 0;
+			// }
 		}
 		return b;
 	}
@@ -275,7 +272,6 @@ public class TraceSQL {
 
 		long time = System.currentTimeMillis() - c.rs_start;
 
-		
 		// p.start_time = (int) (System.currentTimeMillis() - c.startTime -
 		// time);
 		p.start_time = (int) (System.currentTimeMillis() - c.startTime);
@@ -295,7 +291,8 @@ public class TraceSQL {
 				c.error = hash;
 			}
 			DataProxy.sendError(hash, msg);
-			AlertProxy.sendAlertTooManyFetch(AlertLevel.WARN, "TOO_MANY_RESULT", msg, c.serviceName, c.rs_count, c.txid);
+			AlertProxy
+					.sendAlertTooManyFetch(AlertLevel.WARN, "TOO_MANY_RESULT", msg, c.serviceName, c.rs_count, c.txid);
 		}
 	}
 
@@ -396,7 +393,7 @@ public class TraceSQL {
 		if (args != null) {
 			sql = args.getSql();
 			sql = escapeLiteral(sql, step);
-			step.param=args.toString(step.param);
+			step.param = args.toString(step.param);
 		}
 		if (sql != null) {
 			step.hash = StringHashCache.getSqlHash(sql);
@@ -422,7 +419,7 @@ public class TraceSQL {
 	}
 
 	// WRAPPER방식으로 추적할때 사용되면 DB2는 반드시 이방식을 사용해야함..
-	// 2014.12.11 
+	// 2014.12.11
 	public static Connection endCreateDBC(Connection conn, Object stat) {
 		if (conn == null) {
 			TraceSQL.dbcOpenEnd(stat, null);

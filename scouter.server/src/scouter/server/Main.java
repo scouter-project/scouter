@@ -21,7 +21,6 @@ import java.io.File;
 import scouter.Version;
 import scouter.server.account.AccountManager;
 import scouter.server.core.AutoDeleteScheduler;
-import scouter.server.core.CollectorCore;
 import scouter.server.core.TextCacheReset;
 import scouter.server.netio.data.NetDataProcessor;
 import scouter.server.netio.data.net.DataUdpServer;
@@ -54,8 +53,6 @@ public class Main {
 		NetDataProcessor.working();
 
 		AutoDeleteScheduler.getInstance();
-
-		CollectorCore.conf();
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {

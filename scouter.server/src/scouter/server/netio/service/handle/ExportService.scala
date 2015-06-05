@@ -35,8 +35,6 @@ import scouter.server.Logger
 import scouter.server.db.DailyCounterRD
 import scouter.server.db.RealtimeCounterRD
 import scouter.server.db.ObjectRD
-import scouter.server.db.SummaryRD
-import scouter.server.db.summary.SummaryDataReader
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.util.CastUtil
 import scouter.util.DateUtil
@@ -149,28 +147,4 @@ class ExportService {
         }
     }
 
-    @ServiceHandler(RequestCmd.EXPORT_APP_SUMMARY)
-    def exportAppSummary(din: DataInputX, dout: DataOutputX, login: Boolean) {
-        val param = din.readMapPack();
-        val date = param.getText("date");
-        val stime = DateUtil.yyyymmdd(date);
-        val etime = stime + DateUtil.MILLIS_PER_DAY - 1;
-
-        val handler = (time: Long, objHash: Int, _type: Byte, pos: Long, reader: SummaryDataReader) => {
-            val data = new DataInputX(reader.read(pos)).readMapPack();
-            val hhmm = DateUtil.hhmm(time);
-            val pack = new MapPack();
-            pack.put("hhmm", hhmm);
-            pack.put("objHash", objHash);
-            pack.put("service", data.getList("service"));
-            pack.put("count", data.getList("count"));
-            pack.put("elapsedSum", data.getList("elapsedSum"));
-
-            dout.writeByte(TcpFlag.HasNEXT);
-            dout.writePack(pack);
-            dout.flush()
-        }
-
-        SummaryRD.read(date, stime, etime, SummaryEnum.APP, handler)
-    }
 }

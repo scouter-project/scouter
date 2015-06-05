@@ -136,22 +136,10 @@ public class RequestCmd {
 	public static final String SHOW_REAL_TIME_STRING = "SHOW_REAL_TIME_STRING";
 	public static final String COUNTER_MAP_REAL_TIME = "COUNTER_MAP_REAL_TIME";
 
-	public static final String LOAD_SERVICE_SUMMARY = "LOAD_SERVICE_SUMMARY";
-	public static final String LOAD_SERVICE_SHORTTIME_SUMMARY = "LOAD_SERVICE_SHORTTIME_SUMMARY";
-	public static final String LOAD_APICALL_SUMMARY = "LOAD_APICALL_SUMMARY";
-	public static final String LOAD_APP_APICALL_SUMMARY = "LOAD_APP_APICALL_SUMMARY";
-	public static final String LOAD_SQL_SUMMARY = "LOAD_SQL_SUMMARY";
-	public static final String LOAD_APP_SQL_SUMMARY = "LOAD_APP_SQL_SUMMARY";
-	public static final String LOAD_IP_SUMMARY = "LOAD_IP_SUMMARY";
-	public static final String LOAD_DAILY_IP_SUMMARY = "LOAD_DAILY_IP_SUMMARY";
-	
-	// /////////////////////////////////////
-
 	public static final String ALERT_REAL_TIME = "ALERT_REAL_TIME";
 	public static final String ALERT_LOAD_TIME = "ALERT_LOAD_TIME";
 	public static final String ALERT_DAILY_COUNT = "ALERT_DAILY_COUNT";
 	public static final String ALERT_TITLE_COUNT = "ALERT_TITLE_COUNT";
-	// public static final String ALERT_CLOSE = 1061;
 	public static final String GET_COUNTER_EXIST_DAYS = "GET_COUNTER_EXIST_DAYS";
 
 	public static final String GET_TEXT = "GET_TEXT";
@@ -221,9 +209,7 @@ public class RequestCmd {
 	// MANAGE COUNTER
 	public static final String DEFINE_OBJECT_TYPE = "DEFINE_OBJECT_TYPE";
 	public static final String EDIT_OBJECT_TYPE = "EDIT_OBJECT_TYPE";
-	
-	public static final String STAT_SERVICE = "STAT_SERVICE";
-	
+		
 	//TAGCNT
 	public static final String TAGCNT_DIV_NAMES = "TAGCNT_DIV_NAMES";
 	public static final String TAGCNT_TAG_NAMES = "TAGCNT_TAG_NAMES";

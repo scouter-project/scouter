@@ -17,31 +17,23 @@
 
 package scouter.server.netio.service.handle;
 
+import java.util.HashMap
+import scala.collection.JavaConversions._
+import scouter.io.DataInputX
+import scouter.io.DataOutputX
 import scouter.lang.AlertLevel
-import scouter.lang.SummaryEnum
 import scouter.lang.pack.AlertPack
 import scouter.lang.pack.MapPack
 import scouter.lang.pack.ObjectPack
 import scouter.lang.value.DecimalValue
-import scouter.lang.value.ListValue
-import scouter.lang.value.MapValue
-import scouter.io.DataInputX
-import scouter.io.DataOutputX
-import scouter.net.RequestCmd
 import scouter.net.TcpFlag
 import scouter.server.core.cache.AlertCache
 import scouter.server.core.cache.CacheOut
 import scouter.server.db.AlertRD
 import scouter.server.db.ObjectRD
-import scouter.server.db.SummaryRD
-import scouter.server.db.summary.SummaryDataReader
 import scouter.server.netio.service.anotation.ServiceHandler
-import scouter.util.CastUtil
-import scouter.util.DateUtil
-import java.util.HashMap
-import scala.collection.JavaConversions._
 import scouter.server.util.EnumerScala
-import scouter.lang.value.TextValue
+import scouter.net.RequestCmd
 
 class AlertService {
 
@@ -106,94 +98,7 @@ class AlertService {
         AlertRD.readByTime(date, stime, etime, handler)
     }
 
-    @ServiceHandler(RequestCmd.ALERT_DAILY_COUNT)
-    def dailyAlertCount(din: DataInputX, dout: DataOutputX, login: Boolean) {
-        val param = din.readPack().asInstanceOf[MapPack];
-        val date = param.getText("date");
-        val stime = param.getLong("stime");
-        val etime = param.getLong("etime");
-        //
-        val infoPack = new MapPack();
-        infoPack.put("level", AlertLevel.getName(AlertLevel.INFO));
-        val warnPack = new MapPack();
-        warnPack.put("level", AlertLevel.getName(AlertLevel.WARN));
-        val errPack = new MapPack();
-        errPack.put("level", AlertLevel.getName(AlertLevel.ERROR));
-        val fatalPack = new MapPack();
-        fatalPack.put("level", AlertLevel.getName(AlertLevel.FATAL));
-
-        val handler = (time: Long, objHash: Int, _type: Byte, pos: Long, reader: SummaryDataReader) => {
-            val data = new DataInputX(reader.read(pos)).readPack().asInstanceOf[MapPack];
-            val hhmm = DateUtil.hhmm(time);
-            val titleLv = data.getList("title");
-            val levelLv = data.getList("level");
-            val countLv = data.getList("count");
-
-            EnumerScala.foreach(levelLv, countLv, (levelB: DecimalValue, count: DecimalValue) => {
-                val level = levelB.byteValue()
-                level match {
-                    case AlertLevel.INFO =>
-                        infoPack.put(hhmm, CastUtil.cint(infoPack.get(hhmm)) + count.longValue());
-                    case AlertLevel.WARN =>
-                        warnPack.put(hhmm, CastUtil.cint(warnPack.get(hhmm)) + count.longValue());
-                    case AlertLevel.ERROR =>
-                        errPack.put(hhmm, CastUtil.cint(errPack.get(hhmm)) + count.longValue());
-                    case AlertLevel.FATAL =>
-                        fatalPack.put(hhmm, CastUtil.cint(fatalPack.get(hhmm)) + count.longValue());
-                }
-            })
-
-        }
-
-        SummaryRD.read(date, stime, etime, SummaryEnum.ALERT, handler)
-
-        dout.writeByte(TcpFlag.HasNEXT);
-        dout.writePack(infoPack);
-        dout.writeByte(TcpFlag.HasNEXT);
-        dout.writePack(warnPack);
-        dout.writeByte(TcpFlag.HasNEXT);
-        dout.writePack(errPack);
-        dout.writeByte(TcpFlag.HasNEXT);
-        dout.writePack(fatalPack);
-    }
-
-    @ServiceHandler(RequestCmd.ALERT_TITLE_COUNT)
-    def titleAlertCount(din: DataInputX, dout: DataOutputX, login: Boolean) {
-        val param = din.readPack().asInstanceOf[MapPack];
-        val date = param.getText("date");
-        val stime = param.getLong("stime");
-        val etime = param.getLong("etime");
-        val valueMap = new HashMap[String, MapPack]();
-
-        val handler = (time: Long, objHash: Int, _type: Byte, pos: Long, reader: SummaryDataReader) => {
-            val data = new DataInputX(reader.read(pos)).readPack().asInstanceOf[MapPack];
-            val hhmm = DateUtil.hhmm(time);
-            val titleLv = data.getList("title");
-            val levelLv = data.getList("level");
-            val countLv = data.getList("count");
-
-            EnumerScala.foreach(titleLv, levelLv, countLv, (title: TextValue, level: DecimalValue, count: DecimalValue) => {
-                var pack = valueMap.get(title);
-                if (pack == null) {
-                    pack = new MapPack();
-                    pack.put("title", title);
-                    pack.put("level", level);
-                    pack.put("count", new MapValue());
-                    valueMap.put(title.toString(), pack);
-                }
-                val mv = pack.get("count").asInstanceOf[MapValue];
-                mv.put(hhmm, count);
-            })
-
-        }
-        SummaryRD.read(date, stime, etime, SummaryEnum.ALERT, handler)
-
-        val keySet = valueMap.keySet();
-        keySet.foreach((title: String) => {
-            dout.writeByte(TcpFlag.HasNEXT);
-            dout.writePack(valueMap.get(title));
-        })
-    }
+    
 
     private def check(date: String, level: String, obj: String, key: String, levelCode: Byte, tempObjNameMap: java.util.HashMap[Integer, String], data: Array[Byte]): Boolean = {
         val pack = new DataInputX(data).readPack().asInstanceOf[AlertPack];
