@@ -3,7 +3,10 @@
       id="scouter.client.feature"
       label="Scouter Feature"
       version="1.0.0.qualifier"
-      provider-name="Scouter Project">
+      provider-name="Scouter Project"
+      os="linux,macosx,win32"
+      ws="cocoa,gtk,win32"
+      arch="x86,x86_64">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]

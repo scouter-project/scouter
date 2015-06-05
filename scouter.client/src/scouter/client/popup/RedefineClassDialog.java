@@ -89,7 +89,6 @@ public class RedefineClassDialog {
 		final int servId = serverId;
 		final Shell dialog = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
 		dialog.setText("Redefine Classes");
-		dialog.setImage(Images.about);
 		
 		dialog.setLayout(UIUtil.formLayout(5, 5));
 

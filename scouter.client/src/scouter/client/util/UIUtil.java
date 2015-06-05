@@ -44,7 +44,6 @@ public class UIUtil {
 	}
 	
 	public static void setDialogDefaultFunctions(final Shell shell){
-		shell.setImage(Images.about);
 		shell.addListener(SWT.Traverse, new Listener() {
 			public void handleEvent(Event event) {
 				switch (event.detail) {

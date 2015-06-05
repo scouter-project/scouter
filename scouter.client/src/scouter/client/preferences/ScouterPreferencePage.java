@@ -51,19 +51,16 @@ public class ScouterPreferencePage extends FieldEditorPreferencePage implements 
 	
 	ComboFieldEditor serverIP;
 	
-	Combo /*addrCombo,*/ javaeeCombo, databaseCombo;
+	Combo /*addrCombo,*/ javaeeCombo;
 	
-	Text file, color, maxText,  updatePathText, alertDialogTimeout;
+	Text file, color, maxText,  alertDialogTimeout;
 	
 	String filePath = "";
 	String colorRgb = "";
 	
 	private String javaee;
-	private String db;
 	
 	private int maxBlock;
-	
-	String updateServerPath = "";
 	
 	int alertdialogTimeoutSec = -1;
 	
@@ -107,17 +104,6 @@ public class ScouterPreferencePage extends FieldEditorPreferencePage implements 
 		javaLabel.setImage(Images.getObjectIcon(CounterConstants.JAVA, true, 0));
 		javaLabel.setLayoutData(UIUtil.formData(null, -1, 0, 8, javaeeCombo, -5, null, -1, 130));
 		
-	    databaseCombo = new Combo(layoutGroup, SWT.VERTICAL| SWT.BORDER |SWT.H_SCROLL);
-	    databaseCombo.setItems(counterEngine.getChildren(CounterConstants.FAMILY_DATABASE));
-	    databaseCombo.setText(db);
-	    databaseCombo.setEnabled(true);
-		databaseCombo.setLayoutData(UIUtil.formData(null, -1, javaeeCombo, 8, 100, -5, null, -1, 220));
-		
-		CLabel dbLabel = new CLabel(layoutGroup, SWT.NONE);
-		dbLabel.setText("default \'DB\'");
-		dbLabel.setImage(Images.getObjectIcon(CounterConstants.FAMILY_DATABASE, true, 0));
-		dbLabel.setLayoutData(UIUtil.formData(null, -1, javaLabel, 8, databaseCombo, -5, null, -1, 130));
-				
 		// ----Mass Profiling----
 		layoutGroup = new Group(parent, SWT.NONE);
 	    layoutGroup.setText("Profiling");
@@ -148,23 +134,6 @@ public class ScouterPreferencePage extends FieldEditorPreferencePage implements 
         label.setText("Max Block count:");
 		label.setLayoutData(UIUtil.formData(null, -1, null, -1, maxText, -5, null, -1, 100));
 		
-		
-		// ----Update----
-		layoutGroup = new Group(parent, SWT.NONE);
-	    layoutGroup.setText("Update Server");
-		layoutGroup.setLayout(UIUtil.formLayout(5, 5));
-		layoutGroup.setLayoutData(UIUtil.gridData(SWT.FILL));
-		
-		updatePathText = new Text(layoutGroup, SWT.BORDER);
-		updatePathText.setText(updateServerPath);
-		updatePathText.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
-		updatePathText.setLayoutData(UIUtil.formData(null, -1, 0, -2, 100, -5, null, -1, 265));
-		
-		Label updatePathLabel = new Label(layoutGroup, SWT.NONE);
-		updatePathLabel.setText("Update Server path:");
-		updatePathLabel.setLayoutData(UIUtil.formData(null, -1, null, -1, updatePathText, -5, null, -1));
-		
-		// ----Update----
 		layoutGroup = new Group(parent, SWT.NONE);
 	    layoutGroup.setText("Alert");
 		layoutGroup.setLayout(UIUtil.formLayout(5, 5));
@@ -188,11 +157,7 @@ public class ScouterPreferencePage extends FieldEditorPreferencePage implements 
 
 	public void init(IWorkbench workbench) {
 		javaee = PManager.getInstance().getString(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_WAS);
-		db = PManager.getInstance().getString(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_DB);
 		maxBlock = PManager.getInstance().getInt(PreferenceConstants.P_MASS_PROFILE_BLOCK);
-		
-		updateServerPath = PManager.getInstance().getString(PreferenceConstants.P_UPDATE_SERVER_ADDR);
-		
 		alertdialogTimeoutSec = PManager.getInstance().getInt(PreferenceConstants.P_ALERT_DIALOG_TIMEOUT);
 	}
 	
@@ -201,8 +166,7 @@ public class ScouterPreferencePage extends FieldEditorPreferencePage implements 
 
 		boolean needResetPerspective = false;
 		
-		if (!ObjectUtil.equals(javaee, javaeeCombo.getText())
-				|| !ObjectUtil.equals(db, databaseCombo.getText())) {
+		if (!ObjectUtil.equals(javaee, javaeeCombo.getText())) {
 			needResetPerspective = true;
 		}
 		
@@ -210,14 +174,8 @@ public class ScouterPreferencePage extends FieldEditorPreferencePage implements 
 				&& !MessageDialog.openConfirm(getShell(), "Reset Perspectives", "To apply \'Default Object Type\', all perspectives will be reset. Continue?")) {
 			return false;
 		}
-		
 		PManager.getInstance().setValue(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_WAS, javaeeCombo.getText());
-		PManager.getInstance().setValue(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_DB, databaseCombo.getText());
-		
 		PManager.getInstance().setValue(PreferenceConstants.P_MASS_PROFILE_BLOCK, CastUtil.cint(maxText.getText()));
-		
-		PManager.getInstance().setValue(PreferenceConstants.P_UPDATE_SERVER_ADDR, updatePathText.getText());
-		
 		PManager.getInstance().setValue(PreferenceConstants.P_ALERT_DIALOG_TIMEOUT, CastUtil.cint(alertDialogTimeout.getText()));
 		
 		if (needResetPerspective) {

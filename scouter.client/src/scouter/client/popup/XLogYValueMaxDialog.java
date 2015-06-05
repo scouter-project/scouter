@@ -85,7 +85,6 @@ public class XLogYValueMaxDialog {
 		
 		final Shell dialog = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
 		dialog.setText("Set Max Value");
-		dialog.setImage(Images.about);
 		
 		GridLayout gridLayout = new GridLayout(3, false);
 	    gridLayout.verticalSpacing = 8;

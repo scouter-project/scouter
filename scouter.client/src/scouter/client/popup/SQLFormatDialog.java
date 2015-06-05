@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.hibernate.jdbc.util.BasicFormatterImpl;
 
 import scouter.client.util.UIUtil;
 import scouter.util.StringUtil;
@@ -119,27 +120,17 @@ public class SQLFormatDialog {
 			}
 		});
 		
-//		final Button formatBtn = new Button(bottomComp, SWT.PUSH);
-//		formatBtn.setLayoutData(UIUtil.formData(null, -1, null, -1, btn, -5, null, -1, 100));
-//		formatBtn.setText("&Format");
-//		formatBtn.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(SelectionEvent e) {
-//				formatBtn.setEnabled(false);
-//				String[] key = {"sql"};
-//				String[] value = {text.getText()};
-//				String formatted = RestFulUtil.postResponseBody("http://sqlformat.org/api/v1/format", key, value);
-//				if (formatted != null) {
-//					text.setStyleRange(new StyleRange());
-//					try {
-//						JSONObject json = new JSONObject(formatted);
-//						text.setText(json.getString("result"));
-//					} catch (JSONException e1) {
-//						e1.printStackTrace();
-//					}
-//				}
-//				formatBtn.setEnabled(true);
-//			}
-//		});
+		final Button formatBtn = new Button(bottomComp, SWT.PUSH);
+		formatBtn.setLayoutData(UIUtil.formData(null, -1, null, -1, btn, -5, null, -1, 100));
+		formatBtn.setText("&Format");
+		formatBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				formatBtn.setEnabled(false);
+				String formateed = new BasicFormatterImpl().format(text.getText());
+				text.setText(formateed);
+				formatBtn.setEnabled(true);
+			}
+		});
 		
 		dialog.pack();
 		dialog.open();

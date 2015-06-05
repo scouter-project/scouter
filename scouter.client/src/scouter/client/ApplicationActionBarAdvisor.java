@@ -89,7 +89,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		register(exitAction);
 		
 		aboutAction = ActionFactory.ABOUT.create(window);
-		aboutAction.setImageDescriptor(ImageUtil.getImageDescriptor(Images.about));
 		register(aboutAction);
 		
 		preferencesAction = ActionFactory.PREFERENCES.create(window);

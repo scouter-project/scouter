@@ -117,7 +117,6 @@ public class AlertNotifierDialog {
 	private Shell setDialogLayout() {
 		final Shell dialog = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
 		dialog.setText("Alert");
-		dialog.setImage(Images.about);
 		dialog.setLayout(UIUtil.formLayout(5, 5));
 
 	    Label iconLbl = new Label(dialog, SWT.NONE);

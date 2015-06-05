@@ -16,4 +16,5 @@ Require-Bundle: org.eclipse.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
- lib/scouter.common.jar
+ lib/scouter.common.jar,
+ lib/hibernate-core-3.3.2.GA.jar

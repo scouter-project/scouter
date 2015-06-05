@@ -33,7 +33,7 @@
 
   <extension id="application" point="org.eclipse.core.runtime.applications"
              name="Scouter">
-    <application icon="icons/h_app.png">
+    <application icon="icons/h128.png">
       <run class="scouter.client.Application"/>
     </application>
   </extension>
@@ -846,7 +846,6 @@
              label="About">
           <command
                 commandId="org.eclipse.ui.help.aboutAction"
-                icon="icons/habout.png"
                 label="About Scouter"
                 style="push">
           </command>
