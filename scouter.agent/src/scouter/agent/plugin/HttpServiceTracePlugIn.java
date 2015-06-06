@@ -22,6 +22,7 @@ import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.proxy.LoaderManager;
 import scouter.agent.trace.TraceContext;
+import scouter.lang.conf.ConfObserver;
 import scouter.lang.pack.XLogPack;
 import scouter.util.CompareUtil;
 import scouter.util.StringUtil;
@@ -32,6 +33,7 @@ public class HttpServiceTracePlugIn {
 		public boolean reject(TraceContext ctx, Object req, Object res) {
 			return false;
 		}
+
 		public void start(TraceContext ctx, Object req, Object res) {
 		}
 
@@ -47,7 +49,7 @@ public class HttpServiceTracePlugIn {
 
 		if (reload || CompareUtil.equals(plugin_http_trace, conf.plugin_http_trace) == false) {
 			plugin_http_trace = conf.plugin_http_trace;
-			
+
 			Logger.println("PLUG-IN: load httpservice-plugin");
 
 			ClassLoader loader = LoaderManager.getPlugInLoader();
@@ -72,14 +74,15 @@ public class HttpServiceTracePlugIn {
 	}
 
 	private static String plugin_subcall_name;
+
 	private static void loadApiCallName(boolean reload) {
 		Configure conf = Configure.getInstance();
 		if (reload || CompareUtil.equals(plugin_subcall_name, conf.plugin_apicall_name) == false) {
 			plugin_subcall_name = conf.plugin_apicall_name;
 			ApiCallTracePlugin.reinit();
-			
+
 			Logger.println("PLUG-IN: load subcall-plugin");
-			
+
 			ClassLoader loader = LoaderManager.getPlugInLoader();
 			if (loader == null) {
 				return;
@@ -107,7 +110,7 @@ public class HttpServiceTracePlugIn {
 		loadHttpService(true);
 		loadApiCallName(true);
 
-		Configure.getInstance().addObserver(HttpServiceTracePlugIn.class.getName(), new Runnable() {
+		ConfObserver.add(HttpServiceTracePlugIn.class.getName(), new Runnable() {
 			public void run() {
 				boolean reload = reloadClassLoader();
 				loadHttpService(reload);
@@ -129,11 +132,13 @@ public class HttpServiceTracePlugIn {
 	}
 
 	public static boolean reject(TraceContext ctx, Object req, Object res) {
-		return plugIn.reject(ctx,req,res);
+		return plugIn.reject(ctx, req, res);
 	}
+
 	public static void start(TraceContext ctx, Object req, Object res) {
-		plugIn.start(ctx,req,res);
+		plugIn.start(ctx, req, res);
 	}
+
 	public static void end(TraceContext ctx, XLogPack p) {
 		plugIn.end(ctx, p);
 	}

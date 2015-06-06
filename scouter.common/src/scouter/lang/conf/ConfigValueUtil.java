@@ -14,7 +14,7 @@
  *  limitations under the License. 
  */
 
-package scouter.util;
+package scouter.lang.conf;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -30,6 +30,10 @@ import scouter.lang.value.FloatValue;
 import scouter.lang.value.NullValue;
 import scouter.lang.value.TextValue;
 import scouter.lang.value.Value;
+import scouter.util.ArrayUtil;
+import scouter.util.ParamText;
+import scouter.util.StringKeyLinkedMap;
+import scouter.util.StringUtil;
 
 public class ConfigValueUtil {
 	public static Properties replaceSysProp(Properties temp) {

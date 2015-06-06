@@ -34,6 +34,7 @@ import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
 import scouter.agent.counter.meter.MeterResource;
 import scouter.lang.TimeTypeEnum;
+import scouter.lang.conf.ConfObserver;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.DecimalValue;
 import scouter.lang.value.FloatValue;
@@ -55,8 +56,7 @@ public class TomcatJMXPerf {
 		deltas.add(CounterConstants.REQUESTPROCESS_PROCESSING_TIME);
 		deltas.add(CounterConstants.REQUESTPROCESS_REQUEST_COUNT);
 		
-		Configure conf = Configure.getInstance();
-		conf.addObserver("TOMCAT", new Runnable() {
+		ConfObserver.add("TomcatJMXPerf", new Runnable() {
 			public void run() {
 				ObjTypeDetector.dirtyConfig=true;
 			}

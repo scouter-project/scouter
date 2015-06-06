@@ -38,11 +38,12 @@ import scouter.agent.asm.JDBCResultSetASM;
 import scouter.agent.asm.JDBCStatementASM;
 import scouter.agent.asm.JspServletASM;
 import scouter.agent.asm.MethodASM;
+import scouter.agent.asm.ScouterClassWriter;
 import scouter.agent.asm.ServiceASM;
 import scouter.agent.asm.SocketASM;
-import scouter.agent.asm.ScouterClassWriter;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncHook;
+import scouter.lang.conf.ConfObserver;
 import scouter.org.objectweb.asm.ClassReader;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.ClassWriter;
@@ -60,7 +61,7 @@ public class AgentTransformer implements ClassFileTransformer {
 		final Configure conf = Configure.getInstance();
 		reload();
 		hook_signature=conf.hook_signature;
-		conf.addObserver("AgentTransformer", new Runnable(){
+		ConfObserver.add("AgentTransformer", new Runnable(){
 			 public void run() {
 				if(conf.hook_signature !=hook_signature){
 					reload();

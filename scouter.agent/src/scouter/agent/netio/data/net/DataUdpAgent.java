@@ -26,6 +26,7 @@ import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+import scouter.lang.conf.ConfObserver;
 import scouter.net.NetCafe;
 import scouter.util.CastUtil;
 import scouter.util.CompareUtil;
@@ -48,7 +49,7 @@ public class DataUdpAgent {
 	private DataUdpAgent() {
 		setTarget();
 		openDatagramSocket();
-		Configure.getInstance().addObserver(DataUdpAgent.class.getName(), new Runnable() {
+		ConfObserver.add(DataUdpAgent.class.getName(), new Runnable() {
 			public void run() {
 				setTarget();
 				openDatagramSocket();

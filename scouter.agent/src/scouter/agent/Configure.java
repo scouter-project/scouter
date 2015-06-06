@@ -30,11 +30,12 @@ import java.util.Set;
 
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
+import scouter.lang.conf.ConfObserver;
+import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.ConfigValueUtil;
 import scouter.util.DateUtil;
 import scouter.util.FileUtil;
 import scouter.util.HashUtil;
@@ -65,8 +66,6 @@ public class Configure extends Thread {
 		}
 		return instance;
 	}
-
-	private Map<String, Runnable> observer = new HashMap<String, Runnable>();
 
 	public boolean debug_config = false;
 
@@ -103,12 +102,10 @@ public class Configure extends Thread {
 	public String http_debug_header_url = "/";
 	public boolean http_debug_parameter;
 	public String http_debug_parameter_url = "/";
-	
+
 	/*
-	 * visitor축정방법 
-	 * 0 - remoteIp 
-	 * 1 - JSESSIONID + remoteIp 
-	 * 2 - SCOUTER(set-cookie)
+	 * visitor축정방법 0 - remoteIp 1 - JSESSIONID + remoteIp 2 -
+	 * SCOUTER(set-cookie)
 	 */
 	public int mode_visitor = 1;
 
@@ -163,16 +160,16 @@ public class Configure extends Thread {
 	public String hook_init = "";
 	public String hook_dbc_close = "";
 	public String hook_dbc_open = "";
-	
+
 	public String hook_method = "";
-	public String hook_method_ignore_prefix="";
-	private String[] ignore_prefix=null;
-	private int ignore_prefix_len=0;
-	public boolean hook_method_access_public=true;
-	public boolean hook_method_access_private=false;
-	public boolean hook_method_access_protected=false;
-	public boolean hook_method_access_none=false;
-   
+	public String hook_method_ignore_prefix = "";
+	private String[] ignore_prefix = null;
+	private int ignore_prefix_len = 0;
+	public boolean hook_method_access_public = true;
+	public boolean hook_method_access_private = false;
+	public boolean hook_method_access_protected = false;
+	public boolean hook_method_access_none = false;
+
 	public String hook_service = "";
 	public String hook_apicall = "";
 	public String hook_apicall_info = "";
@@ -210,17 +207,15 @@ public class Configure extends Thread {
 	public int max_concurrent_server_request = 10;
 	public String visitor_jsessionid = "JSESSIONID";
 	public int statistics_interval = (int) DateUtil.MILLIS_PER_FIVE_MINUTE;
-	public boolean enable_auto_service_trace=false;
+	public boolean enable_auto_service_trace = false;
 
-	public  boolean debug_apicall=false;
-	
-	
+	public boolean debug_apicall = false;
 
 	public boolean debug_connection_stack = false;
 	public boolean enable_statistics = true;
-	public String hook_future_task="";
-	public String hook_future_task_prefix="";
-	
+	public String hook_future_task = "";
+	public String hook_future_task_prefix = "";
+
 	public boolean enable_counter_task = true;
 	public boolean enable_hook_step1 = true;
 	public boolean enable_hook_step2 = true;
@@ -231,16 +226,16 @@ public class Configure extends Thread {
 	public boolean enable_hook_step7 = true;
 	public boolean enable_hook_step8 = true;
 
-	public int stat_sql_max=10000;
-	public int stat_api_max=5000;
-	public int stat_app_sql_max=10000;
-	public int stat_app_api_max=5000;
+	public int stat_sql_max = 10000;
+	public int stat_api_max = 5000;
+	public int stat_app_sql_max = 10000;
+	public int stat_app_api_max = 5000;
 
-	public String direct_patch_class="";
-	
+	public String direct_patch_class = "";
+
 	/**
-	 * sometimes call by sample application, at that time normally 
-	 * set some properties directly
+	 * sometimes call by sample application, at that time normally set some
+	 * properties directly
 	 */
 	private Configure() {
 		Properties p = new Properties();
@@ -288,10 +283,6 @@ public class Configure extends Thread {
 
 	long last_check = 0;
 
-
-
-
-
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
 		if (force == false && now < last_check + 3000)
@@ -320,10 +311,9 @@ public class Configure extends Thread {
 		}
 		property = ConfigValueUtil.replaceSysProp(temp);
 		apply();
-		runObserver();
+		ConfObserver.run();
 		return true;
 	}
-
 
 	private void apply() {
 		this.debug_config = getBoolean("debug_config", getBoolean("debug.config", false));
@@ -402,16 +392,16 @@ public class Configure extends Thread {
 		this.hook_init = getValue("hook_init", getValue("hook.init", ""));
 		this.hook_dbc_close = getValue("hook_dbc_close", getValue("hook.dbc.close", ""));
 		this.hook_dbc_open = getValue("hook_dbc_open", getValue("hook.dbc.open", ""));
-		
+
 		this.hook_method = getValue("hook_method", getValue("hook.method", ""));
 		this.hook_method_access_public = getBoolean("hook_method_access_public", true);
 		this.hook_method_access_protected = getBoolean("hook_method_access_protected", false);
 		this.hook_method_access_private = getBoolean("hook_method_access_private", false);
 		this.hook_method_access_none = getBoolean("hook_method_access_none", false);
 		this.hook_method_ignore_prefix = StringUtil.removeWhitespace(getValue("hook_method_ignore_prefix", "get,set"));
-		this.ignore_prefix=StringUtil.split(this.hook_method_ignore_prefix,",");
-		this.ignore_prefix_len = this.ignore_prefix==null?0:this.ignore_prefix.length;
-		
+		this.ignore_prefix = StringUtil.split(this.hook_method_ignore_prefix, ",");
+		this.ignore_prefix_len = this.ignore_prefix == null ? 0 : this.ignore_prefix.length;
+
 		this.hook_service = getValue("hook_service", getValue("hook.service", ""));
 		this.hook_apicall = getValue("hook_apicall", getValue("hook.subcall", ""));
 		this.hook_apicall_info = getValue("hook_apicall_info", "");
@@ -470,12 +460,12 @@ public class Configure extends Thread {
 		this.statistics_interval = getInt("statistics_interval", (int) DateUtil.MILLIS_PER_FIVE_MINUTE);
 
 		this.enable_host_agent = getBoolean("enable_host_agent", false);
-		this.enable_auto_service_trace=getBoolean("enable_auto_service_trace", false);
+		this.enable_auto_service_trace = getBoolean("enable_auto_service_trace", false);
 		this.debug_apicall = getBoolean("debug_apicall", false);
-	
+
 		this.hook_future_task = getValue("hook_future_task", "");
-		this.hook_future_task_prefix= getValue("hook_future_task_prefix", "");
-		
+		this.hook_future_task_prefix = getValue("hook_future_task_prefix", "");
+
 		this.enable_counter_task = getBoolean("enable_counter_task", true);
 		this.enable_hook_step1 = getBoolean("enable_hook_step1", true);
 		this.enable_hook_step2 = getBoolean("enable_hook_step2", true);
@@ -485,16 +475,16 @@ public class Configure extends Thread {
 		this.enable_hook_step6 = getBoolean("enable_hook_step6", true);
 		this.enable_hook_step7 = getBoolean("enable_hook_step7", true);
 		this.enable_hook_step8 = getBoolean("enable_hook_step8", true);
-		
-		this.stat_sql_max=getInt("stat_sql_max", 10000);
-		this.stat_api_max=getInt("stat_api_max", 5000);
-		this.stat_app_sql_max=getInt("stat_app_sql_max", 10000);
-		this.stat_app_api_max=getInt("stat_app_api_max", 5000);
-		
+
+		this.stat_sql_max = getInt("stat_sql_max", 10000);
+		this.stat_api_max = getInt("stat_api_max", 5000);
+		this.stat_app_sql_max = getInt("stat_app_sql_max", 10000);
+		this.stat_app_api_max = getInt("stat_app_api_max", 5000);
+
 		this.plugin_http_trace_param = getValue("plugin_http_trace_param", "");
-		
+
 		this.direct_patch_class = getValue("direct_patch_class", "");
-		
+
 		resetObjInfo();
 		setErrorStatus();
 		setStaticContents();
@@ -513,7 +503,7 @@ public class Configure extends Thread {
 		}
 		return set;
 	}
-	
+
 	private void setStaticContents() {
 		Set<String> tmp = new HashSet<String>();
 		String[] s = StringUtil.split(this.http_static_contents, ',');
@@ -529,9 +519,10 @@ public class Configure extends Thread {
 	public boolean isStaticContents(String content) {
 		return static_contents.contains(content);
 	}
-	public boolean isIgnoreMethodPrefix(String name){
-		for(int i = 0 ; i <this.ignore_prefix_len; i++){
-			if(name.startsWith(this.ignore_prefix[i]))
+
+	public boolean isIgnoreMethodPrefix(String name) {
+		for (int i = 0; i < this.ignore_prefix_len; i++) {
+			if (name.startsWith(this.ignore_prefix[i]))
 				return true;
 		}
 		return false;
@@ -568,11 +559,12 @@ public class Configure extends Thread {
 		} else {
 			defaultName = this.scouter_type + "1";
 		}
-		this.scouter_name = getValue("scouter_name", getValue("scouter.name", System.getProperty("jvmRoute", defaultName)));
+		this.scouter_name = getValue("scouter_name",
+				getValue("scouter.name", System.getProperty("jvmRoute", defaultName)));
 
 		this.objName = objHostName + "/" + this.scouter_name;
 		this.objHash = HashUtil.hash(objName);
-	
+
 		this.alert_message_length = getInt("alert_message_length", getInt("alert.message.length", 3000));
 		this.alert_send_interval = getInt("alert_send_interval", getInt("alert.send.interval", 3000));
 		this.alert_fetch_count = getInt("alert_fetch_count", getInt("alert.fetch.count", 100000));
@@ -671,48 +663,11 @@ public class Configure extends Thread {
 		return false;
 	}
 
-	public void addObserver(String cls, Runnable run) {
-		observer.put(cls, run);
-	}
-
-	private void runObserver() {
-		try {
-			Iterator<Runnable> itr = observer.values().iterator();
-			while (itr.hasNext()) {
-				itr.next().run();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	public void printConfig() {
-		StringBuffer sb = new StringBuffer();
-		if (debug_config == false) {
-			sb.append("Configure -Dscouter.config=" + path(propertyFile));
-			Logger.println(sb.toString());
-			return;
-		}
-
-		sb.append("Configure -Dscouter.config=" + path(propertyFile));
-		sb.append("\n\t tcp_port=" + tcp_port);
-		sb.append("\n\t server_addr=" + server_addr);
-		sb.append("\n\t server_port=" + server_port);
-		sb.append("\n\t mode_visitor=" + mode_visitor);
-		sb.append("\n\t debug_asm=" + debug_asm);
-		sb.append("\n\t enable_asm_jdbc=" + enable_asm_jdbc);
-		sb.append("\n\t enable_asm_httpsession=" + enable_asm_httpsession);
-
-		Logger.println(sb.toString());
-
-	}
-
-	private String path(File dir) {
-		return dir == null ? "" : dir.getAbsolutePath();
+		Logger.println("Configure -Dscouter.config=" + propertyFile );
 	}
 
 	private static HashSet<String> ignoreSet = new HashSet<String>();
-
 
 	static {
 		ignoreSet.add("property");

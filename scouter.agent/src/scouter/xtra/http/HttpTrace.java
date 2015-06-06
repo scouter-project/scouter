@@ -31,6 +31,7 @@ import scouter.agent.trace.IProfileCollector;
 import scouter.agent.trace.StringHashCache;
 import scouter.agent.trace.TraceContext;
 import scouter.io.DataInputX;
+import scouter.lang.conf.ConfObserver;
 import scouter.lang.step.MessageStep;
 import scouter.util.CompareUtil;
 import scouter.util.Hexa32;
@@ -43,7 +44,7 @@ public class HttpTrace implements IHttpTrace {
 		this.remote_by_header = StringUtil.isEmpty(conf.http_remote_ip_header_key) == false;
 		this.http_remote_ip_header_key = conf.http_remote_ip_header_key;
 
-		Configure.getInstance().addObserver(HttpTrace.class.getName(), new Runnable() {
+		ConfObserver.add(HttpTrace.class.getName(), new Runnable() {
 			public void run() {
 				String x = Configure.getInstance().http_remote_ip_header_key;
 				if (CompareUtil.equals(x, http_remote_ip_header_key) == false) {
