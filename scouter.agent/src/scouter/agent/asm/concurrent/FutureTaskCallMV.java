@@ -50,7 +50,7 @@ public class FutureTaskCallMV extends LocalVariablesSorter implements Opcodes {
 		mv.visitVarInsn(ALOAD, 0);
 	   mv.visitFieldInsn(GETFIELD, owner, TraceFutureTask.CTX_FIELD, "Lscouter/agent/trace/TraceContext;");
 		
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEFUTURE, START_METHOD, START_SIGNATURE);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEFUTURE, START_METHOD, START_SIGNATURE,false);
 
 		statIdx = newLocal(scouter.org.objectweb.asm.Type.getType(Object.class));
 		mv.visitVarInsn(Opcodes.ASTORE, statIdx);
@@ -63,7 +63,7 @@ public class FutureTaskCallMV extends LocalVariablesSorter implements Opcodes {
 		if ((opcode >= IRETURN && opcode <= RETURN)) {
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 			mv.visitInsn(Opcodes.ACONST_NULL);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEFUTURE, END_METHOD, END_SIGNATURE);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEFUTURE, END_METHOD, END_SIGNATURE,false);
 		}
 		mv.visitInsn(opcode);
 	}
@@ -79,7 +79,7 @@ public class FutureTaskCallMV extends LocalVariablesSorter implements Opcodes {
 
 		mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 		mv.visitVarInsn(Opcodes.ALOAD, errIdx);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEFUTURE, END_METHOD, END_SIGNATURE);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEFUTURE, END_METHOD, END_SIGNATURE,false);
 		mv.visitInsn(ATHROW);
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
 	}
