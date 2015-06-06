@@ -122,30 +122,14 @@ public class Configure extends Thread {
 				FileUtil.close(in);
 			}
 		}
-		property = replaceSysProp(temp);
+		property = ConfigValueUtil.replaceSysProp(temp);
 
 		apply();
 
 		return true;
 	}
 
-	private Properties replaceSysProp(Properties temp) {
-		Properties p = new Properties();
-
-		Map<Object, Object> args = new HashMap<Object, Object>();
-		args.putAll(System.getenv());
-		args.putAll(System.getProperties());
-
-		p.putAll(args);
-
-		Iterator<Object> itr = temp.keySet().iterator();
-		while (itr.hasNext()) {
-			String key = (String) itr.next();
-			String value = (String) temp.get(key);
-			p.put(key, new scouter.util.ParamText(StringUtil.trim(value)).getText(args));
-		}
-		return p;
-	}
+	
 
 	public int xlog_autodrop_time = 100;
 	public int xlog_queue_size = 100000;

@@ -18,6 +18,10 @@ package scouter.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 
 import scouter.lang.value.BooleanValue;
 import scouter.lang.value.DecimalValue;
@@ -28,6 +32,24 @@ import scouter.lang.value.TextValue;
 import scouter.lang.value.Value;
 
 public class ConfigValueUtil {
+	public static Properties replaceSysProp(Properties temp) {
+		Properties p = new Properties();
+
+		Map<Object, Object> args = new HashMap<Object, Object>();
+		args.putAll(System.getenv());
+		args.putAll(System.getProperties());
+
+		p.putAll(args);
+
+		Iterator<Object> itr = temp.keySet().iterator();
+		while (itr.hasNext()) {
+			String key = (String) itr.next();
+			String value = (String) temp.get(key);
+			p.put(key, new scouter.util.ParamText(StringUtil.trim(value)).getText(args));
+		}
+		return p;
+	}
+	
 	public static StringKeyLinkedMap<Object> getConfigDefault(Object o) {
 		StringKeyLinkedMap<Object> map = new StringKeyLinkedMap<Object>();
 		Field[] fields = o.getClass().getFields();

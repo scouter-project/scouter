@@ -238,6 +238,10 @@ public class Configure extends Thread {
 
 	public String direct_patch_class="";
 	
+	/**
+	 * sometimes call by sample application, at that time normally 
+	 * set some properties directly
+	 */
 	private Configure() {
 		Properties p = new Properties();
 		Map args = new HashMap();
@@ -314,29 +318,12 @@ public class Configure extends Thread {
 				FileUtil.close(in);
 			}
 		}
-		property = replaceSysProp(temp);
+		property = ConfigValueUtil.replaceSysProp(temp);
 		apply();
 		runObserver();
 		return true;
 	}
 
-	private Properties replaceSysProp(Properties temp) {
-		Properties p = new Properties();
-
-		Map args = new HashMap();
-		args.putAll(System.getenv());
-		args.putAll(System.getProperties());
-
-		p.putAll(args);
-
-		Iterator itr = temp.keySet().iterator();
-		while (itr.hasNext()) {
-			String key = (String) itr.next();
-			String value = (String) temp.get(key);
-			p.put(key, new ParamText(StringUtil.trim(value)).getText(args));
-		}
-		return p;
-	}
 
 	private void apply() {
 		this.debug_config = getBoolean("debug_config", getBoolean("debug.config", false));
@@ -574,7 +561,7 @@ public class Configure extends Thread {
 		this.objHostName = "/" + this.scouter_hostname;
 		this.objHostHash = HashUtil.hash(objHostName);
 
-		this.enable_scouter_name_pid = getBoolean("enable_scouter_name_pid", getBoolean("enable.scouter.name.pid", false));
+		this.enable_scouter_name_pid = getBoolean("enable_scouter_name_pid", false);
 		String defaultName;
 		if (this.enable_scouter_name_pid == true) {
 			defaultName = "" + SysJMX.getProcessPID();
@@ -636,7 +623,7 @@ public class Configure extends Thread {
 		return def;
 	}
 
-	private long getLong(String key, long def) {
+	public long getLong(String key, long def) {
 		try {
 			String v = getValue(key);
 			if (v != null)
@@ -646,7 +633,7 @@ public class Configure extends Thread {
 		return def;
 	}
 
-	private boolean getBoolean(String key, boolean def) {
+	public boolean getBoolean(String key, boolean def) {
 		try {
 			String v = getValue(key);
 			if (v != null)
@@ -758,6 +745,6 @@ public class Configure extends Thread {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(Configure.getInstance().getKeyValueInfo());
+		System.out.println(Configure.getInstance().getKeyValueInfo().toString().replace(',', '\n'));
 	}
 }
