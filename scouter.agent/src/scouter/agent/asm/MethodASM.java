@@ -31,14 +31,16 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.HashUtil;
+import scouter.util.StringSet;
 
 public class MethodASM implements IASM, Opcodes {
-	private  List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_method);
-    
+
+	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_method);
+
 	public boolean isTarget(String className) {
 		if (target.size() == 0)
 			return false;
-		
+
 		for (int i = 0; i < target.size(); i++) {
 			MethodSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {
@@ -47,10 +49,11 @@ public class MethodASM implements IASM, Opcodes {
 		}
 		return false;
 	}
+
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (target.size() == 0)
 			return cv;
-		
+
 		for (int i = 0; i < target.size(); i++) {
 			MethodSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {
@@ -81,18 +84,43 @@ class MethodCV extends ClassVisitor implements Opcodes {
 		if (AsmUtil.isSpecial(name)) {
 			return mv;
 		}
-		System.out.println(className+"=>"+name+desc);
-
+		
+		Configure conf = Configure.getInstance();
+		boolean isPublic = conf.hook_method_access_public;
+		boolean isProtected = conf.hook_method_access_protected;
+		boolean isPrivate = conf.hook_method_access_private;
+		boolean isNone = conf.hook_method_access_none;
+		switch (access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED | Opcodes.ACC_PRIVATE)) {
+		case Opcodes.ACC_PUBLIC:
+			if (isPublic == false)
+				return mv;
+			break;
+		case Opcodes.ACC_PROTECTED:
+			if (isProtected == false)
+				return mv;
+			break;
+		case Opcodes.ACC_PRIVATE:
+			if (isPrivate == false)
+				return mv;
+			break;
+		default:
+			if (isNone == false)
+				return mv;
+			break;
+		}
+        //check prefix, to ignore  simple method such as getter,setter 
+		if(conf.isIgnoreMethodPrefix(name))
+        	return mv;
+        
 		String fullname = AsmUtil.add(className, name, desc);
 		int fullname_hash = HashUtil.hash(fullname);
 
 		DataProxy.sendMethodName(fullname_hash, fullname);
-		
+
 		return new MethodMV(access, desc, mv, fullname, fullname_hash);
 	}
 }
 
-// ///////////////////////////////////////////////////////////////////////////
 class MethodMV extends LocalVariablesSorter implements Opcodes {
 	private static final String TRACEMAIN = TraceMain.class.getName().replace('.', '/');
 	private final static String START_METHOD = "startMethod";
@@ -103,7 +131,7 @@ class MethodMV extends LocalVariablesSorter implements Opcodes {
 	private Label startFinally = new Label();
 
 	public MethodMV(int access, String desc, MethodVisitor mv, String fullname, int fullname_hash) {
-		super(ASM4,access, desc, mv);
+		super(ASM4, access, desc, mv);
 		this.fullname = fullname;
 		this.fullname_hash = fullname_hash;
 	}
@@ -116,11 +144,11 @@ class MethodMV extends LocalVariablesSorter implements Opcodes {
 	public void visitCode() {
 		AsmUtil.PUSH(mv, fullname_hash);
 		mv.visitLdcInsn(fullname);
-		
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE,false);
+
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);
 
 		statIdx = newLocal(Type.getType(Object.class));
-	
+
 		mv.visitVarInsn(Opcodes.ASTORE, statIdx);
 		mv.visitLabel(startFinally);
 		mv.visitCode();
@@ -131,7 +159,7 @@ class MethodMV extends LocalVariablesSorter implements Opcodes {
 		if ((opcode >= IRETURN && opcode <= RETURN)) {
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 			mv.visitInsn(Opcodes.ACONST_NULL);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, END_METHOD, END_SIGNATURE,false);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, END_METHOD, END_SIGNATURE, false);
 		}
 		mv.visitInsn(opcode);
 	}
@@ -147,7 +175,7 @@ class MethodMV extends LocalVariablesSorter implements Opcodes {
 
 		mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 		mv.visitVarInsn(Opcodes.ALOAD, errIdx);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, END_METHOD, END_SIGNATURE,false);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, END_METHOD, END_SIGNATURE, false);
 		mv.visitInsn(ATHROW);
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
 	}

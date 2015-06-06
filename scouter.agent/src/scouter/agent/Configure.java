@@ -163,7 +163,16 @@ public class Configure extends Thread {
 	public String hook_init = "";
 	public String hook_dbc_close = "";
 	public String hook_dbc_open = "";
+	
 	public String hook_method = "";
+	public String hook_method_ignore_prefix="";
+	private String[] ignore_prefix=null;
+	private int ignore_prefix_len=0;
+	public boolean hook_method_access_public=true;
+	public boolean hook_method_access_private=false;
+	public boolean hook_method_access_protected=false;
+	public boolean hook_method_access_none=false;
+   
 	public String hook_service = "";
 	public String hook_apicall = "";
 	public String hook_apicall_info = "";
@@ -277,6 +286,8 @@ public class Configure extends Thread {
 
 
 
+
+
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
 		if (force == false && now < last_check + 3000)
@@ -332,9 +343,7 @@ public class Configure extends Thread {
 		this.http_debug_querystring = getBoolean("http_debug_querystring", false);
 		this.http_debug_header = getBoolean("http_debug_header", false);
 		this.http_debug_parameter = getBoolean("http_debug_parameter", false);
-		// this.divperf_size = getInt("divperf.size", 0);
 		this.enable_profile_summary = getBoolean("enable_profile_summary", getBoolean("enable.profile.summary", false));
-		// this.divperf_log = getBoolean("divperf.log", false);
 		this.xlog_time_limit = getInt("xlog_time_limit", getInt("xlog.time.limit", 0));
 		this.service_header_key = getValue("service_header_key", getValue("service.header.key", null));
 		this.service_get_key = getValue("service_get_key");
@@ -406,7 +415,16 @@ public class Configure extends Thread {
 		this.hook_init = getValue("hook_init", getValue("hook.init", ""));
 		this.hook_dbc_close = getValue("hook_dbc_close", getValue("hook.dbc.close", ""));
 		this.hook_dbc_open = getValue("hook_dbc_open", getValue("hook.dbc.open", ""));
+		
 		this.hook_method = getValue("hook_method", getValue("hook.method", ""));
+		this.hook_method_access_public = getBoolean("hook_method_access_public", true);
+		this.hook_method_access_protected = getBoolean("hook_method_access_protected", false);
+		this.hook_method_access_private = getBoolean("hook_method_access_private", false);
+		this.hook_method_access_none = getBoolean("hook_method_access_none", false);
+		this.hook_method_ignore_prefix = StringUtil.removeWhitespace(getValue("hook_method_ignore_prefix", "get,set"));
+		this.ignore_prefix=StringUtil.split(this.hook_method_ignore_prefix,",");
+		this.ignore_prefix_len = this.ignore_prefix==null?0:this.ignore_prefix.length;
+		
 		this.hook_service = getValue("hook_service", getValue("hook.service", ""));
 		this.hook_apicall = getValue("hook_apicall", getValue("hook.subcall", ""));
 		this.hook_apicall_info = getValue("hook_apicall_info", "");
@@ -508,7 +526,7 @@ public class Configure extends Thread {
 		}
 		return set;
 	}
-
+	
 	private void setStaticContents() {
 		Set<String> tmp = new HashSet<String>();
 		String[] s = StringUtil.split(this.http_static_contents, ',');
@@ -524,20 +542,17 @@ public class Configure extends Thread {
 	public boolean isStaticContents(String content) {
 		return static_contents.contains(content);
 	}
+	public boolean isIgnoreMethodPrefix(String name){
+		for(int i = 0 ; i <this.ignore_prefix_len; i++){
+			if(name.startsWith(this.ignore_prefix[i]))
+				return true;
+		}
+		return false;
+	}
 
 	public synchronized void resetObjInfo() {
 		String detected = ObjTypeDetector.drivedType != null ? ObjTypeDetector.drivedType
 				: ObjTypeDetector.objType != null ? ObjTypeDetector.objType : CounterConstants.JAVA;
-
-		// if ("tomcat".equals(ObjTypeDetector.objType)) {
-		// detected = CounterConstants.TOMCAT;
-		// } else if ("jetty".equals(ObjTypeDetector.objType)) {
-		// detected = CounterConstants.JETTY;
-		// } else if ("jboss".equals(ObjTypeDetector.objType)) {
-		// detected = CounterConstants.JBOSS;
-		// } else if ("jeus".equals(ObjTypeDetector.objType)) {
-		// detected = CounterConstants.JEUS;
-		// }
 
 		this.scouter_type = getValue("scouter_type", getValue("scouter.type", detected));
 
