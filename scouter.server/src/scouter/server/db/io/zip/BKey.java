@@ -27,11 +27,7 @@ public class BKey {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + blockNum;
-		result = prime * result + ((date == null) ? 0 : date.hashCode());
-		return result;
+		return blockNum ^  ((date == null) ? 0 : date.hashCode());
 	}
 
 	@Override

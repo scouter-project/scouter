@@ -86,7 +86,6 @@ public class IOChannel implements IShutdown {
 		StopWatch w = new StopWatch();
 		if (bk.START > 0) {
 			StopWatch w2 = new StopWatch();
-			w2.start();
 			Block old = getReadBlock(bk.date, bk.blockNum);
 			if (old != null) {
 				bk = bk.merge(old);

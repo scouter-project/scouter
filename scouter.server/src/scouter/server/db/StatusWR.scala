@@ -31,7 +31,7 @@ object StatusWR {
     val status = "perfshot";
     val queue = new RequestQueue[StatusPack](DBCtr.MAX_QUE_SIZE);
     ThreadScala.start("scouter.server.db.StatusWR") {
-        var currentDateUnit: Long = 0
+        var currentDateUnit = 0L
         while (DBCtr.running) {
             val p = queue.get();
             try {
