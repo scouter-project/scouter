@@ -20,7 +20,6 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
-
 import scouter.agent.asm.Apicall2ASM;
 import scouter.agent.asm.ApicallInfoASM;
 import scouter.agent.asm.CapArgsASM;
@@ -193,7 +192,7 @@ public class AgentTransformer implements ClassFileTransformer {
 			}
 			return classfileBuffer;
 		} catch (Throwable t) {
-			Logger.println("TA019","Transformer Error",t);
+			Logger.println("A101","Transformer Error",t);
 			t.printStackTrace();
 		} finally {
 			hookingCtx.set(null);

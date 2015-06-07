@@ -131,7 +131,7 @@ public class TraceSQL {
 		TraceContext tctx = TraceContextManager.getLocalContext();
 		if (tctx == null) {
 			if (conf.debug_background_sql) {
-				Logger.println("BGSQL:" + sql);
+				Logger.info("BGSQL:" + sql);
 			}
 			return null;
 		}
@@ -190,7 +190,7 @@ public class TraceSQL {
 	public static void end(Object stat, Throwable thr) {
 		if (stat == null) {
 			if (conf.debug_background_sql && thr != null) {
-				Logger.println("BG-SQL:" + thr);
+				Logger.info("BG-SQL:" + thr);
 			}
 			return;
 		}
@@ -363,7 +363,7 @@ public class TraceSQL {
 		TraceContext c = TraceContextManager.getLocalContext();
 		if (c == null) {
 			if (conf.debug_background_sql && args != null) {
-				Logger.println("BG=>" + args.getSql());
+				Logger.info("BG=>" + args.getSql());
 			}
 			return null;
 		}

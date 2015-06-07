@@ -188,7 +188,7 @@ public class TomcatJMXPerf {
 						Object value = server.getAttribute(mbean, "serverInfo");
 						if (value != null) {
 							version = value.toString().split("/")[1];
-							Logger.println("Tomcat version = " + version);
+							Logger.info("Tomcat version = " + version);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();

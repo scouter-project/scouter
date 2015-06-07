@@ -13,11 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.util;
 
 import java.lang.instrument.ClassDefinition;
-
 import scouter.agent.JavaAgent;
 import scouter.agent.Logger;
 import scouter.util.RequestQueue;
@@ -74,7 +72,7 @@ public class AsyncHook extends Thread {
 				cd[0] = new ClassDefinition(cls, m.body);
 				JavaAgent.getInstrumentation().redefineClasses(cd);
 			} catch (Throwable t) {
-				Logger.println("TA045","async hook fail:" + m.classname + " " + t);
+				Logger.println("A151","async hook fail:" + m.classname + " " + t);
 			}
 		}
 	}

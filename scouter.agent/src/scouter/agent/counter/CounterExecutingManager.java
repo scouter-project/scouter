@@ -13,16 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.counter;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.anotation.Counter;
@@ -31,11 +28,8 @@ import scouter.agent.netio.data.DataProxy;
 import scouter.lang.pack.PerfCounterPack;
 import scouter.util.ThreadUtil;
 import scouter.util.scan.Scanner;
-
 public class CounterExecutingManager extends Thread {
-
 	private static CounterExecutingManager instance;
-
 	public final static synchronized CounterExecutingManager getInstance() {
 		if (instance == null) {
 			instance = new CounterExecutingManager();
@@ -47,7 +41,6 @@ public class CounterExecutingManager extends Thread {
 	}
 	
 	Configure conf = Configure.getInstance();
-
 	public void run() {
 		while (true) {
 			ThreadUtil.sleep(1000);
@@ -72,55 +65,42 @@ public class CounterExecutingManager extends Thread {
 			DataProxy.sendCounter(pks);
 		}
 	}
-
 	private CounterExecutingManager() {
-
 	}
-
 	private List<CountStat> taskSec = new ArrayList<CountStat>();
-
 	static class CountStat {
 		Invocation counter;
 		long xtime;
-
 		CountStat(Invocation counter) {
 			this.counter = counter;
 		}
 	}
-
 	public void put(Invocation counter) {
 		taskSec.add(new CountStat(counter));
 	}
-
 	protected static class Invocation {
 		Object object;
 		Method method;
 		long time;
-
 		public Invocation(Object object, Method method, long interval) {
-
 			this.object = object;
 			this.method = method;
 			this.time=interval;
 		}
-
 		public void process(CounterBasket pw) throws Throwable {
 			try {
 				method.invoke(object, pw);
 			} catch (Exception e) {
-				Logger.println("TA038", object.getClass() + " " + method + " " + e);
+				Logger.println("A111", object.getClass() + " " + method + " " + e);
 			}
 		}
-
 		public long interval() {
 			return this.time;
 		}
 	}
-
 	public static void load() {
 		String pkg = Scanner.cutOutLast(HeapUsage.class.getName(), ".");
 		Set<String> classes = new Scanner(pkg).process();
-
 		int n = 0;
 		Iterator<String> itr = classes.iterator();
 		while (itr.hasNext()) {
@@ -128,26 +108,22 @@ public class CounterExecutingManager extends Thread {
 				Class c = Class.forName(itr.next());
 				if (Modifier.isPublic(c.getModifiers()) == false)
 					continue;
-
 				Method[] m = c.getDeclaredMethods();
 				for (int i = 0; i < m.length; i++) {
 					Counter mapAn = (Counter) m[i].getAnnotation(Counter.class);
 					if (mapAn == null)
 						continue;
-
 					int interval=mapAn.interval();
 					CounterExecutingManager.getInstance().put(new Invocation(c.newInstance(), m[i], interval));
 					n++;
 				}
 			} catch (Exception e) {
-				scouter.agent.Logger.println("TA007", ThreadUtil.getStackTrace(e));
+				scouter.agent.Logger.println("A112", ThreadUtil.getStackTrace(e));
 			}
 		}
-		scouter.agent.Logger.println("TA031", "Counter Collector Started (#" + n + ")");
+		scouter.agent.Logger.println("A113", "Counter Collector Started (#" + n + ")");
 	}
-
 	public static void main(String[] args) {
 		load();
 	}
-
 }

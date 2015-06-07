@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.netio.request;
 
 import java.lang.reflect.Method;
@@ -21,7 +20,6 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
-
 import scouter.agent.Logger;
 import scouter.agent.netio.request.anotation.RequestHandler;
 import scouter.io.DataInputX;
@@ -83,7 +81,7 @@ public class ReqestHandlingProxy {
 						Invocation news = new Invocation(c.newInstance(), m[i], m[i].getParameterTypes());
 						Invocation olds = handlers.get(key);
 						if (olds != null) {
-							Logger.println("TA032", "Warning duplicated Handler key=" + key + " " + olds + " <-> " + news);
+							Logger.println("A131", "Warning duplicated Handler key=" + key + " " + olds + " <-> " + news);
 						}
 						handlers.put(key, news);
 					}
@@ -101,7 +99,7 @@ public class ReqestHandlingProxy {
 		if (handler != null) {
 			return handler.exec(req, in, out);
 		} else {
-			Logger.println("TA009", "TCP unknown cmd=" + cmd);
+			Logger.println("A132", "TCP unknown cmd=" + cmd);
 		}
 		return null;
 	}

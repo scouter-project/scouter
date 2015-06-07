@@ -13,12 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.asm;
-
-
 import java.util.HashSet;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -37,12 +33,8 @@ import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
-
-
-
 public class JDBCPreparedStatementASM implements IASM, Opcodes {
 	public  final HashSet<String> target = new HashSet<String>();
-
 	public JDBCPreparedStatementASM() {
 		target.add("org/mariadb/jdbc/MySQLPreparedStatement");
 		target.add("oracle/jdbc/driver/OraclePreparedStatement");
@@ -56,7 +48,6 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		target.add("com/tmax/tibero/jdbc/TbPreparedStatement");
 		target.add("org/hsqldb/jdbc/JDBCPreparedStatement");
 	}
-
 	public boolean isTarget(String className) {
 		return target.contains(className) ;
 	}
@@ -66,19 +57,15 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		}
 		if(Configure.getInstance().enable_asm_jdbc==false)
 			return cv;
-		Logger.println("SA06", "jdbc pstmt found: " + className + "  redefinable="+Configure.JDBC_REDEFINED);
+		Logger.println("A106", "jdbc pstmt found: " + className + "  redefinable="+Configure.JDBC_REDEFINED);
 		return new PreparedStatementCV(cv);
 	}
 }
-
 class PreparedStatementCV extends ClassVisitor implements Opcodes {
-
 	public PreparedStatementCV(ClassVisitor cv) {
 		super(ASM4, cv);
 	}
-
 	private String owner;
-
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		super.visit(version, access, name, signature, superName, interfaces);
@@ -89,7 +76,6 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 		}
 		this.owner = name;
 	}
-
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
@@ -99,7 +85,6 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 			return ifNotRedefined(access, name, desc, mv);
 		}
 	}
-
 	private MethodVisitor ifRedefined(int access, String name, String desc, MethodVisitor mv) {
 		if ("<init>".equals(name)) {
 			return new PsInitMV(access, desc, mv, owner);
@@ -142,5 +127,4 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 		}
 		return mv;
 	}
-
 }

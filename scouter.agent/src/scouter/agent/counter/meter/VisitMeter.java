@@ -13,11 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.counter.meter;
 
 import java.util.Enumeration;
-
 import scouter.agent.Logger;
 import scouter.util.DateUtil;
 import scouter.util.LongLongLinkedMap;
@@ -50,7 +48,7 @@ public class VisitMeter {
 				}
 			}
 		} catch (Throwable t) {
-			Logger.println("SA09", "VISIT-METER" + t.toString());
+			Logger.println("A114", "VISIT-METER" + t.toString());
 		}
 		return v;
 	}

@@ -144,7 +144,7 @@ public class DataProxy {
 		p.objHash = conf.objHash;
 		sendDirect(p);
 		if (conf.debug_udp_xlog) {
-			Logger.println(p.toString());
+			Logger.info(p.toString());
 		}
 	}
 
@@ -216,7 +216,7 @@ public class DataProxy {
 	public static void sendHeartBeat(ObjectPack p) {
 		udpCollect.add(p);
 		if (conf.debug_udp_object) {
-			Logger.println(p.toString());
+			Logger.info(p.toString());
 		}
 	}
 

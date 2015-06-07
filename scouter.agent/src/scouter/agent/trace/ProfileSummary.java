@@ -40,11 +40,11 @@ public class ProfileSummary implements IProfileCollector {
 
 	private TraceContext context;
 
-	protected IntKeyMap<Step> methods;
-	protected IntKeyMap<Step> sqls;
-	protected IntKeyMap<Step> subcalls;
-	protected IntKeyMap<Step> apicalls;
-	protected LongKeyMap<Step> sockets;
+	protected IntKeyMap methods;
+	protected IntKeyMap sqls;
+	protected IntKeyMap subcalls;
+	protected IntKeyMap apicalls;
+	protected LongKeyMap sockets;
 	protected List<Step> messages;
 	protected int magindex=0;
 	protected int totalCount;
@@ -67,21 +67,21 @@ public class ProfileSummary implements IProfileCollector {
 
 	}
 
-	private void toArray(IntKeyMap<Step> src, List<Step> out) {
+	private void toArray(IntKeyMap src, List<Step> out) {
 		if (src == null)
 			return;
-		Enumeration<Step> en = src.values();
+		Enumeration en = src.values();
 		for (int i = 0, max = src.size(); i < max; i++) {
-			out.add(en.nextElement());
+			out.add((Step) en.nextElement());
 		}
 		src.clear();
 	}
-	private void toArray(LongKeyMap<Step> src, List<Step> out) {
+	private void toArray(LongKeyMap src, List<Step> out) {
 		if (src == null)
 			return;
-		Enumeration<Step> en = src.values();
+		Enumeration en = src.values();
 		for (int i = 0, max = src.size(); i < max; i++) {
-			out.add(en.nextElement());
+			out.add((Step) en.nextElement());
 		}
 		src.clear();
 	}
@@ -138,7 +138,7 @@ public class ProfileSummary implements IProfileCollector {
 			process();
 		}
 		if (messages == null)
-			messages = new ArrayList<Step>();
+			messages = new ArrayList();
 		m.index = magindex++;
 		m.parent = -1;		
 		messages.add(m);
@@ -147,7 +147,7 @@ public class ProfileSummary implements IProfileCollector {
 	protected void add(SocketStep m) {
 
 		if (sockets == null)
-			sockets = new LongKeyMap<Step>();
+			sockets = new LongKeyMap();
 
 		long skid = m.getSocketId();
 		SocketSum sksum = (SocketSum) sockets.get(skid);
@@ -168,7 +168,7 @@ public class ProfileSummary implements IProfileCollector {
 
 	protected void add(MethodStep m) {
 		if (methods == null)
-			methods = new IntKeyMap<Step>();
+			methods = new IntKeyMap();
 
 		MethodSum msum = (MethodSum) methods.get(m.hash);
 		if (msum != null) {
@@ -188,7 +188,7 @@ public class ProfileSummary implements IProfileCollector {
 
 	protected void add(SqlStep ss) {
 		if (sqls == null)
-			sqls = new IntKeyMap<Step>();
+			sqls = new IntKeyMap();
 
 		SqlSum ssum = (SqlSum) sqls.get(ss.hash);
 		if (ssum != null) {
@@ -217,7 +217,7 @@ public class ProfileSummary implements IProfileCollector {
 		
 	protected void add(ApiCallStep sc) {
 		if (subcalls == null)
-			subcalls = new IntKeyMap<Step>();
+			subcalls = new IntKeyMap();
 
 		ApiCallSum scs = (ApiCallSum) apicalls.get(sc.hash);
 		if (scs != null) {

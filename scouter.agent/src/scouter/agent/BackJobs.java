@@ -13,13 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import scouter.util.ThreadUtil;
 
 public class BackJobs extends Thread {
@@ -79,7 +77,7 @@ public class BackJobs extends Thread {
 			try {
 				process();
 			} catch (Throwable t) {
-				Logger.println("TA010", t);
+				Logger.println("A109", t);
 			}
 		}
 
@@ -96,7 +94,7 @@ public class BackJobs extends Thread {
 				try {
 					jobw.job.run();
 				} catch (Exception e) {
-					Logger.println("TA008", j.getKey() + ":" + e);
+					Logger.println("A110", j.getKey() + ":" + e);
 				}
 			}
 		}

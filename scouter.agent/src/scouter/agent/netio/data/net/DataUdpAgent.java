@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.netio.data.net;
 
 import java.io.IOException;
@@ -21,7 +20,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.List;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.io.DataInputX;
@@ -90,10 +88,10 @@ public class DataUdpAgent {
 				local_port = port;
 				if (host != null) {
 					datagram = new DatagramSocket(port, InetAddress.getByName(host));
-					Logger.println("TA036","Agent UDP local.addr=" + host + " local.port=" + port);
+					Logger.println("A118","Agent UDP local.addr=" + host + " local.port=" + port);
 				} else {
 					datagram = new DatagramSocket(port);
-					Logger.println("TA037","Agent UDP local.port=" + port);
+					Logger.println("A119","Agent UDP local.port=" + port);
 				}
 			}
 		} catch (Exception e) {
@@ -129,7 +127,7 @@ public class DataUdpAgent {
 			datagram.send(packet);
 			return true;
 		} catch (IOException e) {
-			Logger.println("TA012", "UDP", e);
+			Logger.println("A120", "UDP", e);
 			return false;
 		}
 	}
@@ -154,7 +152,7 @@ public class DataUdpAgent {
 			}
 			return true;
 		} catch (IOException e) {
-			Logger.println("TA014", "UDP", e);
+			Logger.println("A121", "UDP", e);
 			return false;
 		}
 	}
@@ -193,7 +191,7 @@ public class DataUdpAgent {
 //			datagram.send(packet);
 //			return true;
 //		} catch (IOException e) {
-//			Logger.println("UDP", e.toString());
+//			Logger.println("A122", e.toString());
 //			return false;
 //		}
 //	}
@@ -224,7 +222,7 @@ public class DataUdpAgent {
 			datagram.send(packet);
 			return true;
 		} catch (IOException e) {
-			Logger.println("TA013", "UDP", e);
+			Logger.println("A123", "UDP", e);
 			return false;
 		}
 
@@ -242,10 +240,10 @@ public class DataUdpAgent {
 			packet.setAddress(InetAddress.getByName(ip));
 			packet.setPort(port);
 			datagram.send(packet);
-			Logger.println("TA057", "Sent " + length + " bytes to " + ip + ":" + port);
+			Logger.println("A124", "Sent " + length + " bytes to " + ip + ":" + port);
 			return true;
 		} catch (IOException e) {
-			Logger.println("TA001", "UDP " + e.toString());
+			Logger.println("A125", "UDP " + e.toString());
 			return false;
 		}
 	}

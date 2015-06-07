@@ -256,7 +256,7 @@ public class Configure extends Thread {
 	private boolean running = true;
 
 	public void run() {
-		Logger.println("Version " + Version.getAgentFullVersion());
+		Logger.info("Version " + Version.getAgentFullVersion());
 		long dateUnit = DateUtil.getDateUnit();
 		while (running) {
 			reload(false);
@@ -664,7 +664,7 @@ public class Configure extends Thread {
 	}
 
 	public void printConfig() {
-		Logger.println("Configure -Dscouter.config=" + propertyFile );
+		Logger.info("Configure -Dscouter.config=" + propertyFile );
 	}
 
 	private static HashSet<String> ignoreSet = new HashSet<String>();

@@ -96,7 +96,7 @@ class ApicallInfoCV extends ClassVisitor implements Opcodes {
 		if (AsmUtil.isSpecial(methodName)) {
 			return mv;
 		}
-		Logger.println("apicall: " + className + "." + methodName + desc);
+		Logger.info("apicall: " + className + "." + methodName + desc);
 
 		return new ApicallInfoMV(access, desc, mv, Type.getArgumentTypes(desc), (access & ACC_STATIC) != 0, className,
 				methodName, desc);

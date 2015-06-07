@@ -57,14 +57,14 @@ public class ObjectRush {
 		CounterBasket basket = new CounterBasket();
 		int count = 0;
 		while (true) {
-			Logger.println("*********** " + (++count) + " ***********");
+			Logger.info("*********** " + (++count) + " ***********");
 			for (String objName : objNames) {
 				PerfCounterPack pcp = basket.getPack(objName, TimeTypeEnum.REALTIME);
 				int act1 = (int) (Math.random() * 10);
 				int act2 = (int) (Math.random() * 10);
 				int act3 = (int) (Math.random() * 10);
 				int active = act1 + act2 + act3;
-				Logger.println(objName + " : " + active);
+				Logger.info(objName + " : " + active);
 				ListValue activeSpeed = new ListValue();
 				activeSpeed.add(act1);
 				activeSpeed.add(act2);

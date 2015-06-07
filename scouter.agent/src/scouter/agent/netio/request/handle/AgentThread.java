@@ -13,12 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.netio.request.handle;
 
 import java.io.IOException;
 import java.util.Enumeration;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.netio.request.anotation.RequestHandler;
@@ -161,7 +159,7 @@ public class AgentThread {
 			try {
 				cpu.add(SysJMX.getThreadCpuTime(ctx.thread));
 			} catch (Throwable th) {
-				Logger.println("TA-087", th);
+				Logger.println("A128", th);
 				cpu.add(0L);
 			}
 		}

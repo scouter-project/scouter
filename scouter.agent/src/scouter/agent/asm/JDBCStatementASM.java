@@ -13,12 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.asm;
-
-
 import java.util.HashSet;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -26,12 +22,8 @@ import scouter.agent.asm.jdbc.StExecuteMV;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
-
-
-
 public class JDBCStatementASM implements IASM, Opcodes {
 	public final HashSet<String> target = new HashSet<String>();
-
 	public JDBCStatementASM() {
 	
 		target.add("org/mariadb/jdbc/MySQLStatement");
@@ -43,8 +35,6 @@ public class JDBCStatementASM implements IASM, Opcodes {
 		target.add("com/microsoft/sqlserver/jdbc/SQLServerStatement");
 		target.add("com/tmax/tibero/jdbc/TbStatement");
 		target.add("org/hsqldb/jdbc/JDBCStatement");
-
-
 	}
 	public boolean isTarget(String className) {
 		return target.contains(className) ;
@@ -55,25 +45,20 @@ public class JDBCStatementASM implements IASM, Opcodes {
 		}
 		if(Configure.getInstance().enable_asm_jdbc==false)
 			return cv;
-		Logger.println("SA08", "jdbc stmt found: " + className);
+		Logger.println("A108", "jdbc stmt found: " + className);
 		return new StatementCV(cv);
 	}
 }
-
 class StatementCV extends ClassVisitor implements Opcodes {
-
 	private String owner;
-
 	public StatementCV(ClassVisitor cv) {
 		super(ASM4, cv);
 	}
-
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		this.owner = name;
 		super.visit(version, access, name, signature, superName, interfaces);
 	}
-
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
@@ -84,5 +69,4 @@ class StatementCV extends ClassVisitor implements Opcodes {
 		}
 		return mv;
 	}
-
 }

@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.proxy;
 
 import scouter.agent.Logger;
@@ -49,7 +48,7 @@ public class HttpTraceFactory {
 			Class c = Class.forName(HTTP_TRACE, true, loader);
 			return (IHttpTrace) c.newInstance();
 		} catch (Throwable e) {
-			Logger.println("TA015", "fail to create", e);
+			Logger.println("A135", "fail to create", e);
 			return dummy;
 		}
 	}

@@ -13,11 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.asm;
-
 import java.util.HashSet;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -26,10 +23,8 @@ import scouter.agent.asm.jdbc.RsNextMV;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
-
 public class JDBCResultSetASM implements IASM, Opcodes {
 	public final HashSet<String> target = new HashSet<String>();
-
 	public JDBCResultSetASM() {
 		target.add("org/mariadb/jdbc/MySQLResultSet");
 		
@@ -47,9 +42,7 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 		target.add("oracle/jdbc/driver/SensitiveScrollableResultSet");
 		
 		target.add("org/hsqldb/jdbc/JDBCResultSet");
-
 	}
-
 	public boolean isTarget(String className) {
 		return target.contains(className) ;
 	}
@@ -59,18 +52,14 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 		}
 		if(Configure.getInstance().enable_asm_jdbc==false)
 			return cv;
-		Logger.println("SA07", "jdbc rs found: " + className);
-
+		Logger.println("A107", "jdbc rs found: " + className);
 		return new ResultSetCV(cv);
 	}
 }
-
 class ResultSetCV extends ClassVisitor implements Opcodes {
-
 	public ResultSetCV(ClassVisitor cv) {
 		super(ASM4, cv);
 	}
-
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
@@ -81,5 +70,4 @@ class ResultSetCV extends ClassVisitor implements Opcodes {
 		}
 		return mv;
 	}
-
 }

@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.netio.request.handle;
 
 import java.io.File;
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
-
 import scouter.agent.Configure;
 import scouter.agent.JavaAgent;
 import scouter.agent.Logger;
@@ -46,7 +44,7 @@ public class AgentEnv {
 	public Pack systemGc(Pack param) {
 		MapPack m = new MapPack();
 		System.gc();
-		Logger.println("TA-030", RequestCmd.OBJECT_SYSTEM_GC);
+		Logger.println("A127", RequestCmd.OBJECT_SYSTEM_GC);
 		return m;
 	}
 

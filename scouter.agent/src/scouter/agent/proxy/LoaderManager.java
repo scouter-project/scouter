@@ -13,9 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.proxy;
-
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
@@ -29,21 +27,13 @@ import scouter.agent.JavaAgent;
 import scouter.agent.Logger;
 import scouter.agent.util.ManifestUtil;
 import scouter.util.FileUtil;
-import scouter.util.HashUtil;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.StringUtil;
-
 public class LoaderManager {
-
 	private static ClassLoader pluginClassLoader;
 	private static ClassLoader toolsClassLoader;
-
 	
 	private static IntKeyLinkedMap<ClassLoader> loaders = new IntKeyLinkedMap<ClassLoader>().setMax(10);
-//	private static ClassLoader httpClassLoader;
-//	private static ClassLoader httpClient43;
-//	private static ClassLoader db2ClassLoader;
-//	private static ClassLoader ribbon;
 
 	public synchronized static ClassLoader getToolsLoader() {
 		if (toolsClassLoader == null) {
@@ -53,12 +43,11 @@ public class LoaderManager {
 				toolsClassLoader = new URLClassLoader(new URL[] { tools.toURI().toURL(), tempFile.toURI().toURL() },
 						null);
 			} catch (Throwable e) {
-				Logger.println("TA030", e);
+				Logger.println("A136", e);
 			}
 		}
 		return toolsClassLoader;
 	}
-
 	public synchronized static ClassLoader getHttpLoader(ClassLoader parent) {
 		if (parent == null)
 			return null;
@@ -70,14 +59,12 @@ public class LoaderManager {
 				loader = new URLClassLoader(new URL[] { tempFile.toURI().toURL() }, parent);
 				loaders.put(System.identityHashCode(parent), loader);
 			} catch (Throwable e) {
-				Logger.println("TA004", "SUBLOADER " + e);
+				Logger.println("A137", "SUBLOADER " + e);
 			}
 		}
 		return loader;
 	}
-
 	public synchronized static ClassLoader getDB2Loader(ClassLoader parent) {
-
 		ClassLoader loader  = loaders.get(System.identityHashCode(parent));
 		if (loader == null) {
 			try {
@@ -85,12 +72,11 @@ public class LoaderManager {
 				loader = new URLClassLoader(new URL[] { tempFile.toURI().toURL() }, parent);
 				loaders.put(System.identityHashCode(parent), loader);
 			} catch (Throwable e) {
-				Logger.println("TA003", "SUBLOADER " + e);
+				Logger.println("A138", "SUBLOADER " + e);
 			}
 		}
 		return loader;
 	}
-
 	public synchronized static ClassLoader getHttpClient(ClassLoader parent) {
 		if (parent == null)
 			return null;
@@ -101,15 +87,13 @@ public class LoaderManager {
 				loader = new URLClassLoader(new URL[] { tempFile.toURI().toURL() }, parent);
 				loaders.put(System.identityHashCode(parent), loader);
 			} catch (Throwable e) {
-				Logger.println("TA003", "SUBLOADER " + e);
+				Logger.println("A139", "SUBLOADER " + e);
 			}
 		}
 		return loader;
 	}
-
 	private static File deployJar(String jarname) {
 		try {
-
 			File target = new File(Configure.getInstance().subagent_dir, jarname + ".jar");
 			if (target.canRead() == false) {
 				InputStream is = JavaAgent.class.getResourceAsStream("/" + jarname + ".jar");
@@ -127,15 +111,13 @@ public class LoaderManager {
 			}
 			return target;
 		} catch (Exception e) {
-			Logger.println("TA021", "fail to deploy " + jarname);
+			Logger.println("A140", "fail to deploy " + jarname);
 			return null;
 		}
 	}
-
 	public static ClassLoader getPlugInLoader() {
 		return pluginClassLoader;
 	}
-
 	public synchronized static void createPlugInLoader(String file) {
 		if (StringUtil.isEmpty(file) || new File(file).canRead() == false) {
 			pluginClassLoader = null;
@@ -147,11 +129,9 @@ public class LoaderManager {
 				pluginClassLoader = new URLClassLoader(urls, LoaderManager.class.getClassLoader());
 			}
 		} catch (Throwable e) {
-			Logger.println("TA999", e);
+			Logger.println("A141", e);
 		}
-
 	}
-
 	private static URL[] toURLS(String file) {
 		List<URL> urls = new ArrayList<URL>();
 		StringTokenizer nizer = new StringTokenizer(file, ";");

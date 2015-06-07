@@ -13,14 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.netio.request.handle;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.URL;
-
 import scouter.agent.JavaAgent;
 import scouter.agent.Logger;
 import scouter.agent.netio.request.anotation.RequestHandler;
@@ -47,7 +45,7 @@ public class AgentClassHandle {
 			is = clazz.getResourceAsStream(clsAsResource);
 			p.put("class", new BlobValue(FileUtil.readAll(is)));
 		} catch (Throwable th) {
-			Logger.println("TA035",th);
+			Logger.println("A126",th);
 			p.put("error", th.getMessage());
 			return p;
 		} finally {

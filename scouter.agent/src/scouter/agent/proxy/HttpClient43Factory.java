@@ -13,33 +13,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.proxy;
-
 import scouter.agent.Logger;
-import scouter.agent.trace.TraceContext;
-
 public class HttpClient43Factory {
 	private static final String HTTP_CLIENT43 = "scouter.xtra.httpclient.HttpClient43";
-
 	public static final IHttpClient dummy = new IHttpClient() {
-
 		public String getURI(Object o) {
 			return null;
 		}
-
 		public String getHost(Object o) {
 			return null;
 		}
-
 		public String getHeader(Object o, String key) {
 			return null;
 		}
-
 		public void addHeader(Object o, String key, String value) {
 		}
 	};
-
 	public static IHttpClient create(ClassLoader parent) {
 		try {
 			ClassLoader loader = LoaderManager.getHttpClient(parent);
@@ -50,9 +40,8 @@ public class HttpClient43Factory {
 			return (IHttpClient) c.newInstance();
 		} catch (Throwable e) {
 			e.printStackTrace();
-			Logger.println("TA015", "fail to create", e);
+			Logger.println("A134", "fail to create", e);
 			return dummy;
 		}
 	}
-
 }

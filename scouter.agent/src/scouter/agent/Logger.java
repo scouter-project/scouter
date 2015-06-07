@@ -59,7 +59,7 @@ public class Logger {
 		t.printStackTrace();
 	}
 
-	public static void println(String message) {
+	public static void info(String message) {
 		System.out.println(DateUtil.datetime(System.currentTimeMillis()) + " [SCOUTER] " + message);
 	}
 

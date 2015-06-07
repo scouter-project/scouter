@@ -13,11 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent;
 
 import java.lang.instrument.Instrumentation;
-
 import scouter.agent.netio.request.net.RequestAgent;
 import scouter.agent.util.AsyncRun;
 import scouter.util.StringUtil;
@@ -75,7 +73,7 @@ public class JavaAgent {
 				String value = StringUtil.trimToEmpty(op[1]);
 				if (key.length() > 0) {
 					System.setProperty(key, value);
-					Logger.println("TA046","add property : " + key + "=" + value);
+					Logger.println("A117","add property : " + key + "=" + value);
 				}
 			}
 		} catch (Throwable e) {
@@ -91,13 +89,13 @@ public class JavaAgent {
 			Logo.print(false);
 			ClassLoader cl = JavaAgent.class.getClassLoader();
 			if (cl == null) {
-				Logger.println("loaded by system classloader ");
-				Logger.println(cut(""
+				Logger.info("loaded by system classloader ");
+				Logger.info(cut(""
 						+ ClassLoader.getSystemClassLoader().getResource(
 								JavaAgent.class.getName().replace('.', '/') + ".class")));
 			} else {
-				Logger.println("loaded by app classloader ");
-				Logger.println(cut("" + cl.getResource(JavaAgent.class.getName().replace('.', '/') + ".class")));
+				Logger.info("loaded by app classloader ");
+				Logger.info(cut("" + cl.getResource(JavaAgent.class.getName().replace('.', '/') + ".class")));
 			}
 		} catch (Throwable t) {
 		}

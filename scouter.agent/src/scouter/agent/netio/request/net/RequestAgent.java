@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.netio.request.net;
 
 import java.net.InetAddress;
@@ -21,7 +20,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.net.SocketAddr;
@@ -66,20 +64,20 @@ public class RequestAgent extends Thread {
 					server = new ServerSocket(i, 50, addr);
 					break;
 				} catch (Exception e) {
-					//Logger.println("open tcp:" + i + " " +e);		
+					//Logger.println("A39" + i + " " +e);		
 					server = null;
 				}
 			}
 
 			if (server != null) {
 				serverAddr = new SocketAddr(server.getInetAddress().getHostAddress(), server.getLocalPort());				
-				Logger.println("tcp listen " + serverAddr.getPort() + " for request");
+				Logger.info("tcp listen " + serverAddr.getPort() + " for request");
 				try {
 					while (true) {
 						Socket client = server.accept();
 						if (RequestWorker.getActiveCount() >= conf.max_concurrent_server_request) {
 							client.close();
-							Logger.println("TA011", "SOCKET:Too many concurrent requests");
+							Logger.println("A130", "SOCKET:Too many concurrent requests");
 						} else {
 							threadPool.execute(new RequestWorker(client));
 						}

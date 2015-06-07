@@ -37,7 +37,7 @@ public class FutureTaskCallMV extends LocalVariablesSorter implements Opcodes {
 	public FutureTaskCallMV(int access, String desc, MethodVisitor mv, String owner) {
 		super(ASM4,access, desc, mv);
 		this.owner = owner;
-		Logger.println("future: " +owner + ".call"+desc);
+		Logger.info("future: " +owner + ".call"+desc);
 	}
 	private Label startFinally = new Label();
 

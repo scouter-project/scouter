@@ -31,8 +31,8 @@ import scouter.util.StringKeyLinkedMap;
 
 public class AgentHeartBeat {
 	public AgentHeartBeat() {
-		Logger.println("objType:" + Configure.getInstance().scouter_type);
-		Logger.println("objName:" + Configure.getInstance().objName);
+		Logger.info("objType:" + Configure.getInstance().scouter_type);
+		Logger.info("objName:" + Configure.getInstance().objName);
 	}
 
 	private static StringKeyLinkedMap< ObjectPack> objects = new StringKeyLinkedMap<ObjectPack>();

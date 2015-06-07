@@ -13,40 +13,30 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.asm;
-
 import java.util.HashSet;
 import java.util.Set;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Logger;
 import scouter.agent.trace.TraceMain;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
-
 public class CapContentLengthASM implements IASM, Opcodes {
 	private Set<String> target = new HashSet<String>();
-
 	public CapContentLengthASM() {
 		target.add("org/apache/catalina/connector/Response");
 	}
-
 	public boolean isTarget(String className) {
 	       return target.contains(className);
 	}
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-
 		if (target.contains(className) == false)
 			return cv;
-
-		Logger.println("SA01",className + " capture ContentLength");
+		Logger.println("A102",className + " capture ContentLength");
 		return new CapContentsLengthCV(cv, className);
 	}
-
 }
-
 // ///////////////////////////////////////////////////////////////////////////
 class CapContentsLengthCV extends ClassVisitor implements Opcodes {
 	private static Set<String> methods = new HashSet<String>();
@@ -55,12 +45,10 @@ class CapContentsLengthCV extends ClassVisitor implements Opcodes {
 		methods.add("setStatus");
 	}
 	public String className;
-
 	public CapContentsLengthCV(ClassVisitor cv, String className) {
 		super(ASM4, cv);
 		this.className = className;
 	}
-
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
@@ -68,30 +56,24 @@ class CapContentsLengthCV extends ClassVisitor implements Opcodes {
 			return new CapContentsLengthMV(mv, name, desc);
 		}
 		return mv;
-
 	}
 }
-
 // ///////////////////////////////////////////////////////////////////////////
 class CapContentsLengthMV extends MethodVisitor implements Opcodes {
 	private static final String CLASS = TraceMain.class.getName().replace('.', '/');
 	// private static final String METHOD = "setContentLength";
 	// private static final String SIGNATURE = "(I)V";
-
 	private String METHOD_NAME;
 	private String DESC;
-
 	public CapContentsLengthMV(MethodVisitor mv, String name, String desc) {
 		super(ASM4, mv);
 		METHOD_NAME = name;
 		this.DESC = desc;
 	}
-
 	@Override
 	public void visitCode() {
 		mv.visitVarInsn(Opcodes.ILOAD, 1);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD_NAME, "(I)V");
-
 		super.visitCode();
 	}
 }
