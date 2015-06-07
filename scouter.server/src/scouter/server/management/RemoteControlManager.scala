@@ -43,7 +43,7 @@ object RemoteControlManager {
         }
         val control = queue.enqueue(remoteControl);
         if (control == null) {
-            Logger.println("RemoteControlManager", "queue exceeded!!");
+            Logger.println("S148", "queue exceeded!!");
             return false;
         }
         return true;

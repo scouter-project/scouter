@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.server.netio.service;
 
 import java.lang.reflect.InvocationTargetException;
@@ -22,7 +21,6 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.server.Configure;

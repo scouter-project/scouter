@@ -13,9 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.server.plugin;
-
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -25,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
-
 import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.ObjectPack;
 import scouter.lang.pack.PerfCounterPack;
@@ -36,7 +33,6 @@ import scouter.server.Logger;
 import scouter.util.CompareUtil;
 import scouter.util.StringUtil;
 import scouter.util.scan.Scanner;
-
 public class PlugInManager {
 	
 	private static List<IServiceGroup> groups = new ArrayList();
@@ -44,7 +40,6 @@ public class PlugInManager {
 	private static List<IObject> objects = new ArrayList();
 	private static List<IAlert> alerts = new ArrayList();
 	private static List<ICounter> counters = new ArrayList();
-
 	private static void load(String path) {
 		ClassLoader loader = createClassLoader(path);
 		if (loader == null) {
@@ -62,54 +57,46 @@ public class PlugInManager {
 			try {
 				Class c = Class.forName(itr.next(), false, loader);
 				if(c.isAnnotationPresent(Deprecated.class)){
-					Logger.println("PLUGIN","ignore "+c.getName());
+					Logger.println("S173","ignore "+c.getName());
 					continue;
 				}
 				
 				if (IXLog.class.isAssignableFrom(c)) {
 					xlogs.add((IXLog) c.newInstance());
-					Logger.println("PLUGIN","load IXLog="+c.getName());
+					Logger.println("S174","load IXLog="+c.getName());
 				} else if (IAlert.class.isAssignableFrom(c)) {
 					alerts.add((IAlert) c.newInstance());
-					Logger.println("PLUGIN","load IAlert="+c.getName());
+					Logger.println("S175","load IAlert="+c.getName());
 				} else if (IObject.class.isAssignableFrom(c)) {
 					objects.add((IObject) c.newInstance());
-					Logger.println("PLUGIN","load IObject="+c.getName());
+					Logger.println("S176","load IObject="+c.getName());
 				} else if (IServiceGroup.class.isAssignableFrom(c)) {
-					Logger.println("PLUGIN","load IServiceGroup="+c.getName());
+					Logger.println("S177","load IServiceGroup="+c.getName());
 					groups.add((IServiceGroup) c.newInstance());
 				}
 			} catch (Exception e) {
 			}
-
 		}
-
 	}
-
 	private static void unload() {
 		List old = xlogs;
 		xlogs = new ArrayList();
 		unload(old);
-
 		old = groups;
 		groups = new ArrayList();
 		unload(old);
-
 		old = alerts;
 		alerts = new ArrayList();
 		unload(old);
-
 		old = objects;
 		objects = new ArrayList();
 		unload(old);
 	}
-
 	private static void unload(List old) {
 		for (int i = 0; i < old.size(); i++) {
 			((IPlugIn) old.get(i)).unload();
 		}
 	}
-
 	private static String jarName = null;
 	private static ClassLoader pluginClassLoader;
 	public static void getInstance() {
@@ -127,7 +114,6 @@ public class PlugInManager {
 			}
 		});
 	}
-
 	protected static List<File> getJarNames(String path){
 		ArrayList<File> arr = new ArrayList<File>();
 		StringTokenizer nizer = new StringTokenizer(path, ";:");
@@ -154,30 +140,26 @@ public class PlugInManager {
 			    }
 				pluginClassLoader = new URLClassLoader((URL[]) arr.toArray(new URL[arr.size()]), PlugInManager.class.getClassLoader());
 			} catch (Throwable e) {
-				Logger.println("PLUGIN", e);
+				Logger.println("S178", e);
 			}
 		}
 		return pluginClassLoader;
 	}
-
 	public static void xlog(XLogPack m) {
 		for (int i = 0; i < xlogs.size(); i++) {
 			xlogs.get(i).process(m);
 		}
 	}
-
 	public static void plugObject(ObjectPack p) {
 		for (int i = 0; i < objects.size(); i++) {
 			objects.get(i).process(p);
 		}
 	}
-
 	public static void alert(AlertPack p) {
 		for (int i = 0; i < alerts.size(); i++) {
 			alerts.get(i).process(p);
 		}
 	}
-
 	public static void counter(PerfCounterPack p) {
 		for (int i = 0; i < counters.size(); i++) {
 			counters.get(i).process(p);
@@ -190,5 +172,4 @@ public class PlugInManager {
 		}
 		return x;
 	}
-
 }

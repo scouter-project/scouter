@@ -56,7 +56,7 @@ object TextPermWR {
             try {
                 if (writingTable == null) {
                     queue.clear();
-                    Logger.println("TextPermWR", 10, "can't open db");
+                    Logger.println("S137", 10, "can't open db");
                 } else {
                     val ok = writingTable.hasKey(m.div, m.hash);
                     if (ok == false) {
@@ -77,7 +77,7 @@ object TextPermWR {
         TextCache.put(divHash, hash, text)
         val ok = queue.put(new Data(divHash, hash, text))
         if (ok == false) {
-            Logger.println("TextPermWR", 10, "queue exceeded!!");
+            Logger.println("S138", 10, "queue exceeded!!");
         }
     }
 

@@ -14,9 +14,7 @@
  *  limitations under the License. 
  *
  */
-
 package scouter.server.core;
-
 import scouter.lang.counters.CounterConstants
 import scouter.lang.counters.CounterEngine
 import scouter.lang.pack.MapPack
@@ -29,20 +27,16 @@ import scouter.util.ThreadUtil
 import scouter.server.{ Logger, CounterManager }
 import scouter.server.util.ThreadScala
 import scouter.server.util.EnumerScala
-
 /*
  * 날짜가 바뀌면 해야할 것들...
  */
 object TextCacheReset {
-
     val engine = scouter.server.CounterManager.getInstance().getCounterEngine()
-
     var oldunit = 0L;
     ThreadScala.startDaemon("TextCacheReset", { CoreRun.running }, 2000) {
         var dateUnit = DateUtil.getDateUnit();
         if (dateUnit != oldunit) {
             oldunit = dateUnit;
-
             EnumerScala.foreach(AgentManager.getLiveObjHashList().iterator(), (oid: Int) => {
                 try {
                     var agent = AgentManager.getAgent(oid);
@@ -50,10 +44,9 @@ object TextCacheReset {
                         AgentCall.call(agent, RequestCmd.OBJECT_RESET_CACHE, null);
                     }
                 } catch {
-                    case t: Throwable => Logger.println("TEXTCACHE", "Thread \n" + t)
+                    case t: Throwable => Logger.println("S114", "Thread \n" + t)
                 }
             })
         }
     }
-
 }

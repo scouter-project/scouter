@@ -14,11 +14,8 @@
  *  limitations under the License. 
  *
  */
-
 package scouter.server.db;
-
 import java.io.File
-
 import scouter.lang.CounterKey
 import scouter.lang.value.Value
 import scouter.lang.value.ValueEnum
@@ -29,13 +26,9 @@ import scouter.server.util.OftenAction
 import scouter.server.util.ThreadScala
 import scouter.util.FileUtil
 import scouter.util.RequestQueue
-
 object DailyCounterWR {
-
     val queue = new RequestQueue[Data](DBCtr.MAX_QUE_SIZE)
-
     val prefix = "5m";
-
     ThreadScala.start("DailyCounterWR") {
         while (DBCtr.running) {
             val m = queue.get();
@@ -44,14 +37,13 @@ object DailyCounterWR {
                     lastDateInt = m.date;
                     close();
                     open(Integer.toString(m.date));
-
                 }
                 if (index == null) {
                     OftenAction.act("DailyCounterWR", 10) {
                         queue.clear();
                         lastDateInt=0;
                     }
-                    Logger.println("DailyCounterWR", 10, "can't open db");
+                    Logger.println("S122", 10, "can't open db");
                 } else {
                     val pkey = m.key.getBytesKey();
                     var location = index.get(pkey);
@@ -70,32 +62,27 @@ object DailyCounterWR {
         }
         close()
     }
-
     def add(date: Int, key: CounterKey, hhmm: Int, value: Value) {
         val ok = queue.put(new Data(date, key, hhmm, value));
         if (ok == false) {
-            Logger.println("DailyCounterWR", 10, "queue exceeded!!");
+            Logger.println("S123", 10, "queue exceeded!!");
         }
     }
-
     class Data(_date: Int, _key: CounterKey, _hhmm: Int, _value: Value) {
         val date = _date;
         val key = _key;
         val hhmm = _hhmm;
         val value = _value;
     }
-
     var lastDateInt: Int = 0
     var index: DailyCounterIndex = null
     var writer: DailyCounterData = null
-
     def close() {
         FileUtil.close(index);
         FileUtil.close(writer);
         index = null;
         writer = null;
     }
-
     def open(date: String) {
         try {
             val path = getDBPath(date);
@@ -113,7 +100,6 @@ object DailyCounterWR {
             }
         }
     }
-
     def getDBPath(date: String): String = {
         val sb = new StringBuffer();
         sb.append(DBCtr.getRootPath());

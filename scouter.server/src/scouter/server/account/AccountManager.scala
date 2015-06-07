@@ -14,9 +14,7 @@
  *  limitations under the License. 
  *
  */
-
 package scouter.server.account;
-
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -35,26 +33,19 @@ import scouter.util.StringKeyLinkedMap
 import scouter.util.ThreadUtil
 import scouter.server.util.ThreadScala
 import scouter.server.core.CoreRun
-
 object AccountManager {
-
     val ACCOUNT_FILENAME = "account.xml";
     val GROUP_FILENAME = "account_group.xml";
     var accountMap = new StringKeyLinkedMap[Account]();
     var groupPolicyMap = new StringKeyLinkedMap[MapValue]();
-
     val confPath = Configure.CONF_DIR;
     FileUtil.mkdirs(confPath);
-
     val groupFile = new File(confPath + GROUP_FILENAME);
     val accountFile = new File(confPath + ACCOUNT_FILENAME);
-
     loadGroupFile();
     loadAccountFile();
-
     var lastModifiedAccountFile = 0L
     var lastModifiedGroupFile = 0L
-
     ThreadScala.startDaemon("Account", { CoreRun.running }, 5000) {
         if (groupFile.lastModified() != lastModifiedGroupFile) {
             loadGroupFile();
@@ -63,7 +54,6 @@ object AccountManager {
             loadAccountFile();
         }
     }
-
     private def loadGroupFile() {
         this.synchronized {
             try {
@@ -100,7 +90,6 @@ object AccountManager {
             }
         }
     }
-
     private def loadAccountFile() {
         this.synchronized {
             try {
@@ -137,7 +126,6 @@ object AccountManager {
             }
         }
     }
-
     def authorizeAccount(id: String, pass: String): Account = {
         val account = accountMap.get(id);
         if (account == null) {
@@ -148,7 +136,6 @@ object AccountManager {
         }
         return null;
     }
-
     def getAccountList(): List[Account] = {
         val list = new ArrayList[Account]();
         val accEnu = accountMap.values();
@@ -157,11 +144,9 @@ object AccountManager {
         }
         return list;
     }
-
     def getGroupList(): Array[String] = {
         return groupPolicyMap.keyArray();
     }
-
     def addAccount(account: Account): Boolean = {
         this.synchronized {
             if (accountMap.get(account.id) != null) {
@@ -178,7 +163,6 @@ object AccountManager {
             return false;
         }
     }
-
     def editAccount(account: Account): Boolean = {
         this.synchronized {
             if (accountMap.get(account.id) == null) {
@@ -195,7 +179,6 @@ object AccountManager {
             return false;
         }
     }
-
     def addAccountGroup(pack: MapPack): Boolean = {
         this.synchronized {
             val name = pack.getText("name");
@@ -203,7 +186,6 @@ object AccountManager {
             if (name == null || v == null) {
                 return false;
             }
-
             val result = GroupFileHandler.addAccountGroup(groupFile, name, v.asInstanceOf[MapValue]);
             if (result) {
                 groupPolicyMap.put(name, v.asInstanceOf[MapValue]);
@@ -212,7 +194,6 @@ object AccountManager {
             return result;
         }
     }
-
     def editGroupPolicy(pack: MapPack): Boolean = {
         this.synchronized {
             val result = GroupFileHandler.editGroupPolicy(groupFile, pack);
@@ -222,21 +203,16 @@ object AccountManager {
             return result;
         }
     }
-
     def avaliableId(id: String): Boolean = {
         return accountMap.containsKey(id) == false;
     }
-
     def getAccount(id: String): Account = {
         return accountMap.get(id);
     }
-
     def getGroupPolicy(groupName: String): MapValue = {
         return groupPolicyMap.get(groupName);
     }
-
     def readAccountGroup(): Array[Byte] = {
         return FileUtil.readAll(groupFile);
     }
-
 }

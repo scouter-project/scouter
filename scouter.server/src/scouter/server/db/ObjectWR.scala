@@ -110,13 +110,13 @@ object ObjectWR {
     def add(obj: ObjectPack) {
         val ok = queue.put(createAdd(obj));
         if (ok == false) {
-            Logger.println("ObjectWR", 10, "queue exceeded!!");
+            Logger.println("S131", 10, "queue exceeded!!");
         }
     }
     def remove(objHash: Int) {
         val ok = queue.put(createRm(objHash));
         if (ok == false) {
-            Logger.println("ObjectWR", 10, "queue exceeded!!");
+            Logger.println("S132", 10, "queue exceeded!!");
         }
     }
 

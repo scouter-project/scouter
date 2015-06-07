@@ -14,9 +14,7 @@
  *  limitations under the License. 
  *
  */
-
 package scouter.server.core;
-
 import scouter.lang.pack.AlertPack
 import scouter.lang.pack.TextPack
 import scouter.server.Logger
@@ -27,11 +25,8 @@ import scouter.util.RequestQueue
 import scouter.util.HashUtil
 import scouter.server.util.ThreadScala
 import scouter.server.tagcnt.AlertTagCount
-
 object AlertCore {
-
     val queue: RequestQueue[AlertPack] = new RequestQueue(CoreRun.MAX_QUE_SIZE)
-
     ThreadScala.startDaemon("AlertCore", { CoreRun.running }) {
         val p = queue.get();
         p.time = System.currentTimeMillis()
@@ -39,11 +34,10 @@ object AlertCore {
         AlertWR.add(p)
         AlertTagCount.add(p)
     }
-
     def add(p: AlertPack) {
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("AlertCore", 10, "queue exceeded!!");
+            Logger.println("S106", 10, "queue exceeded!!");
         }
     }
 }

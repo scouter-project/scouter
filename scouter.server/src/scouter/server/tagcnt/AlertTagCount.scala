@@ -43,7 +43,7 @@ object AlertTagCount {
                     process(objInfo.objType, m)
                 }
             } catch {
-                case e: Exception => Logger.println("AlertTagCount", e.toString())
+                case e: Exception => Logger.println("S182", e.toString())
             }
         }
     }
@@ -51,7 +51,7 @@ object AlertTagCount {
     def add(p: AlertPack) {
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("TAG-C", 10, "AlertTagCount queue exceeded!!");
+            Logger.println("S183", 10, "AlertTagCount queue exceeded!!");
         }
     }
     def process(objType: String, x: AlertPack) {

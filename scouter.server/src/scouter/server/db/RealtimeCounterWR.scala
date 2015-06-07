@@ -14,9 +14,7 @@
  *  limitations under the License. 
  *
  */
-
 package scouter.server.db;
-
 import scouter.lang.pack.PerfCounterPack
 import scouter.server.Logger
 import scouter.server.db.counter.RealtimeCounterDBHelper
@@ -28,15 +26,11 @@ import scouter.util.HashUtil
 import scouter.util.IClose
 import scouter.util.ThreadUtil;
 import scouter.server.util.ThreadScala
-
 object RealtimeCounterWR {
-
     val queue = new RequestQueue[PerfCounterPack](DBCtr.MAX_QUE_SIZE);
-
     ThreadScala.start("RealtimeCounterWR") {
         val last_logtime = System.currentTimeMillis();
         var wdb: RealtimeCounterDBHelper = null
-
         while (DBCtr.running) {
             val m = queue.get();
             try {
@@ -48,38 +42,31 @@ object RealtimeCounterWR {
                 }
                 wdb.activeTime = System.currentTimeMillis();
                 wdb.counterDbHeader.intern(m.data.keySet());
-
                 PlugInManager.counter(m);
-
                 val tagbytes = RealtimeCounterDBHelper.getTagBytes(wdb.counterDbHeader.getTagStrInt(), m.data)
                 val posTags = wdb.counterData.write(tagbytes);
-
                 wdb.counterIndex.write(HashUtil.hash(m.objName), m.time, posTags);
             } catch {
-                case t: Throwable => Logger.println("RealtimeCounterWR", 10, t.toString());
+                case t: Throwable => Logger.println("S133", 10, t.toString());
             }
         }
         FileUtil.close(wdb);
     }
-
     def addWait(p: PerfCounterPack, max: Int) {
         while (queue.size() >= max) {
             ThreadUtil.sleep(100);
         }
         add(p);
     }
-
     def add(p: PerfCounterPack) {
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("RealtimeCounterWR", 10, "queue exceeded!!");
+            Logger.println("S134", 10, "queue exceeded!!");
         }
     }
-
     def writeOpen(m: PerfCounterPack): RealtimeCounterDBHelper = {
         val db = new RealtimeCounterDBHelper().open(m.objName, DateUtil.yyyymmdd(m.time), false);
         db.currentDateUnit = DateUtil.getDateUnit(m.time);
         return db;
     }
-
 }

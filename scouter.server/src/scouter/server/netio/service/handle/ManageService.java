@@ -13,12 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.server.netio.service.handle;
-
 import java.io.File;
 import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.lang.pack.MapPack;
@@ -34,9 +31,7 @@ import scouter.server.db.DBCtr;
 import scouter.server.management.RemoteControl;
 import scouter.server.management.RemoteControlManager;
 import scouter.server.netio.service.anotation.ServiceHandler;
-
 public class ManageService {
-
 	@ServiceHandler(RequestCmd.SERVER_DB_LIST)
 	public void listDbFiles(DataInputX din, DataOutputX dout, boolean login) throws IOException {
 		String rootPath = DBCtr.getRootPath();
@@ -54,7 +49,6 @@ public class ManageService {
 		dout.writePack(m);
 		dout.flush();
 	}
-
 	@ServiceHandler(RequestCmd.SERVER_DB_DELETE)
 	public void deleteDbFiles(DataInputX din, DataOutputX dout, boolean login) throws IOException {
 		String rootPath = DBCtr.getRootPath();
@@ -73,7 +67,6 @@ public class ManageService {
 		dout.writePack(m);
 		dout.flush();
 	}
-
 	@ServiceHandler(RequestCmd.REMOTE_CONTROL)
 	public void remoteControl(DataInputX din, DataOutputX dout, boolean login) throws IOException {
 		MapPack param = (MapPack) din.readPack();
@@ -97,7 +90,6 @@ public class ManageService {
 			dout.writePack(m);
 		}
 	}
-
 	@ServiceHandler(RequestCmd.REMOTE_CONTROL_ALL)
 	public void remoteControlAll(DataInputX din, DataOutputX dout, boolean login) throws IOException {
 		MapPack param = (MapPack) din.readPack();
@@ -105,7 +97,6 @@ public class ManageService {
 				param.getText("command"), //
 				System.currentTimeMillis(), //
 				param, param.getLong("fromSession"));
-
 		LoginUser[] users = LoginManager.getLoginUserList();
 		for (int i = 0, len = (users != null ? users.length : 0); i < len; i++) {
 			long session = users[i].session();
@@ -114,7 +105,6 @@ public class ManageService {
 		Logger.println("[" + RequestCmd.REMOTE_CONTROL_ALL + "]" + control.commnad() + " from "
 				+ LoginManager.getUser(control.commander()).ip());
 	}
-
 	@ServiceHandler(RequestCmd.CHECK_JOB)
 	public void checkJob(DataInputX din, DataOutputX dout, boolean login) throws IOException {
 		MapPack param = (MapPack) din.readPack();
@@ -129,7 +119,6 @@ public class ManageService {
 			dout.writePack(control.param());
 		}
 	}
-
 	private long collectDirectory(File dir, ListValue nameLv, ListValue sizeLv, ListValue lastModifiedLv,
 			String rootPath) {
 		long length = 0;
@@ -146,7 +135,6 @@ public class ManageService {
 		}
 		return length;
 	}
-
 	void deleteFiles(File file) throws IOException {
 		if (file.exists() == false) {
 			return;

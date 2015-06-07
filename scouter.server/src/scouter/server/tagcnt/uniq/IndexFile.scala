@@ -155,7 +155,7 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
       }
     } catch {
       case t: Throwable =>
-        Logger.println("DEBUG", this.keyFile + " : read=" + done + " pos=" + pos + " file-len=" + length + " " + t);
+        Logger.println("S188", this.keyFile + " : read=" + done + " pos=" + pos + " file-len=" + length + " " + t);
     }
     return true;
   }

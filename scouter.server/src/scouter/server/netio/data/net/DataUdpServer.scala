@@ -53,7 +53,7 @@ object DataUdpServer {
             }
         } catch {
             case t: Throwable =>
-                Logger.println("DATAUDP", 10, t);
+                Logger.println("S153", 10, t);
         }
     }
 
@@ -78,7 +78,7 @@ object DataUdpServer {
                 return ;
             } catch {
                 case e: Exception =>
-                    Logger.println("UdpData", 1, "udp data server port=" + port, e);
+                    Logger.println("S159", 1, "udp data server port=" + port, e);
             }
             ThreadUtil.sleep(3000);
         }

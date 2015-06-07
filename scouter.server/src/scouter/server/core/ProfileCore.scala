@@ -46,7 +46,7 @@ object ProfileCore {
 
         val ok = queue.put(p)
         if (ok == false) {
-            Logger.println("ProfileCore", 10, "queue exceeded!!");
+            Logger.println("S110", 10, "queue exceeded!!");
         }
     }
 

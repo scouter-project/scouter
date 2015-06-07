@@ -69,7 +69,7 @@ object FirstTagCountDB extends IClose {
         }
         val ok = queue.put(data);
         if (ok == false) {
-            Logger.println("TAG-C", 10, "first db queue is exceded");
+            Logger.println("S185", 10, "first db queue is exceded");
         }
     }
     var lastflush = System.currentTimeMillis();

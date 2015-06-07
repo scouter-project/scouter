@@ -51,7 +51,7 @@ object AlertWR {
 
                 if (index == null) {
                     queue.clear();
-                    Logger.println("AlertWR", 10, "can't open db")
+                    Logger.println("S120", 10, "can't open db")
 
                     OftenAction.act("AlertWR", 10) {
                         currentDateUnit = 0L
@@ -71,7 +71,7 @@ object AlertWR {
     def add(p: AlertPack) {
         val ok = queue.put(p)
         if (ok == false) {
-            Logger.println("AlertWR", 10, "queue exceeded!!")
+            Logger.println("S121", 10, "queue exceeded!!")
         }
     }
 

@@ -14,9 +14,7 @@
  *  limitations under the License. 
  *
  */
-
 package scouter.server.core;
-
 import net.sf.jsqlparser.JSQLParserException
 import net.sf.jsqlparser.parser.CCJSqlParserManager
 import net.sf.jsqlparser.schema.Table
@@ -35,16 +33,12 @@ import scouter.util.IntLinkedSet
 import scouter.util.StringKeyLinkedMap
 import java.io.StringReader
 import scouter.server.util.ThreadScala
-
 object SqlTables {
-
     val MAX_Q1 = 500;
     val MAX_Q2 = 10000;
-
     val failSet = new IntLinkedSet().setMax(10000);
     val queue1 = new RequestQueue[Data](MAX_Q1);
     val queue2 = new RequestQueue[Data](MAX_Q2);
-
     ThreadScala.startDaemon("SqlTables", { CoreRun.running }) {
         if (queue1.size() > 0) {
             process(queue1.get());
@@ -54,13 +48,11 @@ object SqlTables {
             process(queue1.get());
         }
     }
-
     class Data(_date: String, _sqlHash: Int, _sqlText: String) {
         val date = _date;
         val sqlHash = _sqlHash;
         var sqlText = _sqlText;
     }
-
     /*
 	 * 어느정도 서버에 부담을 줄지 알수 없다. 따라서 이문제를 해결하기 위해 parse 여부를 옵션 처리한다.
 	 */
@@ -68,7 +60,6 @@ object SqlTables {
         if (Configure.getInstance().enable_sql_parsing == false)
             return ;
         val data = new Data(date, sqlHash, sqlText);
-
         var ok = queue1.put(data);
         if (ok) {
             return ;
@@ -76,12 +67,10 @@ object SqlTables {
         data.sqlText = null;
         ok = queue2.put(data);
         if (ok == false) {
-            Logger.println("SqlTables", 10, "queue exceeded!!");
+            Logger.println("S111", 10, "queue exceeded!!");
         }
     }
-
     val parsed = new StringKeyLinkedMap[IntLinkedSet]().setMax(2);
-
     def process(data: Data) {
         try {
             var sqlHashSet: IntLinkedSet = parsed.get(data.date);
@@ -96,7 +85,6 @@ object SqlTables {
             }
             if (data.sqlText == null)
                 return ;
-
             if (failSet.contains(data.sqlHash))
                 return ;
             val sb = doAction(data.sqlText);
@@ -105,11 +93,10 @@ object SqlTables {
         } catch {
             case t: Throwable => {
                 failSet.put(data.sqlHash);
-                Logger.println("SQLTABLE", data.sqlText + "\n" + t);
+                Logger.println("S112", data.sqlText + "\n" + t);
             }
         }
     }
-
     def doAction(sqlText: String): String = {
         val sb = new StringBuffer();
         val statement = new CCJSqlParserManager().parse(new StringReader(sqlText.replace('@', '0')));

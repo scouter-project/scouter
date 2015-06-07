@@ -73,7 +73,7 @@ object AgentCall {
             }
             p.getPackType() match {
                 case PackEnum.MAP => return p.asInstanceOf[MapPack];
-                case _ => Logger.println("AGENT CALL", "not allowed return : " + p);
+                case _ => Logger.println("S149", "not allowed return : " + p);
             }
 
         } catch {

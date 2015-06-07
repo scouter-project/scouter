@@ -80,7 +80,7 @@ object XLogGroupPerf {
     def add(p: XLogPack) {
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("ServiceGroupPerf", 10, "queue exceeded!!");
+            Logger.println("S107", 10, "queue exceeded!!");
         }
     }
 

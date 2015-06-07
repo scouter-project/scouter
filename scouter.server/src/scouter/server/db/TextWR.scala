@@ -90,7 +90,7 @@ object TextWR {
                     val writingTable = open(m.date);
                     if (writingTable == null) {
                         queue.clear();
-                        Logger.println("TextDB", 10, "can't open db");
+                        Logger.println("S139", 10, "can't open db");
                     } else {
                         val ok = writingTable.hasKey(m.div, m.hash);
                         if (ok == false) {
@@ -120,7 +120,7 @@ object TextWR {
 
         val ok = queue.put(new Data(date, divHash, hash, text, tu));
         if (ok == false) {
-            Logger.println("TextTB", 10, "queue exceeded!!");
+            Logger.println("S140", 10, "queue exceeded!!");
             return false;
         }
         return true;

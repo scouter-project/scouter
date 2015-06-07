@@ -14,9 +14,7 @@
  *  limitations under the License. 
  *
  */
-
 package scouter.server.core;
-
 import scouter.lang.pack.StatusPack
 import scouter.server.Logger
 import scouter.server.core.cache.StatusCache
@@ -24,11 +22,8 @@ import scouter.server.db.StatusWR
 import scouter.server.util.ThreadScala
 import scouter.util.RequestQueue
 import scouter.util.DateUtil
-
 object StatusCore {
-
     val queue = new RequestQueue[StatusPack](CoreRun.MAX_QUE_SIZE);
-
     ThreadScala.startDaemon("StatusCore", { CoreRun.running }) {
         val p = queue.get();
         p.time = DateUtil.now
@@ -36,11 +31,10 @@ object StatusCore {
         StatusCache.put(p)
         StatusWR.add(p)
     }
-
     def add(p: StatusPack) {
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("StatusCore", 10, "queue exceeded!!");
+            Logger.println("S113", 10, "queue exceeded!!");
         }
     }
 }

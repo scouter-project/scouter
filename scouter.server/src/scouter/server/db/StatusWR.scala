@@ -14,9 +14,7 @@
  *  limitations under the License. 
  *
  */
-
 package scouter.server.db;
-
 import scouter.lang.pack.StatusPack
 import scouter.io.DataOutputX
 import scouter.server.Logger
@@ -29,13 +27,9 @@ import scouter.util.RequestQueue
 import java.io.File
 import scouter.server.util.ThreadScala
 import scouter.server.util.OftenAction
-
 object StatusWR {
-
     val status = "perfshot";
-
     val queue = new RequestQueue[StatusPack](DBCtr.MAX_QUE_SIZE);
-
     ThreadScala.start("StatusWR") {
         var currentDateUnit: Long = 0
         while (DBCtr.running) {
@@ -45,14 +39,13 @@ object StatusWR {
                     currentDateUnit = DateUtil.getDateUnit(p.time);
                     close();
                     open(DateUtil.yyyymmdd(p.time));
-
                 }
                 if (index == null) {
                     OftenAction.act("StatusWR", 10) {
                         queue.clear();
                         currentDateUnit = 0;
                     }
-                    Logger.println("StatusWR", 10, "can't open db");
+                    Logger.println("S135", 10, "can't open db");
                 } else {
                     val b = new DataOutputX().writePack(p).toByteArray()
                     val location = writer.write(b);
@@ -64,24 +57,20 @@ object StatusWR {
         }
         close()
     }
-
     def add(p: StatusPack) {
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("StatusWR", 10, "queue exceeded!!");
+            Logger.println("S136", 10, "queue exceeded!!");
         }
     }
-
     var index: StatusIndex = null
     var writer: StatusWriter = null
-
     def close() {
         FileUtil.close(index);
         FileUtil.close(writer);
         index = null;
         writer = null;
     }
-
     def open(date: String) {
         try {
             val path = getDBPath(date);
@@ -98,7 +87,6 @@ object StatusWR {
             }
         }
     }
-
     def getDBPath(date: String): String = {
         val sb = new StringBuffer();
         sb.append(DBCtr.getRootPath());

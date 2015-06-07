@@ -14,11 +14,8 @@
  *  limitations under the License. 
  *
  */
-
 package scouter.server.netio.data;
-
 import java.net.InetAddress
-
 import scouter.io.DataInputX
 import scouter.lang.TextTypes
 import scouter.lang.pack.AlertPack
@@ -46,14 +43,11 @@ import scouter.server.util.ThreadScala
 import scouter.util.BytesUtil
 import scouter.util.RequestQueue
 import scouter.util.StringUtil
-
 object NetDataProcessor {
-
     class NetData(_data: Array[Byte], _addr: InetAddress) {
         val addr = _addr;
         val data = _data
     }
-
     var working = true;
     val num = Configure.getInstance().num_of_net_processor
     for (x <- 0 to num - 1) {
@@ -68,17 +62,14 @@ object NetDataProcessor {
             }
         }
     }
-
     val queue = new RequestQueue[NetData](2048);
     val conf = Configure.getInstance();
-
     def add(data: Array[Byte], addr: InetAddress) {
         val ok = queue.putNotifySingle(new NetData(data, addr));
         if (ok == false) {
-            Logger.println("NET", 10, "overflow recv queue!!");
+            Logger.println("S160", 10, "overflow recv queue!!");
         }
     }
-
     def process(p: NetData) {
         try {
             val in = new DataInputX(p.data);
@@ -92,28 +83,22 @@ object NetDataProcessor {
                 case _ =>
                     System.out.println("Receive unknown data, length=" + BytesUtil.getLength(p.data) + " from " + p.addr);
             }
-
         } catch {
             case e: Throwable =>
-                Logger.println("NETDATA", 10, "invalid data ", e);
+                Logger.println("S161", 10, "invalid data ", e);
                 e.printStackTrace();
         }
-
     }
-
     private def processJavaMTU(in: DataInputX, addr: InetAddress) {
-
         val objHash = in.readInt();
         val pkid = in.readLong();
         val total = in.readShort();
         val num = in.readShort();
         val data = in.readBlob();
         val done = MultiPacketProcessor.add(pkid, total, num, data, objHash, addr);
-
         if (done != null) {
             val p = new DataInputX(done).readPack();
             process(p, addr);
-
             if (conf.debug_udp_multipacket) {
                 val objName = TextCache.get(TextTypes.OBJECT, objHash);
                 val sb = new StringBuffer();
@@ -121,16 +106,14 @@ object NetDataProcessor {
                 sb.append(" total=").append(total);
                 sb.append(" object=(").append(objHash).append(")").append(objName);
                 sb.append(" ").append(addr);
-                Logger.println("MULTI-PACKET", sb.toString());
+                Logger.println("S162", sb.toString());
             }
         }
     }
-
     private def processJava(in: DataInputX, addr: InetAddress) {
         val p = in.readPack();
         process(p, addr);
     }
-
     private def processJavaN(in: DataInputX, addr: InetAddress) {
         val n = in.readShort();
         for (i <- 1 to n) {
@@ -138,7 +121,6 @@ object NetDataProcessor {
             process(p, addr);
         }
     }
-
     //    private val reserved = new HashSet[String]();
     //
     //    reserved.add("objType");
@@ -146,7 +128,6 @@ object NetDataProcessor {
     //    reserved.add("timeType");
     //    reserved.add("counter");
     //    reserved.add("addr");
-
     def process(p: Pack, addr: InetAddress) {
         if (p == null)
             return ;
@@ -185,7 +166,6 @@ object NetDataProcessor {
                     h.address = addr.getHostAddress() + ":" + new SocketAddr(h.address).getPort();
                 }
                 AgentManager.active(h);
-
                 if (conf.debug_udp_object) {
                     System.out.println("DEBUG UDP OBJECT: " + p);
                 }
@@ -198,5 +178,4 @@ object NetDataProcessor {
                 System.out.println(p);
         }
     }
-
 }

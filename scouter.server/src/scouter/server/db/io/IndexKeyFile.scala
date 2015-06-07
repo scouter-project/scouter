@@ -91,7 +91,7 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
             }
         } catch {
             case e: IOException =>
-                Logger.println("DEBUG", "pos=" + pos + " keyFile.lengrh=" + this.keyFile.getLength());
+                Logger.println("S124", "pos=" + pos + " keyFile.lengrh=" + this.keyFile.getLength());
                 throw e;
         }
         return null;
@@ -174,7 +174,7 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
             }
         } catch {
             case t: Throwable =>
-                Logger.println("DEBUG", this.keyFile.path + " : read=" + done + " pos=" + pos + " file-len=" + length + " " + t);
+                Logger.println("S125", this.keyFile.path + " : read=" + done + " pos=" + pos + " file-len=" + length + " " + t);
         }
     }
 
@@ -195,7 +195,7 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
             }
         } catch {
             case t: Throwable =>
-                Logger.println("DEBUG", this.keyFile.path + " : read=" + done + " pos=" + pos + " file-len=" + length + " " + t);
+                Logger.println("S126", this.keyFile.path + " : read=" + done + " pos=" + pos + " file-len=" + length + " " + t);
         }
     }
 

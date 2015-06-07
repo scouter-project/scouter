@@ -14,9 +14,7 @@
  *  limitations under the License. 
  *
  */
-
 package scouter.server.core;
-
 import scouter.lang.TextTypes
 import scouter.lang.pack.TextPack
 import scouter.server.Logger
@@ -26,27 +24,21 @@ import scouter.util.DateUtil
 import scouter.util.RequestQueue
 import scouter.util.HashUtil;
 import scouter.server.util.ThreadScala
-
 object TextCore {
-
     val queue = new RequestQueue[TextPack](CoreRun.MAX_QUE_SIZE);
-
     ThreadScala.startDaemon("TextCore", { CoreRun.running }) {
         val m = queue.get();
         val yyyymmdd = DateUtil.yyyymmdd();
-
         if (TextTypes.SQL.equals(m.xtype)) {
             SqlTables.add(yyyymmdd, m.hash, m.text);
         }
         TextWR.add(yyyymmdd, m.xtype, m.hash, m.text);
     }
-
     def add(p: TextPack) {
         TextCache.put(HashUtil.hash(p.xtype), p.hash, p.text);
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("TextCore", 10, "queue exceeded!!");
+            Logger.println("S115", 10, "queue exceeded!!");
         }
     }
-
 }

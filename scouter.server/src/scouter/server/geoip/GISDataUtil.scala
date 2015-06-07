@@ -30,10 +30,10 @@ object GISDataUtil {
         try {
             val fGeoIpDB = new File(conf.geoip_data_city);
             if (fGeoIpDB.exists() == false) {
-                Logger.println("GIS", "GeoIP db file is not readable : " + fGeoIpDB.getCanonicalPath());
+                Logger.println("S145", "GeoIP db file is not readable : " + fGeoIpDB.getCanonicalPath());
             } else {
                 lookupService = new LookupService(fGeoIpDB, LookupService.GEOIP_MEMORY_CACHE);
-                Logger.println("GIS", "GeoIP db file is loaded : " + fGeoIpDB.getCanonicalPath());
+                Logger.println("S146", "GeoIP db file is loaded : " + fGeoIpDB.getCanonicalPath());
             }
         } catch {
             case e: Throwable =>

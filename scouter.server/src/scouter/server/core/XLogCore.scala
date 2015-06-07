@@ -74,7 +74,7 @@ object ServiceCore {
 
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("ServiceCore", 10, "queue exceeded!!");
+            Logger.println("S116", 10, "queue exceeded!!");
         }
     }
 

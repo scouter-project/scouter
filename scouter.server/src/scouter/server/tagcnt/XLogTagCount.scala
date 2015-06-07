@@ -36,7 +36,7 @@ object XLogTagCount {
 
     val queue = new RequestQueue[XLogPack](CoreRun.MAX_QUE_SIZE);
 
-    ThreadScala.startDaemon("TC-XlogTagCount") {
+    ThreadScala.startDaemon("XlogTagCount") {
         val conf = Configure.getInstance();
         while (CoreRun.running) {
             val m = queue.get();
@@ -46,7 +46,7 @@ object XLogTagCount {
                     process(objInfo.objType, m)
                 }
             } catch {
-                case e: Exception => Logger.println("XLogTagCount", e.toString())
+                case e: Exception => Logger.println("S189", e.toString())
             }
         }
     }
@@ -54,7 +54,7 @@ object XLogTagCount {
     def add(p: XLogPack) {
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("TAG-C", 10, "XLogTagCount queue exceeded!!");
+            Logger.println("S190", 10, "XLogTagCount queue exceeded!!");
         }
     }
     def process(objType: String, x: XLogPack) {

@@ -203,7 +203,7 @@ class IndexTimeFile(_path: String) extends IClose {
             }
         } catch {
             case t: Throwable =>
-                Logger.println("DEBUG", this.keyFile.path + " : read=" + done + " pos=" + pos + " file-len=" + length + " "
+                Logger.println("S127", this.keyFile.path + " : read=" + done + " pos=" + pos + " file-len=" + length + " "
                     + t);
         }
     }

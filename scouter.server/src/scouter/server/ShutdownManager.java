@@ -13,13 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.server;
 
 
 import java.util.List;
 import java.util.Vector;
-
 import scouter.util.IShutdown;
 
 
@@ -36,10 +34,10 @@ public class ShutdownManager {
 		if (instances.size() == 0) {
 			return;
 		}
-		Logger.println("shutdown", "Server Shutdown");
+		Logger.println("S180", "Server Shutdown");
 		for (int i = 0; i < instances.size(); i++) {		
 			instances.get(i).shutdown();
-		   Logger.println("shutdown", "Shutdown " + instances.get(i) + " ...");
+		   Logger.println("S181", "Shutdown " + instances.get(i) + " ...");
 		}
 		instances.clear();
 	}

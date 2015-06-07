@@ -54,7 +54,7 @@ object XLogWR {
                         queue.clear();
                         currentDateUnit = 0;
                     }
-                    Logger.println("XLogWR", 10, "can't open ");
+                    Logger.println("S143", 10, "can't open ");
                 } else {
                     val pos = writer.write(m.data);
                     index.setByTime(m.time, pos);
@@ -71,7 +71,7 @@ object XLogWR {
     def add(time: Long, tid: Long, gid: Long, elapsed: Int, data: Array[Byte]) {
         val ok = queue.put(new Data(time, tid, gid, elapsed, data));
         if (ok == false) {
-            Logger.println("XLog", 10, "queue exceeded!!");
+            Logger.println("S144", 10, "queue exceeded!!");
         }
     }
 

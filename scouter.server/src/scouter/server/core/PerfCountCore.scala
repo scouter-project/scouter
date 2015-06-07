@@ -14,9 +14,7 @@
  *  limitations under the License. 
  *
  */
-
 package scouter.server.core;
-
 import scouter.lang.CounterKey
 import scouter.lang.TimeTypeEnum
 import scouter.lang.pack.PerfCounterPack
@@ -31,29 +29,22 @@ import scouter.util.RequestQueue
 import scala.collection.JavaConversions._
 import scouter.server.util.ThreadScala
 import scouter.server.util.EnumerScala
-
 object PerfCountCore {
-
     var queue = new RequestQueue[PerfCounterPack](CoreRun.MAX_QUE_SIZE);
-
     ThreadScala.startDaemon("RealtimeCounterCore", { CoreRun.running }) {
         val p = queue.get();
         val objHash = HashUtil.hash(p.objName);
-
         if (p.timetype == TimeTypeEnum.REALTIME) {
             RealtimeCounterWR.add(p);
             EnumerScala.foreach(p.data.keySet().iterator(), (k: String) => {
                 val value = p.data.get(k);
                 val key = new CounterKey(objHash, k, p.timetype);
-
                 Auto5MSampling.add(key, value);
                 CounterCache.put(key, value);
             })
-
         } else {
             val yyyymmdd = CastUtil.cint(DateUtil.yyyymmdd(p.time));
             val hhmm = CastUtil.cint(DateUtil.hhmm(p.time));
-
             EnumerScala.foreach(p.data.keySet().iterator(), (k: String) => {
                 val value = p.data.get(k);
                 val key = new CounterKey(objHash, k, p.timetype);
@@ -62,7 +53,6 @@ object PerfCountCore {
             })
         }
     }
-
     def add(p: PerfCounterPack) {
         if (p.time == 0) {
             p.time = System.currentTimeMillis();
@@ -72,7 +62,7 @@ object PerfCountCore {
         }
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("PerfCount", 10, "queue exceeded!!");
+            Logger.println("S109", 10, "queue exceeded!!");
         }
     }
 }

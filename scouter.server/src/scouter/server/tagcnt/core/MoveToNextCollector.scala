@@ -43,7 +43,7 @@ object MoveToNextCollector {
     def add(time: Long, objType: String, tagKey: Long, tagValue: Value, count: Int) {
         while (queue.size() >= MAX_QUE_SIZE) {
             ThreadUtil.qWait();
-            Logger.println("MoveToNextCollector", 10, "queue is full");
+            Logger.println("S184", 10, "queue is full");
         }
         queue.put(new CountItem(time, objType, tagKey, tagValue, count));
     }

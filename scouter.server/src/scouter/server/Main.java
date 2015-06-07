@@ -13,11 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.server;
-
 import java.io.File;
-
 import scouter.Version;
 import scouter.server.account.AccountManager;
 import scouter.server.core.AutoDeleteScheduler;
@@ -30,36 +27,25 @@ import scouter.server.plugin.PlugInManager;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 import scouter.util.logo.Logo;
-
 public class Main {
-
 	public static void main(String[] args) {
-
 		Logo.print(true);
 		Logger.println("Scouter Server Version " + Version.getServerFullVersion());
 		Logo.print(Logger.pw, true);
-
 		Configure.getInstance();
 		CounterManager.getInstance();
 		AccountManager.ACCOUNT_FILENAME();
-
 		DataUdpServer.conf();
-
 		ServiceHandlingProxy.load();
 		ServiceServer.conf();
-
 		PlugInManager.getInstance();
-
 		NetDataProcessor.working();
-
 		AutoDeleteScheduler.getInstance();
-
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				ShutdownManager.shutdown();
 			}
 		});
-
 		File exit = new File(SysJMX.getProcessPID() + ".scouter");
 		try {
 			exit.createNewFile();
@@ -73,15 +59,12 @@ public class Main {
 			}
 		}
 		exit.deleteOnExit();
-
 		TextCacheReset.engine();
-
 		System.out.println("System JRE version : " + System.getProperty("java.version"));
 		System.out.println("This product includes GeoLite data created by MaxMind, available from");
 		System.out.println("http://www.maxmind.com");
 		System.out.println("download:  http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz");
 		System.out.println("add configure:  geoip_data_city=<download path>/GeoLiteCity.dat");
-
 		while (true) {
 			if (exit.exists() == false) {
 				ShutdownManager.shutdown();
@@ -89,6 +72,5 @@ public class Main {
 			}
 			ThreadUtil.sleep(1000);
 		}
-
 	}
 }

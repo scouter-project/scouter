@@ -73,7 +73,7 @@ object MultiPacketProcessor {
             if (p.isExpired) {
                 buffer.remove(key);
                 if (Configure.getInstance().debug_expired_multipacket) {
-                    Logger.println("MULTI-PACKET", 10, p.toString);
+                    Logger.println("S152", 10, p.toString);
                 }
             }
         }

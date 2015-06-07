@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.server.plugin;
 
 import scouter.lang.pack.XLogPack;
@@ -50,7 +49,7 @@ public class PlugXLogBuf extends Thread {
 
 		Object ok = queue.put(p);
 		if (ok == null) {
-			Logger.println("XLogPlugIn", 10, "queue exceeded!!");
+			Logger.println("S179", 10, "queue exceeded!!");
 			return false;
 		}
 		return true;

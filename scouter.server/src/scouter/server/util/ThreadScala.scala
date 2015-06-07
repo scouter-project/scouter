@@ -1,11 +1,9 @@
 package scouter.server.util
-
 import java.util.Timer
 import java.util.TimerTask
 import java.util.Date
 import scouter.util.ThreadUtil
 import scouter.server.Logger
-
 object ThreadScala {
     def startDaemon(name: String)(codeBlock: => Unit): Thread = {
         val thread = new Thread(name) {
@@ -28,8 +26,8 @@ object ThreadScala {
                     try {
                         codeBlock
                     } catch {
-                        case n: NullPointerException => Logger.println(name, 10, "@startDaemon", n)
-                        case t: Throwable => Logger.println(name, 10, "@startDaemon: " + t)
+                        case n: NullPointerException => Logger.println("S191", 10, "@startDaemon", n)
+                        case t: Throwable => Logger.println("S192", 10, "@startDaemon: " + t)
                     }
                 }
             }
@@ -45,12 +43,11 @@ object ThreadScala {
                     try {
                         codeBlock
                     } catch {
-                        case n: NullPointerException => Logger.println(name, 10, "@startDaemon", n)
-                        case t: Throwable => Logger.println(name, 10, "@startDaemon: " + t)
+                        case n: NullPointerException => Logger.println("S193", 10, "@startDaemon", n)
+                        case t: Throwable => Logger.println("S194", 10, "@startDaemon: " + t)
                     }
                     ThreadUtil.sleep(interval)
                 }
-
             }
         }
         thread.setDaemon(true)
@@ -63,8 +60,8 @@ object ThreadScala {
                 try {
                     codeBlock
                 } catch {
-                    case n: NullPointerException => Logger.println(name, 10, "@start", n)
-                    case t: Throwable => Logger.println(name, 10, "@start: " + t)
+                    case n: NullPointerException => Logger.println("S195", 10, "@start", n)
+                    case t: Throwable => Logger.println("S196", 10, "@start: " + t)
                 }
             }
         }
@@ -78,8 +75,8 @@ object ThreadScala {
                     try {
                         codeBlock
                     } catch {
-                        case n: NullPointerException => Logger.println(name, 10, "@start", n)
-                        case t: Throwable => Logger.println(name, 10, "@start: " + t)
+                        case n: NullPointerException => Logger.println("S197", 10, "@start", n)
+                        case t: Throwable => Logger.println("S198", 10, "@start: " + t)
                     }
                 }
             }
@@ -94,12 +91,11 @@ object ThreadScala {
                     try {
                         codeBlock
                     } catch {
-                        case n: NullPointerException => Logger.println(name, 10, "@start", n)
-                        case t: Throwable => Logger.println(name, 10, "@start: " + t)
+                        case n: NullPointerException => Logger.println("S199", 10, "@start", n)
+                        case t: Throwable => Logger.println("S200", 10, "@start: " + t)
                     }
                     ThreadUtil.sleep(interval)
                 }
-
             }
         }
         thread.start()
@@ -116,23 +112,19 @@ object ThreadScala {
         timer.scheduleAtFixedRate(timerTask, new Date(stime), TIME_INTERVAL);
         return timer
     }
-
     // main을 실행하며 동작방식을 이해
     def main(args: Array[String]) {
-
         val v1 = ThreadScala.startDaemon("thread1") {
             while (true) {
                 Thread.sleep(1000)
                 println("hello " + Thread.currentThread().getName() + "  " + Thread.currentThread().isDaemon())
             }
         }
-
         val v2 = ThreadScala.start("thread2") {
             while (true) {
                 Thread.sleep(1000)
                 println("hello2 " + Thread.currentThread().getName() + "  " + Thread.currentThread().isDaemon())
             }
         }
-
     }
 }
