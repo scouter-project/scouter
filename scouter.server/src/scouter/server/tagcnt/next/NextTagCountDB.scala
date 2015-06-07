@@ -59,7 +59,7 @@ object NextTagCountDB extends IClose {
     }
   }
 
-  BackJob.getInstance().add("NEXT100", 10000, r);
+  BackJob.getInstance().add("BG-NextTagCountDB", 10000, r);
 
   val queue = new RequestQueue[HashMap[NextTagCountData, Array[Int]]](CountEnv.MAX_QUE_SIZE + 1);
 
@@ -70,13 +70,14 @@ object NextTagCountDB extends IClose {
   def add(data: HashMap[NextTagCountData, Array[Int]]) {
     while (isQueueOk() == false) {
       ThreadUtil.qWait();
+       Logger.println("S187", 10, "NextTagCountDB queue is exceeded");
     }
     queue.put(data);
   }
 
   val lastflush = System.currentTimeMillis();
 
-  ThreadScala.start("NextTagCountDB") {
+  ThreadScala.start("TagCnt-NextTagCountDB") {
 
     while (CountEnv.running) {
       closeIdleConnections();

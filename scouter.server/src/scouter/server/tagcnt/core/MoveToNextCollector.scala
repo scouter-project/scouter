@@ -40,8 +40,10 @@ object MoveToNextCollector {
         val count = _count
     }
 
+    def isQueueOk() = queue.size() < MAX_QUE_SIZE
+
     def add(time: Long, objType: String, tagKey: Long, tagValue: Value, count: Int) {
-        while (queue.size() >= MAX_QUE_SIZE) {
+        while (isQueueOk() == false) {
             ThreadUtil.qWait();
             Logger.println("S184", 10, "queue is full");
         }
@@ -50,7 +52,7 @@ object MoveToNextCollector {
 
     protected var countTable = new HashMap[NextTagCountData, Array[Int]]();
 
-    ThreadScala.startDaemon("MoveToNextCollector") {
+    ThreadScala.startDaemon("TagCnt-MoveToNextCollector") {
         while (CountEnv.running) {
             checkSaveToDb();
             val p = queue.get();

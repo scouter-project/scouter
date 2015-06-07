@@ -36,7 +36,7 @@ object XLogTagCount {
 
     val queue = new RequestQueue[XLogPack](CoreRun.MAX_QUE_SIZE);
 
-    ThreadScala.startDaemon("XlogTagCount") {
+    ThreadScala.startDaemon("TagCnt-XLogTagCount") {
         val conf = Configure.getInstance();
         while (CoreRun.running) {
             val m = queue.get();

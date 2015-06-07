@@ -63,7 +63,7 @@ object Top100FileCache {
         logSet.add(new Key(logdate, objType));
     }
 
-    ThreadScala.startDaemon("Top100") {
+    ThreadScala.startDaemon("TagCnt-Top100") {
         while (CoreRun.running) {
             ThreadUtil.sleep(DateUtil.MILLIS_PER_FIVE_MINUTE);
             try {
@@ -75,8 +75,7 @@ object Top100FileCache {
                     }
                 })
             } catch {
-                case e: Exception =>
-                    e.printStackTrace();
+                case e: Exception => e.printStackTrace();
             }
         }
     }

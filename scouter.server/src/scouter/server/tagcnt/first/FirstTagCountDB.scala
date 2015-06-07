@@ -56,25 +56,21 @@ object FirstTagCountDB extends IClose {
             })
         }
     };
-    BackJob.getInstance().add("FIRST100", 10000, r);
-
-   
+    BackJob.getInstance().add("BG-FirstTagCountDB", 10000, r);
 
     val MAX_QUE_SIZE = 50000
     private val queue = new RequestQueue[FirstTCData](MAX_QUE_SIZE + 1);
 
-    def add(data:FirstTCData) {
+    def add(data: FirstTCData) {
         while (queue.size() >= MAX_QUE_SIZE) {
             ThreadUtil.qWait();
+            Logger.println("S185", 10, "FirstTagCountDB queue is exceeded");
         }
-        val ok = queue.put(data);
-        if (ok == false) {
-            Logger.println("S185", 10, "first db queue is exceded");
-        }
+        queue.put(data);
     }
     var lastflush = System.currentTimeMillis();
 
-    ThreadScala.startDaemon("FirstTagCountDB") {
+    ThreadScala.startDaemon("TagCnt-FirstTagCountDB") {
         while (CountEnv.running) {
             closeIdleConnections();
             val now = System.currentTimeMillis();
@@ -129,7 +125,7 @@ object FirstTagCountDB extends IClose {
     private def flush() {
         lastflush = System.currentTimeMillis();
         writeLock.synchronized {
-            def en = database.values();
+            val en = database.values();
             while (en.hasMoreElements()) {
                 val ix = en.nextElement();
                 ix.entry.save();
@@ -156,7 +152,7 @@ object FirstTagCountDB extends IClose {
                 try {
                     database.removeFirst().close();
                 } catch {
-                    case _:Throwable =>
+                    case _: Throwable =>
                 }
             }
             database.put(new DBKey(dateunit, objType), db);
@@ -173,11 +169,11 @@ object FirstTagCountDB extends IClose {
         val idles = idleConns;
         idleConns = new ArrayList[DBKey]();
 
-        var i = 0
-        while (i < idles.size()) {
-            val o = database.remove(idles.get(i));
+        var inx = 0
+        while (inx < idles.size()) {
+            val o = database.remove(idles.get(inx));
             FileUtil.close(o);
-            i += 1
+            inx += 1
         }
     }
 
@@ -195,8 +191,7 @@ object FirstTagCountDB extends IClose {
             db.logDate = date;
 
         } catch {
-            case e: Exception =>
-                e.printStackTrace();
+            case e: Throwable => e.printStackTrace();
         }
         return db;
     }
@@ -206,8 +201,7 @@ object FirstTagCountDB extends IClose {
         try {
             return db.table.get(tagKey, tagValue);
         } catch {
-            case e: Exception =>
-                e.printStackTrace();
+            case e: Throwable => e.printStackTrace();
         } finally {
             FileUtil.close(db);
         }
@@ -238,25 +232,16 @@ object FirstTagCountDB extends IClose {
         }
     }
 
-    def read(date: String, objType: String, handler: (Array[Byte],Array[Int])=>Any) {
+    def read(date: String, objType: String, handler: (Array[Byte], Array[Int]) => Any) {
         val db = open(date, objType);
         try {
             db.table.read(handler);
         } catch {
-            case e: Throwable =>
-                e.printStackTrace();
+            case e: Throwable => e.printStackTrace();
         } finally {
             FileUtil.close(db);
         }
     }
-    //
-    //   def  close( key:DBKey) {
-    //        IClose o = database.remove(key);
-    //        if (o != null) {
-    //            o.close();
-    //            Logger.println("close key: " + key.hashCode());
-    //        }
-    //    }
 
     def close() {
         database.synchronized {
