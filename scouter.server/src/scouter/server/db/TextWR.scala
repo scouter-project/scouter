@@ -82,8 +82,8 @@ object TextWR {
     ThreadScala.start("scouter.server.db.TextWR") {
         while (DBCtr.running) {
             closeIdle();
-            val m = queue.get();
-            if (m != null) {
+            val m = queue.get(10000); //check 10 sec
+            if (m != null) { 
                 try {
                     process(m);
                 } catch {
