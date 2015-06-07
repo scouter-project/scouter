@@ -114,13 +114,13 @@ object ThreadScala {
     }
     // main을 실행하며 동작방식을 이해
     def main(args: Array[String]) {
-        val v1 = ThreadScala.startDaemon("thread1") {
+        val v1 = ThreadScala.startDaemon("scouter.server.util.ThreadScala") {
             while (true) {
                 Thread.sleep(1000)
                 println("hello " + Thread.currentThread().getName() + "  " + Thread.currentThread().isDaemon())
             }
         }
-        val v2 = ThreadScala.start("thread2") {
+        val v2 = ThreadScala.start("scouter.server.util.ThreadScala-2") {
             while (true) {
                 Thread.sleep(1000)
                 println("hello2 " + Thread.currentThread().getName() + "  " + Thread.currentThread().isDaemon())

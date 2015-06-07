@@ -33,7 +33,7 @@ import scouter.server.util.EnumerScala
 object TextCacheReset {
     val engine = scouter.server.CounterManager.getInstance().getCounterEngine()
     var oldunit = 0L;
-    ThreadScala.startDaemon("TextCacheReset", { CoreRun.running }, 2000) {
+    ThreadScala.startDaemon("scouter.server.core.TextCacheReset", { CoreRun.running }, 2000) {
         var dateUnit = DateUtil.getDateUnit();
         if (dateUnit != oldunit) {
             oldunit = dateUnit;

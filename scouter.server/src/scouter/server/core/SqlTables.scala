@@ -39,7 +39,7 @@ object SqlTables {
     val failSet = new IntLinkedSet().setMax(10000);
     val queue1 = new RequestQueue[Data](MAX_Q1);
     val queue2 = new RequestQueue[Data](MAX_Q2);
-    ThreadScala.startDaemon("SqlTables", { CoreRun.running }) {
+    ThreadScala.startDaemon("scouter.server.core.SqlTables", { CoreRun.running }) {
         if (queue1.size() > 0) {
             process(queue1.get());
         } else if (queue2.size() > 0) {

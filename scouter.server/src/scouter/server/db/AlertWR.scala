@@ -36,7 +36,7 @@ object AlertWR {
     val queue = new RequestQueue[AlertPack](DBCtr.MAX_QUE_SIZE)
 
     val alert = "alert"
-    ThreadScala.start("AlertWR") {
+    ThreadScala.start("scouter.server.db.AlertWR") {
         var currentDateUnit = 0L
         while (DBCtr.running) {
             val p = queue.get()

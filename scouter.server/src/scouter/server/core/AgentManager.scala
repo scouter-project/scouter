@@ -57,7 +57,7 @@ object AgentManager {
         val list = ObjectRD.getObjectList(DateUtil.yyyymmdd());
         objMap.putAll(list);
     }
-    ThreadScala.startDaemon("AgentManager",{ CoreRun.running } ,1000) {
+    ThreadScala.startDaemon("scouter.server.core.AgentManager",{ CoreRun.running } ,1000) {
         val now = System.currentTimeMillis();
         val deadtime = Configure.getInstance().agent_deadtime;
         val en = objMap.objects();

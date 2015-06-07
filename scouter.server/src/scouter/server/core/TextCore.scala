@@ -26,7 +26,7 @@ import scouter.util.HashUtil;
 import scouter.server.util.ThreadScala
 object TextCore {
     val queue = new RequestQueue[TextPack](CoreRun.MAX_QUE_SIZE);
-    ThreadScala.startDaemon("TextCore", { CoreRun.running }) {
+    ThreadScala.startDaemon("scouter.server.core.TextCore", { CoreRun.running }) {
         val m = queue.get();
         val yyyymmdd = DateUtil.yyyymmdd();
         if (TextTypes.SQL.equals(m.xtype)) {

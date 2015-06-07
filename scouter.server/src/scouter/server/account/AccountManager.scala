@@ -46,7 +46,7 @@ object AccountManager {
     loadAccountFile();
     var lastModifiedAccountFile = 0L
     var lastModifiedGroupFile = 0L
-    ThreadScala.startDaemon("Account", { CoreRun.running }, 5000) {
+    ThreadScala.startDaemon("scouter.server.account.AccountManager", { CoreRun.running }, 5000) {
         if (groupFile.lastModified() != lastModifiedGroupFile) {
             loadGroupFile();
         }

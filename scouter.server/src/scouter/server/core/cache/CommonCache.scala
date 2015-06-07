@@ -25,7 +25,7 @@ object CommonCache {
 
     val cache = new CacheTable[Any, Any]().setMaxRow(1000);
 
-    ThreadScala.startDaemon("CommonCache") {
+    ThreadScala.startDaemon("scouter.server.core.cache.CommonCache") {
         while (true) {
             ThreadUtil.sleep(5000);
             cache.clearExpiredItems();

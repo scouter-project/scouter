@@ -24,7 +24,7 @@ import scouter.util.RequestQueue
 import scouter.util.DateUtil
 object StatusCore {
     val queue = new RequestQueue[StatusPack](CoreRun.MAX_QUE_SIZE);
-    ThreadScala.startDaemon("StatusCore", { CoreRun.running }) {
+    ThreadScala.startDaemon("scouter.server.core.StatusCore", { CoreRun.running }) {
         val p = queue.get();
         p.time = DateUtil.now
         

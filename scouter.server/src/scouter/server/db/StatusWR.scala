@@ -30,7 +30,7 @@ import scouter.server.util.OftenAction
 object StatusWR {
     val status = "perfshot";
     val queue = new RequestQueue[StatusPack](DBCtr.MAX_QUE_SIZE);
-    ThreadScala.start("StatusWR") {
+    ThreadScala.start("scouter.server.db.StatusWR") {
         var currentDateUnit: Long = 0
         while (DBCtr.running) {
             val p = queue.get();

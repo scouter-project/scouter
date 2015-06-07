@@ -32,7 +32,7 @@ object ProfileCore {
     val queue = new RequestQueue[XLogProfilePack](CoreRun.MAX_QUE_SIZE);
 
     val conf = Configure.getInstance();
-    ThreadScala.startDaemon("ProfileCore", { CoreRun.running }) {
+    ThreadScala.startDaemon("scouter.server.core.ProfileCore", { CoreRun.running }) {
         val m = queue.get();
         if (BytesUtil.getLength(m.profile) > 0) {
             if (conf.xlog_profile_save_time_limit <= m.elapsed) {

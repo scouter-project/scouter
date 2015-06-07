@@ -31,7 +31,7 @@ object DataUdpServer {
 
     val conf = Configure.getInstance();
     var udpsocket: DatagramSocket = null;
-    ThreadScala.startDaemon("DataServerUDP") {
+    ThreadScala.startDaemon("scouter.server.netio.data.net.DataUdpServer") {
         while (true) {
             open(conf.dataudp_host, conf.dataudp_port);
             recv();

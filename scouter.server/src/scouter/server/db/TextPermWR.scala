@@ -49,7 +49,7 @@ object TextPermWR {
         return common.contains(divs);
     }
 
-    ThreadScala.start("TextPermWR") {
+    ThreadScala.start("scouter.server.db.TextPermWR") {
         while (DBCtr.running) {
             val m = queue.get();
             var writingTable = open();

@@ -52,7 +52,7 @@ object MoveToNextCollector {
 
     protected var countTable = new HashMap[NextTagCountData, Array[Int]]();
 
-    ThreadScala.startDaemon("TagCnt-MoveToNextCollector") {
+    ThreadScala.startDaemon("scouter.server.tagcnt.core.MoveToNextCollector") {
         while (CountEnv.running) {
             checkSaveToDb();
             val p = queue.get();

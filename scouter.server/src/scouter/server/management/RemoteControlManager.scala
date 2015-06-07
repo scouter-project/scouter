@@ -65,7 +65,7 @@ object RemoteControlManager {
         return commandTable.toString();
     }
 
-    ThreadScala.startDaemon("RemoteControl", { CoreRun.running }, 5000) {
+    ThreadScala.startDaemon("scouter.server.management.RemoteControlManager", { CoreRun.running }, 5000) {
         val enu = commandTable.keys();
         while (enu.hasMoreElements()) {
             val session = enu.nextLong();

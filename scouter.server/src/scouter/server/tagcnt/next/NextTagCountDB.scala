@@ -77,7 +77,7 @@ object NextTagCountDB extends IClose {
 
   val lastflush = System.currentTimeMillis();
 
-  ThreadScala.start("TagCnt-NextTagCountDB") {
+  ThreadScala.start("scouter.server.tagcnt.next.NextTagCountDB") {
 
     while (CountEnv.running) {
       closeIdleConnections();

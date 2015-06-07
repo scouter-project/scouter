@@ -14,7 +14,6 @@
  *  limitations under the License. 
  */
 package scouter.server;
-
 import java.util.Enumeration
 import scouter.server.account.AccountManager
 import scouter.lang.Account
@@ -25,18 +24,14 @@ import scouter.util.KeyGen
 import scouter.util.ThreadUtil
 import scouter.server.util.EnumerScala
 import scouter.server.util.ThreadScala
-
 object LoginManager {
-
     val sessionTable = new CacheTable[Long, LoginUser]().setDefaultKeepTime(DateUtil.MILLIS_PER_MINUTE);
-    ThreadScala.startDaemon("LoginManager") {
+    ThreadScala.startDaemon("scouter.server.LoginManager") {
         while (true) {
             sessionTable.clearExpiredItems();
             ThreadUtil.sleep(5000);
         }
-
     }
-
     def login(id: String, pwd: String, ip: String): Long = {
         val account = AccountManager.authorizeAccount(id, pwd);
         if (account == null) {
@@ -53,20 +48,16 @@ object LoginManager {
         sessionTable.put(key, u);
         return key;
     }
-
     def getUser(session: Long): LoginUser = {
         return sessionTable.get(session);
     }
-
     def okSession(key: Long): Boolean = {
         return sessionTable.getKeepAlive(key) != null
     }
-
     def validSession(key: Long): Int = {
         var u = sessionTable.getKeepAlive(key);
         return if (u == null) 0 else 1
     }
-
     def getLoginUserList(): Array[LoginUser] = {
         val loginUsers = new Array[LoginUser](sessionTable.size());
         var index = 0;
@@ -76,5 +67,4 @@ object LoginManager {
         })
         return loginUsers;
     }
-
 }

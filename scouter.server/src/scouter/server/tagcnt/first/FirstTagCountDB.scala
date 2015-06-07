@@ -70,7 +70,7 @@ object FirstTagCountDB extends IClose {
     }
     var lastflush = System.currentTimeMillis();
 
-    ThreadScala.startDaemon("TagCnt-FirstTagCountDB") {
+    ThreadScala.startDaemon("scouter.server.tagcnt.first.FirstTagCountDB") {
         while (CountEnv.running) {
             closeIdleConnections();
             val now = System.currentTimeMillis();

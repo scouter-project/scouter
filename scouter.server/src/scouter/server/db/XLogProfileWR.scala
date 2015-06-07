@@ -55,7 +55,7 @@ object XLogProfileWR extends IClose {
     var currentDateUnit: Long = 0
     var index: XLogProfileIndex = null
     var writer: XLogProfileDataWriter = null
-    ThreadScala.start("XLogProfileWR") {
+    ThreadScala.start("scouter.server.db.XLogProfileWR") {
         while (DBCtr.running) {
             val m = queue.get();
             try {

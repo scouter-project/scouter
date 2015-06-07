@@ -31,7 +31,7 @@ import scouter.server.util.ThreadScala
 import scouter.server.util.EnumerScala
 object PerfCountCore {
     var queue = new RequestQueue[PerfCounterPack](CoreRun.MAX_QUE_SIZE);
-    ThreadScala.startDaemon("RealtimeCounterCore", { CoreRun.running }) {
+    ThreadScala.startDaemon("scouter.server.core.PerfCountCore", { CoreRun.running }) {
         val p = queue.get();
         val objHash = HashUtil.hash(p.objName);
         if (p.timetype == TimeTypeEnum.REALTIME) {

@@ -81,7 +81,7 @@ object UniqTagCountDB extends IClose {
     val ignoreTag = new IntSet();
     var lastflush = System.currentTimeMillis();
 
-    ThreadScala.start("TagCnt-UniqTagCountDB") {
+    ThreadScala.start("scouter.server.tagcnt.uniq.UniqTagCountDB") {
 
         while (CountEnv.running) {
             closeIdleConnections();

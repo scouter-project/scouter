@@ -28,7 +28,7 @@ import scouter.util.ThreadUtil;
 import scouter.server.util.ThreadScala
 object RealtimeCounterWR {
     val queue = new RequestQueue[PerfCounterPack](DBCtr.MAX_QUE_SIZE);
-    ThreadScala.start("RealtimeCounterWR") {
+    ThreadScala.start("scouter.server.db.RealtimeCounterWR") {
         val last_logtime = System.currentTimeMillis();
         var wdb: RealtimeCounterDBHelper = null
         while (DBCtr.running) {

@@ -33,7 +33,7 @@ object AlertTagCount {
 
     val queue = new RequestQueue[AlertPack](CoreRun.MAX_QUE_SIZE);
 
-    ThreadScala.startDaemon("TagCnt-AlertTagCount") {
+    ThreadScala.startDaemon("scouter.server.tagcnt.AlertTagCount") {
         val conf = Configure.getInstance();
         while (CoreRun.running) {
             val m = queue.get();

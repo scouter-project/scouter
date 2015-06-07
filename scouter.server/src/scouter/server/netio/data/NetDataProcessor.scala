@@ -51,7 +51,7 @@ object NetDataProcessor {
     var working = true;
     val num = Configure.getInstance().num_of_net_processor
     for (x <- 0 to num - 1) {
-        ThreadScala.startDaemon("NetDataProcessor-" + x) {
+        ThreadScala.startDaemon("scouter.server.netio.data.NetDataProcessor") {
             while (working) {
                 try {
                     val data = queue.get();

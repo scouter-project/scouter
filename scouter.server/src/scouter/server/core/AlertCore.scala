@@ -27,7 +27,7 @@ import scouter.server.util.ThreadScala
 import scouter.server.tagcnt.AlertTagCount
 object AlertCore {
     val queue: RequestQueue[AlertPack] = new RequestQueue(CoreRun.MAX_QUE_SIZE)
-    ThreadScala.startDaemon("AlertCore", { CoreRun.running }) {
+    ThreadScala.startDaemon("scouter.server.core.AlertCore", { CoreRun.running }) {
         val p = queue.get();
         p.time = System.currentTimeMillis()
         AlertCache.put(p)

@@ -40,7 +40,7 @@ object XLogWR {
     var index: XLogIndex = null
     var writer: XLogDataWriter = null
 
-    ThreadScala.start("XLogWR") {
+    ThreadScala.start("scouter.server.db.XLogWR") {
         while (DBCtr.running) {
             val m = queue.get();
             try {

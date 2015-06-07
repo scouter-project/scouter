@@ -84,7 +84,7 @@ object XLogGroupPerf {
         }
     }
 
-    ThreadScala.startDaemon("ServiceGroupPerf") {
+    ThreadScala.startDaemon("scouter.server.core.app.XLogGroupPerf") {
         while (CoreRun.running) {
             clearEmpty();
             val p = queue.get();

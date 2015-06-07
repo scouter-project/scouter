@@ -34,7 +34,7 @@ object MultiPacketProcessor {
 
     val buffer = new LongKeyLinkedMap[MultiPacket]().setMax(MAX_COUNT);
 
-    ThreadScala.startDaemon("MultiPacketProcessor") {
+    ThreadScala.startDaemon("scouter.server.netio.data.MultiPacketProcessor") {
         while (true) {
             ThreadUtil.sleep(1000);
             if (buffer.size() > 0) {

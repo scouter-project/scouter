@@ -49,7 +49,7 @@ object ObjectWR {
 
     val queue = new RequestQueue[Order](DBCtr.MAX_QUE_SIZE);
 
-    ThreadScala.start("ObjectWR") {
+    ThreadScala.start("scouter.server.db.ObjectWR") {
         while (DBCtr.running) {
             val ord = queue.get();
             try {

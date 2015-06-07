@@ -39,7 +39,7 @@ object CounterCache {
 
     val cache = new CacheTable[CounterKey, Value]();
 
-    ThreadScala.startDaemon("CounterCache") {
+    ThreadScala.startDaemon("scouter.server.core.cache.CounterCache") {
         while (true) {
             ThreadUtil.sleep(5000);
             cache.clearExpiredItems();

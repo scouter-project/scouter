@@ -35,13 +35,17 @@ import scouter.util.ICloseDB
 import scouter.util.DateUtil
 import java.util.ArrayList
 import scala.collection.mutable.ListBuffer
+import scouter.server.core.CoreRun
+import scouter.server.util.EnumerScala
 
 object TextWR {
 
     protected val database = new LinkedMap[String, TextTable]();
-    protected var idleConns = ListBuffer[String]();
 
-    ThreadScala.start("TextWR-cleanner") {
+    protected var idleConns = new ArrayList[String]();
+
+    // executed every 10sec
+    ThreadScala.start("scouter.server.db.TextWR-IDLE", { CoreRun.running }, 10000) {
         val now = System.currentTimeMillis();
         val en = database.keys();
         while (en.hasMoreElements()) {
@@ -49,15 +53,17 @@ object TextWR {
             val db = database.get(key);
             if (db != null) {
                 if (now - db.getLastActive() > DateUtil.MILLIS_PER_FIVE_MINUTE) {
-                    idleConns +=key
+                    idleConns.add(key)
                 }
             }
         }
     }
     protected def closeIdle() {
+        if (idleConns.size() == 0)
+            return ;
         val x = idleConns
-        idleConns = ListBuffer[String]()
-        x.foreach(id => FileUtil.close(database.remove(id)))
+        idleConns = new ArrayList[String]();
+        EnumerScala.foreach(x.iterator(), (id: String) => { FileUtil.close(database.remove(id)) })
     }
 
     protected def getTable(date: String): TextTable = {
@@ -73,31 +79,13 @@ object TextWR {
     }
 
     val queue = new RequestQueue[Data](DBCtr.LARGE_MAX_QUE_SIZE);
-
-    ThreadScala.start("TextWR") {
-
+    ThreadScala.start("scouter.server.db.TextWR") {
         while (DBCtr.running) {
             closeIdle();
-
             val m = queue.get();
-
-            if (TextPermWR.isA(m.div)) {
-                //성능:중복입력을 막아야한다.
-                TextDupCheck.addDuplicated(m.div, m.textUnit);
-                TextPermWR.add(m.div, m.hash, m.text);
-            } else {
+            if (m != null) {
                 try {
-                    val writingTable = open(m.date);
-                    if (writingTable == null) {
-                        queue.clear();
-                        Logger.println("S139", 10, "can't open db");
-                    } else {
-                        val ok = writingTable.hasKey(m.div, m.hash);
-                        if (ok == false) {
-                            TextDupCheck.addDuplicated(m.div, m.textUnit);
-                            writingTable.set(m.div, m.hash, m.text.getBytes("UTF8"));
-                        }
-                    }
+                    process(m);
                 } catch {
                     case t: Throwable => t.printStackTrace();
                 }
@@ -105,7 +93,25 @@ object TextWR {
         }
         close();
     }
-
+    def process(m: Data) {
+        if (TextPermWR.isA(m.div)) {
+            //성능:중복입력을 막아야한다.
+            TextDupCheck.addDuplicated(m.div, m.textUnit);
+            TextPermWR.add(m.div, m.hash, m.text);
+        } else {
+            val writingTable = open(m.date);
+            if (writingTable == null) {
+                queue.clear();
+                Logger.println("S139", 10, "can't open db");
+            } else {
+                val ok = writingTable.hasKey(m.div, m.hash);
+                if (ok == false) {
+                    TextDupCheck.addDuplicated(m.div, m.textUnit);
+                    writingTable.set(m.div, m.hash, m.text.getBytes("UTF8"));
+                }
+            }
+        }
+    }
     def add(date: String, div: String, hash: Int, text: String): Boolean = {
         if (StringUtil.isEmpty(text))
             return false;

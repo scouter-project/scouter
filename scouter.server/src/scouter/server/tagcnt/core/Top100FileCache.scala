@@ -13,15 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.server.tagcnt.core;
-
 import java.io.File
 import java.io.IOException
 import java.util.Collections
 import java.util.Comparator
 import java.util.HashSet
-
 import scouter.lang.value.Value
 import scouter.server.core.CoreRun
 import scouter.server.tagcnt.first.FirstTagCountDB
@@ -39,13 +36,10 @@ import scouter.util.Order
 import scouter.util.OrderUtil
 import scouter.util.ThreadUtil
 import scouter.util.TopN
-
 class Key(_logDate: String, _objType: String) {
     val logDate = _logDate;
     val objType = _objType;
-
     override def hashCode = objType.hashCode() ^ logDate.hashCode();
-
     override def equals(obj: Any): Boolean = {
         if (obj == null)
             return false
@@ -54,16 +48,12 @@ class Key(_logDate: String, _objType: String) {
     }
     override def toString() = "Key [logDate=" + logDate + ", objType=" + objType + "]"
 }
-
 object Top100FileCache {
-
     private var logSet = new HashSet[Key]();
-
     def add(logdate: String, objType: String) {
         logSet.add(new Key(logdate, objType));
     }
-
-    ThreadScala.startDaemon("TagCnt-Top100") {
+    ThreadScala.startDaemon("scouter.server.tagcnt.core.Top100FileCache") {
         while (CoreRun.running) {
             ThreadUtil.sleep(DateUtil.MILLIS_PER_FIVE_MINUTE);
             try {
@@ -79,9 +69,7 @@ object Top100FileCache {
             }
         }
     }
-
     private def build(logDate: String, objType: String) {
-
         val top100 = makeTop100(logDate, objType, 100);
         EnumerScala.foreach(top100.keys(), (tagName: Long) => {
             val vcTotal = top100.get(tagName);
@@ -93,7 +81,6 @@ object Top100FileCache {
             }
         })
     }
-
     def readTop100Cache(logDate: String, objType: String, tagName: Long): ValueCountTotal = {
         val file = getFileName(logDate, objType, tagName);
         if (file.exists() == false)
@@ -107,7 +94,6 @@ object Top100FileCache {
         }
         return null;
     }
-
     private def getFileName(logDate: String, objType: String, tagName: Long): File = {
         val fileRef = new File(CountEnv.getDBPath(logDate));
         val fileUPFolder = new File(fileRef, objType);
@@ -116,17 +102,14 @@ object Top100FileCache {
         }
         return new File(fileUPFolder, "top100." + tagName + ".dat");
     }
-
     def getTagNames(logDate: String, objType: String): LongIntMap = {
         val tagmap = FirstTagCountDB.getTagValues(objType, logDate);
         val tagMap = new LongIntMap();
-
         EnumerScala.foreach(tagmap.keys(), (tagKey: Long) => {
             tagMap.put(tagKey, tagmap.get(tagKey).size());
         })
         return tagMap;
     }
-
     def getLargeTagSet(logDate: String, objType: String): LongSet = {
         val tagmap = FirstTagCountDB.getTagValues(objType, logDate);
         val tagMap = new LongSet();
@@ -138,7 +121,6 @@ object Top100FileCache {
         })
         return tagMap;
     }
-
     class TopItem(_tag: Long, limit: Int) {
         var kindsOfValue = 0
         var countPerValue = 0
@@ -148,7 +130,6 @@ object Top100FileCache {
             }
         };
         var tag = _tag
-
         def toString(tagName: String) = {
             "TopItem [tag=" + tagName + " countPerValue=" + countPerValue + ", kindsOfValue=" + kindsOfValue + ", topN=" + topN.size() + "]";
         }
@@ -156,7 +137,6 @@ object Top100FileCache {
             "TopItem [countPerValue=" + countPerValue + ", kindsOfValue=" + kindsOfValue + ", topN=" + topN + ", tag=" + tag + "]"
         }
     }
-
     def makeTop100(date: String, objType: String, limit: Int): LongKeyMap[ValueCountTotal] = {
         val map = new LongKeyMap[TopItem]();
         NextTagCountDB.read(date, objType, (tag: Long, value: Value, tcnt: Int, vpos: Array[Long], table: IndexFile, pos: Long) => {
@@ -169,10 +149,8 @@ object Top100FileCache {
             t.kindsOfValue += 1;
             t.topN.add(new ValueCount(value, tcnt));
         });
-
         val tagmap = FirstTagCountDB.getTagValues(objType, date);
         val map2 = new LongKeyMap[ValueCountTotal]();
-
         EnumerScala.foreach(map.keys(), (tagName: Long) => {
             val topItem = map.get(tagName);
             val out = tagmap.get(tagName);
@@ -187,27 +165,21 @@ object Top100FileCache {
             }
             val outMap = new ValueCountTotal();
             map2.put(tagName, outMap);
-
             outMap.totalCount = topItem.countPerValue;
             outMap.howManyValues = topItem.kindsOfValue;
-
             val sublist = topItem.topN.getList();
             var i = 0
             while (i < sublist.size()) {
                 outMap.values.add(sublist.get(i));
             }
         })
-
         return map2;
-
     }
-
     def getEveryTagTop100Value(date: String, objType: String, hhmm: String, limit: Int): LongKeyMap[ValueCountTotal] = {
         val map = new LongKeyMap[TopItem]();
         val hm = CastUtil.cint(hhmm);
         val hh = hm / 100;
         val mm = hm % 100;
-
         NextTagCountDB.read(date, objType, (tag: Long, value: Value, tcnt: Int, vpos: Array[Long], table: IndexFile, pos: Long) => {
             try {
                 if (vpos(hh) > 0) {
@@ -227,16 +199,13 @@ object Top100FileCache {
                 case e: Exception => e.printStackTrace();
             }
         });
-
         val tagmap = FirstTagCountDB.getTagValues(objType, date);
         val map2 = new LongKeyMap[ValueCountTotal]();
-
         EnumerScala.foreach(tagmap.keys(), (tagName: Long) => {
             var topItem = map.get(tagName);
             if (topItem == null) {
                 topItem = new TopItem(tagName, limit);
             }
-
             val out = tagmap.get(tagName);
             if (out != null) {
                 EnumerScala.foreach(out.iterator(), (value: Value) => {
@@ -249,24 +218,18 @@ object Top100FileCache {
                     }
                 })
             }
-
             val sublist = topItem.topN.getList();
             Collections.sort(sublist, new Comparator[ValueCount]() {
                 override def compare(o1: ValueCount, o2: ValueCount): Int = {
                     return (o2.valueCount - o1.valueCount).toInt
                 }
             });
-
             val wr = new ValueCountTotal();
             wr.howManyValues = topItem.kindsOfValue;
             wr.totalCount = topItem.countPerValue;
             wr.values = sublist;
-
             map2.put(tagName, wr);
-
         })
-
         return map2;
     }
-
 }

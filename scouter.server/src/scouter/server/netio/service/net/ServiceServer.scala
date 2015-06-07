@@ -26,7 +26,7 @@ import scouter.server.util.ThreadScala
 object ServiceServer {
     val conf = Configure.getInstance();
     val threadPool = ThreadUtil.createExecutor("ServiceServer", 30, 1000, 10000, true);
-    ThreadScala.startDaemon("ServiceServer") {
+    ThreadScala.startDaemon("scouter.server.netio.service.net.ServiceServer") {
         val listen_port = conf.service_port;
         val so_timeout = conf.service_so_timeout;
         Logger.println("tcp listen " + "0.0.0.0:" + listen_port + " for client service");

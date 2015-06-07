@@ -47,7 +47,7 @@ object ServiceCore {
         }
         XLogGroupPerf.add(m);
     }
-    ThreadScala.startDaemon("ServiceCore", { CoreRun.running }) {
+    ThreadScala.startDaemon("scouter.server.core.XLogCore", { CoreRun.running }) {
         val m = queue.get();
 
         m.xType match {
