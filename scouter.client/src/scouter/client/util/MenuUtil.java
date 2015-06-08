@@ -470,8 +470,6 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 				performanceSnapshot.add(new OpenCxtmenuFileSocketAction(win, MenuStr.FILE_SOCKET, objHash, serverId));
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_SYSTEMGC))
 					performanceSnapshot.add(new OpenCxtmenuSystemGcAction(MenuStr.SYSTEM_GC, objHash, serverId));
-				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
-					mgr.add(new OpenCxtmenuConfigureAgentViewAction(win, MenuStr.CONFIGURE, objHash, serverId));
 				performanceSnapshot.add(new Separator());
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_HEAPDUMP)) {
 					MenuManager heapDump = new MenuManager(MenuStr.HEAP_DUMP, MenuStr.HEAP_DUMP_ID);
@@ -492,6 +490,8 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 			}
     	}
     	mgr.add(new Separator());
+		if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
+			mgr.add(new OpenCxtmenuConfigureAgentViewAction(win, MenuStr.CONFIGURE, objHash, serverId));
     	if (server.isAllowAction(GroupPolicyConstants.ALLOW_DEFINEOBJTYPE)) {
 	    	if (counterEngine.isUnknownObjectType(objType)) {
 	    		mgr.add(new DefineObjectTypeAction(win, serverId, objType, DefineObjectTypeAction.DEFINE_MODE));

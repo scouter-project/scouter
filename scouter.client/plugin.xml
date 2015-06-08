@@ -288,7 +288,7 @@
             allowMultiple="true"
             class="scouter.client.configuration.views.ConfigureServerView"
             id="scouter.client.configuration.views.ConfigureServerView"
-            icon="icons/object/host.png"
+            icon="icons/config.png"
             name="Config Server"
             restorable="false">
       </view>
@@ -296,7 +296,7 @@
             allowMultiple="true"
             class="scouter.client.configuration.views.ConfigureAgentView"
             id="scouter.client.configuration.views.ConfigureAgentView"
-            icon="icons/agent.png"
+            icon="icons/config.png"
             name="Config Agent"
             restorable="false">
       </view>      

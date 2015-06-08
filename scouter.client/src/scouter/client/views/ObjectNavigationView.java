@@ -372,6 +372,8 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 						addExistObjectTypeMenus(win, mgr, counterEngine, counterActionsMap, serverId);
 						
 						mgr.add(new Separator());
+						if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
+							mgr.add(new OpenServerConfigureAction(win, MenuStr.CONFIGURE, Images.config, serverId));
 						mgr.add(new OpenObjectDailyListAction(win, "Object Daily List", Images.GO_PAST, serverId));
 						mgr.add(new Separator());
 						MenuManager management = new MenuManager(MenuStr.MANAGEMENT, MenuStr.MANAGEMENT_ID);
@@ -383,13 +385,8 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 						if (server.isAllowAction(GroupPolicyConstants.ALLOW_DBMANAGER))
 							management.add(new OpenServerFileManagementAction(win, MenuStr.FILE_MANAGEMENT, Images.explorer, serverId));
 						management.add(new OpenServerLogsAction(win, serverId));
-						
-						MenuManager configure = new MenuManager(MenuStr.CONFIGURATIONS, MenuStr.CONFIGURATIONS_ID);
-						mgr.add(configure);
-						if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
-							configure.add(new OpenServerConfigureAction(win, MenuStr.SERVER, Images.config, serverId));
 						MenuManager userMenu = new MenuManager(MenuStr.ACCOUNT, ImageUtil.getImageDescriptor(Images.CONFIG_USER), MenuStr.ACCOUNT_ID);
-						configure.add(userMenu);
+						management.add(userMenu);
 						userMenu.add(new ListAccountAction(win, serverId));
 						userMenu.add(new OpenGroupPolicyAction(win, serverId));
 						userMenu.add(new Separator());

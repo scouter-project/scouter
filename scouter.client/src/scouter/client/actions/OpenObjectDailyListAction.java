@@ -24,17 +24,15 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 
+import scouter.client.popup.LoadCalendarDialog;
 import scouter.client.util.ImageUtil;
-import scouter.client.util.TimeUtil;
 import scouter.client.views.ObjectDailyListView;
-import scouter.util.DateUtil;
 
 
-public class OpenObjectDailyListAction extends Action {
+public class OpenObjectDailyListAction extends Action implements LoadCalendarDialog.ILoadCounterDialog {
 	public final static String ID = OpenObjectDailyListAction.class.getName();
 
 	private final IWorkbenchWindow window;
-	private int instanceNum = 0;
 	private int serverId;
 
 	public OpenObjectDailyListAction(IWorkbenchWindow window, String label, Image image, int serverId) {
@@ -48,14 +46,22 @@ public class OpenObjectDailyListAction extends Action {
 
 	public void run() {
 		if (window != null) {
-			try {
-				ObjectDailyListView v = (ObjectDailyListView) window.getActivePage().showView(ObjectDailyListView.ID, Integer.toString(serverId), IWorkbenchPage.VIEW_ACTIVATE);
-				if(v != null){
-					v.setInput(DateUtil.yyyymmdd(TimeUtil.getCurrentTime(serverId)), serverId);
-				}
-			} catch (PartInitException e) {
-				MessageDialog.openError(window.getShell(), "Error", "Error opening view:" + e.getMessage());
-			}
+			LoadCalendarDialog dialog = new LoadCalendarDialog(window.getShell().getDisplay(), this);
+			dialog.show();
 		}
 	}
+
+	public void onPressedOk(long startTime, long endTime) {}
+
+	public void onPressedOk(String date) {
+		try {
+			ObjectDailyListView v = (ObjectDailyListView) window.getActivePage().showView(ObjectDailyListView.ID, Integer.toString(serverId), IWorkbenchPage.VIEW_ACTIVATE);
+			if(v != null){
+				v.setInput(date, serverId);
+			}
+		} catch (PartInitException e) {
+			MessageDialog.openError(window.getShell(), "Error", "Error opening view:" + e.getMessage());
+		}
+	}
+	public void onPressedCancel() {}
 }

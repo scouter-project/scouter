@@ -43,7 +43,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
@@ -55,6 +54,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
+import scouter.client.actions.OpenObjectDailyListAction;
 import scouter.client.constants.MenuStr;
 import scouter.client.context.actions.OpenCxtmenuCounterLoadDateViewAction;
 import scouter.client.context.actions.OpenCxtmenuCounterLoadTimeViewAction;
@@ -64,7 +64,6 @@ import scouter.client.model.AgentObject;
 import scouter.client.model.DummyObject;
 import scouter.client.model.HierarchyObject;
 import scouter.client.model.ServerObject;
-import scouter.client.popup.LoadCalendarDialog;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.util.ChartUtil;
@@ -74,7 +73,7 @@ import scouter.client.util.ScouterUtil;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.counters.CounterEngine;
 
-public class ObjectDailyListView extends ViewPart implements LoadCalendarDialog.ILoadCounterDialog{
+public class ObjectDailyListView extends ViewPart {
 	public static final String ID = ObjectDailyListView.class.getName();
 
 	public TreeViewer viewer;
@@ -174,14 +173,9 @@ public class ObjectDailyListView extends ViewPart implements LoadCalendarDialog.
 				viewer.collapseAll();
 			}
 		});
-		man.add(new Action("date", ImageUtil.getImageDescriptor(Images.CTXMENU_RDC)) {
+		man.add(new Action("Date", ImageUtil.getImageDescriptor(Images.calendar)) {
 			public void run() {
-				Display display = Display.getCurrent();
-				if (display == null) {
-					display = Display.getDefault();
-				}
-				LoadCalendarDialog dialog = new LoadCalendarDialog(display, ObjectDailyListView.this);
-				dialog.show();
+				new OpenObjectDailyListAction(getSite().getWorkbenchWindow(), "Date", Images.calendar, serverId).run();
 			}
 		});
 	}
@@ -299,13 +293,6 @@ public class ObjectDailyListView extends ViewPart implements LoadCalendarDialog.
 	public void setFocus() {
 		viewer.getControl().setFocus();
 	}
-	
-	public void onPressedOk(String date) {
-		setDate(date);
-	}
-
-	public void onPressedOk(long startTime, long endTime) {}
-	public void onPressedCancel() {}
 	
 	Set<String> objTypeList = new HashSet<String>();
 	

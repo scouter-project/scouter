@@ -22,7 +22,9 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 
+import scouter.client.Images;
 import scouter.client.configuration.views.ConfigureAgentView;
+import scouter.client.util.ImageUtil;
 
 public class OpenCxtmenuConfigureAgentViewAction extends Action {
 	public final static String ID = OpenCxtmenuConfigureAgentViewAction.class.getName();
@@ -35,6 +37,7 @@ public class OpenCxtmenuConfigureAgentViewAction extends Action {
 		this.objHash = objHash;
 		this.serverId = serverId;
 		setText(label);
+		setImageDescriptor(ImageUtil.getImageDescriptor(Images.config));
 	}
 
 	public void run() {
