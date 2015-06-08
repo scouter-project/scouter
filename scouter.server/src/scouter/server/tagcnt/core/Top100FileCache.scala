@@ -168,9 +168,11 @@ object Top100FileCache {
             outMap.totalCount = topItem.countPerValue;
             outMap.howManyValues = topItem.kindsOfValue;
             val sublist = topItem.topN.getList();
+           
             var i = 0
             while (i < sublist.size()) {
                 outMap.values.add(sublist.get(i));
+                i+=1 //bugfix 
             }
         })
         return map2;
