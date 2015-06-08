@@ -32,21 +32,12 @@ public class BKey {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		BKey other = (BKey) obj;
-		if (blockNum != other.blockNum)
-			return false;
-		if (date == null) {
-			if (other.date != null)
-				return false;
-		} else if (!date.equals(other.date))
-			return false;
-		return true;
+		if(obj instanceof BKey){
+			BKey other = (BKey) obj;
+			if(this.date ==null) return other.date==null && this.blockNum==other.blockNum;
+			else return this.date.equals(other.date) &&  this.blockNum==other.blockNum;
+		}
+		return false;
 	}
 
 	

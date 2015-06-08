@@ -31,7 +31,7 @@ public class CountBoard implements IClose {
 	protected File file;
 
 	public CountBoard(String date) throws IOException {
-		String filename = (BKUtil.createPath(date) + "/count.dat");
+		String filename = (GZipCtr.createPath(date) + "/count.dat");
 		this.file = new File(filename);
 		this.raf = new RandomAccessFile(file, "rw");
 

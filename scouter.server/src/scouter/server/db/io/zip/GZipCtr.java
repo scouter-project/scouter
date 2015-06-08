@@ -21,12 +21,11 @@ import java.io.File;
 import scouter.server.db.DBCtr;
 import scouter.server.db.XLogWR;
 
-public class BKUtil {
+public class GZipCtr {
 	
 	public static final int MAX_QUE_SIZE = 20000;
 	
 	public final static int BLOCK_MAX_SIZE = 32 * 1024 * 1024;
-
 
 
 	public static String getDataPath(String date) {

@@ -138,7 +138,7 @@ public class GZipStore extends Thread implements IClose, IShutdown {
 			return null;
 		DataOutputX out = new DataOutputX();
 		while (true) {
-			int blockNum = (int) (pos / BKUtil.BLOCK_MAX_SIZE);
+			int blockNum = (int) (pos / GZipCtr.BLOCK_MAX_SIZE);
 			Block bk = getReadBlock(date, blockNum, pos);
 			if (bk == null) {
 				bk = IOChannel.getInstance().getReadBlock(date, blockNum);

@@ -51,9 +51,9 @@ public class IOChannel implements IShutdown {
 			headers.put(date, uc);
 		}
 		long n = uc.getCount();
-		int start = (int) (n % BKUtil.BLOCK_MAX_SIZE);
-		Block bk = new Block(date, new byte[128], start, start, BKUtil.BLOCK_MAX_SIZE);
-		bk.blockNum = (int) (n / BKUtil.BLOCK_MAX_SIZE);
+		int start = (int) (n % GZipCtr.BLOCK_MAX_SIZE);
+		Block bk = new Block(date, new byte[128], start, start, GZipCtr.BLOCK_MAX_SIZE);
+		bk.blockNum = (int) (n / GZipCtr.BLOCK_MAX_SIZE);
 		return bk;
 	}
 	private void check() {
@@ -109,7 +109,7 @@ public class IOChannel implements IShutdown {
 		}
 	}
 	private File getFile(String date, int blockNum) {
-		String filename = (BKUtil.createPath(date) + "/xlog." + blockNum);
+		String filename = (GZipCtr.createPath(date) + "/xlog." + blockNum);
 		return new File(filename);
 	}
 	private CacheTable<BKey, Block> readCache = new CacheTable<BKey, Block>().setMaxRow(conf.gzip_read_cache_block);
@@ -124,7 +124,7 @@ public class IOChannel implements IShutdown {
 		try {
 			byte[] gz = FileUtil.readAll(f);
 			gz = CompressUtil.unZip(gz);
-			Block bk = new Block(date, gz, 0, gz.length, BKUtil.BLOCK_MAX_SIZE);
+			Block bk = new Block(date, gz, 0, gz.length, GZipCtr.BLOCK_MAX_SIZE);
 			bk.blockNum = blockNum;
 			readCache.put(new BKey(date, blockNum), bk, conf.gzip_read_cache_time);
 			return bk;

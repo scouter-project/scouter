@@ -34,7 +34,7 @@ public class Block {
 	public long lastAccessTime;
 
 	public Block(String date) {
-		this(date, BKUtil.BLOCK_MAX_SIZE);
+		this(date, GZipCtr.BLOCK_MAX_SIZE);
 	}
 
 	public Block(String date, int max) {
@@ -87,7 +87,7 @@ public class Block {
 	public synchronized byte[] read(long pos, int len) {
 		if(len<=0)
 			return null;
-		int bpos = (int) (pos - (blockNum * BKUtil.BLOCK_MAX_SIZE));
+		int bpos = (int) (pos - (blockNum * GZipCtr.BLOCK_MAX_SIZE));
 
 		if (len + bpos > END)
 			return null;
@@ -101,7 +101,7 @@ public class Block {
 	}
 
 	public long getOffset() {
-		return (long) END + ((long) blockNum) * BKUtil.BLOCK_MAX_SIZE;
+		return (long) END + ((long) blockNum) * GZipCtr.BLOCK_MAX_SIZE;
 	}
 
 	public byte[] getBlockBytes() {
@@ -117,7 +117,7 @@ public class Block {
 	}
 
 	public boolean readable(long pos) {
-		int bpos = (int) (pos - (blockNum * BKUtil.BLOCK_MAX_SIZE));
+		int bpos = (int) (pos - (blockNum * GZipCtr.BLOCK_MAX_SIZE));
 
 		if (8 + bpos > END)
 			return false;
