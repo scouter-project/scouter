@@ -61,25 +61,13 @@ object Top100FileCache {
                 logSet = new HashSet[Key]();
                 EnumerScala.foreach(workSet.iterator(), (key: Key) => {
                     this.synchronized {
-                        build(key.logDate, key.objType)
+                        makeTop100(key.logDate, key.objType,100)
                     }
                 })
             } catch {
                 case e: Exception => e.printStackTrace();
             }
         }
-    }
-    private def build(logDate: String, objType: String) {
-        val top100 = makeTop100(logDate, objType, 100);
-        EnumerScala.foreach(top100.keys(), (tagName: Long) => {
-            val vcTotal = top100.get(tagName);
-            val file = getFileName(logDate, objType, tagName);
-            try {
-                FileUtil.save(file, vcTotal.toByteArray());
-            } catch {
-                case _ =>
-            }
-        })
     }
     def readTop100Cache(logDate: String, objType: String, tagName: Long): ValueCountTotal = {
         val file = getFileName(logDate, objType, tagName);
@@ -137,7 +125,7 @@ object Top100FileCache {
             "TopItem [countPerValue=" + countPerValue + ", kindsOfValue=" + kindsOfValue + ", topN=" + topN + ", tag=" + tag + "]"
         }
     }
-    def makeTop100(date: String, objType: String, limit: Int): LongKeyMap[ValueCountTotal] = {
+    def makeTop100(date: String, objType: String, limit: Int) = {
         val map = new LongKeyMap[TopItem]();
         NextTagCountDB.read(date, objType, (tag: Long, value: Value, tcnt: Int, vpos: Array[Long], table: IndexFile, pos: Long) => {
             var t = map.get(tag);
@@ -174,8 +162,13 @@ object Top100FileCache {
                 outMap.values.add(sublist.get(i));
                 i+=1 //bugfix 
             }
+             
+            //save cache file
+            val file = getFileName(date, objType, tagName);
+            FileUtil.save(file, outMap.toByteArray());
+          
         })
-        return map2;
+       
     }
     def getEveryTagTop100Value(date: String, objType: String, hhmm: String, limit: Int): LongKeyMap[ValueCountTotal] = {
         val map = new LongKeyMap[TopItem]();
