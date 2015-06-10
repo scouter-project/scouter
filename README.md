@@ -33,7 +33,7 @@ Scouter has three modules:
  - SWT & GEF4 : 차트와 다이어그램
 
 ### How To Install
- - Refer [How To Install](../../wiki/How_To_Install) wiki page.
+ - Refer [How To Install](../../wiki/How-To-Install) wiki page.
 
 ### To-be
 Scouter 단순함을 추구하는 단순함을 추구하는 모니터링 툴이다 가능한 단수한 구성으로 빠르게 OSS를 모니터링 하는 기능들을 제공할 것이다.
