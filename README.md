@@ -32,6 +32,9 @@ Scouter has three modules:
  - Eclipse RCP : 독립 실행 프로그램으로 만들어졌다. 여러대의 수집서버를 클라이언트단에서 통합함으로 대규모시스템에서 컴팩트안 운영이 가능하다.
  - SWT & GEF4 : 차트와 다이어그램
 
+### How To Install
+ - Refer [How To Install](../../wiki/How_To_Install) wiki page.
+
 ### To-be
 Scouter 단순함을 추구하는 단순함을 추구하는 모니터링 툴이다 가능한 단수한 구성으로 빠르게 OSS를 모니터링 하는 기능들을 제공할 것이다.
 - 인터넷 환경을 통해 배포되고 업그레이드 될 것이다.
