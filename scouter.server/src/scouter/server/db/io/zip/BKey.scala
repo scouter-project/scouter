@@ -16,30 +16,17 @@
 
 package scouter.server.db.io.zip;
 
-public class BKey {
-	public String date;
-	public int blockNum;
-
-	public BKey(String date, int blockNum) {
-		this.date = date;
-		this.blockNum = blockNum;
-	}
-
-	@Override
-	public int hashCode() {
-		return blockNum ^  ((date == null) ? 0 : date.hashCode());
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if(obj instanceof BKey){
-			BKey other = (BKey) obj;
-			if(this.date ==null) return other.date==null && this.blockNum==other.blockNum;
-			else return this.date.equals(other.date) &&  this.blockNum==other.blockNum;
-		}
-		return false;
-	}
-
-	
+class BKey(_date: String, _blockNum: Int) {
+    val date = _date
+    val blockNum = _blockNum;
+    override def hashCode() = blockNum ^ (if (date == null) 0 else date.hashCode());
+    override def equals(obj: Any): Boolean = {
+        if (obj != null && obj.isInstanceOf[BKey]) {
+            val other = obj.asInstanceOf[BKey]
+            if (this.date == null) return other.date == null && this.blockNum == other.blockNum;
+            else return this.date.equals(other.date) && this.blockNum == other.blockNum;
+        }
+        return false;
+    }
 
 }
