@@ -27,6 +27,7 @@ Scouter has three modules:
   - SCALA : developed by Scala. It will provide a variety of features and performance scalability that can not be written in Java.
   - HASH FILE : Server is using the hash index in order to store large data in files.
   - GZIP : Service performance data and profile data are stored is compressed.
+
 - Client : provide the user interfaces
   - Eclipse RCP : It was created as a standalone program. The client can be connected to multiple servers at the same time. It makes easier that users monitor large scale systems.
   - SWT & GEF4 : Charts and Diagrams
