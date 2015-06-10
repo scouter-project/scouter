@@ -8,19 +8,19 @@
  Scouter version 0.0.1 20150601
  Open Source S/W Performance Monitoring 
 ```
-Scouter는 Open Source S/W를 위한 성능 모니터링 툴이다.
-Tomcat, MariaDB 및 Node.js등의 오픈소스 기반은 웹서비스 미들웨어나 데이터베이스를 모니터링하기 위해 만들어 갈 것이다.
+SCOUTER is a performance monitoring tool for Open Source S/W such as Tomcat, MariaDB and Node.js
+SCOUTER is going to be made in order to monitor open source Web middlewares or databases.
 
-기업용 IT는 상용 서비스를 기반으로 진화하여 왔다. 그러나 이제는 점점 더 오픈 소스 기반의 시스템 구축이 늘어나고 있다. 
-오픈소스 기반의 시스템을 구축할때 성능 관리 또한 같이 고려 되어야하는데 
-오픈 소스인 Scouter는 가장 훌륭한 선택이 될 것이다.
+Enterprise IT has evolved based on commercial services. 
+But now more and more systems are using open source S/W. 
+If you use a Tomcat, SCOUTER will be the best choice to monitor it.
 
 ### Modules
-Scouter는 크게 3개의 모듈로 구성되었다.
+Scouter has three modules:
 
-- Agent : 성능정보를 수집하고 네트웍을 통해 서버에 전송한다.   
- - **ASM** : 바이트코드 제어를 위해 OW2의 (http://asm.ow2.org/) ASM라이브러리를 사용한다.
- - **Tools.jar** : 자바 쓰레드덤프, 힙덤프, 힙히스토그램등  JVM이 기본으로 제공하는 강력한 기능들을 같이 사용한다. 
+- Agent : gather performance information and send  to the server
+ - **ASM** :  using ASM library of OW2  (http://asm.ow2.org/) for BCI(byte code instrumentation)
+ - **Tools.jar** : Java thread dumps, heap dumps, heap histograms, and the other powerful features provided by the JVM as the default.
  - **JMX** :  CPU & MEM 
 
 - Server :  데이터를 수신하여 클라이언트에 서비스 하고 저장한다.
