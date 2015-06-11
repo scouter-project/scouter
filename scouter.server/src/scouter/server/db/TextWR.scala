@@ -83,7 +83,7 @@ object TextWR {
         while (DBCtr.running) {
             closeIdle();
             val m = queue.get(10000); //check 10 sec
-            if (m != null) { 
+            if (m != null) {
                 try {
                     process(m);
                 } catch {
@@ -112,24 +112,19 @@ object TextWR {
             }
         }
     }
-    def add(date: String, div: String, hash: Int, text: String): Boolean = {
-        if (StringUtil.isEmpty(text))
-            return false;
-
+    def add(date: String, div: String, hash: Int, text: String): Unit = {
         val divHash = HashUtil.hash(div);
 
         TextCache.put(divHash, hash, text);
 
         val tu = new TextDupCheck.TextUnit(date, hash);
         if (TextDupCheck.isDuplicated(divHash, tu))
-            return false;
+            return;
 
         val ok = queue.put(new Data(date, divHash, hash, text, tu));
         if (ok == false) {
             Logger.println("S140", 10, "queue exceeded!!");
-            return false;
         }
-        return true;
     }
 
     class Data(_date: String, _div: Int, _hash: Int, _text: String, _tu: TextDupCheck.TextUnit) {
