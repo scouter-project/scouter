@@ -66,7 +66,7 @@ class XLogProfileDataReader(date: String, file: String) extends  IClose {
 
     def read(pos: Long): Array[Byte] = {
         if (this.gzip) {
-            return GZipStore.getInstance().read(date, pos);
+            return GZipStore.read(date, pos);
         }
         if (profileFile == null)
             return null;

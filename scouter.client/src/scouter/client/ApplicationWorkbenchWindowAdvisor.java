@@ -253,6 +253,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor im
 			RCPUtil.hidePreference(removePreferences);
 			RCPUtil.preLoadingPerspective(preLoadingPerspectives);
 			RCPUtil.hidePerspectives(removePerspectives);
+			configurer.getWindow().getShell().setMaximized(true);
 			startBackgroundJob();
 		}
 	}
