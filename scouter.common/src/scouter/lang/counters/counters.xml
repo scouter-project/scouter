@@ -53,32 +53,6 @@ rdsbrd : Redis Board
 			<Counter name="TPS" disp="TPS" unit="tps" 	icon="transaction.png" />
 			<Counter name="CpuTime" disp="CpuTime" unit="ms"  icon="cpu.png" />
 		</Family>
-		<Family name="database" master="Com_select">
-			<Counter name="Com_delete" disp="Com Delete" unit="cnt" icon="database_delete.png" />
-			<Counter name="Slow_queries" disp="Slow Queries" unit="cnt" icon="database.png" />
-			<Counter name="innodb_lock" disp="Innodb Lock" unit="cnt" icon="database_error.png" />
-			<Counter name="Threads_running" disp="Threads Running" unit="cnt" icon="database_gear.png" />
-			<Counter name="Com_update" disp="Com Update" unit="cnt" icon="database_edit.png" />
-			<Counter name="Seconds_Behind_Master" disp="Replication Lag" unit="cnt" icon="database_edit.png"/>
-			<Counter name="Com_select" disp="Com Select" unit="cnt" icon="database_refresh.png" />
-			<Counter name="Questions" disp="Questions" unit="cnt" icon="database.png" />
-			<Counter name="Threads_connected" disp="Threads Connected" unit="cnt" icon="database_connect.png" />
-			<Counter name="Com_insert" disp="Com Insert" unit="cnt" icon="database_add.png" />
-			<Counter name="Queries" disp="Queries" unit="cnt"  icon="database_lightning.png" />
-			<Counter name="ABORTED_CONNECTS" disp="Aborted Connects" unit="cnt"  icon="database_error.png" />
-			<Counter name="Threadpool_idle_threads" disp="Threadpool Idle Threads" unit="cnt"  icon="database_key.png" />
-			<Counter name="Threadpool_threads" disp="Threadpool Threads" unit="cnt"  icon="database_key.png" />
-			<Counter name="Created_tmp_tables" disp="Created Tmp Tables" unit="cnt"  icon="database_table.png" />
-			<Counter name="Created_tmp_disk_tables" disp="Created Tmp Disk Tables" unit="cnt"  icon="database_table.png" />
-			<Counter name="Select_full_join" disp="Select Full Join" unit="cnt"  icon="database_link.png" />
-			<Counter name="Select_range_check" disp="Select Range Check" unit="cnt"  icon="database_refresh.png" />
-			<Counter name="Select_scan" disp="Select Scan" unit="cnt"  icon="database_refresh.png" />
-			<Counter name="handler_read_first" disp="Handler Read First" unit="cnt"  icon="database_go.png" />
-			<Counter name="handler_read_key" disp="Handler Read Key" unit="cnt"  icon="database_go.png" />
-			<Counter name="handler_read_next" disp="Handler Read Next" unit="cnt"  icon="database_go.png" />
-			<Counter name="handler_read_rnd" disp="Handler Read Rnd" unit="cnt"  icon="database_go.png" />
-			<Counter name="handler_read_rnd_next" disp="Handler Read Rnd Next" unit="cnt"  icon="database_go.png" />
-		</Family>
 		<Family name="apache" master="ReqPerSec" scrbrd="true">
 			<Counter name="BytesPerReq" disp="Bytes Per Request" unit="bytes" icon="bytes_per_sec.png" />
 			<Counter name="BytesPerSec" disp="Bytes Per Second" unit="bytes" icon="bytes_per_sec.png" />
@@ -118,7 +92,6 @@ rdsbrd : Redis Board
 		<ObjectType name="java" family="javaee" disp="Java" />
 		<ObjectType name="jboss" family="javaee" disp="JBoss" />
 		<ObjectType name="jetty" family="javaee" disp="Jetty" />
-		<ObjectType name="mariadb" family="database" disp="MariaDB" />
 		<ObjectType name="apache" family="apache" disp="Apache" />
 		<ObjectType name="datasource" family="datasource" disp="DataSource" sub-object="true" />
 		<ObjectType name="reqproc" family="reqproc" disp="RequestProc" sub-object="true"/>
