@@ -31,7 +31,7 @@ public class Main {
 	public static void main(String[] args) {
 		Logo.print(true);
 		Logger.println("Scouter Server Version " + Version.getServerFullVersion());
-		Logo.print(Logger.pw, true);
+		Logo.print(Logger.pw(), true);
 		Configure.getInstance();
 		CounterManager.getInstance();
 		AccountManager.ACCOUNT_FILENAME();

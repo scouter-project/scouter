@@ -57,7 +57,7 @@ object AgentManager {
         val list = ObjectRD.getObjectList(DateUtil.yyyymmdd());
         objMap.putAll(list);
     }
-    ThreadScala.startDaemon("scouter.server.core.AgentManager",{ CoreRun.running } ,1000) {
+    ThreadScala.startDaemon("scouter.server.core.AgentManager", { CoreRun.running }, 1000) {
         val now = System.currentTimeMillis();
         val deadtime = Configure.getInstance().agent_deadtime;
         val en = objMap.objects();
@@ -90,7 +90,7 @@ object AgentManager {
             objMap.put(objPack);
             procObjName(objPack);
             ObjectWR.add(objPack);
-            Logger.println("new " + objPack);
+            Logger.println("S201", "New " + objPack);
         } else {
             var save = false;
             if (DateUtil.getDateUnit(objPack.wakeup) != DateUtil.getDateUnit(System.currentTimeMillis())) {
@@ -118,7 +118,7 @@ object AgentManager {
                 }
                 procObjName(objPack);
                 ObjectWR.add(objPack);
-                Logger.println("update " + objPack);
+                Logger.println("S202","Update " + objPack);
             }
         }
     }
@@ -298,14 +298,14 @@ object AgentManager {
         return m;
     }
     def removeAgents(objHashList: List[Int], permanent: Boolean) {
-        objHashList.foreach(objHash => {
+        EnumerScala.foreach(objHashList.iterator(), (objHash: Int) => {
             objMap.remove(objHash);
             if (permanent) {
                 ObjectWR.remove(objHash);
             }
         })
     }
-    def getPrimaryObjCount(): Int = {
-        return this.primaryObjCount
-    }
+
+    def getPrimaryObjCount() = this.primaryObjCount
+
 }
