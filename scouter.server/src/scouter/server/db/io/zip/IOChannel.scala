@@ -14,7 +14,6 @@
  *  limitations under the License. 
  */
 package scouter.server.db.io.zip;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -27,18 +26,14 @@ import scouter.util.FileUtil;
 import scouter.util.IShutdown;
 import scouter.util.LinkedMap;
 import scouter.util.StopWatch;
-
 object IOChannel {
-
     ConfObserver.put("IOChannel", new Runnable() {
         override def run() {
             readCache.setMaxRow(conf.gzip_read_cache_block);
         }
     });
-
     val conf = Configure.getInstance();
     val headers = new LinkedMap[String, CountBoard]();
-
     def getLastWriteBlock(date: String): Block = {
         var uc = headers.get(date);
         if (uc == null) {
@@ -52,7 +47,6 @@ object IOChannel {
         bk.blockNum = (n / GZipCtr.BLOCK_MAX_SIZE).toInt
         return bk;
     }
-
     private def check() {
         while (headers.size() >= conf.gzip_unitcount_header_cache - 1) {
             try {
@@ -62,7 +56,6 @@ object IOChannel {
             }
         }
     }
-
     def getCountBoard(date: String): CountBoard = {
         var uc = headers.get(date);
         if (uc == null) {
@@ -76,7 +69,6 @@ object IOChannel {
         }
         return uc;
     }
-
     def store(_bk: Block) {
         var bk = _bk
         this.synchronized {
@@ -111,14 +103,11 @@ object IOChannel {
             }
         }
     }
-
     private def getFile(date: String, blockNum: Int): File = {
         val filename = (GZipCtr.createPath(date) + "/xlog." + blockNum);
         return new File(filename);
     }
-
     private val readCache = new CacheTable[BKey, Block]().setMaxRow(conf.gzip_read_cache_block);
-
     def getReadBlock(date: String, blockNum: Int): Block = {
         val b = readCache.get(new BKey(date, blockNum));
         if (b != null)
@@ -138,7 +127,6 @@ object IOChannel {
         }
         return null;
     }
-
     def close(date: String) {
         try {
             val en = readCache.keys();

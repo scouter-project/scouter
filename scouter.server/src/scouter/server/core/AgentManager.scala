@@ -90,7 +90,7 @@ object AgentManager {
             objMap.put(objPack);
             procObjName(objPack);
             ObjectWR.add(objPack);
-            Logger.println("S201", "New " + objPack);
+            Logger.println("S104", "New " + objPack);
         } else {
             var save = false;
             if (DateUtil.getDateUnit(objPack.wakeup) != DateUtil.getDateUnit(System.currentTimeMillis())) {
@@ -118,7 +118,7 @@ object AgentManager {
                 }
                 procObjName(objPack);
                 ObjectWR.add(objPack);
-                Logger.println("S202","Update " + objPack);
+                Logger.println("S105","Update " + objPack);
             }
         }
     }
@@ -305,7 +305,5 @@ object AgentManager {
             }
         })
     }
-
     def getPrimaryObjCount() = this.primaryObjCount
-
 }

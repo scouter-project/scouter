@@ -21,7 +21,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
 import scouter.agent.Configure;
 import scouter.agent.JavaAgent;
 import scouter.agent.Logger;
@@ -34,7 +33,6 @@ public class LoaderManager {
 	private static ClassLoader toolsClassLoader;
 	
 	private static IntKeyLinkedMap<ClassLoader> loaders = new IntKeyLinkedMap<ClassLoader>().setMax(10);
-
 	public synchronized static ClassLoader getToolsLoader() {
 		if (toolsClassLoader == null) {
 			try {
