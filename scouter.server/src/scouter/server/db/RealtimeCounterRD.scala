@@ -14,7 +14,7 @@ object RealtimeCounterRD {
         read(objName, date, stime, etime, handler);
     }
 
-    def read(objName: String, date: String, stime: Long, etime: Long, handler: (Long, MapValue) => Boolean) {
+    def read(objName: String, date: String, stime: Long, etime: Long, handler: (Long, MapValue) => Any) {
         if (objName == null)
             return ;
         var perfdb: RealtimeCounterDBHelper = null;

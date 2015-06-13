@@ -180,6 +180,7 @@ class CounterService {
     @ServiceHandler(RequestCmd.COUNTER_PAST_TIME)
     def getPastTime(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readPack().asInstanceOf[MapPack];
+        
         val objHash = param.getInt("objHash");
         val counter = param.getText("counter");
 
@@ -200,7 +201,6 @@ class CounterService {
                 timeLv.add(time);
                 valueLv.add(value);
             }
-            true
         }
 
         RealtimeCounterRD.read(objName, date, stime, etime, handler)

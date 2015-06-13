@@ -32,68 +32,40 @@ class RealtimeCounterKeyFile(path: String) extends IndexTimeFile(path) {
         put(time, dout.toByteArray());
     }
 
-    def read(objHash: Int, stime: Long, etime: Long, handler: (Long, MapValue) => Boolean,
-        dataMap: IntKeyMap[String], reader: (Long)=>Array[Byte]): Boolean = {
+    def read(objHash: Int, stime: Long, etime: Long, handler: (Long, MapValue) => Any,
+        dataMap: IntKeyMap[String], reader: (Long) => Array[Byte]): Unit = {
         try {
             super.read(stime, etime, (time: Long, data: Array[Byte]) => {
-                try {
-                    val in = new DataInputX(data);
-
-                    val pos = in.readLong5();
-                    val hash = in.readInt();
-
-                    if (time < stime || etime < time) {
-                        return true;
-                    }
-
-                    if (hash != objHash)
-                        return true;
-
+                val in = new DataInputX(data);
+                val pos = in.readLong5();
+                val hash = in.readInt();
+                if (stime <= time && time <= etime && hash == objHash) {
                     val items = RealtimeCounterDBHelper.setTagBytes(dataMap, reader(pos));
-                    if (handler(time, items) == false) {
-                        return false;
-                    }
-                    return true;
-                } catch {
-                    case t: Throwable => return false;
+                    handler(time, items)
                 }
             });
-            return true;
         } catch {
-            case t: Throwable => return false;
+            case t: Throwable =>
         }
     }
 
     def readFromEnd(objHash: Int, stime: Long, etime: Long, handler: (Long, MapValue) => Boolean,
-        dataMap: IntKeyMap[String], reader: (Long)=>Array[Byte]): Boolean = {
+        dataMap: IntKeyMap[String], reader: (Long) => Array[Byte]): Unit = {
         try {
 
             super.readFromEnd(stime, etime, (time: Long, data: Array[Byte]) => {
-                try {
-                    val in = new DataInputX(data);
+                val in = new DataInputX(data);
 
-                    val pos = in.readLong5();
-                    val hash = in.readInt();
+                val pos = in.readLong5();
+                val hash = in.readInt();
 
-                    if (time < stime || etime < time) {
-                        return true;
-                    }
-
-                    if (hash != objHash)
-                        return true;
-
+                if (stime <= time && time <= etime && hash == objHash) {
                     val items = RealtimeCounterDBHelper.setTagBytes(dataMap, reader(pos));
-                    if (handler(time, items) == false) {
-                        return false;
-                    }
-                    return true;
-                } catch {
-                    case t: Throwable => return false;
+                    handler(time, items)
                 }
             });
-            return true;
         } catch {
-            case t: Throwable => return false;
+            case t: Throwable =>
         }
     }
 
