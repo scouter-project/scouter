@@ -14,7 +14,6 @@
  *  limitations under the License. 
  */
 package scouter.server.db.io.zip;
-
 import java.io.IOException
 import java.util.Enumeration
 import scouter.server.Configure
@@ -28,21 +27,15 @@ import scouter.util.LinkedMap
 import scouter.util.ThreadUtil
 import scouter.server.util.ThreadScala
 import scala.util.control.Breaks._
-
 object GZipStore extends Thread with IClose with IShutdown {
-
     ShutdownManager.add(this)
-
     Logger.println("S128", "COMPRESS MODE ENABLED");
-
     class Key(_date: String, _unitNum: Int) {
         val date = _date
         val unitNum = _unitNum;
-
         override def hashCode(): Int = {
             return unitNum ^ date.hashCode();
         }
-
         override def equals(obj: Any): Boolean = {
             if (obj.isInstanceOf[Key]) {
                 val o = obj.asInstanceOf[Key]
@@ -51,7 +44,6 @@ object GZipStore extends Thread with IClose with IShutdown {
             return false;
         }
     }
-
     var table = new LinkedMap[String, Block]();
     var brun = true;
     ThreadScala.start("GZipStore") {
@@ -75,16 +67,12 @@ object GZipStore extends Thread with IClose with IShutdown {
             for (i <- 0 to 10) {
                 if (brun) ThreadUtil.sleep(100);
             }
-
         }
     }
-
     private val conf = Configure.getInstance();
-
     def write(date: String, data: Array[Byte]): Long = {
         return write(date, data, 0);
     }
-
     def write(date: String, data: Array[Byte], next: Long): Long = {
         this.synchronized {
             val dout = new DataOutputX();
@@ -127,7 +115,6 @@ object GZipStore extends Thread with IClose with IShutdown {
             }
         }
     }
-
     private def getReadBlock(date: String, blockNum: Int, pos: Long): Block = {
         val b = table.get(date);
         if (b == null)
@@ -136,7 +123,6 @@ object GZipStore extends Thread with IClose with IShutdown {
             return b;
         return null;
     }
-
     def read(date: String, _pos: Long): Array[Byte] = {
         var pos = _pos
         if (pos < 0)
@@ -167,7 +153,6 @@ object GZipStore extends Thread with IClose with IShutdown {
         }
         return null
     }
-
     def flush() {
         if (table.size() == 0)
             return ;
@@ -178,20 +163,16 @@ object GZipStore extends Thread with IClose with IShutdown {
             IOChannel.store(bk);
         }
     }
-
     def shutdown() {
         this.brun = false;
         close();
     }
-
     def close() {
         this.flush();
     }
-
     def close(date: String) {
         val bb = table.remove(date);
         IOChannel.store(bb);
         IOChannel.close(date);
     }
-
 }
