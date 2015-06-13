@@ -33,7 +33,7 @@ Scouter has three modules:
   - SWT & GEF4 : Charts and Diagrams
 
 ### How To Install
- - Refer [How To Install](../../wiki/How-To-Install) wiki page.
+ - Refer [Quick Start](../../wiki/Quick-Start) wiki page.
 
 ### To-be
 SCOUTER is just simple. This configuration is simple.It will quickly provide the functions of monitoring OSS.
