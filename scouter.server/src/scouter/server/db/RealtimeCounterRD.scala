@@ -8,7 +8,7 @@ import scouter.util.HashUtil
 import scouter.util.StringEnumer
 
 object RealtimeCounterRD {
-    def read(objName: String, date: String, handler: (Long, MapValue) => Boolean) {
+    def read(objName: String, date: String, handler: (Long, MapValue) => Any) {
         val stime = DateUtil.yyyymmdd(date);
         val etime = stime + DateUtil.MILLIS_PER_DAY;
         read(objName, date, stime, etime, handler);
@@ -53,7 +53,7 @@ object RealtimeCounterRD {
         readFromEnd(objName, date, stime, etime, handler);
     }
 
-    def readFromEnd(objName: String, date: String, stime: Long, etime: Long, handler: (Long, MapValue) => Boolean) {
+    def readFromEnd(objName: String, date: String, stime: Long, etime: Long, handler: (Long, MapValue) => Any) {
         var logdb: RealtimeCounterDBHelper = null;
         try {
             logdb = new RealtimeCounterDBHelper().open(objName, date, true);

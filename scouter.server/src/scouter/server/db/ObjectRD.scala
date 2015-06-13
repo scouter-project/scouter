@@ -82,13 +82,12 @@ object ObjectRD {
                 val pack = new DataInputX(data).readPack().asInstanceOf[ObjectPack];
                 list.add(pack)
             } catch {
-                case e: Exception => {
+                case e: Exception =>
                     e.printStackTrace();
-                    false
-                }
-                case _:Throwable=> false
+                    return list
+                case _: Throwable =>
+                    return list
             }
-             true
         })
         return list
     }

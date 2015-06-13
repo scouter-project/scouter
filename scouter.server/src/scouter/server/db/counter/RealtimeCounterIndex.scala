@@ -62,7 +62,7 @@ class RealtimeCounterIndex(_file: String) extends IClose {
         this.index.read(objHash, stime, etime, handler, dataMap, reader);
     }
 
-    def readFromEnd(objHash: Int, stime: Long, etime: Long, handler: (Long, MapValue) => Boolean, dataMap: IntKeyMap[String],
+    def readFromEnd(objHash: Int, stime: Long, etime: Long, handler: (Long, MapValue) => Any, dataMap: IntKeyMap[String],
         reader: (Long)=>Array[Byte]) {
         if (this.index == null) {
             this.index = new RealtimeCounterKeyFile(file);

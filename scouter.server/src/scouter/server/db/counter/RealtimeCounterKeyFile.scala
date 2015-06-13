@@ -49,7 +49,7 @@ class RealtimeCounterKeyFile(path: String) extends IndexTimeFile(path) {
         }
     }
 
-    def readFromEnd(objHash: Int, stime: Long, etime: Long, handler: (Long, MapValue) => Boolean,
+    def readFromEnd(objHash: Int, stime: Long, etime: Long, handler: (Long, MapValue) => Any,
         dataMap: IntKeyMap[String], reader: (Long) => Array[Byte]): Unit = {
         try {
 
