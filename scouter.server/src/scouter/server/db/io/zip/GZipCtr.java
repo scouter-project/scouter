@@ -21,28 +21,30 @@ import java.io.File;
 import scouter.server.db.DBCtr;
 import scouter.server.db.XLogWR;
 
-object GZipCtr {
+public class GZipCtr {
+	
+	public static final int MAX_QUE_SIZE = 20000;
+	
+	public final static int BLOCK_MAX_SIZE = 32 * 1024 * 1024;
 
-    val MAX_QUE_SIZE = 20000;
 
-    val BLOCK_MAX_SIZE = 32 * 1024 * 1024;
 
-    def getDataPath(date: String): String = {
-        val sb = new StringBuffer();
-        sb.append(DBCtr.getRootPath());
-        sb.append("/").append(date);
-        sb.append(XLogWR.dir);
-        sb.append("/data");
-        return sb.toString();
-    }
-    def createPath(date: String): String = {
-        val sb = new StringBuffer();
-        sb.append(DBCtr.getRootPath());
-        sb.append("/").append(date);
-        sb.append(XLogWR.dir);
-        sb.append("/data");
-        val path = sb.toString();
-        new File(path).mkdirs();
-        return path;
-    }
+	public static String getDataPath(String date) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(DBCtr.getRootPath());
+		sb.append("/").append(date);
+		sb.append(XLogWR.dir());
+		sb.append("/data");
+		return sb.toString();
+	}
+	public static String createPath(String date) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(DBCtr.getRootPath());
+		sb.append("/").append(date);
+		sb.append(XLogWR.dir());
+		sb.append("/data");
+		String path =  sb.toString();
+		new File(path).mkdirs();
+		return path;
+	}
 }

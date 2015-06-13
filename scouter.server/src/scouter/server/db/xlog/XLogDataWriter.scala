@@ -70,7 +70,7 @@ class XLogDataWriter(date: String, file: String) extends IClose {
      
     def write(bytes: Array[Byte]): Long = {
         if (gzip) {
-            return GZipStore.write(date, bytes);
+            return GZipStore.getInstance().write(date, bytes);
         }
         this.synchronized {
             val point = out.getOffset();

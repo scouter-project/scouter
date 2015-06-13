@@ -63,7 +63,7 @@ class XLogDataReader(date: String, file: String) extends IClose {
 
     def read(point: Long): Array[Byte] = {
         if (gzip) {
-            return GZipStore.read(date, point);
+            return GZipStore.getInstance().read(date, point);
         }
         if (pointFile == null)
             return null;
