@@ -16,6 +16,7 @@
 
 package scouter.agent.trace;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 
 import scouter.agent.Configure;
@@ -23,10 +24,12 @@ import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
 import scouter.jdbc.JdbcTrace;
 import scouter.lang.AlertLevel;
+import scouter.lang.ref.INT;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.SqlStep;
 import scouter.util.EscapeLiteralSQL;
+import scouter.util.HashUtil;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.IntLinkedSet;
 import scouter.util.StringUtil;
@@ -77,7 +80,7 @@ public class TraceSQL {
 			if (p == null) {
 				ctx.sql.put(idx, "null");
 			} else {
-				p =StringUtil.truncate(p, MAX_STRING);
+				p = StringUtil.truncate(p, MAX_STRING);
 				ctx.sql.put(idx, "'" + p + "'");
 			}
 		}
@@ -405,7 +408,7 @@ public class TraceSQL {
 		String name = "CREATE-DBC " + url;
 		int hash = StringHashCache.getErrHash(name);
 		DataProxy.sendMethodName(hash, name);
-		return TraceSQL.dbcOpenStart(hash, name);
+		return TraceSQL.dbcOpenStart(hash, name, null);
 	}
 
 	public static Connection endCreateDBC(Connection conn, Object stat) {
@@ -421,7 +424,7 @@ public class TraceSQL {
 		TraceSQL.dbcOpenEnd(stat, thr);
 	}
 
-	public static Object dbcOpenStart(int hash, String msg) {
+	public static Object dbcOpenStart(int hash, String msg, Object pool) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return null;
@@ -432,6 +435,13 @@ public class TraceSQL {
 		if (ctx.profile_thread_cputime) {
 			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
+		
+		DBURL dbUrl = getUrl(pool);
+        if(dbUrl!=unknown){
+        	hash = dbUrl.hash;
+        	DataProxy.sendMethodName(hash, dbUrl.url);
+		}
+		        
 		p.hash = hash;
 		ctx.profile.push(p);
 
@@ -441,8 +451,47 @@ public class TraceSQL {
 			ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 			ctx.profile.add(ms);
 		}
+		
+		LocalContext lctx = new LocalContext(ctx, p);
+		lctx.option = new INT(ctx.opencon);
+		return lctx;
+	}
 
-		return new LocalContext(ctx, p);
+	static class DBURL{
+		int hash;
+		String url;
+		public DBURL(int hash, String url) {
+			this.hash = hash;
+			this.url = url;
+		}		
+	}
+	static IntKeyLinkedMap<DBURL> urlTable = new IntKeyLinkedMap<DBURL>().setMax(500);
+	static DBURL unknown = new DBURL(0,null);
+	
+
+	private static DBURL getUrl(Object pool) {
+		if (pool == null)
+			return unknown;
+
+		int key = System.identityHashCode(pool);
+		DBURL dbUrl = urlTable.get(key);
+		if (dbUrl != null){
+			return dbUrl;
+		}
+		try {
+			Field field = pool.getClass().getDeclaredField("url");
+			if (field != null) {
+				field.setAccessible(true);
+				String u = "OPEN-DBC "+ field.get(pool);
+				dbUrl=new DBURL(HashUtil.hash(u),u);
+			}
+		} catch (Throwable e) {
+		}
+		if (dbUrl == null) {
+			dbUrl = unknown;
+		}
+		urlTable.put(key, dbUrl);
+		return dbUrl;
 	}
 
 	public static void dbcOpenEnd(Object stat, Throwable thr) {
@@ -472,7 +521,9 @@ public class TraceSQL {
 			DataProxy.sendError(hash, msg);
 			AlertProxy.sendAlert(AlertLevel.ERROR, "OPEN-DBC", msg);
 		} else {
-			tctx.opencon++;
+			if (((INT) lctx.option).value == tctx.opencon) {
+				tctx.opencon++;
+			}
 		}
 		tctx.profile.pop(step);
 

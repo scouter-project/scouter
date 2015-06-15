@@ -47,9 +47,10 @@ public class DbcOpenASM implements IASM, Opcodes {
 		AsmUtil.add(reserved, "org/jboss/jca/adapters/jdbc/WrapperDataSource", "getConnection");
 
 		// Tomcat7
+		AsmUtil.add(reserved,"org/apache/tomcat/dbcp/dbcp/BasicDataSource", "getConnection");
 		AsmUtil.add(reserved, "org/apache/tomcat/jdbc/pool/ConnectionPool", "getConnection");
 		// Tomcat6
-		AsmUtil.add(reserved, "org/apache/tomcat/dbcp/pool/impl/GenericObjectPool", "borrowObject");
+//		AsmUtil.add(reserved, "org/apache/tomcat/dbcp/pool/impl/GenericObjectPool", "borrowObject");
 		AsmUtil.add(reserved, "org/springframework/orm/hibernate3/LocalDataSourceConnectionProvider", "getConnection");
 		AsmUtil.add(reserved, "org.springframework.jdbc.datasource.DataSourceUtils",
 				"getConnection(Ljavax/sql/DataSource;)Ljava/sql/Connection;");
@@ -124,7 +125,7 @@ class DbcOpenCV extends ClassVisitor implements Opcodes {
 class DbcOpenMV extends LocalVariablesSorter implements Opcodes {
 	private static final String TRACE_SQL = TraceSQL.class.getName().replace('.', '/');
 	private final static String START_METHOD = "dbcOpenStart";
-	private static final String START_SIGNATURE = "(ILjava/lang/String;)Ljava/lang/Object;";
+	private static final String START_SIGNATURE = "(ILjava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;";
 	private final static String END_METHOD = "dbcOpenEnd";
 	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;)V";
 
@@ -134,18 +135,25 @@ class DbcOpenMV extends LocalVariablesSorter implements Opcodes {
 		super(Opcodes.ASM4, access, desc, mv);
 		this.fullname = fullname;
 		this.fullname_hash = fullname_hash;
+		this.isStatic=(access & ACC_STATIC) != 0;
 	}
 
 	private int fullname_hash;
 	private String fullname;
 	private int statIdx;
+	private boolean isStatic=false;
 
 	@Override
 	public void visitCode() {
 		AsmUtil.PUSH(mv, fullname_hash);
 		mv.visitLdcInsn(fullname);
-
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, START_METHOD, START_SIGNATURE);
+		if(isStatic){
+			AsmUtil.PUSHNULL(mv);
+		}else{
+			mv.visitVarInsn(Opcodes.ALOAD, 0);
+		}
+		
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, START_METHOD, START_SIGNATURE,false);
 
 		statIdx = newLocal(Type.getType(Object.class));
 
@@ -159,7 +167,7 @@ class DbcOpenMV extends LocalVariablesSorter implements Opcodes {
 		if ((opcode >= IRETURN && opcode <= RETURN)) {
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 			mv.visitInsn(Opcodes.ACONST_NULL);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, END_METHOD, END_SIGNATURE);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, END_METHOD, END_SIGNATURE,false);
 		}
 		mv.visitInsn(opcode);
 	}
@@ -175,7 +183,7 @@ class DbcOpenMV extends LocalVariablesSorter implements Opcodes {
 
 		mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 		mv.visitVarInsn(Opcodes.ALOAD, errIdx);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, END_METHOD, END_SIGNATURE);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, END_METHOD, END_SIGNATURE,false);
 		mv.visitInsn(ATHROW);
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
 	}

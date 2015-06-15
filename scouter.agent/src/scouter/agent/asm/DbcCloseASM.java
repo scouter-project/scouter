@@ -42,9 +42,10 @@ public class DbcCloseASM implements IASM, Opcodes {
 	    //AsmUtil.add(reserved, "org/jboss/jca/core/connectionmanager/pool/AbstractPool", "returnConnection");
 	    AsmUtil.add(reserved,"org/jboss/jca/adapters/jdbc/WrappedConnection","close");
 		//Tomcat7
-		AsmUtil.add(reserved, "org/apache/tomcat/jdbc/pool/ConnectionPool", "returnConnection");
+	    AsmUtil.add(reserved, "org/apache/tomcat/dbcp/dbcp/PoolableConnection", "close");
+	    AsmUtil.add(reserved, "org/apache/tomcat/jdbc/pool/ConnectionPool", "returnConnection");
 		//Tomcat6
-		AsmUtil.add(reserved, "org/apache/tomcat/dbcp/pool/impl/GenericObjectPool", "returnObject");
+		//AsmUtil.add(reserved, "org/apache/tomcat/dbcp/pool/impl/GenericObjectPool", "returnObject");
 		AsmUtil.add(reserved, "org/springframework/orm/hibernate3/LocalDataSourceConnectionProvider", "closeConnection");
 
 		AsmUtil.add(reserved, "org.springframework.jdbc.datasource.DataSourceUtils", "releaseConnection(Ljava/sql/Connection;Ljavax/sql/DataSource;)V");	

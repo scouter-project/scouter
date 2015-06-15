@@ -24,7 +24,6 @@ public class LocalContext {
 	public Object option;
 	public boolean service;
 	public LocalContext(){
-		
 	}
 	public LocalContext(TraceContext ctx, StepSingle stepSingle) {
 		this.context = ctx;
