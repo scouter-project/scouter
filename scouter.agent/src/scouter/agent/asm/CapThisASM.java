@@ -95,7 +95,7 @@ class CapThisMV extends MethodVisitor implements Opcodes {
 			AsmUtil.PUSH(mv, className);
 			AsmUtil.PUSH(mv, methodDesc);
 			mv.visitVarInsn(Opcodes.ALOAD, 0);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE,false);
 		}
 		mv.visitInsn(opcode);
 	}
