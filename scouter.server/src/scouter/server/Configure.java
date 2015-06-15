@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.SocketImpl;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -137,6 +138,7 @@ public class Configure extends Thread {
 
 	public String dataudp_host = "0.0.0.0";
 	public int dataudp_port = NetConstants.DATAUDP_SERVER_PORT;
+
 	public int service_port = NetConstants.SERVICE_SERVER_PORT;
 	public int service_so_timeout = 10000;
 	public String scouter_hostname = SysJMX.getHostName();
@@ -165,8 +167,7 @@ public class Configure extends Thread {
 	public boolean debug_udp_object;
 	public boolean debug_udp_status;
 	public boolean debug_request;
-	public boolean debug_tcp_stat;
-
+	
 	public long appstat_interval = DateUtil.MILLIS_PER_MINUTE * 10;
 	public boolean auto_5m_sampling = true;
 
@@ -200,6 +201,8 @@ public class Configure extends Thread {
 	public boolean tagcnt_debug = false;
 	public boolean tagcnt_ucount_enabled = true;
 
+
+
 	private void apply() {
 		this.xlog_autodrop_time = getInt("xlog_autodrop_time", getInt("xlog.autodrop.time", 100));
 		this.xlog_queue_size = getInt("xlog_queue_size", getInt("xlog.queue.size", 100000));
@@ -207,7 +210,7 @@ public class Configure extends Thread {
 
 		this.dataudp_host = getValue("dataudp_host", getValue("dataudp.host", "0.0.0.0"));
 		this.dataudp_port = getInt("dataudp_port", getInt("dataudp.port", NetConstants.DATAUDP_SERVER_PORT));
-			this.service_port = getInt("service_port", getInt("service.port", NetConstants.SERVICE_SERVER_PORT));
+		this.service_port = getInt("service_port", getInt("service.port", NetConstants.SERVICE_SERVER_PORT));
 		this.service_so_timeout = getInt("service_so_timeout", getInt("service.so.timeout", 10000));
 
 		this.scouter_hostname = getValue("scouter_hostname", getValue("scouter.hostname", SysJMX.getHostName()));
@@ -244,8 +247,7 @@ public class Configure extends Thread {
 		this.debug_udp_object = getBoolean("debug_udp_object", getBoolean("debug.udp.object", false));
 		this.debug_udp_status = getBoolean("debug_udp_status", getBoolean("debug.udp.status", false));
 		this.debug_request = getBoolean("debug_request", getBoolean("debug.request", false));
-		this.debug_tcp_stat = getBoolean("debug_tcp_stat", getBoolean("debug.tcp.stat", false));
-
+	
 		this.appstat_interval = getLong("appstat_interval",
 				getLong("appstat.interval", DateUtil.MILLIS_PER_MINUTE * 10));
 		this.auto_5m_sampling = getBoolean("auto_5m_sampling", getBoolean("auto.5m.sampling", true));
