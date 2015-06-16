@@ -17,20 +17,21 @@
 
 package scouter.server.netio.service.net;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.EOFException;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.EOFException
+import java.net.Socket
+import java.net.SocketTimeoutException
 
-import scouter.server.LoginManager;
-import scouter.server.logs.RequestLogger;
-import scouter.server.netio.service.ServiceHandlingProxy;
-import scouter.io.DataInputX;
-import scouter.io.DataOutputX;
-import scouter.net.RequestCmd;
-import scouter.net.TcpFlag;
-import scouter.util.FileUtil;
+import scouter.io.DataInputX
+import scouter.io.DataOutputX
+import scouter.net.NetCafe
+import scouter.net.RequestCmd
+import scouter.net.TcpFlag
+import scouter.server.LoginManager
+import scouter.server.logs.RequestLogger
+import scouter.server.netio.service.ServiceHandlingProxy
+import scouter.util.FileUtil
 
 object ServiceWorker {
     var workers = 0;
@@ -60,6 +61,17 @@ class ServiceWorker(_socket: Socket) extends Runnable {
     override def run() {
 
         try {
+            //READ SESSION TYPE
+            val cafe = in.readInt();
+            cafe match {
+                case NetCafe.TCP_AGENT =>
+                //NEW AGENT SESSION
+                case NetCafe.TCP_CLIENT =>
+                //NEW CLIENT SESSION
+                case _ =>
+                // UNKNOWN SESSION 
+            }
+
             ServiceWorker.inc();
 
             while (true) {

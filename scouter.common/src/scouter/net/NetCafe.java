@@ -34,11 +34,8 @@ public class NetCafe {
 	public final static int UDP_NODEN = 0x4e4f444e;
 	public final static int UDP_JMTU = 0x4a4d5455;
 	//
-	public static final int TCP_AGENT_DATA =0xCAFE1001;
-	public static final int TCP_AGENT_REQUEST =0xCAFE1002;
-	public static final int TCP_AGENT_RESPONSE =0xCAFE1003;
-	public static final int TCP_CLIENT_REQUEST = 0xCAFE1004;
-	public static final int TCP_CLIENT_RESPONSE = 0xCAFE1005;
+	public static final int TCP_AGENT =0xCAFE1001;
+	public static final int TCP_CLIENT = 0xCAFE2001;
 	
 	public static final int TCP_SHUTDOWN = 0xCAFE1999;
 	

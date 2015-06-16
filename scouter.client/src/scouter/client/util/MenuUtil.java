@@ -58,6 +58,7 @@ import scouter.client.context.actions.OpenCxtmenuHeapHistoViewAction;
 import scouter.client.context.actions.OpenCxtmenuObjectClassListAction;
 import scouter.client.context.actions.OpenCxtmenuObjectThreadDumpAction;
 import scouter.client.context.actions.OpenCxtmenuPropertiesAction;
+import scouter.client.context.actions.OpenCxtmenuResetCacheAction;
 import scouter.client.context.actions.OpenCxtmenuSystemGcAction;
 import scouter.client.context.actions.OpenCxtmenuThreadListAction;
 import scouter.client.counter.actions.OpenDailyServiceCountAction;
@@ -470,6 +471,7 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 				performanceSnapshot.add(new OpenCxtmenuFileSocketAction(win, MenuStr.FILE_SOCKET, objHash, serverId));
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_SYSTEMGC))
 					performanceSnapshot.add(new OpenCxtmenuSystemGcAction(MenuStr.SYSTEM_GC, objHash, serverId));
+				performanceSnapshot.add(new OpenCxtmenuResetCacheAction("Reset Text Cache", objHash, serverId));
 				performanceSnapshot.add(new Separator());
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_HEAPDUMP)) {
 					MenuManager heapDump = new MenuManager(MenuStr.HEAP_DUMP, MenuStr.HEAP_DUMP_ID);

@@ -26,6 +26,7 @@ import scouter.client.server.ServerManager;
 import scouter.client.util.ConsoleProxy;
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+import scouter.net.NetCafe;
 import scouter.util.FileUtil;
 
 
@@ -52,6 +53,11 @@ public class ClientTCP{
 			socket.setSoTimeout(4000);
 			in = new DataInputX(new BufferedInputStream(socket.getInputStream()));
 			out = new DataOutputX(new BufferedOutputStream(socket.getOutputStream()));
+			
+			//*************//
+			out.writeInt(NetCafe.TCP_CLIENT);
+			out.flush();
+			//*************//
 			if (server.isConnected() == false) {
 				ConsoleProxy.infoSafe("Success to connect " + server.getIp() + ":" + server.getPort());
 				server.setConnected(true);
