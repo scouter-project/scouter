@@ -70,8 +70,8 @@ class ServiceWorker(_socket: Socket) extends Runnable {
             cafe match {
                 case NetCafe.TCP_AGENT =>
                     val objHash = in.readInt()
-                    TcpAgentManager.add(objHash, new TcpAgentWorker(socket, in, out))
-                    println("Agent : " + remoteAddr + " open objHash=" + Hexa32.toString32(objHash));
+                    val num= TcpAgentManager.add(objHash, new TcpAgentWorker(socket, in, out))
+                    println("Agent : " + remoteAddr + " open [" + Hexa32.toString32(objHash) + "] #"+num);
                     return
                 case NetCafe.TCP_CLIENT =>
                     println("Client : " + remoteAddr + " open");

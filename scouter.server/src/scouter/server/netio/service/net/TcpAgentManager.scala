@@ -39,7 +39,7 @@ object TcpAgentManager {
             }
         }
     }
-    def add(objHash: Int, agent: TcpAgentWorker) {
+    def add(objHash: Int, agent: TcpAgentWorker) : Int={
         agentTable.synchronized {
             var session = agentTable.get(objHash)
             if (session == null) {
@@ -47,6 +47,7 @@ object TcpAgentManager {
                 agentTable.put(objHash, session)
             }
             session.add(agent);
+            return session.size()
         }
     }
     def get(objHash: Int): TcpAgentWorker = {

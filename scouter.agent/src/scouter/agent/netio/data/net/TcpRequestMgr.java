@@ -27,16 +27,20 @@ public class TcpRequestMgr extends Thread {
 	public void run() {
 
 		while (true) {
-			int CNT = Configure.getInstance().server_tcp_session_count;
+			int cnt = Configure.getInstance().server_tcp_session_count;
 			ThreadUtil.sleep(1000);
 			try {
-				for (int i = 0; i < CNT && TcpWorker.LIVE.intValue() < CNT; i++) {
+				for (int i = 0; i < cnt && TcpWorker.LIVE.size() < cnt; i++) {
 					TcpWorker w = new TcpWorker();
 					if (w.prepare()) {
 						pool.execute(w);
 					} else {
 						ThreadUtil.sleep(3000);
 					}
+				}
+				while (TcpWorker.LIVE.size() > cnt) {
+					TcpWorker w = TcpWorker.LIVE.removeFirst();
+					w.close();
 				}
 			} catch (Throwable t) {
 			}

@@ -72,18 +72,17 @@ public class Configure extends Thread {
 	public String local_addr = null;
 	public int local_port;
 
-//	public String tcp_addr = null;
-//	public int tcp_port = NetConstants.BASE_TCP_AGENT_PORT;
-//	public int tcp_port_max = NetConstants.BASE_TCP_AGENT_PORT + 100;
+	// public String tcp_addr = null;
+	// public int tcp_port = NetConstants.BASE_TCP_AGENT_PORT;
+	// public int tcp_port_max = NetConstants.BASE_TCP_AGENT_PORT + 100;
 
 	public String server_addr = "127.0.0.1";
 	public int server_udp_port = NetConstants.DATAUDP_SERVER_PORT;
 	public int server_tcp_port = NetConstants.SERVICE_SERVER_PORT;
-	public int server_tcp_session_count=2;
-	public int server_tcp_so_timeout=60000;
-	public int server_tcp_connection_timeout=3000;
+	public int server_tcp_session_count = 2;
+	public int server_tcp_so_timeout = 60000;
+	public int server_tcp_connection_timeout = 3000;
 
-	
 	public String scouter_type = "";
 	public String scouter_name = "";
 	public String scouter_host_type = "";
@@ -288,8 +287,6 @@ public class Configure extends Thread {
 
 	long last_check = 0;
 
-
-
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
 		if (force == false && now < last_check + 3000)
@@ -389,9 +386,9 @@ public class Configure extends Thread {
 		this.server_addr = getValue("server_addr", getValue("server.addr", "127.0.0.1"));
 		this.server_udp_port = getInt("server_udp_port", getInt("server.port", NetConstants.DATAUDP_SERVER_PORT));
 		this.server_tcp_port = getInt("server_tcp_port", getInt("server.port", NetConstants.SERVICE_SERVER_PORT));
-        this.server_tcp_session_count=getInt("server_tcp_session_count",2);
-        this.server_tcp_connection_timeout = getInt("server_tcp_connection_timeout",3000);
-        this.server_tcp_so_timeout = getInt("server_tcp_so_timeout",60000);
+		this.server_tcp_session_count = getInt("server_tcp_session_count", 2,1);
+		this.server_tcp_connection_timeout = getInt("server_tcp_connection_timeout", 3000);
+		this.server_tcp_so_timeout = getInt("server_tcp_so_timeout", 60000);
 
 		this.hook_signature = 0;
 		this.hook_args = getValue("hook_args", getValue("hook.args", ""));
@@ -622,6 +619,17 @@ public class Configure extends Thread {
 		return def;
 	}
 
+	public int getInt(String key, int def, int min) {
+		try {
+			String v = getValue(key);
+			if (v != null) {
+				return Math.max( Integer.parseInt(v), min);
+			}
+		} catch (Exception e) {
+		}
+		return Math.max(def, min);
+	}
+
 	public long getLong(String key, long def) {
 		try {
 			String v = getValue(key);
@@ -671,7 +679,7 @@ public class Configure extends Thread {
 	}
 
 	public void printConfig() {
-		Logger.info("Configure -Dscouter.config=" + propertyFile );
+		Logger.info("Configure -Dscouter.config=" + propertyFile);
 	}
 
 	private static HashSet<String> ignoreSet = new HashSet<String>();

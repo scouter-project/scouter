@@ -5,6 +5,8 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import scouter.agent.Configure;
@@ -15,9 +17,10 @@ import scouter.lang.pack.Pack;
 import scouter.net.NetCafe;
 import scouter.net.TcpFlag;
 import scouter.util.FileUtil;
+import scouter.util.IntKeyLinkedMap;
 
 public class TcpWorker implements Runnable {
-	public static AtomicInteger LIVE = new AtomicInteger();
+	public static IntKeyLinkedMap<TcpWorker> LIVE = new IntKeyLinkedMap<TcpWorker>();
 
 	public static String localAddr = null;
 	public int objHash = Configure.getInstance().objHash;
@@ -29,12 +32,14 @@ public class TcpWorker implements Runnable {
 			process(socket);
 		} catch (Throwable t) {
 		} finally {
-			FileUtil.close(socket);
-			socket = null;
-			LIVE.decrementAndGet();
+			close();
 		}
 	}
-
+    public void close(){
+    	FileUtil.close(socket);
+    	socket = null;
+		LIVE.remove(this.hashCode());
+    }
 	protected Socket socket = null;
 
 	public boolean prepare() {
@@ -51,7 +56,7 @@ public class TcpWorker implements Runnable {
 			if (localAddr == null) {
 				localAddr = socket.getLocalAddress().getHostAddress() + ":0";
 			}
-			LIVE.incrementAndGet();
+			LIVE.put(this.hashCode(),this);
 			return true;
 		} catch (Exception e) {
 			return false;
