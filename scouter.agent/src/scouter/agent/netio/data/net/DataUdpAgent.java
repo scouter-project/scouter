@@ -59,7 +59,7 @@ public class DataUdpAgent {
 	private void setTarget() {
 		Configure conf = Configure.getInstance();
 		String host = conf.server_addr;
-		int port = conf.server_port;
+		int port = conf.server_udp_port;
 		try {
 			server_host = InetAddress.getByName(host);
 			server_port = port;

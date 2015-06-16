@@ -72,7 +72,7 @@ public class AsyncHook extends Thread {
 				cd[0] = new ClassDefinition(cls, m.body);
 				JavaAgent.getInstrumentation().redefineClasses(cd);
 			} catch (Throwable t) {
-				Logger.println("A151","async hook fail:" + m.classname + " " + t);
+				Logger.println("A149","async hook fail:" + m.classname + " " + t);
 			}
 		}
 	}

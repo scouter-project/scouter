@@ -45,7 +45,7 @@ object TextWR {
     protected var idleConns = new ArrayList[String]();
 
     // executed every 10sec
-    ThreadScala.start("scouter.server.db.TextWR-IDLE", { CoreRun.running }, 10000) {
+    ThreadScala.start("scouter.server.db.TextWR", { CoreRun.running }, 10000) {
         val now = System.currentTimeMillis();
         val en = database.keys();
         while (en.hasMoreElements()) {
@@ -79,7 +79,7 @@ object TextWR {
     }
 
     val queue = new RequestQueue[Data](DBCtr.LARGE_MAX_QUE_SIZE);
-    ThreadScala.start("scouter.server.db.TextWR") {
+    ThreadScala.start("scouter.server.db.TextWR-2") {
         while (DBCtr.running) {
             closeIdle();
             val m = queue.get(10000); //check 10 sec

@@ -130,17 +130,17 @@ public class Configure extends Thread {
 		return true;
 	}
 
-	
-
 	public int xlog_autodrop_time = 100;
 	public int xlog_queue_size = 100000;
 	public boolean debug_net = false;
 
 	public String dataudp_host = "0.0.0.0";
 	public int dataudp_port = NetConstants.DATAUDP_SERVER_PORT;
+	public int tcp_port = NetConstants.SERVICE_SERVER_PORT;
+	public int tcp_client_so_timeout = 8000;
+	public int tcp_agent_so_timeout = 60000;
+	public int tcp_agent_keepalive = 5000;
 
-	public int service_port = NetConstants.SERVICE_SERVER_PORT;
-	public int service_so_timeout = 10000;
 	public String scouter_hostname = SysJMX.getHostName();
 	public String scouter_db = "./database";
 	public String logs_dir = "./logs";
@@ -167,7 +167,7 @@ public class Configure extends Thread {
 	public boolean debug_udp_object;
 	public boolean debug_udp_status;
 	public boolean debug_request;
-	
+
 	public long appstat_interval = DateUtil.MILLIS_PER_MINUTE * 10;
 	public boolean auto_5m_sampling = true;
 
@@ -201,17 +201,17 @@ public class Configure extends Thread {
 	public boolean tagcnt_debug = false;
 	public boolean tagcnt_ucount_enabled = true;
 
-
-
 	private void apply() {
 		this.xlog_autodrop_time = getInt("xlog_autodrop_time", getInt("xlog.autodrop.time", 100));
 		this.xlog_queue_size = getInt("xlog_queue_size", getInt("xlog.queue.size", 100000));
 		this.debug_net = getBoolean("debug_net", getBoolean("debug.net", false));
 
 		this.dataudp_host = getValue("dataudp_host", getValue("dataudp.host", "0.0.0.0"));
-		this.dataudp_port = getInt("dataudp_port", getInt("dataudp.port", NetConstants.DATAUDP_SERVER_PORT));
-		this.service_port = getInt("service_port", getInt("service.port", NetConstants.SERVICE_SERVER_PORT));
-		this.service_so_timeout = getInt("service_so_timeout", getInt("service.so.timeout", 10000));
+		this.dataudp_port = getInt("dataudp_port", NetConstants.DATAUDP_SERVER_PORT);
+		this.tcp_port = getInt("tcp_port", NetConstants.SERVICE_SERVER_PORT);
+		this.tcp_client_so_timeout = getInt("tcp_client_so_timeout", 8000);
+		this.tcp_agent_so_timeout = getInt("tcp_agent_so_timeout", 60000);
+		this.tcp_agent_keepalive = getInt("tcp_agent_keepalive", 5000);
 
 		this.scouter_hostname = getValue("scouter_hostname", getValue("scouter.hostname", SysJMX.getHostName()));
 		this.scouter_db = getValue("scouter_db", getValue("scouter.db", "./database"));
@@ -247,7 +247,7 @@ public class Configure extends Thread {
 		this.debug_udp_object = getBoolean("debug_udp_object", getBoolean("debug.udp.object", false));
 		this.debug_udp_status = getBoolean("debug_udp_status", getBoolean("debug.udp.status", false));
 		this.debug_request = getBoolean("debug_request", getBoolean("debug.request", false));
-	
+
 		this.appstat_interval = getLong("appstat_interval",
 				getLong("appstat.interval", DateUtil.MILLIS_PER_MINUTE * 10));
 		this.auto_5m_sampling = getBoolean("auto_5m_sampling", getBoolean("auto.5m.sampling", true));

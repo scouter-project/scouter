@@ -46,7 +46,7 @@ object XLogTagCount {
                     process(objInfo.objType, m)
                 }
             } catch {
-                case e: Exception => Logger.println("S189", e.toString())
+                case e: Exception => Logger.println("S187", e.toString())
             }
         }
     }
@@ -54,7 +54,7 @@ object XLogTagCount {
     def add(p: XLogPack) {
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("S190", 10, "XLogTagCount queue exceeded!!");
+            Logger.println("S188", 10, "XLogTagCount queue exceeded!!");
         }
     }
     def process(objType: String, x: XLogPack) {

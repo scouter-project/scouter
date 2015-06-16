@@ -49,7 +49,7 @@ public class PlugXLogBuf extends Thread {
 
 		Object ok = queue.put(p);
 		if (ok == null) {
-			Logger.println("S179", 10, "queue exceeded!!");
+			Logger.println("S177", 10, "queue exceeded!!");
 			return false;
 		}
 		return true;

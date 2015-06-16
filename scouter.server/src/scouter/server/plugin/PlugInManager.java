@@ -57,21 +57,21 @@ public class PlugInManager {
 			try {
 				Class c = Class.forName(itr.next(), false, loader);
 				if(c.isAnnotationPresent(Deprecated.class)){
-					Logger.println("S173","ignore "+c.getName());
+					Logger.println("S171","ignore "+c.getName());
 					continue;
 				}
 				
 				if (IXLog.class.isAssignableFrom(c)) {
 					xlogs.add((IXLog) c.newInstance());
-					Logger.println("S174","load IXLog="+c.getName());
+					Logger.println("S172","load IXLog="+c.getName());
 				} else if (IAlert.class.isAssignableFrom(c)) {
 					alerts.add((IAlert) c.newInstance());
-					Logger.println("S175","load IAlert="+c.getName());
+					Logger.println("S173","load IAlert="+c.getName());
 				} else if (IObject.class.isAssignableFrom(c)) {
 					objects.add((IObject) c.newInstance());
-					Logger.println("S176","load IObject="+c.getName());
+					Logger.println("S174","load IObject="+c.getName());
 				} else if (IServiceGroup.class.isAssignableFrom(c)) {
-					Logger.println("S177","load IServiceGroup="+c.getName());
+					Logger.println("S175","load IServiceGroup="+c.getName());
 					groups.add((IServiceGroup) c.newInstance());
 				}
 			} catch (Exception e) {
@@ -140,7 +140,7 @@ public class PlugInManager {
 			    }
 				pluginClassLoader = new URLClassLoader((URL[]) arr.toArray(new URL[arr.size()]), PlugInManager.class.getClassLoader());
 			} catch (Throwable e) {
-				Logger.println("S178", e);
+				Logger.println("S176", e);
 			}
 		}
 		return pluginClassLoader;

@@ -48,7 +48,7 @@ public class HttpTraceFactory {
 			Class c = Class.forName(HTTP_TRACE, true, loader);
 			return (IHttpTrace) c.newInstance();
 		} catch (Throwable e) {
-			Logger.println("A135", "fail to create", e);
+			Logger.println("A133", "fail to create", e);
 			return dummy;
 		}
 	}

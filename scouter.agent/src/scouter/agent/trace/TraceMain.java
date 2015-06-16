@@ -63,7 +63,7 @@ public class TraceMain {
 			}
 			return startHttp(req, res);
 		} catch (Throwable t) {
-			Logger.println("A145", "fail to deploy ", t);
+			Logger.println("A143", "fail to deploy ", t);
 		}
 		return null;
 	}
@@ -75,7 +75,7 @@ public class TraceMain {
 			}
 			return startHttp(req, res);
 		} catch (Throwable t) {
-			Logger.println("A146", "fail to deploy ", t);
+			Logger.println("A144", "fail to deploy ", t);
 		}
 		return null;
 	}
@@ -238,7 +238,7 @@ public class TraceMain {
 				pack.error = ctx.error;
 			} else if (thr != null) {
 				if (thr == REJECT) {
-					Logger.println("A147", ctx.serviceName);
+					Logger.println("A145", ctx.serviceName);
 					AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_REJECTED", ctx.serviceName);
 					String emsg = conf.reject_text;
 					int ehash = StringHashCache.getErrHash(emsg);
@@ -289,7 +289,7 @@ public class TraceMain {
 				DataProxy.sendXLog(pack);
 			}
 		} catch (Throwable e) {
-			Logger.println("A148", e);
+			Logger.println("A146", e);
 		}
 	}
 	public static void metering(XLogPack pack) {
@@ -334,7 +334,7 @@ public class TraceMain {
 			ServiceTracePlugIn.start(ctx, new ApiInfo(className, methodName, methodDesc, _this, arg));
 			return new Stat(ctx);
 		} catch (Throwable t) {
-			Logger.println("A149", t);
+			Logger.println("A147", t);
 		}
 		return null;
 	}
@@ -403,7 +403,7 @@ public class TraceMain {
 				DataProxy.sendXLog(pack);
 			}
 		} catch (Throwable t) {
-			Logger.println("A150", t);
+			Logger.println("A148", t);
 		}
 	}
 	public static void capArgs(String className, String methodName, String methodDesc, Object[] arg) {

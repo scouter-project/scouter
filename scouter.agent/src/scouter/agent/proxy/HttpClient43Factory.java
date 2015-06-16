@@ -40,7 +40,7 @@ public class HttpClient43Factory {
 			return (IHttpClient) c.newInstance();
 		} catch (Throwable e) {
 			e.printStackTrace();
-			Logger.println("A134", "fail to create", e);
+			Logger.println("A132", "fail to create", e);
 			return dummy;
 		}
 	}

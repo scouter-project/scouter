@@ -20,7 +20,7 @@ import java.util.Random;
 
 import scouter.agent.Configure;
 import scouter.agent.LazyAgentBoot;
-import scouter.agent.netio.request.net.RequestAgent;
+import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.trace.StringHashCache;
 import scouter.agent.trace.TraceMain;
 import scouter.util.CastUtil;
@@ -46,7 +46,8 @@ public class ShardMain {
 		System.out.println("  tcp = " + tps);
 
 		LazyAgentBoot.boot();
-		RequestAgent.getInstance();
+		// RequestAgent.getInstance();
+		TcpRequestMgr.getInstance();
 
 		double interval = 1000.0 / tps;
 

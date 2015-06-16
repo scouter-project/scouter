@@ -20,25 +20,23 @@ import java.net.Socket
 import java.util.concurrent.ExecutorService
 import scouter.server.Configure
 import scouter.server.Logger
-import scouter.util.FileUtil
-import scouter.util.ThreadUtil;
 import scouter.server.util.ThreadScala
-object ServiceServer {
+import scouter.util.FileUtil
+import scouter.util.ThreadUtil
+object TcpServer {
     val conf = Configure.getInstance();
     val threadPool = ThreadUtil.createExecutor("ServiceServer", 30, 1000, 10000, true);
-    ThreadScala.startDaemon("scouter.server.netio.service.net.ServiceServer") {
-        val listen_port = conf.service_port;
-        val so_timeout = conf.service_so_timeout;
-        Logger.println("tcp listen " + "0.0.0.0:" + listen_port + " for client service");
-        Logger.println("\tservice_port=" + listen_port);
-        Logger.println("\tservice_so_timeout=" + so_timeout);
+    ThreadScala.startDaemon("scouter.server.netio.service.net.TcpServer") {
+        Logger.println("\ttcp_port=" + conf.tcp_port);
+        Logger.println("\tcp_agent_so_timeout=" + conf.tcp_agent_so_timeout);
+        Logger.println("\tcp_client_so_timeout=" + conf.tcp_client_so_timeout);
         var server: ServerSocket = null;
         try {
-            server = new ServerSocket(listen_port);
+            server = new ServerSocket( conf.tcp_port);
             while (true) {
                 val client = server.accept();
                 // TODO 주의하여 테스트해야
-                client.setSoTimeout(so_timeout);
+                client.setSoTimeout(conf.tcp_client_so_timeout);
                 client.setReuseAddress(true);
                 try {
                     threadPool.execute(new ServiceWorker(client));
@@ -47,7 +45,7 @@ object ServiceServer {
                 }
             }
         } catch {
-            case e: Throwable => Logger.println("S169", 1, "service port=" + listen_port, e);
+            case e: Throwable => Logger.println("S167", 1, "tcp port=" + conf.tcp_port, e);
         } finally {
             FileUtil.close(server);
         }

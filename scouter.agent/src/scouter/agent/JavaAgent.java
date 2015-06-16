@@ -16,7 +16,7 @@
 package scouter.agent;
 
 import java.lang.instrument.Instrumentation;
-import scouter.agent.netio.request.net.RequestAgent;
+import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.util.AsyncRun;
 import scouter.util.StringUtil;
 import scouter.util.logo.Logo;
@@ -36,7 +36,8 @@ public class JavaAgent {
 		JavaAgent.instrumentation = i;
 		JavaAgent.instrumentation.addTransformer(new AgentTransformer());
 
-		RequestAgent.getInstance();
+		//RequestAgent.getInstance();
+		TcpRequestMgr.getInstance();
 		AsyncRun.getInstance().add(new AgentBoot());
 	}
 
@@ -53,7 +54,8 @@ public class JavaAgent {
 		JavaAgent.instrumentation = i;
 		JavaAgent.instrumentation.addTransformer(new AgentTransformer());
 
-		RequestAgent.getInstance();
+		//RequestAgent.getInstance();
+		TcpRequestMgr.getInstance();
 		AsyncRun.getInstance().add(new LazyAgentBoot());
 	}
 

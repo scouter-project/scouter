@@ -22,7 +22,7 @@ import scouter.server.core.TextCacheReset;
 import scouter.server.netio.data.NetDataProcessor;
 import scouter.server.netio.data.net.DataUdpServer;
 import scouter.server.netio.service.ServiceHandlingProxy;
-import scouter.server.netio.service.net.ServiceServer;
+import scouter.server.netio.service.net.TcpServer;
 import scouter.server.plugin.PlugInManager;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
@@ -37,7 +37,7 @@ public class Main {
 		AccountManager.ACCOUNT_FILENAME();
 		DataUdpServer.conf();
 		ServiceHandlingProxy.load();
-		ServiceServer.conf();
+		TcpServer.conf();
 		PlugInManager.getInstance();
 		NetDataProcessor.working();
 		AutoDeleteScheduler.getInstance();

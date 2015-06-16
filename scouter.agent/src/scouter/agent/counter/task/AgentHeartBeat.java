@@ -24,9 +24,8 @@ import scouter.agent.Logger;
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
 import scouter.agent.netio.data.DataProxy;
-import scouter.agent.netio.request.net.RequestAgent;
+import scouter.agent.netio.data.net.TcpWorker;
 import scouter.lang.pack.ObjectPack;
-import scouter.net.SocketAddr;
 import scouter.util.StringKeyLinkedMap;
 
 public class AgentHeartBeat {
@@ -35,17 +34,17 @@ public class AgentHeartBeat {
 		Logger.info("objName:" + Configure.getInstance().objName);
 	}
 
-	private static StringKeyLinkedMap< ObjectPack> objects = new StringKeyLinkedMap<ObjectPack>();
+	private static StringKeyLinkedMap<ObjectPack> objects = new StringKeyLinkedMap<ObjectPack>();
 
 	public static void addObject(String objType, int objHash, String objName) {
-	    if(objName==null)
-	    	return;
-	    if(objName.equals(Configure.getInstance().objName))
-	    	return;
-	    
-	    ObjectPack old =  objects.get(objName);
-	    
-		if (old!=null && objType.equals(old.objType)) {
+		if (objName == null)
+			return;
+		if (objName.equals(Configure.getInstance().objName))
+			return;
+
+		ObjectPack old = objects.get(objName);
+
+		if (old != null && objType.equals(old.objType)) {
 			return;
 		}
 		ObjectPack p = new ObjectPack();
@@ -54,15 +53,17 @@ public class AgentHeartBeat {
 		p.objName = objName;
 		objects.put(objName, p);
 	}
+
 	@Counter
 	public void alive(CounterBasket pw) {
 		DataProxy.sendHeartBeat(getMainObject());
-		Enumeration< ObjectPack> en= objects.values();
-		while(en.hasMoreElements()){
+		Enumeration<ObjectPack> en = objects.values();
+		while (en.hasMoreElements()) {
 			DataProxy.sendHeartBeat(en.nextElement());
 		}
 	}
-	private ObjectPack getMainObject(){
+
+	private ObjectPack getMainObject() {
 		Configure conf = Configure.getInstance();
 		ObjectPack p = new ObjectPack();
 		p.objType = conf.scouter_type;
@@ -70,13 +71,10 @@ public class AgentHeartBeat {
 		p.objName = conf.objName;
 
 		p.version = Version.getAgentFullVersion();
-		SocketAddr addr = RequestAgent.getInstance().getSocketAddr();
-		if (addr != null) {
-			p.address = addr.toString();
-		}
+		p.address = TcpWorker.localAddr;
 		return p;
 	}
-	
+
 	public static void clearSubObjects() {
 		objects.clear();
 	}

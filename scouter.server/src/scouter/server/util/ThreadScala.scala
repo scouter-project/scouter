@@ -26,8 +26,8 @@ object ThreadScala {
                     try {
                         codeBlock
                     } catch {
-                        case n: NullPointerException => Logger.println("S191", 10, "@startDaemon", n)
-                        case t: Throwable => Logger.println("S192", 10, "@startDaemon: " + t)
+                        case n: NullPointerException => Logger.println("S189", 10, "@startDaemon", n)
+                        case t: Throwable => Logger.println("S190", 10, "@startDaemon: " + t)
                     }
                 }
             }
@@ -43,8 +43,8 @@ object ThreadScala {
                     try {
                         codeBlock
                     } catch {
-                        case n: NullPointerException => Logger.println("S193", 10, "@startDaemon", n)
-                        case t: Throwable => Logger.println("S194", 10, "@startDaemon: " + t)
+                        case n: NullPointerException => Logger.println("S191", 10, "@startDaemon", n)
+                        case t: Throwable => Logger.println("S192", 10, "@startDaemon: " + t)
                     }
                     ThreadUtil.sleep(interval)
                 }
@@ -60,8 +60,8 @@ object ThreadScala {
                 try {
                     codeBlock
                 } catch {
-                    case n: NullPointerException => Logger.println("S195", 10, "@start", n)
-                    case t: Throwable => Logger.println("S196", 10, "@start: " + t)
+                    case n: NullPointerException => Logger.println("S193", 10, "@start", n)
+                    case t: Throwable => Logger.println("S194", 10, "@start: " + t)
                 }
             }
         }
@@ -75,8 +75,8 @@ object ThreadScala {
                     try {
                         codeBlock
                     } catch {
-                        case n: NullPointerException => Logger.println("S197", 10, "@start", n)
-                        case t: Throwable => Logger.println("S198", 10, "@start: " + t)
+                        case n: NullPointerException => Logger.println("S195", 10, "@start", n)
+                        case t: Throwable => Logger.println("S196", 10, "@start: " + t)
                     }
                 }
             }
@@ -91,8 +91,8 @@ object ThreadScala {
                     try {
                         codeBlock
                     } catch {
-                        case n: NullPointerException => Logger.println("S199", 10, "@start", n)
-                        case t: Throwable => Logger.println("S200", 10, "@start: " + t)
+                        case n: NullPointerException => Logger.println("S197", 10, "@start", n)
+                        case t: Throwable => Logger.println("S198", 10, "@start: " + t)
                     }
                     ThreadUtil.sleep(interval)
                 }

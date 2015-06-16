@@ -70,7 +70,7 @@ object NextTagCountDB extends IClose {
   def add(data: HashMap[NextTagCountData, Array[Int]]) {
     while (isQueueOk() == false) {
       ThreadUtil.qWait();
-       Logger.println("S187", 10, "NextTagCountDB queue is exceeded");
+       Logger.println("S185", 10, "NextTagCountDB queue is exceeded");
     }
     queue.put(data);
   }

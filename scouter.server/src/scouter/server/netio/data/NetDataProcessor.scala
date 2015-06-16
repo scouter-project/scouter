@@ -67,7 +67,7 @@ object NetDataProcessor {
     def add(data: Array[Byte], addr: InetAddress) {
         val ok = queue.putNotifySingle(new NetData(data, addr));
         if (ok == false) {
-            Logger.println("S160", 10, "overflow recv queue!!");
+            Logger.println("S158", 10, "overflow recv queue!!");
         }
     }
     def process(p: NetData) {
@@ -85,7 +85,7 @@ object NetDataProcessor {
             }
         } catch {
             case e: Throwable =>
-                Logger.println("S161", 10, "invalid data ", e);
+                Logger.println("S159", 10, "invalid data ", e);
                 e.printStackTrace();
         }
     }
@@ -106,7 +106,7 @@ object NetDataProcessor {
                 sb.append(" total=").append(total);
                 sb.append(" object=(").append(objHash).append(")").append(objName);
                 sb.append(" ").append(addr);
-                Logger.println("S162", sb.toString());
+                Logger.println("S160", sb.toString());
             }
         }
     }

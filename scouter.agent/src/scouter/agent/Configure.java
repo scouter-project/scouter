@@ -72,13 +72,18 @@ public class Configure extends Thread {
 	public String local_addr = null;
 	public int local_port;
 
-	public String tcp_addr = null;
-	public int tcp_port = NetConstants.BASE_TCP_AGENT_PORT;
-	public int tcp_port_max = NetConstants.BASE_TCP_AGENT_PORT + 100;
+//	public String tcp_addr = null;
+//	public int tcp_port = NetConstants.BASE_TCP_AGENT_PORT;
+//	public int tcp_port_max = NetConstants.BASE_TCP_AGENT_PORT + 100;
 
 	public String server_addr = "127.0.0.1";
-	public int server_port = NetConstants.DATAUDP_SERVER_PORT;
+	public int server_udp_port = NetConstants.DATAUDP_SERVER_PORT;
+	public int server_tcp_port = NetConstants.SERVICE_SERVER_PORT;
+	public int server_tcp_session_count=2;
+	public int server_tcp_so_timeout=60000;
+	public int server_tcp_connection_timeout=3000;
 
+	
 	public String scouter_type = "";
 	public String scouter_name = "";
 	public String scouter_host_type = "";
@@ -283,6 +288,8 @@ public class Configure extends Thread {
 
 	long last_check = 0;
 
+
+
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
 		if (force == false && now < last_check + 3000)
@@ -379,12 +386,12 @@ public class Configure extends Thread {
 		this.local_addr = getValue("local_addr", getValue("local.addr"));
 		this.local_port = getInt("local_port", getInt("local.port", 0));
 
-		this.tcp_addr = getValue("tcp_addr", getValue("tcp.addr"));
-		this.tcp_port = getInt("tcp_port", getInt("tcp.port", NetConstants.BASE_TCP_AGENT_PORT));
-		this.tcp_port_max = getInt("tcp_port_max", getInt("tcp.port.max", this.tcp_port + 100));
-
 		this.server_addr = getValue("server_addr", getValue("server.addr", "127.0.0.1"));
-		this.server_port = getInt("server_port", getInt("server.port", NetConstants.DATAUDP_SERVER_PORT));
+		this.server_udp_port = getInt("server_udp_port", getInt("server.port", NetConstants.DATAUDP_SERVER_PORT));
+		this.server_tcp_port = getInt("server_tcp_port", getInt("server.port", NetConstants.SERVICE_SERVER_PORT));
+        this.server_tcp_session_count=getInt("server_tcp_session_count",2);
+        this.server_tcp_connection_timeout = getInt("server_tcp_connection_timeout",3000);
+        this.server_tcp_so_timeout = getInt("server_tcp_so_timeout",60000);
 
 		this.hook_signature = 0;
 		this.hook_args = getValue("hook_args", getValue("hook.args", ""));

@@ -1,26 +1,17 @@
 package scouter.agent.netio.data.net;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import scouter.agent.Configure;
-import scouter.agent.netio.request.ReqestHandlingProxy;
-import scouter.io.DataInputX;
-import scouter.io.DataOutputX;
-import scouter.lang.pack.Pack;
-import scouter.net.TcpFlag;
-import scouter.util.FileUtil;
 import scouter.util.ThreadUtil;
 
 public class TcpRequestMgr extends Thread {
 
 	private static TcpRequestMgr instance;
 
-	public synchronized TcpRequestMgr getInstance() {
+	public static synchronized TcpRequestMgr getInstance() {
 		if (instance == null) {
 			instance = new TcpRequestMgr();
 			instance.setName("SCOUTER-TCP");
@@ -30,20 +21,21 @@ public class TcpRequestMgr extends Thread {
 		return instance;
 	}
 
-	Executor pool = Executors.newFixedThreadPool(10);
-	public int CNT = 2;
+	protected Executor pool = ThreadUtil.createExecutor("SCOUTER", 10, 10, true);
 
 	@Override
 	public void run() {
+
 		while (true) {
+			int CNT = Configure.getInstance().server_tcp_session_count;
 			ThreadUtil.sleep(1000);
 			try {
-				for (int i = 0; i <CNT && TcpWorker.ACTIVE.intValue() < CNT; i++) {
+				for (int i = 0; i < CNT && TcpWorker.LIVE.intValue() < CNT; i++) {
 					TcpWorker w = new TcpWorker();
 					if (w.prepare()) {
 						pool.execute(w);
 					} else {
-						ThreadUtil.sleep(5000);
+						ThreadUtil.sleep(3000);
 					}
 				}
 			} catch (Throwable t) {

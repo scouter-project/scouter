@@ -187,7 +187,7 @@ public class TraceApiCall {
 			step.port = port;
 			return new LocalContext(ctx, step, socket);
 		} catch (Throwable t) {
-			Logger.println("A143", "socket trace error", t);
+			Logger.println("A141", "socket trace error", t);
 			return null;
 		}
 	}
@@ -227,7 +227,7 @@ public class TraceApiCall {
 				}
 			}
 		} catch (Throwable t) {
-			Logger.println("A144", "socket trace close error", t);
+			Logger.println("A142", "socket trace close error", t);
 		}
 	}
 	public static void open(File file) {

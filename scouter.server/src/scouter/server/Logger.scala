@@ -110,7 +110,7 @@ object Logger {
         }
     }
 
-    ThreadScala.startDaemon("Logger") {
+    ThreadScala.startDaemon("scouter.server.Logger") {
         var last = System.currentTimeMillis();
         while (true) {
             val now = System.currentTimeMillis();

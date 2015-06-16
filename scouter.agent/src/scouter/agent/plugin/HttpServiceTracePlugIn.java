@@ -50,7 +50,7 @@ public class HttpServiceTracePlugIn {
 					Class c = Class.forName(conf.plugin_http_trace, false, loader);
 					if (IHttpService.class.isAssignableFrom(c)) {
 						plugIn = (IHttpService) c.newInstance();
-						Logger.println("A133", c.getName());
+						Logger.println("A131", c.getName());
 					}
 				} catch (Exception e) {
 				}

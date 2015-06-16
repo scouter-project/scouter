@@ -17,10 +17,10 @@
 package scouter.client.context.actions;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
 
 import scouter.client.model.AgentDataProxy;
+import scouter.client.util.ConsoleProxy;
+import scouter.client.util.ExUtil;
 
 public class OpenCxtmenuResetCacheAction extends Action {
 	public final static String ID = OpenCxtmenuResetCacheAction.class.getName();
@@ -35,9 +35,11 @@ public class OpenCxtmenuResetCacheAction extends Action {
 	}
 
 	public void run() {
-		AgentDataProxy.resetCache(objHash, serverId);
-		MessageBox m = new MessageBox(Display.getDefault().getActiveShell());
-		m.setMessage("Reset text caches in the agent");
-		m.open();
+		ExUtil.asyncRun(new Runnable() {
+			public void run() {
+				AgentDataProxy.resetCache(objHash, serverId);
+				ConsoleProxy.infoSafe("Reset agent cache");
+			}
+		});
 	}
 }

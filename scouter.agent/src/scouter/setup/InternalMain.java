@@ -103,7 +103,7 @@ public class InternalMain {
 						loadAgent(classVM, agentjar, id, desc, option);
 					}
 				} else {
-					Logger.println("A152", "Not target : [" + id + "] " + desc);
+					Logger.println("A150", "Not target : [" + id + "] " + desc);
 				}
 			}
 		}
@@ -131,10 +131,10 @@ public class InternalMain {
 			} else {
 				Proxy.loadagent(vm, agentjar, opts);
 			}
-			Logger.println("A153", "Load agent : [" + pid + "] " + desc);
+			Logger.println("A151", "Load agent : [" + pid + "] " + desc);
 		} else {
 			String scouter_name = p.getProperty("scouter.name");
-			Logger.println("A154", "Already loaded : [" + pid + "] scouter.name=" + scouter_name + " " + desc);
+			Logger.println("A152", "Already loaded : [" + pid + "] scouter.name=" + scouter_name + " " + desc);
 		}
 		Proxy.invoke(classVM, vm, "detach");
 	}

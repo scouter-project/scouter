@@ -41,7 +41,7 @@ public class LoaderManager {
 				toolsClassLoader = new URLClassLoader(new URL[] { tools.toURI().toURL(), tempFile.toURI().toURL() },
 						null);
 			} catch (Throwable e) {
-				Logger.println("A136", e);
+				Logger.println("A134", e);
 			}
 		}
 		return toolsClassLoader;
@@ -57,7 +57,7 @@ public class LoaderManager {
 				loader = new URLClassLoader(new URL[] { tempFile.toURI().toURL() }, parent);
 				loaders.put(System.identityHashCode(parent), loader);
 			} catch (Throwable e) {
-				Logger.println("A137", "SUBLOADER " + e);
+				Logger.println("A135", "SUBLOADER " + e);
 			}
 		}
 		return loader;
@@ -70,7 +70,7 @@ public class LoaderManager {
 				loader = new URLClassLoader(new URL[] { tempFile.toURI().toURL() }, parent);
 				loaders.put(System.identityHashCode(parent), loader);
 			} catch (Throwable e) {
-				Logger.println("A138", "SUBLOADER " + e);
+				Logger.println("A136", "SUBLOADER " + e);
 			}
 		}
 		return loader;
@@ -85,7 +85,7 @@ public class LoaderManager {
 				loader = new URLClassLoader(new URL[] { tempFile.toURI().toURL() }, parent);
 				loaders.put(System.identityHashCode(parent), loader);
 			} catch (Throwable e) {
-				Logger.println("A139", "SUBLOADER " + e);
+				Logger.println("A137", "SUBLOADER " + e);
 			}
 		}
 		return loader;
@@ -109,7 +109,7 @@ public class LoaderManager {
 			}
 			return target;
 		} catch (Exception e) {
-			Logger.println("A140", "fail to deploy " + jarname);
+			Logger.println("A138", "fail to deploy " + jarname);
 			return null;
 		}
 	}
@@ -127,7 +127,7 @@ public class LoaderManager {
 				pluginClassLoader = new URLClassLoader(urls, LoaderManager.class.getClassLoader());
 			}
 		} catch (Throwable e) {
-			Logger.println("A141", e);
+			Logger.println("A139", e);
 		}
 	}
 	private static URL[] toURLS(String file) {

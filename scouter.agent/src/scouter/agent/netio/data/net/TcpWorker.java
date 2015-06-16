@@ -15,18 +15,12 @@ import scouter.lang.pack.Pack;
 import scouter.net.NetCafe;
 import scouter.net.TcpFlag;
 import scouter.util.FileUtil;
-import scouter.util.ThreadUtil;
 
 public class TcpWorker implements Runnable {
-	public static AtomicInteger ACTIVE = new AtomicInteger();
+	public static AtomicInteger LIVE = new AtomicInteger();
 
-	public String host;
-	public int port;
-	public int so_timeout = 30000;
-
-	public TcpWorker() {
-
-	}
+	public static String localAddr = null;
+	public int objHash = Configure.getInstance().objHash;
 
 	public void run() {
 		if (socket == null)
@@ -36,18 +30,28 @@ public class TcpWorker implements Runnable {
 		} catch (Throwable t) {
 		} finally {
 			FileUtil.close(socket);
-			ACTIVE.decrementAndGet();
+			socket = null;
+			LIVE.decrementAndGet();
 		}
 	}
 
 	protected Socket socket = null;
 
 	public boolean prepare() {
+		Configure conf = Configure.getInstance();
+		String host = conf.server_addr;
+		int port = conf.server_tcp_port;
+		int so_timeout = conf.server_tcp_so_timeout;
+		int connection_timeout = conf.server_tcp_connection_timeout;
+
 		socket = new Socket();
 		try {
-			socket.connect(new InetSocketAddress(host, port));
+			socket.connect(new InetSocketAddress(host, port), connection_timeout);
 			socket.setSoTimeout(so_timeout);
-			ACTIVE.incrementAndGet();
+			if (localAddr == null) {
+				localAddr = socket.getLocalAddress().getHostAddress() + ":0";
+			}
+			LIVE.incrementAndGet();
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -60,11 +64,12 @@ public class TcpWorker implements Runnable {
 		try {
 			in = new DataInputX(new BufferedInputStream(socket.getInputStream()));
 			out = new DataOutputX(new BufferedOutputStream(socket.getOutputStream()));
-			
+
 			out.writeInt(NetCafe.TCP_AGENT);
+			out.writeInt(objHash);
 			out.flush();
-		
-			while (true) {
+
+			while (objHash == Configure.getInstance().objHash) {
 				String cmd = in.readText();
 				Pack parameter = (Pack) in.readPack();
 				Pack res = ReqestHandlingProxy.process(cmd, parameter, in, out);

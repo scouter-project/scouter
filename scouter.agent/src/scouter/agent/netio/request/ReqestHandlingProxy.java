@@ -81,7 +81,7 @@ public class ReqestHandlingProxy {
 						Invocation news = new Invocation(c.newInstance(), m[i], m[i].getParameterTypes());
 						Invocation olds = handlers.get(key);
 						if (olds != null) {
-							Logger.println("A131", "Warning duplicated Handler key=" + key + " " + olds + " <-> " + news);
+							Logger.println("A129", "Warning duplicated Handler key=" + key + " " + olds + " <-> " + news);
 						}
 						handlers.put(key, news);
 					}
@@ -95,11 +95,13 @@ public class ReqestHandlingProxy {
 	}
 
 	public static Pack process(String cmd, Pack req, DataInputX in, DataOutputX out) {
+		if ("KEEP_ALIVE".equals(cmd))
+			return null;
 		Invocation handler = handlers.get(cmd);
 		if (handler != null) {
 			return handler.exec(req, in, out);
 		} else {
-			Logger.println("A132", "TCP unknown cmd=" + cmd);
+			Logger.println("A130", "TCP unknown cmd=" + cmd);
 		}
 		return null;
 	}

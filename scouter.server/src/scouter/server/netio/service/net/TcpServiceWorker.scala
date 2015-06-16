@@ -32,6 +32,7 @@ import scouter.server.LoginManager
 import scouter.server.logs.RequestLogger
 import scouter.server.netio.service.ServiceHandlingProxy
 import scouter.util.FileUtil
+import scouter.util.Hexa32
 
 object ServiceWorker {
     var workers = 0;
@@ -60,17 +61,36 @@ class ServiceWorker(_socket: Socket) extends Runnable {
 
     override def run() {
 
+        var remoteAddr = ""
         try {
+            remoteAddr = "" + socket.getRemoteSocketAddress()
+
             //READ SESSION TYPE
             val cafe = in.readInt();
             cafe match {
                 case NetCafe.TCP_AGENT =>
-                //NEW AGENT SESSION
+                    val objHash = in.readInt()
+                    TcpAgentManager.add(objHash, new TcpAgentWorker(socket, in, out))
+                    println("Agent : " + remoteAddr + " open objHash=" + Hexa32.toString32(objHash));
+                    return
                 case NetCafe.TCP_CLIENT =>
-                //NEW CLIENT SESSION
+                    println("Client : " + remoteAddr + " open");
                 case _ =>
-                // UNKNOWN SESSION 
+                    println("Who : " + remoteAddr + " open");
+                    FileUtil.close(in);
+                    FileUtil.close(out);
+                    FileUtil.close(socket);
+                    return
             }
+
+        } catch {
+            case _: Throwable =>
+                FileUtil.close(in);
+                FileUtil.close(out);
+                FileUtil.close(socket);
+                return
+        }
+        try {
 
             ServiceWorker.inc();
 
@@ -90,12 +110,13 @@ class ServiceWorker(_socket: Socket) extends Runnable {
             }
         } catch {
             case ne: NullPointerException =>
-                System.out.println("Client : " + socket.toString() + " closed");
+                println("Client : " + remoteAddr + " closed");
             case e: EOFException =>
-                System.out.println("Client : " + socket.toString() + " closed");
-            case se: SocketTimeoutException => {}
+                println("Client : " + remoteAddr + " closed");
+            case se: SocketTimeoutException =>
+                println("Client : " + remoteAddr + " closed");
             case e: Exception =>
-                System.out.println("Client : " + socket.toString() + " closed " + e + " workers=" + ServiceWorker.getActiveCount());
+                println("Client : " + remoteAddr + " closed " + e + " workers=" + ServiceWorker.getActiveCount());
             case t: Throwable => t.printStackTrace();
         } finally {
             FileUtil.close(in);

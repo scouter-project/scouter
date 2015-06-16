@@ -33,10 +33,10 @@ object ShutdownManager {
             if (instances.size() == 0) {
                 return ;
             }
-            Logger.println("S180", "Server Shutdown");
+            Logger.println("S178", "Server Shutdown");
             EnumerScala.foreach(instances.iterator(), (inst: IShutdown) => {
                 inst.shutdown();
-                Logger.println("S181", "Shutdown " + inst + " ...");
+                Logger.println("S179", "Shutdown " + inst + " ...");
             })
             instances.clear();
         }

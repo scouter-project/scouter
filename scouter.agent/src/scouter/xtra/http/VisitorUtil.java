@@ -46,7 +46,7 @@ public class VisitorUtil {
 			c.setMaxAge(Integer.MAX_VALUE);
 			res.addCookie(c);
 		} catch (Throwable t) {
-			Logger.println("A155", "VisitorUtil " + t.toString());
+			Logger.println("A153", "VisitorUtil " + t.toString());
 		}
 		return 0;
 	}
@@ -71,7 +71,7 @@ public class VisitorUtil {
 				}
 			}
 		} catch (Throwable t) {
-			Logger.println("A156", "VisitorUtil " + t.toString());
+			Logger.println("A154", "VisitorUtil " + t.toString());
 		}
 		return 0;
 	}

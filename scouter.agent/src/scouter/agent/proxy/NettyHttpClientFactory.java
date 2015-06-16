@@ -41,7 +41,7 @@ public class NettyHttpClientFactory {
 			return (IHttpClient) c.newInstance();
 		} catch (Throwable e) {
 			e.printStackTrace();
-			Logger.println("A142", "fail to create", e);
+			Logger.println("A140", "fail to create", e);
 			return dummy;
 		}
 	}

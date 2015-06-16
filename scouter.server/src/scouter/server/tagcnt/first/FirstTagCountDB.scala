@@ -64,7 +64,7 @@ object FirstTagCountDB extends IClose {
     def add(data: FirstTCData) {
         while (queue.size() >= MAX_QUE_SIZE) {
             ThreadUtil.qWait();
-            Logger.println("S185", 10, "FirstTagCountDB queue is exceeded");
+            Logger.println("S183", 10, "FirstTagCountDB queue is exceeded");
         }
         queue.put(data);
     }
