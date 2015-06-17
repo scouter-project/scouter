@@ -18,40 +18,49 @@ package scouter.server.netio.service.net
 import scouter.server.util.ThreadScala
 import scouter.util.IntKeyLinkedMap
 import scouter.util.LinkedList
+import scouter.util.RequestQueue
+import scala.util.control.Breaks._
+import scouter.server.Configure
 object TcpAgentManager {
-    val agentTable = new IntKeyLinkedMap[LinkedList[TcpAgentWorker]]().setMax(1000)
+    val agentTable = new IntKeyLinkedMap[RequestQueue[TcpAgentWorker]]().setMax(1000)
     ThreadScala.startDaemon("scouter.server.netio.service.net.TcpAgentManager", { true }, 3000) {
         val keys = agentTable.keyArray()
         for (k <- keys) {
             val lst = agentTable.get(k)
             if (lst != null) {
-                for (k <- 0 to lst.size()) {
-                    val item = lst.removeFirst()
-                    if (item != null) {
+                breakable {
+                    val cnt = lst.size()
+                    for (k <- 0 to cnt) {
+                        val item = lst.getNoWait()
+                        if (item == null) {
+                            break
+                        }
                         if (item.isExpired()) {
                             item.sendKeepAlive()
                         }
                         if (item.isClosed() == false) {
-                            lst.add(item)
+                            lst.put(item)
                         }
+
                     }
                 }
             }
         }
     }
-    def add(objHash: Int, agent: TcpAgentWorker) : Int={
+    val conf = Configure.getInstance()
+    def add(objHash: Int, agent: TcpAgentWorker): Int = {
         agentTable.synchronized {
             var session = agentTable.get(objHash)
             if (session == null) {
-                session = new LinkedList[TcpAgentWorker]();
+                session = new RequestQueue[TcpAgentWorker](50);
                 agentTable.put(objHash, session)
             }
-            session.add(agent);
+            session.put(agent);
             return session.size()
         }
     }
     def get(objHash: Int): TcpAgentWorker = {
         var session = agentTable.get(objHash)
-        return if (session != null) session.removeFirst() else null
+        return if (session != null) session.get(conf.tcp_agent_max_wait) else null
     }
 }

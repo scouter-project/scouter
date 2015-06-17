@@ -79,6 +79,8 @@ class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX) {
         FileUtil.close(in)
         FileUtil.close(out)
         FileUtil.close(socket)
-        println("Agent : " + remoteAddr + " close");
+        if(conf.debug_net){
+            println("Agent : " + remoteAddr + " close");
+        }
     }
 }

@@ -37,7 +37,13 @@ public class RequestQueue<V> {
 		}
 		return queue.removeFirst();
 	}
-
+	public synchronized V getNoWait() {
+		if(queue.size()>0){
+			return queue.removeFirst();
+		}else{
+			return null;
+		}
+	}
 	public synchronized V get(long timeout) {
 	
 		if(queue.size()>0){

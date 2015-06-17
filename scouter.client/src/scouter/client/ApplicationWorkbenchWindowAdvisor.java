@@ -266,7 +266,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor im
 
 	public void onPressedCancel() {
 		if(!finish){
-    		System.exit(1);
+    		System.exit(0);
     	}
 	}
 

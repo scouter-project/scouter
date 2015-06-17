@@ -140,7 +140,8 @@ public class Configure extends Thread {
 	public int tcp_client_so_timeout = 8000;
 	public int tcp_agent_so_timeout = 60000;
 	public int tcp_agent_keepalive = 5000;
-
+    public int tcp_agent_max_wait=1000;
+    
 	public String scouter_hostname = SysJMX.getHostName();
 	public String scouter_db = "./database";
 	public String logs_dir = "./logs";
@@ -212,6 +213,7 @@ public class Configure extends Thread {
 		this.tcp_client_so_timeout = getInt("tcp_client_so_timeout", 8000);
 		this.tcp_agent_so_timeout = getInt("tcp_agent_so_timeout", 60000);
 		this.tcp_agent_keepalive = getInt("tcp_agent_keepalive", 5000);
+		this.tcp_agent_max_wait = getInt("tcp_agent_max_wait", 1000);
 
 		this.scouter_hostname = getValue("scouter_hostname", getValue("scouter.hostname", SysJMX.getHostName()));
 		this.scouter_db = getValue("scouter_db", getValue("scouter.db", "./database"));

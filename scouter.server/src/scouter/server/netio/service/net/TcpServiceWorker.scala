@@ -22,7 +22,6 @@ import java.io.BufferedOutputStream
 import java.io.EOFException
 import java.net.Socket
 import java.net.SocketTimeoutException
-
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.net.NetCafe
@@ -33,6 +32,7 @@ import scouter.server.logs.RequestLogger
 import scouter.server.netio.service.ServiceHandlingProxy
 import scouter.util.FileUtil
 import scouter.util.Hexa32
+import scouter.server.Configure
 
 object ServiceWorker {
     var workers = 0;
@@ -58,6 +58,7 @@ class ServiceWorker(_socket: Socket) extends Runnable {
 
     val in = new DataInputX(new BufferedInputStream(socket.getInputStream()));
     val out = new DataOutputX(new BufferedOutputStream(socket.getOutputStream()));
+    val conf = Configure.getInstance()
 
     override def run() {
 
@@ -65,19 +66,24 @@ class ServiceWorker(_socket: Socket) extends Runnable {
         try {
             remoteAddr = "" + socket.getRemoteSocketAddress()
 
-            //READ SESSION TYPE
             val cafe = in.readInt();
             cafe match {
                 case NetCafe.TCP_AGENT =>
                     val objHash = in.readInt()
                     val num= TcpAgentManager.add(objHash, new TcpAgentWorker(socket, in, out))
-                    println("Agent : " + remoteAddr + " open [" + Hexa32.toString32(objHash) + "] #"+num);
+                    if(conf.debug_net){
+                         println("Agent : " + remoteAddr + " open [" + Hexa32.toString32(objHash) + "] #"+num);
+                    }
                     return
                 case NetCafe.TCP_CLIENT =>
-                    println("Client : " + remoteAddr + " open");
+                    if(conf.debug_net){
+                        println("Client : " + remoteAddr + " open #"+(ServiceWorker.getActiveCount()+1));
+                    }
                 case _ =>
-                    println("Unknown : " + remoteAddr + " drop");
-                    FileUtil.close(in);
+                   if(conf.debug_net){
+                        println("Unknown : " + remoteAddr + " drop");
+                   }
+                   FileUtil.close(in);
                     FileUtil.close(out);
                     FileUtil.close(socket);
                     return
@@ -110,13 +116,23 @@ class ServiceWorker(_socket: Socket) extends Runnable {
             }
         } catch {
             case ne: NullPointerException =>
-                println("Client : " + remoteAddr + " closed");
+                if(conf.debug_net){
+                    println("Client : " + remoteAddr + " closed");
+                    ne.printStackTrace();
+                }
             case e: EOFException =>
-                println("Client : " + remoteAddr + " closed");
+                if(conf.debug_net){
+                     println("Client : " + remoteAddr + " closed");
+                }
             case se: SocketTimeoutException =>
-                println("Client : " + remoteAddr + " closed");
+                if(conf.debug_net){
+                     println("Client : " + remoteAddr + " closed");
+                     se.printStackTrace();
+                }
             case e: Exception =>
-                println("Client : " + remoteAddr + " closed " + e + " workers=" + ServiceWorker.getActiveCount());
+                if(conf.debug_net){
+                    println("Client : " + remoteAddr + " closed " + e + " workers=" + ServiceWorker.getActiveCount());
+                }
             case t: Throwable => t.printStackTrace();
         } finally {
             FileUtil.close(in);
