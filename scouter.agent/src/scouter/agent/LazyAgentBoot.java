@@ -34,6 +34,7 @@ import scouter.agent.asm.JDBCStatementASM;
 import scouter.agent.asm.JspServletASM;
 import scouter.agent.asm.SocketASM;
 import scouter.agent.counter.CounterExecutingManager;
+import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.netio.request.ReqestHandlingProxy;
 import scouter.util.FileUtil;
 
@@ -73,6 +74,7 @@ public class LazyAgentBoot implements Runnable {
 		ReqestHandlingProxy.load();
 		
 		Configure.getInstance().printConfig();
+		TcpRequestMgr.getInstance();
 		
 		try {
 			Instrumentation instr =JavaAgent.getInstrumentation();

@@ -198,7 +198,8 @@ public class Configure extends Thread {
 	public boolean profile_fullstack_apicall_error = false;
 	public int profile_fullstack_lines = 0;
 	public long udp_collection_interval = 100;
-
+	public boolean profile_sql_escape=true;
+	
 	public String http_remote_ip_header_key = "";
 	public boolean enable_trace_e2e = false;
 	public String gxid_key = "gxid";
@@ -287,6 +288,7 @@ public class Configure extends Thread {
 
 	long last_check = 0;
 
+
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
 		if (force == false && now < last_check + 3000)
@@ -363,7 +365,8 @@ public class Configure extends Thread {
 		this.debug_socket_openstack = getBoolean("debug_socket_openstack", getBoolean("debug.socket.openstack", false));
 		this.profile_socket_openstack_port = getInt("profile_socket_openstack_port", 0);
 		this.debug_socket_openstack_port = getInt("debug_socket_openstack_port", 0);
-
+		this.profile_sql_escape = getBoolean("profile_sql_escape",true);
+		
 		this.enable_asm_jdbc = getBoolean("enable_asm_jdbc", getBoolean("enable.asm.jdbc", true));
 		this.enable_asm_httpsession = getBoolean("enable_asm_httpsession", getBoolean("enable.asm.httpsession", true));
 		this.enable_asm_socket = getBoolean("enable_asm_socket", getBoolean("enable.asm.socket", true));

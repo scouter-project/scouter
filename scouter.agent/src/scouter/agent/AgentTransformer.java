@@ -40,6 +40,7 @@ import scouter.agent.asm.MethodASM;
 import scouter.agent.asm.ScouterClassWriter;
 import scouter.agent.asm.ServiceASM;
 import scouter.agent.asm.SocketASM;
+import scouter.agent.asm.SqlMapASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncHook;
 import scouter.lang.conf.ConfObserver;
@@ -85,6 +86,8 @@ public class AgentTransformer implements ClassFileTransformer {
 			temp.add(new JDBCPreparedStatementASM());
 			temp.add(new JDBCResultSetASM());
 			temp.add(new JDBCStatementASM());
+			temp.add(new SqlMapASM());
+			
 		}
 		
 		if (conf.enable_hook_step3) {

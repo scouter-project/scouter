@@ -45,8 +45,7 @@ public class PlugXLogBuf extends Thread {
 	}
 
 	public boolean add(XLogPack p) {
-		p.endTime = System.currentTimeMillis();
-
+		
 		Object ok = queue.put(p);
 		if (ok == null) {
 			Logger.println("S177", 10, "queue exceeded!!");

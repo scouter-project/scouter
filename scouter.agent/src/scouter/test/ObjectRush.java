@@ -37,8 +37,8 @@ public class ObjectRush {
 	public static void main(String[] args) {
 		ShellArg sh = new ShellArg(args);
 		String server = sh.get("-h", "127.0.0.1");
-		String port = sh.get("-p", "6101");
-		int objNum = Integer.valueOf(sh.get("-n", "1"));
+		String port = sh.get("-p", "6100");
+		int objNum = Integer.valueOf(sh.get("-n", "20"));
 
 		System.setProperty("server.addr", server);
 		System.setProperty("server.port", port);
@@ -53,7 +53,7 @@ public class ObjectRush {
 			int objHash = HashUtil.hash(objName);
 			AgentHeartBeat.addObject(CounterConstants.JAVA, objHash, objName);
 		}
-		
+		System.out.println(objNames);
 		CounterBasket basket = new CounterBasket();
 		int count = 0;
 		while (true) {

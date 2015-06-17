@@ -170,6 +170,8 @@ public class TraceSQL {
 	private static IntKeyLinkedMap<ParsedSql> checkedSql = new IntKeyLinkedMap<ParsedSql>().setMax(1001);
 
 	private static String escapeLiteral(String sql, SqlStep step) {
+		if(conf.profile_sql_escape==false)
+			return sql;
 		int sqlHash = sql.hashCode();
 		if (noLiteralSql.contains(sqlHash)) {
 			return sql;
@@ -544,6 +546,17 @@ public class TraceSQL {
 		}
 
 		ctx.profile.add(p);
+	}
+	
+	public static void sqlMap(String methodName, String sqlname){
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null)
+			return;
+		MessageStep p = new MessageStep();
+		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		p.message = new StringBuffer(40).append("SQLMAP ").append(methodName).append(" { ").append(sqlname).append(" }").toString();
+		ctx.profile.add(p);
+
 	}
 
 }

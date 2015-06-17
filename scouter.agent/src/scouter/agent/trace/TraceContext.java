@@ -83,6 +83,7 @@ public class TraceContext {
 	public long caller;
 	public long callee;
 
+
 //	public void checkConcurrentProfiling(){
 //		if(this.profile.getClass()!=ConcurrentProfileCollector.class){
 //			this.profile = new ConcurrentProfileCollector(this.profile);

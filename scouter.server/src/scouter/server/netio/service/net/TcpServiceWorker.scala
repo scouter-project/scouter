@@ -76,7 +76,7 @@ class ServiceWorker(_socket: Socket) extends Runnable {
                 case NetCafe.TCP_CLIENT =>
                     println("Client : " + remoteAddr + " open");
                 case _ =>
-                    println("Who : " + remoteAddr + " open");
+                    println("Unknown : " + remoteAddr + " drop");
                     FileUtil.close(in);
                     FileUtil.close(out);
                     FileUtil.close(socket);

@@ -43,9 +43,9 @@ public class TpsRush {
 		String server = sh.get("-h", "127.0.0.1");
 		String port = sh.get("-p", "6100");
 
-		int tps =CastUtil.cint(sh.get("-tps","4000"));
-		String type = sh.get("-type", "tomcat");
-		String name = sh.get("-name", "tomcat"+SysJMX.getProcessPID());
+		int tps =CastUtil.cint(sh.get("-tps","1000"));
+		String type = sh.get("-type", "java");
+		String name = sh.get("-name", "java"+SysJMX.getProcessPID());
 		System.setProperty("scouter_type", type);
 		System.setProperty("scouter_name", name);
 		
