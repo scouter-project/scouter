@@ -36,8 +36,9 @@ public class Boot {
 		URLClassLoader classloader = new URLClassLoader(jarfiles, Boot.class.getClassLoader());
 		Thread.currentThread().setContextClassLoader(classloader);
 
+		String mainClass = System.getProperty("main","scouter.server.Main");
 		try {
-			Class c = Class.forName("scouter.server.Main", true, classloader);
+			Class c = Class.forName(mainClass, true, classloader);
 			Class[] argc = { String[].class };
 			Object[] argo = { args };
 			java.lang.reflect.Method method = c.getDeclaredMethod("main", argc);
