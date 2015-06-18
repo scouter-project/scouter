@@ -310,7 +310,7 @@ public class LoginDialog {
 			String ip = null;
 			String port = null;
 			if (address.contains(":") == false) {
-				address = address.concat(":" + NetConstants.SERVICE_SERVER_PORT);
+				address = address.concat(":" + NetConstants.DATATCP_SERVER_PORT);
 			}
 			String addr[] = address.split(":");
 			ip = addr[0];

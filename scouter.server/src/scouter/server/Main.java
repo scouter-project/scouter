@@ -14,7 +14,10 @@
  *  limitations under the License. 
  */
 package scouter.server;
+
 import java.io.File;
+import java.io.IOException;
+
 import scouter.Version;
 import scouter.server.account.AccountManager;
 import scouter.server.core.AutoDeleteScheduler;
@@ -24,11 +27,14 @@ import scouter.server.netio.data.net.DataUdpServer;
 import scouter.server.netio.service.ServiceHandlingProxy;
 import scouter.server.netio.service.net.TcpServer;
 import scouter.server.plugin.PlugInManager;
+import scouter.server.term.TermMain;
+import scouter.util.ShellArg;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 import scouter.util.logo.Logo;
+
 public class Main {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, Exception {
 		Logo.print(true);
 		Logger.println("Scouter Server Version " + Version.getServerFullVersion());
 		Logo.print(Logger.pw(), true);
@@ -46,31 +52,39 @@ public class Main {
 				ShutdownManager.shutdown();
 			}
 		});
-		File exit = new File(SysJMX.getProcessPID() + ".scouter");
-		try {
-			exit.createNewFile();
-		} catch (Exception e) {
-			String tmp = System.getProperty("user.home", "/tmp");
-			exit = new File(tmp, SysJMX.getProcessPID() + ".scouter.run");
+		TextCacheReset.engine();
+
+		ShellArg sarg = new ShellArg(args);
+		if (sarg.hasKey("-console")) {
+			TermMain.process(sarg);
+		} else {
+			File exit = new File(SysJMX.getProcessPID() + ".scouter");
 			try {
 				exit.createNewFile();
-			} catch (Exception k) {
-				System.exit(1);
+			} catch (Exception e) {
+				String tmp = System.getProperty("user.home", "/tmp");
+				exit = new File(tmp, SysJMX.getProcessPID() + ".scouter.run");
+				try {
+					exit.createNewFile();
+				} catch (Exception k) {
+					System.exit(1);
+				}
 			}
-		}
-		exit.deleteOnExit();
-		TextCacheReset.engine();
-		System.out.println("System JRE version : " + System.getProperty("java.version"));
-		System.out.println("This product includes GeoLite data created by MaxMind, available from");
-		System.out.println("http://www.maxmind.com");
-		System.out.println("download:  http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz");
-		System.out.println("add configure:  geoip_data_city=<download path>/GeoLiteCity.dat");
-		while (true) {
-			if (exit.exists() == false) {
-				ShutdownManager.shutdown();
-				System.exit(0);
+			exit.deleteOnExit();
+
+			System.out.println("System JRE version : " + System.getProperty("java.version"));
+			System.out.println("This product includes GeoLite data created by MaxMind, available from");
+			System.out.println("http://www.maxmind.com");
+			System.out.println("download:  http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz");
+			System.out.println("add configure:  geoip_data_city=<download path>/GeoLiteCity.dat");
+
+			while (true) {
+				if (exit.exists() == false) {
+					ShutdownManager.shutdown();
+					System.exit(0);
+				}
+				ThreadUtil.sleep(1000);
 			}
-			ThreadUtil.sleep(1000);
 		}
 	}
 }

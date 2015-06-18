@@ -136,7 +136,7 @@ public class Configure extends Thread {
 
 	public String dataudp_host = "0.0.0.0";
 	public int dataudp_port = NetConstants.DATAUDP_SERVER_PORT;
-	public int tcp_port = NetConstants.SERVICE_SERVER_PORT;
+	public int tcp_port = NetConstants.DATATCP_SERVER_PORT;
 	public int tcp_client_so_timeout = 8000;
 	public int tcp_agent_so_timeout = 60000;
 	public int tcp_agent_keepalive = 5000;
@@ -209,7 +209,7 @@ public class Configure extends Thread {
 
 		this.dataudp_host = getValue("dataudp_host", getValue("dataudp.host", "0.0.0.0"));
 		this.dataudp_port = getInt("dataudp_port", NetConstants.DATAUDP_SERVER_PORT);
-		this.tcp_port = getInt("tcp_port", NetConstants.SERVICE_SERVER_PORT);
+		this.tcp_port = getInt("tcp_port", NetConstants.DATATCP_SERVER_PORT);
 		this.tcp_client_so_timeout = getInt("tcp_client_so_timeout", 8000);
 		this.tcp_agent_so_timeout = getInt("tcp_agent_so_timeout", 60000);
 		this.tcp_agent_keepalive = getInt("tcp_agent_keepalive", 5000);
