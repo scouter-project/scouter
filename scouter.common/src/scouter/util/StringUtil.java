@@ -26,6 +26,16 @@ import java.util.StringTokenizer;
 
 public class StringUtil {
 
+	public static String firstWord(String target, String delim){
+		if (target == null || target.length() == 0) {
+			return "";
+		}
+		StringTokenizer nizer = new StringTokenizer(target, delim);
+		while (nizer.hasMoreTokens()) {
+			return trimEmpty(nizer.nextToken());
+		}
+		return "";
+	}
 	public static String[] tokenizer(String target, String delim) {
 		if (target == null || target.length() == 0) {
 			return null;

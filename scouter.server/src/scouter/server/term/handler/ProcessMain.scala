@@ -31,19 +31,20 @@ import scouter.lang.counters.CounterConstants
 import scouter.lang.counters.CounterEngine
 
 object ProcessMain {
+    var loopProcess = 1
 
     def process(cmd: String): Unit = {
+        loopProcess += 1
 
-        PerfCounter.loopProcess += 1
-
-        if (cmd == "help") return Help.help(cmd)
-        if (cmd == "quit") return Help.quit()
-        if (cmd startsWith "objtypes") return objType()
-        if (cmd startsWith "objects") return objectList(cmd)
-        if (cmd startsWith "counters") return counterList(cmd)
-        if (cmd.indexOf("|") > 0) return PerfCounter.process(cmd)
-        
-        Help.help(cmd)
+        StringUtil.firstWord(cmd, " ") match {
+            case "help" => return Help.help(cmd)
+            case "quit" => return Help.quit()
+            case "objtypes" => return objType()
+            case "objects" => return objectList(cmd)
+            case "counters" => return counterList(cmd)
+            case "REALTIME" => return REALTIME.process(cmd.substring("REALTIME".length()).trim())
+            case _ => return Help.help(cmd)
+        }
     }
 
     val counterEng = scouter.server.CounterManager.getInstance().getCounterEngine();
