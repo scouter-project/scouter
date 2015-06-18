@@ -118,7 +118,7 @@ object AgentManager {
                 }
                 procObjName(objPack);
                 ObjectWR.add(objPack);
-                Logger.println("S105","Update " + objPack);
+                Logger.println("S105", "Update " + objPack);
             }
         }
     }
@@ -233,6 +233,24 @@ object AgentManager {
         }
         return agents;
     }
+    def filter(word: String): List[Int] = {
+        if ("*".equals(word)) return getLiveObjHashList()
+        if (isObjType(word) == true) {
+            return getObjHashList(word)
+        } else {
+            val agents = new ArrayList[Int]();
+            val itr = objMap.objects();
+            while (itr.hasMoreElements()) {
+                val a = itr.nextElement();
+                if (a.objName.indexOf(word) >= 0) {
+                    agents.add(a.objHash);
+                }
+            }
+            return agents;
+        }
+    }
+    private def isObjType(word: String) = objMap.getTypeObjects(word) != null
+
     def getObjPacks(): Enumeration[ObjectPack] = {
         return objMap.objects();
     }
