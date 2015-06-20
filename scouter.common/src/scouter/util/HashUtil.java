@@ -92,4 +92,8 @@ public class HashUtil {
 				+ ((buf[6] & 255) << 8) //
 		+ ((buf[7] & 255) << 0));
 	}
+	public static void main(String[] args) {
+		System.out.println(hash("hello world"));
+		System.out.println(hash("**&^%hello world"));
+	}
 }

@@ -75,11 +75,12 @@ object NetDataProcessor {
             val in = new DataInputX(p.data);
             val cafe = in.readInt();
             cafe match {
-                case NetCafe.UDP_JAVA => processJava(in, p.addr);
-                case NetCafe.UDP_NODE => processJava(in, p.addr);
-                case NetCafe.UDP_JAVAN => processJavaN(in, p.addr);
-                case NetCafe.UDP_NODEN => processJavaN(in, p.addr);
-                case NetCafe.UDP_JMTU => processJavaMTU(in, p.addr);
+                case NetCafe.UDP_CAFE => processCafe(in, p.addr);
+                case NetCafe.UDP_JAVA => processCafe(in, p.addr);
+                case NetCafe.UDP_NODE => processCafe(in, p.addr);
+                case NetCafe.UDP_JAVAN => processCateN(in, p.addr);
+                case NetCafe.UDP_NODEN => processCateN(in, p.addr);
+                case NetCafe.UDP_JMTU => processCafeMTU(in, p.addr);
                 case _ =>
                     System.out.println("Receive unknown data, length=" + BytesUtil.getLength(p.data) + " from " + p.addr);
             }
@@ -89,7 +90,7 @@ object NetDataProcessor {
                 e.printStackTrace();
         }
     }
-    private def processJavaMTU(in: DataInputX, addr: InetAddress) {
+    private def processCafeMTU(in: DataInputX, addr: InetAddress) {
         val objHash = in.readInt();
         val pkid = in.readLong();
         val total = in.readShort();
@@ -110,11 +111,11 @@ object NetDataProcessor {
             }
         }
     }
-    private def processJava(in: DataInputX, addr: InetAddress) {
+    private def processCafe(in: DataInputX, addr: InetAddress) {
         val p = in.readPack();
         process(p, addr);
     }
-    private def processJavaN(in: DataInputX, addr: InetAddress) {
+    private def processCateN(in: DataInputX, addr: InetAddress) {
         val n = in.readShort();
         for (i <- 1 to n) {
             val p = in.readPack();

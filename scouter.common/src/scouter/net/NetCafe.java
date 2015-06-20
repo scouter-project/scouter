@@ -21,6 +21,7 @@ import scouter.io.DataInputX;
 
 public class NetCafe {
 	public final static int CAFE_LENGTH = 4;
+	public final static byte[] CAFE = "CAFE".getBytes();
 	public final static byte[] JAVA = "JAVA".getBytes();
 	public final static byte[] JAVAN = "JAVN".getBytes();
 	public final static byte[] JS01 = "JS01".getBytes();
@@ -28,6 +29,7 @@ public class NetCafe {
 	public final static byte[] NODEN = "NODN".getBytes(); 
 	public final static byte[] JMTU = "JMTU".getBytes();
 	//
+	public final static int UDP_CAFE = 0x43414645;
 	public final static int UDP_JAVA = 0x4a415641;
 	public final static int UDP_JAVAN = 0x4a41564e;
 	public final static int UDP_NODE = 0x4e4f4445;
@@ -41,6 +43,7 @@ public class NetCafe {
 	
 	public static void main(String[] args) {
 		
+		System.out.println("CAFE = 0x" +Integer.toHexString(DataInputX.toInt(CAFE, 0)));
 		System.out.println("JAVA = 0x" +Integer.toHexString(DataInputX.toInt(JAVA, 0)));
 		System.out.println("JAVAN = 0x" +Integer.toHexString(DataInputX.toInt(JAVAN, 0)));
 		System.out.println("NODE = 0x" +Integer.toHexString(DataInputX.toInt(NODE, 0)));
