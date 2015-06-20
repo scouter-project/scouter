@@ -90,13 +90,14 @@ def process(pack, default_interval=2):
 
 
 def help():
-    helpText = """scouter_host.py [-h host] [-p port] [-d] [--help]
-    -h   host : hostname or ip 
-    -p   port : port
-    -d        : debug
-    --help    : help
+    helpText = """hostperf.py [--host host] [--port port] [--debug] [--help]
+    --host    host : hostname or ip (127.0.0.1)
+    --port    port : port (6100)
+    --debug        : debug
+    --help         : help
     """
     print helpText
+    sys.exit()
     
 server_ip = "127.0.0.1"
 server_port = 6100 
@@ -109,15 +110,15 @@ def init(args):
     global server_port
      
     logo()
-    opts, args = getopt.getopt(args, 'h:p:d', ['help'])
+    opts, args = getopt.getopt(args, "h", ["host=","port=","debug","help"])
     for opt in opts:
-        if opt[0] == "--help":
+        if opt[0] == "--help" or opt[0] == "-h":
             help()
-        elif opt[0] == "-h": 
+        elif opt[0] == "--host": 
             server_ip = opt[1]
-        elif opt[0] == "-p":
+        elif opt[0] == "--port":
             server_port = int(opt[1])
-        elif opt[0] == "-d":
+        elif opt[0] == "--debug":
             debug = True
 
 def h_ignore(param):

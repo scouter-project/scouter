@@ -90,7 +90,6 @@ def startReqHandler(host, port, handlers):
                      BRUN=False
 
         except:
-            print 'fail to connect TCP '+localAddr   
             time.sleep(5)
             pass
     

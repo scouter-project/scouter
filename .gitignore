@@ -2,7 +2,10 @@ scouter.agent/bin/*
 scouter.client/bin/*
 scouter.common/bin/*
 scouter.server/bin/*
-scouter.deploy/*
+scouter.deploy/lib
+scouter.deploy/out
+scouter.deploy/*.xml
 */.cache
 */.svn
 scouter.client/lib/scouter.common.jar
+*.pyc
