@@ -12,8 +12,7 @@ c:\python27\python scouter.py
 # Linux
 ##########################################################
 python2.6, 2.7
-
-<<Prerequisite>>
+### Prerequisite
   gcc, python-header
   * CentOS, RHEL, Fedora
      sudo yum install gcc
@@ -22,8 +21,8 @@ python2.6, 2.7
      sudo apt-get install gcc
      sudo apt-get install python-dev
      
-<<Python Lib. to need>>
-1. psutil (host agent)
+### Python Lib. to need
+-  psutil (host agent)
 //  wget https://bootstrap.pypa.io/ez_setup.py -O - | python   ( Setuptools : not last version)
 //  https://pypi.python.org/packages/source/p/psutil/psutil-2.1.1.tar.gz (Recommended)
 //  or
@@ -32,7 +31,7 @@ python2.6, 2.7
 //  python setup.py install
 
   
-<<Executable file : Pyinstaller>>
+### Executable file : Pyinstaller
     1. Install setuptools : sudo wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -O - | python   ( Setuptools 최신버전 설치 금지)
     2. Download pyinstaller 
         wget --no-check-certificate https://pypi.python.org/packages/source/P/PyInstaller/PyInstaller-2.1.tar.gz
