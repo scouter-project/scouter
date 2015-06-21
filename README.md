@@ -48,7 +48,7 @@ SCOUTER is just simple. This configuration is simple.It will quickly provide the
 - Key features such as Response-distribution, Active-service, Tag-count analysis are provided to  users.
 
 ### License
-Licensed under the Apache License, Version 2.0 (the "License");
+Licensed under the Apache License, Version 2.0
 
 ### Using Components & Icons
 - This product includes GeoLite data created by MaxMind, available from
