@@ -19,9 +19,14 @@ If you use a Tomcat, SCOUTER will be the best choice to monitor it.
 Scouter has three modules:
 
 - Agent : gather performance information and send  to the server
- - **ASM** :  using ASM library of OW2  (http://asm.ow2.org/) for BCI(byte code instrumentation)
- - **Tools.jar** : Java thread dumps, heap dumps, heap histograms, and the other powerful features provided by the JVM as the default.
- - **JMX** :  CPU & MEM 
+ - Tomcat Agent : Performance for JVM & Tomcat 
+   - **ASM** :  using ASM library of OW2  (http://asm.ow2.org/) for BCI(byte code instrumentation)
+   - **Tools.jar** : Java thread dumps, heap dumps, heap histograms, and the other powerful features provided by the JVM as the default.
+   - **JMX** :  Some counters for Tomcat & JVM such as GC Count, GC Times etc 
+ - Linux Agent : Performance for Linux, Window and OSX
+   - PSUtil(https://github.com/giampaolo/psutil) : A cross-platform process and system utilities module for Python
+   - Counters : Cpu, Memory, Disk, Network
+ - MariaDB Agent : [to be announced]
 
 - Server : received the data from agent and it stores the data. The data is serviced to clients.
   - SCALA : developed by Scala. It will provide a variety of features and performance scalability that can not be written in Java.
