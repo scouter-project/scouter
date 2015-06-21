@@ -39,7 +39,6 @@ public class OpenCxtmenuEnvAction extends Action {
 		this.objHash = objHash;
 		this.serverId = serverId;
 		setText(label);
-		setImageDescriptor(ImageUtil.getImageDescriptor(Images.box));
 	}
 
 	public void run() {

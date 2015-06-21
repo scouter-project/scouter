@@ -40,7 +40,7 @@ rdsbrd : Redis Board
 			<Counter name="DropIn" disp="Net | Drop In" unit="cnt" icon="drop.png" />
 		</Family>
 		<Family name="javaee" master="ActiveService" txreal="true"  txload="true" totactsp="true"  acteq="true"  actthrli="true" dservcnt="true" tdservcnt="true" svcgrp="true" srcxlog="true">
-			<Counter name="visit5m" disp="Visitor" unit="cnt" icon="visitor.png" />
+			<Counter name="visit5m" disp="Visitor5M" unit="cnt" icon="visitor.png" />
 			<Counter name="HeapTotUsage" disp="Heap Total Usage" unit="MB" icon="memory.png" all="false" total="false"  />
 			<Counter name="GcCount" disp="GC Count" unit="cnt" icon="gc.png" />
 			<Counter name="ServiceCount" disp="Service Count" unit="cnt" icon="service_count.png" />
@@ -49,7 +49,6 @@ rdsbrd : Redis Board
 			<Counter name="ElapsedTime" disp="Elapsed Time" unit="ms" icon="time.png" />
 			<Counter name="ActiveService" disp="Active Service" unit="cnt" icon="act_service.png" />
 			<Counter name="GcTime" disp="GC Time" unit="ms" icon="gc.png" />
-			<Counter name="visit0" disp="Visitor New" unit="cnt" icon="visitor.png" />
 			<Counter name="TPS" disp="TPS" unit="tps" 	icon="transaction.png" />
 			<Counter name="CpuTime" disp="CpuTime" unit="ms"  icon="cpu.png" />
 		</Family>

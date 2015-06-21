@@ -48,7 +48,7 @@ public class OpenXLogRealTimeAction extends Action {
 	public void run() {
 		if (window != null) {
 			try {
-				window.getActivePage().showView(XLogRealTimeView.ID, objType+"&"+serverId,
+				window.getActivePage().showView(XLogRealTimeView.ID, serverId+"&"+objType,
 						IWorkbenchPage.VIEW_ACTIVATE);
 			} catch (PartInitException e) {
 				MessageDialog.openError(window.getShell(), "Error", "Error opening view:" + e.getMessage());

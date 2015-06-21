@@ -32,14 +32,9 @@ public class CountingVisitor {
 		PerfCounterPack p = pw.getPack(TimeTypeEnum.REALTIME);
 		
 		int visit5m =VisitMeter.getVisitors();
-		int visit0=VisitMeter.getNewVisitors();
 		p.put(CounterConstants.WAS_VISIT_5M, new DecimalValue(visit5m));
-		p.put(CounterConstants.WAS_VISIT0, new DecimalValue(visit0));
 
 		p = pw.getPack(TimeTypeEnum.FIVE_MIN);
 		p.put(CounterConstants.WAS_VISIT_5M, new DecimalValue(visit5m));
-		p.put(CounterConstants.WAS_VISIT0, new DecimalValue(visit0));
-		//System.out.println(" visit5m="+visit5m + " visit0="+visit0 );
-
 	}
 }
