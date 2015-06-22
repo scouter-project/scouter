@@ -9,3 +9,4 @@ scouter.deploy/*.xml
 */.svn
 scouter.client/lib/scouter.common.jar
 *.pyc
+Thumbs.db
