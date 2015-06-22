@@ -72,10 +72,12 @@ class XLogLoopCache[V](capacity: Int) {
     }
 
     def copy(buff: List[V], _from: Int, _to: Int, time: Int) {
-        for (i <- _from to _to - 1) {
+        var i = _from
+        while (i < _to) {
             if (queue(i) != null && (elapsed(i) >= time || error(i) == true)) {
                 buff.add(queue(i).asInstanceOf[V]);
             }
+            i += 1
         }
     }
 
@@ -105,12 +107,14 @@ class XLogLoopCache[V](capacity: Int) {
     }
 
     private def copy(objHashSet: IntSet, buff: List[V], _from: Int, _to: Int, time: Int) {
-        for (i <- _from to _to - 1) {
+        var i = _from
+        while (i < _to) {
             if (objHashSet == null || objHashSet.contains(objHashTable(i))) {
                 if (queue(i) != null && (elapsed(i) >= time || error(i) == true)) {
                     buff.add(queue(i).asInstanceOf[V]);
                 }
             }
+            i += 1
         }
     }
 

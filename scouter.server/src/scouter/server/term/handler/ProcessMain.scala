@@ -36,13 +36,14 @@ object ProcessMain {
     def process(cmd: String): Unit = {
         loopProcess += 1
 
-        StringUtil.firstWord(cmd, " ") match {
+        StringUtil.firstWord(cmd, " ").toLowerCase() match {
             case "help" => return Help.help(cmd)
             case "quit" => return Help.quit()
             case "objtypes" => return objType()
             case "objects" => return objectList(cmd)
             case "counters" => return counterList(cmd)
-            case "REALTIME" => return REALTIME.process(cmd.substring("REALTIME".length()).trim())
+            case "realtime" => return REALTIME.process(cmd.substring("realtime".length()).trim())
+            case "xlog" => return XLOG.process(cmd.substring("xlog".length()).trim())
             case _ => return Help.help(cmd)
         }
     }

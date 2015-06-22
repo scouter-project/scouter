@@ -80,7 +80,7 @@ object REALTIME {
             EnumerScala.foreach(objHashList.iterator(), (objHash: Int) => {
                 val c = CounterCache.get(new CounterKey(objHash, counterName, TimeTypeEnum.REALTIME));
                 val objName = AgentManager.getAgentName(objHash)
-                println(tm + " " + AnsiPrint.blue(objName) + " " + FormatUtil.print(c, format))
+                println(tm + " " + AnsiPrint.blue(objName) + " " +( if(c==null) "null" else FormatUtil.print(c, format)))
             })
             return
         }

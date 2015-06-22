@@ -179,10 +179,10 @@ public class AgentModelThread extends Thread {
 		return set;
 	}
 	
-	public ListValue getObjHashLV(int serverId, String objType) {
+	public ListValue getLiveObjHashLV(int serverId, String objType) {
 		ListValue lv = new ListValue();
 		for (AgentObject obj : agentMap.values()) {
-			if (serverId == obj.getServerId() && objType.equals(obj.getObjType()) ) {
+			if (serverId == obj.getServerId() && obj.isAlive() && objType.equals(obj.getObjType()) ) {
 				lv.add(obj.objHash);
 			}
 		}

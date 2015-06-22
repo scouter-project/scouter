@@ -153,7 +153,7 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 		setDate(DateUtil.yyyymmdd(TimeUtil.getCurrentTime(serverId)));
 		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
 		try {
-			param.put("objHash", agentThread.getObjHashLV(serverId, objType));
+			param.put("objHash", agentThread.getLiveObjHashLV(serverId, objType));
 			int limit = PManager.getInstance().getInt(PreferenceConstants.P_XLOG_IGNORE_TIME);
 			param.put("limit", limit);
 		
@@ -195,7 +195,7 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 			param.put("date", DateUtil.yyyymmdd(stime));
 			param.put("stime", stime);
 			param.put("etime", etime);
-			param.put("objHash", agentThread.getObjHashLV(serverId, objType));
+			param.put("objHash", agentThread.getLiveObjHashLV(serverId, objType));
 			param.put("reverse", new BooleanValue(reverse));
 			int limit = PManager.getInstance().getInt(PreferenceConstants.P_XLOG_IGNORE_TIME);
 			if (limit > 0) {
