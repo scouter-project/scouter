@@ -47,6 +47,7 @@ SCOUTER is just simple. This configuration is simple.It will quickly provide the
 
 ### Documents
  - [Getting Started](../../wiki/Getting-Started) wiki page.
+ - [Setup FAQ](../../wiki/Setup-FAQ) wiki page.
 
 ### License
 Licensed under the Apache License, Version 2.0
