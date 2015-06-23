@@ -39,21 +39,27 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.WorkbenchPage;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
 import scouter.client.model.AgentDataProxy;
+import scouter.client.model.DetachedManager;
 import scouter.client.model.RefreshThread;
 import scouter.client.model.RefreshThread.Refreshable;
 import scouter.client.model.TextProxy;
@@ -63,6 +69,7 @@ import scouter.client.sorter.TableLabelSorter;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
+import scouter.client.util.ScouterUtil;
 import scouter.lang.counters.CounterEngine;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
@@ -344,7 +351,7 @@ public class ObjectActiveServiceListView extends ViewPart implements Refreshable
 	}
 
 	public void setFocus() {
-		
+		ScouterUtil.detachView(this);
 	}
 
 	enum ColumnEnum {

@@ -43,6 +43,7 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
@@ -50,15 +51,15 @@ import scouter.client.net.TcpProxy;
 import scouter.client.sorter.ColumnLabelSorter;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
-import scouter.client.util.TimeUtil;
 import scouter.client.util.ScouterUtil;
+import scouter.client.util.TimeUtil;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 
-public class ObjectDumpFileListView extends ScouterViewPart {
+public class ObjectDumpFileListView extends ViewPart {
 
 	public static final String ID = ObjectDumpFileListView.class.getName();
 
@@ -308,5 +309,8 @@ public class ObjectDumpFileListView extends ScouterViewPart {
 			return this.isNumber;
 		}
 	}
-
+	
+	public void setFocus() {
+		ScouterUtil.detachView(this);
+	}
 }

@@ -69,16 +69,7 @@ public class PerspectiveService implements IPerspectiveFactory  {
 		eqLayout.addView(EQView.ID + ":" + serverId +"&"+ objType); // 1
 		
 		IFolderLayout xlogTopLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_CENTER_TOP, IPageLayout.LEFT, 1f, editorArea);
-		xlogTopLayout.addPlaceholder(XLogProfileView.ID + ":*");
-		xlogTopLayout.addPlaceholder(ObjectThreadDetailView.ID + ":*");
 		xlogTopLayout.addView(XLogRealTimeView.ID + ":" + serverId + "&" + objType);
-		
-		IPlaceholderFolderLayout xlogLayout = layout.createPlaceholderFolder(IConstants.LAYOUT_WASSERVICE_CENTER, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_CENTER_TOP);
-		xlogLayout.addPlaceholder(XLogSelectionView.ID + ":*");
-		xlogLayout.addPlaceholder(ObjectActiveServiceListView.ID + ":*");
-		xlogLayout.addPlaceholder(XLogDependencyView.ID + ":*");
-		xlogLayout.addPlaceholder(XLogZoomTimeView.ID + ":*");
-
 		layout.addPerspectiveShortcut(getId());
 	}
 	

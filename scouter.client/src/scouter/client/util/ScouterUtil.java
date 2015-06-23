@@ -43,13 +43,19 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.internal.WorkbenchPage;
+import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
 import scouter.client.constants.MenuStr;
 import scouter.client.group.GroupManager;
 import scouter.client.model.AgentModelThread;
 import scouter.client.model.AgentObject;
+import scouter.client.model.DetachedManager;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.io.DataInputX;
@@ -575,5 +581,19 @@ public class ScouterUtil {
 		int exp = (int) (Math.log(bytes) / Math.log(unit));
 		String pre = "KMGTPE".charAt(exp - 1) + (si ? "" : "i");
 		return String.format("%.1f %s", bytes / Math.pow(unit, exp), pre);
+	}
+	
+	public static void detachView(ViewPart part) {
+		String id = part.getViewSite().getId();
+		String secId = part.getViewSite().getSecondaryId();
+		if (DetachedManager.getInstance().isInitialView(id, secId)) {
+			DetachedManager.getInstance().registerOpend(id, secId);
+			IViewReference ref = part.getSite().getPage().findViewReference(id, secId);
+			if (ref == null) return;
+			((WorkbenchPage) part.getSite().getPage()).getActivePerspective().getPresentation().detachPart(ref); 
+//			Monitor primaryMonitor = Display.getDefault().getPrimaryMonitor();
+//			Rectangle bounds = primaryMonitor.getBounds();
+//			part.getViewSite().getShell().setSize(bounds.width / 2, bounds.height / 2);
+		}
 	}
 }

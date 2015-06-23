@@ -46,13 +46,13 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
-import scouter.util.StringUtil;
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
 import scouter.client.sorter.ColumnLabelSorter;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
+import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
@@ -235,7 +235,7 @@ public class HeapHistoView extends ViewPart {
 	}
 	
 	public void setFocus() {
-		
+		ScouterUtil.detachView(this);
 	}
 	
 	public void load() {

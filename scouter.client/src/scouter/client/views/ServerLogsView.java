@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
 import scouter.client.net.TcpProxy;
@@ -70,7 +71,7 @@ import scouter.lang.value.ValueEnum;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 
-public class ServerLogsView extends ScouterViewPart {
+public class ServerLogsView extends ViewPart {
 
 	public static final String ID = ServerLogsView.class.getName();
 

@@ -38,15 +38,20 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.internal.WorkbenchPage;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
+import scouter.client.model.DetachedManager;
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
 import scouter.client.server.Server;
@@ -54,6 +59,7 @@ import scouter.client.server.ServerManager;
 import scouter.client.sorter.TableLabelSorter;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.ImageUtil;
+import scouter.client.util.ScouterUtil;
 import scouter.client.xlog.actions.OpenXLogProfileJob;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
@@ -117,9 +123,9 @@ public class XLogSelectionView extends ViewPart {
 		setPartName(objTypeDisplay + " - " + "XLog List");
 		viewer.setInput(xperfData);
 	}
-
+	
 	public void setFocus() {
-
+		ScouterUtil.detachView(this);
 	}
 	
 	ArrayList<XLogColumnEnum> columnList = new ArrayList<XLogColumnEnum>();

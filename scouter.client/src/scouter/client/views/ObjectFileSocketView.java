@@ -31,6 +31,7 @@ import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
+import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.lang.pack.MapPack;
 import scouter.net.RequestCmd;
@@ -125,7 +126,7 @@ public class ObjectFileSocketView extends ViewPart {
 	}
 
 	public void setFocus() {
-
+		ScouterUtil.detachView(this);
 	}
 
 }

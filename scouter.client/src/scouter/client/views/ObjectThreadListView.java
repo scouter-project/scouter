@@ -27,26 +27,31 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.WorkbenchPage;
 import org.eclipse.ui.part.ViewPart;
 
-import scouter.util.StringUtil;
 import scouter.client.Images;
 import scouter.client.model.AgentDataProxy;
+import scouter.client.model.DetachedManager;
 import scouter.client.model.RefreshThread;
 import scouter.client.model.RefreshThread.Refreshable;
 import scouter.client.util.ChartUtil;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
+import scouter.client.util.ScouterUtil;
 import scouter.client.util.SortUtil;
 import scouter.client.util.UIUtil;
 import scouter.client.util.UIUtil.ViewWithTable;
@@ -54,6 +59,7 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.util.CastUtil;
 import scouter.util.FormatUtil;
+import scouter.util.StringUtil;
 
 
 public class ObjectThreadListView extends ViewPart implements Refreshable, ViewWithTable{
@@ -75,7 +81,7 @@ public class ObjectThreadListView extends ViewPart implements Refreshable, ViewW
 	public HashMap<Long, Long> prevCpuMap = new HashMap<Long, Long>();
 	
 	public void createPartControl(Composite parent) {
-		display = Display.getCurrent();
+		display = getSite().getShell().getDisplay();
 		parent.setLayout(ChartUtil.gridlayout(1));
 		Composite area2 = new Composite(parent, SWT.NONE);
 		area2.setLayout(ChartUtil.gridlayout(1));
@@ -99,7 +105,7 @@ public class ObjectThreadListView extends ViewPart implements Refreshable, ViewW
 				long threadId = CastUtil.clong(item[0].getText(0));
 				try {
 					IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-					ObjectThreadDetailView view = (ObjectThreadDetailView) win.getActivePage().showView(ObjectThreadDetailView.ID, serverId + "&" + objHash, IWorkbenchPage.VIEW_ACTIVATE);
+					ObjectThreadDetailView view = (ObjectThreadDetailView) win.getActivePage().showView(ObjectThreadDetailView.ID, serverId + "&" +  objHash, IWorkbenchPage.VIEW_ACTIVATE);
 					view.setInput(threadId);
 				} catch (Exception d) {
 				}
@@ -145,9 +151,6 @@ public class ObjectThreadListView extends ViewPart implements Refreshable, ViewW
 			public void run() {
 				final MapPack mpack = AgentDataProxy.getThreadList(objHash, serverId);
 				
-				// 2013-08-20 BY jonghun@lgcns.com
-				// CASE BY CASE....
-				// CANNOT LOAD 'mpack' FROM SERVER. WHEN 'mpack' IS NULL, RETRY AGAIN.
 				if(mpack == null){
 					refresh = true;
 					return;
@@ -157,11 +160,7 @@ public class ObjectThreadListView extends ViewPart implements Refreshable, ViewW
 				
 				ExUtil.exec(table, new Runnable() {
 					public void run() {
-						// 2013-08-20 BY jonghun@lgcns.com
-						// FOR SCROLL MAINTAINCE, DO NOT CALL 'removeAll();' METHOD.
-						// ALTERNATIVELY, GETTING TABLE ITEMS, THEN UPDATE EACH DATA.
 						TableItem[] tItem = table.getItems();
-						//table.removeAll();
 						
 						ListValue idLv = mpack.getList("id");
 						ListValue nameLv = mpack.getList("name");
@@ -254,6 +253,7 @@ public class ObjectThreadListView extends ViewPart implements Refreshable, ViewW
 	}
 	
 	public void setFocus() {
+		ScouterUtil.detachView(this);
 	}
 
 	@Override

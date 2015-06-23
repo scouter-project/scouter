@@ -36,21 +36,23 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.client.util.ColoringWord;
-import scouter.client.util.ExUtil;
 import scouter.client.util.CustomLineStyleListener;
+import scouter.client.util.ExUtil;
+import scouter.client.util.ScouterUtil;
 import scouter.client.util.UIUtil;
-import scouter.lang.pack.MapPack;
 import scouter.io.DataInputX;
+import scouter.lang.pack.MapPack;
 import scouter.net.RequestCmd;
 import scouter.util.FileUtil;
 import scouter.util.StringUtil;
 
-public class ObjectDumpFileDetailView extends ScouterViewPart {
+public class ObjectDumpFileDetailView extends ViewPart {
 
 	public final static String ID = ObjectDumpFileDetailView.class.getName();
 
@@ -165,4 +167,9 @@ public class ObjectDumpFileDetailView extends ScouterViewPart {
 			FileUtil.save(fileSelected, text.getText().getBytes());
 		}
 	}
+
+	public void setFocus() {
+		ScouterUtil.detachView(this);
+	}
+	
 }

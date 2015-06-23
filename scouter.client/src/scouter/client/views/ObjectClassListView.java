@@ -518,9 +518,8 @@ public class ObjectClassListView extends ViewPart {
 		return viewerColumn;
 	}
 
-	@Override
 	public void setFocus() {
-		
+		ScouterUtil.detachView(this);
 	}
 
 	private void validatePageButton() {

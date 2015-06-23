@@ -57,6 +57,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
 import scouter.client.net.TcpProxy;
@@ -71,7 +72,7 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 
-public class ServerFileManagementView extends ScouterViewPart {
+public class ServerFileManagementView extends ViewPart {
 
 	public static final String ID = ServerFileManagementView.class.getName();
 

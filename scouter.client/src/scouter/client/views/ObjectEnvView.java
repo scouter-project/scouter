@@ -62,9 +62,10 @@ import scouter.client.popup.EditableMessageDialog;
 import scouter.client.sorter.ColumnLabelSorter;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
-import scouter.util.StringUtil;
+import scouter.client.util.ScouterUtil;
 import scouter.lang.pack.MapPack;
 import scouter.util.CastUtil;
+import scouter.util.StringUtil;
 
 
 public class ObjectEnvView extends ViewPart {
@@ -283,9 +284,8 @@ public class ObjectEnvView extends ViewPart {
 		return viewerColumn;
 	}
 
-	@Override
 	public void setFocus() {
-		
+		ScouterUtil.detachView(this);
 	}
 
 	enum VariableEnum {

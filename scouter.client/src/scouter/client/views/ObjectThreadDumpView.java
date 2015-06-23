@@ -47,10 +47,11 @@ import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
 import scouter.client.util.ColoringWord;
 import scouter.client.util.ConsoleProxy;
+import scouter.client.util.CustomLineStyleListener;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
+import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
-import scouter.client.util.CustomLineStyleListener;
 import scouter.client.util.UIUtil;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
@@ -236,7 +237,7 @@ public class ObjectThreadDumpView extends ViewPart {
 	}
 
 	public void setFocus() {
-
+		ScouterUtil.detachView(this);
 	}
 
 }

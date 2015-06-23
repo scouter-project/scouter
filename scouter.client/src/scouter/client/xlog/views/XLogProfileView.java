@@ -25,23 +25,30 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.WorkbenchPage;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Activator;
 import scouter.client.Images;
+import scouter.client.model.DetachedManager;
 import scouter.client.model.XLogData;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.MyKeyAdapter;
+import scouter.client.util.ScouterUtil;
 import scouter.client.xlog.ProfileText;
 import scouter.client.xlog.SaveProfileJob;
 import scouter.client.xlog.actions.OpenXLogProfileJob;
@@ -148,7 +155,7 @@ public class XLogProfileView extends ViewPart {
 								try {
 									XLogDependencyView view = (XLogDependencyView) PlatformUI.getWorkbench()
 									.getActiveWorkbenchWindow()
-									.getActivePage().showView(XLogDependencyView.ID, gxid, IWorkbenchPage.VIEW_ACTIVATE);
+									.getActivePage().showView(XLogDependencyView.ID, "*", IWorkbenchPage.VIEW_ACTIVATE);
 									if (view != null) {
 										view.loadByGxId(DateUtil.yyyymmdd(item.p.endTime), Hexa32.toLong32(gxid));
 									}
@@ -165,7 +172,7 @@ public class XLogProfileView extends ViewPart {
 								try {
 									XLogDependencyView view = (XLogDependencyView) PlatformUI.getWorkbench()
 									.getActiveWorkbenchWindow()
-									.getActivePage().showView(XLogDependencyView.ID, txid, IWorkbenchPage.VIEW_ACTIVATE);
+									.getActivePage().showView(XLogDependencyView.ID, "*", IWorkbenchPage.VIEW_ACTIVATE);
 									if (view != null) {
 										view.loadByTxId(DateUtil.yyyymmdd(item.p.endTime), Hexa32.toLong32(txid));
 									}
@@ -217,6 +224,7 @@ public class XLogProfileView extends ViewPart {
 	}
 	
 	public void setFocus() {
+		ScouterUtil.detachView(this);
 	}
 
 	@Override

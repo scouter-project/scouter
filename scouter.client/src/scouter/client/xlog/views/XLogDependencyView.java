@@ -42,8 +42,13 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.internal.WorkbenchPage;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.zest.core.viewers.EntityConnectionData;
 import org.eclipse.zest.core.viewers.GraphViewer;
@@ -55,6 +60,7 @@ import org.eclipse.zest.layouts.LayoutStyles;
 import org.eclipse.zest.layouts.algorithms.HorizontalTreeLayoutAlgorithm;
 
 import scouter.client.Images;
+import scouter.client.model.DetachedManager;
 import scouter.client.model.TextProxy;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
@@ -65,8 +71,10 @@ import scouter.client.util.ColorUtil;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
+import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.xlog.actions.OpenXLogProfileJob;
+import scouter.io.DataInputX;
 import scouter.lang.CountryCode;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.XLogPack;
@@ -79,7 +87,6 @@ import scouter.lang.step.StepEnum;
 import scouter.lang.step.ThreadSubmitStep;
 import scouter.lang.value.DecimalValue;
 import scouter.lang.value.MapValue;
-import scouter.io.DataInputX;
 import scouter.net.RequestCmd;
 import scouter.util.FormatUtil;
 import scouter.util.HashUtil;
@@ -381,7 +388,7 @@ public class XLogDependencyView extends ViewPart {
 	}
 
 	public void setFocus() {
-		
+		ScouterUtil.detachView(this);
 	}
 	
 	ViewerFilter filter = new ViewerFilter() {

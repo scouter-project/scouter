@@ -41,7 +41,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import scouter.util.StringUtil;
 import scouter.client.Images;
 import scouter.client.heapdump.actions.HeapDumpDeleteAction;
 import scouter.client.heapdump.actions.HeapDumpDownloadAction;
@@ -52,6 +51,7 @@ import scouter.client.util.ChartUtil;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
+import scouter.client.util.ScouterUtil;
 import scouter.client.util.SortUtil;
 import scouter.client.util.TableControlAdapter;
 import scouter.client.util.UIUtil;
@@ -61,6 +61,7 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.FormatUtil;
+import scouter.util.StringUtil;
 
 
 public class HeapDumpListView extends ViewPart implements ViewWithTable{
@@ -258,6 +259,7 @@ public class HeapDumpListView extends ViewPart implements ViewWithTable{
 	}
 	
 	public void setFocus() {
+		ScouterUtil.detachView(this);
 	}
 
 	public void sortTable(){
