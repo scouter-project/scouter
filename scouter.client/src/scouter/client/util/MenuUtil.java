@@ -75,6 +75,11 @@ import scouter.client.counter.actions.OpenTodayServiceCountAction;
 import scouter.client.counter.actions.OpenTodayTotalAction;
 import scouter.client.heapdump.actions.HeapDumpAction;
 import scouter.client.heapdump.actions.HeapDumpListAction;
+import scouter.client.host.actions.OpenDiskUsageAction;
+import scouter.client.host.actions.OpenMemInfoAction;
+import scouter.client.host.actions.OpenNetStatAction;
+import scouter.client.host.actions.OpenTopAction;
+import scouter.client.host.actions.OpenWhoAction;
 import scouter.client.model.AgentObject;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
@@ -489,7 +494,14 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 					dumpMgr.add(new OpenCxtmenuDumpThreadListAction(MenuStr.DUMP_THREAD_LIST, objHash, serverId));
 					dumpMgr.add(new OpenCxtmenuDumpHeapHistoAction(MenuStr.DUMP_HEAPHISTO, objHash, serverId));
 				}
-			}
+			} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_HOST)) {
+				performanceSnapshot.add(new OpenCxtmenuEnvAction(win, MenuStr.ENV, objHash, serverId));
+				performanceSnapshot.add(new OpenTopAction(win, MenuStr.TOP, objHash, serverId));
+				performanceSnapshot.add(new OpenDiskUsageAction(win, MenuStr.DISK_USAGE, objHash, serverId));
+				performanceSnapshot.add(new OpenNetStatAction(win, MenuStr.NET_STAT, objHash, serverId));
+				performanceSnapshot.add(new OpenWhoAction(win, MenuStr.WHO, objHash, serverId));
+				performanceSnapshot.add(new OpenMemInfoAction(win, MenuStr.MEM_INFO, objHash, serverId));
+			} 
     	}
     	mgr.add(new Separator());
 		if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))

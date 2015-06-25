@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+\ *  Copyright 2015 LG CNS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 
-import scouter.client.Images;
-import scouter.client.util.ImageUtil;
 import scouter.client.views.ObjectEnvView;
 import scouter.client.views.ServerEnvView;
 

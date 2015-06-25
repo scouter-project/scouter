@@ -193,5 +193,10 @@ public class MenuStr {
 	public static final String DUMP_HEAPHISTO               = "Dump Heaphisto";
 	public static final String LIST_DUMP_FILES               = "List Dump Files";
 	public static final String SYSTEM_GC               = "System.GC";
+	public static final String TOP               = "Top";
+	public static final String DISK_USAGE               = "Disk Usage";
+	public static final String NET_STAT               = "Net Stat";
+	public static final String WHO               = "Who";
+	public static final String MEM_INFO               = "Mem Info";
 	
 }

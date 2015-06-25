@@ -762,6 +762,54 @@
             name="LoadZoomTimeXLog"
             restorable="false">
       </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.host.views.NetStatView"
+            icon="icons/object/net.png"
+            id="scouter.client.host.views.NetStatView"
+            name="NetStatView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.host.views.WhoView"
+            icon="icons/user.png"
+            id="scouter.client.host.views.WhoView"
+            name="WhoView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.host.views.MemInfoView"
+            icon="icons/counter/memory.png"
+            id="scouter.client.host.views.MemInfoView"
+            name="MemInfoView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.host.views.DiskUsageView"
+            icon="icons/object/datasource.png"
+            id="scouter.client.host.views.DiskUsageView"
+            name="DiskUsageView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.host.views.ProcessDetailView"
+            icon="icons/linux_info.png"
+            id="scouter.client.host.views.ProcessDetailView"
+            name="HostProcessDetailView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.host.views.TopView"
+            icon="icons/linux_info.png"
+            id="scouter.client.host.views.TopView"
+            name="HostTop"
+            restorable="false">
+      </view>
   </extension>
  <extension
          point="org.eclipse.ui.commands">
