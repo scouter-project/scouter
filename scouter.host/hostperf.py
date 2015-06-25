@@ -153,7 +153,7 @@ def sendObjectPack(sock):
     objPack.objName = objname()
     objPack.objHash = binascii.crc32(objPack.objName)
     objPack.objType = objtype()
-    objPack.address = getLocalAddr() +":0"
+    objPack.address = getLocalAddr()
     objPack.version = "0.1.0"
     out = DataOutputX()
     out.writePack(objPack)

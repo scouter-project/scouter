@@ -176,7 +176,7 @@ class DoubleValue(Value,Number):
            
 class FloatValue(Value,Number):
     def __init__(self, v=0.0):
-        self.value = v
+        self.value = float(v)
             
     def __eq__(self, other):
         return self.value == other.table

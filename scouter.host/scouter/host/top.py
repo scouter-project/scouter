@@ -91,9 +91,9 @@ def extractValues(procs, procs_status):
         if p.dict['memory_percent'] is not None:
             p.dict['memory_percent'] = round(p.dict['memory_percent'], 1)
         else:
-            p.dict['memory_percent'] = ''
+            p.dict['memory_percent'] = 0
         if p.dict['cpu_percent'] is None:
-            p.dict['cpu_percent'] = ''
+            p.dict['cpu_percent'] = 0
         if p.dict['username']:
             username = p.dict['username'][:8]
         else:

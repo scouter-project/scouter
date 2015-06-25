@@ -50,9 +50,9 @@ def startReqHandler(host, port, handlers):
     localAddr = '127.0.0.1'
     
     handlerTable=handlers
-    BRUN=True
     while True: 
         try:
+            BRUN=True
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect((host,port))
             sock.settimeout(60000)
