@@ -59,8 +59,11 @@ public class IPUtil {
 		return result;
 	}
 
+	public static boolean isOK(byte[] ip){
+		return  ip != null && ip.length==4;
+	}
 	public static boolean isNotLocal(byte[] ip) {
-		return ip != null && (ip[0] & 0xff) != 127;
+		return isOK(ip) && (ip[0] & 0xff) != 127;
 	}
 
 	private static byte[] empty = new byte[] { 0, 0, 0, 0 };

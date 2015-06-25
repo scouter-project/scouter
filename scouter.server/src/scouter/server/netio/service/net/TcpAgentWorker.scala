@@ -69,6 +69,7 @@ class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX) {
         write("KEEP_ALIVE", new MapPack())
         try {
             while (TcpFlag.HasNEXT == in.readByte()) {
+                in.readPack()
             }
         } catch {
             case e: Throwable => close()

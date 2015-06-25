@@ -46,7 +46,8 @@ object XLogTagCount {
                     process(objInfo.objType, m)
                 }
             } catch {
-                case e: Exception => Logger.println("S187", e.toString())
+                case e: Exception =>
+                Logger.println("S187", 10,"XLogTagCount" ,e)
             }
         }
     }

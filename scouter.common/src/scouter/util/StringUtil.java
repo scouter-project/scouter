@@ -26,7 +26,7 @@ import java.util.StringTokenizer;
 
 public class StringUtil {
 
-	public static String firstWord(String target, String delim){
+	public static String firstWord(String target, String delim) {
 		if (target == null || target.length() == 0) {
 			return "";
 		}
@@ -36,6 +36,7 @@ public class StringUtil {
 		}
 		return "";
 	}
+
 	public static String[] tokenizer(String target, String delim) {
 		if (target == null || target.length() == 0) {
 			return null;
@@ -270,4 +271,31 @@ public class StringUtil {
 	public static String truncate(String str, int len) {
 		return str == null || str.length() <= len ? str : str.substring(0, len);
 	}
+
+	public static String rpad(String str, int len) {
+		if (str == null) {
+			return padding(len, ' ');
+		}
+		int slen = str.length();
+		if (slen >= len)
+			return str;
+		return str + padding(len - slen, ' ');
+	}
+	public static String lpad(String str, int len) {
+		if (str == null) {
+			return padding(len, ' ');
+		}
+		int slen = str.length();
+		if (slen >= len)
+			return str;
+		return  padding(len - slen, ' ')+str;
+	}
+	public static String padding(int len, char ch) {
+		StringBuffer sb = new StringBuffer(len);
+		for (int i = 0; i < len; i++) {
+			sb.append(ch);
+		}
+		return sb.toString();
+	}
+
 }

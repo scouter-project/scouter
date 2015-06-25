@@ -31,6 +31,8 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 public class SqlMapASM implements IASM, Opcodes {
 	public final HashSet<String> target = new HashSet<String>();
 	public static Set<String> targetMethod = new HashSet<String>();
+	public static String[] targetInf;
+
 	static {
 		targetMethod.add("update");
 		targetMethod.add("delete");
@@ -43,6 +45,7 @@ public class SqlMapASM implements IASM, Opcodes {
 
 	public SqlMapASM() {
 		target.add("org/springframework/orm/ibatis/SqlMapClientTemplate");
+		targetInf = new String[] { "com/ibatis/sqlmap/client/SqlMapClient" };
 	}
 
 	public boolean isTarget(String className) {
@@ -51,6 +54,13 @@ public class SqlMapASM implements IASM, Opcodes {
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 
+		for (int i = 0; i < classDesc.interfaces.length; i++) {
+			for (int j = 0; j < targetInf.length; j++) {
+				if (targetInf[j].equals(classDesc.interfaces[i])) {
+					return new SqlMapCV(cv, className);
+				}
+			}
+		}
 		if (target.contains(className)) {
 			return new SqlMapCV(cv, className);
 		}
@@ -110,19 +120,19 @@ class SqlMapMV extends LocalVariablesSorter implements Opcodes {
 
 		AsmUtil.PUSH(mv, methodName);
 
-		boolean flag=false;
+		boolean flag = false;
 		int sidx = isStatic ? 0 : 1;
 		for (int i = 0; i < paramTypes.length; i++) {
 			Type tp = paramTypes[i];
 			if ("java/lang/String".equals(tp.getInternalName())) {
 				mv.visitVarInsn(Opcodes.ALOAD, sidx);
-				flag=true;
+				flag = true;
 				break;
 			}
 			sidx += tp.getSize();
 		}
 
-		if(flag==false){
+		if (flag == false) {
 			AsmUtil.PUSH(mv, "");
 		}
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE, false);

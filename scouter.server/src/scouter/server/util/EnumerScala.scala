@@ -46,14 +46,19 @@ object EnumerScala {
             handler(itr.next())
         }
     }
-
     def foreach[T](itr: java.util.Iterator[T], handler: T => Any) {
         while (itr.hasNext()) {
             handler(itr.next())
         }
     }
-      
-    
+    def foreach[T](arr: Array[T], handler: T => Any) {
+        var i = 0
+        while (i < arr.length) {
+            handler(arr(i))
+            i += 1
+        }
+    }
+
     def foreach[T](itr: java.util.Enumeration[T], handler: T => Any) {
         if (itr == null)
             return
@@ -77,7 +82,7 @@ object EnumerScala {
             handler(itr.nextInt())
         }
     }
-      def foreach(itr: LongEnumer, handler: Long => Any) {
+    def foreach(itr: LongEnumer, handler: Long => Any) {
         if (itr == null)
             return
         while (itr.hasMoreElements()) {

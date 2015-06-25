@@ -29,6 +29,7 @@ import scouter.util.FormatUtil
 import scouter.util.StringUtil
 import scouter.lang.counters.CounterConstants
 import scouter.lang.counters.CounterEngine
+import scouter.util.SortUtil
 
 object ProcessMain {
     var loopProcess = 1
@@ -44,6 +45,7 @@ object ProcessMain {
             case "counters" => return counterList(cmd)
             case "realtime" => return REALTIME.process(cmd.substring("realtime".length()).trim())
             case "xlog" => return XLOG.process(cmd.substring("xlog".length()).trim())
+            case "tagcnt" => return TAGCNT.process(cmd.substring("tagcnt".length()).trim())
             case _ => return Help.help(cmd)
         }
     }
@@ -52,8 +54,9 @@ object ProcessMain {
 
     def objType(): Unit = {
         val objTypes = counterEng.getAllObjectType()
-        EnumerScala.foreach(objTypes.iterator(), (o: String) => {
-            println(o)
+        val sorted = SortUtil.sort_string(objTypes.iterator(), objTypes.size(), true)
+        EnumerScala.foreach(sorted, (o: String) => {
+            println("\t" + AnsiPrint.green(o))
         })
     }
     def objectList(cmd: String): Unit = {
@@ -61,7 +64,7 @@ object ProcessMain {
         val objHashList = AgentManager.getLiveObjHashList()
         EnumerScala.foreach(objHashList.iterator(), (objHash: Int) => {
             val obj = AgentManager.getAgent(objHash)
-            val text = obj.objType + "\t" + obj.objName + "\t" + (if (obj.alive) "alive" else "")
+            val text = "\t" + StringUtil.rpad(obj.objType, 20) + "\t" + StringUtil.rpad(obj.objName, 30) + "\t" + (if (obj.alive) "alive" else "")
             if (cmds.length < 2 || text.indexOf(cmds(1)) >= 0) {
                 println(text)
             }
@@ -73,8 +76,9 @@ object ProcessMain {
             return
 
         val counters = counterEng.getAllCounterList(cmds(1))
-        EnumerScala.foreach(counters.iterator(), (c: String) => {
-            println(c)
+        val sorted = SortUtil.sort_string(counters.iterator(), counters.size(), true)
+        EnumerScala.foreach(sorted, (c: String) => {
+            println("\t" + AnsiPrint.green(c))
         })
     }
 }
