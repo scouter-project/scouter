@@ -51,10 +51,6 @@ public class DataProxy {
 		sendDirect(new TextPack(TextTypes.SQL, hash, sql));
 	} 
 
-	// 에이전트에서는 objName을 HeartBeat에 함께 보낸다.
-	// public static void sendObjName(int objHash, String objName) {
-	// udp.add(new TextPack(TextTypes.OBJECT, objHash, objName));
-	// }
 	private static IntLinkedSet serviceName = new IntLinkedSet().setMax(10000);
 
 	public static void sendServiceName(int hash, String service) {

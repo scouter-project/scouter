@@ -38,14 +38,14 @@ object ProcessMain {
         loopProcess += 1
 
         StringUtil.firstWord(cmd, " ").toLowerCase() match {
-            case "help" => return Help.help(cmd)
+            case "help" => return Help.help(cmd.trim())
             case "quit" => return Help.quit()
-            case "objtypes" => return objType()
-            case "objects" => return objectList(cmd)
-            case "counters" => return counterList(cmd)
-            case "realtime" => return REALTIME.process(cmd.substring("realtime".length()).trim())
-            case "xlog" => return XLOG.process(cmd.substring("xlog".length()).trim())
-            case "tagcnt" => return TAGCNT.process(cmd.substring("tagcnt".length()).trim())
+            case "objtype" => return objType()
+            case "object" => return objectList(cmd.trim())
+            case "counter" => return counterList(cmd.trim())
+            case "realtime" => return REALTIME.process(cmd.trim().substring("realtime".length()).trim())
+            case "xlog" => return XLOG.process(cmd.trim().substring("xlog".length()).trim())
+            case "tagcnt" => return TAGCNT.process(cmd.trim().substring("tagcnt".length()).trim())
             case _ => return Help.help(cmd)
         }
     }

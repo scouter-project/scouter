@@ -36,11 +36,20 @@ import scouter.util.CastUtil
 import scouter.server.tagcnt.TagCountConfig
 import scouter.server.tagcnt.TagCountProxy
 import scouter.server.tagcnt.core.ValueCount
+import scouter.lang.value.ValueEnum
+import scouter.server.db.TextRD
+import scouter.lang.value.TextHashValue
+import scouter.lang.TextTypes
+import scala.util.control.BreakControl
+import scala.util.control.Breaks
 object TAGCNT {
 
     def process(cmd: String): Unit = {
 
         val cmdArr = StringUtil.tokenizer(cmd, " ")
+        if (cmdArr.length < 1)
+            return
+
         if ("group".equals(cmdArr(0))) {
             taggroups
         }
@@ -49,6 +58,9 @@ object TAGCNT {
         }
         if (cmdArr.length > 3 && "top100".equals(cmdArr(0))) {
             top100(cmdArr(1), cmdArr(2), cmdArr(3))
+        }
+        if (cmdArr.length > 3 && "data".equals(cmdArr(0))) {
+            getCount(cmdArr(1), cmdArr(2), cmdArr(3), cmdArr(4).toInt)
         }
     }
 
@@ -72,9 +84,46 @@ object TAGCNT {
         val valueCountTotal = TagCountProxy.getTagValueCountWithCache(date, objType, tagGroup, tagName, 100);
         if (valueCountTotal != null) {
 
+            var inx = 1
             EnumerScala.forward(valueCountTotal.values, (vc: ValueCount) => {
-                println("\t" + vc.tagValue + " \t= " + vc.valueCount);
+                if (vc.tagValue.getValueType() == ValueEnum.TEXT_HASH) {
+                    val valueText = TextRD.getString(date, TextTypes.ERROR, vc.tagValue.asInstanceOf[TextHashValue].value)
+                    println("\t" + inx + " " + valueText + "(" + vc.tagValue + ") \t= " + vc.valueCount);
+                } else {
+                    println("\t" + inx + " " + vc.tagValue + " \t= " + vc.valueCount);
+                }
+                inx += 1
             })
+        }
+    }
+    private def getCount(objType: String, tagGroup: String, tagName: String, x: Int): Unit = {
+        if (x == 0) 
+            return
+        val date = DateUtil.yyyymmdd()
+        val valueCountTotal = TagCountProxy.getTagValueCountWithCache(date, objType, tagGroup, tagName, 100);
+        if (valueCountTotal != null) {
+            var inx = 1
+            Breaks.breakable {
+                EnumerScala.forward(valueCountTotal.values, (vc: ValueCount) => {
+                    if (inx == x) {
+                        val values = TagCountProxy.getTagValueCountData(date, objType, tagGroup, tagName, vc.tagValue);
+                        printTable(values)
+                        Breaks.break
+                    }
+                    inx += 1
+                })
+            }
+        }
+    }
+    private def printTable(values: Array[Int]) {
+        for (h <- 0 to 23) {
+            print(StringUtil.leftPad("H" + h, 5) + " ")
+            for (m <- 0 to 59) {
+                if (m > 0)
+                    print(", ")
+                print(values(h*60+m))
+            }
+            println("")
         }
     }
 }
