@@ -21,11 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.SocketImpl;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -140,10 +136,10 @@ public class Configure extends Thread {
 	public int tcp_client_so_timeout = 8000;
 	public int tcp_agent_so_timeout = 60000;
 	public int tcp_agent_keepalive = 5000;
-    public int tcp_agent_max_wait=1000;
-    
-	public String scouter_hostname = SysJMX.getHostName();
-	public String scouter_db = "./database";
+	public int tcp_agent_max_wait = 1000;
+
+	public String hostname = SysJMX.getHostName();
+	public String db_root = "./database";
 	public String logs_dir = "./logs";
 
 	public int agent_deadtime = 8000;
@@ -186,7 +182,6 @@ public class Configure extends Thread {
 	public int num_of_net_processor = 4;
 
 	public String geoip_data_city = "./GeoLiteCity.dat";
-	// public String geoip_data_country = "./GeoLiteCity.dat";
 	public boolean enable_geoip = true;
 
 	public int max_api_stat = 10000;
@@ -215,8 +210,8 @@ public class Configure extends Thread {
 		this.tcp_agent_keepalive = getInt("tcp_agent_keepalive", 5000);
 		this.tcp_agent_max_wait = getInt("tcp_agent_max_wait", 1000);
 
-		this.scouter_hostname = getValue("scouter_hostname", getValue("scouter.hostname", SysJMX.getHostName()));
-		this.scouter_db = getValue("scouter_db", getValue("scouter.db", "./database"));
+		this.hostname = getValue("hostname", SysJMX.getHostName());
+		this.db_root = getValue("db_root", "./database");
 		this.logs_dir = getValue("logs_dir", getValue("db.log", "./logs"));
 
 		this.agent_deadtime = getInt("agent_deadtime", getInt("agent.deadtime", 8000));

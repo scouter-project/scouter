@@ -22,6 +22,7 @@ import scouter.Version;
 import scouter.server.account.AccountManager;
 import scouter.server.core.AutoDeleteScheduler;
 import scouter.server.core.TextCacheReset;
+import scouter.server.db.DBCtr;
 import scouter.server.netio.data.NetDataProcessor;
 import scouter.server.netio.data.net.DataUdpServer;
 import scouter.server.netio.service.ServiceHandlingProxy;
@@ -39,6 +40,10 @@ public class Main {
 		Logger.println("Scouter Server Version " + Version.getServerFullVersion());
 		Logo.print(Logger.pw(), true);
 		Configure.getInstance();
+		if(DBCtr.createLock()==false){
+			return;
+		}
+		
 		CounterManager.getInstance();
 		AccountManager.ACCOUNT_FILENAME();
 		DataUdpServer.conf();

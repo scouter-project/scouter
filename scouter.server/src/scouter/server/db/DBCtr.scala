@@ -16,16 +16,17 @@
 
 package scouter.server.db;
 
-import scouter.server.Configure;
-import scouter.server.ShutdownManager;
+import scouter.server.Configure
+import scouter.server.ShutdownManager
 import scouter.util.IShutdown;
+import java.io.File
 
 object DBCtr {
     val MAX_QUE_SIZE = 10000;
     val MAX_DIV = 20;
     val LARGE_MAX_QUE_SIZE = 100000;
 
-    def getRootPath() = Configure.getInstance().scouter_db
+    def getRootPath() =Configure.getInstance().db_root
 
     var running = true;
     ShutdownManager.add(new IShutdown() {
@@ -33,4 +34,17 @@ object DBCtr {
             running = false;
         }
     })
+    
+    def createLock() : Boolean = {
+        val lock = new File(getRootPath, "lock.dat")
+        val ok = lock.createNewFile();
+        if(ok){
+            lock.deleteOnExit();
+        }else{
+            println("Can't lock the database")
+            println("Please remove the lock : " + lock.getAbsoluteFile())
+        }
+        return ok;
+    }
+
 }

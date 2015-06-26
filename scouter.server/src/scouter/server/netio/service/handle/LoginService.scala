@@ -109,6 +109,6 @@ class LoginService {
   }
 
   def getHostName(): String = {
-    Configure.getInstance().scouter_hostname;
+    Configure.getInstance().hostname;
   }
 }
