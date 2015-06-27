@@ -53,7 +53,7 @@ public class TermMain {
 		// console.addCompleter(new FileNameCompleter());
 		console.addCompleter(new StringsCompleter(Help.words()));
 
-		console.setPrompt(AnsiPrint.green("scouter# "));
+		console.setPrompt(AnsiPrint.green("scouter> "));
 		while (true) {
 			try {
 				String cmd = console.readLine();

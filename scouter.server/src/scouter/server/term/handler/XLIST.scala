@@ -38,6 +38,7 @@ import scouter.server.db.XLogRD
 import scouter.server.db.TextRD
 import scouter.lang.TextTypes
 import scouter.util.IPUtil
+import scouter.util.Hexa32
 object XLIST {
 
     def process(cmd: String): Unit = {
@@ -55,7 +56,7 @@ object XLIST {
 
     }
 
-    def process(objHashList: List[Int], time: Long, maxCount: Int, minElapsed: Int) {
+    def process(objHashList: List[Int], time: Long, maxCount: Int, minElapsed: Int): Unit = {
         var loadCount = 0
         val handler = (time: Long, data: Array[Byte]) => {
             if (loadCount >= maxCount) {
@@ -66,7 +67,9 @@ object XLIST {
             val x = new DataInputX(data).readPack().asInstanceOf[XLogPack];
             var serviceName = TextRD.getString(DateUtil.yyyymmdd(time), TextTypes.SERVICE, x.service);
             val sb = new StringBuffer()
+            sb.append(StringUtil.leftPad(FormatUtil.print(loadCount, "#,##0"),5)).append(' ')
             sb.append(DateUtil.getLogTime(x.endTime)).append(' ')
+            sb.append(Hexa32.toString32(x.txid)).append(' ')
             sb.append(AgentManager.getAgentName(x.objHash)).append(' ')
             sb.append(IPUtil.toString(x.ipaddr)).append(' ')
             sb.append(serviceName).append(' ')
@@ -83,10 +86,9 @@ object XLIST {
                 var userAgent = TextRD.getString(DateUtil.yyyymmdd(time), TextTypes.USER_AGENT, x.userAgent);
                 sb.append(userAgent).append(' ')
             }
-             println(sb.toString())
+            println(sb.toString())
         }
         XLogRD.readByTime(DateUtil.yyyymmdd(), time, time + 2000, handler)
     }
 
-  
 }

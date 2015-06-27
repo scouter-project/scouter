@@ -23,8 +23,9 @@ import java.util.Vector
 import scouter.io.DataOutputX
 import scouter.server.db.xlog.XLogDataReader
 import scouter.server.db.xlog.XLogIndex
-import scouter.util.FileUtil;
+import scouter.util.FileUtil
 import scouter.server.db.io.IndexTimeFile
+import scala.runtime.NonLocalReturnControl
 
 object XLogRD {
 
@@ -37,9 +38,10 @@ object XLogRD {
             try {
                 reader = XLogDataReader.open(date, file);
                 table = new IndexTimeFile(file + XLogIndex.POSTFIX_TIME);
-                table.read(fromTime, toTime, handler, reader.read )
+                table.read(fromTime, toTime, handler, reader.read)
             } catch {
-                case e: Throwable => e.printStackTrace()
+                case e: Exception => e.printStackTrace()
+                case _ :Throwable=>
             } finally {
                 FileUtil.close(table);
                 FileUtil.close(reader);

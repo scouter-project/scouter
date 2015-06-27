@@ -60,10 +60,10 @@ object XLOG {
     var index = 0
     val limitTime = 0
     val bucket = 60
+
     def process(objHashList: List[Int], mxTime: Int = 10) {
-        val tm = DateUtil.getLogTime(System.currentTimeMillis())
         if (objHashList.size() == 0) {
-            println(tm + " ...")
+            println(DateUtil.getLogTime(System.currentTimeMillis()) + " ...")
             return
         }
         val intSet = new IntSet(objHashList.size(), 1.0f);
@@ -77,6 +77,7 @@ object XLOG {
         loop = d.loop
         index = d.index
         val timeTable = Array.fill(bucket) { '_' }
+        var tmStr: String = null
         EnumerScala.foreach(d.data.iterator(), (b: Array[Byte]) => {
             val p = new DataInputX(b).readPack().asInstanceOf[XLogPack]
             val bk = p.elapsed * bucket / (mxTime * 1000)
@@ -84,10 +85,16 @@ object XLOG {
             if (timeTable(bk2) != 'E') {
                 timeTable(bk2) = if (p.error != 0) 'E' else '#'
             }
+            if (tmStr == null) {
+                tmStr = DateUtil.getLogTime(p.endTime)
+            }
             cnt += 1
         })
+        if (tmStr == null) {
+            tmStr = DateUtil.getLogTime(System.currentTimeMillis())
+        }
         val str = new String(timeTable)
-        println(tm + " " + AnsiPrint.green(str) + " " + mxTime + "sec " + FormatUtil.print(cnt, "#,##0"))
+        println(tmStr + " " + AnsiPrint.green(str) + " " + mxTime + "sec " + FormatUtil.print(cnt, "#,##0"))
     }
 
     def main(args: Array[String]) {

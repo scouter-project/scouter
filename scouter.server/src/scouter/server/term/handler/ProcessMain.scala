@@ -40,24 +40,25 @@ object ProcessMain {
         loopProcess += 1
 
         StringUtil.firstWord(cmd, " ").toLowerCase() match {
-            case "help" => return Help.help(cmd.trim())
-            case "quit" => return Help.quit()
-            case "objtype" => return objType()
-            case "object" => return objectList(cmd.trim())
-            case "counter" => return counterList(cmd.trim())
-            case "realtime" => return REALTIME.process(cmd.trim().substring("realtime".length()).trim())
-            case "xlog" => return XLOG.process(cmd.trim().substring("xlog".length()).trim())
-            case "xlist" => return XLIST.process(cmd.trim().substring("xlist".length()).trim())
-            case "tagcnt" => return TAGCNT.process(cmd.trim().substring("tagcnt".length()).trim())
-            case _ => return Help.help(cmd)
+            case "help" => Help.help(cmd.trim())
+            case "q" | "quit" => Help.quit()
+            case "objtype" => objType()
+            case "object" => objectList(cmd.trim())
+            case "counter" => counterList(cmd.trim())
+            case "realtime" => REALTIME.process(cmd.trim().substring("realtime".length()).trim())
+            case "xlog" => XLOG.process(cmd.trim().substring("xlog".length()).trim())
+            case "xlist" => XLIST.process(cmd.trim().substring("xlist".length()).trim())
+            case "tagcnt" => TAGCNT.process(cmd.trim().substring("tagcnt".length()).trim())
+            case "" =>
+            case _ => Help.help(cmd)
         }
     }
 
     val counterEng = scouter.server.CounterManager.getInstance().getCounterEngine();
 
     def objType(): Unit = {
-        val objTypes =new TreeSet[String]();
-        EnumerScala.foreach(AgentManager.getObjPacks(), (o:ObjectPack)=>{
+        val objTypes = new TreeSet[String]();
+        EnumerScala.foreach(AgentManager.getObjPacks(), (o: ObjectPack) => {
             objTypes.add(o.objType)
         })
         val sorted = SortUtil.sort_string(objTypes.iterator(), objTypes.size(), true)
