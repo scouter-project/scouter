@@ -63,14 +63,17 @@ class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX) {
     val conf = Configure.getInstance()
 
     def isExpired() = { System.currentTimeMillis() - lastWriteTime >= conf.tcp_agent_keepalive }
-    def sendKeepAlive() {
+    def sendKeepAlive(waitTime:Int) {
         if (socket.isClosed())
             return
+        val orgSoTime = socket.getSoTimeout()
+        socket.setSoTimeout(waitTime)
         write("KEEP_ALIVE", new MapPack())
         try {
             while (TcpFlag.HasNEXT == in.readByte()) {
                 in.readPack()
             }
+            socket.setSoTimeout(orgSoTime)
         } catch {
             case e: Throwable => close()
         }
@@ -80,7 +83,7 @@ class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX) {
         FileUtil.close(in)
         FileUtil.close(out)
         FileUtil.close(socket)
-        if(conf.debug_net){
+        if (conf.debug_net) {
             println("Agent : " + remoteAddr + " close");
         }
     }

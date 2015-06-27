@@ -73,6 +73,7 @@ object XLOG {
         val d = XLogCache.get(intSet, loop, index, limitTime);
         if (d == null)
             return ;
+        var cnt = 0
         loop = d.loop
         index = d.index
         val timeTable = Array.fill(bucket) { '_' }
@@ -83,9 +84,10 @@ object XLOG {
             if (timeTable(bk2) != 'E') {
                 timeTable(bk2) = if (p.error != 0) 'E' else '#'
             }
+            cnt += 1
         })
         val str = new String(timeTable)
-        println(tm + " " + AnsiPrint.green(str) + " " + mxTime + "sec")
+        println(tm + " " + AnsiPrint.green(str) + " " + mxTime + "sec " + FormatUtil.print(cnt, "#,##0"))
     }
 
     def main(args: Array[String]) {

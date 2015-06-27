@@ -30,6 +30,8 @@ import scouter.util.StringUtil
 import scouter.lang.counters.CounterConstants
 import scouter.lang.counters.CounterEngine
 import scouter.util.SortUtil
+import scouter.lang.pack.ObjectPack
+import java.util.TreeSet
 
 object ProcessMain {
     var loopProcess = 1
@@ -45,6 +47,7 @@ object ProcessMain {
             case "counter" => return counterList(cmd.trim())
             case "realtime" => return REALTIME.process(cmd.trim().substring("realtime".length()).trim())
             case "xlog" => return XLOG.process(cmd.trim().substring("xlog".length()).trim())
+            case "xlist" => return XLIST.process(cmd.trim().substring("xlist".length()).trim())
             case "tagcnt" => return TAGCNT.process(cmd.trim().substring("tagcnt".length()).trim())
             case _ => return Help.help(cmd)
         }
@@ -53,7 +56,10 @@ object ProcessMain {
     val counterEng = scouter.server.CounterManager.getInstance().getCounterEngine();
 
     def objType(): Unit = {
-        val objTypes = counterEng.getAllObjectType()
+        val objTypes =new TreeSet[String]();
+        EnumerScala.foreach(AgentManager.getObjPacks(), (o:ObjectPack)=>{
+            objTypes.add(o.objType)
+        })
         val sorted = SortUtil.sort_string(objTypes.iterator(), objTypes.size(), true)
         EnumerScala.foreach(sorted, (o: String) => {
             println("\t" + AnsiPrint.green(o))

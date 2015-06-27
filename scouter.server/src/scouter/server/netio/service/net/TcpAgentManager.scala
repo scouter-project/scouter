@@ -21,29 +21,36 @@ import scouter.util.LinkedList
 import scouter.util.RequestQueue
 import scala.util.control.Breaks._
 import scouter.server.Configure
+import java.util.concurrent.Executors
+
 object TcpAgentManager {
-    val agentTable = new IntKeyLinkedMap[RequestQueue[TcpAgentWorker]]().setMax(1000)
-    ThreadScala.startDaemon("scouter.server.netio.service.net.TcpAgentManager", { true }, 3000) {
+    val pool = Executors.newFixedThreadPool(4)
+    val agentTable = new IntKeyLinkedMap[RequestQueue[TcpAgentWorker]]().setMax(5000)
+    
+    ThreadScala.startDaemon("scouter.server.netio.service.net.TcpAgentManager", { true }, 5000) {
         val keys = agentTable.keyArray()
         for (k <- keys) {
-            val lst = agentTable.get(k)
-            if (lst != null) {
-                breakable {
-                    val cnt = lst.size()
-                    for (k <- 0 to cnt) {
-                        val item = lst.getNoWait()
-                        if (item == null) {
-                            break
+            val agentSessions = agentTable.get(k)
+            if (agentSessions != null) {
+                pool.execute(new Runnable() {
+                    override def run() {
+                        breakable {
+                            val cnt = agentSessions.size()
+                            for (k <- 0 to cnt) {
+                                val item = agentSessions.getNoWait()
+                                if (item == null) {
+                                    break
+                                }
+                                if (item.isExpired()) {
+                                    item.sendKeepAlive(3000)
+                                }
+                                if (item.isClosed() == false) {
+                                    agentSessions.put(item)
+                                }
+                            }
                         }
-                        if (item.isExpired()) {
-                            item.sendKeepAlive()
-                        }
-                        if (item.isClosed() == false) {
-                            lst.put(item)
-                        }
-
                     }
-                }
+                });
             }
         }
     }

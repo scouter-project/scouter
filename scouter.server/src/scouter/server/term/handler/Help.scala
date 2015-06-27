@@ -17,6 +17,8 @@
 package scouter.server.term.handler;
 
 import scouter.server.term.ScouterHandler
+import scouter.server.term.TermMain
+import java.util.ArrayList
 
 object Help {
     def help(cmd: String): Unit = {
@@ -37,7 +39,19 @@ object Help {
 
     def quit(): Unit = {
         System.out.println("bye bye!!");
-        System.exit(1);
+        // System.exit(1);
+        TermMain.exit();
     }
+    def words(): ArrayList[String] = {
+        val w = new ArrayList[String]();
+        w.add("help")
+        w.add("quit")
+        w.add("objtype")
+        w.add("object")
+        w.add("counter")
+        w.add("realtime")
+        w.add("tagcnt")
 
+        return w;
+    }
 }

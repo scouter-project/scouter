@@ -16,14 +16,16 @@
  */
 package scouter.server.term;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
 
+import scala.tools.jline.TerminalFactory;
+import scala.tools.jline.console.ConsoleReader;
+import scala.tools.jline.console.completer.StringsCompleter;
+import scouter.server.ShutdownManager;
+import scouter.server.term.handler.Help;
 import scouter.server.term.handler.ProcessMain;
+import scouter.util.IShutdown;
 import scouter.util.ShellArg;
-import scouter.util.StringUtil;
 import scouter.util.SystemUtil;
 
 public class TermMain {
@@ -37,46 +39,33 @@ public class TermMain {
 		else if (ar.hasKey("-noansi"))
 			AnsiPrint.enable = false;
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-		PrintStream out = System.out;
+		ShutdownManager.add(new IShutdown() {
+			public void shutdown() {
+				try {
+					TerminalFactory.get().restore();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		ConsoleReader console = new ConsoleReader();
+		console.setHistoryEnabled(true);
+		// console.addCompleter(new FileNameCompleter());
+		console.addCompleter(new StringsCompleter(Help.words()));
+
+		console.setPrompt(AnsiPrint.green("scouter# "));
 		while (true) {
 			try {
-				out.print(AnsiPrint.green(getPrompt()));
-				out.flush();
-				String cmd = reader.readLine();
-				process(cmd.trim());
+				String cmd = console.readLine();
+				ProcessMain.process(cmd.trim());
 			} catch (Throwable t) {
 				t.printStackTrace();
 			}
 		}
 	}
 
-	public static String server_name = "";
-
-	public static String getPrompt() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("SCOUTER");
-		if (StringUtil.isNotEmpty(server_name)) {
-			sb.append(" ").append(server_name);
-		}
-		sb.append("> ");
-		return sb.toString();
-	}
-
-	private static String lastCmd = "";
-
-	public static void process(String cmd) {
-		cmd = cmd.trim();
-		if (cmd.length() == 0)
-			return;
-		if (".".equals(cmd)) {
-			cmd = lastCmd;
-		} else {
-			lastCmd = cmd;
-		}
-
-		ProcessMain.process(cmd);
-
+	public static void exit() {
+		System.exit(0);
 	}
 
 }
