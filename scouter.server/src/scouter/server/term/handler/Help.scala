@@ -22,11 +22,12 @@ object Help {
     def help(cmd: String): Unit = {
         System.out.println("\thelp = Help");
         System.out.println("\tquit = Quit");
-        System.out.println("\tobjtypes = ObjType List");
-        System.out.println("\tobjects = Object List");
-        System.out.println("\tcounters [objType] = counter list for the objType");
+        System.out.println("\tobjtype = ObjType List");
+        System.out.println("\tobject = Object List");
+        System.out.println("\tcounter [objType] = counter list for the objType");
         System.out.println("\trealtime [objType] | TPS [SUM/AVG] | LOOP 2 | FORMAT #,##0");
         System.out.println("\txlog [objType]");
+        System.out.println("\txlist [objType] [Time=10:12:23.123] [Count=20000] [minElapsed=0]");
         System.out.println("\ttagcnt group");
         System.out.println("\ttagcnt tag [group]");
         System.out.println("\ttagcnt top100 [objType] [group] [tag] ");
