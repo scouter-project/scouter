@@ -149,7 +149,7 @@ class JspServletMV extends LocalVariablesSorter implements Opcodes {
 		}
 		mv.visitVarInsn(Opcodes.ALOAD, arrVarIdx);
 
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE,false);
 		super.visitCode();
 	}
 }

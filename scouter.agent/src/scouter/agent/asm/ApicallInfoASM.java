@@ -190,7 +190,7 @@ class ApicallInfoMV extends LocalVariablesSorter implements Opcodes {
 		}
 		mv.visitVarInsn(Opcodes.ALOAD, arrVarIdx);
 
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESUBCALL, START_METHOD, START_SIGNATURE);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESUBCALL, START_METHOD, START_SIGNATURE,false);
 
 		mv.visitCode();
 	}

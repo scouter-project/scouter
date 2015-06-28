@@ -99,7 +99,7 @@ class JDBCDriverMV extends LocalVariablesSorter implements Opcodes {
 	@Override
 	public void visitCode() {
 		mv.visitVarInsn(Opcodes.ALOAD, strArgIdx);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, START_METHOD, START_SIGNATURE);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, START_METHOD, START_SIGNATURE,false);
 		statIdx = newLocal(Type.getType(Object.class));
 		mv.visitVarInsn(Opcodes.ASTORE, statIdx);
 		mv.visitLabel(startFinally);
@@ -109,7 +109,7 @@ class JDBCDriverMV extends LocalVariablesSorter implements Opcodes {
 	public void visitInsn(int opcode) {
 		if ((opcode >= IRETURN && opcode <= RETURN)) {
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, END_METHOD, END_SIGNATURE);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, END_METHOD, END_SIGNATURE,false);
 		}
 		mv.visitInsn(opcode);
 	}
@@ -124,7 +124,7 @@ class JDBCDriverMV extends LocalVariablesSorter implements Opcodes {
 		mv.visitVarInsn(Opcodes.ASTORE, errIdx);
 		mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 		mv.visitVarInsn(Opcodes.ALOAD, errIdx);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, END_METHOD, ERR_SIGNATURE);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, END_METHOD, ERR_SIGNATURE,false);
 		mv.visitInsn(ATHROW);
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
 	}

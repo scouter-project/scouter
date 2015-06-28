@@ -148,35 +148,35 @@ class ServiceMV extends LocalVariablesSorter implements Opcodes {
 			switch (tp.getSort()) {
 			case Type.BOOLEAN:
 				mv.visitVarInsn(Opcodes.ILOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;",false);
 				break;
 			case Type.BYTE:
 				mv.visitVarInsn(Opcodes.ILOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;",false);
 				break;
 			case Type.CHAR:
 				mv.visitVarInsn(Opcodes.ILOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;",false);
 				break;
 			case Type.SHORT:
 				mv.visitVarInsn(Opcodes.ILOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;",false);
 				break;
 			case Type.INT:
 				mv.visitVarInsn(Opcodes.ILOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;",false);
 				break;
 			case Type.LONG:
 				mv.visitVarInsn(Opcodes.LLOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;",false);
 				break;
 			case Type.FLOAT:
 				mv.visitVarInsn(Opcodes.FLOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;",false);
 				break;
 			case Type.DOUBLE:
 				mv.visitVarInsn(Opcodes.DLOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;",false);
 				break;
 			default:
 				mv.visitVarInsn(Opcodes.ALOAD, sidx);
@@ -198,7 +198,7 @@ class ServiceMV extends LocalVariablesSorter implements Opcodes {
 		
 		
 		AsmUtil.PUSH(mv, xType);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE,false);
 
 		statIdx = newLocal(Type.getType(Object.class));
 		mv.visitVarInsn(Opcodes.ASTORE, statIdx);

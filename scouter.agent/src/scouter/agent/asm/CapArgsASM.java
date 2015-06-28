@@ -41,8 +41,8 @@ public class CapArgsASM implements IASM, Opcodes {
 		}
 		return false;
 	}
-	public ClassVisitor transform(ClassVisitor cv, String className,
-			ClassDesc classDesc) {
+
+	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 
 		for (int i = 0; i < target.size(); i++) {
 			MethodSet mset = target.get(i);
@@ -67,10 +67,8 @@ class CapArgsCV extends ClassVisitor implements Opcodes {
 	}
 
 	@Override
-	public MethodVisitor visitMethod(int access, String methodName,
-			String desc, String signature, String[] exceptions) {
-		MethodVisitor mv = super.visitMethod(access, methodName, desc,
-				signature, exceptions);
+	public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
+		MethodVisitor mv = super.visitMethod(access, methodName, desc, signature, exceptions);
 		if (mv == null || mset.isA(methodName, desc) == false) {
 			return mv;
 		}
@@ -79,15 +77,14 @@ class CapArgsCV extends ClassVisitor implements Opcodes {
 		}
 		// String fullname = AsmUtil.add(className, name, desc);
 		// int fullname_hash = HashUtil.hash(fullname);
-		return new CapArgsMV(access, desc, mv, Type.getArgumentTypes(desc),
-				(access & ACC_STATIC) != 0, className, methodName, desc);
+		return new CapArgsMV(access, desc, mv, Type.getArgumentTypes(desc), (access & ACC_STATIC) != 0, className,
+				methodName, desc);
 	}
 }
 
 // ///////////////////////////////////////////////////////////////////////////
 class CapArgsMV extends LocalVariablesSorter implements Opcodes {
-	private static final String CLASS = TraceMain.class.getName().replace('.',
-			'/');
+	private static final String CLASS = TraceMain.class.getName().replace('.', '/');
 	private static final String METHOD = "capArgs";
 	private static final String SIGNATURE = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)V";
 
@@ -97,10 +94,9 @@ class CapArgsMV extends LocalVariablesSorter implements Opcodes {
 	private String methodName;
 	private String methodDesc;
 
-	public CapArgsMV(int access, String desc, MethodVisitor mv,
-			Type[] paramTypes, boolean isStatic, String classname,
+	public CapArgsMV(int access, String desc, MethodVisitor mv, Type[] paramTypes, boolean isStatic, String classname,
 			String methodname, String methoddesc) {
-		super(ASM4,access, desc, mv);
+		super(ASM4, access, desc, mv);
 		this.paramTypes = paramTypes;
 		this.isStatic = isStatic;
 		this.className = classname;
@@ -134,43 +130,35 @@ class CapArgsMV extends LocalVariablesSorter implements Opcodes {
 			switch (tp.getSort()) {
 			case Type.BOOLEAN:
 				mv.visitVarInsn(Opcodes.ILOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean",
-						"valueOf", "(Z)Ljava/lang/Boolean;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;",false);
 				break;
 			case Type.BYTE:
 				mv.visitVarInsn(Opcodes.ILOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte",
-						"valueOf", "(B)Ljava/lang/Byte;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;",false);
 				break;
 			case Type.CHAR:
 				mv.visitVarInsn(Opcodes.ILOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character",
-						"valueOf", "(C)Ljava/lang/Character;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;",false);
 				break;
 			case Type.SHORT:
 				mv.visitVarInsn(Opcodes.ILOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short",
-						"valueOf", "(S)Ljava/lang/Short;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;",false);
 				break;
 			case Type.INT:
 				mv.visitVarInsn(Opcodes.ILOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer",
-						"valueOf", "(I)Ljava/lang/Integer;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;",false);
 				break;
 			case Type.LONG:
 				mv.visitVarInsn(Opcodes.LLOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long",
-						"valueOf", "(J)Ljava/lang/Long;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;",false);
 				break;
 			case Type.FLOAT:
 				mv.visitVarInsn(Opcodes.FLOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float",
-						"valueOf", "(F)Ljava/lang/Float;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;",false);
 				break;
 			case Type.DOUBLE:
 				mv.visitVarInsn(Opcodes.DLOAD, sidx);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double",
-						"valueOf", "(D)Ljava/lang/Double;");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;",false);
 				break;
 			default:
 				mv.visitVarInsn(Opcodes.ALOAD, sidx);

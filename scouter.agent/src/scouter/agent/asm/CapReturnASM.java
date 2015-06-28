@@ -136,7 +136,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			AsmUtil.PUSH(mv, methodDesc);
 
 			mv.visitVarInsn(Opcodes.ILOAD, i);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;",false);
 			break;
 		case Type.BYTE:
 			mv.visitVarInsn(Opcodes.ISTORE, i);
@@ -147,7 +147,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			AsmUtil.PUSH(mv, methodDesc);
 
 			mv.visitVarInsn(Opcodes.ILOAD, i);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;",false);
 			break;
 		case Type.CHAR:
 			mv.visitVarInsn(Opcodes.ISTORE, i);
@@ -158,7 +158,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			AsmUtil.PUSH(mv, methodDesc);
 
 			mv.visitVarInsn(Opcodes.ILOAD, i);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;",false);
 			break;
 		case Type.SHORT:
 			mv.visitVarInsn(Opcodes.ISTORE, i);
@@ -169,7 +169,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			AsmUtil.PUSH(mv, methodDesc);
 
 			mv.visitVarInsn(Opcodes.ILOAD, i);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;",false);
 			break;
 		case Type.INT:
 			mv.visitVarInsn(Opcodes.ISTORE, i);
@@ -180,7 +180,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			AsmUtil.PUSH(mv, methodDesc);
 
 			mv.visitVarInsn(Opcodes.ILOAD, i);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;",false);
 			break;
 		case Type.LONG:
 			mv.visitVarInsn(Opcodes.LSTORE, i);
@@ -191,7 +191,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			AsmUtil.PUSH(mv, methodDesc);
 
 			mv.visitVarInsn(Opcodes.LLOAD, i);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;",false);
 			break;
 		case Type.FLOAT:
 			mv.visitVarInsn(Opcodes.FSTORE, i);
@@ -203,7 +203,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 
 			mv.visitVarInsn(Opcodes.FLOAD, i);
 
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;",false);
 			break;
 		case Type.DOUBLE:
 			mv.visitVarInsn(Opcodes.DSTORE, i);
@@ -214,7 +214,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			AsmUtil.PUSH(mv, methodDesc);
 			
 			mv.visitVarInsn(Opcodes.DLOAD, i);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;",false);
 			break;
 		default:
 			mv.visitVarInsn(Opcodes.ASTORE, i);
@@ -227,6 +227,6 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(Opcodes.ALOAD, i);
 		}
 
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE,false);
 	}
 }

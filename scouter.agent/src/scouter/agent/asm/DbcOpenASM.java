@@ -40,12 +40,6 @@ public class DbcOpenASM implements IASM, Opcodes {
 	private Map<String, MethodSet> reserved = new HashMap<String, MethodSet>();
 
 	public DbcOpenASM() {
-		// JBOSS6
-		// AsmUtil.add(reserved,
-		// "org/jboss/jca/core/connectionmanager/pool/AbstractPool",
-		// "getConnection");
-		AsmUtil.add(reserved, "org/jboss/jca/adapters/jdbc/WrapperDataSource", "getConnection");
-
 		// Tomcat7
 		AsmUtil.add(reserved,"org/apache/tomcat/dbcp/dbcp/BasicDataSource", "getConnection");
 		AsmUtil.add(reserved, "org/apache/tomcat/jdbc/pool/ConnectionPool", "getConnection");

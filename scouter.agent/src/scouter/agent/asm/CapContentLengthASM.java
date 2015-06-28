@@ -73,7 +73,7 @@ class CapContentsLengthMV extends MethodVisitor implements Opcodes {
 	@Override
 	public void visitCode() {
 		mv.visitVarInsn(Opcodes.ILOAD, 1);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD_NAME, "(I)V");
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD_NAME, "(I)V",false);
 		super.visitCode();
 	}
 }

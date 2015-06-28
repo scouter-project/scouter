@@ -38,9 +38,6 @@ public class DbcCloseASM implements IASM, Opcodes {
 	private Map<String, MethodSet> reserved = new HashMap<String, MethodSet>();
 
 	public DbcCloseASM() {
-		//JBOSS6
-	    //AsmUtil.add(reserved, "org/jboss/jca/core/connectionmanager/pool/AbstractPool", "returnConnection");
-	    AsmUtil.add(reserved,"org/jboss/jca/adapters/jdbc/WrappedConnection","close");
 		//Tomcat7
 	    AsmUtil.add(reserved, "org/apache/tomcat/dbcp/dbcp/PoolableConnection", "close");
 	    AsmUtil.add(reserved, "org/apache/tomcat/jdbc/pool/ConnectionPool", "returnConnection");
@@ -135,7 +132,7 @@ class DbcCloseMV extends LocalVariablesSorter implements Opcodes {
 	public void visitCode() {
 		AsmUtil.PUSH(mv, fullname_hash);
 		mv.visitLdcInsn(fullname);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, METHOD, SIGNATURE);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, METHOD, SIGNATURE,false);
 		super.visitCode();
 	}
 }
