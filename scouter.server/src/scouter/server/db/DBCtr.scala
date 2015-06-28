@@ -36,6 +36,10 @@ object DBCtr {
     })
     
     def createLock() : Boolean = {
+        val dir =new File(getRootPath)
+        if(dir.canRead()==false){
+            dir.mkdirs()
+        }
         val lock = new File(getRootPath, "lock.dat")
         val ok = lock.createNewFile();
         if(ok){
