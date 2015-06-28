@@ -123,13 +123,13 @@ class IndexTimeFile(_path: String) extends IClose {
 
         var i = 0
         var stime = _stime
-        while (i < DateUtil.SECONDS_PER_DAY && stime <= etime) {
+        while (i < DateUtil.SECONDS_PER_DAY*2 && stime <= etime) {
             val data = getSecAll(stime);
             EnumerScala.forward(data, (tv: TimeValue) => {
                 handler(tv.time, tv.value)
             })
             i += 1
-            stime = stime + 1000L
+            stime = stime + 500L
         }
     }
 
@@ -139,14 +139,14 @@ class IndexTimeFile(_path: String) extends IClose {
 
         var i = 0
         var etime = _etime
-        while (i < DateUtil.SECONDS_PER_DAY && stime <= etime) {
+        while (i < DateUtil.SECONDS_PER_DAY*2 && stime <= etime) {
             val data = getSecAll(etime);
 
             EnumerScala.backward(data, (tv: TimeValue) => {
                 handler(tv.time, tv.value)
             })
             i += 1
-            etime = etime - 1000L
+            etime = etime - 500L
         }
     }
 
@@ -156,7 +156,7 @@ class IndexTimeFile(_path: String) extends IClose {
 
         var i = 0
         var stime = _stime
-        while (i < DateUtil.SECONDS_PER_DAY && stime <= etime) {
+        while (i < DateUtil.SECONDS_PER_DAY*2 && stime <= etime) {
             val data = getSecAll(stime);
 
             EnumerScala.forward(data, (tv: TimeValue) => {
@@ -164,7 +164,7 @@ class IndexTimeFile(_path: String) extends IClose {
             })
 
             i += 1
-            stime = stime + 1000L
+            stime = stime + 500L
         }
     }
 
@@ -174,14 +174,14 @@ class IndexTimeFile(_path: String) extends IClose {
 
         var i = 0
         var etime = _etime
-        while (i < DateUtil.SECONDS_PER_DAY && stime <= etime) {
+        while (i < DateUtil.SECONDS_PER_DAY*2 && stime <= etime) {
             val data = getSecAll(etime);
 
             EnumerScala.backward(data, (tv: TimeValue) => {
                 handler(tv.time, reader(DataInputX.toLong5(tv.value, 0)))
             })
             i += 1
-            etime = etime - 1000L
+            etime = etime - 500L
         }
     }
 
