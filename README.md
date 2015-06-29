@@ -57,9 +57,9 @@ Licensed under the Apache License, Version 2.0
 https://github.com/JSQLParser/JSqlParser
 
 - This product includes GeoLite data created by MaxMind, available from
-http://www.maxmind.com
-
-- Download MaxMind GeoIP Data :  http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+   http://www.maxmind.com
+ - Download MaxMind GeoIP Data : 
+   http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
 
 - This product include icons from : 
 http://www.famfamfam.com/lab/icons/silk/
