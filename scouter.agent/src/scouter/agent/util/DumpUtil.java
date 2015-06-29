@@ -172,7 +172,7 @@ public class DumpUtil extends Thread {
 		return pack;
 	}
 
-	private static void printStack(PrintWriter out, long tid) {
+	public static void printStack(PrintWriter out, long tid) {
 		ThreadMXBean tmb = ManagementFactory.getThreadMXBean();
 		ThreadInfo f = tmb.getThreadInfo(tid, 500);
 		StackTraceElement[] se = f.getStackTrace();

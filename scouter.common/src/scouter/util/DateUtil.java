@@ -147,8 +147,7 @@ public class DateUtil {
 	}
 
 	public static boolean isSameDay(Date date, Date date2) {
-		return helper.getDateUnit(date.getTime()) == helper.getDateUnit(date2
-				.getTime());
+		return helper.getDateUnit(date.getTime()) == helper.getDateUnit(date2.getTime());
 	}
 
 	public static int getHour(Date date) {
@@ -169,6 +168,10 @@ public class DateUtil {
 
 	public static String timestamp() {
 		return helper.timestamp(System.currentTimeMillis());
+	}
+
+	public static String timestampFileName() {
+		return helper.timestampFileName(System.currentTimeMillis());
 	}
 
 	public static int getDateMillis(long time) {
@@ -195,14 +198,13 @@ public class DateUtil {
 		return helper.reverseHourUnit(unit);
 	}
 
-	public static long now(){
+	public static long now() {
 		return System.currentTimeMillis();
 	}
+
 	public static void main(String[] args) {
-		System.out.println(isSameDay(new Date(helper.yyyymmdd("20141214")),
-				new Date(helper.yyyymmdd("20141214") + MILLIS_PER_DAY - 1)));
+		System.out.println(isSameDay(new Date(helper.yyyymmdd("20141214")), new Date(helper.yyyymmdd("20141214")
+				+ MILLIS_PER_DAY - 1)));
 	}
-
-
 
 }

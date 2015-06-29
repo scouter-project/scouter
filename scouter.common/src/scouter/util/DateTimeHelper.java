@@ -159,7 +159,19 @@ public class DateTimeHelper {
 		int sss = (int) (dtime % 1000);
 		return String.format("%s %02d:%02d:%02d.%03d", dateTable[idx].date, hh, mm, ss, sss);
 	}
-
+	public String timestampFileName(long time) {
+		if (time < BASE_TIME)
+			return "20000101_000000_000";
+		int idx = (int) ((time - BASE_TIME) / MILLIS_PER_DAY);
+		long dtime = (time - BASE_TIME) % MILLIS_PER_DAY;
+		int hh = (int) (dtime / MILLIS_PER_HOUR);
+		dtime = (int) (dtime % MILLIS_PER_HOUR);
+		int mm = (int) (dtime / MILLIS_PER_MINUTE);
+		dtime = (int) (dtime % MILLIS_PER_MINUTE);
+		int ss = (int) (dtime / MILLIS_PER_SECOND);
+		int sss = (int) (dtime % 1000);
+		return String.format("%s_%02d%02d%02d_%03d", dateTable[idx].date, hh, mm, ss, sss);
+	}
 	public String ymdhms(long time) {
 		if (time < BASE_TIME)
 			return "20000101000000";

@@ -47,7 +47,7 @@ public class JBossJMXPerf {
 	HashMap<MeterKey, MeterResource> meters = new HashMap<MeterKey, MeterResource>();
 	HashMap<MeterKey, Long> lastValues = new HashMap<MeterKey, Long>();
 	private static HashSet<String> deltas = new HashSet<String>();
-	private static boolean dirtyConfig=false;
+	private static boolean dirtyConfig = false;
 	static {
 		deltas.add(CounterConstants.REQUESTPROCESS_BYTES_RECEIVED);
 		deltas.add(CounterConstants.REQUESTPROCESS_BYTES_SENT);
@@ -56,7 +56,7 @@ public class JBossJMXPerf {
 		deltas.add(CounterConstants.REQUESTPROCESS_REQUEST_COUNT);
 		ConfObserver.add("JBossJMXPerf", new Runnable() {
 			public void run() {
-				dirtyConfig=true;
+				dirtyConfig = true;
 			}
 		});
 	}
@@ -114,10 +114,10 @@ public class JBossJMXPerf {
 
 		getMBeanServer();
 
-		if ((collectCnt < 100 && collectCnt % 5 == 0)||dirtyConfig) {
+		if ((collectCnt < 100 && collectCnt % 5 == 0) || dirtyConfig) {
 			if (dirtyConfig) {
 				AgentHeartBeat.clearSubObjects();
-				dirtyConfig=false;
+				dirtyConfig = false;
 			}
 			getContextList();
 		}

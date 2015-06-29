@@ -136,6 +136,8 @@ public class Configure extends Thread {
 	public int auto_dump_trigger = 10000;
 	public long auto_dump_interval = 30000;
 	public int auto_dump_level = 1;
+	
+	public int debug_long_tx_autostack = 0;
 
 	public String http_static_contents = "js, htm, html, gif, png, jpg, css";
 	private Set<String> static_contents = new HashSet<String>();
@@ -355,7 +357,8 @@ public class Configure extends Thread {
 		if (this.auto_dump_interval < 5000) {
 			this.auto_dump_interval = 5000;
 		}
-
+		this.debug_long_tx_autostack = getInt("debug_long_tx_autostack",0);
+		
 		this.http_static_contents = getValue("http_static_contents",
 				getValue("http.static.contents", "js, htm, html, gif, png, jpg, css"));
 
