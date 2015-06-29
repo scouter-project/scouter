@@ -27,7 +27,8 @@ object Help {
         System.out.println("\tobjtype = ObjType List");
         System.out.println("\tobject = Object List");
         System.out.println("\tcounter [objType] = counter list for the objType");
-        System.out.println("\trealtime [objType] | TPS [SUM/AVG] | LOOP 2 | FORMAT #,##0");
+        System.out.println("\tdashboard [objType]  ");
+        System.out.println("\trealtime [objType]  TPS [SUM/AVG] ");
         System.out.println("\txlog [objType]");
         System.out.println("\txlist [objType] [Time=10:12:23.123] [Count=20000] [minElapsed=0]");
         System.out.println("\ttagcnt group");
@@ -51,6 +52,7 @@ object Help {
         w.add("counter")
         w.add("realtime")
         w.add("tagcnt")
+        w.add("dashboard")
 
         return w;
     }

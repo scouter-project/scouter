@@ -33,30 +33,24 @@ object REALTIME {
 
     def process(cmd: String): Unit = {
 
-        val cmds = StringUtil.tokenizer(cmd, "|");
+        val cmds = StringUtil.tokenizer(cmd, " ");
         if (cmds.length < 2)
             return
 
         val cnt = StringUtil.tokenizer(cmds(1), " ")
-        val counterName = cnt(0)
-        val mode = if (cnt.length > 1) cnt(1) else null
-        var loop = getLoopTime(find(cmds, "LOOP"))
-        val format = getFormat(find(cmds, "FORMAT"))
-        if (loop <= 0) {
-            val objHashList = AgentManager.filter(cmds(0))
-            process(objHashList, counterName, mode, format)
-            return
-        }
+        val counterName = cmds(1)
+        val mode = if (cmds.length > 2) cmds(2) else null
+      
 
         ThreadScala.startDaemon("ProcessMain") {
             val loopNum = ProcessMain.loopProcess
             while (loopNum == ProcessMain.loopProcess) {
                 try {
-                    process(AgentManager.filter(cmds(0)), counterName, mode,  format)
+                    process(AgentManager.filter(cmds(0)), counterName, mode)
                 } catch {
                     case e: Throwable => e.printStackTrace()
                 }
-                Thread.sleep(loop * 1000)
+                Thread.sleep(2000)
             }
         }
     }
@@ -70,7 +64,8 @@ object REALTIME {
         return null
     }
 
-    def process(objHashList: List[Int], counterName: String, mode: String, format: String) {
+    val format = "#,##0"
+    def process(objHashList: List[Int], counterName: String, mode: String) {
         val tm = DateUtil.getLogTime(System.currentTimeMillis())
         if (objHashList.size() == 0) {
             println(tm + " ...")
@@ -98,15 +93,7 @@ object REALTIME {
             case _ => println(tm + " " + counterName + " " + FormatUtil.print(sum, format))
         }
     }
-    private def getLoopTime(loop: String): Int = {
-        if (loop == null) return 0
-        if (loop.equalsIgnoreCase("LOOP")) return 2
-        try {
-            return StringUtil.tokenizer(loop, " ")(1).toInt
-        } catch {
-            case _: Throwable => return 2
-        }
-    }
+   
     private def getFormat(fm: String): String = {
         if (fm == null) return "#,##0"
         try {
@@ -116,6 +103,6 @@ object REALTIME {
         }
     }
     def main(args: Array[String]) {
-        process("REALTIME | tomcat | TPS  | LOOP 5 ")
+        process("REALTIME tomcat TPS")
     }
 }
