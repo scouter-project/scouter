@@ -36,8 +36,7 @@ Scouter has three modules:
 - Client : provide the user interfaces
   - Eclipse RCP : SCOUTER is created as a standalone program. So the client can be connected to multiple servers at the same time. It makes easier that users monitor large scale systems.
   - SWT & GEF4 : Charts and Diagrams
-
-### To-be
+  
 SCOUTER is just simple. This configuration is simple.It will quickly provide the functions of monitoring OSS.
 - It will be deployed and upgraded through the Internet.
 - Clients are avaliable on Windows, MAC OSX and Linux.
@@ -48,7 +47,8 @@ SCOUTER is just simple. This configuration is simple.It will quickly provide the
 ### Documents
  - [Getting Started](../../wiki/Getting-Started) wiki page.
  - [Setup FAQ](../../wiki/Setup-FAQ) wiki page.
-
+ - [Counting Concurrent User](./Counting-Concurrent-User)
+ 
 ### License
 Licensed under the Apache License, Version 2.0
 
