@@ -45,9 +45,9 @@ SCOUTER is just simple. This configuration is simple.It will quickly provide the
 
 
 ### Documents
- - [Getting Started](../../wiki/Getting-Started) wiki page.
- - [Setup FAQ](../../wiki/Setup-FAQ) wiki page.
- - [Counting Concurrent User](./Counting-Concurrent-User)
+ - [Getting Started](../../wiki/Getting-Started)
+ - [Setup FAQ](../../wiki/Setup-FAQ) 
+ - [Counting Concurrent User](../../wiki/Counting-Concurrent-User)
  
 ### License
 Licensed under the Apache License, Version 2.0
