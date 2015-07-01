@@ -29,7 +29,7 @@ Scouter has three modules:
   -  MariaDB Agent : [to be announced]
 
 - Server : received the data from agent and it stores the data. The data is serviced to clients.
-  - SCALA : developed by Scala. It will provide a variety of features and performance scalability that can not be written in Java.
+  - Scala : Written in Scala. It will provide a variety of features and performance scalability that can not be written in Java.
   - HASH FILE : Server is using the hash index in order to store large data in files.
   - GZIP : Service performance data and profile data are stored is compressed.
 
@@ -37,11 +37,11 @@ Scouter has three modules:
   - Eclipse RCP : SCOUTER is created as a standalone program. So the client can be connected to multiple servers at the same time. It makes easier that users monitor large scale systems.
   - SWT & GEF4 : Charts and Diagrams
   
-SCOUTER is just simple. This configuration is simple.It will quickly provide the functions of monitoring OSS.
+SCOUTER is just simple. This configuration is simple. It will quickly provide the functions of monitoring OSS.
 - It will be deployed and upgraded through the Internet.
 - Clients are avaliable on Windows, MAC OSX and Linux.
 - It will also be automatically upgraded.
-- Key features such as Response-distribution, Active-service, Tag-count analysis are provided to  users.
+- Key features such as Response-distribution, Active-service, Tag-count analysis are provided.
 
 
 ### Documents
