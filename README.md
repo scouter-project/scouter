@@ -29,34 +29,37 @@ Scouter has three modules:
   -  MariaDB Agent : [to be announced]
 
 - Server : received the data from agent and it stores the data. The data is serviced to clients.
-  - SCALA : developed by Scala. It will provide a variety of features and performance scalability that can not be written in Java.
+  - Scala : Written in Scala. It will provide a variety of features and performance scalability that can not be written in Java.
   - HASH FILE : Server is using the hash index in order to store large data in files.
   - GZIP : Service performance data and profile data are stored is compressed.
 
 - Client : provide the user interfaces
   - Eclipse RCP : SCOUTER is created as a standalone program. So the client can be connected to multiple servers at the same time. It makes easier that users monitor large scale systems.
   - SWT & GEF4 : Charts and Diagrams
-
-### To-be
-SCOUTER is just simple. This configuration is simple.It will quickly provide the functions of monitoring OSS.
+  
+SCOUTER is just simple. This configuration is simple. It will quickly provide the functions of monitoring OSS.
 - It will be deployed and upgraded through the Internet.
 - Clients are avaliable on Windows, MAC OSX and Linux.
 - It will also be automatically upgraded.
-- Key features such as Response-distribution, Active-service, Tag-count analysis are provided to  users.
+- Key features such as Response-distribution, Active-service, Tag-count analysis are provided.
 
 
 ### Documents
- - [Getting Started](../../wiki/Getting-Started) wiki page.
- - [Setup FAQ](../../wiki/Setup-FAQ) wiki page.
-
+ - [Getting Started](../../wiki/Getting-Started)
+ - [Setup FAQ](../../wiki/Setup-FAQ) 
+ - [Counting Concurrent User](../../wiki/Counting-Concurrent-User)
+ 
 ### License
 Licensed under the Apache License, Version 2.0
 
 ### Using Components & Icons
+- This product includes JSqlParser
+https://github.com/JSQLParser/JSqlParser
+
 - This product includes GeoLite data created by MaxMind, available from
-http://www.maxmind.com
+   http://www.maxmind.com
+ - Download MaxMind GeoIP Data : 
+   http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
 
-- Download MaxMind GeoIP Data :  http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
-
-- Icons from : 
+- This product include icons from : 
 http://www.famfamfam.com/lab/icons/silk/
