@@ -215,6 +215,7 @@ public class Configure extends Thread {
 	public String visitor_jsessionid = "JSESSIONID";
 	public int statistics_interval = (int) DateUtil.MILLIS_PER_FIVE_MINUTE;
 	public boolean enable_auto_service_trace = false;
+	public boolean enable_auto_service_backstack=true;
 
 	public boolean debug_apicall = false;
 
@@ -471,6 +472,8 @@ public class Configure extends Thread {
 
 		this.enable_host_agent = getBoolean("enable_host_agent", false);
 		this.enable_auto_service_trace = getBoolean("enable_auto_service_trace", false);
+		this.enable_auto_service_backstack = getBoolean("enable_auto_service_backstack", true);
+		
 		this.debug_apicall = getBoolean("debug_apicall", false);
 
 		this.hook_future_task = getValue("hook_future_task", "");

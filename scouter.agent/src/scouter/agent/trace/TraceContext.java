@@ -72,6 +72,7 @@ public class TraceContext {
 	public long rs_start;
 	public int rs_count;
 	final public SqlParameter sql = new SqlParameter();
+	public SqlParameter sqlActiveArgs;
 	
 
 	public long visitor;
@@ -82,6 +83,7 @@ public class TraceContext {
 	public boolean is_child_tx;
 	public long caller;
 	public long callee;
+
 
 
 //	public void checkConcurrentProfiling(){

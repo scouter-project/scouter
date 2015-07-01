@@ -27,9 +27,10 @@ object Help {
         System.out.println("\tobjtype = ObjType List");
         System.out.println("\tobject = Object List");
         System.out.println("\tcounter [objType] = counter list for the objType");
-        System.out.println("\tdashboard [objType]  ");
-        System.out.println("\trealtime [objType]  TPS [SUM/AVG] ");
-        System.out.println("\txlog [objType]");
+        System.out.println("\tdashboard [objType]  = javaee's dashboard");
+        System.out.println("\tdashboard [objType]  [Counter] = host's dashdoard");
+        System.out.println("\trealtime [objType]  TPS [SUM/AVG] = realtime counter view");
+        System.out.println("\txlog [objType]") ;
         System.out.println("\txlist [objType] [Time=10:12:23.123] [Count=20000] [minElapsed=0]");
         System.out.println("\ttagcnt group");
         System.out.println("\ttagcnt tag [group]");

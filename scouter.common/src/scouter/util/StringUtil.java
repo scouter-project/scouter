@@ -37,6 +37,18 @@ public class StringUtil {
 		return "";
 	}
 
+	public static String lastWord(String target, String delim) {
+		if (target == null || target.length() == 0 || delim.length() == 0) {
+			return "";
+		}
+		String value = "";
+		StringTokenizer nizer = new StringTokenizer(target, delim);
+		while (nizer.hasMoreTokens()) {
+			value =  trimEmpty(nizer.nextToken());
+		}
+		return value;
+	}
+
 	public static String[] tokenizer(String target, String delim) {
 		if (target == null || target.length() == 0) {
 			return null;
@@ -281,6 +293,7 @@ public class StringUtil {
 			return str;
 		return str + padding(len - slen, ' ');
 	}
+
 	public static String lpad(String str, int len) {
 		if (str == null) {
 			return padding(len, ' ');
@@ -288,8 +301,9 @@ public class StringUtil {
 		int slen = str.length();
 		if (slen >= len)
 			return str;
-		return  padding(len - slen, ' ')+str;
+		return padding(len - slen, ' ') + str;
 	}
+
 	public static String padding(int len, char ch) {
 		StringBuffer sb = new StringBuffer(len);
 		for (int i = 0; i < len; i++) {

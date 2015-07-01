@@ -45,7 +45,11 @@ public class Debug {
 						out.print(ctx.serviceName + ":");
 						out.print(etime + " ms");
 						if (ctx.sqltext != null) {
-							out.print(":sql=" + ctx.sqltext + ":");
+							out.print(":sql=" + ctx.sqltext );
+							if(ctx.sqlActiveArgs!=null){
+								out.print("[" + ctx.sqlActiveArgs + "]");
+							}
+							out.print(":");
 						}
 						if (ctx.apicall_name != null) {
 							out.println(":subcall=" + ctx.apicall_name);

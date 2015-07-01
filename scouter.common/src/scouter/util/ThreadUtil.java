@@ -101,6 +101,9 @@ public class ThreadUtil {
 			return null;
 		return getStackTrace(f.getStackTrace()).toString();
 	}
+	public static String getThreadStack(){
+		return getStackTrace(Thread.currentThread().getStackTrace()).toString();
+	}
 	public static String getStackTrace(StackTraceElement[] se) {
 		String CRLF = System.getProperty("line.separator");
 		StringBuffer sb = new StringBuffer();
@@ -110,7 +113,6 @@ public class ThreadUtil {
 					sb.append(se[i].toString() + CRLF);
 			}
 		}
-
 		return sb.toString();
 	}
 

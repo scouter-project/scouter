@@ -116,6 +116,8 @@ public class TraceSQL {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - c.startCpu);
 		}
 
+		c.sqlActiveArgs = c.sql;
+
 		String sql = "unknown";
 		sql = c.sql.getSql();
 		sql = escapeLiteral(sql, step);
@@ -131,17 +133,17 @@ public class TraceSQL {
 	}
 
 	public static Object start(Object o, String sql) {
-		TraceContext tctx = TraceContextManager.getLocalContext();
-		if (tctx == null) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null) {
 			if (conf.debug_background_sql) {
 				Logger.info("BGSQL:" + sql);
 			}
 			return null;
 		}
 		SqlStep step = new SqlStep();
-		step.start_time = (int) (System.currentTimeMillis() - tctx.startTime);
-		if (tctx.profile_thread_cputime) {
-			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - tctx.startCpu);
+		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
 
 		if (sql == null) {
@@ -151,9 +153,9 @@ public class TraceSQL {
 		}
 		step.hash = StringHashCache.getSqlHash(sql);
 		DataProxy.sendSqlText(step.hash, sql);
-		tctx.profile.push(step);
-		tctx.sqltext = sql;
-		return new LocalContext(tctx, step);
+		ctx.profile.push(step);
+		ctx.sqltext = sql;
+		return new LocalContext(ctx, step);
 	}
 
 	private static class ParsedSql {
@@ -170,7 +172,7 @@ public class TraceSQL {
 	private static IntKeyLinkedMap<ParsedSql> checkedSql = new IntKeyLinkedMap<ParsedSql>().setMax(1001);
 
 	private static String escapeLiteral(String sql, SqlStep step) {
-		if(conf.profile_sql_escape==false)
+		if (conf.profile_sql_escape == false)
 			return sql;
 		int sqlHash = sql.hashCode();
 		if (noLiteralSql.contains(sqlHash)) {
@@ -230,11 +232,12 @@ public class TraceSQL {
 		}
 
 		tctx.sqltext = null;
+		tctx.sqlActiveArgs = null;
+
 		tctx.sqlCount++;
 		tctx.sqlTime += ps.elapsed;
 
 		tctx.profile.pop(ps);
-
 	}
 
 	public static void prepare(Object o, String sql) {
@@ -377,6 +380,7 @@ public class TraceSQL {
 		if (c.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - c.startCpu);
 		}
+		c.sqlActiveArgs = args;
 
 		String sql = "unknown";
 		if (args != null) {
@@ -437,13 +441,13 @@ public class TraceSQL {
 		if (ctx.profile_thread_cputime) {
 			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
-		
+
 		DBURL dbUrl = getUrl(pool);
-        if(dbUrl!=unknown){
-        	hash = dbUrl.hash;
-        	DataProxy.sendMethodName(hash, dbUrl.url);
+		if (dbUrl != unknown) {
+			hash = dbUrl.hash;
+			DataProxy.sendMethodName(hash, dbUrl.url);
 		}
-		        
+
 		p.hash = hash;
 		ctx.profile.push(p);
 
@@ -453,23 +457,24 @@ public class TraceSQL {
 			ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 			ctx.profile.add(ms);
 		}
-		
+
 		LocalContext lctx = new LocalContext(ctx, p);
 		lctx.option = new INT(ctx.opencon);
 		return lctx;
 	}
 
-	static class DBURL{
+	static class DBURL {
 		int hash;
 		String url;
+
 		public DBURL(int hash, String url) {
 			this.hash = hash;
 			this.url = url;
-		}		
+		}
 	}
+
 	static IntKeyLinkedMap<DBURL> urlTable = new IntKeyLinkedMap<DBURL>().setMax(500);
-	static DBURL unknown = new DBURL(0,null);
-	
+	static DBURL unknown = new DBURL(0, null);
 
 	private static DBURL getUrl(Object pool) {
 		if (pool == null)
@@ -477,15 +482,15 @@ public class TraceSQL {
 
 		int key = System.identityHashCode(pool);
 		DBURL dbUrl = urlTable.get(key);
-		if (dbUrl != null){
+		if (dbUrl != null) {
 			return dbUrl;
 		}
 		try {
 			Field field = pool.getClass().getDeclaredField("url");
 			if (field != null) {
 				field.setAccessible(true);
-				String u = "OPEN-DBC "+ field.get(pool);
-				dbUrl=new DBURL(HashUtil.hash(u),u);
+				String u = "OPEN-DBC " + field.get(pool);
+				dbUrl = new DBURL(HashUtil.hash(u), u);
 			}
 		} catch (Throwable e) {
 		}
@@ -547,14 +552,15 @@ public class TraceSQL {
 
 		ctx.profile.add(p);
 	}
-	
-	public static void sqlMap(String methodName, String sqlname){
+
+	public static void sqlMap(String methodName, String sqlname) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
 		MessageStep p = new MessageStep();
 		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		p.message = new StringBuffer(40).append("SQLMAP ").append(methodName).append(" { ").append(sqlname).append(" }").toString();
+		p.message = new StringBuffer(40).append("SQLMAP ").append(methodName).append(" { ").append(sqlname)
+				.append(" }").toString();
 		ctx.profile.add(p);
 
 	}
