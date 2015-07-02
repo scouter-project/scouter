@@ -49,7 +49,7 @@ SCOUTER is just simple. This configuration is simple. It will quickly provide th
  - [Setup FAQ](../../wiki/Setup-FAQ) 
  - [Counting Concurrent User](../../wiki/Counting-Concurrent-User)
  - [Reading XLog](../../wiki/Reading-XLog)
- - [How to build](../../wiki/How-To-Build)
+ - [Build Package](../../wiki/Build-Scouter)
 
 ### License
 Licensed under the Apache License, Version 2.0
