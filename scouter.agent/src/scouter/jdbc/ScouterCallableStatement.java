@@ -16,10 +16,13 @@
 
 package scouter.jdbc;
 
+import java.sql.SQLException;
+import java.util.Map;
+
 public class ScouterCallableStatement extends ScouterPreparedStatement implements java.sql.CallableStatement {
 	java.sql.CallableStatement inner;
 
-	public ScouterCallableStatement(java.sql.CallableStatement inner,String sql) {
+	public ScouterCallableStatement(java.sql.CallableStatement inner, String sql) {
 		super(inner, sql);
 		this.inner = inner;
 	}
@@ -28,7 +31,7 @@ public class ScouterCallableStatement extends ScouterPreparedStatement implement
 		return this.inner.getObject(a0);
 	}
 
-	final public java.lang.Object getObject(int a0, java.util.Map a1) throws java.sql.SQLException {
+	final public java.lang.Object getObject(int a0, Map<String, Class<?>> a1) throws java.sql.SQLException {
 		return this.inner.getObject(a0, a1);
 	}
 
@@ -36,11 +39,9 @@ public class ScouterCallableStatement extends ScouterPreparedStatement implement
 		return this.inner.getObject(a0);
 	}
 
-	final public java.lang.Object getObject(java.lang.String a0, java.util.Map a1) throws java.sql.SQLException {
+	final public java.lang.Object getObject(java.lang.String a0, Map<String, Class<?>> a1) throws java.sql.SQLException {
 		return this.inner.getObject(a0, a1);
 	}
-
-	
 
 	final public boolean getBoolean(java.lang.String a0) throws java.sql.SQLException {
 		return this.inner.getBoolean(a0);
@@ -474,5 +475,15 @@ public class ScouterCallableStatement extends ScouterPreparedStatement implement
 
 	final public java.io.Reader getCharacterStream(java.lang.String a0) throws java.sql.SQLException {
 		return this.inner.getCharacterStream(a0);
+	}
+
+	public <T> T getObject(int parameterIndex, Class<T> type) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public <T> T getObject(String parameterName, Class<T> type) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

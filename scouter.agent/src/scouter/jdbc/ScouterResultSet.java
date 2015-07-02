@@ -16,6 +16,9 @@
 
 package scouter.jdbc;
 
+import java.sql.SQLException;
+import java.util.Map;
+
 import scouter.agent.trace.TraceSQL;
 
 public class ScouterResultSet implements java.sql.ResultSet {
@@ -25,11 +28,11 @@ public class ScouterResultSet implements java.sql.ResultSet {
 		this.inner = inner;
 	}
 
-	final public java.lang.Object getObject(java.lang.String a0, java.util.Map a1) throws java.sql.SQLException {
+	final public java.lang.Object getObject(java.lang.String a0, Map<String, Class<?>> a1) throws java.sql.SQLException {
 		return this.inner.getObject(a0, a1);
 	}
 
-	final public java.lang.Object getObject(int a0, java.util.Map a1) throws java.sql.SQLException {
+	final public java.lang.Object getObject(int a0, Map<String, Class<?>> a1) throws java.sql.SQLException {
 		return this.inner.getObject(a0, a1);
 	}
 
@@ -782,11 +785,24 @@ public class ScouterResultSet implements java.sql.ResultSet {
 		this.inner.updateNCharacterStream(a0, a1);
 	}
 
-	final public java.lang.Object unwrap(java.lang.Class a0) throws java.sql.SQLException {
-		return this.inner.unwrap(a0);
+	public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	final public boolean isWrapperFor(java.lang.Class a0) throws java.sql.SQLException {
-		return this.inner.isWrapperFor(a0);
+	public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
 	}
+
+	public <T> T unwrap(Class<T> iface) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isWrapperFor(Class<?> iface) throws SQLException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

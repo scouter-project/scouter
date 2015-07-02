@@ -289,11 +289,25 @@ public class ScouterStatement implements java.sql.Statement {
 		return this.inner.isPoolable();
 	}
 
-	final public java.lang.Object unwrap(java.lang.Class a0) throws java.sql.SQLException {
-		return this.inner.unwrap(a0);
+	
+
+	public void closeOnCompletion() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 
-	final public boolean isWrapperFor(java.lang.Class a0) throws java.sql.SQLException {
-		return this.inner.isWrapperFor(a0);
+	public boolean isCloseOnCompletion() throws SQLException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public <T> T unwrap(Class<T> iface) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isWrapperFor(Class<?> iface) throws SQLException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
