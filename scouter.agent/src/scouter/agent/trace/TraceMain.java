@@ -501,7 +501,7 @@ public class TraceMain {
 		if (ctx == null) {
 			if (conf.enable_auto_service_trace) {
 				if(conf.enable_auto_service_backstack){
-					AutoServiceAnalizer.regist(classMethod, ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace()));
+					AutoServiceStartAnalizer.put(classMethod, ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace()));
 				}
 				Object stat = startService(classMethod, null, null, null, null, null, XLogTypes.BACK_THREAD);
 				return new LocalContext(stat);
