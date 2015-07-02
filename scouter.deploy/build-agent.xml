@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="AgentJava" default="default">
+
+	<property name="class-agent-dir" value="./out/bin/agent"/>
+	<property name="tools-jar-file" value="./out/bin/agent/scouter.tools.jar"/>
+	<property name="http-jar-file" value="./out/bin/agent/scouter.http.jar"/>
+	<property name="httpclient-jar-file" value="./out/bin/agent/scouter.httpclient.jar"/>
+
+	  <property name="jar-agent-file" value="./out/jar/scouter.agent.jar"/>
+		<property name="deploy-jar-file" value="./out/package/scouter/agent/scouter.agent.jar"/>
+
+	<tstamp>
+		            <format property="today" pattern="yyyyMMdd" offset="-5" unit="hour"/>
+	</tstamp>
+	
+	<target name="init">
+		<delete dir="${class-agent-dir}"/>
+		<delete file="${jar-agent-file}"/>
+		<mkdir dir="${class-agent-dir}"/>
+	</target>
+
+	<target name="compile">
+		<javac srcdir="../scouter.common/src"
+			       destdir="${class-agent-dir}"
+			       source="1.5"  target="1.5"
+				   debug="true"  encoding="UTF-8"
+			includeantruntime="false"
+						>
+		</javac>
+		<copy file="../scouter.common/src/scouter/util/logo/scouter.logo"
+			  tofile="${class-agent-dir}/scouter/util/logo/scouter.logo" verbose="true"/>
+		<copy file="../scouter.common/src/scouter/lang/countrycode.txt"
+			  tofile="${class-agent-dir}/scouter/lang/countrycode.txt" verbose="true"/>
+
+		<propertyfile	    file="${class-agent-dir}/scouter/v.properties"	comment="Scouter Version" >
+		  <entry  key="VERSION" value="${VERSION}" />
+		  <entry  key="BUILD" value="${today}"/>
+		</propertyfile>
+
+			
+		<javac srcdir="../scouter.agent/src"
+		       destdir="${class-agent-dir}"
+		       source="1.5"       target="1.5"
+			   debug="true"	   encoding="UTF-8"
+			includeantruntime="false"
+			>
+			<classpath>
+				<pathelement location="./lib/servlet-api.jar"/>
+				<pathelement location="./lib/httpclient-4.3.6.jar"/>
+				<pathelement location="./lib/httpcore-4.3.3.jar"/>
+				<pathelement location="${java.home}/../lib/tools.jar"/>
+				<pathelement location="${class-agent-dir}"/>
+			</classpath>
+		</javac>
+	
+	</target>
+
+	<target name="packing">
+		<jar destfile="${tools-jar-file}">
+				<fileset dir="${class-agent-dir}">
+					<include name="**/scouter/xtra/tools/*.class"/>
+				</fileset>
+		</jar>
+		
+		<jar destfile="${http-jar-file}">
+				<fileset dir="${class-agent-dir}">
+					<include name="**/scouter/xtra/http/*.class"/>
+				</fileset>
+		</jar>
+		
+		<jar destfile="${httpclient-jar-file}">
+						<fileset dir="${class-agent-dir}">
+							<include name="**/scouter/xtra/httpclient/*.class"/>
+						</fileset>
+		</jar>
+
+		<jar destfile="${jar-agent-file}" manifest="scouter.mf">
+			<fileset dir="${class-agent-dir}">
+				<exclude name="**/scouter/xtra/**"/>
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="deploy">
+		<copy file="${jar-agent-file}" tofile="${deploy-jar-file}" verbose="true"/>
+	</target>
+
+	<target name="default">
+		<echo>Agent Java</echo>
+    	<antcall target="init"/>
+		<antcall target="compile"/>
+    	<antcall target="packing"/>
+		<antcall target="deploy"/>
+    </target>
+
+</project>

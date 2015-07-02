@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="AgentHost" default="default">
+	
+	<property name="class-dir" value="./out/bin/host"/>
+	<property name="tar-file" value="./out/package/hostperf.tar"/>
+		
+	<property name="tar-gzip" value="hostperf-src.tar.gz"/>
+    <property name="hostpack-dir" value="./out/package/scouter/agent/host"/>
+	
+	<property name="compiled-file" value="./host"/>
+
+	<target name="init">
+		<delete dir="${class-dir}"/>
+		<mkdir dir="${class-dir}"/>
+		<delete dir="${hostpack-dir}"/>
+		<mkdir dir="${hostpack-dir}"/>
+	</target>
+	<target name="compile">
+		<copy  todir="${class-dir}" ><fileset dir="../scouter.host"/> </copy>
+	</target>
+
+	 <target name="packing">
+	 	     <tar destfile="${tar-file}">
+	            <tarfileset dir="${class-dir}">
+	                <include name="**/*"/>
+	                <exclude name="**/*.pyc"/>
+		            </tarfileset>
+	        </tar>
+	        <gzip src="${tar-file}" destfile="${tar-file}.gz"/>
+	        <delete file="${tar-file}"/>
+	</target>
+
+	<target name="deploy">
+		<copy file="${tar-file}.gz" tofile="${hostpack-dir}/${tar-gzip}" verbose="true"/>
+		<delete file="${tar-file}.gz"/>
+		<copydir src="${compiled-file}" dest="${hostpack-dir}/." >
+		
+		</copydir>
+	</target>
+
+	<target name="default">
+		<echo>Agent Host</echo>
+    	<antcall target="init"/>
+		<antcall target="compile"/>
+    	<antcall target="packing"/>
+		<antcall target="deploy"/>
+  </target>
+
+</project>
