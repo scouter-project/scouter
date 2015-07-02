@@ -1,4 +1,4 @@
-<project name="BuildAll" default="all" basedir=".">
+<project name="Scouter" default="all" basedir=".">
 
 
 	<property name="deploy-dir" value="./out/package"/>
