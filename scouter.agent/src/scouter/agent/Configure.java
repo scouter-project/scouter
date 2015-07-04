@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -40,7 +39,6 @@ import scouter.util.DateUtil;
 import scouter.util.FileUtil;
 import scouter.util.HashUtil;
 import scouter.util.IntSet;
-import scouter.util.ParamText;
 import scouter.util.StringEnumer;
 import scouter.util.StringKeyLinkedMap;
 import scouter.util.StringSet;
@@ -52,9 +50,6 @@ import scouter.util.ThreadUtil;
 public class Configure extends Thread {
 
 	public static boolean JDBC_REDEFINED = false;
-
-	// public static int MAX_PACKET_SIZE = 60000;
-
 	private static Configure instance = null;
 
 	public final static synchronized Configure getInstance() {
@@ -71,11 +66,7 @@ public class Configure extends Thread {
 
 	public String local_addr = null;
 	public int local_port;
-
-	// public String tcp_addr = null;
-	// public int tcp_port = NetConstants.BASE_TCP_AGENT_PORT;
-	// public int tcp_port_max = NetConstants.BASE_TCP_AGENT_PORT + 100;
-
+	
 	public String server_addr = "127.0.0.1";
 	public int server_udp_port = NetConstants.DATAUDP_SERVER_PORT;
 	public int server_tcp_port = NetConstants.DATATCP_SERVER_PORT;
@@ -191,8 +182,7 @@ public class Configure extends Thread {
 	public String reject_url = "/error.html";
 
 	public int profile_step_max = 1024;
-	// public long udp_collection_interval=200;
-
+	
 	public boolean debug_background_sql = false;
 
 	public String plugin_http_trace = "";
