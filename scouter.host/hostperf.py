@@ -154,7 +154,7 @@ def sendObjectPack(sock):
     objPack.objHash = binascii.crc32(objPack.objName)
     objPack.objType = objtype()
     objPack.address = getLocalAddr()
-    objPack.version = "0.1.0"
+    objPack.version = "0.2.0"
     out = DataOutputX()
     out.writePack(objPack)
     sock.sendto("CAFE" + out.toByteArray(), (server_ip, server_port))

@@ -86,7 +86,9 @@
 								</classpath>
 			    </scalac>
 		 
-		    <javac srcdir="../scouter.server/src" destdir="${class-server-dir}">
+		    <javac srcdir="../scouter.server/src" destdir="${class-server-dir}" 
+		    	                source="1.5"       target="1.5"
+				                debug="true"	   encoding="UTF-8">
 		    	<classpath>
 					<pathelement location="${jar-scala-lib}/scala-compiler.jar"/>
 		    		<pathelement location="${jar-scala-lib}/scala-library.jar"/>

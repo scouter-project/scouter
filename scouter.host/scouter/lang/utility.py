@@ -109,7 +109,7 @@ def logo():
  \___ \ / __/   \| | | | __/ _ \ '__|
   ___) | (_| (+) | |_| | ||  __/ |   
  |____/ \___\___/ \__,_|\__\___|_|                                      
- Scouter version 0.1.0
+ Scouter version 0.2.0
  Open Source S/W Performance Monitoring  
    """
 
