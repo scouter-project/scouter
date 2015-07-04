@@ -108,8 +108,10 @@ public class Configure extends Thread {
 	public String http_debug_parameter_url = "/";
 
 	/*
-	 * visitor축정방법 0 - remoteIp 1 - JSESSIONID + remoteIp 2 -
-	 * SCOUTER(set-cookie)
+	 * visitor: 
+	 *  0 - remoteIp 
+	 *  1 - JSESSIONID + remoteIp 
+	 *  2 - SCOUTER(set-cookie)
 	 */
 	public int mode_visitor = 1;
 
