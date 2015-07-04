@@ -203,7 +203,7 @@ public class HyperLogLog {
 	public byte[] getBytes() throws IOException {
 		DataOutputX out = new DataOutputX();
 		out.writeInt(log2m);
-		out.writeInt(registerSet.size * 4);
+		out.writeInt(registerSet.size);
 		for (int x : registerSet.readOnlyBits()) {
 			out.writeInt(x);
 		}

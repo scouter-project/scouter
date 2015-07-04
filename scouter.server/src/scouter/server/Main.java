@@ -78,10 +78,10 @@ public class Main {
 			exit.deleteOnExit();
 
 			System.out.println("System JRE version : " + System.getProperty("java.version"));
-			System.out.println("This product includes GeoLite data created by MaxMind, available from");
-			System.out.println("http://www.maxmind.com");
-			System.out.println("download:  http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz");
-			System.out.println("add configure:  geoip_data_city=<download path>/GeoLiteCity.dat");
+			// System.out.println("This product includes GeoLite data created by MaxMind, available from");
+			// System.out.println("http://www.maxmind.com");
+			// System.out.println("download:  http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz");
+			// System.out.println("add configure:  geoip_data_city=<download path>/GeoLiteCity.dat");
 
 			while (true) {
 				if (exit.exists() == false) {

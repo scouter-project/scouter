@@ -21,6 +21,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,28 +30,21 @@ import scouter.util.FileUtil;
 
 public class LoadTest {
 
-	public static Random r = new Random();
-
 	public static void main(String[] args) throws Throwable {
 
 		ExecutorService ex = Executors.newCachedThreadPool();
 
 		final String url = args.length == 0 ? "http://127.0.0.1:8080" : args[0];
-		final String loop = args.length > 1 ? args[1] : "loop=10000";
 		Runnable r = new Runnable() {
 			public void run() {
 				try {
-					LoadTest.process(url + "/" + getUrl() + "?" + loop);
+					LoadTest.process(url);
 				} catch (Exception x) {
-					// x.printStackTrace();
-					// System.out.println(x.getMessage());
 				}
 			}
 		};
 		while (true) {
 			ex.execute(r);
-			// ex.execute(r);
-			// ex.execute(r);
 			r.run();
 		}
 	}
@@ -59,58 +53,54 @@ public class LoadTest {
 		long stime = System.currentTimeMillis();
 		try {
 			URL u = new URL(arg);
-			
 			URLConnection uc = u.openConnection();
-			setUser(uc);
+			String uu = setUser(uc);
 			uc.connect();
 			InputStream o = uc.getInputStream();
-			byte[] b = FileUtil.readAll(o);
-			String cookie = uc.getHeaderField("Set-Cookie");
-			keepCookie(cookie);
-
+			FileUtil.readAll(o);
+			Map<String, List<String>> heads = uc.getHeaderFields();
+			List<String> cookie = heads.get("Set-Cookie");
+			keepCookie("" + cookie);
 			o.close();
 			long dur = System.currentTimeMillis() - stime;
-			System.out.println(arg + " " + dur + " ms");
+			System.out.println(arg + " " + dur + " ms " + uu);
 		} catch (Exception e) {
 			long dur = System.currentTimeMillis() - stime;
 			System.out.println(arg + " " + dur + " ms - ERROR");
 		}
 	}
-	
-	
-
-	private static String getUrl() {
-		return "test" + r.nextInt(10) + "/" + r.nextInt(100) + ".x";
- 
-	}
 
 	private static Random rand = new Random();
 	private static List<String> cookies = new ArrayList();
 
-	private static void setUser(URLConnection uc) {
+	private static String setUser(URLConnection uc) {
 		if (cookies.size() == 0)
-			return;
+			return "none";
 		if (Math.abs(rand.nextInt()) % 2 == 0)
-			return;
+			return "none";
 		int x = Math.abs(rand.nextInt()) % cookies.size();
-		uc.addRequestProperty("Cookie", "Scouter=" + cookies.get(x));
+		uc.addRequestProperty("Cookie", "SCOUTER=" + cookies.get(x));
+
+		return "SCOUTER=" + cookies.get(x);
 	}
 
 	private static void keepCookie(String cookie) {
 		if (cookie == null)
 			return;
-		int x1 = cookie.indexOf("Scouter");
+
+		int x1 = cookie.indexOf("SCOUTER");
 		if (x1 >= 0) {
 			String value = null;
 			int x2 = cookie.indexOf(';', x1);
 			if (x2 > 0) {
-				value = cookie.substring(x1 + "Scouter".length() + 1, x2);
+				value = cookie.substring(x1 + "SCOUTER".length() + 1, x2);
 			} else {
-				value = cookie.substring(x1 + "Scouter".length() + 1);
+				value = cookie.substring(x1 + "SCOUTER".length() + 1);
 			}
 			cookies.add(value);
+			System.out.println("SCOUTER=" + value);
 		}
-		if (cookies.size() > 10000)
+		if (cookies.size() > 1000000)
 			cookies.clear();
 	}
 }

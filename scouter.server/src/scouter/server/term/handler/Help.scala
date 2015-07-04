@@ -27,6 +27,7 @@ object Help {
         System.out.println("\tobjtype = ObjType List");
         System.out.println("\tobject = Object List");
         System.out.println("\tcounter [objType] = counter list for the objType");
+        System.out.println("\tvisitor [objType] = today visit users for the objType");
         System.out.println("\tdashboard [objType]  = javaee's dashboard");
         System.out.println("\tdashboard [objType]  [Counter] = host's dashdoard");
         System.out.println("\trealtime [objType]  TPS [SUM/AVG] = realtime counter view");
