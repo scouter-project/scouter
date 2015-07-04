@@ -54,14 +54,4 @@ SCOUTER is just simple. This configuration is simple. It will quickly provide th
 ### License
 Licensed under the Apache License, Version 2.0
 
-### Using Components & Icons
-- This product includes JSqlParser
-https://github.com/JSQLParser/JSqlParser
-
-- This product includes GeoLite data created by MaxMind, available from
-   http://www.maxmind.com
- - Download MaxMind GeoIP Data : 
-   http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
-
-- This product include icons from : 
-http://www.famfamfam.com/lab/icons/silk/
+[Using Componets & Icons](../../wiki/Using-Components)
