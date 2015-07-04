@@ -12,23 +12,21 @@ public Connection getConnection() throws Exception {
 	DataSource datasource = (DataSource) new InitialContext().lookup("java:/comp/env/jdbc/hsql");
 	return datasource.getConnection();
 }
+private int getTime(String t){
+	if(t==null) return 10000;
+	return Integer.parseInt(t);
+}
 %>
 
 <%
-
+    int t = getTime(request.getParameter("t"));
+ 
 	Connection conn = getConnection();
 	conn.setAutoCommit(false);
 	Statement stmt = conn.createStatement();
 	stmt.executeUpdate("update scouter set name='www'  where id='id10'");
+	Thread.sleep(t);
 	conn.commit();
-	ResultSet rs = stmt.executeQuery("select * from scouter");
-	while (rs.next()) {
-		String id = rs.getString(1);
-		String name = rs.getString(2);
-		out.println(id + " " + name + "<br>");
-	}
-	rs.close();
-
 	stmt.close();
 	conn.close();
 %>
