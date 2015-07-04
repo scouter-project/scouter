@@ -43,15 +43,9 @@ SCOUTER is just simple. This configuration is simple. It will quickly provide th
 - It will also be automatically upgraded.
 - Key features such as Response-distribution, Active-service, Tag-count analysis are provided.
 
-
-### Documents
- - [Getting Started](../../wiki/Getting-Started)
- - [Setup FAQ](../../wiki/Setup-FAQ) 
- - [Counting Concurrent User](../../wiki/Counting-Concurrent-User)
- - [Reading XLog](../../wiki/Reading-XLog)
- - [Build Package](../../wiki/Build-Scouter)
-
 ### License
 Licensed under the Apache License, Version 2.0
 
-[Using Componets & Icons](../../wiki/Using-Components)
+### Documents
+ - [Wiki Documents](../../wiki/)
+ - [Using Components](../../wiki/Using-Components)
