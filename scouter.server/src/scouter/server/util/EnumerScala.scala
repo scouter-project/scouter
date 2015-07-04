@@ -26,6 +26,7 @@ import org.w3c.dom.NodeList
 import scouter.util.NodeEnumer
 import org.w3c.dom.Node
 import scouter.util.LongEnumer
+import scouter.util.StringEnumer
 
 object EnumerScala {
     def backward[T](data: java.util.List[T], handler: T => Any) {
@@ -74,7 +75,13 @@ object EnumerScala {
             handler(enumer.next())
         }
     }
-
+    def foreach(itr: StringEnumer, handler: String => Any) {
+        if (itr == null)
+            return
+        while (itr.hasMoreElements()) {
+            handler(itr.nextString())
+        }
+    }
     def foreach(itr: IntEnumer, handler: Int => Any) {
         if (itr == null)
             return

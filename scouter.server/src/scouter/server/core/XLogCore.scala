@@ -52,6 +52,7 @@ object ServiceCore {
 
         m.xType match {
             case XLogTypes.WEB_SERVICE =>
+                VisitorCore.add(m)
                 calc(m)
             case XLogTypes.APP_SERVICE =>
                 calc(m)

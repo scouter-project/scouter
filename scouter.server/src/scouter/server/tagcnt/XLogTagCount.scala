@@ -92,15 +92,27 @@ object XLogTagCount {
 
         val elapsed = x.elapsed / 1000
         if (elapsed > 0) {
-            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.elapsed, new DecimalValue(if (elapsed >= 8) 8 else if (elapsed >= 3) 3 else 1), 1)
+            elapsed match{
+                case 1 | 2 =>   TagCountProxy.add(x.endTime, objType, TagCountConfig.service.elapsed, new DecimalValue(1),1)
+                case 3 | 4 | 5 |6 |7 =>TagCountProxy.add(x.endTime, objType, TagCountConfig.service.elapsed, new DecimalValue(3),1)
+                case _ =>TagCountProxy.add(x.endTime, objType, TagCountConfig.service.elapsed, new DecimalValue(8),1)
+            }
         }
         val sqlTime = x.sqlTime / 1000
         if (sqlTime > 0) {
-            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.sqltime, new DecimalValue(if (sqlTime >= 8) 8 else if (sqlTime >= 3) 3 else 1), 1)
+            sqlTime match{
+                case 1 | 2 =>   TagCountProxy.add(x.endTime, objType, TagCountConfig.service.sqltime, new DecimalValue(1),1)
+                case 3 | 4 | 5 |6 |7 =>TagCountProxy.add(x.endTime, objType, TagCountConfig.service.sqltime, new DecimalValue(3),1)
+                case _ =>TagCountProxy.add(x.endTime, objType, TagCountConfig.service.sqltime, new DecimalValue(8),1)
+            }
         }
         val apicallTime = x.apicallTime / 1000
         if (apicallTime > 0) {
-            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.apitime, new DecimalValue(if (apicallTime >= 8) 8 else if (apicallTime >= 3) 3 else 1), 1)
-        }
+            apicallTime match{
+                case 1 | 2 =>   TagCountProxy.add(x.endTime, objType, TagCountConfig.service.apitime, new DecimalValue(1),1)
+                case 3 | 4 | 5 |6 |7 =>TagCountProxy.add(x.endTime, objType, TagCountConfig.service.apitime, new DecimalValue(3),1)
+                case _ =>TagCountProxy.add(x.endTime, objType, TagCountConfig.service.apitime, new DecimalValue(8),1)
+            }
+         }
     }
 }

@@ -118,7 +118,7 @@
 		<copy file="${jar-scala-lib}/scala-library.jar" todir="${deploy-lib-dir}" verbose="true" />
 		<copy file="${jar-scala-lib}/scala-reflect.jar" todir="${deploy-lib-dir}" verbose="true" />
 		<copy file="${jar-scala-lib}/jline.jar" todir="${deploy-lib-dir}" verbose="true" />
-							
+
 	</target>
 	
 	<target name="deploy">
