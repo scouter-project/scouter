@@ -50,6 +50,7 @@ object ProcessMain {
             case "xlog" => XLOG.process(cmd.trim().substring("xlog".length()).trim())
             case "xlist" => XLIST.process(cmd.trim().substring("xlist".length()).trim())
             case "tagcnt" => TAGCNT.process(cmd.trim().substring("tagcnt".length()).trim())
+            case "visitor" => VISITOR.process(cmd.trim().substring("visitor".length()).trim())
             case "" =>
             case _ => Help.help(cmd)
         }

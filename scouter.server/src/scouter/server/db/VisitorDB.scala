@@ -27,7 +27,7 @@ import scouter.server.util.cardinality.HyperLogLog
 import scouter.util.DateUtil
 import scouter.util.ThreadUtil
 import scouter.util.IntKeyLinkedMap
-import scouter.server.db.DBCtr
+
 import java.io.File
 import scouter.util.FileUtil
 import scouter.util.HashUtil

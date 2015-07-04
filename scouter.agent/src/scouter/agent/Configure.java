@@ -113,7 +113,7 @@ public class Configure extends Thread {
 	 *  1 - JSESSIONID + remoteIp 
 	 *  2 - SCOUTER(set-cookie)
 	 */
-	public int mode_visitor = 1;
+	public int mode_visitor = 2;
 
 	public boolean enable_profile_summary = false;
 	public boolean profile_thread_cputime = false;
@@ -466,7 +466,7 @@ public class Configure extends Thread {
 		this.max_concurrent_server_request = getInt("max_concurrent_server_request", 10);
 		this.debug_connection_stack = getBoolean("debug_connection_stack", false);
 
-		this.mode_visitor = getInt("mode_visitor", 1);
+		this.mode_visitor = getInt("mode_visitor", 2);
 
 		this.visitor_jsessionid = getValue("visitor_jsessionid", "JSESSIONID");
 		this.enable_statistics = getBoolean("enable_statistics", true);

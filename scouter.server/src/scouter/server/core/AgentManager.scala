@@ -249,7 +249,7 @@ object AgentManager {
             return agents;
         }
     }
-    private def isObjType(word: String) = objMap.getTypeObjects(word) != null
+   def isObjType(word: String) = objMap.getTypeObjects(word) != null
 
     def getObjPacks(): Enumeration[ObjectPack] = {
         return objMap.objects();
