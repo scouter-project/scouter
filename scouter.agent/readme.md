@@ -1,32 +1,31 @@
 ## Java  Agent
-Java Agent is monitoring Tomcat's performance
-Tomcat is a Web Application Server which responses from Http Requests of client
+Tomcat is an web application server that executes Java servlets and Java Server Page(JSP). 
+Described as a "reference implementation" of the Java Servlet and the Java Server Page specifications, 
 
-Scouter monitors:   
+The Scouter Java Agent is monitoring Tomcat's performance.
+If you install Scouner Agent in the Tomcat, you will understand what happens inside it.
 
-1. Service Trace(Profiling)
-2. Resource & Service Processing Performance
-   - Resource Usage
-   - Service Process Performance, such as TPS, Responce Time etc
-   - Service Users
+Scouter show you that which SQL is slow, how many transactions(http request) are concurrently running 
+how many transactions per second(TPS) etc
 
 ##  Service Trace
-Scouter profiles for each Transaction. 
-Transaction means one execution of service
+Scouter is profiling  transactions of http requests.
+Every steps of transactions are collected and stored on the Scouter server.
 
 1. Service start & end: HttpService
 2. Method : any/public
 3. External Service Call : apicall
 4. DB Access : JDBC/SQL
-
-Some others are also available to monitor such as getConnection and Close Connection
+5. Misc : Open/Close Connection, parameter/return of methods
 
 ## Resource & Service Performance 
-Resource & Service Performance are collected by regular interval
-Those are simple counts, for example CPU usage, Transaction per second(TPS), average response time
+Resource & Service Performance's data is collected by regular interval.
+The collected data is called  performance counter(or just counter) that includes CPU usage, 
+Transaction per second(TPS), average response time.
 
 ###  Resource Usage
- Heap Mem, Cpu, Mem, GC Time etc
+- OS Counter : CPU, MEM, DISK, NET
+- JVM Counter : Heap, GC, Thread CPU Time
  
 ### Service Performance
 Response Time, TPS, Page View, Error rate etc
