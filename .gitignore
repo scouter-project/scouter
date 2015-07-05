@@ -8,3 +8,7 @@ scouter.deploy/out
 scouter.client/lib/scouter.common.jar
 *.pyc
 Thumbs.db
+scouter.client/target/*
+scouter.client.feature/target/*
+scouter.client.product/target/*
+workspace/*
