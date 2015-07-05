@@ -1,34 +1,36 @@
-## ScouterJava  Agent
-Java Agent는 톰켓의 성능을 모니터링한다. 
-톰켓은 사용자의 웹 요청에 응답하는 Web Application Server이다.
-스카우터 에이전트가 수집하는 톰켓의  성능은 다음과 같다 
+## Java  Agent
+Java Agent is monitoring Tomcat's performance
+Tomcat is a Web Application Server which responses from Http Requests of client
 
-1. 서비스 추적
-2. 자원과 처리성능 
-   - 자원사용량 
-   - 서비스 처리현황
-   - 사용자
+Scouter monitors:   
 
-## 서비스 추적 
-서비스의 수행내역을 개별 트랜잭션 단위로 추적한다. 
-우리는 이것을 프로파일링이라도 부른다.
+1. Service Trace(Profiling)
+2. Resource & Service Processing Performance
+   - Resource Usage
+   - Service Process Performance, such as TPS, Responce Time etc
+   - Service Users
 
-1. 서비스 시작/종료 : HttpService
-2. 메소드 : any/public
-3. 외부 서비스 호출 : apicall
+##  Service Trace
+Scouter profiles for each Transaction. 
+Transaction means one execution of service
+
+1. Service start & end: HttpService
+2. Method : any/public
+3. External Service Call : apicall
 4. DB Access : JDBC/SQL
 
-그외에도 메소드의 파라미터나 getConnection/Close Connection등을 추가로 추적한다.
+Some others are also available to monitor such as getConnection and Close Connection
 
-## 자원과 처리성능 
-자원과 서비스의 처리성능은 단위시간 간격으로 수집되는 숫자기반의 성능데이터이다.
-CPU사용량, 초당 처리건수(TPS), 평균응답시간 등이 모두 여기에 해당된다.
-###  자원 사용량
- Heap Mem, Cpu, Mem, GC Time등이 수집된다.
+## Resource & Service Performance 
+Resource & Service Performance are collected by regular interval
+Those are simple counts, for example CPU usage, Transaction per second(TPS), average response time
+
+###  Resource Usage
+ Heap Mem, Cpu, Mem, GC Time etc
  
-### 서비스 처리현황
-평균 응답시간, 시간당 처리건수, 초당 처리건수, 에러건수 등이 수집된다.
+### Service Performance
+Response Time, TPS, Page View, Error rate etc
 
-### 사용자
-최근 5분사용자, 금일 방문자 등이 수집된다. 
+### Users
+Recent 5min users, Daily Visit users etc
 
