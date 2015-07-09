@@ -159,6 +159,8 @@ public class Configure extends Thread {
 	public String hook_init = "";
 	public String hook_dbc_close = "";
 	public String hook_dbc_open = "";
+	public String hook_dbc_open_detect = "";
+	public boolean enable_dbc_open_detect = false;
 
 	public String hook_method = "";
 	public String hook_method_ignore_prefix = "";
@@ -395,7 +397,9 @@ public class Configure extends Thread {
 		this.hook_init = getValue("hook_init", getValue("hook.init", ""));
 		this.hook_dbc_close = getValue("hook_dbc_close", getValue("hook.dbc.close", ""));
 		this.hook_dbc_open = getValue("hook_dbc_open", getValue("hook.dbc.open", ""));
-
+		this.hook_dbc_open_detect = getValue("hook_dbc_open_detect", "");
+		this.enable_dbc_open_detect = getBoolean("enable_dbc_open_detect", false);
+		
 		this.hook_method = getValue("hook_method", getValue("hook.method", ""));
 		this.hook_method_access_public = getBoolean("hook_method_access_public", true);
 		this.hook_method_access_protected = getBoolean("hook_method_access_protected", false);

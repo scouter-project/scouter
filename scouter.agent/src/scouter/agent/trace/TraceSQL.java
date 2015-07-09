@@ -22,6 +22,7 @@ import java.sql.Connection;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
+import scouter.jdbc.DetectConnection;
 import scouter.jdbc.JdbcTrace;
 import scouter.lang.AlertLevel;
 import scouter.lang.ref.INT;
@@ -565,4 +566,10 @@ public class TraceSQL {
 
 	}
 
+	public static Connection detectConnection(Connection inner) {
+		if (Configure.getInstance().enable_dbc_open_detect == false)
+			return inner;
+		else
+			return new DetectConnection(inner);
+	}
 }
