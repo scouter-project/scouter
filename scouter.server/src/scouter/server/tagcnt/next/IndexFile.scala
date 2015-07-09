@@ -186,7 +186,7 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
     var pos = this.keyFile.getFirstPos();
     val length = this.keyFile.getLength();
 
-    while (pos < length) {
+    while (pos < length && pos >0 ) {
       val r = this.keyFile.getRecord(pos);
 
       val in = new DataInputX(r.key);
