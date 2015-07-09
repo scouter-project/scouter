@@ -58,8 +58,8 @@ import scouter.client.model.ICounterObjectSelector;
 import scouter.client.model.TextProxy;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
-import scouter.client.popup.LoadCalendarDialog;
-import scouter.client.popup.LoadCalendarDialog.AfterMinuteUnit;
+import scouter.client.popup.CalendarDialog;
+import scouter.client.popup.CalendarDialog.AfterMinuteUnit;
 import scouter.client.preferences.PManager;
 import scouter.client.preferences.PreferenceConstants;
 import scouter.client.server.Server;
@@ -81,7 +81,7 @@ import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.StringUtil;
 
-public class CounterPastTimeAllView extends ScouterViewPart implements LoadCalendarDialog.ILoadCounterDialog, ICounterObjectSelector {
+public class CounterPastTimeAllView extends ScouterViewPart implements CalendarDialog.ILoadCounterDialog, ICounterObjectSelector {
 	public static final String ID = CounterPastTimeAllView.class.getName();
 	
 	private IMemento memento;
@@ -93,7 +93,7 @@ public class CounterPastTimeAllView extends ScouterViewPart implements LoadCalen
 	protected int serverId;
 	
 	Label serverText, sDateText, sTimeText, eTimeText;
-	LoadCalendarDialog calDialog;
+	CalendarDialog calDialog;
 	Composite headerComp;
 
 	IWorkbenchWindow window;
@@ -356,7 +356,7 @@ public class CounterPastTimeAllView extends ScouterViewPart implements LoadCalen
 						display = Display.getDefault();
 					}
 					
-					calDialog = new LoadCalendarDialog(display, CounterPastTimeAllView.this);
+					calDialog = new CalendarDialog(display, CounterPastTimeAllView.this);
 					calDialog.showWithTime(UIUtil.getMousePosition(), startTime);
 					
 					break;

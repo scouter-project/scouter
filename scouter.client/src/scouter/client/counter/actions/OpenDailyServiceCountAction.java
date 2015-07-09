@@ -24,11 +24,11 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 
 import scouter.client.counter.views.CounterPastCountView;
-import scouter.client.popup.LoadCalendarDialog;
+import scouter.client.popup.CalendarDialog;
 import scouter.client.util.ImageUtil;
 import scouter.util.DateUtil;
 
-public class OpenDailyServiceCountAction extends Action implements LoadCalendarDialog.ILoadCounterDialog {
+public class OpenDailyServiceCountAction extends Action implements CalendarDialog.ILoadCounterDialog {
 	public final static String ID = OpenDailyServiceCountAction.class.getName();
 
 	private final IWorkbenchWindow window;
@@ -59,7 +59,7 @@ public class OpenDailyServiceCountAction extends Action implements LoadCalendarD
 				if (display == null) {
 					display = Display.getDefault();
 				}
-				LoadCalendarDialog dialog = new LoadCalendarDialog(display, this);
+				CalendarDialog dialog = new CalendarDialog(display, this);
 				if (date == null) {
 					dialog.show();
 				} else {

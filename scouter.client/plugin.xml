@@ -810,6 +810,14 @@
             name="HostTop"
             restorable="false">
       </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.tags.TagCountView"
+            icon="icons/perf.png"
+            id="scouter.client.tags.TagCountView"
+            name="TagCount"
+            restorable="false">
+      </view>
   </extension>
  <extension
          point="org.eclipse.ui.commands">

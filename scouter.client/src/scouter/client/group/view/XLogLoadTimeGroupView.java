@@ -55,7 +55,7 @@ import scouter.client.model.XLogData;
 import scouter.client.model.XLogDataComparator;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
-import scouter.client.popup.LoadCalendarDialog;
+import scouter.client.popup.CalendarDialog;
 import scouter.client.popup.TimeRangeDialog;
 import scouter.client.preferences.PManager;
 import scouter.client.preferences.PreferenceConstants;
@@ -76,7 +76,7 @@ import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 
 
-public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDialog.ITimeRange, LoadCalendarDialog.ILoadCounterDialog {
+public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDialog.ITimeRange, CalendarDialog.ILoadCounterDialog {
 
 	public static final String ID = XLogLoadTimeGroupView.class.getName();
 	
@@ -145,7 +145,7 @@ public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDi
             	if(viewPainter.isZoomMode() == false){
             		manager.add(new Action("Load") {
 						public void run() {
-							LoadCalendarDialog dialog = new LoadCalendarDialog(display, XLogLoadTimeGroupView.this);
+							CalendarDialog dialog = new CalendarDialog(display, XLogLoadTimeGroupView.this);
 							dialog.showWithEndTime();
 						}
             		});

@@ -35,12 +35,12 @@ import scouter.client.util.UIUtil;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 
-public class LoadDualCalendarDialog {
+public class DualCalendarDialog {
 	
 	private final Display display;
 	private final ILoadDualCounterDialog callback;
 	
-	public LoadDualCalendarDialog(Display display, ILoadDualCounterDialog callback) {
+	public DualCalendarDialog(Display display, ILoadDualCounterDialog callback) {
 		this.display = display;
 		this.callback = callback;
 	}

@@ -165,10 +165,8 @@ public class CounterRealCountView extends ScouterViewPart implements Refreshable
 	protected FigureCanvas canvas;
 
 	private int leftMargin = 0;
-	private Composite marginTargetComposite;
 	
 	public void createPartControl(Composite parent) {
-		this.marginTargetComposite = parent;
 		parent.setLayout(UIUtil.formLayout(0, 0));
 		parent.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
 		

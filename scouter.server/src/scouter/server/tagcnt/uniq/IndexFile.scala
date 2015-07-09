@@ -143,7 +143,7 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
     var done = 0;
     try {
 
-      while (pos < length) {
+      while (pos < length && pos >0 ) {
         val r = this.keyFile.getRecord(pos);
 
         val in = new DataInputX(r.key);

@@ -24,12 +24,12 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 
-import scouter.client.popup.LoadCalendarDialog;
+import scouter.client.popup.CalendarDialog;
 import scouter.client.util.ImageUtil;
 import scouter.client.views.ObjectDailyListView;
 
 
-public class OpenObjectDailyListAction extends Action implements LoadCalendarDialog.ILoadCounterDialog {
+public class OpenObjectDailyListAction extends Action implements CalendarDialog.ILoadCounterDialog {
 	public final static String ID = OpenObjectDailyListAction.class.getName();
 
 	private final IWorkbenchWindow window;
@@ -46,7 +46,7 @@ public class OpenObjectDailyListAction extends Action implements LoadCalendarDia
 
 	public void run() {
 		if (window != null) {
-			LoadCalendarDialog dialog = new LoadCalendarDialog(window.getShell().getDisplay(), this);
+			CalendarDialog dialog = new CalendarDialog(window.getShell().getDisplay(), this);
 			dialog.show();
 		}
 	}
