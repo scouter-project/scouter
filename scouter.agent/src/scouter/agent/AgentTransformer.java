@@ -20,6 +20,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
+
 import scouter.agent.asm.Apicall2ASM;
 import scouter.agent.asm.ApicallInfoASM;
 import scouter.agent.asm.CapArgsASM;
@@ -36,6 +37,7 @@ import scouter.agent.asm.JDBCPreparedStatementASM;
 import scouter.agent.asm.JDBCResultSetASM;
 import scouter.agent.asm.JDBCStatementASM;
 import scouter.agent.asm.JspServletASM;
+import scouter.agent.asm.JDBCLeakDetectorASM;
 import scouter.agent.asm.MethodASM;
 import scouter.agent.asm.ScouterClassWriter;
 import scouter.agent.asm.ServiceASM;
@@ -87,7 +89,7 @@ public class AgentTransformer implements ClassFileTransformer {
 			temp.add(new JDBCResultSetASM());
 			temp.add(new JDBCStatementASM());
 			temp.add(new SqlMapASM());
-			
+			temp.add(new JDBCLeakDetectorASM());
 		}
 		
 		if (conf.enable_hook_step3) {
