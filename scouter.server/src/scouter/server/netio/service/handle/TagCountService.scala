@@ -41,6 +41,11 @@ import scouter.server.tagcnt.TagCountProxy
 import scouter.server.tagcnt.core.ValueCountTotal
 import scouter.server.util.EnumerScala
 import scouter.server.tagcnt.core.ValueCount
+import scouter.util.IntSet
+import scouter.lang.pack.XLogPack
+import scouter.server.db.XLogRD
+import scouter.server.db.AlertRD
+import scouter.lang.pack.AlertPack
 
 class TagCountService {
 
@@ -110,5 +115,60 @@ class TagCountService {
             dout.writeByte(TcpFlag.HasNEXT);
             dout.writeArray(valueCount)
         }
+    }
+    
+    @ServiceHandler(RequestCmd.TAGCNT_TAG_ACTUAL_DATA)
+    def getTagActualData(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readPack().asInstanceOf[MapPack];
+        val objType = param.getText("objType");
+        val stime = param.getLong("stime");
+        val etime = param.getLong("etime");
+        val tagGroup = param.getText("tagGroup");
+        var date = param.getText("date");
+        var max = param.getInt("max");
+        
+        val mpack = ObjectRD.getDailyAgent(date);
+        val objTypeLv = mpack.getList("objType");
+        val objHashLv = mpack.getList("objHash");
+        
+        val objHashSet = new IntSet();
+        for (i <- 0 to objHashLv.size()-1) {
+          if (objType == objTypeLv.getString(i)) {
+            objHashSet.add(objHashLv.getInt(i));
+          }
+        }
+        
+        if (tagGroup == "service") {
+          var cnt = 0;
+          val handler = (time: Long, data: Array[Byte]) => {
+            val x = new DataInputX(data).readPack().asInstanceOf[XLogPack];
+            if (objHashSet.contains(x.objHash)) {
+            	dout.writeByte(TcpFlag.HasNEXT);
+	            dout.write(data);
+	            dout.flush();
+	            cnt += 1;
+            }
+            if (cnt >= max) {
+                return;
+            }
+          }
+          XLogRD.readByTime(date, stime, etime, handler);
+        } else if (tagGroup == "alert") {
+          var cnt = 0;
+          val handler = (time: Long, data: Array[Byte]) => {
+            val x = new DataInputX(data).readPack().asInstanceOf[AlertPack];
+            if (objHashSet.contains(x.objHash)) {
+            	dout.writeByte(TcpFlag.HasNEXT);
+	            dout.write(data);
+	            dout.flush();
+	            cnt += 1;
+            }
+            if (cnt >= max) {
+                return;
+            }
+          }
+          AlertRD.readByTime(date, stime, etime, handler);
+        }
+        
     }
 }

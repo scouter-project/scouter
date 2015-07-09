@@ -57,7 +57,7 @@ import scouter.client.Images;
 import scouter.client.counter.actions.OpenPastLongDateTotalAction;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
-import scouter.client.popup.LoadDualCalendarDialog;
+import scouter.client.popup.DualCalendarDialog;
 import scouter.client.preferences.PManager;
 import scouter.client.preferences.PreferenceConstants;
 import scouter.client.server.Server;
@@ -80,7 +80,7 @@ import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 
-public class CounterPastLongDateTotalView extends ScouterViewPart implements LoadDualCalendarDialog.ILoadDualCounterDialog {
+public class CounterPastLongDateTotalView extends ScouterViewPart implements DualCalendarDialog.ILoadDualCounterDialog {
 	public static final String ID = CounterPastLongDateTotalView.class.getName();
 	
 	private IMemento memento;
@@ -91,7 +91,7 @@ public class CounterPastLongDateTotalView extends ScouterViewPart implements Loa
 	protected String sDate, eDate;
 	
 	Label serverText, sDateText, eDateText;
-	LoadDualCalendarDialog calDialog;
+	DualCalendarDialog calDialog;
 	Combo periodCombo;
 	Composite headerComp;
 	Button applyBtn;
@@ -384,7 +384,7 @@ public class CounterPastLongDateTotalView extends ScouterViewPart implements Loa
 						display = Display.getDefault();
 					}
 					
-					calDialog = new LoadDualCalendarDialog(display, CounterPastLongDateTotalView.this);
+					calDialog = new DualCalendarDialog(display, CounterPastLongDateTotalView.this);
 					calDialog.show(UIUtil.getMousePosition());
 					
 					break;

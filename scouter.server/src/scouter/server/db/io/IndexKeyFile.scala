@@ -164,7 +164,7 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
         val length = this.keyFile.getLength();
         var done = 0;
         try {
-            while (pos < length) {
+            while (pos < length && pos >0) {
                 val r = this.keyFile.getRecord(pos);
                 if (r.deleted == false) {
                     handler(r.key, r.value)
@@ -185,7 +185,7 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
         val length = this.keyFile.getLength();
         var done = 0;
         try {
-            while (pos < length) {
+            while (pos < length && pos >0) {
                 val r = this.keyFile.getRecord(pos);
                 if (r.deleted == false) {
                     handler(r.key, reader(DataInputX.toLong5(r.value, 0)))
@@ -204,7 +204,7 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
         var count = 0;
         var pos = this.keyFile.getFirstPos();
         val length = this.keyFile.getLength();
-        while (pos < length) {
+        while (pos < length && pos >0) {
             val r = this.keyFile.getRecord(pos);
             if (r.deleted) {
                 deleted += 1;

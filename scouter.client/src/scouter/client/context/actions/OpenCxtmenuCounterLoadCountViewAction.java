@@ -23,8 +23,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 
 import scouter.client.counter.views.CounterLoadCountView;
-import scouter.client.popup.LoadCalendarDialog;
-import scouter.client.popup.LoadCalendarDialog.ILoadCounterDialog;
+import scouter.client.popup.CalendarDialog;
+import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
 import scouter.client.util.ImageUtil;
 import scouter.lang.counters.CounterConstants;
 import scouter.util.Hexa32;
@@ -53,7 +53,7 @@ public class OpenCxtmenuCounterLoadCountViewAction extends Action implements ILo
 	public void run() {
 		if (win != null) {
 			if(date == null){
-				LoadCalendarDialog dialog = new LoadCalendarDialog(win.getShell().getDisplay(), OpenCxtmenuCounterLoadCountViewAction.this);
+				CalendarDialog dialog = new CalendarDialog(win.getShell().getDisplay(), OpenCxtmenuCounterLoadCountViewAction.this);
 				dialog.show();
 			}else{
 				goLoadCounteView();

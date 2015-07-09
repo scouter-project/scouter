@@ -95,6 +95,7 @@ import scouter.client.popup.ServerManagerDialog;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
+import scouter.client.tags.actions.OpenTagCountViewAction;
 import scouter.client.threads.ObjectSelectManager;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.CounterUtil;
@@ -371,6 +372,8 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 						}
 						addExistObjectTypeMenus(win, mgr, counterEngine, counterActionsMap, serverId);
 						
+						mgr.add(new Separator());
+						mgr.add(new OpenTagCountViewAction(win, serverId));
 						mgr.add(new Separator());
 						if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
 							mgr.add(new OpenServerConfigureAction(win, MenuStr.CONFIGURE, Images.config, serverId));

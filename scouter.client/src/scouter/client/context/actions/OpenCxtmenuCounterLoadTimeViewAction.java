@@ -23,8 +23,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 
 import scouter.client.counter.views.CounterLoadTimeView;
-import scouter.client.popup.LoadCalendarDialog;
-import scouter.client.popup.LoadCalendarDialog.ILoadCounterDialog;
+import scouter.client.popup.CalendarDialog;
+import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
@@ -61,11 +61,11 @@ public class OpenCxtmenuCounterLoadTimeViewAction extends Action implements ILoa
 		if (win != null) {
 			if(date == null){
 				long current = TimeUtil.getCurrentTime(serverId);
-				LoadCalendarDialog calDialog = new LoadCalendarDialog(win.getShell().getDisplay(), OpenCxtmenuCounterLoadTimeViewAction.this);
+				CalendarDialog calDialog = new CalendarDialog(win.getShell().getDisplay(), OpenCxtmenuCounterLoadTimeViewAction.this);
 				calDialog.showWithTime(UIUtil.getMousePosition(), current);
 			}else{
 				long st = DateUtil.getTime(date + " 00:00", "yyyyMMdd HH:mm");
-				LoadCalendarDialog calDialog = new LoadCalendarDialog(win.getShell().getDisplay(), OpenCxtmenuCounterLoadTimeViewAction.this);
+				CalendarDialog calDialog = new CalendarDialog(win.getShell().getDisplay(), OpenCxtmenuCounterLoadTimeViewAction.this);
 				calDialog.showWithTime(UIUtil.getMousePosition(), st);
 			}
 		}

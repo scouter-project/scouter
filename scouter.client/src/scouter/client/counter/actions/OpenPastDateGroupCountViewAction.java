@@ -25,10 +25,10 @@ import org.eclipse.ui.IWorkbenchWindow;
 import scouter.client.Images;
 import scouter.client.group.view.CounterPastDateGroupCountView;
 import scouter.client.model.GroupObject;
-import scouter.client.popup.LoadCalendarDialog;
+import scouter.client.popup.CalendarDialog;
 import scouter.client.util.ImageUtil;
 
-public class OpenPastDateGroupCountViewAction extends Action implements LoadCalendarDialog.ILoadCounterDialog{
+public class OpenPastDateGroupCountViewAction extends Action implements CalendarDialog.ILoadCounterDialog{
 	public final static String ID = OpenPastDateGroupCountViewAction.class.getName();
 
 	private final IWorkbenchWindow window;
@@ -53,7 +53,7 @@ public class OpenPastDateGroupCountViewAction extends Action implements LoadCale
 				if (display == null) {
 					display = Display.getDefault();
 				}
-				LoadCalendarDialog dialog = new LoadCalendarDialog(display, this);
+				CalendarDialog dialog = new CalendarDialog(display, this);
 				dialog.show();
 			} catch (Exception e) {
 				MessageDialog.openError(window.getShell(), "Error", "Error opening view:" + e.getMessage());

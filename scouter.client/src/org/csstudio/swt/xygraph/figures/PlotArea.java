@@ -85,6 +85,9 @@ public class PlotArea extends Figure {
 	private boolean armed;
 
 	private Color revertBackColor;
+	
+	// scouter.porject 20150707
+	private boolean horizontalZoomEnabled = true;
 
 	public PlotArea(final XYGraph xyGraph) {
 		this.xyGraph = xyGraph;
@@ -459,7 +462,12 @@ public class PlotArea extends Figure {
 				for (Axis axis : xyGraph.getXAxisList()) {
 					final double t1 = axis.getPositionValue(start.x, false);
 					final double t2 = axis.getPositionValue(end.x, false);
-					axis.setRange(t1, t2, true);
+
+					// scouter.porject 20150707
+					changeSupport.firePropertyChange("horizontal_range", axis.getRange(), new Range(t1, t2));
+					if (horizontalZoomEnabled) {
+						axis.setRange(t1, t2, true);
+					}
 				}
 				break;
 			case VERTICAL_ZOOM:
@@ -536,5 +544,10 @@ public class PlotArea extends Figure {
 			default: // NOP
 			}
 		}
+	}
+	
+	// scouter.porject 20150707
+	public void enableZoom(boolean enableZoom) {
+		this.horizontalZoomEnabled = enableZoom;
 	}
 }

@@ -16,6 +16,7 @@
  */
 package scouter.client.util;
 
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,8 +29,10 @@ import java.util.TreeMap;
 
 import org.csstudio.swt.xygraph.dataprovider.IDataProvider;
 import org.csstudio.swt.xygraph.dataprovider.ISample;
+import org.csstudio.swt.xygraph.figures.PlotArea;
 import org.csstudio.swt.xygraph.figures.Trace;
 import org.csstudio.swt.xygraph.figures.XYGraph;
+import org.csstudio.swt.xygraph.undo.ZoomType;
 import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.DefaultToolTip;
@@ -43,9 +46,7 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.internal.WorkbenchPage;
 import org.eclipse.ui.part.ViewPart;
@@ -595,5 +596,11 @@ public class ScouterUtil {
 //			Rectangle bounds = primaryMonitor.getBounds();
 //			part.getViewSite().getShell().setSize(bounds.width / 2, bounds.height / 2);
 		}
+	}
+	
+	public static void addHorizontalRangeListener(PlotArea plotArea, PropertyChangeListener listener, boolean withZoom) {
+		plotArea.setZoomType(ZoomType.HORIZONTAL_ZOOM);
+		plotArea.enableZoom(withZoom);
+		plotArea.addPropertyChangeListener("horizontal_range", listener);
 	}
 }

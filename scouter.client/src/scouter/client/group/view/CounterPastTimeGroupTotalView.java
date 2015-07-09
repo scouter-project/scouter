@@ -61,7 +61,7 @@ import scouter.client.model.AgentModelThread;
 import scouter.client.model.AgentObject;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
-import scouter.client.popup.LoadCalendarDialog;
+import scouter.client.popup.CalendarDialog;
 import scouter.client.preferences.PManager;
 import scouter.client.preferences.PreferenceConstants;
 import scouter.client.server.Server;
@@ -85,7 +85,7 @@ import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.StringUtil;
 
-public class CounterPastTimeGroupTotalView extends ScouterViewPart implements LoadCalendarDialog.ILoadCounterDialog {
+public class CounterPastTimeGroupTotalView extends ScouterViewPart implements CalendarDialog.ILoadCounterDialog {
 
 	public static final String ID = CounterPastTimeGroupTotalView.class.getName();
 			
@@ -195,7 +195,7 @@ public class CounterPastTimeGroupTotalView extends ScouterViewPart implements Lo
 	}
 	
 	Label serverText, sDateText, sTimeText, eTimeText;
-	LoadCalendarDialog calDialog;
+	CalendarDialog calDialog;
 	Composite headerComp;
 	private void createUpperMenu(Composite composite) {
 		headerComp = new Composite(composite, SWT.NONE);
@@ -215,7 +215,7 @@ public class CounterPastTimeGroupTotalView extends ScouterViewPart implements Lo
 						display = Display.getDefault();
 					}
 					
-					calDialog = new LoadCalendarDialog(display, CounterPastTimeGroupTotalView.this);
+					calDialog = new CalendarDialog(display, CounterPastTimeGroupTotalView.this);
 					calDialog.showWithTime(UIUtil.getMousePosition(), stime);
 					break;
 				}

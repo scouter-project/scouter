@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Text;
 import scouter.client.Images;
 import scouter.client.model.AgentDailyListProxy;
 import scouter.client.model.TextProxy;
-import scouter.client.popup.LoadCalendarDialog.ILoadCounterDialog;
+import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
 import scouter.client.server.ServerManager;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.UIUtil;
@@ -119,7 +119,7 @@ public class ObjectCounterDialog {
 		fromCalBtn.setImage(Images.CTXMENU_RDC);
 		fromCalBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				new LoadCalendarDialog(display, new ILoadCounterDialog() {
+				new CalendarDialog(display, new ILoadCounterDialog() {
 					public void onPressedOk(String date) {
 						from = date;
 						fromTxt.setText(date.substring(0, 4) + "-" + date.substring(4, 6) + "-" + date.substring(6, 8));
@@ -154,7 +154,7 @@ public class ObjectCounterDialog {
 		toCalBtn.setImage(Images.CTXMENU_RDC);
 		toCalBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				new LoadCalendarDialog(display, new ILoadCounterDialog() {
+				new CalendarDialog(display, new ILoadCounterDialog() {
 					public void onPressedOk(String date) {
 						to = date;
 						toTxt.setText(date.substring(0, 4) + "-" + date.substring(4, 6) + "-" + date.substring(6, 8));

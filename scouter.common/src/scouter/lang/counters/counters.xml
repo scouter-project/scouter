@@ -11,7 +11,6 @@ tdservcnt : Today Service Count
 dservcnt : Daily Service Count
 svcgrp : Service Group
 scrbrd : Score Board
-rdsbrd : Redis Board
 -->
 <Counters>
 	<Familys>
@@ -40,7 +39,7 @@ rdsbrd : Redis Board
 			<Counter name="DropIn" disp="Net | Drop In" unit="cnt" icon="drop.png" />
 		</Family>
 		<Family name="javaee" master="ActiveService" txreal="true"  txload="true" totactsp="true"  acteq="true"  actthrli="true" dservcnt="true" tdservcnt="true" svcgrp="true" srcxlog="true">
-			<Counter name="visit5m" disp="Visitor5M" unit="cnt" icon="visitor.png" />
+			<Counter name="User5M" disp="User5M" unit="cnt" icon="visitor.png" />
 			<Counter name="HeapTotUsage" disp="Heap Total Usage" unit="MB" icon="memory.png" all="false" total="false"  />
 			<Counter name="GcCount" disp="GC Count" unit="cnt" icon="gc.png" />
 			<Counter name="ServiceCount" disp="Service Count" unit="cnt" icon="service_count.png" />
