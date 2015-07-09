@@ -26,11 +26,11 @@ import org.eclipse.ui.PartInitException;
 import scouter.client.Images;
 import scouter.client.group.view.XLogLoadTimeGroupView;
 import scouter.client.model.GroupObject;
-import scouter.client.popup.LoadCalendarDialog;
+import scouter.client.popup.CalendarDialog;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ImageUtil;
 
-public class OpenPastTimeTranXGroupViewAction extends Action implements LoadCalendarDialog.ILoadCounterDialog {
+public class OpenPastTimeTranXGroupViewAction extends Action implements CalendarDialog.ILoadCounterDialog {
 	public final static String ID = OpenPastTimeTranXGroupViewAction.class.getName();
 
 	private final IWorkbenchWindow window;
@@ -53,7 +53,7 @@ public class OpenPastTimeTranXGroupViewAction extends Action implements LoadCale
 				if (display == null) {
 					display = Display.getDefault();
 				}
-				LoadCalendarDialog dialog = new LoadCalendarDialog(display, this);
+				CalendarDialog dialog = new CalendarDialog(display, this);
 				dialog.showWithEndTime();
 			} catch (Exception e) {
 				MessageDialog.openError(window.getShell(), "Error", "Error opening view:" + e.getMessage());

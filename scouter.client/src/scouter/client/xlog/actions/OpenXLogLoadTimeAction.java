@@ -25,11 +25,11 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 
-import scouter.client.popup.LoadCalendarDialog;
+import scouter.client.popup.CalendarDialog;
 import scouter.client.util.ImageUtil;
 import scouter.client.xlog.views.XLogLoadTimeView;
 
-public class OpenXLogLoadTimeAction extends Action implements LoadCalendarDialog.ILoadCounterDialog {
+public class OpenXLogLoadTimeAction extends Action implements CalendarDialog.ILoadCounterDialog {
 	public final static String ID = OpenXLogLoadTimeAction.class.getName();
 
 	private final IWorkbenchWindow window;
@@ -60,7 +60,7 @@ public class OpenXLogLoadTimeAction extends Action implements LoadCalendarDialog
 				if (display == null) {
 					display = Display.getDefault();
 				}
-				LoadCalendarDialog dialog = new LoadCalendarDialog(display, this);
+				CalendarDialog dialog = new CalendarDialog(display, this);
 				if (stime > 0 && etime >0) {
 					dialog.showWithEndTime(stime, etime);
 				} else {

@@ -25,7 +25,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 
 import scouter.client.counter.views.CounterPastTimeTotalView;
-import scouter.client.popup.LoadCalendarDialog.AfterMinuteUnit;
+import scouter.client.popup.CalendarDialog.AfterMinuteUnit;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.TimeUtil;
 import scouter.util.DateUtil;

@@ -215,4 +215,5 @@ public class RequestCmd {
 	public static final String TAGCNT_TAG_NAMES = "TAGCNT_TAG_NAMES";
 	public static final String TAGCNT_TAG_VALUES = "TAGCNT_TAG_VALUES";
 	public static final String TAGCNT_TAG_VALUE_DATA = "TAGCNT_TAG_VALUE_DATA";
+	public static final String TAGCNT_TAG_ACTUAL_DATA = "TAGCNT_TAG_ACTUAL_DATA";
 }

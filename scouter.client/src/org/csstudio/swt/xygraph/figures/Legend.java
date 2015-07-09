@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.csstudio.swt.xygraph.Preferences;
+import org.csstudio.swt.xygraph.figures.Trace.TraceType;
 import org.csstudio.swt.xygraph.util.XYGraphMediaFactory;
 import org.eclipse.draw2d.FigureUtilities;
 import org.eclipse.draw2d.Graphics;
@@ -56,8 +57,8 @@ public class Legend extends RectangleFigure {
 		setBackgroundColor(xyGraph.getPlotArea().getBackgroundColor());
 		setForegroundColor(BLACK_COLOR);
 		setOpaque(false);
-		setOutline(false); // Edited by scouter.project@gmail.com true -> false
-		addListenerToBoldline(); // Added by scouter.project@gmail.com
+		setOutline(false); // Edited by scouter.project true -> false
+		addListenerToBoldline(); // Added by scouter.project
 	}
 	/**Add a trace to the axis.
 	 * @param trace the trace to be added.
@@ -88,7 +89,7 @@ public class Legend extends RectangleFigure {
 		int hPos = bounds.x +INNER_GAP;
 		int vPos = bounds.y - INNER_GAP; // up little
 		int i = 0;
-		// Added by scouter.project@gmail.com
+		// Added by scouter.project
 		positionList.clear();
 		
 		for(Trace trace : traceList){
@@ -117,7 +118,7 @@ public class Legend extends RectangleFigure {
         if (Preferences.useAdvancedGraphics())
             graphics.setAntialias(SWT.ON);
 		graphics.setForegroundColor(trace.getTraceColor());
-		///********************************** Removed by scouter.project@gmail.com
+		///********************************** Removed by scouter.project
 // draw symbol
 //		switch (trace.getTraceType()) {
 //		case BAR:
@@ -141,7 +142,7 @@ public class Legend extends RectangleFigure {
 //		}
 		//**************************************/
 
-		// Added by scouter.project@gmail.com
+		// Added by scouter.project
 		// Draw rectangle and name
 		graphics.setBackgroundColor(trace.getTraceColor());
 		int rectangleX = hPos+ INNER_GAP*2;
@@ -184,11 +185,11 @@ public class Legend extends RectangleFigure {
 		return traceList;
 	}
 	
-	//Added by scouter.project@gmail.com
+	//Added by scouter.project
 	private final List<LegendPosition> positionList = new ArrayList<LegendPosition>();
 	
 	/**
-	 * Added by scouter.project@gmail.com
+	 * Added by scouter.project
 	 * When mouse pressed/released event occurs,  trace is highlighted/normal
 	 */
 	private void addListenerToBoldline() {
@@ -201,8 +202,12 @@ public class Legend extends RectangleFigure {
 					LegendPosition pos = positionList.get(i);
 					if (pos.isContained(me.x, me.y)) {
 						holdingTrace = traceList.get(i);
-						originalWidth = holdingTrace.getLineWidth();
-						holdingTrace.setLineWidth(originalWidth * 2);
+						if (holdingTrace.getTraceType() == TraceType.SOLID_LINE) {
+							originalWidth = holdingTrace.getLineWidth();
+							holdingTrace.setLineWidth(originalWidth * 2);
+						} else {
+							holdingTrace = null;
+						}
 						break;
 					}
 				}

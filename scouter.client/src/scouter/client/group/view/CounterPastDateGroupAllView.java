@@ -76,7 +76,7 @@ import scouter.client.model.AgentObject;
 import scouter.client.model.TextProxy;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
-import scouter.client.popup.LoadDualCalendarDialog;
+import scouter.client.popup.DualCalendarDialog;
 import scouter.client.preferences.PManager;
 import scouter.client.preferences.PreferenceConstants;
 import scouter.client.server.Server;
@@ -102,7 +102,7 @@ import scouter.util.FormatUtil;
 import scouter.util.HashUtil;
 import scouter.util.StringUtil;
 
-public class CounterPastDateGroupAllView extends ScouterViewPart implements LoadDualCalendarDialog.ILoadDualCounterDialog, IObjectCheckListener {
+public class CounterPastDateGroupAllView extends ScouterViewPart implements DualCalendarDialog.ILoadDualCounterDialog, IObjectCheckListener {
 
 	public static final String ID = CounterPastDateGroupAllView.class.getName();
 			
@@ -264,7 +264,7 @@ public class CounterPastDateGroupAllView extends ScouterViewPart implements Load
 	}
 	
 	Label serverText, sDateText, eDateText;
-	LoadDualCalendarDialog calDialog;
+	DualCalendarDialog calDialog;
 	Combo periodCombo;
 	Composite headerComp;
 	Button applyBtn;
@@ -299,7 +299,7 @@ public class CounterPastDateGroupAllView extends ScouterViewPart implements Load
 					if (display == null) {
 						display = Display.getDefault();
 					}
-					calDialog = new LoadDualCalendarDialog(display, CounterPastDateGroupAllView.this);
+					calDialog = new DualCalendarDialog(display, CounterPastDateGroupAllView.this);
 					calDialog.show(UIUtil.getMousePosition());
 					break;
 				}

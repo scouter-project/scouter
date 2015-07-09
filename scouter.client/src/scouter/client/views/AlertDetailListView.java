@@ -59,7 +59,7 @@ import scouter.client.Images;
 import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
 import scouter.client.popup.AlertNotifierDialog;
-import scouter.client.popup.LoadCalendarDialog;
+import scouter.client.popup.CalendarDialog;
 import scouter.client.sorter.ColumnLabelSorter;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.ConsoleProxy;
@@ -76,7 +76,7 @@ import scouter.util.DateUtil;
 import scouter.util.HashUtil;
 import scouter.util.StringEnumer;
 
-public class AlertDetailListView extends ViewPart implements LoadCalendarDialog.ILoadCounterDialog {
+public class AlertDetailListView extends ViewPart implements CalendarDialog.ILoadCounterDialog {
 	
 	public static final String ID = AlertDetailListView.class.getName();
 
@@ -128,7 +128,7 @@ public class AlertDetailListView extends ViewPart implements LoadCalendarDialog.
 					if (display == null) {
 						display = Display.getDefault();
 					}
-					LoadCalendarDialog dialog = new LoadCalendarDialog(display, AlertDetailListView.this);
+					CalendarDialog dialog = new CalendarDialog(display, AlertDetailListView.this);
 					dialog.show(dateText.getLocation().x, dateText.getLocation().y, DateUtil.yyyymmdd(yyyymmdd));
 					break;
 				}
