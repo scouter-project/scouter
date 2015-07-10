@@ -72,8 +72,8 @@ object XLogTagCount {
         }
         if (x.error != 0) {
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.service_errors, new TextHashValue(x.service), 1)
+            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.error, new TextHashValue(x.error), 1)
         }
-
         if (x.group != 0)
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.group, new TextHashValue(x.group), 1)
 
@@ -91,10 +91,6 @@ object XLogTagCount {
 
         if (StringUtil.isNotEmpty(x.countryCode))
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.nation, new TextValue(x.countryCode), 1)
-
-        if (x.error != 0) {
-            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.error, new TextHashValue(x.error), 1)
-        }
 
         if (x.visitor != 0) {
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.visitor, new DecimalValue(x.visitor), 1)
