@@ -159,8 +159,7 @@ public class TraceMain {
 		ctx.startTime = System.currentTimeMillis();
 		ctx.startCpu = SysJMX.getCurrentThreadCPU();
 		ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
-		// ctx.profile.add(new MessageStep(ctx.thread.getName() + "  " +
-		// Hexa32.toString32(ctx.txid)));
+		ctx.bytes= SysJMX.getCurrentThreadAllocBytes();
 		ctx.profile_thread_cputime = conf.profile_thread_cputime;
 		http.start(ctx, req, res);
 		if (ctx.serviceName == null)
@@ -227,7 +226,7 @@ public class TraceMain {
 			pack.txid = ctx.txid;
 			pack.gxid = ctx.gxid;
 			pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-			pack.bytes = ctx.bytes;
+			pack.bytes = (int)(SysJMX.getCurrentThreadAllocBytes() - ctx.bytes);
 			pack.status = ctx.status;
 			pack.sqlCount = ctx.sqlCount;
 			pack.sqlTime = ctx.sqlTime;
@@ -329,6 +328,7 @@ public class TraceMain {
 			ctx.startCpu = SysJMX.getCurrentThreadCPU();
 			ctx.txid = KeyGen.next();
 			ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
+			ctx.bytes= SysJMX.getCurrentThreadAllocBytes();
 			ctx.profile_thread_cputime = conf.profile_thread_cputime;
 			ctx.xType = xType;
 			ServiceTracePlugIn.start(ctx, new ApiInfo(className, methodName, methodDesc, _this, arg));
@@ -343,35 +343,35 @@ public class TraceMain {
 			Stat stat0 = (Stat) stat;
 			if (stat0 == null)
 				return;
-			TraceContext o = stat0.ctx;
-			if (o == null) {
+			TraceContext ctx = stat0.ctx;
+			if (ctx == null) {
 				return;
 			}
-			TraceContextManager.end(o.threadId);
+			TraceContextManager.end(ctx.threadId);
 			XLogPack pack = new XLogPack();
-			pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - o.startCpu);
+			pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 			pack.endTime = System.currentTimeMillis();
-			pack.elapsed = (int) (pack.endTime - o.startTime);
+			pack.elapsed = (int) (pack.endTime - ctx.startTime);
 			boolean sendOk = pack.elapsed >= Configure.getInstance().xlog_time_limit;
-			o.profile.close(sendOk);
-			DataProxy.sendServiceName(o.serviceHash, o.serviceName);
-			pack.service = o.serviceHash;
-			pack.xType = o.xType;
-			pack.bytes = o.bytes;
-			pack.status = o.status;
-			pack.sqlCount = o.sqlCount;
-			pack.sqlTime = o.sqlTime;
-			pack.txid = o.txid;
-			pack.ipaddr = o.remoteAddr;
-			pack.visitor = o.visitor;
-			if (o.opencon > 0) {
-				String emsg = "not closed db connection [" + o.opencon + "]";
+			ctx.profile.close(sendOk);
+			DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
+			pack.service = ctx.serviceHash;
+			pack.xType = ctx.xType;
+			pack.bytes = (int)(SysJMX.getCurrentThreadAllocBytes() - ctx.bytes);
+			pack.status = ctx.status;
+			pack.sqlCount = ctx.sqlCount;
+			pack.sqlTime = ctx.sqlTime;
+			pack.txid = ctx.txid;
+			pack.ipaddr = ctx.remoteAddr;
+			pack.visitor = ctx.visitor;
+			if (ctx.opencon > 0) {
+				String emsg = "not closed db connection [" + ctx.opencon + "]";
 				int ehash = StringHashCache.getErrHash(emsg);
 				pack.error = ehash;
 				DataProxy.sendError(ehash, emsg);
 				AlertProxy.sendAlert(AlertLevel.ERROR, "NOT_CLOSED_DBC", emsg);
-			} else if (o.error != 0) {
-				pack.error = o.error;
+			} else if (ctx.error != 0) {
+				pack.error = ctx.error;
 			} else if (thr != null) {
 				Configure conf = Configure.getInstance();
 				String emsg = thr.toString();
@@ -394,10 +394,10 @@ public class TraceMain {
 				DataProxy.sendError(ehash, emsg);
 			}
 			// 2015.02.02
-			pack.apicallCount = o.apicall_count;
-			pack.apicallTime = o.apicall_time;
+			pack.apicallCount = ctx.apicall_count;
+			pack.apicallTime = ctx.apicall_time;
 			// pack.divPerf = o.divPerf;
-			ServiceTracePlugIn.end(o, pack);
+			ServiceTracePlugIn.end(ctx, pack);
 			metering(pack);
 			if (sendOk) {
 				DataProxy.sendXLog(pack);
@@ -559,18 +559,7 @@ public class TraceMain {
 	// dctx.context.divPerf[dctx.divIdx] += time;
 	// }
 	// /////////////////////
-	public static void setContentLength(int bytes) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
-		if (ctx == null)
-			return;
-		ctx.bytes = bytes;
-	}
-	public static void setContentLength(long bytes) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
-		if (ctx == null)
-			return;
-		ctx.bytes = Integer.MAX_VALUE > bytes ? Integer.MAX_VALUE : (int) bytes;
-	}
+
 	public static void setStatus(int httpStatus) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)

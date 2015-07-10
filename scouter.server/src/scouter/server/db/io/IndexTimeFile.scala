@@ -123,7 +123,7 @@ class IndexTimeFile(_path: String) extends IClose {
 
         var i = 0
         var stime = _stime
-        while (i < DateUtil.SECONDS_PER_DAY*2 && stime <= etime) {
+        while (i < DateUtil.SECONDS_PER_DAY * 2 && stime <= etime) {
             val data = getSecAll(stime);
             EnumerScala.forward(data, (tv: TimeValue) => {
                 handler(tv.time, tv.value)
@@ -139,7 +139,7 @@ class IndexTimeFile(_path: String) extends IClose {
 
         var i = 0
         var etime = _etime
-        while (i < DateUtil.SECONDS_PER_DAY*2 && stime <= etime) {
+        while (i < DateUtil.SECONDS_PER_DAY * 2 && stime <= etime) {
             val data = getSecAll(etime);
 
             EnumerScala.backward(data, (tv: TimeValue) => {
@@ -150,36 +150,41 @@ class IndexTimeFile(_path: String) extends IClose {
         }
     }
 
-    def read(_stime: Long, etime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long)=>Array[Byte]) {
+    def read(_stime: Long, etime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long) => Array[Byte]) {
         if (this.keyFile == null)
             return
 
         var i = 0
         var stime = _stime
-        while (i < DateUtil.SECONDS_PER_DAY*2 && stime <= etime) {
+        while (i < DateUtil.SECONDS_PER_DAY * 2 && stime <= etime) {
             val data = getSecAll(stime);
 
             EnumerScala.forward(data, (tv: TimeValue) => {
-                handler(tv.time, reader(DataInputX.toLong5(tv.value, 0)))
+                if (tv.time >= _stime && tv.time <= etime) {
+                    handler(tv.time, reader(DataInputX.toLong5(tv.value, 0)))
+                }
             })
 
             i += 1
-            stime = stime + 500L
+            stime +=  500L
         }
     }
 
-    def readFromEnd(stime: Long, _etime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long)=>Array[Byte]) {
+    def readFromEnd(stime: Long, _etime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long) => Array[Byte]) {
         if (this.keyFile == null)
             return
 
         var i = 0
         var etime = _etime
-        while (i < DateUtil.SECONDS_PER_DAY*2 && stime <= etime) {
+        while (i < DateUtil.SECONDS_PER_DAY * 2 && stime <= etime) {
             val data = getSecAll(etime);
 
             EnumerScala.backward(data, (tv: TimeValue) => {
-                handler(tv.time, reader(DataInputX.toLong5(tv.value, 0)))
+                  if (tv.time >= stime && tv.time <= _etime) {
+                      handler(tv.time, reader(DataInputX.toLong5(tv.value, 0)))
+                  }
             })
+            
             i += 1
             etime = etime - 500L
         }
@@ -188,7 +193,7 @@ class IndexTimeFile(_path: String) extends IClose {
     def read(handler: (Array[Byte], Array[Byte]) => Any) {
         if (this.keyFile == null)
             return
-            
+
         var pos = this.keyFile.getFirstPos();
         val length = this.keyFile.getLength();
         var done = 0;

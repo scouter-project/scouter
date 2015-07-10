@@ -44,7 +44,7 @@ public class TraceContext {
 	public long startTime;
 	public long startCpu;
 
-	public int bytes;
+	public long bytes;
 	public int status;
 
 	// service

@@ -20,25 +20,21 @@ import java.util.ArrayList
 import java.util.Collections
 import java.util.Comparator
 import java.util.HashMap
-import java.util.List
 import java.util.Map
-import java.util.Set
+
 import scouter.lang.value.Value
 import scouter.server.tagcnt.core.TagCountUtil
 import scouter.server.tagcnt.core.Top100FileCache
-import scouter.server.tagcnt.core.UniqCount
 import scouter.server.tagcnt.core.ValueCount
 import scouter.server.tagcnt.core.ValueCountTotal
+import scouter.server.tagcnt.first.FirstTCData
 import scouter.server.tagcnt.first.FirstTagCountDB
 import scouter.server.tagcnt.next.NextTagCountDB
-import scouter.server.tagcnt.uniq.UniqTagCountDB
+import scouter.server.util.EnumerScala
 import scouter.util.BitUtil
 import scouter.util.CastUtil
 import scouter.util.HashUtil
-import scouter.util.LongEnumer
 import scouter.util.LongKeyMap
-import scouter.server.util.EnumerScala
-import scouter.server.tagcnt.first.FirstTCData
 object TagCountProxy {
     def getTagValueCountWithCache(date: String, objType: String, tagGroup: String, tagName: String, limit: Int): ValueCountTotal = {
         val tagKey = BitUtil.compsite(HashUtil.hash(tagGroup), HashUtil.hash(tagName));
@@ -98,23 +94,7 @@ object TagCountProxy {
         return NextTagCountDB.getTagValueCount(date, objType, tagKey, value);
     }
 
-    def getUniqCountData(date: String, objType: String, tagGroup: String, tagName: String): Array[Int] = {
-        val tagKey = BitUtil.compsite(HashUtil.hash(tagGroup), HashUtil.hash(tagName));
-        val ucN = new UniqCount();
-
-        val values = UniqTagCountDB.getUCount(objType, date, tagKey);
-        ucN.set(values);
-
-        val innVal = FirstTagCountDB.getTagValues(objType, date, tagKey);
-        EnumerScala.foreach(innVal.iterator(), (value: Value) => {
-            val cnt = FirstTagCountDB.getTagValueCount(objType, date, tagKey, value);
-            if (cnt != null) {
-                ucN.add(cnt);
-            }
-        })
-        return ucN.getResult();
-    }
-
+    
     def getEveryTagTop100Value(objType: String, date: String, tagGroup: String, limit: Int): LongKeyMap[ValueCountTotal] = {
         val map2 = new LongKeyMap[ValueCountTotal]();
 

@@ -126,6 +126,7 @@ class TagCountService {
         val tagGroup = param.getText("tagGroup");
         var date = param.getText("date");
         var max = param.getInt("max");
+        var rev = param.getBoolean("reverse");
         
         val mpack = ObjectRD.getDailyAgent(date);
         val objTypeLv = mpack.getList("objType");
@@ -152,7 +153,12 @@ class TagCountService {
                 return;
             }
           }
-          XLogRD.readByTime(date, stime, etime, handler);
+          
+          if (rev) {
+        	  XLogRD.readFromEndTime(date, stime, etime, handler)
+          } else {
+        	  XLogRD.readByTime(date, stime, etime, handler);
+          }
         } else if (tagGroup == "alert") {
           var cnt = 0;
           val handler = (time: Long, data: Array[Byte]) => {
@@ -167,7 +173,11 @@ class TagCountService {
                 return;
             }
           }
-          AlertRD.readByTime(date, stime, etime, handler);
+          if (rev) {
+        	  AlertRD.readFromEndTime(date, stime, etime, handler);
+          } else {
+        	  AlertRD.readByTime(date, stime, etime, handler);
+          }
         }
         
     }
