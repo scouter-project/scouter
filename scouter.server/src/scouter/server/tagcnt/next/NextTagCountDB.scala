@@ -17,17 +17,15 @@ package scouter.server.tagcnt.next;
 
 import java.io.File
 import java.util.ArrayList
-import java.util.Enumeration
 import java.util.HashMap
-import java.util.Iterator
-import java.util.List
+
 import scouter.lang.value.Value
-import scouter.server.Configure
 import scouter.server.Logger
-import scouter.server.tagcnt.TagCountConfig
 import scouter.server.tagcnt.core.CountEnv
 import scouter.server.tagcnt.core.DBKey
 import scouter.server.tagcnt.core.NextTagCountData
+import scouter.server.util.EnumerScala
+import scouter.server.util.ThreadScala
 import scouter.util.BackJob
 import scouter.util.DateUtil
 import scouter.util.FileUtil
@@ -35,8 +33,6 @@ import scouter.util.IClose
 import scouter.util.LinkedMap
 import scouter.util.RequestQueue
 import scouter.util.ThreadUtil
-import scouter.server.util.EnumerScala
-import scouter.server.util.ThreadScala
 
 object NextTagCountDB extends IClose {
 
@@ -194,7 +190,6 @@ object NextTagCountDB extends IClose {
             db.table.read(handler);
         } catch {
             case e: Throwable =>
-                e.printStackTrace();
         } finally {
             FileUtil.close(db);
         }

@@ -149,16 +149,21 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
 
         var pos = this.keyFile.getFirstPos();
         val length = this.keyFile.getLength();
+        var done = 0;
+        try {
+            while (pos < length && pos > 0) {
+                var r = this.keyFile.getRecord(pos);
+                val in = new DataInputX(r.key);
+                val tag = in.readLong();
+                val value = in.readValue();
 
-        while (pos < length && pos > 0) {
-            var r = this.keyFile.getRecord(pos);
-            val in = new DataInputX(r.key);
-            val tag = in.readLong();
-            val value = in.readValue();
-
-            handler(tag, value, r.count, r.pos24h, this, pos)
-            pos = r.next;
-
+                handler(tag, value, r.count, r.pos24h, this, pos)
+                pos = r.next;
+                done += 1
+            }
+        } catch {
+            case t: Throwable =>
+                Logger.println("S184", this.keyFile + " : read=" + done + " pos=" + pos + " file-len=" + length + " " + t);
         }
         return true;
     }

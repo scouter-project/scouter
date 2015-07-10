@@ -140,14 +140,20 @@ class TagCountService {
         }
         
         if (tagGroup == "service") {
+          var txid = param.getLong("txid");
+          var ok = if (txid == 0) true else false;
           var cnt = 0;
           val handler = (time: Long, data: Array[Byte]) => {
             val x = new DataInputX(data).readPack().asInstanceOf[XLogPack];
             if (objHashSet.contains(x.objHash)) {
-            	dout.writeByte(TcpFlag.HasNEXT);
-	            dout.write(data);
-	            dout.flush();
-	            cnt += 1;
+            	if (ok == false) {
+            		ok = x.txid == txid;
+            	} else {
+	            	dout.writeByte(TcpFlag.HasNEXT);
+		            dout.write(data);
+		            dout.flush();
+		            cnt += 1;
+            	}
             }
             if (cnt >= max) {
                 return;

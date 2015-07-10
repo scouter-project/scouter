@@ -25,7 +25,6 @@ import scouter.server.db.xlog.XLogDataReader
 import scouter.server.db.xlog.XLogIndex
 import scouter.util.FileUtil
 import scouter.server.db.io.IndexTimeFile
-import scala.runtime.NonLocalReturnControl
 
 object XLogRD {
 

@@ -82,7 +82,6 @@ public class ServiceTableComposite extends Composite {
 			public void doubleClick(DoubleClickEvent e) {
 				StructuredSelection sel = (StructuredSelection) viewer.getSelection();
 				Object o = sel.getFirstElement();
-				System.out.println(o);
 				if (o instanceof XLogPack) {
 					XLogPack data = (XLogPack) o;
 					XLogData d = new XLogData(data, serverId);
@@ -99,6 +98,12 @@ public class ServiceTableComposite extends Composite {
 	public void setInput(ArrayList<Pack> packList, int serverId, String date) {
 		this.serverId = serverId;
 		this.yyyymmdd = date;
+		ArrayList<Integer> serverHashes = new ArrayList<Integer>(packList.size());
+		for (Pack p : packList) {
+			XLogPack xp = (XLogPack) p;
+			serverHashes.add(xp.service);
+		}
+		TextProxy.service.load(yyyymmdd, serverHashes, serverId);
 		viewer.setInput(packList);
 	}
 	
@@ -204,11 +209,11 @@ public class ServiceTableComposite extends Composite {
 	}
 	
 	enum XLogColumnEnum {
-	    OBJECT("Object", 100, SWT.LEFT, true, true, false),
+	    OBJECT("Object", 150, SWT.LEFT, true, true, false),
 	    ELAPSED("Elapsed", 50, SWT.RIGHT, true, true, true),
-	    SERVICE("Service", 100, SWT.LEFT, true, true, false),
-	    START_TIME("StartTime", 60, SWT.CENTER, true, true, true),
-	    END_TIME("EndTime", 60, SWT.CENTER, true, true, true),
+	    SERVICE("Service", 150, SWT.LEFT, true, true, false),
+	    START_TIME("StartTime", 100, SWT.CENTER, true, true, true),
+	    END_TIME("EndTime", 100, SWT.CENTER, true, true, true),
 	    TX_ID("Txid", 30, SWT.LEFT, true, true, false),
 	    CPU("Cpu", 50, SWT.RIGHT, true, true, true),
 	    SQL_COUNT("SQL Count", 50, SWT.RIGHT, true, true, true),
