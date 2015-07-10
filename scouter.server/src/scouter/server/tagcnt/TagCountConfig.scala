@@ -64,6 +64,11 @@ object TagCountConfig {
         val objectName = new Tag("service", "object");
         val ip = new Tag("service", "ip");
         val service = new Tag("service", "service");
+        
+        val service_elapsed= new Tag("service", "service-elapsed");
+        val service_bytes = new Tag("service", "service-bytes");
+        val service_errors = new Tag("service", "service-errors");
+        
         val userAgent = new Tag("service", "user-agent");
         val error = new Tag("service", "error");
         val referer = new Tag("service", "referer");
