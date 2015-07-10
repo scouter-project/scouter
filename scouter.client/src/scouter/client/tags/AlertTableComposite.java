@@ -21,7 +21,6 @@ import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -31,7 +30,6 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -39,28 +37,24 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
 import scouter.client.model.TextProxy;
-import scouter.client.model.XLogData;
+import scouter.client.popup.AlertNotifierDialog;
 import scouter.client.sorter.TableLabelSorter;
-import scouter.client.util.ColorUtil;
-import scouter.client.xlog.actions.OpenXLogProfileJob;
+import scouter.lang.AlertLevel;
+import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.Pack;
-import scouter.lang.pack.XLogPack;
 import scouter.util.DateUtil;
-import scouter.util.FormatUtil;
-import scouter.util.Hexa32;
-import scouter.util.IPUtil;
 
-public class ServiceTableComposite extends Composite {
-	
+public class AlertTableComposite extends Composite {
+
 	Composite parent;
-	
+
 	private TableViewer viewer;
 	private TableColumnLayout tableColumnLayout;
-	
+
 	int serverId;
 	String yyyymmdd;
 
-	public ServiceTableComposite(Composite parent, int style) {
+	public AlertTableComposite(Composite parent, int style) {
 		super(parent, style);
 		this.parent = this;
 		initLayout();
@@ -82,12 +76,9 @@ public class ServiceTableComposite extends Composite {
 			public void doubleClick(DoubleClickEvent e) {
 				StructuredSelection sel = (StructuredSelection) viewer.getSelection();
 				Object o = sel.getFirstElement();
-				if (o instanceof XLogPack) {
-					XLogPack data = (XLogPack) o;
-					XLogData d = new XLogData(data, serverId);
-					d.objName = TextProxy.object.getLoadText(yyyymmdd, data.objHash, serverId);
-					d.serviceName = TextProxy.service.getLoadText(yyyymmdd, data.service, serverId);
-					new OpenXLogProfileJob(d, serverId).schedule();
+				if (o instanceof AlertPack) {
+					AlertNotifierDialog alertDialog = new AlertNotifierDialog(parent.getDisplay(), serverId, (AlertPack)o);
+					alertDialog.show(parent.getBounds());
 				} else {
 					System.out.println(o);
 				}
@@ -98,40 +89,20 @@ public class ServiceTableComposite extends Composite {
 	public void setInput(ArrayList<Pack> packList, int serverId, String date) {
 		this.serverId = serverId;
 		this.yyyymmdd = date;
-		ArrayList<Integer> serverHashes = new ArrayList<Integer>(packList.size());
-		for (Pack p : packList) {
-			XLogPack xp = (XLogPack) p;
-			serverHashes.add(xp.service);
-		}
-		TextProxy.service.load(yyyymmdd, serverHashes, serverId);
 		viewer.setInput(packList);
 	}
 	
-	ArrayList<XLogColumnEnum> columnList = new ArrayList<XLogColumnEnum>();
+	ArrayList<AlertColumnEnum> columnList = new ArrayList<AlertColumnEnum>();
 	
 	private void createColumns() {
-		for (XLogColumnEnum column : XLogColumnEnum.values()) {
+		for (AlertColumnEnum column : AlertColumnEnum.values()) {
 			createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
 			columnList.add(column);
 		}
 		viewer.setLabelProvider(new TableItemProvider());
 	}
 	
-	class TableItemProvider implements ITableLabelProvider, IColorProvider {
-
-		public Color getForeground(Object element) {
-			if (element instanceof XLogPack) {
-				XLogPack d = (XLogPack) element;
-				if (d.error != 0) {
-					return ColorUtil.getInstance().getColor("red");
-				}
-			}
-			return null;
-		}
-
-		public Color getBackground(Object element) {
-			return null;
-		}
+	class TableItemProvider implements ITableLabelProvider {
 
 		public void addListener(ILabelProviderListener listener) {
 			
@@ -153,38 +124,24 @@ public class ServiceTableComposite extends Composite {
 		}
 
 		public String getColumnText(Object element, int columnIndex) {
-			if (element instanceof XLogPack == false) {
+			if (element instanceof AlertPack == false) {
 				return null;
 			} 
-			XLogPack p = (XLogPack) element;
-			XLogColumnEnum column = columnList.get(columnIndex);
+			AlertPack p = (AlertPack) element;
+			AlertColumnEnum column = columnList.get(columnIndex);
 			switch (column) {
+			case TIME :
+				return DateUtil.format(p.time, "HH:mm:ss.sss");
+			case LEVEL :
+				return AlertLevel.getName(p.level);
 			case OBJECT :
 				return TextProxy.object.getLoadText(yyyymmdd, p.objHash, serverId);
-			case ELAPSED :
-				return FormatUtil.print(p.elapsed, "#,##0");
-			case SERVICE :
-				return TextProxy.service.getLoadText(yyyymmdd, p.service, serverId);
-			case START_TIME :
-				return DateUtil.getLogTime(p.endTime - p.elapsed);
-			case END_TIME :
-				return DateUtil.getLogTime(p.endTime);
-			case TX_ID :
-				return Hexa32.toString32(p.txid);
-			case CPU :
-				return FormatUtil.print(p.cpu, "#,##0");
-			case SQL_COUNT :
-				return FormatUtil.print(p.sqlCount, "#,##0");
-			case SQL_TIME :
-					return FormatUtil.print(p.sqlTime, "#,##0");
-			case BYTES :
-					return FormatUtil.print(p.bytes, "#,##0");
-			case IP :
-					return IPUtil.toString(p.ipaddr);
-			case ERROR :
-				return p.error == 0 ? "" : TextProxy.error.getLoadText(yyyymmdd, p.error, serverId);
-			case GX_ID :
-				return Hexa32.toString32(p.gxid);
+			case TITLE :
+				return p.title;
+			case MESSAGE :
+				return p.message;
+			case TAGS :
+				return p.tags.toString();
 			}
 			return null;
 		}
@@ -208,20 +165,13 @@ public class ServiceTableComposite extends Composite {
 		return viewerColumn;
 	}
 	
-	enum XLogColumnEnum {
-	    OBJECT("Object", 150, SWT.LEFT, true, true, false),
-	    ELAPSED("Elapsed", 50, SWT.RIGHT, true, true, true),
-	    SERVICE("Service", 150, SWT.LEFT, true, true, false),
-	    START_TIME("StartTime", 100, SWT.CENTER, true, true, true),
-	    END_TIME("EndTime", 100, SWT.CENTER, true, true, true),
-	    TX_ID("Txid", 30, SWT.LEFT, true, true, false),
-	    CPU("Cpu", 50, SWT.RIGHT, true, true, true),
-	    SQL_COUNT("SQL Count", 50, SWT.RIGHT, true, true, true),
-	    SQL_TIME("SQL Time", 50, SWT.RIGHT, true, true, true),
-	    BYTES("Bytes", 50, SWT.RIGHT, true, true, true),
-	    IP("IP", 100, SWT.LEFT, true, true, false),
-	    ERROR("Error", 50, SWT.LEFT, true, true, false),
-	    GX_ID("Gxid", 30, SWT.LEFT, true, true, false);
+	enum AlertColumnEnum {
+	    TIME("TIME", 100, SWT.RIGHT, true, true, true), //
+	    LEVEL("LEVEL", 70, SWT.CENTER, true, true, false), //
+	    OBJECT("OBJECT", 100, SWT.LEFT, true, true, false),
+	    TITLE("TITLE", 150, SWT.LEFT, true, true, false),
+	    MESSAGE("MESSAGE", 250, SWT.LEFT, true, true, false),
+	    TAGS("TAGs", 200, SWT.LEFT, true, true, false);
 
 	    private final String title;
 	    private final int weight;
@@ -230,9 +180,9 @@ public class ServiceTableComposite extends Composite {
 	    private final boolean moveable;
 	    private final boolean isNumber;
 
-	    private XLogColumnEnum(String text, int width, int alignment, boolean resizable, boolean moveable, boolean isNumber) {
+	    private AlertColumnEnum(String text, int weight, int alignment, boolean resizable, boolean moveable, boolean isNumber) {
 	        this.title = text;
-	        this.weight = width;
+	        this.weight = weight;
 	        this.alignment = alignment;
 	        this.resizable = resizable;
 	        this.moveable = moveable;

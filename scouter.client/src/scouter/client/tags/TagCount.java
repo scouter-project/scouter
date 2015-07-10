@@ -22,7 +22,7 @@ import java.util.List;
 public class TagCount {
 	
 	String tagName;
-	String name;
+	String value;
 	long count;
 	List<TagCount> childs = null;
 	

@@ -201,9 +201,7 @@ class IndexFile(_path: String, hashSize: Int = 1) extends IClose {
             while (pos < length && pos >0) {
                 val r = this.keyFile.getRecord(pos);
                 if (r.deleted == false) {
-                    if (handler(r.key, r.value) == false) {
-                        return false;
-                    }
+                    handler(r.key, r.value) 
                 }
                 done += 1
                 pos = r.next;

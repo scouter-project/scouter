@@ -14,30 +14,10 @@
  *  limitations under the License. 
  */
 
-package scouter.server.tagcnt.core;
+package scouter.util;
 
-class UniqCount {
-    private val uc1440 = new Array[Int](1440);
 
-    def set(values: Array[Int]) {
-        if (values == null)
-            return ;
-        System.arraycopy(values, 0, uc1440, 0, 1440);
-    }
-
-    def add(s1440: Array[Int]) {
-        if (s1440 == null)
-            return ;
-        var inx = 0;
-        while (inx < 1440) {
-            if (s1440(inx) > 0) {
-                uc1440(inx) += 1;
-            }
-            inx += 1
-        }
-    }
-
-    def getResult(): Array[Int] = {
-        return uc1440;
-    }
+public   interface FloatEnumer {
+	public boolean hasMoreElements();
+	public float nextFloat();
 }

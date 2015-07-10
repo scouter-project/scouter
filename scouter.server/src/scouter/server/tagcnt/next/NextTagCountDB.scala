@@ -17,18 +17,15 @@ package scouter.server.tagcnt.next;
 
 import java.io.File
 import java.util.ArrayList
-import java.util.Enumeration
 import java.util.HashMap
-import java.util.Iterator
-import java.util.List
+
 import scouter.lang.value.Value
-import scouter.server.Configure
 import scouter.server.Logger
-import scouter.server.tagcnt.TagCountConfig
 import scouter.server.tagcnt.core.CountEnv
 import scouter.server.tagcnt.core.DBKey
 import scouter.server.tagcnt.core.NextTagCountData
-import scouter.server.tagcnt.core.UniqCountData
+import scouter.server.util.EnumerScala
+import scouter.server.util.ThreadScala
 import scouter.util.BackJob
 import scouter.util.DateUtil
 import scouter.util.FileUtil
@@ -36,206 +33,173 @@ import scouter.util.IClose
 import scouter.util.LinkedMap
 import scouter.util.RequestQueue
 import scouter.util.ThreadUtil
-import scouter.server.util.EnumerScala
-import scouter.server.util.ThreadScala
 
 object NextTagCountDB extends IClose {
 
-  val database = new LinkedMap[DBKey, WorkDB]();
-  var idleConns = new ArrayList[DBKey]();
+    val database = new LinkedMap[DBKey, WorkDB]();
+    var idleConns = new ArrayList[DBKey]();
 
-  val r = new Runnable() {
-    override def run() {
-      val now = System.currentTimeMillis();
-      EnumerScala.foreach(database.keys(), (key: DBKey) => {
+    val r = new Runnable() {
+        override def run() {
+            val now = System.currentTimeMillis();
+            EnumerScala.foreach(database.keys(), (key: DBKey) => {
 
-        val db = database.get(key);
-        if (db != null) {
-          if (now - db.lastActive > DateUtil.MILLIS_PER_FIVE_MINUTE) {
-            idleConns.add(key);
-          }
+                val db = database.get(key);
+                if (db != null) {
+                    if (now - db.lastActive > DateUtil.MILLIS_PER_FIVE_MINUTE) {
+                        idleConns.add(key);
+                    }
+                }
+            })
         }
-      })
     }
-  }
 
-  BackJob.getInstance().add("BG-NextTagCountDB", 10000, r);
+    BackJob.getInstance().add("BG-NextTagCountDB", 10000, r);
 
-  val queue = new RequestQueue[HashMap[NextTagCountData, Array[Int]]](CountEnv.MAX_QUE_SIZE + 1);
+    val queue = new RequestQueue[HashMap[NextTagCountData, Array[Int]]](CountEnv.MAX_QUE_SIZE + 1);
 
-  def getQueueSize() = queue.size();
+    def getQueueSize() = queue.size();
 
-  def isQueueOk() = queue.size() < CountEnv.MAX_QUE_SIZE 
+    def isQueueOk() = queue.size() < CountEnv.MAX_QUE_SIZE
 
-  def add(data: HashMap[NextTagCountData, Array[Int]]) {
-    while (isQueueOk() == false) {
-      ThreadUtil.qWait();
-       Logger.println("S185", 10, "NextTagCountDB queue is exceeded");
-    }
-    queue.put(data);
-  }
-
-  val lastflush = System.currentTimeMillis();
-
-  ThreadScala.start("scouter.server.tagcnt.next.NextTagCountDB") {
-
-    while (CountEnv.running) {
-      closeIdleConnections();
-      val p = queue.get();
-      if (Configure.getInstance().tagcnt_ucount_enabled) {
-        processWithUniqCount(p);
-      } else {
-        process(p);
-      }
-    }
-    FileUtil.close(this);
-
-  }
-
-  def process(p: HashMap[NextTagCountData, Array[Int]]) {
-    EnumerScala.foreach(p.keySet().iterator(), (key: NextTagCountData) => {
-      val value = p.get(key);
-      val db = openWrite(key.time, key.objType);
-      try {
-        if (db != null) {
-          db.table.add(key.tagKey, key.value, (key.hourUnit % 24).toInt, value);
+    def add(data: HashMap[NextTagCountData, Array[Int]]) {
+        while (isQueueOk() == false) {
+            ThreadUtil.qWait();
+            Logger.println("S185", 10, "NextTagCountDB queue is exceeded");
         }
+        queue.put(data);
+    }
 
-      } catch {
-        case t: Throwable =>
-          t.printStackTrace();
-      }
-    })
-  }
+    val lastflush = System.currentTimeMillis();
 
-  def processWithUniqCount(p: HashMap[NextTagCountData, Array[Int]]) {
-    val uc = new UniqCountData();
-    EnumerScala.foreach(p.keySet().iterator(), (key: NextTagCountData) => {
-      val value = p.get(key);
-      val db = openWrite(key.time, key.objType);
-      if (db != null) {
-        val needUniqCount = TagCountConfig.ucountSet.contains(key.tagKey);
+    ThreadScala.start("scouter.server.tagcnt.next.NextTagCountDB") {
+
+        while (CountEnv.running) {
+            closeIdleConnections();
+            val p = queue.get();
+            process(p);
+        }
+        FileUtil.close(this);
+
+    }
+
+    def process(p: HashMap[NextTagCountData, Array[Int]]) {
+        EnumerScala.foreach(p.keySet().iterator(), (key: NextTagCountData) => {
+            val value = p.get(key);
+            val db = openWrite(key.time, key.objType);
+            try {
+                if (db != null) {
+                    db.table.add(key.tagKey, key.value, (key.hourUnit % 24).toInt, value);
+                }
+
+            } catch {
+                case t: Throwable =>
+                    t.printStackTrace();
+            }
+        })
+    }
+
+    private def openWrite(time: Long, objType: String): WorkDB = {
+        this.synchronized {
+            val dateunit = DateUtil.getDateUnit(time);
+            var db = database.get(new DBKey(dateunit, objType));
+            if (db != null) {
+                db.lastActive = System.currentTimeMillis();
+                return db;
+            }
+            db = open(time, objType);
+            if (db == null)
+                return null;
+
+            db.lastActive = System.currentTimeMillis();
+            database.synchronized {
+                while (database.size() >= CountEnv.MAX_ACTIVEDB) {
+                    try {
+                        database.removeFirst().close();
+                    } catch {
+                        case _: Throwable =>
+                    }
+                }
+                database.put(new DBKey(dateunit, objType), db);
+            }
+            return db;
+        }
+    }
+
+    private def closeIdleConnections() {
+        if (idleConns.isEmpty())
+            return ;
+        val idles = idleConns;
+        idleConns = new ArrayList[DBKey]();
+
+        for (i <- 0 to idles.size() - 1) {
+            val o = database.remove(idles.get(i));
+            FileUtil.close(o);
+        }
+    }
+
+    def open(date: String, objType: String): WorkDB = {
+        val time = DateUtil.getTime(date, "yyyyMMdd");
+        return open(time, objType);
+    }
+
+    def open(time: Long, objType: String): WorkDB = {
+        this.synchronized {
+            if (time == 0) {
+                new Throwable().printStackTrace();
+            }
+            var db: WorkDB = null;
+            try {
+                val date = DateUtil.yyyymmdd(time);
+
+                val path = CountEnv.getDBPath(date, objType);
+                val f = new File(path);
+                if (f.exists() == false)
+                    f.mkdirs();
+
+                db = new WorkDB(path);
+                db.open();
+                db.objType = objType;
+                db.logDate = date;
+
+            } catch {
+                case e: Exception =>
+                    e.printStackTrace();
+            }
+            return db;
+        }
+    }
+
+    def getTagValueCount(date: String, objType: String, tagKey: Long, value: Value): Array[Int] = {
+        val db = open(date, objType);
         try {
-          if (needUniqCount) {
-            uc.setWorkingLog(key.time, key.objType);
-            uc.setTag(key.tagKey);
-            db.table.add(key.tagKey, key.value, (key.hourUnit % 24).toInt, value, uc);
-          } else {
-            db.table.add(key.tagKey, key.value, (key.hourUnit % 24).toInt, value);
-          }
+            return db.table.get(tagKey, value);
         } catch {
-          case t: Throwable =>
-            t.printStackTrace();
+            case e: Exception =>
+                e.printStackTrace();
+        } finally {
+            FileUtil.close(db);
         }
-      }
-    })
-  }
-
-  private def openWrite(time: Long, objType: String): WorkDB = {
-    this.synchronized {
-      val dateunit = DateUtil.getDateUnit(time);
-      var db = database.get(new DBKey(dateunit, objType));
-      if (db != null) {
-        db.lastActive = System.currentTimeMillis();
-        return db;
-      }
-      db = open(time, objType);
-      if (db == null)
         return null;
+    }
 
-      db.lastActive = System.currentTimeMillis();
-      database.synchronized {
-        while (database.size() >= CountEnv.MAX_ACTIVEDB) {
-          try {
-            database.removeFirst().close();
-          } catch {
-            case _: Throwable =>
-          }
+    // def read(date: String, objType: String, handler: (Long,Value,Int,Array[Long],IndexFile,Long)=>Any) {
+    def read(date: String, objType: String, handler: (Long, Value, Int, Array[Long], IndexFile, Long) => Any) {
+        val db = open(date, objType);
+        try {
+            db.table.read(handler);
+        } catch {
+            case e: Throwable =>
+        } finally {
+            FileUtil.close(db);
         }
-        database.put(new DBKey(dateunit, objType), db);
-      }
-      return db;
     }
-  }
 
-  private def closeIdleConnections() {
-    if (idleConns.isEmpty())
-      return ;
-    val idles = idleConns;
-    idleConns = new ArrayList[DBKey]();
-
-    for (i <- 0 to idles.size() - 1) {
-      val o = database.remove(idles.get(i));
-      FileUtil.close(o);
+    def close() {
+        database.synchronized {
+            while (database.size() > 0) {
+                database.removeFirst().close();
+            }
+        }
     }
-  }
-
-  def open(date: String, objType: String): WorkDB = {
-    val time = DateUtil.getTime(date, "yyyyMMdd");
-    return open(time, objType);
-  }
-
-  def open(time: Long, objType: String): WorkDB = {
-    this.synchronized {
-      if (time == 0) {
-        new Throwable().printStackTrace();
-      }
-      var db: WorkDB = null;
-      try {
-        val date = DateUtil.yyyymmdd(time);
-
-        val path = CountEnv.getDBPath(date, objType);
-        val f = new File(path);
-        if (f.exists() == false)
-          f.mkdirs();
-
-        db = new WorkDB(path);
-        db.open();
-        db.objType = objType;
-        db.logDate = date;
-
-      } catch {
-        case e: Exception =>
-          e.printStackTrace();
-      }
-      return db;
-    }
-  }
-
-  def getTagValueCount(date: String, objType: String, tagKey: Long, value: Value): Array[Int] = {
-    val db = open(date, objType);
-    try {
-      return db.table.get(tagKey, value);
-    } catch {
-      case e: Exception =>
-        e.printStackTrace();
-    } finally {
-      FileUtil.close(db);
-    }
-    return null;
-  }
-
-  
-  
-  
- // def read(date: String, objType: String, handler: (Long,Value,Int,Array[Long],IndexFile,Long)=>Any) {
-  def read(date: String, objType: String, handler:(Long, Value, Int,  Array[Long],  IndexFile, Long)=>Any) {
-      val db = open(date, objType);
-    try {
-      db.table.read(handler);
-    } catch {
-      case e: Throwable =>
-        e.printStackTrace();
-    } finally {
-      FileUtil.close(db);
-    }
-  }
-
-  def close() {
-    database.synchronized {
-      while (database.size() > 0) {
-        database.removeFirst().close();
-      }
-    }
-  }
 }

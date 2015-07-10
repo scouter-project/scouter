@@ -24,7 +24,6 @@ import java.util.List;
 import scouter.agent.asm.Apicall2ASM;
 import scouter.agent.asm.ApicallInfoASM;
 import scouter.agent.asm.CapArgsASM;
-import scouter.agent.asm.CapContentLengthASM;
 import scouter.agent.asm.CapReturnASM;
 import scouter.agent.asm.CapThisASM;
 import scouter.agent.asm.DbcCloseASM;
@@ -33,11 +32,11 @@ import scouter.agent.asm.FutureTaskASM;
 import scouter.agent.asm.HttpServiceASM;
 import scouter.agent.asm.IASM;
 import scouter.agent.asm.JDBCDriverASM;
+import scouter.agent.asm.JDBCLeakDetectorASM;
 import scouter.agent.asm.JDBCPreparedStatementASM;
 import scouter.agent.asm.JDBCResultSetASM;
 import scouter.agent.asm.JDBCStatementASM;
 import scouter.agent.asm.JspServletASM;
-import scouter.agent.asm.JDBCLeakDetectorASM;
 import scouter.agent.asm.MethodASM;
 import scouter.agent.asm.ScouterClassWriter;
 import scouter.agent.asm.ServiceASM;
@@ -116,7 +115,6 @@ public class AgentTransformer implements ClassFileTransformer {
 		}
 	
 		if (conf.enable_hook_step7) {
-			temp.add(new CapContentLengthASM());
 			temp.add(new JspServletASM());
 		}
 		

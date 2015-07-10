@@ -47,7 +47,7 @@ public class TagCountUtil {
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.object.getText(lv.getInt(i)));
 					}
-				} else if (tagName.equals("service")) {
+				} else if (tagName.equals("service") || tagName.startsWith("service-")) {
 					TextProxy.service.load(date, lv, serverId);
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.service.getText(lv.getInt(i)));
@@ -133,9 +133,10 @@ public class TagCountUtil {
 		} else if (tagName.equals("visitor")
 			|| tagName.equals("elapsed")
 			|| tagName.equals("sqltime")
-			|| tagName.equals("apitime")
-			|| tagName.equals("level")) {
+			|| tagName.equals("apitime")){
 			return new DecimalValue(Long.valueOf(tagValue));
+		} else if(tagName.equals("level")) {
+			return new DecimalValue(AlertLevel.getValue(tagValue));
 		} else if (tagName.equals("ip")) {
 			return new IP4Value(tagValue);
 		}

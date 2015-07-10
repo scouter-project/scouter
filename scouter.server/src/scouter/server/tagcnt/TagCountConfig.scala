@@ -30,17 +30,12 @@ object TagCountConfig {
     val entries = new StringKeyLinkedMap[StringSet]();
 
     val keyToName = new LongKeyMap[String]();
-    val ucountSet = new LongSet();
+   
+    class Tag(_tagGroup: String, _tagName: String) {
 
-    class Tag(_tagGroup: String, _tagName: String, _ucount: Boolean) {
-
-        def this(tagGroup: String, name: String) {
-            this(tagGroup, name, false);
-        }
         val tagGroup = _tagGroup;
         val tagName = _tagName;
         val key = BitUtil.compsite(HashUtil.hash(tagGroup), HashUtil.hash(tagName));
-        val ucount = _ucount;
         var set = entries.get(tagGroup);
         if (set == null) {
             set = new StringSet();
@@ -49,8 +44,6 @@ object TagCountConfig {
         set.put(tagName);
 
         keyToName.put(key, tagName);
-        if (ucount)
-            ucountSet.add(key);
     }
 
     def getTagNames(tagGroup: String): StringEnumer = {
@@ -69,8 +62,13 @@ object TagCountConfig {
     class Service {
         val total = new Tag("service", "@total");
         val objectName = new Tag("service", "object");
-        val ip = new Tag("service", "ip", true);
+        val ip = new Tag("service", "ip");
         val service = new Tag("service", "service");
+        
+        val service_elapsed= new Tag("service", "service-elapsed");
+        val service_bytes = new Tag("service", "service-bytes");
+        val service_errors = new Tag("service", "service-errors");
+        
         val userAgent = new Tag("service", "user-agent");
         val error = new Tag("service", "error");
         val referer = new Tag("service", "referer");
