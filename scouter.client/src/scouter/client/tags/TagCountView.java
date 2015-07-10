@@ -59,6 +59,8 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -91,11 +93,14 @@ import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.ScouterUtil;
 import scouter.io.DataInputX;
+import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.value.BooleanValue;
 import scouter.lang.value.DecimalValue;
+import scouter.lang.value.ListValue;
+import scouter.lang.value.MapValue;
 import scouter.lang.value.NullValue;
 import scouter.lang.value.Value;
 import scouter.net.RequestCmd;
@@ -127,6 +132,7 @@ public class TagCountView extends ViewPart {
 	XYGraph totalGraph;
 	Trace totalTrace;
 	
+	Label rangeLbl;
 	Label dataRangeLbl;
 	Button leftBtn;
 	Button rightBtn;
@@ -147,6 +153,7 @@ public class TagCountView extends ViewPart {
 	
 	SashForm dataTableSash;
 	ServiceTableComposite serviceTable;
+	AlertTableComposite alertTable;
 	
 	int lastWidth = 1;
 	
@@ -260,7 +267,7 @@ public class TagCountView extends ViewPart {
 				if (stime < rangeX1 || stime > rangeX2) return;
 				stime = stime / DateUtil.MILLIS_PER_MINUTE * DateUtil.MILLIS_PER_MINUTE;
 				long etime = stime + DateUtil.MILLIS_PER_MINUTE - 1;
-				loadInitData(tagGroupCombo.getText(), stime, etime);
+				loadInitData(tagGroupCombo.getText(), stime, etime, null);
 			}
 		});
 		
@@ -295,24 +302,26 @@ public class TagCountView extends ViewPart {
 			public void propertyChange(PropertyChangeEvent evt) {
 				Object o = evt.getNewValue();
 				if (o != null && o instanceof Range) {
-					rangeX1 = ((Range) o).getLower();
-					rangeX2 = ((Range) o).getUpper();
-					if (rangeX1 > rangeX2) {
-						double temp = rangeX2;
-						rangeX2 = rangeX1;
-						rangeX1 = temp;
+					double x1 = ((Range) o).getLower();
+					double x2 = ((Range) o).getUpper();
+					if (Math.abs(x1-x2) < DateUtil.MILLIS_PER_FIVE_MINUTE){
+						return;
 					}
-					if (rangeX2 - rangeX1 < DateUtil.MILLIS_PER_MINUTE) {
-						rangeX2 = rangeX1 + DateUtil.MILLIS_PER_MINUTE;
-						totalGraph.primaryXAxis.setRange(rangeX1, rangeX2);
+					if (x1 < x2) {
+						rangeX1 = x1;
+						rangeX2 = x2;
+					} else {
+						rangeX1 = x2;
+						rangeX2 = x1;
 					}
+					totalGraph.primaryXAxis.setRange(rangeX1, rangeX2);
 					zoomMode = true;
 					totalCanvas.notifyListeners(SWT.Resize, new Event());
 					adjustYAxisRange(totalGraph, (CircularBufferDataProvider) totalTrace.getDataProvider());
 					updateTextDate();
 				}
 			}
-		}, true);
+		}, false);
 		
 		Composite cntGraphComp = new Composite(graphSash, SWT.BORDER);
 		cntGraphComp.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
@@ -340,6 +349,23 @@ public class TagCountView extends ViewPart {
 			}
 		});
 		
+		cntCanvas.addMouseListener(new MouseListener() {
+			
+			public void mouseUp(MouseEvent e) {
+			}
+			
+			public void mouseDown(MouseEvent e) {
+			}
+			
+			public void mouseDoubleClick(MouseEvent e) {
+				long stime = (long) cntGraph.primaryXAxis.getPositionValue(e.x, true);
+				if (stime < rangeX1 || stime > rangeX2) return;
+				stime = stime / DateUtil.MILLIS_PER_MINUTE * DateUtil.MILLIS_PER_MINUTE;
+				long etime = stime + DateUtil.MILLIS_PER_MINUTE - 1;
+				loadInitData(tagGroupCombo.getText(), stime, etime, makeFilterMv());
+			}
+		});
+		
 		cntGraph = new XYGraph();
 		cntGraph.setShowLegend(true);
 		cntGraph.setShowTitle(false);
@@ -359,24 +385,26 @@ public class TagCountView extends ViewPart {
 			public void propertyChange(PropertyChangeEvent evt) {
 				Object o = evt.getNewValue();
 				if (o != null && o instanceof Range) {
-					rangeX1 = ((Range) o).getLower();
-					rangeX2 = ((Range) o).getUpper();
-					if (rangeX1 > rangeX2) {
-						double temp = rangeX2;
-						rangeX2 = rangeX1;
-						rangeX1 = temp;
+					double x1 = ((Range) o).getLower();
+					double x2 = ((Range) o).getUpper();
+					if (Math.abs(x1-x2) < DateUtil.MILLIS_PER_FIVE_MINUTE){
+						return;
 					}
-					if (rangeX2 - rangeX1 < DateUtil.MILLIS_PER_MINUTE) {
-						rangeX2 = rangeX1 + DateUtil.MILLIS_PER_MINUTE;
-						cntGraph.primaryXAxis.setRange(rangeX1, rangeX2);
+					if (x1 < x2) {
+						rangeX1 = x1;
+						rangeX2 = x2;
+					} else {
+						rangeX1 = x2;
+						rangeX2 = x1;
 					}
+					cntGraph.primaryXAxis.setRange(rangeX1, rangeX2);
 					zoomMode = true;
 					cntCanvas.notifyListeners(SWT.Resize, new Event());
 					adjustYAxisRange(cntGraph, cntTraceMap.values());
 					updateTextDate();
 				}
 			}
-		}, true);
+		}, false);
 		
 		graphSash.setWeights(new int[] {1, 1});
 		graphSash.setMaximizedControl(totalComp);
@@ -401,7 +429,7 @@ public class TagCountView extends ViewPart {
 				if (o instanceof TagCount) {
 					TagCount tc = (TagCount) o;
 					if (tc.tagName == null && tc.count == 0) {
-						loadTagValues(tagGroupCombo.getText(), tc.name);
+						loadTagValues(tagGroupCombo.getText(), tc.value);
 					} else {
 						TreeItem[] items = tagNameTree.getSelection();
 						if (items != null && items.length >0) {
@@ -427,9 +455,9 @@ public class TagCountView extends ViewPart {
 					TagCount tc = (TagCount) event.getElement();
 					if (StringUtil.isNotEmpty(tc.tagName)) {
 						if (event.getChecked()) {
-							loadTagCount(tagGroupCombo.getText(), tc.tagName, tc.name);
+							loadTagCount(tagGroupCombo.getText(), tc.tagName, tc.value);
 						} else {
-							removeTagCount(tc.name);
+							removeTagCount(tc.value);
 						}
 					}
 				}
@@ -453,10 +481,18 @@ public class TagCountView extends ViewPart {
 		rightTablecomp.setLayout(new GridLayout(1,true));
 		Composite tableInfoComp = new Composite(rightTablecomp, SWT.NONE);
 		tableInfoComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		tableInfoComp.setLayout(new GridLayout(3, false));
+		tableInfoComp.setLayout(new GridLayout(4, false));
 
+		rangeLbl = new Label(tableInfoComp, SWT.CENTER);
+		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		rangeLbl.setLayoutData(gd);
+		FontData fontData = rangeLbl.getFont().getFontData()[0];
+		Font font = new Font(getViewSite().getShell().getDisplay(), new FontData(fontData.getName(), fontData
+		    .getHeight(), SWT.BOLD));
+		rangeLbl.setFont(font);
+		
 		dataRangeLbl = new Label(tableInfoComp, SWT.RIGHT);
-		gd = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
+		gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
 		gd.widthHint = 100;
 		dataRangeLbl.setLayoutData(gd);
 		
@@ -468,7 +504,11 @@ public class TagCountView extends ViewPart {
 		leftBtn.setEnabled(false);
 		leftBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				loadLeftData(tagGroupCombo.getText());
+				if (graphSash.getMaximizedControl() == cntCanvas.getParent()) {
+					loadLeftData(tagGroupCombo.getText(), makeFilterMv());
+				} else {
+					loadLeftData(tagGroupCombo.getText(), null);
+				}
 			}
 		});
 		
@@ -480,13 +520,18 @@ public class TagCountView extends ViewPart {
 		rightBtn.setEnabled(false);
 		rightBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				loadRightData(tagGroupCombo.getText());
+				if (graphSash.getMaximizedControl() == cntCanvas.getParent()) {
+					loadRightData(tagGroupCombo.getText(), makeFilterMv());
+				} else {
+					loadRightData(tagGroupCombo.getText(), null);
+				}
 			}
 		});
 		
 		dataTableSash = new SashForm(rightTablecomp, SWT.HORIZONTAL);
 		dataTableSash.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		serviceTable = new ServiceTableComposite(dataTableSash, SWT.NONE);
+		alertTable = new AlertTableComposite(dataTableSash, SWT.NONE);
 		
 		tableSash.setWeights(new int[] {1, 5});
 		tableSash.setMaximizedControl(null);
@@ -593,7 +638,7 @@ public class TagCountView extends ViewPart {
 		if ("service".equals(tagGroup)) {
 			dataTableSash.setMaximizedControl(serviceTable);
 		} else if ("alert".equals(tagGroup)) {
-			
+			dataTableSash.setMaximizedControl(alertTable);
 		}
 	}
 	
@@ -707,7 +752,7 @@ public class TagCountView extends ViewPart {
 							nameTree.clear();
 							for (int i = 0; i < list.size(); i++) {
 								TagCount tag = new TagCount();
-								tag.name = list.get(i);
+								tag.value = list.get(i);
 								nameTree.put(list.get(i), tag);
 							}
 							treeViewer.refresh();
@@ -763,13 +808,13 @@ public class TagCountView extends ViewPart {
 						if (parentTag == null) return;
 						for (int i = 0; i < nameList.size(); i++) {
 							TagCount child = new TagCount();
-							child.tagName = parentTag.name;
-							child.name = nameList.get(i);
+							child.tagName = parentTag.value;
+							child.value = nameList.get(i);
 							child.count = cntList.get(i);
 							parentTag.addChild(child);
 						}
 						parentTag.count = totalCount.value;
-						parentTag.name += " (" + valueSize.value + ")";
+						parentTag.value += " (" + valueSize.value + ")";
 						treeViewer.refresh();
 						treeViewer.setExpandedElements(new TagCount[] {parentTag});
 					}
@@ -900,6 +945,24 @@ public class TagCountView extends ViewPart {
 		return trace;
 	}
 	
+	private MapValue makeFilterMv() {
+		MapValue filterMv = new MapValue();
+		Object[] objects = treeViewer.getCheckedElements();
+		for (Object o : objects) {
+			if (o instanceof TagCount) {
+				TagCount tc = (TagCount) o;
+				if (tc.tagName == null) continue;
+				String tagName = tc.tagName;
+				ListValue lv = filterMv.getList(tagName);
+				if (lv == null) {
+					lv = filterMv.newList(tagName);
+				}
+				lv.add(TagCountUtil.convertTagToValue(tagName, tc.value));
+			}
+		}
+		return filterMv;
+	}
+	
 	int lastIndex;
 	int lastSize;
 	long firstTime;
@@ -907,7 +970,7 @@ public class TagCountView extends ViewPart {
 	long firstTxid;
 	long lastTxid;
 	
-	private void loadInitData(final String tagGroup, final long stime, final long etime) {
+	private void loadInitData(final String tagGroup, final long stime, final long etime, final MapValue filterMv) {
 		lastIndex = 0;
 		lastSize = 0;
 		firstTime = 0;
@@ -918,11 +981,12 @@ public class TagCountView extends ViewPart {
 		rightBtn.setEnabled(false);
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
-				List<Pack> list = loadData(tagGroup, stime, etime, false, null);
+				List<Pack> list = loadData(tagGroup, stime, etime, false, null, filterMv);
 				final ArrayList<Pack> result = new ArrayList<Pack>(list);
 				lastIndex = lastSize = result.size();
 				ExUtil.exec(dataTableSash, new Runnable() {
 					public void run() {
+							rangeLbl.setText(DateUtil.format(stime, "HH:mm") + " ~ " + DateUtil.format(stime + DateUtil.MILLIS_PER_MINUTE, "HH:mm"));
 							dataRangeLbl.setText(lastSize > 0 ? "1 ~ " + lastIndex : "0");
 							if (lastIndex == LIMIT_PER_PAGE) {
 								rightBtn.setEnabled(true);
@@ -939,6 +1003,16 @@ public class TagCountView extends ViewPart {
 									lastTxid = xp.txid;
 								}
 								serviceTable.setInput(result, serverId, tagGroup);
+							} else if ("alert".equals(tagGroup)) {
+								if (lastSize > 0) {
+									Pack p = result.get(0);
+									AlertPack xp = (AlertPack) p;
+									firstTime = xp.time;
+									p = result.get(result.size()-1);
+									xp = (AlertPack) p;
+									lastTime = xp.time;
+								}
+								alertTable.setInput(result, serverId, tagGroup);
 							}
 					}
 				});
@@ -946,7 +1020,7 @@ public class TagCountView extends ViewPart {
 		});
 	}
 	
-	private void loadRightData(final String tagGroup) {
+	private void loadRightData(final String tagGroup, final MapValue filterMv) {
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
 				long stime = lastTime;
@@ -955,7 +1029,7 @@ public class TagCountView extends ViewPart {
 				if ("service".equals(tagGroup)) {
 					extra.put("txid", lastTxid);
 				}
-				List<Pack> list = loadData(tagGroup, stime, etime, false, extra);
+				List<Pack> list = loadData(tagGroup, stime, etime, false, extra, filterMv);
 				final ArrayList<Pack> result = new ArrayList<Pack>(list);
 				lastSize = result.size();
 				ExUtil.exec(dataTableSash, new Runnable() {
@@ -981,6 +1055,19 @@ public class TagCountView extends ViewPart {
 								firstTxid = lastTxid = 0;
 							}
 							serviceTable.setInput(result, serverId, tagGroup);
+						} else if ("alert".equals(tagGroup)) {
+							if (lastSize > 0) {
+								Pack p = result.get(0);
+								AlertPack xp = (AlertPack) p;
+								firstTime = xp.time;
+								p = result.get(result.size()-1);
+								xp = (AlertPack) p;
+								lastTime = xp.time;
+							} else {
+								firstTime = lastTime + 1;
+								firstTxid = lastTxid = 0;
+							}
+							alertTable.setInput(result, serverId, tagGroup);
 						}
 					}
 				});
@@ -988,7 +1075,7 @@ public class TagCountView extends ViewPart {
 		});		
 	}
 	
-	private void loadLeftData(final String tagGroup) {
+	private void loadLeftData(final String tagGroup, final MapValue filterMv) {
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
 				long etime = firstTime;
@@ -997,7 +1084,7 @@ public class TagCountView extends ViewPart {
 				if ("service".equals(tagGroup)) {
 					extra.put("txid", firstTxid);
 				}
-				List<Pack> list = loadData(tagGroup, stime, etime, true, extra);
+				List<Pack> list = loadData(tagGroup, stime, etime, true, extra, filterMv);
 				final ArrayList<Pack> revList = new ArrayList<Pack>();
 				for (Pack p : list) {
 					revList.add(0, p);
@@ -1021,6 +1108,14 @@ public class TagCountView extends ViewPart {
 							lastTime = xp.endTime;
 							lastTxid = xp.txid;
 							serviceTable.setInput(revList, serverId, tagGroup);
+						} else if ("service".equals(tagGroup)) {
+							Pack p = revList.get(0);
+							AlertPack xp = (AlertPack) p;
+							firstTime = xp.time;
+							p = revList.get(revList.size()-1);
+							xp = (AlertPack) p;
+							lastTime = xp.time;
+							alertTable.setInput(revList, serverId, tagGroup);
 						}
 					}
 				});
@@ -1028,7 +1123,7 @@ public class TagCountView extends ViewPart {
 		});	
 	}
 	
-	private List<Pack> loadData(String tagGroup, long stime, long etime, boolean reverse, MapPack extra) {
+	private List<Pack> loadData(String tagGroup, long stime, long etime, boolean reverse, MapPack extra, MapValue filterMv) {
 		List<Pack> list = null;
 		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
 		try {
@@ -1048,9 +1143,12 @@ public class TagCountView extends ViewPart {
 					param.put(key, v);
 				}
 			}
+			if (filterMv != null) {
+				param.put("filter", filterMv);
+			}
 			list = tcp.process(RequestCmd.TAGCNT_TAG_ACTUAL_DATA, param);
 		} catch (Exception e) {
-			
+			e.printStackTrace();
 		} finally {
 			TcpProxy.putTcpProxy(tcp);
 		}
@@ -1068,7 +1166,7 @@ public class TagCountView extends ViewPart {
 			case 0:
 				if (obj instanceof TagCount) {
 					TagCount a = (TagCount) obj;
-					return a.name;
+					return a.value;
 				}
 			case 1:
 				if (obj instanceof TagCount) {
