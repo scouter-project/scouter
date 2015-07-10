@@ -247,7 +247,7 @@ public class TagCountView extends ViewPart {
 				if (zoomMode) {
 					double gap = rangeX2 - rangeX1;
 					double noOfMin =gap / DateUtil.MILLIS_PER_MINUTE;
-					double lineWidth = (r.width - 50) / noOfMin;
+					double lineWidth = (r.width - (gap / DateUtil.MILLIS_PER_MINUTE)) / noOfMin * 0.9d;
 					lastWidth = lineWidth < 1 ? 1 : (int)lineWidth;
 					totalTrace.setLineWidth(lastWidth);
 				}
@@ -339,7 +339,7 @@ public class TagCountView extends ViewPart {
 				if (zoomMode) {
 					double gap = rangeX2 - rangeX1;
 					double noOfMin =gap / DateUtil.MILLIS_PER_MINUTE;
-					double lineWidth = (r.width - 50) / noOfMin;
+					double lineWidth = (r.width - (gap / DateUtil.MILLIS_PER_MINUTE)) / noOfMin * 0.9d;
 					lastWidth = lineWidth < 1 ? 1 : (int)lineWidth;
 					for (Trace t : cntTraceMap.values()) {
 						t.setLineWidth(lastWidth);
@@ -448,7 +448,6 @@ public class TagCountView extends ViewPart {
 		});
 		treeViewer.setContentProvider(new ViewContentProvider());
 		treeViewer.setLabelProvider(new TableLabelProvider());
-		treeViewer.setCheckStateProvider(new TreeCheckStateProvider());
 		treeViewer.addCheckStateListener(new ICheckStateListener() {
 			public void checkStateChanged(CheckStateChangedEvent event) {
 				if (event.getElement() instanceof TagCount) {
@@ -456,8 +455,17 @@ public class TagCountView extends ViewPart {
 					if (StringUtil.isNotEmpty(tc.tagName)) {
 						if (event.getChecked()) {
 							loadTagCount(tagGroupCombo.getText(), tc.tagName, tc.value);
+							treeViewer.setGrayChecked(nameTree.get(tc.tagName), true);
 						} else {
 							removeTagCount(tc.value);
+							Object[] objects = treeViewer.getCheckedElements();
+							for (Object o : objects) {
+								TagCount checked = (TagCount) o;
+								if (tc.tagName.equals(checked.tagName)) {
+									return;
+								}
+							}
+							treeViewer.setGrayChecked(nameTree.get(tc.tagName), false);
 						}
 					}
 				}
@@ -556,7 +564,7 @@ public class TagCountView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		ScouterUtil.detachView(this);
+		//ScouterUtil.detachView(this);
 	}
 
 	public void setInput(String date, String objType) {
@@ -756,6 +764,7 @@ public class TagCountView extends ViewPart {
 								nameTree.put(list.get(i), tag);
 							}
 							treeViewer.refresh();
+							treeViewer.setGrayedElements(nameTree.values().toArray());
 						}
 					});
 				}
@@ -1232,19 +1241,6 @@ public class TagCountView extends ViewPart {
 			return true;
 		}
 		
-	}
-	
-	class TreeCheckStateProvider implements ICheckStateProvider {
-		public boolean isChecked(Object element) {
-			return false;
-		}
-
-		public boolean isGrayed(Object element) {
-			if (element instanceof TagCount) {
-				return ((TagCount) element).tagName == null;
-			}
-			return true;
-		}
 	}
 }
 

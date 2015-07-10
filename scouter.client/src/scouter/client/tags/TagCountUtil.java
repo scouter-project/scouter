@@ -47,7 +47,7 @@ public class TagCountUtil {
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.object.getText(lv.getInt(i)));
 					}
-				} else if (tagName.equals("service")) {
+				} else if (tagName.equals("service") || tagName.startsWith("service-")) {
 					TextProxy.service.load(date, lv, serverId);
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.service.getText(lv.getInt(i)));
