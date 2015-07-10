@@ -97,6 +97,7 @@ import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.XLogPack;
+import scouter.lang.value.BooleanValue;
 import scouter.lang.value.DecimalValue;
 import scouter.lang.value.NullValue;
 import scouter.lang.value.Value;
@@ -104,6 +105,7 @@ import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
+import scouter.util.LinkedList;
 import scouter.util.LinkedMap;
 import scouter.util.LinkedMap.ENTRY;
 import scouter.util.StringUtil;
@@ -269,7 +271,7 @@ public class TagCountView extends ViewPart {
 						long stime = (long) totalGraph.primaryXAxis.getPositionValue(e.x, true);
 						stime = stime / DateUtil.MILLIS_PER_MINUTE * DateUtil.MILLIS_PER_MINUTE;
 						long etime = stime + DateUtil.MILLIS_PER_MINUTE - 1;
-						loadData(tagGroupCombo.getText(), stime, etime, false);
+						loadInitData(tagGroupCombo.getText(), stime, etime);
 					}
 				}
 			}
@@ -466,8 +468,9 @@ public class TagCountView extends ViewPart {
 		tableInfoComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		tableInfoComp.setLayout(new GridLayout(3, false));
 
-		dataRangeLbl = new Label(tableInfoComp, SWT.NONE);
+		dataRangeLbl = new Label(tableInfoComp, SWT.RIGHT);
 		gd = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
+		gd.widthHint = 100;
 		dataRangeLbl.setLayoutData(gd);
 		
 		leftBtn = new Button(tableInfoComp, SWT.PUSH);
@@ -475,12 +478,24 @@ public class TagCountView extends ViewPart {
 		gd.widthHint = 40;
 		leftBtn.setLayoutData(gd);
 		leftBtn.setText("<");
+		leftBtn.setEnabled(false);
+		leftBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				loadLeftData(tagGroupCombo.getText());
+			}
+		});
 		
 		rightBtn = new Button(tableInfoComp, SWT.PUSH);
 		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
 		gd.widthHint = 40;
 		rightBtn.setLayoutData(gd);
 		rightBtn.setText(">");
+		rightBtn.setEnabled(false);
+		rightBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				loadRightData(tagGroupCombo.getText());
+			}
+		});
 		
 		dataTableSash = new SashForm(rightTablecomp, SWT.HORIZONTAL);
 		dataTableSash.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -899,49 +914,138 @@ public class TagCountView extends ViewPart {
 	}
 	
 	int lastCnt;
+	int lastSize;
 	long lastSTime;
 	long lastETime;
 	
-	private void loadData(final String tagGroup, final long stime, final long etime, final boolean more) {
+	private void loadInitData(final String tagGroup, final long stime, final long etime) {
+		lastCnt = 0;
+		lastSize = 0;
+		lastSTime = 0;
+		lastETime = 0;
+		leftBtn.setEnabled(false);
+		rightBtn.setEnabled(false);
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
-				List<Pack> list = null;
-				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
-				try {
-					MapPack param = new MapPack();
-					param.put("objType", objType);
-					param.put("stime", stime);
-					param.put("etime", etime);
-					param.put("tagGroup", tagGroup);
-					param.put("date", date);
-					param.put("max", 100);
-					list = tcp.process(RequestCmd.TAGCNT_TAG_ACTUAL_DATA, param);
-				} catch (Exception e) {
-					
-				} finally {
-					TcpProxy.putTcpProxy(tcp);
-				}
+				List<Pack> list = loadData(tagGroup, stime, etime, false);
 				final ArrayList<Pack> result = new ArrayList<Pack>(list);
-				final int size = result.size();
+				lastCnt = lastSize = result.size();
 				ExUtil.exec(dataTableSash, new Runnable() {
 					public void run() {
-						dataRangeLbl.setText((lastCnt+1) + " ~ " + (lastCnt + size));
-						if ("service".equals(tagGroup)) {
-							if (result.size() > 0) {
+						if (lastSize > 0) {
+							dataRangeLbl.setText("1 ~ " + lastSize);
+							if (lastSize == 100) {
+								rightBtn.setEnabled(true);
+							}
+							if ("service".equals(tagGroup)) {
 								Pack p = result.get(0);
 								XLogPack xp = (XLogPack) p;
 								lastSTime = xp.endTime;
 								p = result.get(result.size()-1);
 								xp = (XLogPack) p;
 								lastETime = xp.endTime;
-								lastCnt += result.size();
+								serviceTable.setInput(result, serverId, tagGroup);
+							}
+						}
+					}
+				});
+			}
+		});
+	}
+	
+	private void loadRightData(final String tagGroup) {
+		ExUtil.asyncRun(new Runnable() {
+			public void run() {
+				long stime = lastETime + 1;
+				long etime = (stime + DateUtil.MILLIS_PER_MINUTE) / DateUtil.MILLIS_PER_MINUTE * DateUtil.MILLIS_PER_MINUTE - 1;
+				System.out.println("stime = " + DateUtil.getLogTime(stime));
+				System.out.println("etime = " + DateUtil.getLogTime(etime));
+				List<Pack> list = loadData(tagGroup, stime, etime, false);
+				final ArrayList<Pack> result = new ArrayList<Pack>(list);
+				lastSize = result.size();
+				System.out.println("lastSize=  " + lastSize);
+				ExUtil.exec(dataTableSash, new Runnable() {
+					public void run() {
+						dataRangeLbl.setText((lastCnt + 1) + " ~ " + (lastSize > 0 ? (lastCnt + lastSize) : ""));
+						lastCnt += lastSize;
+						if (lastSize < 100) {
+							rightBtn.setEnabled(false);
+						}
+						leftBtn.setEnabled(true);
+						if ("service".equals(tagGroup)) {
+							if (lastSize > 0) {
+								Pack p = result.get(0);
+								XLogPack xp = (XLogPack) p;
+								lastSTime = xp.endTime;
+								System.out.println("lastSTime = " + DateUtil.getLogTime(lastSTime));
+								p = result.get(result.size()-1);
+								xp = (XLogPack) p;
+								lastETime = xp.endTime;
+								System.out.println("lastETime = " + DateUtil.getLogTime(lastETime));
+							} else {
+								lastSTime = lastETime + 1;
 							}
 							serviceTable.setInput(result, serverId, tagGroup);
 						}
 					}
 				});
 			}
-		});
+		});		
+	}
+	
+	private void loadLeftData(final String tagGroup) {
+		ExUtil.asyncRun(new Runnable() {
+			public void run() {
+				long etime = lastSTime - 1;
+				long stime = etime / DateUtil.MILLIS_PER_MINUTE * DateUtil.MILLIS_PER_MINUTE;
+				List<Pack> list = loadData(tagGroup, stime, etime, true);
+				final ArrayList<Pack> revList = new ArrayList<Pack>();
+				for (Pack p : list) {
+					revList.add(0, p);
+				}
+				lastCnt -= lastSize;
+				lastSize = revList.size();
+				ExUtil.exec(dataTableSash, new Runnable() {
+					public void run() {
+						dataRangeLbl.setText((lastCnt - lastSize + 1) + " ~ " + lastCnt);
+						if (lastCnt <= 1) {
+							leftBtn.setEnabled(false);
+						}
+						rightBtn.setEnabled(true);
+						if ("service".equals(tagGroup)) {
+							Pack p = revList.get(0);
+							XLogPack xp = (XLogPack) p;
+							lastSTime = xp.endTime;
+							p = revList.get(revList.size()-1);
+							xp = (XLogPack) p;
+							lastETime = xp.endTime;
+							serviceTable.setInput(revList, serverId, tagGroup);
+						}
+					}
+				});
+			}
+		});	
+	}
+	
+	private List<Pack> loadData(String tagGroup, long stime, long etime, boolean reverse) {
+		List<Pack> list = null;
+		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+		try {
+			MapPack param = new MapPack();
+			param.put("objType", objType);
+			param.put("stime", stime);
+			param.put("etime", etime);
+			param.put("tagGroup", tagGroup);
+			param.put("date", date);
+			param.put("max", 100);
+			param.put("reverse", new BooleanValue(reverse));
+			list = tcp.process(RequestCmd.TAGCNT_TAG_ACTUAL_DATA, param);
+		} catch (Exception e) {
+			
+		} finally {
+			TcpProxy.putTcpProxy(tcp);
+		}
+		return list;
 	}
 	
 	class TableLabelProvider implements ITableLabelProvider {

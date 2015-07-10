@@ -63,7 +63,7 @@ public class MemTimeBlock implements IFlushable {
 	}
 
 	private int _offset(long time) {
-		int seconds = (int) (DateUtil.getDateMillis(time) / 1000);
+		int seconds = (int) (DateUtil.getDateMillis(time) / 500);
 		int hash = (seconds & Integer.MAX_VALUE) % capacity;
 		return _keyLength * hash + _memHeadReserved;
 	}

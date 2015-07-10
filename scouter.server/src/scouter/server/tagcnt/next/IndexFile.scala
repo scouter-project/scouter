@@ -24,269 +24,215 @@ import scouter.lang.value.Value;
 import scouter.server.Logger;
 import scouter.server.db.io.MemHashBlock;
 import scouter.server.tagcnt.core.TagCountUtil;
-import scouter.server.tagcnt.core.UniqCountData;
+
 import scouter.util.CompareUtil;
 import scouter.util.FileUtil;
 import scouter.util.HashUtil;
 import scouter.util.IClose;
 object IndexFile {
 
-  val table = new Hashtable[String, IndexFile]();
+    val table = new Hashtable[String, IndexFile]();
 
-  def open(path: String): IndexFile = {
-    table.synchronized {
-      var inx = table.get(path);
-      if (inx != null) {
-        inx.refrence += 1;
-        return inx;
-      } else {
-        inx = new IndexFile(path);
-        table.put(path, inx);
-        return inx;
-      }
+    def open(path: String): IndexFile = {
+        table.synchronized {
+            var inx = table.get(path);
+            if (inx != null) {
+                inx.refrence += 1;
+                return inx;
+            } else {
+                inx = new IndexFile(path);
+                table.put(path, inx);
+                return inx;
+            }
+        }
     }
-  }
 }
 class IndexFile(path: String, hashSize: Int = 1) extends IClose {
 
-  var refrence = 0;
+    var refrence = 0;
 
-  val MB = 1024 * 1024;
-  val hashFile = new MemHashBlock(path, hashSize * MB)
-  val keyFile = new KeyFile(path);
-  val dataFile = new DataFile(path)
+    val MB = 1024 * 1024;
+    val hashFile = new MemHashBlock(path, hashSize * MB)
+    val keyFile = new KeyFile(path);
+    val dataFile = new DataFile(path)
 
-  def getKeyFile() = keyFile
+    def getKeyFile() = keyFile
 
-  def getDataPosition(key: Array[Byte]): Array[Long] = {
-    if (key == null) {
-      throw new IOException("invalid key");
-    }
-    val keyHash = HashUtil.hash(key);
-    var pos = hashFile.get(keyHash);
-    while (pos > 0) {
-      val okey = this.keyFile.getKey(pos);
-      if (CompareUtil.equals(okey, key)) {
-        val r = this.keyFile.getRecord(pos);
-        return r.pos24h;
-      }
-      pos = this.keyFile.getHashLink(pos);
-    }
-
-    return null;
-  }
-
-  def updateAdd(key: Array[Byte], hour: Int, value: Array[Int], uc: UniqCountData): Int = {
-    if (key == null) {
-      throw new IOException("invalid key");
-    }
-    val keyHash = HashUtil.hash(key);
-    var pos = hashFile.get(keyHash);
-
-    val firstPos = pos;
-
-    while (pos > 0) {
-      var okey = this.keyFile.getKey(pos);
-      if (CompareUtil.equals(okey, key)) {
-        val item = this.keyFile.getRecord(pos);
-        if (item.pos24h(hour) <= 0) {
-          val dataPos = this.dataFile.append(value);
-          this.keyFile.update(pos, hour, dataPos);
-          uc.addFirstOccur(hour, value);
-        } else {
-          uc.setHour(hour);
-          this.dataFile.updateAdd(item.pos24h(hour), value, uc);
+    def getDataPosition(key: Array[Byte]): Array[Long] = {
+        if (key == null) {
+            throw new IOException("invalid key");
         }
-        this.keyFile.addTotalCount(pos, TagCountUtil.sum(value));
-        return 1;
-      }
-      pos = this.keyFile.getHashLink(pos);
-    }
-    // no saved values
-    val pos60m = this.dataFile.append(value);
-    val pos24h = new Array[Long](24);
-    pos24h(hour) = pos60m;
-    pos = this.keyFile.append(firstPos, key, TagCountUtil.sum(value), pos24h);
-    this.hashFile.put(keyHash, pos);
-
-    uc.addFirstOccur(hour, value);
-
-    return 0;
-  }
-
-  def updateAdd(key: Array[Byte], hour: Int, value: Array[Int]): Int = {
-    if (key == null) {
-      throw new IOException("invalid key");
-    }
-    val keyHash = HashUtil.hash(key);
-    var pos = hashFile.get(keyHash);
-
-    val firstPos = pos;
-    while (pos > 0) {
-      val okey = this.keyFile.getKey(pos);
-      if (CompareUtil.equals(okey, key)) {
-        val r = this.keyFile.getRecord(pos);
-        if (r.pos24h(hour) <= 0) {
-          val vpos = this.dataFile.append(value);
-          this.keyFile.update(pos, hour, vpos);
-        } else {
-          this.dataFile.updateAdd(r.pos24h(hour), value);
+        val keyHash = HashUtil.hash(key);
+        var pos = hashFile.get(keyHash);
+        while (pos > 0) {
+            val okey = this.keyFile.getKey(pos);
+            if (CompareUtil.equals(okey, key)) {
+                val r = this.keyFile.getRecord(pos);
+                return r.pos24h;
+            }
+            pos = this.keyFile.getHashLink(pos);
         }
-        this.keyFile.addTotalCount(pos, TagCountUtil.sum(value));
-        return 1;
-      }
-      pos = this.keyFile.getHashLink(pos);
-    }
-    // no saved values
-    val vpos = this.dataFile.append(value);
-    val vposArr = new Array[Long](24);
-    vposArr(hour) = vpos;
-    pos = this.keyFile.append(firstPos, key, TagCountUtil.sum(value), vposArr);
-    this.hashFile.put(keyHash, pos);
-    return 0;
-  }
 
-  def hasKey(key: Array[Byte]): Boolean = {
-    if (key == null) {
-      throw new IOException("invalid key");
+        return null;
     }
 
-    val keyHash = HashUtil.hash(key);
-    var pos = hashFile.get(keyHash);
-    while (pos > 0) {
-      val okey = this.keyFile.getKey(pos);
-      if (CompareUtil.equals(okey, key)) {
-        return true;
-      }
-      pos = this.keyFile.getHashLink(pos);
+    def updateAdd(key: Array[Byte], hour: Int, value: Array[Int]): Int = {
+        if (key == null) {
+            throw new IOException("invalid key");
+        }
+        val keyHash = HashUtil.hash(key);
+        var pos = hashFile.get(keyHash);
+
+        val firstPos = pos;
+        while (pos > 0) {
+            val okey = this.keyFile.getKey(pos);
+            if (CompareUtil.equals(okey, key)) {
+                val r = this.keyFile.getRecord(pos);
+                if (r.pos24h(hour) <= 0) {
+                    val vpos = this.dataFile.append(value);
+                    this.keyFile.update(pos, hour, vpos);
+                } else {
+                    this.dataFile.updateAdd(r.pos24h(hour), value);
+                }
+                this.keyFile.addTotalCount(pos, TagCountUtil.sum(value));
+                return 1;
+            }
+            pos = this.keyFile.getHashLink(pos);
+        }
+        // no saved values
+        val vpos = this.dataFile.append(value);
+        val vposArr = new Array[Long](24);
+        vposArr(hour) = vpos;
+        pos = this.keyFile.append(firstPos, key, TagCountUtil.sum(value), vposArr);
+        this.hashFile.put(keyHash, pos);
+
+        return 0;
     }
 
-    return false;
-  }
+    def hasKey(key: Array[Byte]): Boolean = {
+        if (key == null) {
+            throw new IOException("invalid key");
+        }
 
-  def getTotalCount(key: Array[Byte]): Int = {
-    if (key == null) {
-      throw new IOException("invalid key");
-    }
-    val keyHash = HashUtil.hash(key);
-    var pos = hashFile.get(keyHash);
-    while (pos > 0) {
-      val okey = this.keyFile.getKey(pos);
-      if (CompareUtil.equals(okey, key)) {
-        return this.keyFile.getTotalCount(pos);
-      }
-      pos = this.keyFile.getHashLink(pos);
-    }
-    return 0;
-  }
+        val keyHash = HashUtil.hash(key);
+        var pos = hashFile.get(keyHash);
+        while (pos > 0) {
+            val okey = this.keyFile.getKey(pos);
+            if (CompareUtil.equals(okey, key)) {
+                return true;
+            }
+            pos = this.keyFile.getHashLink(pos);
+        }
 
-  def read(handler: (Long, Value, Int,  Array[Long],  IndexFile, Long)=>Any): Boolean = {
-    if (this.keyFile == null)
-      return false;
-    var pos = this.keyFile.getFirstPos();
-    val length = this.keyFile.getLength();
-
-    while (pos < length && pos >0 ) {
-      val r = this.keyFile.getRecord(pos);
-
-      val in = new DataInputX(r.key);
-      val tag = in.readLong();
-      val value = in.readValue();
-
-      if(handler(tag, value, r.count, r.pos24h, this, pos)==false){
         return false;
-      }
-
-      pos = r.next;
     }
-    return true;
-  }
 
-  def getValue(vpos: Long): Array[Int] = {
-    if (vpos <= 0)
-      return null;
-    return this.dataFile.getValue(vpos);
-  }
-
-  private def _close() {
-    this.hashFile.close();
-    FileUtil.close(this.keyFile);
-    FileUtil.close(this.dataFile);
-  }
-
-  override def close() {
-    IndexFile.table.synchronized {
-      if (this.refrence == 0) {
-        this._close();
-        IndexFile.table.remove(this.path);
-      } else {
-        this.refrence -= 1
-      }
+    def getTotalCount(key: Array[Byte]): Int = {
+        if (key == null) {
+            throw new IOException("invalid key");
+        }
+        val keyHash = HashUtil.hash(key);
+        var pos = hashFile.get(keyHash);
+        while (pos > 0) {
+            val okey = this.keyFile.getKey(pos);
+            if (CompareUtil.equals(okey, key)) {
+                return this.keyFile.getTotalCount(pos);
+            }
+            pos = this.keyFile.getHashLink(pos);
+        }
+        return 0;
     }
-  }
 
-  def getValueAll(vpos: Array[Long]): Array[Int] = {
-    val out = new Array[Int](1440);
-    for (i <- 0 to 23) {
-      val value = getValue(vpos(i));
-      if (value != null) {
-        System.arraycopy(value, 0, out, i * 60, 60);
-      }
+    def read(handler: (Long, Value, Int, Array[Long], IndexFile, Long) => Any): Boolean = {
+        if (this.keyFile == null)
+            return false;
+
+        var pos = this.keyFile.getFirstPos();
+        val length = this.keyFile.getLength();
+
+        while (pos < length && pos > 0) {
+            var r = this.keyFile.getRecord(pos);
+            val in = new DataInputX(r.key);
+            val tag = in.readLong();
+            val value = in.readValue();
+
+            handler(tag, value, r.count, r.pos24h, this, pos)
+            pos = r.next;
+
+        }
+        return true;
     }
-    return out;
-  }
 
-  def cleanValue(pos: Long) {
-    this.dataFile.write(pos, new Array[Int](60));
-  }
-
-  // /////////////////////////
-
-  def add(tagKey: Long, tagvalue: Value, hh: Int, value: Array[Int], uc: UniqCountData) {
-    try {
-
-      val out = new DataOutputX();
-      out.writeLong(tagKey);
-      out.writeValue(tagvalue);
-      val key = out.toByteArray();
-      this.updateAdd(key, hh, value, uc);
-    } catch {
-      case _: Throwable =>
+    def getValue(vpos: Long): Array[Int] = {
+        if (vpos <= 0)
+            return null;
+        return this.dataFile.getValue(vpos);
     }
-  }
 
-  def add(tagKey: Long, tagvalue: Value, hh: Int, value: Array[Int]) {
-    try {
-
-      val out = new DataOutputX();
-      out.writeLong(tagKey);
-      out.writeValue(tagvalue);
-      val key = out.toByteArray();
-      this.updateAdd(key, hh, value);
-    } catch {
-      case _: Throwable =>
+    private def _close() {
+        this.hashFile.close();
+        FileUtil.close(this.keyFile);
+        FileUtil.close(this.dataFile);
     }
-  }
 
-  def get(tagKey: Long, tagvalue: Value): Array[Int] = {
+    override def close() {
+        IndexFile.table.synchronized {
+            if (this.refrence == 0) {
+                this._close();
+                IndexFile.table.remove(this.path);
+            } else {
+                this.refrence -= 1
+            }
+        }
+    }
 
-    val key = new DataOutputX();
-    key.writeLong(tagKey);
-    key.writeValue(tagvalue);
+    def getValueAll(vpos: Array[Long]): Array[Int] = {
+        val out = new Array[Int](1440);
+        for (i <- 0 to 23) {
+            val value = getValue(vpos(i));
+            if (value != null) {
+                System.arraycopy(value, 0, out, i * 60, 60);
+            }
+        }
+        return out;
+    }
 
-    val vpos = this.getDataPosition(key.toByteArray());
-    if (vpos == null)
-      return null;
+    def cleanValue(pos: Long) {
+        this.dataFile.write(pos, new Array[Int](60));
+    }
 
-    return this.getValueAll(vpos);
-  }
+    def add(tagKey: Long, tagvalue: Value, hh: Int, value: Array[Int]) {
+        try {
 
-  def hasKey(tagKey: Long, tagvalue: Value): Boolean = {
+            val out = new DataOutputX();
+            out.writeLong(tagKey);
+            out.writeValue(tagvalue);
+            val key = out.toByteArray();
+            this.updateAdd(key, hh, value);
+        } catch {
+            case _: Throwable =>
+        }
+    }
 
-    val key = new DataOutputX();
-    key.writeLong(tagKey);
-    key.writeValue(tagvalue);
-    return this.hasKey(key.toByteArray());
-  }
+    def get(tagKey: Long, tagvalue: Value): Array[Int] = {
+
+        val key = new DataOutputX();
+        key.writeLong(tagKey);
+        key.writeValue(tagvalue);
+
+        val vpos = this.getDataPosition(key.toByteArray());
+        if (vpos == null)
+            return null;
+
+        return this.getValueAll(vpos);
+    }
+
+    def hasKey(tagKey: Long, tagvalue: Value): Boolean = {
+
+        val key = new DataOutputX();
+        key.writeLong(tagKey);
+        key.writeValue(tagvalue);
+        return this.hasKey(key.toByteArray());
+    }
 
 }

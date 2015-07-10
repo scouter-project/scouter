@@ -65,16 +65,6 @@ public class AnyTrace {
 		TraceMain.endService(stat, null,thr);
 	}
 
-	public static void setServiceBytes(int bytes) {
-		try {
-			TraceContext ctx = TraceContextManager.getLocalContext();
-			if (ctx != null) {
-				ctx.bytes = bytes;
-			}
-		} catch (Throwable t) {
-		}
-	}
-
 	public static Object startMethod(int hash, String classMethodName) {
 		return TraceMain.startMethod(hash, classMethodName);
 	}

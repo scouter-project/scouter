@@ -32,15 +32,19 @@ public class SysJMX {
 	private static RuntimeMXBean rtmx;
 	private static Method getSystemLoadAverage;
 	private static Method getProcessCpuTime;
+	private static boolean sunThreadMX = false;
 	static {
 		try {
 			threadmx = ManagementFactory.getThreadMXBean();
 			osmx = ManagementFactory.getOperatingSystemMXBean();
 			rtmx = ManagementFactory.getRuntimeMXBean();
+
+			sunThreadMX = threadmx.getClass().getName().indexOf("sun") >= 0;
 		} catch (Throwable t) {
 			threadmx = null;
 			osmx = null;
 			rtmx = null;
+			sunThreadMX=false;
 		}
 		try {
 			if (osmx != null) {
@@ -58,6 +62,17 @@ public class SysJMX {
 		try {
 			return threadmx.getCurrentThreadCpuTime() / 1000000L;
 		} catch (Throwable t) {
+			return 0;
+		}
+	}
+
+	public static long getCurrentThreadAllocBytes() {
+		if (sunThreadMX ==false)
+			return 0;
+		try {
+			return ((com.sun.management.ThreadMXBean)threadmx).getThreadAllocatedBytes(Thread.currentThread().getId());
+		} catch (Throwable t) {
+			sunThreadMX=false;
 			return 0;
 		}
 	}

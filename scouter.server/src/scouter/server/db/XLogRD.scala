@@ -57,6 +57,8 @@ object XLogRD {
             var reader: XLogDataReader = null;
             var table: IndexTimeFile = null;
             try {
+                reader = XLogDataReader.open(date, file);
+                table = new IndexTimeFile(file + XLogIndex.POSTFIX_TIME);
                 table.readFromEnd(fromTime, toTime, handler, reader.read)
             } catch {
                 case e: Throwable => e.printStackTrace();

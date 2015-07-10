@@ -22,7 +22,6 @@ import java.io.RandomAccessFile
 import scouter.io.BufferedRandomAccessX
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
-import scouter.server.tagcnt.core.UniqCountData
 import scouter.util.IClose;
 import scouter.util.FileUtil
 
@@ -59,23 +58,6 @@ class DataFile(path: String) extends IClose {
     }
   }
 
-  def updateAdd(pos: Long, value: Array[Int], uc: UniqCountData): Int = {
-    this.synchronized {
-      var m = 0;
-      while (m < 60) {
-        if (value(m) > 0) {
-          val oldbytes = this.raf.read(pos + m * 4, 4);
-          val old = DataInputX.toInt(oldbytes, 0);
-          if (old <= 0) {
-            uc.addMin(m);
-          }
-          this.raf.write(pos + m * 4, DataOutputX.toBytes(old + value(m)));
-        }
-        m += 1
-      }
-      return value.length;
-    }
-  }
 
   def updateAdd(pos: Long, value: Array[Int]): Int = {
     this.synchronized {
