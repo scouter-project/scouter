@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -58,11 +59,7 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.PaletteData;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -105,7 +102,6 @@ import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
-import scouter.util.LinkedList;
 import scouter.util.LinkedMap;
 import scouter.util.LinkedMap.ENTRY;
 import scouter.util.StringUtil;
@@ -116,6 +112,7 @@ public class TagCountView extends ViewPart {
 	
 	private static final String DEFAULT_TAG_GROUP = "service";
 	private static final String TOTAL_NAME = "@total";
+	private static final int LIMIT_PER_PAGE = 100;
 	
 	int serverId;
 	
@@ -259,21 +256,11 @@ public class TagCountView extends ViewPart {
 			}
 			
 			public void mouseDoubleClick(MouseEvent e) {
-				if (rangeX2 - rangeX1 < DateUtil.MILLIS_PER_HOUR) {
-					Image image = new Image(e.display, 1, 1);
-					GC gc = new GC((FigureCanvas) e.widget);
-					gc.copyArea(image, e.x, e.y);
-					ImageData imageData = image.getImageData();
-					PaletteData palette = imageData.palette;
-					int pixelValue = imageData.getPixel(0, 0);
-					RGB rgb = palette.getRGB(pixelValue);
-					if (ColorUtil.getInstance().getColor(SWT.COLOR_DARK_BLUE).getRGB().equals(rgb)) {
-						long stime = (long) totalGraph.primaryXAxis.getPositionValue(e.x, true);
-						stime = stime / DateUtil.MILLIS_PER_MINUTE * DateUtil.MILLIS_PER_MINUTE;
-						long etime = stime + DateUtil.MILLIS_PER_MINUTE - 1;
-						loadInitData(tagGroupCombo.getText(), stime, etime);
-					}
-				}
+				long stime = (long) totalGraph.primaryXAxis.getPositionValue(e.x, true);
+				if (stime < rangeX1 || stime > rangeX2) return;
+				stime = stime / DateUtil.MILLIS_PER_MINUTE * DateUtil.MILLIS_PER_MINUTE;
+				long etime = stime + DateUtil.MILLIS_PER_MINUTE - 1;
+				loadInitData(tagGroupCombo.getText(), stime, etime);
 			}
 		});
 		
@@ -913,40 +900,46 @@ public class TagCountView extends ViewPart {
 		return trace;
 	}
 	
-	int lastCnt;
+	int lastIndex;
 	int lastSize;
-	long lastSTime;
-	long lastETime;
+	long firstTime;
+	long lastTime;
+	long firstTxid;
+	long lastTxid;
 	
 	private void loadInitData(final String tagGroup, final long stime, final long etime) {
-		lastCnt = 0;
+		lastIndex = 0;
 		lastSize = 0;
-		lastSTime = 0;
-		lastETime = 0;
+		firstTime = 0;
+		lastTime = 0;
+		firstTxid = 0;
+		lastTxid = 0;
 		leftBtn.setEnabled(false);
 		rightBtn.setEnabled(false);
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
-				List<Pack> list = loadData(tagGroup, stime, etime, false);
+				List<Pack> list = loadData(tagGroup, stime, etime, false, null);
 				final ArrayList<Pack> result = new ArrayList<Pack>(list);
-				lastCnt = lastSize = result.size();
+				lastIndex = lastSize = result.size();
 				ExUtil.exec(dataTableSash, new Runnable() {
 					public void run() {
-						if (lastSize > 0) {
-							dataRangeLbl.setText("1 ~ " + lastSize);
-							if (lastSize == 100) {
+							dataRangeLbl.setText(lastSize > 0 ? "1 ~ " + lastIndex : "0");
+							if (lastIndex == LIMIT_PER_PAGE) {
 								rightBtn.setEnabled(true);
 							}
 							if ("service".equals(tagGroup)) {
-								Pack p = result.get(0);
-								XLogPack xp = (XLogPack) p;
-								lastSTime = xp.endTime;
-								p = result.get(result.size()-1);
-								xp = (XLogPack) p;
-								lastETime = xp.endTime;
+								if (lastSize > 0) {
+									Pack p = result.get(0);
+									XLogPack xp = (XLogPack) p;
+									firstTime = xp.endTime;
+									firstTxid = xp.txid;
+									p = result.get(result.size()-1);
+									xp = (XLogPack) p;
+									lastTime = xp.endTime;
+									lastTxid = xp.txid;
+								}
 								serviceTable.setInput(result, serverId, tagGroup);
 							}
-						}
 					}
 				});
 			}
@@ -956,19 +949,20 @@ public class TagCountView extends ViewPart {
 	private void loadRightData(final String tagGroup) {
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
-				long stime = lastETime + 1;
+				long stime = lastTime;
 				long etime = (stime + DateUtil.MILLIS_PER_MINUTE) / DateUtil.MILLIS_PER_MINUTE * DateUtil.MILLIS_PER_MINUTE - 1;
-				System.out.println("stime = " + DateUtil.getLogTime(stime));
-				System.out.println("etime = " + DateUtil.getLogTime(etime));
-				List<Pack> list = loadData(tagGroup, stime, etime, false);
+				MapPack extra = new MapPack();
+				if ("service".equals(tagGroup)) {
+					extra.put("txid", lastTxid);
+				}
+				List<Pack> list = loadData(tagGroup, stime, etime, false, extra);
 				final ArrayList<Pack> result = new ArrayList<Pack>(list);
 				lastSize = result.size();
-				System.out.println("lastSize=  " + lastSize);
 				ExUtil.exec(dataTableSash, new Runnable() {
 					public void run() {
-						dataRangeLbl.setText((lastCnt + 1) + " ~ " + (lastSize > 0 ? (lastCnt + lastSize) : ""));
-						lastCnt += lastSize;
-						if (lastSize < 100) {
+						dataRangeLbl.setText((lastIndex + 1) + " ~ " + (lastSize > 0 ? (lastIndex + lastSize) : ""));
+						lastIndex += lastSize;
+						if (lastSize < LIMIT_PER_PAGE) {
 							rightBtn.setEnabled(false);
 						}
 						leftBtn.setEnabled(true);
@@ -976,14 +970,15 @@ public class TagCountView extends ViewPart {
 							if (lastSize > 0) {
 								Pack p = result.get(0);
 								XLogPack xp = (XLogPack) p;
-								lastSTime = xp.endTime;
-								System.out.println("lastSTime = " + DateUtil.getLogTime(lastSTime));
+								firstTime = xp.endTime;
+								firstTxid = xp.txid;
 								p = result.get(result.size()-1);
 								xp = (XLogPack) p;
-								lastETime = xp.endTime;
-								System.out.println("lastETime = " + DateUtil.getLogTime(lastETime));
+								lastTime = xp.endTime;
+								lastTxid = xp.txid;
 							} else {
-								lastSTime = lastETime + 1;
+								firstTime = lastTime + 1;
+								firstTxid = lastTxid = 0;
 							}
 							serviceTable.setInput(result, serverId, tagGroup);
 						}
@@ -996,29 +991,35 @@ public class TagCountView extends ViewPart {
 	private void loadLeftData(final String tagGroup) {
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
-				long etime = lastSTime - 1;
+				long etime = firstTime;
 				long stime = etime / DateUtil.MILLIS_PER_MINUTE * DateUtil.MILLIS_PER_MINUTE;
-				List<Pack> list = loadData(tagGroup, stime, etime, true);
+				MapPack extra = new MapPack();
+				if ("service".equals(tagGroup)) {
+					extra.put("txid", firstTxid);
+				}
+				List<Pack> list = loadData(tagGroup, stime, etime, true, extra);
 				final ArrayList<Pack> revList = new ArrayList<Pack>();
 				for (Pack p : list) {
 					revList.add(0, p);
 				}
-				lastCnt -= lastSize;
+				lastIndex -= lastSize;
 				lastSize = revList.size();
 				ExUtil.exec(dataTableSash, new Runnable() {
 					public void run() {
-						dataRangeLbl.setText((lastCnt - lastSize + 1) + " ~ " + lastCnt);
-						if (lastCnt <= 1) {
+						dataRangeLbl.setText((lastIndex - lastSize + 1) + " ~ " + lastIndex);
+						if (lastIndex <= LIMIT_PER_PAGE) {
 							leftBtn.setEnabled(false);
 						}
 						rightBtn.setEnabled(true);
 						if ("service".equals(tagGroup)) {
 							Pack p = revList.get(0);
 							XLogPack xp = (XLogPack) p;
-							lastSTime = xp.endTime;
+							firstTime = xp.endTime;
+							firstTxid = xp.txid;
 							p = revList.get(revList.size()-1);
 							xp = (XLogPack) p;
-							lastETime = xp.endTime;
+							lastTime = xp.endTime;
+							lastTxid = xp.txid;
 							serviceTable.setInput(revList, serverId, tagGroup);
 						}
 					}
@@ -1027,7 +1028,7 @@ public class TagCountView extends ViewPart {
 		});	
 	}
 	
-	private List<Pack> loadData(String tagGroup, long stime, long etime, boolean reverse) {
+	private List<Pack> loadData(String tagGroup, long stime, long etime, boolean reverse, MapPack extra) {
 		List<Pack> list = null;
 		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
 		try {
@@ -1037,8 +1038,16 @@ public class TagCountView extends ViewPart {
 			param.put("etime", etime);
 			param.put("tagGroup", tagGroup);
 			param.put("date", date);
-			param.put("max", 100);
+			param.put("max", LIMIT_PER_PAGE);
 			param.put("reverse", new BooleanValue(reverse));
+			if (extra != null) {
+				Iterator<String> itr = extra.keys();
+				while (itr.hasNext()) {
+					String key = itr.next();
+					Value v = extra.get(key);
+					param.put(key, v);
+				}
+			}
 			list = tcp.process(RequestCmd.TAGCNT_TAG_ACTUAL_DATA, param);
 		} catch (Exception e) {
 			
