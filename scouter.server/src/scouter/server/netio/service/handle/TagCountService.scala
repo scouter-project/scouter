@@ -110,10 +110,16 @@ class TagCountService {
         val valueCount = TagCountProxy.getTagValueCountData(date, objType, tagGroup, tagName, tagValue);
         if (valueCount != null) {
             dout.writeByte(TcpFlag.HasNEXT);
-            dout.writeArray(valueCount)
+            dout.writeArray(toIntArr(valueCount))
         }
     }
-
+    private def toIntArr(a:Array[Float]):Array[Int]={
+        val out = new Array[Int](a.length)
+        for(i <- 0 to a.length-1){
+            out(i)=a(i).toInt
+        }
+        return out
+    }
     @ServiceHandler(RequestCmd.TAGCNT_TAG_ACTUAL_DATA)
     def getTagActualData(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readPack().asInstanceOf[MapPack];
@@ -137,7 +143,7 @@ class TagCountService {
             }
         }
 
-        if (tagGroup == "service") {
+        if (tagGroup == "service" ) {
             var txid = param.getLong("txid");
             var ok = if (txid == 0) true else false;
             var cnt = 0;
@@ -250,7 +256,7 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == "service") {
+            } else if (key == "service" || key.startsWith("service-")) {
                 val serviceLv = mv.getList(key);
                 for (i <- 0 to serviceLv.size() - 1) {
                     var service = serviceLv.get(i).toJavaObject();

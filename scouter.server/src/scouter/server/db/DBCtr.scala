@@ -26,7 +26,7 @@ object DBCtr {
     val MAX_DIV = 20;
     val LARGE_MAX_QUE_SIZE = 100000;
 
-    def getRootPath() =Configure.getInstance().db_root
+    def getRootPath() = Configure.getInstance().db_root
 
     var running = true;
     ShutdownManager.add(new IShutdown() {
@@ -34,17 +34,26 @@ object DBCtr {
             running = false;
         }
     })
-    
-    def createLock() : Boolean = {
-        val dir =new File(getRootPath)
-        if(dir.canRead()==false){
+
+    def updateLock() {
+        val lock = new File(getRootPath, "lock.dat")
+        if (lock.canWrite()) {
+            lock.setLastModified(System.currentTimeMillis());
+        }
+    }
+    def createLock(): Boolean = {
+        val dir = new File(getRootPath)
+        if (dir.canRead() == false) {
             dir.mkdirs()
         }
         val lock = new File(getRootPath, "lock.dat")
+        if (lock.exists() && lock.lastModified() < System.currentTimeMillis() - 5000) {
+            lock.delete();
+        }
         val ok = lock.createNewFile();
-        if(ok){
+        if (ok) {
             lock.deleteOnExit();
-        }else{
+        } else {
             println("Can't lock the database")
             println("Please remove the lock : " + lock.getAbsoluteFile())
         }

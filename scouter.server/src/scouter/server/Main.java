@@ -88,6 +88,7 @@ public class Main {
 					ShutdownManager.shutdown();
 					System.exit(0);
 				}
+				DBCtr.updateLock();
 				ThreadUtil.sleep(1000);
 			}
 		}
