@@ -25,7 +25,7 @@ import scouter.util.IClose;
 import scouter.util.FileUtil
 
 
-class ITEM(_pos24h: Array[Long], _key: Array[Byte], _link: Long, _next: Long, _count: Int) {
+class ITEM(_pos24h: Array[Long], _key: Array[Byte], _link: Long, _next: Long, _count: Float) {
   val pos24h = _pos24h
   val key = _key
   val link = _link
@@ -50,7 +50,7 @@ class KeyFile(path: String) extends IClose {
   		
   			val in2 = new DataInputX(buf);
   			val link = in2.readLong5();
-  			val count = in2.readInt();
+  			val count = in2.readFloat();
   			val pos24h = new Array[Long](24)
   			for (i <- 0 to 23) {
   				pos24h(i) = in2.readLong5();
@@ -90,11 +90,11 @@ def  getKey(pos:Long):Array[Byte] = {
      }
 	}
 
-	def getTotalCount(pos:Long) : Int = {
+	def getTotalCount(pos:Long) : Float = {
     this.synchronized{
         this.raf.seek(pos + 5);
     		val in = new DataInputX(this.raf);
-    		return in.readInt();
+    		return in.readFloat();
     }
 	}
 
@@ -105,11 +105,11 @@ def  getKey(pos:Long):Array[Byte] = {
     }
 	}
 
-	def write(pos:Long,  next:Long,  key:Array[Byte], count:Int, vpos:Array[Long]){
+	def write(pos:Long,  next:Long,  key:Array[Byte], cntSum:Float, vpos:Array[Long]){
       this.synchronized{
     		val out = new DataOutputX();
     		out.writeLong5(next);
-    		out.writeInt(count);
+    		out.writeFloat(cntSum);
     		for (i <- 0 to 23) {
     			out.writeLong5(vpos(i));
     		}
@@ -127,16 +127,16 @@ def  getKey(pos:Long):Array[Byte] = {
      }
 	}
 
-	def addTotalCount(pos:Long,  totalCount:Int) :Int={
+	def addTotalCount(pos:Long,  totalCount:Float) :Float={
        this.synchronized{
     		this.raf.seek(pos + 5);
-    		val old = new DataInputX(this.raf).readInt();
+    		val old = new DataInputX(this.raf).readFloat();
     		this.raf.seek(pos + 5);
     		this.raf.write(DataOutputX.toBytes(old + totalCount));
     		return old + totalCount;
        }
 	}
-  def append(next:Long,  key:Array[Byte], count:Int, vpos:Array[Long]):Long={
+  def append(next:Long,  key:Array[Byte], count:Float, vpos:Array[Long]):Long={
 		val pos = this.raf.length();
 		write(pos, next, key, count, vpos);
 		return pos;

@@ -37,15 +37,15 @@ import scouter.util.DateUtil;
         return hh.toInt * 100 + mm.toInt;
     }
 
-    def check(count: Array[Int]) {
+    def check(count: Array[Float]) {
         if (count == null || count.length != BUCKET_SIZE)
             throw new RuntimeException("invalid count");
     }
 
-    def sum(cnt: Array[Int]): Int = {
+    def sum(cnt: Array[Float]): Float = {
         if (cnt == null)
             return 0;
-        var tot = 0;
+        var tot = 0.0f;
         var i = 0
         while (i < cnt.length) {
             tot += cnt(i);

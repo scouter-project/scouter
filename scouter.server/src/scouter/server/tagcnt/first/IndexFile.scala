@@ -58,7 +58,7 @@ class IndexFile(_path: String, hashSize: Int = 1) extends IClose {
     val hashFile = new MemHashBlock(path, hashSize * MB)
     val keyFile = new KeyDataFile(path);
 
-    def put(key: Array[Byte], value: Array[Int]): Boolean = {
+    def put(key: Array[Byte], value: Array[Float]): Boolean = {
         this.synchronized {
             if (key == null || value == null) {
                 throw new IOException("invalid key/value");
@@ -72,7 +72,7 @@ class IndexFile(_path: String, hashSize: Int = 1) extends IClose {
         }
     }
 
-    def get(key: Array[Byte]): Array[Int] = {
+    def get(key: Array[Byte]): Array[Float] = {
         if (key == null) {
             throw new IOException("invalid key");
         }
@@ -92,7 +92,7 @@ class IndexFile(_path: String, hashSize: Int = 1) extends IClose {
         return null;
     }
 
-    def updateAdd(key: Array[Byte], hhmm: Int, value: Int): Int = {
+    def updateAdd(key: Array[Byte], hhmm: Int, cnt: Float): Float = {
         if (key == null) {
             throw new IOException("invalid key");
         }
@@ -103,7 +103,7 @@ class IndexFile(_path: String, hashSize: Int = 1) extends IClose {
             if (this.keyFile.isDeleted(pos) == false) {
                 val okey = this.keyFile.getKey(pos);
                 if (CompareUtil.equals(okey, key)) {
-                    return this.keyFile.updateAdd(pos, hhmm, value);
+                    return this.keyFile.updateAdd(pos, hhmm, cnt);
                 }
             }
             pos = this.keyFile.getHashLink(pos);
@@ -112,7 +112,7 @@ class IndexFile(_path: String, hashSize: Int = 1) extends IClose {
         return 0;
     }
 
-    def update(key: Array[Byte], value: Array[Int]) {
+    def update(key: Array[Byte], value: Array[Float]) {
         if (key == null) {
             throw new IOException("invalid key");
         }
@@ -151,11 +151,11 @@ class IndexFile(_path: String, hashSize: Int = 1) extends IClose {
         return false;
     }
 
-    def getAll(key: Array[Byte]): List[Array[Int]] = {
+    def getAll(key: Array[Byte]): List[Array[Float]] = {
         if (key == null) {
             throw new IOException("invalid key");
         }
-        val out = new ArrayList[Array[Int]]();
+        val out = new ArrayList[Array[Float]]();
         val keyHash = HashUtil.hash(key);
         var pos = hashFile.get(keyHash);
         while (pos > 0) {
@@ -256,7 +256,7 @@ class IndexFile(_path: String, hashSize: Int = 1) extends IClose {
         }
     }
 
-    def set(tagKey: Long, tagValue: Value, value: Array[Int]) {
+    def set(tagKey: Long, tagValue: Value, value: Array[Float]) {
         this.synchronized {
             val key = new DataOutputX();
             key.writeLong(tagKey);
@@ -266,7 +266,7 @@ class IndexFile(_path: String, hashSize: Int = 1) extends IClose {
         }
     }
 
-    def update(tagKey: Long, tagValue: Value, value: Array[Int]) {
+    def update(tagKey: Long, tagValue: Value, value: Array[Float]) {
         this.synchronized {
 
             try {
@@ -287,7 +287,7 @@ class IndexFile(_path: String, hashSize: Int = 1) extends IClose {
         }
     }
 
-    def add(tagKey: Long, tagValue: Value, hhmm: Int, value: Int) {
+    def add(tagKey: Long, tagValue: Value, hhmm: Int, cnt: Float) {
         this.synchronized {
 
             try {
@@ -298,11 +298,11 @@ class IndexFile(_path: String, hashSize: Int = 1) extends IClose {
                 val key = out.toByteArray();
                 val hask = this.hasKey(key);
                 if (hask) {
-                    this.updateAdd(key, hhmm, value);
+                    this.updateAdd(key, hhmm, cnt);
                 } else {
                     val x = TagCountUtil.getBucketPos(hhmm);
-                    val data = new Array[Int](TagCountUtil.BUCKET_SIZE);
-                    data(x) = value;
+                    val data = new Array[Float](TagCountUtil.BUCKET_SIZE);
+                    data(x) = cnt;
                     this.put(key, data);
                 }
             } catch {
@@ -320,7 +320,7 @@ class IndexFile(_path: String, hashSize: Int = 1) extends IClose {
         System.out.println("");
     }
 
-    def get(tagKey: Long, tagValue: Value): Array[Int] = {
+    def get(tagKey: Long, tagValue: Value): Array[Float] = {
         this.synchronized {
 
             val key = new DataOutputX();

@@ -24,7 +24,7 @@ import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.lang.value.ListValue;
 
-class ValueCountTotal(_howManyValues: Int, _totalCount: Int, _values: List[ValueCount]) {
+class ValueCountTotal(_howManyValues: Int, _totalCount: Float, _values: List[ValueCount]) {
     var howManyValues = _howManyValues
     var totalCount = _totalCount
     var values = _values
@@ -36,7 +36,7 @@ class ValueCountTotal(_howManyValues: Int, _totalCount: Int, _values: List[Value
     def toByteArray(): Array[Byte] = {
         val out = new DataOutputX();
         out.writeInt(howManyValues);
-        out.writeInt(totalCount);
+        out.writeFloat(totalCount);
 
         val max = if (values == null) 0 else values.size();
         out.writeInt(max);
@@ -44,7 +44,7 @@ class ValueCountTotal(_howManyValues: Int, _totalCount: Int, _values: List[Value
         while (inx < max) {
             val value = values.get(inx);
             out.writeValue(value.tagValue);
-            out.writeDecimal(value.valueCount);
+            out.writeDouble(value.valueCount);
             inx += 1
         }
         return out.toByteArray();
@@ -55,14 +55,14 @@ class ValueCountTotal(_howManyValues: Int, _totalCount: Int, _values: List[Value
             return null;
         val din = new DataInputX(b);
         this.howManyValues = din.readInt();
-        this.totalCount = din.readInt();
+        this.totalCount = din.readFloat();
         this.values = new ArrayList[ValueCount]();
 
         val max = din.readInt();
         var inx = 0
         while (inx < max) {
             val tagValue = din.readValue();
-            val valueCount = din.readDecimal();
+            val valueCount = din.readDouble();
             this.values.add(new ValueCount(tagValue, valueCount));
             inx += 1
         }

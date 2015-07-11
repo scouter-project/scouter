@@ -18,7 +18,7 @@ package scouter.server.tagcnt.core;
 
 import scouter.lang.value.Value;
 
-class ValueCount(_tagValue: Value = null, _valueCount: Long = 0L) {
+class ValueCount(_tagValue: Value = null, _valueCount: Double = 0.0) {
     val tagValue = _tagValue
     val valueCount = _valueCount
 
