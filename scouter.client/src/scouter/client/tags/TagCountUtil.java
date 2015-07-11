@@ -122,6 +122,7 @@ public class TagCountUtil {
 	public static Value convertTagToValue(String tagName, String tagValue) {
 		if (tagName.equals("object")
 			|| tagName.equals("service")
+			|| tagName.startsWith("service-")
 			|| tagName.equals("group")
 			|| tagName.equals("user-agent")
 			|| tagName.equals("referer")
