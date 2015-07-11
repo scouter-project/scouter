@@ -33,25 +33,25 @@ class DataFile(path: String) extends IClose {
     this.raf.write(0, Array[Byte](0xCA.toByte, 0xFE.toByte));
   }
 
-  def getValue(pos: Long): Array[Int] = {
+  def getValue(pos: Long): Array[Float] = {
     this.synchronized {
       val buf = this.raf.read(pos, 4 * 60);
-      val cnt = new Array[Int](60)
+      val cnt = new Array[Float](60)
       var i = 0
       while (i < 60) {
-        cnt(i) = DataInputX.toInt(buf, i * 4);
+        cnt(i) = DataInputX.toFloat(buf, i * 4);
         i += 1
       }
       return cnt;
     }
   }
 
-  def write(pos: Long, value: Array[Int]) {
+  def write(pos: Long, value: Array[Float]) {
     this.synchronized {
       val out = new DataOutputX();
       var i = 0
       while (i < 60) {
-        out.writeInt(value(i));
+        out.writeFloat(value(i));
         i += 1
       }
       this.raf.write(pos, out.toByteArray());
@@ -59,13 +59,13 @@ class DataFile(path: String) extends IClose {
   }
 
 
-  def updateAdd(pos: Long, value: Array[Int]): Int = {
+  def updateAdd(pos: Long, value: Array[Float]): Int = {
     this.synchronized {
       var mInx = 0;
       while (mInx < 60) {
         if (value(mInx) > 0) {
           val oldbytes = this.raf.read(pos + mInx * 4, 4);
-          val old = DataInputX.toInt(oldbytes, 0);
+          val old = DataInputX.toFloat(oldbytes, 0);
           this.raf.write(pos + mInx * 4, DataOutputX.toBytes(old + value(mInx)));
         }
         mInx += 1
@@ -74,7 +74,7 @@ class DataFile(path: String) extends IClose {
     }
   }
 
-  def append(value: Array[Int]): Long = {
+  def append(value: Array[Float]): Long = {
     this.synchronized {
       val pos = this.raf.getLength();
       write(pos, value);

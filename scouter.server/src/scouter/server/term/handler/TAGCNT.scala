@@ -115,13 +115,13 @@ object TAGCNT {
             }
         }
     }
-    private def printTable(values: Array[Int]) {
+    private def printTable(values: Array[Float]) {
         for (h <- 0 to 23) {
             print(StringUtil.leftPad("H" + h, 5) + " ")
             for (m <- 0 to 59) {
                 if (m > 0)
                     print(", ")
-                print(values(h*60+m))
+                print(FormatUtil.print(values(h*60+m), "#,##0.0"))
             }
             println("")
         }

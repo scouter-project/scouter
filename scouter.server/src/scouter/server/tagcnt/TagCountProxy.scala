@@ -56,8 +56,8 @@ object TagCountProxy {
 
     def getTagValueCount(date: String, objType: String, tagKey: Long, limit: Int): ValueCountTotal = {
 
-        val total = new HashMap[Value, Int]();
-        var countPerValue = 0;
+        val total = new HashMap[Value, Float]();
+        var countPerValue = 0f;
         val list = new ArrayList[ValueCount]();
 
         val tagmap = FirstTagCountDB.getTagValues(objType, date);
@@ -69,10 +69,10 @@ object TagCountProxy {
         val outList = new ArrayList[Value](out);
         EnumerScala.foreach(outList.iterator(), (v: Value) => {
             val cnt = FirstTagCountDB.getTagValueCount(objType, date, tagKey, v);
-            total.put(v, TagCountUtil.sum(cnt) + CastUtil.cint(total.get(v)));
+            total.put(v, TagCountUtil.sum(cnt) + CastUtil.cfloat(total.get(v)));
         })
 
-        EnumerScala.foreach(total.entrySet().iterator(), (e: Map.Entry[Value, Int]) => {
+        EnumerScala.foreach(total.entrySet().iterator(), (e: Map.Entry[Value, Float]) => {
             val cnt = e.getValue();
             list.add(new ValueCount(e.getKey(), cnt));
             countPerValue += cnt;
@@ -86,7 +86,7 @@ object TagCountProxy {
         return new ValueCountTotal(list.size(), countPerValue, if (limit <= 0) list else list.subList(0, Math.min(list.size(), limit)));
     }
 
-    def getTagValueCountData(date: String, objType: String, tagGroup: String, tagName: String, value: Value): Array[Int] = {
+    def getTagValueCountData(date: String, objType: String, tagGroup: String, tagName: String, value: Value): Array[Float] = {
         val tagKey = BitUtil.compsite(HashUtil.hash(tagGroup), HashUtil.hash(tagName));
         val values = FirstTagCountDB.getTagValueCount(objType, date, tagKey, value);
         if (values != null)
@@ -118,11 +118,11 @@ object TagCountProxy {
         return map2;
     }
 
-    def add(time: Long, objType: String, tag: TagCountConfig.Tag, tagValue: Value, cnt: Int) {
+    def add(time: Long, objType: String, tag: TagCountConfig.Tag, tagValue: Value, cnt: Float) {
         FirstTagCountDB.add(new FirstTCData(objType, time, tag.key, tagValue, cnt));
     }
 
-    def add(time: Long, objType: String, tagKey: Long, tagValue: Value, cnt: Int) {
+    def add(time: Long, objType: String, tagKey: Long, tagValue: Value, cnt: Float) {
         FirstTagCountDB.add(new FirstTCData(objType, time, tagKey, tagValue, cnt));
     }
 }

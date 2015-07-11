@@ -111,7 +111,7 @@ object Top100FileCache {
     }
     class TopItem(_tag: Long, limit: Int) {
         var kindsOfValue = 0
-        var countPerValue = 0
+        var sumOfValue = 0f
         var topN = new TopN[ValueCount](limit) {
             override def order(o1: ValueCount, o2: ValueCount): Order = {
                 return OrderUtil.desc(o1.valueCount, o2.valueCount);
@@ -119,21 +119,21 @@ object Top100FileCache {
         };
         var tag = _tag
         def toString(tagName: String) = {
-            "TopItem [tag=" + tagName + " countPerValue=" + countPerValue + ", kindsOfValue=" + kindsOfValue + ", topN=" + topN.size() + "]";
+            "TopItem [tag=" + tagName + " sumOfValue=" + sumOfValue.formatted("#,##0.0") + ", kindsOfValue=" + kindsOfValue + ", topN=" + topN.size() + "]";
         }
         override def toString() = {
-            "TopItem [countPerValue=" + countPerValue + ", kindsOfValue=" + kindsOfValue + ", topN=" + topN + ", tag=" + tag + "]"
+            "TopItem [sumOfValue=" + sumOfValue.formatted("#,##0.0") + ", kindsOfValue=" + kindsOfValue + ", topN=" + topN + ", tag=" + tag + "]"
         }
     }
     def makeTop100(date: String, objType: String, limit: Int) = {
         val map = new LongKeyMap[TopItem]();
-        NextTagCountDB.read(date, objType, (tag: Long, value: Value, tcnt: Int, vpos: Array[Long], table: IndexFile, pos: Long) => {
+        NextTagCountDB.read(date, objType, (tag: Long, value: Value, tcnt: Float, vpos: Array[Long], table: IndexFile, pos: Long) => {
             var t = map.get(tag);
             if (t == null) {
                 t = new TopItem(tag, limit);
                 map.put(tag, t);
             }
-            t.countPerValue += tcnt;
+            t.sumOfValue += tcnt;
             t.kindsOfValue += 1;
             t.topN.add(new ValueCount(value, tcnt));
         });
@@ -148,12 +148,12 @@ object Top100FileCache {
                     val countSum = TagCountUtil.sum(cnt);
                     topItem.topN.add(new ValueCount(value, countSum));
                     topItem.kindsOfValue += 1;
-                    topItem.countPerValue += countSum;
+                    topItem.sumOfValue += countSum;
                 })
             }
             val outMap = new ValueCountTotal();
             map2.put(tagName, outMap);
-            outMap.totalCount = topItem.countPerValue;
+            outMap.totalCount = topItem.sumOfValue;
             outMap.howManyValues = topItem.kindsOfValue;
             val sublist = topItem.topN.getList();
            
@@ -175,7 +175,7 @@ object Top100FileCache {
         val hm = CastUtil.cint(hhmm);
         val hh = hm / 100;
         val mm = hm % 100;
-        NextTagCountDB.read(date, objType, (tag: Long, value: Value, tcnt: Int, vpos: Array[Long], table: IndexFile, pos: Long) => {
+        NextTagCountDB.read(date, objType, (tag: Long, value: Value, tcnt: Float, vpos: Array[Long], table: IndexFile, pos: Long) => {
             try {
                 if (vpos(hh) > 0) {
                     val mcount = table.getValue(vpos(hh));
@@ -185,7 +185,7 @@ object Top100FileCache {
                             t = new TopItem(tag, limit);
                             map.put(tag, t);
                         }
-                        t.countPerValue += mcount(mm);
+                        t.sumOfValue += mcount(mm);
                         t.kindsOfValue += 1
                         t.topN.add(new ValueCount(value, mcount(mm)));
                     }
@@ -209,7 +209,7 @@ object Top100FileCache {
                     if (countForValue > 0) {
                         topItem.topN.add(new ValueCount(value, countForValue));
                         topItem.kindsOfValue += 1;
-                        topItem.countPerValue += countForValue;
+                        topItem.sumOfValue += countForValue;
                     }
                 })
             }
@@ -221,7 +221,7 @@ object Top100FileCache {
             });
             val wr = new ValueCountTotal();
             wr.howManyValues = topItem.kindsOfValue;
-            wr.totalCount = topItem.countPerValue;
+            wr.totalCount = topItem.sumOfValue;
             wr.values = sublist;
             map2.put(tagName, wr);
         })

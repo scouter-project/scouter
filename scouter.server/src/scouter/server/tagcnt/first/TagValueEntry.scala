@@ -15,24 +15,24 @@
  */
 package scouter.server.tagcnt.first;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import scouter.io.DataInputX;
-import scouter.lang.value.Value;
-import scouter.util.CastUtil;
-import scouter.util.IClose;
-import scouter.util.IntEnumer;
-import scouter.util.IntIntMap;
-import scouter.util.LongEnumer;
+import java.io.IOException
+import java.util.ArrayList
+import java.util.Enumeration
+import java.util.HashMap
+import java.util.Hashtable
+import java.util.Iterator
+import java.util.List
+import java.util.Map
+import java.util.Set
+import scouter.io.DataInputX
+import scouter.lang.value.Value
+import scouter.util.CastUtil
+import scouter.util.IClose
+import scouter.util.IntEnumer
+import scouter.util.IntIntMap
+import scouter.util.LongEnumer
 import scouter.util.LongKeyMap;
+import scouter.util.IntFloatMap
 object TagValueEntry {
     val table = new Hashtable[String, TagValueEntry]();
 
@@ -73,7 +73,7 @@ class TagValueEntry(countingTable: IndexFile) extends IClose {
     var refrence = 0;
     val file = countingTable.path;
 
-    var tagmap: LongKeyMap[Map[Value, IntIntMap]] = null
+    var tagmap: LongKeyMap[Map[Value, IntFloatMap]] = null
     var dirty = false
 
     def setDirty() {
@@ -109,7 +109,7 @@ class TagValueEntry(countingTable: IndexFile) extends IClose {
     private def init() {
         this.synchronized {
             if (tagmap == null) {
-                tagmap = new LongKeyMap[Map[Value, IntIntMap]]();
+                tagmap = new LongKeyMap[Map[Value, IntFloatMap]]();
                 this.countingTable.read((key: Array[Byte], data: Array[Int]) => {
                     val in = new DataInputX(key);
                     val tagkey = in.readLong();
@@ -160,35 +160,35 @@ class TagValueEntry(countingTable: IndexFile) extends IClose {
         }
     }
 
-    def add(tagName: Long, tagValue: Value, hhmm: Int, cnt: Int): Boolean = {
+    def add(tagName: Long, tagValue: Value, hhmm: Int, cnt: Float): Boolean = {
         this.setDirty();
         init();
         var valueCountMap = tagmap.get(tagName);
         if (valueCountMap == null) {
-            valueCountMap = new HashMap[Value, IntIntMap]();
+            valueCountMap = new HashMap[Value, IntFloatMap]();
             tagmap.put(tagName, valueCountMap);
         }
         var hmCnt = valueCountMap.get(tagValue);
         if (hmCnt == null) {
             if (valueCountMap.size() >= 100)
                 return false;
-            hmCnt = new IntIntMap();
+            hmCnt = new IntFloatMap();
             valueCountMap.put(tagValue, hmCnt);
         }
-        hmCnt.put(hhmm, CastUtil.cint(hmCnt.get(hhmm)) + cnt);
+        hmCnt.put(hhmm, CastUtil.cfloat(hmCnt.get(hhmm)) + cnt);
         return true;
     }
 
     def push(tagName: Long, tagValue: Value) {
         var valueCntMap = tagmap.get(tagName);
         if (valueCntMap == null) {
-            valueCntMap = new HashMap[Value, IntIntMap]();
+            valueCntMap = new HashMap[Value, IntFloatMap]();
             tagmap.put(tagName, valueCntMap);
-            valueCntMap.put(tagValue, new IntIntMap());
+            valueCntMap.put(tagValue, new IntFloatMap());
             return ;
         }
         if (valueCntMap.containsKey(tagValue) == false) {
-            valueCntMap.put(tagValue, new IntIntMap());
+            valueCntMap.put(tagValue, new IntFloatMap());
         }
     }
 

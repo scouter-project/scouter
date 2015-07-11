@@ -18,7 +18,7 @@ package scouter.server.tagcnt.first
 
 import scouter.lang.value.Value
 
- class FirstTCData(_objType: String, _time: Long, _tagKey: Long, _tagValue: Value, _cnt: Int) {
+ class FirstTCData(_objType: String, _time: Long, _tagKey: Long, _tagValue: Value, _cnt: Float) {
         val objType = _objType;
         val time = _time;
         val tagKey = _tagKey;
