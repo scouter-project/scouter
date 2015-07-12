@@ -60,7 +60,7 @@ object TAGCNT {
             top100(cmdArr(1), cmdArr(2), cmdArr(3))
         }
         if (cmdArr.length > 3 && "data".equals(cmdArr(0))) {
-            getCount(cmdArr(1), cmdArr(2), cmdArr(3), cmdArr(4).toInt)
+            getCount(cmdArr(1), cmdArr(2), cmdArr(3), if (cmdArr.length > 4) cmdArr(4).toInt else -1)
         }
     }
 
@@ -97,7 +97,7 @@ object TAGCNT {
         }
     }
     private def getCount(objType: String, tagGroup: String, tagName: String, x: Int): Unit = {
-        if (x == 0) 
+        if (x == 0)
             return
         val date = DateUtil.yyyymmdd()
         val valueCountTotal = TagCountProxy.getTagValueCountWithCache(date, objType, tagGroup, tagName, 100);
@@ -105,7 +105,7 @@ object TAGCNT {
             var inx = 1
             Breaks.breakable {
                 EnumerScala.forward(valueCountTotal.values, (vc: ValueCount) => {
-                    if (inx == x) {
+                    if (inx == x || x <0) {
                         val values = TagCountProxy.getTagValueCountData(date, objType, tagGroup, tagName, vc.tagValue);
                         printTable(values)
                         Breaks.break
@@ -121,7 +121,7 @@ object TAGCNT {
             for (m <- 0 to 59) {
                 if (m > 0)
                     print(", ")
-                print(FormatUtil.print(values(h*60+m), "#,##0.0"))
+                print(FormatUtil.print(values(h * 60 + m), "#,##0.0"))
             }
             println("")
         }
