@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
 import org.csstudio.swt.xygraph.dataprovider.Sample;
@@ -42,7 +43,6 @@ import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.ICheckStateListener;
-import org.eclipse.jface.viewers.ICheckStateProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -50,7 +50,6 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -69,6 +68,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -123,7 +123,7 @@ public class TagCountView extends ViewPart {
 	
 	Composite parent;
 	
-	CCombo tagGroupCombo;
+	Combo tagGroupCombo;
 	Text dateText;
 	
 	SashForm graphSash;
@@ -145,7 +145,7 @@ public class TagCountView extends ViewPart {
 	private String objType;
 	private String date;
 	
-	HashMap<String, TagCount> nameTree = new HashMap<String, TagCount>();
+	TreeMap<String, TagCount> nameTree = new TreeMap<String, TagCount>();
 	
 	Tree tagNameTree;
 	CheckboxTreeViewer treeViewer;
@@ -174,12 +174,13 @@ public class TagCountView extends ViewPart {
 		this.parent = parent; 
 		parent.setLayout(new GridLayout(1, true));
 		
-		Composite menuComp = new Composite(parent, SWT.NONE);
+		Composite menuComp = new Composite(parent, SWT.BORDER);
 		menuComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		menuComp.setLayout(new GridLayout(4, false));
-		tagGroupCombo = new CCombo(menuComp, SWT.READ_ONLY | SWT.BORDER);
-		GridData gd = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
-		gd.widthHint = 120;
+		
+		tagGroupCombo = new Combo(menuComp, SWT.READ_ONLY | SWT.BORDER);
+		GridData gd = new GridData(SWT.RIGHT, SWT.FILL, true, true);
+		gd.widthHint = 100;
 		tagGroupCombo.setLayoutData(gd);
 		tagGroupCombo.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
 		tagGroupCombo.addSelectionListener(new SelectionListener() {
@@ -192,12 +193,12 @@ public class TagCountView extends ViewPart {
 			}
 		});
 		Composite dateComp = new Composite(menuComp, SWT.NONE);
-		dateComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+		dateComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
 		dateComp.setLayout(new RowLayout());
 		dateText = new Text(dateComp, SWT.SINGLE | SWT.BORDER);
 		dateText.setLayoutData(new RowData(160, SWT.DEFAULT));
 		Button dayBtn = new Button(menuComp, SWT.PUSH);
-		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
+		gd = new GridData(SWT.FILL, SWT.FILL, false, true);
 		gd.widthHint = 70;
 		dayBtn.setLayoutData(gd);
 		dayBtn.setText("&24H");
@@ -215,7 +216,7 @@ public class TagCountView extends ViewPart {
 			}
 		});
 		Button resetBtn = new Button(menuComp, SWT.PUSH);
-		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
+		gd = new GridData(SWT.FILL, SWT.FILL, false, true);
 		gd.widthHint = 70;
 		resetBtn.setLayoutData(gd);
 		resetBtn.setText("&Reset");
@@ -409,16 +410,20 @@ public class TagCountView extends ViewPart {
 		graphSash.setWeights(new int[] {1, 1});
 		graphSash.setMaximizedControl(totalComp);
 		
-		SashForm tableSash = new SashForm(sashForm, SWT.HORIZONTAL);
-//		Composite tableComp = new Composite(sashForm, SWT.NONE);
-//		tableComp.setLayout(new GridLayout(2, false));
+		//SashForm downSash = new SashForm(sashForm, SWT.HORIZONTAL);
+		Composite downSash = new Composite(sashForm, SWT.NONE);
+		downSash.setLayout(new GridLayout(2, true));
 		
-		Composite treeComp = new Composite(tableSash, SWT.NONE);
-//		GridData gr = new GridData(SWT.LEFT, SWT.FILL, false, true);
-//		gr.widthHint = 250;
-//		treeComp.setLayoutData(gr);
-		
-		treeViewer = new CheckboxTreeViewer(treeComp, SWT.BORDER | SWT.VIRTUAL | SWT.V_SCROLL | SWT.H_SCROLL);
+		Composite treeComp = new Composite(downSash, SWT.BORDER);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		//gd.widthHint = 200;
+		treeComp.setLayoutData(gd);
+		treeComp.setLayout(new GridLayout(1, true));
+		Composite innerTreeComp = new Composite(treeComp, SWT.NONE);
+		innerTreeComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		TreeColumnLayout treeColumnLayout = new TreeColumnLayout();
+		innerTreeComp.setLayout(treeColumnLayout);
+		treeViewer = new CheckboxTreeViewer(innerTreeComp, SWT.BORDER | SWT.VIRTUAL | SWT.V_SCROLL | SWT.H_SCROLL);
 		tagNameTree = treeViewer.getTree();
 		tagNameTree.setHeaderVisible(true);
 		tagNameTree.setLinesVisible(true);
@@ -473,40 +478,42 @@ public class TagCountView extends ViewPart {
 		});
 		
 		
-		TreeColumnLayout treeColumnLayout = new TreeColumnLayout();
-		treeComp.setLayout(treeColumnLayout);
-		
 		TreeColumn nameColumn = new TreeColumn(tagNameTree, SWT.LEFT);
-		nameColumn.setText("Name/Value");
-		treeColumnLayout.setColumnData(nameColumn, new ColumnWeightData(70));
-		TreeColumn cntColumn = new TreeColumn(tagNameTree, SWT.RIGHT);
+		nameColumn.setText("Name");
+		TreeColumn cntColumn = new TreeColumn(tagNameTree, SWT.LEFT);
 		cntColumn.setText("Count");
-		treeColumnLayout.setColumnData(cntColumn, new ColumnWeightData(30));
+		
+		treeColumnLayout.setColumnData(nameColumn, new ColumnWeightData(68));
+		treeColumnLayout.setColumnData(cntColumn, new ColumnWeightData(22));
 		
 		treeViewer.setInput(nameTree);
 		
-		Composite rightTablecomp = new Composite(tableSash, SWT.NONE);
+		Composite rightTablecomp = new Composite(downSash, SWT.BORDER);
+		rightTablecomp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		rightTablecomp.setLayout(new GridLayout(1,true));
-		Composite tableInfoComp = new Composite(rightTablecomp, SWT.NONE);
-		tableInfoComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		tableInfoComp.setLayout(new GridLayout(4, false));
-
-		rangeLbl = new Label(tableInfoComp, SWT.CENTER);
-		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		
+		rangeLbl = new Label(rightTablecomp, SWT.CENTER);
+		gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
 		rangeLbl.setLayoutData(gd);
 		FontData fontData = rangeLbl.getFont().getFontData()[0];
 		Font font = new Font(getViewSite().getShell().getDisplay(), new FontData(fontData.getName(), fontData
 		    .getHeight(), SWT.BOLD));
 		rangeLbl.setFont(font);
+		rangeLbl.setAlignment(SWT.CENTER);
+		rangeLbl.setText("00:00 ~ 00:00");
 		
-		dataRangeLbl = new Label(tableInfoComp, SWT.RIGHT);
-		gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
-		gd.widthHint = 100;
-		dataRangeLbl.setLayoutData(gd);
+		dataTableSash = new SashForm(rightTablecomp, SWT.HORIZONTAL);
+		dataTableSash.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		serviceTable = new ServiceTableComposite(dataTableSash, SWT.NONE);
+		alertTable = new AlertTableComposite(dataTableSash, SWT.NONE);
 		
+		Composite tableInfoComp = new Composite(rightTablecomp, SWT.NONE);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		tableInfoComp.setLayoutData(gd);
+		tableInfoComp.setLayout(new GridLayout(3, false));
+
 		leftBtn = new Button(tableInfoComp, SWT.PUSH);
-		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		gd.widthHint = 40;
+		gd = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
 		leftBtn.setLayoutData(gd);
 		leftBtn.setText("<");
 		leftBtn.setEnabled(false);
@@ -520,9 +527,15 @@ public class TagCountView extends ViewPart {
 			}
 		});
 		
+		dataRangeLbl = new Label(tableInfoComp, SWT.RIGHT);
+		gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
+		gd.widthHint = 60;
+		dataRangeLbl.setLayoutData(gd);
+		dataRangeLbl.setAlignment(SWT.CENTER);
+		
+		
 		rightBtn = new Button(tableInfoComp, SWT.PUSH);
-		gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		gd.widthHint = 40;
+		gd = new GridData(SWT.LEFT, SWT.CENTER, true, false);
 		rightBtn.setLayoutData(gd);
 		rightBtn.setText(">");
 		rightBtn.setEnabled(false);
@@ -536,13 +549,8 @@ public class TagCountView extends ViewPart {
 			}
 		});
 		
-		dataTableSash = new SashForm(rightTablecomp, SWT.HORIZONTAL);
-		dataTableSash.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		serviceTable = new ServiceTableComposite(dataTableSash, SWT.NONE);
-		alertTable = new AlertTableComposite(dataTableSash, SWT.NONE);
-		
-		tableSash.setWeights(new int[] {1, 5});
-		tableSash.setMaximizedControl(null);
+		//downSash.setWeights(new int[] {1, 5});
+		//downSash.setMaximizedControl(null);
 		
 		sashForm.setWeights(new int[] {1, 2});
 		sashForm.setMaximizedControl(null);
@@ -576,6 +584,8 @@ public class TagCountView extends ViewPart {
 		rangeX2 = rangeX1 + DateUtil.MILLIS_PER_DAY - 1;
 		updateTextDate();
 		loadTagGroup();
+		serviceTable.setInput(new ArrayList<Pack>(), serverId, date);
+		alertTable.setInput(new ArrayList<Pack>(), serverId, date);
 		totalCanvas.notifyListeners(SWT.Resize, new Event());
 		zoomMode = false;
 	}
@@ -791,7 +801,7 @@ public class TagCountView extends ViewPart {
 					tcp.process(RequestCmd.TAGCNT_TAG_VALUES, param, new INetReader() {
 						public void process(DataInputX in) throws IOException {
 							valueSize.value = in.readInt();
-							totalCount.value = in.readInt();
+							totalCount.value = in.readLong();
 							int size = in.readInt();
 							for (int i = 0; i < size; i++) {
 								Value v = in.readValue();
