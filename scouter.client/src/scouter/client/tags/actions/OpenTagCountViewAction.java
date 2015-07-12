@@ -5,9 +5,11 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 
+import scouter.client.Images;
 import scouter.client.popup.CalendarObjTypeDialog;
 import scouter.client.popup.CalendarObjTypeDialog.ICalendarCallback;
 import scouter.client.tags.TagCountView;
+import scouter.client.util.ImageUtil;
 
 public class OpenTagCountViewAction extends Action implements ICalendarCallback {
 	
@@ -18,6 +20,7 @@ public class OpenTagCountViewAction extends Action implements ICalendarCallback 
 		this.window = window;
 		this.serverId = serverId;
 		setText("&Tag Count");
+		setImageDescriptor(ImageUtil.getImageDescriptor(Images.bar));
 	}
 
 	public void run() {

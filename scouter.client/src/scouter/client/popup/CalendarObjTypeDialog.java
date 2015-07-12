@@ -64,7 +64,7 @@ public class CalendarObjTypeDialog {
 	public void show(int x, int y, long time){
 		final Shell dialog = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		dialog.setLayout (new GridLayout (2, true));
-		dialog.setText("Date/ObjType");
+		dialog.setText("Date");
 		
 		UIUtil.setDialogDefaultFunctions(dialog);
 		
@@ -78,7 +78,9 @@ public class CalendarObjTypeDialog {
 		}
 		
 		objTypeCombo = new ImageCombo(dialog, SWT.BORDER | SWT.READ_ONLY);
-		objTypeCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, false, true, 2, 1);
+		gd.heightHint = 15;
+		objTypeCombo.setLayoutData(gd);
 		objTypeCombo.setBackground(ColorUtil.getInstance().getColor("white"));
 		ArrayList<String> objTypeList = counterEngine.getAllObjectType();
 		String defObjType = PManager.getInstance().getString(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_WAS);
