@@ -33,20 +33,18 @@ object REALTIME {
 
     def process(cmd: String): Unit = {
 
-        val cmds = StringUtil.tokenizer(cmd, " ");
-        if (cmds.length < 2)
+        val cmdTokens = StringUtil.tokenizer(cmd, " ");
+        if (cmdTokens.length < 2)
             return
 
-        val cnt = StringUtil.tokenizer(cmds(1), " ")
-        val counterName = cmds(1)
-        val mode = if (cmds.length > 2) cmds(2) else null
-      
+        val counterName = cmdTokens(1)
+        val mode = if (cmdTokens.length > 2) cmdTokens(2) else null
 
         ThreadScala.startDaemon("scouter.server.term.handler.REALTIME") {
             val loopNum = ProcessMain.loopProcess
             while (loopNum == ProcessMain.loopProcess) {
                 try {
-                    process(AgentManager.filter(cmds(0)), counterName, mode)
+                    process(AgentManager.filter(cmdTokens(0)), counterName, mode)
                 } catch {
                     case e: Throwable => e.printStackTrace()
                 }
@@ -75,7 +73,7 @@ object REALTIME {
             EnumerScala.foreach(objHashList.iterator(), (objHash: Int) => {
                 val c = CounterCache.get(new CounterKey(objHash, counterName, TimeTypeEnum.REALTIME));
                 val objName = AgentManager.getAgentName(objHash)
-                println(tm + " " + AnsiPrint.blue(objName) + " " +( if(c==null) "null" else FormatUtil.print(c, format)))
+                println(tm + " " + AnsiPrint.blue(objName) + " " + (if (c == null) "null" else FormatUtil.print(c, format)))
             })
             return
         }
@@ -93,7 +91,7 @@ object REALTIME {
             case _ => println(tm + " " + counterName + " " + FormatUtil.print(sum, format))
         }
     }
-   
+
     private def getFormat(fm: String): String = {
         if (fm == null) return "#,##0"
         try {

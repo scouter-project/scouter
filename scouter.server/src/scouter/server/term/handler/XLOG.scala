@@ -37,17 +37,14 @@ object XLOG {
 
     def process(cmd: String): Unit = {
 
-        if (cmd == null)
-            return
-        val cmds = StringUtil.tokenizer(cmd, " ");
-
-        val maxTime = if (cmds.length > 1) CastUtil.cint(cmds(1)) else 10
+        val cmdTokens = StringUtil.tokenizer(cmd, " ");
+        val maxTime = if (cmdTokens.length > 1) CastUtil.cint(cmdTokens(1)) else 10
 
         ThreadScala.startDaemon("scouter.server.term.handler.XLOG") {
             val loopNum = ProcessMain.loopProcess
             while (loopNum == ProcessMain.loopProcess) {
                 try {
-                    process(AgentManager.filter(cmds(0)), maxTime)
+                    process(AgentManager.filter(cmdTokens(0)), maxTime)
                 } catch {
                     case e: Throwable => e.printStackTrace()
                 }

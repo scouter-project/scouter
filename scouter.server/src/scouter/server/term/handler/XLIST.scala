@@ -42,17 +42,15 @@ import scouter.util.Hexa32
 object XLIST {
 
     def process(cmd: String): Unit = {
+        
+        val cmdTokens = StringUtil.tokenizer(cmd, " ");
 
-        if (cmd == null)
-            return
-        val cmds = StringUtil.tokenizer(cmd, " ");
+        val objType = cmdTokens(0)
+        val time = DateUtil.getTime(DateUtil.yyyymmdd() + cmdTokens(1), "yyyyMMddHH:mm:ss.SSS");
+        val maxCount = if (cmdTokens.length > 2) CastUtil.cint(cmdTokens(2)) else 10000
+        val minElapsed = if (cmdTokens.length > 3) CastUtil.cint(cmdTokens(3)) else 0
 
-        val objType = cmds(0)
-        val time = DateUtil.getTime(DateUtil.yyyymmdd() + cmds(1), "yyyyMMddHH:mm:ss.SSS");
-        val maxCount = if (cmds.length > 2) CastUtil.cint(cmds(2)) else 10000
-        val minElapsed = if (cmds.length > 3) CastUtil.cint(cmds(3)) else 0
-
-        process(AgentManager.filter(cmds(0)), time, maxCount, minElapsed)
+        process(AgentManager.filter(cmdTokens(0)), time, maxCount, minElapsed)
 
     }
 

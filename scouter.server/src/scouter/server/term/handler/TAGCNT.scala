@@ -46,21 +46,21 @@ object TAGCNT {
 
     def process(cmd: String): Unit = {
 
-        val cmdArr = StringUtil.tokenizer(cmd, " ")
-        if (cmdArr.length < 1)
+        val cmdTokens = StringUtil.tokenizer(cmd, " ")
+        if (cmdTokens.length < 1)
             return
 
-        if ("group".equals(cmdArr(0))) {
+        if ("group".equals(cmdTokens(0))) {
             taggroups
         }
-        if (cmdArr.length > 1 && "tag".equals(cmdArr(0))) {
-            tagnames(cmdArr(1))
+        if (cmdTokens.length > 1 && "tag".equals(cmdTokens(0))) {
+            tagnames(cmdTokens(1))
         }
-        if (cmdArr.length > 3 && "top100".equals(cmdArr(0))) {
-            top100(cmdArr(1), cmdArr(2), cmdArr(3))
+        if (cmdTokens.length > 3 && "top100".equals(cmdTokens(0))) {
+            top100(cmdTokens(1), cmdTokens(2), cmdTokens(3))
         }
-        if (cmdArr.length > 3 && "data".equals(cmdArr(0))) {
-            getCount(cmdArr(1), cmdArr(2), cmdArr(3), if (cmdArr.length > 4) cmdArr(4).toInt else -1)
+        if (cmdTokens.length > 3 && "data".equals(cmdTokens(0))) {
+            getCount(cmdTokens(1), cmdTokens(2), cmdTokens(3), if (cmdTokens.length > 4) cmdTokens(4).toInt else -1)
         }
     }
 
