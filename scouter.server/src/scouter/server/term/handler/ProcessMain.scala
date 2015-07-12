@@ -45,12 +45,12 @@ object ProcessMain {
             case "objtype" => objType()
             case "object" => objectList(cmd.trim())
             case "counter" => counterList(cmd.trim())
-            case "dashboard" => Dashboard.process(cmd.trim().substring("dashboard".length()).trim())
-            case "realtime" => REALTIME.process(cmd.trim().substring("realtime".length()).trim())
-            case "xlog" => XLOG.process(cmd.trim().substring("xlog".length()).trim())
-            case "xlist" => XLIST.process(cmd.trim().substring("xlist".length()).trim())
-            case "tagcnt" => TAGCNT.process(cmd.trim().substring("tagcnt".length()).trim())
-            case "visitor" => VISITOR.process(cmd.trim().substring("visitor".length()).trim())
+            case "dashboard" => Dashboard.process(cut(cmd, "dashboard"))
+            case "realtime" => REALTIME.process(cut(cmd, "realtime"))
+            case "xlog" => XLOG.process(cut(cmd, "xlog"))
+            case "xlist" => XLIST.process(cut(cmd, "xlist"))
+            case "tagcnt" => TAGCNT.process(cut(cmd, "tagcnt"))
+            case "visitor" => VISITOR.process(cut(cmd, "visitor"))
             case "" =>
             case _ => Help.help(cmd)
         }
@@ -79,6 +79,7 @@ object ProcessMain {
             }
         })
     }
+
     def counterList(cmd: String): Unit = {
         var cmds = StringUtil.tokenizer(cmd, " ,")
         if (cmds.length < 2)
@@ -89,5 +90,9 @@ object ProcessMain {
         EnumerScala.foreach(sorted, (c: String) => {
             println("\t" + AnsiPrint.green(c))
         })
+    }
+
+    private def cut(cmd: String, word: String): String = {
+        cmd.trim().substring(word.length()).trim()
     }
 }
