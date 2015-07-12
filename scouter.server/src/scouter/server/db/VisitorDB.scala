@@ -39,7 +39,7 @@ object VisitorDB {
     val rsd = 20
 
     //Daily Execute
-    ThreadScala.startDaemon("scouter.server.core.VisitDay.daily") {
+    ThreadScala.startDaemon("scouter.server.db.VisitorDB") {
         var dateUnit = DateUtil.getDateUnit()
         while (DBCtr.running) {
             if (dateUnit != DateUtil.getDateUnit()) {

@@ -42,7 +42,7 @@ object REALTIME {
         val mode = if (cmds.length > 2) cmds(2) else null
       
 
-        ThreadScala.startDaemon("ProcessMain") {
+        ThreadScala.startDaemon("scouter.server.term.handler.REALTIME") {
             val loopNum = ProcessMain.loopProcess
             while (loopNum == ProcessMain.loopProcess) {
                 try {
