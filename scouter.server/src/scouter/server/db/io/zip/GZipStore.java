@@ -14,7 +14,6 @@
  *  limitations under the License. 
  */
 package scouter.server.db.io.zip;
-
 import java.io.IOException;
 import java.util.Enumeration;
 import scouter.server.Configure;
@@ -26,10 +25,8 @@ import scouter.util.IClose;
 import scouter.util.IShutdown;
 import scouter.util.LinkedMap;
 import scouter.util.ThreadUtil;
-
 public class GZipStore extends Thread implements IClose, IShutdown {
 	private static GZipStore instance = null;
-
 	public final static synchronized GZipStore getInstance() {
 		if (instance == null) {
 			instance = new GZipStore();
@@ -40,25 +37,20 @@ public class GZipStore extends Thread implements IClose, IShutdown {
 		}
 		return instance;
 	}
-
 	public GZipStore() {
 		Logger.println("S128", "COMPRESS MODE ENABLED");
 	}
-
 	public static class Key {
 		public String date;
 		public int unitNum;
-
 		public Key(String date, int unitNum) {
 			this.date = date;
 			this.unitNum = unitNum;
 		}
-
 		@Override
 		public int hashCode() {
 			return unitNum ^ date.hashCode();
 		}
-
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof Key) {
@@ -68,10 +60,8 @@ public class GZipStore extends Thread implements IClose, IShutdown {
 			return false;
 		}
 	}
-
 	LinkedMap<String, Block> writingBlockTable = new LinkedMap();
 	private boolean brun = true;
-
 	@Override
 	public void run() {
 		while (brun) {
@@ -92,13 +82,10 @@ public class GZipStore extends Thread implements IClose, IShutdown {
 			}
 		}
 	}
-
 	private Configure conf = Configure.getInstance();
-
 	public synchronized long write(String date, byte[] data) throws IOException {
 		return write(date, data, 0);
 	}
-
 	public synchronized long write(String date, byte[] data, long next) throws IOException {
 		DataOutputX dout = new DataOutputX();
 		dout.writeLong5(next);
@@ -133,11 +120,10 @@ public class GZipStore extends Thread implements IClose, IShutdown {
 			ok = bk.write(saveData);
 			return ok ? pos : -1;
 		} catch (Throwable ee) {
-			Logger.println("GZIP", 5, ee.toString() + " => " + bk, ee);
+			Logger.println("S201", 5, ee.toString() + " => " + bk, ee);
 			return -1;
 		}
 	}
-
 	private Block getWritingBlock(String date, int blockNum, long pos) {
 		Block b = writingBlockTable.get(date);
 		if (b == null)
@@ -146,7 +132,6 @@ public class GZipStore extends Thread implements IClose, IShutdown {
 			return b;
 		return null;
 	}
-
 	public byte[] read(String date, long pos) {
 		if (pos < 0)
 			return null;
@@ -178,7 +163,6 @@ public class GZipStore extends Thread implements IClose, IShutdown {
 			}
 		}
 	}
-
 	public void flush() {
 		if (writingBlockTable.size() == 0)
 			return;
@@ -189,22 +173,18 @@ public class GZipStore extends Thread implements IClose, IShutdown {
 			IOChannel.getInstance().store(bk);
 		}
 	}
-
 	public void shutdown() {
 		this.brun = false;
 		close();
 	}
-
 	public void close() {
 		this.flush();
 	}
-
 	public void close(String date) {
 		Block bb = writingBlockTable.remove(date);
 		IOChannel.getInstance().store(bb);
 		IOChannel.getInstance().close(date);
 	}
-
 	public static void main(String[] args) {
 		LinkedMap<String, String> m = new LinkedMap<String, String>();
 		m.put("a", "a");

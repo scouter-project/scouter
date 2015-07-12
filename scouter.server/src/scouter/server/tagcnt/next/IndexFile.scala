@@ -76,7 +76,7 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
         return null;
     }
 
-    def updateAdd(key: Array[Byte], hour: Int, value: Array[Int]): Int = {
+    def updateAdd(key: Array[Byte], hour: Int, value: Array[Float]): Int = {
         if (key == null) {
             throw new IOException("invalid key");
         }
@@ -127,7 +127,7 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
         return false;
     }
 
-    def getTotalCount(key: Array[Byte]): Int = {
+    def getTotalCount(key: Array[Byte]): Float = {
         if (key == null) {
             throw new IOException("invalid key");
         }
@@ -143,7 +143,7 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
         return 0;
     }
 
-    def read(handler: (Long, Value, Int, Array[Long], IndexFile, Long) => Any): Boolean = {
+    def read(handler: (Long, Value, Float, Array[Long], IndexFile, Long) => Any): Boolean = {
         if (this.keyFile == null)
             return false;
 
@@ -163,12 +163,12 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
             }
         } catch {
             case t: Throwable =>
-                Logger.println("S184", this.keyFile + " : read=" + done + " pos=" + pos + " file-len=" + length + " " + t);
+                Logger.println("S204", this.keyFile + " : read=" + done + " pos=" + pos + " file-len=" + length + " " + t);
         }
         return true;
     }
 
-    def getValue(vpos: Long): Array[Int] = {
+    def getValue(vpos: Long): Array[Float] = {
         if (vpos <= 0)
             return null;
         return this.dataFile.getValue(vpos);
@@ -191,8 +191,8 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
         }
     }
 
-    def getValueAll(vpos: Array[Long]): Array[Int] = {
-        val out = new Array[Int](1440);
+    def getValueAll(vpos: Array[Long]): Array[Float] = {
+        val out = new Array[Float](1440);
         for (i <- 0 to 23) {
             val value = getValue(vpos(i));
             if (value != null) {
@@ -203,10 +203,10 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
     }
 
     def cleanValue(pos: Long) {
-        this.dataFile.write(pos, new Array[Int](60));
+        this.dataFile.write(pos, new Array[Float](60));
     }
 
-    def add(tagKey: Long, tagvalue: Value, hh: Int, value: Array[Int]) {
+    def add(tagKey: Long, tagvalue: Value, hh: Int, value: Array[Float]) {
         try {
 
             val out = new DataOutputX();
@@ -219,7 +219,7 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
         }
     }
 
-    def get(tagKey: Long, tagvalue: Value): Array[Int] = {
+    def get(tagKey: Long, tagvalue: Value): Array[Float] = {
 
         val key = new DataOutputX();
         key.writeLong(tagKey);

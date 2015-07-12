@@ -48,8 +48,8 @@ class TagCountService {
     def getDivNames(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readPack().asInstanceOf[MapPack];
         val objType = param.getText("objType");
-        
-        val tagGroups = TagCountConfig.getTagGroups(); 
+
+        val tagGroups = TagCountConfig.getTagGroups();
         while (tagGroups.hasMoreElements()) {
             dout.writeByte(TcpFlag.HasNEXT);
             dout.writeValue(new TextValue(tagGroups.nextString()));
@@ -61,14 +61,14 @@ class TagCountService {
         val param = din.readPack().asInstanceOf[MapPack];
         val objType = param.getText("objType");
         val tagGroup = param.getText("tagGroup");
-        
+
         val tagNames = TagCountConfig.getTagNames(tagGroup);
         while (tagNames.hasMoreElements()) {
             dout.writeByte(TcpFlag.HasNEXT);
             dout.writeValue(new TextValue(tagNames.nextString()));
         }
     }
-    
+
     @ServiceHandler(RequestCmd.TAGCNT_TAG_VALUES)
     def getTagValues(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readPack().asInstanceOf[MapPack];
@@ -79,16 +79,18 @@ class TagCountService {
         if (StringUtil.isEmpty(date)) {
             date = DateUtil.yyyymmdd();
         }
-        
+
         val valueCountTotal = TagCountProxy.getTagValueCountWithCache(date, objType, tagGroup, tagName, 100);
         if (valueCountTotal != null) {
             dout.writeByte(TcpFlag.HasNEXT);
             dout.writeInt(valueCountTotal.howManyValues)
-            dout.writeInt(valueCountTotal.totalCount)
+            // TODO: temp
+            dout.writeInt(valueCountTotal.totalCount.toInt)
             dout.writeInt(valueCountTotal.values.size())
             EnumerScala.forward(valueCountTotal.values, (vc: ValueCount) => {
                 dout.writeValue(vc.tagValue)
-                dout.writeLong(vc.valueCount)
+                // TODO: temp
+                dout.writeLong(vc.valueCount.toLong)
             })
         }
     }
@@ -104,14 +106,20 @@ class TagCountService {
         if (StringUtil.isEmpty(date)) {
             date = DateUtil.yyyymmdd();
         }
-        
-        val valueCount = TagCountProxy.getTagValueCountData( date, objType, tagGroup, tagName, tagValue);
+
+        val valueCount = TagCountProxy.getTagValueCountData(date, objType, tagGroup, tagName, tagValue);
         if (valueCount != null) {
             dout.writeByte(TcpFlag.HasNEXT);
-            dout.writeArray(valueCount)
+            dout.writeArray(toIntArr(valueCount))
         }
     }
-    
+    private def toIntArr(a:Array[Float]):Array[Int]={
+        val out = new Array[Int](a.length)
+        for(i <- 0 to a.length-1){
+            out(i)=a(i).toInt
+        }
+        return out
+    }
     @ServiceHandler(RequestCmd.TAGCNT_TAG_ACTUAL_DATA)
     def getTagActualData(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readPack().asInstanceOf[MapPack];
@@ -123,214 +131,214 @@ class TagCountService {
         var max = param.getInt("max");
         var rev = param.getBoolean("reverse");
         val filterMv = param.get("filter");
-        
+
         val mpack = ObjectRD.getDailyAgent(date);
         val objTypeLv = mpack.getList("objType");
         val objHashLv = mpack.getList("objHash");
-        
+
         val objHashSet = new IntSet();
-        for (i <- 0 to objHashLv.size()-1) {
-          if (objType == objTypeLv.getString(i)) {
-            objHashSet.add(objHashLv.getInt(i));
-          }
+        for (i <- 0 to objHashLv.size() - 1) {
+            if (objType == objTypeLv.getString(i)) {
+                objHashSet.add(objHashLv.getInt(i));
+            }
         }
-        
-        if (tagGroup == "service") {
-          var txid = param.getLong("txid");
-          var ok = if (txid == 0) true else false;
-          var cnt = 0;
-          val handler = (time: Long, data: Array[Byte]) => {
-            val x = new DataInputX(data).readPack().asInstanceOf[XLogPack];
-            if (objHashSet.contains(x.objHash)) {
-            	if (ok == false) {
-            		ok = x.txid == txid;
-            	} else {
-            	  if (filterMv == null || serviceFilterOk(filterMv.asInstanceOf[MapValue], x)) {
-	            	dout.writeByte(TcpFlag.HasNEXT);
-		            dout.write(data);
-		            dout.flush();
-		            cnt += 1;
-            	  }
-            	}
+
+        if (tagGroup == "service" ) {
+            var txid = param.getLong("txid");
+            var ok = if (txid == 0) true else false;
+            var cnt = 0;
+            val handler = (time: Long, data: Array[Byte]) => {
+                val x = new DataInputX(data).readPack().asInstanceOf[XLogPack];
+                if (objHashSet.contains(x.objHash)) {
+                    if (ok == false) {
+                        ok = x.txid == txid;
+                    } else {
+                        if (filterMv == null || serviceFilterOk(filterMv.asInstanceOf[MapValue], x)) {
+                            dout.writeByte(TcpFlag.HasNEXT);
+                            dout.write(data);
+                            dout.flush();
+                            cnt += 1;
+                        }
+                    }
+                }
+                if (cnt >= max) {
+                    return ;
+                }
             }
-            if (cnt >= max) {
-                return;
+
+            if (rev) {
+                XLogRD.readFromEndTime(date, stime, etime, handler);
+            } else {
+                XLogRD.readByTime(date, stime, etime, handler);
             }
-          }
-          
-          if (rev) {
-        	  XLogRD.readFromEndTime(date, stime, etime, handler);
-          } else {
-        	  XLogRD.readByTime(date, stime, etime, handler);
-          }
         } else if (tagGroup == "alert") {
-          var cnt = 0;
-          val handler = (time: Long, data: Array[Byte]) => {
-            val x = new DataInputX(data).readPack().asInstanceOf[AlertPack];
-            if (objHashSet.contains(x.objHash)) {
-              if (filterMv == null || alertFilterOk(filterMv.asInstanceOf[MapValue], x)) {
-            	dout.writeByte(TcpFlag.HasNEXT);
-	            dout.write(data);
-	            dout.flush();
-	            cnt += 1;
-              }
+            var cnt = 0;
+            val handler = (time: Long, data: Array[Byte]) => {
+                val x = new DataInputX(data).readPack().asInstanceOf[AlertPack];
+                if (objHashSet.contains(x.objHash)) {
+                    if (filterMv == null || alertFilterOk(filterMv.asInstanceOf[MapValue], x)) {
+                        dout.writeByte(TcpFlag.HasNEXT);
+                        dout.write(data);
+                        dout.flush();
+                        cnt += 1;
+                    }
+                }
+                if (cnt >= max) {
+                    return ;
+                }
             }
-            if (cnt >= max) {
-                return;
+            if (rev) {
+                AlertRD.readFromEndTime(date, stime, etime, handler);
+            } else {
+                AlertRD.readByTime(date, stime, etime, handler);
             }
-          }
-          if (rev) {
-        	  AlertRD.readFromEndTime(date, stime, etime, handler);
-          } else {
-        	  AlertRD.readByTime(date, stime, etime, handler);
-          }
         }
-        
+
     }
-    
+
     def serviceFilterOk(mv: MapValue, x: XLogPack): Boolean = {
-    	val itr = mv.keys();
-    	while (itr.hasMoreElements()) {
-    	  val key = itr.nextElement();
-    	  if (key == "error") {
-    	    val errorLv = mv.getList(key);
-    	    for (i <- 0 to errorLv.size()-1) {
-    	      var error = errorLv.get(i).toJavaObject();
-    	      if (x.error == error) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "user-agent") {
-    	    val userAgentLv = mv.getList(key);
-    	    for (i <- 0 to userAgentLv.size()-1) {
-    	      var userAgent = userAgentLv.get(i).toJavaObject();
-    	      if (x.userAgent == userAgent) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "object") {
-    	    val objHashLv = mv.getList(key);
-    	    for (i <- 0 to objHashLv.size()-1) {
-    	      var objHash = objHashLv.get(i).toJavaObject();
-    	      if (x.objHash == objHash) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "nation") {
-    	    val nationLv = mv.getList(key);
-    	    for (i <- 0 to nationLv.size()-1) {
-    	      var nation = nationLv.getString(i);
-    	      if (x.countryCode == nation) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "visitor") {
-    	    val visitorLv = mv.getList(key);
-    	    for (i <- 0 to visitorLv.size()-1) {
-    	      var visitor = visitorLv.getLong(i);
-    	      if (x.visitor == visitor) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "city") {
-    	    val cityLv = mv.getList(key);
-    	    for (i <- 0 to cityLv.size()-1) {
-    	      var city = cityLv.get(i).toJavaObject();
-    	      if (x.city == city) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "ip") {
-    	    val ipLv = mv.getList(key);
-    	    for (i <- 0 to ipLv.size()-1) {
-    	      var ip = ipLv.get(i);
-    	      if (IPUtil.toString(x.ipaddr) == ip.toString()) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "service") {
-    	    val serviceLv = mv.getList(key);
-    	    for (i <- 0 to serviceLv.size()-1) {
-    	      var service = serviceLv.get(i).toJavaObject();
-    	      if (x.service == service) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "referer") {
-    	    val refererLv = mv.getList(key);
-    	    for (i <- 0 to refererLv.size()-1) {
-    	      var referer = refererLv.get(i).toJavaObject();
-    	      if (x.referer == referer) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "group") {
-    	    val groupLv = mv.getList(key);
-    	    for (i <- 0 to groupLv.size()-1) {
-    	      var group = groupLv.get(i).toJavaObject();
-    	      if (x.group == group) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "apitime") {
-    	    val apitimeLv = mv.getList(key);
-    	    for (i <- 0 to apitimeLv.size()-1) {
-    	      var apitime = apitimeLv.getInt(i);
-    	      if (x.apicallTime / 1000 == apitime) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "sqltime") {
-    	    val sqltimeLv = mv.getList(key);
-    	    for (i <- 0 to sqltimeLv.size()-1) {
-    	      var sqltime = sqltimeLv.getInt(i);
-    	      if (x.sqlTime / 1000 == sqltime) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "elapsed") {
-    	    val elapsedLv = mv.getList(key);
-    	    for (i <- 0 to elapsedLv.size()-1) {
-    	      var elapsed = elapsedLv.getInt(i);
-    	      if (x.elapsed / 1000 == elapsed) {
-    	        return true;
-    	      }
-    	    }
-    	  }
-    	}
+        val itr = mv.keys();
+        while (itr.hasMoreElements()) {
+            val key = itr.nextElement();
+            if (key == "error") {
+                val errorLv = mv.getList(key);
+                for (i <- 0 to errorLv.size() - 1) {
+                    var error = errorLv.get(i).toJavaObject();
+                    if (x.error == error) {
+                        return true;
+                    }
+                }
+            } else if (key == "user-agent") {
+                val userAgentLv = mv.getList(key);
+                for (i <- 0 to userAgentLv.size() - 1) {
+                    var userAgent = userAgentLv.get(i).toJavaObject();
+                    if (x.userAgent == userAgent) {
+                        return true;
+                    }
+                }
+            } else if (key == "object") {
+                val objHashLv = mv.getList(key);
+                for (i <- 0 to objHashLv.size() - 1) {
+                    var objHash = objHashLv.get(i).toJavaObject();
+                    if (x.objHash == objHash) {
+                        return true;
+                    }
+                }
+            } else if (key == "nation") {
+                val nationLv = mv.getList(key);
+                for (i <- 0 to nationLv.size() - 1) {
+                    var nation = nationLv.getString(i);
+                    if (x.countryCode == nation) {
+                        return true;
+                    }
+                }
+            } else if (key == "visitor") {
+                val visitorLv = mv.getList(key);
+                for (i <- 0 to visitorLv.size() - 1) {
+                    var visitor = visitorLv.getLong(i);
+                    if (x.visitor == visitor) {
+                        return true;
+                    }
+                }
+            } else if (key == "city") {
+                val cityLv = mv.getList(key);
+                for (i <- 0 to cityLv.size() - 1) {
+                    var city = cityLv.get(i).toJavaObject();
+                    if (x.city == city) {
+                        return true;
+                    }
+                }
+            } else if (key == "ip") {
+                val ipLv = mv.getList(key);
+                for (i <- 0 to ipLv.size() - 1) {
+                    var ip = ipLv.get(i);
+                    if (IPUtil.toString(x.ipaddr) == ip.toString()) {
+                        return true;
+                    }
+                }
+            } else if (key == "service" || key.startsWith("service-")) {
+                val serviceLv = mv.getList(key);
+                for (i <- 0 to serviceLv.size() - 1) {
+                    var service = serviceLv.get(i).toJavaObject();
+                    if (x.service == service) {
+                        return true;
+                    }
+                }
+            } else if (key == "referer") {
+                val refererLv = mv.getList(key);
+                for (i <- 0 to refererLv.size() - 1) {
+                    var referer = refererLv.get(i).toJavaObject();
+                    if (x.referer == referer) {
+                        return true;
+                    }
+                }
+            } else if (key == "group") {
+                val groupLv = mv.getList(key);
+                for (i <- 0 to groupLv.size() - 1) {
+                    var group = groupLv.get(i).toJavaObject();
+                    if (x.group == group) {
+                        return true;
+                    }
+                }
+            } else if (key == "apitime") {
+                val apitimeLv = mv.getList(key);
+                for (i <- 0 to apitimeLv.size() - 1) {
+                    var apitime = apitimeLv.getInt(i);
+                    if (x.apicallTime / 1000 == apitime) {
+                        return true;
+                    }
+                }
+            } else if (key == "sqltime") {
+                val sqltimeLv = mv.getList(key);
+                for (i <- 0 to sqltimeLv.size() - 1) {
+                    var sqltime = sqltimeLv.getInt(i);
+                    if (x.sqlTime / 1000 == sqltime) {
+                        return true;
+                    }
+                }
+            } else if (key == "elapsed") {
+                val elapsedLv = mv.getList(key);
+                for (i <- 0 to elapsedLv.size() - 1) {
+                    var elapsed = elapsedLv.getInt(i);
+                    if (x.elapsed / 1000 == elapsed) {
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
-    
+
     def alertFilterOk(mv: MapValue, x: AlertPack): Boolean = {
-    	val itr = mv.keys();
-    	while (itr.hasMoreElements()) {
-    	  val key = itr.nextElement();
-    	  if (key == "object") {
-    	    val objHashLv = mv.getList(key);
-    	    for (i <- 0 to objHashLv.size()-1) {
-    	      var objHash = objHashLv.get(i).toJavaObject();
-    	      if (x.objHash == objHash) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "level") {
-    	    val levelLv = mv.getList(key);
-    	    for (i <- 0 to levelLv.size()-1) {
-    	      var level = levelLv.getInt(i);
-    	      if (x.level == level) {
-    	        return true;
-    	      }
-    	    }
-    	  } else if (key == "title") {
-    	    val titleLv = mv.getList(key);
-    	    for (i <- 0 to titleLv.size()-1) {
-    	      var title = titleLv.getString(i);
-    	      if (x.title == title) {
-    	        return true;
-    	      }
-    	    }
-    	  }
-    	}
+        val itr = mv.keys();
+        while (itr.hasMoreElements()) {
+            val key = itr.nextElement();
+            if (key == "object") {
+                val objHashLv = mv.getList(key);
+                for (i <- 0 to objHashLv.size() - 1) {
+                    var objHash = objHashLv.get(i).toJavaObject();
+                    if (x.objHash == objHash) {
+                        return true;
+                    }
+                }
+            } else if (key == "level") {
+                val levelLv = mv.getList(key);
+                for (i <- 0 to levelLv.size() - 1) {
+                    var level = levelLv.getInt(i);
+                    if (x.level == level) {
+                        return true;
+                    }
+                }
+            } else if (key == "title") {
+                val titleLv = mv.getList(key);
+                for (i <- 0 to titleLv.size() - 1) {
+                    var title = titleLv.getString(i);
+                    if (x.title == title) {
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 }

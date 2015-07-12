@@ -84,16 +84,16 @@ class KeyDataFile(path: String) extends IClose {
         }
     }
 
-    def getValue(pos: Long): Array[Int] = {
+    def getValue(pos: Long): Array[Float] = {
         this.synchronized {
             this.raf.seek(pos + 1 + 5);
             val bytes = new DataInputX(this.raf).read(TagCountUtil.BUCKET_SIZE * 4);
             //
             val in = new DataInputX(bytes);
-            val value = new Array[Int](TagCountUtil.BUCKET_SIZE)
+            val value = new Array[Float](TagCountUtil.BUCKET_SIZE)
             var inx = 0
             while (inx < TagCountUtil.BUCKET_SIZE) {
-                value(inx) = in.readInt();
+                value(inx) = in.readFloat();
                 inx += 1
             }
             return value;
@@ -114,14 +114,14 @@ class KeyDataFile(path: String) extends IClose {
         }
     }
 
-    def write(pos: Long, next: Long, key: Array[Byte], value: Array[Int]) {
+    def write(pos: Long, next: Long, key: Array[Byte], value: Array[Float]) {
         this.synchronized {
             val out = new DataOutputX();
             out.writeBoolean(false);
             out.writeLong5(next);
             var inx = 0
             while (inx < TagCountUtil.BUCKET_SIZE) {
-                out.writeInt(value(inx));
+                out.writeFloat(value(inx));
                 inx += 1
             }
             out.writeShortBytes(key);
@@ -140,23 +140,23 @@ class KeyDataFile(path: String) extends IClose {
         }
     }
 
-    def updateAdd(pos: Long, hhmm: Int, value: Int): Int = {
+    def updateAdd(pos: Long, hhmm: Int, value: Float): Float = {
         this.synchronized {
             val bucketPos = TagCountUtil.getBucketPos(hhmm);
             this.raf.seek(pos + 1 + 5 + bucketPos * 4);
-            val old = new DataInputX(this.raf).readInt();
+            val old = new DataInputX(this.raf).readFloat();
             this.raf.seek(pos + 1 + 5 + bucketPos * 4);
             this.raf.write(DataOutputX.toBytes(old + value));
             return old + value;
         }
     }
 
-    def update(pos: Long, value: Array[Int]) {
+    def update(pos: Long, value: Array[Float]) {
         this.raf.seek(pos + 1 + 5);
         val out = new DataOutputX(this.raf);
         var inx = 0
         while (inx < TagCountUtil.BUCKET_SIZE) {
-            out.writeInt(value(inx));
+            out.writeFloat(value(inx));
             inx += 1
         }
     }
@@ -179,7 +179,7 @@ class KeyDataFile(path: String) extends IClose {
         }
     }
 
-    def append(next: Long, key: Array[Byte], value: Array[Int]): Long = {
+    def append(next: Long, key: Array[Byte], value: Array[Float]): Long = {
         this.synchronized {
             val pos = this.raf.length();
             write(pos, next, key, value);

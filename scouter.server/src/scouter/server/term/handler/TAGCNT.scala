@@ -46,21 +46,21 @@ object TAGCNT {
 
     def process(cmd: String): Unit = {
 
-        val cmdArr = StringUtil.tokenizer(cmd, " ")
-        if (cmdArr.length < 1)
+        val cmdTokens = StringUtil.tokenizer(cmd, " ")
+        if (cmdTokens.length < 1)
             return
 
-        if ("group".equals(cmdArr(0))) {
+        if ("group".equals(cmdTokens(0))) {
             taggroups
         }
-        if (cmdArr.length > 1 && "tag".equals(cmdArr(0))) {
-            tagnames(cmdArr(1))
+        if (cmdTokens.length > 1 && "tag".equals(cmdTokens(0))) {
+            tagnames(cmdTokens(1))
         }
-        if (cmdArr.length > 3 && "top100".equals(cmdArr(0))) {
-            top100(cmdArr(1), cmdArr(2), cmdArr(3))
+        if (cmdTokens.length > 3 && "top100".equals(cmdTokens(0))) {
+            top100(cmdTokens(1), cmdTokens(2), cmdTokens(3))
         }
-        if (cmdArr.length > 3 && "data".equals(cmdArr(0))) {
-            getCount(cmdArr(1), cmdArr(2), cmdArr(3), cmdArr(4).toInt)
+        if (cmdTokens.length > 3 && "data".equals(cmdTokens(0))) {
+            getCount(cmdTokens(1), cmdTokens(2), cmdTokens(3), if (cmdTokens.length > 4) cmdTokens(4).toInt else -1)
         }
     }
 
@@ -97,7 +97,7 @@ object TAGCNT {
         }
     }
     private def getCount(objType: String, tagGroup: String, tagName: String, x: Int): Unit = {
-        if (x == 0) 
+        if (x == 0)
             return
         val date = DateUtil.yyyymmdd()
         val valueCountTotal = TagCountProxy.getTagValueCountWithCache(date, objType, tagGroup, tagName, 100);
@@ -105,7 +105,7 @@ object TAGCNT {
             var inx = 1
             Breaks.breakable {
                 EnumerScala.forward(valueCountTotal.values, (vc: ValueCount) => {
-                    if (inx == x) {
+                    if (inx == x || x <0) {
                         val values = TagCountProxy.getTagValueCountData(date, objType, tagGroup, tagName, vc.tagValue);
                         printTable(values)
                         Breaks.break
@@ -115,13 +115,13 @@ object TAGCNT {
             }
         }
     }
-    private def printTable(values: Array[Int]) {
+    private def printTable(values: Array[Float]) {
         for (h <- 0 to 23) {
             print(StringUtil.leftPad("H" + h, 5) + " ")
             for (m <- 0 to 59) {
                 if (m > 0)
                     print(", ")
-                print(values(h*60+m))
+                print(FormatUtil.print(values(h * 60 + m), "#,##0.0"))
             }
             println("")
         }

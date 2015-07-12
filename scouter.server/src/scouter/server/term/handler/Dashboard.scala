@@ -41,7 +41,7 @@ object Dashboard {
             println("no object for " + cmd.trim())
             return
         }
-        ThreadScala.startDaemon("Dashboard") {
+        ThreadScala.startDaemon("scouter.server.term.handler.Dashboard") {
             val loopNum = ProcessMain.loopProcess
             while (loopNum == ProcessMain.loopProcess) {
                 try {

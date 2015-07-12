@@ -32,7 +32,7 @@ object MoveToNextCollector {
 
     private val queue = new RequestQueue[CountItem](MAX_QUE_SIZE + 1);
 
-    class CountItem(_time: Long, _objType: String, _tagKey: Long, _tagValue: Value, _count: Int) {
+    class CountItem(_time: Long, _objType: String, _tagKey: Long, _tagValue: Value, _count: Float) {
         val time = _time
         val objType = _objType
         val tagKey = _tagKey
@@ -42,7 +42,7 @@ object MoveToNextCollector {
 
     def isQueueOk() = queue.size() < MAX_QUE_SIZE
 
-    def add(time: Long, objType: String, tagKey: Long, tagValue: Value, count: Int) {
+    def add(time: Long, objType: String, tagKey: Long, tagValue: Value, count: Float) {
         while (isQueueOk() == false) {
             ThreadUtil.qWait();
             Logger.println("S182", 10, "queue is full");
@@ -50,7 +50,7 @@ object MoveToNextCollector {
         queue.put(new CountItem(time, objType, tagKey, tagValue, count));
     }
 
-    protected var countTable = new HashMap[NextTagCountData, Array[Int]]();
+    protected var countTable = new HashMap[NextTagCountData, Array[Float]]();
 
     ThreadScala.startDaemon("scouter.server.tagcnt.core.MoveToNextCollector") {
         while (CountEnv.running) {
@@ -60,7 +60,7 @@ object MoveToNextCollector {
             val key = new NextTagCountData(p.time, p.objType, p.tagKey, p.tagValue);
             var minCountForHour = countTable.get(key);
             if (minCountForHour == null) {
-                minCountForHour = new Array[Int](60);
+                minCountForHour = new Array[Float](60);
                 countTable.put(key, minCountForHour);
             }
 
@@ -76,7 +76,7 @@ object MoveToNextCollector {
             last_save_time = System.currentTimeMillis();
             if (countTable.size() > 0) {
                 NextTagCountDB.add(countTable);
-                countTable = new HashMap[NextTagCountData, Array[Int]]();
+                countTable = new HashMap[NextTagCountData, Array[Float]]();
             }
         }
     }

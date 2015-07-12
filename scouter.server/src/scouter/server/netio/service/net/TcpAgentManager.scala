@@ -22,7 +22,6 @@ import scouter.util.RequestQueue
 import scala.util.control.Breaks._
 import scouter.server.Configure
 import java.util.concurrent.Executors
-
 object TcpAgentManager {
     val pool = Executors.newFixedThreadPool(4)
     val agentTable = new IntKeyLinkedMap[RequestQueue[TcpAgentWorker]]().setMax(5000)

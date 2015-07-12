@@ -41,12 +41,12 @@ object VISITOR {
 
         if (cmd == null)
             return
-        val o = StringUtil.firstWord(cmd, " ")
-        if (AgentManager.isObjType(o)) {
-            val v = VisitorDB.getVisitorObjType(o)
+        val cmdFirstToken = StringUtil.firstWord(cmd, " ")
+        if (AgentManager.isObjType(cmdFirstToken)) {
+            val v = VisitorDB.getVisitorObjType(cmdFirstToken)
             println("\t" + FormatUtil.print(v, "#,##0"));
         } else {
-            val hashList = AgentManager.filter(o)
+            val hashList = AgentManager.filter(cmdFirstToken)
             EnumerScala.foreach(hashList.iterator(), (h: Int) => {
                 val v = VisitorDB.getVisitorObject(h)
                 if (v > 0) {

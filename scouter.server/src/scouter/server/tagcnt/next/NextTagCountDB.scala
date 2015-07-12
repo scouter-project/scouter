@@ -56,13 +56,13 @@ object NextTagCountDB extends IClose {
 
     BackJob.getInstance().add("BG-NextTagCountDB", 10000, r);
 
-    val queue = new RequestQueue[HashMap[NextTagCountData, Array[Int]]](CountEnv.MAX_QUE_SIZE + 1);
+    val queue = new RequestQueue[HashMap[NextTagCountData, Array[Float]]](CountEnv.MAX_QUE_SIZE + 1);
 
     def getQueueSize() = queue.size();
 
     def isQueueOk() = queue.size() < CountEnv.MAX_QUE_SIZE
 
-    def add(data: HashMap[NextTagCountData, Array[Int]]) {
+    def add(data: HashMap[NextTagCountData, Array[Float]]) {
         while (isQueueOk() == false) {
             ThreadUtil.qWait();
             Logger.println("S185", 10, "NextTagCountDB queue is exceeded");
@@ -83,7 +83,7 @@ object NextTagCountDB extends IClose {
 
     }
 
-    def process(p: HashMap[NextTagCountData, Array[Int]]) {
+    def process(p: HashMap[NextTagCountData, Array[Float]]) {
         EnumerScala.foreach(p.keySet().iterator(), (key: NextTagCountData) => {
             val value = p.get(key);
             val db = openWrite(key.time, key.objType);
@@ -170,7 +170,7 @@ object NextTagCountDB extends IClose {
         }
     }
 
-    def getTagValueCount(date: String, objType: String, tagKey: Long, value: Value): Array[Int] = {
+    def getTagValueCount(date: String, objType: String, tagKey: Long, value: Value): Array[Float] = {
         val db = open(date, objType);
         try {
             return db.table.get(tagKey, value);
@@ -184,7 +184,7 @@ object NextTagCountDB extends IClose {
     }
 
     // def read(date: String, objType: String, handler: (Long,Value,Int,Array[Long],IndexFile,Long)=>Any) {
-    def read(date: String, objType: String, handler: (Long, Value, Int, Array[Long], IndexFile, Long) => Any) {
+    def read(date: String, objType: String, handler: (Long, Value, Float, Array[Long], IndexFile, Long) => Any) {
         val db = open(date, objType);
         try {
             db.table.read(handler);

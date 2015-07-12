@@ -102,7 +102,7 @@ object FirstTagCountDB extends IClose {
     /**
      * 새로 테그/값에 따른 1440의 갯수정보를 추가하면 데이터베이스에 저장한다.
      */
-    def updateNewCounting(date: String, objType: String, tagKey: Long, tagValue: Value, count: Array[Int]) {
+    def updateNewCounting(date: String, objType: String, tagKey: Long, tagValue: Value, count: Array[Float]) {
         TagCountUtil.check(count);
         var db: WorkDB = null;
         try {
@@ -118,7 +118,7 @@ object FirstTagCountDB extends IClose {
         // update db는 close하지 않는다.
     }
 
-    private def countingFirst100(db: WorkDB, tagKey: Long, tagValue: Value, hhmm: Int, n: Int): Boolean = {
+    private def countingFirst100(db: WorkDB, tagKey: Long, tagValue: Value, hhmm: Int, n: Float): Boolean = {
         return db.entry.add(tagKey, tagValue, hhmm, n);
     }
 
@@ -196,7 +196,7 @@ object FirstTagCountDB extends IClose {
         return db;
     }
 
-    def getTagValueCount(objType: String, date: String, tagKey: Long, tagValue: Value): Array[Int] = {
+    def getTagValueCount(objType: String, date: String, tagKey: Long, tagValue: Value): Array[Float] = {
         val db = open(date, objType);
         try {
             return db.table.get(tagKey, tagValue);
