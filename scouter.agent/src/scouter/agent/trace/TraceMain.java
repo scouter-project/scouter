@@ -559,7 +559,6 @@ public class TraceMain {
 	// dctx.context.divPerf[dctx.divIdx] += time;
 	// }
 	// /////////////////////
-
 	public static void setStatus(int httpStatus) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
