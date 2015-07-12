@@ -43,7 +43,7 @@ object XLOG {
 
         val maxTime = if (cmds.length > 1) CastUtil.cint(cmds(1)) else 10
 
-        ThreadScala.startDaemon("XLog") {
+        ThreadScala.startDaemon("scouter.server.term.handler.XLOG") {
             val loopNum = ProcessMain.loopProcess
             while (loopNum == ProcessMain.loopProcess) {
                 try {
