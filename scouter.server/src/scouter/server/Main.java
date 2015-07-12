@@ -14,10 +14,8 @@
  *  limitations under the License. 
  */
 package scouter.server;
-
 import java.io.File;
 import java.io.IOException;
-
 import scouter.Version;
 import scouter.server.account.AccountManager;
 import scouter.server.core.AutoDeleteScheduler;
@@ -33,7 +31,6 @@ import scouter.util.ShellArg;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 import scouter.util.logo.Logo;
-
 public class Main {
 	public static void main(String[] args) throws IOException, Exception {
 		Logo.print(true);
@@ -58,7 +55,6 @@ public class Main {
 			}
 		});
 		TextCacheReset.engine();
-
 		ShellArg sarg = new ShellArg(args);
 		if (sarg.hasKey("-console")) {
 			TermMain.process(sarg);
@@ -76,13 +72,11 @@ public class Main {
 				}
 			}
 			exit.deleteOnExit();
-
 			System.out.println("System JRE version : " + System.getProperty("java.version"));
 			// System.out.println("This product includes GeoLite data created by MaxMind, available from");
 			// System.out.println("http://www.maxmind.com");
 			// System.out.println("download:  http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz");
 			// System.out.println("add configure:  geoip_data_city=<download path>/GeoLiteCity.dat");
-
 			while (true) {
 				if (exit.exists() == false) {
 					ShutdownManager.shutdown();

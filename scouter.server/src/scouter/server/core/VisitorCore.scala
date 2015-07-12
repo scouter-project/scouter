@@ -50,7 +50,7 @@ object VisitorCore {
                 }
             } catch {
                 case e: Exception =>
-                    Logger.println("X001", 10, "VisitDay", e)
+                    Logger.println("S199", 10, "VisitDay", e)
             }
         }
     }
@@ -61,7 +61,7 @@ object VisitorCore {
         }
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("X002", 10, "VisitDay queue exceeded!!");
+            Logger.println("S200", 10, "VisitDay queue exceeded!!");
         }
     }
     def process(objType: String, x: XLogPack) {
