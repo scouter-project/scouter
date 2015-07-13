@@ -85,7 +85,7 @@ class TagCountService {
             dout.writeByte(TcpFlag.HasNEXT);
             dout.writeInt(valueCountTotal.howManyValues)
             // TODO: temp
-            dout.writeInt(valueCountTotal.totalCount.toInt)
+            dout.writeLong(valueCountTotal.totalCount.toLong)
             dout.writeInt(valueCountTotal.values.size())
             EnumerScala.forward(valueCountTotal.values, (vc: ValueCount) => {
                 dout.writeValue(vc.tagValue)
