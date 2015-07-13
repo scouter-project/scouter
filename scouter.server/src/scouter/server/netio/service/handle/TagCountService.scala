@@ -281,29 +281,41 @@ class TagCountService {
                     }
                 }
             } else if (key == "apitime") {
-                val apitimeLv = mv.getList(key);
-                for (i <- 0 to apitimeLv.size() - 1) {
-                    var apitime = apitimeLv.getInt(i);
-                    if (x.apicallTime / 1000 == apitime) {
-                        return true;
-                    }
-                }
+            	if (x.apicallTime >= 1000) {
+	                val apitimeLv = mv.getList(key);
+	                for (i <- 0 to apitimeLv.size() - 1) {
+	                    var apitime = apitimeLv.getInt(i);
+	                    apitime match {
+	                      case 1 => if (1000 <= x.apicallTime && x.apicallTime < 3000) return true; 
+	                      case 3 => if (3000 <= x.apicallTime && x.apicallTime < 8000) return true;
+	                      case 8 => if (8000 <= x.apicallTime) return true;
+	                    }
+	                }
+            	}
             } else if (key == "sqltime") {
-                val sqltimeLv = mv.getList(key);
-                for (i <- 0 to sqltimeLv.size() - 1) {
-                    var sqltime = sqltimeLv.getInt(i);
-                    if (x.sqlTime / 1000 == sqltime) {
-                        return true;
-                    }
-                }
+            	if (x.sqlTime >= 1000) {
+	                val sqltimeLv = mv.getList(key);
+	                for (i <- 0 to sqltimeLv.size() - 1) {
+	                    var sqltime = sqltimeLv.getInt(i);
+	                    sqltime match {
+	                      case 1 => if (1000 <= x.sqlTime && x.sqlTime < 3000) return true; 
+	                      case 3 => if (3000 <= x.sqlTime && x.sqlTime < 8000) return true;
+	                      case 8 => if (8000 <= x.sqlTime) return true;
+	                    }
+	                }
+            	}
             } else if (key == "elapsed") {
-                val elapsedLv = mv.getList(key);
-                for (i <- 0 to elapsedLv.size() - 1) {
-                    var elapsed = elapsedLv.getInt(i);
-                    if (x.elapsed / 1000 == elapsed) {
-                        return true;
-                    }
-                }
+            	if (x.elapsed >= 1000) {
+	                val elapsedLv = mv.getList(key);
+	                for (i <- 0 to elapsedLv.size() - 1) {
+	                	var elapsed = elapsedLv.getInt(i);
+	                    elapsed match {
+	                      case 1 => if (1000 <= x.elapsed && x.elapsed < 3000) return true; 
+	                      case 3 => if (3000 <= x.elapsed && x.elapsed < 8000) return true;
+	                      case 8 => if (8000 <= x.elapsed) return true;
+	                    }
+	                }
+            	}
             }
         }
         return false;

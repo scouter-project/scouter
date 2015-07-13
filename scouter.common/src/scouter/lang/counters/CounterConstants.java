@@ -23,6 +23,7 @@ public class CounterConstants {
 	public final static String FAMILY_DATABASE = "database";
 	public final static String FAMILY_DATASOURCE = "datasource";
 	public final static String FAMILY_REQUEST_PROCESS = "reqproc";
+	public final static String FAMILY_MARIA = "maria";
 
 	public final static String HOST = "host";
 	public final static String WINDOWS = "windows";
@@ -42,6 +43,7 @@ public class CounterConstants {
 	public final static String REQUESTPROCESS = "reqproc";
 
 	public final static String MARIA_DB = "mariadb";
+	public final static String MARIA_PLUGIN  = "mariaplugin";
 	
 	public final static String WAS_TPS            = "TPS";
 	public final static String WAS_ACTIVE_SPEED   = "ActiveSpeed";

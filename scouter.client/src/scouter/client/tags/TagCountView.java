@@ -60,7 +60,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.PaletteData;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -352,10 +356,34 @@ public class TagCountView extends ViewPart {
 		
 		cntCanvas.addMouseListener(new MouseListener() {
 			
+			String selectedName;
+			
 			public void mouseUp(MouseEvent e) {
+				if (selectedName == null) {
+					return;
+				}
+				Trace trace = cntTraceMap.get(selectedName);
+				trace.setTraceColor(CounterColorManager.getInstance().assignColor(selectedName));
+				selectedName = null;
 			}
 			
 			public void mouseDown(MouseEvent e) {
+				Image image = new Image(e.display, 1, 1);
+				GC gc = new GC((FigureCanvas)e.widget);
+				gc.copyArea(image, e.x, e.y);
+				ImageData imageData = image.getImageData();
+				PaletteData palette = imageData.palette;
+				int pixelValue = imageData.getPixel(0, 0);
+				RGB rgb = palette.getRGB(pixelValue);
+				selectedName = CounterColorManager.getInstance().getName(rgb);
+				if (selectedName != null) {
+					Trace trace = cntTraceMap.get(selectedName);
+					if (trace != null) {
+						trace.setTraceColor(ColorUtil.getInstance().getColor("dark magenta"));
+					}
+				}
+				gc.dispose();
+				image.dispose();
 			}
 			
 			public void mouseDoubleClick(MouseEvent e) {
@@ -412,14 +440,18 @@ public class TagCountView extends ViewPart {
 		
 		//SashForm downSash = new SashForm(sashForm, SWT.HORIZONTAL);
 		Composite downSash = new Composite(sashForm, SWT.NONE);
+	
 		downSash.setLayout(new GridLayout(2, true));
 		
 		Composite treeComp = new Composite(downSash, SWT.BORDER);
+		treeComp.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		//gd.widthHint = 200;
 		treeComp.setLayoutData(gd);
 		treeComp.setLayout(new GridLayout(1, true));
 		Composite innerTreeComp = new Composite(treeComp, SWT.NONE);
+		innerTreeComp.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
+		
 		innerTreeComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		TreeColumnLayout treeColumnLayout = new TreeColumnLayout();
 		innerTreeComp.setLayout(treeColumnLayout);
@@ -489,6 +521,8 @@ public class TagCountView extends ViewPart {
 		treeViewer.setInput(nameTree);
 		
 		Composite rightTablecomp = new Composite(downSash, SWT.BORDER);
+		rightTablecomp.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
+		rightTablecomp.setBackgroundMode(SWT.INHERIT_FORCE);
 		rightTablecomp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		rightTablecomp.setLayout(new GridLayout(1,true));
 		
@@ -529,7 +563,7 @@ public class TagCountView extends ViewPart {
 		
 		dataRangeLbl = new Label(tableInfoComp, SWT.RIGHT);
 		gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
-		gd.widthHint = 60;
+		gd.widthHint = 100;
 		dataRangeLbl.setLayoutData(gd);
 		dataRangeLbl.setAlignment(SWT.CENTER);
 		
@@ -822,7 +856,7 @@ public class TagCountView extends ViewPart {
 				
 				ExUtil.exec(tagNameTree, new Runnable() {
 					public void run() {
-						removeTagCountAll();
+						//removeTagCountAll();
 						TagCount parentTag = nameTree.get(tagName);
 						if (parentTag == null) return;
 						for (int i = 0; i < nameList.size(); i++) {

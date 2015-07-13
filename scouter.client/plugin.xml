@@ -818,6 +818,70 @@
             name="TagCount"
             restorable="false">
       </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.DigitalCountView"
+            icon="icons/monitor.png"
+            id="scouter.client.views.DigitalCountView"
+            name="DigitalCountView"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.maria.views.DbRealtimeTotalActivityView"
+            icon="icons/database_go.png"
+            id="scouter.client.maria.views.DbRealtimeTotalActivityView"
+            name="DatabaseActivityTotal"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.maria.views.DbRealtimeTotalHitRatioView"
+            icon="icons/database_go.png"
+            id="scouter.client.maria.views.DbRealtimeTotalHitRatioView"
+            name="DatabaseHitRatioTotal"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.maria.views.DbRealtimeTotalResponseView"
+            icon="icons/database_go.png"
+            id="scouter.client.maria.views.DbRealtimeTotalResponseView"
+            name="DatabaseResponseTotal"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.maria.views.DbTodayTotalConnView"
+            icon="icons/database_go.png"
+            id="scouter.client.maria.views.DbTodayTotalConnView"
+            name="DatabaseConnectionTotal"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.maria.views.DigestTableView"
+            icon="icons/database_go.png"
+            id="scouter.client.maria.views.DigestTableView"
+            name="DigestTable"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.maria.views.DbTodayTotalConnView"
+            icon="icons/database_go.png"
+            id="scouter.client.maria.views.DbTodayTotalConnView"
+            name="DatabaseActivityTotal"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.maria.views.DbRealtimeTotalConnView"
+            icon="icons/database_go.png"
+            id="scouter.client.maria.views.DbRealtimeTotalConnView"
+            name="DatabaseConnectionTotal"
+            restorable="true">
+      </view>
   </extension>
  <extension
          point="org.eclipse.ui.commands">

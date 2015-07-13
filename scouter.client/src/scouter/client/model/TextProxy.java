@@ -35,5 +35,6 @@ public class TextProxy {
 	final public static TextModel group = new TextModel(TextTypes.GROUP, 1024);
 	final public static TextModel sql_tables = new TextModel(TextTypes.SQL_TABLES, 1024);
 	final public static TextModel city = new TextModel(TextTypes.CITY, 1024);
+	final public static TextModel maria = new TextModel(TextTypes.MARIA, 1024);
 
 }
