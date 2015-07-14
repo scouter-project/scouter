@@ -15,10 +15,9 @@
  */
 package scouter.server.netio.service.handle;
 
-import scala.collection.JavaConversions.asScalaBuffer
-import scala.collection.JavaConversions.asScalaSet
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
+import scouter.lang.constants.TagConstants
 import scouter.lang.pack.AlertPack
 import scouter.lang.pack.MapPack
 import scouter.lang.pack.XLogPack
@@ -32,15 +31,12 @@ import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.server.tagcnt.TagCountConfig
 import scouter.server.tagcnt.TagCountProxy
 import scouter.server.tagcnt.core.ValueCount
-import scouter.server.tagcnt.core.ValueCountTotal
 import scouter.server.util.EnumerScala
-import scouter.server.util.TimedSeries
 import scouter.util.DateUtil
+import scouter.util.IPUtil
 import scouter.util.IntSet
 import scouter.util.StringUtil
 import scouter.net.RequestCmd
-import java.util.Enumeration
-import scouter.util.IPUtil
 
 class TagCountService {
 
@@ -74,24 +70,28 @@ class TagCountService {
         val param = din.readPack().asInstanceOf[MapPack];
         val objType = param.getText("objType");
         val tagGroup = param.getText("tagGroup");
-        val tagName = param.getText("tagName");
+        val tagNameLv = param.getList("tagName");
         var date = param.getText("date");
         if (StringUtil.isEmpty(date)) {
             date = DateUtil.yyyymmdd();
         }
 
-        val valueCountTotal = TagCountProxy.getTagValueCountWithCache(date, objType, tagGroup, tagName, 100);
-        if (valueCountTotal != null) {
-            dout.writeByte(TcpFlag.HasNEXT);
-            dout.writeInt(valueCountTotal.howManyValues)
-            // TODO: temp
-            dout.writeLong(valueCountTotal.totalCount.toLong)
-            dout.writeInt(valueCountTotal.values.size())
-            EnumerScala.forward(valueCountTotal.values, (vc: ValueCount) => {
-                dout.writeValue(vc.tagValue)
-                // TODO: temp
-                dout.writeLong(vc.valueCount.toLong)
-            })
+        for (i <- 0 to tagNameLv.size() - 1) {
+        	val tagName = tagNameLv.getString(i);
+	        val valueCountTotal = TagCountProxy.getTagValueCountWithCache(date, objType, tagGroup, tagName, 100);
+	        if (valueCountTotal != null) {
+	            dout.writeByte(TcpFlag.HasNEXT);
+	            dout.writeText(tagName);
+	            dout.writeInt(valueCountTotal.howManyValues)
+	            // TODO: temp
+	            dout.writeLong(valueCountTotal.totalCount.toLong)
+	            dout.writeInt(valueCountTotal.values.size())
+	            EnumerScala.forward(valueCountTotal.values, (vc: ValueCount) => {
+	                dout.writeValue(vc.tagValue)
+	                // TODO: temp
+	                dout.writeLong(vc.valueCount.toLong)
+	            })
+	        }
         }
     }
 
@@ -143,7 +143,7 @@ class TagCountService {
             }
         }
 
-        if (tagGroup == "service" ) {
+        if (tagGroup == TagConstants.GROUP_SERVICE) {
             var txid = param.getLong("txid");
             var ok = if (txid == 0) true else false;
             var cnt = 0;
@@ -171,7 +171,7 @@ class TagCountService {
             } else {
                 XLogRD.readByTime(date, stime, etime, handler);
             }
-        } else if (tagGroup == "alert") {
+        } else if (tagGroup == TagConstants.GROUP_ALERT) {
             var cnt = 0;
             val handler = (time: Long, data: Array[Byte]) => {
                 val x = new DataInputX(data).readPack().asInstanceOf[AlertPack];
@@ -200,7 +200,7 @@ class TagCountService {
         val itr = mv.keys();
         while (itr.hasMoreElements()) {
             val key = itr.nextElement();
-            if (key == "error") {
+            if (key == TagConstants.NAME_ERROR) {
                 val errorLv = mv.getList(key);
                 for (i <- 0 to errorLv.size() - 1) {
                     var error = errorLv.get(i).toJavaObject();
@@ -208,7 +208,7 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == "user-agent") {
+            } else if (key == TagConstants.NAME_USER_AGENT) {
                 val userAgentLv = mv.getList(key);
                 for (i <- 0 to userAgentLv.size() - 1) {
                     var userAgent = userAgentLv.get(i).toJavaObject();
@@ -216,7 +216,7 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == "object") {
+            } else if (key == TagConstants.NAME_OBJECT) {
                 val objHashLv = mv.getList(key);
                 for (i <- 0 to objHashLv.size() - 1) {
                     var objHash = objHashLv.get(i).toJavaObject();
@@ -224,7 +224,7 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == "nation") {
+            } else if (key == TagConstants.NAME_NATION) {
                 val nationLv = mv.getList(key);
                 for (i <- 0 to nationLv.size() - 1) {
                     var nation = nationLv.getString(i);
@@ -232,7 +232,7 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == "visitor") {
+            } else if (key == TagConstants.NAME_VISITOR) {
                 val visitorLv = mv.getList(key);
                 for (i <- 0 to visitorLv.size() - 1) {
                     var visitor = visitorLv.getLong(i);
@@ -240,7 +240,7 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == "city") {
+            } else if (key == TagConstants.NAME_CITY) {
                 val cityLv = mv.getList(key);
                 for (i <- 0 to cityLv.size() - 1) {
                     var city = cityLv.get(i).toJavaObject();
@@ -248,7 +248,7 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == "ip") {
+            } else if (key == TagConstants.NAME_IP) {
                 val ipLv = mv.getList(key);
                 for (i <- 0 to ipLv.size() - 1) {
                     var ip = ipLv.get(i);
@@ -256,7 +256,10 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == "service" || key.startsWith("service-")) {
+            } else if (key == TagConstants.NAME_SERVICE
+                || key == TagConstants.NAME_SERVICE_ELAPSED
+            	|| key == TagConstants.NAME_SERVICE_BYTES
+            	|| key == TagConstants.NAME_SERVICE_ERRORS) {
                 val serviceLv = mv.getList(key);
                 for (i <- 0 to serviceLv.size() - 1) {
                     var service = serviceLv.get(i).toJavaObject();
@@ -264,7 +267,7 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == "referer") {
+            } else if (key == TagConstants.NAME_REFERER) {
                 val refererLv = mv.getList(key);
                 for (i <- 0 to refererLv.size() - 1) {
                     var referer = refererLv.get(i).toJavaObject();
@@ -272,7 +275,7 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == "group") {
+            } else if (key == TagConstants.NAME_GROUP) {
                 val groupLv = mv.getList(key);
                 for (i <- 0 to groupLv.size() - 1) {
                     var group = groupLv.get(i).toJavaObject();
@@ -280,7 +283,7 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == "apitime") {
+            } else if (key == TagConstants.NAME_APITIME) {
             	if (x.apicallTime >= 1000) {
 	                val apitimeLv = mv.getList(key);
 	                for (i <- 0 to apitimeLv.size() - 1) {
@@ -292,7 +295,7 @@ class TagCountService {
 	                    }
 	                }
             	}
-            } else if (key == "sqltime") {
+            } else if (key == TagConstants.NAME_SQLTIME) {
             	if (x.sqlTime >= 1000) {
 	                val sqltimeLv = mv.getList(key);
 	                for (i <- 0 to sqltimeLv.size() - 1) {
@@ -304,7 +307,7 @@ class TagCountService {
 	                    }
 	                }
             	}
-            } else if (key == "elapsed") {
+            } else if (key == TagConstants.NAME_ELAPSED) {
             	if (x.elapsed >= 1000) {
 	                val elapsedLv = mv.getList(key);
 	                for (i <- 0 to elapsedLv.size() - 1) {
@@ -325,7 +328,7 @@ class TagCountService {
         val itr = mv.keys();
         while (itr.hasMoreElements()) {
             val key = itr.nextElement();
-            if (key == "object") {
+            if (key == TagConstants.NAME_OBJECT) {
                 val objHashLv = mv.getList(key);
                 for (i <- 0 to objHashLv.size() - 1) {
                     var objHash = objHashLv.get(i).toJavaObject();
@@ -333,7 +336,7 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == "level") {
+            } else if (key == TagConstants.NAME_LEVEL) {
                 val levelLv = mv.getList(key);
                 for (i <- 0 to levelLv.size() - 1) {
                     var level = levelLv.getInt(i);
@@ -341,7 +344,7 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == "title") {
+            } else if (key == TagConstants.NAME_TITLE) {
                 val titleLv = mv.getList(key);
                 for (i <- 0 to titleLv.size() - 1) {
                     var title = titleLv.getString(i);

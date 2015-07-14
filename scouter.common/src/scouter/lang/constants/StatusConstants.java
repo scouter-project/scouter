@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-package scouter.lang.counters;
+package scouter.lang.constants;
 
 public class StatusConstants {
 	public final static String PERF_KEY_ACTIVE_QUERY_LIST = "active_query_list";

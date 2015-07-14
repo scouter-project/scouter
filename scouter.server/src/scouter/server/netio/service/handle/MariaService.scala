@@ -21,7 +21,7 @@ import java.util.HashSet
 import scouter.lang.CounterKey
 import scouter.lang.DigestKey
 import scouter.lang.TimeTypeEnum
-import scouter.lang.counters.StatusConstants
+import scouter.lang.constants.StatusConstants
 import scouter.lang.pack.MapPack
 import scouter.lang.pack.StatusPack
 import scouter.lang.value.DoubleValue

@@ -16,14 +16,15 @@
  */
 package scouter.server.tagcnt;
 
-import scouter.util.BitUtil;
-import scouter.util.HashUtil;
-import scouter.util.LongKeyMap;
-import scouter.util.LongSet;
-import scouter.util.StringEnumer;
-import scouter.util.StringKeyLinkedMap;
-import scouter.util.StringSet;
+import scouter.util.BitUtil
+import scouter.util.HashUtil
+import scouter.util.LongKeyMap
+import scouter.util.LongSet
+import scouter.util.StringEnumer
+import scouter.util.StringKeyLinkedMap
+import scouter.util.StringSet
 import scouter.util.StringUtil;
+import scouter.lang.constants.TagConstants
 
 object TagCountConfig {
 
@@ -60,40 +61,40 @@ object TagCountConfig {
     }
 
     class Service {
-        val total = new Tag("service", "@total");
-        val objectName = new Tag("service", "object");
-        val ip = new Tag("service", "ip");
-        val service = new Tag("service", "service");
+        val total = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_TOTAL);
+        val objectName = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_OBJECT);
+        val ip = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_IP);
+        val service = new Tag(TagConstants.GROUP_SERVICE, TagConstants.GROUP_SERVICE);
         
-        val service_elapsed= new Tag("service", "service-elapsed");
-        val service_bytes = new Tag("service", "service-bytes");
-        val service_errors = new Tag("service", "service-errors");
+        val service_elapsed= new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_ELAPSED);
+        val service_bytes = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_BYTES);
+        val service_errors = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_ERRORS);
         
-        val userAgent = new Tag("service", "user-agent");
-        val error = new Tag("service", "error");
-        val referer = new Tag("service", "referer");
-        val group = new Tag("service", "group");
+        val userAgent = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_USER_AGENT);
+        val error = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_ERROR);
+        val referer = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_REFERER);
+        val group = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_GROUP);
 
-        val elapsed = new Tag("service", "elapsed");
-        val sqltime = new Tag("service", "sqltime");
-        val apitime = new Tag("service", "apitime");
+        val elapsed = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_ELAPSED);
+        val sqltime = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SQLTIME);
+        val apitime = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_APITIME);
 
-        val city = new Tag("service", "city");
-        val nation = new Tag("service", "nation");
-        val visitor = new Tag("service", "visitor");
+        val city = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_CITY);
+        val nation = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_NATION);
+        val visitor = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_VISITOR);
     }
     val service = new Service()
 
     class Alert {
-        val total = new Tag("alert", "@total");
-        val objectName = new Tag("alert", "object");
-        val level = new Tag("alert", "level");
-        val title = new Tag("alert", "title");
+        val total = new Tag(TagConstants.GROUP_ALERT, TagConstants.NAME_TOTAL);
+        val objectName = new Tag(TagConstants.GROUP_ALERT, TagConstants.NAME_OBJECT);
+        val level = new Tag(TagConstants.GROUP_ALERT, TagConstants.NAME_LEVEL);
+        val title = new Tag(TagConstants.GROUP_ALERT, TagConstants.NAME_TITLE);
     }
     val alert = new Alert()
 
     def main(args: Array[String]) {
         System.out.println(StringUtil.toString(getTagGroups()));
-        System.out.println(StringUtil.toString(getTagNames("service")));
+        System.out.println(StringUtil.toString(getTagNames(TagConstants.GROUP_SERVICE)));
     }
 }
