@@ -824,7 +824,7 @@
             icon="icons/monitor.png"
             id="scouter.client.views.DigitalCountView"
             name="DigitalCountView"
-            restorable="true">
+            restorable="false">
       </view>
       <view
             allowMultiple="true"

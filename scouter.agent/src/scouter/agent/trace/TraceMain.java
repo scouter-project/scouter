@@ -215,8 +215,8 @@ public class TraceMain {
 				return;
 			}
 			XLogPack pack = new XLogPack();
-			pack.endTime = System.currentTimeMillis();
-			pack.elapsed = (int) (pack.endTime - ctx.startTime);
+			//pack.endTime = System.currentTimeMillis();
+			pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
 			boolean sendOk = pack.elapsed >= conf.xlog_time_limit;
 			ctx.profile.close(sendOk);
 			ctx.serviceHash = StringHashCache.getUrlHash(ctx.serviceName);
@@ -350,8 +350,8 @@ public class TraceMain {
 			TraceContextManager.end(ctx.threadId);
 			XLogPack pack = new XLogPack();
 			pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-			pack.endTime = System.currentTimeMillis();
-			pack.elapsed = (int) (pack.endTime - ctx.startTime);
+			//pack.endTime = System.currentTimeMillis();
+			pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
 			boolean sendOk = pack.elapsed >= Configure.getInstance().xlog_time_limit;
 			ctx.profile.close(sendOk);
 			DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);

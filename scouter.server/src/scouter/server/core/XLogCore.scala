@@ -71,8 +71,10 @@ object ServiceCore {
     }
 
     def add(p: XLogPack) {
-        p.endTime = System.currentTimeMillis();
-
+       if(p.endTime==0){
+           p.endTime = System.currentTimeMillis();
+       }
+    
         val ok = queue.put(p);
         if (ok == false) {
             Logger.println("S116", 10, "queue exceeded!!");

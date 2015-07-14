@@ -103,13 +103,14 @@ public class CounterConstants {
 	public final static String PAST_DATE                     = "pd";
 	
 	public final static String TOTAL_ACTIVE_SPEED            = "totactsp";
-	public final static String  ACTIVE_EQ            				= "acteq";
+	public final static String ACTIVE_EQ            				= "acteq";
 	public final static String TRANX_REALTIME                = "txreal";
 	public final static String TRANX_LOADTIME                = "txload";
 	public final static String ACTIVE_THREAD_LIST            = "actthrli";
 	public final static String TODAY_SERVICE_COUNT           = "tdservcnt";
 	public final static String DAILY_SERVICE_COUNT           = "dservcnt";
 	public final static String SERVICE_GROUP            				= "svcgrp";
+	public final static String UNIQUE_VISITOR            				= "unqvst";
 	
 	public final static String[] COUNTER_MENU_ARRAY = {REAL_TIME_ALL, REAL_TIME_TOTAL, TODAY_ALL, TODAY_TOTAL,
 			PAST_TIME_ALL, PAST_TIME_TOTAL, PAST_DATE_ALL, PAST_DATE_TOTAL};

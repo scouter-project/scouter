@@ -228,4 +228,8 @@ public class RequestCmd {
 	public static final String TAGCNT_TAG_VALUES = "TAGCNT_TAG_VALUES";
 	public static final String TAGCNT_TAG_VALUE_DATA = "TAGCNT_TAG_VALUE_DATA";
 	public static final String TAGCNT_TAG_ACTUAL_DATA = "TAGCNT_TAG_ACTUAL_DATA";
+	
+	// VISITOR
+	public static final String VISITOR_REALTIME = "VISITOR_REALTIME";
+	public static final String VISITOR_REALTIME_TOTAL = "VISITOR_REALTIME_TOTAL";
 }

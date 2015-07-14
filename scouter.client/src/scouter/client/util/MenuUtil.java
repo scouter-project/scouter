@@ -73,6 +73,8 @@ import scouter.client.counter.actions.OpenRealTimeTotalAction;
 import scouter.client.counter.actions.OpenTodayAllAction;
 import scouter.client.counter.actions.OpenTodayServiceCountAction;
 import scouter.client.counter.actions.OpenTodayTotalAction;
+import scouter.client.counter.actions.OpenUniqueTotalVisitorAction;
+import scouter.client.counter.actions.OpenUniqueVisitorAction;
 import scouter.client.heapdump.actions.HeapDumpAction;
 import scouter.client.heapdump.actions.HeapDumpListAction;
 import scouter.client.host.actions.OpenDiskUsageAction;
@@ -350,6 +352,15 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 					new OpenServiceGroupAction(window, serverId, objType));
 		}
 		
+		objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.UNIQUE_VISITOR);
+		for (int inx = 0; inx < objTypeList.size(); inx++) {
+			String[] splitedKey = objTypeList.get(inx).split(":");
+			String objType = splitedKey[1];
+			actions.put(
+					objType + ":" + CounterConstants.UNIQUE_VISITOR,
+					new OpenUniqueTotalVisitorAction(window, serverId, objType));
+		}
+		
 		return actions;
 	}
 	
@@ -433,6 +444,7 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
     	Server server = ServerManager.getInstance().getServer(serverId);  
     	CounterEngine counterEngine = server.getCounterEngine();
     	String[] counterNames = counterEngine.getSortedCounterName(objType);
+    	boolean javaee = counterEngine.isChildOf(objType, CounterConstants.FAMILY_JAVAEE);
     	
     	MenuManager performanceCounter = new MenuManager(MenuStr.PERFORMANCE_COUNTER,  ImageUtil.getImageDescriptor(Images.CTXMENU_RTC), MenuStr.PERFORMANCE_COUNTER_ID);
     	mgr.add(performanceCounter);
@@ -458,12 +470,15 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 			}
     	}
     	
+    	if(javaee) {
+    		performanceCounter.add(new Separator());
+    		performanceCounter.add(new OpenUniqueVisitorAction(win, serverId, objHash));
+    	}
+    	
     	if (object.isAlive()) {
 	    	MenuManager performanceSnapshot = new MenuManager(MenuStr.PERFORMANCE_STATUS, Images.CAPTURE, MenuStr.PERFORMANCE_STATUS_ID);
 	    	mgr.add(performanceSnapshot);
 	    	
-	    	
-			boolean javaee = counterEngine.isChildOf(objType, CounterConstants.FAMILY_JAVAEE);
 			if (javaee) {
 				performanceSnapshot.add(new OpenCxtmenuThreadListAction(win, MenuStr.THREAD_LIST, objHash, serverId));
 				performanceSnapshot.add(new OpenCxtmenuActiveServiceListAction(win, MenuStr.ACTIVE_SERVICE_LIST, objHash, objType, serverId));

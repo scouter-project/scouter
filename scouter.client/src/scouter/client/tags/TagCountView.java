@@ -188,6 +188,7 @@ public class TagCountView extends ViewPart {
 		tagGroupCombo.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
 		tagGroupCombo.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
+				removeTagCountAll();
 				loadTagNames(tagGroupCombo.getText());
 				loadTotalCount(tagGroupCombo.getText());
 				openDataTable();
