@@ -13,7 +13,6 @@ Print system memory information.
 """
 
 import psutil
-from psutil._compat import print_
 
 from cStringIO import StringIO
 
