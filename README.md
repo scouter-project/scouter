@@ -20,7 +20,7 @@ If you use a Tomcat, SCOUTER will be the best choice to monitor it.
  - [Using Components](../../wiki/Using-Components)
 
 ### Download
- - [Last Release](https://github.com/scouter-project/scouter/releases/)
+ - [Latest Release](https://github.com/scouter-project/scouter/releases/)
 
 ### Modules
 Scouter has three modules:
