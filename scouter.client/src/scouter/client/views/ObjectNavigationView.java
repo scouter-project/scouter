@@ -540,6 +540,11 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 		if(act != null){
 			objTitle.add(act);
 		}
+		
+		act = actionMap.get(objType + ":" + CounterConstants.UNIQUE_VISITOR);
+		if(act != null){
+			objTitle.add(act);
+		}
 	}
 
 	public static void removeActionCache(int serverId) {

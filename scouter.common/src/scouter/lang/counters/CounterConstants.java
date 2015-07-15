@@ -23,6 +23,7 @@ public class CounterConstants {
 	public final static String FAMILY_DATABASE = "database";
 	public final static String FAMILY_DATASOURCE = "datasource";
 	public final static String FAMILY_REQUEST_PROCESS = "reqproc";
+	public final static String FAMILY_MARIA = "maria";
 
 	public final static String HOST = "host";
 	public final static String WINDOWS = "windows";
@@ -42,6 +43,7 @@ public class CounterConstants {
 	public final static String REQUESTPROCESS = "reqproc";
 
 	public final static String MARIA_DB = "mariadb";
+	public final static String MARIA_PLUGIN  = "mariaplugin";
 	
 	public final static String WAS_TPS            = "TPS";
 	public final static String WAS_ACTIVE_SPEED   = "ActiveSpeed";
@@ -101,13 +103,14 @@ public class CounterConstants {
 	public final static String PAST_DATE                     = "pd";
 	
 	public final static String TOTAL_ACTIVE_SPEED            = "totactsp";
-	public final static String  ACTIVE_EQ            				= "acteq";
+	public final static String ACTIVE_EQ            				= "acteq";
 	public final static String TRANX_REALTIME                = "txreal";
 	public final static String TRANX_LOADTIME                = "txload";
 	public final static String ACTIVE_THREAD_LIST            = "actthrli";
 	public final static String TODAY_SERVICE_COUNT           = "tdservcnt";
 	public final static String DAILY_SERVICE_COUNT           = "dservcnt";
 	public final static String SERVICE_GROUP            				= "svcgrp";
+	public final static String UNIQUE_VISITOR            				= "unqvst";
 	
 	public final static String[] COUNTER_MENU_ARRAY = {REAL_TIME_ALL, REAL_TIME_TOTAL, TODAY_ALL, TODAY_TOTAL,
 			PAST_TIME_ALL, PAST_TIME_TOTAL, PAST_DATE_ALL, PAST_DATE_TOTAL};

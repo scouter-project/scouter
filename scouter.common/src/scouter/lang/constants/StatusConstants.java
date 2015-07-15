@@ -13,22 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
+package scouter.lang.constants;
 
-package scouter.lang;
-
-public interface TextTypes{
-
-	public static  String ERROR = "error";
-	public static  String APICALL = "apicall";
-	public static  String METHOD = "method";
-	public static  String SERVICE = "service";
-	public static  String SQL = "sql";
-	public static  String OBJECT = "object";	
-	public static  String REFERER = "referer";	
-	public static  String USER_AGENT = "user-agent";	
-	public static  String GROUP = "group";
-	public static  String CITY = "city";
-	public static  String SQL_TABLES = "table";
-	public static  String MARIA = "maria";
-
+public class StatusConstants {
+	public final static String PERF_KEY_ACTIVE_QUERY_LIST = "active_query_list";
+	public final static String EVENTS_STATEMENTS_SUMMARY_BY_DIGEST = "events_statements_summary_by_digest";
+	public final static String EVENTS_STATEMENTS_CURRENT = "events_statements_current";
 }

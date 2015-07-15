@@ -10,7 +10,12 @@ actthrli : Active Thread List
 tdservcnt : Today Service Count
 dservcnt : Daily Service Count
 svcgrp : Service Group
+unqvst : Unique Visitor
 scrbrd : Score Board
+mrcon : MariaDB Connections
+mract : MariaDB Activity
+mrres : MariaDB ResponseTime
+mrhit : MariaDB HitRatio
 -->
 <Counters>
 	<Familys>
@@ -38,7 +43,7 @@ scrbrd : Score Board
 			<Counter name="ReadCount" disp="Disk | Read Count" unit="cnt" icon="disk_read.png" />
 			<Counter name="DropIn" disp="Net | Drop In" unit="cnt" icon="drop.png" />
 		</Family>
-		<Family name="javaee" master="ActiveService" txreal="true"  txload="true" totactsp="true"  acteq="true"  actthrli="true" dservcnt="true" tdservcnt="true" svcgrp="true" srcxlog="true">
+		<Family name="javaee" master="ActiveService" txreal="true"  txload="true" totactsp="true"  acteq="true"  actthrli="true" dservcnt="true" tdservcnt="true" svcgrp="true" srcxlog="true" unqvst="true">
 			<Counter name="User5M" disp="User5M" unit="cnt" icon="visitor.png" />
 			<Counter name="HeapTotUsage" disp="Heap Total Usage" unit="MB" icon="memory.png" all="false" total="false"  />
 			<Counter name="GcCount" disp="GC Count" unit="cnt" icon="gc.png" />
@@ -80,6 +85,30 @@ scrbrd : Score Board
 			<Counter name="ProcessingTime" disp="Processing Time" unit="sec" icon="proc_time.png" />
 			<Counter name="BytesReceived" disp="Bytes Received" unit="bytes" icon="bytes_recv.png" />
 		</Family>
+		<Family name="maria" master="QPS" mrcon="true" mract="true" mrres="true" mrhit="true">
+			<Counter name="THREADS_RUNNING" disp="Thread Running" unit="cnt" icon="database.png" />
+			<Counter name="THREADS_TOTAL" disp="Thread Total" unit="cnt" icon="database.png" />
+			<Counter name="COM_CALL_PROCEDURE" disp="Call Procedure" unit="cnt" icon="database.png" />
+			<Counter name="COM_SELECT" disp="Select" unit="cnt" icon="database.png" />
+			<Counter name="COM_INSERT" disp="Insert" unit="cnt" icon="database.png" />
+			<Counter name="COM_UPDATE" disp="Update" unit="cnt" icon="database.png" />
+			<Counter name="COM_DELETE" disp="Delete" unit="cnt" icon="database.png" />
+			<Counter name="INNO_BUF_HIT" disp="InnoDB Buffer Hit Ratio" unit="%" icon="database.png" />
+			<Counter name="KEY_RATIO" disp="Key Cache Hit Ratio"  unit="%" icon="database.png" />
+			<Counter name="QCACHE_RATIO" disp="Query Cache Hit Ratio" unit="%" icon="database.png" />
+			<Counter name="TCACHE_RATIO" disp="Thread Cache Hit Ratio" unit="%" icon="database.png" />
+			<Counter name="QPS" disp="QPS" unit="cnt" icon="database.png" />
+			<Counter name="TPS" disp="TPS" unit="cnt" icon="database.png" />
+			<Counter name="SLOW_QUERY" disp="Slow Queries" unit="cnt" icon="database.png" />
+			<Counter name="FULL_SCAN" disp="Table Full Scan" unit="cnt" icon="database.png" />
+			<Counter name="OT_DEF" disp="Opened Table Definitions" unit="cnt" icon="database.png" />
+			<Counter name="OT_COUNT" disp="Opened Tables" unit="cnt" icon="database.png" />
+			<Counter name="DTEMP_TBL" disp="Disk Temp Tables" unit="cnt" icon="database.png" />
+			<Counter name="MTEMP_TBL" disp="Memory Temp Tables" unit="cnt" icon="database.png" />
+			<Counter name="INNO_RLOCK_W" disp="InnoDB Row Lock Waits" unit="cnt" icon="database.png" />
+			<Counter name="TBL_LOCK" disp="Table Locks Immediate" unit="cnt" icon="database.png" />
+			<Counter name="TBL_LOCK_W" disp="Table Locks Waited" unit="cnt" icon="database.png" />
+		</Family>
 	</Familys>
 	<Types>
 		<ObjectType name="linux" family="host" disp="Linux" />
@@ -93,5 +122,6 @@ scrbrd : Score Board
 		<ObjectType name="apache" family="apache" disp="Apache" />
 		<ObjectType name="datasource" family="datasource" disp="DataSource" sub-object="true" />
 		<ObjectType name="reqproc" family="reqproc" disp="RequestProc" sub-object="true"/>
+		<ObjectType name="mariaplugin" family="maria" disp="Maria Plugin" />
 	</Types>
 </Counters>

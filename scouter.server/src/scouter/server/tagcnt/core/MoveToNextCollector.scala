@@ -28,7 +28,7 @@ import scouter.server.util.ThreadScala
 
 object MoveToNextCollector {
     private val MAX_MASTER = 1000;
-    private val MAX_QUE_SIZE = 10000;
+    private val MAX_QUE_SIZE = 30000;
 
     private val queue = new RequestQueue[CountItem](MAX_QUE_SIZE + 1);
 

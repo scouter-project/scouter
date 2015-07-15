@@ -60,7 +60,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.PaletteData;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -93,12 +97,12 @@ import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.ScouterUtil;
 import scouter.io.DataInputX;
+import scouter.lang.constants.TagConstants;
 import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.value.BooleanValue;
-import scouter.lang.value.DecimalValue;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.lang.value.NullValue;
@@ -115,8 +119,7 @@ public class TagCountView extends ViewPart {
 	
 	public static final String ID = TagCountView.class.getName();
 	
-	private static final String DEFAULT_TAG_GROUP = "service";
-	private static final String TOTAL_NAME = "@total";
+	private static final String DEFAULT_TAG_GROUP = TagConstants.GROUP_SERVICE;
 	private static final int LIMIT_PER_PAGE = 100;
 	
 	int serverId;
@@ -185,6 +188,7 @@ public class TagCountView extends ViewPart {
 		tagGroupCombo.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
 		tagGroupCombo.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
+				removeTagCountAll();
 				loadTagNames(tagGroupCombo.getText());
 				loadTotalCount(tagGroupCombo.getText());
 				openDataTable();
@@ -352,10 +356,34 @@ public class TagCountView extends ViewPart {
 		
 		cntCanvas.addMouseListener(new MouseListener() {
 			
+			String selectedName;
+			
 			public void mouseUp(MouseEvent e) {
+				if (selectedName == null) {
+					return;
+				}
+				Trace trace = cntTraceMap.get(selectedName);
+				trace.setTraceColor(CounterColorManager.getInstance().assignColor(selectedName));
+				selectedName = null;
 			}
 			
 			public void mouseDown(MouseEvent e) {
+				Image image = new Image(e.display, 1, 1);
+				GC gc = new GC((FigureCanvas)e.widget);
+				gc.copyArea(image, e.x, e.y);
+				ImageData imageData = image.getImageData();
+				PaletteData palette = imageData.palette;
+				int pixelValue = imageData.getPixel(0, 0);
+				RGB rgb = palette.getRGB(pixelValue);
+				selectedName = CounterColorManager.getInstance().getName(rgb);
+				if (selectedName != null) {
+					Trace trace = cntTraceMap.get(selectedName);
+					if (trace != null) {
+						trace.setTraceColor(ColorUtil.getInstance().getColor("dark magenta"));
+					}
+				}
+				gc.dispose();
+				image.dispose();
 			}
 			
 			public void mouseDoubleClick(MouseEvent e) {
@@ -412,14 +440,18 @@ public class TagCountView extends ViewPart {
 		
 		//SashForm downSash = new SashForm(sashForm, SWT.HORIZONTAL);
 		Composite downSash = new Composite(sashForm, SWT.NONE);
+	
 		downSash.setLayout(new GridLayout(2, true));
 		
 		Composite treeComp = new Composite(downSash, SWT.BORDER);
+		treeComp.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		//gd.widthHint = 200;
 		treeComp.setLayoutData(gd);
 		treeComp.setLayout(new GridLayout(1, true));
 		Composite innerTreeComp = new Composite(treeComp, SWT.NONE);
+		innerTreeComp.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
+		
 		innerTreeComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		TreeColumnLayout treeColumnLayout = new TreeColumnLayout();
 		innerTreeComp.setLayout(treeColumnLayout);
@@ -427,30 +459,25 @@ public class TagCountView extends ViewPart {
 		tagNameTree = treeViewer.getTree();
 		tagNameTree.setHeaderVisible(true);
 		tagNameTree.setLinesVisible(true);
-		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
-			public void doubleClick(DoubleClickEvent event) {
-				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-				Object o = sel.getFirstElement();
-				if (o instanceof TagCount) {
-					TagCount tc = (TagCount) o;
-					if (tc.tagName == null && tc.count == 0) {
-						loadTagValues(tagGroupCombo.getText(), tc.value);
-					} else {
-						TreeItem[] items = tagNameTree.getSelection();
-						if (items != null && items.length >0) {
-							TreeItem item = items[0];
-							if (item != null) {
-								if(item.getExpanded()){
-									item.setExpanded(false);
-								}else{
-									item.setExpanded(true);
-								}
-							}							
-						}
-					}
-				}
-			}
-		});
+//		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
+//			public void doubleClick(DoubleClickEvent event) {
+//				IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+//				Object o = sel.getFirstElement();
+//				if (o instanceof TagCount) {
+//					TreeItem[] items = tagNameTree.getSelection();
+//					if (items != null && items.length >0) {
+//						TreeItem item = items[0];
+//						if (item != null) {
+//							if(item.getExpanded()){
+//								item.setExpanded(false);
+//							}else{
+//								item.setExpanded(true);
+//							}
+//						}							
+//					}
+//				}
+//			}
+//		});
 		treeViewer.setContentProvider(new ViewContentProvider());
 		treeViewer.setLabelProvider(new TableLabelProvider());
 		treeViewer.addCheckStateListener(new ICheckStateListener() {
@@ -489,6 +516,8 @@ public class TagCountView extends ViewPart {
 		treeViewer.setInput(nameTree);
 		
 		Composite rightTablecomp = new Composite(downSash, SWT.BORDER);
+		rightTablecomp.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
+		rightTablecomp.setBackgroundMode(SWT.INHERIT_FORCE);
 		rightTablecomp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		rightTablecomp.setLayout(new GridLayout(1,true));
 		
@@ -529,7 +558,7 @@ public class TagCountView extends ViewPart {
 		
 		dataRangeLbl = new Label(tableInfoComp, SWT.RIGHT);
 		gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
-		gd.widthHint = 60;
+		gd.widthHint = 100;
 		dataRangeLbl.setLayoutData(gd);
 		dataRangeLbl.setAlignment(SWT.CENTER);
 		
@@ -653,9 +682,9 @@ public class TagCountView extends ViewPart {
 	
 	private void openDataTable() {
 		String tagGroup = tagGroupCombo.getText();
-		if ("service".equals(tagGroup)) {
+		if (TagConstants.GROUP_SERVICE.equals(tagGroup)) {
 			dataTableSash.setMaximizedControl(serviceTable);
-		} else if ("alert".equals(tagGroup)) {
+		} else if (TagConstants.GROUP_ALERT.equals(tagGroup)) {
 			dataTableSash.setMaximizedControl(alertTable);
 		}
 	}
@@ -744,6 +773,8 @@ public class TagCountView extends ViewPart {
 	}
 	
 	private void loadTagNames(final String tagGroup) {
+		tagNameTree.removeAll();
+		nameTree.clear();
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
 				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
@@ -754,94 +785,99 @@ public class TagCountView extends ViewPart {
 					param.put("tagGroup", tagGroup);
 					names = tcp.processValues(RequestCmd.TAGCNT_TAG_NAMES, param);
 				} catch (Exception e) {
-					
+					e.printStackTrace();
 				} finally {
 					TcpProxy.putTcpProxy(tcp);
 				}
 				if (names != null) {
 					final List<String> list = new ArrayList<String>();
 					for (Value v : names) {
-						if (TOTAL_NAME.equals(v.toString())) continue;
+						if (TagConstants.NAME_TOTAL.equals(v.toString())) continue;
 						list.add(v.toString());
 					}
+					for (int i = 0; i < list.size(); i++) {
+						TagCount tag = new TagCount();
+						tag.tagName = "";
+						tag.value = list.get(i);
+						nameTree.put(list.get(i), tag);
+					}
+					loadTagValues(tagGroup, list);
 					ExUtil.exec(tagNameTree, new Runnable() {
 						public void run() {
-							tagNameTree.removeAll();
-							nameTree.clear();
-							for (int i = 0; i < list.size(); i++) {
-								TagCount tag = new TagCount();
-								tag.value = list.get(i);
-								nameTree.put(list.get(i), tag);
-							}
 							treeViewer.refresh();
 							treeViewer.setGrayedElements(nameTree.values().toArray());
 						}
 					});
 				}
 			}
-		});
-	}
-	
-	
-	private void loadTagValues(final String tagGroup, final String tagName) {
-		ExUtil.asyncRun(new Runnable() {
-			public void run() {
-				final DecimalValue valueSize = new DecimalValue();
-				final DecimalValue totalCount = new DecimalValue();
-				final List<Value> valueList = new ArrayList<Value>();
-				final List<Long> cntList = new ArrayList<Long>();
+			
+			private void loadTagValues(final String tagGroup, final List<String> tagNameList) {
+				final List<TagData> dataList = new ArrayList<TagData>();
 				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
 				try {
 					MapPack param = new MapPack();
 					param.put("objType", objType);
 					param.put("tagGroup", tagGroup);
-					param.put("tagName", tagName);
+					ListValue tagNameLv = param.newList("tagName");
+					for (String tagName : tagNameList) {
+						tagNameLv.add(tagName);
+					}
 					param.put("date", date);
 					
 					tcp.process(RequestCmd.TAGCNT_TAG_VALUES, param, new INetReader() {
 						public void process(DataInputX in) throws IOException {
-							valueSize.value = in.readInt();
-							totalCount.value = in.readLong();
+							TagData data = new TagData();
+							dataList.add(data);
+							data.tagName = in.readText();
+							data.totalSize = in.readInt();
+							data.totalCnt = in.readLong();
 							int size = in.readInt();
 							for (int i = 0; i < size; i++) {
 								Value v = in.readValue();
 								long cnt = in.readLong();
-								valueList.add(v);
-								cntList.add(cnt);
+								data.addValue(v, cnt);
 							}
 						}
 					});
-					
 				} catch (Exception e) {
-					
+					e.printStackTrace();
 				} finally {
 					TcpProxy.putTcpProxy(tcp);
 				}
 				
-				final List<String> nameList = TagCountUtil.loadTagString(serverId, date, valueList, tagName);
-				
-				ExUtil.exec(tagNameTree, new Runnable() {
-					public void run() {
-						removeTagCountAll();
-						TagCount parentTag = nameTree.get(tagName);
-						if (parentTag == null) return;
-						for (int i = 0; i < nameList.size(); i++) {
-							TagCount child = new TagCount();
-							child.tagName = parentTag.value;
-							child.value = nameList.get(i);
-							child.count = cntList.get(i);
-							parentTag.addChild(child);
-						}
-						parentTag.count = totalCount.value;
-						parentTag.value += " (" + valueSize.value + ")";
-						treeViewer.refresh();
-						treeViewer.setExpandedElements(new TagCount[] {parentTag});
+				for (TagData data : dataList) {
+					data.strValueList = TagCountUtil.loadTagString(serverId, date, data.valueList, data.tagName);
+					String tagName = data.tagName;
+					TagCount parentTag = nameTree.get(tagName);
+					if (parentTag == null) return;
+					for (int i = 0; i < data.strValueList.size(); i++) {
+						TagCount child = new TagCount();
+						child.tagName = parentTag.value;
+						child.value = data.strValueList.get(i);
+						child.count = data.cntList.get(i);
+						parentTag.addChild(child);
 					}
-				});
+					parentTag.count = data.totalCnt;
+					parentTag.value += " (" + data.totalSize + ")";
+				}
 			}
 		});
-		
 	}
+	
+	static class TagData {
+		String tagName;
+		List<Value> valueList = new ArrayList<Value>();
+		List<Long> cntList = new ArrayList<Long>();
+		List<String> strValueList;
+		int totalSize;
+		long totalCnt;
+		
+		void addValue(Value v, long cnt) {
+			valueList.add(v);
+			cntList.add(cnt);
+		}
+	}
+	
 	
 	private void removeTagCountAll() {
 		for (Trace t : cntTraceMap.values()) {
@@ -910,7 +946,7 @@ public class TagCountView extends ViewPart {
 					MapPack param = new MapPack();
 					param.put("tagGroup", tagGroup);
 					param.put("objType", objType);
-					param.put("tagName", TOTAL_NAME);
+					param.put("tagName", TagConstants.NAME_TOTAL);
 					param.put("tagValue", NullValue.value);
 					param.put("date", date);
 					tcp.process(RequestCmd.TAGCNT_TAG_VALUE_DATA, param, new INetReader() {
@@ -970,7 +1006,7 @@ public class TagCountView extends ViewPart {
 		for (Object o : objects) {
 			if (o instanceof TagCount) {
 				TagCount tc = (TagCount) o;
-				if (tc.tagName == null) continue;
+				if (StringUtil.isEmpty(tc.tagName)) continue;
 				String tagName = tc.tagName;
 				ListValue lv = filterMv.getList(tagName);
 				if (lv == null) {
@@ -1010,7 +1046,7 @@ public class TagCountView extends ViewPart {
 							if (lastIndex == LIMIT_PER_PAGE) {
 								rightBtn.setEnabled(true);
 							}
-							if ("service".equals(tagGroup)) {
+							if (TagConstants.GROUP_SERVICE.equals(tagGroup)) {
 								if (lastSize > 0) {
 									Pack p = result.get(0);
 									XLogPack xp = (XLogPack) p;
@@ -1022,7 +1058,7 @@ public class TagCountView extends ViewPart {
 									lastTxid = xp.txid;
 								}
 								serviceTable.setInput(result, serverId, tagGroup);
-							} else if ("alert".equals(tagGroup)) {
+							} else if (TagConstants.GROUP_ALERT.equals(tagGroup)) {
 								if (lastSize > 0) {
 									Pack p = result.get(0);
 									AlertPack xp = (AlertPack) p;
@@ -1045,7 +1081,7 @@ public class TagCountView extends ViewPart {
 				long stime = lastTime;
 				long etime = (stime + DateUtil.MILLIS_PER_MINUTE) / DateUtil.MILLIS_PER_MINUTE * DateUtil.MILLIS_PER_MINUTE - 1;
 				MapPack extra = new MapPack();
-				if ("service".equals(tagGroup)) {
+				if (TagConstants.GROUP_SERVICE.equals(tagGroup)) {
 					extra.put("txid", lastTxid);
 				}
 				List<Pack> list = loadData(tagGroup, stime, etime, false, extra, filterMv);
@@ -1059,7 +1095,7 @@ public class TagCountView extends ViewPart {
 							rightBtn.setEnabled(false);
 						}
 						leftBtn.setEnabled(true);
-						if ("service".equals(tagGroup)) {
+						if (TagConstants.GROUP_SERVICE.equals(tagGroup)) {
 							if (lastSize > 0) {
 								Pack p = result.get(0);
 								XLogPack xp = (XLogPack) p;
@@ -1074,7 +1110,7 @@ public class TagCountView extends ViewPart {
 								firstTxid = lastTxid = 0;
 							}
 							serviceTable.setInput(result, serverId, tagGroup);
-						} else if ("alert".equals(tagGroup)) {
+						} else if (TagConstants.GROUP_ALERT.equals(tagGroup)) {
 							if (lastSize > 0) {
 								Pack p = result.get(0);
 								AlertPack xp = (AlertPack) p;
@@ -1100,7 +1136,7 @@ public class TagCountView extends ViewPart {
 				long etime = firstTime;
 				long stime = etime / DateUtil.MILLIS_PER_MINUTE * DateUtil.MILLIS_PER_MINUTE;
 				MapPack extra = new MapPack();
-				if ("service".equals(tagGroup)) {
+				if (TagConstants.GROUP_SERVICE.equals(tagGroup)) {
 					extra.put("txid", firstTxid);
 				}
 				List<Pack> list = loadData(tagGroup, stime, etime, true, extra, filterMv);
@@ -1117,7 +1153,7 @@ public class TagCountView extends ViewPart {
 							leftBtn.setEnabled(false);
 						}
 						rightBtn.setEnabled(true);
-						if ("service".equals(tagGroup)) {
+						if (TagConstants.GROUP_SERVICE.equals(tagGroup)) {
 							Pack p = revList.get(0);
 							XLogPack xp = (XLogPack) p;
 							firstTime = xp.endTime;
@@ -1127,7 +1163,7 @@ public class TagCountView extends ViewPart {
 							lastTime = xp.endTime;
 							lastTxid = xp.txid;
 							serviceTable.setInput(revList, serverId, tagGroup);
-						} else if ("service".equals(tagGroup)) {
+						} else if (TagConstants.GROUP_ALERT.equals(tagGroup)) {
 							Pack p = revList.get(0);
 							AlertPack xp = (AlertPack) p;
 							firstTime = xp.time;

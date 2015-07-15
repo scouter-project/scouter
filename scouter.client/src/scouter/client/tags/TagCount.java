@@ -42,5 +42,10 @@ public class TagCount {
 		if (childs == null) return 0;
 		return childs.size();
 	}
-	
+
+	@Override
+	public String toString() {
+		return "TagCount [tagName=" + tagName + ", value=" + value + ", count="
+				+ count + ", childs size = " + (childs == null ? "null" : childs.size()) + "]";
+	}
 }

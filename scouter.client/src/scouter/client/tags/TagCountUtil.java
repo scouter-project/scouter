@@ -20,6 +20,7 @@ import java.util.List;
 
 import scouter.client.model.TextProxy;
 import scouter.lang.AlertLevel;
+import scouter.lang.constants.TagConstants;
 import scouter.lang.value.DecimalValue;
 import scouter.lang.value.IP4Value;
 import scouter.lang.value.ListValue;
@@ -42,55 +43,48 @@ public class TagCountUtil {
 				for (Value v : vList) {
 					lv.add(CastUtil.cint(v.toJavaObject()));
 				}
-				if (tagName.equals("object")){
+				if (tagName.equals(TagConstants.NAME_OBJECT)){
 					TextProxy.object.load(date, lv, serverId);
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.object.getText(lv.getInt(i)));
 					}
-				} else if (tagName.equals("service") || tagName.startsWith("service-")) {
+				} else if (tagName.equals(TagConstants.NAME_SERVICE)
+						|| tagName.equals(TagConstants.NAME_SERVICE_ELAPSED)
+						|| tagName.equals(TagConstants.NAME_SERVICE_BYTES)
+						|| tagName.equals(TagConstants.NAME_SERVICE_ERRORS)) {
 					TextProxy.service.load(date, lv, serverId);
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.service.getText(lv.getInt(i)));
 					}
-				} else if (tagName.equals("user-agent")) {
+				} else if (tagName.equals(TagConstants.NAME_USER_AGENT)) {
 					TextProxy.userAgent.load(date, lv, serverId);
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.userAgent.getText(lv.getInt(i)));
 					}
-				} else if (tagName.equals("group")) {
+				} else if (tagName.equals(TagConstants.NAME_GROUP)) {
 					TextProxy.group.load(date, lv, serverId);
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.group.getText(lv.getInt(i)));
 					}
-				} else if (tagName.equals("city")) {
+				} else if (tagName.equals(TagConstants.NAME_CITY)) {
 					TextProxy.city.load(date, lv, serverId);
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.city.getText(lv.getInt(i)));
 					}
-				} else if (tagName.equals("referer")) {
+				} else if (tagName.equals(TagConstants.NAME_REFERER)) {
 					TextProxy.referer.load(date, lv, serverId);
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.referer.getText(lv.getInt(i)));
 					}
-				} else if (tagName.equals("error")) {
+				} else if (tagName.equals(TagConstants.NAME_ERROR)) {
 					TextProxy.error.load(date, lv, serverId);
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.error.getText(lv.getInt(i)));
 					}
-				} else if (tagName.equals("sql")) {
-					TextProxy.sql.load(date, lv, serverId);
-					for (int i = 0; i < lv.size(); i++) {
-						resultList.add(TextProxy.sql.getText(lv.getInt(i)));
-					}
-				} else if (tagName.equals("apicall")) {
-					TextProxy.apicall.load(date, lv, serverId);
-					for (int i = 0; i < lv.size(); i++) {
-						resultList.add(TextProxy.apicall.getText(lv.getInt(i)));
-					}
 				}
 				break;
 			case ValueEnum.DECIMAL:
-				if (tagName.equals("level")) {
+				if (tagName.equals(TagConstants.NAME_LEVEL)) {
 					for (Value v : vList) {
 						resultList.add(AlertLevel.getName((byte)((DecimalValue)v).value));
 					}
@@ -120,25 +114,25 @@ public class TagCountUtil {
 	}
 	
 	public static Value convertTagToValue(String tagName, String tagValue) {
-		if (tagName.equals("object")
-			|| tagName.equals("service")
-			|| tagName.startsWith("service-")
-			|| tagName.equals("group")
-			|| tagName.equals("user-agent")
-			|| tagName.equals("referer")
-			|| tagName.equals("city")
-			|| tagName.equals("error")
-			|| tagName.equals("object")
-			|| tagName.equals("object")) {
+		if (tagName.equals(TagConstants.NAME_OBJECT)
+			|| tagName.equals(TagConstants.NAME_SERVICE)
+			|| tagName.equals(TagConstants.NAME_SERVICE_ELAPSED)
+			|| tagName.equals(TagConstants.NAME_SERVICE_BYTES)
+			|| tagName.equals(TagConstants.NAME_SERVICE_ERRORS)
+			|| tagName.equals(TagConstants.NAME_GROUP)
+			|| tagName.equals(TagConstants.NAME_USER_AGENT)
+			|| tagName.equals(TagConstants.NAME_REFERER)
+			|| tagName.equals(TagConstants.NAME_CITY)
+			|| tagName.equals(TagConstants.NAME_ERROR)) {
 			return new TextHashValue(tagValue);
-		} else if (tagName.equals("visitor")
-			|| tagName.equals("elapsed")
-			|| tagName.equals("sqltime")
-			|| tagName.equals("apitime")){
+		} else if (tagName.equals(TagConstants.NAME_VISITOR)
+			|| tagName.equals(TagConstants.NAME_ELAPSED)
+			|| tagName.equals(TagConstants.NAME_SQLTIME)
+			|| tagName.equals(TagConstants.NAME_APITIME)){
 			return new DecimalValue(Long.valueOf(tagValue));
-		} else if(tagName.equals("level")) {
+		} else if(tagName.equals(TagConstants.NAME_LEVEL)) {
 			return new DecimalValue(AlertLevel.getValue(tagValue));
-		} else if (tagName.equals("ip")) {
+		} else if (tagName.equals(TagConstants.NAME_IP)) {
 			return new IP4Value(tagValue);
 		}
 		return new TextValue(tagValue);

@@ -16,12 +16,7 @@
  */
 package scouter.client.popup;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.LineStyleEvent;
-import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
@@ -36,15 +31,10 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.hibernate.jdbc.util.BasicFormatterImpl;
 
+import scouter.client.util.SqlFormatUtil;
 import scouter.client.util.UIUtil;
-import scouter.util.StringUtil;
 
 public class SQLFormatDialog {
-	
-	static String[] keyWords = { "select", "update", "insert", "delete", "from", "where", "between", "commit",
-		"set", "join", "having", "group", "by", "create", "default", "use", "desc", "alter", "fetch", "order", "and", "or", "as",
-		"round", "decode", "nvl", "instr", "sysdate", "sum", "rownum", "in"
-			};
 	
 	public void show(final String message, final String error) {
 		final Shell dialog = new Shell(Display.getDefault(), SWT.DIALOG_TRIM | SWT.RESIZE);
@@ -71,33 +61,7 @@ public class SQLFormatDialog {
 		gd.widthHint = 700;
 		gd.heightHint = 500;
 		text.setLayoutData(gd);
-		text.setText(message);
-		text.addLineStyleListener(new LineStyleListener() {
-			public void lineGetStyle(LineStyleEvent event) {
-				String line = event.lineText;
-				LinkedList<StyleRange> list = new LinkedList<StyleRange>();
-				line = line.toLowerCase();
-				String[] tokens = StringUtil.tokenizer(line, " \n\r\f\t()+*/-=<>'`\"[],");
-				if (tokens == null) return;
-				HashSet<String> set = new HashSet<String>();
-				for (int i = 0; i < tokens.length; i++) {
-					set.add(tokens[i]);
-				}
-				for (int i = 0; i < keyWords.length; i++) {
-					if (set.contains(keyWords[i])) {
-						int cursor = -1;
-						while ((cursor = line.indexOf(keyWords[i], cursor + 1)) > -1) {
-							StyleRange sr = new StyleRange();
-							sr.start = event.lineOffset + cursor;
-							sr.length = keyWords[i].length();
-							sr.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_BLUE);
-							list.add(sr);
-						}
-					}
-				}
-				event.styles = list.toArray(new StyleRange[list.size()]);
-			}
-		});
+		SqlFormatUtil.applyStyledFormat(text, message);
 		text.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if (e.stateMask == SWT.CTRL) {

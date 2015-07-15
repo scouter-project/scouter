@@ -16,7 +16,6 @@ import socket
 from socket import AF_INET, SOCK_STREAM, SOCK_DGRAM
 
 import psutil
-from psutil._compat import print_
 
 from scouter.lang.pack import *
 from scouter.lang.value import *
@@ -34,7 +33,7 @@ proto_map = {
 
 def main():
     templ = "%-5s %-22s %-22s %-13s %-6s %s"
-    print_(templ % (
+    print(templ % (
         "Proto", "Local addr", "Remote addr", "Status", "PID", "Program name"))
     for p in psutil.process_iter():
         name = '?'
@@ -42,7 +41,7 @@ def main():
             name = p.name
             cons = p.connections(kind='inet')
         except psutil.AccessDenied:
-            print_(templ % (AD, AD, AD, AD, p.pid, name))
+            print(templ % (AD, AD, AD, AD, p.pid, name))
         except psutil.NoSuchProcess:
             continue
         else:
@@ -51,7 +50,7 @@ def main():
                 laddr = "%s:%s" % (c.laddr)
                 if c.raddr:
                     raddr = "%s:%s" % (c.raddr)
-                print_(templ % (
+                print(templ % (
                     proto_map[(c.family, c.type)],
                     laddr,
                     raddr,

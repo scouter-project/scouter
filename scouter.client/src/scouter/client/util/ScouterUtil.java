@@ -195,15 +195,13 @@ public class ScouterUtil {
 		}
 		return new TreeMap<Long, Double>(tempMap);
 	}
-
-	private static Map<Long, Double> getLoadElapsedAvgMap(List<Pack> elapsedList, byte timeTypeCode) {
+	
+	public static Map<Long, Double> getLoadMinOrMaxMap(List<Pack> result, String mode, byte timeTypeCode) {
 		long now = TimeUtil.getCurrentTime();
-		Set<Integer> objHashSet = new HashSet<Integer>();
-		TimedSeries<Integer, Double> elapsedSeries = new TimedSeries<Integer, Double>();
-		for (Pack p : elapsedList) {
+		TimedSeries<Integer, Double> sereis = new TimedSeries<Integer, Double>();
+		for (Pack p : result) {
 			MapPack m = (MapPack) p;
 			int objHash = m.getInt("objHash");
-			objHashSet.add(objHash);
 			ListValue timeLv = m.getList("time");
 			ListValue valueLv = m.getList("value");
 			for (int i = 0; i < timeLv.size(); i++) {
@@ -212,73 +210,33 @@ public class ScouterUtil {
 				if (time > now) {
 					break;
 				}
-				elapsedSeries.add(objHash, time, value);
+				sereis.add(objHash, time, value);
 			}
 		}
-		TimedSeries<Integer, Double> totalSeries = new TimedSeries<Integer, Double>();
-		TimedSeries<Integer, Double> tpsSeries = new TimedSeries<Integer, Double>();
-		long stime = elapsedSeries.getMinTime();
-		long etime = elapsedSeries.getMaxTime();
-		for (int objHash : objHashSet) {
-			AgentObject agent = AgentModelThread.getInstance().getAgentObject(objHash);
-			if (agent == null) {
-				continue;
-			}
-			TcpProxy tcp = TcpProxy.getTcpProxy(agent.getServerId());
-			try {
-				MapPack param = new MapPack();
-				param.put("objHash", objHash);
-				param.put("counter", CounterConstants.WAS_TPS);
-				String requestCmd = null;
-				if (TimeTypeEnum.REALTIME == timeTypeCode) {
-					requestCmd = RequestCmd.COUNTER_PAST_TIME;
-					param.put("stime", stime);
-					param.put("etime", etime);
-				} else if (TimeTypeEnum.FIVE_MIN == timeTypeCode) {
-					requestCmd = RequestCmd.COUNTER_PAST_DATE;
-					param.put("date", DateUtil.yyyymmdd(stime));
-				}
-				Pack p = tcp.getSingle(requestCmd, param);
-				if (p == null) {
-					continue;
-				}
-				MapPack m = (MapPack) p;
-				ListValue timeLv = m.getList("time");
-				ListValue valueLv = m.getList("value");
-				for (int i = 0; i < timeLv.size(); i++) {
-					long time = CastUtil.clong(timeLv.get(i));
-					double tps = CastUtil.cdouble(valueLv.get(i));
-					Double elapsed = elapsedSeries.getInTime(objHash, time, getKeepTime(timeTypeCode));
-					if (elapsed == null) {
+		Map<Long, Double> tempMap = new HashMap<Long, Double>();
+		if (sereis.getSeriesCount() > 0) {
+			long stime = sereis.getMinTime();
+			long etime = sereis.getMaxTime();
+			boolean isMinMode = "min".equalsIgnoreCase(mode);
+			while (stime <= etime) {
+				double pivot = isMinMode ? Double.MAX_VALUE : Double.MIN_VALUE;
+				List<Double> list = sereis.getInTimeList(stime, getKeepTime(timeTypeCode));
+				for (int i = 0; i < list.size(); i++) {
+					double v = list.get(i);
+					if (isMinMode && pivot > v) {
+						pivot = v;
+						continue;
+					} 
+					if (!isMinMode && v > pivot) {
+						pivot = v;
 						continue;
 					}
-					totalSeries.add(objHash, time, tps * elapsed.doubleValue());
-					tpsSeries.add(objHash, time, tps);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				TcpProxy.putTcpProxy(tcp);
+				if (list.size() > 0) {
+					tempMap.put(stime, pivot);
+				}
+				stime += TimeTypeEnum.getTime(timeTypeCode);
 			}
-		}
-
-		long minTime = totalSeries.getMinTime();
-		long maxTime = totalSeries.getMaxTime();
-		Map<Long, Double> tempMap = new HashMap<Long, Double>();
-		while (minTime < maxTime) {
-			double totalSum = 0.0d;
-			double tpsSum = 0.0d;
-			List<Double> totalList = totalSeries.getInTimeList(minTime, getKeepTime(timeTypeCode));
-			for (int i = 0; i < totalList.size(); i++) {
-				totalSum += (double) totalList.get(i);
-			}
-			List<Double> tpsList = tpsSeries.getInTimeList(minTime, getKeepTime(timeTypeCode));
-			for (int i = 0; i < tpsList.size(); i++) {
-				tpsSum += (double) tpsList.get(i);
-			}
-			double v = totalSum / tpsSum;
-			tempMap.put(minTime, v);
-			minTime += TimeTypeEnum.getTime(timeTypeCode);
 		}
 		return new TreeMap<Long, Double>(tempMap);
 	}

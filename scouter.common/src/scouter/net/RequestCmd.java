@@ -181,6 +181,18 @@ public class RequestCmd {
 	public static final String SLAVE_STATUS = "SLAVE_STATUS";
 	public static final String EXPLAIN_PLAN_FOR_THREAD = "EXPLAIN_PLAN_FOR_THREAD";
 	public static final String USE_DATABASE = "USE_DATABASE";
+	
+	// Maria Plugin
+	public static final String DB_REALTIME_CONNECTIONS = "DB_REALTIME_CONNECTIONS";
+	public static final String DB_REALTIME_ACTIVITY = "DB_REALTIME_ACTIVITY";
+	public static final String DB_DAILY_ACTIVITY = "DB_DAILY_ACTIVITY";
+	public static final String DB_REALTIME_RESPONSE_TIME = "DB_REALTIME_RESPONSE_TIME";
+	public static final String DB_REALTIME_HIT_RATIO = "DB_REALTIME_HIT_RATIO";
+	public static final String DB_DAILY_CONNECTIONS = "DB_DAILY_CONNECTIONS";
+	public static final String DB_DIGEST_TABLE = "DB_DIGEST_TABLE";
+	public static final String DB_MAX_TIMER_WAIT_THREAD = "DB_MAX_TIMER_WAIT_THREAD";
+	public static final String DB_LOAD_DIGEST_COUNTER = "DB_LOAD_DIGEST_COUNTER";
+	public static final String DB_LAST_DIGEST_TABLE = "DB_LAST_DIGEST_TABLE";
 
 	public static final int APPLY_CONFIGURE_WAS_RESULT_OK      = 200;
 	public static final int APPLY_CONFIGURE_WAS_RESULT_RUNNING = 300;
@@ -216,4 +228,8 @@ public class RequestCmd {
 	public static final String TAGCNT_TAG_VALUES = "TAGCNT_TAG_VALUES";
 	public static final String TAGCNT_TAG_VALUE_DATA = "TAGCNT_TAG_VALUE_DATA";
 	public static final String TAGCNT_TAG_ACTUAL_DATA = "TAGCNT_TAG_ACTUAL_DATA";
+	
+	// VISITOR
+	public static final String VISITOR_REALTIME = "VISITOR_REALTIME";
+	public static final String VISITOR_REALTIME_TOTAL = "VISITOR_REALTIME_TOTAL";
 }
