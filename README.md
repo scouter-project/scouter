@@ -15,6 +15,13 @@ Enterprise IT has evolved based on commercial services.
 But now more and more systems are using open source S/W. 
 If you use a Tomcat, SCOUTER will be the best choice to monitor it.
 
+### Documents
+ - [Wiki Documents](../../wiki/)
+ - [Using Components](../../wiki/Using-Components)
+
+### Download
+ - [Last Release](https://github.com/scouter-project/scouter/releases/)
+
 ### Modules
 Scouter has three modules:
 
@@ -46,6 +53,4 @@ SCOUTER is just simple. This configuration is simple. It will quickly provide th
 ### License
 Licensed under the Apache License, Version 2.0
 
-### Documents
- - [Wiki Documents](../../wiki/)
- - [Using Components](../../wiki/Using-Components)
+
