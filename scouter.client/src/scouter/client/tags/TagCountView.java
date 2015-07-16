@@ -35,17 +35,12 @@ import org.csstudio.swt.xygraph.figures.Trace.TraceType;
 import org.csstudio.swt.xygraph.figures.XYGraph;
 import org.csstudio.swt.xygraph.linearscale.Range;
 import org.eclipse.draw2d.FigureCanvas;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.layout.TreeColumnLayout;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.ICheckStateListener;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -53,6 +48,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -77,10 +73,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
-import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
@@ -94,7 +88,6 @@ import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
 import scouter.client.util.ChartUtil;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.ExUtil;
-import scouter.client.util.ImageUtil;
 import scouter.client.util.ScouterUtil;
 import scouter.io.DataInputX;
 import scouter.lang.constants.TagConstants;
@@ -127,7 +120,7 @@ public class TagCountView extends ViewPart {
 	Composite parent;
 	
 	Combo tagGroupCombo;
-	Text dateText;
+	Label dateLbl;
 	
 	SashForm graphSash;
 	
@@ -196,11 +189,26 @@ public class TagCountView extends ViewPart {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		Composite dateComp = new Composite(menuComp, SWT.NONE);
-		dateComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
+		Composite dateComp = new Composite(menuComp, SWT.BORDER);
+		dateComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		dateComp.setLayout(new RowLayout());
-		dateText = new Text(dateComp, SWT.SINGLE | SWT.BORDER);
-		dateText.setLayoutData(new RowData(160, SWT.DEFAULT));
+		dateComp.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
+		dateComp.setBackgroundMode(SWT.INHERIT_FORCE);
+		dateLbl = new Label(dateComp, SWT.CENTER);
+		dateLbl.setLayoutData(new RowData(160, SWT.DEFAULT));
+		dateLbl.addMouseListener(new MouseAdapter() {
+			public void mouseDown(MouseEvent e) {
+				CalendarDialog dialog = new CalendarDialog(getViewSite().getShell().getDisplay(), new ILoadCounterDialog(){
+					public void onPressedOk(long startTime, long endTime) {}
+					public void onPressedCancel() {}
+					public void onPressedOk(String date) {
+						setInput(date, objType);
+					}
+				});
+				dialog.show(-1, -1, DateUtil.yyyymmdd(date));
+			}
+			
+		});
 		Button dayBtn = new Button(menuComp, SWT.PUSH);
 		gd = new GridData(SWT.FILL, SWT.FILL, false, true);
 		gd.widthHint = 70;
@@ -583,20 +591,6 @@ public class TagCountView extends ViewPart {
 		
 		sashForm.setWeights(new int[] {1, 2});
 		sashForm.setMaximizedControl(null);
-		
-		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
-		man.add(new Action("Change Date", ImageUtil.getImageDescriptor(Images.calendar)) {
-			public void run() {
-				CalendarDialog dialog = new CalendarDialog(getViewSite().getShell().getDisplay(), new ILoadCounterDialog(){
-					public void onPressedOk(long startTime, long endTime) {}
-					public void onPressedCancel() {}
-					public void onPressedOk(String date) {
-						setInput(date, objType);
-					}
-				});
-				dialog.show(-1, -1, DateUtil.yyyymmdd(date));
-			}
-		});
 	}
 
 	@Override
@@ -630,7 +624,7 @@ public class TagCountView extends ViewPart {
 		sb.append(DateUtil.format((long)rangeX1, "HH:mm"));
 		sb.append("~");
 		sb.append(DateUtil.format((long)rangeX2, "HH:mm"));
-		dateText.setText(sb.toString());
+		dateLbl.setText(sb.toString());
 	}
 	
 	private void adjustYAxisRange(XYGraph graph, CircularBufferDataProvider provider) {
