@@ -1,4 +1,4 @@
-/**
+/*
  *  Copyright 2015 Scouter Project.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -15,7 +15,6 @@
  *  
  *  @author skyworker
  */
-
 package scouter;
 
 import scouter.agent.netio.data.DataProxy;
