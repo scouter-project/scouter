@@ -37,6 +37,7 @@ import scouter.util.IPUtil
 import scouter.util.IntSet
 import scouter.util.StringUtil
 import scouter.net.RequestCmd
+import scouter.lang.value.ValueEnum
 
 class TagCountService {
 
@@ -68,30 +69,36 @@ class TagCountService {
     @ServiceHandler(RequestCmd.TAGCNT_TAG_VALUES)
     def getTagValues(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readPack().asInstanceOf[MapPack];
-        val objType = param.getText("objType");
-        val tagGroup = param.getText("tagGroup");
-        val tagNameLv = param.getList("tagName");
-        var date = param.getText("date");
-        if (StringUtil.isEmpty(date)) {
-            date = DateUtil.yyyymmdd();
-        }
+        try {
+            val objType = param.getText("objType");
+            val tagGroup = param.getText("tagGroup");
+            val tagNameLv = param.getList("tagName");
+            var date = param.getText("date");
+            if (StringUtil.isEmpty(date)) {
+                date = DateUtil.yyyymmdd();
+            }
 
-        for (i <- 0 to tagNameLv.size() - 1) {
-        	val tagName = tagNameLv.getString(i);
-	        val valueCountTotal = TagCountProxy.getTagValueCountWithCache(date, objType, tagGroup, tagName, 100);
-	        if (valueCountTotal != null) {
-	            dout.writeByte(TcpFlag.HasNEXT);
-	            dout.writeText(tagName);
-	            dout.writeInt(valueCountTotal.howManyValues)
-	            // TODO: temp
-	            dout.writeLong(valueCountTotal.totalCount.toLong)
-	            dout.writeInt(valueCountTotal.values.size())
-	            EnumerScala.forward(valueCountTotal.values, (vc: ValueCount) => {
-	                dout.writeValue(vc.tagValue)
-	                // TODO: temp
-	                dout.writeLong(vc.valueCount.toLong)
-	            })
-	        }
+            for (i <- 0 to tagNameLv.size() - 1) {
+                val tagName = tagNameLv.getString(i);
+                val valueCountTotal = TagCountProxy.getTagValueCountWithCache(date, objType, tagGroup, tagName, 100);
+                if (valueCountTotal != null) {
+                    dout.writeByte(TcpFlag.HasNEXT);
+                    dout.writeText(tagName);
+                    dout.writeInt(valueCountTotal.howManyValues)
+                    // TODO: temp
+                    dout.writeLong(valueCountTotal.totalCount.toLong)
+                    dout.writeInt(valueCountTotal.values.size())
+                    EnumerScala.forward(valueCountTotal.values, (vc: ValueCount) => {
+                        dout.writeValue(vc.tagValue)
+                        // TODO: temp
+                        dout.writeLong(vc.valueCount.toLong)
+                    })
+                }
+            }
+        } catch {
+            case e: Throwable =>
+                println("TAGCNT_TAG_VALUES: " + param)
+                e.printStackTrace()
         }
     }
 
@@ -113,10 +120,10 @@ class TagCountService {
             dout.writeArray(toIntArr(valueCount))
         }
     }
-    private def toIntArr(a:Array[Float]):Array[Int]={
+    private def toIntArr(a: Array[Float]): Array[Int] = {
         val out = new Array[Int](a.length)
-        for(i <- 0 to a.length-1){
-            out(i)=a(i).toInt
+        for (i <- 0 to a.length - 1) {
+            out(i) = a(i).toInt
         }
         return out
     }
@@ -258,8 +265,8 @@ class TagCountService {
                 }
             } else if (key == TagConstants.NAME_SERVICE
                 || key == TagConstants.NAME_SERVICE_ELAPSED
-            	|| key == TagConstants.NAME_SERVICE_BYTES
-            	|| key == TagConstants.NAME_SERVICE_ERRORS) {
+                || key == TagConstants.NAME_SERVICE_BYTES
+                || key == TagConstants.NAME_SERVICE_ERRORS) {
                 val serviceLv = mv.getList(key);
                 for (i <- 0 to serviceLv.size() - 1) {
                     var service = serviceLv.get(i).toJavaObject();
@@ -284,41 +291,41 @@ class TagCountService {
                     }
                 }
             } else if (key == TagConstants.NAME_APITIME) {
-            	if (x.apicallTime >= 1000) {
-	                val apitimeLv = mv.getList(key);
-	                for (i <- 0 to apitimeLv.size() - 1) {
-	                    var apitime = apitimeLv.getInt(i);
-	                    apitime match {
-	                      case 1 => if (1000 <= x.apicallTime && x.apicallTime < 3000) return true; 
-	                      case 3 => if (3000 <= x.apicallTime && x.apicallTime < 8000) return true;
-	                      case 8 => if (8000 <= x.apicallTime) return true;
-	                    }
-	                }
-            	}
+                if (x.apicallTime >= 1000) {
+                    val apitimeLv = mv.getList(key);
+                    for (i <- 0 to apitimeLv.size() - 1) {
+                        var apitime = apitimeLv.getInt(i);
+                        apitime match {
+                            case 1 => if (1000 <= x.apicallTime && x.apicallTime < 3000) return true;
+                            case 3 => if (3000 <= x.apicallTime && x.apicallTime < 8000) return true;
+                            case 8 => if (8000 <= x.apicallTime) return true;
+                        }
+                    }
+                }
             } else if (key == TagConstants.NAME_SQLTIME) {
-            	if (x.sqlTime >= 1000) {
-	                val sqltimeLv = mv.getList(key);
-	                for (i <- 0 to sqltimeLv.size() - 1) {
-	                    var sqltime = sqltimeLv.getInt(i);
-	                    sqltime match {
-	                      case 1 => if (1000 <= x.sqlTime && x.sqlTime < 3000) return true; 
-	                      case 3 => if (3000 <= x.sqlTime && x.sqlTime < 8000) return true;
-	                      case 8 => if (8000 <= x.sqlTime) return true;
-	                    }
-	                }
-            	}
+                if (x.sqlTime >= 1000) {
+                    val sqltimeLv = mv.getList(key);
+                    for (i <- 0 to sqltimeLv.size() - 1) {
+                        var sqltime = sqltimeLv.getInt(i);
+                        sqltime match {
+                            case 1 => if (1000 <= x.sqlTime && x.sqlTime < 3000) return true;
+                            case 3 => if (3000 <= x.sqlTime && x.sqlTime < 8000) return true;
+                            case 8 => if (8000 <= x.sqlTime) return true;
+                        }
+                    }
+                }
             } else if (key == TagConstants.NAME_ELAPSED) {
-            	if (x.elapsed >= 1000) {
-	                val elapsedLv = mv.getList(key);
-	                for (i <- 0 to elapsedLv.size() - 1) {
-	                	var elapsed = elapsedLv.getInt(i);
-	                    elapsed match {
-	                      case 1 => if (1000 <= x.elapsed && x.elapsed < 3000) return true; 
-	                      case 3 => if (3000 <= x.elapsed && x.elapsed < 8000) return true;
-	                      case 8 => if (8000 <= x.elapsed) return true;
-	                    }
-	                }
-            	}
+                if (x.elapsed >= 1000) {
+                    val elapsedLv = mv.getList(key);
+                    for (i <- 0 to elapsedLv.size() - 1) {
+                        var elapsed = elapsedLv.getInt(i);
+                        elapsed match {
+                            case 1 => if (1000 <= x.elapsed && x.elapsed < 3000) return true;
+                            case 3 => if (3000 <= x.elapsed && x.elapsed < 8000) return true;
+                            case 8 => if (8000 <= x.elapsed) return true;
+                        }
+                    }
+                }
             }
         }
         return false;
