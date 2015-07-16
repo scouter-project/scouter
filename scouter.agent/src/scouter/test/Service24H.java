@@ -103,7 +103,7 @@ public class Service24H {
 			     tm = tm - ((int)tm);
 			}
 			long x = System.currentTimeMillis();
-			if(x-now >1000000)
+			if(x-now >3000000)
 				break;
 		}
 		ThreadUtil.sleep(100000);
