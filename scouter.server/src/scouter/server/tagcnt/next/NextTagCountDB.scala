@@ -91,7 +91,6 @@ object NextTagCountDB extends IClose {
                 if (db != null) {
                     db.table.add(key.tagKey, key.value, (key.hourUnit % 24).toInt, value);
                 }
-
             } catch {
                 case t: Throwable =>
                     t.printStackTrace();
