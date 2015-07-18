@@ -77,16 +77,9 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
         return null;
     }
 
-    var lastLog = System.currentTimeMillis();
     def updateAdd(key: Array[Byte], hour: Int, value: Array[Float]): Int = {
         if (key == null) {
             throw new IOException("invalid key");
-        }
-
-        val now = System.currentTimeMillis()
-        if (now - lastLog > 10000) {
-            lastLog = now
-            println(DateUtil.timestamp() + " update=>" + System.identityHashCode(this))
         }
         val keyHash = HashUtil.hash(key);
         var pos = hashFile.get(keyHash);
