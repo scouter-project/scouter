@@ -253,7 +253,7 @@ public static final String ID = DbRealtimeTotalActivityView.class.getName();
 		if (v == null) {
 			ExUtil.exec(canvas, new Runnable() {
 				public void run() {
-					setTitleImage(Images.active);
+					setTitleImage(Images.inactive);
 					long now = TimeUtil.getCurrentTime(serverId);
 					long stime = now - TIME_RANGE;
 					xyGraph.primaryXAxis.setRange(stime, now + 1);
@@ -269,7 +269,7 @@ public static final String ID = DbRealtimeTotalActivityView.class.getName();
 			
 			ExUtil.exec(canvas, new Runnable() {
 				public void run() {
-					setTitleImage(Images.inactive);
+					setTitleImage(Images.active);
 					long now = TimeUtil.getCurrentTime(serverId) / REFRESH_INTERVAL * REFRESH_INTERVAL;
 					long stime = now - TIME_RANGE;
 					xyGraph.primaryXAxis.setRange(stime, now + 1);
