@@ -200,7 +200,7 @@ class IndexFile(_path: String, hashSize: Int = 1) extends IClose {
         try {
             while (pos < length && pos >0) {
                 val r = this.keyFile.getRecord(pos);
-                if (r.deleted == false) {
+                if (r.deleted == false && r.key.length>0) {
                     handler(r.key, r.value) 
                 }
                 done += 1

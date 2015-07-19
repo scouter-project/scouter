@@ -159,11 +159,9 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
                 val value = in.readValue();
 
                 handler(tag, value, r.count, r.pos24h, this, pos)
-                pos = r.next;
-                done += 1
-            } else {
-                pos = -1
             }
+            pos = r.next;
+            done += 1
         }
         return true;
     }
