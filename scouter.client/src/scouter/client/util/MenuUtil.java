@@ -509,6 +509,9 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 					dumpMgr.add(new OpenCxtmenuDumpThreadListAction(MenuStr.DUMP_THREAD_LIST, objHash, serverId));
 					dumpMgr.add(new OpenCxtmenuDumpHeapHistoAction(MenuStr.DUMP_HEAPHISTO, objHash, serverId));
 				}
+				mgr.add(new Separator());
+				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
+					mgr.add(new OpenCxtmenuConfigureAgentViewAction(win, MenuStr.CONFIGURE, objHash, serverId));
 			} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_HOST)) {
 				performanceSnapshot.add(new OpenCxtmenuEnvAction(win, MenuStr.ENV, objHash, serverId));
 				performanceSnapshot.add(new OpenTopAction(win, MenuStr.TOP, objHash, serverId));
@@ -518,18 +521,15 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 				performanceSnapshot.add(new OpenMemInfoAction(win, MenuStr.MEM_INFO, objHash, serverId));
 			} 
     	}
-    	mgr.add(new Separator());
-		if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
-			mgr.add(new OpenCxtmenuConfigureAgentViewAction(win, MenuStr.CONFIGURE, objHash, serverId));
     	if (server.isAllowAction(GroupPolicyConstants.ALLOW_DEFINEOBJTYPE)) {
+    		mgr.add(new Separator());
 	    	if (counterEngine.isUnknownObjectType(objType)) {
 	    		mgr.add(new DefineObjectTypeAction(win, serverId, objType, DefineObjectTypeAction.DEFINE_MODE));
 	    	} else {
 	    		mgr.add(new DefineObjectTypeAction(win, serverId, objType, DefineObjectTypeAction.EDIT_MODE));
 	    	}
-			mgr.add(new Separator());
     	}
-		
+    	mgr.add(new Separator());
 		mgr.add(new SetColorAction(win, objHash));
 		mgr.add(new Separator());
 		mgr.add(new OpenCxtmenuPropertiesAction(win, MenuStr.PROPERTIES, objHash, serverId));

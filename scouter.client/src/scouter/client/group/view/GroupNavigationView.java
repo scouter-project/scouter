@@ -442,13 +442,13 @@ public class GroupNavigationView extends ViewPart implements RefreshThread.Refre
 				}
 				break;
 			case 1:
-				if (element instanceof AgentObject) {
-					AgentObject a = (AgentObject) element;
-					if (a.isAlive()) {
-						return ImageCache.getInstance().getObjectImage(a.getObjHash());
-					}
-				}
-				break;
+//				if (element instanceof AgentObject) {
+//					AgentObject a = (AgentObject) element;
+//					if (a.isAlive()) {
+//						return ImageCache.getInstance().getObjectImage(a.getObjHash());
+//					}
+//				}
+//				break;
 			}
 			return null;
 		}
