@@ -92,8 +92,8 @@ object XLogTagCount {
         if (StringUtil.isNotEmpty(x.countryCode))
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.nation, new TextValue(x.countryCode), 1)
 
-        if (x.visitor != 0) {
-            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.visitor, new DecimalValue(x.visitor), 1)
+        if (x.userid != 0) {
+            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.visitor, new DecimalValue(x.userid), 1)
         }
 
         val elapsed = x.elapsed / 1000

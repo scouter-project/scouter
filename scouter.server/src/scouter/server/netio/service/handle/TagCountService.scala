@@ -243,7 +243,7 @@ class TagCountService {
                 val visitorLv = mv.getList(key);
                 for (i <- 0 to visitorLv.size() - 1) {
                     var visitor = visitorLv.getLong(i);
-                    if (x.visitor == visitor) {
+                    if (x.userid == visitor) {
                         return true;
                     }
                 }

@@ -40,7 +40,7 @@ public class XLogPack implements Pack {
 	public byte[] ipaddr;
 	public int bytes;
 	public int status;
-	public long visitor;
+	public long userid;
 	public int userAgent;
 	public int referer;
 	public int group;
@@ -50,7 +50,6 @@ public class XLogPack implements Pack {
 	// TOP100
 	public String countryCode; // CountryCode.getCountryName(countryCode);
 	public int city;
-   
 	public byte xType; //see XLogTypes
 	
 	public String toString() {
@@ -89,7 +88,7 @@ public class XLogPack implements Pack {
 		o.writeBlob(ipaddr);
 		o.writeDecimal(bytes);
 		o.writeDecimal(status);
-		o.writeDecimal(visitor);
+		o.writeDecimal(userid);
 		o.writeDecimal(userAgent);
 		o.writeDecimal(referer);
 		o.writeDecimal(group);
@@ -120,7 +119,7 @@ public class XLogPack implements Pack {
 		this.ipaddr = d.readBlob();
 		this.bytes = (int) d.readDecimal();
 		this.status = (int) d.readDecimal();
-		this.visitor = d.readDecimal();
+		this.userid = d.readDecimal();
 		this.userAgent = (int) d.readDecimal();
 		this.referer = (int) d.readDecimal();
 		this.group = (int) d.readDecimal();

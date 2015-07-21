@@ -202,7 +202,7 @@ public class XLogUtil {
 		}
 
 		sb.append("ipaddr=" + IPUtil.toString(pack.ipaddr) + ", ");
-		sb.append("visitor=" + pack.visitor + ", ");
+		sb.append("visitor=" + pack.userid + ", ");
 		sb.append("cpu=" + FormatUtil.print(pack.cpu, "#,##0") + " ms, ");
 		sb.append("bytes=" + pack.bytes + ", ");
 		sb.append("status=" + pack.status + ", ");

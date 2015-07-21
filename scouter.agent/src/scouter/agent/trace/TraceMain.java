@@ -231,7 +231,7 @@ public class TraceMain {
 			pack.sqlCount = ctx.sqlCount;
 			pack.sqlTime = ctx.sqlTime;
 			pack.ipaddr = ctx.remoteAddr;
-			pack.visitor = ctx.visitor;
+			pack.userid = ctx.visitor;
 			// ////////////////////////////////////////////////////////
 			if (ctx.error != 0) {
 				pack.error = ctx.error;
@@ -363,7 +363,7 @@ public class TraceMain {
 			pack.sqlTime = ctx.sqlTime;
 			pack.txid = ctx.txid;
 			pack.ipaddr = ctx.remoteAddr;
-			pack.visitor = ctx.visitor;
+			pack.userid = ctx.visitor;
 			if (ctx.opencon > 0) {
 				String emsg = "not closed db connection [" + ctx.opencon + "]";
 				int ehash = StringHashCache.getErrHash(emsg);
@@ -580,7 +580,7 @@ public class TraceMain {
 		pack.sqlTime = sqlTime;
 		pack.txid = txid;
 		pack.ipaddr = IPUtil.toBytes(remoteAddr);
-		pack.visitor = visitor;
+		pack.userid = visitor;
 		if (error != null) {
 			int ehash = StringHashCache.getErrHash(error);
 			DataProxy.sendError(ehash, error);
@@ -589,7 +589,7 @@ public class TraceMain {
 		}
 		MeterService.getInstance().add(pack.elapsed, error != null);
 		DataProxy.sendXLog(pack);
-		VisitMeter.add(pack.visitor);
+		VisitMeter.add(pack.userid);
 		return pack;
 	}
 	public static void addMessage(String msg) {
