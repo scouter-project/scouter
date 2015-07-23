@@ -164,8 +164,12 @@ public class Configure extends Thread {
 
 	public String hook_method = "";
 	public String hook_method_ignore_prefix = "";
-	private String[] ignore_prefix = null;
-	private int ignore_prefix_len = 0;
+	private String[] _hook_method_ignore_prefix = null;
+	private int _hook_method_ignore_prefix_len = 0;
+	
+	public String hook_method_ignore_classes = "";
+	private StringSet _hook_method_ignore_classes = new StringSet();
+	
 	public boolean hook_method_access_public = true;
 	public boolean hook_method_access_private = false;
 	public boolean hook_method_access_protected = false;
@@ -210,7 +214,7 @@ public class Configure extends Thread {
 	public int statistics_interval = (int) DateUtil.MILLIS_PER_FIVE_MINUTE;
 	public boolean enable_auto_service_trace = false;
 	public boolean enable_auto_service_backstack=true;
-
+	
 	public boolean debug_apicall = false;
 
 	public boolean debug_connection_stack = false;
@@ -406,9 +410,14 @@ public class Configure extends Thread {
 		this.hook_method_access_private = getBoolean("hook_method_access_private", false);
 		this.hook_method_access_none = getBoolean("hook_method_access_none", false);
 		this.hook_method_ignore_prefix = StringUtil.removeWhitespace(getValue("hook_method_ignore_prefix", "get,set"));
-		this.ignore_prefix = StringUtil.split(this.hook_method_ignore_prefix, ",");
-		this.ignore_prefix_len = this.ignore_prefix == null ? 0 : this.ignore_prefix.length;
+		this._hook_method_ignore_prefix = StringUtil.split(this.hook_method_ignore_prefix, ",");
+		this._hook_method_ignore_prefix_len = this._hook_method_ignore_prefix == null ? 0 : this._hook_method_ignore_prefix.length;
 
+		
+		this.hook_method_ignore_classes = StringUtil.trimEmpty(StringUtil.removeWhitespace(getValue("hook_method_ignore_classes","")));
+		this._hook_method_ignore_classes = new StringSet(StringUtil.tokenizer(this.hook_method_ignore_prefix.replace('.', '/'), ","));
+		
+		
 		this.hook_service = getValue("hook_service", getValue("hook.service", ""));
 		this.hook_apicall = getValue("hook_apicall", getValue("hook.subcall", ""));
 		this.hook_apicall_info = getValue("hook_apicall_info", "");
@@ -530,13 +539,16 @@ public class Configure extends Thread {
 	}
 
 	public boolean isIgnoreMethodPrefix(String name) {
-		for (int i = 0; i < this.ignore_prefix_len; i++) {
-			if (name.startsWith(this.ignore_prefix[i]))
+		for (int i = 0; i < this._hook_method_ignore_prefix_len; i++) {
+			if (name.startsWith(this._hook_method_ignore_prefix[i]))
 				return true;
 		}
 		return false;
 	}
-
+    public boolean isIgnoreMethodClass(String classname){
+    	return _hook_method_ignore_classes.hasKey(classname);
+    }
+	
 	public synchronized void resetObjInfo() {
 		String detected = ObjTypeDetector.drivedType != null ? ObjTypeDetector.drivedType
 				: ObjTypeDetector.objType != null ? ObjTypeDetector.objType : CounterConstants.JAVA;

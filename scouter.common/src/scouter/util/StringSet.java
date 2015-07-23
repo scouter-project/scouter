@@ -23,7 +23,7 @@ package scouter.util;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 
-public class StringSet  {
+public class StringSet {
 	private static final int DEFAULT_CAPACITY = 101;
 	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
@@ -34,8 +34,7 @@ public class StringSet  {
 
 	public StringSet(int initCapacity, float loadFactor) {
 		if (initCapacity < 0)
-			throw new RuntimeException("Capacity Error: "
-					+ initCapacity);
+			throw new RuntimeException("Capacity Error: " + initCapacity);
 		if (loadFactor <= 0)
 			throw new RuntimeException("Load Count Error: " + loadFactor);
 
@@ -48,6 +47,15 @@ public class StringSet  {
 
 	public StringSet() {
 		this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
+	}
+
+	public StringSet(String[] arr) {
+		this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
+		if (arr == null)
+			return;
+		for (int i = 0; i < arr.length; i++) {
+			this.put(arr[i]);
+		}
 	}
 
 	public int size() {
@@ -65,7 +73,7 @@ public class StringSet  {
 		int hash = key.hashCode();
 		int index = (hash & Integer.MAX_VALUE) % tab.length;
 		for (ENTRY e = tab[index]; e != null; e = e.next) {
-			if ((e.hash == hash) && CompareUtil.equals(e.key,key)) {
+			if ((e.hash == hash) && CompareUtil.equals(e.key, key)) {
 				return true;
 			}
 		}
@@ -83,7 +91,8 @@ public class StringSet  {
 		table = newMap;
 
 		for (int i = oldCapacity; i-- > 0;) {
-			ENTRY old = oldMap[i]; while(old!=null) {
+			ENTRY old = oldMap[i];
+			while (old != null) {
 				ENTRY e = old;
 				old = old.next;
 
@@ -93,9 +102,11 @@ public class StringSet  {
 			}
 		}
 	}
-	public String put(String key){
+
+	public String put(String key) {
 		return unipoint(key);
 	}
+
 	public synchronized String unipoint(String key) {
 		if (key == null)
 			return null;
@@ -104,7 +115,7 @@ public class StringSet  {
 		int hash = key.hashCode();
 		int index = (hash & Integer.MAX_VALUE) % tab.length;
 		for (ENTRY e = tab[index]; e != null; e = e.next) {
-			if ((e.hash == hash) && CompareUtil.equals(e.key,key)) {
+			if ((e.hash == hash) && CompareUtil.equals(e.key, key)) {
 				return e.key;
 			}
 		}
@@ -122,13 +133,13 @@ public class StringSet  {
 	}
 
 	public synchronized boolean remove(String key) {
-		if(key==null)
+		if (key == null)
 			return false;
 		ENTRY tab[] = table;
 		int hash = key.hashCode();
 		int index = (hash & Integer.MAX_VALUE) % tab.length;
 		for (ENTRY e = tab[index], prev = null; e != null; prev = e, e = e.next) {
-			if ((e.hash == hash) && CompareUtil.equals(e.key,key)) {
+			if ((e.hash == hash) && CompareUtil.equals(e.key, key)) {
 				if (prev != null) {
 					prev.next = e.next;
 				} else {
@@ -155,7 +166,7 @@ public class StringSet  {
 
 		buf.append("{");
 		for (int i = 0; i <= max; i++) {
-				buf.append(it.nextString());
+			buf.append(it.nextString());
 			if (i < max)
 				buf.append(", ");
 		}
@@ -175,8 +186,7 @@ public class StringSet  {
 		}
 
 		protected Object clone() {
-			return new ENTRY(hash, key, (next == null ? null
-					: (ENTRY) next.clone()));
+			return new ENTRY(hash, key, (next == null ? null : (ENTRY) next.clone()));
 		}
 
 		public String getKey() {
@@ -187,7 +197,7 @@ public class StringSet  {
 			if (!(o instanceof ENTRY))
 				return false;
 			ENTRY e = (ENTRY) o;
-			return CompareUtil.equals(e.key,key);
+			return CompareUtil.equals(e.key, key);
 		}
 
 		public int hashCode() {
@@ -200,17 +210,18 @@ public class StringSet  {
 	}
 
 	public static StringEnumer emptyEnumer = new StringEnumer() {
-		
+
 		@Override
 		public String nextString() {
 			return null;
 		}
-		
+
 		@Override
 		public boolean hasMoreElements() {
 			return false;
 		}
 	};
+
 	private class Enumer implements StringEnumer {
 		ENTRY[] table = StringSet.this.table;
 		int index = table.length;
@@ -241,7 +252,7 @@ public class StringSet  {
 
 	public static void main(String[] args) {
 		HashSet<String> st = new HashSet();
-		 st.add("sss1");
+		st.add("sss1");
 		st.add("sss2");
 		st.add("sss3");
 		System.out.println(st);

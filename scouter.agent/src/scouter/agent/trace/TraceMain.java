@@ -531,15 +531,15 @@ public class TraceMain {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.enable_auto_service_trace) {
-				Object stat = startService(classMethod, null, null, null, null, null, XLogTypes.BACK_THREAD);
-				if (conf.enable_auto_service_backstack) {
-					String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
-					AutoServiceStartAnalizer.put(classMethod, stack);
-					MessageStep m = new MessageStep();
-					m.message = "SERVICE BACKSTACK:\n"+stack;
-					((Stat) stat).ctx.profile.add(m);
-				}
-				return new LocalContext(stat);
+					Object stat = startService(classMethod, null, null, null, null, null, XLogTypes.BACK_THREAD);
+					if (conf.enable_auto_service_backstack) {
+						String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
+						AutoServiceStartAnalizer.put(classMethod, stack);
+						MessageStep m = new MessageStep();
+						m.message = "SERVICE BACKSTACK:\n" + stack;
+						((Stat) stat).ctx.profile.add(m);
+					}
+					return new LocalContext(stat);
 			}
 			return null;
 		}
