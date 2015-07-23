@@ -415,7 +415,7 @@ public class Configure extends Thread {
 
 		
 		this.hook_method_ignore_classes = StringUtil.trimEmpty(StringUtil.removeWhitespace(getValue("hook_method_ignore_classes","")));
-		this._hook_method_ignore_classes = new StringSet(StringUtil.tokenizer(this.hook_method_ignore_prefix.replace('.', '/'), ","));
+		this._hook_method_ignore_classes = new StringSet(StringUtil.tokenizer(this.hook_method_ignore_classes.replace('.', '/'), ","));
 		
 		
 		this.hook_service = getValue("hook_service", getValue("hook.service", ""));
