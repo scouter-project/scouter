@@ -125,7 +125,7 @@ public class TagCountUtil {
 			|| tagName.equals(TagConstants.NAME_CITY)
 			|| tagName.equals(TagConstants.NAME_ERROR)) {
 			return new TextHashValue(tagValue);
-		} else if (tagName.equals(TagConstants.NAME_VISITOR)
+		} else if (tagName.equals(TagConstants.NAME_USERID)
 			|| tagName.equals(TagConstants.NAME_ELAPSED)
 			|| tagName.equals(TagConstants.NAME_SQLTIME)
 			|| tagName.equals(TagConstants.NAME_APITIME)){
