@@ -14,6 +14,7 @@
  *  limitations under the License. 
  */
 package scouter.xtra.http;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,9 +22,11 @@ import scouter.agent.Logger;
 import scouter.util.HashUtil;
 import scouter.util.Hexa32;
 import scouter.util.KeyGen;
-public class VisitorUtil {
+
+public class UseridUtil {
 	private static final String SCOUTE_R = "SCOUTER";
-	public static long getVisitor(HttpServletRequest req, HttpServletResponse res) {
+
+	public static long getUserid(HttpServletRequest req, HttpServletResponse res) {
 		try {
 			String cookie = req.getHeader("Cookie");
 			if (cookie != null) {
@@ -46,12 +49,13 @@ public class VisitorUtil {
 			c.setMaxAge(Integer.MAX_VALUE);
 			res.addCookie(c);
 		} catch (Throwable t) {
-			Logger.println("A153", "VisitorUtil " + t.toString());
+			Logger.println("A153", t.toString());
 		}
 		return 0;
 	}
-	public static long getVisitorCustom(HttpServletRequest req, HttpServletResponse res, String key) {
-		if(key==null||key.length()==0)
+
+	public static long getUseridCustom(HttpServletRequest req, HttpServletResponse res, String key) {
+		if (key == null || key.length() == 0)
 			return 0;
 		try {
 			String cookie = req.getHeader("Cookie");
@@ -71,7 +75,7 @@ public class VisitorUtil {
 				}
 			}
 		} catch (Throwable t) {
-			Logger.println("A154", "VisitorUtil " + t.toString());
+			Logger.println("A154", t.toString());
 		}
 		return 0;
 	}

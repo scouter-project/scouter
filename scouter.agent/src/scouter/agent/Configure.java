@@ -99,12 +99,12 @@ public class Configure extends Thread {
 	public String http_debug_parameter_url = "/";
 
 	/*
-	 * visitor: 
+	 * user: 
 	 *  0 - remoteIp 
 	 *  1 - JSESSIONID + remoteIp 
 	 *  2 - SCOUTER(set-cookie)
 	 */
-	public int mode_visitor = 2;
+	public int mode_userid = 2;
 
 	public boolean enable_profile_summary = false;
 	public boolean profile_thread_cputime = false;
@@ -210,7 +210,7 @@ public class Configure extends Thread {
 	public int hook_signature;
 
 	public int max_concurrent_server_request = 10;
-	public String visitor_jsessionid = "JSESSIONID";
+	public String userid_jsessionid = "JSESSIONID";
 	public int statistics_interval = (int) DateUtil.MILLIS_PER_FIVE_MINUTE;
 	public boolean enable_auto_service_trace = false;
 	public boolean enable_auto_service_backstack=true;
@@ -469,9 +469,9 @@ public class Configure extends Thread {
 		this.max_concurrent_server_request = getInt("max_concurrent_server_request", 10);
 		this.debug_connection_stack = getBoolean("debug_connection_stack", false);
 
-		this.mode_visitor = getInt("mode_visitor", 2);
+		this.mode_userid = getInt("mode_userid", 2);
 
-		this.visitor_jsessionid = getValue("visitor_jsessionid", "JSESSIONID");
+		this.userid_jsessionid = getValue("userid_jsessionid", "JSESSIONID");
 		this.enable_statistics = getBoolean("enable_statistics", true);
 		this.statistics_interval = getInt("statistics_interval", (int) DateUtil.MILLIS_PER_FIVE_MINUTE);
 

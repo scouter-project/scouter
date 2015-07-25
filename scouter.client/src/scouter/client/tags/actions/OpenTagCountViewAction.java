@@ -19,7 +19,7 @@ public class OpenTagCountViewAction extends Action implements ICalendarCallback 
 	public OpenTagCountViewAction(IWorkbenchWindow window, int serverId) {
 		this.window = window;
 		this.serverId = serverId;
-		setText("&Tag Count");
+		setText("&TagCount");
 		setImageDescriptor(ImageUtil.getImageDescriptor(Images.bar));
 	}
 

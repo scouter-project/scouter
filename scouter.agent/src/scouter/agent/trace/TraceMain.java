@@ -18,7 +18,7 @@ package scouter.agent.trace;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterService;
-import scouter.agent.counter.meter.VisitMeter;
+import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.HttpServiceTracePlugIn;
 import scouter.agent.plugin.ServiceTracePlugIn;
@@ -249,7 +249,7 @@ public class TraceMain {
 			pack.sqlCount = ctx.sqlCount;
 			pack.sqlTime = ctx.sqlTime;
 			pack.ipaddr = ctx.remoteAddr;
-			pack.userid = ctx.visitor;
+			pack.userid = ctx.userid;
 			// ////////////////////////////////////////////////////////
 			if (ctx.error != 0) {
 				pack.error = ctx.error;
@@ -385,7 +385,7 @@ public class TraceMain {
 			pack.sqlTime = ctx.sqlTime;
 			pack.txid = ctx.txid;
 			pack.ipaddr = ctx.remoteAddr;
-			pack.userid = ctx.visitor;
+			pack.userid = ctx.userid;
 			if (ctx.opencon > 0) {
 				String emsg = "not closed db connection [" + ctx.opencon + "]";
 				int ehash = StringHashCache.getErrHash(emsg);
@@ -627,7 +627,7 @@ public class TraceMain {
 		}
 		MeterService.getInstance().add(pack.elapsed, error != null);
 		DataProxy.sendXLog(pack);
-		VisitMeter.add(pack.userid);
+		MeterUsers.add(pack.userid);
 		return pack;
 	}
 

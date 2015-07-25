@@ -18,23 +18,23 @@ package scouter.agent.counter.task;
 
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
-import scouter.agent.counter.meter.VisitMeter;
+import scouter.agent.counter.meter.MeterUsers;
 import scouter.lang.TimeTypeEnum;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.pack.PerfCounterPack;
 import scouter.lang.value.DecimalValue;
 
-public class CountingVisitor {
+public class CountingUser5m {
 
 	@Counter
 	public void visitor(CounterBasket pw) {
 
 		PerfCounterPack p = pw.getPack(TimeTypeEnum.REALTIME);
 		
-		int visit5m =VisitMeter.getVisitors();
-		p.put(CounterConstants.WAS_USER_5M, new DecimalValue(visit5m));
+		int user5m =MeterUsers.getUsers();
+		p.put(CounterConstants.WAS_USER_5M, new DecimalValue(user5m));
 
 		p = pw.getPack(TimeTypeEnum.FIVE_MIN);
-		p.put(CounterConstants.WAS_USER_5M, new DecimalValue(visit5m));
+		p.put(CounterConstants.WAS_USER_5M, new DecimalValue(user5m));
 	}
 }

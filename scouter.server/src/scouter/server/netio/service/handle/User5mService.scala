@@ -25,7 +25,7 @@ import scouter.server.db.VisitorDB
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.net.RequestCmd
 
-class VisitorService {
+class User5mService {
 
   @ServiceHandler(RequestCmd.VISITOR_REALTIME)
   def visitorRealtime(din: DataInputX, dout: DataOutputX, login: Boolean) {

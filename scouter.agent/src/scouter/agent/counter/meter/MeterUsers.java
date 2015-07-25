@@ -20,41 +20,41 @@ import scouter.agent.Logger;
 import scouter.util.DateUtil;
 import scouter.util.LongLongLinkedMap;
 
-public class VisitMeter {
+public class MeterUsers {
 
-	private static final int MAX_VISITORS = 70000;
-	protected static LongLongLinkedMap visitors = new LongLongLinkedMap().setMax(MAX_VISITORS);
-	protected static MeterResource newVisotors = new MeterResource();
+	private static final int MAX_USERS = 70000;
+	protected static LongLongLinkedMap users = new LongLongLinkedMap().setMax(MAX_USERS);
+	protected static MeterResource newUsers = new MeterResource();
 
-	public static void add(long visitor) {
-		if (visitor == 0)
-			newVisotors.add(1);
+	public static void add(long userid) {
+		if (userid == 0)
+			newUsers.add(1);
 		else {
-			visitors.putLast(visitor, System.currentTimeMillis());
+			users.putLast(userid, System.currentTimeMillis());
 		}
 	}
 
-	public synchronized static int getVisitors() {
+	public synchronized static int getUsers() {
 		int v = 0;
 		long now = System.currentTimeMillis();
 		try {
-			Enumeration en = visitors.entries();
+			Enumeration<LongLongLinkedMap.ENTRY> en = users.entries();
 			while (en.hasMoreElements()) {
-				LongLongLinkedMap.ENTRY e = (LongLongLinkedMap.ENTRY) en.nextElement();
+				LongLongLinkedMap.ENTRY e = en.nextElement();
 				if (now - e.getValue() > DateUtil.MILLIS_PER_FIVE_MINUTE) {
-				   visitors.remove(e.getKey());
+				   users.remove(e.getKey());
 				} else {
 					v++;
 				}
 			}
 		} catch (Throwable t) {
-			Logger.println("A114", "VISIT-METER" + t.toString());
+			Logger.println("A114", "METER-USERS" + t.toString());
 		}
 		return v;
 	}
 
-	public synchronized static int getNewVisitors() {
-		return (int) newVisotors.getSum(300);
+	public synchronized static int getNewUsers() {
+		return (int) newUsers.getSum(300);
 	}
 
 	public static void main(String[] args) throws InterruptedException {
@@ -64,6 +64,6 @@ public class VisitMeter {
 			add(i);
 		}
 		Thread.sleep(1000);
-		System.out.println(getVisitors());
+		System.out.println(getUsers());
 	}
 }
