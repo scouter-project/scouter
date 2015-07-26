@@ -33,7 +33,8 @@ public class Logo {
 	public static void print(boolean server) {
 		InputStream in = null;
 		try {
-			in = Logo.class.getResourceAsStream("scouter.logo");
+			String scouter_logo = System.getProperty("scouter.logo","scouter.logo");
+			in = Logo.class.getResourceAsStream(scouter_logo);
 			if (in == null)
 				return;
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -55,7 +56,8 @@ public class Logo {
 	public static void print(PrintWriter w,boolean server) {
 		InputStream in = null;
 		try {
-			in = Logo.class.getResourceAsStream("scouter.logo");
+			String scouter_logo = System.getProperty("scouter.logo","scouter.logo");
+			in = Logo.class.getResourceAsStream(scouter_logo);
 			if (in == null)
 				return;
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in));

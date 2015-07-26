@@ -27,17 +27,27 @@ import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import scouter.util.StringUtil;
+
 public class Scanner {
 	private String prefix;
 
 	public Scanner(String prefix) {
-		this.prefix = prefix.replace('.', '/');
+		if (StringUtil.isEmpty(prefix))
+			this.prefix = null;
+		else
+			this.prefix = prefix.replace('.', '/');
 	}
+
 	public Set<String> process() {
 		return process(Thread.currentThread().getContextClassLoader());
 	}
+
 	public Set<String> process(ClassLoader loader) {
 		Set<String> mainSet = new TreeSet<String>();
+		if (this.prefix == null)
+			return mainSet;
+
 		try {
 			Set<File> files = getRoot(loader);
 
@@ -53,23 +63,25 @@ public class Scanner {
 
 	public Set<File> getRoot() throws IOException {
 		Set<File> files = new HashSet<File>();
-		Enumeration<URL> en = Thread.currentThread().getContextClassLoader().getResources(prefix);
-		while (en.hasMoreElements()) {
-			File file = parse(en.nextElement());
-			files.add(file);
+		if (this.prefix != null) {
+			Enumeration<URL> en = Thread.currentThread().getContextClassLoader().getResources(prefix);
+			while (en.hasMoreElements()) {
+				File file = parse(en.nextElement());
+				files.add(file);
+			}
 		}
-
 		return files;
 	}
 
 	public Set<File> getRoot(ClassLoader loader) throws IOException {
 		Set<File> files = new HashSet<File>();
-		Enumeration<URL> en = loader.getResources(prefix);
-		while (en.hasMoreElements()) {
-			File file = parse(en.nextElement());
-			files.add(file);
+		if (this.prefix != null) {
+			Enumeration<URL> en = loader.getResources(prefix);
+			while (en.hasMoreElements()) {
+				File file = parse(en.nextElement());
+				files.add(file);
+			}
 		}
-
 		return files;
 	}
 
@@ -84,13 +96,15 @@ public class Scanner {
 
 	public Set<String> listUp(File root) {
 		Set<String> classes = new HashSet<String>();
-		if (root.isDirectory()) {
-			listUp(classes, new File(root, prefix), root.getAbsolutePath());
-		} else {
-			try {
-				listUp(classes, new JarFile(root));
-			} catch (IOException e) {
-				e.printStackTrace();
+		if (this.prefix != null) {
+			if (root.isDirectory()) {
+				listUp(classes, new File(root, prefix), root.getAbsolutePath());
+			} else {
+				try {
+					listUp(classes, new JarFile(root));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return classes;
@@ -116,6 +130,9 @@ public class Scanner {
 	}
 
 	public void listUp(Set<String> classes, JarFile file) {
+		if (this.prefix == null)
+			return;
+
 		Enumeration<JarEntry> en = file.entries();
 		while (en.hasMoreElements()) {
 			JarEntry entry = en.nextElement();
