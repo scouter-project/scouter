@@ -111,6 +111,7 @@ public class CounterConstants {
 	public final static String DAILY_SERVICE_COUNT           = "dservcnt";
 	public final static String SERVICE_GROUP            				= "svcgrp";
 	public final static String UNIQUE_VISITOR            				= "unqvst";
+	public final static String TAGCNT            				= "tagcnt";
 	
 	public final static String[] COUNTER_MENU_ARRAY = {REAL_TIME_ALL, REAL_TIME_TOTAL, TODAY_ALL, TODAY_TOTAL,
 			PAST_TIME_ALL, PAST_TIME_TOTAL, PAST_DATE_ALL, PAST_DATE_TOTAL};

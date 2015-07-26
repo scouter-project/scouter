@@ -40,7 +40,7 @@ public class OpenUniqueVisitorAction extends Action {
 		this.win = win;
 		this.objHash = objHash;
 		this.serverId = serverId;
-		setText("Unique Visitor");
+		setText("Today Visitor");
 		setImageDescriptor(ImageUtil.getImageDescriptor(Images.monitor));
 	}
 
@@ -53,7 +53,7 @@ public class OpenUniqueVisitorAction extends Action {
 					MapPack param = new MapPack();
 					param.put("objHash", this.objHash);
 					String objName = TextProxy.object.getText(objHash);
-					view.setInput(objName + "'s Unique Visitor", RequestCmd.VISITOR_REALTIME, param);
+					view.setInput(objName + "'s Today Visitors", RequestCmd.VISITOR_REALTIME, param);
 				}
 			} catch (PartInitException e) {
 				MessageDialog.openError(win.getShell(), "Error", "Error opening view:" + e.getMessage());

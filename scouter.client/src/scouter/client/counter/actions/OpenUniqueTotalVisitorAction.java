@@ -40,7 +40,7 @@ public class OpenUniqueTotalVisitorAction extends Action {
 		this.win = win;
 		this.objType = objType;
 		this.serverId = serverId;
-		setText("Unique Visitor");
+		setText("Today Visitor");
 		setImageDescriptor(ImageUtil.getImageDescriptor(Images.monitor));
 	}
 
@@ -53,7 +53,7 @@ public class OpenUniqueTotalVisitorAction extends Action {
 					MapPack param = new MapPack();
 					param.put("objType", this.objType);
 					String displayObjType = ServerManager.getInstance().getServer(serverId).getCounterEngine().getDisplayNameObjectType(objType);
-					view.setInput(displayObjType + "'s  Visitor", RequestCmd.VISITOR_REALTIME_TOTAL, param);
+					view.setInput(displayObjType + "'s  Visitors", RequestCmd.VISITOR_REALTIME_TOTAL, param);
 				}
 			} catch (PartInitException e) {
 				MessageDialog.openError(win.getShell(), "Error", "Error opening view:" + e.getMessage());

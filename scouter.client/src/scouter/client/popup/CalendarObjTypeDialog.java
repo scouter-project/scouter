@@ -48,11 +48,17 @@ public class CalendarObjTypeDialog {
 	private final int serverId;
 	private final CounterEngine counterEngine;
 	private ImageCombo objTypeCombo;
+	private String defObjType;
 	
-	public CalendarObjTypeDialog(Display display, ICalendarCallback callback, int serverId) {
+	public CalendarObjTypeDialog(Display display, ICalendarCallback callback, int serverId, String objType) {
 		this.display = display;
 		this.callback = callback;
 		this.serverId = serverId;
+		if(StringUtil.isEmpty(objType))
+			this.defObjType=PManager.getInstance().getString(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_WAS);
+		else
+			this.defObjType = objType;
+		
 		counterEngine = ServerManager.getInstance().getServer(serverId).getCounterEngine();
 	}
 	
@@ -83,7 +89,7 @@ public class CalendarObjTypeDialog {
 		objTypeCombo.setLayoutData(gd);
 		objTypeCombo.setBackground(ColorUtil.getInstance().getColor("white"));
 		ArrayList<String> objTypeList = counterEngine.getAllObjectType();
-		String defObjType = PManager.getInstance().getString(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_WAS);
+		//String defObjType = this.objType!=null?this.objType:PManager.getInstance().getString(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_WAS);
 		for (int i = 0; i < objTypeList.size() ; i++) {
 			String objType = objTypeList.get(i);
 			String displayName = counterEngine.getDisplayNameObjectType(objType);

@@ -15,6 +15,7 @@ public class OpenTagCountViewAction extends Action implements ICalendarCallback 
 	
 	IWorkbenchWindow window;
 	int serverId;
+    String objType;
 
 	public OpenTagCountViewAction(IWorkbenchWindow window, int serverId) {
 		this.window = window;
@@ -22,10 +23,17 @@ public class OpenTagCountViewAction extends Action implements ICalendarCallback 
 		setText("&TagCount");
 		setImageDescriptor(ImageUtil.getImageDescriptor(Images.bar));
 	}
+	public OpenTagCountViewAction(IWorkbenchWindow window, int serverId, String objType) {
+		this.window = window;
+		this.serverId = serverId;
+		this.objType=objType;
+		setText("&TagCount");
+		setImageDescriptor(ImageUtil.getImageDescriptor(Images.bar));
+	}
 
 	public void run() {
 		try {
-			CalendarObjTypeDialog dialog = new CalendarObjTypeDialog(window.getShell().getDisplay(), this, serverId);
+			CalendarObjTypeDialog dialog = new CalendarObjTypeDialog(window.getShell().getDisplay(), this, serverId,this.objType);
 			dialog.show();
 		} catch (Exception e) {
 			MessageDialog.openError(window.getShell(), "Error", "Error opening view:" + e.getMessage());

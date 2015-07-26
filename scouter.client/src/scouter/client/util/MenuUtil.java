@@ -86,6 +86,7 @@ import scouter.client.model.AgentObject;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
+import scouter.client.tags.actions.OpenTagCountViewAction;
 import scouter.client.xlog.actions.OpenXLogLoadTimeAction;
 import scouter.client.xlog.actions.OpenXLogRealTimeAction;
 import scouter.lang.counters.CounterConstants;
@@ -359,6 +360,15 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 			actions.put(
 					objType + ":" + CounterConstants.UNIQUE_VISITOR,
 					new OpenUniqueTotalVisitorAction(window, serverId, objType));
+		}
+		
+		objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.TAGCNT);
+		for (int inx = 0; inx < objTypeList.size(); inx++) {
+			String[] splitedKey = objTypeList.get(inx).split(":");
+			String objType = splitedKey[1];
+			actions.put(
+					objType + ":" + CounterConstants.TAGCNT,
+					new OpenTagCountViewAction(window, serverId, objType));
 		}
 		
 		return actions;
