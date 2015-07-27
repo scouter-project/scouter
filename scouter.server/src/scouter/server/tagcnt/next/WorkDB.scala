@@ -21,17 +21,17 @@ import scouter.util.IClose;
 
 class WorkDB(file: String) extends IClose {
 
-	 var lastActive = 0L
+    var lastActive = 0L
 
-  var table: IndexFile = null
+    var table: IndexFile = null
 
-  var logDate = ""
-  var objType = ""
+    var logDate = ""
+    var objType = ""
 
-  def open() {
-    this.table = IndexFile.open(file + "/next")
-  }
-  def close() {
-    this.table.close();
-  }
+    def open() {
+        this.table = IndexFile.open(file + "/next")
+    }
+    def close() {
+        this.table.close();
+    }
 }

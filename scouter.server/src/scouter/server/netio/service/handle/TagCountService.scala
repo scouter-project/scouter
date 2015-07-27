@@ -239,11 +239,11 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == TagConstants.NAME_VISITOR) {
-                val visitorLv = mv.getList(key);
-                for (i <- 0 to visitorLv.size() - 1) {
-                    var visitor = visitorLv.getLong(i);
-                    if (x.visitor == visitor) {
+            } else if (key == TagConstants.NAME_USERID) {
+                val useridLv = mv.getList(key);
+                for (i <- 0 to useridLv.size() - 1) {
+                    var userid = useridLv.getLong(i);
+                    if (x.userid == userid) {
                         return true;
                     }
                 }

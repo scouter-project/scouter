@@ -14,10 +14,11 @@
  *  limitations under the License. 
  */
 package scouter.agent.trace;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterService;
-import scouter.agent.counter.meter.VisitMeter;
+import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.HttpServiceTracePlugIn;
 import scouter.agent.plugin.ServiceTracePlugIn;
@@ -35,22 +36,27 @@ import scouter.util.ObjectUtil;
 import scouter.util.StringUtil;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
+
 public class TraceMain {
 	public static class Stat {
 		public TraceContext ctx;
 		public Object req;
 		public Object res;
 		public boolean isStaticContents;
+
 		public Stat(TraceContext ctx, Object req, Object res) {
 			this.ctx = ctx;
 			this.req = req;
 			this.res = res;
 		}
+
 		public Stat(TraceContext ctx) {
 			this.ctx = ctx;
 		}
 	}
+
 	private static IHttpTrace http = null;
+
 	public static Object startHttpService(Object req, Object res) {
 		try {
 			TraceContext ctx = TraceContextManager.getLocalContext();
@@ -67,6 +73,7 @@ public class TraceMain {
 		}
 		return null;
 	}
+
 	public static Object startHttpFilter(Object req, Object res) {
 		try {
 			TraceContext ctx = TraceContextManager.getLocalContext();
@@ -79,7 +86,9 @@ public class TraceMain {
 		}
 		return null;
 	}
+
 	private static Error REJECT = new Error();
+
 	public static Object reject(Object stat, Object req, Object res) {
 		Configure conf = Configure.getInstance();
 		if (conf.enable_reject_service) {
@@ -88,26 +97,31 @@ public class TraceMain {
 			if (http == null) {
 				initHttp(req);
 			}
-			
+
 			Stat stat0 = (Stat) stat;
 			if (stat0.isStaticContents)
 				return null;
-			
-			if (HttpServiceTracePlugIn.reject(stat0.ctx, req, res) //reject by customized plugin
-					|| TraceContextManager.size() > conf.max_active_service) {//reject by max_active_service
-				// howto reject 
+
+			if (HttpServiceTracePlugIn.reject(stat0.ctx, req, res) // reject by
+																	// customized
+																	// plugin
+					|| TraceContextManager.size() > conf.max_active_service) {// reject
+																				// by
+																				// max_active_service
+				// howto reject
 				if (conf.enable_reject_url) {
 					http.rejectUrl(res, conf.reject_url); // by url
 				} else {
 					http.rejectText(res, conf.reject_text);// just message
 				}
-				//close transaction
+				// close transaction
 				endHttpService(stat0, REJECT);
 				return REJECT;
 			}
 		}
 		return null;
 	}
+
 	private static void addSeviceName(TraceContext ctx, Object req) {
 		try {
 			Configure conf = Configure.getInstance();
@@ -147,7 +161,9 @@ public class TraceMain {
 		} catch (Throwable t) {
 		}
 	}
+
 	private static Object lock = new Object();
+
 	private static Object startHttp(Object req, Object res) {
 		if (http == null) {
 			initHttp(req);
@@ -159,7 +175,7 @@ public class TraceMain {
 		ctx.startTime = System.currentTimeMillis();
 		ctx.startCpu = SysJMX.getCurrentThreadCPU();
 		ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
-		ctx.bytes= SysJMX.getCurrentThreadAllocBytes();
+		ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
 		ctx.profile_thread_cputime = conf.profile_thread_cputime;
 		http.start(ctx, req, res);
 		if (ctx.serviceName == null)
@@ -169,6 +185,7 @@ public class TraceMain {
 		stat.isStaticContents = isStaticContents(ctx.serviceName);
 		return stat;
 	}
+
 	private static void initHttp(Object req) {
 		synchronized (lock) {
 			if (http == null) {
@@ -176,6 +193,7 @@ public class TraceMain {
 			}
 		}
 	}
+
 	public static void endHttpService(Object stat, Throwable thr) {
 		try {
 			Stat stat0 = (Stat) stat;
@@ -215,7 +233,7 @@ public class TraceMain {
 				return;
 			}
 			XLogPack pack = new XLogPack();
-			//pack.endTime = System.currentTimeMillis();
+			// pack.endTime = System.currentTimeMillis();
 			pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
 			boolean sendOk = pack.elapsed >= conf.xlog_time_limit;
 			ctx.profile.close(sendOk);
@@ -226,12 +244,12 @@ public class TraceMain {
 			pack.txid = ctx.txid;
 			pack.gxid = ctx.gxid;
 			pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-			pack.bytes = (int)(SysJMX.getCurrentThreadAllocBytes() - ctx.bytes);
+			pack.bytes = (int) (SysJMX.getCurrentThreadAllocBytes() - ctx.bytes);
 			pack.status = ctx.status;
 			pack.sqlCount = ctx.sqlCount;
 			pack.sqlTime = ctx.sqlTime;
 			pack.ipaddr = ctx.remoteAddr;
-			pack.visitor = ctx.visitor;
+			pack.userid = ctx.userid;
 			// ////////////////////////////////////////////////////////
 			if (ctx.error != 0) {
 				pack.error = ctx.error;
@@ -291,6 +309,7 @@ public class TraceMain {
 			Logger.println("A146", e);
 		}
 	}
+
 	public static void metering(XLogPack pack) {
 		switch (pack.xType) {
 		case XLogTypes.WEB_SERVICE:
@@ -300,6 +319,7 @@ public class TraceMain {
 		case XLogTypes.BACK_THREAD:
 		}
 	}
+
 	private static boolean isStaticContents(String serviceName) {
 		int x = serviceName.lastIndexOf('.');
 		if (x <= 0)
@@ -311,6 +331,7 @@ public class TraceMain {
 			return false;
 		}
 	}
+
 	public static Object startService(String name, String className, String methodName, String methodDesc,
 			Object _this, Object[] arg, byte xType) {
 		try {
@@ -328,7 +349,7 @@ public class TraceMain {
 			ctx.startCpu = SysJMX.getCurrentThreadCPU();
 			ctx.txid = KeyGen.next();
 			ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
-			ctx.bytes= SysJMX.getCurrentThreadAllocBytes();
+			ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
 			ctx.profile_thread_cputime = conf.profile_thread_cputime;
 			ctx.xType = xType;
 			ServiceTracePlugIn.start(ctx, new ApiInfo(className, methodName, methodDesc, _this, arg));
@@ -338,6 +359,7 @@ public class TraceMain {
 		}
 		return null;
 	}
+
 	public static void endService(Object stat, Object returnValue, Throwable thr) {
 		try {
 			Stat stat0 = (Stat) stat;
@@ -350,20 +372,20 @@ public class TraceMain {
 			TraceContextManager.end(ctx.threadId);
 			XLogPack pack = new XLogPack();
 			pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-			//pack.endTime = System.currentTimeMillis();
+			// pack.endTime = System.currentTimeMillis();
 			pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
 			boolean sendOk = pack.elapsed >= Configure.getInstance().xlog_time_limit;
 			ctx.profile.close(sendOk);
 			DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
 			pack.service = ctx.serviceHash;
 			pack.xType = ctx.xType;
-			pack.bytes = (int)(SysJMX.getCurrentThreadAllocBytes() - ctx.bytes);
+			pack.bytes = (int) (SysJMX.getCurrentThreadAllocBytes() - ctx.bytes);
 			pack.status = ctx.status;
 			pack.sqlCount = ctx.sqlCount;
 			pack.sqlTime = ctx.sqlTime;
 			pack.txid = ctx.txid;
 			pack.ipaddr = ctx.remoteAddr;
-			pack.visitor = ctx.visitor;
+			pack.userid = ctx.userid;
 			if (ctx.opencon > 0) {
 				String emsg = "not closed db connection [" + ctx.opencon + "]";
 				int ehash = StringHashCache.getErrHash(emsg);
@@ -406,6 +428,7 @@ public class TraceMain {
 			Logger.println("A148", t);
 		}
 	}
+
 	public static void capArgs(String className, String methodName, String methodDesc, Object[] arg) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
@@ -418,6 +441,7 @@ public class TraceMain {
 		step.message = toString("CAP-ARG", className, methodName, methodDesc, arg);
 		ctx.profile.add(step);
 	}
+
 	public static void jspServlet(Object[] arg) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null || arg.length < 3)
@@ -430,6 +454,7 @@ public class TraceMain {
 		step.message = "JSP " + arg[2];
 		ctx.profile.add(step);
 	}
+
 	private static String toString(String type, String className, String methodName, String methodDesc, Object[] arg) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(type).append(" ");
@@ -449,6 +474,7 @@ public class TraceMain {
 		sb.append("]");
 		return sb.toString();
 	}
+
 	private static String toStringRTN(String type, String className, String methodName, String methodDesc, Object arg) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(type).append(" ");
@@ -461,6 +487,7 @@ public class TraceMain {
 		sb.append("]");
 		return sb.toString();
 	}
+
 	private static String toStringTHIS(String type, String className, String methodDesc, Object arg) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(type).append(" ");
@@ -471,6 +498,7 @@ public class TraceMain {
 		sb.append("]");
 		return sb.toString();
 	}
+
 	public static void capThis(String className, String methodDesc, Object this0) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
@@ -483,6 +511,7 @@ public class TraceMain {
 		step.message = toStringTHIS("CAP-THIS", className, methodDesc, this0);
 		ctx.profile.add(step);
 	}
+
 	public static void capReturn(String className, String methodName, String methodDesc, Object rtn) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
@@ -495,16 +524,22 @@ public class TraceMain {
 		step.message = toStringRTN("CAP-RTN", className, methodName, methodDesc, rtn);
 		ctx.profile.add(step);
 	}
+
 	private static Configure conf = Configure.getInstance();
+
 	public static Object startMethod(int hash, String classMethod) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.enable_auto_service_trace) {
-				if(conf.enable_auto_service_backstack){
-					AutoServiceStartAnalizer.put(classMethod, ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace()));
-				}
-				Object stat = startService(classMethod, null, null, null, null, null, XLogTypes.BACK_THREAD);
-				return new LocalContext(stat);
+					Object stat = startService(classMethod, null, null, null, null, null, XLogTypes.BACK_THREAD);
+					if (conf.enable_auto_service_backstack) {
+						String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
+						AutoServiceStartAnalizer.put(classMethod, stack);
+						MessageStep m = new MessageStep();
+						m.message = "SERVICE BACKSTACK:\n" + stack;
+						((Stat) stat).ctx.profile.add(m);
+					}
+					return new LocalContext(stat);
 			}
 			return null;
 		}
@@ -517,6 +552,7 @@ public class TraceMain {
 		ctx.profile.push(p);
 		return new LocalContext(ctx, p);
 	}
+
 	public static void endMethod(Object stat, Throwable thr) {
 		if (stat == null)
 			return;
@@ -537,6 +573,7 @@ public class TraceMain {
 		}
 		tctx.profile.pop(step);
 	}
+
 	// public static Object startDivPerf(int divIdx, String classMethod) {
 	// TraceContext ctx = TraceContextManager.getLocalContext();
 	// if (ctx == null)
@@ -565,13 +602,14 @@ public class TraceMain {
 			return;
 		ctx.status = httpStatus;
 	}
-	public static XLogPack txperf(long endtime, long txid, int service_hash, String serviceName, int elapsed, int cpu, int sqlCount,
-			int sqlTime, String remoteAddr, String error, long visitor) {
+
+	public static XLogPack txperf(long endtime, long txid, int service_hash, String serviceName, int elapsed, int cpu,
+			int sqlCount, int sqlTime, String remoteAddr, String error, long visitor) {
 		XLogPack pack = new XLogPack();
 		pack.cpu = cpu;
 		pack.endTime = endtime;
 		pack.elapsed = elapsed;
-		
+
 		DataProxy.sendServiceName(service_hash, serviceName);
 		pack.service = service_hash;
 		pack.bytes = 0;
@@ -580,7 +618,7 @@ public class TraceMain {
 		pack.sqlTime = sqlTime;
 		pack.txid = txid;
 		pack.ipaddr = IPUtil.toBytes(remoteAddr);
-		pack.visitor = visitor;
+		pack.userid = visitor;
 		if (error != null) {
 			int ehash = StringHashCache.getErrHash(error);
 			DataProxy.sendError(ehash, error);
@@ -589,9 +627,10 @@ public class TraceMain {
 		}
 		MeterService.getInstance().add(pack.elapsed, error != null);
 		DataProxy.sendXLog(pack);
-		VisitMeter.add(pack.visitor);
+		MeterUsers.add(pack.userid);
 		return pack;
 	}
+
 	public static void addMessage(String msg) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)

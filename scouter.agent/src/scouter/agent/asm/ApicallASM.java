@@ -33,13 +33,13 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
-public class Apicall2ASM implements IASM, Opcodes {
+public class ApicallASM implements IASM, Opcodes {
 	// private Map<String, MethodSet> target =
 	// MethodSet.getHookingSet("hook.subcall");
 	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_apicall);
 	private Map<String, MethodSet> reserved = new HashMap<String, MethodSet>();
 
-	public Apicall2ASM() {
+	public ApicallASM() {
 		AsmUtil.add(reserved, "sun/net/www/protocol/http/HttpURLConnection", "getInputStream()Ljava/io/InputStream;");
 		AsmUtil.add(reserved, "sun/net/www/protocol/http/HttpURLConnection", "connect()V");
 		AsmUtil.add(reserved, "org/apache/commons/httpclient/HttpClient", "executeMethod("

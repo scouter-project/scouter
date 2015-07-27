@@ -64,17 +64,17 @@ public class ServiceHandlingProxy {
 
 		String pkg = Scanner.cutOutLast(ServiceHandlingProxy.class.getName(), ".");
 		Set<String> classes = new Scanner(pkg).process(ServiceHandlingProxy.class.getClassLoader());
+		Set<String> custom = new Scanner(System.getProperty("scouter.handler")).process();
+		classes.addAll(custom);
 
 		Iterator<String> itr = classes.iterator();
 		while (itr.hasNext()) {
 			try {
 				Class c = Class.forName(itr.next());
-				
-				if (Modifier.isPublic(c.getModifiers()) == false){
-					//System.out.println("not public " + c);
+
+				if (Modifier.isPublic(c.getModifiers()) == false) {
 					continue;
 				}
-				//System.out.println("check " + c);
 				try {
 					Method[] m = c.getDeclaredMethods();
 					for (int i = 0; i < m.length; i++) {
@@ -91,7 +91,6 @@ public class ServiceHandlingProxy {
 								Logger.println("RequestHandler " + key + "=>" + news);
 							}
 						}
-						//System.out.println("handler " + key );
 						handlers.put(key, news);
 					}
 				} catch (Exception x) {

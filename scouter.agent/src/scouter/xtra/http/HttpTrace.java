@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import scouter.agent.Configure;
-import scouter.agent.counter.meter.VisitMeter;
+import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.trace.IProfileCollector;
@@ -89,21 +89,21 @@ public class HttpTrace implements IHttpTrace {
 
 		ctx.remoteAddr = IPUtil.toBytes(getRemoteAddr(request));
 		try {
-			switch (conf.mode_visitor) {
+			switch (conf.mode_userid) {
 			case 2:
-				ctx.visitor = VisitorUtil.getVisitor(request, response);
+				ctx.userid = UseridUtil.getUserid(request, response);
 				break;
 			case 1:
-				ctx.visitor = VisitorUtil.getVisitorCustom(request, response, conf.visitor_jsessionid);
-				if (ctx.visitor == 0) {
-					ctx.visitor = DataInputX.toInt(ctx.remoteAddr, 0);
+				ctx.userid = UseridUtil.getUseridCustom(request, response, conf.userid_jsessionid);
+				if (ctx.userid == 0) {
+					ctx.userid = DataInputX.toInt(ctx.remoteAddr, 0);
 				}
 				break;
 			default:
-				ctx.visitor = DataInputX.toInt(ctx.remoteAddr, 0);
+				ctx.userid = DataInputX.toInt(ctx.remoteAddr, 0);
 				break;
 			}
-			VisitMeter.add(ctx.visitor);
+			MeterUsers.add(ctx.userid);
 		} catch (Throwable e) {
 			// ignore
 		}

@@ -99,10 +99,12 @@ public class CounterExecutingManager extends Thread {
 		}
 	}
 	public static void load() {
-		String pkg = Scanner.cutOutLast(HeapUsage.class.getName(), ".");
-		Set<String> classes = new Scanner(pkg).process();
+		Set<String> defaultTasks = new Scanner("scouter.agent.counter.task").process();
+		Set<String> customTasks = new Scanner(System.getProperty("scouter.task")).process();
+		defaultTasks.addAll(customTasks);
+		
 		int n = 0;
-		Iterator<String> itr = classes.iterator();
+		Iterator<String> itr = defaultTasks.iterator();
 		while (itr.hasNext()) {
 			try {
 				Class c = Class.forName(itr.next());

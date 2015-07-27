@@ -20,7 +20,7 @@ public class TagConstants {
 	public static final String NAME_APITIME = "apitime";
 	public static final String NAME_CITY = "city";
 	public static final String NAME_NATION = "nation";
-	public static final String NAME_VISITOR = "visitor";
+	public static final String NAME_USERID = "userid";
 	public static final String NAME_LEVEL = "level";
 	public static final String NAME_TITLE = "title";
 

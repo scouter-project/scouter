@@ -43,7 +43,7 @@ public class Service24H {
 		ShellArg sh = new ShellArg(args);
 		String server = sh.get("-h", "127.0.0.1");
 		String port = sh.get("-p", "6100");
-		int tps =CastUtil.cint(sh.get("-tps","1000"));
+		int tps =CastUtil.cint(sh.get("-tps","5000"));
 		String type = sh.get("-type", "tomcat");
 		String name = sh.get("-name", "java"+SysJMX.getProcessPID());
 		System.setProperty("scouter_type", type);
@@ -103,7 +103,7 @@ public class Service24H {
 			     tm = tm - ((int)tm);
 			}
 			long x = System.currentTimeMillis();
-			if(x-now >1000000)
+			if(x-now >3000000)
 				break;
 		}
 		ThreadUtil.sleep(100000);

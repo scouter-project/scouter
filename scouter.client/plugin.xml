@@ -45,6 +45,12 @@
           id="scouter.client.PerspectiveService"
           name="Service">
     </perspective>
+    <perspective
+          class="scouter.client.PerspectiveMaria"
+          icon="icons/database_go.png"
+          id="scouter.client.PerspectiveMaria"
+          name="Maria">
+    </perspective>
   </extension>
 
   <extension point="org.eclipse.ui.perspectiveExtensions">
@@ -868,9 +874,9 @@
       </view>
       <view
             allowMultiple="true"
-            class="scouter.client.maria.views.DbTodayTotalConnView"
+            class="scouter.client.maria.views.DbTodayTotalActivityView"
             icon="icons/database_go.png"
-            id="scouter.client.maria.views.DbTodayTotalConnView"
+            id="scouter.client.maria.views.DbTodayTotalActivityView"
             name="DatabaseActivityTotal"
             restorable="true">
       </view>

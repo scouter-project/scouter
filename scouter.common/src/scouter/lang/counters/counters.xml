@@ -10,12 +10,13 @@ actthrli : Active Thread List
 tdservcnt : Today Service Count
 dservcnt : Daily Service Count
 svcgrp : Service Group
-unqvst : Unique Visitor
+unqvst : Today Visitor
 scrbrd : Score Board
 mrcon : MariaDB Connections
 mract : MariaDB Activity
 mrres : MariaDB ResponseTime
 mrhit : MariaDB HitRatio
+tagcnt : TagCount
 -->
 <Counters>
 	<Familys>
@@ -43,7 +44,7 @@ mrhit : MariaDB HitRatio
 			<Counter name="ReadCount" disp="Disk | Read Count" unit="cnt" icon="disk_read.png" />
 			<Counter name="DropIn" disp="Net | Drop In" unit="cnt" icon="drop.png" />
 		</Family>
-		<Family name="javaee" master="ActiveService" txreal="true"  txload="true" totactsp="true"  acteq="true"  actthrli="true" dservcnt="true" tdservcnt="true" svcgrp="true" srcxlog="true" unqvst="true">
+		<Family name="javaee" master="ActiveService" txreal="true"  txload="true" totactsp="true"  acteq="true"  actthrli="true" dservcnt="true" tdservcnt="true" svcgrp="true" srcxlog="true" unqvst="true" tagcnt="true" >
 			<Counter name="User5M" disp="User5M" unit="cnt" icon="visitor.png" />
 			<Counter name="HeapTotUsage" disp="Heap Total Usage" unit="MB" icon="memory.png" all="false" total="false"  />
 			<Counter name="GcCount" disp="GC Count" unit="cnt" icon="gc.png" />

@@ -115,8 +115,7 @@ public class ImageCache {
 	}
 
 	private Image createObjectImage(RGB rgb) {
-		Image xp;
-		xp = new Image(null, 3, 3);
+		Image xp = new Image(null, 3, 3);
 		GC gcc = new GC(xp);
 		gcc.setForeground(new Color(null, rgb));
 		gcc.drawPoint(1, 1);

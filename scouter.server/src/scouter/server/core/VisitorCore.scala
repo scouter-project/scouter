@@ -56,7 +56,7 @@ object VisitorCore {
     }
 
     def add(p: XLogPack) {
-        if (p.visitor == 0) {
+        if (p.userid == 0) {
             return
         }
         val ok = queue.put(p);
@@ -65,8 +65,8 @@ object VisitorCore {
         }
     }
     def process(objType: String, x: XLogPack) {
-        VisitorDB.getNewObjType(objType).offer(x.visitor)
-        VisitorDB.getNewObject(x.objHash).offer(x.visitor)
+        VisitorDB.getNewObjType(objType).offer(x.userid)
+        VisitorDB.getNewObject(x.objHash).offer(x.userid)
     }
 }
   

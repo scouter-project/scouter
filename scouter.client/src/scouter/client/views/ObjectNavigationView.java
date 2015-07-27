@@ -372,8 +372,8 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 						}
 						addExistObjectTypeMenus(win, mgr, counterEngine, counterActionsMap, serverId);
 						
-						mgr.add(new Separator());
-						mgr.add(new OpenTagCountViewAction(win, serverId));
+//						mgr.add(new Separator());
+//						mgr.add(new OpenTagCountViewAction(win, serverId));
 						mgr.add(new Separator());
 						if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
 							mgr.add(new OpenServerConfigureAction(win, MenuStr.CONFIGURE, Images.config, serverId));
@@ -542,6 +542,11 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 		}
 		
 		act = actionMap.get(objType + ":" + CounterConstants.UNIQUE_VISITOR);
+		if(act != null){
+			objTitle.add(act);
+		}
+		
+		act = actionMap.get(objType + ":" + CounterConstants.TAGCNT);
 		if(act != null){
 			objTitle.add(act);
 		}
@@ -754,12 +759,12 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 				}
 				return Images.default_context;
 			case 1:
-				if (obj instanceof AgentObject) {
-					AgentObject a = (AgentObject) obj;
-					if (a.isAlive()) {
-						return ImageCache.getInstance().getObjectImage(a.getObjHash());
-					}
-				}
+//				if (obj instanceof AgentObject) {
+//					AgentObject a = (AgentObject) obj;
+//					if (a.isAlive()) {
+//						return ImageCache.getInstance().getObjectImage(a.getObjHash());
+//					}
+//				}
 			}
 			return null;
 		}

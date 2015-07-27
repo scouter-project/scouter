@@ -59,11 +59,12 @@ public class ThreadUtil {
 	public static String getName(Thread t) {
 		return getName(t.getClass());
 	}
+
 	public static String getName(Class clazz) {
 		String name = clazz.getName();
-		if(name.startsWith("scouter.agent.")==false)
+		if (name.startsWith("scouter.agent.") == false)
 			return name;
-		return "Scouter-"+name.substring(name.lastIndexOf('.')+1);
+		return "Scouter-" + name.substring(name.lastIndexOf('.') + 1);
 	}
 
 	public static MapPack getThreadDetail(long thread_id) {
@@ -94,24 +95,32 @@ public class ThreadUtil {
 		return m;
 	}
 
-	public static String getThreadStack(long id){
+	public static String getThreadStack(long id) {
 		ThreadMXBean tmb = ManagementFactory.getThreadMXBean();
 		ThreadInfo f = tmb.getThreadInfo(id, 500);
 		if (f == null)
 			return null;
 		return getStackTrace(f.getStackTrace()).toString();
 	}
-	public static String getThreadStack(){
+
+	public static String getThreadStack() {
 		return getStackTrace(Thread.currentThread().getStackTrace()).toString();
 	}
+
 	public static String getStackTrace(StackTraceElement[] se) {
+		return getStackTrace(se, 0);
+	}
+
+	public static String getStackTrace(StackTraceElement[] se, int skip) {
+		if (se == null || se.length <= skip)
+			return "";
 		String CRLF = System.getProperty("line.separator");
 		StringBuffer sb = new StringBuffer();
-		if (se != null) {
-			for (int i = 0; i < se.length; i++) {
-				if (se[i] != null)
-					sb.append(se[i].toString() + CRLF);
+		for (int i = skip; i < se.length; i++) {
+			if (sb.length() > 0) {
+				sb.append(CRLF);
 			}
+			sb.append(se[i]);
 		}
 		return sb.toString();
 	}
@@ -155,59 +164,59 @@ public class ThreadUtil {
 
 				});
 
-//		if (keepAlive > 0) {
-//			// FIXME JDK 1.7 ?
-//			if (SystemUtils.IS_JAVA_1_5 == false) {
-//				try {
-//					exe.allowCoreThreadTimeOut(true);
-//				} catch(Throwable t) { }
-//			}
-//		}
+		// if (keepAlive > 0) {
+		// // FIXME JDK 1.7 ?
+		// if (SystemUtils.IS_JAVA_1_5 == false) {
+		// try {
+		// exe.allowCoreThreadTimeOut(true);
+		// } catch(Throwable t) { }
+		// }
+		// }
 
 		return exe;
 	}
 
 	public static String getStackTrace(Throwable t) {
-        String CRLF = System.getProperty("line.separator");
-        StringBuffer sb = new StringBuffer();
-        sb.append(t.toString() + CRLF);
-        StackTraceElement[] se = t.getStackTrace();
-        if (se != null) {
-            for (int i = 0; i < se.length; i++) {
-                if (se[i] != null) {
-                    sb.append("\t" + se[i].toString());
-                    if (i != se.length -1) {
-                    	sb.append(CRLF);
-                    }          
-                }
-            }
-        }
-        
-        return sb.toString();    	
-    }
-	public static void getStackTrace(StringBuffer sb , Throwable t, int max) {
-		if(t==null)
-			return ;
-		if(max<=0){
-			max=10000;
+		String CRLF = System.getProperty("line.separator");
+		StringBuffer sb = new StringBuffer();
+		sb.append(t.toString() + CRLF);
+		StackTraceElement[] se = t.getStackTrace();
+		if (se != null) {
+			for (int i = 0; i < se.length; i++) {
+				if (se[i] != null) {
+					sb.append("\t" + se[i].toString());
+					if (i != se.length - 1) {
+						sb.append(CRLF);
+					}
+				}
+			}
 		}
-        String CRLF = System.getProperty("line.separator");
-        sb.append(t);
-        StackTraceElement[] se = t.getStackTrace();
-        if (se != null && se.length>0) {
-            for (int i = 0; i < se.length && i <max; i++) {
-                if (se[i] != null) {
-                    sb.append(CRLF);
-                	sb.append("\t" + se[i]);          
-                }
-            }
-            if(max < se.length){
-            	sb.append(CRLF+"\t...more lines " +(se.length-max) ); 
-            }
-        }else{
-        	sb.append(CRLF+"\tno stack info ");
-        }
-        
-      
-    }
+
+		return sb.toString();
+	}
+
+	public static void getStackTrace(StringBuffer sb, Throwable t, int max) {
+		if (t == null)
+			return;
+		if (max <= 0) {
+			max = 10000;
+		}
+		String CRLF = System.getProperty("line.separator");
+		sb.append(t);
+		StackTraceElement[] se = t.getStackTrace();
+		if (se != null && se.length > 0) {
+			for (int i = 0; i < se.length && i < max; i++) {
+				if (se[i] != null) {
+					sb.append(CRLF);
+					sb.append("\t" + se[i]);
+				}
+			}
+			if (max < se.length) {
+				sb.append(CRLF + "\t...more lines " + (se.length - max));
+			}
+		} else {
+			sb.append(CRLF + "\tno stack info ");
+		}
+
+	}
 }

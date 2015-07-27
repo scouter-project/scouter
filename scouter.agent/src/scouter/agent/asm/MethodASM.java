@@ -50,8 +50,12 @@ public class MethodASM implements IASM, Opcodes {
 		return false;
 	}
 
+	Configure conf = Configure.getInstance();
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (target.size() == 0)
+			return cv;
+		
+		if(conf.isIgnoreMethodClass(className))
 			return cv;
 
 		for (int i = 0; i < target.size(); i++) {

@@ -74,7 +74,7 @@ public class ProfileTextFull {
 		}
 		
 		sb.append("► ipaddr=" + IPUtil.toString(p.ipaddr) + ", ");
-		sb.append("visitor=" + p.visitor);
+		sb.append("userid=" + p.userid);
 		sb.append("\n► cpu=" + FormatUtil.print(p.cpu, "#,##0") + " ms, ");
 		sb.append("bytes=" + p.bytes + ", ");
 		sb.append("status=" + p.status);

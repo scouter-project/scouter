@@ -107,7 +107,7 @@ public class ProfileText {
 		}
 		
 		sb.append("► ipaddr=" + IPUtil.toString(xperf.p.ipaddr) + ", ");
-		sb.append("visitor=" + xperf.p.visitor);
+		sb.append("userid=" + xperf.p.userid);
 		sb.append("\n► cpu=" + FormatUtil.print(xperf.p.cpu, "#,##0") + " ms, ");
 		sb.append("bytes=" + xperf.p.bytes + ", ");
 		sb.append("status=" + xperf.p.status);

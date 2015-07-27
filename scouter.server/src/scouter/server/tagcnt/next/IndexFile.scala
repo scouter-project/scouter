@@ -15,20 +15,21 @@
  */
 package scouter.server.tagcnt.next;
 
-import java.io.IOException;
-import java.util.Hashtable;
+import java.io.IOException
+import java.util.Hashtable
+import scouter.io.DataInputX
+import scouter.io.DataOutputX
+import scouter.lang.value.Value
+import scouter.server.Logger
+import scouter.server.db.io.MemHashBlock
+import scouter.server.tagcnt.core.TagCountUtil
+import scouter.util.CompareUtil
+import scouter.util.FileUtil
+import scouter.util.HashUtil
+import scouter.util.IClose
+import scouter.util.DateUtil
+import scala.util.control.Breaks._
 
-import scouter.io.DataInputX;
-import scouter.io.DataOutputX;
-import scouter.lang.value.Value;
-import scouter.server.Logger;
-import scouter.server.db.io.MemHashBlock;
-import scouter.server.tagcnt.core.TagCountUtil;
-
-import scouter.util.CompareUtil;
-import scouter.util.FileUtil;
-import scouter.util.HashUtil;
-import scouter.util.IClose;
 object IndexFile {
 
     val table = new Hashtable[String, IndexFile]();
@@ -150,20 +151,17 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
         var pos = this.keyFile.getFirstPos();
         val length = this.keyFile.getLength();
         var done = 0;
-        try {
-            while (pos < length && pos > 0) {
-                var r = this.keyFile.getRecord(pos);
+        while (pos < length && pos > 0) {
+            var r = this.keyFile.getRecord(pos);
+            if (r.key.length > 0) {
                 val in = new DataInputX(r.key);
                 val tag = in.readLong();
                 val value = in.readValue();
 
                 handler(tag, value, r.count, r.pos24h, this, pos)
-                pos = r.next;
-                done += 1
             }
-        } catch {
-            case t: Throwable =>
-                Logger.println("S204", this.keyFile + " : read=" + done + " pos=" + pos + " file-len=" + length + " " + t);
+            pos = r.next;
+            done += 1
         }
         return true;
     }
@@ -208,14 +206,13 @@ class IndexFile(path: String, hashSize: Int = 1) extends IClose {
 
     def add(tagKey: Long, tagvalue: Value, hh: Int, value: Array[Float]) {
         try {
-
             val out = new DataOutputX();
             out.writeLong(tagKey);
             out.writeValue(tagvalue);
             val key = out.toByteArray();
             this.updateAdd(key, hh, value);
         } catch {
-            case _: Throwable =>
+            case e: Throwable => Logger.println("S204", 10, e.toString())
         }
     }
 

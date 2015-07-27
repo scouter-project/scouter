@@ -81,7 +81,7 @@ object TagCountConfig {
 
         val city = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_CITY);
         val nation = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_NATION);
-        val visitor = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_VISITOR);
+        val userid = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_USERID);
     }
     val service = new Service()
 

@@ -20,7 +20,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
-import scouter.agent.asm.Apicall2ASM;
+import scouter.agent.asm.ApicallASM;
 import scouter.agent.asm.ApicallInfoASM;
 import scouter.agent.asm.CapArgsASM;
 import scouter.agent.asm.CapReturnASM;
@@ -104,7 +104,7 @@ public class AgentTransformer implements ClassFileTransformer {
 		
 		if (conf.enable_hook_step5) {
 			temp.add(new MethodASM());
-			temp.add(new Apicall2ASM());
+			temp.add(new ApicallASM());
 			temp.add(new ApicallInfoASM());
 			
 		}

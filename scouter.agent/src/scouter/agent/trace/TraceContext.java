@@ -75,7 +75,7 @@ public class TraceContext {
 	public SqlParameter sqlActiveArgs;
 	
 
-	public long visitor;
+	public long userid;
 	public int userAgent;
 	public int referer;
 	public int opencon;
@@ -132,7 +132,7 @@ public class TraceContext {
 		//child.sql = this.sql;
 		
 		
-		child.visitor = this.visitor;
+		child.userid = this.userid;
 		child.userAgent = this.userAgent;
 		child.referer = this.referer;
 		child.opencon = this.opencon;
