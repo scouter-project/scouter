@@ -163,7 +163,7 @@ public class Configure extends Thread {
 	public boolean enable_dbc_open_detect = false;
 
 	public String hook_method = "";
-	public String hook_method_ignore_prefix = "";
+	public String hook_method_ignore_prefix = "get,set";
 	private String[] _hook_method_ignore_prefix = null;
 	private int _hook_method_ignore_prefix_len = 0;
 	
