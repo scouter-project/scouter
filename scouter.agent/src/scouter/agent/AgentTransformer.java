@@ -20,18 +20,17 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
+
 import scouter.agent.asm.ApicallASM;
 import scouter.agent.asm.ApicallInfoASM;
 import scouter.agent.asm.CapArgsASM;
 import scouter.agent.asm.CapReturnASM;
 import scouter.agent.asm.CapThisASM;
-import scouter.agent.asm.DbcCloseASM;
 import scouter.agent.asm.DbcOpenASM;
 import scouter.agent.asm.FutureTaskASM;
 import scouter.agent.asm.HttpServiceASM;
 import scouter.agent.asm.IASM;
 import scouter.agent.asm.JDBCDriverASM;
-import scouter.agent.asm.JDBCLeakDetectorASM;
 import scouter.agent.asm.JDBCPreparedStatementASM;
 import scouter.agent.asm.JDBCResultSetASM;
 import scouter.agent.asm.JDBCStatementASM;
@@ -87,12 +86,10 @@ public class AgentTransformer implements ClassFileTransformer {
 			temp.add(new JDBCResultSetASM());
 			temp.add(new JDBCStatementASM());
 			temp.add(new SqlMapASM());
-			temp.add(new JDBCLeakDetectorASM());
 		}
 		
 		if (conf.enable_hook_step3) {
 			temp.add(new DbcOpenASM());
-			temp.add(new DbcCloseASM());
 			temp.add(new JDBCDriverASM());
 		}
 		

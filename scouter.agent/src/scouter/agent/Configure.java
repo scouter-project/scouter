@@ -157,10 +157,9 @@ public class Configure extends Thread {
 	public String hook_args = "";
 	public String hook_return = "";
 	public String hook_init = "";
-	public String hook_dbc_close = "";
-	public String hook_dbc_open = "";
-	public String hook_dbc_open_detect = "";
-	public boolean enable_dbc_open_detect = false;
+	public String hook_dbopen = "";
+	public boolean enable_dbopen=true;
+	public boolean enable_dbopen_fullstack = false;
 
 	public String hook_method = "";
 	public String hook_method_ignore_prefix = "get,set";
@@ -190,8 +189,6 @@ public class Configure extends Thread {
 	public int profile_step_max = 1024;
 	
 	public boolean debug_background_sql = false;
-	public boolean debug_jdbc_autocommit=false;
-
 	
 	public String plugin_http_trace = "";
 	public String plugin_apicall_name = "";
@@ -401,11 +398,10 @@ public class Configure extends Thread {
 		this.hook_args = getValue("hook_args", getValue("hook.args", ""));
 		this.hook_return = getValue("hook_return", getValue("hook.return", ""));
 		this.hook_init = getValue("hook_init", getValue("hook.init", ""));
-		this.hook_dbc_close = getValue("hook_dbc_close", getValue("hook.dbc.close", ""));
-		this.hook_dbc_open = getValue("hook_dbc_open", getValue("hook.dbc.open", ""));
-		this.hook_dbc_open_detect = getValue("hook_dbc_open_detect", "");
-		this.enable_dbc_open_detect = getBoolean("enable_dbc_open_detect", false);
-		
+		this.hook_dbopen = getValue("hook_dbopen", "");
+		this.enable_dbopen= getBoolean("enable_dbopen", true);
+		this.enable_dbopen_fullstack = getBoolean("enable_dbopen_fullstack", false);
+			
 		this.hook_method = getValue("hook_method", getValue("hook.method", ""));
 		this.hook_method_access_public = getBoolean("hook_method_access_public", true);
 		this.hook_method_access_protected = getBoolean("hook_method_access_protected", false);
@@ -428,8 +424,7 @@ public class Configure extends Thread {
 		this.hook_signature ^= this.hook_args.hashCode();
 		this.hook_signature ^= this.hook_return.hashCode();
 		this.hook_signature ^= this.hook_init.hashCode();
-		this.hook_signature ^= this.hook_dbc_close.hashCode();
-		this.hook_signature ^= this.hook_dbc_open.hashCode();
+		this.hook_signature ^= this.hook_dbopen.hashCode();
 		this.hook_signature ^= this.hook_method.hashCode();
 		this.hook_signature ^= this.hook_service.hashCode();
 		this.hook_signature ^= this.hook_apicall.hashCode();
@@ -448,8 +443,7 @@ public class Configure extends Thread {
 			this.profile_step_max = 100;
 
 		this.debug_background_sql = getBoolean("debug_background_sql", false);
-		this.debug_jdbc_autocommit= getBoolean("debug_jdbc_autocommit", false);
-
+	
 		this.plugin_http_trace = getValue("plugin_http_trace", "");
 		this.plugin_apicall_name = getValue("plugin_apicall_name", "");
 

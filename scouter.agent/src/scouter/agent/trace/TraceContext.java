@@ -78,7 +78,7 @@ public class TraceContext {
 	public long userid;
 	public int userAgent;
 	public int referer;
-	public int opencon;
+//	public int opencon;
 	public boolean profile_thread_cputime;
 	public boolean is_child_tx;
 	public long caller;
@@ -135,7 +135,7 @@ public class TraceContext {
 		child.userid = this.userid;
 		child.userAgent = this.userAgent;
 		child.referer = this.referer;
-		child.opencon = this.opencon;
+//		child.opencon = this.opencon;
 		child.profile_thread_cputime = this.profile_thread_cputime;
 		child.is_child_tx = this.is_child_tx;
 		child.caller = this.caller;

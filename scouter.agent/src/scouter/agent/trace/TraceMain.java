@@ -280,12 +280,6 @@ public class TraceMain {
 					pack.error = ehash;
 					DataProxy.sendError(ehash, emsg);
 				}
-			} else if (ctx.opencon > 0) {
-				String emsg = "not closed db connection [" + ctx.opencon + "]";
-				int ehash = StringHashCache.getErrHash(emsg);
-				pack.error = ehash;
-				DataProxy.sendError(ehash, emsg);
-				AlertProxy.sendAlert(AlertLevel.ERROR, "NOT_CLOSED_DBC", emsg);
 			} else if (conf.isErrorStatus(ctx.status)) {
 				String emsg = "HttpStatus " + ctx.status;
 				int ehash = StringHashCache.getErrHash(emsg);
@@ -386,13 +380,7 @@ public class TraceMain {
 			pack.txid = ctx.txid;
 			pack.ipaddr = ctx.remoteAddr;
 			pack.userid = ctx.userid;
-			if (ctx.opencon > 0) {
-				String emsg = "not closed db connection [" + ctx.opencon + "]";
-				int ehash = StringHashCache.getErrHash(emsg);
-				pack.error = ehash;
-				DataProxy.sendError(ehash, emsg);
-				AlertProxy.sendAlert(AlertLevel.ERROR, "NOT_CLOSED_DBC", emsg);
-			} else if (ctx.error != 0) {
+		    if (ctx.error != 0) {
 				pack.error = ctx.error;
 			} else if (thr != null) {
 				Configure conf = Configure.getInstance();
