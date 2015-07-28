@@ -442,10 +442,9 @@ public class TraceSQL {
 		if (ctx == null)
 			return null;
 
-		if(conf.enable_dbopen ==false)
+		if (conf.enable_dbopen == false)
 			return null;
-		
-		
+
 		MethodStep p = new MethodStep();
 
 		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
@@ -462,7 +461,7 @@ public class TraceSQL {
 		p.hash = hash;
 		ctx.profile.push(p);
 
-		if (conf.debug_connection_stack) {
+		if (conf.debug_dbopen_fullstack) {
 			String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace());
 			MessageStep ms = new MessageStep(stack);
 			ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
@@ -529,6 +528,17 @@ public class TraceSQL {
 			step.cputime = (int) (SysJMX.getCurrentThreadCPU() - tctx.startCpu) - step.start_cpu;
 		}
 		tctx.profile.pop(step);
+
+		if (conf.debug_dbopen_autocommit) {
+			MessageStep ms = null;
+			try {
+				ms = new MessageStep("AutoCommit : " + conn.getAutoCommit());
+			} catch (Exception e) {
+				ms = new MessageStep("AutoCommit : " + e);
+			}
+			ms.start_time = (int) (System.currentTimeMillis() - tctx.startTime);
+			tctx.profile.add(ms);
+		}
 
 		if (conn instanceof DetectConnection)
 			return conn;

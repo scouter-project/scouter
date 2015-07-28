@@ -159,7 +159,9 @@ public class Configure extends Thread {
 	public String hook_init = "";
 	public String hook_dbopen = "";
 	public boolean enable_dbopen=true;
-	public boolean enable_dbopen_fullstack = false;
+	public boolean enable_leaktrace_fullstack = false;
+	public boolean debug_dbopen_fullstack = false;
+	public boolean debug_dbopen_autocommit=false;
 
 	public String hook_method = "";
 	public String hook_method_ignore_prefix = "get,set";
@@ -210,14 +212,13 @@ public class Configure extends Thread {
 
 	public int max_concurrent_server_request = 10;
 	public String userid_jsessionid = "JSESSIONID";
-	public int statistics_interval = (int) DateUtil.MILLIS_PER_FIVE_MINUTE;
+
 	public boolean enable_auto_service_trace = false;
 	public boolean enable_auto_service_backstack=true;
 	
 	public boolean debug_apicall = false;
 
-	public boolean debug_connection_stack = false;
-	public boolean enable_statistics = true;
+	
 	public String hook_future_task = "";
 	public String hook_future_task_prefix = "";
 
@@ -287,7 +288,6 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
-	
 
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
@@ -400,7 +400,7 @@ public class Configure extends Thread {
 		this.hook_init = getValue("hook_init", getValue("hook.init", ""));
 		this.hook_dbopen = getValue("hook_dbopen", "");
 		this.enable_dbopen= getBoolean("enable_dbopen", true);
-		this.enable_dbopen_fullstack = getBoolean("enable_dbopen_fullstack", false);
+		this.enable_leaktrace_fullstack = getBoolean("enable_leaktrace_fullstack", false);
 			
 		this.hook_method = getValue("hook_method", getValue("hook.method", ""));
 		this.hook_method_access_public = getBoolean("hook_method_access_public", true);
@@ -464,13 +464,12 @@ public class Configure extends Thread {
 		this.scouter_caller_txid = getValue("scouter_caller_txid", "scouter_caller_txid");
 
 		this.max_concurrent_server_request = getInt("max_concurrent_server_request", 10);
-		this.debug_connection_stack = getBoolean("debug_connection_stack", false);
+		this.debug_dbopen_fullstack = getBoolean("debug_dbopen_fullstack", false);
+		this.debug_dbopen_autocommit = getBoolean("debug_dbopen_autocommit", false);
 
 		this.mode_userid = getInt("mode_userid", 2);
 
 		this.userid_jsessionid = getValue("userid_jsessionid", "JSESSIONID");
-		this.enable_statistics = getBoolean("enable_statistics", true);
-		this.statistics_interval = getInt("statistics_interval", (int) DateUtil.MILLIS_PER_FIVE_MINUTE);
 
 		this.enable_host_agent = getBoolean("enable_host_agent", false);
 		this.enable_auto_service_trace = getBoolean("enable_auto_service_trace", false);
