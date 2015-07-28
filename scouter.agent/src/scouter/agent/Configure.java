@@ -190,7 +190,9 @@ public class Configure extends Thread {
 	public int profile_step_max = 1024;
 	
 	public boolean debug_background_sql = false;
+	public boolean debug_jdbc_autocommit=false;
 
+	
 	public String plugin_http_trace = "";
 	public String plugin_apicall_name = "";
 	public String plugin_http_trace_param = "";
@@ -288,7 +290,7 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
-
+	
 
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
@@ -446,6 +448,7 @@ public class Configure extends Thread {
 			this.profile_step_max = 100;
 
 		this.debug_background_sql = getBoolean("debug_background_sql", false);
+		this.debug_jdbc_autocommit= getBoolean("debug_jdbc_autocommit", false);
 
 		this.plugin_http_trace = getValue("plugin_http_trace", "");
 		this.plugin_apicall_name = getValue("plugin_apicall_name", "");

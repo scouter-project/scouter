@@ -18,6 +18,7 @@ package scouter.agent.trace;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.Statement;
 
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -130,6 +131,19 @@ public class TraceSQL {
 		}
 		c.profile.push(step);
 		c.sqltext = sql;
+		if (conf.debug_jdbc_autocommit) {
+			if (o instanceof Statement) {
+				MessageStep p = new MessageStep();
+				p.start_time = (int) (System.currentTimeMillis() - c.startTime);
+				try {
+					Connection con = ((Statement) o).getConnection();
+					p.message = con.getAutoCommit() ? "AUTOCOMMIT=true" : "AUTOCOMMIT=false";
+				} catch (Exception e) {
+					p.message = e.toString();
+				}
+				c.profile.add(p);
+			}
+		}
 		return new LocalContext(c, step);
 	}
 
@@ -156,6 +170,20 @@ public class TraceSQL {
 		DataProxy.sendSqlText(step.hash, sql);
 		ctx.profile.push(step);
 		ctx.sqltext = sql;
+
+		if (conf.debug_jdbc_autocommit) {
+			if (o instanceof Statement) {
+				MessageStep p = new MessageStep();
+				p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+				try {
+					Connection con = ((Statement) o).getConnection();
+					p.message = con.getAutoCommit() ? "AUTOCOMMIT=true" : "AUTOCOMMIT=false";
+				} catch (Exception e) {
+					p.message = e.toString();
+				}
+				ctx.profile.add(p);
+			}
+		}
 		return new LocalContext(ctx, step);
 	}
 
@@ -369,19 +397,19 @@ public class TraceSQL {
 	}
 
 	public static Object start(Object o, SqlParameter args) {
-		TraceContext c = TraceContextManager.getLocalContext();
-		if (c == null) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null) {
 			if (conf.debug_background_sql && args != null) {
 				Logger.info("BG=>" + args.getSql());
 			}
 			return null;
 		}
 		SqlStep step = new SqlStep();
-		step.start_time = (int) (System.currentTimeMillis() - c.startTime);
-		if (c.profile_thread_cputime) {
-			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - c.startCpu);
+		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
-		c.sqlActiveArgs = args;
+		ctx.sqlActiveArgs = args;
 
 		String sql = "unknown";
 		if (args != null) {
@@ -393,9 +421,22 @@ public class TraceSQL {
 			step.hash = StringHashCache.getSqlHash(sql);
 			DataProxy.sendSqlText(step.hash, sql);
 		}
-		c.profile.push(step);
-		c.sqltext = sql;
-		return new LocalContext(c, step);
+		ctx.profile.push(step);
+		ctx.sqltext = sql;
+		if (conf.debug_jdbc_autocommit) {
+			if (o instanceof Statement) {
+				MessageStep p = new MessageStep();
+				p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+				try {
+					Connection con = ((Statement) o).getConnection();
+					p.message = con.getAutoCommit() ? "AUTOCOMMIT=true" : "AUTOCOMMIT=false";
+				} catch (Exception e) {
+					p.message = e.toString();
+				}
+				ctx.profile.add(p);
+			}
+		}
+		return new LocalContext(ctx, step);
 	}
 
 	public static void prepare(Object o, SqlParameter args, String sql) {
