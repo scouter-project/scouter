@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -41,6 +42,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
@@ -95,22 +97,18 @@ import scouter.client.popup.ServerManagerDialog;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
-import scouter.client.tags.actions.OpenTagCountViewAction;
 import scouter.client.threads.ObjectSelectManager;
 import scouter.client.util.ColorUtil;
-import scouter.client.util.CounterUtil;
 import scouter.client.util.DummyAction;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.MenuUtil;
 import scouter.client.util.ScouterUtil;
-import scouter.client.xlog.ImageCache;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.counters.CounterEngine;
 import scouter.lang.value.Value;
 import scouter.util.CastUtil;
 import scouter.util.FormatUtil;
-import scouter.util.StringUtil;
 
 public class ObjectNavigationView extends ViewPart implements RefreshThread.Refreshable {
 	public static final String ID = ObjectNavigationView.class.getName();
@@ -242,10 +240,23 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 				Point point = new Point(event.x, event.y);
 				TreeItem item = objTreeViewer.getTree().getItem(point);
 				if (item != null) {
-					if(item.getExpanded()){
-						item.setExpanded(false);
-					}else{
-						item.setExpanded(true);
+					StructuredSelection sel = (StructuredSelection) objTreeViewer.getSelection();
+					Object o = sel.getFirstElement();
+					if (o instanceof AgentObject) {
+						AgentObject ao = (AgentObject) o;
+						if (objSelMgr.unselectedSize() > 0) {
+							objSelMgr.selectObj(ao.getObjHash());
+						} else {
+							AgentObject[] aos = agentThread.getObjectList();
+							Set<Integer> unselSet = new HashSet<Integer>();
+							for (AgentObject a : aos) {
+								if (a.getObjHash() != ao.getObjHash()) {
+									unselSet.add(a.getObjHash());
+								}
+							}
+							objSelMgr.addAll(unselSet);
+						}
+						refreshViewer();
 					}
 				}
 			}

@@ -38,10 +38,25 @@ public class ObjectSelectManager {
 		return unSelectedObjSet.contains(objHash);
 	}
 	
+	public int unselectedSize() {
+		return unSelectedObjSet.size();
+	}
+	
 	public void addAll(Set<Integer> unSelectedSet) {
 		unSelectedObjSet.clear();
 		unSelectedObjSet.addAll(unSelectedSet);
 		notifyChangeCheckedState();
+	}
+	
+	public void selectObj(int objHash) {
+		if (unselectedSize() > 0) {
+			if (isUnselectedObject(objHash)) {
+				unSelectedObjSet.remove(objHash);
+			} else {
+				unSelectedObjSet.add(objHash);
+			}
+			notifyChangeCheckedState();
+		}
 	}
 	
 	public void addObjectCheckStateListener(IObjectCheckListener listener) {
