@@ -14,8 +14,9 @@ But now more and more systems are using open source S/W.
 If you use a Tomcat, SCOUTER will be the best choice to monitor it.
 
 ### Documents
- - [Wiki Documents](../../wiki/)
- - [Using Components](../../wiki/Using-Components)
+ - [Getting Started](./Getting-Started)
+ - [Getting Start Profiling SQL](./Getting-Start-Profile-SQL) 
+ - [More Documents](../../wiki/)
 
 ### Download
  - [Latest Release](https://github.com/scouter-project/scouter/releases/)
@@ -47,7 +48,6 @@ SCOUTER is just simple. This configuration is simple. It will quickly provide th
 - Clients are avaliable on Windows, MAC OSX and Linux.
 - It will also be automatically upgraded.
 - Key features such as Response-distribution, Active-service, Tag-count analysis are provided.
-
 ### License
 Licensed under the Apache License, Version 2.0
 
