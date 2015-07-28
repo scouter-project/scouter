@@ -98,7 +98,7 @@ class DbcOpenCV extends ClassVisitor implements Opcodes {
 			return mv;
 		}
 
-		String fullname = "OPEN-DBC " + StringUtil.cutLastString(className, '/') + "." + name;
+		String fullname = "OPEN " + StringUtil.cutLastString(className, '/') + "." + name;
 		int fullname_hash = HashUtil.hash(fullname);
 		DataProxy.sendMethodName(fullname_hash, fullname);
 

@@ -14,9 +14,9 @@ But now more and more systems are using open source S/W.
 If you use a Tomcat, SCOUTER will be the best choice to monitor it.
 
 ### Documents
- - [Getting Started](./Getting-Started)
- - [Getting Start Profiling SQL](./Getting-Start-Profile-SQL) 
- - [Client Screen Help](./How-To-Use-Client) 
+ - [Getting Started](../../wiki/Getting-Started)
+ - [Getting Start Profiling SQL](../../wiki/Getting-Start-Profile-SQL) 
+ - [Client Screen Help](../../wiki/How-To-Use-Client) 
  - [More Documents](../../wiki/)
 
 ### Download
