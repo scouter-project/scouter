@@ -129,8 +129,7 @@ public class TraceSQL {
 			step.hash = StringHashCache.getSqlHash(sql);
 			DataProxy.sendSqlText(step.hash, sql);
 		}
-		c.profile.push(step);
-		c.sqltext = sql;
+		
 		if (conf.debug_jdbc_autocommit) {
 			if (o instanceof Statement) {
 				MessageStep p = new MessageStep();
@@ -144,6 +143,10 @@ public class TraceSQL {
 				c.profile.add(p);
 			}
 		}
+		
+		c.profile.push(step);
+		c.sqltext = sql;
+		
 		return new LocalContext(c, step);
 	}
 
@@ -168,9 +171,8 @@ public class TraceSQL {
 		}
 		step.hash = StringHashCache.getSqlHash(sql);
 		DataProxy.sendSqlText(step.hash, sql);
-		ctx.profile.push(step);
-		ctx.sqltext = sql;
 
+		
 		if (conf.debug_jdbc_autocommit) {
 			if (o instanceof Statement) {
 				MessageStep p = new MessageStep();
@@ -184,6 +186,10 @@ public class TraceSQL {
 				ctx.profile.add(p);
 			}
 		}
+		
+		ctx.profile.push(step);
+		ctx.sqltext = sql;
+
 		return new LocalContext(ctx, step);
 	}
 
@@ -421,8 +427,7 @@ public class TraceSQL {
 			step.hash = StringHashCache.getSqlHash(sql);
 			DataProxy.sendSqlText(step.hash, sql);
 		}
-		ctx.profile.push(step);
-		ctx.sqltext = sql;
+		
 		if (conf.debug_jdbc_autocommit) {
 			if (o instanceof Statement) {
 				MessageStep p = new MessageStep();
@@ -436,6 +441,9 @@ public class TraceSQL {
 				ctx.profile.add(p);
 			}
 		}
+		
+		ctx.profile.push(step);
+		ctx.sqltext = sql;
 		return new LocalContext(ctx, step);
 	}
 
