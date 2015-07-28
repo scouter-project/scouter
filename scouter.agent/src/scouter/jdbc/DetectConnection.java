@@ -39,7 +39,7 @@ public class DetectConnection implements java.sql.Connection {
 	public DetectConnection(java.sql.Connection inner) {
 		this.inner = inner;
 		if (conf.enable_leaktrace_fullstack) {
-			this.object = new LeakableObject(ThreadUtil.getThreadStack());
+			this.object = new LeakableObject(ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(),2));
 		} else {
 			this.object = new LeakableObject(inner.toString());
 		}
