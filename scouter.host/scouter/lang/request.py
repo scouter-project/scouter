@@ -35,7 +35,6 @@ class TCP():
 handlerTable=dict()
 
 TCP_AGENT=0xCAFE1001
-objHash=binascii.crc32(objname())
 
 
 localAddr='127.0.0.1'
@@ -59,7 +58,7 @@ def startReqHandler(host, port, handlers):
                                  
             out=DataOutputX()
             out.writeInt(TCP_AGENT)
-            out.writeInt(objHash)
+            out.writeInt(binascii.crc32(objname()))
             sock.send(out.toByteArray())
             inx=DataInputSocket(sock)
 

@@ -235,6 +235,9 @@ public class LoginDialog {
 				id.setText(server.getUserId());
 			}
 			autoLoginCheck.setSelection(ServerPrefUtil.isAutoLoginAddress(address));
+		} else if (openType == TYPE_STARTUP){
+			addrCombo.setText("127.0.0.1:" + NetConstants.DATATCP_SERVER_PORT);
+			id.setText("admin");
 		}
 
 		shell.setDefaultButton(okButton);

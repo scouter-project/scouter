@@ -109,7 +109,7 @@ def logo():
  \___ \ / __/   \| | | | __/ _ \ '__|
   ___) | (_| (+) | |_| | ||  __/ |   
  |____/ \___\___/ \__,_|\__\___|_|                                      
- Scouter version 0.2.0
+ Scouter version 0.2.3
  Open Source S/W Performance Monitoring  
    """
 
@@ -159,8 +159,16 @@ def objtype():
     else:
         return name
 
+scouter_name=""
+def setObjname(name):
+    global scouter_name
+    scouter_name=name
+    
 def objname():
-    return '/' + platform.node().replace(' ', '_')    
+    if(scouter_name==""):
+        return '/' + platform.node().replace(' ', '_')    
+    else:
+        return '/'+scouter_name
     
 def diffSeconds(stime, etime):
     t = etime - stime

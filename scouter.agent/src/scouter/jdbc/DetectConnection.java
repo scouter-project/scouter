@@ -20,25 +20,73 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import scouter.agent.Configure;
+import scouter.agent.netio.data.DataProxy;
+import scouter.agent.trace.TraceContext;
+import scouter.agent.trace.TraceContextManager;
 import scouter.agent.util.LeakableObject;
+import scouter.lang.step.MethodStep;
+import scouter.util.HashUtil;
+import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 
 public class DetectConnection implements java.sql.Connection {
 	private final LeakableObject object;
 	java.sql.Connection inner;
 
+	static Configure conf = Configure.getInstance();
+
 	public DetectConnection(java.sql.Connection inner) {
 		this.inner = inner;
-		this.object = new LeakableObject(ThreadUtil.getThreadStack());
+		if (conf.enable_leaktrace_fullstack) {
+			this.object = new LeakableObject(ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(),2));
+		} else {
+			this.object = new LeakableObject(inner.toString());
+		}
 	}
 
 	final public void setReadOnly(boolean a0) throws java.sql.SQLException {
 		this.inner.setReadOnly(a0);
 	}
 
+	private static String MSG_CLOSE = "CLOSE";
+	private static int HASH_CLOSE = HashUtil.hash(MSG_CLOSE);
+	private static String MSG_COMMIT = "COMMIT";
+	private static int HASH_COMMIT = HashUtil.hash(MSG_COMMIT);
+	private static String MSG_AUTO_COMMIT_TRUE = "setAutoCommit(true)";
+	private static int HASH_AUTO_COMMIT_TRUE = HashUtil.hash(MSG_AUTO_COMMIT_TRUE);
+	private static String MSG_AUTO_COMMIT_FALSE = "setAutoCommit(false)";
+	private static int HASH_AUTO_COMMIT_FALSE = HashUtil.hash(MSG_AUTO_COMMIT_FALSE);
+
+	static {
+		try {
+			DataProxy.sendMethodName(HASH_CLOSE, MSG_CLOSE);
+			DataProxy.sendMethodName(HASH_COMMIT, MSG_COMMIT);
+			DataProxy.sendMethodName(HASH_AUTO_COMMIT_TRUE, MSG_AUTO_COMMIT_TRUE);
+			DataProxy.sendMethodName(HASH_AUTO_COMMIT_FALSE, MSG_AUTO_COMMIT_FALSE);
+		} catch (Exception e) {
+		}
+	}
+
 	final public void close() throws java.sql.SQLException {
+
+		long stime = System.currentTimeMillis();
 		object.close();
 		this.inner.close();
+		long etime = System.currentTimeMillis();
+
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null)
+			return;
+
+		MethodStep p = new MethodStep();
+		p.hash = HASH_CLOSE;
+		p.start_time = (int) (stime - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+		}
+		p.elapsed = (int) (etime - stime);
+		ctx.profile.add(p);
 	}
 
 	final public boolean isReadOnly() throws java.sql.SQLException {
@@ -105,6 +153,19 @@ public class DetectConnection implements java.sql.Connection {
 
 	final public void setAutoCommit(boolean a0) throws java.sql.SQLException {
 		this.inner.setAutoCommit(a0);
+
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null)
+			return;
+
+		MethodStep p = new MethodStep();
+		p.hash = a0 ? HASH_AUTO_COMMIT_TRUE : HASH_AUTO_COMMIT_FALSE;
+		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+		}
+
+		ctx.profile.add(p);
 	}
 
 	final public boolean getAutoCommit() throws java.sql.SQLException {
@@ -112,7 +173,22 @@ public class DetectConnection implements java.sql.Connection {
 	}
 
 	final public void commit() throws java.sql.SQLException {
+		long stime = System.currentTimeMillis();
 		this.inner.commit();
+		long etime = System.currentTimeMillis();
+
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null)
+			return;
+
+		MethodStep p = new MethodStep();
+		p.hash = HASH_COMMIT;
+		p.start_time = (int) (stime - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+		}
+		p.elapsed = (int) (etime - stime);
+		ctx.profile.add(p);
 	}
 
 	final public void rollback(java.sql.Savepoint a0) throws java.sql.SQLException {

@@ -18,6 +18,7 @@ package scouter.agent.trace;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.Statement;
 
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -128,8 +129,10 @@ public class TraceSQL {
 			step.hash = StringHashCache.getSqlHash(sql);
 			DataProxy.sendSqlText(step.hash, sql);
 		}
+
 		c.profile.push(step);
 		c.sqltext = sql;
+
 		return new LocalContext(c, step);
 	}
 
@@ -154,8 +157,10 @@ public class TraceSQL {
 		}
 		step.hash = StringHashCache.getSqlHash(sql);
 		DataProxy.sendSqlText(step.hash, sql);
+
 		ctx.profile.push(step);
 		ctx.sqltext = sql;
+
 		return new LocalContext(ctx, step);
 	}
 
@@ -369,19 +374,19 @@ public class TraceSQL {
 	}
 
 	public static Object start(Object o, SqlParameter args) {
-		TraceContext c = TraceContextManager.getLocalContext();
-		if (c == null) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null) {
 			if (conf.debug_background_sql && args != null) {
 				Logger.info("BG=>" + args.getSql());
 			}
 			return null;
 		}
 		SqlStep step = new SqlStep();
-		step.start_time = (int) (System.currentTimeMillis() - c.startTime);
-		if (c.profile_thread_cputime) {
-			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - c.startCpu);
+		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
-		c.sqlActiveArgs = args;
+		ctx.sqlActiveArgs = args;
 
 		String sql = "unknown";
 		if (args != null) {
@@ -393,9 +398,10 @@ public class TraceSQL {
 			step.hash = StringHashCache.getSqlHash(sql);
 			DataProxy.sendSqlText(step.hash, sql);
 		}
-		c.profile.push(step);
-		c.sqltext = sql;
-		return new LocalContext(c, step);
+
+		ctx.profile.push(step);
+		ctx.sqltext = sql;
+		return new LocalContext(ctx, step);
 	}
 
 	public static void prepare(Object o, SqlParameter args, String sql) {
@@ -420,10 +426,10 @@ public class TraceSQL {
 
 	public static Connection endCreateDBC(Connection conn, Object stat) {
 		if (conn == null) {
-			TraceSQL.dbcOpenEnd(stat, null);
+			conn = TraceSQL.dbcOpenEnd(conn, stat);
 			return conn;
 		}
-		TraceSQL.dbcOpenEnd(stat, null);
+		conn = TraceSQL.dbcOpenEnd(conn, stat);
 		return JdbcTrace.connect(conn);
 	}
 
@@ -434,6 +440,9 @@ public class TraceSQL {
 	public static Object dbcOpenStart(int hash, String msg, Object pool) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
+			return null;
+
+		if (conf.enable_dbopen == false)
 			return null;
 
 		MethodStep p = new MethodStep();
@@ -452,15 +461,14 @@ public class TraceSQL {
 		p.hash = hash;
 		ctx.profile.push(p);
 
-		if (conf.debug_connection_stack) {
-			String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace());
+		if (conf.debug_dbopen_fullstack) {
+			String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
 			MessageStep ms = new MessageStep(stack);
 			ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 			ctx.profile.add(ms);
 		}
 
 		LocalContext lctx = new LocalContext(ctx, p);
-		lctx.option = new INT(ctx.opencon);
 		return lctx;
 	}
 
@@ -502,6 +510,42 @@ public class TraceSQL {
 		return dbUrl;
 	}
 
+	public static java.sql.Connection dbcOpenEnd(java.sql.Connection conn, Object stat) {
+		if (stat == null)
+			return conn;
+
+		LocalContext lctx = (LocalContext) stat;
+
+		MethodStep step = (MethodStep) lctx.stepSingle;
+		if (step == null)
+			return conn;
+		TraceContext tctx = lctx.context;
+		if (tctx == null)
+			return conn;
+
+		step.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
+		if (tctx.profile_thread_cputime) {
+			step.cputime = (int) (SysJMX.getCurrentThreadCPU() - tctx.startCpu) - step.start_cpu;
+		}
+		tctx.profile.pop(step);
+
+		if (conf.debug_dbopen_autocommit) {
+			MessageStep ms = null;
+			try {
+				ms = new MessageStep("AutoCommit : " + conn.getAutoCommit());
+			} catch (Exception e) {
+				ms = new MessageStep("AutoCommit : " + e);
+			}
+			ms.start_time = (int) (System.currentTimeMillis() - tctx.startTime);
+			tctx.profile.add(ms);
+		}
+
+		if (conn instanceof DetectConnection)
+			return conn;
+		else
+			return new DetectConnection(conn);
+	}
+
 	public static void dbcOpenEnd(Object stat, Throwable thr) {
 		if (stat == null)
 			return;
@@ -528,30 +572,8 @@ public class TraceSQL {
 			}
 			DataProxy.sendError(hash, msg);
 			AlertProxy.sendAlert(AlertLevel.ERROR, "OPEN-DBC", msg);
-		} else {
-			if (((INT) lctx.option).value == tctx.opencon) {
-				tctx.opencon++;
-			}
 		}
 		tctx.profile.pop(step);
-
-	}
-
-	public static void dbcClose(int hash, String msg) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
-		if (ctx == null)
-			return;
-
-		ctx.opencon--;
-
-		MethodStep p = new MethodStep();
-		p.hash = hash;
-		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		if (ctx.profile_thread_cputime) {
-			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-		}
-
-		ctx.profile.add(p);
 	}
 
 	public static void sqlMap(String methodName, String sqlname) {
@@ -566,10 +588,4 @@ public class TraceSQL {
 
 	}
 
-	public static Connection detectConnection(Connection inner) {
-		if (Configure.getInstance().enable_dbc_open_detect == false)
-			return inner;
-		else
-			return new DetectConnection(inner);
-	}
 }

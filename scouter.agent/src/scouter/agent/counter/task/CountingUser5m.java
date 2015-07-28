@@ -29,9 +29,9 @@ public class CountingUser5m {
 	@Counter
 	public void visitor(CounterBasket pw) {
 
-		PerfCounterPack p = pw.getPack(TimeTypeEnum.REALTIME);
-		
 		int user5m =MeterUsers.getUsers();
+		
+		PerfCounterPack p = pw.getPack(TimeTypeEnum.REALTIME);	
 		p.put(CounterConstants.WAS_USER_5M, new DecimalValue(user5m));
 
 		p = pw.getPack(TimeTypeEnum.FIVE_MIN);
