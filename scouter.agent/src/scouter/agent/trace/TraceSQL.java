@@ -462,7 +462,7 @@ public class TraceSQL {
 		ctx.profile.push(p);
 
 		if (conf.debug_dbopen_fullstack) {
-			String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 1);
+			String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
 			MessageStep ms = new MessageStep(stack);
 			ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 			ctx.profile.add(ms);
