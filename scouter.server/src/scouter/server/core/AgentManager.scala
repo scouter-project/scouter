@@ -149,10 +149,7 @@ object AgentManager {
         tp.text = objPack.objName;
         TextCore.add(tp);
     }
-    def getAgentAddr(objHash: Int): String = {
-        val objPack = objMap.getObject(objHash);
-        if (objPack == null) null else objPack.address;
-    }
+
     def getAgentName(objHash: Int): String = {
         val objPack = objMap.getObject(objHash);
         if (objPack == null) null else objPack.objName
