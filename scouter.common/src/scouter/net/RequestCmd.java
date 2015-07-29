@@ -207,6 +207,8 @@ public class RequestCmd {
 	
 	public static final String REALTIME_SERVICE_GROUP = "REALTIME_SERVICE_GROUP";
 	
+	public static final String STATUS_AROUND_VALUE = "STATUS_AROUND_VALUE";
+	
 	// MANAGE ACCOUNT
 	public static final String LIST_ACCOUNT = "LIST_ACCOUNT";
 	public static final String ADD_ACCOUNT = "ADD_ACCOUNT";
