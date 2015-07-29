@@ -49,6 +49,10 @@ SCOUTER is just simple. This configuration is simple. It will quickly provide th
 - Clients are avaliable on Windows, MAC OSX and Linux.
 - It will also be automatically upgraded.
 - Key features such as Response-distribution, Active-service, Tag-count analysis are provided.
+
+### Q&A
+ - [Google Groups](https://groups.google.com/forum/#!forum/scouter-project)
+ 
 ### License
 Licensed under the Apache License, Version 2.0
 
