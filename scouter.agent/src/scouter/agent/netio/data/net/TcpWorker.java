@@ -54,7 +54,7 @@ public class TcpWorker implements Runnable {
 			socket.connect(new InetSocketAddress(host, port), connection_timeout);
 			socket.setSoTimeout(so_timeout);
 			if (localAddr == null) {
-				localAddr = socket.getLocalAddress().getHostAddress() + ":0";
+				localAddr = socket.getLocalAddress().getHostAddress();
 			}
 			LIVE.put(this.hashCode(),this);
 			return true;
