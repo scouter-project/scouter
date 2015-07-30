@@ -96,7 +96,7 @@ object EnumerScala {
             handler(itr.nextLong())
         }
     }
-    def foreach[T](data: ListValue, handler: T => Any) {
+    def foreach[T](data: ListValue, handler: (T) => Any) {
         if (data == null)
             return
         val itr = data.iterator();

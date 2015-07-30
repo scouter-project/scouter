@@ -8,9 +8,9 @@ public class TagConstants {
 	public static final String NAME_OBJECT = "object";
 	public static final String NAME_IP = "ip";
 	public static final String NAME_SERVICE = "service";
-	public static final String NAME_SERVICE_ELAPSED = "service-elapsed";
-	public static final String NAME_SERVICE_BYTES = "service-bytes";
-	public static final String NAME_SERVICE_ERRORS = "service-errors";
+	public static final String NAME_SERVICE_TIME_SUM = "service-time-sum";
+	public static final String NAME_SERVICE_BYTE_SUM = "service-byte-sum";
+	public static final String NAME_SERVICE_ERROR_SUM = "service-error-sum";
 	public static final String NAME_USER_AGENT = "user-agent";
 	public static final String NAME_ERROR = "error";
 	public static final String NAME_REFERER = "referer";

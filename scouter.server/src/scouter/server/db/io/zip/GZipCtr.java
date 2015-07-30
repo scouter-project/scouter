@@ -38,12 +38,7 @@ public class GZipCtr {
 		return sb.toString();
 	}
 	public static String createPath(String date) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(DBCtr.getRootPath());
-		sb.append("/").append(date);
-		sb.append(XLogWR.dir());
-		sb.append("/data");
-		String path =  sb.toString();
+		String path =  getDataPath(date);
 		new File(path).mkdirs();
 		return path;
 	}

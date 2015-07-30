@@ -66,9 +66,9 @@ object TagCountConfig {
         val ip = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_IP);
         val service = new Tag(TagConstants.GROUP_SERVICE, TagConstants.GROUP_SERVICE);
         
-        val service_elapsed= new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_ELAPSED);
-        val service_bytes = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_BYTES);
-        val service_errors = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_ERRORS);
+        val service_elapsed= new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_TIME_SUM);
+        val service_bytes = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_BYTE_SUM);
+        val service_errors = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_ERROR_SUM);
         
         val userAgent = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_USER_AGENT);
         val error = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_ERROR);
