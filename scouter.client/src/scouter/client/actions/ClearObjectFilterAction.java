@@ -12,34 +12,25 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
+ *
  */
-
-package scouter.server.db.io.zip;
-
-import java.io.File;
-
-import scouter.server.db.DBCtr;
-import scouter.server.db.XLogWR;
-
-public class GZipCtr {
-	
-	public static final int MAX_QUE_SIZE = 20000;
-	
-	public final static int BLOCK_MAX_SIZE = 32 * 1024 * 1024;
+package scouter.client.actions;
 
 
+import org.eclipse.jface.action.Action;
 
-	public static String getDataPath(String date) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(DBCtr.getRootPath());
-		sb.append("/").append(date);
-		sb.append(XLogWR.dir());
-		sb.append("/data");
-		return sb.toString();
+import scouter.client.threads.ObjectSelectManager;
+
+
+public class ClearObjectFilterAction extends Action {
+	public final static String ID = ClearObjectFilterAction.class.getName();
+
+	public ClearObjectFilterAction() {
+		setText("Exit Filter Mode");
+		setId(ID);
 	}
-	public static String createPath(String date) {
-		String path =  getDataPath(date);
-		new File(path).mkdirs();
-		return path;
+	
+	public void run() {
+		ObjectSelectManager.getInstance().clear();
 	}
 }

@@ -66,6 +66,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
 import scouter.client.actions.AddServerAction;
+import scouter.client.actions.ClearObjectFilterAction;
 import scouter.client.actions.OpenGroupNavigationAction;
 import scouter.client.actions.OpenLoginListAction;
 import scouter.client.actions.OpenObjectDailyListAction;
@@ -98,6 +99,7 @@ import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.threads.ObjectSelectManager;
+import scouter.client.threads.ObjectSelectManager.IObjectCheckListener;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.DummyAction;
 import scouter.client.util.ExUtil;
@@ -216,7 +218,7 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
             	if(selectedItem){
             		fillTreeViewerContextMenu(manager);
             	}else{
-            		addServerContextMenu(manager);
+            		backgroundContextMenu(manager);
             	}
             }
         });
@@ -246,10 +248,12 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 						AgentObject ao = (AgentObject) o;
 						if (objSelMgr.unselectedSize() > 0) {
 							objSelMgr.selectObj(ao.getObjHash());
+							if (objSelMgr.unselectedSize() >= objectList.size()) {
+								objSelMgr.clear();
+							}
 						} else {
-							AgentObject[] aos = agentThread.getObjectList();
 							Set<Integer> unselSet = new HashSet<Integer>();
-							for (AgentObject a : aos) {
+							for (AgentObject a : objectList) {
 								if (a.getObjHash() != ao.getObjHash()) {
 									unselSet.add(a.getObjHash());
 								}
@@ -263,6 +267,16 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 		});
 		
 		createQuickMenus();
+		ObjectSelectManager.getInstance().addObjectCheckStateListener(new IObjectCheckListener() {
+			public void notifyChangeState() {
+				if (objSelMgr.unselectedSize() > 0) {
+					agentTree.setBackground(ColorUtil.getInstance().getColor("azure"));
+				} else {
+					agentTree.setBackground(null);
+				}
+				refreshViewer();
+			}
+		});
 		
 		thread = new RefreshThread(this, 3000);
 		thread.start();
@@ -332,8 +346,12 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
         getSite().registerContextMenu(contextMenu, viewer);
     }
 	
-	private void addServerContextMenu(IMenuManager mgr){
+	private void backgroundContextMenu(IMenuManager mgr){
 		IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if (objSelMgr.unselectedSize() > 0) {
+			mgr.add(new ClearObjectFilterAction());
+		}
+		mgr.add(new Separator());
 		mgr.add(new AddServerAction(win, "Add Server", Images.add));
 		mgr.add(new Separator());
 		mgr.add(new OpenGroupNavigationAction(win));

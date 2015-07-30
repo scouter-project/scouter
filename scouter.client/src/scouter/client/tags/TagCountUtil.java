@@ -49,9 +49,9 @@ public class TagCountUtil {
 						resultList.add(TextProxy.object.getText(lv.getInt(i)));
 					}
 				} else if (tagName.equals(TagConstants.NAME_SERVICE)
-						|| tagName.equals(TagConstants.NAME_SERVICE_ELAPSED)
-						|| tagName.equals(TagConstants.NAME_SERVICE_BYTES)
-						|| tagName.equals(TagConstants.NAME_SERVICE_ERRORS)) {
+						|| tagName.equals(TagConstants.NAME_SERVICE_TIME_SUM)
+						|| tagName.equals(TagConstants.NAME_SERVICE_BYTE_SUM)
+						|| tagName.equals(TagConstants.NAME_SERVICE_ERROR_SUM)) {
 					TextProxy.service.load(date, lv, serverId);
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.service.getText(lv.getInt(i)));
@@ -116,9 +116,9 @@ public class TagCountUtil {
 	public static Value convertTagToValue(String tagName, String tagValue) {
 		if (tagName.equals(TagConstants.NAME_OBJECT)
 			|| tagName.equals(TagConstants.NAME_SERVICE)
-			|| tagName.equals(TagConstants.NAME_SERVICE_ELAPSED)
-			|| tagName.equals(TagConstants.NAME_SERVICE_BYTES)
-			|| tagName.equals(TagConstants.NAME_SERVICE_ERRORS)
+			|| tagName.equals(TagConstants.NAME_SERVICE_TIME_SUM)
+			|| tagName.equals(TagConstants.NAME_SERVICE_BYTE_SUM)
+			|| tagName.equals(TagConstants.NAME_SERVICE_ERROR_SUM)
 			|| tagName.equals(TagConstants.NAME_GROUP)
 			|| tagName.equals(TagConstants.NAME_USER_AGENT)
 			|| tagName.equals(TagConstants.NAME_REFERER)

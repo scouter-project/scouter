@@ -38,6 +38,11 @@ public class ObjectSelectManager {
 		return unSelectedObjSet.contains(objHash);
 	}
 	
+	public void clear() {
+		unSelectedObjSet.clear();
+		notifyChangeCheckedState();
+	}
+	
 	public int unselectedSize() {
 		return unSelectedObjSet.size();
 	}
