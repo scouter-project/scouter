@@ -239,6 +239,8 @@ public class Configure extends Thread {
 
 	public String direct_patch_class = "";
 
+	public  long max_think_time=DateUtil.MILLIS_PER_FIVE_MINUTE;
+
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -498,6 +500,7 @@ public class Configure extends Thread {
 		this.plugin_http_trace_param = getValue("plugin_http_trace_param", "");
 
 		this.direct_patch_class = getValue("direct_patch_class", "");
+		this.max_think_time = getLong("max_think_time", DateUtil.MILLIS_PER_FIVE_MINUTE);
 
 		resetObjInfo();
 		setErrorStatus();
@@ -696,7 +699,7 @@ public class Configure extends Thread {
 	}
 
 	private static HashSet<String> ignoreSet = new HashSet<String>();
-
+	
 	static {
 		ignoreSet.add("property");
 		ignoreSet.add("objHash");
