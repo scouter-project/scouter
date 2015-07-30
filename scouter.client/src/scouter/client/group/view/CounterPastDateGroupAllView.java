@@ -188,6 +188,11 @@ public class CounterPastDateGroupAllView extends ScouterViewPart implements Dual
 				toolTip.hide();
 			}
 			public void mouseDown(MouseEvent e) {
+				double x = xyGraph.primaryXAxis.getPositionValue(e.x, false);
+				double y = xyGraph.primaryYAxis.getPositionValue(e.y, false);
+				if (x < 0 || y < 0) {
+					return;
+				}
 				Image image = new Image(e.display, 1, 10);
 				GC gc = new GC((FigureCanvas)e.widget);
 				gc.copyArea(image, e.x, e.y > 5 ? e.y - 5 : 0);
