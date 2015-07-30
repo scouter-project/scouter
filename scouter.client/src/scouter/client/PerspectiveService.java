@@ -21,6 +21,8 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.IPlaceholderFolderLayout;
 
+import scouter.client.counter.views.CounterRealTimeAllView;
+import scouter.client.counter.views.CounterRealTimeTotalView;
 import scouter.client.group.view.GroupNavigationView;
 import scouter.client.preferences.PManager;
 import scouter.client.preferences.PreferenceConstants;
@@ -38,6 +40,7 @@ import scouter.client.xlog.views.XLogProfileView;
 import scouter.client.xlog.views.XLogRealTimeView;
 import scouter.client.xlog.views.XLogSelectionView;
 import scouter.client.xlog.views.XLogZoomTimeView;
+import scouter.lang.counters.CounterConstants;
 
 public class PerspectiveService implements IPerspectiveFactory  {
 	
@@ -68,8 +71,19 @@ public class PerspectiveService implements IPerspectiveFactory  {
 		eqLayout.addPlaceholder(EQView.ID + ":*");
 		eqLayout.addView(EQView.ID + ":" + serverId +"&"+ objType); // 1
 		
+		IFolderLayout upResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_TOP, IPageLayout.LEFT, 0.3f, editorArea);
+		upResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.JAVA_HEAP_USED);
+		
+		IFolderLayout midResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_MIDDLE, IPageLayout.BOTTOM, 0.33f, IConstants.LAYOUT_WASSERVICE_LEFT_TOP);
+		midResLayout.addView(CounterRealTimeTotalView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.WAS_TPS);
+
+		IFolderLayout downResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_BOTTOM, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_LEFT_MIDDLE);
+		downResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.WAS_ELAPSED_TIME);
+		
 		IFolderLayout xlogTopLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_CENTER_TOP, IPageLayout.LEFT, 1f, editorArea);
 		xlogTopLayout.addView(XLogRealTimeView.ID + ":" + serverId + "&" + objType);
+		
+		
 		layout.addPerspectiveShortcut(getId());
 	}
 	
