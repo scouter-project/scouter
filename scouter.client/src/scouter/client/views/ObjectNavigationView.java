@@ -346,13 +346,9 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 	
 	private void backgroundContextMenu(IMenuManager mgr){
 		IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		Action clearAction = new ClearObjectFilterAction();
 		if (objSelMgr.unselectedSize() > 0) {
-			clearAction.setEnabled(true);
-		} else {
-			clearAction.setEnabled(false);
+			mgr.add(new ClearObjectFilterAction());
 		}
-		mgr.add(clearAction);
 		mgr.add(new Separator());
 		mgr.add(new AddServerAction(win, "Add Server", Images.add));
 		mgr.add(new Separator());
