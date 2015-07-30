@@ -248,10 +248,12 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 						AgentObject ao = (AgentObject) o;
 						if (objSelMgr.unselectedSize() > 0) {
 							objSelMgr.selectObj(ao.getObjHash());
+							if (objSelMgr.unselectedSize() >= objectList.size()) {
+								objSelMgr.clear();
+							}
 						} else {
-							AgentObject[] aos = agentThread.getObjectList();
 							Set<Integer> unselSet = new HashSet<Integer>();
-							for (AgentObject a : aos) {
+							for (AgentObject a : objectList) {
 								if (a.getObjHash() != ao.getObjHash()) {
 									unselSet.add(a.getObjHash());
 								}
