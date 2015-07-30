@@ -279,7 +279,7 @@ public class ScouterUtil {
 					int pixelValue = imageData.getPixel(0, point);
 					RGB rgb = palette.getRGB(pixelValue);
 					if (ColorUtil.getInstance().TOTAL_CHART_COLOR.getRGB().equals(rgb)) {
-						double time = xyGraph.primaryXAxis.getPositionValue(e.x, true);
+						double time = xyGraph.primaryXAxis.getPositionValue(e.x, false);
 						Trace t = xyGraph.getPlotArea().getTraceList().get(0);
 						if (t == null) {
 							return;

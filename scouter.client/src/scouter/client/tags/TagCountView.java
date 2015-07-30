@@ -276,7 +276,7 @@ public class TagCountView extends ViewPart {
 			}
 			
 			public void mouseDoubleClick(MouseEvent e) {
-				long stime = (long) totalGraph.primaryXAxis.getPositionValue(e.x, true);
+				long stime = (long) totalGraph.primaryXAxis.getPositionValue(e.x, false);
 				if (stime < rangeX1 || stime > rangeX2) return;
 				stime = stime / DateUtil.MILLIS_PER_MINUTE * DateUtil.MILLIS_PER_MINUTE;
 				long etime = stime + DateUtil.MILLIS_PER_MINUTE - 1;
@@ -395,7 +395,7 @@ public class TagCountView extends ViewPart {
 			}
 			
 			public void mouseDoubleClick(MouseEvent e) {
-				long stime = (long) cntGraph.primaryXAxis.getPositionValue(e.x, true);
+				long stime = (long) cntGraph.primaryXAxis.getPositionValue(e.x, false);
 				if (stime < rangeX1 || stime > rangeX2) return;
 				stime = stime / DateUtil.MILLIS_PER_MINUTE * DateUtil.MILLIS_PER_MINUTE;
 				long etime = stime + DateUtil.MILLIS_PER_MINUTE - 1;

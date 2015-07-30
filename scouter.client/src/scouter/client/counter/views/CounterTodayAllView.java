@@ -300,7 +300,7 @@ public class CounterTodayAllView extends ScouterViewPart implements Refreshable,
 						int objHash = AgentColorManager.getInstance().getObjectHash(rgb);
 						if (objHash != 0) {
 							String objName = TextProxy.object.getText(objHash);
-							double time = xyGraph.primaryXAxis.getPositionValue(e.x, true);
+							double time = xyGraph.primaryXAxis.getPositionValue(e.x, false);
 							double v = 0.0d;
 							for (Trace t : traces) {
 								if (t.getName().equals(objName)) {
