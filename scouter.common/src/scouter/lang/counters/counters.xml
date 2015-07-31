@@ -45,7 +45,7 @@ tagcnt : TagCount
 			<Counter name="DropIn" disp="Net | Drop In" unit="cnt" icon="drop.png" />
 		</Family>
 		<Family name="javaee" master="ActiveService" txreal="true"  txload="true" totactsp="true"  acteq="true"  actthrli="true" dservcnt="true" tdservcnt="true" svcgrp="true" srcxlog="true" unqvst="true" tagcnt="true" >
-			<Counter name="RecentUser" disp="RecentUser" unit="cnt" icon="visitor.png" />
+			<Counter name="RecentUser" disp="Recent User" unit="cnt" icon="visitor.png" />
 			<Counter name="HeapTotUsage" disp="Heap Total Usage" unit="MB" icon="memory.png" all="false" total="false"  />
 			<Counter name="GcCount" disp="GC Count" unit="cnt" icon="gc.png" />
 			<Counter name="ServiceCount" disp="Service Count" unit="cnt" icon="service_count.png" />
