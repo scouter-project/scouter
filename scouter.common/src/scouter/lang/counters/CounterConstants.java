@@ -51,7 +51,7 @@ public class CounterConstants {
 	public final static String WAS_SERVICE_COUNT  = "ServiceCount";
 	public final static String WAS_ERROR_RATE     = "ErrorRate";
 	public final static String WAS_ACTIVE_SERVICE = "ActiveService";
-	public final static String WAS_USER_5M = "User5M";
+	public final static String WAS_RECENT_USER = "RecentUser";
 	
 	public final static String JAVA_GC_COUNT        = "GcCount";
 	public final static String JAVA_GC_TIME         = "GcTime";
