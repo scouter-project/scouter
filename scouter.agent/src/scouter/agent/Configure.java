@@ -584,8 +584,8 @@ public class Configure extends Thread {
 		this.debug_asm = getBoolean("debug_asm", getBoolean("debug.asm", false));
 		this.enable_plus_objtype = getBoolean("enable_plus_objtype", false);
 
-		System.setProperty("objname", this.objName);
-		System.setProperty("objtype", this.objtype);
+		System.setProperty("scouter.objname", this.objName);
+		System.setProperty("scouter.objtype", this.objtype);
 	}
 
 	private void setErrorStatus() {
