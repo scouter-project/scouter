@@ -251,7 +251,6 @@ public class Configure extends Thread {
 		this.auto_delete_retain_days = getInt("auto_delete_retain_days", 0);
 		this.num_of_net_processor = getInt("num_of_net_processor", 4);
 		this.geoip_data_city = getValue("geoip_data_city", "./GeoLiteCity.dat");
-		// this.geoip_data_country = getValue("geoip_data_country", ".");
 		this.enable_geoip = getBoolean("enable_geoip", true);
 		this.max_sql_stat = getInt("max_sql_stat", 10000);
 		this.max_api_stat = getInt("max_api_stat", 10000);
