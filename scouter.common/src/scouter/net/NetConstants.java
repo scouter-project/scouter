@@ -17,11 +17,6 @@
 package scouter.net;
 
 public interface NetConstants {
-	public static int DATATCP_SERVER_PORT = 6100;
-	public static int DATAUDP_SERVER_PORT = 6100;
-//	public static int SERVICE_SERVER_PORT = 6200;
-//	public static int CLUSTER_SERVER_PORT = 6300;
-//
-//	public static int BASE_TCP_AGENT_PORT = 6600;
-
+	public static int SERVER_TCP_PORT = 6100;
+	public static int SERVER_UDP_PORT = 6100;
 }

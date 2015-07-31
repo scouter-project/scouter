@@ -236,7 +236,7 @@ public class LoginDialog {
 			}
 			autoLoginCheck.setSelection(ServerPrefUtil.isAutoLoginAddress(address));
 		} else if (openType == TYPE_STARTUP){
-			addrCombo.setText("127.0.0.1:" + NetConstants.DATATCP_SERVER_PORT);
+			addrCombo.setText("127.0.0.1:" + NetConstants.SERVER_TCP_PORT);
 			id.setText("admin");
 		}
 
@@ -313,7 +313,7 @@ public class LoginDialog {
 			String ip = null;
 			String port = null;
 			if (address.contains(":") == false) {
-				address = address.concat(":" + NetConstants.DATATCP_SERVER_PORT);
+				address = address.concat(":" + NetConstants.SERVER_TCP_PORT);
 			}
 			String addr[] = address.split(":");
 			ip = addr[0];

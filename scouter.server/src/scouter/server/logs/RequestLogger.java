@@ -34,7 +34,7 @@ import scouter.util.ThreadUtil;
 public class RequestLogger extends Thread {
 
 	private static final String FILE_PREFIX = "request";
-	private static final String DIRECTORY = Configure.getInstance().logs_dir;
+	private static final String DIRECTORY = Configure.getInstance().log_dir;
 	private static RequestLogger instance;
 	public static Set<String> cmdSet = new HashSet<String>();
 	public static Set<String> demandSet = new HashSet<String>();

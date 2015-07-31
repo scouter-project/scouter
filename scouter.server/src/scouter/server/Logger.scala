@@ -18,23 +18,22 @@ package scouter.server;
 
 import java.io.File
 import java.io.FileWriter
-import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
-import scouter.util.CompareUtil
+import scala.util.control.Breaks._
+import scouter.server.util.ThreadScala
 import scouter.util.DateUtil
-import scouter.util.FileUtil
 import scouter.util.StringLongLinkedMap
 import scouter.util.ThreadUtil
-import scouter.server.util.ThreadScala
-import scala.util.control.Breaks._
+import scouter.util.FileUtil
+import scouter.util.CompareUtil
 
 object Logger {
 
     private val lastLog = new StringLongLinkedMap().setMax(1000);
 
     def println(message: Any) {
-        println(DateUtil.datetime(System.currentTimeMillis()) + " " + message);
+        Logger.println(DateUtil.datetime(System.currentTimeMillis()) + " " + message);
     }
 
     def println(id: String, message: Any) {
@@ -127,15 +126,14 @@ object Logger {
             ThreadUtil.sleep(5000);
         }
     }
-
     val conf = Configure.getInstance()
     ConfObserver.put("Logger", new Runnable() {
         override def run() {
 
-            if (CompareUtil.equals(lastDir, conf.logs_dir) == false || lastFileRotation != conf.log_rotation) {
+            if (CompareUtil.equals(lastDir, conf.log_dir) == false || lastFileRotation != conf.log_rotation) {
                 FileUtil.close(pw)
                 pw = null
-                lastDir = conf.logs_dir;
+                lastDir = conf.log_dir;
                 lastFileRotation = conf.log_rotation;
             }
         }
@@ -145,15 +143,15 @@ object Logger {
         this.synchronized {
             if (pw == null) {
                 lastDataUnit = DateUtil.getDateUnit();
-                lastDir = conf.logs_dir;
+                lastDir = conf.log_dir;
                 lastFileRotation = conf.log_rotation;
 
                 new File(lastDir).mkdirs();
                 if (conf.log_rotation) {
-                    val fw = new FileWriter(new File(conf.logs_dir, "server-" + DateUtil.yyyymmdd() + ".log"), true);
+                    val fw = new FileWriter(new File(conf.log_dir, "server-" + DateUtil.yyyymmdd() + ".log"), true);
                     pw = new PrintWriter(fw);
                 } else {
-                    pw = new PrintWriter(new File(conf.logs_dir, "server.log"));
+                    pw = new PrintWriter(new File(conf.log_dir, "server.log"));
                 }
                 lastDataUnit = DateUtil.getDateUnit();
             }
@@ -166,7 +164,7 @@ object Logger {
         if (conf.log_keep_dates <= 0)
             return ;
         val nowUnit = DateUtil.getDateUnit();
-        val dir = new File(conf.logs_dir);
+        val dir = new File(conf.log_dir);
         val files = dir.listFiles();
 
         for (i <- 0 to files.length - 1) {

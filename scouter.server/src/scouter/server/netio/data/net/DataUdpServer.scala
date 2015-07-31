@@ -33,7 +33,7 @@ object DataUdpServer {
     var udpsocket: DatagramSocket = null;
     ThreadScala.startDaemon("scouter.server.netio.data.net.DataUdpServer") {
         while (true) {
-            open(conf.dataudp_host, conf.dataudp_port);
+            open(conf.udp_host, conf.udp_port);
             recv();
             FileUtil.close(udpsocket)
         }
@@ -41,11 +41,12 @@ object DataUdpServer {
 
     def recv() {
         try {
-            val BUFFER_SIZE = conf.dataudp_buffer;
+            val BUFFER_SIZE = conf.udp_buffer;
             val rbuf = new Array[Byte](BUFFER_SIZE)
             val p = new DatagramPacket(rbuf, BUFFER_SIZE);
 
-            while (true) { // 예외가 발생하기 전에는 반복된다.
+            // loop until any exception
+            while (true) {
                 udpsocket.receive(p);
                 val data = new Array[Byte](p.getLength());
                 System.arraycopy(p.getData(), 0, data, 0, p.getLength());
@@ -58,23 +59,19 @@ object DataUdpServer {
     }
 
     def open(host: String, port: Int) {
-        Logger.println("udp listen " + host + ":" + port + " for agent data");
-        Logger.println("\tdataudp_host=" + host);
-        Logger.println("\tdataudp_port=" + port);
-        Logger.println("\tdataudp_buffer=" + conf.dataudp_buffer);
-        Logger.println("\tdataudp_so_rcvbuf=" + conf.dataudp_so_rcvbuf);
+        Logger.println("udp listen " + host + ":" + port);
+        Logger.println("\tudp_host=" + host);
+        Logger.println("\tudp_port=" + port);
+        Logger.println("\tudp_buffer=" + conf.udp_buffer);
+        Logger.println("\tudp_so_rcvbuf=" + conf.udp_so_rcvbuf);
 
         while (true) {
             try {
                 udpsocket = new DatagramSocket(port, InetAddress.getByName(host));
-                val buf = conf.dataudp_so_rcvbuf;
+                val buf = conf.udp_so_rcvbuf;
                 if (buf > 0) {
-                    // so_rcvbuf 값이 셋팅되지 않았을때는 100이상의 패킷이 동시에 도착할때는
-                    // 유실이 발생했다. 이값을 셋팅함으로 해결
                     udpsocket.setReceiveBufferSize(buf);
                 }
-                //	udpsocket.setReuseAddress(true);
-                //	udpsocket.setBroadcast(true);
                 return ;
             } catch {
                 case e: Exception =>

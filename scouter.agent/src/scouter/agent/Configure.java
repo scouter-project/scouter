@@ -66,8 +66,8 @@ public class Configure extends Thread {
 	public int local_udp_port;
 
 	public String server_addr = "127.0.0.1";
-	public int server_udp_port = NetConstants.DATAUDP_SERVER_PORT;
-	public int server_tcp_port = NetConstants.DATATCP_SERVER_PORT;
+	public int server_udp_port = NetConstants.SERVER_UDP_PORT;
+	public int server_tcp_port = NetConstants.SERVER_TCP_PORT;
 	public int server_tcp_session_count = 1;
 	public int server_tcp_so_timeout = 60000;
 	public int server_tcp_connection_timeout = 3000;
@@ -380,8 +380,8 @@ public class Configure extends Thread {
 		this.local_udp_port = getInt("local_udp_port",0);
 
 		this.server_addr = getValue("server_addr", getValue("server.addr", "127.0.0.1"));
-		this.server_udp_port = getInt("server_udp_port", getInt("server.port", NetConstants.DATAUDP_SERVER_PORT));
-		this.server_tcp_port = getInt("server_tcp_port", getInt("server.port", NetConstants.DATATCP_SERVER_PORT));
+		this.server_udp_port = getInt("server_udp_port", getInt("server.port", NetConstants.SERVER_UDP_PORT));
+		this.server_tcp_port = getInt("server_tcp_port", getInt("server.port", NetConstants.SERVER_TCP_PORT));
 		this.server_tcp_session_count = getInt("server_tcp_session_count", 1, 1);
 		this.server_tcp_connection_timeout = getInt("server_tcp_connection_timeout", 3000);
 		this.server_tcp_so_timeout = getInt("server_tcp_so_timeout", 60000);

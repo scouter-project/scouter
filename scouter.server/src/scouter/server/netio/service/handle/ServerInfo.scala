@@ -83,7 +83,7 @@ class ServerInfo {
   @ServiceHandler(RequestCmd.SERVER_LOG_LIST)
   def getServerLogs(din: DataInputX, dout: DataOutputX, login: Boolean) {
     val out = new MapPack();
-    val logDir = new File(Configure.getInstance().logs_dir);
+    val logDir = new File(Configure.getInstance().log_dir);
     if (logDir.exists() == false) {
       return ;
     }
@@ -106,7 +106,7 @@ class ServerInfo {
     val param = din.readMapPack();
     val name = param.getText("name");
     if (StringUtil.isEmpty(name)) return ;
-    val logFile = new File(Configure.getInstance().logs_dir, name);
+    val logFile = new File(Configure.getInstance().log_dir, name);
     if (logFile.canRead() == false) return ;
     val content = FileUtil.readAll(logFile);
     if (content == null) return ;
