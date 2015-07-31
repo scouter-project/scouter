@@ -39,8 +39,8 @@ public class DataUdpAgent {
 	InetAddress server_host;
 	int server_port;
 
-	String local_addr;
-	int local_port;
+	String local_udp_addr;
+	int local_udp_port;
 
 	private DatagramSocket datagram;
 
@@ -80,12 +80,12 @@ public class DataUdpAgent {
 	private void openDatagramSocket() {
 		try {
 			Configure conf = Configure.getInstance();
-			String host = conf.local_addr;
-			int port = conf.local_port;
-			if (datagram == null || CompareUtil.equals(host, local_addr) == false || local_port != port) {
+			String host = conf.local_udp_addr;
+			int port = conf.local_udp_port;
+			if (datagram == null || CompareUtil.equals(host, local_udp_addr) == false || local_udp_port != port) {
 				close(datagram);
-				local_addr = host;
-				local_port = port;
+				local_udp_addr = host;
+				local_udp_port = port;
 				if (host != null) {
 					datagram = new DatagramSocket(port, InetAddress.getByName(host));
 					Logger.println("A118","Agent UDP local.addr=" + host + " local.port=" + port);

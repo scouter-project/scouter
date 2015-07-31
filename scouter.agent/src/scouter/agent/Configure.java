@@ -62,8 +62,8 @@ public class Configure extends Thread {
 		return instance;
 	}
 
-	public String local_addr = null;
-	public int local_port;
+	public String local_udp_addr = null;
+	public int local_udp_port;
 
 	public String server_addr = "127.0.0.1";
 	public int server_udp_port = NetConstants.DATAUDP_SERVER_PORT;
@@ -76,13 +76,13 @@ public class Configure extends Thread {
 	public String objname = "";
 	public String objhost_type = "";
 	public String objhost = "";
+	
 	public int objHash;
 	public String objName;
-
 	public int objHostHash;
 	public String objHostName;
-	public boolean enable_host_agent = false;
 
+	public boolean enable_host_agent = false;
 	public boolean enable_objname_pid = false;
 	public boolean enable_plus_objtype = false;
 
@@ -142,8 +142,6 @@ public class Configure extends Thread {
 
 	public long yellow_line_time = 3000;
 	public long red_line_time = 8000;
-
-	public long delayed_time = 10000;
 
 	public String plugin_classpath = "";
 
@@ -373,15 +371,13 @@ public class Configure extends Thread {
 		this.yellow_line_time = getLong("yellow_line_time", getLong("yellow.line.time", 3000));
 		this.red_line_time = getLong("red_line_time", getLong("red.line.time", 8000));
 
-		this.delayed_time = getLong("delayed_time", getLong("delayed.time", 10000));
-
 		this.log_ignore = getStringSet("log_ignore", ",");
 
 		this.debug_udp_xlog = getBoolean("debug_udp_xlog", getBoolean("debug.udp.xlog", false));
 		this.debug_udp_object = getBoolean("debug_udp_object", getBoolean("debug.udp.object", false));
 
-		this.local_addr = getValue("local_addr", getValue("local.addr"));
-		this.local_port = getInt("local_port", getInt("local.port", 0));
+		this.local_udp_addr = getValue("local_udp_addr");
+		this.local_udp_port = getInt("local_udp_port",0);
 
 		this.server_addr = getValue("server_addr", getValue("server.addr", "127.0.0.1"));
 		this.server_udp_port = getInt("server_udp_port", getInt("server.port", NetConstants.DATAUDP_SERVER_PORT));
@@ -580,18 +576,16 @@ public class Configure extends Thread {
 		this.objName = objHostName + "/" + this.objname;
 		this.objHash = HashUtil.hash(objName);
 
-		this.alert_message_length = getInt("alert_message_length", getInt("alert.message.length", 3000));
-		this.alert_send_interval = getInt("alert_send_interval", getInt("alert.send.interval", 3000));
-		this.alert_fetch_count = getInt("alert_fetch_count", getInt("alert.fetch.count", 100000));
-		this.alert_sql_time = getInt("alert_sql_time", getInt("alert.sql.time", 30000));
-
-		System.setProperty("scouter.object.name", this.objName);
-		System.setProperty("scouter.object.type", this.objtype);
+		this.alert_message_length = getInt("alert_message_length",  3000);
+		this.alert_send_interval = getInt("alert_send_interval", 3000);
+		this.alert_fetch_count = getInt("alert_fetch_count",100000);
+		this.alert_sql_time = getInt("alert_sql_time", 30000);
 
 		this.debug_asm = getBoolean("debug_asm", getBoolean("debug.asm", false));
-
 		this.enable_plus_objtype = getBoolean("enable_plus_objtype", false);
 
+		System.setProperty("objname", this.objName);
+		System.setProperty("objtype", this.objtype);
 	}
 
 	private void setErrorStatus() {

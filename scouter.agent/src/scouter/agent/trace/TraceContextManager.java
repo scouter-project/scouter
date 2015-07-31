@@ -55,22 +55,6 @@ public class TraceContextManager {
 		}
 		return act;
 	}
-
-	public static int getDelayedCount() {
-		int n = 0;
-		try {
-			long now = System.currentTimeMillis();
-			Enumeration<TraceContext> en = entry.elements();
-			while (en.hasMoreElements()) {
-				long tm = now - en.nextElement().startTime;
-				if (tm >= Configure.getInstance().delayed_time) {
-					n++;
-				}
-			}
-		} catch (Exception e) {
-		}
-		return n;
-	}
 	
 	public static Enumeration<TraceContext> getContextEnumeration(){
 		return entry.elements();
