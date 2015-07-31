@@ -41,7 +41,7 @@ public class HostPerf {
 		if (conf.enable_host_agent == false)
 			return;
 		com.sun.management.OperatingSystemMXBean osm = (com.sun.management.OperatingSystemMXBean) osmxbean;
-		AgentHeartBeat.addObject(conf.scouter_host_type, conf.objHostHash, conf.objHostName);
+		AgentHeartBeat.addObject(conf.objhost_type, conf.objHostHash, conf.objHostName);
 		float cpu = (float) osm.getSystemLoadAverage();
 		if (cpu <= 0) {
 			cpu = 0;

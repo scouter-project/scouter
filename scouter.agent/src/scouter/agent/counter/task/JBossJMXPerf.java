@@ -171,14 +171,14 @@ public class JBossJMXPerf {
 
 	private String getDataSourceType() {
 		if (conf.enable_plus_objtype) {
-			return conf.scouter_type + "_ds";
+			return conf.objtype + "_ds";
 		}
 		return CounterConstants.DATASOURCE;
 	}
 
 	private String getReqProcType() {
 		if (conf.enable_plus_objtype) {
-			return conf.scouter_type + "_req";
+			return conf.objtype + "_req";
 		}
 		return CounterConstants.REQUESTPROCESS;
 	}

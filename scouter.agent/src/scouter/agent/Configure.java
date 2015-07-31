@@ -62,11 +62,9 @@ public class Configure extends Thread {
 		return instance;
 	}
 
-	public boolean debug_config = false;
-
 	public String local_addr = null;
 	public int local_port;
-	
+
 	public String server_addr = "127.0.0.1";
 	public int server_udp_port = NetConstants.DATAUDP_SERVER_PORT;
 	public int server_tcp_port = NetConstants.DATATCP_SERVER_PORT;
@@ -74,10 +72,10 @@ public class Configure extends Thread {
 	public int server_tcp_so_timeout = 60000;
 	public int server_tcp_connection_timeout = 3000;
 
-	public String scouter_type = "";
-	public String scouter_name = "";
-	public String scouter_host_type = "";
-	public String scouter_hostname = "";
+	public String objtype = "";
+	public String objname = "";
+	public String objhost_type = "";
+	public String objhost = "";
 	public int objHash;
 	public String objName;
 
@@ -85,7 +83,7 @@ public class Configure extends Thread {
 	public String objHostName;
 	public boolean enable_host_agent = false;
 
-	public boolean enable_scouter_name_pid = false;
+	public boolean enable_objname_pid = false;
 	public boolean enable_plus_objtype = false;
 
 	public boolean enable_asm_jdbc = true;
@@ -99,10 +97,7 @@ public class Configure extends Thread {
 	public String http_debug_parameter_url = "/";
 
 	/*
-	 * user: 
-	 *  0 - remoteIp 
-	 *  1 - JSESSIONID + remoteIp 
-	 *  2 - SCOUTER(set-cookie)
+	 * user: 0 - remoteIp 1 - JSESSIONID + remoteIp 2 - SCOUTER(set-cookie)
 	 */
 	public int mode_userid = 2;
 
@@ -129,7 +124,7 @@ public class Configure extends Thread {
 	public int auto_dump_trigger = 10000;
 	public long auto_dump_interval = 30000;
 	public int auto_dump_level = 1;
-	
+
 	public int debug_long_tx_autostack = 0;
 
 	public String http_static_contents = "js, htm, html, gif, png, jpg, css";
@@ -158,19 +153,19 @@ public class Configure extends Thread {
 	public String hook_return = "";
 	public String hook_init = "";
 	public String hook_dbopen = "";
-	public boolean enable_dbopen=true;
+	public boolean enable_dbopen = true;
 	public boolean enable_leaktrace_fullstack = false;
 	public boolean debug_dbopen_fullstack = false;
-	public boolean debug_dbopen_autocommit=false;
+	public boolean debug_dbopen_autocommit = false;
 
 	public String hook_method = "";
 	public String hook_method_ignore_prefix = "get,set";
 	private String[] _hook_method_ignore_prefix = null;
 	private int _hook_method_ignore_prefix_len = 0;
-	
+
 	public String hook_method_ignore_classes = "";
 	private StringSet _hook_method_ignore_classes = new StringSet();
-	
+
 	public boolean hook_method_access_public = true;
 	public boolean hook_method_access_private = false;
 	public boolean hook_method_access_protected = false;
@@ -189,9 +184,9 @@ public class Configure extends Thread {
 	public String reject_url = "/error.html";
 
 	public int profile_step_max = 1024;
-	
+
 	public boolean debug_background_sql = false;
-	
+
 	public String plugin_http_trace = "";
 	public String plugin_apicall_name = "";
 	public String plugin_http_trace_param = "";
@@ -199,8 +194,8 @@ public class Configure extends Thread {
 	public boolean profile_fullstack_apicall_error = false;
 	public int profile_fullstack_lines = 0;
 	public long udp_collection_interval = 100;
-	public boolean profile_sql_escape=true;
-	
+	public boolean profile_sql_escape = true;
+
 	public String http_remote_ip_header_key = "";
 	public boolean enable_trace_e2e = false;
 	public String gxid_key = "gxid";
@@ -214,11 +209,10 @@ public class Configure extends Thread {
 	public String userid_jsessionid = "JSESSIONID";
 
 	public boolean enable_auto_service_trace = false;
-	public boolean enable_auto_service_backstack=true;
-	
+	public boolean enable_auto_service_backstack = true;
+
 	public boolean debug_apicall = false;
 
-	
 	public String hook_future_task = "";
 	public String hook_future_task_prefix = "";
 
@@ -239,7 +233,7 @@ public class Configure extends Thread {
 
 	public String direct_patch_class = "";
 
-	public  long max_think_time=DateUtil.MILLIS_PER_FIVE_MINUTE;
+	public long max_think_time = DateUtil.MILLIS_PER_FIVE_MINUTE;
 
 	/**
 	 * sometimes call by sample application, at that time normally set some
@@ -324,7 +318,7 @@ public class Configure extends Thread {
 	}
 
 	private void apply() {
-		this.debug_config = getBoolean("debug_config", getBoolean("debug.config", false));
+
 		this.http_debug_querystring = getBoolean("http_debug_querystring", false);
 		this.http_debug_header = getBoolean("http_debug_header", false);
 		this.http_debug_parameter = getBoolean("http_debug_parameter", false);
@@ -357,8 +351,8 @@ public class Configure extends Thread {
 		if (this.auto_dump_interval < 5000) {
 			this.auto_dump_interval = 5000;
 		}
-		this.debug_long_tx_autostack = getInt("debug_long_tx_autostack",0);
-		
+		this.debug_long_tx_autostack = getInt("debug_long_tx_autostack", 0);
+
 		this.http_static_contents = getValue("http_static_contents",
 				getValue("http.static.contents", "js, htm, html, gif, png, jpg, css"));
 
@@ -368,8 +362,8 @@ public class Configure extends Thread {
 		this.debug_socket_openstack = getBoolean("debug_socket_openstack", getBoolean("debug.socket.openstack", false));
 		this.profile_socket_openstack_port = getInt("profile_socket_openstack_port", 0);
 		this.debug_socket_openstack_port = getInt("debug_socket_openstack_port", 0);
-		this.profile_sql_escape = getBoolean("profile_sql_escape",true);
-		
+		this.profile_sql_escape = getBoolean("profile_sql_escape", true);
+
 		this.enable_asm_jdbc = getBoolean("enable_asm_jdbc", getBoolean("enable.asm.jdbc", true));
 		this.enable_asm_httpsession = getBoolean("enable_asm_httpsession", getBoolean("enable.asm.httpsession", true));
 		this.enable_asm_socket = getBoolean("enable_asm_socket", getBoolean("enable.asm.socket", true));
@@ -392,7 +386,7 @@ public class Configure extends Thread {
 		this.server_addr = getValue("server_addr", getValue("server.addr", "127.0.0.1"));
 		this.server_udp_port = getInt("server_udp_port", getInt("server.port", NetConstants.DATAUDP_SERVER_PORT));
 		this.server_tcp_port = getInt("server_tcp_port", getInt("server.port", NetConstants.DATATCP_SERVER_PORT));
-		this.server_tcp_session_count = getInt("server_tcp_session_count", 1,1);
+		this.server_tcp_session_count = getInt("server_tcp_session_count", 1, 1);
 		this.server_tcp_connection_timeout = getInt("server_tcp_connection_timeout", 3000);
 		this.server_tcp_so_timeout = getInt("server_tcp_so_timeout", 60000);
 
@@ -401,9 +395,9 @@ public class Configure extends Thread {
 		this.hook_return = getValue("hook_return", getValue("hook.return", ""));
 		this.hook_init = getValue("hook_init", getValue("hook.init", ""));
 		this.hook_dbopen = getValue("hook_dbopen", "");
-		this.enable_dbopen= getBoolean("enable_dbopen", true);
+		this.enable_dbopen = getBoolean("enable_dbopen", true);
 		this.enable_leaktrace_fullstack = getBoolean("enable_leaktrace_fullstack", false);
-			
+
 		this.hook_method = getValue("hook_method", getValue("hook.method", ""));
 		this.hook_method_access_public = getBoolean("hook_method_access_public", true);
 		this.hook_method_access_protected = getBoolean("hook_method_access_protected", false);
@@ -411,13 +405,14 @@ public class Configure extends Thread {
 		this.hook_method_access_none = getBoolean("hook_method_access_none", false);
 		this.hook_method_ignore_prefix = StringUtil.removeWhitespace(getValue("hook_method_ignore_prefix", "get,set"));
 		this._hook_method_ignore_prefix = StringUtil.split(this.hook_method_ignore_prefix, ",");
-		this._hook_method_ignore_prefix_len = this._hook_method_ignore_prefix == null ? 0 : this._hook_method_ignore_prefix.length;
+		this._hook_method_ignore_prefix_len = this._hook_method_ignore_prefix == null ? 0
+				: this._hook_method_ignore_prefix.length;
 
-		
-		this.hook_method_ignore_classes = StringUtil.trimEmpty(StringUtil.removeWhitespace(getValue("hook_method_ignore_classes","")));
-		this._hook_method_ignore_classes = new StringSet(StringUtil.tokenizer(this.hook_method_ignore_classes.replace('.', '/'), ","));
-		
-		
+		this.hook_method_ignore_classes = StringUtil.trimEmpty(StringUtil.removeWhitespace(getValue(
+				"hook_method_ignore_classes", "")));
+		this._hook_method_ignore_classes = new StringSet(StringUtil.tokenizer(
+				this.hook_method_ignore_classes.replace('.', '/'), ","));
+
 		this.hook_service = getValue("hook_service", getValue("hook.service", ""));
 		this.hook_apicall = getValue("hook_apicall", getValue("hook.subcall", ""));
 		this.hook_apicall_info = getValue("hook_apicall_info", "");
@@ -445,7 +440,7 @@ public class Configure extends Thread {
 			this.profile_step_max = 100;
 
 		this.debug_background_sql = getBoolean("debug_background_sql", false);
-	
+
 		this.plugin_http_trace = getValue("plugin_http_trace", "");
 		this.plugin_apicall_name = getValue("plugin_apicall_name", "");
 
@@ -476,7 +471,7 @@ public class Configure extends Thread {
 		this.enable_host_agent = getBoolean("enable_host_agent", false);
 		this.enable_auto_service_trace = getBoolean("enable_auto_service_trace", false);
 		this.enable_auto_service_backstack = getBoolean("enable_auto_service_backstack", true);
-		
+
 		this.debug_apicall = getBoolean("debug_apicall", false);
 
 		this.hook_future_task = getValue("hook_future_task", "");
@@ -544,15 +539,16 @@ public class Configure extends Thread {
 		}
 		return false;
 	}
-    public boolean isIgnoreMethodClass(String classname){
-    	return _hook_method_ignore_classes.hasKey(classname);
-    }
-	
+
+	public boolean isIgnoreMethodClass(String classname) {
+		return _hook_method_ignore_classes.hasKey(classname);
+	}
+
 	public synchronized void resetObjInfo() {
 		String detected = ObjTypeDetector.drivedType != null ? ObjTypeDetector.drivedType
 				: ObjTypeDetector.objType != null ? ObjTypeDetector.objType : CounterConstants.JAVA;
 
-		this.scouter_type = getValue("scouter_type", getValue("scouter.type", detected));
+		this.objtype = getValue("objtype", detected);
 
 		detected = CounterConstants.HOST;
 		if (SystemUtil.IS_LINUX) {
@@ -566,23 +562,22 @@ public class Configure extends Thread {
 		} else if (SystemUtil.IS_HP_UX) {
 			detected = CounterConstants.HPUX;
 		}
-		this.scouter_host_type = getValue("scouter_host_type", getValue("scouter.host.type", detected));
-		this.scouter_hostname = getValue("scouter_hostname", getValue("scouter.hostname", SysJMX.getHostName()));
+		this.objhost_type = getValue("objhost_type", detected);
+		this.objhost = getValue("objhost", SysJMX.getHostName());
 
-		this.objHostName = "/" + this.scouter_hostname;
+		this.objHostName = "/" + this.objhost;
 		this.objHostHash = HashUtil.hash(objHostName);
 
-		this.enable_scouter_name_pid = getBoolean("enable_scouter_name_pid", false);
+		this.enable_objname_pid = getBoolean("enable_objname_pid", false);
 		String defaultName;
-		if (this.enable_scouter_name_pid == true) {
+		if (this.enable_objname_pid == true) {
 			defaultName = "" + SysJMX.getProcessPID();
 		} else {
-			defaultName = this.scouter_type + "1";
+			defaultName = this.objtype + "1";
 		}
-		this.scouter_name = getValue("scouter_name",
-				getValue("scouter.name", System.getProperty("jvmRoute", defaultName)));
+		this.objname = getValue("objname", System.getProperty("jvmRoute", defaultName));
 
-		this.objName = objHostName + "/" + this.scouter_name;
+		this.objName = objHostName + "/" + this.objname;
 		this.objHash = HashUtil.hash(objName);
 
 		this.alert_message_length = getInt("alert_message_length", getInt("alert.message.length", 3000));
@@ -591,7 +586,7 @@ public class Configure extends Thread {
 		this.alert_sql_time = getInt("alert_sql_time", getInt("alert.sql.time", 30000));
 
 		System.setProperty("scouter.object.name", this.objName);
-		System.setProperty("scouter.object.type", this.scouter_type);
+		System.setProperty("scouter.object.type", this.objtype);
 
 		this.debug_asm = getBoolean("debug_asm", getBoolean("debug.asm", false));
 
@@ -639,7 +634,7 @@ public class Configure extends Thread {
 		try {
 			String v = getValue(key);
 			if (v != null) {
-				return Math.max( Integer.parseInt(v), min);
+				return Math.max(Integer.parseInt(v), min);
 			}
 		} catch (Exception e) {
 		}
@@ -699,7 +694,7 @@ public class Configure extends Thread {
 	}
 
 	private static HashSet<String> ignoreSet = new HashSet<String>();
-	
+
 	static {
 		ignoreSet.add("property");
 		ignoreSet.add("objHash");
