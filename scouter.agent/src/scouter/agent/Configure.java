@@ -198,10 +198,10 @@ public class Configure extends Thread {
 
 	public String http_remote_ip_header_key = "";
 	public boolean enable_trace_e2e = false;
-	public String gxid_key = "gxid";
+	public String gxid = "gxid";
 	public boolean enable_response_gxid = false;
-	public String scouter_this_txid = "scouter_this_txid";
-	public String scouter_caller_txid = "scouter_caller_txid";
+	public String this_txid = "scouter_this_txid";
+	public String caller_txid = "scouter_caller_txid";
 
 	public int hook_signature;
 
@@ -456,9 +456,9 @@ public class Configure extends Thread {
 
 		this.enable_trace_e2e = getBoolean("enable_trace_e2e", getBoolean("enable_gxid", false));
 		this.enable_response_gxid = getBoolean("enable_response_gxid", false);
-		this.gxid_key = getValue("gxid_key", "gxid");
-		this.scouter_this_txid = getValue("scouter_this_txid", "scouter_this_txid");
-		this.scouter_caller_txid = getValue("scouter_caller_txid", "scouter_caller_txid");
+		this.gxid = getValue("gxid", "scouter_gxid");
+		this.this_txid = getValue("this_txid", "scouter_this_txid");
+		this.caller_txid = getValue("caller_txid", "scouter_caller_txid");
 
 		this.max_concurrent_server_request = getInt("max_concurrent_server_request", 10);
 		this.debug_dbopen_fullstack = getBoolean("debug_dbopen_fullstack", false);

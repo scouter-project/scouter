@@ -100,9 +100,9 @@ public class ForHttpURLConnection implements IApiCallTrace {
 				ctx.gxid = ctx.txid;
 			}
 			try {
-				urlCon.setRequestProperty(conf.gxid_key, Hexa32.toString32(ctx.gxid));
-				urlCon.setRequestProperty(conf.scouter_this_txid, Hexa32.toString32(calleeTxid));
-				urlCon.setRequestProperty(conf.scouter_caller_txid, Hexa32.toString32(ctx.txid));
+				urlCon.setRequestProperty(conf.gxid, Hexa32.toString32(ctx.gxid));
+				urlCon.setRequestProperty(conf.this_txid, Hexa32.toString32(calleeTxid));
+				urlCon.setRequestProperty(conf.caller_txid, Hexa32.toString32(ctx.txid));
 			} catch (Throwable t) {
 			}
 		}

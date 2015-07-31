@@ -122,16 +122,16 @@ public class HttpTrace implements IHttpTrace {
 		dump(ctx.profile, request, ctx);
 		if (conf.enable_trace_e2e) {
 			try {
-				String gxid = request.getHeader(conf.gxid_key);
+				String gxid = request.getHeader(conf.gxid);
 				if (gxid != null) {
 					ctx.gxid = Hexa32.toLong32(gxid);
 				}
-				String txid = request.getHeader(conf.scouter_this_txid);
+				String txid = request.getHeader(conf.this_txid);
 				if (txid != null) {
 					ctx.txid = Hexa32.toLong32(txid);
 					ctx.is_child_tx = true;
 				}
-				String caller = request.getHeader(conf.scouter_caller_txid);
+				String caller = request.getHeader(conf.caller_txid);
 				if (caller != null) {
 					ctx.caller = Hexa32.toLong32(caller);
 					ctx.is_child_tx = true;
@@ -143,7 +143,7 @@ public class HttpTrace implements IHttpTrace {
 			try {
 				if (ctx.gxid == 0)
 					ctx.gxid = ctx.txid;
-				response.setHeader(conf.gxid_key, Hexa32.toString32(ctx.gxid) + ":" + ctx.startTime);
+				response.setHeader(conf.gxid, Hexa32.toString32(ctx.gxid) + ":" + ctx.startTime);
 			} catch (Throwable t) {
 			}
 		}

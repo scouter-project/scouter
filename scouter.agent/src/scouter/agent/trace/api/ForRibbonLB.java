@@ -82,9 +82,9 @@ public class ForRibbonLB implements IApiCallTrace {
 				if (ctx.gxid == 0) {
 					ctx.gxid = ctx.txid;
 				}
-				httpclient.addHeader(req, conf.gxid_key, Hexa32.toString32(ctx.gxid));
-				httpclient.addHeader(req, conf.scouter_caller_txid, Hexa32.toString32(ctx.txid));
-				httpclient.addHeader(req, conf.scouter_this_txid, Hexa32.toString32(calleeTxid));
+				httpclient.addHeader(req, conf.gxid, Hexa32.toString32(ctx.gxid));
+				httpclient.addHeader(req, conf.caller_txid, Hexa32.toString32(ctx.txid));
+				httpclient.addHeader(req, conf.this_txid, Hexa32.toString32(calleeTxid));
 				httpclient.addHeader(req, "scouter_caller_url", ctx.serviceName);
 				httpclient.addHeader(req, "scouter_caller_name", conf.objName);
 				httpclient.addHeader(req, "scouter_thread_id", Long.toString(ctx.threadId));
