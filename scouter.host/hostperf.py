@@ -90,8 +90,8 @@ def process(pack, default_interval=2):
 
 
 def help():
-    helpText = """hostperf.py [--objname] [--host host] [--port port] [--debug] [--help]
-    --objname : set the custom object name
+    helpText = """hostperf.py [--scouter_name] [--host host] [--port port] [--debug] [--help]
+    --scouter_name : set the custom object name
     --host    host : hostname or ip (127.0.0.1)
     --port    port : port (6100)
     --debug        : debug
@@ -111,7 +111,7 @@ def init(args):
     global server_port
      
     logo()
-    opts, args = getopt.getopt(args, "h", ["objname=","host=","port=","debug","help"])
+    opts, args = getopt.getopt(args, "h", ["scouter_name=","host=","port=","debug","help"])
     for opt in opts:
         if opt[0] == "--help" or opt[0] == "-h":
             help()
@@ -121,7 +121,7 @@ def init(args):
             server_port = int(opt[1])
         elif opt[0] == "--debug":
             debug = True
-        elif opt[0] == "--objname": 
+        elif opt[0] == "--scouter_name": 
             setObjname(opt[1])
 
 def h_ignore(param):

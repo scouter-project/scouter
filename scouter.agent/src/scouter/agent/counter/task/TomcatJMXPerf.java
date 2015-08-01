@@ -238,13 +238,13 @@ public class TomcatJMXPerf {
 
 	private String getReqProcType() {
 		if (Configure.getInstance().enable_plus_objtype) {
-			return Configure.getInstance().objtype + "_req";
+			return Configure.getInstance().scouter_type + "_req";
 		}
 		return CounterConstants.REQUESTPROCESS;
 	}
 	private String getDataSourceType() {
 		if (Configure.getInstance().enable_plus_objtype) {
-			return Configure.getInstance().objtype + "_ds";
+			return Configure.getInstance().scouter_type + "_ds";
 		}
 		return CounterConstants.DATASOURCE;
 	}

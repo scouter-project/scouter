@@ -72,10 +72,10 @@ public class Configure extends Thread {
 	public int server_tcp_so_timeout = 60000;
 	public int server_tcp_connection_timeout = 3000;
 
-	public String objtype = "";
-	public String objname = "";
+	public String scouter_type = "";
+	public String scouter_name = "";
 	public String objhost_type = "";
-	public String objhost = "";
+	public String objhost_name = "";
 	
 	public int objHash;
 	public String objName;
@@ -544,7 +544,7 @@ public class Configure extends Thread {
 		String detected = ObjTypeDetector.drivedType != null ? ObjTypeDetector.drivedType
 				: ObjTypeDetector.objType != null ? ObjTypeDetector.objType : CounterConstants.JAVA;
 
-		this.objtype = getValue("objtype", detected);
+		this.scouter_type = getValue("scouter_type", detected);
 
 		detected = CounterConstants.HOST;
 		if (SystemUtil.IS_LINUX) {
@@ -559,9 +559,9 @@ public class Configure extends Thread {
 			detected = CounterConstants.HPUX;
 		}
 		this.objhost_type = getValue("objhost_type", detected);
-		this.objhost = getValue("objhost", SysJMX.getHostName());
+		this.objhost_name = getValue("objhost_name", SysJMX.getHostName());
 
-		this.objHostName = "/" + this.objhost;
+		this.objHostName = "/" + this.objhost_name;
 		this.objHostHash = HashUtil.hash(objHostName);
 
 		this.enable_objname_pid = getBoolean("enable_objname_pid", false);
@@ -569,11 +569,11 @@ public class Configure extends Thread {
 		if (this.enable_objname_pid == true) {
 			defaultName = "" + SysJMX.getProcessPID();
 		} else {
-			defaultName = this.objtype + "1";
+			defaultName = this.scouter_type + "1";
 		}
-		this.objname = getValue("objname", System.getProperty("jvmRoute", defaultName));
+		this.scouter_name = getValue("scouter_name", System.getProperty("jvmRoute", defaultName));
 
-		this.objName = objHostName + "/" + this.objname;
+		this.objName = objHostName + "/" + this.scouter_name;
 		this.objHash = HashUtil.hash(objName);
 
 		this.alert_message_length = getInt("alert_message_length",  3000);
@@ -585,7 +585,7 @@ public class Configure extends Thread {
 		this.enable_plus_objtype = getBoolean("enable_plus_objtype", false);
 
 		System.setProperty("scouter.objname", this.objName);
-		System.setProperty("scouter.objtype", this.objtype);
+		System.setProperty("scouter.objtype", this.scouter_type);
 	}
 
 	private void setErrorStatus() {
