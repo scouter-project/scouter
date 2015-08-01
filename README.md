@@ -13,7 +13,7 @@ Enterprise IT has evolved based on commercial services.
 But now more and more systems are using open source S/W. 
 If you use a Tomcat, SCOUTER will be the best choice to monitor it.
 
-![Screen](https://github.com/scouter-project/scouter/blob/dev/misc/screen/loadtest.png)
+![Screen](https://github.com/scouter-project/scouter-help/blob/master/misc/screen/loadtest.png)
 
 ### Documents
  - [Getting Started](../../wiki/Getting-Started)
