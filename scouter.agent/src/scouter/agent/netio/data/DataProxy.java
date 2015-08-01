@@ -106,7 +106,7 @@ public class DataProxy {
 
 	public static void sendAlert(byte level, String title, String message, MapValue tags) {
 		AlertPack p = new AlertPack();
-		p.objType = conf.objtype;
+		p.objType = conf.scouter_type;
 		p.objHash = conf.objHash;
 		p.level = level;
 		p.title = title;

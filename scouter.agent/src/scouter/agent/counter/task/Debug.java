@@ -65,7 +65,7 @@ public class Debug {
 		}
 	}
 	public PrintWriter open() throws IOException {
-		File file = new File(Configure.getInstance().dump_dir, "longtx_" +Configure.getInstance().objname+ "_"+DateUtil.timestampFileName()+".txt");
+		File file = new File(Configure.getInstance().dump_dir, "longtx_" +Configure.getInstance().scouter_name+ "_"+DateUtil.timestampFileName()+".txt");
 		return new PrintWriter(new FileWriter(file));
 	}
 }
