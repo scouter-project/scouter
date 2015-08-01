@@ -22,27 +22,26 @@ tagcnt : TagCount
 	<Familys>
 		<Family name="host" master="Cpu" mtrcpu="true">
 			<Counter name="Cpu" disp="CPU" unit="%" icon="cpu.png" />
-			<Counter name="ErrOut" disp="Net | Error Out" unit="cnt" icon="error_count.png" />
-			<Counter name="WriteBytes" disp="Disk | Write Bytes" unit="bytes" icon="disk_write.png" />
-			<Counter name="WriteCount" disp="Disk | Write Count" unit="cnt" icon="disk_write.png" />
+			
 			<Counter name="Mem" disp="Memory" unit="%" icon="memory.png" />
 			<Counter name="MemA" disp="Memory | Avaliable" unit="MB" icon="memory.png" />
 			<Counter name="MemU" disp="Memory | Used" unit="MB" icon="memory.png" />
 			<Counter name="MemT" disp="Memory | Total" unit="MB" icon="memory.png" />
-			<Counter name="ReadBytes" disp="Disk | Read Bytes" unit="bytes" icon="disk_read.png" />
-			<Counter name="BytesRecv" disp="Net | Bytes Received" unit="bytes" icon="bytes_recv.png" />
-			<Counter name="DropOut" disp="Net | Drop Out" unit="cnt" icon="drop.png" />
-			<Counter name="ReadTime" disp="Disk | Read Time" unit="sec" icon="time_read.png" />
-			<Counter name="WriteTime" disp="Disk | Write Time" unit="sec" 	icon="time_write.png" />
-			<Counter name="BytesSent" disp="Net | Bytes Sent" unit="bytes" icon="bytes_sent.png" />
-			<Counter name="PacketsSent" disp="Net | Packets Sent" unit="cnt" icon="packet_sent.png" />
+			
+			<Counter name="PageIn" disp="Swap | PageIn" unit="cnt" icon="swap.png" />
+			<Counter name="PageOut" disp="Swap | PageOut" unit="cnt" icon="swap.png" />
 			<Counter name="SwapT" disp="Swap | Total" unit="MB" icon="swap.png" />
-			<Counter name="Swap" disp="Swap" unit="%" icon="swap.png" />
 			<Counter name="SwapU" disp="Swap | Used" unit="MB" icon="swap.png" />
-			<Counter name="PacketsRecv" disp="Net | Packets Recevied" unit="cnt" icon="packet_recv.png" />
-			<Counter name="ErrIn" disp="Net | Error In" unit="cnt" icon="error_count.png" />
-			<Counter name="ReadCount" disp="Disk | Read Count" unit="cnt" icon="disk_read.png" />
-			<Counter name="DropIn" disp="Net | Drop In" unit="cnt" icon="drop.png" />
+			
+			<Counter name="NetInBound" disp="Net | NetInBound" unit="cnt" icon="bytes_recv.png" />
+			<Counter name="NetOutBound" disp="Net | NetOutBound" unit="cnt" icon="bytes_recv.png" />
+			
+			<Counter name="TcpStatCLS" disp="Net | TcpStatCLS" unit="cnt" icon="drop.png" />
+			<Counter name="TcpStatTIM" disp="Net | TcpStatTIM" unit="cnt" icon="time_read.png" />
+			<Counter name="TcpStatFIN1" disp="Net | TcpStatFIN1" unit="cnt" icon="time_read.png" />
+			<Counter name="TcpStatFIN2" disp="Net | TcpStatFIN2" unit="cnt" icon="time_read.png" />
+			<Counter name="TcpStatEST" disp="Net | TcpStatEST" unit="cnt" icon="time_read.png" />
+
 		</Family>
 		<Family name="javaee" master="ActiveService" txreal="true"  txload="true" totactsp="true"  acteq="true"  actthrli="true" dservcnt="true" tdservcnt="true" svcgrp="true" srcxlog="true" unqvst="true" tagcnt="true" >
 			<Counter name="RecentUser" disp="Recent User" unit="cnt" icon="visitor.png" />
