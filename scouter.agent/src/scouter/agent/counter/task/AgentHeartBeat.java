@@ -30,7 +30,7 @@ import scouter.util.StringKeyLinkedMap;
 
 public class AgentHeartBeat {
 	public AgentHeartBeat() {
-		Logger.info("objType:" + Configure.getInstance().scouter_type);
+		Logger.info("objType:" + Configure.getInstance().objtype);
 		Logger.info("objName:" + Configure.getInstance().objName);
 	}
 
@@ -66,7 +66,7 @@ public class AgentHeartBeat {
 	private ObjectPack getMainObject() {
 		Configure conf = Configure.getInstance();
 		ObjectPack p = new ObjectPack();
-		p.objType = conf.scouter_type;
+		p.objType = conf.objtype;
 		p.objHash = conf.objHash;
 		p.objName = conf.objName;
 

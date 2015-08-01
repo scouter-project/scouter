@@ -16,6 +16,8 @@
 package scouter.agent.counter.meter;
 
 import java.util.Enumeration;
+
+import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.util.DateUtil;
 import scouter.util.LongLongLinkedMap;
@@ -24,24 +26,25 @@ public class MeterUsers {
 
 	private static final int MAX_USERS = 70000;
 	protected static LongLongLinkedMap users = new LongLongLinkedMap().setMax(MAX_USERS);
-	protected static MeterResource newUsers = new MeterResource();
+	protected static MeterResource firstVisitors = new MeterResource();
 
 	public static void add(long userid) {
 		if (userid == 0)
-			newUsers.add(1);
+			firstVisitors.add(1);
 		else {
 			users.putLast(userid, System.currentTimeMillis());
 		}
 	}
-
+   
 	public synchronized static int getUsers() {
+		long max_think_time=Configure.getInstance().max_think_time;
 		int v = 0;
 		long now = System.currentTimeMillis();
 		try {
 			Enumeration<LongLongLinkedMap.ENTRY> en = users.entries();
 			while (en.hasMoreElements()) {
 				LongLongLinkedMap.ENTRY e = en.nextElement();
-				if (now - e.getValue() > DateUtil.MILLIS_PER_FIVE_MINUTE) {
+				if (now - e.getValue() >max_think_time) {
 				   users.remove(e.getKey());
 				} else {
 					v++;
@@ -54,7 +57,7 @@ public class MeterUsers {
 	}
 
 	public synchronized static int getNewUsers() {
-		return (int) newUsers.getSum(300);
+		return (int) firstVisitors.getSum(300);
 	}
 
 	public static void main(String[] args) throws InterruptedException {

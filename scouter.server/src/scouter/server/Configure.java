@@ -42,10 +42,7 @@ import scouter.util.ThreadUtil;
 
 public class Configure extends Thread {
 
-	// 디버그..
-
 	private static Configure instance = null;
-
 	public final static String CONF_DIR = "./conf/";
 
 	public final static synchronized Configure getInstance() {
@@ -130,9 +127,9 @@ public class Configure extends Thread {
 	public int xlog_queue_size = 100000;
 	public boolean debug_net = false;
 
-	public String dataudp_host = "0.0.0.0";
-	public int dataudp_port = NetConstants.DATAUDP_SERVER_PORT;
-	public int tcp_port = NetConstants.DATATCP_SERVER_PORT;
+	public String udp_host = "0.0.0.0";
+	public int udp_port = NetConstants.SERVER_UDP_PORT;
+	public int tcp_port = NetConstants.SERVER_TCP_PORT;
 	public int tcp_client_so_timeout = 8000;
 	public int tcp_agent_so_timeout = 60000;
 	public int tcp_agent_keepalive = 5000;
@@ -140,7 +137,7 @@ public class Configure extends Thread {
 
 	public String hostname = SysJMX.getHostName();
 	public String db_root = "./database";
-	public String logs_dir = "./logs";
+	public String log_dir = "./logs";
 
 	public int agent_deadtime = 8000;
 
@@ -150,8 +147,8 @@ public class Configure extends Thread {
 	public int gzip_read_cache_block = 3;
 	public long gzip_read_cache_time = DateUtil.MILLIS_PER_MINUTE;
 	public int gzip_unitcount_header_cache = 5;
-	public int dataudp_buffer = 65535;
-	public int dataudp_so_rcvbuf = 1024 * 1024 * 4;
+	public int udp_buffer = 65535;
+	public int udp_so_rcvbuf = 1024 * 1024 * 4;
 	public boolean debug_udp_multipacket;
 	public boolean debug_expired_multipacket;
 
@@ -165,7 +162,6 @@ public class Configure extends Thread {
 	public boolean debug_udp_status;
 	public boolean debug_request;
 
-	public long appstat_interval = DateUtil.MILLIS_PER_MINUTE * 10;
 	public boolean auto_5m_sampling = true;
 
 	public boolean log_rotation = true;
@@ -197,13 +193,13 @@ public class Configure extends Thread {
 	public boolean tagcnt_debug = false;
 
 	private void apply() {
-		this.xlog_autodrop_time = getInt("xlog_autodrop_time", getInt("xlog.autodrop.time", 100));
-		this.xlog_queue_size = getInt("xlog_queue_size", getInt("xlog.queue.size", 100000));
-		this.debug_net = getBoolean("debug_net", getBoolean("debug.net", false));
+		this.xlog_autodrop_time = getInt("xlog_autodrop_time", 100);
+		this.xlog_queue_size = getInt("xlog_queue_size", 100000);
+		this.debug_net = getBoolean("debug_net",  false);
 
-		this.dataudp_host = getValue("dataudp_host", getValue("dataudp.host", "0.0.0.0"));
-		this.dataudp_port = getInt("dataudp_port", NetConstants.DATAUDP_SERVER_PORT);
-		this.tcp_port = getInt("tcp_port", NetConstants.DATATCP_SERVER_PORT);
+		this.udp_host = getValue("udp_host", "0.0.0.0");
+		this.udp_port = getInt("udp_port", NetConstants.SERVER_UDP_PORT);
+		this.tcp_port = getInt("tcp_port", NetConstants.SERVER_TCP_PORT);
 		this.tcp_client_so_timeout = getInt("tcp_client_so_timeout", 8000);
 		this.tcp_agent_so_timeout = getInt("tcp_agent_so_timeout", 60000);
 		this.tcp_agent_keepalive = getInt("tcp_agent_keepalive", 5000);
@@ -211,42 +207,37 @@ public class Configure extends Thread {
 
 		this.hostname = getValue("hostname", SysJMX.getHostName());
 		this.db_root = getValue("db_root", "./database");
-		this.logs_dir = getValue("logs_dir", getValue("db.log", "./logs"));
+		this.log_dir = getValue("log_dir",  "./logs");
 
-		this.agent_deadtime = getInt("agent_deadtime", getInt("agent.deadtime", 8000));
+		this.agent_deadtime = getInt("agent_deadtime", 8000);
 
 		this.gzip_xlog = getBoolean("gzip_xlog", true);
 		this.gzip_profile = getBoolean("gzip_profile", true);
-		this.gzip_writing_block = getInt("gzip_writing-block", getInt("gzip.writing.block", 3));
-		this.gzip_unitcount_header_cache = getInt("gzip_unitcount_header_cache",
-				getInt("gzip.unitcount.header.cache", 5));
-		this.gzip_read_cache_block = getInt("gzip_read_cache_block", getInt("gzip.read.cache.block", 3));
-		this.gzip_read_cache_time = getLong("gzip_read_cache_time",
-				getLong("gzip.read.cache.time", DateUtil.MILLIS_PER_MINUTE));
+		this.gzip_writing_block = getInt("gzip_writing_block", 3);
+		this.gzip_unitcount_header_cache = getInt("gzip_unitcount_header_cache", 5);
+		this.gzip_read_cache_block = getInt("gzip_read_cache_block", 3);
+		this.gzip_read_cache_time = getLong("gzip_read_cache_time", DateUtil.MILLIS_PER_MINUTE);
 
-		this.dataudp_buffer = getInt("dataudp_buffer", getInt("dataudp.buffer", 65535));
+		this.udp_buffer = getInt("udp_buffer", 65535);
 
 		int default_so_rcvbuf = 1024 * 1024 * 4;
 		if (SystemUtil.IS_AIX || SystemUtil.IS_HP_UX) {
 			default_so_rcvbuf = 0;
 		}
-		this.dataudp_so_rcvbuf = getInt("dataudp_so_rcvbuf", getInt("dataudp.so_rcvbuf", default_so_rcvbuf));
-		this.debug_expired_multipacket = getBoolean("debug_expired_multipacket",
-				getBoolean("debug.expired.multipacket", true));
-		this.debug_udp_multipacket = getBoolean("debug_udp_multipacket", getBoolean("debug.udp.multipacket", false));
-		this.debug_udp_packet = getBoolean("debug_udp_packet", getBoolean("debug.udp.packet", false));
-		this.debug_udp_counter = getBoolean("debug_udp_counter", getBoolean("debug.udp.counter", false));
-		this.debug_udp_xlog = getBoolean("debug_udp_xlog", getBoolean("debug.udp.xlog", false));
-		this.debug_udp_profile = getBoolean("debug_udp_profile", getBoolean("debug.udp.profile", false));
-		this.debug_udp_text = getBoolean("debug_udp_text", getBoolean("debug.udp.text", false));
-		this.debug_udp_alert = getBoolean("debug_udp_alert", getBoolean("debug.udp.alert", false));
-		this.debug_udp_object = getBoolean("debug_udp_object", getBoolean("debug.udp.object", false));
-		this.debug_udp_status = getBoolean("debug_udp_status", getBoolean("debug.udp.status", false));
-		this.debug_request = getBoolean("debug_request", getBoolean("debug.request", false));
+		this.udp_so_rcvbuf = getInt("dataudp_so_rcvbuf", default_so_rcvbuf);
+		this.debug_expired_multipacket = getBoolean("debug_expired_multipacket", true);
+		this.debug_udp_multipacket = getBoolean("debug_udp_multipacket",  false);
+		this.debug_udp_packet = getBoolean("debug_udp_packet",  false);
+		this.debug_udp_counter = getBoolean("debug_udp_counter", false);
+		this.debug_udp_xlog = getBoolean("debug_udp_xlog", false);
+		this.debug_udp_profile = getBoolean("debug_udp_profile",  false);
+		this.debug_udp_text = getBoolean("debug_udp_text", false);
+		this.debug_udp_alert = getBoolean("debug_udp_alert",  false);
+		this.debug_udp_object = getBoolean("debug_udp_object",  false);
+		this.debug_udp_status = getBoolean("debug_udp_status",  false);
+		this.debug_request = getBoolean("debug_request",  false);
 
-		this.appstat_interval = getLong("appstat_interval",
-				getLong("appstat.interval", DateUtil.MILLIS_PER_MINUTE * 10));
-		this.auto_5m_sampling = getBoolean("auto_5m_sampling", getBoolean("auto.5m.sampling", true));
+		this.auto_5m_sampling = getBoolean("auto_5m_sampling",  true);
 
 		this.log_rotation = getBoolean("log_rotation", true);
 		this.log_keep_dates = getInt("log_keep_dates", 365);
@@ -260,7 +251,6 @@ public class Configure extends Thread {
 		this.auto_delete_retain_days = getInt("auto_delete_retain_days", 0);
 		this.num_of_net_processor = getInt("num_of_net_processor", 4);
 		this.geoip_data_city = getValue("geoip_data_city", "./GeoLiteCity.dat");
-		// this.geoip_data_country = getValue("geoip_data_country", ".");
 		this.enable_geoip = getBoolean("enable_geoip", true);
 		this.max_sql_stat = getInt("max_sql_stat", 10000);
 		this.max_api_stat = getInt("max_api_stat", 10000);
@@ -274,7 +264,7 @@ public class Configure extends Thread {
 
 		this.tagcnt_enabled = getBoolean("tagcnt_enabled", true);
 		this.tagcnt_debug = getBoolean("tagcnt_debug", false);
-	
+
 		ConfObserver.exec();
 	}
 

@@ -24,17 +24,17 @@ import scouter.lang.counters.CounterConstants;
 import scouter.lang.pack.PerfCounterPack;
 import scouter.lang.value.DecimalValue;
 
-public class CountingUser5m {
+public class ClientUser {
 
 	@Counter
-	public void visitor(CounterBasket pw) {
+	public void recentUser(CounterBasket pw) {
 
-		int user5m =MeterUsers.getUsers();
+		int users =MeterUsers.getUsers();
 		
 		PerfCounterPack p = pw.getPack(TimeTypeEnum.REALTIME);	
-		p.put(CounterConstants.WAS_USER_5M, new DecimalValue(user5m));
+		p.put(CounterConstants.WAS_RECENT_USER, new DecimalValue(users));
 
 		p = pw.getPack(TimeTypeEnum.FIVE_MIN);
-		p.put(CounterConstants.WAS_USER_5M, new DecimalValue(user5m));
+		p.put(CounterConstants.WAS_RECENT_USER, new DecimalValue(users));
 	}
 }
