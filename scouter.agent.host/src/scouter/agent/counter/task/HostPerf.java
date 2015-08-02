@@ -38,10 +38,10 @@ public class HostPerf {
 		float cpu = (float) ((1.0 - sigar.getCpuPerc().getIdle()) * 100);
 		Mem m = sigar.getMem();
 
-		float memrate = (float) ((1.0 - m.getFreePercent()) * 100);
 		long tmem = m.getTotal();
 		long fmem = m.getFree();
 		long umem = m.getUsed();
+		float memrate = umem * 100.0f / tmem;
 
 		Swap sw = sigar.getSwap();
 		long pagein = sw.getPageIn();
@@ -111,4 +111,5 @@ public class HostPerf {
 		this.tcpstat_time = net.getTcpTimeWait();
 		this.tcpstat_est = net.getTcpEstablished();
 	}
+	
 }
