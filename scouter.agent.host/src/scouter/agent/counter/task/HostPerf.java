@@ -55,16 +55,15 @@ public class HostPerf {
 		p.put(CounterConstants.HOST_MEM_TOTAL, new DecimalValue(tmem / 1024 / 1024));
 		p.put(CounterConstants.HOST_MEM_USED, new DecimalValue(umem / 1024 / 1024));
 		p.put(CounterConstants.HOST_MEM_AVALIABLE, new DecimalValue(fmem / 1024 / 1024));
-		p.put(CounterConstants.HOST_SWAP_PAGE_IN, new FloatValue(pagein));
-		p.put(CounterConstants.HOST_SWAP_PAGE_OUT, new FloatValue(pageout));
+		p.put(CounterConstants.HOST_SWAP_PAGE_IN, new DecimalValue(pagein));
+		p.put(CounterConstants.HOST_SWAP_PAGE_OUT, new DecimalValue(pageout));
 		p.put(CounterConstants.HOST_SWAP_TOTAL, new DecimalValue(tswap / 1024 / 1024));
 		p.put(CounterConstants.HOST_SWAP_USED, new DecimalValue(uswap / 1024 / 1024));
 
 		p.put(CounterConstants.HOST_NET_IN, new DecimalValue(net_in));
 		p.put(CounterConstants.HOST_NET_OUT, new DecimalValue(net_out));
 		p.put(CounterConstants.HOST_TCPSTAT_CLS, new DecimalValue(tcpstat_close));
-		p.put(CounterConstants.HOST_TCPSTAT_FIN1, new DecimalValue(tcpstat_fin1));
-		p.put(CounterConstants.HOST_TCPSTAT_FIN2, new DecimalValue(tcpstat_fin2));
+		p.put(CounterConstants.HOST_TCPSTAT_FIN, new DecimalValue(tcpstat_fin1 + tcpstat_fin2));
 		p.put(CounterConstants.HOST_TCPSTAT_TIM, new DecimalValue(tcpstat_time));
 		p.put(CounterConstants.HOST_TCPSTAT_EST, new DecimalValue(tcpstat_est));
 
@@ -74,16 +73,15 @@ public class HostPerf {
 		p.put(CounterConstants.HOST_MEM_TOTAL, new DecimalValue(tmem / 1024 / 1024));
 		p.put(CounterConstants.HOST_MEM_USED, new DecimalValue(umem / 1024 / 1024));
 		p.put(CounterConstants.HOST_MEM_AVALIABLE, new DecimalValue(fmem / 1024 / 1024));
-		p.put(CounterConstants.HOST_SWAP_PAGE_IN, new FloatValue(pagein));
-		p.put(CounterConstants.HOST_SWAP_PAGE_OUT, new FloatValue(pageout));
+		p.put(CounterConstants.HOST_SWAP_PAGE_IN, new DecimalValue(pagein));
+		p.put(CounterConstants.HOST_SWAP_PAGE_OUT, new DecimalValue(pageout));
 		p.put(CounterConstants.HOST_SWAP_TOTAL, new DecimalValue(tswap / 1024 / 1024));
 		p.put(CounterConstants.HOST_SWAP_USED, new DecimalValue(uswap / 1024 / 1024));
 
 		p.put(CounterConstants.HOST_NET_IN, new DecimalValue(net_in));
 		p.put(CounterConstants.HOST_NET_OUT, new DecimalValue(net_out));
 		p.put(CounterConstants.HOST_TCPSTAT_CLS, new DecimalValue(tcpstat_close));
-		p.put(CounterConstants.HOST_TCPSTAT_FIN1, new DecimalValue(tcpstat_fin1));
-		p.put(CounterConstants.HOST_TCPSTAT_FIN2, new DecimalValue(tcpstat_fin2));
+		p.put(CounterConstants.HOST_TCPSTAT_FIN, new DecimalValue(tcpstat_fin1 + tcpstat_fin2));
 		p.put(CounterConstants.HOST_TCPSTAT_TIM, new DecimalValue(tcpstat_time));
 		p.put(CounterConstants.HOST_TCPSTAT_EST, new DecimalValue(tcpstat_est));
 	}

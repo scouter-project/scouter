@@ -51,7 +51,7 @@ public class Configure extends Thread {
 
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
-
+	public final static String CONF_DIR = "./conf/";
 	public final static synchronized Configure getInstance() {
 		if (instance == null) {
 			instance = new Configure();
@@ -90,10 +90,10 @@ public class Configure extends Thread {
 	public boolean enable_counter_task = true;
 	public boolean debug_udp_object = false;
 
-	/**
-	 * sometimes call by sample application, at that time normally set some
-	 * properties directly
-	 */
+	public boolean log_rotation = true;
+	public String logs_dir = "./logs";
+	public int log_keep_dates = 365;
+
 	private Configure() {
 		Properties p = new Properties();
 		Map args = new HashMap();
@@ -113,7 +113,7 @@ public class Configure extends Thread {
 	private boolean running = true;
 
 	public void run() {
-		Logger.info("Version " + Version.getAgentFullVersion());
+		Logger.println("Version " + Version.getAgentFullVersion());
 		long dateUnit = DateUtil.getDateUnit();
 		while (running) {
 			reload(false);
@@ -133,13 +133,12 @@ public class Configure extends Thread {
 		if (propertyFile != null) {
 			return propertyFile;
 		}
-		String s = System.getProperty("scouter.config", "./scouter.conf");
+		String s = System.getProperty("scouter.config", CONF_DIR + "scouter.conf");
 		propertyFile = new File(s.trim());
 		return propertyFile;
 	}
 
 	long last_check = 0;
-
 
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
@@ -190,6 +189,13 @@ public class Configure extends Thread {
 
 		this.max_concurrent_server_request = getInt("max_concurrent_server_request", 10);
 		this.enable_counter_task = getBoolean("enable_counter_task", true);
+		this.debug_udp_object = getBoolean("debug_udp_object", false);
+
+		this.logs_dir = getValue("logs_dir", "./logs");
+		this.log_rotation = getBoolean("log_rotation", true);
+		this.log_keep_dates = getInt("log_keep_dates", 365);
+
+		
 		resetObjInfo();
 	}
 
@@ -311,7 +317,7 @@ public class Configure extends Thread {
 	}
 
 	public void printConfig() {
-		Logger.info("Configure -Dscouter.config=" + propertyFile);
+		System.out.println("Configure -Dscouter.config=" + propertyFile);
 	}
 
 	private static HashSet<String> ignoreSet = new HashSet<String>();

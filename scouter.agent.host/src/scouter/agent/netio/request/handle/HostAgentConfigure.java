@@ -23,7 +23,7 @@ import scouter.lang.pack.Pack;
 import scouter.lang.value.MapValue;
 import scouter.net.RequestCmd;
 
-public class AgentConfigure {
+public class HostAgentConfigure {
 
 	@RequestHandler(RequestCmd.GET_CONFIGURE_WAS)
 	public Pack getAgentConfigure(Pack param) {

@@ -2,25 +2,24 @@
 
 <project name="AgentJava" default="default">
 
+	<property name="VERSION" value="dev" />
+	
 	<property name="class-agent-dir" value="./out/bin/agent.host" />
 	<property name="class-boot-dir" value="./out/bin/agent.host.boot" />
-	<property name="jar-agent-file" value="./out/jar/scouter.host.jar" />
-	<property name="deploy-lib-dir" value="./out/package/scouter/agent/host/lib" />
-	<property name="deploy-boot-dir" value="./out/package/scouter/agent/host" />
-	<property name="jar-boot-file" value="./out/jar/boot.jar" />
+	<property name="jar-agent-file" value="./out/jar/scouter.agent.host-${VERSION}.jar" />
+	<property name="deploy-boot-dir" value="./out/package/scouter/agent.host" />
+	<property name="jar-boot-file" value="./out/jar/scouter.host.jar" />
 
 	<tstamp>
 		<format property="today" pattern="yyyyMMdd" offset="-5" unit="hour" />
 	</tstamp>
 
 	<target name="init">
-		<delete dir="${deploy-lib-dir}" />
 		<delete dir="${class-agent-dir}" />
 		<delete file="${jar-agent-file}" />
 		<delete dir="${class-boot-dir}" />
 		<mkdir dir="${class-agent-dir}" />
 		<mkdir dir="${class-boot-dir}" />
-		<mkdir dir="${deploy-lib-dir}" />
 	</target>
 
 	<target name="compile">
@@ -42,7 +41,7 @@
 			</classpath>
 		</javac>
 
-		<javac srcdir="../scouter.server.boot/src" destdir="${class-boot-dir}" source="1.5" target="1.5" debug="true" encoding="UTF-8" includeantruntime="false">
+		<javac srcdir="../scouter.agent.host.boot/src" destdir="${class-boot-dir}" source="1.5" target="1.5" debug="true" encoding="UTF-8" includeantruntime="false">
 		</javac>
 	</target>
 
@@ -51,6 +50,11 @@
 		<jar destfile="${jar-agent-file}">
 			<fileset dir="${class-agent-dir}" />
 		</jar>
+
+		<copydir src="../scouter.agent.host/lib" dest="${class-boot-dir}" />
+		<copy file="${jar-agent-file}" tofile="${class-boot-dir}/scouter.host-${VERSION}.jar" verbose="true" />
+
+
 		<jar destfile="${jar-boot-file}">
 			<fileset dir="${class-boot-dir}" />
 		</jar>
@@ -58,13 +62,11 @@
 	</target>
 
 	<target name="deploy">
-		<copydir src="../scouter.agent.host/lib" dest="${deploy-lib-dir}" />
-		<copy file="${jar-agent-file}" tofile="${deploy-lib-dir}/scouter.host.jar" verbose="true" />
 		<copy file="${jar-boot-file}" todir="${deploy-boot-dir}" verbose="true" />
-		<copy todir="./out/package/scouter/agent/host">
+		<copy todir="./out/package/scouter/agent.host">
 			<fileset dir="../scouter.agent.host/scripts" />
 		</copy>
-		<copy todir="./out/package/scouter/agent/host/conf">
+		<copy todir="./out/package/scouter/agent.host/conf">
 			<fileset dir="../scouter.agent.host/conf" />
 		</copy>
 	</target>

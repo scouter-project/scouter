@@ -88,10 +88,10 @@ public class DataUdpAgent {
 				local_udp_port = port;
 				if (host != null) {
 					datagram = new DatagramSocket(port, InetAddress.getByName(host));
-					Logger.println("A118","Agent UDP local.addr=" + host + " local.port=" + port);
+					Logger.println("A118", "Agent UDP local.addr=" + host + " local.port=" + port);
 				} else {
 					datagram = new DatagramSocket(port);
-					Logger.println("A119","Agent UDP local.port=" + port);
+					Logger.println("A119", "Agent UDP local.port=" + port);
 				}
 			}
 		} catch (Exception e) {
@@ -107,15 +107,16 @@ public class DataUdpAgent {
 	}
 
 	private Configure conf = Configure.getInstance();
+
 	public boolean write(byte[] p) {
 		try {
 			if (server_host == null)
 				return false;
-			
-			if(p.length > conf.udp_packet_max){
+
+			if (p.length > conf.udp_packet_max) {
 				return writeMTU(p, conf.udp_packet_max);
 			}
-			
+
 			DataOutputX out = new DataOutputX();
 			out.write(NetCafe.JAVA);
 			out.write(p);
@@ -127,7 +128,7 @@ public class DataUdpAgent {
 			datagram.send(packet);
 			return true;
 		} catch (IOException e) {
-			Logger.println("A120", "UDP", e);
+			Logger.println("A120", 10, "UDP", e);
 			return false;
 		}
 	}
@@ -142,22 +143,22 @@ public class DataUdpAgent {
 			int remainder = data.length % packetSize;
 			if (remainder > 0)
 				total++;
-	
+
 			int num = 0;
 			for (num = 0; num < data.length / packetSize; num++) {
-                   writeMTU(pkid, total, num, packetSize, DataInputX.get(data, num* packetSize, packetSize));
+				writeMTU(pkid, total, num, packetSize, DataInputX.get(data, num * packetSize, packetSize));
 			}
 			if (remainder > 0) {
-		         writeMTU(pkid, total, num, remainder, DataInputX.get(data, data.length - remainder, remainder));			
+				writeMTU(pkid, total, num, remainder, DataInputX.get(data, data.length - remainder, remainder));
 			}
 			return true;
 		} catch (IOException e) {
-			Logger.println("A121", "UDP", e);
+			Logger.println("A121", 10, "UDP", e);
 			return false;
 		}
 	}
 
-	private void writeMTU(long pkid, int total, int num, int packetSize, byte[] data) throws IOException{
+	private void writeMTU(long pkid, int total, int num, int packetSize, byte[] data) throws IOException {
 		DataOutputX out = new DataOutputX();
 		out.write(NetCafe.JMTU);
 		out.writeInt(conf.objHash);
@@ -171,30 +172,31 @@ public class DataUdpAgent {
 		packet.setPort(server_port);
 		datagram.send(packet);
 	}
-//	public boolean write(byte[][] p) {
-//		try {
-//			if (server_host == null)
-//				return false;
-//
-//			DataOutputX out = new DataOutputX();
-//			out.write(NetCafe.JAVAN);
-//			out.writeShort((short) p.length);
-//			for (int i = 0; i < p.length; i++) {
-//				out.write(p[i]);
-//			}
-//
-//			byte[] buff = out.toByteArray();
-//
-//			DatagramPacket packet = new DatagramPacket(buff, buff.length);
-//			packet.setAddress(server_host);
-//			packet.setPort(server_port);
-//			datagram.send(packet);
-//			return true;
-//		} catch (IOException e) {
-//			Logger.println("A122", e.toString());
-//			return false;
-//		}
-//	}
+
+	// public boolean write(byte[][] p) {
+	// try {
+	// if (server_host == null)
+	// return false;
+	//
+	// DataOutputX out = new DataOutputX();
+	// out.write(NetCafe.JAVAN);
+	// out.writeShort((short) p.length);
+	// for (int i = 0; i < p.length; i++) {
+	// out.write(p[i]);
+	// }
+	//
+	// byte[] buff = out.toByteArray();
+	//
+	// DatagramPacket packet = new DatagramPacket(buff, buff.length);
+	// packet.setAddress(server_host);
+	// packet.setPort(server_port);
+	// datagram.send(packet);
+	// return true;
+	// } catch (IOException e) {
+	// Logger.println("A122", e.toString());
+	// return false;
+	// }
+	// }
 
 	public void close() {
 		if (datagram != null)
@@ -222,7 +224,7 @@ public class DataUdpAgent {
 			datagram.send(packet);
 			return true;
 		} catch (IOException e) {
-			Logger.println("A123", "UDP", e);
+			Logger.println("A123", 10, "UDP", e);
 			return false;
 		}
 

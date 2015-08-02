@@ -34,12 +34,10 @@ tagcnt : TagCount
 			<Counter name="SwapU" disp="Swap | Used" unit="MB" icon="swap.png" />
 			
 			<Counter name="NetInBound" disp="Net | NetInBound" unit="cnt" icon="bytes_recv.png" />
-			<Counter name="NetOutBound" disp="Net | NetOutBound" unit="cnt" icon="bytes_recv.png" />
-			
+			<Counter name="NetOutBound" disp="Net | NetOutBound" unit="cnt" icon="bytes_recv.png" />			
 			<Counter name="TcpStatCLS" disp="Net | TcpStatCLS" unit="cnt" icon="drop.png" />
 			<Counter name="TcpStatTIM" disp="Net | TcpStatTIM" unit="cnt" icon="time_read.png" />
-			<Counter name="TcpStatFIN1" disp="Net | TcpStatFIN1" unit="cnt" icon="time_read.png" />
-			<Counter name="TcpStatFIN2" disp="Net | TcpStatFIN2" unit="cnt" icon="time_read.png" />
+			<Counter name="TcpStatFIN" disp="Net | TcpStatFIN" unit="cnt" icon="time_read.png" />
 			<Counter name="TcpStatEST" disp="Net | TcpStatEST" unit="cnt" icon="time_read.png" />
 
 		</Family>

@@ -1,1 +1,0 @@
-java -classpath ./boot.jar -Dmain=scouter.agent.HostMain scouter.boot.Boot ./lib

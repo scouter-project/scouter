@@ -92,8 +92,7 @@ public class CounterConstants {
 	public final static String HOST_NET_OUT = "NetOutBound";
 	public final static String HOST_TCPSTAT_CLS = "TcpStatCLS";
 	public final static String HOST_TCPSTAT_TIM = "TcpStatTIM";
-	public final static String HOST_TCPSTAT_FIN1 = "TcpStatFIN1";
-	public final static String HOST_TCPSTAT_FIN2 = "TcpStatFIN2";
+	public final static String HOST_TCPSTAT_FIN = "TcpStatFIN";
 	public final static String HOST_TCPSTAT_EST = "TcpStatEST";
 
 	public final static String REAL_TIME_ALL = "rt-all";

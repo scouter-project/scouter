@@ -4,19 +4,18 @@ import java.io.File;
 
 import scouter.Version;
 import scouter.agent.counter.CounterExecutingManager;
+import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.netio.request.ReqestHandlingProxy;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 import scouter.util.logo.Logo;
 
-public class HostMain {
+public class Main {
 	public static void main(String[] args) {
 		Logo.print(true);
-		Logger.println("A01", "Scouter Server Version " + Version.getServerFullVersion());
-		CounterExecutingManager.load();
-		ReqestHandlingProxy.load();
+		Logger.println("A01", "Scouter Host Agent Version " + Version.getServerFullVersion());
 
-		Configure.getInstance().printConfig();
+		AgentBoot.boot();
 
 		File exit = new File(SysJMX.getProcessPID() + ".scouter");
 		try {

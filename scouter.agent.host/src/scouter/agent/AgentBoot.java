@@ -16,6 +16,7 @@
 package scouter.agent;
 
 import scouter.agent.counter.CounterExecutingManager;
+import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.netio.request.ReqestHandlingProxy;
 import scouter.util.Hexa32;
 import scouter.util.KeyGen;
@@ -32,7 +33,9 @@ public class AgentBoot implements Runnable {
 		if (booted)
 			return;
 		booted = true;
-			
+	
+		
+		TcpRequestMgr.getInstance();
 		CounterExecutingManager.load();
 		ReqestHandlingProxy.load();
 		
@@ -40,7 +43,7 @@ public class AgentBoot implements Runnable {
 		
 		long seed =System.currentTimeMillis() ^ (((long)SysJMX.getProcessPID())<<32);
 		KeyGen.setSeed(seed);
-		Logger.println("A100", "agent boot seed="+Hexa32.toString32(seed));
+		Logger.println("A100", "host agent boot seed="+Hexa32.toString32(seed));
 	}
 	public static void main(String[] args) {
 	   boot();
