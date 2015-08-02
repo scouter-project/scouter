@@ -41,14 +41,14 @@
 			</classpath>
 		</javac>
 
-		<javac srcdir="../scouter.agent.host.boot/src" destdir="${class-boot-dir}" source="1.5" target="1.5" debug="true" encoding="UTF-8" includeantruntime="false">
-		</javac>
 	</target>
 
 	<target name="packing">
 
 		<jar destfile="${jar-agent-file}">
-			<fileset dir="${class-agent-dir}" />
+			<fileset dir="${class-agent-dir}" >
+				<exclude name="**/scouter/boot/**"/>
+			</fileset>
 		</jar>
 
 		<copydir src="../scouter.agent.host/lib" dest="${class-boot-dir}" />
@@ -56,7 +56,11 @@
 
 
 		<jar destfile="${jar-boot-file}">
-			<fileset dir="${class-boot-dir}" />
+			<fileset dir="${class-agent-dir}" >
+						<include name="**/scouter/boot/**"/>
+		   </fileset>
+			<fileset dir="${class-boot-dir}" >
+			 </fileset>
 		</jar>
 
 	</target>
