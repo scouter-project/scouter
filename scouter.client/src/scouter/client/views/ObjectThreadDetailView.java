@@ -286,7 +286,6 @@ public class ObjectThreadDetailView extends ViewPart implements ViewWithTable{
 	}
 
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 	@Override

@@ -285,7 +285,6 @@ public class ObjectEnvView extends ViewPart {
 	}
 
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 	enum VariableEnum {

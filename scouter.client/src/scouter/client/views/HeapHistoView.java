@@ -235,7 +235,6 @@ public class HeapHistoView extends ViewPart {
 	}
 	
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 	
 	public void load() {

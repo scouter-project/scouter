@@ -388,7 +388,6 @@ public class XLogDependencyView extends ViewPart {
 	}
 
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 	
 	ViewerFilter filter = new ViewerFilter() {

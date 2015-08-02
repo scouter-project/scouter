@@ -275,7 +275,6 @@ public class WhoView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 	class WhoData {

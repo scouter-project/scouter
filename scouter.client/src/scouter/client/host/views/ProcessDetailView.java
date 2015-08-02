@@ -110,7 +110,6 @@ public class ProcessDetailView extends ViewPart {
 	}
 
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 }

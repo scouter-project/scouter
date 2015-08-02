@@ -351,7 +351,6 @@ public class DiskUsageView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 	class DiskData {

@@ -224,7 +224,6 @@ public class XLogProfileView extends ViewPart {
 	}
 	
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 	@Override

@@ -399,7 +399,6 @@ public class TopView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 	class ProcessObject {

@@ -237,7 +237,6 @@ public class ObjectThreadDumpView extends ViewPart {
 	}
 
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 }
