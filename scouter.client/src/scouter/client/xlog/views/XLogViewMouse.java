@@ -19,6 +19,7 @@ package scouter.client.xlog.views;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
@@ -80,11 +81,11 @@ public class XLogViewMouse implements MouseListener, MouseMoveListener {
 		x1 = x2 = y1 = y2 = -1;
 		switch(e.button) {
 		case 1 :
-			mode = SelectAreaMode.LIST_XLOG;
-			break;
-		case 2 :
-		case 3 :
-			mode = SelectAreaMode.ZOOM_AREA;
+			if ((e.stateMask & SWT.SHIFT) != 0) {
+				mode = SelectAreaMode.ZOOM_AREA;
+			} else {
+				mode = SelectAreaMode.LIST_XLOG;
+			}
 			break;
 		default :
 			mode = null;
