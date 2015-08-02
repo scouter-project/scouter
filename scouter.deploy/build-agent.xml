@@ -2,13 +2,13 @@
 
 <project name="AgentJava" default="default">
 
-	<property name="class-agent-dir" value="./out/bin/agent"/>
-	<property name="tools-jar-file" value="./out/bin/agent/scouter.tools.jar"/>
-	<property name="http-jar-file" value="./out/bin/agent/scouter.http.jar"/>
-	<property name="httpclient-jar-file" value="./out/bin/agent/scouter.httpclient.jar"/>
+	<property name="class-agent-dir" value="./out/bin/agent.java"/>
+	<property name="tools-jar-file" value="./out/bin/agent.java/scouter.tools.jar"/>
+	<property name="http-jar-file" value="./out/bin/agent.java/scouter.http.jar"/>
+	<property name="httpclient-jar-file" value="./out/bin/agent.java/scouter.httpclient.jar"/>
 
 	  <property name="jar-agent-file" value="./out/jar/scouter.agent.jar"/>
-		<property name="deploy-jar-file" value="./out/package/scouter/agent/scouter.agent.jar"/>
+		<property name="deploy-jar-file" value="./out/package/scouter/agent.java/scouter.agent.jar"/>
 
 	<tstamp>
 		            <format property="today" pattern="yyyyMMdd" offset="-5" unit="hour"/>
@@ -39,7 +39,7 @@
 		</propertyfile>
 
 			
-		<javac srcdir="../scouter.agent/src"
+		<javac srcdir="../scouter.agent.java/src"
 		       destdir="${class-agent-dir}"
 		       source="1.5"       target="1.5"
 			   debug="true"	   encoding="UTF-8"

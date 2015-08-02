@@ -1,4 +1,4 @@
-scouter.agent/bin/*
+scouter.agent.java/bin/*
 scouter.client/bin/*
 scouter.common/bin/*
 scouter.server/bin/*

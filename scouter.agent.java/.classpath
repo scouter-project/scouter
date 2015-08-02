@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
+		<accessrules>
+			<accessrule kind="accessible" pattern="**"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/scouter.common"/>
+	<classpathentry kind="var" path="TOOLS_JAR"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/httpclient-4.3.6.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/httpcore-4.3.3.jar" sourcepath="/Users/sjokim/.m2/repository/org/apache/httpcomponents/httpcore/4.3.3/httpcore-4.3.3-sources.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
