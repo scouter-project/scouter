@@ -28,7 +28,7 @@
     	
         <echo>Scouter ${VERSION} ${today}</echo>
     	<ant antfile="build-common.xml" dir="."/>
-       	<ant antfile="build-agent.xml" dir="."/>
+       	<ant antfile="build-agent.java.xml" dir="."/>
     	<ant antfile="build-server.xml" dir="."/>
        	<ant antfile="build-agent.host.xml" dir="."/>
         <antcall target="packing"/>
