@@ -16,6 +16,8 @@
 
 package scouter.agent.counter.task;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Enumeration;
 
 import scouter.Version;
@@ -26,7 +28,9 @@ import scouter.agent.counter.anotation.Counter;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.netio.data.net.TcpWorker;
 import scouter.lang.pack.ObjectPack;
+import scouter.util.FileUtil;
 import scouter.util.StringKeyLinkedMap;
+import scouter.util.SysJMX;
 
 public class AgentHeartBeat {
 	public AgentHeartBeat() {
@@ -77,5 +81,19 @@ public class AgentHeartBeat {
 
 	public static void clearSubObjects() {
 		objects.clear();
+	}
+
+	@Counter
+	public void regist(CounterBasket pw) {
+		Configure conf = Configure.getInstance();
+		try {
+			int pid = SysJMX.getProcessPID();
+			File dir = new File(conf.object_registry);
+			File file = new File(dir, Integer.toString(pid));
+			if (file.canWrite()) {
+				FileUtil.save(file, conf.objName.getBytes());
+			}
+		} catch (Exception e) {           
+		}
 	}
 }

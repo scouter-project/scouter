@@ -117,7 +117,7 @@ public class DataUdpAgent {
 			}
 			
 			DataOutputX out = new DataOutputX();
-			out.write(NetCafe.JAVA);
+			out.write(NetCafe.CAFE);
 			out.write(p);
 
 			byte[] buff = out.toByteArray();
@@ -159,7 +159,7 @@ public class DataUdpAgent {
 
 	private void writeMTU(long pkid, int total, int num, int packetSize, byte[] data) throws IOException{
 		DataOutputX out = new DataOutputX();
-		out.write(NetCafe.JMTU);
+		out.write(NetCafe.CAFE_MTU);
 		out.writeInt(conf.objHash);
 		out.writeLong(pkid);
 		out.writeShort(total);
@@ -171,30 +171,6 @@ public class DataUdpAgent {
 		packet.setPort(server_port);
 		datagram.send(packet);
 	}
-//	public boolean write(byte[][] p) {
-//		try {
-//			if (server_host == null)
-//				return false;
-//
-//			DataOutputX out = new DataOutputX();
-//			out.write(NetCafe.JAVAN);
-//			out.writeShort((short) p.length);
-//			for (int i = 0; i < p.length; i++) {
-//				out.write(p[i]);
-//			}
-//
-//			byte[] buff = out.toByteArray();
-//
-//			DatagramPacket packet = new DatagramPacket(buff, buff.length);
-//			packet.setAddress(server_host);
-//			packet.setPort(server_port);
-//			datagram.send(packet);
-//			return true;
-//		} catch (IOException e) {
-//			Logger.println("A122", e.toString());
-//			return false;
-//		}
-//	}
 
 	public void close() {
 		if (datagram != null)
@@ -208,7 +184,7 @@ public class DataUdpAgent {
 				return false;
 
 			DataOutputX out = new DataOutputX();
-			out.write(NetCafe.JAVAN);
+			out.write(NetCafe.CAFE_N);
 			out.writeShort((short) p.size());
 			for (int i = 0; i < p.size(); i++) {
 				out.write(p.get(i));

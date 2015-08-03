@@ -232,7 +232,8 @@ public class Configure extends Thread {
 	public String direct_patch_class = "";
 
 	public long max_think_time = DateUtil.MILLIS_PER_FIVE_MINUTE;
-
+	public String object_registry="./tmp/scouter";
+	
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -282,6 +283,7 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
+
 
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
@@ -492,6 +494,8 @@ public class Configure extends Thread {
 
 		this.direct_patch_class = getValue("direct_patch_class", "");
 		this.max_think_time = getLong("max_think_time", DateUtil.MILLIS_PER_FIVE_MINUTE);
+		
+		this.object_registry = getValue("object_registry", "./tmp/scouter");
 
 		resetObjInfo();
 		setErrorStatus();
