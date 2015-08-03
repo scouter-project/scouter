@@ -89,11 +89,12 @@ public class AgentHeartBeat {
 		try {
 			int pid = SysJMX.getProcessPID();
 			File dir = new File(conf.object_registry);
-			File file = new File(dir, Integer.toString(pid));
-			if (file.canWrite()) {
+			File file = new File(dir, pid + ".scouter");
+			if (dir.canWrite()) {
 				FileUtil.save(file, conf.objName.getBytes());
 			}
-		} catch (Exception e) {           
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

@@ -33,9 +33,10 @@ public class HostPerf {
 	}
 
 	void domain(CounterBasket pw) throws SigarException {
+		
 		Configure conf = Configure.getInstance();
 
-		float cpu = (float) ((1.0 - sigar.getCpuPerc().getIdle()) * 100);
+		float cpu = (float) ((1.0D - sigar.getCpuPerc().getIdle()) * 100);
 		Mem m = sigar.getMem();
 
 		long tmem = m.getTotal();
@@ -84,6 +85,7 @@ public class HostPerf {
 		p.put(CounterConstants.HOST_TCPSTAT_FIN, new DecimalValue(tcpstat_fin1 + tcpstat_fin2));
 		p.put(CounterConstants.HOST_TCPSTAT_TIM, new DecimalValue(tcpstat_time));
 		p.put(CounterConstants.HOST_TCPSTAT_EST, new DecimalValue(tcpstat_est));
+		 SigarProxyCache.clear(sigar);
 	}
 
 	long last_time = 0;

@@ -53,6 +53,7 @@ tagcnt : TagCount
 			<Counter name="GcTime" disp="GC Time" unit="ms" icon="gc.png" />
 			<Counter name="TPS" disp="TPS" unit="tps" 	icon="transaction.png" />
 			<Counter name="CpuTime" disp="CpuTime" unit="ms"  icon="cpu.png" />
+			<Counter name="ProcCpu" disp="ProcCpu" unit="%" icon="cpu.png" />			
 		</Family>
 		<Family name="apache" master="ReqPerSec" scrbrd="true">
 			<Counter name="BytesPerReq" disp="Bytes Per Request" unit="bytes" icon="bytes_per_sec.png" />

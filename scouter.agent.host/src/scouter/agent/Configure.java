@@ -94,7 +94,7 @@ public class Configure extends Thread {
 	public String logs_dir = "./logs";
 	public int log_keep_dates = 365;
 
-	public String object_registry="./tmp/scouter";
+	public String object_registry="/tmp/scouter";
 	
 	private Configure() {
 		Properties p = new Properties();
@@ -197,7 +197,7 @@ public class Configure extends Thread {
 		this.log_rotation = getBoolean("log_rotation", true);
 		this.log_keep_dates = getInt("log_keep_dates", 365);
 
-		this.object_registry = getValue("object_registry", "./tmp/scouter");
+		this.object_registry = getValue("object_registry", "/tmp/scouter");
 
 		resetObjInfo();
 	}

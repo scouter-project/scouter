@@ -82,6 +82,9 @@ public class CounterConstants {
 	public final static String HOST_SWAP_USED = "SwapU";
 	public final static String HOST_SWAP_TOTAL = "SwapT";
 
+	public final static String PROC_CPU = "ProcCpu";
+	
+	
 	// public final static String HOST_READ_COUNT = "ReadCount";
 	// public final static String HOST_WRITE_COUNT = "WriteCount";
 	// public final static String HOST_READ_BYTES = "ReadBytes";
