@@ -133,8 +133,8 @@ public class MenuStr {
 	
 	public static final String PERFORMANCE_COUNTER                = "Performance Counter";
 	public static final String PERFORMANCE_COUNTER_ID             = "scouter.client.contextmenu.agentobject.performanceCounter";
-	public static final String PERFORMANCE_STATUS = "Object Status";
-	public static final String PERFORMANCE_STATUS_ID            = "scouter.client.contextmenu.agentobject.status";
+	public static final String PERFORMANCE_REQUEST = "Object Request";
+	public static final String PERFORMANCE_REQUEST_ID            = "scouter.client.contextmenu.agentobject.request";
 	
 	
 	

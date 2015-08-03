@@ -486,7 +486,7 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
     	}
     	
     	if (object.isAlive()) {
-	    	MenuManager performanceSnapshot = new MenuManager(MenuStr.PERFORMANCE_STATUS, Images.CAPTURE, MenuStr.PERFORMANCE_STATUS_ID);
+	    	MenuManager performanceSnapshot = new MenuManager(MenuStr.PERFORMANCE_REQUEST, Images.CAPTURE, MenuStr.PERFORMANCE_REQUEST_ID);
 	    	mgr.add(performanceSnapshot);
 	    	
 			if (javaee) {
