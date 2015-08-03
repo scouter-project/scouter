@@ -15,6 +15,11 @@ If you use a Tomcat, SCOUTER will be the best choice to monitor it.
 
 ![Screen](https://github.com/scouter-project/scouter-help/blob/master/misc/screen/loadtest.png)
 
+- SCOUTER monitoring :
+  - Users : ActiveUser, RecentUser, TodayVisitor
+  - Services : ActiveService, TPS, ResponseTime, Transaction Profile(class,sql,apicall), TagCount 
+  - Resources : Cpu,Memory,Network and Heap usage, Connection pools etc.
+
 ### Documents
  - [Getting Started](../../wiki/Getting-Started)
  - [Getting Start Profiling SQL](../../wiki/Getting-Start-Profile-SQL) 
@@ -33,7 +38,7 @@ Scouter has three modules:
      - **Tools.jar** : Java thread dumps, heap dumps, heap histograms, and the other powerful features provided by the JVM as the default.
      - **JMX** :  Some counters for Tomcat & JVM such as GC Count, GC Times etc 
   - Linux Agent : Performance for Linux, Window and OSX
-     - PSUtil(https://github.com/giampaolo/psutil) : A cross-platform process and system utilities module for Python
+     - Sigar Lib(https://github.com/hyperic/sigar) : A cross-platform process and system utilities module for Java
      - Counters : Cpu, Memory, Disk, Network
   -  MariaDB Agent : [to be announced]
 
@@ -46,11 +51,6 @@ Scouter has three modules:
   - Eclipse RCP : SCOUTER is created as a standalone program. So the client can be connected to multiple servers at the same time. It makes easier that users monitor large scale systems.
   - SWT & GEF4 : Charts and Diagrams
   
-SCOUTER is just simple. This configuration is simple. It will quickly provide the functions of monitoring OSS.
-- It will be deployed and upgraded through the Internet.
-- Clients are avaliable on Windows, MAC OSX and Linux.
-- It will also be automatically upgraded.
-- Key features such as Response-distribution, Active-service, Tag-count analysis are provided.
 
 ### Q&A
  - [Google Groups](https://groups.google.com/forum/#!forum/scouter-project)
