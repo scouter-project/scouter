@@ -82,6 +82,7 @@ import scouter.client.host.actions.OpenMemInfoAction;
 import scouter.client.host.actions.OpenNetStatAction;
 import scouter.client.host.actions.OpenTopAction;
 import scouter.client.host.actions.OpenWhoAction;
+import scouter.client.maria.actions.OpenDbRealtimeWaitCountAction;
 import scouter.client.model.AgentObject;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
@@ -454,7 +455,6 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
     	Server server = ServerManager.getInstance().getServer(serverId);  
     	CounterEngine counterEngine = server.getCounterEngine();
     	String[] counterNames = counterEngine.getSortedCounterName(objType);
-    	boolean javaee = counterEngine.isChildOf(objType, CounterConstants.FAMILY_JAVAEE);
     	
     	MenuManager performanceCounter = new MenuManager(MenuStr.PERFORMANCE_COUNTER,  ImageUtil.getImageDescriptor(Images.CTXMENU_RTC), MenuStr.PERFORMANCE_COUNTER_ID);
     	mgr.add(performanceCounter);
@@ -480,16 +480,19 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 			}
     	}
     	
-    	if(javaee) {
+    	if(counterEngine.isChildOf(objType, CounterConstants.FAMILY_JAVAEE)) {
     		performanceCounter.add(new Separator());
     		performanceCounter.add(new OpenUniqueVisitorAction(win, serverId, objHash));
+    	} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_MARIA)) {
+    		performanceCounter.add(new Separator());
+    		performanceCounter.add(new OpenDbRealtimeWaitCountAction(serverId, objHash));
     	}
     	
     	if (object.isAlive()) {
 	    	MenuManager performanceSnapshot = new MenuManager(MenuStr.PERFORMANCE_REQUEST, Images.CAPTURE, MenuStr.PERFORMANCE_REQUEST_ID);
 	    	mgr.add(performanceSnapshot);
 	    	
-			if (javaee) {
+			if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_JAVAEE)) {
 				performanceSnapshot.add(new OpenCxtmenuThreadListAction(win, MenuStr.THREAD_LIST, objHash, serverId));
 				performanceSnapshot.add(new OpenCxtmenuActiveServiceListAction(win, MenuStr.ACTIVE_SERVICE_LIST, objHash, objType, serverId));
 				performanceSnapshot.add(new OpenCxtmenuObjectClassListAction(win, MenuStr.LOADED_CLASS_LIST, objHash, serverId));

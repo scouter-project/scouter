@@ -107,6 +107,7 @@ tagcnt : TagCount
 			<Counter name="INNO_RLOCK_W" disp="InnoDB Row Lock Waits" unit="cnt" icon="database.png" />
 			<Counter name="TBL_LOCK" disp="Table Locks Immediate" unit="cnt" icon="database.png" />
 			<Counter name="TBL_LOCK_W" disp="Table Locks Waited" unit="cnt" icon="database.png" />
+			<Counter name="WAIT_COUNT" disp="Wait Count" unit="cnt" icon="database.png" />
 		</Family>
 	</Familys>
 	<Types>

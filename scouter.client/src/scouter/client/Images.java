@@ -352,4 +352,5 @@ public class Images {
 	public static final Image log                          = Activator.getImage("icons/log.png");
 	public static final Image sum                          = Activator.getImage("icons/sum.png");
 	public static final Image pin                          = Activator.getImage("icons/pin.gif");
+	public static final Image lock                          = Activator.getImage("icons/lock.png");
 }

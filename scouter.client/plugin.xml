@@ -888,6 +888,21 @@
             name="DatabaseConnectionTotal"
             restorable="true">
       </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.maria.views.DbLockListView"
+            icon="icons/lock.png"
+            id="scouter.client.maria.views.DbLockListView"
+            name="LockListView"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.maria.views.DbRealtimeWaitCountView"
+            icon="icons/lock.png"
+            id="scouter.client.maria.views.DbRealtimeWaitCountView"
+            name="DbWaitCountView">
+      </view>
   </extension>
  <extension
          point="org.eclipse.ui.commands">
