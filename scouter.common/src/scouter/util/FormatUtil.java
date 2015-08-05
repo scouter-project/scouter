@@ -54,5 +54,7 @@ public class FormatUtil {
 			return mem + unit[0];
 		return print(mem, "#,##0.0") + unit[x];
 	}
-
+public static void main(String[] args) {
+	System.out.println(printMem(1024L*1024*1024L));
+}
 }

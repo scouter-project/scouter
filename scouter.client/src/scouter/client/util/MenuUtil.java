@@ -529,9 +529,9 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 				performanceSnapshot.add(new OpenCxtmenuEnvAction(win, MenuStr.ENV, objHash, serverId));
 				performanceSnapshot.add(new OpenTopAction(win, MenuStr.TOP, objHash, serverId));
 				performanceSnapshot.add(new OpenDiskUsageAction(win, MenuStr.DISK_USAGE, objHash, serverId));
-				performanceSnapshot.add(new OpenNetStatAction(win, MenuStr.NET_STAT, objHash, serverId));
-				performanceSnapshot.add(new OpenWhoAction(win, MenuStr.WHO, objHash, serverId));
-				performanceSnapshot.add(new OpenMemInfoAction(win, MenuStr.MEM_INFO, objHash, serverId));
+//				performanceSnapshot.add(new OpenNetStatAction(win, MenuStr.NET_STAT, objHash, serverId));
+//				performanceSnapshot.add(new OpenWhoAction(win, MenuStr.WHO, objHash, serverId));
+//				performanceSnapshot.add(new OpenMemInfoAction(win, MenuStr.MEM_INFO, objHash, serverId));
 				
 				mgr.add(new Separator());
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))

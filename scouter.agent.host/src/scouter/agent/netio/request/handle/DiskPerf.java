@@ -14,6 +14,7 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
+import scouter.util.FormatUtil;
 
 public class DiskPerf {
 
@@ -38,7 +39,7 @@ public class DiskPerf {
 		ListValue totalList = pack.newList("Total");
 		ListValue usedList = pack.newList("Used");
 		ListValue freeList = pack.newList("Free");
-		ListValue useList = pack.newList("Use");
+		ListValue pctList = pack.newList("Pct");
 		ListValue typeList = pack.newList("Type");
 		ListValue mountList = pack.newList("Mount");
 		try {
@@ -65,10 +66,10 @@ public class DiskPerf {
 					total = usage.getTotal();
 					pct = (long) (usage.getUsePercent() * 100);
 
-					totalList.add(total);
-					usedList.add(used);
-					freeList.add(avail);
-					useList.add(pct);
+					totalList.add(total*1024);
+					usedList.add(used*1024);
+					freeList.add(avail*1024);
+					pctList.add(pct);
 					typeList.add(fs.getSysTypeName() + "/" + fs.getTypeName());
 					deviceList.add(fs.getDevName());
 					mountList.add(fs.getDirName());
@@ -81,5 +82,8 @@ public class DiskPerf {
 		} catch (Exception e) {
 		}
 		return pack;
+	}
+	public static void main(String[] args) {
+	  new DiskPerf().usage(null);
 	}
 }
