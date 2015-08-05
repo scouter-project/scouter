@@ -55,7 +55,7 @@ public class ProcPerf {
 			}
 		});
 	}
-	int cpuCores = 0;
+	 int cpuCores = 0;
 
 	@Counter
 	public void process(CounterBasket pw) {

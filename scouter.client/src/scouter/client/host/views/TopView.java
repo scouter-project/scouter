@@ -61,6 +61,7 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
 
 public class TopView extends ViewPart {
 	
@@ -129,7 +130,7 @@ public class TopView extends ViewPart {
 						procList[i].pid = (int) pidLv.getLong(i);
 						procList[i].user = userLv.getString(i);
 						procList[i].cpu = (float) cpuLv.getDouble(i);
-						procList[i].mem = (float) memLv.getDouble(i);
+						procList[i].mem =  memLv.getLong(i);
 						procList[i].time = timeLv.getLong(i);
 						procList[i].name = nameLv.getString(i);
 					}
@@ -295,7 +296,7 @@ public class TopView extends ViewPart {
 					@Override
 					public String getText(Object element) {
 						if (element instanceof ProcessObject) {
-							return String.valueOf(((ProcessObject) element).cpu);
+							return FormatUtil.print(((ProcessObject) element).cpu, "#,##0.0")+"%";
 						}
 						return null;
 					}
@@ -306,7 +307,7 @@ public class TopView extends ViewPart {
 					@Override
 					public String getText(Object element) {
 						if (element instanceof ProcessObject) {
-							return String.valueOf(((ProcessObject) element).mem);
+							return FormatUtil.printMem(((ProcessObject) element).mem);
 						}
 						return null;
 					}
@@ -366,7 +367,7 @@ public class TopView extends ViewPart {
 		int pid;
 		String user;
 		float cpu;
-		float mem;
+		long mem;
 		long time;
 		String name;
 		
@@ -398,7 +399,7 @@ public class TopView extends ViewPart {
 	    PID("PID", 50, SWT.RIGHT, true, true, true), //
 	    USER("USER", 70, SWT.RIGHT, true, true, false), //
 	    CPU("CPU%", 50, SWT.RIGHT, true, true, true),
-	    MEM("MEM%", 50, SWT.RIGHT, true, true, true),
+	    MEM("MEM", 50, SWT.RIGHT, true, true, true),
 	    TIME("TIME", 100, SWT.RIGHT, true, true, true),
 	    NAME("NAME", 150, SWT.LEFT, true, true, false);
 

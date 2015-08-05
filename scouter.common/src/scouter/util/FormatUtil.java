@@ -43,4 +43,16 @@ public class FormatUtil {
 		return o.toString();
 	}
 
+	private static String[] unit = { "B", "K", "M", "G", "T", "P" };
+
+	public static String printMem(double mem) {
+		int x = 0;
+		for (x = 0; mem >= 1024 && x < unit.length; x++) {
+			mem /= 1024;
+		}
+		if (x == 0)
+			return mem + unit[0];
+		return print(mem, "#,##0.0") + unit[x];
+	}
+
 }
