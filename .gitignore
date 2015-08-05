@@ -14,4 +14,5 @@ scouter.client.product/target/*
 workspace/*
 scouter.agent.host/bin/*
 scouter.agent.host.boot/bin/*
+scouter.server.boot/bin/*
 *.log
