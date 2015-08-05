@@ -118,9 +118,6 @@ public class TopView extends ViewPart {
 					}
 					ListValue pidLv = pack.getList("PID");
 					ListValue userLv = pack.getList("USER");
-					ListValue niLv = pack.getList("NI");
-					ListValue virtLv = pack.getList("VIRT");
-					ListValue resLv = pack.getList("RES");
 					ListValue cpuLv = pack.getList("CPU");
 					ListValue memLv = pack.getList("MEM");
 					ListValue timeLv = pack.getList("TIME");
@@ -131,9 +128,6 @@ public class TopView extends ViewPart {
 						procList[i] = new ProcessObject();
 						procList[i].pid = (int) pidLv.getLong(i);
 						procList[i].user = userLv.getString(i);
-						procList[i].ni = (int) niLv.getLong(i);
-						procList[i].virt = virtLv.getLong(i);
-						procList[i].res = resLv.getLong(i);
 						procList[i].cpu = (float) cpuLv.getDouble(i);
 						procList[i].mem = (float) memLv.getDouble(i);
 						procList[i].time = timeLv.getLong(i);
@@ -296,39 +290,6 @@ public class TopView extends ViewPart {
 					}
 				};
 				break;
-			case NI:
-				labelProvider = new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (element instanceof ProcessObject) {
-							return String.valueOf(((ProcessObject) element).ni);
-						}
-						return null;
-					}
-				};
-				break;
-			case VIRT:
-				labelProvider = new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (element instanceof ProcessObject) {
-							return ScouterUtil.humanReadableByteCount(((ProcessObject) element).virt, true);
-						}
-						return null;
-					}
-				};
-				break;
-			case RES:
-				labelProvider = new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (element instanceof ProcessObject) {
-							return ScouterUtil.humanReadableByteCount(((ProcessObject) element).res, true);
-						}
-						return null;
-					}
-				};
-				break;
 			case CPU:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
@@ -404,9 +365,6 @@ public class TopView extends ViewPart {
 	class ProcessObject {
 		int pid;
 		String user;
-		int ni;
-		long virt;
-		long res;
 		float cpu;
 		float mem;
 		long time;
@@ -419,25 +377,19 @@ public class TopView extends ViewPart {
 			case 1:
 				return user;
 			case 2:
-				return String.valueOf(ni);
-			case 3:
-				return String.valueOf(virt);
-			case 4:
-				return String.valueOf(res);
-			case 5:
 				return String.valueOf(cpu);
-			case 6:
+			case 3:
 				return String.valueOf(mem);
-			case 7:
+			case 4:
 				return String.valueOf(time);
-			case 8:
+			case 5:
 				return name;
 			}
 			return null;
 		}
 
 		public String toString() {
-			return pid + "\t" + user + "\t" + ni  + "\t" + ScouterUtil.humanReadableByteCount(virt, true) + "\t" + ScouterUtil.humanReadableByteCount(res, true) + "\t" + cpu + "\t" + mem + "\t" + DateUtil.format(time, "mm:ss.SSS") + "\t" + name + "\n"; 
+			return pid + "\t" + user   + "\t" + + cpu + "\t" + mem + "\t" + DateUtil.format(time, "mm:ss.SSS") + "\t" + name + "\n"; 
 		}
 	}
 	
@@ -445,9 +397,6 @@ public class TopView extends ViewPart {
 
 	    PID("PID", 50, SWT.RIGHT, true, true, true), //
 	    USER("USER", 70, SWT.RIGHT, true, true, false), //
-	    NI("NI", 50, SWT.RIGHT, true, true, true),
-	    VIRT("VIRT", 70, SWT.RIGHT, true, true, true),
-	    RES("RES", 70, SWT.RIGHT, true, true, true),
 	    CPU("CPU%", 50, SWT.RIGHT, true, true, true),
 	    MEM("MEM%", 50, SWT.RIGHT, true, true, true),
 	    TIME("TIME", 100, SWT.RIGHT, true, true, true),
