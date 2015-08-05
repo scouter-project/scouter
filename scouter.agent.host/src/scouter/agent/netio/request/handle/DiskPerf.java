@@ -44,7 +44,7 @@ public class DiskPerf {
 		try {
 			Sigar sigar = new Sigar();
 			SigarProxy proxy = SigarProxyCache.newInstance(sigar);
-			FileSystemMap mounts = proxy.getFileSystemMap();
+			//FileSystemMap mounts = proxy.getFileSystemMap();
 			FileSystem[] fslist = proxy.getFileSystemList();
 			for (int i = 0; i < fslist.length; i++) {
 
