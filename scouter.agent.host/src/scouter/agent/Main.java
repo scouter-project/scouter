@@ -13,10 +13,11 @@ import scouter.util.logo.Logo;
 public class Main {
 	public static void main(String[] args) {
 		Logo.print(true);
-		Logger.println("A01", "Scouter Host Agent Version " + Version.getServerFullVersion());
-
 		AgentBoot.boot();
 
+		System.out.println("Scouter Host Agent Version " + Version.getServerFullVersion());
+		Logger.println("A01", "Scouter Host Agent Version " + Version.getServerFullVersion());
+		
 		File exit = new File(SysJMX.getProcessPID() + ".scouter");
 		try {
 			exit.createNewFile();

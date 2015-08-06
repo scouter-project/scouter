@@ -43,7 +43,7 @@ public class AgentBoot implements Runnable {
 		
 		long seed =System.currentTimeMillis() ^ (((long)SysJMX.getProcessPID())<<32);
 		KeyGen.setSeed(seed);
-		Logger.println("A100", "host agent boot seed="+Hexa32.toString32(seed));
+		Logger.println("A10", "host agent boot seed="+Hexa32.toString32(seed));
 	}
 	public static void main(String[] args) {
 	   boot();

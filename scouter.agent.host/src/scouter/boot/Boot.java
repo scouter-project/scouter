@@ -18,6 +18,7 @@ package scouter.boot;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -32,8 +33,12 @@ public class Boot {
 			lib = args[0];
 		}
 
-		JarUtil.unJar(JarUtil.getThisJarFile(), new File(lib));
-		
+		try {
+			JarUtil.unJar(JarUtil.getThisJarFile(), new File(lib));
+		} catch (Exception e) {
+			System.out.println("Fail to extract jar files");
+			System.out.println("Please check the permission : " + lib + "/*.*");
+		}
 		URL[] jarfiles = getURLs(lib);
 		URLClassLoader classloader = new URLClassLoader(jarfiles, Boot.class.getClassLoader());
 		Thread.currentThread().setContextClassLoader(classloader);
