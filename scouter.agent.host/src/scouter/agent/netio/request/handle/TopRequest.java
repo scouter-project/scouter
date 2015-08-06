@@ -42,13 +42,25 @@ public class TopRequest {
 		for (int i = 0; i < pids.length; i++) {
 			try {
 				pidLv.add(pids[i]);
-				ProcCredName cred = sigar.getProcCredName(pids[i]);
-				userLv.add(cred.getUser());
+				try {
+					ProcCredName cred = sigar.getProcCredName(pids[i]);
+					userLv.add(cred.getUser());
+				} catch (Exception e) {
+					userLv.add("unknown");
+				}
 
-				ProcTime time = sigar.getProcTime(pids[i]);
-				timeLv.add(time.getStartTime());
-				String name = ProcUtil.getDescription(sigar, pids[i]);
-				nameLv.add(name);
+				try {
+					ProcTime time = sigar.getProcTime(pids[i]);
+					timeLv.add(time.getStartTime());
+				} catch (Exception e) {
+					timeLv.add(0);
+				}
+				try {
+					String name = ProcUtil.getDescription(sigar, pids[i]);
+					nameLv.add(name);
+				} catch (Exception e) {
+					nameLv.add("");
+				}
 				try {
 					ProcMem mem = sigar.getProcMem(pids[i]);
 					memLv.add(mem.getResident());
@@ -59,7 +71,6 @@ public class TopRequest {
 					ProcCpu cpu = sigar.getProcCpu(pids[i]);
 					cpuLv.add((float)(cpu.getPercent() * 100 /cpuCores));
 				} catch (Exception e) {
-					e.printStackTrace();
 					cpuLv.add(0);
 				}
 			} catch (Exception e) {
