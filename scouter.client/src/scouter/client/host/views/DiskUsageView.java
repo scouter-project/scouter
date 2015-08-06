@@ -231,7 +231,7 @@ public class DiskUsageView extends ViewPart {
 					data.total = totalList.getLong(i);
 					data.used = usedList.getLong(i);
 					data.free = freeList.getLong(i);
-					data.pct = pctList.getLong(i);
+					data.pct = (float)pctList.getDouble(i);
 					data.type = typeList.getString(i);
 					data.mount = mountList.getString(i);
 				}
@@ -298,7 +298,7 @@ public class DiskUsageView extends ViewPart {
 					@Override
 					public String getText(Object element) {
 						if (element instanceof DiskData) {
-							return Long.toString(((DiskData) element).pct)+"%";
+							return FormatUtil.print(((DiskData) element).pct,"#0.0")+"%";
 						}
 						return null;
 					}
@@ -359,7 +359,7 @@ public class DiskUsageView extends ViewPart {
 		public long total;
 		public long used;
 		public long free;
-		public long pct;
+		public float pct;
 		public String type;
 		public String mount;
 		

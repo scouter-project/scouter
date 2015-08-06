@@ -49,7 +49,8 @@ public class DiskPerf {
 			FileSystem[] fslist = proxy.getFileSystemList();
 			for (int i = 0; i < fslist.length; i++) {
 
-				long used, avail, total, pct;
+				long used, avail, total;
+				float pct;
 
 				FileSystem fs = fslist[i];
 				try {
@@ -64,7 +65,7 @@ public class DiskPerf {
 					used = usage.getTotal() - usage.getFree();
 					avail = usage.getAvail();
 					total = usage.getTotal();
-					pct = (long) (usage.getUsePercent() * 100);
+					pct = (float) (usage.getUsePercent() * 100);
 
 					totalList.add(total*1024);
 					usedList.add(used*1024);
@@ -74,7 +75,8 @@ public class DiskPerf {
 					deviceList.add(fs.getDevName());
 					mountList.add(fs.getDirName());
 				} catch (SigarException e) {
-					used = avail = total = pct = 0;
+					used = avail = total = 0;
+					pct = 0;
 				}
 
 			}
