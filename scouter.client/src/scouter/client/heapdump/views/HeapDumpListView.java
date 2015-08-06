@@ -259,7 +259,6 @@ public class HeapDumpListView extends ViewPart implements ViewWithTable{
 	}
 	
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 	public void sortTable(){

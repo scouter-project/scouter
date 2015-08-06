@@ -1,50 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="AgentHost" default="default">
+<project name="AgentJava" default="default">
+
+	<property name="VERSION" value="dev" />
 	
-	<property name="class-dir" value="./out/bin/host"/>
-	<property name="tar-file" value="./out/package/hostperf.tar"/>
-		
-	<property name="tar-gzip" value="hostperf-src.tar.gz"/>
-    <property name="hostpack-dir" value="./out/package/scouter/agent/host"/>
-	
-	<property name="compiled-file" value="./host"/>
+	<property name="class-agent-dir" value="./out/bin/agent.host" />
+	<property name="class-boot-dir" value="./out/bin/agent.host.boot" />
+	<property name="jar-agent-file" value="./out/jar/scouter.agent.host-${VERSION}.jar" />
+	<property name="deploy-boot-dir" value="./out/package/scouter/agent.host" />
+	<property name="jar-boot-file" value="./out/jar/scouter.host.jar" />
+
+	<tstamp>
+		<format property="today" pattern="yyyyMMdd" offset="-5" unit="hour" />
+	</tstamp>
 
 	<target name="init">
-		<delete dir="${class-dir}"/>
-		<mkdir dir="${class-dir}"/>
-		<delete dir="${hostpack-dir}"/>
-		<mkdir dir="${hostpack-dir}"/>
-	</target>
-	<target name="compile">
-		<copy  todir="${class-dir}" ><fileset dir="../scouter.host"/> </copy>
+		<delete dir="${class-agent-dir}" />
+		<delete file="${jar-agent-file}" />
+		<delete dir="${class-boot-dir}" />
+		<mkdir dir="${class-agent-dir}" />
+		<mkdir dir="${class-boot-dir}" />
 	</target>
 
-	 <target name="packing">
-	 	     <tar destfile="${tar-file}">
-	            <tarfileset dir="${class-dir}">
-	                <include name="**/*"/>
-	                <exclude name="**/*.pyc"/>
-		            </tarfileset>
-	        </tar>
-	        <gzip src="${tar-file}" destfile="${tar-file}.gz"/>
-	        <delete file="${tar-file}"/>
+	<target name="compile">
+		<javac srcdir="../scouter.common/src" destdir="${class-agent-dir}" source="1.5" target="1.5" debug="true" encoding="UTF-8" includeantruntime="false" />
+		<copy file="../scouter.common/src/scouter/util/logo/scouter.logo" tofile="${class-agent-dir}/scouter/util/logo/scouter.logo" verbose="true" />
+		<copy file="../scouter.common/src/scouter/lang/countrycode.txt" tofile="${class-agent-dir}/scouter/lang/countrycode.txt" verbose="true" />
+
+		<propertyfile file="${class-agent-dir}/scouter/v.properties" comment="Scouter Version">
+			<entry key="VERSION" value="${VERSION}" />
+			<entry key="BUILD" value="${today}" />
+		</propertyfile>
+
+
+		<javac srcdir="../scouter.agent.host/src" destdir="${class-agent-dir}" source="1.5" target="1.5" debug="true" encoding="UTF-8" includeantruntime="false">
+			<classpath>
+				<pathelement location="../scouter.agent.host/lib/sigar.jar" />
+				<pathelement location="../scouter.agent.host/lib/log4j.jar" />
+				<pathelement location="${class-agent-dir}" />
+			</classpath>
+		</javac>
+
+	</target>
+
+	<target name="packing">
+
+		<jar destfile="${jar-agent-file}">
+			<fileset dir="${class-agent-dir}" >
+				<exclude name="**/scouter/boot/**"/>
+			</fileset>
+		</jar>
+
+		<copydir src="../scouter.agent.host/lib" dest="${class-boot-dir}" />
+		<copy file="${jar-agent-file}" tofile="${class-boot-dir}/scouter.host-${VERSION}.jar" verbose="true" />
+
+
+		<jar destfile="${jar-boot-file}">
+			<fileset dir="${class-agent-dir}" >
+						<include name="**/scouter/boot/**"/>
+		   </fileset>
+			<fileset dir="${class-boot-dir}" >
+			 </fileset>
+		</jar>
+
 	</target>
 
 	<target name="deploy">
-		<copy file="${tar-file}.gz" tofile="${hostpack-dir}/${tar-gzip}" verbose="true"/>
-		<delete file="${tar-file}.gz"/>
-		<copydir src="${compiled-file}" dest="${hostpack-dir}/." >
-		
-		</copydir>
+		<copy file="${jar-boot-file}" todir="${deploy-boot-dir}" verbose="true" />
+		<copy todir="./out/package/scouter/agent.host">
+			<fileset dir="../scouter.agent.host/scripts" />
+		</copy>
+		<copy todir="./out/package/scouter/agent.host/conf">
+			<fileset dir="../scouter.agent.host/conf" />
+		</copy>
 	</target>
 
 	<target name="default">
 		<echo>Agent Host</echo>
-    	<antcall target="init"/>
-		<antcall target="compile"/>
-    	<antcall target="packing"/>
-		<antcall target="deploy"/>
-  </target>
+		<antcall target="init" />
+		<antcall target="compile" />
+		<antcall target="packing" />
+		<antcall target="deploy" />
+	</target>
 
 </project>

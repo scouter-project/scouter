@@ -65,6 +65,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -117,6 +119,7 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 	protected Combo objFilter;
 	protected Text serviceFilter, ipFilter;
 	protected Button onlySqlBtn, onlyApicallBtn, onlyErrorBtn, clearBtn, loadPastBtn, applyBtn, loadBtn;
+	protected MenuItem onlySqlItem, onlyApiCallItem, onlyErrorItem;
 	protected Display display;
 	protected Shell shell;
 	protected ToolTip toolTip;
@@ -128,6 +131,7 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 		onlySqlAction = new Action("Only SQL", IAction.AS_CHECK_BOX) {
 			public void run() {
 				onlySqlBtn.setSelection(isChecked());
+				onlySqlItem.setSelection(isChecked());
 				if (sashForm.getMaximizedControl() == canvas) {
 					setFilters();
 				}
@@ -138,6 +142,7 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 		onlyApicallAction = new Action("Only ApiCall", IAction.AS_CHECK_BOX) {
 			public void run() {
 				onlyApicallBtn.setSelection(isChecked());
+				onlyApiCallItem.setSelection(isChecked());
 				if (sashForm.getMaximizedControl() == canvas) {
 					setFilters();
 				}
@@ -148,6 +153,7 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 		onlyErrorAction = new Action("Only Error", IAction.AS_CHECK_BOX) {
 			public void run() {
 				onlyErrorBtn.setSelection(isChecked());
+				onlyErrorItem.setSelection(isChecked());
 				if (sashForm.getMaximizedControl() == canvas) {
 					setFilters();
 				}
@@ -471,7 +477,53 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 				});
 			}
 		});
+		createContextMenu();
 		ObjectSelectManager.getInstance().addObjectCheckStateListener(this);
+	}
+	
+	private void createContextMenu() {
+		Menu popupMenu = new Menu(canvas);
+	    MenuItem filterItem = new MenuItem(popupMenu, SWT.CASCADE);
+	    filterItem.setText("Filter");
+	    Menu filterMenu = new Menu(popupMenu);
+	    filterItem.setMenu(filterMenu);
+	    
+	    onlySqlItem = new MenuItem(filterMenu, SWT.CHECK);
+	    onlySqlItem.setText("SQL");
+	    onlySqlItem.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				onlySqlAction.setChecked(onlySqlItem.getSelection());
+				onlySqlAction.run();
+			}
+		});
+	    onlyApiCallItem = new MenuItem(filterMenu, SWT.CHECK);
+	    onlyApiCallItem.setText("API Call");
+	    onlyApiCallItem.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				onlyApicallAction.setChecked(onlyApiCallItem.getSelection());
+				onlyApicallAction.run();
+			}
+		});
+	    onlyErrorItem = new MenuItem(filterMenu, SWT.CHECK);
+	    onlyErrorItem.setText("Error");
+	    onlyErrorItem.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				onlyErrorAction.setChecked(onlyErrorItem.getSelection());
+				onlyErrorAction.run();
+			}
+		});
+	    
+	    new MenuItem(filterMenu, SWT.SEPARATOR);
+	    MenuItem detailFilterItem = new MenuItem(filterMenu, SWT.PUSH);
+	    detailFilterItem.setText("Detail Filter");
+	    detailFilterItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				showFilters.setChecked(true);
+				showFilters.run();
+			}
+		});
+	    
+	    canvas.setMenu(popupMenu);
 	}
 	
 	public int getMaxCount() {
@@ -549,6 +601,10 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 		onlySqlAction.setChecked(false);
 		onlyApicallAction.setChecked(false);
 		onlyErrorAction.setChecked(false);
+		
+		onlySqlItem.setSelection(false);
+		onlyApiCallItem.setSelection(false);
+		onlyErrorItem.setSelection(false);
 	}
 
 	public void setFocus() {

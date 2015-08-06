@@ -253,7 +253,6 @@ public class ObjectThreadListView extends ViewPart implements Refreshable, ViewW
 	}
 	
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 	@Override

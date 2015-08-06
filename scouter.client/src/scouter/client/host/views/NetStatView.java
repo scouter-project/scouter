@@ -301,7 +301,6 @@ public class NetStatView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 	class NetStatData {

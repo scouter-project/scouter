@@ -59,6 +59,7 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
+import scouter.util.FormatUtil;
 
 public class DiskUsageView extends ViewPart {
 	
@@ -218,7 +219,7 @@ public class DiskUsageView extends ViewPart {
 			ListValue totalList = pack.getList("Total");
 			ListValue usedList = pack.getList("Used");
 			ListValue freeList = pack.getList("Free");
-			ListValue useList = pack.getList("Use");
+			ListValue pctList = pack.getList("Pct");
 			ListValue typeList = pack.getList("Type");
 			ListValue mountList = pack.getList("Mount");
 			final ArrayList<DiskData> diskList = new ArrayList<DiskData>();
@@ -227,10 +228,10 @@ public class DiskUsageView extends ViewPart {
 					DiskData data = new DiskData();
 					diskList.add(data);
 					data.device = deviceList.getString(i);
-					data.total = totalList.getString(i);
-					data.used = usedList.getString(i);
-					data.free = freeList.getString(i);
-					data.use = useList.getString(i);
+					data.total = totalList.getLong(i);
+					data.used = usedList.getLong(i);
+					data.free = freeList.getLong(i);
+					data.pct = (float)pctList.getDouble(i);
 					data.type = typeList.getString(i);
 					data.mount = mountList.getString(i);
 				}
@@ -264,7 +265,7 @@ public class DiskUsageView extends ViewPart {
 					@Override
 					public String getText(Object element) {
 						if (element instanceof DiskData) {
-							return ((DiskData) element).total;
+							return FormatUtil.printMem(((DiskData) element).total);
 						}
 						return null;
 					}
@@ -275,7 +276,7 @@ public class DiskUsageView extends ViewPart {
 					@Override
 					public String getText(Object element) {
 						if (element instanceof DiskData) {
-							return ((DiskData) element).used;
+							return FormatUtil.printMem(((DiskData) element).used);
 						}
 						return null;
 					}
@@ -286,18 +287,18 @@ public class DiskUsageView extends ViewPart {
 					@Override
 					public String getText(Object element) {
 						if (element instanceof DiskData) {
-							return ((DiskData) element).free;
+							return FormatUtil.printMem(((DiskData) element).free);
 						}
 						return null;
 					}
 				};
 				break;
-			case USE:
+			case PCT:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
 						if (element instanceof DiskData) {
-							return ((DiskData) element).use;
+							return FormatUtil.print(((DiskData) element).pct,"#0.0")+"%";
 						}
 						return null;
 					}
@@ -351,20 +352,19 @@ public class DiskUsageView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 	class DiskData {
 		public String device;
-		public String total;
-		public String used;
-		public String free;
-		public String use;
+		public long total;
+		public long used;
+		public long free;
+		public float pct;
 		public String type;
 		public String mount;
 		
 		public String toString() {
-			return device + "\t" + total	+ "\t" + used + "\t" + free + "\t" + use + "\t" + type + "\t" + mount + "\n";
+			return device + "\t" + total	+ "\t" + used + "\t" + free + "\t" + pct + "\t" + type + "\t" + mount + "\n";
 		}
 	}
 	
@@ -374,7 +374,7 @@ public class DiskUsageView extends ViewPart {
 	    TOTAL("Total", 70, SWT.RIGHT, true, true, true), //
 	    USED("Used", 70, SWT.RIGHT, true, true, true),
 	    FREE("Free", 70, SWT.RIGHT, true, true, true),
-	    USE("Use", 50, SWT.CENTER, true, true, true),
+	    PCT("PCT", 50, SWT.CENTER, true, true, true),
 	    TYPE("Type", 70, SWT.CENTER, true, true, false),
 	    MOUNT("Mount", 80, SWT.LEFT, true, true, false);
 

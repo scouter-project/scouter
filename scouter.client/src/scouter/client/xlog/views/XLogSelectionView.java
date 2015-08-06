@@ -125,7 +125,6 @@ public class XLogSelectionView extends ViewPart {
 	}
 	
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 	
 	ArrayList<XLogColumnEnum> columnList = new ArrayList<XLogColumnEnum>();

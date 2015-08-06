@@ -34,7 +34,7 @@ public class PerfCounterPack implements Pack {
 
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
-		buf.append("PerfC ").append(DateUtil.timestamp(time));
+		buf.append("PerfCounter ").append(DateUtil.timestamp(time));
 		buf.append(" ").append(objName);
 		buf.append(" ").append(TimeTypeEnum.getString(timetype));
 		buf.append(" ").append(data);

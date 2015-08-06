@@ -108,7 +108,6 @@ public class MemInfoView extends ViewPart {
 	}
 
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 }

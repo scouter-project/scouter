@@ -126,7 +126,6 @@ public class ObjectFileSocketView extends ViewPart {
 	}
 
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 }

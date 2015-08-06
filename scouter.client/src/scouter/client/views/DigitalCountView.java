@@ -116,7 +116,7 @@ public class DigitalCountView extends ViewPart implements RefreshThread.Refresha
 				}
 			}
 			int x = (area.width/2) - (stringLength/2);
-			int y = (area.height/3) - (fontSize / 2);
+			int y = (area.height/2) - (fontSize / 2);
 			if (x < 1) {
 				x = 1;
 			}
@@ -136,7 +136,8 @@ public class DigitalCountView extends ViewPart implements RefreshThread.Refresha
 			if (x < 1) {
 				x = 1;
 			}
-			gc.drawText(title, x, 1, true);
+			y = y -fontSize - 10;
+			gc.drawText(title, x, 1 > y ? 1 : y, true);
 			font.dispose();
 			
 		} catch (Throwable t) {

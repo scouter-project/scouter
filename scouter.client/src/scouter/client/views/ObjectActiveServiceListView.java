@@ -351,7 +351,6 @@ public class ObjectActiveServiceListView extends ViewPart implements Refreshable
 	}
 
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 
 	enum ColumnEnum {

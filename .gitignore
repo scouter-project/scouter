@@ -1,4 +1,4 @@
-scouter.agent/bin/*
+scouter.agent.java/bin/*
 scouter.client/bin/*
 scouter.common/bin/*
 scouter.server/bin/*
@@ -12,3 +12,7 @@ scouter.client/target/*
 scouter.client.feature/target/*
 scouter.client.product/target/*
 workspace/*
+scouter.agent.host/bin/*
+scouter.agent.host.boot/bin/*
+scouter.server.boot/bin/*
+*.log

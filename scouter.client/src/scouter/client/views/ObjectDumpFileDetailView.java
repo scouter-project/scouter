@@ -169,7 +169,6 @@ public class ObjectDumpFileDetailView extends ViewPart {
 	}
 
 	public void setFocus() {
-		ScouterUtil.detachView(this);
 	}
 	
 }

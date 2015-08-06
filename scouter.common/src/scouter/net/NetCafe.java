@@ -22,19 +22,18 @@ import scouter.io.DataInputX;
 public class NetCafe {
 	public final static int CAFE_LENGTH = 4;
 	public final static byte[] CAFE = "CAFE".getBytes();
+	public final static byte[] CAFE_N = "CAFN".getBytes();
+	public final static byte[] CAFE_MTU = "CAFM".getBytes();
 	public final static byte[] JAVA = "JAVA".getBytes();
-	public final static byte[] JAVAN = "JAVN".getBytes();
-	public final static byte[] JS01 = "JS01".getBytes();
-	public final static byte[] NODE = "NODE".getBytes();
-	public final static byte[] NODEN = "NODN".getBytes(); 
-	public final static byte[] JMTU = "JMTU".getBytes();
+	public final static byte[] JAVA_N = "JAVN".getBytes();
+	public final static byte[] JAVA_MTU = "JMTU".getBytes();
 	//
 	public final static int UDP_CAFE = 0x43414645;
+	public final static int UDP_CAFE_N = 0x4341464e;
+	public final static int UDP_CAFE_MTU = 0x4341464d;
 	public final static int UDP_JAVA = 0x4a415641;
-	public final static int UDP_JAVAN = 0x4a41564e;
-	public final static int UDP_NODE = 0x4e4f4445;
-	public final static int UDP_NODEN = 0x4e4f444e;
-	public final static int UDP_JMTU = 0x4a4d5455;
+	public final static int UDP_JAVA_N = 0x4a41564e;
+	public final static int UDP_JAVA_MTU = 0x4a4d5455;
 	//
 	public static final int TCP_AGENT =0xCAFE1001;
 	public static final int TCP_CLIENT = 0xCAFE2001;
@@ -44,11 +43,11 @@ public class NetCafe {
 	public static void main(String[] args) {
 		
 		System.out.println("CAFE = 0x" +Integer.toHexString(DataInputX.toInt(CAFE, 0)));
+		System.out.println("CAFN = 0x" +Integer.toHexString(DataInputX.toInt(CAFE_N, 0)));
+		System.out.println("CAFM = 0x" +Integer.toHexString(DataInputX.toInt(CAFE_MTU, 0)));
 		System.out.println("JAVA = 0x" +Integer.toHexString(DataInputX.toInt(JAVA, 0)));
-		System.out.println("JAVAN = 0x" +Integer.toHexString(DataInputX.toInt(JAVAN, 0)));
-		System.out.println("NODE = 0x" +Integer.toHexString(DataInputX.toInt(NODE, 0)));
-		System.out.println("NODEN = 0x" +Integer.toHexString(DataInputX.toInt(NODEN, 0)));
-		System.out.println("JMTU = 0x" +Integer.toHexString(DataInputX.toInt(JMTU, 0)));
+		System.out.println("JAVAN = 0x" +Integer.toHexString(DataInputX.toInt(JAVA_N, 0)));
+		System.out.println("JMTU = 0x" +Integer.toHexString(DataInputX.toInt(JAVA_MTU, 0)));
 		}
 
 }

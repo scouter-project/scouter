@@ -223,7 +223,7 @@ public class CounterRealTimeTotalView extends ScouterViewPart implements Refresh
 			TcpProxy.putTcpProxy(tcp);
 		}
 		
-		if (result != null) {
+		if (result.size() > 0) {
 			value.value = ScouterUtil.getRealTotalValue(counter, result, mode);
 			isActive = true;
 		}
