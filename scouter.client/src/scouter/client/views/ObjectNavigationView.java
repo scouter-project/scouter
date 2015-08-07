@@ -72,6 +72,7 @@ import scouter.client.actions.OpenLoginListAction;
 import scouter.client.actions.OpenObjectDailyListAction;
 import scouter.client.actions.OpenServerFileManagementAction;
 import scouter.client.actions.OpenServerLogsAction;
+import scouter.client.actions.OpenServerManagerAction;
 import scouter.client.actions.OpenServerThreadListAction;
 import scouter.client.configuration.actions.AddAccountAction;
 import scouter.client.configuration.actions.EditAccountAction;
@@ -290,11 +291,7 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 			}
 		});
 		man.add(new Separator());
-		man.add(new Action("Sever Manager", ImageUtil.getImageDescriptor(Images.SERVER_ACT)) {
-			public void run() {
-				new ServerManagerDialog().show();
-			}
-		});
+		man.add(new OpenServerManagerAction());
 		man.add(new Action("Filter Object", ImageUtil.getImageDescriptor(Images.filter)) {
 			public void run() {
 				new ObjectSelectionDialog().show();

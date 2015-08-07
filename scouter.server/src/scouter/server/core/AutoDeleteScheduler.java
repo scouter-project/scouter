@@ -109,7 +109,10 @@ public class AutoDeleteScheduler extends Thread {
 				deleteFiles(c);
 			}
 		}
-		file.delete();
+		String path = file.getAbsolutePath();
+		if (file.delete()) {
+			Logger.println("Auto deleted : " + path);
+		}
 	}
 	
 	private String getLongAgoDate(Set<String> exceptDays) {

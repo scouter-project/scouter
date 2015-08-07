@@ -971,6 +971,12 @@
              id="scouter.client.actions.OpenObjectDashboardAction"
              name="Open ObjectDashboard">
        </command>
+       <command
+             categoryId="scouter.client.category"
+             description="Open ServerManager"
+             id="scouter.client.actions.OpenServerManagerAction"
+             name="Open ServerManager">
+       </command>
   </extension>
  <extension
        point="org.eclipse.ui.bindings">
