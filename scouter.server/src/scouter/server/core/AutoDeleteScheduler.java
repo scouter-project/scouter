@@ -57,7 +57,7 @@ public class AutoDeleteScheduler extends Thread {
 								break;
 							}
 							deleteData(yyyymmdd);
-							usuableSpace += dbDir.getUsableSpace();
+							usuableSpace = dbDir.getUsableSpace();
 							percent = (usuableSpace * 100.0d) / totalSpace;
 							deletedDays.add(yyyymmdd);
 						}
