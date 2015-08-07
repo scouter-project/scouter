@@ -7,13 +7,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import scouter.server.ConfObserver;
 import scouter.server.Configure;
 import scouter.server.Logger;
 import scouter.server.db.DBCtr;
 import scouter.server.db.XLogWR;
-import scouter.util.SystemUtil;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
+import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
 
 public class AutoDeleteScheduler extends Thread {
@@ -21,6 +22,12 @@ public class AutoDeleteScheduler extends Thread {
 	private static AutoDeleteScheduler instance = null;
 	private static final long CHECK_INTERVAL = DateUtil.MILLIS_PER_MINUTE;
 	Configure conf = Configure.getInstance();
+	boolean brun;
+	int maxPercent;
+	int retainDays;
+	boolean delOnlyXLog;
+	String lastCheckDate;
+	Set<String> deletedDays = new HashSet<String>();
 	
 	public final static synchronized AutoDeleteScheduler getInstance() {
 		if (instance == null) {
@@ -35,11 +42,28 @@ public class AutoDeleteScheduler extends Thread {
 	File dbDir;
 	
 	private AutoDeleteScheduler() {
+		applyConf();
 		dbDir = new File(DBCtr.getRootPath());
+		ConfObserver.put(AutoDeleteScheduler.class.getName(), new Runnable() {
+			public void run() {
+				if (conf.auto_delete_data != brun
+					|| conf.auto_delete_max_percent != maxPercent
+					|| conf.auto_delete_retain_days != retainDays
+					|| conf.auto_delete_only_xlog != delOnlyXLog) {
+					applyConf();
+					lastCheckDate = null;
+					deletedDays.clear();
+				}
+			}
+		});
 	}
 	
-	String lastCheckDate;
-	Set<String> deletedDays = new HashSet<String>();
+	private void applyConf() {
+		brun = conf.auto_delete_data;
+		maxPercent = conf.auto_delete_max_percent;
+		retainDays = conf.auto_delete_retain_days;
+		delOnlyXLog = conf.auto_delete_only_xlog;
+	}
 	
 	public void run() {
 		while(CoreRun.running()) {
@@ -95,8 +119,9 @@ public class AutoDeleteScheduler extends Thread {
 				f = new File(dbDir, yyyymmdd);
 			}
 			deleteFiles(f);
+			Logger.println("AUTO_DELETE", yyyymmdd);
 		} catch (Throwable th) {
-			Logger.println("Failed auto deletion... " + yyyymmdd + "  " + th.toString());
+			Logger.println("AUTO_DELETE", "Failed auto deletion... " + yyyymmdd + "  " + th.toString());
 		}
 	}
 	
@@ -109,10 +134,7 @@ public class AutoDeleteScheduler extends Thread {
 				deleteFiles(c);
 			}
 		}
-		String path = file.getAbsolutePath();
-		if (file.delete()) {
-			Logger.println("Auto deleted : " + path);
-		}
+		file.delete();
 	}
 	
 	private String getLongAgoDate(Set<String> exceptDays) {
