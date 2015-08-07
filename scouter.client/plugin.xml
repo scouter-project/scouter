@@ -51,6 +51,12 @@
           id="scouter.client.PerspectiveMaria"
           name="Maria">
     </perspective>
+    <perspective
+          class="scouter.client.PerspectiveStackAnalyzer"
+          icon="icons/page_white_stack.png"
+          id="scouter.client.PerspectiveStackAnalyzer"
+          name="Stack Performance Analyzer">
+    </perspective>
   </extension>
 
   <extension point="org.eclipse.ui.perspectiveExtensions">
@@ -902,6 +908,12 @@
             icon="icons/lock.png"
             id="scouter.client.maria.views.DbRealtimeWaitCountView"
             name="DbWaitCountView">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.stack.views.StackAnalyzerView"
+            id="scouter.client.stack.views.StackAnalyzerView"
+            name="StackAnalyzer">
       </view>
   </extension>
  <extension
