@@ -1,6 +1,5 @@
 ## Open Source S/W Performance Monitoring
-SCOUTER is a Open Source APM and a database monitoring tool. 
-It is monitoring the performance of Tomcat and  MariaDB. 
+SCOUTER is a open source APM and a database monitoring tool(Tomcat & MariaDB). 
 
 ![Screen](https://github.com/scouter-project/scouter-help/blob/master/misc/screen/dash1.png)
 
