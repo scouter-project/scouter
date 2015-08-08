@@ -3,8 +3,13 @@ SCOUTER is a open source APM and a database monitoring tool(Tomcat & MariaDB).
 
 ![Screen](https://github.com/scouter-project/scouter-help/blob/master/misc/screen/dash1.png)
 
+Users request application services on a system. 
+The services use resources on the system.
+You should understand this context in order to manage the system  performance effectively.
+SCOUTER can help you.
+
 - SCOUTER monitoring :
-  - Users : ActiveUser, RecentUser, TodayVisitor
+  - Users : ActiveUser, RecentUser, Today Visitor
   - Services : ActiveService, TPS, ResponseTime, Transaction Profile(class,sql,apicall), TagCount 
   - Resources : Cpu,Memory,Network and Heap usage, Connection pools etc.
 
