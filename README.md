@@ -1,19 +1,8 @@
 ## Open Source S/W Performance Monitoring
-```
-  ____                  _            
- / ___|  ___ ___  _   _| |_ ___ _ __ 
- \___ \ / __/   \| | | | __/ _ \ '__|
-  ___) | (_| (+) | |_| | ||  __/ |   
- |____/ \___\___/ \__,_|\__\___|_|                                      
- Scouter version 0.0.1 20150601
- Open Source S/W Performance Monitoring 
-```
-SCOUTER is a Open Source APM and a database monitoring tool. It is monitoring the performance of Tomcat and  MariaDB. 
-Enterprise IT has evolved based on commercial services. 
-But now more and more systems are using open source S/W. 
-If you use a Tomcat, SCOUTER will be the best choice to monitor it.
+SCOUTER is a Open Source APM and a database monitoring tool. 
+It is monitoring the performance of Tomcat and  MariaDB. 
 
-![Screen](https://github.com/scouter-project/scouter-help/blob/master/misc/screen/loadtest.png)
+![Screen](https://github.com/scouter-project/scouter-help/blob/master/misc/screen/dash1.png)
 
 - SCOUTER monitoring :
   - Users : ActiveUser, RecentUser, TodayVisitor
