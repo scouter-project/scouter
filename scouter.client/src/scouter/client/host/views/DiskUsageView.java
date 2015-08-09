@@ -203,45 +203,49 @@ public class DiskUsageView extends ViewPart {
 	}
 	
 	private void load() {
-		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
-		MapPack pack = null;
-		try {
-			MapPack param = new MapPack();
-			param.put("objHash", objHash);
-			pack = (MapPack) tcp.getSingle(RequestCmd.HOST_DISK_USAGE, param);
-		} catch (Throwable t) {
-			ConsoleProxy.errorSafe(t.toString());
-		} finally {
-			TcpProxy.putTcpProxy(tcp);
-		}
-		if (pack != null) {
-			ListValue deviceList = pack.getList("Device");
-			ListValue totalList = pack.getList("Total");
-			ListValue usedList = pack.getList("Used");
-			ListValue freeList = pack.getList("Free");
-			ListValue pctList = pack.getList("Pct");
-			ListValue typeList = pack.getList("Type");
-			ListValue mountList = pack.getList("Mount");
-			final ArrayList<DiskData> diskList = new ArrayList<DiskData>();
-			if (deviceList != null && deviceList.size() > 0) {
-				for (int i = 0; i < deviceList.size(); i++) {
-					DiskData data = new DiskData();
-					diskList.add(data);
-					data.device = deviceList.getString(i);
-					data.total = totalList.getLong(i);
-					data.used = usedList.getLong(i);
-					data.free = freeList.getLong(i);
-					data.pct = (float)pctList.getDouble(i);
-					data.type = typeList.getString(i);
-					data.mount = mountList.getString(i);
+		ExUtil.asyncRun(new Runnable() {
+			public void run() {
+				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+				MapPack pack = null;
+				try {
+					MapPack param = new MapPack();
+					param.put("objHash", objHash);
+					pack = (MapPack) tcp.getSingle(RequestCmd.HOST_DISK_USAGE, param);
+				} catch (Throwable t) {
+					ConsoleProxy.errorSafe(t.toString());
+				} finally {
+					TcpProxy.putTcpProxy(tcp);
+				}
+				if (pack != null) {
+					ListValue deviceList = pack.getList("Device");
+					ListValue totalList = pack.getList("Total");
+					ListValue usedList = pack.getList("Used");
+					ListValue freeList = pack.getList("Free");
+					ListValue pctList = pack.getList("Pct");
+					ListValue typeList = pack.getList("Type");
+					ListValue mountList = pack.getList("Mount");
+					final ArrayList<DiskData> diskList = new ArrayList<DiskData>();
+					if (deviceList != null && deviceList.size() > 0) {
+						for (int i = 0; i < deviceList.size(); i++) {
+							DiskData data = new DiskData();
+							diskList.add(data);
+							data.device = deviceList.getString(i);
+							data.total = totalList.getLong(i);
+							data.used = usedList.getLong(i);
+							data.free = freeList.getLong(i);
+							data.pct = (float)pctList.getDouble(i);
+							data.type = typeList.getString(i);
+							data.mount = mountList.getString(i);
+						}
+					}
+					ExUtil.exec(viewer.getTable(), new Runnable() {
+						public void run() {
+							viewer.setInput(diskList);
+						}
+					});
 				}
 			}
-			ExUtil.exec(viewer.getTable(), new Runnable() {
-				public void run() {
-					viewer.setInput(diskList);
-				}
-			});
-		}
+		});
 	}
 
 	private void createColumns() {

@@ -30,10 +30,12 @@ public interface IConstants {
 	public static final String LAYOUT_WASSERVICE_CONSOLE           = "scouter.client.perspective.wasservice.console";
 	public static final String LAYOUT_WASSERVICE_SERVICE           = "scouter.client.perspective.wasservice.service";
 	public static final String LAYOUT_WASSERVICE_COUNT             = "scouter.client.perspective.wasservice.count";
+	public static final String LAYOUT_WASSERVICE_CPU             = "scouter.client.perspective.wasservice.cpu";
 	
 	public static final String LAYOUT_WASSERVICE_LEFT              = "scouter.client.perspective.wasservice.left";
 	public static final String LAYOUT_WASSERVICE_LEFT_TOP          = "scouter.client.perspective.wasservice.leftTop";
-	public static final String LAYOUT_WASSERVICE_LEFT_MIDDLE       = "scouter.client.perspective.wasservice.leftMiddle";
+	public static final String LAYOUT_WASSERVICE_LEFT_MID1       = "scouter.client.perspective.wasservice.leftMiddle1";
+	public static final String LAYOUT_WASSERVICE_LEFT_MID2       = "scouter.client.perspective.wasservice.leftMiddle2";
 	public static final String LAYOUT_WASSERVICE_LEFT_BOTTOM       = "scouter.client.perspective.wasservice.leftBottom";
 
 	public static final String LAYOUT_WASSERVICE_CENTER            = "scouter.client.perspective.wasservice.center";

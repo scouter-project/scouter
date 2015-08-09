@@ -51,13 +51,14 @@ public class ScouterPreferencePage extends FieldEditorPreferencePage implements 
 	
 	ComboFieldEditor serverIP;
 	
-	Combo /*addrCombo,*/ javaeeCombo;
+	Combo /*addrCombo,*/ hostCombo,javaeeCombo;
 	
 	Text file, color, maxText,  alertDialogTimeout;
 	
 	String filePath = "";
 	String colorRgb = "";
 	
+	private String host;
 	private String javaee;
 	
 	private int maxBlock;
@@ -92,17 +93,28 @@ public class ScouterPreferencePage extends FieldEditorPreferencePage implements 
 		layoutGroup.setLayoutData(UIUtil.gridData(SWT.FILL));
 	    
 		CounterEngine counterEngine = ServerManager.getInstance().getDefaultServer().getCounterEngine();
+	    hostCombo = new Combo(layoutGroup, SWT.VERTICAL| SWT.BORDER |SWT.H_SCROLL);
+	    hostCombo.setItems(counterEngine.getChildren(CounterConstants.FAMILY_HOST));
+	    hostCombo.setText(host);
+		hostCombo.setEnabled(true);
+		hostCombo.setLayoutData(UIUtil.formData(null, -1, 0, 8, 100, -5, null, -1, 220));
+		
+		CLabel hostLabel = new CLabel(layoutGroup, SWT.NONE);
+		hostLabel.setText("default \'Host\'");
+		hostLabel.setImage(Images.getObjectIcon(CounterConstants.FAMILY_HOST, true, 0));
+		hostLabel.setLayoutData(UIUtil.formData(null, -1, 0, 8, hostCombo, -5, null, -1, 130));
 		
 		javaeeCombo = new Combo(layoutGroup, SWT.VERTICAL| SWT.BORDER |SWT.H_SCROLL);
 		javaeeCombo.setItems(counterEngine.getChildren(CounterConstants.FAMILY_JAVAEE));
 		javaeeCombo.setText(javaee);
 		javaeeCombo.setEnabled(true);
-		javaeeCombo.setLayoutData(UIUtil.formData(null, -1, 0, 8, 100, -5, null, -1, 220));
+		javaeeCombo.setLayoutData(UIUtil.formData(null, -1, hostCombo, 8, 100, -5, null, -1, 220));
 		
 		CLabel javaLabel = new CLabel(layoutGroup, SWT.NONE);
 		javaLabel.setText("default \'JavaEE\'");
 		javaLabel.setImage(Images.getObjectIcon(CounterConstants.JAVA, true, 0));
-		javaLabel.setLayoutData(UIUtil.formData(null, -1, 0, 8, javaeeCombo, -5, null, -1, 130));
+		javaLabel.setLayoutData(UIUtil.formData(null, -1, hostLabel, 8, javaeeCombo, -5, null, -1, 130));
+		
 		
 		// ----Mass Profiling----
 		layoutGroup = new Group(parent, SWT.NONE);
@@ -156,6 +168,7 @@ public class ScouterPreferencePage extends FieldEditorPreferencePage implements 
 	}
 
 	public void init(IWorkbench workbench) {
+		host = PManager.getInstance().getString(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_HOST);
 		javaee = PManager.getInstance().getString(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_WAS);
 		maxBlock = PManager.getInstance().getInt(PreferenceConstants.P_MASS_PROFILE_BLOCK);
 		alertdialogTimeoutSec = PManager.getInstance().getInt(PreferenceConstants.P_ALERT_DIALOG_TIMEOUT);
@@ -170,10 +183,15 @@ public class ScouterPreferencePage extends FieldEditorPreferencePage implements 
 			needResetPerspective = true;
 		}
 		
+		if (!ObjectUtil.equals(host, hostCombo.getText())) {
+			needResetPerspective = true;
+		}
+		
 		if (needResetPerspective 
 				&& !MessageDialog.openConfirm(getShell(), "Reset Perspectives", "To apply \'Default Object Type\', all perspectives will be reset. Continue?")) {
 			return false;
 		}
+		PManager.getInstance().setValue(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_HOST, hostCombo.getText());
 		PManager.getInstance().setValue(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_WAS, javaeeCombo.getText());
 		PManager.getInstance().setValue(PreferenceConstants.P_MASS_PROFILE_BLOCK, CastUtil.cint(maxText.getText()));
 		PManager.getInstance().setValue(PreferenceConstants.P_ALERT_DIALOG_TIMEOUT, CastUtil.cint(alertDialogTimeout.getText()));

@@ -45,6 +45,7 @@ public class PManager {
 		store.setDefault(PreferenceConstants.P_XLOG_IGNORE_TIME, 0);
 		store.setDefault(PreferenceConstants.P_XLOG_MAX_COUNT, 1000000);
 
+		store.setDefault(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_HOST, CounterConstants.LINUX);
 		store.setDefault(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_WAS, CounterConstants.TOMCAT);
 		store.setDefault(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_DB, CounterConstants.MARIA_DB);
 		

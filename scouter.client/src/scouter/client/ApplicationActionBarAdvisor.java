@@ -38,6 +38,7 @@ import scouter.client.actions.OpenClientThreadListAction;
 import scouter.client.actions.OpenConsoleAction;
 import scouter.client.actions.OpenGroupNavigationAction;
 import scouter.client.actions.OpenObjectDashboardAction;
+import scouter.client.actions.OpenServerManagerAction;
 import scouter.client.actions.OpenWorkspaceExplorerAction;
 import scouter.client.actions.RestartAction;
 import scouter.client.constants.MenuStr;
@@ -56,6 +57,8 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	private IContributionItem perspective;
 
 	private AddServerAction addServerAction;
+	
+	private OpenServerManagerAction openServerManagerAction;
 	
 	private OpenClientThreadListAction openClientThreadListAction;
 	
@@ -96,6 +99,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		register(preferencesAction);
 		
 		register(addServerAction = new AddServerAction(window, "Add Server", Images.add));
+		register(openServerManagerAction = new OpenServerManagerAction());
 
 		register(openClientThreadListAction = new OpenClientThreadListAction(window, "Client Thread List", Images.thread));
 		register(openWorkspaceExplorerAction = new OpenWorkspaceExplorerAction(window, "Workspace Explorer", Images.explorer, serverId));
@@ -115,11 +119,13 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 	protected void fillMenuBar(IMenuManager menuBar) {
 		MenuManager fileMenu = new MenuManager("&File", IWorkbenchActionConstants.M_FILE);
+		MenuManager serverMenu = new MenuManager("&Server", "scouter.client.menu.server");
 		MenuManager viewMenu = new MenuManager("&Views", "scouter.client.menu.views");
 		MenuManager windowMenu = new MenuManager("&Window", IWorkbenchActionConstants.M_WINDOW);
 		MenuManager reportMenu = new MenuManager("&Report", "scouter.client.menu.report");
 
 		menuBar.add(fileMenu);
+		menuBar.add(serverMenu);
 		menuBar.add(viewMenu);
 		menuBar.add(windowMenu);
 		menuBar.add(reportMenu);
@@ -127,26 +133,24 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		viewMenu.add(openObjDashboard);
 		viewMenu.add(openConsole);
 		viewMenu.add(openAlertRealtimeAction);
+		viewMenu.add(openGroupNavigationAction);
 
 		MenuManager perspectiveMenu = new MenuManager("&Perspective", "scouter.client.menu.perspective");
 		perspectiveMenu.add(perspective);
 
 		windowMenu.add(perspectiveMenu);
 		windowMenu.add(preferencesAction);
+		
+		serverMenu.add(addServerAction);
+		serverMenu.add(new Separator());
+		serverMenu.add(openServerManagerAction);
 
-//		fileMenu.add(newWindowAction);
-//		fileMenu.add(new Separator());
-		fileMenu.add(addServerAction);
 		fileMenu.add(new Separator());
 		fileMenu.add(openClientThreadListAction);
 		fileMenu.add(openClientEnvAction);
 		fileMenu.add(new Separator());
-		//fileMenu.add(openTerminal);
 		fileMenu.add(openWorkspaceExplorerAction);
-		fileMenu.add(openGroupNavigationAction);
-		
 		fileMenu.add(new Separator());
-		
 		fileMenu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
 		fileMenu.add(new Separator());
 		fileMenu.add(new GroupMarker(IWorkbenchActionConstants.FILE_END));

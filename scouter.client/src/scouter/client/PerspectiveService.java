@@ -50,7 +50,8 @@ public class PerspectiveService implements IPerspectiveFactory  {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
 		
-		String objType = PManager.getInstance().getString(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_WAS);
+		String host = PManager.getInstance().getString(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_HOST);
+    	String objType = PManager.getInstance().getString(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_WAS);
 		
 		Server server = ServerManager.getInstance().getDefaultServer();
 		int serverId = 0;
@@ -70,16 +71,23 @@ public class PerspectiveService implements IPerspectiveFactory  {
 		eqLayout.addPlaceholder(AlertView.ID);
 		eqLayout.addPlaceholder(EQView.ID + ":*");
 		eqLayout.addView(EQView.ID + ":" + serverId +"&"+ objType); // 1
+
+		IFolderLayout cpuLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_CPU, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_ALERT);
+		cpuLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + host + "&" + CounterConstants.HOST_CPU);
+
 		
 		IFolderLayout upResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_TOP, IPageLayout.LEFT, 0.3f, editorArea);
-		upResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.JAVA_HEAP_USED);
+		upResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.WAS_RECENT_USER);
 		
-		IFolderLayout midResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_MIDDLE, IPageLayout.BOTTOM, 0.33f, IConstants.LAYOUT_WASSERVICE_LEFT_TOP);
+		IFolderLayout midResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_MID1, IPageLayout.BOTTOM, 0.25f, IConstants.LAYOUT_WASSERVICE_LEFT_TOP);
 		midResLayout.addView(CounterRealTimeTotalView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.WAS_TPS);
 
-		IFolderLayout downResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_BOTTOM, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_LEFT_MIDDLE);
-		downResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.WAS_ELAPSED_TIME);
+		IFolderLayout mid2ResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_MID2, IPageLayout.BOTTOM, 0.33f, IConstants.LAYOUT_WASSERVICE_LEFT_MID1);
+		mid2ResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.WAS_ELAPSED_TIME);
 		
+		IFolderLayout downResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_BOTTOM, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_LEFT_MID2);
+		downResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.JAVA_HEAP_USED);
+
 		IFolderLayout xlogTopLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_CENTER_TOP, IPageLayout.LEFT, 1f, editorArea);
 		xlogTopLayout.addView(XLogRealTimeView.ID + ":" + serverId + "&" + objType);
 		

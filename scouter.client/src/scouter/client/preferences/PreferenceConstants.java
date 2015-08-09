@@ -25,6 +25,7 @@ public class PreferenceConstants {
 	public static final String P_SVR_DIVIDER         = ",";
 	
 	
+	public static final String P_PERS_WAS_SERV_DEFAULT_HOST = "wasServiceDefaultHost";
 	public static final String P_PERS_WAS_SERV_DEFAULT_WAS  = "wasServiceDefaultWAS";
 	public static final String P_PERS_WAS_SERV_DEFAULT_DB  = "wasServiceDefaultDB";
 	
