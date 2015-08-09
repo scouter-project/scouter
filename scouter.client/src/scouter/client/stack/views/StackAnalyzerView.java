@@ -25,12 +25,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
-import scouter.client.popup.TimeRangeDialog;
 import scouter.client.stack.actions.MainFrameAction;
 import scouter.client.stack.base.MainFrame;
 import scouter.client.util.ImageUtil;
-import scouter.client.xlog.views.XLogLoadTimeView;
-import scouter.util.DateUtil;
 
 public class StackAnalyzerView extends ViewPart {
 	
@@ -55,13 +52,6 @@ public class StackAnalyzerView extends ViewPart {
 				new MainFrameAction("Select Parser Configuration").start();
 			}
 		});
-
-		man.add(new Action("capture thread dump", ImageUtil.getImageDescriptor(Images.capture)) {
-			public void run() {
-				new MainFrameAction("JMX Thread Dump...").start();
-			}
-		});
-		
 		
 		Composite swtAwtComponent = new Composite(parent, SWT.EMBEDDED);
 		java.awt.Frame baseFrame = SWT_AWT.new_Frame( swtAwtComponent );
