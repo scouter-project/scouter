@@ -11,7 +11,7 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package scouter.client.stack.views;
@@ -28,6 +28,7 @@ import scouter.client.Images;
 import scouter.client.stack.actions.MainFrameAction;
 import scouter.client.stack.base.MainFrame;
 import scouter.client.util.ImageUtil;
+import scouter.util.SystemUtil;
 
 public class StackAnalyzerView extends ViewPart {
 	
@@ -54,6 +55,9 @@ public class StackAnalyzerView extends ViewPart {
 		});
 		
 		Composite swtAwtComponent = new Composite(parent, SWT.EMBEDDED);
+		if (SystemUtil.IS_MAC_OSX) {
+			SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
+		}
 		java.awt.Frame baseFrame = SWT_AWT.new_Frame( swtAwtComponent );
 		MainFrame frame = MainFrame.instance(true);
 		frame.init();
