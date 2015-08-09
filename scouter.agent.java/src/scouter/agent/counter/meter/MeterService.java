@@ -18,11 +18,8 @@ package scouter.agent.counter.meter;
 
 import scouter.lang.ref.INT;
 import scouter.lang.ref.LONG;
-import scouter.util.IntBoundList;
 import scouter.util.MeteringUtil;
-import scouter.util.SortUtil;
 import scouter.util.MeteringUtil.Handler;
-import scouter.util.StringUtil;
 
 public class MeterService {
 	private static MeterService inst = new MeterService();
