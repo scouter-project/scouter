@@ -18,8 +18,11 @@ package scouter.agent.counter.meter;
 
 import scouter.lang.ref.INT;
 import scouter.lang.ref.LONG;
+import scouter.util.IntBoundList;
 import scouter.util.MeteringUtil;
+import scouter.util.SortUtil;
 import scouter.util.MeteringUtil.Handler;
+import scouter.util.StringUtil;
 
 public class MeterService {
 	private static MeterService inst = new MeterService();
@@ -29,9 +32,13 @@ public class MeterService {
 	}
 
 	static class Bucket {
+		final short[] underSec = new short[10];
+		final short[] overSec = new short[20];
+
 		int count;
-		int error;
 		long time;
+
+		int error;
 	}
 
 	private MeteringUtil<Bucket> meter = new MeteringUtil<Bucket>() {
@@ -43,15 +50,31 @@ public class MeterService {
 			o.count = 0;
 			o.error = 0;
 			o.time = 0L;
+			for (int i = 0; i < 10; i++) {
+				o.underSec[i] = 0;
+				o.overSec[i] = 0;
+			}
+			for (int i = 10; i < 20; i++) {
+				o.overSec[i] = 0;
+			}
 		}
 	};
 
-	public synchronized void add(long elapsed, boolean err) {
+	public synchronized void add(int elapsed, boolean err) {
 		Bucket b = meter.getCurrentBucket();
 		b.count++;
 		b.time += elapsed;
-		if (err)
+		if (err) {
 			b.error++;
+		}
+		if (elapsed < 1000) {
+			int x = (int) (elapsed / 100);
+			b.underSec[x]++;
+		} else if (elapsed < 20000) {
+			int x = (int) (elapsed / 1000);
+			b.overSec[x]++;
+		}
+
 	}
 
 	public float getTPS(int period) {
@@ -72,6 +95,40 @@ public class MeterService {
 				sum.value += b.time;
 				cnt.value += b.count;
 
+			}
+		});
+		return (int) ((cnt.value == 0) ? 0 : sum.value / cnt.value);
+	}
+
+	public int getReponse90Pct(int period) {
+		final LONG sum = new LONG();
+		final INT cnt = new INT();
+		meter.search(period, new Handler<MeterService.Bucket>() {
+			public void process(Bucket b) {
+				int total = (int) (b.count * 0.9);
+				if (total == 0)
+					return;
+
+				for (int i = 0; i < 10; i++) {
+					if (total >= b.underSec[i]) {
+						total -= b.underSec[i];
+					} else {
+						sum.value += i * 100;
+						cnt.value++;
+						return;
+					}
+				}
+				for (int i = 1; i < 20; i++) {
+					if (total >= b.overSec[i]) {
+						total -= b.overSec[i];
+					} else {
+						sum.value += i * 1000;
+						cnt.value++;
+						return;
+					}
+				}
+				sum.value += 20000;
+				cnt.value++;
 			}
 		});
 		return (int) ((cnt.value == 0) ? 0 : sum.value / cnt.value);

@@ -49,6 +49,7 @@ tagcnt : TagCount
 			<Counter name="ErrorRate" disp="Error Rate" unit="%" icon="rate.png" />
 			<Counter name="HeapUsed" disp="Heap Used" unit="MB" icon="memory.png" total="false"/>
 			<Counter name="ElapsedTime" disp="Elapsed Time" unit="ms" icon="time.png" />
+			<Counter name="Elapsed90%" disp="Elapsed 90%" unit="ms" icon="time.png" />
 			<Counter name="ActiveService" disp="Active Service" unit="cnt" icon="act_service.png" />
 			<Counter name="GcTime" disp="GC Time" unit="ms" icon="gc.png" />
 			<Counter name="TPS" disp="TPS" unit="tps" 	icon="transaction.png" />
