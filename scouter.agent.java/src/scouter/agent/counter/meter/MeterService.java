@@ -28,10 +28,12 @@ public class MeterService {
 		return inst;
 	}
 
-	static class Bucket {
-		final short[] underSec = new short[10];
-		final short[] overSec = new short[20];
+	final static int PCT_MAX_TIME = 10000;
+	final static int PCT_UNIT_TIME = 200;
+	final static int PCT_BUCKET = PCT_MAX_TIME / PCT_UNIT_TIME;
 
+	final static class Bucket {
+		final short[] pct90 = new short[PCT_BUCKET];
 		int count;
 		long time;
 
@@ -47,12 +49,8 @@ public class MeterService {
 			o.count = 0;
 			o.error = 0;
 			o.time = 0L;
-			for (int i = 0; i < 10; i++) {
-				o.underSec[i] = 0;
-				o.overSec[i] = 0;
-			}
-			for (int i = 10; i < 20; i++) {
-				o.overSec[i] = 0;
+			for (int i = 0; i < PCT_BUCKET; i++) {
+				o.pct90[i] = 0;
 			}
 		}
 	};
@@ -64,12 +62,9 @@ public class MeterService {
 		if (err) {
 			b.error++;
 		}
-		if (elapsed < 1000) {
-			int x = (int) (elapsed / 100);
-			b.underSec[x]++;
-		} else if (elapsed < 20000) {
-			int x = (int) (elapsed / 1000);
-			b.overSec[x]++;
+		if (elapsed < PCT_MAX_TIME) {
+			int x = (int) (elapsed / PCT_UNIT_TIME);
+			b.pct90[x]++;
 		}
 
 	}
@@ -97,7 +92,7 @@ public class MeterService {
 		return (int) ((cnt.value == 0) ? 0 : sum.value / cnt.value);
 	}
 
-	public int getReponse90Pct(int period) {
+	public int getElapsed90Pct(int period) {
 		final LONG sum = new LONG();
 		final INT cnt = new INT();
 		meter.search(period, new Handler<MeterService.Bucket>() {
@@ -106,25 +101,16 @@ public class MeterService {
 				if (total == 0)
 					return;
 
-				for (int i = 0; i < 10; i++) {
-					if (total >= b.underSec[i]) {
-						total -= b.underSec[i];
+				for (int timeInx = 0; timeInx < PCT_BUCKET; timeInx++) {
+					if (total >= b.pct90[timeInx]) {
+						total -= b.pct90[timeInx];
 					} else {
-						sum.value += i * 100;
+						sum.value += timeInx * PCT_UNIT_TIME;
 						cnt.value++;
 						return;
 					}
 				}
-				for (int i = 1; i < 20; i++) {
-					if (total >= b.overSec[i]) {
-						total -= b.overSec[i];
-					} else {
-						sum.value += i * 1000;
-						cnt.value++;
-						return;
-					}
-				}
-				sum.value += 20000;
+				sum.value += PCT_MAX_TIME;
 				cnt.value++;
 			}
 		});

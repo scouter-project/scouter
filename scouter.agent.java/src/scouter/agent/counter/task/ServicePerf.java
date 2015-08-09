@@ -42,7 +42,7 @@ public class ServicePerf {
 		float tps = service.getTPS(30);
 		float err = service.getError(30);
 		int count = service.getServiceCount(60);
-		int resp90pct = service.getReponse90Pct(30);
+		int resp90pct = service.getElapsed90Pct(30);
 		
 		int[] act = TraceContextManager.getActiveCount();
 		int active = act[0] + act[1] + act[2];
@@ -76,7 +76,7 @@ public class ServicePerf {
 		elapsed = service.getElapsedTime(300);
 		err = service.getError(300);
 		int activeSErvice = (int) activeCounter.getAvg(300);
-		resp90pct = service.getReponse90Pct(300);
+		resp90pct = service.getElapsed90Pct(300);
 		
 		p = pw.getPack(TimeTypeEnum.FIVE_MIN);
 		p.put(CounterConstants.WAS_ELAPSED_TIME, new DecimalValue(elapsed));
