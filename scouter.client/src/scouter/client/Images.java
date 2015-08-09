@@ -88,6 +88,8 @@ public class Images {
 	public static final Image explorer = Activator.getImage("icons/explorer.png");
 	public static final Image heap = Activator.getImage("icons/heap.png");
 	
+	public static final Image capture = Activator.getImage("icons/capture.png");
+	
 	public static final Image server_delete = Activator.getImage("icons/server_delete.png");
 	
 	public static final Image close_folder = Activator.getImage("icons/close_folder.png");
