@@ -30,6 +30,7 @@ import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.util.ArrayUtil;
+import scouter.util.HashUtil;
 import scouter.util.IPUtil;
 import scouter.util.KeyGen;
 import scouter.util.ObjectUtil;
@@ -294,6 +295,15 @@ public class TraceMain {
 			pack.apicallCount = ctx.apicall_count;
 			pack.apicallTime = ctx.apicall_time;
 			pack.caller = ctx.caller;
+			
+			if(ctx.login!=null){
+			    pack.login = HashUtil.hash(ctx.login);
+			    DataProxy.sendLogin(pack.login, ctx.login);
+			}
+			if(ctx.bizcode!=null){
+			    pack.biz = HashUtil.hash(ctx.bizcode);
+			    DataProxy.sendBizCode(pack.biz, ctx.bizcode);
+			}
 			metering(pack);
 			HttpServiceTracePlugIn.end(ctx, pack);
 			if (sendOk) {
@@ -385,8 +395,6 @@ public class TraceMain {
 			} else if (thr != null) {
 				Configure conf = Configure.getInstance();
 				String emsg = thr.toString();
-				// AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_EXCEPTION",
-				// emsg);
 				if (conf.profile_fullstack_service_error) {
 					StringBuffer sb = new StringBuffer();
 					sb.append(emsg).append("\n");
@@ -406,7 +414,16 @@ public class TraceMain {
 			// 2015.02.02
 			pack.apicallCount = ctx.apicall_count;
 			pack.apicallTime = ctx.apicall_time;
-			// pack.divPerf = o.divPerf;
+			
+			if(ctx.login!=null){
+			    pack.login = HashUtil.hash(ctx.login);
+			    DataProxy.sendLogin(pack.login, ctx.login);
+			}
+			if(ctx.bizcode!=null){
+			    pack.biz = HashUtil.hash(ctx.bizcode);
+			    DataProxy.sendBizCode(pack.biz, ctx.bizcode);
+			}
+			
 			ServiceTracePlugIn.end(ctx, pack);
 			metering(pack);
 			if (sendOk) {

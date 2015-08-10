@@ -48,6 +48,7 @@ public class CounterConstants {
 	public final static String WAS_TPS = "TPS";
 	public final static String WAS_ACTIVE_SPEED = "ActiveSpeed";
 	public final static String WAS_ELAPSED_TIME = "ElapsedTime";
+	public final static String WAS_ELAPSED_90PCT = "Elapsed90%";
 	public final static String WAS_SERVICE_COUNT = "ServiceCount";
 	public final static String WAS_ERROR_RATE = "ErrorRate";
 	public final static String WAS_ACTIVE_SERVICE = "ActiveService";

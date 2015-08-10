@@ -52,7 +52,10 @@ public class XLogPack implements Pack {
 	public int city;
 	public byte xType; //see XLogTypes
 	
-	public String toString() {
+	public int login;
+	public int biz;
+	
+	public String toString() {	
 		StringBuilder sb = new StringBuilder();
 		sb.append("XLOG ");
 		sb.append(DateUtil.timestamp(endTime));
@@ -98,6 +101,9 @@ public class XLogPack implements Pack {
 		o.writeDecimal(city);
 		o.writeDecimal(xType);
 		
+		o.writeDecimal(login);
+		o.writeDecimal(biz);
+		
 		out.writeBlob(o.toByteArray());
 	}
 
@@ -131,6 +137,10 @@ public class XLogPack implements Pack {
 		}
 		if (d.available() > 0) {
 			this.xType=d.readByte();
+		}
+		if (d.available() > 0) {
+			this.login=(int)d.readDecimal();
+			this.biz=(int)d.readDecimal();
 		}
 		return this;
 	}

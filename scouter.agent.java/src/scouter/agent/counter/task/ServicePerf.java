@@ -38,28 +38,29 @@ public class ServicePerf {
 	public void getServicePerf(CounterBasket pw) {
 		Configure conf = Configure.getInstance();
 		MeterService service = MeterService.getInstance();
-		float elapsed = service.getElapsedTime(30);
+		int elapsed = service.getElapsedTime(30);
 		float tps = service.getTPS(30);
 		float err = service.getError(30);
 		int count = service.getServiceCount(60);
-
+		int resp90pct = service.getElapsed90Pct(30);
+		
 		int[] act = TraceContextManager.getActiveCount();
 		int active = act[0] + act[1] + act[2];
 		if (conf.auto_dump_trigger <= active) {
 			DumpUtil.autoDump();
 		}
-		
 		activeCounter.add(active);
 
 		// active service 30초 평균으로 변경 
 		active = (int) Math.round(activeCounter.getAvg(30));
 
 		PerfCounterPack p = pw.getPack(TimeTypeEnum.REALTIME);
-		p.put(CounterConstants.WAS_ELAPSED_TIME, new FloatValue(elapsed));
+		p.put(CounterConstants.WAS_ELAPSED_TIME, new DecimalValue(elapsed));
 		p.put(CounterConstants.WAS_SERVICE_COUNT, new DecimalValue(count));
 		p.put(CounterConstants.WAS_TPS, new FloatValue(tps));
 		p.put(CounterConstants.WAS_ERROR_RATE, new FloatValue(err));
 		p.put(CounterConstants.WAS_ACTIVE_SERVICE, new DecimalValue(active));
+		p.put(CounterConstants.WAS_ELAPSED_90PCT, new DecimalValue(resp90pct));
 
 		ListValue activeSpeed = new ListValue();
 		activeSpeed.add(act[0]);
@@ -75,13 +76,15 @@ public class ServicePerf {
 		elapsed = service.getElapsedTime(300);
 		err = service.getError(300);
 		int activeSErvice = (int) activeCounter.getAvg(300);
-
+		resp90pct = service.getElapsed90Pct(300);
+		
 		p = pw.getPack(TimeTypeEnum.FIVE_MIN);
-		p.put(CounterConstants.WAS_ELAPSED_TIME, new FloatValue(elapsed));
+		p.put(CounterConstants.WAS_ELAPSED_TIME, new DecimalValue(elapsed));
 		p.put(CounterConstants.WAS_SERVICE_COUNT, new DecimalValue(count));
 		p.put(CounterConstants.WAS_TPS, new FloatValue(tps));
 		p.put(CounterConstants.WAS_ERROR_RATE, new FloatValue(err));
 		p.put(CounterConstants.WAS_ACTIVE_SERVICE, new DecimalValue(activeSErvice));
+		p.put(CounterConstants.WAS_ELAPSED_90PCT, new DecimalValue(resp90pct));
 	}
 
 }

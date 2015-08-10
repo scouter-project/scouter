@@ -42,6 +42,7 @@ public class CounterUtil {
 	static {
 		counterAvgSet.add(CounterConstants.WAS_ERROR_RATE); 
 		counterAvgSet.add(CounterConstants.WAS_ELAPSED_TIME);
+		counterAvgSet.add(CounterConstants.WAS_ELAPSED_90PCT);
 	}
 	
 	public static String getTotalMode(String objType, String counter) {
