@@ -195,7 +195,9 @@ public class TraceSQL {
 		if (parsed.hashCode() == sqlHash) {
 			noLiteralSql.put(sqlHash);
 		} else {
-			checkedSql.put(sqlHash, new ParsedSql(parsed, els.getParameter()));
+			psql=new ParsedSql(parsed, els.getParameter());
+			checkedSql.put(sqlHash, psql);
+			step.param = psql.param;
 		}
 		return parsed;
 	}
