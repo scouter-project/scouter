@@ -83,6 +83,9 @@ public class TraceContext {
 	public boolean is_child_tx;
 	public long caller;
 	public long callee;
+	
+	public String login;
+	public String bizcode;
 
 
 

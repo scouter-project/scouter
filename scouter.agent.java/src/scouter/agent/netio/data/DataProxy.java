@@ -38,7 +38,7 @@ import scouter.lang.value.MapValue;
 import scouter.util.IntLinkedSet;
 
 public class DataProxy {
-	 private static UDPDataSendThread udpCollect = UDPDataSendThread.getInstance();
+	private static UDPDataSendThread udpCollect = UDPDataSendThread.getInstance();
 
 	private static IntLinkedSet sqlText = new IntLinkedSet().setMax(10000);
 
@@ -49,7 +49,7 @@ public class DataProxy {
 		sqlText.put(hash);
 		// udp.add(new TextPack(TextTypes.SQL, hash, sql));
 		sendDirect(new TextPack(TextTypes.SQL, hash, sql));
-	} 
+	}
 
 	private static IntLinkedSet serviceName = new IntLinkedSet().setMax(10000);
 
@@ -92,13 +92,13 @@ public class DataProxy {
 		udpCollect.add(new TextPack(TextTypes.METHOD, hash, name));
 	}
 
-	private static IntLinkedSet subcall = new IntLinkedSet().setMax(10000);
+	private static IntLinkedSet apicall = new IntLinkedSet().setMax(10000);
 
 	public static void sendApicall(int hash, String name) {
-		if (subcall.contains(hash)) {
+		if (apicall.contains(hash)) {
 			return;
 		}
-		subcall.put(hash);
+		apicall.put(hash);
 		udpCollect.add(new TextPack(TextTypes.APICALL, hash, name));
 	}
 
@@ -128,10 +128,30 @@ public class DataProxy {
 		udpCollect.add(new TextPack(TextTypes.ERROR, hash, message));
 	}
 
+	private static IntLinkedSet bizTable = new IntLinkedSet().setMax(1000);
+
+	public static void sendBizCode(int hash, String bizcode) {
+		if (bizTable.contains(hash)) {
+			return;
+		}
+		bizTable.put(hash);
+		udpCollect.add(new TextPack(TextTypes.BIZCODE, hash, bizcode));
+	}
+
+	private static IntLinkedSet loginTable = new IntLinkedSet().setMax(10000);
+
+	public static void sendLogin(int login, String loginName) {
+		if (loginTable.contains(login)) {
+			return;
+		}
+		loginTable.put(login);
+		udpCollect.add(new TextPack(TextTypes.LOGIN, login, loginName));
+	}
+
 	public static void reset() {
 		serviceName.clear();
 		errText.clear();
-		subcall.clear();
+		apicall.clear();
 		methodName.clear();
 		sqlText.clear();
 	}
@@ -173,8 +193,8 @@ public class DataProxy {
 		pk.txid = x.txid;
 		pk.objHash = conf.objHash;
 		pk.profile = Step.toBytes(p);
-		pk.service=x.serviceHash;
-		pk.elapsed=(int)(System.currentTimeMillis()-x.startTime);
+		pk.service = x.serviceHash;
+		pk.elapsed = (int) (System.currentTimeMillis() - x.startTime);
 		sendDirect(pk);
 	}
 
