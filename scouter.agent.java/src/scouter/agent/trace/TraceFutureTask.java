@@ -18,7 +18,6 @@ package scouter.agent.trace;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.ThreadSubmitStep;
-import scouter.util.HashUtil;
 import scouter.util.KeyGen;
 import scouter.util.SysJMX;
 
@@ -26,22 +25,22 @@ public class TraceFutureTask {
 	public static String CTX_FIELD = "_context_";
 
 	public static TraceContext getContext() {
-		TraceContext o= TraceContextManager.getLocalContext();
+		TraceContext o = TraceContextManager.getLocalContext();
 		return o;
 	}
 
-  private static int futureTaskHash;	
-   static{
-	   futureTaskHash=HashUtil.hash("FutureTask");
-	   DataProxy.sendMethodName(futureTaskHash, "FutureTask");
-   }
+	private static int futureTaskHash;
+	static {
+		futureTaskHash = DataProxy.sendMethodName("FutureTask");
+	}
+
 	public static Object start(Object callable, TraceContext o) {
-		if (o == null){
+		if (o == null) {
 			return null;
 		}
-		
-		o=o.createChild();
-     
+
+		o = o.createChild();
+
 		ThreadSubmitStep step = new ThreadSubmitStep();
 		step.start_time = (int) (System.currentTimeMillis() - o.parent.startTime);
 		if (o.parent.profile_thread_cputime) {
@@ -49,23 +48,22 @@ public class TraceFutureTask {
 		}
 		// /////
 		String name = Thread.currentThread().getName();
-		step.hash = HashUtil.hash(name);
-		DataProxy.sendApicall(step.hash, name);
+		step.hash = DataProxy.sendApicall(name);
 		// /////
-		o.txid=KeyGen.next();
+		o.txid = KeyGen.next();
 		o.thread = Thread.currentThread();
 		o.threadId = TraceContextManager.start(o.thread, o);
 		//
-    	MethodStep ms = new MethodStep();
-    	ms.hash=futureTaskHash;
-    	ms.start_time = (int) (System.currentTimeMillis() - o.startTime);
-    	if (o.profile_thread_cputime) {
-    		ms.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - o.startCpu);
-    	}
-    	o.profile.push(ms);
-		step.txid=o.txid;
-		
-		return new LocalContext(o,step,ms);
+		MethodStep ms = new MethodStep();
+		ms.hash = futureTaskHash;
+		ms.start_time = (int) (System.currentTimeMillis() - o.startTime);
+		if (o.profile_thread_cputime) {
+			ms.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - o.startCpu);
+		}
+		o.profile.push(ms);
+		step.txid = o.txid;
+
+		return new LocalContext(o, step, ms);
 	}
 
 	public static void end(Object stat, Throwable t) {
@@ -74,12 +72,12 @@ public class TraceFutureTask {
 		try {
 			LocalContext localCtx = (LocalContext) stat;
 			TraceContext ctx = localCtx.context;
-			MethodStep ms = (MethodStep)localCtx.option;
+			MethodStep ms = (MethodStep) localCtx.option;
 			ms.elapsed = (int) (System.currentTimeMillis() - ctx.startTime) - ms.start_time;
 			if (ctx.profile_thread_cputime) {
 				ms.cputime = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu) - ms.start_cpu;
 			}
-	    	ctx.profile.pop(ms);
+			ctx.profile.pop(ms);
 			ctx.profile.close(true);
 			TraceContextManager.end(ctx.threadId);
 
@@ -89,24 +87,24 @@ public class TraceFutureTask {
 
 			ThreadSubmitStep threadSubmitStep = (ThreadSubmitStep) localCtx.stepSingle;
 
-			threadSubmitStep.elapsed = (int) (System.currentTimeMillis() - parentCtx.startTime) - threadSubmitStep.start_time;
+			threadSubmitStep.elapsed = (int) (System.currentTimeMillis() - parentCtx.startTime)
+					- threadSubmitStep.start_time;
 			if (parentCtx.profile_thread_cputime) {
-				threadSubmitStep.cputime = (int) (SysJMX.getCurrentThreadCPU() - parentCtx.startCpu) - threadSubmitStep.start_cpu;
+				threadSubmitStep.cputime = (int) (SysJMX.getCurrentThreadCPU() - parentCtx.startCpu)
+						- threadSubmitStep.start_cpu;
 			}
 
 			if (t != null) {
 				String msg = t.toString();
-				int hash = StringHashCache.getErrHash(msg);
+				int hash = DataProxy.sendError(msg);
 
 				if (parentCtx.error == 0) {
 					parentCtx.error = hash;
 				}
-				threadSubmitStep.error=hash;
-				DataProxy.sendError(hash, msg);
+				threadSubmitStep.error = hash;
+
 			}
-		
-			
-	    	
+
 			parentCtx.profile.add(threadSubmitStep);
 			parentCtx.closeChild(ctx);
 

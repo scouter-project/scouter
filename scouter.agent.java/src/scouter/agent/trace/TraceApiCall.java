@@ -115,8 +115,7 @@ public class TraceApiCall {
 			if (step.address == null) {
 				step.address = tctx.apicall_target;
 			}
-			step.hash = HashUtil.hash(tctx.apicall_name);
-			DataProxy.sendApicall(step.hash, tctx.apicall_name);
+			step.hash = 	DataProxy.sendApicall( tctx.apicall_name);
 			tctx.apicall_name = null;
 			tctx.apicall_target = null;
 			step.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
@@ -144,12 +143,11 @@ public class TraceApiCall {
 						msg = sb.toString();
 					
 				}
-				int hash = HashUtil.hash(msg);
+				step.error = DataProxy.sendError( msg);
 				if (tctx.error == 0) {
-					tctx.error = hash;
+					tctx.error = step.error;
 				}
-				step.error = hash;
-				DataProxy.sendError(hash, msg);
+				
 			}
 			tctx.profile.pop(step);
 		} catch (Throwable t) {
@@ -202,12 +200,11 @@ public class TraceApiCall {
 			step.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
 			if (thr != null) {
 				String msg = thr.toString();
-				int hash = HashUtil.hash(msg);
+				step.error = DataProxy.sendError( msg);
 				if (tctx.error == 0) {
-					tctx.error = hash;
+					tctx.error = step.error;
 				}
-				step.error = hash;
-				DataProxy.sendError(hash, msg);
+				
 				AlertProxy.sendAlert(AlertLevel.WARN, "SOCKET_EXCEPTION", msg);
 			}
 			tctx.profile.add(step);

@@ -126,8 +126,7 @@ public class TraceSQL {
 		step.param = c.sql.toString(step.param);
 
 		if (sql != null) {
-			step.hash = StringHashCache.getSqlHash(sql);
-			DataProxy.sendSqlText(step.hash, sql);
+			step.hash = DataProxy.sendSqlText(sql);
 		}
 
 		c.profile.push(step);
@@ -155,8 +154,7 @@ public class TraceSQL {
 		} else {
 			sql = escapeLiteral(sql, step);
 		}
-		step.hash = StringHashCache.getSqlHash(sql);
-		DataProxy.sendSqlText(step.hash, sql);
+		step.hash = DataProxy.sendSqlText(sql);
 
 		ctx.profile.push(step);
 		ctx.sqltext = sql;
@@ -195,7 +193,7 @@ public class TraceSQL {
 		if (parsed.hashCode() == sqlHash) {
 			noLiteralSql.put(sqlHash);
 		} else {
-			psql=new ParsedSql(parsed, els.getParameter());
+			psql = new ParsedSql(parsed, els.getParameter());
 			checkedSql.put(sqlHash, psql);
 			step.param = psql.param;
 		}
@@ -219,23 +217,20 @@ public class TraceSQL {
 		}
 		if (thr != null) {
 			String msg = thr.toString();
-			int hash = StringHashCache.getErrHash(msg);
+			int hash = DataProxy.sendError(msg);
 			if (tctx.error == 0) {
 				tctx.error = hash;
 			}
-
 			ps.error = hash;
-			DataProxy.sendError(hash, msg);
+
 			AlertProxy.sendAlert(AlertLevel.ERROR, "SQL_EXCEPTION", msg);
 
 		} else if (ps.elapsed > conf.alert_sql_time) {
 			String msg = "warning slow sql, over " + conf.alert_sql_time + " ms";
-			int hash = StringHashCache.getErrHash(msg);
-
+			int hash = DataProxy.sendError(msg);
 			if (tctx.error == 0) {
 				tctx.error = hash;
 			}
-			DataProxy.sendError(hash, msg);
 			AlertProxy.sendAlertSlowSql(AlertLevel.WARN, "SLOW_SQL", msg, tctx.sqltext, ps.elapsed, tctx.txid);
 		}
 
@@ -288,11 +283,10 @@ public class TraceSQL {
 		if (c.rs_count > conf.alert_fetch_count) {
 
 			String msg = "warning too many resultset, over #" + conf.alert_fetch_count;
-			int hash = StringHashCache.getErrHash(msg);
+			int hash = DataProxy.sendError(msg);
 			if (c.error == 0) {
 				c.error = hash;
 			}
-			DataProxy.sendError(hash, msg);
 			AlertProxy
 					.sendAlertTooManyFetch(AlertLevel.WARN, "TOO_MANY_RESULT", msg, c.serviceName, c.rs_count, c.txid);
 		}
@@ -397,8 +391,7 @@ public class TraceSQL {
 			step.param = args.toString(step.param);
 		}
 		if (sql != null) {
-			step.hash = StringHashCache.getSqlHash(sql);
-			DataProxy.sendSqlText(step.hash, sql);
+			step.hash = DataProxy.sendSqlText(sql);
 		}
 
 		ctx.profile.push(step);
@@ -421,8 +414,7 @@ public class TraceSQL {
 	 */
 	public static Object startCreateDBC(String url) {
 		String name = "CREATE-DBC " + url;
-		int hash = StringHashCache.getErrHash(name);
-		DataProxy.sendMethodName(hash, name);
+		int hash = DataProxy.sendMethodName(name);
 		return TraceSQL.dbcOpenStart(hash, name, null);
 	}
 
@@ -456,8 +448,7 @@ public class TraceSQL {
 
 		DBURL dbUrl = getUrl(pool);
 		if (dbUrl != unknown) {
-			hash = dbUrl.hash;
-			DataProxy.sendMethodName(hash, dbUrl.url);
+			hash = DataProxy.sendMethodName(dbUrl.url);
 		}
 
 		p.hash = hash;
@@ -568,11 +559,11 @@ public class TraceSQL {
 
 		if (thr != null) {
 			String msg = thr.toString();
-			int hash = StringHashCache.getSqlHash(msg);
+			int hash = DataProxy.sendError(msg);
 			if (tctx.error == 0) {
 				tctx.error = hash;
 			}
-			DataProxy.sendError(hash, msg);
+
 			AlertProxy.sendAlert(AlertLevel.ERROR, "OPEN-DBC", msg);
 		}
 		tctx.profile.pop(step);
