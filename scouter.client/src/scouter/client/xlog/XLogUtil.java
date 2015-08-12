@@ -55,6 +55,7 @@ public class XLogUtil {
 		for (int i = 0; i < p.length; i++) {
 			switch (p[i].getStepType()) {
 			case StepEnum.SQL:
+			case StepEnum.SQL2:
 				if (TextProxy.sql.getText(((SqlStep) p[i]).hash) == null) {
 					sqlSet.add(((SqlStep) p[i]).hash);
 				}
@@ -116,6 +117,7 @@ public class XLogUtil {
 	public static int getStepElaspedTime(Step p) {
 		switch (p.getStepType()) {
 		case StepEnum.SQL:
+		case StepEnum.SQL2:
 			SqlStep ss = (SqlStep) p;
 			return ss.elapsed;
 		case StepEnum.SOCKET:
@@ -142,6 +144,8 @@ public class XLogUtil {
 			return "MSG";
 		case StepEnum.SQL:
 			return "SQL";
+		case StepEnum.SQL2:
+			return "SQL2";
 		case StepEnum.SOCKET:
 			return "SCK";
 		case StepEnum.APICALL:
@@ -368,6 +372,7 @@ public class XLogUtil {
 				toString(sb, (MethodStep) stepSingle);
 				break;
 			case StepEnum.SQL:
+			case StepEnum.SQL2:
 				SqlStep sql = (SqlStep) stepSingle;
 				toString(sb, sql, serverId);
 				if (sql.error != 0) {

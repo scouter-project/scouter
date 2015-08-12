@@ -73,7 +73,7 @@ public class HttpTrace implements IHttpTrace {
 	public void start(TraceContext ctx, Object req, Object res) {
 		Configure conf = Configure.getInstance();
 		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
+		HttpServletResponse response = (HttpServletResponse) res;		
 
 		ctx.serviceName = getRequestURI(request);
 

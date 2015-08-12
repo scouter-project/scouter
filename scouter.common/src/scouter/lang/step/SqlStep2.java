@@ -14,13 +14,30 @@
  *  limitations under the License. 
  */
 
-package scouter.agent.plugin;
+package scouter.lang.step;
 
-import scouter.agent.trace.TraceContext;
-import scouter.lang.pack.XLogPack;
+import java.io.IOException;
 
-public interface IHttpService {
-    public void start(TraceContext ctx, RequestWrapper req, ResponseWrapper res);
-    public void end(TraceContext ctx, XLogPack p);
-    public boolean reject(TraceContext ctx, RequestWrapper req, ResponseWrapper res);
+import scouter.io.DataInputX;
+import scouter.io.DataOutputX;
+
+public class SqlStep2 extends SqlStep {
+
+	public byte xtype;
+
+	public byte getStepType() {
+		return StepEnum.SQL2;
+	}
+
+	public void write(DataOutputX out) throws IOException {
+		super.write(out);
+		out.writeByte(xtype);
+	}
+
+	public Step read(DataInputX in) throws IOException {
+		super.read(in);
+		this.xtype = in.readByte();
+		return this;
+	}
+
 }

@@ -18,7 +18,6 @@ package scouter.agent.trace;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
-import java.sql.Statement;
 
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -26,10 +25,10 @@ import scouter.agent.netio.data.DataProxy;
 import scouter.jdbc.DetectConnection;
 import scouter.jdbc.JdbcTrace;
 import scouter.lang.AlertLevel;
-import scouter.lang.ref.INT;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
-import scouter.lang.step.SqlStep;
+import scouter.lang.step.SqlStep2;
+import scouter.lang.step.SqlXType;
 import scouter.util.EscapeLiteralSQL;
 import scouter.util.HashUtil;
 import scouter.util.IntKeyLinkedMap;
@@ -108,31 +107,32 @@ public class TraceSQL {
 	}
 
 	public static Object start(Object o) {
-		TraceContext c = TraceContextManager.getLocalContext();
-		if (c == null) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null) {
 			return null;
 		}
-		SqlStep step = new SqlStep();
-		step.start_time = (int) (System.currentTimeMillis() - c.startTime);
-		if (c.profile_thread_cputime) {
-			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - c.startCpu);
+		SqlStep2 step = new SqlStep2();
+		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
+		step.xtype=SqlXType.PREPARED;
 
-		c.sqlActiveArgs = c.sql;
+		ctx.sqlActiveArgs = ctx.sql;
 
 		String sql = "unknown";
-		sql = c.sql.getSql();
+		sql = ctx.sql.getSql();
 		sql = escapeLiteral(sql, step);
-		step.param = c.sql.toString(step.param);
+		step.param = ctx.sql.toString(step.param);
 
 		if (sql != null) {
 			step.hash = DataProxy.sendSqlText(sql);
 		}
 
-		c.profile.push(step);
-		c.sqltext = sql;
+		ctx.profile.push(step);
+		ctx.sqltext = sql;
 
-		return new LocalContext(c, step);
+		return new LocalContext(ctx, step);
 	}
 
 	public static Object start(Object o, String sql) {
@@ -143,7 +143,7 @@ public class TraceSQL {
 			}
 			return null;
 		}
-		SqlStep step = new SqlStep();
+		SqlStep2 step = new SqlStep2();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
@@ -155,6 +155,7 @@ public class TraceSQL {
 			sql = escapeLiteral(sql, step);
 		}
 		step.hash = DataProxy.sendSqlText(sql);
+		step.xtype=SqlXType.STMT;
 
 		ctx.profile.push(step);
 		ctx.sqltext = sql;
@@ -175,7 +176,7 @@ public class TraceSQL {
 	private static IntLinkedSet noLiteralSql = new IntLinkedSet().setMax(10000);
 	private static IntKeyLinkedMap<ParsedSql> checkedSql = new IntKeyLinkedMap<ParsedSql>().setMax(1001);
 
-	private static String escapeLiteral(String sql, SqlStep step) {
+	private static String escapeLiteral(String sql, SqlStep2 step) {
 		if (conf.profile_sql_escape == false)
 			return sql;
 		int sqlHash = sql.hashCode();
@@ -209,7 +210,7 @@ public class TraceSQL {
 		}
 		LocalContext lctx = (LocalContext) stat;
 		TraceContext tctx = lctx.context;
-		SqlStep ps = (SqlStep) lctx.stepSingle;
+		SqlStep2 ps = (SqlStep2) lctx.stepSingle;
 
 		ps.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - ps.start_time;
 		if (tctx.profile_thread_cputime) {
@@ -377,7 +378,7 @@ public class TraceSQL {
 			}
 			return null;
 		}
-		SqlStep step = new SqlStep();
+		SqlStep2 step = new SqlStep2();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
@@ -393,6 +394,7 @@ public class TraceSQL {
 		if (sql != null) {
 			step.hash = DataProxy.sendSqlText(sql);
 		}
+		step.xtype=SqlXType.PREPARED;
 
 		ctx.profile.push(step);
 		ctx.sqltext = sql;

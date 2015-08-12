@@ -537,6 +537,7 @@ public class XLogProfilePageView extends ViewPart implements XLogViewWithTable {
 						}
 						break;
 					case StepEnum.SQL:
+					case StepEnum.SQL2:
 						SqlStep sql = (SqlStep) step;
 						
 						m = TextProxy.sql.getText(sql.hash);
@@ -671,6 +672,7 @@ public class XLogProfilePageView extends ViewPart implements XLogViewWithTable {
 				putSummary(summary, (MethodStep)step);
 				break;
 			case StepEnum.SQL:
+			case StepEnum.SQL2:
 				putSummary(summary, (SqlStep)step);
 				break;
 			case StepEnum.MESSAGE:

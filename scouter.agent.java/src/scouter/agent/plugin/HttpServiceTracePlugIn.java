@@ -25,10 +25,10 @@ import scouter.util.CompareUtil;
 import scouter.util.StringUtil;
 public class HttpServiceTracePlugIn {
 	static IHttpService dummy = new IHttpService() {
-		public boolean reject(TraceContext ctx, Object req, Object res) {
+		public boolean reject(TraceContext ctx, RequestWrapper req, ResponseWrapper res) {
 			return false;
 		}
-		public void start(TraceContext ctx, Object req, Object res) {
+		public void start(TraceContext ctx, RequestWrapper req, ResponseWrapper res) {
 		}
 		public void end(TraceContext ctx, XLogPack p) {
 		}
@@ -110,10 +110,10 @@ public class HttpServiceTracePlugIn {
 		return false;
 	}
 	public static boolean reject(TraceContext ctx, Object req, Object res) {
-		return plugIn.reject(ctx, req, res);
+		return plugIn.reject(ctx, new RequestWrapper(req), new ResponseWrapper(res));
 	}
 	public static void start(TraceContext ctx, Object req, Object res) {
-		plugIn.start(ctx, req, res);
+		plugIn.start(ctx, new RequestWrapper(req), new ResponseWrapper(res));
 	}
 	public static void end(TraceContext ctx, XLogPack p) {
 		plugIn.end(ctx, p);
