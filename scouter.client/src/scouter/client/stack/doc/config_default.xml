@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<awacs>
+  <parser stackStartLine="2">BasicFileStackParser</parser>
+  <time size="19" filter=":" position="0">yyyy-MM-dd HH:mm:ss</time>    
+  <workerThread>
+    <list>http-</list>
+  </workerThread>
+  <workingThread status="java.lang.Thread.State:">
+    <list>javax.servlet.http.HttpServlet.service(</list> <!-- Servlet standard -->
+    <list>javax.servlet.jsp.jspPage</list>
+    <list>javax.servlet.jsp.HttpJspPage</list>
+  </workingThread>
+  <service>
+  </service>
+  <sql>
+    <list>devonframework.persistent.autodao.LCommonDao.</list> <!-- devonframework -->
+    <list>com.innoexpert.innorulesj.engine.dr.a.processSQL</list> <!-- InnoRule -->
+    <list>org.hibernate.transaction.JDBCTransaction.</list> <!-- hibernate-->
+    <list>org.hibernate.impl.QueryImpl.</list> <!-- hibernate-->
+    <list>org.springframework.orm.ibatis.SqlMapClientTemplate.</list> <!-- Mybatis -->
+  </sql>
+  <log>
+    <list>org.apache.commons.logging.impl.Log4JLogger</list> <!-- apache Log4J -->
+    <list>fw.core.log.Logger</list>
+  </log>
+  <excludeStack>
+    <list>java.lang.reflect</list>
+    <list>sun.reflect.</list>
+    <list>$Proxy</list>
+  </excludeStack>
+  <singleStack>
+    <list>$Proxy</list>
+    <list>sun.reflect.GeneratedMethodAccessor</list>
+    <list>- waiting</list>
+    <list>- locked</list>
+  </singleStack>
+  <analyze>
+    <analyzeStack name="HTTP Interface" extension="HTP" filter="each" reader="first">
+      <list>.HttpClient.</list>
+    </analyzeStack>
+    <analyzeStack name="Classloader" extension="CLS" filter="each" reader="next">
+      <list>ClassLoader.</list>    
+    </analyzeStack>
+  </analyze>
+</awacs>

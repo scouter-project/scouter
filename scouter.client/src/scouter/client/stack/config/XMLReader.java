@@ -29,6 +29,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class XMLReader {
+	public static final String DEFAULT_XMLCONFIG = "Default";
 	private Document m_xmlDoc = null;
 	private String m_filename = null;
 	
@@ -38,8 +39,12 @@ public class XMLReader {
         	dbf.setValidating(false);
         	dbf.setIgnoringComments(true);
         
-			DocumentBuilder db = dbf.newDocumentBuilder();			
-			m_xmlDoc = db.parse(new File(filename));
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			if(DEFAULT_XMLCONFIG.equals(filename)){
+				m_xmlDoc = db.parse(XMLReader.class.getClassLoader().getResourceAsStream("/scouter/client/stack/doc/config_default.xml"));
+			}else{
+				m_xmlDoc = db.parse(new File(filename));
+			}
 			m_filename = filename;
 		} catch(Exception ex){
 			m_xmlDoc = null;

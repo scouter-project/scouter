@@ -63,8 +63,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+
 import scouter.client.stack.config.ParserConfig;
 import scouter.client.stack.config.ParserConfigReader;
+import scouter.client.stack.config.XMLReader;
 import scouter.client.stack.data.StackAnalyzedInfo;
 import scouter.client.stack.data.StackAnalyzedValueComp;
 import scouter.client.stack.data.StackFileInfo;
@@ -259,9 +263,8 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
         InputStream is = MainFrame.class.getResourceAsStream("/scouter/client/stack/doc/welcome.html");
 
         m_htmlPane = new JEditorPane();
-        String welcomeText = parseWelcomeURL(is);
         m_htmlPane.setContentType("text/html");
-        m_htmlPane.setText(welcomeText);
+        m_htmlPane.setText(parseMainHTML(is));
         m_htmlPane.setEditable(false);
 
         JEditorPane emptyPane = new JEditorPane("text/html", "");
@@ -336,7 +339,7 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
          PreferenceManager.get().flush();
     }
 
-    private String parseWelcomeURL( InputStream is ) {
+    private String parseMainHTML( InputStream is ) {
         BufferedReader br = null;
         String resultString = null;
 
@@ -353,8 +356,9 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
             resultString = resultString.replaceFirst("<!-- ##recentstackfiles## -->", HtmlUtils.getAsTable("openlogfile://", perf.getStackFiles()));
             resultString = resultString.replaceFirst("<!-- ##recentanalyzedstackfiles## -->", HtmlUtils.getAsTable("openlogfile://", perf.getAnalyzedStackFiles()));
             
-            if ( perf.getCurrentParserConfig() != null )
-                resultString = resultString.replaceFirst("<!-- ##currentparserconfig## -->", perf.getCurrentParserConfig().replace('\\', '/'));
+            if ( perf.getCurrentParserConfig() != null ){
+                resultString = resultString.replaceFirst("<!-- ##currentparserconfig## -->", perf.getCurrentParserConfig().replace('\\', '/'));            	
+            }
         } catch ( IllegalArgumentException ex ) {
             ex.printStackTrace();
         } catch ( IOException ex ) {
@@ -379,10 +383,16 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
         PreferenceManager prefManager = PreferenceManager.get();
         String configFile = prefManager.getCurrentParserConfig();
         if ( configFile == null ) {
-            configFile = selectCurrentParserConfig();
-            if ( configFile == null ) {
-                throw new RuntimeException("Parser config file is not selected!");
-            }
+        
+        	int result = JOptionPane.showConfirmDialog (null, "The configuration file is not selected.\r\nDo you want to use the default configuration?","Check Setting selection",JOptionPane.YES_NO_OPTION);
+        	if(result == JOptionPane.YES_OPTION ){
+        		configFile = XMLReader.DEFAULT_XMLCONFIG;
+        	}else{
+	            configFile = selectCurrentParserConfig();
+	            if ( configFile == null ) {
+	                throw new RuntimeException("Parser config file is not selected!");
+	            }
+        	}
         }
 
         if ( !m_isTreeMainView ) {
@@ -1030,7 +1040,7 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
 
             String line = null;
             StringBuilder buffer = new StringBuilder(102400);
-            buffer.append("Current parser configuration filename : ").append(PreferenceManager.get().getCurrentParserConfig()).append("<br><br>");
+            buffer.append(HtmlUtils.getCurrentConfigurationBody()).append("<br><br>");
             buffer.append("<b>[ ").append(stackFileInfo.getFilename()).append(" ]</b><BR>");
             buffer.append("<b>").append(analyzedInfo.toString()).append(" - ").append(analyzedFilename).append("</b><br><br>");
             while ( (line = reader.readLine()) != null ) {

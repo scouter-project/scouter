@@ -75,7 +75,7 @@ public class HtmlUtils {
     public static String getStackFileInfo( StackFileInfo stackFileInfo ) {
         StringBuffer buffer = new StringBuffer(1024000);
         buffer.append(getMainBodyStart());
-        buffer.append("Current parser configuration filename : ").append(PreferenceManager.get().getCurrentParserConfig()).append("<br><br>");
+        buffer.append(getCurrentConfigurationBody()).append("<br><br>");
         buffer.append("<b>[ ").append(stackFileInfo.getFilename()).append(" ]</b><BR>");
         buffer.append("Parser configuration filename : ").append(stackFileInfo.getParserConfig().getConfigFilename()).append("<br>");
         buffer.append("Dump count : ").append(NumberUtils.intToString(stackFileInfo.getDumpCount())).append("<BR>");
@@ -195,11 +195,21 @@ public class HtmlUtils {
     }
 
     static public String getDefaultBody() {
-        StringBuffer buffer = new StringBuffer(102400);
+        StringBuilder buffer = new StringBuilder(102400);
         buffer.append(getMainBodyStart());
-        buffer.append("Current parser configuration filename : ").append(PreferenceManager.get().getCurrentParserConfig());
+        buffer.append(getCurrentConfigurationBody());
         buffer.append(getMainBodyEnd());
         return buffer.toString();
+    }
+    
+    static public String getCurrentConfigurationBody(){
+    	String fileName = PreferenceManager.get().getCurrentParserConfig();
+    	StringBuilder buffer = new StringBuilder(100);
+        buffer.append("Current parser configuration filename : ");
+        if(fileName != null){
+        	buffer.append(fileName);
+        }
+    	return buffer.toString();
     }
 
     static public String filterThreadStack( String filename, String filter, ArrayList<String> excludeStackList, int stackStartLine ) {
