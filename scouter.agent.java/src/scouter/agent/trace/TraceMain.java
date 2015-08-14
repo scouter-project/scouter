@@ -30,6 +30,7 @@ import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.util.ArrayUtil;
+import scouter.util.HashUtil;
 import scouter.util.IPUtil;
 import scouter.util.KeyGen;
 import scouter.util.ObjectUtil;
@@ -218,8 +219,7 @@ public class TraceMain {
 							}
 							emsg = sb.toString();
 						}
-						ctx.error = StringHashCache.getErrHash(emsg);
-						DataProxy.sendError(ctx.error, emsg);
+						ctx.error = DataProxy.sendError(emsg);
 					}
 				} catch (Throwable t) {
 				}
@@ -237,8 +237,7 @@ public class TraceMain {
 			pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
 			boolean sendOk = pack.elapsed >= conf.xlog_time_limit;
 			ctx.profile.close(sendOk);
-			ctx.serviceHash = StringHashCache.getUrlHash(ctx.serviceName);
-			DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
+			ctx.serviceHash = DataProxy.sendServiceName(ctx.serviceName);
 			pack.service = ctx.serviceHash;
 			pack.xType = XLogTypes.WEB_SERVICE;
 			pack.txid = ctx.txid;
@@ -258,9 +257,7 @@ public class TraceMain {
 					Logger.println("A145", ctx.serviceName);
 					AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_REJECTED", ctx.serviceName);
 					String emsg = conf.reject_text;
-					int ehash = StringHashCache.getErrHash(emsg);
-					pack.error = ehash;
-					DataProxy.sendError(ehash, emsg);
+					pack.error = DataProxy.sendError(emsg);
 				} else {
 					String emsg = thr.toString();
 					AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_ERROR", emsg);
@@ -276,15 +273,11 @@ public class TraceMain {
 						}
 						emsg = sb.toString();
 					}
-					int ehash = StringHashCache.getErrHash(emsg);
-					pack.error = ehash;
-					DataProxy.sendError(ehash, emsg);
+					pack.error = DataProxy.sendError(emsg);
 				}
 			} else if (conf.isErrorStatus(ctx.status)) {
 				String emsg = "HttpStatus " + ctx.status;
-				int ehash = StringHashCache.getErrHash(emsg);
-				pack.error = ehash;
-				DataProxy.sendError(ehash, emsg);
+				pack.error = DataProxy.sendError(emsg);
 				AlertProxy.sendAlert(AlertLevel.ERROR, "HTTP_ERROR", emsg);
 			}
 			// pack.divPerf = ctx.divPerf;
@@ -294,6 +287,13 @@ public class TraceMain {
 			pack.apicallCount = ctx.apicall_count;
 			pack.apicallTime = ctx.apicall_time;
 			pack.caller = ctx.caller;
+
+			if (ctx.login != null) {
+				pack.login = DataProxy.sendLogin(ctx.login);
+			}
+			if (ctx.bizcode != null) {
+				pack.biz = DataProxy.sendBizCode(ctx.bizcode);
+			}
 			metering(pack);
 			HttpServiceTracePlugIn.end(ctx, pack);
 			if (sendOk) {
@@ -337,7 +337,7 @@ public class TraceMain {
 			ctx = new TraceContext(conf.enable_profile_summary);
 			String service_name = name;
 			ctx.thread = Thread.currentThread();
-			ctx.serviceHash = StringHashCache.getUrlHash(service_name);
+			ctx.serviceHash = HashUtil.hash(service_name);
 			ctx.serviceName = service_name;
 			ctx.startTime = System.currentTimeMillis();
 			ctx.startCpu = SysJMX.getCurrentThreadCPU();
@@ -380,13 +380,11 @@ public class TraceMain {
 			pack.txid = ctx.txid;
 			pack.ipaddr = ctx.remoteAddr;
 			pack.userid = ctx.userid;
-		    if (ctx.error != 0) {
+			if (ctx.error != 0) {
 				pack.error = ctx.error;
 			} else if (thr != null) {
 				Configure conf = Configure.getInstance();
 				String emsg = thr.toString();
-				// AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_EXCEPTION",
-				// emsg);
 				if (conf.profile_fullstack_service_error) {
 					StringBuffer sb = new StringBuffer();
 					sb.append(emsg).append("\n");
@@ -399,14 +397,19 @@ public class TraceMain {
 					}
 					emsg = sb.toString();
 				}
-				int ehash = StringHashCache.getErrHash(emsg);
-				pack.error = ehash;
-				DataProxy.sendError(ehash, emsg);
+				pack.error = DataProxy.sendError(emsg);
 			}
 			// 2015.02.02
 			pack.apicallCount = ctx.apicall_count;
 			pack.apicallTime = ctx.apicall_time;
-			// pack.divPerf = o.divPerf;
+
+			if (ctx.login != null) {
+				pack.login = DataProxy.sendLogin(ctx.login);
+			}
+			if (ctx.bizcode != null) {
+				pack.biz = DataProxy.sendBizCode(ctx.bizcode);
+			}
+
 			ServiceTracePlugIn.end(ctx, pack);
 			metering(pack);
 			if (sendOk) {
@@ -519,15 +522,15 @@ public class TraceMain {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.enable_auto_service_trace) {
-					Object stat = startService(classMethod, null, null, null, null, null, XLogTypes.BACK_THREAD);
-					if (conf.enable_auto_service_backstack) {
-						String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
-						AutoServiceStartAnalizer.put(classMethod, stack);
-						MessageStep m = new MessageStep();
-						m.message = "SERVICE BACKSTACK:\n" + stack;
-						((Stat) stat).ctx.profile.add(m);
-					}
-					return new LocalContext(stat);
+				Object stat = startService(classMethod, null, null, null, null, null, XLogTypes.BACK_THREAD);
+				if (conf.enable_auto_service_backstack) {
+					String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
+					AutoServiceStartAnalizer.put(classMethod, stack);
+					MessageStep m = new MessageStep();
+					m.message = "SERVICE BACKSTACK:\n" + stack;
+					((Stat) stat).ctx.profile.add(m);
+				}
+				return new LocalContext(stat);
 			}
 			return null;
 		}
@@ -608,9 +611,7 @@ public class TraceMain {
 		pack.ipaddr = IPUtil.toBytes(remoteAddr);
 		pack.userid = visitor;
 		if (error != null) {
-			int ehash = StringHashCache.getErrHash(error);
-			DataProxy.sendError(ehash, error);
-			pack.error = ehash;
+			pack.error = DataProxy.sendError(error);
 			AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_EXCEPTION", error);
 		}
 		MeterService.getInstance().add(pack.elapsed, error != null);

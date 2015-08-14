@@ -18,7 +18,6 @@ package scouter.agent.trace;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
-import java.sql.Statement;
 
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -26,10 +25,10 @@ import scouter.agent.netio.data.DataProxy;
 import scouter.jdbc.DetectConnection;
 import scouter.jdbc.JdbcTrace;
 import scouter.lang.AlertLevel;
-import scouter.lang.ref.INT;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
-import scouter.lang.step.SqlStep;
+import scouter.lang.step.SqlStep2;
+import scouter.lang.step.SqlXType;
 import scouter.util.EscapeLiteralSQL;
 import scouter.util.HashUtil;
 import scouter.util.IntKeyLinkedMap;
@@ -108,32 +107,32 @@ public class TraceSQL {
 	}
 
 	public static Object start(Object o) {
-		TraceContext c = TraceContextManager.getLocalContext();
-		if (c == null) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null) {
 			return null;
 		}
-		SqlStep step = new SqlStep();
-		step.start_time = (int) (System.currentTimeMillis() - c.startTime);
-		if (c.profile_thread_cputime) {
-			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - c.startCpu);
+		SqlStep2 step = new SqlStep2();
+		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
+		step.xtype=SqlXType.PREPARED;
 
-		c.sqlActiveArgs = c.sql;
+		ctx.sqlActiveArgs = ctx.sql;
 
 		String sql = "unknown";
-		sql = c.sql.getSql();
+		sql = ctx.sql.getSql();
 		sql = escapeLiteral(sql, step);
-		step.param = c.sql.toString(step.param);
+		step.param = ctx.sql.toString(step.param);
 
 		if (sql != null) {
-			step.hash = StringHashCache.getSqlHash(sql);
-			DataProxy.sendSqlText(step.hash, sql);
+			step.hash = DataProxy.sendSqlText(sql);
 		}
 
-		c.profile.push(step);
-		c.sqltext = sql;
+		ctx.profile.push(step);
+		ctx.sqltext = sql;
 
-		return new LocalContext(c, step);
+		return new LocalContext(ctx, step);
 	}
 
 	public static Object start(Object o, String sql) {
@@ -144,7 +143,7 @@ public class TraceSQL {
 			}
 			return null;
 		}
-		SqlStep step = new SqlStep();
+		SqlStep2 step = new SqlStep2();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
@@ -155,8 +154,8 @@ public class TraceSQL {
 		} else {
 			sql = escapeLiteral(sql, step);
 		}
-		step.hash = StringHashCache.getSqlHash(sql);
-		DataProxy.sendSqlText(step.hash, sql);
+		step.hash = DataProxy.sendSqlText(sql);
+		step.xtype=SqlXType.STMT;
 
 		ctx.profile.push(step);
 		ctx.sqltext = sql;
@@ -177,7 +176,7 @@ public class TraceSQL {
 	private static IntLinkedSet noLiteralSql = new IntLinkedSet().setMax(10000);
 	private static IntKeyLinkedMap<ParsedSql> checkedSql = new IntKeyLinkedMap<ParsedSql>().setMax(1001);
 
-	private static String escapeLiteral(String sql, SqlStep step) {
+	private static String escapeLiteral(String sql, SqlStep2 step) {
 		if (conf.profile_sql_escape == false)
 			return sql;
 		int sqlHash = sql.hashCode();
@@ -195,7 +194,9 @@ public class TraceSQL {
 		if (parsed.hashCode() == sqlHash) {
 			noLiteralSql.put(sqlHash);
 		} else {
-			checkedSql.put(sqlHash, new ParsedSql(parsed, els.getParameter()));
+			psql = new ParsedSql(parsed, els.getParameter());
+			checkedSql.put(sqlHash, psql);
+			step.param = psql.param;
 		}
 		return parsed;
 	}
@@ -209,7 +210,7 @@ public class TraceSQL {
 		}
 		LocalContext lctx = (LocalContext) stat;
 		TraceContext tctx = lctx.context;
-		SqlStep ps = (SqlStep) lctx.stepSingle;
+		SqlStep2 ps = (SqlStep2) lctx.stepSingle;
 
 		ps.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - ps.start_time;
 		if (tctx.profile_thread_cputime) {
@@ -217,23 +218,20 @@ public class TraceSQL {
 		}
 		if (thr != null) {
 			String msg = thr.toString();
-			int hash = StringHashCache.getErrHash(msg);
+			int hash = DataProxy.sendError(msg);
 			if (tctx.error == 0) {
 				tctx.error = hash;
 			}
-
 			ps.error = hash;
-			DataProxy.sendError(hash, msg);
+
 			AlertProxy.sendAlert(AlertLevel.ERROR, "SQL_EXCEPTION", msg);
 
 		} else if (ps.elapsed > conf.alert_sql_time) {
 			String msg = "warning slow sql, over " + conf.alert_sql_time + " ms";
-			int hash = StringHashCache.getErrHash(msg);
-
+			int hash = DataProxy.sendError(msg);
 			if (tctx.error == 0) {
 				tctx.error = hash;
 			}
-			DataProxy.sendError(hash, msg);
 			AlertProxy.sendAlertSlowSql(AlertLevel.WARN, "SLOW_SQL", msg, tctx.sqltext, ps.elapsed, tctx.txid);
 		}
 
@@ -286,11 +284,10 @@ public class TraceSQL {
 		if (c.rs_count > conf.alert_fetch_count) {
 
 			String msg = "warning too many resultset, over #" + conf.alert_fetch_count;
-			int hash = StringHashCache.getErrHash(msg);
+			int hash = DataProxy.sendError(msg);
 			if (c.error == 0) {
 				c.error = hash;
 			}
-			DataProxy.sendError(hash, msg);
 			AlertProxy
 					.sendAlertTooManyFetch(AlertLevel.WARN, "TOO_MANY_RESULT", msg, c.serviceName, c.rs_count, c.txid);
 		}
@@ -381,7 +378,7 @@ public class TraceSQL {
 			}
 			return null;
 		}
-		SqlStep step = new SqlStep();
+		SqlStep2 step = new SqlStep2();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
@@ -395,9 +392,9 @@ public class TraceSQL {
 			step.param = args.toString(step.param);
 		}
 		if (sql != null) {
-			step.hash = StringHashCache.getSqlHash(sql);
-			DataProxy.sendSqlText(step.hash, sql);
+			step.hash = DataProxy.sendSqlText(sql);
 		}
+		step.xtype=SqlXType.PREPARED;
 
 		ctx.profile.push(step);
 		ctx.sqltext = sql;
@@ -419,8 +416,7 @@ public class TraceSQL {
 	 */
 	public static Object startCreateDBC(String url) {
 		String name = "CREATE-DBC " + url;
-		int hash = StringHashCache.getErrHash(name);
-		DataProxy.sendMethodName(hash, name);
+		int hash = DataProxy.sendMethodName(name);
 		return TraceSQL.dbcOpenStart(hash, name, null);
 	}
 
@@ -454,8 +450,7 @@ public class TraceSQL {
 
 		DBURL dbUrl = getUrl(pool);
 		if (dbUrl != unknown) {
-			hash = dbUrl.hash;
-			DataProxy.sendMethodName(hash, dbUrl.url);
+			hash = DataProxy.sendMethodName(dbUrl.url);
 		}
 
 		p.hash = hash;
@@ -566,11 +561,11 @@ public class TraceSQL {
 
 		if (thr != null) {
 			String msg = thr.toString();
-			int hash = StringHashCache.getSqlHash(msg);
+			int hash = DataProxy.sendError(msg);
 			if (tctx.error == 0) {
 				tctx.error = hash;
 			}
-			DataProxy.sendError(hash, msg);
+
 			AlertProxy.sendAlert(AlertLevel.ERROR, "OPEN-DBC", msg);
 		}
 		tctx.profile.pop(step);

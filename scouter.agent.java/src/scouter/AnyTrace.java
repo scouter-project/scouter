@@ -19,7 +19,6 @@ package scouter;
 
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.AlertProxy;
-import scouter.agent.trace.StringHashCache;
 import scouter.agent.trace.TraceApiCall;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
@@ -35,7 +34,7 @@ public class AnyTrace {
 	}
 
 	public static Object startService(String name) {
-		return TraceMain.startService(name,null,null,null,null,null,XLogTypes.APP_SERVICE);
+		return TraceMain.startService(name, null, null, null, null, null, XLogTypes.APP_SERVICE);
 	}
 
 	public static void setServiceName(String name) {
@@ -44,7 +43,7 @@ public class AnyTrace {
 			if (ctx != null) {
 				if (ctx.serviceName != null) { // already started
 					ctx.serviceName = name;
-					ctx.serviceHash = StringHashCache.getUrlHash(ctx.serviceName);
+					ctx.serviceHash = HashUtil.hash(ctx.serviceName);
 				}
 			}
 		} catch (Throwable t) {// ignore
@@ -54,8 +53,7 @@ public class AnyTrace {
 	public static void serviceError(byte level, String title, String emsg) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx != null && ctx.error != 0) { // already started
-			ctx.error = HashUtil.hash(emsg);
-			DataProxy.sendError(ctx.error, emsg);
+			ctx.error = DataProxy.sendError(emsg);
 		}
 		if (level != 0) {
 			AlertProxy.sendAlert(level, title, emsg);
@@ -63,7 +61,7 @@ public class AnyTrace {
 	}
 
 	public static void endService(Object stat, Throwable thr) {
-		TraceMain.endService(stat, null,thr);
+		TraceMain.endService(stat, null, thr);
 	}
 
 	public static Object startMethod(int hash, String classMethodName) {
@@ -77,8 +75,6 @@ public class AnyTrace {
 	public static long createTxid() {
 		return KeyGen.next();
 	}
-
-	
 
 	public static Object startApicall(String name, long apiTxid) {
 		return TraceApiCall.startApicall(name, apiTxid);
@@ -97,8 +93,7 @@ public class AnyTrace {
 	}
 
 	public static void endApicall(Object stat, Throwable thr) {
-		TraceApiCall.endApicall(stat, null,thr);
+		TraceApiCall.endApicall(stat, null, thr);
 	}
-	
 
 }

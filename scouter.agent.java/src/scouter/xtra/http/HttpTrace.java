@@ -28,12 +28,12 @@ import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.trace.IProfileCollector;
-import scouter.agent.trace.StringHashCache;
 import scouter.agent.trace.TraceContext;
 import scouter.io.DataInputX;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.step.MessageStep;
 import scouter.util.CompareUtil;
+import scouter.util.HashUtil;
 import scouter.util.Hexa32;
 import scouter.util.IPUtil;
 import scouter.util.StringUtil;
@@ -73,7 +73,7 @@ public class HttpTrace implements IHttpTrace {
 	public void start(TraceContext ctx, Object req, Object res) {
 		Configure conf = Configure.getInstance();
 		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
+		HttpServletResponse response = (HttpServletResponse) res;		
 
 		ctx.serviceName = getRequestURI(request);
 
@@ -82,7 +82,7 @@ public class HttpTrace implements IHttpTrace {
 			ctx.serviceName = new StringBuilder(ctx.serviceName.length() + v.length() + 5).append(ctx.serviceName)
 					.append('-').append(v).toString();
 		}
-		ctx.serviceHash = StringHashCache.getUrlHash(ctx.serviceName);
+		ctx.serviceHash =HashUtil.hash(ctx.serviceName);
 		ctx.http_method = request.getMethod();
 		ctx.http_query = request.getQueryString();
 		ctx.http_content_type = request.getContentType();
@@ -109,15 +109,11 @@ public class HttpTrace implements IHttpTrace {
 		}
 		String referer = request.getHeader("Referer");
 		if (referer != null) {
-			int hash = StringHashCache.getRefererHash(referer);
-			DataProxy.sendReferer(hash, referer);
-			ctx.referer = hash;
+			ctx.referer =	DataProxy.sendReferer( referer);
 		}
 		String userAgent = request.getHeader("User-Agent");
 		if (userAgent != null) {
-			int hash = StringHashCache.getUserAgentHash(userAgent);
-			DataProxy.sendUserAgent(hash, userAgent);
-			ctx.userAgent = hash;
+			ctx.userAgent =DataProxy.sendUserAgent(userAgent);
 		}
 		dump(ctx.profile, request, ctx);
 		if (conf.enable_trace_e2e) {

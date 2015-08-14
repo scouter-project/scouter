@@ -28,10 +28,16 @@ public class MeterService {
 		return inst;
 	}
 
-	static class Bucket {
+	final static int PCT_MAX_TIME = 10000;
+	final static int PCT_UNIT_TIME = 200;
+	final static int PCT_BUCKET = PCT_MAX_TIME / PCT_UNIT_TIME;
+
+	final static class Bucket {
+		final short[] pct90 = new short[PCT_BUCKET];
 		int count;
-		int error;
 		long time;
+
+		int error;
 	}
 
 	private MeteringUtil<Bucket> meter = new MeteringUtil<Bucket>() {
@@ -43,15 +49,24 @@ public class MeterService {
 			o.count = 0;
 			o.error = 0;
 			o.time = 0L;
+			for (int i = 0; i < PCT_BUCKET; i++) {
+				o.pct90[i] = 0;
+			}
 		}
 	};
 
-	public synchronized void add(long elapsed, boolean err) {
+	public synchronized void add(int elapsed, boolean err) {
 		Bucket b = meter.getCurrentBucket();
 		b.count++;
 		b.time += elapsed;
-		if (err)
+		if (err) {
 			b.error++;
+		}
+		if (elapsed < PCT_MAX_TIME) {
+			int x = (int) (elapsed / PCT_UNIT_TIME);
+			b.pct90[x]++;
+		}
+
 	}
 
 	public float getTPS(int period) {
@@ -72,6 +87,31 @@ public class MeterService {
 				sum.value += b.time;
 				cnt.value += b.count;
 
+			}
+		});
+		return (int) ((cnt.value == 0) ? 0 : sum.value / cnt.value);
+	}
+
+	public int getElapsed90Pct(int period) {
+		final LONG sum = new LONG();
+		final INT cnt = new INT();
+		meter.search(period, new Handler<MeterService.Bucket>() {
+			public void process(Bucket b) {
+				int total = (int) (b.count * 0.9);
+				if (total == 0)
+					return;
+
+				for (int timeInx = 0; timeInx < PCT_BUCKET; timeInx++) {
+					if (total >= b.pct90[timeInx]) {
+						total -= b.pct90[timeInx];
+					} else {
+						sum.value += timeInx * PCT_UNIT_TIME;
+						cnt.value++;
+						return;
+					}
+				}
+				sum.value += PCT_MAX_TIME;
+				cnt.value++;
 			}
 		});
 		return (int) ((cnt.value == 0) ? 0 : sum.value / cnt.value);

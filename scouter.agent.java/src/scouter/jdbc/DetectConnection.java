@@ -39,7 +39,7 @@ public class DetectConnection implements java.sql.Connection {
 	public DetectConnection(java.sql.Connection inner) {
 		this.inner = inner;
 		if (conf.enable_leaktrace_fullstack) {
-			this.object = new LeakableObject(ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(),2));
+			this.object = new LeakableObject(ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2));
 		} else {
 			this.object = new LeakableObject(inner.toString());
 		}
@@ -50,20 +50,19 @@ public class DetectConnection implements java.sql.Connection {
 	}
 
 	private static String MSG_CLOSE = "CLOSE";
-	private static int HASH_CLOSE = HashUtil.hash(MSG_CLOSE);
+	private static int HASH_CLOSE;
 	private static String MSG_COMMIT = "COMMIT";
-	private static int HASH_COMMIT = HashUtil.hash(MSG_COMMIT);
+	private static int HASH_COMMIT;
 	private static String MSG_AUTO_COMMIT_TRUE = "setAutoCommit(true)";
-	private static int HASH_AUTO_COMMIT_TRUE = HashUtil.hash(MSG_AUTO_COMMIT_TRUE);
+	private static int HASH_AUTO_COMMIT_TRUE;
 	private static String MSG_AUTO_COMMIT_FALSE = "setAutoCommit(false)";
-	private static int HASH_AUTO_COMMIT_FALSE = HashUtil.hash(MSG_AUTO_COMMIT_FALSE);
-
+	private static int HASH_AUTO_COMMIT_FALSE;
 	static {
 		try {
-			DataProxy.sendMethodName(HASH_CLOSE, MSG_CLOSE);
-			DataProxy.sendMethodName(HASH_COMMIT, MSG_COMMIT);
-			DataProxy.sendMethodName(HASH_AUTO_COMMIT_TRUE, MSG_AUTO_COMMIT_TRUE);
-			DataProxy.sendMethodName(HASH_AUTO_COMMIT_FALSE, MSG_AUTO_COMMIT_FALSE);
+			HASH_CLOSE = DataProxy.sendMethodName(MSG_CLOSE);
+			HASH_COMMIT = DataProxy.sendMethodName(MSG_COMMIT);
+			HASH_AUTO_COMMIT_TRUE = DataProxy.sendMethodName(MSG_AUTO_COMMIT_TRUE);
+			HASH_AUTO_COMMIT_FALSE = DataProxy.sendMethodName(MSG_AUTO_COMMIT_FALSE);
 		} catch (Exception e) {
 		}
 	}

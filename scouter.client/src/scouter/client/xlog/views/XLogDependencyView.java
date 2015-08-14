@@ -336,6 +336,7 @@ public class XLogDependencyView extends ViewPart {
 				serviceElement.addChild(apiSumElement);
 				break;
 			case StepEnum.SQL:
+			case StepEnum.SQL2:
 				SqlStep sqlstep = (SqlStep) step;
 				DependencyElement sqlElement = new DependencyElement(ElementType.SQL, sqlstep.hash);
 				sqlElement.elapsed = sqlstep.elapsed;
