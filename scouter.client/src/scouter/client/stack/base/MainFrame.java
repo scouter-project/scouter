@@ -232,7 +232,7 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
                         currentLAFI = plafs[j];
                         if ( currentLAFI.getName().startsWith(instPlafs[i]) ) {
                             UIManager.setLookAndFeel(currentLAFI.getClassName());
-                            ResourceUtils.setUIFont(new FontUIResource("SansSerif", Font.PLAIN, 11));
+                            ResourceUtils.setUIFont(new FontUIResource("SansSerif", Font.PLAIN, 13));
                             break search;
                         }
                     }
@@ -524,15 +524,15 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
             cellRenderer = new DefaultTableCellRenderer();
             switch ( i ) {
             case 0:
-                width = 50;
+                width = 70;
                 cellRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
                 break;
             case 1:
-                width = 80;
+                width = 100;
                 cellRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
                 break;
             case 2:
-                width = 80;
+                width = 100;
                 cellRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
                 break;
             case 3:
@@ -882,7 +882,7 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
         StackFileInfo filteredStackFileInfo = processStackFile(StackParser.getWorkingThreadFilename(stackFileInfo.getFilename()), config, filter, false, isInclude);
         if ( filteredStackFileInfo != null ) {
             addMainTree(filteredStackFileInfo);
-            this.getRootPane().revalidate();
+//            this.getRootPane().revalidate();
             displayContent(null);
         }
     }

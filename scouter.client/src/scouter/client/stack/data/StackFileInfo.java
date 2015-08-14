@@ -51,7 +51,13 @@ public class StackFileInfo extends AbstractInfo {
 
     public String toString() {
         StringBuilder buffer = new StringBuilder(200);
-        buffer.append(m_filename).append(" - ").append(m_totalWorkingCount).append(" (").append(m_totalWorkerCount).append(')').append('-').append(m_dumpCount).append("dump");
+        buffer.append(m_filename).append(" - ").append(m_totalWorkingCount);
+        if(m_totalWorkerCount > 0){
+        	buffer.append(" (").append(m_totalWorkerCount).append(')');
+        }
+        if(m_dumpCount > 0){
+        	buffer.append(" - ").append(m_dumpCount).append("dump");
+        }
         return buffer.toString();
     }
 
