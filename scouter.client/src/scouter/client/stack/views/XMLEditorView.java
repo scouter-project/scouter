@@ -16,6 +16,11 @@
  */
 package scouter.client.stack.views;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import org.eclipse.jface.action.Action;
@@ -32,6 +37,10 @@ import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
+import scouter.client.stack.base.MainFrame;
+import scouter.client.stack.config.XMLReader;
+import scouter.client.stack.data.StackFileInfo;
+import scouter.client.stack.utils.ResourceUtils;
 import scouter.client.util.ColoringWord;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.CustomLineStyleListener;
@@ -39,20 +48,21 @@ import scouter.client.util.CustomLineStyleListener;
 public class XMLEditorView extends ViewPart {
 	public final static String ID = XMLEditorView.class.getName();
 	
-	private ArrayList<ColoringWord> defaultHighlightings;
+	private ArrayList<ColoringWord> m_defaultHighlightings;
 	
-	private StyledText text;
-	private String serverConfig;
+	private StyledText m_text;
+	private String m_fileName;
 	
-	private Clipboard clipboard = new Clipboard(null);
+	//private Clipboard clipboard = new Clipboard(null);
 	
-	CustomLineStyleListener listener;
+	CustomLineStyleListener m_listener;
 	
 	public void createPartControl(Composite parent) {
-		text = new StyledText(parent, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-		listener = new CustomLineStyleListener(true, defaultHighlightings, false);
-		text.addLineStyleListener(listener);
-		text.addKeyListener(new KeyListener() {
+		m_text = new StyledText(parent, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		initDefaultHighlightings();
+		m_listener = new CustomLineStyleListener(true, m_defaultHighlightings, false);
+		m_text.addLineStyleListener(m_listener);
+		m_text.addKeyListener(new KeyListener() {
 			public void keyReleased(KeyEvent e) {
 			}
 			public void keyPressed(KeyEvent e) {
@@ -60,22 +70,47 @@ public class XMLEditorView extends ViewPart {
 					if(e.keyCode == 's'){
 						saveConfigurations();
 					}else if(e.keyCode == 'a'){
-						text.selectAll();
+						m_text.selectAll();
 					}
 				}
 			}
 		});
 		
+		StackFileInfo stackFileInfo = MainFrame.instance().getSelectedStackFileInfo();
+		if(stackFileInfo == null){
+			m_fileName = XMLReader.DEFAULT_XMLCONFIG;
+		}else{
+			m_fileName = stackFileInfo.getParserConfig().getConfigFilename();
+		}		
+		
 		initialToolBar();
+		loadConfig();
 	}
 
-	public void setInput(int serverId){
-		Server server = ServerManager.getInstance().getServer(serverId);
-		if (server != null) {
-			setPartName("Config Server[" + server.getName() + "]");
-			loadConfig();
+	private void loadConfig() {
+		BufferedInputStream in = null;
+		try {
+			if(XMLReader.DEFAULT_XMLCONFIG.equals(m_fileName)){
+				in = new BufferedInputStream(ResourceUtils.getDefaultXMLConfig());
+			}else{
+				in = new BufferedInputStream(new FileInputStream(new File(m_fileName)));
+			}
+			
+			ByteBuffer buffer = ByteBuffer.allocate(102400);
+			int ch;
+			while((ch = in.read()) >=0){
+				buffer.put((byte)ch);
+			}
+			buffer.position(0);
+			m_text.setText(new String(buffer.array(), "UTF-8"));
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}finally{
+			if(in != null){
+				try { in.close();}catch(Exception ex){}
+			}
 		}
-	}
+	}	
 	
 	private void saveAsConfigurations(){
 	}
@@ -85,11 +120,13 @@ public class XMLEditorView extends ViewPart {
 	
 	private void initialToolBar() {
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
-		man.add(new Action("Save", ImageUtil.getImageDescriptor(Images.save)) {
-			public void run() {
-				saveConfigurations();
-			}
-		});
+		if(!XMLReader.DEFAULT_XMLCONFIG.equals(m_fileName)){
+			man.add(new Action("Save", ImageUtil.getImageDescriptor(Images.save)) {
+				public void run() {
+					saveConfigurations();
+				}
+			});
+		}
 		man.add(new Action("SaveAs", ImageUtil.getImageDescriptor(Images.saveas)) {
 			public void run() {
 				saveConfigurations();
@@ -97,13 +134,56 @@ public class XMLEditorView extends ViewPart {
 		});
 	}
 
-	private void loadConfig() {
-	}
-	
 	public void setFocus() {
 		IStatusLineManager slManager= getViewSite().getActionBars().getStatusLineManager();
 		slManager.setMessage("CTRL + S : save configurations, CTRL + A : select all text");
 	}
 
+	
+	private void initDefaultHighlightings(){
+		m_defaultHighlightings = new ArrayList<ColoringWord>(20);
+		m_defaultHighlightings.add(new ColoringWord("<awacs>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</awacs>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<parser", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</parser>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<time", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</time>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<workerThread>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</workerThread>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<workingThread", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</workingThread>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<log>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</log>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<sql>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</sql>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<service>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</service>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<singleStack>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</singleStack>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<excludeStack>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</excludeStack>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<analyze>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</analyze>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<analyzeStack", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</analyzeStack", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<list>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</list>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<listMain>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</listMain>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<jmx>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</jmx>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<count>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</count>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<interval>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</interval>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<path>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</path>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<server>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</server>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<ip>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</ip>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<port>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</port>", SWT.COLOR_BLUE, true));
+	}
 }
 

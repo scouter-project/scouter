@@ -16,9 +16,10 @@
  */
 package scouter.client.stack.utils;
 
+import java.io.InputStream;
+
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
-
 
 public class ResourceUtils {
 	public static ImageIcon getScouterImageResource(String path){
@@ -39,6 +40,10 @@ public class ResourceUtils {
 	        System.err.println("Couldn't find file: " + path);
 	        return null;
 	    }
+	}
+	
+	public static InputStream getDefaultXMLConfig(){
+		return ResourceUtils.class.getClassLoader().getResourceAsStream("/scouter/client/stack/doc/config_default.xml");
 	}
 	
     public static void setUIFont(javax.swing.plaf.FontUIResource f){

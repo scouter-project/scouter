@@ -63,9 +63,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Display;
-
 import scouter.client.stack.config.ParserConfig;
 import scouter.client.stack.config.ParserConfigReader;
 import scouter.client.stack.config.XMLReader;
@@ -109,20 +106,17 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
         return m_frame;
     }
 
-    public static MainFrame instance( boolean setLF ) {
+    public static MainFrame instance() {
         if ( m_mainFrame == null ) {
-            m_mainFrame = new MainFrame(setLF);
+            m_mainFrame = new MainFrame();
         }
 
         return m_mainFrame;
     }
 
-    public MainFrame(boolean setLF) {
+    public MainFrame() {
         super(new BorderLayout());
-
-        if ( setLF ) {
-            setupLookAndFeel();
-        }
+        setupLookAndFeel();
     }
 
     public void valueChanged( ListSelectionEvent e ) {
@@ -828,8 +822,10 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
         if ( stackFileInfo != null )
             PerformanceWindow.startPerformanceWindow(stackFileInfo, filter, m_isExcludeStack, isAscending, m_isFullFunction, m_isInerPercent);
     }
+    
+    
 
-    private StackFileInfo getSelectedStackFileInfo() {
+    public StackFileInfo getSelectedStackFileInfo() {
         if ( m_logTree == null )
             return null;
 

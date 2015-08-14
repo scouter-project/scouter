@@ -61,14 +61,14 @@ public class StackAnalyzerView extends ViewPart {
 			}
 		});
 		
-		man.add(new OpenXMLEditorAction(win, "edit parser configuration", ImageUtil.getImageDescriptor(Images.edit_config), "Default"));
+		man.add(new OpenXMLEditorAction(win, "edit parser configuration", ImageUtil.getImageDescriptor(Images.edit_config)));
 		
 		Composite swtAwtComponent = new Composite(parent, SWT.EMBEDDED);
 		if (SystemUtil.IS_MAC_OSX) {
 			SWT_AWT.embeddedFrameClass = "sun.lwawt.macosx.CViewEmbeddedFrame";
 		}
 		java.awt.Frame baseFrame = SWT_AWT.new_Frame( swtAwtComponent );
-		MainFrame frame = MainFrame.instance(true);
+		MainFrame frame = MainFrame.instance();
 		frame.init();
 		baseFrame.add(frame);
 		frame.setVisible(true); 

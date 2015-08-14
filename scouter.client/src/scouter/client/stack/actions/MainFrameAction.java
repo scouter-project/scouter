@@ -27,7 +27,7 @@ public class MainFrameAction extends Thread{
 	
 	public void run(){
 		try {
-			MainFrame.instance(true).processMenu(m_menuName, null);
+			MainFrame.instance().processMenu(m_menuName, null);
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}

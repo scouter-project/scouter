@@ -95,7 +95,7 @@ public class HtmlUtils {
             buffer.append('(').append(list.get(0).substring(0, stackFileInfo.getParserConfig().getTimeSize())).append(" - ")
                     .append(list.get(size - 1).substring(0, stackFileInfo.getParserConfig().getTimeSize())).append(')');
         }
-        boolean isSimpleDumpList = MainFrame.instance(true).isSimpleDumpTimeList();
+        boolean isSimpleDumpList = MainFrame.instance().isSimpleDumpTimeList();
         buffer.append("<BR><BR>");
         if ( isSimpleDumpList ) {
             buffer.append("<b>[ Simple dump time list ]</b><BR>");
