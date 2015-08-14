@@ -42,6 +42,7 @@ public class StackAnalyzerView extends ViewPart {
 
 	public void createPartControl(Composite parent) {
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
+		IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();		
 		
 		man.add(new Action("open local stack log", ImageUtil.getImageDescriptor(Images.folder)) {
 			public void run() {
@@ -60,7 +61,7 @@ public class StackAnalyzerView extends ViewPart {
 			}
 		});
 		
-		man.add(new OpenXMLEditorAction("edit parser configuration", ImageUtil.getImageDescriptor(Images.edit_config), "Default"));
+		man.add(new OpenXMLEditorAction(win, "edit parser configuration", ImageUtil.getImageDescriptor(Images.edit_config), "Default"));
 		
 		Composite swtAwtComponent = new Composite(parent, SWT.EMBEDDED);
 		if (SystemUtil.IS_MAC_OSX) {

@@ -915,6 +915,14 @@
             id="scouter.client.stack.views.StackAnalyzerView"
             name="StackAnalyzer">
       </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.stack.views.XMLEditorView"
+            id="scouter.client.stack.views.XMLEditorView"
+            icon="icons/edit_config.png"
+            name="ConfigStackAnalyser"
+            restorable="false">
+      </view>      
   </extension>
  <extension
          point="org.eclipse.ui.commands">

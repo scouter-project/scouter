@@ -73,6 +73,7 @@ public class Images {
 	public static final ImageDescriptor default_context_descriptor = Activator.getImageDescriptor("icons/context.png");
 
 	public static final Image save = ImageUtil.getSharedImage(ISharedImages.IMG_ETOOL_SAVE_EDIT);
+	public static final Image saveas = ImageUtil.getSharedImage(ISharedImages.IMG_ETOOL_SAVEAS_EDIT);
 	
 	public static final Image previous = Activator.getImage("icons/previous.png");
 	

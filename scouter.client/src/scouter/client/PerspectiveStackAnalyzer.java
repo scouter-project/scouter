@@ -21,6 +21,7 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
 import scouter.client.stack.views.StackAnalyzerView;
+import scouter.client.stack.views.XMLEditorView;
 
 public class PerspectiveStackAnalyzer implements IPerspectiveFactory  {
 	
