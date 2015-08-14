@@ -22,12 +22,18 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
 import scouter.client.stack.actions.MainFrameAction;
+import scouter.client.stack.actions.OpenXMLEditorAction;
 import scouter.client.stack.base.MainFrame;
 import scouter.client.util.ImageUtil;
+import scouter.client.views.ServerFileManagementView;
 import scouter.util.SystemUtil;
 
 public class StackAnalyzerView extends ViewPart {
@@ -53,6 +59,8 @@ public class StackAnalyzerView extends ViewPart {
 				new MainFrameAction("Select Parser Configuration").start();
 			}
 		});
+		
+		man.add(new OpenXMLEditorAction("edit parser configuration", ImageUtil.getImageDescriptor(Images.edit_config), "Default"));
 		
 		Composite swtAwtComponent = new Composite(parent, SWT.EMBEDDED);
 		if (SystemUtil.IS_MAC_OSX) {

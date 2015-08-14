@@ -275,15 +275,18 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
                     public void hyperlinkUpdate( HyperlinkEvent evt ) {
                         if ( evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED ) {
                             System.out.println("Link:" + evt.getDescription());
-                            if ( evt.getDescription().equals("openstackfile://") ) {
+                            if ( evt.getDescription().equals("openfile://") ) {
                                 chooseStackFile();
-                            } else if ( evt.getDescription().startsWith("openlogfile") && !evt.getDescription().endsWith("//") ) {
-                                File[] files = { new File(evt.getDescription().substring(14)) };
+                            } else if ( evt.getDescription().startsWith("openfile") && !evt.getDescription().endsWith("//") ) {
+                                File[] files = { new File(evt.getDescription().substring(11)) };
                                 openFiles(files, false);
-                            } else if ( evt.getDescription().equals("parserconfig://") ) {
-                                selectCurrentParserConfig();
                             } else if ( evt.getDescription().equals("openanalyzedfile://") ) {
                                 openAnalyzedInfo();
+                            } else if ( evt.getDescription().startsWith("openanalyzedfile") && !evt.getDescription().endsWith("//") ) {
+                                String fileName = new StringBuilder(100).append(evt.getDescription().substring(19)).append('_').append(StackParser.INFO_EXT).append('.').append(StackParser.INFO_EXTENSION).toString();
+                                openAnalyzedFile(fileName);
+                            } else if ( evt.getDescription().equals("parserconfig://") ) {
+                                selectCurrentParserConfig();
                             }
                         }
                     }
@@ -353,8 +356,8 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
                 result.append("\n");
             }
             resultString = result.toString();
-            resultString = resultString.replaceFirst("<!-- ##recentstackfiles## -->", HtmlUtils.getAsTable("openlogfile://", perf.getStackFiles()));
-            resultString = resultString.replaceFirst("<!-- ##recentanalyzedstackfiles## -->", HtmlUtils.getAsTable("openlogfile://", perf.getAnalyzedStackFiles()));
+            resultString = resultString.replaceFirst("<!-- ##recentfiles## -->", HtmlUtils.getAsTable("openfile://", perf.getStackFiles()));
+            resultString = resultString.replaceFirst("<!-- ##recentanalyzedfiles## -->", HtmlUtils.getAsTable("openanalyzedfile://", perf.getAnalyzedStackFiles()));
             
             if ( perf.getCurrentParserConfig() != null ){
                 resultString = resultString.replaceFirst("<!-- ##currentparserconfig## -->", perf.getCurrentParserConfig().replace('\\', '/'));            	
@@ -373,8 +376,8 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
                 ex.printStackTrace();
             }
         }
-        resultString = resultString.replaceFirst("<!-- ##recentstackfiles## -->", "");
-        resultString = resultString.replaceFirst("<!-- ##recentanalyzedstackfiles## -->", "");
+        resultString = resultString.replaceFirst("<!-- ##recentfiles## -->", "");
+        resultString = resultString.replaceFirst("<!-- ##recentanalyzedfiles## -->", "");
         resultString = resultString.replaceFirst("<!-- ##currentparserconfig## -->", "");
         return (resultString);
     }
@@ -429,8 +432,11 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
                 return null;
             }
 
-            if ( !isRecent && filter == null ) {
-                prefManager.addToStackFiles(stackFileInfo.getFilename());
+            if ( !isRecent){
+            	if(filter == null ) {
+            		prefManager.addToStackFiles(stackFileInfo.getFilename());
+            	}
+            	prefManager.addToAnalyzedStackFiles(stackFileInfo.getFilename());
             }
         } catch ( RuntimeException ex ) {
             StackParser.removeAllAnalyzedFile(stackFileInfo);
