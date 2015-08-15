@@ -37,9 +37,9 @@ public class MainTreeRenderer extends DefaultTreeCellRenderer {
 
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
         if(((DefaultMutableTreeNode)value).getUserObject() instanceof StackFileInfo){
-            setIcon(ResourceUtils.getImageResource("thread.gif"));
+            setIcon(ResourceUtils.getImageIconResource("thread.gif"));
         }else{
-            setIcon(ResourceUtils.getImageResource("list.gif"));        	
+            setIcon(ResourceUtils.getImageIconResource("list.gif"));        	
         }
         this.setBackgroundNonSelectionColor(new Color(0,0,0,0));       
         return this;

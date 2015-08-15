@@ -62,12 +62,14 @@ public class BasicFileStackParser extends StackParser {
 	    	int stackStartLine = config.getStackStartLine();
 	    	String divideStack = config.getDivideStack();
 	    	
+	    	
 	    	boolean timeProcess = false;
 	    	if(timeFilter != null && timeSize > 0){
 	    		timeProcess = true;
 	    	}
 	    	
 	    	while((line = reader.readLine()) != null){
+	    		progressBar();
 	    		// Empty line or include divideStack string
 	    		lineSize = line.trim().length();
 	    		if( lineSize == 0 || (divideStack != null && line.indexOf(divideStack)>= 0)){

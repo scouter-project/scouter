@@ -913,6 +913,7 @@
             allowMultiple="true"
             class="scouter.client.stack.views.StackAnalyzerView"
             id="scouter.client.stack.views.StackAnalyzerView"
+            icon="icons/page_white_stack.png"           
             name="StackAnalyzer">
       </view>
       <view

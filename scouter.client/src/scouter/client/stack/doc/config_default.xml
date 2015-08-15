@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<awacs>
+<scouter>
   <parser stackStartLine="2">BasicFileStackParser</parser>
   <time size="19" filter=":" position="0">yyyy-MM-dd HH:mm:ss</time>    
   <workerThread>
@@ -42,4 +42,4 @@
       <list>ClassLoader.</list>    
     </analyzeStack>
   </analyze>
-</awacs>
+</scouter>

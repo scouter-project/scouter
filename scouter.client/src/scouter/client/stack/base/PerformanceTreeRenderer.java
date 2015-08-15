@@ -31,7 +31,7 @@ public class PerformanceTreeRenderer extends DefaultTreeCellRenderer {
                         boolean expanded, boolean leaf, int row, boolean hasFocus) {
 
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-                this.setIcon(null);
+        this.setIcon(null);
         this.setBackgroundNonSelectionColor(new Color(0,0,0,0));       
         return this;
     }

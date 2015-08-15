@@ -97,6 +97,7 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
     private boolean m_isInerPercent = false;
     private boolean m_isSortByFunction = false;
     private boolean m_isSimpleDumpTimeList = true;
+    private boolean m_isDefaultConfiguration = false;
 
     public static void setFrame( JFrame frame ) {
         m_frame = frame;
@@ -198,6 +199,8 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
                 m_isSortByFunction = ((JCheckBoxMenuItem)source).getState();
             } else if ( "Simple Dump Time List".equals(menuName) ) {
                 m_isSimpleDumpTimeList = ((JCheckBoxMenuItem)source).getState();
+            } else if ( "Use Default Parser Configuration".equals(menuName) ) {
+            	m_isDefaultConfiguration = ((JCheckBoxMenuItem)source).getState();
             }        	
         }	
     }
@@ -379,7 +382,11 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
     private void openFiles( File[] files, boolean isRecent ) {
         PreferenceManager prefManager = PreferenceManager.get();
         String configFile = prefManager.getCurrentParserConfig();
-        if ( configFile == null ) {
+        if(m_isDefaultConfiguration){
+    		configFile = XMLReader.DEFAULT_XMLCONFIG;        	
+        }
+        
+        if (configFile == null ) {
         
         	int result = JOptionPane.showConfirmDialog (null, "The configuration file is not selected.\r\nDo you want to use the default configuration?","Check Setting selection",JOptionPane.YES_NO_OPTION);
         	if(result == JOptionPane.YES_OPTION ){
@@ -748,6 +755,12 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
         menuItem.addActionListener(this);
         menu.add(menuItem);
 
+        menu.addSeparator();
+        
+        menuItem = new JCheckBoxMenuItem("Use Default Parser Configuration", m_isDefaultConfiguration);
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
+       
         popup.add(menu);
         
         menuItem = new JMenuItem("Help", KeyEvent.VK_A);

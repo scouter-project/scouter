@@ -19,7 +19,6 @@ package scouter.client.stack.views;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -35,8 +34,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
-import scouter.client.server.Server;
-import scouter.client.server.ServerManager;
 import scouter.client.stack.base.MainFrame;
 import scouter.client.stack.config.XMLReader;
 import scouter.client.stack.data.StackFileInfo;
@@ -142,8 +139,8 @@ public class XMLEditorView extends ViewPart {
 	
 	private void initDefaultHighlightings(){
 		m_defaultHighlightings = new ArrayList<ColoringWord>(20);
-		m_defaultHighlightings.add(new ColoringWord("<awacs>", SWT.COLOR_BLUE, true));
-		m_defaultHighlightings.add(new ColoringWord("</awacs>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<scouter>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("</scouter>", SWT.COLOR_BLUE, true));
 		m_defaultHighlightings.add(new ColoringWord("<parser", SWT.COLOR_BLUE, true));
 		m_defaultHighlightings.add(new ColoringWord("</parser>", SWT.COLOR_BLUE, true));
 		m_defaultHighlightings.add(new ColoringWord("<time", SWT.COLOR_BLUE, true));

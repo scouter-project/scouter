@@ -65,6 +65,7 @@ public class DevonFileStackParser extends StackParser {
 	    	int stackStartLine = config.getStackStartLine();
             
             while ( (line = reader.readLine()) != null ) {
+	    		progressBar();
                 if ( line.trim().length() == 0 ) {
                     if ( isWorking && lineCount > stackStartLine ) {
                         processStack(workingList, tsinfo);

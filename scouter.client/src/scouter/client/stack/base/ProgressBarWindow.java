@@ -37,7 +37,6 @@ public class ProgressBarWindow extends JFrame{
 	
 	public ProgressBarWindow(String title){
 		super(title);
-		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		Container content = this.getContentPane();
 		m_progressBar = new JProgressBar();
@@ -47,11 +46,14 @@ public class ProgressBarWindow extends JFrame{
 		m_progressBar.setBorder(border);
 		content.add(m_progressBar, BorderLayout.NORTH);
 		this.setSize(300, 100);
+		this.pack();
+		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 	}
 	
 	public void setValue(int value){
 		m_progressBar.setValue(value);
+//		m_progressBar.repaint();
 		if(value == 100){
 			try { Thread.sleep(500); }catch(Exception ex){}
 			this.dispose();

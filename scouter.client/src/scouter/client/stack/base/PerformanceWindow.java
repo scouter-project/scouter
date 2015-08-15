@@ -45,6 +45,7 @@ import javax.swing.tree.TreeSelectionModel;
 import scouter.client.stack.data.StackFileInfo;
 import scouter.client.stack.data.StackParser;
 import scouter.client.stack.utils.NumberUtils;
+import scouter.client.stack.utils.ResourceUtils;
 import scouter.client.stack.utils.StringUtils;
 
 
@@ -125,12 +126,15 @@ public class PerformanceWindow extends JFrame implements MenuListener, ActionLis
         m_performanceTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         m_performanceTree.setCellRenderer(new PerformanceTreeRenderer());
 
+        this.setIconImage(ResourceUtils.getImageResource("tree_mode.gif"));
         Container content = getContentPane();
         JScrollPane scrollPane = new JScrollPane(m_performanceTree);
         content.add(scrollPane, BorderLayout.CENTER);
-
+        setSize(800, 500);
+        int [] screen = ResourceUtils.getScreenSize();
+        setLocation((screen[0]/2)-400, (screen[1]/2)-250);
+        
         setVisible(true);
-        setSize(500, 500);
 
         createTreePopupMenu();
 

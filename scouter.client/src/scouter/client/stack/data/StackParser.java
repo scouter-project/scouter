@@ -38,7 +38,7 @@ import scouter.client.stack.utils.StringUtils;
 
 
 public abstract class StackParser {
-    public final static String EXTENSION = "awacs";
+    public final static String EXTENSION = "scouter";
     public final static String INFO_EXTENSION = "info";
 
     public final static String INFO_EXT = "INFO";
@@ -51,8 +51,6 @@ public abstract class StackParser {
     public final static String SERVICE_NAME = "Service Call";
     public final static String LOG_EXT = "LOG";
     public final static String LOG_NAME = "Logging call";
-
- //   public final static int STACK_START_LINE = 2;
 
     private ParserConfig m_config = null;
     private StackFileInfo m_stackFile = null;
@@ -87,6 +85,10 @@ public abstract class StackParser {
     private String m_filter = null;
 
     private ProgressBarWindow m_progressBarWindow = null;
+    
+    // ProgressPar
+	private int m_totalLineCount = 0;
+	private int m_processPercent = 0; 
 
     protected StackParser() {
     }
@@ -152,7 +154,7 @@ public abstract class StackParser {
                 m_analyzerList[i] = new ArrayList<String>(2000);
             }
         }
-
+    	
         m_totalWorkingCount = 0;
 
         try {
@@ -162,6 +164,7 @@ public abstract class StackParser {
             throw new RuntimeException(ex);
         }
 
+        
     }
 
     public void analyze( StackFileInfo stackFile ) {
@@ -211,6 +214,8 @@ public abstract class StackParser {
         m_totalWorkerCount = 0;
         m_totalSecond = 0;
         m_dumpCount = 0;
+    	m_totalLineCount = 0;
+    	m_processPercent = 0;        
     }
 
     abstract public void process();
@@ -623,10 +628,21 @@ public abstract class StackParser {
         }
     }
 
+    protected void progressBar(){
+		m_totalLineCount++;
+		if(m_totalLineCount % 3000 == 0){
+			m_processPercent++;
+			if(m_processPercent == 100){
+				m_processPercent = 0;
+			}
+			setProgressBarValue(m_processPercent);
+		}
+    }
+    
     static public StackFileInfo loadAnalyzedInfo( String filename ) {
         String endString = new StringBuilder(20).append(StackParser.INFO_EXT).append('.').append(INFO_EXTENSION).toString();
         if ( !filename.endsWith(endString) )
-            throw new RuntimeException(filename + " is not a AWACS analyzed info file!");
+            throw new RuntimeException(filename + " is not a Scouter analyzed info file!");
 
         String stackFilename = filename.substring(0, filename.indexOf(endString) - 1);
 

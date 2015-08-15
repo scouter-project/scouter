@@ -19,6 +19,7 @@ package scouter.client.stack.base;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -27,6 +28,8 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
+import scouter.client.stack.utils.ResourceUtils;
 
 @SuppressWarnings("serial")
 public class FilterInputDialog extends JDialog {
@@ -42,6 +45,7 @@ public class FilterInputDialog extends JDialog {
             m_dialog = new FilterInputDialog(mainWindow, isAscending, jobType);
             m_dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             m_dialog.setModal(true);
+            m_dialog.setIconImage(ResourceUtils.getImageResource("filter.png"));
             m_dialog.setVisible(true);
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -60,7 +64,8 @@ public class FilterInputDialog extends JDialog {
         m_jobType = jobType;
 
         setTitle("Input Filter String");
-        setBounds(100, 100, 600, 100);
+        int [] screen = ResourceUtils.getScreenSize();
+        setBounds((screen[0]/2)-300, (screen[1]/2)-50, 600, 100);
         Container container = getContentPane();
         container.setLayout(new BorderLayout());
 
