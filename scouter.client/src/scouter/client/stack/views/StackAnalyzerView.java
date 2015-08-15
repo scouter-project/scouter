@@ -22,9 +22,7 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
@@ -33,7 +31,6 @@ import scouter.client.stack.actions.MainFrameAction;
 import scouter.client.stack.actions.OpenXMLEditorAction;
 import scouter.client.stack.base.MainFrame;
 import scouter.client.util.ImageUtil;
-import scouter.client.views.ServerFileManagementView;
 import scouter.util.SystemUtil;
 
 public class StackAnalyzerView extends ViewPart {

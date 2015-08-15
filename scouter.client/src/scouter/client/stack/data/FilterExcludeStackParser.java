@@ -58,7 +58,7 @@ public class FilterExcludeStackParser extends StackParser {
             ParserConfig config = getStackFileInfo().getParserConfig();
             int stackStartLine = config.getStackStartLine();
             int timeSize = config.getTimeSize();            
-
+	    	
             while ( (line = reader.readLine()) != null ) {
 	    		progressBar();
                 if ( line.trim().length() == 0 ) {

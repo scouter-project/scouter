@@ -19,10 +19,17 @@ package scouter.client.stack.utils;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 public class ResourceUtils {	
 	public static ImageIcon getImageIconResource(String path){
@@ -63,5 +70,38 @@ public class ResourceUtils {
     	size[0] = gd.getDisplayMode().getWidth();
     	size[1] = gd.getDisplayMode().getHeight();
     	return size;
+    }
+    
+	static public String openFileSaveDialog(String [] names, String [] extensions, String path, String defaultName){
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+		dialog.setOverwrite(true);
+		dialog.setFilterNames(names);
+		dialog.setFilterExtensions(extensions);
+		dialog.setFilterPath(path);
+		if(defaultName != null){
+			dialog.setFileName(defaultName);
+		}
+		return dialog.open();		
+	}
+	
+    static public void saveFile(String fileName, String contents){
+    	if(contents == null){
+    		return;
+    	}
+    	
+    	FileOutputStream out = null;
+    	try {
+    		out = new FileOutputStream(new File(fileName), false);
+    		contents = contents.trim();
+    		out.write(contents.getBytes());
+    		out.flush();
+    	}catch(Exception ex){
+    		ex.printStackTrace();
+    	}finally{
+    		if(out != null){
+    			try { out.close(); }catch(Exception ex){}
+    		}
+    	}
     }
  }

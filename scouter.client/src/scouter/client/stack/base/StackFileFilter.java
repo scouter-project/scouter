@@ -29,17 +29,19 @@ public class StackFileFilter extends FileFilter {
 		if (f.isDirectory() ) {
 			return true;
 		}
+		String fileName = f.getName().toLowerCase(); 
 		
-		if(f.getName().endsWith(StackParser.EXTENSION))
+		if(fileName.endsWith(StackParser.EXTENSION))
 			return false;
 
-		if(f.getName().endsWith(StackParser.INFO_EXTENSION))
+		if(fileName.endsWith(StackParser.INFO_EXTENSION))
 			return false;
+
 		
 		return true;
 	} 
 	
 	public String getDescription() {
-		return "Select stack file log"; 
+		return "Select Stack Log Files"; 
 	}
 }

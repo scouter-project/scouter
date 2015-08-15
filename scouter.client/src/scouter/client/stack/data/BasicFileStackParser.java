@@ -61,11 +61,10 @@ public class BasicFileStackParser extends StackParser {
 	    	int timeSize = config.getTimeSize();
 	    	int stackStartLine = config.getStackStartLine();
 	    	String divideStack = config.getDivideStack();
+	    	String timeMatchStr = null; 
 	    	
-	    	
-	    	boolean timeProcess = false;
 	    	if(timeFilter != null && timeSize > 0){
-	    		timeProcess = true;
+	    		timeMatchStr = new StringBuilder(50).append("(.*)").append(timeFilter).append("(.*)").toString();
 	    	}
 	    	
 	    	while((line = reader.readLine()) != null){
@@ -86,7 +85,7 @@ public class BasicFileStackParser extends StackParser {
     		
 	    		// Dump time
 	    		if(lineCount == 0){
-	    			if(timeProcess && line.indexOf(timeFilter) >= 0 && line.length() >= (timePosition + timeSize)){
+	    			if(timeMatchStr != null && line.matches(timeMatchStr) && line.length() >= (timePosition + timeSize)){
     					if(timeBuffer != null  && timeBuffer.length() > 10){
     						timeBuffer.append('\t').append(workerCount).append('\t').append(workingCount);    						
     						for(int tsIndex = 0; tsIndex < tsinfo.geSize(); tsIndex++){
@@ -129,7 +128,7 @@ public class BasicFileStackParser extends StackParser {
 	    	}
 	    		    	
 	    	// last time
-			if(timeProcess && timeBuffer != null && timeBuffer.length() > 10){
+			if(timeMatchStr != null && timeBuffer != null && timeBuffer.length() > 10){
 				timeBuffer.append('\t').append(workerCount).append('\t').append(workingCount);
 				for(int tsIndex = 0; tsIndex < tsinfo.geSize(); tsIndex++){
 					timeBuffer.append('\t').append(tsinfo.getValue(tsIndex));    							

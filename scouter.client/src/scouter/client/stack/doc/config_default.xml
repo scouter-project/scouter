@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scouter>
   <parser stackStartLine="2">BasicFileStackParser</parser>
-  <time size="19" filter=":" position="0">yyyy-MM-dd HH:mm:ss</time>    
+  <time size="19" filter="20..-..-.." position="0">yyyy-MM-dd HH:mm:ss</time>    
   <workerThread>
     <list>http-</list>
+    <list>webtob_main</list>
   </workerThread>
   <workingThread status="java.lang.Thread.State:">
     <list>javax.servlet.http.HttpServlet.service(</list> <!-- Servlet standard -->

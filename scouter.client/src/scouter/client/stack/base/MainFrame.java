@@ -478,6 +478,7 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
         fileChooser.setCurrentDirectory(prefManager.getSelectedPath());
         fileChooser.setFileFilter(new StackFileFilter());
         fileChooser.setMultiSelectionEnabled(true);
+//        fileChooser.setName("Stack Log File");
 
         if ( (prefManager.getPreferredSizeFileChooser().height > 0) ) {
             fileChooser.setPreferredSize(prefManager.getPreferredSizeFileChooser());
@@ -620,7 +621,7 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
     private String selectCurrentParserConfig() {
         ArrayList<String> list = new ArrayList<String>();
         list.add("xml");
-        String filename = selectFile("configFileSelect", list);
+        String filename = selectFile("XML Parser Configuration", list);
 
         if ( filename != null ) {
             PreferenceManager.get().setCurrentParserConfig(filename);
@@ -631,7 +632,7 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
     private void openAnalyzedInfo() {
         ArrayList<String> list = new ArrayList<String>();
         list.add(StackParser.INFO_EXTENSION);
-        String filename = selectFile("analyzedFileSelect", list);
+        String filename = selectFile("Analyzed Info File", list);
         if ( filename == null )
             return;
 

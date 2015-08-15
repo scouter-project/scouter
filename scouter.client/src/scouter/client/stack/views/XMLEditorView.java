@@ -110,9 +110,16 @@ public class XMLEditorView extends ViewPart {
 	}	
 	
 	private void saveAsConfigurations(){
+		String newFileName = ResourceUtils.openFileSaveDialog(new String [] {"XML Parser Configuration"}, new String [] {"*.xml"}, ".", "scouter_stackanalyzer");
+		if(newFileName == null){
+			return;
+		}
+		ResourceUtils.saveFile(newFileName, m_text.getText());
 	}
 
 	private void saveConfigurations(){
+		m_text.getText();
+		ResourceUtils.saveFile(m_fileName, m_text.getText());
 	}
 	
 	private void initialToolBar() {
@@ -126,7 +133,7 @@ public class XMLEditorView extends ViewPart {
 		}
 		man.add(new Action("SaveAs", ImageUtil.getImageDescriptor(Images.saveas)) {
 			public void run() {
-				saveConfigurations();
+				saveAsConfigurations();
 			}
 		});
 	}
