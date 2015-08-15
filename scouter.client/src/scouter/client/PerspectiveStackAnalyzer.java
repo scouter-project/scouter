@@ -20,8 +20,11 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+import scouter.client.group.view.GroupNavigationView;
 import scouter.client.stack.views.StackAnalyzerView;
-import scouter.client.stack.views.XMLEditorView;
+import scouter.client.views.ObjectDailyListView;
+import scouter.client.views.ObjectNavigationView;
+import scouter.client.views.WorkspaceExplorer;
 
 public class PerspectiveStackAnalyzer implements IPerspectiveFactory  {
 	
@@ -31,9 +34,19 @@ public class PerspectiveStackAnalyzer implements IPerspectiveFactory  {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
 		
+		IFolderLayout agentLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_OBJECT_NAVIGATION, IPageLayout.LEFT, 0.20f, editorArea);
+		agentLayout.addPlaceholder(ObjectNavigationView.ID + ":*");
+		agentLayout.addPlaceholder(ObjectDailyListView.ID + ":*");
+		agentLayout.addPlaceholder(WorkspaceExplorer.ID);
+		agentLayout.addPlaceholder(GroupNavigationView.ID);
+		agentLayout.addView(ObjectNavigationView.ID);
+		layout.getViewLayout(ObjectNavigationView.ID).setCloseable(false); 
+		
 		IFolderLayout mainLayout = layout.createFolder("perspective.stack.main", IPageLayout.LEFT, 1.0f, editorArea);
 		mainLayout.addView(StackAnalyzerView.ID);
 		layout.getViewLayout(StackAnalyzerView.ID).setCloseable(false); 
+
+		
 		layout.addPerspectiveShortcut(getId());
 	}
 	
