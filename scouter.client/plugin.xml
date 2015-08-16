@@ -920,7 +920,7 @@
             allowMultiple="true"
             class="scouter.client.stack.views.XMLEditorView"
             id="scouter.client.stack.views.XMLEditorView"
-            icon="icons/edit_config.png"
+            icon="icons/config_edit.png"
             name="ConfigStackAnalyser"
             restorable="false">
       </view>      

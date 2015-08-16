@@ -58,7 +58,7 @@ public class StackAnalyzerView extends ViewPart {
 			}
 		});
 		
-		man.add(new OpenXMLEditorAction(win, "edit parser configuration", ImageUtil.getImageDescriptor(Images.edit_config)));
+		man.add(new OpenXMLEditorAction(win, "edit parser configuration", ImageUtil.getImageDescriptor(Images.config_edit)));
 		
 		Composite swtAwtComponent = new Composite(parent, SWT.EMBEDDED);
 		if (SystemUtil.IS_MAC_OSX) {
@@ -72,8 +72,6 @@ public class StackAnalyzerView extends ViewPart {
 	}
 
 	public void setFocus() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

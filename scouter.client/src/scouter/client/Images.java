@@ -110,7 +110,7 @@ public class Images {
 	public static final Image transrealtime     = Activator.getImage("icons/transrealtime.png");
 	public static final Image preference     = Activator.getImage("icons/preference.png");
 	public static final Image config         = Activator.getImage("icons/config.png");
-	public static final Image edit_config         = Activator.getImage("icons/edit_config.png");
+	public static final Image config_edit         = Activator.getImage("icons/config_edit.png");
 	public static final Image table          = Activator.getImage("icons/table.png");
 	public static final Image bar          = Activator.getImage("icons/chart_bar.png");
 	

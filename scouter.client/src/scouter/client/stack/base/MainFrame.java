@@ -153,17 +153,17 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
         } else if ( "Help".equals(menuName) ) {
         	HelpWindow.startHelpWindow();
         } else if ( "Manual Performance Tree(Ascending)".equals(menuName) ) {
-            createManualJob(1, true);
+            createManualJob(FilterInputDialog.TASK.PERFORMANCE_TREE, true);
         } else if ( "Manual Performance Tree(Descending)".equals(menuName) ) {
-            createManualJob(1, false);
+            createManualJob(FilterInputDialog.TASK.PERFORMANCE_TREE, false);
         } else if ( "Manual Service Call".equals(menuName) ) {
-            createManualJob(2, true);
+            createManualJob(FilterInputDialog.TASK.SERVICE_CALL, true);
         } else if ( "Manual Thread Stack (max 20000 lines)".equals(menuName) ) {
-            createManualJob(3, true);
+            createManualJob(FilterInputDialog.TASK.THREAD_STACK, true);
         } else if ( "Manual Stack Analyze(Include)".equals(menuName) ) {
-            createManualJob(4, true);
+            createManualJob(FilterInputDialog.TASK.FILTER_ANALYZER, true);
         } else if ( "Manual Stack Analyze(Exclude)".equals(menuName) ) {
-            createManualJob(4, false);
+            createManualJob(FilterInputDialog.TASK.FILTER_ANALYZER, false);
             /* Main Tree Popup menu */
         } else if ( "Performance Tree".equals(menuName) ) {
             createMainPerformance();
@@ -1018,7 +1018,7 @@ public class MainFrame extends JPanel implements ListSelectionListener, TreeSele
             StringUtils.setClipboard(filter);
     }
 
-    private void createManualJob( int jobtype, boolean isAscending ) {
+    private void createManualJob( FilterInputDialog.TASK jobtype, boolean isAscending ) {
         try {
             FilterInputDialog.init(this, isAscending, jobtype);
         } catch ( Exception e ) {

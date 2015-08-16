@@ -33,18 +33,21 @@ import scouter.client.stack.utils.ResourceUtils;
 @SuppressWarnings("serial")
 public class FilterInputDialog extends JDialog {
     private static FilterInputDialog m_dialog;
+    
+    public enum TASK { NONE, PERFORMANCE_TREE, SERVICE_CALL, THREAD_STACK, FILTER_ANALYZER };
 
     private MainFrame m_mainWindow = null;
     private boolean m_isAscending = true;
     private JTextField m_field = null;
-    private int m_jobType = 0;
+    private TASK m_jobType = TASK.NONE;
 
-    public static void init( MainFrame mainWindow, boolean isAscending, int jobType ) {
+    public static void init( MainFrame mainWindow, boolean isAscending, TASK jobType ) {
         try {
             m_dialog = new FilterInputDialog(mainWindow, isAscending, jobType);
             m_dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             m_dialog.setModal(true);
             m_dialog.setIconImage(ResourceUtils.getImageResource("filter.png"));
+            m_dialog.setTextFocus();
             m_dialog.setVisible(true);
         } catch ( Exception e ) {
             e.printStackTrace();
@@ -55,7 +58,7 @@ public class FilterInputDialog extends JDialog {
         return m_dialog;
     }
 
-    public FilterInputDialog(MainFrame mainWindow, boolean isAscending, int jobType) {
+    public FilterInputDialog(MainFrame mainWindow, boolean isAscending, TASK jobType) {
         super(MainFrame.getFrame());
 
         m_mainWindow = mainWindow;
@@ -86,14 +89,20 @@ public class FilterInputDialog extends JDialog {
                     dispose();
                     return;
                 }
-                if ( m_jobType == 1 )
-                    m_mainWindow.createAnalyzedPerformance(filter, m_isAscending);
-                else if ( m_jobType == 2 )
-                    m_mainWindow.viewServiceCall(filter);
-                else if ( m_jobType == 3 )
-                    m_mainWindow.viewThreadStack(filter);
-                else if ( m_jobType == 4 )
-                    m_mainWindow.analyzeFilterStack(filter, m_isAscending);
+                switch(m_jobType){
+                	case PERFORMANCE_TREE:
+                        m_mainWindow.createAnalyzedPerformance(filter, m_isAscending);
+                		break;
+                	case SERVICE_CALL:
+                        m_mainWindow.viewServiceCall(filter);
+                		break;
+                	case THREAD_STACK:
+                        m_mainWindow.viewThreadStack(filter);
+                		break;
+                	case FILTER_ANALYZER:
+                        m_mainWindow.analyzeFilterStack(filter, m_isAscending);
+                		break;
+                }
                 dispose();
             }
         });
@@ -111,6 +120,10 @@ public class FilterInputDialog extends JDialog {
         });
 
         cancelButton.setActionCommand("Cancel");
-        buttonPane.add(cancelButton);
+        buttonPane.add(cancelButton);       
+    }
+    
+    public void setTextFocus(){
+    	m_field.requestFocusInWindow();  
     }
 }
