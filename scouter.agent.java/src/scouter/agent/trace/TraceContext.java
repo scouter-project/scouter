@@ -85,7 +85,7 @@ public class TraceContext {
 	public long callee;
 	
 	public String login;
-	public String bizcode;
+	public String xlogDesc;
 
 
 

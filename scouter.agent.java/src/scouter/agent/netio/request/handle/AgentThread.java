@@ -144,7 +144,7 @@ public class AgentThread {
 		ListValue subcall = rPack.newList("subcall");
 
 		ListValue login = rPack.newList("login");
-		ListValue biz = rPack.newList("biz");
+		ListValue desc = rPack.newList("desc");
 
 		
 		Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
@@ -167,7 +167,7 @@ public class AgentThread {
 				cpu.add(0L);
 			}
 			login.add(ctx.login);
-			biz.add(ctx.bizcode);
+			desc.add(ctx.xlogDesc);
 		}
 		rPack.put("complete", new BooleanValue(true));
 		return rPack;

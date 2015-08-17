@@ -53,7 +53,7 @@ public class XLogPack implements Pack {
 	public byte xType; //see XLogTypes
 	
 	public int login;
-	public int biz;
+	public int desc;
 	
 	public String toString() {	
 		StringBuilder sb = new StringBuilder();
@@ -102,7 +102,7 @@ public class XLogPack implements Pack {
 		o.writeDecimal(xType);
 		
 		o.writeDecimal(login);
-		o.writeDecimal(biz);
+		o.writeDecimal(desc);
 		
 		out.writeBlob(o.toByteArray());
 	}
@@ -140,7 +140,7 @@ public class XLogPack implements Pack {
 		}
 		if (d.available() > 0) {
 			this.login=(int)d.readDecimal();
-			this.biz=(int)d.readDecimal();
+			this.desc=(int)d.readDecimal();
 		}
 		return this;
 	}
