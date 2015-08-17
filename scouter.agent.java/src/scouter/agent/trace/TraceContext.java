@@ -85,15 +85,8 @@ public class TraceContext {
 	public long callee;
 	
 	public String login;
-	public String xlogDesc;
+	public String desc;
 
-
-
-//	public void checkConcurrentProfiling(){
-//		if(this.profile.getClass()!=ConcurrentProfileCollector.class){
-//			this.profile = new ConcurrentProfileCollector(this.profile);
-//		}
-//	}
 	public TraceContext createChild(){
 		TraceContext child = new TraceContext(this.isSummary);
 		child.parent = this;

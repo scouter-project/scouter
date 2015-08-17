@@ -167,7 +167,7 @@ public class AgentThread {
 				cpu.add(0L);
 			}
 			login.add(ctx.login);
-			desc.add(ctx.xlogDesc);
+			desc.add(ctx.desc);
 		}
 		rPack.put("complete", new BooleanValue(true));
 		return rPack;
