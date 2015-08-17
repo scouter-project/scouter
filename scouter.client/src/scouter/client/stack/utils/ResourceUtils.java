@@ -20,8 +20,13 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.zip.ZipInputStream;
 
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
@@ -104,4 +109,30 @@ public class ResourceUtils {
     		}
     	}
     }
+    
+    static public boolean isZipFile(String fileName){
+    	if(fileName == null){
+    		return false;
+    	}
+    	File file = new File(fileName);
+    	if(!file.exists() || !file.isFile()){
+    		return false;
+    	}
+    	InputStream in = null;
+    	try {
+    		in = new FileInputStream(file);
+    		byte [] data = new byte[2];
+    		in.read(data);
+    		if(data[0] == 0x50 && data[1] ==0x4b){
+    			return true;
+    		}
+    	}catch(Exception ex){
+    		return false;
+    	}finally {
+    		if(in!= null){
+    			try {in.close(); }catch(Exception e){}
+    		}
+    	}
+    	return false;
+    }    
  }

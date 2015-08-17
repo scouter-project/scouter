@@ -18,10 +18,14 @@ package scouter.client.stack.data;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.zip.ZipInputStream;
 
 import scouter.client.stack.config.ParserConfig;
+import scouter.client.stack.utils.ResourceUtils;
 import scouter.client.stack.utils.StringUtils;
 
 
@@ -37,8 +41,15 @@ public class DevonFileStackParser extends StackParser {
 
     public void process() {
         BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(new File(getStackFileInfo().getFilename())));
+	    ZipInputStream zipInputStream = null;
+	    try {
+	    	if(ResourceUtils.isZipFile(getStackFileInfo().getFilename())){
+	    		zipInputStream = new ZipInputStream(new FileInputStream(new File(getStackFileInfo().getFilename())));
+	    		zipInputStream.getNextEntry();
+	    		reader = new BufferedReader(new InputStreamReader(zipInputStream));
+	    	}else{
+		    	reader = new BufferedReader(new FileReader(new File(getStackFileInfo().getFilename())));
+	    	}
 
             StringBuilder timeBuffer = null;
             String line = null;
@@ -145,6 +156,9 @@ public class DevonFileStackParser extends StackParser {
         } catch ( Exception ex ) {
             throw new RuntimeException(ex);
         } finally {
+	    	if(zipInputStream != null){
+	    		try { zipInputStream.closeEntry();}catch(Exception e){}	    		
+	    	}        	
             if ( reader != null ) {
                 try {
                     reader.close();
