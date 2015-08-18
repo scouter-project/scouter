@@ -206,7 +206,7 @@ public class DataProxy {
 
 	static DataUdpAgent udpNet = DataUdpAgent.getInstance();
 
-	private static void sendDirect(Pack p) {
+	public static void sendDirect(Pack p) {
 		try {
 			udpNet.write(new DataOutputX().writePack(p).toByteArray());
 		} catch (IOException e) {

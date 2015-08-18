@@ -43,6 +43,8 @@ import scouter.server.util.ThreadScala
 import scouter.util.BytesUtil
 import scouter.util.RequestQueue
 import scouter.util.StringUtil
+import scouter.lang.pack.StackPack
+import scouter.server.core.StackCore
 object NetDataProcessor {
     class NetData(_data: Array[Byte], _addr: InetAddress) {
         val addr = _addr
@@ -174,6 +176,11 @@ object NetDataProcessor {
                 StatusCore.add(p.asInstanceOf[StatusPack])
                 if (conf.debug_udp_status) {
                     System.out.println("DEBUG UDP STATUS: " + p)
+                }
+            case PackEnum.STACK =>
+                StackCore.add(p.asInstanceOf[StackPack])
+                if (conf.debug_udp_stack) {
+                    System.out.println("DEBUG UDP STACK: " + p)
                 }
             case _ =>
                 System.out.println(p)
