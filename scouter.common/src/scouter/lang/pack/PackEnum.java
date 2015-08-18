@@ -31,9 +31,10 @@ public class PackEnum {
 	public final static byte TEXT = 50;
 	public final static byte PERF_COUNTER = 60;
 	public final static byte PERF_STATUS = 61;
+	public final static byte STACK = 62;
+
 	public final static byte ALERT = 70;
 	public final static byte OBJECT = 80;
-	public final static byte STACK = 90;
 
 	public static Pack create(byte p) {
 		switch (p) {
@@ -53,6 +54,8 @@ public class PackEnum {
 			return new AlertPack();
 		case OBJECT:
 			return new ObjectPack();
+		case STACK:
+			return new StackPack();
 		default:
 			throw new RuntimeException("Unknown pack type= " + p);
 		}
