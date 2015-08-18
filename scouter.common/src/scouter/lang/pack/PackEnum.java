@@ -33,6 +33,7 @@ public class PackEnum {
 	public final static byte PERF_STATUS = 61;
 	public final static byte ALERT = 70;
 	public final static byte OBJECT = 80;
+	public final static byte STACK = 90;
 
 	public static Pack create(byte p) {
 		switch (p) {
