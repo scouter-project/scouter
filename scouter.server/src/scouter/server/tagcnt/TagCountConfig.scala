@@ -66,9 +66,9 @@ object TagCountConfig {
         val ip = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_IP);
         val service = new Tag(TagConstants.GROUP_SERVICE, TagConstants.GROUP_SERVICE);
         
-        val service_elapsed= new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_TIME_SUM);
-        val service_bytes = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_BYTE_SUM);
-        val service_errors = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_ERROR_SUM);
+        val service_time_sum= new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_TIME_SUM);
+        val service_byte_sum = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_BYTE_SUM);
+        val service_error_sum = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_ERROR_SUM);
         
         val userAgent = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_USER_AGENT);
         val error = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_ERROR);
@@ -78,10 +78,19 @@ object TagCountConfig {
         val elapsed = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_ELAPSED);
         val sqltime = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SQLTIME);
         val apitime = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_APITIME);
+   
+        val sqlcount_sum = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SQL_COUNT_SUM);
+        val apicount_sum = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_API_COUNT_SUM);
+        val sqltime_sum = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SQLTIME_SUM);
+        val apitime_sum = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_APITIME_SUM);
 
         val city = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_CITY);
         val nation = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_NATION);
         val userid = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_USERID);
+
+        val login = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_USERID);
+        val desc = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_DESC);
+
     }
     val service = new Service()
 

@@ -16,12 +16,22 @@ public class TagConstants {
 	public static final String NAME_REFERER = "referer";
 	public static final String NAME_GROUP = "group";
 	public static final String NAME_ELAPSED = "elapsed";
+	
 	public static final String NAME_SQLTIME = "sqltime";
 	public static final String NAME_APITIME = "apitime";
+	
+	public static final String NAME_SQLTIME_SUM = "sqltime-sum";
+	public static final String NAME_APITIME_SUM = "apitime-sum";
+	public static final String NAME_SQL_COUNT_SUM = "sqlcount-sum";
+	public static final String NAME_API_COUNT_SUM = "apicount-sum";
+	
 	public static final String NAME_CITY = "city";
 	public static final String NAME_NATION = "nation";
 	public static final String NAME_USERID = "userid";
 	public static final String NAME_LEVEL = "level";
 	public static final String NAME_TITLE = "title";
+
+	public static final String NAME_LOGIN = "login";
+	public static final String NAME_DESC = "desc";
 
 }

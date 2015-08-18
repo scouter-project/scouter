@@ -74,11 +74,10 @@ public class TraceContext {
 	final public SqlParameter sql = new SqlParameter();
 	public SqlParameter sqlActiveArgs;
 	
-
 	public long userid;
 	public int userAgent;
 	public int referer;
-//	public int opencon;
+
 	public boolean profile_thread_cputime;
 	public boolean is_child_tx;
 	public long caller;
