@@ -150,6 +150,9 @@ public class AgentThread {
 		Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
 		while (en.hasMoreElements()) {
 			TraceContext ctx = en.nextElement();
+			if (ctx == null) {
+				continue;
+			}
 			id.add(ctx.thread.getId());
 			name.add(ctx.thread.getName());
 			stat.add(ctx.thread.getState().name());
