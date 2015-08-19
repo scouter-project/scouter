@@ -20,10 +20,11 @@ package scouter.server.core;
 import scouter.lang.pack.StackPack
 import scouter.server.Configure
 import scouter.server.Logger
+import scouter.server.db.StackAnalyzerDB
 import scouter.server.util.ThreadScala
 import scouter.util.RequestQueue
 
-object StackCore {
+object StackAnalyzerCore {
 
     val queue = new RequestQueue[StackPack](CoreRun.MAX_QUE_SIZE);
 
@@ -31,15 +32,7 @@ object StackCore {
         val conf = Configure.getInstance();
         while (CoreRun.running) {
             val m = queue.get();
-            try {
-                val objInfo = AgentManager.getAgent(m.objHash)
-                if (objInfo != null) {
-                    process(objInfo.objName, m)
-                }
-            } catch {
-                case e: Exception =>
-                    Logger.println("S000", 10, "StackCore", e)
-            }
+            StackAnalyzerDB.add(m)
         }
     }
 
@@ -48,9 +41,6 @@ object StackCore {
         if (ok == false) {
             Logger.println("S200", 10, "Stack queue exceeded!!");
         }
-    }
-    def process(objName: String, x: StackPack) {
-        println(objName + "=>" + x);
     }
 }
   

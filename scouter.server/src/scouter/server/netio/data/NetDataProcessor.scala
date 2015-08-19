@@ -15,7 +15,9 @@
  *
  */
 package scouter.server.netio.data
+
 import java.net.InetAddress
+
 import scouter.io.DataInputX
 import scouter.lang.TextTypes
 import scouter.lang.pack.AlertPack
@@ -23,12 +25,12 @@ import scouter.lang.pack.ObjectPack
 import scouter.lang.pack.Pack
 import scouter.lang.pack.PackEnum
 import scouter.lang.pack.PerfCounterPack
+import scouter.lang.pack.StackPack
 import scouter.lang.pack.StatusPack
 import scouter.lang.pack.TextPack
 import scouter.lang.pack.XLogPack
 import scouter.lang.pack.XLogProfilePack
 import scouter.net.NetCafe
-import scouter.net.SocketAddr
 import scouter.server.Configure
 import scouter.server.Logger
 import scouter.server.core.AgentManager
@@ -36,6 +38,7 @@ import scouter.server.core.AlertCore
 import scouter.server.core.PerfCountCore
 import scouter.server.core.ProfileCore
 import scouter.server.core.ServiceCore
+import scouter.server.core.StackAnalyzerCore
 import scouter.server.core.StatusCore
 import scouter.server.core.TextCore
 import scouter.server.core.cache.TextCache
@@ -43,8 +46,6 @@ import scouter.server.util.ThreadScala
 import scouter.util.BytesUtil
 import scouter.util.RequestQueue
 import scouter.util.StringUtil
-import scouter.lang.pack.StackPack
-import scouter.server.core.StackCore
 object NetDataProcessor {
     class NetData(_data: Array[Byte], _addr: InetAddress) {
         val addr = _addr
@@ -178,7 +179,7 @@ object NetDataProcessor {
                     System.out.println("DEBUG UDP STATUS: " + p)
                 }
             case PackEnum.STACK =>
-                StackCore.add(p.asInstanceOf[StackPack])
+                StackAnalyzerCore.add(p.asInstanceOf[StackPack])
                 if (conf.debug_udp_stack) {
                     System.out.println("DEBUG UDP STACK: " + p)
                 }

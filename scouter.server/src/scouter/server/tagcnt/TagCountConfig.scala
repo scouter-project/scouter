@@ -36,7 +36,7 @@ object TagCountConfig {
 
         val tagGroup = _tagGroup;
         val tagName = _tagName;
-        val key = BitUtil.compsite(HashUtil.hash(tagGroup), HashUtil.hash(tagName));
+        val key = BitUtil.composite(HashUtil.hash(tagGroup), HashUtil.hash(tagName));
         var set = entries.get(tagGroup);
         if (set == null) {
             set = new StringSet();
@@ -57,7 +57,7 @@ object TagCountConfig {
     }
 
     def getTagKey(tagGroup: String, tagName: String): Long = {
-        return BitUtil.compsite(HashUtil.hash(tagGroup), HashUtil.hash(tagName));
+        return BitUtil.composite(HashUtil.hash(tagGroup), HashUtil.hash(tagName));
     }
 
     class Service {

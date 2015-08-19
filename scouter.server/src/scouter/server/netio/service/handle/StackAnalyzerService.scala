@@ -18,32 +18,24 @@ package tuna.server.netio.service.handle;
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.lang.pack.MapPack
-import scouter.lang.pack.StatusPack
 import scouter.net.TcpFlag
-import scouter.server.db.StatusRD
+import scouter.server.db.StackAnalyzerDB
 import scouter.server.netio.service.anotation.ServiceHandler
-import scouter.util.DateUtil
 import scouter.net.RequestCmd
 
-class StatusService {
+class StackAnalyzerService {
 
-  @ServiceHandler(RequestCmd.STATUS_AROUND_VALUE)
-  def statusAroundValue(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
-    val param = din.readPack().asInstanceOf[MapPack];
-    val objHash = param.getInt("objHash");
-    val key = param.getText("key");
-    val time = param.getLong("time");
-    
-    val date = DateUtil.yyyymmdd(time);
-    
-    val handler = (time: Long, data: Array[Byte]) => {
-      val pk = new DataInputX(data).readPack().asInstanceOf[StatusPack];
-        if (pk.key == key && pk.objHash == objHash) {
-          dout.writeByte(TcpFlag.HasNEXT);
-          dout.writePack(pk);
-          return;
+    @ServiceHandler(RequestCmd.GET_STACK_ANALYZER)
+    def read(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        val param = din.readPack().asInstanceOf[MapPack];
+        val objName = param.getText("objName");
+        val from = param.getLong("from");
+        val to = param.getLong("to");
+
+        val handler = (time: Long, data: Array[Byte]) => {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.write(data);
         }
+        StackAnalyzerDB.read(objName, from, to, handler)
     }
-    StatusRD.readByTime(date, time, time + DateUtil.MILLIS_PER_MINUTE, handler);
-  }
 }
