@@ -22,6 +22,7 @@ import scouter.net.TcpFlag
 import scouter.server.db.StackAnalyzerDB
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.net.RequestCmd
+import scouter.util.DateUtil
 
 class StackAnalyzerService {
 
@@ -29,13 +30,26 @@ class StackAnalyzerService {
     def read(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
         val param = din.readPack().asInstanceOf[MapPack];
         val objName = param.getText("objName");
-        val from = param.getLong("from");
-        val to = param.getLong("to");
 
+        var from = param.getLong("from");
+        var to = param.getLong("to");
         val handler = (time: Long, data: Array[Byte]) => {
             dout.writeByte(TcpFlag.HasNEXT);
             dout.write(data);
         }
-        StackAnalyzerDB.read(objName, from, to, handler)
+
+        if (from > 0 && to > from) {
+            StackAnalyzerDB.read(objName, from, to, handler)
+            return
+        }
+        val date = param.getText("date");
+        val hour = param.getInt("hour");
+        if (date != null) {
+            from = DateUtil.yyyymmdd(date) + hour * 3600 * 1000
+            to = from + 3600 * 1000
+            StackAnalyzerDB.read(objName, from, to, handler)
+            return
+        }
+
     }
 }
