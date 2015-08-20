@@ -23,6 +23,7 @@ import scouter.server.db.StackAnalyzerDB
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.net.RequestCmd
 import scouter.util.DateUtil
+import scouter.util.CastUtil
 
 class StackAnalyzerService {
 
@@ -43,7 +44,7 @@ class StackAnalyzerService {
             return
         }
         val date = param.getText("date");
-        val hour = param.getInt("hour");
+        val hour = CastUtil.cint(param.get("hour"))
         if (date != null) {
             from = DateUtil.yyyymmdd(date) + hour * 3600 * 1000
             to = from + 3600 * 1000
