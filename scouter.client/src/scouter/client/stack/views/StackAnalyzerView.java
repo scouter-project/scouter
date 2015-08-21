@@ -226,7 +226,7 @@ public class StackAnalyzerView extends ViewPart {
 		menuItem.addListener(SWT.Selection, listener);
 		menuItem = new MenuItem(subMenu, SWT.CHECK);
 		menuItem.setText("Remove Line(Performance Tree)");
-		menuItem.setSelection(mainProcessor.isFullFunction());
+		menuItem.setSelection(mainProcessor.isRemoveLine());
 		menuItem.addListener(SWT.Selection, listener);
 
 		menuItem = new MenuItem(subMenu, SWT.SEPARATOR);

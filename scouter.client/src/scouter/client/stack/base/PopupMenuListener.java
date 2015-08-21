@@ -16,7 +16,7 @@ public class PopupMenuListener implements Listener {
 				if("Exclude Stack".endsWith(menuText)){
 					mainProcessor.setExcludeStack(item.getSelection());
 				}else if("Remove Line(Performance Tree)".endsWith(menuText)){
-					mainProcessor.setFullFunction(item.getSelection());
+					mainProcessor.setRemoveLine(item.getSelection());
 				}else if("Inner Percent(Performance Tree)".endsWith(menuText)){
 					mainProcessor.setInerPercent(item.getSelection());
 				}else if("Sort by Function".endsWith(menuText)){

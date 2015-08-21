@@ -50,20 +50,20 @@ public class PerformanceWindow implements Listener{
     private String m_filter = null;
     private boolean m_isExcludeStack = true;
     private boolean m_isAscending = true;
-    private boolean m_isFullFunction = true;
+    private boolean m_isRemoveLine = true;
     private boolean m_isInerPercent = false;
     private int m_totalCount = 0;
     private ArrayList<String> m_excludeStack = null;
     private ArrayList<String> m_singleStack = null;
     private int m_singleStackCount = 0;
  
-    public PerformanceWindow(Shell shell, StackFileInfo stackFileInfo, String filter, boolean isExcludeStack, boolean isAscending, boolean isFullFunction, boolean isInerPercent) {
+    public PerformanceWindow(Shell shell, StackFileInfo stackFileInfo, String filter, boolean isExcludeStack, boolean isAscending, boolean isRemoveLine, boolean isInerPercent) {
     	m_parentShell = shell;
     	m_stackFileInfo = stackFileInfo;
         m_filter = filter;
         m_isExcludeStack = isExcludeStack;
         m_isAscending = isAscending;
-        m_isFullFunction = isFullFunction;
+        m_isRemoveLine = isRemoveLine;
         m_isInerPercent = isInerPercent;
 
         ArrayList<String> list = stackFileInfo.getParserConfig().getExcludeStack();
@@ -100,6 +100,7 @@ public class PerformanceWindow implements Listener{
         m_performanceTree = new Tree(m_shell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION );
         constructTree();
         createTreePopupMenu();
+  
         m_shell.open();      
     }
 
@@ -173,13 +174,16 @@ public class PerformanceWindow implements Listener{
         TreeItem treeItem = new TreeItem(m_performanceTree, SWT.NONE);
         treeItem.setText("Stack File Nodes");
         treeItem.setData(null);
-        makePerformanceTreeUI(treeItem, tree);
+        treeItem.setExpanded(true);
+        makePerformanceTreeUI(treeItem, tree, 0);
     }
 
-    private void makePerformanceTreeUI( TreeItem parent, HashMap<String, Counter> tree ) {
+    private void makePerformanceTreeUI( TreeItem parent, HashMap<String, Counter> tree, int depth ) {
         if ( tree == null || tree.size() == 0 )
             return;
 
+        depth++;
+        
         String key = null;
         Counter counter = null;
         StringBuilder buffer = null;
@@ -209,8 +213,11 @@ public class PerformanceWindow implements Listener{
             treeItem = new TreeItem(parent, SWT.NONE);
             treeItem.setText(buffer.toString());
             treeItem.setData(counter.getValue());
+            if(depth < 3){
+            	treeItem.setExpanded(true);
+            }
             if ( counter.getMap() != null ) {
-                makePerformanceTreeUI(treeItem, counter.getMap());
+                makePerformanceTreeUI(treeItem, counter.getMap(), depth);
             }
         }
 
@@ -264,7 +271,7 @@ public class PerformanceWindow implements Listener{
             if ( m_filter != null && baseIndex == startIndex )
                 line = StringUtils.makeSimpleLine(line, false);
             else
-                line = StringUtils.makeSimpleLine(line, m_isFullFunction);
+                line = StringUtils.makeSimpleLine(line, m_isRemoveLine);
 
             if ( currentCounter != null ) {
                 currentMap = currentCounter.getMap();
@@ -396,7 +403,7 @@ public class PerformanceWindow implements Listener{
         String filter = getSelectedFunctionName();
 
         if ( filter != null && m_stackFileInfo != null ){
-        	new PerformanceWindow(m_parentShell, m_stackFileInfo, filter, m_isExcludeStack, isAscending, m_isFullFunction, m_isInerPercent);
+        	new PerformanceWindow(m_parentShell, m_stackFileInfo, filter, m_isExcludeStack, isAscending, m_isRemoveLine, m_isInerPercent);
         }	
     }
 

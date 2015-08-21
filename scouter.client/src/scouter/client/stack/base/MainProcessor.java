@@ -51,7 +51,7 @@ public class MainProcessor{
 	private Composite m_parentComposite = null;
 	
     private boolean m_isExcludeStack = true;
-    private boolean m_isFullFunction = true;
+    private boolean m_isRemoveLine = false;
     private boolean m_isInerPercent = false;
     private boolean m_isSortByFunction = false;
     private boolean m_isSimpleDumpTimeList = true;
@@ -89,12 +89,12 @@ public class MainProcessor{
 		m_isExcludeStack = value;
 	}
 	
-	public boolean isFullFunction(){
-		return m_isFullFunction;
+	public boolean isRemoveLine(){
+		return m_isRemoveLine;
 	}
 
-	public void setFullFunction(boolean value) {
-		m_isFullFunction = value;
+	public void setRemoveLine(boolean value) {
+		m_isRemoveLine = value;
 	}
 	
 	public boolean isInerPercent(){
@@ -424,7 +424,7 @@ public class MainProcessor{
     private void createMainPerformance() {
         StackFileInfo stackFileInfo = getSelectedStackFileInfo();
         if ( stackFileInfo != null ){
-        	new PerformanceWindow(m_parentComposite.getShell(), stackFileInfo, null, m_isExcludeStack, true, m_isFullFunction, m_isInerPercent);
+        	new PerformanceWindow(m_parentComposite.getShell(), stackFileInfo, null, m_isExcludeStack, true, m_isRemoveLine, m_isInerPercent);
         }
     }  
     
@@ -491,7 +491,7 @@ public class MainProcessor{
 
         StackFileInfo stackFileInfo = getSelectedStackFileInfo();
         if ( stackFileInfo != null ){
-            new PerformanceWindow(m_parentComposite.getShell(), stackFileInfo, filter, m_isExcludeStack, isAscending, m_isFullFunction, m_isInerPercent);
+            new PerformanceWindow(m_parentComposite.getShell(), stackFileInfo, filter, m_isExcludeStack, isAscending, m_isRemoveLine, m_isInerPercent);
         }
     }   
     
