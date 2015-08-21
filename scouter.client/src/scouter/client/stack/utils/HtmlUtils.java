@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
-import scouter.client.stack.base.MainFrame;
+import scouter.client.stack.base.MainProcessor;
 import scouter.client.stack.base.PreferenceManager;
 import scouter.client.stack.data.StackFileInfo;
 
@@ -95,7 +95,7 @@ public class HtmlUtils {
             buffer.append('(').append(list.get(0).substring(0, stackFileInfo.getParserConfig().getTimeSize())).append(" - ")
                     .append(list.get(size - 1).substring(0, stackFileInfo.getParserConfig().getTimeSize())).append(')');
         }
-        boolean isSimpleDumpList = MainFrame.instance().isSimpleDumpTimeList();
+        boolean isSimpleDumpList = MainProcessor.instance().isSimpleDumpTimeList();
         buffer.append("<BR><BR>");
         if ( isSimpleDumpList ) {
             buffer.append("<b>[ Simple dump time list ]</b><BR>");
@@ -391,9 +391,9 @@ public class HtmlUtils {
             value = object.getValue();
 
             buffer.append("<TR>");
-            buffer.append("<TD align='right'>").append(NumberUtils.intToString(value.intValue())).append("</TD");
-            buffer.append("<TD align='right'>").append(NumberUtils.intToPercent((10000 * value.intValue()) / totalServiceCount)).append("%</TD");
-            buffer.append("<TD align='left'>").append(key).append("</TD");
+            buffer.append("<TD align='right'>").append(NumberUtils.intToString(value.intValue())).append("</TD>");
+            buffer.append("<TD align='right'>").append(NumberUtils.intToPercent((10000 * value.intValue()) / totalServiceCount)).append("%</TD>");
+            buffer.append("<TD align='left'>").append(key).append("</TD>");
             buffer.append("</TR>");
         }
 

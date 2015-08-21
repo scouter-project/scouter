@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import scouter.client.stack.base.ProgressBarWindow;
-import scouter.client.stack.base.WindowObject;
 import scouter.client.stack.config.AnalyzerValue;
 import scouter.client.stack.config.ParserConfig;
 import scouter.client.stack.config.ParserConfigReader;
@@ -187,7 +186,7 @@ public abstract class StackParser {
                 }
             }
 
-            m_progressBarWindow.setValue(100);
+//            m_progressBarWindow.setValue(100);
         }
 
         if ( m_filter != null ) {
@@ -543,7 +542,7 @@ public abstract class StackParser {
     }
 
     private void createProgressBarWindow() {
-        WindowObject object = new WindowObject();
+/*        WindowObject object = new WindowObject();
         ProgressBarWindow.startProgressWindow("Stack log file Analyzing", object);
 
         while ( true ) {
@@ -555,11 +554,11 @@ public abstract class StackParser {
             }
         }
 
-        m_progressBarWindow = (ProgressBarWindow)object.getWindowObject();
+        m_progressBarWindow = (ProgressBarWindow)object.getWindowObject();*/
     }
 
     protected void setProgressBarValue( int value ) {
-        m_progressBarWindow.setValue(value);
+//        m_progressBarWindow.setValue(value);
     }
 
     private void makeTotalSecond() {

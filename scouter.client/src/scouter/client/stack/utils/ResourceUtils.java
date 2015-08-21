@@ -21,20 +21,19 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.zip.ZipInputStream;
 
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+
+import scouter.client.stack.base.PreferenceManager;
 
 public class ResourceUtils {	
 	public static ImageIcon getImageIconResource(String path){
@@ -109,7 +108,22 @@ public class ResourceUtils {
     		}
     	}
     }
-    
+  
+	static public String selectFileDialog(Composite parent, String title, String [] names, String [] extensions){
+        PreferenceManager prefManager = PreferenceManager.get();
+		FileDialog dialog = new FileDialog(parent.getShell(), SWT.OPEN);
+		dialog.setText(title);
+		dialog.setFilterNames(names);
+		dialog.setFilterExtensions(extensions);
+		dialog.setFilterPath(prefManager.getPreference(title, "."));
+		String fileName = dialog.open();
+		if(fileName != null){
+			File file = new File(fileName);
+            prefManager.setPreference(title, file.getParentFile().getPath());			
+		}
+		return fileName;		
+	}
+	
     static public boolean isZipFile(String fileName){
     	if(fileName == null){
     		return false;

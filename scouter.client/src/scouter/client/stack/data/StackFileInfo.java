@@ -61,6 +61,19 @@ public class StackFileInfo extends AbstractInfo {
         return buffer.toString();
     }
 
+    public String [] toTreeInfo() {
+    	String [] info = new String[3];
+    	info[0] = m_filename;
+    	StringBuilder buffer =  new StringBuilder().append(m_totalWorkingCount);
+        if(m_totalWorkerCount > 0){
+        	buffer.append(" (").append(m_totalWorkerCount).append(')');
+        }
+        info[1] = buffer.toString();
+        info[2] = new StringBuffer().append(m_dumpCount).append(" dump").toString();
+        return info;
+    }
+
+    
     public StackParser getUsedParser() {
         return m_usedParser;
     }

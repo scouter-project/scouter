@@ -16,6 +16,8 @@
  */
 package scouter.client.stack.data;
 
+import scouter.client.stack.utils.NumberUtils;
+
 public class StackAnalyzedValue {
 	private String m_value = null;
 	private int m_count = 0;
@@ -62,5 +64,14 @@ public class StackAnalyzedValue {
 	
 	public void addCount(){
 		m_count++;
+	}
+	
+	public String [] toTableInfo(){
+		String [] info = new String[4];
+		info[0] = new StringBuilder().append(m_count).toString();
+		info[1] = new StringBuilder().append(NumberUtils.intToPercent(m_intPct)).append('%').toString();
+		info[2] = new StringBuilder().append(NumberUtils.intToPercent(m_extPct)).append('%').toString();
+		info[3] = m_value;
+        return info;
 	}
 }

@@ -14,26 +14,22 @@
  *  limitations under the License.
  *
  */
-package scouter.client.stack.data;
+package scouter.client.stack.actions;
 
-import java.io.File;
-import java.io.FilenameFilter;
+import scouter.client.stack.base.MainProcessor;
 
-import scouter.client.stack.utils.StringUtils;
-
-
-public class AnalyzedFileFilter implements FilenameFilter{
-	private String m_ext = null;
-	private String m_filename = null;
-
-	public AnalyzedFileFilter(String filename, String ext){
-		m_filename = StringUtils.getFilename(filename) + "_";
-		m_ext = "." + ext;
+public class MainProcessorAction{
+	private String m_menuName = null;
+	
+	public MainProcessorAction(String menuName){
+		m_menuName = menuName;
 	}
 	
-	public boolean accept(File directory, String filename) {
-		if(filename.startsWith(m_filename) && filename.endsWith(m_ext))
-			return true;
-		return false;
+	public void run(){
+		try {
+			MainProcessor.instance().processMenu(m_menuName);
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
 	}
 }

@@ -923,7 +923,7 @@
             icon="icons/config_edit.png"
             name="ConfigStackAnalyser"
             restorable="false">
-      </view>      
+      </view>
   </extension>
  <extension
          point="org.eclipse.ui.commands">

@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
-import scouter.client.stack.base.MainFrame;
+import scouter.client.stack.base.MainProcessor;
 import scouter.client.stack.config.XMLReader;
 import scouter.client.stack.data.StackFileInfo;
 import scouter.client.stack.utils.ResourceUtils;
@@ -70,7 +70,7 @@ public class XMLEditorView extends ViewPart {
 			}
 		});
 		
-		StackFileInfo stackFileInfo = MainFrame.instance().getSelectedStackFileInfo();
+		StackFileInfo stackFileInfo = MainProcessor.instance().getSelectedStackFileInfo();
 		if(stackFileInfo == null){
 			m_fileName = XMLReader.DEFAULT_XMLCONFIG;
 		}else{

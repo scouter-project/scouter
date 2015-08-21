@@ -27,10 +27,10 @@ import javax.swing.border.Border;
 @SuppressWarnings("serial")
 public class ProgressBarWindow extends JFrame{
 	JProgressBar m_progressBar = null;
-	static public void startProgressWindow(final String title, final WindowObject object){
+	static public void startProgressWindow(final String title){
 		new Thread(){
 			public void run() {
-				object.setWindowObject(new ProgressBarWindow(title));
+				new ProgressBarWindow(title);
 		}			
 		}.start();
 	}
