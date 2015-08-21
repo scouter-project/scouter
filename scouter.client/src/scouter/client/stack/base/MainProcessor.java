@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -42,6 +43,7 @@ import scouter.client.stack.data.StackParser;
 import scouter.client.stack.utils.HtmlUtils;
 import scouter.client.stack.utils.ResourceUtils;
 import scouter.client.stack.utils.StringUtils;
+import scouter.client.stack.utils.ValueObject;
 import scouter.client.stack.views.StackAnalyzerView;
 
 public class MainProcessor{
@@ -449,18 +451,49 @@ public class MainProcessor{
             return;
 
         BufferedReader reader = null;
+        boolean isDetail = false;
+        boolean isStart = false;
         try {
             reader = new BufferedReader(new FileReader(file));
 
             String line = null;
+            int totalCount = 0;
+            HashMap<String, Integer> map = new HashMap<String, Integer>();
+            while ( (line = reader.readLine()) != null ) {
+                line = line.trim();
+                if(line.length() > 0){
+                	isStart = true;
+                }
+                if(line.length() == 0){
+	                if(isStart){
+	                	isDetail = true;
+	                }
+                	continue;
+                }
+                if(isDetail){
+                	totalCount++;
+                	HtmlUtils.caculCounter(line, map);
+                }                
+            }
+            
+            ArrayList<ValueObject> list = HtmlUtils.sortCounter(map);   
+            
             StringBuilder buffer = new StringBuilder(102400);
+            buffer.append(HtmlUtils.getMainBodyStart());
             buffer.append(HtmlUtils.getCurrentConfigurationBody()).append("<br><br>");
             buffer.append("<b>[ ").append(stackFileInfo.getFilename()).append(" ]</b><BR>");
             buffer.append("<b>").append(analyzedInfo.toString()).append(" - ").append(analyzedFilename).append("</b><br><br>");
-            while ( (line = reader.readLine()) != null ) {
-                line = line.trim();
-                buffer.append(line).append("<br>");
-            }            
+
+            buffer.append("<table border='1'><tr align='center'><th>Count</th><th>Percent</th><th>Class.method</th></tr>");
+            int value;
+            for(ValueObject valueObject : list){
+            	value = valueObject.getValue();
+            	buffer.append("<tr><td align='right'>").append(value).append("</td><td align='right'>").append((int)((100 * value)/totalCount)).append('%').append("</td>");
+            	buffer.append("<td align='left'>").append(valueObject.getKey()).append("</td></tr>");
+            }
+            buffer.append("</table>");
+            buffer.append(HtmlUtils.getMainBodyEnd());
+            
             displayContent(buffer.toString());
         } catch ( Exception ex ) {
             throw new RuntimeException(ex);

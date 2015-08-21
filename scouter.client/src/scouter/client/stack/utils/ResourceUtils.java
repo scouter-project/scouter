@@ -18,14 +18,10 @@ package scouter.client.stack.utils;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.Image;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-
-import javax.swing.ImageIcon;
-import javax.swing.UIManager;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -35,38 +31,10 @@ import org.eclipse.ui.PlatformUI;
 
 import scouter.client.stack.base.PreferenceManager;
 
-public class ResourceUtils {	
-	public static ImageIcon getImageIconResource(String path){
-	    java.net.URL imgURL = ResourceUtils.class.getResource("/scouter/client/stack/icons/" + path);
-	    if (imgURL != null) {
-	        return new ImageIcon(imgURL);
-	    } else {
-	        System.err.println("Couldn't find file: " + path);
-	        return null;
-	    }
-	}
-
-	public static Image getImageResource(String path){
-		ImageIcon imageIcon = getImageIconResource(path);
-		if(imageIcon != null){
-			return imageIcon.getImage();
-		}
-		return null;
-	}
-	
+public class ResourceUtils {
 	public static InputStream getDefaultXMLConfig(){
 		return ResourceUtils.class.getClassLoader().getResourceAsStream("/scouter/client/stack/doc/config_default.xml");
 	}
-	
-    public static void setUIFont(javax.swing.plaf.FontUIResource f){
-        java.util.Enumeration<Object> keys = UIManager.getDefaults().keys();
-        while (keys.hasMoreElements()) {
-            Object key = keys.nextElement();
-            Object value = UIManager.get(key);
-            if (value instanceof javax.swing.plaf.FontUIResource)
-                UIManager.put(key, f);
-        }
-    }
     
     public static int [] getScreenSize(){
     	int [] size = new int[2];

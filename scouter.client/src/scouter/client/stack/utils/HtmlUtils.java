@@ -65,7 +65,7 @@ public class HtmlUtils {
     }
 
     public static String getMainBodyStart() {
-        return "<TABLE width='800'><TR><TD width='50'></TD><TD>";
+        return "<TABLE width='1500'><TR><TD width='50'></TD><TD>";
     }
 
     public static String getMainBodyEnd() {
@@ -320,7 +320,7 @@ public class HtmlUtils {
                 if ( line.length() == 0 ) {
                     if ( isFiltered && lineCount > stackStartLine ) {
                         totalServiceCount++;
-                        caculServiceCall(serviceCall, map);
+                        caculCounter(serviceCall, map);
                     }
 
                     isFiltered = false;
@@ -342,7 +342,7 @@ public class HtmlUtils {
             }
             if ( isFiltered && lineCount > stackStartLine ) {
                 totalServiceCount++;
-                caculServiceCall(serviceCall, map);
+                caculCounter(serviceCall, map);
             }
         } catch ( Exception ex ) {
             throw new RuntimeException(ex);
@@ -368,6 +368,41 @@ public class HtmlUtils {
         buffer.append("<TABLE border='1'>");
         buffer.append("<TR><TH align='center'>Count</TH><TH align='center'>Percent</TH><TH align='center'>Service name</TH></TR>");
 
+
+        ArrayList<ValueObject> list = sortCounter(map);
+
+        ValueObject object = null;
+        int value = 0;
+
+        for ( int i = 0; i < list.size(); i++ ) {
+            object = list.get(i);
+            value = object.getValue();
+
+            buffer.append("<TR>");
+            buffer.append("<TD align='right'>").append(NumberUtils.intToString(value)).append("</TD>");
+            buffer.append("<TD align='right'>").append(NumberUtils.intToPercent((10000 * value) / totalServiceCount)).append("%</TD>");
+            buffer.append("<TD align='left'>").append(object.getKey()).append("</TD>");
+            buffer.append("</TR>");
+        }
+
+        buffer.append("</TABLE>");
+        buffer.append(getMainBodyEnd());
+        return buffer.toString();
+    }
+
+    static public void caculCounter( String name, HashMap<String, Integer> map ) {
+        String key = StringUtils.makeSimpleLine(name, false);
+        Integer value = map.get(key);
+        if ( value == null ) {
+            value = new Integer(1);
+        } else {
+            value = new Integer(value.intValue() + 1);
+        }
+        map.put(key, value);
+    }
+    
+    
+    static public ArrayList<ValueObject> sortCounter(HashMap<String, Integer> map){
         String key = null;
         Integer value = null;
 
@@ -384,32 +419,6 @@ public class HtmlUtils {
         }
 
         Collections.sort(list, new ValueObjectComp());
-
-        for ( int i = 0; i < list.size(); i++ ) {
-            object = list.get(i);
-            key = object.getKey();
-            value = object.getValue();
-
-            buffer.append("<TR>");
-            buffer.append("<TD align='right'>").append(NumberUtils.intToString(value.intValue())).append("</TD>");
-            buffer.append("<TD align='right'>").append(NumberUtils.intToPercent((10000 * value.intValue()) / totalServiceCount)).append("%</TD>");
-            buffer.append("<TD align='left'>").append(key).append("</TD>");
-            buffer.append("</TR>");
-        }
-
-        buffer.append("</TABLE>");
-        buffer.append(getMainBodyEnd());
-        return buffer.toString();
-    }
-
-    static private void caculServiceCall( String serviceCall, HashMap<String, Integer> map ) {
-        String key = StringUtils.makeSimpleLine(serviceCall, false);
-        Integer value = map.get(key);
-        if ( value == null ) {
-            value = new Integer(1);
-        } else {
-            value = new Integer(value.intValue() + 1);
-        }
-        map.put(key, value);
+    	return list;
     }
 }
