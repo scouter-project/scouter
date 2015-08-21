@@ -63,6 +63,6 @@ public class SocketStep extends StepSingle {
 		return this;
 	}
 	public long getSocketId() {
-		return BitUtil.compsite(HashUtil.hash(ipaddr) ,port);
+		return BitUtil.composite(HashUtil.hash(ipaddr) ,port);
 	}
 }

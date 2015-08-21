@@ -37,7 +37,7 @@ import scouter.util.HashUtil
 import scouter.util.LongKeyMap
 object TagCountProxy {
     def getTagValueCountWithCache(date: String, objType: String, tagGroup: String, tagName: String, limit: Int): ValueCountTotal = {
-        val tagKey = BitUtil.compsite(HashUtil.hash(tagGroup), if(tagName!=null) HashUtil.hash(tagName) else 0);
+        val tagKey = BitUtil.composite(HashUtil.hash(tagGroup), if(tagName!=null) HashUtil.hash(tagName) else 0);
         return getTagValueCountWithCache(date, objType, tagKey, limit);
     }
 
@@ -50,7 +50,7 @@ object TagCountProxy {
     }
 
     def getTagValueCount(date: String, objType: String, tagGroup: String, tagName: String, limit: Int): ValueCountTotal = {
-        val tagKey = BitUtil.compsite(HashUtil.hash(tagGroup), HashUtil.hash(tagName));
+        val tagKey = BitUtil.composite(HashUtil.hash(tagGroup), HashUtil.hash(tagName));
         return getTagValueCount(date, objType, tagKey, limit);
     }
 
@@ -87,7 +87,7 @@ object TagCountProxy {
     }
 
     def getTagValueCountData(date: String, objType: String, tagGroup: String, tagName: String, value: Value): Array[Float] = {
-        val tagKey = BitUtil.compsite(HashUtil.hash(tagGroup), HashUtil.hash(tagName));
+        val tagKey = BitUtil.composite(HashUtil.hash(tagGroup), HashUtil.hash(tagName));
         val values = FirstTagCountDB.getTagValueCount(objType, date, tagKey, value);
         if (values != null)
             return values;

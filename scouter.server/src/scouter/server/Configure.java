@@ -153,13 +153,14 @@ public class Configure extends Thread {
 	public boolean debug_expired_multipacket;
 
 	public boolean debug_udp_packet = false;
-	public boolean debug_udp_counter;
-	public boolean debug_udp_xlog;
-	public boolean debug_udp_profile;
-	public boolean debug_udp_text;
-	public boolean debug_udp_alert;
-	public boolean debug_udp_object;
-	public boolean debug_udp_status;
+	public boolean debug_udp_counter = false;
+	public boolean debug_udp_xlog = false;
+	public boolean debug_udp_profile = false;
+	public boolean debug_udp_text = false;
+	public boolean debug_udp_alert = false;
+	public boolean debug_udp_object = false;
+	public boolean debug_udp_status = false;
+	public boolean debug_udp_stack = false;
 	public boolean debug_request;
 
 	public boolean auto_5m_sampling = true;
@@ -195,7 +196,7 @@ public class Configure extends Thread {
 	private void apply() {
 		this.xlog_autodrop_time = getInt("xlog_autodrop_time", 100);
 		this.xlog_queue_size = getInt("xlog_queue_size", 100000);
-		this.debug_net = getBoolean("debug_net",  false);
+		this.debug_net = getBoolean("debug_net", false);
 
 		this.udp_host = getValue("udp_host", "0.0.0.0");
 		this.udp_port = getInt("udp_port", NetConstants.SERVER_UDP_PORT);
@@ -207,7 +208,7 @@ public class Configure extends Thread {
 
 		this.hostname = getValue("hostname", SysJMX.getHostName());
 		this.db_root = getValue("db_root", "./database");
-		this.log_dir = getValue("log_dir",  "./logs");
+		this.log_dir = getValue("log_dir", "./logs");
 
 		this.agent_deadtime = getInt("agent_deadtime", 8000);
 
@@ -226,18 +227,19 @@ public class Configure extends Thread {
 		}
 		this.udp_so_rcvbuf = getInt("dataudp_so_rcvbuf", default_so_rcvbuf);
 		this.debug_expired_multipacket = getBoolean("debug_expired_multipacket", true);
-		this.debug_udp_multipacket = getBoolean("debug_udp_multipacket",  false);
-		this.debug_udp_packet = getBoolean("debug_udp_packet",  false);
+		this.debug_udp_multipacket = getBoolean("debug_udp_multipacket", false);
+		this.debug_udp_packet = getBoolean("debug_udp_packet", false);
 		this.debug_udp_counter = getBoolean("debug_udp_counter", false);
 		this.debug_udp_xlog = getBoolean("debug_udp_xlog", false);
-		this.debug_udp_profile = getBoolean("debug_udp_profile",  false);
+		this.debug_udp_profile = getBoolean("debug_udp_profile", false);
 		this.debug_udp_text = getBoolean("debug_udp_text", false);
-		this.debug_udp_alert = getBoolean("debug_udp_alert",  false);
-		this.debug_udp_object = getBoolean("debug_udp_object",  false);
-		this.debug_udp_status = getBoolean("debug_udp_status",  false);
-		this.debug_request = getBoolean("debug_request",  false);
+		this.debug_udp_alert = getBoolean("debug_udp_alert", false);
+		this.debug_udp_object = getBoolean("debug_udp_object", false);
+		this.debug_udp_status = getBoolean("debug_udp_status", false);
+		this.debug_udp_stack = getBoolean("debug_udp_stack", false);
+		this.debug_request = getBoolean("debug_request", false);
 
-		this.auto_5m_sampling = getBoolean("auto_5m_sampling",  true);
+		this.auto_5m_sampling = getBoolean("auto_5m_sampling", true);
 
 		this.log_rotation = getBoolean("log_rotation", true);
 		this.log_keep_dates = getInt("log_keep_dates", 365);

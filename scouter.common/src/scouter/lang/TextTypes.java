@@ -31,6 +31,6 @@ public interface TextTypes{
 	public static  String SQL_TABLES = "table";
 	public static  String MARIA = "maria";
 	public static  String LOGIN = "login";
-	public static  String BIZCODE = "biz";
+	public static  String DESC = "desc";
 
 }

@@ -291,8 +291,8 @@ public class TraceMain {
 			if (ctx.login != null) {
 				pack.login = DataProxy.sendLogin(ctx.login);
 			}
-			if (ctx.bizcode != null) {
-				pack.biz = DataProxy.sendBizCode(ctx.bizcode);
+			if (ctx.desc != null) {
+				pack.desc = DataProxy.sendDesc(ctx.desc);
 			}
 			metering(pack);
 			HttpServiceTracePlugIn.end(ctx, pack);
@@ -406,8 +406,8 @@ public class TraceMain {
 			if (ctx.login != null) {
 				pack.login = DataProxy.sendLogin(ctx.login);
 			}
-			if (ctx.bizcode != null) {
-				pack.biz = DataProxy.sendBizCode(ctx.bizcode);
+			if (ctx.desc != null) {
+				pack.desc = DataProxy.sendDesc(ctx.desc);
 			}
 
 			ServiceTracePlugIn.end(ctx, pack);

@@ -149,6 +149,9 @@ public class DateUtil {
 	public static boolean isSameDay(Date date, Date date2) {
 		return helper.getDateUnit(date.getTime()) == helper.getDateUnit(date2.getTime());
 	}
+	public static boolean isToday(long time) {
+		return helper.getDateUnit(time) == helper.getDateUnit(System.currentTimeMillis());
+	}
 
 	public static int getHour(Date date) {
 		return helper.getHour(date.getTime());

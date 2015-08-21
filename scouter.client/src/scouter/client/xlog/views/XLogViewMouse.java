@@ -190,16 +190,18 @@ public class XLogViewMouse implements MouseListener, MouseMoveListener {
 			return;
 		}
 		ConsoleProxy.info("[XLog] "+txCnt + " selected.");
-		long stime = zoomData.getFirstValue().p.endTime - 1000;
-		long etime = zoomData.getLastValue().p.endTime + 1000;
-		max *= 1.1;
-		min *= 0.9;
+		long stime = zoomData.getFirstValue().p.endTime - 500;
+		long etime = zoomData.getLastValue().p.endTime + 500;
+		max *= 1.01;
+		min *= 0.99;
 		
 		try {
 			IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			XLogZoomTimeView view = (XLogZoomTimeView) win.getActivePage().showView(XLogZoomTimeView.ID,//
 					objType+stime+etime+max+min, IWorkbenchPage.VIEW_ACTIVATE);
-			view.setInput(stime, etime, max / 1000, min / 1000, zoomData, objType);
+			if (view != null) {
+				view.setInput(stime, etime, max / 1000, min / 1000, zoomData, objType);
+			}
 		} catch (Exception d) {
 		}
 	}

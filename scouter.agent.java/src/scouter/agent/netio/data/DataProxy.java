@@ -164,15 +164,15 @@ public class DataProxy {
 		return hash;
 	}
 
-	private static IntLinkedSet bizTable = new IntLinkedSet().setMax(1000);
+	private static IntLinkedSet descTable = new IntLinkedSet().setMax(1000);
 
-	public static int sendBizCode( String bizcode) {
-		int hash = HashUtil.hash(bizcode);
-		if (bizTable.contains(hash)) {
+	public static int sendDesc( String desc) {
+		int hash = HashUtil.hash(desc);
+		if (descTable.contains(hash)) {
 			return hash;
 		}
-		bizTable.put(hash);
-		udpCollect.add(new TextPack(TextTypes.BIZCODE, hash, bizcode));
+		descTable.put(hash);
+		udpCollect.add(new TextPack(TextTypes.DESC, hash, desc));
 		return hash;
 	}
 
@@ -206,7 +206,7 @@ public class DataProxy {
 
 	static DataUdpAgent udpNet = DataUdpAgent.getInstance();
 
-	private static void sendDirect(Pack p) {
+	public static void sendDirect(Pack p) {
 		try {
 			udpNet.write(new DataOutputX().writePack(p).toByteArray());
 		} catch (IOException e) {

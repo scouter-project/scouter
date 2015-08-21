@@ -234,6 +234,9 @@ public class Configure extends Thread {
 	public long max_think_time = DateUtil.MILLIS_PER_FIVE_MINUTE;
 	public String object_registry="/tmp/scouter";
 	
+	public boolean pstack_enabled=false;
+	public int pstack_interval=10000;
+	
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -283,6 +286,7 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
+
 
 
 	public synchronized boolean reload(boolean force) {
