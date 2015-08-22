@@ -279,7 +279,12 @@ public class MainProcessor{
 	}
 
     private String selectCurrentParserConfig() {
-    	return ResourceUtils.selectFileDialog(m_parentComposite, "XML Parser Configuration", new String [] {"XML config", "All Files"}, new String [] {"*.xml", "*.*"});
+    	String fileName = ResourceUtils.selectFileDialog(m_parentComposite, "XML Parser Configuration", new String [] {"XML config", "All Files"}, new String [] {"*.xml", "*.*"});
+    	if(fileName != null){
+    		PreferenceManager.get().setCurrentParserConfig(fileName);
+    		displayContent(null);
+    	}
+    	return fileName;
     }
     
     public Browser getBrowser(){

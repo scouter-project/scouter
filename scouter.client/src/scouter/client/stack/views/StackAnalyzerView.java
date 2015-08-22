@@ -68,7 +68,7 @@ public class StackAnalyzerView extends ViewPart {
 		initializeTree(sashHoriForm);		
 		initializeTable(sashHoriForm);
 		initializeBrowser(sashVertForm);
-		sashVertForm.setWeights(new int [] {30, 70});
+		sashVertForm.setWeights(new int [] {55, 45});
 		sashHoriForm.setWeights(new int [] {45, 55});
 		
 		createMainTreePopupMenu();

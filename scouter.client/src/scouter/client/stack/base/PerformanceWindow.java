@@ -96,9 +96,9 @@ public class PerformanceWindow implements Listener{
         m_shell.setText(title);
         m_shell.setImage(Images.tree_mode);
     	m_shell.setLayout(new FillLayout());
-    	
-        m_performanceTree = new Tree(m_shell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION );
-        constructTree();
+ 
+    	m_performanceTree = new Tree(m_shell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+    	constructTree();
         createTreePopupMenu();
   
         m_shell.open();      
