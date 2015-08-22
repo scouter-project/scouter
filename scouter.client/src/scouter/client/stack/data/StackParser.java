@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
+import scouter.client.stack.base.MainProcessor;
 import scouter.client.stack.base.ProgressBarWindow;
 import scouter.client.stack.config.AnalyzerValue;
 import scouter.client.stack.config.ParserConfig;
@@ -174,7 +175,8 @@ public abstract class StackParser {
 
         init();
 
-        createProgressBarWindow();
+    	m_progressBarWindow = new ProgressBarWindow(MainProcessor.instance().getParentComposite().getShell(), "Stack log file Analyzing");
+
         try {
             process();
             makeTotalSecond();
@@ -186,7 +188,7 @@ public abstract class StackParser {
                 }
             }
 
-//            m_progressBarWindow.setValue(100);
+        	m_progressBarWindow.close();
         }
 
         if ( m_filter != null ) {
@@ -541,26 +543,6 @@ public abstract class StackParser {
         m_dumpCount = count;
     }
 
-    private void createProgressBarWindow() {
-/*        WindowObject object = new WindowObject();
-        ProgressBarWindow.startProgressWindow("Stack log file Analyzing", object);
-
-        while ( true ) {
-            if ( object.getWindowObject() != null )
-                break;
-            try {
-                Thread.sleep(500);
-            } catch ( Exception ex ) {
-            }
-        }
-
-        m_progressBarWindow = (ProgressBarWindow)object.getWindowObject();*/
-    }
-
-    protected void setProgressBarValue( int value ) {
-//        m_progressBarWindow.setValue(value);
-    }
-
     private void makeTotalSecond() {
         int size = m_timeList.size();
         if ( size < 2 ) {
@@ -634,7 +616,7 @@ public abstract class StackParser {
 			if(m_processPercent == 100){
 				m_processPercent = 0;
 			}
-			setProgressBarValue(m_processPercent);
+	        m_progressBarWindow.setValue(m_processPercent);
 		}
     }
     
