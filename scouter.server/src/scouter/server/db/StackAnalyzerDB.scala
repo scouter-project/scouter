@@ -44,6 +44,8 @@ import java.io.DataInput
 import scouter.io.DataInputX
 import java.io.RandomAccessFile
 import scouter.util.ArrayUtil
+import scouter.server.util.BinSearch
+import scouter.server.util.BinSearch
 
 object StackAnalyzerDB {
     val IDX_LEN = 8 + 5
@@ -73,17 +75,20 @@ object StackAnalyzerDB {
         if (idxFile.canRead() == false)
             return
 
-        val idx = FileUtil.readAll(idxFile)
-        if (idx == null || idx.length == 0)
-            return ;
-
+        val idxRAF = new RandomAccessFile(path + "/stack.idx", "rw");
         val dataFile = new RandomAccessFile(path + "/stack.dat", "rw");
-        val len = idx.length / IDX_LEN
-        var x = 0
-        while (x < len) {
-            val time = DataInputX.toLong(idx, x * IDX_LEN)
-            if (time <= from && time <= to) {
-                val dataPos = DataInputX.toLong5(idx, x * IDX_LEN + 8)
+        val len = idxFile.length / IDX_LEN
+        val bs = new BinSearch[Long](len, (a: Long) => { idxRAF.seek(a * IDX_LEN); new DataInputX(idxRAF).readLong() },
+            (a: Long, b: Long) => (b - a).toInt)
+
+        var x = bs.searchBE(from).toInt
+
+        while (x >= 0 && x < len) {
+            idxRAF.seek(x * IDX_LEN);
+            val time = new DataInputX(idxRAF).readLong()
+            if (from <= time && time <= to) {
+                idxRAF.seek(x * IDX_LEN + 8);
+                val dataPos = new DataInputX(idxRAF).readLong5()
                 dataFile.seek(dataPos)
                 val dataIn = new DataInputX(dataFile)
                 val len = DataInputX.toInt(dataIn.read(4), 0)
