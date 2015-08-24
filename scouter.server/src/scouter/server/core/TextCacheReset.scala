@@ -40,9 +40,7 @@ object TextCacheReset {
             EnumerScala.foreach(AgentManager.getLiveObjHashList().iterator(), (oid: Int) => {
                 try {
                     var agent = AgentManager.getAgent(oid);
-                    if (agent != null && engine.isChildOf(agent.objType, CounterConstants.FAMILY_JAVAEE)) {
-                        AgentCall.call(agent, RequestCmd.OBJECT_RESET_CACHE, null);
-                    }
+                    AgentCall.call(agent, RequestCmd.OBJECT_RESET_CACHE, null);
                 } catch {
                     case t: Throwable => Logger.println("S114", "Thread \n" + t)
                 }
