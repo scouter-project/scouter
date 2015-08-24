@@ -110,7 +110,7 @@ public class ChartUtil {
 		return rounding(val * 100) / 100;
 	}
 
-	public static double getElapsedUnit(double val, int height) {
+	public static double getYaxisUnit(double val, int height) {
 		int units = height / 15;
 		if (units < 1)
 			units = 1;
