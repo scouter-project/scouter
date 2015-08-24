@@ -3,46 +3,61 @@
   <parser stackStartLine="2">BasicFileStackParser</parser>
   <time size="19" filter="20..-..-.." position="0">yyyy-MM-dd HH:mm:ss</time>    
   <workerThread>
-    <list>http-</list>
-    <list>webtob_main</list>
+    <list>http-</list>				<!-- Tomcat -->
+    <list>webtob_main</list>		<!-- JEUS -->
+    <list>http_main</list>
+    <list>ExecuteThread:</list>		<!--  Weblogic -->
   </workerThread>
   <workingThread status="java.lang.Thread.State:">
-    <list>javax.servlet.http.HttpServlet.service(</list> <!-- Servlet standard -->
+    <list>javax.servlet.http.HttpServlet.service(</list>	<!-- Servlet standard -->
     <list>javax.servlet.jsp.jspPage</list>
     <list>javax.servlet.jsp.HttpJspPage</list>
+    <list>java.util.concurrent.FutureTask.run</list>		<!-- Springframework batch -->
+    <list>TransactionTemplate.execute</list>
+    <list>org.springframework.context.support.AbstractApplicationContext.refresh</list>
   </workingThread>
   <service>
   </service>
   <sql>
-    <list>devonframework.persistent.autodao.LCommonDao.</list> <!-- devonframework -->
-    <list>com.innoexpert.innorulesj.engine.dr.a.processSQL</list> <!-- InnoRule -->
-    <list>org.hibernate.transaction.JDBCTransaction.</list> <!-- hibernate-->
-    <list>org.hibernate.impl.QueryImpl.</list> <!-- hibernate-->
-    <list>org.springframework.orm.ibatis.SqlMapClientTemplate.</list> <!-- Mybatis -->
+    <list>devonframework.persistent.autodao.LCommonDao.</list>			<!-- devonframework -->
+    <list>com.innoexpert.innorulesj.engine.dr.a.processSQL</list>		<!-- InnoRule -->
+    <list>org.hibernate.transaction.JDBCTransaction.</list>				<!-- hibernate-->
+    <list>org.hibernate.impl.QueryImpl.</list>							<!-- hibernate-->
+    <list>org.springframework.orm.ibatis.SqlMapClientTemplate.</list>	<!-- Mybatis -->
+    <list>.SqlSessionTemplate.</list>									<!-- Springframework batch -->
+    <list>.DelegatingStatement.executeBatch</list>
   </sql>
   <log>
-    <list>org.apache.commons.logging.impl.Log4JLogger</list> <!-- apache Log4J -->
-    <list>fw.core.log.Logger</list>
+    <list>org.apache.commons.logging.impl.Log4JLogger</list>	<!-- apache Log4J -->
+    <list>devon.core.log.LLogger</list>							<!-- devonframework -->
   </log>
   <excludeStack>
     <list>java.lang.reflect</list>
     <list>java.lang.reflect</list>
     <list>sun.reflect.</list>
-    <list>oracle.jdbc.driver.T4</list>
     <list>$Proxy</list>
+    <list>oracle.jdbc.driver.T4</list>	<!-- Oracle -->
+    <list>oracle.net</list>
+    <list>innorulesj.engine</list>		<!-- InnoRule -->
   </excludeStack>
   <singleStack>
     <list>$Proxy</list>
     <list>sun.reflect.GeneratedMethodAccessor</list>
     <list>- waiting</list>
-    <list>- locked</list>
+	<list>- locked</list>
   </singleStack>
   <analyze>
     <analyzeStack name="HTTP Interface" extension="HTP" filter="each" reader="first">
-      <list>.HttpClient.</list>
+		<list>.HttpClient.</list>
     </analyzeStack>
     <analyzeStack name="Classloader" extension="CLS" filter="each" reader="next">
-      <list>ClassLoader.</list>    
+		<list>ClassLoader.</list>    
     </analyzeStack>
+    <analyzeStack name="JSP Check" extension="CJP" filter="each" reader="first">
+		<list>ServletStubImpl.checkForReload</list>			<!-- Weblogic -->  
+    </analyzeStack>
+  	<analyzeStack name="Bean loading" extension="BEN" filter="each" reader="last">
+  		<list>org.springframework.context.support.AbstractRefreshableApplicationContext.refreshBeanFactory</list>
+  	</analyzeStack>       
   </analyze>
 </scouter>
