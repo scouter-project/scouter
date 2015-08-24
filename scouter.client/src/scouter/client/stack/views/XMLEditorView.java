@@ -33,6 +33,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
 import scouter.client.stack.base.MainProcessor;
+import scouter.client.stack.base.PreferenceManager;
 import scouter.client.stack.config.XMLReader;
 import scouter.client.stack.data.StackFileInfo;
 import scouter.client.stack.utils.ResourceUtils;
@@ -69,17 +70,26 @@ public class XMLEditorView extends ViewPart {
 			}
 		});
 		
-		StackFileInfo stackFileInfo = MainProcessor.instance().getSelectedStackFileInfo();
-		if(stackFileInfo == null){
-			m_fileName = XMLReader.DEFAULT_XMLCONFIG;
-		}else{
-			m_fileName = stackFileInfo.getParserConfig().getConfigFilename();
-		}		
+		String fileName = PreferenceManager.get().getCurrentParserConfig();
+		if(fileName == null){
+			StackFileInfo stackFileInfo = MainProcessor.instance().getSelectedStackFileInfo();
+			if(stackFileInfo == null){
+				fileName = XMLReader.DEFAULT_XMLCONFIG;
+			}else{
+				fileName = stackFileInfo.getParserConfig().getConfigFilename();
+			}
+		}
+		setFileName(fileName);
 		
 		initialToolBar();
 		loadConfig();
 	}
 
+	private void setFileName(String fileName){
+		m_fileName = fileName;
+		this.setPartName("ConfigStackAnalyzer-" + m_fileName);
+	}
+	
 	private void loadConfig() {
 		BufferedInputStream in = null;
 		int fileSize = 0;
@@ -118,26 +128,45 @@ public class XMLEditorView extends ViewPart {
 			return;
 		}
 		ResourceUtils.saveFile(newFileName, m_text.getText());
+		
+		setFileName(newFileName);
+		PreferenceManager.get().setCurrentParserConfig(newFileName);
+		MainProcessor.instance().displayContent(null);
+		addSaveToolBar();
 	}
 
 	private void saveConfigurations(){
 		ResourceUtils.saveFile(m_fileName, m_text.getText());
 	}
 	
-	private void initialToolBar() {
+	private void addSaveToolBar(){
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
+
 		if(!XMLReader.DEFAULT_XMLCONFIG.equals(m_fileName)){
 			man.add(new Action("Save", ImageUtil.getImageDescriptor(Images.save)) {
 				public void run() {
 					saveConfigurations();
 				}
 			});
-		}
+		}		
+	}
+	
+	private void initialToolBar() {
+		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
+
 		man.add(new Action("SaveAs", ImageUtil.getImageDescriptor(Images.saveas)) {
 			public void run() {
 				saveAsConfigurations();
 			}
 		});
+		
+		if(!XMLReader.DEFAULT_XMLCONFIG.equals(m_fileName)){
+			man.add(new Action("Save", ImageUtil.getImageDescriptor(Images.save)) {
+				public void run() {
+					saveConfigurations();
+				}
+			});
+		}				
 	}
 
 	public void setFocus() {
