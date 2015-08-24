@@ -30,8 +30,13 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.WorkbenchException;
 
 import scouter.client.Images;
+import scouter.client.PerspectiveStackAnalyzer;
 import scouter.client.stack.config.ParserConfig;
 import scouter.client.stack.config.ParserConfigReader;
 import scouter.client.stack.config.XMLReader;
@@ -179,7 +184,6 @@ public class MainProcessor{
             copyFunctionName();
         }
     }
-   
 
    private void chooseStackFile() {
        PreferenceManager prefManager = PreferenceManager.get();
@@ -195,7 +199,7 @@ public class MainProcessor{
        openFile(file, false);
    }
   
-   private void openFile( File files, boolean isRecent ) {
+   private void openFile( File file, boolean isRecent ) {
        PreferenceManager prefManager = PreferenceManager.get();
        String configFile = prefManager.getCurrentParserConfig();
        if(m_isDefaultConfiguration){
@@ -220,7 +224,7 @@ public class MainProcessor{
        ParserConfigReader reader = new ParserConfigReader(configFile);
        ParserConfig config = reader.read();
 
-       StackFileInfo stackFileInfo = processStackFile(files.getAbsolutePath(), config, null, isRecent, true);
+       StackFileInfo stackFileInfo = processStackFile(file.getAbsolutePath(), config, null, isRecent, true);
        if ( stackFileInfo != null )
            addMainTree(stackFileInfo);
        
@@ -670,5 +674,18 @@ public class MainProcessor{
         item.setExpanded(true);
         
         clearTable();
+    }
+  
+    public void processStackFile(String fileName){
+    	IWorkbench workbench = PlatformUI.getWorkbench();
+    	IWorkbenchWindow window = workbench.getActiveWorkbenchWindow(); 
+    	try{ 
+    		workbench.showPerspective(PerspectiveStackAnalyzer.ID, window);
+    	} catch (WorkbenchException e) { 
+    		System.out.println("Unable to open Perspective: " + PerspectiveStackAnalyzer.ID); 
+    	}
+    	
+    	File file = new File(fileName);
+    	openFile(file, false);
     }
 }

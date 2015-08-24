@@ -61,11 +61,11 @@ public class ResourceUtils {
     	if(contents == null){
     		return;
     	}
+    	contents = contents.trim();
     	
     	FileOutputStream out = null;
     	try {
     		out = new FileOutputStream(new File(fileName), false);
-    		contents = contents.trim();
     		out.write(contents.getBytes());
     		out.flush();
     	}catch(Exception ex){

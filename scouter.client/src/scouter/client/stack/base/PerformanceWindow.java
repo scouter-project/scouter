@@ -100,7 +100,7 @@ public class PerformanceWindow implements Listener{
     	m_performanceTree = new Tree(m_shell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     	constructTree();
         createTreePopupMenu();
-  
+
         m_shell.open();      
     }
 

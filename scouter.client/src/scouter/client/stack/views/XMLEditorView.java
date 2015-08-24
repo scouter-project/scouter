@@ -19,7 +19,6 @@ package scouter.client.stack.views;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import org.eclipse.jface.action.Action;
@@ -83,20 +82,27 @@ public class XMLEditorView extends ViewPart {
 
 	private void loadConfig() {
 		BufferedInputStream in = null;
+		int fileSize = 0;
+		byte [] data = null;
 		try {
 			if(XMLReader.DEFAULT_XMLCONFIG.equals(m_fileName)){
 				in = new BufferedInputStream(ResourceUtils.getDefaultXMLConfig());
+
+				data = new byte[102400];
+				int ch;
+				while((ch = in.read()) >=0){
+					data[fileSize] =  (byte)ch;
+					fileSize ++;
+				}				
 			}else{
-				in = new BufferedInputStream(new FileInputStream(new File(m_fileName)));
-			}
-			
-			ByteBuffer buffer = ByteBuffer.allocate(102400);
-			int ch;
-			while((ch = in.read()) >=0){
-				buffer.put((byte)ch);
-			}
-			buffer.position(0);
-			m_text.setText(new String(buffer.array(), "UTF-8"));
+				File file = new File(m_fileName);
+				fileSize = (int)file.length();
+				in = new BufferedInputStream(new FileInputStream(file));
+				
+				data = new byte[fileSize];
+				in.read(data);
+			}		
+			m_text.setText(new String(data, 0, fileSize, "UTF-8"));
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}finally{
@@ -115,7 +121,6 @@ public class XMLEditorView extends ViewPart {
 	}
 
 	private void saveConfigurations(){
-		m_text.getText();
 		ResourceUtils.saveFile(m_fileName, m_text.getText());
 	}
 	

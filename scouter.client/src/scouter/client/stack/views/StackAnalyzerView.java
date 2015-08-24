@@ -129,7 +129,7 @@ public class StackAnalyzerView extends ViewPart {
 		tableColumn.setWidth(600);
 		
 		m_table.setHeaderVisible(true);
-		m_table.setVisible(true);		
+		m_table.setVisible(true);
 	}
 	
 	private void initializeBrowser(Composite parent){
