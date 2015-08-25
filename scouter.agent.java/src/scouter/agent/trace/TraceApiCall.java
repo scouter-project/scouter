@@ -14,16 +14,21 @@
  *  limitations under the License. 
  */
 package scouter.agent.trace;
+
 import java.io.File;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+
+import org.omg.CORBA.DataOutputStream;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.ApiCallTracePlugin;
 import scouter.agent.plugin.HttpServiceTracePlugIn;
+import scouter.io.DataOutputX;
 import scouter.lang.AlertLevel;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.MessageStep;
@@ -32,26 +37,31 @@ import scouter.util.HashUtil;
 import scouter.util.IPUtil;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
+
 public class TraceApiCall {
 	public static class Stat {
 		public TraceContext ctx;
 		public Object req;
 		public Object res;
+
 		public Stat(TraceContext ctx, Object req, Object res) {
 			this.ctx = ctx;
 			this.req = req;
 			this.res = res;
 		}
+
 		public Stat(TraceContext ctx) {
 			this.ctx = ctx;
 		}
 	}
+
 	static {
 		try {
 			HttpServiceTracePlugIn.class.getClass();
 		} catch (Throwable t) {
 		}
 	}
+
 	public static void apiInfo(String className, String methodName, String methodDesc, Object _this, Object[] arg) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx != null && arg.length >= 2) {
@@ -60,6 +70,7 @@ public class TraceApiCall {
 			// " target="+ctx.apicall_target);
 		}
 	}
+
 	public static Object startApicall(String className, String methodName, String methodDesc, Object _this, Object[] arg) {
 		try {
 			TraceContext ctx = TraceContextManager.getLocalContext();
@@ -86,6 +97,7 @@ public class TraceApiCall {
 		}
 		return null;
 	}
+
 	public static Object startApicall(String name, long apiTxid) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
@@ -103,6 +115,7 @@ public class TraceApiCall {
 		ctx.apicall_name = name;
 		return new LocalContext(ctx, step);
 	}
+
 	public static void endApicall(Object stat, Object returnValue, Throwable thr) {
 		if (stat == null)
 			return;
@@ -115,7 +128,7 @@ public class TraceApiCall {
 			if (step.address == null) {
 				step.address = tctx.apicall_target;
 			}
-			step.hash = 	DataProxy.sendApicall( tctx.apicall_name);
+			step.hash = DataProxy.sendApicall(tctx.apicall_name);
 			tctx.apicall_name = null;
 			tctx.apicall_target = null;
 			step.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
@@ -130,45 +143,42 @@ public class TraceApiCall {
 				// msg);
 				Configure conf = Configure.getInstance();
 				if (conf.profile_fullstack_apicall_error) {
-					
-						StringBuffer sb = new StringBuffer();
-						sb.append(msg).append("\n");
+
+					StringBuffer sb = new StringBuffer();
+					sb.append(msg).append("\n");
+					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+					thr = thr.getCause();
+					while (thr != null) {
+						sb.append("\nCause...\n");
 						ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
 						thr = thr.getCause();
-						while (thr != null) {
-							sb.append("\nCause...\n");
-							ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
-							thr = thr.getCause();
-						}
-						msg = sb.toString();
-					
+					}
+					msg = sb.toString();
+
 				}
-				step.error = DataProxy.sendError( msg);
+				step.error = DataProxy.sendError(msg);
 				if (tctx.error == 0) {
 					tctx.error = step.error;
 				}
-				
+
 			}
 			tctx.profile.pop(step);
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
 	}
+
 	public static Object startSocket(Socket socket, SocketAddress addr, int timeout) {
 		if (!(addr instanceof InetSocketAddress))
 			return null;
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
-			Configure conf = Configure.getInstance();
-			if (conf.debug_socket_openstack) {
-				try {
-					InetSocketAddress inet = (InetSocketAddress) addr;
-					if (conf.debug_socket_openstack_port == 0 || conf.debug_socket_openstack_port == inet.getPort()) {
-						Logger.info("SOCKET " + inet.getHostName() + ":" + inet.getPort() + " not profiled!!");
-						Logger.info(ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace()));
-					}
-				} catch (Throwable t) {
-				}
+			if (Configure.getInstance().socket_listup_all) {
+				InetSocketAddress inet = (InetSocketAddress) addr;
+				InetAddress host = inet.getAddress();
+				int port = inet.getPort();
+				byte[] ipaddr = host == null ? null : host.getAddress();
+				SocketTable.add(ipaddr, port, 0, 0);
 			}
 			return null;
 		}
@@ -189,6 +199,7 @@ public class TraceApiCall {
 			return null;
 		}
 	}
+
 	public static void endSocket(Object stat, Throwable thr) {
 		if (stat == null) {
 			return;
@@ -200,14 +211,17 @@ public class TraceApiCall {
 			step.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
 			if (thr != null) {
 				String msg = thr.toString();
-				step.error = DataProxy.sendError( msg);
+				step.error = DataProxy.sendError(msg);
 				if (tctx.error == 0) {
 					tctx.error = step.error;
 				}
-				
+
 				AlertProxy.sendAlert(AlertLevel.WARN, "SOCKET_EXCEPTION", msg);
 			}
 			tctx.profile.add(step);
+
+			SocketTable.add(step.ipaddr, step.port, tctx.serviceHash, tctx.txid);
+
 			Configure conf = Configure.getInstance();
 			if (conf.profile_socket_openstack) {
 				if (conf.profile_socket_openstack_port == 0 || conf.profile_socket_openstack_port == step.port) {
@@ -217,16 +231,12 @@ public class TraceApiCall {
 					tctx.profile.add(m);
 				}
 			}
-			if (conf.debug_socket_openstack) {
-				if (conf.debug_socket_openstack_port == 0 || conf.debug_socket_openstack_port == step.port) {
-					Logger.info("SOCKET " + IPUtil.toString(step.ipaddr) + ":" + step.port);
-					Logger.info(ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace()));
-				}
-			}
+
 		} catch (Throwable t) {
 			Logger.println("A142", "socket trace close error", t);
 		}
 	}
+
 	public static void open(File file) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx != null) {

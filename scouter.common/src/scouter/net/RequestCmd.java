@@ -60,6 +60,7 @@ public class RequestCmd {
 	public static final String OBJECT_REMOVE_IN_MEMORY = "OBJECT_REMOVE_IN_MEMORY";
 
 	public static final String OBJECT_FILE_SOCKET = "OBJECT_FILE_SOCKET";
+	public static final String OBJECT_SOCKET = "SOCKET";
 	
 	public static final String SERVER_VERSION                = "SERVER_VERSION";
 	public static final String SERVER_LOG_LIST                = "SERVER_LOG_LIST";
@@ -238,4 +239,5 @@ public class RequestCmd {
 	// VISITOR
 	public static final String VISITOR_REALTIME = "VISITOR_REALTIME";
 	public static final String VISITOR_REALTIME_TOTAL = "VISITOR_REALTIME_TOTAL";
+
 }
