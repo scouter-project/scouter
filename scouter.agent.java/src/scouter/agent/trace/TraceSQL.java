@@ -116,7 +116,7 @@ public class TraceSQL {
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
-		step.xtype=SqlXType.PREPARED;
+		step.xtype=SqlXType.DYNA;
 
 		ctx.sqlActiveArgs = ctx.sql;
 
