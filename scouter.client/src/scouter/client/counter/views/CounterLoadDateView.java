@@ -47,6 +47,7 @@ import scouter.client.util.ColorUtil;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.CounterUtil;
 import scouter.client.util.ExUtil;
+import scouter.client.util.MenuUtil;
 import scouter.client.views.ScouterViewPart;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
@@ -101,6 +102,8 @@ public class CounterLoadDateView extends ScouterViewPart {
 			this.trace.setTraceColor(AgentColorManager.getInstance().assignColor(objType, objHash));
 			ChartUtil.addSolidLine(xyGraph, provider, AgentColorManager.getInstance().assignColor(objType, objHash));
 		}
+		
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objHash, objType, counter);
 		
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {

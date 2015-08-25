@@ -41,7 +41,9 @@ import scouter.lang.step.MethodSum;
 import scouter.lang.step.SocketStep;
 import scouter.lang.step.SocketSum;
 import scouter.lang.step.SqlStep;
+import scouter.lang.step.SqlStep2;
 import scouter.lang.step.SqlSum;
+import scouter.lang.step.SqlXType;
 import scouter.lang.step.Step;
 import scouter.lang.step.StepControl;
 import scouter.lang.step.StepEnum;
@@ -290,6 +292,7 @@ public class ProfileText {
 				toString(sb, (MethodStep) stepSingle);
 				break;
 			case StepEnum.SQL:
+			case StepEnum.SQL2:
 				SqlStep sql = (SqlStep) stepSingle;
 				slen = sb.length();
 				toString(sb, sql, serverId,lineHead);
@@ -504,6 +507,7 @@ public class ProfileText {
 				toString(sb, (MethodStep) stepSingle);
 				break;
 			case StepEnum.SQL:
+			case StepEnum.SQL2:
 				SqlStep sql = (SqlStep) stepSingle;
 				slen = sb.length();
 				toString(sb, sql, serverId,lineHead);
@@ -612,6 +616,9 @@ public class ProfileText {
 	}
 
 	public static void toString(StringBuffer sb, SqlStep p, int serverId, int lineHead) {
+		if(p instanceof SqlStep2){
+			sb.append(SqlXType.toString(((SqlStep2)p).xtype));
+		}
 		String m = TextProxy.sql.getText(p.hash);
 		m=spacing(m,lineHead);
 		if (m == null)

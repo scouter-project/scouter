@@ -46,7 +46,7 @@ object TextPermWR {
     common.add(HashUtil.hash(TextTypes.CITY));
     //move to perm db
     common.add(HashUtil.hash(TextTypes.LOGIN));
-    common.add(HashUtil.hash(TextTypes.BIZCODE));
+    common.add(HashUtil.hash(TextTypes.DESC));
     common.add(HashUtil.hash(TextTypes.GROUP));
     common.add(HashUtil.hash(TextTypes.USER_AGENT));
 

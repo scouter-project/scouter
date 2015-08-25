@@ -18,10 +18,14 @@ package scouter.client.stack.data;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.zip.ZipInputStream;
 
 import scouter.client.stack.config.ParserConfig;
+import scouter.client.stack.utils.ResourceUtils;
 import scouter.client.stack.utils.StringUtils;
 
 
@@ -37,8 +41,15 @@ public class DevonFileStackParser extends StackParser {
 
     public void process() {
         BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(new File(getStackFileInfo().getFilename())));
+	    ZipInputStream zipInputStream = null;
+	    try {
+	    	if(ResourceUtils.isZipFile(getStackFileInfo().getFilename())){
+	    		zipInputStream = new ZipInputStream(new FileInputStream(new File(getStackFileInfo().getFilename())));
+	    		zipInputStream.getNextEntry();
+	    		reader = new BufferedReader(new InputStreamReader(zipInputStream));
+	    	}else{
+		    	reader = new BufferedReader(new FileReader(new File(getStackFileInfo().getFilename())));
+	    	}
 
             StringBuilder timeBuffer = null;
             String line = null;
@@ -63,8 +74,14 @@ public class DevonFileStackParser extends StackParser {
 	    	int timePosition = config.getTimePosition();
 	    	int timeSize = config.getTimeSize();
 	    	int stackStartLine = config.getStackStartLine();
-            
+	    	String timeMatchStr = null; 
+	    	
+	    	if(timeFilter != null && timeSize > 0){
+	    		timeMatchStr = new StringBuilder(50).append("*").append(timeFilter).append("*").toString();
+	    	}    
+	    	
             while ( (line = reader.readLine()) != null ) {
+	    		progressBar();
                 if ( line.trim().length() == 0 ) {
                     if ( isWorking && lineCount > stackStartLine ) {
                         processStack(workingList, tsinfo);
@@ -77,7 +94,7 @@ public class DevonFileStackParser extends StackParser {
 
                 // Dump time
                 if ( lineCount == 0 ) {
-	    			if(line.indexOf(timeFilter) >= 0 && line.length() >= (timePosition + timeSize)){
+	    			if(timeMatchStr != null && line.matches(timeMatchStr) && line.length() >= (timePosition + timeSize)){
                         if ( timeBuffer != null && timeBuffer.length() > 10 ) {
                             timeBuffer.append('\t').append(workerCount).append('\t').append(workingCount);
             				for(int tsIndex = 0; tsIndex < tsinfo.geSize(); tsIndex++){
@@ -126,7 +143,7 @@ public class DevonFileStackParser extends StackParser {
             }
 
             // last time
-            if ( timeBuffer != null && timeBuffer.length() > 10 ) {
+            if ( timeMatchStr != null && timeBuffer != null && timeBuffer.length() > 10 ) {
                 timeBuffer.append('\t').append(workerCount).append('\t').append(workingCount);
 				for(int tsIndex = 0; tsIndex < tsinfo.geSize(); tsIndex++){
 					timeBuffer.append('\t').append(tsinfo.getValue(tsIndex));    							
@@ -139,6 +156,9 @@ public class DevonFileStackParser extends StackParser {
         } catch ( Exception ex ) {
             throw new RuntimeException(ex);
         } finally {
+	    	if(zipInputStream != null){
+	    		try { zipInputStream.closeEntry();}catch(Exception e){}	    		
+	    	}        	
             if ( reader != null ) {
                 try {
                     reader.close();

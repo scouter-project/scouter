@@ -60,6 +60,7 @@ import scouter.client.util.ConsoleProxy;
 import scouter.client.util.CounterUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
+import scouter.client.util.MenuUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
 import scouter.client.views.ScouterViewPart;
@@ -117,6 +118,8 @@ public class CounterRealTimeView extends ScouterViewPart implements Refreshable 
 		}
 		desc = "ⓢ"+svrName+" | (Realtime) [" + objName + "] " + counterDisplay + (!"".equals(counterUnit)?" ("+counterUnit+")":"");
 		setViewTab(objType, counter, serverId);
+		
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objHash, objType, counter);
 
 		if (thread == null) {
 			thread = new RefreshThread(this, 2000);

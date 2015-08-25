@@ -51,11 +51,12 @@ public class MethodASM implements IASM, Opcodes {
 	}
 
 	Configure conf = Configure.getInstance();
+
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (target.size() == 0)
 			return cv;
-		
-		if(conf.isIgnoreMethodClass(className))
+
+		if (conf.isIgnoreMethodClass(className))
 			return cv;
 
 		for (int i = 0; i < target.size(); i++) {
@@ -88,7 +89,7 @@ class MethodCV extends ClassVisitor implements Opcodes {
 		if (AsmUtil.isSpecial(name)) {
 			return mv;
 		}
-		
+
 		Configure conf = Configure.getInstance();
 		boolean isPublic = conf.hook_method_access_public;
 		boolean isProtected = conf.hook_method_access_protected;
@@ -112,14 +113,12 @@ class MethodCV extends ClassVisitor implements Opcodes {
 				return mv;
 			break;
 		}
-        //check prefix, to ignore  simple method such as getter,setter 
-		if(conf.isIgnoreMethodPrefix(name))
-        	return mv;
-        
-		String fullname = AsmUtil.add(className, name, desc);
-		int fullname_hash = HashUtil.hash(fullname);
+		// check prefix, to ignore simple method such as getter,setter
+		if (conf.isIgnoreMethodPrefix(name))
+			return mv;
 
-		DataProxy.sendMethodName(fullname_hash, fullname);
+		String fullname = AsmUtil.add(className, name, desc);
+		int fullname_hash = DataProxy.sendMethodName(fullname);
 
 		return new MethodMV(access, desc, mv, fullname, fullname_hash);
 	}

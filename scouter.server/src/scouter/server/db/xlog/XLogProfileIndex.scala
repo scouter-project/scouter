@@ -25,8 +25,9 @@ import scouter.server.db.io.IndexKeyFile
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.util.FileUtil
-import scouter.util.IClose;
+import scouter.util.IClose
 import scouter.server.util.EnumerScala
+import java.util.Arrays
 
 object XLogProfileIndex {
     val table = new Hashtable[String, XLogProfileIndex]();
@@ -82,13 +83,18 @@ class XLogProfileIndex(_file: String) extends IClose {
     def getByTxid(txid: Long): List[Long] = {
         checkOpen();
         val blist = this.profileX.getAll(DataOutputX.toBytes(txid));
-        val olist = new ArrayList[Long]();
-        
+        val olist = new Array[Long](blist.size());
+        var cnt = 0;
         EnumerScala.foreach(blist.iterator(), (bb: Array[Byte]) => {
-            olist.add(DataInputX.toLong5(bb, 0))
+        	olist(cnt)=DataInputX.toLong5(bb, 0);
+        	cnt+=1;
         })
-        
-        return olist;
+        Arrays.sort(olist);
+        val list = new ArrayList[Long](olist.length);
+        EnumerScala.foreach(olist, (ll: Long) => {
+          list.add(ll);
+        })
+        return list;
     }
     
     def read(handler: (Array[Byte], Array[Byte]) => Unit, dr: (Long)=>Array[Byte]) {

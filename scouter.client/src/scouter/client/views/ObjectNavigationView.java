@@ -479,32 +479,11 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 		ArrayList<String> counters = counterEngine.getAllCounterWithDisplay(objType);
 		for(int i = 0 ; counters != null && i < counters.size() ; i++){
 			String[] cnt = counters.get(i).split(":");
-			String display = cnt[0];
 			String counter = cnt[1];
-			MenuManager counterMenuManager = new MenuManager(display
-					, ImageUtil.getImageDescriptor(Images.getCounterImage(objType, counter, serverId))
-					, "scouter.menu.id."+objType+"."+counter);
-			MenuManager liveMenuManager = new MenuManager(MenuStr.LIVE_CHART
-					, ImageUtil.getImageDescriptor(Images.monitor)
-					, "scouter.menu.live.id."+objType+"."+counter);
-			counterMenuManager.add(liveMenuManager);
-			MenuManager loadMenuManager = new MenuManager(MenuStr.LOAD_CHART
-					, ImageUtil.getImageDescriptor(Images.drive)
-					, "scouter.menu.load.id."+objType+"."+counter);
-			counterMenuManager.add(loadMenuManager);
-			for(String menu : CounterConstants.COUNTER_MENU_ARRAY){
-				Action act = actionMap.get(objType + ":" + counter + ":" + menu);
-				if(act != null){
-					act.setText(ScouterUtil.getActionName(menu));
-					act.setImageDescriptor(ScouterUtil.getActionIconName(menu));
-					if (ScouterUtil.isLiveMenu(menu)) {
-						liveMenuManager.add(act);
-					} else {
-						loadMenuManager.add(act);
-					}
-				}
+			Action realtimeAllAct = actionMap.get(objType + ":" + counter);
+			if (realtimeAllAct != null) {
+				objTitle.add(realtimeAllAct);
 			}
-			objTitle.add(counterMenuManager);
 		}
 		
 		objTitle.add(new Separator());

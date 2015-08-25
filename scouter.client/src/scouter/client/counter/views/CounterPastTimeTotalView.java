@@ -67,6 +67,7 @@ import scouter.client.util.ConsoleProxy;
 import scouter.client.util.CounterUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
+import scouter.client.util.MenuUtil;
 import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
@@ -124,6 +125,8 @@ public class CounterPastTimeTotalView extends ScouterViewPart implements Calenda
 		sDateText.setText(DateUtil.format(stime, "yyyy-MM-dd"));
 		sTimeText.setText(DateUtil.format(stime, "hh:mm a", Locale.ENGLISH));
 		eTimeText.setText(DateUtil.format(etime, "hh:mm a", Locale.ENGLISH));
+		
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter);
 		
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {

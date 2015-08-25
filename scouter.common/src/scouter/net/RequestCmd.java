@@ -161,6 +161,10 @@ public class RequestCmd {
 	public static final String EXPORT_OBJECT_REGULAR_COUNTER = "EXPORT_OBJECT_REGULAR_COUNTER";
 	public static final String EXPORT_APP_SUMMARY = "EXPORT_APP_SUMMARY";
 	
+	
+	public static final String GET_STACK_ANALYZER = "GET_STACK_ANALYZER";
+	
+	
 	// RDB Request
 	public static final String ACTIVE_QUERY_LIST = "ACTIVE_QUERY_LIST";
 	public static final String EXIST_QUERY_LIST = "EXIST_QUERY_LIST";

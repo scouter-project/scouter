@@ -59,6 +59,7 @@ import scouter.client.util.ConsoleProxy;
 import scouter.client.util.CounterUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
+import scouter.client.util.MenuUtil;
 import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.views.ScouterViewPart;
@@ -295,7 +296,7 @@ public class CounterTodayTotalView extends ScouterViewPart implements Refreshabl
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-		
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter);
 		thread = new RefreshThread(this, 10000);
 		thread.setName(this.toString() + " - " + "objType:"+objType + ", counter:"+counter + ", serverId:"+serverId);
 		thread.start();

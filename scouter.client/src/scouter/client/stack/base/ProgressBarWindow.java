@@ -16,45 +16,38 @@
  */
 package scouter.client.stack.base;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.Shell;
 
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JProgressBar;
-import javax.swing.border.Border;
+import scouter.client.stack.utils.ResourceUtils;
 
-@SuppressWarnings("serial")
-public class ProgressBarWindow extends JFrame{
-	JProgressBar m_progressBar = null;
-	static public void startProgressWindow(final String title, final WindowObject object){
-		new Thread(){
-			public void run() {
-				object.setWindowObject(new ProgressBarWindow(title));
-		}			
-		}.start();
-	}
+public class ProgressBarWindow{
+	private Shell m_shell = null;
+	private ProgressBar m_progressBar = null;
 	
-	public ProgressBarWindow(String title){
-		super(title);
-		
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		Container content = this.getContentPane();
-		m_progressBar = new JProgressBar();
-		m_progressBar.setValue(0);
-		m_progressBar.setStringPainted(true);
-		Border border = BorderFactory.createTitledBorder("Reading...");
-		m_progressBar.setBorder(border);
-		content.add(m_progressBar, BorderLayout.NORTH);
-		this.setSize(300, 100);
-		this.setVisible(true);
+	public ProgressBarWindow(Shell shell, String title){
+        m_shell = new Shell(shell, SWT.TITLE);
+        m_shell.setText(title);
+        m_shell.setLayout(new FillLayout());
+        int [] pos = ResourceUtils.getScreenSize();
+        m_shell.setBounds((pos[0]/2)-75, (pos[1]/2)-15, 150, 40);
+        
+        m_progressBar = new ProgressBar(m_shell, SWT.HORIZONTAL);
+		m_progressBar.setMinimum(0);
+		m_progressBar.setMaximum(100);
+		m_progressBar.setBounds(0, 0, 140, 20);
+
+		m_progressBar.setState(SWT.ERROR);
+        m_shell.open();
 	}
 	
 	public void setValue(int value){
-		m_progressBar.setValue(value);
-		if(value == 100){
-			try { Thread.sleep(500); }catch(Exception ex){}
-			this.dispose();
-		}
+		m_progressBar.setSelection(value);
 	}
+	
+	public void close(){
+		m_shell.close();
+	}	
 }

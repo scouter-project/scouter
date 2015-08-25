@@ -362,7 +362,9 @@ public class CounterEngine {
 		ArrayList<String> list = new ArrayList<String>();
 		scouter.lang.Counter[] counters = obj.getFamily().listCounters();
 		for (scouter.lang.Counter counter : counters) {
-			list.add(counter.getDisplayName() + ":" + counter.getName());
+			if (counter.isAll()) {
+				list.add(counter.getDisplayName() + ":" + counter.getName());
+			}
 		}
 		Collections.sort(list);
 		return list;

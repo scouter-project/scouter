@@ -23,7 +23,6 @@ import scouter.AnyTrace;
 import scouter.agent.Configure;
 import scouter.agent.LazyAgentBoot;
 import scouter.agent.netio.data.net.TcpRequestMgr;
-import scouter.agent.trace.StringHashCache;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
 import scouter.agent.trace.TraceMain;
@@ -31,6 +30,7 @@ import scouter.io.DataOutputX;
 import scouter.lang.pack.XLogPack;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
+import scouter.util.HashUtil;
 import scouter.util.IPUtil;
 import scouter.util.KeyGen;
 import scouter.util.ShellArg;
@@ -73,7 +73,7 @@ public class Service24H {
 			txcount++;
 			
 			String serviceName = "service" + (next(r, 1000));
-			int service_hash = StringHashCache.getUrlHash(serviceName);
+			int service_hash = HashUtil.hash(serviceName);
 			long txid = KeyGen.next();
 			profile(txid,service_hash);
 			long endtime = getEndTime();

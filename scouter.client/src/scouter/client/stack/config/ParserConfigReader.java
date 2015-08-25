@@ -34,35 +34,35 @@ public class ParserConfigReader extends XMLReader {
 
         config.setConfigFilename(getFilename());
         try {
-            config.setParserName(getSingleValue("awacs/parser"));
+            config.setParserName(getSingleValue("scouter/parser"));
         } catch ( Exception ex ) {
         	throw new RuntimeException(ex);
         }
         
         try {
-            config.setStackStartLine(Integer.parseInt(getAttribute("awacs/parser", "stackStartLine")));  
+            config.setStackStartLine(Integer.parseInt(getAttribute("scouter/parser", "stackStartLine")));  
         } catch ( Exception ex ) {
-        	System.out.println("stackStartLine attribute in awacs/parser is not exist! (Default: 2)");
+        	System.err.println("stackStartLine attribute in scouter/parser is not exist! (Default: 2)");
         }
 
         try {
-        	config.setDivideStack(getAttribute("awacs/parser", "divideStack"));  
+        	config.setDivideStack(getAttribute("scouter/parser", "divideStack"));  
         } catch ( Exception ex ) {
         }
         
         try {
-            config.setTimeFormat(getSingleValue("awacs/time"));
-            config.setTimeSize(Integer.parseInt(getAttribute("awacs/time", "size")));
-            config.setTimePosition(Integer.parseInt(getAttribute("awacs/time", "position")));
-            config.setTimeFilter(getAttribute("awacs/time", "filter"));
+            config.setTimeFormat(getSingleValue("scouter/time"));
+            config.setTimeSize(Integer.parseInt(getAttribute("scouter/time", "size")));
+            config.setTimePosition(Integer.parseInt(getAttribute("scouter/time", "position")));
+            config.setTimeFilter(getAttribute("scouter/time", "filter"));
         } catch ( Exception ex ) {
-        	System.out.println(ex.getMessage());
+        	System.err.println(ex.getMessage());
         }
 
         try {
-            config.setThreadStatus(getAttribute("awacs/workingThread", "status"));
+            config.setThreadStatus(getAttribute("scouter/workingThread", "status"));
         } catch ( Exception ex ) {
-        	System.out.println(ex.getMessage());
+        	System.err.println(ex.getMessage());
         }
 
         readDefaultAnalyzer(config);
@@ -72,7 +72,7 @@ public class ParserConfigReader extends XMLReader {
         // readPreprocessor
         String filename = null;
         try {
-        	filename = getSingleValue("awacs/preProcessor");
+        	filename = getSingleValue("scouter/preProcessor");
         }catch(Exception ex){
         }
     	if(filename != null && filename.length() > 0){
@@ -84,59 +84,59 @@ public class ParserConfigReader extends XMLReader {
     private void readDefaultAnalyzer( ParserConfig config ) {
         ArrayList<String> list = null;
         try {
-            list = readList("awacs/workerThread");
+            list = readList("scouter/workerThread");
             config.setWorkerThread(list);
         } catch ( Exception ex ) {
-        	ex.printStackTrace();
+        	System.err.println(ex.getMessage());
         }
 
         try {
-        list = readList("awacs/workingThread");
+        list = readList("scouter/workingThread");
         config.setWorkingThread(list);
         }catch(RuntimeException ex){
         	throw ex;
         }
         
         try {
-            list = readList("awacs/service");
+            list = readList("scouter/service");
             config.setService(list);
         } catch ( Exception ex ) {
-        	ex.printStackTrace();
+        	System.err.println(ex.getMessage());
         }
 
         try {
-            list = readList("awacs/sql");
+            list = readList("scouter/sql");
             config.setSql(list);
         } catch ( Exception ex ) {
-        	ex.printStackTrace();
+        	System.err.println(ex.getMessage());
         }
 
         try {
-            list = readList("awacs/log");
+            list = readList("scouter/log");
             config.setLog(list);
         } catch ( Exception ex ) {
-        	ex.printStackTrace();
+        	System.err.println(ex.getMessage());
         }
 
         try {
-            list = readList("awacs/excludeStack");
+            list = readList("scouter/excludeStack");
             config.setExcludeStack(list);
         } catch ( Exception ex ) {
-        	ex.printStackTrace();
+        	System.err.println(ex.getMessage());
         }
 
         try {
-            list = readList("awacs/singleStack");
+            list = readList("scouter/singleStack");
             config.setSingleStack(list);
         } catch ( Exception ex ) {
-        	ex.printStackTrace();
+        	System.err.println(ex.getMessage());
         }
     }
 
     private void readAddedAnalyzer( ParserConfig config ) {
         ArrayList<Node> nodeList = null;
         try {
-            nodeList = getNodeList("awacs/analyze");
+            nodeList = getNodeList("scouter/analyze");
 
             if ( nodeList == null || nodeList.size() == 0 )
                 return;
@@ -145,8 +145,8 @@ public class ParserConfigReader extends XMLReader {
                 readAnalyzer(nodeList.get(i), config);
             }
         } catch ( Exception ex ) {
-            ex.printStackTrace();
-        }
+        	System.err.println(ex.getMessage());
+       }
     }
 
     private void readAnalyzer( Node node, ParserConfig config ) throws Exception {
@@ -246,7 +246,7 @@ public class ParserConfigReader extends XMLReader {
     private void readJMX( ParserConfig config ) {
         ArrayList<Node> nodeList = null;
         try {
-            nodeList = getNodeList("awacs/jmx");
+            nodeList = getNodeList("scouter/jmx");
 
             if ( nodeList == null || nodeList.size() == 0 )
                 return;
@@ -274,7 +274,7 @@ public class ParserConfigReader extends XMLReader {
 
             readJMXserver(jmxNode, config);
         } catch ( Exception ex ) {
-            ex.printStackTrace();
+            System.err.println(ex.getMessage());
         }
     }
 

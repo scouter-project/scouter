@@ -35,27 +35,51 @@ import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogProfilePack;
 import scouter.lang.step.Step;
 import scouter.lang.value.MapValue;
+import scouter.util.HashUtil;
+import scouter.util.IntIntLinkedMap;
 import scouter.util.IntLinkedSet;
 
 public class DataProxy {
 	private static UDPDataSendThread udpCollect = UDPDataSendThread.getInstance();
 
+	private static IntIntLinkedMap sqlHash = new IntIntLinkedMap().setMax(5000);
+
+	private static int getSqlHash(String sql) {
+		if (sql.length() < 100)
+			return HashUtil.hash(sql);
+
+		int id = sql.hashCode();
+		int hash = sqlHash.get(id);
+		if (hash == 0) {
+			hash = HashUtil.hash(sql);
+			sqlHash.put(id, hash);
+		}
+		return hash;
+	}
+
 	private static IntLinkedSet sqlText = new IntLinkedSet().setMax(10000);
 
-	public static void sendSqlText(int hash, String sql) {
+	public static int sendSqlText(String sql) {
+		int hash = getSqlHash(sql);
 		if (sqlText.contains(hash)) {
-			return;
+			return hash;
 		}
 		sqlText.put(hash);
 		// udp.add(new TextPack(TextTypes.SQL, hash, sql));
 		sendDirect(new TextPack(TextTypes.SQL, hash, sql));
+		return hash;
 	}
 
 	private static IntLinkedSet serviceName = new IntLinkedSet().setMax(10000);
 
+	public static int sendServiceName(String service) {
+		int hash = HashUtil.hash(service);
+		sendServiceName(hash,service);
+		return hash;
+	}
 	public static void sendServiceName(int hash, String service) {
 		if (serviceName.contains(hash)) {
-			return;
+			return ;
 		}
 		serviceName.put(hash);
 		udpCollect.add(new TextPack(TextTypes.SERVICE, hash, service));
@@ -63,43 +87,53 @@ public class DataProxy {
 
 	private static IntLinkedSet referer = new IntLinkedSet().setMax(1000);
 
-	public static void sendReferer(int hash, String text) {
+	public static int sendReferer(String text) {
+		int hash = HashUtil.hash(text);
+
 		if (referer.contains(hash)) {
-			return;
+			return hash;
 		}
 		referer.put(hash);
 		sendDirect(new TextPack(TextTypes.REFERER, hash, text));
+		return hash;
 	}
 
 	private static IntLinkedSet userAgent = new IntLinkedSet().setMax(1000);
 
-	public static void sendUserAgent(int hash, String text) {
+	public static int sendUserAgent(String text) {
+		int hash = HashUtil.hash(text);
+		
 		if (userAgent.contains(hash)) {
-			return;
+			return hash;
 		}
 		userAgent.put(hash);
 		udpCollect.add(new TextPack(TextTypes.USER_AGENT, hash, text));
+		return hash;
 	}
 
 	private static IntLinkedSet methodName = new IntLinkedSet().setMax(10000);
 
-	public static void sendMethodName(int hash, String name) {
+	public static int sendMethodName( String name) {
+		int hash = HashUtil.hash(name);
 		if (methodName.contains(hash)) {
-			return;
+			return hash;
 		}
 		methodName.put(hash);
 
 		udpCollect.add(new TextPack(TextTypes.METHOD, hash, name));
+		return hash;
 	}
 
 	private static IntLinkedSet apicall = new IntLinkedSet().setMax(10000);
 
-	public static void sendApicall(int hash, String name) {
+	public static int sendApicall( String name) {
+		int hash = HashUtil.hash(name);
 		if (apicall.contains(hash)) {
-			return;
+			return hash;
 		}
 		apicall.put(hash);
 		udpCollect.add(new TextPack(TextTypes.APICALL, hash, name));
+		return hash;
 	}
 
 	static Configure conf = Configure.getInstance();
@@ -120,33 +154,39 @@ public class DataProxy {
 
 	private static IntLinkedSet errText = new IntLinkedSet().setMax(10000);
 
-	public static void sendError(int hash, String message) {
+	public static int sendError( String message) {
+		int hash = HashUtil.hash(message);
 		if (errText.contains(hash)) {
-			return;
+			return hash;
 		}
 		errText.put(hash);
 		udpCollect.add(new TextPack(TextTypes.ERROR, hash, message));
+		return hash;
 	}
 
-	private static IntLinkedSet bizTable = new IntLinkedSet().setMax(1000);
+	private static IntLinkedSet descTable = new IntLinkedSet().setMax(1000);
 
-	public static void sendBizCode(int hash, String bizcode) {
-		if (bizTable.contains(hash)) {
-			return;
+	public static int sendDesc( String desc) {
+		int hash = HashUtil.hash(desc);
+		if (descTable.contains(hash)) {
+			return hash;
 		}
-		bizTable.put(hash);
-		udpCollect.add(new TextPack(TextTypes.BIZCODE, hash, bizcode));
+		descTable.put(hash);
+		udpCollect.add(new TextPack(TextTypes.DESC, hash, desc));
+		return hash;
 	}
 
 	private static IntLinkedSet loginTable = new IntLinkedSet().setMax(10000);
 
-	public static void sendLogin(int login, String loginName) {
-		if (loginTable.contains(login)) {
-			return;
+	public static int sendLogin( String loginName) {
+		int hash = HashUtil.hash(loginName);
+		if (loginTable.contains(hash)) {
+			return hash;
 		}
-		loginTable.put(login);
-		udpCollect.add(new TextPack(TextTypes.LOGIN, login, loginName));
-	}
+		loginTable.put(hash);
+		udpCollect.add(new TextPack(TextTypes.LOGIN, hash, loginName));
+		return hash;
+   }
 
 	public static void reset() {
 		serviceName.clear();
@@ -166,7 +206,7 @@ public class DataProxy {
 
 	static DataUdpAgent udpNet = DataUdpAgent.getInstance();
 
-	private static void sendDirect(Pack p) {
+	public static void sendDirect(Pack p) {
 		try {
 			udpNet.write(new DataOutputX().writePack(p).toByteArray());
 		} catch (IOException e) {
@@ -235,5 +275,7 @@ public class DataProxy {
 			Logger.info(p.toString());
 		}
 	}
+
+	
 
 }

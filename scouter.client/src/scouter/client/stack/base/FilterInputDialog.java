@@ -16,97 +16,93 @@
  */
 package scouter.client.stack.base;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import scouter.client.Images;
+import scouter.client.stack.utils.ResourceUtils;
 
-@SuppressWarnings("serial")
-public class FilterInputDialog extends JDialog {
-    private static FilterInputDialog m_dialog;
+public class FilterInputDialog {
+    public enum TASK { NONE, PERFORMANCE_TREE, SERVICE_CALL, THREAD_STACK, FILTER_ANALYZER };
 
-    private MainFrame m_mainWindow = null;
     private boolean m_isAscending = true;
-    private JTextField m_field = null;
-    private int m_jobType = 0;
+    private Text m_field = null;
+    private TASK m_jobType = TASK.NONE;
+    private Shell m_shell = null;
 
-    public static void init( MainFrame mainWindow, boolean isAscending, int jobType ) {
-        try {
-            m_dialog = new FilterInputDialog(mainWindow, isAscending, jobType);
-            m_dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            m_dialog.setModal(true);
-            m_dialog.setVisible(true);
-        } catch ( Exception e ) {
-            e.printStackTrace();
-        }
-    }
+    public FilterInputDialog(Shell shell, boolean isAscending, scouter.client.stack.base.FilterInputDialog.TASK jobtype) {
+        m_shell = new Shell(shell);
+        m_shell.setText("Input Filter String");
+        m_shell.setImage(Images.filter);
+        m_shell.setSize(700, 120);
+        
+        FormLayout layout = new FormLayout();
+        layout.marginHeight = 5;
+        layout.marginWidth = 5;
+    	m_shell.setLayoutData(layout);
+    	
+        int [] screen = ResourceUtils.getScreenSize();
+        m_shell.setLocation((screen[0]/2)-350, (screen[1]/2)-75);        
+        
+        m_field = new Text(m_shell, SWT.BORDER | SWT.LEFT);
+        m_field.setEditable(true);
+        m_field.setTextLimit(100);
+        m_field.setSize(682, 25);
+        m_field.setLocation(5, 5);
 
-    public static FilterInputDialog get() {
-        return m_dialog;
-    }
-
-    public FilterInputDialog(MainFrame mainWindow, boolean isAscending, int jobType) {
-        super(MainFrame.getFrame());
-
-        m_mainWindow = mainWindow;
-        m_isAscending = isAscending;
-        m_jobType = jobType;
-
-        setTitle("Input Filter String");
-        setBounds(100, 100, 600, 100);
-        Container container = getContentPane();
-        container.setLayout(new BorderLayout());
-
-        m_field = new JTextField();
-        m_field.setHorizontalAlignment(SwingConstants.LEFT);
-        m_field.setColumns(100);
-
-        container.add(m_field, BorderLayout.CENTER);
-
-        JPanel buttonPane = new JPanel();
-        buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        container.add(buttonPane, BorderLayout.SOUTH);
-
-        JButton okButton = new JButton("OK");
-        okButton.addActionListener(new ActionListener() {
-            public void actionPerformed( ActionEvent e ) {
+        Button button = new Button(m_shell, SWT.NONE);
+        button.setText("Execute");
+        button.setAlignment(SWT.CENTER);
+        button.setSize(100, 35);
+        button.setLocation(480, 40);
+        button.addListener(SWT.Selection, new Listener(){
+			public void handleEvent(Event event) {
                 String filter = m_field.getText();
-                if ( filter == null || filter.length() == 0 ) {
-                    dispose();
-                    return;
+                if ( filter != null && filter.length() > 0 ) {
+	                MainProcessor mainProcessor = MainProcessor.instance();
+	                switch(m_jobType){
+	                	case PERFORMANCE_TREE:
+	                		mainProcessor.createAnalyzedPerformance(filter, m_isAscending);
+	                		break;
+	                	case SERVICE_CALL:
+	                		mainProcessor.viewServiceCall(filter);
+	                		break;
+	                	case THREAD_STACK:
+	                		mainProcessor.viewThreadStack(filter);
+	                		break;
+	                	case FILTER_ANALYZER:
+	                		mainProcessor.analyzeFilterStack(filter, m_isAscending);
+	                		break;
+	                }
                 }
-                if ( m_jobType == 1 )
-                    m_mainWindow.createAnalyzedPerformance(filter, m_isAscending);
-                else if ( m_jobType == 2 )
-                    m_mainWindow.viewServiceCall(filter);
-                else if ( m_jobType == 3 )
-                    m_mainWindow.viewThreadStack(filter);
-                else if ( m_jobType == 4 )
-                    m_mainWindow.analyzeFilterStack(filter, m_isAscending);
-                dispose();
-            }
+                m_shell.close();
+			}
         });
-
-        okButton.setActionCommand("OK");
-        buttonPane.add(okButton);
-        getRootPane().setDefaultButton(okButton);
-
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed( ActionEvent e ) {
-                m_dialog.setEnabled(true);
-                dispose();
-            }
+        
+        m_shell.setDefaultButton(button);
+        
+        button = new Button(m_shell, SWT.NONE);
+        button.setText("Cancel");
+        button.setAlignment(SWT.CENTER);
+        button.setSize(100, 35);
+        button.setLocation(588, 40);
+        button.addListener(SWT.Selection, new Listener(){
+			public void handleEvent(Event event) {
+				if(event.type == SWT.Selection){
+					m_shell.close();
+				}
+			}
         });
+        
+        m_isAscending = isAscending;
+        m_jobType = jobtype;
 
-        cancelButton.setActionCommand("Cancel");
-        buttonPane.add(cancelButton);
-    }
+        m_field.setFocus();
+        m_shell.open();      
+    }    
 }

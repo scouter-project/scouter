@@ -17,16 +17,23 @@
 package scouter.util;
 
 public class BitUtil {
-	public static long compsite(int hkey, int wkey) {
+	public static long composite(int hkey, int wkey) {
 		return (long) hkey << 32 | ((long) wkey & 0xffffffffL);
 	}
-	public static int compsite(short hkey, short wkey) {
+	public static int composite(short hkey, short wkey) {
 		return ((int) hkey << 16) | ((int) wkey & 0xffff);
 	}
-	public static short compsite(byte hkey, byte wkey) {
+	public static short composite(byte hkey, byte wkey) {
 		return (short) (((short) hkey << 8) | ((short) wkey & (short) 0xff));
 	}
 	
+	public static long setHigh(long src, int hkey) {
+		return (src & 0x00000000ffffffffL) | (long) hkey << 32;
+	}
+	public static long setLow(long src, int wkey) {
+		return (src & 0xffffffff00000000L) | ((long) wkey & 0xffffffffL);
+	}
+
 	public static int getHigh(long key) {
 		return (int) (key >>> 32) & 0xffffffff;
 	}
@@ -48,5 +55,13 @@ public class BitUtil {
 
 	public static byte getLow(short key) {
 		return (byte) (key & (short) 0xff);
+	}
+	public static void main(String[] args) {
+		int h=0;
+		int w=-1;
+		long ww = composite(h,w);
+		System.out.println(ww);
+		System.out.println(getLow(ww));
+		System.out.println(setLow(0L, -1));
 	}
 }

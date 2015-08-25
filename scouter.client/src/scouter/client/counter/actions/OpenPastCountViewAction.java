@@ -14,7 +14,7 @@
  *  limitations under the License. 
  *
  */
-package scouter.client.context.actions;
+package scouter.client.counter.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -22,30 +22,28 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 
-import scouter.client.counter.views.CounterLoadDateView;
+import scouter.client.counter.views.CounterLoadCountView;
 import scouter.client.popup.CalendarDialog;
 import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
 import scouter.client.util.ImageUtil;
+import scouter.lang.counters.CounterConstants;
+import scouter.util.Hexa32;
 
-public class OpenCxtmenuCounterLoadDateViewAction extends Action implements ILoadCounterDialog {
-	public final static String ID = OpenCxtmenuCounterLoadDateViewAction.class.getName();
+public class OpenPastCountViewAction extends Action implements ILoadCounterDialog {
+	public final static String ID = OpenPastCountViewAction.class.getName();
 
 	private final IWorkbenchWindow win;
 	private int objHash;
 	private String objType;
 	private String date;
-	private String objName;
-	private String counter;
 	private int serverId;
 
-	public OpenCxtmenuCounterLoadDateViewAction(IWorkbenchWindow win, String label, Image image, int objHash, String objType, String date, String objName, String counter, int serverId) {
+	public OpenPastCountViewAction(IWorkbenchWindow win, String label, Image image, int objHash, String objType, String date, int serverId) {
 		this.win = win;
 		this.objHash = objHash;
 		this.objType = objType;
-		this.date = date;
-		this.objName = objName;
-		this.counter = counter;
 		this.serverId = serverId;
+		this.date = date;
 		
 		setText(label);
 		setImageDescriptor(ImageUtil.getImageDescriptor(image));
@@ -55,7 +53,7 @@ public class OpenCxtmenuCounterLoadDateViewAction extends Action implements ILoa
 	public void run() {
 		if (win != null) {
 			if(date == null){
-				CalendarDialog dialog = new CalendarDialog(win.getShell().getDisplay(), OpenCxtmenuCounterLoadDateViewAction.this);
+				CalendarDialog dialog = new CalendarDialog(win.getShell().getDisplay(), OpenPastCountViewAction.this);
 				dialog.show();
 			}else{
 				goLoadCounteView();
@@ -76,11 +74,11 @@ public class OpenCxtmenuCounterLoadDateViewAction extends Action implements ILoa
 	
 	private void goLoadCounteView(){
 		try {
-			String subid = date + "-" + objHash + "-" + objType + counter;
-			CounterLoadDateView view = (CounterLoadDateView) win.getActivePage().showView(
-					CounterLoadDateView.ID, subid, IWorkbenchPage.VIEW_ACTIVATE);
+			CounterLoadCountView view = (CounterLoadCountView) win.getActivePage().showView(
+					CounterLoadCountView.ID, Hexa32.toString32(objHash) + "-" + objType + CounterConstants.WAS_SERVICE_COUNT + "-" + date,
+					IWorkbenchPage.VIEW_ACTIVATE);
 			if (view != null) {
-				view.setInput(date, objHash, objName, objType, counter, serverId);
+				view.setInput(date, objType, CounterConstants.WAS_SERVICE_COUNT, objHash, serverId);
 			}
 		} catch (Exception e) {
 			MessageDialog.openError(win.getShell(), "Error", "Error opening view:" + e.getMessage());

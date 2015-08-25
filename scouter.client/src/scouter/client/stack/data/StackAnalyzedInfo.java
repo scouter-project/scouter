@@ -71,6 +71,18 @@ public class StackAnalyzedInfo extends AbstractInfo{
         return buffer.toString();
 	}
 	
+	public String [] toTreeInfo() {
+		String [] info = new String[3];
+		info[0] = m_analyzedName;
+		info[1] = new StringBuilder().append(m_totalCount).toString();
+		if(m_stackFileInfo.getTotalWorkingCount() > 0){
+			info[2] = new StringBuilder().append(NumberUtils.intToPercent((10000*m_totalCount)/m_stackFileInfo.getTotalWorkingCount())).append('%').toString();
+		} else{
+			info[2] = "0%";		
+		}
+        return info;
+	}	
+	
 	public StackFileInfo getStackFileInfo(){
 		return m_stackFileInfo;
 	}

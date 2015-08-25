@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 Scouter Project.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import scouter.agent.trace.TraceContext;
 import scouter.lang.pack.XLogPack;
 
 public interface IHttpService {
-    public void start(TraceContext ctx, Object req, Object res);
+    public void start(TraceContext ctx, RequestWrapper req, ResponseWrapper res);
     public void end(TraceContext ctx, XLogPack p);
-    public boolean reject(TraceContext ctx, Object req, Object res);
+    public boolean reject(TraceContext ctx, RequestWrapper req, ResponseWrapper res);
 }

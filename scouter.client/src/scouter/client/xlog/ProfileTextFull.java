@@ -283,6 +283,7 @@ public class ProfileTextFull {
 				}
 				break;
 			case StepEnum.SQL:
+			case StepEnum.SQL2:
 				SqlStep sql = (SqlStep) stepSingle;
 				slen = sb.length();
 				ProfileText.toString(sb, sql, serverId, lineHead);

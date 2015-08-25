@@ -17,11 +17,6 @@
 
 package scouter.client.stack.base;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -31,70 +26,44 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
+import scouter.client.Images;
 import scouter.client.stack.data.StackFileInfo;
 import scouter.client.stack.data.StackParser;
 import scouter.client.stack.utils.NumberUtils;
 import scouter.client.stack.utils.StringUtils;
 
-
-@SuppressWarnings("serial")
-public class PerformanceWindow extends JFrame implements MenuListener, ActionListener {
-    private JTree m_performanceTree = null;
+public class PerformanceWindow implements Listener{
+	private Shell m_parentShell = null;
+	private Shell m_shell = null;
+	private Tree m_performanceTree = null;
     private StackFileInfo m_stackFileInfo = null;
     private String m_filter = null;
     private boolean m_isExcludeStack = true;
     private boolean m_isAscending = true;
-    private boolean m_isFullFunction = true;
+    private boolean m_isRemoveLine = true;
     private boolean m_isInerPercent = false;
     private int m_totalCount = 0;
     private ArrayList<String> m_excludeStack = null;
     private ArrayList<String> m_singleStack = null;
     private int m_singleStackCount = 0;
-
-    static public void createPerformanceWindow( StackFileInfo stackFileInfo, String filter, boolean isExcludeStack, boolean isAscending, boolean isFullFunction, boolean isInerPercent ) {
-        @SuppressWarnings("unused")
-        PerformanceWindow window = new PerformanceWindow(stackFileInfo, filter, isExcludeStack, isAscending, isFullFunction, isInerPercent);
-    }
-
-    static public void startPerformanceWindow( final StackFileInfo stackFileInfo, final String filter, final boolean isExcludeStack, final boolean isAscending, final boolean isFullFunction,
-            final boolean isInerPercent ) {
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                createPerformanceWindow(stackFileInfo, filter, isExcludeStack, isAscending, isFullFunction, isInerPercent);
-            }
-        });
-    }
-
-    public PerformanceWindow(StackFileInfo stackFileInfo, String filter, boolean isExcludeStack, boolean isAscending, boolean isFullFunction, boolean isInerPercent) {
-        super();
-        StringBuilder buffer = new StringBuilder(200);
-        buffer.append('[');
-        if ( filter == null )
-            buffer.append("All");
-        else
-            buffer.append(filter);
-        buffer.append("] ").append(stackFileInfo.getFilename());
-        buffer.append(" [EXC:").append(isExcludeStack).append("] [ASC:");
-        buffer.append(isAscending).append(']');
-
-        this.setTitle(buffer.toString());
-
-        m_stackFileInfo = stackFileInfo;
+ 
+    public PerformanceWindow(Shell shell, StackFileInfo stackFileInfo, String filter, boolean isExcludeStack, boolean isAscending, boolean isRemoveLine, boolean isInerPercent) {
+    	m_parentShell = shell;
+    	m_stackFileInfo = stackFileInfo;
         m_filter = filter;
         m_isExcludeStack = isExcludeStack;
         m_isAscending = isAscending;
-        m_isFullFunction = isFullFunction;
+        m_isRemoveLine = isRemoveLine;
         m_isInerPercent = isInerPercent;
 
         ArrayList<String> list = stackFileInfo.getParserConfig().getExcludeStack();
@@ -107,42 +76,39 @@ public class PerformanceWindow extends JFrame implements MenuListener, ActionLis
             m_singleStack = list;
             m_singleStackCount = list.size();
         }
-        init();
+        
+        StringBuilder buffer = new StringBuilder(200);
+        buffer.append('[');
+        if ( filter == null )
+            buffer.append("All");
+        else
+            buffer.append(filter);
+        buffer.append("] ").append(stackFileInfo.getFilename());
+        buffer.append(" [EXC:").append(isExcludeStack).append("] [ASC:");
+        buffer.append(isAscending).append(']');
+        
+        init(shell, buffer.toString());
     }
+    
 
-    private void init() {
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Stack File Nodes");
-
-        constructTree(root);
-
-        m_performanceTree = new JTree(root);
-        m_performanceTree.setRootVisible(true);
-        // addTreeListener(m_performanceTree);
-
-        m_performanceTree.setShowsRootHandles(true);
-        m_performanceTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        m_performanceTree.setCellRenderer(new PerformanceTreeRenderer());
-
-        Container content = getContentPane();
-        JScrollPane scrollPane = new JScrollPane(m_performanceTree);
-        content.add(scrollPane, BorderLayout.CENTER);
-
-        setVisible(true);
-        setSize(500, 500);
-
+    private void init(Shell shell, String title) {
+        m_shell = new Shell(shell, SWT.MIN | SWT.MAX | SWT.CLOSE | SWT.TITLE | SWT.RESIZE);
+        m_shell.setText(title);
+        m_shell.setImage(Images.tree_mode);
+    	m_shell.setLayout(new FillLayout());
+ 
+    	m_performanceTree = new Tree(m_shell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+    	constructTree();
         createTreePopupMenu();
 
-        this.validate();
+        m_shell.open();      
     }
 
-    private void constructTree( DefaultMutableTreeNode root ) {
+    private void constructTree() {
         String filename = StackParser.getWorkingThreadFilename(m_stackFileInfo.getFilename());
         if ( filename == null )
             return;
 
-        // Tree Map ��
         HashMap<String, Counter> tree = new HashMap<String, Counter>();
         BufferedReader reader = null;
         int startStackLine = m_stackFileInfo.getUsedParser().getConfig().getStackStartLine();
@@ -204,14 +170,20 @@ public class PerformanceWindow extends JFrame implements MenuListener, ActionLis
                 cntr.caculInerCount();
             }
         }
-        // Tree UI ó��
-        makePerformanceTreeUI(root, tree);
+
+        TreeItem treeItem = new TreeItem(m_performanceTree, SWT.NONE);
+        treeItem.setText("Stack File Nodes");
+        treeItem.setData(null);
+        treeItem.setExpanded(true);
+        makePerformanceTreeUI(treeItem, tree, 0);
     }
 
-    private void makePerformanceTreeUI( DefaultMutableTreeNode node, HashMap<String, Counter> tree ) {
+    private void makePerformanceTreeUI( TreeItem parent, HashMap<String, Counter> tree, int depth ) {
         if ( tree == null || tree.size() == 0 )
             return;
 
+        depth++;
+        
         String key = null;
         Counter counter = null;
         StringBuilder buffer = null;
@@ -228,6 +200,7 @@ public class PerformanceWindow extends JFrame implements MenuListener, ActionLis
 
         Collections.sort(sortList, new ValueComp());
 
+        TreeItem treeItem;
         for ( index = 0; index < sortList.size(); index++ ) {
             counter = sortList.get(index);
             buffer = new StringBuilder(100);
@@ -237,10 +210,14 @@ public class PerformanceWindow extends JFrame implements MenuListener, ActionLis
             }
             buffer.append(counter.getValue());
 
-            DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(buffer.toString());
-            node.add(childNode);
+            treeItem = new TreeItem(parent, SWT.NONE);
+            treeItem.setText(buffer.toString());
+            treeItem.setData(counter.getValue());
+            if(depth < 3){
+            	treeItem.setExpanded(true);
+            }
             if ( counter.getMap() != null ) {
-                makePerformanceTreeUI(childNode, counter.getMap());
+                makePerformanceTreeUI(treeItem, counter.getMap(), depth);
             }
         }
 
@@ -294,7 +271,7 @@ public class PerformanceWindow extends JFrame implements MenuListener, ActionLis
             if ( m_filter != null && baseIndex == startIndex )
                 line = StringUtils.makeSimpleLine(line, false);
             else
-                line = StringUtils.makeSimpleLine(line, m_isFullFunction);
+                line = StringUtils.makeSimpleLine(line, m_isRemoveLine);
 
             if ( currentCounter != null ) {
                 currentMap = currentCounter.getMap();
@@ -389,63 +366,45 @@ public class PerformanceWindow extends JFrame implements MenuListener, ActionLis
     }
 
     private void createTreePopupMenu() {
-        JMenuItem menuItem = null;
-        ;
+		Menu popupMenu = new Menu(m_performanceTree);
+		
+		MenuItem menuItem = new MenuItem(popupMenu, SWT.NONE);
+		menuItem.setText("Performance tree(Ascending)");
+		menuItem.addListener(SWT.Selection, this);
+		menuItem = new MenuItem(popupMenu, SWT.NONE);
+		menuItem.setText("Performance tree(Descending)");
+		menuItem.addListener(SWT.Selection, this);
+		
+		menuItem = new MenuItem(popupMenu, SWT.SEPARATOR);
+		
+		menuItem = new MenuItem(popupMenu, SWT.NONE);
+		menuItem.setText("Copy function");
+		menuItem.addListener(SWT.Selection, this);
 
-        // Create the popup menu.
-        JPopupMenu popup = new JPopupMenu();
-
-        menuItem = new JMenuItem("Performance tree(Ascending)");
-        menuItem.addActionListener(this);
-        popup.add(menuItem);
-
-        menuItem = new JMenuItem("Performance tree(Descending)");
-        menuItem.addActionListener(this);
-        popup.add(menuItem);
-
-        popup.addSeparator();
-
-        menuItem = new JMenuItem("Copy function");
-        menuItem.addActionListener(this);
-        popup.add(menuItem);
-
-        MouseListener popupListener = new PopupListener(popup);
-        m_performanceTree.addMouseListener(popupListener);
+		m_performanceTree.setMenu(popupMenu);       
     }
-
-    @Override
-    public void menuCanceled( MenuEvent e ) {
-    }
-
-    @Override
-    public void menuDeselected( MenuEvent e ) {
-    }
-
-    @Override
-    public void menuSelected( MenuEvent e ) {
-    }
-
-    @Override
-    public void actionPerformed( ActionEvent e ) {
-        if ( e.getSource() instanceof JMenuItem ) {
-            JMenuItem source = (JMenuItem)(e.getSource());
-            if ( "Performance tree(Ascending)".equals(source.getText()) ) {
+    
+	public void handleEvent(Event event) {
+		try {
+			MenuItem item = (MenuItem)event.widget;
+			String menuText = item.getText();
+			if("Performance tree(Ascending)".endsWith(menuText)){
                 createAnalyzedPerformance(true);
-            } else if ( "Performance tree(Descending)".equals(source.getText()) ) {
+			}else if("Performance tree(Descending)".endsWith(menuText)){
                 createAnalyzedPerformance(false);
-            } else if ( "Copy function".equals(source.getText()) ) {
+			}else if("Copy function".endsWith(menuText)){
                 CopyFunctionName();
-            }
-            source.setSelected(false);
-        }
-    }
-
+			}
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}		
+	}    
     private void createAnalyzedPerformance( boolean isAscending ) {
         String filter = getSelectedFunctionName();
 
-        if ( filter != null && m_stackFileInfo != null )
-            PerformanceWindow.startPerformanceWindow(m_stackFileInfo, filter, m_isExcludeStack, isAscending, m_isFullFunction, m_isInerPercent);
-
+        if ( filter != null && m_stackFileInfo != null ){
+        	new PerformanceWindow(m_parentShell, m_stackFileInfo, filter, m_isExcludeStack, isAscending, m_isRemoveLine, m_isInerPercent);
+        }	
     }
 
     private void CopyFunctionName() {
@@ -455,33 +414,17 @@ public class PerformanceWindow extends JFrame implements MenuListener, ActionLis
     }
 
     private String getSelectedFunctionName() {
-        TreePath path = m_performanceTree.getSelectionPath();
-
-        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)path.getLastPathComponent();
-        if ( selectedNode == null )
-            return null;
-
-        String function = (String)selectedNode.getUserObject();
-
-        int startIndex = function.indexOf(')');
-        if ( startIndex < 0 )
-            return null;
-
-        if ( m_isInerPercent ) {
-            startIndex = function.indexOf('%', startIndex);
-            if ( startIndex < 0 ) {
-                return null;
-            }
+        TreeItem [] items = m_performanceTree.getSelection();
+        if(items == null || items.length == 0){
+        	return null;
         }
+        
+        String function = (String)items[0].getData();
 
-        int endIndex = function.indexOf((int)'(', startIndex + 2);
-
-        if ( endIndex < 0 )
-            function = function.substring(startIndex + 2);
-        else
-            function = function.substring(startIndex + 2, endIndex);
+        int endIndex = function.indexOf((int)'(');
+        if ( endIndex >= 0 )
+            function = function.substring(0, endIndex);
 
         return function;
-
     }
 }

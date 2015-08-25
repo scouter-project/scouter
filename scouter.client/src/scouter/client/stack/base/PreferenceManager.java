@@ -15,7 +15,6 @@
  *
  */
 package scouter.client.stack.base;
-import java.awt.Dimension;
 import java.io.File;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -34,22 +33,12 @@ public class PreferenceManager {
         return(preferenceManager);
     }
 
-    public File getSelectedPath() {
-        return(new File(preferences.get("selectedPath", "")));
+    public String getSelectedPath() {
+        return preferences.get("selectedPath", "");
     }
     
     public void setSelectedPath(File directory) {
     	preferences.put("selectedPath", directory.getAbsolutePath());
-    }
-
-    public Dimension getPreferredSizeFileChooser() {
-        return(new Dimension(preferences.getInt("fileChooser.width", 0),
-        		preferences.getInt("fileChooser.height", 0)));
-    }
-    
-    public void setPreferredSizeFileChooser(Dimension size) {
-    	preferences.putInt("fileChooser.height", size.height);
-    	preferences.putInt("fileChooser.width", size.width);
     }
 
     public void setMaxLogfileSize(int size) {

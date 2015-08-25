@@ -14,32 +14,22 @@
  *  limitations under the License.
  *
  */
-package scouter.client.stack.base;
+package scouter.client.stack.actions;
 
-import java.io.File;
-import javax.swing.filechooser.FileFilter;
+import scouter.client.stack.base.MainProcessor;
 
-import scouter.client.stack.data.StackParser;
-
-public class StackFileFilter extends FileFilter {	 
-	 public StackFileFilter(){
-	 }
-	 
-	public boolean accept(File f) {
-		if (f.isDirectory() ) {
-			return true;
-		}
-		
-		if(f.getName().endsWith(StackParser.EXTENSION))
-			return false;
-
-		if(f.getName().endsWith(StackParser.INFO_EXTENSION))
-			return false;
-		
-		return true;
-	} 
+public class MainProcessorAction{
+	private String m_menuName = null;
 	
-	public String getDescription() {
-		return "Select stack file log"; 
+	public MainProcessorAction(String menuName){
+		m_menuName = menuName;
+	}
+	
+	public void run(){
+		try {
+			MainProcessor.instance().processMenu(m_menuName);
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
 	}
 }

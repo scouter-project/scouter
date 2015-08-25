@@ -41,18 +41,18 @@ public class StringUtils {
 		return false;
 	}
 
-	static public String makeSimpleLine(String input, boolean isFullFunction){
+	static public String makeSimpleLine(String input, boolean isRemoveLine){
 		int index = input.indexOf("at ");
 		if(index >=0){
-			if(isFullFunction){
-				return input.substring(index+2);
-			}else{
+			if(isRemoveLine){
 				int end = input.indexOf('(');
 				if((index +2 )< end ){
 					return input.substring(index+2, end);						
 				}else{
 					return input.substring(index+2);					
 				}
+			}else{
+				return input.substring(index+2);
 			}
 		}
 		return input;

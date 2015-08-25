@@ -60,6 +60,7 @@ public class FilterStackParser extends StackParser {
             int timeSize = config.getTimeSize();
             
 	    	while((line = reader.readLine()) != null){
+	    		progressBar();
 	    		if(line.trim().length() == 0){
 	    			if(isWorking && lineCount > stackStartLine){ 
 	    				processStack(workingList, tsinfo);

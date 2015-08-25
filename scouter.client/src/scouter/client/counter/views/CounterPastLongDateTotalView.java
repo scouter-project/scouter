@@ -68,6 +68,7 @@ import scouter.client.util.ConsoleProxy;
 import scouter.client.util.CounterUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
+import scouter.client.util.MenuUtil;
 import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
@@ -140,6 +141,8 @@ public class CounterPastLongDateTotalView extends ScouterViewPart implements Dua
 		
 		buffer = (int) ((etime - stime) / DateUtil.MILLIS_PER_FIVE_MINUTE);
 		traceDataProvider.setBufferSize(buffer);
+		
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter);
 		
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {

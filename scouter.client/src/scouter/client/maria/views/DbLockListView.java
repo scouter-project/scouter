@@ -154,6 +154,7 @@ public class DbLockListView extends ViewPart {
 				ExUtil.exec(tree, new Runnable() {
 					public void run() {
 						viewer.refresh();
+						viewer.expandAll();
 					}
 				});
 			}

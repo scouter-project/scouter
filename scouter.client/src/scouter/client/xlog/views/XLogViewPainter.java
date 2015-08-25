@@ -37,6 +37,7 @@ import scouter.client.threads.ObjectSelectManager;
 import scouter.client.util.ChartUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.xlog.ImageCache;
+import scouter.client.xlog.XLogYAxisEnum;
 import scouter.util.StringUtil;
 import scouter.lang.pack.XLogPack;
 import scouter.util.DateUtil;
@@ -57,7 +58,7 @@ public class XLogViewPainter {
 	
 	public long xTimeRange = DateUtil.MILLIS_PER_MINUTE * 5;
 	public long originalRange = xTimeRange;
-	private double yValueMax = 9;
+	private double yValueMax;
 	private double yValueMin = 0;
 
 	private XLogViewMouse mouse;
@@ -73,6 +74,8 @@ public class XLogViewPainter {
 	public boolean onlyError = false;
 	public boolean onlyApicall = false;
 	public boolean onlySql = false;
+	
+	public XLogYAxisEnum yAxisMode = XLogYAxisEnum.ELAPSED;
 
 	private int filter_hash = 0;
 
@@ -159,7 +162,6 @@ public class XLogViewPainter {
 		if (area == null)
 			return;
 
-		int ignoreMs = PManager.getInstance().getInt(PreferenceConstants.P_XLOG_IGNORE_TIME);
 		String maxLabel = FormatUtil.print(new Double(yValueMax), "#,##0.00");
 
 		chart_x = maxLabel.length() * 6 + 30;
@@ -182,21 +184,24 @@ public class XLogViewPainter {
 		gc.setBackground(color_white);
 		gc.fillRectangle(0, 0, work_w, work_h);
 		
-		if (yValueMin == 0 && ignoreMs > 0) {
-			gc.setBackground(ignore_area);
-			int chart_igreno_h = (int) ((ignoreMs / (yValueMax * 1000)) * chart_h);
-			if (chart_igreno_h > chart_h) {
-				chart_igreno_h = chart_h;
+		if (yAxisMode == XLogYAxisEnum.ELAPSED) {
+			int ignoreMs = PManager.getInstance().getInt(PreferenceConstants.P_XLOG_IGNORE_TIME);
+			if (yValueMin == 0 && ignoreMs > 0) {
+				gc.setBackground(ignore_area);
+				int chart_igreno_h = (int) ((ignoreMs / (yValueMax * 1000)) * chart_h);
+				if (chart_igreno_h > chart_h) {
+					chart_igreno_h = chart_h;
+				}
+				gc.fillRoundRectangle(chart_x, 30 + chart_h - chart_igreno_h, chart_w + 5, chart_igreno_h + 5, 1, 1);
+				gc.setBackground(color_white);
 			}
-			gc.fillRoundRectangle(chart_x, 30 + chart_h - chart_igreno_h, chart_w + 5, chart_igreno_h + 5, 1, 1);
-			gc.setBackground(color_white);
 		}
 
 		gc.setLineWidth(1);
 		gc.setLineStyle(SWT.LINE_DOT);
 		
 		double valueRange = yValueMax - yValueMin;
-		double yUnit = ChartUtil.getElapsedUnit(valueRange, chart_h);
+		double yUnit = ChartUtil.getYaxisUnit(valueRange, chart_h);
 		for (double yValue = 0; yValue <= valueRange; yValue += yUnit) {
 			int y = (int) (chart_y + chart_h - chart_h * yValue / valueRange);
 
@@ -237,7 +242,8 @@ public class XLogViewPainter {
 		
 		drawXPerfData(gc, time_start, time_end, chart_x, chart_y, chart_w, chart_h);
 		drawChartBorder(gc, chart_x, chart_y, chart_w, chart_h);
-		drawTxCount(gc, chart_x, chart_y);
+		drawYaxisDescription(gc, chart_x, chart_y);
+		drawTxCount(gc, chart_x, chart_w, chart_y);
 		if (zoomMode) {
 			drawZoomMode(gc, chart_x, chart_y, chart_w, time_start, time_end);
 			drawZoomOut(gc, chart_x, chart_y, chart_w, chart_h);
@@ -253,10 +259,17 @@ public class XLogViewPainter {
 		gc.drawText(cntText, chart_x + chart_w - 140, chart_y - 20);
 	}
 
-	private void drawTxCount(GC gc, int chart_x, int chart_y) {
+	private void drawTxCount(GC gc, int chart_x, int chart_w, int chart_y) {
 		gc.setFont(null);
 		String cntText = " Count : " + FormatUtil.print(new Long(count), "#,##0");
-		gc.drawText(cntText, chart_x, chart_y - 20);
+		int strLen = gc.stringExtent(cntText).x;
+		gc.drawText(cntText, chart_x + chart_w - strLen - 10, chart_y - 20);
+	}
+	
+	private void drawYaxisDescription(GC gc, int chart_x, int chart_y) {
+		gc.setFont(null);
+		String desc = " " + yAxisMode.getDesc();
+		gc.drawText(desc, chart_x, chart_y - 20);
 	}
 
 	private void drawChartBorder(GC gc, int chart_sx, int chart_sy, int chart_w, int chart_h) {
@@ -392,13 +405,72 @@ public class XLogViewPainter {
 				int x = (int) (chart_w * (d.p.endTime - time_start) / xTimeRange);
 				d.x = chart_x + x;
 				
-				int y;
-				if ((double) d.p.elapsed / 1000 >= yValueMax) {
+				int y = 0;
+				double value = 0;
+				switch(yAxisMode) {
+					case ELAPSED:
+						if ((double) d.p.elapsed / 1000 >= yValueMax) {
+							value = -1;
+						} else {
+							value = (double) d.p.elapsed / 1000;
+						}
+						break;
+					case CPU:
+						if (d.p.cpu >= yValueMax) {
+							value = -1;
+						} else {
+							value = (double) d.p.cpu;
+						}
+						break;
+					case SQL_TIME:
+						if ((double) d.p.sqlTime / 1000 >= yValueMax) {
+							value = -1;
+						} else {
+							value = (double) d.p.sqlTime / 1000;
+						}
+						break;
+					case SQL_COUNT:
+						if ((double) d.p.sqlCount >= yValueMax) {
+							value = -1;
+						} else {
+							value = (double) d.p.sqlCount;
+						}
+						break;
+					case APICALL_TIME:
+						if ((double) d.p.apicallTime / 1000 >= yValueMax) {
+							value = -1;
+						} else {
+							value = (double) d.p.apicallTime / 1000;
+						}
+						break;
+					case APICALL_COUNT:
+						if ((double) d.p.apicallCount >= yValueMax) {
+							value = -1;
+						} else {
+							value = (double) d.p.apicallCount;
+						}
+						break;
+					case HEAP_USED:
+						if ((double) d.p.bytes / 1024.0d >= yValueMax) {
+							value = -1;
+						} else {
+							value = d.p.bytes / 1024.0d;
+						}
+						break;
+					default:
+						if ((double) d.p.elapsed / 1000 >= yValueMax) {
+							value = -1;
+						} else {
+							value = (double) d.p.elapsed / 1000;
+						}
+						break;
+				}
+				if (value < 0) {
 					y = chart_h - 1;
 				} else {
-					y = (int) (chart_h * ((double) d.p.elapsed / 1000 - yValueMin) / (yValueMax - yValueMin));
+					y = (int) (chart_h * (value - yValueMin) / (yValueMax - yValueMin));
 				}
-
+				
 				d.y = chart_h + chart_y - y;
 				
 				if (pointMap.check(x, y)) {
@@ -583,5 +655,11 @@ public class XLogViewPainter {
 	
 	public interface ITimeChange {
 		public void timeRangeChanged(long stime, long etime);
+	}
+	
+	public void setYAxisMode(XLogYAxisEnum yAxis) {
+		this.yAxisMode = yAxis;
+		this.yValueMax = yAxis.getDefaultMax();
+		this.yValueMin = 0;
 	}
 }

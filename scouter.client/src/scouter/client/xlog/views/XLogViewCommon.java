@@ -87,6 +87,7 @@ import scouter.client.util.ColorUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.UIUtil;
+import scouter.client.xlog.XLogYAxisEnum;
 import scouter.client.xlog.views.XLogViewPainter.ITimeChange;
 import scouter.util.FormatUtil;
 import scouter.util.LongKeyLinkedMap;
@@ -522,6 +523,26 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 				showFilters.run();
 			}
 		});
+	    
+	    MenuItem yAxisItem = new MenuItem(popupMenu, SWT.CASCADE);
+	    yAxisItem.setText("Y Axis");
+	    Menu yAxisMenu = new Menu(popupMenu);
+	    yAxisItem.setMenu(yAxisMenu);
+	    for (final XLogYAxisEnum yaxis : XLogYAxisEnum.values()) {
+	    	 MenuItem item = new MenuItem(yAxisMenu, SWT.RADIO);
+	    	 item.setText(yaxis.getName());
+	    	 item.addListener(SWT.Selection, new Listener(){
+	    		 public void handleEvent(Event event) {
+	    			 viewPainter.setYAxisMode(yaxis);
+	    			 viewPainter.build();
+	    			 canvas.redraw();
+	    		 }
+	    	 });
+	    	 if (yaxis.isDefault()) {
+		    	 item.setSelection(true);
+		    	 item.notifyListeners(SWT.Selection, new Event());
+	    	 }
+	    }
 	    
 	    canvas.setMenu(popupMenu);
 	}

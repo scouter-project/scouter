@@ -73,6 +73,7 @@ public class Images {
 	public static final ImageDescriptor default_context_descriptor = Activator.getImageDescriptor("icons/context.png");
 
 	public static final Image save = ImageUtil.getSharedImage(ISharedImages.IMG_ETOOL_SAVE_EDIT);
+	public static final Image saveas = ImageUtil.getSharedImage(ISharedImages.IMG_ETOOL_SAVEAS_EDIT);
 	
 	public static final Image previous = Activator.getImage("icons/previous.png");
 	
@@ -105,10 +106,12 @@ public class Images {
 	public static final Image inactive       = Activator.getImage("icons/inactive.png");
 	public static final Image dead           = Activator.getImage("icons/dead.png");
 	public static final Image all            = Activator.getImage("icons/all.png");
+	public static final Image total            = Activator.getImage("icons/total.png");
 	public static final Image alert          = Activator.getImage("icons/alert.png");
 	public static final Image transrealtime     = Activator.getImage("icons/transrealtime.png");
 	public static final Image preference     = Activator.getImage("icons/preference.png");
 	public static final Image config         = Activator.getImage("icons/config.png");
+	public static final Image config_edit         = Activator.getImage("icons/config_edit.png");
 	public static final Image table          = Activator.getImage("icons/table.png");
 	public static final Image bar          = Activator.getImage("icons/chart_bar.png");
 	
