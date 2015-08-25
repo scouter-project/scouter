@@ -92,7 +92,6 @@ import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.MenuUtil;
 import scouter.client.util.ScouterUtil;
-import scouter.client.xlog.ImageCache;
 import scouter.lang.Counter;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.counters.CounterEngine;
@@ -214,16 +213,12 @@ public class GroupNavigationView extends ViewPart implements RefreshThread.Refre
                         		manager.add(xLogMenu);
                         		if (isActionEnable(objType, CounterConstants.TRANX_REALTIME)) {
                         			xLogMenu.add(new OpenRealTimeTranXGroupViewAction(win, MenuStr.REALTIME_XLOG, grpObj));
-                        		}
-                        		if (isActionEnable(objType, CounterConstants.TRANX_LOADTIME)) {
                         			xLogMenu.add(new OpenPastTimeTranXGroupViewAction(win, MenuStr.PASTTIME_XLOG, grpObj));
                         		}
                         		MenuManager scMenu = new MenuManager(MenuStr.HOURLY_CHART, ImageUtil.getImageDescriptor(Images.bar), MenuStr.HOURLY_CHART_ID);
                         		manager.add(scMenu);
                         		if (isActionEnable(objType, CounterConstants.TODAY_SERVICE_COUNT)) {
                         			scMenu.add(new OpenTodayGroupCountViewAction(win, MenuStr.TODAY_SERVICE_COUNT, CounterConstants.WAS_SERVICE_COUNT, grpObj));
-                        		}
-                        		if (isActionEnable(objType, CounterConstants.DAILY_SERVICE_COUNT)) {
                         			scMenu.add(new OpenPastDateGroupCountViewAction(win, MenuStr.LOAD_SERVICE_COUNT, CounterConstants.WAS_SERVICE_COUNT, grpObj));
                         		}
                         		if (isActionEnable(objType, CounterConstants.SERVICE_GROUP)) {

@@ -31,6 +31,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.FigureCanvas;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -43,7 +46,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 
+import scouter.client.Images;
+import scouter.client.counter.actions.OpenDailyServiceCountAction;
 import scouter.client.net.TcpProxy;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
@@ -74,7 +82,7 @@ public class CounterPastCountView extends ScouterViewPart {
 	int xAxisUnitWidth;
 	int lineWidth;
 	
-	public void setInput(String date, String objType, String counter, int serverId) throws Exception {
+	public void setInput(final String date, final String objType, final String counter, final int serverId) throws Exception {
 		this.date = date;
 		this.objType = objType;
 		this.counter = counter;
@@ -92,6 +100,16 @@ public class CounterPastCountView extends ScouterViewPart {
 		}
 		desc = "ⓢ"+svrName+ " | (Past) [" + objectDisplay + "][" + date.substring(0, 4) + "-" + date.substring(4, 6) + "-" + date.substring(6, 8) + "] Past-date " + counterDisplay+(!"".equals(counterUnit)?" ("+counterUnit+")":"");
 		setViewTab(objType, counter, serverId);
+		MenuManager mgr = new MenuManager(); 
+		mgr.setRemoveAllWhenShown(true);
+		final IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		mgr.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager mgr) {
+				mgr.add(new OpenDailyServiceCountAction(win, "Load", objType, counter, Images.bar, serverId, date));
+			}
+		});
+		Menu menu = mgr.createContextMenu(canvas); 
+		canvas.setMenu(menu); 
 		new LoadJob("Load_" + counter).schedule();
 	}
 	

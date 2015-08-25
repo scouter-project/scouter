@@ -23,13 +23,18 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 import scouter.client.Images;
 import scouter.client.model.AgentModelThread;
@@ -47,12 +52,13 @@ import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.xlog.XLogUtil;
+import scouter.client.xlog.actions.OpenXLogLoadTimeAction;
+import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.value.BooleanValue;
-import scouter.io.DataInputX;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
@@ -100,7 +106,7 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 				canvas.redraw();
 			}
 		});
-		man.add(new Separator());		
+		man.add(new Separator());
 		
 	    showFilters = new Action("Show Filters", IAction.AS_CHECK_BOX){ 
 	        public void run(){    
@@ -121,6 +127,16 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 				viewPainter.set(canvas.getClientArea());
 			}
 			public void controlMoved(ControlEvent e) {
+			}
+		});
+		
+		// Add context menu
+		new MenuItem(contextMenu, SWT.SEPARATOR);
+	    MenuItem loadXLogItem = new MenuItem(contextMenu, SWT.PUSH);
+	    loadXLogItem.setText("Load");
+	    loadXLogItem.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				new OpenXLogLoadTimeAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Load XLog", objType, Images.server, serverId).run();
 			}
 		});
 		

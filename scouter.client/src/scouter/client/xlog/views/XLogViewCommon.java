@@ -116,6 +116,7 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 	
 	TableViewer viewer;
 	XLogSnapshotData selectedItem;
+	Menu contextMenu;
 	
 	protected Combo objFilter;
 	protected Text serviceFilter, ipFilter;
@@ -483,10 +484,10 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 	}
 	
 	private void createContextMenu() {
-		Menu popupMenu = new Menu(canvas);
-	    MenuItem filterItem = new MenuItem(popupMenu, SWT.CASCADE);
+		contextMenu = new Menu(canvas);
+	    MenuItem filterItem = new MenuItem(contextMenu, SWT.CASCADE);
 	    filterItem.setText("Filter");
-	    Menu filterMenu = new Menu(popupMenu);
+	    Menu filterMenu = new Menu(contextMenu);
 	    filterItem.setMenu(filterMenu);
 	    
 	    onlySqlItem = new MenuItem(filterMenu, SWT.CHECK);
@@ -524,9 +525,9 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 			}
 		});
 	    
-	    MenuItem yAxisItem = new MenuItem(popupMenu, SWT.CASCADE);
+	    MenuItem yAxisItem = new MenuItem(contextMenu, SWT.CASCADE);
 	    yAxisItem.setText("Y Axis");
-	    Menu yAxisMenu = new Menu(popupMenu);
+	    Menu yAxisMenu = new Menu(contextMenu);
 	    yAxisItem.setMenu(yAxisMenu);
 	    for (final XLogYAxisEnum yaxis : XLogYAxisEnum.values()) {
 	    	 MenuItem item = new MenuItem(yAxisMenu, SWT.RADIO);
@@ -543,8 +544,7 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 		    	 item.notifyListeners(SWT.Selection, new Event());
 	    	 }
 	    }
-	    
-	    canvas.setMenu(popupMenu);
+	    canvas.setMenu(contextMenu);
 	}
 	
 	public int getMaxCount() {

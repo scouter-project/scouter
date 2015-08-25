@@ -8,12 +8,12 @@ public class SqlXType {
 	public static String toString(byte xtype) {
 		switch (xtype) {
 		case STMT:
-			return "ST)";
+			return "STM> ";
 		case PREPARED:
-			return "PS)";
+			return "PRE> ";
 		case DYNA:
-			return "PD)";
+			return "DYN> ";
 		}
-		return "ST)";
+		return "STM> ";
 	}
 }

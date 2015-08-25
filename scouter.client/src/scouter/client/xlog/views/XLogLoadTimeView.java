@@ -32,15 +32,20 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 import scouter.client.Images;
 import scouter.client.model.AgentDailyListProxy;
@@ -57,6 +62,7 @@ import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.xlog.XLogUtil;
+import scouter.client.xlog.actions.OpenXLogLoadTimeAction;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.XLogPack;
@@ -119,26 +125,16 @@ public class XLogLoadTimeView extends XLogViewCommon implements TimeRangeDialog.
 	    };  
 	    showFilters.setImageDescriptor(ImageUtil.getImageDescriptor(Images.filter));
 	    man.add(showFilters);
-		
-		// ///////////////////////////
-		createContextMenu(parent, new IMenuListener() {
-            public void menuAboutToShow(IMenuManager manager){
-            	if(viewPainter.isZoomMode() == false){
-            		manager.add(new Action("Load") {
-						public void run() {
-							CalendarDialog dialog = new CalendarDialog(display, XLogLoadTimeView.this);
-							dialog.showWithEndTime();
-						}
-            		});
-            		manager.add(new Action("Zoom In", ImageDescriptor.createFromImage(Images.zoomin)) {
-						public void run() {
-							TimeRangeDialog dialog = new TimeRangeDialog(display, XLogLoadTimeView.this, DateUtil.yyyymmdd(stime));
-							dialog.show(stime, etime);
-						}
-            		});
-            	}
-            }
-		});
+	    
+	    // Add context menu
+ 		new MenuItem(contextMenu, SWT.SEPARATOR);
+ 	    MenuItem loadXLogItem = new MenuItem(contextMenu, SWT.PUSH);
+ 	    loadXLogItem.setText("Load");
+ 	    loadXLogItem.addListener(SWT.Selection, new Listener() {
+ 			public void handleEvent(Event event) {
+ 				new OpenXLogLoadTimeAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Load XLog", objType, Images.server, serverId, stime, etime).run();
+ 			}
+ 		});
 		
 		sashForm.setWeights(new int[]{2, 1});
 		sashForm.setMaximizedControl(canvas);

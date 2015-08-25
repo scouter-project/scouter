@@ -95,7 +95,6 @@ import scouter.client.model.HierarchyObject;
 import scouter.client.model.RefreshThread;
 import scouter.client.model.ServerObject;
 import scouter.client.popup.ObjectSelectionDialog;
-import scouter.client.popup.ServerManagerDialog;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
@@ -512,33 +511,12 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 		
 		act = actionMap.get(objType + ":" + CounterConstants.TRANX_REALTIME);
 		if(act != null){
-			act.setText(MenuStr.REALTIME_XLOG);
-			act.setImageDescriptor(ImageUtil.getImageDescriptor(Images.transrealtime));
-			xLogMenu.add(act);
+			objTitle.add(act);
 		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.TRANX_LOADTIME);
-		if(act != null){
-			act.setText(MenuStr.PASTTIME_XLOG);
-			act.setImageDescriptor(ImageUtil.getImageDescriptor(Images.transrealtime));
-			xLogMenu.add(act);
-		}
-		
-		MenuManager scMenu = new MenuManager(MenuStr.HOURLY_CHART, ImageUtil.getImageDescriptor(Images.bar), MenuStr.HOURLY_CHART_ID);
-		objTitle.add(scMenu);
 		
 		act = actionMap.get(objType + ":" + CounterConstants.TODAY_SERVICE_COUNT);
 		if(act != null){
-			act.setText(MenuStr.TODAY_SERVICE_COUNT);
-			act.setImageDescriptor(ImageUtil.getImageDescriptor(Images.TYPE_SERVICE_COUNT));
-			scMenu.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.DAILY_SERVICE_COUNT);
-		if(act != null){
-			act.setText(MenuStr.LOAD_SERVICE_COUNT);
-			act.setImageDescriptor(ImageUtil.getImageDescriptor(Images.TYPE_SERVICE_COUNT));
-			scMenu.add(act);
+			objTitle.add(act);
 		}
 		
 		act = actionMap.get(objType + ":" + CounterConstants.SERVICE_GROUP);
