@@ -196,7 +196,7 @@ public class Configure extends Thread {
 
 	public String http_remote_ip_header_key = "";
 	public boolean enable_trace_e2e = false;
-	public String gxid = "gxid";
+	public String gxid = "scouter_gxid";
 	public boolean enable_response_gxid = false;
 	public String this_txid = "scouter_this_txid";
 	public String caller_txid = "scouter_caller_txid";
