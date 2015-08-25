@@ -242,44 +242,19 @@ public class MenuUtil implements IMenuCreator{
 		objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.TRANX_REALTIME);
 		for (int inx = 0; inx < objTypeList.size(); inx++) {
 			String[] splitedKey = objTypeList.get(inx).split(":");
-			String objTypeDisplay = splitedKey[0];
 			String objType = splitedKey[1];
 			actions.put(
 					objType + ":" + CounterConstants.TRANX_REALTIME,
-					new OpenXLogRealTimeAction(window, objTypeDisplay, objType, Images.getObjectIcon(
-							objType, true, serverId), serverId));
-		}
-		objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.TRANX_LOADTIME);
-		for (int inx = 0; inx < objTypeList.size(); inx++) {
-			String[] splitedKey = objTypeList.get(inx).split(":");
-			String objTypeDisplay = splitedKey[0];
-			String objType = splitedKey[1];
-			actions.put(
-					objType + ":" + CounterConstants.TRANX_LOADTIME,
-					new OpenXLogLoadTimeAction(window, objTypeDisplay, objType, Images.getObjectIcon(
-							objType, true, serverId), serverId));
+					new OpenXLogRealTimeAction(window, MenuStr.XLOG, objType, Images.star, serverId));
 		}
 		
 		objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.TODAY_SERVICE_COUNT);
 		for (int inx = 0; inx < objTypeList.size(); inx++) {
 			String[] splitedKey = objTypeList.get(inx).split(":");
-			String objTypeDisplay = splitedKey[0];
 			String objType = splitedKey[1];
 			actions.put(
 					objType + ":" + CounterConstants.TODAY_SERVICE_COUNT,
-					new OpenTodayServiceCountAction(window, objTypeDisplay, objType, CounterConstants.WAS_SERVICE_COUNT, Images.getObjectIcon(
-							objType, true, serverId), serverId));
-		}
-		
-		objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.DAILY_SERVICE_COUNT);
-		for (int inx = 0; inx < objTypeList.size(); inx++) {
-			String[] splitedKey = objTypeList.get(inx).split(":");
-			String objTypeDisplay = splitedKey[0];
-			String objType = splitedKey[1];
-			actions.put(
-					objType + ":" + CounterConstants.DAILY_SERVICE_COUNT,
-					new OpenDailyServiceCountAction(window, objTypeDisplay, objType, CounterConstants.WAS_SERVICE_COUNT, Images.getObjectIcon(
-							objType, true, serverId), serverId));
+					new OpenTodayServiceCountAction(window, MenuStr.SERVICE_COUNT, objType, CounterConstants.WAS_SERVICE_COUNT, Images.bar, serverId));
 		}
 		
 		objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.SERVICE_GROUP);
@@ -360,24 +335,24 @@ public class MenuUtil implements IMenuCreator{
 							counterName, Images.getCounterImage(objType, counterName, serverId), curdate, curdate, serverId));
 		}
 		
-		ArrayList<String> objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.TRANX_LOADTIME);
+		ArrayList<String> objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.TRANX_REALTIME);
 		for (int inx = 0; inx < objTypeList.size(); inx++) {
 			String[] splitedKey = objTypeList.get(inx).split(":");
 			String objTypeDisplay = splitedKey[0];
 			String objType = splitedKey[1];
 			actions.put(
-					objType + ":" + CounterConstants.TRANX_LOADTIME,
+					objType + ":" + CounterConstants.TRANX_REALTIME,
 					new OpenXLogLoadTimeAction(window, objTypeDisplay, objType, Images.getObjectIcon(
 							objType, true, serverId), serverId, st, et));
 		}
 		
-		objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.DAILY_SERVICE_COUNT);
+		objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.TODAY_SERVICE_COUNT);
 		for (int inx = 0; inx < objTypeList.size(); inx++) {
 			String[] splitedKey = objTypeList.get(inx).split(":");
 			String objTypeDisplay = splitedKey[0];
 			String objType = splitedKey[1];
 			actions.put(
-					objType + ":" + CounterConstants.DAILY_SERVICE_COUNT,
+					objType + ":" + CounterConstants.TODAY_SERVICE_COUNT,
 					new OpenDailyServiceCountAction(window, objTypeDisplay, objType, CounterConstants.WAS_SERVICE_COUNT, Images.getObjectIcon(
 							objType, true, serverId), serverId, curdate));
 		}
@@ -425,7 +400,7 @@ public class MenuUtil implements IMenuCreator{
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_THREADDUMP))
 					performanceSnapshot.add(new OpenCxtmenuObjectThreadDumpAction(win, MenuStr.THREAD_DUMP, objHash, serverId));
 				performanceSnapshot.add(new OpenCxtmenuEnvAction(win, MenuStr.ENV, objHash, serverId));
-				performanceSnapshot.add(new OpenCxtmenuFileSocketAction(win, MenuStr.FILE_SOCKET, objHash, serverId));
+				//performanceSnapshot.add(new OpenCxtmenuFileSocketAction(win, MenuStr.FILE_SOCKET, objHash, serverId));
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_SYSTEMGC))
 					performanceSnapshot.add(new OpenCxtmenuSystemGcAction(MenuStr.SYSTEM_GC, objHash, serverId));
 				performanceSnapshot.add(new OpenCxtmenuResetCacheAction("Reset Text Cache", objHash, serverId));
@@ -453,9 +428,6 @@ public class MenuUtil implements IMenuCreator{
 				performanceSnapshot.add(new OpenCxtmenuEnvAction(win, MenuStr.ENV, objHash, serverId));
 				performanceSnapshot.add(new OpenTopAction(win, MenuStr.TOP, objHash, serverId));
 				performanceSnapshot.add(new OpenDiskUsageAction(win, MenuStr.DISK_USAGE, objHash, serverId));
-//				performanceSnapshot.add(new OpenNetStatAction(win, MenuStr.NET_STAT, objHash, serverId));
-//				performanceSnapshot.add(new OpenWhoAction(win, MenuStr.WHO, objHash, serverId));
-//				performanceSnapshot.add(new OpenMemInfoAction(win, MenuStr.MEM_INFO, objHash, serverId));
 				
 				mgr.add(new Separator());
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))

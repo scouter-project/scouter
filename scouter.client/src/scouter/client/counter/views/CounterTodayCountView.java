@@ -27,6 +27,9 @@ import org.csstudio.swt.xygraph.figures.Trace.PointStyle;
 import org.csstudio.swt.xygraph.figures.Trace.TraceType;
 import org.csstudio.swt.xygraph.figures.XYGraph;
 import org.eclipse.draw2d.FigureCanvas;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -39,9 +42,14 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
+import scouter.client.Images;
+import scouter.client.counter.actions.OpenDailyServiceCountAction;
 import scouter.client.model.RefreshThread;
 import scouter.client.model.RefreshThread.Refreshable;
 import scouter.client.net.TcpProxy;
@@ -306,6 +314,19 @@ public class CounterTodayCountView extends ScouterViewPart implements Refreshabl
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
+		
+		// Add context menu
+		MenuManager mgr = new MenuManager(); 
+		mgr.setRemoveAllWhenShown(true);
+		final IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		mgr.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager mgr) {
+				mgr.add(new OpenDailyServiceCountAction(win, "Load", objType, counter, Images.bar, serverId));
+			}
+		});
+		Menu menu = mgr.createContextMenu(canvas); 
+		canvas.setMenu(menu); 
+		
 		thread = new RefreshThread(this, 5000);
 		thread.setName(this.toString() + " - "	+ "objType:"+objType + ", counter:"+counter + ", serverId:"+serverId);
 		thread.start();

@@ -117,10 +117,8 @@ public class CounterConstants {
 	public final static String TOTAL_ACTIVE_SPEED = "totactsp";
 	public final static String ACTIVE_EQ = "acteq";
 	public final static String TRANX_REALTIME = "txreal";
-	public final static String TRANX_LOADTIME = "txload";
 	public final static String ACTIVE_THREAD_LIST = "actthrli";
 	public final static String TODAY_SERVICE_COUNT = "tdservcnt";
-	public final static String DAILY_SERVICE_COUNT = "dservcnt";
 	public final static String SERVICE_GROUP = "svcgrp";
 	public final static String UNIQUE_VISITOR = "unqvst";
 	public final static String TAGCNT = "tagcnt";
