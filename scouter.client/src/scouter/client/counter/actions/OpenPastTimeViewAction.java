@@ -14,7 +14,7 @@
  *  limitations under the License. 
  *
  */
-package scouter.client.context.actions;
+package scouter.client.counter.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -30,8 +30,8 @@ import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
 import scouter.util.DateUtil;
 
-public class OpenCxtmenuCounterLoadTimeViewAction extends Action implements ILoadCounterDialog {
-	public final static String ID = OpenCxtmenuCounterLoadTimeViewAction.class.getName();
+public class OpenPastTimeViewAction extends Action implements ILoadCounterDialog {
+	public final static String ID = OpenPastTimeViewAction.class.getName();
 
 	private final IWorkbenchWindow win;
 	private int objHash;
@@ -43,7 +43,7 @@ public class OpenCxtmenuCounterLoadTimeViewAction extends Action implements ILoa
 	
 	long startTime, endTime;
 
-	public OpenCxtmenuCounterLoadTimeViewAction(IWorkbenchWindow win, String label, Image image, int objHash, String objType, String date, String objName, String counter, int serverId) {
+	public OpenPastTimeViewAction(IWorkbenchWindow win, String label, Image image, int objHash, String objType, String date, String objName, String counter, int serverId) {
 		this.win = win;
 		this.objHash = objHash;
 		this.objType = objType;
@@ -61,11 +61,11 @@ public class OpenCxtmenuCounterLoadTimeViewAction extends Action implements ILoa
 		if (win != null) {
 			if(date == null){
 				long current = TimeUtil.getCurrentTime(serverId);
-				CalendarDialog calDialog = new CalendarDialog(win.getShell().getDisplay(), OpenCxtmenuCounterLoadTimeViewAction.this);
+				CalendarDialog calDialog = new CalendarDialog(win.getShell().getDisplay(), OpenPastTimeViewAction.this);
 				calDialog.showWithTime(UIUtil.getMousePosition(), current);
 			}else{
 				long st = DateUtil.getTime(date + " 00:00", "yyyyMMdd HH:mm");
-				CalendarDialog calDialog = new CalendarDialog(win.getShell().getDisplay(), OpenCxtmenuCounterLoadTimeViewAction.this);
+				CalendarDialog calDialog = new CalendarDialog(win.getShell().getDisplay(), OpenPastTimeViewAction.this);
 				calDialog.showWithTime(UIUtil.getMousePosition(), st);
 			}
 		}

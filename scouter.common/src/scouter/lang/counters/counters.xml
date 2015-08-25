@@ -21,24 +21,24 @@ tagcnt : TagCount
 <Counters>
 	<Familys>
 		<Family name="host" master="Cpu" mtrcpu="true">
-			<Counter name="Cpu" disp="CPU" unit="%" icon="cpu.png" />
+			<Counter name="Cpu" disp="CPU" unit="%" icon="cpu.png" total="false" />
 			
-			<Counter name="Mem" disp="Memory" unit="%" icon="memory.png" />
-			<Counter name="MemA" disp="Memory | Avaliable" unit="MB" icon="memory.png" />
-			<Counter name="MemU" disp="Memory | Used" unit="MB" icon="memory.png" />
-			<Counter name="MemT" disp="Memory | Total" unit="MB" icon="memory.png" />
+			<Counter name="Mem" disp="Memory" unit="%" icon="memory.png" total="false"/>
+			<Counter name="MemA" disp="Memory | Avaliable" unit="MB" icon="memory.png" total="false"/>
+			<Counter name="MemU" disp="Memory | Used" unit="MB" icon="memory.png" total="false"/>
+			<Counter name="MemT" disp="Memory | Total" unit="MB" icon="memory.png" total="false"/>
 			
-			<Counter name="PageIn" disp="Swap | PageIn" unit="cnt" icon="swap.png" />
-			<Counter name="PageOut" disp="Swap | PageOut" unit="cnt" icon="swap.png" />
-			<Counter name="SwapT" disp="Swap | Total" unit="MB" icon="swap.png" />
-			<Counter name="SwapU" disp="Swap | Used" unit="MB" icon="swap.png" />
+			<Counter name="PageIn" disp="Swap | PageIn" unit="cnt" icon="swap.png" total="false"/>
+			<Counter name="PageOut" disp="Swap | PageOut" unit="cnt" icon="swap.png" total="false"/>
+			<Counter name="SwapT" disp="Swap | Total" unit="MB" icon="swap.png" total="false"/>
+			<Counter name="SwapU" disp="Swap | Used" unit="MB" icon="swap.png" total="false"/>
 			
-			<Counter name="NetInBound" disp="Net | NetInBound" unit="cnt" icon="bytes_recv.png" />
-			<Counter name="NetOutBound" disp="Net | NetOutBound" unit="cnt" icon="bytes_recv.png" />			
-			<Counter name="TcpStatCLS" disp="Net | TcpStatCLS" unit="cnt" icon="drop.png" />
-			<Counter name="TcpStatTIM" disp="Net | TcpStatTIM" unit="cnt" icon="time_read.png" />
-			<Counter name="TcpStatFIN" disp="Net | TcpStatFIN" unit="cnt" icon="time_read.png" />
-			<Counter name="TcpStatEST" disp="Net | TcpStatEST" unit="cnt" icon="time_read.png" />
+			<Counter name="NetInBound" disp="Net | NetInBound" unit="cnt" icon="bytes_recv.png" total="false"/>
+			<Counter name="NetOutBound" disp="Net | NetOutBound" unit="cnt" icon="bytes_recv.png" total="false"/>			
+			<Counter name="TcpStatCLS" disp="Net | TcpStatCLS" unit="cnt" icon="drop.png" total="false"/>
+			<Counter name="TcpStatTIM" disp="Net | TcpStatTIM" unit="cnt" icon="time_read.png" total="false"/>
+			<Counter name="TcpStatFIN" disp="Net | TcpStatFIN" unit="cnt" icon="time_read.png" total="false"/>
+			<Counter name="TcpStatEST" disp="Net | TcpStatEST" unit="cnt" icon="time_read.png" total="false"/>
 
 		</Family>
 		<Family name="javaee" master="ActiveService" txreal="true"  txload="true" totactsp="true"  acteq="true"  actthrli="true" dservcnt="true" tdservcnt="true" svcgrp="true" srcxlog="true" unqvst="true" tagcnt="true" >
@@ -48,13 +48,13 @@ tagcnt : TagCount
 			<Counter name="ServiceCount" disp="Service Count" unit="cnt" icon="service_count.png" />
 			<Counter name="ErrorRate" disp="Error Rate" unit="%" icon="rate.png" />
 			<Counter name="HeapUsed" disp="Heap Used" unit="MB" icon="memory.png" total="false"/>
-			<Counter name="ElapsedTime" disp="Elapsed Time" unit="ms" icon="time.png" />
-			<Counter name="Elapsed90%" disp="Elapsed 90%" unit="ms" icon="time.png" />
+			<Counter name="ElapsedTime" disp="Elapsed Time" unit="ms" icon="time.png" total="false"/>
+			<Counter name="Elapsed90%" disp="Elapsed 90%" unit="ms" icon="time.png" total="false" />
 			<Counter name="ActiveService" disp="Active Service" unit="cnt" icon="act_service.png" />
-			<Counter name="GcTime" disp="GC Time" unit="ms" icon="gc.png" />
+			<Counter name="GcTime" disp="GC Time" unit="ms" icon="gc.png" total="false"/>
 			<Counter name="TPS" disp="TPS" unit="tps" 	icon="transaction.png" />
 			<Counter name="CpuTime" disp="CpuTime" unit="ms"  icon="cpu.png" />
-			<Counter name="ProcCpu" disp="ProcCpu" unit="%" icon="cpu.png" />			
+			<Counter name="ProcCpu" disp="ProcessCpu" unit="%" icon="cpu.png" total="false"/>			
 		</Family>
 		<Family name="apache" master="ReqPerSec" scrbrd="true">
 			<Counter name="BytesPerReq" disp="Bytes Per Request" unit="bytes" icon="bytes_per_sec.png" />

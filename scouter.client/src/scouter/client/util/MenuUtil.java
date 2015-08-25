@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuCreator;
+import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
@@ -33,6 +34,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 
 import scouter.client.Images;
 import scouter.client.actions.OpenActiveServiceListAction;
@@ -45,8 +47,6 @@ import scouter.client.constants.MenuStr;
 import scouter.client.context.actions.OpenAPIDebugViewAction;
 import scouter.client.context.actions.OpenCxtmenuActiveServiceListAction;
 import scouter.client.context.actions.OpenCxtmenuConfigureAgentViewAction;
-import scouter.client.context.actions.OpenCxtmenuCounterLoadDateViewAction;
-import scouter.client.context.actions.OpenCxtmenuCounterLoadTimeViewAction;
 import scouter.client.context.actions.OpenCxtmenuDumpActiveServiceListAction;
 import scouter.client.context.actions.OpenCxtmenuDumpFileListAction;
 import scouter.client.context.actions.OpenCxtmenuDumpHeapHistoAction;
@@ -62,34 +62,47 @@ import scouter.client.context.actions.OpenCxtmenuResetCacheAction;
 import scouter.client.context.actions.OpenCxtmenuSystemGcAction;
 import scouter.client.context.actions.OpenCxtmenuThreadListAction;
 import scouter.client.counter.actions.OpenDailyServiceCountAction;
-import scouter.client.counter.actions.OpenObjectRealTimeViewAction;
-import scouter.client.counter.actions.OpenObjectTodayViewAction;
+import scouter.client.counter.actions.OpenPastDateViewAction;
 import scouter.client.counter.actions.OpenPastLongDateAllAction;
 import scouter.client.counter.actions.OpenPastLongDateTotalAction;
 import scouter.client.counter.actions.OpenPastTimeAllAction;
 import scouter.client.counter.actions.OpenPastTimeTotalAction;
+import scouter.client.counter.actions.OpenPastTimeViewAction;
 import scouter.client.counter.actions.OpenRealTimeAllAction;
 import scouter.client.counter.actions.OpenRealTimeTotalAction;
+import scouter.client.counter.actions.OpenRealTimeViewAction;
 import scouter.client.counter.actions.OpenTodayAllAction;
 import scouter.client.counter.actions.OpenTodayServiceCountAction;
 import scouter.client.counter.actions.OpenTodayTotalAction;
+import scouter.client.counter.actions.OpenTodayViewAction;
 import scouter.client.counter.actions.OpenUniqueTotalVisitorAction;
 import scouter.client.counter.actions.OpenUniqueVisitorAction;
+import scouter.client.counter.views.CounterLoadDateView;
+import scouter.client.counter.views.CounterLoadTimeView;
+import scouter.client.counter.views.CounterPastLongDateAllView;
+import scouter.client.counter.views.CounterPastLongDateTotalView;
+import scouter.client.counter.views.CounterPastTimeAllView;
+import scouter.client.counter.views.CounterPastTimeTotalView;
+import scouter.client.counter.views.CounterRealDateView;
+import scouter.client.counter.views.CounterRealTimeAllView;
+import scouter.client.counter.views.CounterRealTimeTotalView;
+import scouter.client.counter.views.CounterRealTimeView;
+import scouter.client.counter.views.CounterTodayAllView;
+import scouter.client.counter.views.CounterTodayTotalView;
 import scouter.client.heapdump.actions.HeapDumpAction;
 import scouter.client.heapdump.actions.HeapDumpListAction;
 import scouter.client.host.actions.OpenDiskUsageAction;
-import scouter.client.host.actions.OpenMemInfoAction;
-import scouter.client.host.actions.OpenNetStatAction;
 import scouter.client.host.actions.OpenTopAction;
-import scouter.client.host.actions.OpenWhoAction;
 import scouter.client.maria.actions.OpenDbRealtimeWaitCountAction;
 import scouter.client.model.AgentObject;
+import scouter.client.model.TextProxy;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.tags.actions.OpenTagCountViewAction;
 import scouter.client.xlog.actions.OpenXLogLoadTimeAction;
 import scouter.client.xlog.actions.OpenXLogRealTimeAction;
+import scouter.lang.Counter;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.counters.CounterEngine;
 import scouter.util.DateUtil;
@@ -185,7 +198,7 @@ public class MenuUtil implements IMenuCreator{
 		}
 	}
 	
-public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow window, CounterEngine counterEngine, int serverId){
+	public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow window, CounterEngine counterEngine, int serverId){
 		
 		HashMap<String, Action> actions = new HashMap<String, Action>();
 		
@@ -196,85 +209,9 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 			String label = splitedKey[1];
 			String counterName = splitedKey[2];
 			actions.put(
-					objType + ":" + counterName + ":" + CounterConstants.REAL_TIME_ALL,
+					objType + ":" + counterName,
 					new OpenRealTimeAllAction(window, label, objType, counterName, Images
 							.getCounterImage(objType, counterName, serverId), serverId));
-		}
-		
-		objTypeAndCounter = counterEngine.getAllCounterList();
-		for (int inx = 0; inx < objTypeAndCounter.size(); inx++) {
-			String[] splitedKey = objTypeAndCounter.get(inx).split(":");
-			String objType = splitedKey[0];
-			String label = splitedKey[1];
-			String counterName = splitedKey[2];
-			actions.put(objType + ":" + counterName + ":" + CounterConstants.TODAY_ALL,
-					new OpenTodayAllAction(window, label, objType, counterName,
-							Images.getCounterImage(objType, counterName, serverId), serverId));
-		}
-		
-		objTypeAndCounter = counterEngine.getTotalCounterList();
-		for (int inx = 0; inx < objTypeAndCounter.size(); inx++) {
-			String[] splitedKey = objTypeAndCounter.get(inx).split(":");
-			String objType = splitedKey[0];
-			String label = splitedKey[1];
-			String counterName = splitedKey[2];
-			actions.put(objType + ":" + counterName + ":" + CounterConstants.REAL_TIME_TOTAL,
-					new OpenRealTimeTotalAction(window, label, objType, counterName,
-							Images.getCounterImage(objType, counterName, serverId), serverId));
-		}
-		objTypeAndCounter = counterEngine.getTotalCounterList();
-		for (int inx = 0; inx < objTypeAndCounter.size(); inx++) {
-			String[] splitedKey = objTypeAndCounter.get(inx).split(":");
-			String objType = splitedKey[0];
-			String label = splitedKey[1];
-			String counterName = splitedKey[2];
-			actions.put(objType + ":" + counterName + ":" + CounterConstants.TODAY_TOTAL,
-					new OpenTodayTotalAction(window, label, objType, counterName,
-							Images.getCounterImage(objType, counterName, serverId), serverId));
-		}
-
-		objTypeAndCounter = counterEngine.getAllCounterList();
-		for (int inx = 0; inx < objTypeAndCounter.size(); inx++) {
-			String[] splitedKey = objTypeAndCounter.get(inx).split(":");
-			String objType = splitedKey[0];
-			String label = splitedKey[1];
-			String counterName = splitedKey[2];
-			actions.put(objType + ":" + counterName + ":" + CounterConstants.PAST_TIME_ALL,
-					new OpenPastTimeAllAction(window, label, objType, counterName,
-							Images.getCounterImage(objType, counterName, serverId), -1, -1, serverId));
-		}
-		
-		objTypeAndCounter = counterEngine.getAllCounterList();
-		for (int inx = 0; inx < objTypeAndCounter.size(); inx++) {
-			String[] splitedKey = objTypeAndCounter.get(inx).split(":");
-			String objType = splitedKey[0];
-			String label = splitedKey[1];
-			String counterName = splitedKey[2];
-			actions.put(objType + ":" + counterName + ":" + CounterConstants.PAST_DATE_ALL,
-					new OpenPastLongDateAllAction(window, label, objType, counterName,
-							Images.getCounterImage(objType, counterName, serverId), null, null, serverId));
-		}
-		
-		objTypeAndCounter =  counterEngine.getTotalCounterList();
-		for (int inx = 0; inx < objTypeAndCounter.size(); inx++) {
-			String[] splitedKey = objTypeAndCounter.get(inx).split(":");
-			String objType = splitedKey[0];
-			String label = splitedKey[1];
-			String counterName = splitedKey[2];
-			actions.put(objType + ":" + counterName + ":" + CounterConstants.PAST_TIME_TOTAL,
-					new OpenPastTimeTotalAction(window, label, objType,
-							counterName, Images.getCounterImage(objType, counterName, serverId), -1, -1, serverId));
-		}
-		
-		objTypeAndCounter =  counterEngine.getTotalCounterList();
-		for (int inx = 0; inx < objTypeAndCounter.size(); inx++) {
-			String[] splitedKey = objTypeAndCounter.get(inx).split(":");
-			String objType = splitedKey[0];
-			String label = splitedKey[1];
-			String counterName = splitedKey[2];
-			actions.put(objType + ":" + counterName + ":" + CounterConstants.PAST_DATE_TOTAL,
-					new OpenPastLongDateTotalAction(window, label, objType,
-							counterName, Images.getCounterImage(objType, counterName, serverId), null, null, serverId));
 		}
 		
 		ArrayList<String> objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.TOTAL_ACTIVE_SPEED);
@@ -463,20 +400,7 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 	    	for(int inx = 0 ; inx < counterNames.length ; inx++){
 	    		String counter = counterNames[inx];
 	    		String counterDisplay = counterEngine.getCounterDisplayName(objType, counter);
-	    		MenuManager counterMenu = new MenuManager(counterDisplay, Images.getCounterImageDescriptor(objType, counter, serverId), "scouter."+objType+"."+counter);
-				performanceCounter.add(counterMenu);
-				MenuManager liveMenuManager = new MenuManager(MenuStr.LIVE_CHART
-						, ImageUtil.getImageDescriptor(Images.monitor)
-						, "scouter.menu.live.id."+objType+"."+counter);
-				counterMenu.add(liveMenuManager);
-				MenuManager loadMenuManager = new MenuManager(MenuStr.LOAD_CHART
-						, ImageUtil.getImageDescriptor(Images.drive)
-						, "scouter.menu.load.id."+objType+"."+counter);
-				counterMenu.add(loadMenuManager);
-				liveMenuManager.add(new OpenObjectRealTimeViewAction(win, MenuStr.TIME_COUNTER, counter, Images.CTXMENU_RTC, objHash, objName, objType, serverId));
-				liveMenuManager.add(new OpenObjectTodayViewAction(win, MenuStr.DAILY_COUNTER, counter, Images.CTXMENU_RDC, objHash, objName, objType, serverId));
-				loadMenuManager.add(new OpenCxtmenuCounterLoadTimeViewAction(win, MenuStr.TIME_COUNTER, Images.CTXMENU_RTC, objHash, objType, null, objName, counter, serverId));
-				loadMenuManager.add(new OpenCxtmenuCounterLoadDateViewAction(win, MenuStr.DAILY_COUNTER, Images.CTXMENU_RDC, objHash, objType, null, objName, counter, serverId));
+				performanceCounter.add(new OpenRealTimeViewAction(win, counterDisplay, counter, Images.getCounterImage(objType, counter, serverId), objHash, objName, objType, serverId));
 			}
     	}
     	
@@ -554,5 +478,110 @@ public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow wind
 			mgr.add(new Separator());
 			mgr.add(new OpenAPIDebugViewAction(win, objHash, serverId));
 		}
+	}
+	
+	public static void createCounterContextMenu(final String id, Control control, final int serverId, final String objType, final String counter) {
+		MenuManager mgr = new MenuManager(); 
+		mgr.setRemoveAllWhenShown(true);
+		final CounterEngine counterEngine = ServerManager.getInstance().getServer(serverId).getCounterEngine();
+		final Counter counterObj = counterEngine.getObjectType(objType).getFamily().getCounter(counter);
+		mgr.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager mgr) {
+				IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				if (counterObj.isAll()) {
+					Action act = new OpenRealTimeAllAction(win, "Current All", objType, counter, Images.all, serverId);
+					if (CounterRealTimeAllView.ID.equals(id)) {
+						act.setEnabled(false);
+					}
+					mgr.add(act);
+				}
+				if (counterObj.isTotal()) {
+					Action act = new OpenRealTimeTotalAction(win, "Current Total", objType, counter, Images.total, serverId);
+					if (CounterRealTimeTotalView.ID.equals(id)) {
+						act.setEnabled(false);
+					}
+					mgr.add(act);
+				}
+				if (counterObj.isAll()) {
+					Action act = new OpenTodayAllAction(win, "Today All", objType, counter, Images.all, serverId);
+					if (CounterTodayAllView.ID.equals(id)) {
+						act.setEnabled(false);
+					}
+					mgr.add(act);
+				}
+				if (counterObj.isTotal()) {
+					Action act = new OpenTodayTotalAction(win, "Today Total", objType, counter, Images.total, serverId);
+					if (CounterTodayTotalView.ID.equals(id)) {
+						act.setEnabled(false);
+					}
+					mgr.add(act);
+				}
+				mgr.add(new Separator());
+				if (counterObj.isAll()) {
+					Action act = new OpenPastTimeAllAction(win, "Past All", objType, counter, Images.all, -1, -1, serverId);
+					if (CounterPastTimeAllView.ID.equals(id)) {
+						act.setEnabled(false);
+					}
+					mgr.add(act);
+				}
+				if (counterObj.isTotal()) {
+					Action act = new OpenPastTimeTotalAction(win, "Past Total", objType, counter, Images.total, -1, -1, serverId);
+					if (CounterPastTimeTotalView.ID.equals(id)) {
+						act.setEnabled(false);
+					}
+					mgr.add(act);
+				}
+				if (counterObj.isAll()) {
+					Action act = new OpenPastLongDateAllAction(win, "Daily All", objType, counter, Images.all, null, null, serverId);
+					if (CounterPastLongDateAllView.ID.equals(id)) {
+						act.setEnabled(false);
+					}
+					mgr.add(act);
+				}
+				if (counterObj.isTotal()) {
+					Action act = new OpenPastTimeTotalAction(win, "Daily Total", objType, counter, Images.total, -1, -1, serverId);
+					if (CounterPastLongDateTotalView.ID.equals(id)) {
+						act.setEnabled(false);
+					}
+					mgr.add(act);
+				}
+			}
+		});
+		Menu menu = mgr.createContextMenu(control); 
+		control.setMenu(menu); 
+	}
+	
+	public static void createCounterContextMenu(final String id, Control control, final int serverId, final int objHash, final String objType, final String counter) {
+		MenuManager mgr = new MenuManager(); 
+		mgr.setRemoveAllWhenShown(true);
+		final String objName = TextProxy.object.getText(objHash);
+		mgr.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager mgr) {
+				IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				Action act = new OpenRealTimeViewAction(win, "Current", counter, Images.CTXMENU_RTC, objHash, objName, objType, serverId);
+				if (CounterRealTimeView.ID.equals(id)) {
+					act.setEnabled(false);
+				}
+				mgr.add(act);
+				act = new OpenTodayViewAction(win, "Today", counter, Images.CTXMENU_RDC, objHash, objName, objType, serverId);
+				if (CounterRealDateView.ID.equals(id)) {
+					act.setEnabled(false);
+				}
+				mgr.add(act);
+				mgr.add(new Separator());
+				act = new OpenPastTimeViewAction(win, "Past", Images.CTXMENU_RTC, objHash, objType, null, objName, counter, serverId);
+				if (CounterLoadTimeView.ID.equals(id)) {
+					act.setEnabled(false);
+				}
+				mgr.add(act);
+				act = new OpenPastDateViewAction(win, "Daily", Images.CTXMENU_RDC, objHash, objType, null, objName, counter, serverId);
+				if (CounterLoadDateView.ID.equals(id)) {
+					act.setEnabled(false);
+				}
+				mgr.add(act);
+			}
+		});
+		Menu menu = mgr.createContextMenu(control); 
+		control.setMenu(menu); 
 	}
 }

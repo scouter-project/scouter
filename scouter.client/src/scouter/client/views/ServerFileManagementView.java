@@ -101,7 +101,7 @@ public class ServerFileManagementView extends ViewPart {
 		labelComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		labelComp.setLayout(new RowLayout());
 		totalLabel = new Label(parent, SWT.NONE);
-		totalLabel.setText("                                      ");
+		totalLabel.setText("                                                ");
 		Composite treeComp = new Composite(parent, SWT.BORDER);
 		treeComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tree = new Tree(treeComp, SWT.H_SCROLL | SWT.V_SCROLL

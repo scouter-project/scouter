@@ -28,8 +28,8 @@ import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ImageUtil;
 import scouter.util.Hexa32;
 
-public class OpenObjectTodayViewAction extends Action {
-	public final static String ID = OpenObjectTodayViewAction.class.getName();
+public class OpenTodayViewAction extends Action {
+	public final static String ID = OpenTodayViewAction.class.getName();
 
 	private final IWorkbenchWindow window;
 	private String counter;
@@ -38,7 +38,7 @@ public class OpenObjectTodayViewAction extends Action {
 	private String objType;
 	private int serverId;
 
-	public OpenObjectTodayViewAction(IWorkbenchWindow window, String label, String counter, Image image, int objHash, String objName, String objType, int serverId) {
+	public OpenTodayViewAction(IWorkbenchWindow window, String label, String counter, Image image, int objHash, String objName, String objType, int serverId) {
 		this.window = window;
 		this.counter = counter;
 		this.objHash = objHash;

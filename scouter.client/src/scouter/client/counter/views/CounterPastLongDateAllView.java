@@ -71,6 +71,7 @@ import scouter.client.util.ConsoleProxy;
 import scouter.client.util.CounterUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
+import scouter.client.util.MenuUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
 import scouter.client.views.ScouterViewPart;
@@ -149,6 +150,8 @@ public class CounterPastLongDateAllView extends ScouterViewPart implements DualC
 			this.xyGraph.removeTrace(tr);
 		}
 		traces.clear();
+		
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter);
 		
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {

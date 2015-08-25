@@ -106,6 +106,7 @@ public class Images {
 	public static final Image inactive       = Activator.getImage("icons/inactive.png");
 	public static final Image dead           = Activator.getImage("icons/dead.png");
 	public static final Image all            = Activator.getImage("icons/all.png");
+	public static final Image total            = Activator.getImage("icons/total.png");
 	public static final Image alert          = Activator.getImage("icons/alert.png");
 	public static final Image transrealtime     = Activator.getImage("icons/transrealtime.png");
 	public static final Image preference     = Activator.getImage("icons/preference.png");

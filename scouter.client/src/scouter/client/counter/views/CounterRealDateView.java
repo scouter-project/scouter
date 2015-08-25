@@ -46,6 +46,7 @@ import scouter.client.util.ColorUtil;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.CounterUtil;
 import scouter.client.util.ExUtil;
+import scouter.client.util.MenuUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
 import scouter.client.views.ScouterViewPart;
@@ -100,6 +101,8 @@ public class CounterRealDateView extends ScouterViewPart implements Refreshable 
 			this.trace.setTraceColor(AgentColorManager.getInstance().assignColor(objType, objHash));
 			ChartUtil.addSolidLine(xyGraph, traceDataProvider, AgentColorManager.getInstance().assignColor(objType, objHash));
 		}
+		
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objHash, objType, counter);
 
 		if (thread == null) {
 			thread = new RefreshThread(this, 10000);

@@ -27,8 +27,8 @@ import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ImageUtil;
 import scouter.util.Hexa32;
 
-public class OpenObjectRealTimeViewAction extends Action {
-	public final static String ID = OpenObjectRealTimeViewAction.class.getName();
+public class OpenRealTimeViewAction extends Action {
+	public final static String ID = OpenRealTimeViewAction.class.getName();
 
 	private final IWorkbenchWindow window;
 	private String counter;
@@ -37,7 +37,7 @@ public class OpenObjectRealTimeViewAction extends Action {
 	private String objType;
 	private int serverId;
 
-	public OpenObjectRealTimeViewAction(IWorkbenchWindow window, String label, String counter, Image image, int objHash, String objName, String objType, int serverId) {
+	public OpenRealTimeViewAction(IWorkbenchWindow window, String label, String counter, Image image, int objHash, String objName, String objType, int serverId) {
 		this.window = window;
 		this.counter = counter;
 		this.objHash = objHash;

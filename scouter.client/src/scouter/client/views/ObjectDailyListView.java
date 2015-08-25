@@ -56,9 +56,9 @@ import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
 import scouter.client.actions.OpenObjectDailyListAction;
 import scouter.client.constants.MenuStr;
-import scouter.client.context.actions.OpenCxtmenuCounterLoadDateViewAction;
-import scouter.client.context.actions.OpenCxtmenuCounterLoadTimeViewAction;
 import scouter.client.context.actions.OpenCxtmenuPropertiesAction;
+import scouter.client.counter.actions.OpenPastDateViewAction;
+import scouter.client.counter.actions.OpenPastTimeViewAction;
 import scouter.client.model.AgentDailyListProxy;
 import scouter.client.model.AgentObject;
 import scouter.client.model.DummyObject;
@@ -218,8 +218,8 @@ public class ObjectDailyListView extends ViewPart {
             		String counterDisplay = counterEngine.getCounterDisplayName(objType, counter);
             		MenuManager counterMenu = new MenuManager(counterDisplay, Images.getCounterImageDescriptor(objType, counter, serverId), "scouter."+objType+"."+counter);
         			mgr.add(counterMenu);
-        			counterMenu.add(new OpenCxtmenuCounterLoadTimeViewAction(win, MenuStr.TIME_COUNTER, Images.CTXMENU_RTC, objHash, objType, curdate, objName, counter, serverId));
-        			counterMenu.add(new OpenCxtmenuCounterLoadDateViewAction(win, MenuStr.DAILY_COUNTER, Images.CTXMENU_RDC, objHash, objType, curdate, objName, counter, serverId));
+        			counterMenu.add(new OpenPastTimeViewAction(win, MenuStr.TIME_COUNTER, Images.CTXMENU_RTC, objHash, objType, curdate, objName, counter, serverId));
+        			counterMenu.add(new OpenPastDateViewAction(win, MenuStr.DAILY_COUNTER, Images.CTXMENU_RDC, objHash, objType, curdate, objName, counter, serverId));
         		}
             	mgr.add(new Separator());
 				mgr.add(new OpenCxtmenuPropertiesAction(win, MenuStr.PROPERTIES, objHash, serverId, this.curdate));
