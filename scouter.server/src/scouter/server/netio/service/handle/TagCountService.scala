@@ -263,10 +263,7 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == TagConstants.NAME_SERVICE
-                || key == TagConstants.NAME_SERVICE_TIME_SUM
-                || key == TagConstants.NAME_SERVICE_BYTE_SUM
-                || key == TagConstants.NAME_SERVICE_ERROR_SUM) {
+            } else if (TagConstants.serviceHashGroup.hasKey(key)) {
                 val serviceLv = mv.getList(key);
                 for (i <- 0 to serviceLv.size() - 1) {
                     var service = serviceLv.get(i).toJavaObject();

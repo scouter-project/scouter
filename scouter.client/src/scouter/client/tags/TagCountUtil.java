@@ -33,18 +33,7 @@ import scouter.util.IntSet;
 import scouter.util.StringSet;
 
 public class TagCountUtil {
-	private static StringSet serviceUser = new StringSet();
-	static{
-		serviceUser.put(TagConstants.NAME_SERVICE);
-		serviceUser.put(TagConstants.NAME_SERVICE_TIME_SUM);
-		serviceUser.put(TagConstants.NAME_SERVICE_BYTE_SUM);
-		serviceUser.put(TagConstants.NAME_SERVICE_ERROR_SUM);
-		
-		serviceUser.put(TagConstants.NAME_SQL_COUNT_SUM);
-		serviceUser.put(TagConstants.NAME_SQLTIME_SUM);
-		serviceUser.put(TagConstants.NAME_API_COUNT_SUM);
-		serviceUser.put(TagConstants.NAME_APITIME_SUM);
-	}
+	
 	// This should be called background thread.
 	public static List<String> loadTagString(int serverId, String date, List<Value> vList, String tagName) {
 		List<String> resultList = new ArrayList<String>();
@@ -61,7 +50,7 @@ public class TagCountUtil {
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.object.getText(lv.getInt(i)));
 					}
-				} else if (serviceUser.hasKey(tagName)) {
+				} else if (TagConstants.serviceHashGroup.hasKey(tagName)) {
 					TextProxy.service.load(date, lv, serverId);
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.service.getText(lv.getInt(i)));

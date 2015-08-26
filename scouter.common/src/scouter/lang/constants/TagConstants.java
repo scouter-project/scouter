@@ -1,5 +1,7 @@
 package scouter.lang.constants;
 
+import scouter.util.StringSet;
+
 public class TagConstants {
 	public static final String GROUP_SERVICE = "service";
 	public static final String GROUP_ALERT = "alert";
@@ -34,4 +36,19 @@ public class TagConstants {
 	public static final String NAME_LOGIN = "login";
 	public static final String NAME_DESC = "desc";
 
+	
+	
+	
+	public static StringSet serviceHashGroup = new StringSet();
+	static{
+		serviceHashGroup.put(NAME_SERVICE);
+		serviceHashGroup.put(NAME_SERVICE_TIME_SUM);
+		serviceHashGroup.put(NAME_SERVICE_BYTE_SUM);
+		serviceHashGroup.put(NAME_SERVICE_ERROR_SUM);
+		
+		serviceHashGroup.put(NAME_SQL_COUNT_SUM);
+		serviceHashGroup.put(NAME_SQLTIME_SUM);
+		serviceHashGroup.put(NAME_API_COUNT_SUM);
+		serviceHashGroup.put(NAME_APITIME_SUM);
+	}
 }

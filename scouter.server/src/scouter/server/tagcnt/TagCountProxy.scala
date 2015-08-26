@@ -118,6 +118,9 @@ object TagCountProxy {
         return map2;
     }
 
+    def add(time: Long, objType: String, tag: TagCountConfig.Tag, tagValue: Value, cnt: Int) {
+         FirstTagCountDB.add(new FirstTCData(objType, time, tag.key, tagValue, cnt.toFloat));
+    }
     def add(time: Long, objType: String, tag: TagCountConfig.Tag, tagValue: Value, cnt: Float) {
         FirstTagCountDB.add(new FirstTCData(objType, time, tag.key, tagValue, cnt));
     }
