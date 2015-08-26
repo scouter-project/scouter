@@ -31,16 +31,18 @@
       startupMessageRect="10,235,445,15"
       startupForegroundColor="000000" />
    <launcher name="scouter">
-      <macosx icon="icons/scouter.icns"/>
+      <macosx icon="icons/launcher.icns"/>
       <solaris/>
       <win useIco="true">
-         <ico path="icons/scouter.ico"/>
+         <ico path="icons/launcher.ico"/>
          <bmp/>
       </win>
    </launcher>
 
+
    <vm>
    </vm>
+
 
    <plugins>
    </plugins>
