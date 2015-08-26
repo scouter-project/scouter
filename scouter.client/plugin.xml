@@ -67,17 +67,17 @@
   </extension>
 
   <extension point="org.eclipse.ui.preferencePages">
-    <page id="scouter.client.preferences.PreferencePage"
-          class="scouter.client.preferences.ScouterPreferencePage"
-          name="Scouter" />
+    <page id="scouter.client.preferences.GeneralPreferencePage"
+          class="scouter.client.preferences.GeneralPreferencePage"
+          name="General" />
     <page
-          category="scouter.client.preferences.PreferencePage"
+          category="scouter.client.preferences.GeneralPreferencePage"
           class="scouter.client.preferences.CachingPreferencePage"
           id="scouter.client.preferences.CachingPreferencePage"
           name="Text Cache">
     </page>
     <page
-          category="scouter.client.preferences.PreferencePage"
+          category="scouter.client.preferences.GeneralPreferencePage"
           class="scouter.client.preferences.ChartPreferencePage"
           id="scouter.client.preferences.ChartPreferencePage"
           name="Chart">
