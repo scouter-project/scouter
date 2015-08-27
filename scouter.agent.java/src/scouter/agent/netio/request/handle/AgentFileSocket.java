@@ -78,6 +78,10 @@ public class AgentFileSocket {
 			SocketTable.Info fo = SocketTable.socketMap.get(key);
 			if (fo == null)
 				continue;
+			
+			if (key == order || order == Long.MAX_VALUE) {
+				fo.stackOrder = true;
+			}
 
 			keyLv.add(key);
 			hostLv.add(new BlobValue(DataOutputX.toBytes(BitUtil.getHigh(key))));
@@ -87,10 +91,6 @@ public class AgentFileSocket {
 			txidLv.add(fo.txid);
 			orderLv.add(fo.stackOrder);
 			stackLv.add(StringUtil.trimEmpty(fo.stack));
-
-			if (key == order || order == Long.MAX_VALUE) {
-				fo.stackOrder = true;
-			}
 		}
 		return p;
 	}

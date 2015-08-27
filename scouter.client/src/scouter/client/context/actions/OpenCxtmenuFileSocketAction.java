@@ -44,9 +44,9 @@ public class OpenCxtmenuFileSocketAction extends Action {
 		if (win != null) {
 			try {
 				ObjectFileSocketView view = (ObjectFileSocketView) win.getActivePage().showView(ObjectFileSocketView.ID,
-						objHash + "&" + TimeUtil.getCurrentTime(serverId), IWorkbenchPage.VIEW_ACTIVATE);
+						objHash + "", IWorkbenchPage.VIEW_ACTIVATE);
 				if (view != null) {
-					view.setInput(serverId);
+					view.setInput(serverId, objHash);
 				}
 			} catch (PartInitException e) {
 				MessageDialog.openError(win.getShell(), "Error", "Error opening view:" + e.getMessage());

@@ -213,6 +213,20 @@ class AgentInfo {
             dout.writePack(p);
         }
     }
+    
+    @ServiceHandler(RequestCmd.OBJECT_SOCKET)
+    def agentObjectSocket(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readPack().asInstanceOf[MapPack];
+        val objHash = param.getInt("objHash");
+
+        val o = AgentManager.getAgent(objHash);
+
+        val p = AgentCall.call(o, RequestCmd.OBJECT_SOCKET, param);
+        if (p != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(p);
+        }
+    }
 
     @ServiceHandler(RequestCmd.OBJECT_LOAD_CLASS_BY_STREAM)
     def loadClassStream(din: DataInputX, dout: DataOutputX, login: Boolean) {

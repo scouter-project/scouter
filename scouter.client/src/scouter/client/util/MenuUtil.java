@@ -400,7 +400,7 @@ public class MenuUtil implements IMenuCreator{
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_THREADDUMP))
 					performanceSnapshot.add(new OpenCxtmenuObjectThreadDumpAction(win, MenuStr.THREAD_DUMP, objHash, serverId));
 				performanceSnapshot.add(new OpenCxtmenuEnvAction(win, MenuStr.ENV, objHash, serverId));
-				//performanceSnapshot.add(new OpenCxtmenuFileSocketAction(win, MenuStr.FILE_SOCKET, objHash, serverId));
+				performanceSnapshot.add(new OpenCxtmenuFileSocketAction(win, "Socket", objHash, serverId));
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_SYSTEMGC))
 					performanceSnapshot.add(new OpenCxtmenuSystemGcAction(MenuStr.SYSTEM_GC, objHash, serverId));
 				performanceSnapshot.add(new OpenCxtmenuResetCacheAction("Reset Text Cache", objHash, serverId));
