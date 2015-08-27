@@ -173,7 +173,7 @@ public class TraceApiCall {
 			return null;
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
-			if (Configure.getInstance().socket_listup_all) {
+			if (Configure.getInstance().listup_background_socket) {
 				InetSocketAddress inet = (InetSocketAddress) addr;
 				InetAddress host = inet.getAddress();
 				int port = inet.getPort();

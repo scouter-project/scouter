@@ -106,7 +106,7 @@ public class Configure extends Thread {
 	public boolean profile_socket_openstack = false;
 	public int profile_socket_openstack_port = 0;
 	
-	public boolean socket_listup_all = true;
+	public boolean listup_background_socket = true;
 	
 	public int xlog_time_limit = 0;
 
@@ -363,7 +363,7 @@ public class Configure extends Thread {
 		this.profile_thread_cputime = getBoolean("profile_thread_cputime", getBoolean("profile.thread.cputime", false));
 		this.profile_socket_openstack = getBoolean("profile_socket_openstack",
 				getBoolean("profile.socket.openstack", false));
-		this.socket_listup_all = getBoolean("socket_listup_all", true);
+		this.listup_background_socket = getBoolean("listup_background_socket", true);
 		this.profile_socket_openstack_port = getInt("profile_socket_openstack_port", 0);
 		this.profile_sql_escape = getBoolean("profile_sql_escape", true);
 
