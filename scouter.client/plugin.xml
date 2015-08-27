@@ -1014,7 +1014,7 @@
              label="About">
           <command
                 commandId="org.eclipse.ui.help.aboutAction"
-                label="About Scouter"
+                label="About"
                 style="push">
           </command>
        </menu>
