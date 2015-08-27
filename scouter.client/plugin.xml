@@ -418,7 +418,7 @@
             class="scouter.client.views.ObjectFileSocketView"
             icon="icons/table.png"
             id="scouter.client.views.ObjectFileSocketView"
-            name="FileSocketView"
+            name="SocketView"
             restorable="false">
       </view>  
       <view

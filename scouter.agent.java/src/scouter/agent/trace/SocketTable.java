@@ -30,7 +30,7 @@ public class SocketTable {
 				info.service=serviceHash;
 				info.txid=txid;
 				info.stackOrder = false;
-				info.stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace());
+				info.stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(),3);
 			}
 			if(info.service==0){
 				info.service=serviceHash;
