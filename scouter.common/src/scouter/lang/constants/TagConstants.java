@@ -8,7 +8,7 @@ public class TagConstants {
 	
 	public static final String NAME_TOTAL = "@total";
 	public static final String NAME_OBJECT = "object";
-	public static final String NAME_IP = "ip";
+	//public static final String NAME_IP = "ip";
 	public static final String NAME_SERVICE = "service";
 	public static final String NAME_SERVICE_TIME_SUM = "service-time-sum";
 	public static final String NAME_SERVICE_BYTE_SUM = "service-byte-sum";
@@ -17,10 +17,10 @@ public class TagConstants {
 	public static final String NAME_ERROR = "error";
 	public static final String NAME_REFERER = "referer";
 	public static final String NAME_GROUP = "group";
-	public static final String NAME_ELAPSED = "elapsed";
 	
-	public static final String NAME_SQLTIME = "sqltime";
-	public static final String NAME_APITIME = "apitime";
+//	public static final String NAME_ELAPSED = "elapsed";
+//	public static final String NAME_SQLTIME = "sqltime";
+//	public static final String NAME_APITIME = "apitime";
 	
 	public static final String NAME_SQLTIME_SUM = "sqltime-sum";
 	public static final String NAME_APITIME_SUM = "apitime-sum";
@@ -29,7 +29,7 @@ public class TagConstants {
 	
 	public static final String NAME_CITY = "city";
 	public static final String NAME_NATION = "nation";
-	public static final String NAME_USERID = "userid";
+//	public static final String NAME_USERID = "userid";
 	public static final String NAME_LEVEL = "level";
 	public static final String NAME_TITLE = "title";
 

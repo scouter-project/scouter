@@ -122,17 +122,19 @@ public class TagCountUtil {
 			|| tagName.equals(TagConstants.NAME_USER_AGENT)
 			|| tagName.equals(TagConstants.NAME_REFERER)
 			|| tagName.equals(TagConstants.NAME_CITY)
-			|| tagName.equals(TagConstants.NAME_ERROR)) {
+			|| tagName.equals(TagConstants.NAME_ERROR)
+			||TagConstants.serviceHashGroup.hasKey(tagName)
+			) {
 			return new TextHashValue(tagValue);
-		} else if (tagName.equals(TagConstants.NAME_USERID)
-			|| tagName.equals(TagConstants.NAME_ELAPSED)
-			|| tagName.equals(TagConstants.NAME_SQLTIME)
-			|| tagName.equals(TagConstants.NAME_APITIME)){
-			return new DecimalValue(Long.valueOf(tagValue));
+//		}		else if (tagName.equals(TagConstants.NAME_USERID)
+//			|| tagName.equals(TagConstants.NAME_ELAPSED)
+//			|| tagName.equals(TagConstants.NAME_SQLTIME)
+//			|| tagName.equals(TagConstants.NAME_APITIME)){
+//			return new DecimalValue(Long.valueOf(tagValue));
 		} else if(tagName.equals(TagConstants.NAME_LEVEL)) {
 			return new DecimalValue(AlertLevel.getValue(tagValue));
-		} else if (tagName.equals(TagConstants.NAME_IP)) {
-			return new IP4Value(tagValue);
+//		} else if (tagName.equals(TagConstants.NAME_IP)) {
+//			return new IP4Value(tagValue);
 		}
 		return new TextValue(tagValue);
 	}
