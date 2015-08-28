@@ -16,7 +16,11 @@
  */
 package scouter.client.views;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
@@ -46,6 +50,8 @@ import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
 import scouter.client.popup.EditableMessageDialog;
 import scouter.client.sorter.ColumnLabelSorter;
+import scouter.client.util.ColoringWord;
+import scouter.client.util.CustomLineStyleListener;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.lang.pack.MapPack;
@@ -64,6 +70,21 @@ public class ObjectFileSocketView extends ViewPart {
 
 	public final static String ID = ObjectFileSocketView.class.getName();
 	
+	static ArrayList<ColoringWord> keyWords = new ArrayList<ColoringWord>();
+	
+	static {
+		keyWords.add(new ColoringWord("java.lang.Thread.State:", SWT.COLOR_BLUE, false));
+		keyWords.add(new ColoringWord("daemon", SWT.COLOR_BLUE, false));
+		keyWords.add(new ColoringWord("java.util", SWT.COLOR_BLUE, false));
+		keyWords.add(new ColoringWord("java.net.Socket.connect", SWT.COLOR_BLUE, false));
+		keyWords.add(new ColoringWord("prio", SWT.COLOR_BLUE, false));
+		keyWords.add(new ColoringWord("org.apache", SWT.COLOR_BLUE, false));
+		keyWords.add(new ColoringWord("java.lang.Thread.run", SWT.COLOR_DARK_GREEN, false));
+		keyWords.add(new ColoringWord("java.lang", SWT.COLOR_DARK_MAGENTA, false));
+	}
+	
+	static HashMap<Integer, String> portDescMap = new HashMap<Integer, String>();
+	
 	private int serverId;
 	private int objHash;
 	
@@ -73,6 +94,7 @@ public class ObjectFileSocketView extends ViewPart {
 	public void setInput(int serverId, int objHash){
 		this.serverId = serverId;
 		this.objHash = objHash;
+		this.setPartName("Socket[" + TextProxy.object.getText(objHash) + "]");
 		load(0);
 	}
 
@@ -108,7 +130,7 @@ public class ObjectFileSocketView extends ViewPart {
 					StructuredSelection sel = (StructuredSelection) event.getSelection();
 					SocketObject socketObj = (SocketObject) sel.getFirstElement();
 					if (StringUtil.isNotEmpty(socketObj.stack)) {
-						new EditableMessageDialog().show("Stack", socketObj.stack);
+						new EditableMessageDialog().show("Stack", socketObj.stack, new CustomLineStyleListener(false, keyWords, false));
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -156,6 +178,24 @@ public class ObjectFileSocketView extends ViewPart {
 						socketObj.stack = stackLv.getString(i);
 						list.add(socketObj);
 					}
+					
+					if (portDescMap.size() == 0) {
+						synchronized (portDescMap) {
+							try {
+								InputStream is = ObjectFileSocketView.class.getResourceAsStream("tcpwellknownport.txt");
+								BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+								String line;
+								while ((line = br.readLine()) != null) {
+									int index = line.indexOf('\t');
+									if (index > -1) {
+										int port = CastUtil.cint(line.substring(0, index));
+										String desc = line.substring(index + 1, line.length());
+										portDescMap.put(port, desc);
+									}
+								}
+							} catch (Exception e) { e.printStackTrace(); }
+						}
+					}
 				}
 				ExUtil.exec(viewer.getTable(), new Runnable() {
 					public void run() {
@@ -169,7 +209,7 @@ public class ObjectFileSocketView extends ViewPart {
 	private void createTableContextMenu() {
 		MenuManager manager = new MenuManager();
 		viewer.getControl().setMenu(manager.createContextMenu(viewer.getControl()));
-	    manager.add(new Action("&Stand by to stack", ImageDescriptor.createFromImage(Images.pin)) {
+	    manager.add(new Action("&Stack Trace", ImageDescriptor.createFromImage(Images.pin)) {
 			public void run() {
 				try {
 					StructuredSelection sel = (StructuredSelection) viewer.getSelection();
@@ -208,6 +248,18 @@ public class ObjectFileSocketView extends ViewPart {
 							if (element instanceof SocketObject) {
 								SocketObject so = (SocketObject) element;
 								return CastUtil.cString(so.port);
+							}
+							return null;
+						}
+					};
+					break;
+				case DESC:
+					labelProvider = new ColumnLabelProvider() {
+						@Override
+						public String getText(Object element) {
+							if (element instanceof SocketObject) {
+								SocketObject so = (SocketObject) element;
+								return portDescMap.get(so.port);
 							}
 							return null;
 						}
@@ -309,10 +361,11 @@ public class ObjectFileSocketView extends ViewPart {
 
 		HOST("Host", 150, SWT.LEFT, true, true, false),
 	    PORT("Port", 50, SWT.LEFT, true, true, true),
+	    DESC("Description", 150, SWT.LEFT, true, true, false),
 	    COUNT("Count", 50, SWT.RIGHT, true, true, true),
 	    SERVICE("Service", 250, SWT.LEFT, true, true, false),
 	    TXID("Txid", 100, SWT.LEFT, true, true, false),
-	    STANDBY("StandBy", 30, SWT.CENTER, true, true, false),
+	    STANDBY("\u2713", 30, SWT.CENTER, true, true, false),
 		STACK("Stack", 300, SWT.LEFT, true, true, false);
 
 	    private final String title;
@@ -366,5 +419,4 @@ public class ObjectFileSocketView extends ViewPart {
 		boolean standby;
 		String stack;
 	}
-
 }
