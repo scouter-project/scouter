@@ -34,8 +34,6 @@ import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class ApicallASM implements IASM, Opcodes {
-	// private Map<String, MethodSet> target =
-	// MethodSet.getHookingSet("hook.subcall");
 	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_apicall);
 	private Map<String, MethodSet> reserved = new HashMap<String, MethodSet>();
 
