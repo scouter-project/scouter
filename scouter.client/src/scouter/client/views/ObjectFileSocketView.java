@@ -67,9 +67,9 @@ import scouter.util.StringUtil;
 public class ObjectFileSocketView extends ViewPart {
 
 	public final static String ID = ObjectFileSocketView.class.getName();
-	
+
 	static ArrayList<ColoringWord> keyWords = new ArrayList<ColoringWord>();
-	
+
 	static {
 		keyWords.add(new ColoringWord("java.lang.Thread.State:", SWT.COLOR_BLUE, false));
 		keyWords.add(new ColoringWord("daemon", SWT.COLOR_BLUE, false));
@@ -80,16 +80,16 @@ public class ObjectFileSocketView extends ViewPart {
 		keyWords.add(new ColoringWord("java.lang.Thread.run", SWT.COLOR_DARK_GREEN, false));
 		keyWords.add(new ColoringWord("java.lang", SWT.COLOR_DARK_MAGENTA, false));
 	}
-	
+
 	ResourceBundle bundle = ResourceBundle.getBundle("scouter.client.views.tcpport");
-	
+
 	private int serverId;
 	private int objHash;
-	
+
 	private TableViewer viewer;
 	private TableColumnLayout tableColumnLayout;
-	
-	public void setInput(int serverId, int objHash){
+
+	public void setInput(int serverId, int objHash) {
 		this.serverId = serverId;
 		this.objHash = objHash;
 		this.setPartName("Socket[" + TextProxy.object.getText(objHash) + "]");
@@ -101,34 +101,35 @@ public class ObjectFileSocketView extends ViewPart {
 		composite.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 		composite.setLayout(new GridLayout(1, true));
 		createTableViewer(composite);
-	    IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
+		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
 		man.add(new Action("Reload", ImageUtil.getImageDescriptor(Images.refresh)) {
 			public void run() {
 				load(0);
 			}
 		});
 	}
-	
+
 	private void createTableViewer(Composite composite) {
 		viewer = new TableViewer(composite, SWT.FULL_SELECTION | SWT.BORDER);
 		tableColumnLayout = new TableColumnLayout();
 		composite.setLayout(tableColumnLayout);
 		createColumns();
 		final Table table = viewer.getTable();
-	    table.setHeaderVisible(true);
-	    table.setLinesVisible(true);
-	    createTableContextMenu();
-	    viewer.setContentProvider(new ArrayContentProvider());
-	    viewer.setComparator(new ColumnLabelSorter(viewer));
-	    GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
-	    viewer.getControl().setLayoutData(gridData);
-	    viewer.addDoubleClickListener(new IDoubleClickListener() {
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+		createTableContextMenu();
+		viewer.setContentProvider(new ArrayContentProvider());
+		viewer.setComparator(new ColumnLabelSorter(viewer));
+		GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
+		viewer.getControl().setLayoutData(gridData);
+		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
 				try {
 					StructuredSelection sel = (StructuredSelection) event.getSelection();
 					SocketObject socketObj = (SocketObject) sel.getFirstElement();
 					if (StringUtil.isNotEmpty(socketObj.stack)) {
-						new EditableMessageDialog().show("Stack", socketObj.stack, new CustomLineStyleListener(false, keyWords, false));
+						new EditableMessageDialog().show("Stack", socketObj.stack, new CustomLineStyleListener(false,
+								keyWords, false));
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -136,7 +137,7 @@ public class ObjectFileSocketView extends ViewPart {
 			}
 		});
 	}
-	
+
 	private void load(final long key) {
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
@@ -167,7 +168,7 @@ public class ObjectFileSocketView extends ViewPart {
 					for (int i = 0; i < keyLv.size(); i++) {
 						SocketObject socketObj = new SocketObject();
 						socketObj.key = keyLv.getLong(i);
-						socketObj.host = ((BlobValue)hostLv.get(i)).value;
+						socketObj.host = ((BlobValue) hostLv.get(i)).value;
 						socketObj.port = portLv.getInt(i);
 						socketObj.count = countLv.getInt(i);
 						socketObj.service = TextProxy.service.getText(serviceLv.getInt(i));
@@ -185,11 +186,11 @@ public class ObjectFileSocketView extends ViewPart {
 			}
 		});
 	}
-	
+
 	private void createTableContextMenu() {
 		MenuManager manager = new MenuManager();
 		viewer.getControl().setMenu(manager.createContextMenu(viewer.getControl()));
-	    manager.add(new Action("&Stack Trace", ImageDescriptor.createFromImage(Images.pin)) {
+		manager.add(new Action("&Stack Trace", ImageDescriptor.createFromImage(Images.pin)) {
 			public void run() {
 				try {
 					StructuredSelection sel = (StructuredSelection) viewer.getSelection();
@@ -201,121 +202,126 @@ public class ObjectFileSocketView extends ViewPart {
 					e.printStackTrace();
 				}
 			}
-	    });
+		});
 	}
-	
+
 	private void createColumns() {
 		for (SocketTableEnum column : SocketTableEnum.values()) {
-			TableViewerColumn c = createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
+			TableViewerColumn c = createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(),
+					column.isResizable(), column.isMoveable(), column.isNumber());
 			ColumnLabelProvider labelProvider = null;
 			switch (column) {
-				case HOST:
-					labelProvider = new ColumnLabelProvider() {
-						@Override
-						public String getText(Object element) {
-							if (element instanceof SocketObject) {
-								SocketObject so = (SocketObject) element;
-								return IPUtil.toString(so.host);
-							}
-							return null;
+			case HOST:
+				labelProvider = new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						if (element instanceof SocketObject) {
+							SocketObject so = (SocketObject) element;
+							return IPUtil.toString(so.host);
 						}
-					};
-					break;
-				case PORT:
-					labelProvider = new ColumnLabelProvider() {
-						@Override
-						public String getText(Object element) {
-							if (element instanceof SocketObject) {
-								SocketObject so = (SocketObject) element;
-								return CastUtil.cString(so.port);
-							}
-							return null;
+						return null;
+					}
+				};
+				break;
+			case PORT:
+				labelProvider = new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						if (element instanceof SocketObject) {
+							SocketObject so = (SocketObject) element;
+							return CastUtil.cString(so.port);
 						}
-					};
-					break;
-				case DESC:
-					labelProvider = new ColumnLabelProvider() {
-						@Override
-						public String getText(Object element) {
-							if (element instanceof SocketObject) {
-								SocketObject so = (SocketObject) element;
-								return bundle.getString(CastUtil.cString(so.port));
+						return null;
+					}
+				};
+				break;
+			case DESC:
+				labelProvider = new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						if (element instanceof SocketObject) {
+							SocketObject so = (SocketObject) element;
+							String port =CastUtil.cString(so.port);
+							if (bundle.containsKey(port)) {
+								return bundle.getString(port);
 							}
-							return null;
 						}
-					};
-					break;
-				case COUNT:
-					labelProvider = new ColumnLabelProvider() {
-						@Override
-						public String getText(Object element) {
-							if (element instanceof SocketObject) {
-								SocketObject so = (SocketObject) element;
-								return FormatUtil.print(so.count, "#,##0");
+						return null;
+					}
+				};
+				break;
+			case COUNT:
+				labelProvider = new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						if (element instanceof SocketObject) {
+							SocketObject so = (SocketObject) element;
+							return FormatUtil.print(so.count, "#,##0");
+						}
+						return null;
+					}
+				};
+				break;
+			case SERVICE:
+				labelProvider = new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						if (element instanceof SocketObject) {
+							SocketObject so = (SocketObject) element;
+							return so.service;
+						}
+						return null;
+					}
+				};
+				break;
+			case TXID:
+				labelProvider = new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						if (element instanceof SocketObject) {
+							SocketObject so = (SocketObject) element;
+							return Hexa32.toString32(so.txid);
+						}
+						return null;
+					}
+				};
+				break;
+			case STANDBY:
+				labelProvider = new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						if (element instanceof SocketObject) {
+							SocketObject so = (SocketObject) element;
+							if (so.standby) {
+								return "\u2713";
 							}
-							return null;
 						}
-					};
-					break;
-				case SERVICE:
-					labelProvider = new ColumnLabelProvider() {
-						@Override
-						public String getText(Object element) {
-							if (element instanceof SocketObject) {
-								SocketObject so = (SocketObject) element;
-								return so.service;
-							}
-							return null;
+						return null;
+					}
+				};
+				break;
+			case STACK:
+				labelProvider = new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						if (element instanceof SocketObject) {
+							SocketObject so = (SocketObject) element;
+							return so.stack;
 						}
-					};
-					break;
-				case TXID:
-					labelProvider = new ColumnLabelProvider() {
-						@Override
-						public String getText(Object element) {
-							if (element instanceof SocketObject) {
-								SocketObject so = (SocketObject) element;
-								return Hexa32.toString32(so.txid);
-							}
-							return null;
-						}
-					};
-					break;
-				case STANDBY:
-					labelProvider = new ColumnLabelProvider() {
-						@Override
-						public String getText(Object element) {
-							if (element instanceof SocketObject) {
-								SocketObject so = (SocketObject) element;
-								if (so.standby) {
-									return "\u2713";
-								}
-							}
-							return null;
-						}
-					};
-					break;
-				case STACK:
-					labelProvider = new ColumnLabelProvider() {
-						@Override
-						public String getText(Object element) {
-							if (element instanceof SocketObject) {
-								SocketObject so = (SocketObject) element;
-								return so.stack;
-							}
-							return null;
-						}
-					};
-					break;
-				}
-			
+						return null;
+					}
+				};
+				break;
+			}
+
 			if (labelProvider != null) {
 				c.setLabelProvider(labelProvider);
 			}
 		}
 	}
-	
-	private TableViewerColumn createTableViewerColumn(String title, int width, int alignment,  boolean resizable, boolean moveable, final boolean isNumber) {
+
+	private TableViewerColumn createTableViewerColumn(String title, int width, int alignment, boolean resizable,
+			boolean moveable, final boolean isNumber) {
 		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
 		final TableColumn column = viewerColumn.getColumn();
 		column.setText(title);
@@ -333,62 +339,58 @@ public class ObjectFileSocketView extends ViewPart {
 		return viewerColumn;
 	}
 
-
 	public void setFocus() {
 	}
-	
+
 	enum SocketTableEnum {
 
-		HOST("Host", 150, SWT.LEFT, true, true, false),
-	    PORT("Port", 50, SWT.LEFT, true, true, true),
-	    DESC("Description", 150, SWT.LEFT, true, true, false),
-	    COUNT("Count", 50, SWT.RIGHT, true, true, true),
-	    SERVICE("Service", 250, SWT.LEFT, true, true, false),
-	    TXID("Txid", 100, SWT.LEFT, true, true, false),
-	    STANDBY("\u2713", 30, SWT.CENTER, true, true, false),
-		STACK("Stack", 300, SWT.LEFT, true, true, false);
+		HOST("Host", 150, SWT.LEFT, true, true, false), PORT("Port", 50, SWT.LEFT, true, true, true), DESC(
+				"Description", 150, SWT.LEFT, true, true, false), COUNT("Count", 50, SWT.RIGHT, true, true, true), SERVICE(
+				"Service", 250, SWT.LEFT, true, true, false), TXID("Txid", 100, SWT.LEFT, true, true, false), STANDBY(
+				"\u2713", 30, SWT.CENTER, true, true, false), STACK("Stack", 300, SWT.LEFT, true, true, false);
 
-	    private final String title;
-	    private final int width;
-	    private final int alignment;
-	    private final boolean resizable;
-	    private final boolean moveable;
-	    private final boolean isNumber;
+		private final String title;
+		private final int width;
+		private final int alignment;
+		private final boolean resizable;
+		private final boolean moveable;
+		private final boolean isNumber;
 
-	    private SocketTableEnum(String text, int width, int alignment, boolean resizable, boolean moveable, boolean isNumber) {
-	        this.title = text;
-	        this.width = width;
-	        this.alignment = alignment;
-	        this.resizable = resizable;
-	        this.moveable = moveable;
-	        this.isNumber = isNumber;
-	    }
-	    
-	    public String getTitle(){
-	        return title;
-	    }
+		private SocketTableEnum(String text, int width, int alignment, boolean resizable, boolean moveable,
+				boolean isNumber) {
+			this.title = text;
+			this.width = width;
+			this.alignment = alignment;
+			this.resizable = resizable;
+			this.moveable = moveable;
+			this.isNumber = isNumber;
+		}
 
-	    public int getAlignment(){
-	        return alignment;
-	    }
+		public String getTitle() {
+			return title;
+		}
 
-	    public boolean isResizable(){
-	        return resizable;
-	    }
+		public int getAlignment() {
+			return alignment;
+		}
 
-	    public boolean isMoveable(){
-	        return moveable;
-	    }
+		public boolean isResizable() {
+			return resizable;
+		}
+
+		public boolean isMoveable() {
+			return moveable;
+		}
 
 		public int getWidth() {
 			return width;
 		}
-		
+
 		public boolean isNumber() {
 			return this.isNumber;
 		}
 	}
-	
+
 	static class SocketObject {
 		long key;
 		byte[] host;
