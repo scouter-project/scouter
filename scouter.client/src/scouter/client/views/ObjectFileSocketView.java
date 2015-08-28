@@ -16,11 +16,9 @@
  */
 package scouter.client.views;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.ResourceBundle;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
@@ -83,7 +81,7 @@ public class ObjectFileSocketView extends ViewPart {
 		keyWords.add(new ColoringWord("java.lang", SWT.COLOR_DARK_MAGENTA, false));
 	}
 	
-	static HashMap<Integer, String> portDescMap = new HashMap<Integer, String>();
+	ResourceBundle bundle = ResourceBundle.getBundle("scouter.client.views.tcpport");
 	
 	private int serverId;
 	private int objHash;
@@ -178,24 +176,6 @@ public class ObjectFileSocketView extends ViewPart {
 						socketObj.stack = stackLv.getString(i);
 						list.add(socketObj);
 					}
-					
-					if (portDescMap.size() == 0) {
-						synchronized (portDescMap) {
-							try {
-								InputStream is = ObjectFileSocketView.class.getResourceAsStream("tcpwellknownport.txt");
-								BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-								String line;
-								while ((line = br.readLine()) != null) {
-									int index = line.indexOf('\t');
-									if (index > -1) {
-										int port = CastUtil.cint(line.substring(0, index));
-										String desc = line.substring(index + 1, line.length());
-										portDescMap.put(port, desc);
-									}
-								}
-							} catch (Exception e) { e.printStackTrace(); }
-						}
-					}
 				}
 				ExUtil.exec(viewer.getTable(), new Runnable() {
 					public void run() {
@@ -259,7 +239,7 @@ public class ObjectFileSocketView extends ViewPart {
 						public String getText(Object element) {
 							if (element instanceof SocketObject) {
 								SocketObject so = (SocketObject) element;
-								return portDescMap.get(so.port);
+								return bundle.getString(CastUtil.cString(so.port));
 							}
 							return null;
 						}
