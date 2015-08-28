@@ -83,8 +83,8 @@ object XLogTagCount {
         if (x.referer != 0)
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.referer, new TextHashValue(x.referer), 1)
 
-        if (IPUtil.isNotLocal(x.ipaddr))
-            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.ip, new IP4Value(x.ipaddr), 1)
+//        if (IPUtil.isNotLocal(x.ipaddr))
+//            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.ip, new IP4Value(x.ipaddr), 1)
 
         if (x.city != 0)
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.city, new TextHashValue(x.city), 1)
@@ -92,32 +92,32 @@ object XLogTagCount {
         if (StringUtil.isNotEmpty(x.countryCode))
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.nation, new TextValue(x.countryCode), 1)
 
-        if (x.userid != 0) {
-            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.userid, new DecimalValue(x.userid), 1)
-        }
+//        if (x.userid != 0) {
+//            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.userid, new DecimalValue(x.userid), 1)
+//        }
 
-        val elapsed = x.elapsed / 1000
-        if (elapsed > 0) {
-            elapsed match {
-                case 1 | 2 => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.elapsed, new DecimalValue(1), 1)
-                case 3 | 4 | 5 | 6 | 7 => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.elapsed, new DecimalValue(3), 1)
-                case _ => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.elapsed, new DecimalValue(8), 1)
-            }
-        }
+//        val elapsed = x.elapsed / 1000
+//        if (elapsed > 0) {
+//            elapsed match {
+//                case 1 | 2 => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.elapsed, new DecimalValue(1), 1)
+//                case 3 | 4 | 5 | 6 | 7 => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.elapsed, new DecimalValue(3), 1)
+//                case _ => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.elapsed, new DecimalValue(8), 1)
+//            }
+//        }
         if (x.sqlTime > 0) {
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.sqltime_sum, new TextHashValue(x.service), x.sqlTime)
         }
         if (x.sqlCount > 0) {
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.sqlcount_sum, new TextHashValue(x.service), x.sqlCount)
         }
-        val sqlTime = x.sqlTime / 1000
-        if (sqlTime > 0) {
-            sqlTime match {
-                case 1 | 2 => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.sqltime, new DecimalValue(1), 1)
-                case 3 | 4 | 5 | 6 | 7 => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.sqltime, new DecimalValue(3), 1)
-                case _ => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.sqltime, new DecimalValue(8), 1)
-            }
-        }
+//        val sqlTime = x.sqlTime / 1000
+//        if (sqlTime > 0) {
+//            sqlTime match {
+//                case 1 | 2 => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.sqltime, new DecimalValue(1), 1)
+//                case 3 | 4 | 5 | 6 | 7 => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.sqltime, new DecimalValue(3), 1)
+//                case _ => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.sqltime, new DecimalValue(8), 1)
+//            }
+//        }
 
         if (x.apicallTime > 0) {
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.apitime_sum, new TextHashValue(x.service), x.apicallTime)
@@ -125,14 +125,14 @@ object XLogTagCount {
         if (x.apicallCount > 0) {
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.apicount_sum, new TextHashValue(x.service), x.apicallCount)
         }
-        val apicallTime = x.apicallTime / 1000
-        if (apicallTime > 0) {
-            apicallTime match {
-                case 1 | 2 => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.apitime, new DecimalValue(1), 1)
-                case 3 | 4 | 5 | 6 | 7 => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.apitime, new DecimalValue(3), 1)
-                case _ => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.apitime, new DecimalValue(8), 1)
-            }
-        }
+//        val apicallTime = x.apicallTime / 1000
+//        if (apicallTime > 0) {
+//            apicallTime match {
+//                case 1 | 2 => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.apitime, new DecimalValue(1), 1)
+//                case 3 | 4 | 5 | 6 | 7 => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.apitime, new DecimalValue(3), 1)
+//                case _ => TagCountProxy.add(x.endTime, objType, TagCountConfig.service.apitime, new DecimalValue(8), 1)
+//            }
+//        }
 
         if (x.login != 0) {
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.login, new DecimalValue(x.login), 1)
