@@ -110,22 +110,6 @@ public class XLogLoadTimeView extends XLogViewCommon implements TimeRangeDialog.
 		});
 		man.add(new Separator());	
 		
-		showFilters = new Action("Show Filters", IAction.AS_CHECK_BOX){ 
-	        public void run(){    
-	        	if(showFilters.isChecked()){
-	        		sashForm.setMaximizedControl(null);
-	        		settingFilterInputs();
-	        	}else{
-	        		sashForm.setMaximizedControl(canvas);
-	        		clearFilters();
-	        		viewPainter.build();
-	        		canvas.redraw();
-	        	}
-	        }
-	    };  
-	    showFilters.setImageDescriptor(ImageUtil.getImageDescriptor(Images.filter));
-	    man.add(showFilters);
-	    
 	    // Add context menu
  		new MenuItem(contextMenu, SWT.SEPARATOR);
  	    MenuItem loadXLogItem = new MenuItem(contextMenu, SWT.PUSH);
@@ -136,11 +120,6 @@ public class XLogLoadTimeView extends XLogViewCommon implements TimeRangeDialog.
  			}
  		});
 		
-		sashForm.setWeights(new int[]{2, 1});
-		sashForm.setMaximizedControl(canvas);
-		
-	    
-	    
 		canvas.addControlListener(new ControlListener() {
 			public void controlResized(ControlEvent e) {
 				viewPainter.set(canvas.getClientArea());

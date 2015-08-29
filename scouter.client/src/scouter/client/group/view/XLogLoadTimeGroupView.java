@@ -28,7 +28,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -66,12 +65,12 @@ import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.xlog.XLogUtil;
 import scouter.client.xlog.views.XLogViewCommon;
+import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.value.BooleanValue;
 import scouter.lang.value.ListValue;
-import scouter.io.DataInputX;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 
@@ -124,22 +123,6 @@ public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDi
 			}
 		});
 		man.add(new Separator());		
-	    showFilters = new Action("Show Filters", IAction.AS_CHECK_BOX){ 
-	        public void run(){    
-	        	if(showFilters.isChecked()){
-	        		sashForm.setMaximizedControl(null);
-	        		//viewPainter.show_filter = true;
-	        		settingFilterInputs();
-	        	}else{
-	        		sashForm.setMaximizedControl(canvas);
-	        		clearFilters();
-	        		viewPainter.build();
-	        		canvas.redraw();
-	        	}
-	        }
-	    };  
-	    showFilters.setImageDescriptor(ImageUtil.getImageDescriptor(Images.filter));
-	    man.add(showFilters);
 		createContextMenu(parent, new IMenuListener() {
             public void menuAboutToShow(IMenuManager manager){
             	if(viewPainter.isZoomMode() == false){
@@ -159,9 +142,6 @@ public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDi
             }
 		});
 		
-		sashForm.setWeights(new int[]{2, 1});
-		sashForm.setMaximizedControl(canvas);
-	    
 		canvas.addControlListener(new ControlListener() {
 			public void controlResized(ControlEvent e) {
 				viewPainter.set(canvas.getClientArea());

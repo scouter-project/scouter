@@ -112,19 +112,6 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 			}
 		});
 		man.add(new Separator());		
-	    showFilters = new Action("Show Filters", IAction.AS_CHECK_BOX){ 
-	        public void run(){    
-	        	if(showFilters.isChecked()){
-	        		sashForm.setMaximizedControl(null);
-	        		settingFilterInputs();
-	        	}else{
-	        		sashForm.setMaximizedControl(canvas);
-	        		clearFilters();
-	        	}
-	        }
-	    };  
-	    showFilters.setImageDescriptor(ImageUtil.getImageDescriptor(Images.filter));
-	    man.add(showFilters);
 
 	    canvas.addControlListener(new ControlListener() {
 			public void controlResized(ControlEvent e) {
