@@ -35,6 +35,7 @@ import scouter.client.preferences.PManager;
 import scouter.client.preferences.PreferenceConstants;
 import scouter.client.threads.ObjectSelectManager;
 import scouter.client.util.ChartUtil;
+import scouter.client.util.ColorUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.xlog.ImageCache;
 import scouter.client.xlog.XLogFilterStatus;
@@ -177,7 +178,11 @@ public class XLogViewPainter {
 		}
 
 		gc.setForeground(color_black);
-		gc.setBackground(color_white);
+		if (filter_hash != new XLogFilterStatus().hashCode()) {
+			gc.setBackground(ColorUtil.getInstance().getColor("azure"));
+		} else {
+			gc.setBackground(color_white);
+		}
 		gc.fillRectangle(0, 0, work_w, work_h);
 		
 		if (yAxisMode == XLogYAxisEnum.ELAPSED) {
