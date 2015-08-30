@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
@@ -32,6 +33,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
+import scouter.client.stack.actions.SaveXMLEditorAction;
 import scouter.client.stack.base.MainProcessor;
 import scouter.client.stack.base.PreferenceManager;
 import scouter.client.stack.config.XMLReader;
@@ -48,8 +50,9 @@ public class XMLEditorView extends ViewPart {
 	
 	private StyledText m_text;
 	private String m_fileName;
+	private SaveXMLEditorAction m_saveAction;
 	
-	CustomLineStyleListener m_listener;
+	private CustomLineStyleListener m_listener;
 	
 	public void createPartControl(Composite parent) {
 		m_text = new StyledText(parent, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
@@ -127,46 +130,40 @@ public class XMLEditorView extends ViewPart {
 		if(newFileName == null){
 			return;
 		}
+		
+		
 		ResourceUtils.saveFile(newFileName, m_text.getText());
+		
+		if(XMLReader.DEFAULT_XMLCONFIG.equals(m_fileName)){
+			ResourceUtils.setVisiable(this, m_saveAction.getId(), true);
+		}
 		
 		setFileName(newFileName);
 		PreferenceManager.get().setCurrentParserConfig(newFileName);
 		MainProcessor.instance().displayContent(null);
-		addSaveToolBar();
 	}
 
-	private void saveConfigurations(){
+	public void saveConfigurations(){
 		ResourceUtils.saveFile(m_fileName, m_text.getText());
 	}
 	
-	private void addSaveToolBar(){
-		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
 
-		if(!XMLReader.DEFAULT_XMLCONFIG.equals(m_fileName)){
-			man.add(new Action("Save", ImageUtil.getImageDescriptor(Images.save)) {
-				public void run() {
-					saveConfigurations();
-				}
-			});
-		}		
-	}
-	
+		
 	private void initialToolBar() {
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
 
+		m_saveAction = new SaveXMLEditorAction(this, "Save", ImageUtil.getImageDescriptor(Images.save));
+		man.add(m_saveAction);
+		
+		if(XMLReader.DEFAULT_XMLCONFIG.equals(m_fileName)){
+			ResourceUtils.setVisiable(this, m_saveAction.getId(), false);
+		}				
+		
 		man.add(new Action("SaveAs", ImageUtil.getImageDescriptor(Images.saveas)) {
 			public void run() {
 				saveAsConfigurations();
 			}
-		});
-		
-		if(!XMLReader.DEFAULT_XMLCONFIG.equals(m_fileName)){
-			man.add(new Action("Save", ImageUtil.getImageDescriptor(Images.save)) {
-				public void run() {
-					saveConfigurations();
-				}
-			});
-		}				
+		});		
 	}
 
 	public void setFocus() {
