@@ -73,9 +73,14 @@ public class XMLEditorView extends ViewPart {
 			}
 		});
 		
-		String fileName = PreferenceManager.get().getCurrentParserConfig();
+		String fileName = null;
+		MainProcessor mainProcessor = MainProcessor.instance();
+		if(!mainProcessor.isDefaultConfiguration()){
+			fileName = PreferenceManager.get().getCurrentParserConfig();
+		}
+		
 		if(fileName == null){
-			StackFileInfo stackFileInfo = MainProcessor.instance().getSelectedStackFileInfo();
+			StackFileInfo stackFileInfo = mainProcessor.getSelectedStackFileInfo();
 			if(stackFileInfo == null){
 				fileName = XMLReader.DEFAULT_XMLCONFIG;
 			}else{
