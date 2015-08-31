@@ -201,10 +201,10 @@ public class XLogFilterDialog extends Dialog {
 		super.okPressed();
 	}
 
-	@Override
-	protected Point getInitialSize() {
-		return new Point(300, 280);
-	}
+//	@Override
+//	protected Point getInitialSize() {
+//		return new Point(300, 280);
+//	}
 
 	@Override
 	protected void configureShell(Shell newShell) {
@@ -214,6 +214,6 @@ public class XLogFilterDialog extends Dialog {
 
 	@Override
 	protected boolean isResizable() {
-		return false;
+		return true;
 	}
 }
