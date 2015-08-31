@@ -192,6 +192,8 @@ public class Configure extends Thread {
 	public StringSet log_ignore = new StringSet();
 	public boolean tagcnt_enabled = true;
 	public boolean tagcnt_debug = false;
+	
+	public int tcp_server_pool_size = 100;
 
 	private void apply() {
 		this.xlog_autodrop_time = getInt("xlog_autodrop_time", 100);
@@ -266,6 +268,8 @@ public class Configure extends Thread {
 
 		this.tagcnt_enabled = getBoolean("tagcnt_enabled", true);
 		this.tagcnt_debug = getBoolean("tagcnt_debug", false);
+		
+		this.tcp_server_pool_size = getInt("tcp_server_pool_size", 100);
 
 		ConfObserver.exec();
 	}

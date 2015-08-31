@@ -146,13 +146,8 @@ public class ThreadUtil {
 		return pack;
 	}
 
-	public static ExecutorService createExecutor(final String name, int count, int keepAlive, final boolean isDaemon) {
-		return createExecutor(name, count, count, keepAlive, isDaemon);
-	}
-
-	public static ExecutorService createExecutor(final String name, int coresize, int maxsize, int keepAlive,
-			final boolean isDaemon) {
-		ThreadPoolExecutor exe = new ThreadPoolExecutor(coresize, maxsize, keepAlive, TimeUnit.MILLISECONDS,
+	public static ThreadPoolExecutor createExecutor(final String name, int count, int keepAlive, final boolean isDaemon) {
+		ThreadPoolExecutor exe = new ThreadPoolExecutor(count, count, keepAlive, TimeUnit.MILLISECONDS,
 				new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
 					private int threadNum = 1;
 
@@ -175,7 +170,7 @@ public class ThreadUtil {
 
 		return exe;
 	}
-
+	
 	public static String getStackTrace(Throwable t) {
 		String CRLF = System.getProperty("line.separator");
 		StringBuffer sb = new StringBuffer();
