@@ -53,4 +53,30 @@ class StackAnalyzerService {
         }
 
     }
+    @ServiceHandler(RequestCmd.GET_STACK_INDEX)
+    def readIndex(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        val param = din.readPack().asInstanceOf[MapPack];
+        val objName = param.getText("objName");
+
+        var from = param.getLong("from");
+        var to = param.getLong("to");
+        val handler = (time: Long) => {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writeLong(time);
+        }
+
+        if (from > 0 && to > from) {
+            StackAnalyzerDB.read(objName, from, to, handler)
+            return
+        }
+        val date = param.getText("date");
+        val hour = CastUtil.cint(param.get("hour"))
+        if (date != null) {
+            from = DateUtil.yyyymmdd(date) + hour * 3600 * 1000
+            to = from + 3600 * 1000
+            StackAnalyzerDB.read(objName, from, to, handler)
+            return
+        }
+
+    }
 }
