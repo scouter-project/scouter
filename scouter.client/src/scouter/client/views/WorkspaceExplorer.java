@@ -65,6 +65,7 @@ import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
 import scouter.client.popup.AddDescriptionDialog;
 import scouter.client.popup.AddDescriptionDialog.DescriptionSetter;
+import scouter.client.stack.base.MainProcessor;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.RCPUtil;
 import scouter.client.xlog.SaveProfileJob;
@@ -177,6 +178,8 @@ public class WorkspaceExplorer extends ViewPart implements DescriptionSetter{
             clipboard.dispose();
 		} else if(AddDescriptionDialog.descriptionFileName.equals(selectedFile.getName())) {
 			
+		} else if(selectedFile.getName().endsWith(".stack")) {
+			MainProcessor.instance().processStackFile(selectedFile.getAbsolutePath());
 		} else {
 			Program.launch(selectedFile.getAbsolutePath());
 		}

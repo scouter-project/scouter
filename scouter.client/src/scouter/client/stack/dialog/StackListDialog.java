@@ -26,13 +26,12 @@ import org.eclipse.ui.PlatformUI;
 
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
+import scouter.client.stack.actions.FetchStackJob;
 import scouter.client.util.ExUtil;
 import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
-import scouter.util.Hexa32;
-import scouter.util.KeyGen;
 
 public class StackListDialog extends Dialog {
 	
@@ -141,5 +140,18 @@ public class StackListDialog extends Dialog {
 	@Override
 	protected boolean isResizable() {
 		return true;
+	}
+
+	@Override
+	protected void okPressed() {
+		TableItem[] items = table.getSelection();
+		if (items != null && items.length > 0) {
+			TableItem first = items[0];
+			TableItem last = items[items.length - 1];
+			long from = (Long) first.getData();
+			long to = (Long) last.getData() + 1;
+			new FetchStackJob(serverId, objName, from, to, items.length).schedule(500);
+		}
+		super.okPressed();
 	}
 }
