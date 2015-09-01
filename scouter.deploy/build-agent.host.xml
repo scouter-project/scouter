@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="AgentJava" default="default">
+<project name="AgentHost" default="default">
 
 	<property name="VERSION" value="dev" />
 	

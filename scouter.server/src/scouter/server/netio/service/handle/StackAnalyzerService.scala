@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-package tuna.server.netio.service.handle;
+package scouter.server.netio.service.handle;
 
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
@@ -53,9 +53,11 @@ class StackAnalyzerService {
         }
 
     }
+    
     @ServiceHandler(RequestCmd.GET_STACK_INDEX)
     def readIndex(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
         val param = din.readPack().asInstanceOf[MapPack];
+        
         val objName = param.getText("objName");
 
         var from = param.getLong("from");

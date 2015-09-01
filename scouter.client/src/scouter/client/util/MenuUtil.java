@@ -99,6 +99,7 @@ import scouter.client.model.TextProxy;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
+import scouter.client.stack.actions.OpenStackDialogAction;
 import scouter.client.tags.actions.OpenTagCountViewAction;
 import scouter.client.xlog.actions.OpenXLogLoadTimeAction;
 import scouter.client.xlog.actions.OpenXLogRealTimeAction;
@@ -421,7 +422,10 @@ public class MenuUtil implements IMenuCreator{
 					dumpMgr.add(new OpenCxtmenuDumpThreadListAction(MenuStr.DUMP_THREAD_LIST, objHash, serverId));
 					dumpMgr.add(new OpenCxtmenuDumpHeapHistoAction(MenuStr.DUMP_HEAPHISTO, objHash, serverId));
 				}
+				performanceSnapshot.add(new Separator());
+				performanceSnapshot.add(new OpenStackDialogAction(serverId, objHash));
 				mgr.add(new Separator());
+				
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
 					mgr.add(new OpenCxtmenuConfigureAgentViewAction(win, MenuStr.CONFIGURE, objHash, serverId));
 			} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_HOST)) {

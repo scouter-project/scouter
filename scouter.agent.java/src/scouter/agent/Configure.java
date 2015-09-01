@@ -499,6 +499,9 @@ public class Configure extends Thread {
 		this.max_think_time = getLong("max_think_time", DateUtil.MILLIS_PER_FIVE_MINUTE);
 		
 		this.object_registry = getValue("object_registry", "/tmp/scouter");
+		
+		this.pstack_enabled = getBoolean("pstack_enabled", false);;
+		this.pstack_interval = getInt("pstack_interval", 10000);
 
 		resetObjInfo();
 		setErrorStatus();
