@@ -27,7 +27,9 @@ import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.netio.data.net.TcpWorker;
+import scouter.agent.proxy.ToolsMainFactory;
 import scouter.lang.pack.ObjectPack;
+import scouter.lang.value.BooleanValue;
 import scouter.util.FileUtil;
 import scouter.util.StringKeyLinkedMap;
 import scouter.util.SysJMX;
@@ -76,6 +78,9 @@ public class AgentHeartBeat {
 
 		p.version = Version.getAgentFullVersion();
 		p.address = TcpWorker.localAddr;
+		if(ToolsMainFactory.activeStack){
+			p.tags.put("ActiveStack", new BooleanValue(true));
+		}
 		return p;
 	}
 
