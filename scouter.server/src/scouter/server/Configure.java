@@ -173,8 +173,8 @@ public class Configure extends Thread {
 	public int xlog_pasttime_limit = 0;
 
 	public boolean auto_delete_data = true;
-	public boolean auto_delete_only_xlog = true;
-	public int auto_delete_max_percent = 95;
+	public boolean auto_delete_only_xlog = false;
+	public int auto_delete_max_percent = 80;
 	public int auto_delete_retain_days = 0;
 	public int num_of_net_processor = 4;
 
