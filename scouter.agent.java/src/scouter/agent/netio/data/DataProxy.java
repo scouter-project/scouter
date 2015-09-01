@@ -215,6 +215,7 @@ public class DataProxy {
 
 	private static void sendDirect(List<byte[]> buff) {
 		switch (buff.size()) {
+		case 0:  return;
 		case 1:
 			udpNet.write(buff.get(0));
 			break;
