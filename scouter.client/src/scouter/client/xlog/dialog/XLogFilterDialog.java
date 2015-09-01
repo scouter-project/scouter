@@ -201,10 +201,10 @@ public class XLogFilterDialog extends Dialog {
 		super.okPressed();
 	}
 
-//	@Override
-//	protected Point getInitialSize() {
-//		return new Point(300, 280);
-//	}
+	@Override
+	protected Point getInitialSize() {
+		return getShell().computeSize(300, SWT.DEFAULT);
+	}
 
 	@Override
 	protected void configureShell(Shell newShell) {
