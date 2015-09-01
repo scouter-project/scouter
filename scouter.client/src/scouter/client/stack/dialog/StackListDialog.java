@@ -9,6 +9,8 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -19,6 +21,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
 import scouter.client.net.INetReader;
@@ -28,6 +31,8 @@ import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
+import scouter.util.Hexa32;
+import scouter.util.KeyGen;
 
 public class StackListDialog extends Dialog {
 	
@@ -36,6 +41,7 @@ public class StackListDialog extends Dialog {
 	String date;
 	
 	Table table;
+	Text rangeText;
 	
 	public StackListDialog(int serverId, String objName) {
 		this(serverId, objName, DateUtil.yyyymmdd());
@@ -60,10 +66,25 @@ public class StackListDialog extends Dialog {
 		table = new Table(tableComposite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		table.setLinesVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		TableColumn column = new TableColumn(table, SWT.NONE);
+		table.addSelectionListener(new SelectionListener() {
+			public void widgetSelected(SelectionEvent e) {
+				TableItem[] items = table.getSelection();
+				if (items != null && items.length > 0) {
+					TableItem first = items[0];
+					TableItem last = items[items.length - 1];
+					rangeText.setText(first.getText(1) + " ~ " + last.getText(1));
+				}
+			}
+			public void widgetDefaultSelected(SelectionEvent e) {}
+		});
+		TableColumn indexColumn = new TableColumn(table, SWT.NONE);
+		TableColumn timeColumn = new TableColumn(table, SWT.NONE);
 		TableColumnLayout tableColumnLayout = new TableColumnLayout();
-		tableColumnLayout.setColumnData(column, new ColumnWeightData(100));
+		tableColumnLayout.setColumnData(indexColumn, new ColumnWeightData(20));
+		tableColumnLayout.setColumnData(timeColumn, new ColumnWeightData(80));
 		tableComposite.setLayout(tableColumnLayout);
+		rangeText = new Text(container, SWT.BORDER | SWT.CENTER | SWT.SINGLE | SWT.READ_ONLY);
+		rangeText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		load();
 		return container;
 	}
@@ -93,9 +114,12 @@ public class StackListDialog extends Dialog {
 				Collections.sort(timeList);
 				ExUtil.exec(table, new Runnable() {
 					public void run() {
-						for (Long time : timeList) {
+						for (int i = 0; i < timeList.size(); i++) {
 							TableItem item = new TableItem(table, SWT.NONE);
-							item.setText(DateUtil.format(time.longValue(), "yyyy-MM-dd HH:mm:ss"));
+							item.setText(0, String.valueOf(i+1));
+							long time = timeList.get(i).longValue();
+							item.setText(1, DateUtil.format(time, "yyyy-MM-dd HH:mm:ss"));
+							item.setData(time);
 						}
 					}
 				});
