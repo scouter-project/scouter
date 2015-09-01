@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
+import scouter.agent.counter.task.MakeStack;
 import scouter.agent.netio.request.anotation.RequestHandler;
 import scouter.agent.proxy.ToolsMainFactory;
 import scouter.agent.trace.TraceContext;
@@ -35,6 +36,7 @@ import scouter.lang.value.NullValue;
 import scouter.lang.value.TextValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
+import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
@@ -198,39 +200,19 @@ public class AgentThread {
 	public  Pack triggerThreadDump(Pack param) {
 		return DumpUtil.triggerThreadDump();
 	}
-
-	public static void main(String[] args) throws IOException {
-		MapPack p = new MapPack();
-
-		ListValue id = p.newList("id");
-		ListValue objHash = p.newList("objHash");
-		ListValue name = p.newList("name");
-		ListValue stat = p.newList("stat");
-		ListValue cpu = p.newList("cpu");
-		ListValue txid = p.newList("txid");
-		ListValue elapsed = p.newList("elapsed");
-		ListValue service = p.newList("service");
-
-		ListValue sql = p.newList("sql");
-		ListValue subcall = p.newList("subcall");
-
-		for (int i = 0; i < 2000; i++) {
-			id.add(i);
-			name.add("name" + i);
-			stat.add("threadname thread " + i);
-			cpu.add(i);
-			objHash.add(i);
-			txid.add(i);
-			service.add(i);
-			elapsed.add(i);
-			sql.add("sqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsqlsql"
-					+ i);
-			subcall.add("txcall...." + i);
+	@RequestHandler(RequestCmd.PSTACK_ON)
+	public  Pack turnOn(Pack param) {
+		MapPack p =(MapPack)param;
+		long time = p.getLong("time");
+	
+		if(time<=0){
+			MakeStack.pstack_requested=0;
+		}else{
+			MakeStack.pstack_requested=System.currentTimeMillis() + time;			
 		}
-		byte[] b = new DataOutputX().writePack(p).toByteArray();
-		System.out.println("size=" + b.length);
-		MapPack pp = (MapPack) new DataInputX(b).readPack();
-		System.out.println(pp);
-
+		return param;
+	}
+	public static void main(String[] args) throws IOException {
+		
 	}
 }

@@ -165,6 +165,7 @@ public class RequestCmd {
 	
 	public static final String GET_STACK_ANALYZER = "GET_STACK_ANALYZER";
 	public static final String GET_STACK_INDEX = "GET_STACK_INDEX";
+	public static final String PSTACK_ON = "PSTACK_ON";
 	
 	
 	// RDB Request
