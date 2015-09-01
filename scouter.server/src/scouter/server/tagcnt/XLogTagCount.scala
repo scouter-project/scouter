@@ -74,23 +74,26 @@ object XLogTagCount {
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.service_error_sum, new TextHashValue(x.service), 1)
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.error, new TextHashValue(x.error), 1)
         }
-        if (x.group != 0)
+        if (x.group != 0){
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.group, new TextHashValue(x.group), 1)
-
-        if (x.userAgent != 0)
+        }
+        
+        if (x.userAgent != 0){
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.userAgent, new TextHashValue(x.userAgent), 1)
-
-        if (x.referer != 0)
+        }
+        
+        if (x.referer != 0){
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.referer, new TextHashValue(x.referer), 1)
-
+        }
 //        if (IPUtil.isNotLocal(x.ipaddr))
 //            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.ip, new IP4Value(x.ipaddr), 1)
 
-        if (x.city != 0)
+        if (x.city != 0){
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.city, new TextHashValue(x.city), 1)
-
-        if (StringUtil.isNotEmpty(x.countryCode))
+        }
+        if (StringUtil.isNotEmpty(x.countryCode)){
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.nation, new TextValue(x.countryCode), 1)
+        }
 
 //        if (x.userid != 0) {
 //            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.userid, new DecimalValue(x.userid), 1)
