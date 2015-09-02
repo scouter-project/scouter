@@ -283,7 +283,11 @@ public class PlotArea extends Figure {
 	 */
 	public void setZoomType(final ZoomType zoomType) {
 		this.zoomType = zoomType;
-		setCursor(zoomType.getCursor());
+		if (zoomType != ZoomType.HORIZONTAL_ZOOM) { // add condition. 20150902 scouter
+			setCursor(zoomType.getCursor());
+		} else {
+			setCursor(ZoomType.NONE.getCursor());
+		}
 	}
 
 	/**
@@ -406,6 +410,9 @@ public class PlotArea extends Figure {
 				end = me.getLocation();
 				break;
 			case HORIZONTAL_ZOOM:
+				if (getCursor() != zoomType.getCursor()) {
+					setCursor(zoomType.getCursor());  // scouter.porject 20150902
+				}
 				end = new Point(me.getLocation().x, bounds.y + bounds.height);
 				break;
 			case VERTICAL_ZOOM:
@@ -459,6 +466,7 @@ public class PlotArea extends Figure {
 				}
 				break;
 			case HORIZONTAL_ZOOM:
+				setCursor(ZoomType.NONE.getCursor()); // scouter.porject 20150902
 				for (Axis axis : xyGraph.getXAxisList()) {
 					final double t1 = axis.getPositionValue(start.x, false);
 					final double t2 = axis.getPositionValue(end.x, false);

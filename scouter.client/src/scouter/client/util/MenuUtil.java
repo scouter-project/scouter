@@ -100,7 +100,8 @@ import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.stack.actions.OpenStackDialogAction;
-import scouter.client.tags.actions.OpenTagCountViewAction;
+import scouter.client.stack.actions.TurnOffStackAction;
+import scouter.client.stack.actions.TurnOnStackAction;
 import scouter.client.xlog.actions.OpenXLogLoadTimeAction;
 import scouter.client.xlog.actions.OpenXLogRealTimeAction;
 import scouter.lang.Counter;
@@ -416,6 +417,9 @@ public class MenuUtil implements IMenuCreator{
 				mgr.add(new Separator());
 				MenuManager stackMgr = new MenuManager(MenuStr.STACK_ANALYZER, ImageUtil.getImageDescriptor(Images.page_white_stack), MenuStr.STACK_ANALYZER_ID);
 				mgr.add(stackMgr);
+				stackMgr.add(new TurnOnStackAction(serverId, objHash));
+				stackMgr.add(new TurnOffStackAction(serverId, objHash));
+				stackMgr.add(new Separator());
 				stackMgr.add(new OpenStackDialogAction(serverId, objHash));
 				
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE)) {

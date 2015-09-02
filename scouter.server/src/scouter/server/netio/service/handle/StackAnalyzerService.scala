@@ -24,6 +24,8 @@ import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.net.RequestCmd
 import scouter.util.DateUtil
 import scouter.util.CastUtil
+import scouter.server.netio.AgentCall
+import scouter.server.core.AgentManager
 
 class StackAnalyzerService {
 
@@ -80,5 +82,17 @@ class StackAnalyzerService {
             return
         }
 
+    }
+    
+     @ServiceHandler(RequestCmd.PSTACK_ON)
+    def turnOnStack(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readPack().asInstanceOf[MapPack];
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        val p = AgentCall.call(o, RequestCmd.PSTACK_ON, param);
+        if (p != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(p);
+        }
     }
 }
