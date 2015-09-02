@@ -276,15 +276,6 @@ public class MenuUtil implements IMenuCreator{
 					new OpenUniqueTotalVisitorAction(window, serverId, objType));
 		}
 		
-		objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.TAGCNT);
-		for (int inx = 0; inx < objTypeList.size(); inx++) {
-			String[] splitedKey = objTypeList.get(inx).split(":");
-			String objType = splitedKey[1];
-			actions.put(
-					objType + ":" + CounterConstants.TAGCNT,
-					new OpenTagCountViewAction(window, serverId, objType));
-		}
-		
 		return actions;
 	}
 	
@@ -422,12 +413,15 @@ public class MenuUtil implements IMenuCreator{
 					dumpMgr.add(new OpenCxtmenuDumpThreadListAction(MenuStr.DUMP_THREAD_LIST, objHash, serverId));
 					dumpMgr.add(new OpenCxtmenuDumpHeapHistoAction(MenuStr.DUMP_HEAPHISTO, objHash, serverId));
 				}
-				performanceSnapshot.add(new Separator());
-				performanceSnapshot.add(new OpenStackDialogAction(serverId, objHash));
 				mgr.add(new Separator());
+				MenuManager stackMgr = new MenuManager(MenuStr.STACK_ANALYZER, ImageUtil.getImageDescriptor(Images.page_white_stack), MenuStr.STACK_ANALYZER_ID);
+				mgr.add(stackMgr);
+				stackMgr.add(new OpenStackDialogAction(serverId, objHash));
 				
-				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
+				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE)) {
+					mgr.add(new Separator());
 					mgr.add(new OpenCxtmenuConfigureAgentViewAction(win, MenuStr.CONFIGURE, objHash, serverId));
+				}
 			} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_HOST)) {
 				performanceSnapshot.add(new OpenCxtmenuEnvAction(win, MenuStr.ENV, objHash, serverId));
 				performanceSnapshot.add(new OpenTopAction(win, MenuStr.TOP, objHash, serverId));
@@ -439,16 +433,13 @@ public class MenuUtil implements IMenuCreator{
 			} 
     	}
     	if (server.isAllowAction(GroupPolicyConstants.ALLOW_DEFINEOBJTYPE)) {
-    		mgr.add(new Separator());
 	    	if (counterEngine.isUnknownObjectType(objType)) {
 	    		mgr.add(new DefineObjectTypeAction(win, serverId, objType, DefineObjectTypeAction.DEFINE_MODE));
 	    	} else {
 	    		mgr.add(new DefineObjectTypeAction(win, serverId, objType, DefineObjectTypeAction.EDIT_MODE));
 	    	}
     	}
-    	mgr.add(new Separator());
 		mgr.add(new SetColorAction(win, objHash));
-		mgr.add(new Separator());
 		mgr.add(new OpenCxtmenuPropertiesAction(win, MenuStr.PROPERTIES, objHash, serverId));
 		if (false) {
 			mgr.add(new Separator());

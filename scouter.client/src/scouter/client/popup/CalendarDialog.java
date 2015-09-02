@@ -81,8 +81,8 @@ public class CalendarDialog {
 					try {
 						 String date = (calendar.getMonth () + 1) + "/" + calendar.getDay() + "/" + calendar.getYear();
 						 date = DateUtil.format(DateUtil.getTime(date, "MM/dd/yyyy"), "yyyyMMdd");
-						 callback.onPressedOk(date);
 						 dialog.close();
+						 callback.onPressedOk(date);
 					} catch (Exception e) {
 						MessageDialog.openError(dialog, "Error55", "Date format error:" + e.getMessage());
 					}

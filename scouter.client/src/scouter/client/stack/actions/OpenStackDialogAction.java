@@ -1,11 +1,12 @@
 package scouter.client.stack.actions;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.swt.widgets.Display;
 
-import scouter.client.Images;
 import scouter.client.model.TextProxy;
+import scouter.client.popup.CalendarDialog;
+import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
 import scouter.client.stack.dialog.StackListDialog;
-import scouter.client.util.ImageUtil;
 
 public class OpenStackDialogAction extends Action {
 	public final static String ID = OpenStackDialogAction.class.getName();
@@ -17,11 +18,19 @@ public class OpenStackDialogAction extends Action {
 		this.serverId = serverId;
 		this.objHash = objHash;
 		this.setText("Thread Stack Analyzer");
-		this.setImageDescriptor(ImageUtil.getImageDescriptor(Images.page_white_stack));
 	}
 	
 	public void run(){
-		String objName = TextProxy.object.getText(objHash);
-		new StackListDialog(serverId, objName).open();
+		new CalendarDialog(Display.getDefault(), new ILoadCounterDialog() {
+			public void onPressedOk(String date) {
+				String objName = TextProxy.object.getText(objHash);
+				new StackListDialog(serverId, objName, date).open();
+			}
+			public void onPressedOk(long startTime, long endTime) {
+				
+			}
+			public void onPressedCancel() {
+			}
+		}).show();
 	}
 }
