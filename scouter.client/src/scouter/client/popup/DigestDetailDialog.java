@@ -428,6 +428,12 @@ public class DigestDetailDialog {
 							}
 						}
 					});
+				} else {
+					ExUtil.exec(tabFolder, new Runnable() {
+						public void run() {
+							exampleQueryItem.dispose();
+						}
+					});
 				}
 			}
 		});

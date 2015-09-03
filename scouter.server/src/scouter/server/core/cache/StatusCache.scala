@@ -44,8 +44,6 @@ object StatusCache {
         }
 
         override def equals(obj: Any): Boolean = {
-            if (this == obj)
-                return true;
             if (obj == null)
                 return false;
             if (getClass() != obj.getClass())

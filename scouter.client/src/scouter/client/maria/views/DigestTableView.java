@@ -273,7 +273,6 @@ public class DigestTableView extends ViewPart implements Refreshable {
 			} finally {
 				TcpProxy.putTcpProxy(tcp);
 			}
-			
 			Iterator<Integer> itr = lastStatusMap.keySet().iterator();
 			while (itr.hasNext()) {
 				int objHash = itr.next();
