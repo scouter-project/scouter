@@ -17,6 +17,7 @@
 package scouter.client.stack.data;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -43,7 +44,9 @@ public class DevonFileStackParser extends StackParser {
         BufferedReader reader = null;
 	    ZipInputStream zipInputStream = null;
 	    try {
-	    	if(ResourceUtils.isZipFile(getStackFileInfo().getFilename())){
+	    	if(getStackContents() != null){
+	    		reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(getStackContents().getBytes())));
+	    	}else if(ResourceUtils.isZipFile(getStackFileInfo().getFilename())){
 	    		zipInputStream = new ZipInputStream(new FileInputStream(new File(getStackFileInfo().getFilename())));
 	    		zipInputStream.getNextEntry();
 	    		reader = new BufferedReader(new InputStreamReader(zipInputStream));
