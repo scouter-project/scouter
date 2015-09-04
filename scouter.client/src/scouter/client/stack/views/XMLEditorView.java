@@ -22,7 +22,6 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
