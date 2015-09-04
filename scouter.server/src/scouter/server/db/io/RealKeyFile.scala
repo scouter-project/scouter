@@ -64,8 +64,10 @@ class RealKeyFile(_path: String) extends IClose {
         }
     }
     def getHashLink(pos: Long): Long = {
-        this.raf.seek(pos + 1);
-        return new DataInputX(this.raf).readLong5();
+        this.synchronized {
+            this.raf.seek(pos + 1);
+            return new DataInputX(this.raf).readLong5();
+        }
     }
 
     def getKey(pos: Long): Array[Byte] = {
