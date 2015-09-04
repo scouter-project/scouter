@@ -15,36 +15,41 @@
  *
  */
 package scouter.server.core;
-import scouter.lang.counters.CounterConstants
-import scouter.lang.counters.CounterEngine
-import scouter.lang.pack.MapPack
-import scouter.lang.pack.ObjectPack
+
 import scouter.net.RequestCmd
+import scouter.server.Logger
 import scouter.server.netio.AgentCall
-import scouter.server.netio.AgentCall
+import scouter.server.util.EnumerScala
+import scouter.server.util.ThreadScala
 import scouter.util.DateUtil
 import scouter.util.ThreadUtil
-import scouter.server.{ Logger, CounterManager }
-import scouter.server.util.ThreadScala
-import scouter.server.util.EnumerScala
 /*
  * 날짜가 바뀌면 해야할 것들...
  */
 object TextCacheReset {
     val engine = scouter.server.CounterManager.getInstance().getCounterEngine()
     var oldunit = 0L;
-    ThreadScala.startDaemon("scouter.server.core.TextCacheReset", { CoreRun.running }, 2000) {
-        var dateUnit = DateUtil.getDateUnit();
-        if (dateUnit != oldunit) {
-            oldunit = dateUnit;
-            EnumerScala.foreach(AgentManager.getLiveObjHashList().iterator(), (oid: Int) => {
-                try {
-                    var agent = AgentManager.getAgent(oid);
-                    AgentCall.call(agent, RequestCmd.OBJECT_RESET_CACHE, null);
-                } catch {
-                    case t: Throwable => Logger.println("S114", "Thread \n" + t)
-                }
-            })
+    ThreadScala.startDaemon("scouter.server.core.TextCacheReset") {
+      ThreadUtil.sleep(30000)
+      while (CoreRun.running) {
+        try {
+        	var dateUnit = DateUtil.getDateUnit();
+	        if (dateUnit != oldunit) {
+	            oldunit = dateUnit;
+	            EnumerScala.foreach(AgentManager.getLiveObjHashList().iterator(), (oid: Int) => {
+	                try {
+	                    var agent = AgentManager.getAgent(oid);
+	                    AgentCall.call(agent, RequestCmd.OBJECT_RESET_CACHE, null);
+	                } catch {
+	                    case t: Throwable => Logger.println("S114", "Thread \n" + t)
+	                }
+	            })
+	        }
+        } catch {
+            case n: NullPointerException => Logger.println("S191", 10, "@startDaemon", n)
+            case t: Throwable => Logger.println("S192", 10, "@startDaemon: " + t)
         }
+        ThreadUtil.sleep(2000)
+      }
     }
 }

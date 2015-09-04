@@ -926,9 +926,9 @@
       </view>
       <view
             allowMultiple="true"
-            class="scouter.client.maria.views.DbTodayTotalConnView"
+            class="scouter.client.maria.views.DbDailyTotalConnView"
             icon="icons/database_go.png"
-            id="scouter.client.maria.views.DbTodayTotalConnView"
+            id="scouter.client.maria.views.DbDailyTotalConnView"
             name="DatabaseConnectionTotal"
             restorable="true">
       </view>
