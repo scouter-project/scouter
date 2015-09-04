@@ -99,6 +99,10 @@ public class StackAnalyzerView extends ViewPart {
 			}
 			public void widgetSelected(SelectionEvent event) {
 				TreeItem item = (TreeItem)event.item;
+				
+				if(item == null)
+					return;
+					
                 Object object = item.getData();
                 MainProcessor mainProcessor = MainProcessor.instance();
                 if ( object instanceof StackAnalyzedInfo ) {
