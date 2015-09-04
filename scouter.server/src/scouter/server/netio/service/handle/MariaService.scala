@@ -431,21 +431,25 @@ class MariaService {
     for (i <- 0 to objHashLv.size() - 1) {
       objSet.add(objHashLv.getInt(i));
     }
-      val handler = (time: Long, data: Array[Byte]) => {
-        val pk = new DataInputX(data).readPack().asInstanceOf[StatusPack];
-        if (StatusConstants.EVENTS_STATEMENTS_SUMMARY_BY_DIGEST == pk.key) {
-          if (objSet.contains(pk.objHash)) {
-            dout.writeByte(TcpFlag.HasNEXT);
-            dout.writePack(pk);
-            objSet.remove(pk.objHash);
-            if (objSet.size() == 0) {
-              return;
-            }
-          }
-        }
-      }
-      val stime = time - DateUtil.MILLIS_PER_FIVE_MINUTE;
-      StatusRD.readFromEndTime(date, stime, time, handler);
+    
+    var done = false
+    val handler = (time: Long, data: Array[Byte]) => {
+    	if (done == false) {
+		    val pk = new DataInputX(data).readPack().asInstanceOf[StatusPack];
+		    if (StatusConstants.EVENTS_STATEMENTS_SUMMARY_BY_DIGEST == pk.key) {
+		      if (objSet.contains(pk.objHash)) {
+		        dout.writeByte(TcpFlag.HasNEXT);
+		        dout.writePack(pk);
+		        objSet.remove(pk.objHash);
+		        if (objSet.size() == 0) {
+		          done = true
+		        }
+		      }
+		    }
+    	}
+	  }
+    val stime = time - DateUtil.MILLIS_PER_FIVE_MINUTE;
+    StatusRD.readFromEndTime(date, stime, time, handler);
    }
      
      @ServiceHandler(RequestCmd.DB_MAX_TIMER_WAIT_THREAD)
@@ -463,7 +467,6 @@ class MariaService {
     
     var pack = new MapPack();
     var timer_wait = 0L;
-    object AllDone extends Exception { }
     
     val handler = (time: Long, data: Array[Byte]) => {
         val pk = new DataInputX(data).readPack().asInstanceOf[StatusPack];
@@ -477,10 +480,8 @@ class MariaService {
             val sqlTextLv = mv.getList("SQL_TEXT");
             val timerStartLv = mv.getList("TIMER_START");
             val timerEndLv = mv.getList("TIMER_END");
-            try {
-            	if (digestLv == null) {
-            	  throw AllDone
-            	}
+        	if (digestLv != null) {
+        	  scala.util.control.Breaks.breakable {
 	            for (i <- 0 to digestLv.size() - 1) {
 	              if (digest == digestLv.getInt(i)) {
 	                val timer = timerWaitLv.getLong(i);
@@ -492,12 +493,11 @@ class MariaService {
 	                  pack.put("lock_time", lockTimeLv.getLong(i));
 	                  pack.put("sql_text", sqlTextLv.getInt(i));
 	                }
-	                throw AllDone
+	                scala.util.control.Breaks.break
 	              }
 	            }
-            } catch {
-              case AllDone =>
-            }
+        	  }
+        	}
           }
         }
     }
@@ -525,28 +525,25 @@ class MariaService {
       valueMap.put(objHash, p);
     }
     
-    object AllDone extends Exception { }
     val handler = (time: Long, data: Array[Byte]) => {
 	    val pk = new DataInputX(data).readPack().asInstanceOf[StatusPack];
 	    if (StatusConstants.EVENTS_STATEMENTS_SUMMARY_BY_DIGEST == pk.key) {
 	      if (valueMap.containsKey(pk.objHash)) {
-	        val valuePack = valueMap.get(pk.objHash);
-	        val timeLv = valuePack.getList("time");
-	        val valueLv = valuePack.getList("value");
-	        val mv = pk.data;
-	        val digestLv = mv.getList("DIGEST_TEXT");
-	        val targetLv = mv.getList(column);
-	        try {
-	            for (i <- 0 to digestLv.size() - 1) {
-	              if (digest == digestLv.getInt(i)) {
-	                timeLv.add(time);
-	                valueLv.add(targetLv.get(i));
-	                throw AllDone
-	              }
-	            }
-	        } catch {
-	          case AllDone =>
-	        }
+			val valuePack = valueMap.get(pk.objHash);
+			val timeLv = valuePack.getList("time");
+			val valueLv = valuePack.getList("value");
+			val mv = pk.data;
+			val digestLv = mv.getList("DIGEST_TEXT");
+			val targetLv = mv.getList(column);
+			scala.util.control.Breaks.breakable {
+			  for (i <- 0 to digestLv.size() - 1) {
+			    if (digest == digestLv.getInt(i)) {
+			      timeLv.add(time);
+			      valueLv.add(targetLv.get(i));
+			      scala.util.control.Breaks.break
+			    }
+			  }
+			}
 	      }
 	    }
     }
