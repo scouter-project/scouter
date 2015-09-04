@@ -45,17 +45,21 @@ class RealDataFile(_filename: String) extends IClose {
         }
     }
     def writeInt(i: Int): Long = {
-        val idx = offset;
-        offset += 4;
-        out.writeInt(i);
-        return idx;
+        this.synchronized {
+            val idx = offset;
+            offset += 4;
+            out.writeInt(i);
+            return idx;
+        }
     }
 
     def write(data: Array[Byte]): Long = {
-        val idx = offset;
-        offset += data.length;
-        out.write(data);
-        return idx;
+        this.synchronized {
+            val idx = offset;
+            offset += data.length;
+            out.write(data);
+            return idx;
+        }
     }
 
     override def close() {

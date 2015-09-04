@@ -104,25 +104,32 @@ class RealKeyFile(_path: String) extends IClose {
     def write(pos: Long, next: Long, key: Array[Byte], value: Array[Byte]) {
         this.synchronized {
             this.raf.seek(pos);
-            val out = new DataOutputX(this.raf);
+            
+            val out = new DataOutputX();
             out.writeBoolean(false);
             out.writeLong5(next);
             out.writeShortBytes(key);
             out.writeBlob(value);
+         
+            this.raf.write(out.toByteArray())
         }
     }
     def update(pos: Long, key: Array[Byte], value: Array[Byte]): Boolean = {
-        this.raf.seek(pos + 1 + 5);
-        val in = new DataInputX(raf);
-        val keylen = this.raf.readShort();
-        in.skipBytes(keylen);
-        val org = in.readBlob();
-        if (org.length < value.length)
-            return false;
-        this.raf.seek(pos + 1 + 5 + 2 + keylen);
-        val out = new DataOutputX(this.raf);
-        out.writeBlob(value);
-        return true;
+        this.synchronized {
+            this.raf.seek(pos + 1 + 5);
+            
+            val in = new DataInputX(raf);
+            val keylen = this.raf.readShort();
+            in.skipBytes(keylen);
+            val org = in.readBlob();
+            if (org.length < value.length)
+                return false;
+            this.raf.seek(pos + 1 + 5 + 2 + keylen);
+            
+            val out = new DataOutputX(this.raf);
+            out.writeBlob(value);
+            return true;
+        }
     }
     def append(next: Long, key: Array[Byte], value: Array[Byte]): Long = {
         this.synchronized {
