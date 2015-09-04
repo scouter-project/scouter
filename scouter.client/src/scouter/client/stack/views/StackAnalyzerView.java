@@ -99,10 +99,6 @@ public class StackAnalyzerView extends ViewPart {
 			}
 			public void widgetSelected(SelectionEvent event) {
 				TreeItem item = (TreeItem)event.item;
-			   
-				if(item==null)
-			    	return;
-			    
                 Object object = item.getData();
                 MainProcessor mainProcessor = MainProcessor.instance();
                 if ( object instanceof StackAnalyzedInfo ) {
@@ -193,7 +189,7 @@ public class StackAnalyzerView extends ViewPart {
 		menuItem = new MenuItem(popupMenu, SWT.SEPARATOR);
 
 		menuItem = new MenuItem(popupMenu, SWT.CASCADE);
-		menuItem.setText("Manual");
+		menuItem.setText("Manual Analysis");
 		
 		Menu subMenu = new Menu(popupMenu);
 		menuItem.setMenu(subMenu);
@@ -218,7 +214,7 @@ public class StackAnalyzerView extends ViewPart {
 		menuItem.addListener(SWT.Selection, listener);
 		
 		menuItem = new MenuItem(popupMenu, SWT.CASCADE);
-		menuItem.setText("View");
+		menuItem.setText("View Option");
 		
 		subMenu = new Menu(popupMenu);
 		menuItem.setMenu(subMenu);
@@ -247,9 +243,9 @@ public class StackAnalyzerView extends ViewPart {
 		menuItem.setSelection(mainProcessor.isSimpleDumpTimeList());
 		menuItem.addListener(SWT.Selection, listener);
 
-		menuItem = new MenuItem(subMenu, SWT.SEPARATOR);
+		menuItem = new MenuItem(popupMenu, SWT.SEPARATOR);
 
-		menuItem = new MenuItem(subMenu, SWT.CHECK);
+		menuItem = new MenuItem(popupMenu, SWT.CHECK);
 		menuItem.setText("Use Default Parser Configuration");
 		menuItem.setSelection(mainProcessor.isDefaultConfiguration());
 		menuItem.addListener(SWT.Selection, listener);
