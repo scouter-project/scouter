@@ -85,6 +85,7 @@ public class FetchStackJob extends Job {
 			}
 		}
 		
+		monitor.done();
 		ExUtil.exec(Display.getDefault(), new Runnable() {
 			public void run() {
 				MainProcessor.instance().processStackFile(stackFile.getAbsolutePath());

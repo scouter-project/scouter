@@ -352,7 +352,7 @@ public class DigestTableView extends ViewPart implements Refreshable {
 					model.execution = executionLv.getInt(i) - firstValue.getInt("COUNT_STAR");
 					if (model.execution < 1) {
 						System.out.println("first=>" + firstStatus);
-						System.out.println("last =>" + firstStatus);
+						System.out.println("last =>" + lastStatus);
 					}
 					model.errorCnt = errorsLv.getInt(i) - firstValue.getInt("SUM_ERRORS");
 					model.warnCnt = warnsLv.getInt(i) - firstValue.getInt("SUM_WARNINGS");

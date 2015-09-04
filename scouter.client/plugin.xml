@@ -924,6 +924,14 @@
             name="ConfigStackAnalyser"
             restorable="false">
       </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.maria.views.DbTodayTotalConnView"
+            icon="icons/database_go.png"
+            id="scouter.client.maria.views.DbTodayTotalConnView"
+            name="DatabaseConnectionTotal"
+            restorable="true">
+      </view>
   </extension>
  <extension
          point="org.eclipse.ui.commands">

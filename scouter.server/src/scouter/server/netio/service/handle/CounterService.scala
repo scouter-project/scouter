@@ -15,6 +15,9 @@
  */
 package scouter.server.netio.service.handle;
 
+import scala.collection.JavaConversions._
+import scouter.io.DataInputX
+import scouter.io.DataOutputX
 import scouter.lang.CounterKey
 import scouter.lang.TimeTypeEnum
 import scouter.lang.pack.MapPack
@@ -22,22 +25,17 @@ import scouter.lang.value.DoubleValue
 import scouter.lang.value.ListValue
 import scouter.lang.value.MapValue
 import scouter.lang.value.Value
-import scouter.io.DataInputX
-import scouter.io.DataOutputX
-import scouter.net.RequestCmd
 import scouter.net.TcpFlag
 import scouter.server.core.AgentManager
 import scouter.server.core.cache.CounterCache
-import scouter.server.core.cache.TextCache
-import scouter.server.db.RealtimeCounterRD
 import scouter.server.db.ObjectRD
+import scouter.server.db.RealtimeCounterRD
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.server.util.TimedSeries
 import scouter.util.CastUtil
 import scouter.util.DateUtil
-import scala.collection.JavaConversions._
-import java.util.Comparator
 import scouter.util.StringUtil
+import scouter.net.RequestCmd
 
 class CounterService {
 
@@ -84,25 +82,21 @@ class CounterService {
     @ServiceHandler(RequestCmd.COUNTER_REAL_TIME_MULTI)
     def getRealTimeMulti(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readPack().asInstanceOf[MapPack];
-        val objHashLv = param.getList("objHash");
-        val counterLv = param.getList("counter");
-
-        val out = new MapPack();
-        val objHashOut = out.newList("objHash");
-        val counterOut = out.newList("counter");
-        val valueOut = out.newList("value");
-
-        for (i <- 0 to objHashLv.size() - 1) {
-            val key = new CounterKey(objHashLv.getInt(i), counterLv.getString(i),
-                TimeTypeEnum.REALTIME);
-            val v = CounterCache.get(key);
-            if (v != null) {
-                objHashOut.add(objHashLv.get(i));
-                counterOut.add(counterLv.get(i));
-                valueOut.add(v);
-            }
-        }
-
+	    val objHash = param.getInt("objHash");
+	    val counterLv = param.getList("counter");
+	
+	    val out = new MapPack();
+	    val counterOut = out.newList("counter");
+	    val valueOut = out.newList("value");
+	
+	    for (i <- 0 to counterLv.size() - 1) {
+	      val key = new CounterKey(objHash, counterLv.getString(i), TimeTypeEnum.REALTIME);
+	      val v = CounterCache.get(key);
+	      if (v != null) {
+	        counterOut.add(counterLv.get(i));
+	        valueOut.add(v);
+	      }
+	    }
         dout.writeByte(TcpFlag.HasNEXT);
         dout.writePack(out);
     }
