@@ -417,7 +417,7 @@ public class DigestDetailDialog {
 				} finally {
 					TcpProxy.putTcpProxy(tcp);
 				}
-				if (p != null) {
+				if (p != null && ((MapPack)p).size() > 0) {
 					final MapPack m = (MapPack) p;
 					ExUtil.exec(tabFolder, new Runnable() {
 						public void run() {
