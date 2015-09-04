@@ -1,5 +1,5 @@
 /*
-a *  Copyright 2015 LG CNS.
+ *  Copyright 2015 LG CNS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -140,7 +140,7 @@ public class MainProcessor{
         System.out.println("Selected:" + menuName);
         if ( menuName.substring(1, 3).equals(":\\") ) {
         //    openFiles(new File[] { new File(menuName) }, true);
-        } else if ( "Open Stack Log".equals(menuName) ) {
+        } else if ( "Open Stack Log".equals(menuName) ) {  	
             chooseStackFile();
         } else if ( "Open Analyzed Stack".equals(menuName) ) {
             openAnalyzedInfo();
@@ -198,8 +198,8 @@ public class MainProcessor{
        prefManager.setSelectedPath(file.getParentFile());
        openFile(file, false);
    }
-  
-   private void openFile( File file, boolean isRecent ) {
+
+   private ParserConfig selectAdoptiveParserConfig(){
        PreferenceManager prefManager = PreferenceManager.get();
        String configFile = prefManager.getCurrentParserConfig();
        if(m_isDefaultConfiguration){
@@ -222,14 +222,28 @@ public class MainProcessor{
        }
 
        ParserConfigReader reader = new ParserConfigReader(configFile);
-       ParserConfig config = reader.read();
-
-       StackFileInfo stackFileInfo = processStackFile(file.getAbsolutePath(), config, null, isRecent, true);
-       if ( stackFileInfo != null )
-           addMainTree(stackFileInfo);
-       
-       displayContent(null);      
-	}
+       return reader.read();	   
+   }
+   
+   private void addProcessedStack(StackFileInfo stackFileInfo){
+       if ( stackFileInfo == null ){
+    	   return;
+       }
+       addMainTree(stackFileInfo);
+       displayContent(null);	   
+   }
+   
+   private void openContents( String contents) {
+	   ParserConfig config = selectAdoptiveParserConfig();
+       StackFileInfo stackFileInfo = processStackContents(contents, config, null, false, true);       
+       addProcessedStack(stackFileInfo);	   
+   }
+   
+   private void openFile( File file, boolean isRecent ) {
+	   ParserConfig config = selectAdoptiveParserConfig();
+       StackFileInfo stackFileInfo = processStackFile(file.getAbsolutePath(), config, null, isRecent, true);       
+       addProcessedStack(stackFileInfo);
+   }
    
 	private void openAnalyzedInfo() {
 		ArrayList<String> list = new ArrayList<String>();
@@ -242,39 +256,57 @@ public class MainProcessor{
 	} 
 
 	private void openAnalyzedFile( String filename ) {
-		StackFileInfo fileinfo = StackParser.loadAnalyzedInfo(filename);
-		if ( fileinfo != null ) {
-			addMainTree(fileinfo);
-           	displayContent(null);
-       }
+		StackFileInfo fileInfo = StackParser.loadAnalyzedInfo(filename);
+		addProcessedStack(fileInfo);
+	}
+	
+	private StackFileInfo processStackContents( String contents, ParserConfig config, String filter, boolean isRecent, boolean isInclude ) {
+		StackFileInfo stackFileInfo = new StackFileInfo("Stacks");
+		return processStackContents(contents, stackFileInfo, config, filter, isRecent, isInclude);
 	}
 	
 	private StackFileInfo processStackFile( String stackFilename, ParserConfig config, String filter, boolean isRecent, boolean isInclude ) {
 		StackFileInfo stackFileInfo = new StackFileInfo(stackFilename);
 		return processStackFile(stackFileInfo, config, filter, isRecent, isInclude);
-	}
+	}	
    
-	private StackFileInfo processStackFile( StackFileInfo stackFileInfo, ParserConfig config, String filter, boolean isRecent, boolean isInclude ) {
-	    PreferenceManager prefManager = PreferenceManager.get();
+	private StackFileInfo postSTackFile(StackFileInfo stackFileInfo, ParserConfig config, String filter, boolean isRecent){
+        if ( stackFileInfo.getTotalWorkingCount() <= 0 ) {
+        	MessageBox messageBox = new MessageBox(m_parentComposite.getShell(), SWT.ICON_ERROR | SWT.YES | SWT.APPLICATION_MODAL);
+        	messageBox.setText("File open error");
+        	messageBox.setMessage(new StringBuilder(200).append("A working thread is not exists in ").append(stackFileInfo.getFilename()).append(". configure a ").append(config.getConfigFilename()).append(". ").toString());
+        	messageBox.open();
+            return null;
+        }
+
+        if ( !isRecent){
+    	    PreferenceManager prefManager = PreferenceManager.get();
+        	if(filter == null ) {
+        		prefManager.addToStackFiles(stackFileInfo.getFilename());
+        	}
+        	prefManager.addToAnalyzedStackFiles(stackFileInfo.getFilename());
+        }
+        return stackFileInfo;
+	}
 	
+	private StackFileInfo processStackContents(String contents, StackFileInfo stackFileInfo, ParserConfig config, String filter, boolean isRecent, boolean isInclude ) {	
+	    try {
+	        StackParser parser = StackParser.getParser(config, filter, isInclude);
+	        parser.setStackContents(contents);
+	        parser.analyze(stackFileInfo);
+	        stackFileInfo = postSTackFile(stackFileInfo,config, filter, isRecent);
+	    } catch ( RuntimeException ex ) {
+	        StackParser.removeAllAnalyzedFile(stackFileInfo);
+	        throw ex;
+	    }
+	    return stackFileInfo;
+	}
+	
+	private StackFileInfo processStackFile( StackFileInfo stackFileInfo, ParserConfig config, String filter, boolean isRecent, boolean isInclude ) {	
 	    try {
 	        StackParser parser = StackParser.getParser(config, filter, isInclude);
 	        parser.analyze(stackFileInfo);
-	
-	        if ( stackFileInfo.getTotalWorkingCount() <= 0 ) {
-	        	MessageBox messageBox = new MessageBox(m_parentComposite.getShell(), SWT.ICON_ERROR | SWT.YES | SWT.APPLICATION_MODAL);
-	        	messageBox.setText("File open error");
-	        	messageBox.setMessage(new StringBuilder(200).append("A working thread is not exists in ").append(stackFileInfo.getFilename()).append(". configure a ").append(config.getConfigFilename()).append(". ").toString());
-	        	messageBox.open();
-	            return null;
-	        }
-	
-	        if ( !isRecent){
-	        	if(filter == null ) {
-	        		prefManager.addToStackFiles(stackFileInfo.getFilename());
-	        	}
-	        	prefManager.addToAnalyzedStackFiles(stackFileInfo.getFilename());
-	        }
+	        stackFileInfo = postSTackFile(stackFileInfo,config, filter, isRecent);
 	    } catch ( RuntimeException ex ) {
 	        StackParser.removeAllAnalyzedFile(stackFileInfo);
 	        throw ex;
@@ -573,10 +605,7 @@ public class MainProcessor{
         ParserConfig config = reader.read();
 
         StackFileInfo filteredStackFileInfo = processStackFile(StackParser.getWorkingThreadFilename(stackFileInfo.getFilename()), config, filter, false, isInclude);
-        if ( filteredStackFileInfo != null ) {
-            addMainTree(filteredStackFileInfo);
-            displayContent(null);
-        }
+        addProcessedStack(filteredStackFileInfo);
     }
     
     private void viewThreadStack() {
@@ -675,17 +704,25 @@ public class MainProcessor{
         
         clearTable();
     }
-  
-    public void processStackFile(String fileName){
+    
+    private void openStackAnalyzer(){
     	IWorkbench workbench = PlatformUI.getWorkbench();
     	IWorkbenchWindow window = workbench.getActiveWorkbenchWindow(); 
     	try{ 
     		workbench.showPerspective(PerspectiveStackAnalyzer.ID, window);
     	} catch (WorkbenchException e) { 
     		System.out.println("Unable to open Perspective: " + PerspectiveStackAnalyzer.ID); 
-    	}
-    	
+    	}    	
+    }
+  
+    public void processStackFile(String fileName){
+    	openStackAnalyzer();
     	File file = new File(fileName);
     	openFile(file, false);
     }
+
+    public void processStackContents(String contents){
+    	openStackAnalyzer();
+    	openContents(contents);
+    }    
 }
