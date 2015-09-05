@@ -23,7 +23,7 @@ public class TagCount {
 	
 	String tagName;
 	String value;
-	long count;
+	float count;
 	List<TagCount> childs = null;
 	
 	protected synchronized void addChild(TagCount child) {
