@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-package tuna.server.netio.service.handle;
+package scouter.server.netio.service.handle;
 
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
@@ -24,6 +24,8 @@ import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.net.RequestCmd
 import scouter.util.DateUtil
 import scouter.util.CastUtil
+import scouter.server.netio.AgentCall
+import scouter.server.core.AgentManager
 
 class StackAnalyzerService {
 
@@ -52,5 +54,45 @@ class StackAnalyzerService {
             return
         }
 
+    }
+    
+    @ServiceHandler(RequestCmd.GET_STACK_INDEX)
+    def readIndex(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        val param = din.readPack().asInstanceOf[MapPack];
+        
+        val objName = param.getText("objName");
+
+        var from = param.getLong("from");
+        var to = param.getLong("to");
+        val handler = (time: Long) => {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writeLong(time);
+        }
+
+        if (from > 0 && to > from) {
+            StackAnalyzerDB.read(objName, from, to, handler)
+            return
+        }
+        val date = param.getText("date");
+        val hour = CastUtil.cint(param.get("hour"))
+        if (date != null) {
+            from = DateUtil.yyyymmdd(date) + hour * 3600 * 1000
+            to = from + 3600 * 1000
+            StackAnalyzerDB.read(objName, from, to, handler)
+            return
+        }
+
+    }
+    
+     @ServiceHandler(RequestCmd.PSTACK_ON)
+    def turnOnStack(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readPack().asInstanceOf[MapPack];
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        val p = AgentCall.call(o, RequestCmd.PSTACK_ON, param);
+        if (p != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(p);
+        }
     }
 }

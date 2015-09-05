@@ -29,6 +29,8 @@ import scouter.lang.value.TextValue;
 import scouter.lang.value.Value;
 import scouter.lang.value.ValueEnum;
 import scouter.util.CastUtil;
+import scouter.util.IntSet;
+import scouter.util.StringSet;
 
 public class TagCountUtil {
 	
@@ -48,10 +50,7 @@ public class TagCountUtil {
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.object.getText(lv.getInt(i)));
 					}
-				} else if (tagName.equals(TagConstants.NAME_SERVICE)
-						|| tagName.equals(TagConstants.NAME_SERVICE_TIME_SUM)
-						|| tagName.equals(TagConstants.NAME_SERVICE_BYTE_SUM)
-						|| tagName.equals(TagConstants.NAME_SERVICE_ERROR_SUM)) {
+				} else if (TagConstants.serviceHashGroup.hasKey(tagName)) {
 					TextProxy.service.load(date, lv, serverId);
 					for (int i = 0; i < lv.size(); i++) {
 						resultList.add(TextProxy.service.getText(lv.getInt(i)));
@@ -123,17 +122,19 @@ public class TagCountUtil {
 			|| tagName.equals(TagConstants.NAME_USER_AGENT)
 			|| tagName.equals(TagConstants.NAME_REFERER)
 			|| tagName.equals(TagConstants.NAME_CITY)
-			|| tagName.equals(TagConstants.NAME_ERROR)) {
+			|| tagName.equals(TagConstants.NAME_ERROR)
+			||TagConstants.serviceHashGroup.hasKey(tagName)
+			) {
 			return new TextHashValue(tagValue);
-		} else if (tagName.equals(TagConstants.NAME_USERID)
-			|| tagName.equals(TagConstants.NAME_ELAPSED)
-			|| tagName.equals(TagConstants.NAME_SQLTIME)
-			|| tagName.equals(TagConstants.NAME_APITIME)){
-			return new DecimalValue(Long.valueOf(tagValue));
+//		}		else if (tagName.equals(TagConstants.NAME_USERID)
+//			|| tagName.equals(TagConstants.NAME_ELAPSED)
+//			|| tagName.equals(TagConstants.NAME_SQLTIME)
+//			|| tagName.equals(TagConstants.NAME_APITIME)){
+//			return new DecimalValue(Long.valueOf(tagValue));
 		} else if(tagName.equals(TagConstants.NAME_LEVEL)) {
 			return new DecimalValue(AlertLevel.getValue(tagValue));
-		} else if (tagName.equals(TagConstants.NAME_IP)) {
-			return new IP4Value(tagValue);
+//		} else if (tagName.equals(TagConstants.NAME_IP)) {
+//			return new IP4Value(tagValue);
 		}
 		return new TextValue(tagValue);
 	}

@@ -22,6 +22,7 @@ import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 
 import scouter.client.group.view.GroupNavigationView;
+import scouter.client.maria.views.DbDailyTotalConnView;
 import scouter.client.maria.views.DbRealtimeTotalActivityView;
 import scouter.client.maria.views.DbRealtimeTotalConnView;
 import scouter.client.maria.views.DbRealtimeTotalHitRatioView;
@@ -65,14 +66,15 @@ public class PerspectiveMaria implements IPerspectiveFactory  {
 		bottomLayout.addView(DigestTableView.ID + ":" + serverId);
 		
 		IFolderLayout layout1 = layout.createFolder("perspective.mariadb.conn", IPageLayout.TOP, 0.5f, editorArea);
-		layout1.addPlaceholder(DbTodayTotalConnView.ID + ":" + serverId);
+		layout1.addPlaceholder(DbTodayTotalConnView.ID + ":*");
+		layout1.addPlaceholder(DbDailyTotalConnView.ID + ":*");
 		layout1.addView(DbRealtimeTotalConnView.ID + ":" + serverId);
 		
 		IFolderLayout layout2 = layout.createFolder("perspective.mariadb.elapsed", IPageLayout.BOTTOM, 0.5f, "perspective.mariadb.conn");
 		layout2.addView(DbRealtimeTotalResponseView.ID + ":" + serverId);
 		
 		IFolderLayout layout3 = layout.createFolder("perspective.mariadb.activity", IPageLayout.RIGHT, 0.5f, "perspective.mariadb.conn");
-		layout3.addPlaceholder(DbTodayTotalActivityView.ID + ":" + serverId);
+		layout3.addPlaceholder(DbTodayTotalActivityView.ID + ":*");
 		layout3.addView(DbRealtimeTotalActivityView.ID + ":" + serverId);
 		
 		IFolderLayout layout4 = layout.createFolder("perspective.mariadb.hitratio", IPageLayout.RIGHT, 0.5f, "perspective.mariadb.elapsed");

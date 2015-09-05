@@ -149,6 +149,7 @@ public class DateUtil {
 	public static boolean isSameDay(Date date, Date date2) {
 		return helper.getDateUnit(date.getTime()) == helper.getDateUnit(date2.getTime());
 	}
+
 	public static boolean isToday(long time) {
 		return helper.getDateUnit(time) == helper.getDateUnit(System.currentTimeMillis());
 	}
@@ -205,9 +206,38 @@ public class DateUtil {
 		return System.currentTimeMillis();
 	}
 
-	public static void main(String[] args) {
-		System.out.println(isSameDay(new Date(helper.yyyymmdd("20141214")), new Date(helper.yyyymmdd("20141214")
-				+ MILLIS_PER_DAY - 1)));
-	}
+	public static void main(String[] args) throws ParseException {
 
+		String date;
+		long time;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HH:mm:ss.S");
+		long cpu = SysJMX.getCurrentThreadCPUnano();
+		for (int i = 0; i < 10000; i++) {
+			date = sdf.format(new Date(System.currentTimeMillis() + i));
+		}
+		cpu = SysJMX.getCurrentThreadCPUnano() - cpu;
+		System.out.println("SimpleDateFormat.format " + cpu / 1000000L + " ms");
+		
+		cpu = SysJMX.getCurrentThreadCPUnano();
+		for (int i = 0; i < 10000; i++) {
+			date = DateUtil.timestamp(System.currentTimeMillis() + i);
+		}
+		cpu = SysJMX.getCurrentThreadCPUnano() - cpu;
+		System.out.println("DateUtil.format " + cpu / 1000000L + " ms");
+
+		sdf = new SimpleDateFormat("yyyyMMdd");
+		cpu = SysJMX.getCurrentThreadCPUnano();
+		for (int i = 0; i < 10000; i++) {
+			time = sdf.parse("20101123").getTime();
+		}
+		cpu = SysJMX.getCurrentThreadCPUnano() - cpu;
+		System.out.println("SimpleDateFormat.parse " + cpu / 1000000L + " ms");
+
+		cpu = SysJMX.getCurrentThreadCPUnano();
+		for (int i = 0; i < 10000; i++) {
+			time = DateUtil.yyyymmdd("20101123");
+		}
+		cpu = SysJMX.getCurrentThreadCPUnano() - cpu;
+		System.out.println("DateUtil.parse  " + cpu / 1000000L + " ms");
+	}
 }

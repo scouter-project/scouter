@@ -54,7 +54,8 @@ public abstract class StackParser {
 
     private ParserConfig m_config = null;
     private StackFileInfo m_stackFile = null;
-
+    private String m_stackContents = null;
+    
     private BufferedWriter m_workingThread_writer = null;
 
     private ArrayList<String> m_workingThread = null;
@@ -127,6 +128,14 @@ public abstract class StackParser {
 
     public StackFileInfo getStackFileInfo() {
         return m_stackFile;
+    }
+    
+    public void setStackContents(String contents){
+    	m_stackContents = contents;
+    }
+    
+    public String getStackContents(){
+    	return m_stackContents;
     }
 
     private void init() {

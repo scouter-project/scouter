@@ -104,10 +104,10 @@ public class Configure extends Thread {
 	public boolean enable_profile_summary = false;
 	public boolean profile_thread_cputime = false;
 	public boolean profile_socket_openstack = false;
-	public boolean debug_socket_openstack = false;
 	public int profile_socket_openstack_port = 0;
-	public int debug_socket_openstack_port = 0;
-
+	
+	public boolean listup_background_socket = true;
+	
 	public int xlog_time_limit = 0;
 
 	public String http_error_status = "";
@@ -196,7 +196,7 @@ public class Configure extends Thread {
 
 	public String http_remote_ip_header_key = "";
 	public boolean enable_trace_e2e = false;
-	public String gxid = "gxid";
+	public String gxid = "scouter_gxid";
 	public boolean enable_response_gxid = false;
 	public String this_txid = "scouter_this_txid";
 	public String caller_txid = "scouter_caller_txid";
@@ -363,9 +363,8 @@ public class Configure extends Thread {
 		this.profile_thread_cputime = getBoolean("profile_thread_cputime", getBoolean("profile.thread.cputime", false));
 		this.profile_socket_openstack = getBoolean("profile_socket_openstack",
 				getBoolean("profile.socket.openstack", false));
-		this.debug_socket_openstack = getBoolean("debug_socket_openstack", getBoolean("debug.socket.openstack", false));
+		this.listup_background_socket = getBoolean("listup_background_socket", true);
 		this.profile_socket_openstack_port = getInt("profile_socket_openstack_port", 0);
-		this.debug_socket_openstack_port = getInt("debug_socket_openstack_port", 0);
 		this.profile_sql_escape = getBoolean("profile_sql_escape", true);
 
 		this.enable_asm_jdbc = getBoolean("enable_asm_jdbc", getBoolean("enable.asm.jdbc", true));
@@ -500,6 +499,9 @@ public class Configure extends Thread {
 		this.max_think_time = getLong("max_think_time", DateUtil.MILLIS_PER_FIVE_MINUTE);
 		
 		this.object_registry = getValue("object_registry", "/tmp/scouter");
+		
+		this.pstack_enabled = getBoolean("pstack_enabled", false);;
+		this.pstack_interval = getInt("pstack_interval", 10000);
 
 		resetObjInfo();
 		setErrorStatus();

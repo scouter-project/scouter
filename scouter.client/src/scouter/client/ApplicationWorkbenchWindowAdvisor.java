@@ -201,7 +201,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor im
 				}
 			}
 		}
-		configurer.setTitle("Scouter - "+Version.getClientFullVersion() + "(" + TimeZone.getDefault().getDisplayName() + ")");
+		configurer.setTitle("Version - "+Version.getClientFullVersion() + "(" + TimeZone.getDefault().getDisplayName() + ")");
 	}
 	
 	public void postWindowOpen() {

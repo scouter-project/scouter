@@ -21,7 +21,7 @@ public class TcpRequestMgr extends Thread {
 		return instance;
 	}
 
-	protected Executor pool = ThreadUtil.createExecutor("SCOUTER", 10, 10, true);
+	protected Executor pool = ThreadUtil.createExecutor("SCOUTER", 10, 10000, true);
 
 	@Override
 	public void run() {

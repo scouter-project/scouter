@@ -65,7 +65,15 @@ public class SysJMX {
 			return 0;
 		}
 	}
-
+	public static long getCurrentThreadCPUnano() {
+		if (threadmx == null)
+			return 0;
+		try {
+			return threadmx.getCurrentThreadCpuTime() ;
+		} catch (Throwable t) {
+			return 0;
+		}
+	}
 	public static long getCurrentThreadAllocBytes() {
 		if (sunThreadMX ==false)
 			return 0;

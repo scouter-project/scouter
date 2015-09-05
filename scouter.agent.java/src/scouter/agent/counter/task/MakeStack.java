@@ -13,14 +13,14 @@ import scouter.lang.pack.StackPack;
 public class MakeStack {
 
 	public long lastStackTime;
-
 	@Counter
 	public void make(CounterBasket pw) {
-		Configure conf = Configure.getInstance();
-		if (conf.pstack_enabled == false)
+		if (isPStackEnabled()== false){
+			ToolsMainFactory.activeStack=false;
 			return;
+		}
 		long now = System.currentTimeMillis();
-		if (now < lastStackTime + conf.pstack_interval)
+		if (now < lastStackTime + getInterval())
 			return;
 		lastStackTime = now;
 		StringWriter sw = new StringWriter();
@@ -36,9 +36,17 @@ public class MakeStack {
 
 		StackPack p = new StackPack();
 		p.time = System.currentTimeMillis();
-		p.objHash = conf.objHash;
+		p.objHash = Configure.getInstance().objHash;
 		p.setStack(stack);
 
 		DataProxy.sendDirect(p);
+	}
+	
+	public static long pstack_requested;
+	private boolean isPStackEnabled() {
+		return Configure.getInstance().pstack_enabled || System.currentTimeMillis() < pstack_requested;
+	}
+	private long getInterval() {
+		return Configure.getInstance().pstack_interval;
 	}
 }

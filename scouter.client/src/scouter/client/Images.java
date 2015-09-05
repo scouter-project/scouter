@@ -359,4 +359,6 @@ public class Images {
 	public static final Image pin                          = Activator.getImage("icons/pin.gif");
 	public static final Image lock                          = Activator.getImage("icons/lock.png");
 	public static final Image star                          = Activator.getImage("icons/star.png");
+	public static final Image page_white_stack              = Activator.getImage("icons/page_white_stack.png");
 }
+

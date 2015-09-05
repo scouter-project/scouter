@@ -77,16 +77,19 @@ object StackAnalyzerDB {
 
         val idxRAF = new RandomAccessFile(path + "/stack.idx", "rw");
         val dataFile = new RandomAccessFile(path + "/stack.dat", "rw");
-        val len = idxFile.length / IDX_LEN
+        val len = (idxFile.length / IDX_LEN).toInt
         val bs = new BinSearch[Long](len, (a: Long) => { idxRAF.seek(a * IDX_LEN); new DataInputX(idxRAF).readLong() },
             (a: Long, b: Long) => (b - a).toInt)
 
         var x = bs.searchBE(from).toInt
 
-        while (x >= 0 && x < len) {
+        if (x < 0) {
+            return
+        }
+        while (x < len) {
             idxRAF.seek(x * IDX_LEN);
             val time = new DataInputX(idxRAF).readLong()
-            if (from <= time && time <= to) {
+            if (time <= to) {
                 idxRAF.seek(x * IDX_LEN + 8);
                 val dataPos = new DataInputX(idxRAF).readLong5()
                 dataFile.seek(dataPos)
@@ -94,8 +97,39 @@ object StackAnalyzerDB {
                 val len = DataInputX.toInt(dataIn.read(4), 0)
                 val data = dataIn.read(len)
                 handler(time, data)
+                x += 1
+            } else {
+                x = len // break
             }
-            x += 1
+        }
+    }
+    def read(objName: String, from: Long, to: Long, handler: (Long) => Any) {
+        val date = DateUtil.yyyymmdd(from)
+        val path = getDBPath(date, objName)
+        val idxFile = new File(path + "/stack.idx")
+        if (idxFile.canRead() == false)
+            return
+
+        val idxRAF = new RandomAccessFile(path + "/stack.idx", "rw");
+        val dataFile = new RandomAccessFile(path + "/stack.dat", "rw");
+        val len = (idxFile.length / IDX_LEN).toInt
+        val bs = new BinSearch[Long](len, (a: Long) => { idxRAF.seek(a * IDX_LEN); new DataInputX(idxRAF).readLong() },
+            (a: Long, b: Long) => (b - a).toInt)
+
+        var x = bs.searchBE(from).toInt
+
+        if (x < 0) {
+            return
+        }
+        while (x < len) {
+            idxRAF.seek(x * IDX_LEN);
+            val time = new DataInputX(idxRAF).readLong()
+            if (time <= to) {
+                handler(time)
+                x += 1
+            } else {
+                x = len // break
+            }
         }
     }
 

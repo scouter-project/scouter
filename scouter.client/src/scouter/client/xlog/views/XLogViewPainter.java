@@ -35,17 +35,18 @@ import scouter.client.preferences.PManager;
 import scouter.client.preferences.PreferenceConstants;
 import scouter.client.threads.ObjectSelectManager;
 import scouter.client.util.ChartUtil;
+import scouter.client.util.ColorUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.xlog.ImageCache;
+import scouter.client.xlog.XLogFilterStatus;
 import scouter.client.xlog.XLogYAxisEnum;
-import scouter.util.StringUtil;
 import scouter.lang.pack.XLogPack;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
-import scouter.util.HashUtil;
 import scouter.util.IPUtil;
 import scouter.util.LongKeyLinkedMap;
 import scouter.util.StrMatch;
+import scouter.util.StringUtil;
 
 public class XLogViewPainter {
 	public static Color color_black = new Color(null, 0, 0, 0);
@@ -68,12 +69,7 @@ public class XLogViewPainter {
 
 	public int selectedUrlHash = 0;
 
-	public String objName = "";
-	public String service = "";
-	public String ip = "";
-	public boolean onlyError = false;
-	public boolean onlyApicall = false;
-	public boolean onlySql = false;
+	XLogFilterStatus filterStatus;
 	
 	public XLogYAxisEnum yAxisMode = XLogYAxisEnum.ELAPSED;
 
@@ -82,6 +78,7 @@ public class XLogViewPainter {
 	public StrMatch objNameMat;
 	public StrMatch serviceMat;
 	public StrMatch ipMat;
+	public StrMatch userAgentMat;
 	
 	public String yyyymmdd;
 	ITimeChange callback;
@@ -181,7 +178,11 @@ public class XLogViewPainter {
 		}
 
 		gc.setForeground(color_black);
-		gc.setBackground(color_white);
+		if (filter_hash != new XLogFilterStatus().hashCode()) {
+			gc.setBackground(ColorUtil.getInstance().getColor("azure"));
+		} else {
+			gc.setBackground(color_white);
+		}
 		gc.fillRectangle(0, 0, work_w, work_h);
 		
 		if (yAxisMode == XLogYAxisEnum.ELAPSED) {
@@ -584,14 +585,14 @@ public class XLogViewPainter {
 		return isObjNameFilterOk(d)
 				&& isServiceFilterOk(d)
 				&& isIpFilterOk(d.p)
-				&& isSelectedUrlFilterOk(d.p.service)
+				&& isUserAgentFilterOk(d)
 				&& isErrorFilterOk(d.p)
 				&& isApicallFilterOk(d.p)
 				&& isSqlFilterOk(d.p);
 	}
 	
 	public boolean isObjNameFilterOk(XLogData d) {
-		if (StringUtil.isEmpty(this.objName)) {
+		if (StringUtil.isEmpty(filterStatus.objName)) {
 			return true;
 		}
 		String objName = TextProxy.object.getLoadText(yyyymmdd, d.p.objHash, d.serverId);
@@ -599,7 +600,7 @@ public class XLogViewPainter {
 	}
 	
 	public boolean isServiceFilterOk(XLogData d) {
-		if (StringUtil.isEmpty(this.service)) {
+		if (StringUtil.isEmpty(filterStatus.service)) {
 			return true;
 		}
 		String serviceName = TextProxy.service.getLoadText(yyyymmdd, d.p.service, d.serverId);
@@ -607,50 +608,40 @@ public class XLogViewPainter {
 	}
 	
 	public boolean isIpFilterOk(XLogPack p) {
-		if (StringUtil.isEmpty(this.ip)) {
+		if (StringUtil.isEmpty(filterStatus.ip)) {
 			return true;
 		}
 		String value = IPUtil.toString(p.ipaddr);
 		return ipMat.include(value);
 	}
 	
-	public boolean isSelectedUrlFilterOk(int urlHash) {
-		boolean result = false;
-		if (selectedUrlHash == 0 || selectedUrlHash == urlHash) {
-			result = true;
+	public boolean isUserAgentFilterOk(XLogData d) {
+		if (StringUtil.isEmpty(filterStatus.userAgent)) {
+			return true;
 		}
-		return result;
+		String userAgent = TextProxy.userAgent.getLoadText(yyyymmdd, d.p.userAgent, d.serverId);
+		return userAgentMat.include(userAgent);
 	}
 	
 	public boolean isErrorFilterOk(XLogPack p) {
-		if (onlyError) {
+		if (filterStatus.onlyError) {
 			return p.error != 0;
 		}
 		return true;
 	}
 	
 	public boolean isSqlFilterOk(XLogPack p) {
-		if (onlySql) {
+		if (filterStatus.onlySql) {
 			return p.sqlCount > 0; 
 		}
 		return true;
 	}
 	
 	public boolean isApicallFilterOk(XLogPack p) {
-		if (onlyApicall) {
+		if (filterStatus.onlyApicall) {
 			return p.apicallCount > 0; 
 		}
 		return true;
-	}
-	
-	public void createFilterHash() {
-		filter_hash = HashUtil.hash(objName);
-		filter_hash ^= HashUtil.hash(service);
-		filter_hash ^= HashUtil.hash(ip);
-		filter_hash ^= HashUtil.hash(onlyError ? "onlyError" : "");
-		filter_hash ^= HashUtil.hash(onlySql ? "onlySql" : "");
-		filter_hash ^=  HashUtil.hash(onlyApicall ? "onlyApicall" : "");
-		filter_hash ^= selectedUrlHash ^ (selectedUrlHash >> 16);
 	}
 	
 	public interface ITimeChange {
@@ -661,5 +652,14 @@ public class XLogViewPainter {
 		this.yAxisMode = yAxis;
 		this.yValueMax = yAxis.getDefaultMax();
 		this.yValueMin = 0;
+	}
+	
+	public void setFilterStatus(XLogFilterStatus status) {
+		this.filterStatus = status;
+		filter_hash = filterStatus.hashCode();
+		objNameMat = new StrMatch(status.objName);
+		serviceMat = new StrMatch(status.service);
+		ipMat = new StrMatch(status.ip);
+		userAgentMat = new StrMatch(status.userAgent);
 	}
 }

@@ -50,13 +50,13 @@ public class Scanner {
 
 		try {
 			Set<File> files = getRoot(loader);
-
 			Iterator<File> itr = files.iterator();
 			while (itr.hasNext()) {
 				Set<String> classes = listUp(itr.next());
 				mainSet.addAll(classes);
 			}
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return mainSet;
 	}

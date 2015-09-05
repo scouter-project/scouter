@@ -108,6 +108,7 @@ public class ToolsMainFactory {
 
 	}
 
+	public static boolean activeStack=false;
 	public static void threadDump(PrintWriter out) throws Throwable {
 		ClassLoader loader = LoaderManager.getToolsLoader();
 		if (loader == null) {
@@ -119,6 +120,7 @@ public class ToolsMainFactory {
 		if (SystemUtil.JAVA_VENDOR.startsWith("IBM")) {
 			return;
 		}
+		activeStack=true;
 		try {
 			Class c = Class.forName(TOOLS_MAIN, true, loader);
 			IToolsMain toolsMain = (IToolsMain) c.newInstance();

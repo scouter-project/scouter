@@ -23,11 +23,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.stack.base.PreferenceManager;
 
@@ -116,5 +119,16 @@ public class ResourceUtils {
     		}
     	}
     	return false;
-    }    
+    }
+    
+    static public void setVisiable(ViewPart viewPart, String ID, boolean enable){
+		IToolBarManager manager = viewPart.getViewSite().getActionBars().getToolBarManager();
+		final IContributionItem[] items = manager.getItems();
+		for (IContributionItem item : items) {
+		    if (item.getId() != null && item.getId().equals(ID)){
+		        item.setVisible(enable);
+		    }
+		}
+		manager.update(true);
+    }
  }

@@ -38,6 +38,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
+import scouter.client.maria.actions.OpenDbDailyConnView;
 import scouter.client.maria.actions.OpenDigestTableAction;
 import scouter.client.model.AgentDailyListProxy;
 import scouter.client.model.RefreshThread;
@@ -150,6 +151,7 @@ public class DbTodayTotalConnView extends ViewPart implements Refreshable {
 		ScouterUtil.addHorizontalRangeListener(xyGraph.getPlotArea(), new OpenDigestTableAction(serverId), true);
 		
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
+		man.add(new OpenDbDailyConnView(serverId));
 		Action fixRangeAct = new Action("Pin Range", IAction.AS_CHECK_BOX) {
 			public void run() {
 				fixRange = isChecked();

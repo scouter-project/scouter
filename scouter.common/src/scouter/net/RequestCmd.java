@@ -60,6 +60,7 @@ public class RequestCmd {
 	public static final String OBJECT_REMOVE_IN_MEMORY = "OBJECT_REMOVE_IN_MEMORY";
 
 	public static final String OBJECT_FILE_SOCKET = "OBJECT_FILE_SOCKET";
+	public static final String OBJECT_SOCKET = "SOCKET";
 	
 	public static final String SERVER_VERSION                = "SERVER_VERSION";
 	public static final String SERVER_LOG_LIST                = "SERVER_LOG_LIST";
@@ -163,6 +164,8 @@ public class RequestCmd {
 	
 	
 	public static final String GET_STACK_ANALYZER = "GET_STACK_ANALYZER";
+	public static final String GET_STACK_INDEX = "GET_STACK_INDEX";
+	public static final String PSTACK_ON = "PSTACK_ON";
 	
 	
 	// RDB Request
@@ -238,4 +241,5 @@ public class RequestCmd {
 	// VISITOR
 	public static final String VISITOR_REALTIME = "VISITOR_REALTIME";
 	public static final String VISITOR_REALTIME_TOTAL = "VISITOR_REALTIME_TOTAL";
+
 }

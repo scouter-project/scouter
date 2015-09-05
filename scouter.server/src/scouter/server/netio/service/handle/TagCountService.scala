@@ -239,14 +239,14 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == TagConstants.NAME_USERID) {
-                val useridLv = mv.getList(key);
-                for (i <- 0 to useridLv.size() - 1) {
-                    var userid = useridLv.getLong(i);
-                    if (x.userid == userid) {
-                        return true;
-                    }
-                }
+//            } else if (key == TagConstants.NAME_USERID) {
+//                val useridLv = mv.getList(key);
+//                for (i <- 0 to useridLv.size() - 1) {
+//                    var userid = useridLv.getLong(i);
+//                    if (x.userid == userid) {
+//                        return true;
+//                    }
+//                }
             } else if (key == TagConstants.NAME_CITY) {
                 val cityLv = mv.getList(key);
                 for (i <- 0 to cityLv.size() - 1) {
@@ -255,18 +255,15 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == TagConstants.NAME_IP) {
-                val ipLv = mv.getList(key);
-                for (i <- 0 to ipLv.size() - 1) {
-                    var ip = ipLv.get(i);
-                    if (IPUtil.toString(x.ipaddr) == ip.toString()) {
-                        return true;
-                    }
-                }
-            } else if (key == TagConstants.NAME_SERVICE
-                || key == TagConstants.NAME_SERVICE_TIME_SUM
-                || key == TagConstants.NAME_SERVICE_BYTE_SUM
-                || key == TagConstants.NAME_SERVICE_ERROR_SUM) {
+//            } else if (key == TagConstants.NAME_IP) {
+//                val ipLv = mv.getList(key);
+//                for (i <- 0 to ipLv.size() - 1) {
+//                    var ip = ipLv.get(i);
+//                    if (IPUtil.toString(x.ipaddr) == ip.toString()) {
+//                        return true;
+//                    }
+//                }
+            } else if (TagConstants.serviceHashGroup.hasKey(key)) {
                 val serviceLv = mv.getList(key);
                 for (i <- 0 to serviceLv.size() - 1) {
                     var service = serviceLv.get(i).toJavaObject();
@@ -290,42 +287,42 @@ class TagCountService {
                         return true;
                     }
                 }
-            } else if (key == TagConstants.NAME_APITIME) {
-                if (x.apicallTime >= 1000) {
-                    val apitimeLv = mv.getList(key);
-                    for (i <- 0 to apitimeLv.size() - 1) {
-                        var apitime = apitimeLv.getInt(i);
-                        apitime match {
-                            case 1 => if (1000 <= x.apicallTime && x.apicallTime < 3000) return true;
-                            case 3 => if (3000 <= x.apicallTime && x.apicallTime < 8000) return true;
-                            case 8 => if (8000 <= x.apicallTime) return true;
-                        }
-                    }
-                }
-            } else if (key == TagConstants.NAME_SQLTIME) {
-                if (x.sqlTime >= 1000) {
-                    val sqltimeLv = mv.getList(key);
-                    for (i <- 0 to sqltimeLv.size() - 1) {
-                        var sqltime = sqltimeLv.getInt(i);
-                        sqltime match {
-                            case 1 => if (1000 <= x.sqlTime && x.sqlTime < 3000) return true;
-                            case 3 => if (3000 <= x.sqlTime && x.sqlTime < 8000) return true;
-                            case 8 => if (8000 <= x.sqlTime) return true;
-                        }
-                    }
-                }
-            } else if (key == TagConstants.NAME_ELAPSED) {
-                if (x.elapsed >= 1000) {
-                    val elapsedLv = mv.getList(key);
-                    for (i <- 0 to elapsedLv.size() - 1) {
-                        var elapsed = elapsedLv.getInt(i);
-                        elapsed match {
-                            case 1 => if (1000 <= x.elapsed && x.elapsed < 3000) return true;
-                            case 3 => if (3000 <= x.elapsed && x.elapsed < 8000) return true;
-                            case 8 => if (8000 <= x.elapsed) return true;
-                        }
-                    }
-                }
+//            } else if (key == TagConstants.NAME_APITIME) {
+//                if (x.apicallTime >= 1000) {
+//                    val apitimeLv = mv.getList(key);
+//                    for (i <- 0 to apitimeLv.size() - 1) {
+//                        var apitime = apitimeLv.getInt(i);
+//                        apitime match {
+//                            case 1 => if (1000 <= x.apicallTime && x.apicallTime < 3000) return true;
+//                            case 3 => if (3000 <= x.apicallTime && x.apicallTime < 8000) return true;
+//                            case 8 => if (8000 <= x.apicallTime) return true;
+//                        }
+//                    }
+//                }
+//            } else if (key == TagConstants.NAME_SQLTIME) {
+//                if (x.sqlTime >= 1000) {
+//                    val sqltimeLv = mv.getList(key);
+//                    for (i <- 0 to sqltimeLv.size() - 1) {
+//                        var sqltime = sqltimeLv.getInt(i);
+//                        sqltime match {
+//                            case 1 => if (1000 <= x.sqlTime && x.sqlTime < 3000) return true;
+//                            case 3 => if (3000 <= x.sqlTime && x.sqlTime < 8000) return true;
+//                            case 8 => if (8000 <= x.sqlTime) return true;
+//                        }
+//                    }
+//                }
+//            } else if (key == TagConstants.NAME_ELAPSED) {
+//                if (x.elapsed >= 1000) {
+//                    val elapsedLv = mv.getList(key);
+//                    for (i <- 0 to elapsedLv.size() - 1) {
+//                        var elapsed = elapsedLv.getInt(i);
+//                        elapsed match {
+//                            case 1 => if (1000 <= x.elapsed && x.elapsed < 3000) return true;
+//                            case 3 => if (3000 <= x.elapsed && x.elapsed < 8000) return true;
+//                            case 8 => if (8000 <= x.elapsed) return true;
+//                        }
+//                    }
+//                }
             }
         }
         return false;

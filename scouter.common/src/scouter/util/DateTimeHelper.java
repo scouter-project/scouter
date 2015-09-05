@@ -54,13 +54,14 @@ public class DateTimeHelper {
 	static String wday[] = { "Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun" };
 	static int mdayLen[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-	private  long BASE_TIME;
+	private long BASE_TIME;
 	private Day[][][] table = new Day[100][][];
 	private Day[] dateTable = new Day[40000];
 
-	public long getBaseTime(){
+	public long getBaseTime() {
 		return BASE_TIME;
 	}
+
 	private void open() throws Exception {
 		long mtime = BASE_TIME;
 		int seq = 0;
@@ -86,7 +87,7 @@ public class DateTimeHelper {
 				}
 			}
 		}
-	
+
 	}
 
 	static boolean isYun(int year) {
@@ -108,7 +109,7 @@ public class DateTimeHelper {
 	}
 
 	public long hhmm(String date) {
-		if(date==null)
+		if (date == null)
 			return 0;
 		int h = Integer.parseInt(date.substring(0, 2));
 		int m = Integer.parseInt(date.substring(2, 4));
@@ -128,8 +129,8 @@ public class DateTimeHelper {
 
 	public String yyyymmdd(long time) {
 		int idx = (int) ((time - BASE_TIME) / MILLIS_PER_DAY);
-		if(idx<0)
-			idx=0;
+		if (idx < 0)
+			idx = 0;
 		return dateTable[idx].date;
 	}
 
@@ -143,7 +144,13 @@ public class DateTimeHelper {
 		int mm = (int) (dtime / MILLIS_PER_MINUTE);
 		dtime = (int) (dtime % MILLIS_PER_MINUTE);
 		int ss = (int) (dtime / MILLIS_PER_SECOND);
-		return String.format("%s %02d:%02d:%02d", dateTable[idx].date, hh, mm, ss);
+
+		StringBuffer sb = new StringBuffer();
+		sb.append(dateTable[idx].date).append(" ");
+		sb.append(mk2(hh)).append(":");
+		sb.append(mk2(mm)).append(":");
+		sb.append(mk2(ss));
+		return sb.toString();
 	}
 
 	public String timestamp(long time) {
@@ -157,8 +164,53 @@ public class DateTimeHelper {
 		dtime = (int) (dtime % MILLIS_PER_MINUTE);
 		int ss = (int) (dtime / MILLIS_PER_SECOND);
 		int sss = (int) (dtime % 1000);
-		return String.format("%s %02d:%02d:%02d.%03d", dateTable[idx].date, hh, mm, ss, sss);
+
+		StringBuffer sb = new StringBuffer();
+		sb.append(dateTable[idx].date).append(" ");
+		sb.append(mk2(hh)).append(":");
+		sb.append(mk2(mm)).append(":");
+		sb.append(mk2(ss));
+		sb.append(".").append(mk3(sss));
+		return sb.toString();
+
 	}
+
+	private String mk2(int n) {
+		switch (n) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+		case 9:
+			return "0" + n;
+		default:
+			return Integer.toString(n);
+		}
+	}
+
+	private String mk3(int n) {
+		switch (n) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+		case 9:
+			return "00" + n;
+		default:
+			return n < 100 ? "0" + n : Integer.toString(n);
+		}
+	}
+
 	public String timestampFileName(long time) {
 		if (time < BASE_TIME)
 			return "20000101_000000_000";
@@ -170,8 +222,16 @@ public class DateTimeHelper {
 		dtime = (int) (dtime % MILLIS_PER_MINUTE);
 		int ss = (int) (dtime / MILLIS_PER_SECOND);
 		int sss = (int) (dtime % 1000);
-		return String.format("%s_%02d%02d%02d_%03d", dateTable[idx].date, hh, mm, ss, sss);
+		StringBuffer sb = new StringBuffer();
+		sb.append(dateTable[idx].date).append("_");
+		sb.append(mk2(hh));
+		sb.append(mk2(mm));
+		sb.append(mk2(ss));
+		sb.append("_").append(mk3(sss));
+		return sb.toString();
+
 	}
+
 	public String ymdhms(long time) {
 		if (time < BASE_TIME)
 			return "20000101000000";
@@ -182,7 +242,12 @@ public class DateTimeHelper {
 		int mm = (int) (dtime / MILLIS_PER_MINUTE);
 		dtime = (int) (dtime % MILLIS_PER_MINUTE);
 		int ss = (int) (dtime / MILLIS_PER_SECOND);
-		return String.format("%s%02d%02d%02d", dateTable[idx].date, hh, mm, ss);
+		StringBuffer sb = new StringBuffer();
+		sb.append(dateTable[idx].date);
+		sb.append(mk2(hh));
+		sb.append(mk2(mm));
+		sb.append(mk2(ss));
+		return sb.toString();
 	}
 
 	public String logtime(long time) {
@@ -195,7 +260,12 @@ public class DateTimeHelper {
 		dtime = (int) (dtime % MILLIS_PER_MINUTE);
 		int ss = (int) (dtime / MILLIS_PER_SECOND);
 		int sss = (int) (dtime % 1000);
-		return String.format("%02d:%02d:%02d.%03d", hh, mm, ss, sss);
+		StringBuffer sb = new StringBuffer();
+		sb.append(mk2(hh)).append(":");
+		sb.append(mk2(mm)).append(":");
+		sb.append(mk2(ss));
+		sb.append(".").append(mk3(sss));
+		return sb.toString();
 	}
 
 	public String hhmmss(long time) {
@@ -209,6 +279,7 @@ public class DateTimeHelper {
 		int ss = (int) (dtime / MILLIS_PER_SECOND);
 		return String.format("%02d%02d%02d", hh, mm, ss);
 	}
+
 	public String hhmm(long time) {
 		if (time < BASE_TIME)
 			return "0000";
@@ -219,20 +290,20 @@ public class DateTimeHelper {
 
 		return String.format("%02d%02d", hh, mm);
 	}
-	
+
 	public int getDateMillis(long time) {
 		if (time < BASE_TIME)
 			return 0;
 		long dtime = (time - BASE_TIME) % MILLIS_PER_DAY;
-		return (int)dtime;
+		return (int) dtime;
 	}
 
 	public int getHour(long time) {
-		return getDateMillis(time)/ MILLIS_PER_HOUR;
+		return getDateMillis(time) / MILLIS_PER_HOUR;
 	}
 
 	public int getMM(long time) {
-		int dtime = getDateMillis(time)% MILLIS_PER_HOUR;
+		int dtime = getDateMillis(time) % MILLIS_PER_HOUR;
 		return (dtime / MILLIS_PER_MINUTE);
 	}
 
@@ -265,24 +336,27 @@ public class DateTimeHelper {
 	}
 
 	private static StringKeyLinkedMap<DateTimeHelper> _table = new StringKeyLinkedMap<DateTimeHelper>().setMax(5);
-	public static  DateTimeHelper getDefault() {
+
+	public static DateTimeHelper getDefault() {
 		return getDateTimeHelper(TimeZone.getDefault());
 	}
 
 	public static synchronized DateTimeHelper getDateTimeHelper(TimeZone timezone) {
-		DateTimeHelper helper=	_table.get(timezone.getID());
-		if(helper==null){
-			helper = new DateTimeHelper(timezone);;
+		DateTimeHelper helper = _table.get(timezone.getID());
+		if (helper == null) {
+			helper = new DateTimeHelper(timezone);
+			;
 			_table.put(timezone.getID(), helper);
 		}
 		return helper;
 	}
 
-	public long xxx(){
-			return -10956L*MILLIS_PER_DAY+ BASE_TIME;
+	public long xxx() {
+		return -10956L * MILLIS_PER_DAY + BASE_TIME;
 	}
+
 	public static void main(String[] args) throws Exception {
-		
+
 		System.out.println(new Timestamp(DateTimeHelper.getDefault().xxx()));
 		System.out.println(DateTimeHelper.getDefault().yyyymmdd(0));
 	}
@@ -300,8 +374,5 @@ public class DateTimeHelper {
 		System.out.println(t1);
 		System.out.println(t2);
 	}
-
-
-	
 
 }

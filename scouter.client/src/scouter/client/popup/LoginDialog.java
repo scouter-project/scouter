@@ -93,7 +93,7 @@ public class LoginDialog {
 	public void show() {
 		switch (openType) {
 		case TYPE_STARTUP:
-			shell.setText("Scouter Start");
+			shell.setText("Start");
 			this.address = ServerPrefUtil.getStoredDefaultServer();
 			break;
 		case TYPE_ADD_SERVER:
@@ -106,7 +106,7 @@ public class LoginDialog {
 			shell.setText("Edit Server");
 			break;
 		default:
-			shell.setText("Scouter");
+			shell.setText("Login");
 			break;
 		}
 		shell.setImage(Activator.getImage("icons/h128.png"));

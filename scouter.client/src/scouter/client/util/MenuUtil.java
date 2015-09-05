@@ -99,7 +99,9 @@ import scouter.client.model.TextProxy;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
-import scouter.client.tags.actions.OpenTagCountViewAction;
+import scouter.client.stack.actions.OpenStackDialogAction;
+import scouter.client.stack.actions.TurnOffStackAction;
+import scouter.client.stack.actions.TurnOnStackAction;
 import scouter.client.xlog.actions.OpenXLogLoadTimeAction;
 import scouter.client.xlog.actions.OpenXLogRealTimeAction;
 import scouter.lang.Counter;
@@ -275,15 +277,6 @@ public class MenuUtil implements IMenuCreator{
 					new OpenUniqueTotalVisitorAction(window, serverId, objType));
 		}
 		
-		objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.TAGCNT);
-		for (int inx = 0; inx < objTypeList.size(); inx++) {
-			String[] splitedKey = objTypeList.get(inx).split(":");
-			String objType = splitedKey[1];
-			actions.put(
-					objType + ":" + CounterConstants.TAGCNT,
-					new OpenTagCountViewAction(window, serverId, objType));
-		}
-		
 		return actions;
 	}
 	
@@ -400,7 +393,7 @@ public class MenuUtil implements IMenuCreator{
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_THREADDUMP))
 					performanceSnapshot.add(new OpenCxtmenuObjectThreadDumpAction(win, MenuStr.THREAD_DUMP, objHash, serverId));
 				performanceSnapshot.add(new OpenCxtmenuEnvAction(win, MenuStr.ENV, objHash, serverId));
-				//performanceSnapshot.add(new OpenCxtmenuFileSocketAction(win, MenuStr.FILE_SOCKET, objHash, serverId));
+				performanceSnapshot.add(new OpenCxtmenuFileSocketAction(win, "Socket", objHash, serverId));
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_SYSTEMGC))
 					performanceSnapshot.add(new OpenCxtmenuSystemGcAction(MenuStr.SYSTEM_GC, objHash, serverId));
 				performanceSnapshot.add(new OpenCxtmenuResetCacheAction("Reset Text Cache", objHash, serverId));
@@ -422,8 +415,17 @@ public class MenuUtil implements IMenuCreator{
 					dumpMgr.add(new OpenCxtmenuDumpHeapHistoAction(MenuStr.DUMP_HEAPHISTO, objHash, serverId));
 				}
 				mgr.add(new Separator());
-				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
+				MenuManager stackMgr = new MenuManager(MenuStr.STACK_ANALYZER, ImageUtil.getImageDescriptor(Images.page_white_stack), MenuStr.STACK_ANALYZER_ID);
+				mgr.add(stackMgr);
+				stackMgr.add(new TurnOnStackAction(serverId, objHash));
+				stackMgr.add(new TurnOffStackAction(serverId, objHash));
+				stackMgr.add(new Separator());
+				stackMgr.add(new OpenStackDialogAction(serverId, objHash));
+				
+				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE)) {
+					mgr.add(new Separator());
 					mgr.add(new OpenCxtmenuConfigureAgentViewAction(win, MenuStr.CONFIGURE, objHash, serverId));
+				}
 			} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_HOST)) {
 				performanceSnapshot.add(new OpenCxtmenuEnvAction(win, MenuStr.ENV, objHash, serverId));
 				performanceSnapshot.add(new OpenTopAction(win, MenuStr.TOP, objHash, serverId));
@@ -435,16 +437,13 @@ public class MenuUtil implements IMenuCreator{
 			} 
     	}
     	if (server.isAllowAction(GroupPolicyConstants.ALLOW_DEFINEOBJTYPE)) {
-    		mgr.add(new Separator());
 	    	if (counterEngine.isUnknownObjectType(objType)) {
 	    		mgr.add(new DefineObjectTypeAction(win, serverId, objType, DefineObjectTypeAction.DEFINE_MODE));
 	    	} else {
 	    		mgr.add(new DefineObjectTypeAction(win, serverId, objType, DefineObjectTypeAction.EDIT_MODE));
 	    	}
     	}
-    	mgr.add(new Separator());
 		mgr.add(new SetColorAction(win, objHash));
-		mgr.add(new Separator());
 		mgr.add(new OpenCxtmenuPropertiesAction(win, MenuStr.PROPERTIES, objHash, serverId));
 		if (false) {
 			mgr.add(new Separator());

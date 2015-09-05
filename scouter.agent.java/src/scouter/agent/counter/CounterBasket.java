@@ -38,7 +38,7 @@ public class CounterBasket {
 		public boolean equals(Object obj) {
 			if (obj instanceof Key) {
 				Key k = (Key) obj;
-				return this.objName.equals(k.objName) && this.timeType==k.timeType;
+				return this.objName.equals(k.objName) && this.timeType == k.timeType;
 			}
 			return false;
 		}
@@ -69,7 +69,6 @@ public class CounterBasket {
 	}
 
 	public PerfCounterPack[] getList() {
-		ArrayList list =  new ArrayList(table.values());
-		return (PerfCounterPack[])list.toArray(new PerfCounterPack[list.size()]);
+		return (PerfCounterPack[]) table.values().toArray(new PerfCounterPack[table.size()]);
 	}
 }

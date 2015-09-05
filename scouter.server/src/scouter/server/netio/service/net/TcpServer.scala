@@ -15,9 +15,11 @@
  *
  */
 package scouter.server.netio.service.net;
+
 import java.net.ServerSocket
 import java.net.Socket
-import java.util.concurrent.ExecutorService
+
+import scouter.server.ConfObserver
 import scouter.server.Configure
 import scouter.server.Logger
 import scouter.server.util.ThreadScala
@@ -25,7 +27,12 @@ import scouter.util.FileUtil
 import scouter.util.ThreadUtil
 object TcpServer {
     val conf = Configure.getInstance();
-    val threadPool = ThreadUtil.createExecutor("ServiceServer", 30, 1000, 10000, true);
+    val threadPool = ThreadUtil.createExecutor("ServiceServer", conf.tcp_server_pool_size, 10000, true);
+    ConfObserver.put("TcpServer") {
+      if (conf.tcp_server_pool_size != threadPool.getCorePoolSize()) {
+        threadPool.setCorePoolSize(conf.tcp_server_pool_size);
+      }
+    }
     ThreadScala.startDaemon("scouter.server.netio.service.net.TcpServer") {
         Logger.println("\ttcp_port=" + conf.tcp_port);
         Logger.println("\tcp_agent_so_timeout=" + conf.tcp_agent_so_timeout);
