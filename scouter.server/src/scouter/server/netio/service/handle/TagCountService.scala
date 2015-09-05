@@ -86,12 +86,12 @@ class TagCountService {
                     dout.writeText(tagName);
                     dout.writeInt(valueCountTotal.howManyValues)
                     // TODO: temp
-                    dout.writeLong(valueCountTotal.totalCount.toLong)
+                    dout.writeFloat(valueCountTotal.totalCount)
                     dout.writeInt(valueCountTotal.values.size())
                     EnumerScala.forward(valueCountTotal.values, (vc: ValueCount) => {
                         dout.writeValue(vc.tagValue)
                         // TODO: temp
-                        dout.writeLong(vc.valueCount.toLong)
+                        dout.writeFloat(vc.valueCount.toFloat)
                     })
                 }
             }
@@ -117,7 +117,7 @@ class TagCountService {
         val valueCount = TagCountProxy.getTagValueCountData(date, objType, tagGroup, tagName, tagValue);
         if (valueCount != null) {
             dout.writeByte(TcpFlag.HasNEXT);
-            dout.writeArray(toIntArr(valueCount))
+            dout.writeArray(valueCount)
         }
     }
     private def toIntArr(a: Array[Float]): Array[Int] = {
@@ -239,14 +239,14 @@ class TagCountService {
                         return true;
                     }
                 }
-//            } else if (key == TagConstants.NAME_USERID) {
-//                val useridLv = mv.getList(key);
-//                for (i <- 0 to useridLv.size() - 1) {
-//                    var userid = useridLv.getLong(i);
-//                    if (x.userid == userid) {
-//                        return true;
-//                    }
-//                }
+                //            } else if (key == TagConstants.NAME_USERID) {
+                //                val useridLv = mv.getList(key);
+                //                for (i <- 0 to useridLv.size() - 1) {
+                //                    var userid = useridLv.getLong(i);
+                //                    if (x.userid == userid) {
+                //                        return true;
+                //                    }
+                //                }
             } else if (key == TagConstants.NAME_CITY) {
                 val cityLv = mv.getList(key);
                 for (i <- 0 to cityLv.size() - 1) {
@@ -255,14 +255,14 @@ class TagCountService {
                         return true;
                     }
                 }
-//            } else if (key == TagConstants.NAME_IP) {
-//                val ipLv = mv.getList(key);
-//                for (i <- 0 to ipLv.size() - 1) {
-//                    var ip = ipLv.get(i);
-//                    if (IPUtil.toString(x.ipaddr) == ip.toString()) {
-//                        return true;
-//                    }
-//                }
+                //            } else if (key == TagConstants.NAME_IP) {
+                //                val ipLv = mv.getList(key);
+                //                for (i <- 0 to ipLv.size() - 1) {
+                //                    var ip = ipLv.get(i);
+                //                    if (IPUtil.toString(x.ipaddr) == ip.toString()) {
+                //                        return true;
+                //                    }
+                //                }
             } else if (TagConstants.serviceHashGroup.hasKey(key)) {
                 val serviceLv = mv.getList(key);
                 for (i <- 0 to serviceLv.size() - 1) {
@@ -287,42 +287,42 @@ class TagCountService {
                         return true;
                     }
                 }
-//            } else if (key == TagConstants.NAME_APITIME) {
-//                if (x.apicallTime >= 1000) {
-//                    val apitimeLv = mv.getList(key);
-//                    for (i <- 0 to apitimeLv.size() - 1) {
-//                        var apitime = apitimeLv.getInt(i);
-//                        apitime match {
-//                            case 1 => if (1000 <= x.apicallTime && x.apicallTime < 3000) return true;
-//                            case 3 => if (3000 <= x.apicallTime && x.apicallTime < 8000) return true;
-//                            case 8 => if (8000 <= x.apicallTime) return true;
-//                        }
-//                    }
-//                }
-//            } else if (key == TagConstants.NAME_SQLTIME) {
-//                if (x.sqlTime >= 1000) {
-//                    val sqltimeLv = mv.getList(key);
-//                    for (i <- 0 to sqltimeLv.size() - 1) {
-//                        var sqltime = sqltimeLv.getInt(i);
-//                        sqltime match {
-//                            case 1 => if (1000 <= x.sqlTime && x.sqlTime < 3000) return true;
-//                            case 3 => if (3000 <= x.sqlTime && x.sqlTime < 8000) return true;
-//                            case 8 => if (8000 <= x.sqlTime) return true;
-//                        }
-//                    }
-//                }
-//            } else if (key == TagConstants.NAME_ELAPSED) {
-//                if (x.elapsed >= 1000) {
-//                    val elapsedLv = mv.getList(key);
-//                    for (i <- 0 to elapsedLv.size() - 1) {
-//                        var elapsed = elapsedLv.getInt(i);
-//                        elapsed match {
-//                            case 1 => if (1000 <= x.elapsed && x.elapsed < 3000) return true;
-//                            case 3 => if (3000 <= x.elapsed && x.elapsed < 8000) return true;
-//                            case 8 => if (8000 <= x.elapsed) return true;
-//                        }
-//                    }
-//                }
+                //            } else if (key == TagConstants.NAME_APITIME) {
+                //                if (x.apicallTime >= 1000) {
+                //                    val apitimeLv = mv.getList(key);
+                //                    for (i <- 0 to apitimeLv.size() - 1) {
+                //                        var apitime = apitimeLv.getInt(i);
+                //                        apitime match {
+                //                            case 1 => if (1000 <= x.apicallTime && x.apicallTime < 3000) return true;
+                //                            case 3 => if (3000 <= x.apicallTime && x.apicallTime < 8000) return true;
+                //                            case 8 => if (8000 <= x.apicallTime) return true;
+                //                        }
+                //                    }
+                //                }
+                //            } else if (key == TagConstants.NAME_SQLTIME) {
+                //                if (x.sqlTime >= 1000) {
+                //                    val sqltimeLv = mv.getList(key);
+                //                    for (i <- 0 to sqltimeLv.size() - 1) {
+                //                        var sqltime = sqltimeLv.getInt(i);
+                //                        sqltime match {
+                //                            case 1 => if (1000 <= x.sqlTime && x.sqlTime < 3000) return true;
+                //                            case 3 => if (3000 <= x.sqlTime && x.sqlTime < 8000) return true;
+                //                            case 8 => if (8000 <= x.sqlTime) return true;
+                //                        }
+                //                    }
+                //                }
+                //            } else if (key == TagConstants.NAME_ELAPSED) {
+                //                if (x.elapsed >= 1000) {
+                //                    val elapsedLv = mv.getList(key);
+                //                    for (i <- 0 to elapsedLv.size() - 1) {
+                //                        var elapsed = elapsedLv.getInt(i);
+                //                        elapsed match {
+                //                            case 1 => if (1000 <= x.elapsed && x.elapsed < 3000) return true;
+                //                            case 3 => if (3000 <= x.elapsed && x.elapsed < 8000) return true;
+                //                            case 8 => if (8000 <= x.elapsed) return true;
+                //                        }
+                //                    }
+                //                }
             }
         }
         return false;

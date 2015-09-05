@@ -136,7 +136,7 @@ public class TagCountView extends ViewPart {
 	FigureCanvas cntCanvas;
 	XYGraph cntGraph;
 	HashMap<String, Trace> cntTraceMap = new HashMap<String, Trace>();
-	LinkedMap<String, int[]> valueMap = new LinkedMap<String, int[]>();
+	LinkedMap<String, float[]> valueMap = new LinkedMap<String, float[]>();
 	
 	private String objType;
 	private String date;
@@ -690,17 +690,17 @@ public class TagCountView extends ViewPart {
 			cntGraph.removeTrace(t);
 		}
 		cntTraceMap.clear();
-		int[] stackedValue = new int[1440];
-		LinkedMap<String, int[]> tempMap = new LinkedMap<String, int[]>();
+		float[] stackedValue = new float[1440];
+		LinkedMap<String, float[]> tempMap = new LinkedMap<String, float[]>();
 		Enumeration<ENTRY> entries = valueMap.entries();
 		while (entries.hasMoreElements()) {
 			ENTRY entry = entries.nextElement();
 			String key = (String) entry.getKey();
-			int[] values = (int[]) entry.getValue();
+			float[] values = (float[]) entry.getValue();
 			for (int i = 0; i < values.length; i++) {
 				stackedValue[i] += values[i];
 			}
-			int[] copiedArray = new int[stackedValue.length];
+			float[] copiedArray = new float[stackedValue.length];
 			System.arraycopy(stackedValue, 0, copiedArray, 0, stackedValue.length);
 			tempMap.putFirst(key, copiedArray);
 		}
@@ -709,7 +709,7 @@ public class TagCountView extends ViewPart {
 		while (entries2.hasMoreElements()) {
 			ENTRY entry = entries2.nextElement();
 			String key = (String) entry.getKey();
-			int[] values = (int[]) entry.getValue();
+			float[] values = (float[]) entry.getValue();
 			Trace trace = getCountTrace(key);
 			CircularBufferDataProvider provider = (CircularBufferDataProvider)trace.getDataProvider();
 			provider.clearTrace();
@@ -824,11 +824,11 @@ public class TagCountView extends ViewPart {
 							dataList.add(data);
 							data.tagName = in.readText();
 							data.totalSize = in.readInt();
-							data.totalCnt = in.readLong();
+							data.totalCnt = in.readFloat();
 							int size = in.readInt();
 							for (int i = 0; i < size; i++) {
 								Value v = in.readValue();
-								long cnt = in.readLong();
+								float cnt = in.readFloat();
 								data.addValue(v, cnt);
 							}
 						}
@@ -861,12 +861,12 @@ public class TagCountView extends ViewPart {
 	static class TagData {
 		String tagName;
 		List<Value> valueList = new ArrayList<Value>();
-		List<Long> cntList = new ArrayList<Long>();
+		List<Float> cntList = new ArrayList<Float>();
 		List<String> strValueList;
 		int totalSize;
-		long totalCnt;
+		float totalCnt;
 		
-		void addValue(Value v, long cnt) {
+		void addValue(Value v, float cnt) {
 			valueList.add(v);
 			cntList.add(cnt);
 		}
@@ -896,7 +896,7 @@ public class TagCountView extends ViewPart {
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
 				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
-				final int[] valueArray = new int[1440];
+				final float[] valueArray = new float[1440];
 				try {
 					MapPack param = new MapPack();
 					param.put("objType", objType);
@@ -906,8 +906,8 @@ public class TagCountView extends ViewPart {
 					param.put("date", date);
 					tcp.process(RequestCmd.TAGCNT_TAG_VALUE_DATA, param, new INetReader() {
 						public void process(DataInputX in) throws IOException {
-							int[] values = in.readArray(new int[0]);
-							for (int i = 0; i < values.length; i++) {
+							float[] values = in.readArray(new float[0]);
+							for (int i = 0; i < values.length; i++) {								
 								valueArray[i] = values[i];
 							}
 						}
@@ -935,7 +935,7 @@ public class TagCountView extends ViewPart {
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
 				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
-				final List<Integer> valueList = new ArrayList<Integer>();
+				final List<Float> valueList = new ArrayList<Float>();
 				try {
 					MapPack param = new MapPack();
 					param.put("tagGroup", tagGroup);
@@ -945,7 +945,7 @@ public class TagCountView extends ViewPart {
 					param.put("date", date);
 					tcp.process(RequestCmd.TAGCNT_TAG_VALUE_DATA, param, new INetReader() {
 						public void process(DataInputX in) throws IOException {
-							int[] values = in.readArray(new int[0]);
+							float[] values = in.readArray(new float[0]);
 							for (int i = 0; i < values.length; i++) {
 								valueList.add(values[i]);
 							}
@@ -963,7 +963,7 @@ public class TagCountView extends ViewPart {
 						provider.clearTrace();
 						for (int i = 0; i < valueList.size(); i++) {
 							double x = stime + (DateUtil.MILLIS_PER_MINUTE * i + DateUtil.MILLIS_PER_SECOND * 30);
-							int value = valueList.get(i);
+							float value = valueList.get(i);
 							provider.addSample(new Sample(x, value));
 						}
 						adjustYAxisRange(totalGraph, provider);
