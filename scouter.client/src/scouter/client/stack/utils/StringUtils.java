@@ -22,6 +22,8 @@ import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
 
 public class StringUtils {
+	static private final String STARTSTACK = "at ";
+	
 	static public boolean checkExist(String line, ArrayList<String> list){
 		if(line == null || list == null)
 			return false;
@@ -42,7 +44,7 @@ public class StringUtils {
 	}
 
 	static public String makeSimpleLine(String input, boolean isRemoveLine){
-		int index = input.indexOf("at ");
+		int index = input.indexOf(STARTSTACK);
 		if(index >=0){
 			if(isRemoveLine){
 				int end = input.indexOf('(');
@@ -56,6 +58,44 @@ public class StringUtils {
 			}
 		}
 		return input;
+	}
+	
+	static public ArrayList<String> makeStackToSimpe(ArrayList<String> list, int stackStartLine, ArrayList<String> singleList){
+		ArrayList<String> simpleList = new ArrayList<String>();
+		if(list == null || list.size() < stackStartLine){
+			return simpleList;
+		}
+		if(singleList == null || singleList.size() == 0){
+			return list;
+		}
+		
+		String line;
+		int ii;
+		int size = list.size();
+		int singleSize = singleList.size();
+		int startInx = 0;
+		for(int i = stackStartLine; i < size; i++){
+			line = list.get(i);
+			for(ii = 0; ii < singleSize; ii++){
+				if(line.indexOf(singleList.get(ii)) >= 0){
+					startInx = line.indexOf(STARTSTACK);
+					if(startInx >= 0){
+						line = new StringBuilder(50).append(line.subSequence(0, startInx + 5)).append(singleList.get(ii)).append("(modified stack)").toString();
+						
+					}else{
+						startInx = line.indexOf('-');
+						if(startInx >=0){
+							line = new StringBuilder(50).append(line.subSequence(0, startInx)).append(singleList.get(ii)).append("(modified stack)").toString();
+						}else{
+							line = new StringBuilder(50).append(singleList.get(ii)).append("(modified stack)").toString();							
+						}
+					}
+				}
+			}
+			simpleList.add(line);
+		}
+		
+		return simpleList;
 	}
 	
 	static public String getFilename(String fullPath){
@@ -104,5 +144,30 @@ public class StringUtils {
 		StringSelection ss = new StringSelection(contents);
 		Clipboard clboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		clboard.setContents(ss, null);
+	}
+	
+	static public int hashCode(ArrayList<String> list){
+		int hashCode = 0;
+		for(int i = 0; i < list.size(); i++){
+			hashCode +=  list.get(i).hashCode();
+		}
+		return hashCode;
+	}
+	
+	static public String makeStackValue(String value, boolean isRemoveLine){
+        int sIndex = value.indexOf(STARTSTACK);
+        if(sIndex < 0){
+        	throw new RuntimeException(value + " is not stack!");
+        }
+        int eIndex = 0;
+        if(isRemoveLine){
+        	eIndex = value.indexOf('(');
+        }
+        
+        if(eIndex > 0){
+        	return value.substring(sIndex + 3, eIndex);
+        }else{
+        	return value.substring(sIndex + 3);                	
+        }		
 	}
 }

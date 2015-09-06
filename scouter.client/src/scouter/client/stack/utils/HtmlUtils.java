@@ -421,4 +421,21 @@ public class HtmlUtils {
         Collections.sort(list, new ValueObjectComp());
     	return list;
     }
+    
+    static public String getUniqueStack(ArrayList<String> list){
+        if ( list == null )
+            return "";
+
+        StringBuilder buffer = new StringBuilder(1024000);
+        buffer.append(getMainBodyStart());
+        buffer.append("<b>[ Unique Stack ]</b><BR>");
+        buffer.append("<pre><font size=3>");
+        for(String stack : list){
+        	buffer.append(stack).append("\n");
+        }
+        buffer.append("</font></pre>");
+        buffer.append(getMainBodyEnd());
+        return buffer.toString();
+    	
+    }
 }

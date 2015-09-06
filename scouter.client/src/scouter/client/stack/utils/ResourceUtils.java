@@ -131,4 +131,14 @@ public class ResourceUtils {
 		}
 		manager.update(true);
     }
+
+    static public void removeFile( String filename ) {
+        File file = null;
+        file = new File(filename);
+        if ( file.exists() && file.isFile() ) {
+            if ( !file.delete() ) {
+                System.out.println("fail to delete - " + filename);
+            }
+        }
+    }    
  }

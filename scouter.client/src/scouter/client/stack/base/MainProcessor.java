@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+a *  Copyright 2015 LG CNS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import scouter.client.stack.data.StackAnalyzedValue;
 import scouter.client.stack.data.StackAnalyzedValueComp;
 import scouter.client.stack.data.StackFileInfo;
 import scouter.client.stack.data.StackParser;
+import scouter.client.stack.data.UniqueStackValue;
 import scouter.client.stack.utils.HtmlUtils;
 import scouter.client.stack.utils.ResourceUtils;
 import scouter.client.stack.utils.StringUtils;
@@ -391,6 +392,9 @@ public class MainProcessor{
     	for(StackAnalyzedValue value : list){
     		item = new TableItem(table, SWT.BORDER);
     		item.setText(value.toTableInfo());
+    		if(value instanceof UniqueStackValue){
+    			item.setData(((UniqueStackValue)value).getStack());
+    		}
     	} 	
     }
     
