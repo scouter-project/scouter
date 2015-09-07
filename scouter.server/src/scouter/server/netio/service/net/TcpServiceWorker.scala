@@ -68,22 +68,22 @@ class ServiceWorker(_socket: Socket) extends Runnable {
 
             val cafe = in.readInt();
             cafe match {
-                case NetCafe.TCP_AGENT =>
+                case  NetCafe.TCP_AGENT | NetCafe.TCP_AGENT_V2  =>
                     val objHash = in.readInt()
-                    val num= TcpAgentManager.add(objHash, new TcpAgentWorker(socket, in, out))
-                    if(conf.debug_net){
-                         println("Agent : " + remoteAddr + " open [" + Hexa32.toString32(objHash) + "] #"+num);
+                    val num = TcpAgentManager.add(objHash, new TcpAgentWorker(socket, in, out, cafe))
+                    if (conf.debug_net) {
+                        println("Agent : " + remoteAddr + " open [" + Hexa32.toString32(objHash) + "] #" + num);
                     }
                     return
                 case NetCafe.TCP_CLIENT =>
-                    if(conf.debug_net){
-                        println("Client : " + remoteAddr + " open #"+(ServiceWorker.getActiveCount()+1));
+                    if (conf.debug_net) {
+                        println("Client : " + remoteAddr + " open #" + (ServiceWorker.getActiveCount() + 1));
                     }
                 case _ =>
-                   if(conf.debug_net){
+                    if (conf.debug_net) {
                         println("Unknown : " + remoteAddr + " drop");
-                   }
-                   FileUtil.close(in);
+                    }
+                    FileUtil.close(in);
                     FileUtil.close(out);
                     FileUtil.close(socket);
                     return
@@ -116,21 +116,21 @@ class ServiceWorker(_socket: Socket) extends Runnable {
             }
         } catch {
             case ne: NullPointerException =>
-                if(conf.debug_net){
+                if (conf.debug_net) {
                     println("Client : " + remoteAddr + " closed");
                     ne.printStackTrace();
                 }
             case e: EOFException =>
-                if(conf.debug_net){
-                     println("Client : " + remoteAddr + " closed");
+                if (conf.debug_net) {
+                    println("Client : " + remoteAddr + " closed");
                 }
             case se: SocketTimeoutException =>
-                if(conf.debug_net){
-                     println("Client : " + remoteAddr + " closed");
-                     se.printStackTrace();
+                if (conf.debug_net) {
+                    println("Client : " + remoteAddr + " closed");
+                    se.printStackTrace();
                 }
             case e: Exception =>
-                if(conf.debug_net){
+                if (conf.debug_net) {
                     println("Client : " + remoteAddr + " closed " + e + " workers=" + ServiceWorker.getActiveCount());
                 }
             case t: Throwable => t.printStackTrace();

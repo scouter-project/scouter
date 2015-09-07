@@ -60,7 +60,7 @@ class HeapDumpService {
 
         val o = AgentManager.getAgent(objHash);
 
-        AgentCall.call(o, RequestCmd.OBJECT_DOWNLOAD_HEAP_DUMP, param, (inx: DataInputX, out: DataOutputX) =>
+        AgentCall.call(o, RequestCmd.OBJECT_DOWNLOAD_HEAP_DUMP, param, (proto: Int, inx: DataInputX, out: DataOutputX) =>
             while (inx.readByte() == TcpFlag.HasNEXT) {
                 dout.writeByte(TcpFlag.HasNEXT)
                 val buff = inx.readBlob()

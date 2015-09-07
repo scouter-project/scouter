@@ -29,17 +29,19 @@ public class TcpWorker implements Runnable {
 		if (socket == null)
 			return;
 		try {
-			process(socket);
+			processV2(socket);
 		} catch (Throwable t) {
 		} finally {
 			close();
 		}
 	}
-    public void close(){
-    	FileUtil.close(socket);
-    	socket = null;
+
+	public void close() {
+		FileUtil.close(socket);
+		socket = null;
 		LIVE.remove(this.hashCode());
-    }
+	}
+
 	protected Socket socket = null;
 
 	public boolean prepare() {
@@ -56,7 +58,7 @@ public class TcpWorker implements Runnable {
 			if (localAddr == null) {
 				localAddr = socket.getLocalAddress().getHostAddress();
 			}
-			LIVE.put(this.hashCode(),this);
+			LIVE.put(this.hashCode(), this);
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -81,6 +83,40 @@ public class TcpWorker implements Runnable {
 				if (res != null) {
 					out.writeByte(TcpFlag.HasNEXT);
 					out.writePack(res);
+				}
+				out.writeByte(TcpFlag.NoNEXT);
+				out.flush();
+			}
+		} finally {
+			FileUtil.close(in);
+			FileUtil.close(out);
+		}
+	}
+
+	private void processV2(Socket socket) throws IOException {
+		DataInputX in = null;
+		DataOutputX out = null;
+		try {
+			in = new DataInputX(new BufferedInputStream(socket.getInputStream()));
+			out = new DataOutputX(new BufferedOutputStream(socket.getOutputStream()));
+
+			out.writeInt(NetCafe.TCP_AGENT_V2);
+			out.writeInt(objHash);
+			out.flush();
+
+			while (objHash == Configure.getInstance().objHash) {
+				byte[] buff = in.readIntBytes();
+				
+				DataInputX in2 = new DataInputX(buff);
+				String cmd = in2.readText();
+				Pack parameter = (Pack) in2.readPack();
+
+				Pack res = ReqestHandlingProxy.process(cmd, parameter, in, out);
+				if (res != null) {
+					out.writeByte(TcpFlag.HasNEXT);
+					
+					byte[] obuff = new DataOutputX().writePack(res).toByteArray();
+					out.writeIntBytes(obuff);
 				}
 				out.writeByte(TcpFlag.NoNEXT);
 				out.flush();

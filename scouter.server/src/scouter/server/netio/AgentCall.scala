@@ -65,7 +65,7 @@ object AgentCall {
         return null;
     }
 
-    def call(o: ObjectPack, cmd: String, param: MapPack, handler: (DataInputX, DataOutputX) => Unit) {
+    def call(o: ObjectPack, cmd: String, param: MapPack, handler: (Int, DataInputX, DataOutputX) => Unit) {
         if (o == null)
             return ;
         val tcpAgent = TcpAgentManager.get(o.objHash);
