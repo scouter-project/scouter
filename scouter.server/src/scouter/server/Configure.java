@@ -194,6 +194,8 @@ public class Configure extends Thread {
 	public boolean tagcnt_debug = false;
 	
 	public int tcp_server_pool_size = 100;
+	
+	public static boolean WORKABLE = true; 
 
 	private void apply() {
 		this.xlog_autodrop_time = getInt("xlog_autodrop_time", 100);
