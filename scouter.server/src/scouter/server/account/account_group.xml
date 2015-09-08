@@ -41,7 +41,7 @@
 			<AllowLoginList>false</AllowLoginList>
 			<AllowDBManager>false</AllowDBManager>
 			<AllowAddAccount>false</AllowAddAccount>
-			<AllowEditAccount>true</AllowEditAccount>
+			<AllowEditAccount>false</AllowEditAccount>
 			<AllowSqlParameter>false</AllowSqlParameter>
 			<AllowKillTransaction>false</AllowKillTransaction>
 			<AllowExportClass>false</AllowExportClass>
