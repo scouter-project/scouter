@@ -252,8 +252,8 @@ public class Configure extends Thread {
 		this.xlog_realtime_limit = getInt("xlog_realtime_limit", 0);
 		this.xlog_pasttime_limit = getInt("xlog_pasttime_limit", 0);
 		this.auto_delete_data = getBoolean("auto_delete_data", true);
-		this.auto_delete_only_xlog = getBoolean("auto_delete_only_xlog", true);
-		this.auto_delete_max_percent = getInt("auto_delete_max_percent", 95);
+		this.auto_delete_only_xlog = getBoolean("auto_delete_only_xlog", false);
+		this.auto_delete_max_percent = getInt("auto_delete_max_percent", 80);
 		this.auto_delete_retain_days = getInt("auto_delete_retain_days", 0);
 		this.num_of_net_processor = getInt("num_of_net_processor", 4);
 		this.geoip_data_city = getValue("geoip_data_city", "./GeoLiteCity.dat");
