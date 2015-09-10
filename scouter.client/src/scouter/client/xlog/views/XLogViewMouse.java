@@ -69,6 +69,7 @@ public class XLogViewMouse implements MouseListener, MouseMoveListener {
 	}
 	
 	public void mouseDoubleClick(MouseEvent e) {
+		x1 = x2 = y1 = y2 = -1;
 		if (viewPainter.onMouseDoubleClick(e.x, e.y)) {
 			canvas.redraw();
 		}

@@ -45,6 +45,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import scouter.client.Images;
+import scouter.client.listeners.RangeMouseListener;
 import scouter.client.model.AgentColorManager;
 import scouter.client.model.RefreshThread;
 import scouter.client.model.RefreshThread.Refreshable;
@@ -319,6 +320,8 @@ public class CounterRealTimeView extends ScouterViewPart implements Refreshable 
 
 		xyGraph.primaryXAxis.setTitle("");
 		xyGraph.primaryYAxis.setTitle("");
+		
+		xyGraph.primaryYAxis.addMouseListener(new RangeMouseListener(getViewSite().getShell(), xyGraph.primaryYAxis));
 
 		restoreState();
 		
