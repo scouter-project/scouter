@@ -98,12 +98,12 @@ public class SetRangeDialog extends Dialog {
 			super.okPressed();
 		} else {
 			try {
-				double max = Double.valueOf(maxTxt.getText());
-				double min = Double.valueOf(minTxt.getText());
+				double max = CastUtil.cdouble(maxTxt.getText().trim());
+				double min = CastUtil.cdouble(minTxt.getText().trim());
 				if (max > min) {
-					axis.setRange(min, max);
+					axis.setRangeDirect(min, max);
 				} else {
-					axis.setRange(max, min);
+					axis.setRangeDirect(max, min);
 				}
 				axis.setAutoScale(false);
 				super.okPressed();
