@@ -932,6 +932,14 @@
             name="DatabaseConnectionTotal"
             restorable="true">
       </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterRealTimeMultiView"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterRealTimeMultiView"
+            name="RealTimeMultiCount"
+            restorable="true">
+      </view>
   </extension>
  <extension
          point="org.eclipse.ui.commands">

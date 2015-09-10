@@ -69,6 +69,7 @@ import scouter.client.counter.actions.OpenPastTimeAllAction;
 import scouter.client.counter.actions.OpenPastTimeTotalAction;
 import scouter.client.counter.actions.OpenPastTimeViewAction;
 import scouter.client.counter.actions.OpenRealTimeAllAction;
+import scouter.client.counter.actions.OpenRealTimeMultiAction;
 import scouter.client.counter.actions.OpenRealTimeTotalAction;
 import scouter.client.counter.actions.OpenRealTimeViewAction;
 import scouter.client.counter.actions.OpenTodayAllAction;
@@ -377,6 +378,12 @@ public class MenuUtil implements IMenuCreator{
     		performanceCounter.add(new OpenUniqueVisitorAction(win, serverId, objHash));
     	} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_MARIA)) {
     		performanceCounter.add(new Separator());
+    		performanceCounter.add(new OpenRealTimeMultiAction(win, "Opened Tables", serverId, objHash, objType
+    				, new String[] {"OT_DEF", "OT_COUNT"}));
+    		performanceCounter.add(new OpenRealTimeMultiAction(win, "Temporary Tables", serverId, objHash, objType
+    				, new String[] {"DTEMP_TBL", "MTEMP_TBL"}));
+    		performanceCounter.add(new OpenRealTimeMultiAction(win, "Table Locks", serverId, objHash, objType
+    				, new String[] {"TBL_LOCK", "TBL_LOCK_W"}));
     		performanceCounter.add(new OpenDbRealtimeWaitCountAction(serverId, objHash));
     	}
     	
