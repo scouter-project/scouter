@@ -53,7 +53,7 @@ public class P0InitMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitTypeInsn(NEW, Type.getInternalName(SqlParameter.class));
 			mv.visitInsn(DUP);
-			mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(SqlParameter.class), "<init>", "()V");
+			mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(SqlParameter.class), "<init>", "()V",false);
 			mv.visitFieldInsn(PUTFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
 
 			mv.visitLabel(end);
@@ -62,7 +62,7 @@ public class P0InitMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
 			mv.visitVarInsn(ALOAD, strArgIdx);
 
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, METHOD, SIGNATURE);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, METHOD, SIGNATURE,false);
 		}
 		mv.visitInsn(opcode);
 	}

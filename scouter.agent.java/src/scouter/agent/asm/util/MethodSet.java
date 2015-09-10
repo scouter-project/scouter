@@ -133,9 +133,6 @@ public class MethodSet {
 
 		return list;
 	}
-
-	static String hook_subcall = "*.SapServiceImpl.getZ_SD_SHOP_STOCK_INFO , *.Sa1pServiceImpl.getZ_SD_SHOP_STOCK_INFO";
-
 	
 	public static void setHookingMethod(Map<String, MethodSet> classSet, String cname, String mname) {
 

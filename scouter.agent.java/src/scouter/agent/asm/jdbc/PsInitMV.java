@@ -62,7 +62,7 @@ public class PsInitMV extends LocalVariablesSorter implements Opcodes {
 			// mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD,
 			// "Lscouter/agent/trace/SqlParameter;");
 			mv.visitVarInsn(ALOAD, strArgIdx);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, METHOD, SIGNATURE);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, METHOD, SIGNATURE,false);
 		}
 		mv.visitInsn(opcode);
 	}

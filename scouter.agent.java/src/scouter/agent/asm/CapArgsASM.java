@@ -75,8 +75,6 @@ class CapArgsCV extends ClassVisitor implements Opcodes {
 		if (AsmUtil.isSpecial(methodName)) {
 			return mv;
 		}
-		// String fullname = AsmUtil.add(className, name, desc);
-		// int fullname_hash = HashUtil.hash(fullname);
 		return new CapArgsMV(access, desc, mv, Type.getArgumentTypes(desc), (access & ACC_STATIC) != 0, className,
 				methodName, desc);
 	}
@@ -115,19 +113,13 @@ class CapArgsMV extends LocalVariablesSorter implements Opcodes {
 		mv.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
 		mv.visitVarInsn(Opcodes.ASTORE, arrVarIdx);
 
-		// if (isStatic == false) {
-		// mv.visitVarInsn(Opcodes.ALOAD, arrVarIdx);
-		// AsmUtil.PUSH(mv, 0);
-		// mv.visitVarInsn(Opcodes.ALOAD, 0);
-		// mv.visitInsn(Opcodes.AASTORE);
-		// }
 
 		for (int i = 0; i < paramTypes.length; i++) {
-			Type tp = paramTypes[i];
+			Type type = paramTypes[i];
 			mv.visitVarInsn(Opcodes.ALOAD, arrVarIdx);
 			AsmUtil.PUSH(mv, i);
 
-			switch (tp.getSort()) {
+			switch (type.getSort()) {
 			case Type.BOOLEAN:
 				mv.visitVarInsn(Opcodes.ILOAD, sidx);
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;",false);
@@ -164,14 +156,14 @@ class CapArgsMV extends LocalVariablesSorter implements Opcodes {
 				mv.visitVarInsn(Opcodes.ALOAD, sidx);
 			}
 			mv.visitInsn(Opcodes.AASTORE);
-			sidx += tp.getSize();
+			sidx += type.getSize();
 		}
 		AsmUtil.PUSH(mv, className);
 		AsmUtil.PUSH(mv, methodName);
 		AsmUtil.PUSH(mv, methodDesc);
 		mv.visitVarInsn(Opcodes.ALOAD, arrVarIdx);
 
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE);
-		super.visitCode();
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE,false);
+		mv.visitCode();
 	}
 }
