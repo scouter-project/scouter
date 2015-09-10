@@ -31,6 +31,7 @@ import org.eclipse.ui.PlatformUI;
 
 import scouter.client.model.XLogData;
 import scouter.client.util.ConsoleProxy;
+import scouter.client.util.ExUtil;
 import scouter.client.util.TimeUtil;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
@@ -164,46 +165,114 @@ public class XLogViewMouse implements MouseListener, MouseMoveListener {
 
 	}
 	
-	public void zoominArea(final Display display, int x1, int y1, int x2, int y2) {
-		int txCnt = 0;
-		LongKeyLinkedMap<XLogData> zoomData = new LongKeyLinkedMap<XLogData>();
-		LongEnumer enumer = data.keys();
-		double max = 0;
-		double min = Double.MAX_VALUE;
-		while (enumer.hasMoreElements()) {
-			long key = enumer.nextLong();
-			XLogData item = data.get(key);
-			if (inRect(x1, y1, x2, y2, item.x, item.y) 
-					&& (item.filter_ok)) {
-				txCnt++;
-				if (item.p.elapsed > max) {
-					max = item.p.elapsed;
+	public void zoominArea(final Display display, final int x1, final int y1, final int x2, final int y2) {
+		ExUtil.asyncRun(new Runnable() {
+			public void run() {
+				int txCnt = 0;
+				final LongKeyLinkedMap<XLogData> zoomData = new LongKeyLinkedMap<XLogData>();
+				LongEnumer enumer = data.keys();
+				double max = 0;
+				double min = Double.MAX_VALUE;
+				while (enumer.hasMoreElements()) {
+					long key = enumer.nextLong();
+					XLogData item = data.get(key);
+					if (inRect(x1, y1, x2, y2, item.x, item.y) 
+							&& (item.filter_ok)) {
+						txCnt++;
+						switch(viewPainter.yAxisMode) {
+							case ELAPSED:
+								if (item.p.elapsed / 1000d > max) {
+									max = item.p.elapsed / 1000d;
+								}
+								if (item.p.elapsed / 1000d < min) {
+									min = item.p.elapsed / 1000d;
+								}
+								break;
+							case CPU:
+								if (item.p.cpu > max) {
+									max = item.p.cpu;
+								}
+								if (item.p.cpu < min) {
+									min = item.p.cpu;
+								}
+								break;
+							case SQL_TIME:
+								if (item.p.sqlTime / 1000d > max) {
+									max = item.p.sqlTime / 1000d;
+								}
+								if (item.p.sqlTime / 1000d < min) {
+									min = item.p.sqlTime / 1000d;
+								}
+								break;
+							case SQL_COUNT:
+								if (item.p.sqlCount > max) {
+									max = item.p.sqlCount;
+								}
+								if (item.p.sqlCount < min) {
+									min = item.p.sqlCount;
+								}
+								break;
+							case APICALL_TIME:
+								if (item.p.apicallTime / 1000d > max) {
+									max = item.p.apicallTime / 1000d;
+								}
+								if (item.p.apicallTime / 1000d < min) {
+									min = item.p.apicallTime / 1000d;
+								}
+								break;
+							case APICALL_COUNT:
+								if (item.p.apicallCount > max) {
+									max = item.p.apicallCount;
+								}
+								if (item.p.apicallCount < min) {
+									min = item.p.apicallCount;
+								}
+								break;
+							case HEAP_USED:
+								if (item.p.bytes / 1024.0d > max) {
+									max = item.p.bytes / 1024.0d ;
+								}
+								if (item.p.bytes / 1024.0d < min) {
+									min = item.p.bytes / 1024.0d ;
+								}
+								break;
+							default:
+								if (item.p.elapsed / 1000d> max) {
+									max = item.p.elapsed / 1000d;
+								}
+								if (item.p.elapsed / 1000d< min) {
+									min = item.p.elapsed / 1000d;
+								}
+								break;
+						}
+						zoomData.put(key, new XLogData(item.p, item.serverId));
+					}
 				}
-				if (item.p.elapsed < min) {
-					min = item.p.elapsed;
+				if (txCnt < 1) {
+					ConsoleProxy.info("[XLog] no xlogs in selected area.");
+					return;
 				}
-				zoomData.put(key, new XLogData(item.p, item.serverId));
+				ConsoleProxy.info("[XLog] "+txCnt + " selected.");
+				final long stime = zoomData.getFirstValue().p.endTime - 500;
+				final long etime = zoomData.getLastValue().p.endTime + 500;
+				final double yMax = max * 1.01;
+				final double yMin = min * 0.99;
+				
+				ExUtil.exec(display, new Runnable() {
+					public void run() {
+						try {
+							IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+							XLogZoomTimeView view = (XLogZoomTimeView) win.getActivePage().showView(XLogZoomTimeView.ID,//
+									objType+stime+etime+yMax+yMin, IWorkbenchPage.VIEW_ACTIVATE);
+							if (view != null) {
+								view.setInput(stime, etime, yMax, yMin, zoomData, objType, viewPainter.yAxisMode);
+							}
+						} catch (Exception d) {
+						}
+					}
+				});
 			}
-		}
-		if (txCnt < 1) {
-			ConsoleProxy.info("[XLog] no xlogs in selected area.");
-			return;
-		}
-		ConsoleProxy.info("[XLog] "+txCnt + " selected.");
-		long stime = zoomData.getFirstValue().p.endTime - 500;
-		long etime = zoomData.getLastValue().p.endTime + 500;
-		max *= 1.01;
-		min *= 0.99;
-		
-		try {
-			IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			XLogZoomTimeView view = (XLogZoomTimeView) win.getActivePage().showView(XLogZoomTimeView.ID,//
-					objType+stime+etime+max+min, IWorkbenchPage.VIEW_ACTIVATE);
-			if (view != null) {
-				view.setInput(stime, etime, max / 1000, min / 1000, zoomData, objType);
-			}
-		} catch (Exception d) {
-		}
+		});
 	}
 
 	public boolean inRect(int x, int y, int tx, int ty, int sx, int sy) {
