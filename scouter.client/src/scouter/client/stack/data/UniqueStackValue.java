@@ -23,12 +23,12 @@ import scouter.client.stack.utils.StringUtils;
 public class UniqueStackValue extends StackAnalyzedValue {
 	private ArrayList<String> m_stack = null;
 	
-	public UniqueStackValue(ArrayList<String> list, int count, int intPct, int extPct){
-		super(StringUtils.makeStackValue(list.get(0), false), count, intPct, extPct);
-		m_stack = list;
+	public UniqueStackValue(String value, int count, int intPct, int extPct){
+		super(value, count, intPct, extPct);		
 	}
 
 	public UniqueStackValue(ArrayList<String> list){
+		setValue(StringUtils.makeStackValue(list.get(0), false));
 		setStack(list);
 	}
 	
@@ -43,7 +43,6 @@ public class UniqueStackValue extends StackAnalyzedValue {
 	}
 	
 	public void setStack( ArrayList<String> list){
-		setValue(StringUtils.makeStackValue(list.get(0), false));
 		m_stack = list;
 	}
 }

@@ -856,7 +856,8 @@ public abstract class StackParser {
             int intPct;
             String keyValue;
             StackAnalyzedValue analyzedValue;
-
+            boolean isUniqueStack = (name.equals(StackParser.UNIQUE_NAME))?true:false;
+            
             while ( (line = reader.readLine()) != null ) {
                 line = line.trim();
                 if ( line.length() == 0 )
@@ -902,7 +903,11 @@ public abstract class StackParser {
                             index++;
                         }
                         if ( index == 4 ) {
-                            analyzedValue = new StackAnalyzedValue(keyValue, count, intPct, extPct);
+                        	if(isUniqueStack){
+                        		analyzedValue = new UniqueStackValue(keyValue, count, intPct, extPct);                        		
+                        	}else{
+                        		analyzedValue = new StackAnalyzedValue(keyValue, count, intPct, extPct);
+                        	}
                             list.add(analyzedValue);
                         }
                     } else {

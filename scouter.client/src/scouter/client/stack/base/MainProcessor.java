@@ -143,7 +143,7 @@ public class MainProcessor{
         //    openFiles(new File[] { new File(menuName) }, true);
         } else if ( "Open Stack Log".equals(menuName) ) {  	
             chooseStackFile();
-        } else if ( "Open Analyzed Stack".equals(menuName) ) {
+        } else if ( "Open Analyzed Stack Log".equals(menuName) ) {
             openAnalyzedInfo();
         } else if ( "Close All".equals(menuName) ) {
             closeStackAllFileInfo();
@@ -484,11 +484,14 @@ public class MainProcessor{
         	return;
         }
         StackAnalyzedInfo analyzedInfo = (StackAnalyzedInfo)object;
+        if(analyzedInfo.getExtension().equals(StackParser.UNIQUE_EXT)){
+        	return;
+        }
+        
     	StackFileInfo stackFileInfo = analyzedInfo.getStackFileInfo();
     	
     	System.out.println("StackFile:"+ stackFileInfo.toString());        	
     	System.out.println("File:"+ analyzedInfo.toString());
-    	
     	
         String analyzedFilename = StackParser.getAnaylzedFilename(stackFileInfo.getFilename(), analyzedInfo.getExtension());
         File file = new File(analyzedFilename);

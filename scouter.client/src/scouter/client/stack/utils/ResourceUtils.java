@@ -33,6 +33,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.stack.base.PreferenceManager;
+import scouter.client.util.RCPUtil;
 
 public class ResourceUtils {
 	public static InputStream getDefaultXMLConfig(){
@@ -86,7 +87,7 @@ public class ResourceUtils {
 		dialog.setText(title);
 		dialog.setFilterNames(names);
 		dialog.setFilterExtensions(extensions);
-		dialog.setFilterPath(prefManager.getPreference(title, "."));
+		dialog.setFilterPath(prefManager.getPreference(title, RCPUtil.getWorkingDirectory().getAbsolutePath()));
 		String fileName = dialog.open();
 		if(fileName != null){
 			File file = new File(fileName);

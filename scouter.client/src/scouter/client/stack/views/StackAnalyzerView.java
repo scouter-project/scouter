@@ -175,6 +175,13 @@ public class StackAnalyzerView extends ViewPart {
 				new MainProcessorAction("Open Stack Log").run();
 			}
 		});
+
+		man.add(new Action("open analyzed stack log", ImageUtil.getImageDescriptor(Images.folder_star)) {
+			public void run() {
+				new MainProcessorAction("Open Analyzed Stack Log").run();
+			}
+		});
+		
 		man.add(new Action("close all stack log", ImageUtil.getImageDescriptor(Images.close_folder)) {
 			public void run() {
 				new MainProcessorAction("Close All").run();
