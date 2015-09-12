@@ -1,0 +1,1 @@
+http-server /Users/gunlee/Documents/workspace/scouter/scouter/scouter.enduser.script/script -p 8082
