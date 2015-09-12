@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 Scouter Project.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -23,24 +23,28 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
 import scouter.util.SystemUtil;
+import scouter.util.ThreadUtil;
 
 public class ToolsMainFactory {
 	private static final String TOOLS_MAIN = "scouter.xtra.tools.ToolsMain";
 
 	public static MapPack heaphisto(Pack param) throws Throwable {
+		
+		MapPack m = new MapPack();
+		if (SystemUtil.IS_JAVA_1_5) {
+			m.put("error", "Not supported java version : " + SystemUtil.JAVA_VERSION);
+			return m;
+		}
+		if (SystemUtil.JAVA_VENDOR.startsWith("IBM")) {
+			m.put("error", "Not supported java vendor : " + SystemUtil.JAVA_VENDOR);
+			return m;
+		}
 		ClassLoader loader = LoaderManager.getToolsLoader();
 		if (loader == null) {
 			return null;
 		}
-		MapPack m = new MapPack();
-		if (SystemUtil.IS_JAVA_1_5) {
-			m.put("error", "Not supported java version : "
-					+ SystemUtil.JAVA_VERSION);
-			return m;
-		}
 		if (SystemUtil.JAVA_VENDOR.startsWith("IBM")) {
-			m.put("error", "Not supported java vendor : "
-					+ SystemUtil.JAVA_VENDOR);
+			m.put("error", "Not supported java vendor : " + SystemUtil.JAVA_VENDOR);
 			return m;
 		}
 		try {
@@ -58,14 +62,15 @@ public class ToolsMainFactory {
 	}
 
 	public static void heaphisto(PrintWriter out) throws Throwable {
-		ClassLoader loader = LoaderManager.getToolsLoader();
-		if (loader == null) {
-			return;
-		}
+		
 		if (SystemUtil.IS_JAVA_1_5) {
 			return;
 		}
 		if (SystemUtil.JAVA_VENDOR.startsWith("IBM")) {
+			return;
+		}
+		ClassLoader loader = LoaderManager.getToolsLoader();
+		if (loader == null) {
 			return;
 		}
 		try {
@@ -78,21 +83,25 @@ public class ToolsMainFactory {
 	}
 
 	public static Pack threadDump(Pack param) throws Throwable {
+		
+		MapPack m = new MapPack();
+		if (SystemUtil.IS_JAVA_1_5||SystemUtil.JAVA_VENDOR.startsWith("IBM")) {
+			List<String> out =  ThreadUtil.getThreadDumpList();
+			ListValue lv = m.newList("threadDump");
+			for (int i = 0; i < out.size(); i++) {
+				lv.add(out.get(i));
+			}
+			return m;
+		}
 		ClassLoader loader = LoaderManager.getToolsLoader();
 		if (loader == null) {
-			return null;
+			List<String> out =  ThreadUtil.getThreadDumpList();
+			ListValue lv = m.newList("threadDump");
+			for (int i = 0; i < out.size(); i++) {
+				lv.add(out.get(i));
+			}
 		}
-		MapPack m = new MapPack();
-		if (SystemUtil.IS_JAVA_1_5) {
-			m.put("error", "Not supported java version : "
-					+ SystemUtil.JAVA_VERSION);
-			return m;
-		}
-		if (SystemUtil.JAVA_VENDOR.startsWith("IBM")) {
-			m.put("error", "Not supported java vendor : "
-					+ SystemUtil.JAVA_VENDOR);
-			return m;
-		}
+		
 		try {
 			Class c = Class.forName(TOOLS_MAIN, true, loader);
 			IToolsMain toolsMain = (IToolsMain) c.newInstance();
@@ -108,19 +117,19 @@ public class ToolsMainFactory {
 
 	}
 
-	public static boolean activeStack=false;
+	public static boolean activeStack = false;
+
 	public static void threadDump(PrintWriter out) throws Throwable {
+		activeStack = true;
+		if (SystemUtil.IS_JAVA_1_5 || SystemUtil.JAVA_VENDOR.startsWith("IBM")) {
+			out.print(ThreadUtil.getThreadDump());
+			return;
+		}
 		ClassLoader loader = LoaderManager.getToolsLoader();
 		if (loader == null) {
+			out.print(ThreadUtil.getThreadDump());
 			return;
 		}
-		if (SystemUtil.IS_JAVA_1_5) {
-			return;
-		}
-		if (SystemUtil.JAVA_VENDOR.startsWith("IBM")) {
-			return;
-		}
-		activeStack=true;
 		try {
 			Class c = Class.forName(TOOLS_MAIN, true, loader);
 			IToolsMain toolsMain = (IToolsMain) c.newInstance();
