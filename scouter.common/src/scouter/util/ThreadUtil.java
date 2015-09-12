@@ -19,6 +19,8 @@ package scouter.util;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -100,7 +102,7 @@ public class ThreadUtil {
 		ThreadInfo f = tmb.getThreadInfo(id, 500);
 		if (f == null)
 			return null;
-		return getStackTrace(f.getStackTrace()).toString();
+		return getStackTrace(f.getStackTrace());
 	}
 
 	public static String getThreadStack() {
@@ -125,6 +127,24 @@ public class ThreadUtil {
 		return sb.toString();
 	}
 
+	private static String getDumpStack(StackTraceElement[] se) {
+		String CRLF = System.getProperty("line.separator");
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < se.length; i++) {
+			if (sb.length() > 0) {
+				sb.append(CRLF);
+			}
+			sb.append("\t" + se[i]);
+		}
+		return sb.toString();
+	}
+
+	private static void getDumpStack(List<String> buff, StackTraceElement[] se) {
+		for (int i = 0; i < se.length; i++) {
+			buff.add("\t" + se[i]);
+		}
+	}
+
 	public static MapPack getThreadList() {
 		ThreadMXBean tmb = ManagementFactory.getThreadMXBean();
 
@@ -147,17 +167,16 @@ public class ThreadUtil {
 	}
 
 	public static ThreadPoolExecutor createExecutor(final String name, int count, int keepAlive, final boolean isDaemon) {
-		ThreadPoolExecutor exe = new ThreadPoolExecutor(count, count, keepAlive, TimeUnit.MILLISECONDS,
-				new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
-					private int threadNum = 1;
+		ThreadPoolExecutor exe = new ThreadPoolExecutor(count, count, keepAlive, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadFactory() {
+			private int threadNum = 1;
 
-					public Thread newThread(Runnable r) {
-						Thread t = new Thread(r, name + (threadNum++));
-						t.setDaemon(isDaemon);
-						return t;
-					}
+			public Thread newThread(Runnable r) {
+				Thread t = new Thread(r, name + (threadNum++));
+				t.setDaemon(isDaemon);
+				return t;
+			}
 
-				});
+		});
 
 		// if (keepAlive > 0) {
 		// // FIXME JDK 1.7 ?
@@ -170,7 +189,7 @@ public class ThreadUtil {
 
 		return exe;
 	}
-	
+
 	public static String getStackTrace(Throwable t) {
 		String CRLF = System.getProperty("line.separator");
 		StringBuffer sb = new StringBuffer();
@@ -201,10 +220,8 @@ public class ThreadUtil {
 		StackTraceElement[] se = t.getStackTrace();
 		if (se != null && se.length > 0) {
 			for (int i = 0; i < se.length && i < max; i++) {
-				if (se[i] != null) {
-					sb.append(CRLF);
-					sb.append("\t" + se[i]);
-				}
+				sb.append(CRLF);
+				sb.append("\t" + se[i]);
 			}
 			if (max < se.length) {
 				sb.append(CRLF + "\t...more lines " + (se.length - max));
@@ -212,6 +229,60 @@ public class ThreadUtil {
 		} else {
 			sb.append(CRLF + "\tno stack info ");
 		}
+	}
 
+	public static void main(String[] args) {
+		System.out.println( Long.toHexString(100));
+	}
+
+	public static String getThreadDump() {
+		StringBuffer dump = new StringBuffer(2048);
+		dump.append(DateUtil.format(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss")).append("\n");
+		dump.append("Scouter thread dump " + System.getProperty("java.vm.name")).append("\n");
+		ThreadMXBean tmb = ManagementFactory.getThreadMXBean();
+		long[] thread = tmb.getAllThreadIds();
+		for (int i = 0; i < thread.length; i++) {
+			dump.append("\n");
+			ThreadInfo f = tmb.getThreadInfo(thread[i], 500);
+			StackTraceElement[] se = f.getStackTrace();
+			if (se.length > 0) {
+				dump.append(getThreadHead(f)).append("\n");
+				dump.append("   java.lang.Thread.State: ").append(f.getThreadState()).append("\n");
+				dump.append(getDumpStack(se)).append("\n");
+			} else {
+				dump.append(getThreadHead(f)).append(" ").append(f.getThreadState().toString().toLowerCase()).append("\n");
+			}
+		}
+		return dump.toString();
+	}
+
+	private static String getThreadHead(ThreadInfo f) {
+		StringBuffer sb = new StringBuffer();
+		sb.append('"').append(f.getThreadName()).append('"');
+		sb.append(" tid=0x" + Long.toHexString(f.getThreadId()));
+		sb.append(" native=" + f.isInNative());
+		sb.append(" suspended=" + f.isSuspended());
+		return sb.toString();
+	}
+
+	public static List<String> getThreadDumpList() {
+		ArrayList<String> dump = new ArrayList<String>();
+		dump.add(DateUtil.format(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss"));
+		dump.add("Scouter thread dump " + System.getProperty("java.vm.name"));
+		ThreadMXBean tmb = ManagementFactory.getThreadMXBean();
+		long[] thread = tmb.getAllThreadIds();
+		for (int i = 0; i < thread.length; i++) {
+			dump.add("");
+			ThreadInfo f = tmb.getThreadInfo(thread[i], 500);
+			StackTraceElement[] se = f.getStackTrace();
+			if (se.length > 0) {
+				dump.add(getThreadHead(f));
+				dump.add("   java.lang.Thread.State: " + f.getThreadState());
+				getDumpStack(dump, se);
+			} else {
+				dump.add(getThreadHead(f) + " " + f.getThreadState().toString().toLowerCase());
+			}
+		}
+		return dump;
 	}
 }
