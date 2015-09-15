@@ -123,7 +123,6 @@ public class Configure extends Thread {
 		return true;
 	}
 
-	public int xlog_autodrop_time = 100;
 	public int xlog_queue_size = 100000;
 	public boolean debug_net = false;
 
@@ -181,24 +180,17 @@ public class Configure extends Thread {
 	public String geoip_data_city = "./GeoLiteCity.dat";
 	public boolean enable_geoip = true;
 
-	public int max_api_stat = 10000;
-	public int max_sql_stat = 10000;
-
 	public int xlog_profile_save_time_limit = 0;
 	public boolean enable_sql_parsing = true;
 
-	public boolean stat_pull_enabled = true;
-
 	public StringSet log_ignore = new StringSet();
 	public boolean tagcnt_enabled = true;
-	public boolean tagcnt_debug = false;
 	
 	public int tcp_server_pool_size = 100;
 	
 	public static boolean WORKABLE = true; 
 
 	private void apply() {
-		this.xlog_autodrop_time = getInt("xlog_autodrop_time", 100);
 		this.xlog_queue_size = getInt("xlog_queue_size", 100000);
 		this.debug_net = getBoolean("debug_net", false);
 
@@ -258,18 +250,13 @@ public class Configure extends Thread {
 		this.num_of_net_processor = getInt("num_of_net_processor", 4);
 		this.geoip_data_city = getValue("geoip_data_city", "./GeoLiteCity.dat");
 		this.enable_geoip = getBoolean("enable_geoip", true);
-		this.max_sql_stat = getInt("max_sql_stat", 10000);
-		this.max_api_stat = getInt("max_api_stat", 10000);
 
 		this.xlog_profile_save_time_limit = getInt("xlog_profile_save_time_limit", 0);
 		this.enable_sql_parsing = getBoolean("enable_parse_sql", true);
 
-		this.stat_pull_enabled = getBoolean("stat_pull_enabled", true);
-
 		this.log_ignore = getStringSet("log_ignore", ",");
 
 		this.tagcnt_enabled = getBoolean("tagcnt_enabled", true);
-		this.tagcnt_debug = getBoolean("tagcnt_debug", false);
 		
 		this.tcp_server_pool_size = getInt("tcp_server_pool_size", 100);
 
