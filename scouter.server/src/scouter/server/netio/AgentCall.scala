@@ -71,6 +71,7 @@ object AgentCall {
         val tcpAgent = TcpAgentManager.get(o.objHash);
         if (tcpAgent != null) {
             try {
+            	RequestLogger.getInstance().registerCmd(cmd);
                 tcpAgent.write(cmd, if (param != null) param else new MapPack())
                 tcpAgent.read(handler)
             } finally {
