@@ -70,11 +70,15 @@ public class DataOutputX {
 	public DataOutputX(RandomAccessFile out) {
 		this.inner = out;
 	}
+	public DataOutputX writeIntBytes(byte[] b) throws IOException {
+		this.writeInt(b.length);
+		this.write(b);
+		return this;
 
+	}
 	public DataOutputX writeShortBytes(byte[] b) throws IOException {
 		this.writeShort(b.length);
-		this.written += b.length;
-		this.inner.write(b);
+		this.write(b);
 		return this;
 
 	}

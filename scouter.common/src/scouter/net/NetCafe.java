@@ -36,6 +36,7 @@ public class NetCafe {
 	public final static int UDP_JAVA_MTU = 0x4a4d5455;
 	//
 	public static final int TCP_AGENT =0xCAFE1001;
+	public static final int TCP_AGENT_V2 =0xCAFE1002;
 	public static final int TCP_CLIENT = 0xCAFE2001;
 	
 	public static final int TCP_SHUTDOWN = 0xCAFE1999;

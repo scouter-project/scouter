@@ -30,98 +30,98 @@ import scouter.server.netio.service.anotation.ServiceHandler
 
 class DumpService {
 
-  @ServiceHandler(RequestCmd.TRIGGER_ACTIVE_SERVICE_LIST)
-  def triggerActiveServiceList(din: DataInputX, dout: DataOutputX, login: Boolean) {
-    val param = din.readMapPack();
-    val objHash = param.getInt("objHash");
-    val o = AgentManager.getAgent(objHash);
-    val p = AgentCall.call(o, RequestCmd.TRIGGER_ACTIVE_SERVICE_LIST, param);
-    if (p != null) {
-      dout.writeByte(TcpFlag.HasNEXT);
-      dout.writePack(p);
+    @ServiceHandler(RequestCmd.TRIGGER_ACTIVE_SERVICE_LIST)
+    def triggerActiveServiceList(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        val p = AgentCall.call(o, RequestCmd.TRIGGER_ACTIVE_SERVICE_LIST, param);
+        if (p != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(p);
+        }
     }
-  }
 
-  @ServiceHandler(RequestCmd.TRIGGER_HEAPHISTO)
-  def triggerHeapHisto(din: DataInputX, dout: DataOutputX, login: Boolean) {
-    val param = din.readMapPack();
-    val objHash = param.getInt("objHash");
-    val o = AgentManager.getAgent(objHash);
-    val p = AgentCall.call(o, RequestCmd.TRIGGER_HEAPHISTO, param);
-    if (p != null) {
-      dout.writeByte(TcpFlag.HasNEXT);
-      dout.writePack(p);
+    @ServiceHandler(RequestCmd.TRIGGER_HEAPHISTO)
+    def triggerHeapHisto(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        val p = AgentCall.call(o, RequestCmd.TRIGGER_HEAPHISTO, param);
+        if (p != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(p);
+        }
     }
-  }
 
-  @ServiceHandler(RequestCmd.TRIGGER_THREAD_DUMP)
-  def triggerThreadDump(din: DataInputX, dout: DataOutputX, login: Boolean) {
-    val param = din.readMapPack();
-    val objHash = param.getInt("objHash");
-    val o = AgentManager.getAgent(objHash);
-    val p = AgentCall.call(o, RequestCmd.TRIGGER_THREAD_DUMP, param);
-    if (p != null) {
-      dout.writeByte(TcpFlag.HasNEXT);
-      dout.writePack(p);
+    @ServiceHandler(RequestCmd.TRIGGER_THREAD_DUMP)
+    def triggerThreadDump(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        val p = AgentCall.call(o, RequestCmd.TRIGGER_THREAD_DUMP, param);
+        if (p != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(p);
+        }
     }
-  }
 
-  @ServiceHandler(RequestCmd.TRIGGER_THREAD_LIST)
-  def triggerThreadList(din: DataInputX, dout: DataOutputX, login: Boolean) {
-    val param = din.readMapPack();
-    val objHash = param.getInt("objHash");
-    val o = AgentManager.getAgent(objHash);
-    val p = AgentCall.call(o, RequestCmd.TRIGGER_THREAD_LIST, param);
-    if (p != null) {
-      dout.writeByte(TcpFlag.HasNEXT);
-      dout.writePack(p);
+    @ServiceHandler(RequestCmd.TRIGGER_THREAD_LIST)
+    def triggerThreadList(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        val p = AgentCall.call(o, RequestCmd.TRIGGER_THREAD_LIST, param);
+        if (p != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(p);
+        }
     }
-  }
 
-  @ServiceHandler(RequestCmd.OBJECT_DUMP_FILE_LIST)
-  def getDumpFileList(din: DataInputX, dout: DataOutputX, login: Boolean) {
-    val param = din.readMapPack();
-    val objHash = param.getInt("objHash");
-    val o = AgentManager.getAgent(objHash);
-    val p = AgentCall.call(o, RequestCmd.OBJECT_DUMP_FILE_LIST, param);
-    if (p != null) {
-      dout.writeByte(TcpFlag.HasNEXT);
-      dout.writePack(p);
+    @ServiceHandler(RequestCmd.OBJECT_DUMP_FILE_LIST)
+    def getDumpFileList(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        val p = AgentCall.call(o, RequestCmd.OBJECT_DUMP_FILE_LIST, param);
+        if (p != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(p);
+        }
     }
-  }
 
-  @ServiceHandler(RequestCmd.OBJECT_DUMP_FILE_DETAIL)
-  def getDumpFileDetail(din: DataInputX, dout: DataOutputX, login: Boolean) {
-    val param = din.readMapPack();
-    val objHash = param.getInt("objHash");
-    val o = AgentManager.getAgent(objHash);
+    @ServiceHandler(RequestCmd.OBJECT_DUMP_FILE_DETAIL)
+    def getDumpFileDetail(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
 
-    val handler = (_in: DataInputX, _out: DataOutputX) => {
-      while (_in.readByte() == TcpFlag.HasNEXT) {
-        dout.writeByte(TcpFlag.HasNEXT);
-        dout.writeBlob(_in.readBlob());
-      }
+        val handler = (proto: Int, _in: DataInputX, _out: DataOutputX) => {
+            while (_in.readByte() == TcpFlag.HasNEXT) {
+                dout.writeByte(TcpFlag.HasNEXT);
+                dout.writeBlob(_in.readBlob());
+            }
+        }
+        AgentCall.call(o, RequestCmd.OBJECT_DUMP_FILE_DETAIL, param, handler)
     }
-    AgentCall.call(o, RequestCmd.OBJECT_DUMP_FILE_DETAIL, param, handler)
-  }
 
-  @ServiceHandler(RequestCmd.OBJECT_SYSTEM_GC)
-  def systemGc(din: DataInputX, dout: DataOutputX, login: Boolean) {
-    val param = din.readMapPack();
-    val objHash = param.getInt("objHash");
-    val o = AgentManager.getAgent(objHash);
-    AgentCall.call(o, RequestCmd.OBJECT_SYSTEM_GC, param);
-  }
-
-  @ServiceHandler(RequestCmd.DUMP_APACHE_STATUS)
-  def dumpApacheStatus(din: DataInputX, dout: DataOutputX, login: Boolean) {
-    val param = din.readMapPack();
-    val objHash = param.getInt("objHash");
-    val o = AgentManager.getAgent(objHash);
-    val p = AgentCall.call(o, RequestCmd.DUMP_APACHE_STATUS, param);
-    if (p != null) {
-      dout.writeByte(TcpFlag.HasNEXT);
-      dout.writePack(p);
+    @ServiceHandler(RequestCmd.OBJECT_SYSTEM_GC)
+    def systemGc(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        AgentCall.call(o, RequestCmd.OBJECT_SYSTEM_GC, param);
     }
-  }
+
+    @ServiceHandler(RequestCmd.DUMP_APACHE_STATUS)
+    def dumpApacheStatus(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        val p = AgentCall.call(o, RequestCmd.DUMP_APACHE_STATUS, param);
+        if (p != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(p);
+        }
+    }
 }

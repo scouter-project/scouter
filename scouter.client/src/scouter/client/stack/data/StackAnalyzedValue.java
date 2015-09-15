@@ -50,6 +50,10 @@ public class StackAnalyzedValue {
 		return m_extPct;
 	}
 	
+	public void setValue(String value){
+		m_value = value;
+	}
+	
 	public void setCount(int value){
 		m_count = value;
 	}

@@ -35,6 +35,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
+import scouter.client.listeners.RangeMouseListener;
 import scouter.client.maria.actions.OpenDigestTableAction;
 import scouter.client.model.AgentModelThread;
 import scouter.client.model.RefreshThread;
@@ -118,6 +119,8 @@ public class DbRealtimeTotalHitRatioView extends ViewPart implements Refreshable
 		
 		xyGraph.primaryXAxis.setTitle("");
 		xyGraph.primaryYAxis.setTitle("");
+		
+		xyGraph.primaryYAxis.addMouseListener(new RangeMouseListener(getViewSite().getShell(), xyGraph.primaryYAxis));
 		
 		CircularBufferDataProvider innoDbProvider = new CircularBufferDataProvider(true);
 		innoDbProvider.setBufferSize(((int)(TIME_RANGE / REFRESH_INTERVAL) + 1));

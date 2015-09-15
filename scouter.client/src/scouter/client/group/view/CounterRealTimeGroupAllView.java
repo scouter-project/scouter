@@ -61,6 +61,7 @@ import org.eclipse.ui.PlatformUI;
 
 import scouter.client.Images;
 import scouter.client.group.GroupManager;
+import scouter.client.listeners.RangeMouseListener;
 import scouter.client.model.AgentColorManager;
 import scouter.client.model.AgentModelThread;
 import scouter.client.model.AgentObject;
@@ -226,6 +227,7 @@ public class CounterRealTimeGroupAllView extends ScouterViewPart implements Refr
 		xyGraph.primaryYAxis.setShowMajorGrid(true);
 		xyGraph.primaryXAxis.setTitle("");
 		xyGraph.primaryYAxis.setTitle("");
+		xyGraph.primaryYAxis.addMouseListener(new RangeMouseListener(getViewSite().getShell(), xyGraph.primaryYAxis));
 		
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
 		man.add(new Action("Reload", ImageUtil.getImageDescriptor(Images.refresh)) {

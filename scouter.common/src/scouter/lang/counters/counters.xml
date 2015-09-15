@@ -51,7 +51,9 @@ mrhit : MariaDB HitRatio
 			<Counter name="GcTime" disp="GC Time" unit="ms" icon="gc.png" total="false"/>
 			<Counter name="TPS" disp="TPS" unit="tps" 	icon="transaction.png" />
 			<Counter name="CpuTime" disp="CpuTime" unit="ms"  icon="cpu.png" />
-			<Counter name="ProcCpu" disp="ProcessCpu" unit="%" icon="cpu.png" total="false"/>			
+			<Counter name="ProcCpu" disp="ProcessCpu" unit="%" icon="cpu.png" total="false"/>
+			<Counter name="PermUsed" disp="Perm Used" unit="MB" icon="memory.png" total="false"/>
+			<Counter name="PermPercent" disp="Perm %" unit="%" icon="memory.png" total="false"/>
 		</Family>
 		<Family name="apache" master="ReqPerSec" scrbrd="true">
 			<Counter name="BytesPerReq" disp="Bytes Per Request" unit="bytes" icon="bytes_per_sec.png" />

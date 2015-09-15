@@ -65,6 +65,10 @@ public class DataInputX {
 		this.inner = in;
 	}
 
+	public byte[] readIntBytes() throws IOException {
+		int len = readInt();
+		return read(len);
+	}
 	public byte[] read(int len) throws IOException {
 		offset += len;
 		byte[] buff = new byte[len];

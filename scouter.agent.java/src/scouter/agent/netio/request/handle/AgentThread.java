@@ -39,6 +39,7 @@ import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 import scouter.util.SysJMX;
+import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
 
 public class AgentThread {
@@ -64,25 +65,26 @@ public class AgentThread {
 		}
 		return p;
 	}
-	
+
 	@RequestHandler(RequestCmd.OBJECT_THREAD_CONTROL)
 	public Pack threadKill(Pack param) {
 		long thread = ((MapPack) param).getLong("id");
-		String  action= ((MapPack) param).getText("action");
-	
-		//쓰레드 상세 화면에서  쓰레드를 제어한다.
+		String action = ((MapPack) param).getText("action");
+
+		// 쓰레드 상세 화면에서 쓰레드를 제어한다.
 		TraceContext ctx = TraceContextManager.getContext(thread);
-		try{
+		try {
 			if (ctx != null) {
-				if("interrupt".equalsIgnoreCase(action)){
+				if ("interrupt".equalsIgnoreCase(action)) {
 					ctx.thread.interrupt();
 				}
-				if("stop".equalsIgnoreCase(action)){
+				if ("stop".equalsIgnoreCase(action)) {
 					ctx.thread.stop();
 				}
 			}
-		}catch(Throwable t){}
-		
+		} catch (Throwable t) {
+		}
+
 		MapPack p = ThreadUtil.getThreadDetail(thread);
 		if (ctx != null) {
 			p.put("Service Txid", new TextValue(Hexa32.toString32(ctx.txid)));
@@ -100,7 +102,7 @@ public class AgentThread {
 		}
 		return p;
 	}
-	
+
 	@RequestHandler(RequestCmd.OBJECT_THREAD_LIST)
 	public Pack threadList(Pack param) {
 		MapPack mpack = ThreadUtil.getThreadList();
@@ -148,7 +150,6 @@ public class AgentThread {
 		ListValue login = rPack.newList("login");
 		ListValue desc = rPack.newList("desc");
 
-		
 		Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
 		while (en.hasMoreElements()) {
 			TraceContext ctx = en.nextElement();
@@ -179,7 +180,7 @@ public class AgentThread {
 	}
 
 	@RequestHandler(RequestCmd.OBJECT_THREAD_DUMP)
-	public  Pack threadDump(Pack param) {
+	public Pack threadDump(Pack param) {
 		try {
 			return ToolsMainFactory.threadDump(param);
 		} catch (Throwable e) {
@@ -189,30 +190,34 @@ public class AgentThread {
 	}
 
 	@RequestHandler(RequestCmd.TRIGGER_ACTIVE_SERVICE_LIST)
-	public  Pack triggerActiveServiceList(Pack param) {
+	public Pack triggerActiveServiceList(Pack param) {
 		return DumpUtil.triggerActiveService();
 	}
+
 	@RequestHandler(RequestCmd.TRIGGER_THREAD_LIST)
-	public  Pack triggerThreadList(Pack param) {
+	public Pack triggerThreadList(Pack param) {
 		return DumpUtil.triggerThreadList();
 	}
+
 	@RequestHandler(RequestCmd.TRIGGER_THREAD_DUMP)
-	public  Pack triggerThreadDump(Pack param) {
+	public Pack triggerThreadDump(Pack param) {
 		return DumpUtil.triggerThreadDump();
 	}
+
 	@RequestHandler(RequestCmd.PSTACK_ON)
-	public  Pack turnOn(Pack param) {
-		MapPack p =(MapPack)param;
+	public Pack turnOn(Pack param) {
+		MapPack p = (MapPack) param;
 		long time = p.getLong("time");
-	
-		if(time<=0){
-			MakeStack.pstack_requested=0;
-		}else{
-			MakeStack.pstack_requested=System.currentTimeMillis() + time;			
+
+		if (time <= 0) {
+			MakeStack.pstack_requested = 0;
+		} else {
+			MakeStack.pstack_requested = System.currentTimeMillis() + time;
 		}
 		return param;
 	}
+
 	public static void main(String[] args) throws IOException {
-		
+
 	}
 }

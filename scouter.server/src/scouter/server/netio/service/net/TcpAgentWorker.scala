@@ -10,8 +10,9 @@ import scouter.util.FileUtil
 import scouter.net.TcpFlag
 import scouter.server.Configure
 import scouter.util.DateUtil
+import scouter.net.NetCafe
 
-class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX) {
+class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX, protocol:Int) {
 
     val remoteAddr = socket.getRemoteSocketAddress()
     socket.setSoTimeout(Configure.getInstance().tcp_agent_so_timeout)
@@ -22,9 +23,16 @@ class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX) {
             return
 
         try {
-            out.writeText(cmd);
-            out.writePack(p);
+            protocol match {
+                case NetCafe.TCP_AGENT =>
+                    out.writeText(cmd);
+                    out.writePack(p);
+                case NetCafe.TCP_AGENT_V2 =>
+                    val buff = new DataOutputX().writeText(cmd).writePack(p).toByteArray();
+                    out.writeIntBytes(buff);
+            }
             out.flush();
+
             lastWriteTime = System.currentTimeMillis()
         } catch {
             case _: Throwable => close()
@@ -32,7 +40,17 @@ class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX) {
     }
     def readPack(): Pack = {
         try {
-            return if (socket.isClosed()) null else in.readPack()
+            return if (socket.isClosed()) null else {
+                protocol match {
+                    case NetCafe.TCP_AGENT =>
+                        in.readPack()
+                    case NetCafe.TCP_AGENT_V2 =>
+                        val buff = in.readIntBytes()
+                        new DataInputX(buff).readPack();
+                    case _ =>
+                         throw new RuntimeException("unknown potocol " );
+                }
+            }
         } catch {
             case _: Throwable => close();
         }
@@ -48,9 +66,9 @@ class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX) {
         }
         return 0;
     }
-    def read(handler: (DataInputX, DataOutputX) => Unit) {
+    def read(handler: (Int, DataInputX, DataOutputX) => Unit) {
         try {
-            handler(in, out);
+            handler(protocol, in, out);
         } catch {
             case e: Throwable =>
                 e.printStackTrace()
@@ -63,7 +81,7 @@ class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX) {
     val conf = Configure.getInstance()
 
     def isExpired() = { System.currentTimeMillis() - lastWriteTime >= conf.tcp_agent_keepalive }
-    def sendKeepAlive(waitTime:Int) {
+    def sendKeepAlive(waitTime: Int) {
         if (socket.isClosed())
             return
         val orgSoTime = socket.getSoTimeout()
@@ -71,7 +89,13 @@ class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX) {
         write("KEEP_ALIVE", new MapPack())
         try {
             while (TcpFlag.HasNEXT == in.readByte()) {
-                in.readPack()
+                protocol match {
+                    case NetCafe.TCP_AGENT =>
+                        in.readPack()
+                    case NetCafe.TCP_AGENT_V2 =>
+                        in.readIntBytes()
+                    //버림..
+                }
             }
             socket.setSoTimeout(orgSoTime)
         } catch {

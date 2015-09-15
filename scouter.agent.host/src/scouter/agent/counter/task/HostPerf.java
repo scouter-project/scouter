@@ -9,6 +9,7 @@ import org.hyperic.sigar.SigarProxyCache;
 import org.hyperic.sigar.Swap;
 
 import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
 import scouter.lang.TimeTypeEnum;
@@ -28,7 +29,7 @@ public class HostPerf {
 			netstat();
 			domain(pw);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger.println("A140", 10, "HostPerf", e);
 		}
 	}
 

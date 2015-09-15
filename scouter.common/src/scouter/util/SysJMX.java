@@ -250,8 +250,4 @@ public class SysJMX {
 		return SystemUtil.JAVA_VERSION;
 	}
 
-	public static void main(String args[]) {
-		// System.out.println("@@@" + getHostName() + "@@@");
-		System.out.println(getHostName());
-	}
 }

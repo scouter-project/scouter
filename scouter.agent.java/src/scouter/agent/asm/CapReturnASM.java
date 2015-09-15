@@ -30,7 +30,6 @@ import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 
-
 public class CapReturnASM implements IASM, Opcodes {
 	private  List< MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_return);
 
@@ -122,7 +121,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			AsmUtil.PUSH(mv, methodName);
 			AsmUtil.PUSH(mv, methodDesc);
 			mv.visitInsn(ACONST_NULL);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE,false);
 			return;
 		}
 		int i = newLocal(tp);

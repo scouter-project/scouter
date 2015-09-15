@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+a *  Copyright 2015 LG CNS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import scouter.client.stack.data.StackAnalyzedValue;
 import scouter.client.stack.data.StackAnalyzedValueComp;
 import scouter.client.stack.data.StackFileInfo;
 import scouter.client.stack.data.StackParser;
+import scouter.client.stack.data.UniqueStackValue;
 import scouter.client.stack.utils.HtmlUtils;
 import scouter.client.stack.utils.ResourceUtils;
 import scouter.client.stack.utils.StringUtils;
@@ -142,7 +143,7 @@ public class MainProcessor{
         //    openFiles(new File[] { new File(menuName) }, true);
         } else if ( "Open Stack Log".equals(menuName) ) {  	
             chooseStackFile();
-        } else if ( "Open Analyzed Stack".equals(menuName) ) {
+        } else if ( "Open Analyzed Stack Log".equals(menuName) ) {
             openAnalyzedInfo();
         } else if ( "Close All".equals(menuName) ) {
             closeStackAllFileInfo();
@@ -391,6 +392,9 @@ public class MainProcessor{
     	for(StackAnalyzedValue value : list){
     		item = new TableItem(table, SWT.BORDER);
     		item.setText(value.toTableInfo());
+    		if(value instanceof UniqueStackValue){
+    			item.setData(((UniqueStackValue)value).getStack());
+    		}
     	} 	
     }
     
@@ -480,11 +484,14 @@ public class MainProcessor{
         	return;
         }
         StackAnalyzedInfo analyzedInfo = (StackAnalyzedInfo)object;
+        if(analyzedInfo.getExtension().equals(StackParser.UNIQUE_EXT)){
+        	return;
+        }
+        
     	StackFileInfo stackFileInfo = analyzedInfo.getStackFileInfo();
     	
     	System.out.println("StackFile:"+ stackFileInfo.toString());        	
     	System.out.println("File:"+ analyzedInfo.toString());
-    	
     	
         String analyzedFilename = StackParser.getAnaylzedFilename(stackFileInfo.getFilename(), analyzedInfo.getExtension());
         File file = new File(analyzedFilename);

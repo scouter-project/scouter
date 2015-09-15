@@ -166,6 +166,13 @@ public class Axis extends LinearScale{
 
 	@Override
 	public void setRange(final double lower, final double upper) {
+		if (Orientation.VERTICAL == getOrientation() && autoScale == false)
+			return; //scouter.project 20150910
+		Range old_range = getRange();
+		super.setRange(lower, upper);
+		fireAxisRangeChanged(old_range, getRange());
+	}
+	public void setRangeDirect(final double lower, final double upper) {
 		Range old_range = getRange();
 		super.setRange(lower, upper);
 		fireAxisRangeChanged(old_range, getRange());

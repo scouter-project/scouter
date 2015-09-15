@@ -59,6 +59,8 @@ public class CounterConstants {
 	public final static String JAVA_HEAP_TOT_USAGE = "HeapTotUsage";
 	public final static String JAVA_HEAP_USED = "HeapUsed";
 	public final static String JAVA_CPU_TIME = "CpuTime";
+	public final static String JAVA_PERM_USED = "PermUsed";
+	public final static String JAVA_PERM_PERCENT = "PermPercent";
 
 	public final static String REQUESTPROCESS_BYTES_RECEIVED = "BytesReceived";
 	public final static String REQUESTPROCESS_BYTES_SENT = "BytesSent";

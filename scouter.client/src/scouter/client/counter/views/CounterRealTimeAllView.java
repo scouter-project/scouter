@@ -55,6 +55,7 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 
 import scouter.client.Images;
+import scouter.client.listeners.RangeMouseListener;
 import scouter.client.model.AgentColorManager;
 import scouter.client.model.AgentModelThread;
 import scouter.client.model.AgentObject;
@@ -174,6 +175,8 @@ public class CounterRealTimeAllView extends ScouterViewPart implements Refreshab
 		
 		xyGraph.primaryXAxis.setFormatPattern("HH:mm:ss");
 		xyGraph.primaryYAxis.setFormatPattern("#,##0");
+		
+		xyGraph.primaryYAxis.addMouseListener(new RangeMouseListener(getViewSite().getShell(), xyGraph.primaryYAxis));
 		
 		final DefaultToolTip toolTip = new DefaultToolTip(canvas, DefaultToolTip.RECREATE, true);
 		toolTip.setFont(new Font(null, "Arial", 10, SWT.BOLD));

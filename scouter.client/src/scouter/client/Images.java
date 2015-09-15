@@ -47,6 +47,7 @@ public class Images {
 	public static final Image unknown = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
 	
     public static final Image folder = Activator.getImage("icons/folder.png");
+    public static final Image folder_star = Activator.getImage("icons/folder_star.png");
 
     public static final Image refresh = Activator.getImage("icons/refresh.gif");
     public static final Image refresh_auto = Activator.getImage("icons/refresh_auto.png");

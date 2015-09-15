@@ -43,6 +43,7 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 
 import scouter.client.Images;
+import scouter.client.listeners.RangeMouseListener;
 import scouter.client.model.RefreshThread;
 import scouter.client.model.RefreshThread.Refreshable;
 import scouter.client.net.INetReader;
@@ -139,6 +140,8 @@ public class CounterRealTimeTotalView extends ScouterViewPart implements Refresh
 		
 		xyGraph.primaryXAxis.setFormatPattern("HH:mm:ss");
 		xyGraph.primaryYAxis.setFormatPattern("#,##0");
+		
+		xyGraph.primaryYAxis.addMouseListener(new RangeMouseListener(getViewSite().getShell(), xyGraph.primaryYAxis));
 
 		traceDataProvider = new CircularBufferDataProvider(true);
 		traceDataProvider.setBufferSize(155);

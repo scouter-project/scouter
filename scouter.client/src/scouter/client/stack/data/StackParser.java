@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import scouter.client.stack.base.MainProcessor;
@@ -34,6 +35,7 @@ import scouter.client.stack.config.AnalyzerValue;
 import scouter.client.stack.config.ParserConfig;
 import scouter.client.stack.config.ParserConfigReader;
 import scouter.client.stack.config.preprocessor.PreProcessor;
+import scouter.client.stack.utils.ResourceUtils;
 import scouter.client.stack.utils.StringUtils;
 
 
@@ -44,14 +46,16 @@ public abstract class StackParser {
     public final static String INFO_EXT = "INFO";
     public final static String WORKINGTHREAD_EXT = "WS";
     public final static String TOP_EXT = "TOP";
-    public final static String TOP_NAME = "Top stack ";
+    public final static String TOP_NAME = "Top Stack ";
     public final static String SQL_EXT = "SQL";
-    public final static String SQL_NAME = "SQL call";
+    public final static String SQL_NAME = "SQL Call";
     public final static String SERVICE_EXT = "SVC";
     public final static String SERVICE_NAME = "Service Call";
     public final static String LOG_EXT = "LOG";
-    public final static String LOG_NAME = "Logging call";
-
+    public final static String LOG_NAME = "Logging Call";
+    public final static String UNIQUE_EXT = "UNQ";
+    public final static String UNIQUE_NAME = "Unique Stack";
+    
     private ParserConfig m_config = null;
     private StackFileInfo m_stackFile = null;
     private String m_stackContents = null;
@@ -69,7 +73,7 @@ public abstract class StackParser {
     private ArrayList<String> m_serviceList = null;
     private ArrayList<String> m_logList = null;
     private ArrayList<String> m_timeList = null;
-    private ArrayList<String> m_threadStatusList = new ArrayList<String>() ;
+    private ArrayList<String> m_threadStatusList = null;
 
     /* Total Count */
     protected int m_totalWorkingCount = 0;
@@ -91,6 +95,9 @@ public abstract class StackParser {
 	private int m_totalLineCount = 0;
 	private int m_processPercent = 0; 
 
+	// Single Stack
+	HashMap<Integer, UniqueStackValue> m_uniqueStackMap = null;
+	
     protected StackParser() {
     }
 
@@ -154,7 +161,9 @@ public abstract class StackParser {
         m_serviceList = new ArrayList<String>(2000);
         m_logList = new ArrayList<String>(2000);
         m_timeList = new ArrayList<String>(2000);
-
+        m_threadStatusList = new ArrayList<String>();
+        m_uniqueStackMap = new HashMap<Integer, UniqueStackValue>(2000);
+        
         if ( m_analyzer != null ) {
             m_analyzerCount = m_analyzer.size();
             m_analyzerList = new ArrayList[m_analyzerCount];
@@ -220,12 +229,25 @@ public abstract class StackParser {
         m_sqlList = null;
         m_serviceList = null;
         m_logList = null;
+        m_timeList = null;
+        m_threadStatusList = null;
+    	m_analyzerList = null;
+    	m_uniqueStackMap = null;
+
         m_totalWorkingCount = 0;
         m_totalWorkerCount = 0;
         m_totalSecond = 0;
         m_dumpCount = 0;
     	m_totalLineCount = 0;
-    	m_processPercent = 0;        
+    	m_processPercent = 0;  
+    	m_analyzerCount = 0;
+   	    	
+        m_workingThread = null;
+        m_sql = null;
+        m_service = null;
+        m_log = null;
+        m_workerThread = null;
+        m_analyzer = null;
     }
 
     abstract public void process();
@@ -248,6 +270,17 @@ public abstract class StackParser {
             m_stackFile.addStackAnalyzedInfo(info);
         info = saveStackAnalyzedInfo(m_logList, LOG_NAME, LOG_EXT);
         if ( info != null )
+            m_stackFile.addStackAnalyzedInfo(info);        
+
+        for ( int i = 0; i < m_analyzerCount; i++ ) {
+            info = saveStackAnalyzedInfo(m_analyzerList[i], m_analyzer.get(i).getName(), m_analyzer.get(i).getExtension());
+            if ( info != null )
+                m_stackFile.addStackAnalyzedInfo(info);
+        }
+
+        //unique Stack
+        info = saveUniqueStackAnalyzedInfo(m_uniqueStackMap, UNIQUE_NAME, UNIQUE_EXT);
+        if ( info != null )
             m_stackFile.addStackAnalyzedInfo(info);
 
         if ( m_timeList.size() > 0 ) {
@@ -257,13 +290,6 @@ public abstract class StackParser {
             m_stackFile.setThreadStatusList(m_threadStatusList);
         }
         
-
-        for ( int i = 0; i < m_analyzerCount; i++ ) {
-            info = saveStackAnalyzedInfo(m_analyzerList[i], m_analyzer.get(i).getName(), m_analyzer.get(i).getExtension());
-            if ( info != null )
-                m_stackFile.addStackAnalyzedInfo(info);
-        }
-
         saveAnalyzedInfo();
     }
 
@@ -297,20 +323,8 @@ public abstract class StackParser {
 
             String key = null;
             StackAnalyzedValue value = null;
-            int sIndex = 0;
-            int eIndex = 0;
             for ( i = 0; i < size; i++ ) {
-                key = (String)list.get(i);
-                sIndex = key.indexOf("at ");
-                if(sIndex < 0){
-                	throw new Exception(key + " is not stack!");
-                }
-                eIndex = key.indexOf('(');
-                if(eIndex > 0){
-                	key = key.substring(sIndex + 3, eIndex);
-                }else{
-                	key = key.substring(sIndex + 3);                	
-                }
+                key = StringUtils.makeStackValue((String)list.get(i), true);
                 if ( (value = (StackAnalyzedValue)searchMap.get(key)) == null ) {
                     value = new StackAnalyzedValue(key, 1, 0, 0);
                     searchMap.put(key, value);
@@ -343,6 +357,73 @@ public abstract class StackParser {
 
             for ( i = 0; i < size; i++ ) {
                 writer.write((String)list.get(i));
+                writer.write("\n");
+            }
+        } catch ( Exception ex ) {
+            throw new RuntimeException(ex);
+        } finally {
+            if ( writer != null ) {
+                try {
+                    writer.close();
+                } catch ( Exception e ) {
+                }
+            }
+        }
+        return aynalyzedInfo;
+    }
+	
+	private StackAnalyzedInfo saveUniqueStackAnalyzedInfo( HashMap<Integer, UniqueStackValue> map, String analyzedName, String extension ) {
+        if ( map == null || map.size() == 0 )
+            return null;
+        
+        BufferedWriter writer = null;
+        StackAnalyzedInfo aynalyzedInfo = null;
+        try {
+            writer = new BufferedWriter(new FileWriter(getAnaylzedFilename(m_stackFile.getFilename(), extension)));
+
+            int i = 0;
+            ArrayList<StackAnalyzedValue> sortList = new ArrayList<StackAnalyzedValue>(400);
+
+            UniqueStackValue value = null;
+
+            int totalCount = 0;            
+            Iterator<UniqueStackValue> iter = map.values().iterator();
+            while(iter.hasNext()){
+            	totalCount += iter.next().getCount();
+            }            
+            
+            iter = map.values().iterator();            
+            while(iter.hasNext()){
+            	value = iter.next();
+            	value.setExtPct((int)((10000 * value.getCount()) / m_totalWorkingCount));
+                value.setIntPct((int)((10000 * value.getCount()) / totalCount));
+            	sortList.add(value);
+            }
+            Collections.sort(sortList, new StackAnalyzedValueComp());
+
+            aynalyzedInfo = new StackAnalyzedInfo(analyzedName, m_stackFile, extension);
+            aynalyzedInfo.setTotalCount(totalCount);
+            aynalyzedInfo.setAnaylizedList(sortList);
+
+            StringBuilder buffer = new StringBuilder(100);
+            buffer.append(m_totalWorkingCount).append('\t').append(totalCount).append('\t').append((int)((10000 * totalCount) / m_totalWorkingCount)).append('\n');
+            writer.write(buffer.toString());
+
+            for ( i = 0; i < sortList.size(); i++ ) {
+                value = (UniqueStackValue)sortList.get(i);
+                buffer = new StringBuilder(100);
+                buffer.append(value.getCount()).append('\t').append(value.getExtPct()).append('\t').append(value.getIntPct()).append('\t').append(value.getValue()).append('\n');
+                writer.write(buffer.toString());
+            }
+            writer.write("\n");
+
+            for ( i = 0; i < sortList.size(); i++ ) {
+            	writer.write("[[]]"+i +"\n");
+                value = (UniqueStackValue)sortList.get(i);
+                for(String stack : value.getStack()){
+                	writer.write(stack);
+                	writer.write("\n");
+                }
                 writer.write("\n");
             }
         } catch ( Exception ex ) {
@@ -522,6 +603,16 @@ public abstract class StackParser {
             if ( logLine != null ) {
                 m_logList.add(logLine);
             }
+            
+            // unique Stack
+            ArrayList<String> simpleList = StringUtils.makeStackToSimpe(workingList, stackStartLine, m_config.getSingleStack());
+            int hashCode = StringUtils.hashCode(simpleList);
+            UniqueStackValue uniqueStack = m_uniqueStackMap.get(hashCode);
+            if(uniqueStack == null){
+            	uniqueStack = new UniqueStackValue(simpleList);
+            	m_uniqueStackMap.put(hashCode, uniqueStack);
+            }
+            uniqueStack.addCount();
         } catch ( Exception ex ) {
             throw new RuntimeException(ex);
         }
@@ -729,6 +820,11 @@ public abstract class StackParser {
                         stackFileInfo.addStackAnalyzedInfo(analyzedInfo);
                 }
             }
+
+            analyzedInfo = readStackAnalyzedInfo(stackFileInfo, file, StackParser.UNIQUE_NAME, StackParser.UNIQUE_EXT);
+            readUniqueStackExtraInfo(analyzedInfo, stackFileInfo, file, StackParser.UNIQUE_NAME, StackParser.UNIQUE_EXT);
+            if ( analyzedInfo != null )
+                stackFileInfo.addStackAnalyzedInfo(analyzedInfo);            
         } catch ( Exception ex ) {
             throw new RuntimeException(ex);
         }
@@ -760,7 +856,8 @@ public abstract class StackParser {
             int intPct;
             String keyValue;
             StackAnalyzedValue analyzedValue;
-
+            boolean isUniqueStack = (name.equals(StackParser.UNIQUE_NAME))?true:false;
+            
             while ( (line = reader.readLine()) != null ) {
                 line = line.trim();
                 if ( line.length() == 0 )
@@ -806,7 +903,11 @@ public abstract class StackParser {
                             index++;
                         }
                         if ( index == 4 ) {
-                            analyzedValue = new StackAnalyzedValue(keyValue, count, intPct, extPct);
+                        	if(isUniqueStack){
+                        		analyzedValue = new UniqueStackValue(keyValue, count, intPct, extPct);                        		
+                        	}else{
+                        		analyzedValue = new StackAnalyzedValue(keyValue, count, intPct, extPct);
+                        	}
                             list.add(analyzedValue);
                         }
                     } else {
@@ -830,6 +931,61 @@ public abstract class StackParser {
         return analyzedInfo;
     }
 
+    static private StackAnalyzedInfo readUniqueStackExtraInfo(StackAnalyzedInfo analyzedInfo, StackFileInfo stackFileInfo, File file, String name, String extension ) {
+        String filename = stackFileInfo.getFilename();
+        String analyzedFilename = StackParser.getAnaylzedFilename(filename, extension);
+        file = new File(analyzedFilename);
+        if ( !file.isFile() )
+            return null;
+
+        BufferedReader reader = null;
+        ArrayList<StackAnalyzedValue> list = analyzedInfo.getAnalyzedList();
+        try {
+            reader = new BufferedReader(new FileReader(file));
+
+            String line;
+            int indexNum = 0;
+            boolean isStack = false;
+            ArrayList<String> stackList = null;
+            while ( (line = reader.readLine()) != null ) {
+                line = line.trim();
+                if ( line.length() == 0 )
+                    continue;
+                
+                if(!isStack && line.startsWith("[[]]")){
+                	isStack = true;
+                }
+                
+                if(!isStack){
+                	continue;
+                }
+                
+                if(line.startsWith("[[]]")){
+                	if(stackList != null && stackList.size() > 0){
+                		((UniqueStackValue)list.get(indexNum)).setStack(stackList);
+                	}
+                	indexNum = Integer.parseInt(line.substring(4));
+                	stackList = new ArrayList<String>();
+                }else{
+                	stackList.add(line);
+                }
+            }
+        	if(stackList != null && stackList.size() > 0){
+        		((UniqueStackValue)list.get(indexNum)).setStack(stackList);
+        	}            
+        } catch ( Exception ex ) {
+            throw new RuntimeException(ex);
+        } finally {
+            try {
+                if ( reader != null )
+                    reader.close();
+            } catch ( Exception ex ) {
+            }
+        }
+
+        return analyzedInfo;
+    }
+    
     static public StackParser getParser( ParserConfig config, String filter, boolean isInclude ) {
         StackParser parser = null;
         if ( filter != null ) {
@@ -873,25 +1029,16 @@ public abstract class StackParser {
         return new StringBuilder(200).append(filename).append('_').append(INFO_EXT).append('.').append(INFO_EXTENSION).toString();
     }
 
-    static public void removeFile( String filename ) {
-        File file = null;
-        file = new File(filename);
-        if ( file.exists() && file.isFile() ) {
-            if ( !file.delete() ) {
-                System.out.println("fail to delete - " + filename);
-            }
-        }
-    }
-
     static public void removeAllAnalyzedFile( StackFileInfo stackFileInfo ) {
         String filename = stackFileInfo.getFilename();
         if ( filename != null ) {
-            removeFile(getAnaylzedInfoFilename(filename));
-            removeFile(getAnaylzedFilename(filename, WORKINGTHREAD_EXT));
-            removeFile(getAnaylzedFilename(filename, SERVICE_EXT));
-            removeFile(getAnaylzedFilename(filename, SQL_EXT));
-            removeFile(getAnaylzedFilename(filename, TOP_EXT));
-            removeFile(getAnaylzedFilename(filename, LOG_EXT));
+        	ResourceUtils.removeFile(getAnaylzedInfoFilename(filename));
+            ResourceUtils.removeFile(getAnaylzedFilename(filename, WORKINGTHREAD_EXT));
+            ResourceUtils.removeFile(getAnaylzedFilename(filename, SERVICE_EXT));
+            ResourceUtils.removeFile(getAnaylzedFilename(filename, SQL_EXT));
+            ResourceUtils.removeFile(getAnaylzedFilename(filename, TOP_EXT));
+            ResourceUtils.removeFile(getAnaylzedFilename(filename, LOG_EXT));
+            ResourceUtils.removeFile(getAnaylzedFilename(filename, UNIQUE_EXT));
         }
 
         ParserConfig config = stackFileInfo.getParserConfig();
@@ -899,7 +1046,7 @@ public abstract class StackParser {
             ArrayList<AnalyzerValue> list = config.getAnalyzerList();
             if ( list != null ) {
                 for ( int i = 0; i < list.size(); i++ ) {
-                    removeFile(getAnaylzedFilename(filename, list.get(i).getExtension()));
+                	ResourceUtils.removeFile(getAnaylzedFilename(filename, list.get(i).getExtension()));
                 }
             }
         }
