@@ -174,9 +174,9 @@ public class ConfigureServerView extends ViewPart {
 			}
 			public void keyPressed(KeyEvent e) {
 				if(e.stateMask == SWT.CTRL || e.stateMask == SWT.COMMAND){
-					if(e.keyCode == 's'){
+					if(e.keyCode == 's' || e.keyCode == 'S'){
 						saveConfigurations();
-					}else if(e.keyCode == 'a'){
+					}else if(e.keyCode == 'a' || e.keyCode == 'A'){
 						text.selectAll();
 					}
 				}
