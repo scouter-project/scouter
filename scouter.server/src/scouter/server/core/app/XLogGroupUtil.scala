@@ -47,7 +47,7 @@ object XLogGroupUtil {
         if (groupHash == 0 || groupHash == 0) {
             val url = TextRD.getString(DateUtil.yyyymmdd(endtime), TextTypes.SERVICE, service);
             groupHash = getGroupHash(url);
-            if (url != null) {
+            if (groupHash!=0) {
                 groupMap.put(service, groupHash);
             }
         }
@@ -69,7 +69,6 @@ object XLogGroupUtil {
     statics.add("xml");
     statics.add("js");
 
-    add(HashUtil.hash("unknown"), "unknown");
     add(HashUtil.hash("*.jsp"), "*.jsp");
     add(HashUtil.hash("**"), "**");
     add(HashUtil.hash("images"), "images");
@@ -82,7 +81,6 @@ object XLogGroupUtil {
 
     private val saved = new IntSet();
 
-    private val h0 = HashUtil.hash("unknown");
     private val h2 = HashUtil.hash("*.jsp");
     private val h3 = HashUtil.hash("images");
     private val h4 = HashUtil.hash("statics");
@@ -91,7 +89,7 @@ object XLogGroupUtil {
     def getGroupHash(url: String): Int = {
 
         if (url == null)
-            return h0;
+            return 0;
 
         val x = url.lastIndexOf('.');
         if (x > 0) {
