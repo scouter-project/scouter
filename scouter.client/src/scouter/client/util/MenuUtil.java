@@ -43,10 +43,10 @@ import scouter.client.actions.OpenEQViewAction;
 import scouter.client.actions.OpenServiceGroupAction;
 import scouter.client.actions.SetColorAction;
 import scouter.client.configuration.actions.DefineObjectTypeAction;
+import scouter.client.configuration.actions.OpenAgentConfigureAction;
 import scouter.client.constants.MenuStr;
 import scouter.client.context.actions.OpenAPIDebugViewAction;
 import scouter.client.context.actions.OpenCxtmenuActiveServiceListAction;
-import scouter.client.context.actions.OpenCxtmenuConfigureAgentViewAction;
 import scouter.client.context.actions.OpenCxtmenuDumpActiveServiceListAction;
 import scouter.client.context.actions.OpenCxtmenuDumpFileListAction;
 import scouter.client.context.actions.OpenCxtmenuDumpHeapHistoAction;
@@ -431,7 +431,7 @@ public class MenuUtil implements IMenuCreator{
 				
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE)) {
 					mgr.add(new Separator());
-					mgr.add(new OpenCxtmenuConfigureAgentViewAction(win, MenuStr.CONFIGURE, objHash, serverId));
+					mgr.add(new OpenAgentConfigureAction(win, MenuStr.CONFIGURE, objHash, serverId));
 				}
 			} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_HOST)) {
 				performanceSnapshot.add(new OpenCxtmenuEnvAction(win, MenuStr.ENV, objHash, serverId));
@@ -440,7 +440,7 @@ public class MenuUtil implements IMenuCreator{
 				
 				mgr.add(new Separator());
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
-					mgr.add(new OpenCxtmenuConfigureAgentViewAction(win, MenuStr.CONFIGURE, objHash, serverId));
+					mgr.add(new OpenAgentConfigureAction(win, MenuStr.CONFIGURE, objHash, serverId));
 			} 
     	}
     	if (server.isAllowAction(GroupPolicyConstants.ALLOW_DEFINEOBJTYPE)) {

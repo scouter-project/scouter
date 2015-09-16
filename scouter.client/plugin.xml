@@ -298,20 +298,12 @@
       </view>
       <view
             allowMultiple="true"
-            class="scouter.client.configuration.views.ConfigureServerView"
-            id="scouter.client.configuration.views.ConfigureServerView"
+            class="scouter.client.configuration.views.ConfigureView"
+            id="scouter.client.configuration.views.ConfigureView"
             icon="icons/config.png"
-            name="Config Server"
+            name="Configure View"
             restorable="false">
       </view>
-      <view
-            allowMultiple="true"
-            class="scouter.client.configuration.views.ConfigureAgentView"
-            id="scouter.client.configuration.views.ConfigureAgentView"
-            icon="icons/config.png"
-            name="Config Agent"
-            restorable="false">
-      </view>      
       <view
             allowMultiple="true"
             class="scouter.client.counter.views.CounterLoadCountView"
