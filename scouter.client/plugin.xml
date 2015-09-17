@@ -827,7 +827,7 @@
             class="scouter.client.views.DigitalCountView"
             icon="icons/monitor.png"
             id="scouter.client.views.DigitalCountView"
-            name="DigitalCountView"
+            name="Visitors"
             restorable="false">
       </view>
       <view
