@@ -87,7 +87,6 @@ public class Configure extends Thread {
 	public boolean enable_plus_objtype = false;
 
 	public boolean enable_asm_jdbc = true;
-	public boolean enable_asm_httpsession = true;
 	public boolean enable_asm_socket = true;
 
 	public boolean http_debug_querystring;
@@ -145,7 +144,8 @@ public class Configure extends Thread {
 
 	public String plugin_classpath = "";
 
-	public StringSet log_ignore = new StringSet();
+	public String log_ignore = "";
+	public StringSet log_ignore_set = new StringSet();
 
 	public String hook_args = "";
 	public String hook_return = "";
@@ -187,7 +187,6 @@ public class Configure extends Thread {
 
 	public String plugin_http_trace = "";
 	public String plugin_apicall_name = "";
-	public String plugin_http_trace_param = "";
 	public boolean profile_fullstack_service_error = false;
 	public boolean profile_fullstack_apicall_error = false;
 	public int profile_fullstack_lines = 0;
@@ -201,15 +200,12 @@ public class Configure extends Thread {
 	public String this_txid = "scouter_this_txid";
 	public String caller_txid = "scouter_caller_txid";
 
-	public int hook_signature;
+	private int hook_signature;
 
-	public int max_concurrent_server_request = 10;
 	public String userid_jsessionid = "JSESSIONID";
 
 	public boolean enable_auto_service_trace = false;
 	public boolean enable_auto_service_backstack = true;
-
-	public boolean debug_apicall = false;
 
 	public String hook_future_task = "";
 	public String hook_future_task_prefix = "";
@@ -368,7 +364,6 @@ public class Configure extends Thread {
 		this.profile_sql_escape = getBoolean("profile_sql_escape", true);
 
 		this.enable_asm_jdbc = getBoolean("enable_asm_jdbc", getBoolean("enable.asm.jdbc", true));
-		this.enable_asm_httpsession = getBoolean("enable_asm_httpsession", getBoolean("enable.asm.httpsession", true));
 		this.enable_asm_socket = getBoolean("enable_asm_socket", getBoolean("enable.asm.socket", true));
 
 		this.udp_packet_max = getInt("udp_packet_max", getInt("udp.packet.max", 60000));
@@ -376,7 +371,8 @@ public class Configure extends Thread {
 		this.yellow_line_time = getLong("yellow_line_time", getLong("yellow.line.time", 3000));
 		this.red_line_time = getLong("red_line_time", getLong("red.line.time", 8000));
 
-		this.log_ignore = getStringSet("log_ignore", ",");
+		this.log_ignore = getValue("log_ignore", "");
+		this.log_ignore_set = getStringSet("log_ignore", ",");
 
 		this.debug_udp_xlog = getBoolean("debug_udp_xlog", getBoolean("debug.udp.xlog", false));
 		this.debug_udp_object = getBoolean("debug_udp_object", getBoolean("debug.udp.object", false));
@@ -461,7 +457,6 @@ public class Configure extends Thread {
 		this.this_txid = getValue("this_txid", "scouter_this_txid");
 		this.caller_txid = getValue("caller_txid", "scouter_caller_txid");
 
-		this.max_concurrent_server_request = getInt("max_concurrent_server_request", 10);
 		this.debug_dbopen_fullstack = getBoolean("debug_dbopen_fullstack", false);
 		this.debug_dbopen_autocommit = getBoolean("debug_dbopen_autocommit", false);
 
@@ -472,8 +467,6 @@ public class Configure extends Thread {
 		this.enable_host_agent = getBoolean("enable_host_agent", false);
 		this.enable_auto_service_trace = getBoolean("enable_auto_service_trace", false);
 		this.enable_auto_service_backstack = getBoolean("enable_auto_service_backstack", true);
-
-		this.debug_apicall = getBoolean("debug_apicall", false);
 
 		this.hook_future_task = getValue("hook_future_task", "");
 		this.hook_future_task_prefix = getValue("hook_future_task_prefix", "");
@@ -492,8 +485,6 @@ public class Configure extends Thread {
 		this.stat_api_max = getInt("stat_api_max", 5000);
 		this.stat_app_sql_max = getInt("stat_app_sql_max", 10000);
 		this.stat_app_api_max = getInt("stat_app_api_max", 5000);
-
-		this.plugin_http_trace_param = getValue("plugin_http_trace_param", "");
 
 		this.direct_patch_class = getValue("direct_patch_class", "");
 		this.max_think_time = getLong("max_think_time", DateUtil.MILLIS_PER_FIVE_MINUTE);
@@ -727,6 +718,10 @@ public class Configure extends Thread {
 		}
 
 		return m;
+	}
+	
+	public int getHookSignature() {
+		return this.hook_signature;
 	}
 
 	public static void main(String[] args) {
