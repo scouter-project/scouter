@@ -167,6 +167,8 @@ public class MethodSet {
 	public static HashSet<String> getHookingClassSet(String arg) {
 		String[] c = StringUtil.tokenizer(arg, ",");
 		HashSet<String> classSet = new HashSet<String>();
+		if(c ==null)
+			return classSet;
 		for (int i = 0; i < c.length; i++) {
 			classSet.add(c[i]);
 		}
