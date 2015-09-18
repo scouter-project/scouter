@@ -220,11 +220,6 @@ public class Configure extends Thread {
 	public boolean enable_hook_step7 = true;
 	public boolean enable_hook_step8 = true;
 
-	public int stat_sql_max = 10000;
-	public int stat_api_max = 5000;
-	public int stat_app_sql_max = 10000;
-	public int stat_app_api_max = 5000;
-
 	public String direct_patch_class = "";
 
 	public long max_think_time = DateUtil.MILLIS_PER_FIVE_MINUTE;
@@ -480,11 +475,6 @@ public class Configure extends Thread {
 		this.enable_hook_step6 = getBoolean("enable_hook_step6", true);
 		this.enable_hook_step7 = getBoolean("enable_hook_step7", true);
 		this.enable_hook_step8 = getBoolean("enable_hook_step8", true);
-
-		this.stat_sql_max = getInt("stat_sql_max", 10000);
-		this.stat_api_max = getInt("stat_api_max", 5000);
-		this.stat_app_sql_max = getInt("stat_app_sql_max", 10000);
-		this.stat_app_api_max = getInt("stat_app_api_max", 5000);
 
 		this.direct_patch_class = getValue("direct_patch_class", "");
 		this.max_think_time = getLong("max_think_time", DateUtil.MILLIS_PER_FIVE_MINUTE);
