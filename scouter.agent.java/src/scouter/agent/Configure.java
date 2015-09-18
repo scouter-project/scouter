@@ -174,6 +174,10 @@ public class Configure extends Thread {
 	public String hook_apicall_info = "";
 	public String hook_jsp = "";
 
+	public String hook_jdbc_pstmt = "";
+	public String hook_jdbc_stmt = "";
+	public String hook_jdbc_rs = "";
+
 	// /LOAD CONTROL/////
 	public boolean enable_reject_service = false;
 	public int max_active_service = 10000;
@@ -405,10 +409,14 @@ public class Configure extends Thread {
 		this._hook_method_ignore_classes = new StringSet(StringUtil.tokenizer(
 				this.hook_method_ignore_classes.replace('.', '/'), ","));
 
-		this.hook_service = getValue("hook_service", getValue("hook.service", ""));
-		this.hook_apicall = getValue("hook_apicall", getValue("hook.subcall", ""));
+		this.hook_service = getValue("hook_service", "");
+		this.hook_apicall = getValue("hook_apicall", "");
 		this.hook_apicall_info = getValue("hook_apicall_info", "");
-		this.hook_jsp = getValue("hook_jsp", getValue("hook.jsp", ""));
+		this.hook_jsp = getValue("hook_jsp", "");
+		
+		this.hook_jdbc_pstmt = getValue("hook_jdbc_pstmt", "");
+		this.hook_jdbc_stmt = getValue("hook_jdbc_stmt", "");
+		this.hook_jdbc_rs = getValue("hook_jdbc_rs", "");
 
 		this.hook_signature ^= this.hook_args.hashCode();
 		this.hook_signature ^= this.hook_return.hashCode();

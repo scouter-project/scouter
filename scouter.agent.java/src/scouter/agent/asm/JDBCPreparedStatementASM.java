@@ -16,29 +16,26 @@
 package scouter.agent.asm;
 
 import java.util.HashSet;
+
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
-import scouter.agent.asm.jdbc.P0ClearParametersMV;
-import scouter.agent.asm.jdbc.P0ExecuteMV;
-import scouter.agent.asm.jdbc.P0InitMV;
-import scouter.agent.asm.jdbc.P0SetMV;
 import scouter.agent.asm.jdbc.PsClearParametersMV;
 import scouter.agent.asm.jdbc.PsExecuteMV;
 import scouter.agent.asm.jdbc.PsInitMV;
 import scouter.agent.asm.jdbc.PsSetMV;
 import scouter.agent.asm.jdbc.StExecuteMV;
-import scouter.agent.asm.util.AsmUtil;
+import scouter.agent.asm.util.MethodSet;
 import scouter.agent.trace.SqlParameter;
 import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
-import scouter.util.StringUtil;
 
 public class JDBCPreparedStatementASM implements IASM, Opcodes {
-	public final HashSet<String> target = new HashSet<String>();
+	public final HashSet<String> target = MethodSet.getHookingClassSet(Configure.getInstance().hook_jdbc_pstmt);
+	public final HashSet<String> noField = new HashSet<String>();
 
 	public JDBCPreparedStatementASM() {
 		target.add("org/mariadb/jdbc/MySQLPreparedStatement");
@@ -54,10 +51,12 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		target.add("com/tmax/tibero/jdbc/TbPreparedStatement");
 		target.add("org/hsqldb/jdbc/JDBCPreparedStatement");
 
-		//@skyworker - MySQL ServerPreparedStatement는 특별히 필드를 추가하지 않음 
-		target.add("com/mysql/jdbc/ServerPreparedStatement"); 
+		target.add("com/mysql/jdbc/ServerPreparedStatement");
 		target.add("com/mysql/jdbc/PreparedStatement");
 
+		// @skyworker - MySQL ServerPreparedStatement는 특별히 필드를 추가하지 않음
+		noField.add("com/mysql/jdbc/ServerPreparedStatement");
+		noField.add("jdbc/FakePreparedStatement2");
 	}
 
 	public boolean isTarget(String className) {
@@ -70,14 +69,17 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		}
 		if (Configure.getInstance().enable_asm_jdbc == false)
 			return cv;
-		Logger.println("A106", "jdbc pstmt found: " + className + "  redefinable=" + Configure.JDBC_REDEFINED);
-		return new PreparedStatementCV(cv);
+		Logger.println("A106", "jdbc pstmt found: " + className);
+		return new PreparedStatementCV(cv, noField);
 	}
 }
 
 class PreparedStatementCV extends ClassVisitor implements Opcodes {
-	public PreparedStatementCV(ClassVisitor cv) {
+	HashSet<String> noField;
+
+	public PreparedStatementCV(ClassVisitor cv, HashSet<String> noField) {
 		super(ASM4, cv);
+		this.noField = noField;
 	}
 
 	private String owner;
@@ -86,28 +88,16 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		super.visit(version, access, name, signature, superName, interfaces);
 		this.owner = name;
-
-		// add dummy field
-		if (Configure.JDBC_REDEFINED == false) {
-			if ("com/mysql/jdbc/ServerPreparedStatement".equals(name) == false
-					&& "jdbc/FakePreparedStatement2".equals(name) == false) {
-				super.visitField(ACC_PUBLIC, TraceSQL.PSTMT_PARAM_FIELD, Type.getDescriptor(SqlParameter.class), null,
-						null).visitEnd();
-			}
+		if (noField.contains(name) == false) {
+			// add trace field
+			super.visitField(ACC_PUBLIC, TraceSQL.PSTMT_PARAM_FIELD, Type.getDescriptor(SqlParameter.class), null, null)
+					.visitEnd();
 		}
 	}
 
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		if (Configure.JDBC_REDEFINED) {
-			return ifRedefined(access, name, desc, mv);
-		} else {
-			return ifNotRedefined(access, name, desc, mv);
-		}
-	}
-
-	private MethodVisitor ifRedefined(int access, String name, String desc, MethodVisitor mv) {
 		if ("<init>".equals(name)) {
 			return new PsInitMV(access, desc, mv, owner);
 		} else {
@@ -124,28 +114,6 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 				}
 			} else if ("clearParameters".equals(name) && "()V".equals(desc)) {
 				return new PsClearParametersMV(access, desc, mv, owner);
-			}
-		}
-		return mv;
-	}
-
-	private MethodVisitor ifNotRedefined(int access, String name, String desc, MethodVisitor mv) {
-		if ("<init>".equals(name)) {
-			return new P0InitMV(access, desc, mv, owner);
-		} else {
-			String targetDesc = P0SetMV.getSetSignature(name);
-			if (targetDesc != null) {
-				if (targetDesc.equals(desc)) {
-					return new P0SetMV(access, name, desc, mv, owner);
-				}
-			} else if (P0ExecuteMV.isTarget(name)) {
-				if (desc.startsWith("()")) {
-					return new P0ExecuteMV(access, desc, mv, owner);
-				} else if (desc.startsWith("(Ljava/lang/String;)")) {
-					return new StExecuteMV(access, desc, mv, owner);
-				}
-			} else if ("clearParameters".equals(name) && "()V".equals(desc)) {
-				return new P0ClearParametersMV(access, desc, mv, owner);
 			}
 		}
 		return mv;

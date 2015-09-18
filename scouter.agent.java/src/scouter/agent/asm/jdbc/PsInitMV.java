@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 Scouter Project.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -17,25 +17,28 @@
 package scouter.agent.asm.jdbc;
 
 import scouter.agent.asm.util.AsmUtil;
+import scouter.agent.trace.SqlParameter;
 import scouter.agent.trace.TraceSQL;
+import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class PsInitMV extends LocalVariablesSorter implements Opcodes {
 
 	private final static String TRACESQL = TraceSQL.class.getName().replace('.', '/');
 	private final static String METHOD = "prepare";
-	private final static String SIGNATURE = "(Ljava/lang/Object;Ljava/lang/String;)V";
+	private final static String SIGNATURE = "(Ljava/lang/Object;Lscouter/agent/trace/SqlParameter;Ljava/lang/String;)V";
 
 	public PsInitMV(int access, String desc, MethodVisitor mv, String owner) {
 		super(ASM4,access, desc, mv);
-		//this.owner = owner;
+		this.owner = owner;
 		this.strArgIdx = AsmUtil.getStringIdx(access, desc);
 
 	}
 
-	//private String owner;
+	private String owner;
 	private int strArgIdx = -1;
 
 	@Override
@@ -43,25 +46,22 @@ public class PsInitMV extends LocalVariablesSorter implements Opcodes {
 		if (strArgIdx >= 0 && (opcode >= IRETURN && opcode <= RETURN)) {
 
 			mv.visitVarInsn(ALOAD, 0);
-			// mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD,
-			// "Lscouter/agent/trace/SqlParameter;");
-			//
-			// Label end = new Label();
-			// mv.visitJumpInsn(IFNONNULL, end);
-			// mv.visitVarInsn(ALOAD, 0);
-			// mv.visitTypeInsn(NEW, Type.getInternalName(SqlParameter.class));
-			// mv.visitInsn(DUP);
-			// mv.visitMethodInsn(INVOKESPECIAL,
-			// Type.getInternalName(SqlParameter.class), "<init>", "()V");
-			// mv.visitFieldInsn(PUTFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD,
-			// "Lscouter/agent/trace/SqlParameter;");
-			//
-			// mv.visitLabel(end);
-			// mv.visitVarInsn(ALOAD, 0);
-			// mv.visitVarInsn(ALOAD, 0);
-			// mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD,
-			// "Lscouter/agent/trace/SqlParameter;");
+			mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
+
+			Label end = new Label();
+			mv.visitJumpInsn(IFNONNULL, end);
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitTypeInsn(NEW, Type.getInternalName(SqlParameter.class));
+			mv.visitInsn(DUP);
+			mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(SqlParameter.class), "<init>", "()V",false);
+			mv.visitFieldInsn(PUTFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
+
+			mv.visitLabel(end);
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
 			mv.visitVarInsn(ALOAD, strArgIdx);
+
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, METHOD, SIGNATURE,false);
 		}
 		mv.visitInsn(opcode);

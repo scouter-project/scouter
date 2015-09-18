@@ -18,6 +18,7 @@ package scouter.agent.asm.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ import scouter.util.StrMatch;
 import scouter.util.StringUtil;
 
 public class MethodSet {
-	public byte xType=0;
+	public byte xType = 0;
 	public StrMatch classMatch = null;
 	protected HashMap inner = new HashMap();
 
@@ -113,13 +114,13 @@ public class MethodSet {
 				continue;
 			String cname = s.substring(0, x).replace('.', '/').trim();
 			String mname = s.substring(x + 1).trim();
-			
+
 			MethodSet methodSet = classSet.get(cname);
 			if (methodSet == null) {
 				methodSet = new MethodSet();
 				classSet.put(cname, methodSet);
 			}
-			
+
 			methodSet.add(mname);
 		}
 
@@ -133,7 +134,7 @@ public class MethodSet {
 
 		return list;
 	}
-	
+
 	public static void setHookingMethod(Map<String, MethodSet> classSet, String cname, String mname) {
 
 		MethodSet methodSet = classSet.get(cname);
@@ -144,40 +145,10 @@ public class MethodSet {
 		methodSet.add(mname);
 	}
 
-	public static Map<String, MethodSet> getHookingDiv(String mode) {
-		Configure conf = Configure.getInstance();
-		Map<String, MethodSet> classSet = new HashMap<String, MethodSet>();
-
-		int divPerfSize = conf.getInt("divperf.size", 0);
-		for (int m = 0; m < divPerfSize; m++) {
-			String[] c = StringUtil.split(conf.getValue("divperf." + m, ""), ';');
-			for (int i = 0; i < c.length; i++) {
-				String s = c[i];
-				int x = s.lastIndexOf(".");
-				if (x <= 0)
-					continue;
-				String cname = s.substring(0, x).replace('.', '/');
-				String mname = s.substring(x + 1);
-				if (mname.endsWith(mode) == false)
-					continue;
-				mname = mname.substring(0, mname.length() - mode.length());
-
-				MethodSet methodSet = classSet.get(cname);
-				if (methodSet == null) {
-					methodSet = new MethodSet();
-					classSet.put(cname, methodSet);
-				}
-				methodSet.add(mname, m);
-			}
-		}
-
-		return classSet;
-	}
-
 	public static void add(List<MethodSet> list, String classname, String method) {
-		add(list, classname, method,(byte)0);
+		add(list, classname, method, (byte) 0);
 	}
-	
+
 	public static void add(List<MethodSet> list, String classname, String method, byte serviceType) {
 		for (int i = 0; i < list.size(); i++) {
 			MethodSet m = list.get(i);
@@ -187,9 +158,18 @@ public class MethodSet {
 			}
 		}
 		MethodSet m = new MethodSet();
-		m.xType=serviceType;
+		m.xType = serviceType;
 		m.classMatch = new StrMatch(classname);
 		m.add(method);
 		list.add(m);
+	}
+
+	public static HashSet<String> getHookingClassSet(String arg) {
+		String[] c = StringUtil.tokenizer(arg, ",");
+		HashSet<String> classSet = new HashSet<String>();
+		for (int i = 0; i < c.length; i++) {
+			classSet.add(c[i]);
+		}
+		return classSet;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 Scouter Project.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -16,19 +16,15 @@
 
 package scouter.agent.asm.jdbc;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.trace.SqlParameter;
 import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
-
-
 
 public class PsSetMV extends LocalVariablesSorter implements Opcodes {
 
@@ -74,60 +70,62 @@ public class PsSetMV extends LocalVariablesSorter implements Opcodes {
 	private Type[] args;
 
 	public void visitCode() {
-	
-//		mv.visitVarInsn(Opcodes.ALOAD, 0);
-//		mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
 
+		mv.visitVarInsn(Opcodes.ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
 		mv.visitVarInsn(Opcodes.ILOAD, 1);
+
 		if (name.equals("setNull")) {
 			AsmUtil.PUSH(mv, (String) null);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(ILjava/lang/String;)V");
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set",
+					"(Lscouter/agent/trace/SqlParameter;ILjava/lang/String;)V",false);
 		} else {
 			Type tp = args[1];
 			switch (tp.getSort()) {
 			case Type.BOOLEAN:
 				mv.visitVarInsn(Opcodes.ILOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(IZ)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(Lscouter/agent/trace/SqlParameter;IZ)V",false);
 				break;
 			case Type.CHAR:
 			case Type.BYTE:
 			case Type.SHORT:
 			case Type.INT:
 				mv.visitVarInsn(Opcodes.ILOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(II)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(Lscouter/agent/trace/SqlParameter;II)V",false);
 				break;
 			case Type.LONG:
 				mv.visitVarInsn(Opcodes.LLOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(IJ)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(Lscouter/agent/trace/SqlParameter;IJ)V",false);
 				break;
 			case Type.FLOAT:
 				mv.visitVarInsn(Opcodes.FLOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(IF)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(Lscouter/agent/trace/SqlParameter;IF)V",false);
 				break;
 			case Type.DOUBLE:
 				mv.visitVarInsn(Opcodes.DLOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(ID)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(Lscouter/agent/trace/SqlParameter;ID)V",false);
 				break;
 			case Type.ARRAY:
 			case Type.OBJECT:
 				mv.visitVarInsn(Opcodes.ALOAD, 2);
 				if (tp.equals(AsmUtil.stringType)) {
-					mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(ILjava/lang/String;)V");
+					mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set",
+							"(Lscouter/agent/trace/SqlParameter;ILjava/lang/String;)V",false);
 				} else {
-					mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(ILjava/lang/Object;)V");
+					mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set",
+							"(Lscouter/agent/trace/SqlParameter;ILjava/lang/Object;)V",false);
 				}
 				break;
 			default:
 				mv.visitVarInsn(Opcodes.ALOAD, 2);
 				AsmUtil.PUSH(mv, "unknown " + tp);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(ILjava/lang/String;)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set",
+						"(Lscouter/agent/trace/SqlParameter;ILjava/lang/String;)V",false);
 				break;
 			}
 		}
 
 		super.visitCode();
 	}
-	public static void main(String[] args) {
-		System.out.println(Type.getDescriptor(SqlParameter.class));
-	}
+
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 Scouter Project.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package scouter.agent.asm.jdbc;
 
-
 import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
@@ -25,7 +24,7 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 public class PsClearParametersMV extends LocalVariablesSorter implements Opcodes {
 	private final static String TRACESQL = TraceSQL.class.getName().replace('.', '/');
 	private final static String METHOD = "clear";
-	private static final String SIGNATURE = "(Ljava/lang/Object;)V";
+	private static final String SIGNATURE = "(Ljava/lang/Object;Lscouter/agent/trace/SqlParameter;)V";
 
 	// /////////////////////////////////////////////////////////////////
 	public PsClearParametersMV(int access, String desc, MethodVisitor mv, String owner) {
@@ -39,8 +38,8 @@ public class PsClearParametersMV extends LocalVariablesSorter implements Opcodes
 	public void visitCode() {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 0);
-		//mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, METHOD, SIGNATURE);
+		mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, METHOD, SIGNATURE,false);
 		super.visitCode();
 
 	}
