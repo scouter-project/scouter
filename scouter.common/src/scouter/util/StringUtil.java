@@ -44,7 +44,7 @@ public class StringUtil {
 		String value = "";
 		StringTokenizer nizer = new StringTokenizer(target, delim);
 		while (nizer.hasMoreTokens()) {
-			value =  trimEmpty(nizer.nextToken());
+			value = trimEmpty(nizer.nextToken());
 		}
 		return value;
 	}
@@ -216,12 +216,6 @@ public class StringUtil {
 		return sb.toString();
 	}
 
-	public static void main(String[] args) {
-		String s = "aaa = bbb ccc";
-		String[] ss = divKeyValue(s, "=");
-		System.out.println(ArrayUtil.toString(ss));
-	}
-
 	public static String cutLastString(String className, char delim) {
 		int x = className.lastIndexOf(delim);
 		if (x > 0)
@@ -310,6 +304,16 @@ public class StringUtil {
 			sb.append(ch);
 		}
 		return sb.toString();
+	}
+
+	public static int getWordCount(String text, String word) {
+		int n = 0;
+		int x = text.indexOf(word);
+		while (x >= 0) {
+			n++;
+			x = text.indexOf(word, x + word.length());
+		}
+		return n;
 	}
 
 }

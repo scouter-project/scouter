@@ -116,7 +116,7 @@ public class TraceSQL {
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
-		step.xtype=SqlXType.DYNA;
+		step.xtype = SqlXType.DYNA;
 
 		ctx.sqlActiveArgs = ctx.sql;
 
@@ -155,7 +155,7 @@ public class TraceSQL {
 			sql = escapeLiteral(sql, step);
 		}
 		step.hash = DataProxy.sendSqlText(sql);
-		step.xtype=SqlXType.STMT;
+		step.xtype = SqlXType.STMT;
 
 		ctx.profile.push(step);
 		ctx.sqltext = sql;
@@ -394,7 +394,7 @@ public class TraceSQL {
 		if (sql != null) {
 			step.hash = DataProxy.sendSqlText(sql);
 		}
-		step.xtype=SqlXType.PREPARED;
+		step.xtype = SqlXType.PREPARED;
 
 		ctx.profile.push(step);
 		ctx.sqltext = sql;
@@ -405,6 +405,17 @@ public class TraceSQL {
 		if (args != null) {
 			args.setSql(sql);
 		}
+		
+		// @skyworker : debug code 2015.09.18
+		// TraceContext ctx = TraceContextManager.getLocalContext();
+		// if (ctx != null) {
+		// MessageStep m = new MessageStep();
+		// m.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		// m.message =
+		// ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace());
+		// ctx.profile.add(m);
+		// }
+
 	}
 
 	/**
