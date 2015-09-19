@@ -16,3 +16,4 @@ scouter.agent.host/bin/*
 scouter.agent.host.boot/bin/*
 scouter.server.boot/bin/*
 *.log
+scouter.enduser.script/.project 

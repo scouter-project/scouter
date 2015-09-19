@@ -14,7 +14,7 @@
  *  limitations under the License. 
  *
  */
-package scouter.client.context.actions;
+package scouter.client.configuration.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -23,16 +23,16 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 
 import scouter.client.Images;
-import scouter.client.configuration.views.ConfigureAgentView;
+import scouter.client.configuration.views.ConfigureView;
 import scouter.client.util.ImageUtil;
 
-public class OpenCxtmenuConfigureAgentViewAction extends Action {
-	public final static String ID = OpenCxtmenuConfigureAgentViewAction.class.getName();
+public class OpenAgentConfigureAction extends Action {
+	public final static String ID = OpenAgentConfigureAction.class.getName();
 
 	private final IWorkbenchWindow win;
 	private int objHash;
 	private int serverId;
-	public OpenCxtmenuConfigureAgentViewAction(IWorkbenchWindow win, String label, int objHash, int serverId) {
+	public OpenAgentConfigureAction(IWorkbenchWindow win, String label, int objHash, int serverId) {
 		this.win = win;
 		this.objHash = objHash;
 		this.serverId = serverId;
@@ -43,9 +43,9 @@ public class OpenCxtmenuConfigureAgentViewAction extends Action {
 	public void run() {
 		if (win != null) {
 			try {
-				ConfigureAgentView v = (ConfigureAgentView) win.getActivePage().showView(ConfigureAgentView.ID, "" + objHash, IWorkbenchPage.VIEW_ACTIVATE);
+				ConfigureView v = (ConfigureView) win.getActivePage().showView(ConfigureView.ID, "" + objHash, IWorkbenchPage.VIEW_ACTIVATE);
 				if(v != null)
-					v.setInput(serverId);
+					v.setInput(serverId, objHash);
 			} catch (PartInitException e) {
 				MessageDialog.openError(win.getShell(), "Error", "Error opening view:" + e.getMessage());
 			}

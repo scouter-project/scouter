@@ -19,11 +19,12 @@ import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.jdbc.StExecuteMV;
+import scouter.agent.asm.util.MethodSet;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 public class JDBCStatementASM implements IASM, Opcodes {
-	public final HashSet<String> target = new HashSet<String>();
+	public final HashSet<String> target =  MethodSet.getHookingClassSet(Configure.getInstance().hook_jdbc_stmt);
 	public JDBCStatementASM() {
 	
 		target.add("org/mariadb/jdbc/MySQLStatement");

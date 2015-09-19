@@ -169,7 +169,6 @@ public class XLogViewMouse implements MouseListener, MouseMoveListener {
 	public void zoominArea(final Display display, final int x1, final int y1, final int x2, final int y2) {
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
-				int txCnt = 0;
 				final LongKeyLinkedMap<XLogData> zoomData = new LongKeyLinkedMap<XLogData>();
 				LongEnumer enumer = data.keys();
 				double max = 0;
@@ -179,7 +178,6 @@ public class XLogViewMouse implements MouseListener, MouseMoveListener {
 					XLogData item = data.get(key);
 					if (inRect(x1, y1, x2, y2, item.x, item.y) 
 							&& (item.filter_ok)) {
-						txCnt++;
 						switch(viewPainter.yAxisMode) {
 							case ELAPSED:
 								if (item.p.elapsed / 1000d > max) {
@@ -249,11 +247,7 @@ public class XLogViewMouse implements MouseListener, MouseMoveListener {
 						zoomData.put(key, new XLogData(item.p, item.serverId));
 					}
 				}
-				if (txCnt < 1) {
-					ConsoleProxy.info("[XLog] no xlogs in selected area.");
-					return;
-				}
-				ConsoleProxy.info("[XLog] "+txCnt + " selected.");
+				if (zoomData.isEmpty()) return;
 				final long stime = zoomData.getFirstValue().p.endTime - 500;
 				final long etime = zoomData.getLastValue().p.endTime + 500;
 				final double yMax = max * 1.01;
@@ -262,6 +256,7 @@ public class XLogViewMouse implements MouseListener, MouseMoveListener {
 				ExUtil.exec(display, new Runnable() {
 					public void run() {
 						try {
+							ConsoleProxy.info("[XLog] "+ zoomData.size() + " selected.");
 							IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 							XLogZoomTimeView view = (XLogZoomTimeView) win.getActivePage().showView(XLogZoomTimeView.ID,//
 									objType+stime+etime+yMax+yMin, IWorkbenchPage.VIEW_ACTIVATE);

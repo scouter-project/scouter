@@ -59,13 +59,13 @@ public class AgentTransformer implements ClassFileTransformer {
 	static {
 		final Configure conf = Configure.getInstance();
 		reload();
-		hook_signature=conf.hook_signature;
+		hook_signature=conf.getHookSignature();
 		ConfObserver.add("AgentTransformer", new Runnable(){
 			 public void run() {
-				if(conf.hook_signature !=hook_signature){
+				if(conf.getHookSignature() !=hook_signature){
 					reload();
 				}
-				hook_signature=conf.hook_signature;
+				hook_signature=conf.getHookSignature();
 			}
 		 });
 		 

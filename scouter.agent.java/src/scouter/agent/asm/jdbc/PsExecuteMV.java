@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 Scouter Project.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package scouter.agent.asm.jdbc;
 
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,6 +25,7 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+
 
 public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 	private static Set<String> target = new HashSet<String>();
@@ -44,13 +44,12 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 	private final static String START_METHOD = "start";
 	private final static String END_METHOD = "end";
 	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;)V";
-	private static final String START_SIGNATURE = "(Ljava/lang/Object;)Ljava/lang/Object;";
+	private static final String START_SIGNATURE = "(Ljava/lang/Object;Lscouter/agent/trace/SqlParameter;)Ljava/lang/Object;";
 
 	public PsExecuteMV(int access, String desc, MethodVisitor mv, String owner) {
 		super(ASM4,access, desc, mv);
 		this.owner = owner;
 	}
-
 	private Label startFinally = new Label();
 
 	private String owner;
@@ -59,13 +58,12 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 	@Override
 	public void visitCode() {
 		mv.visitVarInsn(ALOAD, 0);
-		// mv.visitVarInsn(ALOAD, 0);
-		// mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD,
-		// "Lscouter/agent/trace/SqlParameter;");
+		mv.visitVarInsn(ALOAD, 0);
+	   mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
+		
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, START_METHOD, START_SIGNATURE,false);
 
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, START_METHOD, START_SIGNATURE);
-
-		statIdx = newLocal(Type.getType(Object.class));
+		statIdx = newLocal(scouter.org.objectweb.asm.Type.getType(Object.class));
 		mv.visitVarInsn(Opcodes.ASTORE, statIdx);
 		mv.visitLabel(startFinally);
 		mv.visitCode();
@@ -76,7 +74,7 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 		if ((opcode >= IRETURN && opcode <= RETURN)) {
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 			mv.visitInsn(Opcodes.ACONST_NULL);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, END_METHOD, END_SIGNATURE);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, END_METHOD, END_SIGNATURE,false);
 		}
 		mv.visitInsn(opcode);
 	}
@@ -92,7 +90,7 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 
 		mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 		mv.visitVarInsn(Opcodes.ALOAD, errIdx);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, END_METHOD, END_SIGNATURE);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, END_METHOD, END_SIGNATURE,false);
 		mv.visitInsn(ATHROW);
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
 	}
