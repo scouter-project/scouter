@@ -39,7 +39,8 @@
         stats.push({
           url: url,
           duration: time,
-          gxid: resGxid
+          gxid: resGxid,
+          userAgent: navigator.userAgent,
         });
 
         if(!timeoutId) {
