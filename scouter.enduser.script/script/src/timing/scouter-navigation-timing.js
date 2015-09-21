@@ -7,17 +7,24 @@
   var _p = window.scouter || {};
   var DEFAULT_END_POINT = "/_scouter_browser.jsp";
   var DEFAULT_GXID_HEADER = 'scouter_gxid';
+  var DEFAULT_GATHER_RATIO = 100.0; //unit:% - default:100.0%
 
   _p.endPoint = _p.endPoint || DEFAULT_END_POINT;
   _p.debug = _p.debug || false;
   _p.gxid_header = _p.gxid_header || DEFAULT_GXID_HEADER;
+  _p.gatherRatio = _p.gatherRatio || DEFAULT_GATHER_RATIO;
 
   if(!document.addEventListener) return; //Not support IE8-
 
-  window.addEventListener("load", function() {
-    document.removeEventListener("load", arguments.callee, false);
-    navtiming();
-  }, false);
+  //gather ratio condition
+  var random1000 = Math.floor(Math.random()*1000);
+
+  if(random1000 <= Math.floor(_p.gatherRatio * 10)) {
+    window.addEventListener("load", function() {
+      document.removeEventListener("load", arguments.callee, false);
+      navtiming();
+    }, false);
+  }
 
   var navtiming = function(){
 

@@ -9,10 +9,13 @@
   var _p = window.scouter || {};
   var DEFAULT_END_POINT = '/_scouter_browser.jsp';
   var DEFAULT_GXID_HEADER = 'scouter_gxid';
+  var DEFAULT_GATHER_RATIO = 100.0; //unit:% - default:100.0%
 
+  //options
   _p.endPoint = _p.endPoint || DEFAULT_END_POINT;
   _p.debug = _p.debug || false;
-  _p.gxid_header = _p.gxid_header || DEFAULT_GXID_HEADER;
+  _p.gxidHeader = _p.gxidHeader || DEFAULT_GXID_HEADER;
+  _p.gatherRatio = _p.gatherRatio || DEFAULT_GATHER_RATIO;
 
   var stats = [];
   var timeoutId = null;
@@ -32,7 +35,9 @@
     var url = this._url;
 
     function onReadyStateChange() {
-      if(self.readyState == 4 /* complete */) {
+      var random1000 = Math.floor(Math.random()*1000);
+
+      if(self.readyState == 4 && (random1000 <= Math.floor(_p.gatherRatio * 10))) {
         var resGxid = self.getResponseHeader(_p.gxid_header);
 
         var time = new Date() - start;
@@ -40,7 +45,7 @@
           url: url,
           duration: time,
           gxid: resGxid,
-          userAgent: navigator.userAgent,
+          userAgent: navigator.userAgent
         });
 
         if(!timeoutId) {
@@ -49,7 +54,11 @@
             var xhr = new XHR();
             xhr.noIntercept = true;
             var fullQuery = _p.endPoint + '?p=ax&q=' + encodeURIComponent(queryString);
-            console.log('fullQuery = ' + fullQuery);
+
+            if(_p.debug) {
+              console.log('fullQuery = ' + fullQuery);
+            }
+
             xhr.open("GET", fullQuery, true);
             xhr.send();
 
