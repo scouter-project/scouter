@@ -104,7 +104,8 @@ public class Configure extends Thread {
 	public boolean profile_thread_cputime = false;
 	public boolean profile_socket_openstack = false;
 	public int profile_socket_openstack_port = 0;
-	
+	public static boolean profile_framework_sqlmap=true;
+
 	public boolean listup_background_socket = true;
 	
 	public int xlog_time_limit = 0;
@@ -361,6 +362,7 @@ public class Configure extends Thread {
 		this.listup_background_socket = getBoolean("listup_background_socket", true);
 		this.profile_socket_openstack_port = getInt("profile_socket_openstack_port", 0);
 		this.profile_sql_escape = getBoolean("profile_sql_escape", true);
+		this.profile_framework_sqlmap = getBoolean("profile_framework_sqlmap", true);
 
 		this.enable_asm_jdbc = getBoolean("enable_asm_jdbc", getBoolean("enable.asm.jdbc", true));
 		this.enable_asm_socket = getBoolean("enable_asm_socket", getBoolean("enable.asm.socket", true));

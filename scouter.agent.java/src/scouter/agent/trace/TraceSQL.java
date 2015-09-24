@@ -583,6 +583,9 @@ public class TraceSQL {
 	}
 
 	public static void sqlMap(String methodName, String sqlname) {
+		if(Configure.getInstance().profile_framework_sqlmap==false)
+			return;
+		
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
