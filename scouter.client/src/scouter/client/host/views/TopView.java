@@ -30,8 +30,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -42,10 +40,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
@@ -55,11 +49,9 @@ import scouter.client.sorter.ColumnLabelSorter;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
-import scouter.client.util.ScouterUtil;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
-import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 
@@ -157,20 +149,20 @@ public class TopView extends ViewPart {
 	    table.setHeaderVisible(true);
 	    table.setLinesVisible(true);
 	    createTableContextMenu();
-	    table.addMouseListener(new MouseAdapter() {
-			public void mouseDoubleClick(MouseEvent e) {
-				TableItem[] item = table.getSelection();
-				if (item == null || item.length == 0)
-					return;
-				int pid = CastUtil.cint(item[0].getText(0));
-				IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				try {
-					ProcessDetailView view = (ProcessDetailView) win.getActivePage().showView(
-							ProcessDetailView.ID, "" + pid + objHash, IWorkbenchPage.VIEW_ACTIVATE);
-					view.setInput(serverId, objHash, pid);
-				} catch (PartInitException e1) {}
-			}
-		});
+//	    table.addMouseListener(new MouseAdapter() {
+//			public void mouseDoubleClick(MouseEvent e) {
+//				TableItem[] item = table.getSelection();
+//				if (item == null || item.length == 0)
+//					return;
+//				int pid = CastUtil.cint(item[0].getText(0));
+//				IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+//				try {
+//					ProcessDetailView view = (ProcessDetailView) win.getActivePage().showView(
+//							ProcessDetailView.ID, "" + pid + objHash, IWorkbenchPage.VIEW_ACTIVATE);
+//					view.setInput(serverId, objHash, pid);
+//				} catch (PartInitException e1) {}
+//			}
+//		});
 	    viewer.setContentProvider(new ArrayContentProvider());
 	    viewer.setComparator(new ColumnLabelSorter(viewer).setCustomCompare(new ColumnLabelSorter.ICustomCompare() {
 			public int doCompare(TableColumn col, int index, Object o1, Object o2) {
