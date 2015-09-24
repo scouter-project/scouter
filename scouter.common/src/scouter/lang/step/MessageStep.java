@@ -32,6 +32,10 @@ public class MessageStep extends StepSingle {
 	public MessageStep(String message) {
 		this.message = message;
 	}
+	public MessageStep(int start_time , String message) {
+		this.start_time =start_time;
+		this.message = message;
+	}
 	public byte getStepType() {
 		return StepEnum.MESSAGE;
 	}

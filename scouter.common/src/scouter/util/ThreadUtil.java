@@ -106,7 +106,7 @@ public class ThreadUtil {
 	}
 
 	public static String getThreadStack() {
-		return getStackTrace(Thread.currentThread().getStackTrace()).toString();
+		return getStackTrace(Thread.currentThread().getStackTrace());
 	}
 
 	public static String getStackTrace(StackTraceElement[] se) {
