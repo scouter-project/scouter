@@ -19,10 +19,8 @@ package scouter.client.xlog.views;
 import java.io.IOException;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -52,6 +50,7 @@ import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.xlog.XLogUtil;
+import scouter.client.xlog.actions.OpenSearchXLogDialogAction;
 import scouter.client.xlog.actions.OpenXLogLoadTimeAction;
 import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
@@ -121,6 +120,15 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 	    loadXLogItem.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
 				new OpenXLogLoadTimeAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Load XLog", objType, Images.server, serverId).run();
+			}
+		});
+	    
+	    MenuItem searchXLogItem = new MenuItem(contextMenu, SWT.PUSH);
+	    searchXLogItem.setText("Search");
+	    searchXLogItem.setImage(Images.find);
+	    searchXLogItem.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				new OpenSearchXLogDialogAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), serverId, objType).run();
 			}
 		});
 		

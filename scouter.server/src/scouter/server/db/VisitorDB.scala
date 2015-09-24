@@ -45,6 +45,7 @@ object VisitorDB {
             if (dateUnit != DateUtil.getDateUnit()) {
                 dateUnit = DateUtil.getDateUnit()
                 objTypeHyperTable.clear()
+                objHashHyperTable.clear()
             }
             flush()
             ThreadUtil.sleep(1000)

@@ -517,7 +517,7 @@ public class MenuUtil implements IMenuCreator{
 					mgr.add(act);
 				}
 				if (counterObj.isTotal()) {
-					Action act = new OpenPastTimeTotalAction(win, "Daily Total", objType, counter, Images.total, -1, -1, serverId);
+					Action act = new OpenPastLongDateTotalAction(win, "Daily Total", objType, counter, Images.total, null, null, serverId);
 					if (CounterPastLongDateTotalView.ID.equals(id)) {
 						act.setEnabled(false);
 					}
