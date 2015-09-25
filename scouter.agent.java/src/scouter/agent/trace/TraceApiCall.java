@@ -139,8 +139,6 @@ public class TraceApiCall {
 			tctx.apicall_time += step.elapsed;
 			if (thr != null) {
 				String msg = thr.getMessage();
-				// AlertProxy.sendAlert(AlertLevel.ERROR, "SUBCALL_EXCEPTION",
-				// msg);
 				Configure conf = Configure.getInstance();
 				if (conf.profile_fullstack_apicall_error) {
 
@@ -225,10 +223,7 @@ public class TraceApiCall {
 			Configure conf = Configure.getInstance();
 			if (conf.profile_socket_openstack) {
 				if (conf.profile_socket_openstack_port == 0 || conf.profile_socket_openstack_port == step.port) {
-					MessageStep m = new MessageStep();
-					m.start_time = step.start_time;
-					m.message = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace());
-					tctx.profile.add(m);
+					tctx.profile.add(new MessageStep(step.start_time, ThreadUtil.getThreadStack()));
 				}
 			}
 

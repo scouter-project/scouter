@@ -55,7 +55,7 @@ public class ServiceASM implements IASM, Opcodes {
 		for (int i = 0; i < target.size(); i++) {
 			MethodSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {
-				return new ServiceCV(cv, mset, className, mset.xType);
+				return new ServiceCV(cv, mset, className, mset.xType == 0 ? XLogTypes.APP_SERVICE : mset.xType);
 			}
 		}
 		return cv;
