@@ -276,7 +276,9 @@ public class Images {
 		if(server == null)
 			return Images.unknown;
 		String imgName = server.getCounterEngine().getCounterIconFileName(objType, counter);
-		
+		if (StringUtil.isEmpty(imgName)) {
+			return ImageUtil.UNKNOWN;
+		}
 		Image image = objCntImgMap.get(imgName);
 		if(image!= null)
 			return image;
@@ -293,6 +295,9 @@ public class Images {
 			return null;
 		String imgName = server.getCounterEngine().getCounterIconFileName(objType, counter);
 		
+		if (StringUtil.isEmpty(imgName)) {
+			return ImageUtil.getImageDescriptor(ImageUtil.UNKNOWN);
+		}
 		ImageDescriptor image = objCntImgDescMap.get(imgName);
 		if(image!= null)
 			return image;

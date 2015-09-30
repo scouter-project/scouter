@@ -410,6 +410,9 @@ public class CounterEngine {
 			return null;
 		}
 		scouter.lang.Counter c = obj.getFamily().getCounter(counter);
+		if (c == null) {
+			return "";
+		}
 		return c.getIcon();
 	}
 	
