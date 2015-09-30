@@ -1,3 +1,19 @@
+/**
+ *    Copyright 2009-2015 the original author or authors.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 /*Copyright (c) 2013 Bugsnag, https://bugsnag.com/
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -38,7 +54,7 @@ THE SOFTWARE.*/
   // (in some cases 10,000+ errors per page). This limit is at the point where
   // you've probably learned everything useful there is to debug the problem,
   // and we're happy to under-estimate the count to save the client (and Scouter's) resources.
-    eventsRemaining = 3;
+    eventsRemaining = 10;
 
   // #### Scouter.noConflict
   //
@@ -62,7 +78,7 @@ THE SOFTWARE.*/
   // one page load. This protects both the client's browser and our servers in
   // cases where exceptions are thrown in tight loops or scroll handlers.
   self.refresh = function() {
-    eventsRemaining = 3;
+    eventsRemaining = 10;
   };
 
   //
@@ -235,9 +251,8 @@ THE SOFTWARE.*/
   var FUNCTION_REGEX = /function\s*([\w\-$]+)?\s*\(/i;
 
   // Set up default notifier settings.
-  var DEFAULT_BASE_ENDPOINT = "http://x.x.com/";
-  var DEFAULT_NOTIFIER_ENDPOINT = DEFAULT_BASE_ENDPOINT + "js";
-  var NOTIFIER_VERSION = "2.4.8";
+  var DEFAULT_NOTIFIER_ENDPOINT = "/_scouter_browser.jsp";
+  var NOTIFIER_VERSION = "1.0.0";
 
   // Keep a reference to the currently executing script in the DOM.
   // We'll use this later to extract settings from attributes.
