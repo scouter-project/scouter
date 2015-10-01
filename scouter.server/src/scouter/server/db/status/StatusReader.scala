@@ -44,13 +44,13 @@ object StatusReader {
 class StatusReader(file: String) extends IClose {
 
     var refrence = 0;
-    val pointFile = new RandomAccessFile(file + ".pshot", "rw");
+    val pointFile = new RandomAccessFile(file + ".pstat", "rw");
 
     def read(point: Long): Array[Byte] = {
         try {
             this.synchronized {
                 pointFile.seek(point);
-                val len = pointFile.readShort();
+                val len = pointFile.readInt();
                 val buffer = new Array[Byte](len);
                 pointFile.read(buffer);
                 return buffer;

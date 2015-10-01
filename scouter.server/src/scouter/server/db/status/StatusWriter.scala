@@ -43,12 +43,12 @@ object StatusWriter {
 
 class StatusWriter(file: String) extends IClose {
     var refrence = 0;
-    val out = new RealDataFile(file + ".pshot");
+    val out = new RealDataFile(file + ".pstat");
 
     def write(bytes: Array[Byte]): Long = {
         this.synchronized {
             val point = out.getOffset();
-            out.writeShort(bytes.length.toShort);
+            out.writeInt(bytes.length);
             out.write(bytes);
             out.flush();
             return point;

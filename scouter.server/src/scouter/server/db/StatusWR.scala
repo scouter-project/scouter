@@ -28,7 +28,7 @@ import java.io.File
 import scouter.server.util.ThreadScala
 import scouter.server.util.OftenAction
 object StatusWR {
-    val status = "perfshot";
+    val status = "status";
     val queue = new RequestQueue[StatusPack](DBCtr.MAX_QUE_SIZE);
     ThreadScala.start("scouter.server.db.StatusWR") {
         var currentDateUnit = 0L
