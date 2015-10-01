@@ -26,8 +26,6 @@ public class GroupPolicyConstants {
 	public static final String ALLOW_CONFIGURE = "AllowConfigure";
 	public static final String ALLOW_EXPORTCOUNTER = "AllowExportCounter";
 	public static final String ALLOW_EXPORTAPPSUM = "AllowExportAppSum";
-	public static final String ALLOW_SETINTERVAL = "AllowSetInterval";
-	public static final String ALLOW_OBJECTMANAGER = "AllowObjectManager";
 	public static final String ALLOW_LOGINLIST = "AllowLoginList";
 	public static final String ALLOW_DBMANAGER = "AllowDBManager";
 	public static final String ALLOW_ADDACCOUNT = "AllowAddAccount";
