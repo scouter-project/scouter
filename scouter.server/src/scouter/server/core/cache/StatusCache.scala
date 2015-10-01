@@ -25,7 +25,7 @@ object StatusCache {
     val cache = new CacheTable[StatusKey, StatusPack]();
 
     def put(pack: StatusPack) {
-        cache.put(new StatusKey(pack.objHash, pack.key), pack, 10000);
+        cache.put(new StatusKey(pack.objHash, pack.key), pack, 15000);
     }
 
     def get(objHash: Int, key: String): StatusPack = {
