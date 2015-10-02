@@ -2,6 +2,7 @@
 
 ### Key features
 
+
 #### Gathering script errors occurring on real user's browser.
 Somewhere, somebody may feel **bad user's experience** against your web service now.  
 How can we recognize, gather and analyse those?  
@@ -12,10 +13,11 @@ Now new feature of Scouter give us insight for our service's user experience.
     - error stack trace
     - User's OS, Machine, Browser...
 
+
 #### Gethering browser's page navigation timing information 
-Server side timing does not include network time between an user and a server but also browser's rendering time.
-It's __real user experience timing__ which depens on user's machine, location, ISP... 
-And so we need navagation timing information that measured on user side.
+Server side timing does not include network time between an user and a server but also browser's rendering time.  
+It's __real user experience timing__ which depens on user's machine, location, ISP...   
+And so we need navagation timing information that measured on user side.  
 
 - We can get these information below by this feature.
     - access url
@@ -32,6 +34,7 @@ And so we need navagation timing information that measured on user side.
 
 #### Gathering Ajax timing
 Gether timing information for service request by XMLHTTPRequest. 
+
 - Gathering information
   - call url
   - response time measured on client side.
