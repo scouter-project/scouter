@@ -3,35 +3,40 @@
 ### Key features
 
 #### Gathering script errors occurring on real user's browser.
-Somewhere, somebody may feel bad user's experience against your web service now.
-How can we recognize, gather and analyse those?
-Now new feature of Scouter give us insight for our service's user experience. 
+Somewhere, somebody may feel **bad user's experience** against your web service now.  
+How can we recognize, gather and analyse those?  
+Now new feature of Scouter give us insight for our service's user experience.   
 
 - We can see
     - error page url
     - error stack trace
     - User's OS, Machine, Browser...
 
-#### Navigation timing 수집
-- browser의 performance timing 정보 수집(real user의 page loading 체감 시간)
-- 제공 정보
-    - 호출 url
-    - scouter server에서 발행한 gxid (server side timing 정보와 연동)
-    - connection time
-    - dns lookup time
-    - request time
-    - wait for response time
-    - response start to end time(network time)
-    - load event time
-    - user's geo location...
+#### Gethering browser's page navigation timing information 
+Server side timing does not include network time between an user and a server but also browser's rendering time.
+It's __real user experience timing__ which depens on user's machine, location, ISP... 
+And so we need navagation timing information that measured on user side.
 
-#### Ajax timing 수집
-- Ajax 요청에 대한 response time
-- 제공 정보
-  - 호출 url
-  - Client에서 측정항 response time 정보
-  - scouter server에서 발행한 gxid (server side timing 정보와 연동)
+- We can get these information below by this feature.
+    - access url
+    - gxid from response(it may user connect with server side timing information.)
+    - TCP connection time
+    - DNS lookup time
+    - Request time
+    - Wait for response time
+    - Response time(network duration - from response 1st byte to last byte)
+    - Loading event time
+    - Another resource getting time(images..)
+    - User's IP(We can get geo location using it)
+    - ...
 
+#### Gathering Ajax timing
+Gether timing information for service request by XMLHTTPRequest. 
+- Gathering information
+  - call url
+  - response time measured on client side.
+  - gxid from response(it may user connect with server side timing information.)
+    
 
 ### How to use
  - Just add one line script on your page.
