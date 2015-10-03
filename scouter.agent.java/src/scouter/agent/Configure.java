@@ -234,8 +234,8 @@ public class Configure extends Thread {
 	public long max_think_time = DateUtil.MILLIS_PER_FIVE_MINUTE;
 	public String object_registry="/tmp/scouter";
 	
-	public boolean pstack_enabled=false;
-	public int pstack_interval=10000;
+	public boolean sfa_dump_enabled=false;
+	public int sfa_dump_interval=10000;
 	
 	/**
 	 * sometimes call by sample application, at that time normally set some
@@ -495,8 +495,8 @@ public class Configure extends Thread {
 		
 		this.object_registry = getValue("object_registry", "/tmp/scouter");
 		
-		this.pstack_enabled = getBoolean("pstack_enabled", false);;
-		this.pstack_interval = getInt("pstack_interval", 10000);
+		this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);;
+		this.sfa_dump_interval = getInt("sfa_dump_interval", 10000);
 
 		resetObjInfo();
 		setErrorStatus();
