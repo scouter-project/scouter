@@ -194,7 +194,7 @@ public class StackAnalyzerView extends ViewPart {
 			}
 		});
 		
-		man.add(new OpenXMLEditorAction(win, "edit parser configuration", ImageUtil.getImageDescriptor(Images.config_edit)));
+		man.add(new OpenXMLEditorAction(win, "Edit parser configuration", ImageUtil.getImageDescriptor(Images.config_edit)));
 	}
 	
 	private void createMainTreePopupMenu(){

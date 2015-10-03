@@ -28,11 +28,13 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.stack.base.PreferenceManager;
+import scouter.client.stack.config.XMLReader;
 import scouter.client.util.RCPUtil;
 
 public class ResourceUtils {
@@ -141,5 +143,12 @@ public class ResourceUtils {
                 System.out.println("fail to delete - " + filename);
             }
         }
-    }    
+    }  
+    
+    static public void confirmMessage(Shell shell, String message){
+		MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.YES | SWT.APPLICATION_MODAL);
+		messageBox.setText("Confirm");
+		messageBox.setMessage(message);
+		messageBox.open();    	
+    }
  }

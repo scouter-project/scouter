@@ -212,7 +212,7 @@ public class MainProcessor{
 			messageBox.setText("Check Setting selection");
 			messageBox.setMessage("The configuration file is not selected.\r\nDo you want to use the default configuration?");
 			int result = messageBox.open();
-    	   if(result == SWT.YES){
+			if(result == SWT.YES){
 				configFile = XMLReader.DEFAULT_XMLCONFIG;
 			}else{
 			        configFile = selectCurrentParserConfig();
