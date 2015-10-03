@@ -59,6 +59,7 @@ public class StackAnalyzerView extends ViewPart {
 	private Browser m_browser = null;
 
 	public void createPartControl(Composite parent) {
+		this.setPartName("SFA");
 		MainProcessor mainProcessor = MainProcessor.instance();
 		mainProcessor.setStackAnalyzerView(this);
 		mainProcessor.setParentComposite(parent);
