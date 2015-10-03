@@ -15,7 +15,7 @@ Now new feature of Scouter give us insight for our service's user experience.
 
 
 #### Gethering browser's page navigation timing information 
-Server side timing does not include network time between an user and a server but also browser's rendering time.  
+Server side timing does not include network time between user and server but also browser's rendering time.  
 It's __real user experience timing__ which depens on user's machine, location, ISP...   
 And so we need navagation timing information that measured on user side.  
 
