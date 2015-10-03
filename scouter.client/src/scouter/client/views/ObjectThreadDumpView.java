@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
+import scouter.client.stack.base.MainProcessor;
 import scouter.client.util.ColoringWord;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.CustomLineStyleListener;
@@ -100,15 +101,28 @@ public class ObjectThreadDumpView extends ViewPart {
 	}
 
 	Composite headerComp;
-	Button findButton;
+	Button findButton, analyzeBtn;
 	Text searchText;
 	public void createUpperMenu(Composite composite){
 		headerComp = new Composite(composite, SWT.NONE);
 		headerComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		headerComp.setLayout(UIUtil.formLayout(0, 0));
 		
+		analyzeBtn = new Button(headerComp, SWT.PUSH);
+		analyzeBtn.setLayoutData(UIUtil.formData(null, -1, 0, 2, 100, -5, null, -1));
+		analyzeBtn.setText("SFA");
+		analyzeBtn.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				switch (event.type) {
+				case SWT.Selection:
+					MainProcessor.instance().processStackContents(text.getText());
+					break;
+				}
+			}
+		});
+		
 		findButton = new Button(headerComp, SWT.PUSH);
-		findButton.setLayoutData(UIUtil.formData(null, -1, 0, 2, 100, -5, null, -1));
+		findButton.setLayoutData(UIUtil.formData(null, -1, 0, 2, analyzeBtn, -3, null, -1));
 		findButton.setText("Find");
 		findButton.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {

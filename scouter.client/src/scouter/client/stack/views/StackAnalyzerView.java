@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ public class StackAnalyzerView extends ViewPart {
 	private Browser m_browser = null;
 
 	public void createPartControl(Composite parent) {
+		this.setPartName("SFA");
 		MainProcessor mainProcessor = MainProcessor.instance();
 		mainProcessor.setStackAnalyzerView(this);
 		mainProcessor.setParentComposite(parent);
@@ -194,7 +195,7 @@ public class StackAnalyzerView extends ViewPart {
 			}
 		});
 		
-		man.add(new OpenXMLEditorAction(win, "edit parser configuration", ImageUtil.getImageDescriptor(Images.config_edit)));
+		man.add(new OpenXMLEditorAction(win, "Edit parser configuration", ImageUtil.getImageDescriptor(Images.config_edit)));
 	}
 	
 	private void createMainTreePopupMenu(){

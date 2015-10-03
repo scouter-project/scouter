@@ -125,17 +125,29 @@ class MariaService {
   def realtimeResponseTime(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
     val param = din.readMapPack();
     val objHashLv = param.getList("objHash");
+    val time = System.currentTimeMillis() - DateUtil.MILLIS_PER_FIVE_MINUTE;
     for (i <- 0 to objHashLv.size()-1) {
        val objHash = objHashLv.getInt(i);
        val status = StatusCache.get(objHash, StatusConstants.EVENTS_STATEMENTS_SUMMARY_BY_DIGEST);
        if(status != null) {
          val data = status.data;
          val timeLv = data.getList("AVG_TIMER_WAIT");
-         var time_sum = 0.0;
+         val lastSeenLv = data.getList("LAST_SEEN");
+         val countLv = data.getList("COUNT_STAR");
+         var timeSum = 0.0;
+         var totalCnt = 0;
          for (j <- 0 to timeLv.size() - 1) {
-           time_sum += timeLv.getDouble(j);
+           val lastTime = lastSeenLv.getLong(j);
+           if (time < lastTime) {
+             timeSum += timeLv.getDouble(j) * countLv.getInt(j);
+             totalCnt += countLv.getInt(j);
+           }
          }
-         val value = time_sum / timeLv.size();
+         
+         var value = 0.0;
+         if (totalCnt > 0) {
+            value = timeSum / totalCnt;
+         }
          val pack = new MapPack();
          pack.put("objHash", objHash);
          pack.put("value", new DoubleValue(value));

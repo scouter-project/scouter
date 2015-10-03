@@ -44,9 +44,9 @@ public class MakeStack {
 	
 	public static long pstack_requested;
 	private boolean isPStackEnabled() {
-		return Configure.getInstance().pstack_enabled || System.currentTimeMillis() < pstack_requested;
+		return Configure.getInstance().sfa_dump_enabled || System.currentTimeMillis() < pstack_requested;
 	}
 	private long getInterval() {
-		return Configure.getInstance().pstack_interval;
+		return Configure.getInstance().sfa_dump_interval;
 	}
 }

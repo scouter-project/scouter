@@ -38,7 +38,7 @@ mrhit : MariaDB HitRatio
 			<Counter name="TcpStatEST" disp="Net | TcpStatEST" unit="cnt" icon="time_read.png" total="false"/>
 
 		</Family>
-		<Family name="javaee" master="ActiveService" txreal="true" totactsp="true"  acteq="true"  actthrli="true" tdservcnt="true" svcgrp="true" srcxlog="true" unqvst="true">
+		<Family name="javaee" master="ActiveService" txreal="true" totactsp="true"  acteq="true"  actthrli="true" tdservcnt="true" svcgrp="true" unqvst="true">
 			<Counter name="RecentUser" disp="Recent User" unit="cnt" icon="visitor.png" />
 			<Counter name="HeapTotUsage" disp="Heap Total Usage" unit="MB" icon="memory.png" all="false" total="false"  />
 			<Counter name="GcCount" disp="GC Count" unit="cnt" icon="gc.png" />

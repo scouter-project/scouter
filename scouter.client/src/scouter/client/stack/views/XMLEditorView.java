@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ public class XMLEditorView extends ViewPart {
 		String fileName = null;
 		MainProcessor mainProcessor = MainProcessor.instance();
 		if(!mainProcessor.isDefaultConfiguration()){
-			fileName = PreferenceManager.get().getCurrentParserConfig();
+			fileName = checkFile(PreferenceManager.get().getCurrentParserConfig());
 		}
 		
 		if(fileName == null){
@@ -83,13 +83,27 @@ public class XMLEditorView extends ViewPart {
 			if(stackFileInfo == null){
 				fileName = XMLReader.DEFAULT_XMLCONFIG;
 			}else{
-				fileName = stackFileInfo.getParserConfig().getConfigFilename();
+				fileName = checkFile(stackFileInfo.getParserConfig().getConfigFilename());
 			}
 		}
 		setFileName(fileName);
 		
 		initialToolBar();
 		loadConfig();
+	}
+	
+	private String checkFile(String fileName){
+		if(fileName == null){
+			return null;
+		}
+		
+		File file = new File(fileName);
+		if(!file.exists() || !file.isFile()){
+			String message = new StringBuilder(100).append(fileName).append(" file is not exist. then editor use a default xml configuration.").toString();
+			ResourceUtils.confirmMessage(this.getSite().getShell(), message);
+			return XMLReader.DEFAULT_XMLCONFIG;
+		}
+		return fileName;
 	}
 
 	private void setFileName(String fileName){

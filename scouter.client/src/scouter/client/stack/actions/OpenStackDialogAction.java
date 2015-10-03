@@ -17,7 +17,7 @@ public class OpenStackDialogAction extends Action {
 	public OpenStackDialogAction(int serverId, int objHash) {
 		this.serverId = serverId;
 		this.objHash = objHash;
-		this.setText("Thread Stack Analyzer");
+		this.setText("Analyze");
 	}
 	
 	public void run(){

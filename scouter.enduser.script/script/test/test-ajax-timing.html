@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Test Timing</title>
+    <script>
+        scouter = {
+            apiKey: '',
+            debug: true
+        };
+    </script>
+    <script src="../src/timing/scouter-ajax-timing.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+    <script>
+        $( document ).ready(function() {
+            $.ajax({
+                url: "/z/ajaxTest.jsp",
+                success: function( data ) {
+                    console.log('my ajax call finished!');
+                }
+            });
+            $.ajax({
+                url: "/z/ajaxTest.jsp",
+                success: function( data ) {
+                    console.log('my ajax call finished2!');
+                }
+            });
+        });
+
+
+    </script>
+</head>
+<body>
+    Hello<br>
+    <script>
+
+    </script>
+    <!--<img src="http://localhost:8080/z/10sImage.jsp">-->
+
+</body>
+</html>

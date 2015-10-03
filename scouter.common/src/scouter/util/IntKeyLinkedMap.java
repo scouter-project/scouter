@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -211,8 +211,19 @@ public class IntKeyLinkedMap<V> {
 		}
 
 		if (max > 0) {
-			while (count >= max) {
-				removeFirst();
+			switch(m){
+			case FORCE_FIRST:
+			case FIRST:
+				  while(count >= max){
+					  removeLast();
+				  }
+				break;
+			case FORCE_LAST:
+			case LAST:
+				while(count >= max){
+					  removeFirst();
+				  }
+				break;
 			}
 		}
 

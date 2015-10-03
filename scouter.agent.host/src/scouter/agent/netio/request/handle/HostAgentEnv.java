@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 package scouter.agent.netio.request.handle;
 
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import scouter.agent.netio.request.anotation.RequestHandler;
 import scouter.lang.pack.MapPack;
@@ -37,7 +39,11 @@ public class HostAgentEnv {
 			String value = p.getProperty(key);
 			m.put(key, new TextValue(value));
 		}
+		Map<String, String> envs = System.getenv();
+		Set<String> keys = envs.keySet();
+		for (String key : keys) {
+			m.put(key, envs.get(key));
+		}
 		return m;
 	}
-
 }

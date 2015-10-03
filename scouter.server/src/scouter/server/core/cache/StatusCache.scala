@@ -1,5 +1,5 @@
 /*
-*  Copyright 2015 LG CNS.
+*  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ object StatusCache {
     val cache = new CacheTable[StatusKey, StatusPack]();
 
     def put(pack: StatusPack) {
-        cache.put(new StatusKey(pack.objHash, pack.key), pack, 10000);
+        cache.put(new StatusKey(pack.objHash, pack.key), pack, 15000);
     }
 
     def get(objHash: Int, key: String): StatusPack = {

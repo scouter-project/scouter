@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -187,7 +187,7 @@ public class MenuStr {
 	
 	public static final String FILEDUMP                         = "File Dump";
 	public static final String FILEDUMP_ID                      = "scouter.client.contextmenu.agentobject.filedump";
-	public static final String STACK_ANALYZER                         = "Stack Analyzer";
+	public static final String STACK_ANALYZER                         = "Stack Frequency Analyzer";
 	public static final String STACK_ANALYZER_ID                      = "scouter.client.contextmenu.agentobject.stack";
 	public static final String DUMP_ACTIVE_SERVICE_LIST               = "Dump Active Service List";
 	public static final String DUMP_THREAD_DUMP               = "Dump Thread Dump";

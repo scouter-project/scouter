@@ -11,8 +11,6 @@
 			<AllowConfigure>true</AllowConfigure>
 			<AllowExportCounter>true</AllowExportCounter>
 			<AllowExportAppSum>true</AllowExportAppSum>
-			<AllowSetInterval>true</AllowSetInterval>
-			<AllowObjectManager>true</AllowObjectManager>
 			<AllowLoginList>true</AllowLoginList>
 			<AllowDBManager>true</AllowDBManager>
 			<AllowAddAccount>true</AllowAddAccount>
@@ -36,8 +34,6 @@
 			<AllowConfigure>false</AllowConfigure>
 			<AllowExportCounter>false</AllowExportCounter>
 			<AllowExportAppSum>false</AllowExportAppSum>
-			<AllowSetInterval>false</AllowSetInterval>
-			<AllowObjectManager>false</AllowObjectManager>
 			<AllowLoginList>false</AllowLoginList>
 			<AllowDBManager>false</AllowDBManager>
 			<AllowAddAccount>false</AllowAddAccount>

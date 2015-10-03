@@ -1,6 +1,6 @@
 /*
  * 
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -215,8 +215,19 @@ public class IntIntLinkedMap {
 		}
 
 		if (max > 0) {
-			while (count >= max) {
-				removeFirst();
+			switch(m){
+			case FORCE_FIRST:
+			case FIRST:
+				  while(count >= max){
+					  removeLast();
+				  }
+				break;
+			case FORCE_LAST:
+			case LAST:
+				while(count >= max){
+					  removeFirst();
+				  }
+				break;
 			}
 		}
 
@@ -436,28 +447,38 @@ public class IntIntLinkedMap {
 	}
 
 	public static void main(String[] args) {
-		IntIntLinkedMap m = new IntIntLinkedMap();
-		System.out.println(m.getFirstValue());
-		System.out.println(m.getLastKey());
+		IntIntLinkedMap m = new IntIntLinkedMap().setMax(6);
+
 		for (int i = 0; i < 10; i++) {
 			m.put(i, i);
 			System.out.println(m);
 		}
+		System.out.println();
+		//m.putFirst(1, 0);
+		
+		System.out.println(m);
 		System.out.println("==================================");
-		for (int i = 0; i < 10; i++) {
-			m.putLast(i, i);
-			System.out.println(m);
+		IntEnumer en = m.keys();
+		while(en.hasMoreElements()){
+			m.remove(5);
+			System.out.println(en.nextInt());
 		}
-		System.out.println("==================================");
-		for (int i = 0; i < 10; i++) {
-			m.putFirst(i, i);
-			System.out.println(m);
-		}
-		System.out.println("==================================");
-		for (int i = 0; i < 10; i++) {
-			m.removeFirst();
-			System.out.println(m);
-		}
+	
+//		System.out.println("==================================");
+//		for (int i = 0; i < 10; i++) {
+//			m.putLast(i, i);
+//			System.out.println(m);
+//		}
+//		System.out.println("==================================");
+//		for (int i = 0; i < 10; i++) {
+//			m.putFirst(i, i);
+//			System.out.println(m);
+//		}
+//		System.out.println("==================================");
+//		for (int i = 0; i < 10; i++) {
+//			m.removeFirst();
+//			System.out.println(m);
+//		}
 
 	}
 

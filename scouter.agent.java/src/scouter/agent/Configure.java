@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -104,7 +104,8 @@ public class Configure extends Thread {
 	public boolean profile_thread_cputime = false;
 	public boolean profile_socket_openstack = false;
 	public int profile_socket_openstack_port = 0;
-	
+	public boolean profile_framework_sqlmap=true;
+
 	public boolean listup_background_socket = true;
 	
 	public int xlog_time_limit = 0;
@@ -191,8 +192,12 @@ public class Configure extends Thread {
 
 	public String plugin_http_trace = "";
 	public String plugin_apicall_name = "";
+
 	public boolean profile_fullstack_service_error = false;
 	public boolean profile_fullstack_apicall_error = false;
+	public boolean profile_fullstack_sql_error=false;
+	public boolean profile_fullstack_sql_commit=false;
+
 	public int profile_fullstack_lines = 0;
 	public long udp_collection_interval = 100;
 	public boolean profile_sql_escape = true;
@@ -229,8 +234,8 @@ public class Configure extends Thread {
 	public long max_think_time = DateUtil.MILLIS_PER_FIVE_MINUTE;
 	public String object_registry="/tmp/scouter";
 	
-	public boolean pstack_enabled=false;
-	public int pstack_interval=10000;
+	public boolean sfa_dump_enabled=false;
+	public int sfa_dump_interval=10000;
 	
 	/**
 	 * sometimes call by sample application, at that time normally set some
@@ -281,8 +286,6 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
-
-
 
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
@@ -361,6 +364,7 @@ public class Configure extends Thread {
 		this.listup_background_socket = getBoolean("listup_background_socket", true);
 		this.profile_socket_openstack_port = getInt("profile_socket_openstack_port", 0);
 		this.profile_sql_escape = getBoolean("profile_sql_escape", true);
+		this.profile_framework_sqlmap = getBoolean("profile_framework_sqlmap", true);
 
 		this.enable_asm_jdbc = getBoolean("enable_asm_jdbc", getBoolean("enable.asm.jdbc", true));
 		this.enable_asm_socket = getBoolean("enable_asm_socket", getBoolean("enable.asm.socket", true));
@@ -446,6 +450,8 @@ public class Configure extends Thread {
 
 		this.profile_fullstack_service_error = getBoolean("profile_fullstack_service_error", false);
 		this.profile_fullstack_apicall_error = getBoolean("profile_fullstack_apicall_error", false);
+		this.profile_fullstack_sql_error = getBoolean("profile_fullstack_sql_error", false);
+		this.profile_fullstack_sql_commit = getBoolean("profile_fullstack_sql_commit", false);
 		this.profile_fullstack_lines = getInt("profile_fullstack_lines", 0);
 
 		this.udp_collection_interval = getInt("udp_collection_interval", 100);
@@ -489,8 +495,8 @@ public class Configure extends Thread {
 		
 		this.object_registry = getValue("object_registry", "/tmp/scouter");
 		
-		this.pstack_enabled = getBoolean("pstack_enabled", false);;
-		this.pstack_interval = getInt("pstack_interval", 10000);
+		this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);;
+		this.sfa_dump_interval = getInt("sfa_dump_interval", 10000);
 
 		resetObjInfo();
 		setErrorStatus();

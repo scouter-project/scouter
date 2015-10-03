@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ public class GroupPolicyConstants {
 	public static final String ALLOW_CONFIGURE = "AllowConfigure";
 	public static final String ALLOW_EXPORTCOUNTER = "AllowExportCounter";
 	public static final String ALLOW_EXPORTAPPSUM = "AllowExportAppSum";
-	public static final String ALLOW_SETINTERVAL = "AllowSetInterval";
-	public static final String ALLOW_OBJECTMANAGER = "AllowObjectManager";
 	public static final String ALLOW_LOGINLIST = "AllowLoginList";
 	public static final String ALLOW_DBMANAGER = "AllowDBManager";
 	public static final String ALLOW_ADDACCOUNT = "AllowAddAccount";

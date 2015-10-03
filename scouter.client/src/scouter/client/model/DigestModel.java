@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -106,4 +106,38 @@ public class DigestModel {
 		}
 		return array;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((database == null) ? 0 : database.hashCode());
+		result = prime * result + digestHash;
+		result = prime * result + objHash;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DigestModel other = (DigestModel) obj;
+		if (database == null) {
+			if (other.database != null)
+				return false;
+		} else if (!database.equals(other.database))
+			return false;
+		if (digestHash != other.digestHash)
+			return false;
+		if (objHash != other.objHash)
+			return false;
+		return true;
+	}
+	
+	
 }

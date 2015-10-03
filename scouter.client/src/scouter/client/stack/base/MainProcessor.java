@@ -1,5 +1,5 @@
 /*
-a *  Copyright 2015 LG CNS.
+ *  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -212,7 +212,7 @@ public class MainProcessor{
 			messageBox.setText("Check Setting selection");
 			messageBox.setMessage("The configuration file is not selected.\r\nDo you want to use the default configuration?");
 			int result = messageBox.open();
-    	   if(result == SWT.YES){
+			if(result == SWT.YES){
 				configFile = XMLReader.DEFAULT_XMLCONFIG;
 			}else{
 			        configFile = selectCurrentParserConfig();
@@ -712,7 +712,7 @@ public class MainProcessor{
         clearTable();
     }
     
-    private void openStackAnalyzer(){
+    public void openStackAnalyzer(){
     	IWorkbench workbench = PlatformUI.getWorkbench();
     	IWorkbenchWindow window = workbench.getActiveWorkbenchWindow(); 
     	try{ 

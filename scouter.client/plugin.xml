@@ -55,7 +55,7 @@
           class="scouter.client.PerspectiveStackAnalyzer"
           icon="icons/page_white_stack.png"
           id="scouter.client.PerspectiveStackAnalyzer"
-          name="Stack Performance Analyzer">
+          name="Stack Frequency Analyzer">
     </perspective>
   </extension>
 

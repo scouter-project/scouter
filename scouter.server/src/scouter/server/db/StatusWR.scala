@@ -1,5 +1,5 @@
 /*
-*  Copyright 2015 LG CNS.
+*  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import java.io.File
 import scouter.server.util.ThreadScala
 import scouter.server.util.OftenAction
 object StatusWR {
-    val status = "perfshot";
+    val status = "status";
     val queue = new RequestQueue[StatusPack](DBCtr.MAX_QUE_SIZE);
     ThreadScala.start("scouter.server.db.StatusWR") {
         var currentDateUnit = 0L

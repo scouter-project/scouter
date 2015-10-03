@@ -1,5 +1,5 @@
 /*
-*  Copyright 2015 LG CNS.
+*  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ object VisitorDB {
             if (dateUnit != DateUtil.getDateUnit()) {
                 dateUnit = DateUtil.getDateUnit()
                 objTypeHyperTable.clear()
+                objHashHyperTable.clear()
             }
             flush()
             ThreadUtil.sleep(1000)

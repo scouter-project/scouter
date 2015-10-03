@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 LG CNS.
+ *  Copyright 2015 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -139,10 +139,19 @@ public class TraceSQL {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.debug_background_sql) {
-				Logger.info("BGSQL:" + sql);
+				Logger.info("background: " + sql);
 			}
 			return null;
 		}
+
+		// Looking for the position of calling SQL COMMIT
+		if (conf.profile_fullstack_sql_commit) {
+			if ("commit".equalsIgnoreCase(sql)) {
+				ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), ThreadUtil
+						.getThreadStack()));
+			}
+		}
+
 		SqlStep2 step = new SqlStep2();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		if (ctx.profile_thread_cputime) {
@@ -218,6 +227,19 @@ public class TraceSQL {
 		}
 		if (thr != null) {
 			String msg = thr.toString();
+			if (conf.profile_fullstack_sql_error) {
+				StringBuffer sb = new StringBuffer();
+				sb.append(msg).append("\n");
+				ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+				thr = thr.getCause();
+				while (thr != null) {
+					sb.append("\nCause...\n");
+					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+					thr = thr.getCause();
+				}
+				msg = sb.toString();
+			}
+
 			int hash = DataProxy.sendError(msg);
 			if (tctx.error == 0) {
 				tctx.error = hash;
@@ -374,9 +396,16 @@ public class TraceSQL {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.debug_background_sql && args != null) {
-				Logger.info("BG=>" + args.getSql());
+				Logger.info("background: " + args.getSql());
 			}
 			return null;
+		}
+		// Looking for the position of calling SQL COMMIT
+		if (conf.profile_fullstack_sql_commit) {
+			if ("commit".equalsIgnoreCase(args.getSql())) {
+				ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), ThreadUtil
+						.getThreadStack()));
+			}
 		}
 		SqlStep2 step = new SqlStep2();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
@@ -405,7 +434,7 @@ public class TraceSQL {
 		if (args != null) {
 			args.setSql(sql);
 		}
-		
+
 		// @skyworker : debug code 2015.09.18
 		// TraceContext ctx = TraceContextManager.getLocalContext();
 		// if (ctx != null) {
@@ -583,6 +612,9 @@ public class TraceSQL {
 	}
 
 	public static void sqlMap(String methodName, String sqlname) {
+		if (Configure.getInstance().profile_framework_sqlmap == false)
+			return;
+
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
