@@ -76,7 +76,7 @@ public class Configure extends Thread {
 	public String scouter_name = "";
 	public String objhost_type = "";
 	public String objhost_name = "";
-	
+
 	public int objHash;
 	public String objName;
 	public int objHostHash;
@@ -104,10 +104,10 @@ public class Configure extends Thread {
 	public boolean profile_thread_cputime = false;
 	public boolean profile_socket_openstack = false;
 	public int profile_socket_openstack_port = 0;
-	public boolean profile_framework_sqlmap=true;
+	public boolean profile_framework_sqlmap = true;
 
 	public boolean listup_background_socket = true;
-	
+
 	public int xlog_time_limit = 0;
 
 	public String http_error_status = "";
@@ -195,8 +195,8 @@ public class Configure extends Thread {
 
 	public boolean profile_fullstack_service_error = false;
 	public boolean profile_fullstack_apicall_error = false;
-	public boolean profile_fullstack_sql_error=false;
-	public boolean profile_fullstack_sql_commit=false;
+	public boolean profile_fullstack_sql_error = false;
+	public boolean profile_fullstack_sql_commit = false;
 
 	public int profile_fullstack_lines = 0;
 	public long udp_collection_interval = 100;
@@ -232,15 +232,14 @@ public class Configure extends Thread {
 	public String direct_patch_class = "";
 
 	public long max_think_time = DateUtil.MILLIS_PER_FIVE_MINUTE;
-	public String object_registry="/tmp/scouter";
-	
-	public boolean sfa_dump_enabled=false;
-	public int sfa_dump_interval=10000;
-	
-	public boolean enable_trace_web = false;
-	public String key_web_name="X-Forwarded-Host";
-	public String key_web_time="X-Forwarded-Time";
+	public String object_registry = "/tmp/scouter";
 
+	public boolean sfa_dump_enabled = false;
+	public int sfa_dump_interval = 10000;
+
+	public boolean enable_trace_web = false;
+	public String key_web_name = "X-Forwarded-Host";
+	public String key_web_time = "X-Forwarded-Time";
 
 	/**
 	 * sometimes call by sample application, at that time normally set some
@@ -386,7 +385,7 @@ public class Configure extends Thread {
 		this.debug_udp_object = getBoolean("debug_udp_object", getBoolean("debug.udp.object", false));
 
 		this.local_udp_addr = getValue("local_udp_addr");
-		this.local_udp_port = getInt("local_udp_port",0);
+		this.local_udp_port = getInt("local_udp_port", 0);
 
 		this.server_addr = getValue("server_addr", getValue("server.addr", "127.0.0.1"));
 		this.server_udp_port = getInt("server_udp_port", getInt("server.port", NetConstants.SERVER_UDP_PORT));
@@ -422,7 +421,7 @@ public class Configure extends Thread {
 		this.hook_apicall = getValue("hook_apicall", "");
 		this.hook_apicall_info = getValue("hook_apicall_info", "");
 		this.hook_jsp = getValue("hook_jsp", "");
-		
+
 		this.hook_jdbc_pstmt = getValue("hook_jdbc_pstmt", "");
 		this.hook_jdbc_stmt = getValue("hook_jdbc_stmt", "");
 		this.hook_jdbc_rs = getValue("hook_jdbc_rs", "");
@@ -470,7 +469,7 @@ public class Configure extends Thread {
 		this.gxid = getValue("gxid", "scouter_gxid");
 		this.this_txid = getValue("this_txid", "scouter_this_txid");
 		this.caller_txid = getValue("caller_txid", "scouter_caller_txid");
-		
+
 		this.debug_dbopen_fullstack = getBoolean("debug_dbopen_fullstack", false);
 		this.debug_dbopen_autocommit = getBoolean("debug_dbopen_autocommit", false);
 
@@ -497,16 +496,17 @@ public class Configure extends Thread {
 
 		this.direct_patch_class = getValue("direct_patch_class", "");
 		this.max_think_time = getLong("max_think_time", DateUtil.MILLIS_PER_FIVE_MINUTE);
-		
+
 		this.object_registry = getValue("object_registry", "/tmp/scouter");
-		
-		this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);;
+
+		this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);
 		this.sfa_dump_interval = getInt("sfa_dump_interval", 10000);
-		
-		
+
+		// 웹시스템으로 부터 WAS 사이의 성능과 어떤 웹서버가 요청을 보내 왔는지를 추적하는 기능을 ON/OFF하고
+		// 관련 키정보를 지정한다.
 		this.enable_trace_web = getBoolean("enable_trace_web", false);
-		this.key_web_name=getValue("key_web_name", "X-Forwarded-Host");
-		this.key_web_time=getValue("key_web_time", "X-Forwarded-Time");
+		this.key_web_name = getValue("key_web_name", "X-Forwarded-Host");
+		this.key_web_time = getValue("key_web_time", "X-Forwarded-Time");
 
 		resetObjInfo();
 		setErrorStatus();
@@ -591,9 +591,9 @@ public class Configure extends Thread {
 		this.objName = objHostName + "/" + this.scouter_name;
 		this.objHash = HashUtil.hash(objName);
 
-		this.alert_message_length = getInt("alert_message_length",  3000);
+		this.alert_message_length = getInt("alert_message_length", 3000);
 		this.alert_send_interval = getInt("alert_send_interval", 3000);
-		this.alert_fetch_count = getInt("alert_fetch_count",100000);
+		this.alert_fetch_count = getInt("alert_fetch_count", 100000);
 		this.alert_sql_time = getInt("alert_sql_time", 30000);
 
 		this.debug_asm = getBoolean("debug_asm", getBoolean("debug.asm", false));
@@ -733,7 +733,7 @@ public class Configure extends Thread {
 
 		return m;
 	}
-	
+
 	public int getHookSignature() {
 		return this.hook_signature;
 	}
