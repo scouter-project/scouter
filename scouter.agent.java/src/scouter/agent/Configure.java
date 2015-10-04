@@ -237,7 +237,7 @@ public class Configure extends Thread {
 	public boolean sfa_dump_enabled=false;
 	public int sfa_dump_interval=10000;
 	
-	public boolean enable_trace_web = true;
+	public boolean enable_trace_web = false;
 	public String key_web_name="X-Forwarded-Host";
 	public String key_web_time="X-Forwarded-Time";
 
@@ -504,7 +504,7 @@ public class Configure extends Thread {
 		this.sfa_dump_interval = getInt("sfa_dump_interval", 10000);
 		
 		
-		this.enable_trace_web = getBoolean("enable_trace_web", true);
+		this.enable_trace_web = getBoolean("enable_trace_web", false);
 		this.key_web_name=getValue("key_web_name", "X-Forwarded-Host");
 		this.key_web_time=getValue("key_web_time", "X-Forwarded-Time");
 
