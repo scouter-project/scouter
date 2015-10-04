@@ -294,6 +294,10 @@ public class TraceMain {
 			if (ctx.desc != null) {
 				pack.desc = DataProxy.sendDesc(ctx.desc);
 			}
+		    if(ctx.web_name!=null){
+		    	pack.webHash = DataProxy.sendWebName(ctx.web_name);
+		    	pack.webTime = ctx.web_time;
+		    }
 			metering(pack);
 			HttpServiceTracePlugIn.end(ctx, pack);
 			if (sendOk) {

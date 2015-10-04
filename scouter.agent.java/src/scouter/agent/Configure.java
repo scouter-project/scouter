@@ -237,6 +237,11 @@ public class Configure extends Thread {
 	public boolean sfa_dump_enabled=false;
 	public int sfa_dump_interval=10000;
 	
+	public boolean enable_trace_web = true;
+	public String key_web_name="X-Forwarded-Host";
+	public String key_web_time="X-Forwarded-Time";
+
+
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -460,12 +465,12 @@ public class Configure extends Thread {
 
 		this.http_remote_ip_header_key = getValue("http_remote_ip_header_key", "");
 
-		this.enable_trace_e2e = getBoolean("enable_trace_e2e", getBoolean("enable_gxid", false));
+		this.enable_trace_e2e = getBoolean("enable_trace_e2e", false);
 		this.enable_response_gxid = getBoolean("enable_response_gxid", false);
 		this.gxid = getValue("gxid", "scouter_gxid");
 		this.this_txid = getValue("this_txid", "scouter_this_txid");
 		this.caller_txid = getValue("caller_txid", "scouter_caller_txid");
-
+		
 		this.debug_dbopen_fullstack = getBoolean("debug_dbopen_fullstack", false);
 		this.debug_dbopen_autocommit = getBoolean("debug_dbopen_autocommit", false);
 
@@ -497,6 +502,11 @@ public class Configure extends Thread {
 		
 		this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);;
 		this.sfa_dump_interval = getInt("sfa_dump_interval", 10000);
+		
+		
+		this.enable_trace_web = getBoolean("enable_trace_web", true);
+		this.key_web_name=getValue("key_web_name", "X-Forwarded-Host");
+		this.key_web_time=getValue("key_web_time", "X-Forwarded-Time");
 
 		resetObjInfo();
 		setErrorStatus();

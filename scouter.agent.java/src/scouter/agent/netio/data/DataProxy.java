@@ -276,7 +276,17 @@ public class DataProxy {
 			Logger.info(p.toString());
 		}
 	}
+	private static IntLinkedSet webNameTable = new IntLinkedSet().setMax(1000);
 
+	public static int sendWebName( String web) {
+		int hash = HashUtil.hash(web);
+		if (webNameTable.contains(hash)) {
+			return hash;
+		}
+		webNameTable.put(hash);
+		udpCollect.add(new TextPack(TextTypes.WEB, hash, web));
+		return hash;
+	}
 	
 
 }

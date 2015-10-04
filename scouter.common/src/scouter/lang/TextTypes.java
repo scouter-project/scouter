@@ -32,5 +32,6 @@ public interface TextTypes{
 	public static  String MARIA = "maria";
 	public static  String LOGIN = "login";
 	public static  String DESC = "desc";
+	public static  String WEB = "web";
 
 }

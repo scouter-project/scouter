@@ -73,7 +73,7 @@ public class HttpTrace implements IHttpTrace {
 	public void start(TraceContext ctx, Object req, Object res) {
 		Configure conf = Configure.getInstance();
 		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;		
+		HttpServletResponse response = (HttpServletResponse) res;
 
 		ctx.serviceName = getRequestURI(request);
 
@@ -82,7 +82,7 @@ public class HttpTrace implements IHttpTrace {
 			ctx.serviceName = new StringBuilder(ctx.serviceName.length() + v.length() + 5).append(ctx.serviceName)
 					.append('-').append(v).toString();
 		}
-		ctx.serviceHash =HashUtil.hash(ctx.serviceName);
+		ctx.serviceHash = HashUtil.hash(ctx.serviceName);
 		ctx.http_method = request.getMethod();
 		ctx.http_query = request.getQueryString();
 		ctx.http_content_type = request.getContentType();
@@ -109,11 +109,11 @@ public class HttpTrace implements IHttpTrace {
 		}
 		String referer = request.getHeader("Referer");
 		if (referer != null) {
-			ctx.referer =	DataProxy.sendReferer( referer);
+			ctx.referer = DataProxy.sendReferer(referer);
 		}
 		String userAgent = request.getHeader("User-Agent");
 		if (userAgent != null) {
-			ctx.userAgent =DataProxy.sendUserAgent(userAgent);
+			ctx.userAgent = DataProxy.sendUserAgent(userAgent);
 		}
 		dump(ctx.profile, request, ctx);
 		if (conf.enable_trace_e2e) {
@@ -135,11 +135,30 @@ public class HttpTrace implements IHttpTrace {
 			} catch (Throwable t) {
 			}
 		}
+
 		if (conf.enable_response_gxid) {
 			try {
 				if (ctx.gxid == 0)
 					ctx.gxid = ctx.txid;
 				response.setHeader(conf.gxid, Hexa32.toString32(ctx.gxid) + ":" + ctx.startTime);
+			} catch (Throwable t) {
+			}
+		}
+		if (conf.enable_trace_web) {
+			try {
+				ctx.web_name = request.getHeader(conf.key_web_name);
+				String web_time = request.getHeader(conf.key_web_time);
+				if (web_time != null) {
+					int x = web_time.indexOf("t=");
+					if (x >= 0) {
+						web_time = web_time.substring(x + 2);
+						x = web_time.indexOf(' ');
+						if (x > 0) {
+							web_time = web_time.substring(0, x);
+						}
+						ctx.web_time = (int) (System.currentTimeMillis() - (Long.parseLong(web_time) / 1000));
+					}
+				}
 			} catch (Throwable t) {
 			}
 		}

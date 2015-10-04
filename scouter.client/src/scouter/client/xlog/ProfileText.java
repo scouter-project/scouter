@@ -143,6 +143,10 @@ public class ProfileText {
 		if (StringUtil.isNotEmpty(t)) {
 			sb.append("\n► city=" + t);
 		}
+		t = TextProxy.web.getLoadText(date, xperf.p.webHash, serverId);
+		if (StringUtil.isNotEmpty(t)) {
+			sb.append("\n► webName=" + t).append("  webTime=" + xperf.p.webTime+ " ms");
+		}
 		sb.append("\n");
 
 		sb.append("------------------------------------------------------------------------------------------\n");

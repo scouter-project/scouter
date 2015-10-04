@@ -85,6 +85,9 @@ public class TraceContext {
 	
 	public String login;
 	public String desc;
+	
+	public String web_name;
+	public int web_time;
 
 	public TraceContext createChild(){
 		TraceContext child = new TraceContext(this.isSummary);
