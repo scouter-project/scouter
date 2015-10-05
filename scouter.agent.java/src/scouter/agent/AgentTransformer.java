@@ -76,45 +76,45 @@ public class AgentTransformer implements ClassFileTransformer {
 		
 		List<IASM> temp = new ArrayList<IASM>();
 		
-		if (conf.enable_hook_step1) {
+		if (conf.enable_hook_service) {
 			temp.add(new HttpServiceASM());
 			temp.add(new ServiceASM());
 		}
 		
-		if (conf.enable_hook_step2) {
+		if (conf.enable_hook_dbsql) {
 			temp.add(new JDBCPreparedStatementASM());
 			temp.add(new JDBCResultSetASM());
 			temp.add(new JDBCStatementASM());
 			temp.add(new SqlMapASM());
 		}
 		
-		if (conf.enable_hook_step3) {
+		if (conf.enable_hook_dbconn) {
 			temp.add(new DbcOpenASM());
 			temp.add(new JDBCDriverASM());
 		}
 		
-		if (conf.enable_hook_step4) {
+		if (conf.enable_hook_cap) {
 			temp.add(new CapArgsASM());
 			temp.add(new CapReturnASM());
 			temp.add(new CapThisASM());
 		}
 		
-		if (conf.enable_hook_step5) {
+		if (conf.enable_hook_methods) {
 			temp.add(new MethodASM());
 			temp.add(new ApicallASM());
 			temp.add(new ApicallInfoASM());
 			
 		}
 		
-		if (conf.enable_hook_step6) {
+		if (conf.enable_hook_socket) {
 			temp.add(new SocketASM());
 		}
 	
-		if (conf.enable_hook_step7) {
+		if (conf.enable_hook_jsp) {
 			temp.add(new JspServletASM());
 		}
 		
-		if (conf.enable_hook_step8) {
+		if (conf.enable_hook_future) {
 			temp.add(new FutureTaskASM());
 		}
 		
