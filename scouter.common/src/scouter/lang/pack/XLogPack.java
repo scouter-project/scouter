@@ -50,12 +50,16 @@ public class XLogPack implements Pack {
 	// TOP100
 	public String countryCode; // CountryCode.getCountryName(countryCode);
 	public int city;
-	public byte xType; //see XLogTypes
-	
+	public byte xType; // see XLogTypes
+
 	public int login;
 	public int desc;
-	
-	public String toString() {	
+
+	// WEB TIME
+	public int webHash; // WEB서버의 ObjectHash
+	public int webTime; // WEB서버 --> WAS 시작 시점까지의 시간
+
+	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("XLOG ");
 		sb.append(DateUtil.timestamp(endTime));
@@ -100,10 +104,13 @@ public class XLogPack implements Pack {
 		o.writeText(countryCode);
 		o.writeDecimal(city);
 		o.writeDecimal(xType);
-		
+
 		o.writeDecimal(login);
 		o.writeDecimal(desc);
-		
+
+		o.writeDecimal(webHash);
+		o.writeDecimal(webTime);
+
 		out.writeBlob(o.toByteArray());
 	}
 
@@ -136,11 +143,15 @@ public class XLogPack implements Pack {
 			this.city = (int) d.readDecimal();
 		}
 		if (d.available() > 0) {
-			this.xType=d.readByte();
+			this.xType = d.readByte();
 		}
 		if (d.available() > 0) {
-			this.login=(int)d.readDecimal();
-			this.desc=(int)d.readDecimal();
+			this.login = (int) d.readDecimal();
+			this.desc = (int) d.readDecimal();
+		}
+		if (d.available() > 0) {
+			this.webHash = (int) d.readDecimal();
+			this.webTime = (int) d.readDecimal();
 		}
 		return this;
 	}
