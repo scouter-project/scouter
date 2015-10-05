@@ -45,7 +45,6 @@ Scouter has three modules:
   - Eclipse RCP : SCOUTER is created as a standalone program. So the client can be connected to multiple servers at the same time. It makes easier that users monitor large scale systems.
   - SWT & GEF4 : Charts and Diagrams
   
-
 ### Q&A
  - [Google Groups](https://groups.google.com/forum/#!forum/scouter-project)
  
