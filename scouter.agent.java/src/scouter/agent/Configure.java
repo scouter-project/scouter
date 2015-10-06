@@ -219,15 +219,17 @@ public class Configure extends Thread {
 	public String hook_future_task = "";
 	public String hook_future_task_prefix = "";
 
+	//DEBUG OPTIONS
 	public boolean enable_counter_task = true;
-	public boolean enable_hook_step1 = true;
-	public boolean enable_hook_step2 = true;
-	public boolean enable_hook_step3 = true;
-	public boolean enable_hook_step4 = true;
-	public boolean enable_hook_step5 = true;
-	public boolean enable_hook_step6 = true;
-	public boolean enable_hook_step7 = true;
-	public boolean enable_hook_step8 = true;
+	public boolean enable_hook_service = true;
+	public boolean enable_hook_dbsql = true;
+	public boolean enable_hook_dbconn = true;
+	public boolean enable_hook_cap = true;
+	public boolean enable_hook_methods = true;
+	public boolean enable_hook_socket = true;
+	public boolean enable_hook_jsp = true;
+	public boolean enable_hook_future = true;
+	////////////////////////////////////////////
 
 	public String direct_patch_class = "";
 
@@ -485,14 +487,14 @@ public class Configure extends Thread {
 		this.hook_future_task_prefix = getValue("hook_future_task_prefix", "");
 
 		this.enable_counter_task = getBoolean("enable_counter_task", true);
-		this.enable_hook_step1 = getBoolean("enable_hook_step1", true);
-		this.enable_hook_step2 = getBoolean("enable_hook_step2", true);
-		this.enable_hook_step3 = getBoolean("enable_hook_step3", true);
-		this.enable_hook_step4 = getBoolean("enable_hook_step4", true);
-		this.enable_hook_step5 = getBoolean("enable_hook_step5", true);
-		this.enable_hook_step6 = getBoolean("enable_hook_step6", true);
-		this.enable_hook_step7 = getBoolean("enable_hook_step7", true);
-		this.enable_hook_step8 = getBoolean("enable_hook_step8", true);
+		this.enable_hook_service = getBoolean("enable_hook_service", true);
+		this.enable_hook_dbsql = getBoolean("enable_hook_dbsql", true);
+		this.enable_hook_dbconn = getBoolean("enable_hook_dbconn", true);
+		this.enable_hook_cap = getBoolean("enable_hook_cap", true);
+		this.enable_hook_methods = getBoolean("enable_hook_methods", true);
+		this.enable_hook_socket = getBoolean("enable_hook_socket", true);
+		this.enable_hook_jsp = getBoolean("enable_hook_jsp", true);
+		this.enable_hook_future = getBoolean("enable_hook_future", true);
 
 		this.direct_patch_class = getValue("direct_patch_class", "");
 		this.max_think_time = getLong("max_think_time", DateUtil.MILLIS_PER_FIVE_MINUTE);
