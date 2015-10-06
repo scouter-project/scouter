@@ -20,4 +20,5 @@ scouter.enduser.script/.project
 .idea/*
 scouter.agent.java/.settings/*
 scouter.enduser.script/.idea/*
-scouter.enduser.script/.settings/* 
+scouter.enduser.script/.settings/*
+node_modules/ 
