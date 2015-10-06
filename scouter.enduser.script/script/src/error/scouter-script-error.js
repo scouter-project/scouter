@@ -1,4 +1,4 @@
-/**
+ /*!
  *    Copyright 2009-2015 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +14,8 @@
  *    limitations under the License.
  */
 
-/*Copyright (c) 2013 Bugsnag, https://bugsnag.com/
-
+/*!
+Copyright (c) 2013 Bugsnag, https://bugsnag.com/
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the "Software"),
 to deal in the Software without restriction, including without limitation
@@ -35,12 +35,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 THE SOFTWARE.*/
 
 /**
+ * @author <a href="mailto:gunlee01@gmail.com">Gun Lee</a>
+ */
+
+/**
  * catch browser's errors and send it to the collection service of scouter APM.
  * modified from Bugsnag // https://github.com/bugsnag/bugsnag-js
  * -- browser support --
  * -- all browsers (IE9, IOS6, Chrome any, Safari any, FF any)
  */
-
 // The `Scouter` object is the only globally exported variable
 (function (window, old) {
   var self = {},
