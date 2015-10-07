@@ -1,6 +1,12 @@
 ## Open Source S/W Applicaiton Performance Monitoring
-SCOUTER is a open source APM(Application Performance Montiring) and a database monitoring tool.
-(Opensource WAS - Tomcat, JBoss ...... / Opensource DB - MariaDB ) 
+SCOUTER is an open source APM and a database monitoring tool.
+APM means application performance monitoring or application performance management.
+ - Monitoring target (currently)
+   - Opensource WAS - Tomcat, JBoss, Resin ...  
+   - Opensource DB - MariaDB(on closed beta testing now)
+
+ - Monitoring target (hopeful with every contributors)
+   - Nodejs, Redis, MongoDB, PostgreSQL, Apach HTTPD, nginX, php ...
 
 ![Screen](https://github.com/scouter-project/scouter-help/blob/master/misc/screen/dash1.png)
 
@@ -50,5 +56,8 @@ Scouter has three modules:
  
 ### License
 Licensed under the Apache License, Version 2.0
+<br>
+<br>
 
+###### Scouter @ Powerd by LG CNS
 
