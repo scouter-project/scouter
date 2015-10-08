@@ -739,3 +739,285 @@ THE SOFTWARE.*/
   }
 
 })(window, window.Scouter);
+
+ /*!
+ *    Copyright 2009-2015 the original author or authors.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+/**
+ * @author <a href="mailto:gunlee01@gmail.com">Gun Lee</a>
+ */
+
+/**
+ * measure browser's ajax timing and send it to the collection service of scouter APM.
+ * -- browser support --
+ * -- all modern browsers ( IE9+, IOS6+, Chrome any, Safari any, FF any)
+ */
+(function(XHR) {
+  "use strict";
+
+  var _p = window.scouter || {};
+  var DEFAULT_END_POINT = '/_scouter_browser.jsp';
+  var DEFAULT_GXID_HEADER = 'scouter_gxid';
+  var DEFAULT_GATHER_RATIO = 100.0; //unit:% - default:100.0%
+
+  //options
+  _p.endPoint = _p.endPoint || DEFAULT_END_POINT;
+  _p.debug = _p.debug || false;
+  _p.gxidHeader = _p.gxidHeader || DEFAULT_GXID_HEADER;
+  _p.gatherRatio = _p.gatherRatio || DEFAULT_GATHER_RATIO;
+
+  var stats = [];
+  var timeoutId = null;
+
+  var open = XHR.prototype.open;
+  var send = XHR.prototype.send;
+
+  XHR.prototype.open = function(method, url, async, user, pass) {
+    this._url = url;
+    open.call(this, method, url, async, user, pass);
+  };
+
+  XHR.prototype.send = function(data) {
+    var self = this;
+    var start;
+    var oldOnReadyStateChange;
+    var url = this._url;
+
+    function onReadyStateChange() {
+      var random1000 = Math.floor(Math.random()*1000);
+
+      if(self.readyState == 4 && (random1000 <= Math.floor(_p.gatherRatio * 10))) {
+        var resGxid = self.getResponseHeader(_p.gxid_header);
+
+        var time = new Date() - start;
+        stats.push({
+          url: url,
+          duration: time,
+          gxid: resGxid,
+          userAgent: navigator.userAgent
+        });
+
+        if(!timeoutId) {
+          timeoutId = window.setTimeout(function() {
+            var queryString = JSON.stringify({stats:stats}, undefined, 0);
+            var xhr = new XHR();
+            xhr.noIntercept = true;
+            var fullQuery = _p.endPoint + '?p=ax&q=' + encodeURIComponent(queryString);
+
+            if(_p.debug) {
+              console.log('fullQuery = ' + fullQuery);
+            }
+
+            xhr.open("GET", fullQuery, true);
+            xhr.send();
+
+            timeoutId = null;
+            stats = [];
+          }, 1000);
+        }
+      }
+
+      if(oldOnReadyStateChange) {
+        oldOnReadyStateChange();
+      }
+    }
+
+    if(!this.noIntercept) {
+      start = new Date();
+
+      if(this.addEventListener) {
+        this.addEventListener("readystatechange", onReadyStateChange, false);
+      } else {
+        oldOnReadyStateChange = this.onreadystatechange;
+        this.onreadystatechange = onReadyStateChange;
+      }
+    }
+
+    send.call(this, data);
+  }
+})(XMLHttpRequest);
+/*!
+ *    Copyright 2009-2015 the original author or authors.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+/**
+ * @author <a href="mailto:gunlee01@gmail.com">Gun Lee</a>
+ */
+
+/**
+ * measure browser's performance timing and send it to the collection service of scouter APM.
+ * -- browser support --
+ * -- all modern browsers ( IE9+, IOS6+, Chrome any, Safari any, FF any)
+ */
+(function() {
+  var _p = window.scouter || {};
+  var DEFAULT_END_POINT = "/_scouter_browser.jsp";
+  var DEFAULT_GXID_HEADER = 'scouter_gxid';
+  var DEFAULT_GATHER_RATIO = 100.0; //unit:% - default:100.0%
+
+  _p.endPoint = _p.endPoint || DEFAULT_END_POINT;
+  _p.debug = _p.debug || false;
+  _p.gxid_header = _p.gxid_header || DEFAULT_GXID_HEADER;
+  _p.gatherRatio = _p.gatherRatio || DEFAULT_GATHER_RATIO;
+
+  if(!document.addEventListener) return; //Not support IE8-
+
+  //gather ratio condition
+  var random1000 = Math.floor(Math.random()*1000);
+
+  if(random1000 <= Math.floor(_p.gatherRatio * 10)) {
+    window.addEventListener("load", function() {
+      document.removeEventListener("load", arguments.callee, false);
+      navtiming();
+    }, false);
+  }
+
+  var navtiming = function(){
+
+    //TODO - read gxid from cookie(how to ensure on the case of multiple requests-ex. with browser frames?)
+    var resGxid = getCookie(_p.gxid_header);
+
+    setTimeout(function(){
+      var performance = window.performance || window.webkitPerformance || window.msPerformance || window.mozPerformance;
+      if(performance === undefined) {
+        console.log('Unfortunately, your browser does not support the Navigation Timing API');
+        return;
+      }
+      var t = performance.timing;
+      var navtiming = {
+        gxid: resGxId,
+        navigationStart: t.navigationStart,
+        unloadEventStart: t.unloadEventStart,
+        unloadEventEnd: t.unloadEventEnd,
+        redirectStart: t.redirectStart,
+        redirectEnd: t.redirectEnd,
+        fetchStart: t.fetchStart,
+        domainLookupStart: t.domainLookupStart,
+        domainLookupEnd: t.domainLookupEnd,
+        connectStart: t.connectStart,
+        connectEnd: t.connectEnd,
+        secureConnectionStart: t.secureConnectionStart,
+        requestStart: t.requestStart,
+        responseStart: t.responseStart,
+        responseEnd: t.responseEnd,
+        domLoading: t.domLoading,
+        domInteractive: t.domInteractive,
+        domContentLoadedEventStart: t.domContentLoadedEventStart,
+        domContentLoadedEventEnd: t.domContentLoadedEventEnd,
+        domComplete: t.domComplete,
+        loadEventStart: t.loadEventStart,
+        loadEventEnd: t.loadEventEnd
+      };
+
+      if(_p.debug) {
+        console.log(navtiming);
+        console.log('resGxid = ' + resGxid);
+        console.log('1st client:%d', navtiming.domainLookupStart - navtiming.navigationStart);
+        console.log('1st n/w-req:%d', navtiming.requestStart - navtiming.domainLookupStart);
+        console.log('1st server:%d', navtiming.responseStart - navtiming.requestStart);
+        console.log('2nd n/w-res:%d', navtiming.responseEnd - navtiming.responseStart);
+        console.log('after response, total time:%d', navtiming.loadEventEnd - navtiming.responseEnd);
+        console.log('responseEnd to domInteractive:%d', navtiming.domLoading - navtiming.responseEnd);
+        console.log('domInteractive to domContentLoadedEventEnd:%d', navtiming.domContentLoadedEventEnd - navtiming.domInteractive);
+        console.log('domContentLoadedEventEnd to domComplete:%d', navtiming.domComplete - navtiming.domContentLoadedEventEnd);
+        console.log('domComplete to loadEventEnd:%d', navtiming.loadEventEnd - navtiming.domComplete);
+        console.log('loadEventStart to loadEventEnd:%d', navtiming.loadEventEnd - navtiming.loadEventStart);
+      }
+
+      sendToScouter(navtiming);
+
+    }, 0);
+  };
+
+  // Deeply serialize an object into a query string. We use the PHP-style
+  // nested object syntax, `nested[keys]=val`, to support hierarchical
+  // objects. Similar to jQuery's `$.param` method.
+  function serialize(obj, prefix) {
+    var str = [];
+    for (var p in obj) {
+      if (obj.hasOwnProperty(p) && p != null && obj[p] != null) {
+        var k = prefix ? prefix + "[" + p + "]" : p, v = obj[p];
+        str.push(typeof v === "object" ? serialize(v, k) : encodeURIComponent(k) + "=" + encodeURIComponent(v));
+      }
+    }
+    return str.join("&");
+  }
+
+  function sendToScouter(t) {
+    var location = window.location;
+    var sendObj = {
+      host: location.protocol + "//" + location.host,
+      uri: location.pathname,
+      url: window.location.href,
+      userAgent: navigator.userAgent,
+      gxid: resGxId,
+      navigationStart: t.navigationStart,
+      unloadEventStart: t.unloadEventStart,
+      unloadEventEnd: t.unloadEventEnd,
+      redirectStart: t.redirectStart,
+      redirectEnd: t.redirectEnd,
+      fetchStart: t.fetchStart,
+      domainLookupStart: t.domainLookupStart,
+      domainLookupEnd: t.domainLookupEnd,
+      connectStart: t.connectStart,
+      connectEnd: t.connectEnd,
+      secureConnectionStart: t.secureConnectionStart,
+      requestStart: t.requestStart,
+      responseStart: t.responseStart,
+      responseEnd: t.responseEnd,
+      domLoading: t.domLoading,
+      domInteractive: t.domInteractive,
+      domContentLoadedEventStart: t.domContentLoadedEventStart,
+      domContentLoadedEventEnd: t.domContentLoadedEventEnd,
+      domComplete: t.domComplete,
+      loadEventStart: t.loadEventStart,
+      loadEventEnd: t.loadEventEnd
+    };
+    if(_p.debug) {
+      console.log(sendObj);
+    }
+    request(_p.endPoint, sendObj);
+  }
+
+  function request(url, params) {
+    var img = new Image();
+    img.src = url + "?" + serialize(params) + "&p=nav&z=" + new Date().getTime();
+  }
+
+  /**
+   * http://www.sitepoint.com/how-to-deal-with-cookies-in-javascript/
+   * @param name
+   * @returns {*}
+   */
+  function getCookie(name) {
+    var regexp = new RegExp("(?:^" + name + "|;\s*"+ name + ")=(.*?)(?:;|$)", "g");
+    var result = regexp.exec(document.cookie);
+    return (result === null) ? null : result[1];
+  }
+
+})();
