@@ -21,6 +21,8 @@ SCOUTER can help you.
   - Resources : Cpu,Memory,Network and Heap usage, Connection pools etc.
 
 ### At a glance
+[![Demo](https://gifs.com/gif/yDqbAa)](https://youtu.be/iuArTzsD7Ws)
+
 <iframe width="560" height="315" src="https://www.youtube.com/embed/iuArTzsD7Ws" frameborder="0" allowfullscreen></iframe>
 
 ### Documents
