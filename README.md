@@ -20,6 +20,9 @@ SCOUTER can help you.
   - Services : ActiveService, TPS, ResponseTime, Transaction Profile(class,sql,apicall), TagCount 
   - Resources : Cpu,Memory,Network and Heap usage, Connection pools etc.
 
+### At a glance
+<iframe width="560" height="315" src="https://www.youtube.com/embed/iuArTzsD7Ws" frameborder="0" allowfullscreen></iframe>
+
 ### Documents
  - [Getting Started](../../wiki/Getting-Started)
  - [Getting Start Profiling SQL](../../wiki/Getting-Start-Profile-SQL) 
