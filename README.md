@@ -58,6 +58,7 @@ Scouter has three modules:
 Licensed under the Apache License, Version 2.0
 <br>
 <br>
+<br>
 
-###### Scouter @ Powerd by LG CNS
+###### Scouter @ Powered by LG CNS
 
