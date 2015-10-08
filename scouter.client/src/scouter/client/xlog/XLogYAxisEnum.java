@@ -8,7 +8,7 @@ public enum XLogYAxisEnum {
 	SQL_COUNT("SQL Count", "SQL Count (cnt)", false, 50),
 	APICALL_TIME("ApiCall Time", "ApiCall Time (sec)", false, 9),
 	APICALL_COUNT("ApiCall Count", "ApiCall Count (cnt)", false, 50),
-	HEAP_USED("Memory Allocation", "Memory Allocation (KB)", false, 90);
+	HEAP_USED("Memory Allocation", "Memory Allocation (KB)", false, 5000);
 	
 	private final String name;
 	private final String desc;
