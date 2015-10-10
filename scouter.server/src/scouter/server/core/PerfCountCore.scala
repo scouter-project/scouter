@@ -29,11 +29,16 @@ import scouter.util.RequestQueue
 import scala.collection.JavaConversions._
 import scouter.server.util.ThreadScala
 import scouter.server.util.EnumerScala
+import scouter.server.plugin.PlugInManager
 object PerfCountCore {
     var queue = new RequestQueue[PerfCounterPack](CoreRun.MAX_QUE_SIZE);
     ThreadScala.startDaemon("scouter.server.core.PerfCountCore", { CoreRun.running }) {
         val p = queue.get();
         val objHash = HashUtil.hash(p.objName);
+        
+        //PLUGIN CONTER
+        PlugInManager.counter(p);
+        
         if (p.timetype == TimeTypeEnum.REALTIME) {
             RealtimeCounterWR.add(p);
             EnumerScala.foreach(p.data.keySet().iterator(), (k: String) => {

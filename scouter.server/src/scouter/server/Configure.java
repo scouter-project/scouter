@@ -186,7 +186,7 @@ public class Configure extends Thread {
 	public StringSet log_ignore = new StringSet();
 	public boolean tagcnt_enabled = true;
 	
-	public int tcp_server_pool_size = 100;
+	public int tcp_server_pool_size = 500;
 	
 	public static boolean WORKABLE = true; 
 
