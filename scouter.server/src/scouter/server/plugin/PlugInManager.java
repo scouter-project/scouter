@@ -158,7 +158,7 @@ public class PlugInManager {
 			xlogProfiles.get(i).process(m);
 		}
 	}
-	public static void plugObject(ObjectPack p) {
+	public static void active(ObjectPack p) {
 		for (int i = 0; i < objects.size(); i++) {
 			objects.get(i).process(p);
 		}

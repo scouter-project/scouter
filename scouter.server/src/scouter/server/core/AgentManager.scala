@@ -81,7 +81,7 @@ object AgentManager {
         if (p.objHash == 0) {
             p.objHash = HashUtil.hash(p.objName);
         }
-        PlugInManager.plugObject(p);
+        PlugInManager.active(p);
         var objPack = objMap.getObject(p.objHash);
         if (objPack == null) {
             objPack = p;
