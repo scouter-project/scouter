@@ -103,7 +103,7 @@ public class XLogPack implements Pack {
 		o.writeDecimal(apicallTime);
 		o.writeText(countryCode);
 		o.writeDecimal(city);
-		o.writeDecimal(xType);
+		o.writeByte(xType);
 
 		o.writeDecimal(login);
 		o.writeDecimal(desc);
