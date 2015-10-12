@@ -448,11 +448,13 @@ public class TraceSQL {
 	}
 
 	public static Connection driverConnect(Connection conn, String url) {
-		if (conn!=null && conf.enable_dbc_wrapper) {
-			return new WrConnection(conn);
-		} else{
+		if(conn==null)
 			return conn;
-		}
+		if(conf.enable_dbc_wrapper==false)
+			return conn;
+		if(conn instanceof WrConnection)
+			return conn;
+		return new WrConnection(conn);
 	}
 	public static void driverConnect(String url, Throwable thr) {
 		AlertProxy.sendAlert(AlertLevel.ERROR, "CONNECT", url + " " + thr);
