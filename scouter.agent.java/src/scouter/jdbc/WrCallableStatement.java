@@ -19,10 +19,10 @@ package scouter.jdbc;
 import java.sql.SQLException;
 import java.util.Map;
 
-public class ScouterCallableStatement extends ScouterPreparedStatement implements java.sql.CallableStatement {
+public class WrCallableStatement extends WrPreparedStatement implements java.sql.CallableStatement {
 	java.sql.CallableStatement inner;
 
-	public ScouterCallableStatement(java.sql.CallableStatement inner, String sql) {
+	public WrCallableStatement(java.sql.CallableStatement inner, String sql) {
 		super(inner, sql);
 		this.inner = inner;
 	}

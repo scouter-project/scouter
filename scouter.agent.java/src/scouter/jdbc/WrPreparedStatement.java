@@ -22,11 +22,11 @@ import java.sql.SQLException;
 import scouter.agent.trace.SqlParameter;
 import scouter.agent.trace.TraceSQL;
 
-public class ScouterPreparedStatement extends ScouterStatement implements java.sql.PreparedStatement {
+public class WrPreparedStatement extends WrStatement implements java.sql.PreparedStatement {
 	java.sql.PreparedStatement inner;
 	SqlParameter sql = new SqlParameter();
 
-	public ScouterPreparedStatement(java.sql.PreparedStatement inner, String sql) {
+	public WrPreparedStatement(java.sql.PreparedStatement inner, String sql) {
 		super(inner);
 		this.inner = inner;
 		this.sql.setSql(sql);
@@ -112,7 +112,7 @@ public class ScouterPreparedStatement extends ScouterStatement implements java.s
 		try {
 			ResultSet rs = this.inner.executeQuery();
 			TraceSQL.end(stat, null);
-			return new ScouterResultSet(rs);
+			return new WrResultSet(rs);
 		} catch (SQLException ex) {
 			TraceSQL.end(stat, ex);
 			throw ex;

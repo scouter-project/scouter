@@ -20,10 +20,10 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-public class ScouterConnection implements java.sql.Connection {
+public class WrConnection implements java.sql.Connection {
 	java.sql.Connection inner;
 
-	public ScouterConnection(java.sql.Connection inner) {
+	public WrConnection(java.sql.Connection inner) {
 		this.inner = inner;
 	}
 
@@ -40,57 +40,57 @@ public class ScouterConnection implements java.sql.Connection {
 	}
 
 	final public java.sql.Statement createStatement() throws java.sql.SQLException {
-		return new ScouterStatement(this.inner.createStatement());
+		return new WrStatement(this.inner.createStatement());
 	}
 
 	final public java.sql.Statement createStatement(int a0, int a1) throws java.sql.SQLException {
-		return new ScouterStatement(this.inner.createStatement(a0, a1));
+		return new WrStatement(this.inner.createStatement(a0, a1));
 	}
 
 	final public java.sql.Statement createStatement(int a0, int a1, int a2) throws java.sql.SQLException {
-		return new ScouterStatement(this.inner.createStatement(a0, a1, a2));
+		return new WrStatement(this.inner.createStatement(a0, a1, a2));
 	}
 
 	final public java.sql.PreparedStatement prepareStatement(java.lang.String a0, int a1) throws java.sql.SQLException {
-		return new ScouterPreparedStatement(this.inner.prepareStatement(a0, a1), a0);
+		return new WrPreparedStatement(this.inner.prepareStatement(a0, a1), a0);
 	}
 
 	final public java.sql.PreparedStatement prepareStatement(java.lang.String a0, int a1, int a2)
 			throws java.sql.SQLException {
-		return new ScouterPreparedStatement(this.inner.prepareStatement(a0, a1, a2), a0);
+		return new WrPreparedStatement(this.inner.prepareStatement(a0, a1, a2), a0);
 	}
 
 	final public java.sql.PreparedStatement prepareStatement(java.lang.String a0, int a1, int a2, int a3)
 			throws java.sql.SQLException {
-		return new ScouterPreparedStatement(this.inner.prepareStatement(a0, a1, a2, a3), a0);
+		return new WrPreparedStatement(this.inner.prepareStatement(a0, a1, a2, a3), a0);
 	}
 
 	final public java.sql.PreparedStatement prepareStatement(java.lang.String a0, int[] a1)
 			throws java.sql.SQLException {
-		return new ScouterPreparedStatement(this.inner.prepareStatement(a0, a1), a0);
+		return new WrPreparedStatement(this.inner.prepareStatement(a0, a1), a0);
 	}
 
 	final public java.sql.PreparedStatement prepareStatement(java.lang.String a0, java.lang.String[] a1)
 			throws java.sql.SQLException {
-		return new ScouterPreparedStatement(this.inner.prepareStatement(a0, a1), a0);
+		return new WrPreparedStatement(this.inner.prepareStatement(a0, a1), a0);
 	}
 
 	final public java.sql.PreparedStatement prepareStatement(java.lang.String a0) throws java.sql.SQLException {
-		return new ScouterPreparedStatement(inner.prepareStatement(a0), a0);
+		return new WrPreparedStatement(inner.prepareStatement(a0), a0);
 	}
 
 	final public java.sql.CallableStatement prepareCall(java.lang.String a0) throws java.sql.SQLException {
-		return new ScouterCallableStatement(this.inner.prepareCall(a0), a0);
+		return new WrCallableStatement(this.inner.prepareCall(a0), a0);
 	}
 
 	final public java.sql.CallableStatement prepareCall(java.lang.String a0, int a1, int a2)
 			throws java.sql.SQLException {
-		return new ScouterCallableStatement(this.inner.prepareCall(a0, a1, a2), a0);
+		return new WrCallableStatement(this.inner.prepareCall(a0, a1, a2), a0);
 	}
 
 	final public java.sql.CallableStatement prepareCall(java.lang.String a0, int a1, int a2, int a3)
 			throws java.sql.SQLException {
-		return new ScouterCallableStatement(this.inner.prepareCall(a0, a1, a2, a3), a0);
+		return new WrCallableStatement(this.inner.prepareCall(a0, a1, a2, a3), a0);
 	}
 
 	final public java.lang.String nativeSQL(java.lang.String a0) throws java.sql.SQLException {

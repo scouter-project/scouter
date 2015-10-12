@@ -23,7 +23,7 @@ import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
 import scouter.jdbc.DetectConnection;
-import scouter.jdbc.ScouterConnection;
+import scouter.jdbc.WrConnection;
 import scouter.lang.AlertLevel;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
@@ -447,26 +447,15 @@ public class TraceSQL {
 
 	}
 
-	/**
-	 * Currently JDBC Wrapper is only available for the DB2 Driver
-	 * 
-	 * @param url
-	 *            : JDBC Connection URL
-	 * @return - url
-	 */
-	public static Object startCreateDBC(String url) {
-		return url;
-	}
-
-	public static Connection endCreateDBC(Connection conn, Object url) {
+	public static Connection driverConnect(Connection conn, String url) {
 		if (conn!=null && conf.enable_dbc_wrapper) {
-			return new ScouterConnection(conn);
+			return new WrConnection(conn);
 		} else{
 			return conn;
 		}
 	}
-	public static void endCreateDBC(Object url, Throwable thr) {
-		AlertProxy.sendAlert(AlertLevel.ERROR, "CREATE-DBC", url + " " + thr);
+	public static void driverConnect(String url, Throwable thr) {
+		AlertProxy.sendAlert(AlertLevel.ERROR, "CONNECT", url + " " + thr);
 	}
 
 	public static Object dbcOpenStart(int hash, String msg, Object pool) {

@@ -178,6 +178,8 @@ public class Configure extends Thread {
 	public String hook_jdbc_pstmt = "";
 	public String hook_jdbc_stmt = "";
 	public String hook_jdbc_rs = "";
+	
+	public String hook_dbc_wrapper="";
 
 	// /LOAD CONTROL/////
 	public boolean enable_reject_service = false;
@@ -429,6 +431,7 @@ public class Configure extends Thread {
 		this.hook_jdbc_pstmt = getValue("hook_jdbc_pstmt", "");
 		this.hook_jdbc_stmt = getValue("hook_jdbc_stmt", "");
 		this.hook_jdbc_rs = getValue("hook_jdbc_rs", "");
+		this.hook_dbc_wrapper= getValue("hook_dbc_wrapper", "");
 
 		this.hook_signature ^= this.hook_args.hashCode();
 		this.hook_signature ^= this.hook_return.hashCode();
