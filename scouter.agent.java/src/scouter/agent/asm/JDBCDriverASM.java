@@ -36,7 +36,7 @@ public class JDBCDriverASM implements IASM, Opcodes {
 	public boolean isTarget(String className) {
 		MethodSet mset = reserved.get(className);
 		if (mset != null){
-			return false;
+			return true;
 		}
 		return false;
 	}

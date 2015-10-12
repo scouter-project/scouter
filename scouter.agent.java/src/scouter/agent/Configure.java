@@ -231,6 +231,8 @@ public class Configure extends Thread {
 	public boolean enable_hook_future = true;
 	////////////////////////////////////////////
 
+	public boolean enable_dbc_wrapper = true;
+
 	public String direct_patch_class = "";
 
 	public long max_think_time = DateUtil.MILLIS_PER_FIVE_MINUTE;
@@ -496,6 +498,8 @@ public class Configure extends Thread {
 		this.enable_hook_jsp = getBoolean("enable_hook_jsp", true);
 		this.enable_hook_future = getBoolean("enable_hook_future", true);
 
+		this.enable_dbc_wrapper= getBoolean("enable_dbc_wrapper", true);
+		
 		this.direct_patch_class = getValue("direct_patch_class", "");
 		this.max_think_time = getLong("max_think_time", DateUtil.MILLIS_PER_FIVE_MINUTE);
 
