@@ -149,7 +149,7 @@ public class Configure extends Thread {
 	public int udp_buffer = 65535;
 	public int udp_so_rcvbuf = 1024 * 1024 * 4;
 	public boolean debug_udp_multipacket;
-	public boolean debug_expired_multipacket;
+	public boolean debug_expired_multipacket = true;
 
 	public boolean debug_udp_packet = false;
 	public boolean debug_udp_counter = false;
