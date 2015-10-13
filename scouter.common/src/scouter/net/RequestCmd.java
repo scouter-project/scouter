@@ -16,68 +16,66 @@
 
 package scouter.net;
 
-
 public class RequestCmd {
 	public static final String CLOSE = "CLOSE";
 	public static final String LOGIN = "LOGIN";
 	public static final String CHECK_SESSION = "CHECK_SESSION";
 	public static final String GET_LOGIN_LIST = "GET_LOGIN_LIST";
 	//
-	public static final String OBJECT_INFO                = "OBJECT_INFO";
-	public static final String OBJECT_THREAD_LIST         = "OBJECT_THREAD_LIST";
-	public static final String OBJECT_THREAD_DETAIL       = "OBJECT_THREAD_DETAIL";
-	public static final String OBJECT_THREAD_CONTROL       = "OBJECT_THREAD_CONTROL";
-	public static final String OBJECT_ENV                 = "OBJECT_ENV";
-	public static final String OBJECT_CLASS_LIST          = "OBJECT_CLASS_LIST";
-	public static final String OBJECT_LOAD_CLASS_BY_STREAM          = "OBJECT_LOAD_CLASS_BY_STREAM";
-	public static final String OBJECT_CHECK_RESOURCE_FILE  = "OBJECT_CHECK_RESOURCE_FILE";
-	public static final String OBJECT_DOWNLOAD_JAR          = "OBJECT_DOWNLOAD_JAR";
-	public static final String OBJECT_STAT_LIST           = "OBJECT_STAT_LIST";
-	public static final String OBJECT_RESET_CACHE         = "OBJECT_RESET_CACHE";
+	public static final String OBJECT_INFO = "OBJECT_INFO";
+	public static final String OBJECT_THREAD_LIST = "OBJECT_THREAD_LIST";
+	public static final String OBJECT_THREAD_DETAIL = "OBJECT_THREAD_DETAIL";
+	public static final String OBJECT_THREAD_CONTROL = "OBJECT_THREAD_CONTROL";
+	public static final String OBJECT_ENV = "OBJECT_ENV";
+	public static final String OBJECT_CLASS_LIST = "OBJECT_CLASS_LIST";
+	public static final String OBJECT_LOAD_CLASS_BY_STREAM = "OBJECT_LOAD_CLASS_BY_STREAM";
+	public static final String OBJECT_CHECK_RESOURCE_FILE = "OBJECT_CHECK_RESOURCE_FILE";
+	public static final String OBJECT_DOWNLOAD_JAR = "OBJECT_DOWNLOAD_JAR";
+	public static final String OBJECT_STAT_LIST = "OBJECT_STAT_LIST";
+	public static final String OBJECT_RESET_CACHE = "OBJECT_RESET_CACHE";
 	public static final String OBJECT_ACTIVE_SERVICE_LIST = "OBJECT_ACTIVE_SERVICE_LIST";
-	public static final String OBJECT_TODAY_FULL_LIST     = "OBJECT_TODAY_FULL_LIST";
-	public static final String OBJECT_REMOVE              = "OBJECT_REMOVE";
-	public static final String OBJECT_HEAPHISTO           = "OBJECT_HEAPHISTO";
-	public static final String OBJECT_THREAD_DUMP         = "OBJECT_THREAD_DUMP";
-	
+	public static final String OBJECT_TODAY_FULL_LIST = "OBJECT_TODAY_FULL_LIST";
+	public static final String OBJECT_REMOVE = "OBJECT_REMOVE";
+	public static final String OBJECT_HEAPHISTO = "OBJECT_HEAPHISTO";
+	public static final String OBJECT_THREAD_DUMP = "OBJECT_THREAD_DUMP";
+
 	public static final String TRIGGER_ACTIVE_SERVICE_LIST = "TRIGGER_ACTIVE_SERVICE_LIST";
-	public static final String TRIGGER_THREAD_DUMP         = "TRIGGER_THREAD_DUMP";
-	public static final String TRIGGER_THREAD_LIST         = "TRIGGER_THREAD_LIST";
-	public static final String TRIGGER_HEAPHISTO           = "TRIGGER_HEAPHISTO";
-	public static final String OBJECT_SYSTEM_GC          = "OBJECT_SYSTEM_GC";
-	public static final String OBJECT_DUMP_FILE_LIST          = "OBJECT_DUMP_FILE_LIST";
-	public static final String OBJECT_DUMP_FILE_DETAIL          = "OBJECT_DUMP_FILE_DETAIL";
-	
-	
-	public static final String OBJECT_CALL_HEAP_DUMP      = "OBJECT_CALL_HEAP_DUMP";
-	public static final String OBJECT_LIST_HEAP_DUMP      = "OBJECT_LIST_HEAP_DUMP";
-	public static final String OBJECT_DOWNLOAD_HEAP_DUMP  = "OBJECT_DOWNLOAD_HEAP_DUMP";
-	public static final String OBJECT_DELETE_HEAP_DUMP    = "OBJECT_DELETE_HEAP_DUMP";
-	
-	public static final String OBJECT_LIST_REAL_TIME   = "OBJECT_LIST_REAL_TIME";
-	public static final String OBJECT_LIST_LOAD_DATE   = "OBJECT_LIST_LOAD_DATE";
-	public static final String OBJECT_REMOVE_INACTIVE  = "OBJECT_REMOVE_INACTIVE";
+	public static final String TRIGGER_THREAD_DUMP = "TRIGGER_THREAD_DUMP";
+	public static final String TRIGGER_THREAD_LIST = "TRIGGER_THREAD_LIST";
+	public static final String TRIGGER_HEAPHISTO = "TRIGGER_HEAPHISTO";
+	public static final String OBJECT_SYSTEM_GC = "OBJECT_SYSTEM_GC";
+	public static final String OBJECT_DUMP_FILE_LIST = "OBJECT_DUMP_FILE_LIST";
+	public static final String OBJECT_DUMP_FILE_DETAIL = "OBJECT_DUMP_FILE_DETAIL";
+
+	public static final String OBJECT_CALL_HEAP_DUMP = "OBJECT_CALL_HEAP_DUMP";
+	public static final String OBJECT_LIST_HEAP_DUMP = "OBJECT_LIST_HEAP_DUMP";
+	public static final String OBJECT_DOWNLOAD_HEAP_DUMP = "OBJECT_DOWNLOAD_HEAP_DUMP";
+	public static final String OBJECT_DELETE_HEAP_DUMP = "OBJECT_DELETE_HEAP_DUMP";
+
+	public static final String OBJECT_LIST_REAL_TIME = "OBJECT_LIST_REAL_TIME";
+	public static final String OBJECT_LIST_LOAD_DATE = "OBJECT_LIST_LOAD_DATE";
+	public static final String OBJECT_REMOVE_INACTIVE = "OBJECT_REMOVE_INACTIVE";
 	public static final String OBJECT_REMOVE_IN_MEMORY = "OBJECT_REMOVE_IN_MEMORY";
 
 	public static final String OBJECT_FILE_SOCKET = "OBJECT_FILE_SOCKET";
 	public static final String OBJECT_SOCKET = "SOCKET";
-	
-	public static final String SERVER_VERSION                = "SERVER_VERSION";
-	public static final String SERVER_LOG_LIST                = "SERVER_LOG_LIST";
-	public static final String SERVER_LOG_DETAIL                = "SERVER_LOG_DETAIL";
-	
+
+	public static final String SERVER_VERSION = "SERVER_VERSION";
+	public static final String SERVER_LOG_LIST = "SERVER_LOG_LIST";
+	public static final String SERVER_LOG_DETAIL = "SERVER_LOG_DETAIL";
+
 	// host request
-	public static final String HOST_TOP                 = "HOST_TOP";
-	public static final String HOST_PROCESS_DETAIL      = "HOST_PROCESS_DETAIL";
-	public static final String HOST_DISK_USAGE      = "HOST_DISK_USAGE";
-	public static final String HOST_NET_STAT          = "HOST_NET_STAT";
+	public static final String HOST_TOP = "HOST_TOP";
+	public static final String HOST_PROCESS_DETAIL = "HOST_PROCESS_DETAIL";
+	public static final String HOST_DISK_USAGE = "HOST_DISK_USAGE";
+	public static final String HOST_NET_STAT = "HOST_NET_STAT";
 	public static final String HOST_WHO = "HOST_WHO";
 	public static final String HOST_MEMINFO = "HOST_MEMINFO";
-	
-	//kvm request
+
+	// kvm request
 	public static final String KVM_NET_PERF = "KVM_NET_PERF";
 	public static final String KVM_DISK_PERF = "KVM_DISK_PERF";
-	
+
 	public static final String SERVER_THREAD_LIST = "SERVER_THREAD_LIST";
 	public static final String SERVER_THREAD_DETAIL = "SERVER_THREAD_DETAIL";
 	public static final String SERVER_ENV = "SERVER_ENV";
@@ -113,7 +111,7 @@ public class RequestCmd {
 	public static final String COUNTER_PAST_DATE_TOT = "COUNTER_PAST_DATE_TOT";
 	public static final String COUNTER_PAST_DATE_GROUP = "COUNTER_PAST_DATE_GROUP";
 	public static final String COUNTER_PAST_LONGDATE_GROUP = "COUNTER_PAST_LONGDATE_GROUP";
-	
+
 	public static final String COUNTER_PAST_LONGDATE_ALL = "COUNTER_PAST_LONGDATE_ALL";
 	public static final String COUNTER_PAST_LONGDATE_TOT = "COUNTER_PAST_LONGDATE_TOT";
 
@@ -124,7 +122,7 @@ public class RequestCmd {
 	public static final String COUNTER_REAL_TIME_OBJECT_TYPE_ALL = "COUNTER_REAL_TIME_OBJECT_TYPE_ALL";
 	public static final String COUNTER_REAL_TIME_MULTI = "COUNTER_REAL_TIME_MULTI";
 	public static final String COUNTER_REAL_TIME_GROUP = "COUNTER_REAL_TIME_GROUP";
-	
+
 	public static final String COUNTER_TODAY = "COUNTER_TODAY";
 	public static final String COUNTER_TODAY_ALL = "COUNTER_TODAY_ALL";
 	public static final String COUNTER_TODAY_TOT = "COUNTER_TODAY_TOT";
@@ -155,19 +153,17 @@ public class RequestCmd {
 	public static final String REDEFINE_CLASSES = "REDEFINE_CLASSES";
 
 	public static final String GET_XML_COUNTER = "GET_XML_COUNTER";
-	
+
 	public static final String CLUSTER_TEST1 = "CLUSTER_TEST1";
-	
+
 	public static final String EXPORT_OBJECT_TIME_COUNTER = "EXPORT_OBJECT_TIME_COUNTER";
 	public static final String EXPORT_OBJECT_REGULAR_COUNTER = "EXPORT_OBJECT_REGULAR_COUNTER";
 	public static final String EXPORT_APP_SUMMARY = "EXPORT_APP_SUMMARY";
-	
-	
+
 	public static final String GET_STACK_ANALYZER = "GET_STACK_ANALYZER";
 	public static final String GET_STACK_INDEX = "GET_STACK_INDEX";
 	public static final String PSTACK_ON = "PSTACK_ON";
-	
-	
+
 	// RDB Request
 	public static final String ACTIVE_QUERY_LIST = "ACTIVE_QUERY_LIST";
 	public static final String EXIST_QUERY_LIST = "EXIST_QUERY_LIST";
@@ -188,7 +184,7 @@ public class RequestCmd {
 	public static final String SLAVE_STATUS = "SLAVE_STATUS";
 	public static final String EXPLAIN_PLAN_FOR_THREAD = "EXPLAIN_PLAN_FOR_THREAD";
 	public static final String USE_DATABASE = "USE_DATABASE";
-	
+
 	// Maria Plugin
 	public static final String DB_REALTIME_CONNECTIONS = "DB_REALTIME_CONNECTIONS";
 	public static final String DB_REALTIME_ACTIVITY = "DB_REALTIME_ACTIVITY";
@@ -201,21 +197,21 @@ public class RequestCmd {
 	public static final String DB_LOAD_DIGEST_COUNTER = "DB_LOAD_DIGEST_COUNTER";
 	public static final String DB_LAST_DIGEST_TABLE = "DB_LAST_DIGEST_TABLE";
 
-	public static final int APPLY_CONFIGURE_WAS_RESULT_OK      = 200;
+	public static final int APPLY_CONFIGURE_WAS_RESULT_OK = 200;
 	public static final int APPLY_CONFIGURE_WAS_RESULT_RUNNING = 300;
-	
+
 	public static final String APACHE_SERVER_STATUS = "APACHE_SERVER_STATUS";
 	public static final String DUMP_APACHE_STATUS = "DUMP_APACHE_STATUS";
-	
+
 	public static final String REDIS_INFO = "REDIS_INFO";
-	
+
 	public static final String DEBUG_SERVER = "DEBUG_SERVER";
-	public static final String DEBUG_AGENT  = "DEBUG_AGENT";
-	
+	public static final String DEBUG_AGENT = "DEBUG_AGENT";
+
 	public static final String REALTIME_SERVICE_GROUP = "REALTIME_SERVICE_GROUP";
-	
+
 	public static final String STATUS_AROUND_VALUE = "STATUS_AROUND_VALUE";
-	
+
 	// MANAGE ACCOUNT
 	public static final String LIST_ACCOUNT = "LIST_ACCOUNT";
 	public static final String ADD_ACCOUNT = "ADD_ACCOUNT";
@@ -226,20 +222,25 @@ public class RequestCmd {
 	public static final String GET_GROUP_POLICY_ALL = "GET_GROUP_POLICY_ALL";
 	public static final String EDIT_GROUP_POLICY = "EDIT_GROUP_POLICY";
 	public static final String ADD_ACCOUNT_GROUP = "ADD_ACCOUNT_GROUP";
-	
+
 	// MANAGE COUNTER
 	public static final String DEFINE_OBJECT_TYPE = "DEFINE_OBJECT_TYPE";
 	public static final String EDIT_OBJECT_TYPE = "EDIT_OBJECT_TYPE";
-		
-	//TAGCNT
+
+	// TAGCNT
 	public static final String TAGCNT_DIV_NAMES = "TAGCNT_DIV_NAMES";
 	public static final String TAGCNT_TAG_NAMES = "TAGCNT_TAG_NAMES";
 	public static final String TAGCNT_TAG_VALUES = "TAGCNT_TAG_VALUES";
 	public static final String TAGCNT_TAG_VALUE_DATA = "TAGCNT_TAG_VALUE_DATA";
 	public static final String TAGCNT_TAG_ACTUAL_DATA = "TAGCNT_TAG_ACTUAL_DATA";
-	
+
 	// VISITOR
 	public static final String VISITOR_REALTIME = "VISITOR_REALTIME";
 	public static final String VISITOR_REALTIME_TOTAL = "VISITOR_REALTIME_TOTAL";
+
+	// SUMMARY
+	public static final String LOAD_SERVICE_SUMMARY = "LOAD_SERVICE_SUMMARY";
+	public static final String LOAD_SQL_SUMMARY = "LOAD_SQL_SUMMARY";
+	public static final String LOAD_APICALL_SUMMARY = "LOAD_APICALL_SUMMARY";
 
 }

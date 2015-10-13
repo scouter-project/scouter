@@ -24,6 +24,7 @@ import scouter.agent.plugin.HttpServiceTracePlugIn;
 import scouter.agent.plugin.ServiceTracePlugIn;
 import scouter.agent.proxy.HttpTraceFactory;
 import scouter.agent.proxy.IHttpTrace;
+import scouter.agent.summary.ServiceSummary;
 import scouter.lang.AlertLevel;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
@@ -313,6 +314,7 @@ public class TraceMain {
 		case XLogTypes.WEB_SERVICE:
 		case XLogTypes.APP_SERVICE:
 			MeterService.getInstance().add(pack.elapsed, pack.error != 0);
+			ServiceSummary.getInstance().process(pack.service, pack.error != 0, pack.elapsed);
 			break;
 		case XLogTypes.BACK_THREAD:
 		}

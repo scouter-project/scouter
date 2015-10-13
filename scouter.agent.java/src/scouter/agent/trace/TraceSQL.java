@@ -22,6 +22,7 @@ import java.sql.Connection;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
+import scouter.agent.summary.ServiceSummary;
 import scouter.jdbc.DetectConnection;
 import scouter.jdbc.WrConnection;
 import scouter.lang.AlertLevel;
@@ -263,6 +264,7 @@ public class TraceSQL {
 		tctx.sqlCount++;
 		tctx.sqlTime += ps.elapsed;
 
+		ServiceSummary.getInstance().process(ps);
 		tctx.profile.pop(ps);
 	}
 

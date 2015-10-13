@@ -21,14 +21,19 @@ import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
 import scouter.agent.counter.meter.MeterResource;
 import scouter.agent.counter.meter.MeterService;
+import scouter.agent.netio.data.DataProxy;
+import scouter.agent.summary.ServiceSummary;
 import scouter.agent.trace.TraceContextManager;
 import scouter.agent.util.DumpUtil;
+import scouter.lang.SummaryEnum;
 import scouter.lang.TimeTypeEnum;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.pack.PerfCounterPack;
+import scouter.lang.pack.SummaryPack;
 import scouter.lang.value.DecimalValue;
 import scouter.lang.value.FloatValue;
 import scouter.lang.value.ListValue;
+import scouter.util.DateUtil;
 
 public class ServicePerf {
 
@@ -43,7 +48,7 @@ public class ServicePerf {
 		float err = service.getError(30);
 		int count = service.getServiceCount(60);
 		int resp90pct = service.getElapsed90Pct(30);
-		
+
 		int[] act = TraceContextManager.getActiveCount();
 		int active = act[0] + act[1] + act[2];
 		if (conf.auto_dump_trigger <= active) {
@@ -51,7 +56,7 @@ public class ServicePerf {
 		}
 		activeCounter.add(active);
 
-		// active service 30초 평균으로 변경 
+		// active service 30초 평균으로 변경
 		active = (int) Math.round(activeCounter.getAvg(30));
 
 		PerfCounterPack p = pw.getPack(TimeTypeEnum.REALTIME);
@@ -77,7 +82,7 @@ public class ServicePerf {
 		err = service.getError(300);
 		int activeSErvice = (int) activeCounter.getAvg(300);
 		resp90pct = service.getElapsed90Pct(300);
-		
+
 		p = pw.getPack(TimeTypeEnum.FIVE_MIN);
 		p.put(CounterConstants.WAS_ELAPSED_TIME, new DecimalValue(elapsed));
 		p.put(CounterConstants.WAS_SERVICE_COUNT, new DecimalValue(count));
@@ -87,4 +92,30 @@ public class ServicePerf {
 		p.put(CounterConstants.WAS_ELAPSED_90PCT, new DecimalValue(resp90pct));
 	}
 
+	private long last_sent = DateUtil.getMinUnit(System.currentTimeMillis()) / 5;
+
+	@Counter(interval = 500)
+	public void summay(CounterBasket pw) {
+		long time = System.currentTimeMillis();
+		long now = DateUtil.getMinUnit(time) / 5;
+		if (now == last_sent)
+			return;
+		last_sent = now;
+		time = time / DateUtil.MILLIS_PER_FIVE_MINUTE * DateUtil.MILLIS_PER_FIVE_MINUTE - 1000;
+		SummaryPack p = ServiceSummary.getInstance().getNext(SummaryEnum.APP);
+		if (p != null) {
+			p.time = time;
+			DataProxy.send(p);
+		}
+		p = ServiceSummary.getInstance().getNext(SummaryEnum.SQL);
+		if (p != null) {
+			p.time = time;
+			DataProxy.send(p);
+		}
+		p = ServiceSummary.getInstance().getNext(SummaryEnum.APICALL);
+		if (p != null) {
+			p.time = time;
+			DataProxy.send(p);
+		}
+	}
 }

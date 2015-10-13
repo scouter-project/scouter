@@ -246,7 +246,13 @@ public class Configure extends Thread {
 	public boolean enable_trace_web = false;
 	public String key_web_name = "X-Forwarded-Host";
 	public String key_web_time = "X-Forwarded-Time";
+	
+	public boolean enable_summary=true;
+	public int summary_service_max=10000;
+	public int summary_sql_max=10000;
+	public int summary_api_max=5000;
 
+	
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -296,6 +302,8 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
+	
+
 
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
@@ -517,6 +525,13 @@ public class Configure extends Thread {
 		this.key_web_name = getValue("key_web_name", "X-Forwarded-Host");
 		this.key_web_time = getValue("key_web_time", "X-Forwarded-Time");
 
+		//SUMMARY최대 갯수를 관리한다.
+		this.enable_summary = getBoolean("enable_summary", true);
+		this.summary_sql_max = getInt("summary_sql_max", 10000);
+		this.summary_api_max= getInt("summary_api_max", 5000);
+		this.summary_service_max = getInt("summary_service_max", 10000);
+		
+		
 		resetObjInfo();
 		setErrorStatus();
 		setStaticContents();

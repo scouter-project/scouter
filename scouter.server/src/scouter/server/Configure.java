@@ -160,6 +160,7 @@ public class Configure extends Thread {
 	public boolean debug_udp_object = false;
 	public boolean debug_udp_status = false;
 	public boolean debug_udp_stack = false;
+	public boolean debug_udp_summary = false;
 	public boolean debug_request;
 
 	public boolean auto_5m_sampling = true;
@@ -233,6 +234,7 @@ public class Configure extends Thread {
 		this.debug_udp_object = getBoolean("debug_udp_object", false);
 		this.debug_udp_status = getBoolean("debug_udp_status", false);
 		this.debug_udp_stack = getBoolean("debug_udp_stack", false);
+		this.debug_udp_summary = getBoolean("debug_udp_summary", false);
 		this.debug_request = getBoolean("debug_request", false);
 
 		this.auto_5m_sampling = getBoolean("auto_5m_sampling", true);

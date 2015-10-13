@@ -30,6 +30,7 @@ import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.ObjectPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.PerfCounterPack;
+import scouter.lang.pack.SummaryPack;
 import scouter.lang.pack.TextPack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogProfilePack;
@@ -203,7 +204,10 @@ public class DataProxy {
 			Logger.info(p.toString());
 		}
 	}
-
+	public static void send(SummaryPack p) {
+		p.objHash = conf.objHash;
+		sendDirect(p);
+	}
 	static DataUdpAgent udpNet = DataUdpAgent.getInstance();
 
 	public static void sendDirect(Pack p) {
