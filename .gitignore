@@ -22,3 +22,4 @@ scouter.agent.java/.settings/*
 scouter.enduser.script/.idea/*
 scouter.enduser.script/.settings/*
 node_modules/ 
+scouter.enduser.script/.externalToolBuilders/
