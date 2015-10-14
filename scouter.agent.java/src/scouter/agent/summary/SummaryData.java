@@ -19,4 +19,6 @@ public class SummaryData {
 	public int count;
 	public int error_cnt;
 	public long elapsed;
+	public long cpu;
+	public long mem;
 }

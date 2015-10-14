@@ -33,6 +33,10 @@ public class SummaryPack implements Pack {
 	public int[] count;
 	public int[] errorCnt;
 	public long[] elapsedSum;
+	
+	//service only
+	public long[] cpuTime;
+	public long[] memAlloc;
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -53,39 +57,39 @@ public class SummaryPack implements Pack {
 	}
 
 	public void write(DataOutputX out) throws IOException {
-		out.writeDecimal(time);
-		out.writeInt(objHash);
-		out.writeByte(stype);
-		int cnt = ArrayUtil.len(id);
-		out.writeDecimal(cnt);
-		for (int i = 0; i < cnt; i++) {
-			out.writeInt(id[i]);
-			out.writeInt(count[i]);
-			out.writeDecimal(errorCnt[i]);
-			out.writeDecimal(elapsedSum[i]);
-		}
+		DataOutputX o = new DataOutputX();
+
+		o.writeDecimal(time);
+		o.writeInt(objHash);
+		o.writeByte(stype);
+		
+		o.writeArray(id);
+		o.writeArray(count);
+		o.writeArray(errorCnt);
+		o.writeDecimalArray(elapsedSum);
+		
+		o.writeDecimalArray(cpuTime);
+		o.writeDecimalArray(memAlloc);
+		
+		out.writeBlob(o.toByteArray());
 	}
 
-	public Pack read(DataInputX in) throws IOException {
+	public Pack read(DataInputX din) throws IOException {
 
-		this.time = in.readDecimal();
-		this.objHash = in.readInt();
-		this.stype = in.readByte();
-		int cnt = (int) in.readDecimal();
-		if (cnt == 0)
-			return this;
-		this.id = new int[cnt];
-		this.count = new int[cnt];
-		this.errorCnt = new int[cnt];
-		this.elapsedSum = new long[cnt];
-		for (int i = 0; i < cnt; i++) {
-			this.id[i] = in.readInt();
-			this.count[i] = in.readInt();
-			this.errorCnt[i] = (int) in.readDecimal();
-			this.elapsedSum[i] = in.readDecimal();
-		}
+		DataInputX n = new DataInputX(din.readBlob());
 
+		this.time = n.readDecimal();
+		this.objHash = n.readInt();
+		this.stype = n.readByte();
+		this.id = n.readArray(new int[0]);
+		this.count = n.readArray(new int[0]);
+		this.errorCnt =n.readArray(new int[0]);
+		this.elapsedSum = n.readDecimalArray();
+        //
+		this.cpuTime = n.readDecimalArray();
+		this.memAlloc = n.readDecimalArray();
+		
 		return this;
 	}
-
+     
 }

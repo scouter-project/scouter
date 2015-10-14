@@ -37,7 +37,7 @@ public class ServiceSummary {
 
 	private Configure conf = Configure.getInstance();
 
-	public void process(int service, boolean error, int elapsed) {
+	public void process(int service, boolean error, int elapsed, int cpu, int mem) {
 		if (conf.enable_summary == false)
 			return;
 		SummaryData d = getSummaryMap(serviceMaster, service);
@@ -46,6 +46,8 @@ public class ServiceSummary {
 		if (error) {
 			d.error_cnt++;
 		}
+		d.cpu +=cpu;
+		d.mem +=mem;
 	}
 
 	public void process(SqlStep sqlStep) {
@@ -117,7 +119,10 @@ public class ServiceSummary {
 		p.count = new int[cnt];
 		p.errorCnt = new int[cnt];
 		p.elapsedSum = new long[cnt];
-		
+		if (SummaryEnum.APP == type) {
+			p.cpuTime = new long[cnt];
+			p.memAlloc = new long[cnt];
+		}
 		Enumeration<IntKeyLinkedMap.ENTRY> en = temp.entries();
 		for (int i = 0; i < cnt; i++) {
 			IntKeyLinkedMap.ENTRY<SummaryData> ent = en.nextElement();
@@ -127,6 +132,10 @@ public class ServiceSummary {
 			p.count[i] = data.count;
 			p.errorCnt[i] = data.error_cnt;
 			p.elapsedSum[i] = data.elapsed;
+			if (SummaryEnum.APP == type) {
+				p.cpuTime[i] = data.cpu;
+				p.memAlloc[i] = data.mem;
+			}
 		}
 		return p;
 	}
