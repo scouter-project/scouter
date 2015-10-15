@@ -46,8 +46,8 @@ public class ServiceSummary {
 		if (error) {
 			d.error_cnt++;
 		}
-		d.cpu +=cpu;
-		d.mem +=mem;
+		d.cpu += cpu;
+		d.mem += mem;
 	}
 
 	public void process(SqlStep sqlStep) {
@@ -73,10 +73,11 @@ public class ServiceSummary {
 	}
 
 	private SummaryData getSummaryMap(IntKeyLinkedMap<SummaryData> table, int hash) {
-		SummaryData d = table.get(hash);
+		IntKeyLinkedMap<SummaryData> tempTable = table;
+		SummaryData d = tempTable.get(hash);
 		if (d == null) {
 			d = new SummaryData();
-			table.put(hash, d);
+			tempTable.put(hash, d);
 		}
 		return d;
 	}

@@ -34,14 +34,19 @@ import scouter.net.TcpFlag
 import scouter.lang.pack.SummaryPack
 import scouter.lang.SummaryEnum
 import scouter.lang.pack.SummaryPack
+import scouter.lang.value.ListValue
+import scouter.util.ArrayUtil
+import scouter.server.util.EnumerScala
 
 class SummaryService {
 
-    class TempObject(_hash: Int, _count: Int, _errorCnt: Int, _elapsedSum: Long) {
-        var hash: Int = _hash;
-        var count: Int = _count;
-        var errorCnt: Int = _errorCnt;
-        var elapsedSum: Long = _elapsedSum;
+    class TempObject() {
+        var hash: Int = 0;
+        var count: Int = 0;
+        var errorCnt: Int = 0;
+        var elapsedSum: Long = 0;
+        var cpuSum: Long = 0;
+        var memSum: Long = 0;
     }
 
     def load(stype: Byte, din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
@@ -55,14 +60,20 @@ class SummaryService {
         val handler = (time: Long, data: Array[Byte]) => {
             val p = new DataInputX(data).readPack().asInstanceOf[SummaryPack];
             if (p.stype == stype) {
-                for (i <- 0 to p.id.length - 1) {
-                    if (tempMap.containsKey(p.id(i))) {
-                        val serviceObj = tempMap.get(p.id(i));
-                        serviceObj.count += p.count(1);
-                        serviceObj.errorCnt += p.errorCnt(i);
-                        serviceObj.elapsedSum += p.elapsedSum(i);
-                    } else {
-                        tempMap.put(p.id(i), new TempObject(p.id(i), p.count(i), p.errorCnt(i), p.elapsedSum(i)));
+                val len = ArrayUtil.len(p.id);
+                val isApp = (p.stype == SummaryEnum.APP && ArrayUtil.len(p.cpuTime) >= len);
+                for (i <- 0 to len - 1) {
+                    var tempObj = tempMap.get(p.id(i));
+                    if (tempObj == null) {
+                        tempObj = new TempObject();
+                        tempMap.put(p.id(i), tempObj);
+                    }
+                    tempObj.count += p.count(1);
+                    tempObj.errorCnt += p.errorCnt(i);
+                    tempObj.elapsedSum += p.elapsedSum(i);
+                    if (isApp) {
+                        tempObj.cpuSum += p.cpuTime(i);
+                        tempObj.memSum += p.memAlloc(i);
                     }
                 }
             }
@@ -77,6 +88,12 @@ class SummaryService {
         val newElapsedAvgList = map.newList("elapsedAvg");
         val newElapsedSumList = map.newList("elapsedSum");
 
+        var newCpuSumList: ListValue = null;
+        var newMemSumList: ListValue = null;
+        if (stype == SummaryEnum.APP) {
+            newCpuSumList = map.newList("cpuSum");
+            newMemSumList = map.newList("memSum");
+        }
         val itr = tempMap.keys();
         while (itr.hasMoreElements()) {
             val hash = itr.nextInt();
@@ -86,6 +103,10 @@ class SummaryService {
             newErrorCntList.add(obj.errorCnt);
             newElapsedSumList.add(obj.elapsedSum);
             newElapsedAvgList.add(obj.elapsedSum / obj.count);
+            if (stype == SummaryEnum.APP) {
+                newCpuSumList.add(obj.cpuSum)
+                newMemSumList.add(obj.memSum)
+            }
         }
 
         dout.writeByte(TcpFlag.HasNEXT);
