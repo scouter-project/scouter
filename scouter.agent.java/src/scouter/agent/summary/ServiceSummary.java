@@ -23,6 +23,8 @@ import scouter.lang.pack.SummaryPack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.SqlStep;
+import scouter.lang.value.ListValue;
+import scouter.lang.value.MapValue;
 import scouter.util.IntKeyLinkedMap;
 
 public class ServiceSummary {
@@ -44,7 +46,7 @@ public class ServiceSummary {
 		SummaryData d = getSummaryMap(serviceMaster, p.service);
 		d.count++;
 		d.elapsed += p.elapsed;
-		if (p.error!=0) {
+		if (p.error != 0) {
 			d.error_cnt++;
 		}
 		d.cpu += p.cpu;
@@ -117,26 +119,29 @@ public class ServiceSummary {
 		p.stype = type;
 
 		int cnt = temp.size();
-		p.id = new int[cnt];
-		p.count = new int[cnt];
-		p.errorCnt = new int[cnt];
-		p.elapsedSum = new long[cnt];
+		ListValue id = p.table.newList("id");
+		ListValue count = p.table.newList("count");
+		ListValue errorCnt = p.table.newList("error");
+		ListValue elapsedSum = p.table.newList("elapsed");
+
+		ListValue cpu = null;
+		ListValue mem = null;
 		if (SummaryEnum.APP == type) {
-			p.cpuTime = new long[cnt];
-			p.memAlloc = new long[cnt];
+			cpu = p.table.newList("cpu");
+			mem = p.table.newList("mem");
 		}
 		Enumeration<IntKeyLinkedMap.ENTRY> en = temp.entries();
 		for (int i = 0; i < cnt; i++) {
 			IntKeyLinkedMap.ENTRY<SummaryData> ent = en.nextElement();
 			int key = ent.getKey();
 			SummaryData data = ent.getValue();
-			p.id[i] = key;
-			p.count[i] = data.count;
-			p.errorCnt[i] = data.error_cnt;
-			p.elapsedSum[i] = data.elapsed;
+			id.add(key);
+			count.add(data.count);
+			errorCnt.add(data.error_cnt);
+			elapsedSum.add(data.elapsed);
 			if (SummaryEnum.APP == type) {
-				p.cpuTime[i] = data.cpu;
-				p.memAlloc[i] = data.mem;
+				cpu.add(data.cpu);
+				mem.add(data.mem);
 			}
 		}
 		return p;

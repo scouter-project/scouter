@@ -60,20 +60,25 @@ class SummaryService {
         val handler = (time: Long, data: Array[Byte]) => {
             val p = new DataInputX(data).readPack().asInstanceOf[SummaryPack];
             if (p.stype == stype) {
-                val len = ArrayUtil.len(p.id);
-                val isApp = (p.stype == SummaryEnum.APP && ArrayUtil.len(p.cpuTime) >= len);
-                for (i <- 0 to len - 1) {
-                    var tempObj = tempMap.get(p.id(i));
+                val id = p.table.getList("id")
+                val count = p.table.getList("count")
+                val error = p.table.getList("error")
+                val elapsed = p.table.getList("elapsed")
+                val cpu = p.table.getList("cpu")
+                val mem = p.table.getList("mem");
+
+                for (i <- 0 to id.size() - 1) {
+                    var tempObj = tempMap.get(id.getInt(i));
                     if (tempObj == null) {
                         tempObj = new TempObject();
-                        tempMap.put(p.id(i), tempObj);
+                        tempMap.put(id.getInt(i), tempObj);
                     }
-                    tempObj.count += p.count(1);
-                    tempObj.errorCnt += p.errorCnt(i);
-                    tempObj.elapsedSum += p.elapsedSum(i);
-                    if (isApp) {
-                        tempObj.cpuSum += p.cpuTime(i);
-                        tempObj.memSum += p.memAlloc(i);
+                    tempObj.count += count.getInt(i);
+                    tempObj.errorCnt += error.getInt(i);
+                    tempObj.elapsedSum += elapsed.getLong(i);
+                    if (cpu != null && mem != null) {
+                        tempObj.cpuSum += cpu.getLong(i);
+                        tempObj.memSum += mem.getLong(i);
                     }
                 }
             }
@@ -82,27 +87,25 @@ class SummaryService {
         SummaryRD.readByTime(stype, date, stime, etime, handler)
 
         val map = new MapPack();
-        val newServiceList = map.newList("id");
+        val newIdList = map.newList("id");
         val newCountList = map.newList("count");
-        val newErrorCntList = map.newList("errorCnt");
-        val newElapsedAvgList = map.newList("elapsedAvg");
-        val newElapsedSumList = map.newList("elapsedSum");
+        val newErrorCntList = map.newList("error"); //count
+        val newElapsedSumList = map.newList("elapsed"); //elapsed Time Sum
 
         var newCpuSumList: ListValue = null;
         var newMemSumList: ListValue = null;
         if (stype == SummaryEnum.APP) {
-            newCpuSumList = map.newList("cpuSum");
-            newMemSumList = map.newList("memSum");
+            newCpuSumList = map.newList("cpu"); // cpu time sum
+            newMemSumList = map.newList("mem"); // mem sum
         }
         val itr = tempMap.keys();
         while (itr.hasMoreElements()) {
             val hash = itr.nextInt();
             val obj = tempMap.get(hash);
-            newServiceList.add(obj.hash);
+            newIdList.add(obj.hash);
             newCountList.add(obj.count);
             newErrorCntList.add(obj.errorCnt);
             newElapsedSumList.add(obj.elapsedSum);
-            newElapsedAvgList.add(obj.elapsedSum / obj.count);
             if (stype == SummaryEnum.APP) {
                 newCpuSumList.add(obj.cpuSum)
                 newMemSumList.add(obj.memSum)

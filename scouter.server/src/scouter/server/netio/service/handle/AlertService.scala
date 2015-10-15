@@ -34,6 +34,11 @@ import scouter.server.db.ObjectRD
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.server.util.EnumerScala
 import scouter.net.RequestCmd
+import scouter.lang.value.MapValue
+import scouter.server.db.SummaryRD
+import scouter.util.DateUtil
+import scouter.lang.pack.SummaryPack
+import scouter.lang.SummaryEnum
 
 class AlertService {
 
@@ -98,8 +103,6 @@ class AlertService {
         AlertRD.readByTime(date, stime, etime, handler)
     }
 
-    
-
     private def check(date: String, level: String, obj: String, key: String, levelCode: Byte, tempObjNameMap: java.util.HashMap[Integer, String], data: Array[Byte]): Boolean = {
         val pack = new DataInputX(data).readPack().asInstanceOf[AlertPack];
         if (level != null && levelCode != pack.level) {
@@ -127,4 +130,45 @@ class AlertService {
         return true
     }
 
+    @ServiceHandler(RequestCmd.ALERT_TITLE_COUNT)
+    def titleAlertCount(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        val param = din.readPack().asInstanceOf[MapPack];
+        val date = param.getText("date");
+        val stime = param.getLong("stime");
+        val etime = param.getLong("etime");
+        val valueMap = new HashMap[String, MapPack]();
+
+        val handler = (time: Long, b: Array[Byte]) => {
+            val data = new DataInputX(b).readPack().asInstanceOf[SummaryPack];
+            if (data.stype == SummaryEnum.ALERT ) {
+                val hhmm = DateUtil.hhmm(time);
+                val titleLv = data.table.getList("title");
+                val levelLv = data.table.getList("level");
+                val countLv = data.table.getList("count");
+                for (i <- 0 to titleLv.size() - 1) {
+                    val title = titleLv.getString(i);
+                    val level = levelLv.getLong(i).asInstanceOf[Byte];
+                    val count = countLv.getInt(i)
+                    var pack = valueMap.get(title);
+                    if (pack == null) {
+                        pack = new MapPack();
+                        pack.put("title", title);
+                        pack.put("level", level);
+                        pack.put("count", new MapValue());
+                        valueMap.put(title, pack);
+                    }
+                    val mv = pack.get("count").asInstanceOf[MapValue];
+                    mv.put(hhmm, count);
+                }
+            }
+        }
+
+        SummaryRD.readByTime(SummaryEnum.ALERT, date, stime, etime, handler)
+        
+        val keySet = valueMap.keySet();
+        for (title <- keySet) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(valueMap.get(title));
+        }
+    }
 }

@@ -101,7 +101,8 @@ public class ServicePerf {
 		if (now == last_sent)
 			return;
 		last_sent = now;
-		time = time / DateUtil.MILLIS_PER_FIVE_MINUTE * DateUtil.MILLIS_PER_FIVE_MINUTE - 1000;
+		time = (time - 10000) / DateUtil.MILLIS_PER_FIVE_MINUTE * DateUtil.MILLIS_PER_FIVE_MINUTE;
+
 		SummaryPack p = ServiceSummary.getInstance().getAndClear(SummaryEnum.APP);
 		if (p != null) {
 			p.time = time;

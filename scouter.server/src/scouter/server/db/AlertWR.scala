@@ -30,6 +30,7 @@ import scouter.util.RequestQueue
 import java.io.File
 import scouter.server.util.ThreadScala
 import scouter.server.util.OftenAction
+import tuna.server.core.AlertSummary
 
 object AlertWR {
 
@@ -41,8 +42,7 @@ object AlertWR {
         while (DBCtr.running) {
             val p = queue.get()
             try {
-                PlugInManager.alert(p)
-
+           
                 if (currentDateUnit != DateUtil.getDateUnit(p.time)) {
                     currentDateUnit = DateUtil.getDateUnit(p.time)
                     close()

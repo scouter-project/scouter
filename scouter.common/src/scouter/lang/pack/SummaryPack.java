@@ -20,6 +20,9 @@ import java.io.IOException;
 
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+import scouter.lang.value.MapValue;
+import scouter.lang.value.Value;
+import scouter.lang.value.ValueEnum;
 import scouter.util.ArrayUtil;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
@@ -29,14 +32,7 @@ public class SummaryPack implements Pack {
 	public long time;
 	public int objHash;
 	public byte stype;
-	public int[] id;
-	public int[] count;
-	public int[] errorCnt;
-	public long[] elapsedSum;
-	
-	//service only
-	public long[] cpuTime;
-	public long[] memAlloc;
+    public MapValue table = new MapValue();
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -44,11 +40,8 @@ public class SummaryPack implements Pack {
 		sb.append(DateUtil.timestamp(time));
 		sb.append(" objHash=").append(Hexa32.toString32(objHash));
 		sb.append(" stype=").append(stype);
-		sb.append(" id(").append(ArrayUtil.len(id));
-		sb.append(") count(").append(ArrayUtil.len(count));
-		sb.append(") errorCnt(").append(ArrayUtil.len(errorCnt));
-		sb.append(") elapsedSum(").append(ArrayUtil.len(elapsedSum));
-		sb.append(")");
+				sb.append(" " + table.keySet());
+		
 		return sb.toString();
 	}
 
@@ -56,40 +49,25 @@ public class SummaryPack implements Pack {
 		return PackEnum.SUMMARY;
 	}
 
-	public void write(DataOutputX out) throws IOException {
-		DataOutputX o = new DataOutputX();
-
+	public void write(DataOutputX o) throws IOException {
 		o.writeDecimal(time);
 		o.writeInt(objHash);
 		o.writeByte(stype);
 		
-		o.writeArray(id);
-		o.writeArray(count);
-		o.writeArray(errorCnt);
-		o.writeDecimalArray(elapsedSum);
-		
-		o.writeDecimalArray(cpuTime);
-		o.writeDecimalArray(memAlloc);
-		
-		out.writeBlob(o.toByteArray());
+		o.writeValue(table);
+
 	}
 
-	public Pack read(DataInputX din) throws IOException {
-
-		DataInputX n = new DataInputX(din.readBlob());
+	public Pack read(DataInputX n) throws IOException {
 
 		this.time = n.readDecimal();
 		this.objHash = n.readInt();
 		this.stype = n.readByte();
-		this.id = n.readArray(new int[0]);
-		this.count = n.readArray(new int[0]);
-		this.errorCnt =n.readArray(new int[0]);
-		this.elapsedSum = n.readDecimalArray();
-        //
-		this.cpuTime = n.readDecimalArray();
-		this.memAlloc = n.readDecimalArray();
-		
+
+		this.table=(MapValue)n.readValue();
+	
+
 		return this;
 	}
-     
+
 }

@@ -53,7 +53,7 @@ object SummaryWR {
                     p.stype match {
                         case SummaryEnum.APP => iapp.add(p.time, location);
                         case SummaryEnum.SQL => isql.add(p.time, location);
-                        case SummaryEnum.APICALL => iapicall.add(p.time, location);
+                        case _ => iothers.add(p.time, location);
                     }
                 }
             } catch {
@@ -70,16 +70,16 @@ object SummaryWR {
     }
     var iapp: SummaryIndex = null
     var isql: SummaryIndex = null
-    var iapicall: SummaryIndex = null
+    var iothers: SummaryIndex = null
     var writer: SummaryWriter = null
     def close() {
         FileUtil.close(iapp);
         FileUtil.close(isql);
-        FileUtil.close(iapicall);
+        FileUtil.close(iothers);
         FileUtil.close(writer);
         iapp = null;
         isql = null;
-        iapicall = null;
+        iothers = null;
         writer = null;
     }
     def open(date: String) {
@@ -91,7 +91,7 @@ object SummaryWR {
             val file = path + "/" + root;
             iapp = SummaryIndex.open(file + "_app");
             isql = SummaryIndex.open(file + "_sql");
-            iapicall = SummaryIndex.open(file + "_apicall");
+            iothers = SummaryIndex.open(file + "_other");
             writer = SummaryWriter.open(file);
         } catch {
             case e: Throwable => {
