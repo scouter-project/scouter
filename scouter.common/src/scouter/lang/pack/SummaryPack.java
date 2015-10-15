@@ -32,31 +32,16 @@ public class SummaryPack implements Pack {
 	public long time;
 	public int objHash;
 	public byte stype;
-	public int[] id;
-	public int[] count;
-	public int[] errorCnt;
-	public long[] elapsedSum;
+    public MapValue table = new MapValue();
 
-	public MapValue ext;
-
-	public boolean hasExt() {
-		return ext != null && ext.size() > 0;
-	}
-    
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Summary ");
 		sb.append(DateUtil.timestamp(time));
 		sb.append(" objHash=").append(Hexa32.toString32(objHash));
 		sb.append(" stype=").append(stype);
-		sb.append(" id(").append(ArrayUtil.len(id));
-		sb.append(") count(").append(ArrayUtil.len(count));
-		sb.append(") errorCnt(").append(ArrayUtil.len(errorCnt));
-		sb.append(") elapsedSum(").append(ArrayUtil.len(elapsedSum));
-		sb.append(")");
-		if (ext != null) {
-			sb.append(" " + ext.keySet());
-		}
+				sb.append(" " + table.keySet());
+		
 		return sb.toString();
 	}
 
@@ -64,39 +49,23 @@ public class SummaryPack implements Pack {
 		return PackEnum.SUMMARY;
 	}
 
-	public void write(DataOutputX out) throws IOException {
-		DataOutputX o = new DataOutputX();
-
+	public void write(DataOutputX o) throws IOException {
 		o.writeDecimal(time);
 		o.writeInt(objHash);
 		o.writeByte(stype);
+		
+		o.writeValue(table);
 
-		o.writeArray(id);
-		o.writeArray(count);
-		o.writeArray(errorCnt);
-		o.writeDecimalArray(elapsedSum);
-
-		o.writeValue(ext);
-
-		out.writeBlob(o.toByteArray());
 	}
 
-	public Pack read(DataInputX din) throws IOException {
-
-		DataInputX n = new DataInputX(din.readBlob());
+	public Pack read(DataInputX n) throws IOException {
 
 		this.time = n.readDecimal();
 		this.objHash = n.readInt();
 		this.stype = n.readByte();
-		this.id = n.readArray(new int[0]);
-		this.count = n.readArray(new int[0]);
-		this.errorCnt = n.readArray(new int[0]);
-		this.elapsedSum = n.readDecimalArray();
 
-		Value v = n.readValue();
-		if (v.getValueType() == ValueEnum.MAP) {
-			this.ext = (MapValue) v;
-		}
+		this.table=(MapValue)n.readValue();
+	
 
 		return this;
 	}

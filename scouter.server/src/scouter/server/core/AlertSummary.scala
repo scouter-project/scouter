@@ -17,24 +17,17 @@
 package tuna.server.core;
 
 import java.util.HashMap
-import java.util.Timer
-import scala.collection.JavaConversions._
+
+import scala.collection.JavaConversions.asScalaSet
+
+import scouter.lang.SummaryEnum
 import scouter.lang.pack.AlertPack
-import scouter.lang.pack.MapPack
-import scouter.server.Logger
+import scouter.lang.pack.SummaryPack
 import scouter.server.Logger
 import scouter.server.core.CoreRun
-import scouter.server.db.SummaryWR
-import scouter.server.db.SummaryWR
-import scouter.server.util.ThreadScala
 import scouter.server.util.ThreadScala
 import scouter.util.DateUtil
-import scouter.util.DateUtil
 import scouter.util.RequestQueue
-import scouter.util.RequestQueue
-import scouter.lang.pack.SummaryPack
-import scouter.lang.value.MapValue
-import scouter.lang.SummaryEnum
 
 object AlertSummary {
 
@@ -84,19 +77,18 @@ object AlertSummary {
 
             val entSet = ent.getValue().entrySet();
 
-            sp.count = new Array[Int](entSet.size());
-            sp.options = new MapValue();
-            val titleLv = sp.options.newList("title");
-            val levelLv = sp.options.newList("level");
+            val countLv = sp.table.newList("count");
+            val titleLv = sp.table.newList("title");
+            val levelLv = sp.table.newList("level");
 
             var inx = 0;
             for (ent2 <- entSet) {
                 titleLv.add(ent2.getKey());
                 levelLv.add(ent2.getValue()._1);
-                sp.count(inx) = ent2.getValue()._2;
+                countLv.add(ent2.getValue()._2);
                 inx += 1;
             }
-            SummaryWR.add(sp);
+            SummaryCore.add(sp);
         }
     }
 

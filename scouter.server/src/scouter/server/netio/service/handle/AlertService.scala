@@ -140,15 +140,15 @@ class AlertService {
 
         val handler = (time: Long, b: Array[Byte]) => {
             val data = new DataInputX(b).readPack().asInstanceOf[SummaryPack];
-            if (data.stype == SummaryEnum.ALERT && data.hasExt()) {
+            if (data.stype == SummaryEnum.ALERT ) {
                 val hhmm = DateUtil.hhmm(time);
-                val titleLv = data.ext.getList("title");
-                val levelLv = data.ext.getList("level");
-                val countLv = data.count;
+                val titleLv = data.table.getList("title");
+                val levelLv = data.table.getList("level");
+                val countLv = data.table.getList("count");
                 for (i <- 0 to titleLv.size() - 1) {
                     val title = titleLv.getString(i);
                     val level = levelLv.getLong(i).asInstanceOf[Byte];
-                    val count = countLv(i)
+                    val count = countLv.getInt(i)
                     var pack = valueMap.get(title);
                     if (pack == null) {
                         pack = new MapPack();

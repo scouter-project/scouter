@@ -119,27 +119,26 @@ public class ServiceSummary {
 		p.stype = type;
 
 		int cnt = temp.size();
-		p.id = new int[cnt];
-		p.count = new int[cnt];
-		p.errorCnt = new int[cnt];
-		p.elapsedSum = new long[cnt];
+		ListValue id = p.table.newList("id");
+		ListValue count = p.table.newList("count");
+		ListValue errorCnt = p.table.newList("error");
+		ListValue elapsedSum = p.table.newList("elapsed");
 
 		ListValue cpu = null;
 		ListValue mem = null;
 		if (SummaryEnum.APP == type) {
-			p.ext = new MapValue();
-			cpu = p.ext.newList("cpu");
-			mem = p.ext.newList("mem");
+			cpu = p.table.newList("cpu");
+			mem = p.table.newList("mem");
 		}
 		Enumeration<IntKeyLinkedMap.ENTRY> en = temp.entries();
 		for (int i = 0; i < cnt; i++) {
 			IntKeyLinkedMap.ENTRY<SummaryData> ent = en.nextElement();
 			int key = ent.getKey();
 			SummaryData data = ent.getValue();
-			p.id[i] = key;
-			p.count[i] = data.count;
-			p.errorCnt[i] = data.error_cnt;
-			p.elapsedSum[i] = data.elapsed;
+			id.add(key);
+			count.add(data.count);
+			errorCnt.add(data.error_cnt);
+			elapsedSum.add(data.elapsed);
 			if (SummaryEnum.APP == type) {
 				cpu.add(data.cpu);
 				mem.add(data.mem);
