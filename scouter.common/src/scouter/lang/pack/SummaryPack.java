@@ -20,6 +20,9 @@ import java.io.IOException;
 
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+import scouter.lang.value.MapValue;
+import scouter.lang.value.Value;
+import scouter.lang.value.ValueEnum;
 import scouter.util.ArrayUtil;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
@@ -33,11 +36,13 @@ public class SummaryPack implements Pack {
 	public int[] count;
 	public int[] errorCnt;
 	public long[] elapsedSum;
-	
-	//service only
-	public long[] cpuTime;
-	public long[] memAlloc;
 
+	public MapValue ext;
+
+	public boolean hasExt() {
+		return ext != null && ext.size() > 0;
+	}
+    
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Summary ");
@@ -49,6 +54,9 @@ public class SummaryPack implements Pack {
 		sb.append(") errorCnt(").append(ArrayUtil.len(errorCnt));
 		sb.append(") elapsedSum(").append(ArrayUtil.len(elapsedSum));
 		sb.append(")");
+		if (ext != null) {
+			sb.append(" " + ext.keySet());
+		}
 		return sb.toString();
 	}
 
@@ -62,15 +70,14 @@ public class SummaryPack implements Pack {
 		o.writeDecimal(time);
 		o.writeInt(objHash);
 		o.writeByte(stype);
-		
+
 		o.writeArray(id);
 		o.writeArray(count);
 		o.writeArray(errorCnt);
 		o.writeDecimalArray(elapsedSum);
-		
-		o.writeDecimalArray(cpuTime);
-		o.writeDecimalArray(memAlloc);
-		
+
+		o.writeValue(ext);
+
 		out.writeBlob(o.toByteArray());
 	}
 
@@ -83,13 +90,15 @@ public class SummaryPack implements Pack {
 		this.stype = n.readByte();
 		this.id = n.readArray(new int[0]);
 		this.count = n.readArray(new int[0]);
-		this.errorCnt =n.readArray(new int[0]);
+		this.errorCnt = n.readArray(new int[0]);
 		this.elapsedSum = n.readDecimalArray();
-        //
-		this.cpuTime = n.readDecimalArray();
-		this.memAlloc = n.readDecimalArray();
-		
+
+		Value v = n.readValue();
+		if (v.getValueType() == ValueEnum.MAP) {
+			this.ext = (MapValue) v;
+		}
+
 		return this;
 	}
-     
+
 }

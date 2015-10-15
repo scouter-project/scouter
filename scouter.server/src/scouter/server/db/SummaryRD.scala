@@ -38,7 +38,7 @@ object SummaryRD {
                 stype match {
                     case SummaryEnum.APP => table = SummaryIndex.open(file + "_app")
                     case SummaryEnum.SQL => table = SummaryIndex.open(file + "_sql")
-                    case SummaryEnum.APICALL => table = SummaryIndex.open(file + "_apicall")
+                    case _ => table = SummaryIndex.open(file + "_other")
                 }
                 table.read(fromTime, toTime, handler, reader.read)
             } catch {
@@ -74,7 +74,7 @@ object SummaryRD {
                 stype match {
                     case SummaryEnum.APP => table = SummaryIndex.open(file + "_app")
                     case SummaryEnum.SQL => table = SummaryIndex.open(file + "_sql")
-                    case SummaryEnum.APICALL => table = SummaryIndex.open(file + "_apicall")
+                    case _ => table = SummaryIndex.open(file + "_other")
                 }
                 table.readFromEnd(fromTime, toTime, handler, reader.read)
             } catch {

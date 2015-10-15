@@ -61,7 +61,9 @@ class SummaryService {
             val p = new DataInputX(data).readPack().asInstanceOf[SummaryPack];
             if (p.stype == stype) {
                 val len = ArrayUtil.len(p.id);
-                val isApp = (p.stype == SummaryEnum.APP && ArrayUtil.len(p.cpuTime) >= len);
+                val cpu = if (p.hasExt()) p.ext.get("cpu").asInstanceOf[ListValue] else null;
+                val mem = if (p.hasExt()) p.ext.get("mem").asInstanceOf[ListValue] else null;
+
                 for (i <- 0 to len - 1) {
                     var tempObj = tempMap.get(p.id(i));
                     if (tempObj == null) {
@@ -71,9 +73,9 @@ class SummaryService {
                     tempObj.count += p.count(1);
                     tempObj.errorCnt += p.errorCnt(i);
                     tempObj.elapsedSum += p.elapsedSum(i);
-                    if (isApp) {
-                        tempObj.cpuSum += p.cpuTime(i);
-                        tempObj.memSum += p.memAlloc(i);
+                    if (cpu != null && mem != null) {
+                        tempObj.cpuSum += cpu.getInt(i);
+                        tempObj.memSum += mem.getInt(i);
                     }
                 }
             }
@@ -82,10 +84,9 @@ class SummaryService {
         SummaryRD.readByTime(stype, date, stime, etime, handler)
 
         val map = new MapPack();
-        val newServiceList = map.newList("id");
+        val newIdList = map.newList("id");
         val newCountList = map.newList("count");
         val newErrorCntList = map.newList("errorCnt");
-        val newElapsedAvgList = map.newList("elapsedAvg");
         val newElapsedSumList = map.newList("elapsedSum");
 
         var newCpuSumList: ListValue = null;
@@ -98,11 +99,10 @@ class SummaryService {
         while (itr.hasMoreElements()) {
             val hash = itr.nextInt();
             val obj = tempMap.get(hash);
-            newServiceList.add(obj.hash);
+            newIdList.add(obj.hash);
             newCountList.add(obj.count);
             newErrorCntList.add(obj.errorCnt);
             newElapsedSumList.add(obj.elapsedSum);
-            newElapsedAvgList.add(obj.elapsedSum / obj.count);
             if (stype == SummaryEnum.APP) {
                 newCpuSumList.add(obj.cpuSum)
                 newMemSumList.add(obj.memSum)
