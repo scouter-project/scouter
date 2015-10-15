@@ -86,7 +86,7 @@ public class ServiceSummary {
 	private IntKeyLinkedMap<SummaryData> serviceMaster = new IntKeyLinkedMap<SummaryData>()
 			.setMax(conf.summary_service_max);
 
-	public SummaryPack getNext(byte type) {
+	public SummaryPack getAndClear(byte type) {
 		IntKeyLinkedMap<SummaryData> temp;
 		switch (type) {
 		case SummaryEnum.APP:

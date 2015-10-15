@@ -26,15 +26,19 @@ import scouter.util.HashUtil
 import scouter.server.util.ThreadScala
 import scouter.server.tagcnt.AlertTagCount
 import scouter.server.plugin.PlugInManager
+import scouter.server.Configure
 object AlertCore {
     val queue: RequestQueue[AlertPack] = new RequestQueue(CoreRun.MAX_QUE_SIZE)
+    val conf = Configure.getInstance();
     ThreadScala.startDaemon("scouter.server.core.AlertCore", { CoreRun.running }) {
         val p = queue.get();
         p.time = System.currentTimeMillis()
         PlugInManager.alert(p);    
         AlertCache.put(p)
         AlertWR.add(p)        
-        AlertTagCount.add(p)
+       if(conf.tagcnt_enabled){
+           AlertTagCount.add(p)
+       }      
     }
     def add(p: AlertPack) {
         val ok = queue.put(p);

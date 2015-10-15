@@ -102,17 +102,17 @@ public class ServicePerf {
 			return;
 		last_sent = now;
 		time = time / DateUtil.MILLIS_PER_FIVE_MINUTE * DateUtil.MILLIS_PER_FIVE_MINUTE - 1000;
-		SummaryPack p = ServiceSummary.getInstance().getNext(SummaryEnum.APP);
+		SummaryPack p = ServiceSummary.getInstance().getAndClear(SummaryEnum.APP);
 		if (p != null) {
 			p.time = time;
 			DataProxy.send(p);
 		}
-		p = ServiceSummary.getInstance().getNext(SummaryEnum.SQL);
+		p = ServiceSummary.getInstance().getAndClear(SummaryEnum.SQL);
 		if (p != null) {
 			p.time = time;
 			DataProxy.send(p);
 		}
-		p = ServiceSummary.getInstance().getNext(SummaryEnum.APICALL);
+		p = ServiceSummary.getInstance().getAndClear(SummaryEnum.APICALL);
 		if (p != null) {
 			p.time = time;
 			DataProxy.send(p);

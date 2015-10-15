@@ -185,7 +185,7 @@ public class Configure extends Thread {
 	public boolean enable_sql_parsing = true;
 
 	public StringSet log_ignore = new StringSet();
-	public boolean tagcnt_enabled = true;
+	public boolean tagcnt_enabled = false;
 	
 	public int tcp_server_pool_size = 500;
 	
@@ -258,7 +258,7 @@ public class Configure extends Thread {
 
 		this.log_ignore = getStringSet("log_ignore", ",");
 
-		this.tagcnt_enabled = getBoolean("tagcnt_enabled", true);
+		this.tagcnt_enabled = getBoolean("tagcnt_enabled", false);
 		
 		this.tcp_server_pool_size = getInt("tcp_server_pool_size", 100);
 
