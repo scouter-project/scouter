@@ -93,10 +93,11 @@ class ObjectMap {
             val m = objectTypeTable.get(objType);
             if (m != null) {
                 m.remove(objHash);
+                if (m.size() == 0) {
+                    objectTypeTable.remove(objType);
+                }
             }
-            if (m.size() == 0) {
-                objectTypeTable.remove(objType);
-            }
+
         }
     }
 
