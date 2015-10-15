@@ -36,7 +36,7 @@ public class Boot {
 		try {
 			JarUtil.unJar(JarUtil.getThisJarFile(), new File(lib));
 		} catch (Exception e) {
-			System.out.println("Fail to extract jar files");
+			System.out.println("Fail to extract jar files : " + e.toString());
 			System.out.println("Please check the permission : " + lib + "/*.*");
 		}
 		URL[] jarfiles = getURLs(lib);
