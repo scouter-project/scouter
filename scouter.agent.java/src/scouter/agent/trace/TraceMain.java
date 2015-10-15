@@ -314,7 +314,7 @@ public class TraceMain {
 		case XLogTypes.WEB_SERVICE:
 		case XLogTypes.APP_SERVICE:
 			MeterService.getInstance().add(pack.elapsed, pack.error != 0);
-			ServiceSummary.getInstance().process(pack.service, pack.error != 0, pack.elapsed, pack.cpu, pack.bytes);
+			ServiceSummary.getInstance().process(pack);
 			break;
 		case XLogTypes.BACK_THREAD:
 		}

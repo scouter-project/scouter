@@ -20,6 +20,7 @@ import java.util.Enumeration;
 import scouter.agent.Configure;
 import scouter.lang.SummaryEnum;
 import scouter.lang.pack.SummaryPack;
+import scouter.lang.pack.XLogPack;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.SqlStep;
 import scouter.util.IntKeyLinkedMap;
@@ -37,17 +38,17 @@ public class ServiceSummary {
 
 	private Configure conf = Configure.getInstance();
 
-	public void process(int service, boolean error, int elapsed, int cpu, int mem) {
+	public void process(XLogPack p) {
 		if (conf.enable_summary == false)
 			return;
-		SummaryData d = getSummaryMap(serviceMaster, service);
+		SummaryData d = getSummaryMap(serviceMaster, p.service);
 		d.count++;
-		d.elapsed += elapsed;
-		if (error) {
+		d.elapsed += p.elapsed;
+		if (p.error!=0) {
 			d.error_cnt++;
 		}
-		d.cpu += cpu;
-		d.mem += mem;
+		d.cpu += p.cpu;
+		d.mem += p.bytes;
 	}
 
 	public void process(SqlStep sqlStep) {
