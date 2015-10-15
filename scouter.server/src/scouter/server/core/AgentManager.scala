@@ -116,6 +116,8 @@ object AgentManager {
                 if (objPack.updated % 20 == 0) {
                     alertTooManyChange(objPack);
                 }
+                
+                objMap.put(objPack);
                 procObjName(objPack);
                 ObjectWR.add(objPack);
                 Logger.println("S105", "Update " + objPack);
