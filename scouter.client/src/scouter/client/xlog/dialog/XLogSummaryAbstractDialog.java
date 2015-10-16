@@ -16,6 +16,10 @@
  */
 package scouter.client.xlog.dialog;
 
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -40,6 +44,7 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
@@ -49,8 +54,10 @@ import org.eclipse.swt.widgets.TableItem;
 import scouter.client.Images;
 import scouter.client.model.XLogData;
 import scouter.client.sorter.ColumnLabelSorter;
+import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 import scouter.util.LongKeyLinkedMap;
+import au.com.bytecode.opencsv.CSVWriter;
 
 public abstract class XLogSummaryAbstractDialog {
 	
@@ -130,6 +137,53 @@ public abstract class XLogSummaryAbstractDialog {
 		copyBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				copyToClipboard(viewer.getTable().getItems());
+			}
+		});
+		Button exportBtn = new Button(btnComp, SWT.PUSH);
+		exportBtn.setText("CSV");
+		exportBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				FileDialog dialog = new FileDialog(display.getActiveShell(), SWT.SAVE);
+				dialog.setOverwrite(true);
+				String filename = "[" + DateUtil.format(stime, "yyyyMMdd_HHmmss") + "-" 
+				+ DateUtil.format(etime, "HHmmss") + "]" +getTitle().replaceAll(" ", "_") + ".csv";
+				dialog.setFileName(filename);
+				dialog.setFilterExtensions(new String[] { "*.csv", "*.*" });
+				dialog.setFilterNames(new String[] { "CSV File(*.csv)", "All Files" });
+				String fileSelected = dialog.open();
+				if (fileSelected != null) {
+					CSVWriter cw = null;
+					try {
+						cw = new CSVWriter(new FileWriter(fileSelected));
+						int colCnt = viewer.getTable().getColumnCount();
+						List<String> list = new ArrayList<String>();
+						for (int i = 0; i < colCnt; i++) {
+							TableColumn column = viewer.getTable().getColumn(i);
+							list.add(column.getText());
+						}
+						cw.writeNext(list.toArray(new String[list.size()]));
+						cw.flush();
+						TableItem[] items = viewer.getTable().getItems();
+						if (items != null && items.length > 0) {
+							for (TableItem item : items) {
+								list.clear();
+								for (int i = 0; i < colCnt; i++) {
+									list.add(item.getText(i));
+								}
+								cw.writeNext(list.toArray(new String[list.size()]));
+								cw.flush();
+							}
+						}
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					} finally {
+						try {
+							if (cw != null) {
+								cw.close();
+							}
+						} catch (Throwable th) {}
+					}
+				}
 			}
 		});
 		Composite tableComp = new Composite(dialog, SWT.NONE);
