@@ -16,10 +16,12 @@
  */
 package scouter.client.counter.views;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
@@ -27,8 +29,14 @@ import org.csstudio.swt.xygraph.dataprovider.Sample;
 import org.csstudio.swt.xygraph.figures.Trace;
 import org.csstudio.swt.xygraph.figures.Trace.PointStyle;
 import org.csstudio.swt.xygraph.figures.XYGraph;
+import org.csstudio.swt.xygraph.linearscale.Range;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
@@ -45,6 +53,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IMemento;
@@ -53,10 +62,12 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import au.com.bytecode.opencsv.CSVWriter;
+
 import scouter.client.Images;
 import scouter.client.counter.actions.OpenPastLongDateAllAction;
+import scouter.client.counter.views.CounterPastTimeAllView.ExportDataTask;
 import scouter.client.model.AgentColorManager;
-import scouter.client.model.ICounterObjectSelector;
 import scouter.client.model.TextProxy;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
@@ -73,17 +84,19 @@ import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.MenuUtil;
 import scouter.client.util.TimeUtil;
+import scouter.client.util.TimedSeries;
 import scouter.client.util.UIUtil;
 import scouter.client.views.ScouterViewPart;
+import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
-import scouter.io.DataInputX;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
 import scouter.util.StringUtil;
 
-public class CounterPastLongDateAllView extends ScouterViewPart implements DualCalendarDialog.ILoadDualCounterDialog, ICounterObjectSelector {
+public class CounterPastLongDateAllView extends ScouterViewPart implements DualCalendarDialog.ILoadDualCounterDialog {
 	public static final String ID = CounterPastLongDateAllView.class.getName();
 
 	private IMemento memento;
@@ -189,10 +202,6 @@ public class CounterPastLongDateAllView extends ScouterViewPart implements DualC
 				for (MapPack mpack : values) {
 					int objHash = mpack.getInt("objHash");
 					
-					checkAllList(objHash);
-					if(!existInSelectedList(objHash))
-						continue;
-					
 					//String insName = mpack.getText("objName");
 					ListValue time = mpack.getList("time");
 					ListValue value = mpack.getList("value");
@@ -219,24 +228,6 @@ public class CounterPastLongDateAllView extends ScouterViewPart implements DualC
 		});
 	}
 
-	private void checkAllList(int objHash){
-		if(objHashAll.indexOf(objHash) < 0){
-			objHashAll.add(objHash);
-			objHashSelected.add(objHash);
-		}
-	}
-	
-	private boolean existInSelectedList(int objHash){
-		if(objHashSelected.indexOf(objHash) < 0){
-			return false;
-		}else{
-			return true;
-		}
-	}
-	
-	private ArrayList<Integer> objHashAll = new ArrayList<Integer>();
-	private ArrayList<Integer> objHashSelected = new ArrayList<Integer>();
-	
 	private void duplicateView() {
 		Server server = ServerManager.getInstance().getServer(serverId);
 		String counterDisplay = "";
@@ -358,6 +349,23 @@ public class CounterPastLongDateAllView extends ScouterViewPart implements DualC
 						duplicateView();
 					}
 				});
+			}
+		});
+		
+		IMenuManager menuManager = getViewSite().getActionBars().getMenuManager();
+		menuManager.add(new Action("Export CSV", ImageUtil.getImageDescriptor(Images.csv)) {
+			public void run() {
+				FileDialog dialog = new FileDialog(getViewSite().getShell(), SWT.SAVE);
+				dialog.setOverwrite(true);
+				String filename = "[" + DateUtil.format(stime, "yyyyMMdd") + "-" 
+				+ DateUtil.format(etime - 1, "yyyyMMdd") + "]" + objType + "_" + counter + ".csv";
+				dialog.setFileName(filename);
+				dialog.setFilterExtensions(new String[] { "*.csv", "*.*" });
+				dialog.setFilterNames(new String[] { "CSV File(*.csv)", "All Files" });
+				String fileSelected = dialog.open();
+				if (fileSelected != null) {
+					new ExportDataTask(fileSelected).schedule();
+				}
 			}
 		});
 		
@@ -578,17 +586,65 @@ public class CounterPastLongDateAllView extends ScouterViewPart implements DualC
 		}
 	}
 	
-	public void setSelections(ArrayList<Integer> selections) {
-		Iterator<Integer> itr = traces.keySet().iterator();
-		while(itr.hasNext()){
-			xyGraph.removeTrace(traces.get(itr.next()));
+	class ExportDataTask extends Job {
+		
+		String filePath;
+
+		public ExportDataTask(String filePath) {
+			super("Export...");
+			this.filePath = filePath;
 		}
-		objHashSelected = new ArrayList<Integer>(selections);
-		try {
-			setInput(sDate, eDate, objType, counter, serverId);
-		} catch (Exception e) {
-			e.printStackTrace();
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			try {
+				TimedSeries<String, Double> sereis = new TimedSeries<String, Double>();
+				Range xRange = xyGraph.primaryXAxis.getRange();
+				long lower = (long) xRange.getLower();
+				long upper = (long) xRange.getUpper();
+				List<Trace> traceList = xyGraph.getPlotArea().getTraceList();
+				List<String> titleValues = new ArrayList<String>();
+				titleValues.add("Time");
+				for (Trace t : traceList) {
+					titleValues.add(t.getName());
+					CircularBufferDataProvider provider = (CircularBufferDataProvider) t.getDataProvider();
+					for (int inx = 0; inx < provider.getSize(); inx++) {
+						Sample sample = (Sample) provider.getSample(inx);
+						double x = sample.getXValue();
+						if(x < lower || x > upper) {
+							continue;
+						}
+						double y = sample.getYValue();
+						sereis.add(t.getName(), (long)x, y);
+					}
+				}
+				List<String[]> values = new ArrayList<String[]>();
+				values.add(titleValues.toArray(new String[titleValues.size()]));
+				while (lower < upper) {
+					List<String> value = new ArrayList<String>();
+					value.add(DateUtil.format(lower, "yyyy-MM-dd HH:mm"));
+					for (int i = 1; i < titleValues.size(); i++) {
+						String objName = titleValues.get(i);
+						Double d = sereis.getInTime(objName, lower, DateUtil.MILLIS_PER_FIVE_MINUTE - 1);
+						if (d != null) {
+							value.add(FormatUtil.print(d.doubleValue(), "#,###.##"));
+						} else {
+							value.add("");
+						}
+					}
+					values.add(value.toArray(new String[value.size()]));
+					lower += DateUtil.MILLIS_PER_FIVE_MINUTE;
+				}
+				CSVWriter cw = new CSVWriter(new FileWriter(filePath));
+				cw.writeAll(values);
+				cw.flush();
+				cw.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+				return Status.CANCEL_STATUS;
+			}
+			return Status.OK_STATUS;
 		}
+		
 	}
-	
 }

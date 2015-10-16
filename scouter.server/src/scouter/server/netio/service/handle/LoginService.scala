@@ -32,8 +32,9 @@ import scouter.server.Configure
 import scouter.server.LoginManager
 import scouter.server.LoginUser
 import scouter.server.account.AccountManager
-import scouter.server.netio.service.anotation.ServiceHandler;
+import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.util.ArrayUtil
+import scouter.lang.value.BooleanValue
 
 class LoginService {
 
@@ -66,6 +67,10 @@ class LoginService {
       if (mv != null) {
         m.put("policy", mv);
       }
+      val menuMv = new MapValue();
+      m.put("menu", menuMv);
+      menuMv.put("tag_count", new BooleanValue(Configure.getInstance().tagcnt_enabled));
+      
     }
     dout.writeByte(TcpFlag.HasNEXT);
     dout.writePack(m);
