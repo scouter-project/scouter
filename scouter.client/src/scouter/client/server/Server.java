@@ -46,6 +46,7 @@ public class Server {
 	private long totalMemory;
 	
 	private MapValue groupPolicyMap = new MapValue();
+	private MapValue menuEnableMap = new MapValue();
 	
 	public Server(String ip, String port) {
 		this(ip, port, null);
@@ -200,6 +201,14 @@ public class Server {
 
 	public void setOpen(boolean open) {
 		this.open = open;
+	}
+	
+	public void setMenuEnableMap(MapValue mv) {
+		this.menuEnableMap = mv;
+	}
+	
+	public boolean isEnableMenu(String key) {
+		return menuEnableMap.getBoolean(key);
 	}
 
 	public String toString() {
