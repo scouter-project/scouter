@@ -34,7 +34,7 @@ object AlertCore {
     ThreadScala.startDaemon("scouter.server.core.AlertCore", { CoreRun.running }) {
         val p = queue.get();
         p.time = System.currentTimeMillis()
-       
+
         AlertSummary.add(p)
         PlugInManager.alert(p)
 

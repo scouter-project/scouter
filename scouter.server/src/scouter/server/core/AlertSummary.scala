@@ -17,9 +17,7 @@
 package tuna.server.core;
 
 import java.util.HashMap
-
 import scala.collection.JavaConversions.asScalaSet
-
 import scouter.lang.SummaryEnum
 import scouter.lang.pack.AlertPack
 import scouter.lang.pack.SummaryPack
@@ -28,9 +26,11 @@ import scouter.server.core.CoreRun
 import scouter.server.util.ThreadScala
 import scouter.util.DateUtil
 import scouter.util.RequestQueue
+import scouter.server.Configure
 
 object AlertSummary {
 
+    val conf =Configure.getInstance()
     val queue = new RequestQueue[AlertPack](CoreRun.MAX_QUE_SIZE);
     var master = new HashMap[Int, HashMap[String, (Byte, Int)]]()
 
@@ -54,6 +54,8 @@ object AlertSummary {
     }
 
     def add(p: AlertPack): Unit = {
+        if(conf.enable_alert_summary==false)
+            return;
         val ok = queue.put(p)
         if (ok == false) {
             Logger.println("AlertSummary", 10, "queue exceeded!!");
