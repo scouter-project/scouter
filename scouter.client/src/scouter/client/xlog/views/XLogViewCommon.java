@@ -56,7 +56,11 @@ import scouter.client.util.ImageUtil;
 import scouter.client.xlog.XLogFilterStatus;
 import scouter.client.xlog.XLogYAxisEnum;
 import scouter.client.xlog.dialog.XLogFilterDialog;
+import scouter.client.xlog.dialog.XLogSummaryIPDialog;
+import scouter.client.xlog.dialog.XLogSummaryRefererDialog;
 import scouter.client.xlog.dialog.XLogSummaryServiceDialog;
+import scouter.client.xlog.dialog.XLogSummaryUserAgentDialog;
+import scouter.client.xlog.dialog.XLogSummaryUserDialog;
 import scouter.client.xlog.views.XLogViewPainter.ITimeChange;
 import scouter.util.LongKeyLinkedMap;
 
@@ -76,6 +80,10 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 	XLogFilterStatus filterStatus = new XLogFilterStatus();
 	
 	XLogSummaryServiceDialog summaryServiceDialog;
+	XLogSummaryIPDialog summaryIpDialog;
+	XLogSummaryUserAgentDialog summaryUserAgentDialog;
+	XLogSummaryRefererDialog summaryRefererDialog;
+	XLogSummaryUserDialog summaryUserDialog;
 	
 	Menu contextMenu;
 	
@@ -155,7 +163,11 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 		});
 		
 		filterDialog = new XLogFilterDialog(this);
-		summaryServiceDialog = new XLogSummaryServiceDialog(getViewSite().getShell(), twdata);
+		summaryServiceDialog = new XLogSummaryServiceDialog(getViewSite().getShell().getDisplay(), twdata);
+		summaryIpDialog = new XLogSummaryIPDialog(getViewSite().getShell().getDisplay(), twdata);
+		summaryUserAgentDialog = new XLogSummaryUserAgentDialog(getViewSite().getShell().getDisplay(), twdata);
+		summaryRefererDialog = new XLogSummaryRefererDialog(getViewSite().getShell().getDisplay(), twdata);
+		summaryUserDialog = new XLogSummaryUserDialog(getViewSite().getShell().getDisplay(), twdata);
 		createContextMenu();
 		ObjectSelectManager.getInstance().addObjectCheckStateListener(this);
 	}
@@ -234,10 +246,49 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 				long etime = viewPainter.getLastTime();
 				long stime = etime - viewPainter.getTimeRange();
 				summaryServiceDialog.setRange(stime, etime);
-				summaryServiceDialog.open();
+				summaryServiceDialog.show();
 			}
 		});
-	    
+	    MenuItem ipSummary = new MenuItem(summaryMenu, SWT.PUSH);
+	    ipSummary.setText("IP");
+	    ipSummary.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				long etime = viewPainter.getLastTime();
+				long stime = etime - viewPainter.getTimeRange();
+				summaryIpDialog.setRange(stime, etime);
+				summaryIpDialog.show();
+			}
+		});
+	    MenuItem userAgentSummary = new MenuItem(summaryMenu, SWT.PUSH);
+	    userAgentSummary.setText("User-Agent");
+	    userAgentSummary.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				long etime = viewPainter.getLastTime();
+				long stime = etime - viewPainter.getTimeRange();
+				summaryUserAgentDialog.setRange(stime, etime);
+				summaryUserAgentDialog.show();
+			}
+		});
+	    MenuItem refererSummary = new MenuItem(summaryMenu, SWT.PUSH);
+	    refererSummary.setText("Referer");
+	    refererSummary.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				long etime = viewPainter.getLastTime();
+				long stime = etime - viewPainter.getTimeRange();
+				summaryRefererDialog.setRange(stime, etime);
+				summaryRefererDialog.show();
+			}
+		});
+	    MenuItem userSummary = new MenuItem(summaryMenu, SWT.PUSH);
+	    userSummary.setText("User");
+	    userSummary.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				long etime = viewPainter.getLastTime();
+				long stime = etime - viewPainter.getTimeRange();
+				summaryUserDialog.setRange(stime, etime);
+				summaryUserDialog.show();
+			}
+		});
 	    
 	    canvas.setMenu(contextMenu);
 	}

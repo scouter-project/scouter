@@ -16,9 +16,7 @@
  */
 package scouter.client.xlog.dialog;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -26,9 +24,10 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 
-import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
 import scouter.client.util.ExUtil;
+import scouter.client.xlog.dialog.XLogSummaryAbstractDialog.SummaryObject;
+import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
@@ -36,32 +35,26 @@ import scouter.util.Order;
 import scouter.util.OrderUtil;
 import scouter.util.TopN;
 
-public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
+public class XLogSummaryUserDialog extends XLogSummaryAbstractDialog{
 	
-	public XLogSummaryServiceDialog(Display display, LongKeyLinkedMap<XLogData> dataMap) {
+	public XLogSummaryUserDialog(Display display, LongKeyLinkedMap<XLogData> dataMap) {
 		super(display, dataMap);
 	}
 	
 	protected void calcAsync() {
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
-				Map<Integer, ServiceSummary> summaryMap = new HashMap<Integer, ServiceSummary>();
-				Map<Integer, List<Integer>> loadTextMap = new HashMap<Integer, List<Integer>>();
+				Map<Long, UserSummary> summaryMap = new HashMap<Long, UserSummary>();
 				LongEnumer longEnumer = dataMap.keys();
 				while (longEnumer.hasMoreElements()) {
 					XLogData d = dataMap.get(longEnumer.nextLong());
 					long time = d.p.endTime;
 					if (d.filter_ok && time >= stime && time <= etime) {
-						ServiceSummary summary = summaryMap.get(d.p.service);
+						UserSummary summary = summaryMap.get(d.p.userid);
 						if (summary == null) {
-							summary = new ServiceSummary(d.p.service);
-							summaryMap.put(d.p.service, summary);
-							List<Integer> loadTextList = loadTextMap.get(d.serverId);
-							if (loadTextList == null) {
-								loadTextList = new ArrayList<Integer>();
-								loadTextMap.put(d.serverId, loadTextList);
-							}
-							loadTextList.add(d.p.service);
+							summary = new UserSummary();
+							summary.id = d.p.userid;
+							summaryMap.put(d.p.userid, summary);
 						}
 						summary.count++;
 						summary.sumTime += d.p.elapsed;
@@ -77,9 +70,6 @@ public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
 						summary.apicalltime = d.p.apicallTime;
 					}
 				}
-				for (Integer serverId : loadTextMap.keySet()) {
-					TextProxy.service.load(DateUtil.yyyymmdd(etime), loadTextMap.get(serverId), serverId);
-				}
 				final TopN<SummaryObject> tn = new TopN<SummaryObject>(10000) {
 					public Order order(SummaryObject o1, SummaryObject o2) {
 						return OrderUtil.desc(o1.count, o2.count);
@@ -88,7 +78,6 @@ public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
 				for (SummaryObject so : summaryMap.values()) {
 					tn.add(so);
 				}
-				
 				ExUtil.exec(viewer.getTable(), new Runnable() {
 					public void run() {
 						rangeLabel.setText(DateUtil.format(stime, "yyyy-MM-dd HH:mm:ss") + " ~ " + DateUtil.format(etime, "HH:mm:ss") + " (" + tn.size() +")");
@@ -100,23 +89,20 @@ public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
 	}
 	
 	
-	private static class ServiceSummary extends SummaryObject {
-		int hash;
-		ServiceSummary(int hash) {
-			this.hash = hash;
-		}
+	private static class UserSummary extends SummaryObject {
+		long id;
 	}
 
 	public String getTitle() {
-		return "Service Summary";
+		return "User Summary";
 	}
 
 	protected void createMainColumn() {
-		TableViewerColumn c = createTableViewerColumn("Service", 200, SWT.LEFT, false);
+		TableViewerColumn c = createTableViewerColumn("User ID", 100, SWT.LEFT, true);
 		ColumnLabelProvider labelProvider = new ColumnLabelProvider() {
 			public String getText(Object element) {
-				if (element instanceof ServiceSummary) {
-					return TextProxy.service.getText(((ServiceSummary) element).hash);
+				if (element instanceof UserSummary) {
+					return CastUtil.cString(((UserSummary) element).id);
 				}
 				return null;
 			}

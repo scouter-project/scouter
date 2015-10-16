@@ -36,32 +36,32 @@ import scouter.util.Order;
 import scouter.util.OrderUtil;
 import scouter.util.TopN;
 
-public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
+public class XLogSummaryRefererDialog extends XLogSummaryAbstractDialog{
 	
-	public XLogSummaryServiceDialog(Display display, LongKeyLinkedMap<XLogData> dataMap) {
+	public XLogSummaryRefererDialog(Display display, LongKeyLinkedMap<XLogData> dataMap) {
 		super(display, dataMap);
 	}
 	
 	protected void calcAsync() {
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
-				Map<Integer, ServiceSummary> summaryMap = new HashMap<Integer, ServiceSummary>();
+				final Map<Integer, RefererSummary> summaryMap = new HashMap<Integer, RefererSummary>();
 				Map<Integer, List<Integer>> loadTextMap = new HashMap<Integer, List<Integer>>();
 				LongEnumer longEnumer = dataMap.keys();
 				while (longEnumer.hasMoreElements()) {
 					XLogData d = dataMap.get(longEnumer.nextLong());
 					long time = d.p.endTime;
 					if (d.filter_ok && time >= stime && time <= etime) {
-						ServiceSummary summary = summaryMap.get(d.p.service);
+						RefererSummary summary = summaryMap.get(d.p.referer);
 						if (summary == null) {
-							summary = new ServiceSummary(d.p.service);
-							summaryMap.put(d.p.service, summary);
+							summary = new RefererSummary(d.p.referer);
+							summaryMap.put(d.p.referer, summary);
 							List<Integer> loadTextList = loadTextMap.get(d.serverId);
 							if (loadTextList == null) {
 								loadTextList = new ArrayList<Integer>();
 								loadTextMap.put(d.serverId, loadTextList);
 							}
-							loadTextList.add(d.p.service);
+							loadTextList.add(d.p.referer);
 						}
 						summary.count++;
 						summary.sumTime += d.p.elapsed;
@@ -78,7 +78,7 @@ public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
 					}
 				}
 				for (Integer serverId : loadTextMap.keySet()) {
-					TextProxy.service.load(DateUtil.yyyymmdd(etime), loadTextMap.get(serverId), serverId);
+					TextProxy.referer.load(DateUtil.yyyymmdd(etime), loadTextMap.get(serverId), serverId);
 				}
 				final TopN<SummaryObject> tn = new TopN<SummaryObject>(10000) {
 					public Order order(SummaryObject o1, SummaryObject o2) {
@@ -88,7 +88,6 @@ public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
 				for (SummaryObject so : summaryMap.values()) {
 					tn.add(so);
 				}
-				
 				ExUtil.exec(viewer.getTable(), new Runnable() {
 					public void run() {
 						rangeLabel.setText(DateUtil.format(stime, "yyyy-MM-dd HH:mm:ss") + " ~ " + DateUtil.format(etime, "HH:mm:ss") + " (" + tn.size() +")");
@@ -100,23 +99,23 @@ public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
 	}
 	
 	
-	private static class ServiceSummary extends SummaryObject {
+	private static class RefererSummary extends SummaryObject {
 		int hash;
-		ServiceSummary(int hash) {
+		RefererSummary(int hash) {
 			this.hash = hash;
 		}
 	}
 
 	public String getTitle() {
-		return "Service Summary";
+		return "Referer Summary";
 	}
 
 	protected void createMainColumn() {
-		TableViewerColumn c = createTableViewerColumn("Service", 200, SWT.LEFT, false);
+		TableViewerColumn c = createTableViewerColumn("Referer", 200, SWT.LEFT, false);
 		ColumnLabelProvider labelProvider = new ColumnLabelProvider() {
 			public String getText(Object element) {
-				if (element instanceof ServiceSummary) {
-					return TextProxy.service.getText(((ServiceSummary) element).hash);
+				if (element instanceof RefererSummary) {
+					return TextProxy.referer.getText(((RefererSummary) element).hash);
 				}
 				return null;
 			}
