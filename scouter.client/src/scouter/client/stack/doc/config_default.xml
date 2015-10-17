@@ -17,17 +17,22 @@
     <list>org.springframework.context.support.AbstractApplicationContext.refresh</list>
   </workingThread>
   <service type="exclude">
-	<list> java.</list>
+	<list> java.</list>			<!-- Common -->
 	<list> javax.</list>
 	<list> com.</list>
+	<list> sun.</list>
 	<list>ibm.</list>
 	<list>oracle.</list>
-	<list>jeus.</list>
+	<list>jeus.</list>			<!-- WAS -->
 	<list>weblogic.</list>
 	<list>websphere.</list>
 	<list>tomcat.</list>
 	<list>jboss.</list>
-	<list>.doFilter(</list>
+	<list>devonx.</list>		<!-- Framework -->
+	<list>devonframework.</list>
+	<list>springframework.</list>
+	<list>CGLIB$$</list>
+	<list>.doFilter(</list>		<!-- Servlet Filter -->
   </service>
   <sql>
     <list>devonframework.persistent.autodao.LCommonDao.</list>			<!-- devonframework -->

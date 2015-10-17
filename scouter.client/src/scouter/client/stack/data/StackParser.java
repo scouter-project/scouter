@@ -637,11 +637,16 @@ public abstract class StackParser {
     }
 
 	private String getReqeustLineByAuto(ArrayList<String> workingList, int stackStartLine){
-		int size = workingList.size();
 		String line;
+		int size = workingList.size();
 		for(int i = (size - 1); i >= stackStartLine ;i--){
 			line = workingList.get(i);
-			return line; 
+			
+			if( StringUtils.checkExist(line, m_service)){
+				continue;
+			}else{
+				return line;				
+			}
 		}
 		return null;
 	}
