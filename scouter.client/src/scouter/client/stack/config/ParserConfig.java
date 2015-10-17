@@ -35,6 +35,8 @@ public class ParserConfig {
     private int m_timePosition = 0;
     private String m_threadStatus = null;
     
+    private boolean m_serviceExclude = false;
+    
     private ArrayList<String> m_workerThread = new ArrayList<String>();
     private ArrayList<String> m_workingThread = new ArrayList<String>();
     private ArrayList<String> m_sql = new ArrayList<String>();
@@ -75,6 +77,10 @@ public class ParserConfig {
 
     public ArrayList<String> getService() {
         return m_service;
+    }
+    
+    public boolean isServiceExclude(){
+    	return m_serviceExclude;
     }
 
     public ArrayList<String> getLog() {
@@ -117,6 +123,10 @@ public class ParserConfig {
         m_service = service;
     }
 
+    public void setServiceExclude(boolean value){
+    	m_serviceExclude = value;
+    }
+    
     public void setLog( ArrayList<String> log ) {
         m_log = log;
     }

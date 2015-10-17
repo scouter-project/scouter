@@ -16,7 +16,18 @@
     <list>TransactionTemplate.execute</list>
     <list>org.springframework.context.support.AbstractApplicationContext.refresh</list>
   </workingThread>
-  <service>
+  <service type="exclude">
+	<list> java.</list>
+	<list> javax.</list>
+	<list> com.</list>
+	<list>ibm.</list>
+	<list>oracle.</list>
+	<list>jeus.</list>
+	<list>weblogic.</list>
+	<list>websphere.</list>
+	<list>tomcat.</list>
+	<list>jboss.</list>
+	<list>.doFilter(</list>
   </service>
   <sql>
     <list>devonframework.persistent.autodao.LCommonDao.</list>			<!-- devonframework -->
@@ -32,7 +43,6 @@
     <list>devon.core.log.LLogger</list>							<!-- devonframework -->
   </log>
   <excludeStack>
-    <list>java.lang.reflect</list>
     <list>java.lang.reflect</list>
     <list>sun.reflect.</list>
     <list>$Proxy</list>

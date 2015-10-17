@@ -554,6 +554,7 @@ public abstract class StackParser {
         String requestLine = null;
         String logLine = null;
 
+        boolean isServiceExclude = m_config.isServiceExclude();
         int stackStartLine = m_config.getStackStartLine();
     	String threadStatus = m_config.getThreadStatus();
     	int threadStatusLength = 0;    	
@@ -592,7 +593,7 @@ public abstract class StackParser {
                     m_sqlList.add(line);
                 }
 
-                if ( StringUtils.checkExist(line, m_service) )
+                if (!isServiceExclude && StringUtils.checkExist(line, m_service) )
                     requestLine = line;
 
                 if ( StringUtils.checkExist(line, m_log) ) {
@@ -600,13 +601,23 @@ public abstract class StackParser {
                 }
             }
             m_workingThread_writer.write("\n");
+            
+            
             if ( requestLine == null ) {
                 if ( workingList.size() > stackStartLine ) {
-                    m_serviceList.add(workingList.get(stackStartLine));
+                	if(isServiceExclude){
+                		requestLine = getReqeustLineByAuto(workingList, stackStartLine);
+                	}
                 }
-            } else {
+                if(requestLine == null){
+                	requestLine = workingList.get(stackStartLine);
+                }
+            }
+            
+            if(requestLine != null){
                 m_serviceList.add(requestLine);
             }
+            
             if ( logLine != null ) {
                 m_logList.add(logLine);
             }
@@ -625,6 +636,16 @@ public abstract class StackParser {
         }
     }
 
+	private String getReqeustLineByAuto(ArrayList<String> workingList, int stackStartLine){
+		int size = workingList.size();
+		String line;
+		for(int i = (size - 1); i >= stackStartLine ;i--){
+			line = workingList.get(i);
+			return line; 
+		}
+		return null;
+	}
+   
     protected void addTime( String time ) {
         m_timeList.add(time);
     }
