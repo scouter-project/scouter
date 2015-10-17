@@ -56,6 +56,7 @@ public class PerformanceWindow implements Listener{
     private ArrayList<String> m_excludeStack = null;
     private ArrayList<String> m_singleStack = null;
     private int m_singleStackCount = 0;
+    private int m_expandStartInx = 0;
  
     public PerformanceWindow(Shell shell, StackFileInfo stackFileInfo, String filter, boolean isExcludeStack, boolean isAscending, boolean isRemoveLine, boolean isInerPercent) {
     	m_parentShell = shell;
@@ -199,9 +200,14 @@ public class PerformanceWindow implements Listener{
         }
 
         Collections.sort(sortList, new ValueComp());
-
+        
+        int itemCount = sortList.size();
+        if(itemCount > 1 && m_expandStartInx == 0){
+        	m_expandStartInx = depth;
+        }
+        
         TreeItem treeItem;
-        for ( index = 0; index < sortList.size(); index++ ) {
+        for ( index = 0; index < itemCount; index++ ) {
             counter = sortList.get(index);
             buffer = new StringBuilder(100);
             buffer.append(counter.getCount()).append(" (").append(NumberUtils.intToPercent((counter.getCount() * 10000) / m_totalCount)).append("%) ");
@@ -210,12 +216,17 @@ public class PerformanceWindow implements Listener{
             }
             buffer.append(counter.getValue());
 
-            treeItem = new TreeItem(parent, SWT.NONE);
+            treeItem = new TreeItem(parent,  SWT.NONE );
             treeItem.setText(buffer.toString());
             treeItem.setData(counter.getValue());
-            if(depth < 3){
-            	treeItem.setExpanded(true);
+        	treeItem.setExpanded(true);
+
+            if(m_expandStartInx == 0){
+            	m_performanceTree.showItem(treeItem);            	
+            }else if((depth - m_expandStartInx) <= 3){
+            	m_performanceTree.showItem(treeItem);            	
             }
+            
             if ( counter.getMap() != null ) {
                 makePerformanceTreeUI(treeItem, counter.getMap(), depth);
             }
