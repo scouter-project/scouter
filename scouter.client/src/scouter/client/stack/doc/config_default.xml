@@ -7,6 +7,7 @@
     <list>webtob_main</list>		<!-- JEUS -->
     <list>http_main</list>
     <list>ExecuteThread:</list>		<!--  Weblogic -->
+    <list>WebContainer :</list>		<!--  Websphere -->
   </workerThread>
   <workingThread status="java.lang.Thread.State:">
     <list>javax.servlet.http.HttpServlet.service(</list>	<!-- Servlet standard -->
@@ -35,20 +36,30 @@
 	<list>.doFilter(</list>		<!-- Servlet Filter -->
   </service>
   <sql>
-    <list>devonframework.persistent.autodao.LCommonDao.</list>			<!-- devonframework -->
+  	<list>PreparedStatement.</list>										<!-- Jdbc -->
+  	<list>CallableStatement.</list>
+  	<list>ResultSet.</list>
+  	<list>ConnectionPool.</list>
+  	<list>.jdbc.</list>
+    <list>devonframework.persistent.autodao.LCommonDao.</list>			<!-- Devonframework -->
     <list>com.innoexpert.innorulesj.engine.dr.a.processSQL</list>		<!-- InnoRule -->
     <list>org.hibernate.transaction.JDBCTransaction.</list>				<!-- hibernate-->
     <list>org.hibernate.impl.QueryImpl.</list>							<!-- hibernate-->
     <list>org.springframework.orm.ibatis.SqlMapClientTemplate.</list>	<!-- Mybatis -->
     <list>.SqlSessionTemplate.</list>									<!-- Springframework batch -->
     <list>.DelegatingStatement.executeBatch</list>
+    <list>fw.persistent.autodao.CommonDao.</list>
   </sql>
   <log>
+  	<list>java.util.logging.</list>								<!-- common -->
+    <list>System.out.</list>
+    <list>System.err.</list>
     <list>org.apache.commons.logging.impl.Log4JLogger</list>	<!-- apache Log4J -->
+	<list>org.apache.logging.log4j</list>
     <list>devon.core.log.LLogger</list>							<!-- devonframework -->
   </log>
   <excludeStack>
-    <list>java.lang.reflect</list>
+    <list>java.lang.reflect</list>		<!-- Reflection invoke -->
     <list>sun.reflect.</list>
     <list>$Proxy</list>
     <list>oracle.jdbc.driver.T4</list>	<!-- Oracle -->
@@ -58,7 +69,7 @@
   <singleStack>
     <list>$Proxy</list>
     <list>sun.reflect.GeneratedMethodAccessor</list>
-    <list>- waiting</list>
+    <list>- waiting</list>				<!-- lock -->
 	<list>- locked</list>
   </singleStack>
   <analyze>

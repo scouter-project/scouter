@@ -552,6 +552,7 @@ public abstract class StackParser {
         boolean isSql = false;
         String line = null;
         String requestLine = null;
+        String sqlLine = null;
         String logLine = null;
 
         boolean isServiceExclude = m_config.isServiceExclude();
@@ -566,31 +567,35 @@ public abstract class StackParser {
             int workingSize = workingList.size();
             for ( int i = 0; i < workingSize; i++ ) {           	
                 line = (String)workingList.get(i);
+
+                m_workingThread_writer.write(line);
+                m_workingThread_writer.write("\n");
                 
 		    	//Thread status count
-	    		if(i < stackStartLine  && threadStatusLength > 0){
-	    			int tIndex = line.indexOf(threadStatus);
-	    			if(tIndex >= 0){
-	    				tsInfo.checkStatusCount(m_threadStatusList, tIndex + threadStatusLength, line);
+	    		if(i < stackStartLine){
+	    			if(threadStatusLength > 0){
+		    			int tIndex = line.indexOf(threadStatus);
+		    			if(tIndex >= 0){
+		    				tsInfo.checkStatusCount(m_threadStatusList, tIndex + threadStatusLength, line);
+		    			}
 	    			}
+	    			continue;
 				}
 	    		
                 if ( i == stackStartLine ) {
                     m_topList.add(line);
                 }
 
-                m_workingThread_writer.write(line);
-                m_workingThread_writer.write("\n");
-
-                if ( StringUtils.isLockStack(line) )
+                if ( StringUtils.isLockStack(line)){
                     continue;
-
+                }
+                
                 // SQL
                 if ( StringUtils.checkExist(line, m_sql) ) {
                     isSql = true;
                 } else if ( isSql ) {
                     isSql = false;
-                    m_sqlList.add(line);
+                    sqlLine = line;
                 }
 
                 if (!isServiceExclude && StringUtils.checkExist(line, m_service) )
@@ -601,7 +606,6 @@ public abstract class StackParser {
                 }
             }
             m_workingThread_writer.write("\n");
-            
             
             if ( requestLine == null ) {
                 if ( workingList.size() > stackStartLine ) {
@@ -618,8 +622,12 @@ public abstract class StackParser {
                 m_serviceList.add(requestLine);
             }
             
-            if ( logLine != null ) {
+            if(logLine != null ) {
                 m_logList.add(logLine);
+            }
+            
+            if(sqlLine != null) {
+            	m_sqlList.add(sqlLine);
             }
             
             // unique Stack
