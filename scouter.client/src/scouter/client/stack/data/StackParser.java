@@ -210,18 +210,30 @@ public abstract class StackParser {
         }
 
         if ( m_filter != null ) {
-            String stackFilename = m_stackFile.getFilename();
-            String ext = new StringBuilder(20).append('_').append(WORKINGTHREAD_EXT).append('.').append(EXTENSION).toString();
-            int index = stackFilename.indexOf(ext);
-            if ( index > 0 ) {
-                stackFilename = new StringBuilder(200).append(stackFilename.substring(0, index)).append('.').append(m_filter).toString();
-                m_stackFile.setFilename(stackFilename);
+            String stackFilename = getNewFilterFilename();
+            if(stackFilename != null){
+            	m_stackFile.setFilename(stackFilename);            	
             }
         }
 
         saveAll();
         clearAll();
         m_stackFile = null;
+    }
+    
+    private String getNewFilterFilename(){
+        String stackFilename = m_stackFile.getFilename();
+        String ext = new StringBuilder(20).append('_').append(WORKINGTHREAD_EXT).append('.').append(EXTENSION).toString();
+        int index = stackFilename.indexOf(ext);
+        if ( index > 0 ) {
+        	if(this instanceof FilterExcludeStackParser){
+        		stackFilename = new StringBuilder(200).append(stackFilename.substring(0, index)).append(".(E)").append(m_filter).toString();
+        	}else{
+        		stackFilename = new StringBuilder(200).append(stackFilename.substring(0, index)).append(".(I)").append(m_filter).toString();
+        	}
+        	return stackFilename;
+        }
+        return null;
     }
 
     protected void clearAll() {
@@ -296,12 +308,7 @@ public abstract class StackParser {
     public String getWorkingThreadFilename() {
         String filename = null;
         if ( m_filter != null ) {
-            String stackFilename = m_stackFile.getFilename();
-            String ext = new StringBuilder(20).append('_').append(WORKINGTHREAD_EXT).append('.').append(EXTENSION).toString();
-            int index = stackFilename.indexOf(ext);
-            if ( index > 0 ) {
-                filename = new StringBuilder(200).append(stackFilename.substring(0, index)).append('.').append(m_filter).toString();
-            }
+            filename = getNewFilterFilename();
         } else {
             filename = m_stackFile.getFilename();
         }

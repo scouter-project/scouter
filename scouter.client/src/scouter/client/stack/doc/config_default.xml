@@ -47,7 +47,7 @@
 	<list>- locked</list>
   </singleStack>
   <analyze>
-    <analyzeStack name="HTTP Interface" extension="HTP" filter="each" reader="first">
+    <analyzeStack name="HTTP Interface" extension="HTP" filter="each" reader="last">
 		<list>.HttpClient.</list>
     </analyzeStack>
     <analyzeStack name="Classloader" extension="CLS" filter="each" reader="next">
