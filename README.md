@@ -5,7 +5,7 @@ APM means application performance monitoring or application performance manageme
    - Opensource WAS - Tomcat, JBoss, Resin ...  
    - Opensource DB - MariaDB(on closed beta testing now)
 
- - Monitoring target (hopeful with every contributors)
+ - Monitoring target (hopeful with every contributor)
    - Nodejs, Redis, MongoDB, PostgreSQL, Apach HTTPD, nginX, php ...
 
 ![Screen](https://github.com/scouter-project/scouter-help/blob/master/misc/screen/dash1.png)
