@@ -28,6 +28,7 @@ import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.ApiCallTracePlugin;
 import scouter.agent.plugin.HttpServiceTracePlugIn;
+import scouter.agent.summary.ServiceSummary;
 import scouter.io.DataOutputX;
 import scouter.lang.AlertLevel;
 import scouter.lang.step.ApiCallStep;
@@ -160,6 +161,7 @@ public class TraceApiCall {
 				}
 
 			}
+			ServiceSummary.getInstance().process(step);
 			tctx.profile.pop(step);
 		} catch (Throwable t) {
 			t.printStackTrace();

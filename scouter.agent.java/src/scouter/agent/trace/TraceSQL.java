@@ -22,8 +22,9 @@ import java.sql.Connection;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
+import scouter.agent.summary.ServiceSummary;
 import scouter.jdbc.DetectConnection;
-import scouter.jdbc.JdbcTrace;
+import scouter.jdbc.WrConnection;
 import scouter.lang.AlertLevel;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
@@ -263,6 +264,7 @@ public class TraceSQL {
 		tctx.sqlCount++;
 		tctx.sqlTime += ps.elapsed;
 
+		ServiceSummary.getInstance().process(ps);
 		tctx.profile.pop(ps);
 	}
 
@@ -447,30 +449,17 @@ public class TraceSQL {
 
 	}
 
-	/**
-	 * JDBC Wrapper is only available for the DB2 Driver
-	 * 
-	 * @param url
-	 *            : JDBC Connection URL
-	 * @return - trace object
-	 */
-	public static Object startCreateDBC(String url) {
-		String name = "CREATE-DBC " + url;
-		int hash = DataProxy.sendMethodName(name);
-		return TraceSQL.dbcOpenStart(hash, name, null);
-	}
-
-	public static Connection endCreateDBC(Connection conn, Object stat) {
-		if (conn == null) {
-			conn = TraceSQL.dbcOpenEnd(conn, stat);
+	public static Connection driverConnect(Connection conn, String url) {
+		if(conn==null)
 			return conn;
-		}
-		conn = TraceSQL.dbcOpenEnd(conn, stat);
-		return JdbcTrace.connect(conn);
+		if(conf.enable_dbc_wrapper==false)
+			return conn;
+		if(conn instanceof WrConnection)
+			return conn;
+		return new WrConnection(conn);
 	}
-
-	public static void endCreateDBC(Object stat, Throwable thr) {
-		TraceSQL.dbcOpenEnd(stat, thr);
+	public static void driverConnect(String url, Throwable thr) {
+		AlertProxy.sendAlert(AlertLevel.ERROR, "CONNECT", url + " " + thr);
 	}
 
 	public static Object dbcOpenStart(int hash, String msg, Object pool) {

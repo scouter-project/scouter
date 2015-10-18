@@ -21,10 +21,10 @@ import java.sql.SQLException;
 
 import scouter.agent.trace.TraceSQL;
 
-public class ScouterStatement implements java.sql.Statement {
+public class WrStatement implements java.sql.Statement {
 	java.sql.Statement inner;
 
-	public ScouterStatement(java.sql.Statement inner) {
+	public WrStatement(java.sql.Statement inner) {
 		this.inner = inner;
 	}
 
@@ -102,7 +102,7 @@ public class ScouterStatement implements java.sql.Statement {
 		try {
 			ResultSet rs = this.inner.executeQuery(a0);
 			TraceSQL.end(stat, null);
-			return new ScouterResultSet(rs);
+			return new WrResultSet(rs);
 		} catch (SQLException ex) {
 			TraceSQL.end(stat, ex);
 			throw ex;
@@ -218,7 +218,7 @@ public class ScouterStatement implements java.sql.Statement {
 
 	final public java.sql.ResultSet getResultSet() throws java.sql.SQLException {
 		ResultSet rs =  this.inner.getResultSet();
-		return new ScouterResultSet(rs);
+		return new WrResultSet(rs);
 	}
 
 	final public int getUpdateCount() throws java.sql.SQLException {

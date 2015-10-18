@@ -80,11 +80,11 @@ import scouter.client.util.MenuUtil;
 import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.views.ScouterViewPart;
+import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.Value;
 import scouter.lang.value.ValueEnum;
-import scouter.io.DataInputX;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
@@ -278,7 +278,6 @@ public class CounterRealTimeAllView extends ScouterViewPart implements Refreshab
 		
 		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter);
 		ObjectSelectManager.getInstance().addObjectCheckStateListener(this);
-
 		thread = new RefreshThread(this, 2000);
 		thread.setName(this.toString() + " - " + "objType:" + objType + ", counter:" + counter + ", serverId:" + serverId);
 		thread.start();

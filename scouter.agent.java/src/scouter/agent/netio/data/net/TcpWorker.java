@@ -94,19 +94,28 @@ public class TcpWorker implements Runnable {
 	}
 
 	private void processV2(Socket socket) throws IOException {
+
 		DataInputX in = null;
 		DataOutputX out = null;
+		Configure conf = Configure.getInstance();
+
 		try {
 			in = new DataInputX(new BufferedInputStream(socket.getInputStream()));
 			out = new DataOutputX(new BufferedOutputStream(socket.getOutputStream()));
+
+			String server_addr = conf.server_addr;
+			int port = conf.server_tcp_port;
 
 			out.writeInt(NetCafe.TCP_AGENT_V2);
 			out.writeInt(objHash);
 			out.flush();
 
-			while (objHash == Configure.getInstance().objHash) {
-				byte[] buff = in.readIntBytes();
+			//에이전트 이름, 서버 주소포트가 같은 동안만 세션을 유지하라.
+			while (objHash == Configure.getInstance().objHash && server_addr.equals(conf.server_addr)
+					&& port == conf.server_tcp_port) {
 				
+				byte[] buff = in.readIntBytes();
+
 				DataInputX in2 = new DataInputX(buff);
 				String cmd = in2.readText();
 				Pack parameter = (Pack) in2.readPack();
@@ -114,7 +123,7 @@ public class TcpWorker implements Runnable {
 				Pack res = ReqestHandlingProxy.process(cmd, parameter, in, out);
 				if (res != null) {
 					out.writeByte(TcpFlag.HasNEXT);
-					
+
 					byte[] obuff = new DataOutputX().writePack(res).toByteArray();
 					out.writeIntBytes(obuff);
 				}

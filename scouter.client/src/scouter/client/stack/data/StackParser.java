@@ -210,18 +210,30 @@ public abstract class StackParser {
         }
 
         if ( m_filter != null ) {
-            String stackFilename = m_stackFile.getFilename();
-            String ext = new StringBuilder(20).append('_').append(WORKINGTHREAD_EXT).append('.').append(EXTENSION).toString();
-            int index = stackFilename.indexOf(ext);
-            if ( index > 0 ) {
-                stackFilename = new StringBuilder(200).append(stackFilename.substring(0, index)).append('.').append(m_filter).toString();
-                m_stackFile.setFilename(stackFilename);
+            String stackFilename = getNewFilterFilename();
+            if(stackFilename != null){
+            	m_stackFile.setFilename(stackFilename);            	
             }
         }
 
         saveAll();
         clearAll();
         m_stackFile = null;
+    }
+    
+    private String getNewFilterFilename(){
+        String stackFilename = m_stackFile.getFilename();
+        String ext = new StringBuilder(20).append('_').append(WORKINGTHREAD_EXT).append('.').append(EXTENSION).toString();
+        int index = stackFilename.indexOf(ext);
+        if ( index > 0 ) {
+        	if(this instanceof FilterExcludeStackParser){
+        		stackFilename = new StringBuilder(200).append(stackFilename.substring(0, index)).append(".(E)").append(m_filter).toString();
+        	}else{
+        		stackFilename = new StringBuilder(200).append(stackFilename.substring(0, index)).append(".(I)").append(m_filter).toString();
+        	}
+        	return stackFilename;
+        }
+        return null;
     }
 
     protected void clearAll() {
@@ -296,12 +308,7 @@ public abstract class StackParser {
     public String getWorkingThreadFilename() {
         String filename = null;
         if ( m_filter != null ) {
-            String stackFilename = m_stackFile.getFilename();
-            String ext = new StringBuilder(20).append('_').append(WORKINGTHREAD_EXT).append('.').append(EXTENSION).toString();
-            int index = stackFilename.indexOf(ext);
-            if ( index > 0 ) {
-                filename = new StringBuilder(200).append(stackFilename.substring(0, index)).append('.').append(m_filter).toString();
-            }
+            filename = getNewFilterFilename();
         } else {
             filename = m_stackFile.getFilename();
         }
@@ -545,8 +552,10 @@ public abstract class StackParser {
         boolean isSql = false;
         String line = null;
         String requestLine = null;
+        String sqlLine = null;
         String logLine = null;
 
+        boolean isServiceExclude = m_config.isServiceExclude();
         int stackStartLine = m_config.getStackStartLine();
     	String threadStatus = m_config.getThreadStatus();
     	int threadStatusLength = 0;    	
@@ -558,34 +567,38 @@ public abstract class StackParser {
             int workingSize = workingList.size();
             for ( int i = 0; i < workingSize; i++ ) {           	
                 line = (String)workingList.get(i);
+
+                m_workingThread_writer.write(line);
+                m_workingThread_writer.write("\n");
                 
 		    	//Thread status count
-	    		if(i < stackStartLine  && threadStatusLength > 0){
-	    			int tIndex = line.indexOf(threadStatus);
-	    			if(tIndex >= 0){
-	    				tsInfo.checkStatusCount(m_threadStatusList, tIndex + threadStatusLength, line);
+	    		if(i < stackStartLine){
+	    			if(threadStatusLength > 0){
+		    			int tIndex = line.indexOf(threadStatus);
+		    			if(tIndex >= 0){
+		    				tsInfo.checkStatusCount(m_threadStatusList, tIndex + threadStatusLength, line);
+		    			}
 	    			}
+	    			continue;
 				}
 	    		
                 if ( i == stackStartLine ) {
                     m_topList.add(line);
                 }
 
-                m_workingThread_writer.write(line);
-                m_workingThread_writer.write("\n");
-
-                if ( StringUtils.isLockStack(line) )
+                if ( StringUtils.isLockStack(line)){
                     continue;
-
+                }
+                
                 // SQL
                 if ( StringUtils.checkExist(line, m_sql) ) {
                     isSql = true;
                 } else if ( isSql ) {
                     isSql = false;
-                    m_sqlList.add(line);
+                    sqlLine = line;
                 }
 
-                if ( StringUtils.checkExist(line, m_service) )
+                if (!isServiceExclude && StringUtils.checkExist(line, m_service) )
                     requestLine = line;
 
                 if ( StringUtils.checkExist(line, m_log) ) {
@@ -593,15 +606,28 @@ public abstract class StackParser {
                 }
             }
             m_workingThread_writer.write("\n");
+            
             if ( requestLine == null ) {
                 if ( workingList.size() > stackStartLine ) {
-                    m_serviceList.add(workingList.get(stackStartLine));
+                	if(isServiceExclude){
+                		requestLine = getReqeustLineByAuto(workingList, stackStartLine);
+                	}
                 }
-            } else {
+                if(requestLine == null){
+                	requestLine = workingList.get(stackStartLine);
+                }
+            }
+            
+            if(requestLine != null){
                 m_serviceList.add(requestLine);
             }
-            if ( logLine != null ) {
+            
+            if(logLine != null ) {
                 m_logList.add(logLine);
+            }
+            
+            if(sqlLine != null) {
+            	m_sqlList.add(sqlLine);
             }
             
             // unique Stack
@@ -618,6 +644,21 @@ public abstract class StackParser {
         }
     }
 
+	private String getReqeustLineByAuto(ArrayList<String> workingList, int stackStartLine){
+		String line;
+		int size = workingList.size();
+		for(int i = (size - 1); i >= stackStartLine ;i--){
+			line = workingList.get(i);
+			
+			if( StringUtils.checkExist(line, m_service)){
+				continue;
+			}else{
+				return line;				
+			}
+		}
+		return null;
+	}
+   
     protected void addTime( String time ) {
         m_timeList.add(time);
     }

@@ -206,7 +206,7 @@ public class XMLEditorView extends ViewPart {
 		m_defaultHighlightings.add(new ColoringWord("</log>", SWT.COLOR_BLUE, true));
 		m_defaultHighlightings.add(new ColoringWord("<sql>", SWT.COLOR_BLUE, true));
 		m_defaultHighlightings.add(new ColoringWord("</sql>", SWT.COLOR_BLUE, true));
-		m_defaultHighlightings.add(new ColoringWord("<service>", SWT.COLOR_BLUE, true));
+		m_defaultHighlightings.add(new ColoringWord("<service", SWT.COLOR_BLUE, true));
 		m_defaultHighlightings.add(new ColoringWord("</service>", SWT.COLOR_BLUE, true));
 		m_defaultHighlightings.add(new ColoringWord("<singleStack>", SWT.COLOR_BLUE, true));
 		m_defaultHighlightings.add(new ColoringWord("</singleStack>", SWT.COLOR_BLUE, true));

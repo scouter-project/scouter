@@ -69,6 +69,11 @@ public class LoginMgr{
 					MapValue mv = (MapValue) value;
 					server.setGroupPolicy(mv);
 				}
+				Value menuV = out.get("menu");
+				if (menuV != null) {
+					MapValue mv = (MapValue) menuV;
+					server.setMenuEnableMap(mv);
+				}
 				CounterEngine counterEngine = server.getCounterEngine();
 				MapPack m = getCounterXmlServer(serverId);
 				if (m != null) {
@@ -125,6 +130,11 @@ public class LoginMgr{
 				if (value != null) {
 					MapValue mv = (MapValue) value;
 					server.setGroupPolicy(mv);
+				}
+				Value menuV = out.get("menu");
+				if (menuV != null) {
+					MapValue mv = (MapValue) menuV;
+					server.setMenuEnableMap(mv);
 				}
 				CounterEngine counterEngine = server.getCounterEngine();
 				MapPack m = getCounterXmlServer(server.getId());

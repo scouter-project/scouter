@@ -83,6 +83,8 @@ public class ParserConfigReader extends XMLReader {
 
     private void readDefaultAnalyzer( ParserConfig config ) {
         ArrayList<String> list = null;
+        String value;
+        
         try {
             list = readList("scouter/workerThread");
             config.setWorkerThread(list);
@@ -91,11 +93,18 @@ public class ParserConfigReader extends XMLReader {
         }
 
         try {
-        list = readList("scouter/workingThread");
-        config.setWorkingThread(list);
+	        list = readList("scouter/workingThread");
+	        config.setWorkingThread(list);
         }catch(RuntimeException ex){
         	throw ex;
         }
+        
+        try {
+        	value = getAttribute("scouter/service", "type");
+        	if("exclude".equalsIgnoreCase(value)){
+        		config.setServiceExclude(true);
+        	}
+        }catch(Exception ex){}
         
         try {
             list = readList("scouter/service");

@@ -81,7 +81,7 @@ object AgentManager {
         if (p.objHash == 0) {
             p.objHash = HashUtil.hash(p.objName);
         }
-        PlugInManager.plugObject(p);
+        PlugInManager.active(p);
         var objPack = objMap.getObject(p.objHash);
         if (objPack == null) {
             objPack = p;
@@ -116,6 +116,8 @@ object AgentManager {
                 if (objPack.updated % 20 == 0) {
                     alertTooManyChange(objPack);
                 }
+                
+                objMap.put(objPack);
                 procObjName(objPack);
                 ObjectWR.add(objPack);
                 Logger.println("S105", "Update " + objPack);

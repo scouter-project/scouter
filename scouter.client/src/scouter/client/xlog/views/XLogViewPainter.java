@@ -98,12 +98,16 @@ public class XLogViewPainter {
 		if (this.endTime <= 0)
 			this.endTime = 0;
 	}
-
+	
 	public void setTimeRange(long range) {
 //		if (range < DateUtil.MILLIS_PER_MINUTE) {
 //			range = DateUtil.MILLIS_PER_MINUTE;
 //		}
 		this.originalRange = this.xTimeRange = range;
+	}
+	
+	public long getTimeRange() {
+		return this.xTimeRange;
 	}
 	
 	public void setValueRange(double minValue, double maxValue) {
@@ -154,6 +158,11 @@ public class XLogViewPainter {
 	}
 	
 	int chart_x;
+	long paintedEndTime;
+	
+	public long getLastTime() {
+		return paintedEndTime;
+	}
 
 	private void draw(GC gc, int work_w, int work_h) {
 		if (area == null)
@@ -176,6 +185,8 @@ public class XLogViewPainter {
 			time_end = zoomEndtime + moveWidth;
 			time_start = time_end - xTimeRange;
 		}
+		
+		paintedEndTime = time_end;
 
 		gc.setForeground(color_black);
 		if (filter_hash != new XLogFilterStatus().hashCode()) {

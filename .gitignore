@@ -22,3 +22,10 @@ scouter.agent.java/.settings/*
 scouter.enduser.script/.idea/*
 scouter.enduser.script/.settings/*
 node_modules/ 
+scouter.enduser.script/.externalToolBuilders/
+scouter.server/*.scouter
+scouter.server/conf/account.xml
+scouter.server/conf/account_group.xml
+scouter.server/database/
+scouter.client.product/plugin_customization.ini
+scouter.client/plugin_customization.ini

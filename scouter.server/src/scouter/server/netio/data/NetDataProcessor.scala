@@ -17,7 +17,6 @@
 package scouter.server.netio.data
 
 import java.net.InetAddress
-
 import scouter.io.DataInputX
 import scouter.lang.TextTypes
 import scouter.lang.pack.AlertPack
@@ -46,6 +45,9 @@ import scouter.server.util.ThreadScala
 import scouter.util.BytesUtil
 import scouter.util.RequestQueue
 import scouter.util.StringUtil
+import tuna.server.core.SummaryCore
+import scouter.lang.pack.SummaryPack
+import scouter.lang.pack.SummaryPack
 object NetDataProcessor {
     class NetData(_data: Array[Byte], _addr: InetAddress) {
         val addr = _addr
@@ -182,6 +184,11 @@ object NetDataProcessor {
                 StackAnalyzerCore.add(p.asInstanceOf[StackPack])
                 if (conf.debug_udp_stack) {
                     System.out.println("DEBUG UDP STACK: " + p)
+                }
+             case PackEnum.SUMMARY =>
+                SummaryCore.add(p.asInstanceOf[SummaryPack])
+                if (conf.debug_udp_summary) {
+                    System.out.println("DEBUG UDP SUMMARY: " + p)
                 }
             case _ =>
                 System.out.println(p)

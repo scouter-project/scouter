@@ -21,10 +21,10 @@ import java.util.Map;
 
 import scouter.agent.trace.TraceSQL;
 
-public class ScouterResultSet implements java.sql.ResultSet {
+public class WrResultSet implements java.sql.ResultSet {
 	java.sql.ResultSet inner;
 
-	public ScouterResultSet(java.sql.ResultSet inner) {
+	public WrResultSet(java.sql.ResultSet inner) {
 		this.inner = inner;
 	}
 

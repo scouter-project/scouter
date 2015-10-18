@@ -13,15 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
+package scouter.agent.summary;
 
-package scouter.jdbc;
-
-import java.sql.Connection;
-
-public class JdbcTrace  {
-
-	public static Connection connect(Connection inner) {
-		return new ScouterConnection(inner);
-	}
-
+public class SummaryData {
+	public int count;
+	public int error_cnt;
+	public long elapsed;
+	public long cpu;
+	public long mem;
 }

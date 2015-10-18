@@ -14,8 +14,8 @@
  *  limitations under the License. 
  */
 package scouter.agent.asm;
-import java.util.HashMap;
 import java.util.Map;
+
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -28,15 +28,17 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+
 public class JDBCDriverASM implements IASM, Opcodes {
-	private Map<String, MethodSet> reserved = new HashMap<String, MethodSet>();
+	//user can define driver.connect()
+	private Map<String, MethodSet> reserved =MethodSet.getHookingSet(Configure.getInstance().hook_dbc_wrapper);
 	public JDBCDriverASM() {
 		AsmUtil.add(reserved, "com/ibm/db2/jcc/DB2Driver",	"connect(Ljava/lang/String;Ljava/util/Properties;)Ljava/sql/Connection;");
 	}
 	public boolean isTarget(String className) {
 		MethodSet mset = reserved.get(className);
 		if (mset != null){
-			return false;
+			return true;
 		}
 		return false;
 	}
@@ -77,11 +79,9 @@ class JDBCDriverCV extends ClassVisitor implements Opcodes {
 // ///////////////////////////////////////////////////////////////////////////
 class JDBCDriverMV extends LocalVariablesSorter implements Opcodes {
 	private static final String TRACE_SQL = TraceSQL.class.getName().replace('.', '/');
-	private final static String START_METHOD = "startCreateDBC";
-	private static final String START_SIGNATURE = "(Ljava/lang/String;)Ljava/lang/Object;";
-	private final static String END_METHOD = "endCreateDBC";
-	private static final String END_SIGNATURE = "(Ljava/sql/Connection;Ljava/lang/Object;)Ljava/sql/Connection;";
-	private static final String ERR_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;)V";
+	private final static String CONNECT_METHOD = "driverConnect";
+	private static final String CONNECT_SIGNATURE = "(Ljava/sql/Connection;Ljava/lang/String;)Ljava/sql/Connection;";
+	private static final String ERR_SIGNATURE = "(Ljava/lang/String;Ljava/lang/Throwable;)V";
 	
 	private Label startFinally = new Label();
 	private Type returnType;
@@ -93,23 +93,18 @@ class JDBCDriverMV extends LocalVariablesSorter implements Opcodes {
 		this.returnType = Type.getReturnType(desc);
 	}
 	private String fullname;
-	private int statIdx;
 	private int strArgIdx;
 	private boolean isStatic;
 	@Override
 	public void visitCode() {
-		mv.visitVarInsn(Opcodes.ALOAD, strArgIdx);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, START_METHOD, START_SIGNATURE,false);
-		statIdx = newLocal(Type.getType(Object.class));
-		mv.visitVarInsn(Opcodes.ASTORE, statIdx);
 		mv.visitLabel(startFinally);
 		mv.visitCode();
 	}
 	@Override
 	public void visitInsn(int opcode) {
 		if ((opcode >= IRETURN && opcode <= RETURN)) {
-			mv.visitVarInsn(Opcodes.ALOAD, statIdx);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, END_METHOD, END_SIGNATURE,false);
+			mv.visitVarInsn(Opcodes.ALOAD, strArgIdx);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, CONNECT_METHOD, CONNECT_SIGNATURE,false);
 		}
 		mv.visitInsn(opcode);
 	}
@@ -122,9 +117,9 @@ class JDBCDriverMV extends LocalVariablesSorter implements Opcodes {
 		
 		int errIdx = newLocal(Type.getType(Throwable.class));
 		mv.visitVarInsn(Opcodes.ASTORE, errIdx);
-		mv.visitVarInsn(Opcodes.ALOAD, statIdx);
+		mv.visitVarInsn(Opcodes.ALOAD, strArgIdx);
 		mv.visitVarInsn(Opcodes.ALOAD, errIdx);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, END_METHOD, ERR_SIGNATURE,false);
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE_SQL, CONNECT_METHOD, ERR_SIGNATURE,false);
 		mv.visitInsn(ATHROW);
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
 	}

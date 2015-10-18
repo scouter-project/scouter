@@ -397,9 +397,10 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 							counterActions.put(serverId, counterActionsMap);
 						}
 						addExistObjectTypeMenus(win, mgr, counterEngine, counterActionsMap, serverId);
-						
-						mgr.add(new Separator());
-						mgr.add(new OpenTagCountViewAction(win, serverId));
+						if (server.isEnableMenu("tag_count")) {
+							mgr.add(new Separator());
+							mgr.add(new OpenTagCountViewAction(win, serverId));
+						}
 						mgr.add(new Separator());
 						if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
 							mgr.add(new OpenServerConfigureAction(win, MenuStr.CONFIGURE, Images.config, serverId));

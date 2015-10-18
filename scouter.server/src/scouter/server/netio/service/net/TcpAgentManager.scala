@@ -29,14 +29,14 @@ object TcpAgentManager {
     ThreadScala.startDaemon("scouter.server.netio.service.net.TcpAgentManager", { true }, 5000) {
         val keys = agentTable.keyArray()
         for (k <- keys) {
-            val agentSessions = agentTable.get(k)
-            if (agentSessions != null) {
+            val sessions = agentTable.get(k)
+            if (sessions != null) {
                 pool.execute(new Runnable() {
                     override def run() {
                         breakable {
-                            val cnt = agentSessions.size()
+                            val cnt = sessions.size()
                             for (k <- 0 to cnt) {
-                                val item = agentSessions.getNoWait()
+                                val item = sessions.getNoWait()
                                 if (item == null) {
                                     break
                                 }
@@ -44,7 +44,7 @@ object TcpAgentManager {
                                     item.sendKeepAlive(3000)
                                 }
                                 if (item.isClosed() == false) {
-                                    agentSessions.put(item)
+                                    sessions.put(item)
                                 }
                             }
                         }
@@ -56,17 +56,17 @@ object TcpAgentManager {
     val conf = Configure.getInstance()
     def add(objHash: Int, agent: TcpAgentWorker): Int = {
         agentTable.synchronized {
-            var session = agentTable.get(objHash)
-            if (session == null) {
-                session = new RequestQueue[TcpAgentWorker](50);
-                agentTable.put(objHash, session)
+            var sessions = agentTable.get(objHash)
+            if (sessions == null) {
+                sessions = new RequestQueue[TcpAgentWorker](50);
+                agentTable.put(objHash, sessions)
             }
-            session.put(agent);
-            return session.size()
+            sessions.put(agent);
+            return sessions.size()
         }
     }
     def get(objHash: Int): TcpAgentWorker = {
-        var session = agentTable.get(objHash)
-        return if (session != null) session.get(conf.tcp_agent_max_wait) else null
+        var sessions = agentTable.get(objHash)
+        return if (sessions != null) sessions.get(conf.tcp_agent_max_wait) else null
     }
 }

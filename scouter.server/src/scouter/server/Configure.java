@@ -149,7 +149,7 @@ public class Configure extends Thread {
 	public int udp_buffer = 65535;
 	public int udp_so_rcvbuf = 1024 * 1024 * 4;
 	public boolean debug_udp_multipacket;
-	public boolean debug_expired_multipacket;
+	public boolean debug_expired_multipacket = true;
 
 	public boolean debug_udp_packet = false;
 	public boolean debug_udp_counter = false;
@@ -160,6 +160,7 @@ public class Configure extends Thread {
 	public boolean debug_udp_object = false;
 	public boolean debug_udp_status = false;
 	public boolean debug_udp_stack = false;
+	public boolean debug_udp_summary = false;
 	public boolean debug_request;
 
 	public boolean auto_5m_sampling = true;
@@ -184,9 +185,10 @@ public class Configure extends Thread {
 	public boolean enable_sql_parsing = true;
 
 	public StringSet log_ignore = new StringSet();
-	public boolean tagcnt_enabled = true;
+	public boolean tagcnt_enabled = false;
 	
-	public int tcp_server_pool_size = 100;
+	public int tcp_server_pool_size = 500;
+	public boolean enable_alert_summary=false;
 	
 	public static boolean WORKABLE = true; 
 
@@ -233,6 +235,7 @@ public class Configure extends Thread {
 		this.debug_udp_object = getBoolean("debug_udp_object", false);
 		this.debug_udp_status = getBoolean("debug_udp_status", false);
 		this.debug_udp_stack = getBoolean("debug_udp_stack", false);
+		this.debug_udp_summary = getBoolean("debug_udp_summary", false);
 		this.debug_request = getBoolean("debug_request", false);
 
 		this.auto_5m_sampling = getBoolean("auto_5m_sampling", true);
@@ -256,10 +259,11 @@ public class Configure extends Thread {
 
 		this.log_ignore = getStringSet("log_ignore", ",");
 
-		this.tagcnt_enabled = getBoolean("tagcnt_enabled", true);
+		this.tagcnt_enabled = getBoolean("tagcnt_enabled", false);
 		
 		this.tcp_server_pool_size = getInt("tcp_server_pool_size", 100);
-
+		this.enable_alert_summary=  getBoolean("enable_alert_summary", false);
+		
 		ConfObserver.exec();
 	}
 
