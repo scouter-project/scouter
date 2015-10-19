@@ -29,12 +29,11 @@ import org.eclipse.swt.widgets.Display;
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
 import scouter.client.util.ExUtil;
+import scouter.client.util.SortedTopN;
+import scouter.client.util.SortedTopN.DIRECTION;
 import scouter.util.DateUtil;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
-import scouter.util.Order;
-import scouter.util.OrderUtil;
-import scouter.util.TopN;
 
 public class XLogSummaryRefererDialog extends XLogSummaryAbstractDialog{
 	
@@ -80,18 +79,14 @@ public class XLogSummaryRefererDialog extends XLogSummaryAbstractDialog{
 				for (Integer serverId : loadTextMap.keySet()) {
 					TextProxy.referer.load(DateUtil.yyyymmdd(etime), loadTextMap.get(serverId), serverId);
 				}
-				final TopN<SummaryObject> tn = new TopN<SummaryObject>(10000) {
-					public Order order(SummaryObject o1, SummaryObject o2) {
-						return OrderUtil.desc(o1.count, o2.count);
-					}
-				};
-				for (SummaryObject so : summaryMap.values()) {
-					tn.add(so);
+				final SortedTopN<RefererSummary> stn = new SortedTopN<RefererSummary>(10000, DIRECTION.DESC);
+				for (RefererSummary so : summaryMap.values()) {
+					stn.add(so);
 				}
 				ExUtil.exec(viewer.getTable(), new Runnable() {
 					public void run() {
-						rangeLabel.setText(DateUtil.format(stime, "yyyy-MM-dd HH:mm:ss") + " ~ " + DateUtil.format(etime, "HH:mm:ss") + " (" + tn.size() +")");
-						viewer.setInput(tn.getList());
+						rangeLabel.setText(DateUtil.format(stime, "yyyy-MM-dd HH:mm:ss") + " ~ " + DateUtil.format(etime, "HH:mm:ss") + " (" + stn.size() +")");
+						viewer.setInput(stn.getList());
 					}
 				});
 			}
@@ -99,10 +94,13 @@ public class XLogSummaryRefererDialog extends XLogSummaryAbstractDialog{
 	}
 	
 	
-	private static class RefererSummary extends SummaryObject {
+	private static class RefererSummary extends SummaryObject implements Comparable<RefererSummary>{
 		int hash;
 		RefererSummary(int hash) {
 			this.hash = hash;
+		}
+		public int compareTo(RefererSummary o) {
+			return this.count - o.count;
 		}
 	}
 

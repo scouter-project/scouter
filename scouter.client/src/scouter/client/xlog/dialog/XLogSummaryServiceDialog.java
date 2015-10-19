@@ -29,12 +29,11 @@ import org.eclipse.swt.widgets.Display;
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
 import scouter.client.util.ExUtil;
+import scouter.client.util.SortedTopN;
+import scouter.client.util.SortedTopN.DIRECTION;
 import scouter.util.DateUtil;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
-import scouter.util.Order;
-import scouter.util.OrderUtil;
-import scouter.util.TopN;
 
 public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
 	
@@ -80,19 +79,15 @@ public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
 				for (Integer serverId : loadTextMap.keySet()) {
 					TextProxy.service.load(DateUtil.yyyymmdd(etime), loadTextMap.get(serverId), serverId);
 				}
-				final TopN<SummaryObject> tn = new TopN<SummaryObject>(10000) {
-					public Order order(SummaryObject o1, SummaryObject o2) {
-						return OrderUtil.desc(o1.count, o2.count);
-					}
-				};
-				for (SummaryObject so : summaryMap.values()) {
-					tn.add(so);
+				final SortedTopN<ServiceSummary> stn = new SortedTopN<ServiceSummary>(10000, DIRECTION.DESC);
+				for (ServiceSummary so : summaryMap.values()) {
+					stn.add(so);
 				}
 				
 				ExUtil.exec(viewer.getTable(), new Runnable() {
 					public void run() {
-						rangeLabel.setText(DateUtil.format(stime, "yyyy-MM-dd HH:mm:ss") + " ~ " + DateUtil.format(etime, "HH:mm:ss") + " (" + tn.size() +")");
-						viewer.setInput(tn.getList());
+						rangeLabel.setText(DateUtil.format(stime, "yyyy-MM-dd HH:mm:ss") + " ~ " + DateUtil.format(etime, "HH:mm:ss") + " (" + stn.size() +")");
+						viewer.setInput(stn.getList());
 					}
 				});
 			}
@@ -100,10 +95,13 @@ public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
 	}
 	
 	
-	private static class ServiceSummary extends SummaryObject {
+	private static class ServiceSummary extends SummaryObject implements Comparable<ServiceSummary>{
 		int hash;
 		ServiceSummary(int hash) {
 			this.hash = hash;
+		}
+		public int compareTo(ServiceSummary o) {
+			return this.count - o.count;
 		}
 	}
 
