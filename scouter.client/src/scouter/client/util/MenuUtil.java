@@ -72,6 +72,7 @@ import scouter.client.counter.actions.OpenRealTimeAllAction;
 import scouter.client.counter.actions.OpenRealTimeMultiAction;
 import scouter.client.counter.actions.OpenRealTimeTotalAction;
 import scouter.client.counter.actions.OpenRealTimeViewAction;
+import scouter.client.counter.actions.OpenSummaryAction;
 import scouter.client.counter.actions.OpenTodayAllAction;
 import scouter.client.counter.actions.OpenTodayServiceCountAction;
 import scouter.client.counter.actions.OpenTodayTotalAction;
@@ -376,6 +377,7 @@ public class MenuUtil implements IMenuCreator{
     	if(counterEngine.isChildOf(objType, CounterConstants.FAMILY_JAVAEE)) {
     		performanceCounter.add(new Separator());
     		performanceCounter.add(new OpenUniqueVisitorAction(win, serverId, objHash));
+    		performanceCounter.add(new OpenSummaryAction(win, serverId, objHash));
     	} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_MARIA)) {
     		performanceCounter.add(new Separator());
     		performanceCounter.add(new OpenRealTimeMultiAction(win, "Opened Tables", serverId, objHash, objType
