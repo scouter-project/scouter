@@ -31,6 +31,7 @@ public class SummaryPack implements Pack {
 
 	public long time;
 	public int objHash;
+	public String objType;
 	public byte stype;
     public MapValue table = new MapValue();
 
@@ -39,8 +40,9 @@ public class SummaryPack implements Pack {
 		sb.append("Summary ");
 		sb.append(DateUtil.timestamp(time));
 		sb.append(" objHash=").append(Hexa32.toString32(objHash));
+		sb.append(" objType=").append(objType);
 		sb.append(" stype=").append(stype);
-				sb.append(" " + table.keySet());
+		sb.append(" " + table.keySet());
 		
 		return sb.toString();
 	}
@@ -52,20 +54,17 @@ public class SummaryPack implements Pack {
 	public void write(DataOutputX o) throws IOException {
 		o.writeDecimal(time);
 		o.writeInt(objHash);
+		o.writeText(objType);
 		o.writeByte(stype);
-		
 		o.writeValue(table);
-
 	}
 
 	public Pack read(DataInputX n) throws IOException {
-
 		this.time = n.readDecimal();
 		this.objHash = n.readInt();
+		this.objType = n.readText();
 		this.stype = n.readByte();
-
 		this.table=(MapValue)n.readValue();
-	
 
 		return this;
 	}

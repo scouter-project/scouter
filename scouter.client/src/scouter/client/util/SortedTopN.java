@@ -19,6 +19,7 @@ package scouter.client.util;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 public class SortedTopN<V extends Comparable<V>> {
 	
@@ -112,9 +113,15 @@ public class SortedTopN<V extends Comparable<V>> {
 
 	public static void main(String[] args) {
 		long stime = System.currentTimeMillis();
+		SortedTopN<Integer> list = new SortedTopN<Integer>(1000, SortedTopN.DIRECTION.DESC);
+		Random r = new Random();
+		r.setSeed(System.currentTimeMillis());
+		for (int i = 0; i < 100000; i++) {
+			list.add(new Integer(r.nextInt(100000)));
+		}
+		System.out.println(list.size() + " : " + list.getList());
 		long etime = System.currentTimeMillis();
 		System.out.println((etime - stime) + " ms");
-		System.out.println();
 
 	}
 }

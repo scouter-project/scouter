@@ -206,6 +206,7 @@ public class DataProxy {
 	}
 	public static void send(SummaryPack p) {
 		p.objHash = conf.objHash;
+		p.objType = conf.scouter_type;
 		sendDirect(p);
 	}
 	static DataUdpAgent udpNet = DataUdpAgent.getInstance();
