@@ -56,10 +56,10 @@ object XLogWR {
                     }
                     Logger.println("S143", 10, "can't open ");
                 } else {
-                    val pos = writer.write(m.data);
-                    index.setByTime(m.time, pos);
-                    index.setByTxid(m.txid, pos);
-                    index.setByGxid(m.gxid, pos);
+                    val location = writer.write(m.data);
+                    index.setByTime(m.time, location);
+                    index.setByTxid(m.txid, location);
+                    index.setByGxid(m.gxid, location);
                 }
             } catch {
                 case t: Throwable => t.printStackTrace()

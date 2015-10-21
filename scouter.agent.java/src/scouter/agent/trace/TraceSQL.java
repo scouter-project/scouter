@@ -450,16 +450,42 @@ public class TraceSQL {
 	}
 
 	public static Connection driverConnect(Connection conn, String url) {
-		if(conn==null)
+		if (conn == null)
 			return conn;
-		if(conf.enable_dbc_wrapper==false)
+		if (conf.enable_dbc_wrapper == false)
 			return conn;
-		if(conn instanceof WrConnection)
+		if (conn instanceof WrConnection)
 			return conn;
 		return new WrConnection(conn);
 	}
+
 	public static void driverConnect(String url, Throwable thr) {
 		AlertProxy.sendAlert(AlertLevel.ERROR, "CONNECT", url + " " + thr);
+	}
+
+	public static void userTxOpen() {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null)
+			return;
+
+		ctx.userTransaction++;
+		MessageStep ms = new MessageStep("utx-begin");
+		ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		ctx.profile.add(ms);
+	}
+
+	public static void userTxClose(String method) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null)
+			return;
+
+		if (ctx.userTransaction > 0) {
+			ctx.userTransaction--;
+		}
+
+		MessageStep ms = new MessageStep("utx-" + method);
+		ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		ctx.profile.add(ms);
 	}
 
 	public static Object dbcOpenStart(int hash, String msg, Object pool) {

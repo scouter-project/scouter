@@ -276,7 +276,10 @@ public class TraceMain {
 					}
 					pack.error = DataProxy.sendError(emsg);
 				}
-			} else if (conf.isErrorStatus(ctx.status)) {
+			}else if(ctx.userTransaction>0){
+				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
+				AlertProxy.sendAlert(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error - "+ctx.serviceName);				
+			}else if (conf.isErrorStatus(ctx.status)) {
 				String emsg = "HttpStatus " + ctx.status;
 				pack.error = DataProxy.sendError(emsg);
 				AlertProxy.sendAlert(AlertLevel.ERROR, "HTTP_ERROR", emsg);
