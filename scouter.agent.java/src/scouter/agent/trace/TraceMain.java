@@ -407,6 +407,9 @@ public class TraceMain {
 					emsg = sb.toString();
 				}
 				pack.error = DataProxy.sendError(emsg);
+			}else if(ctx.userTransaction>0){
+				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
+				AlertProxy.sendAlert(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error - "+ctx.serviceName);				
 			}
 			// 2015.02.02
 			pack.apicallCount = ctx.apicall_count;
