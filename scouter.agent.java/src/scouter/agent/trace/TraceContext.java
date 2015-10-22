@@ -16,6 +16,7 @@
 
 package scouter.agent.trace;
 
+import scouter.util.StringIntMap;
 import scouter.util.SysJMX;
 
 
@@ -88,6 +89,7 @@ public class TraceContext {
 	
 	public String web_name;
 	public int web_time;
+	public int userTransaction;
 
 	public TraceContext createChild(){
 		TraceContext child = new TraceContext(this.isSummary);

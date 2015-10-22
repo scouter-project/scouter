@@ -112,11 +112,7 @@ object Top100FileCache {
     class TopItem(_tag: Long, limit: Int) {
         var kindsOfValue = 0
         var sumOfValue = 0f
-        var topN = new TopN[ValueCount](limit) {
-            override def order(o1: ValueCount, o2: ValueCount): Order = {
-                return OrderUtil.desc(o1.valueCount, o2.valueCount);
-            }
-        };
+        var topN = new TopN[ValueCount](limit,TopN.DIRECTION.DESC) ;
         var tag = _tag
         def toString(tagName: String) = {
             "TopItem [tag=" + tagName + " sumOfValue=" + sumOfValue.formatted("#,##0.0") + ", kindsOfValue=" + kindsOfValue + ", topN=" + topN.size() + "]";

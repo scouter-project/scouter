@@ -54,12 +54,16 @@ class SummaryService {
         val date = param.getText("date");
         val stime = param.getLong("stime");
         val etime = param.getLong("etime");
+        val objType = param.getText("objType");
+        val objHash = param.getInt("objHash");
 
         val tempMap = new IntKeyLinkedMap[TempObject]().setMax(50000)
 
         val handler = (time: Long, data: Array[Byte]) => {
             val p = new DataInputX(data).readPack().asInstanceOf[SummaryPack];
-            if (p.stype == stype) {
+            if (p.stype == stype
+                && (objHash == 0 || objHash == p.objHash)
+                && (objType == null || objType == p.objType)) {
                 val id = p.table.getList("id")
                 val count = p.table.getList("count")
                 val error = p.table.getList("error")
@@ -71,6 +75,7 @@ class SummaryService {
                     var tempObj = tempMap.get(id.getInt(i));
                     if (tempObj == null) {
                         tempObj = new TempObject();
+                        tempObj.hash = id.getInt(i);
                         tempMap.put(id.getInt(i), tempObj);
                     }
                     tempObj.count += count.getInt(i);

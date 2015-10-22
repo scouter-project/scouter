@@ -33,6 +33,7 @@ object AlertSummary {
     val conf =Configure.getInstance()
     val queue = new RequestQueue[AlertPack](CoreRun.MAX_QUE_SIZE);
     var master = new HashMap[Int, HashMap[String, (Byte, Int)]]()
+    var typeMap = new HashMap[Int, String]()
 
     ThreadScala.startFixedRate(DateUtil.MILLIS_PER_FIVE_MINUTE) { doFlush() }
 
@@ -43,6 +44,7 @@ object AlertSummary {
             if (t1 == null) {
                 t1 = new HashMap[String, (Byte, Int)]();
                 master.put(p.objHash, t1);
+                typeMap.put(p.objHash, p.objType);
             }
             var d1 = t1.get(p.title);
             if (d1 == null) {
@@ -75,6 +77,7 @@ object AlertSummary {
 
             sp.time = stime;
             sp.objHash = ent.getKey();
+            sp.objType = typeMap.get(sp.objHash);
             sp.stype = SummaryEnum.ALERT;
 
             val entSet = ent.getValue().entrySet();

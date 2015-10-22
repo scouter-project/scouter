@@ -26,12 +26,12 @@ import org.eclipse.swt.widgets.Display;
 
 import scouter.client.model.XLogData;
 import scouter.client.util.ExUtil;
-import scouter.client.util.SortedTopN;
-import scouter.client.util.SortedTopN.DIRECTION;
 import scouter.util.DateUtil;
 import scouter.util.IPUtil;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
+import scouter.util.TopN;
+import scouter.util.TopN.DIRECTION;
 
 public class XLogSummaryIPDialog extends XLogSummaryAbstractDialog{
 	
@@ -70,7 +70,7 @@ public class XLogSummaryIPDialog extends XLogSummaryAbstractDialog{
 					}
 				}
 				
-				final SortedTopN<IpSummary> stn = new SortedTopN<IpSummary>(10000, DIRECTION.DESC);
+				final TopN<IpSummary> stn = new TopN<IpSummary>(10000, DIRECTION.DESC);
 				for (IpSummary so : summaryMap.values()) {
 					stn.add(so);
 				}

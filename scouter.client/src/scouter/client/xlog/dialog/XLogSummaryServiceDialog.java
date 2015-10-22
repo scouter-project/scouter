@@ -29,11 +29,11 @@ import org.eclipse.swt.widgets.Display;
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
 import scouter.client.util.ExUtil;
-import scouter.client.util.SortedTopN;
-import scouter.client.util.SortedTopN.DIRECTION;
 import scouter.util.DateUtil;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
+import scouter.util.TopN;
+import scouter.util.TopN.DIRECTION;
 
 public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
 	
@@ -79,7 +79,7 @@ public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
 				for (Integer serverId : loadTextMap.keySet()) {
 					TextProxy.service.load(DateUtil.yyyymmdd(etime), loadTextMap.get(serverId), serverId);
 				}
-				final SortedTopN<ServiceSummary> stn = new SortedTopN<ServiceSummary>(10000, DIRECTION.DESC);
+				final TopN<ServiceSummary> stn = new TopN<ServiceSummary>(10000, DIRECTION.DESC);
 				for (ServiceSummary so : summaryMap.values()) {
 					stn.add(so);
 				}

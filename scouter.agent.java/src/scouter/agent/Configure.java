@@ -231,8 +231,9 @@ public class Configure extends Thread {
 	public boolean enable_hook_socket = true;
 	public boolean enable_hook_jsp = true;
 	public boolean enable_hook_future = true;
+	
 	////////////////////////////////////////////
-
+	public boolean enable_usertx=true;
 	public boolean enable_dbc_wrapper = true;
 
 	public String direct_patch_class = "";
@@ -302,8 +303,6 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
-	
-
 
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
@@ -416,7 +415,7 @@ public class Configure extends Thread {
 		this.enable_dbopen = getBoolean("enable_dbopen", true);
 		this.enable_leaktrace_fullstack = getBoolean("enable_leaktrace_fullstack", false);
 
-		this.hook_method = getValue("hook_method", getValue("hook.method", ""));
+		this.hook_method = getValue("hook_method",  "");
 		this.hook_method_access_public = getBoolean("hook_method_access_public", true);
 		this.hook_method_access_protected = getBoolean("hook_method_access_protected", false);
 		this.hook_method_access_private = getBoolean("hook_method_access_private", false);
@@ -440,7 +439,9 @@ public class Configure extends Thread {
 		this.hook_jdbc_stmt = getValue("hook_jdbc_stmt", "");
 		this.hook_jdbc_rs = getValue("hook_jdbc_rs", "");
 		this.hook_dbc_wrapper= getValue("hook_dbc_wrapper", "");
-
+		
+		
+		
 		this.hook_signature ^= this.hook_args.hashCode();
 		this.hook_signature ^= this.hook_return.hashCode();
 		this.hook_signature ^= this.hook_init.hashCode();
@@ -449,7 +450,8 @@ public class Configure extends Thread {
 		this.hook_signature ^= this.hook_service.hashCode();
 		this.hook_signature ^= this.hook_apicall.hashCode();
 		this.hook_signature ^= this.hook_jsp.hashCode();
-
+		this.hook_signature ^= this.hook_dbc_wrapper.hashCode();
+	
 		this.plugin_classpath = getValue("plugin_classpath", "");
 
 		this.enable_reject_service = getBoolean("enable_reject_service", false);
@@ -510,6 +512,7 @@ public class Configure extends Thread {
 		this.enable_hook_future = getBoolean("enable_hook_future", true);
 
 		this.enable_dbc_wrapper= getBoolean("enable_dbc_wrapper", true);
+		this.enable_usertx= getBoolean("enable_usertx", true);
 		
 		this.direct_patch_class = getValue("direct_patch_class", "");
 		this.max_think_time = getLong("max_think_time", DateUtil.MILLIS_PER_FIVE_MINUTE);
