@@ -16,27 +16,17 @@
  */
 package scouter.server.netio.service.handle;
 
-import java.io.IOException
-import scouter.server.db.XLogRD
-import scouter.util.DateUtil
-import scouter.util.IntKeyLinkedMap
-import scouter.util.LongKeyLinkedMap
-import scouter.lang.pack.XLogPack
-import scouter.util.CastUtil
-import scouter.server.db.SummaryRD
 import scouter.io.DataInputX
-import scouter.lang.pack.MapPack
-import scouter.util.BitUtil
 import scouter.io.DataOutputX
-import scouter.server.netio.service.anotation.ServiceHandler
-import scouter.net.RequestCmd
-import scouter.net.TcpFlag
-import scouter.lang.pack.SummaryPack
 import scouter.lang.SummaryEnum
+import scouter.lang.pack.MapPack
 import scouter.lang.pack.SummaryPack
 import scouter.lang.value.ListValue
-import scouter.util.ArrayUtil
-import scouter.server.util.EnumerScala
+import scouter.net.TcpFlag
+import scouter.server.db.SummaryRD
+import scouter.server.netio.service.anotation.ServiceHandler
+import scouter.util.IntKeyLinkedMap
+import scouter.net.RequestCmd
 
 class SummaryService {
 
@@ -120,7 +110,53 @@ class SummaryService {
         dout.writeByte(TcpFlag.HasNEXT);
         dout.writePack(map);
     }
+ def load2(stype: Byte, din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        val param = din.readMapPack();
+        val date = param.getText("date");
+        val stime = param.getLong("stime");
+        val etime = param.getLong("etime");
+        val objType = param.getText("objType");
+        val objHash = param.getInt("objHash");
 
+        val tempMap = new IntKeyLinkedMap[TempObject]().setMax(50000)
+
+        val handler = (time: Long, data: Array[Byte]) => {
+            val p = new DataInputX(data).readPack().asInstanceOf[SummaryPack];
+            if (p.stype == stype
+                && (objHash == 0 || objHash == p.objHash)
+                && (objType == null || objType == p.objType)) {
+                val id = p.table.getList("id")
+                val count = p.table.getList("count")
+              
+                for (i <- 0 to id.size() - 1) {
+                    var tempObj = tempMap.get(id.getInt(i));
+                    if (tempObj == null) {
+                        tempObj = new TempObject();
+                        tempObj.hash = id.getInt(i);
+                        tempMap.put(id.getInt(i), tempObj);
+                    }
+                    tempObj.count += count.getInt(i);
+                }
+            }
+        }
+
+        SummaryRD.readByTime(stype, date, stime, etime, handler)
+
+        val map = new MapPack();
+        val newIdList = map.newList("id");
+        val newCountList = map.newList("count");
+    
+        val itr = tempMap.keys();
+        while (itr.hasMoreElements()) {
+            val hash = itr.nextInt();
+            val obj = tempMap.get(hash);
+            newIdList.add(obj.hash);
+            newCountList.add(obj.count);
+        }
+
+        dout.writeByte(TcpFlag.HasNEXT);
+        dout.writePack(map);
+    }
     @ServiceHandler(RequestCmd.LOAD_SERVICE_SUMMARY)
     def LOAD_SERVICE_SUMMARY(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
         load(SummaryEnum.APP, din, dout, login);
@@ -132,5 +168,14 @@ class SummaryService {
     @ServiceHandler(RequestCmd.LOAD_APICALL_SUMMARY)
     def LOAD_APICALL_SUMMARY(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
         load(SummaryEnum.APICALL, din, dout, login);
+    }
+    
+    @ServiceHandler(RequestCmd.LOAD_IP_SUMMARY)
+    def LOAD_IP_SUMMARY(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        load2(SummaryEnum.IP, din, dout, login);
+    }
+    @ServiceHandler(RequestCmd.LOAD_UA_SUMMARY)
+    def LOAD_UA_SUMMARY(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        load2(SummaryEnum.USER_AGENT, din, dout, login);
     }
 }

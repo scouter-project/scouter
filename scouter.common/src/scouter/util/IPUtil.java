@@ -16,8 +16,12 @@
 
 package scouter.util;
 
-public class IPUtil {
+import scouter.io.DataOutputX;
 
+public class IPUtil {
+	public static String toString(int ip) {
+		return toString(DataOutputX.toBytes(ip));
+	}
 	public static String toString(byte[] ip) {
 		if (ip == null)
 			return "0.0.0.0";

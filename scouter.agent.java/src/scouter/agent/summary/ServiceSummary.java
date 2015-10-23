@@ -15,16 +15,19 @@
  */
 package scouter.agent.summary;
 
+import java.io.DataInput;
 import java.util.Enumeration;
 
 import scouter.agent.Configure;
+import scouter.io.DataInputX;
 import scouter.lang.SummaryEnum;
 import scouter.lang.pack.SummaryPack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.SqlStep;
 import scouter.lang.value.ListValue;
-import scouter.lang.value.MapValue;
+import scouter.util.IPUtil;
+import scouter.util.IntIntLinkedMap;
 import scouter.util.IntKeyLinkedMap;
 
 public class ServiceSummary {
@@ -43,6 +46,7 @@ public class ServiceSummary {
 	public void process(XLogPack p) {
 		if (conf.enable_summary == false)
 			return;
+		// service summary
 		SummaryData d = getSummaryMap(serviceMaster, p.service);
 		d.count++;
 		d.elapsed += p.elapsed;
@@ -51,6 +55,16 @@ public class ServiceSummary {
 		}
 		d.cpu += p.cpu;
 		d.mem += p.bytes;
+
+		// ip summary
+		if (IPUtil.isOK(p.ipaddr) && p.ipaddr[0]!=0 && p.ipaddr[0]!=127) {
+			int ip = DataInputX.toInt(p.ipaddr, 0);
+			ipMaster.put(ip, ipMaster.get(ip));
+		}
+		// user-agent summary
+		if (p.userAgent != 0) {
+			uaMaster.put(p.userAgent, uaMaster.get(p.userAgent));
+		}
 	}
 
 	public void process(SqlStep sqlStep) {
@@ -89,6 +103,8 @@ public class ServiceSummary {
 	private IntKeyLinkedMap<SummaryData> apiMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_api_max);
 	private IntKeyLinkedMap<SummaryData> serviceMaster = new IntKeyLinkedMap<SummaryData>()
 			.setMax(conf.summary_service_max);
+	private IntIntLinkedMap ipMaster = new IntIntLinkedMap().setMax(conf.summary_service_ip_max);
+	private IntIntLinkedMap uaMaster = new IntIntLinkedMap().setMax(conf.summary_service_ua_max);
 
 	public SummaryPack getAndClear(byte type) {
 		IntKeyLinkedMap<SummaryData> temp;
@@ -147,4 +163,44 @@ public class ServiceSummary {
 		return p;
 	}
 
+	public SummaryPack getAndClearX(byte type) {
+		IntIntLinkedMap temp;
+		switch (type) {
+		case SummaryEnum.IP:
+			if (ipMaster.size() == 0)
+				return null;
+			temp = ipMaster;
+			ipMaster = new IntIntLinkedMap().setMax(conf.summary_service_ip_max);
+			break;
+		case SummaryEnum.USER_AGENT:
+			if (ipMaster.size() == 0)
+				return null;
+			temp = ipMaster;
+			ipMaster = new IntIntLinkedMap().setMax(conf.summary_service_ip_max);
+			break;
+		default:
+			return null;
+		}
+
+		SummaryPack p = new SummaryPack();
+		p.stype = type;
+
+		int cnt = temp.size();
+		ListValue id = p.table.newList("id");
+		ListValue count = p.table.newList("count");
+
+		Enumeration<IntIntLinkedMap.ENTRY> en = temp.entries();
+		for (int i = 0; i < cnt; i++) {
+			IntIntLinkedMap.ENTRY ent = en.nextElement();
+			int key = ent.getKey();
+			int value = ent.getValue();
+			id.add(key);
+			count.add(value);
+		}
+		return p;
+	}
+
+	public static void main(String[] args) {
+		System.out.println(DataInputX.toInt(IPUtil.toBytes("127.0.0.1"), 0));
+	}
 }

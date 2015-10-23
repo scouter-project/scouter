@@ -252,7 +252,9 @@ public class Configure extends Thread {
 	public int summary_service_max=10000;
 	public int summary_sql_max=10000;
 	public int summary_api_max=5000;
-
+	public int summary_service_ip_max=5000;
+	public int summary_service_ua_max=5000;
+	
 	
 	/**
 	 * sometimes call by sample application, at that time normally set some

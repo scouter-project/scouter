@@ -25,6 +25,8 @@ import org.omg.CORBA.DataOutputStream;
 
 import scouter.agent.Configure;
 import scouter.agent.Logger;
+import scouter.agent.counter.meter.MeterAPI;
+import scouter.agent.counter.meter.MeterSQL;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.ApiCallTracePlugin;
 import scouter.agent.plugin.HttpServiceTracePlugIn;
@@ -161,7 +163,9 @@ public class TraceApiCall {
 				}
 
 			}
+			MeterAPI.getInstance().add(step.elapsed, step.error!=0);
 			ServiceSummary.getInstance().process(step);
+			
 			tctx.profile.pop(step);
 		} catch (Throwable t) {
 			t.printStackTrace();

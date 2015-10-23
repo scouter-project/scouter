@@ -17,11 +17,10 @@
 package scouter.lang;
 
 public class SummaryEnum {
-	final public static byte APP=1;
-	final public static byte SQL=2;
-	final public static byte ALERT=3;
-	final public static byte IP=4;
-	final public static byte APICALL=5;
-	final public static byte APP_SQL=6;
-	final public static byte APP_APICALL=7;
+	final public static byte APP = 1;
+	final public static byte SQL = 2;
+	final public static byte ALERT = 3;
+	final public static byte IP = 4;
+	final public static byte APICALL = 5;
+	public static final byte USER_AGENT = 8;
 }

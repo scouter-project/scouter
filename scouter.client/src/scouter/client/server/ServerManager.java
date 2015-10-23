@@ -160,4 +160,14 @@ public class ServerManager extends Thread {
 			System.out.println("------------------------------------------");
 		}
 	}
+
+
+	public void shutdown() {
+		Enumeration<Server> servers = serverMap.values();
+		while (servers.hasMoreElements()) {
+			Server server = servers.nextElement();
+			server.close();
+		}
+		serverMap.clear();
+	}
 }

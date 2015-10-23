@@ -118,5 +118,16 @@ public class ServicePerf {
 			p.time = time;
 			DataProxy.send(p);
 		}
+		
+		p = ServiceSummary.getInstance().getAndClearX(SummaryEnum.IP);
+		if (p != null) {
+			p.time = time;
+			DataProxy.send(p);
+		}
+		p = ServiceSummary.getInstance().getAndClearX(SummaryEnum.USER_AGENT);
+		if (p != null) {
+			p.time = time;
+			DataProxy.send(p);
+		}
 	}
 }

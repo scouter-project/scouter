@@ -127,5 +127,13 @@ public class CounterConstants {
 
 	public final static String[] COUNTER_MENU_ARRAY = { REAL_TIME_ALL, REAL_TIME_TOTAL, TODAY_ALL, TODAY_TOTAL,
 			PAST_TIME_ALL, PAST_TIME_TOTAL, PAST_DATE_ALL, PAST_DATE_TOTAL };
+	
+	public static final String WAS_SQL_TIME = "SqlTime";
+	public static final String WAS_SQL_COUNT = "SqlTPS";
+	public static final String WAS_SQL_ERROR = "SqlError";
+	
+	public static final String WAS_APICALL_TIME = "ApiTime";
+	public static final String WAS_APICALL_COUNT = "ApiTPS";
+	public static final String WAS_APICALL_ERROR = "ApiError";
 
 }
