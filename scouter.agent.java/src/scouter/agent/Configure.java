@@ -256,6 +256,9 @@ public class Configure extends Thread {
 	public int summary_service_ua_max=5000;
 	
 	
+	public int heap_perm_warning_pct=90;
+	public long heap_perm_alert_interval=30000;
+	
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -305,6 +308,7 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
+
 
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
@@ -536,6 +540,9 @@ public class Configure extends Thread {
 		this.summary_api_max= getInt("summary_api_max", 5000);
 		this.summary_service_max = getInt("summary_service_max", 10000);
 		
+		
+		this.heap_perm_alert_interval=getLong("heap_perm_alert_interval",30000);
+		this.heap_perm_warning_pct=getInt("heap_perm_warning_pct",90);
 		
 		resetObjInfo();
 		setErrorStatus();

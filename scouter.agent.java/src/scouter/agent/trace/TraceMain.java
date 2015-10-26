@@ -278,7 +278,7 @@ public class TraceMain {
 				}
 			}else if(ctx.userTransaction>0){
 				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
-				AlertProxy.sendAlert(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error - "+ctx.serviceName);				
+				AlertProxy.sendAlertUTXNotClose(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error", ctx.serviceName, ctx.txid);				
 			}else if (conf.isErrorStatus(ctx.status)) {
 				String emsg = "HttpStatus " + ctx.status;
 				pack.error = DataProxy.sendError(emsg);
@@ -409,7 +409,7 @@ public class TraceMain {
 				pack.error = DataProxy.sendError(emsg);
 			}else if(ctx.userTransaction>0){
 				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
-				AlertProxy.sendAlert(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error - "+ctx.serviceName);				
+				AlertProxy.sendAlertUTXNotClose(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error", ctx.serviceName, ctx.txid);
 			}
 			// 2015.02.02
 			pack.apicallCount = ctx.apicall_count;
