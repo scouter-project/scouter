@@ -42,7 +42,9 @@ public class SummaryPack implements Pack {
 		sb.append(" objHash=").append(Hexa32.toString32(objHash));
 		sb.append(" objType=").append(objType);
 		sb.append(" stype=").append(stype);
-		sb.append(" " + table.keySet());
+		sb.append(" " + table.keySet() );
+		sb.append(" #" + table.size() );
+		
 		
 		return sb.toString();
 	}

@@ -58,8 +58,6 @@ public class XLogPack implements Pack {
 	// WEB TIME
 	public int webHash; // WEB서버의 ObjectHash
 	public int webTime; // WEB서버 --> WAS 시작 시점까지의 시간
-
-	public int exception;
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -113,7 +111,6 @@ public class XLogPack implements Pack {
 		o.writeDecimal(webHash);
 		o.writeDecimal(webTime);
 
-		o.writeDecimal(exception);
 		out.writeBlob(o.toByteArray());
 	}
 
@@ -156,9 +153,7 @@ public class XLogPack implements Pack {
 			this.webHash = (int) d.readDecimal();
 			this.webTime = (int) d.readDecimal();
 		}
-		if (d.available() > 0) {
-			this.exception = (int) d.readDecimal();
-		}
+	
 		return this;
 	}
 
