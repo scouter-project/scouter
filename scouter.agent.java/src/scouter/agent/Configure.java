@@ -249,11 +249,12 @@ public class Configure extends Thread {
 	public String key_web_time = "X-Forwarded-Time";
 	
 	public boolean enable_summary=true;
-	public int summary_service_max=10000;
-	public int summary_sql_max=10000;
+	public int summary_service_max=5000;
+	public int summary_sql_max=5000;
 	public int summary_api_max=5000;
 	public int summary_service_ip_max=5000;
 	public int summary_service_ua_max=5000;
+	public int summary_service_error_max=500;
 	
 	
 	public int heap_perm_warning_pct=90;
@@ -536,10 +537,12 @@ public class Configure extends Thread {
 
 		//SUMMARY최대 갯수를 관리한다.
 		this.enable_summary = getBoolean("enable_summary", true);
-		this.summary_sql_max = getInt("summary_sql_max", 10000);
+		this.summary_sql_max = getInt("summary_sql_max", 5000);
 		this.summary_api_max= getInt("summary_api_max", 5000);
-		this.summary_service_max = getInt("summary_service_max", 10000);
-		
+		this.summary_service_max = getInt("summary_service_max", 5000);
+		this.summary_service_ip_max = getInt("summary_service_ip_max", 5000);
+		this.summary_service_ua_max = getInt("summary_service_ua_max", 5000);
+		this.summary_service_error_max = getInt("summary_service_error_max", 500);	
 		
 		this.heap_perm_alert_interval=getLong("heap_perm_alert_interval",30000);
 		this.heap_perm_warning_pct=getInt("heap_perm_warning_pct",90);

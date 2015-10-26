@@ -13,15 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
+package scouter.agent.summary;
 
-package scouter.lang;
-
-public class SummaryEnum {
-	final public static byte APP = 1;
-	final public static byte SQL = 2;
-	final public static byte ALERT = 3;
-	final public static byte IP = 4;
-	final public static byte APICALL = 5;
-	public static final byte USER_AGENT = 8;
-	public static final byte SERVICE_ERROR = 9;
+public class ErrorData {
+	public int count;
+	public int service;
+	public long txid;
+	public int sql;
+	public int apicall;
 }

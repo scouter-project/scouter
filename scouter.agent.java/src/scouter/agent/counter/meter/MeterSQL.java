@@ -78,6 +78,15 @@ public class MeterSQL {
 		return (int) ((cnt.value == 0) ? 0 : sum.value / cnt.value);
 	}
 
+	public long getTimeSum(int period) {
+		final LONG sum = new LONG();
+		period = meter.search(period, new Handler<MeterSQL.Bucket>() {
+			public void process(Bucket b) {
+				sum.value += b.time;
+			}
+		});
+		return  ((period == 0) ? 0 : sum.value / period);
+	}
 	
 
 	public float getErrorPerSec(int period) {

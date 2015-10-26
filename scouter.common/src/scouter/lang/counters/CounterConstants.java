@@ -131,9 +131,11 @@ public class CounterConstants {
 	public static final String WAS_SQL_TIME = "SqlTime";
 	public static final String WAS_SQL_COUNT = "SqlTPS";
 	public static final String WAS_SQL_ERROR = "SqlError";
-	
+	public static final String WAS_SQL_TIME_SUM = "SqlTimeSum";
+
 	public static final String WAS_APICALL_TIME = "ApiTime";
 	public static final String WAS_APICALL_COUNT = "ApiTPS";
 	public static final String WAS_APICALL_ERROR = "ApiError";
+	public static final String WAS_APICALL_TIME_SUM = "ApiTimeSum";
 
 }

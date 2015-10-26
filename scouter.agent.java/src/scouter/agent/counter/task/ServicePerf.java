@@ -129,5 +129,10 @@ public class ServicePerf {
 			p.time = time;
 			DataProxy.send(p);
 		}
+		p = ServiceSummary.getInstance().getAndClearError(SummaryEnum.SERVICE_ERROR);
+		if (p != null) {
+			p.time = time;
+			DataProxy.send(p);
+		}
 	}
 }

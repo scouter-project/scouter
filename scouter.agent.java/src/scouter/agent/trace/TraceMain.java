@@ -89,7 +89,8 @@ public class TraceMain {
 		return null;
 	}
 
-	private static Error REJECT = new Error();
+	private static Error REJECT = new Error("service rejected");
+    private static RuntimeException userTxNotClose = new RuntimeException("Missing Commit/Rollback Error");
 
 	public static Object reject(Object stat, Object req, Object res) {
 		Configure conf = Configure.getInstance();
@@ -207,7 +208,9 @@ public class TraceMain {
 					if (ctx != null && ctx.error == 0) {
 						Configure conf = Configure.getInstance();
 						String emsg = thr.toString();
-						AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_ERROR", emsg);
+						ServiceSummary.getInstance().process(thr,  ctx.serviceHash, ctx.txid, 0, 0);
+						// AlertProxy.sendAlert(AlertLevel.ERROR,
+						// "SERVICE_ERROR", emsg);
 						if (conf.profile_fullstack_service_error) {
 							StringBuffer sb = new StringBuffer();
 							sb.append(emsg).append("\n");
@@ -220,7 +223,7 @@ public class TraceMain {
 							}
 							emsg = sb.toString();
 						}
-						ctx.error = DataProxy.sendError(emsg);
+						ctx.error = DataProxy.sendError(emsg);						
 					}
 				} catch (Throwable t) {
 				}
@@ -256,12 +259,16 @@ public class TraceMain {
 			} else if (thr != null) {
 				if (thr == REJECT) {
 					Logger.println("A145", ctx.serviceName);
-					AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_REJECTED", ctx.serviceName);
+					// AlertProxy.sendAlert(AlertLevel.ERROR,"SERVICE_REJECTED", ctx.serviceName);
+					ServiceSummary.getInstance().process(thr, ctx.serviceHash, ctx.txid, 0, 0);
+					
 					String emsg = conf.reject_text;
 					pack.error = DataProxy.sendError(emsg);
 				} else {
 					String emsg = thr.toString();
-					AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_ERROR", emsg);
+					// AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_ERROR", emsg);
+					ServiceSummary.getInstance().process(thr,ctx.serviceHash, ctx.txid, 0, 0);
+					
 					if (conf.profile_fullstack_service_error) {
 						StringBuffer sb = new StringBuffer();
 						sb.append(emsg).append("\n");
@@ -275,11 +282,15 @@ public class TraceMain {
 						emsg = sb.toString();
 					}
 					pack.error = DataProxy.sendError(emsg);
+
 				}
-			}else if(ctx.userTransaction>0){
+
+			} else if (ctx.userTransaction > 0) {
 				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
-				AlertProxy.sendAlertUTXNotClose(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error", ctx.serviceName, ctx.txid);				
-			}else if (conf.isErrorStatus(ctx.status)) {
+				ServiceSummary.getInstance().process(userTxNotClose,  ctx.serviceHash, ctx.txid, 0, 0);
+//				AlertProxy.sendAlertUTXNotClose(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error",
+//						ctx.serviceName, ctx.txid);				
+			} else if (conf.isErrorStatus(ctx.status)) {
 				String emsg = "HttpStatus " + ctx.status;
 				pack.error = DataProxy.sendError(emsg);
 				AlertProxy.sendAlert(AlertLevel.ERROR, "HTTP_ERROR", emsg);
@@ -298,10 +309,10 @@ public class TraceMain {
 			if (ctx.desc != null) {
 				pack.desc = DataProxy.sendDesc(ctx.desc);
 			}
-		    if(ctx.web_name!=null){
-		    	pack.webHash = DataProxy.sendWebName(ctx.web_name);
-		    	pack.webTime = ctx.web_time;
-		    }
+			if (ctx.web_name != null) {
+				pack.webHash = DataProxy.sendWebName(ctx.web_name);
+				pack.webTime = ctx.web_time;
+			}
 			metering(pack);
 			HttpServiceTracePlugIn.end(ctx, pack);
 			if (sendOk) {
@@ -394,6 +405,7 @@ public class TraceMain {
 			} else if (thr != null) {
 				Configure conf = Configure.getInstance();
 				String emsg = thr.toString();
+				ServiceSummary.getInstance().process(thr,  ctx.serviceHash, ctx.txid, 0, 0);
 				if (conf.profile_fullstack_service_error) {
 					StringBuffer sb = new StringBuffer();
 					sb.append(emsg).append("\n");
@@ -407,9 +419,11 @@ public class TraceMain {
 					emsg = sb.toString();
 				}
 				pack.error = DataProxy.sendError(emsg);
-			}else if(ctx.userTransaction>0){
+			} else if (ctx.userTransaction > 0) {
 				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
-				AlertProxy.sendAlertUTXNotClose(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error", ctx.serviceName, ctx.txid);
+				ServiceSummary.getInstance().process(userTxNotClose,  ctx.serviceHash, ctx.txid, 0, 0);
+//				AlertProxy.sendAlertUTXNotClose(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error",
+//						ctx.serviceName, ctx.txid);
 			}
 			// 2015.02.02
 			pack.apicallCount = ctx.apicall_count;

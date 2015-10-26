@@ -16,6 +16,7 @@
 
 package scouter.agent.counter.meter;
 
+import scouter.agent.counter.meter.MeterSQL.Bucket;
 import scouter.lang.ref.INT;
 import scouter.lang.ref.LONG;
 import scouter.util.MeteringUtil;
@@ -78,7 +79,15 @@ public class MeterAPI {
 		return (int) ((cnt.value == 0) ? 0 : sum.value / cnt.value);
 	}
 
-	
+	public long getTimeSum(int period) {
+		final LONG sum = new LONG();
+		period = meter.search(period, new Handler<MeterAPI.Bucket>() {
+			public void process(Bucket b) {
+				sum.value += b.time;
+			}
+		});
+		return  ((period == 0) ? 0 : sum.value / period);
+	}
 
 	public float getErrorPerSec(int period) {
 

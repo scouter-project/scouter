@@ -162,10 +162,11 @@ public class TraceApiCall {
 					tctx.error = step.error;
 				}
 
+				ServiceSummary.getInstance().process(thr, tctx.serviceHash, tctx.txid, 0, step.hash);
 			}
-			MeterAPI.getInstance().add(step.elapsed, step.error!=0);
+			MeterAPI.getInstance().add(step.elapsed, step.error != 0);
 			ServiceSummary.getInstance().process(step);
-			
+
 			tctx.profile.pop(step);
 		} catch (Throwable t) {
 			t.printStackTrace();

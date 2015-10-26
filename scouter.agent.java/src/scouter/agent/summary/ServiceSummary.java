@@ -15,10 +15,11 @@
  */
 package scouter.agent.summary;
 
-import java.io.DataInput;
+import java.sql.SQLException;
 import java.util.Enumeration;
 
 import scouter.agent.Configure;
+import scouter.agent.netio.data.DataProxy;
 import scouter.io.DataInputX;
 import scouter.lang.SummaryEnum;
 import scouter.lang.pack.SummaryPack;
@@ -29,6 +30,7 @@ import scouter.lang.value.ListValue;
 import scouter.util.IPUtil;
 import scouter.util.IntIntLinkedMap;
 import scouter.util.IntKeyLinkedMap;
+import scouter.util.StringKeyLinkedMap;
 
 public class ServiceSummary {
 
@@ -57,7 +59,7 @@ public class ServiceSummary {
 		d.mem += p.bytes;
 
 		// ip summary
-		if (IPUtil.isOK(p.ipaddr) && p.ipaddr[0]!=0 && p.ipaddr[0]!=127) {
+		if (IPUtil.isOK(p.ipaddr) && p.ipaddr[0] != 0 && p.ipaddr[0] != 127) {
 			int ip = DataInputX.toInt(p.ipaddr, 0);
 			ipMaster.put(ip, ipMaster.get(ip));
 		}
@@ -65,6 +67,31 @@ public class ServiceSummary {
 		if (p.userAgent != 0) {
 			uaMaster.put(p.userAgent, uaMaster.get(p.userAgent));
 		}
+	}
+
+	public void process(Throwable p,  int service, long txid, int sql, int api) {
+		if (conf.enable_summary == false)
+			return;
+		String exname = p.getClass().getName();
+		if (p.getClass() == SQLException.class) {
+			SQLException sqlex = (SQLException) p;
+			if (sqlex.getSQLState() != null) {
+				exname = new StringBuffer().append(exname).append(":").append(sqlex.getSQLState()).toString();
+			}
+		}
+		int exhash = DataProxy.sendError(exname);
+		ErrorData d = getSummaryError(errorMaster, exhash);
+		d.count++;
+		if (service != 0) {
+			d.service = service;
+			d.txid = txid;
+		}
+
+		if (sql != 0)
+			d.sql = sql;
+		if (api != 0)
+			d.apicall = api;
+
 	}
 
 	public void process(SqlStep sqlStep) {
@@ -98,6 +125,20 @@ public class ServiceSummary {
 		}
 		return d;
 	}
+
+	private ErrorData getSummaryError(IntKeyLinkedMap<ErrorData> table, int exception) {
+		
+		IntKeyLinkedMap<ErrorData> tempTable = table;
+		ErrorData d = tempTable.get(exception);
+		if (d == null) {
+			d = new ErrorData();
+			tempTable.put(exception, d);
+		}
+		return d;
+	}
+
+	private IntKeyLinkedMap<ErrorData> errorMaster = new IntKeyLinkedMap<ErrorData>()
+			.setMax(conf.summary_service_error_max);
 
 	private IntKeyLinkedMap<SummaryData> sqlMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_sql_max);
 	private IntKeyLinkedMap<SummaryData> apiMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_api_max);
@@ -200,7 +241,33 @@ public class ServiceSummary {
 		return p;
 	}
 
-	public static void main(String[] args) {
-		System.out.println(DataInputX.toInt(IPUtil.toBytes("127.0.0.1"), 0));
+	public SummaryPack getAndClearError(byte type) {
+		IntKeyLinkedMap<ErrorData> temp = errorMaster;
+		errorMaster = new IntKeyLinkedMap<ErrorData>().setMax(conf.summary_service_error_max);
+
+		SummaryPack p = new SummaryPack();
+		p.stype = type;
+
+		int cnt = temp.size();
+		ListValue id = p.table.newList("id");
+		ListValue count = p.table.newList("count");
+		ListValue service = p.table.newList("service");
+		ListValue txid = p.table.newList("txid");
+		ListValue sql = p.table.newList("sql");
+		ListValue apicall = p.table.newList("apicall");
+
+		Enumeration<IntKeyLinkedMap.ENTRY> en = temp.entries();
+		for (int i = 0; i < cnt; i++) {
+			IntKeyLinkedMap.ENTRY<ErrorData> ent = en.nextElement();
+			int key = ent.getKey();
+			ErrorData val = ent.getValue();
+			id.add(key);
+			count.add(val.count);
+			service.add(val.service);
+			txid.add(val.txid);
+			sql.add(val.sql);
+			apicall.add(val.apicall);
+		}
+		return p;
 	}
 }
