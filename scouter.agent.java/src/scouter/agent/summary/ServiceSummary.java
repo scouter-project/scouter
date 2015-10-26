@@ -30,7 +30,6 @@ import scouter.lang.value.ListValue;
 import scouter.util.IPUtil;
 import scouter.util.IntIntLinkedMap;
 import scouter.util.IntKeyLinkedMap;
-import scouter.util.StringKeyLinkedMap;
 
 public class ServiceSummary {
 
@@ -72,15 +71,15 @@ public class ServiceSummary {
 	public void process(Throwable p,  int service, long txid, int sql, int api) {
 		if (conf.enable_summary == false)
 			return;
-		String exname = p.getClass().getName();
+		String exceptionName = p.getClass().getName();
 		if (p.getClass() == SQLException.class) {
 			SQLException sqlex = (SQLException) p;
 			if (sqlex.getSQLState() != null) {
-				exname = new StringBuffer().append(exname).append(":").append(sqlex.getSQLState()).toString();
+				exceptionName = new StringBuffer().append(exceptionName).append(":").append(sqlex.getSQLState()).toString();
 			}
 		}
-		int exhash = DataProxy.sendError(exname);
-		ErrorData d = getSummaryError(errorMaster, exhash);
+		int errHash = DataProxy.sendError(exceptionName);
+		ErrorData d = getSummaryError(errorMaster, errHash);
 		d.count++;
 		if (service != 0) {
 			d.service = service;
@@ -91,7 +90,6 @@ public class ServiceSummary {
 			d.sql = sql;
 		if (api != 0)
 			d.apicall = api;
-
 	}
 
 	public void process(SqlStep sqlStep) {
