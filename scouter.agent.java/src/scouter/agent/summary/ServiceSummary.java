@@ -61,11 +61,11 @@ public class ServiceSummary {
 		// ip summary
 		if (IPUtil.isOK(p.ipaddr) && p.ipaddr[0] != 0 && p.ipaddr[0] != 127) {
 			int ip = DataInputX.toInt(p.ipaddr, 0);
-			ipMaster.put(ip, ipMaster.get(ip));
+			ipMaster.put(ip, ipMaster.get(ip) + 1);
 		}
 		// user-agent summary
 		if (p.userAgent != 0) {
-			uaMaster.put(p.userAgent, uaMaster.get(p.userAgent));
+			uaMaster.put(p.userAgent, uaMaster.get(p.userAgent) + 1);
 		}
 	}
 	
