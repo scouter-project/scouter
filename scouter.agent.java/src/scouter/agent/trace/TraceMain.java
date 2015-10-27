@@ -19,6 +19,8 @@ import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterService;
 import scouter.agent.counter.meter.MeterUsers;
+import scouter.agent.error.REQUEST_REJECT;
+import scouter.agent.error.USERTX_NOT_CLOSE;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.HttpServiceTracePlugIn;
 import scouter.agent.plugin.ServiceTracePlugIn;
@@ -89,8 +91,8 @@ public class TraceMain {
 		return null;
 	}
 
-	private static Error REJECT = new Error("service rejected");
-    private static RuntimeException userTxNotClose = new RuntimeException("Missing Commit/Rollback Error");
+	private static Error REJECT = new REQUEST_REJECT("service rejected");
+    private static Error userTxNotClose = new USERTX_NOT_CLOSE("Missing Commit/Rollback Error");
 
 	public static Object reject(Object stat, Object req, Object res) {
 		Configure conf = Configure.getInstance();

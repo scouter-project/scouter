@@ -42,7 +42,7 @@ import scouter.agent.asm.SocketASM;
 import scouter.agent.asm.SqlMapASM;
 import scouter.agent.asm.UserTxASM;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.util.AsyncHook;
+import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
 import scouter.org.objectweb.asm.ClassReader;
 import scouter.org.objectweb.asm.ClassVisitor;
@@ -143,7 +143,7 @@ public class AgentTransformer implements ClassFileTransformer {
             	return null;
 			if (classBeingRedefined == null) {
 				if (asynchook.contains(className.hashCode())) {
-					AsyncHook.getInstance().add(loader, className, classfileBuffer);
+					AsyncRunner.getInstance().add(loader, className, classfileBuffer);
 					return null;
 				}
 				if (loader == null) {

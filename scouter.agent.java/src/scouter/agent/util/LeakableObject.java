@@ -21,11 +21,11 @@ public class LeakableObject {
 	public LeakTracer parent;
 	public int pidx;
 
-	public String objectInfo;
-
-	public LeakableObject(String info) {
+	public LeakData info;
+	
+	public LeakableObject(Error error, String inner, int service, long txid, boolean fullstack) {
 		LeakTracer.add(this);
-		this.objectInfo = info;
+		this.info=new LeakData(error, inner, service, txid, fullstack);
 	}
 
 	public void close() {

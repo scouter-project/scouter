@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 import scouter.agent.Configure;
+import scouter.agent.error.CONNECTION_NOT_CLOSE;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
@@ -31,6 +32,7 @@ import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 
 public class DetectConnection implements java.sql.Connection {
+	private static CONNECTION_NOT_CLOSE error = new CONNECTION_NOT_CLOSE("connection leak detected");
 	private final LeakableObject object;
 	java.sql.Connection inner;
 
@@ -38,10 +40,17 @@ public class DetectConnection implements java.sql.Connection {
 
 	public DetectConnection(java.sql.Connection inner) {
 		this.inner = inner;
+		int service=0;
+		long txid =0;
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx != null){
+			service=ctx.serviceHash;
+			txid =ctx.txid;
+		}
 		if (conf.enable_leaktrace_fullstack) {
-			this.object = new LeakableObject(ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2));
+			this.object = new LeakableObject(new CONNECTION_NOT_CLOSE(), inner.toString(), service, txid, true);
 		} else {
-			this.object = new LeakableObject(inner.toString());
+			this.object = new LeakableObject(error, inner.toString(),service,txid, false);
 		}
 	}
 

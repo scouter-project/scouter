@@ -27,6 +27,7 @@ import scouter.server.db.SummaryRD
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.util.IntKeyLinkedMap
 import scouter.net.RequestCmd
+import scouter.util.LongKeyLinkedMap
 
 class SummaryService {
 
@@ -40,11 +41,13 @@ class SummaryService {
     }
 
     class TempError() {
-        var count: Int = 0;
+        var error: Int = 0;
         var service: Int = 0;
+        var count: Int = 0;
         var txid: Long = 0;
         var sql: Int = 0;
         var apicall: Int = 0;
+        var fullstack: Int = 0;
     }
 
     def load(stype: Byte, din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
@@ -173,7 +176,7 @@ class SummaryService {
         val objType = param.getText("objType");
         val objHash = param.getInt("objHash");
 
-        val tempMap = new IntKeyLinkedMap[TempError]().setMax(10000)
+        val tempMap = new LongKeyLinkedMap[TempError]().setMax(10000)
 
         val handler = (time: Long, data: Array[Byte]) => {
             val p = new DataInputX(data).readPack().asInstanceOf[SummaryPack];
@@ -181,11 +184,13 @@ class SummaryService {
                 && (objHash == 0 || objHash == p.objHash)
                 && (objType == null || objType == p.objType)) {
                 val id = p.table.getList("id")
-                val count = p.table.getList("count")
+                val error = p.table.getList("error")
                 val service = p.table.getList("service")
+                val count = p.table.getList("count")
                 val txid = p.table.getList("txid")
                 val sql = p.table.getList("sql")
                 val apicall = p.table.getList("apicall")
+                val fullstack = p.table.getList("fullstack")
 
                 for (i <- 0 to id.size() - 1) {
                     var tempObj = tempMap.get(id.getInt(i));
@@ -193,43 +198,48 @@ class SummaryService {
                         tempObj = new TempError();
                         tempMap.put(id.getInt(i), tempObj);
                     }
-                    if(tempObj.service ==0){
-                        tempObj.service = service.getInt(i);
-                    }
-                    if(tempObj.txid==0){
-                        tempObj.txid = txid.getLong(i);
-                    }
-                    if(tempObj.sql==0){
+
+                    tempObj.error = service.getInt(i);
+                    tempObj.service = service.getInt(i);
+                    tempObj.txid = txid.getLong(i);
+
+                    if (tempObj.sql == 0) {
                         tempObj.sql = sql.getInt(i);
                     }
-                    if(tempObj.apicall==0){
+                    if (tempObj.apicall == 0) {
                         tempObj.apicall = apicall.getInt(i);
                     }
                     tempObj.count += count.getInt(i);
+                    if (tempObj.fullstack == 0) {
+                        tempObj.fullstack = fullstack.getInt(i);
+                    }
                 }
             }
         }
 
         SummaryRD.readByTime(stype, date, stime, etime, handler)
 
+        //summary의 id는 error+service이다. id는 전송하지 않는다.
         val map = new MapPack();
-        val newIdList = map.newList("id");
-        val newCountList = map.newList("count");
+        val newErrorList = map.newList("error");
         val newServiceList = map.newList("service");
+        val newCountList = map.newList("count");
         val newTxidList = map.newList("txid");
         val newSqlList = map.newList("sql");
         val newApiCallList = map.newList("apicall");
+        val newFullStackList = map.newList("fullstack");
 
         val itr = tempMap.keys();
         while (itr.hasMoreElements()) {
-            val id = itr.nextInt();
+            val id = itr.nextLong();
             val obj = tempMap.get(id);
-            newIdList.add(id);
-            newCountList.add(obj.count);
+            newErrorList.add(obj.error);
             newServiceList.add(obj.service);
+            newCountList.add(obj.count);
             newTxidList.add(obj.txid);
             newSqlList.add(obj.sql);
             newApiCallList.add(obj.apicall);
+            newFullStackList.add(obj.fullstack);
         }
 
         dout.writeByte(TcpFlag.HasNEXT);

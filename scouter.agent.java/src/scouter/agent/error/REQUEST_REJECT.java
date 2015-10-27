@@ -13,15 +13,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-package scouter.agent.summary;
+package scouter.agent.error;
 
+@SuppressWarnings("serial")
+public class REQUEST_REJECT extends Error {
 
-public class ErrorData {
-	public int error;
-	public int service;
-	public int count;
-	public long txid;
-	public int sql;
-	public int apicall;
-	public int fullstack;
+	public REQUEST_REJECT() {
+	}
+
+	public REQUEST_REJECT(String message) {
+		super(message);
+	}
+
+	public REQUEST_REJECT(Throwable cause) {
+		super(cause);
+	}
+
+	public REQUEST_REJECT(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 }

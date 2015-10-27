@@ -15,23 +15,23 @@
  * limitations under the License.
  */
 package scouter.agent.util;
-import scouter.agent.Logger;
-import scouter.agent.netio.data.DataProxy;
-import scouter.agent.trace.AlertProxy;
-import scouter.lang.AlertLevel;
+
+
 public class LeakTracer {
 	private final static int MAX_BUCKET = 10;
 	private int pos = 0;
 	public LeakableObject[] bucket = new LeakableObject[MAX_BUCKET];
+
 	protected void finalize() throws Throwable {
 		for (int i = 0; i < MAX_BUCKET; i++) {
 			if (bucket[i] != null) {
-				AlertProxy.sendAlert(AlertLevel.ERROR, "LEAK_DETECTED","Leak Detected!! " + bucket[i].objectInfo);
-				Logger.println("A156", bucket[i].objectInfo);
+				AsyncRunner.getInstance().add(bucket[i].info);
 			}
 		}
 	}
+
 	private static LeakTracer trace = new LeakTracer();
+
 	public synchronized static void add(LeakableObject obj) {
 		trace.bucket[trace.pos] = obj;
 		obj.parent = trace;

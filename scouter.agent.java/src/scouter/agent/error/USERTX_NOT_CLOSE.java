@@ -13,15 +13,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-package scouter.agent.summary;
+package scouter.agent.error;
 
+@SuppressWarnings("serial")
+public class USERTX_NOT_CLOSE extends Error {
 
-public class ErrorData {
-	public int error;
-	public int service;
-	public int count;
-	public long txid;
-	public int sql;
-	public int apicall;
-	public int fullstack;
+	public USERTX_NOT_CLOSE() {
+	}
+
+	public USERTX_NOT_CLOSE(String message) {
+		super(message);
+	}
+
+	public USERTX_NOT_CLOSE(Throwable cause) {
+		super(cause);
+	}
+
+	public USERTX_NOT_CLOSE(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 }
