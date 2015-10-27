@@ -38,25 +38,13 @@ public class AnyTrace {
 	}
 
 	public static void setServiceName(String name) {
-		try {
-			TraceContext ctx = TraceContextManager.getLocalContext();
-			if (ctx != null) {
-				if (ctx.serviceName != null) { // already started
-					ctx.serviceName = name;
-					ctx.serviceHash = HashUtil.hash(ctx.serviceName);
-				}
-			}
-		} catch (Throwable t) {// ignore
-		}
+		TraceMain.setServiceName(name);
 	}
 
 	public static void serviceError(byte level, String title, String emsg) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx != null && ctx.error != 0) { // already started
 			ctx.error = DataProxy.sendError(emsg);
-		}
-		if (level != 0) {
-			AlertProxy.sendAlert(level, title, emsg);
 		}
 	}
 

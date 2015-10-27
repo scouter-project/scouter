@@ -260,6 +260,9 @@ public class Configure extends Thread {
 	public int heap_perm_warning_pct=90;
 	public long heap_perm_alert_interval=30000;
 	
+	
+	public boolean enable_spring_request=true;
+
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -547,6 +550,8 @@ public class Configure extends Thread {
 		this.heap_perm_alert_interval=getLong("heap_perm_alert_interval",30000);
 		this.heap_perm_warning_pct=getInt("heap_perm_warning_pct",90);
 		
+		this.enable_spring_request = getBoolean("enable_spring_request", true);
+
 		resetObjInfo();
 		setErrorStatus();
 		setStaticContents();
