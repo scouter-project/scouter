@@ -16,15 +16,12 @@
 package scouter.agent.util;
 
 import java.lang.instrument.ClassDefinition;
+
 import scouter.agent.JavaAgent;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.summary.ErrorData;
 import scouter.agent.summary.ServiceSummary;
-import scouter.agent.trace.ProfileCollector;
-import scouter.agent.trace.TraceContext;
-import scouter.lang.step.MessageStep;
-import scouter.util.Queue;
 import scouter.util.RequestQueue;
 import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;

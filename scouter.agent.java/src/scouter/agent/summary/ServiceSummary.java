@@ -15,7 +15,6 @@
  */
 package scouter.agent.summary;
 
-import java.sql.SQLException;
 import java.util.Enumeration;
 
 import scouter.agent.Configure;
