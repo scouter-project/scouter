@@ -552,6 +552,14 @@ public class Configure extends Thread {
 		
 		this.enable_spring_request = getBoolean("enable_spring_request", true);
 
+		this.alert_message_length = getInt("alert_message_length", 3000);
+		this.alert_send_interval = getInt("alert_send_interval", 3000);
+		this.alert_fetch_count = getInt("alert_fetch_count", 100000);
+		this.alert_sql_time = getInt("alert_sql_time", 30000);
+
+		this.debug_asm = getBoolean("debug_asm", getBoolean("debug.asm", false));
+		this.enable_plus_objtype = getBoolean("enable_plus_objtype", false);
+		
 		resetObjInfo();
 		setErrorStatus();
 		setStaticContents();
@@ -634,14 +642,6 @@ public class Configure extends Thread {
 
 		this.objName = objHostName + "/" + this.scouter_name;
 		this.objHash = HashUtil.hash(objName);
-
-		this.alert_message_length = getInt("alert_message_length", 3000);
-		this.alert_send_interval = getInt("alert_send_interval", 3000);
-		this.alert_fetch_count = getInt("alert_fetch_count", 100000);
-		this.alert_sql_time = getInt("alert_sql_time", 30000);
-
-		this.debug_asm = getBoolean("debug_asm", getBoolean("debug.asm", false));
-		this.enable_plus_objtype = getBoolean("enable_plus_objtype", false);
 
 		System.setProperty("scouter.objname", this.objName);
 		System.setProperty("scouter.objtype", this.scouter_type);
