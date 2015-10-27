@@ -208,10 +208,10 @@ public class ServiceSummary {
 			ipMaster = new IntIntLinkedMap().setMax(conf.summary_service_ip_max);
 			break;
 		case SummaryEnum.USER_AGENT:
-			if (ipMaster.size() == 0)
+			if (uaMaster.size() == 0)
 				return null;
-			temp = ipMaster;
-			ipMaster = new IntIntLinkedMap().setMax(conf.summary_service_ip_max);
+			temp = uaMaster;
+			uaMaster = new IntIntLinkedMap().setMax(conf.summary_service_ua_max);
 			break;
 		default:
 			return null;
