@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -17,11 +18,11 @@
 package scouter.lang;
 
 public class SummaryEnum {
-	final public static byte APP=1;
-	final public static byte SQL=2;
-	final public static byte ALERT=3;
-	final public static byte IP=4;
-	final public static byte APICALL=5;
-	final public static byte APP_SQL=6;
-	final public static byte APP_APICALL=7;
+	final public static byte APP = 1;
+	final public static byte SQL = 2;
+	final public static byte ALERT = 3;
+	final public static byte IP = 4;
+	final public static byte APICALL = 5;
+	public static final byte USER_AGENT = 8;
+	public static final byte SERVICE_ERROR = 9;
 }

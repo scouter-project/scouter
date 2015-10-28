@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -19,6 +20,8 @@ import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterService;
 import scouter.agent.counter.meter.MeterUsers;
+import scouter.agent.error.REQUEST_REJECT;
+import scouter.agent.error.USERTX_NOT_CLOSE;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.HttpServiceTracePlugIn;
 import scouter.agent.plugin.ServiceTracePlugIn;
@@ -89,7 +92,8 @@ public class TraceMain {
 		return null;
 	}
 
-	private static Error REJECT = new Error();
+	private static Error REJECT = new REQUEST_REJECT("service rejected");
+	private static Error userTxNotClose = new USERTX_NOT_CLOSE("Missing Commit/Rollback Error");
 
 	public static Object reject(Object stat, Object req, Object res) {
 		Configure conf = Configure.getInstance();
@@ -207,7 +211,9 @@ public class TraceMain {
 					if (ctx != null && ctx.error == 0) {
 						Configure conf = Configure.getInstance();
 						String emsg = thr.toString();
-						AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_ERROR", emsg);
+						ServiceSummary.getInstance().process(thr, ctx.serviceHash, ctx.txid, 0, 0);
+						// AlertProxy.sendAlert(AlertLevel.ERROR,
+						// "SERVICE_ERROR", emsg);
 						if (conf.profile_fullstack_service_error) {
 							StringBuffer sb = new StringBuffer();
 							sb.append(emsg).append("\n");
@@ -256,12 +262,18 @@ public class TraceMain {
 			} else if (thr != null) {
 				if (thr == REJECT) {
 					Logger.println("A145", ctx.serviceName);
-					AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_REJECTED", ctx.serviceName);
+					// AlertProxy.sendAlert(AlertLevel.ERROR,"SERVICE_REJECTED",
+					// ctx.serviceName);
+					ServiceSummary.getInstance().process(thr, ctx.serviceHash, ctx.txid, 0, 0);
+
 					String emsg = conf.reject_text;
 					pack.error = DataProxy.sendError(emsg);
 				} else {
 					String emsg = thr.toString();
-					AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_ERROR", emsg);
+					// AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_ERROR",
+					// emsg);
+					ServiceSummary.getInstance().process(thr, ctx.serviceHash, ctx.txid, 0, 0);
+
 					if (conf.profile_fullstack_service_error) {
 						StringBuffer sb = new StringBuffer();
 						sb.append(emsg).append("\n");
@@ -275,11 +287,16 @@ public class TraceMain {
 						emsg = sb.toString();
 					}
 					pack.error = DataProxy.sendError(emsg);
+
 				}
-			}else if(ctx.userTransaction>0){
+
+			} else if (ctx.userTransaction > 0) {
 				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
-				AlertProxy.sendAlert(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error - "+ctx.serviceName);				
-			}else if (conf.isErrorStatus(ctx.status)) {
+				ServiceSummary.getInstance().process(userTxNotClose, ctx.serviceHash, ctx.txid, 0, 0);
+				// AlertProxy.sendAlertUTXNotClose(AlertLevel.WARN,
+				// "TX_NOT_CLOSE", "Missing Commit/Rollback Error",
+				// ctx.serviceName, ctx.txid);
+			} else if (conf.isErrorStatus(ctx.status)) {
 				String emsg = "HttpStatus " + ctx.status;
 				pack.error = DataProxy.sendError(emsg);
 				AlertProxy.sendAlert(AlertLevel.ERROR, "HTTP_ERROR", emsg);
@@ -298,10 +315,10 @@ public class TraceMain {
 			if (ctx.desc != null) {
 				pack.desc = DataProxy.sendDesc(ctx.desc);
 			}
-		    if(ctx.web_name!=null){
-		    	pack.webHash = DataProxy.sendWebName(ctx.web_name);
-		    	pack.webTime = ctx.web_time;
-		    }
+			if (ctx.web_name != null) {
+				pack.webHash = DataProxy.sendWebName(ctx.web_name);
+				pack.webTime = ctx.web_time;
+			}
 			metering(pack);
 			HttpServiceTracePlugIn.end(ctx, pack);
 			if (sendOk) {
@@ -394,6 +411,7 @@ public class TraceMain {
 			} else if (thr != null) {
 				Configure conf = Configure.getInstance();
 				String emsg = thr.toString();
+				ServiceSummary.getInstance().process(thr, ctx.serviceHash, ctx.txid, 0, 0);
 				if (conf.profile_fullstack_service_error) {
 					StringBuffer sb = new StringBuffer();
 					sb.append(emsg).append("\n");
@@ -407,9 +425,12 @@ public class TraceMain {
 					emsg = sb.toString();
 				}
 				pack.error = DataProxy.sendError(emsg);
-			}else if(ctx.userTransaction>0){
+			} else if (ctx.userTransaction > 0) {
 				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
-				AlertProxy.sendAlert(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error - "+ctx.serviceName);				
+				ServiceSummary.getInstance().process(userTxNotClose, ctx.serviceHash, ctx.txid, 0, 0);
+				// AlertProxy.sendAlertUTXNotClose(AlertLevel.WARN,
+				// "TX_NOT_CLOSE", "Missing Commit/Rollback Error",
+				// ctx.serviceName, ctx.txid);
 			}
 			// 2015.02.02
 			pack.apicallCount = ctx.apicall_count;
@@ -577,28 +598,14 @@ public class TraceMain {
 		tctx.profile.pop(step);
 	}
 
-	// public static Object startDivPerf(int divIdx, String classMethod) {
-	// TraceContext ctx = TraceContextManager.getLocalContext();
-	// if (ctx == null)
-	// return null;
-	//
-	// Configure conf = Configure.getInstance();
-	// if (divIdx >= conf.divperf_size)
-	// return null;
-	//
-	// // if (ctx.divPerf == null)
-	// // ctx.divPerf = new int[conf.divperf_size];
-	//
-	// return new DivContext(ctx, System.currentTimeMillis(), divIdx);
-	// }
-	// public static void endDivPerf(Object stat, Throwable thr) {
-	// if (stat == null)
-	// return;
-	// DivContext dctx = (DivContext) stat;
-	// int time = (int) (System.currentTimeMillis() - dctx.stime);
-	// dctx.context.divPerf[dctx.divIdx] += time;
-	// }
-	// /////////////////////
+	public static void setServiceName(String name) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null || name == null)
+			return;
+		ctx.serviceName = name;
+		ctx.serviceHash = HashUtil.hash(name);
+	}
+
 	public static void setStatus(int httpStatus) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)

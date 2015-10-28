@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -16,8 +17,9 @@
 package scouter.agent;
 
 import java.lang.instrument.Instrumentation;
+
 import scouter.agent.netio.data.net.TcpRequestMgr;
-import scouter.agent.util.AsyncRun;
+import scouter.agent.util.AsyncRunner;
 import scouter.util.StringUtil;
 import scouter.util.logo.Logo;
 
@@ -38,7 +40,7 @@ public class JavaAgent {
 
 		//RequestAgent.getInstance();
 		TcpRequestMgr.getInstance();
-		AsyncRun.getInstance().add(new AgentBoot());
+		AsyncRunner.getInstance().add(new AgentBoot());
 	}
 
 	public static void agentmain(String options, Instrumentation i) throws Exception {
@@ -56,7 +58,7 @@ public class JavaAgent {
 
 		//RequestAgent.getInstance();
 		TcpRequestMgr.getInstance();
-		AsyncRun.getInstance().add(new LazyAgentBoot());
+		AsyncRunner.getInstance().add(new LazyAgentBoot());
 	}
 
 	private static void setOpt(String opts) {

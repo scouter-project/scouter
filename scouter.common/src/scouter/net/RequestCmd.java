@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -242,5 +243,9 @@ public class RequestCmd {
 	public static final String LOAD_SERVICE_SUMMARY = "LOAD_SERVICE_SUMMARY";
 	public static final String LOAD_SQL_SUMMARY = "LOAD_SQL_SUMMARY";
 	public static final String LOAD_APICALL_SUMMARY = "LOAD_APICALL_SUMMARY";
+	public static final String LOAD_IP_SUMMARY = "LOAD_IP_SUMMARY";
+	public static final String LOAD_UA_SUMMARY = "LOAD_UA_SUMMARY";
+	public static final String LOAD_SERVICE_ERROR_SUMMARY = "LOAD_SERVICE_ERROR_SUMMARY";
+	
 
 }

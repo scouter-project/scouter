@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -114,6 +115,22 @@ public class ServicePerf {
 			DataProxy.send(p);
 		}
 		p = ServiceSummary.getInstance().getAndClear(SummaryEnum.APICALL);
+		if (p != null) {
+			p.time = time;
+			DataProxy.send(p);
+		}
+		
+		p = ServiceSummary.getInstance().getAndClearX(SummaryEnum.IP);
+		if (p != null) {
+			p.time = time;
+			DataProxy.send(p);
+		}
+		p = ServiceSummary.getInstance().getAndClearX(SummaryEnum.USER_AGENT);
+		if (p != null) {
+			p.time = time;
+			DataProxy.send(p);
+		}
+		p = ServiceSummary.getInstance().getAndClearError(SummaryEnum.SERVICE_ERROR);
 		if (p != null) {
 			p.time = time;
 			DataProxy.send(p);

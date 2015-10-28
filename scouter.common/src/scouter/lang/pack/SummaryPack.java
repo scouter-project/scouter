@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -42,7 +43,8 @@ public class SummaryPack implements Pack {
 		sb.append(" objHash=").append(Hexa32.toString32(objHash));
 		sb.append(" objType=").append(objType);
 		sb.append(" stype=").append(stype);
-		sb.append(" " + table.keySet());
+		sb.append(" " );
+		sb.append(table.toString());
 		
 		return sb.toString();
 	}

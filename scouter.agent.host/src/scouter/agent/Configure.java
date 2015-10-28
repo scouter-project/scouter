@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -52,6 +53,7 @@ public class Configure extends Thread {
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
 	public final static String CONF_DIR = "./conf/";
+
 	public final static synchronized Configure getInstance() {
 		if (instance == null) {
 			instance = new Configure();
@@ -78,11 +80,6 @@ public class Configure extends Thread {
 	public int objHash;
 	public String objName;
 
-	public int alert_message_length = 3000;
-	public long alert_send_interval = 3000;
-	public int alert_fetch_count = 100000;
-	public int alert_sql_time = 30000;
-
 	public int udp_packet_max = 60000;
 	public StringSet log_ignore = new StringSet();
 	public int max_concurrent_server_request = 10;
@@ -94,8 +91,24 @@ public class Configure extends Thread {
 	public String logs_dir = "./logs";
 	public int log_keep_dates = 365;
 
-	public String object_registry="/tmp/scouter";
-	
+	public String object_registry = "/tmp/scouter";
+
+	public boolean disk_alert_enabled = true;
+	public int disk_warning_pct = 70;
+	public int disk_fatal_pct = 90;
+	public StringSet disk_ignore = new StringSet();
+
+	public long cpu_check_period = 300000;
+	public long cpu_alert_interval = 30000;
+	public int cpu_warning_pct = 70;
+	public int cpu_fatal_pct = 90;
+	public int cpu_warning_history = 3;
+	public int cpu_fatal_history = 3;
+
+	public long mem_alert_interval;
+	public int mem_warning_pct;
+	public int mem_fatal_pct;
+
 	private Configure() {
 		Properties p = new Properties();
 		Map args = new HashMap();
@@ -199,6 +212,23 @@ public class Configure extends Thread {
 
 		this.object_registry = getValue("object_registry", "/tmp/scouter");
 
+		this.disk_alert_enabled = getBoolean("disk_alert_enablee", true);
+		this.disk_warning_pct = getInt("disk_warning_pct", 70);
+		this.disk_fatal_pct = getInt("disk_fatal_pct", 90);
+		this.disk_ignore = getStringSet("disk_ignore", ",");
+
+		this.cpu_check_period = getLong("cpu_check_period", 300000);
+		this.cpu_alert_interval = getLong("cpu_alert_interval", 30000);
+		this.cpu_warning_pct = getInt("cpu_warning_pct", 70);
+		this.cpu_fatal_pct = getInt("cpu_fatal_pct", 90);
+		this.cpu_warning_history = getInt("cpu_warning_history", 3);
+		this.cpu_fatal_history = getInt("cpu_fatal_history", 3);
+
+		this.mem_alert_interval = getLong("mem_alert_interval", 30000);
+		this.mem_warning_pct = getInt("mem_warning_pct", 70);
+		this.mem_fatal_pct = getInt("mem_fatal_pct", 90);
+		
+		
 		resetObjInfo();
 	}
 
@@ -234,11 +264,6 @@ public class Configure extends Thread {
 
 		this.objName = "/" + this.scouter_name;
 		this.objHash = HashUtil.hash(objName);
-
-		this.alert_message_length = getInt("alert_message_length", 3000);
-		this.alert_send_interval = getInt("alert_send_interval", 3000);
-		this.alert_fetch_count = getInt("alert_fetch_count", 100000);
-		this.alert_sql_time = getInt("alert_sql_time", 30000);
 
 	}
 

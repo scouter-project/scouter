@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -88,10 +89,10 @@ public class DataUdpAgent {
 				local_udp_port = port;
 				if (host != null) {
 					datagram = new DatagramSocket(port, InetAddress.getByName(host));
-					Logger.println("A118","Agent UDP local.addr=" + host + " local.port=" + port);
+					Logger.println("A118", "Agent UDP local.addr=" + host + " local.port=" + port);
 				} else {
 					datagram = new DatagramSocket(port);
-					Logger.println("A119","Agent UDP local.port=" + port);
+					Logger.println("A119", "Agent UDP local.port=" + port);
 				}
 			}
 		} catch (Exception e) {
@@ -107,15 +108,16 @@ public class DataUdpAgent {
 	}
 
 	private Configure conf = Configure.getInstance();
+
 	public boolean write(byte[] p) {
 		try {
 			if (server_host == null)
 				return false;
-			
-			if(p.length > conf.udp_packet_max){
+
+			if (p.length > conf.udp_packet_max) {
 				return writeMTU(p, conf.udp_packet_max);
 			}
-			
+
 			DataOutputX out = new DataOutputX();
 			out.write(NetCafe.CAFE);
 			out.write(p);
@@ -142,13 +144,13 @@ public class DataUdpAgent {
 			int remainder = data.length % packetSize;
 			if (remainder > 0)
 				total++;
-	
+
 			int num = 0;
 			for (num = 0; num < data.length / packetSize; num++) {
-                   writeMTU(pkid, total, num, packetSize, DataInputX.get(data, num* packetSize, packetSize));
+				writeMTU(pkid, total, num, packetSize, DataInputX.get(data, num * packetSize, packetSize));
 			}
 			if (remainder > 0) {
-		         writeMTU(pkid, total, num, remainder, DataInputX.get(data, data.length - remainder, remainder));			
+				writeMTU(pkid, total, num, remainder, DataInputX.get(data, data.length - remainder, remainder));
 			}
 			return true;
 		} catch (IOException e) {
@@ -157,7 +159,7 @@ public class DataUdpAgent {
 		}
 	}
 
-	private void writeMTU(long pkid, int total, int num, int packetSize, byte[] data) throws IOException{
+	private void writeMTU(long pkid, int total, int num, int packetSize, byte[] data) throws IOException {
 		DataOutputX out = new DataOutputX();
 		out.write(NetCafe.CAFE_MTU);
 		out.writeInt(conf.objHash);
@@ -183,25 +185,43 @@ public class DataUdpAgent {
 			if (server_host == null)
 				return false;
 
-			DataOutputX out = new DataOutputX();
-			out.write(NetCafe.CAFE_N);
-			out.writeShort((short) p.size());
+			DataOutputX buffer = new DataOutputX();
+			int bufferCount=0;
 			for (int i = 0; i < p.size(); i++) {
-				out.write(p.get(i));
+				byte[] b = p.get(i);
+				if (b.length > conf.udp_packet_max) {
+					writeMTU(b, conf.udp_packet_max);
+				} else if (b.length + buffer.getWriteSize() > conf.udp_packet_max) {
+					sendList(bufferCount, buffer.toByteArray());
+					buffer = new DataOutputX();
+					bufferCount=0;
+				} else {
+					bufferCount++;
+					buffer.write(b);
+				}
 			}
-
-			byte[] buff = out.toByteArray();
-
-			DatagramPacket packet = new DatagramPacket(buff, buff.length);
-			packet.setAddress(server_host);
-			packet.setPort(server_port);
-			datagram.send(packet);
+			if (buffer.getWriteSize() > 0) {
+				sendList(bufferCount, buffer.toByteArray());
+			}
 			return true;
 		} catch (IOException e) {
 			Logger.println("A123", "UDP", e);
 			return false;
 		}
 
+	}
+
+	private void sendList(int bufferCount, byte[] buffer) throws IOException {
+		DataOutputX outter = new DataOutputX();
+		outter.write(NetCafe.CAFE_N);
+		outter.writeShort(bufferCount);
+		outter.write(buffer);
+		byte[] buff = outter.toByteArray();
+
+		DatagramPacket packet = new DatagramPacket(buff, buff.length);
+		packet.setAddress(server_host);
+		packet.setPort(server_port);
+		datagram.send(packet);
 	}
 
 	public boolean debugWrite(String ip, int port, int length) {

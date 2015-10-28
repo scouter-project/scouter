@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -249,11 +250,20 @@ public class Configure extends Thread {
 	public String key_web_time = "X-Forwarded-Time";
 	
 	public boolean enable_summary=true;
-	public int summary_service_max=10000;
-	public int summary_sql_max=10000;
+	public int summary_service_max=5000;
+	public int summary_sql_max=5000;
 	public int summary_api_max=5000;
-
+	public int summary_service_ip_max=5000;
+	public int summary_service_ua_max=5000;
+	public int summary_service_error_max=500;
 	
+	
+	public int heap_perm_warning_pct=90;
+	public long heap_perm_alert_interval=30000;
+	
+	
+	public boolean enable_spring_request=true;
+
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -303,6 +313,7 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
+
 
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
@@ -530,10 +541,25 @@ public class Configure extends Thread {
 
 		//SUMMARY최대 갯수를 관리한다.
 		this.enable_summary = getBoolean("enable_summary", true);
-		this.summary_sql_max = getInt("summary_sql_max", 10000);
+		this.summary_sql_max = getInt("summary_sql_max", 5000);
 		this.summary_api_max= getInt("summary_api_max", 5000);
-		this.summary_service_max = getInt("summary_service_max", 10000);
+		this.summary_service_max = getInt("summary_service_max", 5000);
+		this.summary_service_ip_max = getInt("summary_service_ip_max", 5000);
+		this.summary_service_ua_max = getInt("summary_service_ua_max", 5000);
+		this.summary_service_error_max = getInt("summary_service_error_max", 500);	
 		
+		this.heap_perm_alert_interval=getLong("heap_perm_alert_interval",30000);
+		this.heap_perm_warning_pct=getInt("heap_perm_warning_pct",90);
+		
+		this.enable_spring_request = getBoolean("enable_spring_request", true);
+
+		this.alert_message_length = getInt("alert_message_length", 3000);
+		this.alert_send_interval = getInt("alert_send_interval", 3000);
+		this.alert_fetch_count = getInt("alert_fetch_count", 100000);
+		this.alert_sql_time = getInt("alert_sql_time", 30000);
+
+		this.debug_asm = getBoolean("debug_asm", getBoolean("debug.asm", false));
+		this.enable_plus_objtype = getBoolean("enable_plus_objtype", false);
 		
 		resetObjInfo();
 		setErrorStatus();
@@ -617,14 +643,6 @@ public class Configure extends Thread {
 
 		this.objName = objHostName + "/" + this.scouter_name;
 		this.objHash = HashUtil.hash(objName);
-
-		this.alert_message_length = getInt("alert_message_length", 3000);
-		this.alert_send_interval = getInt("alert_send_interval", 3000);
-		this.alert_fetch_count = getInt("alert_fetch_count", 100000);
-		this.alert_sql_time = getInt("alert_sql_time", 30000);
-
-		this.debug_asm = getBoolean("debug_asm", getBoolean("debug.asm", false));
-		this.enable_plus_objtype = getBoolean("enable_plus_objtype", false);
 
 		System.setProperty("scouter.objname", this.objName);
 		System.setProperty("scouter.objtype", this.scouter_type);

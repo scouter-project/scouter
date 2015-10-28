@@ -41,21 +41,21 @@ SCOUTER can help you.
 Scouter has three modules:
 
 - Agent : gather performance information and send  to the server
-  - Tomcat Agent : Performance for JVM & Tomcat 
+  - Tomcat Agent (Java Agent) : Performance for JVM & Tomcat 
      - **ASM** :  using ASM library of OW2  (http://asm.ow2.org/) for BCI(byte code instrumentation)
      - **Tools.jar** : Java thread dumps, heap dumps, heap histograms, and the other powerful features provided by the JVM as the default.
      - **JMX** :  Some counters for Tomcat & JVM such as GC Count, GC Times etc 
-  - Linux Agent : Performance for Linux, Window and OSX
+  - Linux Agent (Host Agent) : Performance for Linux, Window and OSX
      - Sigar Lib(https://github.com/hyperic/sigar) : A cross-platform process and system utilities module for Java
      - Counters : Cpu, Memory, Disk, Network
   -  MariaDB Agent : [to be announced]
 
-- Server : received the data from agent and it stores the data. The data is serviced to clients.
+- Server (Collecter) : received the data from agent and it stores the data. The data is serviced to clients.
   - Scala : Written in Scala. It will provide a variety of features and performance scalability that can not be written in Java.
   - HASH FILE : Server is using the hash index in order to store large data in files.
   - GZIP : Service performance data and profile data are stored is compressed.
 
-- Client : provide the user interfaces
+- Client (Viewer) : provide the user interfaces
   - Eclipse RCP : SCOUTER is created as a standalone program. So the client can be connected to multiple servers at the same time. It makes easier that users monitor large scale systems.
   - SWT & GEF4 : Charts and Diagrams
 

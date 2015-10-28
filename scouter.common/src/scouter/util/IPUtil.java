@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -16,8 +17,12 @@
 
 package scouter.util;
 
-public class IPUtil {
+import scouter.io.DataOutputX;
 
+public class IPUtil {
+	public static String toString(int ip) {
+		return toString(DataOutputX.toBytes(ip));
+	}
 	public static String toString(byte[] ip) {
 		if (ip == null)
 			return "0.0.0.0";

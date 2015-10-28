@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -77,6 +78,7 @@ import scouter.client.counter.actions.OpenTodayAllAction;
 import scouter.client.counter.actions.OpenTodayServiceCountAction;
 import scouter.client.counter.actions.OpenTodayTotalAction;
 import scouter.client.counter.actions.OpenTodayViewAction;
+import scouter.client.counter.actions.OpenTypeSummaryAction;
 import scouter.client.counter.actions.OpenUniqueTotalVisitorAction;
 import scouter.client.counter.actions.OpenUniqueVisitorAction;
 import scouter.client.counter.views.CounterLoadDateView;
@@ -277,6 +279,15 @@ public class MenuUtil implements IMenuCreator{
 			actions.put(
 					objType + ":" + CounterConstants.UNIQUE_VISITOR,
 					new OpenUniqueTotalVisitorAction(window, serverId, objType));
+		}
+		
+		objTypeList = counterEngine.getObjTypeListWithDisplay(CounterConstants.SERVICE_SUMMARY);
+		for (int inx = 0; inx < objTypeList.size(); inx++) {
+			String[] splitedKey = objTypeList.get(inx).split(":");
+			String objType = splitedKey[1];
+			actions.put(
+					objType + ":" + CounterConstants.SERVICE_SUMMARY,
+					new OpenTypeSummaryAction(window, serverId, objType));
 		}
 		
 		return actions;

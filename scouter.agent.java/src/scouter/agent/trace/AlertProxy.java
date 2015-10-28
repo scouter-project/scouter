@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -22,8 +23,8 @@ import scouter.util.LinkedMap;
 import scouter.util.StringUtil;
 
 public class AlertProxy {
-    //타이틀별로 구분하여 최대 50가지에 대한 3초이내 중복전송을 막는다.
-	private static LinkedMap<String, Long> sendTimeTable = new LinkedMap<String, Long>().setMax(50);
+    //타이틀별로 구분하여 최대 200가지에 대한 3초이내 중복전송을 막는다.
+	private static LinkedMap<String, Long> sendTimeTable = new LinkedMap<String, Long>().setMax(200);
 
 	static Configure conf = Configure.getInstance(); 
 	public static void sendAlert(byte level, String title, String emsg) {
@@ -69,6 +70,22 @@ public class AlertProxy {
 			MapValue tags = new MapValue();
 			tags.put("service", service);
 			tags.put("count", count);
+			tags.put("txid", txid);
+			DataProxy.sendAlert(level, title, StringUtil.limiting(emsg, conf.alert_message_length),  tags);
+		}
+	}
+	public static void sendAlertUTXNotClose(byte level, String title, String emsg, String service,  long txid) {
+		long now = System.currentTimeMillis();
+
+		if (title == null)
+			title = "none";
+		
+		Long last = sendTimeTable.get(title);
+
+		if (last == null || now - last.longValue() >= conf.alert_send_interval) {
+			sendTimeTable.put(title, now);
+			MapValue tags = new MapValue();
+			tags.put("service", service);
 			tags.put("txid", txid);
 			DataProxy.sendAlert(level, title, StringUtil.limiting(emsg, conf.alert_message_length),  tags);
 		}

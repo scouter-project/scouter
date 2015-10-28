@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -18,9 +19,11 @@ package scouter.agent.trace;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import scouter.agent.Configure;
 import scouter.agent.Logger;
+import scouter.agent.counter.meter.MeterSQL;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.summary.ServiceSummary;
 import scouter.jdbc.DetectConnection;
@@ -210,6 +213,10 @@ public class TraceSQL {
 		}
 		return parsed;
 	}
+	  
+
+	private static SQLException slowSql = new SQLException("Slow SQL","SLOW_SQL");
+	
 
 	public static void end(Object stat, Throwable thr) {
 		if (stat == null) {
@@ -246,16 +253,18 @@ public class TraceSQL {
 				tctx.error = hash;
 			}
 			ps.error = hash;
-
-			AlertProxy.sendAlert(AlertLevel.ERROR, "SQL_EXCEPTION", msg);
-
+			//AlertProxy.sendAlert(AlertLevel.ERROR, "SQL_EXCEPTION", msg);
+			ServiceSummary.getInstance().process(thr,  tctx.serviceHash, tctx.txid, ps.hash, 0);
+			
 		} else if (ps.elapsed > conf.alert_sql_time) {
 			String msg = "warning slow sql, over " + conf.alert_sql_time + " ms";
 			int hash = DataProxy.sendError(msg);
 			if (tctx.error == 0) {
 				tctx.error = hash;
 			}
-			AlertProxy.sendAlertSlowSql(AlertLevel.WARN, "SLOW_SQL", msg, tctx.sqltext, ps.elapsed, tctx.txid);
+			//AlertProxy.sendAlertSlowSql(AlertLevel.WARN, "SLOW_SQL", msg, tctx.sqltext, ps.elapsed, tctx.txid);
+			ServiceSummary.getInstance().process(slowSql,  tctx.serviceHash, tctx.txid, ps.hash, 0);
+			
 		}
 
 		tctx.sqltext = null;
@@ -265,6 +274,7 @@ public class TraceSQL {
 		tctx.sqlTime += ps.elapsed;
 
 		ServiceSummary.getInstance().process(ps);
+		MeterSQL.getInstance().add(ps.elapsed, ps.error!=0);
 		tctx.profile.pop(ps);
 	}
 

@@ -16,13 +16,15 @@
  */
 package scouter.agent.util;
 
+import scouter.agent.error.CONNECTION_NOT_CLOSE;
+
 public class SampleStatement {
 	private static int index = 0;
 	private final LeakableObject object;
 
 	public SampleStatement() {
 		int myid = index++;
-		this.object = new LeakableObject("I am #" + (myid));
+		this.object = new LeakableObject(new CONNECTION_NOT_CLOSE(), "I am #" + (myid),0,0,true);
 		System.out.println("created " + myid);
 	}
 

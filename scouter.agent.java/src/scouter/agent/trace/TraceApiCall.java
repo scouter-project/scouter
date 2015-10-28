@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -25,6 +26,8 @@ import org.omg.CORBA.DataOutputStream;
 
 import scouter.agent.Configure;
 import scouter.agent.Logger;
+import scouter.agent.counter.meter.MeterAPI;
+import scouter.agent.counter.meter.MeterSQL;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.ApiCallTracePlugin;
 import scouter.agent.plugin.HttpServiceTracePlugIn;
@@ -160,8 +163,11 @@ public class TraceApiCall {
 					tctx.error = step.error;
 				}
 
+				ServiceSummary.getInstance().process(thr, tctx.serviceHash, tctx.txid, 0, step.hash);
 			}
+			MeterAPI.getInstance().add(step.elapsed, step.error != 0);
 			ServiceSummary.getInstance().process(step);
+
 			tctx.profile.pop(step);
 		} catch (Throwable t) {
 			t.printStackTrace();

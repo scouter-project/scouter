@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 the original author or authors.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -39,15 +40,19 @@ import scouter.agent.asm.MethodASM;
 import scouter.agent.asm.ScouterClassWriter;
 import scouter.agent.asm.ServiceASM;
 import scouter.agent.asm.SocketASM;
+import scouter.agent.asm.SpringReqMapASM;
 import scouter.agent.asm.SqlMapASM;
 import scouter.agent.asm.UserTxASM;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.util.AsyncHook;
+import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
+import scouter.org.objectweb.asm.AnnotationVisitor;
+import scouter.org.objectweb.asm.Attribute;
 import scouter.org.objectweb.asm.ClassReader;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.ClassWriter;
 import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.TypePath;
 import scouter.util.FileUtil;
 import scouter.util.IntSet;
 
@@ -105,7 +110,7 @@ public class AgentTransformer implements ClassFileTransformer {
 			temp.add(new MethodASM());
 			temp.add(new ApicallASM());
 			temp.add(new ApicallInfoASM());
-			
+			temp.add(new SpringReqMapASM());
 		}
 		
 		if (conf.enable_hook_socket) {
@@ -143,7 +148,7 @@ public class AgentTransformer implements ClassFileTransformer {
             	return null;
 			if (classBeingRedefined == null) {
 				if (asynchook.contains(className.hashCode())) {
-					AsyncHook.getInstance().add(loader, className, classfileBuffer);
+					AsyncRunner.getInstance().add(loader, className, classfileBuffer);
 					return null;
 				}
 				if (loader == null) {
@@ -165,12 +170,19 @@ public class AgentTransformer implements ClassFileTransformer {
 						String[] interfaces) {
 					classDesc.set(version, access, name, signature, superName, interfaces);
 				}
+		
+				@Override
+				public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+					classDesc.anotation=desc;
+					return super.visitAnnotation(desc, visible);
+				}
+				
 			}, 0);
 
 			if(AsmUtil.isInterface(classDesc.access)){
 				return null;
 			}
-			
+			classDesc.classBeingRedefined=classBeingRedefined;
 			ClassWriter cw = getClassWriter(classDesc);
 
 			ClassVisitor cv = cw;
