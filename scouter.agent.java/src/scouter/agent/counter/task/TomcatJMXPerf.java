@@ -80,22 +80,22 @@ public class TomcatJMXPerf {
 
 	static class MeterKey {
 
-		String objName;
+		int mbeanHash;
 		String counter;
 
-		public MeterKey(String objName, String counter) {
-			this.objName = objName;
+		public MeterKey(int mbeanHash, String counter) {
+			this.mbeanHash = mbeanHash;
 			this.counter = counter;
 		}
 
 		public int hashCode() {
-			return objName.hashCode() ^ counter.hashCode();
+			return mbeanHash ^ counter.hashCode();
 		}
 
 		public boolean equals(Object obj) {
 			if (obj instanceof MeterKey) {
 				MeterKey key = (MeterKey) obj;
-				return (this.objName.equals(key.objName)) && (this.counter.equals(key.counter));
+				return (this.mbeanHash == key.mbeanHash) && (this.counter.equals(key.counter));
 			}
 			return false;
 		}
@@ -125,11 +125,10 @@ public class TomcatJMXPerf {
 		}
 		collectCnt++;
 		MBeanServer server = servers.get(0);
-
 		for (CtxObj ctx : ctxList) {
 			if (ctx.valueType == ValueEnum.DECIMAL) {
 				try {
-					MeterKey key = new MeterKey(ctx.objName, ctx.counter);
+					MeterKey key = new MeterKey(ctx.mbeanHash, ctx.counter);
 					long v = CastUtil.clong(server.getAttribute(ctx.mbean, ctx.attrName));
 					if (deltas.contains(ctx.counter)) {
 						v = getDelta(key, v);
@@ -280,21 +279,29 @@ public class TomcatJMXPerf {
 	}
 
 	class CtxObj {
-		private String objName;
-		private ObjectName mbean;
-		private String objType;
-		private byte valueType;
-		private String attrName;
-		private String counter;
+		public int mbeanHash;
+		public String objName;
+		public ObjectName mbean;
+		public String objType;
+		public byte valueType;
+		public String attrName;
+		public String counter;
 
 		public CtxObj(String objName, ObjectName mbean, String objType, byte valueType, String attrName, String counter) {
 
 			this.objName = objName;
 			this.mbean = mbean;
+			this.mbeanHash = HashUtil.hash(mbean.toString());
 			this.objType = objType;
 			this.valueType = valueType;
 			this.attrName = attrName;
 			this.counter = counter;
+		}
+
+		@Override
+		public String toString() {
+			return "CtxObj [objName=" + objName + ", mbean=" + mbean + ", objType=" + objType + ", valueType="
+					+ valueType + ", attrName=" + attrName + ", counter=" + counter + "]";
 		}
 
 	}
