@@ -56,10 +56,10 @@ public class TomcatJMXPerf {
 		deltas.add(CounterConstants.REQUESTPROCESS_ERROR_COUNT);
 		deltas.add(CounterConstants.REQUESTPROCESS_PROCESSING_TIME);
 		deltas.add(CounterConstants.REQUESTPROCESS_REQUEST_COUNT);
-		
+
 		ConfObserver.add("TomcatJMXPerf", new Runnable() {
 			public void run() {
-				ObjTypeDetector.dirtyConfig=true;
+				ObjTypeDetector.dirtyConfig = true;
 			}
 		});
 	}
@@ -116,10 +116,10 @@ public class TomcatJMXPerf {
 
 		getMBeanServer();
 
-		if ((collectCnt <= 40 && collectCnt%5==0) || ObjTypeDetector.dirtyConfig) {
+		if ((collectCnt <= 40 && collectCnt % 5 == 0) || ObjTypeDetector.dirtyConfig) {
 			if (ObjTypeDetector.dirtyConfig) {
 				AgentHeartBeat.clearSubObjects();
-				ObjTypeDetector.dirtyConfig=false;
+				ObjTypeDetector.dirtyConfig = false;
 			}
 			getContextList();
 		}
@@ -138,8 +138,8 @@ public class TomcatJMXPerf {
 						v = (long) meter.getSum(60);
 						long sum = (long) meter.getSum(300) / 5;
 
-						pw.getPack(ctx.objName, TimeTypeEnum.REALTIME).put(ctx.counter, new DecimalValue(v));
-						pw.getPack(ctx.objName, TimeTypeEnum.FIVE_MIN).put(ctx.counter, new DecimalValue(sum));
+						pw.getPack(ctx.objName, TimeTypeEnum.REALTIME).add(ctx.counter, new DecimalValue(v));
+						pw.getPack(ctx.objName, TimeTypeEnum.FIVE_MIN).add(ctx.counter, new DecimalValue(sum));
 					} else {
 						MeterResource meter = getMeter(key);
 						meter.add(v);
@@ -147,8 +147,8 @@ public class TomcatJMXPerf {
 						double avg = meter.getAvg(300);
 						FloatValue value = new FloatValue((float) d);
 						FloatValue avgValue = new FloatValue((float) avg);
-						pw.getPack(ctx.objName, TimeTypeEnum.REALTIME).put(ctx.counter, value);
-						pw.getPack(ctx.objName, TimeTypeEnum.FIVE_MIN).put(ctx.counter, avgValue);
+						pw.getPack(ctx.objName, TimeTypeEnum.REALTIME).add(ctx.counter, value);
+						pw.getPack(ctx.objName, TimeTypeEnum.FIVE_MIN).add(ctx.counter, avgValue);
 					}
 				} catch (Exception e) {
 					errors.add(ctx.attrName);
@@ -184,7 +184,7 @@ public class TomcatJMXPerf {
 					continue;
 				}
 				if (StringUtil.isEmpty(version) && "Server".equals(type)) { // Server
-																				// Bean
+																			// Bean
 					try {
 						Object value = server.getAttribute(mbean, "serverInfo");
 						if (value != null) {
@@ -200,7 +200,7 @@ public class TomcatJMXPerf {
 					String port = mbean.getKeyProperty("name");
 					try {
 						String objName = conf.objName + "/" + checkObjName(port);
-						
+
 						String objType = getReqProcType();
 						AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
 						add(objName, mbean, objType, ValueEnum.DECIMAL, "bytesReceived",
@@ -222,7 +222,7 @@ public class TomcatJMXPerf {
 						try {
 							String objName = conf.objName + "/" + checkObjName(name);
 							String objType = getDataSourceType();
-							
+
 							AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
 
 							add(objName, mbean, objType, ValueEnum.DECIMAL, "numActive",
@@ -243,12 +243,14 @@ public class TomcatJMXPerf {
 		}
 		return CounterConstants.REQUESTPROCESS;
 	}
+
 	private String getDataSourceType() {
 		if (Configure.getInstance().enable_plus_objtype) {
 			return Configure.getInstance().scouter_type + "_ds";
 		}
 		return CounterConstants.DATASOURCE;
 	}
+
 	private void add(String objName, ObjectName mbean, String type, byte decimal, String attrName, String counterName) {
 		if (errors.contains(attrName))
 			return;
