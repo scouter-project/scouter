@@ -14,8 +14,10 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
 import scouter.client.summary.modules.ApicallSummaryComposite;
+import scouter.client.summary.modules.IpSummaryComposite;
 import scouter.client.summary.modules.ServiceSummaryComposite;
 import scouter.client.summary.modules.SqlSummaryComposite;
+import scouter.client.summary.modules.UserAgentSummaryComposite;
 import scouter.lang.pack.MapPack;
 
 public class SummaryDialog {
@@ -28,6 +30,8 @@ public class SummaryDialog {
 	TabItem serviceTab;
 	TabItem sqlTab;
 	TabItem apicallTab;
+	TabItem ipTab;
+	TabItem userAgentTab;
 	
 	public SummaryDialog(int serverId, MapPack param) {
 		this.serverId = serverId;
@@ -49,6 +53,12 @@ public class SummaryDialog {
 		apicallTab = new TabItem(tabFolder, SWT.NULL);
 		apicallTab.setText("API Call");
 		apicallTab.setControl(getApicallControl(tabFolder));
+		ipTab = new TabItem(tabFolder, SWT.NULL);
+		ipTab.setText("IP");
+		ipTab.setControl(getIpControl(tabFolder));
+		userAgentTab = new TabItem(tabFolder, SWT.NULL);
+		userAgentTab.setText("User-Agent");
+		userAgentTab.setControl(getUaControl(tabFolder));
 		Button closeBtn = new Button(dialog, SWT.PUSH);
 		GridData gr = new GridData(SWT.RIGHT, SWT.FILL, false, false);
 		gr.widthHint = 100;
@@ -79,6 +89,18 @@ public class SummaryDialog {
 	
 	private Control getApicallControl(Composite parent) {
 		ApicallSummaryComposite comp = new ApicallSummaryComposite(parent, SWT.NONE);
+		comp.setData(serverId, param);
+		return comp;
+	}
+	
+	private Control getIpControl(Composite parent) {
+		IpSummaryComposite comp = new IpSummaryComposite(parent, SWT.NONE);
+		comp.setData(serverId, param);
+		return comp;
+	}
+	
+	private Control getUaControl(Composite parent) {
+		UserAgentSummaryComposite comp = new UserAgentSummaryComposite(parent, SWT.NONE);
 		comp.setData(serverId, param);
 		return comp;
 	}

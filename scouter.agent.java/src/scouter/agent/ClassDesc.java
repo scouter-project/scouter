@@ -23,6 +23,8 @@ public class ClassDesc {
 	public String signature;
 	public String superName;
 	public String[] interfaces;
+	public String anotation;
+	public Class classBeingRedefined;
 
 	public void set(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		this.version = version;

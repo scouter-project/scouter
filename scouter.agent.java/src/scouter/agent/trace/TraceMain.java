@@ -92,7 +92,7 @@ public class TraceMain {
 	}
 
 	private static Error REJECT = new REQUEST_REJECT("service rejected");
-    private static Error userTxNotClose = new USERTX_NOT_CLOSE("Missing Commit/Rollback Error");
+	private static Error userTxNotClose = new USERTX_NOT_CLOSE("Missing Commit/Rollback Error");
 
 	public static Object reject(Object stat, Object req, Object res) {
 		Configure conf = Configure.getInstance();
@@ -210,7 +210,7 @@ public class TraceMain {
 					if (ctx != null && ctx.error == 0) {
 						Configure conf = Configure.getInstance();
 						String emsg = thr.toString();
-						ServiceSummary.getInstance().process(thr,  ctx.serviceHash, ctx.txid, 0, 0);
+						ServiceSummary.getInstance().process(thr, ctx.serviceHash, ctx.txid, 0, 0);
 						// AlertProxy.sendAlert(AlertLevel.ERROR,
 						// "SERVICE_ERROR", emsg);
 						if (conf.profile_fullstack_service_error) {
@@ -225,7 +225,7 @@ public class TraceMain {
 							}
 							emsg = sb.toString();
 						}
-						ctx.error = DataProxy.sendError(emsg);						
+						ctx.error = DataProxy.sendError(emsg);
 					}
 				} catch (Throwable t) {
 				}
@@ -261,16 +261,18 @@ public class TraceMain {
 			} else if (thr != null) {
 				if (thr == REJECT) {
 					Logger.println("A145", ctx.serviceName);
-					// AlertProxy.sendAlert(AlertLevel.ERROR,"SERVICE_REJECTED", ctx.serviceName);
+					// AlertProxy.sendAlert(AlertLevel.ERROR,"SERVICE_REJECTED",
+					// ctx.serviceName);
 					ServiceSummary.getInstance().process(thr, ctx.serviceHash, ctx.txid, 0, 0);
-					
+
 					String emsg = conf.reject_text;
 					pack.error = DataProxy.sendError(emsg);
 				} else {
 					String emsg = thr.toString();
-					// AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_ERROR", emsg);
-					ServiceSummary.getInstance().process(thr,ctx.serviceHash, ctx.txid, 0, 0);
-					
+					// AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_ERROR",
+					// emsg);
+					ServiceSummary.getInstance().process(thr, ctx.serviceHash, ctx.txid, 0, 0);
+
 					if (conf.profile_fullstack_service_error) {
 						StringBuffer sb = new StringBuffer();
 						sb.append(emsg).append("\n");
@@ -289,9 +291,10 @@ public class TraceMain {
 
 			} else if (ctx.userTransaction > 0) {
 				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
-				ServiceSummary.getInstance().process(userTxNotClose,  ctx.serviceHash, ctx.txid, 0, 0);
-//				AlertProxy.sendAlertUTXNotClose(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error",
-//						ctx.serviceName, ctx.txid);				
+				ServiceSummary.getInstance().process(userTxNotClose, ctx.serviceHash, ctx.txid, 0, 0);
+				// AlertProxy.sendAlertUTXNotClose(AlertLevel.WARN,
+				// "TX_NOT_CLOSE", "Missing Commit/Rollback Error",
+				// ctx.serviceName, ctx.txid);
 			} else if (conf.isErrorStatus(ctx.status)) {
 				String emsg = "HttpStatus " + ctx.status;
 				pack.error = DataProxy.sendError(emsg);
@@ -407,7 +410,7 @@ public class TraceMain {
 			} else if (thr != null) {
 				Configure conf = Configure.getInstance();
 				String emsg = thr.toString();
-				ServiceSummary.getInstance().process(thr,  ctx.serviceHash, ctx.txid, 0, 0);
+				ServiceSummary.getInstance().process(thr, ctx.serviceHash, ctx.txid, 0, 0);
 				if (conf.profile_fullstack_service_error) {
 					StringBuffer sb = new StringBuffer();
 					sb.append(emsg).append("\n");
@@ -423,9 +426,10 @@ public class TraceMain {
 				pack.error = DataProxy.sendError(emsg);
 			} else if (ctx.userTransaction > 0) {
 				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
-				ServiceSummary.getInstance().process(userTxNotClose,  ctx.serviceHash, ctx.txid, 0, 0);
-//				AlertProxy.sendAlertUTXNotClose(AlertLevel.WARN, "TX_NOT_CLOSE", "Missing Commit/Rollback Error",
-//						ctx.serviceName, ctx.txid);
+				ServiceSummary.getInstance().process(userTxNotClose, ctx.serviceHash, ctx.txid, 0, 0);
+				// AlertProxy.sendAlertUTXNotClose(AlertLevel.WARN,
+				// "TX_NOT_CLOSE", "Missing Commit/Rollback Error",
+				// ctx.serviceName, ctx.txid);
 			}
 			// 2015.02.02
 			pack.apicallCount = ctx.apicall_count;
@@ -593,28 +597,14 @@ public class TraceMain {
 		tctx.profile.pop(step);
 	}
 
-	// public static Object startDivPerf(int divIdx, String classMethod) {
-	// TraceContext ctx = TraceContextManager.getLocalContext();
-	// if (ctx == null)
-	// return null;
-	//
-	// Configure conf = Configure.getInstance();
-	// if (divIdx >= conf.divperf_size)
-	// return null;
-	//
-	// // if (ctx.divPerf == null)
-	// // ctx.divPerf = new int[conf.divperf_size];
-	//
-	// return new DivContext(ctx, System.currentTimeMillis(), divIdx);
-	// }
-	// public static void endDivPerf(Object stat, Throwable thr) {
-	// if (stat == null)
-	// return;
-	// DivContext dctx = (DivContext) stat;
-	// int time = (int) (System.currentTimeMillis() - dctx.stime);
-	// dctx.context.divPerf[dctx.divIdx] += time;
-	// }
-	// /////////////////////
+	public static void setServiceName(String name) {
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx == null || name == null)
+			return;
+		ctx.serviceName = name;
+		ctx.serviceHash = HashUtil.hash(name);
+	}
+
 	public static void setStatus(int httpStatus) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
