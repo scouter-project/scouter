@@ -50,7 +50,7 @@ Scouter has three modules:
      - Counters : Cpu, Memory, Disk, Network
   -  MariaDB Agent : [to be announced]
 
-- Server (Collecter) : received the data from agent and it stores the data. The data is serviced to clients.
+- Server (Collector) : received the data from agent and it stores the data. The data is serviced to clients.
   - Scala : Written in Scala. It will provide a variety of features and performance scalability that can not be written in Java.
   - HASH FILE : Server is using the hash index in order to store large data in files.
   - GZIP : Service performance data and profile data are stored is compressed.
