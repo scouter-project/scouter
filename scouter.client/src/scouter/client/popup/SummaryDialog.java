@@ -32,6 +32,7 @@ public class SummaryDialog {
 	TabItem apicallTab;
 	TabItem ipTab;
 	TabItem userAgentTab;
+	TabItem errorTab;
 	
 	public SummaryDialog(int serverId, MapPack param) {
 		this.serverId = serverId;
