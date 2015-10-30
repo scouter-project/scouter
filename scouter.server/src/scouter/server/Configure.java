@@ -141,8 +141,8 @@ public class Configure extends Thread {
 
 	public int agent_deadtime = 8000;
 
-	public boolean gzip_xlog = true;
-	public boolean gzip_profile = true;
+	public boolean gzip_xlog = false;
+	public boolean gzip_profile = false;
 	public int gzip_writing_block = 3;
 	public int gzip_read_cache_block = 3;
 	public long gzip_read_cache_time = DateUtil.MILLIS_PER_MINUTE;
