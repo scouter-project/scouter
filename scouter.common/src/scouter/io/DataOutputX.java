@@ -71,12 +71,14 @@ public class DataOutputX {
 	public DataOutputX(RandomAccessFile out) {
 		this.inner = out;
 	}
+
 	public DataOutputX writeIntBytes(byte[] b) throws IOException {
 		this.writeInt(b.length);
 		this.write(b);
 		return this;
 
 	}
+
 	public DataOutputX writeShortBytes(byte[] b) throws IOException {
 		this.writeShort(b.length);
 		this.write(b);
@@ -98,12 +100,14 @@ public class DataOutputX {
 				writeByte((byte) len);
 				write(value, offset, len);
 			} else if (len <= 65535) {
-				writeByte((byte) 255);
-				writeShort((short) len);
+				byte[] buff = new byte[3];
+				buff[0] = (byte) 255;
+				write(toBytes(buff, 1, (short) len));
 				write(value, offset, len);
 			} else {
-				writeByte((byte) 254);
-				writeInt(len);
+				byte[] buff = new byte[5];
+				buff[0] = (byte) 254;
+				write(toBytes(buff, 1, len));
 				write(value, offset, len);
 			}
 		}
@@ -119,12 +123,14 @@ public class DataOutputX {
 				writeByte((byte) len);
 				write(value);
 			} else if (len <= 65535) {
-				writeByte((byte) 255);
-				writeShort((short) len);
+				byte[] buff = new byte[3];
+				buff[0] = (byte) 255;
+				write(toBytes(buff, 1, (short) len));
 				write(value);
 			} else {
-				writeByte((byte) 254);
-				writeInt(len);
+				byte[] buff = new byte[5];
+				buff[0] = (byte) 254;
+				write(toBytes(buff, 1, len));
 				write(value);
 			}
 		}
@@ -163,23 +169,31 @@ public class DataOutputX {
 		if (v == 0) {
 			writeByte(0);
 		} else if (Byte.MIN_VALUE <= v && v <= Byte.MAX_VALUE) {
-			writeByte(1);
-			writeByte((byte) v);
+			byte[] b = new byte[2];
+			b[0] = 1;
+			b[1] = (byte) v;
+			write(b);
 		} else if (Short.MIN_VALUE <= v && v <= Short.MAX_VALUE) {
-			writeByte(2);
-			writeShort((short) v);
+			byte[] b = new byte[3];
+			b[0] = 2;
+			toBytes(b, 1, (short) v);
+			write(b);
 		} else if (INT3_MIN_VALUE <= v && v <= INT3_MAX_VALUE) {
-			writeByte(3);
-			writeInt3((int) v);
+			byte[] b = new byte[4];
+			b[0] = 3;
+			write(toBytes3(b, 1, (int) v), 0, 4);
 		} else if (Integer.MIN_VALUE <= v && v <= Integer.MAX_VALUE) {
-			writeByte(4);
-			writeInt((int) v);
+			byte[] b = new byte[5];
+			b[0] = 4;
+			write(toBytes(b, 1, (int) v), 0, 5);
 		} else if (LONG5_MIN_VALUE <= v && v <= LONG5_MAX_VALUE) {
-			writeByte(5);
-			writeLong5(v);
+			byte[] b = new byte[6];
+			b[0] = 5;
+			write(toBytes5(b, 1, v), 0, 6);
 		} else if (Long.MIN_VALUE <= v && v <= Long.MAX_VALUE) {
-			writeByte(8);
-			writeLong(v);
+			byte[] b = new byte[9];
+			b[0] = 8;
+			write(toBytes(b, 1, v), 0, 9);
 		}
 		return this;
 	}
@@ -197,6 +211,12 @@ public class DataOutputX {
 		return buf;
 	}
 
+	public static byte[] toBytes(byte[] buf, int off, short v) {
+		buf[off] = (byte) ((v >>> 8) & 0xFF);
+		buf[off + 1] = (byte) ((v >>> 0) & 0xFF);
+		return buf;
+	}
+
 	public static byte[] toBytes(int v) {
 		byte buf[] = new byte[4];
 		buf[0] = (byte) ((v >>> 24) & 0xFF);
@@ -206,11 +226,26 @@ public class DataOutputX {
 		return buf;
 	}
 
+	public static byte[] toBytes(byte[] buf, int off, int v) {
+		buf[off] = (byte) ((v >>> 24) & 0xFF);
+		buf[off + 1] = (byte) ((v >>> 16) & 0xFF);
+		buf[off + 2] = (byte) ((v >>> 8) & 0xFF);
+		buf[off + 3] = (byte) ((v >>> 0) & 0xFF);
+		return buf;
+	}
+
 	public static byte[] toBytes3(int v) {
 		byte buf[] = new byte[3];
 		buf[0] = (byte) ((v >>> 16) & 0xFF);
 		buf[1] = (byte) ((v >>> 8) & 0xFF);
 		buf[2] = (byte) ((v >>> 0) & 0xFF);
+		return buf;
+	}
+
+	public static byte[] toBytes3(byte[] buf, int off, int v) {
+		buf[off] = (byte) ((v >>> 16) & 0xFF);
+		buf[off + 1] = (byte) ((v >>> 8) & 0xFF);
+		buf[off + 2] = (byte) ((v >>> 0) & 0xFF);
 		return buf;
 	}
 
@@ -227,6 +262,18 @@ public class DataOutputX {
 		return buf;
 	}
 
+	public static byte[] toBytes(byte[] buf, int off, long v) {
+		buf[off] = (byte) (v >>> 56);
+		buf[off + 1] = (byte) (v >>> 48);
+		buf[off + 2] = (byte) (v >>> 40);
+		buf[off + 3] = (byte) (v >>> 32);
+		buf[off + 4] = (byte) (v >>> 24);
+		buf[off + 5] = (byte) (v >>> 16);
+		buf[off + 6] = (byte) (v >>> 8);
+		buf[off + 7] = (byte) (v >>> 0);
+		return buf;
+	}
+
 	public static byte[] toBytes5(long v) {
 		byte writeBuffer[] = new byte[5];
 		writeBuffer[0] = (byte) (v >>> 32);
@@ -237,6 +284,15 @@ public class DataOutputX {
 		return writeBuffer;
 	}
 
+	public static byte[] toBytes5(byte[] buf, int off, long v) {
+		buf[off] = (byte) (v >>> 32);
+		buf[off + 1] = (byte) (v >>> 24);
+		buf[off + 2] = (byte) (v >>> 16);
+		buf[off + 3] = (byte) (v >>> 8);
+		buf[off + 4] = (byte) (v >>> 0);
+		return buf;
+	}
+
 	public static byte[] toBytes(boolean b) {
 		if (b)
 			return new byte[] { 1 };
@@ -244,12 +300,28 @@ public class DataOutputX {
 			return new byte[] { 0 };
 	}
 
+	public static byte[] toBytes(byte[] buf, int off, boolean b) {
+		if (b)
+			buf[off] = 1;
+		else
+			buf[off] = 0;
+		return buf;
+	}
+
 	public static byte[] toBytes(float v) {
 		return toBytes(Float.floatToIntBits(v));
 	}
 
+	public static byte[] toBytes(byte[] buf, int off, float v) {
+		return toBytes(buf, off, Float.floatToIntBits(v));
+	}
+
 	public static byte[] toBytes(double v) {
 		return toBytes(Double.doubleToLongBits(v));
+	}
+
+	public static byte[] toBytes(byte[] buf, int off, double v) {
+		return toBytes(buf, off, Double.doubleToLongBits(v));
 	}
 
 	public static byte[] set(byte[] dest, int pos, byte[] src) {
@@ -317,8 +389,6 @@ public class DataOutputX {
 		return this;
 	}
 
-	
-
 	public DataOutputX writeValue(Value value) throws IOException {
 		if (value == null)
 			value = NullValue.value;
@@ -327,15 +397,12 @@ public class DataOutputX {
 		return this;
 	}
 
-	
-
 	public DataOutputX writeStep(Step step) throws IOException {
 		this.writeByte(step.getStepType());
 		step.write(this);
 		return this;
 	}
 
-	
 	public DataOutputX writePack(Pack packet) throws IOException {
 		this.writeByte(packet.getPackType());
 		packet.write(this);
@@ -362,13 +429,13 @@ public class DataOutputX {
 
 	public DataOutputX writeByte(int v) throws IOException {
 		this.written++;
-		this.inner.writeByte(v);
+		this.inner.writeByte((byte) v);
 		return this;
 	}
 
 	public DataOutputX writeShort(int v) throws IOException {
 		this.written += 2;
-		this.inner.writeShort(v);
+		this.inner.write(toBytes((short) v));
 		return this;
 	}
 
@@ -380,25 +447,25 @@ public class DataOutputX {
 
 	public DataOutputX writeInt(int v) throws IOException {
 		this.written += 4;
-		this.inner.writeInt(v);
+		this.inner.write(toBytes(v));
 		return this;
 	}
 
 	public DataOutputX writeLong(long v) throws IOException {
 		this.written += 8;
-		this.inner.writeLong(v);
+		this.inner.write(toBytes(v));
 		return this;
 	}
 
 	public DataOutputX writeFloat(float v) throws IOException {
 		this.written += 4;
-		this.inner.writeFloat(v);
+		this.inner.write(toBytes(v));
 		return this;
 	}
 
 	public DataOutputX writeDouble(double v) throws IOException {
 		this.written += 8;
-		this.inner.writeDouble(v);
+		this.inner.write(toBytes(v));
 		return this;
 	}
 
@@ -424,13 +491,4 @@ public class DataOutputX {
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		DataOutputX dout = new DataOutputX(out);
-		dout.writeInt(100);
-		// dout.flush();
-		byte[] b = ((ByteArrayOutputStream) out).toByteArray();
-		DataInputX din = new DataInputX(b);
-		System.out.println(din.readInt());
-	}
 }

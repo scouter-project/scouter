@@ -171,6 +171,9 @@ public class Configure extends Thread {
 	public boolean hook_method_access_protected = false;
 	public boolean hook_method_access_none = false;
 
+	public boolean trace_method_enabled=true;
+
+	
 	public String hook_service = "";
 	public String hook_apicall = "";
 	public String hook_apicall_info = "";
@@ -313,7 +316,7 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
-
+	
 
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
@@ -441,6 +444,8 @@ public class Configure extends Thread {
 		this._hook_method_ignore_classes = new StringSet(StringUtil.tokenizer(
 				this.hook_method_ignore_classes.replace('.', '/'), ","));
 
+		this.trace_method_enabled=getBoolean("trace_method_enabled", true);
+		
 		this.hook_service = getValue("hook_service", "");
 		this.hook_apicall = getValue("hook_apicall", "");
 		this.hook_apicall_info = getValue("hook_apicall_info", "");

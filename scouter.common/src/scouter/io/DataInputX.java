@@ -137,24 +137,6 @@ public class DataInputX {
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
-		DataOutputX out = new DataOutputX();
-		long x = (long) Integer.MIN_VALUE - 10000;
-		out.writeLong5(x);
-		out.writeInt(10);
-		out.writeInt3(-1);
-		byte[] b = out.toByteArray();
-
-		DataInputX in = new DataInputX(b);
-		// int i = in.readInt();
-		// String s = in.readUTF();
-		long j = in.readLong5();
-		int i = in.readInt();
-		int k = in.readInt3();
-		System.out.println(j + "  " + x);
-
-	}
-
 	public String readText() throws IOException {
 		byte[] buffer = readBlob();
 		return new String(buffer, "UTF8");
