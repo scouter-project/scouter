@@ -23,6 +23,7 @@ import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.lang.TimeTypeEnum;
 import scouter.lang.value.MapValue;
+import scouter.lang.value.NumberValue;
 import scouter.lang.value.Value;
 import scouter.util.DateUtil;
 
@@ -65,4 +66,12 @@ public class PerfCounterPack implements Pack {
 		this.data.put(key, value);
 	}
 
+	public void add(String key, NumberValue value) {
+		Value old = this.data.get(key);
+		if (old == null) {
+			this.data.put(key, value);
+		} else if (old instanceof NumberValue) {
+			((NumberValue) old).add(value);
+		}
+	}
 }

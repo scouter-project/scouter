@@ -552,6 +552,9 @@ public class TraceMain {
 	private static Configure conf = Configure.getInstance();
 
 	public static Object startMethod(int hash, String classMethod) {
+		if(conf.trace_method_enabled==false)
+			return null;
+		
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.enable_auto_service_trace) {

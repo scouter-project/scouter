@@ -104,7 +104,7 @@ object SummaryWR {
     def getDBPath(date: String): String = {
         val sb = new StringBuffer();
         sb.append(DBCtr.getRootPath());
-        sb.append("/").append(date).append("/").append();
+        sb.append("/").append(date).append("/").append(root);
         return sb.toString();
     }
 }

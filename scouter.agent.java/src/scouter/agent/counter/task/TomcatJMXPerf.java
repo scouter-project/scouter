@@ -56,10 +56,10 @@ public class TomcatJMXPerf {
 		deltas.add(CounterConstants.REQUESTPROCESS_ERROR_COUNT);
 		deltas.add(CounterConstants.REQUESTPROCESS_PROCESSING_TIME);
 		deltas.add(CounterConstants.REQUESTPROCESS_REQUEST_COUNT);
-		
+
 		ConfObserver.add("TomcatJMXPerf", new Runnable() {
 			public void run() {
-				ObjTypeDetector.dirtyConfig=true;
+				ObjTypeDetector.dirtyConfig = true;
 			}
 		});
 	}
@@ -80,22 +80,22 @@ public class TomcatJMXPerf {
 
 	static class MeterKey {
 
-		String objName;
+		int mbeanHash;
 		String counter;
 
-		public MeterKey(String objName, String counter) {
-			this.objName = objName;
+		public MeterKey(int mbeanHash, String counter) {
+			this.mbeanHash = mbeanHash;
 			this.counter = counter;
 		}
 
 		public int hashCode() {
-			return objName.hashCode() ^ counter.hashCode();
+			return mbeanHash ^ counter.hashCode();
 		}
 
 		public boolean equals(Object obj) {
 			if (obj instanceof MeterKey) {
 				MeterKey key = (MeterKey) obj;
-				return (this.objName.equals(key.objName)) && (this.counter.equals(key.counter));
+				return (this.mbeanHash == key.mbeanHash) && (this.counter.equals(key.counter));
 			}
 			return false;
 		}
@@ -116,20 +116,19 @@ public class TomcatJMXPerf {
 
 		getMBeanServer();
 
-		if ((collectCnt <= 40 && collectCnt%5==0) || ObjTypeDetector.dirtyConfig) {
+		if ((collectCnt <= 40 && collectCnt % 5 == 0) || ObjTypeDetector.dirtyConfig) {
 			if (ObjTypeDetector.dirtyConfig) {
 				AgentHeartBeat.clearSubObjects();
-				ObjTypeDetector.dirtyConfig=false;
+				ObjTypeDetector.dirtyConfig = false;
 			}
 			getContextList();
 		}
 		collectCnt++;
 		MBeanServer server = servers.get(0);
-
 		for (CtxObj ctx : ctxList) {
 			if (ctx.valueType == ValueEnum.DECIMAL) {
 				try {
-					MeterKey key = new MeterKey(ctx.objName, ctx.counter);
+					MeterKey key = new MeterKey(ctx.mbeanHash, ctx.counter);
 					long v = CastUtil.clong(server.getAttribute(ctx.mbean, ctx.attrName));
 					if (deltas.contains(ctx.counter)) {
 						v = getDelta(key, v);
@@ -138,8 +137,8 @@ public class TomcatJMXPerf {
 						v = (long) meter.getSum(60);
 						long sum = (long) meter.getSum(300) / 5;
 
-						pw.getPack(ctx.objName, TimeTypeEnum.REALTIME).put(ctx.counter, new DecimalValue(v));
-						pw.getPack(ctx.objName, TimeTypeEnum.FIVE_MIN).put(ctx.counter, new DecimalValue(sum));
+						pw.getPack(ctx.objName, TimeTypeEnum.REALTIME).add(ctx.counter, new DecimalValue(v));
+						pw.getPack(ctx.objName, TimeTypeEnum.FIVE_MIN).add(ctx.counter, new DecimalValue(sum));
 					} else {
 						MeterResource meter = getMeter(key);
 						meter.add(v);
@@ -147,8 +146,8 @@ public class TomcatJMXPerf {
 						double avg = meter.getAvg(300);
 						FloatValue value = new FloatValue((float) d);
 						FloatValue avgValue = new FloatValue((float) avg);
-						pw.getPack(ctx.objName, TimeTypeEnum.REALTIME).put(ctx.counter, value);
-						pw.getPack(ctx.objName, TimeTypeEnum.FIVE_MIN).put(ctx.counter, avgValue);
+						pw.getPack(ctx.objName, TimeTypeEnum.REALTIME).add(ctx.counter, value);
+						pw.getPack(ctx.objName, TimeTypeEnum.FIVE_MIN).add(ctx.counter, avgValue);
 					}
 				} catch (Exception e) {
 					errors.add(ctx.attrName);
@@ -184,7 +183,7 @@ public class TomcatJMXPerf {
 					continue;
 				}
 				if (StringUtil.isEmpty(version) && "Server".equals(type)) { // Server
-																				// Bean
+																			// Bean
 					try {
 						Object value = server.getAttribute(mbean, "serverInfo");
 						if (value != null) {
@@ -200,7 +199,7 @@ public class TomcatJMXPerf {
 					String port = mbean.getKeyProperty("name");
 					try {
 						String objName = conf.objName + "/" + checkObjName(port);
-						
+
 						String objType = getReqProcType();
 						AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
 						add(objName, mbean, objType, ValueEnum.DECIMAL, "bytesReceived",
@@ -222,7 +221,7 @@ public class TomcatJMXPerf {
 						try {
 							String objName = conf.objName + "/" + checkObjName(name);
 							String objType = getDataSourceType();
-							
+
 							AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
 
 							add(objName, mbean, objType, ValueEnum.DECIMAL, "numActive",
@@ -243,12 +242,14 @@ public class TomcatJMXPerf {
 		}
 		return CounterConstants.REQUESTPROCESS;
 	}
+
 	private String getDataSourceType() {
 		if (Configure.getInstance().enable_plus_objtype) {
 			return Configure.getInstance().scouter_type + "_ds";
 		}
 		return CounterConstants.DATASOURCE;
 	}
+
 	private void add(String objName, ObjectName mbean, String type, byte decimal, String attrName, String counterName) {
 		if (errors.contains(attrName))
 			return;
@@ -278,21 +279,29 @@ public class TomcatJMXPerf {
 	}
 
 	class CtxObj {
-		private String objName;
-		private ObjectName mbean;
-		private String objType;
-		private byte valueType;
-		private String attrName;
-		private String counter;
+		public int mbeanHash;
+		public String objName;
+		public ObjectName mbean;
+		public String objType;
+		public byte valueType;
+		public String attrName;
+		public String counter;
 
 		public CtxObj(String objName, ObjectName mbean, String objType, byte valueType, String attrName, String counter) {
 
 			this.objName = objName;
 			this.mbean = mbean;
+			this.mbeanHash = HashUtil.hash(mbean.toString());
 			this.objType = objType;
 			this.valueType = valueType;
 			this.attrName = attrName;
 			this.counter = counter;
+		}
+
+		@Override
+		public String toString() {
+			return "CtxObj [objName=" + objName + ", mbean=" + mbean + ", objType=" + objType + ", valueType="
+					+ valueType + ", attrName=" + attrName + ", counter=" + counter + "]";
 		}
 
 	}
