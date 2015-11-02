@@ -199,7 +199,7 @@ class SummaryService {
                         tempMap.put(id.getInt(i), tempObj);
                     }
 
-                    tempObj.error = service.getInt(i);
+                    tempObj.error = error.getInt(i);
                     tempObj.service = service.getInt(i);
                     tempObj.txid = txid.getLong(i);
 
