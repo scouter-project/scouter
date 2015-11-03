@@ -85,6 +85,7 @@ public class ErrorSummaryComposite extends Composite {
 		this.serverId = serverId;
 		this.param = param;
 		initLayout();
+		clipboard = new Clipboard(null);
 	}
 	
 	private void initLayout() {

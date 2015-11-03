@@ -188,7 +188,7 @@ public class Configure extends Thread {
 	public StringSet log_ignore = new StringSet();
 	public boolean tagcnt_enabled = false;
 	
-	public int tcp_server_pool_size = 500;
+	public int tcp_server_pool_size = 100;
 	public boolean enable_alert_summary=false;
 	
 	public static boolean WORKABLE = true; 
@@ -211,8 +211,8 @@ public class Configure extends Thread {
 
 		this.agent_deadtime = getInt("agent_deadtime", 8000);
 
-		this.gzip_xlog = getBoolean("gzip_xlog", true);
-		this.gzip_profile = getBoolean("gzip_profile", true);
+		this.gzip_xlog = getBoolean("gzip_xlog", false);
+		this.gzip_profile = getBoolean("gzip_profile", false);
 		this.gzip_writing_block = getInt("gzip_writing_block", 3);
 		this.gzip_unitcount_header_cache = getInt("gzip_unitcount_header_cache", 5);
 		this.gzip_read_cache_block = getInt("gzip_read_cache_block", 3);

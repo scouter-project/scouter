@@ -84,6 +84,7 @@ public class SqlSummaryComposite extends Composite {
 		this.serverId = serverId;
 		this.param = param;
 		initLayout();
+		clipboard = new Clipboard(null);
 	}
 	
 	private void initLayout() {
