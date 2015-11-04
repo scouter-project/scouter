@@ -251,6 +251,7 @@ public class ServiceSummary {
 		ListValue id = p.table.newList("id");
 		ListValue error = p.table.newList("error");
 		ListValue service = p.table.newList("service");
+		ListValue message = p.table.newList("message");
 
 		ListValue count = p.table.newList("count");
 		ListValue txid = p.table.newList("txid");
@@ -266,6 +267,7 @@ public class ServiceSummary {
 			id.add(key);
 			error.add(data.error);
 			service.add(data.service);
+			message.add(data.message);
 			count.add(data.count);
 			txid.add(data.txid);
 			sql.add(data.sql);
