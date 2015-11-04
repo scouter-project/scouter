@@ -8,6 +8,7 @@
 	<property name="class-boot-dir" value="./out/bin/server.boot" />
 	<property name="jar-geoip-file" value="./lib/maxmind.geoip.jar" />
 	<property name="jar-jsqlparser-file" value="./lib/jsqlparser.jar" />
+	<property name="jar-javassist-file" value="./lib/javassist.jar" />
 
 	<property name="deploy-jar-file"
 		value="./out/package/scouter/server/lib/scouter.server-${VERSION}.jar" />
@@ -83,6 +84,7 @@
 				<pathelement location="${jar-scala-lib}/jline.jar" />
 				<pathelement location="${class-server-dir}" />
 				<pathelement location="${jar-jsqlparser-file}" />
+				<pathelement location="${jar-javassist-file}" />
 				<pathelement location="${jar-geoip-file}" />
 			</classpath>
 		</scalac>
@@ -96,6 +98,7 @@
 				<pathelement location="${jar-scala-lib}/jline.jar" />
 				<pathelement location="${class-server-dir}" />
 				<pathelement location="${jar-jsqlparser-file}" />
+				<pathelement location="${jar-javassist-file}" />
 				<pathelement location="${jar-geoip-file}" />
 			</classpath>
 		</javac>
@@ -129,6 +132,8 @@
 		<copy file="${jar-boot-file}" todir="${deploy-boot-dir}" verbose="true" />
 		<copy file="${jar-geoip-file}" todir="${deploy-lib-dir}" verbose="true" />
 		<copy file="${jar-jsqlparser-file}" todir="${deploy-lib-dir}"
+			verbose="true" />
+		<copy file="${jar-javassist-file}" todir="${deploy-lib-dir}"
 			verbose="true" />
 		<copy todir="./out/package/scouter/server">
 			<fileset dir="../scouter.server/scripts" />
