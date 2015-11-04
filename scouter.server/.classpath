@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="/scouter.deploy/lib/jsqlparser.jar"/>
 	<classpathentry kind="lib" path="/scouter.deploy/lib/maxmind.geoip.jar"/>
 	<classpathentry kind="lib" path="/scouter.deploy/lib/scala/jline.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/javassist.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

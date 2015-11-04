@@ -24,6 +24,9 @@ import java.sql.SQLException;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterSQL;
+import scouter.agent.error.CONNECTION_OPEN_FAIL;
+import scouter.agent.error.SLOW_SQL;
+import scouter.agent.error.TOO_MANY_RECORDS;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.summary.ServiceSummary;
 import scouter.jdbc.DetectConnection;
@@ -213,10 +216,11 @@ public class TraceSQL {
 		}
 		return parsed;
 	}
-	  
 
-	private static SQLException slowSql = new SQLException("Slow SQL","SLOW_SQL");
-	
+	private static SQLException slowSql = new SLOW_SQL("Slow SQL", "SLOW_SQL");
+	private static SQLException tooManyFetch = new TOO_MANY_RECORDS("TOO_MANY_RECORDS", "TOO_MANY_RECORDS");
+	private static SQLException connectionOpenFail = new CONNECTION_OPEN_FAIL("CONNECTION_OPEN_FAIL",
+			"CONNECTION_OPEN_FAIL");
 
 	public static void end(Object stat, Throwable thr) {
 		if (stat == null) {
@@ -253,18 +257,16 @@ public class TraceSQL {
 				tctx.error = hash;
 			}
 			ps.error = hash;
-			//AlertProxy.sendAlert(AlertLevel.ERROR, "SQL_EXCEPTION", msg);
-			ServiceSummary.getInstance().process(thr,  tctx.serviceHash, tctx.txid, ps.hash, 0);
-			
+			ServiceSummary.getInstance().process(thr, hash, tctx.serviceHash, tctx.txid, ps.hash, 0);
+
 		} else if (ps.elapsed > conf.alert_sql_time) {
 			String msg = "warning slow sql, over " + conf.alert_sql_time + " ms";
 			int hash = DataProxy.sendError(msg);
 			if (tctx.error == 0) {
 				tctx.error = hash;
 			}
-			//AlertProxy.sendAlertSlowSql(AlertLevel.WARN, "SLOW_SQL", msg, tctx.sqltext, ps.elapsed, tctx.txid);
-			ServiceSummary.getInstance().process(slowSql,  tctx.serviceHash, tctx.txid, ps.hash, 0);
-			
+			ServiceSummary.getInstance().process(slowSql, hash, tctx.serviceHash, tctx.txid, ps.hash, 0);
+
 		}
 
 		tctx.sqltext = null;
@@ -274,7 +276,7 @@ public class TraceSQL {
 		tctx.sqlTime += ps.elapsed;
 
 		ServiceSummary.getInstance().process(ps);
-		MeterSQL.getInstance().add(ps.elapsed, ps.error!=0);
+		MeterSQL.getInstance().add(ps.elapsed, ps.error != 0);
 		tctx.profile.pop(ps);
 	}
 
@@ -322,8 +324,7 @@ public class TraceSQL {
 			if (c.error == 0) {
 				c.error = hash;
 			}
-			AlertProxy
-					.sendAlertTooManyFetch(AlertLevel.WARN, "TOO_MANY_RESULT", msg, c.serviceName, c.rs_count, c.txid);
+			ServiceSummary.getInstance().process(tooManyFetch, hash, c.serviceHash, c.txid, 0, 0);
 		}
 	}
 
@@ -471,6 +472,10 @@ public class TraceSQL {
 
 	public static void driverConnect(String url, Throwable thr) {
 		AlertProxy.sendAlert(AlertLevel.ERROR, "CONNECT", url + " " + thr);
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx != null) {
+			ServiceSummary.getInstance().process(connectionOpenFail, 0, ctx.serviceHash, ctx.txid, 0, 0);
+		}
 	}
 
 	public static void userTxOpen() {
@@ -630,8 +635,7 @@ public class TraceSQL {
 			if (tctx.error == 0) {
 				tctx.error = hash;
 			}
-
-			AlertProxy.sendAlert(AlertLevel.ERROR, "OPEN-DBC", msg);
+			ServiceSummary.getInstance().process(connectionOpenFail, hash, tctx.serviceHash, tctx.txid, 0, 0);
 		}
 		tctx.profile.pop(step);
 	}

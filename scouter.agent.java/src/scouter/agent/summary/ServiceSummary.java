@@ -69,16 +69,17 @@ public class ServiceSummary {
 			uaMaster.put(p.userAgent, uaMaster.get(p.userAgent) + 1);
 		}
 	}
-	
-	public ErrorData process(Throwable p, int service, long txid, int sql, int api) {
+
+	public ErrorData process(Throwable p, int message, int service, long txid, int sql, int api) {
 		if (conf.enable_summary == false)
 			return null;
-		String exceptionName = p.getClass().getName();
-		
-		int errHash = DataProxy.sendError(exceptionName);
-		ErrorData d = getSummaryError(errorMaster, BitUtil.composite(errHash,service));
+		String errName = p.getClass().getName();
+
+		int errHash = DataProxy.sendError(errName);
+		ErrorData d = getSummaryError(errorMaster, BitUtil.composite(errHash, service));
 		d.error = errHash;
 		d.service = service;
+		d.message = (message == 0 ? errHash : message);
 		d.count++;
 		d.txid = txid;
 
@@ -237,9 +238,9 @@ public class ServiceSummary {
 	}
 
 	public SummaryPack getAndClearError(byte type) {
-		if(errorMaster.size()==0)
+		if (errorMaster.size() == 0)
 			return null;
-		
+
 		LongKeyLinkedMap<ErrorData> temp = errorMaster;
 		errorMaster = new LongKeyLinkedMap<ErrorData>().setMax(conf.summary_service_error_max);
 
