@@ -68,6 +68,7 @@ import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
 import scouter.client.actions.AddServerAction;
 import scouter.client.actions.ClearObjectFilterAction;
+import scouter.client.actions.OpenAlertDetailListAction;
 import scouter.client.actions.OpenGroupNavigationAction;
 import scouter.client.actions.OpenLoginListAction;
 import scouter.client.actions.OpenObjectDailyListAction;
@@ -405,6 +406,7 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 						}
 						mgr.add(new Separator());
 						mgr.add(new OpenTotalSummaryAction(win, serverId));
+						mgr.add(new OpenAlertDetailListAction(win, serverId));
 						mgr.add(new Separator());
 						if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
 							mgr.add(new OpenServerConfigureAction(win, MenuStr.CONFIGURE, Images.config, serverId));

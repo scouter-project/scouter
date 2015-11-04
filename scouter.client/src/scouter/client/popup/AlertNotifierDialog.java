@@ -38,11 +38,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import scouter.client.Images;
-import scouter.client.model.TextProxy;
 import scouter.client.preferences.PManager;
 import scouter.client.preferences.PreferenceConstants;
 import scouter.client.util.ExUtil;
-import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
 import scouter.lang.AlertLevel;
 import scouter.lang.pack.AlertPack;
@@ -52,16 +50,18 @@ public class AlertNotifierDialog {
 	
 	private final Display display;
 	private Shell dialog;
-	private int serverId;
+	private String objName;
 	
 	Label timeLbl, levelLbl, titleLbl, messageLbl, objectLbl;
 	AlertPack p;
 	Timer timer;
 	
-	public AlertNotifierDialog(Display display, int serverId, AlertPack p) {
+	public AlertNotifierDialog(Display display) {
 		this.display = display;
-		this.serverId = serverId;
-		this.p = p;
+	}
+	
+	public void setObjName(String objName) {
+		this.objName = objName;
 	}
 	
 	public void setPack(AlertPack p){
@@ -170,8 +170,7 @@ public class AlertNotifierDialog {
 	    messageLbl.setFont( new Font(display,fD[0]));
 	    
 	    objectLbl = new Label(mainComp, SWT.WRAP | SWT.RIGHT);
-	    String obj = TextProxy.object.getLoadText(DateUtil.yyyymmdd(TimeUtil.getCurrentTime(serverId)), p.objHash, serverId);
-	    objectLbl.setText(obj == null ? "" : obj);
+	    objectLbl.setText(objName == null ? "" : objName);
 	    objectLbl.setLayoutData(UIUtil.formData(0, 5, messageLbl, 5, 100, -5, null, -1));
 	    fD[0].setHeight(11);
 	    objectLbl.setFont( new Font(display,fD[0]));

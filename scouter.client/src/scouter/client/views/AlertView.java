@@ -18,9 +18,7 @@
 package scouter.client.views;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -54,12 +52,7 @@ public class AlertView extends ViewPart implements IAlertListener {
 
 	AlertNotifierDialog alertDialog;
 	
-	boolean alertFatal = true;
-	boolean alertWarn = false;
-	boolean alertError = false;
-	boolean alertInfo = true;
-	
-	Action alertFatalAct, alertWarnAct, alertErrorAct, alertInfoAct;
+	//Action alertFatalAct, alertWarnAct, alertErrorAct, alertInfoAct;
 	
 	public void createPartControl(Composite parent) {
 		parent.setLayout(ChartUtil.gridlayout(1));
@@ -75,52 +68,55 @@ public class AlertView extends ViewPart implements IAlertListener {
 					return;
 				}
 				AlertData d = (AlertData) o;
-				alertDialog = new AlertNotifierDialog(getViewSite().getShell().getDisplay(), d.serverId, d.p);
+				String objName = TextProxy.object.getLoadText(DateUtil.yyyymmdd(d.p.time), d.p.objHash, d.serverId);
+				alertDialog = new AlertNotifierDialog(getViewSite().getShell().getDisplay());
+				alertDialog.setObjName(objName);
+				alertDialog.setPack(d.p);
 				alertDialog.show(getViewSite().getShell().getBounds());
 			}
 		});
 
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
 
-		alertFatalAct = new Action("Fatal", IAction.AS_CHECK_BOX){ 
-	        public void run(){    
-	        	alertFatal = alertFatalAct.isChecked();
-	        }
-	    };  
-	    alertFatalAct.setImageDescriptor(Images.ALERT_FATAL);
-	    alertFatalAct.setChecked(alertFatal);
-	    man.add(alertFatalAct);
-	    
-	    alertWarnAct = new Action("Warn", IAction.AS_CHECK_BOX){ 
-	    	public void run(){    
-	    		alertWarn = alertWarnAct.isChecked();
-	    	}
-	    };  
-	    alertWarnAct.setImageDescriptor(Images.ALERT_WARN);
-	    alertWarnAct.setChecked(alertWarn);
-	    man.add(alertWarnAct);
-	    
-	    alertErrorAct = new Action("Error", IAction.AS_CHECK_BOX){ 
-	    	public void run(){    
-	    		alertError = alertErrorAct.isChecked();
-	    	}
-	    };  
-	    alertErrorAct.setImageDescriptor(Images.ALERT_ERROR);
-	    alertErrorAct.setChecked(alertError);
-	    man.add(alertErrorAct);
-	    
-	    alertInfoAct = new Action("Info", IAction.AS_CHECK_BOX){ 
-	    	public void run(){    
-	    		alertInfo = alertInfoAct.isChecked();
-	    	}
-	    };  
-	    alertInfoAct.setImageDescriptor(Images.ALERT_INFO);
-	    alertInfoAct.setChecked(alertInfo);
-	    man.add(alertInfoAct);
-	    
-	    man.add(new Separator());
+//		alertFatalAct = new Action("Fatal", IAction.AS_CHECK_BOX){ 
+//	        public void run(){
+//	        	PManager.getInstance().setValue(PreferenceConstants.NOTIFY_FATAL_ALERT, isChecked());
+//	        }
+//	    };  
+//	    alertFatalAct.setImageDescriptor(Images.ALERT_FATAL);
+//	    alertFatalAct.setChecked(PManager.getInstance().getBoolean(PreferenceConstants.NOTIFY_FATAL_ALERT));
+//	    man.add(alertFatalAct);
+//	    
+//	    alertWarnAct = new Action("Warn", IAction.AS_CHECK_BOX){ 
+//	    	public void run(){    
+//	    		PManager.getInstance().setValue(PreferenceConstants.NOTIFY_WARN_ALERT, isChecked());
+//	    	}
+//	    };  
+//	    alertWarnAct.setImageDescriptor(Images.ALERT_WARN);
+//	    alertWarnAct.setChecked(PManager.getInstance().getBoolean(PreferenceConstants.NOTIFY_WARN_ALERT));
+//	    man.add(alertWarnAct);
+//	    
+//	    alertErrorAct = new Action("Error", IAction.AS_CHECK_BOX){ 
+//	    	public void run(){    
+//	    		PManager.getInstance().setValue(PreferenceConstants.NOTIFY_ERROR_ALERT, isChecked());
+//	    	}
+//	    };  
+//	    alertErrorAct.setImageDescriptor(Images.ALERT_ERROR);
+//	    alertErrorAct.setChecked(PManager.getInstance().getBoolean(PreferenceConstants.NOTIFY_ERROR_ALERT));
+//	    man.add(alertErrorAct);
+//	    
+//	    alertInfoAct = new Action("Info", IAction.AS_CHECK_BOX){ 
+//	    	public void run(){    
+//	    		PManager.getInstance().setValue(PreferenceConstants.NOTIFY_INFO_ALERT, isChecked());
+//	    	}
+//	    };  
+//	    alertInfoAct.setImageDescriptor(Images.ALERT_INFO);
+//	    alertInfoAct.setChecked(PManager.getInstance().getBoolean(PreferenceConstants.NOTIFY_INFO_ALERT));
+//	    man.add(alertInfoAct);
+//	    
+//	    man.add(new Separator());
 		
-		man.add(new Action("reload", ImageUtil.getImageDescriptor(Images.refresh)) {
+		man.add(new Action("clear", ImageUtil.getImageDescriptor(Images.page_white_text)) {
 			public void run() {
 				reload();
 			}
@@ -184,16 +180,6 @@ public class AlertView extends ViewPart implements IAlertListener {
 						TextProxy.object.getLoadText(DateUtil.yyyymmdd(TimeUtil.getCurrentTime()), data.p.objHash, serverId),//
 				});
 				t.setData(data);
-				
-				if(((alertError && AlertLevel.ERROR == alert.level)
-						|| (alertFatal && AlertLevel.FATAL == alert.level)
-						|| (alertWarn && AlertLevel.WARN == alert.level)
-						|| (alertInfo && AlertLevel.INFO == alert.level && "scouter".equals(alert.objType)))) {
-					if (alertDialog == null || alertDialog.isOpen() == false) {
-						alertDialog = new AlertNotifierDialog(getSite().getShell().getDisplay(), serverId, alert);
-						alertDialog.show(getViewSite().getShell().getBounds());
-					}
-				}
 			}
 		});
 	}

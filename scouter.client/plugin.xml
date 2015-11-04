@@ -592,14 +592,6 @@
       </view>
       <view
             allowMultiple="true"
-            class="scouter.client.statistics.views.AlertDailyLevelCountView"
-            icon="icons/alert.png"
-            id="scouter.client.statistics.views.AlertDailyLevelCountView"
-            name="AlertDailyCountView"
-            restorable="false">
-      </view>
-      <view
-            allowMultiple="true"
             class="scouter.client.views.ServiceGroupView"
             icon="icons/sum.png"
             id="scouter.client.views.ServiceGroupView"
