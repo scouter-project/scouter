@@ -38,7 +38,7 @@ object Help {
         System.out.println("\ttagcnt tag [group]");
         System.out.println("\ttagcnt top100 [objType] [group] [tag] ");
         System.out.println("\ttagcnt data [objType] [group] [tag] [inx]");
-        System.out.println("\tdebug q");
+        System.out.println("\tdebug queue");
 
     }
 

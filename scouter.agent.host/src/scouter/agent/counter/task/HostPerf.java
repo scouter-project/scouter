@@ -83,7 +83,7 @@ public class HostPerf {
 		p.put(CounterConstants.HOST_TCPSTAT_EST, new DecimalValue(tcpstat_est));
 
 		p = pw.getPack(conf.objName, TimeTypeEnum.FIVE_MIN);
-		p.put(CounterConstants.HOST_CPU, new FloatValue(0));
+		p.put(CounterConstants.HOST_CPU, new FloatValue(cpu));
 		p.put(CounterConstants.HOST_MEM, new FloatValue(memrate));
 		p.put(CounterConstants.HOST_MEM_TOTAL, new DecimalValue(tmem / 1024 / 1024));
 		p.put(CounterConstants.HOST_MEM_USED, new DecimalValue(umem / 1024 / 1024));
