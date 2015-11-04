@@ -9,6 +9,9 @@ public class AlertRule {
 	public void process(Counter c) {
 	}
 
+	public void println(Object c){
+		System.out.println(c);
+	}
 	public void info(Counter c, String title, String message) {
 		this.alert(AlertLevel.INFO, c, title, message);
 	}
@@ -28,8 +31,8 @@ public class AlertRule {
 	private void alert(byte level, Counter c, String title, String message) {
 		AlertPack p = new AlertPack();
 		p.level = level;
-		p.objHash = c.getObjHash();
-		p.objType = c.getObjType();
+		p.objHash = c.objHash;
+		p.objType = c.objType();
 		p.title = title;
 		p.message = message;		
 		c.lastAlertTime.put(level, System.currentTimeMillis());

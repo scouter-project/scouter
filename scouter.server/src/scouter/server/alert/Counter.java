@@ -13,19 +13,21 @@ public class Counter {
 	public LongKeyLinkedMap<Value> history = new LongKeyLinkedMap<Value>().setMax(30);
 	public IntLongLinkedMap lastAlertTime = new IntLongLinkedMap().setMax(10);
 
-	public int getObjHash() {
-		return objHash;
-	}
+	private String _objType;
 
-	private String objType;
-
-	public String getObjType() {
+	public String objType() {
 		ObjectPack a = AgentManager.getAgent(objHash);
 		if (a != null && a.objType != null) {
-			objType = a.objType;
-			return objType;
+			_objType = a.objType;
+			return _objType;
 		}
-		return objType;
+		return _objType;
 	}
 
+	public int intValue(){
+		return ((Number)value).intValue();
+	}
+	public float floatValue(){
+		return ((Number)value).floatValue();
+	}
 }

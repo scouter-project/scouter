@@ -139,6 +139,7 @@ public class Configure extends Thread {
 	public String hostname = SysJMX.getHostName();
 	public String db_root = "./database";
 	public String log_dir = "./logs";
+	public String alert_rule_dir = "./conf/alert";
 
 	public int agent_deadtime = 8000;
 
@@ -212,6 +213,7 @@ public class Configure extends Thread {
 		this.hostname = getValue("hostname", SysJMX.getHostName());
 		this.db_root = getValue("db_root", "./database");
 		this.log_dir = getValue("log_dir", "./logs");
+		this.alert_rule_dir = getValue("alert_rule_dir", "./conf/alert");
 
 		this.agent_deadtime = getInt("agent_deadtime", 8000);
 
