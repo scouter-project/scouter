@@ -29,6 +29,7 @@ object TextCore {
     val queue = new RequestQueue[TextPack](CoreRun.MAX_QUE_SIZE);
     ThreadScala.startDaemon("scouter.server.core.TextCore", { CoreRun.running }) {
         val m = queue.get();
+        ServerStat.put("text.core.queue",queue.size());
         val yyyymmdd = DateUtil.yyyymmdd();
         if (TextTypes.SQL.equals(m.xtype)) {
             SqlTables.add(yyyymmdd, m.hash, m.text);

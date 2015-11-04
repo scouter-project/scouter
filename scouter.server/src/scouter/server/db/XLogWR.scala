@@ -19,7 +19,6 @@
 package scouter.server.db;
 
 import java.io.File
-
 import scouter.server.Configure
 import scouter.server.Logger
 import scouter.server.db.xlog.XLogDataWriter
@@ -29,6 +28,7 @@ import scouter.server.util.ThreadScala
 import scouter.util.DateUtil
 import scouter.util.FileUtil
 import scouter.util.RequestQueue
+import scouter.server.core.ServerStat
 
 object XLogWR {
 
@@ -44,6 +44,7 @@ object XLogWR {
     ThreadScala.start("scouter.server.db.XLogWR") {
         while (DBCtr.running) {
             val m = queue.get();
+            ServerStat.put("xlog.db.queue",queue.size());
             try {
                 if (currentDateUnit != DateUtil.getDateUnit(m.time)) {
                     currentDateUnit = DateUtil.getDateUnit(m.time);

@@ -44,6 +44,7 @@ object VisitorCore {
         val conf = Configure.getInstance();
         while (CoreRun.running) {
             val m = queue.get();
+            ServerStat.put("visitor.core.queue",queue.size());
             try {
                 val objInfo = AgentManager.getAgent(m.objHash)
                 if (objInfo != null) {

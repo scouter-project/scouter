@@ -50,6 +50,7 @@ object ServiceCore {
     }
     ThreadScala.startDaemon("scouter.server.core.XLogCore", { CoreRun.running }) {
         val m = queue.get();
+        ServerStat.put("xlog.core.queue",queue.size());
         
         if (Configure.WORKABLE) {
 	        m.xType match {
@@ -60,7 +61,7 @@ object ServiceCore {
 	                calc(m)
 	            case _ => //기타 타입은 무시한다.
 	        }
-	
+	        
 	        plugin.add(m);
 	
 	        val b = new DataOutputX().writePack(m).toByteArray();

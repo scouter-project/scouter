@@ -57,6 +57,8 @@ public class MeterService {
 	};
 
 	public synchronized void add(int elapsed, boolean err) {
+		if(elapsed <0)
+			elapsed=0;
 		Bucket b = meter.getCurrentBucket();
 		b.count++;
 		b.time += elapsed;

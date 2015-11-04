@@ -52,6 +52,7 @@ object ProcessMain {
             case "xlist" => XLIST.process(cut(cmd, "xlist"))
             case "tagcnt" => TAGCNT.process(cut(cmd, "tagcnt"))
             case "visitor" => VISITOR.process(cut(cmd, "visitor"))
+            case "debug" => DEBUG.process(cut(cmd, "debug"))
             case "" =>
             case _ => Help.help(cmd)
         }
