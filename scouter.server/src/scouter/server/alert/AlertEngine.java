@@ -32,9 +32,9 @@ public class AlertEngine {
 			c.objHash = key.objHash;
 			realTime.put(key, c);
 		}
-		c.value = value;
+		c.value = (Number)value;
 		rule.process(c);
-		c.history.put(System.currentTimeMillis(), value);
+		c.history.putFirst(System.currentTimeMillis(), (Number)value);
 	}
 
 	public static void putDaily(int yyyymmdd, CounterKey key, int hhmm, Value value) {
