@@ -189,7 +189,7 @@ public class Configure extends Thread {
 	public boolean tagcnt_enabled = false;
 	
 	public int tcp_server_pool_size = 100;
-	public boolean enable_alert_summary=false;
+	public boolean enable_alert_summary=true;
 	
 	public static boolean WORKABLE = true; 
 
@@ -263,7 +263,7 @@ public class Configure extends Thread {
 		this.tagcnt_enabled = getBoolean("tagcnt_enabled", false);
 		
 		this.tcp_server_pool_size = getInt("tcp_server_pool_size", 100);
-		this.enable_alert_summary=  getBoolean("enable_alert_summary", false);
+		this.enable_alert_summary=  getBoolean("enable_alert_summary", true);
 		
 		ConfObserver.exec();
 	}

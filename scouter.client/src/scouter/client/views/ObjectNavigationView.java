@@ -88,6 +88,7 @@ import scouter.client.context.actions.OpenCxtmenuServerPropertiesAction;
 import scouter.client.context.actions.OpenServerAction;
 import scouter.client.context.actions.RemoveServerAction;
 import scouter.client.context.actions.SetDefaultServerAction;
+import scouter.client.counter.actions.OpenTotalSummaryAction;
 import scouter.client.model.AgentModelThread;
 import scouter.client.model.AgentObject;
 import scouter.client.model.DummyObject;
@@ -402,6 +403,8 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 							mgr.add(new Separator());
 							mgr.add(new OpenTagCountViewAction(win, serverId));
 						}
+						mgr.add(new Separator());
+						mgr.add(new OpenTotalSummaryAction(win, serverId));
 						mgr.add(new Separator());
 						if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
 							mgr.add(new OpenServerConfigureAction(win, MenuStr.CONFIGURE, Images.config, serverId));

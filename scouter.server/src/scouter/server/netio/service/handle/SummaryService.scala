@@ -26,8 +26,9 @@ import scouter.net.TcpFlag
 import scouter.server.db.SummaryRD
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.util.IntKeyLinkedMap
-import scouter.net.RequestCmd
 import scouter.util.LongKeyLinkedMap
+import scouter.util.StringKeyLinkedMap
+import scouter.net.RequestCmd
 
 class SummaryService {
 
@@ -48,6 +49,12 @@ class SummaryService {
         var sql: Int = 0;
         var apicall: Int = 0;
         var fullstack: Int = 0;
+    }
+    
+    class TempAlert() {
+        var title: String = "";
+        var count: Int = 0;
+        var level: Byte = 0;
     }
 
     def load(stype: Byte, din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
@@ -245,6 +252,58 @@ class SummaryService {
         dout.writeByte(TcpFlag.HasNEXT);
         dout.writePack(map);
     }
+    
+    def load4(stype: Byte, din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        val param = din.readMapPack();
+        val date = param.getText("date");
+        val stime = param.getLong("stime");
+        val etime = param.getLong("etime");
+        val objType = param.getText("objType");
+        val objHash = param.getInt("objHash");
+
+        val tempMap = new StringKeyLinkedMap[TempAlert]().setMax(50000)
+
+        val handler = (time: Long, data: Array[Byte]) => {
+            val p = new DataInputX(data).readPack().asInstanceOf[SummaryPack];
+            if (p.stype == stype
+                && (objHash == 0 || objHash == p.objHash)
+                && (objType == null || objType == p.objType)) {
+                val title = p.table.getList("title")
+                val count = p.table.getList("count")
+                val level = p.table.getList("level")
+
+                for (i <- 0 to title.size() - 1) {
+                    var tempObj = tempMap.get(title.getString(i));
+                    if (tempObj == null) {
+                        tempObj = new TempAlert();
+                        tempObj.title = title.getString(i);
+                        tempObj.level = level.getInt(i).toByte;
+                        tempMap.put(title.getString(i), tempObj);
+                    }
+                    tempObj.count += count.getInt(i);
+                }
+            }
+        }
+
+        SummaryRD.readByTime(stype, date, stime, etime, handler)
+
+        val map = new MapPack();
+        val newTitleList = map.newList("title");
+        val newCountList = map.newList("count");
+        val newLevelList = map.newList("level");
+
+        val itr = tempMap.keys();
+        while (itr.hasMoreElements()) {
+            val title = itr.nextString();
+            val obj = tempMap.get(title);
+            newTitleList.add(obj.title);
+            newCountList.add(obj.count);
+            newLevelList.add(obj.level);
+        }
+
+        dout.writeByte(TcpFlag.HasNEXT);
+        dout.writePack(map);
+    }
     @ServiceHandler(RequestCmd.LOAD_SERVICE_SUMMARY)
     def LOAD_SERVICE_SUMMARY(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
         load(SummaryEnum.APP, din, dout, login);
@@ -268,5 +327,9 @@ class SummaryService {
     @ServiceHandler(RequestCmd.LOAD_SERVICE_ERROR_SUMMARY)
     def LOAD_ERROR_SUMMARY(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
         load3(SummaryEnum.SERVICE_ERROR, din, dout, login);
+    }
+    @ServiceHandler(RequestCmd.LOAD_ALERT_SUMMARY)
+    def LOAD_ALERT_SUMMARY(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        load4(SummaryEnum.ALERT, din, dout, login);
     }
 }

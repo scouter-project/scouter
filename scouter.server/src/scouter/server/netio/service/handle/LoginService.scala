@@ -71,6 +71,7 @@ class LoginService {
       val menuMv = new MapValue();
       m.put("menu", menuMv);
       menuMv.put("tag_count", new BooleanValue(Configure.getInstance().tagcnt_enabled));
+      menuMv.put("alert_summary", new BooleanValue(Configure.getInstance().enable_alert_summary));
       
     }
     dout.writeByte(TcpFlag.HasNEXT);

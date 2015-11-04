@@ -40,22 +40,21 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import scouter.client.Images;
-import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
 import scouter.client.popup.CalendarDialog;
 import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
 import scouter.client.sorter.ColumnLabelSorter;
 import scouter.client.util.ExUtil;
 import scouter.client.util.TimeUtil;
+import scouter.lang.AlertLevel;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
-import scouter.util.Hexa32;
 
-public class ErrorSummaryComposite extends Composite {
+public class AlertSummaryComposite extends Composite {
 	
 	public static final String[] HOURLY_TIMES = {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24"};
 	public static final String[] FIVE_MIN_TIMES = {"00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60"};
@@ -76,7 +75,7 @@ public class ErrorSummaryComposite extends Composite {
 	
 	String date = DateUtil.yyyymmdd();
 
-	public ErrorSummaryComposite(Composite parent, int style) {
+	public AlertSummaryComposite(Composite parent, int style) {
 		super(parent, style);
 		this.parent = parent;
 	}
@@ -105,7 +104,7 @@ public class ErrorSummaryComposite extends Composite {
 					public void onPressedOk(long startTime, long endTime) {}
 					public void onPressedCancel() {}
 					public void onPressedOk(String date) {
-						ErrorSummaryComposite.this.date = date;
+						AlertSummaryComposite.this.date = date;
 						dateLbl.setText(DateUtil.format(DateUtil.yyyymmdd(date), "yyyy-MM-dd"));
 						
 					}
@@ -167,7 +166,7 @@ public class ErrorSummaryComposite extends Composite {
 				param.put("date", date);
 				param.put("stime", stime);
 				param.put("etime", etime);
-				new LoadErrorSummaryJob(param).schedule();
+				new LoadAlertSummaryJob(param).schedule();
 			}
 		});
 		
@@ -264,27 +263,27 @@ public class ErrorSummaryComposite extends Composite {
 	}
 	
 	private void createColumns() {
-		for (ErrorColumnEnum column : ErrorColumnEnum.values()) {
+		for (AlertColumnEnum column : AlertColumnEnum.values()) {
 			TableViewerColumn c = createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
 			ColumnLabelProvider labelProvider = null;
 			switch (column) {
-			case ERROR:
+			case TITLE:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof ErrorData) {
-							return TextProxy.error.getText(((ErrorData) element).error);
+						if (element instanceof AlertData) {
+							return ((AlertData) element).title;
 						}
 						return null;
 					}
 				};
 				break;
-			case SERVICE:
+			case LEVEL:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof ErrorData) {
-							return TextProxy.service.getText(((ErrorData) element).service);
+						if (element instanceof AlertData) {
+							return AlertLevel.getName(((AlertData) element).level);
 						}
 						return null;
 					}
@@ -294,52 +293,8 @@ public class ErrorSummaryComposite extends Composite {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof ErrorData) {
-							return FormatUtil.print(((ErrorData) element).count, "#,##0");
-						}
-						return null;
-					}
-				};
-				break;
-			case TXID:
-				labelProvider = new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (element instanceof ErrorData) {
-							return Hexa32.toString32(((ErrorData) element).txid);
-						}
-						return null;
-					}
-				};
-				break;
-			case SQL:
-				labelProvider = new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (element instanceof ErrorData) {
-							return TextProxy.sql.getText(((ErrorData) element).sql);
-						}
-						return null;
-					}
-				};
-				break;
-			case APICALL:
-				labelProvider = new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (element instanceof ErrorData) {
-							return TextProxy.apicall.getText(((ErrorData) element).apicall);
-						}
-						return null;
-					}
-				};
-				break;
-			case FULLSTACK:
-				labelProvider = new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (element instanceof ErrorData) {
-							return TextProxy.error.getText(((ErrorData) element).fullstack);
+						if (element instanceof AlertData) {
+							return FormatUtil.print(((AlertData) element).count, "#,##0");
 						}
 						return null;
 					}
@@ -370,15 +325,11 @@ public class ErrorSummaryComposite extends Composite {
 		return viewerColumn;
 	}
 	
-	enum ErrorColumnEnum {
+	enum AlertColumnEnum {
 
-	    ERROR("Exception", 150, SWT.LEFT, true, true, false),
-	    SERVICE("Service", 150, SWT.LEFT, true, true, false),
-	    COUNT("Count", 70, SWT.RIGHT, true, true, true),
-	    TXID("TxId", 100, SWT.CENTER, true, true, false),
-	    SQL("SQL", 150, SWT.LEFT, true, true, false),
-	    APICALL("ApiCall", 150, SWT.LEFT, true, true, false),
-	    FULLSTACK("Full Stack", 200, SWT.LEFT, true, true, false);
+	    TITLE("TITLE", 150, SWT.LEFT, true, true, false),
+	    LEVEL("LEVEL", 100, SWT.LEFT, true, true, false),
+	    COUNT("Count", 70, SWT.RIGHT, true, true, true);
 
 	    private final String title;
 	    private final int width;
@@ -387,7 +338,7 @@ public class ErrorSummaryComposite extends Composite {
 	    private final boolean moveable;
 	    private final boolean isNumber;
 
-	    private ErrorColumnEnum(String text, int width, int alignment, boolean resizable, boolean moveable, boolean isNumber) {
+	    private AlertColumnEnum(String text, int width, int alignment, boolean resizable, boolean moveable, boolean isNumber) {
 	        this.title = text;
 	        this.width = width;
 	        this.alignment = alignment;
@@ -421,11 +372,11 @@ public class ErrorSummaryComposite extends Composite {
 		}
 	}
 	
-	class LoadErrorSummaryJob extends Job {
+	class LoadAlertSummaryJob extends Job {
 		
 		MapPack param;
 
-		public LoadErrorSummaryJob(MapPack param) {
+		public LoadAlertSummaryJob(MapPack param) {
 			super("Loading...");
 			this.param = param;
 		}
@@ -434,7 +385,7 @@ public class ErrorSummaryComposite extends Composite {
 			TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
 			Pack p = null;
 			try {
-				p = tcp.getSingle(RequestCmd.LOAD_SERVICE_ERROR_SUMMARY, param);
+				p = tcp.getSingle(RequestCmd.LOAD_ALERT_SUMMARY, param);
 			} catch (Exception e) {
 				e.printStackTrace();
 				return Status.CANCEL_STATUS;
@@ -443,33 +394,18 @@ public class ErrorSummaryComposite extends Composite {
 			}
 			
 			if (p != null) {
-				final List<ErrorData> list = new ArrayList<ErrorData>();
+				final List<AlertData> list = new ArrayList<AlertData>();
 				MapPack m = (MapPack) p;
-				ListValue errorLv = m.getList("error");
-				ListValue serviceLv = m.getList("service");
+				ListValue titleLv = m.getList("title");
+				ListValue levelLv = m.getList("level");
 				ListValue countLv = m.getList("count");
-				ListValue txidLv = m.getList("txid");
-				ListValue sqlLv = m.getList("sql");
-				ListValue apiLv = m.getList("apicall");
-				ListValue stackLv = m.getList("fullstack");
-				for (int i = 0; i < errorLv.size(); i++) {
-					ErrorData data = new ErrorData();
-					data.error = errorLv.getInt(i);
-					data.service = serviceLv.getInt(i);
+				for (int i = 0; i < titleLv.size(); i++) {
+					AlertData data = new AlertData();
+					data.title = titleLv.getString(i);
+					data.level = (byte) levelLv.getInt(i);
 					data.count = countLv.getInt(i);
-					data.txid = txidLv.getLong(i);
-					data.sql = sqlLv.getInt(i);
-					data.apicall = apiLv.getInt(i);
-					data.fullstack = stackLv.getInt(i);
 					list.add(data);
 				}
-				
-				TextProxy.error.load(date, errorLv, serverId);
-				TextProxy.service.load(date, serviceLv, serverId);
-				TextProxy.sql.load(date, sqlLv, serverId);
-				TextProxy.apicall.load(date, apiLv, serverId);
-				TextProxy.error.load(date, stackLv, serverId);
-				
 				ExUtil.exec(viewer.getTable(), new Runnable() {
 					public void run() {
 						viewer.setInput(list);
@@ -481,13 +417,9 @@ public class ErrorSummaryComposite extends Composite {
 		}
 	}
 	
-	private static class ErrorData {
-		public int error;
-		public int service;
+	private static class AlertData {
+		public String title;
+		public byte level;
 		public int count;
-		public long txid;
-		public int sql;
-		public int apicall;
-		public int fullstack;
 	}
 }
