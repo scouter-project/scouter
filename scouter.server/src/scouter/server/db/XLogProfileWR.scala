@@ -31,8 +31,10 @@ import scouter.util.ThreadUtil
 import java.io.File
 import scouter.server.util.ThreadScala
 import scouter.server.util.OftenAction
+import scouter.server.core.ServerStat
+import scouter.server.Configure
 object XLogProfileWR extends IClose {
-    val queue = new RequestQueue[Data](DBCtr.MAX_QUE_SIZE);
+    val queue = new RequestQueue[Data](Configure.getInstance().xlog_profile_queue_size);
     class ResultSet(keys: List[Long], var reader: XLogProfileDataReader) {
         var max: Int = if (keys == null) 0 else keys.size()
         var x: Int = 0;
@@ -59,14 +61,15 @@ object XLogProfileWR extends IClose {
     ThreadScala.start("scouter.server.db.XLogProfileWR") {
         while (DBCtr.running) {
             val m = queue.get();
-            try {
+              ServerStat.put("profile.db.queue",queue.size());
+              try {
                 if (currentDateUnit != DateUtil.getDateUnit(m.time)) {
                     currentDateUnit = DateUtil.getDateUnit(m.time);
                     close();
                     open(DateUtil.yyyymmdd(m.time));
                 }
                 if (index == null) {
-                    OftenAction.act("XLoWR", 10) {
+                    OftenAction.act("XLogWR", 10) {
                         queue.clear();
                         currentDateUnit = 0;
                     }

@@ -125,6 +125,7 @@ public class Configure extends Thread {
 	}
 
 	public int xlog_queue_size = 100000;
+	public int xlog_profile_queue_size = 1000;
 	public boolean debug_net = false;
 
 	public String udp_host = "0.0.0.0";
@@ -151,6 +152,8 @@ public class Configure extends Thread {
 	public int udp_so_rcvbuf = 1024 * 1024 * 4;
 	public boolean debug_udp_multipacket;
 	public boolean debug_expired_multipacket = true;
+	public int gzip_writing_block_thread = 2;
+	
 
 	public boolean debug_udp_packet = false;
 	public boolean debug_udp_counter = false;
@@ -195,6 +198,7 @@ public class Configure extends Thread {
 
 	private void apply() {
 		this.xlog_queue_size = getInt("xlog_queue_size", 100000);
+		this.xlog_profile_queue_size = getInt("xlog_profile_queue_size", 1000);
 		this.debug_net = getBoolean("debug_net", false);
 
 		this.udp_host = getValue("udp_host", "0.0.0.0");
@@ -217,7 +221,8 @@ public class Configure extends Thread {
 		this.gzip_unitcount_header_cache = getInt("gzip_unitcount_header_cache", 5);
 		this.gzip_read_cache_block = getInt("gzip_read_cache_block", 3);
 		this.gzip_read_cache_time = getLong("gzip_read_cache_time", DateUtil.MILLIS_PER_MINUTE);
-
+		this.gzip_writing_block_thread = getInt("gzip_writing_block_thread", 2);
+		
 		this.udp_buffer = getInt("udp_buffer", 65535);
 
 		int default_so_rcvbuf = 1024 * 1024 * 4;
