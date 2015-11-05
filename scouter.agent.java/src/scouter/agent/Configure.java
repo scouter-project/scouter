@@ -267,6 +267,8 @@ public class Configure extends Thread {
 	
 	public boolean enable_spring_request=true;
 	public boolean debug_sql_call=false;
+	
+	public int socket_open_fullstack_port=0;
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -568,6 +570,8 @@ public class Configure extends Thread {
 		this.enable_plus_objtype = getBoolean("enable_plus_objtype", false);
 		
 		this.debug_sql_call= getBoolean("debug_sql_call", false);
+		this.socket_open_fullstack_port = getInt("socket_open_fullstack_port", 0);
+
 		resetObjInfo();
 		setErrorStatus();
 		setStaticContents();

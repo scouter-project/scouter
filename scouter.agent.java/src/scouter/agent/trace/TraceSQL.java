@@ -437,9 +437,9 @@ public class TraceSQL {
 			if (o instanceof Statement) {
 				try {
 					Connection c = ((Statement) o).getConnection();
+					sb.append(c).append("\n");
 					sb.append("Connection = ").append(c.getClass().getName()).append("\n");
-					sb.append("          ").append(c).append("\n");
-					sb.append("          AutoCommit =").append(c.getAutoCommit()).append("\n");
+					sb.append("AutoCommit = ").append(c.getAutoCommit()).append("\n");
 				} catch (Exception e) {
 					sb.append(e).append("\n");
 				}

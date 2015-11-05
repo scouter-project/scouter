@@ -58,6 +58,8 @@ public class ApicallASM implements IASM, Opcodes {
 				"Lcom/sap/mw/jco/JCO$ParameterList;" + //
 				"Ljava/lang/String;Ljava/lang/String;I)V");
 
+	    AsmUtil.add(reserved,"io/reactivex/netty/protocol/http/client/HttpClientImpl","submit");                       
+
 	}
 
 	public boolean isTarget(String className) {

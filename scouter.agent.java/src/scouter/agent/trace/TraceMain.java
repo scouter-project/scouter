@@ -389,11 +389,13 @@ public class TraceMain {
 			DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
 			pack.service = ctx.serviceHash;
 			pack.xType = ctx.xType;
-			pack.bytes = (int) (SysJMX.getCurrentThreadAllocBytes() - ctx.bytes);
+			pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+			pack.bytes = (int) (SysJMX.getCurrentThreadAllocBytes() - ctx.bytes);			
 			pack.status = ctx.status;
 			pack.sqlCount = ctx.sqlCount;
 			pack.sqlTime = ctx.sqlTime;
 			pack.txid = ctx.txid;
+			pack.gxid = ctx.gxid;
 			pack.ipaddr = ctx.remoteAddr;
 			pack.userid = ctx.userid;
 			if (ctx.error != 0) {
