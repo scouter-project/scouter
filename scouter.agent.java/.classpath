@@ -11,5 +11,7 @@
 	<classpathentry kind="lib" path="/scouter.deploy/lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="/scouter.deploy/lib/httpclient-4.3.6.jar"/>
 	<classpathentry kind="lib" path="/scouter.deploy/lib/httpcore-4.3.3.jar" sourcepath="/Users/sjokim/.m2/repository/org/apache/httpcomponents/httpcore/4.3.3/httpcore-4.3.3-sources.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/rxnetty-0.4.6.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/ribbon-loadbalancer-2.0.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
