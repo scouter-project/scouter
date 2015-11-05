@@ -91,6 +91,7 @@ public class TraceContext {
 	public String web_name;
 	public int web_time;
 	public int userTransaction;
+	public boolean debug_sql_call;
 
 	public TraceContext createChild(){
 		TraceContext child = new TraceContext(this.isSummary);

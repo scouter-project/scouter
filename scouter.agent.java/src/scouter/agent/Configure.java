@@ -266,7 +266,7 @@ public class Configure extends Thread {
 	
 	
 	public boolean enable_spring_request=true;
-
+	public boolean debug_sql_call=false;
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -316,6 +316,7 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
+
 	
 
 	public synchronized boolean reload(boolean force) {
@@ -566,6 +567,7 @@ public class Configure extends Thread {
 		this.debug_asm = getBoolean("debug_asm", getBoolean("debug.asm", false));
 		this.enable_plus_objtype = getBoolean("enable_plus_objtype", false);
 		
+		this.debug_sql_call= getBoolean("debug_sql_call", false);
 		resetObjInfo();
 		setErrorStatus();
 		setStaticContents();

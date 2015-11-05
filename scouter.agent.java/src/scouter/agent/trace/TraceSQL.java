@@ -20,6 +20,7 @@ package scouter.agent.trace;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -150,7 +151,23 @@ public class TraceSQL {
 			}
 			return null;
 		}
-
+		//to debug
+		if (conf.debug_sql_call && ctx.debug_sql_call == false) {
+			ctx.debug_sql_call = true;
+			StringBuffer sb = new StringBuffer();
+			if (o instanceof Statement) {
+				try {
+					Connection c = ((Statement) o).getConnection();
+					sb.append("Connection = ").append(c.getClass().getName()).append("\n");
+					sb.append("          ").append(c).append("\n");
+					sb.append("          AutoCommit =").append(c.getAutoCommit()).append("\n");
+				} catch (Exception e) {
+					sb.append(e).append("\n");
+				}
+			}
+			sb.append(ThreadUtil.getThreadStack());
+			ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), sb.toString()));
+		}
 		// Looking for the position of calling SQL COMMIT
 		if (conf.profile_fullstack_sql_commit) {
 			if ("commit".equalsIgnoreCase(sql)) {
@@ -413,6 +430,24 @@ public class TraceSQL {
 			}
 			return null;
 		}
+		//to debug
+		if (conf.debug_sql_call && ctx.debug_sql_call == false) {
+			ctx.debug_sql_call = true;
+			StringBuffer sb = new StringBuffer();
+			if (o instanceof Statement) {
+				try {
+					Connection c = ((Statement) o).getConnection();
+					sb.append("Connection = ").append(c.getClass().getName()).append("\n");
+					sb.append("          ").append(c).append("\n");
+					sb.append("          AutoCommit =").append(c.getAutoCommit()).append("\n");
+				} catch (Exception e) {
+					sb.append(e).append("\n");
+				}
+			}
+			sb.append(ThreadUtil.getThreadStack());
+			ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), sb.toString()));
+		}
+
 		// Looking for the position of calling SQL COMMIT
 		if (conf.profile_fullstack_sql_commit) {
 			if ("commit".equalsIgnoreCase(args.getSql())) {
