@@ -18,6 +18,7 @@
 package scouter.agent.trace;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -151,7 +152,7 @@ public class TraceSQL {
 			}
 			return null;
 		}
-		//to debug
+		// to debug
 		if (conf.debug_sql_call && ctx.debug_sql_call == false) {
 			ctx.debug_sql_call = true;
 			StringBuffer sb = new StringBuffer();
@@ -430,7 +431,7 @@ public class TraceSQL {
 			}
 			return null;
 		}
-		//to debug
+		// to debug
 		if (conf.debug_sql_call && ctx.debug_sql_call == false) {
 			ctx.debug_sql_call = true;
 			StringBuffer sb = new StringBuffer();
@@ -600,6 +601,12 @@ public class TraceSQL {
 				field.setAccessible(true);
 				String u = "OPEN-DBC " + field.get(pool);
 				dbUrl = new DBURL(HashUtil.hash(u), u);
+			} else {
+				Method m = pool.getClass().getMethod("getUrl", new Class[0]);
+				if (m != null) {
+					String u = "OPEN-DBC " + m.invoke(pool, new Object[0]);
+					dbUrl = new DBURL(HashUtil.hash(u), u);
+				}
 			}
 		} catch (Throwable e) {
 		}
