@@ -62,7 +62,6 @@
   <extension point="org.eclipse.ui.perspectiveExtensions">
     <perspectiveExtension targetID="*">
 	    <perspectiveShortcut id="scouter.client.PerspectiveWasService"/>
-        <perspectiveShortcut id="scouter.client.PerspectiveHost"/>
     </perspectiveExtension>
   </extension>
 
