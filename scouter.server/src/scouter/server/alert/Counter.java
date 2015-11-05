@@ -11,7 +11,7 @@ public class Counter {
 
 	public Number value;
 	public int objHash;
-	public LongKeyLinkedMap<Number> history = new LongKeyLinkedMap<Number>().setMax(30);
+	public LongKeyLinkedMap<Number> history ;
 	public IntLongLinkedMap lastAlertTime = new IntLongLinkedMap().setMax(10);
 
 	private String _objType;
@@ -34,7 +34,10 @@ public class Counter {
 	}
 
 	
-	public int over(int v, int sec) {
+	public int overTimes(int v, int sec) {
+		if(history==null) 
+			return 0;
+		
 		long from = System.currentTimeMillis() - sec*1000L;
 		int cnt = 0;
 		LongEnumer en = history.keys();

@@ -267,7 +267,17 @@ public class FileUtil {
 		}
 		return null;
 	}
-	
+	public static String getJarFileName(Class class1) {
+		try {
+			String path = "" + class1.getResource("/" + class1.getName().replace('.', '/') + ".class");
+			if (path.indexOf("!") < 0)
+				return null;
+			path = path.substring("jar:file:".length(), path.indexOf("!"));
+			return new File(path).getAbsolutePath();
+		} catch (Exception e) {
+		}
+		return null;
+	}
 	public static void main(String[] args) throws IOException {
 		String path = getJarLocation(FileUtil.class);
 		System.out.println(path);
