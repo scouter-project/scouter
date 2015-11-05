@@ -152,7 +152,7 @@ public class Configure extends Thread {
 	public String hook_args = "";
 	public String hook_return = "";
 	public String hook_init = "";
-	public String hook_dbopen = "";
+	public String hook_dbopen= "";
 	public boolean enable_dbopen = true;
 	public boolean enable_leaktrace_fullstack = false;
 	public boolean debug_dbopen_fullstack = false;
@@ -183,7 +183,7 @@ public class Configure extends Thread {
 	public String hook_jdbc_stmt = "";
 	public String hook_jdbc_rs = "";
 	
-	public String hook_dbc_wrapper="";
+	public String hook_driver_connect_wrapper="";
 
 	// /LOAD CONTROL/////
 	public boolean enable_reject_service = false;
@@ -457,7 +457,7 @@ public class Configure extends Thread {
 		this.hook_jdbc_pstmt = getValue("hook_jdbc_pstmt", "");
 		this.hook_jdbc_stmt = getValue("hook_jdbc_stmt", "");
 		this.hook_jdbc_rs = getValue("hook_jdbc_rs", "");
-		this.hook_dbc_wrapper= getValue("hook_dbc_wrapper", "");
+		this.hook_driver_connect_wrapper= getValue("hook_driver_connect_wrapper", "");
 		
 		
 		
@@ -469,7 +469,7 @@ public class Configure extends Thread {
 		this.hook_signature ^= this.hook_service.hashCode();
 		this.hook_signature ^= this.hook_apicall.hashCode();
 		this.hook_signature ^= this.hook_jsp.hashCode();
-		this.hook_signature ^= this.hook_dbc_wrapper.hashCode();
+		this.hook_signature ^= this.hook_driver_connect_wrapper.hashCode();
 	
 		this.plugin_classpath = getValue("plugin_classpath", "");
 

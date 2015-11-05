@@ -43,6 +43,7 @@ public class DbcOpenASM implements IASM, Opcodes {
 	public DbcOpenASM() {
 		// Tomcat7
 		AsmUtil.add(reserved, "org/apache/tomcat/dbcp/dbcp/BasicDataSource", "getConnection");
+		AsmUtil.add(reserved, "org/apache/tomcat/jdbc/pool/DataSourceProxy", "getConnection");
 
 	}
 
