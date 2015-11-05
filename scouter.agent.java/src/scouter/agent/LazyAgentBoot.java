@@ -24,7 +24,7 @@ import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
 import java.util.List;
 
-import scouter.agent.asm.DbcOpenASM;
+import scouter.agent.asm.JDBCConnectionOpenASM;
 import scouter.agent.asm.HttpServiceASM;
 import scouter.agent.asm.IASM;
 import scouter.agent.asm.JDBCDriverASM;
@@ -52,7 +52,7 @@ public class LazyAgentBoot implements Runnable {
 		classes.add( new JDBCPreparedStatementASM());
 		classes.add( new JDBCResultSetASM());
 		classes.add( new JDBCStatementASM());
-		classes.add(new DbcOpenASM());
+		classes.add(new JDBCConnectionOpenASM());
 		classes.add(new JspServletASM());
 		classes.add(new JDBCDriverASM());
 		classes.add(new SocketASM());
