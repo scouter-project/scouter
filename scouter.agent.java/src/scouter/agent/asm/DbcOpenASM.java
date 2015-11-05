@@ -37,7 +37,7 @@ import scouter.util.HashUtil;
 import scouter.util.StringUtil;
 
 public class DbcOpenASM implements IASM, Opcodes {
-	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_dbopen);
+	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_connection_open);
 	private Map<String, MethodSet> reserved = new HashMap<String, MethodSet>();
 
 	public DbcOpenASM() {

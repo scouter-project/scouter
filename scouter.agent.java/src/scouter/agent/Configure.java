@@ -152,11 +152,11 @@ public class Configure extends Thread {
 	public String hook_args = "";
 	public String hook_return = "";
 	public String hook_init = "";
-	public String hook_dbopen= "";
-	public boolean enable_dbopen = true;
+	public String hook_connection_open= "";
+	public boolean enable_trace_connection_open = true;
 	public boolean enable_leaktrace_fullstack = false;
-	public boolean debug_dbopen_fullstack = false;
-	public boolean debug_dbopen_autocommit = false;
+	public boolean debug_connection_open_fullstack = false;
+	public boolean debug_connection_autocommit = false;
 
 	public String hook_method = "";
 	public String hook_method_ignore_prefix = "get,set";
@@ -428,8 +428,8 @@ public class Configure extends Thread {
 		this.hook_args = getValue("hook_args", getValue("hook.args", ""));
 		this.hook_return = getValue("hook_return", getValue("hook.return", ""));
 		this.hook_init = getValue("hook_init", getValue("hook.init", ""));
-		this.hook_dbopen = getValue("hook_dbopen", "");
-		this.enable_dbopen = getBoolean("enable_dbopen", true);
+		this.hook_connection_open = getValue("hook_connection_open", "");
+		this.enable_trace_connection_open = getBoolean("enable_trace_connection_open", true);
 		this.enable_leaktrace_fullstack = getBoolean("enable_leaktrace_fullstack", false);
 
 		this.hook_method = getValue("hook_method",  "");
@@ -464,7 +464,7 @@ public class Configure extends Thread {
 		this.hook_signature ^= this.hook_args.hashCode();
 		this.hook_signature ^= this.hook_return.hashCode();
 		this.hook_signature ^= this.hook_init.hashCode();
-		this.hook_signature ^= this.hook_dbopen.hashCode();
+		this.hook_signature ^= this.hook_connection_open.hashCode();
 		this.hook_signature ^= this.hook_method.hashCode();
 		this.hook_signature ^= this.hook_service.hashCode();
 		this.hook_signature ^= this.hook_apicall.hashCode();
@@ -506,8 +506,8 @@ public class Configure extends Thread {
 		this.this_txid = getValue("this_txid", "scouter_this_txid");
 		this.caller_txid = getValue("caller_txid", "scouter_caller_txid");
 
-		this.debug_dbopen_fullstack = getBoolean("debug_dbopen_fullstack", false);
-		this.debug_dbopen_autocommit = getBoolean("debug_dbopen_autocommit", false);
+		this.debug_connection_open_fullstack = getBoolean("debug_connection_open_fullstack", false);
+		this.debug_connection_autocommit = getBoolean("debug_connection_autocommit", false);
 
 		this.mode_userid = getInt("mode_userid", 2);
 

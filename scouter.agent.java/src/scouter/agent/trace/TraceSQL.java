@@ -543,7 +543,7 @@ public class TraceSQL {
 		if (ctx == null)
 			return null;
 
-		if (conf.enable_dbopen == false)
+		if (conf.enable_trace_connection_open == false)
 			return null;
 
 		MethodStep p = new MethodStep();
@@ -561,7 +561,7 @@ public class TraceSQL {
 		p.hash = hash;
 		ctx.profile.push(p);
 
-		if (conf.debug_dbopen_fullstack) {
+		if (conf.debug_connection_open_fullstack) {
 			String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
 			MessageStep ms = new MessageStep(stack);
 			ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
@@ -629,7 +629,7 @@ public class TraceSQL {
 		}
 		tctx.profile.pop(step);
 
-		if (conf.debug_dbopen_autocommit) {
+		if (conf.debug_connection_autocommit) {
 			MessageStep ms = null;
 			try {
 				ms = new MessageStep("AutoCommit : " + conn.getAutoCommit());
