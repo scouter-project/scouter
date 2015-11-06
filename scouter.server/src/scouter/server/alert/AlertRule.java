@@ -35,7 +35,7 @@ public class AlertRule {
 		p.objType = c.objType();
 		p.title = title;
 		p.message = message;		
-		c.lastAlertTime.put(level, System.currentTimeMillis());
+		c.addAlertHistory(level, System.currentTimeMillis());
 		AlertCore.add(p);
 	}
 }

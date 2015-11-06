@@ -33,20 +33,12 @@ public class AlertEngine {
 		AlertConf conf = ruleConf.get(key.counter);
 		Counter c = realTime.get(key);
 		if (c == null) {
-			c = new Counter();
-			c.objHash = key.objHash;
-			if (conf.keep_history > 0) {
-				c.history = new LongKeyLinkedMap<Number>().setMax(conf.keep_history);
-				c.history.setMax(conf.keep_history);
-			}
+			c = new Counter(key.objHash, conf.keep_history);
 			realTime.put(key, c);
 		}
 		c.value = (Number) value;
 		rule.process(c);
-
-		if (c.history != null) {
-			c.history.putFirst(System.currentTimeMillis(), (Number) value);
-		}
+		c.addValueHistory((Number) value);
 	}
 
 	public static void putDaily(int yyyymmdd, CounterKey key, int hhmm, Value value) {
