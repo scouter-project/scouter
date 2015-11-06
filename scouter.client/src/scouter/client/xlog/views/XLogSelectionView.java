@@ -48,7 +48,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.internal.WorkbenchPage;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;

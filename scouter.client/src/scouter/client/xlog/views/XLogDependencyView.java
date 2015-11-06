@@ -49,7 +49,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.internal.WorkbenchPage;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.zest.core.viewers.EntityConnectionData;
 import org.eclipse.zest.core.viewers.GraphViewer;
