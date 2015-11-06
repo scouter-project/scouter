@@ -6,6 +6,7 @@ import scouter.server.core.AlertCore;
 
 public class AlertRule {
 
+	public long lastModified;
 	public void process(Counter c) {
 	}
 
