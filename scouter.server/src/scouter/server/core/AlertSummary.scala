@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tuna.server.core;
+package scouter.server.core;
 
 import java.util.HashMap
 import scala.collection.JavaConversions.asScalaSet
