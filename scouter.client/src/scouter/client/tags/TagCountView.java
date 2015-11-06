@@ -596,7 +596,6 @@ public class TagCountView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		//ScouterUtil.detachView(this);
 	}
 
 	public void setInput(String date, String objType) {
