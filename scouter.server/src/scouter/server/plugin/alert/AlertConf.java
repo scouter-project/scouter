@@ -16,7 +16,7 @@
  *
  */
 
-package scouter.server.alert;
+package scouter.server.plugin.alert;
 
 public class AlertConf {
 	public long lastModified;

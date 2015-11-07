@@ -35,9 +35,9 @@ object AlertCore {
         ServerStat.put("alert.core.queue",queue.size());
         p.time = System.currentTimeMillis()
 
-        AlertSummary.add(p)
         PlugInManager.alert(p)
 
+        AlertSummary.add(p)
         AlertCache.put(p)
         AlertWR.add(p)
         if (conf.tagcnt_enabled) {

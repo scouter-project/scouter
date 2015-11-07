@@ -15,7 +15,7 @@
  *  limitations under the License. 
  *
  */
-package scouter.server.alert;
+package scouter.server.plugin.alert;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

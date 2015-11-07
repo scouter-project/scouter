@@ -16,7 +16,7 @@
  *
  */
 
-package scouter.server.alert;
+package scouter.server.plugin.alert;
 
 import java.util.Map;
 

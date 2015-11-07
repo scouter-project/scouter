@@ -18,8 +18,10 @@
 package scouter.server.plugin;
 
 import scouter.lang.TextTypes;
+import scouter.lang.pack.ObjectPack;
 import scouter.lang.pack.XLogPack;
 import scouter.server.Configure;
+import scouter.server.core.AgentManager;
 import scouter.server.core.app.XLogGroupUtil;
 import scouter.server.db.TextPermRD;
 import scouter.server.db.TextPermWR;
@@ -42,7 +44,16 @@ public class IXLog extends IPlugIn {
 			GeoIpUtil.setNationAndCity(p);
 		}
 	}
-	
+	public String objName(XLogPack p) {
+		return AgentManager.getAgentName(p.objHash);
+	}
+	public String objType(XLogPack p) {
+		ObjectPack a = AgentManager.getAgent(p.objHash);
+		if (a != null) {
+			return a.objType;
+		}
+		return null;
+	}
 	public String service(XLogPack p) {
 		return TextRD.getString(DateUtil.yyyymmdd(p.endTime), TextTypes.SERVICE, p.service);
 	}
