@@ -145,6 +145,8 @@ public class RuleLoader extends Thread {
 			return null;
 	}
 
+	//각 룰에 대한 기본 설정을 로딩한다. 
+	// 각 설정은 스크립트에서 변경할 수 있다.
 	private AlertConf createConf(String name, File confFile) {
 		AlertConf conf = new AlertConf();
 		if (confFile != null) {
@@ -156,18 +158,20 @@ public class RuleLoader extends Thread {
 			} catch (IOException e) {
 			}
 			conf.history_size = getInt(p, "history_size", 0);
+			conf.silent_time = getInt(p, "silent_time", 0);
 		}
 		return conf;
 	}
 
-	//반복적인 컴파일 시도를 막기위해 한번 실패한 파일은 컴파일을 다시 시도하지 않도록 한다.
+	// 반복적인 컴파일 시도를 막기위해 한번 실패한 파일은 컴파일을 다시 시도하지 않도록 한다.
 	private LongSet compileErrorFiles = new LongSet();
+
 	private AlertRule createRule(String name, File ruleFile) {
-		long fileSignature =signature(ruleFile);
-        if(compileErrorFiles.contains(fileSignature))
-        	return null;
+		long fileSignature = signature(ruleFile);
+		if (compileErrorFiles.contains(fileSignature))
+			return null;
 		try {
-			
+
 			String body = new String(FileUtil.readAll(ruleFile));
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(AlertRule.class);
@@ -206,7 +210,8 @@ public class RuleLoader extends Thread {
 	}
 
 	private long signature(File f) {
-		if(f==null) return 0;
+		if (f == null)
+			return 0;
 		String filename = f.getName();
 		long filetime = f.lastModified();
 		return BitUtil.setHigh(filetime, HashUtil.hash(filename));

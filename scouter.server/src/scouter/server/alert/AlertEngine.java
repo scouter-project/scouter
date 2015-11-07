@@ -19,9 +19,7 @@ package scouter.server.alert;
 
 import scouter.lang.CounterKey;
 import scouter.lang.value.Value;
-import scouter.util.IntKeyLinkedMap;
 import scouter.util.LinkedMap;
-import scouter.util.StringKeyLinkedMap;
 
 public class AlertEngine {
 
@@ -40,6 +38,7 @@ public class AlertEngine {
 		if (c == null) {
 			c = new Counter(key.counter, key.objHash);
 			c.historySize(conf.history_size);
+			c.silentTime(conf.silent_time);
 			realTime.put(key, c);
 		}
 		c.value((Number) value);

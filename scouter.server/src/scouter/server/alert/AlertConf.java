@@ -20,5 +20,6 @@ package scouter.server.alert;
 
 public class AlertConf {
 	public long lastModified;
-    public int history_size;
+	   public int history_size;
+	   public int silent_time;
 }
