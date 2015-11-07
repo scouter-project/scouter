@@ -22,6 +22,7 @@ import scouter.server.db.SummaryWR
 import scouter.server.util.ThreadScala
 import scouter.util.DateUtil
 import scouter.util.RequestQueue
+import scouter.server.plugin.PlugInManager
 
 object SummaryCore {
 
@@ -32,6 +33,7 @@ object SummaryCore {
     ThreadScala.startDaemon("SummaryCore") {
         while (CoreRun.running) {
             val p = queue.get();
+            PlugInManager.summary(p);
             SummaryWR.add(p);
         }
     }

@@ -29,6 +29,7 @@ import javassist.CtNewMethod;
 import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.ObjectPack;
 import scouter.lang.pack.PerfCounterPack;
+import scouter.lang.pack.SummaryPack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogProfilePack;
 import scouter.server.Configure;
@@ -121,21 +122,30 @@ public class PlugInLoader extends Thread {
 						XLogProfilePack.class);
 			}
 		}
+		script = new File(root, "summary.plugin");
+		if (script.canRead() == false) {
+			PlugInManager.summary = null;
+		} else {
+			if (PlugInManager.summary == null || PlugInManager.summary.lastModified != script.lastModified()) {
+				PlugInManager.summary = (ISummary) create(script, "SummaryImpl", ISummary.class,
+						SummaryPack.class);
+			}
+		}
 	}
 
 	// 반복적인 컴파일 시도를 막기위해 한번 실패한 파일은 컴파일을 다시 시도하지 않도록 한다.
 	private LongSet compileErrorFiles = new LongSet();
 
-	private IPlugIn create(File file, String className, Class super1, Class class1) {
+	private IPlugIn create(File file, String className, Class superClass, Class paramClass) {
 		long fileSignature = fileSign(file);
 		if (compileErrorFiles.contains(fileSignature))
 			return null;
 		try {
 
 			String methodName = "process";
-			String superName = super1.getName();
-			String signature = "(" + nativeName(class1) + ")V";
-			String parameter = class1.getName();
+			String superName = superClass.getName();
+			String signature = "(" + nativeName(paramClass) + ")V";
+			String parameter = paramClass.getName();
 			String body = new String(FileUtil.readAll(file));
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(IAlert.class);

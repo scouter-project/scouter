@@ -19,9 +19,7 @@ package scouter.server.plugin.alert;
 
 import scouter.lang.CounterKey;
 import scouter.lang.value.Value;
-import scouter.util.IntKeyLinkedMap;
 import scouter.util.LinkedMap;
-import scouter.util.StringKeyLinkedMap;
 
 public class AlertEngine {
 

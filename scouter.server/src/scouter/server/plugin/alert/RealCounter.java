@@ -26,12 +26,9 @@ import scouter.lang.pack.ObjectPack;
 import scouter.lang.value.Value;
 import scouter.server.core.AgentManager;
 import scouter.server.core.cache.CounterCache;
-import scouter.util.ArrayUtil;
-import scouter.util.IntKeyLinkedMap;
 import scouter.util.IntLongLinkedMap;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
-import scouter.util.StringKeyLinkedMap;
 
 public class RealCounter {
 

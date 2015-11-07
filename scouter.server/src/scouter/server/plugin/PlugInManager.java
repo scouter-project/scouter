@@ -19,6 +19,7 @@ package scouter.server.plugin;
 import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.ObjectPack;
 import scouter.lang.pack.PerfCounterPack;
+import scouter.lang.pack.SummaryPack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogProfilePack;
 
@@ -30,6 +31,7 @@ public class PlugInManager {
 	static IObject objects;
 	static IAlert alerts;
 	static ICounter counters;
+	static ISummary summary;
 
 	public static void xlog(XLogPack m) {
 		if (xlog != null) {
@@ -82,6 +84,15 @@ public class PlugInManager {
 		if (counters != null) {
 			try {
 				counters.process(p);
+			} catch (Throwable t) {
+			}
+		}
+	}
+
+	public static void summary(SummaryPack p) {
+		if (summary != null) {
+			try {
+				summary.process(p);
 			} catch (Throwable t) {
 			}
 		}

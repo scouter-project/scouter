@@ -17,35 +17,9 @@
 
 package scouter.server.plugin;
 
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import scouter.lang.pack.SummaryPack;
 
-import scouter.server.Logger;
-import scouter.util.FileUtil;
 
-public class IPlugIn {
-
-	public long lastModified;
-	public String pluginName;
-
-	public void log(Object c) {
-		Logger.println(c);
-	}
-
-	public void println(Object c) {
-		System.out.println(c);
-	}
-
-	public void logTo(String file, String msg) {
-		PrintWriter pw = null;
-		try {
-			pw = new PrintWriter(new FileWriter(file, true));
-			pw.write(msg);
-		} catch (Exception e) {
-			Logger.println("PLUG-IN", e.toString());
-		} finally {
-			FileUtil.close(pw);
-		}
-	}
-
+public class ISummary extends IPlugIn{
+   public void process(SummaryPack p){}
 }
