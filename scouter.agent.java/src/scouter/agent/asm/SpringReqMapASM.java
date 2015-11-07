@@ -19,6 +19,7 @@ package scouter.agent.asm;
 
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.ClassVisitor;
@@ -29,8 +30,7 @@ import scouter.util.StringUtil;
 
 public class SpringReqMapASM implements IASM, Opcodes {
 
-	static String springControllerNames[] = {
-			"Lorg/springframework/stereotype/Controller;",
+	static String springControllerNames[] = { "Lorg/springframework/stereotype/Controller;",
 			"Lorg/springframework/web/bind/annotation/RestController;" };
 
 	static String springRequestMappingAnnotation = "Lorg/springframework/web/bind/annotation/RequestMapping;";
@@ -41,15 +41,13 @@ public class SpringReqMapASM implements IASM, Opcodes {
 
 	Configure conf = Configure.getInstance();
 
-	public ClassVisitor transform(ClassVisitor cv, String className,
-			ClassDesc classDesc) {
+	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (conf.enable_spring_request_mapping == false)
 			return cv;
 
 		if (classDesc.anotation != null) {
 			for (int i = 0; i < SpringReqMapASM.springControllerNames.length; i++) {
-				if (classDesc.anotation
-						.indexOf(SpringReqMapASM.springControllerNames[i]) > 0) {
+				if (classDesc.anotation.indexOf(SpringReqMapASM.springControllerNames[i]) > 0) {
 					return new SpringReqMapCV(cv, className);
 				}
 			}
@@ -83,10 +81,8 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 	};
 
 	@Override
-	public MethodVisitor visitMethod(int access, String methodName,
-			String desc, String signature, String[] exceptions) {
-		MethodVisitor mv = super.visitMethod(access, methodName, desc,
-				signature, exceptions);
+	public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
+		MethodVisitor mv = super.visitMethod(access, methodName, desc, signature, exceptions);
 		if (mv == null) {
 			return mv;
 		}
@@ -137,10 +133,10 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 		private String methodName;
 		private String className;
 		private String methodRequestMappingUrl;
+		private String methodType;
 		private boolean isHandler = false;
 
-		public SpringReqMapMV(String className, int access, String methodName,
-				String desc, MethodVisitor mv) {
+		public SpringReqMapMV(String className, int access, String methodName, String desc, MethodVisitor mv) {
 			super(ASM4, access, desc, mv);
 			this.methodName = methodName;
 			this.className = className;
@@ -159,9 +155,18 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 		@Override
 		public void visitCode() {
 			if (isHandler) {
-				String serviceUrl = StringUtil.trimEmpty(classRequestMappingUrl) + methodRequestMappingUrl;
-				System.out.println("@@@@@@ spring url ==> " + serviceUrl);
+				StringBuilder sb = new StringBuilder(60);
+				sb.append(StringUtil.trimEmpty(classRequestMappingUrl))
+				.append(StringUtil.trimEmpty(methodRequestMappingUrl));
 				
+				if(!StringUtil.isEmpty(methodType)) {
+					sb.append("<").append(methodType).append(">"); 
+				}
+				
+				String serviceUrl = sb.toString();
+
+				Logger.info("[Apply Spring F/W REST URL] " + serviceUrl);
+
 				AsmUtil.PUSH(mv, serviceUrl);
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);
 			}
@@ -181,30 +186,47 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 				if (av == null)
 					return av;
 
-				if ("value".equals(name)) {
-					return new SpringReqMapMVAVAV(av);
+				if ("value".equals(name) || "method".equals(name)) {
+					return new SpringReqMapMVAVAV(av, name);
 				}
 				return av;
 			}
 		}
 
 		class SpringReqMapMVAVAV extends AnnotationVisitor implements Opcodes {
-
-			public SpringReqMapMVAVAV(AnnotationVisitor av) {
+			String paramName;
+			
+			public SpringReqMapMVAVAV(AnnotationVisitor av, String paramName) {
 				super(ASM4, av);
+				this.paramName = paramName;
 			}
 
 			@Override
 			public void visit(String name, Object value) {
 				super.visit(name, value);
-				if(value instanceof String) {
-					String sValue = (String)value;
-					if(!StringUtil.isEmpty(sValue)) {
-						methodRequestMappingUrl = sValue;
-						isHandler = true;
-					}
+				
+				if(!"value".equals(paramName)) {
+					return;
+				}
+				
+				if (value instanceof String) {
+					String sValue = (String) value;
+					methodRequestMappingUrl = sValue;
+					isHandler = true;
 				}
 			}
+			
+			@Override
+			public void visitEnum(String name, String desc, String value) {
+				super.visitEnum(name, desc, value);
+				
+				if(!"method".equals(paramName)) {
+					return;
+				}
+				
+				methodType = value;
+				isHandler = true;
+			};
 		}
 
 	}
