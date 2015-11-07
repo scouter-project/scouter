@@ -265,7 +265,7 @@ public class Configure extends Thread {
 	public long heap_perm_alert_interval=30000;
 	
 	
-	public boolean enable_spring_request=true;
+	public boolean enable_spring_request_mapping=true;
 	public boolean debug_sql_call=false;
 	
 	public int socket_open_fullstack_port=0;
@@ -559,7 +559,7 @@ public class Configure extends Thread {
 		this.heap_perm_alert_interval=getLong("heap_perm_alert_interval",30000);
 		this.heap_perm_warning_pct=getInt("heap_perm_warning_pct",90);
 		
-		this.enable_spring_request = getBoolean("enable_spring_request", true);
+		this.enable_spring_request_mapping = getBoolean("enable_spring_request_mapping", true);
 
 		this.alert_message_length = getInt("alert_message_length", 3000);
 		this.alert_send_interval = getInt("alert_send_interval", 3000);
