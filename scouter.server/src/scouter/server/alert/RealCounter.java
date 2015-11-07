@@ -18,35 +18,44 @@
 
 package scouter.server.alert;
 
-import java.util.Enumeration;
+import java.util.Map;
 
 import scouter.lang.AlertLevel;
 import scouter.lang.CounterKey;
 import scouter.lang.pack.ObjectPack;
+import scouter.lang.value.Value;
 import scouter.server.core.AgentManager;
+import scouter.server.core.cache.CounterCache;
+import scouter.util.ArrayUtil;
+import scouter.util.IntKeyLinkedMap;
 import scouter.util.IntLongLinkedMap;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
+import scouter.util.StringKeyLinkedMap;
 
-public class Counter {
+public class RealCounter {
 
-	private Number _value;
+	private Value _value;
+	private long _time;
 	private LongKeyLinkedMap<Number> _history;
 	private IntLongLinkedMap _lastAlertTime;
 
-	private int _objHash;
 	private String _objType;
 	private String _objName;
 	private int _silentTime;
-	private String _name;
 
-	public Counter(String name, int objHash) {
-		this._objHash = objHash;
-		this._name = name;
+	private int _objHash;
+	private String _counter;
+	private byte _timetype;
+
+	public RealCounter(CounterKey key) {
+		this._objHash = key.objHash;
+		this._counter = key.counter;
+		this._timetype = key.timetype;
 	}
 
-	public String name() {
-		return this._name;
+	public String counter() {
+		return this._counter;
 	}
 
 	public int objHash() {
@@ -73,16 +82,23 @@ public class Counter {
 		return _objType;
 	}
 
-	public void value(Number value2) {
-		this._value = value2;
+	public void value(Value v) {
+		this._value = v;
+		this._time = System.currentTimeMillis();
 	}
 
 	public int intValue() {
-		return _value.intValue();
+		if (_value instanceof Number)
+			return ((Number) _value).intValue();
+		else
+			return 0;
 	}
 
 	public float floatValue() {
-		return _value.floatValue();
+		if (_value instanceof Number)
+			return ((Number) _value).floatValue();
+		else
+			return 0;
 	}
 
 	public int historySize() {
@@ -94,7 +110,7 @@ public class Counter {
 	}
 
 	public int overCount(float value, int sec) {
-		if (_history == null)
+		if (historySize() == 0)
 			return 0;
 		long from = System.currentTimeMillis() - sec * 1000L;
 		int cnt = 0;
@@ -111,15 +127,16 @@ public class Counter {
 		return cnt;
 	}
 
-	public long historyHowOld() {
-		if (_history == null)
+	public long historyOldestTime() {
+		if (historySize() == 0)
 			return 0;
+		long tm = _history.getLastKey();
 		long now = System.currentTimeMillis();
-		return now - _history.getLastKey();
+		return (now - _history.getLastKey()) / 1000;
 	}
 
 	public int historyCount(int sec) {
-		if (_history == null)
+		if (historySize() == 0)
 			return 0;
 		long from = System.currentTimeMillis() - sec * 1000L;
 		int cnt = 0;
@@ -179,18 +196,41 @@ public class Counter {
 	}
 
 	public void info(String title, String message) {
-		AlertEngUtil.alert(AlertLevel.INFO, this, title, message);
+		FxAlertUtil.alert(AlertLevel.INFO, this, title, message);
 	}
 
 	public void warning(String title, String message) {
-		AlertEngUtil.alert(AlertLevel.WARN, this, title, message);
+		FxAlertUtil.alert(AlertLevel.WARN, this, title, message);
 	}
 
 	public void error(String title, String message) {
-		AlertEngUtil.alert(AlertLevel.ERROR, this, title, message);
+		FxAlertUtil.alert(AlertLevel.ERROR, this, title, message);
 	}
 
 	public void fatal(String title, String message) {
-		AlertEngUtil.alert(AlertLevel.FATAL, this, title, message);
+		FxAlertUtil.alert(AlertLevel.FATAL, this, title, message);
+	}
+
+	public String counterNames() {
+		Map m = CounterCache.getObjectCounters(_objHash);
+		if (m == null)
+			return "[]";
+		return m.keySet().toString();
+	}
+
+	public float floatValue(String counter) {
+		Value v = CounterCache.get(new CounterKey(_objHash, counter, _timetype));
+		if (v instanceof Number)
+			return ((Number) v).floatValue();
+		else
+			return 0;
+	}
+
+	public int intValue(String counter) {
+		Value v = CounterCache.get(new CounterKey(_objHash, counter, _timetype));
+		if (v instanceof Number)
+			return ((Number) v).intValue();
+		else
+			return 0;
 	}
 }

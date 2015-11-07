@@ -82,7 +82,7 @@ public class LongKeyLinkedMap<V>  {
 	
 	
 	public synchronized boolean containsValue(Object value) {
-		if (value == null) {
+		if (value == null || size()==0) {
 			return false;
 		}
 
@@ -98,6 +98,9 @@ public class LongKeyLinkedMap<V>  {
 	}
 
 	public synchronized boolean containsKey(long key) {
+		if(this.size()==0)
+			return false;
+		
 		ENTRY tab[] = table;
 		int index = hash(key) % tab.length;
 		for (ENTRY e = tab[index]; e != null; e = e.next) {
@@ -109,6 +112,8 @@ public class LongKeyLinkedMap<V>  {
 	}
 
 	public synchronized V get(long key) {
+		if(this.size()==0)
+			return null;
 		ENTRY<V> tab[] = table;
 		int index = hash(key) % tab.length;
 		for (ENTRY<V> e = tab[index]; e != null; e = e.next) {
@@ -119,15 +124,23 @@ public class LongKeyLinkedMap<V>  {
 		return null;
 	}
 	public synchronized long getFirstKey() {
+		if(this.size()==0)
+			return 0;
 	     return this.header.link_next.key;
 	}
 	public synchronized long getLastKey() {
+		if(this.size()==0)
+			return 0;
 	     return this.header.link_prev.key;
 	}
 	public synchronized V getFirstValue() {
+		if(this.size()==0)
+			return null;
 	    return this.header.link_next.value;
 	}
 	public synchronized V getLastValue() {
+		if(this.size()==0)
+			return null;
 	    return this.header.link_prev.value;
 	}
 	

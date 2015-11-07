@@ -110,7 +110,7 @@ public class PlugInManager {
 			public void run() {
 				if (CompareUtil.equals(jarName, conf.plugin_classpath) == false) {
 					createClassLoader(null);
-					unload();
+					unload(); 
 					jarName = conf.plugin_classpath;
 					load(jarName);
 				}

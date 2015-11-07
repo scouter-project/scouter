@@ -19,38 +19,41 @@ package scouter.server.alert;
 
 import scouter.lang.CounterKey;
 import scouter.lang.value.Value;
+import scouter.util.IntKeyLinkedMap;
 import scouter.util.LinkedMap;
+import scouter.util.StringKeyLinkedMap;
 
-public class AlertEngine {
+public class FxAlertEngine {
 
-	static LinkedMap<CounterKey, Counter> realTime = new LinkedMap<CounterKey, Counter>().setMax(3000);
+	static LinkedMap<CounterKey, RealCounter> realTime = new LinkedMap<CounterKey, RealCounter>().setMax(3000);
 
 	public static void putRealTime(CounterKey key, Value value) {
-		RuleLoader loader = RuleLoader.getInstance();
+		FxAlertRuleLoader loader = FxAlertRuleLoader.getInstance();
 		AlertRule rule = loader.alertRuleTable.get(key.counter);
-		AlertConf conf = loader.alertConfTable.get(key.counter);
-		if (rule == null || conf == null)
+		if (rule == null)
 			return;
-		if (value instanceof Number == false) {
-			return;
-		}
-		Counter c = realTime.get(key);
+		
+		RealCounter c = realTime.get(key);
 		if (c == null) {
-			c = new Counter(key.counter, key.objHash);
+			c = new RealCounter( key);
+			AlertConf conf = loader.alertConfTable.get(key.counter);
+			//일시적으로 삭제되었을 가능성에 대비 
+			if (conf == null) {
+				conf = new AlertConf();
+			}
 			c.historySize(conf.history_size);
 			c.silentTime(conf.silent_time);
 			realTime.put(key, c);
 		}
-		c.value((Number) value);
+		c.value(value);
 		rule.process(c);
 		c.addValueHistory((Number) value);
 	}
 
-	public static void putDaily(int yyyymmdd, CounterKey key, int hhmm, Value value) {
-	}
+
 
 	public static void load() {
-		RuleLoader.getInstance();
+		FxAlertRuleLoader.getInstance();
 	}
 
 }

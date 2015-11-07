@@ -35,20 +35,19 @@ import scouter.util.BitUtil;
 import scouter.util.CastUtil;
 import scouter.util.FileUtil;
 import scouter.util.HashUtil;
-import scouter.util.IntSet;
 import scouter.util.LongSet;
 import scouter.util.StringEnumer;
 import scouter.util.StringKeyLinkedMap;
 import scouter.util.StringUtil;
 import scouter.util.ThreadUtil;
 
-public class RuleLoader extends Thread {
+public class FxAlertRuleLoader extends Thread {
 
-	private static RuleLoader instance;
+	private static FxAlertRuleLoader instance;
 
-	public synchronized static RuleLoader getInstance() {
+	public synchronized static FxAlertRuleLoader getInstance() {
 		if (instance == null) {
-			instance = new RuleLoader();
+			instance = new FxAlertRuleLoader();
 			instance.setDaemon(true);
 			instance.setName("RuleLoader");
 			instance.start();
@@ -186,14 +185,14 @@ public class RuleLoader extends Thread {
 			try {
 				impl = cp.get(name);
 				impl.defrost();
-				CtMethod method = impl.getMethod("process", "(" + nativeName(Counter.class) + ")V");
-				method.setBody("{" + Counter.class.getName() + " $c=$1;" + body + "}");
+				CtMethod method = impl.getMethod("process", "(" + nativeName(RealCounter.class) + ")V");
+				method.setBody("{" + RealCounter.class.getName() + " $c=$1;" + body + "}");
 				c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			} catch (javassist.NotFoundException e) {
 				impl = cp.makeClass(name, cc);
-				CtMethod method = CtNewMethod.make("public void process(" + Counter.class.getName() + " c){}", impl);
+				CtMethod method = CtNewMethod.make("public void process(" + RealCounter.class.getName() + " c){}", impl);
 				impl.addMethod(method);
-				method.setBody("{" + Counter.class.getName() + " $c=$1;" + body + "}");
+				method.setBody("{" + RealCounter.class.getName() + " $c=$1;" + body + "}");
 				c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			}
 

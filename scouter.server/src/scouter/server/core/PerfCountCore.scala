@@ -31,7 +31,7 @@ import scala.collection.JavaConversions._
 import scouter.server.util.ThreadScala
 import scouter.server.util.EnumerScala
 import scouter.server.plugin.PlugInManager
-import scouter.server.alert.AlertEngine
+import scouter.server.alert.FxAlertEngine
 object PerfCountCore {
     var queue = new RequestQueue[PerfCounterPack](CoreRun.MAX_QUE_SIZE);
     ThreadScala.startDaemon("scouter.server.core.PerfCountCore", { CoreRun.running }) {
@@ -48,7 +48,7 @@ object PerfCountCore {
                 val key = new CounterKey(objHash, k, p.timetype);
                 Auto5MSampling.add(key, value);
                 CounterCache.put(key, value);
-                AlertEngine.putRealTime(key,value);
+                FxAlertEngine.putRealTime(key,value);
             })
         } else {
             val yyyymmdd = CastUtil.cint(DateUtil.yyyymmdd(p.time));
@@ -58,7 +58,6 @@ object PerfCountCore {
                 val key = new CounterKey(objHash, k, p.timetype);
                 DailyCounterWR.add(yyyymmdd, key, hhmm, value);
                 CounterCache.put(key, value);
-                AlertEngine.putDaily(yyyymmdd, key, hhmm, value);
             })
         }
     }

@@ -23,7 +23,7 @@ public class AlertRule {
 
 	public long lastModified;
 
-	public void process(Counter c) {
+	public void process(RealCounter c) {
 	}
 	public void log(Object c) {
 		Logger.println(c);

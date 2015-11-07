@@ -3,9 +3,9 @@ package scouter.server.alert;
 import scouter.lang.pack.AlertPack;
 import scouter.server.core.AlertCore;
 
-public class AlertEngUtil {
+public class FxAlertUtil {
 
-	public static void alert(byte level, Counter c, String title, String message) {
+	public static void alert(byte level, RealCounter c, String title, String message) {
 		long now = System.currentTimeMillis();
 		if (c.silentTime() > 0) {
 			if (now < c.lastAlertTime(level) + c.silentTime() * 1000)
