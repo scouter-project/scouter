@@ -20,6 +20,6 @@ package scouter.server.plugin;
 import scouter.lang.pack.ObjectPack;
 
 
-public interface IObject  extends IPlugIn{
-   public void process(ObjectPack p);
+public class IObject  extends IPlugIn{
+   public void process(ObjectPack p){}
 }

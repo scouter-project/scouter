@@ -16,29 +16,28 @@
  */
 package scouter.server.plugin;
 import scouter.lang.pack.XLogPack;
-import scouter.lang.pack.XLogProfilePack;
 import scouter.server.Logger;
 import scouter.server.core.CoreRun;
 import scouter.util.RequestQueue;
 import scouter.util.ThreadUtil;
-public class PlugXLogProfileBuf extends Thread {
-	private static PlugXLogProfileBuf instance = null;
-	public final static synchronized PlugXLogProfileBuf getInstance() {
+public class PlugInXLogDB extends Thread {
+	private static PlugInXLogDB instance = null;
+	public final static synchronized PlugInXLogDB getInstance() {
 		if (instance == null) {
-			instance = new PlugXLogProfileBuf();
+			instance = new PlugInXLogDB();
 			instance.setDaemon(true);
 			instance.setName(ThreadUtil.getName(instance));
 			instance.start();
 		}
 		return instance;
 	}
-	protected PlugXLogProfileBuf() {
+	protected PlugInXLogDB() {
 	}
-	private RequestQueue<XLogProfilePack> queue = new RequestQueue<XLogProfilePack>(CoreRun.MAX_QUE_SIZE());
+	private RequestQueue<XLogPack> queue = new RequestQueue<XLogPack>(CoreRun.MAX_QUE_SIZE());
 	public int getQueueSize() {
 		return queue.size();
 	}
-	public boolean add(XLogProfilePack p) {
+	public boolean add(XLogPack p) {
 		Object ok = queue.put(p);
 		if (ok == null) {
 			Logger.println("S203", 10, "profile queue exceeded!!");
@@ -55,8 +54,8 @@ public class PlugXLogProfileBuf extends Thread {
 	private boolean running = true;
 	public void run() {
 		while (running) {
-			XLogProfilePack m = queue.get();
-			PlugInManager.profile(m);
+			XLogPack m = queue.get();
+			PlugInManager.xlogdb(m);
 		}
 	}
 }

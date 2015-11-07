@@ -139,7 +139,7 @@ public class Configure extends Thread {
 	public String hostname = SysJMX.getHostName();
 	public String db_root = "./database";
 	public String log_dir = "./logs";
-	public String alert_rule_dir = "./conf/alert";
+	public String plugin_dir = "./plug-in";
 
 	public int agent_deadtime = 8000;
 
@@ -172,7 +172,6 @@ public class Configure extends Thread {
 
 	public boolean log_rotation = true;
 	public int log_keep_dates = 365;
-	public String plugin_classpath = "";
 
 	public int xlog_realtime_limit = 0;
 	public int xlog_pasttime_limit = 0;
@@ -213,7 +212,7 @@ public class Configure extends Thread {
 		this.hostname = getValue("hostname", SysJMX.getHostName());
 		this.db_root = getValue("db_root", "./database");
 		this.log_dir = getValue("log_dir", "./logs");
-		this.alert_rule_dir = getValue("alert_rule_dir", "./conf/alert");
+		this.plugin_dir = getValue("plugin_dir", "./plug-in");
 
 		this.agent_deadtime = getInt("agent_deadtime", 8000);
 
@@ -251,7 +250,6 @@ public class Configure extends Thread {
 		this.log_rotation = getBoolean("log_rotation", true);
 		this.log_keep_dates = getInt("log_keep_dates", 365);
 
-		this.plugin_classpath = getValue("plugin_classpath", "");
 		this.xlog_realtime_limit = getInt("xlog_realtime_limit", 0);
 		this.xlog_pasttime_limit = getInt("xlog_pasttime_limit", 0);
 		this.auto_delete_data = getBoolean("auto_delete_data", true);

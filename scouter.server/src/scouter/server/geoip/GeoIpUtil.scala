@@ -18,17 +18,20 @@ object GeoIpUtil {
     private val citySet = new IntLinkedSet().setMax(10000);
     private val cityDivHash = HashUtil.hash(TextTypes.CITY);
     private val locationCache = new IntKeyLinkedMap[Location]().setMax(10000);
-    
+
     def setNationAndCity(p: XLogPack) {
         if (p.ipaddr == null || p.ipaddr.length != 4)
             return ;
 
         if (GISDataUtil.isOk() == false)
             return ;
-        
+
+        if (StringUtil.isEmpty(p.countryCode) == false)
+            return ;
+
         if (isPrivateIp(p.ipaddr))
             return ;
-        
+
         val ipInt = DataInputX.toInt(p.ipaddr, 0);
         if (ipInt == 0)
             return ;

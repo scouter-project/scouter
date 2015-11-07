@@ -22,24 +22,22 @@ import scouter.lang.pack.XLogProfilePack
 import scouter.server.Configure
 import scouter.server.Logger
 import scouter.server.db.XLogProfileWR
+import scouter.server.db.XLogProfileWR
+import scouter.server.plugin.PlugInManager
+import scouter.server.util.ThreadScala
 import scouter.util.BytesUtil
 import scouter.util.RequestQueue
-import scouter.util.ThreadUtil
-import scouter.server.db.XLogProfileWR
-import scouter.server.util.ThreadScala
-import scouter.server.plugin.PlugXLogProfileBuf
 
 object ProfileCore {
 
     val queue = new RequestQueue[XLogProfilePack](1000);
-    val plugin = PlugXLogProfileBuf.getInstance();
-
+    
     val conf = Configure.getInstance();
     ThreadScala.startDaemon("scouter.server.core.ProfileCore", { CoreRun.running }) {
         val m = queue.get();
         ServerStat.put("profile.core.queue",queue.size());
         if (BytesUtil.getLength(m.profile) > 0) {
-            plugin.add(m)
+            PlugInManager.profile(m)
             if (conf.xlog_profile_save_time_limit <= m.elapsed) {
                 XLogProfileWR.add(m.time, m.txid, m.profile)
             }

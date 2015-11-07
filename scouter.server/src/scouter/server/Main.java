@@ -48,7 +48,7 @@ public class Main {
 		DataUdpServer.conf();
 		ServiceHandlingProxy.load();
 		TcpServer.conf();
-		PlugInManager.getInstance();
+		PlugInManager.load();
 		NetDataProcessor.working();
 		AutoDeleteScheduler.getInstance();
 		Runtime.getRuntime().addShutdownHook(new Thread() {

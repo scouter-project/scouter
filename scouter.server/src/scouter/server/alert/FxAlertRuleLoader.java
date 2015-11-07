@@ -49,7 +49,7 @@ public class FxAlertRuleLoader extends Thread {
 		if (instance == null) {
 			instance = new FxAlertRuleLoader();
 			instance.setDaemon(true);
-			instance.setName("RuleLoader");
+			instance.setName("FxAlertRuleLoader");
 			instance.start();
 		}
 		return instance;
@@ -63,7 +63,7 @@ public class FxAlertRuleLoader extends Thread {
 			ThreadUtil.sleep(5000);
 
 			try {
-				File root = new File(Configure.getInstance().alert_rule_dir);
+				File root = new File(Configure.getInstance().plugin_dir);
 				if (root != null && root.canRead()) {
 					checkModified(root);
 					checkNewRule(root);
@@ -78,7 +78,7 @@ public class FxAlertRuleLoader extends Thread {
 
 		File[] ruleFiles = root.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
-				return name.endsWith(".rule");
+				return name.endsWith(".alert");
 			}
 		});
 
@@ -109,7 +109,7 @@ public class FxAlertRuleLoader extends Thread {
 			/*
 			 * if the Rule file is not existed, then also clear the conf-info
 			 */
-			File ruleFile = new File(root, name + ".rule");
+			File ruleFile = new File(root, name + ".alert");
 			if (ruleFile.canRead() == false || rule == null) {
 				clear(name);
 				continue;

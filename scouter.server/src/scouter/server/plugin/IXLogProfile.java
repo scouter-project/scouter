@@ -19,7 +19,7 @@ package scouter.server.plugin;
 
 import scouter.lang.pack.XLogProfilePack;
 
-
-public interface IXLogProfile  extends IPlugIn{
-   public void process(XLogProfilePack p);
+public class IXLogProfile extends IPlugIn {
+	public void process(XLogProfilePack p) {
+	}
 }

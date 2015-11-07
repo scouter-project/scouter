@@ -20,6 +20,6 @@ package scouter.server.plugin;
 import scouter.lang.pack.AlertPack;
 
 
-public interface IAlert extends IPlugIn{
-   public void process(AlertPack p);
+public class IAlert extends IPlugIn{
+   public void process(AlertPack p){}
 }

@@ -18,37 +18,34 @@
 
 package scouter.server.core.app;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import scouter.server.db.TextPermWR;
-import scouter.server.db.TextRD;
-import scouter.server.plugin.PlugInManager;
-import scouter.lang.TextTypes;
-import scouter.lang.pack.XLogPack;
-import scouter.util.DateUtil;
-import scouter.util.HashUtil;
-import scouter.util.IntIntLinkedMap;
+import java.util.HashSet
+import java.util.Set
+import scouter.server.db.TextPermWR
+import scouter.server.db.TextRD
+import scouter.server.plugin.PlugInManager
+import scouter.lang.TextTypes
+import scouter.lang.pack.XLogPack
+import scouter.util.DateUtil
+import scouter.util.HashUtil
+import scouter.util.IntIntLinkedMap
 import scouter.util.IntSet;
+import scouter.util.IntLinkedSet
 
 object XLogGroupUtil {
 
     val groupMap = new IntIntLinkedMap().setMax(50000);
 
     def process(p: XLogPack) {
-
-        PlugInManager.grouping(p);
         if (p.group != 0)
             return ;
         p.group = makeGroupHash(p.service, p.endTime);
     }
-
     private def makeGroupHash(service: Int, endtime: Long): Int = {
         var groupHash = groupMap.get(service);
         if (groupHash == 0 || groupHash == 0) {
             val url = TextRD.getString(DateUtil.yyyymmdd(endtime), TextTypes.SERVICE, service);
             groupHash = getGroupHash(url);
-            if (groupHash!=0) {
+            if (groupHash != 0) {
                 groupMap.put(service, groupHash);
             }
         }
@@ -80,7 +77,7 @@ object XLogGroupUtil {
         TextPermWR.add(HashUtil.hash(TextTypes.GROUP), hash, name);
     }
 
-    private val saved = new IntSet();
+    private val saved = new IntLinkedSet().setMax(1000);
 
     private val h2 = HashUtil.hash("*.jsp");
     private val h3 = HashUtil.hash("images");
