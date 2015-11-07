@@ -1,12 +1,31 @@
+/*
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License"); 
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License. 
+ *
+ */
 package scouter.server.alert;
-
-import java.util.HashMap;
 
 import scouter.lang.CounterKey;
 import scouter.lang.value.Value;
+import scouter.util.IntKeyLinkedMap;
+import scouter.util.LinkedMap;
+import scouter.util.StringKeyLinkedMap;
 
 public class AlertEngine {
-	static HashMap<CounterKey, Counter> realTime = new HashMap<CounterKey, Counter>();
+
+	static LinkedMap<CounterKey, Counter> realTime = new LinkedMap<CounterKey, Counter>().setMax(3000);
 
 	public static void putRealTime(CounterKey key, Value value) {
 		RuleLoader loader = RuleLoader.getInstance();
@@ -19,10 +38,11 @@ public class AlertEngine {
 		}
 		Counter c = realTime.get(key);
 		if (c == null) {
-			c = new Counter(key.objHash, conf.keep_history);
+			c = new Counter(key.counter, key.objHash);
+			c.historySize(conf.history_size);
 			realTime.put(key, c);
 		}
-		c.value = (Number) value;
+		c.value((Number) value);
 		rule.process(c);
 		c.addValueHistory((Number) value);
 	}
