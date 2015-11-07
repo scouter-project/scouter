@@ -18,7 +18,6 @@ package scouter.agent.trace.api;
 
 import scouter.agent.Configure;
 import scouter.agent.plugin.IApiCallTrace;
-import scouter.agent.proxy.HttpClient43Factory;
 import scouter.agent.proxy.IHttpClient;
 import scouter.agent.proxy.NettyHttpClientFactory;
 import scouter.agent.trace.ApiInfo;

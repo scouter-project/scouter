@@ -17,7 +17,6 @@
 
 package scouter.agent.trace;
 
-import scouter.util.StringIntMap;
 import scouter.util.SysJMX;
 
 
