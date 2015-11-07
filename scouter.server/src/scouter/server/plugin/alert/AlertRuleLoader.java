@@ -166,7 +166,7 @@ public class AlertRuleLoader extends Thread {
 	private LongSet compileErrorFiles = new LongSet();
 
 	private AlertRule createRule(String name, File ruleFile) {
-		long fileSignature = signature(ruleFile);
+		long fileSignature = fileSign(ruleFile);
 		if (compileErrorFiles.contains(fileSignature))
 			return null;
 		try {
@@ -208,7 +208,7 @@ public class AlertRuleLoader extends Thread {
 		return null;
 	}
 
-	private long signature(File f) {
+	private long fileSign(File f) {
 		if (f == null)
 			return 0;
 		String filename = f.getName();

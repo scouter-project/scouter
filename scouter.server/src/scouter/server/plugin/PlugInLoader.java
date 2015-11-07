@@ -74,8 +74,7 @@ public class PlugInLoader extends Thread {
 			PlugInManager.alerts = null;
 		} else {
 			if (PlugInManager.alerts == null || PlugInManager.alerts.lastModified != script.lastModified()) {
-				PlugInManager.alerts = (IAlert) create(script, "Alert", IAlert.class.getName(), "process", "("
-						+ nativeName(AlertPack.class) + ")V", AlertPack.class.getName(), "void");
+				PlugInManager.alerts = (IAlert) create(script, "AlertImpl", IAlert.class, AlertPack.class);
 			}
 		}
 
@@ -84,10 +83,7 @@ public class PlugInLoader extends Thread {
 			PlugInManager.counters = null;
 		} else {
 			if (PlugInManager.counters == null || PlugInManager.counters.lastModified != script.lastModified()) {
-				PlugInManager.counters = (ICounter) create(script, "Counter",//
-						ICounter.class.getName(), "process", //
-						"(" + nativeName(PerfCounterPack.class) + ")V"//
-						, PerfCounterPack.class.getName(), "void");
+				PlugInManager.counters = (ICounter) create(script, "CounterImpl", ICounter.class, PerfCounterPack.class);
 			}
 		}
 
@@ -96,10 +92,7 @@ public class PlugInLoader extends Thread {
 			PlugInManager.objects = null;
 		} else {
 			if (PlugInManager.objects == null || PlugInManager.objects.lastModified != script.lastModified()) {
-				PlugInManager.objects = (IObject) create(script, "Object1",//
-						IObject.class.getName(), "process", //
-						"(" + nativeName(ObjectPack.class) + ")V"//
-						, ObjectPack.class.getName(), "void");
+				PlugInManager.objects = (IObject) create(script, "ObjectImpl", IObject.class, ObjectPack.class);
 			}
 		}
 
@@ -108,10 +101,7 @@ public class PlugInLoader extends Thread {
 			PlugInManager.xlog = null;
 		} else {
 			if (PlugInManager.xlog == null || PlugInManager.xlog.lastModified != script.lastModified()) {
-				PlugInManager.xlog = (IXLog) create(script, "XLog",//
-						IXLog.class.getName(), "process", //
-						"(" + nativeName(XLogPack.class) + ")V"//
-						, XLogPack.class.getName(), "void");
+				PlugInManager.xlog = (IXLog) create(script, "XLogImpl", IXLog.class, XLogPack.class);
 			}
 		}
 		script = new File(root, "xlogdb.plugin");
@@ -119,10 +109,7 @@ public class PlugInLoader extends Thread {
 			PlugInManager.xlogdb = null;
 		} else {
 			if (PlugInManager.xlogdb == null || PlugInManager.xlogdb.lastModified != script.lastModified()) {
-				PlugInManager.xlogdb = (IXLog) create(script, "XLogDB",//
-						IXLog.class.getName(), "process", //
-						"(" + nativeName(XLogPack.class) + ")V"//
-						, XLogPack.class.getName(), "void");
+				PlugInManager.xlogdb = (IXLog) create(script, "XLogDBImpl", IXLog.class, XLogPack.class);
 			}
 		}
 		script = new File(root, "xlogprofile.plugin");
@@ -130,10 +117,8 @@ public class PlugInLoader extends Thread {
 			PlugInManager.xlogProfiles = null;
 		} else {
 			if (PlugInManager.xlogProfiles == null || PlugInManager.xlogProfiles.lastModified != script.lastModified()) {
-				PlugInManager.xlogProfiles = (IXLogProfile) create(script, "XLog",//
-						IXLogProfile.class.getName(), "process", //
-						"(" + nativeName(XLogProfilePack.class) + ")V"//
-						, XLogProfilePack.class.getName(), "void");
+				PlugInManager.xlogProfiles = (IXLogProfile) create(script, "XLogProfileImpl", IXLogProfile.class,
+						XLogProfilePack.class);
 			}
 		}
 	}
@@ -141,13 +126,16 @@ public class PlugInLoader extends Thread {
 	// 반복적인 컴파일 시도를 막기위해 한번 실패한 파일은 컴파일을 다시 시도하지 않도록 한다.
 	private LongSet compileErrorFiles = new LongSet();
 
-	private IPlugIn create(File file, String className, String superName, String mname, String sig, String paramName,
-			String returnValue) {
-		long fileSignature = signature(file);
+	private IPlugIn create(File file, String className, Class super1, Class class1) {
+		long fileSignature = fileSign(file);
 		if (compileErrorFiles.contains(fileSignature))
 			return null;
 		try {
 
+			String methodName = "process";
+			String superName = super1.getName();
+			String signature = "(" + nativeName(class1) + ")V";
+			String parameter = class1.getName();
 			String body = new String(FileUtil.readAll(file));
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(IAlert.class);
@@ -163,19 +151,18 @@ public class PlugInLoader extends Thread {
 			try {
 				impl = cp.get(className);
 				impl.defrost();
-				method = impl.getMethod(mname, sig);
+				method = impl.getMethod(methodName, signature);
 			} catch (javassist.NotFoundException e) {
 				impl = cp.makeClass(className, cc);
-				method = CtNewMethod.make("public " + returnValue + " " + mname + "(" + paramName + " p){"
-						+ returnString(returnValue) + "}", impl);
+				method = CtNewMethod.make("public void " + methodName + "(" + parameter + " p){}", impl);
 				impl.addMethod(method);
 			}
-			method.setBody("{" + paramName + " $p=$1;" + body + "}");
+			method.setBody("{" + parameter + " $p=$1;" + body + "}");
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 
-			IPlugIn rule = (IPlugIn) c.newInstance();
-			rule.lastModified = file.lastModified();
-			return rule;
+			IPlugIn plugin = (IPlugIn) c.newInstance();
+			plugin.lastModified = file.lastModified();
+			return plugin;
 		} catch (javassist.CannotCompileException ee) {
 			compileErrorFiles.add(fileSignature);
 			Logger.println("IPlugIn", ee.getMessage());
@@ -185,16 +172,7 @@ public class PlugInLoader extends Thread {
 		return null;
 	}
 
-	private String returnString(String v) {
-		if (v.equals("void"))
-			return "";
-		if (v.equals("int") || v.equals("long") || v.equals("float") || v.equals("double"))
-			return " return 0;";
-		else
-			return "return null;";
-	}
-
-	private long signature(File f) {
+	private long fileSign(File f) {
 		if (f == null)
 			return 0;
 		String filename = f.getName();
