@@ -27,7 +27,7 @@ import scouter.server.netio.data.net.DataUdpServer;
 import scouter.server.netio.service.ServiceHandlingProxy;
 import scouter.server.netio.service.net.TcpServer;
 import scouter.server.plugin.PlugInManager;
-import scouter.server.plugin.alert.FxAlertEngine;
+import scouter.server.plugin.alert.AlertEngine;
 import scouter.server.term.TermMain;
 import scouter.util.ShellArg;
 import scouter.util.SysJMX;
@@ -42,7 +42,7 @@ public class Main {
 		if(DBCtr.createLock()==false){
 			return;
 		}
-		FxAlertEngine.load();
+		AlertEngine.load();
 		CounterManager.getInstance();
 		AccountManager.ACCOUNT_FILENAME();
 		DataUdpServer.conf();

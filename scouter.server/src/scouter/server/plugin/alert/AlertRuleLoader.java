@@ -41,13 +41,13 @@ import scouter.util.StringKeyLinkedMap;
 import scouter.util.StringUtil;
 import scouter.util.ThreadUtil;
 
-public class FxAlertRuleLoader extends Thread {
+public class AlertRuleLoader extends Thread {
 
-	private static FxAlertRuleLoader instance;
+	private static AlertRuleLoader instance;
 
-	public synchronized static FxAlertRuleLoader getInstance() {
+	public synchronized static AlertRuleLoader getInstance() {
 		if (instance == null) {
-			instance = new FxAlertRuleLoader();
+			instance = new AlertRuleLoader();
 			instance.setDaemon(true);
 			instance.setName("FxAlertRuleLoader");
 			instance.start();

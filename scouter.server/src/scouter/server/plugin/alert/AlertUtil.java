@@ -3,7 +3,7 @@ package scouter.server.plugin.alert;
 import scouter.lang.pack.AlertPack;
 import scouter.server.core.AlertCore;
 
-public class FxAlertUtil {
+public class AlertUtil {
 
 	public static void alert(byte level, RealCounter c, String title, String message) {
 		long now = System.currentTimeMillis();

@@ -196,19 +196,19 @@ public class RealCounter {
 	}
 
 	public void info(String title, String message) {
-		FxAlertUtil.alert(AlertLevel.INFO, this, title, message);
+		AlertUtil.alert(AlertLevel.INFO, this, title, message);
 	}
 
 	public void warning(String title, String message) {
-		FxAlertUtil.alert(AlertLevel.WARN, this, title, message);
+		AlertUtil.alert(AlertLevel.WARN, this, title, message);
 	}
 
 	public void error(String title, String message) {
-		FxAlertUtil.alert(AlertLevel.ERROR, this, title, message);
+		AlertUtil.alert(AlertLevel.ERROR, this, title, message);
 	}
 
 	public void fatal(String title, String message) {
-		FxAlertUtil.alert(AlertLevel.FATAL, this, title, message);
+		AlertUtil.alert(AlertLevel.FATAL, this, title, message);
 	}
 
 	public String counterNames() {

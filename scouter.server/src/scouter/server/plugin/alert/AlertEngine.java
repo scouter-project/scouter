@@ -23,12 +23,12 @@ import scouter.util.IntKeyLinkedMap;
 import scouter.util.LinkedMap;
 import scouter.util.StringKeyLinkedMap;
 
-public class FxAlertEngine {
+public class AlertEngine {
 
 	static LinkedMap<CounterKey, RealCounter> realTime = new LinkedMap<CounterKey, RealCounter>().setMax(3000);
 
 	public static void putRealTime(CounterKey key, Value value) {
-		FxAlertRuleLoader loader = FxAlertRuleLoader.getInstance();
+		AlertRuleLoader loader = AlertRuleLoader.getInstance();
 		AlertRule rule = loader.alertRuleTable.get(key.counter);
 		if (rule == null)
 			return;
@@ -53,7 +53,7 @@ public class FxAlertEngine {
 
 
 	public static void load() {
-		FxAlertRuleLoader.getInstance();
+		AlertRuleLoader.getInstance();
 	}
 
 }
