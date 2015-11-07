@@ -27,7 +27,7 @@ import scouter.agent.asm.ApicallInfoASM;
 import scouter.agent.asm.CapArgsASM;
 import scouter.agent.asm.CapReturnASM;
 import scouter.agent.asm.CapThisASM;
-import scouter.agent.asm.DbcOpenASM;
+import scouter.agent.asm.JDBCConnectionOpenASM;
 import scouter.agent.asm.FutureTaskASM;
 import scouter.agent.asm.HttpServiceASM;
 import scouter.agent.asm.IASM;
@@ -96,7 +96,7 @@ public class AgentTransformer implements ClassFileTransformer {
 		}
 	
 		if (conf.enable_hook_dbconn) {
-			temp.add(new DbcOpenASM());
+			temp.add(new JDBCConnectionOpenASM());
 			temp.add(new JDBCDriverASM());
 		}
 		
@@ -173,7 +173,7 @@ public class AgentTransformer implements ClassFileTransformer {
 		
 				@Override
 				public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-					classDesc.anotation=desc;
+					classDesc.anotation += desc;
 					return super.visitAnnotation(desc, visible);
 				}
 				

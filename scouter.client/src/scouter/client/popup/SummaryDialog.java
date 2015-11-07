@@ -13,7 +13,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
+import scouter.client.server.ServerManager;
+import scouter.client.summary.modules.AlertSummaryComposite;
 import scouter.client.summary.modules.ApicallSummaryComposite;
+import scouter.client.summary.modules.ErrorSummaryComposite;
 import scouter.client.summary.modules.IpSummaryComposite;
 import scouter.client.summary.modules.ServiceSummaryComposite;
 import scouter.client.summary.modules.SqlSummaryComposite;
@@ -33,6 +36,7 @@ public class SummaryDialog {
 	TabItem ipTab;
 	TabItem userAgentTab;
 	TabItem errorTab;
+	TabItem alertTab;
 	
 	public SummaryDialog(int serverId, MapPack param) {
 		this.serverId = serverId;
@@ -60,6 +64,16 @@ public class SummaryDialog {
 		userAgentTab = new TabItem(tabFolder, SWT.NULL);
 		userAgentTab.setText("User-Agent");
 		userAgentTab.setControl(getUaControl(tabFolder));
+		errorTab = new TabItem(tabFolder, SWT.NULL);
+		errorTab.setText("Exception");
+		errorTab.setControl(getErrorControl(tabFolder));
+		
+		if (ServerManager.getInstance().getServer(serverId).isEnableMenu("alert_summary")) {
+			alertTab = new TabItem(tabFolder, SWT.NULL);
+			alertTab.setText("Alert");
+			alertTab.setControl(getAlertControl(tabFolder));	
+		}
+		
 		Button closeBtn = new Button(dialog, SWT.PUSH);
 		GridData gr = new GridData(SWT.RIGHT, SWT.FILL, false, false);
 		gr.widthHint = 100;
@@ -102,6 +116,18 @@ public class SummaryDialog {
 	
 	private Control getUaControl(Composite parent) {
 		UserAgentSummaryComposite comp = new UserAgentSummaryComposite(parent, SWT.NONE);
+		comp.setData(serverId, param);
+		return comp;
+	}
+	
+	private Control getErrorControl(Composite parent) {
+		ErrorSummaryComposite comp = new ErrorSummaryComposite(parent, SWT.NONE);
+		comp.setData(serverId, param);
+		return comp;
+	}
+	
+	private Control getAlertControl(Composite parent) {
+		AlertSummaryComposite comp = new AlertSummaryComposite(parent, SWT.NONE);
 		comp.setData(serverId, param);
 		return comp;
 	}

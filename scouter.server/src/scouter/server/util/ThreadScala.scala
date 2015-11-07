@@ -112,6 +112,7 @@ object ThreadScala {
         timer.scheduleAtFixedRate(timerTask, new Date(stime), TIME_INTERVAL);
         return timer
     }
+    
     // main을 실행하며 동작방식을 이해
     def main(args: Array[String]) {
         val v1 = ThreadScala.startDaemon("scouter.server.util.ThreadScala") {

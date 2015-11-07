@@ -78,7 +78,10 @@ public class AlertTableComposite extends Composite {
 				StructuredSelection sel = (StructuredSelection) viewer.getSelection();
 				Object o = sel.getFirstElement();
 				if (o instanceof AlertPack) {
-					AlertNotifierDialog alertDialog = new AlertNotifierDialog(parent.getDisplay(), serverId, (AlertPack)o);
+					String objName = TextProxy.object.getLoadText(yyyymmdd, ((AlertPack) o).objHash, serverId);
+					AlertNotifierDialog alertDialog = new AlertNotifierDialog(parent.getDisplay());
+					alertDialog.setObjName(objName);
+					alertDialog.setPack((AlertPack) o);
 					alertDialog.show(parent.getBounds());
 				} else {
 					System.out.println(o);

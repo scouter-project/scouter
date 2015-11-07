@@ -26,8 +26,9 @@ import scouter.net.TcpFlag
 import scouter.server.db.SummaryRD
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.util.IntKeyLinkedMap
-import scouter.net.RequestCmd
 import scouter.util.LongKeyLinkedMap
+import scouter.util.StringKeyLinkedMap
+import scouter.net.RequestCmd
 
 class SummaryService {
 
@@ -43,11 +44,18 @@ class SummaryService {
     class TempError() {
         var error: Int = 0;
         var service: Int = 0;
+        var message: Int = 0;
         var count: Int = 0;
         var txid: Long = 0;
         var sql: Int = 0;
         var apicall: Int = 0;
         var fullstack: Int = 0;
+    }
+
+    class TempAlert() {
+        var title: String = "";
+        var count: Int = 0;
+        var level: Byte = 0;
     }
 
     def load(stype: Byte, din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
@@ -121,7 +129,7 @@ class SummaryService {
         dout.writeByte(TcpFlag.HasNEXT);
         dout.writePack(map);
     }
-    def load2(stype: Byte, din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+    def loadIpAndUA(stype: Byte, din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
         val param = din.readMapPack();
         val date = param.getText("date");
         val stime = param.getLong("stime");
@@ -168,7 +176,7 @@ class SummaryService {
         dout.writeByte(TcpFlag.HasNEXT);
         dout.writePack(map);
     }
-    def load3(stype: Byte, din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+    def loadServiceErrorSum(stype: Byte, din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
         val param = din.readMapPack();
         val date = param.getText("date");
         val stime = param.getLong("stime");
@@ -186,6 +194,7 @@ class SummaryService {
                 val id = p.table.getList("id")
                 val error = p.table.getList("error")
                 val service = p.table.getList("service")
+                val message = p.table.getList("message")
                 val count = p.table.getList("count")
                 val txid = p.table.getList("txid")
                 val sql = p.table.getList("sql")
@@ -199,8 +208,9 @@ class SummaryService {
                         tempMap.put(id.getInt(i), tempObj);
                     }
 
-                    tempObj.error = service.getInt(i);
+                    tempObj.error = error.getInt(i);
                     tempObj.service = service.getInt(i);
+                    tempObj.message = message.getInt(i);
                     tempObj.txid = txid.getLong(i);
 
                     if (tempObj.sql == 0) {
@@ -223,6 +233,7 @@ class SummaryService {
         val map = new MapPack();
         val newErrorList = map.newList("error");
         val newServiceList = map.newList("service");
+        val newMessageList = map.newList("message");
         val newCountList = map.newList("count");
         val newTxidList = map.newList("txid");
         val newSqlList = map.newList("sql");
@@ -235,11 +246,64 @@ class SummaryService {
             val obj = tempMap.get(id);
             newErrorList.add(obj.error);
             newServiceList.add(obj.service);
+            newMessageList.add(obj.message);
             newCountList.add(obj.count);
             newTxidList.add(obj.txid);
             newSqlList.add(obj.sql);
             newApiCallList.add(obj.apicall);
             newFullStackList.add(obj.fullstack);
+        }
+
+        dout.writeByte(TcpFlag.HasNEXT);
+        dout.writePack(map);
+    }
+
+    def loadAlertSum(stype: Byte, din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        val param = din.readMapPack();
+        val date = param.getText("date");
+        val stime = param.getLong("stime");
+        val etime = param.getLong("etime");
+        val objType = param.getText("objType");
+        val objHash = param.getInt("objHash");
+
+        val tempMap = new StringKeyLinkedMap[TempAlert]().setMax(50000)
+
+        val handler = (time: Long, data: Array[Byte]) => {
+            val p = new DataInputX(data).readPack().asInstanceOf[SummaryPack];
+            if (p.stype == stype
+                && (objHash == 0 || objHash == p.objHash)
+                && (objType == null || objType == p.objType)) {
+                val title = p.table.getList("title")
+                val count = p.table.getList("count")
+                val level = p.table.getList("level")
+
+                for (i <- 0 to title.size() - 1) {
+                    var tempObj = tempMap.get(title.getString(i));
+                    if (tempObj == null) {
+                        tempObj = new TempAlert();
+                        tempObj.title = title.getString(i);
+                        tempObj.level = level.getInt(i).toByte;
+                        tempMap.put(title.getString(i), tempObj);
+                    }
+                    tempObj.count += count.getInt(i);
+                }
+            }
+        }
+
+        SummaryRD.readByTime(stype, date, stime, etime, handler)
+
+        val map = new MapPack();
+        val newTitleList = map.newList("title");
+        val newCountList = map.newList("count");
+        val newLevelList = map.newList("level");
+
+        val itr = tempMap.keys();
+        while (itr.hasMoreElements()) {
+            val title = itr.nextString();
+            val obj = tempMap.get(title);
+            newTitleList.add(obj.title);
+            newCountList.add(obj.count);
+            newLevelList.add(obj.level);
         }
 
         dout.writeByte(TcpFlag.HasNEXT);
@@ -259,14 +323,18 @@ class SummaryService {
     }
     @ServiceHandler(RequestCmd.LOAD_IP_SUMMARY)
     def LOAD_IP_SUMMARY(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
-        load2(SummaryEnum.IP, din, dout, login);
+        loadIpAndUA(SummaryEnum.IP, din, dout, login);
     }
     @ServiceHandler(RequestCmd.LOAD_UA_SUMMARY)
     def LOAD_UA_SUMMARY(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
-        load2(SummaryEnum.USER_AGENT, din, dout, login);
+        loadIpAndUA(SummaryEnum.USER_AGENT, din, dout, login);
     }
     @ServiceHandler(RequestCmd.LOAD_SERVICE_ERROR_SUMMARY)
     def LOAD_ERROR_SUMMARY(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
-        load3(SummaryEnum.SERVICE_ERROR, din, dout, login);
+        loadServiceErrorSum(SummaryEnum.SERVICE_ERROR, din, dout, login);
+    }
+    @ServiceHandler(RequestCmd.LOAD_ALERT_SUMMARY)
+    def LOAD_ALERT_SUMMARY(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        loadAlertSum(SummaryEnum.ALERT, din, dout, login);
     }
 }

@@ -32,7 +32,7 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class JDBCDriverASM implements IASM, Opcodes {
 	//user can define driver.connect()
-	private Map<String, MethodSet> reserved =MethodSet.getHookingSet(Configure.getInstance().hook_dbc_wrapper);
+	private Map<String, MethodSet> reserved =MethodSet.getHookingSet(Configure.getInstance().hook_driver_connect_wrapper);
 	public JDBCDriverASM() {
 		AsmUtil.add(reserved, "com/ibm/db2/jcc/DB2Driver",	"connect(Ljava/lang/String;Ljava/util/Properties;)Ljava/sql/Connection;");
 	}

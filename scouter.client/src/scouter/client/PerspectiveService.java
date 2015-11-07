@@ -67,15 +67,17 @@ public class PerspectiveService implements IPerspectiveFactory  {
 		agentLayout.addPlaceholder(GroupNavigationView.ID);
 		agentLayout.addView(ObjectNavigationView.ID);
 		layout.getViewLayout(ObjectNavigationView.ID).setCloseable(false); 
-		 
-		IFolderLayout eqLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_ALERT, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_OBJECT_NAVIGATION);
-		eqLayout.addPlaceholder(AlertView.ID);
+		
+		IFolderLayout eqLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_EQ, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_OBJECT_NAVIGATION);
 		eqLayout.addPlaceholder(EQView.ID + ":*");
 		eqLayout.addView(EQView.ID + ":" + serverId +"&"+ objType); // 1
 
-		IFolderLayout cpuLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_CPU, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_ALERT);
+		IFolderLayout cpuLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_CPU, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_EQ);
 		cpuLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + host + "&" + CounterConstants.HOST_CPU);
-
+		
+		IFolderLayout alertLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_ALERT, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_OBJECT_NAVIGATION);
+		alertLayout.addPlaceholder(AlertView.ID + ":*");
+		alertLayout.addView(AlertView.ID);
 		
 		IFolderLayout upResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_TOP, IPageLayout.LEFT, 0.3f, editorArea);
 		upResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.WAS_RECENT_USER);

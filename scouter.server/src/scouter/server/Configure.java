@@ -125,6 +125,7 @@ public class Configure extends Thread {
 	}
 
 	public int xlog_queue_size = 100000;
+	public int xlog_profile_queue_size = 1000;
 	public boolean debug_net = false;
 
 	public String udp_host = "0.0.0.0";
@@ -138,6 +139,7 @@ public class Configure extends Thread {
 	public String hostname = SysJMX.getHostName();
 	public String db_root = "./database";
 	public String log_dir = "./logs";
+	public String alert_rule_dir = "./conf/alert";
 
 	public int agent_deadtime = 8000;
 
@@ -151,6 +153,8 @@ public class Configure extends Thread {
 	public int udp_so_rcvbuf = 1024 * 1024 * 4;
 	public boolean debug_udp_multipacket;
 	public boolean debug_expired_multipacket = true;
+	public int gzip_writing_block_thread = 2;
+	
 
 	public boolean debug_udp_packet = false;
 	public boolean debug_udp_counter = false;
@@ -188,13 +192,14 @@ public class Configure extends Thread {
 	public StringSet log_ignore = new StringSet();
 	public boolean tagcnt_enabled = false;
 	
-	public int tcp_server_pool_size = 500;
-	public boolean enable_alert_summary=false;
+	public int tcp_server_pool_size = 100;
+	public boolean enable_alert_summary=true;
 	
 	public static boolean WORKABLE = true; 
 
 	private void apply() {
 		this.xlog_queue_size = getInt("xlog_queue_size", 100000);
+		this.xlog_profile_queue_size = getInt("xlog_profile_queue_size", 1000);
 		this.debug_net = getBoolean("debug_net", false);
 
 		this.udp_host = getValue("udp_host", "0.0.0.0");
@@ -208,16 +213,18 @@ public class Configure extends Thread {
 		this.hostname = getValue("hostname", SysJMX.getHostName());
 		this.db_root = getValue("db_root", "./database");
 		this.log_dir = getValue("log_dir", "./logs");
+		this.alert_rule_dir = getValue("alert_rule_dir", "./conf/alert");
 
 		this.agent_deadtime = getInt("agent_deadtime", 8000);
 
-		this.gzip_xlog = getBoolean("gzip_xlog", true);
-		this.gzip_profile = getBoolean("gzip_profile", true);
+		this.gzip_xlog = getBoolean("gzip_xlog", false);
+		this.gzip_profile = getBoolean("gzip_profile", false);
 		this.gzip_writing_block = getInt("gzip_writing_block", 3);
 		this.gzip_unitcount_header_cache = getInt("gzip_unitcount_header_cache", 5);
 		this.gzip_read_cache_block = getInt("gzip_read_cache_block", 3);
 		this.gzip_read_cache_time = getLong("gzip_read_cache_time", DateUtil.MILLIS_PER_MINUTE);
-
+		this.gzip_writing_block_thread = getInt("gzip_writing_block_thread", 2);
+		
 		this.udp_buffer = getInt("udp_buffer", 65535);
 
 		int default_so_rcvbuf = 1024 * 1024 * 4;
@@ -263,7 +270,7 @@ public class Configure extends Thread {
 		this.tagcnt_enabled = getBoolean("tagcnt_enabled", false);
 		
 		this.tcp_server_pool_size = getInt("tcp_server_pool_size", 100);
-		this.enable_alert_summary=  getBoolean("enable_alert_summary", false);
+		this.enable_alert_summary=  getBoolean("enable_alert_summary", true);
 		
 		ConfObserver.exec();
 	}

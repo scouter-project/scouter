@@ -38,9 +38,7 @@ public class ApicallInfoASM implements IASM, Opcodes {
 	private Map<String, MethodSet> reserved = new HashMap<String, MethodSet>();
 
 	public ApicallInfoASM() {
-		// AsmUtil.add(reserved,
-		// "io/reactivex/netty/protocol/http/client/HttpClientRequest",
-		// "setDynamicUriParts");
+		AsmUtil.add(reserved, "io/reactivex/netty/protocol/http/client/HttpClientRequest", "setDynamicUriParts");
 		// AsmUtil.add(reserved,
 		// "io/reactivex/netty/protocol/http/client/HttpClientResponse", "*");
 

@@ -38,6 +38,7 @@ import java.util.ArrayList
 import scala.collection.mutable.ListBuffer
 import scouter.server.core.CoreRun
 import scouter.server.util.EnumerScala
+import scouter.server.core.ServerStat
 
 object TextWR {
 
@@ -84,6 +85,8 @@ object TextWR {
         while (DBCtr.running) {
             closeIdle();
             val m = queue.get(10000); //check 10 sec
+            ServerStat.put("text.db.queue",queue.size());
+            
             if (m != null) {
                 try {
                     process(m);

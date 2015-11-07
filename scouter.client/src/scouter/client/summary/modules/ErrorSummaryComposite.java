@@ -53,6 +53,7 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
+import scouter.util.Hexa32;
 
 public class ErrorSummaryComposite extends Composite {
 	
@@ -84,6 +85,7 @@ public class ErrorSummaryComposite extends Composite {
 		this.serverId = serverId;
 		this.param = param;
 		initLayout();
+		clipboard = new Clipboard(null);
 	}
 	
 	private void initLayout() {
@@ -262,16 +264,27 @@ public class ErrorSummaryComposite extends Composite {
 	}
 	
 	private void createColumns() {
-		for (ServiceColumnEnum column : ServiceColumnEnum.values()) {
+		for (ErrorColumnEnum column : ErrorColumnEnum.values()) {
 			TableViewerColumn c = createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
 			ColumnLabelProvider labelProvider = null;
 			switch (column) {
+			case ERROR:
+				labelProvider = new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						if (element instanceof ErrorData) {
+							return TextProxy.error.getText(((ErrorData) element).error);
+						}
+						return null;
+					}
+				};
+				break;
 			case SERVICE:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof SummaryData) {
-							return TextProxy.service.getText(((SummaryData) element).hash);
+						if (element instanceof ErrorData) {
+							return TextProxy.service.getText(((ErrorData) element).service);
 						}
 						return null;
 					}
@@ -281,88 +294,52 @@ public class ErrorSummaryComposite extends Composite {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof SummaryData) {
-							return FormatUtil.print(((SummaryData) element).count, "#,##0");
+						if (element instanceof ErrorData) {
+							return FormatUtil.print(((ErrorData) element).count, "#,##0");
 						}
 						return null;
 					}
 				};
 				break;
-			case ERROR_COUNT:
+			case TXID:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof SummaryData) {
-							return FormatUtil.print(((SummaryData) element).errorCount, "#,##0");
+						if (element instanceof ErrorData) {
+							return Hexa32.toString32(((ErrorData) element).txid);
 						}
 						return null;
 					}
 				};
 				break;
-			case ELAPSED_SUM:
+			case SQL:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof SummaryData) {
-							return FormatUtil.print(((SummaryData) element).elapsedSum, "#,##0");
+						if (element instanceof ErrorData) {
+							return TextProxy.sql.getText(((ErrorData) element).sql);
 						}
 						return null;
 					}
 				};
 				break;
-			case ELAPSED_AVG:
+			case APICALL:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof SummaryData) {
-							SummaryData data = (SummaryData) element;
-							return FormatUtil.print(data.elapsedSum / (double) data.count , "#,##0");
+						if (element instanceof ErrorData) {
+							return TextProxy.apicall.getText(((ErrorData) element).apicall);
 						}
 						return null;
 					}
 				};
 				break;
-			case CPU_SUM:
+			case FULLSTACK:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof SummaryData) {
-							return FormatUtil.print(((SummaryData) element).cpu, "#,##0");
-						}
-						return null;
-					}
-				};
-				break;
-			case CPU_AVG:
-				labelProvider = new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (element instanceof SummaryData) {
-							SummaryData data = (SummaryData) element;
-							return FormatUtil.print(data.cpu / (double) data.count , "#,##0");
-						}
-						return null;
-					}
-				};
-				break;
-			case MEM_SUM:
-				labelProvider = new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (element instanceof SummaryData) {
-							return FormatUtil.print(((SummaryData) element).mem, "#,##0");
-						}
-						return null;
-					}
-				};
-				break;
-			case MEM_AVG:
-				labelProvider = new ColumnLabelProvider() {
-					@Override
-					public String getText(Object element) {
-						if (element instanceof SummaryData) {
-							SummaryData data = (SummaryData) element;
-							return FormatUtil.print(data.mem / (double) data.count , "#,##0");
+						if (element instanceof ErrorData) {
+							return TextProxy.error.getText(((ErrorData) element).fullstack);
 						}
 						return null;
 					}
@@ -393,17 +370,15 @@ public class ErrorSummaryComposite extends Composite {
 		return viewerColumn;
 	}
 	
-	enum ServiceColumnEnum {
+	enum ErrorColumnEnum {
 
-	    SERVICE("Error", 150, SWT.CENTER, true, true, false),
+	    ERROR("Exception", 150, SWT.LEFT, true, true, false),
+	    SERVICE("Service", 150, SWT.LEFT, true, true, false),
 	    COUNT("Count", 70, SWT.RIGHT, true, true, true),
-	    ERROR_COUNT("Error", 70, SWT.RIGHT, true, true, true),
-	    ELAPSED_SUM("Total Elapsed(ms)", 150, SWT.RIGHT, true, true, true),
-	    ELAPSED_AVG("Avg Elapsed(ms)", 150, SWT.RIGHT, true, true, true),
-	    CPU_SUM("Total Cpu(ms)", 100, SWT.RIGHT, true, true, true),
-	    CPU_AVG("Avg Cpu(ms)", 100, SWT.RIGHT, true, true, true),
-	    MEM_SUM("Total Mem(bytes)", 150, SWT.RIGHT, true, true, true),
-	    MEM_AVG("Avg Mem(bytes)", 150, SWT.RIGHT, true, true, true);
+	    TXID("TxId", 100, SWT.CENTER, true, true, false),
+	    SQL("SQL", 150, SWT.LEFT, true, true, false),
+	    APICALL("ApiCall", 150, SWT.LEFT, true, true, false),
+	    FULLSTACK("Full Stack", 200, SWT.LEFT, true, true, false);
 
 	    private final String title;
 	    private final int width;
@@ -412,7 +387,7 @@ public class ErrorSummaryComposite extends Composite {
 	    private final boolean moveable;
 	    private final boolean isNumber;
 
-	    private ServiceColumnEnum(String text, int width, int alignment, boolean resizable, boolean moveable, boolean isNumber) {
+	    private ErrorColumnEnum(String text, int width, int alignment, boolean resizable, boolean moveable, boolean isNumber) {
 	        this.title = text;
 	        this.width = width;
 	        this.alignment = alignment;
@@ -470,7 +445,6 @@ public class ErrorSummaryComposite extends Composite {
 			if (p != null) {
 				final List<ErrorData> list = new ArrayList<ErrorData>();
 				MapPack m = (MapPack) p;
-				ListValue idLv = m.getList("id");
 				ListValue errorLv = m.getList("error");
 				ListValue serviceLv = m.getList("service");
 				ListValue countLv = m.getList("count");
@@ -478,7 +452,7 @@ public class ErrorSummaryComposite extends Composite {
 				ListValue sqlLv = m.getList("sql");
 				ListValue apiLv = m.getList("apicall");
 				ListValue stackLv = m.getList("fullstack");
-				for (int i = 0; i < idLv.size(); i++) {
+				for (int i = 0; i < errorLv.size(); i++) {
 					ErrorData data = new ErrorData();
 					data.error = errorLv.getInt(i);
 					data.service = serviceLv.getInt(i);
@@ -491,9 +465,10 @@ public class ErrorSummaryComposite extends Composite {
 				}
 				
 				TextProxy.error.load(date, errorLv, serverId);
-				TextProxy.error.load(date, stackLv, serverId);
+				TextProxy.service.load(date, serviceLv, serverId);
 				TextProxy.sql.load(date, sqlLv, serverId);
 				TextProxy.apicall.load(date, apiLv, serverId);
+				TextProxy.error.load(date, stackLv, serverId);
 				
 				ExUtil.exec(viewer.getTable(), new Runnable() {
 					public void run() {

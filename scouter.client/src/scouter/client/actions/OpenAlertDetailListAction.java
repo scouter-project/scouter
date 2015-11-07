@@ -36,12 +36,12 @@ public class OpenAlertDetailListAction extends Action {
 	private final IWorkbenchWindow window;
 	private int serverId;
 
-	public OpenAlertDetailListAction(IWorkbenchWindow window, String label, int serverId) {
+	public OpenAlertDetailListAction(IWorkbenchWindow window, int serverId) {
 		this.window = window;
 		this.serverId = serverId;
-		setText(label);
+		setText("Alert History");
 		setId(ID);
-		setImageDescriptor(ImageUtil.getImageDescriptor(Images.table));
+		setImageDescriptor(ImageUtil.getImageDescriptor(Images.alert));
 	}
 	
 	public void run() {

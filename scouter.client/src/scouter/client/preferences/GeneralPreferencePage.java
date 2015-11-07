@@ -147,23 +147,23 @@ public class GeneralPreferencePage extends FieldEditorPreferencePage implements 
         label.setText("Max Block count:");
 		label.setLayoutData(UIUtil.formData(null, -1, null, -1, maxText, -5, null, -1, 100));
 		
-		layoutGroup = new Group(parent, SWT.NONE);
-	    layoutGroup.setText("Alert");
-		layoutGroup.setLayout(UIUtil.formLayout(5, 5));
-		layoutGroup.setLayoutData(UIUtil.gridData(SWT.FILL));
+//		layoutGroup = new Group(parent, SWT.NONE);
+//	    layoutGroup.setText("Alert");
+//		layoutGroup.setLayout(UIUtil.formLayout(5, 5));
+//		layoutGroup.setLayoutData(UIUtil.gridData(SWT.FILL));
 		
-		Label alertDialogTimeoutLabel = new Label(layoutGroup, SWT.NONE | SWT.RIGHT);
-		alertDialogTimeoutLabel.setText("Set alert dialog timeout in seconds. \'-1\' will not destroy dialog.");
-		alertDialogTimeoutLabel.setLayoutData(UIUtil.formData(null, -1, null, -1, 100, -5, null, -1));
-		
-		Label secLbl = new Label(layoutGroup, SWT.NONE);
-		secLbl.setText("sec.");
-		secLbl.setLayoutData(UIUtil.formData(null, -1, alertDialogTimeoutLabel, 7, 100, -5, null, -1, 40));
-		
-		alertDialogTimeout = new Text(layoutGroup, SWT.BORDER | SWT.RIGHT);
-		alertDialogTimeout.setText(""+alertdialogTimeoutSec);
-		alertDialogTimeout.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
-		alertDialogTimeout.setLayoutData(UIUtil.formData(null, -1, alertDialogTimeoutLabel, 5, secLbl, -5, null, -1, 220));
+//		Label alertDialogTimeoutLabel = new Label(layoutGroup, SWT.NONE | SWT.RIGHT);
+//		alertDialogTimeoutLabel.setText("Set alert dialog timeout in seconds. \'-1\' will not destroy dialog.");
+//		alertDialogTimeoutLabel.setLayoutData(UIUtil.formData(null, -1, null, -1, 100, -5, null, -1));
+//		
+//		Label secLbl = new Label(layoutGroup, SWT.NONE);
+//		secLbl.setText("sec.");
+//		secLbl.setLayoutData(UIUtil.formData(null, -1, alertDialogTimeoutLabel, 7, 100, -5, null, -1, 40));
+//		
+//		alertDialogTimeout = new Text(layoutGroup, SWT.BORDER | SWT.RIGHT);
+//		alertDialogTimeout.setText(""+alertdialogTimeoutSec);
+//		alertDialogTimeout.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
+//		alertDialogTimeout.setLayoutData(UIUtil.formData(null, -1, alertDialogTimeoutLabel, 5, secLbl, -5, null, -1, 220));
 		
 		return super.createContents(parent);
 	}
@@ -172,7 +172,7 @@ public class GeneralPreferencePage extends FieldEditorPreferencePage implements 
 		host = PManager.getInstance().getString(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_HOST);
 		javaee = PManager.getInstance().getString(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_WAS);
 		maxBlock = PManager.getInstance().getInt(PreferenceConstants.P_MASS_PROFILE_BLOCK);
-		alertdialogTimeoutSec = PManager.getInstance().getInt(PreferenceConstants.P_ALERT_DIALOG_TIMEOUT);
+		//alertdialogTimeoutSec = PManager.getInstance().getInt(PreferenceConstants.P_ALERT_DIALOG_TIMEOUT);
 	}
 	
 	@Override
@@ -195,7 +195,7 @@ public class GeneralPreferencePage extends FieldEditorPreferencePage implements 
 		PManager.getInstance().setValue(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_HOST, hostCombo.getText());
 		PManager.getInstance().setValue(PreferenceConstants.P_PERS_WAS_SERV_DEFAULT_WAS, javaeeCombo.getText());
 		PManager.getInstance().setValue(PreferenceConstants.P_MASS_PROFILE_BLOCK, CastUtil.cint(maxText.getText()));
-		PManager.getInstance().setValue(PreferenceConstants.P_ALERT_DIALOG_TIMEOUT, CastUtil.cint(alertDialogTimeout.getText()));
+		//PManager.getInstance().setValue(PreferenceConstants.P_ALERT_DIALOG_TIMEOUT, CastUtil.cint(alertDialogTimeout.getText()));
 		
 		if (needResetPerspective) {
 			RCPUtil.resetPerspective();

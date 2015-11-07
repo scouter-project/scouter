@@ -163,7 +163,7 @@ public class TraceApiCall {
 					tctx.error = step.error;
 				}
 
-				ServiceSummary.getInstance().process(thr, tctx.serviceHash, tctx.txid, 0, step.hash);
+				ServiceSummary.getInstance().process(thr, step.error, tctx.serviceHash, tctx.txid, 0, step.hash);
 			}
 			MeterAPI.getInstance().add(step.elapsed, step.error != 0);
 			ServiceSummary.getInstance().process(step);
@@ -221,8 +221,7 @@ public class TraceApiCall {
 				if (tctx.error == 0) {
 					tctx.error = step.error;
 				}
-
-				AlertProxy.sendAlert(AlertLevel.WARN, "SOCKET_EXCEPTION", msg);
+				ServiceSummary.getInstance().process(thr, step.error ,tctx.serviceHash, tctx.txid, 0, 0);
 			}
 			tctx.profile.add(step);
 

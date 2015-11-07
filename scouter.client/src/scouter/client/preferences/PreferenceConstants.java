@@ -40,4 +40,9 @@ public class PreferenceConstants {
 	
 	public static final String P_ALERT_DIALOG_TIMEOUT = "alert_dialog_timeout";
 	
+	public static final String NOTIFY_FATAL_ALERT = "notify_fatal_alert";
+	public static final String NOTIFY_WARN_ALERT = "notify_warn_alert";
+	public static final String NOTIFY_ERROR_ALERT = "notify_error_alert";
+	public static final String NOTIFY_INFO_ALERT = "notify_info_alert";
+	
 }

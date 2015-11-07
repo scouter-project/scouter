@@ -14,7 +14,7 @@ object ConfObserver {
             }
         })
     }
-    def put(name: String,code: Runnable) {
+    def put(name: String, code: Runnable) {
         observers.put(name,code)
     }
     def exec() {

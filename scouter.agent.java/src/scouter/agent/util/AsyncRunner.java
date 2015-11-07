@@ -91,7 +91,7 @@ public class AsyncRunner extends Thread {
 	private void alert(LeakData m) {
 		ServiceSummary summary = ServiceSummary.getInstance();
 		if (m.fullstack) {
-			ErrorData d = summary.process(m.error, m.service, m.txid, 0, 0);
+			ErrorData d = summary.process(m.error, 0, m.service, m.txid, 0, 0);
 			Logger.println("A156", m.error + " " + m.inner);
 			if (d != null && d.fullstack == 0) {
 				String fullstack = ThreadUtil.getStackTrace(m.error.getStackTrace(), 2);
@@ -99,7 +99,7 @@ public class AsyncRunner extends Thread {
 				Logger.println("A157", fullstack);
 			}
 		} else {
-			summary.process(m.error, m.service, m.txid, 0, 0);
+			summary.process(m.error, 0, m.service, m.txid, 0, 0);
 			Logger.println("A156", m.error + " " + m.inner);
 		}
 	}

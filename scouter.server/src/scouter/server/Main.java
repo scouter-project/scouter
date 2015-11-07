@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import scouter.Version;
 import scouter.server.account.AccountManager;
+import scouter.server.alert.FxAlertEngine;
 import scouter.server.core.AutoDeleteScheduler;
 import scouter.server.core.TextCacheReset;
 import scouter.server.db.DBCtr;
@@ -41,7 +42,7 @@ public class Main {
 		if(DBCtr.createLock()==false){
 			return;
 		}
-		
+		FxAlertEngine.load();
 		CounterManager.getInstance();
 		AccountManager.ACCOUNT_FILENAME();
 		DataUdpServer.conf();

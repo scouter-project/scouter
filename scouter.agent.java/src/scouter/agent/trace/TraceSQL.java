@@ -18,12 +18,17 @@
 package scouter.agent.trace;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterSQL;
+import scouter.agent.error.CONNECTION_OPEN_FAIL;
+import scouter.agent.error.SLOW_SQL;
+import scouter.agent.error.TOO_MANY_RECORDS;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.summary.ServiceSummary;
 import scouter.jdbc.DetectConnection;
@@ -147,7 +152,23 @@ public class TraceSQL {
 			}
 			return null;
 		}
-
+		// to debug
+		if (conf.debug_sql_call && ctx.debug_sql_call == false) {
+			ctx.debug_sql_call = true;
+			StringBuffer sb = new StringBuffer();
+			if (o instanceof Statement) {
+				try {
+					Connection c = ((Statement) o).getConnection();
+					sb.append("Connection = ").append(c.getClass().getName()).append("\n");
+					sb.append("          ").append(c).append("\n");
+					sb.append("          AutoCommit =").append(c.getAutoCommit()).append("\n");
+				} catch (Exception e) {
+					sb.append(e).append("\n");
+				}
+			}
+			sb.append(ThreadUtil.getThreadStack());
+			ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), sb.toString()));
+		}
 		// Looking for the position of calling SQL COMMIT
 		if (conf.profile_fullstack_sql_commit) {
 			if ("commit".equalsIgnoreCase(sql)) {
@@ -213,10 +234,11 @@ public class TraceSQL {
 		}
 		return parsed;
 	}
-	  
 
-	private static SQLException slowSql = new SQLException("Slow SQL","SLOW_SQL");
-	
+	private static SQLException slowSql = new SLOW_SQL("Slow SQL", "SLOW_SQL");
+	private static SQLException tooManyFetch = new TOO_MANY_RECORDS("TOO_MANY_RECORDS", "TOO_MANY_RECORDS");
+	private static SQLException connectionOpenFail = new CONNECTION_OPEN_FAIL("CONNECTION_OPEN_FAIL",
+			"CONNECTION_OPEN_FAIL");
 
 	public static void end(Object stat, Throwable thr) {
 		if (stat == null) {
@@ -253,18 +275,16 @@ public class TraceSQL {
 				tctx.error = hash;
 			}
 			ps.error = hash;
-			//AlertProxy.sendAlert(AlertLevel.ERROR, "SQL_EXCEPTION", msg);
-			ServiceSummary.getInstance().process(thr,  tctx.serviceHash, tctx.txid, ps.hash, 0);
-			
+			ServiceSummary.getInstance().process(thr, hash, tctx.serviceHash, tctx.txid, ps.hash, 0);
+
 		} else if (ps.elapsed > conf.alert_sql_time) {
 			String msg = "warning slow sql, over " + conf.alert_sql_time + " ms";
 			int hash = DataProxy.sendError(msg);
 			if (tctx.error == 0) {
 				tctx.error = hash;
 			}
-			//AlertProxy.sendAlertSlowSql(AlertLevel.WARN, "SLOW_SQL", msg, tctx.sqltext, ps.elapsed, tctx.txid);
-			ServiceSummary.getInstance().process(slowSql,  tctx.serviceHash, tctx.txid, ps.hash, 0);
-			
+			ServiceSummary.getInstance().process(slowSql, hash, tctx.serviceHash, tctx.txid, ps.hash, 0);
+
 		}
 
 		tctx.sqltext = null;
@@ -274,7 +294,7 @@ public class TraceSQL {
 		tctx.sqlTime += ps.elapsed;
 
 		ServiceSummary.getInstance().process(ps);
-		MeterSQL.getInstance().add(ps.elapsed, ps.error!=0);
+		MeterSQL.getInstance().add(ps.elapsed, ps.error != 0);
 		tctx.profile.pop(ps);
 	}
 
@@ -322,8 +342,7 @@ public class TraceSQL {
 			if (c.error == 0) {
 				c.error = hash;
 			}
-			AlertProxy
-					.sendAlertTooManyFetch(AlertLevel.WARN, "TOO_MANY_RESULT", msg, c.serviceName, c.rs_count, c.txid);
+			ServiceSummary.getInstance().process(tooManyFetch, hash, c.serviceHash, c.txid, 0, 0);
 		}
 	}
 
@@ -412,6 +431,24 @@ public class TraceSQL {
 			}
 			return null;
 		}
+		// to debug
+		if (conf.debug_sql_call && ctx.debug_sql_call == false) {
+			ctx.debug_sql_call = true;
+			StringBuffer sb = new StringBuffer();
+			if (o instanceof Statement) {
+				try {
+					Connection c = ((Statement) o).getConnection();
+					sb.append(c).append("\n");
+					sb.append("Connection = ").append(c.getClass().getName()).append("\n");
+					sb.append("AutoCommit = ").append(c.getAutoCommit()).append("\n");
+				} catch (Exception e) {
+					sb.append(e).append("\n");
+				}
+			}
+			sb.append(ThreadUtil.getThreadStack());
+			ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), sb.toString()));
+		}
+
 		// Looking for the position of calling SQL COMMIT
 		if (conf.profile_fullstack_sql_commit) {
 			if ("commit".equalsIgnoreCase(args.getSql())) {
@@ -471,6 +508,10 @@ public class TraceSQL {
 
 	public static void driverConnect(String url, Throwable thr) {
 		AlertProxy.sendAlert(AlertLevel.ERROR, "CONNECT", url + " " + thr);
+		TraceContext ctx = TraceContextManager.getLocalContext();
+		if (ctx != null) {
+			ServiceSummary.getInstance().process(connectionOpenFail, 0, ctx.serviceHash, ctx.txid, 0, 0);
+		}
 	}
 
 	public static void userTxOpen() {
@@ -503,7 +544,7 @@ public class TraceSQL {
 		if (ctx == null)
 			return null;
 
-		if (conf.enable_dbopen == false)
+		if (conf.enable_trace_connection_open == false)
 			return null;
 
 		MethodStep p = new MethodStep();
@@ -521,7 +562,7 @@ public class TraceSQL {
 		p.hash = hash;
 		ctx.profile.push(p);
 
-		if (conf.debug_dbopen_fullstack) {
+		if (conf.debug_connection_open_fullstack) {
 			String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
 			MessageStep ms = new MessageStep(stack);
 			ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
@@ -560,6 +601,12 @@ public class TraceSQL {
 				field.setAccessible(true);
 				String u = "OPEN-DBC " + field.get(pool);
 				dbUrl = new DBURL(HashUtil.hash(u), u);
+			} else {
+				Method m = pool.getClass().getMethod("getUrl", new Class[0]);
+				if (m != null) {
+					String u = "OPEN-DBC " + m.invoke(pool, new Object[0]);
+					dbUrl = new DBURL(HashUtil.hash(u), u);
+				}
 			}
 		} catch (Throwable e) {
 		}
@@ -589,7 +636,7 @@ public class TraceSQL {
 		}
 		tctx.profile.pop(step);
 
-		if (conf.debug_dbopen_autocommit) {
+		if (conf.debug_connection_autocommit) {
 			MessageStep ms = null;
 			try {
 				ms = new MessageStep("AutoCommit : " + conn.getAutoCommit());
@@ -630,8 +677,7 @@ public class TraceSQL {
 			if (tctx.error == 0) {
 				tctx.error = hash;
 			}
-
-			AlertProxy.sendAlert(AlertLevel.ERROR, "OPEN-DBC", msg);
+			ServiceSummary.getInstance().process(connectionOpenFail, hash, tctx.serviceHash, tctx.txid, 0, 0);
 		}
 		tctx.profile.pop(step);
 	}

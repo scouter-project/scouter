@@ -152,11 +152,11 @@ public class Configure extends Thread {
 	public String hook_args = "";
 	public String hook_return = "";
 	public String hook_init = "";
-	public String hook_dbopen = "";
-	public boolean enable_dbopen = true;
+	public String hook_connection_open= "";
+	public boolean enable_trace_connection_open = true;
 	public boolean enable_leaktrace_fullstack = false;
-	public boolean debug_dbopen_fullstack = false;
-	public boolean debug_dbopen_autocommit = false;
+	public boolean debug_connection_open_fullstack = false;
+	public boolean debug_connection_autocommit = false;
 
 	public String hook_method = "";
 	public String hook_method_ignore_prefix = "get,set";
@@ -183,7 +183,7 @@ public class Configure extends Thread {
 	public String hook_jdbc_stmt = "";
 	public String hook_jdbc_rs = "";
 	
-	public String hook_dbc_wrapper="";
+	public String hook_driver_connect_wrapper="";
 
 	// /LOAD CONTROL/////
 	public boolean enable_reject_service = false;
@@ -265,8 +265,10 @@ public class Configure extends Thread {
 	public long heap_perm_alert_interval=30000;
 	
 	
-	public boolean enable_spring_request=true;
-
+	public boolean enable_spring_request_mapping=true;
+	public boolean debug_sql_call=false;
+	
+	public int socket_open_fullstack_port=0;
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -316,6 +318,7 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
+
 	
 
 	public synchronized boolean reload(boolean force) {
@@ -425,8 +428,8 @@ public class Configure extends Thread {
 		this.hook_args = getValue("hook_args", getValue("hook.args", ""));
 		this.hook_return = getValue("hook_return", getValue("hook.return", ""));
 		this.hook_init = getValue("hook_init", getValue("hook.init", ""));
-		this.hook_dbopen = getValue("hook_dbopen", "");
-		this.enable_dbopen = getBoolean("enable_dbopen", true);
+		this.hook_connection_open = getValue("hook_connection_open", "");
+		this.enable_trace_connection_open = getBoolean("enable_trace_connection_open", true);
 		this.enable_leaktrace_fullstack = getBoolean("enable_leaktrace_fullstack", false);
 
 		this.hook_method = getValue("hook_method",  "");
@@ -454,19 +457,19 @@ public class Configure extends Thread {
 		this.hook_jdbc_pstmt = getValue("hook_jdbc_pstmt", "");
 		this.hook_jdbc_stmt = getValue("hook_jdbc_stmt", "");
 		this.hook_jdbc_rs = getValue("hook_jdbc_rs", "");
-		this.hook_dbc_wrapper= getValue("hook_dbc_wrapper", "");
+		this.hook_driver_connect_wrapper= getValue("hook_driver_connect_wrapper", "");
 		
 		
 		
 		this.hook_signature ^= this.hook_args.hashCode();
 		this.hook_signature ^= this.hook_return.hashCode();
 		this.hook_signature ^= this.hook_init.hashCode();
-		this.hook_signature ^= this.hook_dbopen.hashCode();
+		this.hook_signature ^= this.hook_connection_open.hashCode();
 		this.hook_signature ^= this.hook_method.hashCode();
 		this.hook_signature ^= this.hook_service.hashCode();
 		this.hook_signature ^= this.hook_apicall.hashCode();
 		this.hook_signature ^= this.hook_jsp.hashCode();
-		this.hook_signature ^= this.hook_dbc_wrapper.hashCode();
+		this.hook_signature ^= this.hook_driver_connect_wrapper.hashCode();
 	
 		this.plugin_classpath = getValue("plugin_classpath", "");
 
@@ -503,8 +506,8 @@ public class Configure extends Thread {
 		this.this_txid = getValue("this_txid", "scouter_this_txid");
 		this.caller_txid = getValue("caller_txid", "scouter_caller_txid");
 
-		this.debug_dbopen_fullstack = getBoolean("debug_dbopen_fullstack", false);
-		this.debug_dbopen_autocommit = getBoolean("debug_dbopen_autocommit", false);
+		this.debug_connection_open_fullstack = getBoolean("debug_connection_open_fullstack", false);
+		this.debug_connection_autocommit = getBoolean("debug_connection_autocommit", false);
 
 		this.mode_userid = getInt("mode_userid", 2);
 
@@ -556,7 +559,7 @@ public class Configure extends Thread {
 		this.heap_perm_alert_interval=getLong("heap_perm_alert_interval",30000);
 		this.heap_perm_warning_pct=getInt("heap_perm_warning_pct",90);
 		
-		this.enable_spring_request = getBoolean("enable_spring_request", true);
+		this.enable_spring_request_mapping = getBoolean("enable_spring_request_mapping", true);
 
 		this.alert_message_length = getInt("alert_message_length", 3000);
 		this.alert_send_interval = getInt("alert_send_interval", 3000);
@@ -566,6 +569,9 @@ public class Configure extends Thread {
 		this.debug_asm = getBoolean("debug_asm", getBoolean("debug.asm", false));
 		this.enable_plus_objtype = getBoolean("enable_plus_objtype", false);
 		
+		this.debug_sql_call= getBoolean("debug_sql_call", false);
+		this.socket_open_fullstack_port = getInt("socket_open_fullstack_port", 0);
+
 		resetObjInfo();
 		setErrorStatus();
 		setStaticContents();

@@ -31,12 +31,13 @@ import scouter.server.plugin.PlugXLogProfileBuf
 
 object ProfileCore {
 
-    val queue = new RequestQueue[XLogProfilePack](CoreRun.MAX_QUE_SIZE);
+    val queue = new RequestQueue[XLogProfilePack](1000);
     val plugin = PlugXLogProfileBuf.getInstance();
 
     val conf = Configure.getInstance();
     ThreadScala.startDaemon("scouter.server.core.ProfileCore", { CoreRun.running }) {
         val m = queue.get();
+        ServerStat.put("profile.core.queue",queue.size());
         if (BytesUtil.getLength(m.profile) > 0) {
             plugin.add(m)
             if (conf.xlog_profile_save_time_limit <= m.elapsed) {

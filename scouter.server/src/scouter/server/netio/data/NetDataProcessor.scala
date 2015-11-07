@@ -46,7 +46,7 @@ import scouter.server.util.ThreadScala
 import scouter.util.BytesUtil
 import scouter.util.RequestQueue
 import scouter.util.StringUtil
-import tuna.server.core.SummaryCore
+import scouter.server.core.SummaryCore
 import scouter.lang.pack.SummaryPack
 import scouter.lang.pack.SummaryPack
 object NetDataProcessor {

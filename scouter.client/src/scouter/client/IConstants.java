@@ -28,6 +28,7 @@ public interface IConstants {
 
 	public static final String LAYOUT_WASSERVICE_OBJECT_NAVIGATION = "scouter.client.perspective.wasservice.objectNavigation";
 	public static final String LAYOUT_WASSERVICE_ALERT             = "scouter.client.perspective.wasservice.alert";
+	public static final String LAYOUT_WASSERVICE_EQ             = "scouter.client.perspective.wasservice.eq";
 	public static final String LAYOUT_WASSERVICE_CONSOLE           = "scouter.client.perspective.wasservice.console";
 	public static final String LAYOUT_WASSERVICE_SERVICE           = "scouter.client.perspective.wasservice.service";
 	public static final String LAYOUT_WASSERVICE_COUNT             = "scouter.client.perspective.wasservice.count";

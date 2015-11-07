@@ -49,7 +49,7 @@ public class ClientTCP{
 			socket.setTcpNoDelay(true);
 			//socket.setSoLinger(true, 0); 
 			///
-			socket.connect(new InetSocketAddress(server.getIp(), server.getPort()));
+			socket.connect(new InetSocketAddress(server.getIp(), server.getPort()),3000);
 			socket.setTcpNoDelay(true);
 			socket.setSoTimeout(4000);
 			in = new DataInputX(new BufferedInputStream(socket.getInputStream()));

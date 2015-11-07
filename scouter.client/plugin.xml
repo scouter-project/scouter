@@ -62,7 +62,6 @@
   <extension point="org.eclipse.ui.perspectiveExtensions">
     <perspectiveExtension targetID="*">
 	    <perspectiveShortcut id="scouter.client.PerspectiveWasService"/>
-        <perspectiveShortcut id="scouter.client.PerspectiveHost"/>
     </perspectiveExtension>
   </extension>
 
@@ -589,14 +588,6 @@
             id="scouter.client.group.view.EQGroupView"
             name="EQ Group"
             restorable="true">
-      </view>
-      <view
-            allowMultiple="true"
-            class="scouter.client.statistics.views.AlertDailyLevelCountView"
-            icon="icons/alert.png"
-            id="scouter.client.statistics.views.AlertDailyLevelCountView"
-            name="AlertDailyCountView"
-            restorable="false">
       </view>
       <view
             allowMultiple="true"

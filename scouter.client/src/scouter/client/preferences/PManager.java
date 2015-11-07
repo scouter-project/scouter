@@ -27,9 +27,6 @@ public class PManager {
 	private static volatile PManager instance;
 	private IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 	
-	private static final String PORT_AND_REPOSITORY_FOLDER = ":8888/repository";
-	
-	
 	public static PManager getInstance() {
 		if (instance == null) {
 			synchronized (PManager.class) {
@@ -52,9 +49,12 @@ public class PManager {
 		
 		store.setDefault(PreferenceConstants.P_MASS_PROFILE_BLOCK, 10);
 		
-		store.setDefault(PreferenceConstants.P_UPDATE_SERVER_ADDR, PORT_AND_REPOSITORY_FOLDER);
-		
-		store.setDefault(PreferenceConstants.P_ALERT_DIALOG_TIMEOUT, -1);
+//		store.setDefault(PreferenceConstants.P_UPDATE_SERVER_ADDR, PORT_AND_REPOSITORY_FOLDER);
+//		store.setDefault(PreferenceConstants.P_ALERT_DIALOG_TIMEOUT, -1);
+//		store.setDefault(PreferenceConstants.NOTIFY_FATAL_ALERT, true);
+//		store.setDefault(PreferenceConstants.NOTIFY_WARN_ALERT, false);
+//		store.setDefault(PreferenceConstants.NOTIFY_ERROR_ALERT, false);
+//		store.setDefault(PreferenceConstants.NOTIFY_INFO_ALERT, true);
 	}
 	
 

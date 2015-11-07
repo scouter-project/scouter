@@ -246,6 +246,6 @@ public class RequestCmd {
 	public static final String LOAD_IP_SUMMARY = "LOAD_IP_SUMMARY";
 	public static final String LOAD_UA_SUMMARY = "LOAD_UA_SUMMARY";
 	public static final String LOAD_SERVICE_ERROR_SUMMARY = "LOAD_SERVICE_ERROR_SUMMARY";
+	public static final String LOAD_ALERT_SUMMARY = "LOAD_ALERT_SUMMARY";
 	
-
 }

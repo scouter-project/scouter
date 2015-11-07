@@ -36,13 +36,14 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.HashUtil;
 import scouter.util.StringUtil;
 
-public class DbcOpenASM implements IASM, Opcodes {
-	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_dbopen);
+public class JDBCConnectionOpenASM implements IASM, Opcodes {
+	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_connection_open);
 	private Map<String, MethodSet> reserved = new HashMap<String, MethodSet>();
 
-	public DbcOpenASM() {
+	public JDBCConnectionOpenASM() {
 		// Tomcat7
 		AsmUtil.add(reserved, "org/apache/tomcat/dbcp/dbcp/BasicDataSource", "getConnection");
+		AsmUtil.add(reserved, "org/apache/tomcat/jdbc/pool/DataSourceProxy", "getConnection");
 
 	}
 

@@ -229,6 +229,7 @@ public class AlertDetailListView extends ViewPart implements CalendarDialog.ILoa
 				levelCombo.select(0);
 				objText.setText("");
 				keyText.setText("");
+				viewer.getTable().removeAll();
 			}
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
@@ -254,7 +255,9 @@ public class AlertDetailListView extends ViewPart implements CalendarDialog.ILoa
 					if (display == null) {
 						display = Display.getDefault();
 					}
-					AlertNotifierDialog alertDialog = new AlertNotifierDialog(display, serverId, data.toPack());
+					AlertNotifierDialog alertDialog = new AlertNotifierDialog(display);
+					alertDialog.setObjName(data.object);
+					alertDialog.setPack(data.toPack());
 					alertDialog.show(getViewSite().getShell().getBounds());
 				} else {
 					System.out.println(o);
@@ -445,7 +448,7 @@ public class AlertDetailListView extends ViewPart implements CalendarDialog.ILoa
 	public void onPressedCancel() { };
 	
 	enum AlertColumnEnum {
-	    TIME("TIME", 6, SWT.RIGHT, true, true, true), //
+	    TIME("TIME", 6, SWT.RIGHT, true, true, false), //
 	    LEVEL("LEVEL", 3, SWT.CENTER, true, true, false), //
 	    OBJECT("OBJECT", 9, SWT.LEFT, true, true, false),
 	    TITLE("TITLE", 10, SWT.LEFT, true, true, false),

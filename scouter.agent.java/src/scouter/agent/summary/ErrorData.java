@@ -20,9 +20,11 @@ package scouter.agent.summary;
 public class ErrorData {
 	public int error;
 	public int service;
+	public int message;
 	public int count;
 	public long txid;
 	public int sql;
 	public int apicall;
 	public int fullstack;
+
 }

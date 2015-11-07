@@ -29,6 +29,7 @@ import java.io.File
 import scouter.server.util.ThreadScala
 import scouter.server.util.OftenAction
 import scouter.lang.SummaryEnum
+import scouter.server.core.ServerStat
 object SummaryWR {
     val root = "sum";
     val queue = new RequestQueue[SummaryPack](DBCtr.MAX_QUE_SIZE);
@@ -36,6 +37,8 @@ object SummaryWR {
         var currentDateUnit = 0L
         while (DBCtr.running) {
             val p = queue.get();
+             ServerStat.put("summary.db.queue",queue.size());
+
             try {
                 if (currentDateUnit != DateUtil.getDateUnit(p.time)) {
                     currentDateUnit = DateUtil.getDateUnit(p.time);

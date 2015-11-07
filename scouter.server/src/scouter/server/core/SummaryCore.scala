@@ -14,11 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package tuna.server.core;
+package scouter.server.core;
 
 import scouter.lang.pack.SummaryPack
 import scouter.server.Logger
-import scouter.server.core.CoreRun
 import scouter.server.db.SummaryWR
 import scouter.server.util.ThreadScala
 import scouter.util.DateUtil

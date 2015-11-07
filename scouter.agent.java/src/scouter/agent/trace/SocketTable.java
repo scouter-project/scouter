@@ -1,5 +1,6 @@
 package scouter.agent.trace;
 
+import scouter.agent.Configure;
 import scouter.io.DataInputX;
 import scouter.util.BitUtil;
 import scouter.util.LongKeyLinkedMap;
@@ -12,7 +13,7 @@ public class SocketTable {
 		public long txid;
 		public boolean stackOrder = false;
 		public String stack;
-		public long count=1;
+		public long count = 1;
 
 		public Info(int service, long txid) {
 			this.service = service;
@@ -27,18 +28,22 @@ public class SocketTable {
 		Info info = socketMap.get(key);
 		if (info != null) {
 			if (info.stackOrder) {
-				info.service=serviceHash;
-				info.txid=txid;
+				info.service = serviceHash;
+				info.txid = txid;
 				info.stackOrder = false;
-				info.stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(),3);
+				info.stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 3);
 			}
-			if(info.service==0){
-				info.service=serviceHash;
-				info.txid=txid;
+			if (info.service == 0) {
+				info.service = serviceHash;
+				info.txid = txid;
 			}
 			info.count++;
 		} else {
-			socketMap.put(key, new Info(serviceHash, txid));
+			info = new Info(serviceHash, txid);
+			socketMap.put(key, info);
+			if (port == Configure.getInstance().socket_open_fullstack_port) {
+				info.stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 3);
+			}
 		}
 
 	}

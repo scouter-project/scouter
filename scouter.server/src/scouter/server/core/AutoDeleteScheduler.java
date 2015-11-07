@@ -64,7 +64,7 @@ public class AutoDeleteScheduler extends Thread {
 		retainDays = conf.auto_delete_retain_days;
 		delOnlyXLog = conf.auto_delete_only_xlog;
 	}
-	
+
 	public void run() {
 		while(CoreRun.running()) {
 			if (conf.auto_delete_data) {

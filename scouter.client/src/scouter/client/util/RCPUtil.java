@@ -37,9 +37,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
-import org.eclipse.ui.internal.WorkbenchPlugin;
-import org.eclipse.ui.internal.registry.ActionSetRegistry;
-import org.eclipse.ui.internal.registry.IActionSetDescriptor;
 import org.eclipse.ui.views.IViewDescriptor;
 import org.eclipse.ui.views.IViewRegistry;
 
@@ -165,16 +162,6 @@ public class RCPUtil {
         }
     }
 
-    public static void printActionSet(){
-        System.out.println("=== ActionSets ===");
-        ActionSetRegistry reg = WorkbenchPlugin.getDefault().getActionSetRegistry();
-        IActionSetDescriptor[] actionSets = reg.getActionSets();
-        for (int i = 0; i < actionSets.length; i++) {
-            System.out.println(actionSets[i].getId());
-//            IExtension ext = actionSets[i].getConfigurationElement().getDeclaringExtension();
-//            reg.removeExtension(ext, new Object[] { actionSets[i] });
-        }
-    }
     
     public static File getWorkingDirectory() {
     	IPath workingPath = Platform.getLocation();
