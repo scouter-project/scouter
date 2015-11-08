@@ -21,14 +21,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import scouter.agent.Configure;
-import scouter.agent.plugin.IApiCallTrace;
-import scouter.agent.trace.ApiInfo;
+import scouter.agent.trace.HookPoint;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
 import scouter.util.KeyGen;
 
-public class ForHttpURLConnection implements IApiCallTrace {
+public class ForHttpURLConnection implements ApiCallTraceHelper.IHelper {
 
 	static Class httpclass = null;
 	static Field inputStream = null;
@@ -44,19 +43,19 @@ public class ForHttpURLConnection implements IApiCallTrace {
 		}
 	}
 
-	public ApiCallStep apiCall(TraceContext ctx, ApiInfo apiInfo) {
+	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
 
 		ApiCallStep step = new ApiCallStep();
 
 		try {
-			if (apiInfo._this instanceof sun.net.www.protocol.http.HttpURLConnection) {
-				if (inputStream.get(apiInfo._this) != null) {
+			if (hookPoint._this instanceof sun.net.www.protocol.http.HttpURLConnection) {
+				if (inputStream.get(hookPoint._this) != null) {
 					// Null  추적이 종료된다.
 					return null;
 				}
 			}
-			HttpURLConnection urlCon = ((HttpURLConnection) apiInfo._this);
-			if ("connect".equals(apiInfo.methodName)) {
+			HttpURLConnection urlCon = ((HttpURLConnection) hookPoint._this);
+			if ("connect".equals(hookPoint.methodName)) {
 				step.txid = KeyGen.next();
 				transfer(ctx, urlCon, step.txid);
 				ctx.callee = step.txid;
@@ -80,16 +79,8 @@ public class ForHttpURLConnection implements IApiCallTrace {
 		}
 
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = apiInfo.className;
+			ctx.apicall_name = hookPoint.className;
 		return step;
-
-	}
-
-	public void apiEnd(TraceContext ctx, ApiInfo apiInfo, Object returnValue, Throwable thr) {
-	}
-
-	public String targetName() {
-		return "sun/net/www/protocol/http/HttpURLConnection";
 	}
 
 	private void transfer(TraceContext ctx, HttpURLConnection urlCon, long calleeTxid) {
@@ -108,6 +99,7 @@ public class ForHttpURLConnection implements IApiCallTrace {
 			}
 		}
 	}
-	public void checkTarget(ApiInfo apiInfo) {
+
+	public void checkTarget(HookPoint hookPoint) {
 	}
 }

@@ -22,7 +22,6 @@ import scouter.lang.SummaryEnum
 import scouter.lang.pack.AlertPack
 import scouter.lang.pack.SummaryPack
 import scouter.server.Logger
-import scouter.server.core.CoreRun
 import scouter.server.util.ThreadScala
 import scouter.util.DateUtil
 import scouter.util.RequestQueue

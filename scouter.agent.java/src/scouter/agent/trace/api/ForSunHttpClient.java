@@ -19,12 +19,11 @@ package scouter.agent.trace.api;
 import java.lang.reflect.Field;
 import java.net.URL;
 
-import scouter.agent.plugin.IApiCallTrace;
-import scouter.agent.trace.ApiInfo;
+import scouter.agent.trace.HookPoint;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 
-public class ForSunHttpClient implements IApiCallTrace {
+public class ForSunHttpClient implements ApiCallTraceHelper.IHelper {
 	static Class sunHttpClass = null;
 	static Field url = null;
 	static {
@@ -42,13 +41,13 @@ public class ForSunHttpClient implements IApiCallTrace {
 
 	private boolean ok = true;
 
-	public ApiCallStep apiCall(TraceContext ctx, ApiInfo apiInfo) {
+	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
 
 		ApiCallStep step = new ApiCallStep();
 
 		try {
-			if (ok && (apiInfo._this instanceof sun.net.www.http.HttpClient)) {
-				URL u = (URL) url.get(apiInfo._this);
+			if (ok && (hookPoint._this instanceof sun.net.www.http.HttpClient)) {
+				URL u = (URL) url.get(hookPoint._this);
 				if (u != null) {
 					ctx.apicall_name = u.getPath();
 				}
@@ -57,17 +56,8 @@ public class ForSunHttpClient implements IApiCallTrace {
 			ok = false;
 		}
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = apiInfo.className;
+			ctx.apicall_name = hookPoint.className;
 		return step;
 	}
 
-	public void apiEnd(TraceContext ctx, ApiInfo apiInfo, Object returnValue, Throwable thr) {
-	}
-
-	public void checkTarget(ApiInfo apiInfo) {
-	}
-
-	public String targetName() {
-		return "sun/net/www/http/HttpClient";
-	}
 }
