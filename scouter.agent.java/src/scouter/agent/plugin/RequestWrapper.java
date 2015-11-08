@@ -18,6 +18,8 @@ package scouter.agent.plugin;
 
 import java.util.Enumeration;
 
+import javax.servlet.http.HttpServletRequest;
+
 public class RequestWrapper {
 
 	@SuppressWarnings("rawtypes")
@@ -25,6 +27,7 @@ public class RequestWrapper {
 	private static Object[] arg_o = {};
 
 	private static Class[] arg_c_s = { String.class };
+	private static Class[] arg_c_z = { Boolean.TYPE };
 
 	private Object reqObject;
 
@@ -36,11 +39,44 @@ public class RequestWrapper {
 	private java.lang.reflect.Method getHeaderNames;
 	private java.lang.reflect.Method getHeader;
 	private java.lang.reflect.Method getQueryString;
+	private java.lang.reflect.Method getSession;
+	private java.lang.reflect.Method getCookies;
+	private java.lang.reflect.Method getName;
+	private java.lang.reflect.Method getValue;
 
 	private boolean enabled = true;
 
 	public RequestWrapper(Object req) {
 		reqObject = req;
+		HttpServletRequest r;
+	}
+
+	public String getCookie(String key) {
+		if (enabled == false)
+			return null;
+		try {
+			if (getCookies == null) {
+				getCookies = this.reqObject.getClass().getMethod("getCookies", arg_c);
+			}
+			Object[] c = (Object[]) getCookies.invoke(reqObject, arg_o);
+			if (c == null && c.length == 0)
+				return null;
+			if (getName == null) {
+				getName = c[0].getClass().getMethod("getName", arg_c);
+			}
+			if (getValue == null) {
+				getValue = c[0].getClass().getMethod("getValue", arg_c);
+			}
+			for (int i = 0; i < c.length; i++) {
+				if (key.equals(getName.invoke(c[i], arg_o))) {
+					return (String) getValue.invoke(c[i], arg_o);
+				}
+			}
+		} catch (Throwable e) {
+			e.printStackTrace();
+			enabled = false;
+		}
+		return null;
 	}
 
 	public String getRequestURI() {
@@ -149,6 +185,21 @@ public class RequestWrapper {
 				getHeaderNames = this.reqObject.getClass().getMethod("getHeaderNames", arg_c);
 			}
 			return (Enumeration) getHeaderNames.invoke(reqObject, arg_o);
+		} catch (Throwable e) {
+			enabled = false;
+			return null;
+		}
+	}
+
+	public SessionWrapper getSession() {
+		if (enabled == false)
+			return null;
+		try {
+			if (getSession == null) {
+				getSession = this.reqObject.getClass().getMethod("getSession", arg_c_z);
+			}
+			Object o = getSession.invoke(reqObject, new Object[] { false });
+			return new SessionWrapper(o);
 		} catch (Throwable e) {
 			enabled = false;
 			return null;

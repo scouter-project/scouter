@@ -23,30 +23,27 @@ import scouter.lang.pack.XLogPack;
 
 public class ServiceTracePlugIn {
 
-	static IServiceTrace dummy = new IServiceTrace() {
-		public void start(ContextWrapper ctx, HookPoint hookPoint) {
-		}
-
-		public void end(ContextWrapper ctx, XLogPack p) {
-		}
-	};
-	static IServiceTrace plugIn = dummy;
+	static IServiceTrace plugIn;
 
 	static {
 		PlugInLoader.getInstance();
 	}
 
 	public static void start(TraceContext ctx, HookPoint hookPoint) {
-		try {
-			plugIn.start(new ContextWrapper(ctx), hookPoint);
-		} catch (Throwable t) {
+		if (plugIn != null) {
+			try {
+				plugIn.start(new ContextWrapper(ctx), hookPoint);
+			} catch (Throwable t) {
+			}
 		}
 	}
 
 	public static void end(TraceContext ctx, XLogPack p) {
-		try {
-			plugIn.end(new ContextWrapper(ctx), p);
-		} catch (Throwable t) {
+		if (plugIn != null) {
+			try {
+				plugIn.end(new ContextWrapper(ctx), p);
+			} catch (Throwable t) {
+			}
 		}
 	}
 

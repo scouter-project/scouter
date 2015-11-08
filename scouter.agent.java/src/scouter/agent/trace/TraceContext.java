@@ -78,6 +78,7 @@ public class TraceContext {
 
 	public long userid;
 	public int userAgent;
+	public String userAgentString;
 	public int referer;
 
 	public boolean profile_thread_cputime;

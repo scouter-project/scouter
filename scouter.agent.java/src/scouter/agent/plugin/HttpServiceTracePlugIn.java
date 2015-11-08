@@ -20,41 +20,38 @@ import scouter.agent.trace.TraceContext;
 import scouter.lang.pack.XLogPack;
 
 public class HttpServiceTracePlugIn {
-	static IHttpService dummy = new IHttpService() {
-		public boolean reject(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res) {
-			return false;
-		}
 
-		public void start(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res) {
-		}
+	static IHttpService plugIn;
 
-		public void end(ContextWrapper ctx, XLogPack p) {
-		}
-	};
-	static IHttpService plugIn = dummy;
-
-	static{
+	static {
 		PlugInLoader.getInstance();
-	}
-	public static boolean reject(TraceContext ctx, Object req, Object res) {
-		try {
-			return plugIn.reject(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
-		} catch (Throwable t) {
-			return false;
-		}
 	}
 
 	public static void start(TraceContext ctx, Object req, Object res) {
-		try {
-			plugIn.start(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
-		} catch (Throwable t) {
+		if (plugIn != null) {
+			try {
+				plugIn.start(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
+			} catch (Throwable t) {
+			}
 		}
 	}
 
 	public static void end(TraceContext ctx, XLogPack p) {
-		try {
-			plugIn.end(new ContextWrapper(ctx), p);
-		} catch (Throwable t) {
+		if (plugIn != null) {
+			try {
+				plugIn.end(new ContextWrapper(ctx), p);
+			} catch (Throwable t) {
+			}
 		}
+	}
+
+	public static boolean reject(TraceContext ctx, Object req, Object res) {
+		if (plugIn != null) {
+			try {
+				return plugIn.reject(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
+			} catch (Throwable t) {
+			}
+		}
+		return false;
 	}
 }

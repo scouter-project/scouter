@@ -70,18 +70,17 @@ public class PlugInLoader extends Thread {
 	private void cleckPluginModified(File root) {
 		File script = new File(root, "service.plugin");
 		if (script.canRead() == false) {
-			ServiceTracePlugIn.plugIn = ServiceTracePlugIn.dummy;
+			ServiceTracePlugIn.plugIn = null;
 		} else {
-			if (ServiceTracePlugIn.plugIn == ServiceTracePlugIn.dummy
-					|| ServiceTracePlugIn.plugIn.lastModified != script.lastModified()) {
+			if (ServiceTracePlugIn.plugIn == null || ServiceTracePlugIn.plugIn.lastModified != script.lastModified()) {
 				ServiceTracePlugIn.plugIn = createIServiceTrace(script);
 			}
 		}
 		script = new File(root, "httpservice.plugin");
 		if (script.canRead() == false) {
-			HttpServiceTracePlugIn.plugIn = HttpServiceTracePlugIn.dummy;
+			HttpServiceTracePlugIn.plugIn = null;
 		} else {
-			if (HttpServiceTracePlugIn.plugIn == HttpServiceTracePlugIn.dummy
+			if (HttpServiceTracePlugIn.plugIn == null
 					|| HttpServiceTracePlugIn.plugIn.lastModified != script.lastModified()) {
 				HttpServiceTracePlugIn.plugIn = createIHttpService(script);
 			}
@@ -92,7 +91,7 @@ public class PlugInLoader extends Thread {
 
 	private IHttpService createIHttpService(File script) {
 		if (IHttpServiceCompile == script.lastModified())
-			return HttpServiceTracePlugIn.dummy;
+			return null;
 		IHttpServiceCompile = script.lastModified();
 
 		try {
@@ -192,7 +191,7 @@ public class PlugInLoader extends Thread {
 		} catch (Throwable e) {
 			Logger.println("P13", e);
 		}
-		return HttpServiceTracePlugIn.dummy;
+		return null;
 	}
 
 	private HashMap<String, StringBuffer> loadFileText(File script) {
@@ -222,7 +221,7 @@ public class PlugInLoader extends Thread {
 
 	private IServiceTrace createIServiceTrace(File script) {
 		if (IServiceTraceCompile == script.lastModified())
-			return ServiceTracePlugIn.dummy;
+			return null;
 		IServiceTraceCompile = script.lastModified();
 
 		try {
@@ -293,17 +292,11 @@ public class PlugInLoader extends Thread {
 		} catch (Exception e) {
 			Logger.println("P04", e);
 		}
-		return ServiceTracePlugIn.dummy;
+		return null;
 	}
 
 	private String nativeName(Class class1) {
 		return "L" + class1.getName().replace('.', '/') + ";";
 	}
 
-	protected int getInt(Properties p, String key, int defValue) {
-		String value = StringUtil.trimEmpty(p.getProperty(key));
-		if (value.length() == 0)
-			return defValue;
-		return CastUtil.cint(value);
-	}
 }
