@@ -15,23 +15,27 @@
  *  limitations under the License. 
  */
 package scouter.agent.plugin;
+
 import java.util.Enumeration;
+
 import scouter.agent.Logger;
-public class SessionWrapper {
-	@SuppressWarnings("rawtypes")
-	private static Class[] arg_c = {};
-	private static Object[] arg_o = {};
-	private static Class[] arg_c_s = { String.class };
+
+public class SessionWrapper extends Wrapper {
+
 	private Object reqObject;
+
 	private static java.lang.reflect.Method getAttribute;
 	private static java.lang.reflect.Method getAttributeNames;
+
 	private static boolean enabled = true;
+
 	public SessionWrapper(Object req) {
 		if (req == null) {
 			enabled = false;
 		}
 		reqObject = req;
 	}
+
 	public String getAttribute(String key) {
 		if (enabled == false)
 			return null;
@@ -46,6 +50,7 @@ public class SessionWrapper {
 			return null;
 		}
 	}
+
 	public Enumeration getAttributeNames() {
 		if (enabled == false)
 			return null;

@@ -16,7 +16,6 @@
  */
 package scouter.agent.plugin;
 import scouter.agent.Logger;
-import scouter.agent.trace.TraceContext;
 import scouter.lang.pack.XLogPack;
 abstract public class IHttpService {
 	long lastModified;

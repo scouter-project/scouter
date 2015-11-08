@@ -17,7 +17,6 @@
 package scouter.agent.plugin;
 import scouter.agent.Logger;
 import scouter.agent.trace.HookPoint;
-import scouter.agent.trace.TraceContext;
 import scouter.lang.pack.XLogPack;
 abstract public class IServiceTrace {
 	long lastModified;

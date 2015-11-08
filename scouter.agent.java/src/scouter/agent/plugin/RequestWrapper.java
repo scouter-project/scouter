@@ -17,13 +17,10 @@
 package scouter.agent.plugin;
 import java.util.Enumeration;
 import scouter.agent.Logger;
-public class RequestWrapper {
-	@SuppressWarnings("rawtypes")
-	private static Class[] arg_c = {};
-	private static Object[] arg_o = {};
-	private static Class[] arg_c_s = { String.class };
-	private static Class[] arg_c_z = { Boolean.TYPE };
+public class RequestWrapper extends Wrapper{
+	
 	private Object reqObject;
+	
 	private static java.lang.reflect.Method getRequestURI;
 	private static java.lang.reflect.Method getRemoteAddr;
 	private static java.lang.reflect.Method getMethod;
@@ -37,7 +34,9 @@ public class RequestWrapper {
 	private static java.lang.reflect.Method getName;
 	private static java.lang.reflect.Method getValue;
 	private static java.lang.reflect.Method getSessionAttribute;
+	
 	private static boolean enabled = true;
+	
 	public RequestWrapper(Object req) {
 		reqObject = req;
 	}

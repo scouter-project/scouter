@@ -20,11 +20,7 @@ import java.io.PrintWriter;
 
 import scouter.agent.Logger;
 
-public class ResponseWrapper {
-
-	@SuppressWarnings("rawtypes")
-	private static Class[] arg_c = {};
-	private static Object[] arg_o = {};
+public class ResponseWrapper  extends Wrapper{
 
 	private Object resObject;
 
