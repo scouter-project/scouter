@@ -21,14 +21,14 @@ import scouter.lang.pack.XLogPack;
 
 public class HttpServiceTracePlugIn {
 	static IHttpService dummy = new IHttpService() {
-		public boolean reject(TraceContext ctx, RequestWrapper req, ResponseWrapper res) {
+		public boolean reject(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res) {
 			return false;
 		}
 
-		public void start(TraceContext ctx, RequestWrapper req, ResponseWrapper res) {
+		public void start(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res) {
 		}
 
-		public void end(TraceContext ctx, XLogPack p) {
+		public void end(ContextWrapper ctx, XLogPack p) {
 		}
 	};
 	static IHttpService plugIn = dummy;
@@ -38,7 +38,7 @@ public class HttpServiceTracePlugIn {
 	}
 	public static boolean reject(TraceContext ctx, Object req, Object res) {
 		try {
-			return plugIn.reject(ctx, new RequestWrapper(req), new ResponseWrapper(res));
+			return plugIn.reject(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
 		} catch (Throwable t) {
 			return false;
 		}
@@ -46,14 +46,14 @@ public class HttpServiceTracePlugIn {
 
 	public static void start(TraceContext ctx, Object req, Object res) {
 		try {
-			plugIn.start(ctx, new RequestWrapper(req), new ResponseWrapper(res));
+			plugIn.start(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
 		} catch (Throwable t) {
 		}
 	}
 
 	public static void end(TraceContext ctx, XLogPack p) {
 		try {
-			plugIn.end(ctx, p);
+			plugIn.end(new ContextWrapper(ctx), p);
 		} catch (Throwable t) {
 		}
 	}

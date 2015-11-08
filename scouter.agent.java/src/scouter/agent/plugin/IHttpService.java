@@ -24,13 +24,13 @@ import scouter.lang.pack.XLogPack;
 abstract public class IHttpService {
 	long lastModified;
 
-	public void start(TraceContext ctx, RequestWrapper req, ResponseWrapper res) {
+	public void start(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res) {
 	};
 
-	public void end(TraceContext ctx, XLogPack p) {
+	public void end(ContextWrapper ctx, XLogPack p) {
 	};
 
-	public boolean reject(TraceContext ctx, RequestWrapper req, ResponseWrapper res) {
+	public boolean reject(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res) {
 		return false;
 	};
 	

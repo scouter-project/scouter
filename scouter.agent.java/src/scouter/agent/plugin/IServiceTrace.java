@@ -25,10 +25,10 @@ import scouter.lang.pack.XLogPack;
 abstract public class IServiceTrace {
 	long lastModified;
 
-	public void start(TraceContext ctx, HookPoint p) {
+	public void start(ContextWrapper ctx, HookPoint p) {
 	}
 
-	public void end(TraceContext ctx, XLogPack p) {
+	public void end(ContextWrapper ctx, XLogPack p) {
 	}
 	
 	public void log(Object c) {

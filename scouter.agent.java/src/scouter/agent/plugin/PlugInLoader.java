@@ -102,9 +102,9 @@ public class PlugInLoader extends Thread {
 			String className = "scouter.agent.plugin.impl.HttpServiceImpl";
 
 			String START = "start";
-			String START_SIG = "(" + nativeName(TraceContext.class) + nativeName(RequestWrapper.class)
+			String START_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(RequestWrapper.class)
 					+ nativeName(ResponseWrapper.class) + ")V";
-			String START_P1 = TraceContext.class.getName();
+			String START_P1 = ContextWrapper.class.getName();
 			String START_P2 = RequestWrapper.class.getName();
 			String START_P3 = ResponseWrapper.class.getName();
 			StringBuffer START_BODY = bodyTable.get(START);
@@ -112,8 +112,8 @@ public class PlugInLoader extends Thread {
 				throw new CannotCompileException("no method body: " + START);
 
 			String END = "end";
-			String END_SIG = "(" + nativeName(TraceContext.class) + nativeName(XLogPack.class) + ")V";
-			String END_P1 = TraceContext.class.getName();
+			String END_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(XLogPack.class) + ")V";
+			String END_P1 = ContextWrapper.class.getName();
 			String END_P2 = XLogPack.class.getName();
 			StringBuffer END_BODY = bodyTable.get(END);
 
@@ -121,9 +121,9 @@ public class PlugInLoader extends Thread {
 				throw new CannotCompileException("no method body: " + END);
 
 			String REJECT = "reject";
-			String REJECT_SIG = "(" + nativeName(TraceContext.class) + nativeName(RequestWrapper.class)
+			String REJECT_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(RequestWrapper.class)
 					+ nativeName(ResponseWrapper.class) + ")Z";
-			String REJECT_P1 = TraceContext.class.getName();
+			String REJECT_P1 = ContextWrapper.class.getName();
 			String REJECT_P2 = RequestWrapper.class.getName();
 			String REJECT_P3 = ResponseWrapper.class.getName();
 			StringBuffer REJECT_BODY = bodyTable.get(REJECT);
@@ -232,16 +232,16 @@ public class PlugInLoader extends Thread {
 			String className = "scouter.agent.plugin.impl.ServiceTraceImpl";
 
 			String START = "start";
-			String START_SIG = "(" + nativeName(TraceContext.class) + nativeName(HookPoint.class) + ")V";
-			String START_P1 = TraceContext.class.getName();
+			String START_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(HookPoint.class) + ")V";
+			String START_P1 = ContextWrapper.class.getName();
 			String START_P2 = HookPoint.class.getName();
 			StringBuffer START_BODY = bodyTable.get(START);
 			if (START_BODY == null)
 				throw new CannotCompileException("no method body: " + START);
 
 			String END = "end";
-			String END_SIG = "(" + nativeName(TraceContext.class) + nativeName(XLogPack.class) + ")V";
-			String END_P1 = TraceContext.class.getName();
+			String END_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(XLogPack.class) + ")V";
+			String END_P1 = ContextWrapper.class.getName();
 			String END_P2 = XLogPack.class.getName();
 			StringBuffer END_BODY = bodyTable.get(END);
 			if (END_BODY == null)
