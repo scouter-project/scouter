@@ -16,31 +16,22 @@
  */
 package scouter.agent.trace.api;
 
-import scouter.agent.plugin.IApiCallTrace;
-import scouter.agent.trace.ApiInfo;
+import scouter.agent.trace.HookPoint;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 
-public class ForJCOClient implements IApiCallTrace {
-	public ApiCallStep apiCall(TraceContext ctx, ApiInfo apiInfo) {
+public class ForJCOClient implements ApiCallTraceHelper.IHelper {
+	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
 
 		ApiCallStep step = new ApiCallStep();
 
-		if (apiInfo.arg != null && apiInfo.arg.length > 0) {
-			ctx.apicall_name = apiInfo.arg[0] + "(JCO)";
+		if (hookPoint.arg != null && hookPoint.arg.length > 0) {
+			ctx.apicall_name = hookPoint.arg[0] + "(JCO)";
 		}
 
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = apiInfo.className;
+			ctx.apicall_name = hookPoint.className;
 		return step;
 	}
 
-	public void apiEnd(TraceContext ctx, ApiInfo apiInfo, Object returnValue, Throwable thr) {
-	}
-
-	public String targetName() {
-		return "com/sap/mw/jco/JCO$Client";
-	}
-	public void checkTarget(ApiInfo apiInfo) {
-	}
 }

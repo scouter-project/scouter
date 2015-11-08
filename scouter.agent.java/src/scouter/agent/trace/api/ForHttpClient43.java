@@ -17,10 +17,10 @@
 package scouter.agent.trace.api;
 
 import scouter.agent.Configure;
-import scouter.agent.plugin.IApiCallTrace;
+import scouter.agent.Logger;
 import scouter.agent.proxy.HttpClient43Factory;
 import scouter.agent.proxy.IHttpClient;
-import scouter.agent.trace.ApiInfo;
+import scouter.agent.trace.HookPoint;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
 import scouter.lang.step.ApiCallStep;
@@ -28,56 +28,49 @@ import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.KeyGen;
 
-public class ForHttpClient43 implements IApiCallTrace {
-
-	public String targetName() {
-		return "org/apache/http/impl/client/InternalHttpClient";
-	}
+public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
 
 	private static IntKeyLinkedMap<IHttpClient> httpclients = new IntKeyLinkedMap<IHttpClient>().setMax(5);
 
-	public ApiCallStep apiCall(TraceContext ctx, ApiInfo apiInfo) {
+	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
 
 		ApiCallStep step = new ApiCallStep();
 
 		if (ok) {
 			try {
-				if (apiInfo.arg != null && apiInfo.arg.length >= 2) {
-					IHttpClient httpclient = getProxy(apiInfo);
+				if (hookPoint.arg != null && hookPoint.arg.length >= 2) {
+					IHttpClient httpclient = getProxy(hookPoint);
 
 					step.txid = KeyGen.next();
-					transfer(httpclient, ctx, apiInfo.arg[0], apiInfo.arg[1], step.txid);
-					String host = httpclient.getHost(apiInfo.arg[0]);
+					transfer(httpclient, ctx, hookPoint.arg[0], hookPoint.arg[1], step.txid);
+					String host = httpclient.getHost(hookPoint.arg[0]);
 
 					step.opt = 1;
 					step.address = host;
-					if(host!=null)
-						ctx.apicall_target=host;
-					
-					ctx.apicall_name = httpclient.getURI(apiInfo.arg[1]);
+					if (host != null)
+						ctx.apicall_target = host;
+
+					ctx.apicall_name = httpclient.getURI(hookPoint.arg[1]);
 				}
 			} catch (Exception e) {
 				this.ok = false;
 			}
 		}
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = apiInfo.className;
+			ctx.apicall_name = hookPoint.className;
 		return step;
 	}
 
-	private IHttpClient getProxy(ApiInfo apiInfo) {
-		int key = System.identityHashCode(apiInfo._this.getClass());
+	private IHttpClient getProxy(HookPoint hookPoint) {
+		int key = System.identityHashCode(hookPoint._this.getClass());
 		IHttpClient httpclient = httpclients.get(key);
 		if (httpclient == null) {
 			synchronized (this) {
-				httpclient = HttpClient43Factory.create(apiInfo._this.getClass().getClassLoader());
+				httpclient = HttpClient43Factory.create(hookPoint._this.getClass().getClassLoader());
 				httpclients.put(key, httpclient);
 			}
 		}
 		return httpclient;
-	}
-
-	public void apiEnd(TraceContext ctx, ApiInfo apiInfo, Object returnValue, Throwable thr) {
 	}
 
 	private boolean ok = true;
@@ -94,32 +87,9 @@ public class ForHttpClient43 implements IApiCallTrace {
 				httpclient.addHeader(req, conf.caller_txid, Hexa32.toString32(ctx.txid));
 				httpclient.addHeader(req, conf.this_txid, Hexa32.toString32(calleeTxid));
 			} catch (Exception e) {
-				System.err.println("HttpClinet4.3 " + e);
+				Logger.println("HttpClinet4.3 ", e);
 				ok = false;
 			}
-		}
-	}
-
-	public void checkTarget(ApiInfo apiInfo) {
-		Configure conf = Configure.getInstance();
-		if (conf.enable_trace_e2e==false) {
-			return;
-		}
-		int key = System.identityHashCode(apiInfo._this.getClass());
-		IHttpClient httpclient = httpclients.get(key);
-		if (httpclient == null) {
-			synchronized (this) {
-				httpclient = HttpClient43Factory.create(apiInfo._this.getClass().getClassLoader());
-				httpclients.put(key, httpclient);
-			}
-		}
-		String thread_id = httpclient.getHeader( apiInfo.arg[1], "scouter_thread_id" );
-		if(thread_id!=null){
-		    TraceContext ctx= TraceContextManager.getContext(Long.parseLong(thread_id));
-  		      if(ctx!=null){
-  		    	  ctx.apicall_target=apiInfo.arg[0].toString();
-  		    	  System.out.println("HttpClient43 target: " +ctx.apicall_target);
-  		      }
 		}
 	}
 }

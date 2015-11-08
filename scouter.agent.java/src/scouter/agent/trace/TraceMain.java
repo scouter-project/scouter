@@ -107,13 +107,10 @@ public class TraceMain {
 			Stat stat0 = (Stat) stat;
 			if (stat0.isStaticContents)
 				return null;
-
-			if (HttpServiceTracePlugIn.reject(stat0.ctx, req, res) // reject by
-																	// customized
-																	// plugin
-					|| TraceContextManager.size() > conf.max_active_service) {// reject
-																				// by
-																				// max_active_service
+			// reject by customized plugin
+			if (HttpServiceTracePlugIn.reject(stat0.ctx, req, res) 
+					// reject by max_active_service
+					|| TraceContextManager.size() > conf.max_active_service) {
 				// howto reject
 				if (conf.enable_reject_url) {
 					http.rejectUrl(res, conf.reject_url); // by url
@@ -186,9 +183,13 @@ public class TraceMain {
 		http.start(ctx, req, res);
 		if (ctx.serviceName == null)
 			ctx.serviceName = "Non-URI";
-		HttpServiceTracePlugIn.start(ctx, req, res);
 		Stat stat = new Stat(ctx, req, res);
 		stat.isStaticContents = isStaticContents(ctx.serviceName);
+	
+		if(stat.isStaticContents ==false){
+			HttpServiceTracePlugIn.start(ctx, req, res);
+		}
+		
 		return stat;
 	}
 
@@ -362,7 +363,7 @@ public class TraceMain {
 			ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
 			ctx.profile_thread_cputime = conf.profile_thread_cputime;
 			ctx.xType = xType;
-			ServiceTracePlugIn.start(ctx, new ApiInfo(className, methodName, methodDesc, _this, arg));
+			ServiceTracePlugIn.start(ctx, new HookPoint(className, methodName, methodDesc, _this, arg));
 			return new Stat(ctx);
 		} catch (Throwable t) {
 			Logger.println("A147", t);

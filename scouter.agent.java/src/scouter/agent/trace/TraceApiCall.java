@@ -26,9 +26,9 @@ import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterAPI;
 import scouter.agent.netio.data.DataProxy;
-import scouter.agent.plugin.ApiCallTracePlugin;
 import scouter.agent.plugin.HttpServiceTracePlugIn;
 import scouter.agent.summary.ServiceSummary;
+import scouter.agent.trace.api.ApiCallTraceHelper;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.SocketStep;
@@ -63,8 +63,6 @@ public class TraceApiCall {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx != null && arg.length >= 2) {
 			ctx.apicall_target = arg[0] + ":" + arg[1];
-			// System.out.println("apiinfo : " +ctx.apicall_name +
-			// " target="+ctx.apicall_target);
 		}
 	}
 
@@ -79,8 +77,8 @@ public class TraceApiCall {
 			}
 			// System.out.println("apicall start: " +ctx.apicall_name +
 			// " target="+ctx.apicall_target);
-			ApiInfo apiInfo = new ApiInfo(className, methodName, methodDesc, _this, arg);
-			ApiCallStep step = ApiCallTracePlugin.start(ctx, apiInfo);
+			HookPoint hookPoint = new HookPoint(className, methodName, methodDesc, _this, arg);
+			ApiCallStep step = ApiCallTraceHelper.start(ctx, hookPoint);
 			if (step == null)
 				return null;
 			step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
@@ -88,7 +86,7 @@ public class TraceApiCall {
 				step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 			}
 			ctx.profile.push(step);
-			return new LocalContext(ctx, step, apiInfo);
+			return new LocalContext(ctx, step, hookPoint);
 		} catch (Throwable sss) {
 			sss.printStackTrace();
 		}
@@ -214,7 +212,7 @@ public class TraceApiCall {
 				if (tctx.error == 0) {
 					tctx.error = step.error;
 				}
-				ServiceSummary.getInstance().process(thr, step.error ,tctx.serviceHash, tctx.txid, 0, 0);
+				ServiceSummary.getInstance().process(thr, step.error, tctx.serviceHash, tctx.txid, 0, 0);
 			}
 			tctx.profile.add(step);
 

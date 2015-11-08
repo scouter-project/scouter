@@ -17,11 +17,25 @@
 
 package scouter.agent.plugin;
 
-import scouter.agent.trace.ApiInfo;
+import scouter.agent.Logger;
+import scouter.agent.trace.HookPoint;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.pack.XLogPack;
 
-public interface IServiceTrace {
-    public void start(TraceContext ctx,  ApiInfo apiInfo);
-    public void end(TraceContext ctx, XLogPack p);
+abstract public class IServiceTrace {
+	long lastModified;
+
+	public void start(ContextWrapper ctx, HookPoint p) {
+	}
+
+	public void end(ContextWrapper ctx, XLogPack p) {
+	}
+	
+	public void log(Object c) {
+		Logger.println("PLUG-IN", c.toString());
+	}
+
+	public void println(Object c) {
+		System.out.println(c);
+	}
 }
