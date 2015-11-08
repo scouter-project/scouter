@@ -43,6 +43,7 @@ public class RequestWrapper {
 	private java.lang.reflect.Method getCookies;
 	private java.lang.reflect.Method getName;
 	private java.lang.reflect.Method getValue;
+	private java.lang.reflect.Method getSessionAttribute;
 
 	private boolean enabled = true;
 
@@ -200,6 +201,27 @@ public class RequestWrapper {
 			}
 			Object o = getSession.invoke(reqObject, new Object[] { false });
 			return new SessionWrapper(o);
+		} catch (Throwable e) {
+			enabled = false;
+			return null;
+		}
+	}
+
+	public String getSessionAttribute(String key) {
+		if (enabled == false)
+			return null;
+		try {
+			if (getSession == null) {
+				getSession = this.reqObject.getClass().getMethod("getSession", arg_c_z);
+			}
+			Object o = getSession.invoke(reqObject, new Object[] { false });
+			if (o == null)
+				return null;
+			if (getSessionAttribute == null) {
+				getSessionAttribute = o.getClass().getMethod("getAttribute", arg_c_s);
+			}
+			return (String) getSessionAttribute.invoke(o, new Object[] { key });
+
 		} catch (Throwable e) {
 			enabled = false;
 			return null;
