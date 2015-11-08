@@ -15,7 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.xtra.http;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,10 +22,8 @@ import scouter.agent.Logger;
 import scouter.util.HashUtil;
 import scouter.util.Hexa32;
 import scouter.util.KeyGen;
-
 public class UseridUtil {
 	private static final String SCOUTE_R = "SCOUTER";
-
 	public static long getUserid(HttpServletRequest req, HttpServletResponse res) {
 		try {
 			String cookie = req.getHeader("Cookie");
@@ -54,7 +51,6 @@ public class UseridUtil {
 		}
 		return 0;
 	}
-
 	public static long getUseridCustom(HttpServletRequest req, HttpServletResponse res, String key) {
 		if (key == null || key.length() == 0)
 			return 0;

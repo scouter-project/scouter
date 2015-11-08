@@ -17,7 +17,6 @@
 package scouter.agent;
 
 import java.lang.instrument.Instrumentation;
-
 import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.util.AsyncRunner;
 import scouter.util.StringUtil;

@@ -18,6 +18,8 @@ package scouter.agent.plugin;
 
 import java.io.PrintWriter;
 
+import scouter.agent.Logger;
+
 public class ResponseWrapper {
 
 	@SuppressWarnings("rawtypes")
@@ -25,13 +27,12 @@ public class ResponseWrapper {
 	private static Object[] arg_o = {};
 
 	private Object resObject;
-	
 
-	private java.lang.reflect.Method getWriter;
-	private java.lang.reflect.Method getContentType;
-	private java.lang.reflect.Method getCharacterEncoding;
+	private static java.lang.reflect.Method getWriter;
+	private static java.lang.reflect.Method getContentType;
+	private static java.lang.reflect.Method getCharacterEncoding;
 
-	private boolean enabled = true;
+	private static boolean enabled = true;
 
 	public ResponseWrapper(Object res) {
 		resObject = res;
@@ -47,6 +48,7 @@ public class ResponseWrapper {
 			return (java.io.PrintWriter) getWriter.invoke(resObject, arg_o);
 		} catch (Throwable e) {
 			enabled = false;
+			Logger.println("A173", e);
 			return null;
 		}
 	}
@@ -61,6 +63,7 @@ public class ResponseWrapper {
 			return (String) getContentType.invoke(resObject, arg_o);
 		} catch (Throwable e) {
 			enabled = false;
+			Logger.println("A174", e);
 			return null;
 		}
 	}
@@ -75,6 +78,7 @@ public class ResponseWrapper {
 			return (String) getCharacterEncoding.invoke(resObject, arg_o);
 		} catch (Throwable e) {
 			enabled = false;
+			Logger.println("A175", e);
 			return null;
 		}
 	}

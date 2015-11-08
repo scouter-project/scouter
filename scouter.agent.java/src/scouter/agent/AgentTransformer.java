@@ -21,7 +21,6 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
-
 import scouter.agent.asm.ApicallASM;
 import scouter.agent.asm.ApicallInfoASM;
 import scouter.agent.asm.CapArgsASM;
@@ -120,7 +119,6 @@ public class AgentTransformer implements ClassFileTransformer {
 		if (conf.enable_hook_jsp) {
 			temp.add(new JspServletASM());
 		}
-
 		if (conf.enable_hook_future) {
 			temp.add(new FutureTaskASM());
 		}

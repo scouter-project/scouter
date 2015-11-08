@@ -15,7 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.agent.asm;
-
 import java.util.HashSet;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
@@ -26,33 +25,25 @@ import scouter.agent.asm.util.MethodSet;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
-
 public class JDBCResultSetASM implements IASM, Opcodes {
 	public final HashSet<String> target = MethodSet.getHookingClassSet(Configure.getInstance().hook_jdbc_rs);
-
 	public JDBCResultSetASM() {
 		target.add("org/mariadb/jdbc/MySQLResultSet");
-
 		target.add("oracle/jdbc/driver/OracleResultSetImpl");
 		target.add("com/mysql/jdbc/ResultSetImpl");
 		target.add("org/postgresql/jdbc2/AbstractJdbc2ResultSet");
 		target.add("org/apache/derby/client/am/ResultSet");
 		target.add("jdbc/FakeResultSet");
 		target.add("net/sourceforge/jtds/jdbc/JtdsResultSet");
-
 		target.add("com/microsoft/sqlserver/jdbc/SQLServerResultSet");
 		target.add("com/tmax/tibero/jdbc/TbResultSet");
-
 		target.add("oracle/jdbc/driver/InsensitiveScrollableResultSet");
 		target.add("oracle/jdbc/driver/SensitiveScrollableResultSet");
-
 		target.add("org/hsqldb/jdbc/JDBCResultSet");
 	}
-
 	public boolean isTarget(String className) {
 		return target.contains(className);
 	}
-
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (target.contains(className) == false) {
 			return cv;
@@ -63,12 +54,10 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 		return new ResultSetCV(cv);
 	}
 }
-
 class ResultSetCV extends ClassVisitor implements Opcodes {
 	public ResultSetCV(ClassVisitor cv) {
 		super(ASM4, cv);
 	}
-
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);

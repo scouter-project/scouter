@@ -15,7 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.agent.trace.api;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.proxy.HttpClient43Factory;
@@ -27,29 +26,21 @@ import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.KeyGen;
-
 public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
-
 	private static IntKeyLinkedMap<IHttpClient> httpclients = new IntKeyLinkedMap<IHttpClient>().setMax(5);
-
 	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
-
 		ApiCallStep step = new ApiCallStep();
-
 		if (ok) {
 			try {
 				if (hookPoint.arg != null && hookPoint.arg.length >= 2) {
 					IHttpClient httpclient = getProxy(hookPoint);
-
 					step.txid = KeyGen.next();
 					transfer(httpclient, ctx, hookPoint.arg[0], hookPoint.arg[1], step.txid);
 					String host = httpclient.getHost(hookPoint.arg[0]);
-
 					step.opt = 1;
 					step.address = host;
 					if (host != null)
 						ctx.apicall_target = host;
-
 					ctx.apicall_name = httpclient.getURI(hookPoint.arg[1]);
 				}
 			} catch (Exception e) {
@@ -60,7 +51,6 @@ public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
 			ctx.apicall_name = hookPoint.className;
 		return step;
 	}
-
 	private IHttpClient getProxy(HookPoint hookPoint) {
 		int key = System.identityHashCode(hookPoint._this.getClass());
 		IHttpClient httpclient = httpclients.get(key);
@@ -72,14 +62,11 @@ public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
 		}
 		return httpclient;
 	}
-
 	private boolean ok = true;
-
 	private void transfer(IHttpClient httpclient, TraceContext ctx, Object host, Object req, long calleeTxid) {
 		Configure conf = Configure.getInstance();
 		if (conf.enable_trace_e2e) {
 			try {
-
 				if (ctx.gxid == 0) {
 					ctx.gxid = ctx.txid;
 				}
@@ -87,7 +74,7 @@ public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
 				httpclient.addHeader(req, conf.caller_txid, Hexa32.toString32(ctx.txid));
 				httpclient.addHeader(req, conf.this_txid, Hexa32.toString32(calleeTxid));
 			} catch (Exception e) {
-				Logger.println("HttpClinet4.3 ", e);
+				Logger.println("A178", e);
 				ok = false;
 			}
 		}

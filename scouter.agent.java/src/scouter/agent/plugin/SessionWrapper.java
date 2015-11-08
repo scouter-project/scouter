@@ -15,31 +15,23 @@
  *  limitations under the License. 
  */
 package scouter.agent.plugin;
-
 import java.util.Enumeration;
-
+import scouter.agent.Logger;
 public class SessionWrapper {
-
 	@SuppressWarnings("rawtypes")
 	private static Class[] arg_c = {};
 	private static Object[] arg_o = {};
-
 	private static Class[] arg_c_s = { String.class };
-
 	private Object reqObject;
-
-	private java.lang.reflect.Method getAttribute;
-	private java.lang.reflect.Method getAttributeNames;
-
-	private boolean enabled = true;
-
+	private static java.lang.reflect.Method getAttribute;
+	private static java.lang.reflect.Method getAttributeNames;
+	private static boolean enabled = true;
 	public SessionWrapper(Object req) {
 		if (req == null) {
 			enabled = false;
 		}
 		reqObject = req;
 	}
-
 	public String getAttribute(String key) {
 		if (enabled == false)
 			return null;
@@ -50,10 +42,10 @@ public class SessionWrapper {
 			return (String) getAttribute.invoke(reqObject, new Object[] { key });
 		} catch (Throwable e) {
 			enabled = false;
+			Logger.println("A176", e);
 			return null;
 		}
 	}
-
 	public Enumeration getAttributeNames() {
 		if (enabled == false)
 			return null;
@@ -64,6 +56,7 @@ public class SessionWrapper {
 			return (Enumeration) getAttributeNames.invoke(reqObject, arg_o);
 		} catch (Throwable e) {
 			enabled = false;
+			Logger.println("A177", e);
 			return null;
 		}
 	}

@@ -15,9 +15,7 @@
  *  limitations under the License. 
  */
 package scouter.agent.asm;
-
 import java.util.HashSet;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -33,37 +31,29 @@ import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
-
 public class JDBCPreparedStatementASM implements IASM, Opcodes {
 	public final HashSet<String> target = MethodSet.getHookingClassSet(Configure.getInstance().hook_jdbc_pstmt);
 	public final HashSet<String> noField = new HashSet<String>();
-
 	public JDBCPreparedStatementASM() {
 		target.add("org/mariadb/jdbc/MySQLPreparedStatement");
 		target.add("oracle/jdbc/driver/OraclePreparedStatement");
-
 		target.add("org/postgresql/jdbc2/AbstractJdbc2Statement");
 		target.add("org/apache/derby/client/am/PreparedStatement");
 		target.add("net/sourceforge/jtds/jdbc/JtdsPreparedStatement");
-
 		target.add("jdbc/FakePreparedStatement");
 		target.add("jdbc/FakePreparedStatement2");
 		target.add("com/microsoft/sqlserver/jdbc/SQLServerPreparedStatement");
 		target.add("com/tmax/tibero/jdbc/TbPreparedStatement");
 		target.add("org/hsqldb/jdbc/JDBCPreparedStatement");
-
 		target.add("com/mysql/jdbc/ServerPreparedStatement");
 		target.add("com/mysql/jdbc/PreparedStatement");
-
 		// @skyworker - MySQL ServerPreparedStatement는 특별히 필드를 추가하지 않음
 		noField.add("com/mysql/jdbc/ServerPreparedStatement");
 		noField.add("jdbc/FakePreparedStatement2");
 	}
-
 	public boolean isTarget(String className) {
 		return target.contains(className);
 	}
-
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (target.contains(className) == false) {
 			return cv;
@@ -74,17 +64,13 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		return new PreparedStatementCV(cv, noField);
 	}
 }
-
 class PreparedStatementCV extends ClassVisitor implements Opcodes {
 	HashSet<String> noField;
-
 	public PreparedStatementCV(ClassVisitor cv, HashSet<String> noField) {
 		super(ASM4, cv);
 		this.noField = noField;
 	}
-
 	private String owner;
-
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		super.visit(version, access, name, signature, superName, interfaces);
@@ -95,7 +81,6 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 					.visitEnd();
 		}
 	}
-
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
@@ -119,5 +104,4 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 		}
 		return mv;
 	}
-
 }

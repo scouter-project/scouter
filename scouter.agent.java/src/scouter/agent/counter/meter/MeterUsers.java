@@ -17,7 +17,6 @@
 package scouter.agent.counter.meter;
 
 import java.util.Enumeration;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.util.DateUtil;

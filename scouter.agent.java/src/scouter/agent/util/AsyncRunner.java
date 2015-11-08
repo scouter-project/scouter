@@ -15,9 +15,7 @@
  *  limitations under the License. 
  */
 package scouter.agent.util;
-
 import java.lang.instrument.ClassDefinition;
-
 import scouter.agent.JavaAgent;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
@@ -26,11 +24,8 @@ import scouter.agent.summary.ServiceSummary;
 import scouter.util.RequestQueue;
 import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
-
 public class AsyncRunner extends Thread {
-
 	private static AsyncRunner instance = null;
-
 	public final static synchronized AsyncRunner getInstance() {
 		if (instance == null) {
 			instance = new AsyncRunner();
@@ -40,9 +35,7 @@ public class AsyncRunner extends Thread {
 		}
 		return instance;
 	}
-
 	private RequestQueue<Object> queue = new RequestQueue<Object>(1024);
-
 	private static class Hook {
 		public Hook(ClassLoader loader, String classname, byte[] body) {
 			super();
@@ -50,24 +43,19 @@ public class AsyncRunner extends Thread {
 			this.classname = classname.replace('/', '.');
 			this.body = body;
 		}
-
 		ClassLoader loader;
 		String classname;
 		byte[] body;
 	}
-
 	public void add(ClassLoader loader, String classname, byte[] body) {
 		queue.put(new Hook(loader, classname, body));
 	}
-
 	public void add(LeakData data) {
 		queue.put(data);
 	}
-
 	public void add(Runnable r) {
 		queue.put(r);
 	}
-
 	public void run() {
 		while (true) {
 			Object m = queue.get(1000);
@@ -83,11 +71,9 @@ public class AsyncRunner extends Thread {
 			}
 		}
 	}
-
 	private void process(Runnable m) {
 		m.run();
 	}
-
 	private void alert(LeakData m) {
 		ServiceSummary summary = ServiceSummary.getInstance();
 		if (m.fullstack) {
@@ -100,10 +86,9 @@ public class AsyncRunner extends Thread {
 			}
 		} else {
 			summary.process(m.error, 0, m.service, m.txid, 0, 0);
-			Logger.println("A156", m.error + " " + m.inner);
+			Logger.println("A179", m.error + " " + m.inner);
 		}
 	}
-
 	private void hooking(Hook m) {
 		// AIX JDK1.5에서는 Dynamic Hooking을 사용하면 안됨
 		if (SystemUtil.IS_AIX && SystemUtil.IS_JAVA_1_5) {
@@ -118,5 +103,4 @@ public class AsyncRunner extends Thread {
 			Logger.println("A149", "async hook fail:" + m.classname + " " + t);
 		}
 	}
-
 }

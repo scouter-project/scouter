@@ -15,13 +15,11 @@
  *  limitations under the License. 
  */
 package scouter.agent.trace;
-
 import java.io.File;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterAPI;
@@ -34,38 +32,32 @@ import scouter.lang.step.MessageStep;
 import scouter.lang.step.SocketStep;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
-
 public class TraceApiCall {
 	public static class Stat {
 		public TraceContext ctx;
 		public Object req;
 		public Object res;
-
 		public Stat(TraceContext ctx, Object req, Object res) {
 			this.ctx = ctx;
 			this.req = req;
 			this.res = res;
 		}
-
 		public Stat(TraceContext ctx) {
 			this.ctx = ctx;
 		}
 	}
-
 	static {
 		try {
 			HttpServiceTracePlugIn.class.getClass();
 		} catch (Throwable t) {
 		}
 	}
-
 	public static void apiInfo(String className, String methodName, String methodDesc, Object _this, Object[] arg) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx != null && arg.length >= 2) {
 			ctx.apicall_target = arg[0] + ":" + arg[1];
 		}
 	}
-
 	public static Object startApicall(String className, String methodName, String methodDesc, Object _this, Object[] arg) {
 		try {
 			TraceContext ctx = TraceContextManager.getLocalContext();
@@ -92,7 +84,6 @@ public class TraceApiCall {
 		}
 		return null;
 	}
-
 	public static Object startApicall(String name, long apiTxid) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
@@ -110,7 +101,6 @@ public class TraceApiCall {
 		ctx.apicall_name = name;
 		return new LocalContext(ctx, step);
 	}
-
 	public static void endApicall(Object stat, Object returnValue, Throwable thr) {
 		if (stat == null)
 			return;
@@ -136,7 +126,6 @@ public class TraceApiCall {
 				String msg = thr.getMessage();
 				Configure conf = Configure.getInstance();
 				if (conf.profile_fullstack_apicall_error) {
-
 					StringBuffer sb = new StringBuffer();
 					sb.append(msg).append("\n");
 					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
@@ -147,24 +136,20 @@ public class TraceApiCall {
 						thr = thr.getCause();
 					}
 					msg = sb.toString();
-
 				}
 				step.error = DataProxy.sendError(msg);
 				if (tctx.error == 0) {
 					tctx.error = step.error;
 				}
-
 				ServiceSummary.getInstance().process(thr, step.error, tctx.serviceHash, tctx.txid, 0, step.hash);
 			}
 			MeterAPI.getInstance().add(step.elapsed, step.error != 0);
 			ServiceSummary.getInstance().process(step);
-
 			tctx.profile.pop(step);
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
 	}
-
 	public static Object startSocket(Socket socket, SocketAddress addr, int timeout) {
 		if (!(addr instanceof InetSocketAddress))
 			return null;
@@ -196,7 +181,6 @@ public class TraceApiCall {
 			return null;
 		}
 	}
-
 	public static void endSocket(Object stat, Throwable thr) {
 		if (stat == null) {
 			return;
@@ -215,21 +199,17 @@ public class TraceApiCall {
 				ServiceSummary.getInstance().process(thr, step.error, tctx.serviceHash, tctx.txid, 0, 0);
 			}
 			tctx.profile.add(step);
-
 			SocketTable.add(step.ipaddr, step.port, tctx.serviceHash, tctx.txid);
-
 			Configure conf = Configure.getInstance();
 			if (conf.profile_socket_openstack) {
 				if (conf.profile_socket_openstack_port == 0 || conf.profile_socket_openstack_port == step.port) {
 					tctx.profile.add(new MessageStep(step.start_time, ThreadUtil.getThreadStack()));
 				}
 			}
-
 		} catch (Throwable t) {
 			Logger.println("A142", "socket trace close error", t);
 		}
 	}
-
 	public static void open(File file) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx != null) {

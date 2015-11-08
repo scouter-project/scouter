@@ -14,27 +14,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.plugin;
-
 import scouter.agent.Logger;
 import scouter.agent.trace.HookPoint;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.pack.XLogPack;
-
 abstract public class IServiceTrace {
 	long lastModified;
-
 	public void start(ContextWrapper ctx, HookPoint p) {
 	}
-
 	public void end(ContextWrapper ctx, XLogPack p) {
 	}
 	
 	public void log(Object c) {
-		Logger.println("PLUG-IN", c.toString());
+		Logger.println("A159", c.toString());
 	}
-
 	public void println(Object c) {
 		System.out.println(c);
 	}
