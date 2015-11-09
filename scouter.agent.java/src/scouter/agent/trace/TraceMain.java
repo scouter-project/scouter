@@ -22,6 +22,7 @@ import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.error.REQUEST_REJECT;
 import scouter.agent.error.USERTX_NOT_CLOSE;
 import scouter.agent.netio.data.DataProxy;
+import scouter.agent.plugin.CapturePlugIn;
 import scouter.agent.plugin.HttpServiceTracePlugIn;
 import scouter.agent.plugin.ServiceTracePlugIn;
 import scouter.agent.proxy.HttpTraceFactory;
@@ -421,13 +422,14 @@ public class TraceMain {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
-		MessageStep step = new MessageStep();
-		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		if (ctx.profile_thread_cputime) {
-			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-		}
-		step.message = toString("CAP-ARG", className, methodName, methodDesc, arg);
-		ctx.profile.add(step);
+//		MessageStep step = new MessageStep();
+//		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+//		if (ctx.profile_thread_cputime) {
+//			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+//		}
+//		step.message = toString("CAP-ARG", className, methodName, methodDesc, arg);
+//		ctx.profile.add(step);
+		CapturePlugIn.capArgs(ctx, className, methodName, methodDesc, arg);
 	}
 	public static void jspServlet(Object[] arg) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
@@ -486,25 +488,27 @@ public class TraceMain {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
-		MessageStep step = new MessageStep();
-		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		if (ctx.profile_thread_cputime) {
-			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-		}
-		step.message = toStringTHIS("CAP-THIS", className, methodDesc, this0);
-		ctx.profile.add(step);
+//		MessageStep step = new MessageStep();
+//		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+//		if (ctx.profile_thread_cputime) {
+//			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+//		}
+//		step.message = toStringTHIS("CAP-THIS", className, methodDesc, this0);
+//		ctx.profile.add(step);
+		CapturePlugIn.capThis(ctx, className, methodDesc, this0);
 	}
 	public static void capReturn(String className, String methodName, String methodDesc, Object rtn) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
-		MessageStep step = new MessageStep();
-		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		if (ctx.profile_thread_cputime) {
-			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-		}
-		step.message = toStringRTN("CAP-RTN", className, methodName, methodDesc, rtn);
-		ctx.profile.add(step);
+//		MessageStep step = new MessageStep();
+//		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+//		if (ctx.profile_thread_cputime) {
+//			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+//		}
+//		step.message = toStringRTN("CAP-RTN", className, methodName, methodDesc, rtn);
+//		ctx.profile.add(step);
+		CapturePlugIn.capReturn(ctx, className, methodName, methodDesc, rtn);
 	}
 	private static Configure conf = Configure.getInstance();
 	public static Object startMethod(int hash, String classMethod) {

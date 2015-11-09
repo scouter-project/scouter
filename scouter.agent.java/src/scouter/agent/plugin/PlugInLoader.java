@@ -16,6 +16,7 @@
  *
  */
 package scouter.agent.plugin;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.StringReader;
@@ -36,8 +37,10 @@ import scouter.util.FileUtil;
 import scouter.util.Hexa32;
 import scouter.util.StringUtil;
 import scouter.util.ThreadUtil;
+
 public class PlugInLoader extends Thread {
 	private static PlugInLoader instance;
+
 	public synchronized static PlugInLoader getInstance() {
 		if (instance == null) {
 			instance = new PlugInLoader();
@@ -47,6 +50,7 @@ public class PlugInLoader extends Thread {
 		}
 		return instance;
 	}
+
 	public void run() {
 		while (true) {
 			ThreadUtil.sleep(5000);
@@ -58,8 +62,9 @@ public class PlugInLoader extends Thread {
 			}
 		}
 	}
+
 	private void cleckPluginModified(File root) {
-		File script = new File(root, "service.plugin");
+		File script = new File(root, "service.plug");
 		if (script.canRead() == false) {
 			ServiceTracePlugIn.plugIn = null;
 		} else {
@@ -67,7 +72,7 @@ public class PlugInLoader extends Thread {
 				ServiceTracePlugIn.plugIn = createIServiceTrace(script);
 			}
 		}
-		script = new File(root, "httpservice.plugin");
+		script = new File(root, "httpservice.plug");
 		if (script.canRead() == false) {
 			HttpServiceTracePlugIn.plugIn = null;
 		} else {
@@ -76,8 +81,19 @@ public class PlugInLoader extends Thread {
 				HttpServiceTracePlugIn.plugIn = createIHttpService(script);
 			}
 		}
+		script = new File(root, "capture.plug");
+		if (script.canRead() == false) {
+			CapturePlugIn.plugIn = null;
+		} else {
+			if (CapturePlugIn.plugIn == null
+					|| CapturePlugIn.plugIn.lastModified != script.lastModified()) {
+				CapturePlugIn.plugIn = createICaptureTrace(script);
+			}
+		}
 	}
+
 	private long IHttpServiceCompile;
+
 	private IHttpService createIHttpService(File script) {
 		if (IHttpServiceCompile == script.lastModified())
 			return null;
@@ -116,7 +132,6 @@ public class PlugInLoader extends Thread {
 			if (jar != null) {
 				cp.appendClassPath(jar);
 			}
-			Class c = null;
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
 			try {
@@ -152,7 +167,7 @@ public class PlugInLoader extends Thread {
 				method.setBody("{" + REJECT_P1 + " $ctx=$1;" + REJECT_P2 + " $req=$2;" + REJECT_P3 + " $res=$3;"
 						+ REJECT_BODY + "}");
 			}
-			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+			Class c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			IHttpService plugin = (IHttpService) c.newInstance();
 			plugin.lastModified = script.lastModified();
 			Logger.info("PLUG-IN : " + IHttpService.class.getName() + " loaded #"
@@ -165,6 +180,7 @@ public class PlugInLoader extends Thread {
 		}
 		return null;
 	}
+
 	private HashMap<String, StringBuffer> loadFileText(File script) {
 		StringBuffer sb = new StringBuffer();
 		HashMap<String, StringBuffer> result = new HashMap<String, StringBuffer>();
@@ -187,7 +203,9 @@ public class PlugInLoader extends Thread {
 		}
 		return result;
 	}
+
 	private long IServiceTraceCompile;
+
 	private IServiceTrace createIServiceTrace(File script) {
 		if (IServiceTraceCompile == script.lastModified())
 			return null;
@@ -252,6 +270,177 @@ public class PlugInLoader extends Thread {
 		}
 		return null;
 	}
+
+	private long ICaptureCompile;
+
+	private ICapture createICaptureTrace(File script) {
+		if (ICaptureCompile == script.lastModified())
+			return null;
+		ICaptureCompile = script.lastModified();
+		try {
+			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
+			String superName = ICapture.class.getName();
+			String className = "scouter.agent.plugin.impl.CaptureImpl";
+			String ARG = "capArgs";
+			String ARG_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(String.class)
+					+ nativeName(String.class) + nativeName(String.class) + "[" + nativeName(Object.class) + ")V";
+			String ARG_P1 = ContextWrapper.class.getName();
+			String ARG_P2 = String.class.getName();
+			String ARG_P3 = String.class.getName();
+			String ARG_P4 = String.class.getName();
+			String ARG_P5 = "Object[]";
+			StringBuffer ARG_BODY = bodyTable.get("args");
+
+			String RTN = "capReturn";
+			String RTN_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(String.class)
+					+ nativeName(String.class) + nativeName(String.class) + nativeName(Object.class) + ")V";
+			String RTN_P1 = ContextWrapper.class.getName();
+			String RTN_P2 = String.class.getName();
+			String RTN_P3 = String.class.getName();
+			String RTN_P4 = String.class.getName();
+			String RTN_P5 = "Object";
+			StringBuffer RTN_BODY = bodyTable.get("return");
+
+			String THIS = "capThis";
+			String THIS_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(String.class)
+					+ nativeName(String.class) + nativeName(Object.class) + ")V";
+			String THIS_P1 = ContextWrapper.class.getName();
+			String THIS_P2 = String.class.getName();
+			String THIS_P3 = String.class.getName();
+			String THIS_P4 = "Object";
+			StringBuffer THIS_BODY = bodyTable.get("this");
+
+			ClassPool cp = ClassPool.getDefault();
+			String jar = FileUtil.getJarFileName(PlugInLoader.class);
+			if (jar != null) {
+				cp.appendClassPath(jar);
+			}
+			Class c = null;
+			CtClass cc = cp.get(superName);
+			CtClass impl = null;
+			try {
+				impl = cp.get(className);
+				impl.defrost();
+				// ARG METHOD
+				CtMethod method = impl.getMethod(ARG, ARG_SIG);
+				StringBuffer sb = new StringBuffer();
+				sb.append("{");
+				sb.append(ARG_P1).append(" $ctx=$1;");
+				sb.append(ARG_P2).append(" $class=$2;");
+				sb.append(ARG_P3).append(" $method=$3;");
+				sb.append(ARG_P4).append(" $desc=$4;");
+				sb.append(ARG_P5).append(" $data=$5;");
+				sb.append(ARG_BODY);
+				sb.append("}");
+				method.setBody(sb.toString());
+
+				// RETURN METHOD
+				method = impl.getMethod(RTN, RTN_SIG);
+				sb = new StringBuffer();
+				sb.append("{");
+				sb.append(RTN_P1).append(" $ctx=$1;");
+				sb.append(RTN_P2).append(" $class=$2;");
+				sb.append(RTN_P3).append(" $method=$3;");
+				sb.append(RTN_P4).append(" $desc=$4;");
+				sb.append(RTN_P5).append(" $data=$5;");
+				sb.append(RTN_BODY);
+				sb.append("}");
+				method.setBody(sb.toString());
+
+				// THIS METHOD
+				method = impl.getMethod(THIS, THIS_SIG);
+				sb = new StringBuffer();
+				sb.append("{");
+				sb.append(THIS_P1).append(" $ctx=$1;");
+				sb.append(THIS_P2).append(" $class=$2;");
+				sb.append(THIS_P3).append(" $desc=$3;");
+				sb.append(THIS_P4).append(" $data=$4;");
+				sb.append(THIS_BODY);
+				sb.append("}");
+				method.setBody(sb.toString());
+
+			} catch (scouter.javassist.NotFoundException e) {
+				impl = cp.makeClass(className, cc);
+				// ARG METHOD
+				StringBuffer sb = new StringBuffer();
+				sb.append("public void ").append(ARG).append("(");
+				sb.append(ARG_P1).append(" p1 ").append(",");
+				sb.append(ARG_P2).append(" p2 ").append(",");
+				sb.append(ARG_P3).append(" p3 ").append(",");
+				sb.append(ARG_P4).append(" p4 ").append(",");
+				sb.append(ARG_P5).append(" p5 ");
+				sb.append("){}");
+
+				CtMethod method = CtNewMethod.make(sb.toString(), impl);
+				impl.addMethod(method);
+				sb = new StringBuffer();
+				sb.append("{");
+				sb.append(ARG_P1).append(" $ctx=$1;");
+				sb.append(ARG_P2).append(" $class=$2;");
+				sb.append(ARG_P3).append(" $method=$3;");
+				sb.append(ARG_P4).append(" $desc=$4;");
+				sb.append(ARG_P5).append(" $data=$5;");
+				sb.append(ARG_BODY);
+				sb.append("}");
+				method.setBody(sb.toString());
+
+				// RTN METHOD
+				sb = new StringBuffer();
+				sb.append("public void ").append(RTN).append("(");
+				sb.append(RTN_P1).append(" p1 ").append(",");
+				sb.append(RTN_P2).append(" p2 ").append(",");
+				sb.append(RTN_P3).append(" p3 ").append(",");
+				sb.append(RTN_P4).append(" p4 ").append(",");
+				sb.append(RTN_P5).append(" p5 ");
+				sb.append("){}");
+				method = CtNewMethod.make(sb.toString(), impl);
+				impl.addMethod(method);
+				sb = new StringBuffer();
+				sb.append("{");
+				sb.append(RTN_P1).append(" $ctx=$1;");
+				sb.append(RTN_P2).append(" $class=$2;");
+				sb.append(RTN_P3).append(" $method=$3;");
+				sb.append(RTN_P4).append(" $desc=$4;");
+				sb.append(RTN_P5).append(" $data=$5;");
+				sb.append(RTN_BODY);
+				sb.append("}");
+				method.setBody(sb.toString());
+
+				// THIS METHOD
+				sb = new StringBuffer();
+				sb.append("public void ").append(THIS).append("(");
+				sb.append(THIS_P1).append(" p1 ").append(",");
+				sb.append(THIS_P2).append(" p2 ").append(",");
+				sb.append(THIS_P3).append(" p3 ").append(",");
+				sb.append(THIS_P4).append(" p4 ");
+				sb.append("){}");
+				method = CtNewMethod.make(sb.toString(), impl);
+				impl.addMethod(method);
+				sb = new StringBuffer();
+				sb.append("{");
+				sb.append(THIS_P1).append(" $ctx=$1;");
+				sb.append(THIS_P2).append(" $class=$2;");
+				sb.append(THIS_P3).append(" $desc=$3;");
+				sb.append(THIS_P4).append(" $data=$4;");
+				sb.append(THIS_BODY);
+				sb.append("}");
+				method.setBody(sb.toString());
+
+			}
+			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+			ICapture plugin = (ICapture) c.newInstance();
+			plugin.lastModified = script.lastModified();
+			Logger.info("PLUG-IN : " + IServiceTrace.class.getName() + " loaded #"
+					+ Hexa32.toString32(plugin.hashCode()));
+			return plugin;
+		} catch (scouter.javassist.CannotCompileException ee) {
+			Logger.info("PLUG-IN : " + ee.getMessage());
+		} catch (Exception e) {
+			Logger.println("A162", e);
+		}
+		return null;
+	}
+
 	private String nativeName(Class class1) {
 		return "L" + class1.getName().replace('.', '/') + ";";
 	}

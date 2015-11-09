@@ -15,17 +15,26 @@
  *  limitations under the License. 
  */
 package scouter.agent.plugin;
+
 import scouter.agent.Logger;
+import scouter.agent.trace.HookPoint;
 import scouter.lang.pack.XLogPack;
-abstract public class IHttpService {
+
+abstract public class ICapture {
 	long lastModified;
-	abstract public void start(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res);
-	abstract public void end(ContextWrapper ctx, XLogPack p) ;
-	abstract public boolean reject(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res) ;
-	
+
+	abstract public void capArgs(ContextWrapper ctx, String className, String methodName, String methodDesc,
+			Object[] arg);
+
+	abstract public void capReturn(ContextWrapper ctx, String className, String methodName, String methodDesc,
+			Object rtn);
+
+	abstract public void capThis(ContextWrapper ctx, String className, String methodDesc, Object this1);
+
 	public void log(Object c) {
-		Logger.println("A158", c.toString());
+		Logger.println("A159", c.toString());
 	}
+
 	public void println(Object c) {
 		System.out.println(c);
 	}

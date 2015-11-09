@@ -70,7 +70,7 @@ public class PlugInLoader extends Thread {
 	}
 
 	private void checkModified(File root) {
-		File script = new File(root, "alert.plugin");
+		File script = new File(root, "alert.plug");
 		if (script.canRead() == false) {
 			PlugInManager.alerts = null;
 		} else {
@@ -79,7 +79,7 @@ public class PlugInLoader extends Thread {
 			}
 		}
 
-		script = new File(root, "counter.plugin");
+		script = new File(root, "counter.plug");
 		if (script.canRead() == false) {
 			PlugInManager.counters = null;
 		} else {
@@ -88,7 +88,7 @@ public class PlugInLoader extends Thread {
 			}
 		}
 
-		script = new File(root, "object.plugin");
+		script = new File(root, "object.plug");
 		if (script.canRead() == false) {
 			PlugInManager.objects = null;
 		} else {
@@ -97,7 +97,7 @@ public class PlugInLoader extends Thread {
 			}
 		}
 
-		script = new File(root, "xlog.plugin");
+		script = new File(root, "xlog.plug");
 		if (script.canRead() == false) {
 			PlugInManager.xlog = null;
 		} else {
@@ -105,7 +105,7 @@ public class PlugInLoader extends Thread {
 				PlugInManager.xlog = (IXLog) create(script, "XLogImpl", IXLog.class, XLogPack.class);
 			}
 		}
-		script = new File(root, "xlogdb.plugin");
+		script = new File(root, "xlogdb.plug");
 		if (script.canRead() == false) {
 			PlugInManager.xlogdb = null;
 		} else {
@@ -113,7 +113,7 @@ public class PlugInLoader extends Thread {
 				PlugInManager.xlogdb = (IXLog) create(script, "XLogDBImpl", IXLog.class, XLogPack.class);
 			}
 		}
-		script = new File(root, "xlogprofile.plugin");
+		script = new File(root, "xlogprofile.plug");
 		if (script.canRead() == false) {
 			PlugInManager.xlogProfiles = null;
 		} else {
@@ -122,7 +122,7 @@ public class PlugInLoader extends Thread {
 						XLogProfilePack.class);
 			}
 		}
-		script = new File(root, "summary.plugin");
+		script = new File(root, "summary.plug");
 		if (script.canRead() == false) {
 			PlugInManager.summary = null;
 		} else {
