@@ -16,12 +16,7 @@
  */
 package scouter.agent.plugin;
 
-import scouter.agent.Logger;
-import scouter.agent.trace.HookPoint;
-import scouter.lang.pack.XLogPack;
-
-abstract public class ICapture {
-	long lastModified;
+abstract public class ICapture extends IPlugIn {
 
 	abstract public void capArgs(ContextWrapper ctx, String className, String methodName, String methodDesc,
 			Object[] arg);
@@ -30,12 +25,4 @@ abstract public class ICapture {
 			Object rtn);
 
 	abstract public void capThis(ContextWrapper ctx, String className, String methodDesc, Object this1);
-
-	public void log(Object c) {
-		Logger.println("A159", c.toString());
-	}
-
-	public void println(Object c) {
-		System.out.println(c);
-	}
 }

@@ -194,7 +194,7 @@ public class RequestWrapper extends Wrapper{
 			return null;
 		}
 	}
-	public String getSessionAttribute(String key) {
+	public Object getSessionAttribute(String key) {
 		if (enabled == false)
 			return null;
 		try {
@@ -207,7 +207,7 @@ public class RequestWrapper extends Wrapper{
 			if (getSessionAttribute == null) {
 				getSessionAttribute = o.getClass().getMethod("getAttribute", arg_c_s);
 			}
-			return (String) getSessionAttribute.invoke(o, new Object[] { key });
+			return getSessionAttribute.invoke(o, new Object[] { key });
 		} catch (Throwable e) {
 			enabled = false;
 			Logger.println("A172", e);

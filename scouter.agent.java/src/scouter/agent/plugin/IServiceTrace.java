@@ -15,20 +15,12 @@
  *  limitations under the License. 
  */
 package scouter.agent.plugin;
-import scouter.agent.Logger;
 import scouter.agent.trace.HookPoint;
 import scouter.lang.pack.XLogPack;
-abstract public class IServiceTrace {
-	long lastModified;
+abstract public class IServiceTrace extends IPlugIn{
 	public void start(ContextWrapper ctx, HookPoint p) {
 	}
 	public void end(ContextWrapper ctx, XLogPack p) {
 	}
 	
-	public void log(Object c) {
-		Logger.println("A159", c.toString());
-	}
-	public void println(Object c) {
-		System.out.println(c);
-	}
 }

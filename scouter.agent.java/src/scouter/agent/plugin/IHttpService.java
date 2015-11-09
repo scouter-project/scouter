@@ -15,18 +15,16 @@
  *  limitations under the License. 
  */
 package scouter.agent.plugin;
-import scouter.agent.Logger;
+
 import scouter.lang.pack.XLogPack;
-abstract public class IHttpService {
-	long lastModified;
+
+abstract public class IHttpService extends IPlugIn{
+
 	abstract public void start(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res);
-	abstract public void end(ContextWrapper ctx, XLogPack p) ;
-	abstract public boolean reject(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res) ;
+
+	abstract public void end(ContextWrapper ctx, XLogPack p);
+
+	abstract public boolean reject(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res);
+
 	
-	public void log(Object c) {
-		Logger.println("A158", c.toString());
-	}
-	public void println(Object c) {
-		System.out.println(c);
-	}
 }

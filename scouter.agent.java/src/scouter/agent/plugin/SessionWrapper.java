@@ -36,14 +36,14 @@ public class SessionWrapper extends Wrapper {
 		reqObject = req;
 	}
 
-	public String getAttribute(String key) {
+	public Object getAttribute(String key) {
 		if (enabled == false)
 			return null;
 		try {
 			if (getAttribute == null) {
 				getAttribute = this.reqObject.getClass().getMethod("getAttribute", arg_c_s);
 			}
-			return (String) getAttribute.invoke(reqObject, new Object[] { key });
+			return getAttribute.invoke(reqObject, new Object[] { key });
 		} catch (Throwable e) {
 			enabled = false;
 			Logger.println("A176", e);
