@@ -11,15 +11,15 @@
 		<module>../scouter.client.product</module>
 	</modules>
 	<properties>
-		<tycho-version>0.19.0</tycho-version>
-		<indigo.repo-url>http://download.eclipse.org/releases/indigo</indigo.repo-url>
+		<tycho-version>0.22.0</tycho-version>
+		<mars.repo-url>http://download.eclipse.org/releases/mars</mars.repo-url>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<repositories>
 		<repository>
-			<id>eclipse-indigo</id>
+			<id>eclipse-mars</id>
 			<layout>p2</layout>
-			<url>${indigo.repo-url}</url>
+			<url>${mars.repo-url}</url>
 		</repository>
 	</repositories>
 	<build>
