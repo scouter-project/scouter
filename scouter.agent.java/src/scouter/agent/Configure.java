@@ -134,8 +134,8 @@ public class Configure extends Thread {
 
 	public int alert_message_length = 3000;
 	public long alert_send_interval = 3000;
-	public int alert_fetch_count = 100000;
-	public int alert_sql_time = 30000;
+	public int jdbc_fetch_max = 10000;
+	public int sql_time_max = 30000;
 
 	public int udp_packet_max = 60000;
 	public boolean debug_asm;
@@ -144,8 +144,6 @@ public class Configure extends Thread {
 
 	public long yellow_line_time = 3000;
 	public long red_line_time = 8000;
-
-	public String plugin_classpath = "";
 
 	public String log_ignore = "";
 	public StringSet log_ignore_set = new StringSet();
@@ -195,9 +193,6 @@ public class Configure extends Thread {
 	public int profile_step_max = 1024;
 
 	public boolean debug_background_sql = false;
-
-	public String plugin_http_trace = "";
-	// public String plugin_apicall_name = "";
 
 	public boolean profile_fullstack_service_error = false;
 	public boolean profile_fullstack_apicall_error = false;
@@ -468,8 +463,6 @@ public class Configure extends Thread {
 		this.hook_signature ^= this.hook_jsp.hashCode();
 		this.hook_signature ^= this.hook_driver_connect_wrapper.hashCode();
 
-		this.plugin_classpath = getValue("plugin_classpath", "");
-
 		this.enable_reject_service = getBoolean("enable_reject_service", false);
 		this.max_active_service = getInt("max_active_service", 10000);
 		this.enable_reject_url = getBoolean("enable_reject_url", false);
@@ -481,9 +474,6 @@ public class Configure extends Thread {
 			this.profile_step_max = 100;
 
 		this.debug_background_sql = getBoolean("debug_background_sql", false);
-
-		this.plugin_http_trace = getValue("plugin_http_trace", "");
-		// this.plugin_apicall_name = getValue("plugin_apicall_name", "");
 
 		this.profile_fullstack_service_error = getBoolean("profile_fullstack_service_error", false);
 		this.profile_fullstack_apicall_error = getBoolean("profile_fullstack_apicall_error", false);
@@ -560,8 +550,8 @@ public class Configure extends Thread {
 
 		this.alert_message_length = getInt("alert_message_length", 3000);
 		this.alert_send_interval = getInt("alert_send_interval", 3000);
-		this.alert_fetch_count = getInt("alert_fetch_count", 100000);
-		this.alert_sql_time = getInt("alert_sql_time", 30000);
+		this.jdbc_fetch_max = getInt("jdbc_fetch_max", 10000);
+		this.sql_time_max = getInt("sql_time_max", 30000);
 
 		this.debug_asm = getBoolean("debug_asm", getBoolean("debug.asm", false));
 		this.enable_plus_objtype = getBoolean("enable_plus_objtype", false);
@@ -654,6 +644,7 @@ public class Configure extends Thread {
 
 		System.setProperty("scouter.objname", this.objName);
 		System.setProperty("scouter.objtype", this.scouter_type);
+		System.setProperty("scouter.dir", new File(".").getAbsolutePath());
 	}
 
 	private void setErrorStatus() {

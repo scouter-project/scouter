@@ -105,12 +105,15 @@ public class HostPerf {
 	long mem_last_fatal;
 	long mem_last_warning;
 	private void alertMem(Mem m) {
+		Configure conf = Configure.getInstance();
+		if(conf.mem_alert_enabled==false)
+			return;
+		
 		long tmem = m.getTotal();
 		long fmem = m.getFree();
 		long umem = m.getUsed();
 		float memrate = umem * 100.0f / tmem;
 
-		Configure conf = Configure.getInstance();
 		long now = System.currentTimeMillis();
 
 		if (memrate >= conf.mem_fatal_pct) {
@@ -137,6 +140,9 @@ public class HostPerf {
 
 	private void alertCpu(float nextCpu) {
 		Configure conf = Configure.getInstance();
+		if(conf.cpu_alert_enabled==false)
+			return;
+
 
 		if (nextCpu < conf.cpu_warning_pct)
 			return;

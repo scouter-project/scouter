@@ -28,7 +28,6 @@ import scouter.agent.plugin.ServiceTracePlugIn;
 import scouter.agent.proxy.HttpTraceFactory;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
-import scouter.lang.AlertLevel;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.MessageStep;
@@ -270,11 +269,7 @@ public class TraceMain {
 			} else if (ctx.userTransaction > 0) {
 				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
 				ServiceSummary.getInstance().process(userTxNotClose, pack.error,ctx.serviceHash, ctx.txid, 0, 0);
-			} else if (conf.isErrorStatus(ctx.status)) {
-				String emsg = "HttpStatus " + ctx.status;
-				pack.error = DataProxy.sendError(emsg);
-				AlertProxy.sendAlert(AlertLevel.ERROR, "HTTP_ERROR", emsg);
-			}
+			} 
 			// pack.divPerf = ctx.divPerf;
 			pack.userAgent = ctx.userAgent;
 			pack.referer = ctx.referer;
@@ -588,7 +583,6 @@ public class TraceMain {
 		pack.userid = visitor;
 		if (error != null) {
 			pack.error = DataProxy.sendError(error);
-			AlertProxy.sendAlert(AlertLevel.ERROR, "SERVICE_EXCEPTION", error);
 		}
 		MeterService.getInstance().add(pack.elapsed, error != null);
 		DataProxy.sendXLog(pack);

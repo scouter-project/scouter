@@ -23,71 +23,22 @@ import scouter.util.LinkedMap;
 import scouter.util.StringUtil;
 
 public class AlertProxy {
-    //타이틀별로 구분하여 최대 200가지에 대한 3초이내 중복전송을 막는다.
+	// 타이틀별로 구분하여 최대 200가지에 대한 3초이내 중복전송을 막는다.
 	private static LinkedMap<String, Long> sendTimeTable = new LinkedMap<String, Long>().setMax(200);
 
-	static Configure conf = Configure.getInstance(); 
+	static Configure conf = Configure.getInstance();
+
 	public static void sendAlert(byte level, String title, String emsg) {
 		long now = System.currentTimeMillis();
 
 		if (title == null)
 			title = "none";
-		
+
 		Long last = sendTimeTable.get(title);
 
 		if (last == null || now - last.longValue() >= conf.alert_send_interval) {
 			sendTimeTable.put(title, now);
-			DataProxy.sendAlert(level, title, StringUtil.limiting(emsg, conf.alert_message_length),  null);
-		}
-	}
-	public static void sendAlertSlowSql(byte level, String title, String emsg, String sql, int time, long txid) {
-		long now = System.currentTimeMillis();
-
-		if (title == null)
-			title = "none";
-		
-		Long last = sendTimeTable.get(title);
-
-		if (last == null || now - last.longValue() >= conf.alert_send_interval) {
-			sendTimeTable.put(title, now);
-			MapValue tags = new MapValue();
-			tags.put("sql", sql);
-			tags.put("time", time);
-			tags.put("txid", txid);
-			DataProxy.sendAlert(level, title, StringUtil.limiting(emsg, conf.alert_message_length),  tags);
-		}
-	}
-	public static void sendAlertTooManyFetch(byte level, String title, String emsg, String service, int count, long txid) {
-		long now = System.currentTimeMillis();
-
-		if (title == null)
-			title = "none";
-		
-		Long last = sendTimeTable.get(title);
-
-		if (last == null || now - last.longValue() >= conf.alert_send_interval) {
-			sendTimeTable.put(title, now);
-			MapValue tags = new MapValue();
-			tags.put("service", service);
-			tags.put("count", count);
-			tags.put("txid", txid);
-			DataProxy.sendAlert(level, title, StringUtil.limiting(emsg, conf.alert_message_length),  tags);
-		}
-	}
-	public static void sendAlertUTXNotClose(byte level, String title, String emsg, String service,  long txid) {
-		long now = System.currentTimeMillis();
-
-		if (title == null)
-			title = "none";
-		
-		Long last = sendTimeTable.get(title);
-
-		if (last == null || now - last.longValue() >= conf.alert_send_interval) {
-			sendTimeTable.put(title, now);
-			MapValue tags = new MapValue();
-			tags.put("service", service);
-			tags.put("txid", txid);
-			DataProxy.sendAlert(level, title, StringUtil.limiting(emsg, conf.alert_message_length),  tags);
+			DataProxy.sendAlert(level, title, StringUtil.limiting(emsg, conf.alert_message_length), null);
 		}
 	}
 
