@@ -146,6 +146,16 @@ public class AgentModelThread extends Thread {
 		}
 	}
 	
+	public Set<AgentObject> getAgentObjectByServerId (int serverId) {
+		Set<AgentObject> set = new HashSet<AgentObject>();
+		for (AgentObject obj : agentMap.values()) {
+			if (serverId == obj.getServerId()) {
+				set.add(obj);
+			}
+		}
+		return set;
+	}
+	
 	public Set<Integer> getObjectSetByServerId (int serverId) {
 		Set<Integer> set = new HashSet<Integer>();
 		for (AgentObject obj : agentMap.values()) {
