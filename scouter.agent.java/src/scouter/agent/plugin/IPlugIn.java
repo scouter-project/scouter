@@ -1,10 +1,8 @@
 package scouter.agent.plugin;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import scouter.agent.Logger;
-import sun.reflect.misc.ReflectUtil;
 
 public class IPlugIn {
 	long lastModified;
