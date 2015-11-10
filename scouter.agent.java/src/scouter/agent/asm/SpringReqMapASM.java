@@ -42,7 +42,7 @@ public class SpringReqMapASM implements IASM, Opcodes {
 	Configure conf = Configure.getInstance();
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-		if (conf.enable_spring_request_mapping == false)
+		if (conf.hook_spring_request_mapping == false)
 			return cv;
 
 		if (classDesc.anotation != null) {

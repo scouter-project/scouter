@@ -167,7 +167,8 @@ public class PlugInLoader extends Thread {
 				method = CtNewMethod.make("public void " + methodName + "(" + parameter + " p){}", impl);
 				impl.addMethod(method);
 			}
-			method.setBody("{" + parameter + " $p=$1;" + body + "}");
+			
+			method.setBody("{" + parameter + " $pack=$1;" + body + "}");
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 
 			IPlugIn plugin = (IPlugIn) c.newInstance();
