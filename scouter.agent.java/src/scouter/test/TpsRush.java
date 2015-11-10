@@ -73,7 +73,7 @@ public class TpsRush {
 		while (true) {
 			txcount++;
 			
-			String serviceName = "service" + (next(r, 1000));
+			String serviceName = "fdafafdafdafdafdfdsafaafda" + (next(r, 100000));
 			int service_hash = HashUtil.hash(serviceName);
 			long txid = KeyGen.next();
 			profile(txid,service_hash);
