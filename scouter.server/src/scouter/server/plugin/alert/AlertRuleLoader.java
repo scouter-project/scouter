@@ -49,7 +49,7 @@ public class AlertRuleLoader extends Thread {
 		if (instance == null) {
 			instance = new AlertRuleLoader();
 			instance.setDaemon(true);
-			instance.setName("FxAlertRuleLoader");
+			instance.setName("AlertRuleLoader");
 			instance.start();
 		}
 		return instance;
@@ -125,6 +125,7 @@ public class AlertRuleLoader extends Thread {
 			if (conf.lastModified != ruleConf.lastModified()) {
 				conf = createConf(name, ruleConf);
 				alertConfTable.put(name, conf);
+
 			}
 		}
 	}
@@ -144,20 +145,22 @@ public class AlertRuleLoader extends Thread {
 			return null;
 	}
 
-	//각 룰에 대한 기본 설정을 로딩한다. 
+	// 각 룰에 대한 기본 설정을 로딩한다.
 	// 각 설정은 스크립트에서 변경할 수 있다.
 	private AlertConf createConf(String name, File confFile) {
 		AlertConf conf = new AlertConf();
-		if (confFile != null) {
+		if (confFile != null && confFile.canRead()) {
 			conf.lastModified = confFile.lastModified();
 			byte[] body = FileUtil.readAll(confFile);
-			Properties p = new Properties();
-			try {
-				p.load(new ByteArrayInputStream(body));
-			} catch (IOException e) {
+			if (body != null) {
+				Properties p = new Properties();
+				try {
+					p.load(new ByteArrayInputStream(body));
+				} catch (Exception e) {
+				}
+				conf.history_size = getInt(p, "history_size", 0);
+				conf.silent_time = getInt(p, "silent_time", 0);
 			}
-			conf.history_size = getInt(p, "history_size", 0);
-			conf.silent_time = getInt(p, "silent_time", 0);
 		}
 		return conf;
 	}
@@ -182,19 +185,18 @@ public class AlertRuleLoader extends Thread {
 			Class c = null;
 			CtClass cc = cp.get(AlertRule.class.getName());
 			CtClass impl = null;
+			CtMethod method = null;
 			try {
 				impl = cp.get(name);
 				impl.defrost();
-				CtMethod method = impl.getMethod("process", "(" + nativeName(RealCounter.class) + ")V");
-				method.setBody("{" + RealCounter.class.getName() + " $c=$1;" + body + "}");
-				c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+				method = impl.getMethod("process", "(" + nativeName(RealCounter.class) + ")V");
 			} catch (javassist.NotFoundException e) {
 				impl = cp.makeClass(name, cc);
-				CtMethod method = CtNewMethod.make("public void process(" + RealCounter.class.getName() + " c){}", impl);
+				method = CtNewMethod.make("public void process(" + RealCounter.class.getName() + " c){}", impl);
 				impl.addMethod(method);
-				method.setBody("{" + RealCounter.class.getName() + " $c=$1;" + body + "}");
-				c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			}
+			method.setBody("{" + RealCounter.class.getName() + " $counter=$1;" + body + "}");
+			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 
 			AlertRule rule = (AlertRule) c.newInstance();
 			rule.lastModified = ruleFile.lastModified();

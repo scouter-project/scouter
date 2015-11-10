@@ -41,18 +41,19 @@ object TextPermWR {
 
     val queue = new RequestQueue[Data](DBCtr.LARGE_MAX_QUE_SIZE);
 
-    val common = new IntSet();
-    common.add(HashUtil.hash(TextTypes.METHOD));
-    common.add(HashUtil.hash(TextTypes.GROUP));
-    common.add(HashUtil.hash(TextTypes.CITY));
-    //move to perm db
-    common.add(HashUtil.hash(TextTypes.LOGIN));
-    common.add(HashUtil.hash(TextTypes.DESC));
-    common.add(HashUtil.hash(TextTypes.GROUP));
-    common.add(HashUtil.hash(TextTypes.USER_AGENT));
+//    val common = new IntSet();
+//    common.add(HashUtil.hash(TextTypes.METHOD));
+//    common.add(HashUtil.hash(TextTypes.GROUP));
+//    common.add(HashUtil.hash(TextTypes.CITY));
+//    //move to perm db
+//    common.add(HashUtil.hash(TextTypes.LOGIN));
+//    common.add(HashUtil.hash(TextTypes.DESC));
+//    common.add(HashUtil.hash(TextTypes.GROUP));
+//    common.add(HashUtil.hash(TextTypes.USER_AGENT));
 
+    //에러만 날짜별로 저장한다.-20151110
     def isA(divs: Int): Boolean = {
-        return common.contains(divs);
+        return divs != TextTypes.ERROR;
     }
 
     ThreadScala.start("scouter.server.db.TextPermWR") {
