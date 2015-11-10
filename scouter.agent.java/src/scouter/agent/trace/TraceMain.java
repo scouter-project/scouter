@@ -304,7 +304,7 @@ public class TraceMain {
 				pack.webHash = DataProxy.sendWebName(ctx.web_name);
 				pack.webTime = ctx.web_time;
 			}
-			//Plug In
+			// Plug In
 			HttpServiceTracePlugIn.end(ctx, pack);
 
 			if (pack.ignore == false) {
@@ -420,6 +420,12 @@ public class TraceMain {
 				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
 				ServiceSummary.getInstance().process(userTxNotClose, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
 			}
+
+			//2015.11.10
+			if (ctx.group != null) {
+				pack.group = DataProxy.sendGroup(ctx.group);
+			}
+
 			// 2015.02.02
 			pack.apicallCount = ctx.apicall_count;
 			pack.apicallTime = ctx.apicall_time;
@@ -429,10 +435,14 @@ public class TraceMain {
 			if (ctx.desc != null) {
 				pack.desc = DataProxy.sendDesc(ctx.desc);
 			}
+			
 			ServiceTracePlugIn.end(ctx, pack);
-			metering(pack);
-			if (sendOk) {
-				DataProxy.sendXLog(pack);
+
+			if (pack.ignore == false) {
+				metering(pack);
+				if (sendOk) {
+					DataProxy.sendXLog(pack);
+				}
 			}
 		} catch (Throwable t) {
 			Logger.println("A148", t);
