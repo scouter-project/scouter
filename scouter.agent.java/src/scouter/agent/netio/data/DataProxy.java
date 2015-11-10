@@ -294,5 +294,15 @@ public class DataProxy {
 		return hash;
 	}
 	
+	private static IntLinkedSet groupAgent = new IntLinkedSet().setMax(500);
+	public static int sendGroup(String text) {
+		int hash = HashUtil.hash(text);	
+		if (groupAgent.contains(hash)) {
+			return hash;
+		}
+		groupAgent.put(hash);
+		udpCollect.add(new TextPack(TextTypes.GROUP, hash, text));
+		return hash;
+	}
 
 }

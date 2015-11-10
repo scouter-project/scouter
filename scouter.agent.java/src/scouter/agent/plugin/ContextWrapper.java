@@ -39,7 +39,9 @@ public class ContextWrapper {
 			ctx.error = DataProxy.sendError(err);
 		}
 	}
-
+	public void group(String group) {
+			ctx.group = group;
+	}
 	public void login(String id) {
 		ctx.login = id;
 	}
