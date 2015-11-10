@@ -17,29 +17,29 @@
 
 package scouter.agent.trace;
 
-import scouter.util.StringIntMap;
+import scouter.agent.netio.data.DataProxy;
 import scouter.util.SysJMX;
-
 
 public class TraceContext {
 	private boolean isSummary;
 
-	protected TraceContext(){}
+	protected TraceContext() {
+	}
+
 	public TraceContext(boolean profile_summary) {
-		this.isSummary=profile_summary;
-		if(profile_summary){
+		this.isSummary = profile_summary;
+		if (profile_summary) {
 			this.profile = new ProfileSummary(this);
-		}else{
+		} else {
 			this.profile = new ProfileCollector(this);
 		}
 	}
 
-	public  TraceContext parent;
+	public TraceContext parent;
 	public long txid;
 	public Thread thread;
 	public long threadId;
 	public long gxid;
-
 
 	// profile
 	public IProfileCollector profile;
@@ -59,12 +59,12 @@ public class TraceContext {
 	public String http_method;
 	public String http_query;
 	public String http_content_type;
-	
+
 	// sql
 	public int sqlCount;
 	public int sqlTime;
 	public String sqltext;
-	
+
 	// apicall
 	public String apicall_name;
 	public int apicall_count;
@@ -75,69 +75,69 @@ public class TraceContext {
 	public int rs_count;
 	final public SqlParameter sql = new SqlParameter();
 	public SqlParameter sqlActiveArgs;
-	
+
 	public long userid;
 	public int userAgent;
+	public String userAgentString;
 	public int referer;
 
 	public boolean profile_thread_cputime;
 	public boolean is_child_tx;
 	public long caller;
 	public long callee;
-	
+
 	public String login;
 	public String desc;
-	
+
 	public String web_name;
 	public int web_time;
 	public int userTransaction;
 	public boolean debug_sql_call;
 
-	public TraceContext createChild(){
+	public TraceContext createChild() {
 		TraceContext child = new TraceContext(this.isSummary);
 		child.parent = this;
 		child.txid = this.txid;
 		child.thread = this.thread;
-		child.threadId = this.threadId;		
+		child.threadId = this.threadId;
 		child.gxid = this.gxid;
-		
-		//child.profile = this.profile;
-		
+
+		// child.profile = this.profile;
+
 		child.startTime = this.startTime;
-		
+
 		if (this.profile_thread_cputime) {
-			child.startCpu =  SysJMX.getCurrentThreadCPU();
+			child.startCpu = SysJMX.getCurrentThreadCPU();
 		}
 		child.bytes = this.bytes;
 		child.status = this.status;
-		
+
 		child.xType = this.xType;
 		child.serviceHash = this.serviceHash;
 		child.serviceName = this.serviceName;
 		child.remoteAddr = this.remoteAddr;
-		//child.error = this.error;
+		// child.error = this.error;
 		child.done_http_service = this.done_http_service;
-		
+
 		child.http_method = this.http_method;
 		child.http_query = this.http_query;
 		child.http_content_type = this.http_content_type;
-		
-//		child.sqlCount = this.sqlCount;
-//		child.sqlTime = this.sqlTime;
-//		child.sqltext = this.sqltext;
-//		child.apicall_name = this.apicall_name;
-//		child.apicall_count = this.apicall_count;
-//		child.apicall_time = this.apicall_time;
-		
-//		child.rs_start = this.rs_start;
-//		child.rs_count = this.rs_count;
-		//child.sql = this.sql;
-		
-		
+
+		// child.sqlCount = this.sqlCount;
+		// child.sqlTime = this.sqlTime;
+		// child.sqltext = this.sqltext;
+		// child.apicall_name = this.apicall_name;
+		// child.apicall_count = this.apicall_count;
+		// child.apicall_time = this.apicall_time;
+
+		// child.rs_start = this.rs_start;
+		// child.rs_count = this.rs_count;
+		// child.sql = this.sql;
+
 		child.userid = this.userid;
 		child.userAgent = this.userAgent;
 		child.referer = this.referer;
-//		child.opencon = this.opencon;
+		// child.opencon = this.opencon;
 		child.profile_thread_cputime = this.profile_thread_cputime;
 		child.is_child_tx = this.is_child_tx;
 		child.caller = this.caller;
@@ -145,17 +145,18 @@ public class TraceContext {
 
 		return child;
 	}
+
 	public void closeChild(TraceContext ctx) {
-	    if(this.error==0){ 
-		   this.error=ctx.error;
-	    }
-	}
-	
-	public static void main(String[] args) {
-		java.lang.reflect.Field[] f = TraceContext.class.getFields();
-		for(int  i = 0 ; i <f.length ; i++){
-			System.out.println("child."+f[i].getName()+" = this." +f[i].getName()+";");
+		if (this.error == 0) {
+			this.error = ctx.error;
 		}
 	}
-	
+
+	public static void main(String[] args) {
+		java.lang.reflect.Field[] f = TraceContext.class.getFields();
+		for (int i = 0; i < f.length; i++) {
+			System.out.println("child." + f[i].getName() + " = this." + f[i].getName() + ";");
+		}
+	}
+
 }

@@ -17,9 +17,79 @@
 
 package scouter.server.plugin;
 
+import scouter.lang.TextTypes;
+import scouter.lang.pack.ObjectPack;
 import scouter.lang.pack.XLogPack;
+import scouter.server.Configure;
+import scouter.server.core.AgentManager;
+import scouter.server.core.app.XLogGroupUtil;
+import scouter.server.db.TextPermRD;
+import scouter.server.db.TextPermWR;
+import scouter.server.db.TextRD;
+import scouter.server.geoip.GeoIpUtil;
+import scouter.util.DateUtil;
+import scouter.util.HashUtil;
+import scouter.util.IntLinkedSet;
 
+public class IXLog extends IPlugIn {
+	public void process(XLogPack p) {
+	}
 
-public interface IXLog  extends IPlugIn{
-   public void process(XLogPack p);
+	public void setAutoGroup(XLogPack p) {
+		XLogGroupUtil.process(p);
+	}
+
+	public void setLocation(XLogPack p) {
+		if (Configure.getInstance().enable_geoip) {
+			GeoIpUtil.setNationAndCity(p);
+		}
+	}
+	public String objName(XLogPack p) {
+		return AgentManager.getAgentName(p.objHash);
+	}
+	public String objType(XLogPack p) {
+		ObjectPack a = AgentManager.getAgent(p.objHash);
+		if (a != null) {
+			return a.objType;
+		}
+		return null;
+	}
+	public String service(XLogPack p) {
+		return TextRD.getString(DateUtil.yyyymmdd(p.endTime), TextTypes.SERVICE, p.service);
+	}
+
+	public String error(XLogPack p) {
+		return TextRD.getString(DateUtil.yyyymmdd(p.endTime), TextTypes.ERROR, p.error);
+	}
+
+	public String useAgent(XLogPack p) {
+		return TextPermRD.getString(TextTypes.USER_AGENT, p.userAgent);
+	}
+
+	public String desc(XLogPack p) {
+		return TextPermRD.getString(TextTypes.DESC, p.desc);
+	}
+
+	public String referer(XLogPack p) {
+		return TextPermRD.getString(TextTypes.REFERER, p.desc);
+	}
+
+	public String login(XLogPack p) {
+		return TextPermRD.getString(TextTypes.LOGIN, p.login);
+	}
+
+	public String group(XLogPack p) {
+		return TextPermRD.getString(TextTypes.GROUP, p.group);
+	}
+
+	private static IntLinkedSet saved = new IntLinkedSet().setMax(1000);
+
+	public int addGroup(String groupName) {
+		int grpHash = HashUtil.hash(groupName);
+		if (saved.contains(grpHash) == false) {
+			TextPermWR.add(HashUtil.hash(TextTypes.GROUP), grpHash, groupName);
+		}
+		return grpHash;
+	}
+
 }

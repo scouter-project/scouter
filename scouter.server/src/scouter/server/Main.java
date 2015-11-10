@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import scouter.Version;
 import scouter.server.account.AccountManager;
-import scouter.server.alert.FxAlertEngine;
 import scouter.server.core.AutoDeleteScheduler;
 import scouter.server.core.TextCacheReset;
 import scouter.server.db.DBCtr;
@@ -28,6 +27,7 @@ import scouter.server.netio.data.net.DataUdpServer;
 import scouter.server.netio.service.ServiceHandlingProxy;
 import scouter.server.netio.service.net.TcpServer;
 import scouter.server.plugin.PlugInManager;
+import scouter.server.plugin.alert.AlertEngine;
 import scouter.server.term.TermMain;
 import scouter.util.ShellArg;
 import scouter.util.SysJMX;
@@ -42,13 +42,13 @@ public class Main {
 		if(DBCtr.createLock()==false){
 			return;
 		}
-		FxAlertEngine.load();
+		AlertEngine.load();
 		CounterManager.getInstance();
 		AccountManager.ACCOUNT_FILENAME();
 		DataUdpServer.conf();
 		ServiceHandlingProxy.load();
 		TcpServer.conf();
-		PlugInManager.getInstance();
+		PlugInManager.load();
 		NetDataProcessor.working();
 		AutoDeleteScheduler.getInstance();
 		Runtime.getRuntime().addShutdownHook(new Thread() {

@@ -290,6 +290,17 @@ public class ErrorSummaryComposite extends Composite {
 					}
 				};
 				break;
+			case MESSAGE:
+				labelProvider = new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						if (element instanceof ErrorData) {
+							return TextProxy.error.getText(((ErrorData) element).message);
+						}
+						return null;
+					}
+				};
+				break;
 			case COUNT:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
@@ -374,6 +385,7 @@ public class ErrorSummaryComposite extends Composite {
 
 	    ERROR("Exception", 150, SWT.LEFT, true, true, false),
 	    SERVICE("Service", 150, SWT.LEFT, true, true, false),
+	    MESSAGE("Message", 200, SWT.LEFT, true, true, false),
 	    COUNT("Count", 70, SWT.RIGHT, true, true, true),
 	    TXID("TxId", 100, SWT.CENTER, true, true, false),
 	    SQL("SQL", 150, SWT.LEFT, true, true, false),
@@ -447,6 +459,7 @@ public class ErrorSummaryComposite extends Composite {
 				MapPack m = (MapPack) p;
 				ListValue errorLv = m.getList("error");
 				ListValue serviceLv = m.getList("service");
+				ListValue messageLv = m.getList("message");
 				ListValue countLv = m.getList("count");
 				ListValue txidLv = m.getList("txid");
 				ListValue sqlLv = m.getList("sql");
@@ -456,6 +469,7 @@ public class ErrorSummaryComposite extends Composite {
 					ErrorData data = new ErrorData();
 					data.error = errorLv.getInt(i);
 					data.service = serviceLv.getInt(i);
+					data.message = messageLv.getInt(i);
 					data.count = countLv.getInt(i);
 					data.txid = txidLv.getLong(i);
 					data.sql = sqlLv.getInt(i);
@@ -466,6 +480,7 @@ public class ErrorSummaryComposite extends Composite {
 				
 				TextProxy.error.load(date, errorLv, serverId);
 				TextProxy.service.load(date, serviceLv, serverId);
+				TextProxy.error.load(date, messageLv, serverId);
 				TextProxy.sql.load(date, sqlLv, serverId);
 				TextProxy.apicall.load(date, apiLv, serverId);
 				TextProxy.error.load(date, stackLv, serverId);
@@ -484,6 +499,7 @@ public class ErrorSummaryComposite extends Composite {
 	private static class ErrorData {
 		public int error;
 		public int service;
+		public int message;
 		public int count;
 		public long txid;
 		public int sql;

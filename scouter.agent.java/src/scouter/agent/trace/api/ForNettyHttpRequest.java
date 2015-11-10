@@ -17,35 +17,33 @@
 package scouter.agent.trace.api;
 
 import scouter.agent.Configure;
-import scouter.agent.plugin.IApiCallTrace;
-import scouter.agent.proxy.HttpClient43Factory;
 import scouter.agent.proxy.IHttpClient;
 import scouter.agent.proxy.NettyHttpClientFactory;
-import scouter.agent.trace.ApiInfo;
+import scouter.agent.trace.HookPoint;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.KeyGen;
 
-public class ForNettyHttpRequest implements IApiCallTrace {
+public class ForNettyHttpRequest implements ApiCallTraceHelper.IHelper {
 
 	private boolean ok = true;
 	private static IntKeyLinkedMap<IHttpClient> httpclients = new IntKeyLinkedMap<IHttpClient>().setMax(5);
 
-	public ApiCallStep apiCall(TraceContext ctx, ApiInfo apiInfo) {
+	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
 
 		ApiCallStep step = new ApiCallStep();
 
-		if (ok && apiInfo.arg != null && apiInfo.arg.length >= 1) {
+		if (ok && hookPoint.arg != null && hookPoint.arg.length >= 1) {
 			try {
-				IHttpClient httpclient = getProxy(apiInfo);
+				IHttpClient httpclient = getProxy(hookPoint);
 				step.txid = KeyGen.next();
-				transfer(httpclient, ctx, apiInfo.arg[0], step.txid);
+				transfer(httpclient, ctx, hookPoint.arg[0], step.txid);
 		
 				step.opt = 1;
 				step.address = null;
-				ctx.apicall_name = httpclient.getURI(apiInfo.arg[0]);
+				ctx.apicall_name = httpclient.getURI(hookPoint.arg[0]);
 				ctx.apicall_name = fw_stripes(ctx.apicall_name);
 
 			} catch (Throwable e) {
@@ -55,16 +53,16 @@ public class ForNettyHttpRequest implements IApiCallTrace {
 			}
 		}
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = apiInfo.className;
+			ctx.apicall_name = hookPoint.className;
 		return step;
 	}
 
-	private IHttpClient getProxy(ApiInfo apiInfo) {
-		int key = System.identityHashCode(apiInfo._this.getClass());
+	private IHttpClient getProxy(HookPoint hookPoint) {
+		int key = System.identityHashCode(hookPoint._this.getClass());
 		IHttpClient httpclient = httpclients.get(key);
 		if (httpclient == null) {
 			synchronized (this) {
-				httpclient = NettyHttpClientFactory.create(apiInfo._this.getClass().getClassLoader());
+				httpclient = NettyHttpClientFactory.create(hookPoint._this.getClass().getClassLoader());
 				httpclients.put(key, httpclient);
 			}
 		}
@@ -103,7 +101,4 @@ public class ForNettyHttpRequest implements IApiCallTrace {
 		return url;
 	}
 
-	public String targetName() {
-		return "io/reactivex/netty/protocol/http/client/HttpClientImpl";
-	}
 }

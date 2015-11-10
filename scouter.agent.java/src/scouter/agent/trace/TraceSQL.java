@@ -277,8 +277,8 @@ public class TraceSQL {
 			ps.error = hash;
 			ServiceSummary.getInstance().process(thr, hash, tctx.serviceHash, tctx.txid, ps.hash, 0);
 
-		} else if (ps.elapsed > conf.alert_sql_time) {
-			String msg = "warning slow sql, over " + conf.alert_sql_time + " ms";
+		} else if (ps.elapsed > conf.sql_time_max) {
+			String msg = "warning slow sql, over " + conf.sql_time_max + " ms";
 			int hash = DataProxy.sendError(msg);
 			if (tctx.error == 0) {
 				tctx.error = hash;
@@ -335,9 +335,9 @@ public class TraceSQL {
 				.toString();
 		c.profile.add(p);
 
-		if (c.rs_count > conf.alert_fetch_count) {
+		if (c.rs_count > conf.jdbc_fetch_max) {
 
-			String msg = "warning too many resultset, over #" + conf.alert_fetch_count;
+			String msg = "warning too many resultset, over #" + conf.jdbc_fetch_max;
 			int hash = DataProxy.sendError(msg);
 			if (c.error == 0) {
 				c.error = hash;

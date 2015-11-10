@@ -15,7 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.agent.netio.request.handle;
-
 import java.io.IOException;
 import java.util.Enumeration;
 import scouter.agent.Configure;
@@ -42,9 +41,7 @@ import scouter.util.Hexa32;
 import scouter.util.SysJMX;
 import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
-
 public class AgentThread {
-
 	@RequestHandler(RequestCmd.OBJECT_THREAD_DETAIL)
 	public Pack threadDetail(Pack param) {
 		long thread = ((MapPack) param).getLong("id");
@@ -66,12 +63,10 @@ public class AgentThread {
 		}
 		return p;
 	}
-
 	@RequestHandler(RequestCmd.OBJECT_THREAD_CONTROL)
 	public Pack threadKill(Pack param) {
 		long thread = ((MapPack) param).getLong("id");
 		String action = ((MapPack) param).getText("action");
-
 		// 쓰레드 상세 화면에서 쓰레드를 제어한다.
 		TraceContext ctx = TraceContextManager.getContext(thread);
 		try {
@@ -85,7 +80,6 @@ public class AgentThread {
 			}
 		} catch (Throwable t) {
 		}
-
 		MapPack p = ThreadUtil.getThreadDetail(thread);
 		if (ctx != null) {
 			p.put("Service Txid", new TextValue(Hexa32.toString32(ctx.txid)));
@@ -103,7 +97,6 @@ public class AgentThread {
 		}
 		return p;
 	}
-
 	@RequestHandler(RequestCmd.OBJECT_THREAD_LIST)
 	public Pack threadList(Pack param) {
 		MapPack mpack = ThreadUtil.getThreadList();
@@ -111,7 +104,6 @@ public class AgentThread {
 		ListValue txid = mpack.newList("txid");
 		ListValue elapsed = mpack.newList("elapsed");
 		ListValue service = mpack.newList("service");
-
 		for (int i = 0; i < ids.size(); i++) {
 			long tid = CastUtil.clong(ids.get(i));
 			TraceContext ctx = TraceContextManager.getContext(tid);
@@ -126,17 +118,12 @@ public class AgentThread {
 				service.add(new NullValue());
 			}
 		}
-
 		return mpack;
 	}
-
 	Configure conf = Configure.getInstance();
-
 	@RequestHandler(RequestCmd.OBJECT_ACTIVE_SERVICE_LIST)
 	public Pack activeThreadList(Pack param) {
-
 		MapPack rPack = new MapPack();
-
 		ListValue id = rPack.newList("id");
 		ListValue name = rPack.newList("name");
 		ListValue stat = rPack.newList("stat");
@@ -144,13 +131,10 @@ public class AgentThread {
 		ListValue txid = rPack.newList("txid");
 		ListValue elapsed = rPack.newList("elapsed");
 		ListValue service = rPack.newList("service");
-
 		ListValue sql = rPack.newList("sql");
 		ListValue subcall = rPack.newList("subcall");
-
 		ListValue login = rPack.newList("login");
 		ListValue desc = rPack.newList("desc");
-
 		Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
 		while (en.hasMoreElements()) {
 			TraceContext ctx = en.nextElement();
@@ -179,7 +163,6 @@ public class AgentThread {
 		rPack.put("complete", new BooleanValue(true));
 		return rPack;
 	}
-
 	@RequestHandler(RequestCmd.OBJECT_THREAD_DUMP)
 	public Pack threadDump(Pack param) {
 		try {
@@ -189,27 +172,22 @@ public class AgentThread {
 		}
 		return null;
 	}
-
 	@RequestHandler(RequestCmd.TRIGGER_ACTIVE_SERVICE_LIST)
 	public Pack triggerActiveServiceList(Pack param) {
 		return DumpUtil.triggerActiveService();
 	}
-
 	@RequestHandler(RequestCmd.TRIGGER_THREAD_LIST)
 	public Pack triggerThreadList(Pack param) {
 		return DumpUtil.triggerThreadList();
 	}
-
 	@RequestHandler(RequestCmd.TRIGGER_THREAD_DUMP)
 	public Pack triggerThreadDump(Pack param) {
 		return DumpUtil.triggerThreadDump();
 	}
-
 	@RequestHandler(RequestCmd.PSTACK_ON)
 	public Pack turnOn(Pack param) {
 		MapPack p = (MapPack) param;
 		long time = p.getLong("time");
-
 		if (time <= 0) {
 			MakeStack.pstack_requested = 0;
 		} else {
@@ -217,8 +195,6 @@ public class AgentThread {
 		}
 		return param;
 	}
-
 	public static void main(String[] args) throws IOException {
-
 	}
 }

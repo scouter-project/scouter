@@ -17,36 +17,34 @@
 
 package scouter.agent.plugin;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import scouter.agent.trace.ApiInfo;
+import scouter.agent.trace.HookPoint;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.pack.XLogPack;
 
 public class ServiceTracePlugIn {
 
-	static IServiceTrace dummy = new IServiceTrace() {
-		public void start(TraceContext ctx, ApiInfo apiInfo) {
-		}
+	static IServiceTrace plugIn;
 
-		public void end(TraceContext ctx, XLogPack p) {
-		}
-	};
-	static IServiceTrace plugIn = dummy;
+	static {
+		PlugInLoader.getInstance();
+	}
 
-	public static Map<String, IServiceTrace> handlers = new HashMap();
-
-	public static void start(TraceContext ctx, ApiInfo apiInfo) {
-		IServiceTrace handler = handlers.get(apiInfo.className);
-		if (handler != null) {
-			handler.start(ctx, apiInfo);
-		} else {
-			plugIn.start(ctx, apiInfo);
+	public static void start(TraceContext ctx, HookPoint hookPoint) {
+		if (plugIn != null) {
+			try {
+				plugIn.start(new ContextWrapper(ctx), hookPoint);
+			} catch (Throwable t) {
+			}
 		}
 	}
 
 	public static void end(TraceContext ctx, XLogPack p) {
+		if (plugIn != null) {
+			try {
+				plugIn.end(new ContextWrapper(ctx), p);
+			} catch (Throwable t) {
+			}
+		}
 	}
 
 }

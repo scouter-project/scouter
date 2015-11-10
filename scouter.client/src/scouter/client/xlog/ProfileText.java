@@ -148,6 +148,14 @@ public class ProfileText {
 		if (StringUtil.isNotEmpty(t)) {
 			sb.append("\n► webName=" + t).append("  webTime=" + xperf.p.webTime+ " ms");
 		}
+		t = TextProxy.login.getLoadText(date, xperf.p.login, serverId);
+		if (StringUtil.isNotEmpty(t)) {
+			sb.append("\n► login=" + t);
+		}
+		t = TextProxy.desc.getLoadText(date, xperf.p.desc, serverId);
+		if (StringUtil.isNotEmpty(t)) {
+			sb.append("\n► desc=" + t);
+		}
 		sb.append("\n");
 
 		sb.append("------------------------------------------------------------------------------------------\n");

@@ -29,7 +29,7 @@ import scouter.server.core.app.XLogGroupUtil
 import scouter.server.core.cache.XLogCache
 import scouter.server.db.XLogWR
 import scouter.server.geoip.GeoIpUtil
-import scouter.server.plugin.PlugXLogBuf
+import scouter.server.plugin.PlugInManager
 import scouter.server.tagcnt.XLogTagCount
 import scouter.server.util.ThreadScala
 import scouter.util.RequestQueue
@@ -39,7 +39,6 @@ object ServiceCore {
     val queue = new RequestQueue[XLogPack](CoreRun.MAX_QUE_SIZE);
 
     val conf = Configure.getInstance();
-    val plugin = PlugXLogBuf.getInstance();
 
     def calc(m: XLogPack) = {
         XLogGroupUtil.process(m);
@@ -50,34 +49,37 @@ object ServiceCore {
     }
     ThreadScala.startDaemon("scouter.server.core.XLogCore", { CoreRun.running }) {
         val m = queue.get();
-        ServerStat.put("xlog.core.queue",queue.size());
-        
+        ServerStat.put("xlog.core.queue", queue.size());
+
         if (Configure.WORKABLE) {
-	        m.xType match {
-	            case XLogTypes.WEB_SERVICE =>
-	                VisitorCore.add(m)
-	                calc(m)
-	            case XLogTypes.APP_SERVICE =>
-	                calc(m)
-	            case _ => //기타 타입은 무시한다.
-	        }
-	        
-	        plugin.add(m);
-	
-	        val b = new DataOutputX().writePack(m).toByteArray();
-	        XLogCache.put(m.objHash, m.elapsed, m.error != 0, b);
-	        if (conf.tagcnt_enabled) {
-	            XLogTagCount.add(m)
-	        }
-	        XLogWR.add(m.endTime, m.txid, m.gxid, m.elapsed, b);
+
+            PlugInManager.xlog(m);
+            if (m.ignore == false) {
+                m.xType match {
+                    case XLogTypes.WEB_SERVICE =>
+                        VisitorCore.add(m)
+                        calc(m)
+                    case XLogTypes.APP_SERVICE =>
+                        calc(m)
+                    case _ => //기타 타입은 무시한다.
+                }
+               
+                PlugInManager.xlogdb(m);
+                val b = new DataOutputX().writePack(m).toByteArray();
+                XLogCache.put(m.objHash, m.elapsed, m.error != 0, b);
+                if (conf.tagcnt_enabled) {
+                    XLogTagCount.add(m)
+                }
+                XLogWR.add(m.endTime, m.txid, m.gxid, m.elapsed, b);
+            }
         }
     }
 
     def add(p: XLogPack) {
-       if(p.endTime==0){
-           p.endTime = System.currentTimeMillis();
-       }
-    
+        if (p.endTime == 0) {
+            p.endTime = System.currentTimeMillis();
+        }
+
         val ok = queue.put(p);
         if (ok == false) {
             Logger.println("S116", 10, "queue exceeded!!");

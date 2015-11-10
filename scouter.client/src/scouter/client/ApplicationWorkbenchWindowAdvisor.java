@@ -139,9 +139,9 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor im
 		configurer.setShowMenuBar(true);
 		configurer.setShowCoolBar(false);
 		configurer.setShowStatusLine(true);
-		PlatformUI.getPreferenceStore().setValue(IWorkbenchPreferenceConstants.SHOW_MEMORY_MONITOR,	true); 
+		//PlatformUI.getPreferenceStore().setValue(IWorkbenchPreferenceConstants.SHOW_MEMORY_MONITOR,	true); 
 		configurer.setShowProgressIndicator(true);
-		configurer.setShowFastViewBars(false);
+		//configurer.setShowFastViewBars(false);
 		configurer.setShowPerspectiveBar(true);
 		
 		display = Display.getCurrent();

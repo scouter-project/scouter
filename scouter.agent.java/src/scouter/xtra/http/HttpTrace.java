@@ -115,6 +115,7 @@ public class HttpTrace implements IHttpTrace {
 		String userAgent = request.getHeader("User-Agent");
 		if (userAgent != null) {
 			ctx.userAgent = DataProxy.sendUserAgent(userAgent);
+			ctx.userAgentString=userAgent;
 		}
 		dump(ctx.profile, request, ctx);
 		if (conf.enable_trace_e2e) {

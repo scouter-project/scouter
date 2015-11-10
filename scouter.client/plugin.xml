@@ -4,7 +4,6 @@
 
   <extension id="product" name="Scouter" point="org.eclipse.core.runtime.products">
     <product name="Scouter" application="scouter.client.application">
-      <property name="preferenceCustomization" value="plugin_customization.ini"/>
       <property
             name="aboutText"
             value="%aboutText"/>
@@ -22,6 +21,10 @@
       <property
             name="startupProgressRect"
             value="5,253,460,10">
+      </property>
+      <property
+            name="preferenceCustomization"
+            value="plugin_customization.ini">
       </property>
 <!--
         <property name="startupForegroundColor" value="0080FF"/>

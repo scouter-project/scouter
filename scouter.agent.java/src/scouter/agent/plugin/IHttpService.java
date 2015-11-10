@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 Scouter Project.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -13,14 +14,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.plugin;
 
-import scouter.agent.trace.TraceContext;
 import scouter.lang.pack.XLogPack;
 
-public interface IHttpService {
-    public void start(TraceContext ctx, RequestWrapper req, ResponseWrapper res);
-    public void end(TraceContext ctx, XLogPack p);
-    public boolean reject(TraceContext ctx, RequestWrapper req, ResponseWrapper res);
+abstract public class IHttpService extends IPlugIn{
+
+	abstract public void start(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res);
+
+	abstract public void end(ContextWrapper ctx, XLogPack p);
+
+	abstract public boolean reject(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res);
+
+	
 }

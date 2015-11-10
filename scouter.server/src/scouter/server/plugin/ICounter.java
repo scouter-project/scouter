@@ -21,6 +21,6 @@ import scouter.lang.pack.PerfCounterPack;
 
 
 
-public interface ICounter extends IPlugIn{
-   public void process(PerfCounterPack p);
+public class ICounter extends IPlugIn{
+   public void process(PerfCounterPack p){}
 }

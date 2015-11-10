@@ -41,7 +41,7 @@ public class AnyTrace {
 		TraceMain.setServiceName(name);
 	}
 
-	public static void serviceError(byte level, String title, String emsg) {
+	public static void serviceError(String emsg) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx != null && ctx.error != 0) { // already started
 			ctx.error = DataProxy.sendError(emsg);
@@ -84,4 +84,23 @@ public class AnyTrace {
 		TraceApiCall.endApicall(stat, null, thr);
 	}
 
+	public static void desc(String desc) {
+		try {
+			TraceContext ctx = TraceContextManager.getLocalContext();
+			if (ctx != null) {
+				ctx.desc = desc;
+			}
+		} catch (Throwable t) {// ignore
+		}
+	}
+
+	public static void login(String login) {
+		try {
+			TraceContext ctx = TraceContextManager.getLocalContext();
+			if (ctx != null) {
+				ctx.login = login;
+			}
+		} catch (Throwable t) {// ignore
+		}
+	}
 }

@@ -17,35 +17,34 @@
 package scouter.agent.trace.api;
 
 import scouter.agent.Configure;
-import scouter.agent.plugin.IApiCallTrace;
 import scouter.agent.proxy.IHttpClient;
 import scouter.agent.proxy.NettyHttpClientFactory;
-import scouter.agent.trace.ApiInfo;
+import scouter.agent.trace.HookPoint;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.KeyGen;
 
-public class ForRibbonLB implements IApiCallTrace {
+public class ForRibbonLB implements ApiCallTraceHelper.IHelper {
 
 	private int fail = 0;
 	private static IntKeyLinkedMap<IHttpClient> httpclients = new IntKeyLinkedMap<IHttpClient>().setMax(5);
 
-	public ApiCallStep apiCall(TraceContext ctx, ApiInfo apiInfo) {
+	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
 
 		ApiCallStep step = new ApiCallStep();
 
-		if (fail < 100 && apiInfo.arg != null && apiInfo.arg.length > 2) {
+		if (fail < 100 && hookPoint.arg != null && hookPoint.arg.length > 2) {
 			try {
-				IHttpClient httpclient = getProxy(apiInfo);
+				IHttpClient httpclient = getProxy(hookPoint);
 				step.txid = KeyGen.next();
-				transfer(httpclient, ctx, apiInfo.arg[1], step.txid);
-				String host = httpclient.getHost(apiInfo.arg[0]);
+				transfer(httpclient, ctx, hookPoint.arg[1], step.txid);
+				String host = httpclient.getHost(hookPoint.arg[0]);
 
 				step.opt = 1;
 				step.address = host;
-				ctx.apicall_name = httpclient.getURI(apiInfo.arg[1]);
+				ctx.apicall_name = httpclient.getURI(hookPoint.arg[1]);
 				ctx.apicall_name = fw_stripes(ctx.apicall_name);
 
 			} catch (Throwable e) {
@@ -55,23 +54,20 @@ public class ForRibbonLB implements IApiCallTrace {
 			}
 		}
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = apiInfo.className;
+			ctx.apicall_name = hookPoint.className;
 		return step;
 	}
 
-	private IHttpClient getProxy(ApiInfo apiInfo) {
-		int key = System.identityHashCode(apiInfo._this.getClass());
+	private IHttpClient getProxy(HookPoint hookPoint) {
+		int key = System.identityHashCode(hookPoint._this.getClass());
 		IHttpClient httpclient = httpclients.get(key);
 		if (httpclient == null) {
 			synchronized (this) {
-				httpclient = NettyHttpClientFactory.create(apiInfo._this.getClass().getClassLoader());
+				httpclient = NettyHttpClientFactory.create(hookPoint._this.getClass().getClassLoader());
 				httpclients.put(key, httpclient);
 			}
 		}
 		return httpclient;
-	}
-
-	public void apiEnd(TraceContext ctx, ApiInfo apiInfo, Object returnValue, Throwable thr) {
 	}
 
 	private void transfer(IHttpClient httpclient, TraceContext ctx, Object req, long calleeTxid) {
@@ -103,12 +99,5 @@ public class ForRibbonLB implements IApiCallTrace {
 			return url.substring(0, y);
 		}
 		return url;
-	}
-
-	public void checkTarget(ApiInfo apiInfo) {
-	}
-
-	public String targetName() {
-		return "com/netflix/ribbon/transport/netty/http/LoadBalancingHttpClient";
 	}
 }

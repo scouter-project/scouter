@@ -15,108 +15,43 @@
  *  limitations under the License. 
  */
 package scouter.agent.plugin;
-import java.util.StringTokenizer;
-import scouter.agent.Configure;
-import scouter.agent.Logger;
-import scouter.agent.proxy.LoaderManager;
+
 import scouter.agent.trace.TraceContext;
-import scouter.lang.conf.ConfObserver;
 import scouter.lang.pack.XLogPack;
-import scouter.util.CompareUtil;
-import scouter.util.StringUtil;
+
 public class HttpServiceTracePlugIn {
-	static IHttpService dummy = new IHttpService() {
-		public boolean reject(TraceContext ctx, RequestWrapper req, ResponseWrapper res) {
-			return false;
-		}
-		public void start(TraceContext ctx, RequestWrapper req, ResponseWrapper res) {
-		}
-		public void end(TraceContext ctx, XLogPack p) {
-		}
-	};
-	static IHttpService plugIn = dummy;
-	static String plugin_http_trace;
-	private static void loadHttpService(boolean reload) {
-		Configure conf = Configure.getInstance();
-		if (reload || CompareUtil.equals(plugin_http_trace, conf.plugin_http_trace) == false) {
-			plugin_http_trace = conf.plugin_http_trace;
-			Logger.info("PLUG-IN: load httpservice-plugin");
-			ClassLoader loader = LoaderManager.getPlugInLoader();
-			if (loader == null) {
-				plugIn = dummy;
-				return;
-			}
-			if (StringUtil.isNotEmpty(conf.plugin_http_trace)) {
-				try {
-					Class c = Class.forName(conf.plugin_http_trace, false, loader);
-					if (IHttpService.class.isAssignableFrom(c)) {
-						plugIn = (IHttpService) c.newInstance();
-						Logger.println("A131", c.getName());
-					}
-				} catch (Exception e) {
-				}
-			}
-			if (plugIn == null) {
-				plugIn = dummy;
-			}
-		}
-	}
-	private static String plugin_subcall_name;
-	private static void loadApiCallName(boolean reload) {
-		Configure conf = Configure.getInstance();
-		if (reload || CompareUtil.equals(plugin_subcall_name, conf.plugin_apicall_name) == false) {
-			plugin_subcall_name = conf.plugin_apicall_name;
-			ApiCallTracePlugin.reinit();
-			Logger.info("PLUG-IN: load subcall-plugin");
-			ClassLoader loader = LoaderManager.getPlugInLoader();
-			if (loader == null) {
-				return;
-			}
-			if (StringUtil.isNotEmpty(conf.plugin_apicall_name)) {
-				StringTokenizer nizer = new StringTokenizer(conf.plugin_apicall_name, ", ");
-				while (nizer.hasMoreTokens()) {
-					try {
-						String name = StringUtil.trim(nizer.nextToken());
-						Class c = Class.forName(name, false, loader);
-						if (IApiCallTrace.class.isAssignableFrom(c)) {
-							ApiCallTracePlugin.put((IApiCallTrace) c.newInstance());
-						}
-					} catch (Exception e) {
-					}
-				}
-			}
-		}
-	}
+
+	static IHttpService plugIn;
+
 	static {
-		final Configure conf = Configure.getInstance();
-		reloadClassLoader();
-		loadHttpService(true);
-		loadApiCallName(true);
-		ConfObserver.add(HttpServiceTracePlugIn.class.getName(), new Runnable() {
-			public void run() {
-				boolean reload = reloadClassLoader();
-				loadHttpService(reload);
-				loadApiCallName(reload);
-			}
-		});
+		PlugInLoader.getInstance();
 	}
-	private static String plugin_classpath = null;
-	private static boolean reloadClassLoader() {
-		Configure conf = Configure.getInstance();
-		if (CompareUtil.equals(plugin_classpath, conf.plugin_classpath) == false) {
-			LoaderManager.createPlugInLoader(conf.plugin_classpath);
-			plugin_classpath = conf.plugin_classpath;
-			return true;
+
+	public static void start(TraceContext ctx, Object req, Object res) {
+		if (plugIn != null) {
+			try {
+				plugIn.start(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
+			} catch (Throwable t) {
+			}
+		}
+	}
+
+	public static void end(TraceContext ctx, XLogPack p) {
+		if (plugIn != null) {
+			try {
+				plugIn.end(new ContextWrapper(ctx), p);
+			} catch (Throwable t) {
+			}
+		}
+	}
+
+	public static boolean reject(TraceContext ctx, Object req, Object res) {
+		if (plugIn != null) {
+			try {
+				return plugIn.reject(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
+			} catch (Throwable t) {
+			}
 		}
 		return false;
-	}
-	public static boolean reject(TraceContext ctx, Object req, Object res) {
-		return plugIn.reject(ctx, new RequestWrapper(req), new ResponseWrapper(res));
-	}
-	public static void start(TraceContext ctx, Object req, Object res) {
-		plugIn.start(ctx, new RequestWrapper(req), new ResponseWrapper(res));
-	}
-	public static void end(TraceContext ctx, XLogPack p) {
-		plugIn.end(ctx, p);
 	}
 }

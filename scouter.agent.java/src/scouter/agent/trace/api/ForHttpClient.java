@@ -18,20 +18,19 @@ package scouter.agent.trace.api;
 
 import java.lang.reflect.Method;
 
-import scouter.agent.plugin.IApiCallTrace;
-import scouter.agent.trace.ApiInfo;
+import scouter.agent.trace.HookPoint;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 
-public class ForHttpClient implements IApiCallTrace {
+public class ForHttpClient  implements ApiCallTraceHelper.IHelper{
 
 	private boolean ok = true;
 
-	public ApiCallStep apiCall(TraceContext ctx, ApiInfo apiInfo) {
-		if (ok && apiInfo.arg != null && apiInfo.arg.length == 3) {
+	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
+		if (ok && hookPoint.arg != null && hookPoint.arg.length == 3) {
 			try {
-				Method method = apiInfo.arg[1].getClass().getMethod("getURI");
-				Object o = method.invoke(apiInfo.arg[1]);
+				Method method = hookPoint.arg[1].getClass().getMethod("getURI");
+				Object o = method.invoke(hookPoint.arg[1]);
 				if (o != null) {
 					ctx.apicall_name = o.toString();
 				}
@@ -42,16 +41,8 @@ public class ForHttpClient implements IApiCallTrace {
 
 		ApiCallStep step = new ApiCallStep();
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = apiInfo.className;
+			ctx.apicall_name = hookPoint.className;
 		return step;
 	}
 
-	public void apiEnd(TraceContext ctx, ApiInfo apiInfo, Object returnValue, Throwable thr) {
-	}
-
-	public String targetName() {
-		return "org/apache/commons/httpclient/HttpClient";
-	}
-	public void checkTarget(ApiInfo apiInfo) {
-	}
 }

@@ -14,14 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.plugin;
-
-import scouter.agent.trace.ApiInfo;
-import scouter.agent.trace.TraceContext;
+import scouter.agent.trace.HookPoint;
 import scouter.lang.pack.XLogPack;
-
-public interface IServiceTrace {
-    public void start(TraceContext ctx,  ApiInfo apiInfo);
-    public void end(TraceContext ctx, XLogPack p);
+abstract public class IServiceTrace extends IPlugIn{
+	public void start(ContextWrapper ctx, HookPoint p) {
+	}
+	public void end(ContextWrapper ctx, XLogPack p) {
+	}
+	
 }

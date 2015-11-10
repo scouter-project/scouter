@@ -1,5 +1,6 @@
 /*
- *  Copyright 2015 Scouter Project.
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -12,26 +13,22 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
- *
  */
 package scouter.agent.plugin;
 
 import java.io.PrintWriter;
 
-public class ResponseWrapper {
+import scouter.agent.Logger;
 
-	@SuppressWarnings("rawtypes")
-	private static Class[] arg_c = {};
-	private static Object[] arg_o = {};
+public class ResponseWrapper  extends Wrapper{
 
 	private Object resObject;
-	
 
-	private java.lang.reflect.Method getWriter;
-	private java.lang.reflect.Method getContentType;
-	private java.lang.reflect.Method getCharacterEncoding;
+	private static java.lang.reflect.Method getWriter;
+	private static java.lang.reflect.Method getContentType;
+	private static java.lang.reflect.Method getCharacterEncoding;
 
-	private boolean enabled = true;
+	private static boolean enabled = true;
 
 	public ResponseWrapper(Object res) {
 		resObject = res;
@@ -47,6 +44,7 @@ public class ResponseWrapper {
 			return (java.io.PrintWriter) getWriter.invoke(resObject, arg_o);
 		} catch (Throwable e) {
 			enabled = false;
+			Logger.println("A173", e);
 			return null;
 		}
 	}
@@ -61,6 +59,7 @@ public class ResponseWrapper {
 			return (String) getContentType.invoke(resObject, arg_o);
 		} catch (Throwable e) {
 			enabled = false;
+			Logger.println("A174", e);
 			return null;
 		}
 	}
@@ -75,6 +74,7 @@ public class ResponseWrapper {
 			return (String) getCharacterEncoding.invoke(resObject, arg_o);
 		} catch (Throwable e) {
 			enabled = false;
+			Logger.println("A175", e);
 			return null;
 		}
 	}
