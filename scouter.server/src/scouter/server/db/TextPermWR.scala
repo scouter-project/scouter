@@ -52,8 +52,9 @@ object TextPermWR {
 //    common.add(HashUtil.hash(TextTypes.USER_AGENT));
 
     //에러만 날짜별로 저장한다.-20151110
+    val errorHash = HashUtil.hash(TextTypes.ERROR);
     def isA(divs: Int): Boolean = {
-        return divs != TextTypes.ERROR;
+        return divs != errorHash;
     }
 
     ThreadScala.start("scouter.server.db.TextPermWR") {
