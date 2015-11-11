@@ -107,10 +107,8 @@ public class HostPerf {
 		if(conf.mem_alert_enabled==false)
 			return;
 		
-		long tmem = m.getTotal();
-		long fmem = m.getFree();
-		long umem = m.getUsed();
-		float memrate = umem * 100.0f / tmem;
+		long fmem = m.getActualFree();
+		float memrate = (float) m.getUsedPercent();
 
 		long now = System.currentTimeMillis();
 
