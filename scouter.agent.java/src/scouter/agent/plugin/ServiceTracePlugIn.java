@@ -38,10 +38,10 @@ public class ServiceTracePlugIn {
 		}
 	}
 
-	public static void end(TraceContext ctx, XLogPack p) {
+	public static void end(TraceContext ctx) {
 		if (plugIn != null) {
 			try {
-				plugIn.end(new ContextWrapper(ctx), p);
+				plugIn.end(new ContextWrapper(ctx));
 			} catch (Throwable t) {
 			}
 		}

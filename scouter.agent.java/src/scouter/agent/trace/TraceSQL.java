@@ -30,6 +30,7 @@ import scouter.agent.error.CONNECTION_OPEN_FAIL;
 import scouter.agent.error.SLOW_SQL;
 import scouter.agent.error.TOO_MANY_RECORDS;
 import scouter.agent.netio.data.DataProxy;
+import scouter.agent.plugin.JdbcPoolTrace;
 import scouter.agent.summary.ServiceSummary;
 import scouter.jdbc.DetectConnection;
 import scouter.jdbc.WrConnection;
@@ -172,8 +173,8 @@ public class TraceSQL {
 		// Looking for the position of calling SQL COMMIT
 		if (conf.profile_fullstack_sql_commit) {
 			if ("commit".equalsIgnoreCase(sql)) {
-				ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), ThreadUtil
-						.getThreadStack()));
+				ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime),
+						ThreadUtil.getThreadStack()));
 			}
 		}
 
@@ -452,8 +453,8 @@ public class TraceSQL {
 		// Looking for the position of calling SQL COMMIT
 		if (conf.profile_fullstack_sql_commit) {
 			if ("commit".equalsIgnoreCase(args.getSql())) {
-				ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), ThreadUtil
-						.getThreadStack()));
+				ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime),
+						ThreadUtil.getThreadStack()));
 			}
 		}
 		SqlStep2 step = new SqlStep2();
@@ -554,7 +555,7 @@ public class TraceSQL {
 			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
 
-		DBURL dbUrl = getUrl(pool);
+		DBURL dbUrl = getUrl(ctx, msg, pool);
 		if (dbUrl != unknown) {
 			hash = DataProxy.sendMethodName(dbUrl.url);
 		}
@@ -586,7 +587,11 @@ public class TraceSQL {
 	static IntKeyLinkedMap<DBURL> urlTable = new IntKeyLinkedMap<DBURL>().setMax(500);
 	static DBURL unknown = new DBURL(0, null);
 
-	private static DBURL getUrl(Object pool) {
+	public static void clearUrlMap() {
+		urlTable.clear();
+	}
+
+	private static DBURL getUrl(TraceContext ctx, String msg, Object pool) {
 		if (pool == null)
 			return unknown;
 
@@ -596,17 +601,16 @@ public class TraceSQL {
 			return dbUrl;
 		}
 		try {
-			Field field = pool.getClass().getDeclaredField("url");
-			if (field != null) {
-				field.setAccessible(true);
-				String u = "OPEN-DBC " + field.get(pool);
+
+//			Method m = pool.getClass().getMethod("getUrl", new Class[0]);
+//			if (m != null) {
+//				String u = "OPEN-DBC " + m.invoke(pool, new Object[0]);
+//				dbUrl = new DBURL(HashUtil.hash(u), u);
+//			}
+			String u = JdbcPoolTrace.url(ctx, msg, pool);
+			if (u != null) {
+				u = "OPEN-DBC " + u;
 				dbUrl = new DBURL(HashUtil.hash(u), u);
-			} else {
-				Method m = pool.getClass().getMethod("getUrl", new Class[0]);
-				if (m != null) {
-					String u = "OPEN-DBC " + m.invoke(pool, new Object[0]);
-					dbUrl = new DBURL(HashUtil.hash(u), u);
-				}
 			}
 		} catch (Throwable e) {
 		}
@@ -691,8 +695,8 @@ public class TraceSQL {
 			return;
 		MessageStep p = new MessageStep();
 		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		p.message = new StringBuffer(40).append("SQLMAP ").append(methodName).append(" { ").append(sqlname)
-				.append(" }").toString();
+		p.message = new StringBuffer(40).append("SQLMAP ").append(methodName).append(" { ").append(sqlname).append(" }")
+				.toString();
 		ctx.profile.add(p);
 
 	}

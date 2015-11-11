@@ -11,6 +11,9 @@ public class ContextWrapper {
 
 	private TraceContext ctx;
 
+	public RequestWrapper req;
+	public RequestWrapper res;
+	
 	public ContextWrapper(TraceContext ctx) {
 		this.ctx = ctx;
 	}

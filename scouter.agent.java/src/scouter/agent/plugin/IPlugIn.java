@@ -1,5 +1,6 @@
 package scouter.agent.plugin;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import scouter.agent.Logger;
@@ -19,7 +20,9 @@ public class IPlugIn {
 		if (o == null)
 			return null;
 		try {
-			return o.getClass().getField(field).get(o);
+			Field f = o.getClass().getField(field);
+			f.setAccessible(true);
+			return f.get(o);
 		} catch (Throwable e) {
 		}
 		return null;
@@ -31,18 +34,27 @@ public class IPlugIn {
 		try {
 			Method m = o.getClass().getMethod(method, Wrapper.arg_c);
 			return m.invoke(o, Wrapper.arg_o);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 		}
 		return null;
 	}
-
+	public Object method1(Object o, String method) {
+		if (o == null)
+			return null;
+		try {
+			Method m = o.getClass().getMethod(method, Wrapper.arg_c);
+			return m.invoke(o, Wrapper.arg_o);
+		} catch (Throwable e) {
+			return e.toString();
+		}
+	}
 	public Object method(Object o, String method, String param) {
 		if (o == null)
 			return null;
 		try {
 			Method m = o.getClass().getMethod(method, Wrapper.arg_c_s);
 			return m.invoke(o, new Object[] { param });
-		} catch (Exception e) {
+		} catch (Throwable e) {
 		}
 		return null;
 	}

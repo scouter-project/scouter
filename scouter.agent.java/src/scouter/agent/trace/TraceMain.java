@@ -232,11 +232,17 @@ public class TraceMain {
 			}
 			TraceContext ctx = stat0.ctx;
 			http.end(ctx, stat0.req, stat0.res);
-			TraceContextManager.end(ctx.threadId);
-			Configure conf = Configure.getInstance();
+
 			if (stat0.isStaticContents) {
+				TraceContextManager.end(ctx.threadId);
 				return;
 			}
+			
+			HttpServiceTracePlugIn.end(ctx, stat0.req, stat0.res);
+			TraceContextManager.end(ctx.threadId);
+
+			Configure conf = Configure.getInstance();
+
 			XLogPack pack = new XLogPack();
 			// pack.endTime = System.currentTimeMillis();
 			pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
@@ -304,14 +310,9 @@ public class TraceMain {
 				pack.webHash = DataProxy.sendWebName(ctx.web_name);
 				pack.webTime = ctx.web_time;
 			}
-			// Plug In
-			HttpServiceTracePlugIn.end(ctx, pack);
-
-			if (pack.ignore == false) {
-				metering(pack);
-				if (sendOk) {
-					DataProxy.sendXLog(pack);
-				}
+			metering(pack);
+			if (sendOk) {
+				DataProxy.sendXLog(pack);
 			}
 		} catch (Throwable e) {
 			Logger.println("A146", e);
@@ -378,7 +379,10 @@ public class TraceMain {
 			if (ctx == null) {
 				return;
 			}
+
+			ServiceTracePlugIn.end(ctx);
 			TraceContextManager.end(ctx.threadId);
+
 			XLogPack pack = new XLogPack();
 			pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 			// pack.endTime = System.currentTimeMillis();
@@ -421,7 +425,7 @@ public class TraceMain {
 				ServiceSummary.getInstance().process(userTxNotClose, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
 			}
 
-			//2015.11.10
+			// 2015.11.10
 			if (ctx.group != null) {
 				pack.group = DataProxy.sendGroup(ctx.group);
 			}
@@ -435,14 +439,10 @@ public class TraceMain {
 			if (ctx.desc != null) {
 				pack.desc = DataProxy.sendDesc(ctx.desc);
 			}
-			
-			ServiceTracePlugIn.end(ctx, pack);
 
-			if (pack.ignore == false) {
-				metering(pack);
-				if (sendOk) {
-					DataProxy.sendXLog(pack);
-				}
+			metering(pack);
+			if (sendOk) {
+				DataProxy.sendXLog(pack);
 			}
 		} catch (Throwable t) {
 			Logger.println("A148", t);

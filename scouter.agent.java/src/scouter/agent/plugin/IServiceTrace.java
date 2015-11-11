@@ -15,12 +15,15 @@
  *  limitations under the License. 
  */
 package scouter.agent.plugin;
+
 import scouter.agent.trace.HookPoint;
 import scouter.lang.pack.XLogPack;
-abstract public class IServiceTrace extends IPlugIn{
+
+abstract public class IServiceTrace extends IPlugIn {
 	public void start(ContextWrapper ctx, HookPoint p) {
 	}
-	public void end(ContextWrapper ctx, XLogPack p) {
+
+	public void end(ContextWrapper ctx) {
 	}
-	
+
 }

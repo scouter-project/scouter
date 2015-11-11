@@ -60,8 +60,6 @@ public class XLogPack implements Pack {
 	public int webHash; // WEB서버의 ObjectHash
 	public int webTime; // WEB서버 --> WAS 시작 시점까지의 시간
 	
-	//just used to control flow
-	transient public boolean ignore; 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("XLOG ");

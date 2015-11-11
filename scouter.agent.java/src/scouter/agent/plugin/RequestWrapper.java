@@ -15,12 +15,17 @@
  *  limitations under the License. 
  */
 package scouter.agent.plugin;
+
 import java.util.Enumeration;
+import java.util.Set;
+import java.util.TreeSet;
+
 import scouter.agent.Logger;
-public class RequestWrapper extends Wrapper{
-	
+
+public class RequestWrapper extends Wrapper {
+
 	private Object reqObject;
-	
+
 	private static java.lang.reflect.Method getRequestURI;
 	private static java.lang.reflect.Method getRemoteAddr;
 	private static java.lang.reflect.Method getMethod;
@@ -34,12 +39,13 @@ public class RequestWrapper extends Wrapper{
 	private static java.lang.reflect.Method getName;
 	private static java.lang.reflect.Method getValue;
 	private static java.lang.reflect.Method getSessionAttribute;
-	
+
 	private static boolean enabled = true;
-	
+
 	public RequestWrapper(Object req) {
 		reqObject = req;
 	}
+
 	public String getCookie(String key) {
 		if (enabled == false)
 			return null;
@@ -68,6 +74,7 @@ public class RequestWrapper extends Wrapper{
 		}
 		return null;
 	}
+
 	public String getRequestURI() {
 		if (enabled == false)
 			return null;
@@ -82,6 +89,7 @@ public class RequestWrapper extends Wrapper{
 			return null;
 		}
 	}
+
 	public String getRemoteAddr() {
 		if (enabled == false)
 			return null;
@@ -96,6 +104,7 @@ public class RequestWrapper extends Wrapper{
 			return null;
 		}
 	}
+
 	public String getMethod() {
 		if (enabled == false)
 			return null;
@@ -110,6 +119,7 @@ public class RequestWrapper extends Wrapper{
 			return null;
 		}
 	}
+
 	public String getQueryString() {
 		if (enabled == false)
 			return null;
@@ -124,6 +134,7 @@ public class RequestWrapper extends Wrapper{
 			return null;
 		}
 	}
+
 	public String getParameter(String key) {
 		if (enabled == false)
 			return null;
@@ -138,6 +149,7 @@ public class RequestWrapper extends Wrapper{
 			return null;
 		}
 	}
+
 	public String getHeader(String key) {
 		if (enabled == false)
 			return null;
@@ -152,6 +164,7 @@ public class RequestWrapper extends Wrapper{
 			return null;
 		}
 	}
+
 	public Enumeration getParameterNames() {
 		if (enabled == false)
 			return null;
@@ -166,6 +179,7 @@ public class RequestWrapper extends Wrapper{
 			return null;
 		}
 	}
+
 	public Enumeration getHeaderNames() {
 		if (enabled == false)
 			return null;
@@ -179,6 +193,7 @@ public class RequestWrapper extends Wrapper{
 			return null;
 		}
 	}
+
 	public SessionWrapper getSession() {
 		if (enabled == false)
 			return null;
@@ -194,6 +209,31 @@ public class RequestWrapper extends Wrapper{
 			return null;
 		}
 	}
+
+	public Set getSessionNames() {
+		if (enabled == false)
+			return null;
+		try {
+			TreeSet names = new TreeSet();
+			if (getSession == null) {
+				getSession = this.reqObject.getClass().getMethod("getSession", arg_c_z);
+			}
+			Object o = getSession.invoke(reqObject, new Object[] { false });
+			if (o == null)
+				return null;
+			Enumeration en = new SessionWrapper(o).getAttributeNames();
+			while (en.hasMoreElements()) {
+				names.add(en.nextElement());
+			}
+			return names;
+		} catch (Throwable e) {
+			enabled = false;
+			Logger.println("A171", e);
+			return null;
+		}
+
+	}
+
 	public Object getSessionAttribute(String key) {
 		if (enabled == false)
 			return null;
@@ -214,4 +254,5 @@ public class RequestWrapper extends Wrapper{
 			return null;
 		}
 	}
+
 }

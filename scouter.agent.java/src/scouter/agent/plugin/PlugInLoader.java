@@ -27,6 +27,7 @@ import java.util.HashMap;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.trace.HookPoint;
+import scouter.agent.trace.TraceSQL;
 import scouter.javassist.CannotCompileException;
 import scouter.javassist.ClassPool;
 import scouter.javassist.CtClass;
@@ -89,6 +90,17 @@ public class PlugInLoader extends Thread {
 				CapturePlugIn.plugIn = createICaptureTrace(script);
 			}
 		}
+		script = new File(root, "jdbcpool.plug");
+		if (script.canRead() == false) {
+			JdbcPoolTrace.plugIn = null;
+		} else {
+			if (JdbcPoolTrace.plugIn == null || JdbcPoolTrace.plugIn.lastModified != script.lastModified()) {
+				JdbcPoolTrace.plugIn = createIJdbcPool(script);
+				if (JdbcPoolTrace.plugIn != null) {
+					TraceSQL.clearUrlMap();
+				}
+			}
+		}
 	}
 
 	private long IHttpServiceCompile;
@@ -111,9 +123,11 @@ public class PlugInLoader extends Thread {
 			if (START_BODY == null)
 				throw new CannotCompileException("no method body: " + START);
 			String END = "end";
-			String END_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(XLogPack.class) + ")V";
+			String END_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(RequestWrapper.class)
+					+ nativeName(ResponseWrapper.class) + ")V";
 			String END_P1 = ContextWrapper.class.getName();
-			String END_P2 = XLogPack.class.getName();
+			String END_P2 = RequestWrapper.class.getName();
+			String END_P3 = ResponseWrapper.class.getName();
 			StringBuffer END_BODY = bodyTable.get(END);
 			if (END_BODY == null)
 				throw new CannotCompileException("no method body: " + END);
@@ -153,7 +167,8 @@ public class PlugInLoader extends Thread {
 				sb = new StringBuffer();
 				sb.append("{");
 				sb.append(END_P1).append(" $ctx=$1;");
-				sb.append(END_P2).append(" $pack=$2;");
+				sb.append(END_P2).append(" $req=$2;");
+				sb.append(END_P3).append(" $res=$3;");
 				sb.append(END_BODY);
 				sb.append("}");
 				method.setBody(sb.toString());
@@ -193,14 +208,16 @@ public class PlugInLoader extends Thread {
 				sb = new StringBuffer();
 				sb.append("public void ").append(END).append("(");
 				sb.append(END_P1).append(" p1").append(",");
-				sb.append(END_P2).append(" p2");
+				sb.append(END_P2).append(" p2").append(",");
+				sb.append(END_P3).append(" p3").append(",");
 				sb.append("){}");
 				method = CtNewMethod.make(sb.toString(), impl);
 				impl.addMethod(method);
 				sb = new StringBuffer();
 				sb.append("{");
 				sb.append(END_P1).append(" $ctx=$1;");
-				sb.append(END_P2).append(" $pack=$2;");
+				sb.append(END_P2).append(" $req=$2;");
+				sb.append(END_P3).append(" $res=$3;");
 				sb.append(END_BODY);
 				sb.append("}");
 				method.setBody(sb.toString());
@@ -279,9 +296,8 @@ public class PlugInLoader extends Thread {
 				throw new CannotCompileException("no method body: " + START);
 
 			String END = "end";
-			String END_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(XLogPack.class) + ")V";
+			String END_SIG = "(" + nativeName(ContextWrapper.class) + ")V";
 			String END_P1 = ContextWrapper.class.getName();
-			String END_P2 = XLogPack.class.getName();
 			StringBuffer END_BODY = bodyTable.get(END);
 			if (END_BODY == null)
 				throw new CannotCompileException("no method body: " + END);
@@ -313,7 +329,6 @@ public class PlugInLoader extends Thread {
 				sb = new StringBuffer();
 				sb.append("{");
 				sb.append(END_P1).append(" $ctx=$1;");
-				sb.append(END_P2).append(" $pack=$2;");
 				sb.append(END_BODY);
 				sb.append("}");
 				method.setBody(sb.toString());
@@ -338,15 +353,13 @@ public class PlugInLoader extends Thread {
 				// END METHOD
 				sb = new StringBuffer();
 				sb.append("public void ").append(END).append("(");
-				sb.append(END_P1).append(" p1 ").append(",");
-				sb.append(END_P2).append(" p2");
+				sb.append(END_P1).append(" p1 ");
 				sb.append("){}");
 				method = CtNewMethod.make(sb.toString(), impl);
 				impl.addMethod(method);
 				sb = new StringBuffer();
 				sb.append("{");
 				sb.append(END_P1).append(" $ctx=$1;");
-				sb.append(END_P2).append(" $pack=$2;");
 				sb.append(END_BODY);
 				sb.append("}");
 				method.setBody(sb.toString());
@@ -524,8 +537,75 @@ public class PlugInLoader extends Thread {
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			ICapture plugin = (ICapture) c.newInstance();
 			plugin.lastModified = script.lastModified();
-			Logger.info(
-					"PLUG-IN : " + IServiceTrace.class.getName() + " loaded #" + Hexa32.toString32(plugin.hashCode()));
+			Logger.info("PLUG-IN : " + ICapture.class.getName() + " loaded #" + Hexa32.toString32(plugin.hashCode()));
+			return plugin;
+		} catch (scouter.javassist.CannotCompileException ee) {
+			Logger.info("PLUG-IN : " + ee.getMessage());
+		} catch (Exception e) {
+			Logger.println("A162", e);
+		}
+		return null;
+	}
+
+	private long IJdbcPoolCompile;
+
+	private IJdbcPool createIJdbcPool(File script) {
+		if (IJdbcPoolCompile == script.lastModified())
+			return null;
+		IJdbcPoolCompile = script.lastModified();
+		try {
+			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
+			String superName = IJdbcPool.class.getName();
+			String className = "scouter.agent.plugin.impl.JdbcPoolImpl";
+			String URL = "url";
+			String URL_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(String.class)
+					+ nativeName(Object.class) + ")" + nativeName(String.class);
+			String URL_P1 = ContextWrapper.class.getName();
+			String URL_P2 = String.class.getName();
+			String URL_P3 = "Object";
+			StringBuffer URL_BODY = bodyTable.get("url");
+
+			ClassPool cp = ClassPool.getDefault();
+			String jar = FileUtil.getJarFileName(PlugInLoader.class);
+			if (jar != null) {
+				cp.appendClassPath(jar);
+			}
+			Class c = null;
+			CtClass cc = cp.get(superName);
+			CtClass impl = null;
+			CtMethod method = null;
+			try {
+				impl = cp.get(className);
+				impl.defrost();
+				method = impl.getMethod(URL, URL_SIG);
+			} catch (scouter.javassist.NotFoundException e) {
+				impl = cp.makeClass(className, cc);
+				StringBuffer sb = new StringBuffer();
+				sb.append("public String ").append(URL).append("(");
+				sb.append(URL_P1).append(" p1 ").append(",");
+				sb.append(URL_P2).append(" p2 ").append(",");
+				sb.append(URL_P3).append(" p3 ");
+				sb.append("){return null;}");
+
+				method = CtNewMethod.make(sb.toString(), impl);
+				impl.addMethod(method);
+
+			}
+
+			StringBuffer sb = new StringBuffer();
+			sb.append("{");
+			sb.append(URL_P1).append(" $ctx=$1;");
+			sb.append(URL_P2).append(" $msg=$2;");
+			sb.append(URL_P3).append(" $pool=$3;");
+			sb.append(URL_BODY);
+			sb.append("}");
+			method.setBody(sb.toString());
+
+			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+			IJdbcPool plugin = (IJdbcPool) c.newInstance();
+			plugin.lastModified = script.lastModified();
+
+			Logger.info("PLUG-IN : " + IJdbcPool.class.getName() + " loaded #" + Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (scouter.javassist.CannotCompileException ee) {
 			Logger.info("PLUG-IN : " + ee.getMessage());

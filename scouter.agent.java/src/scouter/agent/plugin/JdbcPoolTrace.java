@@ -14,44 +14,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
+
 package scouter.agent.plugin;
 
 import scouter.agent.trace.TraceContext;
-import scouter.lang.pack.XLogPack;
 
-public class HttpServiceTracePlugIn {
+public class JdbcPoolTrace {
 
-	static IHttpService plugIn;
+	static IJdbcPool plugIn;
 
 	static {
 		PlugInLoader.getInstance();
 	}
 
-	public static void start(TraceContext ctx, Object req, Object res) {
+	public static String url(TraceContext ctx, String msg, Object pool) {
 		if (plugIn != null) {
 			try {
-				plugIn.start(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
+				return plugIn.url(new ContextWrapper(ctx),msg, pool);
 			} catch (Throwable t) {
 			}
 		}
+		return null;
 	}
 
-	public static void end(TraceContext ctx, Object req, Object res) {
-		if (plugIn != null) {
-			try {
-				plugIn.end(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
-			} catch (Throwable t) {
-			}
-		}
-	}
 
-	public static boolean reject(TraceContext ctx, Object req, Object res) {
-		if (plugIn != null) {
-			try {
-				return plugIn.reject(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
-			} catch (Throwable t) {
-			}
-		}
-		return false;
-	}
+
 }
