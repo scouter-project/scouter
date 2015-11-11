@@ -24,9 +24,7 @@ import scouter.lang.value.DecimalValue;
 import scouter.lang.value.FloatValue;
 import scouter.util.FormatUtil;
 import scouter.util.LongEnumer;
-import scouter.util.LongIntMap;
 import scouter.util.LongKeyLinkedMap;
-import scouter.util.StringUtil;
 
 public class HostPerf {
 	static int SLEEP_TIME = 2000;
@@ -54,9 +52,9 @@ public class HostPerf {
 		alertMem(m);
 
 		long tmem = m.getTotal();
-		long fmem = m.getFree();
-		long umem = m.getUsed();
-		float memrate = umem * 100.0f / tmem;
+		long fmem = m.getActualFree();
+		long umem = m.getActualUsed();
+		float memrate = (float) m.getUsedPercent();
 
 		Swap sw = sigar.getSwap();
 		long pagein = sw.getPageIn();
