@@ -231,14 +231,18 @@ public class TraceMain {
 				return;
 			}
 			TraceContext ctx = stat0.ctx;
+			//HTTP END
 			http.end(ctx, stat0.req, stat0.res);
 
+			//static-contents -> stop processing
 			if (stat0.isStaticContents) {
 				TraceContextManager.end(ctx.threadId);
 				return;
 			}
-			
+			//Plug-in end
 			HttpServiceTracePlugIn.end(ctx, stat0.req, stat0.res);
+			
+			//profile close
 			TraceContextManager.end(ctx.threadId);
 
 			Configure conf = Configure.getInstance();

@@ -109,37 +109,29 @@ public class PlugInLoader extends Thread {
 		if (IHttpServiceCompile == script.lastModified())
 			return null;
 		IHttpServiceCompile = script.lastModified();
+
 		try {
 			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
 			String superName = IHttpService.class.getName();
 			String className = "scouter.agent.plugin.impl.HttpServiceImpl";
-			String START = "start";
-			String START_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(RequestWrapper.class)
-					+ nativeName(ResponseWrapper.class) + ")V";
-			String START_P1 = ContextWrapper.class.getName();
-			String START_P2 = RequestWrapper.class.getName();
-			String START_P3 = ResponseWrapper.class.getName();
-			StringBuffer START_BODY = bodyTable.get(START);
-			if (START_BODY == null)
-				throw new CannotCompileException("no method body: " + START);
-			String END = "end";
-			String END_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(RequestWrapper.class)
-					+ nativeName(ResponseWrapper.class) + ")V";
-			String END_P1 = ContextWrapper.class.getName();
-			String END_P2 = RequestWrapper.class.getName();
-			String END_P3 = ResponseWrapper.class.getName();
-			StringBuffer END_BODY = bodyTable.get(END);
-			if (END_BODY == null)
-				throw new CannotCompileException("no method body: " + END);
-			String REJECT = "reject";
-			String REJECT_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(RequestWrapper.class)
-					+ nativeName(ResponseWrapper.class) + ")Z";
-			String REJECT_P1 = ContextWrapper.class.getName();
-			String REJECT_P2 = RequestWrapper.class.getName();
-			String REJECT_P3 = ResponseWrapper.class.getName();
-			StringBuffer REJECT_BODY = bodyTable.get(REJECT);
-			if (REJECT_BODY == null)
-				throw new CannotCompileException("no method body: " + REJECT);
+
+			String METHOD_START = "start";
+			String METHOD_END = "end";
+			String METHOD_REJECT = "reject";
+
+			String SIGNATURE = nativeName(ContextWrapper.class) + nativeName(RequestWrapper.class)
+					+ nativeName(ResponseWrapper.class);
+			String METHOD_P1 = ContextWrapper.class.getName();
+			String METHOD_P2 = RequestWrapper.class.getName();
+			String METHOD_P3 = ResponseWrapper.class.getName();
+
+			if (bodyTable.containsKey(METHOD_START) == false)
+				throw new CannotCompileException("no method body: " + METHOD_START);
+			if (bodyTable.containsKey(METHOD_END) == false)
+				throw new CannotCompileException("no method body: " + METHOD_END);
+			if (bodyTable.containsKey(METHOD_REJECT) == false)
+				throw new CannotCompileException("no method body: " + METHOD_REJECT);
+
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(PlugInLoader.class);
 			if (jar != null) {
@@ -147,99 +139,60 @@ public class PlugInLoader extends Thread {
 			}
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
+
+			CtMethod method_start = null;
+			CtMethod method_end = null;
+			CtMethod method_reject = null;
 			StringBuffer sb = null;
+
 			try {
 				impl = cp.get(className);
 				impl.defrost();
 				// START METHOD
-				CtMethod method = impl.getMethod(START, START_SIG);
-				sb = new StringBuffer();
-				sb.append("{");
-				sb.append(START_P1).append(" $ctx=$1;");
-				sb.append(START_P2).append(" $req=$2;");
-				sb.append(START_P3).append(" $res=$3;");
-				sb.append(START_BODY);
-				sb.append("}");
-				method.setBody(sb.toString());
-
+				method_start = impl.getMethod(METHOD_START, "(" + SIGNATURE + ")V");
 				// END METHOD
-				method = impl.getMethod(END, END_SIG);
-				sb = new StringBuffer();
-				sb.append("{");
-				sb.append(END_P1).append(" $ctx=$1;");
-				sb.append(END_P2).append(" $req=$2;");
-				sb.append(END_P3).append(" $res=$3;");
-				sb.append(END_BODY);
-				sb.append("}");
-				method.setBody(sb.toString());
-
+				method_end = impl.getMethod(METHOD_END, "(" + SIGNATURE + ")V");
 				// REJECT METHOD
-				method = impl.getMethod(REJECT, REJECT_SIG);
-				sb = new StringBuffer();
-				sb.append("{");
-				sb.append(REJECT_P1).append(" $ctx=$1;");
-				sb.append(REJECT_P2).append(" $req=$2;");
-				sb.append(REJECT_P3).append(" $res=$3;");
-				sb.append(REJECT_BODY);
-				sb.append("}");
-				method.setBody(sb.toString());
-
+				method_reject = impl.getMethod(METHOD_REJECT, "(" + SIGNATURE + ")Z");
 			} catch (scouter.javassist.NotFoundException e) {
 				impl = cp.makeClass(className, cc);
+
+				StringBuffer sb1 = new StringBuffer();
+				sb1.append(METHOD_P1).append(" p1").append(",");
+				sb1.append(METHOD_P2).append(" p2").append(",");
+				sb1.append(METHOD_P3).append(" p3");
+
 				// START METHOD
 				sb = new StringBuffer();
-				sb.append("public void ").append(START).append("(");
-				sb.append(START_P1).append(" p1").append(",");
-				sb.append(START_P2).append(" p2").append(",");
-				sb.append(START_P3).append(" p3");
-				sb.append("){}");
-				CtMethod method = CtNewMethod.make(sb.toString(), impl);
-				impl.addMethod(method);
-				sb = new StringBuffer();
-				sb.append("{");
-				sb.append(START_P1).append(" $ctx=$1;");
-				sb.append(START_P2).append(" $req=$2;");
-				sb.append(START_P3).append(" $res=$3;");
-				sb.append(START_BODY);
-				sb.append("}");
-				method.setBody(sb.toString());
+				sb.append("public void ").append(METHOD_START).append("(").append(sb1).append("){}");
+				method_start = CtNewMethod.make(sb.toString(), impl);
+				impl.addMethod(method_start);
 
 				// END METHOD
 				sb = new StringBuffer();
-				sb.append("public void ").append(END).append("(");
-				sb.append(END_P1).append(" p1").append(",");
-				sb.append(END_P2).append(" p2").append(",");
-				sb.append(END_P3).append(" p3").append(",");
-				sb.append("){}");
-				method = CtNewMethod.make(sb.toString(), impl);
-				impl.addMethod(method);
-				sb = new StringBuffer();
-				sb.append("{");
-				sb.append(END_P1).append(" $ctx=$1;");
-				sb.append(END_P2).append(" $req=$2;");
-				sb.append(END_P3).append(" $res=$3;");
-				sb.append(END_BODY);
-				sb.append("}");
-				method.setBody(sb.toString());
+				sb.append("public void ").append(METHOD_END).append("(").append(sb1).append("){}");
+				method_end = CtNewMethod.make(sb.toString(), impl);
+				impl.addMethod(method_end);
 
 				// REJECT METHOD
 				sb = new StringBuffer();
-				sb.append("public boolean ").append(REJECT).append("(");
-				sb.append(REJECT_P1).append(" p1").append(",");
-				sb.append(REJECT_P2).append(" p2").append(",");
-				sb.append(REJECT_P3).append(" p3");
-				sb.append("){return false;}");
-				method = CtNewMethod.make(sb.toString(), impl);
-				impl.addMethod(method);
-				sb = new StringBuffer();
-				sb.append("{");
-				sb.append(REJECT_P1).append(" $ctx=$1;");
-				sb.append(REJECT_P2).append(" $req=$2;");
-				sb.append(REJECT_P3).append(" $res=$3;");
-				sb.append(REJECT_BODY);
-				sb.append("}");
-				method.setBody(sb.toString());
+				sb.append("public boolean ").append(METHOD_REJECT).append("(").append(sb1).append("){return false;}");
+				method_reject = CtNewMethod.make(sb.toString(), impl);
+				impl.addMethod(method_reject);
 			}
+
+			StringBuffer bodyPrefix = new StringBuffer();
+			bodyPrefix.append("{");
+			bodyPrefix.append(METHOD_P1).append(" $ctx=$1;");
+			bodyPrefix.append(METHOD_P2).append(" $req=$2;");
+			bodyPrefix.append(METHOD_P3).append(" $res=$3;");
+
+			method_start
+					.setBody(new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_START)).append("}").toString());
+			method_end.setBody(new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_END)).append("}").toString());
+			method_reject.setBody(
+					new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_REJECT)).append("}").toString());
+
 			Class c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			IHttpService plugin = (IHttpService) c.newInstance();
 			plugin.lastModified = script.lastModified();
