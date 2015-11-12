@@ -17,7 +17,6 @@
 package scouter.agent.plugin;
 
 import scouter.agent.trace.TraceContext;
-import scouter.lang.pack.XLogPack;
 
 public class HttpServiceTracePlugIn {
 

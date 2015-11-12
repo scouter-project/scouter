@@ -33,6 +33,7 @@ public class IPlugIn {
 			return null;
 		try {
 			Method m = o.getClass().getMethod(method, Wrapper.arg_c);
+			m.setAccessible(true);
 			return m.invoke(o, Wrapper.arg_o);
 		} catch (Throwable e) {
 		}

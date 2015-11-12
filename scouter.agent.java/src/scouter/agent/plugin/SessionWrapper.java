@@ -22,47 +22,62 @@ import scouter.agent.Logger;
 
 public class SessionWrapper extends Wrapper {
 
-	private Object reqObject;
+	private Object session;
 
-	private static java.lang.reflect.Method getAttribute;
-	private static java.lang.reflect.Method getAttributeNames;
+	private java.lang.reflect.Method getAttribute;
+	private java.lang.reflect.Method getAttributeNames;
 
-	private static boolean enabled = true;
+	private boolean enabled = true;
+	private Throwable _error;
 
-	public SessionWrapper(Object req) {
-		if (req == null) {
-			enabled = false;
-		}
-		reqObject = req;
+	public SessionWrapper(Object session) {
+		this.session = session;
 	}
 
 	public Object getAttribute(String key) {
-		if (enabled == false)
+		if (enabled == false || session == null)
 			return null;
 		try {
 			if (getAttribute == null) {
-				getAttribute = this.reqObject.getClass().getMethod("getAttribute", arg_c_s);
+				getAttribute = this.session.getClass().getMethod("getAttribute", arg_c_s);
+				getAttribute.setAccessible(true);
 			}
-			return getAttribute.invoke(reqObject, new Object[] { key });
+			return getAttribute.invoke(session, new Object[] { key });
 		} catch (Throwable e) {
 			enabled = false;
+			_error = e;
 			Logger.println("A176", e);
 			return null;
 		}
 	}
 
 	public Enumeration getAttributeNames() {
-		if (enabled == false)
+		if (enabled == false || session == null)
 			return null;
 		try {
 			if (getAttributeNames == null) {
-				getAttributeNames = this.reqObject.getClass().getMethod("getAttributeNames", arg_c);
+				getAttributeNames = this.session.getClass().getMethod("getAttributeNames", arg_c);
+				getAttributeNames.setAccessible(true);
 			}
-			return (Enumeration) getAttributeNames.invoke(reqObject, arg_o);
+			return (Enumeration) getAttributeNames.invoke(session, arg_o);
 		} catch (Throwable e) {
 			enabled = false;
+			_error = e;
 			Logger.println("A177", e);
 			return null;
 		}
 	}
+
+	public Object inner() {
+		return this.session;
+	}
+
+	public boolean isOk() {
+		return enabled;
+	}
+
+	public Throwable error() {
+		return _error;
+	}
+
 }
