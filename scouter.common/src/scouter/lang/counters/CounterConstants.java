@@ -84,6 +84,7 @@ public class CounterConstants {
 	public final static String HOST_MEM_TOTAL = "MemT";
 	public final static String HOST_SWAP_PAGE_IN = "PageIn";
 	public final static String HOST_SWAP_PAGE_OUT = "PageOut";
+	public final static String HOST_SWAP = "Swap";
 	public final static String HOST_SWAP_USED = "SwapU";
 	public final static String HOST_SWAP_TOTAL = "SwapT";
 	public final static String PROC_CPU = "ProcCpu";

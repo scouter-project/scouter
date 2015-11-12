@@ -21,11 +21,12 @@ mrhit : MariaDB HitRatio
 			
 			<Counter name="Mem" disp="Memory" unit="%" icon="memory.png" total="false"/>
 			<Counter name="MemA" disp="Memory | Avaliable" unit="MB" icon="memory.png" total="false"/>
-			<Counter name="MemU" disp="Memory | Used" unit="MB" icon="memory.png" total="false"/>
+			<Counter name="MemU" disp="Memory | ActualUsed" unit="MB" icon="memory.png" total="false"/>
 			<Counter name="MemT" disp="Memory | Total" unit="MB" icon="memory.png" total="false"/>
 			
-			<Counter name="PageIn" disp="Swap | PageIn" unit="cnt" icon="swap.png" total="false"/>
-			<Counter name="PageOut" disp="Swap | PageOut" unit="cnt" icon="swap.png" total="false"/>
+			<Counter name="PageIn" disp="Swap | PageIn" unit="page" icon="swap.png" total="false"/>
+			<Counter name="PageOut" disp="Swap | PageOut" unit="page" icon="swap.png" total="false"/>
+			<Counter name="Swap" disp="Swap" unit="%" icon="swap.png" total="false"/>
 			<Counter name="SwapT" disp="Swap | Total" unit="MB" icon="swap.png" total="false"/>
 			<Counter name="SwapU" disp="Swap | Used" unit="MB" icon="swap.png" total="false"/>
 			

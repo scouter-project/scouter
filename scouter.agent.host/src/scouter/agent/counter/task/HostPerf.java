@@ -61,6 +61,7 @@ public class HostPerf {
 		long pageout = sw.getPageOut();
 		long tswap = sw.getTotal();
 		long uswap = sw.getUsed();
+		float swaprate = uswap * 100.0f / tswap;
 
 		PerfCounterPack p = pw.getPack(conf.objName, TimeTypeEnum.REALTIME);
 		p.put(CounterConstants.HOST_CPU, new FloatValue(cpu));
@@ -70,6 +71,7 @@ public class HostPerf {
 		p.put(CounterConstants.HOST_MEM_AVALIABLE, new DecimalValue(fmem / 1024 / 1024));
 		p.put(CounterConstants.HOST_SWAP_PAGE_IN, new DecimalValue(pagein));
 		p.put(CounterConstants.HOST_SWAP_PAGE_OUT, new DecimalValue(pageout));
+		p.put(CounterConstants.HOST_SWAP, new FloatValue(swaprate));
 		p.put(CounterConstants.HOST_SWAP_TOTAL, new DecimalValue(tswap / 1024 / 1024));
 		p.put(CounterConstants.HOST_SWAP_USED, new DecimalValue(uswap / 1024 / 1024));
 

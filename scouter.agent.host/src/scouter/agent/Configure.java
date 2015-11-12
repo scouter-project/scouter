@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
@@ -39,7 +38,6 @@ import scouter.net.NetConstants;
 import scouter.util.DateUtil;
 import scouter.util.FileUtil;
 import scouter.util.HashUtil;
-import scouter.util.IntSet;
 import scouter.util.StringEnumer;
 import scouter.util.StringKeyLinkedMap;
 import scouter.util.StringSet;
@@ -107,9 +105,9 @@ public class Configure extends Thread {
 	public int cpu_fatal_history = 3;
 
 	public boolean mem_alert_enabled = true;
-	public long mem_alert_interval;
-	public int mem_warning_pct;
-	public int mem_fatal_pct;
+	public long mem_alert_interval = 30000;
+	public int mem_warning_pct = 80;
+	public int mem_fatal_pct = 90;
 
 	private Configure() {
 		Properties p = new Properties();
@@ -229,7 +227,7 @@ public class Configure extends Thread {
 
 		this.mem_alert_enabled = getBoolean("mem_alert_enabled", true);
 		this.mem_alert_interval = getLong("mem_alert_interval", 30000);
-		this.mem_warning_pct = getInt("mem_warning_pct", 70);
+		this.mem_warning_pct = getInt("mem_warning_pct", 80);
 		this.mem_fatal_pct = getInt("mem_fatal_pct", 90);
 		
 		
