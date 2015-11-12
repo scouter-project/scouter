@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import scouter.agent.Logger;
+import scouter.agent.trace.AlertProxy;
+import scouter.lang.AlertLevel;
 
 public class IPlugIn {
 	long lastModified;
@@ -39,6 +41,7 @@ public class IPlugIn {
 		}
 		return null;
 	}
+
 	public Object method1(Object o, String method) {
 		if (o == null)
 			return null;
@@ -49,6 +52,7 @@ public class IPlugIn {
 			return e.toString();
 		}
 	}
+
 	public Object method(Object o, String method, String param) {
 		if (o == null)
 			return null;
@@ -66,5 +70,25 @@ public class IPlugIn {
 
 	public String toString(Object o, String def) {
 		return o == null ? def : o.toString();
+	}
+
+	public void alert(char level, String title, String message) {
+		switch (level) {
+		case 'i':
+		case 'I':
+			AlertProxy.sendAlert(AlertLevel.INFO, title, message);
+		case 'w':
+		case 'W':
+			AlertProxy.sendAlert(AlertLevel.WARN, title, message);
+			break;
+		case 'e':
+		case 'E':
+			AlertProxy.sendAlert(AlertLevel.ERROR, title, message);
+			break;
+		case 'f':
+		case 'F':
+			AlertProxy.sendAlert(AlertLevel.FATAL, title, message);
+			break;
+		}
 	}
 }

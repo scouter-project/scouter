@@ -88,7 +88,8 @@ public class HttpTrace implements IHttpTrace {
 		ctx.http_query = request.getQueryString();
 		ctx.http_content_type = request.getContentType();
 
-		ctx.remoteAddr = IPUtil.toBytes(getRemoteAddr(request));
+		ctx.remoteIp = getRemoteAddr(request);
+
 		try {
 			switch (conf.mode_userid) {
 			case 2:
@@ -96,12 +97,14 @@ public class HttpTrace implements IHttpTrace {
 				break;
 			case 1:
 				ctx.userid = UseridUtil.getUseridCustom(request, response, conf.userid_jsessionid);
-				if (ctx.userid == 0) {
-					ctx.userid = DataInputX.toInt(ctx.remoteAddr, 0);
+				if (ctx.userid == 0 && ctx.remoteIp != null) {
+					ctx.userid = HashUtil.hash(ctx.remoteIp);
 				}
 				break;
 			default:
-				ctx.userid = DataInputX.toInt(ctx.remoteAddr, 0);
+				if (ctx.remoteIp != null) {
+					ctx.userid = HashUtil.hash(ctx.remoteIp);
+				}
 				break;
 			}
 			MeterUsers.add(ctx.userid);
@@ -115,7 +118,7 @@ public class HttpTrace implements IHttpTrace {
 		String userAgent = request.getHeader("User-Agent");
 		if (userAgent != null) {
 			ctx.userAgent = DataProxy.sendUserAgent(userAgent);
-			ctx.userAgentString=userAgent;
+			ctx.userAgentString = userAgent;
 		}
 		dump(ctx.profile, request, ctx);
 		if (conf.enable_trace_e2e) {

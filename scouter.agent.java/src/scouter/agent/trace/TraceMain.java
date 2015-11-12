@@ -262,7 +262,7 @@ public class TraceMain {
 			pack.status = ctx.status;
 			pack.sqlCount = ctx.sqlCount;
 			pack.sqlTime = ctx.sqlTime;
-			pack.ipaddr = ctx.remoteAddr;
+			pack.ipaddr = IPUtil.toBytes(ctx.remoteIp);
 			pack.userid = ctx.userid;
 			// ////////////////////////////////////////////////////////
 			if (ctx.error != 0) {
@@ -403,7 +403,7 @@ public class TraceMain {
 			pack.sqlTime = ctx.sqlTime;
 			pack.txid = ctx.txid;
 			pack.gxid = ctx.gxid;
-			pack.ipaddr = ctx.remoteAddr;
+			pack.ipaddr =  IPUtil.toBytes(ctx.remoteIp);
 			pack.userid = ctx.userid;
 			if (ctx.error != 0) {
 				pack.error = ctx.error;

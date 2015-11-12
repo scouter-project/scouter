@@ -52,7 +52,8 @@ public class TraceContext {
 	public byte xType;
 	public int serviceHash;
 	public String serviceName;
-	public byte[] remoteAddr;
+	public String remoteIp;
+	
 	public int error;
 	public boolean done_http_service;
 	public String http_method;
@@ -115,7 +116,7 @@ public class TraceContext {
 		child.xType = this.xType;
 		child.serviceHash = this.serviceHash;
 		child.serviceName = this.serviceName;
-		child.remoteAddr = this.remoteAddr;
+		child.remoteIp = this.remoteIp;
 		// child.error = this.error;
 		child.done_http_service = this.done_http_service;
 
