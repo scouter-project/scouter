@@ -26,10 +26,10 @@ public class ForSAPTemp implements ApiCallTraceHelper.IHelper {
 		ApiCallStep step = new ApiCallStep();
 
 		if (hookPoint.args != null && hookPoint.args.length > 0) {
-			ctx.apicall_name = hookPoint.methodName + "(" + hookPoint.args[0] + ")";
+			ctx.apicall_name = hookPoint.method + "(" + hookPoint.args[0] + ")";
 		}
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = hookPoint.className;
+			ctx.apicall_name = hookPoint.class1;
 		return step;
 	}
 

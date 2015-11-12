@@ -30,7 +30,7 @@ public class ForJCOClient implements ApiCallTraceHelper.IHelper {
 		}
 
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = hookPoint.className;
+			ctx.apicall_name = hookPoint.class1;
 		return step;
 	}
 

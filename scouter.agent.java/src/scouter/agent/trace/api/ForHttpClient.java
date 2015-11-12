@@ -41,7 +41,7 @@ public class ForHttpClient  implements ApiCallTraceHelper.IHelper{
 
 		ApiCallStep step = new ApiCallStep();
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = hookPoint.className;
+			ctx.apicall_name = hookPoint.class1;
 		return step;
 	}
 

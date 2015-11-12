@@ -40,7 +40,7 @@ public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 		try {
 
 			if (ok == false)
-				ctx.apicall_name = hookPoint.className + "." + hookPoint.methodName;
+				ctx.apicall_name = hookPoint.class1 + "." + hookPoint.method;
 
 			if (hookPoint.args != null && hookPoint.args.length >= 2) {
 				IHttpClient httpclient = getProxy(hookPoint);
@@ -63,7 +63,7 @@ public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 		}
 
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = hookPoint.className;
+			ctx.apicall_name = hookPoint.class1;
 		return step;
 	}
 

@@ -17,16 +17,16 @@
 package scouter.agent.trace;
 
 public class HookReturn {
-	public String className;
-	public String methodName;
-	public String methodDesc;
+	public String class1;
+	public String method;
+	public String desc;
 	public Object this1;
 	public Object return1;
 
 	public HookReturn(String className, String methodName, String methodDesc, Object this1, Object return1) {
-		this.className = className;
-		this.methodName = methodName;
-		this.methodDesc = methodDesc;
+		this.class1 = className;
+		this.method = methodName;
+		this.desc = methodDesc;
 		this.this1 = this1;
 		this.return1 = return1;
 	}

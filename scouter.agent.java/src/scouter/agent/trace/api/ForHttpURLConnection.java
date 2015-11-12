@@ -56,7 +56,7 @@ public class ForHttpURLConnection implements ApiCallTraceHelper.IHelper {
 				}
 			}
 			HttpURLConnection urlCon = ((HttpURLConnection) hookPoint.this1);
-			if ("connect".equals(hookPoint.methodName)) {
+			if ("connect".equals(hookPoint.method)) {
 				step.txid = KeyGen.next();
 				transfer(ctx, urlCon, step.txid);
 				ctx.callee = step.txid;
@@ -80,7 +80,7 @@ public class ForHttpURLConnection implements ApiCallTraceHelper.IHelper {
 		}
 
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = hookPoint.className;
+			ctx.apicall_name = hookPoint.class1;
 		return step;
 	}
 

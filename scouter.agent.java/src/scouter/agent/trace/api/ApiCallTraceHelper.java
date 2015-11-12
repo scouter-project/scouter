@@ -54,7 +54,7 @@ public class ApiCallTraceHelper {
 	private static IHelper defaultObj = new ForDefault();
 
 	public static ApiCallStep start(TraceContext ctx, HookArgs hookPoint) {
-		IHelper plug = handlers.get(hookPoint.className);
+		IHelper plug = handlers.get(hookPoint.class1);
 		if (plug == null)
 			return defaultObj.process(ctx, hookPoint);
 		return plug.process(ctx, hookPoint);
