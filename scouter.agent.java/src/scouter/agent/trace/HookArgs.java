@@ -17,18 +17,18 @@
 package scouter.agent.trace;
 
 public class HookArgs {
-	public String class1;
-	public String method;
-	public String desc;
+	public String className;
+	public String methodName;
+	public String methodDesc;
 	public Object this1;
 	public Object[] args;
 
 	public HookArgs(String className, String methodName, String methodDesc, Object this1, Object[] args) {
-		this.class1 = className;
-		this.method = methodName;
-		this.desc = methodDesc;
+		this.className = className;
+		this.methodName = methodName;
+		this.methodDesc = methodDesc;
 		this.this1 = this1;
 		this.args = args;
 	}
-
+    
 }
