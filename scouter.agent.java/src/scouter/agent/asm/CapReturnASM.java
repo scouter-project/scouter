@@ -120,9 +120,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 		Type tp = returnType;
 
 		if (tp == null || tp.equals(Type.VOID_TYPE)) {
-			AsmUtil.PUSH(mv, className);
-			AsmUtil.PUSH(mv, methodName);
-			AsmUtil.PUSH(mv, methodDesc);
+			pushCommon();
 			mv.visitInsn(ACONST_NULL);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE,false);
 			return;
@@ -133,10 +131,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(Opcodes.ISTORE, i);
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 
-			AsmUtil.PUSH(mv, className);
-			AsmUtil.PUSH(mv, methodName);
-			AsmUtil.PUSH(mv, methodDesc);
-
+			pushCommon();
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;",false);
 			break;
@@ -144,10 +139,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(Opcodes.ISTORE, i);
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 
-			AsmUtil.PUSH(mv, className);
-			AsmUtil.PUSH(mv, methodName);
-			AsmUtil.PUSH(mv, methodDesc);
-
+			pushCommon();
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;",false);
 			break;
@@ -155,10 +147,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(Opcodes.ISTORE, i);
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 
-			AsmUtil.PUSH(mv, className);
-			AsmUtil.PUSH(mv, methodName);
-			AsmUtil.PUSH(mv, methodDesc);
-
+			pushCommon();
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;",false);
 			break;
@@ -166,10 +155,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(Opcodes.ISTORE, i);
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 
-			AsmUtil.PUSH(mv, className);
-			AsmUtil.PUSH(mv, methodName);
-			AsmUtil.PUSH(mv, methodDesc);
-
+			pushCommon();
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;",false);
 			break;
@@ -177,10 +163,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(Opcodes.ISTORE, i);
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 
-			AsmUtil.PUSH(mv, className);
-			AsmUtil.PUSH(mv, methodName);
-			AsmUtil.PUSH(mv, methodDesc);
-
+			pushCommon();
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;",false);
 			break;
@@ -188,10 +171,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(Opcodes.LSTORE, i);
 			mv.visitVarInsn(Opcodes.LLOAD, i);
 
-			AsmUtil.PUSH(mv, className);
-			AsmUtil.PUSH(mv, methodName);
-			AsmUtil.PUSH(mv, methodDesc);
-
+			pushCommon();
 			mv.visitVarInsn(Opcodes.LLOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;",false);
 			break;
@@ -199,10 +179,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(Opcodes.FSTORE, i);
 			mv.visitVarInsn(Opcodes.FLOAD, i);
 
-			AsmUtil.PUSH(mv, className);
-			AsmUtil.PUSH(mv, methodName);
-			AsmUtil.PUSH(mv, methodDesc);
-
+			pushCommon();
 			mv.visitVarInsn(Opcodes.FLOAD, i);
 
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;",false);
@@ -211,10 +188,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(Opcodes.DSTORE, i);
 			mv.visitVarInsn(Opcodes.DLOAD, i);
 
-			AsmUtil.PUSH(mv, className);
-			AsmUtil.PUSH(mv, methodName);
-			AsmUtil.PUSH(mv, methodDesc);
-			
+			pushCommon();
 			mv.visitVarInsn(Opcodes.DLOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;",false);
 			break;
@@ -222,17 +196,21 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(Opcodes.ASTORE, i);
 			mv.visitVarInsn(Opcodes.ALOAD, i);
 
-			AsmUtil.PUSH(mv, className);
-			AsmUtil.PUSH(mv, methodName);
-			AsmUtil.PUSH(mv, methodDesc);
-			if (isStatic) {
-				AsmUtil.PUSHNULL(mv);
-			} else {
-				mv.visitVarInsn(Opcodes.ALOAD, 0);
-			}
+			pushCommon();
 			mv.visitVarInsn(Opcodes.ALOAD, i);
 		}
 
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE,false);
+	}
+
+	private void pushCommon() {
+		AsmUtil.PUSH(mv, className);
+		AsmUtil.PUSH(mv, methodName);
+		AsmUtil.PUSH(mv, methodDesc);
+		if (isStatic) {
+			AsmUtil.PUSHNULL(mv);
+		} else {
+			mv.visitVarInsn(Opcodes.ALOAD, 0);
+		}
 	}
 }

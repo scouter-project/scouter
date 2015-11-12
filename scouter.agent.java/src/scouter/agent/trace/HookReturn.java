@@ -30,5 +30,19 @@ public class HookReturn {
 		this.this1 = this1;
 		this.return1 = return1;
 	}
-
+    public String getClassName(){
+    	return this.class1;
+    }
+    public String getMethodName(){
+    	return this.method;
+    }
+    public String getMethodDesc(){
+    	return this.desc;
+    }
+    public Object getThis(){
+    	return this.this1;
+    }
+    public Object getReturn(){
+    	return this.return1;
+    }
 }
