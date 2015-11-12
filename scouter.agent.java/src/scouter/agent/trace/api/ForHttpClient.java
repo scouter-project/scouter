@@ -18,7 +18,7 @@ package scouter.agent.trace.api;
 
 import java.lang.reflect.Method;
 
-import scouter.agent.trace.HookPoint;
+import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 
@@ -26,11 +26,11 @@ public class ForHttpClient  implements ApiCallTraceHelper.IHelper{
 
 	private boolean ok = true;
 
-	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
-		if (ok && hookPoint.arg != null && hookPoint.arg.length == 3) {
+	public ApiCallStep process(TraceContext ctx, HookArgs hookPoint) {
+		if (ok && hookPoint.args != null && hookPoint.args.length == 3) {
 			try {
-				Method method = hookPoint.arg[1].getClass().getMethod("getURI");
-				Object o = method.invoke(hookPoint.arg[1]);
+				Method method = hookPoint.args[1].getClass().getMethod("getURI");
+				Object o = method.invoke(hookPoint.args[1]);
 				if (o != null) {
 					ctx.apicall_name = o.toString();
 				}

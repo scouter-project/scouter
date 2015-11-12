@@ -7,7 +7,7 @@ import scouter.agent.Logger;
 import scouter.agent.trace.AlertProxy;
 import scouter.lang.AlertLevel;
 
-public class IPlugIn {
+public class AbstractPlugin {
 	long lastModified;
 
 	public void log(Object c) {

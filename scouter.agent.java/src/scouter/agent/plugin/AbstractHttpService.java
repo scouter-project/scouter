@@ -14,17 +14,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-package scouter.agent.trace.api;
+package scouter.agent.plugin;
 
-import scouter.agent.trace.HookArgs;
-import scouter.agent.trace.TraceContext;
-import scouter.lang.step.ApiCallStep;
+abstract public class AbstractHttpService extends AbstractPlugin {
 
-public class ForDefault implements ApiCallTraceHelper.IHelper {
-	public ApiCallStep process(TraceContext ctx, HookArgs hookPoint) {
+	abstract public void start(WrContext ctx, WrRequest req, WrResponse res);
 
-		ApiCallStep step = new ApiCallStep();
-		ctx.apicall_name = hookPoint.className;
-		return step;
-	}
+	abstract public void end(WrContext ctx, WrRequest req, WrResponse res);
+
+	abstract public boolean reject(WrContext ctx, WrRequest req, WrResponse res);
+
 }

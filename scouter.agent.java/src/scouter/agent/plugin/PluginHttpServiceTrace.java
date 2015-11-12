@@ -18,18 +18,18 @@ package scouter.agent.plugin;
 
 import scouter.agent.trace.TraceContext;
 
-public class HttpServiceTracePlugIn {
+public class PluginHttpServiceTrace {
 
-	static IHttpService plugIn;
+	static AbstractHttpService plugIn;
 
 	static {
-		PlugInLoader.getInstance();
+		PluginLoader.getInstance();
 	}
 
 	public static void start(TraceContext ctx, Object req, Object res) {
 		if (plugIn != null) {
 			try {
-				plugIn.start(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
+				plugIn.start(new WrContext(ctx), new WrRequest(req), new WrResponse(res));
 			} catch (Throwable t) {
 			}
 		}
@@ -38,7 +38,7 @@ public class HttpServiceTracePlugIn {
 	public static void end(TraceContext ctx, Object req, Object res) {
 		if (plugIn != null) {
 			try {
-				plugIn.end(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
+				plugIn.end(new WrContext(ctx), new WrRequest(req), new WrResponse(res));
 			} catch (Throwable t) {
 			}
 		}
@@ -47,7 +47,7 @@ public class HttpServiceTracePlugIn {
 	public static boolean reject(TraceContext ctx, Object req, Object res) {
 		if (plugIn != null) {
 			try {
-				return plugIn.reject(new ContextWrapper(ctx), new RequestWrapper(req), new ResponseWrapper(res));
+				return plugIn.reject(new WrContext(ctx), new WrRequest(req), new WrResponse(res));
 			} catch (Throwable t) {
 			}
 		}

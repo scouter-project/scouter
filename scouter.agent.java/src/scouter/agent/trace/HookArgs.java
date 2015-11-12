@@ -14,15 +14,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-package scouter.agent.plugin;
+package scouter.agent.trace;
 
-abstract public class ICapture extends IPlugIn {
+public class HookArgs {
+	public String class1;
+	public String method;
+	public String desc;
+	public Object this1;
+	public Object[] args;
 
-	abstract public void capArgs(ContextWrapper ctx, String className, String methodName, String methodDesc,
-			Object[] arg);
+	public HookArgs(String className, String methodName, String methodDesc, Object this1, Object[] args) {
+		this.class1 = className;
+		this.method = methodName;
+		this.desc = methodDesc;
+		this.this1 = this1;
+		this.args = args;
+	}
 
-	abstract public void capReturn(ContextWrapper ctx, String className, String methodName, String methodDesc,
-			Object rtn);
-
-	abstract public void capThis(ContextWrapper ctx, String className, String methodDesc, Object this1);
 }

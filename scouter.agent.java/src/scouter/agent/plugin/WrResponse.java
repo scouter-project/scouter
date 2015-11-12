@@ -20,7 +20,7 @@ import java.io.PrintWriter;
 
 import scouter.agent.Logger;
 
-public class ResponseWrapper extends Wrapper {
+public class WrResponse extends Wrapper {
 
 	private Object resObject;
 
@@ -32,7 +32,7 @@ public class ResponseWrapper extends Wrapper {
 
 	private boolean enabled = true;
 
-	public ResponseWrapper(Object res) {
+	public WrResponse(Object res) {
 		resObject = res;
 	}
 

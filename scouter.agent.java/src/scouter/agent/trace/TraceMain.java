@@ -23,9 +23,9 @@ import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.error.REQUEST_REJECT;
 import scouter.agent.error.USERTX_NOT_CLOSE;
 import scouter.agent.netio.data.DataProxy;
-import scouter.agent.plugin.CapturePlugIn;
-import scouter.agent.plugin.HttpServiceTracePlugIn;
-import scouter.agent.plugin.ServiceTracePlugIn;
+import scouter.agent.plugin.PluginCaptureTrace;
+import scouter.agent.plugin.PluginHttpServiceTrace;
+import scouter.agent.plugin.PluginAppServiceTrace;
 import scouter.agent.proxy.HttpTraceFactory;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
@@ -107,7 +107,7 @@ public class TraceMain {
 			if (stat0.isStaticContents)
 				return null;
 			// reject by customized plugin
-			if (HttpServiceTracePlugIn.reject(stat0.ctx, req, res)
+			if (PluginHttpServiceTrace.reject(stat0.ctx, req, res)
 					// reject by max_active_service
 					|| TraceContextManager.size() > conf.max_active_service) {
 				// howto reject
@@ -186,7 +186,7 @@ public class TraceMain {
 		stat.isStaticContents = isStaticContents(ctx.serviceName);
 
 		if (stat.isStaticContents == false) {
-			HttpServiceTracePlugIn.start(ctx, req, res);
+			PluginHttpServiceTrace.start(ctx, req, res);
 		}
 
 		return stat;
@@ -231,18 +231,18 @@ public class TraceMain {
 				return;
 			}
 			TraceContext ctx = stat0.ctx;
-			//HTTP END
+			// HTTP END
 			http.end(ctx, stat0.req, stat0.res);
 
-			//static-contents -> stop processing
+			// static-contents -> stop processing
 			if (stat0.isStaticContents) {
 				TraceContextManager.end(ctx.threadId);
 				return;
 			}
-			//Plug-in end
-			HttpServiceTracePlugIn.end(ctx, stat0.req, stat0.res);
-			
-			//profile close
+			// Plug-in end
+			PluginHttpServiceTrace.end(ctx, stat0.req, stat0.res);
+
+			// profile close
 			TraceContextManager.end(ctx.threadId);
 
 			Configure conf = Configure.getInstance();
@@ -366,7 +366,7 @@ public class TraceMain {
 			ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
 			ctx.profile_thread_cputime = conf.profile_thread_cputime;
 			ctx.xType = xType;
-			ServiceTracePlugIn.start(ctx, new HookPoint(className, methodName, methodDesc, _this, arg));
+			PluginAppServiceTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
 			return new Stat(ctx);
 		} catch (Throwable t) {
 			Logger.println("A147", t);
@@ -384,7 +384,7 @@ public class TraceMain {
 				return;
 			}
 
-			ServiceTracePlugIn.end(ctx);
+			PluginAppServiceTrace.end(ctx);
 			TraceContextManager.end(ctx.threadId);
 
 			XLogPack pack = new XLogPack();
@@ -403,7 +403,7 @@ public class TraceMain {
 			pack.sqlTime = ctx.sqlTime;
 			pack.txid = ctx.txid;
 			pack.gxid = ctx.gxid;
-			pack.ipaddr =  IPUtil.toBytes(ctx.remoteIp);
+			pack.ipaddr = IPUtil.toBytes(ctx.remoteIp);
 			pack.userid = ctx.userid;
 			if (ctx.error != 0) {
 				pack.error = ctx.error;
@@ -453,7 +453,7 @@ public class TraceMain {
 		}
 	}
 
-	public static void capArgs(String className, String methodName, String methodDesc, Object[] arg) {
+	public static void capArgs(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
@@ -465,7 +465,7 @@ public class TraceMain {
 		// step.message = toString("CAP-ARG", className, methodName, methodDesc,
 		// arg);
 		// ctx.profile.add(step);
-		CapturePlugIn.capArgs(ctx, className, methodName, methodDesc, arg);
+		PluginCaptureTrace.capArgs(ctx, new HookArgs(className, methodName, methodDesc, this1, arg));
 	}
 
 	public static void jspServlet(Object[] arg) {
@@ -537,22 +537,14 @@ public class TraceMain {
 		// step.message = toStringTHIS("CAP-THIS", className, methodDesc,
 		// this0);
 		// ctx.profile.add(step);
-		CapturePlugIn.capThis(ctx, className, methodDesc, this0);
+		PluginCaptureTrace.capThis(ctx, className, methodDesc, this0);
 	}
 
-	public static void capReturn(String className, String methodName, String methodDesc, Object rtn) {
+	public static void capReturn(String className, String methodName, String methodDesc, Object this1, Object rtn) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
-		// MessageStep step = new MessageStep();
-		// step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		// if (ctx.profile_thread_cputime) {
-		// step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-		// }
-		// step.message = toStringRTN("CAP-RTN", className, methodName,
-		// methodDesc, rtn);
-		// ctx.profile.add(step);
-		CapturePlugIn.capReturn(ctx, className, methodName, methodDesc, rtn);
+		PluginCaptureTrace.capReturn(ctx, new HookReturn(className,methodName, methodDesc, this1, rtn));
 	}
 
 	private static Configure conf = Configure.getInstance();

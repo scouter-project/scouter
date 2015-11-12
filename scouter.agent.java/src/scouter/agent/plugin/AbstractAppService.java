@@ -16,8 +16,14 @@
  */
 package scouter.agent.plugin;
 
-abstract public class IHttpCall extends IPlugIn {
-	public void call(ContextWrapper ctx, HttpReqWrapper p) {
+import scouter.agent.trace.HookArgs;
+import scouter.lang.pack.XLogPack;
+
+abstract public class AbstractAppService extends AbstractPlugin {
+	public void start(WrContext ctx, HookArgs p) {
+	}
+
+	public void end(WrContext ctx) {
 	}
 
 }

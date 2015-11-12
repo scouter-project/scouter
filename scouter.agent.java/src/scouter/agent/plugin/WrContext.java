@@ -7,11 +7,11 @@ import scouter.util.HashUtil;
 import scouter.util.IPUtil;
 import scouter.util.SysJMX;
 
-public class ContextWrapper {
+public class WrContext {
 
 	private TraceContext ctx;
 
-	public ContextWrapper(TraceContext ctx) {
+	public WrContext(TraceContext ctx) {
 		this.ctx = ctx;
 	}
 

@@ -20,7 +20,7 @@ import java.util.Enumeration;
 
 import scouter.agent.Logger;
 
-public class SessionWrapper extends Wrapper {
+public class WrSession extends Wrapper {
 
 	private Object session;
 
@@ -30,7 +30,7 @@ public class SessionWrapper extends Wrapper {
 	private boolean enabled = true;
 	private Throwable _error;
 
-	public SessionWrapper(Object session) {
+	public WrSession(Object session) {
 		this.session = session;
 	}
 

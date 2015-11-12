@@ -16,20 +16,19 @@
  */
 package scouter.agent.trace;
 
-public class HookPoint {
+public class HookReturn {
 	public String className;
 	public String methodName;
 	public String methodDesc;
-	public Object _this;
-	public Object[] arg;
+	public Object this1;
+	public Object return1;
 
-	public HookPoint(String className, String methodName, String methodDesc, Object _this, Object[] arg) {
-		super();
+	public HookReturn(String className, String methodName, String methodDesc, Object this1, Object return1) {
 		this.className = className;
 		this.methodName = methodName;
 		this.methodDesc = methodDesc;
-		this._this = _this;
-		this.arg = arg;
+		this.this1 = this1;
+		this.return1 = return1;
 	}
 
 }

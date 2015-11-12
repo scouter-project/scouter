@@ -30,7 +30,7 @@ import scouter.agent.error.CONNECTION_OPEN_FAIL;
 import scouter.agent.error.SLOW_SQL;
 import scouter.agent.error.TOO_MANY_RECORDS;
 import scouter.agent.netio.data.DataProxy;
-import scouter.agent.plugin.JdbcPoolTrace;
+import scouter.agent.plugin.PluginJdbcPoolTrace;
 import scouter.agent.summary.ServiceSummary;
 import scouter.jdbc.DetectConnection;
 import scouter.jdbc.WrConnection;
@@ -608,7 +608,7 @@ public class TraceSQL {
 			}
 		} catch (Exception e) {
 			try {
-				String u = JdbcPoolTrace.url(ctx, msg, pool);
+				String u = PluginJdbcPoolTrace.url(ctx, msg, pool);
 				if (u != null) {
 					u = "OPEN-DBC " + u;
 					dbUrl = new DBURL(HashUtil.hash(u), u);

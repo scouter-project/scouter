@@ -22,7 +22,7 @@ import java.util.TreeSet;
 
 import scouter.agent.Logger;
 
-public class RequestWrapper extends Wrapper {
+public class WrRequest extends Wrapper {
 
 	private Object reqObject;
 
@@ -44,7 +44,7 @@ public class RequestWrapper extends Wrapper {
 	private boolean enabled = true;
 	private Throwable _error = null;
 
-	public RequestWrapper(Object req) {
+	public WrRequest(Object req) {
 		reqObject = req;
 	}
 
@@ -230,7 +230,7 @@ public class RequestWrapper extends Wrapper {
 		}
 	}
 
-	public SessionWrapper getSession() {
+	public WrSession getSession() {
 		if (enabled == false)
 			return null;
 		try {
@@ -239,7 +239,7 @@ public class RequestWrapper extends Wrapper {
 				getSession.setAccessible(true);
 			}
 			Object o = getSession.invoke(reqObject, new Object[] { false });
-			return new SessionWrapper(o);
+			return new WrSession(o);
 		} catch (Throwable e) {
 			enabled = false;
 			_error = e;
@@ -260,7 +260,7 @@ public class RequestWrapper extends Wrapper {
 			Object o = getSession.invoke(reqObject, new Object[] { false });
 			if (o == null)
 				return names;
-			Enumeration en = new SessionWrapper(o).getAttributeNames();
+			Enumeration en = new WrSession(o).getAttributeNames();
 			if (en != null) {
 				while (en.hasMoreElements()) {
 					names.add(en.nextElement());

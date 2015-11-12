@@ -17,24 +17,41 @@
 
 package scouter.agent.plugin;
 
+import java.net.HttpURLConnection;
+
+import scouter.agent.proxy.IHttpClient;
 import scouter.agent.trace.TraceContext;
 
-public class JdbcPoolTrace {
+public class PluginHttpCallTrace {
 
-	static IJdbcPool plugIn;
+	static AbstractHttpCall plugIn;
 
 	static {
-		PlugInLoader.getInstance();
+		PluginLoader.getInstance();
 	}
-
-	public static String url(TraceContext ctx, String msg, Object pool) {
+	public static void call(TraceContext ctx, HttpURLConnection req) {
 		if (plugIn != null) {
 			try {
-				return plugIn.url(new ContextWrapper(ctx),msg, pool);
+				plugIn.call(new WrContext(ctx), new WrHttpCallRequest(req));
 			} catch (Throwable t) {
 			}
 		}
-		return null;
+	}
+	public static void call(TraceContext ctx, Object req) {
+		if (plugIn != null) {
+			try {
+				plugIn.call(new WrContext(ctx), new WrHttpCallRequest(req));
+			} catch (Throwable t) {
+			}
+		}
+	}
+	public static void call(TraceContext ctx, IHttpClient httpclient, Object req) {
+		if (plugIn != null) {
+			try {
+				plugIn.call(new WrContext(ctx), new WrHttpCallRequest(httpclient, req));
+			} catch (Throwable t) {
+			}
+		}
 	}
 
 

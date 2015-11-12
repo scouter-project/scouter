@@ -22,7 +22,7 @@ import scouter.agent.Logger;
 import scouter.agent.proxy.IHttpClient;
 import scouter.util.ObjectUtil;
 
-public class HttpReqWrapper extends Wrapper {
+public class WrHttpCallRequest extends Wrapper {
 	protected static Class[] arg_c_ss = { String.class, String.class };
 
 	private Object reqObject;
@@ -35,15 +35,15 @@ public class HttpReqWrapper extends Wrapper {
 	private Throwable _error;
 
 	
-	public HttpReqWrapper(HttpURLConnection req) {
+	public WrHttpCallRequest(HttpURLConnection req) {
 		this.urlCon = req;
 	}
 
-	public HttpReqWrapper(Object req) {
+	public WrHttpCallRequest(Object req) {
 		this.reqObject = req;
 	}
 
-	public HttpReqWrapper(IHttpClient httpclient, Object req) {
+	public WrHttpCallRequest(IHttpClient httpclient, Object req) {
 		this.httpclient = httpclient;
 		this.reqObject = req;
 	}

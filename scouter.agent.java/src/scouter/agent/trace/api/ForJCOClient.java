@@ -16,17 +16,17 @@
  */
 package scouter.agent.trace.api;
 
-import scouter.agent.trace.HookPoint;
+import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 
 public class ForJCOClient implements ApiCallTraceHelper.IHelper {
-	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
+	public ApiCallStep process(TraceContext ctx, HookArgs hookPoint) {
 
 		ApiCallStep step = new ApiCallStep();
 
-		if (hookPoint.arg != null && hookPoint.arg.length > 0) {
-			ctx.apicall_name = hookPoint.arg[0] + "(JCO)";
+		if (hookPoint.args != null && hookPoint.args.length > 0) {
+			ctx.apicall_name = hookPoint.args[0] + "(JCO)";
 		}
 
 		if (ctx.apicall_name == null)

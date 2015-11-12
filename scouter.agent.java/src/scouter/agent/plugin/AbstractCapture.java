@@ -16,14 +16,14 @@
  */
 package scouter.agent.plugin;
 
-import scouter.agent.trace.HookPoint;
-import scouter.lang.pack.XLogPack;
+import scouter.agent.trace.HookArgs;
+import scouter.agent.trace.HookReturn;
 
-abstract public class IServiceTrace extends IPlugIn {
-	public void start(ContextWrapper ctx, HookPoint p) {
-	}
+abstract public class AbstractCapture extends AbstractPlugin {
 
-	public void end(ContextWrapper ctx) {
-	}
+	abstract public void capArgs(WrContext ctx, HookArgs hook);
 
+	abstract public void capReturn(WrContext ctx, HookReturn hook);
+
+	abstract public void capThis(WrContext ctx, String className, String methodDesc, Object this1);
 }

@@ -14,43 +14,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
+
 package scouter.agent.plugin;
 
 import scouter.agent.trace.TraceContext;
 
-public class CapturePlugIn {
+public class PluginJdbcPoolTrace {
 
-	static ICapture plugIn;
+	static AbstractJdbcPool plugIn;
 
 	static {
-		PlugInLoader.getInstance();
+		PluginLoader.getInstance();
 	}
 
-	public static void capArgs(TraceContext ctx, String className, String methodName, String methodDesc, Object[] arg) {
+	public static String url(TraceContext ctx, String msg, Object pool) {
 		if (plugIn != null) {
 			try {
-				plugIn.capArgs(new ContextWrapper(ctx), className, methodName, methodDesc, arg);
+				return plugIn.url(new WrContext(ctx),msg, pool);
 			} catch (Throwable t) {
 			}
 		}
+		return null;
 	}
 
-	public static void capReturn(TraceContext ctx, String className, String methodName, String methodDesc, Object data) {
-		if (plugIn != null) {
-			try {
-				plugIn.capReturn(new ContextWrapper(ctx), className, methodName, methodDesc, data);
-			} catch (Throwable t) {
-			}
-		}
-	}
 
-	public static void capThis(TraceContext ctx, String className, String methodDesc, Object data) {
-		if (plugIn != null) {
-			try {
-				plugIn.capThis(new ContextWrapper(ctx), className, methodDesc, data);
-			} catch (Throwable t) {
-			}
-		}
-	}
 
 }

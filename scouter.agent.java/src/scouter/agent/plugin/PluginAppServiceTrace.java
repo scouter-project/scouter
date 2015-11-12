@@ -14,8 +14,36 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
+
 package scouter.agent.plugin;
 
-abstract public class IJdbcPool extends IPlugIn {
-	abstract public String url(ContextWrapper ctx, String classMethod, Object datasource);
+import scouter.agent.trace.HookArgs;
+import scouter.agent.trace.TraceContext;
+
+public class PluginAppServiceTrace {
+
+	static AbstractAppService plugIn;
+
+	static {
+		PluginLoader.getInstance();
+	}
+
+	public static void start(TraceContext ctx, HookArgs hook) {
+		if (plugIn != null) {
+			try {
+				plugIn.start(new WrContext(ctx), hook);
+			} catch (Throwable t) {
+			}
+		}
+	}
+
+	public static void end(TraceContext ctx) {
+		if (plugIn != null) {
+			try {
+				plugIn.end(new WrContext(ctx));
+			} catch (Throwable t) {
+			}
+		}
+	}
+
 }

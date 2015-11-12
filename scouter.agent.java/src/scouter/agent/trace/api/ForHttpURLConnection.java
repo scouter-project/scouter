@@ -21,8 +21,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import scouter.agent.Configure;
-import scouter.agent.plugin.HttpCallTracePlugIn;
-import scouter.agent.trace.HookPoint;
+import scouter.agent.plugin.PluginHttpCallTrace;
+import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
@@ -44,18 +44,18 @@ public class ForHttpURLConnection implements ApiCallTraceHelper.IHelper {
 		}
 	}
 
-	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
+	public ApiCallStep process(TraceContext ctx, HookArgs hookPoint) {
 
 		ApiCallStep step = new ApiCallStep();
 
 		try {
-			if (hookPoint._this instanceof sun.net.www.protocol.http.HttpURLConnection) {
-				if (inputStream.get(hookPoint._this) != null) {
+			if (hookPoint.this1 instanceof sun.net.www.protocol.http.HttpURLConnection) {
+				if (inputStream.get(hookPoint.this1) != null) {
 					// Null  추적이 종료된다.
 					return null;
 				}
 			}
-			HttpURLConnection urlCon = ((HttpURLConnection) hookPoint._this);
+			HttpURLConnection urlCon = ((HttpURLConnection) hookPoint.this1);
 			if ("connect".equals(hookPoint.methodName)) {
 				step.txid = KeyGen.next();
 				transfer(ctx, urlCon, step.txid);
@@ -97,12 +97,12 @@ public class ForHttpURLConnection implements ApiCallTraceHelper.IHelper {
 				urlCon.setRequestProperty(conf.this_txid, Hexa32.toString32(calleeTxid));
 				urlCon.setRequestProperty(conf.caller_txid, Hexa32.toString32(ctx.txid));
 				
-				HttpCallTracePlugIn.call(ctx, urlCon);
+				PluginHttpCallTrace.call(ctx, urlCon);
 			} catch (Throwable t) {
 			}
 		}
 	}
 
-	public void checkTarget(HookPoint hookPoint) {
+	public void checkTarget(HookArgs hookPoint) {
 	}
 }

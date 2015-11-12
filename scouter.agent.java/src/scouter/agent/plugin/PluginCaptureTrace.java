@@ -14,46 +14,45 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.plugin;
 
-import java.net.HttpURLConnection;
-
-import scouter.agent.proxy.IHttpClient;
+import scouter.agent.trace.HookArgs;
+import scouter.agent.trace.HookReturn;
 import scouter.agent.trace.TraceContext;
 
-public class HttpCallTracePlugIn {
+public class PluginCaptureTrace {
 
-	static IHttpCall plugIn;
+	static AbstractCapture plugIn;
 
 	static {
-		PlugInLoader.getInstance();
+		PluginLoader.getInstance();
 	}
-	public static void call(TraceContext ctx, HttpURLConnection req) {
+
+	public static void capArgs(TraceContext ctx, HookArgs hook) {
 		if (plugIn != null) {
 			try {
-				plugIn.call(new ContextWrapper(ctx), new HttpReqWrapper(req));
-			} catch (Throwable t) {
-			}
-		}
-	}
-	public static void call(TraceContext ctx, Object req) {
-		if (plugIn != null) {
-			try {
-				plugIn.call(new ContextWrapper(ctx), new HttpReqWrapper(req));
-			} catch (Throwable t) {
-			}
-		}
-	}
-	public static void call(TraceContext ctx, IHttpClient httpclient, Object req) {
-		if (plugIn != null) {
-			try {
-				plugIn.call(new ContextWrapper(ctx), new HttpReqWrapper(httpclient, req));
+				plugIn.capArgs(new WrContext(ctx), hook);
 			} catch (Throwable t) {
 			}
 		}
 	}
 
+	public static void capReturn(TraceContext ctx, HookReturn hook) {
+		if (plugIn != null) {
+			try {
+				plugIn.capReturn(new WrContext(ctx), hook);
+			} catch (Throwable t) {
+			}
+		}
+	}
 
+	public static void capThis(TraceContext ctx, String className, String methodDesc, Object data) {
+		if (plugIn != null) {
+			try {
+				plugIn.capThis(new WrContext(ctx),className,  methodDesc, data);
+			} catch (Throwable t) {
+			}
+		}
+	}
 
 }

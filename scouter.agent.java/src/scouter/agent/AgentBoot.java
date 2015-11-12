@@ -17,7 +17,7 @@ package scouter.agent;
 
 import scouter.agent.counter.CounterExecutingManager;
 import scouter.agent.netio.request.ReqestHandlingProxy;
-import scouter.agent.plugin.PlugInLoader;
+import scouter.agent.plugin.PluginLoader;
 import scouter.util.Hexa32;
 import scouter.util.KeyGen;
 import scouter.util.SysJMX;
@@ -42,7 +42,7 @@ public class AgentBoot implements Runnable {
 		long seed =System.currentTimeMillis() ^ (((long)SysJMX.getProcessPID())<<32);
 		KeyGen.setSeed(seed);
 		Logger.println("A100", "agent boot seed="+Hexa32.toString32(seed));
-		PlugInLoader.getInstance();
+		PluginLoader.getInstance();
 	}
 	public static void main(String[] args) {
 	   boot();

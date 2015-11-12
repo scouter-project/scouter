@@ -16,12 +16,7 @@
  */
 package scouter.agent.plugin;
 
-abstract public class IHttpService extends IPlugIn {
-
-	abstract public void start(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res);
-
-	abstract public void end(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res);
-
-	abstract public boolean reject(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res);
+abstract public class AbstractHttpCall extends AbstractPlugin {
+	abstract public void call(WrContext ctx, WrHttpCallRequest p) ;
 
 }

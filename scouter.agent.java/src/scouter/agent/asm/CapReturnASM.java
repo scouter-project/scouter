@@ -79,7 +79,7 @@ class CapReturnCV extends ClassVisitor implements Opcodes {
 			return mv;
 		}		
 
-		return new CapReturnMV(access, desc, mv, className, name, desc);
+		return new CapReturnMV(access, desc, mv, className, name, desc,(access & ACC_STATIC) != 0);
 	}
 }
 
@@ -87,22 +87,24 @@ class CapReturnCV extends ClassVisitor implements Opcodes {
 class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 	private static final String CLASS = TraceMain.class.getName().replace('.', '/');
 	private static final String METHOD = "capReturn";
-	private static final String SIGNATURE = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V";
+	private static final String SIGNATURE = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V";
 
 	private Type returnType;
 	private String className;
 	private String methodName;
 	private String methodDesc;
+	private boolean isStatic;
 	
 	public CapReturnMV(int access, String desc, MethodVisitor mv,
 			String classname,
 			String methodname,
-			String methoddesc) {
+			String methoddesc, boolean isStatic) {
 		super(ASM4, access, desc, mv);
 		this.returnType = Type.getReturnType(desc);
 		this.className = classname;
 		this.methodName = methodname;
 		this.methodDesc = methoddesc;
+		this.isStatic =  isStatic;
 
 	}
 
@@ -223,7 +225,11 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			AsmUtil.PUSH(mv, className);
 			AsmUtil.PUSH(mv, methodName);
 			AsmUtil.PUSH(mv, methodDesc);
-
+			if (isStatic) {
+				AsmUtil.PUSHNULL(mv);
+			} else {
+				mv.visitVarInsn(Opcodes.ALOAD, 0);
+			}
 			mv.visitVarInsn(Opcodes.ALOAD, i);
 		}
 

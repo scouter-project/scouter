@@ -24,7 +24,7 @@ import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterAPI;
 import scouter.agent.netio.data.DataProxy;
-import scouter.agent.plugin.HttpServiceTracePlugIn;
+import scouter.agent.plugin.PluginHttpServiceTrace;
 import scouter.agent.summary.ServiceSummary;
 import scouter.agent.trace.api.ApiCallTraceHelper;
 import scouter.lang.step.ApiCallStep;
@@ -48,7 +48,7 @@ public class TraceApiCall {
 	}
 	static {
 		try {
-			HttpServiceTracePlugIn.class.getClass();
+			PluginHttpServiceTrace.class.getClass();
 		} catch (Throwable t) {
 		}
 	}
@@ -69,7 +69,7 @@ public class TraceApiCall {
 			}
 			// System.out.println("apicall start: " +ctx.apicall_name +
 			// " target="+ctx.apicall_target);
-			HookPoint hookPoint = new HookPoint(className, methodName, methodDesc, _this, arg);
+			HookArgs hookPoint = new HookArgs(className, methodName, methodDesc, _this, arg);
 			ApiCallStep step = ApiCallTraceHelper.start(ctx, hookPoint);
 			if (step == null)
 				return null;
