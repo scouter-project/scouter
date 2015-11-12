@@ -26,6 +26,7 @@ import scouter.lang.step.ApiCallStep;
 public class ForSunHttpClient implements ApiCallTraceHelper.IHelper {
 	static Class sunHttpClass = null;
 	static Field url = null;
+
 	static {
 
 		try {

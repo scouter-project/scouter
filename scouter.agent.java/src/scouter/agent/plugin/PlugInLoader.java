@@ -101,6 +101,15 @@ public class PlugInLoader extends Thread {
 				}
 			}
 		}
+		script = new File(root, "httpcall.plug");
+		if (script.canRead() == false) {
+			HttpCallTracePlugIn.plugIn = null;
+		} else {
+			if (HttpCallTracePlugIn.plugIn == null
+					|| HttpCallTracePlugIn.plugIn.lastModified != script.lastModified()) {
+				HttpCallTracePlugIn.plugIn = createIHttpCall(script);
+			}
+		}
 	}
 
 	private long IHttpServiceCompile;
@@ -187,9 +196,10 @@ public class PlugInLoader extends Thread {
 			bodyPrefix.append(METHOD_P2).append(" $req=$2;");
 			bodyPrefix.append(METHOD_P3).append(" $res=$3;");
 
-			method_start
-					.setBody(new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_START)).append("}").toString());
-			method_end.setBody(new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_END)).append("}").toString());
+			method_start.setBody(
+					new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_START)).append("}").toString());
+			method_end.setBody(
+					new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_END)).append("}").toString());
 			method_reject.setBody(
 					new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_REJECT)).append("}").toString());
 
@@ -559,6 +569,70 @@ public class PlugInLoader extends Thread {
 			plugin.lastModified = script.lastModified();
 
 			Logger.info("PLUG-IN : " + IJdbcPool.class.getName() + " loaded #" + Hexa32.toString32(plugin.hashCode()));
+			return plugin;
+		} catch (scouter.javassist.CannotCompileException ee) {
+			Logger.info("PLUG-IN : " + ee.getMessage());
+		} catch (Exception e) {
+			Logger.println("A162", e);
+		}
+		return null;
+	}
+
+	private long IHttpCallCompile;
+
+	private IHttpCall createIHttpCall(File script) {
+		if (IHttpCallCompile == script.lastModified())
+			return null;
+		IHttpCallCompile = script.lastModified();
+		try {
+			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
+			String superName = IHttpCall.class.getName();
+			String className = "scouter.agent.plugin.impl.IHttCallTraceImpl";
+			String CALL = "call";
+			String CALL_SIG = "(" + nativeName(ContextWrapper.class) + nativeName(HttpReqWrapper.class) + ")V";
+			String CALL_P1 = ContextWrapper.class.getName();
+			String CALL_P2 = HttpReqWrapper.class.getName();
+			StringBuffer CALL_BODY = bodyTable.get(CALL);
+			if (CALL_BODY == null)
+				throw new CannotCompileException("no method body: " + CALL);
+
+			ClassPool cp = ClassPool.getDefault();
+			String jar = FileUtil.getJarFileName(PlugInLoader.class);
+			if (jar != null) {
+				cp.appendClassPath(jar);
+			}
+			Class c = null;
+			CtClass cc = cp.get(superName);
+			CtClass impl = null;
+			StringBuffer sb;
+			CtMethod method = null;
+			try {
+				impl = cp.get(className);
+				impl.defrost();
+				method = impl.getMethod(CALL, CALL_SIG);
+
+			} catch (scouter.javassist.NotFoundException e) {
+				impl = cp.makeClass(className, cc);
+				sb = new StringBuffer();
+				sb.append("public void ").append(CALL).append("(");
+				sb.append(CALL_P1).append(" p1 ").append(",");
+				sb.append(CALL_P2).append(" p2");
+				sb.append("){}");
+				method = CtNewMethod.make(sb.toString(), impl);
+				impl.addMethod(method);
+			}
+			sb = new StringBuffer();
+			sb.append("{");
+			sb.append(CALL_P1).append(" $ctx=$1;");
+			sb.append(CALL_P2).append(" $req=$2;");
+			sb.append(CALL_BODY);
+			sb.append("}");
+			method.setBody(sb.toString());
+
+			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+			IHttpCall plugin = (IHttpCall) c.newInstance();
+			plugin.lastModified = script.lastModified();
+			Logger.info("PLUG-IN : " + IHttpCall.class.getName() + " loaded #" + Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (scouter.javassist.CannotCompileException ee) {
 			Logger.info("PLUG-IN : " + ee.getMessage());

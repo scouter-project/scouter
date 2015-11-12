@@ -21,6 +21,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import scouter.agent.Configure;
+import scouter.agent.plugin.HttpCallTracePlugIn;
 import scouter.agent.trace.HookPoint;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
@@ -95,6 +96,8 @@ public class ForHttpURLConnection implements ApiCallTraceHelper.IHelper {
 				urlCon.setRequestProperty(conf.gxid, Hexa32.toString32(ctx.gxid));
 				urlCon.setRequestProperty(conf.this_txid, Hexa32.toString32(calleeTxid));
 				urlCon.setRequestProperty(conf.caller_txid, Hexa32.toString32(ctx.txid));
+				
+				HttpCallTracePlugIn.call(ctx, urlCon);
 			} catch (Throwable t) {
 			}
 		}

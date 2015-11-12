@@ -15,8 +15,10 @@
  *  limitations under the License. 
  */
 package scouter.agent.trace.api;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
+import scouter.agent.plugin.HttpCallTracePlugIn;
 import scouter.agent.proxy.HttpClient43Factory;
 import scouter.agent.proxy.IHttpClient;
 import scouter.agent.trace.HookPoint;
@@ -26,8 +28,10 @@ import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.KeyGen;
+
 public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
 	private static IntKeyLinkedMap<IHttpClient> httpclients = new IntKeyLinkedMap<IHttpClient>().setMax(5);
+
 	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
 		ApiCallStep step = new ApiCallStep();
 		if (ok) {
@@ -51,6 +55,7 @@ public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
 			ctx.apicall_name = hookPoint.className;
 		return step;
 	}
+
 	private IHttpClient getProxy(HookPoint hookPoint) {
 		int key = System.identityHashCode(hookPoint._this.getClass());
 		IHttpClient httpclient = httpclients.get(key);
@@ -62,7 +67,9 @@ public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
 		}
 		return httpclient;
 	}
+
 	private boolean ok = true;
+
 	private void transfer(IHttpClient httpclient, TraceContext ctx, Object host, Object req, long calleeTxid) {
 		Configure conf = Configure.getInstance();
 		if (conf.enable_trace_e2e) {
@@ -73,6 +80,7 @@ public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
 				httpclient.addHeader(req, conf.gxid, Hexa32.toString32(ctx.gxid));
 				httpclient.addHeader(req, conf.caller_txid, Hexa32.toString32(ctx.txid));
 				httpclient.addHeader(req, conf.this_txid, Hexa32.toString32(calleeTxid));
+				HttpCallTracePlugIn.call(ctx, req);
 			} catch (Exception e) {
 				Logger.println("A178", e);
 				ok = false;

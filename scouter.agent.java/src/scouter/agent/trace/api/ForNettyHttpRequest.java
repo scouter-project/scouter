@@ -17,6 +17,7 @@
 package scouter.agent.trace.api;
 
 import scouter.agent.Configure;
+import scouter.agent.plugin.HttpCallTracePlugIn;
 import scouter.agent.proxy.IHttpClient;
 import scouter.agent.proxy.NettyHttpClientFactory;
 import scouter.agent.trace.HookPoint;
@@ -85,6 +86,9 @@ public class ForNettyHttpRequest implements ApiCallTraceHelper.IHelper {
 				httpclient.addHeader(req, "scouter_caller_name", conf.objName);
 				httpclient.addHeader(req, "scouter_thread_id", Long.toString(ctx.threadId));
 
+				HttpCallTracePlugIn.call(ctx, httpclient, req);
+
+		
 			} catch (Exception e) {
 
 			}

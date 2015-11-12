@@ -17,6 +17,8 @@
 package scouter.agent.trace.api;
 
 import scouter.agent.Configure;
+import scouter.agent.Logger;
+import scouter.agent.plugin.HttpCallTracePlugIn;
 import scouter.agent.proxy.HttpClient43Factory;
 import scouter.agent.proxy.IHttpClient;
 import scouter.agent.trace.HookPoint;
@@ -89,8 +91,9 @@ public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 				httpclient.addHeader(req, conf.gxid, Hexa32.toString32(ctx.gxid));
 				httpclient.addHeader(req, conf.caller_txid, Hexa32.toString32(ctx.txid));
 				httpclient.addHeader(req, conf.this_txid, Hexa32.toString32(calleeTxid));
-			} catch (Exception e) {
-				System.err.println("AbstractHttpClient " + e);
+				HttpCallTracePlugIn.call(ctx, req);
+			} catch (Throwable e) {
+				Logger.println("A001", e);
 				ok = false;
 			}
 		}
