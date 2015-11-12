@@ -18,7 +18,6 @@
 package scouter.client.server;
 
 import scouter.client.net.ConnectionPool;
-import scouter.client.views.ObjectNavigationView;
 import scouter.lang.counters.CounterEngine;
 import scouter.lang.value.MapValue;
 import scouter.util.HashUtil;
@@ -45,6 +44,7 @@ public class Server {
 	
 	private long usedMemory;
 	private long totalMemory;
+	private boolean dirty = false;
 	
 	private MapValue groupPolicyMap = new MapValue();
 	private MapValue menuEnableMap = new MapValue();
@@ -106,8 +106,6 @@ public class Server {
 	
 	public void setConnected(boolean isConnected) {
 		this.connected = isConnected;
-		if (isConnected == false)
-			ObjectNavigationView.removeActionCache(getId());
 	}
 	
 	public String getTimezone() {
@@ -210,6 +208,14 @@ public class Server {
 	
 	public boolean isEnableMenu(String key) {
 		return menuEnableMap.getBoolean(key);
+	}
+	
+	public void setDirty(boolean dirty) {
+		this.dirty = dirty;
+	}
+	
+	public boolean isDirty() {
+		return this.dirty;
 	}
 
 	public String toString() {

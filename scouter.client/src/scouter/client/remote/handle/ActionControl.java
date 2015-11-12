@@ -27,7 +27,6 @@ import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
-import scouter.client.views.ObjectNavigationView;
 import scouter.lang.counters.CounterEngine;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
@@ -83,7 +82,7 @@ public class ActionControl {
 			if (v1 != null) {
 				engine.parse(((BlobValue)v1).value);
 			}
-			ObjectNavigationView.removeActionCache(serverId);
+			server.setDirty(true);
 			ConsoleProxy.infoSafe("Applied Complete.");
 			ConsoleProxy.infoSafe("***********************************");
 		}

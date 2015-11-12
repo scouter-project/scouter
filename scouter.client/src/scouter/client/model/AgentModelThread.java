@@ -29,7 +29,6 @@ import java.util.TreeSet;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.client.server.ServerManager;
-import scouter.client.util.ConsoleProxy;
 import scouter.io.DataInputX;
 import scouter.lang.counters.CounterEngine;
 import scouter.lang.pack.ObjectPack;
@@ -74,6 +73,7 @@ public class AgentModelThread extends Thread {
 		Map<Integer, AgentObject> tempAgentMap = new HashMap<Integer, AgentObject>();
 		ArrayList<ObjectPack> objectPackList = new ArrayList<ObjectPack>();
 		boolean existUnknownType = false;
+		existServerset.clear();
 		Set<Integer> serverIdSet = ServerManager.getInstance().getOpenServerList();
 		if (serverIdSet.size() > 0) {
 			Integer[] serverIds = serverIdSet.toArray(new Integer[serverIdSet.size()]);
@@ -110,8 +110,11 @@ public class AgentModelThread extends Thread {
 							existUnknownType = true;
 						}
 					}
+					if (agentList.size() > 0) {
+						existServerset.add(serverId);
+					}
 				} catch (Exception e) {
-					ConsoleProxy.errorSafe(e.toString());
+					e.printStackTrace();
 				} finally {
 					TcpProxy.putTcpProxy(proxy);
 				}
@@ -121,6 +124,12 @@ public class AgentModelThread extends Thread {
 		allAgentList = objectPackList;
 		agentMap = tempAgentMap;
 		this.existUnknownType = existUnknownType;
+	}
+	
+	private Set<Integer> existServerset = new HashSet<Integer>();
+	
+	public Set<Integer> existServerSet() {
+		return existServerset;
 	}
 	
 	public AgentObject getAgentObject(int objHash) {
