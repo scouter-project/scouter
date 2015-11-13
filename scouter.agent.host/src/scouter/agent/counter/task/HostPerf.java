@@ -241,19 +241,19 @@ public class HostPerf {
 				if (pct >= conf.disk_fatal_pct && fatal.length() < 32756) {
 					long avail = usage.getAvail();
 					long total = usage.getTotal();
-					if (fatal.length() == 0) {
+					if (fatal.length() > 0) {
 						fatal.append("\n");
 					}
 					fatal.append(dir).append(" usage ").append((int) pct).append("% total=")
-							.append(total / 1024 / 1024 / 1024).append(" GB available=").append(prt(avail));
+							.append(FormatUtil.print(total / 1024.0 / 1024, "#0.0#")).append("GB.. available=").append(prt(avail * 1024));
 				} else if (pct >= conf.disk_warning_pct && warn.length() < 32756) {
 					long avail = usage.getAvail();
 					long total = usage.getTotal();
-					if (warn.length() == 0) {
+					if (warn.length() > 0) {
 						warn.append("\n");
 					}
 					warn.append(dir).append(" usage ").append((int) pct).append("% total=")
-							.append(total / 1024 / 1024 / 1024).append(" GB available=").append(prt(avail));
+							.append(FormatUtil.print(total / 1024.0 / 1024, "#0.0#")).append("GB.. available=").append(prt(avail * 1024));
 				}
 
 			}
@@ -280,5 +280,10 @@ public class HostPerf {
 			return free + " MB";
 		free /= 1024;
 		return FormatUtil.print(free, "#,##0") + " GB";
+	}
+	
+	public static void main(String[] args) {
+		long total = 9126805504L / 1024 / 1204 / 1024;
+		System.out.println(total);
 	}
 }
