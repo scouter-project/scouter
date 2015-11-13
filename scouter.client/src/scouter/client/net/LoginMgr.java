@@ -20,7 +20,6 @@ package scouter.client.net;
 import scouter.Version;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
-import scouter.client.util.ConsoleProxy;
 import scouter.lang.counters.CounterEngine;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
@@ -161,9 +160,8 @@ public class LoginMgr{
 		Pack p = null;
 		try {
 			p = tcp.getSingle(RequestCmd.GET_XML_COUNTER, null);
-			ConsoleProxy.infoSafe("- counter.xml is successfully");
 		} catch (Exception e) {
-			ConsoleProxy.errorSafe(e.toString());
+			e.printStackTrace();
 			return null;
 		} finally {
 			TcpProxy.putTcpProxy(tcp);

@@ -134,6 +134,7 @@ public class Configure extends Thread {
 
 	public int alert_message_length = 3000;
 	public long alert_send_interval = 3000;
+	
 	public int jdbc_fetch_max = 10000;
 	public int sql_time_max = 30000;
 

@@ -152,7 +152,7 @@ public class TomcatJMXPerf {
 				} catch (Exception e) {
 					errors.add(ctx.attrName);
 					collectCnt = 0;
-					e.printStackTrace();
+					Logger.println("COUNTER", e);
 				}
 			}
 		}
@@ -287,7 +287,8 @@ public class TomcatJMXPerf {
 		public String attrName;
 		public String counter;
 
-		public CtxObj(String objName, ObjectName mbean, String objType, byte valueType, String attrName, String counter) {
+		public CtxObj(String objName, ObjectName mbean, String objType, byte valueType, String attrName,
+				String counter) {
 
 			this.objName = objName;
 			this.mbean = mbean;

@@ -14,40 +14,33 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
+
 package scouter.agent.plugin;
 
+import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
 
-public class CapturePlugIn {
+public class PluginAppServiceTrace {
 
-	static ICapture plugIn;
+	static AbstractAppService plugIn;
 
 	static {
-		PlugInLoader.getInstance();
+		PluginLoader.getInstance();
 	}
 
-	public static void capArgs(TraceContext ctx, String className, String methodName, String methodDesc, Object[] arg) {
+	public static void start(TraceContext ctx, HookArgs hook) {
 		if (plugIn != null) {
 			try {
-				plugIn.capArgs(new ContextWrapper(ctx), className, methodName, methodDesc, arg);
+				plugIn.start(new WrContext(ctx), hook);
 			} catch (Throwable t) {
 			}
 		}
 	}
 
-	public static void capReturn(TraceContext ctx, String className, String methodName, String methodDesc, Object data) {
+	public static void end(TraceContext ctx) {
 		if (plugIn != null) {
 			try {
-				plugIn.capReturn(new ContextWrapper(ctx), className, methodName, methodDesc, data);
-			} catch (Throwable t) {
-			}
-		}
-	}
-
-	public static void capThis(TraceContext ctx, String className, String methodDesc, Object data) {
-		if (plugIn != null) {
-			try {
-				plugIn.capThis(new ContextWrapper(ctx), className, methodDesc, data);
+				plugIn.end(new WrContext(ctx));
 			} catch (Throwable t) {
 			}
 		}

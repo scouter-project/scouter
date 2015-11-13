@@ -14,22 +14,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-package scouter.agent.trace;
+package scouter.agent.plugin;
 
-public class HookPoint {
-	public String className;
-	public String methodName;
-	public String methodDesc;
-	public Object _this;
-	public Object[] arg;
+import scouter.agent.trace.HookArgs;
+import scouter.agent.trace.HookReturn;
 
-	public HookPoint(String className, String methodName, String methodDesc, Object _this, Object[] arg) {
-		super();
-		this.className = className;
-		this.methodName = methodName;
-		this.methodDesc = methodDesc;
-		this._this = _this;
-		this.arg = arg;
-	}
+abstract public class AbstractCapture extends AbstractPlugin {
 
+	abstract public void capArgs(WrContext ctx, HookArgs hook);
+
+	abstract public void capReturn(WrContext ctx, HookReturn hook);
+
+	abstract public void capThis(WrContext ctx, String className, String methodDesc, Object this1);
 }

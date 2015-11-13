@@ -7,11 +7,11 @@ import scouter.util.HashUtil;
 import scouter.util.IPUtil;
 import scouter.util.SysJMX;
 
-public class ContextWrapper {
+public class WrContext {
 
 	private TraceContext ctx;
 
-	public ContextWrapper(TraceContext ctx) {
+	public WrContext(TraceContext ctx) {
 		this.ctx = ctx;
 	}
 
@@ -30,9 +30,14 @@ public class ContextWrapper {
 		return ctx.serviceHash;
 	}
 
-	public void ip(String ip) {
-		ctx.remoteAddr = IPUtil.toBytes(ip);
+	public void remoteIp(String ip) {
+		ctx.remoteIp = ip;
 	}
+
+	public String remoteIp() {
+		return ctx.remoteIp==null?"0.0.0.0":ctx.remoteIp;
+	}
+
 
 	public void error(String err) {
 		if (ctx.error == 0) {
@@ -40,12 +45,32 @@ public class ContextWrapper {
 		}
 	}
 
+	public boolean isError() {
+		return ctx.error != 0;
+	}
+
+	public void group(String group) {
+		ctx.group = group;
+	}
+
+	public String group() {
+		return ctx.group;
+	}
+
 	public void login(String id) {
 		ctx.login = id;
 	}
 
+	public String login() {
+		return ctx.login;
+	}
+
 	public void desc(String desc) {
 		ctx.desc = desc;
+	}
+
+	public String desc() {
+		return ctx.desc;
 	}
 
 	public String httpMethod() {
@@ -80,5 +105,9 @@ public class ContextWrapper {
 
 	public long gxid() {
 		return ctx.gxid;
+	}
+	
+	public TraceContext inner(){
+		return this.ctx;
 	}
 }

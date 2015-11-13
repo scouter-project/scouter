@@ -16,15 +16,14 @@
  */
 package scouter.agent.plugin;
 
+import scouter.agent.trace.HookArgs;
 import scouter.lang.pack.XLogPack;
 
-abstract public class IHttpService extends IPlugIn{
+abstract public class AbstractAppService extends AbstractPlugin {
+	public void start(WrContext ctx, HookArgs p) {
+	}
 
-	abstract public void start(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res);
+	public void end(WrContext ctx) {
+	}
 
-	abstract public void end(ContextWrapper ctx, XLogPack p);
-
-	abstract public boolean reject(ContextWrapper ctx, RequestWrapper req, ResponseWrapper res);
-
-	
 }

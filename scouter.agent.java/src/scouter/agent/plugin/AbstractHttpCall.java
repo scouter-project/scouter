@@ -14,37 +14,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.plugin;
 
-import scouter.agent.trace.HookPoint;
-import scouter.agent.trace.TraceContext;
-import scouter.lang.pack.XLogPack;
-
-public class ServiceTracePlugIn {
-
-	static IServiceTrace plugIn;
-
-	static {
-		PlugInLoader.getInstance();
-	}
-
-	public static void start(TraceContext ctx, HookPoint hookPoint) {
-		if (plugIn != null) {
-			try {
-				plugIn.start(new ContextWrapper(ctx), hookPoint);
-			} catch (Throwable t) {
-			}
-		}
-	}
-
-	public static void end(TraceContext ctx, XLogPack p) {
-		if (plugIn != null) {
-			try {
-				plugIn.end(new ContextWrapper(ctx), p);
-			} catch (Throwable t) {
-			}
-		}
-	}
+abstract public class AbstractHttpCall extends AbstractPlugin {
+	abstract public void call(WrContext ctx, WrHttpCallRequest p) ;
 
 }

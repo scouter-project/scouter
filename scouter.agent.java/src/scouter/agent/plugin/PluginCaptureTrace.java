@@ -14,35 +14,45 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-package scouter.agent.trace.api;
-
-import java.lang.reflect.Method;
+package scouter.agent.plugin;
 
 import scouter.agent.trace.HookArgs;
+import scouter.agent.trace.HookReturn;
 import scouter.agent.trace.TraceContext;
-import scouter.lang.step.ApiCallStep;
 
-public class ForHttpClient  implements ApiCallTraceHelper.IHelper{
+public class PluginCaptureTrace {
 
-	private boolean ok = true;
+	static AbstractCapture plugIn;
 
-	public ApiCallStep process(TraceContext ctx, HookArgs hookPoint) {
-		if (ok && hookPoint.args != null && hookPoint.args.length == 3) {
+	static {
+		PluginLoader.getInstance();
+	}
+
+	public static void capArgs(TraceContext ctx, HookArgs hook) {
+		if (plugIn != null) {
 			try {
-				Method method = hookPoint.args[1].getClass().getMethod("getURI");
-				Object o = method.invoke(hookPoint.args[1]);
-				if (o != null) {
-					ctx.apicall_name = o.toString();
-				}
-			} catch (Throwable e) {
-				ok = false;
+				plugIn.capArgs(new WrContext(ctx), hook);
+			} catch (Throwable t) {
 			}
 		}
+	}
 
-		ApiCallStep step = new ApiCallStep();
-		if (ctx.apicall_name == null)
-			ctx.apicall_name = hookPoint.class1;
-		return step;
+	public static void capReturn(TraceContext ctx, HookReturn hook) {
+		if (plugIn != null) {
+			try {
+				plugIn.capReturn(new WrContext(ctx), hook);
+			} catch (Throwable t) {
+			}
+		}
+	}
+
+	public static void capThis(TraceContext ctx, String className, String methodDesc, Object data) {
+		if (plugIn != null) {
+			try {
+				plugIn.capThis(new WrContext(ctx),className,  methodDesc, data);
+			} catch (Throwable t) {
+			}
+		}
 	}
 
 }

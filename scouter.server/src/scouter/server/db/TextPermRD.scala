@@ -18,38 +18,45 @@
 
 package scouter.server.db;
 
-import scouter.server.core.cache.TextCache;
-import scouter.server.db.text.TextTable;
-import scouter.util.HashUtil;
+import scouter.server.core.cache.TextCache
+import scouter.util.HashUtil
 
 object TextPermRD {
+  def getString(division: String, hash: Int): String = {
+    val divHash = HashUtil.hash(division);
+    return getString(divHash, hash);
+  }
+  def getString(divHash: Int, hash: Int): String = {
+    val out = TextCache.get(divHash, hash);
+    if (out != null)
+      return out;
 
-    def getString(division: String, hash: Int): String = {
-        val divHash = HashUtil.hash(division);
-        val out = TextCache.get(divHash, hash);
-        if (out != null)
-            return out;
-
-        val idx = TextPermWR.open();
-        try {
-            val b = idx.get(divHash, hash);
-            if (b == null)
-                return null;
-            val text = new String(b, "UTF-8");
-            TextCache.put(divHash, hash, text);
-            return text;
-        } catch {
-            case e: Exception => e.printStackTrace();
-        }
+    try {
+      val (index, data) = TextPermWR.open(divHash);
+      if (index == null)
         return null;
+      val pos = index.get(hash);
+      if (pos <= 0)
+        return null;
+      val bytes = data.read(pos);
+      val text = new String(bytes, "UTF-8");
+      TextCache.put(divHash, hash, text);
+      return text;
+    } catch {
+      case e: Exception => e.printStackTrace();
     }
+    return null;
+  }
 
-    def read(handler: (Array[Byte], Array[Byte]) => Unit) {
-        try {
-            val idx = TextPermWR.open();
-            idx.read(handler);
-        } catch {
-            case e: Exception => e.printStackTrace();
-        }
+  def read(division: String, handler: (Array[Byte], Array[Byte]) => Unit) {
+    try {
+      val divHash = HashUtil.hash(division);
+      val (index, data) = TextPermWR.open(divHash);
+      if (index == null)
+        return ;
+      index.read(handler, data.read);
+    } catch {
+      case e: Exception => e.printStackTrace();
     }
+  }
 }

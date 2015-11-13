@@ -20,13 +20,13 @@ package scouter.agent.trace.api;
 import java.util.HashMap;
 import java.util.Map;
 
-import scouter.agent.trace.HookPoint;
+import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 
 public class ApiCallTraceHelper {
 	static interface IHelper {
-		public ApiCallStep process(TraceContext ctx, HookPoint hookPoint);
+		public ApiCallStep process(TraceContext ctx, HookArgs hookPoint);
 	}
 
 	static Map<String, IHelper> handlers = new HashMap<String, IHelper>();
@@ -53,8 +53,8 @@ public class ApiCallTraceHelper {
 
 	private static IHelper defaultObj = new ForDefault();
 
-	public static ApiCallStep start(TraceContext ctx, HookPoint hookPoint) {
-		IHelper plug = handlers.get(hookPoint.className);
+	public static ApiCallStep start(TraceContext ctx, HookArgs hookPoint) {
+		IHelper plug = handlers.get(hookPoint.class1);
 		if (plug == null)
 			return defaultObj.process(ctx, hookPoint);
 		return plug.process(ctx, hookPoint);

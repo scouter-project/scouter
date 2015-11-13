@@ -19,13 +19,14 @@ package scouter.agent.trace.api;
 import java.lang.reflect.Field;
 import java.net.URL;
 
-import scouter.agent.trace.HookPoint;
+import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 
 public class ForSunHttpClient implements ApiCallTraceHelper.IHelper {
 	static Class sunHttpClass = null;
 	static Field url = null;
+
 	static {
 
 		try {
@@ -41,13 +42,13 @@ public class ForSunHttpClient implements ApiCallTraceHelper.IHelper {
 
 	private boolean ok = true;
 
-	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
+	public ApiCallStep process(TraceContext ctx, HookArgs hookPoint) {
 
 		ApiCallStep step = new ApiCallStep();
 
 		try {
-			if (ok && (hookPoint._this instanceof sun.net.www.http.HttpClient)) {
-				URL u = (URL) url.get(hookPoint._this);
+			if (ok && (hookPoint.this1 instanceof sun.net.www.http.HttpClient)) {
+				URL u = (URL) url.get(hookPoint.this1);
 				if (u != null) {
 					ctx.apicall_name = u.getPath();
 				}
@@ -56,7 +57,7 @@ public class ForSunHttpClient implements ApiCallTraceHelper.IHelper {
 			ok = false;
 		}
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = hookPoint.className;
+			ctx.apicall_name = hookPoint.class1;
 		return step;
 	}
 

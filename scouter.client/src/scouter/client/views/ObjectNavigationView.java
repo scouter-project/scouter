@@ -144,6 +144,19 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 		} else if (mode == PresentMode.FLAT_MODE) {
 			makeFlatMap();
 		}
+		
+		Integer[] actionSet = counterActions.keySet().toArray(new Integer[counterActions.size()]);
+		Set<Integer> existServerSet = agentThread.existServerSet();
+		for (int serverId : actionSet) {
+			Server server = ServerManager.getInstance().getServer(serverId);
+			if (existServerSet.contains(serverId) == false || server == null) {
+				removeActionCache(serverId);
+			} else if (server.isDirty()) {
+				server.setDirty(false);
+				removeActionCache(serverId);
+			}
+		}
+		
 		ExUtil.exec(agentTree, new Runnable() {
 			public void run() {
 				refreshViewer();
@@ -543,7 +556,7 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 		}
 	}
 
-	public static void removeActionCache(int serverId) {
+	private static void removeActionCache(int serverId) {
 		counterActions.remove(serverId);
 	}
 	

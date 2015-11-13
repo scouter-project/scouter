@@ -24,7 +24,6 @@ import java.net.Socket;
 
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
-import scouter.client.util.ConsoleProxy;
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.net.NetCafe;
@@ -60,11 +59,11 @@ public class ClientTCP{
 			out.flush();
 			//*************//
 			if (server.isConnected() == false) {
-				ConsoleProxy.infoSafe("Success to connect " + server.getIp() + ":" + server.getPort());
+				System.out.println("Success to connect " + server.getIp() + ":" + server.getPort());
 				server.setConnected(true);
 			}
 		} catch (Throwable t) {
-			ConsoleProxy.errorSafe(t.toString());
+			t.printStackTrace();
 			close();
 			server.setConnected(false);
 		}

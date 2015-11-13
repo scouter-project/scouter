@@ -16,15 +16,15 @@
  */
 package scouter.agent.trace.api;
 
-import scouter.agent.trace.HookPoint;
+import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 
 public class ForDefault implements ApiCallTraceHelper.IHelper {
-	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
+	public ApiCallStep process(TraceContext ctx, HookArgs hookPoint) {
 
 		ApiCallStep step = new ApiCallStep();
-		ctx.apicall_name = hookPoint.className;
+		ctx.apicall_name = hookPoint.class1;
 		return step;
 	}
 }

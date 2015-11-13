@@ -20,17 +20,19 @@ import java.io.PrintWriter;
 
 import scouter.agent.Logger;
 
-public class ResponseWrapper  extends Wrapper{
+public class WrResponse extends Wrapper {
 
 	private Object resObject;
 
-	private static java.lang.reflect.Method getWriter;
-	private static java.lang.reflect.Method getContentType;
-	private static java.lang.reflect.Method getCharacterEncoding;
+	private Throwable _error;
 
-	private static boolean enabled = true;
+	private java.lang.reflect.Method getWriter;
+	private java.lang.reflect.Method getContentType;
+	private java.lang.reflect.Method getCharacterEncoding;
 
-	public ResponseWrapper(Object res) {
+	private boolean enabled = true;
+
+	public WrResponse(Object res) {
 		resObject = res;
 	}
 
@@ -40,10 +42,12 @@ public class ResponseWrapper  extends Wrapper{
 		try {
 			if (getWriter == null) {
 				getWriter = this.resObject.getClass().getMethod("getWriter", arg_c);
+				getWriter.setAccessible(true);
 			}
 			return (java.io.PrintWriter) getWriter.invoke(resObject, arg_o);
 		} catch (Throwable e) {
 			enabled = false;
+			_error = e;
 			Logger.println("A173", e);
 			return null;
 		}
@@ -55,10 +59,12 @@ public class ResponseWrapper  extends Wrapper{
 		try {
 			if (getContentType == null) {
 				getContentType = this.resObject.getClass().getMethod("getContentType", arg_c);
+				getContentType.setAccessible(true);
 			}
 			return (String) getContentType.invoke(resObject, arg_o);
 		} catch (Throwable e) {
 			enabled = false;
+			_error = e;
 			Logger.println("A174", e);
 			return null;
 		}
@@ -70,13 +76,27 @@ public class ResponseWrapper  extends Wrapper{
 		try {
 			if (getCharacterEncoding == null) {
 				getCharacterEncoding = this.resObject.getClass().getMethod("getCharacterEncoding", arg_c);
+				getCharacterEncoding.setAccessible(true);
 			}
 			return (String) getCharacterEncoding.invoke(resObject, arg_o);
 		} catch (Throwable e) {
 			enabled = false;
+			_error = e;
 			Logger.println("A175", e);
 			return null;
 		}
+	}
+
+	public Object inner() {
+		return this.resObject;
+	}
+
+	public boolean isOk() {
+		return enabled;
+	}
+
+	public Throwable error() {
+		return _error;
 	}
 
 }

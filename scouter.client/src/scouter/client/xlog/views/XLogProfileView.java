@@ -136,7 +136,7 @@ public class XLogProfileView extends ViewPart {
 		text.setText("");
 		
 		ProfileText.build(DateUtil.yyyymmdd(xLogData.p.endTime), text, this.xLogData, steps, spaceCnt,  serverId);
-		text.addListener(SWT.MouseDown, new Listener(){
+		text.addListener(SWT.MouseUp, new Listener(){
 			public void handleEvent(Event event) {
 				try {
 					int offset = text.getOffsetAtLocation(new Point (event.x, event.y));

@@ -32,7 +32,7 @@ object TextRD {
         try {
             val divhash = HashUtil.hash(divs);
             if (TextPermWR.isA(divhash)) {
-                return TextPermRD.getString(divs, hash);
+                return TextPermRD.getString(divhash, hash);
             }
             val table = TextWR.open(date)
             val b = table.get(divhash, hash);

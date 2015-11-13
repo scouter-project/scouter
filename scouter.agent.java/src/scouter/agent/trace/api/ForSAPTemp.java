@@ -16,27 +16,27 @@
  */
 package scouter.agent.trace.api;
 
-import scouter.agent.trace.HookPoint;
+import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 
 public class ForSAPTemp implements ApiCallTraceHelper.IHelper {
-	public ApiCallStep process(TraceContext ctx, HookPoint hookPoint) {
+	public ApiCallStep process(TraceContext ctx, HookArgs hookPoint) {
 
 		ApiCallStep step = new ApiCallStep();
 
-		if (hookPoint.arg != null && hookPoint.arg.length > 0) {
-			ctx.apicall_name = hookPoint.methodName + "(" + hookPoint.arg[0] + ")";
+		if (hookPoint.args != null && hookPoint.args.length > 0) {
+			ctx.apicall_name = hookPoint.method + "(" + hookPoint.args[0] + ")";
 		}
 		if (ctx.apicall_name == null)
-			ctx.apicall_name = hookPoint.className;
+			ctx.apicall_name = hookPoint.class1;
 		return step;
 	}
 
-	public void apiEnd(TraceContext ctx, HookPoint hookPoint, Object returnValue, Throwable thr) {
+	public void apiEnd(TraceContext ctx, HookArgs hookPoint, Object returnValue, Throwable thr) {
 	}
 
-	public void checkTarget(HookPoint hookPoint) {
+	public void checkTarget(HookArgs hookPoint) {
 	}
 
 	public String targetName() {

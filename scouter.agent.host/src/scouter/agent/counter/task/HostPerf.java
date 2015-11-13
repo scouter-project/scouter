@@ -24,9 +24,7 @@ import scouter.lang.value.DecimalValue;
 import scouter.lang.value.FloatValue;
 import scouter.util.FormatUtil;
 import scouter.util.LongEnumer;
-import scouter.util.LongIntMap;
 import scouter.util.LongKeyLinkedMap;
-import scouter.util.StringUtil;
 
 public class HostPerf {
 	static int SLEEP_TIME = 2000;
@@ -54,15 +52,16 @@ public class HostPerf {
 		alertMem(m);
 
 		long tmem = m.getTotal();
-		long fmem = m.getFree();
-		long umem = m.getUsed();
-		float memrate = umem * 100.0f / tmem;
+		long fmem = m.getActualFree();
+		long umem = m.getActualUsed();
+		float memrate = (float) m.getUsedPercent();
 
 		Swap sw = sigar.getSwap();
 		long pagein = sw.getPageIn();
 		long pageout = sw.getPageOut();
 		long tswap = sw.getTotal();
 		long uswap = sw.getUsed();
+		float swaprate = uswap * 100.0f / tswap;
 
 		PerfCounterPack p = pw.getPack(conf.objName, TimeTypeEnum.REALTIME);
 		p.put(CounterConstants.HOST_CPU, new FloatValue(cpu));
@@ -72,6 +71,7 @@ public class HostPerf {
 		p.put(CounterConstants.HOST_MEM_AVALIABLE, new DecimalValue(fmem / 1024 / 1024));
 		p.put(CounterConstants.HOST_SWAP_PAGE_IN, new DecimalValue(pagein));
 		p.put(CounterConstants.HOST_SWAP_PAGE_OUT, new DecimalValue(pageout));
+		p.put(CounterConstants.HOST_SWAP, new FloatValue(swaprate));
 		p.put(CounterConstants.HOST_SWAP_TOTAL, new DecimalValue(tswap / 1024 / 1024));
 		p.put(CounterConstants.HOST_SWAP_USED, new DecimalValue(uswap / 1024 / 1024));
 
@@ -109,10 +109,8 @@ public class HostPerf {
 		if(conf.mem_alert_enabled==false)
 			return;
 		
-		long tmem = m.getTotal();
-		long fmem = m.getFree();
-		long umem = m.getUsed();
-		float memrate = umem * 100.0f / tmem;
+		long fmem = m.getActualFree();
+		float memrate = (float) m.getUsedPercent();
 
 		long now = System.currentTimeMillis();
 

@@ -16,13 +16,6 @@
  */
 package scouter.agent.plugin;
 
-abstract public class ICapture extends IPlugIn {
-
-	abstract public void capArgs(ContextWrapper ctx, String className, String methodName, String methodDesc,
-			Object[] arg);
-
-	abstract public void capReturn(ContextWrapper ctx, String className, String methodName, String methodDesc,
-			Object rtn);
-
-	abstract public void capThis(ContextWrapper ctx, String className, String methodDesc, Object this1);
+abstract public class AbstractJdbcPool extends AbstractPlugin {
+	abstract public String url(WrContext ctx, String classMethod, Object datasource);
 }
