@@ -27,6 +27,7 @@ import scouter.util.DateUtil;
 import scouter.util.FileUtil;
 import scouter.util.IClose;
 import scouter.util.StringLongLinkedMap;
+import scouter.util.StringUtil;
 import scouter.util.ThreadUtil;
 
 public class Logger {
@@ -109,7 +110,7 @@ public class Logger {
 	}
 
 	private static synchronized void openFile(String prefix) throws IOException {
-		if (pw == null) {
+		if (pw == null && StringUtil.isEmpty(conf.logs_dir) == false) {
 			File root = new File(conf.logs_dir);
 			if (root.canWrite() == false) {
 				root.mkdirs();

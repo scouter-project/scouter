@@ -265,7 +265,7 @@ public class Configure extends Thread {
 
 	public int socket_open_fullstack_port = 0;
 
-	public String logs_dir="./scouter_logs";
+	public String logs_dir="";
 	public boolean log_rotation=true;
 	public int log_keep_dates=7;
 
@@ -566,7 +566,7 @@ public class Configure extends Thread {
 		this.debug_sql_call = getBoolean("debug_sql_call", false);
 		this.socket_open_fullstack_port = getInt("socket_open_fullstack_port", 0);
 
-		this.logs_dir= getValue("logs_dir", "./scouter_logs");
+		this.logs_dir= getValue("logs_dir", "");
 		this.log_rotation = getBoolean("log_rotation", true);
 		this.log_keep_dates = getInt("log_keep_dates", 7);
 		
