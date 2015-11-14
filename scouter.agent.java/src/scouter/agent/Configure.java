@@ -183,6 +183,7 @@ public class Configure extends Thread {
 	public String hook_jdbc_rs = "";
 
 	public String hook_driver_connect_wrapper = "";
+	public String hook_add_field;
 
 	// /LOAD CONTROL/////
 	public boolean enable_reject_service = false;
@@ -230,7 +231,7 @@ public class Configure extends Thread {
 	public boolean enable_hook_methods = true;
 	public boolean enable_hook_socket = true;
 	public boolean enable_hook_jsp = true;
-	public boolean enable_hook_future = true;
+	public boolean enable_hook_custom = true;
 
 	// //////////////////////////////////////////
 	public boolean enable_usertx = true;
@@ -263,6 +264,10 @@ public class Configure extends Thread {
 	public boolean debug_sql_call = false;
 
 	public int socket_open_fullstack_port = 0;
+
+	public String logs_dir="./scouter_logs";
+	public boolean log_rotation=true;
+	public int log_keep_dates=7;
 
 	/**
 	 * sometimes call by sample application, at that time normally set some
@@ -313,7 +318,7 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
-
+	
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
 		if (force == false && now < last_check + 3000)
@@ -453,6 +458,7 @@ public class Configure extends Thread {
 		this.hook_jdbc_stmt = getValue("hook_jdbc_stmt", "");
 		this.hook_jdbc_rs = getValue("hook_jdbc_rs", "");
 		this.hook_driver_connect_wrapper = getValue("hook_driver_connect_wrapper", "");
+		this.hook_add_field = getValue("hook_add_field", "");
 
 		this.hook_signature ^= this.hook_args.hashCode();
 		this.hook_signature ^= this.hook_return.hashCode();
@@ -463,7 +469,7 @@ public class Configure extends Thread {
 		this.hook_signature ^= this.hook_apicall.hashCode();
 		this.hook_signature ^= this.hook_jsp.hashCode();
 		this.hook_signature ^= this.hook_driver_connect_wrapper.hashCode();
-
+		
 		this.enable_reject_service = getBoolean("enable_reject_service", false);
 		this.max_active_service = getInt("max_active_service", 10000);
 		this.enable_reject_url = getBoolean("enable_reject_url", false);
@@ -516,7 +522,7 @@ public class Configure extends Thread {
 		this.enable_hook_methods = getBoolean("enable_hook_methods", true);
 		this.enable_hook_socket = getBoolean("enable_hook_socket", true);
 		this.enable_hook_jsp = getBoolean("enable_hook_jsp", true);
-		this.enable_hook_future = getBoolean("enable_hook_future", true);
+		this.enable_hook_custom = getBoolean("enable_hook_custom", true);
 
 		this.enable_dbc_wrapper = getBoolean("enable_dbc_wrapper", true);
 		this.enable_usertx = getBoolean("enable_usertx", true);
@@ -560,6 +566,10 @@ public class Configure extends Thread {
 		this.debug_sql_call = getBoolean("debug_sql_call", false);
 		this.socket_open_fullstack_port = getInt("socket_open_fullstack_port", 0);
 
+		this.logs_dir= getValue("logs_dir", "./scouter_logs");
+		this.log_rotation = getBoolean("log_rotation", true);
+		this.log_keep_dates = getInt("log_keep_dates", 7);
+		
 		resetObjInfo();
 		setErrorStatus();
 		setStaticContents();

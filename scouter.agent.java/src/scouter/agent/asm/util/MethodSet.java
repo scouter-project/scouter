@@ -175,4 +175,21 @@ public class MethodSet {
 		}
 		return classSet;
 	}
+	public static Map<String, String> getClassFieldSet(String arg) {
+		String[] c = StringUtil.split(arg, ',');
+
+		Map<String, String> m = new HashMap<String, String>();
+		for (int i = 0; i < c.length; i++) {
+			String s = c[i];
+			int x = s.lastIndexOf(".");
+			if (x <= 0)
+				continue;
+			String cname = s.substring(0, x).replace('.', '/').trim();
+			String mname = s.substring(x + 1).trim();
+
+			m.put(cname, mname);
+		}
+
+		return m;
+	}
 }

@@ -17,7 +17,6 @@
 
 package scouter.agent.trace;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -149,7 +148,7 @@ public class TraceSQL {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.debug_background_sql) {
-				Logger.info("background: " + sql);
+				Logger.println("background: " + sql);
 			}
 			return null;
 		}
@@ -244,7 +243,7 @@ public class TraceSQL {
 	public static void end(Object stat, Throwable thr) {
 		if (stat == null) {
 			if (conf.debug_background_sql && thr != null) {
-				Logger.info("BG-SQL:" + thr);
+				Logger.println("BG-SQL:" + thr);
 			}
 			return;
 		}
@@ -428,7 +427,7 @@ public class TraceSQL {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.debug_background_sql && args != null) {
-				Logger.info("background: " + args.getSql());
+				Logger.println("background: " + args.getSql());
 			}
 			return null;
 		}

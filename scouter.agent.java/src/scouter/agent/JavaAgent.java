@@ -37,7 +37,7 @@ public class JavaAgent {
 		JavaAgent.instrumentation = i;
 		JavaAgent.instrumentation.addTransformer(new AgentTransformer());
 
-		//RequestAgent.getInstance();
+		// RequestAgent.getInstance();
 		TcpRequestMgr.getInstance();
 		AsyncRunner.getInstance().add(new AgentBoot());
 	}
@@ -55,7 +55,7 @@ public class JavaAgent {
 		JavaAgent.instrumentation = i;
 		JavaAgent.instrumentation.addTransformer(new AgentTransformer());
 
-		//RequestAgent.getInstance();
+		// RequestAgent.getInstance();
 		TcpRequestMgr.getInstance();
 		AsyncRunner.getInstance().add(new LazyAgentBoot());
 	}
@@ -76,7 +76,7 @@ public class JavaAgent {
 				String value = StringUtil.trimToEmpty(op[1]);
 				if (key.length() > 0) {
 					System.setProperty(key, value);
-					Logger.println("A117","add property : " + key + "=" + value);
+					Logger.println("A117", "add property : " + key + "=" + value);
 				}
 			}
 		} catch (Throwable e) {
@@ -84,21 +84,18 @@ public class JavaAgent {
 		}
 	}
 
-	
-
 	private static void intro() {
 		try {
 			System.setProperty("scouter.enabled", "true");
 			Logo.print(false);
 			ClassLoader cl = JavaAgent.class.getClassLoader();
 			if (cl == null) {
-				Logger.info("loaded by system classloader ");
-				Logger.info(cut(""
-						+ ClassLoader.getSystemClassLoader().getResource(
-								JavaAgent.class.getName().replace('.', '/') + ".class")));
+				Logger.println("loaded by system classloader ");
+				Logger.println(cut("" + ClassLoader.getSystemClassLoader()
+						.getResource(JavaAgent.class.getName().replace('.', '/') + ".class")));
 			} else {
-				Logger.info("loaded by app classloader ");
-				Logger.info(cut("" + cl.getResource(JavaAgent.class.getName().replace('.', '/') + ".class")));
+				Logger.println("loaded by app classloader ");
+				Logger.println(cut("" + cl.getResource(JavaAgent.class.getName().replace('.', '/') + ".class")));
 			}
 		} catch (Throwable t) {
 		}

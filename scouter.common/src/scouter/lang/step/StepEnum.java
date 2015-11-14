@@ -28,7 +28,8 @@ public class StepEnum {
 	public final static byte SOCKET = 5;
 	public final static byte APICALL = 6;
 	public static final byte THREAD_SUBMIT = 7;
-	
+	public final static byte CUSTOM_MESSAGE = 9;
+
 	public final static byte METHOD_SUM = 11;
 	public final static byte SQL_SUM = 21;
 	public final static byte MESSAGE_SUM = 31;
@@ -53,6 +54,8 @@ public class StepEnum {
 			return new ApiCallStep();
 		case THREAD_SUBMIT:
 			return new ThreadSubmitStep();
+		case CUSTOM_MESSAGE:
+			return new CustomMessageStep();
 			
 		case MESSAGE_SUM:
 			return new MessageSum();
