@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import scouter.lang.conf.ConfObserver;
+import scouter.lang.conf.ConfigValueUtil;
 import scouter.util.CompareUtil;
 import scouter.util.DateUtil;
 import scouter.util.FileUtil;
@@ -118,13 +120,14 @@ public class Logger {
 			if (root.canWrite() == false) {
 				return;
 			}
+
 			if (conf.log_rotation) {
-				File file = new File(conf.logs_dir, prefix + "-" + DateUtil.yyyymmdd() + ".log");
+				File file = new File(conf.logs_dir, "scouter-" + prefix + "-" + DateUtil.yyyymmdd() + ".log");
 				FileWriter fw = new FileWriter(file, true);
 				pw = new PrintWriter(fw);
 				logfile = file;
 			} else {
-				File file = new File(conf.logs_dir, prefix + ".log");
+				File file = new File(conf.logs_dir, "scouter-" + prefix + ".log");
 				pw = new PrintWriter(new FileWriter(file, true));
 				logfile = file;
 			}
@@ -133,57 +136,55 @@ public class Logger {
 	}
 
 	static Configure conf = Configure.getInstance();
+	static Runnable initializer = new Runnable() {
+		long last = System.currentTimeMillis();
+		long lastDataUnit = DateUtil.getDateUnit();
+		String lastDir = conf.logs_dir;
+		boolean lastFileRotation = conf.log_rotation;
+		String scouter_name = "boot";
 
-	static {
-
-		try {
-			openFile("scouter");
-		} catch (Throwable t) {
-			sysout(t.getMessage());
-		}
-		BackJobs.getInstance().put("LOGGER", 3000, new Runnable() {
-			long last = System.currentTimeMillis();
-			long lastDataUnit = DateUtil.getDateUnit();
-			String lastDir = conf.logs_dir;
-			boolean lastFileRotation = conf.log_rotation;
-			String scouter_name = "";
-
-			@Override
-			public void run() {
-				long now = System.currentTimeMillis();
-				if (now > last + DateUtil.MILLIS_PER_HOUR) {
-					last = now;
-					clearOldLog();
-				}
-
-				if (CompareUtil.equals(lastDir, conf.logs_dir) == false //
-						|| lastFileRotation != conf.log_rotation //
-						|| lastDataUnit != DateUtil.getDateUnit() //
-						|| scouter_name.equals(conf.scouter_name) == false//
-						|| (logfile != null && logfile.exists() == false)) {
-					pw = (PrintWriter) FileUtil.close(pw);
-					logfile = null;
-					lastDir = conf.logs_dir;
-					lastFileRotation = conf.log_rotation;
-					lastDataUnit = DateUtil.getDateUnit();
-					scouter_name = conf.scouter_name;
-				}
-
-				try {
-					openFile(scouter_name);
-				} catch (Throwable t) {
-					sysout(t.getMessage());
-				}
+		@Override
+		public void run() {
+			try {
+				process();
+			} catch (Throwable t) {
 			}
-		});
-	}
+		}
+
+		private synchronized void process() {
+			long now = System.currentTimeMillis();
+			if (now > last + DateUtil.MILLIS_PER_HOUR) {
+				last = now;
+				clearOldLog();
+			}
+
+			if (CompareUtil.equals(lastDir, conf.logs_dir) == false //
+					|| lastFileRotation != conf.log_rotation //
+					|| lastDataUnit != DateUtil.getDateUnit() //
+					|| scouter_name.equals(conf.scouter_name) == false//
+					|| (logfile != null && logfile.exists() == false)) {
+				pw = (PrintWriter) FileUtil.close(pw);
+				logfile = null;
+				lastDir = conf.logs_dir;
+				lastFileRotation = conf.log_rotation;
+				lastDataUnit = DateUtil.getDateUnit();
+				scouter_name = conf.scouter_name;
+			}
+
+			try {
+				openFile(scouter_name);
+			} catch (Throwable t) {
+				sysout(t.getMessage());
+			}
+		}
+	};
 
 	protected static void clearOldLog() {
 		if (conf.log_rotation == false)
 			return;
 		if (conf.log_keep_dates <= 0)
 			return;
-		String scouter_name = conf.scouter_name;
+		String scouter_prefix = "scouter-" + conf.scouter_name;
 		long nowUnit = DateUtil.getDateUnit();
 		File dir = new File(conf.logs_dir);
 		File[] files = dir.listFiles();
@@ -191,12 +192,12 @@ public class Logger {
 			if (files[i].isDirectory())
 				continue;
 			String name = files[i].getName();
-			if (name.startsWith(scouter_name + "-") == false)
+			if (name.startsWith(scouter_prefix + "-") == false)
 				continue;
 			int x = name.lastIndexOf('.');
 			if (x < 0)
 				continue;
-			String date = name.substring(scouter_name.length() + 1, x);
+			String date = name.substring(scouter_prefix.length() + 1, x);
 			if (date.length() != 8)
 				continue;
 

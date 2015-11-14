@@ -19,6 +19,8 @@ package scouter.agent;
 import java.lang.instrument.Instrumentation;
 import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.util.AsyncRunner;
+import scouter.lang.conf.ConfObserver;
+import scouter.lang.conf.ConfigValueUtil;
 import scouter.util.StringUtil;
 import scouter.util.logo.Logo;
 
@@ -32,7 +34,9 @@ public class JavaAgent {
 			return;
 		}
 		intro();
+
 		Configure.getInstance();
+		BackJobs.getInstance().put(Logger.class.getName(), 3000, Logger.initializer);
 
 		JavaAgent.instrumentation = i;
 		JavaAgent.instrumentation.addTransformer(new AgentTransformer());

@@ -16,9 +16,8 @@
  */
 package scouter.agent;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import scouter.util.StringEnumer;
+import scouter.util.StringKeyLinkedMap;
 import scouter.util.ThreadUtil;
 
 public class BackJobs extends Thread {
@@ -49,18 +48,20 @@ public class BackJobs extends Thread {
 		}
 	}
 
-	private Map<String, JobW> jobs = new HashMap<String, JobW>();
+	private StringKeyLinkedMap<JobW> jobs = new StringKeyLinkedMap<JobW>();
 
 	/**
-	 * 반복적으로 실행할 잡을 등록한다. 
+	 * 반복적으로 실행할 잡을 등록한다.
+	 * 
 	 * @param id
-	 * @param interval - 1000보다 작으면 1000 이 적용된다.
+	 * @param interval
+	 *            - 1000보다 작으면 1000 이 적용된다.
 	 * @param job
 	 */
 	public void put(String id, int interval, Runnable job) {
 		jobs.put(id, new JobW(job, interval));
 	}
-
+	
 	public void remove(String id) {
 		jobs.remove(id);
 	}
@@ -85,17 +86,19 @@ public class BackJobs extends Thread {
 	}
 
 	private void process() {
-		Iterator<Map.Entry<String, JobW>> itr = jobs.entrySet().iterator();
-		while (itr.hasNext()) {
-			Map.Entry<String, JobW> j = itr.next();
-			JobW jobw = j.getValue();
+		StringEnumer en = jobs.keys();
+		while (en.hasMoreElements()) {
+			String id = en.nextString();
+			JobW jobw = jobs.get(id);
+			if (jobw == null)
+				continue;
 			long now = System.currentTimeMillis();
 			if (now >= jobw.lastExTime + jobw.interval) {
 				jobw.lastExTime = now;
 				try {
 					jobw.job.run();
 				} catch (Exception e) {
-					Logger.println("A110", j.getKey() + ":" + e);
+					Logger.println("A110", id + ":" + e);
 				}
 			}
 		}
