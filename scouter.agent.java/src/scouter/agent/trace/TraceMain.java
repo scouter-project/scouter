@@ -367,7 +367,18 @@ public class TraceMain {
 			ctx.profile_thread_cputime = conf.profile_thread_cputime;
 			ctx.xType = xType;
 			PluginAppServiceTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
-			return new Stat(ctx);
+			if (ctx.xType == XLogTypes.BACK_THREAD) {
+				MethodStep ms = new MethodStep();
+				ms.hash = DataProxy.sendMethodName(service_name);
+				ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+				if (ctx.profile_thread_cputime) {
+					ms.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+				}
+				ctx.profile.push(ms);
+				return new LocalContext(ctx, ms);
+			} else {
+				return new LocalContext(ctx);
+			}
 		} catch (Throwable t) {
 			Logger.println("A147", t);
 		}
@@ -376,11 +387,25 @@ public class TraceMain {
 
 	public static void endService(Object stat, Object returnValue, Throwable thr) {
 		try {
-			Stat stat0 = (Stat) stat;
-			if (stat0 == null)
+			LocalContext localCtx = (LocalContext) stat;
+			if (localCtx == null)
 				return;
-			TraceContext ctx = stat0.ctx;
+			TraceContext ctx = localCtx.context;
 			if (ctx == null) {
+				return;
+			}
+			
+			if (ctx.xType == XLogTypes.BACK_THREAD) {
+				MethodStep ms = (MethodStep) localCtx.stepSingle;
+				ms.elapsed = (int) (System.currentTimeMillis() - ctx.startTime) - ms.start_time;
+				if (ctx.profile_thread_cputime) {
+					ms.cputime = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu) - ms.start_cpu;
+				}
+				ctx.profile.pop(ms);
+
+				PluginAppServiceTrace.end(ctx);
+				TraceContextManager.end(ctx.threadId);
+				ctx.profile.close(true);
 				return;
 			}
 
@@ -403,7 +428,7 @@ public class TraceMain {
 			pack.sqlTime = ctx.sqlTime;
 			pack.txid = ctx.txid;
 			pack.gxid = ctx.gxid;
-			pack.caller=ctx.caller;
+			pack.caller = ctx.caller;
 			pack.ipaddr = IPUtil.toBytes(ctx.remoteIp);
 			pack.userid = ctx.userid;
 			if (ctx.error != 0) {
@@ -450,7 +475,7 @@ public class TraceMain {
 				DataProxy.sendXLog(pack);
 			}
 		} catch (Throwable t) {
-			Logger.println("A148", t);
+			Logger.println("A148", "service end error", t);
 		}
 	}
 
@@ -545,7 +570,7 @@ public class TraceMain {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
-		PluginCaptureTrace.capReturn(ctx, new HookReturn(className,methodName, methodDesc, this1, rtn));
+		PluginCaptureTrace.capReturn(ctx, new HookReturn(className, methodName, methodDesc, this1, rtn));
 	}
 
 	private static Configure conf = Configure.getInstance();
@@ -556,7 +581,7 @@ public class TraceMain {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.enable_auto_service_trace) {
-				Object stat = startService(classMethod, null, null, null, null, null, XLogTypes.BACK_THREAD);
+				Object stat = startService(classMethod, null, null, null, null, null, XLogTypes.APP_SERVICE);
 				if (conf.enable_auto_service_backstack) {
 					String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
 					AutoServiceStartAnalizer.put(classMethod, stack);

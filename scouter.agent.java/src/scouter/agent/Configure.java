@@ -184,7 +184,6 @@ public class Configure extends Thread {
 
 	public String hook_driver_connect_wrapper = "";
 	public String hook_add_field = "";
-	public String hook_custom_service = "";
 
 	// /LOAD CONTROL/////
 	public boolean enable_reject_service = false;
@@ -219,9 +218,6 @@ public class Configure extends Thread {
 
 	public boolean enable_auto_service_trace = false;
 	public boolean enable_auto_service_backstack = true;
-
-	public String hook_future_task = "";
-	public String hook_future_task_prefix = "";
 
 	// DEBUG OPTIONS
 	public boolean enable_counter_task = true;
@@ -270,6 +266,7 @@ public class Configure extends Thread {
 	public boolean log_rotation=true;
 	public int log_keep_dates=7;
 
+	
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -454,7 +451,6 @@ public class Configure extends Thread {
 		this.hook_apicall = getValue("hook_apicall", "");
 		this.hook_apicall_info = getValue("hook_apicall_info", "");
 		this.hook_jsp = getValue("hook_jsp", "");
-		this.hook_custom_service = getValue("hook_custom_service", "");
 		
 		this.hook_jdbc_pstmt = getValue("hook_jdbc_pstmt", "");
 		this.hook_jdbc_stmt = getValue("hook_jdbc_stmt", "");
@@ -512,9 +508,6 @@ public class Configure extends Thread {
 		this.enable_host_agent = getBoolean("enable_host_agent", false);
 		this.enable_auto_service_trace = getBoolean("enable_auto_service_trace", false);
 		this.enable_auto_service_backstack = getBoolean("enable_auto_service_backstack", true);
-
-		this.hook_future_task = getValue("hook_future_task", "");
-		this.hook_future_task_prefix = getValue("hook_future_task_prefix", "");
 
 		this.enable_counter_task = getBoolean("enable_counter_task", true);
 		this.enable_hook_service = getBoolean("enable_hook_service", true);

@@ -28,7 +28,6 @@ import scouter.agent.asm.ApicallInfoASM;
 import scouter.agent.asm.CapArgsASM;
 import scouter.agent.asm.CapReturnASM;
 import scouter.agent.asm.CapThisASM;
-import scouter.agent.asm.FutureTaskASM;
 import scouter.agent.asm.HttpServiceASM;
 import scouter.agent.asm.IASM;
 import scouter.agent.asm.JDBCConnectionOpenASM;
@@ -122,7 +121,6 @@ public class AgentTransformer implements ClassFileTransformer {
 		}
 		if (conf.enable_hook_async) {
 			temp.add(new AddFieldASM());
-			temp.add(new FutureTaskASM());
 		}
 
 		asms = temp;

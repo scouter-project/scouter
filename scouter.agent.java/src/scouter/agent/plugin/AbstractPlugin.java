@@ -10,7 +10,9 @@ import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TransferMap;
 import scouter.lang.AlertLevel;
+import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.ApiCallStep;
+import scouter.lang.step.ThreadSubmitStep;
 import scouter.util.KeyGen;
 import scouter.util.SysJMX;
 
@@ -117,29 +119,42 @@ public class AbstractPlugin {
 			return 0;
 		return syshash(hook.this1);
 	}
-
-	public void forward(WrContext wctx, int uuid) {
-		if(wctx==null)
+	public void forward(WrContext wctx, int uuid){
+		forward(wctx, uuid,false);
+	}
+	public void forward(WrContext wctx, int uuid, boolean back_thread) {
+		if (wctx == null)
 			return;
 		TraceContext ctx = wctx.inner();
-		if(ctx.gxid==0){
-			ctx.gxid=ctx.txid;
+		if (ctx.gxid == 0) {
+			ctx.gxid = ctx.txid;
 		}
-		
+
 		long callee = KeyGen.next();
 		TransferMap.put(uuid, ctx.gxid, ctx.txid, callee);
 
-		ApiCallStep step = new ApiCallStep();
-		step.txid = callee;
-		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		if (ctx.profile_thread_cputime) {
-			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+		if (back_thread) {
+			ThreadSubmitStep step = new ThreadSubmitStep();
+			step.txid = callee;
+			step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+			if (ctx.profile_thread_cputime) {
+				step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+			}
+			step.hash = DataProxy.sendApicall("local-forward");
+			ctx.profile.add(step);
+		}else{
+			ApiCallStep step = new ApiCallStep();
+			step.txid = callee;
+			step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+			if (ctx.profile_thread_cputime) {
+				step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+			}
+			step.hash = DataProxy.sendApicall("local-forward");
+			ctx.profile.add(step);
 		}
-		step.hash=DataProxy.sendApicall("forward-trace");
-		ctx.profile.add(step);
 	}
 
-	public void receive(WrContext ctx, int uuid) {
+	public void receive(WrContext ctx, int uuid, boolean back_thread) {
 		TransferMap.ID id = TransferMap.get(uuid);
 		if (id == null)
 			return;
@@ -151,6 +166,9 @@ public class AbstractPlugin {
 		}
 		if (id.caller != 0) {
 			ctx.inner().caller = id.caller;
+		}
+		if(back_thread){
+			ctx.inner().xType=XLogTypes.BACK_THREAD;
 		}
 	}
 }

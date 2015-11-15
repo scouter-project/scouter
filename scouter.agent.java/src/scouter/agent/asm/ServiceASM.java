@@ -36,8 +36,6 @@ public class ServiceASM implements IASM, Opcodes {
 	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_service);
 
 	public ServiceASM() {
-		//MethodSet.add(target, "com/netflix/discovery/DiscoveryClient", "makeRemoteCall", XLogTypes.BACK_THREAD);
-		//MethodSet.add(target, "com/netflix/eureka/PeerAwareInstanceRegistry", "syncUp", XLogTypes.BACK_THREAD);
 	}
 
 
