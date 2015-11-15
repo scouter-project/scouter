@@ -403,6 +403,7 @@ public class TraceMain {
 			pack.sqlTime = ctx.sqlTime;
 			pack.txid = ctx.txid;
 			pack.gxid = ctx.gxid;
+			pack.caller=ctx.caller;
 			pack.ipaddr = IPUtil.toBytes(ctx.remoteIp);
 			pack.userid = ctx.userid;
 			if (ctx.error != 0) {

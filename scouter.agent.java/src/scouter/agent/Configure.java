@@ -183,7 +183,8 @@ public class Configure extends Thread {
 	public String hook_jdbc_rs = "";
 
 	public String hook_driver_connect_wrapper = "";
-	public String hook_add_field;
+	public String hook_add_field = "";
+	public String hook_custom_service = "";
 
 	// /LOAD CONTROL/////
 	public boolean enable_reject_service = false;
@@ -231,7 +232,7 @@ public class Configure extends Thread {
 	public boolean enable_hook_methods = true;
 	public boolean enable_hook_socket = true;
 	public boolean enable_hook_jsp = true;
-	public boolean enable_hook_custom = true;
+	public boolean enable_hook_async = true;
 
 	// //////////////////////////////////////////
 	public boolean enable_usertx = true;
@@ -292,7 +293,7 @@ public class Configure extends Thread {
 	private boolean running = true;
 
 	public void run() {
-		Logger.info("Version " + Version.getAgentFullVersion());
+		Logger.println("Version " + Version.getAgentFullVersion());
 		long dateUnit = DateUtil.getDateUnit();
 		while (running) {
 			reload(false);
@@ -453,7 +454,8 @@ public class Configure extends Thread {
 		this.hook_apicall = getValue("hook_apicall", "");
 		this.hook_apicall_info = getValue("hook_apicall_info", "");
 		this.hook_jsp = getValue("hook_jsp", "");
-
+		this.hook_custom_service = getValue("hook_custom_service", "");
+		
 		this.hook_jdbc_pstmt = getValue("hook_jdbc_pstmt", "");
 		this.hook_jdbc_stmt = getValue("hook_jdbc_stmt", "");
 		this.hook_jdbc_rs = getValue("hook_jdbc_rs", "");
@@ -522,7 +524,7 @@ public class Configure extends Thread {
 		this.enable_hook_methods = getBoolean("enable_hook_methods", true);
 		this.enable_hook_socket = getBoolean("enable_hook_socket", true);
 		this.enable_hook_jsp = getBoolean("enable_hook_jsp", true);
-		this.enable_hook_custom = getBoolean("enable_hook_custom", true);
+		this.enable_hook_async = getBoolean("enable_hook_async", true);
 
 		this.enable_dbc_wrapper = getBoolean("enable_dbc_wrapper", true);
 		this.enable_usertx = getBoolean("enable_usertx", true);

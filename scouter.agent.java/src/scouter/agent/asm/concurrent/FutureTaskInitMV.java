@@ -18,7 +18,7 @@
 package scouter.agent.asm.concurrent;
 
 import scouter.agent.trace.TraceContext;
-import scouter.agent.trace.TraceFutureTask;
+import scouter.agent.trace.TraceAsyncService;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
@@ -26,7 +26,7 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class FutureTaskInitMV extends LocalVariablesSorter implements Opcodes {
 
-	private final static String TRACEFUTURE = TraceFutureTask.class.getName().replace('.', '/');
+	private final static String TRACEFUTURE = TraceAsyncService.class.getName().replace('.', '/');
 	private final static String METHOD = "getContext";
 	private final static String SIGNATURE = "()Lscouter/agent/trace/TraceContext;";
 
@@ -42,7 +42,7 @@ public class FutureTaskInitMV extends LocalVariablesSorter implements Opcodes {
 		if ( opcode >= IRETURN && opcode <= RETURN) {
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEFUTURE, METHOD, SIGNATURE,false);			
-			mv.visitFieldInsn(PUTFIELD, owner, TraceFutureTask.CTX_FIELD, Type.getDescriptor(TraceContext.class));
+			mv.visitFieldInsn(PUTFIELD, owner, TraceAsyncService.CTX_FIELD, Type.getDescriptor(TraceContext.class));
 		}
 		mv.visitInsn(opcode);
 	}

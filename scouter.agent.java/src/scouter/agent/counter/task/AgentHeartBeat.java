@@ -37,8 +37,8 @@ import scouter.util.SysJMX;
 
 public class AgentHeartBeat {
 	static {
-		Logger.info("objType:" + Configure.getInstance().scouter_type);
-		Logger.info("objName:" + Configure.getInstance().objName);
+		Logger.println("objType:" + Configure.getInstance().scouter_type);
+		Logger.println("objName:" + Configure.getInstance().objName);
 	}
 
 	private static StringKeyLinkedMap<ObjectPack> objects = new StringKeyLinkedMap<ObjectPack>();

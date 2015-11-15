@@ -17,13 +17,10 @@
 package scouter.agent.plugin;
 
 import scouter.agent.trace.HookArgs;
-import scouter.lang.pack.XLogPack;
 
 abstract public class AbstractAppService extends AbstractPlugin {
-	public void start(WrContext ctx, HookArgs p) {
-	}
+	abstract public void start(WrContext ctx, HookArgs p);
 
-	public void end(WrContext ctx) {
-	}
+	abstract public void end(WrContext ctx);
 
 }

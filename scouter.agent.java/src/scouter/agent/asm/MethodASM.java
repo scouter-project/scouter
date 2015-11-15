@@ -25,15 +25,12 @@ import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.MethodSet;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceMain;
-import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
-import scouter.util.HashUtil;
-import scouter.util.StringSet;
 
 public class MethodASM implements IASM, Opcodes {
 

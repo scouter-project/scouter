@@ -165,7 +165,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 				
 				String serviceUrl = sb.toString();
 
-				Logger.info("[Apply Spring F/W REST URL] " + serviceUrl);
+				Logger.println("[Apply Spring F/W REST URL] " + serviceUrl);
 
 				AsmUtil.PUSH(mv, serviceUrl);
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);

@@ -28,10 +28,10 @@ import scouter.agent.asm.ApicallInfoASM;
 import scouter.agent.asm.CapArgsASM;
 import scouter.agent.asm.CapReturnASM;
 import scouter.agent.asm.CapThisASM;
-import scouter.agent.asm.JDBCConnectionOpenASM;
 import scouter.agent.asm.FutureTaskASM;
 import scouter.agent.asm.HttpServiceASM;
 import scouter.agent.asm.IASM;
+import scouter.agent.asm.JDBCConnectionOpenASM;
 import scouter.agent.asm.JDBCDriverASM;
 import scouter.agent.asm.JDBCPreparedStatementASM;
 import scouter.agent.asm.JDBCResultSetASM;
@@ -48,12 +48,10 @@ import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
 import scouter.org.objectweb.asm.AnnotationVisitor;
-import scouter.org.objectweb.asm.Attribute;
 import scouter.org.objectweb.asm.ClassReader;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.ClassWriter;
 import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.TypePath;
 import scouter.util.FileUtil;
 import scouter.util.IntSet;
 
@@ -122,7 +120,7 @@ public class AgentTransformer implements ClassFileTransformer {
 		if (conf.enable_hook_jsp) {
 			temp.add(new JspServletASM());
 		}
-		if (conf.enable_hook_custom) {
+		if (conf.enable_hook_async) {
 			temp.add(new AddFieldASM());
 			temp.add(new FutureTaskASM());
 		}

@@ -22,7 +22,7 @@ import scouter.lang.step.ThreadSubmitStep;
 import scouter.util.KeyGen;
 import scouter.util.SysJMX;
 
-public class TraceFutureTask {
+public class TraceAsyncService {
 	public static String CTX_FIELD = "_context_";
 
 	public static TraceContext getContext() {
@@ -31,6 +31,7 @@ public class TraceFutureTask {
 	}
 
 	private static int futureTaskHash;
+
 	static {
 		futureTaskHash = DataProxy.sendMethodName("FutureTask");
 	}
@@ -114,5 +115,4 @@ public class TraceFutureTask {
 		}
 
 	}
-
 }

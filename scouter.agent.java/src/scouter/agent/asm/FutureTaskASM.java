@@ -28,7 +28,7 @@ import scouter.agent.asm.concurrent.FutureTaskCallMV;
 import scouter.agent.asm.concurrent.FutureTaskInitMV;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.trace.TraceContext;
-import scouter.agent.trace.TraceFutureTask;
+import scouter.agent.trace.TraceAsyncService;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
@@ -92,7 +92,7 @@ class FutureCallableCV extends ClassVisitor implements Opcodes {
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		super.visit(version, access, name, signature, superName, interfaces);
-		super.visitField(ACC_PUBLIC, TraceFutureTask.CTX_FIELD, Type.getDescriptor(TraceContext.class), null, null)
+		super.visitField(ACC_PUBLIC, TraceAsyncService.CTX_FIELD, Type.getDescriptor(TraceContext.class), null, null)
 				.visitEnd();
 		this.owner = name;
 		

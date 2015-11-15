@@ -18,16 +18,17 @@
 package scouter.agent.trace;
 
 import java.util.Enumeration;
-import java.util.Hashtable;
 
 import scouter.agent.Configure;
+import scouter.util.LongEnumer;
+import scouter.util.LongKeyMap;
 
 public class TraceContextManager {
 
-	private static Hashtable<Long, TraceContext> entry = new Hashtable<Long, TraceContext>(107);
+	private static LongKeyMap<TraceContext> entry = new LongKeyMap<TraceContext>();
 	private static ThreadLocal<TraceContext> local = new ThreadLocal<TraceContext>();
 
-	public static Enumeration<Long> keys() {
+	public static LongEnumer keys() {
 		return entry.keys();
 	}
 
@@ -40,7 +41,7 @@ public class TraceContextManager {
 		try {
 			Configure conf = Configure.getInstance();
 			long now = System.currentTimeMillis();
-			Enumeration<TraceContext> en = entry.elements();
+			Enumeration<TraceContext> en = entry.values();
 			while (en.hasMoreElements()) {
 				TraceContext ctx = en.nextElement();
 				long tm = now - ctx.startTime;
@@ -56,17 +57,17 @@ public class TraceContextManager {
 		}
 		return act;
 	}
-	
-	public static Enumeration<TraceContext> getContextEnumeration(){
-		return entry.elements();
+
+	public static Enumeration<TraceContext> getContextEnumeration() {
+		return entry.values();
 	}
 
 	public static TraceContext getContext(long key) {
-		return (TraceContext) entry.get(key);
+		return entry.get(key);
 	}
 
 	public static TraceContext getLocalContext() {
-		return (TraceContext) local.get();
+		return  local.get();
 	}
 
 	public static long start(Thread thread, TraceContext o) {

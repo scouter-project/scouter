@@ -18,7 +18,7 @@
 package scouter.agent.asm.concurrent;
 
 import scouter.agent.Logger;
-import scouter.agent.trace.TraceFutureTask;
+import scouter.agent.trace.TraceAsyncService;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
@@ -29,7 +29,7 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 public class FutureTaskCallMV extends LocalVariablesSorter implements Opcodes {
 	
 
-	private final static String TRACEFUTURE = TraceFutureTask.class.getName().replace('.', '/');
+	private final static String TRACEFUTURE = TraceAsyncService.class.getName().replace('.', '/');
 	private final static String START_METHOD = "start";
 	private final static String END_METHOD = "end";
 	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;)V";
@@ -38,7 +38,7 @@ public class FutureTaskCallMV extends LocalVariablesSorter implements Opcodes {
 	public FutureTaskCallMV(int access, String desc, MethodVisitor mv, String owner) {
 		super(ASM4,access, desc, mv);
 		this.owner = owner;
-		Logger.info("future: " +owner + ".call"+desc);
+		Logger.println("future: " +owner + ".call"+desc);
 	}
 	private Label startFinally = new Label();
 
@@ -49,7 +49,7 @@ public class FutureTaskCallMV extends LocalVariablesSorter implements Opcodes {
 	public void visitCode() {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 0);
-	   mv.visitFieldInsn(GETFIELD, owner, TraceFutureTask.CTX_FIELD, "Lscouter/agent/trace/TraceContext;");
+	   mv.visitFieldInsn(GETFIELD, owner, TraceAsyncService.CTX_FIELD, "Lscouter/agent/trace/TraceContext;");
 		
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEFUTURE, START_METHOD, START_SIGNATURE,false);
 

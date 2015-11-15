@@ -4,8 +4,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import scouter.agent.Logger;
+import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.AlertProxy;
+import scouter.agent.trace.HookArgs;
+import scouter.agent.trace.TraceContext;
+import scouter.agent.trace.TransferMap;
 import scouter.lang.AlertLevel;
+import scouter.lang.step.ApiCallStep;
+import scouter.util.KeyGen;
+import scouter.util.SysJMX;
 
 public class AbstractPlugin {
 	long lastModified;
@@ -89,6 +96,61 @@ public class AbstractPlugin {
 		case 'F':
 			AlertProxy.sendAlert(AlertLevel.FATAL, title, message);
 			break;
+		}
+	}
+
+	///
+	public int syshash(Object o) {
+		if (o == null)
+			return 0;
+		return System.identityHashCode(o);
+	}
+
+	public int syshash(HookArgs hook, int x) {
+		if (x >= hook.args.length)
+			return 0;
+		return syshash(hook.args[x]);
+	}
+
+	public int syshash(HookArgs hook) {
+		if (hook == null || hook.this1 == null)
+			return 0;
+		return syshash(hook.this1);
+	}
+
+	public void forward(WrContext wctx, int uuid) {
+		if(wctx==null)
+			return;
+		TraceContext ctx = wctx.inner();
+		if(ctx.gxid==0){
+			ctx.gxid=ctx.txid;
+		}
+		
+		long callee = KeyGen.next();
+		TransferMap.put(uuid, ctx.gxid, ctx.txid, callee);
+
+		ApiCallStep step = new ApiCallStep();
+		step.txid = callee;
+		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+		}
+		step.hash=DataProxy.sendApicall("forward-trace");
+		ctx.profile.add(step);
+	}
+
+	public void receive(WrContext ctx, int uuid) {
+		TransferMap.ID id = TransferMap.get(uuid);
+		if (id == null)
+			return;
+		if (id.gxid != 0) {
+			ctx.inner().gxid = id.gxid;
+		}
+		if (id.callee != 0) {
+			ctx.inner().txid = id.callee;
+		}
+		if (id.caller != 0) {
+			ctx.inner().caller = id.caller;
 		}
 	}
 }

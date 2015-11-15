@@ -28,6 +28,7 @@ import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.HookReturn;
+import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceSQL;
 import scouter.javassist.CannotCompileException;
 import scouter.javassist.ClassPool;
