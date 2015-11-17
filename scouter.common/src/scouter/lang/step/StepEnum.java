@@ -22,6 +22,7 @@ import java.io.IOException;
 
 public class StepEnum {
 	public final static byte METHOD = 1;
+	public final static byte METHOD2 = 10;
 	public final static byte SQL = 2;
 	public final static byte SQL2 = 8;
 	public final static byte MESSAGE = 3;
@@ -44,6 +45,8 @@ public class StepEnum {
 			return new MessageStep();
 		case METHOD:
 			return new MethodStep();
+		case METHOD2:
+			return new MethodStep2();
 		case SQL:
 			return new SqlStep();
 		case SQL2:

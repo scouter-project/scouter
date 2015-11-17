@@ -23,9 +23,9 @@ import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.error.REQUEST_REJECT;
 import scouter.agent.error.USERTX_NOT_CLOSE;
 import scouter.agent.netio.data.DataProxy;
+import scouter.agent.plugin.PluginAppServiceTrace;
 import scouter.agent.plugin.PluginCaptureTrace;
 import scouter.agent.plugin.PluginHttpServiceTrace;
-import scouter.agent.plugin.PluginAppServiceTrace;
 import scouter.agent.proxy.HttpTraceFactory;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
@@ -33,6 +33,7 @@ import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
+import scouter.lang.step.MethodStep2;
 import scouter.util.ArrayUtil;
 import scouter.util.HashUtil;
 import scouter.util.IPUtil;
@@ -368,7 +369,7 @@ public class TraceMain {
 			ctx.xType = xType;
 			PluginAppServiceTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
 			if (ctx.xType == XLogTypes.BACK_THREAD) {
-				MethodStep ms = new MethodStep();
+				MethodStep2 ms = new MethodStep2();
 				ms.hash = DataProxy.sendMethodName(service_name);
 				ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 				if (ctx.profile_thread_cputime) {
@@ -394,14 +395,15 @@ public class TraceMain {
 			if (ctx == null) {
 				return;
 			}
-			
+
 			if (ctx.xType == XLogTypes.BACK_THREAD) {
-				MethodStep ms = (MethodStep) localCtx.stepSingle;
-				ms.elapsed = (int) (System.currentTimeMillis() - ctx.startTime) - ms.start_time;
+				MethodStep2 step = (MethodStep2) localCtx.stepSingle;
+				step.elapsed = (int) (System.currentTimeMillis() - ctx.startTime) - step.start_time;
 				if (ctx.profile_thread_cputime) {
-					ms.cputime = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu) - ms.start_cpu;
+					step.cputime = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu) - step.start_cpu;
 				}
-				ctx.profile.pop(ms);
+				step.error = errorCheck(ctx, thr);
+				ctx.profile.pop(step);
 
 				PluginAppServiceTrace.end(ctx);
 				TraceContextManager.end(ctx.threadId);
@@ -431,30 +433,7 @@ public class TraceMain {
 			pack.caller = ctx.caller;
 			pack.ipaddr = IPUtil.toBytes(ctx.remoteIp);
 			pack.userid = ctx.userid;
-			if (ctx.error != 0) {
-				pack.error = ctx.error;
-			} else if (thr != null) {
-				Configure conf = Configure.getInstance();
-				String emsg = thr.toString();
-				if (conf.profile_fullstack_service_error) {
-					StringBuffer sb = new StringBuffer();
-					sb.append(emsg).append("\n");
-					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
-					thr = thr.getCause();
-					while (thr != null) {
-						sb.append("\nCause...\n");
-						ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
-						thr = thr.getCause();
-					}
-					emsg = sb.toString();
-				}
-				pack.error = DataProxy.sendError(emsg);
-				ServiceSummary.getInstance().process(thr, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
-			} else if (ctx.userTransaction > 0) {
-				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
-				ServiceSummary.getInstance().process(userTxNotClose, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
-			}
-
+			pack.error = errorCheck(ctx, thr);
 			// 2015.11.10
 			if (ctx.group != null) {
 				pack.group = DataProxy.sendGroup(ctx.group);
@@ -477,6 +456,35 @@ public class TraceMain {
 		} catch (Throwable t) {
 			Logger.println("A148", "service end error", t);
 		}
+	}
+
+	private static int errorCheck(TraceContext ctx, Throwable thr) {
+		int error = 0;
+		if (ctx.error != 0) {
+			error = ctx.error;
+		} else if (thr != null) {
+			Configure conf = Configure.getInstance();
+			String emsg = thr.toString();
+			if (conf.profile_fullstack_service_error) {
+				StringBuffer sb = new StringBuffer();
+				sb.append(emsg).append("\n");
+				ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+				thr = thr.getCause();
+				while (thr != null) {
+					sb.append("\nCause...\n");
+					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+					thr = thr.getCause();
+				}
+				emsg = sb.toString();
+			}
+			error = DataProxy.sendError(emsg);
+			ServiceSummary.getInstance().process(thr, error, ctx.serviceHash, ctx.txid, 0, 0);
+		} else if (ctx.userTransaction > 0) {
+			error = DataProxy.sendError("Missing Commit/Rollback Error");
+			ServiceSummary.getInstance().process(userTxNotClose, error, ctx.serviceHash, ctx.txid, 0, 0);
+		}
+		return error;
+
 	}
 
 	public static void capArgs(String className, String methodName, String methodDesc, Object this1, Object[] arg) {

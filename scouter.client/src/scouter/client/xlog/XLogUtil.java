@@ -28,6 +28,7 @@ import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ApiCallSum;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
+import scouter.lang.step.MethodStep2;
 import scouter.lang.step.MethodSum;
 import scouter.lang.step.SocketStep;
 import scouter.lang.step.SocketSum;
@@ -70,6 +71,7 @@ public class XLogUtil {
 				}
 				break;
 			case StepEnum.METHOD:
+			case StepEnum.METHOD2:
 				if (TextProxy.method.getText(((MethodStep) p[i]).hash) == null) {
 					methodSet.add(((MethodStep) p[i]).hash);
 				}
@@ -125,6 +127,7 @@ public class XLogUtil {
 			SocketStep sk = (SocketStep) p;
 			return sk.elapsed;
 		case StepEnum.METHOD:
+		case StepEnum.METHOD2:
 			MethodStep ms = (MethodStep) p;
 			return ms.elapsed;
 		case StepEnum.APICALL:
@@ -141,6 +144,8 @@ public class XLogUtil {
 		switch (step.getStepType()) {
 		case StepEnum.METHOD:
 			return "MTD";
+		case StepEnum.METHOD2:
+			return "MTD2";
 		case StepEnum.MESSAGE:
 			return "MSG";
 		case StepEnum.SQL:
@@ -371,6 +376,13 @@ public class XLogUtil {
 			switch (stepSingle.getStepType()) {
 			case StepEnum.METHOD:
 				toString(sb, (MethodStep) stepSingle);
+				break;
+			case StepEnum.METHOD2:
+				toString(sb, (MethodStep) stepSingle);
+				MethodStep2 m2 =  (MethodStep2) stepSingle;
+				if (m2.error != 0) {
+					sb.append(BR).append(TextProxy.error.getText(m2.error));
+				}
 				break;
 			case StepEnum.SQL:
 			case StepEnum.SQL2:

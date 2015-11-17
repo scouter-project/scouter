@@ -526,6 +526,7 @@ public class XLogProfilePageView extends ViewPart implements XLogViewWithTable {
 					m = "";
 					switch (step.getStepType()) {
 					case StepEnum.METHOD:
+					case StepEnum.METHOD2:
 						m = TextProxy.method.getText(((MethodStep)step).hash);
 						if (m == null){
 							m = Hexa32.toString32(((MethodStep)step).hash);
@@ -670,6 +671,7 @@ public class XLogProfilePageView extends ViewPart implements XLogViewWithTable {
 			
 			switch (step.getStepType()) {
 			case StepEnum.METHOD:
+			case StepEnum.METHOD2:
 				putSummary(summary, (MethodStep)step);
 				break;
 			case StepEnum.SQL:

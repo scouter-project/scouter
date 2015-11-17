@@ -33,6 +33,7 @@ import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ApiCallSum;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
+import scouter.lang.step.MethodStep2;
 import scouter.lang.step.MethodSum;
 import scouter.lang.step.SocketStep;
 import scouter.lang.step.SocketSum;
@@ -283,6 +284,19 @@ public class ProfileTextFull {
 					sr.add(ProfileText.style(slen, sb.length() - slen, red, SWT.BOLD, yellow));
 				}
 				break;
+			case StepEnum.METHOD2:
+				slen = sb.length();
+				ProfileText.toString(sb, (MethodStep) stepSingle);
+				if(searchLineIndex == stepSingle.index){
+					sr.add(ProfileText.style(slen, sb.length() - slen, red, SWT.BOLD, yellow));
+				}
+				MethodStep2 m2 =  (MethodStep2) stepSingle;
+				if (m2.error != 0) {
+					slen = sb.length();
+					sb.append("\n").append(TextProxy.error.getText(m2.error));
+					sr.add(ProfileText.style(slen, sb.length() - slen, red, SWT.NORMAL));
+				}
+				break;			
 			case StepEnum.SQL:
 			case StepEnum.SQL2:
 				SqlStep sql = (SqlStep) stepSingle;
