@@ -116,7 +116,7 @@ public class AlertView extends ViewPart implements IAlertListener {
 //	    
 //	    man.add(new Separator());
 		
-		man.add(new Action("clear", ImageUtil.getImageDescriptor(Images.page_white_text)) {
+		man.add(new Action("clear", ImageUtil.getImageDescriptor(Images.minus)) {
 			public void run() {
 				reload();
 			}
