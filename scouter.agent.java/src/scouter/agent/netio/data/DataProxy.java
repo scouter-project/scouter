@@ -305,4 +305,14 @@ public class DataProxy {
 		return hash;
 	}
 
+	private static IntLinkedSet hashMessage = new IntLinkedSet().setMax(500);
+	public static int sendHashedMessage(String text) {
+			int hash = HashUtil.hash(text);	
+			if (hashMessage.contains(hash)) {
+				return hash;
+			}
+			hashMessage.put(hash);
+			udpCollect.add(new TextPack(TextTypes.HASH_MSG, hash, text));
+			return hash;
+		}
 }
