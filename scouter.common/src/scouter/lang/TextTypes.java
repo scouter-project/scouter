@@ -34,5 +34,6 @@ public interface TextTypes{
 	public static  String LOGIN = "login";
 	public static  String DESC = "desc";
 	public static  String WEB = "web";
+	public static  String HASH_MSG = "hmsg";
 
 }

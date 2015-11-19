@@ -22,45 +22,37 @@ import java.io.IOException;
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 
-public class CustomMessageStep extends StepSingle {
+public class HashedMessageStep extends StepSingle {
 
-	public String id;
-	public int message;
+	public int hash;
 	public int time;
 	public int value;
 
-	public CustomMessageStep() {
+	public HashedMessageStep() {
 	}
 
-	public CustomMessageStep(String id) {
-		this.id = id;
-	}
-
-	public CustomMessageStep(int start_time, String id) {
+	public HashedMessageStep(int start_time) {
 		this.start_time = start_time;
-		this.id = id;
 	}
 
 	public byte getStepType() {
-		return StepEnum.CUSTOM_MESSAGE;
+		return StepEnum.HASHED_MESSAGE;
 	}
 
 	public String toString() {
-		return "CustomStep " + id;
+		return "HashedMessageStep " + hash;
 	}
 
 	public void write(DataOutputX out) throws IOException {
 		super.write(out);
-		out.writeText(id);
-		out.writeDecimal(message);
+		out.writeDecimal(hash);
 		out.writeDecimal(time);
 		out.writeDecimal(value);
 	}
 
 	public Step read(DataInputX in) throws IOException {
 		super.read(in);
-		this.id = in.readText();
-		this.message = (int) in.readDecimal();
+		this.hash = (int) in.readDecimal();
 		this.time = (int) in.readDecimal();
 		this.value = (int) in.readDecimal();
 		return this;
