@@ -377,7 +377,7 @@ public class MenuUtil implements IMenuCreator{
     	MenuManager performanceCounter = new MenuManager(MenuStr.PERFORMANCE_COUNTER,  ImageUtil.getImageDescriptor(Images.CTXMENU_RTC), MenuStr.PERFORMANCE_COUNTER_ID);
     	mgr.add(performanceCounter);
     	
-    	if (counterNames != null) {
+    	if (object.isAlive() && counterNames != null) {
 	    	for(int inx = 0 ; inx < counterNames.length ; inx++){
 	    		String counter = counterNames[inx];
 	    		String counterDisplay = counterEngine.getCounterDisplayName(objType, counter);

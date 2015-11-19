@@ -1,5 +1,6 @@
 package scouter.agent.counter.task;
 
+import org.hyperic.sigar.CpuPerc;
 import org.hyperic.sigar.FileSystem;
 import org.hyperic.sigar.FileSystemUsage;
 import org.hyperic.sigar.Mem;
@@ -45,8 +46,11 @@ public class HostPerf {
 
 		Configure conf = Configure.getInstance();
 
-		float cpu = (float) ((1.0D - sigar.getCpuPerc().getIdle()) * 100);
+		CpuPerc cpuPerc = sigar.getCpuPerc();
+		float cpu = (float) ((1.0D - cpuPerc.getIdle()) * 100);
 		alertCpu(cpu);
+		float sysCpu = (float) cpuPerc.getSys();
+		float userCpu = (float) cpuPerc.getUser();
 
 		Mem m = sigar.getMem();
 		alertMem(m);
@@ -65,6 +69,8 @@ public class HostPerf {
 
 		PerfCounterPack p = pw.getPack(conf.objName, TimeTypeEnum.REALTIME);
 		p.put(CounterConstants.HOST_CPU, new FloatValue(cpu));
+		p.put(CounterConstants.HOST_SYSCPU, new FloatValue(sysCpu));
+		p.put(CounterConstants.HOST_USERCPU, new FloatValue(userCpu));
 		p.put(CounterConstants.HOST_MEM, new FloatValue(memrate));
 		p.put(CounterConstants.HOST_MEM_TOTAL, new DecimalValue(tmem / 1024 / 1024));
 		p.put(CounterConstants.HOST_MEM_USED, new DecimalValue(umem / 1024 / 1024));
