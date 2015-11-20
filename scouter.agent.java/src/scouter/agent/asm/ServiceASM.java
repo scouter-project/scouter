@@ -195,7 +195,6 @@ class ServiceMV extends LocalVariablesSorter implements Opcodes {
 		}
 		mv.visitVarInsn(Opcodes.ALOAD, arrVarIdx);
 		
-		
 		AsmUtil.PUSH(mv, xType);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE,false);
 

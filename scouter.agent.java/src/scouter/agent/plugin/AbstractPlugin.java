@@ -15,6 +15,7 @@ import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ThreadSubmitStep;
 import scouter.util.KeyGen;
 import scouter.util.SysJMX;
+import scouter.util.ThreadUtil;
 
 public class AbstractPlugin {
 	long lastModified;
@@ -119,10 +120,27 @@ public class AbstractPlugin {
 			return 0;
 		return syshash(hook.this1);
 	}
-	public void forward(WrContext wctx, int uuid){
-		forward(wctx, uuid,false);
+
+	public void forward(WrContext wctx, int uuid) {
+		TraceContext ctx = wctx.inner();
+		if (ctx.gxid == 0) {
+			ctx.gxid = ctx.txid;
+		}
+
+		long callee = KeyGen.next();
+
+		TransferMap.put(uuid, ctx.gxid, ctx.txid, callee, XLogTypes.APP_SERVICE);
+		ApiCallStep step = new ApiCallStep();
+		step.txid = callee;
+		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+		}
+		step.hash = DataProxy.sendApicall("local-forward");
+		ctx.profile.add(step);
 	}
-	public void forward(WrContext wctx, int uuid, boolean back_thread) {
+
+	public void forwardThread(WrContext wctx, int uuid) {
 		if (wctx == null)
 			return;
 		TraceContext ctx = wctx.inner();
@@ -131,30 +149,21 @@ public class AbstractPlugin {
 		}
 
 		long callee = KeyGen.next();
-		TransferMap.put(uuid, ctx.gxid, ctx.txid, callee);
 
-		if (back_thread) {
-			ThreadSubmitStep step = new ThreadSubmitStep();
-			step.txid = callee;
-			step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-			if (ctx.profile_thread_cputime) {
-				step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-			}
-			step.hash = DataProxy.sendApicall("local-forward");
-			ctx.profile.add(step);
-		}else{
-			ApiCallStep step = new ApiCallStep();
-			step.txid = callee;
-			step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-			if (ctx.profile_thread_cputime) {
-				step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-			}
-			step.hash = DataProxy.sendApicall("local-forward");
-			ctx.profile.add(step);
+		TransferMap.put(uuid, ctx.gxid, ctx.txid, callee, XLogTypes.BACK_THREAD);
+
+		ThreadSubmitStep step = new ThreadSubmitStep();
+		step.txid = callee;
+		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
+		step.hash = DataProxy.sendApicall("local-forward");
+		ctx.profile.add(step);
+
 	}
 
-	public void receive(WrContext ctx, int uuid, boolean back_thread) {
+	public void receive(WrContext ctx, int uuid) {
 		TransferMap.ID id = TransferMap.get(uuid);
 		if (id == null)
 			return;
@@ -167,8 +176,6 @@ public class AbstractPlugin {
 		if (id.caller != 0) {
 			ctx.inner().caller = id.caller;
 		}
-		if(back_thread){
-			ctx.inner().xType=XLogTypes.BACK_THREAD;
-		}
+		ctx.inner().xType = id.xType;
 	}
 }

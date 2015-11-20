@@ -376,9 +376,10 @@ public class TraceMain {
 					ms.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 				}
 				ctx.profile.push(ms);
+				
 				return new LocalContext(ctx, ms);
 			} else {
-				return new LocalContext(ctx);
+				return new LocalContext(ctx,null);
 			}
 		} catch (Throwable t) {
 			Logger.println("A147", t);
@@ -389,8 +390,9 @@ public class TraceMain {
 	public static void endService(Object stat, Object returnValue, Throwable thr) {
 		try {
 			LocalContext localCtx = (LocalContext) stat;
-			if (localCtx == null)
+			if (localCtx == null){
 				return;
+			}
 			TraceContext ctx = localCtx.context;
 			if (ctx == null) {
 				return;
@@ -413,7 +415,7 @@ public class TraceMain {
 
 			PluginAppServiceTrace.end(ctx);
 			TraceContextManager.end(ctx.threadId);
-
+			
 			XLogPack pack = new XLogPack();
 			pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 			// pack.endTime = System.currentTimeMillis();
@@ -438,7 +440,6 @@ public class TraceMain {
 			if (ctx.group != null) {
 				pack.group = DataProxy.sendGroup(ctx.group);
 			}
-
 			// 2015.02.02
 			pack.apicallCount = ctx.apicall_count;
 			pack.apicallTime = ctx.apicall_time;
@@ -453,6 +454,7 @@ public class TraceMain {
 			if (sendOk) {
 				DataProxy.sendXLog(pack);
 			}
+
 		} catch (Throwable t) {
 			Logger.println("A148", "service end error", t);
 		}
