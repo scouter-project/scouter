@@ -1,5 +1,6 @@
 package scouter.agent.trace;
 
+import scouter.agent.trace.TransferMap.ID;
 import scouter.util.IntKeyLinkedMap;
 
 public class TransferMap {
@@ -17,7 +18,7 @@ public class TransferMap {
         public byte xType; 
 	}
 
-	private static IntKeyLinkedMap<ID> map = new IntKeyLinkedMap<ID>().setMax(5001);
+	private static IntKeyLinkedMap<ID> map = new IntKeyLinkedMap<ID>().setMax(1001);
 
 	public static void put(int hash, long gxid, long caller, long callee, byte xType) {
 		map.put(hash, new ID(gxid, caller, callee, xType));
@@ -26,5 +27,6 @@ public class TransferMap {
 	public static ID get(int hash) {
 		return map.get(hash);
 	}
+
 
 }
