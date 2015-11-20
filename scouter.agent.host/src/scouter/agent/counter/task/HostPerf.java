@@ -49,8 +49,8 @@ public class HostPerf {
 		CpuPerc cpuPerc = sigar.getCpuPerc();
 		float cpu = (float) ((1.0D - cpuPerc.getIdle()) * 100);
 		alertCpu(cpu);
-		float sysCpu = (float) cpuPerc.getSys();
-		float userCpu = (float) cpuPerc.getUser();
+		float sysCpu = (float) cpuPerc.getSys() * 100;
+		float userCpu = (float) cpuPerc.getUser() * 100;
 
 		Mem m = sigar.getMem();
 		alertMem(m);

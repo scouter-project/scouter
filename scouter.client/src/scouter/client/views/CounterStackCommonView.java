@@ -160,7 +160,7 @@ public abstract class CounterStackCommonView extends ViewPart implements Refresh
 		Enumeration<String> keys = mv.keys();
 		while (keys.hasMoreElements()) {
 			String key = keys.nextElement();
-			int value = CastUtil.cint(mv.get(key)); 
+			double value = CastUtil.cdouble(mv.get(key)); 
 			if (stackValueMap.containsKey(key)) {
 				StackValue sv = stackValueMap.get(key);
 				sv.actualValue = value;
