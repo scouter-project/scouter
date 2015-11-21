@@ -16,6 +16,8 @@
  */
 package scouter.agent.trace;
 
+import javax.sql.DataSource;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterService;
@@ -31,6 +33,7 @@ import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
+import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.MethodStep2;
@@ -508,12 +511,12 @@ public class TraceMain {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null || arg.length < 3)
 			return;
-		MessageStep step = new MessageStep();
+		HashedMessageStep step = new HashedMessageStep();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
-		step.message = "JSP " + arg[2];
+		step.hash = DataProxy.sendHashedMessage("JSP " + arg[2]);
 		ctx.profile.add(step);
 	}
 
@@ -684,5 +687,10 @@ public class TraceMain {
 			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
 		ctx.profile.add(p);
+	}
+	public static void ctxLookup(Object this1, Object ctx){
+		if(ctx instanceof DataSource){
+			LoadedContext.put((DataSource)ctx);
+		}
 	}
 }

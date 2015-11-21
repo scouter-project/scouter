@@ -127,6 +127,7 @@ public class Configure extends Thread {
 	public long auto_dump_interval = 30000;
 	public int auto_dump_level = 1;
 
+	
 	public int debug_long_tx_autostack = 0;
 
 	public String http_static_contents = "js, htm, html, gif, png, jpg, css";
@@ -153,6 +154,8 @@ public class Configure extends Thread {
 	public String hook_return = "";
 	public String hook_init = "";
 	public String hook_connection_open = "";
+	public String hook_context = "javax/naming/InitialContext";
+	public boolean debug_datasource_lookup=true;
 	public boolean enable_trace_connection_open = true;
 	public boolean enable_leaktrace_fullstack = false;
 	public boolean debug_connection_open_fullstack = false;
@@ -427,6 +430,8 @@ public class Configure extends Thread {
 		this.hook_return = getValue("hook_return", getValue("hook.return", ""));
 		this.hook_init = getValue("hook_init", getValue("hook.init", ""));
 		this.hook_connection_open = getValue("hook_connection_open", "");
+		
+		this.debug_datasource_lookup = getBoolean("debug_datasource_lookup", true);
 		this.enable_trace_connection_open = getBoolean("enable_trace_connection_open", true);
 		this.enable_leaktrace_fullstack = getBoolean("enable_leaktrace_fullstack", false);
 
@@ -457,7 +462,9 @@ public class Configure extends Thread {
 		this.hook_jdbc_rs = getValue("hook_jdbc_rs", "");
 		this.hook_driver_connect_wrapper = getValue("hook_driver_connect_wrapper", "");
 		this.hook_add_field = getValue("hook_add_field", "");
+		this.hook_context = getValue("hook_context", "javax/naming/InitialContext");
 
+		
 		this.hook_signature ^= this.hook_args.hashCode();
 		this.hook_signature ^= this.hook_return.hashCode();
 		this.hook_signature ^= this.hook_init.hashCode();

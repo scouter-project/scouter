@@ -22,6 +22,8 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.InitialContext;
+
 import scouter.agent.asm.AddFieldASM;
 import scouter.agent.asm.ApicallASM;
 import scouter.agent.asm.ApicallInfoASM;
@@ -30,6 +32,7 @@ import scouter.agent.asm.CapReturnASM;
 import scouter.agent.asm.CapThisASM;
 import scouter.agent.asm.HttpServiceASM;
 import scouter.agent.asm.IASM;
+import scouter.agent.asm.InitialContextASM;
 import scouter.agent.asm.JDBCConnectionOpenASM;
 import scouter.agent.asm.JDBCDriverASM;
 import scouter.agent.asm.JDBCPreparedStatementASM;
@@ -97,6 +100,7 @@ public class AgentTransformer implements ClassFileTransformer {
 		if (conf.enable_hook_dbconn) {
 			temp.add(new JDBCConnectionOpenASM());
 			temp.add(new JDBCDriverASM());
+			temp.add(new InitialContextASM());
 		}
 
 		if (conf.enable_hook_cap) {
@@ -134,6 +138,7 @@ public class AgentTransformer implements ClassFileTransformer {
 		asynchook.add("sun/net/www/protocol/http/HttpURLConnection".hashCode());
 		asynchook.add("sun/net/www/http/HttpClient".hashCode());
 		asynchook.add("java/net/Socket".hashCode());
+		asynchook.add("javax/naming/InitialContext".hashCode());
 	}
 
 	private Configure conf = Configure.getInstance();

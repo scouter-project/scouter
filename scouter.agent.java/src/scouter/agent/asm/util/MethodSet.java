@@ -24,8 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import scouter.agent.Configure;
 import scouter.util.StrMatch;
 import scouter.util.StringUtil;
 
@@ -188,6 +188,18 @@ public class MethodSet {
 			String mname = s.substring(x + 1).trim();
 
 			m.put(cname, mname);
+		}
+
+		return m;
+	}
+
+	public static Set<String> getClassSet(String arg) {
+		String[] c = StringUtil.split(arg, ',');
+
+		Set<String> m = new HashSet<String>();
+		for (int i = 0; i < c.length; i++) {
+			String s = c[i];
+			m.add(s.replace('.', '/'));
 		}
 
 		return m;
