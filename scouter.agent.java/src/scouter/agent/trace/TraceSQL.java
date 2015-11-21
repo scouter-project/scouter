@@ -34,6 +34,7 @@ import scouter.agent.summary.ServiceSummary;
 import scouter.jdbc.DetectConnection;
 import scouter.jdbc.WrConnection;
 import scouter.lang.AlertLevel;
+import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.SqlStep2;
@@ -687,6 +688,11 @@ public class TraceSQL {
 		tctx.profile.pop(step);
 	}
 
+	/**
+	 * profile sqlMap
+	 * @param methodName sqlMap method name
+	 * @param sqlname sqlMap name
+	 */
 	public static void sqlMap(String methodName, String sqlname) {
 		if (Configure.getInstance().profile_framework_sqlmap == false)
 			return;
@@ -694,10 +700,11 @@ public class TraceSQL {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
-		MessageStep p = new MessageStep();
+		
+		HashedMessageStep p = new HashedMessageStep();
 		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		p.message = new StringBuffer(40).append("SQLMAP ").append(methodName).append(" { ").append(sqlname).append(" }")
-				.toString();
+		p.hash =  DataProxy.sendHashedMessage(new StringBuilder(40).append("SQLMAP ").append(methodName).append(" { ").append(sqlname).append(" }")
+				.toString());
 		ctx.profile.add(p);
 
 	}
