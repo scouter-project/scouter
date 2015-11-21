@@ -26,6 +26,7 @@ import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ApiCallSum;
+import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.MethodStep2;
@@ -54,6 +55,7 @@ public class XLogUtil {
 		HashSet<Integer> sqlSet = new HashSet<Integer>();
 		HashSet<Integer> subcallSet = new HashSet<Integer>();
 		HashSet<Integer> errorSet = new HashSet<Integer>();
+		HashSet<Integer> hashedMsgSet = new HashSet<Integer>();
 		for (int i = 0; i < p.length; i++) {
 			switch (p[i].getStepType()) {
 			case StepEnum.SQL:
@@ -68,6 +70,11 @@ public class XLogUtil {
 			case StepEnum.SQL_SUM:
 				if (TextProxy.sql.getText(((SqlSum) p[i]).hash) == null) {
 					sqlSet.add(((SqlStep) p[i]).hash);
+				}
+				break;
+			case StepEnum.HASHED_MESSAGE:
+				if (TextProxy.hashMessage.getText(((HashedMessageStep) p[i]).hash) == null) {
+					hashedMsgSet.add(((HashedMessageStep) p[i]).hash);
 				}
 				break;
 			case StepEnum.METHOD:
@@ -115,6 +122,7 @@ public class XLogUtil {
 		TextProxy.sql.load(yyyymmdd, sqlSet, serverId);
 		TextProxy.apicall.load(yyyymmdd, subcallSet, serverId);
 		TextProxy.error.load(yyyymmdd, errorSet, serverId);
+		TextProxy.hashMessage.load(yyyymmdd, hashedMsgSet, serverId);
 	}
 
 	public static int getStepElaspedTime(Step p) {
@@ -148,6 +156,8 @@ public class XLogUtil {
 			return "MTD2";
 		case StepEnum.MESSAGE:
 			return "MSG";
+		case StepEnum.HASHED_MESSAGE:
+			return "HSG";
 		case StepEnum.SQL:
 			return "SQL";
 		case StepEnum.SQL2:
@@ -162,8 +172,7 @@ public class XLogUtil {
 		return null;
 	}
 
-	private final static String HEADER_SET_FONT = "<style>"
-			+ "@font-face {font-family:'Malgun Gothic';}"
+	private final static String HEADER_SET_FONT = "<style>" + "@font-face {font-family:'Malgun Gothic';}"
 			+ "body,td,select,input,div,form,textarea,center,option,pre,blockquote {font-size:9pt; font-family:'Malgun Gothic'; color:#333333;line-height:160%}"
 			+ "table { border-collapse:collapse; }" + "th{ font-size:10pt; border-bottom:1px dotted #C6C6C6; }"
 			+ "td{ border-bottom:1px dotted #EAEAEA; }" + "</style>";
@@ -247,7 +256,8 @@ public class XLogUtil {
 		sb.append("<table width=\"1500\">");
 
 		sb.append(TABLE_ROW_START);
-		sb.append("<font size=9px><th width=80px>p#</th><th width=80px>#</th><th width=80px>TIME</th><th width=80px>T-GAP</th><th width=80px>CPU</th><th width=1100px>CONTENTS</th></font>");
+		sb.append(
+				"<font size=9px><th width=80px>p#</th><th width=80px>#</th><th width=80px>TIME</th><th width=80px>T-GAP</th><th width=80px>CPU</th><th width=1100px>CONTENTS</th></font>");
 		sb.append(TABLE_ROW_END);
 		if (profiles.length == 0) {
 			sb.append("<tr colspan=6><th>( No xlog profile collected )</th></tr>");
@@ -339,8 +349,8 @@ public class XLogUtil {
 			if (stepSingle.parent == -1) {
 				sb.append(TDC).append("-").append(TDE);
 			} else {
-				sb.append(TDC).append("<a href=\"#id").append(stepSingle.parent).append("\">")
-						.append(stepSingle.parent).append("</a>").append(TDE);
+				sb.append(TDC).append("<a href=\"#id").append(stepSingle.parent).append("\">").append(stepSingle.parent)
+						.append("</a>").append(TDE);
 			}
 
 			sb.append(TDC).append("<a name=\"#id").append(stepSingle.index).append("\">").append(stepSingle.index)
@@ -379,7 +389,7 @@ public class XLogUtil {
 				break;
 			case StepEnum.METHOD2:
 				toString(sb, (MethodStep) stepSingle);
-				MethodStep2 m2 =  (MethodStep2) stepSingle;
+				MethodStep2 m2 = (MethodStep2) stepSingle;
 				if (m2.error != 0) {
 					sb.append(BR).append(TextProxy.error.getText(m2.error));
 				}
@@ -394,6 +404,9 @@ public class XLogUtil {
 				break;
 			case StepEnum.MESSAGE:
 				toString(sb, (MessageStep) stepSingle);
+				break;
+			case StepEnum.HASHED_MESSAGE:
+				toString(sb, (HashedMessageStep) stepSingle);
 				break;
 			case StepEnum.SOCKET:
 				SocketStep socket = (SocketStep) stepSingle;
@@ -503,6 +516,12 @@ public class XLogUtil {
 
 	private static void toString(StringBuffer sb, MessageStep p) {
 		sb.append("<font color=green>").append(p.message.replaceAll("\n", BR)).append("</font>");
+	}
+	private static void toString(StringBuffer sb, HashedMessageStep p) {
+		String m = TextProxy.hashMessage.getText(p.hash);
+		if (m == null)
+			m = Hexa32.toString32(p.hash);
+		sb.append("<font color=green>").append(m.replaceAll("\n", BR)).append("</font>");
 	}
 
 	private static void toString(StringBuffer sb, StepControl p) {

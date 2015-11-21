@@ -31,6 +31,7 @@ import scouter.client.xlog.views.XLogProfileView;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ApiCallSum;
+import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.MethodStep2;
@@ -316,6 +317,15 @@ public class ProfileTextFull {
 			case StepEnum.MESSAGE:
 				slen = sb.length();
 				ProfileText.toString(sb, (MessageStep) stepSingle);
+				if(searchLineIndex == stepSingle.index){
+					sr.add(ProfileText.style(slen, sb.length() - slen, red, SWT.BOLD, yellow));
+				}else{
+					sr.add(ProfileText.style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
+				}
+				break;
+			case StepEnum.HASHED_MESSAGE:
+				slen = sb.length();
+				ProfileText.toString(sb, (HashedMessageStep) stepSingle);
 				if(searchLineIndex == stepSingle.index){
 					sr.add(ProfileText.style(slen, sb.length() - slen, red, SWT.BOLD, yellow));
 				}else{

@@ -34,6 +34,7 @@ import scouter.agent.summary.ServiceSummary;
 import scouter.jdbc.DetectConnection;
 import scouter.jdbc.WrConnection;
 import scouter.lang.AlertLevel;
+import scouter.lang.TextTypes;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
@@ -41,6 +42,7 @@ import scouter.lang.step.SqlStep2;
 import scouter.lang.step.SqlXType;
 import scouter.util.EscapeLiteralSQL;
 import scouter.util.HashUtil;
+import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.IntLinkedSet;
 import scouter.util.StringUtil;
@@ -321,9 +323,10 @@ public class TraceSQL {
 	}
 
 	private static Configure conf = Configure.getInstance();
+	private static int RESULT_SET_FETCH = 0;
 
 	private static void fetch(TraceContext c) {
-		MessageStep p = new MessageStep();
+		HashedMessageStep p = new HashedMessageStep();
 
 		long time = System.currentTimeMillis() - c.rs_start;
 
@@ -332,8 +335,12 @@ public class TraceSQL {
 			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - c.startCpu);
 		}
 
-		p.message = new StringBuffer(50).append("RESULT ").append(c.rs_count).append(" ").append(time).append(" ms")
-				.toString();
+		if (RESULT_SET_FETCH == 0) {
+			RESULT_SET_FETCH = DataProxy.sendHashedMessage("RESULT-SET-FETCH");
+		}
+		p.hash = RESULT_SET_FETCH;
+		p.value = c.rs_count;
+		p.time = (int) time;
 		c.profile.add(p);
 
 		if (c.rs_count > conf.jdbc_fetch_max) {
@@ -643,11 +650,11 @@ public class TraceSQL {
 		tctx.profile.pop(step);
 
 		if (conf.debug_connection_autocommit) {
-			MessageStep ms = null;
+			HashedMessageStep ms = new HashedMessageStep();
 			try {
-				ms = new MessageStep("AutoCommit : " + conn.getAutoCommit());
+				ms.hash = DataProxy.sendHashedMessage("AutoCommit : " + conn.getAutoCommit());
 			} catch (Exception e) {
-				ms = new MessageStep("AutoCommit : " + e);
+				ms.hash = DataProxy.sendHashedMessage("AutoCommit : " + e);
 			}
 			ms.start_time = (int) (System.currentTimeMillis() - tctx.startTime);
 			tctx.profile.add(ms);
@@ -690,8 +697,11 @@ public class TraceSQL {
 
 	/**
 	 * profile sqlMap
-	 * @param methodName sqlMap method name
-	 * @param sqlname sqlMap name
+	 * 
+	 * @param methodName
+	 *            sqlMap method name
+	 * @param sqlname
+	 *            sqlMap name
 	 */
 	public static void sqlMap(String methodName, String sqlname) {
 		if (Configure.getInstance().profile_framework_sqlmap == false)
@@ -700,11 +710,11 @@ public class TraceSQL {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
-		
+
 		HashedMessageStep p = new HashedMessageStep();
 		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		p.hash =  DataProxy.sendHashedMessage(new StringBuilder(40).append("SQLMAP ").append(methodName).append(" { ").append(sqlname).append(" }")
-				.toString());
+		p.hash = DataProxy.sendHashedMessage(new StringBuilder(40).append("SQLMAP ").append(methodName).append(" { ")
+				.append(sqlname).append(" }").toString());
 		ctx.profile.add(p);
 
 	}

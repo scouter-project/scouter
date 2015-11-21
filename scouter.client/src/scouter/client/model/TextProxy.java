@@ -40,5 +40,6 @@ public class TextProxy {
 	final public static TextModel web = new TextModel(TextTypes.WEB, 500);
 	final public static TextModel login = new TextModel(TextTypes.LOGIN, 1024);
 	final public static TextModel desc = new TextModel(TextTypes.DESC, 1024);
+	final public static TextModel hashMessage = new TextModel(TextTypes.HASH_MSG, 1024);
 
 }

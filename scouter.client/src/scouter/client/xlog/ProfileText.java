@@ -36,6 +36,7 @@ import scouter.client.xlog.views.XLogProfileView;
 import scouter.lang.CountryCode;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ApiCallSum;
+import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.MethodStep2;
@@ -330,6 +331,11 @@ public class ProfileText {
 				toString(sb, (MessageStep) stepSingle);
 				sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
 				break;
+			case StepEnum.HASHED_MESSAGE:
+				slen = sb.length();
+				toString(sb, (HashedMessageStep) stepSingle);
+				sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
+				break;
 			case StepEnum.APICALL:
 				ApiCallStep apicall = (ApiCallStep) stepSingle;
 				slen = sb.length();
@@ -554,6 +560,11 @@ public class ProfileText {
 				toString(sb, (MessageStep) stepSingle);
 				sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
 				break;
+			case StepEnum.HASHED_MESSAGE:
+				slen = sb.length();
+				toString(sb, (HashedMessageStep) stepSingle);
+				sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
+				break;
 			case StepEnum.APICALL:
 				ApiCallStep apicall = (ApiCallStep) stepSingle;
 				slen = sb.length();
@@ -607,6 +618,12 @@ public class ProfileText {
 		if (p.txid != 0) {
 			sb.append(" <" + Hexa32.toString32(p.txid) + ">");
 		}
+	}
+	public static void toString(StringBuffer sb, HashedMessageStep p) {
+		String m = TextProxy.hashMessage.getText(p.hash);
+		if (m == null)
+			m = Hexa32.toString32(p.hash);
+		sb.append(m).append(" #").append(FormatUtil.print(p.value, "#,##0")).append(" ").append(FormatUtil.print(p.time, "#,##0")).append(" ms");
 	}
 
 	public static void toString(StringBuffer sb, ThreadSubmitStep p) {
