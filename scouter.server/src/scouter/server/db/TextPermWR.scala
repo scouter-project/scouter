@@ -19,36 +19,24 @@
 package scouter.server.db;
 
 import java.io.File
-
 import scouter.lang.TextTypes
 import scouter.server.Logger
 import scouter.server.core.cache.TextCache
-import scouter.server.db.obj.TextPermData
-import scouter.server.db.obj.TextPermIndex
 import scouter.server.util.ThreadScala
 import scouter.util.HashUtil
 import scouter.util.Hexa32
 import scouter.util.RequestQueue
 import scouter.util.StringUtil
+import scouter.server.db.text.TextPermIndex
+import scouter.server.db.text.TextPermData
 
 object TextPermWR {
 
   val queue = new RequestQueue[Data](DBCtr.LARGE_MAX_QUE_SIZE);
 
-  //    val common = new IntSet();
-  //    common.add(HashUtil.hash(TextTypes.METHOD));
-  //    common.add(HashUtil.hash(TextTypes.GROUP));
-  //    common.add(HashUtil.hash(TextTypes.CITY));
-  //    //move to perm db
-  //    common.add(HashUtil.hash(TextTypes.LOGIN));
-  //    common.add(HashUtil.hash(TextTypes.DESC));
-  //    common.add(HashUtil.hash(TextTypes.GROUP));
-  //    common.add(HashUtil.hash(TextTypes.USER_AGENT));
-
   //에러만 날짜별로 저장한다.-20151110
-  val errorHash = HashUtil.hash(TextTypes.ERROR);
-  def isA(divs: Int): Boolean = {
-    return divs != errorHash;
+  def isA(divs: String): Boolean = {
+    return divs != TextTypes.ERROR;
   }
 
   ThreadScala.start("scouter.server.db.TextPermWR") {
@@ -73,7 +61,7 @@ object TextPermWR {
     close();
   }
 
-  def add(divHash: Int, hash: Int, text: String) {
+  def add(divHash: String, hash: Int, text: String) {
     if (StringUtil.isEmpty(text))
       return
 
@@ -84,13 +72,13 @@ object TextPermWR {
     }
   }
 
-  class Data(_divs: Int, _hash: Int, _text: String) {
+  class Data(_divs: String, _hash: Int, _text: String) {
     val div = _divs;
     val hash = _hash;
     val text = _text;
   }
 
-  def open(div: Int): (TextPermIndex, TextPermData) = {
+  def open(div: String): (TextPermIndex, TextPermData) = {
     try {
       var index = TextPermIndex.get(div);
       var data = TextPermData.get(div);
@@ -103,7 +91,7 @@ object TextPermWR {
         val f = new File(path);
         if (f.exists() == false)
           f.mkdirs();
-        val file = path + "/text_" + Hexa32.toString32(div);
+        val file = path + "/text_" +div;
 
         index = TextPermIndex.open(div, file);
         data = TextPermData.open(div, file);

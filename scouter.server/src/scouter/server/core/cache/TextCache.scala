@@ -18,32 +18,30 @@
 
 package scouter.server.core.cache;
 
-import scouter.lang.TextTypes;
-import scouter.util.HashUtil;
-import scouter.util.IntKeyLinkedMap;
+import scouter.lang.TextTypes
+import scouter.util.HashUtil
+import scouter.util.IntKeyLinkedMap
 import scouter.util.IntKeyMap;
+import scouter.util.StringKeyLinkedMap
 
 object TextCache {
 
-    val cache = new IntKeyMap[IntKeyLinkedMap[String]]();
+    val cache = new StringKeyLinkedMap[IntKeyLinkedMap[String]]();
 
-    def put(div: Int, hash: Int, text: String) {
+    def put(div: String, hash: Int, text: String) {
         val m = getMap(div);
         if (m.containsKey(hash))
             return ;
         m.put(hash, text);
     }
 
-    def get(div: String, hash: Int): String = {
-        return get(HashUtil.hash(div), hash);
-    }
     
-    def get(div: Int, hash: Int): String = {
+    def get(div: String, hash: Int): String = {
         val m = getMap(div);
         return m.get(hash);
     }
 
-    private def getMap(div: Int): IntKeyLinkedMap[String] = {
+    private def getMap(div: String): IntKeyLinkedMap[String] = {
         var m = cache.get(div);
         if (m == null) {
             if (TextTypes.SERVICE.equals(div)) {

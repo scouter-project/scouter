@@ -31,17 +31,16 @@ object TextRD {
       return out;
 
     try {
-      val divhash = HashUtil.hash(divs);
-      if (TextPermWR.isA(divhash)) {
-        return TextPermRD.getString(divhash, hash);
+      if (TextPermWR.isA(divs)) {
+        return TextPermRD.getString(divs, hash);
       }
       val table = TextWR.open(date)
-      val b = table.get(divhash, hash);
+      val b = table.get(divs, hash);
 
       if (b == null)
         return null;
       val text = new String(b, "UTF-8");
-      TextCache.put(divhash, hash, text);
+      TextCache.put(divs, hash, text);
       return text;
     } catch {
       case e: Exception => e.printStackTrace()

@@ -23,16 +23,12 @@ import scouter.util.HashUtil
 
 object TextPermRD {
   def getString(division: String, hash: Int): String = {
-    val divHash = HashUtil.hash(division);
-    return getString(divHash, hash);
-  }
-  def getString(divHash: Int, hash: Int): String = {
-    val out = TextCache.get(divHash, hash);
+    val out = TextCache.get(division, hash);
     if (out != null)
       return out;
 
     try {
-      val (index, data) = TextPermWR.open(divHash);
+      val (index, data) = TextPermWR.open(division);
       if (index == null)
         return null;
       val pos = index.get(hash);
@@ -40,7 +36,7 @@ object TextPermRD {
         return null;
       val bytes = data.read(pos);
       val text = new String(bytes, "UTF-8");
-      TextCache.put(divHash, hash, text);
+      TextCache.put(division, hash, text);
       return text;
     } catch {
       case e: Exception => e.printStackTrace();
@@ -50,8 +46,7 @@ object TextPermRD {
 
   def read(division: String, handler: (Array[Byte], Array[Byte]) => Unit) {
     try {
-      val divHash = HashUtil.hash(division);
-      val (index, data) = TextPermWR.open(divHash);
+      val (index, data) = TextPermWR.open(division);
       if (index == null)
         return ;
       index.read(handler, data.read);

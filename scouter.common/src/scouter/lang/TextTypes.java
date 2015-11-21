@@ -26,7 +26,7 @@ public interface TextTypes{
 	public static  String SQL = "sql";
 	public static  String OBJECT = "object";	
 	public static  String REFERER = "referer";	
-	public static  String USER_AGENT = "user-agent";	
+	public static  String USER_AGENT = "ua";	
 	public static  String GROUP = "group";
 	public static  String CITY = "city";
 	public static  String SQL_TABLES = "table";
@@ -35,5 +35,4 @@ public interface TextTypes{
 	public static  String DESC = "desc";
 	public static  String WEB = "web";
 	public static  String HASH_MSG = "hmsg";
-
 }

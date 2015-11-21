@@ -18,13 +18,13 @@
 
 package scouter.server.db.text;
 
-import java.io.IOException;
-import java.util.Hashtable;
-
-import scouter.server.db.io.IndexKeyFile;
-import scouter.io.DataOutputX;
-import scouter.util.FileUtil;
+import java.io.IOException
+import java.util.Hashtable
+import scouter.server.db.io.IndexKeyFile
+import scouter.io.DataOutputX
+import scouter.util.FileUtil
 import scouter.util.ICloseDB;
+import scouter.util.HashUtil
 object TextTable {
     val table = new Hashtable[String, TextTable]();
 
@@ -57,25 +57,25 @@ class TextTable(_file: String) extends ICloseDB {
         lastActive = time;
     }
 
-    def set(div: Int, key: Int, value: Array[Byte]) {
+    def set(div: String, key: Int, value: Array[Byte]) {
         if (this.index == null) {
             this.index = new IndexKeyFile(file);
         }
-        this.index.put(new DataOutputX().writeInt(div).writeInt(key).toByteArray(), value);
+        this.index.put(new DataOutputX().writeInt(HashUtil.hash(div)).writeInt(key).toByteArray(), value);
     }
 
-    def get(div: Int, key: Int): Array[Byte] = {
+    def get(div: String, key: Int): Array[Byte] = {
         if (this.index == null) {
             this.index = new IndexKeyFile(file);
         }
-        return this.index.get(new DataOutputX().writeInt(div).writeInt(key).toByteArray());
+        return this.index.get(new DataOutputX().writeInt(HashUtil.hash(div)).writeInt(key).toByteArray());
     }
 
-    def hasKey(div: Int, key: Int): Boolean = {
+    def hasKey(div: String, key: Int): Boolean = {
         if (this.index == null) {
             this.index = new IndexKeyFile(file);
         }
-        return this.index.hasKey(new DataOutputX().writeInt(div).writeInt(key).toByteArray());
+        return this.index.hasKey(new DataOutputX().writeInt(HashUtil.hash(div)).writeInt(key).toByteArray());
     }
 
     def read(handler: (Array[Byte], Array[Byte]) => Any) {

@@ -16,7 +16,7 @@
  *
  */
 
-package scouter.server.db.obj;
+package scouter.server.db.text;
 
 import java.io.IOException
 import java.util.Hashtable
@@ -24,12 +24,14 @@ import scouter.server.db.io.IndexKeyFile
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.util.FileUtil
-import scouter.util.IClose;
+import scouter.util.IClose
 import scouter.util.IntKeyLinkedMap
-object TextPermIndex {
-  val table = new IntKeyLinkedMap[TextPermIndex]();
+import scouter.util.StringKeyLinkedMap
 
-  def get(div: Int): TextPermIndex = {
+object TextPermIndex {
+  val table = new StringKeyLinkedMap[TextPermIndex]();
+
+  def get(div: String): TextPermIndex = {
     table.synchronized {
       var index = table.get(div);
       if (index != null) {
@@ -38,7 +40,7 @@ object TextPermIndex {
       } else return null;
     }
   }
-  def open(div: Int, file: String): TextPermIndex = {
+  def open(div: String, file: String): TextPermIndex = {
     table.synchronized {
       var index = table.get(div);
       if (index != null) {
@@ -57,7 +59,7 @@ object TextPermIndex {
     }
   }
 }
-class TextPermIndex(div: Int, file: String) extends IClose {
+class TextPermIndex(div: String, file: String) extends IClose {
 
   var refrence = 0;
   var index: IndexKeyFile = null

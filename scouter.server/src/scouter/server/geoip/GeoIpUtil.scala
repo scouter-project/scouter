@@ -16,7 +16,6 @@ import com.maxmind.geoip.Location;
 
 object GeoIpUtil {
     private val citySet = new IntLinkedSet().setMax(10000);
-    private val cityDivHash = HashUtil.hash(TextTypes.CITY);
     private val locationCache = new IntKeyLinkedMap[Location]().setMax(10000);
 
     def setNationAndCity(p: XLogPack) {
@@ -48,7 +47,7 @@ object GeoIpUtil {
             val cityHash = HashUtil.hash(loc.city);
             if (citySet.contains(cityHash) == false) {
                 citySet.put(cityHash);
-                TextPermWR.add(cityDivHash, cityHash, loc.city);
+                TextPermWR.add(TextTypes.CITY, cityHash, loc.city);
             }
         }
 

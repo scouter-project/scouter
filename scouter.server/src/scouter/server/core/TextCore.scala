@@ -37,7 +37,7 @@ object TextCore {
         TextWR.add(yyyymmdd, m.xtype, m.hash, m.text);
     }
     def add(p: TextPack) {
-        TextCache.put(HashUtil.hash(p.xtype), p.hash, p.text);
+        TextCache.put(p.xtype, p.hash, p.text);
         val ok = queue.put(p);
         if (ok == false) {
             Logger.println("S115", 10, "queue exceeded!!");

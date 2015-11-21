@@ -74,7 +74,7 @@ object XLogGroupUtil {
     add(HashUtil.hash("/**"), "/**");
 
     private def add(hash: Int, name: String) {
-        TextPermWR.add(HashUtil.hash(TextTypes.GROUP), hash, name);
+        TextPermWR.add(TextTypes.GROUP, hash, name);
     }
 
     private val saved = new IntLinkedSet().setMax(1000);

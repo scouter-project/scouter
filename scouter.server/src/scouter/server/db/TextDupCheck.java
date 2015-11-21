@@ -19,6 +19,7 @@ package scouter.server.db;
 
 import scouter.util.IntKeyMap;
 import scouter.util.LinkedSet;
+import scouter.util.StringKeyLinkedMap;
 
 public class TextDupCheck {
 
@@ -44,16 +45,16 @@ public class TextDupCheck {
 		}
 	}
 
-	static IntKeyMap<LinkedSet<TextUnit>> dupcheck = new IntKeyMap<LinkedSet<TextUnit>>();
+	static StringKeyLinkedMap<LinkedSet<TextUnit>> dupcheck = new StringKeyLinkedMap<LinkedSet<TextUnit>>();
 
-	static boolean isDuplicated(int div, TextUnit tu) {
+	static boolean isDuplicated(String div, TextUnit tu) {
 		LinkedSet<TextUnit> set = dupcheck.get(div);
 		if (set == null)
 			return false;
 		return set.contains(tu);
 	}
 
-	static void addDuplicated(int div, TextUnit tu) {
+	static void addDuplicated(String div, TextUnit tu) {
 		LinkedSet<TextUnit> set = dupcheck.get(div);
 		if (set == null) {
 			set = new LinkedSet<TextUnit>().setMax(10000);
