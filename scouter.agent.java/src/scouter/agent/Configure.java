@@ -210,10 +210,10 @@ public class Configure extends Thread {
 
 	public String http_remote_ip_header_key = "";
 	public boolean enable_trace_e2e = false;
-	public String gxid = "scouter_gxid";
+	public String gxid = "X-Scouter-Gxid";
 	public boolean enable_response_gxid = false;
-	public String this_txid = "scouter_this_txid";
-	public String caller_txid = "scouter_caller_txid";
+	public String this_txid = "X-Scouter-Callee";
+	public String caller_txid = "X-Scouter-Caller";
 
 	private int hook_signature;
 
@@ -501,9 +501,9 @@ public class Configure extends Thread {
 
 		this.enable_trace_e2e = getBoolean("enable_trace_e2e", false);
 		this.enable_response_gxid = getBoolean("enable_response_gxid", false);
-		this.gxid = getValue("gxid", "scouter_gxid");
-		this.this_txid = getValue("this_txid", "scouter_this_txid");
-		this.caller_txid = getValue("caller_txid", "scouter_caller_txid");
+		this.gxid = getValue("gxid", "X-Scouter-Gxid");
+		this.this_txid = getValue("this_txid", "X-Scouter-Callee");
+		this.caller_txid = getValue("caller_txid", "X-Scouter-Caller");
 
 		this.debug_connection_open_fullstack = getBoolean("debug_connection_open_fullstack", false);
 		this.debug_connection_autocommit = getBoolean("debug_connection_autocommit", false);
