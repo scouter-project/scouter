@@ -24,12 +24,12 @@ import java.util.List;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ApiCallSum;
-import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.MethodSum;
 import scouter.lang.step.SocketStep;
 import scouter.lang.step.SocketSum;
 import scouter.lang.step.SqlStep;
+import scouter.lang.step.SqlStep2;
 import scouter.lang.step.SqlSum;
 import scouter.lang.step.Step;
 import scouter.lang.step.StepEnum;
@@ -45,8 +45,7 @@ public class ProfileSummary implements IProfileCollector {
 	protected IntKeyMap<Step> sqls;
 	protected IntKeyMap<Step> apicalls;
 	protected LongKeyMap<Step> sockets;
-	protected List<Step> messages;
-	protected int magindex=0;
+	protected int magindex = 0;
 	protected int totalCount;
 
 	public ProfileSummary(TraceContext context) {
@@ -59,7 +58,6 @@ public class ProfileSummary implements IProfileCollector {
 		toArray(sqls, steps);
 		toArray(apicalls, steps);
 		toArray(sockets, steps);
-		toArray(messages, steps);
 		totalCount = 0;
 
 		DataProxy.sendProfile(steps, context);
@@ -71,19 +69,21 @@ public class ProfileSummary implements IProfileCollector {
 			return;
 		Enumeration<Step> en = src.values();
 		for (int i = 0, max = src.size(); i < max; i++) {
-			out.add( en.nextElement());
+			out.add(en.nextElement());
 		}
 		src.clear();
 	}
+
 	private void toArray(LongKeyMap<Step> src, List<Step> out) {
 		if (src == null)
 			return;
 		Enumeration<Step> en = src.values();
 		for (int i = 0, max = src.size(); i < max; i++) {
-			out.add( en.nextElement());
+			out.add(en.nextElement());
 		}
 		src.clear();
 	}
+
 	private void toArray(List<Step> src, List<Step> out) {
 		if (src == null)
 			return;
@@ -108,9 +108,6 @@ public class ProfileSummary implements IProfileCollector {
 		case StepEnum.APICALL:
 			add((ApiCallStep) ss);
 			break;
-		case StepEnum.MESSAGE:
-			add((MessageStep) ss);
-			break;
 		case StepEnum.SOCKET:
 			add((SocketStep) ss);
 			break;
@@ -120,9 +117,11 @@ public class ProfileSummary implements IProfileCollector {
 	public void pop(StepSingle ss) {
 		switch (ss.getStepType()) {
 		case StepEnum.METHOD:
+		case StepEnum.METHOD2:
 			add((MethodStep) ss);
 			break;
 		case StepEnum.SQL:
+		case StepEnum.SQL2:
 			add((SqlStep) ss);
 			break;
 		case StepEnum.APICALL:
@@ -131,18 +130,6 @@ public class ProfileSummary implements IProfileCollector {
 		}
 	}
 
-	protected void add(MessageStep m) {
-
-		if (totalCount >= BUFFER_SIZE) {
-			process();
-		}
-		if (messages == null)
-			messages = new ArrayList<Step>();
-		m.index = magindex++;
-		m.parent = -1;		
-		messages.add(m);
-		totalCount++;
-	}
 	protected void add(SocketStep m) {
 
 		if (sockets == null)
@@ -151,7 +138,7 @@ public class ProfileSummary implements IProfileCollector {
 		long skid = m.getSocketId();
 		SocketSum sksum = (SocketSum) sockets.get(skid);
 		if (sksum != null) {
-			sksum.add(m.elapsed, sksum.error!=0);
+			sksum.add(m.elapsed, sksum.error != 0);
 			return;
 		}
 		if (totalCount >= BUFFER_SIZE) {
@@ -159,8 +146,8 @@ public class ProfileSummary implements IProfileCollector {
 		}
 		sksum = new SocketSum();
 		sksum.ipaddr = m.ipaddr;
-		sksum.port=m.port;
-		sksum.add(m.elapsed, sksum.error!=0);
+		sksum.port = m.port;
+		sksum.add(m.elapsed, sksum.error != 0);
 		sockets.put(skid, sksum);
 		totalCount++;
 	}
@@ -213,7 +200,6 @@ public class ProfileSummary implements IProfileCollector {
 		totalCount++;
 	}
 
-		
 	protected void add(ApiCallStep sc) {
 		if (apicalls == null)
 			apicalls = new IntKeyMap<Step>();
