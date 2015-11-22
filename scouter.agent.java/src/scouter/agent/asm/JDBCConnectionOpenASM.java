@@ -24,7 +24,7 @@ import java.util.Map;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.asm.util.MethodSet;
+import scouter.agent.asm.util.HookingSet;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.ClassVisitor;
@@ -33,12 +33,11 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
-import scouter.util.HashUtil;
 import scouter.util.StringUtil;
 
 public class JDBCConnectionOpenASM implements IASM, Opcodes {
-	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_connection_open);
-	private Map<String, MethodSet> reserved = new HashMap<String, MethodSet>();
+	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_connection_open);
+	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
 
 	public JDBCConnectionOpenASM() {
 		// Tomcat7
@@ -48,7 +47,7 @@ public class JDBCConnectionOpenASM implements IASM, Opcodes {
 	}
 
 	public boolean isTarget(String className) {
-		MethodSet mset = reserved.get(className);
+		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return true;
 
@@ -65,7 +64,7 @@ public class JDBCConnectionOpenASM implements IASM, Opcodes {
 		if (Configure.getInstance().enable_asm_jdbc == false)
 			return cv;
 
-		MethodSet mset = reserved.get(className);
+		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return new DbcOpenCV(cv, mset, className);
 
@@ -82,9 +81,9 @@ public class JDBCConnectionOpenASM implements IASM, Opcodes {
 class DbcOpenCV extends ClassVisitor implements Opcodes {
 
 	public String className;
-	private MethodSet mset;
+	private HookingSet mset;
 
-	public DbcOpenCV(ClassVisitor cv, MethodSet mset, String className) {
+	public DbcOpenCV(ClassVisitor cv, HookingSet mset, String className) {
 		super(ASM4, cv);
 		this.mset = mset;
 		this.className = className;

@@ -38,11 +38,11 @@ public class AsmUtil implements Opcodes {
 		return new StringBuffer().append(className.replace('/','.')).append(".").append(methodName).append(methodSignature).toString();
 	}
 
-	public static void add(Map<String, MethodSet> classSet, String klass, String method) {
+	public static void add(Map<String, HookingSet> classSet, String klass, String method) {
 		klass=klass.replace('.', '/');
-		MethodSet mset = classSet.get(klass);
+		HookingSet mset = classSet.get(klass);
 		if (mset == null) {
-			mset = new MethodSet();
+			mset = new HookingSet();
 			classSet.put(klass, mset);
 		}
 		mset.add(method);

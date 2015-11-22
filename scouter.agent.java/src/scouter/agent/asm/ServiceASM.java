@@ -22,7 +22,7 @@ import java.util.List;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.asm.util.MethodSet;
+import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceMain;
 import scouter.lang.pack.XLogTypes;
 import scouter.org.objectweb.asm.ClassVisitor;
@@ -33,7 +33,7 @@ import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class ServiceASM implements IASM, Opcodes {
-	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_service);
+	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_service);
 
 	public ServiceASM() {
 	}
@@ -41,7 +41,7 @@ public class ServiceASM implements IASM, Opcodes {
 
 	public boolean isTarget(String className) {
 		for (int i = 0; i < target.size(); i++) {
-			MethodSet mset = target.get(i);
+			HookingSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {
 				return true;
 			}
@@ -52,7 +52,7 @@ public class ServiceASM implements IASM, Opcodes {
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 
 		for (int i = 0; i < target.size(); i++) {
-			MethodSet mset = target.get(i);
+			HookingSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {
 				return new ServiceCV(cv, mset, className, mset.xType == 0 ? XLogTypes.APP_SERVICE : mset.xType);
 			}
@@ -66,10 +66,10 @@ public class ServiceASM implements IASM, Opcodes {
 class ServiceCV extends ClassVisitor implements Opcodes {
 
 	public String className;
-	private MethodSet mset;
+	private HookingSet mset;
 	private byte xType;
 
-	public ServiceCV(ClassVisitor cv, MethodSet mset, String className,byte xType) {
+	public ServiceCV(ClassVisitor cv, HookingSet mset, String className,byte xType) {
 		super(ASM4, cv);
 		this.mset = mset;
 		this.className = className;

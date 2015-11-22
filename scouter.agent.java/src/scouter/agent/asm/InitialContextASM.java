@@ -17,13 +17,12 @@
 
 package scouter.agent.asm;
 
-import java.util.List;
+
 import java.util.Set;
 
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
-import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.asm.util.MethodSet;
+import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceMain;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
@@ -32,7 +31,7 @@ import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class InitialContextASM implements IASM, Opcodes {
-	private Set<String> target = MethodSet.getClassSet(Configure.getInstance().hook_context);
+	private Set<String> target = HookingSet.getClassSet(Configure.getInstance().hook_context);
 
 	public boolean isTarget(String className) {
 		return target.contains(className);

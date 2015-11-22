@@ -22,14 +22,14 @@ import java.util.Map;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
-import scouter.agent.asm.util.MethodSet;
+import scouter.agent.asm.util.HookingSet;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.FieldVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 
 public class AddFieldASM implements IASM, Opcodes {
-	public final Map<String, String> target = MethodSet.getClassFieldSet(Configure.getInstance().hook_add_field);
+	public final Map<String, String> target = HookingSet.getClassFieldSet(Configure.getInstance().hook_add_field);
 
 	public AddFieldASM() {
 	}

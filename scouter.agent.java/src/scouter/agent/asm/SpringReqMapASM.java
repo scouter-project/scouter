@@ -130,16 +130,12 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 		private final static String START_METHOD = "setServiceName";
 		private static final String START_SIGNATURE = "(Ljava/lang/String;)V";
 
-		private String methodName;
-		private String className;
 		private String methodRequestMappingUrl;
 		private String methodType;
 		private boolean isHandler = false;
 
 		public SpringReqMapMV(String className, int access, String methodName, String desc, MethodVisitor mv) {
 			super(ASM4, access, desc, mv);
-			this.methodName = methodName;
-			this.className = className;
 		}
 
 		@Override

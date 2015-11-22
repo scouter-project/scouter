@@ -22,7 +22,7 @@ import java.util.List;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.asm.util.MethodSet;
+import scouter.agent.asm.util.HookingSet;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceMain;
 import scouter.org.objectweb.asm.ClassVisitor;
@@ -34,14 +34,14 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class MethodASM implements IASM, Opcodes {
 
-	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_method);
+	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_method);
 
 	public boolean isTarget(String className) {
 		if (target.size() == 0)
 			return false;
 
 		for (int i = 0; i < target.size(); i++) {
-			MethodSet mset = target.get(i);
+			HookingSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {
 				return true;
 			}
@@ -59,7 +59,7 @@ public class MethodASM implements IASM, Opcodes {
 			return cv;
 
 		for (int i = 0; i < target.size(); i++) {
-			MethodSet mset = target.get(i);
+			HookingSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {
 				return new MethodCV(cv, mset, className);
 			}
@@ -71,9 +71,9 @@ public class MethodASM implements IASM, Opcodes {
 class MethodCV extends ClassVisitor implements Opcodes {
 
 	public String className;
-	private MethodSet mset;
+	private HookingSet mset;
 
-	public MethodCV(ClassVisitor cv, MethodSet mset, String className) {
+	public MethodCV(ClassVisitor cv, HookingSet mset, String className) {
 		super(ASM4, cv);
 		this.mset = mset;
 		this.className = className;

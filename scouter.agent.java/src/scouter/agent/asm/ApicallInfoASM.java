@@ -25,7 +25,7 @@ import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.asm.util.MethodSet;
+import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceApiCall;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
@@ -34,8 +34,8 @@ import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class ApicallInfoASM implements IASM, Opcodes {
-	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_apicall_info);
-	private Map<String, MethodSet> reserved = new HashMap<String, MethodSet>();
+	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_apicall_info);
+	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
 
 	public ApicallInfoASM() {
 		AsmUtil.add(reserved, "io/reactivex/netty/protocol/http/client/HttpClientRequest", "setDynamicUriParts");
@@ -45,7 +45,7 @@ public class ApicallInfoASM implements IASM, Opcodes {
 	}
 
 	public boolean isTarget(String className) {
-		MethodSet mset = reserved.get(className);
+		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return true;
 
@@ -60,7 +60,7 @@ public class ApicallInfoASM implements IASM, Opcodes {
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 
-		MethodSet mset = reserved.get(className);
+		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return new ApicallInfoCV(cv, mset, className);
 
@@ -78,9 +78,9 @@ public class ApicallInfoASM implements IASM, Opcodes {
 class ApicallInfoCV extends ClassVisitor implements Opcodes {
 
 	public String className;
-	private MethodSet mset;
+	private HookingSet mset;
 
-	public ApicallInfoCV(ClassVisitor cv, MethodSet mset, String className) {
+	public ApicallInfoCV(ClassVisitor cv, HookingSet mset, String className) {
 		super(ASM4, cv);
 		this.mset = mset;
 		this.className = className;
