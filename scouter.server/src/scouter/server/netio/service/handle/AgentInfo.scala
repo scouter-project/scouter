@@ -110,6 +110,19 @@ class AgentInfo {
             dout.writePack(p);
         }
     }
+    
+    @ServiceHandler(RequestCmd.OBJECT_CLASS_DESC)
+    def getClassDesc(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readPack().asInstanceOf[MapPack];
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+
+        val p = AgentCall.call(o, RequestCmd.OBJECT_CLASS_DESC, param);
+        if (p != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(p);
+        }
+    }
 
     @ServiceHandler(RequestCmd.OBJECT_CLASS_LIST)
     def getLoadedClassList(din: DataInputX, dout: DataOutputX, login: Boolean) {

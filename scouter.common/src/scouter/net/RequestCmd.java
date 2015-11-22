@@ -30,6 +30,7 @@ public class RequestCmd {
 	public static final String OBJECT_ENV = "OBJECT_ENV";
 	public static final String OBJECT_CLASS_LIST = "OBJECT_CLASS_LIST";
 	public static final String OBJECT_LOAD_CLASS_BY_STREAM = "OBJECT_LOAD_CLASS_BY_STREAM";
+	public static final String OBJECT_CLASS_DESC = "OBJECT_CLASS_INFO";
 	public static final String OBJECT_CHECK_RESOURCE_FILE = "OBJECT_CHECK_RESOURCE_FILE";
 	public static final String OBJECT_DOWNLOAD_JAR = "OBJECT_DOWNLOAD_JAR";
 	public static final String OBJECT_STAT_LIST = "OBJECT_STAT_LIST";

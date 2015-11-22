@@ -17,9 +17,12 @@
 package scouter.util;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+
+import scouter.lang.pack.XLogPack;
 
 public class ClassUtil {
 	public static <V> Map<String, V> getPublicFinalNameMap(Class<?> cls, Class v) {
@@ -65,6 +68,7 @@ public class ClassUtil {
 		}
 		return map;
 	}
+
 	public static <V> Map<V, String> getPublicFinalDeclaredValueMap(Class<?> cls, Class type) {
 
 		Map<V, String> map = new HashMap<V, String>();
@@ -85,5 +89,104 @@ public class ClassUtil {
 			}
 		}
 		return map;
+	}
+
+	public static String getClassDescription(Class c1) {
+		int x = c1.getName().lastIndexOf(".");
+
+		StringBuffer sb = new StringBuffer();
+		if (x > 0) {
+			sb.append("package ").append(c1.getName().substring(0, x)).append(";\n\n");
+		}
+		int acc = c1.getModifiers();
+		mod(sb, acc, c1.isInterface());
+		if (c1.isInterface()) {
+			sb.append("interface ");
+		} else {
+			sb.append("class ");
+		}
+
+		if (x > 0) {
+			sb.append(c1.getName().substring(x + 1));
+		} else {
+			sb.append(c1.getName());
+		}
+		if (c1.getSuperclass() != null && c1.getSuperclass() != Object.class) {
+			sb.append(" extends ").append(c1.getSuperclass().getName());
+		}
+		Class[] inf = c1.getInterfaces();
+		for (int i = 0; i < inf.length; i++) {
+			if (i == 0) {
+				sb.append(" implements ");
+			}
+			if (i > 0)
+				sb.append(",");
+			sb.append(inf[i].getName());
+		}
+		sb.append("{\n");
+		Field[] f = c1.getDeclaredFields();
+		for (int i = 0; i < f.length; i++) {
+			sb.append("\t");
+			mod(sb, f[i].getModifiers(), c1.isInterface());
+			sb.append(toClassString(f[i].getType().getName())).append(" ");
+			sb.append(f[i].getName()).append(";\n");
+		}
+		Method[] m = c1.getDeclaredMethods();
+		if(f.length>0 && m.length >0){
+			sb.append("\n");
+		}
+		for (int i = 0; i < m.length; i++) {
+			sb.append("\t");
+			mod(sb, m[i].getModifiers(), c1.isInterface());
+			sb.append(toClassString(m[i].getReturnType().getName())).append(" ");
+			sb.append(m[i].getName());
+			sb.append("(");
+			Class[] pc = m[i].getParameterTypes();
+			for (int p = 0; p < pc.length; p++) {
+				if (p > 0)
+					sb.append(",");
+				sb.append(toClassString(pc[p].getName())).append(" a" + p);
+			}
+			sb.append(")");
+			if (Modifier.isAbstract(m[i].getModifiers()) == false) {
+				sb.append("{...}\n");
+			} else {
+				sb.append(";\n");
+			}
+		}
+		sb.append("}");
+		return sb.toString();
+	}
+
+	private static String toClassString(String name) {
+		if (name.startsWith("java.lang")) {
+			return name.substring("java.lang".length() + 1);
+		}
+		return name;
+	}
+
+	private static void mod(StringBuffer sb, int acc, boolean isInterface) {
+		if (Modifier.isAbstract(acc) && isInterface == false) {
+			sb.append("abstract ");
+		}
+		if (Modifier.isProtected(acc)) {
+			sb.append("protected ");
+		}
+		if (Modifier.isPrivate(acc)) {
+			sb.append("private ");
+		}
+		if (Modifier.isPublic(acc)) {
+			sb.append("public ");
+		}
+		if (Modifier.isFinal(acc)) {
+			sb.append("final ");
+		}
+		if (Modifier.isSynchronized(acc)) {
+			sb.append("synchronized ");
+		}
+	}
+
+	public static void main(String[] args) {
+		System.out.println(getClassDescription(XLogPack.class));
 	}
 }
