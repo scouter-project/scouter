@@ -24,15 +24,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import scouter.agent.Configure;
 import scouter.util.StrMatch;
 import scouter.util.StringUtil;
 
-public class MethodSet {
+public class HookingSet {
 	public byte xType = 0;
 	public StrMatch classMatch = null;
-	protected HashMap inner = new HashMap();
+	protected Map<String,Object> inner = new HashMap<String,Object>();
 
 	private boolean all_flag = false;
 	private int all_flag_value;
@@ -83,9 +83,9 @@ public class MethodSet {
 		return -1;
 	}
 
-	public static Map<String, MethodSet> getHookingSet(String arg) {
+	public static Map<String, HookingSet> getHookingSet(String arg) {
 		String[] c = StringUtil.split(arg, ',');
-		Map<String, MethodSet> classSet = new HashMap<String, MethodSet>();
+		Map<String, HookingSet> classSet = new HashMap<String, HookingSet>();
 		for (int i = 0; i < c.length; i++) {
 			String s = c[i];
 			int x = s.lastIndexOf(".");
@@ -94,9 +94,9 @@ public class MethodSet {
 			String cname = s.substring(0, x).replace('.', '/');
 			String mname = s.substring(x + 1);
 
-			MethodSet methodSet = classSet.get(cname);
+			HookingSet methodSet = classSet.get(cname);
 			if (methodSet == null) {
-				methodSet = new MethodSet();
+				methodSet = new HookingSet();
 				classSet.put(cname, methodSet);
 			}
 			methodSet.add(mname);
@@ -104,10 +104,10 @@ public class MethodSet {
 		return classSet;
 	}
 
-	public static List<MethodSet> getHookingMethodSet(String arg) {
+	public static List<HookingSet> getHookingMethodSet(String arg) {
 		String[] c = StringUtil.split(arg, ',');
 
-		Map<String, MethodSet> classSet = new HashMap<String, MethodSet>();
+		Map<String, HookingSet> classSet = new HashMap<String, HookingSet>();
 		for (int i = 0; i < c.length; i++) {
 			String s = c[i];
 			int x = s.lastIndexOf(".");
@@ -116,19 +116,19 @@ public class MethodSet {
 			String cname = s.substring(0, x).replace('.', '/').trim();
 			String mname = s.substring(x + 1).trim();
 
-			MethodSet methodSet = classSet.get(cname);
+			HookingSet methodSet = classSet.get(cname);
 			if (methodSet == null) {
-				methodSet = new MethodSet();
+				methodSet = new HookingSet();
 				classSet.put(cname, methodSet);
 			}
 
 			methodSet.add(mname);
 		}
 
-		List<MethodSet> list = new ArrayList<MethodSet>();
-		Iterator<Entry<String, MethodSet>> itr = classSet.entrySet().iterator();
+		List<HookingSet> list = new ArrayList<HookingSet>();
+		Iterator<Entry<String, HookingSet>> itr = classSet.entrySet().iterator();
 		while (itr.hasNext()) {
-			Entry<String, MethodSet> e = itr.next();
+			Entry<String, HookingSet> e = itr.next();
 			e.getValue().classMatch = new StrMatch(e.getKey());
 			list.add(e.getValue());
 		}
@@ -136,29 +136,29 @@ public class MethodSet {
 		return list;
 	}
 
-	public static void setHookingMethod(Map<String, MethodSet> classSet, String cname, String mname) {
+	public static void setHookingMethod(Map<String, HookingSet> classSet, String cname, String mname) {
 
-		MethodSet methodSet = classSet.get(cname);
+		HookingSet methodSet = classSet.get(cname);
 		if (methodSet == null) {
-			methodSet = new MethodSet();
+			methodSet = new HookingSet();
 			classSet.put(cname, methodSet);
 		}
 		methodSet.add(mname);
 	}
 
-	public static void add(List<MethodSet> list, String classname, String method) {
+	public static void add(List<HookingSet> list, String classname, String method) {
 		add(list, classname, method, (byte) 0);
 	}
 
-	public static void add(List<MethodSet> list, String classname, String method, byte serviceType) {
+	public static void add(List<HookingSet> list, String classname, String method, byte serviceType) {
 		for (int i = 0; i < list.size(); i++) {
-			MethodSet m = list.get(i);
+			HookingSet m = list.get(i);
 			if (m.classMatch.include(classname)) {
 				m.add(method);
 				return;
 			}
 		}
-		MethodSet m = new MethodSet();
+		HookingSet m = new HookingSet();
 		m.xType = serviceType;
 		m.classMatch = new StrMatch(classname);
 		m.add(method);
@@ -174,5 +174,34 @@ public class MethodSet {
 			classSet.add(c[i]);
 		}
 		return classSet;
+	}
+	public static Map<String, String> getClassFieldSet(String arg) {
+		String[] c = StringUtil.split(arg, ',');
+
+		Map<String, String> m = new HashMap<String, String>();
+		for (int i = 0; i < c.length; i++) {
+			String s = c[i];
+			int x = s.lastIndexOf(".");
+			if (x <= 0)
+				continue;
+			String cname = s.substring(0, x).replace('.', '/').trim();
+			String mname = s.substring(x + 1).trim();
+
+			m.put(cname, mname);
+		}
+
+		return m;
+	}
+
+	public static Set<String> getClassSet(String arg) {
+		String[] c = StringUtil.split(arg, ',');
+
+		Set<String> m = new HashSet<String>();
+		for (int i = 0; i < c.length; i++) {
+			String s = c[i];
+			m.add(s.replace('.', '/'));
+		}
+
+		return m;
 	}
 }

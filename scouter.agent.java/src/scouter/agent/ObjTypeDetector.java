@@ -38,7 +38,7 @@ public class ObjTypeDetector {
 
 	public static String objType = null;
 	public static String drivedType = null;
-
+    private static boolean initLog=false;
 	public static void check(String className) {
 		String type = bootClass.get(className);
 		if (type == null)
@@ -49,6 +49,11 @@ public class ObjTypeDetector {
 		    objType = type;
 		}
 		Configure.getInstance().resetObjInfo();
+		if(initLog==false){
+			Logger.initializer.run();
+			initLog=true;
+		}
+		
 		dirtyConfig=true;
 	}
 	public static boolean dirtyConfig=false;

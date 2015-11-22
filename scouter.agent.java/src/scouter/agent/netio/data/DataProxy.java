@@ -202,7 +202,7 @@ public class DataProxy {
 		p.objHash = conf.objHash;
 		sendDirect(p);
 		if (conf.debug_udp_xlog) {
-			Logger.info(p.toString());
+			Logger.println(p.toString());
 		}
 	}
 	public static void send(SummaryPack p) {
@@ -279,7 +279,7 @@ public class DataProxy {
 	public static void sendHeartBeat(ObjectPack p) {
 		udpCollect.add(p);
 		if (conf.debug_udp_object) {
-			Logger.info(p.toString());
+			Logger.println(p.toString());
 		}
 	}
 	private static IntLinkedSet webNameTable = new IntLinkedSet().setMax(1000);
@@ -305,4 +305,14 @@ public class DataProxy {
 		return hash;
 	}
 
+	private static IntLinkedSet hashMessage = new IntLinkedSet().setMax(500);
+	public static int sendHashedMessage(String text) {
+			int hash = HashUtil.hash(text);	
+			if (hashMessage.contains(hash)) {
+				return hash;
+			}
+			hashMessage.put(hash);
+			udpCollect.add(new TextPack(TextTypes.HASH_MSG, hash, text));
+			return hash;
+		}
 }

@@ -763,12 +763,15 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 				}
 				return Images.default_context;
 			case 1:
-//				if (obj instanceof AgentObject) {
-//					AgentObject a = (AgentObject) obj;
-//					if (a.isAlive()) {
-//						return ImageCache.getInstance().getObjectImage(a.getObjHash());
-//					}
-//				}
+				if (obj instanceof AgentObject) {
+					AgentObject a = (AgentObject) obj;
+					if (a.isAlive()) {
+						boolean activeStack = a.getSpec().tags.getBoolean("ActiveStack");
+						if (activeStack) {
+							return Images.active;
+						}
+					}
+				}
 			}
 			return null;
 		}

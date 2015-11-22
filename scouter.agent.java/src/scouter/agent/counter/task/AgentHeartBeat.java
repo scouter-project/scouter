@@ -36,9 +36,9 @@ import scouter.util.StringKeyLinkedMap;
 import scouter.util.SysJMX;
 
 public class AgentHeartBeat {
-	public AgentHeartBeat() {
-		Logger.info("objType:" + Configure.getInstance().scouter_type);
-		Logger.info("objName:" + Configure.getInstance().objName);
+	static {
+		Logger.println("objType:" + Configure.getInstance().scouter_type);
+		Logger.println("objName:" + Configure.getInstance().objName);
 	}
 
 	private static StringKeyLinkedMap<ObjectPack> objects = new StringKeyLinkedMap<ObjectPack>();
@@ -79,7 +79,7 @@ public class AgentHeartBeat {
 
 		p.version = Version.getAgentFullVersion();
 		p.address = TcpWorker.localAddr;
-		if(ToolsMainFactory.activeStack){
+		if (ToolsMainFactory.activeStack) {
 			p.tags.put("ActiveStack", new BooleanValue(true));
 		}
 		return p;

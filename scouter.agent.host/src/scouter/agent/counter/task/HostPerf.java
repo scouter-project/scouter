@@ -1,5 +1,6 @@
 package scouter.agent.counter.task;
 
+import org.hyperic.sigar.CpuPerc;
 import org.hyperic.sigar.FileSystem;
 import org.hyperic.sigar.FileSystemUsage;
 import org.hyperic.sigar.Mem;
@@ -45,8 +46,11 @@ public class HostPerf {
 
 		Configure conf = Configure.getInstance();
 
-		float cpu = (float) ((1.0D - sigar.getCpuPerc().getIdle()) * 100);
+		CpuPerc cpuPerc = sigar.getCpuPerc();
+		float cpu = (float) ((1.0D - cpuPerc.getIdle()) * 100);
 		alertCpu(cpu);
+		float sysCpu = (float) cpuPerc.getSys() * 100;
+		float userCpu = (float) cpuPerc.getUser() * 100;
 
 		Mem m = sigar.getMem();
 		alertMem(m);
@@ -65,6 +69,8 @@ public class HostPerf {
 
 		PerfCounterPack p = pw.getPack(conf.objName, TimeTypeEnum.REALTIME);
 		p.put(CounterConstants.HOST_CPU, new FloatValue(cpu));
+		p.put(CounterConstants.HOST_SYSCPU, new FloatValue(sysCpu));
+		p.put(CounterConstants.HOST_USERCPU, new FloatValue(userCpu));
 		p.put(CounterConstants.HOST_MEM, new FloatValue(memrate));
 		p.put(CounterConstants.HOST_MEM_TOTAL, new DecimalValue(tmem / 1024 / 1024));
 		p.put(CounterConstants.HOST_MEM_USED, new DecimalValue(umem / 1024 / 1024));
@@ -241,19 +247,19 @@ public class HostPerf {
 				if (pct >= conf.disk_fatal_pct && fatal.length() < 32756) {
 					long avail = usage.getAvail();
 					long total = usage.getTotal();
-					if (fatal.length() == 0) {
+					if (fatal.length() > 0) {
 						fatal.append("\n");
 					}
 					fatal.append(dir).append(" usage ").append((int) pct).append("% total=")
-							.append(total / 1024 / 1024 / 1024).append(" GB available=").append(prt(avail));
+							.append(FormatUtil.print(total / 1024.0 / 1024, "#0.0#")).append("GB.. available=").append(prt(avail * 1024));
 				} else if (pct >= conf.disk_warning_pct && warn.length() < 32756) {
 					long avail = usage.getAvail();
 					long total = usage.getTotal();
-					if (warn.length() == 0) {
+					if (warn.length() > 0) {
 						warn.append("\n");
 					}
 					warn.append(dir).append(" usage ").append((int) pct).append("% total=")
-							.append(total / 1024 / 1024 / 1024).append(" GB available=").append(prt(avail));
+							.append(FormatUtil.print(total / 1024.0 / 1024, "#0.0#")).append("GB.. available=").append(prt(avail * 1024));
 				}
 
 			}
@@ -280,5 +286,10 @@ public class HostPerf {
 			return free + " MB";
 		free /= 1024;
 		return FormatUtil.print(free, "#,##0") + " GB";
+	}
+	
+	public static void main(String[] args) {
+		long total = 9126805504L / 1024 / 1204 / 1024;
+		System.out.println(total);
 	}
 }

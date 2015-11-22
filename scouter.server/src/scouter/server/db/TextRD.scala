@@ -21,29 +21,30 @@ package scouter.server.db;
 import scouter.server.core.cache.TextCache
 import scouter.server.db.text.TextTable
 import scouter.util.HashUtil
+import scouter.lang.TextTypes
 
 object TextRD {
 
-    def getString(date: String, divs: String, hash: Int): String = {
-        val out = TextCache.get(divs, hash);
-        if (out != null)
-            return out;
+  def getString(date: String, divs: String, hash: Int): String = {
+    val out = TextCache.get(divs, hash);
+    if (out != null)
+      return out;
 
-        try {
-            val divhash = HashUtil.hash(divs);
-            if (TextPermWR.isA(divhash)) {
-                return TextPermRD.getString(divhash, hash);
-            }
-            val table = TextWR.open(date)
-            val b = table.get(divhash, hash);
-            if (b == null)
-                return null;
-            val text = new String(b, "UTF-8");
-            TextCache.put(divhash, hash, text);
-            return text;
-        } catch {
-            case e: Exception => e.printStackTrace()
-        }
+    try {
+      if (TextPermWR.isA(divs)) {
+        return TextPermRD.getString(divs, hash);
+      }
+      val table = TextWR.open(date)
+      val b = table.get(divs, hash);
+
+      if (b == null)
         return null;
+      val text = new String(b, "UTF-8");
+      TextCache.put(divs, hash, text);
+      return text;
+    } catch {
+      case e: Exception => e.printStackTrace()
     }
+    return null;
+  }
 }

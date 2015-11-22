@@ -14,13 +14,31 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-package scouter.agent.plugin;
 
-import scouter.agent.trace.HookArgs;
+package scouter.lang.step;
 
-abstract public class AbstractAppService extends AbstractPlugin {
-	abstract public void start(WrContext ctx, HookArgs p);
+import java.io.IOException;
 
-	abstract public void end(WrContext ctx);
+import scouter.io.DataInputX;
+import scouter.io.DataOutputX;
+
+public class MethodStep2 extends MethodStep {
+
+	public int error;
+
+	public byte getStepType() {
+		return StepEnum.METHOD2;
+	}
+
+	public void write(DataOutputX out) throws IOException {
+		super.write(out);
+		out.writeDecimal(error);
+	}
+
+	public Step read(DataInputX in) throws IOException {
+		super.read(in);
+		this.error = (int) in.readDecimal();
+		return this;
+	}
 
 }

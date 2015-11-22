@@ -206,12 +206,16 @@ class SummaryService {
                     if (tempObj == null) {
                         tempObj = new TempError();
                         tempMap.put(id.getInt(i), tempObj);
+                        tempObj.error = error.getInt(i);
+                        tempObj.service = service.getInt(i);
+                        tempObj.txid = txid.getLong(i);
                     }
+                    
+                    tempObj.count += count.getInt(i);
 
-                    tempObj.error = error.getInt(i);
-                    tempObj.service = service.getInt(i);
-                    tempObj.message = message.getInt(i);
-                    tempObj.txid = txid.getLong(i);
+                    if (tempObj.message == 0) {
+                      tempObj.message = message.getInt(i);
+                    }
 
                     if (tempObj.sql == 0) {
                         tempObj.sql = sql.getInt(i);
@@ -219,7 +223,7 @@ class SummaryService {
                     if (tempObj.apicall == 0) {
                         tempObj.apicall = apicall.getInt(i);
                     }
-                    tempObj.count += count.getInt(i);
+                    
                     if (tempObj.fullstack == 0) {
                         tempObj.fullstack = fullstack.getInt(i);
                     }

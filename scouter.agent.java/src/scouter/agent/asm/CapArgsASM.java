@@ -22,7 +22,7 @@ import java.util.List;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.asm.util.MethodSet;
+import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceMain;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
@@ -31,11 +31,11 @@ import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class CapArgsASM implements IASM, Opcodes {
-	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_args);
+	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_args);
 
 	public boolean isTarget(String className) {
 		for (int i = 0; i < target.size(); i++) {
-			MethodSet mset = target.get(i);
+			HookingSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {
 				return true;
 			}
@@ -46,7 +46,7 @@ public class CapArgsASM implements IASM, Opcodes {
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 
 		for (int i = 0; i < target.size(); i++) {
-			MethodSet mset = target.get(i);
+			HookingSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {
 				return new CapArgsCV(cv, mset, className);
 			}
@@ -59,9 +59,9 @@ public class CapArgsASM implements IASM, Opcodes {
 class CapArgsCV extends ClassVisitor implements Opcodes {
 
 	public String className;
-	private MethodSet mset;
+	private HookingSet mset;
 
-	public CapArgsCV(ClassVisitor cv, MethodSet mset, String className) {
+	public CapArgsCV(ClassVisitor cv, HookingSet mset, String className) {
 		super(ASM4, cv);
 		this.mset = mset;
 		this.className = className;

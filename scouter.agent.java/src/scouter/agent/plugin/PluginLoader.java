@@ -28,6 +28,7 @@ import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.HookReturn;
+import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceSQL;
 import scouter.javassist.CannotCompileException;
 import scouter.javassist.ClassPool;
@@ -208,11 +209,11 @@ public class PluginLoader extends Thread {
 			Class c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractHttpService plugin = (AbstractHttpService) c.newInstance();
 			plugin.lastModified = script.lastModified();
-			Logger.info("PLUG-IN : " + AbstractHttpService.class.getName() + " loaded #"
+			Logger.println("PLUG-IN : " + AbstractHttpService.class.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (scouter.javassist.CannotCompileException ee) {
-			Logger.info(ee.getMessage());
+			Logger.println(ee.getMessage());
 		} catch (Throwable e) {
 			Logger.println("A161", e);
 		}
@@ -326,11 +327,11 @@ public class PluginLoader extends Thread {
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractAppService plugin = (AbstractAppService) c.newInstance();
 			plugin.lastModified = script.lastModified();
-			Logger.info("PLUG-IN : " + AbstractAppService.class.getName() + " loaded #"
+			Logger.println("PLUG-IN : " + AbstractAppService.class.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (scouter.javassist.CannotCompileException ee) {
-			Logger.info("PLUG-IN : " + ee.getMessage());
+			Logger.println("PLUG-IN : " + ee.getMessage());
 		} catch (Exception e) {
 			Logger.println("A162", e);
 		}
@@ -453,11 +454,11 @@ public class PluginLoader extends Thread {
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractCapture plugin = (AbstractCapture) c.newInstance();
 			plugin.lastModified = script.lastModified();
-			Logger.info("PLUG-IN : " + AbstractCapture.class.getName() + " loaded #"
+			Logger.println("PLUG-IN : " + AbstractCapture.class.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (scouter.javassist.CannotCompileException ee) {
-			Logger.info("PLUG-IN : " + ee.getMessage());
+			Logger.println("PLUG-IN : " + ee.getMessage());
 		} catch (Exception e) {
 			Logger.println("A162", e);
 		}
@@ -522,11 +523,11 @@ public class PluginLoader extends Thread {
 			AbstractJdbcPool plugin = (AbstractJdbcPool) c.newInstance();
 			plugin.lastModified = script.lastModified();
 
-			Logger.info("PLUG-IN : " + AbstractJdbcPool.class.getName() + " loaded #"
+			Logger.println("PLUG-IN : " + AbstractJdbcPool.class.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (scouter.javassist.CannotCompileException ee) {
-			Logger.info("PLUG-IN : " + ee.getMessage());
+			Logger.println("PLUG-IN : " + ee.getMessage());
 		} catch (Exception e) {
 			Logger.println("A162", e);
 		}
@@ -587,11 +588,11 @@ public class PluginLoader extends Thread {
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractHttpCall plugin = (AbstractHttpCall) c.newInstance();
 			plugin.lastModified = script.lastModified();
-			Logger.info("PLUG-IN : " + AbstractHttpCall.class.getName() + " loaded #"
+			Logger.println("PLUG-IN : " + AbstractHttpCall.class.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (scouter.javassist.CannotCompileException ee) {
-			Logger.info("PLUG-IN : " + ee.getMessage());
+			Logger.println("PLUG-IN : " + ee.getMessage());
 		} catch (Exception e) {
 			Logger.println("A162", e);
 		}

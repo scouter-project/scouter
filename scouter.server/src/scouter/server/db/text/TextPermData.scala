@@ -16,17 +16,19 @@
  *
  */
 
-package scouter.server.db.obj;
+package scouter.server.db.text;
 
 import java.io.IOException
 import java.io.RandomAccessFile
 import java.util.Hashtable
-import scouter.util.IClose;
+import scouter.util.IClose
 import scouter.util.IntKeyLinkedMap
+import scouter.util.StringKeyLinkedMap
+
 
 object TextPermData {
-  val table = new IntKeyLinkedMap[TextPermData]();
-  def get(div: Int): TextPermData = {
+  val table = new StringKeyLinkedMap[TextPermData]();
+  def get(div: String): TextPermData = {
     table.synchronized {
       var reader = table.get(div);
       if (reader != null) {
@@ -35,7 +37,7 @@ object TextPermData {
       return reader;
     }
   }
-  def open(div: Int, file: String): TextPermData = {
+  def open(div: String, file: String): TextPermData = {
     table.synchronized {
       var reader = table.get(div);
       if (reader != null) {
@@ -54,7 +56,7 @@ object TextPermData {
   }
 }
 
-class TextPermData(div: Int, file: String) extends IClose {
+class TextPermData(div: String, file: String) extends IClose {
 
   var refrence = 0;
   val dataFile = new RandomAccessFile(file + ".data", "rw");

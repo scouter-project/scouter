@@ -16,11 +16,12 @@
  */
 package scouter.agent.asm;
 import java.util.Map;
+
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.asm.util.MethodSet;
+import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.Label;
@@ -30,12 +31,12 @@ import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 public class JDBCDriverASM implements IASM, Opcodes {
 	//user can define driver.connect()
-	private Map<String, MethodSet> reserved =MethodSet.getHookingSet(Configure.getInstance().hook_driver_connect_wrapper);
+	private Map<String, HookingSet> reserved =HookingSet.getHookingSet(Configure.getInstance().hook_driver_connect_wrapper);
 	public JDBCDriverASM() {
 		AsmUtil.add(reserved, "com/ibm/db2/jcc/DB2Driver",	"connect(Ljava/lang/String;Ljava/util/Properties;)Ljava/sql/Connection;");
 	}
 	public boolean isTarget(String className) {
-		MethodSet mset = reserved.get(className);
+		HookingSet mset = reserved.get(className);
 		if (mset != null){
 			return true;
 		}
@@ -44,7 +45,7 @@ public class JDBCDriverASM implements IASM, Opcodes {
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if(Configure.getInstance().enable_asm_jdbc==false)
 			return cv;
-		MethodSet mset = reserved.get(className);
+		HookingSet mset = reserved.get(className);
 		if (mset != null){
 			return new JDBCDriverCV(cv, mset, className);
 		}
@@ -54,8 +55,8 @@ public class JDBCDriverASM implements IASM, Opcodes {
 }
 class JDBCDriverCV extends ClassVisitor implements Opcodes {
 	public String className;
-	private MethodSet mset;
-	public JDBCDriverCV(ClassVisitor cv, MethodSet mset, String className) {
+	private HookingSet mset;
+	public JDBCDriverCV(ClassVisitor cv, HookingSet mset, String className) {
 		super(ASM4, cv);
 		this.mset = mset;
 		this.className = className;
@@ -83,17 +84,12 @@ class JDBCDriverMV extends LocalVariablesSorter implements Opcodes {
 	private static final String ERR_SIGNATURE = "(Ljava/lang/String;Ljava/lang/Throwable;)V";
 	
 	private Label startFinally = new Label();
-	private Type returnType;
 	public JDBCDriverMV(int access, String desc, MethodVisitor mv, String fullname) {
 		super(ASM4,access, desc, mv);
-		this.fullname = fullname;
 		this.strArgIdx = AsmUtil.getStringIdx(access, desc);
-		this.isStatic =AsmUtil.isStatic(access);
-		this.returnType = Type.getReturnType(desc);
 	}
-	private String fullname;
+
 	private int strArgIdx;
-	private boolean isStatic;
 	@Override
 	public void visitCode() {
 		mv.visitLabel(startFinally);

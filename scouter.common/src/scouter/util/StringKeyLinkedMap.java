@@ -272,13 +272,13 @@ public class StringKeyLinkedMap<V>  {
 		return null;
 	}
 
-	public synchronized Object removeFirst() {
+	public synchronized V removeFirst() {
 		if (isEmpty())
 			return null;
 		return remove(header.link_next.key);
 	}
 
-	public synchronized Object removeLast() {
+	public synchronized V removeLast() {
 		if (isEmpty())
 			return null;
 		return remove(header.link_prev.key);

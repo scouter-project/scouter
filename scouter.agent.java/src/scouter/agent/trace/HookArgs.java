@@ -30,19 +30,28 @@ public class HookArgs {
 		this.this1 = this1;
 		this.args = args;
 	}
-	 public String getClassName(){
-	    	return this.class1;
-	    }
-	    public String getMethodName(){
-	    	return this.method;
-	    }
-	    public String getMethodDesc(){
-	    	return this.desc;
-	    }
-	    public Object getThis(){
-	    	return this.this1;
-	    }
-	    public Object[] getArgs(){
-	    	return this.args;
-	    }
+
+	public String getClassName() {
+		return this.class1;
+	}
+
+	public String getMethodName() {
+		return this.method;
+	}
+
+	public String getMethodDesc() {
+		return this.desc;
+	}
+
+	public Object getThis() {
+		return this.this1;
+	}
+
+	public Object[] getArgs() {
+		return this.args;
+	}
+
+	public int getArgCount() {
+		return args == null ? 0 : args.length;
+	}
 }

@@ -78,6 +78,8 @@ public class CounterConstants {
 	public final static String DATASOURCE_CONN_IDLE = "ConnIdle";
 
 	public final static String HOST_CPU = "Cpu";
+	public final static String HOST_SYSCPU = "SysCpu";
+	public final static String HOST_USERCPU = "UserCpu";
 	public final static String HOST_MEM = "Mem";
 	public final static String HOST_MEM_AVALIABLE = "MemA";
 	public final static String HOST_MEM_USED = "MemU";

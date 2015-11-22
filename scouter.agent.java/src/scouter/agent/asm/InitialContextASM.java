@@ -17,88 +17,91 @@
 
 package scouter.agent.asm;
 
-import java.util.List;
+
+import java.util.Set;
 
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
-import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceMain;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
+import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
-public class CapThisASM implements IASM, Opcodes {
-	private  List< HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_init);
+public class InitialContextASM implements IASM, Opcodes {
+	private Set<String> target = HookingSet.getClassSet(Configure.getInstance().hook_context);
 
-	
 	public boolean isTarget(String className) {
-		for (int i = 0; i < target.size(); i++) {
-			HookingSet mset = target.get(i);
-			if (mset.classMatch.include(className)) {
-				return true;
-			}
-		}
-		return false;
+		return target.contains(className);
 	}
+
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 
-		for (int i = 0; i < target.size(); i++) {
-			HookingSet mset = target.get(i);
-			if (mset.classMatch.include(className)) {
-				return new CapThisCV(cv, mset, className);
-			}
+		if (target.contains(className)) {
+			return new InitialContextCV(cv, className);
 		}
 		return cv;
 	}
+
 }
 
 // ///////////////////////////////////////////////////////////////////////////
-class CapThisCV extends ClassVisitor implements Opcodes {
+class InitialContextCV extends ClassVisitor implements Opcodes {
 
-	private HookingSet mset;
-	private String className;
-
-	public CapThisCV(ClassVisitor cv, HookingSet mset, String className) {
+	public String className;
+	public InitialContextCV(ClassVisitor cv, String className) {
 		super(ASM4, cv);
-		this.mset = mset;
 		this.className = className;
 	}
 
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		if (mv == null || mset.isA(name, desc) == false) {
+		if (mv == null) {
 			return mv;
 		}
-		return new CapThisMV(className,  desc, mv);
+		if ("lookup".equals(name) && "(Ljava/lang/String;)Ljava/lang/Object;".equals(desc)) {
+			return new InitialContextMV(access, desc, mv, className, name, desc);
+		}
+		return mv;
+
 	}
 }
 
 // ///////////////////////////////////////////////////////////////////////////
-class CapThisMV extends MethodVisitor implements Opcodes {
+class InitialContextMV extends LocalVariablesSorter implements Opcodes {
 	private static final String CLASS = TraceMain.class.getName().replace('.', '/');
-	private static final String METHOD = "capThis";
-	private static final String SIGNATURE = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)V";
+	private static final String METHOD = "ctxLookup";
+	private static final String SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Object;)V";
 
-	private String className;
-	private String methodDesc;
+	private Type returnType;
 
-	public CapThisMV(String classname, String methoddesc, MethodVisitor mv) {
-		super(ASM4, mv);
-		this.className = classname;
-		this.methodDesc = methoddesc;
+	public InitialContextMV(int access, String desc, MethodVisitor mv, String classname, String methodname,
+			String methoddesc) {
+		super(ASM4, access, desc, mv);
+		this.returnType = Type.getReturnType(desc);
 	}
 
 	@Override
 	public void visitInsn(int opcode) {
-		if ((opcode >= IRETURN && opcode <= RETURN) || opcode == ATHROW) {
-			AsmUtil.PUSH(mv, className);
-			AsmUtil.PUSH(mv, methodDesc);
-			mv.visitVarInsn(Opcodes.ALOAD, 0);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE,false);
+		if ((opcode >= IRETURN && opcode <= RETURN)) {
+			code();
 		}
 		mv.visitInsn(opcode);
+	}
+
+	private void code() {
+		int i = newLocal(returnType);
+
+		mv.visitVarInsn(Opcodes.ASTORE, i);
+		mv.visitVarInsn(Opcodes.ALOAD, i);
+
+		mv.visitVarInsn(Opcodes.ALOAD, 0);
+		mv.visitVarInsn(Opcodes.ALOAD, i);
+
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, CLASS, METHOD, SIGNATURE, false);
 	}
 
 }

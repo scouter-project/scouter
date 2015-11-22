@@ -80,7 +80,8 @@ class SqlMapCV extends ClassVisitor implements Opcodes {
 	}
 
 	@Override
-	public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
+	public MethodVisitor visitMethod(int access, String methodName, String desc, String signature,
+			String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, methodName, desc, signature, exceptions);
 		if (mv == null) {
 			return mv;
@@ -88,7 +89,8 @@ class SqlMapCV extends ClassVisitor implements Opcodes {
 		if (SqlMapASM.targetMethod.contains(methodName) == false) {
 			return mv;
 		}
-		return new SqlMapMV(access, desc, mv, Type.getArgumentTypes(desc), (access & ACC_STATIC) != 0, className,
+
+		return new SqlMapMV(access, desc, mv, Type.getArgumentTypes(desc), AsmUtil.isStatic(access), className,
 				methodName, desc);
 	}
 }
@@ -101,19 +103,14 @@ class SqlMapMV extends LocalVariablesSorter implements Opcodes {
 
 	private Type[] paramTypes;
 	private boolean isStatic;
-	private String className;
 	private String methodName;
-	private String methodDesc;
 
 	public SqlMapMV(int access, String desc, MethodVisitor mv, Type[] paramTypes, boolean isStatic, String classname,
 			String methodname, String methoddesc) {
 		super(ASM4, access, desc, mv);
 		this.paramTypes = paramTypes;
 		this.isStatic = isStatic;
-		this.className = classname;
 		this.methodName = methodname;
-		this.methodDesc = methoddesc;
-
 	}
 
 	@Override

@@ -23,7 +23,7 @@ import java.util.Map;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.asm.util.MethodSet;
+import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceApiCall;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.Label;
@@ -33,7 +33,7 @@ import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class SocketASM implements IASM, Opcodes {
-	private Map<String, MethodSet> reserved = new HashMap<String, MethodSet>();
+	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
 
 	public SocketASM() {
 			AsmUtil.add(reserved,"java/net/Socket","connect(Ljava/net/SocketAddress;I)V");
@@ -42,7 +42,7 @@ public class SocketASM implements IASM, Opcodes {
 		return reserved.containsKey(className);
 	}
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-		MethodSet mset = reserved.get(className);
+		HookingSet mset = reserved.get(className);
 		if (mset != null){			
 			if(Configure.getInstance().enable_asm_socket==false)
 				return cv;
@@ -56,9 +56,9 @@ public class SocketASM implements IASM, Opcodes {
 class SocketCV extends ClassVisitor implements Opcodes {
 
 	public String className;
-	private MethodSet mset;
+	private HookingSet mset;
 
-	public SocketCV(ClassVisitor cv, MethodSet mset, String className) {
+	public SocketCV(ClassVisitor cv, HookingSet mset, String className) {
 		super(ASM4, cv);
 		this.mset = mset;
 		this.className = className;

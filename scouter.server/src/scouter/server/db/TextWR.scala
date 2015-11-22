@@ -117,21 +117,20 @@ object TextWR {
         }
     }
     def add(date: String, div: String, hash: Int, text: String): Unit = {
-        val divHash = HashUtil.hash(div);
-
-        TextCache.put(divHash, hash, text);
+       
+        TextCache.put(div, hash, text);
 
         val tu = new TextDupCheck.TextUnit(date, hash);
-        if (TextDupCheck.isDuplicated(divHash, tu))
+        if (TextDupCheck.isDuplicated(div, tu))
             return;
 
-        val ok = queue.put(new Data(date, divHash, hash, text, tu));
+        val ok = queue.put(new Data(date, div, hash, text, tu));
         if (ok == false) {
             Logger.println("S140", 10, "queue exceeded!!");
         }
     }
 
-    class Data(_date: String, _div: Int, _hash: Int, _text: String, _tu: TextDupCheck.TextUnit) {
+    class Data(_date: String, _div: String, _hash: Int, _text: String, _tu: TextDupCheck.TextUnit) {
         val date = _date
         val div = _div
         val hash = _hash

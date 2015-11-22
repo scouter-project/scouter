@@ -16,6 +16,8 @@
  */
 package scouter.agent.trace;
 
+import javax.sql.DataSource;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterService;
@@ -23,16 +25,18 @@ import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.error.REQUEST_REJECT;
 import scouter.agent.error.USERTX_NOT_CLOSE;
 import scouter.agent.netio.data.DataProxy;
+import scouter.agent.plugin.PluginAppServiceTrace;
 import scouter.agent.plugin.PluginCaptureTrace;
 import scouter.agent.plugin.PluginHttpServiceTrace;
-import scouter.agent.plugin.PluginAppServiceTrace;
 import scouter.agent.proxy.HttpTraceFactory;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
+import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
+import scouter.lang.step.MethodStep2;
 import scouter.util.ArrayUtil;
 import scouter.util.HashUtil;
 import scouter.util.IPUtil;
@@ -367,7 +371,19 @@ public class TraceMain {
 			ctx.profile_thread_cputime = conf.profile_thread_cputime;
 			ctx.xType = xType;
 			PluginAppServiceTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
-			return new Stat(ctx);
+			if (ctx.xType == XLogTypes.BACK_THREAD) {
+				MethodStep2 ms = new MethodStep2();
+				ms.hash = DataProxy.sendMethodName(service_name);
+				ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+				if (ctx.profile_thread_cputime) {
+					ms.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+				}
+				ctx.profile.push(ms);
+				
+				return new LocalContext(ctx, ms);
+			} else {
+				return new LocalContext(ctx,null);
+			}
 		} catch (Throwable t) {
 			Logger.println("A147", t);
 		}
@@ -376,17 +392,33 @@ public class TraceMain {
 
 	public static void endService(Object stat, Object returnValue, Throwable thr) {
 		try {
-			Stat stat0 = (Stat) stat;
-			if (stat0 == null)
+			LocalContext localCtx = (LocalContext) stat;
+			if (localCtx == null){
 				return;
-			TraceContext ctx = stat0.ctx;
+			}
+			TraceContext ctx = localCtx.context;
 			if (ctx == null) {
+				return;
+			}
+
+			if (ctx.xType == XLogTypes.BACK_THREAD) {
+				MethodStep2 step = (MethodStep2) localCtx.stepSingle;
+				step.elapsed = (int) (System.currentTimeMillis() - ctx.startTime) - step.start_time;
+				if (ctx.profile_thread_cputime) {
+					step.cputime = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu) - step.start_cpu;
+				}
+				step.error = errorCheck(ctx, thr);
+				ctx.profile.pop(step);
+
+				PluginAppServiceTrace.end(ctx);
+				TraceContextManager.end(ctx.threadId);
+				ctx.profile.close(true);
 				return;
 			}
 
 			PluginAppServiceTrace.end(ctx);
 			TraceContextManager.end(ctx.threadId);
-
+			
 			XLogPack pack = new XLogPack();
 			pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 			// pack.endTime = System.currentTimeMillis();
@@ -403,37 +435,14 @@ public class TraceMain {
 			pack.sqlTime = ctx.sqlTime;
 			pack.txid = ctx.txid;
 			pack.gxid = ctx.gxid;
+			pack.caller = ctx.caller;
 			pack.ipaddr = IPUtil.toBytes(ctx.remoteIp);
 			pack.userid = ctx.userid;
-			if (ctx.error != 0) {
-				pack.error = ctx.error;
-			} else if (thr != null) {
-				Configure conf = Configure.getInstance();
-				String emsg = thr.toString();
-				if (conf.profile_fullstack_service_error) {
-					StringBuffer sb = new StringBuffer();
-					sb.append(emsg).append("\n");
-					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
-					thr = thr.getCause();
-					while (thr != null) {
-						sb.append("\nCause...\n");
-						ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
-						thr = thr.getCause();
-					}
-					emsg = sb.toString();
-				}
-				pack.error = DataProxy.sendError(emsg);
-				ServiceSummary.getInstance().process(thr, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
-			} else if (ctx.userTransaction > 0) {
-				pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
-				ServiceSummary.getInstance().process(userTxNotClose, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
-			}
-
+			pack.error = errorCheck(ctx, thr);
 			// 2015.11.10
 			if (ctx.group != null) {
 				pack.group = DataProxy.sendGroup(ctx.group);
 			}
-
 			// 2015.02.02
 			pack.apicallCount = ctx.apicall_count;
 			pack.apicallTime = ctx.apicall_time;
@@ -448,9 +457,39 @@ public class TraceMain {
 			if (sendOk) {
 				DataProxy.sendXLog(pack);
 			}
+
 		} catch (Throwable t) {
-			Logger.println("A148", t);
+			Logger.println("A148", "service end error", t);
 		}
+	}
+
+	private static int errorCheck(TraceContext ctx, Throwable thr) {
+		int error = 0;
+		if (ctx.error != 0) {
+			error = ctx.error;
+		} else if (thr != null) {
+			Configure conf = Configure.getInstance();
+			String emsg = thr.toString();
+			if (conf.profile_fullstack_service_error) {
+				StringBuffer sb = new StringBuffer();
+				sb.append(emsg).append("\n");
+				ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+				thr = thr.getCause();
+				while (thr != null) {
+					sb.append("\nCause...\n");
+					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+					thr = thr.getCause();
+				}
+				emsg = sb.toString();
+			}
+			error = DataProxy.sendError(emsg);
+			ServiceSummary.getInstance().process(thr, error, ctx.serviceHash, ctx.txid, 0, 0);
+		} else if (ctx.userTransaction > 0) {
+			error = DataProxy.sendError("Missing Commit/Rollback Error");
+			ServiceSummary.getInstance().process(userTxNotClose, error, ctx.serviceHash, ctx.txid, 0, 0);
+		}
+		return error;
+
 	}
 
 	public static void capArgs(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
@@ -472,12 +511,12 @@ public class TraceMain {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null || arg.length < 3)
 			return;
-		MessageStep step = new MessageStep();
+		HashedMessageStep step = new HashedMessageStep();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
-		step.message = "JSP " + arg[2];
+		step.hash = DataProxy.sendHashedMessage("JSP " + arg[2]);
 		ctx.profile.add(step);
 	}
 
@@ -544,7 +583,7 @@ public class TraceMain {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
-		PluginCaptureTrace.capReturn(ctx, new HookReturn(className,methodName, methodDesc, this1, rtn));
+		PluginCaptureTrace.capReturn(ctx, new HookReturn(className, methodName, methodDesc, this1, rtn));
 	}
 
 	private static Configure conf = Configure.getInstance();
@@ -555,7 +594,7 @@ public class TraceMain {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.enable_auto_service_trace) {
-				Object stat = startService(classMethod, null, null, null, null, null, XLogTypes.BACK_THREAD);
+				Object stat = startService(classMethod, null, null, null, null, null, XLogTypes.APP_SERVICE);
 				if (conf.enable_auto_service_backstack) {
 					String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
 					AutoServiceStartAnalizer.put(classMethod, stack);
@@ -648,5 +687,10 @@ public class TraceMain {
 			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
 		ctx.profile.add(p);
+	}
+	public static void ctxLookup(Object this1, Object ctx){
+		if(ctx instanceof DataSource){
+			LoadedContext.put((DataSource)ctx);
+		}
 	}
 }

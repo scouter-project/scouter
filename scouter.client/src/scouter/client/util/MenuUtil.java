@@ -71,6 +71,7 @@ import scouter.client.counter.actions.OpenPastTimeTotalAction;
 import scouter.client.counter.actions.OpenPastTimeViewAction;
 import scouter.client.counter.actions.OpenRealTimeAllAction;
 import scouter.client.counter.actions.OpenRealTimeMultiAction;
+import scouter.client.counter.actions.OpenRealTimeStackAction;
 import scouter.client.counter.actions.OpenRealTimeTotalAction;
 import scouter.client.counter.actions.OpenRealTimeViewAction;
 import scouter.client.counter.actions.OpenSummaryAction;
@@ -377,7 +378,7 @@ public class MenuUtil implements IMenuCreator{
     	MenuManager performanceCounter = new MenuManager(MenuStr.PERFORMANCE_COUNTER,  ImageUtil.getImageDescriptor(Images.CTXMENU_RTC), MenuStr.PERFORMANCE_COUNTER_ID);
     	mgr.add(performanceCounter);
     	
-    	if (counterNames != null) {
+    	if (object.isAlive() && counterNames != null) {
 	    	for(int inx = 0 ; inx < counterNames.length ; inx++){
 	    		String counter = counterNames[inx];
 	    		String counterDisplay = counterEngine.getCounterDisplayName(objType, counter);
@@ -389,6 +390,10 @@ public class MenuUtil implements IMenuCreator{
     		performanceCounter.add(new Separator());
     		performanceCounter.add(new OpenUniqueVisitorAction(win, serverId, objHash));
     		performanceCounter.add(new OpenSummaryAction(win, serverId, objHash));
+    	} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_HOST)) {
+    		performanceCounter.add(new Separator());
+    		performanceCounter.add(new OpenRealTimeStackAction(win, "Sys/User CPU", serverId, objHash, 
+    				new String[] {CounterConstants.HOST_SYSCPU, CounterConstants.HOST_USERCPU}));
     	} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_MARIA)) {
     		performanceCounter.add(new Separator());
     		performanceCounter.add(new OpenRealTimeMultiAction(win, "Opened Tables", serverId, objHash, objType

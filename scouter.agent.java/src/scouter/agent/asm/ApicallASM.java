@@ -25,7 +25,7 @@ import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.asm.util.MethodSet;
+import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceApiCall;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.Label;
@@ -35,8 +35,8 @@ import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class ApicallASM implements IASM, Opcodes {
-	private List<MethodSet> target = MethodSet.getHookingMethodSet(Configure.getInstance().hook_apicall);
-	private Map<String, MethodSet> reserved = new HashMap<String, MethodSet>();
+	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_apicall);
+	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
 
 	public ApicallASM() {
 		AsmUtil.add(reserved, "sun/net/www/protocol/http/HttpURLConnection", "getInputStream()Ljava/io/InputStream;");
@@ -63,7 +63,7 @@ public class ApicallASM implements IASM, Opcodes {
 	}
 
 	public boolean isTarget(String className) {
-		MethodSet mset = reserved.get(className);
+		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return true;
 
@@ -78,7 +78,7 @@ public class ApicallASM implements IASM, Opcodes {
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 
-		MethodSet mset = reserved.get(className);
+		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return new ApicallExtCV(cv, mset, className);
 
@@ -96,9 +96,9 @@ public class ApicallASM implements IASM, Opcodes {
 class ApicallExtCV extends ClassVisitor implements Opcodes {
 
 	public String className;
-	private MethodSet mset;
+	private HookingSet mset;
 
-	public ApicallExtCV(ClassVisitor cv, MethodSet mset, String className) {
+	public ApicallExtCV(ClassVisitor cv, HookingSet mset, String className) {
 		super(ASM4, cv);
 		this.mset = mset;
 		this.className = className;
@@ -115,7 +115,7 @@ class ApicallExtCV extends ClassVisitor implements Opcodes {
 		if (AsmUtil.isSpecial(methodName)) {
 			return mv;
 		}
-		Logger.info("apicall: " + className + "." + methodName + desc);
+		Logger.println("apicall: " + className + "." + methodName + desc);
 
 		return new ApicallExtMV(access, desc, mv, Type.getArgumentTypes(desc), (access & ACC_STATIC) != 0, className,
 				methodName, desc);

@@ -97,13 +97,13 @@ public class AgentModelThread extends Thread {
 					    if (TextProxy.object.getText(objHash) == null) {
 					    	TextProxy.object.putText(objHash, objName);
 					    }
-						AgentObject agentObject = new AgentObject(objType, objHash, objName, serverId);
 						if (tempAgentMap.containsKey(objHash)) {
 							AgentObject oldAgent = tempAgentMap.get(objHash);
 							if (oldAgent.isAlive()) {
 								continue;
 							}
 						}
+						AgentObject agentObject = new AgentObject(objType, objHash, objName, serverId);
 						tempAgentMap.put(objHash, agentObject);
 						agentObject.objPack = m;
 						if (counterEngine.isUnknownObjectType(objType)) {

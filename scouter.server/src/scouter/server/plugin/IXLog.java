@@ -87,7 +87,7 @@ public class IXLog extends IPlugIn {
 	public int addGroup(String groupName) {
 		int grpHash = HashUtil.hash(groupName);
 		if (saved.contains(grpHash) == false) {
-			TextPermWR.add(HashUtil.hash(TextTypes.GROUP), grpHash, groupName);
+			TextPermWR.add(TextTypes.GROUP, grpHash, groupName);
 		}
 		return grpHash;
 	}

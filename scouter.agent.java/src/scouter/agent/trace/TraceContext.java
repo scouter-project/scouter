@@ -50,6 +50,7 @@ public class TraceContext {
 
 	// service
 	public byte xType;
+
 	public int serviceHash;
 	public String serviceName;
 	public String remoteIp;

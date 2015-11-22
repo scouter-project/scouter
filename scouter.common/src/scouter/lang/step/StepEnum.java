@@ -22,13 +22,15 @@ import java.io.IOException;
 
 public class StepEnum {
 	public final static byte METHOD = 1;
+	public final static byte METHOD2 = 10;
 	public final static byte SQL = 2;
 	public final static byte SQL2 = 8;
 	public final static byte MESSAGE = 3;
 	public final static byte SOCKET = 5;
 	public final static byte APICALL = 6;
 	public static final byte THREAD_SUBMIT = 7;
-	
+	public final static byte HASHED_MESSAGE = 9;
+
 	public final static byte METHOD_SUM = 11;
 	public final static byte SQL_SUM = 21;
 	public final static byte MESSAGE_SUM = 31;
@@ -43,6 +45,8 @@ public class StepEnum {
 			return new MessageStep();
 		case METHOD:
 			return new MethodStep();
+		case METHOD2:
+			return new MethodStep2();
 		case SQL:
 			return new SqlStep();
 		case SQL2:
@@ -53,6 +57,8 @@ public class StepEnum {
 			return new ApiCallStep();
 		case THREAD_SUBMIT:
 			return new ThreadSubmitStep();
+		case HASHED_MESSAGE:
+			return new HashedMessageStep();
 			
 		case MESSAGE_SUM:
 			return new MessageSum();

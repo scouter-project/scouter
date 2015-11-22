@@ -127,6 +127,7 @@ public class Configure extends Thread {
 	public long auto_dump_interval = 30000;
 	public int auto_dump_level = 1;
 
+	
 	public int debug_long_tx_autostack = 0;
 
 	public String http_static_contents = "js, htm, html, gif, png, jpg, css";
@@ -153,6 +154,8 @@ public class Configure extends Thread {
 	public String hook_return = "";
 	public String hook_init = "";
 	public String hook_connection_open = "";
+	public String hook_context = "javax/naming/InitialContext";
+	public boolean debug_datasource_lookup=true;
 	public boolean enable_trace_connection_open = true;
 	public boolean enable_leaktrace_fullstack = false;
 	public boolean debug_connection_open_fullstack = false;
@@ -183,6 +186,7 @@ public class Configure extends Thread {
 	public String hook_jdbc_rs = "";
 
 	public String hook_driver_connect_wrapper = "";
+	public String hook_add_field = "";
 
 	// /LOAD CONTROL/////
 	public boolean enable_reject_service = false;
@@ -206,10 +210,10 @@ public class Configure extends Thread {
 
 	public String http_remote_ip_header_key = "";
 	public boolean enable_trace_e2e = false;
-	public String gxid = "scouter_gxid";
+	public String gxid = "X-Scouter-Gxid";
 	public boolean enable_response_gxid = false;
-	public String this_txid = "scouter_this_txid";
-	public String caller_txid = "scouter_caller_txid";
+	public String this_txid = "X-Scouter-Callee";
+	public String caller_txid = "X-Scouter-Caller";
 
 	private int hook_signature;
 
@@ -217,9 +221,6 @@ public class Configure extends Thread {
 
 	public boolean enable_auto_service_trace = false;
 	public boolean enable_auto_service_backstack = true;
-
-	public String hook_future_task = "";
-	public String hook_future_task_prefix = "";
 
 	// DEBUG OPTIONS
 	public boolean enable_counter_task = true;
@@ -230,7 +231,7 @@ public class Configure extends Thread {
 	public boolean enable_hook_methods = true;
 	public boolean enable_hook_socket = true;
 	public boolean enable_hook_jsp = true;
-	public boolean enable_hook_future = true;
+	public boolean enable_hook_async = true;
 
 	// //////////////////////////////////////////
 	public boolean enable_usertx = true;
@@ -264,6 +265,11 @@ public class Configure extends Thread {
 
 	public int socket_open_fullstack_port = 0;
 
+	public String logs_dir="";
+	public boolean log_rotation=true;
+	public int log_keep_dates=7;
+
+	
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -287,7 +293,7 @@ public class Configure extends Thread {
 	private boolean running = true;
 
 	public void run() {
-		Logger.info("Version " + Version.getAgentFullVersion());
+		Logger.println("Version " + Version.getAgentFullVersion());
 		long dateUnit = DateUtil.getDateUnit();
 		while (running) {
 			reload(false);
@@ -313,7 +319,7 @@ public class Configure extends Thread {
 	}
 
 	long last_check = 0;
-
+	
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
 		if (force == false && now < last_check + 3000)
@@ -424,6 +430,8 @@ public class Configure extends Thread {
 		this.hook_return = getValue("hook_return", getValue("hook.return", ""));
 		this.hook_init = getValue("hook_init", getValue("hook.init", ""));
 		this.hook_connection_open = getValue("hook_connection_open", "");
+		
+		this.debug_datasource_lookup = getBoolean("debug_datasource_lookup", true);
 		this.enable_trace_connection_open = getBoolean("enable_trace_connection_open", true);
 		this.enable_leaktrace_fullstack = getBoolean("enable_leaktrace_fullstack", false);
 
@@ -448,12 +456,15 @@ public class Configure extends Thread {
 		this.hook_apicall = getValue("hook_apicall", "");
 		this.hook_apicall_info = getValue("hook_apicall_info", "");
 		this.hook_jsp = getValue("hook_jsp", "");
-
+		
 		this.hook_jdbc_pstmt = getValue("hook_jdbc_pstmt", "");
 		this.hook_jdbc_stmt = getValue("hook_jdbc_stmt", "");
 		this.hook_jdbc_rs = getValue("hook_jdbc_rs", "");
 		this.hook_driver_connect_wrapper = getValue("hook_driver_connect_wrapper", "");
+		this.hook_add_field = getValue("hook_add_field", "");
+		this.hook_context = getValue("hook_context", "javax/naming/InitialContext");
 
+		
 		this.hook_signature ^= this.hook_args.hashCode();
 		this.hook_signature ^= this.hook_return.hashCode();
 		this.hook_signature ^= this.hook_init.hashCode();
@@ -463,7 +474,7 @@ public class Configure extends Thread {
 		this.hook_signature ^= this.hook_apicall.hashCode();
 		this.hook_signature ^= this.hook_jsp.hashCode();
 		this.hook_signature ^= this.hook_driver_connect_wrapper.hashCode();
-
+		
 		this.enable_reject_service = getBoolean("enable_reject_service", false);
 		this.max_active_service = getInt("max_active_service", 10000);
 		this.enable_reject_url = getBoolean("enable_reject_url", false);
@@ -490,9 +501,9 @@ public class Configure extends Thread {
 
 		this.enable_trace_e2e = getBoolean("enable_trace_e2e", false);
 		this.enable_response_gxid = getBoolean("enable_response_gxid", false);
-		this.gxid = getValue("gxid", "scouter_gxid");
-		this.this_txid = getValue("this_txid", "scouter_this_txid");
-		this.caller_txid = getValue("caller_txid", "scouter_caller_txid");
+		this.gxid = getValue("gxid", "X-Scouter-Gxid");
+		this.this_txid = getValue("this_txid", "X-Scouter-Callee");
+		this.caller_txid = getValue("caller_txid", "X-Scouter-Caller");
 
 		this.debug_connection_open_fullstack = getBoolean("debug_connection_open_fullstack", false);
 		this.debug_connection_autocommit = getBoolean("debug_connection_autocommit", false);
@@ -505,9 +516,6 @@ public class Configure extends Thread {
 		this.enable_auto_service_trace = getBoolean("enable_auto_service_trace", false);
 		this.enable_auto_service_backstack = getBoolean("enable_auto_service_backstack", true);
 
-		this.hook_future_task = getValue("hook_future_task", "");
-		this.hook_future_task_prefix = getValue("hook_future_task_prefix", "");
-
 		this.enable_counter_task = getBoolean("enable_counter_task", true);
 		this.enable_hook_service = getBoolean("enable_hook_service", true);
 		this.enable_hook_dbsql = getBoolean("enable_hook_dbsql", true);
@@ -516,7 +524,7 @@ public class Configure extends Thread {
 		this.enable_hook_methods = getBoolean("enable_hook_methods", true);
 		this.enable_hook_socket = getBoolean("enable_hook_socket", true);
 		this.enable_hook_jsp = getBoolean("enable_hook_jsp", true);
-		this.enable_hook_future = getBoolean("enable_hook_future", true);
+		this.enable_hook_async = getBoolean("enable_hook_async", true);
 
 		this.enable_dbc_wrapper = getBoolean("enable_dbc_wrapper", true);
 		this.enable_usertx = getBoolean("enable_usertx", true);
@@ -560,6 +568,10 @@ public class Configure extends Thread {
 		this.debug_sql_call = getBoolean("debug_sql_call", false);
 		this.socket_open_fullstack_port = getInt("socket_open_fullstack_port", 0);
 
+		this.logs_dir= getValue("logs_dir", "");
+		this.log_rotation = getBoolean("log_rotation", true);
+		this.log_keep_dates = getInt("log_keep_dates", 7);
+		
 		resetObjInfo();
 		setErrorStatus();
 		setStaticContents();
