@@ -106,6 +106,7 @@ public class OpenXLogProfileJob extends Job {
 							IWorkbenchPage.VIEW_ACTIVATE);
 					view.setInput(steps, data, data.serverId);	
 				} catch (Exception ex) {
+					ex.printStackTrace();
 				}
 			}
 		});
