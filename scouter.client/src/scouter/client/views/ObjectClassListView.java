@@ -33,6 +33,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -65,6 +67,7 @@ import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
+import scouter.client.popup.EditableMessageDialog;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
@@ -195,6 +198,11 @@ public class ObjectClassListView extends ViewPart {
 	    table.setHeaderVisible(true);
 	    table.setLinesVisible(true);
 	    createTableContextMenu();
+	    tableViewer.addDoubleClickListener(new IDoubleClickListener() {
+			public void doubleClick(DoubleClickEvent arg0) {
+				openDescription();
+			}
+		});
 	    tableViewer.setContentProvider(new ArrayContentProvider());
 	    tableViewer.setComparator(new ColumnLabelSorter(tableViewer));
 	    GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
@@ -305,6 +313,12 @@ public class ObjectClassListView extends ViewPart {
 				}
 		    });
 	    }
+	    
+	    manager.add(new Action("&Description") {
+	    	public void run() {
+	    		openDescription();
+	    	}
+	    });
 	    manager.add(new Separator());
 	    
 	    if (server.isAllowAction(GroupPolicyConstants.ALLOW_REDEFINECLASS)) {
@@ -695,5 +709,43 @@ public class ObjectClassListView extends ViewPart {
 			return Status.CANCEL_STATUS;
 		}
 		
+	}
+	
+	private void openDescription() {
+		StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
+		ClassData data = (ClassData) selection.getFirstElement();
+		final String className = data.name;
+		if (StringUtil.isEmpty(className)) {
+			return;
+		}
+		ExUtil.asyncRun(new Runnable() {
+			public void run() {
+				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+				MapPack p = null;
+				try {
+					MapPack param = new MapPack();
+					param.put("objHash", objHash);
+					param.put("class", className);
+					p = (MapPack) tcp.getSingle(RequestCmd.OBJECT_CLASS_DESC, param);
+				} catch (Exception e) {
+					ConsoleProxy.errorSafe(e.getMessage());
+				} finally {
+					TcpProxy.putTcpProxy(tcp);
+				}
+				if (p != null) {
+					final String error = CastUtil.cString(p.get("error"));
+					final Value v = p.get("class");
+					ExUtil.exec(tableViewer.getTable(), new Runnable() {
+						public void run() {
+							if (StringUtil.isNotEmpty(error)) {
+								new EditableMessageDialog().show("ERROR", error);
+								return;
+							}
+							new EditableMessageDialog().show(className, CastUtil.cString(v));
+						}
+					});
+				}
+			}
+		});
 	}
 }

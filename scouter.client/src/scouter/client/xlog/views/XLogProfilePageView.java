@@ -86,6 +86,7 @@ import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 import scouter.util.StringUtil;
+import scouter.util.SystemUtil;
 
 
 public class XLogProfilePageView extends ViewPart implements XLogViewWithTable {
@@ -308,7 +309,11 @@ public class XLogProfilePageView extends ViewPart implements XLogViewWithTable {
 		bodyData = new GridData(GridData.FILL, GridData.FILL, true, true); 
 		text.setLayoutData(bodyData);
 		text.setText("");
-		text.setFont(new Font(null, "Courier New", 10, SWT.NORMAL));
+		if(SystemUtil.IS_MAC_OSX){
+		    text.setFont(new Font(null, "Courier New", 12, SWT.NORMAL));		
+		}else{
+		    text.setFont(new Font(null, "Courier New", 10, SWT.NORMAL));
+		}
 		text.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
 		text.addKeyListener(adapter);
 		text.addKeyListener(new KeyListener() {
