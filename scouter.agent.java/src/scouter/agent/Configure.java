@@ -768,6 +768,7 @@ public class Configure extends Thread {
 		ignoreSet.add("objHostName");
 		ignoreSet.add("objName");
 		ignoreSet.add("objType");
+		ignoreSet.add("log_ignore_set");
 	}
 
 	public MapValue getKeyValueInfo() {

@@ -78,7 +78,7 @@ public class EditableMessageDialog {
 		text.setLayoutData(gd);
 		text.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
-				if (e.stateMask == SWT.CTRL) {
+				if (e.stateMask == SWT.CTRL || e.stateMask == SWT.COMMAND) {
 					if (e.keyCode == 'a' || e.keyCode == 'A') {
 						text.selectAll();
 					}

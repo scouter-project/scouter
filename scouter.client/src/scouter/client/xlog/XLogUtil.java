@@ -85,7 +85,7 @@ public class XLogUtil {
 				break;
 			case StepEnum.METHOD_SUM:
 				if (TextProxy.method.getText(((MethodSum) p[i]).hash) == null) {
-					methodSet.add(((MethodStep) p[i]).hash);
+					methodSet.add(((MethodSum) p[i]).hash);
 				}
 				break;
 			case StepEnum.SOCKET:
