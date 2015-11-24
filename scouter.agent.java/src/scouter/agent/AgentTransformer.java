@@ -22,8 +22,6 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.InitialContext;
-
 import scouter.agent.asm.AddFieldASM;
 import scouter.agent.asm.ApicallASM;
 import scouter.agent.asm.ApicallInfoASM;

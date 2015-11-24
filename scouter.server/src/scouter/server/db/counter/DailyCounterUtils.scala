@@ -33,8 +33,9 @@ object DailyCounterUtils {
                 return 9
             case ValueEnum.DECIMAL =>
                 return 10
+            case _ => throw new RuntimeException("not supported type=" + valueType);
         }
-        throw new RuntimeException("not supported type=" + valueType);
+       
     }
 
     def getBucketCount(timetype: Byte): Int = {
@@ -49,8 +50,10 @@ object DailyCounterUtils {
                 return 24;
             case TimeTypeEnum.DAY =>
                 return 1;
+            case _ =>
+                 return 0;
         }
-        return 0;
+        
     }
 
     def getBucketPos(timetype: Byte, hhmm: Int): Int = {
@@ -67,8 +70,10 @@ object DailyCounterUtils {
                 return (tm / 100).toInt
             case TimeTypeEnum.DAY =>
                 return 0;
+            case _=>
+                return 0;
         }
-        return 0;
+        
     }
     
 }

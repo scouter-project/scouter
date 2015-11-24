@@ -113,7 +113,7 @@ object DailyCounterData  {
 			}
 			return values;
 		} catch  {
-		    case e:IOException=>
+		    case e: Exception=>
 			throw new RuntimeException(e);
 		}
 	}}
