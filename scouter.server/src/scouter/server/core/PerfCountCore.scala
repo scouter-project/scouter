@@ -32,7 +32,6 @@ import scouter.server.util.ThreadScala
 import scouter.server.util.EnumerScala
 import scouter.server.plugin.PlugInManager
 import scouter.server.plugin.alert.AlertEngine
-
 object PerfCountCore {
     var queue = new RequestQueue[PerfCounterPack](CoreRun.MAX_QUE_SIZE);
     ThreadScala.startDaemon("scouter.server.core.PerfCountCore", { CoreRun.running }) {

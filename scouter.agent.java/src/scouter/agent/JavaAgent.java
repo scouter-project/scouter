@@ -25,52 +25,41 @@ import scouter.util.StringUtil;
 import scouter.util.logo.Logo;
 
 public class JavaAgent {
-
 	private static Instrumentation instrumentation;
 
 	public static void premain(String options, Instrumentation i) {
-
 		if (JavaAgent.instrumentation != null) {
 			return;
 		}
 		intro();
-
 		Configure.getInstance();
 		BackJobs.getInstance().put(Logger.class.getName(), 3000, Logger.initializer);
-
 		JavaAgent.instrumentation = i;
 		JavaAgent.instrumentation.addTransformer(new AgentTransformer());
-
 		// RequestAgent.getInstance();
 		TcpRequestMgr.getInstance();
 		AsyncRunner.getInstance().add(new AgentBoot());
 	}
 
 	public static void agentmain(String options, Instrumentation i) throws Exception {
-
 		if (JavaAgent.instrumentation != null) {
 			return;
 		}
-
 		setOpt(options);
 		intro();
 		Configure.getInstance();
-
 		JavaAgent.instrumentation = i;
 		JavaAgent.instrumentation.addTransformer(new AgentTransformer());
-
 		// RequestAgent.getInstance();
 		TcpRequestMgr.getInstance();
 		AsyncRunner.getInstance().add(new LazyAgentBoot());
 	}
 
 	private static void setOpt(String opts) {
-
 		try {
 			opts = StringUtil.trim(opts);
 			if (StringUtil.isEmpty(opts))
 				return;
-
 			String[] options = StringUtil.split(opts, ',');
 			for (int i = 0; i < options.length; i++) {
 				String[] op = StringUtil.split(options[i], '=');
@@ -92,14 +81,14 @@ public class JavaAgent {
 		try {
 			System.setProperty("scouter.enabled", "true");
 			Logo.print(false);
+			String nativeName = JavaAgent.class.getName().replace('.', '/') + ".class";
 			ClassLoader cl = JavaAgent.class.getClassLoader();
 			if (cl == null) {
 				Logger.println("loaded by system classloader ");
-				Logger.println(cut("" + ClassLoader.getSystemClassLoader()
-						.getResource(JavaAgent.class.getName().replace('.', '/') + ".class")));
+				Logger.println(cut("" + ClassLoader.getSystemClassLoader().getResource(nativeName)));
 			} else {
 				Logger.println("loaded by app classloader ");
-				Logger.println(cut("" + cl.getResource(JavaAgent.class.getName().replace('.', '/') + ".class")));
+				Logger.println(cut("" + cl.getResource(nativeName)));
 			}
 		} catch (Throwable t) {
 		}

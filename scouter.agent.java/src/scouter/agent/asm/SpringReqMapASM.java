@@ -14,9 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.asm;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -27,24 +25,17 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.StringUtil;
-
 public class SpringReqMapASM implements IASM, Opcodes {
-
 	static String springControllerNames[] = { "Lorg/springframework/stereotype/Controller;",
 			"Lorg/springframework/web/bind/annotation/RestController;" };
-
 	static String springRequestMappingAnnotation = "Lorg/springframework/web/bind/annotation/RequestMapping;";
-
 	public boolean isTarget(String className) {
 		return false;
 	}
-
 	Configure conf = Configure.getInstance();
-
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (conf.hook_spring_request_mapping == false)
 			return cv;
-
 		if (classDesc.anotation != null) {
 			for (int i = 0; i < SpringReqMapASM.springControllerNames.length; i++) {
 				if (classDesc.anotation.indexOf(SpringReqMapASM.springControllerNames[i]) > 0) {
@@ -52,34 +43,27 @@ public class SpringReqMapASM implements IASM, Opcodes {
 				}
 			}
 		}
-
 		return cv;
 	}
 }
-
 // ///////////////////////////////////////////////////////////////////////////
 class SpringReqMapCV extends ClassVisitor implements Opcodes {
-
 	public String className;
 	public String classRequestMappingUrl;
-
 	public SpringReqMapCV(ClassVisitor cv, String className) {
 		super(ASM4, cv);
 		this.className = className;
 	}
-
 	@Override
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
 		AnnotationVisitor av = super.visitAnnotation(desc, visible);
 		if (av == null)
 			return av;
-
 		if (SpringReqMapASM.springRequestMappingAnnotation.equals(desc)) {
 			return new SpringReqMapCVAV(av);
 		}
 		return av;
 	};
-
 	@Override
 	public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, methodName, desc, signature, exceptions);
@@ -91,63 +75,49 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 		}
 		return new SpringReqMapMV(className, access, methodName, desc, mv);
 	}
-
 	class SpringReqMapCVAV extends AnnotationVisitor implements Opcodes {
-
 		public SpringReqMapCVAV(AnnotationVisitor av) {
 			super(ASM4, av);
 		}
-
 		@Override
 		public AnnotationVisitor visitArray(String name) {
 			AnnotationVisitor av = super.visitArray(name);
-
 			if (av == null)
 				return av;
-
 			if ("value".equals(name)) {
 				return new SpringReqMapCVAVAV(av);
 			}
 			return av;
 		}
 	}
-
 	class SpringReqMapCVAVAV extends AnnotationVisitor implements Opcodes {
-
 		public SpringReqMapCVAVAV(AnnotationVisitor av) {
 			super(ASM4, av);
 		}
-
 		@Override
 		public void visit(String name, Object value) {
 			super.visit(name, value);
 			classRequestMappingUrl = (String) value;
 		}
 	}
-
 	class SpringReqMapMV extends LocalVariablesSorter implements Opcodes {
 		private static final String TRACEMAIN = "scouter/agent/trace/TraceMain";
 		private final static String START_METHOD = "setServiceName";
 		private static final String START_SIGNATURE = "(Ljava/lang/String;)V";
-
 		private String methodRequestMappingUrl;
 		private String methodType;
 		private boolean isHandler = false;
-
 		public SpringReqMapMV(String className, int access, String methodName, String desc, MethodVisitor mv) {
 			super(ASM4, access, desc, mv);
 		}
-
 		@Override
 		public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
 			AnnotationVisitor av = super.visitAnnotation(desc, visible);
 			if (SpringReqMapASM.springRequestMappingAnnotation.equals(desc)) {
-
 				return new SpringReqMapMVAV(av);
 			}
 			return av;
 		}
-
 		@Override
 		public void visitCode() {
 			if (isHandler) {
@@ -160,35 +130,27 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 				}
 				
 				String serviceUrl = sb.toString();
-
 				Logger.println("[Apply Spring F/W REST URL] " + serviceUrl);
-
 				AsmUtil.PUSH(mv, serviceUrl);
 				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);
 			}
 			mv.visitCode();
 		}
-
 		class SpringReqMapMVAV extends AnnotationVisitor implements Opcodes {
-
 			public SpringReqMapMVAV(AnnotationVisitor av) {
 				super(ASM4, av);
 			}
-
 			@Override
 			public AnnotationVisitor visitArray(String name) {
 				AnnotationVisitor av = super.visitArray(name);
-
 				if (av == null)
 					return av;
-
 				if ("value".equals(name) || "method".equals(name)) {
 					return new SpringReqMapMVAVAV(av, name);
 				}
 				return av;
 			}
 		}
-
 		class SpringReqMapMVAVAV extends AnnotationVisitor implements Opcodes {
 			String paramName;
 			
@@ -196,7 +158,6 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 				super(ASM4, av);
 				this.paramName = paramName;
 			}
-
 			@Override
 			public void visit(String name, Object value) {
 				super.visit(name, value);
@@ -224,6 +185,5 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 				isHandler = true;
 			};
 		}
-
 	}
 }

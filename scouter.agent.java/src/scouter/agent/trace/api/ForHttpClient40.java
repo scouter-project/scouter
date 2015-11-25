@@ -15,7 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.agent.trace.api;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.plugin.PluginHttpCallTrace;
@@ -28,45 +27,33 @@ import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.KeyGen;
-
 public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 	private boolean ok = true;
-
 	private static IntKeyLinkedMap<IHttpClient> httpclients = new IntKeyLinkedMap<IHttpClient>().setMax(5);
-
 	public ApiCallStep process(TraceContext ctx, HookArgs hookPoint) {
-
 		ApiCallStep step = new ApiCallStep();
 		try {
-
 			if (ok == false)
 				ctx.apicall_name = hookPoint.class1 + "." + hookPoint.method;
-
 			if (hookPoint.args != null && hookPoint.args.length >= 2) {
 				IHttpClient httpclient = getProxy(hookPoint);
-
 				step.txid = KeyGen.next();
 				transfer(httpclient, ctx, hookPoint.args[0], hookPoint.args[1], step.txid);
 				String host = httpclient.getHost(hookPoint.args[0]);
-
 				step.opt = 1;
 				step.address = host;
 				if (host != null)
 					ctx.apicall_target = host;
-
 				ctx.apicall_name = httpclient.getURI(hookPoint.args[1]);
-
 			}
 		} catch (Exception e) {
 			ok = false;
 			ctx.apicall_name = e.toString();
 		}
-
 		if (ctx.apicall_name == null)
 			ctx.apicall_name = hookPoint.class1;
 		return step;
 	}
-
 	private IHttpClient getProxy(HookArgs hookPoint) {
 		int key = System.identityHashCode(hookPoint.this1.getClass());
 		IHttpClient httpclient = httpclients.get(key);
@@ -78,13 +65,10 @@ public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 		}
 		return httpclient;
 	}
-
-
 	private void transfer(IHttpClient httpclient, TraceContext ctx, Object host, Object req, long calleeTxid) {
 		Configure conf = Configure.getInstance();
 		if (conf.enable_trace_e2e) {
 			try {
-
 				if (ctx.gxid == 0) {
 					ctx.gxid = ctx.txid;
 				}
@@ -98,5 +82,4 @@ public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 			}
 		}
 	}
-
 }

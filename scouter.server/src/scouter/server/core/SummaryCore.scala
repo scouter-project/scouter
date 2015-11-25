@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package scouter.server.core;
-
 import scouter.lang.pack.SummaryPack
 import scouter.server.Logger
 import scouter.server.db.SummaryWR
@@ -23,13 +22,9 @@ import scouter.server.util.ThreadScala
 import scouter.util.DateUtil
 import scouter.util.RequestQueue
 import scouter.server.plugin.PlugInManager
-
 object SummaryCore {
-
     val TIME_INTERVAL = DateUtil.MILLIS_PER_FIVE_MINUTE;
-
     val queue = new RequestQueue[SummaryPack](CoreRun.MAX_QUE_SIZE);
-
     ThreadScala.startDaemon("SummaryCore") {
         while (CoreRun.running) {
             val p = queue.get();
@@ -37,7 +32,6 @@ object SummaryCore {
             SummaryWR.add(p);
         }
     }
-
     def add(p: SummaryPack): Unit = {
         val ok = queue.put(p);
         if (ok == false) {

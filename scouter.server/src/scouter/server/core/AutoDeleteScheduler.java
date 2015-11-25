@@ -119,9 +119,9 @@ public class AutoDeleteScheduler extends Thread {
 				f = new File(dbDir, yyyymmdd);
 			}
 			deleteFiles(f);
-			Logger.println("AUTO_DELETE", yyyymmdd);
+			Logger.println("S206", yyyymmdd);
 		} catch (Throwable th) {
-			Logger.println("AUTO_DELETE", "Failed auto deletion... " + yyyymmdd + "  " + th.toString());
+			Logger.println("S207", "Failed auto deletion... " + yyyymmdd + "  " + th.toString());
 		}
 	}
 	

@@ -15,25 +15,17 @@
  *  limitations under the License. 
  */
 package scouter.agent.plugin;
-
 import java.util.Enumeration;
-
 import scouter.agent.Logger;
-
 public class WrSession extends Wrapper {
-
 	private Object session;
-
 	private java.lang.reflect.Method getAttribute;
 	private java.lang.reflect.Method getAttributeNames;
-
 	private boolean enabled = true;
 	private Throwable _error;
-
 	public WrSession(Object session) {
 		this.session = session;
 	}
-
 	public Object getAttribute(String key) {
 		if (enabled == false || session == null)
 			return null;
@@ -50,7 +42,6 @@ public class WrSession extends Wrapper {
 			return null;
 		}
 	}
-
 	public Enumeration getAttributeNames() {
 		if (enabled == false || session == null)
 			return null;
@@ -67,17 +58,13 @@ public class WrSession extends Wrapper {
 			return null;
 		}
 	}
-
 	public Object inner() {
 		return this.session;
 	}
-
 	public boolean isOk() {
 		return enabled;
 	}
-
 	public Throwable error() {
 		return _error;
 	}
-
 }

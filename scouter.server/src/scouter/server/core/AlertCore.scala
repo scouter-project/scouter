@@ -16,7 +16,6 @@
  *
  */
 package scouter.server.core;
-
 import scouter.lang.pack.AlertPack
 import scouter.server.Configure
 import scouter.server.Logger
@@ -26,7 +25,6 @@ import scouter.server.plugin.PlugInManager
 import scouter.server.tagcnt.AlertTagCount
 import scouter.server.util.ThreadScala
 import scouter.util.RequestQueue
-
 object AlertCore {
     val queue: RequestQueue[AlertPack] = new RequestQueue(CoreRun.MAX_QUE_SIZE)
     val conf = Configure.getInstance();
@@ -34,9 +32,7 @@ object AlertCore {
         val p = queue.get();
         ServerStat.put("alert.core.queue", queue.size());
         p.time = System.currentTimeMillis()
-
         PlugInManager.alert(p)
-
         AlertSummary.add(p)
         AlertCache.put(p)
         AlertWR.add(p)

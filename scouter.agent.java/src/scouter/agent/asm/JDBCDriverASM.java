@@ -16,7 +16,6 @@
  */
 package scouter.agent.asm;
 import java.util.Map;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -88,7 +87,6 @@ class JDBCDriverMV extends LocalVariablesSorter implements Opcodes {
 		super(ASM4,access, desc, mv);
 		this.strArgIdx = AsmUtil.getStringIdx(access, desc);
 	}
-
 	private int strArgIdx;
 	@Override
 	public void visitCode() {

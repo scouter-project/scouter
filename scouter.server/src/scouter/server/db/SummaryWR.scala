@@ -38,7 +38,6 @@ object SummaryWR {
         while (DBCtr.running) {
             val p = queue.get();
              ServerStat.put("summary.db.queue",queue.size());
-
             try {
                 if (currentDateUnit != DateUtil.getDateUnit(p.time)) {
                     currentDateUnit = DateUtil.getDateUnit(p.time);
@@ -50,7 +49,7 @@ object SummaryWR {
                         queue.clear();
                         currentDateUnit = 0;
                     }
-                    Logger.println("S135", 10, "can't open db");
+                    Logger.println("S210", 10, "can't open db");
                 } else {
                     val b = new DataOutputX().writePack(p).toByteArray()
                     val location = writer.write(b);
@@ -69,7 +68,7 @@ object SummaryWR {
     def add(p: SummaryPack) {
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("S136", 10, "queue exceeded!!");
+            Logger.println("S211", 10, "queue exceeded!!");
         }
     }
     var iapp: SummaryIndex = null

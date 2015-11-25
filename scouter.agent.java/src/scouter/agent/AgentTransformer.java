@@ -15,13 +15,11 @@
  *  limitations under the License. 
  */
 package scouter.agent;
-
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
-
 import scouter.agent.asm.AddFieldASM;
 import scouter.agent.asm.ApicallASM;
 import scouter.agent.asm.ApicallInfoASM;
@@ -54,14 +52,11 @@ import scouter.org.objectweb.asm.ClassWriter;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.util.FileUtil;
 import scouter.util.IntSet;
-
 public class AgentTransformer implements ClassFileTransformer {
 	public static ThreadLocal<ClassLoader> hookingCtx = new ThreadLocal<ClassLoader>();
 	private static List<IASM> asms = new ArrayList<IASM>();
-
 	// hook 관련 설정이 변경되면 자동으로 변경된다.
 	private static int hook_signature;
-
 	static {
 		final Configure conf = Configure.getInstance();
 		reload();
@@ -74,19 +69,14 @@ public class AgentTransformer implements ClassFileTransformer {
 				hook_signature = conf.getHookSignature();
 			}
 		});
-
 	}
-
 	public static void reload() {
 		Configure conf = Configure.getInstance();
-
 		List<IASM> temp = new ArrayList<IASM>();
-
 		if (conf.enable_hook_service) {
 			temp.add(new HttpServiceASM());
 			temp.add(new ServiceASM());
 		}
-
 		if (conf.enable_hook_dbsql) {
 			temp.add(new JDBCPreparedStatementASM());
 			temp.add(new JDBCResultSetASM());
@@ -94,57 +84,46 @@ public class AgentTransformer implements ClassFileTransformer {
 			temp.add(new SqlMapASM());
 			temp.add(new UserTxASM());
 		}
-
 		if (conf.enable_hook_dbconn) {
 			temp.add(new JDBCConnectionOpenASM());
 			temp.add(new JDBCDriverASM());
 			temp.add(new InitialContextASM());
 		}
-
 		if (conf.enable_hook_cap) {
 			temp.add(new CapArgsASM());
 			temp.add(new CapReturnASM());
 			temp.add(new CapThisASM());
 		}
-
 		if (conf.enable_hook_methods) {
 			temp.add(new MethodASM());
 			temp.add(new ApicallASM());
 			temp.add(new ApicallInfoASM());
 			temp.add(new SpringReqMapASM());
 		}
-
 		if (conf.enable_hook_socket) {
 			temp.add(new SocketASM());
 		}
-
 		if (conf.enable_hook_jsp) {
 			temp.add(new JspServletASM());
 		}
 		if (conf.enable_hook_async) {
 			temp.add(new AddFieldASM());
 		}
-
 		asms = temp;
 	}
-
 	// //////////////////////////////////////////////////////////////
 	// boot class이지만 Hooking되어야하는 클래스를 등록한다.
 	private static IntSet asynchook = new IntSet();
-
 	static {
 		asynchook.add("sun/net/www/protocol/http/HttpURLConnection".hashCode());
 		asynchook.add("sun/net/www/http/HttpClient".hashCode());
 		asynchook.add("java/net/Socket".hashCode());
 		asynchook.add("javax/naming/InitialContext".hashCode());
 	}
-
 	private Configure conf = Configure.getInstance();
 	private Logger.FileLog bciOut;
-
 	public byte[] transform(ClassLoader loader, String className, Class classBeingRedefined,
 			ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-
 		try {
 			hookingCtx.set(loader);
 			if (className == null)
@@ -163,9 +142,7 @@ public class AgentTransformer implements ClassFileTransformer {
 			}
 			//
 			classfileBuffer = DirectPatch.patch(className, classfileBuffer);
-
 			ObjTypeDetector.check(className);
-
 			final ClassDesc classDesc = new ClassDesc();
 			ClassReader cr = new ClassReader(classfileBuffer);
 			cr.accept(new ClassVisitor(Opcodes.ASM4) {
@@ -173,21 +150,17 @@ public class AgentTransformer implements ClassFileTransformer {
 						String[] interfaces) {
 					classDesc.set(version, access, name, signature, superName, interfaces);
 				}
-
 				@Override
 				public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
 					classDesc.anotation += desc;
 					return super.visitAnnotation(desc, visible);
 				}
-
 			}, 0);
-
 			if (AsmUtil.isInterface(classDesc.access)) {
 				return null;
 			}
 			classDesc.classBeingRedefined = classBeingRedefined;
 			ClassWriter cw = getClassWriter(classDesc);
-
 			ClassVisitor cv = cw;
 			List<IASM> workAsms = asms;
 			for (int i = 0, max = workAsms.size(); i < max; i++) {
@@ -197,7 +170,6 @@ public class AgentTransformer implements ClassFileTransformer {
 					cr.accept(cv, ClassReader.EXPAND_FRAMES);
 					classfileBuffer = cw.toByteArray();
 					cv = cw = getClassWriter(classDesc);
-
 					if (conf.debug_asm) {
 						if (this.bciOut == null) {
 							this.bciOut = new Logger.FileLog("./scouter.bci");
@@ -213,10 +185,8 @@ public class AgentTransformer implements ClassFileTransformer {
 		} finally {
 			hookingCtx.set(null);
 		}
-
 		return null;
 	}
-
 	private ClassWriter getClassWriter(final ClassDesc classDesc) {
 		ClassWriter cw;
 		switch (classDesc.version) {
@@ -233,11 +203,8 @@ public class AgentTransformer implements ClassFileTransformer {
 		}
 		return cw;
 	}
-
 	private void dump(String className, byte[] bytes) {
 		String fname = "/tmp/" + className.replace('/', '_');
 		FileUtil.save(fname, bytes);
-
 	}
-
 }

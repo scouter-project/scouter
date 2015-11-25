@@ -16,12 +16,10 @@
  *
  */
 package scouter.server.plugin;
-
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
-
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -41,11 +39,8 @@ import scouter.util.HashUtil;
 import scouter.util.LongSet;
 import scouter.util.StringUtil;
 import scouter.util.ThreadUtil;
-
 public class PlugInLoader extends Thread {
-
 	private static PlugInLoader instance;
-
 	public synchronized static PlugInLoader getInstance() {
 		if (instance == null) {
 			instance = new PlugInLoader();
@@ -55,11 +50,9 @@ public class PlugInLoader extends Thread {
 		}
 		return instance;
 	}
-
 	public void run() {
 		while (true) {
 			ThreadUtil.sleep(5000);
-
 			try {
 				File root = new File(Configure.getInstance().plugin_dir);
 				checkModified(root);
@@ -68,7 +61,6 @@ public class PlugInLoader extends Thread {
 			}
 		}
 	}
-
 	private void checkModified(File root) {
 		File script = new File(root, "alert.plug");
 		if (script.canRead() == false) {
@@ -78,7 +70,6 @@ public class PlugInLoader extends Thread {
 				PlugInManager.alerts = (IAlert) create(script, "AlertImpl", IAlert.class, AlertPack.class);
 			}
 		}
-
 		script = new File(root, "counter.plug");
 		if (script.canRead() == false) {
 			PlugInManager.counters = null;
@@ -87,7 +78,6 @@ public class PlugInLoader extends Thread {
 				PlugInManager.counters = (ICounter) create(script, "CounterImpl", ICounter.class, PerfCounterPack.class);
 			}
 		}
-
 		script = new File(root, "object.plug");
 		if (script.canRead() == false) {
 			PlugInManager.objects = null;
@@ -96,7 +86,6 @@ public class PlugInLoader extends Thread {
 				PlugInManager.objects = (IObject) create(script, "ObjectImpl", IObject.class, ObjectPack.class);
 			}
 		}
-
 		script = new File(root, "xlog.plug");
 		if (script.canRead() == false) {
 			PlugInManager.xlog = null;
@@ -132,16 +121,13 @@ public class PlugInLoader extends Thread {
 			}
 		}
 	}
-
 	// 반복적인 컴파일 시도를 막기위해 한번 실패한 파일은 컴파일을 다시 시도하지 않도록 한다.
 	private LongSet compileErrorFiles = new LongSet();
-
 	private IPlugIn create(File file, String className, Class superClass, Class paramClass) {
 		long fileSignature = fileSign(file);
 		if (compileErrorFiles.contains(fileSignature))
 			return null;
 		try {
-
 			String methodName = "process";
 			String superName = superClass.getName();
 			String signature = "(" + nativeName(paramClass) + ")V";
@@ -152,7 +138,6 @@ public class PlugInLoader extends Thread {
 			if (jar != null) {
 				cp.appendClassPath(jar);
 			}
-
 			className = "scouter.server.plugin.impl." + className;
 			Class c = null;
 			CtClass cc = cp.get(superName);
@@ -170,19 +155,17 @@ public class PlugInLoader extends Thread {
 			
 			method.setBody("{" + parameter + " $pack=$1;" + body + "}");
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
-
 			IPlugIn plugin = (IPlugIn) c.newInstance();
 			plugin.lastModified = file.lastModified();
 			return plugin;
 		} catch (javassist.CannotCompileException ee) {
 			compileErrorFiles.add(fileSignature);
-			Logger.println("IPlugIn", ee.getMessage());
+			Logger.println("S215", ee.getMessage());
 		} catch (Exception e) {
-			Logger.println("IPlugIn", e);
+			Logger.println("S216", e);
 		}
 		return null;
 	}
-
 	private long fileSign(File f) {
 		if (f == null)
 			return 0;
@@ -190,11 +173,9 @@ public class PlugInLoader extends Thread {
 		long filetime = f.lastModified();
 		return BitUtil.setHigh(filetime, HashUtil.hash(filename));
 	}
-
 	private String nativeName(Class class1) {
 		return "L" + class1.getName().replace('.', '/') + ";";
 	}
-
 	protected int getInt(Properties p, String key, int defValue) {
 		String value = StringUtil.trimEmpty(p.getProperty(key));
 		if (value.length() == 0)

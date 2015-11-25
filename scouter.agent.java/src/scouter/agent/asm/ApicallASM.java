@@ -14,13 +14,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.asm;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -33,11 +30,9 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
-
 public class ApicallASM implements IASM, Opcodes {
 	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_apicall);
 	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
-
 	public ApicallASM() {
 		AsmUtil.add(reserved, "sun/net/www/protocol/http/HttpURLConnection", "getInputStream()Ljava/io/InputStream;");
 		AsmUtil.add(reserved, "sun/net/www/protocol/http/HttpURLConnection", "connect()V");
@@ -49,7 +44,6 @@ public class ApicallASM implements IASM, Opcodes {
 		AsmUtil.add(reserved, "org/apache/http/impl/client/AbstractHttpClient",//
 				"execute(Lorg/apache/http/HttpHost;" + "Lorg/apache/http/HttpRequest;"
 						+ "Lorg/apache/http/protocol/HttpContext;)Lorg/apache/http/HttpResponse;");
-
 		// JCO CLIENT 추가..
 		AsmUtil.add(reserved, "com/sap/mw/jco/JCO$Client", "execute(Ljava/lang/String;" + //
 				"Lcom/sap/mw/jco/JCO$ParameterList;" + //
@@ -57,16 +51,12 @@ public class ApicallASM implements IASM, Opcodes {
 				"Lcom/sap/mw/jco/JCO$ParameterList;" + //
 				"Lcom/sap/mw/jco/JCO$ParameterList;" + //
 				"Ljava/lang/String;Ljava/lang/String;I)V");
-
 	    AsmUtil.add(reserved,"io/reactivex/netty/protocol/http/client/HttpClientImpl","submit");                       
-
 	}
-
 	public boolean isTarget(String className) {
 		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return true;
-
 		for (int i = 0; i < target.size(); i++) {
 			mset = target.get(i);
 			if (mset.classMatch.include(className)) {
@@ -75,13 +65,10 @@ public class ApicallASM implements IASM, Opcodes {
 		}
 		return false;
 	}
-
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-
 		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return new ApicallExtCV(cv, mset, className);
-
 		for (int i = 0; i < target.size(); i++) {
 			mset = target.get(i);
 			if (mset.classMatch.include(className)) {
@@ -90,25 +77,18 @@ public class ApicallASM implements IASM, Opcodes {
 		}
 		return cv;
 	}
-
 }
-
 class ApicallExtCV extends ClassVisitor implements Opcodes {
-
 	public String className;
 	private HookingSet mset;
-
 	public ApicallExtCV(ClassVisitor cv, HookingSet mset, String className) {
 		super(ASM4, cv);
 		this.mset = mset;
 		this.className = className;
-
 	}
-
 	@Override
 	public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, methodName, desc, signature, exceptions);
-
 		if (mv == null || mset.isA(methodName, desc) == false) {
 			return mv;
 		}
@@ -116,12 +96,10 @@ class ApicallExtCV extends ClassVisitor implements Opcodes {
 			return mv;
 		}
 		Logger.println("apicall: " + className + "." + methodName + desc);
-
 		return new ApicallExtMV(access, desc, mv, Type.getArgumentTypes(desc), (access & ACC_STATIC) != 0, className,
 				methodName, desc);
 	}
 }
-
 // ///////////////////////////////////////////////////////////////////////////
 class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 	private static final String TRACESUBCALL = TraceApiCall.class.getName().replace('.', '/');
@@ -129,9 +107,7 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 	private static final String START_SIGNATURE = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;";
 	private final static String END_METHOD = "endApicall";
 	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Throwable;)V";
-
 	private Label startFinally = new Label();
-
 	public ApicallExtMV(int access, String desc, MethodVisitor mv, Type[] paramTypes, boolean isStatic,
 			String classname, String methodname, String methoddesc) {
 		super(ASM4, access, desc, mv);
@@ -142,7 +118,6 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 		this.methodName = methodname;
 		this.methodDesc = methoddesc;
 	}
-
 	private Type[] paramTypes;
 	private Type returnType;
 	private boolean isStatic;
@@ -150,21 +125,16 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 	private String methodName;
 	private String methodDesc;
 	private int statIdx;
-
 	public void visitCode() {
-
 		int sidx = isStatic ? 0 : 1;
-
 		int arrVarIdx = newLocal(Type.getType("[Ljava/lang/Object;"));
 		AsmUtil.PUSH(mv, paramTypes.length);
 		mv.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
 		mv.visitVarInsn(Opcodes.ASTORE, arrVarIdx);
-
 		for (int i = 0; i < paramTypes.length; i++) {
 			Type tp = paramTypes[i];
 			mv.visitVarInsn(Opcodes.ALOAD, arrVarIdx);
 			AsmUtil.PUSH(mv, i);
-
 			switch (tp.getSort()) {
 			case Type.BOOLEAN:
 				mv.visitVarInsn(Opcodes.ILOAD, sidx);
@@ -216,15 +186,12 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(Opcodes.ALOAD, 0);
 		}
 		mv.visitVarInsn(Opcodes.ALOAD, arrVarIdx);
-
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESUBCALL, START_METHOD, START_SIGNATURE, false);
-
 		statIdx = newLocal(Type.getType(Object.class));
 		mv.visitVarInsn(Opcodes.ASTORE, statIdx);
 		mv.visitLabel(startFinally);
 		mv.visitCode();
 	}
-
 	@Override
 	public void visitInsn(int opcode) {
 		if ((opcode >= IRETURN && opcode <= RETURN)) {
@@ -232,12 +199,9 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 		}
 		mv.visitInsn(opcode);
 	}
-
 	private void capReturn() {
 		Type tp = returnType;
-
 		if (tp == null || tp.equals(Type.VOID_TYPE)) {
-
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 			mv.visitInsn(Opcodes.ACONST_NULL);
 			mv.visitInsn(Opcodes.ACONST_NULL);
@@ -249,7 +213,6 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 		case Type.BOOLEAN:
 			mv.visitVarInsn(Opcodes.ISTORE, i);
 			mv.visitVarInsn(Opcodes.ILOAD, i);
-
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);// stat
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
@@ -258,7 +221,6 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 		case Type.BYTE:
 			mv.visitVarInsn(Opcodes.ISTORE, i);
 			mv.visitVarInsn(Opcodes.ILOAD, i);
-
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);// stat
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;", false);
@@ -267,7 +229,6 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 		case Type.CHAR:
 			mv.visitVarInsn(Opcodes.ISTORE, i);
 			mv.visitVarInsn(Opcodes.ILOAD, i);
-
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);// stat
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;",
@@ -277,7 +238,6 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 		case Type.SHORT:
 			mv.visitVarInsn(Opcodes.ISTORE, i);
 			mv.visitVarInsn(Opcodes.ILOAD, i);
-
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);// stat
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;", false);
@@ -286,7 +246,6 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 		case Type.INT:
 			mv.visitVarInsn(Opcodes.ISTORE, i);
 			mv.visitVarInsn(Opcodes.ILOAD, i);
-
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);// stat
 			mv.visitVarInsn(Opcodes.ILOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
@@ -295,7 +254,6 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 		case Type.LONG:
 			mv.visitVarInsn(Opcodes.LSTORE, i);
 			mv.visitVarInsn(Opcodes.LLOAD, i);
-
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);// stat
 			mv.visitVarInsn(Opcodes.LLOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
@@ -304,17 +262,14 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 		case Type.FLOAT:
 			mv.visitVarInsn(Opcodes.FSTORE, i);
 			mv.visitVarInsn(Opcodes.FLOAD, i);
-
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);// stat
 			mv.visitVarInsn(Opcodes.FLOAD, i);
-
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
 			mv.visitInsn(Opcodes.ACONST_NULL);// throwable
 			break;
 		case Type.DOUBLE:
 			mv.visitVarInsn(Opcodes.DSTORE, i);
 			mv.visitVarInsn(Opcodes.DLOAD, i);
-
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);// stat
 			mv.visitVarInsn(Opcodes.DLOAD, i);
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
@@ -323,15 +278,12 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 		default:
 			mv.visitVarInsn(Opcodes.ASTORE, i);
 			mv.visitVarInsn(Opcodes.ALOAD, i);
-
 			mv.visitVarInsn(Opcodes.ALOAD, statIdx);// stat
 			mv.visitVarInsn(Opcodes.ALOAD, i);// return
 			mv.visitInsn(Opcodes.ACONST_NULL);// throwable
 		}
-
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESUBCALL, END_METHOD, END_SIGNATURE, false);
 	}
-
 	@Override
 	public void visitMaxs(int maxStack, int maxLocals) {
 		Label endFinally = new Label();
@@ -340,7 +292,6 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 		mv.visitInsn(DUP);
 		int errIdx = newLocal(Type.getType(Throwable.class));
 		mv.visitVarInsn(Opcodes.ASTORE, errIdx);
-
 		mv.visitVarInsn(Opcodes.ALOAD, statIdx);// stat
 		mv.visitInsn(Opcodes.ACONST_NULL);// return
 		mv.visitVarInsn(Opcodes.ALOAD, errIdx);// throwable

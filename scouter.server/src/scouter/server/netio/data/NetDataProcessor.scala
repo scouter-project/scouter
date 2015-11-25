@@ -16,7 +16,6 @@
  *
  */
 package scouter.server.netio.data
-
 import java.net.InetAddress
 import scouter.io.DataInputX
 import scouter.lang.TextTypes

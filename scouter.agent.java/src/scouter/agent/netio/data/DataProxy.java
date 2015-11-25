@@ -14,13 +14,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.netio.data;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.net.DataUdpAgent;
@@ -40,16 +37,12 @@ import scouter.lang.value.MapValue;
 import scouter.util.HashUtil;
 import scouter.util.IntIntLinkedMap;
 import scouter.util.IntLinkedSet;
-
 public class DataProxy {
 	private static UDPDataSendThread udpCollect = UDPDataSendThread.getInstance();
-
 	private static IntIntLinkedMap sqlHash = new IntIntLinkedMap().setMax(5000);
-
 	private static int getSqlHash(String sql) {
 		if (sql.length() < 100)
 			return HashUtil.hash(sql);
-
 		int id = sql.hashCode();
 		int hash = sqlHash.get(id);
 		if (hash == 0) {
@@ -58,9 +51,7 @@ public class DataProxy {
 		}
 		return hash;
 	}
-
 	private static IntLinkedSet sqlText = new IntLinkedSet().setMax(10000);
-
 	public static int sendSqlText(String sql) {
 		int hash = getSqlHash(sql);
 		if (sqlText.contains(hash)) {
@@ -71,9 +62,7 @@ public class DataProxy {
 		sendDirect(new TextPack(TextTypes.SQL, hash, sql));
 		return hash;
 	}
-
 	private static IntLinkedSet serviceName = new IntLinkedSet().setMax(10000);
-
 	public static int sendServiceName(String service) {
 		int hash = HashUtil.hash(service);
 		sendServiceName(hash,service);
@@ -86,12 +75,9 @@ public class DataProxy {
 		serviceName.put(hash);
 		udpCollect.add(new TextPack(TextTypes.SERVICE, hash, service));
 	}
-
 	private static IntLinkedSet referer = new IntLinkedSet().setMax(1000);
-
 	public static int sendReferer(String text) {
 		int hash = HashUtil.hash(text);
-
 		if (referer.contains(hash)) {
 			return hash;
 		}
@@ -99,9 +85,7 @@ public class DataProxy {
 		sendDirect(new TextPack(TextTypes.REFERER, hash, text));
 		return hash;
 	}
-
 	private static IntLinkedSet userAgent = new IntLinkedSet().setMax(1000);
-
 	public static int sendUserAgent(String text) {
 		int hash = HashUtil.hash(text);
 		
@@ -112,22 +96,17 @@ public class DataProxy {
 		udpCollect.add(new TextPack(TextTypes.USER_AGENT, hash, text));
 		return hash;
 	}
-
 	private static IntLinkedSet methodName = new IntLinkedSet().setMax(10000);
-
 	public static int sendMethodName( String name) {
 		int hash = HashUtil.hash(name);
 		if (methodName.contains(hash)) {
 			return hash;
 		}
 		methodName.put(hash);
-
 		udpCollect.add(new TextPack(TextTypes.METHOD, hash, name));
 		return hash;
 	}
-
 	private static IntLinkedSet apicall = new IntLinkedSet().setMax(10000);
-
 	public static int sendApicall( String name) {
 		int hash = HashUtil.hash(name);
 		if (apicall.contains(hash)) {
@@ -137,9 +116,7 @@ public class DataProxy {
 		udpCollect.add(new TextPack(TextTypes.APICALL, hash, name));
 		return hash;
 	}
-
 	static Configure conf = Configure.getInstance();
-
 	public static void sendAlert(byte level, String title, String message, MapValue tags) {
 		AlertPack p = new AlertPack();
 		p.objType = conf.scouter_type;
@@ -150,12 +127,9 @@ public class DataProxy {
 		if (tags != null) {
 			p.tags = tags;
 		}
-
 		sendDirect(p);
 	}
-
 	private static IntLinkedSet errText = new IntLinkedSet().setMax(10000);
-
 	public static int sendError( String message) {
 		int hash = HashUtil.hash(message);
 		if (errText.contains(hash)) {
@@ -165,9 +139,7 @@ public class DataProxy {
 		udpCollect.add(new TextPack(TextTypes.ERROR, hash, message));
 		return hash;
 	}
-
 	private static IntLinkedSet descTable = new IntLinkedSet().setMax(1000);
-
 	public static int sendDesc( String desc) {
 		int hash = HashUtil.hash(desc);
 		if (descTable.contains(hash)) {
@@ -177,9 +149,7 @@ public class DataProxy {
 		udpCollect.add(new TextPack(TextTypes.DESC, hash, desc));
 		return hash;
 	}
-
 	private static IntLinkedSet loginTable = new IntLinkedSet().setMax(10000);
-
 	public static int sendLogin( String loginName) {
 		int hash = HashUtil.hash(loginName);
 		if (loginTable.contains(hash)) {
@@ -189,7 +159,6 @@ public class DataProxy {
 		udpCollect.add(new TextPack(TextTypes.LOGIN, hash, loginName));
 		return hash;
    }
-
 	public static void reset() {
 		serviceName.clear();
 		errText.clear();
@@ -197,7 +166,6 @@ public class DataProxy {
 		methodName.clear();
 		sqlText.clear();
 	}
-
 	public static void sendXLog(XLogPack p) {
 		p.objHash = conf.objHash;
 		sendDirect(p);
@@ -211,14 +179,12 @@ public class DataProxy {
 		sendDirect(p);
 	}
 	static DataUdpAgent udpNet = DataUdpAgent.getInstance();
-
 	public static void sendDirect(Pack p) {
 		try {
 			udpNet.write(new DataOutputX().writePack(p).toByteArray());
 		} catch (IOException e) {
 		}
 	}
-
 	private static void sendDirect(List<byte[]> buff) {
 		switch (buff.size()) {
 		case 0:  return;
@@ -230,9 +196,7 @@ public class DataProxy {
 			break;
 		}
 	}
-
 	static DataUdpAgent udpDirect = DataUdpAgent.getInstance();
-
 	public static void sendProfile(Step[] p, TraceContext x) {
 		if (p == null || p.length == 0)
 			return;
@@ -244,7 +208,6 @@ public class DataProxy {
 		pk.elapsed = (int) (System.currentTimeMillis() - x.startTime);
 		sendDirect(pk);
 	}
-
 	public static void sendProfile(List<Step> p, TraceContext x) {
 		if (p == null || p.size() == 0)
 			return;
@@ -255,7 +218,6 @@ public class DataProxy {
 		// udp.add(pk);
 		sendDirect(pk);
 	}
-
 	public static void sendCounter(PerfCounterPack[] p) {
 		// udp.add(p);
 		try {
@@ -275,7 +237,6 @@ public class DataProxy {
 		} catch (Exception e) {
 		}
 	}
-
 	public static void sendHeartBeat(ObjectPack p) {
 		udpCollect.add(p);
 		if (conf.debug_udp_object) {
@@ -283,7 +244,6 @@ public class DataProxy {
 		}
 	}
 	private static IntLinkedSet webNameTable = new IntLinkedSet().setMax(1000);
-
 	public static int sendWebName( String web) {
 		int hash = HashUtil.hash(web);
 		if (webNameTable.contains(hash)) {
@@ -304,7 +264,6 @@ public class DataProxy {
 		udpCollect.add(new TextPack(TextTypes.GROUP, hash, text));
 		return hash;
 	}
-
 	private static IntLinkedSet hashMessage = new IntLinkedSet().setMax(500);
 	public static int sendHashedMessage(String text) {
 			int hash = HashUtil.hash(text);	

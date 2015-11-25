@@ -15,7 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.server.netio.service;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -28,19 +27,15 @@ import scouter.server.Configure;
 import scouter.server.Logger;
 import scouter.server.netio.service.anotation.ServiceHandler;
 import scouter.util.scan.Scanner;
-
 public class ServiceHandlingProxy {
 	protected static HashMap<String, Invocation> handlers = new HashMap<String, Invocation>();
-
 	protected static class Invocation {
 		Object object;
 		Method method;
-
 		public Invocation(Object object, Method method) {
 			this.object = object;
 			this.method = method;
 		}
-
 		public void exec(DataInputX in, DataOutputX out, boolean login) {
 			try {
 				method.invoke(object, new Object[] { in, out, login });
@@ -54,25 +49,20 @@ public class ServiceHandlingProxy {
 				e.printStackTrace();
 			}
 		}
-
 		@Override
 		public String toString() {
 			return object.getClass().getName() + "." + method.getName();
 		}
 	}
-
 	public static void load() {
-
 		String pkg = Scanner.cutOutLast(ServiceHandlingProxy.class.getName(), ".");
 		Set<String> classes = new Scanner(pkg).process(ServiceHandlingProxy.class.getClassLoader());
 		Set<String> custom = new Scanner(System.getProperty("scouter.handler")).process();
 		classes.addAll(custom);
-
 		Iterator<String> itr = classes.iterator();
 		while (itr.hasNext()) {
 			try {
 				Class c = Class.forName(itr.next());
-
 				if (Modifier.isPublic(c.getModifiers()) == false) {
 					continue;
 				}
@@ -102,7 +92,6 @@ public class ServiceHandlingProxy {
 			}
 		}
 	}
-
 	public static void process(String cmd, DataInputX in, DataOutputX out, boolean login) {
 		Invocation handler = handlers.get(cmd);
 		if (handler != null) {
@@ -112,9 +101,7 @@ public class ServiceHandlingProxy {
 			throw new RuntimeException("no handler  cmd=" + cmd);
 		}
 	}
-
 	public static void main(String[] args) {
 		load();
 	}
-
 }

@@ -16,7 +16,6 @@
  *
  */
 package scouter.server.plugin.alert;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -24,7 +23,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
-
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -40,11 +38,8 @@ import scouter.util.StringEnumer;
 import scouter.util.StringKeyLinkedMap;
 import scouter.util.StringUtil;
 import scouter.util.ThreadUtil;
-
 public class AlertRuleLoader extends Thread {
-
 	private static AlertRuleLoader instance;
-
 	public synchronized static AlertRuleLoader getInstance() {
 		if (instance == null) {
 			instance = new AlertRuleLoader();
@@ -54,14 +49,11 @@ public class AlertRuleLoader extends Thread {
 		}
 		return instance;
 	}
-
 	public StringKeyLinkedMap<AlertRule> alertRuleTable = new StringKeyLinkedMap<AlertRule>();
 	public StringKeyLinkedMap<AlertConf> alertConfTable = new StringKeyLinkedMap<AlertConf>();
-
 	public void run() {
 		while (true) {
 			ThreadUtil.sleep(5000);
-
 			try {
 				File root = new File(Configure.getInstance().plugin_dir);
 				if (root != null && root.canRead()) {
@@ -73,20 +65,16 @@ public class AlertRuleLoader extends Thread {
 			}
 		}
 	}
-
 	private void checkNewRule(File root) {
-
 		File[] ruleFiles = root.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".alert");
 			}
 		});
-
 		for (int i = 0; i < ruleFiles.length; i++) {
 			String name = getRuleName(ruleFiles[i].getName());
 			if (alertRuleTable.containsKey(name))
 				continue;
-
 			AlertRule rule = createRule(name, ruleFiles[i]);
 			if (rule == null)
 				continue;
@@ -95,12 +83,10 @@ public class AlertRuleLoader extends Thread {
 			alertConfTable.put(name, conf);
 		}
 	}
-
 	private void clear(String name) {
 		alertRuleTable.remove(name);
 		alertConfTable.remove(name);
 	}
-
 	private void checkModified(File root) {
 		StringEnumer en = alertRuleTable.keys();
 		while (en.hasMoreElements()) {
@@ -114,27 +100,22 @@ public class AlertRuleLoader extends Thread {
 				clear(name);
 				continue;
 			}
-
 			if (ruleFile.lastModified() != rule.lastModified) {
 				rule = createRule(name, ruleFile);
 				alertRuleTable.put(name, rule);
 			}
-
 			File ruleConf = new File(root, name + ".conf");
 			AlertConf conf = alertConfTable.get(name);
 			if (conf.lastModified != ruleConf.lastModified()) {
 				conf = createConf(name, ruleConf);
 				alertConfTable.put(name, conf);
-
 			}
 		}
 	}
-
 	private String getRuleName(String name) {
 		name = name.substring(0, name.lastIndexOf('.'));
 		return name;
 	}
-
 	private File getConfFile(String f) {
 		if (f == null)
 			return null;
@@ -144,7 +125,6 @@ public class AlertRuleLoader extends Thread {
 		else
 			return null;
 	}
-
 	// 각 룰에 대한 기본 설정을 로딩한다.
 	// 각 설정은 스크립트에서 변경할 수 있다.
 	private AlertConf createConf(String name, File confFile) {
@@ -164,23 +144,19 @@ public class AlertRuleLoader extends Thread {
 		}
 		return conf;
 	}
-
 	// 반복적인 컴파일 시도를 막기위해 한번 실패한 파일은 컴파일을 다시 시도하지 않도록 한다.
 	private LongSet compileErrorFiles = new LongSet();
-
 	private AlertRule createRule(String name, File ruleFile) {
 		long fileSignature = fileSign(ruleFile);
 		if (compileErrorFiles.contains(fileSignature))
 			return null;
 		try {
-
 			String body = new String(FileUtil.readAll(ruleFile));
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(AlertRule.class);
 			if (jar != null) {
 				cp.appendClassPath(jar);
 			}
-
 			name = "scouter.server.alert.impl." + name;
 			Class c = null;
 			CtClass cc = cp.get(AlertRule.class.getName());
@@ -197,19 +173,17 @@ public class AlertRuleLoader extends Thread {
 			}
 			method.setBody("{" + RealCounter.class.getName() + " $counter=$1;" + body + "}");
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
-
 			AlertRule rule = (AlertRule) c.newInstance();
 			rule.lastModified = ruleFile.lastModified();
 			return rule;
 		} catch (javassist.CannotCompileException ee) {
 			compileErrorFiles.add(fileSignature);
-			Logger.println("ALERT RULE", ee.getMessage());
+			Logger.println("S212", ee.getMessage());
 		} catch (Exception e) {
-			Logger.println("ALERT RULE", e);
+			Logger.println("S213", e);
 		}
 		return null;
 	}
-
 	private long fileSign(File f) {
 		if (f == null)
 			return 0;
@@ -217,11 +191,9 @@ public class AlertRuleLoader extends Thread {
 		long filetime = f.lastModified();
 		return BitUtil.setHigh(filetime, HashUtil.hash(filename));
 	}
-
 	private String nativeName(Class class1) {
 		return "L" + class1.getName().replace('.', '/') + ";";
 	}
-
 	protected int getInt(Properties p, String key, int defValue) {
 		String value = StringUtil.trimEmpty(p.getProperty(key));
 		if (value.length() == 0)

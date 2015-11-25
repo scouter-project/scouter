@@ -15,7 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.agent.netio.request.handle;
-
 import java.io.File;
 import java.io.InputStream;
 import java.net.JarURLConnection;
@@ -32,9 +31,7 @@ import scouter.lang.value.Value;
 import scouter.net.RequestCmd;
 import scouter.util.ClassUtil;
 import scouter.util.FileUtil;
-
 public class AgentClassHandle {
-
 	@RequestHandler(RequestCmd.OBJECT_LOAD_CLASS_BY_STREAM)
 	public Pack loadClassAsStream(Pack param) {
 		MapPack p = (MapPack) param;
@@ -58,7 +55,6 @@ public class AgentClassHandle {
 		}
 		return p;
 	}
-
 	@RequestHandler(RequestCmd.OBJECT_CLASS_DESC)
 	public Pack getClassInfo(Pack param) {
 		MapPack p = (MapPack) param;
@@ -71,13 +67,12 @@ public class AgentClassHandle {
 			}
 			p.put("class", ClassUtil.getClassDescription(clazz));
 		} catch (Throwable th) {
-			Logger.println("A126", th);
+			Logger.println("A904", th);
 			p.put("error", th.getMessage());
 			return p;
 		}
 		return p;
 	}
-
 	private ListValue toValue(Class[] inf) {
 		ListValue v = new ListValue();
 		for (int i = 0; i < inf.length; i++) {
@@ -85,7 +80,6 @@ public class AgentClassHandle {
 		}
 		return v;
 	}
-
 	private Class getClass(String className) {
 		Class[] loadedClasses = JavaAgent.getInstrumentation().getAllLoadedClasses();
 		for (Class c : loadedClasses) {
@@ -95,7 +89,6 @@ public class AgentClassHandle {
 		}
 		return null;
 	}
-
 	@RequestHandler(RequestCmd.OBJECT_CHECK_RESOURCE_FILE)
 	public Pack checkJarFile(Pack param) {
 		MapPack p = (MapPack) param;
@@ -120,7 +113,6 @@ public class AgentClassHandle {
 		}
 		return m;
 	}
-
 	@RequestHandler(RequestCmd.OBJECT_DOWNLOAD_JAR)
 	public Pack downloadJar(Pack param) {
 		MapPack p = (MapPack) param;

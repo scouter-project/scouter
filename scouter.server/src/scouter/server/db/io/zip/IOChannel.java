@@ -15,13 +15,11 @@
  *  limitations under the License. 
  */
 package scouter.server.db.io.zip;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import scouter.server.ConfObserver;
 import scouter.server.Configure;
 import scouter.server.Logger;
@@ -31,17 +29,14 @@ import scouter.util.FileUtil;
 import scouter.util.IShutdown;
 import scouter.util.LinkedMap;
 import scouter.util.StopWatch;
-
 public class IOChannel implements IShutdown {
 	private static IOChannel instance = null;
-
 	public final static synchronized IOChannel getInstance() {
 		if (instance == null) {
 			instance = new IOChannel();
 		}
 		return instance;
 	}
-
 	public IOChannel() {
 		ConfObserver.put(IOChannel.class.getName(), new Runnable() {
 			public void run() {
@@ -49,10 +44,8 @@ public class IOChannel implements IShutdown {
 			}
 		});
 	}
-
 	private Configure conf = Configure.getInstance();
 	private LinkedMap<String, CountBoard> headers = new LinkedMap<String, CountBoard>();
-
 	public Block getLastWriteBlock(String date) throws IOException {
 		CountBoard uc = headers.get(date);
 		if (uc == null) {
@@ -66,7 +59,6 @@ public class IOChannel implements IShutdown {
 		bk.blockNum = (int) (n / GZipCtr.BLOCK_MAX_SIZE);
 		return bk;
 	}
-
 	private void check() {
 		while (headers.size() >= conf.gzip_unitcount_header_cache - 1) {
 			try {
@@ -75,7 +67,6 @@ public class IOChannel implements IShutdown {
 			}
 		}
 	}
-
 	public CountBoard getCountBoard(String date) {
 		CountBoard uc = headers.get(date);
 		if (uc == null) {
@@ -89,7 +80,6 @@ public class IOChannel implements IShutdown {
 		}
 		return uc;
 	}
-
 	public synchronized void store(Block bk) {
 		if (bk.dirty == false)
 			return;
@@ -122,10 +112,8 @@ public class IOChannel implements IShutdown {
 			Logger.println("S130", "Store " + tm + " ms " + (mgtime > 0 ? " old-load=" + mgtime + "ms" : ""));
 		}
 	}
-
 	private static ExecutorService exec = Executors
 			.newFixedThreadPool(Configure.getInstance().gzip_writing_block_thread);
-
 	static int old_block_thread = Configure.getInstance().gzip_writing_block_thread;
 	static {
 		ConfObserver.put("gzip_writing_block_thread", new Runnable() {
@@ -139,7 +127,6 @@ public class IOChannel implements IShutdown {
 			}
 		});
 	}
-
 	protected static void saveBlockBytes(final File file, final byte[] block) {
 		exec.execute(new Runnable() {
 			public void run() {
@@ -147,19 +134,16 @@ public class IOChannel implements IShutdown {
 					byte[] out = CompressUtil.doZip(block);
 					FileUtil.save(file, out);
 				} catch (Exception e) {
-					Logger.println("S130", e.getMessage());
+					Logger.println("S209", e.getMessage());
 				}
 			}
 		});
 	}
-
 	private File getFile(String date, int blockNum) {
 		String filename = (GZipCtr.createPath(date) + "/xlog." + blockNum);
 		return new File(filename);
 	}
-
 	private CacheTable<BKey, Block> readCache = new CacheTable<BKey, Block>().setMaxRow(conf.gzip_read_cache_block);
-
 	public Block getReadBlock(String date, int blockNum) {
 		Block b = readCache.get(new BKey(date, blockNum));
 		if (b != null)
@@ -179,10 +163,8 @@ public class IOChannel implements IShutdown {
 		}
 		return null;
 	}
-
 	public void shutdown() {
 	}
-
 	public void close(String date) {
 		try {
 			Enumeration<BKey> en = readCache.keys();

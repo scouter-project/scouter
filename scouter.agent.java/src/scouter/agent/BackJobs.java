@@ -15,15 +15,11 @@
  *  limitations under the License. 
  */
 package scouter.agent;
-
 import scouter.util.StringEnumer;
 import scouter.util.StringKeyLinkedMap;
 import scouter.util.ThreadUtil;
-
 public class BackJobs extends Thread {
-
 	private static BackJobs instance = null;
-
 	public final static synchronized BackJobs getInstance() {
 		if (instance == null) {
 			instance = new BackJobs();
@@ -33,23 +29,18 @@ public class BackJobs extends Thread {
 		}
 		return instance;
 	}
-
 	protected BackJobs() {
 	}
-
 	public class JobW {
 		Runnable job;
 		long lastExTime;
 		int interval;
-
 		public JobW(Runnable job, int interval) {
 			this.job = job;
 			this.interval = interval;
 		}
 	}
-
 	private StringKeyLinkedMap<JobW> jobs = new StringKeyLinkedMap<JobW>();
-
 	/**
 	 * 반복적으로 실행할 잡을 등록한다.
 	 * 
@@ -65,15 +56,11 @@ public class BackJobs extends Thread {
 	public void remove(String id) {
 		jobs.remove(id);
 	}
-
 	public void shutdown() {
 		running = false;
 	}
-
 	private boolean running = true;
-
 	public void run() {
-
 		while (running) {
 			ThreadUtil.sleep(1000);
 			try {
@@ -82,9 +69,7 @@ public class BackJobs extends Thread {
 				Logger.println("A109", t);
 			}
 		}
-
 	}
-
 	private void process() {
 		StringEnumer en = jobs.keys();
 		while (en.hasMoreElements()) {

@@ -16,10 +16,8 @@
  *
  */
 package scouter.server.netio.service.net;
-
 import java.net.ServerSocket
 import java.net.Socket
-
 import scouter.server.ConfObserver
 import scouter.server.Configure
 import scouter.server.Logger

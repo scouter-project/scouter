@@ -17,7 +17,6 @@
 package scouter.server.netio.service.handle;
 import java.io.File;
 import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.lang.pack.MapPack;

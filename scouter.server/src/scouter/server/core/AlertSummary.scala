@@ -28,7 +28,6 @@ import scouter.util.RequestQueue
 import scouter.server.Configure
 
 object AlertSummary {
-
     val conf =Configure.getInstance()
     val queue = new RequestQueue[AlertPack](CoreRun.MAX_QUE_SIZE);
     var master = new HashMap[Int, HashMap[String, (Byte, Int)]]()
@@ -59,7 +58,7 @@ object AlertSummary {
             return;
         val ok = queue.put(p)
         if (ok == false) {
-            Logger.println("AlertSummary", 10, "queue exceeded!!");
+            Logger.println("S205", 10, "queue exceeded!!");
         }
     }
 

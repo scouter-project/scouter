@@ -15,7 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.agent.netio.data.net;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -32,7 +31,6 @@ import scouter.util.CompareUtil;
 import scouter.util.KeyGen;
 import scouter.util.ShellArg;
 import scouter.util.ThreadUtil;
-
 public class DataUdpAgent {
 	private static DataUdpAgent inst;
 	InetAddress server_host;
@@ -40,7 +38,6 @@ public class DataUdpAgent {
 	String local_udp_addr;
 	int local_udp_port;
 	private DatagramSocket datagram;
-
 	private DataUdpAgent() {
 		setTarget();
 		openDatagramSocket();
@@ -51,7 +48,6 @@ public class DataUdpAgent {
 			}
 		});
 	}
-
 	private void setTarget() {
 		Configure conf = Configure.getInstance();
 		String host = conf.server_addr;
@@ -63,7 +59,6 @@ public class DataUdpAgent {
 			e.printStackTrace();
 		}
 	}
-
 	protected void close(DatagramSocket d) {
 		if (d != null) {
 			try {
@@ -72,7 +67,6 @@ public class DataUdpAgent {
 			}
 		}
 	}
-
 	private void openDatagramSocket() {
 		try {
 			Configure conf = Configure.getInstance();
@@ -94,16 +88,13 @@ public class DataUdpAgent {
 			e.printStackTrace();
 		}
 	}
-
 	public static synchronized DataUdpAgent getInstance() {
 		if (inst == null) {
 			inst = new DataUdpAgent();
 		}
 		return inst;
 	}
-
 	private Configure conf = Configure.getInstance();
-
 	public boolean write(byte[] p) {
 		try {
 			if (server_host == null)
@@ -125,7 +116,6 @@ public class DataUdpAgent {
 			return false;
 		}
 	}
-
 	private boolean writeMTU(byte[] data, int packetSize) {
 		try {
 			if (server_host == null)
@@ -148,7 +138,6 @@ public class DataUdpAgent {
 			return false;
 		}
 	}
-
 	private void writeMTU(long pkid, int total, int num, int packetSize, byte[] data) throws IOException {
 		DataOutputX out = new DataOutputX();
 		out.write(NetCafe.CAFE_MTU);
@@ -163,13 +152,11 @@ public class DataUdpAgent {
 		packet.setPort(server_port);
 		datagram.send(packet);
 	}
-
 	public void close() {
 		if (datagram != null)
 			datagram.close();
 		datagram = null;
 	}
-
 	public boolean write(List<byte[]> p) {
 		try {
 			if (server_host == null)
@@ -198,7 +185,6 @@ public class DataUdpAgent {
 			return false;
 		}
 	}
-
 	private void sendList(int bufferCount, byte[] buffer) throws IOException {
 		DataOutputX outter = new DataOutputX();
 		outter.write(NetCafe.CAFE_N);
@@ -210,7 +196,6 @@ public class DataUdpAgent {
 		packet.setPort(server_port);
 		datagram.send(packet);
 	}
-
 	public boolean debugWrite(String ip, int port, int length) {
 		try {
 			DataOutputX out = new DataOutputX();
@@ -230,7 +215,6 @@ public class DataUdpAgent {
 			return false;
 		}
 	}
-
 	public static void main(String[] args) {
 		ShellArg param = new ShellArg(args);
 		String host = param.get("-h");

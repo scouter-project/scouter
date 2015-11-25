@@ -16,7 +16,6 @@
  *
  */
 package scouter.server.core;
-
 import scouter.net.RequestCmd
 import scouter.server.Logger
 import scouter.server.netio.AgentCall

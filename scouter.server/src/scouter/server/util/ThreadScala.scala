@@ -43,8 +43,8 @@ object ThreadScala {
                     try {
                         codeBlock
                     } catch {
-                        case n: NullPointerException => Logger.println("S191", 10, "@startDaemon", n)
-                        case t: Throwable => Logger.println("S192", 10, "@startDaemon: " + t)
+                        case n: NullPointerException => Logger.println("S217", 10, "@startDaemon", n)
+                        case t: Throwable => Logger.println("S218", 10, "@startDaemon: " + t)
                     }
                     ThreadUtil.sleep(interval)
                 }

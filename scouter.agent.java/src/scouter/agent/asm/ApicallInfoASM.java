@@ -14,13 +14,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.asm;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -32,23 +29,18 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
-
 public class ApicallInfoASM implements IASM, Opcodes {
 	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_apicall_info);
 	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
-
 	public ApicallInfoASM() {
 		AsmUtil.add(reserved, "io/reactivex/netty/protocol/http/client/HttpClientRequest", "setDynamicUriParts");
 		// AsmUtil.add(reserved,
 		// "io/reactivex/netty/protocol/http/client/HttpClientResponse", "*");
-
 	}
-
 	public boolean isTarget(String className) {
 		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return true;
-
 		for (int i = 0; i < target.size(); i++) {
 			mset = target.get(i);
 			if (mset.classMatch.include(className)) {
@@ -57,13 +49,10 @@ public class ApicallInfoASM implements IASM, Opcodes {
 		}
 		return false;
 	}
-
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-
 		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return new ApicallInfoCV(cv, mset, className);
-
 		for (int i = 0; i < target.size(); i++) {
 			mset = target.get(i);
 			if (mset.classMatch.include(className)) {
@@ -72,25 +61,18 @@ public class ApicallInfoASM implements IASM, Opcodes {
 		}
 		return cv;
 	}
-
 }
-
 class ApicallInfoCV extends ClassVisitor implements Opcodes {
-
 	public String className;
 	private HookingSet mset;
-
 	public ApicallInfoCV(ClassVisitor cv, HookingSet mset, String className) {
 		super(ASM4, cv);
 		this.mset = mset;
 		this.className = className;
-
 	}
-
 	@Override
 	public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, methodName, desc, signature, exceptions);
-
 		if (mv == null || mset.isA(methodName, desc) == false) {
 			return mv;
 		}
@@ -98,50 +80,39 @@ class ApicallInfoCV extends ClassVisitor implements Opcodes {
 			return mv;
 		}
 		Logger.println("apicall: " + className + "." + methodName + desc);
-
 		return new ApicallInfoMV(access, desc, mv, Type.getArgumentTypes(desc), (access & ACC_STATIC) != 0, className,
 				methodName, desc);
 	}
 }
-
 // ///////////////////////////////////////////////////////////////////////////
 class ApicallInfoMV extends LocalVariablesSorter implements Opcodes {
 	private static final String TRACESUBCALL = TraceApiCall.class.getName().replace('.', '/');
 	private final static String START_METHOD = "apiInfo";
 	private static final String START_SIGNATURE = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V";
-
 	public ApicallInfoMV(int access, String desc, MethodVisitor mv, Type[] paramTypes, boolean isStatic,
 			String classname, String methodname, String methoddesc) {
 		super(ASM4, access, desc, mv);
 		this.paramTypes = paramTypes;
-
 		this.isStatic = isStatic;
 		this.className = classname;
 		this.methodName = methodname;
 		this.methodDesc = methoddesc;
 	}
-
 	private Type[] paramTypes;
-
 	private boolean isStatic;
 	private String className;
 	private String methodName;
 	private String methodDesc;
-
 	public void visitCode() {
-
 		int sidx = isStatic ? 0 : 1;
-
 		int arrVarIdx = newLocal(Type.getType("[Ljava/lang/Object;"));
 		AsmUtil.PUSH(mv, paramTypes.length);
 		mv.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
 		mv.visitVarInsn(Opcodes.ASTORE, arrVarIdx);
-
 		for (int i = 0; i < paramTypes.length; i++) {
 			Type tp = paramTypes[i];
 			mv.visitVarInsn(Opcodes.ALOAD, arrVarIdx);
 			AsmUtil.PUSH(mv, i);
-
 			switch (tp.getSort()) {
 			case Type.BOOLEAN:
 				mv.visitVarInsn(Opcodes.ILOAD, sidx);
@@ -193,10 +164,7 @@ class ApicallInfoMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(Opcodes.ALOAD, 0);
 		}
 		mv.visitVarInsn(Opcodes.ALOAD, arrVarIdx);
-
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESUBCALL, START_METHOD, START_SIGNATURE, false);
-
 		mv.visitCode();
 	}
-
 }

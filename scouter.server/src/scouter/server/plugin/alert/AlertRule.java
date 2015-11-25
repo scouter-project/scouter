@@ -16,13 +16,9 @@
  *
  */
 package scouter.server.plugin.alert;
-
 import scouter.server.Logger;
-
 public class AlertRule {
-
 	public long lastModified;
-
 	public void process(RealCounter c) {
 	}
 	public void log(Object c) {
@@ -31,5 +27,4 @@ public class AlertRule {
 	public void println(Object c) {
 		System.out.println(c);
 	}
-
 }

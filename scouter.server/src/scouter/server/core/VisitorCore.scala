@@ -63,7 +63,7 @@ object VisitorCore {
         }
         val ok = queue.put(p);
         if (ok == false) {
-            Logger.println("S200", 10, "VisitDay queue exceeded!!");
+            Logger.println("S208", 10, "VisitDay queue exceeded!!");
         }
     }
     def process(objType: String, x: XLogPack) {

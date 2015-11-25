@@ -1,8 +1,6 @@
 package scouter.agent.plugin;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-
 import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.AlertProxy;
@@ -16,18 +14,14 @@ import scouter.lang.step.ThreadSubmitStep;
 import scouter.util.KeyGen;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
-
 public class AbstractPlugin {
 	long lastModified;
-
 	public void log(Object c) {
 		Logger.println("A158", c.toString());
 	}
-
 	public void println(Object c) {
 		System.out.println(c);
 	}
-
 	public Object field(Object o, String field) {
 		if (o == null)
 			return null;
@@ -39,7 +33,6 @@ public class AbstractPlugin {
 		}
 		return null;
 	}
-
 	public Object method(Object o, String method) {
 		if (o == null)
 			return null;
@@ -51,7 +44,6 @@ public class AbstractPlugin {
 		}
 		return null;
 	}
-
 	public Object method1(Object o, String method) {
 		if (o == null)
 			return null;
@@ -62,7 +54,6 @@ public class AbstractPlugin {
 			return e.toString();
 		}
 	}
-
 	public Object method(Object o, String method, String param) {
 		if (o == null)
 			return null;
@@ -73,15 +64,12 @@ public class AbstractPlugin {
 		}
 		return null;
 	}
-
 	public String toString(Object o) {
 		return o == null ? null : o.toString();
 	}
-
 	public String toString(Object o, String def) {
 		return o == null ? def : o.toString();
 	}
-
 	public void alert(char level, String title, String message) {
 		switch (level) {
 		case 'i':
@@ -101,34 +89,28 @@ public class AbstractPlugin {
 			break;
 		}
 	}
-
 	///
 	public int syshash(Object o) {
 		if (o == null)
 			return 0;
 		return System.identityHashCode(o);
 	}
-
 	public int syshash(HookArgs hook, int x) {
 		if (x >= hook.args.length)
 			return 0;
 		return syshash(hook.args[x]);
 	}
-
 	public int syshash(HookArgs hook) {
 		if (hook == null || hook.this1 == null)
 			return 0;
 		return syshash(hook.this1);
 	}
-
 	public void forward(WrContext wctx, int uuid) {
 		TraceContext ctx = wctx.inner();
 		if (ctx.gxid == 0) {
 			ctx.gxid = ctx.txid;
 		}
-
 		long callee = KeyGen.next();
-
 		TransferMap.put(uuid, ctx.gxid, ctx.txid, callee, XLogTypes.APP_SERVICE);
 		ApiCallStep step = new ApiCallStep();
 		step.txid = callee;
@@ -139,7 +121,6 @@ public class AbstractPlugin {
 		step.hash = DataProxy.sendApicall("local-forward");
 		ctx.profile.add(step);
 	}
-
 	public void forwardThread(WrContext wctx, int uuid) {
 		if (wctx == null)
 			return;
@@ -147,11 +128,8 @@ public class AbstractPlugin {
 		if (ctx.gxid == 0) {
 			ctx.gxid = ctx.txid;
 		}
-
 		long callee = KeyGen.next();
-
 		TransferMap.put(uuid, ctx.gxid, ctx.txid, callee, XLogTypes.BACK_THREAD);
-
 		ThreadSubmitStep step = new ThreadSubmitStep();
 		step.txid = callee;
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
@@ -160,9 +138,7 @@ public class AbstractPlugin {
 		}
 		step.hash = DataProxy.sendApicall("local-forward");
 		ctx.profile.add(step);
-
 	}
-
 	public void receive(WrContext ctx, int uuid) {
 		TransferMap.ID id = TransferMap.get(uuid);
 		if (id == null)

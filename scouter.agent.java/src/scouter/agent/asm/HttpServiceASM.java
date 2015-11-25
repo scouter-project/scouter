@@ -86,7 +86,6 @@ class HttpServiceMV extends LocalVariablesSorter implements Opcodes {
 	private final static String REJECT = "reject";
 	private static final String REJECT_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;";
 	private Label startFinally = new Label();
-
 	private boolean httpservlet;
 	public HttpServiceMV(int access, String desc, MethodVisitor mv, boolean httpservlet) {
 		super(ASM4, access, desc, mv);

@@ -15,17 +15,12 @@
  *  limitations under the License. 
  */
 package scouter.agent.plugin;
-
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
-
 import scouter.agent.Logger;
-
 public class WrRequest extends Wrapper {
-
 	private Object reqObject;
-
 	private java.lang.reflect.Method getRequestURI;
 	private java.lang.reflect.Method getRemoteAddr;
 	private java.lang.reflect.Method getMethod;
@@ -40,14 +35,11 @@ public class WrRequest extends Wrapper {
 	private java.lang.reflect.Method getValue;
 	private java.lang.reflect.Method getSessionAttribute;
 	private java.lang.reflect.Method getAttribute;
-
 	private boolean enabled = true;
 	private Throwable _error = null;
-
 	public WrRequest(Object req) {
 		reqObject = req;
 	}
-
 	public String getCookie(String key) {
 		if (enabled == false)
 			return null;
@@ -78,7 +70,6 @@ public class WrRequest extends Wrapper {
 		}
 		return null;
 	}
-
 	public String getRequestURI() {
 		if (enabled == false)
 			return null;
@@ -95,7 +86,6 @@ public class WrRequest extends Wrapper {
 			return null;
 		}
 	}
-
 	public String getRemoteAddr() {
 		if (enabled == false)
 			return null;
@@ -112,7 +102,6 @@ public class WrRequest extends Wrapper {
 			return null;
 		}
 	}
-
 	public String getMethod() {
 		if (enabled == false)
 			return null;
@@ -129,7 +118,6 @@ public class WrRequest extends Wrapper {
 			return null;
 		}
 	}
-
 	public String getQueryString() {
 		if (enabled == false)
 			return null;
@@ -146,7 +134,6 @@ public class WrRequest extends Wrapper {
 			return null;
 		}
 	}
-
 	public String getParameter(String key) {
 		if (enabled == false)
 			return null;
@@ -163,7 +150,6 @@ public class WrRequest extends Wrapper {
 			return null;
 		}
 	}
-
 	public Object getAttribute(String key) {
 		if (enabled == false)
 			return null;
@@ -175,11 +161,10 @@ public class WrRequest extends Wrapper {
 			return getAttribute.invoke(reqObject, new Object[] { key });
 		} catch (Throwable e) {
 			enabled = false;
-			Logger.println("A168", e);
+			Logger.println("A908", e);
 			return null;
 		}
 	}
-
 	public String getHeader(String key) {
 		if (enabled == false)
 			return null;
@@ -196,7 +181,6 @@ public class WrRequest extends Wrapper {
 			return null;
 		}
 	}
-
 	public Enumeration getParameterNames() {
 		if (enabled == false)
 			return null;
@@ -213,7 +197,6 @@ public class WrRequest extends Wrapper {
 			return null;
 		}
 	}
-
 	public Enumeration getHeaderNames() {
 		if (enabled == false)
 			return null;
@@ -229,7 +212,6 @@ public class WrRequest extends Wrapper {
 			return null;
 		}
 	}
-
 	public WrSession getSession() {
 		if (enabled == false)
 			return null;
@@ -247,7 +229,6 @@ public class WrRequest extends Wrapper {
 			return null;
 		}
 	}
-
 	public Set getSessionNames() {
 		if (enabled == false)
 			return null;
@@ -270,12 +251,10 @@ public class WrRequest extends Wrapper {
 		} catch (Throwable e) {
 			enabled = false;
 			_error = e;
-			Logger.println("A171", e);
+			Logger.println("A909", e);
 			return null;
 		}
-
 	}
-
 	public Object getSessionAttribute(String key) {
 		if (enabled == false)
 			return null;
@@ -299,17 +278,13 @@ public class WrRequest extends Wrapper {
 			return null;
 		}
 	}
-
 	public Object inner() {
 		return this.reqObject;
 	}
-
 	public boolean isOk() {
 		return enabled;
 	}
-
 	public Throwable error() {
 		return _error;
 	}
-
 }
