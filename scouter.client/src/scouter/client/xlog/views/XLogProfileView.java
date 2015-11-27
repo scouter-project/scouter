@@ -26,15 +26,12 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Monitor;
-import org.eclipse.ui.IViewReference;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -43,16 +40,15 @@ import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Activator;
 import scouter.client.Images;
-import scouter.client.model.DetachedManager;
 import scouter.client.model.XLogData;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.MyKeyAdapter;
-import scouter.client.util.ScouterUtil;
 import scouter.client.xlog.ProfileText;
 import scouter.client.xlog.SaveProfileJob;
 import scouter.client.xlog.actions.OpenXLogProfileJob;
 import scouter.client.xlog.actions.OpenXLogThreadProfileJob;
+import scouter.client.xlog.dialog.XlogSQLSummaryDialog;
 import scouter.lang.step.Step;
 import scouter.util.CacheTable;
 import scouter.util.DateUtil;
@@ -94,6 +90,14 @@ public class XLogProfileView extends ViewPart {
 		text.addKeyListener(adapter);
 		
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
+
+		man.add( new Action("SQL Statistics", ImageUtil.getImageDescriptor(Images.sum)) {
+			public void run() {
+				XlogSQLSummaryDialog sqlSummberDialog = new XlogSQLSummaryDialog(new Shell(getViewSite().getShell().getDisplay(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN ), steps, xLogData);
+				sqlSummberDialog.open();
+			}
+		});
+		
 		Action gridBackAct = new Action("Grid Background", IAction.AS_CHECK_BOX) {
 			public void run() {
 				if (isChecked()) {

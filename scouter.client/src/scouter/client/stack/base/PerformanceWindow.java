@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
+import scouter.client.Activator;
 import scouter.client.Images;
 import scouter.client.stack.data.StackFileInfo;
 import scouter.client.stack.data.StackParser;
@@ -100,10 +101,11 @@ public class PerformanceWindow implements Listener{
     	m_shell.setLayout(new FillLayout());
  
     	m_performanceTree = new Tree(m_shell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+    	m_performanceTree.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
     	constructTree();
         createTreePopupMenu();
 
-        m_shell.open();      
+        m_shell.open();
     }
 
     private void constructTree() {
