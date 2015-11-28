@@ -1,6 +1,8 @@
 package scouter.client.xlog.dialog;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -20,6 +22,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
+import scouter.client.util.UIUtil;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.SqlStep;
 import scouter.lang.step.Step;
@@ -29,7 +32,6 @@ import scouter.util.FormatUtil;
 import scouter.util.Hexa32;
 
 public class XlogSQLSummaryDialog extends Dialog {
-	private Shell 	shell;
 	private Table   sqlTable;
 	private Table   bindTable;
 	private Step[]	steps;
@@ -38,10 +40,8 @@ public class XlogSQLSummaryDialog extends Dialog {
 	
 	public XlogSQLSummaryDialog(Shell shell,  Step[] steps, XLogData xperf) {
 		super(shell);
-		this.shell = shell;
 		this.xperf = xperf;
-		this.steps = steps;
-		this.shell.setSize(600, 400);
+		this.steps = steps;		
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -98,7 +98,9 @@ public class XlogSQLSummaryDialog extends Dialog {
 				
 				Integer hash = (Integer)item.getData();
 				ArrayList<BindSumData> list = getLBindSumDataList(hash.intValue());
-		        
+
+				Collections.sort(list, new BindSumDataComp());
+				
 				TableItem bindItem;
 		    	for(BindSumData value : list){
 		    		bindItem = new TableItem(bindTable, SWT.BORDER);
@@ -134,6 +136,8 @@ public class XlogSQLSummaryDialog extends Dialog {
 		sqlTable.setItemCount(0);
 		ArrayList<SQLSumData> list = getLSQLSumDataList();
 
+		Collections.sort(list, new SQLSumDataComp());
+		
         TableItem item;
     	for(SQLSumData value : list){
     		item = new TableItem(sqlTable, SWT.BORDER);
@@ -250,6 +254,12 @@ public class XlogSQLSummaryDialog extends Dialog {
 		return null;
 	}
 	
+	@Override
+	protected  void initializeBounds(){
+		int[] size = UIUtil.getScreenSize();
+		this.getShell().setBounds((size[0]/2)-400, (size[1]/2)-200, 800, 400);
+	}	
+	
 	private class SQLSumData {
 		public int execs = 0;
 		public int binds = 0;
@@ -289,5 +299,25 @@ public class XlogSQLSummaryDialog extends Dialog {
 			return values;
 		}
 		
+	}
+	
+	private class SQLSumDataComp  implements Comparator<SQLSumData>{
+		public int compare(SQLSumData o1, SQLSumData o2) {
+			if(o1.execTime > o2.execTime)
+				return -1;
+			else if(o1.execTime < o2.execTime)
+				return 1;
+			return 0;
+		}
+	}
+	
+	private class BindSumDataComp  implements Comparator<BindSumData>{
+		public int compare(BindSumData o1, BindSumData o2) {
+			if(o1.execTime > o2.execTime)
+				return -1;
+			else if(o1.execTime < o2.execTime)
+				return 1;
+			return 0;
+		}
 	}
 }
