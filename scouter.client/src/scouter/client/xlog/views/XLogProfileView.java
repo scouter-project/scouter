@@ -48,7 +48,7 @@ import scouter.client.xlog.ProfileText;
 import scouter.client.xlog.SaveProfileJob;
 import scouter.client.xlog.actions.OpenXLogProfileJob;
 import scouter.client.xlog.actions.OpenXLogThreadProfileJob;
-import scouter.client.xlog.dialog.XlogSQLSummaryDialog;
+import scouter.client.xlog.dialog.XlogSummarySQLDialog;
 import scouter.lang.step.Step;
 import scouter.util.CacheTable;
 import scouter.util.DateUtil;
@@ -93,8 +93,8 @@ public class XLogProfileView extends ViewPart {
 
 		man.add( new Action("SQL Statistics", ImageUtil.getImageDescriptor(Images.sum)) {
 			public void run() {
-				XlogSQLSummaryDialog sqlSummberDialog = new XlogSQLSummaryDialog(new Shell(getViewSite().getShell().getDisplay(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN ), steps, xLogData);
-				sqlSummberDialog.open();
+				XlogSummarySQLDialog summberSQLDialog = new XlogSummarySQLDialog(new Shell(getViewSite().getShell().getDisplay(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN ), steps, xLogData);
+				summberSQLDialog.open();
 			}
 		});
 		

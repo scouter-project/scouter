@@ -31,14 +31,14 @@ import scouter.lang.step.StepSingle;
 import scouter.util.FormatUtil;
 import scouter.util.Hexa32;
 
-public class XlogSQLSummaryDialog extends Dialog {
+public class XlogSummarySQLDialog extends Dialog {
 	private Table   sqlTable;
 	private Table   bindTable;
 	private Step[]	steps;
 	private XLogData xperf;
 	private HashMap<Integer, SQLSumData> sqlMap = new HashMap<Integer, SQLSumData>(); 
 	
-	public XlogSQLSummaryDialog(Shell shell,  Step[] steps, XLogData xperf) {
+	public XlogSummarySQLDialog(Shell shell,  Step[] steps, XLogData xperf) {
 		super(shell);
 		this.xperf = xperf;
 		this.steps = steps;		
