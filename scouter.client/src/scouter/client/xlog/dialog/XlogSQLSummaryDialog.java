@@ -125,7 +125,7 @@ public class XlogSQLSummaryDialog extends Dialog {
 		tableColumn.setText("Total Rows");
 		tableColumn.setWidth(80);
 		tableColumn = new TableColumn(bindTable, SWT.LEFT);
-		tableColumn.setText("Bind Variabls");
+		tableColumn.setText("Bind Variables");
 		tableColumn.setWidth(600);
 		bindTable.setHeaderVisible(true);
 		bindTable.setVisible(true);
