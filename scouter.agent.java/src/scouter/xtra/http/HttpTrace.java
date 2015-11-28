@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,13 +31,12 @@ import scouter.agent.netio.data.DataProxy;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.trace.IProfileCollector;
 import scouter.agent.trace.TraceContext;
-import scouter.io.DataInputX;
+import scouter.agent.trace.TraceMain;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.step.MessageStep;
 import scouter.util.CompareUtil;
 import scouter.util.HashUtil;
 import scouter.util.Hexa32;
-import scouter.util.IPUtil;
 import scouter.util.StringUtil;
 
 public class HttpTrace implements IHttpTrace {
@@ -75,9 +75,10 @@ public class HttpTrace implements IHttpTrace {
 		Configure conf = Configure.getInstance();
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) res;
-
+		
 		ctx.serviceName = getRequestURI(request);
-
+		ctx.isStaticContents = TraceMain.isStaticContents(ctx.serviceName);
+		
 		if (conf.service_header_key != null) {
 			String v = request.getHeader(conf.service_header_key);
 			ctx.serviceName = new StringBuilder(ctx.serviceName.length() + v.length() + 5).append(ctx.serviceName)
@@ -141,14 +142,22 @@ public class HttpTrace implements IHttpTrace {
 			}
 		}
 
-		if (conf.enable_response_gxid) {
+		if (conf.enable_response_gxid && !ctx.isStaticContents) {
 			try {
 				if (ctx.gxid == 0)
 					ctx.gxid = ctx.txid;
-				response.setHeader(conf.gxid, Hexa32.toString32(ctx.gxid) + ":" + ctx.startTime);
+				
+				String resGxId = Hexa32.toString32(ctx.gxid) + ":" + ctx.startTime;
+				response.setHeader(conf.gxid, resGxId);
+				
+				Cookie c = new Cookie(conf.gxid, resGxId);
+				response.addCookie(c);
+				
 			} catch (Throwable t) {
 			}
 		}
+		
+		
 		if (conf.enable_trace_web) {
 			try {
 				ctx.web_name = request.getHeader(conf.key_web_name);
