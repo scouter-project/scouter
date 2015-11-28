@@ -28,7 +28,7 @@
 
   var _p = window.Scouter || {};
   var DEFAULT_END_POINT = '/_scouter_browser.jsp';
-  var DEFAULT_GXID_HEADER = 'SCOUTER';
+  var DEFAULT_GXID_HEADER = 'X-Scouter-Gxid';
   var DEFAULT_GATHER_RATIO = 100.0; //unit:% - default:100.0%
 
   //options
