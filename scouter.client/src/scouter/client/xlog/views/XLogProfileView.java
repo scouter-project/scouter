@@ -29,6 +29,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -92,8 +93,8 @@ public class XLogProfileView extends ViewPart {
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
 
 		man.add( new Action("SQL Statistics", ImageUtil.getImageDescriptor(Images.sum)) {
-			public void run() {
-				XlogSummarySQLDialog summberSQLDialog = new XlogSummarySQLDialog(new Shell(getViewSite().getShell().getDisplay(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN ), steps, xLogData);
+			public void run() { 
+				XlogSummarySQLDialog summberSQLDialog = new XlogSummarySQLDialog(new Shell(Display.getDefault(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN), steps, xLogData);
 				summberSQLDialog.open();
 			}
 		});

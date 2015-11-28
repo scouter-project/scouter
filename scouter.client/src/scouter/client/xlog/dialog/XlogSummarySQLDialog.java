@@ -9,9 +9,10 @@ import java.util.Iterator;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -22,6 +23,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
+import scouter.client.popup.SQLFormatDialog;
 import scouter.client.util.UIUtil;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.SqlStep;
@@ -41,7 +43,7 @@ public class XlogSummarySQLDialog extends Dialog {
 	public XlogSummarySQLDialog(Shell shell,  Step[] steps, XLogData xperf) {
 		super(shell);
 		this.xperf = xperf;
-		this.steps = steps;		
+		this.steps = steps;
 	}
 	
 	protected Control createDialogArea(Composite parent) {
@@ -101,10 +103,12 @@ public class XlogSummarySQLDialog extends Dialog {
 
 				Collections.sort(list, new BindSumDataComp());
 				
+				String sqlText = sqlMap.get(hash).sqlText;
 				TableItem bindItem;
 		    	for(BindSumData value : list){
 		    		bindItem = new TableItem(bindTable, SWT.BORDER);
 		    		bindItem.setText(value.toTableInfo());
+		    		bindItem.setData(sqlText);
 		    	}
             }
 		});		
@@ -129,6 +133,27 @@ public class XlogSummarySQLDialog extends Dialog {
 		tableColumn.setWidth(600);
 		bindTable.setHeaderVisible(true);
 		bindTable.setVisible(true);
+		bindTable.setToolTipText("Please double click on in order to view the complete SQL statement");
+		bindTable.addMouseListener(new MouseListener(){
+			public void mouseDoubleClick(MouseEvent event) {
+				TableItem [] items = bindTable.getSelection();
+				if(items.length == 0){
+					return;
+				}
+				TableItem item = items[0];
+				String sqlText = (String)item.getData();
+				String binds = item.getText(4);
+				new SQLFormatDialog().show(sqlText, null, binds);
+			}
+
+			@Override
+			public void mouseDown(MouseEvent event) {
+			}
+
+			@Override
+			public void mouseUp(MouseEvent event) {
+			}			
+		});
 	}
 	
 	protected void displaySQLSumData(){
@@ -228,16 +253,6 @@ public class XlogSummarySQLDialog extends Dialog {
 		return list;
 	}
 	
-	@Override
-	protected void okPressed() {
-		super.okPressed();
-	}
-
-	@Override
-	protected Point getInitialSize() {
-		return getShell().computeSize(600,400);
-	}
-
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
