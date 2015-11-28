@@ -24,9 +24,9 @@
  * -- all modern browsers ( IE9+, IOS6+, Chrome any, Safari any, FF any)
  */
 (function() {
-  var _p = window.scouter || {};
+  var _p = window.Scouter || {};
   var DEFAULT_END_POINT = "/_scouter_browser.jsp";
-  var DEFAULT_GXID_HEADER = 'scouter_gxid';
+  var DEFAULT_GXID_HEADER = 'SCOUTER';
   var DEFAULT_GATHER_RATIO = 100.0; //unit:% - default:100.0%
 
   _p.endPoint = _p.endPoint || DEFAULT_END_POINT;
@@ -59,7 +59,7 @@
       }
       var t = performance.timing;
       var navtiming = {
-        gxid: resGxId,
+        gxid: resGxid,
         navigationStart: t.navigationStart,
         unloadEventStart: t.unloadEventStart,
         unloadEventEnd: t.unloadEventEnd,
@@ -124,7 +124,7 @@
       uri: location.pathname,
       url: window.location.href,
       userAgent: navigator.userAgent,
-      gxid: resGxId,
+      gxid: t.gxid,
       navigationStart: t.navigationStart,
       unloadEventStart: t.unloadEventStart,
       unloadEventEnd: t.unloadEventEnd,
@@ -145,7 +145,10 @@
       domContentLoadedEventEnd: t.domContentLoadedEventEnd,
       domComplete: t.domComplete,
       loadEventStart: t.loadEventStart,
-      loadEventEnd: t.loadEventEnd
+      loadEventEnd: t.loadEventEnd,
+      StartToResponse : t.responseEnd - t.navigationStart,
+      StartToDomLoad : t.domComplete - t.navigationStart,
+      StartTtoTotalLoad : t.loadEventEnd - t.navigationStart
     };
     if(_p.debug) {
       console.log(sendObj);
@@ -158,15 +161,19 @@
     img.src = url + "?" + serialize(params) + "&p=nav&z=" + new Date().getTime();
   }
 
-  /**
-   * http://www.sitepoint.com/how-to-deal-with-cookies-in-javascript/
-   * @param name
-   * @returns {*}
-   */
-  function getCookie(name) {
-    var regexp = new RegExp("(?:^" + name + "|;\s*"+ name + ")=(.*?)(?:;|$)", "g");
-    var result = regexp.exec(document.cookie);
-    return (result === null) ? null : result[1];
+  function getCookie(name)
+  {
+  	var i,x,y,cookies=document.cookie.split(";");
+  	for (i=0;i<cookies.length;i++)
+  	{
+  	  x=cookies[i].substr(0,cookies[i].indexOf("="));
+  	  y=cookies[i].substr(cookies[i].indexOf("=")+1);
+  	  x=x.replace(/^\s+|\s+$/g,"");
+  	  if (x==name)
+  		{
+  		return unescape(y);
+  		}
+  	  }
   }
 
 })();

@@ -29,6 +29,8 @@ scouter.server/database/
 scouter.client.product/plugin_customization.ini
 scouter.client/plugin_customization.ini
 
+*/*.scouter
+
 ### Vim template
 [._]*.s[a-w][a-z]
 [._]s[a-w][a-z]

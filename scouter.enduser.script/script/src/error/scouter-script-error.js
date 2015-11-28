@@ -46,8 +46,10 @@ THE SOFTWARE.*/
  */
 // The `Scouter` object is the only globally exported variable
 (function (window, old) {
-  var self = {},
-    lastEvent,
+  //var self = {};
+  var self = old;
+
+  var lastEvent,
     lastScript,
     previousNotification,
     shouldCatch = true,
@@ -331,7 +333,7 @@ THE SOFTWARE.*/
   // For maximum browser compatibility and cross-domain support, requests are
   // made by creating a temporary JavaScript `Image` object.
   function request(url, params) {
-    url += "?" + serialize(params) + "&ct=img&cb=" + new Date().getTime();
+    url += "?" + serialize(params) + "&p=err&z=" + new Date().getTime();
     if (typeof SCOUTER_TESTING !== "undefined" && self.testRequest) {
       self.testRequest(url, params);
     } else {
@@ -378,6 +380,9 @@ THE SOFTWARE.*/
 
   // Validate a Scouter API key exists and is of the correct format.
   function validateApiKey(apiKey) {
+    //Skip api key validation
+    if(1===1) { return true; }
+
     if (!apiKey || !apiKey.match(API_KEY_REGEX)) {
       log("Invalid API key '" + apiKey + "'");
       return false;
@@ -433,10 +438,8 @@ THE SOFTWARE.*/
       notifierVersion: NOTIFIER_VERSION,
 
       apiKey: apiKey,
-      projectRoot: getSetting("projectRoot") || window.location.protocol + "//" + window.location.host,
-      context: getSetting("context") || window.location.pathname,
-      userId: getSetting("userId"), // Deprecated, remove in v3
-      user: getSetting("user"),
+      host: getSetting("host") || window.location.protocol + "//" + window.location.host,
+      uri: getSetting("uri") || window.location.pathname,
       metaData: merge(merge({}, getSetting("metaData")), metaData),
       releaseStage: releaseStage,
       appVersion: getSetting("appVersion"),
@@ -470,7 +473,7 @@ THE SOFTWARE.*/
     }
 
     // Make the HTTP request
-    request(getSetting("endpoint") || DEFAULT_NOTIFIER_ENDPOINT, payload);
+    request(getSetting("endPoint") || DEFAULT_NOTIFIER_ENDPOINT, payload);
   }
 
   // Generate a browser stacktrace (or approximation) from the current stack.
