@@ -16,6 +16,7 @@
  */
 package scouter.agent.trace;
 import javax.sql.DataSource;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterService;
@@ -170,11 +171,13 @@ public class TraceMain {
 		ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
 		ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
 		ctx.profile_thread_cputime = conf.profile_thread_cputime;
+		
 		http.start(ctx, req, res);
 		if (ctx.serviceName == null)
 			ctx.serviceName = "Non-URI";
 		Stat stat = new Stat(ctx, req, res);
-		stat.isStaticContents = isStaticContents(ctx.serviceName);
+		stat.isStaticContents = ctx.isStaticContents;
+		
 		if (stat.isStaticContents == false) {
 			PluginHttpServiceTrace.start(ctx, req, res);
 		}
@@ -314,7 +317,7 @@ public class TraceMain {
 		case XLogTypes.BACK_THREAD:
 		}
 	}
-	private static boolean isStaticContents(String serviceName) {
+	public static boolean isStaticContents(String serviceName) {
 		int x = serviceName.lastIndexOf('.');
 		if (x <= 0)
 			return false;
