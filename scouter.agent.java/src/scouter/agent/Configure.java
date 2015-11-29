@@ -214,6 +214,8 @@ public class Configure extends Thread {
 	public boolean log_rotation=true;
 	public int log_keep_dates=7;
 	
+	public String enduser_perf_endpoint = "_scouter_browser.jsp";
+	
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -461,6 +463,8 @@ public class Configure extends Thread {
 		this.logs_dir= getValue("logs_dir", "");
 		this.log_rotation = getBoolean("log_rotation", true);
 		this.log_keep_dates = getInt("log_keep_dates", 7);
+		
+		this.enduser_perf_endpoint = getValue("enduser_perf_endpoint", "_scouter_browser.jsp");
 		
 		resetObjInfo();
 		setErrorStatus();
