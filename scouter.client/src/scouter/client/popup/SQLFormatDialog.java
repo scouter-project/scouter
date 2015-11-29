@@ -102,7 +102,23 @@ public class SQLFormatDialog {
 		formatBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				formatBtn.setEnabled(false);
-				String formateed = new BasicFormatterImpl().format(text.getText());
+				
+				String inputSQL = text.getText();
+				String bindVariables = null;
+				
+				int search = -1;
+				if(inputSQL != null){
+					search = inputSQL.indexOf(SqlMakerUtil.SQLDIVIDE);
+					if(search >= 0){
+						bindVariables = inputSQL.substring(search);
+						inputSQL = inputSQL.substring(0, search);
+					}
+				}
+				String formateed = new BasicFormatterImpl().format(inputSQL);
+				if(search >=0){
+					formateed = formateed + bindVariables;
+				}
+				
 				text.setText(formateed);
 				formatBtn.setEnabled(true);
 			}

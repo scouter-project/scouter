@@ -3,6 +3,8 @@ package scouter.client.util;
 import java.util.ArrayList;
 
 public class SqlMakerUtil {
+	public static String SQLDIVIDE = "\r\n\r\n[Bind Variables]\r\n";
+	
 	static public String bindSQL(String sqlText, String params){
 		if(params == null || "".equals(params)){
 			return sqlText;
@@ -16,7 +18,13 @@ public class SqlMakerUtil {
 		int index = 0;
 		int pos = 0;
 		
-		int sqlLength = sqlText.length();
+		if(sqlText == null || sqlText.length() == 0){
+			return "No SQL Text";
+		}
+		
+		String newSqlText = convertBindVariable(sqlText);
+		
+		int sqlLength = newSqlText.length();
 		int bindLength =  binds.size();
 		String bind;
 		int search;
@@ -24,10 +32,10 @@ public class SqlMakerUtil {
 
 		StringBuilder sb = new StringBuilder(100);
 		while(pos < sqlLength){
-			search = sqlText.indexOf('@', pos);
+			search = newSqlText.indexOf('@', pos);
 			
 			if(search < 0 || index >= bindLength){
-				sb.append(sqlText.substring(pos));
+				sb.append(newSqlText.substring(pos));
 				break;
 			}
 			
@@ -40,23 +48,23 @@ public class SqlMakerUtil {
 			
 			if(isChar){
 				if(search == 0 || (search + 1) == sqlLength){
-					return errorMessage(sb, sqlText, bind, "SQL Character Position Check", pos, search, isChar);
+					return errorMessage(sb, newSqlText, bind, "SQL Character Position Check", pos, search, isChar);
 				}
 				
-				if(sqlText.charAt(search - 1) != '\'' || sqlText.charAt(search + 1) != '\''){
-					return errorMessage(sb, sqlText, bind, "SQL Character Quata Check", pos, search, isChar);
+				if(newSqlText.charAt(search - 1) != '\'' || newSqlText.charAt(search + 1) != '\''){
+					return errorMessage(sb, newSqlText, bind, "SQL Character Quata Check", pos, search, isChar);
 				}
 				
-				sb.append(sqlText.subSequence(pos, search - 1));
+				sb.append(newSqlText.subSequence(pos, search - 1));
 				sb.append(bind);
 				pos = search + 2;
 			}else{
 				if(search > 0){
-					if(" \t=<>,+-*/|^&(".indexOf(sqlText.charAt(search-1))<0){
-						return errorMessage(sb, sqlText, bind, "Number Check", pos, search, isChar);						
+					if(" \t=<>,+-*/|^&(".indexOf(newSqlText.charAt(search-1))<0){
+						return errorMessage(sb, newSqlText, bind, "Number Check", pos, search, isChar);						
 					}
 				}
-				sb.append(sqlText.subSequence(pos, search));
+				sb.append(newSqlText.subSequence(pos, search));
 				sb.append(bind);
 				pos = search + 1;
 			}
@@ -64,6 +72,38 @@ public class SqlMakerUtil {
 			index++;
 		}
 		
+		if(index < bindLength){
+			sb.append(SQLDIVIDE);
+			
+			int inx = 1;
+			for(int i = index; i < bindLength; i++){
+				sb.append(':').append(inx).append(" - ").append(binds.get(i)).append("\r\n");
+				inx++;
+			}
+		}
+		
+		return sb.toString();
+	}
+	
+	static private String convertBindVariable(String sqlText){ // convert to ':1'  from '?'
+		StringBuilder sb = new StringBuilder(sqlText.length() + 40);
+		
+		int sqlLength = sqlText.length();
+		int search;
+		int index = 1;
+		int pos = 0;
+		
+		while(pos < sqlLength){
+			search = sqlText.indexOf('?', pos);
+			
+			if(search < 0 ){
+				sb.append(sqlText.substring(pos));
+				break;
+			}
+			sb.append(sqlText.substring(pos, search)).append(':').append(index);
+			index++;
+			pos = search + 1;
+		}		
 		return sb.toString();
 	}
 	
@@ -110,5 +150,13 @@ public class SqlMakerUtil {
 		}
 		binds.add(params.substring(start));
 		return binds;
+	}
+	
+	static public void main(String [] args){
+		try {
+			System.out.println(convertBindVariable("?sel?ect =? test???-?-?"));
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
 	}
 }
