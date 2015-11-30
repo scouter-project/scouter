@@ -17,6 +17,7 @@
  */
 package scouter.client.popup;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -133,6 +134,7 @@ public class SQLFormatDialog {
 					TextTransfer textTransfer = TextTransfer.getInstance();
 					clipboard.setContents(new String[]{text.getText()}, new Transfer[]{textTransfer});
 					clipboard.dispose();
+					MessageDialog.openInformation(dialog, "Copy", "Copied to clipboard");
 			}
 		});
 		
