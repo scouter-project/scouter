@@ -14,22 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
+package scouter.agent.summary;
 
-package scouter.agent.proxy;
-
-import scouter.agent.trace.TraceContext;
-
-public interface IHttpTrace {
-	public String getParameter(Object req, String key);
-
-	public void start(TraceContext ctx, Object req, Object res);
-
-	public void end(TraceContext ctx, Object req, Object res);
-
-	public void rejectText(Object res, String text);
-
-	public void rejectUrl(Object res, String url);
-
-	public String getHeader(Object req, String key);
-
+public class EndUserAjaxData {
+	public int uri;
+	public int ip;
+	public int count;
+	//
+	public long duration;
+	public int userAgent;
 }

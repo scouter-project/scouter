@@ -29,6 +29,9 @@ import scouter.agent.Configure;
 import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.proxy.IHttpTrace;
+import scouter.agent.summary.EndUserAjaxData;
+import scouter.agent.summary.EndUserErrorData;
+import scouter.agent.summary.EndUserNavigationData;
 import scouter.agent.trace.IProfileCollector;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceMain;
@@ -75,16 +78,20 @@ public class HttpTrace implements IHttpTrace {
 		Configure conf = Configure.getInstance();
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) res;
-		
+
 		ctx.serviceName = getRequestURI(request);
-		ctx.isStaticContents = TraceMain.isStaticContents(ctx.serviceName);
-		
-		if (conf.service_header_key != null) {
-			String v = request.getHeader(conf.service_header_key);
-			ctx.serviceName = new StringBuilder(ctx.serviceName.length() + v.length() + 5).append(ctx.serviceName)
-					.append('-').append(v).toString();
-		}
 		ctx.serviceHash = HashUtil.hash(ctx.serviceName);
+		
+		//
+		if(ctx.serviceHash == conf.enduser_perf_endpoint_hash){
+			ctx.isStaticContents=true;
+			enduser(request);
+			return;
+		}
+		
+		ctx.isStaticContents = TraceMain.isStaticContents(ctx.serviceName);
+
+		
 		ctx.http_method = request.getMethod();
 		ctx.http_query = request.getQueryString();
 		ctx.http_content_type = request.getContentType();
@@ -146,18 +153,17 @@ public class HttpTrace implements IHttpTrace {
 			try {
 				if (ctx.gxid == 0)
 					ctx.gxid = ctx.txid;
-				
+
 				String resGxId = Hexa32.toString32(ctx.gxid) + ":" + ctx.startTime;
 				response.setHeader(conf.gxid, resGxId);
-				
+
 				Cookie c = new Cookie(conf.gxid, resGxId);
 				response.addCookie(c);
-				
+
 			} catch (Throwable t) {
 			}
 		}
-		
-		
+
 		if (conf.enable_trace_web) {
 			try {
 				ctx.web_name = request.getHeader(conf.key_web_name);
@@ -176,6 +182,16 @@ public class HttpTrace implements IHttpTrace {
 			} catch (Throwable t) {
 			}
 		}
+	}
+
+	private void enduser(HttpServletRequest request) {
+		EndUserNavigationData nav;
+		EndUserErrorData err;
+		EndUserAjaxData ajax;
+		
+		
+		//EndUserSummary.getInstance().process(p);
+		
 	}
 
 	private String getRequestURI(HttpServletRequest request) {
@@ -283,6 +299,7 @@ public class HttpTrace implements IHttpTrace {
 		}
 	}
 
+	
 	public static void main(String[] args) {
 		System.out.println("http trace".indexOf(null));
 	}

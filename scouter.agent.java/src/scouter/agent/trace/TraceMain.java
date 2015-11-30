@@ -64,10 +64,6 @@ public class TraceMain {
 		try {
 			TraceContext ctx = TraceContextManager.getLocalContext();
 			if (ctx != null) {
-				if (ctx.done_http_service == false) {
-					ctx.done_http_service = true;
-					addSeviceName(ctx, req);
-				}
 				return null;
 			}
 			return startHttp(req, res);
@@ -121,6 +117,7 @@ public class TraceMain {
 	private static void addSeviceName(TraceContext ctx, Object req) {
 		try {
 			Configure conf = Configure.getInstance();
+		
 			StringBuilder sb = new StringBuilder();
 			if (conf.service_post_key != null) {
 				String v = http.getParameter(req, conf.service_post_key);
@@ -150,6 +147,11 @@ public class TraceMain {
 						sb.append('&').append(v);
 					}
 				}
+			}
+			if (conf.service_header_key != null) {
+				String v = http.getHeader(req, conf.service_header_key);
+				ctx.serviceName = new StringBuilder(ctx.serviceName.length() + v.length() + 5).append(ctx.serviceName)
+						.append('-').append(v).toString();
 			}
 			if (sb.length() > 0) {
 				ctx.serviceName = sb.toString();
@@ -221,6 +223,13 @@ public class TraceMain {
 				return;
 			}
 			TraceContext ctx = stat0.ctx;
+			   
+			if(conf.enduser_perf_endpoint_hash == ctx.serviceHash){
+				TraceContextManager.end(ctx.threadId);
+				return;
+			}
+			 //additional service name
+			addSeviceName(ctx, stat0.req);
 			// HTTP END
 			http.end(ctx, stat0.req, stat0.res);
 			// static-contents -> stop processing

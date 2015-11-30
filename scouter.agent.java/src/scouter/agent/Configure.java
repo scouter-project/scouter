@@ -205,6 +205,11 @@ public class Configure extends Thread {
 	public int summary_service_ip_max = 5000;
 	public int summary_service_ua_max = 5000;
 	public int summary_service_error_max = 500;
+	
+	public int summary_enduser_nav_max = 5000;
+	public int summary_enduser_ajax_max = 5000;
+	public int summary_enduser_error_max = 5000;
+	
 	public int heap_perm_warning_pct = 90;
 	public long heap_perm_alert_interval = 30000;
 	public boolean hook_spring_request_mapping = false;
@@ -215,6 +220,7 @@ public class Configure extends Thread {
 	public int log_keep_dates=7;
 	
 	public String enduser_perf_endpoint = "_scouter_browser.jsp";
+	public int enduser_perf_endpoint_hash = HashUtil.hash(enduser_perf_endpoint);
 	
 	/**
 	 * sometimes call by sample application, at that time normally set some
@@ -449,6 +455,12 @@ public class Configure extends Thread {
 		this.summary_service_ip_max = getInt("summary_service_ip_max", 5000);
 		this.summary_service_ua_max = getInt("summary_service_ua_max", 5000);
 		this.summary_service_error_max = getInt("summary_service_error_max", 500);
+		
+		this.summary_enduser_nav_max = getInt("summary_enduser_nav_max", 5000);
+		this.summary_enduser_ajax_max = getInt("summary_enduser_ajax_max", 5000);
+		this.summary_enduser_error_max = getInt("summary_enduser_error_max", 5000);
+
+		
 		this.heap_perm_alert_interval = getLong("heap_perm_alert_interval", 30000);
 		this.heap_perm_warning_pct = getInt("heap_perm_warning_pct", 90);
 		this.hook_spring_request_mapping = getBoolean("hook_spring_request_mapping", false);
@@ -465,7 +477,8 @@ public class Configure extends Thread {
 		this.log_keep_dates = getInt("log_keep_dates", 7);
 		
 		this.enduser_perf_endpoint = getValue("enduser_perf_endpoint", "_scouter_browser.jsp");
-		
+		this.enduser_perf_endpoint_hash = HashUtil.hash(this.enduser_perf_endpoint);
+			
 		resetObjInfo();
 		setErrorStatus();
 		setStaticContents();
@@ -638,6 +651,7 @@ public class Configure extends Thread {
 		ignoreSet.add("objName");
 		ignoreSet.add("objType");
 		ignoreSet.add("log_ignore_set");
+		ignoreSet.add("enduser_perf_endpoint_hash");
 	}
 	public MapValue getKeyValueInfo() {
 		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
