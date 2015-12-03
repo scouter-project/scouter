@@ -85,7 +85,7 @@ public class TomcatJMXPerf {
 			return false;
 		}
 	}
-	private List<MBeanServer> servers;
+	private MBeanServer server;
 	private String version;
 	List<CtxObj> ctxList = new ArrayList<CtxObj>();
 	public long collectCnt = 0;
@@ -103,7 +103,6 @@ public class TomcatJMXPerf {
 			getContextList();
 		}
 		collectCnt++;
-		MBeanServer server = servers.get(0);
 		for (CtxObj ctx : ctxList) {
 			if (ctx.valueType == ValueEnum.DECIMAL) {
 				try {
@@ -138,64 +137,61 @@ public class TomcatJMXPerf {
 	}
 	private HashSet<String> errors = new HashSet<String>();
 	private void getMBeanServer() {
-		if (servers == null) {
-			servers = new LinkedList<MBeanServer>();
-			servers.add(ManagementFactory.getPlatformMBeanServer());
+		if (server == null) {
+			server = ManagementFactory.getPlatformMBeanServer();
 		}
 	}
 	Configure conf = Configure.getInstance();
 	private void getContextList() {
 		ctxList.clear();
-		for (final MBeanServer server : servers) {
-			Set<ObjectName> mbeans = server.queryNames(null, null);
-			for (final ObjectName mbean : mbeans) {
-				String type = mbean.getKeyProperty("type");
-				if (type == null) {
-					continue;
-				}
-				if (StringUtil.isEmpty(version) && "Server".equals(type)) { // Server
-																			// Bean
-					try {
-						Object value = server.getAttribute(mbean, "serverInfo");
-						if (value != null) {
-							version = value.toString().split("/")[1];
-							Logger.println("Tomcat version = " + version);
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
+		Set<ObjectName> mbeans = server.queryNames(null, null);
+		for (final ObjectName mbean : mbeans) {
+			String type = mbean.getKeyProperty("type");
+			if (type == null) {
+				continue;
+			}
+			if (StringUtil.isEmpty(version) && "Server".equals(type)) { // Server
+																		// Bean
+				try {
+					Object value = server.getAttribute(mbean, "serverInfo");
+					if (value != null) {
+						version = value.toString().split("/")[1];
+						Logger.println("Tomcat version = " + version);
 					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				if ("GlobalRequestProcessor".equals(type)) {
-					String port = mbean.getKeyProperty("name");
+			}
+			if ("GlobalRequestProcessor".equals(type)) {
+				String port = mbean.getKeyProperty("name");
+				try {
+					String objName = conf.objName + "/" + checkObjName(port);
+					String objType = getReqProcType();
+					AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
+					add(objName, mbean, objType, ValueEnum.DECIMAL, "bytesReceived",
+							CounterConstants.REQUESTPROCESS_BYTES_RECEIVED);
+					add(objName, mbean, objType, ValueEnum.DECIMAL, "bytesSent",
+							CounterConstants.REQUESTPROCESS_BYTES_SENT);
+					add(objName, mbean, objType, ValueEnum.DECIMAL, "errorCount",
+							CounterConstants.REQUESTPROCESS_ERROR_COUNT);
+					add(objName, mbean, objType, ValueEnum.DECIMAL, "processingTime",
+							CounterConstants.REQUESTPROCESS_PROCESSING_TIME);
+					add(objName, mbean, objType, ValueEnum.DECIMAL, "requestCount",
+							CounterConstants.REQUESTPROCESS_REQUEST_COUNT);
+				} catch (Exception e) {
+				}
+			} else if ("DataSource".equals(type)) { // datasource
+				String name = mbean.getKeyProperty("name");
+				if (StringUtil.isNotEmpty(name)) {
 					try {
-						String objName = conf.objName + "/" + checkObjName(port);
-						String objType = getReqProcType();
+						String objName = conf.objName + "/" + checkObjName(name);
+						String objType = getDataSourceType();
 						AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
-						add(objName, mbean, objType, ValueEnum.DECIMAL, "bytesReceived",
-								CounterConstants.REQUESTPROCESS_BYTES_RECEIVED);
-						add(objName, mbean, objType, ValueEnum.DECIMAL, "bytesSent",
-								CounterConstants.REQUESTPROCESS_BYTES_SENT);
-						add(objName, mbean, objType, ValueEnum.DECIMAL, "errorCount",
-								CounterConstants.REQUESTPROCESS_ERROR_COUNT);
-						add(objName, mbean, objType, ValueEnum.DECIMAL, "processingTime",
-								CounterConstants.REQUESTPROCESS_PROCESSING_TIME);
-						add(objName, mbean, objType, ValueEnum.DECIMAL, "requestCount",
-								CounterConstants.REQUESTPROCESS_REQUEST_COUNT);
+						add(objName, mbean, objType, ValueEnum.DECIMAL, "numActive",
+								CounterConstants.DATASOURCE_CONN_ACTIVE);
+						add(objName, mbean, objType, ValueEnum.DECIMAL, "numIdle",
+								CounterConstants.DATASOURCE_CONN_IDLE);
 					} catch (Exception e) {
-					}
-				} else if ("DataSource".equals(type)) { // datasource
-					String name = mbean.getKeyProperty("name");
-					if (StringUtil.isNotEmpty(name)) {
-						try {
-							String objName = conf.objName + "/" + checkObjName(name);
-							String objType = getDataSourceType();
-							AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
-							add(objName, mbean, objType, ValueEnum.DECIMAL, "numActive",
-									CounterConstants.DATASOURCE_CONN_ACTIVE);
-							add(objName, mbean, objType, ValueEnum.DECIMAL, "numIdle",
-									CounterConstants.DATASOURCE_CONN_IDLE);
-						} catch (Exception e) {
-						}
 					}
 				}
 			}
