@@ -63,7 +63,7 @@ public class ClientTCP{
 				server.setConnected(true);
 			}
 		} catch (Throwable t) {
-			t.printStackTrace();
+			System.out.println(t.getMessage());
 			close();
 			server.setConnected(false);
 		}

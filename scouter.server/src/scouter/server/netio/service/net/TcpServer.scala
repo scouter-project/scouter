@@ -41,7 +41,6 @@ object TcpServer {
             server = new ServerSocket( conf.tcp_port);
             while (true) {
                 val client = server.accept();
-                // TODO 주의하여 테스트해야
                 client.setSoTimeout(conf.tcp_client_so_timeout);
                 client.setReuseAddress(true);
                 try {

@@ -1,5 +1,2 @@
-#!/usr/bin/env bash
+java -Xmx512m -cp boot.jar scouter.boot.Boot ./lib -console
 
-. $(dirname $0)/env.sh
-
-java -Xmx512m -classpath "$TUNAHOME/boot.jar" scouter.boot.Boot "$TUNAHOME/lib" -console
