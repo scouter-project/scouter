@@ -34,7 +34,7 @@ import scouter.server.tagcnt.XLogTagCount
 import scouter.server.util.ThreadScala
 import scouter.util.RequestQueue
 
-object ServiceCore {
+object XLogCore {
 
   val queue = new RequestQueue[XLogPack](CoreRun.MAX_QUE_SIZE);
 

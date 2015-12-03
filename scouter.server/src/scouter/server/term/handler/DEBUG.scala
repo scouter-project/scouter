@@ -36,7 +36,7 @@ import scouter.lang.pack.XLogPack
 import scouter.util.CastUtil
 import scouter.server.db.VisitorDB
 import scouter.lang.ObjectType
-import scouter.server.core.ServiceCore
+import scouter.server.core.XLogCore
 import scouter.server.db.XLogProfileWR
 import scouter.server.db.XLogWR
 import scouter.server.core.ServerStat

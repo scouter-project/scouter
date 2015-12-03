@@ -36,7 +36,7 @@ import scouter.server.core.AgentManager
 import scouter.server.core.AlertCore
 import scouter.server.core.PerfCountCore
 import scouter.server.core.ProfileCore
-import scouter.server.core.ServiceCore
+import scouter.server.core.XLogCore
 import scouter.server.core.StackAnalyzerCore
 import scouter.server.core.StatusCore
 import scouter.server.core.TextCore
@@ -147,7 +147,7 @@ object NetDataProcessor {
                     System.out.println("DEBUG UDP COUNTER: " + p)
                 }
             case PackEnum.XLOG =>
-                ServiceCore.add(p.asInstanceOf[XLogPack])
+                XLogCore.add(p.asInstanceOf[XLogPack])
                 if (conf.debug_udp_xlog) {
                     System.out.println("DEBUG UDP XLOG: " + p)
                 }
