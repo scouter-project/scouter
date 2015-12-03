@@ -89,8 +89,8 @@ import scouter.util.StringUtil;
 import scouter.util.SystemUtil;
 
 
-public class XLogProfilePageView extends ViewPart implements XLogViewWithTable {
-	public static final String ID = XLogProfilePageView.class.getName();
+public class XLogFullProfileView extends ViewPart implements XLogViewWithTable {
+	public static final String ID = XLogFullProfileView.class.getName();
 	private StyledText header, text;
 	Button prevBtn, nextBtn, endBtn, startBtn, summaryBtn;
 	Text targetPage;
@@ -153,7 +153,11 @@ public class XLogProfilePageView extends ViewPart implements XLogViewWithTable {
 		bodyData.heightHint = 100;
 		header.setLayoutData(bodyData);
 		header.setText("");
-		header.setFont(new Font(null, "Courier New", 10, SWT.NORMAL));
+		if(SystemUtil.IS_MAC_OSX){
+			header.setFont(new Font(null, "Courier New", 12, SWT.NORMAL));		
+		}else{
+			header.setFont(new Font(null, "Courier New", 10, SWT.NORMAL));
+		}
 		header.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
 		
 
