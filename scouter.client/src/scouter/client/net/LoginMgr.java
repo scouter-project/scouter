@@ -56,7 +56,7 @@ public class LoginMgr{
 				Server server = ServerManager.getInstance().getServer(serverId);
 				server.setOpen(true);
 				server.setSession(session);
-				server.setName(hostname + "_" + server.getPort());
+				server.setName(hostname);
 				server.setDelta(time);
 				server.setUserId(user);
 				server.setPassword(encrypted);
@@ -118,7 +118,7 @@ public class LoginMgr{
 				String timezone = out.getText("timezone");
 				
 				server.setSession(session);
-				server.setName(hostname + "_" + server.getPort());
+				server.setName(hostname);
 				server.setDelta(time);
 				server.setUserId(user);
 				server.setPassword(encryptedPwd);
