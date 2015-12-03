@@ -567,7 +567,7 @@ public class TraceMain {
 				Object stat = startService(classMethod, null, null, null, null, null, XLogTypes.APP_SERVICE);
 				if (conf.enable_auto_service_backstack) {
 					String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
-					AutoServiceStartAnalizer.put(classMethod, stack);
+					AutoServiceStartAnalyzer.put(classMethod, stack);
 					MessageStep m = new MessageStep();
 					m.message = "SERVICE BACKSTACK:\n" + stack;
 					((Stat) stat).ctx.profile.add(m);

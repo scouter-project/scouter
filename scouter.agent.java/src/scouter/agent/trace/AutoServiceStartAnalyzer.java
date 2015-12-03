@@ -3,7 +3,7 @@ package scouter.agent.trace;
 import scouter.util.StringEnumer;
 import scouter.util.StringKeyLinkedMap;
 
-public class AutoServiceStartAnalizer {
+public class AutoServiceStartAnalyzer {
 	private static StringKeyLinkedMap<String> table = new StringKeyLinkedMap<String>().setMax(200);
 
 	public static void put(String classMethod, String stack) {
