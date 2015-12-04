@@ -110,6 +110,7 @@ import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.MenuUtil;
 import scouter.client.util.ScouterUtil;
+import scouter.lang.ObjectType;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.counters.CounterEngine;
 import scouter.lang.value.Value;
@@ -487,9 +488,14 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 	private void addExistObjectTypeMenus(IWorkbenchWindow win, IMenuManager mgr, CounterEngine counterEngine, Map<String, Action> actionMap, int serverId) {
 		Set<String> agentTypeList = agentThread.getCurrentObjectTypeList(serverId);
 		for(String objType : agentTypeList){
-			String objTypeDisplay = counterEngine.getDisplayNameObjectType(objType);
+			ObjectType type = counterEngine.getObjectType(objType);
+			if (type.isSubObject()) {
+				// DataSource, RequestProcessor.....etc.
+				continue;
+			}
+			String displayName = type.getDisplayName();
 			ImageDescriptor objImage = Images.getObjectImageDescriptor(objType, true, serverId);
-			MenuManager objTitle = new MenuManager(objTypeDisplay, objImage, "scouter.menu.id."+objTypeDisplay);
+			MenuManager objTitle = new MenuManager(displayName, objImage, "scouter.menu.id."+displayName);
 			mgr.add(objTitle);
 			addObjectTypeMenu(objTitle, counterEngine, actionMap, serverId, objType);
 		}

@@ -123,8 +123,6 @@ public class JBossJMXPerf {
 			getContextList();
 		}
 		collectCnt++;
-
-		collectCnt++;
 		MBeanServer server = servers.get(0);
 		for (CtxObj ctx : ctxList) {
 			if (ctx.valueType == ValueEnum.DECIMAL) {
