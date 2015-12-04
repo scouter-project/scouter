@@ -58,11 +58,12 @@ object GeoIpUtil {
 
     private def isPrivateIp(ip: Array[Byte]): Boolean = {
         ip(0) & 0xff match {
-            case 127 =>
-            case 10 => return true;
-            case 172 => return (ip(1) >= 16 && ip(1) <= 31);
-            case 192 => return ip(1) == 168;
+            case 127 | 10 => return true
+            case 172 => return (ip(1) >= 16 && ip(1) <= 31)
+            case 192 => return ip(1) == 168
+            case _ => return false
         }
         return false;
     }
+
 }
