@@ -71,7 +71,7 @@ object Logger {
     }
 
     private def checkOk(id: String, sec: Int): Boolean = {
-        if (Configure.getInstance().log_ignore.hasKey(id))
+        if (Configure.getInstance().mgr_log_ignore_ids.hasKey(id))
             return false;
         if (sec > 0) {
             val last = lastLog.get(id);
@@ -131,11 +131,11 @@ object Logger {
     ConfObserver.put("Logger", new Runnable() {
         override def run() {
 
-            if (CompareUtil.equals(lastDir, conf.log_dir) == false || lastFileRotation != conf.log_rotation) {
+            if (CompareUtil.equals(lastDir, conf.log_dir) == false || lastFileRotation != conf.log_rotation_enabled) {
                 FileUtil.close(pw)
                 pw = null
                 lastDir = conf.log_dir;
-                lastFileRotation = conf.log_rotation;
+                lastFileRotation = conf.log_rotation_enabled;
             }
         }
     });
@@ -145,10 +145,10 @@ object Logger {
             if (pw == null) {
                 lastDataUnit = DateUtil.getDateUnit();
                 lastDir = conf.log_dir;
-                lastFileRotation = conf.log_rotation;
+                lastFileRotation = conf.log_rotation_enabled;
 
                 new File(lastDir).mkdirs();
-                if (conf.log_rotation) {
+                if (conf.log_rotation_enabled) {
                     val fw = new FileWriter(new File(conf.log_dir, "server-" + DateUtil.yyyymmdd() + ".log"), true);
                     pw = new PrintWriter(fw);
                 } else {
@@ -160,9 +160,9 @@ object Logger {
     }
 
     protected def clearOldLog() {
-        if (conf.log_rotation == false)
+        if (conf.log_rotation_enabled == false)
             return ;
-        if (conf.log_keep_dates <= 0)
+        if (conf.log_keep_days <= 0)
             return ;
         val nowUnit = DateUtil.getDateUnit();
         val dir = new File(conf.log_dir);
@@ -189,7 +189,7 @@ object Logger {
                 try {
                     val d = DateUtil.yyyymmdd(date);
                     val fileUnit = DateUtil.getDateUnit(d);
-                    if (nowUnit - fileUnit > DateUtil.MILLIS_PER_DAY * conf.log_keep_dates) {
+                    if (nowUnit - fileUnit > DateUtil.MILLIS_PER_DAY * conf.log_keep_days) {
                         files(i).delete();
                     }
                 } catch {

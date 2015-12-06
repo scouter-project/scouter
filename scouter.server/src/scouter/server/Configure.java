@@ -56,6 +56,91 @@ public class Configure extends Thread {
 		return instance;
 	}
 
+
+	//SERVER
+	public String server_id = SysJMX.getHostName();
+
+	//Log
+	public boolean log_tcp_action_enabled = false;
+	public boolean log_udp_multipacket = false;
+	public boolean log_expired_multipacket = true;
+	public boolean log_udp_packet = false;
+	public boolean log_udp_counter = false;
+	public boolean log_udp_xlog = false;
+	public boolean log_udp_profile = false;
+	public boolean log_udp_text = false;
+	public boolean log_udp_alert = false;
+	public boolean log_udp_object = false;
+	public boolean log_udp_status = false;
+	public boolean log_udp_stack = false;
+	public boolean log_udp_summary = false;
+	public boolean log_service_handler_list = false;
+	public boolean log_rotation_enabled = true;
+	public int log_keep_days = 31;
+
+	//Network
+	public String net_udp_listen_ip = "0.0.0.0";
+	public int net_udp_listen_port = NetConstants.SERVER_UDP_PORT;
+	public String net_tcp_listen_ip = "0.0.0.0";
+	public int net_tcp_listen_port = NetConstants.SERVER_TCP_PORT;
+	public int net_tcp_client_so_timeout_ms = 8000;
+	public int net_tcp_agent_so_timeout_ms = 60000;
+	public int net_tcp_agent_keepalive_interval_ms = 5000;
+	public int net_tcp_get_agent_connection_wait_ms = 1000;
+	public int net_udp_packet_buffer_size = 65535;
+	public int net_udp_so_rcvbuf_size = 1024 * 1024 * 4;
+	public int _net_udp_worker_thread_count = 3;
+	public int net_tcp_service_pool_size = 100;
+
+	//Dir
+	public String db_dir = "./database";
+	public String log_dir = "./logs";
+	public String plugin_dir = "./plug-in";
+
+	//Object
+	public int object_deadtime_ms = 8000;
+
+	//Compress
+	public boolean compress_xlog_enabled = false;
+	public boolean compress_profile_enabled = false;
+	public int _compress_write_buffer_block_count = 3;
+	public int _compress_read_cache_block_count = 3;
+	public long _compress_read_cache_expired_ms = DateUtil.MILLIS_PER_MINUTE;
+	public int _compress_dailycount_header_cache_size = 3;
+	public int _compress_write_thread = 2;
+
+	//Auto
+	public boolean _auto_5m_sampling = true;
+
+	//Manage
+	public boolean mgr_purge_enabled = true;
+	public boolean mgr_purge_only_xlog_enabled = false;
+	public int mgr_purge_disk_usage_pct = 80;
+	public int mgr_purge_keep_days = 0;
+	public StringSet mgr_log_ignore_ids = new StringSet();
+
+	//XLog
+	public int xlog_queue_size = 10000;
+	public int xlog_realtime_lower_bound_ms = 0;
+	public int xlog_pasttime_lower_bound_ms = 0;
+	public int xlog_profile_save_lower_bound_ms = 0;
+
+	//Profile
+	public int profile_queue_size = 1000;
+
+	//GeoIP
+	public boolean geoip_enabled = true;
+	public String geoip_data_city_file = "./GeoLiteCity.dat";
+
+	//SQL
+	public boolean sql_table_parsing_enabled = true;
+
+	//TagCount
+	public boolean tagcnt_enabled = false;
+
+	//Summary
+	public boolean summary_alert_enabled = true;
+
 	private Configure() {
 		reload(false);
 	}
@@ -124,151 +209,82 @@ public class Configure extends Thread {
 		return true;
 	}
 
-	public int xlog_queue_size = 100000;
-	public int xlog_profile_queue_size = 1000;
-	public boolean debug_net = false;
-
-	public String udp_host = "0.0.0.0";
-	public int udp_port = NetConstants.SERVER_UDP_PORT;
-	public int tcp_port = NetConstants.SERVER_TCP_PORT;
-	public int tcp_client_so_timeout = 8000;
-	public int tcp_agent_so_timeout = 60000;
-	public int tcp_agent_keepalive = 5000;
-	public int tcp_agent_max_wait = 1000;
-
-	public String hostname = SysJMX.getHostName();
-	public String db_root = "./database";
-	public String log_dir = "./logs";
-	public String plugin_dir = "./plug-in";
-
-	public int agent_deadtime = 8000;
-
-	public boolean gzip_xlog = false;
-	public boolean gzip_profile = false;
-	public int gzip_writing_block = 3;
-	public int gzip_read_cache_block = 3;
-	public long gzip_read_cache_time = DateUtil.MILLIS_PER_MINUTE;
-	public int gzip_unitcount_header_cache = 5;
-	public int udp_buffer = 65535;
-	public int udp_so_rcvbuf = 1024 * 1024 * 4;
-	public boolean debug_udp_multipacket;
-	public boolean debug_expired_multipacket = true;
-	public int gzip_writing_block_thread = 2;
-	
-
-	public boolean debug_udp_packet = false;
-	public boolean debug_udp_counter = false;
-	public boolean debug_udp_xlog = false;
-	public boolean debug_udp_profile = false;
-	public boolean debug_udp_text = false;
-	public boolean debug_udp_alert = false;
-	public boolean debug_udp_object = false;
-	public boolean debug_udp_status = false;
-	public boolean debug_udp_stack = false;
-	public boolean debug_udp_summary = false;
-	public boolean debug_request;
-
-	public boolean auto_5m_sampling = true;
-
-	public boolean log_rotation = true;
-	public int log_keep_dates = 365;
-
-	public int xlog_realtime_limit = 0;
-	public int xlog_pasttime_limit = 0;
-
-	public boolean auto_delete_data = true;
-	public boolean auto_delete_only_xlog = false;
-	public int auto_delete_max_percent = 80;
-	public int auto_delete_retain_days = 0;
-	public int num_of_net_processor = 4;
-
-	public String geoip_data_city = "./GeoLiteCity.dat";
-	public boolean enable_geoip = true;
-
-	public int xlog_profile_save_time_limit = 0;
-	public boolean enable_sql_parsing = true;
-
-	public StringSet log_ignore = new StringSet();
-	public boolean tagcnt_enabled = false;
-	
-	public int tcp_server_pool_size = 100;
-	public boolean enable_alert_summary=true;
-	
-	public static boolean WORKABLE = true; 
+	public static boolean WORKABLE = true;
 
 	private void apply() {
-		this.xlog_queue_size = getInt("xlog_queue_size", 100000);
-		this.xlog_profile_queue_size = getInt("xlog_profile_queue_size", 1000);
-		this.debug_net = getBoolean("debug_net", false);
+		this.xlog_queue_size = getInt("xlog_queue_size", 10000);
+		this.profile_queue_size = getInt("profile_queue_size", 1000);
+		this.log_tcp_action_enabled = getBoolean("log_tcp_action_enabled", false);
 
-		this.udp_host = getValue("udp_host", "0.0.0.0");
-		this.udp_port = getInt("udp_port", NetConstants.SERVER_UDP_PORT);
-		this.tcp_port = getInt("tcp_port", NetConstants.SERVER_TCP_PORT);
-		this.tcp_client_so_timeout = getInt("tcp_client_so_timeout", 8000);
-		this.tcp_agent_so_timeout = getInt("tcp_agent_so_timeout", 60000);
-		this.tcp_agent_keepalive = getInt("tcp_agent_keepalive", 5000);
-		this.tcp_agent_max_wait = getInt("tcp_agent_max_wait", 1000);
+		this.net_udp_listen_ip = getValue("net_udp_listen_ip", "0.0.0.0");
+		this.net_udp_listen_port = getInt("net_udp_listen_port", NetConstants.SERVER_UDP_PORT);
+		this.net_tcp_listen_ip = getValue("net_tcp_listen_ip", "0.0.0.0");
+		this.net_tcp_listen_port = getInt("net_tcp_listen_port", NetConstants.SERVER_TCP_PORT);
+		this.net_tcp_client_so_timeout_ms = getInt("net_tcp_client_so_timeout_ms", 8000);
+		this.net_tcp_agent_so_timeout_ms = getInt("net_tcp_agent_so_timeout_ms", 60000);
+		this.net_tcp_agent_keepalive_interval_ms = getInt("net_tcp_agent_keepalive_interval_ms", 5000);
+		this.net_tcp_get_agent_connection_wait_ms = getInt("net_tcp_get_agent_connection_wait_ms", 1000);
 
-		this.hostname = getValue("hostname", SysJMX.getHostName());
-		this.db_root = getValue("db_root", "./database");
+		this.server_id = getValue("server_id", SysJMX.getHostName());
+		this.db_dir = getValue("db_dir", "./database");
 		this.log_dir = getValue("log_dir", "./logs");
 		this.plugin_dir = getValue("plugin_dir", "./plug-in");
 
-		this.agent_deadtime = getInt("agent_deadtime", 8000);
+		this.object_deadtime_ms = getInt("object_deadtime_ms", 8000);
 
-		this.gzip_xlog = getBoolean("gzip_xlog", false);
-		this.gzip_profile = getBoolean("gzip_profile", false);
-		this.gzip_writing_block = getInt("gzip_writing_block", 3);
-		this.gzip_unitcount_header_cache = getInt("gzip_unitcount_header_cache", 5);
-		this.gzip_read_cache_block = getInt("gzip_read_cache_block", 3);
-		this.gzip_read_cache_time = getLong("gzip_read_cache_time", DateUtil.MILLIS_PER_MINUTE);
-		this.gzip_writing_block_thread = getInt("gzip_writing_block_thread", 2);
+		this.compress_xlog_enabled = getBoolean("compress_xlog_enabled", false);
+		this.compress_profile_enabled = getBoolean("compress_profile_enabled", false);
+		this._compress_write_buffer_block_count = getInt("_compress_write_buffer_block_count", 3);
+		this._compress_dailycount_header_cache_size = getInt("_compress_dailycount_header_cache_size", 3);
+		this._compress_read_cache_block_count = getInt("_compress_read_cache_block_count", 3);
+		this._compress_read_cache_expired_ms = getLong("_compress_read_cache_expired_ms", DateUtil.MILLIS_PER_MINUTE);
+		this._compress_write_thread = getInt("_compress_write_thread", 2);
 		
-		this.udp_buffer = getInt("udp_buffer", 65535);
+		this.net_udp_packet_buffer_size = getInt("net_udp_packet_buffer_size", 65535);
 
 		int default_so_rcvbuf = 1024 * 1024 * 4;
 		if (SystemUtil.IS_AIX || SystemUtil.IS_HP_UX) {
 			default_so_rcvbuf = 0;
 		}
-		this.udp_so_rcvbuf = getInt("dataudp_so_rcvbuf", default_so_rcvbuf);
-		this.debug_expired_multipacket = getBoolean("debug_expired_multipacket", true);
-		this.debug_udp_multipacket = getBoolean("debug_udp_multipacket", false);
-		this.debug_udp_packet = getBoolean("debug_udp_packet", false);
-		this.debug_udp_counter = getBoolean("debug_udp_counter", false);
-		this.debug_udp_xlog = getBoolean("debug_udp_xlog", false);
-		this.debug_udp_profile = getBoolean("debug_udp_profile", false);
-		this.debug_udp_text = getBoolean("debug_udp_text", false);
-		this.debug_udp_alert = getBoolean("debug_udp_alert", false);
-		this.debug_udp_object = getBoolean("debug_udp_object", false);
-		this.debug_udp_status = getBoolean("debug_udp_status", false);
-		this.debug_udp_stack = getBoolean("debug_udp_stack", false);
-		this.debug_udp_summary = getBoolean("debug_udp_summary", false);
-		this.debug_request = getBoolean("debug_request", false);
+		this.net_udp_so_rcvbuf_size = getInt("net_udp_so_rcvbuf_size", default_so_rcvbuf);
+		this.log_expired_multipacket = getBoolean("log_expired_multipacket", true);
+		this.log_udp_multipacket = getBoolean("log_udp_multipacket", false);
+		this.log_udp_packet = getBoolean("log_udp_packet", false);
+		this.log_udp_counter = getBoolean("log_udp_counter", false);
+		this.log_udp_xlog = getBoolean("log_udp_xlog", false);
+		this.log_udp_profile = getBoolean("log_udp_profile", false);
+		this.log_udp_text = getBoolean("log_udp_text", false);
+		this.log_udp_alert = getBoolean("log_udp_alert", false);
+		this.log_udp_object = getBoolean("log_udp_object", false);
+		this.log_udp_status = getBoolean("log_udp_status", false);
+		this.log_udp_stack = getBoolean("log_udp_stack", false);
+		this.log_udp_summary = getBoolean("log_udp_summary", false);
+		this.log_service_handler_list = getBoolean("log_service_handler_list", false);
 
-		this.auto_5m_sampling = getBoolean("auto_5m_sampling", true);
+		this._auto_5m_sampling = getBoolean("_auto_5m_sampling", true);
 
-		this.log_rotation = getBoolean("log_rotation", true);
-		this.log_keep_dates = getInt("log_keep_dates", 365);
+		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
+		this.log_keep_days = getInt("log_keep_days", 31);
 
-		this.xlog_realtime_limit = getInt("xlog_realtime_limit", 0);
-		this.xlog_pasttime_limit = getInt("xlog_pasttime_limit", 0);
-		this.auto_delete_data = getBoolean("auto_delete_data", true);
-		this.auto_delete_only_xlog = getBoolean("auto_delete_only_xlog", false);
-		this.auto_delete_max_percent = getInt("auto_delete_max_percent", 80);
-		this.auto_delete_retain_days = getInt("auto_delete_retain_days", 0);
-		this.num_of_net_processor = getInt("num_of_net_processor", 4);
-		this.geoip_data_city = getValue("geoip_data_city", "./GeoLiteCity.dat");
-		this.enable_geoip = getBoolean("enable_geoip", true);
+		this.xlog_realtime_lower_bound_ms = getInt("xlog_realtime_lower_bound_ms", 0);
+		this.xlog_pasttime_lower_bound_ms = getInt("xlog_pasttime_lower_bound_ms", 0);
+		this.mgr_purge_enabled = getBoolean("mgr_purge_enabled", true);
+		this.mgr_purge_only_xlog_enabled = getBoolean("mgr_purge_only_xlog_enabled", false);
+		this.mgr_purge_disk_usage_pct = getInt("mgr_purge_disk_usage_pct", 80);
+		this.mgr_purge_keep_days = getInt("mgr_purge_keep_days", 0);
+		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
+		this.geoip_data_city_file = getValue("geoip_data_city_file", "./GeoLiteCity.dat");
+		this.geoip_enabled = getBoolean("geoip_enabled", true);
 
-		this.xlog_profile_save_time_limit = getInt("xlog_profile_save_time_limit", 0);
-		this.enable_sql_parsing = getBoolean("enable_parse_sql", true);
+		this.xlog_profile_save_lower_bound_ms = getInt("xlog_profile_save_lower_bound_ms", 0);
+		this.sql_table_parsing_enabled = getBoolean("sql_table_parsing_enabled", true);
 
-		this.log_ignore = getStringSet("log_ignore", ",");
+		this.mgr_log_ignore_ids = getStringSet("mgr_log_ignore_ids", ",");
 
 		this.tagcnt_enabled = getBoolean("tagcnt_enabled", false);
 		
-		this.tcp_server_pool_size = getInt("tcp_server_pool_size", 100);
-		this.enable_alert_summary=  getBoolean("enable_alert_summary", true);
+		this.net_tcp_service_pool_size = getInt("net_tcp_service_pool_size", 100);
+		this.summary_alert_enabled =  getBoolean("summary_alert_enabled", true);
 		
 		ConfObserver.exec();
 	}

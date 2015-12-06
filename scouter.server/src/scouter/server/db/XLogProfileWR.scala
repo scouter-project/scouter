@@ -34,7 +34,7 @@ import scouter.server.util.OftenAction
 import scouter.server.core.ServerStat
 import scouter.server.Configure
 object XLogProfileWR extends IClose {
-    val queue = new RequestQueue[Data](Configure.getInstance().xlog_profile_queue_size);
+    val queue = new RequestQueue[Data](Configure.getInstance().profile_queue_size);
     class ResultSet(keys: List[Long], var reader: XLogProfileDataReader) {
         var max: Int = if (keys == null) 0 else keys.size()
         var x: Int = 0;
