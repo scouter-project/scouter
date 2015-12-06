@@ -112,7 +112,7 @@ public class Configure extends Thread {
 	//Auto
 	public boolean _auto_5m_sampling = true;
 
-	//Manage
+	//Manager
 	public boolean mgr_purge_enabled = true;
 	public boolean mgr_purge_only_xlog_enabled = false;
 	public int mgr_purge_disk_usage_pct = 80;

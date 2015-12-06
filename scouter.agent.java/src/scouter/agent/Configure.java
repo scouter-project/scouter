@@ -109,7 +109,7 @@ public class Configure extends Thread {
 	public String trace_webserver_time_header_key = "X-Forwarded-Time";
 	public int _trace_fullstack_socket_open_port = 0;
 
-	//Manage
+	//Manager
 	public File mgr_plugin_dir = new File("./_scouter_");
 	public File mgr_dump_dir = new File(".");
 	public File mgr_agent_lib_dir = new File("./_scouter_");
@@ -649,13 +649,6 @@ public class Configure extends Thread {
 	private static HashSet<String> ignoreSet = new HashSet<String>();
 	static {
 		ignoreSet.add("property");
-		ignoreSet.add("objHash");
-		ignoreSet.add("objHostHash");
-		ignoreSet.add("objHostName");
-		ignoreSet.add("objName");
-		ignoreSet.add("objType");
-		ignoreSet.add("log_ignore_set");
-		ignoreSet.add("enduser_perf_endpoint_hash");
 	}
 	public MapValue getKeyValueInfo() {
 		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));

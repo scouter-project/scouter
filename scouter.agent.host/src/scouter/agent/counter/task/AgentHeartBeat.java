@@ -21,7 +21,6 @@ import java.util.Enumeration;
 
 import scouter.Version;
 import scouter.agent.Configure;
-import scouter.agent.Logger;
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
 import scouter.agent.netio.data.DataProxy;
@@ -61,9 +60,9 @@ public class AgentHeartBeat {
 	private ObjectPack getMainObject() {
 		Configure conf = Configure.getInstance();
 		ObjectPack p = new ObjectPack();
-		p.objType = conf.scouter_type;
-		p.objHash = conf.objHash;
-		p.objName = conf.objName;
+		p.objType = conf.obj_type;
+		p.objHash = conf.getObjHash();
+		p.objName = conf.getObjName();
 
 		p.version = Version.getAgentFullVersion();
 		p.address = TcpWorker.localAddr;

@@ -66,7 +66,7 @@ public class CounterBasket {
 	}
 
 	public PerfCounterPack getPack(byte timeType) {
-		return getPack(Configure.getInstance().objName, timeType);
+		return getPack(Configure.getInstance().getObjName(), timeType);
 	}
 
 	public PerfCounterPack[] getList() {
