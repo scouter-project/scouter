@@ -45,9 +45,9 @@ public class TraceContextManager {
 			while (en.hasMoreElements()) {
 				TraceContext ctx = en.nextElement();
 				long tm = now - ctx.startTime;
-				if (tm < conf.yellow_line_time) {
+				if (tm < conf.trace_activeserivce_yellow_time) {
 					act[0]++;
-				} else if (tm < conf.red_line_time) {
+				} else if (tm < conf.trace_activeservice_red_time) {
 					act[1]++;
 				} else {
 					act[2]++;

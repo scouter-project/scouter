@@ -19,7 +19,6 @@ import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import javax.management.MBeanServer;
@@ -165,7 +164,7 @@ public class TomcatJMXPerf {
 			if ("GlobalRequestProcessor".equals(type)) {
 				String port = mbean.getKeyProperty("name");
 				try {
-					String objName = conf.objName + "/" + checkObjName(port);
+					String objName = conf.getObjName() + "/" + checkObjName(port);
 					String objType = getReqProcType();
 					AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
 					add(objName, mbean, objType, ValueEnum.DECIMAL, "bytesReceived",
@@ -184,7 +183,7 @@ public class TomcatJMXPerf {
 				String name = mbean.getKeyProperty("name");
 				if (StringUtil.isNotEmpty(name)) {
 					try {
-						String objName = conf.objName + "/" + checkObjName(name);
+						String objName = conf.getObjName() + "/" + checkObjName(name);
 						String objType = getDataSourceType();
 						AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
 						add(objName, mbean, objType, ValueEnum.DECIMAL, "numActive",
@@ -198,14 +197,14 @@ public class TomcatJMXPerf {
 		}
 	}
 	private String getReqProcType() {
-		if (Configure.getInstance().enable_plus_objtype) {
-			return Configure.getInstance().scouter_type + "_req";
+		if (Configure.getInstance().obj_type_inherit_to_child_enabled) {
+			return Configure.getInstance().obj_type + "_req";
 		}
 		return CounterConstants.REQUESTPROCESS;
 	}
 	private String getDataSourceType() {
-		if (Configure.getInstance().enable_plus_objtype) {
-			return Configure.getInstance().scouter_type + "_ds";
+		if (Configure.getInstance().obj_type_inherit_to_child_enabled) {
+			return Configure.getInstance().obj_type + "_ds";
 		}
 		return CounterConstants.DATASOURCE;
 	}

@@ -15,43 +15,21 @@
  *  limitations under the License. 
  */
 package scouter.agent;
+
+import scouter.agent.asm.IASM;
+import scouter.agent.asm.ScouterClassWriter;
+import scouter.agent.asm.util.AsmUtil;
+import scouter.agent.util.AsyncRunner;
+import scouter.lang.conf.ConfObserver;
+import scouter.org.objectweb.asm.*;
+import scouter.util.FileUtil;
+import scouter.util.IntSet;
+
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
-import scouter.agent.asm.AddFieldASM;
-import scouter.agent.asm.ApicallASM;
-import scouter.agent.asm.ApicallInfoASM;
-import scouter.agent.asm.CapArgsASM;
-import scouter.agent.asm.CapReturnASM;
-import scouter.agent.asm.CapThisASM;
-import scouter.agent.asm.HttpServiceASM;
-import scouter.agent.asm.IASM;
-import scouter.agent.asm.InitialContextASM;
-import scouter.agent.asm.JDBCConnectionOpenASM;
-import scouter.agent.asm.JDBCDriverASM;
-import scouter.agent.asm.JDBCPreparedStatementASM;
-import scouter.agent.asm.JDBCResultSetASM;
-import scouter.agent.asm.JDBCStatementASM;
-import scouter.agent.asm.JspServletASM;
-import scouter.agent.asm.MethodASM;
-import scouter.agent.asm.ScouterClassWriter;
-import scouter.agent.asm.ServiceASM;
-import scouter.agent.asm.SocketASM;
-import scouter.agent.asm.SpringReqMapASM;
-import scouter.agent.asm.SqlMapASM;
-import scouter.agent.asm.UserTxASM;
-import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.util.AsyncRunner;
-import scouter.lang.conf.ConfObserver;
-import scouter.org.objectweb.asm.AnnotationVisitor;
-import scouter.org.objectweb.asm.ClassReader;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.ClassWriter;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.util.FileUtil;
-import scouter.util.IntSet;
 public class AgentTransformer implements ClassFileTransformer {
 	public static ThreadLocal<ClassLoader> hookingCtx = new ThreadLocal<ClassLoader>();
 	private static List<IASM> asms = new ArrayList<IASM>();
@@ -73,42 +51,6 @@ public class AgentTransformer implements ClassFileTransformer {
 	public static void reload() {
 		Configure conf = Configure.getInstance();
 		List<IASM> temp = new ArrayList<IASM>();
-		if (conf.enable_hook_service) {
-			temp.add(new HttpServiceASM());
-			temp.add(new ServiceASM());
-		}
-		if (conf.enable_hook_dbsql) {
-			temp.add(new JDBCPreparedStatementASM());
-			temp.add(new JDBCResultSetASM());
-			temp.add(new JDBCStatementASM());
-			temp.add(new SqlMapASM());
-			temp.add(new UserTxASM());
-		}
-		if (conf.enable_hook_dbconn) {
-			temp.add(new JDBCConnectionOpenASM());
-			temp.add(new JDBCDriverASM());
-			temp.add(new InitialContextASM());
-		}
-		if (conf.enable_hook_cap) {
-			temp.add(new CapArgsASM());
-			temp.add(new CapReturnASM());
-			temp.add(new CapThisASM());
-		}
-		if (conf.enable_hook_methods) {
-			temp.add(new MethodASM());
-			temp.add(new ApicallASM());
-			temp.add(new ApicallInfoASM());
-			temp.add(new SpringReqMapASM());
-		}
-		if (conf.enable_hook_socket) {
-			temp.add(new SocketASM());
-		}
-		if (conf.enable_hook_jsp) {
-			temp.add(new JspServletASM());
-		}
-		if (conf.enable_hook_async) {
-			temp.add(new AddFieldASM());
-		}
 		asms = temp;
 	}
 	// //////////////////////////////////////////////////////////////
@@ -170,7 +112,7 @@ public class AgentTransformer implements ClassFileTransformer {
 					cr.accept(cv, ClassReader.EXPAND_FRAMES);
 					classfileBuffer = cw.toByteArray();
 					cv = cw = getClassWriter(classDesc);
-					if (conf.debug_asm) {
+					if (conf.log_asm_enabled) {
 						if (this.bciOut == null) {
 							this.bciOut = new Logger.FileLog("./scouter.bci");
 						}

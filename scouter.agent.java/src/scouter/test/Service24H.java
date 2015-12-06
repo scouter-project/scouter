@@ -47,8 +47,8 @@ public class Service24H {
 		int tps =CastUtil.cint(sh.get("-tps","5000"));
 		String type = sh.get("-type", "tomcat");
 		String name = sh.get("-name", "java"+SysJMX.getProcessPID());
-		System.setProperty("scouter_type", type);
-		System.setProperty("scouter_name", name);
+		System.setProperty("obj_type", type);
+		System.setProperty("obj_name", name);
 		
 		System.setProperty("server.addr", server);
 		System.setProperty("server.port", port);
@@ -96,7 +96,7 @@ public class Service24H {
 		    long unit=endtime/5000;
 		    if(last_unit!=unit){
 		    	last_unit = unit;
-		    	System.out.println(DateUtil.timestamp(endtime) + "  exe-tx=" + txcount+ "  " + Configure.getInstance().objName);
+		    	System.out.println(DateUtil.timestamp(endtime) + "  exe-tx=" + txcount+ "  " + Configure.getInstance().getObjName());
 		    }
 			tm = tm+interval;
 			if(tm>1){

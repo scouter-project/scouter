@@ -73,17 +73,17 @@ public class ForRibbonLB implements ApiCallTraceHelper.IHelper {
 
 	private void transfer(IHttpClient httpclient, TraceContext ctx, Object req, long calleeTxid) {
 		Configure conf = Configure.getInstance();
-		if (conf.enable_trace_e2e) {
+		if (conf.trace_interservice_enabled) {
 			try {
 
 				if (ctx.gxid == 0) {
 					ctx.gxid = ctx.txid;
 				}
-				httpclient.addHeader(req, conf.gxid, Hexa32.toString32(ctx.gxid));
-				httpclient.addHeader(req, conf.caller_txid, Hexa32.toString32(ctx.txid));
-				httpclient.addHeader(req, conf.this_txid, Hexa32.toString32(calleeTxid));
+				httpclient.addHeader(req, conf.trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
+				httpclient.addHeader(req, conf.trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
+				httpclient.addHeader(req, conf.trace_interservice_callee_header_key, Hexa32.toString32(calleeTxid));
 				httpclient.addHeader(req, "scouter_caller_url", ctx.serviceName);
-				httpclient.addHeader(req, "scouter_caller_name", conf.objName);
+				httpclient.addHeader(req, "scouter_caller_name", conf.getObjName());
 				httpclient.addHeader(req, "scouter_thread_id", Long.toString(ctx.threadId));
 		
 				PluginHttpCallTrace.call(ctx, httpclient, req);

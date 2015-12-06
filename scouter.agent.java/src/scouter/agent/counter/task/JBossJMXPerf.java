@@ -33,8 +33,6 @@ import scouter.agent.ObjTypeDetector;
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
 import scouter.agent.counter.meter.MeterResource;
-import scouter.agent.counter.task.TomcatJMXPerf.CtxObj;
-import scouter.agent.counter.task.TomcatJMXPerf.MeterKey;
 import scouter.lang.TimeTypeEnum;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.counters.CounterConstants;
@@ -169,15 +167,15 @@ public class JBossJMXPerf {
 	Configure conf = Configure.getInstance();
 
 	private String getDataSourceType() {
-		if (conf.enable_plus_objtype) {
-			return conf.scouter_type + "_ds";
+		if (conf.obj_type_inherit_to_child_enabled) {
+			return conf.obj_type + "_ds";
 		}
 		return CounterConstants.DATASOURCE;
 	}
 
 	private String getReqProcType() {
-		if (conf.enable_plus_objtype) {
-			return conf.scouter_type + "_req";
+		if (conf.obj_type_inherit_to_child_enabled) {
+			return conf.obj_type + "_req";
 		}
 		return CounterConstants.REQUESTPROCESS;
 	}
@@ -197,7 +195,7 @@ public class JBossJMXPerf {
 					String name = mbean.getKeyProperty("data-source");
 					if (StringUtil.isNotEmpty(name)) {
 						try {
-							String objName = conf.objName + "/" + checkObjName(name);
+							String objName = conf.getObjName() + "/" + checkObjName(name);
 							String objType = getDataSourceType();
 
 							AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
@@ -216,7 +214,7 @@ public class JBossJMXPerf {
 						continue;
 					}
 					try {
-						String objName = conf.objName + "/" + checkObjName(connector);
+						String objName = conf.getObjName() + "/" + checkObjName(connector);
 						String objType = getReqProcType();
 
 						AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);

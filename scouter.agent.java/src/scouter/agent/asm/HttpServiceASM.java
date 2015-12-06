@@ -17,6 +17,7 @@
 package scouter.agent.asm;
 import java.util.HashSet;
 import scouter.agent.ClassDesc;
+import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.trace.TraceMain;
 import scouter.org.objectweb.asm.ClassVisitor;
@@ -37,6 +38,9 @@ public class HttpServiceASM implements IASM, Opcodes {
 		return false;
 	}
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
+		if (Configure.getInstance()._hook_serivce_enabled == false) {
+			return cv;
+		}
 		if (servlets.contains(className)) {
 			return new HttpServiceCV(cv, className);
 		}

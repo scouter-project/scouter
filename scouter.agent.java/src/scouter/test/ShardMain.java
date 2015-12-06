@@ -77,7 +77,7 @@ public class ShardMain {
 			if (last_unit != unit) {
 				last_unit = unit;
 				System.out.println(DateUtil.timestamp(endtime) + "  exe-tx=" + txcount + "  "
-						+ Configure.getInstance().objName);
+						+ Configure.getInstance().getObjName());
 			}
 			tm = tm + interval;
 			if (tm > 1) {

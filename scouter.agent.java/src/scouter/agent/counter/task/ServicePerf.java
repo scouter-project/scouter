@@ -53,7 +53,7 @@ public class ServicePerf {
 
 		int[] act = TraceContextManager.getActiveCount();
 		int active = act[0] + act[1] + act[2];
-		if (conf.auto_dump_trigger <= active) {
+		if (conf.autodump_trigger_active_service_cnt <= active) {
 			DumpUtil.autoDump();
 		}
 		activeCounter.add(active);

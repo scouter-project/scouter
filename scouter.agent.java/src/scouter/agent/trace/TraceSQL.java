@@ -31,7 +31,6 @@ import scouter.agent.summary.ServiceSummary;
 import scouter.jdbc.DetectConnection;
 import scouter.jdbc.WrConnection;
 import scouter.lang.AlertLevel;
-import scouter.lang.TextTypes;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
@@ -39,7 +38,6 @@ import scouter.lang.step.SqlStep2;
 import scouter.lang.step.SqlXType;
 import scouter.util.EscapeLiteralSQL;
 import scouter.util.HashUtil;
-import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.IntLinkedSet;
 import scouter.util.StringUtil;
@@ -131,13 +129,13 @@ public class TraceSQL {
 	public static Object start(Object o, String sql) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
-			if (conf.debug_background_sql) {
+			if (conf.log_background_sql) {
 				Logger.println("background: " + sql);
 			}
 			return null;
 		}
 		// to debug
-		if (conf.debug_sql_call && ctx.debug_sql_call == false) {
+		if (conf._profile_fullstack_sql_connection_enabled && ctx.debug_sql_call == false) {
 			ctx.debug_sql_call = true;
 			StringBuffer sb = new StringBuffer();
 			if (o instanceof Statement) {
@@ -154,7 +152,7 @@ public class TraceSQL {
 			ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), sb.toString()));
 		}
 		// Looking for the position of calling SQL COMMIT
-		if (conf.profile_fullstack_sql_commit) {
+		if (conf.profile_fullstack_sql_commit_enabled) {
 			if ("commit".equalsIgnoreCase(sql)) {
 				ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime),
 						ThreadUtil.getThreadStack()));
@@ -187,7 +185,7 @@ public class TraceSQL {
 	private static IntLinkedSet noLiteralSql = new IntLinkedSet().setMax(10000);
 	private static IntKeyLinkedMap<ParsedSql> checkedSql = new IntKeyLinkedMap<ParsedSql>().setMax(1001);
 	private static String escapeLiteral(String sql, SqlStep2 step) {
-		if (conf.profile_sql_escape == false)
+		if (conf.profile_sql_escape_enabled == false)
 			return sql;
 		int sqlHash = sql.hashCode();
 		if (noLiteralSql.contains(sqlHash)) {
@@ -216,7 +214,7 @@ public class TraceSQL {
 			"CONNECTION_OPEN_FAIL");
 	public static void end(Object stat, Throwable thr) {
 		if (stat == null) {
-			if (conf.debug_background_sql && thr != null) {
+			if (conf.log_background_sql && thr != null) {
 				Logger.println("BG-SQL:" + thr);
 			}
 			return;
@@ -230,14 +228,14 @@ public class TraceSQL {
 		}
 		if (thr != null) {
 			String msg = thr.toString();
-			if (conf.profile_fullstack_sql_error) {
+			if (conf.profile_fullstack_sql_error_enabled) {
 				StringBuffer sb = new StringBuffer();
 				sb.append(msg).append("\n");
-				ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+				ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
 				thr = thr.getCause();
 				while (thr != null) {
 					sb.append("\nCause...\n");
-					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
 					thr = thr.getCause();
 				}
 				msg = sb.toString();
@@ -248,8 +246,8 @@ public class TraceSQL {
 			}
 			ps.error = hash;
 			ServiceSummary.getInstance().process(thr, hash, tctx.serviceHash, tctx.txid, ps.hash, 0);
-		} else if (ps.elapsed > conf.sql_time_max) {
-			String msg = "warning slow sql, over " + conf.sql_time_max + " ms";
+		} else if (ps.elapsed > conf.xlog_error_sql_time_max_ms) {
+			String msg = "warning slow sql, over " + conf.xlog_error_sql_time_max_ms + " ms";
 			int hash = DataProxy.sendError(msg);
 			if (tctx.error == 0) {
 				tctx.error = hash;
@@ -299,8 +297,8 @@ public class TraceSQL {
 		p.value = c.rs_count;
 		p.time = (int) time;
 		c.profile.add(p);
-		if (c.rs_count > conf.jdbc_fetch_max) {
-			String msg = "warning too many resultset, over #" + conf.jdbc_fetch_max;
+		if (c.rs_count > conf.xlog_error_jdbc_fetch_max) {
+			String msg = "warning too many resultset, over #" + conf.xlog_error_jdbc_fetch_max;
 			int hash = DataProxy.sendError(msg);
 			if (c.error == 0) {
 				c.error = hash;
@@ -378,13 +376,13 @@ public class TraceSQL {
 	public static Object start(Object o, SqlParameter args) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
-			if (conf.debug_background_sql && args != null) {
+			if (conf.log_background_sql && args != null) {
 				Logger.println("background: " + args.getSql());
 			}
 			return null;
 		}
 		// to debug
-		if (conf.debug_sql_call && ctx.debug_sql_call == false) {
+		if (conf._profile_fullstack_sql_connection_enabled && ctx.debug_sql_call == false) {
 			ctx.debug_sql_call = true;
 			StringBuffer sb = new StringBuffer();
 			if (o instanceof Statement) {
@@ -401,7 +399,7 @@ public class TraceSQL {
 			ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), sb.toString()));
 		}
 		// Looking for the position of calling SQL COMMIT
-		if (conf.profile_fullstack_sql_commit) {
+		if (conf.profile_fullstack_sql_commit_enabled) {
 			if ("commit".equalsIgnoreCase(args.getSql())) {
 				ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime),
 						ThreadUtil.getThreadStack()));
@@ -444,7 +442,7 @@ public class TraceSQL {
 	public static Connection driverConnect(Connection conn, String url) {
 		if (conn == null)
 			return conn;
-		if (conf.enable_dbc_wrapper == false)
+		if (conf.trace_db2_enabled == false)
 			return conn;
 		if (conn instanceof WrConnection)
 			return conn;
@@ -481,7 +479,7 @@ public class TraceSQL {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return null;
-		if (conf.enable_trace_connection_open == false)
+		if (conf.profile_connection_open_enabled == false)
 			return null;
 		MethodStep p = new MethodStep();
 		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
@@ -494,7 +492,7 @@ public class TraceSQL {
 		}
 		p.hash = hash;
 		ctx.profile.push(p);
-		if (conf.debug_connection_open_fullstack) {
+		if (conf.profile_connection_open_fullstack_enabled) {
 			String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
 			MessageStep ms = new MessageStep(stack);
 			ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
@@ -561,7 +559,7 @@ public class TraceSQL {
 			step.cputime = (int) (SysJMX.getCurrentThreadCPU() - tctx.startCpu) - step.start_cpu;
 		}
 		tctx.profile.pop(step);
-		if (conf.debug_connection_autocommit) {
+		if (conf.profile_connection_autocommit_status_enabled) {
 			HashedMessageStep ms = new HashedMessageStep();
 			try {
 				ms.hash = DataProxy.sendHashedMessage("AutoCommit : " + conn.getAutoCommit());
@@ -609,7 +607,7 @@ public class TraceSQL {
 	 *            sqlMap name
 	 */
 	public static void sqlMap(String methodName, String sqlname) {
-		if (Configure.getInstance().profile_framework_sqlmap == false)
+		if (Configure.getInstance().profile_sqlmap_name_enabled == false)
 			return;
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)

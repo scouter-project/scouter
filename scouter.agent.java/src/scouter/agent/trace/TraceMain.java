@@ -88,7 +88,7 @@ public class TraceMain {
 	private static Error userTxNotClose = new USERTX_NOT_CLOSE("Missing Commit/Rollback Error");
 	public static Object reject(Object stat, Object req, Object res) {
 		Configure conf = Configure.getInstance();
-		if (conf.enable_reject_service) {
+		if (conf.control_reject_service_enabled) {
 			if (stat == null || req == null || res == null)
 				return null;
 			if (http == null) {
@@ -99,13 +99,13 @@ public class TraceMain {
 				return null;
 			// reject by customized plugin
 			if (PluginHttpServiceTrace.reject(stat0.ctx, req, res)
-					// reject by max_active_service
-					|| TraceContextManager.size() > conf.max_active_service) {
+					// reject by control_reject_service_max_count
+					|| TraceContextManager.size() > conf.control_reject_service_max_count) {
 				// howto reject
-				if (conf.enable_reject_url) {
-					http.rejectUrl(res, conf.reject_url); // by url
+				if (conf.control_reject_redirect_url_enabled) {
+					http.rejectUrl(res, conf.control_reject_redirect_url); // by url
 				} else {
-					http.rejectText(res, conf.reject_text);// just message
+					http.rejectText(res, conf.control_reject_text);// just message
 				}
 				// close transaction
 				endHttpService(stat0, REJECT);
@@ -119,19 +119,19 @@ public class TraceMain {
 			Configure conf = Configure.getInstance();
 		
 			StringBuilder sb = new StringBuilder();
-			if (conf.service_post_key != null) {
-				String v = http.getParameter(req, conf.service_post_key);
+			if (conf.trace_service_name_post_key != null) {
+				String v = http.getParameter(req, conf.trace_service_name_post_key);
 				if (v != null) {
 					if (sb.length() == 0) {
 						sb.append(ctx.serviceName);
-						sb.append('?').append(conf.service_post_key).append("=").append(v);
+						sb.append('?').append(conf.trace_service_name_post_key).append("=").append(v);
 					} else {
-						sb.append('&').append(conf.service_post_key).append("=").append(v);
+						sb.append('&').append(conf.trace_service_name_post_key).append("=").append(v);
 					}
 				}
 			}
-			if (conf.service_get_key != null && ctx.http_query != null) {
-				int x = ctx.http_query.indexOf(conf.service_get_key);
+			if (conf.trace_service_name_get_key != null && ctx.http_query != null) {
+				int x = ctx.http_query.indexOf(conf.trace_service_name_get_key);
 				if (x >= 0) {
 					String v = null;
 					int y = ctx.http_query.indexOf('&', x + 1);
@@ -148,8 +148,8 @@ public class TraceMain {
 					}
 				}
 			}
-			if (conf.service_header_key != null) {
-				String v = http.getHeader(req, conf.service_header_key);
+			if (conf.trace_service_name_header_key != null) {
+				String v = http.getHeader(req, conf.trace_service_name_header_key);
 				ctx.serviceName = new StringBuilder(ctx.serviceName.length() + v.length() + 5).append(ctx.serviceName)
 						.append('-').append(v).toString();
 			}
@@ -165,14 +165,14 @@ public class TraceMain {
 			initHttp(req);
 		}
 		Configure conf = Configure.getInstance();
-		TraceContext ctx = new TraceContext(conf.enable_profile_summary);
+		TraceContext ctx = new TraceContext(conf.profile_summary_mode_enabled);
 		ctx.thread = Thread.currentThread();
 		ctx.txid = KeyGen.next();
 		ctx.startTime = System.currentTimeMillis();
 		ctx.startCpu = SysJMX.getCurrentThreadCPU();
 		ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
 		ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
-		ctx.profile_thread_cputime = conf.profile_thread_cputime;
+		ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
 		
 		http.start(ctx, req, res);
 		if (ctx.serviceName == null)
@@ -203,14 +203,14 @@ public class TraceMain {
 					if (ctx != null && ctx.error == 0) {
 						Configure conf = Configure.getInstance();
 						String emsg = thr.toString();
-						if (conf.profile_fullstack_service_error) {
+						if (conf.profile_fullstack_service_error_enabled) {
 							StringBuffer sb = new StringBuffer();
 							sb.append(emsg).append("\n");
-							ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+							ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
 							thr = thr.getCause();
 							while (thr != null) {
 								sb.append("\nCause...\n");
-								ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+								ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
 								thr = thr.getCause();
 							}
 							emsg = sb.toString();
@@ -224,7 +224,7 @@ public class TraceMain {
 			}
 			TraceContext ctx = stat0.ctx;
 			   
-			if(conf.enduser_perf_endpoint_hash == ctx.serviceHash){
+			if(conf.getEndUserPerfEndpointHash() == ctx.serviceHash){
 				TraceContextManager.end(ctx.threadId);
 				return;
 			}
@@ -245,7 +245,7 @@ public class TraceMain {
 			XLogPack pack = new XLogPack();
 			// pack.endTime = System.currentTimeMillis();
 			pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
-			boolean sendOk = pack.elapsed >= conf.xlog_time_limit;
+			boolean sendOk = pack.elapsed >= conf.xlog_lower_bound_time_ms;
 			ctx.profile.close(sendOk);
 			ctx.serviceHash = DataProxy.sendServiceName(ctx.serviceName);
 			pack.service = ctx.serviceHash;
@@ -265,19 +265,19 @@ public class TraceMain {
 			} else if (thr != null) {
 				if (thr == REJECT) {
 					Logger.println("A145", ctx.serviceName);
-					String emsg = conf.reject_text;
+					String emsg = conf.control_reject_text;
 					pack.error = DataProxy.sendError(emsg);
 					ServiceSummary.getInstance().process(thr, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
 				} else {
 					String emsg = thr.toString();
-					if (conf.profile_fullstack_service_error) {
+					if (conf.profile_fullstack_service_error_enabled) {
 						StringBuffer sb = new StringBuffer();
 						sb.append(emsg).append("\n");
-						ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+						ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
 						thr = thr.getCause();
 						while (thr != null) {
 							sb.append("\nCause...\n");
-							ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+							ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
 							thr = thr.getCause();
 						}
 						emsg = sb.toString();
@@ -345,7 +345,7 @@ public class TraceMain {
 				return null;
 			}
 			Configure conf = Configure.getInstance();
-			ctx = new TraceContext(conf.enable_profile_summary);
+			ctx = new TraceContext(conf.profile_summary_mode_enabled);
 			String service_name = name;
 			ctx.thread = Thread.currentThread();
 			ctx.serviceHash = HashUtil.hash(service_name);
@@ -355,7 +355,7 @@ public class TraceMain {
 			ctx.txid = KeyGen.next();
 			ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
 			ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
-			ctx.profile_thread_cputime = conf.profile_thread_cputime;
+			ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
 			ctx.xType = xType;
 			PluginAppServiceTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
 			if (ctx.xType == XLogTypes.BACK_THREAD) {
@@ -406,7 +406,7 @@ public class TraceMain {
 			pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 			// pack.endTime = System.currentTimeMillis();
 			pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
-			boolean sendOk = pack.elapsed >= Configure.getInstance().xlog_time_limit;
+			boolean sendOk = pack.elapsed >= Configure.getInstance().xlog_lower_bound_time_ms;
 			ctx.profile.close(sendOk);
 			DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
 			pack.service = ctx.serviceHash;
@@ -450,14 +450,14 @@ public class TraceMain {
 		} else if (thr != null) {
 			Configure conf = Configure.getInstance();
 			String emsg = thr.toString();
-			if (conf.profile_fullstack_service_error) {
+			if (conf.profile_fullstack_service_error_enabled) {
 				StringBuffer sb = new StringBuffer();
 				sb.append(emsg).append("\n");
-				ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+				ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
 				thr = thr.getCause();
 				while (thr != null) {
 					sb.append("\nCause...\n");
-					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
 					thr = thr.getCause();
 				}
 				emsg = sb.toString();
@@ -476,7 +476,7 @@ public class TraceMain {
 			return;
 		// MessageStep step = new MessageStep();
 		// step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		// if (ctx.profile_thread_cputime) {
+		// if (ctx.profile_thread_cputime_enabled) {
 		// step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		// }
 		// step.message = toString("CAP-ARG", className, methodName, methodDesc,
@@ -543,7 +543,7 @@ public class TraceMain {
 			return;
 		// MessageStep step = new MessageStep();
 		// step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		// if (ctx.profile_thread_cputime) {
+		// if (ctx.profile_thread_cputime_enabled) {
 		// step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		// }
 		// step.message = toStringTHIS("CAP-THIS", className, methodDesc,
@@ -559,13 +559,13 @@ public class TraceMain {
 	}
 	private static Configure conf = Configure.getInstance();
 	public static Object startMethod(int hash, String classMethod) {
-		if (conf.trace_method_enabled == false)
+		if (conf.profile_method_enabled == false)
 			return null;
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
-			if (conf.enable_auto_service_trace) {
+			if (conf._trace_auto_service_enabled) {
 				Object stat = startService(classMethod, null, null, null, null, null, XLogTypes.APP_SERVICE);
-				if (conf.enable_auto_service_backstack) {
+				if (conf._trace_auto_service_backstack_enabled) {
 					String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
 					AutoServiceStartAnalyzer.put(classMethod, stack);
 					MessageStep m = new MessageStep();

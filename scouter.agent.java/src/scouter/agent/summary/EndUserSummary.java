@@ -39,7 +39,7 @@ public class EndUserSummary {
 	private Configure conf = Configure.getInstance();
 
 	public void process(EndUserNavigationData p) {
-		if (conf.enable_summary == false)
+		if (conf.summary_enabled == false)
 			return;
 		// service summary
 		long key = BitUtil.composite(p.uri, p.ip);
@@ -69,7 +69,7 @@ public class EndUserSummary {
 	}
 
 	public void process(EndUserErrorData p) {
-		if (conf.enable_summary == false)
+		if (conf.summary_enabled == false)
 			return;
 		long key = BitUtil.composite(p.stacktrace, p.userAgent);
 		EndUserErrorData d = errorTable.get(key);
@@ -81,7 +81,7 @@ public class EndUserSummary {
 	}
 
 	public void process(EndUserAjaxData p) {
-		if (conf.enable_summary == false)
+		if (conf.summary_enabled == false)
 			return;
 		long key = BitUtil.composite(p.uri, p.ip);
 		EndUserAjaxData d = ajaxTable.get(key);
@@ -94,11 +94,11 @@ public class EndUserSummary {
 	}
 
 	private LongKeyLinkedMap<EndUserNavigationData> navTable = new LongKeyLinkedMap<EndUserNavigationData>()
-			.setMax(conf.summary_enduser_nav_max);
+			.setMax(conf.summary_enduser_nav_max_count);
 	private LongKeyLinkedMap<EndUserAjaxData> ajaxTable = new LongKeyLinkedMap<EndUserAjaxData>()
-			.setMax(conf.summary_enduser_ajax_max);
+			.setMax(conf.summary_enduser_ajax_max_count);
 	private LongKeyLinkedMap<EndUserErrorData> errorTable = new LongKeyLinkedMap<EndUserErrorData>()
-			.setMax(conf.summary_enduser_error_max);
+			.setMax(conf.summary_enduser_error_max_count);
 
 	public SummaryPack getAndClearNavTable() {
 
@@ -106,7 +106,7 @@ public class EndUserSummary {
 			return null;
 
 		LongKeyLinkedMap<EndUserNavigationData> temp = navTable;
-		navTable = new LongKeyLinkedMap<EndUserNavigationData>().setMax(conf.summary_enduser_nav_max);
+		navTable = new LongKeyLinkedMap<EndUserNavigationData>().setMax(conf.summary_enduser_nav_max_count);
 
 		SummaryPack p = new SummaryPack();
 		p.stype = SummaryEnum.ENDUSER_NAVIGATION_TIME;
@@ -173,7 +173,7 @@ public class EndUserSummary {
 			return null;
 
 		LongKeyLinkedMap<EndUserAjaxData> temp = ajaxTable;
-		ajaxTable = new LongKeyLinkedMap<EndUserAjaxData>().setMax(conf.summary_enduser_ajax_max);
+		ajaxTable = new LongKeyLinkedMap<EndUserAjaxData>().setMax(conf.summary_enduser_ajax_max_count);
 
 		SummaryPack p = new SummaryPack();
 		p.stype = SummaryEnum.ENDUSER_AJAX_TIME;
@@ -209,7 +209,7 @@ public class EndUserSummary {
 			return null;
 
 		LongKeyLinkedMap<EndUserErrorData> temp = errorTable;
-		errorTable = new LongKeyLinkedMap<EndUserErrorData>().setMax(conf.summary_enduser_error_max);
+		errorTable = new LongKeyLinkedMap<EndUserErrorData>().setMax(conf.summary_enduser_error_max_count);
 
 		SummaryPack p = new SummaryPack();
 		p.stype = SummaryEnum.ENDUSER_SCRIPT_ERROR;
