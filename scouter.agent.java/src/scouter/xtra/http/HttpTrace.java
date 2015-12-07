@@ -17,14 +17,6 @@
 
 package scouter.xtra.http;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Enumeration;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import scouter.agent.Configure;
 import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.netio.data.DataProxy;
@@ -32,15 +24,20 @@ import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.EndUserAjaxData;
 import scouter.agent.summary.EndUserErrorData;
 import scouter.agent.summary.EndUserNavigationData;
+import scouter.agent.summary.EndUserSummary;
 import scouter.agent.trace.IProfileCollector;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceMain;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.step.MessageStep;
-import scouter.util.CompareUtil;
-import scouter.util.HashUtil;
-import scouter.util.Hexa32;
-import scouter.util.StringUtil;
+import scouter.util.*;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Enumeration;
 
 public class HttpTrace implements IHttpTrace {
 	public HttpTrace() {
@@ -81,11 +78,10 @@ public class HttpTrace implements IHttpTrace {
 
 		ctx.serviceName = getRequestURI(request);
 		ctx.serviceHash = HashUtil.hash(ctx.serviceName);
-		
-		//
-		if(ctx.serviceHash == conf.getEndUserPerfEndpointHash()){
+
+        if(ctx.serviceHash == conf.getEndUserPerfEndpointHash()){
 			ctx.isStaticContents=true;
-			enduser(request);
+			processEndUserData(request);
 			return;
 		}
 		
@@ -184,12 +180,36 @@ public class HttpTrace implements IHttpTrace {
 		}
 	}
 
-	private void enduser(HttpServletRequest request) {
+	private void processEndUserData(HttpServletRequest request) {
 		EndUserNavigationData nav;
 		EndUserErrorData err;
 		EndUserAjaxData ajax;
-		
-		
+
+		if("err".equals(request.getParameter("p"))) {
+			EndUserErrorData data = new EndUserErrorData();
+
+            data.count = 1;
+			data.stacktrace = DataProxy.sendError(StringUtil.nullToEmpty(request.getParameter("stacktrace")));
+			data.userAgent = DataProxy.sendUserAgent(StringUtil.nullToEmpty(request.getParameter("userAgent")));
+            data.host = DataProxy.sendServiceName(StringUtil.nullToEmpty(request.getParameter("host")));
+            data.uri = DataProxy.sendServiceName(StringUtil.nullToEmpty(request.getParameter("uri")));
+			data.message = DataProxy.sendError(StringUtil.nullToEmpty(request.getParameter("message")));
+            data.name = DataProxy.sendError(StringUtil.nullToEmpty(request.getParameter("name")));
+            data.file = DataProxy.sendServiceName(StringUtil.nullToEmpty(request.getParameter("file")));
+			data.lineNumber = CastUtil.cint(request.getParameter("lineNumber"));
+			data.columnNumber = CastUtil.cint(request.getParameter("columnNumber"));
+
+            //Logger.println("@ input error data -> print");
+            //Logger.println(data);
+
+            EndUserSummary.getInstance().process(data);
+
+		} else if("nav".equals(request.getParameter("p"))) {
+
+		} else if("ax".equals(request.getParameter("p"))) {
+
+		}
+
 		//EndUserSummary.getInstance().process(p);
 		
 	}

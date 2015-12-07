@@ -17,14 +17,31 @@
 package scouter.agent.summary;
 
 public class EndUserErrorData {
-	public int stacktrace;
+    public int count;
+
+    public int host;
+    public int uri;
+    public int stacktrace;
 	public int userAgent;
-	public int count;
-	//
-	public int uri;
+	public int name;
 	public int message;
 	public int file;
-	public int lineNumber;// :1
-	public int columnNumber;// :26
-	public int payloadVersion;// :2
+    public int lineNumber;
+    public int columnNumber;
+
+    @Override
+    public String toString() {
+        return "EndUserErrorData{" +
+                "count=" + count +
+                ", host=" + host +
+                ", uri=" + uri +
+                ", stacktrace=" + stacktrace +
+                ", userAgent=" + userAgent +
+                ", name=" + name +
+                ", message=" + message +
+                ", file=" + file +
+                ", lineNumber=" + lineNumber +
+                ", columnNumber=" + columnNumber +
+                '}';
+    }
 }

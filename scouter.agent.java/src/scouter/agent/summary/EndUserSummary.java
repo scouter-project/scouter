@@ -16,14 +16,14 @@
  */
 package scouter.agent.summary;
 
-import java.util.Enumeration;
-
 import scouter.agent.Configure;
 import scouter.lang.SummaryEnum;
 import scouter.lang.pack.SummaryPack;
 import scouter.lang.value.ListValue;
 import scouter.util.BitUtil;
 import scouter.util.LongKeyLinkedMap;
+
+import java.util.Enumeration;
 
 public class EndUserSummary {
 
@@ -38,59 +38,60 @@ public class EndUserSummary {
 
 	private Configure conf = Configure.getInstance();
 
-	public void process(EndUserNavigationData p) {
+	public void process(EndUserNavigationData data) {
 		if (conf.summary_enabled == false)
 			return;
 		// service summary
-		long key = BitUtil.composite(p.uri, p.ip);
+		long key = BitUtil.composite(data.uri, data.ip);
 		EndUserNavigationData d = navTable.get(key);
 		if (d == null) {
-			navTable.put(key, p);
+			navTable.put(key, data);
 			return;
 		}
-		d.count += p.count;
-		d.unloadEventStart += p.unloadEventStart;
-		d.unloadEventEnd += p.unloadEventEnd;
-		d.fetchStart += p.fetchStart;
-		d.domainLookupStart += p.domainLookupStart;
-		d.domainLookupEnd += p.domainLookupEnd;
-		d.connectStart += p.connectStart;
-		d.connectEnd += p.connectEnd;
-		d.requestStart += p.requestStart;
-		d.responseStart += p.responseStart;
-		d.responseEnd += p.responseEnd;
-		d.domLoading += p.domLoading;
-		d.domInteractive += p.domInteractive;
-		d.domContentLoadedEventStart += p.domContentLoadedEventStart;
-		d.domContentLoadedEventEnd += p.domContentLoadedEventEnd;
-		d.domComplete += p.domComplete;
-		d.loadEventStart += p.loadEventStart;
-		d.loadEventEnd += p.loadEventEnd;
+		d.count += data.count;
+		d.unloadEventStart += data.unloadEventStart;
+		d.unloadEventEnd += data.unloadEventEnd;
+		d.fetchStart += data.fetchStart;
+		d.domainLookupStart += data.domainLookupStart;
+		d.domainLookupEnd += data.domainLookupEnd;
+		d.connectStart += data.connectStart;
+		d.connectEnd += data.connectEnd;
+		d.requestStart += data.requestStart;
+		d.responseStart += data.responseStart;
+		d.responseEnd += data.responseEnd;
+		d.domLoading += data.domLoading;
+		d.domInteractive += data.domInteractive;
+		d.domContentLoadedEventStart += data.domContentLoadedEventStart;
+		d.domContentLoadedEventEnd += data.domContentLoadedEventEnd;
+		d.domComplete += data.domComplete;
+		d.loadEventStart += data.loadEventStart;
+		d.loadEventEnd += data.loadEventEnd;
 	}
 
-	public void process(EndUserErrorData p) {
+	public void process(EndUserErrorData data) {
 		if (conf.summary_enabled == false)
 			return;
-		long key = BitUtil.composite(p.stacktrace, p.userAgent);
+
+		long key = BitUtil.composite(data.stacktrace, data.userAgent);
 		EndUserErrorData d = errorTable.get(key);
 		if (d == null) {
-			errorTable.put(key, p);
+			errorTable.put(key, data);
 			return;
 		}
-		d.count += p.count;
+		d.count += data.count;
 	}
 
-	public void process(EndUserAjaxData p) {
+	public void process(EndUserAjaxData data) {
 		if (conf.summary_enabled == false)
 			return;
-		long key = BitUtil.composite(p.uri, p.ip);
+		long key = BitUtil.composite(data.uri, data.ip);
 		EndUserAjaxData d = ajaxTable.get(key);
 		if (d == null) {
-			ajaxTable.put(key, p);
+			ajaxTable.put(key, data);
 			return;
 		}
-		d.count += p.count;
-		d.duration += p.duration;
+		d.count += data.count;
+		d.duration += data.duration;
 	}
 
 	private LongKeyLinkedMap<EndUserNavigationData> navTable = new LongKeyLinkedMap<EndUserNavigationData>()
@@ -169,7 +170,7 @@ public class EndUserSummary {
 
 	public SummaryPack getAndClearAjaxTable() {
 
-		if (navTable.size() == 0)
+		if (ajaxTable.size() == 0)
 			return null;
 
 		LongKeyLinkedMap<EndUserAjaxData> temp = ajaxTable;
@@ -205,7 +206,7 @@ public class EndUserSummary {
 	}
 	public SummaryPack getAndClearErrorTable() {
 
-		if (navTable.size() == 0)
+		if (errorTable.size() == 0)
 			return null;
 
 		LongKeyLinkedMap<EndUserErrorData> temp = errorTable;
@@ -221,29 +222,33 @@ public class EndUserSummary {
 		ListValue userAgent = p.table.newList("userAgent");
 
 		ListValue uri = p.table.newList("uri");
+		ListValue name = p.table.newList("name");
 		ListValue message = p.table.newList("message");
 		ListValue file = p.table.newList("file");
 		ListValue lineNumber = p.table.newList("lineNumber");
 		ListValue columnNumber = p.table.newList("columnNumber");
-		ListValue payloadVersion = p.table.newList("payloadVersion");
 
 		Enumeration<LongKeyLinkedMap.ENTRY> en = temp.entries();
 		for (int i = 0; i < cnt; i++) {
+
 			LongKeyLinkedMap.ENTRY<EndUserErrorData> ent = en.nextElement();
 			long key = ent.getKey();
 			EndUserErrorData data = ent.getValue();
-			id.add(key);
+
+            //Logger.println("@ getAndClearErrorTable --> print datas");
+            //Logger.println(data);
+
+            id.add(key);
 			count.add(data.count);
 			stacktrace.add(data.stacktrace);
 			userAgent.add(data.userAgent);
 
 			uri.add(data.uri);
+			name.add(data.name);
 			message.add(data.message);
 			file.add(data.file);
 			lineNumber.add(data.lineNumber);
 			columnNumber.add(data.columnNumber);
-			payloadVersion.add(data.payloadVersion);
-
 		}
 		return p;
 	}

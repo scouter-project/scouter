@@ -209,7 +209,7 @@ public class Configure extends Thread {
 	public int summary_enduser_error_max_count = 5000;
 	
 	//EndUser
-	public String enduser_trace_endpoint_url = "_scouter_browser.jsp";
+	public String enduser_trace_endpoint_url = "/_scouter_browser.jsp";
 
 	//internal variables
 	private int objHash;

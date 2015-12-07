@@ -118,7 +118,7 @@ THE SOFTWARE.*/
     sendToScouter({
       name: name || exception.name,
       message: exception.message || exception.description,
-      stacktrace: stacktraceFromException(exception) || generateStacktrace(),
+      stacktrace: stacktraceFromException(exception) || generateStacktrace(exception.message || exception.description),
       file: exception.fileName || exception.sourceURL,
       lineNumber: exception.lineNumber || exception.line,
       columnNumber: exception.columnNumber ? exception.columnNumber + 1 : undefined,
@@ -134,7 +134,7 @@ THE SOFTWARE.*/
     sendToScouter({
       name: name,
       message: message,
-      stacktrace: generateStacktrace(),
+      stacktrace: generateStacktrace(message),
       // These are defaults so that 'scouter.notify()' calls show up in old IE,
       // newer browsers get a legit stacktrace from generateStacktrace().
       file: window.location.toString(),
@@ -479,7 +479,7 @@ THE SOFTWARE.*/
   // Generate a browser stacktrace (or approximation) from the current stack.
   // This is used to add a stacktrace to `Scouter.notify` calls, and to add a
   // stacktrace approximation where we can't get one from an exception.
-  function generateStacktrace() {
+  function generateStacktrace(message) {
     var generated, stacktrace;
     var MAX_FAKE_STACK_SIZE = 10;
     var ANONYMOUS_FUNCTION_PLACEHOLDER = "[anonymous]";
@@ -515,7 +515,7 @@ THE SOFTWARE.*/
     // generateStacktrace() + window.onerror,
     // generateStacktrace() + notify,
     // generateStacktrace() + notifyException
-    return generated + stacktrace;
+    return generated + "<msg:"+ message + ">" + stacktrace;
   }
 
   // Get the stacktrace string from an exception
@@ -630,7 +630,7 @@ THE SOFTWARE.*/
             file: url,
             lineNumber: lineNo,
             columnNumber: charNo,
-            stacktrace: (exception && stacktraceFromException(exception)) || generateStacktrace(),
+            stacktrace: (exception && stacktraceFromException(exception)) || generateStacktrace(message),
             severity: "error"
           }, metaData);
         }
