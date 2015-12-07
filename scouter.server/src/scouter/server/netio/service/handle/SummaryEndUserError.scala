@@ -33,6 +33,7 @@ class SummaryEndUserError {
   class Temp1() {
 
     var id: Long = 0L;
+    var host: Int = 0
     var stacktrace: Int = 0
     var userAgent: Int = 0
     var count: Int = 0
@@ -59,6 +60,7 @@ class SummaryEndUserError {
       if (p.stype == SummaryEnum.ENDUSER_SCRIPT_ERROR && (objType == null || objType == p.objType)) {
         val id = p.table.getList("id")
 
+        var host = p.table.getList("host")
         var stacktrace = p.table.getList("stacktrace")
         var userAgent = p.table.getList("userAgent")
         var count = p.table.getList("count")
@@ -68,13 +70,13 @@ class SummaryEndUserError {
         var file = p.table.getList("file")
         var lineNumber = p.table.getList("lineNumber")
         var columnNumber = p.table.getList("columnNumber")
-        var payloadVersion = p.table.getList("payloadVersion")
 
         for (i <- 0 to id.size() - 1) {
           var tempObj = tempMap.get(id.getInt(i));
           if (tempObj == null) {
             tempObj = new Temp1();
             tempObj.id = id.getLong(i);
+            tempObj.host = stacktrace.getInt(i);
             tempObj.stacktrace = stacktrace.getInt(i);
             tempObj.userAgent = userAgent.getInt(i);
             tempObj.uri = uri.getInt(i)
@@ -82,7 +84,6 @@ class SummaryEndUserError {
             tempObj.file = file.getInt(i)
             tempObj.lineNumber = lineNumber.getInt(i)
             tempObj.columnNumber = columnNumber.getInt(i)
-            tempObj.payloadVersion = payloadVersion.getInt(i)
 
             tempMap.put(tempObj.id, tempObj);
           }
@@ -93,23 +94,24 @@ class SummaryEndUserError {
 
     SummaryRD.readByTime(SummaryEnum.ENDUSER_SCRIPT_ERROR, date, stime, etime, handler)
 
-    val map = new MapPack();
+    val map = new MapPack()
     var id = map.newList("id")
-    var stacktrace = map.newList("stacktrace");
-    var userAgent = map.newList("userAgent");
-    var uri = map.newList("uri");
-    var message = map.newList("message");
-    var file = map.newList("file");
-    var lineNumber = map.newList("lineNumber");
-    var columnNumber = map.newList("columnNumber");
-    var payloadVersion = map.newList("payloadVersion");
+    var host = map.newList("host")
+    var stacktrace = map.newList("stacktrace")
+    var userAgent = map.newList("userAgent")
+    var uri = map.newList("uri")
+    var message = map.newList("message")
+    var file = map.newList("file")
+    var lineNumber = map.newList("lineNumber")
+    var columnNumber = map.newList("columnNumber")
 
-    val itr = tempMap.keys();
+    val itr = tempMap.keys()
     while (itr.hasMoreElements()) {
-      val key = itr.nextLong();
-      val obj = tempMap.get(key);
+      val key = itr.nextLong()
+      val obj = tempMap.get(key)
 
       id.add(obj.id)
+      host.add(obj.host);
       stacktrace.add(obj.stacktrace)
       userAgent.add(obj.userAgent)
       uri.add(obj.uri)
@@ -117,11 +119,10 @@ class SummaryEndUserError {
       file.add(obj.file)
       lineNumber.add(obj.lineNumber)
       columnNumber.add(obj.columnNumber)
-      payloadVersion.add(obj.payloadVersion)
     }
 
-    dout.writeByte(TcpFlag.HasNEXT);
-    dout.writePack(map);
+    dout.writeByte(TcpFlag.HasNEXT)
+    dout.writePack(map)
   }
 
 }
