@@ -570,7 +570,7 @@ public class TraceMain {
 					AutoServiceStartAnalyzer.put(classMethod, stack);
 					MessageStep m = new MessageStep();
 					m.message = "SERVICE BACKSTACK:\n" + stack;
-					((Stat) stat).ctx.profile.add(m);
+					((LocalContext) stat).context.profile.add(m);
 				}
 				return new LocalContext(stat);
 			}
