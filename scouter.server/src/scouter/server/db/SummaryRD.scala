@@ -27,64 +27,70 @@ import scouter.lang.SummaryEnum
 
 object SummaryRD {
 
-    def readByTime(stype: Byte, date: String, fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any) {
+  def readByTime(stype: Byte, date: String, fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any) {
 
-        val path = SummaryWR.getDBPath(date);
-        if (new File(path).canRead()) {
-            val file = path + "/" + SummaryWR.root;
-            var reader: SummaryReader = null;
-            var table: SummaryIndex = null;
-            try {
-                reader = SummaryReader.open(file)
-                stype match {
-                    case SummaryEnum.APP => table = SummaryIndex.open(file + "_app")
-                    case SummaryEnum.SQL => table = SummaryIndex.open(file + "_sql")
-                    case _ => table = SummaryIndex.open(file + "_other")
-                }
-                table.read(fromTime, toTime, handler, reader.read)
-            } catch {
-                case e: Throwable => e.printStackTrace();
-            } finally {
-                FileUtil.close(table);
-                FileUtil.close(reader);
-            }
+    val path = SummaryWR.getDBPath(date);
+    if (new File(path).canRead()) {
+      val file = path + "/" + SummaryWR.root;
+      var reader: SummaryReader = null;
+      var table: SummaryIndex = null;
+      try {
+        reader = SummaryReader.open(file)
+        stype match {
+          case SummaryEnum.APP => table = SummaryIndex.open(file + "_app")
+          case SummaryEnum.SQL => table = SummaryIndex.open(file + "_sql")
+          case SummaryEnum.ENDUSER_NAVIGATION_TIME |
+            SummaryEnum.ENDUSER_AJAX_TIME |
+            SummaryEnum.ENDUSER_SCRIPT_ERROR => table = SummaryIndex.open(file + "_enduser")
+          case _ => table = SummaryIndex.open(file + "_other")
         }
+        table.read(fromTime, toTime, handler, reader.read)
+      } catch {
+        case e: Throwable => e.printStackTrace();
+      } finally {
+        FileUtil.close(table);
+        FileUtil.close(reader);
+      }
     }
+  }
 
-    def readByTime(stype: Byte, date: String, handler: (Long, Array[Byte]) => Any) {
-        val stime = DateUtil.yyyymmdd(date);
-        val etime = stime + DateUtil.MILLIS_PER_DAY;
-        readByTime(stype, date, stime, etime, handler);
-    }
+  def readByTime(stype: Byte, date: String, handler: (Long, Array[Byte]) => Any) {
+    val stime = DateUtil.yyyymmdd(date);
+    val etime = stime + DateUtil.MILLIS_PER_DAY;
+    readByTime(stype, date, stime, etime, handler);
+  }
 
-    def readFromEndTime(stype: Byte, date: String, handler: (Long, Array[Byte]) => Any) {
-        val stime = DateUtil.yyyymmdd(date)
-        val etime = stime + DateUtil.MILLIS_PER_DAY
-        readFromEndTime(stype, date, stime, etime, handler)
-    }
+  def readFromEndTime(stype: Byte, date: String, handler: (Long, Array[Byte]) => Any) {
+    val stime = DateUtil.yyyymmdd(date)
+    val etime = stime + DateUtil.MILLIS_PER_DAY
+    readFromEndTime(stype, date, stime, etime, handler)
+  }
 
-    def readFromEndTime(stype: Byte, date: String, fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any) {
+  def readFromEndTime(stype: Byte, date: String, fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any) {
 
-        val path = SummaryWR.getDBPath(date);
-        if (new File(path).canRead()) {
-            val file = path + "/" + SummaryWR.root;
-            var reader: SummaryReader = null;
-            var table: SummaryIndex = null;
-            try {
-                reader = SummaryReader.open(file);
-                stype match {
-                    case SummaryEnum.APP => table = SummaryIndex.open(file + "_app")
-                    case SummaryEnum.SQL => table = SummaryIndex.open(file + "_sql")
-                    case _ => table = SummaryIndex.open(file + "_other")
-                }
-                table.readFromEnd(fromTime, toTime, handler, reader.read)
-            } catch {
-                case e: Throwable => e.printStackTrace();
-            } finally {
-                FileUtil.close(table);
-                FileUtil.close(reader);
-            }
+    val path = SummaryWR.getDBPath(date);
+    if (new File(path).canRead()) {
+      val file = path + "/" + SummaryWR.root;
+      var reader: SummaryReader = null;
+      var table: SummaryIndex = null;
+      try {
+        reader = SummaryReader.open(file);
+        stype match {
+          case SummaryEnum.APP => table = SummaryIndex.open(file + "_app")
+          case SummaryEnum.SQL => table = SummaryIndex.open(file + "_sql")
+          case SummaryEnum.ENDUSER_NAVIGATION_TIME |
+            SummaryEnum.ENDUSER_AJAX_TIME |
+            SummaryEnum.ENDUSER_SCRIPT_ERROR => table = SummaryIndex.open(file + "_enduser")
+          case _ => table = SummaryIndex.open(file + "_other")
         }
+        table.readFromEnd(fromTime, toTime, handler, reader.read)
+      } catch {
+        case e: Throwable => e.printStackTrace();
+      } finally {
+        FileUtil.close(table);
+        FileUtil.close(reader);
+      }
     }
+  }
 
 }

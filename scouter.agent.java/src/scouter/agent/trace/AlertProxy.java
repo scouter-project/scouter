@@ -18,7 +18,6 @@ package scouter.agent.trace;
 
 import scouter.agent.Configure;
 import scouter.agent.netio.data.DataProxy;
-import scouter.lang.value.MapValue;
 import scouter.util.LinkedMap;
 import scouter.util.StringUtil;
 
@@ -36,7 +35,7 @@ public class AlertProxy {
 
 		Long last = sendTimeTable.get(title);
 
-		if (last == null || now - last.longValue() >= conf.alert_send_interval) {
+		if (last == null || now - last.longValue() >= conf.alert_send_interval_ms) {
 			sendTimeTable.put(title, now);
 			DataProxy.sendAlert(level, title, StringUtil.limiting(emsg, conf.alert_message_length), null);
 		}

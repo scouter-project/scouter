@@ -24,17 +24,19 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Monitor;
-import org.eclipse.ui.IViewReference;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -43,16 +45,15 @@ import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Activator;
 import scouter.client.Images;
-import scouter.client.model.DetachedManager;
 import scouter.client.model.XLogData;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.MyKeyAdapter;
-import scouter.client.util.ScouterUtil;
 import scouter.client.xlog.ProfileText;
 import scouter.client.xlog.SaveProfileJob;
 import scouter.client.xlog.actions.OpenXLogProfileJob;
 import scouter.client.xlog.actions.OpenXLogThreadProfileJob;
+import scouter.client.xlog.dialog.XlogSummarySQLDialog;
 import scouter.lang.step.Step;
 import scouter.util.CacheTable;
 import scouter.util.DateUtil;
@@ -66,6 +67,7 @@ public class XLogProfileView extends ViewPart {
 	private StyledText text;
 	private XLogData xLogData;
 	private String txid;
+	Menu contextMenu;
 	
 	IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 	
@@ -94,34 +96,35 @@ public class XLogProfileView extends ViewPart {
 		text.addKeyListener(adapter);
 		
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
-		Action gridBackAct = new Action("Grid Background", IAction.AS_CHECK_BOX) {
-			public void run() {
-				if (isChecked()) {
-					text.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
-				} else {
-					text.setBackgroundImage(null);
-				}
-			}
-		};
-		gridBackAct.setImageDescriptor(ImageUtil.getImageDescriptor(Images.grid));
-		gridBackAct.setChecked(true);
-		man.add(gridBackAct);
-	    
+		man.add(openSqlSummaryDialog);
+		
 	    IMenuManager menuManager = getViewSite().getActionBars().getMenuManager();
-	    menuManager.add(new Action("Save Full Profile") {
-			public void run() {
-				makeFullProfileToFile();
+	    menuManager.add(saveFullProfile);
+	    
+	    createContextMenu();
+	}
+	
+	private void createContextMenu() {
+		contextMenu = new Menu(text);
+		MenuItem sqlSummary = new MenuItem(contextMenu, SWT.PUSH);
+		sqlSummary.setText("SQL Statistics");
+		sqlSummary.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				openSqlSummaryDialog.run();
 			}
-	    });
+		});
+		MenuItem saveProfile = new MenuItem(contextMenu, SWT.PUSH);
+		saveProfile.setText("Save Full Profile");
+		saveProfile.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				saveFullProfile.run();
+			}
+		});
+	    text.setMenu(contextMenu);
 	}
 
 	public static boolean isSummary;
 	
-	private void makeFullProfileToFile() {
-		SaveProfileJob job = new SaveProfileJob("Save Profile...", xLogData.p.endTime, xLogData, txid, serverId, isSummary);
-		job.schedule();
-	}
-
 	boolean truncated;
 	private int serverId;
 	
@@ -231,13 +234,17 @@ public class XLogProfileView extends ViewPart {
 		super.dispose();
 	}
 	
-	public static void main(String[] args) {
-		String fulltxt = "call: UCON:http://127.0.0.1:8080/e2end.jsp 117 ms <z2bcfcg3hfcm0h>";
-		int startIndex = fulltxt.lastIndexOf("<");
-		if (startIndex > -1) {
-			int endIndex = fulltxt.lastIndexOf(">");
-			String txIdStr = fulltxt.substring(startIndex + 1, endIndex);
-			System.out.println(txIdStr);
+	Action openSqlSummaryDialog = new Action("SQL Statistics", ImageUtil.getImageDescriptor(Images.sum)) {
+		public void run() { 
+			XlogSummarySQLDialog summberSQLDialog = new XlogSummarySQLDialog(new Shell(Display.getDefault(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN), steps, xLogData);
+			summberSQLDialog.open();
 		}
-	}
+	};
+	
+	Action saveFullProfile = new Action("Save Full Profile") {
+		public void run() {
+			SaveProfileJob job = new SaveProfileJob("Save Profile...", xLogData.p.endTime, xLogData, txid, serverId, isSummary);
+			job.schedule();
+		}
+    };
 }

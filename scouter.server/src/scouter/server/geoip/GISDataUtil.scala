@@ -17,10 +17,10 @@ object GISDataUtil {
 
     var lookupService: LookupService = null
 
-    var path = conf.geoip_data_city;
+    var path = conf.geoip_data_city_file;
     ConfObserver.put("GISDataUtil") {
-        if (CompareUtil.equals(path, conf.geoip_data_city) == false) {
-            path = conf.geoip_data_city;
+        if (CompareUtil.equals(path, conf.geoip_data_city_file) == false) {
+            path = conf.geoip_data_city_file;
             load();
         }
     }
@@ -28,7 +28,7 @@ object GISDataUtil {
 
     def load() {
         try {
-            val fGeoIpDB = new File(conf.geoip_data_city);
+            val fGeoIpDB = new File(conf.geoip_data_city_file);
             if (fGeoIpDB.exists() == false) {
                 Logger.println("S145", "GeoIP db file is not readable : " + fGeoIpDB.getCanonicalPath());
             } else {

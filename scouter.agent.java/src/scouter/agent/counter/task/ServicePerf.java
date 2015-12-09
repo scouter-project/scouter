@@ -23,6 +23,7 @@ import scouter.agent.counter.anotation.Counter;
 import scouter.agent.counter.meter.MeterResource;
 import scouter.agent.counter.meter.MeterService;
 import scouter.agent.netio.data.DataProxy;
+import scouter.agent.summary.EndUserSummary;
 import scouter.agent.summary.ServiceSummary;
 import scouter.agent.trace.TraceContextManager;
 import scouter.agent.util.DumpUtil;
@@ -52,7 +53,7 @@ public class ServicePerf {
 
 		int[] act = TraceContextManager.getActiveCount();
 		int active = act[0] + act[1] + act[2];
-		if (conf.auto_dump_trigger <= active) {
+		if (conf.autodump_trigger_active_service_cnt <= active) {
 			DumpUtil.autoDump();
 		}
 		activeCounter.add(active);
@@ -119,7 +120,7 @@ public class ServicePerf {
 			p.time = time;
 			DataProxy.send(p);
 		}
-		
+
 		p = ServiceSummary.getInstance().getAndClearX(SummaryEnum.IP);
 		if (p != null) {
 			p.time = time;
@@ -131,6 +132,32 @@ public class ServicePerf {
 			DataProxy.send(p);
 		}
 		p = ServiceSummary.getInstance().getAndClearError(SummaryEnum.SERVICE_ERROR);
+		if (p != null) {
+			p.time = time;
+			DataProxy.send(p);
+		}
+	}
+
+	@Counter(interval = 500)
+	public void enduser(CounterBasket pw) {
+		long time = System.currentTimeMillis();
+		long now = DateUtil.getMinUnit(time) / 5;
+		if (now == last_sent)
+			return;
+		last_sent = now;
+		time = (time - 10000) / DateUtil.MILLIS_PER_FIVE_MINUTE * DateUtil.MILLIS_PER_FIVE_MINUTE;
+
+		SummaryPack p = EndUserSummary.getInstance().getAndClearNavTable();
+		if (p != null) {
+			p.time = time;
+			DataProxy.send(p);
+		}
+		p = EndUserSummary.getInstance().getAndClearAjaxTable();
+		if (p != null) {
+			p.time = time;
+			DataProxy.send(p);
+		}
+		p = EndUserSummary.getInstance().getAndClearErrorTable();
 		if (p != null) {
 			p.time = time;
 			DataProxy.send(p);

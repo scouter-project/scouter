@@ -34,15 +34,14 @@ import scouter.server.tagcnt.XLogTagCount
 import scouter.server.util.ThreadScala
 import scouter.util.RequestQueue
 
-object ServiceCore {
-
-  val queue = new RequestQueue[XLogPack](CoreRun.MAX_QUE_SIZE);
+object XLogCore {
 
   val conf = Configure.getInstance();
+  val queue = new RequestQueue[XLogPack](conf.xlog_queue_size);
 
   def calc(m: XLogPack) = {
     XLogGroupUtil.process(m);
-    if (conf.enable_geoip) {
+    if (conf.geoip_enabled) {
       GeoIpUtil.setNationAndCity(m);
     }
     XLogGroupPerf.add(m);

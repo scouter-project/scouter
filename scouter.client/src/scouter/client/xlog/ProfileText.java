@@ -677,7 +677,10 @@ public class ProfileText {
 		if (StringUtil.isEmpty(p.param) == false) {
 			sb.append("\n").append(StringUtil.leftPad("", lineHead));
 			Server server = ServerManager.getInstance().getServer(serverId);
-			boolean showParam = server.isAllowAction(GroupPolicyConstants.ALLOW_SQLPARAMETER);
+			boolean showParam = true;
+			if(server != null){
+				showParam = server.isAllowAction(GroupPolicyConstants.ALLOW_SQLPARAMETER);
+			}
 			sb.append("[").append(showParam ? p.param : "******").append("]");
 		}
 		sb.append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");

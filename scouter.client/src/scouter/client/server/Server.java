@@ -217,6 +217,10 @@ public class Server {
 	public boolean isDirty() {
 		return this.dirty;
 	}
+	
+	public long getCurrentTime() {
+		return System.currentTimeMillis() + getDelta();
+	}
 
 	public String toString() {
 		return "Server [id=" + id + ", name=" + name + ", ip=" + ip + ", port="

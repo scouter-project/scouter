@@ -58,7 +58,7 @@ object SqlTables {
 	 * 어느정도 서버에 부담을 줄지 알수 없다. 따라서 이문제를 해결하기 위해 parse 여부를 옵션 처리한다.
 	 */
     def add(date: String, sqlHash: Int, sqlText: String) {
-        if (Configure.getInstance().enable_sql_parsing == false)
+        if (Configure.getInstance().sql_table_parsing_enabled == false)
             return ;
         val data = new Data(date, sqlHash, sqlText);
         var ok = queue1.put(data);

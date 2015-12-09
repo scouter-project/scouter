@@ -30,7 +30,7 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 public class ApicallInfoASM implements IASM, Opcodes {
-	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_apicall_info);
+	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_apicall_info_patterns);
 	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
 	public ApicallInfoASM() {
 		AsmUtil.add(reserved, "io/reactivex/netty/protocol/http/client/HttpClientRequest", "setDynamicUriParts");
@@ -50,6 +50,9 @@ public class ApicallInfoASM implements IASM, Opcodes {
 		return false;
 	}
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
+		if (Configure.getInstance()._hook_methods_enabled == false) {
+			return cv;
+		}
 		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return new ApicallInfoCV(cv, mset, className);

@@ -78,8 +78,8 @@ public class ServiceHandlingProxy {
 						if (olds != null) {
 							Logger.println("Warning duplicated Handler key=" + key + " old=" + olds + " new=" + news);
 						} else {
-							if (Configure.getInstance().debug_request) {
-								Logger.println("RequestHandler " + key + "=>" + news);
+							if (Configure.getInstance().log_service_handler_list) {
+								Logger.println("ServiceHandler " + key + "=>" + news);
 							}
 						}
 						handlers.put(key, news);

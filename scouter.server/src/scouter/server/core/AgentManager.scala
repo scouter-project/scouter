@@ -60,7 +60,7 @@ object AgentManager {
     }
     ThreadScala.startDaemon("scouter.server.core.AgentManager", { CoreRun.running }, 1000) {
         val now = System.currentTimeMillis();
-        val deadtime = Configure.getInstance().agent_deadtime;
+        val deadtime = Configure.getInstance().object_deadtime_ms;
         val en = objMap.objects();
         var primaryObjCount = 0;
         while (en.hasMoreElements()) {

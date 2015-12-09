@@ -1,8 +1,6 @@
 package scouter.agent.netio.data.net;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import scouter.agent.Configure;
 import scouter.util.ThreadUtil;
@@ -27,7 +25,7 @@ public class TcpRequestMgr extends Thread {
 	public void run() {
 
 		while (true) {
-			int sessionCount = Configure.getInstance().server_tcp_session_count;
+			int sessionCount = Configure.getInstance().net_collector_tcp_session_count;
 			ThreadUtil.sleep(1000);
 			try {
 				for (int i = 0; i < sessionCount && TcpWorker.LIVE.size() < sessionCount; i++) {

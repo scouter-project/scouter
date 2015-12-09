@@ -17,37 +17,37 @@
 
 package scouter.xtra.http;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Enumeration;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import scouter.agent.Configure;
 import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.proxy.IHttpTrace;
+import scouter.agent.summary.EndUserAjaxData;
+import scouter.agent.summary.EndUserErrorData;
+import scouter.agent.summary.EndUserNavigationData;
+import scouter.agent.summary.EndUserSummary;
 import scouter.agent.trace.IProfileCollector;
 import scouter.agent.trace.TraceContext;
-import scouter.io.DataInputX;
+import scouter.agent.trace.TraceMain;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.step.MessageStep;
-import scouter.util.CompareUtil;
-import scouter.util.HashUtil;
-import scouter.util.Hexa32;
-import scouter.util.IPUtil;
-import scouter.util.StringUtil;
+import scouter.util.*;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Enumeration;
 
 public class HttpTrace implements IHttpTrace {
 	public HttpTrace() {
 		Configure conf = Configure.getInstance();
-		this.remote_by_header = StringUtil.isEmpty(conf.http_remote_ip_header_key) == false;
-		this.http_remote_ip_header_key = conf.http_remote_ip_header_key;
+		this.remote_by_header = StringUtil.isEmpty(conf.trace_http_client_ip_header_key) == false;
+		this.http_remote_ip_header_key = conf.trace_http_client_ip_header_key;
 
 		ConfObserver.add(HttpTrace.class.getName(), new Runnable() {
 			public void run() {
-				String x = Configure.getInstance().http_remote_ip_header_key;
+				String x = Configure.getInstance().trace_http_client_ip_header_key;
 				if (CompareUtil.equals(x, http_remote_ip_header_key) == false) {
 					remote_by_header = StringUtil.isEmpty(x) == false;
 					http_remote_ip_header_key = x;
@@ -77,13 +77,17 @@ public class HttpTrace implements IHttpTrace {
 		HttpServletResponse response = (HttpServletResponse) res;
 
 		ctx.serviceName = getRequestURI(request);
-
-		if (conf.service_header_key != null) {
-			String v = request.getHeader(conf.service_header_key);
-			ctx.serviceName = new StringBuilder(ctx.serviceName.length() + v.length() + 5).append(ctx.serviceName)
-					.append('-').append(v).toString();
-		}
 		ctx.serviceHash = HashUtil.hash(ctx.serviceName);
+
+        if(ctx.serviceHash == conf.getEndUserPerfEndpointHash()){
+			ctx.isStaticContents=true;
+			processEndUserData(request);
+			return;
+		}
+		
+		ctx.isStaticContents = TraceMain.isStaticContents(ctx.serviceName);
+
+		
 		ctx.http_method = request.getMethod();
 		ctx.http_query = request.getQueryString();
 		ctx.http_content_type = request.getContentType();
@@ -91,12 +95,12 @@ public class HttpTrace implements IHttpTrace {
 		ctx.remoteIp = getRemoteAddr(request);
 
 		try {
-			switch (conf.mode_userid) {
+			switch (conf.trace_user_mode) {
 			case 2:
 				ctx.userid = UseridUtil.getUserid(request, response);
 				break;
 			case 1:
-				ctx.userid = UseridUtil.getUseridCustom(request, response, conf.userid_jsessionid);
+				ctx.userid = UseridUtil.getUseridCustom(request, response, conf.trace_user_session_key);
 				if (ctx.userid == 0 && ctx.remoteIp != null) {
 					ctx.userid = HashUtil.hash(ctx.remoteIp);
 				}
@@ -121,18 +125,18 @@ public class HttpTrace implements IHttpTrace {
 			ctx.userAgentString = userAgent;
 		}
 		dump(ctx.profile, request, ctx);
-		if (conf.enable_trace_e2e) {
+		if (conf.trace_interservice_enabled) {
 			try {
-				String gxid = request.getHeader(conf.gxid);
+				String gxid = request.getHeader(conf.trace_interservice_gxid_header_key);
 				if (gxid != null) {
 					ctx.gxid = Hexa32.toLong32(gxid);
 				}
-				String txid = request.getHeader(conf.this_txid);
+				String txid = request.getHeader(conf.trace_interservice_callee_header_key);
 				if (txid != null) {
 					ctx.txid = Hexa32.toLong32(txid);
 					ctx.is_child_tx = true;
 				}
-				String caller = request.getHeader(conf.caller_txid);
+				String caller = request.getHeader(conf.trace_interservice_caller_header_key);
 				if (caller != null) {
 					ctx.caller = Hexa32.toLong32(caller);
 					ctx.is_child_tx = true;
@@ -141,18 +145,25 @@ public class HttpTrace implements IHttpTrace {
 			}
 		}
 
-		if (conf.enable_response_gxid) {
+		if (conf.trace_response_gxid_enabled && !ctx.isStaticContents) {
 			try {
 				if (ctx.gxid == 0)
 					ctx.gxid = ctx.txid;
-				response.setHeader(conf.gxid, Hexa32.toString32(ctx.gxid) + ":" + ctx.startTime);
+
+				String resGxId = Hexa32.toString32(ctx.gxid) + ":" + ctx.startTime;
+				response.setHeader(conf.trace_interservice_gxid_header_key, resGxId);
+
+				Cookie c = new Cookie(conf.trace_interservice_gxid_header_key, resGxId);
+				response.addCookie(c);
+
 			} catch (Throwable t) {
 			}
 		}
-		if (conf.enable_trace_web) {
+
+		if (conf.trace_webserver_enabled) {
 			try {
-				ctx.web_name = request.getHeader(conf.key_web_name);
-				String web_time = request.getHeader(conf.key_web_time);
+				ctx.web_name = request.getHeader(conf.trace_webserver_name_header_key);
+				String web_time = request.getHeader(conf.trace_webserver_time_header_key);
 				if (web_time != null) {
 					int x = web_time.indexOf("t=");
 					if (x >= 0) {
@@ -167,6 +178,40 @@ public class HttpTrace implements IHttpTrace {
 			} catch (Throwable t) {
 			}
 		}
+	}
+
+	private void processEndUserData(HttpServletRequest request) {
+		EndUserNavigationData nav;
+		EndUserErrorData err;
+		EndUserAjaxData ajax;
+
+		if("err".equals(request.getParameter("p"))) {
+			EndUserErrorData data = new EndUserErrorData();
+
+            data.count = 1;
+			data.stacktrace = DataProxy.sendError(StringUtil.nullToEmpty(request.getParameter("stacktrace")));
+			data.userAgent = DataProxy.sendUserAgent(StringUtil.nullToEmpty(request.getParameter("userAgent")));
+            data.host = DataProxy.sendServiceName(StringUtil.nullToEmpty(request.getParameter("host")));
+            data.uri = DataProxy.sendServiceName(StringUtil.nullToEmpty(request.getParameter("uri")));
+			data.message = DataProxy.sendError(StringUtil.nullToEmpty(request.getParameter("message")));
+            data.name = DataProxy.sendError(StringUtil.nullToEmpty(request.getParameter("name")));
+            data.file = DataProxy.sendServiceName(StringUtil.nullToEmpty(request.getParameter("file")));
+			data.lineNumber = CastUtil.cint(request.getParameter("lineNumber"));
+			data.columnNumber = CastUtil.cint(request.getParameter("columnNumber"));
+
+            //Logger.println("@ input error data -> print");
+            //Logger.println(data);
+
+            EndUserSummary.getInstance().process(data);
+
+		} else if("nav".equals(request.getParameter("p"))) {
+
+		} else if("ax".equals(request.getParameter("p"))) {
+
+		}
+
+		//EndUserSummary.getInstance().process(p);
+		
 	}
 
 	private String getRequestURI(HttpServletRequest request) {
@@ -204,14 +249,14 @@ public class HttpTrace implements IHttpTrace {
 
 	private static void dump(IProfileCollector p, HttpServletRequest request, TraceContext ctx) {
 		Configure conf = Configure.getInstance();
-		if (conf.http_debug_querystring) {
+		if (conf.profile_http_querystring_enabled) {
 			String msg = request.getMethod() + " ?" + StringUtil.trimToEmpty(request.getQueryString());
 			MessageStep step = new MessageStep(msg);
 			step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 			p.add(step);
 		}
-		if (conf.http_debug_header) {
-			if (conf.http_debug_header_url == null || ctx.serviceName.indexOf(conf.http_debug_header_url) >= 0) {
+		if (conf.profile_http_header_enabled) {
+			if (conf.profile_http_header_url_prefix == null || ctx.serviceName.indexOf(conf.profile_http_header_url_prefix) >= 0) {
 				Enumeration en = request.getHeaderNames();
 				if (en != null) {
 					int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
@@ -231,8 +276,8 @@ public class HttpTrace implements IHttpTrace {
 				}
 			}
 		}
-		if (conf.http_debug_parameter) {
-			if (conf.http_debug_parameter_url == null || ctx.serviceName.indexOf(conf.http_debug_parameter_url) >= 0) {
+		if (conf.profile_http_parameter_enabled) {
+			if (conf.profile_http_parameter_url_prefix == null || ctx.serviceName.indexOf(conf.profile_http_parameter_url_prefix) >= 0) {
 				String ctype = request.getContentType();
 				if (ctype != null && ctype.indexOf("multipart") >= 0)
 					return;
@@ -274,6 +319,7 @@ public class HttpTrace implements IHttpTrace {
 		}
 	}
 
+	
 	public static void main(String[] args) {
 		System.out.println("http trace".indexOf(null));
 	}

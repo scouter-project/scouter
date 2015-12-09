@@ -40,7 +40,7 @@ public class IOChannel implements IShutdown {
 	public IOChannel() {
 		ConfObserver.put(IOChannel.class.getName(), new Runnable() {
 			public void run() {
-				readCache.setMaxRow(conf.gzip_read_cache_block);
+				readCache.setMaxRow(conf._compress_read_cache_block_count);
 			}
 		});
 	}
@@ -60,7 +60,7 @@ public class IOChannel implements IShutdown {
 		return bk;
 	}
 	private void check() {
-		while (headers.size() >= conf.gzip_unitcount_header_cache - 1) {
+		while (headers.size() >= conf._compress_dailycount_header_cache_size - 1) {
 			try {
 				headers.removeFirst().close();
 			} catch (Exception e) {
@@ -92,7 +92,7 @@ public class IOChannel implements IShutdown {
 			Block old = getReadBlock(bk.date, bk.blockNum);
 			if (old != null) {
 				bk = bk.merge(old);
-				readCache.put(new BKey(bk.date, bk.blockNum), bk, conf.gzip_read_cache_time);
+				readCache.put(new BKey(bk.date, bk.blockNum), bk, conf._compress_read_cache_expired_ms);
 			}
 			mgtime = (int) w2.getTime();
 		}
@@ -113,15 +113,15 @@ public class IOChannel implements IShutdown {
 		}
 	}
 	private static ExecutorService exec = Executors
-			.newFixedThreadPool(Configure.getInstance().gzip_writing_block_thread);
-	static int old_block_thread = Configure.getInstance().gzip_writing_block_thread;
+			.newFixedThreadPool(Configure.getInstance()._compress_write_thread);
+	static int old_block_thread = Configure.getInstance()._compress_write_thread;
 	static {
-		ConfObserver.put("gzip_writing_block_thread", new Runnable() {
+		ConfObserver.put("_compress_write_thread", new Runnable() {
 			public void run() {
-				if (Configure.getInstance().gzip_writing_block_thread != old_block_thread) {
+				if (Configure.getInstance()._compress_write_thread != old_block_thread) {
 					ExecutorService oldExec = exec;
-					exec = Executors.newFixedThreadPool(Configure.getInstance().gzip_writing_block_thread);
-					old_block_thread = Configure.getInstance().gzip_writing_block_thread;
+					exec = Executors.newFixedThreadPool(Configure.getInstance()._compress_write_thread);
+					old_block_thread = Configure.getInstance()._compress_write_thread;
 					oldExec.shutdown();
 				}
 			}
@@ -143,7 +143,7 @@ public class IOChannel implements IShutdown {
 		String filename = (GZipCtr.createPath(date) + "/xlog." + blockNum);
 		return new File(filename);
 	}
-	private CacheTable<BKey, Block> readCache = new CacheTable<BKey, Block>().setMaxRow(conf.gzip_read_cache_block);
+	private CacheTable<BKey, Block> readCache = new CacheTable<BKey, Block>().setMaxRow(conf._compress_read_cache_block_count);
 	public Block getReadBlock(String date, int blockNum) {
 		Block b = readCache.get(new BKey(date, blockNum));
 		if (b != null)
@@ -156,7 +156,7 @@ public class IOChannel implements IShutdown {
 			gz = CompressUtil.unZip(gz);
 			Block bk = new Block(date, gz, 0, gz.length, GZipCtr.BLOCK_MAX_SIZE);
 			bk.blockNum = blockNum;
-			readCache.put(new BKey(date, blockNum), bk, conf.gzip_read_cache_time);
+			readCache.put(new BKey(date, blockNum), bk, conf._compress_read_cache_expired_ms);
 			return bk;
 		} catch (Throwable e) {
 			e.printStackTrace();

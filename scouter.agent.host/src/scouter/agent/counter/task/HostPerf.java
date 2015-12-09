@@ -67,7 +67,7 @@ public class HostPerf {
 		long uswap = sw.getUsed();
 		float swaprate = uswap * 100.0f / tswap;
 
-		PerfCounterPack p = pw.getPack(conf.objName, TimeTypeEnum.REALTIME);
+		PerfCounterPack p = pw.getPack(conf.getObjName(), TimeTypeEnum.REALTIME);
 		p.put(CounterConstants.HOST_CPU, new FloatValue(cpu));
 		p.put(CounterConstants.HOST_SYSCPU, new FloatValue(sysCpu));
 		p.put(CounterConstants.HOST_USERCPU, new FloatValue(userCpu));
@@ -88,7 +88,7 @@ public class HostPerf {
 		p.put(CounterConstants.HOST_TCPSTAT_TIM, new DecimalValue(tcpstat_time));
 		p.put(CounterConstants.HOST_TCPSTAT_EST, new DecimalValue(tcpstat_est));
 
-		p = pw.getPack(conf.objName, TimeTypeEnum.FIVE_MIN);
+		p = pw.getPack(conf.getObjName(), TimeTypeEnum.FIVE_MIN);
 		p.put(CounterConstants.HOST_CPU, new FloatValue(cpu));
 		p.put(CounterConstants.HOST_MEM, new FloatValue(memrate));
 		p.put(CounterConstants.HOST_MEM_TOTAL, new DecimalValue(tmem / 1024 / 1024));
@@ -121,7 +121,7 @@ public class HostPerf {
 		long now = System.currentTimeMillis();
 
 		if (memrate >= conf.mem_fatal_pct) {
-			if (now >= mem_last_fatal + conf.mem_alert_interval) {
+			if (now >= mem_last_fatal + conf.mem_alert_interval_ms) {
 				DataProxy.sendAlert(AlertLevel.FATAL, "FATAL_MEMORY_HIGH", "fatal mem usage free=" + prt(fmem)
 						+ " rate=" + memrate + "%", null);
 				mem_last_fatal = now;
@@ -129,7 +129,7 @@ public class HostPerf {
 			return;
 		}
 		if (memrate >= conf.mem_warning_pct) {
-			if (now >= mem_last_warning + conf.mem_alert_interval) {
+			if (now >= mem_last_warning + conf.mem_alert_interval_ms) {
 				DataProxy.sendAlert(AlertLevel.WARN, "WARNING_MEMORY_HIGH", "warning mem usage free=" + prt(fmem)
 						+ " rate=" + memrate + "%", null);
 				mem_last_warning = now;
@@ -154,7 +154,7 @@ public class HostPerf {
 		long now = System.currentTimeMillis();
 
 		int w = 0, f = 0;
-		long stime = System.currentTimeMillis() - conf.cpu_check_period;
+		long stime = System.currentTimeMillis() - conf.cpu_check_period_ms;
 		LongEnumer en = oldCpu.keys();
 		while (en.hasMoreElements()) {
 			long tm = en.nextLong();
@@ -172,7 +172,7 @@ public class HostPerf {
 
 		if (nextCpu >= conf.cpu_fatal_pct) {
 			if (f >= conf.cpu_fatal_history) {
-				if (now >= cpu_last_fatal + conf.cpu_alert_interval) {
+				if (now >= cpu_last_fatal + conf.cpu_alert_interval_ms) {
 					DataProxy.sendAlert(AlertLevel.FATAL, "FATAL_CPU_HIGH", "cpu high " + nextCpu + "%", null);
 					cpu_last_fatal = now;
 				}
@@ -181,7 +181,7 @@ public class HostPerf {
 		}
 		if (nextCpu >= conf.cpu_warning_pct) {
 			if (f + w >= conf.cpu_warning_history) {
-				if (now >= cpu_last_warning + conf.cpu_alert_interval) {
+				if (now >= cpu_last_warning + conf.cpu_alert_interval_ms) {
 					DataProxy.sendAlert(AlertLevel.WARN, "WARNING_CPU_HIGH", "cpu high " + nextCpu + "%", null);
 					cpu_last_warning = now;
 				}
@@ -238,7 +238,7 @@ public class HostPerf {
 					}
 				}
 				String dir = fs.getDirName();
-				if (conf.disk_ignore.hasKey(dir))
+				if (conf.disk_ignore_names.hasKey(dir))
 					continue;
 
 				usage = sigar.getFileSystemUsage(dir);

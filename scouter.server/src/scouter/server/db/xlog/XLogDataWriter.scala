@@ -50,16 +50,16 @@ class XLogDataWriter(date: String, file: String) extends IClose {
     var refrence = 0;
     val conf = Configure.getInstance()
 
-    var gzip = conf.gzip_xlog
+    var gzip = conf.compress_xlog_enabled
 
     var f = new File(file + ".service.conf");
     if (f.exists()) {
         val properties = FileUtil.readProperties(f);
-        gzip = "true".equalsIgnoreCase(properties.getProperty("gzip_xlog", ""+conf.gzip_xlog).trim());
+        gzip = "true".equalsIgnoreCase(properties.getProperty("compress_xlog_enabled", ""+conf.compress_xlog_enabled).trim());
     } else {
-        gzip = conf.gzip_xlog;
+        gzip = conf.compress_xlog_enabled;
         val properties = new Properties();
-        properties.put("gzip_xlog", "" + conf.gzip_xlog);
+        properties.put("compress_xlog_enabled", "" + conf.compress_xlog_enabled);
         FileUtil.writeProperties(f, properties);
     }
 

@@ -312,4 +312,8 @@ public class XLogSelectionView extends ViewPart {
 		}
 	}
 
+	public void dispose() {
+		clipboard.dispose();
+		super.dispose();
+	}
 }

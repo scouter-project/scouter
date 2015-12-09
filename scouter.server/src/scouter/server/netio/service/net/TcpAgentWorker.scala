@@ -8,14 +8,14 @@ import scouter.lang.pack.MapPack
 import scouter.net.TcpFlag
 import scouter.util.FileUtil
 import scouter.net.TcpFlag
-import scouter.server.Configure
+import scouter.server.{Logger, Configure}
 import scouter.util.DateUtil
 import scouter.net.NetCafe
 
 class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX, protocol:Int) {
 
     val remoteAddr = socket.getRemoteSocketAddress()
-    socket.setSoTimeout(Configure.getInstance().tcp_agent_so_timeout)
+    socket.setSoTimeout(Configure.getInstance().net_tcp_agent_so_timeout_ms)
 
     var lastWriteTime = System.currentTimeMillis()
     def write(cmd: String, p: Pack) {
@@ -80,7 +80,7 @@ class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX, protocol:
 
     val conf = Configure.getInstance()
 
-    def isExpired() = { System.currentTimeMillis() - lastWriteTime >= conf.tcp_agent_keepalive }
+    def isExpired() = { System.currentTimeMillis() - lastWriteTime >= conf.net_tcp_agent_keepalive_interval_ms }
     def sendKeepAlive(waitTime: Int) {
         if (socket.isClosed())
             return
@@ -107,8 +107,8 @@ class TcpAgentWorker(socket: Socket, in: DataInputX, out: DataOutputX, protocol:
         FileUtil.close(in)
         FileUtil.close(out)
         FileUtil.close(socket)
-        if (conf.debug_net) {
-            println("Agent : " + remoteAddr + " close");
+        if (conf.log_tcp_action_enabled) {
+            Logger.println("Agent : " + remoteAddr + " close");
         }
     }
 }

@@ -25,7 +25,7 @@ import scouter.org.objectweb.asm.FieldVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 public class AddFieldASM implements IASM, Opcodes {
-	public final Map<String, String> target = HookingSet.getClassFieldSet(Configure.getInstance().hook_add_field);
+	public final Map<String, String> target = HookingSet.getClassFieldSet(Configure.getInstance().hook_add_fields);
 	public AddFieldASM() {
 	}
 	public boolean isTarget(String className) {
@@ -33,6 +33,9 @@ public class AddFieldASM implements IASM, Opcodes {
 	}
 	Configure conf = Configure.getInstance();
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
+		if (Configure.getInstance()._hook_async_enabled == false) {
+			return cv;
+		}
 		String field = target.get(className);
 		if (field != null) {
 			return new AddFieldCV(cv, className, field);

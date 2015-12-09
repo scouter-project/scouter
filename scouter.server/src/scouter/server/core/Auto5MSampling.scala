@@ -38,7 +38,7 @@ import scouter.server.util.ThreadScala
 
 object Auto5MSampling {
   ThreadScala.startFixedRate(DateUtil.MILLIS_PER_FIVE_MINUTE) {
-    if (Configure.getInstance().auto_5m_sampling == true) {
+    if (Configure.getInstance()._auto_5m_sampling == true) {
       val work = map;
       map = new HashMap[CounterKey, Value]();
 

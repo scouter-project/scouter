@@ -26,7 +26,7 @@ import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 public class JDBCResultSetASM implements IASM, Opcodes {
-	public final HashSet<String> target = HookingSet.getHookingClassSet(Configure.getInstance().hook_jdbc_rs);
+	public final HashSet<String> target = HookingSet.getHookingClassSet(Configure.getInstance().hook_jdbc_rs_classes);
 	public JDBCResultSetASM() {
 		target.add("org/mariadb/jdbc/MySQLResultSet");
 		target.add("oracle/jdbc/driver/OracleResultSetImpl");
@@ -45,11 +45,12 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 		return target.contains(className);
 	}
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
+		if (Configure.getInstance()._hook_dbsql_enabled == false) {
+			return cv;
+		}
 		if (target.contains(className) == false) {
 			return cv;
 		}
-		if (Configure.getInstance().enable_asm_jdbc == false)
-			return cv;
 		Logger.println("A107", "jdbc rs found: " + className);
 		return new ResultSetCV(cv);
 	}

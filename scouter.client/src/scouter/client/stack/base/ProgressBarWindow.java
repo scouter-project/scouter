@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 
 import scouter.client.stack.utils.ResourceUtils;
+import scouter.client.util.UIUtil;
 
 public class ProgressBarWindow{
 	private Shell m_shell = null;
@@ -32,7 +33,7 @@ public class ProgressBarWindow{
         m_shell = new Shell(shell, SWT.TITLE);
         m_shell.setText(title);
         m_shell.setLayout(new FillLayout());
-        int [] pos = ResourceUtils.getScreenSize();
+        int [] pos = UIUtil.getScreenSize();
         m_shell.setBounds((pos[0]/2)-75, (pos[1]/2)-15, 150, 40);
         
         m_progressBar = new ProgressBar(m_shell, SWT.HORIZONTAL);

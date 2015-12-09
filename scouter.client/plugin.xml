@@ -377,10 +377,10 @@
       </view>
       <view
             allowMultiple="true"
-            class="scouter.client.xlog.views.XLogProfilePageView"
+            class="scouter.client.xlog.views.XLogFullProfileView"
  			icon="icons/page_white_text.png"
-            id="scouter.client.xlog.views.XLogProfilePageView"
-            name="XLog Profile Page View"
+            id="scouter.client.xlog.views.XLogFullProfileView"
+            name="XLog Full Profile"
             restorable="false">
       </view>
       <view

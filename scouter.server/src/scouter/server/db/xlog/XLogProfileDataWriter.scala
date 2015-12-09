@@ -51,16 +51,16 @@ class XLogProfileDataWriter(date: String, file: String) extends IClose {
     var refrence = 0;
     val conf = Configure.getInstance();
 
-    var gzip = conf.gzip_profile
+    var gzip = conf.compress_profile_enabled
 
     val f = new File(file + ".profile.conf");
     if (f.exists()) {
         val properties = FileUtil.readProperties(f);
-        gzip = "true".equalsIgnoreCase(properties.getProperty("gzip_profile", "" + conf.gzip_profile).trim());
+        gzip = "true".equalsIgnoreCase(properties.getProperty("compress_profile_enabled", "" + conf.compress_profile_enabled).trim());
     } else {
-        gzip = conf.gzip_profile;
+        gzip = conf.compress_profile_enabled;
         val properties = new Properties();
-        properties.put("gzip_profile", "" + conf.gzip_profile);
+        properties.put("compress_profile_enabled", "" + conf.compress_profile_enabled);
         FileUtil.writeProperties(f, properties);
     }
     var out: RealDataFile = null;

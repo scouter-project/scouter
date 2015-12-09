@@ -30,4 +30,6 @@ public interface IHttpTrace {
 
 	public void rejectUrl(Object res, String url);
 
+	public String getHeader(Object req, String key);
+
 }

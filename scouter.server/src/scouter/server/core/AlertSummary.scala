@@ -54,7 +54,7 @@ object AlertSummary {
     }
 
     def add(p: AlertPack): Unit = {
-        if(conf.enable_alert_summary==false)
+        if(conf.summary_alert_enabled==false)
             return;
         val ok = queue.put(p)
         if (ok == false) {

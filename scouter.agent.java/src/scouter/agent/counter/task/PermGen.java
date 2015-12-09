@@ -70,8 +70,8 @@ public class PermGen {
 
 		// /////////////////////////////////////////////////
 		// PermGen Warning 
-		if (rate >= conf.heap_perm_warning_pct) {
-			if (now >= heap_perm_last_warning + conf.heap_perm_alert_interval) {
+		if (rate >= conf.alert_perm_warning_pct) {
+			if (now >= heap_perm_last_warning + conf.alert_perm_interval_ms) {
 				DataProxy.sendAlert(AlertLevel.WARN, "WARNING_MEMORY_HIGH", "warning perm usage used="
 						+ (used / 1024 / 1024) + "MB rate=" + rate + "%", null);
 				heap_perm_last_warning = now;

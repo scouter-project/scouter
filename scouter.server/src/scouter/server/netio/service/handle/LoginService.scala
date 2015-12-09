@@ -45,7 +45,7 @@ class LoginService {
     val id = m.getText("id");
     val passwd = m.getText("pass");
     val ip = m.getText("ip");
-    val name = m.getText("hostname");
+    val name = m.getText("server_id");
     val clientVer = m.getText("version");
     val session = LoginManager.login(id, passwd, ip);
     m.put("session", session);
@@ -56,7 +56,7 @@ class LoginService {
       user.hostname = name;
       user.version = clientVer;
       m.put("time", System.currentTimeMillis());
-      m.put("hostname", getHostName());
+      m.put("server_id", getHostName());
       m.put("type", user.group);
       m.put("version", Version.getServerFullVersion());
       val acc = AccountManager.getAccount(id);
@@ -71,7 +71,7 @@ class LoginService {
       val menuMv = new MapValue();
       m.put("menu", menuMv);
       menuMv.put("tag_count", new BooleanValue(Configure.getInstance().tagcnt_enabled));
-      menuMv.put("alert_summary", new BooleanValue(Configure.getInstance().enable_alert_summary));
+      menuMv.put("alert_summary", new BooleanValue(Configure.getInstance().summary_alert_enabled));
       
     }
     dout.writeByte(TcpFlag.HasNEXT);
@@ -116,6 +116,6 @@ class LoginService {
   }
 
   def getHostName(): String = {
-    Configure.getInstance().hostname;
+    Configure.getInstance().server_id;
   }
 }

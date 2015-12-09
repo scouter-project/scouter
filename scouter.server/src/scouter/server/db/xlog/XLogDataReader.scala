@@ -49,12 +49,12 @@ class XLogDataReader(date: String, file: String) extends IClose {
     var refrence = 0;
     val conf = Configure.getInstance()
     var pointFile: RandomAccessFile = null
-    var gzip = conf.gzip_xlog
+    var gzip = conf.compress_xlog_enabled
 
     val confFile = new File(file + ".service.conf");
     if (confFile.exists()) {
         var properties = FileUtil.readProperties(confFile);
-        this.gzip = "true".equalsIgnoreCase(properties.getProperty("gzip_xlog", "" + conf.gzip_xlog).trim());
+        this.gzip = "true".equalsIgnoreCase(properties.getProperty("compress_xlog_enabled", "" + conf.compress_xlog_enabled).trim());
     }
 
     val xlogFile = new File(file + ".service");

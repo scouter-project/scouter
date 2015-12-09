@@ -78,7 +78,7 @@ public class Logger {
 	}
 
 	private static boolean checkOk(String id, int sec) {
-		if (Configure.getInstance().log_ignore.hasKey(id))
+		if (Configure.getInstance().mgr_log_ignore_ids.hasKey(id))
 			return false;
 		if (sec > 0) {
 			long last = lastLog.get(id);
@@ -138,10 +138,10 @@ public class Logger {
 	static {
 		ConfObserver.add(Logger.class.getName(), new Runnable() {
 			public void run() {
-				if (CompareUtil.equals(lastDir, conf.logs_dir) == false || lastFileRotation != conf.log_rotation) {
+				if (CompareUtil.equals(lastDir, conf.log_dir) == false || lastFileRotation != conf.log_rotation_enalbed) {
 					pw = (PrintWriter) FileUtil.close(pw);
-					lastDir = conf.logs_dir;
-					lastFileRotation = conf.log_rotation;
+					lastDir = conf.log_dir;
+					lastFileRotation = conf.log_rotation_enalbed;
 				}
 			}
 		});
@@ -153,27 +153,27 @@ public class Logger {
 	private static synchronized void openFile() throws IOException {
 		if (pw == null) {
 			lastDataUnit = DateUtil.getDateUnit();
-			lastDir = conf.logs_dir;
-			lastFileRotation = conf.log_rotation;
+			lastDir = conf.log_dir;
+			lastFileRotation = conf.log_rotation_enalbed;
 
 			new File(lastDir).mkdirs();
-			if (conf.log_rotation) {
-				FileWriter fw = new FileWriter(new File(conf.logs_dir, "agent-" + DateUtil.yyyymmdd() + ".log"), true);
+			if (conf.log_rotation_enalbed) {
+				FileWriter fw = new FileWriter(new File(conf.log_dir, "agent-" + DateUtil.yyyymmdd() + ".log"), true);
 				pw = new PrintWriter(fw);
 			} else {
-				pw = new PrintWriter(new File(conf.logs_dir, "agent.log"));
+				pw = new PrintWriter(new File(conf.log_dir, "agent.log"));
 			}
 			lastDataUnit = DateUtil.getDateUnit();
 		}
 	}
 
 	protected static void clearOldLog() {
-		if (conf.log_rotation == false)
+		if (conf.log_rotation_enalbed == false)
 			return;
-		if (conf.log_keep_dates <= 0)
+		if (conf.log_keep_days <= 0)
 			return;
 		long nowUnit = DateUtil.getDateUnit();
-		File dir = new File(conf.logs_dir);
+		File dir = new File(conf.log_dir);
 		File[] files = dir.listFiles();
 		for (int i = 0; i < files.length; i++) {
 			if (files[i].isDirectory())
@@ -191,7 +191,7 @@ public class Logger {
 			try {
 				long d = DateUtil.yyyymmdd(date);
 				long fileUnit = DateUtil.getDateUnit(d);
-				if (nowUnit - fileUnit > DateUtil.MILLIS_PER_DAY * conf.log_keep_dates) {
+				if (nowUnit - fileUnit > DateUtil.MILLIS_PER_DAY * conf.log_keep_days) {
 					files[i].delete();
 				}
 			} catch (Exception e) {

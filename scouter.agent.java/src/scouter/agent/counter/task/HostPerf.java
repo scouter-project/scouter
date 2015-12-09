@@ -38,10 +38,10 @@ public class HostPerf {
 	}
 	private void process(CounterBasket pw) {
 		Configure conf = Configure.getInstance();
-		if (conf.enable_host_agent == false)
+		if (conf.obj_host_enabled == false)
 			return;
 		com.sun.management.OperatingSystemMXBean osm = (com.sun.management.OperatingSystemMXBean) osmxbean;
-		AgentHeartBeat.addObject(conf.objhost_type, conf.objHostHash, conf.objHostName);
+		AgentHeartBeat.addObject(conf.obj_host_type, conf.getObjHostHash(), conf.getObjHostName());
 		float cpu = (float) osm.getSystemLoadAverage();
 		if (cpu <= 0) {
 			cpu = 0;
@@ -53,14 +53,14 @@ public class HostPerf {
 		long tswap = osm.getTotalSwapSpaceSize();
 		long fswap = osm.getFreeSwapSpaceSize();
 		long uswap = tswap - fswap;
-		PerfCounterPack p = pw.getPack(conf.objHostName, TimeTypeEnum.REALTIME);
+		PerfCounterPack p = pw.getPack(conf.getObjHostName(), TimeTypeEnum.REALTIME);
 		p.put(CounterConstants.HOST_CPU, new FloatValue(cpu));
 		p.put(CounterConstants.HOST_MEM_TOTAL, new DecimalValue(tmem / 1024 / 1024));
 		p.put(CounterConstants.HOST_MEM_USED, new DecimalValue(umem / 1024 / 1024));
 		p.put(CounterConstants.HOST_MEM_AVALIABLE, new DecimalValue(fmem / 1024 / 1024));
 		p.put(CounterConstants.HOST_SWAP_TOTAL, new DecimalValue(tswap / 1024 / 1024));
 		p.put(CounterConstants.HOST_SWAP_USED, new DecimalValue(uswap / 1024 / 1024));
-		p = pw.getPack(conf.objHostName, TimeTypeEnum.FIVE_MIN);
+		p = pw.getPack(conf.getObjHostName(), TimeTypeEnum.FIVE_MIN);
 		p.put(CounterConstants.HOST_CPU, new FloatValue((float) cpuLoad.getSum(300)));
 		// 단순히 메모리는 평균이 큰 의미가 없음으로 평균을 계산하지 않는다.
 		p.put(CounterConstants.HOST_MEM_TOTAL, new DecimalValue(tmem / 1024 / 1024));

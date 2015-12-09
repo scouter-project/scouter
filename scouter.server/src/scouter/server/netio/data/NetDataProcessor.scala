@@ -36,7 +36,7 @@ import scouter.server.core.AgentManager
 import scouter.server.core.AlertCore
 import scouter.server.core.PerfCountCore
 import scouter.server.core.ProfileCore
-import scouter.server.core.ServiceCore
+import scouter.server.core.XLogCore
 import scouter.server.core.StackAnalyzerCore
 import scouter.server.core.StatusCore
 import scouter.server.core.TextCore
@@ -54,7 +54,7 @@ object NetDataProcessor {
         val data = _data
     }
     var working = true
-    val num = Configure.getInstance().num_of_net_processor
+    val num = Configure.getInstance()._net_udp_worker_thread_count
     for (x <- 0 to num - 1) {
         ThreadScala.startDaemon("scouter.server.netio.data.NetDataProcessor") {
             while (working) {
@@ -105,7 +105,7 @@ object NetDataProcessor {
         if (done != null) {
             val p = new DataInputX(done).readPack()
             process(p, addr)
-            if (conf.debug_udp_multipacket) {
+            if (conf.log_udp_multipacket) {
                 val objName = TextCache.get(TextTypes.OBJECT, objHash)
                 val sb = new StringBuffer()
                 sb.append("recv ").append(p.getClass().getName())
@@ -137,33 +137,33 @@ object NetDataProcessor {
     def process(p: Pack, addr: InetAddress) {
         if (p == null)
             return
-        if (conf.debug_udp_packet) {
+        if (conf.log_udp_packet) {
             System.out.println(p)
         }
         p.getPackType() match {
             case PackEnum.PERF_COUNTER =>
                 PerfCountCore.add(p.asInstanceOf[PerfCounterPack])
-                if (conf.debug_udp_counter) {
+                if (conf.log_udp_counter) {
                     System.out.println("DEBUG UDP COUNTER: " + p)
                 }
             case PackEnum.XLOG =>
-                ServiceCore.add(p.asInstanceOf[XLogPack])
-                if (conf.debug_udp_xlog) {
+                XLogCore.add(p.asInstanceOf[XLogPack])
+                if (conf.log_udp_xlog) {
                     System.out.println("DEBUG UDP XLOG: " + p)
                 }
             case PackEnum.XLOG_PROFILE =>
                 ProfileCore.add(p.asInstanceOf[XLogProfilePack])
-                if (conf.debug_udp_profile) {
+                if (conf.log_udp_profile) {
                     System.out.println("DEBUG UDP PROFILE: " + p)
                 }
             case PackEnum.TEXT =>
                 TextCore.add(p.asInstanceOf[TextPack])
-                if (conf.debug_udp_text) {
+                if (conf.log_udp_text) {
                     System.out.println("DEBUG UDP TEXT: " + p)
                 }
             case PackEnum.ALERT =>
                 AlertCore.add(p.asInstanceOf[AlertPack])
-                if (conf.debug_udp_alert) {
+                if (conf.log_udp_alert) {
                     System.out.println("DEBUG UDP ALERT: " + p)
                 }
             case PackEnum.OBJECT =>
@@ -172,22 +172,22 @@ object NetDataProcessor {
                     h.address = addr.getHostAddress()
                 }
                 AgentManager.active(h)
-                if (conf.debug_udp_object) {
+                if (conf.log_udp_object) {
                     System.out.println("DEBUG UDP OBJECT: " + p)
                 }
             case PackEnum.PERF_STATUS =>
                 StatusCore.add(p.asInstanceOf[StatusPack])
-                if (conf.debug_udp_status) {
+                if (conf.log_udp_status) {
                     System.out.println("DEBUG UDP STATUS: " + p)
                 }
             case PackEnum.STACK =>
                 StackAnalyzerCore.add(p.asInstanceOf[StackPack])
-                if (conf.debug_udp_stack) {
+                if (conf.log_udp_stack) {
                     System.out.println("DEBUG UDP STACK: " + p)
                 }
              case PackEnum.SUMMARY =>
                 SummaryCore.add(p.asInstanceOf[SummaryPack])
-                if (conf.debug_udp_summary) {
+                if (conf.log_udp_summary) {
                     System.out.println("DEBUG UDP SUMMARY: " + p)
                 }
             case _ =>

@@ -26,14 +26,12 @@ import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.HookReturn;
-import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceSQL;
 import scouter.javassist.CannotCompileException;
 import scouter.javassist.ClassPool;
 import scouter.javassist.CtClass;
 import scouter.javassist.CtMethod;
 import scouter.javassist.CtNewMethod;
-import scouter.lang.pack.XLogPack;
 import scouter.util.FileUtil;
 import scouter.util.Hexa32;
 import scouter.util.StringUtil;
@@ -52,7 +50,7 @@ public class PluginLoader extends Thread {
 	public void run() {
 		while (true) {
 			try {
-				File root = Configure.getInstance().plugin_dir;
+				File root = Configure.getInstance().mgr_plugin_dir;
 				cleckPluginModified(root);
 			} catch (Throwable t) {
 				Logger.println("A160", t.toString());

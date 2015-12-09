@@ -30,15 +30,15 @@ import scouter.util.RequestQueue
 
 object ProfileCore {
 
-    val queue = new RequestQueue[XLogProfilePack](1000);
-    
     val conf = Configure.getInstance();
+    val queue = new RequestQueue[XLogProfilePack](conf.profile_queue_size);
+
     ThreadScala.startDaemon("scouter.server.core.ProfileCore", { CoreRun.running }) {
         val m = queue.get();
         ServerStat.put("profile.core.queue",queue.size());
         if (BytesUtil.getLength(m.profile) > 0) {
             PlugInManager.profile(m)
-            if (conf.xlog_profile_save_time_limit <= m.elapsed) {
+            if (conf.xlog_profile_save_lower_bound_ms <= m.elapsed) {
                 XLogProfileWR.add(m.time, m.txid, m.profile)
             }
         }

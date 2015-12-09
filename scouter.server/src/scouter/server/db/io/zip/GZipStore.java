@@ -97,7 +97,7 @@ public class GZipStore extends Thread implements IClose, IShutdown {
 		if (bk == null) {
 			bk = IOChannel.getInstance().getLastWriteBlock(date);
 			if (bk != null) {
-				while (writingBlockTable.size() >= conf.gzip_writing_block) {
+				while (writingBlockTable.size() >= conf._compress_write_buffer_block_count) {
 					Block bb = writingBlockTable.removeFirst();
 					IOChannel.getInstance().store(bb);
 				}

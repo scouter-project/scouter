@@ -26,9 +26,9 @@
 (function(XHR) {
   "use strict";
 
-  var _p = window.scouter || {};
+  var _p = window.Scouter || {};
   var DEFAULT_END_POINT = '/_scouter_browser.jsp';
-  var DEFAULT_GXID_HEADER = 'scouter_gxid';
+  var DEFAULT_GXID_HEADER = 'X-Scouter-Gxid';
   var DEFAULT_GATHER_RATIO = 100.0; //unit:% - default:100.0%
 
   //options
@@ -73,8 +73,7 @@
             var queryString = JSON.stringify({stats:stats}, undefined, 0);
             var xhr = new XHR();
             xhr.noIntercept = true;
-            var fullQuery = _p.endPoint + '?p=ax&q=' + encodeURIComponent(queryString);
-
+            var fullQuery = _p.endPoint + '?p=ax&z=' + new Date().getTime() + '&q=' + encodeURIComponent(queryString);
             if(_p.debug) {
               console.log('fullQuery = ' + fullQuery);
             }

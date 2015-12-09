@@ -19,7 +19,7 @@ public class Debug {
 	@Counter
 	public void autoStack(CounterBasket pw) {
 		Configure conf = Configure.getInstance();
-		if (conf.debug_long_tx_autostack <= 0)
+		if (conf.autodump_stuck_thread_ms <= 0)
 			return;
 		PrintWriter out = null;
 		try {
@@ -27,7 +27,7 @@ public class Debug {
 			while (en.hasMoreElements()) {
 				TraceContext ctx = en.nextElement();
 				long etime = System.currentTimeMillis() - ctx.startTime;
-				if (etime > conf.debug_long_tx_autostack) {
+				if (etime > conf.autodump_stuck_thread_ms) {
 					try {
 						if (out == null) {
 							out = open();
@@ -64,7 +64,7 @@ public class Debug {
 		}
 	}
 	public PrintWriter open() throws IOException {
-		File file = new File(Configure.getInstance().dump_dir, "longtx_" +Configure.getInstance().scouter_name+ "_"+DateUtil.timestampFileName()+".txt");
+		File file = new File(Configure.getInstance().mgr_dump_dir, "longtx_" +Configure.getInstance().obj_name + "_"+DateUtil.timestampFileName()+".txt");
 		return new PrintWriter(new FileWriter(file));
 	}
 }

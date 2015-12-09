@@ -16,8 +16,7 @@
  *
  */
 package scouter.server.netio.service.net;
-import java.net.ServerSocket
-import java.net.Socket
+import java.net.{InetAddress, ServerSocket, Socket}
 import scouter.server.ConfObserver
 import scouter.server.Configure
 import scouter.server.Logger
@@ -26,23 +25,22 @@ import scouter.util.FileUtil
 import scouter.util.ThreadUtil
 object TcpServer {
     val conf = Configure.getInstance();
-    val threadPool = ThreadUtil.createExecutor("ServiceServer", conf.tcp_server_pool_size, 10000, true);
+    val threadPool = ThreadUtil.createExecutor("ServiceServer", conf.net_tcp_service_pool_size, 10000, true);
     ConfObserver.put("TcpServer") {
-      if (conf.tcp_server_pool_size != threadPool.getCorePoolSize()) {
-        threadPool.setCorePoolSize(conf.tcp_server_pool_size);
+      if (conf.net_tcp_service_pool_size != threadPool.getCorePoolSize()) {
+        threadPool.setCorePoolSize(conf.net_tcp_service_pool_size);
       }
     }
     ThreadScala.startDaemon("scouter.server.netio.service.net.TcpServer") {
-        Logger.println("\ttcp_port=" + conf.tcp_port);
-        Logger.println("\tcp_agent_so_timeout=" + conf.tcp_agent_so_timeout);
-        Logger.println("\tcp_client_so_timeout=" + conf.tcp_client_so_timeout);
+        Logger.println("\ttcp_port=" + conf.net_tcp_listen_port);
+        Logger.println("\tcp_agent_so_timeout=" + conf.net_tcp_agent_so_timeout_ms);
+        Logger.println("\tcp_client_so_timeout=" + conf.net_tcp_client_so_timeout_ms);
         var server: ServerSocket = null;
         try {
-            server = new ServerSocket( conf.tcp_port);
+            server = new ServerSocket(conf.net_tcp_listen_port, 50, InetAddress.getByName(conf.net_tcp_listen_ip));
             while (true) {
                 val client = server.accept();
-                // TODO 주의하여 테스트해야
-                client.setSoTimeout(conf.tcp_client_so_timeout);
+                client.setSoTimeout(conf.net_tcp_client_so_timeout_ms);
                 client.setReuseAddress(true);
                 try {
                     threadPool.execute(new ServiceWorker(client));
@@ -51,7 +49,7 @@ object TcpServer {
                 }
             }
         } catch {
-            case e: Throwable => Logger.println("S167", 1, "tcp port=" + conf.tcp_port, e);
+            case e: Throwable => Logger.println("S167", 1, "tcp port=" + conf.net_tcp_listen_port, e);
         } finally {
             FileUtil.close(server);
         }

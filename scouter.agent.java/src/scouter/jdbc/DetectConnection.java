@@ -28,9 +28,7 @@ import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
 import scouter.agent.util.LeakableObject;
 import scouter.lang.step.MethodStep;
-import scouter.util.HashUtil;
 import scouter.util.SysJMX;
-import scouter.util.ThreadUtil;
 
 public class DetectConnection implements java.sql.Connection {
 	private static CONNECTION_NOT_CLOSE error = new CONNECTION_NOT_CLOSE("connection leak detected");
@@ -48,7 +46,7 @@ public class DetectConnection implements java.sql.Connection {
 			service=ctx.serviceHash;
 			txid =ctx.txid;
 		}
-		if (conf.enable_leaktrace_fullstack) {
+		if (conf.summary_connection_leak_fullstack_enabled) {
 			this.object = new LeakableObject(new CONNECTION_NOT_CLOSE(), inner.toString(), service, txid, true);
 		} else {
 			this.object = new LeakableObject(error, inner.toString(),service,txid, false);

@@ -36,7 +36,7 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.StringUtil;
 
 public class JDBCConnectionOpenASM implements IASM, Opcodes {
-	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_connection_open);
+	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_connection_open_patterns);
 	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
 
 	public JDBCConnectionOpenASM() {
@@ -61,9 +61,9 @@ public class JDBCConnectionOpenASM implements IASM, Opcodes {
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-		if (Configure.getInstance().enable_asm_jdbc == false)
+		if (Configure.getInstance()._hook_dbconn_enabled == false) {
 			return cv;
-
+		}
 		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return new DbcOpenCV(cv, mset, className);

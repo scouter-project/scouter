@@ -36,7 +36,7 @@ public class UserTxASM implements IASM, Opcodes {
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-		if (Configure.getInstance().enable_usertx == false)
+		if (Configure.getInstance()._hook_usertx_enabled == false)
 			return cv;
 
 		for (int i = 0; i < classDesc.interfaces.length; i++) {

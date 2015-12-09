@@ -77,7 +77,7 @@ public class UDPDataSendThread extends Thread {
 			int size = queue.size();
 			switch (size) {
 			case 0:
-				ThreadUtil.sleep(conf.udp_collection_interval);
+				ThreadUtil.sleep(conf.udp_udp_collection_interval_ms);
 				break;
 			case 1:
 				udp.write(queue.pop());
@@ -96,7 +96,7 @@ public class UDPDataSendThread extends Thread {
 		int bytes = 0;
 		for (int k = 0; k < size; k++) {
 			byte[] b = queue.pop();
-			if (bytes + b.length >= conf.udp_packet_max) {
+			if (bytes + b.length >= conf.net_udp_packet_max_bytes) {
 				send(udp, buff); //buff.size가 0일수도 있다.
 				bytes = 0;// bytes 값 초기화..
 				buff.clear();

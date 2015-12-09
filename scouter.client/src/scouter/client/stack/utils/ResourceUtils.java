@@ -43,14 +43,6 @@ public class ResourceUtils {
 		return ResourceUtils.class.getClassLoader().getResourceAsStream("/scouter/client/stack/doc/config_default.xml");
 	}
     
-    public static int [] getScreenSize(){
-    	int [] size = new int[2];
-    	GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-    	size[0] = gd.getDisplayMode().getWidth();
-    	size[1] = gd.getDisplayMode().getHeight();
-    	return size;
-    }
-    
 	static public String openFileSaveDialog(String [] names, String [] extensions, String path, String defaultName){
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		FileDialog dialog = new FileDialog(shell, SWT.SAVE);

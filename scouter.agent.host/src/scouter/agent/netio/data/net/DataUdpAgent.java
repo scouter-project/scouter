@@ -59,8 +59,8 @@ public class DataUdpAgent {
 
 	private void setTarget() {
 		Configure conf = Configure.getInstance();
-		String host = conf.server_addr;
-		int port = conf.server_udp_port;
+		String host = conf.net_collector_ip;
+		int port = conf.net_collector_udp_port;
 		try {
 			server_host = InetAddress.getByName(host);
 			server_port = port;
@@ -81,8 +81,8 @@ public class DataUdpAgent {
 	private void openDatagramSocket() {
 		try {
 			Configure conf = Configure.getInstance();
-			String host = conf.local_udp_addr;
-			int port = conf.local_udp_port;
+			String host = conf.net_local_udp_ip;
+			int port = conf.net_local_udp_port;
 			if (datagram == null || CompareUtil.equals(host, local_udp_addr) == false || local_udp_port != port) {
 				close(datagram);
 				local_udp_addr = host;
@@ -114,8 +114,8 @@ public class DataUdpAgent {
 			if (server_host == null)
 				return false;
 
-			if (p.length > conf.udp_packet_max) {
-				return writeMTU(p, conf.udp_packet_max);
+			if (p.length > conf.net_udp_packet_max_bytes) {
+				return writeMTU(p, conf.net_udp_packet_max_bytes);
 			}
 
 			DataOutputX out = new DataOutputX();
@@ -162,7 +162,7 @@ public class DataUdpAgent {
 	private void writeMTU(long pkid, int total, int num, int packetSize, byte[] data) throws IOException {
 		DataOutputX out = new DataOutputX();
 		out.write(NetCafe.CAFE_MTU);
-		out.writeInt(conf.objHash);
+		out.writeInt(conf.getObjHash());
 		out.writeLong(pkid);
 		out.writeShort(total);
 		out.writeShort(num);

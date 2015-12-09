@@ -30,6 +30,8 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
@@ -41,6 +43,8 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
@@ -93,6 +97,8 @@ public class ConfigureView extends ViewPart {
 	
 	CustomLineStyleListener listener;
 	
+	boolean devMode;
+	
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
 		SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL);
@@ -103,6 +109,20 @@ public class ConfigureView extends ViewPart {
 		searchTxt = new Text(listComp, SWT.BORDER);
 		searchTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		searchTxt.setToolTipText("Search Key/Value");
+		searchTxt.addMouseListener(new MouseListener() {
+			int clicked;
+			public void mouseUp(MouseEvent arg0) {
+			}
+			public void mouseDown(MouseEvent arg0) {
+				clicked++;
+				if (clicked == 10) {
+					devMode = true;
+					viewer.refresh();
+				}
+			}
+			public void mouseDoubleClick(MouseEvent arg0) {
+			}
+		});
 		searchTxt.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				String searchText = searchTxt.getText();
@@ -133,6 +153,7 @@ public class ConfigureView extends ViewPart {
 		table.setLinesVisible(true);
 		viewer.setContentProvider(new ArrayContentProvider());
 	    viewer.setComparator(new ColumnLabelSorter(viewer));
+	    viewer.addFilter(filter);
 		table.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if(e.stateMask == SWT.CTRL || e.stateMask == SWT.COMMAND){
@@ -388,5 +409,16 @@ public class ConfigureView extends ViewPart {
 		});
 		return viewerColumn;
 	}
-
+	
+	ViewerFilter filter = new ViewerFilter() {
+		public boolean select(Viewer viewer, Object parent, Object element) {
+			if (devMode) return true;
+			if (element instanceof ConfObject) {
+				if (((ConfObject)element).key.startsWith("_")) {
+					return false;
+				}
+			}
+			return true;
+		}
+	};
 }

@@ -2,7 +2,6 @@ package scouter.agent.counter.task;
 
 import java.io.File;
 
-import org.hyperic.sigar.CpuPerc;
 import org.hyperic.sigar.ProcCpu;
 import org.hyperic.sigar.Sigar;
 import org.hyperic.sigar.SigarException;
@@ -20,9 +19,6 @@ import scouter.lang.pack.PerfCounterPack;
 import scouter.lang.value.FloatValue;
 import scouter.util.CastUtil;
 import scouter.util.FileUtil;
-import scouter.util.FormatUtil;
-import scouter.util.IntKeyLinkedMap;
-import scouter.util.SysJMX;
 
 public class ProcPerf {
 
@@ -33,7 +29,7 @@ public class ProcPerf {
 	private static File regRoot = null;
 
 	public static void ready() {
-		String objReg = Configure.getInstance().object_registry;
+		String objReg = Configure.getInstance().counter_object_registry_path;
 		File objRegFile = new File(objReg);
 		if (objRegFile.canRead() == false) {
 			objRegFile.mkdirs();

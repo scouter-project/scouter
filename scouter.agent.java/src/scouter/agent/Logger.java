@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import scouter.lang.conf.ConfObserver;
-import scouter.lang.conf.ConfigValueUtil;
 import scouter.util.CompareUtil;
 import scouter.util.DateUtil;
 import scouter.util.FileUtil;
@@ -77,7 +75,7 @@ public class Logger {
 	}
 
 	private static boolean checkOk(String id, int sec) {
-		if (Configure.getInstance().log_ignore_set.hasKey(id))
+		if (Configure.getInstance().isIgnoreLog(id))
 			return false;
 		if (sec > 0) {
 			long last = lastLog.get(id);
@@ -112,8 +110,8 @@ public class Logger {
 	}
 
 	private static synchronized void openFile(String prefix) throws IOException {
-		if (pw == null && StringUtil.isEmpty(conf.logs_dir) == false) {
-			File root = new File(conf.logs_dir);
+		if (pw == null && StringUtil.isEmpty(conf.log_dir) == false) {
+			File root = new File(conf.log_dir);
 			if (root.canWrite() == false) {
 				root.mkdirs();
 			}
@@ -121,13 +119,13 @@ public class Logger {
 				return;
 			}
 
-			if (conf.log_rotation) {
-				File file = new File(conf.logs_dir, "scouter-" + prefix + "-" + DateUtil.yyyymmdd() + ".log");
+			if (conf.log_rotation_enabled) {
+				File file = new File(conf.log_dir, "scouter-" + prefix + "-" + DateUtil.yyyymmdd() + ".log");
 				FileWriter fw = new FileWriter(file, true);
 				pw = new PrintWriter(fw);
 				logfile = file;
 			} else {
-				File file = new File(conf.logs_dir, "scouter-" + prefix + ".log");
+				File file = new File(conf.log_dir, "scouter-" + prefix + ".log");
 				pw = new PrintWriter(new FileWriter(file, true));
 				logfile = file;
 			}
@@ -139,11 +137,10 @@ public class Logger {
 	static Runnable initializer = new Runnable() {
 		long last = System.currentTimeMillis();
 		long lastDataUnit = DateUtil.getDateUnit();
-		String lastDir = conf.logs_dir;
-		boolean lastFileRotation = conf.log_rotation;
+		String lastDir = conf.log_dir;
+		boolean lastFileRotation = conf.log_rotation_enabled;
 		String scouter_name = "boot";
 
-		@Override
 		public void run() {
 			try {
 				process();
@@ -158,17 +155,17 @@ public class Logger {
 				clearOldLog();
 			}
 
-			if (CompareUtil.equals(lastDir, conf.logs_dir) == false //
-					|| lastFileRotation != conf.log_rotation //
+			if (CompareUtil.equals(lastDir, conf.log_dir) == false //
+					|| lastFileRotation != conf.log_rotation_enabled //
 					|| lastDataUnit != DateUtil.getDateUnit() //
-					|| scouter_name.equals(conf.scouter_name) == false//
+					|| scouter_name.equals(conf.obj_name) == false//
 					|| (logfile != null && logfile.exists() == false)) {
 				pw = (PrintWriter) FileUtil.close(pw);
 				logfile = null;
-				lastDir = conf.logs_dir;
-				lastFileRotation = conf.log_rotation;
+				lastDir = conf.log_dir;
+				lastFileRotation = conf.log_rotation_enabled;
 				lastDataUnit = DateUtil.getDateUnit();
-				scouter_name = conf.scouter_name;
+				scouter_name = conf.obj_name;
 			}
 
 			try {
@@ -180,13 +177,13 @@ public class Logger {
 	};
 
 	protected static void clearOldLog() {
-		if (conf.log_rotation == false)
+		if (conf.log_rotation_enabled == false)
 			return;
-		if (conf.log_keep_dates <= 0)
+		if (conf.log_keep_days <= 0)
 			return;
-		String scouter_prefix = "scouter-" + conf.scouter_name;
+		String scouter_prefix = "scouter-" + conf.obj_name;
 		long nowUnit = DateUtil.getDateUnit();
-		File dir = new File(conf.logs_dir);
+		File dir = new File(conf.log_dir);
 		File[] files = dir.listFiles();
 		for (int i = 0; i < files.length; i++) {
 			if (files[i].isDirectory())
@@ -204,7 +201,7 @@ public class Logger {
 			try {
 				long d = DateUtil.yyyymmdd(date);
 				long fileUnit = DateUtil.getDateUnit(d);
-				if (nowUnit - fileUnit > DateUtil.MILLIS_PER_DAY * conf.log_keep_dates) {
+				if (nowUnit - fileUnit > DateUtil.MILLIS_PER_DAY * conf.log_keep_days) {
 					files[i].delete();
 				}
 			} catch (Exception e) {
