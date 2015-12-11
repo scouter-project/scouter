@@ -41,7 +41,7 @@ import scouter.client.Images;
 import scouter.client.model.AgentModelThread;
 import scouter.client.model.AgentObject;
 import scouter.client.popup.CalendarDialog;
-import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
+import scouter.client.popup.CalendarDialog.ILoadCalendarDialog;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.sorter.ColumnLabelSorter;
@@ -95,7 +95,7 @@ public abstract class AbstractSummaryComposite extends Composite {
 		dateLbl.setLayoutData(gd);
 		dateLbl.addMouseListener(new MouseAdapter() {
 			public void mouseDown(MouseEvent e) {
-				CalendarDialog dialog = new CalendarDialog(parent.getDisplay(), new ILoadCounterDialog(){
+				CalendarDialog dialog = new CalendarDialog(parent.getDisplay(), new ILoadCalendarDialog(){
 					public void onPressedOk(long startTime, long endTime) {}
 					public void onPressedCancel() {}
 					public void onPressedOk(String date) {

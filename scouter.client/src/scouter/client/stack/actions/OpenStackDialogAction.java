@@ -5,7 +5,7 @@ import org.eclipse.swt.widgets.Display;
 
 import scouter.client.model.TextProxy;
 import scouter.client.popup.CalendarDialog;
-import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
+import scouter.client.popup.CalendarDialog.ILoadCalendarDialog;
 import scouter.client.stack.dialog.StackListDialog;
 
 public class OpenStackDialogAction extends Action {
@@ -21,7 +21,7 @@ public class OpenStackDialogAction extends Action {
 	}
 	
 	public void run(){
-		new CalendarDialog(Display.getDefault(), new ILoadCounterDialog() {
+		new CalendarDialog(Display.getDefault(), new ILoadCalendarDialog() {
 			public void onPressedOk(String date) {
 				String objName = TextProxy.object.getText(objHash);
 				new StackListDialog(serverId, objName, date).open();

@@ -86,7 +86,7 @@ import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.StringUtil;
 
-public class CounterPastTimeGroupTotalView extends ScouterViewPart implements CalendarDialog.ILoadCounterDialog {
+public class CounterPastTimeGroupTotalView extends ScouterViewPart implements CalendarDialog.ILoadCalendarDialog {
 
 	public static final String ID = CounterPastTimeGroupTotalView.class.getName();
 			

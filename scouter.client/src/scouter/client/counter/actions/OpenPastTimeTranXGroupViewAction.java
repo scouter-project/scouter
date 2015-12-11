@@ -31,7 +31,7 @@ import scouter.client.popup.CalendarDialog;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ImageUtil;
 
-public class OpenPastTimeTranXGroupViewAction extends Action implements CalendarDialog.ILoadCounterDialog {
+public class OpenPastTimeTranXGroupViewAction extends Action implements CalendarDialog.ILoadCalendarDialog {
 	public final static String ID = OpenPastTimeTranXGroupViewAction.class.getName();
 
 	private final IWorkbenchWindow window;
