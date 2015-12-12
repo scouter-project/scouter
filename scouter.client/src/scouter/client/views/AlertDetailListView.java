@@ -77,7 +77,7 @@ import scouter.util.DateUtil;
 import scouter.util.HashUtil;
 import scouter.util.StringEnumer;
 
-public class AlertDetailListView extends ViewPart implements CalendarDialog.ILoadCounterDialog {
+public class AlertDetailListView extends ViewPart implements CalendarDialog.ILoadCalendarDialog {
 	
 	public static final String ID = AlertDetailListView.class.getName();
 

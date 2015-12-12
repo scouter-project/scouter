@@ -29,7 +29,7 @@ import scouter.client.popup.CalendarDialog;
 import scouter.client.util.ImageUtil;
 import scouter.util.DateUtil;
 
-public class OpenDailyServiceCountAction extends Action implements CalendarDialog.ILoadCounterDialog {
+public class OpenDailyServiceCountAction extends Action implements CalendarDialog.ILoadCalendarDialog {
 	public final static String ID = OpenDailyServiceCountAction.class.getName();
 
 	private final IWorkbenchWindow window;

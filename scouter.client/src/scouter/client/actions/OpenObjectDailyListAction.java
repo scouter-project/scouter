@@ -30,7 +30,7 @@ import scouter.client.util.ImageUtil;
 import scouter.client.views.ObjectDailyListView;
 
 
-public class OpenObjectDailyListAction extends Action implements CalendarDialog.ILoadCounterDialog {
+public class OpenObjectDailyListAction extends Action implements CalendarDialog.ILoadCalendarDialog {
 	public final static String ID = OpenObjectDailyListAction.class.getName();
 
 	private final IWorkbenchWindow window;

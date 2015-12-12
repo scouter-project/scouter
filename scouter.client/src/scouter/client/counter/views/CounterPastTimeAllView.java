@@ -94,7 +94,7 @@ import scouter.util.FormatUtil;
 import scouter.util.StringUtil;
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class CounterPastTimeAllView extends ScouterViewPart implements CalendarDialog.ILoadCounterDialog {
+public class CounterPastTimeAllView extends ScouterViewPart implements CalendarDialog.ILoadCalendarDialog {
 	public static final String ID = CounterPastTimeAllView.class.getName();
 	
 	private IMemento memento;

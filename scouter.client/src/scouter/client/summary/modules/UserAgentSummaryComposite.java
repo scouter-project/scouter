@@ -43,7 +43,7 @@ import scouter.client.Images;
 import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
 import scouter.client.popup.CalendarDialog;
-import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
+import scouter.client.popup.CalendarDialog.ILoadCalendarDialog;
 import scouter.client.sorter.ColumnLabelSorter;
 import scouter.client.util.ExUtil;
 import scouter.client.util.TimeUtil;

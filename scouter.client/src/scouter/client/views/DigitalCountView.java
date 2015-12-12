@@ -28,40 +28,18 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
-import scouter.client.model.RefreshThread;
-import scouter.client.net.TcpProxy;
 import scouter.client.util.ColorUtil;
-import scouter.client.util.ExUtil;
-import scouter.lang.pack.MapPack;
-import scouter.lang.value.Value;
-import scouter.util.CastUtil;
-import scouter.util.FormatUtil;
 
-public class DigitalCountView extends ViewPart implements RefreshThread.Refreshable {
+public class DigitalCountView extends ViewPart {
 	
 	public static final String ID = DigitalCountView.class.getName();
 	
-	private Canvas canvas;
-	protected RefreshThread thread;
-	private String value = "unavailable";
-	private int serverId;
+	protected Canvas canvas;
+	protected String value = "DigitalCount";
+	protected String title = "";
 	
-	String title = "";
-	String requestCmd;
-	MapPack param;
-	
-	@Override
-	public void init(IViewSite site) throws PartInitException {
-		super.init(site);
-		String secId = site.getSecondaryId();
-		String ids[] = secId.split("&");
-		serverId = CastUtil.cint(ids[0]);
-	}
-
 	@Override
 	public void createPartControl(Composite parent) {
 		canvas = new Canvas(parent, SWT.DOUBLE_BUFFERED);
@@ -88,16 +66,6 @@ public class DigitalCountView extends ViewPart implements RefreshThread.Refresha
 			}
 		});
 	}
-	
-    public void setInput(String title, String requestCmd, MapPack param){
-    	this.title = title == null ? "" : title;
-    	this.requestCmd = requestCmd;
-    	this.param = param;
-    	if (thread == null) {
-	    	thread = new RefreshThread(this, 2000);
-			thread.start();
-    	}
-    }
 	
 	private void drawText(Rectangle area, GC gc) {
 		try {
@@ -148,38 +116,6 @@ public class DigitalCountView extends ViewPart implements RefreshThread.Refresha
 
 	
 	@Override
-	public void dispose() {
-		super.dispose();
-		if (thread != null && thread.isAlive()) {
-			thread.shutdown();
-		}
-	}
-
-
-	@Override
 	public void setFocus() {
 	}
-
-	public void refresh() {
-		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
-		Value v = null;
-		try {
-			v = tcp.getSingleValue(requestCmd, param);
-		} catch(Exception e){
-			e.printStackTrace();
-		} finally {
-			TcpProxy.putTcpProxy(tcp);
-		}
-		if (v != null) {
-			value = FormatUtil.print(CastUtil.clong(v), "#,##0");
-		} else {
-			value = "unavailable";
-		}
-		ExUtil.exec(canvas, new Runnable() {
-			public void run() {
-				canvas.redraw();
-			}
-		});
-	}
-
 }

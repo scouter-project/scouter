@@ -29,7 +29,7 @@ import scouter.client.model.GroupObject;
 import scouter.client.popup.CalendarDialog;
 import scouter.client.util.ImageUtil;
 
-public class OpenPastDateGroupCountViewAction extends Action implements CalendarDialog.ILoadCounterDialog{
+public class OpenPastDateGroupCountViewAction extends Action implements CalendarDialog.ILoadCalendarDialog{
 	public final static String ID = OpenPastDateGroupCountViewAction.class.getName();
 
 	private final IWorkbenchWindow window;
