@@ -1,7 +1,9 @@
 scouter.agent.java/bin/*
 scouter.client/bin/*
 scouter.common/bin/*
+scouter.common/bin-test/*
 scouter.server/bin/*
+scouter.server/bin-test/*
 scouter.deploy/out
 */.cache
 */.svn
