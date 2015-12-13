@@ -39,24 +39,29 @@ APM은 Application performance montoring 또는 application performance manageme
 ## 모듈
 스카우터는 세가지 주요 모듈로 구성된다 :
 
-- Agent : 성능 데이터를 수집하여 수집 서버로 전송
-  - Tomcat Agent (Java Agent) : JVM 과 Tomcat WAS 성능 수집
+- **Agent** : 성능 데이터를 수집하여 수집 서버로 전송
+  - **Tomcat Agent (Java Agent)** : JVM 과 Tomcat WAS 성능 수집
      - **ASM** :  using ASM library of OW2  (http://asm.ow2.org/) for BCI(byte code instrumentation)
      - **Tools.jar** : Java thread dumps, heap dumps, heap histograms, and the other powerful features provided by the JVM as the default.
      - **JMX** :  Some counters for Tomcat & JVM such as GC Count, GC Times etc
-  - Linux Agent (Host Agent) : Linux, Windows 및 OSX 성능
-     - Sigar Lib (https://github.com/hyperic/sigar) : A cross-platform process and system utilities module for Java
-     - Counters : Cpu, Memory, Disk, Network
-  -  MariaDB Agent : [to be announced]
+     
+  - **Linux Agent (Host Agent)** : Linux, Windows 및 OSX 성능
+     - **Sigar Lib** (https://github.com/hyperic/sigar) : A cross-platform process and system utilities module for Java
+     - **Counters** : Cpu, Memory, Disk, Network
+     
+  -  **MariaDB Agent** : [to be announced]
+<br>
 
-- Server (Collector) : Agent가 전송한 데이터를 저장하고 Client 요청시 Client에게 적절한 데이터를 전송
-  - Scala : Written in Scala. It will provide a variety of features and performance scalability that can not be written in Java.
-  - HASH FILE : 고속의 자체 개발한 파일 DB 사용으로 최상이 속도를 보장하며 추가적인 DB 및 라이브러리의 설치가 불필요.
-  - GZIP : 압축 옵션을 통해 저장 공간을 절약하도록 개발됨.
+- **Server (Collector)** : Agent가 전송한 데이터를 저장하고 Client 요청시 Client에게 적절한 데이터를 전송
+  - **Scala** : Written in Scala. It will provide a variety of features and performance scalability that can not be written in Java.
+  - **HASH FILE** : 고속의 자체 개발한 Hash 인덱스 방식의 파일 Repository 사용으로 최상의 속도를 동작하며 추가적인 DB 및 라이브러리의 설치가 불필요하여 압축 해제만으로 쉽게 설치 가능.
+  - **GZIP** : 압축 옵션을 통해 저장 공간을 절약하도록 개발됨.
+<br>
 
-- Client (Viewer) : 수집된 데이터를 보기위한 Client 프로그램
-  - Eclipse RCP : RCP로 개발된 Standalone 프로그램. C/S의 빠른 응답성 및 OS 호환성을 고려하여 RCP로 개발되었으며 하나의 Client View 에서 복수의(Multi) Collector Server를 한번에 모니터링이 가능함. 이를 통해 대형 시스템이나 지속적으로 확장되는 시스템에 대해서도 쉽게 모니터링이 가능하도록 개발됨.
-  - SWT & GEF4 : Charts and Diagrams
+- **Client (Viewer)** : 수집된 데이터를 보기위한 Client 프로그램
+  - **Eclipse RCP** : RCP로 개발된 Standalone 프로그램. C/S의 빠른 응답성 및 OS 호환성을 고려하여 RCP로 개발되었으며 하나의 Client View 에서 복수의(Multi) Collector Server를 한번에 모니터링이 가능함. 이를 통해 대형 시스템이나 지속적으로 확장되는 시스템에 대해서도 쉽게 모니터링이 가능하도록 개발됨.
+  - **SWT & GEF4** : Charts and Diagrams
+<br>
 
 ## Q&A
  - [Google Groups](https://groups.google.com/forum/#!forum/scouter-project)
