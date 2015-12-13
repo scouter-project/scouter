@@ -672,6 +672,13 @@ public class Configure extends Thread {
 		return this.hook_signature;
 	}
 	public static void main(String[] args) {
-		System.out.println(Configure.getInstance().getKeyValueInfo().toString().replace(',', '\n'));
+		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
+		StringEnumer enu = defMap.keys();
+		while (enu.hasMoreElements()) {
+			String key = enu.nextString();
+			if (ignoreSet.contains(key))
+				continue;
+			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key)));
+		}
 	}
 }
