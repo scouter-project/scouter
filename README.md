@@ -33,10 +33,10 @@ SCOUTER can help you.
 <iframe width="560" height="315" src="https://www.youtube.com/embed/iuArTzsD7Ws" frameborder="0" allowfullscreen></iframe>
 
 ## Documents
- - [Getting Started](../../wiki/Getting-Started)
- - [Getting Start Profiling SQL](../../wiki/Getting-Start-Profile-SQL) 
- - [Client Screen Help](../../wiki/How-To-Use-Client) 
- - [More Documents](../../wiki/)
+ - [Document Home](./scouter.document/index.md)
+ - [Getting Started](./scouter.document/main/Getting-Started.md)
+ - [Getting Start Profiling SQL](./scouter.document/main/Getting-Start-Profile-SQL.md)
+ - [Client Screen Help](./scouter.document/client/How-To-Use-Client.md)
 
 ## Download
  - [Latest Release](https://github.com/scouter-project/scouter/releases/)
