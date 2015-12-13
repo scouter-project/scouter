@@ -29,9 +29,7 @@ public class SpringReqMapASM implements IASM, Opcodes {
 	static String springControllerNames[] = { "Lorg/springframework/stereotype/Controller;",
 			"Lorg/springframework/web/bind/annotation/RestController;" };
 	static String springRequestMappingAnnotation = "Lorg/springframework/web/bind/annotation/RequestMapping;";
-	public boolean isTarget(String className) {
-		return false;
-	}
+
 	Configure conf = Configure.getInstance();
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (conf._hook_spring_rest_enabled == false)

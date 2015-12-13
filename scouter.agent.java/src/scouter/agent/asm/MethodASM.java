@@ -36,19 +36,6 @@ public class MethodASM implements IASM, Opcodes {
 
 	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_method_patterns);
 
-	public boolean isTarget(String className) {
-		if (target.size() == 0)
-			return false;
-
-		for (int i = 0; i < target.size(); i++) {
-			HookingSet mset = target.get(i);
-			if (mset.classMatch.include(className)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	Configure conf = Configure.getInstance();
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

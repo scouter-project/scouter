@@ -38,9 +38,7 @@ public class SocketASM implements IASM, Opcodes {
 	public SocketASM() {
 			AsmUtil.add(reserved,"java/net/Socket","connect(Ljava/net/SocketAddress;I)V");
 	}
-	public boolean isTarget(String className) {
-		return reserved.containsKey(className);
-	}
+
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (Configure.getInstance()._hook_socket_enabled == false) {
 			return cv;

@@ -41,9 +41,7 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 		target.add("oracle/jdbc/driver/SensitiveScrollableResultSet");
 		target.add("org/hsqldb/jdbc/JDBCResultSet");
 	}
-	public boolean isTarget(String className) {
-		return target.contains(className);
-	}
+
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (Configure.getInstance()._hook_dbsql_enabled == false) {
 			return cv;

@@ -28,9 +28,6 @@ public class AddFieldASM implements IASM, Opcodes {
 	public final Map<String, String> target = HookingSet.getClassFieldSet(Configure.getInstance().hook_add_fields);
 	public AddFieldASM() {
 	}
-	public boolean isTarget(String className) {
-		return target.containsKey(className);
-	}
 	Configure conf = Configure.getInstance();
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (Configure.getInstance()._hook_async_enabled == false) {

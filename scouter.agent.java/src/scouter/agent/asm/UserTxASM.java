@@ -28,11 +28,6 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 public class UserTxASM implements IASM, Opcodes {
 
 	public UserTxASM() {
-
-	}
-
-	public boolean isTarget(String className) {
-		return false;
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

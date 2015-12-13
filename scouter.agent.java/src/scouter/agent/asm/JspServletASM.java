@@ -37,10 +37,6 @@ public class JspServletASM implements IASM, Opcodes {
 		AsmUtil.add(target, "org/apache/jasper/servlet/JspServlet", "serviceJspFile");
 	}
 
-	public boolean isTarget(String className) {
-		return target.containsKey(className);
-	}
-
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (Configure.getInstance()._hook_jsp_enabled == false) {
 			return cv;

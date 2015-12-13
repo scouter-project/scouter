@@ -34,13 +34,7 @@ public class JDBCDriverASM implements IASM, Opcodes {
 	public JDBCDriverASM() {
 		AsmUtil.add(reserved, "com/ibm/db2/jcc/DB2Driver",	"connect(Ljava/lang/String;Ljava/util/Properties;)Ljava/sql/Connection;");
 	}
-	public boolean isTarget(String className) {
-		HookingSet mset = reserved.get(className);
-		if (mset != null){
-			return true;
-		}
-		return false;
-	}
+
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (Configure.getInstance()._hook_dbconn_enabled == false) {
 			return cv;
