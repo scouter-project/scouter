@@ -1,19 +1,14 @@
 ![scouter](./scouter.document/img/main/scouter-logo-w200.png)
 
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](README_kr.md)
+[![Englsh](https://img.shields.io/badge/language-English-red.svg)](README.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
-## Open Source S/W Applicaiton Performance Monitoring
+## 오픈소스 S/W 어플리케이션 성능 모니터링
 
-SCOUTER is an open source APM and a database monitoring tool.
-APM means application performance monitoring or application performance management.
+APM은 Application performance montoring 또는 application performance management를 의미하고 SCOUTER는 오픈소스 APM 도구로서 Java, WAS에 대한 모니터링 및 DB Agent를 통해 오픈소스 DB 모니터링 기능을 제공한다.
 
- - Monitoring target (currently)
-   - Opensource WAS - Tomcat, JBoss, Resin ...
-   - Opensource DB - MariaDB(on closed beta testing now)
-
-
- - Monitoring target (hopeful with every contributor)
-   - Nodejs, Redis, MongoDB, PostgreSQL, Apach HTTPD, nginX, php ...
+ - 모니터링 대상 
+   - 오픈소스 WAS - Tomcat, JBoss, Resin ...
+   - 오픈소스 DB - MariaDB (클로즈 베타 테스트 진행중)
 
 ![Screen](./scouter.document/img/main/dashboard-sample-1.png)
 
