@@ -21,8 +21,8 @@ import java.util.Random;
 import java.util.Stack;
 
 import scouter.AnyTrace;
+import scouter.agent.AgentBoot;
 import scouter.agent.Configure;
-import scouter.agent.LazyAgentBoot;
 import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
@@ -58,7 +58,7 @@ public class Service24H {
 		System.out.println("  server = " + server + ":" +port);
 		System.out.println("  tcp = " + tps);
 		
-		LazyAgentBoot.boot();
+		AgentBoot.boot();
 		TcpRequestMgr.getInstance();
 		
 		double interval = 1000.0/tps;
