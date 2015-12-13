@@ -85,7 +85,7 @@ import scouter.client.model.CounterColorManager;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.client.popup.CalendarDialog;
-import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
+import scouter.client.popup.CalendarDialog.ILoadCalendarDialog;
 import scouter.client.util.ChartUtil;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.ExUtil;
@@ -199,7 +199,7 @@ public class TagCountView extends ViewPart {
 		dateLbl.setLayoutData(new RowData(160, SWT.DEFAULT));
 		dateLbl.addMouseListener(new MouseAdapter() {
 			public void mouseDown(MouseEvent e) {
-				CalendarDialog dialog = new CalendarDialog(getViewSite().getShell().getDisplay(), new ILoadCounterDialog(){
+				CalendarDialog dialog = new CalendarDialog(getViewSite().getShell().getDisplay(), new ILoadCalendarDialog(){
 					public void onPressedOk(long startTime, long endTime) {}
 					public void onPressedCancel() {}
 					public void onPressedOk(String date) {

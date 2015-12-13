@@ -24,38 +24,40 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 
 import scouter.client.Images;
-import scouter.client.model.TextProxy;
+import scouter.client.server.ServerManager;
 import scouter.client.util.ImageUtil;
-import scouter.client.views.DigitalCountView;
-import scouter.client.visitor.views.VisitorRealtimeView;
+import scouter.client.visitor.views.VisitorLoadView;
 import scouter.lang.pack.MapPack;
 import scouter.net.RequestCmd;
 
-public class OpenUniqueVisitorAction extends Action {
-	public final static String ID = OpenUniqueVisitorAction.class.getName();
+public class OpenVisitorTotalLoadAction extends Action {
+	public final static String ID = OpenVisitorTotalLoadAction.class.getName();
 
 	private final IWorkbenchWindow win;
-	private int objHash;
+	private String objType;
 	private int serverId;
+	private String date;
 
-	public OpenUniqueVisitorAction(IWorkbenchWindow win, int serverId, int objHash) {
+	public OpenVisitorTotalLoadAction(IWorkbenchWindow win, int serverId, String date, String objType) {
 		this.win = win;
-		this.objHash = objHash;
+		this.objType = objType;
 		this.serverId = serverId;
-		setText("Today Visitor");
-		setImageDescriptor(ImageUtil.getImageDescriptor(Images.monitor));
+		this.date = date;
+		setText("Load");
+		setImageDescriptor(ImageUtil.getImageDescriptor(Images.calendar));
 	}
 
 	public void run() {
 		if (win != null) {
 			try {
-				VisitorRealtimeView view = (VisitorRealtimeView) win.getActivePage().showView(
-						VisitorRealtimeView.ID, serverId + "&" + objHash, IWorkbenchPage.VIEW_ACTIVATE);
+				VisitorLoadView view = (VisitorLoadView) win.getActivePage().showView(
+						VisitorLoadView.ID, serverId + "&" + date + "&" + objType, IWorkbenchPage.VIEW_ACTIVATE);
 				if (view != null) {
 					MapPack param = new MapPack();
-					param.put("objHash", this.objHash);
-					String objName = TextProxy.object.getText(objHash);
-					view.setInput(objName + "'s Today Visitors", RequestCmd.VISITOR_REALTIME, param);
+					param.put("date", date);
+					param.put("objType", this.objType);
+					String displayObjType = ServerManager.getInstance().getServer(serverId).getCounterEngine().getDisplayNameObjectType(objType);
+					view.setInput(date + " - " + displayObjType, RequestCmd.VISITOR_LOADDATE_TOTAL, param);
 				}
 			} catch (PartInitException e) {
 				MessageDialog.openError(win.getShell(), "Error", "Error opening view:" + e.getMessage());

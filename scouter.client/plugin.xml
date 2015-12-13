@@ -926,6 +926,22 @@
             name="RealTimeMultiCount"
             restorable="true">
       </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.visitor.views.VisitorRealtimeView"
+            icon="icons/user.png"
+            id="scouter.client.visitor.views.VisitorRealtimeView"
+            name="Visitors"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.visitor.views.VisitorLoadView"
+            icon="icons/user.png"
+            id="scouter.client.visitor.views.VisitorLoadView"
+            name="Visitors"
+            restorable="false">
+      </view>
   </extension>
  <extension
          point="org.eclipse.ui.commands">

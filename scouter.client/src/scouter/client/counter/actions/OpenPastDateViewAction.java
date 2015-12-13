@@ -25,10 +25,10 @@ import org.eclipse.ui.IWorkbenchWindow;
 
 import scouter.client.counter.views.CounterLoadDateView;
 import scouter.client.popup.CalendarDialog;
-import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
+import scouter.client.popup.CalendarDialog.ILoadCalendarDialog;
 import scouter.client.util.ImageUtil;
 
-public class OpenPastDateViewAction extends Action implements ILoadCounterDialog {
+public class OpenPastDateViewAction extends Action implements ILoadCalendarDialog {
 	public final static String ID = OpenPastDateViewAction.class.getName();
 
 	private final IWorkbenchWindow win;

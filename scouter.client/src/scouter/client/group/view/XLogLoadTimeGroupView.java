@@ -76,7 +76,7 @@ import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 
 
-public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDialog.ITimeRange, CalendarDialog.ILoadCounterDialog {
+public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDialog.ITimeRange, CalendarDialog.ILoadCalendarDialog {
 
 	public static final String ID = XLogLoadTimeGroupView.class.getName();
 	

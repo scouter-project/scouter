@@ -218,7 +218,8 @@ public class EndUserSummary {
 		int cnt = temp.size();
 		ListValue id = p.table.newList("id");
 		ListValue count = p.table.newList("count");
-		ListValue stacktrace = p.table.newList("stacktrace");
+        ListValue host = p.table.newList("host");
+        ListValue stacktrace = p.table.newList("stacktrace");
 		ListValue userAgent = p.table.newList("userAgent");
 
 		ListValue uri = p.table.newList("uri");
@@ -240,6 +241,7 @@ public class EndUserSummary {
 
             id.add(key);
 			count.add(data.count);
+            host.add(data.host);
 			stacktrace.add(data.stacktrace);
 			userAgent.add(data.userAgent);
 

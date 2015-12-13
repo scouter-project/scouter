@@ -9,7 +9,7 @@ import org.eclipse.ui.PlatformUI;
 import scouter.client.Images;
 import scouter.client.maria.views.DbDailyTotalConnView;
 import scouter.client.popup.CalendarDialog;
-import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
+import scouter.client.popup.CalendarDialog.ILoadCalendarDialog;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ImageUtil;
 import scouter.util.DateUtil;
@@ -31,7 +31,7 @@ public class OpenDbDailyConnView extends Action {
 
 	public void run() {
 		try {
-			CalendarDialog dialog = new CalendarDialog(Display.getDefault(), new ILoadCounterDialog() {
+			CalendarDialog dialog = new CalendarDialog(Display.getDefault(), new ILoadCalendarDialog() {
 				public void onPressedOk(long startTime, long endTime) {
 				}
 
