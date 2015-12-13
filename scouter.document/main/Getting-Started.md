@@ -67,7 +67,7 @@ When using a browser to access the 'http://127.0.0.1:8080' screen output will To
 ![Tomcat](../img/main/getting_started_tomcat.png)
 
 ## Installing the Scouter
-For the Tomcat monitoring 'scout' is needed to install the three components
+For the Tomcat monitoring 'scouter' is needed to install the three components
 In this example, install all the components on a server
 
 ### Agent installed and running
@@ -103,7 +103,7 @@ If you run Tomcat, again, from the Start window, you can see the message below.
 If you see the above message, the installation of Agent will succeed
 
 
-## Server Installation and running
+## Collector Server Installation and running
 Install the server receives the data store. First, download the server receives from github.
 
 https://github.com/scouter-project/scouter/releases/download/v0.4.0/scouter.server.tar.gz
