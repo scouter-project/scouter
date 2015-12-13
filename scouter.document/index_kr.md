@@ -1,5 +1,5 @@
 # Document
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](index_kr.md)
+[![Englsh](https://img.shields.io/badge/language-English-red.svg)](index.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 ## Getting Started
 - [Getting Started](./Getting-Started)
