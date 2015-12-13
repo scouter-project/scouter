@@ -23,7 +23,6 @@ import java.util.HashSet;
 
 import scouter.agent.Configure;
 import scouter.agent.JavaAgent;
-import scouter.agent.LazyAgentBoot;
 import scouter.agent.netio.request.anotation.RequestHandler;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
@@ -31,6 +30,7 @@ import scouter.lang.value.BooleanValue;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.RequestCmd;
+import scouter.util.ClassUtil;
 
 public class AgentConfigure {
 	
@@ -89,7 +89,7 @@ public class AgentConfigure {
 		for (int i = 0; paramSet.size() > 0 && i < classes.length; i++) {
 			if (paramSet.contains(classes[i].getName())) {
 				try {
-					byte[] buff = LazyAgentBoot.getByteCode(classes[i]);
+					byte[] buff = ClassUtil.getByteCode(classes[i]);
 					if (buff == null) {
 						continue;
 					}

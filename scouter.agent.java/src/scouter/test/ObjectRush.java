@@ -19,7 +19,7 @@ package scouter.test;
 
 import java.util.ArrayList;
 
-import scouter.agent.LazyAgentBoot;
+import scouter.agent.AgentBoot;
 import scouter.agent.Logger;
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.task.AgentHeartBeat;
@@ -44,7 +44,7 @@ public class ObjectRush {
 		System.setProperty("server.addr", server);
 		System.setProperty("server.port", port);
 		
-		LazyAgentBoot.boot();
+		AgentBoot.boot();
 		
 		ArrayList<String> objNames = new ArrayList<String>();
 		

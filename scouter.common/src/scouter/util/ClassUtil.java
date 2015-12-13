@@ -16,6 +16,8 @@
  */
 package scouter.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -132,7 +134,7 @@ public class ClassUtil {
 			sb.append(f[i].getName()).append(";\n");
 		}
 		Method[] m = c1.getDeclaredMethods();
-		if(f.length>0 && m.length >0){
+		if (f.length > 0 && m.length > 0) {
 			sb.append("\n");
 		}
 		for (int i = 0; i < m.length; i++) {
@@ -184,6 +186,31 @@ public class ClassUtil {
 		if (Modifier.isSynchronized(acc)) {
 			sb.append("synchronized ");
 		}
+	}
+
+	public static byte[] getByteCode(Class c) {
+		if (c == null)
+			return null;
+		String clsAsResource = "/" + c.getName().replace('.', '/').concat(".class");
+		InputStream in = null;
+		try {
+			in = c.getResourceAsStream(clsAsResource);
+			if (in == null) {
+				return null;
+			}
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+			byte[] buff = new byte[1024];
+			int n = 0;
+			while ((n = in.read(buff, 0, 1024)) >= 0) {
+				out.write(buff, 0, n);
+			}
+			return out.toByteArray();
+		} catch (Exception e) {
+		} finally {
+			FileUtil.close(in);
+		}
+		return null;
 	}
 
 	public static void main(String[] args) {

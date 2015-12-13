@@ -373,7 +373,14 @@ public class Configure extends Thread {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(new File("./scoute.aa").getParentFile().mkdirs());
+		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
+		StringEnumer enu = defMap.keys();
+		while (enu.hasMoreElements()) {
+			String key = enu.nextString();
+			if (ignoreSet.contains(key))
+				continue;
+			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key)));
+		}
 	}
 
 	private static HashSet<String> ignoreSet = new HashSet<String>();
