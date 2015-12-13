@@ -41,42 +41,6 @@ public class JavaAgent {
 		AsyncRunner.getInstance().add(new AgentBoot());
 	}
 
-	public static void agentmain(String options, Instrumentation i) throws Exception {
-		if (JavaAgent.instrumentation != null) {
-			return;
-		}
-		setOpt(options);
-		intro();
-		Configure.getInstance();
-		JavaAgent.instrumentation = i;
-		JavaAgent.instrumentation.addTransformer(new AgentTransformer());
-		// RequestAgent.getInstance();
-		TcpRequestMgr.getInstance();
-		AsyncRunner.getInstance().add(new LazyAgentBoot());
-	}
-
-	private static void setOpt(String opts) {
-		try {
-			opts = StringUtil.trim(opts);
-			if (StringUtil.isEmpty(opts))
-				return;
-			String[] options = StringUtil.split(opts, ',');
-			for (int i = 0; i < options.length; i++) {
-				String[] op = StringUtil.split(options[i], '=');
-				if (op.length != 2)
-					continue;
-				String key = StringUtil.trimToEmpty(op[0]);
-				String value = StringUtil.trimToEmpty(op[1]);
-				if (key.length() > 0) {
-					System.setProperty(key, value);
-					Logger.println("A117", "add property : " + key + "=" + value);
-				}
-			}
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-	}
-
 	private static void intro() {
 		try {
 			System.setProperty("scouter.enabled", "true");

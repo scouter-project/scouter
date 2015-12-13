@@ -99,7 +99,7 @@ class XLogService {
         val index = param.getInt("index");
         val loop = param.getLong("loop");
         var limit = param.getInt("limit");
-        limit = Math.max(Configure.getInstance().xlog_realtime_limit, limit);
+        limit = Math.max(Configure.getInstance().xlog_realtime_lower_bound_ms, limit);
         val objHashLv = param.getList("objHash");
         if (objHashLv == null || objHashLv.size() < 1) {
             return ;
@@ -133,7 +133,7 @@ class XLogService {
         val stime = param.getLong("stime");
         val etime = param.getLong("etime");
         val limitTime = param.getInt("limit");
-        val limit = Math.max(Configure.getInstance().xlog_pasttime_limit, limitTime);
+        val limit = Math.max(Configure.getInstance().xlog_pasttime_lower_bound_ms, limitTime);
         val max = param.getInt("max");
         val rev = param.getBoolean("reverse");
         val objHashLv = param.getList("objHash");

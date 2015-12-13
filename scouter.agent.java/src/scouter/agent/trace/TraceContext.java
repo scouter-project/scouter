@@ -21,6 +21,7 @@ import scouter.util.SysJMX;
 
 public class TraceContext {
 	private boolean isSummary;
+	public boolean isStaticContents;
 
 	protected TraceContext() {
 	}
@@ -33,7 +34,7 @@ public class TraceContext {
 			this.profile = new ProfileCollector(this);
 		}
 	}
-
+	
 	public TraceContext parent;
 	public long txid;
 	public Thread thread;
@@ -56,7 +57,7 @@ public class TraceContext {
 	public String remoteIp;
 	
 	public int error;
-	public boolean done_http_service;
+	//public boolean done_http_service;
 	public String http_method;
 	public String http_query;
 	public String http_content_type;
@@ -118,9 +119,7 @@ public class TraceContext {
 		child.serviceHash = this.serviceHash;
 		child.serviceName = this.serviceName;
 		child.remoteIp = this.remoteIp;
-		// child.error = this.error;
-		child.done_http_service = this.done_http_service;
-
+		
 		child.http_method = this.http_method;
 		child.http_query = this.http_query;
 		child.http_content_type = this.http_content_type;

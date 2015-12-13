@@ -377,10 +377,10 @@
       </view>
       <view
             allowMultiple="true"
-            class="scouter.client.xlog.views.XLogProfilePageView"
+            class="scouter.client.xlog.views.XLogFullProfileView"
  			icon="icons/page_white_text.png"
-            id="scouter.client.xlog.views.XLogProfilePageView"
-            name="XLog Profile Page View"
+            id="scouter.client.xlog.views.XLogFullProfileView"
+            name="XLog Full Profile"
             restorable="false">
       </view>
       <view
@@ -925,6 +925,22 @@
             id="scouter.client.counter.views.CounterRealTimeMultiView"
             name="RealTimeMultiCount"
             restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.visitor.views.VisitorRealtimeView"
+            icon="icons/user.png"
+            id="scouter.client.visitor.views.VisitorRealtimeView"
+            name="Visitors"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.visitor.views.VisitorLoadView"
+            icon="icons/user.png"
+            id="scouter.client.visitor.views.VisitorLoadView"
+            name="Visitors"
+            restorable="false">
       </view>
   </extension>
  <extension

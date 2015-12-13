@@ -34,7 +34,7 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class MethodASM implements IASM, Opcodes {
 
-	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_method);
+	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_method_patterns);
 
 	public boolean isTarget(String className) {
 		if (target.size() == 0)
@@ -52,6 +52,9 @@ public class MethodASM implements IASM, Opcodes {
 	Configure conf = Configure.getInstance();
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
+		if (conf._hook_methods_enabled == false) {
+			return cv;
+		}
 		if (target.size() == 0)
 			return cv;
 
@@ -90,10 +93,10 @@ class MethodCV extends ClassVisitor implements Opcodes {
 		}
 
 		Configure conf = Configure.getInstance();
-		boolean isPublic = conf.hook_method_access_public;
-		boolean isProtected = conf.hook_method_access_protected;
-		boolean isPrivate = conf.hook_method_access_private;
-		boolean isNone = conf.hook_method_access_none;
+		boolean isPublic = conf.hook_method_access_public_enabled;
+		boolean isProtected = conf.hook_method_access_protected_enabled;
+		boolean isPrivate = conf.hook_method_access_private_enabled;
+		boolean isNone = conf.hook_method_access_none_enabled;
 		switch (access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED | Opcodes.ACC_PRIVATE)) {
 		case Opcodes.ACC_PUBLIC:
 			if (isPublic == false)

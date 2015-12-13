@@ -25,7 +25,7 @@ import scouter.lang.step.StepSingle;
 public class ProfileCollector implements IProfileCollector {
 	private Configure conf=Configure.getInstance();
 	private TraceContext context;
-	protected Step[] buffer = new Step[conf.profile_step_max];
+	protected Step[] buffer = new Step[conf.profile_step_max_count];
 	protected int position = 0;
 
 	public int this_index = 0;
@@ -46,7 +46,7 @@ public class ProfileCollector implements IProfileCollector {
 		buffer[position++] = stepSingle;
 		if (position >= buffer.length) {
 			Step[] o = buffer;
-			buffer = new Step[conf.profile_step_max];
+			buffer = new Step[conf.profile_step_max_count];
 			position = 0;
 			DataProxy.sendProfile(o, context);
 		}

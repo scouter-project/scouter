@@ -99,7 +99,7 @@ import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 import scouter.util.StringUtil;
 
-public class CounterPastTimeGroupAllView extends ScouterViewPart implements CalendarDialog.ILoadCounterDialog, IObjectCheckListener {
+public class CounterPastTimeGroupAllView extends ScouterViewPart implements CalendarDialog.ILoadCalendarDialog, IObjectCheckListener {
 
 	public static final String ID = CounterPastTimeGroupAllView.class.getName();
 			

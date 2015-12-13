@@ -5,9 +5,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import scouter.agent.Configure;
 import scouter.agent.netio.request.ReqestHandlingProxy;
@@ -23,7 +20,7 @@ public class TcpWorker implements Runnable {
 	public static IntKeyLinkedMap<TcpWorker> LIVE = new IntKeyLinkedMap<TcpWorker>();
 
 	public static String localAddr = null;
-	public int objHash = Configure.getInstance().objHash;
+	public int objHash = Configure.getInstance().getObjHash();
 
 	public void run() {
 		if (socket == null)
@@ -44,10 +41,10 @@ public class TcpWorker implements Runnable {
 
 	public boolean prepare() {
 		Configure conf = Configure.getInstance();
-		String host = conf.server_addr;
-		int port = conf.server_tcp_port;
-		int so_timeout = conf.server_tcp_so_timeout;
-		int connection_timeout = conf.server_tcp_connection_timeout;
+		String host = conf.net_collector_ip;
+		int port = conf.net_collector_tcp_port;
+		int so_timeout = conf.net_collector_tcp_so_timeout_ms;
+		int connection_timeout = conf.net_collector_tcp_connection_timeout_ms;
 
 		socket = new Socket();
 		try {
@@ -74,7 +71,7 @@ public class TcpWorker implements Runnable {
 			out.writeInt(objHash);
 			out.flush();
 
-			while (objHash == Configure.getInstance().objHash) {
+			while (objHash == Configure.getInstance().getObjHash()) {
 				String cmd = in.readText();
 				Pack parameter = (Pack) in.readPack();
 				Pack res = ReqestHandlingProxy.process(cmd, parameter, in, out);

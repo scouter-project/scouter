@@ -17,6 +17,8 @@
  */
 package scouter.client.util;
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
@@ -231,4 +233,11 @@ public class UIUtil {
 		return gridData;
 	}
 	
+    public static int [] getScreenSize(){
+    	int [] size = new int[2];
+    	GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+    	size[0] = gd.getDisplayMode().getWidth();
+    	size[1] = gd.getDisplayMode().getHeight();
+    	return size;
+    }	
 }

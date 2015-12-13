@@ -29,7 +29,7 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 
 public class CapThisASM implements IASM, Opcodes {
-	private  List< HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_init);
+	private  List< HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_constructor_patterns);
 
 	
 	public boolean isTarget(String className) {
@@ -42,7 +42,9 @@ public class CapThisASM implements IASM, Opcodes {
 		return false;
 	}
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-
+		if (Configure.getInstance()._hook_cap_enabled == false) {
+			return cv;
+		}
 		for (int i = 0; i < target.size(); i++) {
 			HookingSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {

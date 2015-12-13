@@ -41,7 +41,7 @@ public class SocketTable {
 		} else {
 			info = new Info(serviceHash, txid);
 			socketMap.put(key, info);
-			if (port == Configure.getInstance().socket_open_fullstack_port) {
+			if (port == Configure.getInstance()._trace_fullstack_socket_open_port) {
 				info.stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 3);
 			}
 		}

@@ -27,6 +27,10 @@ public class HttpTraceFactory {
 			return null;
 		}
 
+		public String getHeader(Object req, String key) {
+			return null;
+		}
+
 		public void start(TraceContext ctx, Object req, Object res) {
 		}
 
@@ -38,7 +42,8 @@ public class HttpTraceFactory {
 
 		public void rejectUrl(Object res, String url) {
 		}
-	};;
+
+	};
 
 	public static IHttpTrace create(ClassLoader parent) {
 		try {

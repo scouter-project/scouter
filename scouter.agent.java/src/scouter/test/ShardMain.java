@@ -19,8 +19,8 @@ package scouter.test;
 
 import java.util.Random;
 
+import scouter.agent.AgentBoot;
 import scouter.agent.Configure;
-import scouter.agent.LazyAgentBoot;
 import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.trace.TraceMain;
 import scouter.util.CastUtil;
@@ -46,7 +46,7 @@ public class ShardMain {
 		System.out.println("  server = " + server + ":" + port);
 		System.out.println("  tcp = " + tps);
 
-		LazyAgentBoot.boot();
+		AgentBoot.boot();
 		// RequestAgent.getInstance();
 		TcpRequestMgr.getInstance();
 
@@ -77,7 +77,7 @@ public class ShardMain {
 			if (last_unit != unit) {
 				last_unit = unit;
 				System.out.println(DateUtil.timestamp(endtime) + "  exe-tx=" + txcount + "  "
-						+ Configure.getInstance().objName);
+						+ Configure.getInstance().getObjName());
 			}
 			tm = tm + interval;
 			if (tm > 1) {

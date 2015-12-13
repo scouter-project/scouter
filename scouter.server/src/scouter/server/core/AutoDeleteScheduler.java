@@ -46,10 +46,10 @@ public class AutoDeleteScheduler extends Thread {
 		dbDir = new File(DBCtr.getRootPath());
 		ConfObserver.put(AutoDeleteScheduler.class.getName(), new Runnable() {
 			public void run() {
-				if (conf.auto_delete_data != brun
-					|| conf.auto_delete_max_percent != maxPercent
-					|| conf.auto_delete_retain_days != retainDays
-					|| conf.auto_delete_only_xlog != delOnlyXLog) {
+				if (conf.mgr_purge_enabled != brun
+					|| conf.mgr_purge_disk_usage_pct != maxPercent
+					|| conf.mgr_purge_keep_days != retainDays
+					|| conf.mgr_purge_only_xlog_enabled != delOnlyXLog) {
 					applyConf();
 					lastCheckDate = null;
 					deletedDays.clear();
@@ -59,18 +59,18 @@ public class AutoDeleteScheduler extends Thread {
 	}
 	
 	private void applyConf() {
-		brun = conf.auto_delete_data;
-		maxPercent = conf.auto_delete_max_percent;
-		retainDays = conf.auto_delete_retain_days;
-		delOnlyXLog = conf.auto_delete_only_xlog;
+		brun = conf.mgr_purge_enabled;
+		maxPercent = conf.mgr_purge_disk_usage_pct;
+		retainDays = conf.mgr_purge_keep_days;
+		delOnlyXLog = conf.mgr_purge_only_xlog_enabled;
 	}
 
 	public void run() {
 		while(CoreRun.running()) {
-			if (conf.auto_delete_data) {
+			if (conf.mgr_purge_enabled) {
 				String today = DateUtil.yyyymmdd();
 				if (SystemUtil.IS_JAVA_1_5 == false) {
-					int maxPercent = conf.auto_delete_max_percent;
+					int maxPercent = conf.mgr_purge_disk_usage_pct;
 					if (maxPercent > 0) {
 						long totalSpace = dbDir.getTotalSpace();
 						long usuableSpace = dbDir.getUsableSpace();
@@ -87,7 +87,7 @@ public class AutoDeleteScheduler extends Thread {
 						}
 					}
 				}
-				int retainDays = conf.auto_delete_retain_days;
+				int retainDays = conf.mgr_purge_keep_days;
 				if (retainDays > 0) {
 					if (today.equals(lastCheckDate) == false) {
 						lastCheckDate = today;
@@ -113,7 +113,7 @@ public class AutoDeleteScheduler extends Thread {
 	private void deleteData(String yyyymmdd) {
 		try {
 			File f = null;
-			if (conf.auto_delete_only_xlog) {
+			if (conf.mgr_purge_only_xlog_enabled) {
 				f = new File(dbDir, yyyymmdd + XLogWR.dir());
 			} else {
 				f = new File(dbDir, yyyymmdd);

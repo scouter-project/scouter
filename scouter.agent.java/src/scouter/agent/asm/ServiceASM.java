@@ -33,7 +33,7 @@ import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class ServiceASM implements IASM, Opcodes {
-	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_service);
+	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_service_patterns);
 
 	public ServiceASM() {
 	}
@@ -50,7 +50,9 @@ public class ServiceASM implements IASM, Opcodes {
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-
+		if (Configure.getInstance()._hook_serivce_enabled == false) {
+			return cv;
+		}
 		for (int i = 0; i < target.size(); i++) {
 			HookingSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {

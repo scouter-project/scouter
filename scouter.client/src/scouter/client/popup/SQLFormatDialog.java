@@ -17,9 +17,13 @@
  */
 package scouter.client.popup;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -33,12 +37,16 @@ import org.eclipse.swt.widgets.Shell;
 import org.hibernate.jdbc.util.BasicFormatterImpl;
 
 import scouter.client.util.SqlFormatUtil;
+import scouter.client.util.SqlMakerUtil;
 import scouter.client.util.UIUtil;
 
 public class SQLFormatDialog {
+	public void show(final String message, final String error){
+		show(message, error, null);
+	}
 	
-	public void show(final String message, final String error) {
-		final Shell dialog = new Shell(Display.getDefault(), SWT.DIALOG_TRIM | SWT.RESIZE);
+	public void show(final String message, final String error, final String params) {
+		final Shell dialog = new Shell(Display.getDefault(), SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM | SWT.RESIZE);
 		UIUtil.setDialogDefaultFunctions(dialog);
 		dialog.setText("SQL");
 		dialog.setLayout(new GridLayout(1, true));
@@ -62,7 +70,11 @@ public class SQLFormatDialog {
 		gd.widthHint = 700;
 		gd.heightHint = 500;
 		text.setLayoutData(gd);
-		SqlFormatUtil.applyStyledFormat(text, message);
+		if(params == null){
+			SqlFormatUtil.applyStyledFormat(text, message);
+		}else{
+			SqlFormatUtil.applyStyledFormat(text, SqlMakerUtil.bindSQL(message, params));
+		}
 		text.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if (e.stateMask == SWT.CTRL) {
@@ -91,9 +103,38 @@ public class SQLFormatDialog {
 		formatBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				formatBtn.setEnabled(false);
-				String formateed = new BasicFormatterImpl().format(text.getText());
+				
+				String inputSQL = text.getText();
+				String bindVariables = null;
+				
+				int search = -1;
+				if(inputSQL != null){
+					search = inputSQL.indexOf(SqlMakerUtil.SQLDIVIDE);
+					if(search >= 0){
+						bindVariables = inputSQL.substring(search);
+						inputSQL = inputSQL.substring(0, search);
+					}
+				}
+				String formateed = new BasicFormatterImpl().format(inputSQL);
+				if(search >=0){
+					formateed = formateed + bindVariables;
+				}
+				
 				text.setText(formateed);
 				formatBtn.setEnabled(true);
+			}
+		});
+
+		final Button copyBtn = new Button(bottomComp, SWT.PUSH);
+		copyBtn.setLayoutData(UIUtil.formData(null, -1, null, -1, formatBtn, -5, null, -1, 100));
+		copyBtn.setText("&Copy");
+		copyBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+					Clipboard clipboard = new Clipboard(Display.getDefault());
+					TextTransfer textTransfer = TextTransfer.getInstance();
+					clipboard.setContents(new String[]{text.getText()}, new Transfer[]{textTransfer});
+					clipboard.dispose();
+					MessageDialog.openInformation(dialog, "Copy", "Copied to clipboard");
 			}
 		});
 		

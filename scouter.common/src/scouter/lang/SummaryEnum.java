@@ -25,4 +25,9 @@ public class SummaryEnum {
 	final public static byte APICALL = 5;
 	public static final byte USER_AGENT = 8;
 	public static final byte SERVICE_ERROR = 9;
+	
+	public static final byte ENDUSER_NAVIGATION_TIME = 10;
+	public static final byte ENDUSER_AJAX_TIME = 11;
+	public static final byte ENDUSER_SCRIPT_ERROR = 12;
+	
 }

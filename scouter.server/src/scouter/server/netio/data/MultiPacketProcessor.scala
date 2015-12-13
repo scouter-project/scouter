@@ -73,7 +73,7 @@ object MultiPacketProcessor {
             val p = buffer.get(key);
             if (p.isExpired) {
                 buffer.remove(key);
-                if (Configure.getInstance().debug_expired_multipacket) {
+                if (Configure.getInstance().log_expired_multipacket) {
                     Logger.println("S150", 10, p.toString);
                 }
             }

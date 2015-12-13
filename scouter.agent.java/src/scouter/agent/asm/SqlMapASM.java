@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import scouter.agent.ClassDesc;
+import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.ClassVisitor;
@@ -54,7 +55,9 @@ public class SqlMapASM implements IASM, Opcodes {
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-
+		if (Configure.getInstance()._hook_dbsql_enabled == false) {
+			return cv;
+		}
 		for (int i = 0; i < classDesc.interfaces.length; i++) {
 			for (int j = 0; j < targetInf.length; j++) {
 				if (targetInf[j].equals(classDesc.interfaces[i])) {

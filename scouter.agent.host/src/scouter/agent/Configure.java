@@ -17,16 +17,6 @@
 
 package scouter.agent;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.conf.ConfObserver;
@@ -35,20 +25,16 @@ import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.DateUtil;
-import scouter.util.FileUtil;
-import scouter.util.HashUtil;
-import scouter.util.StringEnumer;
-import scouter.util.StringKeyLinkedMap;
-import scouter.util.StringSet;
-import scouter.util.StringUtil;
-import scouter.util.SysJMX;
-import scouter.util.SystemUtil;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
 
 public class Configure extends Thread {
 
-	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
 	public final static String CONF_DIR = "./conf/";
 
@@ -62,52 +48,58 @@ public class Configure extends Thread {
 		return instance;
 	}
 
-	public String local_udp_addr = null;
-	public int local_udp_port;
+	//Network
+	public String net_local_udp_ip = null;
+	public int net_local_udp_port;
+	public String net_collector_ip = "127.0.0.1";
+	public int net_collector_udp_port = NetConstants.SERVER_UDP_PORT;
+	public int net_collector_tcp_port = NetConstants.SERVER_TCP_PORT;
+	public int net_collector_tcp_session_count = 1;
+	public int net_collector_tcp_so_timeout_ms = 60000;
+	public int net_collector_tcp_connection_timeout_ms = 3000;
+	public int net_udp_packet_max_bytes = 60000;
 
-	public String server_addr = "127.0.0.1";
-	public int server_udp_port = NetConstants.SERVER_UDP_PORT;
-	public int server_tcp_port = NetConstants.SERVER_TCP_PORT;
-	public int server_tcp_session_count = 1;
-	public int server_tcp_so_timeout = 60000;
-	public int server_tcp_connection_timeout = 3000;
+	//Object
+	public String obj_type = "";
+	public String obj_name = "";
 
-	public String scouter_type = "";
-	public String scouter_name = "";
+	//Manager
+	public StringSet mgr_log_ignore_ids = new StringSet();
 
-	public int objHash;
-	public String objName;
+	//Counter
+	public boolean counter_enabled = true;
+	public String counter_object_registry_path = "/tmp/scouter";
 
-	public int udp_packet_max = 60000;
-	public StringSet log_ignore = new StringSet();
-	public int max_concurrent_server_request = 10;
+	//Log
+	public boolean log_udp_object = false;
+	public boolean log_rotation_enalbed = true;
+	public String log_dir = "./logs";
+	public int log_keep_days = 365;
 
-	public boolean enable_counter_task = true;
-	public boolean debug_udp_object = false;
-
-	public boolean log_rotation = true;
-	public String logs_dir = "./logs";
-	public int log_keep_dates = 365;
-
-	public String object_registry = "/tmp/scouter";
-
+	//Disk
 	public boolean disk_alert_enabled = true;
 	public int disk_warning_pct = 70;
 	public int disk_fatal_pct = 90;
-	public StringSet disk_ignore = new StringSet();
+	public StringSet disk_ignore_names = new StringSet();
 
+	//Cpu
 	public boolean cpu_alert_enabled = true;
-	public long cpu_check_period = 300000;
-	public long cpu_alert_interval = 30000;
+	public long cpu_check_period_ms = 300000;
+	public long cpu_alert_interval_ms = 30000;
 	public int cpu_warning_pct = 70;
 	public int cpu_fatal_pct = 90;
 	public int cpu_warning_history = 3;
 	public int cpu_fatal_history = 3;
 
+	//Memory
 	public boolean mem_alert_enabled = true;
-	public long mem_alert_interval = 30000;
+	public long mem_alert_interval_ms = 30000;
 	public int mem_warning_pct = 80;
 	public int mem_fatal_pct = 90;
+
+	//internal variables
+	private int objHash;
+	private String objName;
 
 	private Configure() {
 		Properties p = new Properties();
@@ -189,44 +181,43 @@ public class Configure extends Thread {
 
 	private void apply() {
 
-		this.udp_packet_max = getInt("udp_packet_max", getInt("udp.packet.max", 60000));
-		this.log_ignore = getStringSet("log_ignore", ",");
+		this.net_udp_packet_max_bytes = getInt("net_udp_packet_max_bytes", getInt("udp.packet.max", 60000));
+		this.mgr_log_ignore_ids = getStringSet("mgr_log_ignore_ids", ",");
 
-		this.local_udp_addr = getValue("local_udp_addr");
-		this.local_udp_port = getInt("local_udp_port", 0);
+		this.net_local_udp_ip = getValue("net_local_udp_ip");
+		this.net_local_udp_port = getInt("net_local_udp_port", 0);
 
-		this.server_addr = getValue("server_addr", getValue("server.addr", "127.0.0.1"));
-		this.server_udp_port = getInt("server_udp_port", getInt("server.port", NetConstants.SERVER_UDP_PORT));
-		this.server_tcp_port = getInt("server_tcp_port", getInt("server.port", NetConstants.SERVER_TCP_PORT));
-		this.server_tcp_session_count = getInt("server_tcp_session_count", 1, 1);
-		this.server_tcp_connection_timeout = getInt("server_tcp_connection_timeout", 3000);
-		this.server_tcp_so_timeout = getInt("server_tcp_so_timeout", 60000);
+		this.net_collector_ip = getValue("net_collector_ip", getValue("server.addr", "127.0.0.1"));
+		this.net_collector_udp_port = getInt("net_collector_udp_port", getInt("server.port", NetConstants.SERVER_UDP_PORT));
+		this.net_collector_tcp_port = getInt("net_collector_tcp_port", getInt("server.port", NetConstants.SERVER_TCP_PORT));
+		this.net_collector_tcp_session_count = getInt("net_collector_tcp_session_count", 1, 1);
+		this.net_collector_tcp_connection_timeout_ms = getInt("net_collector_tcp_connection_timeout_ms", 3000);
+		this.net_collector_tcp_so_timeout_ms = getInt("net_collector_tcp_so_timeout_ms", 60000);
 
-		this.max_concurrent_server_request = getInt("max_concurrent_server_request", 10);
-		this.enable_counter_task = getBoolean("enable_counter_task", true);
-		this.debug_udp_object = getBoolean("debug_udp_object", false);
+		this.counter_enabled = getBoolean("counter_enabled", true);
+		this.log_udp_object = getBoolean("log_udp_object", false);
 
-		this.logs_dir = getValue("logs_dir", "./logs");
-		this.log_rotation = getBoolean("log_rotation", true);
-		this.log_keep_dates = getInt("log_keep_dates", 365);
+		this.log_dir = getValue("log_dir", "./logs");
+		this.log_rotation_enalbed = getBoolean("log_rotation_enalbed", true);
+		this.log_keep_days = getInt("log_keep_days", 365);
 
-		this.object_registry = getValue("object_registry", "/tmp/scouter");
+		this.counter_object_registry_path = getValue("counter_object_registry_path", "/tmp/scouter");
 
 		this.disk_alert_enabled = getBoolean("disk_alert_enablee", true);
 		this.disk_warning_pct = getInt("disk_warning_pct", 70);
 		this.disk_fatal_pct = getInt("disk_fatal_pct", 90);
-		this.disk_ignore = getStringSet("disk_ignore", ",");
+		this.disk_ignore_names = getStringSet("disk_ignore_names", ",");
 
 		this.cpu_alert_enabled = getBoolean("cpu_alert_enabled", true);
-		this.cpu_check_period = getLong("cpu_check_period", 300000);
-		this.cpu_alert_interval = getLong("cpu_alert_interval", 30000);
+		this.cpu_check_period_ms = getLong("cpu_check_period_ms", 300000);
+		this.cpu_alert_interval_ms = getLong("cpu_alert_interval_ms", 30000);
 		this.cpu_warning_pct = getInt("cpu_warning_pct", 70);
 		this.cpu_fatal_pct = getInt("cpu_fatal_pct", 90);
 		this.cpu_warning_history = getInt("cpu_warning_history", 3);
 		this.cpu_fatal_history = getInt("cpu_fatal_history", 3);
 
 		this.mem_alert_enabled = getBoolean("mem_alert_enabled", true);
-		this.mem_alert_interval = getLong("mem_alert_interval", 30000);
+		this.mem_alert_interval_ms = getLong("mem_alert_interval_ms", 30000);
 		this.mem_warning_pct = getInt("mem_warning_pct", 80);
 		this.mem_fatal_pct = getInt("mem_fatal_pct", 90);
 		
@@ -261,10 +252,10 @@ public class Configure extends Thread {
 		} else if (SystemUtil.IS_HP_UX) {
 			detected = CounterConstants.HPUX;
 		}
-		this.scouter_type = getValue("scouter_type", detected);
-		this.scouter_name = getValue("scouter_name", SysJMX.getHostName());
+		this.obj_type = getValue("obj_type", detected);
+		this.obj_name = getValue("obj_name", SysJMX.getHostName());
 
-		this.objName = "/" + this.scouter_name;
+		this.objName = "/" + this.obj_name;
 		this.objHash = HashUtil.hash(objName);
 
 	}
@@ -318,6 +309,14 @@ public class Configure extends Thread {
 		return def;
 	}
 
+	public int getObjHash() {
+		return this.objHash;
+	}
+
+	public String getObjName() {
+		return this.objName;
+	}
+
 	public String loadText() {
 		File file = getPropertyFile();
 		InputStream fin = null;
@@ -354,9 +353,6 @@ public class Configure extends Thread {
 
 	static {
 		ignoreSet.add("property");
-		ignoreSet.add("objHash");
-		ignoreSet.add("objName");
-		ignoreSet.add("objType");
 	}
 
 	public MapValue getKeyValueInfo() {
@@ -381,6 +377,13 @@ public class Configure extends Thread {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(Configure.getInstance().getKeyValueInfo().toString().replace(',', '\n'));
+		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
+		StringEnumer enu = defMap.keys();
+		while (enu.hasMoreElements()) {
+			String key = enu.nextString();
+			if (ignoreSet.contains(key))
+				continue;
+			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key)));
+		}
 	}
 }

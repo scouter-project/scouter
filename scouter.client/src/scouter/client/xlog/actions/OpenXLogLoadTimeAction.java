@@ -30,7 +30,7 @@ import scouter.client.popup.CalendarDialog;
 import scouter.client.util.ImageUtil;
 import scouter.client.xlog.views.XLogLoadTimeView;
 
-public class OpenXLogLoadTimeAction extends Action implements CalendarDialog.ILoadCounterDialog {
+public class OpenXLogLoadTimeAction extends Action implements CalendarDialog.ILoadCalendarDialog {
 	public final static String ID = OpenXLogLoadTimeAction.class.getName();
 
 	private final IWorkbenchWindow window;

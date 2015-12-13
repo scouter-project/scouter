@@ -47,7 +47,7 @@ public class ServiceSummary {
 	private Configure conf = Configure.getInstance();
 
 	public void process(XLogPack p) {
-		if (conf.enable_summary == false)
+		if (conf.summary_enabled == false)
 			return;
 		// service summary
 		SummaryData d = getSummaryMap(serviceMaster, p.service);
@@ -71,7 +71,7 @@ public class ServiceSummary {
 	}
 
 	public ErrorData process(Throwable p, int message, int service, long txid, int sql, int api) {
-		if (conf.enable_summary == false)
+		if (conf.summary_enabled == false)
 			return null;
 		String errName = p.getClass().getName();
 
@@ -91,7 +91,7 @@ public class ServiceSummary {
 	}
 
 	public void process(SqlStep sqlStep) {
-		if (conf.enable_summary == false)
+		if (conf.summary_enabled == false)
 			return;
 		SummaryData d = getSummaryMap(sqlMaster, sqlStep.hash);
 		d.count++;
@@ -102,7 +102,7 @@ public class ServiceSummary {
 	}
 
 	public void process(ApiCallStep apiStep) {
-		if (conf.enable_summary == false)
+		if (conf.summary_enabled == false)
 			return;
 		SummaryData d = getSummaryMap(apiMaster, apiStep.hash);
 		d.count++;
@@ -134,14 +134,14 @@ public class ServiceSummary {
 	}
 
 	private LongKeyLinkedMap<ErrorData> errorMaster = new LongKeyLinkedMap<ErrorData>()
-			.setMax(conf.summary_service_error_max);
+			.setMax(conf.summary_error_max_count);
 
-	private IntKeyLinkedMap<SummaryData> sqlMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_sql_max);
-	private IntKeyLinkedMap<SummaryData> apiMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_api_max);
+	private IntKeyLinkedMap<SummaryData> sqlMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_sql_max_count);
+	private IntKeyLinkedMap<SummaryData> apiMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_api_max_count);
 	private IntKeyLinkedMap<SummaryData> serviceMaster = new IntKeyLinkedMap<SummaryData>()
-			.setMax(conf.summary_service_max);
-	private IntIntLinkedMap ipMaster = new IntIntLinkedMap().setMax(conf.summary_service_ip_max);
-	private IntIntLinkedMap uaMaster = new IntIntLinkedMap().setMax(conf.summary_service_ua_max);
+			.setMax(conf.summary_service_max_count);
+	private IntIntLinkedMap ipMaster = new IntIntLinkedMap().setMax(conf.summary_ip_max_count);
+	private IntIntLinkedMap uaMaster = new IntIntLinkedMap().setMax(conf.summary_useragent_max_count);
 
 	public SummaryPack getAndClear(byte type) {
 		IntKeyLinkedMap<SummaryData> temp;
@@ -150,19 +150,19 @@ public class ServiceSummary {
 			if (serviceMaster.size() == 0)
 				return null;
 			temp = serviceMaster;
-			serviceMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_service_max);
+			serviceMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_service_max_count);
 			break;
 		case SummaryEnum.SQL:
 			if (sqlMaster.size() == 0)
 				return null;
 			temp = sqlMaster;
-			sqlMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_sql_max);
+			sqlMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_sql_max_count);
 			break;
 		case SummaryEnum.APICALL:
 			if (apiMaster.size() == 0)
 				return null;
 			temp = apiMaster;
-			apiMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_api_max);
+			apiMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_api_max_count);
 			break;
 		default:
 			return null;
@@ -207,13 +207,13 @@ public class ServiceSummary {
 			if (ipMaster.size() == 0)
 				return null;
 			temp = ipMaster;
-			ipMaster = new IntIntLinkedMap().setMax(conf.summary_service_ip_max);
+			ipMaster = new IntIntLinkedMap().setMax(conf.summary_ip_max_count);
 			break;
 		case SummaryEnum.USER_AGENT:
 			if (uaMaster.size() == 0)
 				return null;
 			temp = uaMaster;
-			uaMaster = new IntIntLinkedMap().setMax(conf.summary_service_ua_max);
+			uaMaster = new IntIntLinkedMap().setMax(conf.summary_useragent_max_count);
 			break;
 		default:
 			return null;
@@ -242,7 +242,7 @@ public class ServiceSummary {
 			return null;
 
 		LongKeyLinkedMap<ErrorData> temp = errorMaster;
-		errorMaster = new LongKeyLinkedMap<ErrorData>().setMax(conf.summary_service_error_max);
+		errorMaster = new LongKeyLinkedMap<ErrorData>().setMax(conf.summary_error_max_count);
 
 		SummaryPack p = new SummaryPack();
 		p.stype = type;

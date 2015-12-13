@@ -87,15 +87,15 @@ public class ForHttpURLConnection implements ApiCallTraceHelper.IHelper {
 	private void transfer(TraceContext ctx, HttpURLConnection urlCon, long calleeTxid) {
 
 		Configure conf = Configure.getInstance();
-		if (conf.enable_trace_e2e) {
+		if (conf.trace_interservice_enabled) {
 
 			if (ctx.gxid == 0) {
 				ctx.gxid = ctx.txid;
 			}
 			try {
-				urlCon.setRequestProperty(conf.gxid, Hexa32.toString32(ctx.gxid));
-				urlCon.setRequestProperty(conf.this_txid, Hexa32.toString32(calleeTxid));
-				urlCon.setRequestProperty(conf.caller_txid, Hexa32.toString32(ctx.txid));
+				urlCon.setRequestProperty(conf.trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
+				urlCon.setRequestProperty(conf.trace_interservice_callee_header_key, Hexa32.toString32(calleeTxid));
+				urlCon.setRequestProperty(conf.trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
 				
 				PluginHttpCallTrace.call(ctx, urlCon);
 			} catch (Throwable t) {

@@ -31,7 +31,7 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 public class ApicallASM implements IASM, Opcodes {
-	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_apicall);
+	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_apicall_patterns);
 	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
 	public ApicallASM() {
 		AsmUtil.add(reserved, "sun/net/www/protocol/http/HttpURLConnection", "getInputStream()Ljava/io/InputStream;");
@@ -66,6 +66,9 @@ public class ApicallASM implements IASM, Opcodes {
 		return false;
 	}
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
+		if (Configure.getInstance()._hook_methods_enabled == false) {
+			return cv;
+		}
 		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return new ApicallExtCV(cv, mset, className);

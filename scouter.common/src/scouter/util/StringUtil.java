@@ -102,12 +102,20 @@ public class StringUtil {
 		return s;
 	}
 
+	public static String trim(String s) {
+		return s == null ? null : s.trim();
+	}
+
 	public static String trimEmpty(String s) {
 		return s == null ? "" : s.trim();
 	}
 
-	public static String trim(String s) {
-		return s == null ? null : s.trim();
+	public static String trimToEmpty(String s) {
+		return trimEmpty(s);
+	}
+
+	public static String nullToEmpty(String s) {
+		return s == null ? "" : s;
 	}
 
 	public static boolean isEmpty(String s) {
@@ -154,10 +162,6 @@ public class StringUtil {
 			}
 		}
 		return arr.toArray(new String[arr.size()]);
-	}
-
-	public static String trimToEmpty(String x) {
-		return x == null ? "" : x.trim();
 	}
 
 	public static String removeWhitespace(String str) {

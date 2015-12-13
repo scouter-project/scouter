@@ -16,7 +16,6 @@
  */
 package scouter.agent.counter.task;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.Enumeration;
 import scouter.Version;
 import scouter.agent.Configure;
@@ -33,14 +32,14 @@ import scouter.util.StringKeyLinkedMap;
 import scouter.util.SysJMX;
 public class AgentHeartBeat {
 	static {
-		Logger.println("objType:" + Configure.getInstance().scouter_type);
-		Logger.println("objName:" + Configure.getInstance().objName);
+		Logger.println("objType:" + Configure.getInstance().obj_type);
+		Logger.println("objName:" + Configure.getInstance().getObjName());
 	}
 	private static StringKeyLinkedMap<ObjectPack> objects = new StringKeyLinkedMap<ObjectPack>();
 	public static void addObject(String objType, int objHash, String objName) {
 		if (objName == null)
 			return;
-		if (objName.equals(Configure.getInstance().objName))
+		if (objName.equals(Configure.getInstance().getObjName()))
 			return;
 		ObjectPack old = objects.get(objName);
 		if (old != null && objType.equals(old.objType)) {
@@ -63,9 +62,9 @@ public class AgentHeartBeat {
 	private ObjectPack getMainObject() {
 		Configure conf = Configure.getInstance();
 		ObjectPack p = new ObjectPack();
-		p.objType = conf.scouter_type;
-		p.objHash = conf.objHash;
-		p.objName = conf.objName;
+		p.objType = conf.obj_type;
+		p.objHash = conf.getObjHash();
+		p.objName = conf.getObjName();
 		p.version = Version.getAgentFullVersion();
 		p.address = TcpWorker.localAddr;
 		if (ToolsMainFactory.activeStack) {
@@ -81,10 +80,10 @@ public class AgentHeartBeat {
 		Configure conf = Configure.getInstance();
 		try {
 			int pid = SysJMX.getProcessPID();
-			File dir = new File(conf.object_registry);
+			File dir = new File(conf.counter_object_registry_path);
 			File file = new File(dir, pid + ".scouter");
 			if (dir.canWrite()) {
-				FileUtil.save(file, conf.objName.getBytes());
+				FileUtil.save(file, conf.getObjName().getBytes());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

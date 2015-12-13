@@ -37,7 +37,7 @@ object CountEnv {
 
     def getDBPath(logDate: String): String = {
         val sb = new StringBuffer();
-        sb.append(Configure.getInstance().db_root);
+        sb.append(Configure.getInstance().db_dir);
         sb.append("/").append(logDate);
         sb.append("/").append("tagcnt");
         return sb.toString();
@@ -45,7 +45,7 @@ object CountEnv {
 
     def getDBPath(logDate: String, objType: String): String = {
         val sb = new StringBuffer();
-        sb.append(Configure.getInstance().db_root);
+        sb.append(Configure.getInstance().db_dir);
         sb.append("/").append(logDate);
         sb.append("/").append("tagcnt");
         sb.append("/").append(objType);

@@ -31,7 +31,7 @@ import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class JspServletASM implements IASM, Opcodes {
-	private Map<String, HookingSet> target = HookingSet.getHookingSet(Configure.getInstance().hook_jsp);
+	private Map<String, HookingSet> target = HookingSet.getHookingSet(Configure.getInstance().hook_jsp_patterns);
 
 	public JspServletASM() {
 		AsmUtil.add(target, "org/apache/jasper/servlet/JspServlet", "serviceJspFile");
@@ -42,7 +42,9 @@ public class JspServletASM implements IASM, Opcodes {
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-
+		if (Configure.getInstance()._hook_jsp_enabled == false) {
+			return cv;
+		}
 		HookingSet mset = target.get(className);
 		if (mset == null)
 			return cv;

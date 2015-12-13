@@ -58,7 +58,7 @@ public class DumpUtil extends Thread {
 
 	public static File getDumpFile(String prefix) {
 		String name = prefix + "." + DateUtil.ymdhms(System.currentTimeMillis()) + ".dump";
-		return new File(Configure.getInstance().dump_dir, name);
+		return new File(Configure.getInstance().mgr_dump_dir, name);
 	}
 
 	public static Pack triggerHeapHisto() {
@@ -199,7 +199,7 @@ public class DumpUtil extends Thread {
 				ThreadUtil.wait(this);
 			}
 
-			switch (conf.auto_dump_level) {
+			switch (conf.autodump_level) {
 			case 1:
 				DumpUtil.triggerThreadDump();
 				break;
@@ -220,11 +220,11 @@ public class DumpUtil extends Thread {
 	private static long last_auto_dump = 0;
 
 	public static void autoDump() {
-		if (conf.enable_auto_dump == false)
+		if (conf.autodump_enabled == false)
 			return;
 
 		long now = System.currentTimeMillis();
-		if (now < last_auto_dump + conf.auto_dump_interval)
+		if (now < last_auto_dump + conf.autodump_interval_ms)
 			return;
 		last_auto_dump = now;
 

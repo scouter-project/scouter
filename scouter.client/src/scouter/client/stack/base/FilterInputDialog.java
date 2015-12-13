@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Text;
 
 import scouter.client.Images;
 import scouter.client.stack.utils.ResourceUtils;
+import scouter.client.util.UIUtil;
 
 public class FilterInputDialog {
     public enum TASK { NONE, PERFORMANCE_TREE, SERVICE_CALL, THREAD_STACK, FILTER_ANALYZER };
@@ -47,7 +48,7 @@ public class FilterInputDialog {
         layout.marginWidth = 5;
     	m_shell.setLayoutData(layout);
     	
-        int [] screen = ResourceUtils.getScreenSize();
+        int [] screen = UIUtil.getScreenSize();
         m_shell.setLocation((screen[0]/2)-350, (screen[1]/2)-75);        
         
         m_field = new Text(m_shell, SWT.BORDER | SWT.LEFT);

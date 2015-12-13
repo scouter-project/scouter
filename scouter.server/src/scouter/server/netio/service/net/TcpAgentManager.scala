@@ -68,6 +68,6 @@ object TcpAgentManager {
     }
     def get(objHash: Int): TcpAgentWorker = {
         var sessions = agentTable.get(objHash)
-        return if (sessions != null) sessions.get(conf.tcp_agent_max_wait) else null
+        return if (sessions != null) sessions.get(conf.net_tcp_get_agent_connection_wait_ms) else null
     }
 }

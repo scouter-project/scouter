@@ -7,7 +7,7 @@ public class LoadedContext {
 	public static StringLinkedSet ctxSet = new StringLinkedSet().setMax(100);
 	public static void put(DataSource ds) {
 		String old = ctxSet.put(ds.getClass().getName());
-		if (old == null && Configure.getInstance().debug_datasource_lookup) {
+		if (old == null && Configure.getInstance().log_datasource_lookup_enabled) {
 			Logger.println("DataSource lookup : " + ds.getClass().getName());
 		}
 	}

@@ -31,7 +31,7 @@ public class DirectPatch {
 
 	static {
 		try {
-			String patch = Configure.getInstance().direct_patch_class;
+			String patch = Configure.getInstance()._hook_direct_patch_classes;
 			String[] files = StringUtil.tokenizer(patch, ",;");
 			for (int i = 0; files!=null && i < files.length; i++) {
 				byte[] bytes = FileUtil.readAll(new File(files[i]));

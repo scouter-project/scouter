@@ -239,6 +239,8 @@ public class RequestCmd {
 	// VISITOR
 	public static final String VISITOR_REALTIME = "VISITOR_REALTIME";
 	public static final String VISITOR_REALTIME_TOTAL = "VISITOR_REALTIME_TOTAL";
+	public static final String VISITOR_LOADDATE = "VISITOR_LOADDATE";
+	public static final String VISITOR_LOADDATE_TOTAL = "VISITOR_REALTIME_TOTAL";
 
 	// SUMMARY
 	public static final String LOAD_SERVICE_SUMMARY = "LOAD_SERVICE_SUMMARY";
@@ -248,5 +250,9 @@ public class RequestCmd {
 	public static final String LOAD_UA_SUMMARY = "LOAD_UA_SUMMARY";
 	public static final String LOAD_SERVICE_ERROR_SUMMARY = "LOAD_SERVICE_ERROR_SUMMARY";
 	public static final String LOAD_ALERT_SUMMARY = "LOAD_ALERT_SUMMARY";
-	
+
+	public static final String LOAD_ENDUSER_NAV_SUMMARY = "LOAD_ENDUSER_NAV_SUMMARY";
+	public static final String LOAD_ENDUSER_AJAX_SUMMARY = "LOAD_ENDUSER_AJAX_SUMMARY";
+	public static final String LOAD_ENDUSER_ERROR_SUMMARY = "LOAD_ENDUSER_ERROR_SUMMARY";
+
 }

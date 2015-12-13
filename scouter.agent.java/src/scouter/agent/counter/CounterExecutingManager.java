@@ -24,7 +24,6 @@ import java.util.Set;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.anotation.Counter;
-import scouter.agent.counter.task.HeapUsage;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.pack.PerfCounterPack;
 import scouter.util.ThreadUtil;
@@ -45,7 +44,7 @@ public class CounterExecutingManager extends Thread {
 	public void run() {
 		while (true) {
 			ThreadUtil.sleep(1000);
-			if (conf.enable_counter_task == false) {
+			if (conf.counter_enabled == false) {
 				continue;
 			}
 			long now = System.currentTimeMillis();

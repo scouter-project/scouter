@@ -36,7 +36,7 @@ public class MakeStack {
 
 		StackPack p = new StackPack();
 		p.time = System.currentTimeMillis();
-		p.objHash = Configure.getInstance().objHash;
+		p.objHash = Configure.getInstance().getObjHash();
 		p.setStack(stack);
 
 		DataProxy.sendDirect(p);
@@ -47,6 +47,6 @@ public class MakeStack {
 		return Configure.getInstance().sfa_dump_enabled || System.currentTimeMillis() < pstack_requested;
 	}
 	private long getInterval() {
-		return Configure.getInstance().sfa_dump_interval;
+		return Configure.getInstance().sfa_dump_interval_ms;
 	}
 }

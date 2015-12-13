@@ -40,7 +40,7 @@ public class IXLog extends IPlugIn {
 	}
 
 	public void setLocation(XLogPack p) {
-		if (Configure.getInstance().enable_geoip) {
+		if (Configure.getInstance().geoip_enabled) {
 			GeoIpUtil.setNationAndCity(p);
 		}
 	}

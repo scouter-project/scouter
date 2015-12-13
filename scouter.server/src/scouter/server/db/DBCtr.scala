@@ -27,7 +27,7 @@ object DBCtr {
     val MAX_DIV = 20;
     val LARGE_MAX_QUE_SIZE = 100000;
 
-    def getRootPath() = Configure.getInstance().db_root
+    def getRootPath() = Configure.getInstance().db_dir
 
     var running = true;
     ShutdownManager.add(new IShutdown() {

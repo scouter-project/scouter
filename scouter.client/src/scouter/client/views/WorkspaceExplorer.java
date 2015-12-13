@@ -70,7 +70,7 @@ import scouter.client.stack.base.MainProcessor;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.RCPUtil;
 import scouter.client.xlog.SaveProfileJob;
-import scouter.client.xlog.views.XLogProfilePageView;
+import scouter.client.xlog.views.XLogFullProfileView;
 
 public class WorkspaceExplorer extends ViewPart implements DescriptionSetter{
 
@@ -157,7 +157,7 @@ public class WorkspaceExplorer extends ViewPart implements DescriptionSetter{
 	public void openFile(File selectedFile) {
 		 if(SaveProfileJob.xLogFileName.equals(selectedFile.getName()) || SaveProfileJob.profileFileName.equals(selectedFile.getName())) {
 			try {
-				XLogProfilePageView view = (XLogProfilePageView) window.getActivePage().showView(XLogProfilePageView.ID, selectedFile.getParentFile().getName(), IWorkbenchPage.VIEW_ACTIVATE);
+				XLogFullProfileView view = (XLogFullProfileView) window.getActivePage().showView(XLogFullProfileView.ID, selectedFile.getParentFile().getName(), IWorkbenchPage.VIEW_ACTIVATE);
 				if (view != null) {
 					view.setInput(selectedFile.getParentFile(), serverId, false);
 				}
@@ -166,7 +166,7 @@ public class WorkspaceExplorer extends ViewPart implements DescriptionSetter{
 			} 
 		}else if(SaveProfileJob.profileSummaryFileName.equals(selectedFile.getName())) {
 			try {
-				XLogProfilePageView view = (XLogProfilePageView) window.getActivePage().showView(XLogProfilePageView.ID, selectedFile.getParentFile().getName(), IWorkbenchPage.VIEW_ACTIVATE);
+				XLogFullProfileView view = (XLogFullProfileView) window.getActivePage().showView(XLogFullProfileView.ID, selectedFile.getParentFile().getName(), IWorkbenchPage.VIEW_ACTIVATE);
 				if (view != null) {
 					view.setInput(selectedFile.getParentFile(), serverId, true);
 				}

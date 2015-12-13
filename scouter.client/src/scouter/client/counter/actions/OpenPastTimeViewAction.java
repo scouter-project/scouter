@@ -25,13 +25,13 @@ import org.eclipse.ui.IWorkbenchWindow;
 
 import scouter.client.counter.views.CounterLoadTimeView;
 import scouter.client.popup.CalendarDialog;
-import scouter.client.popup.CalendarDialog.ILoadCounterDialog;
+import scouter.client.popup.CalendarDialog.ILoadCalendarDialog;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
 import scouter.util.DateUtil;
 
-public class OpenPastTimeViewAction extends Action implements ILoadCounterDialog {
+public class OpenPastTimeViewAction extends Action implements ILoadCalendarDialog {
 	public final static String ID = OpenPastTimeViewAction.class.getName();
 
 	private final IWorkbenchWindow win;

@@ -41,8 +41,8 @@ public class DataProxy {
 
 	public static void sendAlert(byte level, String title, String message, MapValue tags) {
 		AlertPack p = new AlertPack();
-		p.objType = conf.scouter_type;
-		p.objHash = conf.objHash;
+		p.objType = conf.obj_type;
+		p.objHash = conf.getObjHash();
 		p.level = level;
 		p.title = title;
 		p.message = message;
@@ -99,7 +99,7 @@ public class DataProxy {
 			int bytes = 0;
 			for (int k = 0; k < p.length; k++) {
 				byte[] b = new DataOutputX().writePack(p[k]).toByteArray();
-				if (bytes + b.length >= conf.udp_packet_max) {
+				if (bytes + b.length >= conf.net_udp_packet_max_bytes) {
 					sendDirect(buff); // buff.size가 0일수도 있다.
 					bytes = 0;// bytes 값 초기화..
 					buff.clear();
@@ -117,7 +117,7 @@ public class DataProxy {
 			udpCollect.write(new DataOutputX().writePack(p).toByteArray());
 		} catch (Exception e) {
 		}
-		if (conf.debug_udp_object) {
+		if (conf.log_udp_object) {
 			Logger.info(p.toString());
 		}
 	}

@@ -1,7 +1,9 @@
 scouter.agent.java/bin/*
 scouter.client/bin/*
 scouter.common/bin/*
+scouter.common/bin-test/*
 scouter.server/bin/*
+scouter.server/bin-test/*
 scouter.deploy/out
 */.cache
 */.svn
@@ -28,6 +30,8 @@ scouter.server/conf/account_group.xml
 scouter.server/database/
 scouter.client.product/plugin_customization.ini
 scouter.client/plugin_customization.ini
+
+*/*.scouter
 
 ### Vim template
 [._]*.s[a-w][a-z]

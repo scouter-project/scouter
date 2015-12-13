@@ -52,12 +52,12 @@ class XLogProfileDataReader(date: String, file: String) extends  IClose {
     val conf = Configure.getInstance();
 
     private var profileFile: RandomAccessFile = null
-    private var gzip = conf.gzip_profile
+    private var gzip = conf.compress_profile_enabled
 
     val confFile = new File(file + ".profile.conf");
     if (confFile.exists()) {
         val properties = FileUtil.readProperties(confFile);
-        this.gzip = "true".equalsIgnoreCase(properties.getProperty("gzip_profile", ""+conf.gzip_profile).trim());
+        this.gzip = "true".equalsIgnoreCase(properties.getProperty("compress_profile_enabled", ""+conf.compress_profile_enabled).trim());
     }
 
     val profile = new File(file + ".profile");

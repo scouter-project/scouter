@@ -42,10 +42,11 @@ public class SocketASM implements IASM, Opcodes {
 		return reserved.containsKey(className);
 	}
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
+		if (Configure.getInstance()._hook_socket_enabled == false) {
+			return cv;
+		}
 		HookingSet mset = reserved.get(className);
 		if (mset != null){			
-			if(Configure.getInstance().enable_asm_socket==false)
-				return cv;
 			return new SocketCV(cv, mset, className);
 		}
 		return cv;

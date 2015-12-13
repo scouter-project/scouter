@@ -93,7 +93,7 @@ public class LoaderManager {
 	}
 	private static File deployJar(String jarname) {
 		try {
-			File target = new File(Configure.getInstance().subagent_dir, jarname + ".jar");
+			File target = new File(Configure.getInstance().mgr_agent_lib_dir, jarname + ".jar");
 			if (target.canRead() == false) {
 				InputStream is = JavaAgent.class.getResourceAsStream("/" + jarname + ".jar");
 				byte[] newBytes = FileUtil.readAll(is);

@@ -15,16 +15,9 @@
  *  limitations under the License. 
  */
 package scouter.server;
-import java.util.Enumeration
 import scouter.server.account.AccountManager
-import scouter.lang.Account
-import scouter.util.CacheTable
-import scouter.util.CacheTable.ENTRY
-import scouter.util.DateUtil
-import scouter.util.KeyGen
-import scouter.util.ThreadUtil
-import scouter.server.util.EnumerScala
-import scouter.server.util.ThreadScala
+import scouter.server.util.{EnumerScala, ThreadScala}
+import scouter.util.{CacheTable, DateUtil, KeyGen, ThreadUtil}
 object LoginManager {
     val sessionTable = new CacheTable[Long, LoginUser]().setDefaultKeepTime(DateUtil.MILLIS_PER_MINUTE);
     ThreadScala.startDaemon("scouter.server.LoginManager") {
@@ -56,7 +49,7 @@ object LoginManager {
         return sessionTable.getKeepAlive(key) != null
     }
     def validSession(key: Long): Int = {
-        var u = sessionTable.getKeepAlive(key);
+        val u = sessionTable.getKeepAlive(key);
         return if (u == null) 0 else 1
     }
     def getLoginUserList(): Array[LoginUser] = {

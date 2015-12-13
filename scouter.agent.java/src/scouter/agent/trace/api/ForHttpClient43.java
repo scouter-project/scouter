@@ -22,7 +22,6 @@ import scouter.agent.proxy.HttpClient43Factory;
 import scouter.agent.proxy.IHttpClient;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
-import scouter.agent.trace.TraceContextManager;
 import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
@@ -66,14 +65,14 @@ public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
 	private boolean ok = true;
 	private void transfer(IHttpClient httpclient, TraceContext ctx, Object host, Object req, long calleeTxid) {
 		Configure conf = Configure.getInstance();
-		if (conf.enable_trace_e2e) {
+		if (conf.trace_interservice_enabled) {
 			try {
 				if (ctx.gxid == 0) {
 					ctx.gxid = ctx.txid;
 				}
-				httpclient.addHeader(req, conf.gxid, Hexa32.toString32(ctx.gxid));
-				httpclient.addHeader(req, conf.caller_txid, Hexa32.toString32(ctx.txid));
-				httpclient.addHeader(req, conf.this_txid, Hexa32.toString32(calleeTxid));
+				httpclient.addHeader(req, conf.trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
+				httpclient.addHeader(req, conf.trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
+				httpclient.addHeader(req, conf.trace_interservice_callee_header_key, Hexa32.toString32(calleeTxid));
 				PluginHttpCallTrace.call(ctx, req);
 			} catch (Exception e) {
 				Logger.println("A178", e);

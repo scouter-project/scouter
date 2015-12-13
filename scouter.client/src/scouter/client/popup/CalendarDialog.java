@@ -43,9 +43,9 @@ import scouter.util.DateUtil;
 public class CalendarDialog {
 	
 	private final Display display;
-	private final ILoadCounterDialog callback;
+	private final ILoadCalendarDialog callback;
 	
-	public CalendarDialog(Display display, ILoadCounterDialog callback) {
+	public CalendarDialog(Display display, ILoadCalendarDialog callback) {
 		this.display = display;
 		this.callback = callback;
 	}
@@ -314,7 +314,7 @@ public class CalendarDialog {
 		dialog.open();
 	}
 	
-	public interface ILoadCounterDialog {
+	public interface ILoadCalendarDialog {
 		void onPressedOk(long startTime, long endTime);
 		void onPressedOk(String date);
 		void onPressedCancel();

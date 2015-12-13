@@ -125,14 +125,14 @@ public class TraceApiCall {
 			if (thr != null) {
 				String msg = thr.getMessage();
 				Configure conf = Configure.getInstance();
-				if (conf.profile_fullstack_apicall_error) {
+				if (conf.profile_fullstack_apicall_error_enabled) {
 					StringBuffer sb = new StringBuffer();
 					sb.append(msg).append("\n");
-					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
 					thr = thr.getCause();
 					while (thr != null) {
 						sb.append("\nCause...\n");
-						ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_lines);
+						ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
 						thr = thr.getCause();
 					}
 					msg = sb.toString();
@@ -155,7 +155,7 @@ public class TraceApiCall {
 			return null;
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
-			if (Configure.getInstance().listup_background_socket) {
+			if (Configure.getInstance().trace_background_socket_enabled) {
 				InetSocketAddress inet = (InetSocketAddress) addr;
 				InetAddress host = inet.getAddress();
 				int port = inet.getPort();
@@ -201,8 +201,8 @@ public class TraceApiCall {
 			tctx.profile.add(step);
 			SocketTable.add(step.ipaddr, step.port, tctx.serviceHash, tctx.txid);
 			Configure conf = Configure.getInstance();
-			if (conf.profile_socket_openstack) {
-				if (conf.profile_socket_openstack_port == 0 || conf.profile_socket_openstack_port == step.port) {
+			if (conf.profile_socket_open_fullstack_enabled) {
+				if (conf.profile_socket_open_fullstack_port == 0 || conf.profile_socket_open_fullstack_port == step.port) {
 					tctx.profile.add(new MessageStep(step.start_time, ThreadUtil.getThreadStack()));
 				}
 			}

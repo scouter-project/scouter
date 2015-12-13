@@ -27,6 +27,7 @@ import scouter.client.Images;
 import scouter.client.server.ServerManager;
 import scouter.client.util.ImageUtil;
 import scouter.client.views.DigitalCountView;
+import scouter.client.visitor.views.VisitorRealtimeView;
 import scouter.lang.pack.MapPack;
 import scouter.net.RequestCmd;
 
@@ -48,8 +49,8 @@ public class OpenUniqueTotalVisitorAction extends Action {
 	public void run() {
 		if (win != null) {
 			try {
-				DigitalCountView view = (DigitalCountView) win.getActivePage().showView(
-						DigitalCountView.ID, serverId + "&" + objType, IWorkbenchPage.VIEW_ACTIVATE);
+				VisitorRealtimeView view = (VisitorRealtimeView) win.getActivePage().showView(
+						VisitorRealtimeView.ID, serverId + "&" + objType, IWorkbenchPage.VIEW_ACTIVATE);
 				if (view != null) {
 					MapPack param = new MapPack();
 					param.put("objType", this.objType);

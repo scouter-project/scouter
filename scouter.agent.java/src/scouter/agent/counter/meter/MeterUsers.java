@@ -19,7 +19,6 @@ package scouter.agent.counter.meter;
 import java.util.Enumeration;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
-import scouter.util.DateUtil;
 import scouter.util.LongLongLinkedMap;
 
 public class MeterUsers {
@@ -37,7 +36,7 @@ public class MeterUsers {
 	}
    
 	public synchronized static int getUsers() {
-		long max_think_time=Configure.getInstance().max_think_time;
+		long max_think_time=Configure.getInstance().counter_recentuser_valid_ms;
 		int v = 0;
 		long now = System.currentTimeMillis();
 		try {

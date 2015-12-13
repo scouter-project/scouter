@@ -34,7 +34,7 @@ object DataUdpServer {
     var udpsocket: DatagramSocket = null;
     ThreadScala.startDaemon("scouter.server.netio.data.net.DataUdpServer") {
         while (true) {
-            open(conf.udp_host, conf.udp_port);
+            open(conf.net_udp_listen_ip, conf.net_udp_listen_port);
             recv();
             FileUtil.close(udpsocket)
         }
@@ -42,7 +42,7 @@ object DataUdpServer {
 
     def recv() {
         try {
-            val BUFFER_SIZE = conf.udp_buffer;
+            val BUFFER_SIZE = conf.net_udp_packet_buffer_size;
             val rbuf = new Array[Byte](BUFFER_SIZE)
             val p = new DatagramPacket(rbuf, BUFFER_SIZE);
 
@@ -63,13 +63,13 @@ object DataUdpServer {
         Logger.println("udp listen " + host + ":" + port);
         Logger.println("\tudp_host=" + host);
         Logger.println("\tudp_port=" + port);
-        Logger.println("\tudp_buffer=" + conf.udp_buffer);
-        Logger.println("\tudp_so_rcvbuf=" + conf.udp_so_rcvbuf);
+        Logger.println("\tudp_buffer=" + conf.net_udp_packet_buffer_size);
+        Logger.println("\tudp_so_rcvbuf=" + conf.net_udp_so_rcvbuf_size);
 
         while (true) {
             try {
                 udpsocket = new DatagramSocket(port, InetAddress.getByName(host));
-                val buf = conf.udp_so_rcvbuf;
+                val buf = conf.net_udp_so_rcvbuf_size;
                 if (buf > 0) {
                     udpsocket.setReceiveBufferSize(buf);
                 }

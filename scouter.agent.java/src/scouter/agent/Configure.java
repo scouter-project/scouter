@@ -15,16 +15,7 @@
  *  limitations under the License. 
  */
 package scouter.agent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.conf.ConfObserver;
@@ -33,17 +24,10 @@ import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.DateUtil;
-import scouter.util.FileUtil;
-import scouter.util.HashUtil;
-import scouter.util.IntSet;
-import scouter.util.StringEnumer;
-import scouter.util.StringKeyLinkedMap;
-import scouter.util.StringSet;
-import scouter.util.StringUtil;
-import scouter.util.SysJMX;
-import scouter.util.SystemUtil;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
+
+import java.io.*;
+import java.util.*;
 public class Configure extends Thread {
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
@@ -56,164 +40,189 @@ public class Configure extends Thread {
 		}
 		return instance;
 	}
-	public String local_udp_addr = null;
-	public int local_udp_port;
-	public String server_addr = "127.0.0.1";
-	public int server_udp_port = NetConstants.SERVER_UDP_PORT;
-	public int server_tcp_port = NetConstants.SERVER_TCP_PORT;
-	public int server_tcp_session_count = 1;
-	public int server_tcp_so_timeout = 60000;
-	public int server_tcp_connection_timeout = 3000;
-	public String scouter_type = "";
-	public String scouter_name = "";
-	public String objhost_type = "";
-	public String objhost_name = "";
-	public int objHash;
-	public String objName;
-	public int objHostHash;
-	public String objHostName;
-	public boolean enable_host_agent = false;
-	public boolean enable_objname_pid = false;
-	public boolean enable_plus_objtype = false;
-	public boolean enable_asm_jdbc = true;
-	public boolean enable_asm_socket = true;
-	public boolean http_debug_querystring;
-	public boolean http_debug_header;
-	public String http_debug_header_url = "/";
-	public boolean http_debug_parameter;
-	public String http_debug_parameter_url = "/";
-	/*
-	 * user: 0 - remoteIp 1 - JSESSIONID + remoteIp 2 - SCOUTER(set-cookie)
-	 */
-	public int mode_userid = 2;
-	public boolean enable_profile_summary = false;
-	public boolean profile_thread_cputime = false;
-	public boolean profile_socket_openstack = false;
-	public int profile_socket_openstack_port = 0;
-	public boolean profile_framework_sqlmap = true;
-	public boolean listup_background_socket = true;
-	public int xlog_time_limit = 0;
-	public String http_error_status = "";
-	private IntSet http_error_status_set = new IntSet();
-	public String service_header_key;
-	public String service_get_key;
-	public String service_post_key;
-	public File dump_dir = new File(".");
-	public File subagent_dir = new File("./_scouter_");
-	public File plugin_dir = new File("./_scouter_");
-	public boolean enable_auto_dump = false;
-	public int auto_dump_trigger = 10000;
-	public long auto_dump_interval = 30000;
-	public int auto_dump_level = 1;
-	
-	public int debug_long_tx_autostack = 0;
-	public String http_static_contents = "js, htm, html, gif, png, jpg, css";
-	private Set<String> static_contents = new HashSet<String>();
+
+	//Network
+	public String net_local_udp_ip = null;
+	public int net_local_udp_port;
+	public String net_collector_ip = "127.0.0.1";
+	public int net_collector_udp_port = NetConstants.SERVER_UDP_PORT;
+	public int net_collector_tcp_port = NetConstants.SERVER_TCP_PORT;
+	public int net_collector_tcp_session_count = 1;
+	public int net_collector_tcp_so_timeout_ms = 60000;
+	public int net_collector_tcp_connection_timeout_ms = 3000;
+	public int net_udp_packet_max_bytes = 60000;
+	public long udp_udp_collection_interval_ms = 100;
+
+	//Object
+	public String obj_type = "";
+	public String obj_name = "";
+	public String obj_host_type = "";
+	public String obj_host_name = "";
+	public boolean obj_host_enabled = false;
+	public boolean obj_name_auto_pid_enabled = false;
+	public boolean obj_type_inherit_to_child_enabled = false;
+
+	//profile
+	public boolean profile_http_querystring_enabled;
+	public boolean profile_http_header_enabled;
+	public String profile_http_header_url_prefix = "/";
+	public boolean profile_http_parameter_enabled;
+	public String profile_http_parameter_url_prefix = "/";
+	public boolean profile_summary_mode_enabled = false;
+	public boolean profile_thread_cputime_enabled = false;
+	public boolean profile_socket_open_fullstack_enabled = false;
+	public int profile_socket_open_fullstack_port = 0;
+	public boolean profile_sqlmap_name_enabled = true;
+	public boolean profile_connection_open_enabled = true;
+	public boolean profile_connection_open_fullstack_enabled = false;
+	public boolean profile_connection_autocommit_status_enabled = false;
+	public boolean profile_method_enabled = true;
+	public int profile_step_max_count = 1024;
+	public boolean profile_fullstack_service_error_enabled = false;
+	public boolean profile_fullstack_apicall_error_enabled = false;
+	public boolean profile_fullstack_sql_error_enabled = false;
+	public boolean profile_fullstack_sql_commit_enabled = false;
+	public int profile_fullstack_max_lines = 0;
+	public boolean profile_sql_escape_enabled = true;
+	public boolean _profile_fullstack_sql_connection_enabled = false;
+
+	//Trace
+	public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:SetCookie
+	public boolean trace_background_socket_enabled = true;
+	public String trace_service_name_header_key;
+	public String trace_service_name_get_key;
+	public String trace_service_name_post_key;
+	public long trace_activeserivce_yellow_time = 3000;
+	public long trace_activeservice_red_time = 8000;
+	public String trace_http_client_ip_header_key = "";
+	public boolean trace_interservice_enabled = false;
+	public String trace_interservice_gxid_header_key = "X-Scouter-Gxid";
+	public boolean trace_response_gxid_enabled = false;
+	public String trace_interservice_callee_header_key = "X-Scouter-Callee";
+	public String trace_interservice_caller_header_key = "X-Scouter-Caller";
+	public String trace_user_session_key = "JSESSIONID";
+	public boolean _trace_auto_service_enabled = false;
+	public boolean _trace_auto_service_backstack_enabled = true;
+	public boolean trace_db2_enabled = true;
+	public boolean trace_webserver_enabled = false;
+	public String trace_webserver_name_header_key = "X-Forwarded-Host";
+	public String trace_webserver_time_header_key = "X-Forwarded-Time";
+	public int _trace_fullstack_socket_open_port = 0;
+
+	//Manager
+	public File mgr_plugin_dir = new File("./_scouter_");
+	public File mgr_dump_dir = new File(".");
+	public File mgr_agent_lib_dir = new File("./_scouter_");
+	public String mgr_static_content_extensions = "js, htm, html, gif, png, jpg, css";
+	public String mgr_log_ignore_ids = "";
+
+	//Autodump
+	public boolean autodump_enabled = false;
+	public int autodump_trigger_active_service_cnt = 10000;
+	public long autodump_interval_ms = 30000;
+	public int autodump_level = 1; // 1:ThreadDump, 2:ActiveService, 3:ThreadList
+	public int autodump_stuck_thread_ms = 0;
+
+	//XLog
+	public int xlog_lower_bound_time_ms = 0;
+	public int xlog_error_jdbc_fetch_max = 10000;
+	public int xlog_error_sql_time_max_ms = 30000;
+
+	//Alert
 	public int alert_message_length = 3000;
-	public long alert_send_interval = 3000;
-	
-	public int jdbc_fetch_max = 10000;
-	public int sql_time_max = 30000;
-	public int udp_packet_max = 60000;
-	public boolean debug_asm;
-	public boolean debug_udp_xlog;
-	public boolean debug_udp_object;
-	public long yellow_line_time = 3000;
-	public long red_line_time = 8000;
-	public String log_ignore = "";
-	public StringSet log_ignore_set = new StringSet();
-	public String hook_args = "";
-	public String hook_return = "";
-	public String hook_init = "";
-	public String hook_connection_open = "";
-	public String hook_context = "javax/naming/InitialContext";
-	public boolean debug_datasource_lookup=true;
-	public boolean enable_trace_connection_open = true;
-	public boolean enable_leaktrace_fullstack = false;
-	public boolean debug_connection_open_fullstack = false;
-	public boolean debug_connection_autocommit = false;
-	public String hook_method = "";
-	public String hook_method_ignore_prefix = "get,set";
-	private String[] _hook_method_ignore_prefix = null;
-	private int _hook_method_ignore_prefix_len = 0;
+	public long alert_send_interval_ms = 3000;
+	public int alert_perm_warning_pct = 90;
+	public long alert_perm_interval_ms = 30000;
+
+	//Log
+	public boolean log_asm_enabled;
+	public boolean log_udp_xlog_enabled;
+	public boolean log_udp_object_enabled;
+	public boolean log_datasource_lookup_enabled = true;
+	public boolean log_background_sql = false;
+	public String log_dir ="";
+	public boolean log_rotation_enabled =true;
+	public int log_keep_days =7;
+
+	//Hook
+	public String hook_args_patterns = "";
+	public String hook_return_patterns = "";
+	public String hook_constructor_patterns = "";
+	public String hook_connection_open_patterns = "";
+	public String hook_context_classes = "javax/naming/InitialContext";
+	public String hook_method_patterns = "";
+	public String hook_method_ignore_prefixes = "get,set";
 	public String hook_method_ignore_classes = "";
 	private StringSet _hook_method_ignore_classes = new StringSet();
-	public boolean hook_method_access_public = true;
-	public boolean hook_method_access_private = false;
-	public boolean hook_method_access_protected = false;
-	public boolean hook_method_access_none = false;
-	public boolean trace_method_enabled = true;
-	public String hook_service = "";
-	public String hook_apicall = "";
-	public String hook_apicall_info = "";
-	public String hook_jsp = "";
-	public String hook_jdbc_pstmt = "";
-	public String hook_jdbc_stmt = "";
-	public String hook_jdbc_rs = "";
-	public String hook_driver_connect_wrapper = "";
-	public String hook_add_field = "";
-	// /LOAD CONTROL/////
-	public boolean enable_reject_service = false;
-	public int max_active_service = 10000;
-	public boolean enable_reject_url = false;
-	public String reject_text = "too many request!!";
-	public String reject_url = "/error.html";
-	public int profile_step_max = 1024;
-	public boolean debug_background_sql = false;
-	public boolean profile_fullstack_service_error = false;
-	public boolean profile_fullstack_apicall_error = false;
-	public boolean profile_fullstack_sql_error = false;
-	public boolean profile_fullstack_sql_commit = false;
-	public int profile_fullstack_lines = 0;
-	public long udp_collection_interval = 100;
-	public boolean profile_sql_escape = true;
-	public String http_remote_ip_header_key = "";
-	public boolean enable_trace_e2e = false;
-	public String gxid = "X-Scouter-Gxid";
-	public boolean enable_response_gxid = false;
-	public String this_txid = "X-Scouter-Callee";
-	public String caller_txid = "X-Scouter-Caller";
-	private int hook_signature;
-	public String userid_jsessionid = "JSESSIONID";
-	public boolean enable_auto_service_trace = false;
-	public boolean enable_auto_service_backstack = true;
-	// DEBUG OPTIONS
-	public boolean enable_counter_task = true;
-	public boolean enable_hook_service = true;
-	public boolean enable_hook_dbsql = true;
-	public boolean enable_hook_dbconn = true;
-	public boolean enable_hook_cap = true;
-	public boolean enable_hook_methods = true;
-	public boolean enable_hook_socket = true;
-	public boolean enable_hook_jsp = true;
-	public boolean enable_hook_async = true;
-	// //////////////////////////////////////////
-	public boolean enable_usertx = true;
-	public boolean enable_dbc_wrapper = true;
-	public String direct_patch_class = "";
-	public long max_think_time = DateUtil.MILLIS_PER_FIVE_MINUTE;
-	public String object_registry = "/tmp/scouter";
+	public boolean hook_method_access_public_enabled = true;
+	public boolean hook_method_access_private_enabled = false;
+	public boolean hook_method_access_protected_enabled = false;
+	public boolean hook_method_access_none_enabled = false;
+	public String hook_service_patterns = "";
+	public String hook_apicall_patterns = "";
+	public String hook_apicall_info_patterns = "";
+	public String hook_jsp_patterns = "";
+	public String hook_jdbc_pstmt_classes = "";
+	public String hook_jdbc_stmt_classes = "";
+	public String hook_jdbc_rs_classes = "";
+	public String hook_jdbc_wrapping_driver_patterns = "";
+	public String hook_add_fields = "";
+	public boolean _hook_serivce_enabled = true;
+	public boolean _hook_dbsql_enabled = true;
+	public boolean _hook_dbconn_enabled = true;
+	public boolean _hook_cap_enabled = true;
+	public boolean _hook_methods_enabled = true;
+	public boolean _hook_socket_enabled = true;
+	public boolean _hook_jsp_enabled = true;
+	public boolean _hook_async_enabled = true;
+	public boolean _hook_usertx_enabled = true;
+	public String _hook_direct_patch_classes = "";
+	public boolean _hook_spring_rest_enabled = false;
+
+	//Control
+	public boolean control_reject_service_enabled = false;
+	public int control_reject_service_max_count = 10000;
+	public boolean control_reject_redirect_url_enabled = false;
+	public String control_reject_text = "too many request!!";
+	public String control_reject_redirect_url = "/error.html";
+
+	// Counter
+	public boolean counter_enabled = true;
+	public long counter_recentuser_valid_ms = DateUtil.MILLIS_PER_FIVE_MINUTE;
+	public String counter_object_registry_path = "/tmp/scouter";
+
+	// SFA(Stack Frequency Analyzer)
 	public boolean sfa_dump_enabled = false;
-	public int sfa_dump_interval = 10000;
-	public boolean enable_trace_web = false;
-	public String key_web_name = "X-Forwarded-Host";
-	public String key_web_time = "X-Forwarded-Time";
-	public boolean enable_summary = true;
-	public int summary_service_max = 5000;
-	public int summary_sql_max = 5000;
-	public int summary_api_max = 5000;
-	public int summary_service_ip_max = 5000;
-	public int summary_service_ua_max = 5000;
-	public int summary_service_error_max = 500;
-	public int heap_perm_warning_pct = 90;
-	public long heap_perm_alert_interval = 30000;
-	public boolean hook_spring_request_mapping = false;
-	public boolean debug_sql_call = false;
-	public int socket_open_fullstack_port = 0;
-	public String logs_dir="";
-	public boolean log_rotation=true;
-	public int log_keep_dates=7;
+	public int sfa_dump_interval_ms = 10000;
+
+	//Summary
+	public boolean summary_enabled = true;
+	public boolean summary_connection_leak_fullstack_enabled = false;
+	public int summary_service_max_count = 5000;
+	public int summary_sql_max_count = 5000;
+	public int summary_api_max_count = 5000;
+	public int summary_ip_max_count = 5000;
+	public int summary_useragent_max_count = 5000;
+	public int summary_error_max_count = 500;
+	public int summary_enduser_nav_max_count = 5000;
+	public int summary_enduser_ajax_max_count = 5000;
+	public int summary_enduser_error_max_count = 5000;
 	
+	//EndUser
+	public String enduser_trace_endpoint_url = "/_scouter_browser.jsp";
+
+	//internal variables
+	private int objHash;
+	private String objName;
+	private int objHostHash;
+	private String objHostName;
+	private Set<String> static_contents = new HashSet<String>();
+	private StringSet log_ignore_set = new StringSet();
+	private String[] _hook_method_ignore_prefix = null;
+	private int _hook_method_ignore_prefix_len = 0;
+	private int hook_signature;
+	private int enduser_perf_endpoint_hash = HashUtil.hash(enduser_trace_endpoint_url);
+
 	/**
 	 * sometimes call by sample application, at that time normally set some
 	 * properties directly
@@ -285,187 +294,215 @@ public class Configure extends Thread {
 		return true;
 	}
 	private void apply() {
-		this.http_debug_querystring = getBoolean("http_debug_querystring", false);
-		this.http_debug_header = getBoolean("http_debug_header", false);
-		this.http_debug_parameter = getBoolean("http_debug_parameter", false);
-		this.enable_profile_summary = getBoolean("enable_profile_summary", getBoolean("enable.profile.summary", false));
-		this.xlog_time_limit = getInt("xlog_time_limit", getInt("xlog.time.limit", 0));
-		this.service_header_key = getValue("service_header_key", getValue("service.header.key", null));
-		this.service_get_key = getValue("service_get_key");
-		this.service_post_key = getValue("service_post_key");
-		this.http_error_status = getValue("http_error_status", getValue("http.error.status", ""));
-		this.dump_dir = new File(getValue("dump_dir", getValue("dump.dir", ".")));
+		this.profile_http_querystring_enabled = getBoolean("profile_http_querystring_enabled", false);
+		this.profile_http_header_enabled = getBoolean("profile_http_header_enabled", false);
+		this.profile_http_parameter_enabled = getBoolean("profile_http_parameter_enabled", false);
+		this.profile_summary_mode_enabled = getBoolean("profile_summary_mode_enabled", false);
+		this.xlog_lower_bound_time_ms = getInt("xlog_lower_bound_time_ms", 0);
+		this.trace_service_name_header_key = getValue("trace_service_name_header_key", null);
+		this.trace_service_name_get_key = getValue("trace_service_name_get_key");
+		this.trace_service_name_post_key = getValue("trace_service_name_post_key");
+		this.mgr_dump_dir = new File(getValue("mgr_dump_dir", "."));
 		try {
-			this.dump_dir.mkdirs();
+			this.mgr_dump_dir.mkdirs();
 		} catch (Exception e) {
 		}
-		this.subagent_dir = new File(getValue("subagent_dir", getValue("subagent.dir", "./_scouter_")));
+		this.mgr_agent_lib_dir = new File(getValue("mgr_agent_lib_dir", "./_scouter_"));
 		try {
-			this.subagent_dir.mkdirs();
+			this.mgr_agent_lib_dir.mkdirs();
 		} catch (Exception e) {
 		}
-		this.plugin_dir = new File(getValue("plugin_dir", getValue("plugin.dir", "./_scouter_")));
+		this.mgr_plugin_dir = new File(getValue("mgr_plugin_dir", "./_scouter_"));
 		
-		this.enable_auto_dump = getBoolean("enable_auto_dump", getBoolean("enable.auto.dump", false));
-		this.auto_dump_trigger = getInt("auto_dump_trigger", getInt("auto.dump.trigger", 10000));
-		if (this.auto_dump_trigger < 1) {
-			this.auto_dump_trigger = 1;
+		this.autodump_enabled = getBoolean("autodump_enabled", false);
+		this.autodump_trigger_active_service_cnt = getInt("autodump_trigger_active_service_cnt", 10000);
+		if (this.autodump_trigger_active_service_cnt < 1) {
+			this.autodump_trigger_active_service_cnt = 1;
 		}
-		this.auto_dump_level = getInt("auto_dump_level", getInt("auto.dump.level", 1));
-		this.auto_dump_interval = getInt("auto_dump_interval", getInt("auto.dump.interval", 30000));
-		if (this.auto_dump_interval < 5000) {
-			this.auto_dump_interval = 5000;
+		this.autodump_level = getInt("autodump_level", 1);
+		this.autodump_interval_ms = getInt("autodump_interval_ms", 30000);
+		if (this.autodump_interval_ms < 5000) {
+			this.autodump_interval_ms = 5000;
 		}
-		this.debug_long_tx_autostack = getInt("debug_long_tx_autostack", 0);
-		this.http_static_contents = getValue("http_static_contents",
-				getValue("http.static.contents", "js, htm, html, gif, png, jpg, css"));
-		this.profile_thread_cputime = getBoolean("profile_thread_cputime", getBoolean("profile.thread.cputime", false));
-		this.profile_socket_openstack = getBoolean("profile_socket_openstack",
-				getBoolean("profile.socket.openstack", false));
-		this.listup_background_socket = getBoolean("listup_background_socket", true);
-		this.profile_socket_openstack_port = getInt("profile_socket_openstack_port", 0);
-		this.profile_sql_escape = getBoolean("profile_sql_escape", true);
-		this.profile_framework_sqlmap = getBoolean("profile_framework_sqlmap", true);
-		this.enable_asm_jdbc = getBoolean("enable_asm_jdbc", getBoolean("enable.asm.jdbc", true));
-		this.enable_asm_socket = getBoolean("enable_asm_socket", getBoolean("enable.asm.socket", true));
-		this.udp_packet_max = getInt("udp_packet_max", getInt("udp.packet.max", 60000));
-		this.yellow_line_time = getLong("yellow_line_time", getLong("yellow.line.time", 3000));
-		this.red_line_time = getLong("red_line_time", getLong("red.line.time", 8000));
-		this.log_ignore = getValue("log_ignore", "");
-		this.log_ignore_set = getStringSet("log_ignore", ",");
-		this.debug_udp_xlog = getBoolean("debug_udp_xlog", getBoolean("debug.udp.xlog", false));
-		this.debug_udp_object = getBoolean("debug_udp_object", getBoolean("debug.udp.object", false));
-		this.local_udp_addr = getValue("local_udp_addr");
-		this.local_udp_port = getInt("local_udp_port", 0);
-		this.server_addr = getValue("server_addr", getValue("server.addr", "127.0.0.1"));
-		this.server_udp_port = getInt("server_udp_port", getInt("server.port", NetConstants.SERVER_UDP_PORT));
-		this.server_tcp_port = getInt("server_tcp_port", getInt("server.port", NetConstants.SERVER_TCP_PORT));
-		this.server_tcp_session_count = getInt("server_tcp_session_count", 1, 1);
-		this.server_tcp_connection_timeout = getInt("server_tcp_connection_timeout", 3000);
-		this.server_tcp_so_timeout = getInt("server_tcp_so_timeout", 60000);
+		this.autodump_stuck_thread_ms = getInt("autodump_stuck_thread_ms", 0);
+		this.mgr_static_content_extensions = getValue("mgr_static_content_extensions", "js, htm, html, gif, png, jpg, css");
+		this.profile_thread_cputime_enabled = getBoolean("profile_thread_cputime_enabled", false);
+		this.profile_socket_open_fullstack_enabled = getBoolean("profile_socket_open_fullstack_enabled", false);
+		this.trace_background_socket_enabled = getBoolean("trace_background_socket_enabled", true);
+		this.profile_socket_open_fullstack_port = getInt("profile_socket_open_fullstack_port", 0);
+		this.profile_sql_escape_enabled = getBoolean("profile_sql_escape_enabled", true);
+		this.profile_sqlmap_name_enabled = getBoolean("profile_sqlmap_name_enabled", true);
+		this.net_udp_packet_max_bytes = getInt("net_udp_packet_max_bytes", 60000);
+		this.trace_activeserivce_yellow_time = getLong("trace_activeserivce_yellow_time", 3000);
+		this.trace_activeservice_red_time = getLong("trace_activeservice_red_time", 8000);
+		this.mgr_log_ignore_ids = getValue("mgr_log_ignore_ids", "");
+		this.log_ignore_set = getStringSet("mgr_log_ignore_ids", ",");
+		this.log_udp_xlog_enabled = getBoolean("log_udp_xlog_enabled", false);
+		this.log_udp_object_enabled = getBoolean("log_udp_object_enabled", false);
+		this.net_local_udp_ip = getValue("net_local_udp_ip");
+		this.net_local_udp_port = getInt("net_local_udp_port", 0);
+		this.net_collector_ip = getValue("net_collector_ip", "127.0.0.1");
+		this.net_collector_udp_port = getInt("net_collector_udp_port", NetConstants.SERVER_UDP_PORT);
+		this.net_collector_tcp_port = getInt("net_collector_tcp_port", NetConstants.SERVER_TCP_PORT);
+		this.net_collector_tcp_session_count = getInt("net_collector_tcp_session_count", 1, 1);
+		this.net_collector_tcp_connection_timeout_ms = getInt("net_collector_tcp_connection_timeout_ms", 3000);
+		this.net_collector_tcp_so_timeout_ms = getInt("net_collector_tcp_so_timeout_ms", 60000);
 		this.hook_signature = 0;
-		this.hook_args = getValue("hook_args", getValue("hook.args", ""));
-		this.hook_return = getValue("hook_return", getValue("hook.return", ""));
-		this.hook_init = getValue("hook_init", getValue("hook.init", ""));
-		this.hook_connection_open = getValue("hook_connection_open", "");
-		
-		this.debug_datasource_lookup = getBoolean("debug_datasource_lookup", true);
-		this.enable_trace_connection_open = getBoolean("enable_trace_connection_open", true);
-		this.enable_leaktrace_fullstack = getBoolean("enable_leaktrace_fullstack", false);
-		this.hook_method = getValue("hook_method", "");
-		this.hook_method_access_public = getBoolean("hook_method_access_public", true);
-		this.hook_method_access_protected = getBoolean("hook_method_access_protected", false);
-		this.hook_method_access_private = getBoolean("hook_method_access_private", false);
-		this.hook_method_access_none = getBoolean("hook_method_access_none", false);
-		this.hook_method_ignore_prefix = StringUtil.removeWhitespace(getValue("hook_method_ignore_prefix", "get,set"));
-		this._hook_method_ignore_prefix = StringUtil.split(this.hook_method_ignore_prefix, ",");
+		this.hook_args_patterns = getValue("hook_args_patterns", "");
+		this.hook_return_patterns = getValue("hook_return_patterns", "");
+		this.hook_constructor_patterns = getValue("hook_constructor_patterns", "");
+		this.hook_connection_open_patterns = getValue("hook_connection_open_patterns", "");
+
+		this.log_datasource_lookup_enabled = getBoolean("log_datasource_lookup_enabled", true);
+		this.profile_connection_open_enabled = getBoolean("profile_connection_open_enabled", true);
+		this.summary_connection_leak_fullstack_enabled = getBoolean("summary_connection_leak_fullstack_enabled", false);
+		this.hook_method_patterns = getValue("hook_method_patterns", "");
+		this.hook_method_access_public_enabled = getBoolean("hook_method_access_public_enabled", true);
+		this.hook_method_access_protected_enabled = getBoolean("hook_method_access_protected_enabled", false);
+		this.hook_method_access_private_enabled = getBoolean("hook_method_access_private_enabled", false);
+		this.hook_method_access_none_enabled = getBoolean("hook_method_access_none_enabled", false);
+		this.hook_method_ignore_prefixes = StringUtil.removeWhitespace(getValue("hook_method_ignore_prefixes", "get,set"));
+		this._hook_method_ignore_prefix = StringUtil.split(this.hook_method_ignore_prefixes, ",");
 		this._hook_method_ignore_prefix_len = this._hook_method_ignore_prefix == null ? 0
 				: this._hook_method_ignore_prefix.length;
 		this.hook_method_ignore_classes = StringUtil.trimEmpty(StringUtil.removeWhitespace(getValue(
 				"hook_method_ignore_classes", "")));
 		this._hook_method_ignore_classes = new StringSet(StringUtil.tokenizer(
 				this.hook_method_ignore_classes.replace('.', '/'), ","));
-		this.trace_method_enabled = getBoolean("trace_method_enabled", true);
-		this.hook_service = getValue("hook_service", "");
-		this.hook_apicall = getValue("hook_apicall", "");
-		this.hook_apicall_info = getValue("hook_apicall_info", "");
-		this.hook_jsp = getValue("hook_jsp", "");
+		this.profile_method_enabled = getBoolean("profile_method_enabled", true);
+		this.hook_service_patterns = getValue("hook_service_patterns", "");
+		this.hook_apicall_patterns = getValue("hook_apicall_patterns", "");
+		this.hook_apicall_info_patterns = getValue("hook_apicall_info_patterns", "");
+		this.hook_jsp_patterns = getValue("hook_jsp_patterns", "");
 		
-		this.hook_jdbc_pstmt = getValue("hook_jdbc_pstmt", "");
-		this.hook_jdbc_stmt = getValue("hook_jdbc_stmt", "");
-		this.hook_jdbc_rs = getValue("hook_jdbc_rs", "");
-		this.hook_driver_connect_wrapper = getValue("hook_driver_connect_wrapper", "");
-		this.hook_add_field = getValue("hook_add_field", "");
-		this.hook_context = getValue("hook_context", "javax/naming/InitialContext");
+		this.hook_jdbc_pstmt_classes = getValue("hook_jdbc_pstmt_classes", "");
+		this.hook_jdbc_stmt_classes = getValue("hook_jdbc_stmt_classes", "");
+		this.hook_jdbc_rs_classes = getValue("hook_jdbc_rs_classes", "");
+		this.hook_jdbc_wrapping_driver_patterns = getValue("hook_jdbc_wrapping_driver_patterns", "");
+		this.hook_add_fields = getValue("hook_add_fields", "");
+		this.hook_context_classes = getValue("hook_context_classes", "javax/naming/InitialContext");
 		
-		this.hook_signature ^= this.hook_args.hashCode();
-		this.hook_signature ^= this.hook_return.hashCode();
-		this.hook_signature ^= this.hook_init.hashCode();
-		this.hook_signature ^= this.hook_connection_open.hashCode();
-		this.hook_signature ^= this.hook_method.hashCode();
-		this.hook_signature ^= this.hook_service.hashCode();
-		this.hook_signature ^= this.hook_apicall.hashCode();
-		this.hook_signature ^= this.hook_jsp.hashCode();
-		this.hook_signature ^= this.hook_driver_connect_wrapper.hashCode();
+		this.hook_signature ^= this.hook_args_patterns.hashCode();
+		this.hook_signature ^= this.hook_return_patterns.hashCode();
+		this.hook_signature ^= this.hook_constructor_patterns.hashCode();
+		this.hook_signature ^= this.hook_connection_open_patterns.hashCode();
+		this.hook_signature ^= this.hook_method_patterns.hashCode();
+		this.hook_signature ^= this.hook_service_patterns.hashCode();
+		this.hook_signature ^= this.hook_apicall_patterns.hashCode();
+		this.hook_signature ^= this.hook_jsp_patterns.hashCode();
+		this.hook_signature ^= this.hook_jdbc_wrapping_driver_patterns.hashCode();
 		
-		this.enable_reject_service = getBoolean("enable_reject_service", false);
-		this.max_active_service = getInt("max_active_service", 10000);
-		this.enable_reject_url = getBoolean("enable_reject_url", false);
-		this.reject_text = getValue("reject_text", "too many request!!");
-		this.reject_url = getValue("reject_url", "/error.html");
-		this.profile_step_max = getInt("profile_step_max", 1024);
-		if (this.profile_step_max < 100)
-			this.profile_step_max = 100;
-		this.debug_background_sql = getBoolean("debug_background_sql", false);
-		this.profile_fullstack_service_error = getBoolean("profile_fullstack_service_error", false);
-		this.profile_fullstack_apicall_error = getBoolean("profile_fullstack_apicall_error", false);
-		this.profile_fullstack_sql_error = getBoolean("profile_fullstack_sql_error", false);
-		this.profile_fullstack_sql_commit = getBoolean("profile_fullstack_sql_commit", false);
-		this.profile_fullstack_lines = getInt("profile_fullstack_lines", 0);
-		this.udp_collection_interval = getInt("udp_collection_interval", 100);
-		this.http_debug_parameter_url = getValue("http_debug_parameter_url", "/");
-		this.http_debug_header_url = getValue("http_debug_header_url", "/");
-		this.http_remote_ip_header_key = getValue("http_remote_ip_header_key", "");
-		this.enable_trace_e2e = getBoolean("enable_trace_e2e", false);
-		this.enable_response_gxid = getBoolean("enable_response_gxid", false);
-		this.gxid = getValue("gxid", "X-Scouter-Gxid");
-		this.this_txid = getValue("this_txid", "X-Scouter-Callee");
-		this.caller_txid = getValue("caller_txid", "X-Scouter-Caller");
-		this.debug_connection_open_fullstack = getBoolean("debug_connection_open_fullstack", false);
-		this.debug_connection_autocommit = getBoolean("debug_connection_autocommit", false);
-		this.mode_userid = getInt("mode_userid", 2);
-		this.userid_jsessionid = getValue("userid_jsessionid", "JSESSIONID");
-		this.enable_host_agent = getBoolean("enable_host_agent", false);
-		this.enable_auto_service_trace = getBoolean("enable_auto_service_trace", false);
-		this.enable_auto_service_backstack = getBoolean("enable_auto_service_backstack", true);
-		this.enable_counter_task = getBoolean("enable_counter_task", true);
-		this.enable_hook_service = getBoolean("enable_hook_service", true);
-		this.enable_hook_dbsql = getBoolean("enable_hook_dbsql", true);
-		this.enable_hook_dbconn = getBoolean("enable_hook_dbconn", true);
-		this.enable_hook_cap = getBoolean("enable_hook_cap", true);
-		this.enable_hook_methods = getBoolean("enable_hook_methods", true);
-		this.enable_hook_socket = getBoolean("enable_hook_socket", true);
-		this.enable_hook_jsp = getBoolean("enable_hook_jsp", true);
-		this.enable_hook_async = getBoolean("enable_hook_async", true);
-		this.enable_dbc_wrapper = getBoolean("enable_dbc_wrapper", true);
-		this.enable_usertx = getBoolean("enable_usertx", true);
-		this.direct_patch_class = getValue("direct_patch_class", "");
-		this.max_think_time = getLong("max_think_time", DateUtil.MILLIS_PER_FIVE_MINUTE);
-		this.object_registry = getValue("object_registry", "/tmp/scouter");
+		this.control_reject_service_enabled = getBoolean("control_reject_service_enabled", false);
+		this.control_reject_service_max_count = getInt("control_reject_service_max_count", 10000);
+		this.control_reject_redirect_url_enabled = getBoolean("control_reject_redirect_url_enabled", false);
+		this.control_reject_text = getValue("control_reject_text", "too many request!!");
+		this.control_reject_redirect_url = getValue("control_reject_redirect_url", "/error.html");
+		this.profile_step_max_count = getInt("profile_step_max_count", 1024);
+		if (this.profile_step_max_count < 100)
+			this.profile_step_max_count = 100;
+		this.log_background_sql = getBoolean("log_background_sql", false);
+		this.profile_fullstack_service_error_enabled = getBoolean("profile_fullstack_service_error_enabled", false);
+		this.profile_fullstack_apicall_error_enabled = getBoolean("profile_fullstack_apicall_error_enabled", false);
+		this.profile_fullstack_sql_error_enabled = getBoolean("profile_fullstack_sql_error_enabled", false);
+		this.profile_fullstack_sql_commit_enabled = getBoolean("profile_fullstack_sql_commit_enabled", false);
+		this.profile_fullstack_max_lines = getInt("profile_fullstack_max_lines", 0);
+		this.udp_udp_collection_interval_ms = getInt("udp_udp_collection_interval_ms", 100);
+		this.profile_http_parameter_url_prefix = getValue("profile_http_parameter_url_prefix", "/");
+		this.profile_http_header_url_prefix = getValue("profile_http_header_url_prefix", "/");
+		this.trace_http_client_ip_header_key = getValue("trace_http_client_ip_header_key", "");
+		this.trace_interservice_enabled = getBoolean("trace_interservice_enabled", false);
+		this.trace_response_gxid_enabled = getBoolean("trace_response_gxid_enabled", false);
+		this.trace_interservice_gxid_header_key = getValue("trace_interservice_gxid_header_key", "X-Scouter-Gxid");
+		this.trace_interservice_callee_header_key = getValue("trace_interservice_callee_header_key", "X-Scouter-Callee");
+		this.trace_interservice_caller_header_key = getValue("trace_interservice_caller_header_key", "X-Scouter-Caller");
+		this.profile_connection_open_fullstack_enabled = getBoolean("profile_connection_open_fullstack_enabled", false);
+		this.profile_connection_autocommit_status_enabled = getBoolean("profile_connection_autocommit_status_enabled", false);
+		this.trace_user_mode = getInt("trace_user_mode", 2);
+		this.trace_user_session_key = getValue("trace_user_session_key", "JSESSIONID");
+		this.obj_host_enabled = getBoolean("obj_host_enabled", false);
+		this._trace_auto_service_enabled = getBoolean("_trace_auto_service_enabled", false);
+		this._trace_auto_service_backstack_enabled = getBoolean("_trace_auto_service_backstack_enabled", true);
+		this.counter_enabled = getBoolean("counter_enabled", true);
+		this._hook_serivce_enabled = getBoolean("_hook_serivce_enabled", true);
+		this._hook_dbsql_enabled = getBoolean("_hook_dbsql_enabled", true);
+		this._hook_dbconn_enabled = getBoolean("_hook_dbconn_enabled", true);
+		this._hook_cap_enabled = getBoolean("_hook_cap_enabled", true);
+		this._hook_methods_enabled = getBoolean("_hook_methods_enabled", true);
+		this._hook_socket_enabled = getBoolean("_hook_socket_enabled", true);
+		this._hook_jsp_enabled = getBoolean("_hook_jsp_enabled", true);
+		this._hook_async_enabled = getBoolean("_hook_async_enabled", true);
+		this.trace_db2_enabled = getBoolean("trace_db2_enabled", true);
+		this._hook_usertx_enabled = getBoolean("_hook_usertx_enabled", true);
+		this._hook_direct_patch_classes = getValue("_hook_direct_patch_classes", "");
+		this.counter_recentuser_valid_ms = getLong("counter_recentuser_valid_ms", DateUtil.MILLIS_PER_FIVE_MINUTE);
+		this.counter_object_registry_path = getValue("counter_object_registry_path", "/tmp/scouter");
 		this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);
-		this.sfa_dump_interval = getInt("sfa_dump_interval", 10000);
+		this.sfa_dump_interval_ms = getInt("sfa_dump_interval_ms", 10000);
 		// 웹시스템으로 부터 WAS 사이의 성능과 어떤 웹서버가 요청을 보내 왔는지를 추적하는 기능을 ON/OFF하고
 		// 관련 키정보를 지정한다.
-		this.enable_trace_web = getBoolean("enable_trace_web", false);
-		this.key_web_name = getValue("key_web_name", "X-Forwarded-Host");
-		this.key_web_time = getValue("key_web_time", "X-Forwarded-Time");
+		this.trace_webserver_enabled = getBoolean("trace_webserver_enabled", false);
+		this.trace_webserver_name_header_key = getValue("trace_webserver_name_header_key", "X-Forwarded-Host");
+		this.trace_webserver_time_header_key = getValue("trace_webserver_time_header_key", "X-Forwarded-Time");
 		// SUMMARY최대 갯수를 관리한다.
-		this.enable_summary = getBoolean("enable_summary", true);
-		this.summary_sql_max = getInt("summary_sql_max", 5000);
-		this.summary_api_max = getInt("summary_api_max", 5000);
-		this.summary_service_max = getInt("summary_service_max", 5000);
-		this.summary_service_ip_max = getInt("summary_service_ip_max", 5000);
-		this.summary_service_ua_max = getInt("summary_service_ua_max", 5000);
-		this.summary_service_error_max = getInt("summary_service_error_max", 500);
-		this.heap_perm_alert_interval = getLong("heap_perm_alert_interval", 30000);
-		this.heap_perm_warning_pct = getInt("heap_perm_warning_pct", 90);
-		this.hook_spring_request_mapping = getBoolean("hook_spring_request_mapping", false);
-		this.alert_message_length = getInt("alert_message_length", 3000);
-		this.alert_send_interval = getInt("alert_send_interval", 3000);
-		this.jdbc_fetch_max = getInt("jdbc_fetch_max", 10000);
-		this.sql_time_max = getInt("sql_time_max", 30000);
-		this.debug_asm = getBoolean("debug_asm", getBoolean("debug.asm", false));
-		this.enable_plus_objtype = getBoolean("enable_plus_objtype", false);
-		this.debug_sql_call = getBoolean("debug_sql_call", false);
-		this.socket_open_fullstack_port = getInt("socket_open_fullstack_port", 0);
-		this.logs_dir= getValue("logs_dir", "");
-		this.log_rotation = getBoolean("log_rotation", true);
-		this.log_keep_dates = getInt("log_keep_dates", 7);
+		this.summary_enabled = getBoolean("summary_enabled", true);
+		this.summary_sql_max_count = getInt("summary_sql_max_count", 5000);
+		this.summary_api_max_count = getInt("summary_api_max_count", 5000);
+		this.summary_service_max_count = getInt("summary_service_max_count", 5000);
+		this.summary_ip_max_count = getInt("summary_ip_max_count", 5000);
+		this.summary_useragent_max_count = getInt("summary_useragent_max_count", 5000);
+		this.summary_error_max_count = getInt("summary_error_max_count", 500);
 		
+		this.summary_enduser_nav_max_count = getInt("summary_enduser_nav_max_count", 5000);
+		this.summary_enduser_ajax_max_count = getInt("summary_enduser_ajax_max_count", 5000);
+		this.summary_enduser_error_max_count = getInt("summary_enduser_error_max_count", 5000);
+
+		
+		this.alert_perm_interval_ms = getLong("alert_perm_interval_ms", 30000);
+		this.alert_perm_warning_pct = getInt("alert_perm_warning_pct", 90);
+		this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", false);
+		this.alert_message_length = getInt("alert_message_length", 3000);
+		this.alert_send_interval_ms = getInt("alert_send_interval_ms", 3000);
+		this.xlog_error_jdbc_fetch_max = getInt("xlog_error_jdbc_fetch_max", 10000);
+		this.xlog_error_sql_time_max_ms = getInt("xlog_error_sql_time_max_ms", 30000);
+		this.log_asm_enabled = getBoolean("log_asm_enabled", false);
+		this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
+		this._profile_fullstack_sql_connection_enabled = getBoolean("_profile_fullstack_sql_connection_enabled", false);
+		this._trace_fullstack_socket_open_port = getInt("_trace_fullstack_socket_open_port", 0);
+		this.log_dir = getValue("log_dir", "");
+		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
+		this.log_keep_days = getInt("log_keep_days", 7);
+		
+		this.enduser_trace_endpoint_url = getValue("enduser_trace_endpoint_url", "_scouter_browser.jsp");
+		this.enduser_perf_endpoint_hash = HashUtil.hash(this.enduser_trace_endpoint_url);
+			
 		resetObjInfo();
-		setErrorStatus();
 		setStaticContents();
 	}
+
+	public int getObjHash() {
+		return this.objHash;
+	}
+
+	public String getObjName() {
+		return this.objName;
+	}
+
+	public int getObjHostHash(){
+		return this.objHostHash;
+	}
+
+	public String getObjHostName() {
+		return this.objHostName;
+	}
+
+	public int getEndUserPerfEndpointHash() {
+		return this.enduser_perf_endpoint_hash;
+	}
+
+	public boolean isIgnoreLog(String id) {
+		return log_ignore_set.hasKey(id);
+	}
+
 	private StringSet getStringSet(String key, String deli) {
 		StringSet set = new StringSet();
 		String v = getValue(key);
@@ -481,7 +518,7 @@ public class Configure extends Thread {
 	}
 	private void setStaticContents() {
 		Set<String> tmp = new HashSet<String>();
-		String[] s = StringUtil.split(this.http_static_contents, ',');
+		String[] s = StringUtil.split(this.mgr_static_content_extensions, ',');
 		for (int i = 0; i < s.length; i++) {
 			String ss = s[i].trim();
 			if (ss.length() > 0) {
@@ -506,7 +543,7 @@ public class Configure extends Thread {
 	public synchronized void resetObjInfo() {
 		String detected = ObjTypeDetector.drivedType != null ? ObjTypeDetector.drivedType
 				: ObjTypeDetector.objType != null ? ObjTypeDetector.objType : CounterConstants.JAVA;
-		this.scouter_type = getValue("scouter_type", detected);
+		this.obj_type = getValue("obj_type", detected);
 		detected = CounterConstants.HOST;
 		if (SystemUtil.IS_LINUX) {
 			detected = CounterConstants.LINUX;
@@ -519,39 +556,23 @@ public class Configure extends Thread {
 		} else if (SystemUtil.IS_HP_UX) {
 			detected = CounterConstants.HPUX;
 		}
-		this.objhost_type = getValue("objhost_type", detected);
-		this.objhost_name = getValue("objhost_name", SysJMX.getHostName());
-		this.objHostName = "/" + this.objhost_name;
+		this.obj_host_type = getValue("obj_host_type", detected);
+		this.obj_host_name = getValue("obj_host_name", SysJMX.getHostName());
+		this.objHostName = "/" + this.obj_host_name;
 		this.objHostHash = HashUtil.hash(objHostName);
-		this.enable_objname_pid = getBoolean("enable_objname_pid", false);
+		this.obj_name_auto_pid_enabled = getBoolean("obj_name_auto_pid_enabled", false);
 		String defaultName;
-		if (this.enable_objname_pid == true) {
+		if (this.obj_name_auto_pid_enabled == true) {
 			defaultName = "" + SysJMX.getProcessPID();
 		} else {
-			defaultName = this.scouter_type + "1";
+			defaultName = this.obj_type + "1";
 		}
-		this.scouter_name = getValue("scouter_name", System.getProperty("jvmRoute", defaultName));
-		this.objName = objHostName + "/" + this.scouter_name;
+		this.obj_name = getValue("obj_name", System.getProperty("jvmRoute", defaultName));
+		this.objName = objHostName + "/" + this.obj_name;
 		this.objHash = HashUtil.hash(objName);
 		System.setProperty("scouter.objname", this.objName);
-		System.setProperty("scouter.objtype", this.scouter_type);
+		System.setProperty("scouter.objtype", this.obj_type);
 		System.setProperty("scouter.dir", new File(".").getAbsolutePath());
-	}
-	private void setErrorStatus() {
-		String[] status = StringUtil.split(this.http_error_status, ',');
-		http_error_status_set.clear();
-		for (int i = 0; i < status.length; i++) {
-			try {
-				int code = Integer.parseInt(status[i].trim());
-				if (code > 0) {
-					http_error_status_set.add(code);
-				}
-			} catch (Exception e) {
-			}
-		}
-	}
-	public boolean isErrorStatus(int status) {
-		return http_error_status_set.contains(status);
 	}
 	public String getValue(String key) {
 		return StringUtil.trim(property.getProperty(key));
@@ -628,12 +649,6 @@ public class Configure extends Thread {
 	private static HashSet<String> ignoreSet = new HashSet<String>();
 	static {
 		ignoreSet.add("property");
-		ignoreSet.add("objHash");
-		ignoreSet.add("objHostHash");
-		ignoreSet.add("objHostName");
-		ignoreSet.add("objName");
-		ignoreSet.add("objType");
-		ignoreSet.add("log_ignore_set");
 	}
 	public MapValue getKeyValueInfo() {
 		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
@@ -657,6 +672,13 @@ public class Configure extends Thread {
 		return this.hook_signature;
 	}
 	public static void main(String[] args) {
-		System.out.println(Configure.getInstance().getKeyValueInfo().toString().replace(',', '\n'));
+		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
+		StringEnumer enu = defMap.keys();
+		while (enu.hasMoreElements()) {
+			String key = enu.nextString();
+			if (ignoreSet.contains(key))
+				continue;
+			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key)));
+		}
 	}
 }

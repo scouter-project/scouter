@@ -70,7 +70,7 @@ import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 import scouter.util.StringUtil;
 
-public class XLogSearchDialog implements CalendarDialog.ILoadCounterDialog{
+public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 	 
 	Shell dialog;
 	IWorkbenchWindow win;
