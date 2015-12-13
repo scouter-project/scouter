@@ -61,7 +61,10 @@ Scouter has three modules:
 
 ### Q&A
  - [Google Groups](https://groups.google.com/forum/#!forum/scouter-project)
- 
+
+### Facebook
+ - [Facebook Scouter user group](https://www.facebook.com/groups/1525329794448529/)
+
 ### License
 Licensed under the Apache License, Version 2.0
 <br>
