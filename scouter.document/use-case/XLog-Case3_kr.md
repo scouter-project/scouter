@@ -1,5 +1,5 @@
 # XLog Case3 - 수평 라인 형태의 이해
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](XLogCase3.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-red.svg)](XLog-Case3.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 응답분포(XLOG)의 대표적인 패턴중에 하나는 가로라인이 나타나는 것이다.  
 가로 라인은 어떤 트랜잭션의 응답시간이 정형한 것이다. 

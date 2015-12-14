@@ -8,7 +8,7 @@
 - [Service Monitoring CASE#2 Understand Waterfall](./use-case/XLog-Case2.md)
 - [Service Monitoring CASE#3 Understand Horizontal Line](./use-case/XLog-Case3.md)
 - [Simulate DB Lock](./use-case/Simulate-DB-Lock.md) 
-- [클라이언트 화면 조작하기](./How-To-Use-Client)  
+- [How to use a client program](./client/How-To-Use-Client.md)  
 
 ## Setup
 - [Setup](./Setup)

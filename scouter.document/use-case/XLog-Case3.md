@@ -1,5 +1,5 @@
 # XLog Case3 - Undestand Horizontal
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](XLogCase3_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](XLog-Case3_kr.md)
 
 응답분포(XLOG)의 대표적인 패턴중에 하나는 가로라인이 나타나는 것이다.  
 가로 라인은 어떤 트랜잭션의 응답시간이 정형한 것이다. 
