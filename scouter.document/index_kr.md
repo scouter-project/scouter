@@ -2,9 +2,9 @@
 [![Englsh](https://img.shields.io/badge/language-English-red.svg)](index.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 ## Getting Started
-- [Getting Started](./Getting-Started)
-- [Getting Start Profiling SQL](./Getting-Start-Profile-SQL)
-- [Service Monitoring CASE#1 Log On/Off](./XLog Case 1 LOG ON OFF_en)
+- [Getting Started](./main/Getting-Started_kr.md)
+- [Getting Start Profiling SQL](./main/Getting-Start-Profile-SQL_kr.md)
+- [Service Monitoring CASE#1 Log On/Off](./use-case/XLogCase1LogOnOff_kr.md)
 - [Service Monitoring CASE#2 Understand Waterfall](./XLog Case2 Understanding Waterfalls)
 - [Service Monitoring CASE#3 Understand Horizontal Line](./XLog-Case3-Undestand-Horizontal)
 - [Simulate DB Lock](./Simulate-DB-Lock) 

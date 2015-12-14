@@ -1,4 +1,4 @@
-# XLog Case1 Log On Off
+# XLog Case1 - peformance issue case while logging on or off
 ![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](XLogCase1LogOnOff_kr.md)
 
 When the performance of web applications going bad, We can find these issues with the elapsed time distribution of Scouter and find the solution faster.

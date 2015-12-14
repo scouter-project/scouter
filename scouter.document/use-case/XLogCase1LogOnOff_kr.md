@@ -1,4 +1,4 @@
-# XLog Case1 Log On Off
+# XLog 사례1 Logging에 의한 부하 사례
 [![Englsh](https://img.shields.io/badge/language-English-red.svg)](XLogCase1LogOnOff.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 웹 프로그램의 성능을 테스트 하다보면 비정상적인 상황이 발생할 수있는데
