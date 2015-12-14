@@ -1,4 +1,4 @@
-# XLog Case2 - Understanding Waterfalls
+# XLog Case2 - 폭포수 모양에 대한 이해
 [![Englsh](https://img.shields.io/badge/language-English-red.svg)](XLogCase2.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 XLog(응답 분포 차트)에서 어떤 패턴이 나타나는 것을 좋지 않다. 

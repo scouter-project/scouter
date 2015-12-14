@@ -4,10 +4,10 @@
 ## Getting Started
 - [Getting Started](./main/Getting-Started_kr.md)
 - [Getting Start Profiling SQL](./main/Getting-Start-Profile-SQL_kr.md)
-- [Service Monitoring CASE#1 Log On/Off](./use-case/XLogCase1LogOnOff_kr.md)
-- [Service Monitoring CASE#2 Understand Waterfall](./XLog Case2 Understanding Waterfalls)
-- [Service Monitoring CASE#3 Understand Horizontal Line](./XLog-Case3-Undestand-Horizontal)
-- [Simulate DB Lock](./Simulate-DB-Lock) 
+- [Service Monitoring CASE#1 Log On/Off](./use-case/XLog-Case1_kr.md)
+- [Service Monitoring CASE#2 Understand Waterfall](./use-case/XLog-Case2_kr.md)
+- [Service Monitoring CASE#3 Understand Horizontal Line](./use-case/XLog-Case3_kr.md)
+- [Simulate DB Lock](./use-case/Simulate-DB-Lock.md) 
 - [클라이언트 화면 조작하기](./How-To-Use-Client)  
 
 ## Setup
