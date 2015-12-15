@@ -9,6 +9,7 @@
 - [Service Monitoring CASE#3 Understand Horizontal Line](./use-case/XLog-Case3.md)
 - [Simulate DB Lock](./use-case/Simulate-DB-Lock.md) 
 - [How to use a client program](./client/How-To-Use-Client.md)  
+- [What’s special in SCOUTER?](./main/What-special-in-SCOUTER.md)
 
 ## Setup
 - [Setup](./main/Setup.md)
@@ -24,13 +25,11 @@
 - [Console Mode Running](./server/Console-Mode-Running.md)
 - [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
 - [How to trace NON-HTTP service](./use-case/NON-HTTP-Service-Trace.md) 
-- [JDBC Connection을 추적하기](./use-case/JDBC-Connection-Trace.md) : Connection 관련 성능 문제 
-- [What’s special in SCOUTER?](./What-special-in-SCOUTER)
 
 ## Tech note
 - [Counting Visit Users](./tech/Counting-Visit-Users.md)
-- [JDBC Connection Leak Trace](./JDBC-Connection-Leak-Trace)
-- [Service Performance 101](./Service-Performance-101)
+- [JDBC Connection Leak Trace](./tech/JDBC-Connection-Leak-Trace.md)
+- [Service Performance 101](./tech/Service-Performance-101.md)
 
 ## MISC
-- [SCOUTER includes](./SCOUTER-includes)
+- [SCOUTER includes](./main/SCOUTER-includes.md)

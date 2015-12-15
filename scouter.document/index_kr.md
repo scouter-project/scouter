@@ -9,6 +9,7 @@
 - [Service Monitoring CASE#3 수평선 양상의 이해](./use-case/XLog-Case3_kr.md)
 - [DB Lock 상황 시뮬레이션](./use-case/Simulate-DB-Lock.md) 
 - [클라이언트 사용법](./client/How-To-Use-Client.md)  
+- [SCOUTER가 특별한 이유](./main/What-special-in-SCOUTER.md)
 
 ## Setup
 - [Setup](./main/Setup.md)
@@ -24,12 +25,12 @@
 - [Console Mode로 시작하기](./server/Console-Mode-Running.md)
 - [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
 - [NON-HTTP 서비스 추적하기](./use-case/NON-HTTP-Service-Trace.md) 
-- [JDBC Connection을 추적하기](./use-case/JDBC-Connection-Trace.md) : Connection 관련 성능 문제 
 - [What’s special in SCOUTER?](./What-special-in-SCOUTER)
-- [Service Performance 101](./Service-Performance-101)
 
 ## Tech note
 - [방문사용자 계산하기](./tech/Counting-Visit-Users)
+- [JDBC Connection Leak Trace](./tech/JDBC-Connection-Leak-Trace.md)
+- [Service Performance 101](./tech/Service-Performance-101.md)
 
 ## MISC
-- [SCOUTER includes](./SCOUTER-includes)
+- [SCOUTER includes](./main/SCOUTER-includes.md)
