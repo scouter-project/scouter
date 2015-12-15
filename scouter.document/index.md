@@ -20,13 +20,16 @@
 
 ## How to use
 - [Why Recent User](./main/Why-Recent-User.md)
-- [Reading XLog](./Reading-XLog) 
-- [Counting Visit Users](./Counting-Visit-Users)
-- [Console Mode Running](./Console-Mode-Running)
-- [TagCounting Analysis](./TagCounting-Analysis)
-- [NON-HTTP 서비스 추적하기](./NON-HTTP-Service-Trace) 
-- [JDBC Connection을 추적하기](./JDBC-Connection-Trace) : Connection 관련 성능 문제 
+- [How to analyze XLog View](./client/Reading-XLog.md) 
+- [Console Mode Running](./server/Console-Mode-Running.md)
+- [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
+- [How to trace NON-HTTP service](./use-case/NON-HTTP-Service-Trace.md) 
+- [JDBC Connection을 추적하기](./use-case/JDBC-Connection-Trace.md) : Connection 관련 성능 문제 
 - [What’s special in SCOUTER?](./What-special-in-SCOUTER)
+
+## Tech note
+- [Counting Visit Users](./tech/Counting-Visit-Users.md)
+- [JDBC Connection Leak Trace](./JDBC-Connection-Leak-Trace)
 - [Service Performance 101](./Service-Performance-101)
 
 ## MISC

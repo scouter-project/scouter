@@ -20,14 +20,16 @@
 
 ## How to use
 - [Recent User를 사용하는 이유](./main/Why-Recent-User.md)
-- [Reading XLog](./Reading-XLog) 
-- [Counting Visit Users](./Counting-Visit-Users)
-- [Console Mode Running](./Console-Mode-Running)
-- [TagCounting Analysis](./TagCounting-Analysis)
-- [NON-HTTP 서비스 추적하기](./NON-HTTP-Service-Trace) 
-- [JDBC Connection을 추적하기](./JDBC-Connection-Trace) : Connection 관련 성능 문제 
+- [응답시간 분포도(XLog) 보는 방법](./Reading-XLog.md) 
+- [Console Mode로 시작하기](./server/Console-Mode-Running.md)
+- [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
+- [NON-HTTP 서비스 추적하기](./use-case/NON-HTTP-Service-Trace.md) 
+- [JDBC Connection을 추적하기](./use-case/JDBC-Connection-Trace.md) : Connection 관련 성능 문제 
 - [What’s special in SCOUTER?](./What-special-in-SCOUTER)
 - [Service Performance 101](./Service-Performance-101)
+
+## Tech note
+- [방문사용자 계산하기](./tech/Counting-Visit-Users)
 
 ## MISC
 - [SCOUTER includes](./SCOUTER-includes)
