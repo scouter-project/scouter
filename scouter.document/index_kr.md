@@ -20,7 +20,6 @@
 - [Build on Window](./main/Build-Scouter-Windows.md)
 
 ## How to use
-- [Recent User를 사용하는 이유](./main/Why-Recent-User.md)
 - [응답시간 분포도(XLog) 보는 방법](./Reading-XLog.md) 
 - [Console Mode로 시작하기](./server/Console-Mode-Running.md)
 - [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
@@ -28,6 +27,7 @@
 - [What’s special in SCOUTER?](./What-special-in-SCOUTER)
 
 ## Tech note
+- [Recent User를 사용하는 이유](./tech/Why-Recent-User.md)
 - [방문사용자 계산하기](./tech/Counting-Visit-Users)
 - [JDBC Connection Leak Trace](./tech/JDBC-Connection-Leak-Trace.md)
 - [Service Performance 101](./tech/Service-Performance-101.md)

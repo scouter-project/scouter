@@ -20,13 +20,13 @@
 - [Build on Window](./main/Build-Scouter-Windows.md)
 
 ## How to use
-- [Why Recent User](./main/Why-Recent-User.md)
 - [How to analyze XLog View](./client/Reading-XLog.md) 
 - [Console Mode Running](./server/Console-Mode-Running.md)
 - [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
 - [How to trace NON-HTTP service](./use-case/NON-HTTP-Service-Trace.md) 
 
 ## Tech note
+- [Why Recent User](./tech/Why-Recent-User.md)
 - [Counting Visit Users](./tech/Counting-Visit-Users.md)
 - [JDBC Connection Leak Trace](./tech/JDBC-Connection-Leak-Trace.md)
 - [Service Performance 101](./tech/Service-Performance-101.md)
