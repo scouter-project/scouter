@@ -17,24 +17,22 @@
 package scouter.agent;
 
 import java.lang.instrument.Instrumentation;
+
 import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.util.AsyncRunner;
-import scouter.lang.conf.ConfObserver;
-import scouter.lang.conf.ConfigValueUtil;
-import scouter.util.StringUtil;
 import scouter.util.logo.Logo;
 
 public class JavaAgent {
 	private static Instrumentation instrumentation;
 
-	public static void premain(String options, Instrumentation i) {
+	public static void premain(String options, Instrumentation instrum) {
 		if (JavaAgent.instrumentation != null) {
 			return;
 		}
 		intro();
 		Configure.getInstance();
 		BackJobs.getInstance().put(Logger.class.getName(), 3000, Logger.initializer);
-		JavaAgent.instrumentation = i;
+		JavaAgent.instrumentation = instrum;
 		JavaAgent.instrumentation.addTransformer(new AgentTransformer());
 		// RequestAgent.getInstance();
 		TcpRequestMgr.getInstance();

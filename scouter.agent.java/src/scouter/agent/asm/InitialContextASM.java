@@ -33,10 +33,6 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 public class InitialContextASM implements IASM, Opcodes {
 	private Set<String> target = HookingSet.getClassSet(Configure.getInstance().hook_context_classes);
 
-	public boolean isTarget(String className) {
-		return target.contains(className);
-	}
-
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (Configure.getInstance()._hook_dbconn_enabled == false) {
 			return cv;

@@ -37,18 +37,6 @@ public class ApicallInfoASM implements IASM, Opcodes {
 		// AsmUtil.add(reserved,
 		// "io/reactivex/netty/protocol/http/client/HttpClientResponse", "*");
 	}
-	public boolean isTarget(String className) {
-		HookingSet mset = reserved.get(className);
-		if (mset != null)
-			return true;
-		for (int i = 0; i < target.size(); i++) {
-			mset = target.get(i);
-			if (mset.classMatch.include(className)) {
-				return true;
-			}
-		}
-		return false;
-	}
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (Configure.getInstance()._hook_methods_enabled == false) {
 			return cv;
