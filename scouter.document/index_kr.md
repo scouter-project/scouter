@@ -11,20 +11,15 @@
 - [클라이언트 사용법](./client/How-To-Use-Client.md)  
 
 ## Setup
-- [Setup](./Setup)
-- [Setup FAQ](./Setup-FAQ)
-  * Scouter 구성은 
-  * Tomcat과 Scouter Server 그리고 클라이언트를 분리하여 서로다른 서버에서 수행
-  * 여러 Tomcat 인스턴스를 모니터링 하려면 설정해야하는 것은
-  * Tomcat이 설치된 서버의 Cpu, Mem모니터링 하고 싶을때
-  * Tomcat이 설치되지 않은 서버의 Cpu, Mem모니터링 하고 싶을때
+- [Setup](./main/Setup.md)
+- [Setup FAQ](./main/Setup-FAQ.md)
 
 ## Build Scouter
-- [Build on Linux & OSX](./Build-Scouter)
-- [Build on Window](./Build-Scouter-Window)
+- [Build on Linux & OSX](./main/Build-Scouter.md)
+- [Build on Window](./main/Build-Scouter-Windows.md)
 
 ## How to use
-- [Why Recent User](./Why-Recent-User)
+- [Recent User를 사용하는 이유](./main/Why-Recent-User.md)
 - [Reading XLog](./Reading-XLog) 
 - [Counting Visit Users](./Counting-Visit-Users)
 - [Console Mode Running](./Console-Mode-Running)
