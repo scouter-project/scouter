@@ -16,48 +16,27 @@
  *
  */
 package scouter.server.core;
-import java.util.ArrayList
-import java.util.Enumeration
-import java.util.HashSet
-import java.util.Hashtable
-import java.util.Iterator
-import java.util.List
-import scouter.lang.AlertLevel
-import scouter.lang.ObjectType
-import scouter.lang.TextTypes
-import scouter.lang.counters.CounterEngine
-import scouter.lang.pack.AlertPack
-import scouter.lang.pack.MapPack
-import scouter.lang.pack.ObjectPack
-import scouter.lang.pack.TextPack
-import scouter.lang.value.ListValue
-import scouter.server.Configure
-import scouter.server.Logger
-import scouter.server.core.cache.AlertCache
-import scouter.server.core.cache.CommonCache
-import scouter.server.db.AlertWR
-import scouter.server.db.ObjectRD
-import scouter.server.db.ObjectWR
+import java.util.{ArrayList, Enumeration, HashSet, List}
+
+import scouter.lang.{AlertLevel, TextTypes}
+import scouter.lang.pack.{AlertPack, MapPack, ObjectPack, TextPack}
+import scouter.server.{Configure, Logger}
+import scouter.server.core.cache.{AlertCache, CommonCache}
+import scouter.server.db.{AlertWR, ObjectRD, ObjectWR}
 import scouter.server.plugin.PlugInManager
-import scouter.util.ArrayUtil
-import scouter.util.CastUtil
-import scouter.util.CompareUtil
-import scouter.util.DateUtil
-import scouter.util.HashUtil
-import scouter.util.IntKeyMap
-import scouter.util.StringKeyLinkedMap
-import scouter.util.StringUtil
-import scouter.util.ThreadUtil
-import scouter.server.util.ThreadScala
-import scala.collection.JavaConversions._
-import scouter.server.util.EnumerScala
+import scouter.server.util.{EnumerScala, ThreadScala}
+import scouter.util.{CompareUtil, DateUtil, HashUtil}
+
 object AgentManager {
     private val counterEngine = scouter.server.CounterManager.getInstance().getCounterEngine();
     private var primaryObjCount = 0;
+    private val objMap = new ObjectMap();
+
     private def read() {
         val list = ObjectRD.getObjectList(DateUtil.yyyymmdd());
         objMap.putAll(list);
     }
+
     ThreadScala.startDaemon("scouter.server.core.AgentManager", { CoreRun.running }, 1000) {
         val now = System.currentTimeMillis();
         val deadtime = Configure.getInstance().object_deadtime_ms;
@@ -73,11 +52,12 @@ object AgentManager {
         }
         this.primaryObjCount = primaryObjCount;
     }
-    private val objMap = new ObjectMap();
+
     def isActive(agentKey: Int): Boolean = {
         val objPack = objMap.getObject(agentKey);
         if (objPack == null) false else objPack.alive;
     }
+
     def active(p: ObjectPack) {
         if (p.objHash == 0) {
             p.objHash = HashUtil.hash(p.objName);
@@ -125,6 +105,7 @@ object AgentManager {
             }
         }
     }
+
     private def alertTooManyChange(objPack: ObjectPack) {
         val p = new AlertPack();
         p.level = AlertLevel.INFO;
@@ -134,6 +115,7 @@ object AgentManager {
         p.objType = "scouter";
         AlertCache.put(p);
     }
+
     private def alertInactiveObject(objPack: ObjectPack) {
         val p = new AlertPack();
         p.level = AlertLevel.WARN;
@@ -145,6 +127,7 @@ object AgentManager {
         AlertCache.put(p);
         AlertWR.add(p);
     }
+
     private def procObjName(objPack: ObjectPack) {
         val tp = new TextPack();
         tp.xtype = TextTypes.OBJECT;
@@ -152,13 +135,16 @@ object AgentManager {
         tp.text = objPack.objName;
         TextCore.add(tp);
     }
+
     def getAgentName(objHash: Int): String = {
         val objPack = objMap.getObject(objHash);
         if (objPack == null) null else objPack.objName
     }
+
     def getAgent(objHash: Int): ObjectPack = {
         return objMap.getObject(objHash);
     }
+
     def inactive(objHash: Int) {
         val objPack = objMap.getObject(objHash);
         if (objPack != null && objPack.alive) {
@@ -169,6 +155,7 @@ object AgentManager {
             }
         }
     }
+
     def clearInactive() {
         val death = new ArrayList[ObjectPack]();
         val itr = objMap.objects();
@@ -179,6 +166,7 @@ object AgentManager {
         }
         EnumerScala.foreach(death.iterator(), (o: ObjectPack) => objMap.remove(o.objHash))
     }
+
     def getLiveObjHashList(): List[Int] = {
         val agents = new ArrayList[Int]();
         try {
@@ -194,6 +182,7 @@ object AgentManager {
         }
         return agents;
     }
+
     def getObjHashList(): List[Int] = {
         val agents = new ArrayList[Int]();
         val itr = objMap.objects();
@@ -203,6 +192,7 @@ object AgentManager {
         }
         return agents;
     }
+
     def getLiveObjHashList(objType: String): List[Int] = {
         val agents = new ArrayList[Int]();
         val itr = objMap.enumTypeObject(objType);
@@ -214,6 +204,7 @@ object AgentManager {
         }
         return agents;
     }
+
     def getObjHashList(objType: String): List[Int] = {
         val agents = new ArrayList[Int]();
         val itr = objMap.enumTypeObject(objType);
@@ -223,6 +214,7 @@ object AgentManager {
         }
         return agents;
     }
+
     def getObjList(objType: String): List[ObjectPack] = {
         val agents = new ArrayList[ObjectPack]();
         val itr = objMap.enumTypeObject(objType);
@@ -232,6 +224,7 @@ object AgentManager {
         }
         return agents;
     }
+
     def filter(word: String): List[Int] = {
         if ("*".equals(word)) return getLiveObjHashList()
         if (isObjType(word) == true) {
@@ -248,10 +241,13 @@ object AgentManager {
             return agents;
         }
     }
-   def isObjType(word: String) = objMap.getTypeObjects(word) != null
+
+    def isObjType(word: String) = objMap.getTypeObjects(word) != null
+
     def getObjPacks(): Enumeration[ObjectPack] = {
         return objMap.objects();
     }
+
     def getCurrentObjects(objType: String): MapPack = {
         val m = new MapPack();
         val objTypeLv = m.newList("objType");
@@ -264,6 +260,7 @@ object AgentManager {
         }
         return m;
     }
+
     def getDailyObjects(date: String, objType: String): MapPack = {
         val key = "DailyObjects:" + date + ":" + objType;
         var m = CommonCache.get(key).asInstanceOf[MapPack]
@@ -284,6 +281,7 @@ object AgentManager {
         CommonCache.put(key, m, 2000);
         return m;
     }
+
     def getPeriodicObjects(sDate: String, eDate: String, objType: String): MapPack = {
         val key = "PeriodicObjects:" + sDate + eDate + ":" + objType;
         var m = CommonCache.get(key).asInstanceOf[MapPack];
@@ -313,6 +311,7 @@ object AgentManager {
         CommonCache.put(key, m, 2000);
         return m;
     }
+
     def removeAgents(objHashList: List[Int], permanent: Boolean) {
         EnumerScala.foreach(objHashList.iterator(), (objHash: Int) => {
             objMap.remove(objHash);
@@ -321,5 +320,6 @@ object AgentManager {
             }
         })
     }
+
     def getPrimaryObjCount() = this.primaryObjCount
 }
