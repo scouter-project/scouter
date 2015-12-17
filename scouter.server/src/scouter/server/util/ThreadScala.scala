@@ -26,8 +26,8 @@ object ThreadScala {
                     try {
                         codeBlock
                     } catch {
-                        case n: NullPointerException => Logger.println("S189", 10, "@startDaemon", n)
-                        case t: Throwable => Logger.println("S190", 10, "@startDaemon: " + t)
+                        case n: NullPointerException => Logger.println("S189", 10, "@startDaemon"+codeBlock.getClass(), n)
+                        case t: Throwable => Logger.println("S190", 10, "@startDaemon: "+codeBlock.getClass(),t)
                     }
                 }
             }
