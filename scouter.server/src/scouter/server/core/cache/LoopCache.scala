@@ -23,6 +23,12 @@ import java.util.List;
 
 import scouter.util.IntSet;
 
+/**
+  * Circular queue that store objType, objHash and any data
+  * This queue has an index and a loop count for access point.
+  * @param capacity
+  * @tparam V
+  */
 class LoopCache[V](capacity: Int) {
 
     var queue = new Array[Any](capacity);
@@ -115,6 +121,13 @@ class LoopCache[V](capacity: Int) {
         }
     }
 
+    /**
+      * get cache data by the specific objType after last index and last loop
+      * @param objType
+      * @param last_loop
+      * @param last_index
+      * @return
+      */
     def get(objType: String, last_loop: Long, last_index: Int): CacheOut[V] = {
         val d = new CacheOut[V]();
         d.data = getList(objType, last_loop, last_index);
@@ -123,6 +136,13 @@ class LoopCache[V](capacity: Int) {
         return d;
     }
 
+    /**
+      * get cache data by objHash(list of IntSet) after last index and last loop
+      * @param objHashSet
+      * @param last_loop
+      * @param last_index
+      * @return
+      */
     def get(objHashSet: IntSet, last_loop: Long, last_index: Int): CacheOut[V] = {
         val d = new CacheOut[V]();
         d.data = getList(objHashSet, last_loop, last_index);

@@ -20,6 +20,9 @@ package scouter.server.core.cache;
 
 import scouter.util.StringSet;
 
+/**
+  * Store strings in a StringSet
+  */
  object CacheHelper {
 	val objType =new StringSet();
 }
