@@ -94,7 +94,9 @@ object SqlTables {
         } catch {
             case t: Throwable => {
                 failSet.put(data.sqlHash);
-                Logger.println("S112", data.sqlText + "\n" + t);
+                if (Configure.getInstance().log_sql_parsing_failed) {
+                    Logger.println("S112", data.sqlText + "\n" + t);
+                }
             }
         }
     }
