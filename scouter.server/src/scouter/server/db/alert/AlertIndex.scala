@@ -16,15 +16,15 @@
  *
  */
 
-package scouter.server.db.alert;
+package scouter.server.db.alert
 
-import java.io.IOException;
-import java.util.Hashtable;
+;
 
-import scouter.io.DataOutputX;
-import scouter.server.db.io.IndexTimeFile;
-import scouter.util.FileUtil;
-import scouter.util.IClose;
+import java.util.Hashtable
+
+import scouter.io.DataOutputX
+import scouter.server.db.io.IndexTimeFile
+import scouter.util.{FileUtil, IClose};
 
 object AlertIndex {
     val table = new Hashtable[String, AlertIndex]();
@@ -33,7 +33,7 @@ object AlertIndex {
         table.synchronized {
             var index = table.get(file);
             if (index != null) {
-                index.refrence += 1;
+                index.reference += 1;
                 return index;
             } else {
                 index = new AlertIndex(file);
@@ -44,11 +44,12 @@ object AlertIndex {
     }
 
 }
+
 class AlertIndex(file: String) extends IClose {
 
     val POSTFIX_TIME = "_tim";
 
-    var refrence = 0;
+    var reference = 0;
     var timeIndex: IndexTimeFile = null
 
     def add(time: Long, fpos: Long) {
@@ -60,27 +61,27 @@ class AlertIndex(file: String) extends IClose {
 
     def close() {
         AlertIndex.table.synchronized {
-            if (this.refrence == 0) {
+            if (this.reference == 0) {
                 AlertIndex.table.remove(this.file);
                 FileUtil.close(this.timeIndex);
             } else {
-                this.refrence -= 1;
+                this.reference -= 1;
             }
         }
     }
 
-    def read(fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long)=>Array[Byte]) {
+    def read(fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long) => Array[Byte]) {
         if (this.timeIndex == null) {
             this.timeIndex = new IndexTimeFile(file + POSTFIX_TIME);
         }
-         this.timeIndex.read(fromTime, toTime, handler, reader);
+        this.timeIndex.read(fromTime, toTime, handler, reader);
     }
 
-    def readFromEnd(fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long)=>Array[Byte]) {
+    def readFromEnd(fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long) => Array[Byte]) {
         if (this.timeIndex == null) {
             this.timeIndex = new IndexTimeFile(file + POSTFIX_TIME);
         }
-         this.timeIndex.readFromEnd(fromTime, toTime, handler, reader);
+        this.timeIndex.readFromEnd(fromTime, toTime, handler, reader);
     }
 
 }
