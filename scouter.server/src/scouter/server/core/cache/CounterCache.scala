@@ -36,8 +36,7 @@ import scouter.util.ThreadUtil;
 import scouter.server.util.ThreadScala
 
 object CounterCache {
-    val counterEngine = CounterManager.getInstance().getCounterEngine();
-
+    //val counterEngine = CounterManager.getInstance().getCounterEngine();
     val cache = new CacheTable[CounterKey, Value]();
 
     ThreadScala.startDaemon("scouter.server.core.cache.CounterCache") {
@@ -50,6 +49,8 @@ object CounterCache {
 
     def put(key: CounterKey, value: Value) {
         var keepTime = getKeepTime(key.timetype);
+        cache.put(key, value, keepTime);
+
         //        if (key.timetype == TimeTypeEnum.REALTIME) {
         //            try {
         //                val pack = AgentManager.getInstance().getAgent(key.objHash);
@@ -62,7 +63,6 @@ object CounterCache {
         //                case e: Throwable => e.printStackTrace()
         //            }
         //        }
-        cache.put(key, value, keepTime);
     }
 
     def get(key: CounterKey): Value = {
