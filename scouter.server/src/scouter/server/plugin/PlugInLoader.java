@@ -134,9 +134,17 @@ public class PlugInLoader extends Thread {
 			String parameter = paramClass.getName();
 			String body = new String(FileUtil.readAll(file));
 			ClassPool cp = ClassPool.getDefault();
-			String jar = FileUtil.getJarFileName(IAlert.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
+//			String jar = FileUtil.getJarFileName(IAlert.class);
+//			if (jar != null) {
+//				cp.appendClassPath(jar);
+//			}
+			//클래스 패스를 자동으로 잡아주도록 수정함, 사용자가 추가한 jar도 자동인식하도록 
+			if(this.getClass().getClassLoader() instanceof URLClassLoader){
+				URLClassLoader u = (URLClassLoader)this.getClass().getClassLoader();
+				URL[] urls = u.getURLs();
+				for(int i = 0; urls!=null && i<urls.length ; i++){
+					cp.appendClassPath(urls[i].getFile());
+				}	
 			}
 			className = "scouter.server.plugin.impl." + className;
 			Class c = null;
