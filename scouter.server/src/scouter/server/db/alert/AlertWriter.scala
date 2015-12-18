@@ -30,14 +30,14 @@ object AlertWriter {
 
     def open(file: String): AlertWriter = {
         table.synchronized {
-            var index = table.get(file);
-            if (index != null) {
-                index.refrence += 1
+            var writer = table.get(file);
+            if (writer != null) {
+                writer.refrence += 1
             } else {
-                index = new AlertWriter(file)
-                table.put(file, index);
+                writer = new AlertWriter(file)
+                table.put(file, writer);
             }
-            return index;
+            return writer;
         }
     }
 }

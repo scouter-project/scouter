@@ -108,6 +108,11 @@ public class StringSet {
 		return unipoint(key);
 	}
 
+	/**
+	 * add a key to StringSet and return hashcode of the key
+	 * @param key String
+	 * @return String - parameter key
+	 */
 	public synchronized String unipoint(String key) {
 		if (key == null)
 			return null;

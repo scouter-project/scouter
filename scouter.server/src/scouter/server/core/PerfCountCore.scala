@@ -15,32 +15,31 @@
  *  limitations under the License. 
  *
  */
-package scouter.server.core;
-import scouter.lang.CounterKey
-import scouter.lang.TimeTypeEnum
+package scouter.server.core
+
+;
+
+import scouter.lang.{CounterKey, TimeTypeEnum}
 import scouter.lang.pack.PerfCounterPack
 import scouter.server.Logger
 import scouter.server.core.cache.CounterCache
-import scouter.server.db.DailyCounterWR
-import scouter.server.db.RealtimeCounterWR
-import scouter.util.CastUtil
-import scouter.util.DateUtil
-import scouter.util.HashUtil
-import scouter.util.RequestQueue
-import scala.collection.JavaConversions._
-import scouter.server.util.ThreadScala
-import scouter.server.util.EnumerScala
+import scouter.server.db.{DailyCounterWR, RealtimeCounterWR}
 import scouter.server.plugin.PlugInManager
 import scouter.server.plugin.alert.AlertEngine
+import scouter.server.util.{EnumerScala, ThreadScala}
+import scouter.util.{CastUtil, DateUtil, HashUtil, RequestQueue}
+
+/**
+  * request queue of performance counter data and also dispatcher of the queue
+  */
 object PerfCountCore {
     var queue = new RequestQueue[PerfCounterPack](CoreRun.MAX_QUE_SIZE);
-    ThreadScala.startDaemon("scouter.server.core.PerfCountCore", { CoreRun.running }) {
+    ThreadScala.startDaemon("scouter.server.core.PerfCountCore", {CoreRun.running}) {
         val p = queue.get();
         val objHash = HashUtil.hash(p.objName);
-        
-        //PLUGIN CONTER
+
         PlugInManager.counter(p);
-        
+
         if (p.timetype == TimeTypeEnum.REALTIME) {
             RealtimeCounterWR.add(p);
             EnumerScala.foreach(p.data.keySet().iterator(), (k: String) => {
@@ -48,7 +47,7 @@ object PerfCountCore {
                 val key = new CounterKey(objHash, k, p.timetype);
                 Auto5MSampling.add(key, value);
                 CounterCache.put(key, value);
-                AlertEngine.putRealTime(key,value);
+                AlertEngine.putRealTime(key, value); //experimental
             })
         } else {
             val yyyymmdd = CastUtil.cint(DateUtil.yyyymmdd(p.time));
@@ -61,6 +60,7 @@ object PerfCountCore {
             })
         }
     }
+
     def add(p: PerfCounterPack) {
         if (p.time == 0) {
             p.time = System.currentTimeMillis();

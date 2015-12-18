@@ -16,7 +16,9 @@
  *
  */
 
-package scouter.server.db.io;
+package scouter.server.db.io
+
+;
 
 import java.io.IOException
 import java.util.ArrayList
@@ -30,32 +32,11 @@ import scouter.util.CompareUtil
 import scouter.util.DateUtil
 import scouter.util.IClose
 
+/**
+  * timestamp(long) based index file
+  * @param _path Index File Path
+  */
 class IndexTimeFile(_path: String) extends IClose {
-
-    class TimeValue(_time: Long, _value: Array[Byte]) extends Comparable[TimeValue] {
-        val time = _time
-        val value = _value
-
-        override def compareTo(t: TimeValue): Int = {
-            val v = this.time - t.time;
-            if (v == 0) {
-                return CompareUtil.compareTo(this.value, t.value);
-            }
-            return if (v > 0) 1 else -1
-        }
-
-        override def equals(obj: Any): Boolean = {
-            if (obj.isInstanceOf[TimeValue]) {
-                return compareTo(obj.asInstanceOf[TimeValue]) == 0;
-            } else false
-        }
-        override def hashCode(): Int = {
-            return time.toInt
-        }
-        override def toString(): String = {
-            return DateUtil.timestamp(time) + " byte[" + BytesUtil.getLength(value) + "]";
-        }
-    }
 
     protected var path = _path
     protected var hashFile = new MemTimeBlock(_path);
@@ -120,7 +101,7 @@ class IndexTimeFile(_path: String) extends IClose {
 
     def read(_stime: Long, etime: Long, handler: (Long, Array[Byte]) => Any) {
         if (this.keyFile == null)
-            return ;
+            return;
 
         var i = 0
         var stime = _stime
@@ -167,7 +148,7 @@ class IndexTimeFile(_path: String) extends IClose {
             })
 
             i += 1
-            stime +=  500L
+            stime += 500L
         }
     }
 
@@ -181,11 +162,11 @@ class IndexTimeFile(_path: String) extends IClose {
             val data = getSecAll(etime);
 
             EnumerScala.backward(data, (tv: TimeValue) => {
-                  if (tv.time >= stime && tv.time <= _etime) {
-                      handler(tv.time, reader(DataInputX.toLong5(tv.value, 0)))
-                  }
+                if (tv.time >= stime && tv.time <= _etime) {
+                    handler(tv.time, reader(DataInputX.toLong5(tv.value, 0)))
+                }
             })
-            
+
             i += 1
             etime = etime - 500L
         }
@@ -210,13 +191,40 @@ class IndexTimeFile(_path: String) extends IClose {
         } catch {
             case t: Throwable =>
                 Logger.println("S127", this.keyFile.path + " : read=" + done + " pos=" + pos + " file-len=" + length + " "
-                    + t);
+                        + t);
         }
     }
 
     override def close() {
         hashFile.close();
         keyFile.close();
+    }
+
+    class TimeValue(_time: Long, _value: Array[Byte]) extends Comparable[TimeValue] {
+        val time = _time
+        val value = _value
+
+        override def compareTo(t: TimeValue): Int = {
+            val v = this.time - t.time;
+            if (v == 0) {
+                return CompareUtil.compareTo(this.value, t.value);
+            }
+            return if (v > 0) 1 else -1
+        }
+
+        override def equals(obj: Any): Boolean = {
+            if (obj.isInstanceOf[TimeValue]) {
+                return compareTo(obj.asInstanceOf[TimeValue]) == 0;
+            } else false
+        }
+
+        override def hashCode(): Int = {
+            return time.toInt
+        }
+
+        override def toString(): String = {
+            return DateUtil.timestamp(time) + " byte[" + BytesUtil.getLength(value) + "]";
+        }
     }
 
 }
