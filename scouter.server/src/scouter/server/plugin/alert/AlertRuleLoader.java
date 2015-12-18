@@ -153,9 +153,16 @@ public class AlertRuleLoader extends Thread {
 		try {
 			String body = new String(FileUtil.readAll(ruleFile));
 			ClassPool cp = ClassPool.getDefault();
-			String jar = FileUtil.getJarFileName(AlertRule.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
+//			String jar = FileUtil.getJarFileName(AlertRule.class);
+//			if (jar != null) {
+//				cp.appendClassPath(jar);
+//			}
+			if(this.getClass().getClassLoader() instanceof URLClassLoader){
+				URLClassLoader u = (URLClassLoader)this.getClass().getClassLoader();
+				URL[] urls = u.getURLs();
+				for(int i = 0; urls!=null && i<urls.length ; i++){
+					cp.appendClassPath(urls[i].getFile());
+				}	
 			}
 			name = "scouter.server.alert.impl." + name;
 			Class c = null;
