@@ -161,7 +161,7 @@ public class PlugInLoader extends Thread {
 				impl.addMethod(method);
 			}
 			
-			method.setBody("{" + parameter + " $pack=$1;" + body + "}");
+			method.setBody("{" + parameter + " $pack=$1;" + body + "\n}");
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			IPlugIn plugin = (IPlugIn) c.newInstance();
 			plugin.lastModified = file.lastModified();

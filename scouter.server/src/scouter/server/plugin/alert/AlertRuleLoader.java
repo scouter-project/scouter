@@ -178,7 +178,7 @@ public class AlertRuleLoader extends Thread {
 				method = CtNewMethod.make("public void process(" + RealCounter.class.getName() + " c){}", impl);
 				impl.addMethod(method);
 			}
-			method.setBody("{" + RealCounter.class.getName() + " $counter=$1;" + body + "}");
+			method.setBody("{" + RealCounter.class.getName() + " $counter=$1;" + body + "\n}");
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AlertRule rule = (AlertRule) c.newInstance();
 			rule.lastModified = ruleFile.lastModified();
