@@ -39,7 +39,21 @@ public class MemTimeBlock implements IFlushable {
 
     protected String path;
     protected final int capacity = 3600 * 24 * 2;
+
+    /**
+     * how many data in the block
+     */
     private int count;
+
+    private boolean dirty;
+
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    public long interval() {
+        return 4000;
+    }
 
     public MemTimeBlock(String path) throws IOException {
         open(path);
@@ -64,24 +78,14 @@ public class MemTimeBlock implements IFlushable {
     }
 
     private int _offset(long time) {
-        int seconds = (int) (DateUtil.getDateMillis(time) / 500);
-        int hash = (seconds & Integer.MAX_VALUE) % capacity;
+        int seconds = DateUtil.getDateMillis(time) / 500;
+        int hash = seconds % capacity;
         return _keyLength * hash + _memHeadReserved;
     }
 
     public synchronized void flush() {
         FileUtil.save(this.file, this.memBuffer);
         this.dirty = false;
-    }
-
-    public long interval() {
-        return 4000;
-    }
-
-    private boolean dirty;
-
-    public boolean isDirty() {
-        return dirty;
     }
 
     public synchronized long get(long time) throws IOException {
@@ -103,6 +107,7 @@ public class MemTimeBlock implements IFlushable {
         byte[] buffer = DataOutputX.toBytes5(value);
         int pos = _offset(time);
 
+        //increase count if new one
         if (DataInputX.toLong5(this.memBuffer, pos) == 0) {
             addCount(1);
         }

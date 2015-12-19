@@ -39,18 +39,18 @@ import scouter.util.IClose
 class IndexTimeFile(_path: String) extends IClose {
 
     protected var path = _path
-    protected var hashFile = new MemTimeBlock(_path);
+    protected var timeBlockHash = new MemTimeBlock(_path);
     protected var keyFile = new RealKeyFile(_path);
 
-    def put(time: Long, value: Array[Byte]): Long = {
-        if (time <= 0 || value == null) {
+    def put(time: Long, dataPos: Array[Byte]): Long = {
+        if (time <= 0 || dataPos == null) {
             throw new IOException("invalid key/value");
         }
-        var pos = hashFile.get(time);
-        pos = this.keyFile.append(pos, DataOutputX.toBytes(time), value);
-        this.hashFile.put(time, pos);
-        this.hashFile.addCount(1);
-        return pos;
+        var prevKeyPos = timeBlockHash.get(time);
+        var newKeyPos = this.keyFile.append(prevKeyPos, DataOutputX.toBytes(time), dataPos);
+        this.timeBlockHash.put(time, newKeyPos);
+        this.timeBlockHash.addCount(1);
+        return newKeyPos;
     }
 
     private def getSecAll(time: Long): ArrayList[TimeValue] = {
@@ -58,7 +58,7 @@ class IndexTimeFile(_path: String) extends IClose {
             throw new IOException("invalid key");
         }
         val map = new TreeSet[TimeValue]();
-        var pos = hashFile.get(time);
+        var pos = timeBlockHash.get(time);
         while (pos > 0) {
             if (this.keyFile.isDeleted(pos) == false) {
                 val m = this.keyFile.getRecord(pos);
@@ -83,7 +83,7 @@ class IndexTimeFile(_path: String) extends IClose {
             throw new IOException("invalid key");
         }
         this.synchronized {
-            var pos = hashFile.get(time);
+            var pos = timeBlockHash.get(time);
 
             var deleted = 0;
             while (pos > 0) {
@@ -93,8 +93,8 @@ class IndexTimeFile(_path: String) extends IClose {
                 }
                 pos = this.keyFile.getHashLink(pos);
             }
-            this.hashFile.put(time, 0);
-            this.hashFile.addCount(-deleted);
+            this.timeBlockHash.put(time, 0);
+            this.timeBlockHash.addCount(-deleted);
             return deleted;
         }
     }
@@ -196,7 +196,7 @@ class IndexTimeFile(_path: String) extends IClose {
     }
 
     override def close() {
-        hashFile.close();
+        timeBlockHash.close();
         keyFile.close();
     }
 
