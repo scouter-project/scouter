@@ -25,6 +25,12 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
+/**
+ * HashTable with entry expiration.
+ *  - it use only active expiration : delete entry when access expired data
+ * @param <K> Key type
+ * @param <V> Value type
+ */
 public class CacheTable<K, V> {
 	private static final int DEFAULT_CAPACITY = 101;
 	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
@@ -37,6 +43,10 @@ public class CacheTable<K, V> {
 	private float loadFactor;
 
 	private long defaultKeepTime = 0;
+
+	public CacheTable() {
+		this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
+	}
 
 	public CacheTable(int initCapacity, float loadFactor) {
 		if (initCapacity < 0)
@@ -53,10 +63,6 @@ public class CacheTable<K, V> {
 		this.header.link_next = header.link_prev = header;
 
 		threshold = (int) (initCapacity * loadFactor);
-	}
-
-	public CacheTable() {
-		this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
 	}
 
 	public int size() {

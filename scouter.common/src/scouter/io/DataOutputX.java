@@ -17,18 +17,12 @@
 
 package scouter.io;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
-
 import scouter.lang.pack.Pack;
 import scouter.lang.step.Step;
 import scouter.lang.value.NullValue;
 import scouter.lang.value.Value;
+
+import java.io.*;
 
 public class DataOutputX {
 	public final static int INT3_MIN_VALUE = 0xff800000;
@@ -124,12 +118,12 @@ public class DataOutputX {
 				write(value);
 			} else if (len <= 65535) {
 				byte[] buff = new byte[3];
-				buff[0] = (byte) 255;
+				buff[0] = (byte) 255; // 255 means value's length is more than 253 bytes.
 				write(toBytes(buff, 1, (short) len));
 				write(value);
 			} else {
 				byte[] buff = new byte[5];
-				buff[0] = (byte) 254;
+				buff[0] = (byte) 254; // 254 means value's length is more than 65535 bytes.
 				write(toBytes(buff, 1, len));
 				write(value);
 			}

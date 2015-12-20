@@ -41,7 +41,7 @@ public class MemTimeBlock implements IFlushable {
     protected final int capacity = 3600 * 24 * 2;
 
     /**
-     * how many data in the block
+     * how many data in the time block
      */
     private int count;
 
