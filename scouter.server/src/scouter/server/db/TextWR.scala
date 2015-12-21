@@ -18,14 +18,12 @@
 
 package scouter.server.db
 
-;
-
 import java.io.File
 import java.util.ArrayList
 
 import scouter.server.Logger
-import scouter.server.core.{CoreRun, ServerStat}
 import scouter.server.core.cache.TextCache
+import scouter.server.core.{CoreRun, ServerStat}
 import scouter.server.db.text.TextTable
 import scouter.server.util.{EnumerScala, ThreadScala}
 import scouter.util.{DateUtil, FileUtil, LinkedMap, RequestQueue}
@@ -55,12 +53,12 @@ object TextWR {
     ThreadScala.start("scouter.server.db.TextWR-2") {
         while (DBCtr.running) {
             closeIdle();
-            val m = queue.get(10000); //check 10 sec
+            val data = queue.get(10000); //check 10 sec
             ServerStat.put("text.db.queue", queue.size());
 
-            if (m != null) {
+            if (data != null) {
                 try {
-                    process(m);
+                    process(data);
                 } catch {
                     case t: Throwable => t.printStackTrace();
                 }
@@ -91,21 +89,21 @@ object TextWR {
         database.put(date, table);
     }
 
-    def process(m: Data) {
-        if (TextPermWR.isA(m.div)) {
+    def process(data: Data) {
+        if (TextPermWR.isA(data.div)) {
             //성능:중복입력을 막아야한다.
-            TextDupCheck.addDuplicated(m.div, m.textUnit);
-            TextPermWR.add(m.div, m.hash, m.text);
+            TextDupCheck.addDuplicated(data.div, data.textUnit);
+            TextPermWR.add(data.div, data.hash, data.text);
         } else {
-            val writingTable = open(m.date);
-            if (writingTable == null) {
+            val textTable = open(data.date);
+            if (textTable == null) {
                 queue.clear();
                 Logger.println("S139", 10, "can't open db");
             } else {
-                val ok = writingTable.hasKey(m.div, m.hash);
-                if (ok == false) {
-                    TextDupCheck.addDuplicated(m.div, m.textUnit);
-                    writingTable.set(m.div, m.hash, m.text.getBytes("UTF8"));
+                val ok = textTable.hasKey(data.div, data.hash);
+                if (!ok) {
+                    TextDupCheck.addDuplicated(data.div, data.textUnit);
+                    textTable.set(data.div, data.hash, data.text.getBytes("UTF8"));
                 }
             }
         }
@@ -125,6 +123,14 @@ object TextWR {
         }
     }
 
+    /**
+      * Text Data Type (date, div, hash, text, textUnit(date&hash))
+      * @param _date
+      * @param _div
+      * @param _hash
+      * @param _text
+      * @param _tu
+      */
     class Data(_date: String, _div: String, _hash: Int, _text: String, _tu: TextDupCheck.TextUnit) {
         val date = _date
         val div = _div
@@ -134,23 +140,23 @@ object TextWR {
     }
 
     def open(date: String): TextTable = {
-        var table = getTable(date)
-        if (table != null)
-            return table;
+        var textTable = getTable(date)
+        if (textTable != null)
+            return textTable;
         try {
             this.synchronized {
-                table = getTable(date)
-                if (table != null)
-                    return table;
+                textTable = getTable(date)
+                if (textTable != null)
+                    return textTable;
 
-                val path = getDBPath(date);
-                val f = new File(path);
+                val dbDirByDate = getDBPath(date);
+                val f = new File(dbDirByDate);
                 if (f.exists() == false)
                     f.mkdirs();
-                val file = path + "/text";
-                table = TextTable.open(file);
-                putTable(date, table);
-                return table;
+                val textFilePath = dbDirByDate + "/text";
+                textTable = TextTable.open(textFilePath);
+                putTable(date, textTable);
+                return textTable;
             }
         } catch {
             case e: Throwable =>

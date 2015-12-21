@@ -16,6 +16,7 @@ public class ParamTextTest {
         Map<Object, Object> args = new HashMap<Object, Object>();
         args.putAll(System.getenv());
         args.putAll(System.getProperties());
+        args.put("df","df-value");
 
         String text = new ParamText(StringUtil.trim("abc${df}df${df}xxx")).getText(args);
         System.out.println(text);

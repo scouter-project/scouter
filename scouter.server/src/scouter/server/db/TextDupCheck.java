@@ -17,14 +17,16 @@
 
 package scouter.server.db;
 
-import scouter.util.IntKeyMap;
 import scouter.util.LinkedSet;
 import scouter.util.StringKeyLinkedMap;
 
 public class TextDupCheck {
 
+	static StringKeyLinkedMap<LinkedSet<TextUnit>> dupcheck = new StringKeyLinkedMap<LinkedSet<TextUnit>>();
+
 	static class TextUnit {
 		int date;
+
 		int text;
 
 		public TextUnit(String datestr, int text) {
@@ -35,7 +37,6 @@ public class TextDupCheck {
 		public int hashCode() {
 			return date ^ text;
 		}
-
 		public boolean equals(Object obj) {
 			if (obj instanceof TextUnit) {
 				TextUnit other = (TextUnit) obj;
@@ -43,9 +44,8 @@ public class TextDupCheck {
 			}
 			return false;
 		}
-	}
 
-	static StringKeyLinkedMap<LinkedSet<TextUnit>> dupcheck = new StringKeyLinkedMap<LinkedSet<TextUnit>>();
+	}
 
 	static boolean isDuplicated(String div, TextUnit tu) {
 		LinkedSet<TextUnit> set = dupcheck.get(div);
