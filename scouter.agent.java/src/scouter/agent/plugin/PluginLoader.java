@@ -177,11 +177,11 @@ public class PluginLoader extends Thread {
 			bodyPrefix.append(METHOD_P2).append(" $req=$2;");
 			bodyPrefix.append(METHOD_P3).append(" $res=$3;");
 			method_start.setBody(
-					new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_START)).append("}").toString());
+					new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_START)).append("\n}").toString());
 			method_end.setBody(
-					new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_END)).append("}").toString());
+					new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_END)).append("\n}").toString());
 			method_reject.setBody(
-					new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_REJECT)).append("}").toString());
+					new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_REJECT)).append("\n}").toString());
 			Class c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractHttpService plugin = (AbstractHttpService) c.newInstance();
 			plugin.lastModified = script.lastModified();
@@ -280,13 +280,13 @@ public class PluginLoader extends Thread {
 			sb.append(START_P1).append(" $ctx=$1;");
 			sb.append(START_P2).append(" $hook=$2;");
 			sb.append(START_BODY);
-			sb.append("}");
+			sb.append("\n}");
 			method_start.setBody(sb.toString());
 			sb = new StringBuffer();
 			sb.append("{");
 			sb.append(END_P1).append(" $ctx=$1;");
 			sb.append(END_BODY);
-			sb.append("}");
+			sb.append("\n}");
 			method_end.setBody(sb.toString());
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractAppService plugin = (AbstractAppService) c.newInstance();
@@ -383,14 +383,14 @@ public class PluginLoader extends Thread {
 			sb.append(ARG_P1).append(" $ctx=$1;");
 			sb.append(ARG_P2).append(" $hook=$2;");
 			sb.append(ARG_BODY);
-			sb.append("}");
+			sb.append("\n}");
 			method_args.setBody(sb.toString());
 			sb = new StringBuffer();
 			sb.append("{");
 			sb.append(RTN_P1).append(" $ctx=$1;");
 			sb.append(RTN_P2).append(" $hook=$2;");
 			sb.append(RTN_BODY);
-			sb.append("}");
+			sb.append("\n}");
 			method_return.setBody(sb.toString());
 			sb = new StringBuffer();
 			sb.append("{");
@@ -399,7 +399,7 @@ public class PluginLoader extends Thread {
 			sb.append(THIS_P3).append(" $desc=$3;");
 			sb.append(THIS_P4).append(" $this=$4;");
 			sb.append(THIS_BODY);
-			sb.append("}");
+			sb.append("\n}");
 			method_this.setBody(sb.toString());
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractCapture plugin = (AbstractCapture) c.newInstance();
@@ -460,7 +460,7 @@ public class PluginLoader extends Thread {
 			sb.append(URL_P2).append(" $msg=$2;");
 			sb.append(URL_P3).append(" $pool=$3;");
 			sb.append(URL_BODY);
-			sb.append("}");
+			sb.append("\n}");
 			method.setBody(sb.toString());
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractJdbcPool plugin = (AbstractJdbcPool) c.newInstance();
@@ -520,7 +520,7 @@ public class PluginLoader extends Thread {
 			sb.append(CALL_P1).append(" $ctx=$1;");
 			sb.append(CALL_P2).append(" $req=$2;");
 			sb.append(CALL_BODY);
-			sb.append("}");
+			sb.append("\n}");
 			method.setBody(sb.toString());
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractHttpCall plugin = (AbstractHttpCall) c.newInstance();
