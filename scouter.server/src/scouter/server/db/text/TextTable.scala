@@ -18,31 +18,30 @@
 
 package scouter.server.db.text;
 
-import java.io.IOException
 import java.util.Hashtable
-import scouter.server.db.io.IndexKeyFile
+
 import scouter.io.DataOutputX
-import scouter.util.FileUtil
-import scouter.util.ICloseDB;
-import scouter.util.HashUtil
+import scouter.server.db.io.IndexKeyFile
+import scouter.util.{FileUtil, HashUtil, ICloseDB}
+
 object TextTable {
     val table = new Hashtable[String, TextTable]();
 
-    def open(file: String): TextTable = {
+    def open(filePath: String): TextTable = {
         table.synchronized {
-            var index = table.get(file);
-            if (index != null) {
-                index.refrence += 1;
-                return index;
+            var textTable = table.get(filePath);
+            if (textTable != null) {
+                textTable.refrence += 1;
+                return textTable;
             } else {
-                index = new TextTable(file);
-                table.put(file, index);
-                return index;
+                textTable = new TextTable(filePath);
+                table.put(filePath, textTable);
+                return textTable;
             }
         }
     }
-
 }
+
 class TextTable(_file: String) extends ICloseDB {
 
     val file = _file
@@ -96,5 +95,4 @@ class TextTable(_file: String) extends ICloseDB {
             }
         }
     }
-
 }

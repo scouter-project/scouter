@@ -15,31 +15,36 @@
  *  limitations under the License. 
  *
  */
-package scouter.server.core;
+package scouter.server.core
+
 import scouter.lang.TextTypes
 import scouter.lang.pack.TextPack
 import scouter.server.Logger
 import scouter.server.core.cache.TextCache
 import scouter.server.db.TextWR
-import scouter.util.DateUtil
-import scouter.util.RequestQueue
-import scouter.util.HashUtil;
 import scouter.server.util.ThreadScala
+import scouter.util.{DateUtil, RequestQueue}
+
+/**
+  * request queue of text data and dispatcher of the queue.
+  */
 object TextCore {
     val queue = new RequestQueue[TextPack](CoreRun.MAX_QUE_SIZE);
-    ThreadScala.startDaemon("scouter.server.core.TextCore", { CoreRun.running }) {
-        val m = queue.get();
-        ServerStat.put("text.core.queue",queue.size());
+
+    ThreadScala.startDaemon("scouter.server.core.TextCore", {CoreRun.running}) {
+        val pack = queue.get();
+        ServerStat.put("text.core.queue", queue.size());
         val yyyymmdd = DateUtil.yyyymmdd();
-        if (TextTypes.SQL.equals(m.xtype)) {
-            SqlTables.add(yyyymmdd, m.hash, m.text);
+        if (TextTypes.SQL.equals(pack.xtype)) {
+            SqlTables.add(yyyymmdd, pack.hash, pack.text);
         }
-        TextWR.add(yyyymmdd, m.xtype, m.hash, m.text);
+        TextWR.add(yyyymmdd, pack.xtype, pack.hash, pack.text);
     }
+
     def add(p: TextPack) {
         TextCache.put(p.xtype, p.hash, p.text);
         val ok = queue.put(p);
-        if (ok == false) {
+        if (!ok) {
             Logger.println("S115", 10, "queue exceeded!!");
         }
     }

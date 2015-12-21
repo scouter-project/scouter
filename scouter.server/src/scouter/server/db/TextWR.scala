@@ -16,38 +16,27 @@
  *
  */
 
-package scouter.server.db;
+package scouter.server.db
 
 import java.io.File
-import scouter.util.StringUtil
-import scouter.server.Logger
-import scouter.server.ShutdownManager
-import scouter.server.core.cache.TextCache
-import scouter.server.db.text.TextTable
-import scouter.util.FileUtil
-import scouter.util.RequestQueue
-import scouter.util.HashUtil
-import scouter.util.IClose
-import scouter.util.IShutdown
-import scouter.util.ThreadUtil
-import scouter.server.util.ThreadScala
-import scouter.util.LinkedMap
-import scouter.util.ICloseDB
-import scouter.util.DateUtil
 import java.util.ArrayList
-import scala.collection.mutable.ListBuffer
-import scouter.server.core.CoreRun
-import scouter.server.util.EnumerScala
-import scouter.server.core.ServerStat
+
+import scouter.server.Logger
+import scouter.server.core.cache.TextCache
+import scouter.server.core.{CoreRun, ServerStat}
+import scouter.server.db.text.TextTable
+import scouter.server.util.{EnumerScala, ThreadScala}
+import scouter.util.{DateUtil, FileUtil, LinkedMap, RequestQueue}
 
 object TextWR {
 
     protected val database = new LinkedMap[String, TextTable]();
-
     protected var idleConns = new ArrayList[String]();
 
+    val queue = new RequestQueue[Data](DBCtr.LARGE_MAX_QUE_SIZE);
+
     // executed every 10sec
-    ThreadScala.start("scouter.server.db.TextWR", { CoreRun.running }, 10000) {
+    ThreadScala.start("scouter.server.db.TextWR", {CoreRun.running}, 10000) {
         val now = System.currentTimeMillis();
         val en = database.keys();
         while (en.hasMoreElements()) {
@@ -60,12 +49,32 @@ object TextWR {
             }
         }
     }
+
+    ThreadScala.start("scouter.server.db.TextWR-2") {
+        while (DBCtr.running) {
+            closeIdle();
+            val data = queue.get(10000); //check 10 sec
+            ServerStat.put("text.db.queue", queue.size());
+
+            if (data != null) {
+                try {
+                    process(data);
+                } catch {
+                    case t: Throwable => t.printStackTrace();
+                }
+            }
+        }
+        close();
+    }
+
     protected def closeIdle() {
         if (idleConns.size() == 0)
-            return ;
+        return;
         val x = idleConns
         idleConns = new ArrayList[String]();
-        EnumerScala.foreach(x.iterator(), (id: String) => { FileUtil.close(database.remove(id)) })
+        EnumerScala.foreach(x.iterator(), (id: String) => {
+            FileUtil.close(database.remove(id))
+        })
     }
 
     protected def getTable(date: String): TextTable = {
@@ -80,44 +89,28 @@ object TextWR {
         database.put(date, table);
     }
 
-    val queue = new RequestQueue[Data](DBCtr.LARGE_MAX_QUE_SIZE);
-    ThreadScala.start("scouter.server.db.TextWR-2") {
-        while (DBCtr.running) {
-            closeIdle();
-            val m = queue.get(10000); //check 10 sec
-            ServerStat.put("text.db.queue",queue.size());
-            
-            if (m != null) {
-                try {
-                    process(m);
-                } catch {
-                    case t: Throwable => t.printStackTrace();
-                }
-            }
-        }
-        close();
-    }
-    def process(m: Data) {
-        if (TextPermWR.isA(m.div)) {
+    def process(data: Data) {
+        if (TextPermWR.isA(data.div)) {
             //성능:중복입력을 막아야한다.
-            TextDupCheck.addDuplicated(m.div, m.textUnit);
-            TextPermWR.add(m.div, m.hash, m.text);
+            TextDupCheck.addDuplicated(data.div, data.textUnit);
+            TextPermWR.add(data.div, data.hash, data.text);
         } else {
-            val writingTable = open(m.date);
-            if (writingTable == null) {
+            val textTable = open(data.date);
+            if (textTable == null) {
                 queue.clear();
                 Logger.println("S139", 10, "can't open db");
             } else {
-                val ok = writingTable.hasKey(m.div, m.hash);
-                if (ok == false) {
-                    TextDupCheck.addDuplicated(m.div, m.textUnit);
-                    writingTable.set(m.div, m.hash, m.text.getBytes("UTF8"));
+                val ok = textTable.hasKey(data.div, data.hash);
+                if (!ok) {
+                    TextDupCheck.addDuplicated(data.div, data.textUnit);
+                    textTable.set(data.div, data.hash, data.text.getBytes("UTF8"));
                 }
             }
         }
     }
+
     def add(date: String, div: String, hash: Int, text: String): Unit = {
-       
+
         TextCache.put(div, hash, text);
 
         val tu = new TextDupCheck.TextUnit(date, hash);
@@ -125,11 +118,19 @@ object TextWR {
             return;
 
         val ok = queue.put(new Data(date, div, hash, text, tu));
-        if (ok == false) {
+        if (!ok) {
             Logger.println("S140", 10, "queue exceeded!!");
         }
     }
 
+    /**
+      * Text Data Type (date, div, hash, text, textUnit(date&hash))
+      * @param _date
+      * @param _div
+      * @param _hash
+      * @param _text
+      * @param _tu
+      */
     class Data(_date: String, _div: String, _hash: Int, _text: String, _tu: TextDupCheck.TextUnit) {
         val date = _date
         val div = _div
@@ -139,23 +140,23 @@ object TextWR {
     }
 
     def open(date: String): TextTable = {
-        var table = getTable(date)
-        if (table != null)
-            return table;
+        var textTable = getTable(date)
+        if (textTable != null)
+            return textTable;
         try {
             this.synchronized {
-                table = getTable(date)
-                if (table != null)
-                    return table;
+                textTable = getTable(date)
+                if (textTable != null)
+                    return textTable;
 
-                val path = getDBPath(date);
-                val f = new File(path);
+                val dbDirByDate = getDBPath(date);
+                val f = new File(dbDirByDate);
                 if (f.exists() == false)
                     f.mkdirs();
-                val file = path + "/text";
-                table = TextTable.open(file);
-                putTable(date, table);
-                return table;
+                val textFilePath = dbDirByDate + "/text";
+                textTable = TextTable.open(textFilePath);
+                putTable(date, textTable);
+                return textTable;
             }
         } catch {
             case e: Throwable =>

@@ -1,0 +1,4 @@
+[url]
+// String url(WrContext $ctx, String $msg, Object $pool)
+
+return null;

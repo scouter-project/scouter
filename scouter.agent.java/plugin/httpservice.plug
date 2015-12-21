@@ -1,0 +1,12 @@
+[start]
+// void start(WrContext $ctx, WrRequest $req, WrResponse $res)
+
+
+
+[end]
+// void end(WrContext $ctx, WrRequest $req, WrResponse $res)
+
+
+[reject]
+// boolean reject(WrContext $ctx, WrRequest $req, WrResponse $res)
+return false;

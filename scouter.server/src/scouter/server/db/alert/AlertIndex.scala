@@ -52,11 +52,11 @@ class AlertIndex(file: String) extends IClose {
     var reference = 0;
     var timeIndex: IndexTimeFile = null
 
-    def add(time: Long, fpos: Long) {
+    def add(time: Long, dataPos: Long) {
         if (this.timeIndex == null) {
             this.timeIndex = new IndexTimeFile(file + POSTFIX_TIME);
         }
-        this.timeIndex.put(time, DataOutputX.toBytes5(fpos));
+        this.timeIndex.put(time, DataOutputX.toBytes5(dataPos));
     }
 
     def close() {

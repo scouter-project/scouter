@@ -35,28 +35,28 @@ import scouter.util.{CastUtil, DateUtil, HashUtil, RequestQueue}
 object PerfCountCore {
     var queue = new RequestQueue[PerfCounterPack](CoreRun.MAX_QUE_SIZE);
     ThreadScala.startDaemon("scouter.server.core.PerfCountCore", {CoreRun.running}) {
-        val p = queue.get();
-        val objHash = HashUtil.hash(p.objName);
+        val counterPack = queue.get();
+        val objHash = HashUtil.hash(counterPack.objName);
 
-        PlugInManager.counter(p);
+        PlugInManager.counter(counterPack);
 
-        if (p.timetype == TimeTypeEnum.REALTIME) {
-            RealtimeCounterWR.add(p);
-            EnumerScala.foreach(p.data.keySet().iterator(), (k: String) => {
-                val value = p.data.get(k);
-                val key = new CounterKey(objHash, k, p.timetype);
-                Auto5MSampling.add(key, value);
-                CounterCache.put(key, value);
-                AlertEngine.putRealTime(key, value); //experimental
+        if (counterPack.timetype == TimeTypeEnum.REALTIME) {
+            RealtimeCounterWR.add(counterPack);
+            EnumerScala.foreach(counterPack.data.keySet().iterator(), (k: String) => {
+                val value = counterPack.data.get(k);
+                val counterKey = new CounterKey(objHash, k, counterPack.timetype);
+                Auto5MSampling.add(counterKey, value);
+                CounterCache.put(counterKey, value);
+                AlertEngine.putRealTime(counterKey, value); //experimental
             })
         } else {
-            val yyyymmdd = CastUtil.cint(DateUtil.yyyymmdd(p.time));
-            val hhmm = CastUtil.cint(DateUtil.hhmm(p.time));
-            EnumerScala.foreach(p.data.keySet().iterator(), (k: String) => {
-                val value = p.data.get(k);
-                val key = new CounterKey(objHash, k, p.timetype);
-                DailyCounterWR.add(yyyymmdd, key, hhmm, value);
-                CounterCache.put(key, value);
+            val yyyymmdd = CastUtil.cint(DateUtil.yyyymmdd(counterPack.time));
+            val hhmm = CastUtil.cint(DateUtil.hhmm(counterPack.time));
+            EnumerScala.foreach(counterPack.data.keySet().iterator(), (k: String) => {
+                val value = counterPack.data.get(k);
+                val counterKey = new CounterKey(objHash, k, counterPack.timetype);
+                DailyCounterWR.add(yyyymmdd, counterKey, hhmm, value);
+                CounterCache.put(counterKey, value);
             })
         }
     }
@@ -68,8 +68,9 @@ object PerfCountCore {
         if (p.timetype == 0) {
             p.timetype = TimeTypeEnum.REALTIME;
         }
+
         val ok = queue.put(p);
-        if (ok == false) {
+        if (!ok) {
             Logger.println("S109", 10, "queue exceeded!!");
         }
     }

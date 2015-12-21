@@ -24,5 +24,5 @@ It is possible with the compressed archiving and  standalone clients.
 ## SCOUTER cumulatively analyzes the active thread-stacks.
 Sometimes it is not clear to understand the performance problem in a separate thread information.
 At that time,  we have to think about different way. If we collect full thread stacks in many times and  analyze the stacks together, we could get an another chance to solve the performance problem.
-(coming soon)
+("Stack Frequency Analyzer" Feature)
 

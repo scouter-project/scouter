@@ -29,28 +29,28 @@ object TextCache {
     val cache = new StringKeyLinkedMap[IntKeyLinkedMap[String]]();
 
     def put(div: String, hash: Int, text: String) {
-        val m = getMap(div);
-        if (m.containsKey(hash))
+        val map = getMap(div);
+        if (map.containsKey(hash))
             return ;
-        m.put(hash, text);
+        map.put(hash, text);
     }
 
     
     def get(div: String, hash: Int): String = {
-        val m = getMap(div);
-        return m.get(hash);
+        val map = getMap(div);
+        return map.get(hash);
     }
 
     private def getMap(div: String): IntKeyLinkedMap[String] = {
-        var m = cache.get(div);
-        if (m == null) {
+        var map = cache.get(div);
+        if (map == null) {
             if (TextTypes.SERVICE.equals(div)) {
-                m = new IntKeyLinkedMap().setMax(10000);
+                map = new IntKeyLinkedMap().setMax(10000);
             } else {
-                m = new IntKeyLinkedMap().setMax(1000);
+                map = new IntKeyLinkedMap().setMax(1000);
             }
-            cache.put(div, m);
+            cache.put(div, map);
         }
-        return m;
+        return map;
     }
 }

@@ -15,32 +15,34 @@
  *  limitations under the License. 
  *
  */
-package scouter.server.core;
-import net.sf.jsqlparser.JSQLParserException
+package scouter.server.core
+
+import java.io.StringReader
+
 import net.sf.jsqlparser.parser.CCJSqlParserManager
-import net.sf.jsqlparser.schema.Table
 import net.sf.jsqlparser.statement.delete.Delete
 import net.sf.jsqlparser.statement.insert.Insert
 import net.sf.jsqlparser.statement.select.Select
 import net.sf.jsqlparser.statement.update.Update
 import scouter.lang.TextTypes
-import scouter.server.Configure
-import scouter.server.Logger
 import scouter.server.core.sqltable.TableFinder
-import scouter.server.db.TextRD
-import scouter.server.db.TextWR
-import scouter.util.RequestQueue
-import scouter.util.IntLinkedSet
-import scouter.util.StringKeyLinkedMap
-import java.io.StringReader
+import scouter.server.db.{TextRD, TextWR}
 import scouter.server.util.ThreadScala
+import scouter.server.{Configure, Logger}
+import scouter.util.{IntLinkedSet, RequestQueue, StringKeyLinkedMap}
+
 object SqlTables {
     val MAX_Q1 = 500;
     val MAX_Q2 = 10000;
     val failSet = new IntLinkedSet().setMax(10000);
     val queue1 = new RequestQueue[Data](MAX_Q1);
     val queue2 = new RequestQueue[Data](MAX_Q2);
-    ThreadScala.startDaemon("scouter.server.core.SqlTables", { CoreRun.running }) {
+
+    val parsed = new StringKeyLinkedMap[IntLinkedSet]().setMax(2); //sqlHashSet by Date
+
+    ThreadScala.startDaemon("scouter.server.core.SqlTables", {
+        CoreRun.running
+    }) {
         if (queue1.size() > 0) {
             process(queue1.get());
         } else if (queue2.size() > 0) {
@@ -49,29 +51,31 @@ object SqlTables {
             process(queue1.get());
         }
     }
+
     class Data(_date: String, _sqlHash: Int, _sqlText: String) {
         val date = _date;
         val sqlHash = _sqlHash;
         var sqlText = _sqlText;
     }
+
     /*
 	 * 어느정도 서버에 부담을 줄지 알수 없다. 따라서 이문제를 해결하기 위해 parse 여부를 옵션 처리한다.
 	 */
     def add(date: String, sqlHash: Int, sqlText: String) {
         if (Configure.getInstance().sql_table_parsing_enabled == false)
-            return ;
+            return;
         val data = new Data(date, sqlHash, sqlText);
         var ok = queue1.put(data);
         if (ok) {
-            return ;
+            return;
         }
         data.sqlText = null;
         ok = queue2.put(data);
-        if (ok == false) {
+        if (!ok) {
             Logger.println("S111", 10, "queue exceeded!!");
         }
     }
-    val parsed = new StringKeyLinkedMap[IntLinkedSet]().setMax(2);
+
     def process(data: Data) {
         try {
             var sqlHashSet: IntLinkedSet = parsed.get(data.date);
@@ -79,18 +83,21 @@ object SqlTables {
                 sqlHashSet = new IntLinkedSet().setMax(10000);
                 parsed.put(data.date, sqlHashSet);
             }
-            if (sqlHashSet.contains(data.sqlHash))
-                return ;
+            if (sqlHashSet.contains(data.sqlHash)) {
+                return
+            }
+            if (failSet.contains(data.sqlHash)) {
+                return
+            }
             if (data.sqlText == null) {
                 data.sqlText = TextRD.getString(data.date, TextTypes.SQL, data.sqlHash);
             }
-            if (data.sqlText == null)
-                return ;
-            if (failSet.contains(data.sqlHash))
-                return ;
-            val sb = doAction(data.sqlText);
+            if (data.sqlText == null) {
+                return
+            }
+            val sbTables = parseTable(data.sqlText);
             sqlHashSet.put(data.sqlHash);
-            TextWR.add(data.date, TextTypes.SQL_TABLES, data.sqlHash, sb.toString());
+            TextWR.add(data.date, TextTypes.SQL_TABLES, data.sqlHash, sbTables.toString());
         } catch {
             case t: Throwable => {
                 failSet.put(data.sqlHash);
@@ -100,7 +107,8 @@ object SqlTables {
             }
         }
     }
-    def doAction(sqlText: String): String = {
+
+    def parseTable(sqlText: String): String = {
         val sb = new StringBuffer();
         val statement = new CCJSqlParserManager().parse(new StringReader(sqlText.replace('@', '0')));
         if (statement.isInstanceOf[Select]) {

@@ -1,0 +1,6 @@
+[start]
+// void start(WrContext $ctx, HookArgs $hook)
+
+
+[end]
+// void end(WrContext $ctx)

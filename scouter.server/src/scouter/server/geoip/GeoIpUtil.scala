@@ -38,6 +38,8 @@ object GeoIpUtil {
         var loc = locationCache.get(ipInt);
         if (loc == null) {
             loc = GISDataUtil.getGeoIPInfos(InetAddress.getByAddress(p.ipaddr));
+            if (loc == null)
+                return;
 
             if (StringUtil.isEmpty(loc.city)) {
                 loc.city = "unknown";
