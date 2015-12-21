@@ -20,7 +20,7 @@
 - [Build on Window](./main/Build-Scouter-Windows.md)
 
 ## How to use
-- [응답시간 분포도(XLog) 보는 방법](./Reading-XLog.md) 
+- [응답시간 분포도(XLog) 보는 방법](../client/Reading-XLog_kr.md)
 - [Console Mode로 시작하기](./server/Console-Mode-Running.md)
 - [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
 - [NON-HTTP 서비스 추적하기](./use-case/NON-HTTP-Service-Trace.md) 
