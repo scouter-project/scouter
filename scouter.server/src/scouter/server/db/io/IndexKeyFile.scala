@@ -57,9 +57,9 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
         }
 
         val keyHash = HashUtil.hash(key);
-        var pos = hashBlock.get(keyHash);
-        pos = this.keyFile.append(pos, key, value);
-        this.hashBlock.put(keyHash, pos);
+        var prevKeyPos = hashBlock.get(keyHash);
+        var newKeyPos = this.keyFile.append(prevKeyPos, key, value);
+        this.hashBlock.put(keyHash, newKeyPos);
         return true;
     }
 
@@ -106,7 +106,7 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
         val keyHash = HashUtil.hash(key);
         var pos = hashBlock.get(keyHash);
         while (pos > 0) {
-            if (this.keyFile.isDeleted(pos) == false) {
+            if (!this.keyFile.isDeleted(pos)) {
                 val okey = this.keyFile.getKey(pos);
                 if (CompareUtil.equals(okey, key)) {
                     return true;
