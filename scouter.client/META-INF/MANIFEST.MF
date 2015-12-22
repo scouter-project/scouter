@@ -4,7 +4,7 @@ Bundle-Name: Scouter
 Bundle-SymbolicName: scouter.client;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: scouter.client.Activator
-Bundle-Localization: localization
+Bundle-Localization: message/localization
 Bundle-Vendor: Scouter Project
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

@@ -1,5 +1,5 @@
 ## Javaagent Plugin
- - Default File Location : ${WAS_START_SCRIPT_DIR}/\_scouter\_
+ - Default File Location : ${WAS_START_SCRIPT_DIR}/plugin
  - Dynamic application
  - By java code
  - Plugin 종류

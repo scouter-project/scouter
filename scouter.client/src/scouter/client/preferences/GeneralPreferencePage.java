@@ -37,7 +37,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import scouter.Version;
 import scouter.client.Activator;
 import scouter.client.Images;
-import scouter.client.M;
+import scouter.client.message.M;
 import scouter.client.server.ServerManager;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.RCPUtil;

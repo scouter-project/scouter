@@ -33,7 +33,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import scouter.client.Activator;
-import scouter.client.M;
+import scouter.client.message.M;
 import scouter.client.model.TextProxy;
 import scouter.client.util.UIUtil;
 import scouter.util.CastUtil;
@@ -62,7 +62,7 @@ public class CachingPreferencePage extends FieldEditorPreferencePage implements 
 		((GridLayout)parent.getLayout()).marginBottom = 30;
 		
 		Group layoutGroup = new Group(parent, SWT.NONE);
-	    layoutGroup.setText("Text Cache Size Setting");
+	    layoutGroup.setText(M.PREFERENCE_TEXT_CACHE_SIZE_SETTING);
 	    
 		layoutGroup.setLayout(UIUtil.formLayout(5, 5));
 		gdata = new GridData();
@@ -71,99 +71,99 @@ public class CachingPreferencePage extends FieldEditorPreferencePage implements 
 	    
 		
 		Label serviceLbl = new Label(layoutGroup, SWT.NONE);
-		serviceLbl.setText("Service Text Cache :");
+		serviceLbl.setText(M.PREFERENCE_TEXT_CACHE_SERVICE);
 		serviceLbl.setLayoutData(UIUtil.formData(null, -1, 0, 10, null, -1, null, -1, 160));
 		
 		service = new Text(layoutGroup, SWT.BORDER);
-		service.setText(""+serviceCache);
+		service.setText(""+serviceCache); //$NON-NLS-1$
 		service.setLayoutData(UIUtil.formData(serviceLbl, 10, 0, 8, 100, -5, null, -1));
 		service.addFocusListener(listener);
 		
 		
 		Label sqlLbl = new Label(layoutGroup, SWT.NONE);
-		sqlLbl.setText("Sql Text Cache :");
+		sqlLbl.setText(M.PREFERENCE_TEXT_CACHE_SQL);
 		sqlLbl.setLayoutData(UIUtil.formData(null, -1, serviceLbl, 10, null, -1, null, -1, 160));
 		
 		sql = new Text(layoutGroup, SWT.BORDER);
-		sql.setText(""+sqlCache);
+		sql.setText(""+sqlCache); //$NON-NLS-1$
 		sql.setLayoutData(UIUtil.formData(sqlLbl, 10, serviceLbl, 8, 100, -5, null, -1));
 		sql.addFocusListener(listener);
 		
 		
 		Label methodLbl = new Label(layoutGroup, SWT.NONE);
-		methodLbl.setText("Method Text Cache :");
+		methodLbl.setText(M.PREFERENCE_TEXT_CACHE_METHOD);
 		methodLbl.setLayoutData(UIUtil.formData(null, -1, sqlLbl, 10, null, -1, null, -1, 160));
 		
 		method = new Text(layoutGroup, SWT.BORDER);
-		method.setText(""+methodCache);
+		method.setText(""+methodCache); //$NON-NLS-1$
 		method.setLayoutData(UIUtil.formData(methodLbl, 10, sqlLbl, 8, 100, -5, null, -1));
 		method.addFocusListener(listener);
 		
 		
 		Label errorLbl = new Label(layoutGroup, SWT.NONE);
-		errorLbl.setText("Error Text Cache :");
+		errorLbl.setText(M.PREFERENCE_TEXT_CACHE_ERROR);
 		errorLbl.setLayoutData(UIUtil.formData(null, -1, methodLbl, 10, null, -1, null, -1, 160));
 		
 		error = new Text(layoutGroup, SWT.BORDER);
-		error.setText(""+errorCache);
+		error.setText(""+errorCache); //$NON-NLS-1$
 		error.setLayoutData(UIUtil.formData(errorLbl, 10, methodLbl, 8, 100, -5, null, -1));
 		error.addFocusListener(listener);
 		
 		
 		Label subcallLbl = new Label(layoutGroup, SWT.NONE);
-		subcallLbl.setText("Subcall Text Cache :");
+		subcallLbl.setText(M.PREFERENCE_TEXT_CACHE_APICALL);
 		subcallLbl.setLayoutData(UIUtil.formData(null, -1, errorLbl, 10, null, -1, null, -1, 160));
 		
 		subcall = new Text(layoutGroup, SWT.BORDER);
-		subcall.setText(""+subcallCache);
+		subcall.setText(""+subcallCache); //$NON-NLS-1$
 		subcall.setLayoutData(UIUtil.formData(subcallLbl, 10, errorLbl, 8, 100, -5, null, -1));
 		subcall.addFocusListener(listener);
 		
 		
 		Label objectLbl = new Label(layoutGroup, SWT.NONE);
-		objectLbl.setText("Object Text Cache :");
+		objectLbl.setText(M.PREFERENCE_TEXT_CACHE_OBJECT);
 		objectLbl.setLayoutData(UIUtil.formData(null, -1, subcallLbl, 10, null, -1, null, -1, 160));
 		
 		object = new Text(layoutGroup, SWT.BORDER);
-		object.setText(""+objectCache);
+		object.setText(""+objectCache); //$NON-NLS-1$
 		object.setLayoutData(UIUtil.formData(objectLbl, 10, subcallLbl, 8, 100, -5, null, -1));
 		object.addFocusListener(listener);
 		
 		
 		Label refererLbl = new Label(layoutGroup, SWT.NONE);
-		refererLbl.setText("Referer Text Cache :");
+		refererLbl.setText(M.PREFERENCE_TEXT_CACHE_REFERER);
 		refererLbl.setLayoutData(UIUtil.formData(null, -1, objectLbl, 10, null, -1, null, -1, 160));
 		
 		referer = new Text(layoutGroup, SWT.BORDER);
-		referer.setText(""+refererCache);
+		referer.setText(""+refererCache); //$NON-NLS-1$
 		referer.setLayoutData(UIUtil.formData(refererLbl, 10, objectLbl, 8, 100, -5, null, -1));
 		referer.addFocusListener(listener);
 		
 		
 		Label userAgentLbl = new Label(layoutGroup, SWT.NONE);
-		userAgentLbl.setText("User Agent Text Cache :");
+		userAgentLbl.setText(M.PREFERENCE_TEXT_CACHE_USERAGENT);
 		userAgentLbl.setLayoutData(UIUtil.formData(null, -1, refererLbl, 10, null, -1, null, -1, 160));
 		
 		userAgent = new Text(layoutGroup, SWT.BORDER);
-		userAgent.setText(""+userAgentCache);
+		userAgent.setText(""+userAgentCache); //$NON-NLS-1$
 		userAgent.setLayoutData(UIUtil.formData(userAgentLbl, 10, refererLbl, 8, 100, -5, null, -1));
 		userAgent.addFocusListener(listener);
 		
 		Label groupLbl = new Label(layoutGroup, SWT.NONE);
-		groupLbl.setText("Service Group Text Cache :");
+		groupLbl.setText(M.PREFERENCE_TEXT_CACHE_SERVICEGROUP);
 		groupLbl.setLayoutData(UIUtil.formData(null, -1, userAgentLbl, 10, null, -1, null, -1, 160));
 		
 		group = new Text(layoutGroup, SWT.BORDER);
-		group.setText(""+groupCache);
+		group.setText(""+groupCache); //$NON-NLS-1$
 		group.setLayoutData(UIUtil.formData(groupLbl, 10, userAgentLbl, 8, 100, -5, null, -1));
 		group.addFocusListener(listener);
 		
 		Label sqlTableLbl = new Label(layoutGroup, SWT.NONE);
-		sqlTableLbl.setText("SQL Tables Text Cache :");
+		sqlTableLbl.setText(M.PREFERENCE_TEXT_CACHE_SQLTABLE);
 		sqlTableLbl.setLayoutData(UIUtil.formData(null, -1, groupLbl, 10, null, -1, null, -1, 160));
 		
 		sql_tables = new Text(layoutGroup, SWT.BORDER);
-		sql_tables.setText(""+sqlTablesCache);
+		sql_tables.setText(""+sqlTablesCache); //$NON-NLS-1$
 		sql_tables.setLayoutData(UIUtil.formData(sqlTableLbl, 10, groupLbl, 8, 100, -5, null, -1));
 		sql_tables.addFocusListener(listener);
 		

@@ -122,7 +122,6 @@ public class AlertView extends ViewPart implements IAlertListener {
 			}
 		});
 		
-		this.setPartName("Alert");
 		proxyThread.addAlertListener(this);
 	}
 
