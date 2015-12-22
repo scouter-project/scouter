@@ -16,6 +16,17 @@
  */
 package scouter.agent;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.conf.ConfObserver;
@@ -24,10 +35,16 @@ import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.*;
-
-import java.io.*;
-import java.util.*;
+import scouter.util.DateUtil;
+import scouter.util.FileUtil;
+import scouter.util.HashUtil;
+import scouter.util.StringEnumer;
+import scouter.util.StringKeyLinkedMap;
+import scouter.util.StringSet;
+import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.SystemUtil;
+import scouter.util.ThreadUtil;
 public class Configure extends Thread {
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
@@ -110,9 +127,9 @@ public class Configure extends Thread {
 	public int _trace_fullstack_socket_open_port = 0;
 
 	//Manager
-	public File mgr_plugin_dir = new File("./_scouter_");
+	public File mgr_plugin_dir = new File("./plugin");
 	public File mgr_dump_dir = new File(".");
-	public File mgr_agent_lib_dir = new File("./_scouter_");
+	//public File mgr_agent_lib_dir = new File("./_scouter_");
 	public String mgr_static_content_extensions = "js, htm, html, gif, png, jpg, css";
 	public String mgr_log_ignore_ids = "";
 
@@ -307,12 +324,12 @@ public class Configure extends Thread {
 			this.mgr_dump_dir.mkdirs();
 		} catch (Exception e) {
 		}
-		this.mgr_agent_lib_dir = new File(getValue("mgr_agent_lib_dir", "./_scouter_"));
-		try {
-			this.mgr_agent_lib_dir.mkdirs();
-		} catch (Exception e) {
-		}
-		this.mgr_plugin_dir = new File(getValue("mgr_plugin_dir", "./_scouter_"));
+//		this.mgr_agent_lib_dir = new File(getValue("mgr_agent_lib_dir", "./_scouter_"));
+//		try {
+//			this.mgr_agent_lib_dir.mkdirs();
+//		} catch (Exception e) {
+//		}
+		this.mgr_plugin_dir = new File(getValue("mgr_plugin_dir", "./plugin"));
 		
 		this.autodump_enabled = getBoolean("autodump_enabled", false);
 		this.autodump_trigger_active_service_cnt = getInt("autodump_trigger_active_service_cnt", 10000);
