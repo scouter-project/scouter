@@ -17,69 +17,195 @@
 
 package scouter.util.logo;
 
+import scouter.Version;
+import scouter.util.DateUtil;
+import scouter.util.FileUtil;
+import scouter.util.ParamText;
+import scouter.util.StringUtil;
+
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-
-import scouter.Version;
-import scouter.util.FileUtil;
-import scouter.util.ParamText;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class Logo {
-	public static void print() {
-		print(false);
-	}
-	public static void print(boolean server) {
-		InputStream in = null;
-		try {
-			String scouter_logo = System.getProperty("scouter.logo","scouter.logo");
-			in = Logo.class.getResourceAsStream(scouter_logo);
-			if (in == null)
-				return;
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-			String line = reader.readLine();
-			while (line != null) {
-				if(server){
-					System.out.println(new ParamText(line).getText(Version.getServerFullVersion()));
-				}else{
-					System.out.println(new ParamText(line).getText(Version.getAgentFullVersion()));
-				}
-				line = reader.readLine();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			FileUtil.close(in);
-		}
-	}
-	public static void print(PrintWriter w,boolean server) {
-		InputStream in = null;
-		try {
-			String scouter_logo = System.getProperty("scouter.logo","scouter.logo");
-			in = Logo.class.getResourceAsStream(scouter_logo);
-			if (in == null)
-				return;
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-			String line = reader.readLine();
-			while (line != null) {
-				if(server){
-					w.println(new ParamText(line).getText(Version.getServerFullVersion()));
-				}else{
-					w.println(new ParamText(line).getText(Version.getAgentFullVersion()));
-				}
-				line = reader.readLine();
-			}
-			w.flush();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			FileUtil.close(in);
-		}
-	}
+    public static void print() {
+        print(false);
+    }
 
-	public static void main(String[] args) throws IOException {
-		print();
-	}
+    public static void print(boolean server) {
+        if (server) {
+            printDLogo();
+        }
+
+        InputStream in = null;
+        try {
+            String scouter_logo = System.getProperty("scouter.logo", "scouter.logo");
+            in = Logo.class.getResourceAsStream(scouter_logo);
+            if (in == null)
+                return;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            String line = reader.readLine();
+            while (line != null) {
+                if (server) {
+                    System.out.println(new ParamText(line).getText(Version.getServerFullVersion()));
+                } else {
+                    System.out.println(new ParamText(line).getText(Version.getAgentFullVersion()));
+                }
+                line = reader.readLine();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            FileUtil.close(in);
+        }
+    }
+
+    public static void print(PrintWriter w, boolean server) {
+        InputStream in = null;
+        try {
+            String scouter_logo = System.getProperty("scouter.logo", "scouter.logo");
+            in = Logo.class.getResourceAsStream(scouter_logo);
+            if (in == null)
+                return;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            String line = reader.readLine();
+            while (line != null) {
+                if (server) {
+                    w.println(new ParamText(line).getText(Version.getServerFullVersion()));
+                } else {
+                    w.println(new ParamText(line).getText(Version.getAgentFullVersion()));
+                }
+                line = reader.readLine();
+            }
+            w.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            FileUtil.close(in);
+        }
+    }
+
+    private static void printDLogo() {
+        final String keyFlag = "!@#$logo!@#$";
+        final int flagLength = keyFlag.length();
+        final String delim = ",";
+
+        class LogoData {
+            String key;
+            String contents;
+
+            @Override
+            public String toString() {
+                return "LogoData{" +
+                        "key='" + key + '\'' +
+                        ", contents='" + contents + '\'' +
+                        '}';
+            }
+        }
+
+        List<LogoData> arr = new ArrayList<LogoData>();
+
+        InputStream in = null;
+        try {
+            in = Logo.class.getResourceAsStream("/scouter/util/logo/scouter-day.logo");
+            if (in == null)
+                return;
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            String line;
+            boolean init = false;
+            StringBuilder sb = null;
+            LogoData logoData = null;
+            while ((line = reader.readLine()) != null) {
+                int flagPos = line.indexOf(keyFlag);
+                if (flagPos >= 0) {
+                    String key = line.substring(flagPos + flagLength);
+                    if (init) {
+                        logoData.contents = sb.toString();
+                    }
+
+                    logoData = new LogoData();
+                    logoData.key = key;
+                    arr.add(logoData);
+                    sb = new StringBuilder(200);
+                    init = true;
+                } else {
+                    if (init) {
+                        sb.append(line).append(System.getProperty("line.separator"));
+                    }
+                }
+                //System.out.println(line);
+            }
+            if (logoData != null) {
+                logoData.contents = sb.toString();
+            }
+
+            List<LogoData> arrTodayLogo = new ArrayList();
+            for (int i = arr.size(); i > 0; i--) {
+                String[] dateFlags = StringUtil.tokenizer(arr.get(i - 1).key, delim);
+                int len = dateFlags.length;
+                if (len != 3) {
+                    continue;
+                }
+                String yymmdd = DateUtil.yyyymmdd();
+                String yy = yymmdd.substring(0, 4);
+                String mm = yymmdd.substring(4, 6);
+                String dd = yymmdd.substring(6);
+
+                if (match(yy, dateFlags[0]) && match(mm, dateFlags[1]) && match(dd, dateFlags[2])) {
+                    arrTodayLogo.add(arr.get(i - 1));
+                }
+            }
+
+            int todayLogoCount = arrTodayLogo.size();
+            if (todayLogoCount > 0) {
+                int pos;
+                if (todayLogoCount == 1) {
+                    pos = 0;
+                } else {
+                    Random r = new Random(System.currentTimeMillis());
+                    pos = r.nextInt(todayLogoCount);
+                    //pos = r.nextDouble()
+                }
+
+                String todayLogo = arrTodayLogo.get(pos).contents;
+                System.out.println(todayLogo);
+                System.out.println();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            FileUtil.close(in);
+        }
+    }
+
+    private static boolean match(String dateString, String input) {
+        if ("*".equals(input)) {
+            return true;
+        }
+        if (dateString.equals(input)) {
+            return true;
+        }
+        if (input.indexOf('-') >= 0) {
+            String[] digit = StringUtil.tokenizer(input, "-");
+            if (digit.length != 2) {
+                return false;
+            }
+            int idata = Integer.parseInt(dateString);
+            if (idata >= Integer.parseInt(digit[0]) && idata <= Integer.parseInt(digit[1])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        printDLogo();
+
+    }
 }
