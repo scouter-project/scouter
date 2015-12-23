@@ -37,7 +37,8 @@ public class ValueEnum {
 	public final static byte ARRAY_INT = 71;
 	public final static byte ARRAY_FLOAT = 72;
 	public final static byte ARRAY_TEXT = 73;
-
+	public final static byte ARRAY_LONG = 74;
+	
 	public final static byte MAP = 80;
 	
 	public static Value create(byte code) {
@@ -79,6 +80,8 @@ public class ValueEnum {
 			return new FloatArray();
 		case ARRAY_TEXT:
 			return new TextArray();
+		case ARRAY_LONG:
+			return new LongArray();
 
 			
 		default:
