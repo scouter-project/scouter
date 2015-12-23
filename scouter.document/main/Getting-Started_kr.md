@@ -4,8 +4,9 @@
 Scouter는 Tocmat, MariaDB, Linux등의 OSS에 대한 성능을 모니터링하는 툴이다.
 먼저 Scouter를 처음 사용하는 사람들을 위해 간단한 설치와 기본적인 사용법에대해서 설명한다.
 
-## 모니터링 대상 셋팅하기
-Scouter가 모니터링 하기 위해 기본적인 환경을 만들겠다.
+## 1. 모니터링 할 샘플 웹 시스템 설치하기
+모니터링 할 Tomcat이 이미 있다면 2.SCOUTER 설치하기를 바로 진행하면 된다.
+여기서는 먼저 Scouter가 모니터링 하기 위해 기본적인 환경을 만든다.
 JDK와 톰켓을 설치한다.
 OS환경은 윈도우32를 가정하다 다른 OS라면 일반적인 패스와 기동쉘등을 고려하여 수정해주면 된다. 만약 톰켓 설치에 익숙하다면 이번 내용을 스킵해도 된다.
 
@@ -126,7 +127,7 @@ System JRE version : 1.7.0_67
 
 위와 같은 실행모습을 볼 수 있다.
 
-## Client 설치 및 실
+## Client 설치 및 실행
 클라이언트는 Eclipse RCP로 개발되어있다. 따라서 각 OS에 맞는 버전을 다운받아 설치하면된다.
 여기서는 Windows 32bit 용 파일을 다운받는다.
 https://github.com/scouter-project/scouter/releases/download/v0.4.0/scouter.client.product-win32.win32.x86.zip
