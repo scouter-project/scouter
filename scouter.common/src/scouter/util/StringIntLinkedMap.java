@@ -56,6 +56,11 @@ public class StringIntLinkedMap {
 		this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
 	}
 
+	private int NONE=0;
+	public StringIntLinkedMap setNullValue(int none){
+		this.NONE=none;
+		return this;
+	}
 	public int size() {
 		return count;
 	}
@@ -106,7 +111,7 @@ public class StringIntLinkedMap {
 
 	public synchronized int get(String key) {
 		if (key == null)
-			return 0;
+			return NONE;
 
 		ENTRY tab[] = table;
 		int index = hash(key) % tab.length;
@@ -115,18 +120,18 @@ public class StringIntLinkedMap {
 				return e.value;
 			}
 		}
-		return 0;
+		return NONE;
 	}
 
 	public synchronized int getFirsValue() {
 		if (isEmpty())
-			return 0;
+			return NONE;
 		return this.header.link_next.value;
 	}
 
 	public synchronized int getLastValue() {
 		if (isEmpty())
-			return 0;
+			return NONE;
 		return this.header.link_prev.value;
 	}
 
@@ -183,7 +188,7 @@ public class StringIntLinkedMap {
 
 	private synchronized int _put(String key, int value, MODE m) {
 		if (key == null)
-			return 0;
+			return NONE;
 
 		ENTRY tab[] = table;
 		int index = hash(key) % tab.length;
@@ -247,12 +252,12 @@ public class StringIntLinkedMap {
 		}
 
 		count++;
-		return 0;
+		return NONE;
 	}
 
 	public synchronized int remove(String key) {
 		if (key == null)
-			return 0;
+			return NONE;
 		ENTRY tab[] = table;
 		int index = hash(key) % tab.length;
 		for (ENTRY e = tab[index], prev = null; e != null; prev = e, e = e.next) {
@@ -271,18 +276,18 @@ public class StringIntLinkedMap {
 				return oldValue;
 			}
 		}
-		return 0;
+		return NONE;
 	}
 
 	public synchronized int removeFirst() {
 		if (isEmpty())
-			return 0;
+			return NONE;
 		return remove(header.link_next.key);
 	}
 
 	public synchronized int removeLast() {
 		if (isEmpty())
-			return 0;
+			return NONE;
 		return remove(header.link_prev.key);
 	}
 
@@ -442,14 +447,6 @@ public class StringIntLinkedMap {
 		e.link_next.link_prev = e.link_prev;
 		e.link_prev = null;
 		e.link_next = null;
-	}
-
-	public static void main(String[] args) {
-
-	}
-
-	private static void print(Object e) {
-		System.out.println(e);
 	}
 
 }

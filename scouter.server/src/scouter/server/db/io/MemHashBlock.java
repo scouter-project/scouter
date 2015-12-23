@@ -17,15 +17,15 @@
 
 package scouter.server.db.io;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.io.FlushCtr;
 import scouter.io.IFlushable;
 import scouter.util.FileUtil;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class MemHashBlock implements IFlushable {
 	private final static int _countPos = 4;
@@ -82,8 +82,8 @@ public class MemHashBlock implements IFlushable {
 	}
 
 	private int _offset(int keyHash) {
-		int hash = (keyHash & Integer.MAX_VALUE) % capacity;
-		return _keyLength * hash + _memHeadReserved;
+		int bucketPos = (keyHash & Integer.MAX_VALUE) % capacity;
+		return _keyLength * bucketPos + _memHeadReserved;
 	}
 
 	public synchronized long get(int keyHash) throws IOException {

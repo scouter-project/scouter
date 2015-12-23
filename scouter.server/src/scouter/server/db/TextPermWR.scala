@@ -50,8 +50,8 @@ object TextPermWR {
         } else {
           val ok = indexDb.hasKey(data.hash);
           if (ok == false) {
-            val pos = dataDb.write(data.text.getBytes("UTF8"));
-            indexDb.set(data.hash, pos);
+            val dataPos = dataDb.write(data.text.getBytes("UTF8"));
+            indexDb.set(data.hash, dataPos);
           }
         }
       } catch {

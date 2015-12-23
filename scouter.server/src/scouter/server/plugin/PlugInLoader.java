@@ -16,29 +16,21 @@
  *
  */
 package scouter.server.plugin;
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Properties;
+
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
-import scouter.lang.pack.AlertPack;
-import scouter.lang.pack.ObjectPack;
-import scouter.lang.pack.PerfCounterPack;
-import scouter.lang.pack.SummaryPack;
-import scouter.lang.pack.XLogPack;
-import scouter.lang.pack.XLogProfilePack;
+import scouter.lang.pack.*;
 import scouter.server.Configure;
 import scouter.server.Logger;
-import scouter.util.BitUtil;
-import scouter.util.CastUtil;
-import scouter.util.FileUtil;
-import scouter.util.HashUtil;
-import scouter.util.LongSet;
-import scouter.util.StringUtil;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
+
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Properties;
+
 public class PlugInLoader extends Thread {
 	private static PlugInLoader instance;
 	public synchronized static PlugInLoader getInstance() {
@@ -165,6 +157,8 @@ public class PlugInLoader extends Thread {
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			IPlugIn plugin = (IPlugIn) c.newInstance();
 			plugin.lastModified = file.lastModified();
+			Logger.println("PLUG-IN : " + superClass.getName() + " loaded #"
+					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (javassist.CannotCompileException ee) {
 			compileErrorFiles.add(fileSignature);

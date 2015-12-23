@@ -55,7 +55,11 @@ public class StringLongLinkedMap  {
 	public StringLongLinkedMap() {
 		this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
 	}
-
+	private long NONE=0;
+	public StringLongLinkedMap setNullValue(long none){
+		this.NONE=none;
+		return this;
+	}
 	public int size() {
 		return count;
 	}
@@ -105,7 +109,7 @@ public class StringLongLinkedMap  {
 
 	public synchronized long get(String key) {
 		if(key==null)
-			return 0;
+			return NONE;
 		
 		ENTRY tab[] = table;
 		int index = hash(key) % tab.length;
@@ -114,18 +118,18 @@ public class StringLongLinkedMap  {
 				return e.value;
 			}
 		}
-		return 0;
+		return NONE;
 	}
 
 	public synchronized long getFirsValue() {
 		if (isEmpty())
-			return 0;
+			return NONE;
 		return this.header.link_next.value;
 	}
 
 	public synchronized long getLastValue() {
 		if (isEmpty())
-			return 0;
+			return NONE;
 		return this.header.link_prev.value;
 	}
 
@@ -181,7 +185,7 @@ public class StringLongLinkedMap  {
 
 	private synchronized long _put(String key, long value, MODE m) {
 		if(key==null)
-			return 0;
+			return NONE;
 		
 		ENTRY tab[] = table;
 		int index = hash(key) % tab.length;
@@ -245,12 +249,12 @@ public class StringLongLinkedMap  {
 		}
 
 		count++;
-		return 0;
+		return NONE;
 	}
 
 	public synchronized long remove(String key) {
 		if(key==null)
-			return 0;
+			return NONE;
 		ENTRY tab[] = table;
 		int index = hash(key) % tab.length;
 		for (ENTRY e = tab[index], prev = null; e != null; prev = e, e = e.next) {
@@ -262,25 +266,25 @@ public class StringLongLinkedMap  {
 				}
 				count--;
 				long oldValue = e.value;
-				e.value = 0;
+				e.value = NONE;
 				//
 				unchain(e);
 
 				return oldValue;
 			}
 		}
-		return 0;
+		return NONE;
 	}
 
 	public synchronized long removeFirst() {
 		if (isEmpty())
-			return 0;
+			return NONE;
 		return remove(header.link_next.key);
 	}
 
 	public synchronized long removeLast() {
 		if (isEmpty())
-			return 0;
+			return NONE;
 		return remove(header.link_prev.key);
 	}
 

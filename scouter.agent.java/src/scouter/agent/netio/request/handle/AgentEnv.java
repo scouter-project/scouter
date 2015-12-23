@@ -89,7 +89,7 @@ public class AgentEnv {
 		ListValue nameLv = result.newList("name");
 		ListValue sizeLv = result.newList("size");
 		ListValue lastModifedLv = result.newList("last_modified");
-		File dumpDir = Configure.getInstance().mgr_dump_dir;
+		File dumpDir = Configure.getInstance().dump_dir;
 		if (dumpDir.canRead()) {
 			for (File file : dumpDir.listFiles()) {
 				if (file.isFile() && file.getName().startsWith("scouter.") && file.getName().endsWith(".dump")) {
@@ -106,7 +106,7 @@ public class AgentEnv {
 	public Pack getDumpFileDetail(Pack param, DataInputX in, DataOutputX out) {
 		MapPack p = (MapPack) param;
 		String name = p.getText("name");
-		File dumpDir = Configure.getInstance().mgr_dump_dir;
+		File dumpDir = Configure.getInstance().dump_dir;
 		File dumpFile = new File(dumpDir, name);
 		if (dumpFile.canRead()) {
 			try {

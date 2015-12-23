@@ -19,13 +19,9 @@
 package scouter.server.core;
 
 import scouter.io.DataOutputX
-import scouter.lang.pack.XLogPack
-import scouter.lang.pack.XLogTypes
-import scouter.server.Configure
-import scouter.server.Logger
-import scouter.server.core.app.XLogGroupPerf
-import scouter.server.core.app.XLogGroupPerf
-import scouter.server.core.app.XLogGroupUtil
+import scouter.lang.pack.{XLogPack, XLogTypes}
+import scouter.server.{Configure, Logger}
+import scouter.server.core.app.{XLogGroupPerf, XLogGroupUtil}
 import scouter.server.core.cache.XLogCache
 import scouter.server.db.XLogWR
 import scouter.server.geoip.GeoIpUtil
