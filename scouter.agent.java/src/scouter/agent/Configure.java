@@ -126,10 +126,12 @@ public class Configure extends Thread {
 	public String trace_webserver_time_header_key = "X-Forwarded-Time";
 	public int _trace_fullstack_socket_open_port = 0;
 
-	//Manager
-	public File mgr_plugin_dir = new File("./plugin");
-	public File mgr_dump_dir = new File(".");
+	//Dir
+	public File plugin_dir = new File("./plugin");
+	public File dump_dir = new File(".");
 	//public File mgr_agent_lib_dir = new File("./_scouter_");
+
+	//Manager
 	public String mgr_static_content_extensions = "js, htm, html, gif, png, jpg, css";
 	public String mgr_log_ignore_ids = "";
 
@@ -319,9 +321,9 @@ public class Configure extends Thread {
 		this.trace_service_name_header_key = getValue("trace_service_name_header_key", null);
 		this.trace_service_name_get_key = getValue("trace_service_name_get_key");
 		this.trace_service_name_post_key = getValue("trace_service_name_post_key");
-		this.mgr_dump_dir = new File(getValue("mgr_dump_dir", "."));
+		this.dump_dir = new File(getValue("dump_dir", "."));
 		try {
-			this.mgr_dump_dir.mkdirs();
+			this.dump_dir.mkdirs();
 		} catch (Exception e) {
 		}
 //		this.mgr_agent_lib_dir = new File(getValue("mgr_agent_lib_dir", "./_scouter_"));
@@ -329,7 +331,7 @@ public class Configure extends Thread {
 //			this.mgr_agent_lib_dir.mkdirs();
 //		} catch (Exception e) {
 //		}
-		this.mgr_plugin_dir = new File(getValue("mgr_plugin_dir", "./plugin"));
+		this.plugin_dir = new File(getValue("plugin_dir", "./plugin"));
 		
 		this.autodump_enabled = getBoolean("autodump_enabled", false);
 		this.autodump_trigger_active_service_cnt = getInt("autodump_trigger_active_service_cnt", 10000);

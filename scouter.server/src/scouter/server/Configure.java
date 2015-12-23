@@ -96,7 +96,7 @@ public class Configure extends Thread {
 	//Dir
 	public String db_dir = "./database";
 	public String log_dir = "./logs";
-	public String plugin_dir = "./plug-in";
+	public String plugin_dir = "./plugin";
 
 	//Object
 	public int object_deadtime_ms = 8000;
@@ -229,7 +229,7 @@ public class Configure extends Thread {
 		this.server_id = getValue("server_id", SysJMX.getHostName());
 		this.db_dir = getValue("db_dir", "./database");
 		this.log_dir = getValue("log_dir", "./logs");
-		this.plugin_dir = getValue("plugin_dir", "./plug-in");
+		this.plugin_dir = getValue("plugin_dir", "./plugin");
 
 		this.object_deadtime_ms = getInt("object_deadtime_ms", 8000);
 

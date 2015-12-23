@@ -50,7 +50,7 @@ public class PluginLoader extends Thread {
 	public void run() {
 		while (true) {
 			try {
-				File root = Configure.getInstance().mgr_plugin_dir;
+				File root = Configure.getInstance().plugin_dir;
 				cleckPluginModified(root);
 			} catch (Throwable t) {
 				Logger.println("A160", t.toString());

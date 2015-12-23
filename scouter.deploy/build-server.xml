@@ -141,8 +141,8 @@
 		<copy todir="./out/package/scouter/server/conf">
 			<fileset dir="../scouter.server/conf" />
 		</copy>
-		<copy todir="./out/package/scouter/server/plug-in">
-			<fileset dir="../scouter.server/plug-in" />
+		<copy todir="./out/package/scouter/server/plugin">
+			<fileset dir="../scouter.server/plugin" />
 		</copy>
 	</target>
 

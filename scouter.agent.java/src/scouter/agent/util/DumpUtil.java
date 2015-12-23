@@ -58,7 +58,7 @@ public class DumpUtil extends Thread {
 
 	public static File getDumpFile(String prefix) {
 		String name = prefix + "." + DateUtil.ymdhms(System.currentTimeMillis()) + ".dump";
-		return new File(Configure.getInstance().mgr_dump_dir, name);
+		return new File(Configure.getInstance().dump_dir, name);
 	}
 
 	public static Pack triggerHeapHisto() {
