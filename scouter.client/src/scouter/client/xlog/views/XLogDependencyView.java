@@ -359,7 +359,7 @@ public class XLogDependencyView extends ViewPart {
 				name = TextProxy.sql_tables.getLoadText(date, sqlsum.hash, serverId);
 				if(name!=null){
 					String sql = TextProxy.sql.getLoadText(date, sqlsum.hash, serverId).trim();
-					sqlSumElement.name = name != null ? name : "";
+					sqlSumElement.name = name;
 					sqlSumElement.tags.put("serverId", serverId);
 					sqlSumElement.tags.put("sql", sql);
 					serviceElement.addChild(sqlSumElement);
