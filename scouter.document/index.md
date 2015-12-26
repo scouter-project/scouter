@@ -3,6 +3,7 @@
 
 ## Getting Started
 - [Getting Started](./main/Getting-Started.md)
+- [Quick Start Installation Guide](./main/Quick-Start_kr.md)
 - [Getting Start Profiling SQL](./main/Getting-Start-Profile-SQL.md)
 - [Service Monitoring CASE#1 Log On/Off](./use-case/XLog-Case1.md)
 - [Service Monitoring CASE#2 Understand Waterfall](./use-case/XLog-Case2.md)
@@ -11,9 +12,9 @@
 - [How to use a client program](./client/How-To-Use-Client.md)  
 - [What’s special in SCOUTER?](./main/What-special-in-SCOUTER.md)
 
-## Setup
-- [Setup](./main/Setup.md)
-- [Setup FAQ](./main/Setup-FAQ.md)
+## Install
+- [Installation](./main/Setup.md)
+- [Installation FAQ](./main/Setup-FAQ.md)
 
 ## Build Scouter
 - [Build on Linux & OSX](./main/Build-Scouter.md)

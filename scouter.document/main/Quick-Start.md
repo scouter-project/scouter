@@ -1,5 +1,5 @@
 # Quick Start
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Quick-Start_kr.md)
+[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Quick-Start.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 Scouter를 처음 시작한다면 이 페이지를 통해 간단히 설치하고 실행 해 볼 수 있다.
 
@@ -39,9 +39,9 @@ Client(Viewer)    | 수집된 성능 정보를 확인하기 위한 Client 프로
 
 #### (1) 통합 데모 환경 및 클라이언트 프로그램 다운로드
  - 통합 데모 환경 다운로드
-   - [demo-env1.tar.gz 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.2/demo-env1.tar.gz) (Collector Server, Host Agent, Java Agent, Tomcat, 샘플 시스템, 설정, 기동 스크립트가 포함됨)
+   - [demo-env1.tar.gz 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.3/demo-env1.tar.gz) (Collector Server, Host Agent, Java Agent, Tomcat, 샘플 시스템, 설정, 기동 스크립트가 포함됨)
    > For Windows
-   > [demo-env1.zip 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.2/demo-env1.zip)
+   > [demo-env1.zip 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.3/demo-env1.zip)
 
 
  - Client 다운로드

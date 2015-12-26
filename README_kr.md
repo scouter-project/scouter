@@ -30,6 +30,7 @@ APM은 Application performance montoring 또는 application performance manageme
 ## Documents
  - [Document Home](./scouter.document/index_kr.md)
  - [Getting Started](./scouter.document/main/Getting-Started_kr.md)
+ - [Quick Start 설치 Guide](./scouter.document/main/Quick-Start_kr.md)
  - [SQL 프로파일링 시작하기](./scouter.document/main/Getting-Start-Profile-SQL_kr.md)
  - [Client 화면 설명](./scouter.document/client/How-To-Use-Client_kr.md)
 
