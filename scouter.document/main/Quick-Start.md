@@ -40,8 +40,10 @@ Client(Viewer)    | 수집된 성능 정보를 확인하기 위한 Client 프로
 #### (1) 통합 데모 환경 및 클라이언트 프로그램 다운로드
  - 통합 데모 환경 다운로드
    - [demo-env1.tar.gz 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.3/demo-env1.tar.gz) (Collector Server, Host Agent, Java Agent, Tomcat, 샘플 시스템, 설정, 기동 스크립트가 포함됨)
-   > For Windows
-   > [demo-env1.zip 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.3/demo-env1.zip)
+   
+   
+> For Windows
+> [demo-env1.zip 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.3/demo-env1.zip)
 
 
  - Client 다운로드
@@ -90,12 +92,12 @@ Client(Viewer)    | 수집된 성능 정보를 확인하기 위한 Client 프로
 
  > Windows 
  > ```bat
- > start-tomca.bat
+ > start-tomcat.bat
  > ```
 
 만약 Tomcat 실행시 아래와 같은 에러를 만난다면 JAVA_HOME이 설정되지 않은 것이므로 OS 환경변수에 JAVA_HOME을 설정하거나
 start-tomcat.bat와 stop-tomcat-bat 파일을 수정한다.
-```bat
+```
 Neither the JAVA_HOME nor the JRE_HOME environment variable is defined
 At least one of these environment variable is needed to run this program
 ```
