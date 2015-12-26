@@ -22,7 +22,8 @@ public class Test {
 //		String file ="d:/tmp/sample-query2.out";
 //		String sql=new String(FileUtil.readAll(new File(file)));
 
-		String sql="select * from sss where is1='a' ";
+		//String sql="select * from sss where is1='a' ";
+		String sql="call USER() ";
 		System.out.println(sql);
 //		EscapeLiteralSQL esql =new EscapeLiteralSQL(sql);
 //		esql.process();

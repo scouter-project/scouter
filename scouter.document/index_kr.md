@@ -3,6 +3,7 @@
 
 ## Getting Started
 - [Getting Started](./main/Getting-Started_kr.md)
+- [Quick Start 설치 Guide](./main/Quick-Start_kr.md)
 - [Getting Start Profiling SQL](./main/Getting-Start-Profile-SQL_kr.md)
 - [Service Monitoring CASE#1 Logging 영향 사례](./use-case/XLog-Case1_kr.md)
 - [Service Monitoring CASE#2 폭포수 양상의 이해](./use-case/XLog-Case2_kr.md)
@@ -11,9 +12,9 @@
 - [클라이언트 사용법](./client/How-To-Use-Client.md)  
 - [SCOUTER가 특별한 이유](./main/What-special-in-SCOUTER.md)
 
-## Setup
-- [Setup](./main/Setup.md)
-- [Setup FAQ](./main/Setup-FAQ.md)
+## Install
+- [Installation](./main/Setup.md)
+- [Installation FAQ](./main/Setup-FAQ.md)
 
 ## Build Scouter
 - [Build on Linux & OSX](./main/Build-Scouter.md)

@@ -7,7 +7,7 @@
     <property name="class-server-dir" value="./out/bin/server"/>
     <property name="class-boot-dir" value="./out/bin/server.boot"/>
     <property name="jar-geoip-file" value="./lib/maxmind.geoip.jar"/>
-    <property name="jar-jsqlparser-file" value="./lib/jsqlparser.jar"/>
+    <property name="jar-jsqlparser-file" value="./lib/jsqlparser-0.9.4.jar"/>
     <property name="jar-javassist-file" value="./lib/javassist.jar"/>
 
     <property name="deploy-jar-file"

@@ -18,10 +18,7 @@
 package scouter.util.logo;
 
 import scouter.Version;
-import scouter.util.DateUtil;
-import scouter.util.FileUtil;
-import scouter.util.ParamText;
-import scouter.util.StringUtil;
+import scouter.util.*;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -30,6 +27,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 public class Logo {
     public static void print() {
@@ -152,11 +150,12 @@ public class Logo {
                     continue;
                 }
                 String yymmdd = DateUtil.yyyymmdd();
-                String yy = yymmdd.substring(0, 4);
+                //yymmdd="20180215";
+                String yyyy = yymmdd.substring(0, 4);
                 String mm = yymmdd.substring(4, 6);
                 String dd = yymmdd.substring(6);
 
-                if (match(yy, dateFlags[0]) && match(mm, dateFlags[1]) && match(dd, dateFlags[2])) {
+                if (match(yyyy, dateFlags[0]) && match(mm, dateFlags[1]) && match(dd, dateFlags[2])) {
                     arrTodayLogo.add(arr.get(i - 1));
                 }
             }
@@ -185,6 +184,9 @@ public class Logo {
     }
 
     private static boolean match(String dateString, String input) {
+        if(!Pattern.matches("^[\\*0-9*-]*$", input)) {
+            return false;
+        }
         if ("*".equals(input)) {
             return true;
         }
@@ -196,8 +198,12 @@ public class Logo {
             if (digit.length != 2) {
                 return false;
             }
-            int idata = Integer.parseInt(dateString);
-            if (idata >= Integer.parseInt(digit[0]) && idata <= Integer.parseInt(digit[1])) {
+            int idata = CastUtil.cint(dateString);
+            if (idata >= CastUtil.cint(digit[0]) && idata <= CastUtil.cint(digit[1])) {
+                return true;
+            }
+        } else {
+            if(CastUtil.cint(dateString) == CastUtil.cint(input)) {
                 return true;
             }
         }

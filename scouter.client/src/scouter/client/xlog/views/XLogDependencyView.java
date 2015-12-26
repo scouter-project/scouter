@@ -341,12 +341,14 @@ public class XLogDependencyView extends ViewPart {
 				DependencyElement sqlElement = new DependencyElement(ElementType.SQL, sqlstep.hash);
 				sqlElement.elapsed = sqlstep.elapsed;
 				String name = TextProxy.sql_tables.getLoadText(date, sqlstep.hash, serverId);
-				String sql = TextProxy.sql.getLoadText(date, sqlstep.hash, serverId).trim();
-				sqlElement.name = name != null ? name : sql;
-				sqlElement.error = sqlstep.error;
-				sqlElement.tags.put("serverId", serverId);
-				sqlElement.tags.put("sql", sql);
-				serviceElement.addChild(sqlElement);
+				if(name != null){
+					String sql = TextProxy.sql.getLoadText(date, sqlstep.hash, serverId).trim();
+					sqlElement.name =  name;
+					sqlElement.error = sqlstep.error;
+					sqlElement.tags.put("serverId", serverId);
+					sqlElement.tags.put("sql", sql);
+					serviceElement.addChild(sqlElement);
+				}
 				break;
 			case StepEnum.SQL_SUM:
 				SqlSum sqlsum = (SqlSum) step;
@@ -355,11 +357,13 @@ public class XLogDependencyView extends ViewPart {
 				sqlSumElement.elapsed = (int) sqlsum.elapsed;
 				sqlSumElement.error = sqlsum.error;
 				name = TextProxy.sql_tables.getLoadText(date, sqlsum.hash, serverId);
-				sql = TextProxy.sql.getLoadText(date, sqlsum.hash, serverId).trim();
-				sqlSumElement.name = name != null ? name : sql;
-				sqlSumElement.tags.put("serverId", serverId);
-				sqlSumElement.tags.put("sql", sql);
-				serviceElement.addChild(sqlSumElement);
+				if(name!=null){
+					String sql = TextProxy.sql.getLoadText(date, sqlsum.hash, serverId).trim();
+					sqlSumElement.name = name;
+					sqlSumElement.tags.put("serverId", serverId);
+					sqlSumElement.tags.put("sql", sql);
+					serviceElement.addChild(sqlSumElement);
+				}
 				break;
 			case StepEnum.THREAD_SUBMIT:
 				ThreadSubmitStep tsStep = (ThreadSubmitStep) step;
