@@ -35,7 +35,7 @@ SCOUTER can help you.
 ## Documents
  - [Document Home](./scouter.document/index.md)
  - [Getting Started](./scouter.document/main/Getting-Started.md)
- - [Quick Start Installation Guide](./scouter.document/main/Quick-Start_kr.md)
+ - [Quick Start Installation Guide](./scouter.document/main/Quick-Start.md)
  - [Getting Start Profiling SQL](./scouter.document/main/Getting-Start-Profile-SQL.md)
  - [Client Screen Help](./scouter.document/client/How-To-Use-Client.md)
 
