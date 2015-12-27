@@ -1,14 +1,14 @@
 # Quick Start
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Quick-Start.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Quick-Start_kr.md)
 
-If the first time on the Scouter, you can try simply install and run through this page .
+If you meet the Scouter APM for the first time, you can easily try to install and run it through this page .
 
-Here that have already been created through the sample system can be seen to verify the functionality of the Scouter.
-You can see it up and running within a few minutes to a few commands to download files that are provided.
+Here is already created the sample system that can be seen to verify the functionality of the Scouter.
+You can download, install and run it within a few minutes.
 
 This quick Start proceeds in the following order.
 
-> 1. **Download** integrated demonstration environment and the client program
+> 1. **Download** integrated demonstration environment and a client program
 > 2. decompress download file. - **Installation completed!**
 > 3. Run Scouter Server(Collector)
 > 4. Run Client(Viewer)
@@ -22,7 +22,6 @@ This quick Start proceeds in the following order.
 * Windows / Linux / OS X
 
 If No JDK, You have to download and install JDK first with the [oracle.com](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
-JAVA_HOME이 설정되지 않았다면 OS의 환경 변수로 설정하거나 이후에 설명하는 Tomcat 실행 부분에서 실행 script에 추가하도록 한다.
 If you have not set the environment variable JAVA_HOME, add to the OS env variables or modify running scripts that describe later on `Run demonstration system` section.
 
 ## architecture 
@@ -37,13 +36,13 @@ Client(Viewer)    | Client program to check the collected performance informatio
 
 ## Installation Scouter and run
 
-#### (1) **Download** integrated demonstration environment and the client program
+#### (1) **Download** integrated demonstration environment and a client program
  - Download integrated demonstration environment
    - [Download demo-env1.tar.gz](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.3/demo-env1.tar.gz) (Collector Server, Host Agent, Java Agent, Tomcat, 샘플 시스템, 설정, 기동 스크립트가 포함됨)
    - Windows Case [demo-env1.zip 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.3/demo-env1.zip)
 
- - Download client program
-   - download the client for your environment.
+ - Download a client program
+   - download a client for your environment.
     - [scouter.client.product-win32.win32.x86_64.zip](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.1/scouter.client.product-win32.win32.x86_64.zip)
     - [scouter.client.product-win32.win32.x86.zip](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.1/scouter.client.product-win32.win32.x86.zip)
     - [scouter.client.product-macosx.cocoa.x86_64.tar.gz](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.1/scouter.client.product-macosx.cocoa.x86_64.tar.gz)
