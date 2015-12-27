@@ -112,8 +112,9 @@ cd /D %originDir%
 
 #### (7) 브라우저를 통해 데모 시스템 접속
 브라우저를 실행하여 http://127.0.0.1:8080/jpetstore에 접속하면 데모시스템이 실행되는 것을 볼수 있다.
-또한 브라우저에서 요청을 발생시키면 Scouter Client에서 실시간으로(2초내에) 이를 확인할 수 있다.
-
+또한 브라우저에서 요청을 발생시키면 Scouter Client에서 실시간으로(2초이내) 이를 확인할 수 있다.
+![jpetstore main](../img/quickstart/jpet-main.png)
+![jpetstore main](../img/quickstart/client-jpet-demo1.png)
 
 #### (8) jmeter를 통한 가상의 부하 발생
 모니터링이 잘 되는지 확인하기 위해 jmeter를 통해 가상의 부하를 발생시킬 수 있다.
@@ -127,6 +128,7 @@ start-jmeter.sh
  > start-jmeter.bat
  > ```
 
+![jpetstore main](../img/quickstart/client-jmeter-demo1.png)
 
 # Scouter Client Quick Guide
 여기서는 Client를 통해 서비스를 어떻게 모니터링 하는지를 간단히 설명한다.
