@@ -2,7 +2,7 @@
 ![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](index_kr.md)
 
 ## Getting Started
-- [Quick Start Guide (Quick Installation and Demo)](./main/Quick-Start_kr.md)
+- [Quick Start Guide (Quick Installation and Demo)](./main/Quick-Start.md)
 - [Getting Start Profiling SQL](./main/Getting-Start-Profile-SQL.md)
 - [Service Monitoring CASE#1 Log On/Off](./use-case/XLog-Case1.md)
 - [Service Monitoring CASE#2 Understand Waterfall](./use-case/XLog-Case2.md)
