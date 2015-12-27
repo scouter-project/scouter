@@ -3,7 +3,7 @@
 
 ## Getting Started
 - [Getting Started](./main/Getting-Started_kr.md)
-- [Quick Start 설치 Guide](./main/Quick-Start_kr.md)
+- [Quick Start(Scouter Demo 설치)](./main/Quick-Start_kr.md)
 - [Getting Start Profiling SQL](./main/Getting-Start-Profile-SQL_kr.md)
 - [Service Monitoring CASE#1 Logging 영향 사례](./use-case/XLog-Case1_kr.md)
 - [Service Monitoring CASE#2 폭포수 양상의 이해](./use-case/XLog-Case2_kr.md)
