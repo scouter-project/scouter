@@ -175,8 +175,8 @@ Please read the detail manual pages for advanced features.
 function     |    description
 ------------ | --------------
 SFA (Stack Frequency Analyzer)  | Thread Stack의 통계 분석을 통한 부하 코드 식별
-[Trace connection Leak](./tech/JDBC-Connection-Leak-Trace.md)           | Database Connection Leak 추적
+[Trace connection Leak](../tech/JDBC-Connection-Leak-Trace.md)           | Database Connection Leak 추적
 Add user id on a profile        | profile customizing with a plugin scripting feature.
 method profiling               | how to profile deeper - method level profiling
-[Trace Non-Servlet Java application](./use-case/NON-HTTP-Service-Trace.md)    | how to monitoring Non-Servlet Java application like socket deamons.
+[Trace Non-Servlet Java application](../use-case/NON-HTTP-Service-Trace.md)    | how to monitoring Non-Servlet Java application like socket deamons.
 
