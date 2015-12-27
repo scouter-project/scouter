@@ -31,12 +31,7 @@ public class HttpServiceASM implements IASM, Opcodes {
 	public HttpServiceASM() {
 		servlets.add("javax/servlet/http/HttpServlet");
 	}
-	public boolean isTarget(String className) {
-		if (servlets.contains(className)) {
-			return true;
-		}
-		return false;
-	}
+
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (Configure.getInstance()._hook_serivce_enabled == false) {
 			return cv;

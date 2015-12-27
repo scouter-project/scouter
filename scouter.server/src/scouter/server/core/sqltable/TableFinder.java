@@ -34,15 +34,19 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.ExtractExpression;
 import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.HexValue;
 import net.sf.jsqlparser.expression.IntervalExpression;
 import net.sf.jsqlparser.expression.JdbcNamedParameter;
 import net.sf.jsqlparser.expression.JdbcParameter;
 import net.sf.jsqlparser.expression.JsonExpression;
+import net.sf.jsqlparser.expression.KeepExpression;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.MySQLGroupConcat;
 import net.sf.jsqlparser.expression.NullValue;
 import net.sf.jsqlparser.expression.NumericBind;
 import net.sf.jsqlparser.expression.OracleHierarchicalExpression;
 import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.RowConstructor;
 import net.sf.jsqlparser.expression.SignedExpression;
 import net.sf.jsqlparser.expression.TimeValue;
 import net.sf.jsqlparser.expression.TimestampValue;
@@ -358,6 +362,26 @@ public class TableFinder implements IntoTableVisitor, SelectVisitor, SelectItemV
 	}
 
 	public void visit(NumericBind bind) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void visit(HexValue arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void visit(KeepExpression arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void visit(MySQLGroupConcat arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void visit(RowConstructor arg0) {
 		// TODO Auto-generated method stub
 		
 	}

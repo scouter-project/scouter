@@ -18,26 +18,18 @@
 
 package scouter.server.core.cache;
 
-import java.util.Enumeration
-import java.util.HashMap
-import java.util.Map
-import scouter.server.CounterManager
-import scouter.server.core.AgentManager
-import scouter.lang.CounterKey
-import scouter.lang.TimeTypeEnum
-import scouter.lang.counters.CounterConstants
-import scouter.lang.counters.CounterEngine
-import scouter.lang.pack.ObjectPack
-import scouter.lang.value.DecimalValue
+import java.util.{HashMap, Map}
+
+import scouter.lang.{CounterKey, TimeTypeEnum}
 import scouter.lang.value.Value
-import scouter.util.CacheTable
-import scouter.util.DateUtil
-import scouter.util.ThreadUtil;
 import scouter.server.util.ThreadScala
+import scouter.util.{CacheTable, DateUtil, ThreadUtil}
 
+/**
+  * Singleton object of the memory cache for counter data.
+  */
 object CounterCache {
-    val counterEngine = CounterManager.getInstance().getCounterEngine();
-
+    //val counterEngine = CounterManager.getInstance().getCounterEngine();
     val cache = new CacheTable[CounterKey, Value]();
 
     ThreadScala.startDaemon("scouter.server.core.cache.CounterCache") {
@@ -50,18 +42,6 @@ object CounterCache {
 
     def put(key: CounterKey, value: Value) {
         var keepTime = getKeepTime(key.timetype);
-        //        if (key.timetype == TimeTypeEnum.REALTIME) {
-        //            try {
-        //                val pack = AgentManager.getInstance().getAgent(key.objHash);
-        //                if (pack != null) {
-        //                    if (counterEngine.isChildOf(pack.objType, CounterConstants.FAMILY_DATABASE)) {
-        //                        keepTime = DateUtil.MILLIS_PER_MINUTE;
-        //                    }
-        //                }
-        //            } catch {
-        //                case e: Throwable => e.printStackTrace()
-        //            }
-        //        }
         cache.put(key, value, keepTime);
     }
 

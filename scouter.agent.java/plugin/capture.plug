@@ -1,0 +1,9 @@
+[args]
+// void capArgs(WrContext $ctx, HookArgs $hook)
+
+[return]
+// void capReturn(WrContext $ctx, HookReturn $hook)
+
+
+[this]
+// void capThis(WrContext $ctx, String $class, String $desc, Object $this)

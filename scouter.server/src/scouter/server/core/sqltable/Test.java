@@ -1,11 +1,8 @@
 package scouter.server.core.sqltable;
 
-import java.io.File;
-
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import scouter.server.core.SqlTables;
-import scouter.util.FileUtil;
 
 public class Test {
 
@@ -25,13 +22,14 @@ public class Test {
 //		String file ="d:/tmp/sample-query2.out";
 //		String sql=new String(FileUtil.readAll(new File(file)));
 
-		String sql="select * from sss where is1='a' ";
+		//String sql="select * from sss where is1='a' ";
+		String sql="call USER() ";
 		System.out.println(sql);
 //		EscapeLiteralSQL esql =new EscapeLiteralSQL(sql);
 //		esql.process();
 //		System.out.println(esql.getParsedSql());
 //		
-		System.out.println(SqlTables.doAction(sql));
+		System.out.println(SqlTables.parseTable(sql));
 //		System.out.println(SqlTables.getInstance().doAction(sql2));
 //		System.out.println(SqlTables.getInstance().doAction(sql3));
 //		System.out.println(SqlTables.getInstance().doAction(sql4));

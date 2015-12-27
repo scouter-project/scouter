@@ -22,6 +22,5 @@ import scouter.agent.ClassDesc;
 import scouter.org.objectweb.asm.ClassVisitor;
 
 public interface IASM {
-	public boolean isTarget(String className);
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc);
 }

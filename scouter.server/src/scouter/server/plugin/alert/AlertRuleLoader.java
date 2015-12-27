@@ -153,9 +153,16 @@ public class AlertRuleLoader extends Thread {
 		try {
 			String body = new String(FileUtil.readAll(ruleFile));
 			ClassPool cp = ClassPool.getDefault();
-			String jar = FileUtil.getJarFileName(AlertRule.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
+//			String jar = FileUtil.getJarFileName(AlertRule.class);
+//			if (jar != null) {
+//				cp.appendClassPath(jar);
+//			}
+			if(this.getClass().getClassLoader() instanceof URLClassLoader){
+				URLClassLoader u = (URLClassLoader)this.getClass().getClassLoader();
+				URL[] urls = u.getURLs();
+				for(int i = 0; urls!=null && i<urls.length ; i++){
+					cp.appendClassPath(urls[i].getFile());
+				}	
 			}
 			name = "scouter.server.alert.impl." + name;
 			Class c = null;
@@ -171,7 +178,7 @@ public class AlertRuleLoader extends Thread {
 				method = CtNewMethod.make("public void process(" + RealCounter.class.getName() + " c){}", impl);
 				impl.addMethod(method);
 			}
-			method.setBody("{" + RealCounter.class.getName() + " $counter=$1;" + body + "}");
+			method.setBody("{" + RealCounter.class.getName() + " $counter=$1;" + body + "\n}");
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AlertRule rule = (AlertRule) c.newInstance();
 			rule.lastModified = ruleFile.lastModified();

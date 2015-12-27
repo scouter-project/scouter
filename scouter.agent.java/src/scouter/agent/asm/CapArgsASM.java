@@ -33,16 +33,6 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 public class CapArgsASM implements IASM, Opcodes {
 	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_args_patterns);
 
-	public boolean isTarget(String className) {
-		for (int i = 0; i < target.size(); i++) {
-			HookingSet mset = target.get(i);
-			if (mset.classMatch.include(className)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (Configure.getInstance()._hook_cap_enabled == false) {
 			return cv;

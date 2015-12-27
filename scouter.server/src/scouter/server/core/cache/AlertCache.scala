@@ -20,8 +20,11 @@ package scouter.server.core.cache;
 
 import scouter.lang.pack.AlertPack;
 
+/**
+  * singleton object that store realtime AlertPack.
+  */
 object AlertCache {
-
+    //Circular queue
     val cache = new LoopCache[AlertPack](1024);
 
     def put(alert: AlertPack) {

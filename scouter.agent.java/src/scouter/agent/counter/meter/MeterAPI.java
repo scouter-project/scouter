@@ -17,7 +17,6 @@
 
 package scouter.agent.counter.meter;
 
-import scouter.agent.counter.meter.MeterSQL.Bucket;
 import scouter.lang.ref.INT;
 import scouter.lang.ref.LONG;
 import scouter.util.MeteringUtil;

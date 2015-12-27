@@ -217,7 +217,7 @@
           class="scouter.client.views.AlertView"
           icon="icons/alert.png"
           id="scouter.client.views.AlertView"
-          name="Alert">
+          name="%View_alert">
       </view>      
       <view
           allowMultiple="true"

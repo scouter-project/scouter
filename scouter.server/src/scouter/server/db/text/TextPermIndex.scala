@@ -64,11 +64,11 @@ class TextPermIndex(div: String, file: String) extends IClose {
   var refrence = 0;
   var index: IndexKeyFile = null
 
-  def set(key: Int, pos: Long) {
+  def set(key: Int, dataPos: Long) {
     if (this.index == null) {
       this.index = new IndexKeyFile(file);
     }
-    this.index.put(DataOutputX.toBytes(key), DataOutputX.toBytes5(pos));
+    this.index.put(DataOutputX.toBytes(key), DataOutputX.toBytes5(dataPos));
   }
 
   def get(key: Int): Long = {

@@ -41,17 +41,17 @@ object TextPermWR {
 
   ThreadScala.start("scouter.server.db.TextPermWR") {
     while (DBCtr.running) {
-      val m = queue.get();
-      var (index, data) = open(m.div);
+      val data = queue.get();
+      var (indexDb, dataDb) = open(data.div);
       try {
-        if (index == null) {
+        if (indexDb == null) {
           queue.clear();
           Logger.println("S137", 10, "can't open db");
         } else {
-          val ok = index.hasKey(m.hash);
+          val ok = indexDb.hasKey(data.hash);
           if (ok == false) {
-            val pos = data.write(m.text.getBytes("UTF8"));
-            index.set(m.hash, pos);
+            val dataPos = dataDb.write(data.text.getBytes("UTF8"));
+            indexDb.set(data.hash, dataPos);
           }
         }
       } catch {
@@ -80,10 +80,10 @@ object TextPermWR {
 
   def open(div: String): (TextPermIndex, TextPermData) = {
     try {
-      var index = TextPermIndex.get(div);
-      var data = TextPermData.get(div);
-      if (index != null && data != null) {
-        return (index, data);
+      var indexDb = TextPermIndex.get(div);
+      var dataDb = TextPermData.get(div);
+      if (indexDb != null && dataDb != null) {
+        return (indexDb, dataDb);
       }
       this.synchronized {
 
@@ -91,12 +91,12 @@ object TextPermWR {
         val f = new File(path);
         if (f.exists() == false)
           f.mkdirs();
-        val file = path + "/text_" +div;
+        val file = path + "/text_" + div;
 
-        index = TextPermIndex.open(div, file);
-        data = TextPermData.open(div, file);
+        indexDb = TextPermIndex.open(div, file);
+        dataDb = TextPermData.open(div, file);
 
-        return (index, data);
+        return (indexDb, dataDb);
       }
     } catch {
       case e: Throwable =>

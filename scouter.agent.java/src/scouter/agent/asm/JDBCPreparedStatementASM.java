@@ -51,9 +51,7 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		noField.add("com/mysql/jdbc/ServerPreparedStatement");
 		noField.add("jdbc/FakePreparedStatement2");
 	}
-	public boolean isTarget(String className) {
-		return target.contains(className);
-	}
+
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (Configure.getInstance()._hook_dbsql_enabled == false) {
 			return cv;

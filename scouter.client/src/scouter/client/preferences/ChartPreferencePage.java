@@ -30,7 +30,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import scouter.client.Activator;
-import scouter.client.M;
+import scouter.client.message.M;
 import scouter.client.util.UIUtil;
 import scouter.util.CastUtil;
 
@@ -60,7 +60,7 @@ public class ChartPreferencePage extends FieldEditorPreferencePage implements IW
 		((GridLayout)parent.getLayout()).marginBottom = 30;
 		
 		final Group layoutGroup = new Group(parent, SWT.NONE);
-	    layoutGroup.setText("Chart Setting");
+	    layoutGroup.setText(M.PREFERENCE_CHARTSETTING);
 	    
 		layoutGroup.setLayout(UIUtil.formLayout(5, 5));
 		gdata = new GridData();
@@ -69,15 +69,15 @@ public class ChartPreferencePage extends FieldEditorPreferencePage implements IW
 	    
 		
 		Label lineWidthLbl = new Label(layoutGroup, SWT.RIGHT);
-		lineWidthLbl.setText("Chart Line Width :");
+		lineWidthLbl.setText(M.PREFERENCE_CHARTLINE_WIDTH);
 		lineWidthLbl.setLayoutData(UIUtil.formData(null, -1, 0, 10, null, -1, null, -1, 160));
 		
 		lineWidthTxt = new Text(layoutGroup, SWT.BORDER);
-		lineWidthTxt.setText(""+lineWidth);
+		lineWidthTxt.setText(""+lineWidth); //$NON-NLS-1$
 		lineWidthTxt.setLayoutData(UIUtil.formData(lineWidthLbl, 10, 0, 8, 100, -5, null, -1));
 		
 		Label ignoreLbl = new Label(layoutGroup, SWT.RIGHT);
-		ignoreLbl.setText("XLog Ignore Time(ms) :");
+		ignoreLbl.setText(M.PREFERENCE_CHARTXLOG_IGNORE_TIME);
 		ignoreLbl.setLayoutData(UIUtil.formData(null, -1, lineWidthTxt, 10, null, -1, null, -1, 160));
 		
 		xlogIgnoreTxt = new Text(layoutGroup, SWT.BORDER);
@@ -85,7 +85,7 @@ public class ChartPreferencePage extends FieldEditorPreferencePage implements IW
 		xlogIgnoreTxt.setLayoutData(UIUtil.formData(ignoreLbl, 10, lineWidthTxt, 8, 100, -5, null, -1, 150));
 		
 		Label maxCntLbl = new Label(layoutGroup, SWT.RIGHT);
-		maxCntLbl.setText("XLog Max Count :");
+		maxCntLbl.setText(M.PREFERENCE_CHARTXLOG_MAX_COUNT);
 		maxCntLbl.setLayoutData(UIUtil.formData(null, -1, xlogIgnoreTxt, 10, null, -1, null, -1, 160));
 		
 		xlogMxCntTxt = new Text(layoutGroup, SWT.BORDER);

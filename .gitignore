@@ -33,6 +33,8 @@ scouter.client/plugin_customization.ini
 
 */*.scouter
 
+scouter.document/.project
+
 ### Vim template
 [._]*.s[a-w][a-z]
 [._]s[a-w][a-z]

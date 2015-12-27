@@ -16,29 +16,21 @@
  *
  */
 package scouter.server.plugin;
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Properties;
+
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
-import scouter.lang.pack.AlertPack;
-import scouter.lang.pack.ObjectPack;
-import scouter.lang.pack.PerfCounterPack;
-import scouter.lang.pack.SummaryPack;
-import scouter.lang.pack.XLogPack;
-import scouter.lang.pack.XLogProfilePack;
+import scouter.lang.pack.*;
 import scouter.server.Configure;
 import scouter.server.Logger;
-import scouter.util.BitUtil;
-import scouter.util.CastUtil;
-import scouter.util.FileUtil;
-import scouter.util.HashUtil;
-import scouter.util.LongSet;
-import scouter.util.StringUtil;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
+
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Properties;
+
 public class PlugInLoader extends Thread {
 	private static PlugInLoader instance;
 	public synchronized static PlugInLoader getInstance() {
@@ -134,9 +126,17 @@ public class PlugInLoader extends Thread {
 			String parameter = paramClass.getName();
 			String body = new String(FileUtil.readAll(file));
 			ClassPool cp = ClassPool.getDefault();
-			String jar = FileUtil.getJarFileName(IAlert.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
+//			String jar = FileUtil.getJarFileName(IAlert.class);
+//			if (jar != null) {
+//				cp.appendClassPath(jar);
+//			}
+			//클래스 패스를 자동으로 잡아주도록 수정함, 사용자가 추가한 jar도 자동인식하도록 
+			if(this.getClass().getClassLoader() instanceof URLClassLoader){
+				URLClassLoader u = (URLClassLoader)this.getClass().getClassLoader();
+				URL[] urls = u.getURLs();
+				for(int i = 0; urls!=null && i<urls.length ; i++){
+					cp.appendClassPath(urls[i].getFile());
+				}	
 			}
 			className = "scouter.server.plugin.impl." + className;
 			Class c = null;
@@ -153,10 +153,12 @@ public class PlugInLoader extends Thread {
 				impl.addMethod(method);
 			}
 			
-			method.setBody("{" + parameter + " $pack=$1;" + body + "}");
+			method.setBody("{" + parameter + " $pack=$1;" + body + "\n}");
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			IPlugIn plugin = (IPlugIn) c.newInstance();
 			plugin.lastModified = file.lastModified();
+			Logger.println("PLUG-IN : " + superClass.getName() + " loaded #"
+					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (javassist.CannotCompileException ee) {
 			compileErrorFiles.add(fileSignature);

@@ -18,13 +18,9 @@
 
 package scouter.server.db.io;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.{File, RandomAccessFile}
 
-import scouter.io.DataInputX;
-import scouter.io.DataOutputX;
+import scouter.io.{DataInputX, DataOutputX}
 import scouter.util.IClose;
 
 class ITEM {
@@ -102,13 +98,13 @@ class RealKeyFile(_path: String) extends IClose {
         }
     }
 
-    def write(pos: Long, next: Long, key: Array[Byte], value: Array[Byte]) {
+    def write(pos: Long, prevPos: Long, key: Array[Byte], value: Array[Byte]) {
         this.synchronized {
             this.raf.seek(pos);
-            
+
             val out = new DataOutputX();
             out.writeBoolean(false);
-            out.writeLong5(next);
+            out.writeLong5(prevPos);
             out.writeShortBytes(key);
             out.writeBlob(value);
          
@@ -132,10 +128,10 @@ class RealKeyFile(_path: String) extends IClose {
             return true;
         }
     }
-    def append(next: Long, key: Array[Byte], value: Array[Byte]): Long = {
+    def append(prevPos: Long, key: Array[Byte], value: Array[Byte]): Long = {
         this.synchronized {
             val pos = this.raf.length();
-            write(pos, next, key, value);
+            write(pos, prevPos, key, value);
             return pos;
         }
     }

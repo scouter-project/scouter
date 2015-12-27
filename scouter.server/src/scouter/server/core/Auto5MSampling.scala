@@ -16,70 +16,65 @@
  *
  */
 
-package scouter.server.core;
+package scouter.server.core
 
-import java.util.Date
-import java.util.HashMap
-import java.util.Iterator
-import java.util.Map
-import java.util.Timer
-import java.util.TimerTask
-import scouter.lang.CounterKey
-import scouter.lang.TimeTypeEnum
-import scouter.lang.value.Value
-import scouter.lang.value.ValueEnum
+import java.util
+import scouter.lang.value.{Value, ValueEnum}
+import scouter.lang.{CounterKey, TimeTypeEnum}
 import scouter.server.Configure
 import scouter.server.core.cache.CounterCache
 import scouter.server.db.DailyCounterWR
-import scouter.util.CastUtil
-import scouter.util.DateUtil
-import scouter.util.LinkedSet;
 import scouter.server.util.ThreadScala
+import scouter.util.{CastUtil, DateUtil, LinkedSet}
 
+/**
+  * peak 1 sample data from real time counter data and make it as 5 minute summary data.
+  */
 object Auto5MSampling {
-  ThreadScala.startFixedRate(DateUtil.MILLIS_PER_FIVE_MINUTE) {
-    if (Configure.getInstance()._auto_5m_sampling == true) {
-      val work = map;
-      map = new HashMap[CounterKey, Value]();
 
-      val itr = work.keySet().iterator();
-      while (itr.hasNext() == true) {
-        val key = itr.next();
-        val key5m = new CounterKey(key.objHash, key.counter, FIVE_MIN_CODE);
-        if (map5m.contains(key5m) == false) {
-          // System.out.println("AUTO 5M " +key);
-          val value = work.get(key);
+    val FIVE_MIN_CODE = TimeTypeEnum.FIVE_MIN
 
-          val now = System.currentTimeMillis();
-          DailyCounterWR.add(CastUtil.cint(DateUtil.yyyymmdd(now)), key5m,
-            CastUtil.cint(DateUtil.hhmm(now)), value);
+    var counterMap = new util.HashMap[CounterKey, Value]()
+    val counterMap5m = new LinkedSet[CounterKey]().setMax(1000)
 
-          CounterCache.put(key5m, value);
+    //peak 1 sample data from real time counter data and make it as 5 minute summary data.
+    ThreadScala.startFixedRate(DateUtil.MILLIS_PER_FIVE_MINUTE) {
+        if (Configure.getInstance()._auto_5m_sampling) {
+            val workMap = counterMap
+            counterMap = new util.HashMap[CounterKey, Value]()
+            val itr = workMap.keySet().iterator()
+
+            while (itr.hasNext()) {
+                val key = itr.next()
+                val key5m = new CounterKey(key.objHash, key.counter, FIVE_MIN_CODE)
+                if (!counterMap5m.contains(key5m)) {
+                    // System.out.println("AUTO 5M " +key);
+                    val value = workMap.get(key);
+
+                    val now = System.currentTimeMillis()
+                    DailyCounterWR.add(CastUtil.cint(DateUtil.yyyymmdd(now)), key5m,
+                        CastUtil.cint(DateUtil.hhmm(now)), value)
+
+                    CounterCache.put(key5m, value)
+                }
+            }
         }
-      }
     }
-  }
 
-  var map = new HashMap[CounterKey, Value]();
-  val map5m = new LinkedSet[CounterKey]().setMax(1000);
 
-  def add(key: CounterKey, value: Value) {
-
-   key.timetype match {
-      case TimeTypeEnum.REALTIME =>
-        value.getValueType() match {
-          case ValueEnum.BOOLEAN => map.put(key, value);
-          case ValueEnum.FLOAT => map.put(key, value);
-          case ValueEnum.DOUBLE => map.put(key, value);
-          case ValueEnum.DECIMAL => map.put(key, value);
-          case _ => 
+    def add(key: CounterKey, value: Value) {
+        key.timetype match {
+            case TimeTypeEnum.REALTIME =>
+                value.getValueType() match {
+                    case ValueEnum.BOOLEAN => counterMap.put(key, value);
+                    case ValueEnum.FLOAT => counterMap.put(key, value);
+                    case ValueEnum.DOUBLE => counterMap.put(key, value);
+                    case ValueEnum.DECIMAL => counterMap.put(key, value);
+                    case _ =>
+                }
+            case TimeTypeEnum.FIVE_MIN =>
+                counterMap5m.put(key)
+            case _ =>
         }
-      case TimeTypeEnum.FIVE_MIN =>
-        map5m.put(key)
-      case _ =>
     }
-  }
-
-  val FIVE_MIN_CODE = TimeTypeEnum.FIVE_MIN
-
 }

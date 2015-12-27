@@ -4,9 +4,9 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/scouter.common"/>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
-	<classpathentry kind="lib" path="/scouter.deploy/lib/jsqlparser.jar"/>
 	<classpathentry kind="lib" path="/scouter.deploy/lib/maxmind.geoip.jar"/>
 	<classpathentry kind="lib" path="/scouter.deploy/lib/scala/jline.jar"/>
 	<classpathentry kind="lib" path="/scouter.deploy/lib/javassist.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/jsqlparser-0.9.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

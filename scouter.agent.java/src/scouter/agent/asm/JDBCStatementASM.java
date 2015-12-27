@@ -38,9 +38,7 @@ public class JDBCStatementASM implements IASM, Opcodes {
 		target.add("com/tmax/tibero/jdbc/TbStatement");
 		target.add("org/hsqldb/jdbc/JDBCStatement");
 	}
-	public boolean isTarget(String className) {
-		return target.contains(className) ;
-	}
+
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (Configure.getInstance()._hook_dbsql_enabled == false) {
 			return cv;
