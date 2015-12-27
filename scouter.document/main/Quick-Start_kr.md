@@ -152,7 +152,7 @@ XLog는 종료된 요청을 보여주며, 보고 싶은 구간을 드래그 하�
 
 ## 3. 서비스 연계 추적
 Java agent 설정에서 `trace_interservice_enabled=true` 로 설정하면 HTTP로 요청하는 서비스 간 연결 추적이 활성화 된다.
-XLog에서 드래그한 서비스 목록에서 e2e.jsp를 선택하면 아래와 같은 프로파일을 볼 수 있다.
+XLog에서 드래그한 서비스 목록에서 `e2e.jsp`를 선택하면 아래와 같은 프로파일을 볼 수 있다.
 
 ![profile1](../img/quickstart/interservice1.png)
 
@@ -177,8 +177,8 @@ Scouter의 고급 기능에 대한 상세한 내용은 상세 매뉴얼 페이�
 기능          |        설명
 ------------ | --------------
 SFA (Stack Frequency Analyzer)  | Thread Stack의 통계 분석을 통한 부하 코드 식별
-Connection Leak 추적             | Database Connection Leak 추적
+[Connection Leak 추적](./tech/JDBC-Connection-Leak-Trace_kr.md)             | Database Connection Leak 추적
 프로파일에 사용자 ID 추가            | Plugin scripting을 통한 프로파일 커스터마이징 방법 - 사용자 ID 추가
 method 상세 프로파일              | method 레벨로 상세 프로파일 하는 방법
-Servlet이 아닌 Java 프로그램 추적    | WEB Servlet이 아닌 Java Deamon 프로그램 모니터링 방법
+[Servlet이 아닌 Java 프로그램 추적](./use-case/NON-HTTP-Service-Trace_kr.md)    | WEB Servlet이 아닌 Java Deamon 프로그램 모니터링 방법
 
