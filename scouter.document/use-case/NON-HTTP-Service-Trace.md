@@ -3,10 +3,10 @@
 
 WAS(ex Tomcat)가 아닌 서버에서 서비스를 추적하는 방법을 설명한다. 
 
-서비스가 시작되는 메소드를 hook_service에 등록해야한다.
+서비스가 시작되는 메소드를 hook_service_patterns에 등록해야한다.
 
 ```
-hook_method_patterns=com.mypkg.MyClass.myservice
+hook_service_patterns=com.mypkg.MyClass.myservice
 ```
 
 형식으로 풀패키지명과 클래스/메소드 이름까지 설정한다.
@@ -18,7 +18,7 @@ hook_method_patterns=com.mypkg.MyClass.myservice
 _trace_auto_service_enabled=false
 _trace_auto_service_backstack_enabled=true
 
-hook_method=
+hook_method_patterns=
 hook_method_access_public_enabled=true
 hook_method_access_private_enabled=false
 hook_method_access_protected_enabled=false
@@ -44,7 +44,7 @@ _trace_auto_service_enabled=true
 종료되지 않는 서비스들을 볼 수 있다. 혹은 종료되었다면 XLog에서 상세한 정보를 조회할 수 있다. 
 
 ### 단계 4
-찾아진 서비스 시작점을 hook_service에 지정하고 hook_method 나 enable_auto_service_trace 옵션을 제거한다.
+찾아진 서비스 시작점을 hook_service_patterns 지정하고 hook_method 나 enable_auto_service_trace 옵션을 제거한다.
 ```
-hook_method_patterns=com.mypkg.MyClass.myservice
+hook_service_patterns=com.mypkg.MyClass.myservice
 ```
