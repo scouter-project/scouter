@@ -38,8 +38,8 @@ Client(Viewer)    | Client program to check the collected performance informatio
 
 #### (1) **Download** integrated demonstration environment and a client program
  - Download integrated demonstration environment
-   - [Download demo-env1.tar.gz](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.3/demo-env1.tar.gz) (Collector Server, Host Agent, Java Agent, Tomcat, 샘플 시스템, 설정, 기동 스크립트가 포함됨)
-   - Windows Case [demo-env1.zip 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.3/demo-env1.zip)
+   - [Download demo-env1.tar.gz](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.3/demo-env1.tar.gz) (It includes collector server, host agent, java agent, tomcat for demo system and start scripts...)
+   - Windows Case : [Download demo-env1.zip](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.3/demo-env1.zip)
 
  - Download a client program
    - download a client for your environment.
@@ -174,8 +174,8 @@ Please read the detail manual pages for advanced features.
 
 function     |    description
 ------------ | --------------
-SFA (Stack Frequency Analyzer)  | Thread Stack의 통계 분석을 통한 부하 코드 식별
-[Trace connection Leak](../tech/JDBC-Connection-Leak-Trace.md)           | Database Connection Leak 추적
+SFA (Stack Frequency Analyzer)  | the SFA gather thread stacks for a while, then analyze and make statistics for finding out unefficient codes that make system run slow.
+[Trace connection Leak](../tech/JDBC-Connection-Leak-Trace.md)           | Trace Database Connection Leak
 Add user id on a profile        | profile customizing with a plugin scripting feature.
 method profiling               | how to profile deeper - method level profiling
 [Trace Non-Servlet Java application](../use-case/NON-HTTP-Service-Trace.md)    | how to monitoring Non-Servlet Java application like socket deamons.
