@@ -45,7 +45,7 @@ class LoginService {
     val id = m.getText("id");
     val passwd = m.getText("pass");
     val ip = m.getText("ip");
-    val name = m.getText("server_id");
+    val name = m.getText("hostname");
     val clientVer = m.getText("version");
     val session = LoginManager.login(id, passwd, ip);
     m.put("session", session);
@@ -56,7 +56,7 @@ class LoginService {
       user.hostname = name;
       user.version = clientVer;
       m.put("time", System.currentTimeMillis());
-      m.put("server_id", getHostName());
+      m.put("server_id", getServerId());
       m.put("type", user.group);
       m.put("version", Version.getServerFullVersion());
       val acc = AccountManager.getAccount(id);
@@ -115,7 +115,7 @@ class LoginService {
     dout.writePack(m);
   }
 
-  def getHostName(): String = {
+  def getServerId(): String = {
     Configure.getInstance().server_id;
   }
 }

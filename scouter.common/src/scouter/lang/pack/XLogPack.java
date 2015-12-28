@@ -24,40 +24,119 @@ import scouter.io.DataOutputX;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 
+/**
+ * Object that contains one transaction information
+ */
 public class XLogPack implements Pack {
 
+	/**
+	 * Transaction endtime
+	 */
 	public long endTime;
+	/**
+	 * Object ID
+	 */
 	public int objHash;
+	/**
+	 * Transaction name Hash
+	 */
 	public int service;
+	/**
+	 * Transaction ID
+	 */
 	public long txid;
+	/**
+	 * Caller ID
+	 */
 	public long caller;
+	/**
+	 * Global transaction ID
+	 */
 	public long gxid;
+	/**
+	 * Elapsed time(ms)
+	 */
 	public int elapsed;
+	/**
+	 * Error hash
+	 */
 	public int error;
-
+	/**
+	 * Cpu time(ms)
+	 */
 	public int cpu;
+	/**
+	 * SQL count
+	 */
 	public int sqlCount;
+	/**
+	 * SQL time(ms)
+	 */
 	public int sqlTime;
+	/**
+	 * Remote ip address
+	 */
 	public byte[] ipaddr;
+	/**
+	 * Allocated memory(byte)
+	 */
 	public int bytes;
+	/**
+	 * Http status
+	 */
+	@Deprecated
 	public int status;
+	/**
+	 * User ID
+	 */
 	public long userid;
+	/**
+	 * User-agent hash
+	 */
 	public int userAgent;
+	/**
+	 * Referer hash
+	 */
 	public int referer;
+	/**
+	 * Group hash
+	 */
 	public int group;
+	/**
+	 * ApiCall count
+	 */
 	public int apicallCount;
+	/**
+	 * ApiCall time(ms)
+	 */
 	public int apicallTime;
-
-	// TOP100
+	/**
+	 * Country code
+	 */
 	public String countryCode; // CountryCode.getCountryName(countryCode);
+	/**
+	 * City hash
+	 */
 	public int city;
+	/**
+	 * XLog type. WebService:0, AppService:1, BackgroundThread:2
+	 */
 	public byte xType; // see XLogTypes
-
+	/**
+	 * Login hash
+	 */
 	public int login;
+	/**
+	 * Description hash
+	 */
 	public int desc;
-
-	// WEB TIME
+	/**
+	 * WebServer object ID
+	 */
 	public int webHash; // WEB서버의 ObjectHash
+	/**
+	 * WebServer -> WAS time(ms)
+	 */
 	public int webTime; // WEB서버 --> WAS 시작 시점까지의 시간
 	
 	public String toString() {
