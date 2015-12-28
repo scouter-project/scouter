@@ -62,7 +62,7 @@ public class IXLog extends IPlugIn {
 		return TextRD.getString(DateUtil.yyyymmdd(p.endTime), TextTypes.ERROR, p.error);
 	}
 
-	public String useAgent(XLogPack p) {
+	public String userAgent(XLogPack p) {
 		return TextPermRD.getString(TextTypes.USER_AGENT, p.userAgent);
 	}
 
