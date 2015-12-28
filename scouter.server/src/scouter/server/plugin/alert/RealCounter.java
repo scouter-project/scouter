@@ -129,7 +129,7 @@ public class RealCounter {
 			return 0;
 		long tm = _history.getLastKey();
 		long now = System.currentTimeMillis();
-		return (now - _history.getLastKey()) / 1000;
+		return (now - tm) / 1000;
 	}
 
 	public int historyCount(int sec) {

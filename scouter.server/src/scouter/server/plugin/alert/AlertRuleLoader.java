@@ -182,6 +182,7 @@ public class AlertRuleLoader extends Thread {
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AlertRule rule = (AlertRule) c.newInstance();
 			rule.lastModified = ruleFile.lastModified();
+			Logger.println("S215", "Detected new alert rule : " + ruleFile.getName());
 			return rule;
 		} catch (javassist.CannotCompileException ee) {
 			compileErrorFiles.add(fileSignature);
