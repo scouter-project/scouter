@@ -77,5 +77,24 @@
 > }
   
   
+### API
+
+#### Common API
+ - void log(Object c) : Logger를 통한 log
+ - void println(Object c) : System.out를 통한 log
+ - void logTo(String file, String msg) : 특정 file에 msg를 logging
+ 
+#### XLog or XLogDB Plugin API
+ - String objName(XLogPack p) : XLog의 Object Name을 반환
+ - String objType(XLogPack p) : XLog의 Object Type을 반환
+ - String service(XLogPack p) : XLog의 service를 반환
+ - String error(XLogPack p) : XLog의 error를 반환
+ - String userAgent(XLogPack p) : XLog의 user-agent를 반환
+ - String referer(XLogPack p) : XLog의 referer를 반환
+ - String login(XLogPack p) : XLog의 login 값을 반환
+ - String desc(XLogPack p) : XLog의 desc 값을 반환
+ - String group(XLogPack p) : XLog의 group 값을 반환
+ 
 ### AlertRule Plugin
   **TBD**
+  
