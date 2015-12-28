@@ -23,32 +23,30 @@ import scouter.util.LinkedMap;
 
 public class AlertEngine {
 
-	static LinkedMap<CounterKey, RealCounter> realTime = new LinkedMap<CounterKey, RealCounter>().setMax(3000);
+	static LinkedMap<CounterKey, RealCounter> realTimeMap = new LinkedMap<CounterKey, RealCounter>().setMax(3000);
 
 	public static void putRealTime(CounterKey key, Value value) {
 		AlertRuleLoader loader = AlertRuleLoader.getInstance();
 		AlertRule rule = loader.alertRuleTable.get(key.counter);
 		if (rule == null)
 			return;
-		
-		RealCounter c = realTime.get(key);
-		if (c == null) {
-			c = new RealCounter( key);
+
+		RealCounter counter = realTimeMap.get(key);
+		if (counter == null) {
+			counter = new RealCounter(key);
 			AlertConf conf = loader.alertConfTable.get(key.counter);
-			//일시적으로 삭제되었을 가능성에 대비 
+			//defensive code for abnormal deletion
 			if (conf == null) {
 				conf = new AlertConf();
 			}
-			c.historySize(conf.history_size);
-			c.silentTime(conf.silent_time);
-			realTime.put(key, c);
+			counter.historySize(conf.history_size);
+			counter.silentTime(conf.silent_time);
+			realTimeMap.put(key, counter);
 		}
-		c.value(value);
-		rule.process(c);
-		c.addValueHistory((Number) value);
+		counter.value(value);
+		rule.process(counter);
+		counter.addValueHistory((Number) value);
 	}
-
-
 
 	public static void load() {
 		AlertRuleLoader.getInstance();

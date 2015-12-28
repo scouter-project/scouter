@@ -17,20 +17,16 @@
 
 package scouter.agent.asm;
 
-import java.util.List;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceMain;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
+import scouter.org.objectweb.asm.*;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+
+import java.util.List;
 
 public class MethodASM implements IASM, Opcodes {
 
@@ -106,7 +102,7 @@ class MethodCV extends ClassVisitor implements Opcodes {
 		if (conf.isIgnoreMethodPrefix(name))
 			return mv;
 
-		String fullname = AsmUtil.add(className, name, desc);
+		String fullname = AsmUtil.makeMethodFullName(className, name, desc);
 		int fullname_hash = DataProxy.sendMethodName(fullname);
 
 		return new MethodMV(access, desc, mv, fullname, fullname_hash);

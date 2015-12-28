@@ -16,26 +16,23 @@
  *
  */
 package scouter.agent.plugin;
+import scouter.agent.Configure;
+import scouter.agent.Logger;
+import scouter.agent.trace.HookArgs;
+import scouter.agent.trace.HookReturn;
+import scouter.agent.trace.TraceSQL;
+import scouter.javassist.*;
+import scouter.util.FileUtil;
+import scouter.util.Hexa32;
+import scouter.util.StringUtil;
+import scouter.util.ThreadUtil;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.StringReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
-import scouter.agent.Configure;
-import scouter.agent.Logger;
-import scouter.agent.trace.HookArgs;
-import scouter.agent.trace.HookReturn;
-import scouter.agent.trace.TraceSQL;
-import scouter.javassist.CannotCompileException;
-import scouter.javassist.ClassPool;
-import scouter.javassist.CtClass;
-import scouter.javassist.CtMethod;
-import scouter.javassist.CtNewMethod;
-import scouter.util.FileUtil;
-import scouter.util.Hexa32;
-import scouter.util.StringUtil;
-import scouter.util.ThreadUtil;
 public class PluginLoader extends Thread {
 	private static PluginLoader instance;
 	public synchronized static PluginLoader getInstance() {
@@ -51,14 +48,14 @@ public class PluginLoader extends Thread {
 		while (true) {
 			try {
 				File root = Configure.getInstance().plugin_dir;
-				cleckPluginModified(root);
+				reloadIfModified(root);
 			} catch (Throwable t) {
 				Logger.println("A160", t.toString());
 			}
 			ThreadUtil.sleep(5000);
 		}
 	}
-	private void cleckPluginModified(File root) {
+	private void reloadIfModified(File root) {
 		File script = new File(root, "service.plug");
 		if (script.canRead() == false) {
 			PluginAppServiceTrace.plugIn = null;

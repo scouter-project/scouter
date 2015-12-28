@@ -17,20 +17,16 @@
 
 package scouter.agent.asm;
 
-import java.util.List;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceMain;
 import scouter.lang.pack.XLogTypes;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
+import scouter.org.objectweb.asm.*;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+
+import java.util.List;
 
 public class ServiceASM implements IASM, Opcodes {
 	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_service_patterns);
@@ -67,8 +63,24 @@ class ServiceCV extends ClassVisitor implements Opcodes {
 		this.xType=xType;
 	}
 
-	@Override
+    /**
+     * @param access     the method's access flags (see {@link Opcodes}). This
+     *                   parameter also indicates if the method is synthetic and/or
+     *                   deprecated.
+     * @param name       the method's name.
+     * @param desc       the method's descriptor (see {@link Type Type}). (ex) (Ljava/lang/String;)Lorg/mybatis/jpetstore/domain/Category;
+     * @param signature  the method's signature. May be <tt>null</tt> if the method
+     *                   parameters, return type and exceptions do not use generic
+     *                   types.
+     * @param exceptions the internal names of the method's exception classes (see
+     *                   {@link Type#getInternalName() getInternalName}). May be
+     *                   <tt>null</tt>.
+     * @return
+     */
+    @Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+        //System.out.println("access = [" + access + "], name = [" + name + "], desc = [" + desc + "], signature = [" + signature + "], exceptions = [" + exceptions + "]");
+
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 		if (mv == null || mset.isA(name, desc) == false) {
 			return mv;
@@ -77,7 +89,7 @@ class ServiceCV extends ClassVisitor implements Opcodes {
 			return mv;
 		}
 
-		String fullname = AsmUtil.add(className, name, desc);
+		String fullname = AsmUtil.makeMethodFullName(className, name, desc);
 		return new ServiceMV(access, desc, mv, fullname,Type.getArgumentTypes(desc),(access & ACC_STATIC) != 0,xType,className,
 				name, desc);
 	}
