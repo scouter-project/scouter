@@ -25,17 +25,42 @@ import scouter.io.DataOutputX;
 import scouter.lang.value.MapValue;
 import scouter.util.Hexa32;
 
+/**
+ * Object that contains one agent(called object) information
+ */
 public class ObjectPack implements Pack {
 
+	/**
+	 * Object type
+	 */
 	public String objType;
+	/**
+	 * Object ID
+	 */
 	public int objHash;
+	/**
+	 * Object full name
+	 */
 	public String objName;
+	/**
+	 * IP address
+	 */
 	public String address;
+	/**
+	 * Version
+	 */
 	public String version;
-
+	/**
+	 * Whether alive
+	 */
 	public boolean alive = true;
+	/**
+	 * Last wake up time
+	 */
 	public long wakeup;
-
+	/**
+	 * More info
+	 */
 	public MapValue tags = new MapValue();
 	transient public int updated;
 
