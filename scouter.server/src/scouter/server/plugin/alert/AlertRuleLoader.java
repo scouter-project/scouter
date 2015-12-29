@@ -86,6 +86,7 @@ public class AlertRuleLoader extends Thread {
 	private void clear(String name) {
 		alertRuleTable.remove(name);
 		alertConfTable.remove(name);
+		Logger.println("S217", "Clear alert rule : " + name);
 	}
 	private void checkModified(File root) {
 		StringEnumer en = alertRuleTable.keys();
