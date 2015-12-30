@@ -16,7 +16,7 @@
  *
  */
 
-package scouter.server.db.status;
+package scouter.server.db.summary;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

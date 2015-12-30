@@ -18,8 +18,8 @@
 
 package scouter.server.db;
 
-import scouter.server.db.status.SummaryIndex
-import scouter.server.db.status.SummaryReader
+import scouter.server.db.summary.SummaryIndex
+import scouter.server.db.summary.SummaryReader
 import scouter.util.DateUtil
 import scouter.util.FileUtil
 import java.io.File
