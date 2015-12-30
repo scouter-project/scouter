@@ -92,6 +92,7 @@ public class XLogFilterDialog extends Dialog {
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
 		serviceTxt = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
 		serviceTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		serviceTxt.setText(status.service);
 		serviceTxt.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
 				newStatus.service = serviceTxt.getText();
