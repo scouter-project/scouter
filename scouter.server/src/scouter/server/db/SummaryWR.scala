@@ -19,8 +19,8 @@ package scouter.server.db;
 import scouter.lang.pack.SummaryPack
 import scouter.io.DataOutputX
 import scouter.server.Logger
-import scouter.server.db.status.SummaryIndex
-import scouter.server.db.status.SummaryWriter
+import scouter.server.db.summary.SummaryIndex
+import scouter.server.db.summary.SummaryWriter
 import scouter.util.DateUtil
 import scouter.util.FileUtil
 import scouter.util.IClose
