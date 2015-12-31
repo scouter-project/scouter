@@ -16,9 +16,6 @@
 
 package scouter.agent.asm.jdbc;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.Label;
@@ -26,6 +23,9 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
@@ -75,11 +75,29 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 	@Override
 	public void visitInsn(int opcode) {
 		if ((opcode >= IRETURN && opcode <= RETURN)) {
-
+            int i;
 			switch (returnType.getSort()) {
+                case Type.ARRAY:
+                    //TODO
+//                    i = newLocal(returnType);
+//                    mv.visitVarInsn(Opcodes.ISTORE, i);
+//                    mv.visitVarInsn(Opcodes.ILOAD, i);
+//
+//                    mv.visitVarInsn(Opcodes.ALOAD, statIdx);
+//                    mv.visitInsn(Opcodes.ACONST_NULL);
+//
+//                    mv.visitVarInsn(Opcodes.ILOAD, i);
+//
+//                    if(returnType.getSort()== Type.BOOLEAN){
+//                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "toInt", "(Z)I",false);
+//                    }
+                    mv.visitVarInsn(Opcodes.ALOAD, statIdx);
+                    mv.visitInsn(Opcodes.ACONST_NULL);
+                    AsmUtil.PUSH(mv,0);
+                    break;
 				case Type.BOOLEAN:
 				case Type.INT:
-					int i = newLocal(returnType);
+					i = newLocal(returnType);
 					mv.visitVarInsn(Opcodes.ISTORE, i);
 					mv.visitVarInsn(Opcodes.ILOAD, i);
 
@@ -122,5 +140,11 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
 	}
 
+//    public static void main(String[] args) {
+//        Type type = Type.getReturnType("(Z)[I");
+//        System.out.println("type = " + type.getSort());
+//        System.out.println("dim = " + type.getDimensions());
+//        System.out.println("element = " + type.getElementType());
+//    }
 
 }
