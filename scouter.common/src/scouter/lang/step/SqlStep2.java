@@ -24,6 +24,10 @@ import scouter.io.DataOutputX;
 public class SqlStep2 extends SqlStep {
 
 	public byte xtype;
+	/**
+	 * TODO: update 필드는 SqlStep3를 만들어서 그곳에 추가하고 현재는 프로토를 수정하지 않음 ==> 서버로 전송되지 않음
+	 */
+	public int  updated;
 
 	public byte getStepType() {
 		return StepEnum.SQL2;

@@ -212,7 +212,7 @@ public class TraceSQL {
 	private static SQLException tooManyFetch = new TOO_MANY_RECORDS("TOO_MANY_RECORDS", "TOO_MANY_RECORDS");
 	private static SQLException connectionOpenFail = new CONNECTION_OPEN_FAIL("CONNECTION_OPEN_FAIL",
 			"CONNECTION_OPEN_FAIL");
-	public static void end(Object stat, Throwable thr) {
+	public static void end(Object stat, Throwable thr, int updated) {
 		if (stat == null) {
 			if (conf.log_background_sql && thr != null) {
 				Logger.println("BG-SQL:" + thr);
@@ -223,6 +223,7 @@ public class TraceSQL {
 		TraceContext tctx = lctx.context;
 		SqlStep2 ps = (SqlStep2) lctx.stepSingle;
 		ps.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - ps.start_time;
+		ps.updated = updated;
 		if (tctx.profile_thread_cputime) {
 			ps.cputime = (int) (SysJMX.getCurrentThreadCPU() - tctx.startCpu) - ps.start_cpu;
 		}
@@ -617,5 +618,14 @@ public class TraceSQL {
 		p.hash = DataProxy.sendHashedMessage(new StringBuilder(40).append("SQLMAP ").append(methodName).append(" { ")
 				.append(sqlname).append(" }").toString());
 		ctx.profile.add(p);
+	}
+
+	/**
+	 * used for tracing the return of xxx.execute()
+	 * @param b
+	 * @return
+     */
+	public static int toInt(boolean b){
+		return b?1:0;
 	}
 }

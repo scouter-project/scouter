@@ -19,6 +19,7 @@ package scouter.agent.asm.jdbc;
 import java.util.HashSet;
 import java.util.Set;
 
+import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
@@ -42,24 +43,26 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 
 	private final static String TRACESQL = TraceSQL.class.getName().replace('.', '/');
 	private final static String START_METHOD = "start";
-	private final static String END_METHOD = "end";
-	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;)V";
 	private static final String START_SIGNATURE = "(Ljava/lang/Object;Lscouter/agent/trace/SqlParameter;)Ljava/lang/Object;";
+	private final static String END_METHOD = "end";
+	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;I)V";
 
 	public PsExecuteMV(int access, String desc, MethodVisitor mv, String owner) {
 		super(ASM4,access, desc, mv);
 		this.owner = owner;
+		this.returnType = Type.getReturnType(desc);
 	}
 	private Label startFinally = new Label();
 
 	private String owner;
 	private int statIdx;
+	private final Type returnType;
 
 	@Override
 	public void visitCode() {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 0);
-	   mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
+	    mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
 		
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, START_METHOD, START_SIGNATURE,false);
 
@@ -72,8 +75,30 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 	@Override
 	public void visitInsn(int opcode) {
 		if ((opcode >= IRETURN && opcode <= RETURN)) {
-			mv.visitVarInsn(Opcodes.ALOAD, statIdx);
-			mv.visitInsn(Opcodes.ACONST_NULL);
+
+			switch (returnType.getSort()) {
+				case Type.BOOLEAN:
+				case Type.INT:
+					int i = newLocal(returnType);
+					mv.visitVarInsn(Opcodes.ISTORE, i);
+					mv.visitVarInsn(Opcodes.ILOAD, i);
+
+					mv.visitVarInsn(Opcodes.ALOAD, statIdx);
+					mv.visitInsn(Opcodes.ACONST_NULL);
+
+					mv.visitVarInsn(Opcodes.ILOAD, i);
+
+					if(returnType.getSort()== Type.BOOLEAN){
+						mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "toInt", "(Z)I",false);
+					}
+					break;
+				default:
+					mv.visitVarInsn(Opcodes.ALOAD, statIdx);
+					mv.visitInsn(Opcodes.ACONST_NULL);
+					AsmUtil.PUSH(mv,0);
+			}
+
+
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, END_METHOD, END_SIGNATURE,false);
 		}
 		mv.visitInsn(opcode);
@@ -90,8 +115,12 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 
 		mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 		mv.visitVarInsn(Opcodes.ALOAD, errIdx);
+		AsmUtil.PUSH(mv,0);
+
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, END_METHOD, END_SIGNATURE,false);
 		mv.visitInsn(ATHROW);
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
 	}
+
+
 }
