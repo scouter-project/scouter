@@ -16,25 +16,16 @@
  */
 package scouter.agent;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import scouter.util.*;
 
-import scouter.util.CompareUtil;
-import scouter.util.DateUtil;
-import scouter.util.FileUtil;
-import scouter.util.IClose;
-import scouter.util.StringLongLinkedMap;
-import scouter.util.StringUtil;
-import scouter.util.ThreadUtil;
+import java.io.*;
 
 public class Logger {
 
 	private static StringLongLinkedMap lastLog = new StringLongLinkedMap().setMax(1000);
+    static Configure conf = Configure.getInstance();
 
-	public static void println(Object message) {
+    public static void println(Object message) {
 		println(build("SCOUTER", toString(message)), true);
 	}
 
@@ -45,6 +36,24 @@ public class Logger {
 		println(build(id, toString(message)), true);
 	}
 
+    public static void println(String id, String message, Throwable t) {
+        if (checkOk(id, 10) == false) {
+            return;
+        }
+        println(build(id, message), true);
+        println(ThreadUtil.getStackTrace(t), true);
+    }
+
+    public static void trace(Object message) {
+        if(conf._log_trace_enabled) {
+            if(conf._log_trace_use_logger) {
+                println(build("SCOUTER-TRC", toString(message)), true);
+            } else {
+                System.out.println(build("SCOUTER-TRC", toString(message)));
+            }
+        }
+    }
+
 	private static String toString(Object message) {
 		return message == null ? "null" : message.toString();
 	}
@@ -53,14 +62,6 @@ public class Logger {
 		return new StringBuffer(20 + id.length() + message.length())
 				.append(DateUtil.datetime(System.currentTimeMillis())).append(" [").append(id).append("] ")
 				.append(message).toString();
-	}
-
-	public static void println(String id, String message, Throwable t) {
-		if (checkOk(id, 10) == false) {
-			return;
-		}
-		println(build(id, message), true);
-		println(ThreadUtil.getStackTrace(t), true);
 	}
 
 	public static String getCallStack(Throwable t) {
@@ -133,7 +134,6 @@ public class Logger {
 		}
 	}
 
-	static Configure conf = Configure.getInstance();
 	static Runnable initializer = new Runnable() {
 		long last = System.currentTimeMillis();
 		long lastDataUnit = DateUtil.getDateUnit();
