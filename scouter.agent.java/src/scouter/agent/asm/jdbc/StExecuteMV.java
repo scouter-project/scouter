@@ -16,9 +16,6 @@
 
 package scouter.agent.asm.jdbc;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.Label;
@@ -26,6 +23,9 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 	private static Set<String> target = new HashSet<String>();
@@ -51,10 +51,12 @@ public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 	public StExecuteMV(int access, String desc, MethodVisitor mv, String owner) {
 		super(ASM4, access, desc, mv);
 		this.returnType = Type.getReturnType(desc);
+        this.desc = desc;
 	}
 
 	private Label startFinally = new Label();
 	private int statIdx;
+    private String desc;
 
 	@Override
 	public void visitCode() {
@@ -72,9 +74,27 @@ public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 	@Override
 	public void visitInsn(int opcode) {
 		if ((opcode >= IRETURN && opcode <= RETURN)) {
-
+            int lvPosReturn;
 			switch (returnType.getSort()) {
-				case Type.BOOLEAN:
+                case Type.ARRAY:
+                    if(returnType.getElementType().getSort() == Type.INT) {
+
+                        lvPosReturn = newLocal(returnType);
+                        mv.visitVarInsn(Opcodes.ASTORE, lvPosReturn);
+                        mv.visitVarInsn(Opcodes.ALOAD, lvPosReturn);
+
+                        mv.visitVarInsn(Opcodes.ALOAD, statIdx);
+                        mv.visitInsn(Opcodes.ACONST_NULL);
+                        mv.visitVarInsn(Opcodes.ALOAD, lvPosReturn);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "getIntArraySum", "([I)I", false);
+
+                    } else {
+                        mv.visitVarInsn(Opcodes.ALOAD, statIdx);
+                        mv.visitInsn(Opcodes.ACONST_NULL);
+                        AsmUtil.PUSH(mv,0);
+                    }
+                    break;
+                case Type.BOOLEAN:
 				case Type.INT:
 					int i = newLocal(returnType);
 					mv.visitVarInsn(Opcodes.ISTORE, i);
@@ -85,8 +105,8 @@ public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 
 					mv.visitVarInsn(Opcodes.ILOAD, i);
 
-					if(returnType.getSort()== Type.BOOLEAN){
-						mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "toInt", "(Z)I",false);
+					if(returnType.getSort() == Type.BOOLEAN){
+						mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "toInt", "(Z)I", false);
 					}
 					break;
 				default:
@@ -94,8 +114,6 @@ public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 					mv.visitInsn(Opcodes.ACONST_NULL);
 					AsmUtil.PUSH(mv,0);
 			}
-
-
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, END_METHOD, END_SIGNATURE, false);
 		}
 		mv.visitInsn(opcode);
@@ -118,7 +136,4 @@ public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 		mv.visitInsn(ATHROW);
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
 	}
-
-
-
 }

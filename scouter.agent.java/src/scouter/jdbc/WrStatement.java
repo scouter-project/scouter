@@ -17,10 +17,10 @@
 
 package scouter.jdbc;
 
+import scouter.agent.trace.TraceSQL;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import scouter.agent.trace.TraceSQL;
 
 public class WrStatement implements java.sql.Statement {
     java.sql.Statement inner;
@@ -223,7 +223,8 @@ public class WrStatement implements java.sql.Statement {
     }
 
     final public int getUpdateCount() throws java.sql.SQLException {
-        return this.inner.getUpdateCount();
+        return TraceSQL.incUpdateCount(this.inner.getUpdateCount());
+        //return this.inner.getUpdateCount();
     }
 
     final public boolean getMoreResults(int a0) throws java.sql.SQLException {

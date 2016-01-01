@@ -15,15 +15,10 @@
  *  limitations under the License. 
  */
 package scouter.agent.asm;
-import java.util.HashSet;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
-import scouter.agent.asm.jdbc.PsClearParametersMV;
-import scouter.agent.asm.jdbc.PsExecuteMV;
-import scouter.agent.asm.jdbc.PsInitMV;
-import scouter.agent.asm.jdbc.PsSetMV;
-import scouter.agent.asm.jdbc.StExecuteMV;
+import scouter.agent.asm.jdbc.*;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.SqlParameter;
 import scouter.agent.trace.TraceSQL;
@@ -31,6 +26,8 @@ import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
+
+import java.util.HashSet;
 public class JDBCPreparedStatementASM implements IASM, Opcodes {
 	public final HashSet<String> target = HookingSet.getHookingClassSet(Configure.getInstance().hook_jdbc_pstmt_classes);
 	public final HashSet<String> noField = new HashSet<String>();
@@ -85,6 +82,7 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 		if ("<init>".equals(name)) {
 			return new PsInitMV(access, desc, mv, owner);
+
 		} else {
 			String targetDesc = PsSetMV.getSetSignature(name);
 			if (targetDesc != null) {
@@ -99,7 +97,10 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 				}
 			} else if ("clearParameters".equals(name) && "()V".equals(desc)) {
 				return new PsClearParametersMV(access, desc, mv, owner);
-			}
+
+			} else if ("getUpdateCount".equals(name) && "()I".equals(desc)) {
+                return new PsUpdateCountMV(mv);
+            }
 		}
 		return mv;
 	}

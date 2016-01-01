@@ -17,6 +17,7 @@
 
 package scouter.agent.trace;
 
+import scouter.lang.step.SqlStep;
 import scouter.util.SysJMX;
 
 public class TraceContext {
@@ -96,6 +97,8 @@ public class TraceContext {
 	public int userTransaction;
 	public boolean debug_sql_call;
 	public String group;
+
+	public SqlStep lastSqlStep;
 
 	public TraceContext createChild() {
 		TraceContext child = new TraceContext(this.isSummary);

@@ -51,12 +51,14 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 		super(ASM4,access, desc, mv);
 		this.owner = owner;
 		this.returnType = Type.getReturnType(desc);
+        this.desc = desc;
 	}
 	private Label startFinally = new Label();
 
 	private String owner;
 	private int statIdx;
 	private final Type returnType;
+    private final String desc;
 
 	@Override
 	public void visitCode() {
@@ -75,48 +77,44 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 	@Override
 	public void visitInsn(int opcode) {
 		if ((opcode >= IRETURN && opcode <= RETURN)) {
-            int i;
+            int lvPosReturn;
 			switch (returnType.getSort()) {
                 case Type.ARRAY:
-                    //TODO
-//                    i = newLocal(returnType);
-//                    mv.visitVarInsn(Opcodes.ISTORE, i);
-//                    mv.visitVarInsn(Opcodes.ILOAD, i);
-//
-//                    mv.visitVarInsn(Opcodes.ALOAD, statIdx);
-//                    mv.visitInsn(Opcodes.ACONST_NULL);
-//
-//                    mv.visitVarInsn(Opcodes.ILOAD, i);
-//
-//                    if(returnType.getSort()== Type.BOOLEAN){
-//                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "toInt", "(Z)I",false);
-//                    }
-                    mv.visitVarInsn(Opcodes.ALOAD, statIdx);
-                    mv.visitInsn(Opcodes.ACONST_NULL);
-                    AsmUtil.PUSH(mv,0);
+                    if(returnType.getElementType().getSort() == Type.INT) {
+                        lvPosReturn = newLocal(returnType);
+                        mv.visitVarInsn(Opcodes.ASTORE, lvPosReturn);
+                        mv.visitVarInsn(Opcodes.ALOAD, lvPosReturn);
+
+                        mv.visitVarInsn(Opcodes.ALOAD, statIdx);
+                        mv.visitInsn(Opcodes.ACONST_NULL);
+                        mv.visitVarInsn(Opcodes.ALOAD, lvPosReturn);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "getIntArraySum", "([I)I", false);
+
+                    } else {
+                        mv.visitVarInsn(Opcodes.ALOAD, statIdx);
+                        mv.visitInsn(Opcodes.ACONST_NULL);
+                        AsmUtil.PUSH(mv, 0);
+                    }
                     break;
-				case Type.BOOLEAN:
-				case Type.INT:
-					i = newLocal(returnType);
-					mv.visitVarInsn(Opcodes.ISTORE, i);
-					mv.visitVarInsn(Opcodes.ILOAD, i);
+                case Type.BOOLEAN:
+                case Type.INT:
+                    lvPosReturn = newLocal(returnType);
+					mv.visitVarInsn(Opcodes.ISTORE, lvPosReturn);
+					mv.visitVarInsn(Opcodes.ILOAD, lvPosReturn);
 
 					mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 					mv.visitInsn(Opcodes.ACONST_NULL);
+					mv.visitVarInsn(Opcodes.ILOAD, lvPosReturn);
 
-					mv.visitVarInsn(Opcodes.ILOAD, i);
-
-					if(returnType.getSort()== Type.BOOLEAN){
+                    if(returnType.getSort()== Type.BOOLEAN){
 						mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "toInt", "(Z)I",false);
 					}
 					break;
 				default:
 					mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 					mv.visitInsn(Opcodes.ACONST_NULL);
-					AsmUtil.PUSH(mv,0);
+					AsmUtil.PUSH(mv, 0);
 			}
-
-
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, END_METHOD, END_SIGNATURE,false);
 		}
 		mv.visitInsn(opcode);
@@ -133,18 +131,19 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 
 		mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 		mv.visitVarInsn(Opcodes.ALOAD, errIdx);
-		AsmUtil.PUSH(mv,0);
+		AsmUtil.PUSH(mv, 0);
 
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, END_METHOD, END_SIGNATURE,false);
 		mv.visitInsn(ATHROW);
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
 	}
 
-//    public static void main(String[] args) {
-//        Type type = Type.getReturnType("(Z)[I");
-//        System.out.println("type = " + type.getSort());
-//        System.out.println("dim = " + type.getDimensions());
-//        System.out.println("element = " + type.getElementType());
-//    }
+    public static void main(String[] args) {
+        Type type = Type.getReturnType("(Z)[I");
+        System.out.println("type = " + type.getSort());
+        System.out.println("dim = " + type.getDimensions());
+        System.out.println("element = " + type.getElementType());
+
+    }
 
 }
