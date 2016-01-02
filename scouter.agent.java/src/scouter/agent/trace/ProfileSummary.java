@@ -29,7 +29,6 @@ import scouter.lang.step.MethodSum;
 import scouter.lang.step.SocketStep;
 import scouter.lang.step.SocketSum;
 import scouter.lang.step.SqlStep;
-import scouter.lang.step.SqlStep2;
 import scouter.lang.step.SqlSum;
 import scouter.lang.step.Step;
 import scouter.lang.step.StepEnum;

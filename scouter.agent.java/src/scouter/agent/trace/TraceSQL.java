@@ -15,6 +15,11 @@
  *  limitations under the License. 
  */
 package scouter.agent.trace;
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterSQL;
@@ -27,13 +32,18 @@ import scouter.agent.summary.ServiceSummary;
 import scouter.jdbc.DetectConnection;
 import scouter.jdbc.WrConnection;
 import scouter.lang.AlertLevel;
-import scouter.lang.step.*;
-import scouter.util.*;
-
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import scouter.lang.step.HashedMessageStep;
+import scouter.lang.step.MessageStep;
+import scouter.lang.step.MethodStep;
+import scouter.lang.step.SqlStep3;
+import scouter.lang.step.SqlXType;
+import scouter.util.EscapeLiteralSQL;
+import scouter.util.HashUtil;
+import scouter.util.IntKeyLinkedMap;
+import scouter.util.IntLinkedSet;
+import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.ThreadUtil;
 public class TraceSQL {
 	public final static int MAX_STRING = 20;
 	public static void set(int idx, boolean p) {
@@ -99,7 +109,7 @@ public class TraceSQL {
 		if (ctx == null) {
 			return null;
 		}
-		SqlStep2 step = new SqlStep2();
+		SqlStep3 step = new SqlStep3();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
@@ -149,7 +159,7 @@ public class TraceSQL {
 						ThreadUtil.getThreadStack()));
 			}
 		}
-		SqlStep2 step = new SqlStep2();
+		SqlStep3 step = new SqlStep3();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
@@ -175,7 +185,7 @@ public class TraceSQL {
 	}
 	private static IntLinkedSet noLiteralSql = new IntLinkedSet().setMax(10000);
 	private static IntKeyLinkedMap<ParsedSql> checkedSql = new IntKeyLinkedMap<ParsedSql>().setMax(1001);
-	private static String escapeLiteral(String sql, SqlStep2 step) {
+	private static String escapeLiteral(String sql, SqlStep3 step) {
 		if (conf.profile_sql_escape_enabled == false)
 			return sql;
 		int sqlHash = sql.hashCode();
@@ -217,7 +227,7 @@ public class TraceSQL {
 
         Logger.trace("updated row = " + updatedCount);
 
-        SqlStep2 step = (SqlStep2) lCtx.stepSingle;
+        SqlStep3 step = (SqlStep3) lCtx.stepSingle;
         tCtx.lastSqlStep = step;
 
 		step.elapsed = (int) (System.currentTimeMillis() - tCtx.startTime) - step.start_time;
@@ -404,7 +414,7 @@ public class TraceSQL {
 						ThreadUtil.getThreadStack()));
 			}
 		}
-		SqlStep2 step = new SqlStep2();
+		SqlStep3 step = new SqlStep3();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
@@ -653,7 +663,7 @@ public class TraceSQL {
         if (ctx == null) {
             return cnt;
         }
-        SqlStep2 lastSqlStep = (SqlStep2)ctx.lastSqlStep;
+        SqlStep3 lastSqlStep = (SqlStep3)ctx.lastSqlStep;
         if(lastSqlStep == null) {
             return cnt;
         }
