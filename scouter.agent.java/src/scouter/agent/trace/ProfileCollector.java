@@ -23,52 +23,52 @@ import scouter.lang.step.Step;
 import scouter.lang.step.StepSingle;
 
 public class ProfileCollector implements IProfileCollector {
-	private Configure conf=Configure.getInstance();
-	private TraceContext context;
-	protected Step[] buffer = new Step[conf.profile_step_max_count];
-	protected int position = 0;
+    private Configure conf = Configure.getInstance();
+    private TraceContext context;
+    protected Step[] buffer = new Step[conf.profile_step_max_count];
+    protected int position = 0;
 
-	public int this_index = 0;
-	public int parent_index = -1;
+    public int this_index = 0;
+    public int parent_index = -1;
 
-	public ProfileCollector(TraceContext context) {
-		this.context = context;
-	}
+    public ProfileCollector(TraceContext context) {
+        this.context = context;
+    }
 
-	public  void push(StepSingle stepSingle) {
-		stepSingle.index = this_index;
-		stepSingle.parent = parent_index;
-		parent_index = this_index;
-		this_index++;
-	}
+    public void push(StepSingle stepSingle) {
+        stepSingle.index = this_index;
+        stepSingle.parent = parent_index;
+        parent_index = this_index;
+        this_index++;
+    }
 
-	protected   void process(StepSingle stepSingle) {
-		buffer[position++] = stepSingle;
-		if (position >= buffer.length) {
-			Step[] o = buffer;
-			buffer = new Step[conf.profile_step_max_count];
-			position = 0;
-			DataProxy.sendProfile(o, context);
-		}
-	}
+    protected void process(StepSingle stepSingle) {
+        buffer[position++] = stepSingle;
+        if (position >= buffer.length) {
+            Step[] o = buffer;
+            buffer = new Step[conf.profile_step_max_count];
+            position = 0;
+            DataProxy.sendProfile(o, context);
+        }
+    }
 
-	public   void add(StepSingle stepSingle) {
-		stepSingle.index = this_index;
-		stepSingle.parent = parent_index;
-		this_index++;
-		process(stepSingle);
-	}
+    public void add(StepSingle stepSingle) {
+        stepSingle.index = this_index;
+        stepSingle.parent = parent_index;
+        this_index++;
+        process(stepSingle);
+    }
 
-	public   void pop(StepSingle stepSingle) {
-		parent_index = stepSingle.parent;
-		process(stepSingle);
-	}
+    public void pop(StepSingle stepSingle) {
+        parent_index = stepSingle.parent;
+        process(stepSingle);
+    }
 
-	public void close(boolean ok) {
-		if (ok && position > 0) {
-			StepSingle[] buff = new StepSingle[position];
-			System.arraycopy(buffer, 0, buff, 0, position);
-			DataProxy.sendProfile(buff, context);
-		}
-	}
+    public void close(boolean ok) {
+        if (ok && position > 0) {
+            StepSingle[] buff = new StepSingle[position];
+            System.arraycopy(buffer, 0, buff, 0, position);
+            DataProxy.sendProfile(buff, context);
+        }
+    }
 }
