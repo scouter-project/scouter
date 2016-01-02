@@ -21,22 +21,22 @@ import java.io.IOException;
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 
-public class SqlStep2 extends SqlStep {
+public class SqlStep3 extends SqlStep2 {
 
-	public byte xtype;
+	public int updated;
 
 	public byte getStepType() {
-		return StepEnum.SQL2;
+		return StepEnum.SQL3;
 	}
 
 	public void write(DataOutputX out) throws IOException {
 		super.write(out);
-		out.writeByte(xtype);
+		out.writeInt(updated);
 	}
 
 	public Step read(DataInputX in) throws IOException {
 		super.read(in);
-		this.xtype = in.readByte();
+		this.updated = in.readInt();
 		return this;
 	}
 

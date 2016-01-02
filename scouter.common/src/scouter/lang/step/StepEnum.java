@@ -25,6 +25,7 @@ public class StepEnum {
 	public final static byte METHOD2 = 10;
 	public final static byte SQL = 2;
 	public final static byte SQL2 = 8;
+	public final static byte SQL3 = 16;
 	public final static byte MESSAGE = 3;
 	public final static byte SOCKET = 5;
 	public final static byte APICALL = 6;
@@ -51,6 +52,8 @@ public class StepEnum {
 			return new SqlStep();
 		case SQL2:
 			return new SqlStep2();
+		case SQL3:
+			return new SqlStep3();
 		case SOCKET:
 			return new SocketStep();
 		case APICALL:
