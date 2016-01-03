@@ -15,11 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.agent.trace;
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterSQL;
@@ -32,18 +27,20 @@ import scouter.agent.summary.ServiceSummary;
 import scouter.jdbc.DetectConnection;
 import scouter.jdbc.WrConnection;
 import scouter.lang.AlertLevel;
-import scouter.lang.step.HashedMessageStep;
-import scouter.lang.step.MessageStep;
-import scouter.lang.step.MethodStep;
-import scouter.lang.step.SqlStep3;
-import scouter.lang.step.SqlXType;
-import scouter.util.EscapeLiteralSQL;
-import scouter.util.HashUtil;
-import scouter.util.IntKeyLinkedMap;
-import scouter.util.IntLinkedSet;
-import scouter.util.StringUtil;
-import scouter.util.SysJMX;
-import scouter.util.ThreadUtil;
+import scouter.lang.step.*;
+import scouter.util.*;
+
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+/**
+ * Trace SQL
+ * @author @author Paul S.J. Kim(sjkim@whatap.io)
+ * @author Gun Lee (gunlee01@gmail.com)
+ * @author Eunsu Kim
+ */
 public class TraceSQL {
 	public final static int MAX_STRING = 20;
 	public static void set(int idx, boolean p) {
@@ -225,7 +222,7 @@ public class TraceSQL {
         LocalContext lCtx = (LocalContext) stat;
         TraceContext tCtx = lCtx.context;
 
-        Logger.trace("updated row = " + updatedCount);
+        Logger.trace("affected row = " + updatedCount);
 
         SqlStep3 step = (SqlStep3) lCtx.stepSingle;
         tCtx.lastSqlStep = step;
@@ -631,11 +628,11 @@ public class TraceSQL {
 	/**
 	 * used for tracing the return of xxx.execute()
 	 * @param b true for resultSet, false for no result or update count
-	 * @return resultSet case 0, update count case -1
+	 * @return resultSet case -1, update count case -2
      */
 	public static int toInt(boolean b) {
 		//return b?1:0;
-        return b ? 0 : -1;
+        return b ? -1 : -2;
 	}
 
 	/**
@@ -648,7 +645,7 @@ public class TraceSQL {
 		for(int i=arr.length-1; i>=0; i--) {
 			sum += arr[i];
 		}
-        System.out.println("[Scouter] Batch-Result-Count=" + sum);
+        Logger.trace("executeBatch-count=" + sum);
         return sum;
 	}
 
@@ -668,8 +665,10 @@ public class TraceSQL {
             return cnt;
         }
         int lastCnt = lastSqlStep.updated;
-        if(lastCnt < 0) lastCnt = 0;
-        if(cnt > 0) {
+        if(lastCnt == -2 && cnt > 0) { // -2 : execute & the return is the case of update-count
+            lastCnt = cnt;
+            lastSqlStep.updated = lastCnt;
+        } else if(lastCnt >= 0 && cnt > 0) {
             lastCnt += cnt;
             lastSqlStep.updated = lastCnt;
         }
