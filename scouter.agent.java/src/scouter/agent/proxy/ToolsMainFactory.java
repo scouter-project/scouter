@@ -16,14 +16,14 @@
 
 package scouter.agent.proxy;
 
-import java.io.PrintWriter;
-import java.util.List;
-
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
 import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
+
+import java.io.PrintWriter;
+import java.util.List;
 
 public class ToolsMainFactory {
 	private static final String TOOLS_MAIN = "scouter.xtra.tools.ToolsMain";
@@ -82,9 +82,17 @@ public class ToolsMainFactory {
 		}
 	}
 
-	public static Pack threadDump(Pack param) throws Throwable {
+    /**
+     * get thread dump
+     * @param param
+     * @return
+     * @throws Throwable
+     */
+    public static Pack threadDump(Pack param) throws Throwable {
 		
 		MapPack m = new MapPack();
+
+        //Java 1.5 or IBM JDK
 		if (SystemUtil.IS_JAVA_1_5||SystemUtil.JAVA_VENDOR.startsWith("IBM")) {
 			List<String> out =  ThreadUtil.getThreadDumpList();
 			ListValue lv = m.newList("threadDump");
@@ -93,6 +101,7 @@ public class ToolsMainFactory {
 			}
 			return m;
 		}
+
 		ClassLoader loader = LoaderManager.getToolsLoader();
 		if (loader == null) {
 			List<String> out =  ThreadUtil.getThreadDumpList();
@@ -100,6 +109,7 @@ public class ToolsMainFactory {
 			for (int i = 0; i < out.size(); i++) {
 				lv.add(out.get(i));
 			}
+			return m;
 		}
 		
 		try {
