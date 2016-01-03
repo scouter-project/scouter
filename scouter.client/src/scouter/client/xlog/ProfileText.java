@@ -69,160 +69,160 @@ public class ProfileText {
 
 		if (profiles == null) {
 			profiles = new Step[0];
-		}
-		profiles = SortUtil.sort(profiles);
-		XLogUtil.loadStepText(serverId, date, profiles);
+				}
+				profiles = SortUtil.sort(profiles);
+				XLogUtil.loadStepText(serverId, date, profiles);
 
-		String error = TextProxy.error.getLoadText(date, xperf.p.error, serverId);
-		Color blue = text.getDisplay().getSystemColor(SWT.COLOR_BLUE);
-		Color dmagenta = text.getDisplay().getSystemColor(SWT.COLOR_DARK_MAGENTA);
-		Color red = text.getDisplay().getSystemColor(SWT.COLOR_RED);
+				String error = TextProxy.error.getLoadText(date, xperf.p.error, serverId);
+				Color blue = text.getDisplay().getSystemColor(SWT.COLOR_BLUE);
+				Color dmagenta = text.getDisplay().getSystemColor(SWT.COLOR_DARK_MAGENTA);
+				Color red = text.getDisplay().getSystemColor(SWT.COLOR_RED);
 
-		Color dred = text.getDisplay().getSystemColor(SWT.COLOR_DARK_RED);
-		Color dgreen = text.getDisplay().getSystemColor(SWT.COLOR_DARK_GREEN);
+				Color dred = text.getDisplay().getSystemColor(SWT.COLOR_DARK_RED);
+				Color dgreen = text.getDisplay().getSystemColor(SWT.COLOR_DARK_GREEN);
 
-		java.util.List<StyleRange> sr = new ArrayList<StyleRange>();
+				java.util.List<StyleRange> sr = new ArrayList<StyleRange>();
 
-		int slen = 0;
+				int slen = 0;
 
-		final StringBuffer sb = new StringBuffer();
-		sb.append("► txid    = ");
-		slen = sb.length();
-		sb.append(Hexa32.toString32(xperf.p.txid)).append("\n");
-		sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
-		if (xperf.p.gxid != 0) {
-			sb.append("► gxid    = ");
-			slen = sb.length();
-			sb.append(Hexa32.toString32(xperf.p.gxid)).append("\n");
-			sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
-		}
-		if (xperf.p.caller != 0) {
-			sb.append("► caller    = ");
-			slen = sb.length();
-			sb.append(Hexa32.toString32(xperf.p.caller)).append("\n");
-			sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
-		}
-		sb.append("► objName = ").append(xperf.objName).append("\n");
-		sb.append("► endtime = ").append(DateUtil.timestamp(xperf.p.endTime)).append("\n");
-		sb.append("► elapsed = ").append(FormatUtil.print(xperf.p.elapsed, "#,##0")).append(" ms\n");
-		sb.append("► service = ").append(TextProxy.service.getText(xperf.p.service)).append("\n");
-		if (error != null) {
-			sb.append("► error   = ");
-			slen = sb.length();
-			sb.append(error).append("\n");
-			sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
-		}
+				final StringBuffer sb = new StringBuffer();
+				sb.append("► txid    = ");
+				slen = sb.length();
+				sb.append(Hexa32.toString32(xperf.p.txid)).append("\n");
+				sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
+				if (xperf.p.gxid != 0) {
+					sb.append("► gxid    = ");
+					slen = sb.length();
+					sb.append(Hexa32.toString32(xperf.p.gxid)).append("\n");
+					sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
+				}
+				if (xperf.p.caller != 0) {
+					sb.append("► caller    = ");
+					slen = sb.length();
+					sb.append(Hexa32.toString32(xperf.p.caller)).append("\n");
+					sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
+				}
+				sb.append("► objName = ").append(xperf.objName).append("\n");
+				sb.append("► endtime = ").append(DateUtil.timestamp(xperf.p.endTime)).append("\n");
+				sb.append("► elapsed = ").append(FormatUtil.print(xperf.p.elapsed, "#,##0")).append(" ms\n");
+				sb.append("► service = ").append(TextProxy.service.getText(xperf.p.service)).append("\n");
+				if (error != null) {
+					sb.append("► error   = ");
+					slen = sb.length();
+					sb.append(error).append("\n");
+					sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
+				}
 
-		sb.append("► ipaddr=" + IPUtil.toString(xperf.p.ipaddr) + ", ");
-		sb.append("userid=" + xperf.p.userid);
-		sb.append("\n► cpu=" + FormatUtil.print(xperf.p.cpu, "#,##0") + " ms, ");
-		sb.append("bytes=" + xperf.p.bytes);
+				sb.append("► ipaddr=" + IPUtil.toString(xperf.p.ipaddr) + ", ");
+				sb.append("userid=" + xperf.p.userid);
+				sb.append("\n► cpu=" + FormatUtil.print(xperf.p.cpu, "#,##0") + " ms, ");
+				sb.append("bytes=" + xperf.p.bytes);
 //		sb.append("bytes=" + xperf.p.bytes + ", ");
 //		sb.append("status=" + xperf.p.status);
-		if (xperf.p.sqlCount > 0) {
-			sb.append("\n► sqlCount=" + xperf.p.sqlCount + ", ");
-			sb.append("sqlTime=" + FormatUtil.print(xperf.p.sqlTime, "#,##0") + " ms");
-		}
-		if (xperf.p.apicallCount > 0) {
-			sb.append("\n► ApiCallCount=" + xperf.p.apicallCount + ", ");
-			sb.append("ApiCallTime=" + FormatUtil.print(xperf.p.apicallTime, "#,##0") + " ms");
-		}
+				if (xperf.p.sqlCount > 0) {
+					sb.append("\n► sqlCount=" + xperf.p.sqlCount + ", ");
+					sb.append("sqlTime=" + FormatUtil.print(xperf.p.sqlTime, "#,##0") + " ms");
+				}
+				if (xperf.p.apicallCount > 0) {
+					sb.append("\n► ApiCallCount=" + xperf.p.apicallCount + ", ");
+					sb.append("ApiCallTime=" + FormatUtil.print(xperf.p.apicallTime, "#,##0") + " ms");
+				}
 
-		String t = TextProxy.userAgent.getLoadText(date, xperf.p.userAgent, serverId);
-		if (StringUtil.isNotEmpty(t)) {
-			sb.append("\n► userAgent=" + t);
-		}
+				String t = TextProxy.userAgent.getLoadText(date, xperf.p.userAgent, serverId);
+				if (StringUtil.isNotEmpty(t)) {
+					sb.append("\n► userAgent=" + t);
+				}
 
-		t = TextProxy.referer.getLoadText(date, xperf.p.referer, serverId);
-		if (StringUtil.isNotEmpty(t)) {
-			sb.append("\n► referer=" + t);
-		}
+				t = TextProxy.referer.getLoadText(date, xperf.p.referer, serverId);
+				if (StringUtil.isNotEmpty(t)) {
+					sb.append("\n► referer=" + t);
+				}
 
-		t = TextProxy.group.getLoadText(date, xperf.p.group, serverId);
-		if (StringUtil.isNotEmpty(t)) {
-			sb.append("\n► group=" + t);
-		}
-		if (StringUtil.isNotEmpty(xperf.p.countryCode)) {
-			sb.append("\n► country=" + CountryCode.getCountryName(xperf.p.countryCode));
-		}
-		t = TextProxy.city.getLoadText(date, xperf.p.city, serverId);
-		if (StringUtil.isNotEmpty(t)) {
-			sb.append("\n► city=" + t);
-		}
-		t = TextProxy.web.getLoadText(date, xperf.p.webHash, serverId);
-		if (StringUtil.isNotEmpty(t)) {
-			sb.append("\n► webName=" + t).append("  webTime=" + xperf.p.webTime + " ms");
-		}
-		t = TextProxy.login.getLoadText(date, xperf.p.login, serverId);
-		if (StringUtil.isNotEmpty(t)) {
-			sb.append("\n► login=" + t);
-		}
-		t = TextProxy.desc.getLoadText(date, xperf.p.desc, serverId);
-		if (StringUtil.isNotEmpty(t)) {
-			sb.append("\n► desc=" + t);
-		}
-		sb.append("\n");
+				t = TextProxy.group.getLoadText(date, xperf.p.group, serverId);
+				if (StringUtil.isNotEmpty(t)) {
+					sb.append("\n► group=" + t);
+				}
+				if (StringUtil.isNotEmpty(xperf.p.countryCode)) {
+					sb.append("\n► country=" + CountryCode.getCountryName(xperf.p.countryCode));
+				}
+				t = TextProxy.city.getLoadText(date, xperf.p.city, serverId);
+				if (StringUtil.isNotEmpty(t)) {
+					sb.append("\n► city=" + t);
+				}
+				t = TextProxy.web.getLoadText(date, xperf.p.webHash, serverId);
+				if (StringUtil.isNotEmpty(t)) {
+					sb.append("\n► webName=" + t).append("  webTime=" + xperf.p.webTime + " ms");
+				}
+				t = TextProxy.login.getLoadText(date, xperf.p.login, serverId);
+				if (StringUtil.isNotEmpty(t)) {
+					sb.append("\n► login=" + t);
+				}
+				t = TextProxy.desc.getLoadText(date, xperf.p.desc, serverId);
+				if (StringUtil.isNotEmpty(t)) {
+					sb.append("\n► desc=" + t);
+				}
+				sb.append("\n");
 
-		sb.append("------------------------------------------------------------------------------------------\n");
-		sb.append("    p#      #    	  TIME         T-GAP   CPU          CONTENTS\n");
-		sb.append("------------------------------------------------------------------------------------------\n");
-		if (profiles.length == 0) {
-			sb.append("\n                     ( No xlog profile collected ) ");
-			text.setText(sb.toString());
-			// for (int i = 0; i < sr.size(); i++) {
-			text.setStyleRanges(sr.toArray(new StyleRange[sr.size()]));
-			// }
-			return;
-		}
+				sb.append("------------------------------------------------------------------------------------------\n");
+				sb.append("    p#      #    	  TIME         T-GAP   CPU          CONTENTS\n");
+				sb.append("------------------------------------------------------------------------------------------\n");
+				if (profiles.length == 0) {
+					sb.append("\n                     ( No xlog profile collected ) ");
+					text.setText(sb.toString());
+					// for (int i = 0; i < sr.size(); i++) {
+					text.setStyleRanges(sr.toArray(new StyleRange[sr.size()]));
+					// }
+					return;
+				}
 
-		long stime = xperf.p.endTime - xperf.p.elapsed;
-		long prev_tm = stime;
-		long prev_cpu = 0;
+				long stime = xperf.p.endTime - xperf.p.elapsed;
+				long prev_tm = stime;
+				long prev_cpu = 0;
 
-		sb.append("        ");
-		sb.append(" ");
-		sb.append("[******]");
-		sb.append(" ");
-		sb.append(DateUtil.getLogTime(stime));
-		sb.append("   ");
-		sb.append(String.format("%6s", "0"));
-		sb.append(" ");
-		sb.append(String.format("%6s", "0"));
-		sb.append("  start transaction \n");
-		// sr.add(style(slen, sb.length() - slen, dblue, SWT.NORMAL));
-
-		long tm = xperf.p.endTime;
-		long cpu = xperf.p.cpu;
-		int sumCnt = 1;
-		HashMap<Integer, Integer> indent = new HashMap<Integer, Integer>();
-		for (int i = 0; i < profiles.length; i++) {
-
-			if (truncated)
-				break;
-
-			if (profiles[i] instanceof StepSummary) {
-				sb.append("        ").append(" ");
-				sb.append(String.format("[%06d]", sumCnt++));
+				sb.append("        ");
 				sb.append(" ");
+				sb.append("[******]");
+				sb.append(" ");
+				sb.append(DateUtil.getLogTime(stime));
+				sb.append("   ");
+				sb.append(String.format("%6s", "0"));
+				sb.append(" ");
+				sb.append(String.format("%6s", "0"));
+				sb.append("  start transaction \n");
+				// sr.add(style(slen, sb.length() - slen, dblue, SWT.NORMAL));
 
-				StepSummary sum = (StepSummary) profiles[i];
-				switch (sum.getStepType()) {
-				case StepEnum.METHOD_SUM:
-					XLogProfileView.isSummary = true;
+				long tm = xperf.p.endTime;
+				long cpu = xperf.p.cpu;
+				int sumCnt = 1;
+				HashMap<Integer, Integer> indent = new HashMap<Integer, Integer>();
+				for (int i = 0; i < profiles.length; i++) {
 
-					MethodSum p = (MethodSum) sum;
-					slen = sb.length();
+					if (truncated)
+						break;
 
-					String m = TextProxy.method.getText(p.hash);
-					if (m == null)
-						m = Hexa32.toString32(p.hash);
-					sb.append(m).append(" ");
+					if (profiles[i] instanceof StepSummary) {
+						sb.append("        ").append(" ");
+						sb.append(String.format("[%06d]", sumCnt++));
+						sb.append(" ");
 
-					sr.add(style(slen, sb.length() - slen, blue, SWT.NORMAL));
+						StepSummary sum = (StepSummary) profiles[i];
+						switch (sum.getStepType()) {
+							case StepEnum.METHOD_SUM:
+								XLogProfileView.isSummary = true;
 
-					sb.append(" count=").append(FormatUtil.print(p.count, "#,##0"));
-					sb.append(" time=").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
-					sb.append(" cpu=").append(FormatUtil.print(p.cputime, "#,##0"));
+								MethodSum p = (MethodSum) sum;
+								slen = sb.length();
+
+								String m = TextProxy.method.getText(p.hash);
+								if (m == null)
+									m = Hexa32.toString32(p.hash);
+								sb.append(m).append(" ");
+
+								sr.add(style(slen, sb.length() - slen, blue, SWT.NORMAL));
+
+								sb.append(" count=").append(FormatUtil.print(p.count, "#,##0"));
+								sb.append(" time=").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
+								sb.append(" cpu=").append(FormatUtil.print(p.cputime, "#,##0"));
 
 					sb.append("\n");
 					break;
@@ -691,7 +691,18 @@ public class ProfileText {
 		if (p instanceof SqlStep3) {
 			int updatedCount = ((SqlStep3) p).updated;
 			if (updatedCount > -1) {
-				sb.append(" <Return Count : " + updatedCount + ">");
+				switch (SqlXType.getMethodType(((SqlStep3) p).xtype)) {
+					case SqlXType.METHOD_UPDATE:
+						sb.append("\n");
+						sb.append(StringUtil.leftPad("", lineHead));
+						sb.append("<Update Count : " + updatedCount + ">");
+						break;
+					case SqlXType.METHOD_EXECUTE:
+						sb.append("\n");
+						sb.append(StringUtil.leftPad("", lineHead));
+						sb.append("<Execute Result : " + ((updatedCount == 1) ? "true" : "false") + ">");
+						break;
+				}
 			}
 		}
 	}
