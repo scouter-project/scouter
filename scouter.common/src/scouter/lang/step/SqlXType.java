@@ -22,4 +22,8 @@ public class SqlXType {
         }
         return "STM> ";
     }
+
+    public static byte getMethodType(byte xtype) {
+        return (byte) (xtype & 0xf0);
+    }
 }
