@@ -18,6 +18,7 @@
 package scouter.jdbc;
 
 import scouter.agent.trace.TraceSQL;
+import scouter.lang.step.SqlXType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,7 +39,7 @@ public class WrStatement implements java.sql.Statement {
     }
 
     final public boolean execute(java.lang.String a0, int[] a1) throws java.sql.SQLException {
-        Object stat = TraceSQL.start(this, a0);
+        Object stat = TraceSQL.start(this, a0, SqlXType.METHOD_EXECUTE);
         try {
             boolean b = this.inner.execute(a0, a1);
             TraceSQL.end(stat, null, TraceSQL.toInt(b));
@@ -53,7 +54,7 @@ public class WrStatement implements java.sql.Statement {
     }
 
     final public boolean execute(java.lang.String a0, java.lang.String[] a1) throws java.sql.SQLException {
-        Object stat = TraceSQL.start(this, a0);
+        Object stat = TraceSQL.start(this, a0, SqlXType.METHOD_EXECUTE);
         try {
             boolean b = this.inner.execute(a0, a1);
             TraceSQL.end(stat, null,TraceSQL.toInt(b));
@@ -68,7 +69,7 @@ public class WrStatement implements java.sql.Statement {
     }
 
     final public boolean execute(java.lang.String a0, int a1) throws java.sql.SQLException {
-        Object stat = TraceSQL.start(this, a0);
+        Object stat = TraceSQL.start(this, a0, SqlXType.METHOD_EXECUTE);
         try {
             boolean b = this.inner.execute(a0, a1);
             TraceSQL.end(stat, null, TraceSQL.toInt(b));
@@ -84,7 +85,7 @@ public class WrStatement implements java.sql.Statement {
 
     final public boolean execute(java.lang.String a0) throws java.sql.SQLException {
 
-        Object stat = TraceSQL.start(this, a0);
+        Object stat = TraceSQL.start(this, a0, SqlXType.METHOD_EXECUTE);
         try {
             boolean b = this.inner.execute(a0);
             TraceSQL.end(stat, null, TraceSQL.toInt(b));
@@ -99,7 +100,7 @@ public class WrStatement implements java.sql.Statement {
     }
 
     final public java.sql.ResultSet executeQuery(java.lang.String a0) throws java.sql.SQLException {
-        Object stat = TraceSQL.start(this, a0);
+        Object stat = TraceSQL.start(this, a0, SqlXType.METHOD_QUERY);
         try {
             ResultSet rs = this.inner.executeQuery(a0);
             TraceSQL.end(stat, null, -1);
@@ -114,7 +115,7 @@ public class WrStatement implements java.sql.Statement {
     }
 
     final public int executeUpdate(java.lang.String a0, java.lang.String[] a1) throws java.sql.SQLException {
-        Object stat = TraceSQL.start(this, a0);
+        Object stat = TraceSQL.start(this, a0, SqlXType.METHOD_UPDATE);
         try {
             int n = this.inner.executeUpdate(a0, a1);
             TraceSQL.end(stat, null, n);
@@ -129,7 +130,7 @@ public class WrStatement implements java.sql.Statement {
     }
 
     final public int executeUpdate(java.lang.String a0, int a1) throws java.sql.SQLException {
-        Object stat = TraceSQL.start(this, a0);
+        Object stat = TraceSQL.start(this, a0, SqlXType.METHOD_UPDATE);
         try {
             int n = this.inner.executeUpdate(a0, a1);
             TraceSQL.end(stat, null, n);
@@ -144,7 +145,7 @@ public class WrStatement implements java.sql.Statement {
     }
 
     final public int executeUpdate(java.lang.String a0) throws java.sql.SQLException {
-        Object stat = TraceSQL.start(this, a0);
+        Object stat = TraceSQL.start(this, a0, SqlXType.METHOD_UPDATE);
         try {
             int b = this.inner.executeUpdate(a0);
             TraceSQL.end(stat, null, b);
@@ -159,7 +160,7 @@ public class WrStatement implements java.sql.Statement {
     }
 
     final public int executeUpdate(java.lang.String a0, int[] a1) throws java.sql.SQLException {
-        Object stat = TraceSQL.start(this, a0);
+        Object stat = TraceSQL.start(this, a0, SqlXType.METHOD_UPDATE);
         try {
             int b = this.inner.executeUpdate(a0, a1);
             TraceSQL.end(stat, null, b);

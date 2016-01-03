@@ -37,21 +37,24 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 		target.add("executeBatch");
 	}
 
+	private final byte methodType;
+
 	public static boolean isTarget(String name) {
 		return target.contains(name);
 	}
 
 	private final static String TRACESQL = TraceSQL.class.getName().replace('.', '/');
 	private final static String START_METHOD = "start";
-	private static final String START_SIGNATURE = "(Ljava/lang/Object;Lscouter/agent/trace/SqlParameter;)Ljava/lang/Object;";
+	private static final String START_SIGNATURE = "(Ljava/lang/Object;Lscouter/agent/trace/SqlParameter;B)Ljava/lang/Object;";
 	private final static String END_METHOD = "end";
 	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;I)V";
 
-	public PsExecuteMV(int access, String desc, MethodVisitor mv, String owner) {
+	public PsExecuteMV(int access, String desc, MethodVisitor mv, String owner,String name) {
 		super(ASM4,access, desc, mv);
 		this.owner = owner;
 		this.returnType = Type.getReturnType(desc);
         this.desc = desc;
+		this.methodType = StExecuteMV.methodType(name);
 	}
 	private Label startFinally = new Label();
 

@@ -67,7 +67,7 @@ class StatementCV extends ClassVisitor implements Opcodes {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 		if (StExecuteMV.isTarget(name)) {
 			if (desc.startsWith("(Ljava/lang/String;)")) {
-				return new StExecuteMV(access, desc, mv, owner);
+				return new StExecuteMV(access, desc, mv, owner, name);
 			}
 		} else if ("getUpdateCount".equals(name) && "()I".equals(desc)) {
 			return new PsUpdateCountMV(mv);
