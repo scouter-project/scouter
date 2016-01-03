@@ -121,6 +121,7 @@ public class ProfileSummary implements IProfileCollector {
 			break;
 		case StepEnum.SQL:
 		case StepEnum.SQL2:
+		case StepEnum.SQL3:
 			add((SqlStep) ss);
 			break;
 		case StepEnum.APICALL:
