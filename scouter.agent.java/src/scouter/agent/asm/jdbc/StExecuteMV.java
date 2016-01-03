@@ -18,6 +18,7 @@ package scouter.agent.asm.jdbc;
 
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.trace.TraceSQL;
+import scouter.lang.step.SqlXType;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
@@ -37,6 +38,7 @@ public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 	}
 
 	private final Type returnType;
+	private final byte methodType;
 
 	public static boolean isTarget(String name) {
 		return target.contains(name);
@@ -44,14 +46,28 @@ public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 
 	private final static String TRACESQL = TraceSQL.class.getName().replace('.', '/');
 	private final static String START_METHOD = "start";
-	private static final String START_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;";
+	private static final String START_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/String;B)Ljava/lang/Object;";
 	private final static String END_METHOD = "end";
 	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;I)V";
 
-	public StExecuteMV(int access, String desc, MethodVisitor mv, String owner) {
+	public StExecuteMV(int access, String desc, MethodVisitor mv, String owner, String name) {
 		super(ASM4, access, desc, mv);
 		this.returnType = Type.getReturnType(desc);
         this.desc = desc;
+		this.methodType = methodType(name);
+	}
+
+	public static byte methodType(String name) {
+		if("execute".equals(name)){
+			return SqlXType.METHOD_EXECUTE;
+		}
+		if("executeQuery".equals(name)){
+			return SqlXType.METHOD_QUERY;
+		}
+		if("executeUpdate".equals(name)){
+			return SqlXType.METHOD_UPDATE;
+		}
+		return SqlXType.METHOD_KNOWN;
 	}
 
 	private Label startFinally = new Label();
@@ -62,6 +78,7 @@ public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 	public void visitCode() {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 1);
+		AsmUtil.PUSH(mv, this.methodType);
 
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, START_METHOD, START_SIGNATURE, false);
 

@@ -19,6 +19,7 @@ package scouter.jdbc;
 
 import scouter.agent.trace.SqlParameter;
 import scouter.agent.trace.TraceSQL;
+import scouter.lang.step.SqlXType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -94,7 +95,7 @@ public class WrPreparedStatement extends WrStatement implements java.sql.Prepare
     }
 
     final public boolean execute() throws java.sql.SQLException {
-        Object stat = TraceSQL.start(this, sql);
+        Object stat = TraceSQL.start(this, sql, SqlXType.METHOD_EXECUTE);
         try {
             boolean b = this.inner.execute();
             TraceSQL.end(stat, null, TraceSQL.toInt(b));
@@ -109,7 +110,7 @@ public class WrPreparedStatement extends WrStatement implements java.sql.Prepare
     }
 
     final public java.sql.ResultSet executeQuery() throws java.sql.SQLException {
-        Object stat = TraceSQL.start(this, sql);
+        Object stat = TraceSQL.start(this, sql, SqlXType.METHOD_QUERY);
         try {
             ResultSet rs = this.inner.executeQuery();
             TraceSQL.end(stat, null, -1);
@@ -124,7 +125,7 @@ public class WrPreparedStatement extends WrStatement implements java.sql.Prepare
     }
 
     final public int executeUpdate() throws java.sql.SQLException {
-        Object stat = TraceSQL.start(this, sql);
+        Object stat = TraceSQL.start(this, sql, SqlXType.METHOD_UPDATE);
         try {
             int n = this.inner.executeUpdate();
             TraceSQL.end(stat, null, n);

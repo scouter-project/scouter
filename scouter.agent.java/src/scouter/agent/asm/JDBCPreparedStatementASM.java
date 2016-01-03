@@ -91,9 +91,9 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 				}
 			} else if (PsExecuteMV.isTarget(name)) {
 				if (desc.startsWith("()")) {
-					return new PsExecuteMV(access, desc, mv, owner);
+					return new PsExecuteMV(access, desc, mv, owner, name);
 				} else if (desc.startsWith("(Ljava/lang/String;)")) {
-					return new StExecuteMV(access, desc, mv, owner);
+					return new StExecuteMV(access, desc, mv, owner, name);
 				}
 			} else if ("clearParameters".equals(name) && "()V".equals(desc)) {
 				return new PsClearParametersMV(access, desc, mv, owner);

@@ -124,7 +124,7 @@ public class TraceSQL {
 		ctx.sqltext = sql;
 		return new LocalContext(ctx, step);
 	}
-	public static Object start(Object o, String sql) {
+	public static Object start(Object o, String sql, byte methodType) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.log_background_sql) {
@@ -167,7 +167,7 @@ public class TraceSQL {
 			sql = escapeLiteral(sql, step);
 		}
 		step.hash = DataProxy.sendSqlText(sql);
-		step.xtype = SqlXType.STMT;
+		step.xtype =(byte)(SqlXType.STMT | methodType);
 		ctx.profile.push(step);
 		ctx.sqltext = sql;
 		return new LocalContext(ctx, step);
@@ -379,7 +379,7 @@ public class TraceSQL {
 			args.clear();
 		}
 	}
-	public static Object start(Object o, SqlParameter args) {
+	public static Object start(Object o, SqlParameter args, byte methodType) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.log_background_sql && args != null) {
@@ -426,7 +426,7 @@ public class TraceSQL {
 		if (sql != null) {
 			step.hash = DataProxy.sendSqlText(sql);
 		}
-		step.xtype = SqlXType.PREPARED;
+		step.xtype =(byte)(SqlXType.PREPARED | methodType);
 		ctx.profile.push(step);
 		ctx.sqltext = sql;
 		return new LocalContext(ctx, step);
