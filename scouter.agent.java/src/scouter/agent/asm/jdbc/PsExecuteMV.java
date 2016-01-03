@@ -68,7 +68,8 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 0);
 	    mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
-		
+		AsmUtil.PUSH(mv, this.methodType);
+
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, START_METHOD, START_SIGNATURE,false);
 
 		statIdx = newLocal(scouter.org.objectweb.asm.Type.getType(Object.class));
