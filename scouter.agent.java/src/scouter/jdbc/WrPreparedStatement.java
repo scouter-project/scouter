@@ -17,11 +17,11 @@
 
 package scouter.jdbc;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import scouter.agent.trace.SqlParameter;
 import scouter.agent.trace.TraceSQL;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class WrPreparedStatement extends WrStatement implements java.sql.PreparedStatement {
     java.sql.PreparedStatement inner;
@@ -100,10 +100,10 @@ public class WrPreparedStatement extends WrStatement implements java.sql.Prepare
             TraceSQL.end(stat, null, TraceSQL.toInt(b));
             return b;
         } catch (SQLException ex) {
-            TraceSQL.end(stat, ex, 0);
+            TraceSQL.end(stat, ex, -3);
             throw ex;
         } catch (Throwable t) {
-            TraceSQL.end(stat, t, 0);
+            TraceSQL.end(stat, t, -3);
             throw new SQLException(t);
         }
     }
@@ -112,13 +112,13 @@ public class WrPreparedStatement extends WrStatement implements java.sql.Prepare
         Object stat = TraceSQL.start(this, sql);
         try {
             ResultSet rs = this.inner.executeQuery();
-            TraceSQL.end(stat, null, 0);
+            TraceSQL.end(stat, null, -1);
             return new WrResultSet(rs);
         } catch (SQLException ex) {
-            TraceSQL.end(stat, ex, 0);
+            TraceSQL.end(stat, ex, -3);
             throw ex;
         } catch (Throwable t) {
-            TraceSQL.end(stat, t, 0);
+            TraceSQL.end(stat, t, -3);
             throw new SQLException(t);
         }
     }
@@ -130,10 +130,10 @@ public class WrPreparedStatement extends WrStatement implements java.sql.Prepare
             TraceSQL.end(stat, null, n);
             return n;
         } catch (SQLException ex) {
-            TraceSQL.end(stat, ex, 0);
+            TraceSQL.end(stat, ex, -3);
             throw ex;
         } catch (Throwable t) {
-            TraceSQL.end(stat, t, 0);
+            TraceSQL.end(stat, t, -3);
             throw new SQLException(t);
         }
     }

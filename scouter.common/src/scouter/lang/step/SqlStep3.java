@@ -16,13 +16,25 @@
 
 package scouter.lang.step;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 
+import java.io.IOException;
+
+/**
+ * SqlStep version 3 (for barward compatibility)
+ * the local variable 'updated' added
+ * @author Gun Lee (gunlee01@gmail.com)
+ * @author Eunsu Kim
+ */
 public class SqlStep3 extends SqlStep2 {
 
+	/**
+	 * zero & positive : affected row count
+	 * -1 : return type of stmt.execute is a resultset.
+     * -2 : return type of stmt.execute is a udpate count but 'getUpdateCount' have not been triggered.
+     * -3 : SQL exception
+	 */
 	public int updated;
 
 	public byte getStepType() {

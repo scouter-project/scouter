@@ -93,7 +93,7 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
                     } else {
                         mv.visitVarInsn(Opcodes.ALOAD, statIdx);
                         mv.visitInsn(Opcodes.ACONST_NULL);
-                        AsmUtil.PUSH(mv, 0);
+                        AsmUtil.PUSH(mv, -1);
                     }
                     break;
                 case Type.BOOLEAN:
@@ -113,7 +113,7 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 				default:
 					mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 					mv.visitInsn(Opcodes.ACONST_NULL);
-					AsmUtil.PUSH(mv, 0);
+					AsmUtil.PUSH(mv, -1);
 			}
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, END_METHOD, END_SIGNATURE,false);
 		}
@@ -131,7 +131,7 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 
 		mv.visitVarInsn(Opcodes.ALOAD, statIdx);
 		mv.visitVarInsn(Opcodes.ALOAD, errIdx);
-		AsmUtil.PUSH(mv, 0);
+		AsmUtil.PUSH(mv, -3);
 
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, END_METHOD, END_SIGNATURE,false);
 		mv.visitInsn(ATHROW);

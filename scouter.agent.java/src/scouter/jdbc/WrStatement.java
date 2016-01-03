@@ -44,10 +44,10 @@ public class WrStatement implements java.sql.Statement {
             TraceSQL.end(stat, null, TraceSQL.toInt(b));
             return b;
         } catch (SQLException ex) {
-            TraceSQL.end(stat, ex, 0);
+            TraceSQL.end(stat, ex, -3);
             throw ex;
         } catch (Throwable t) {
-            TraceSQL.end(stat, t, 0);
+            TraceSQL.end(stat, t, -3);
             throw new SQLException(t);
         }
     }
@@ -59,10 +59,10 @@ public class WrStatement implements java.sql.Statement {
             TraceSQL.end(stat, null,TraceSQL.toInt(b));
             return b;
         } catch (SQLException ex) {
-            TraceSQL.end(stat, ex, 0);
+            TraceSQL.end(stat, ex, -3);
             throw ex;
         } catch (Throwable t) {
-            TraceSQL.end(stat, t, 0);
+            TraceSQL.end(stat, t, -3);
             throw new SQLException(t);
         }
     }
@@ -74,10 +74,10 @@ public class WrStatement implements java.sql.Statement {
             TraceSQL.end(stat, null, TraceSQL.toInt(b));
             return b;
         } catch (SQLException ex) {
-            TraceSQL.end(stat, ex, 0);
+            TraceSQL.end(stat, ex, -3);
             throw ex;
         } catch (Throwable t) {
-            TraceSQL.end(stat, t, 0);
+            TraceSQL.end(stat, t, -3);
             throw new SQLException(t);
         }
     }
@@ -102,13 +102,13 @@ public class WrStatement implements java.sql.Statement {
         Object stat = TraceSQL.start(this, a0);
         try {
             ResultSet rs = this.inner.executeQuery(a0);
-            TraceSQL.end(stat, null, 0);
+            TraceSQL.end(stat, null, -1);
             return new WrResultSet(rs);
         } catch (SQLException ex) {
-            TraceSQL.end(stat, ex, 0);
+            TraceSQL.end(stat, ex, -3);
             throw ex;
         } catch (Throwable t) {
-            TraceSQL.end(stat, t, 0);
+            TraceSQL.end(stat, t, -3);
             throw new SQLException(t);
         }
     }
@@ -120,10 +120,10 @@ public class WrStatement implements java.sql.Statement {
             TraceSQL.end(stat, null, n);
             return n;
         } catch (SQLException ex) {
-            TraceSQL.end(stat, ex, 0);
+            TraceSQL.end(stat, ex, -3);
             throw ex;
         } catch (Throwable t) {
-            TraceSQL.end(stat, t, 0);
+            TraceSQL.end(stat, t, -3);
             throw new SQLException(t);
         }
     }
@@ -135,10 +135,10 @@ public class WrStatement implements java.sql.Statement {
             TraceSQL.end(stat, null, n);
             return n;
         } catch (SQLException ex) {
-            TraceSQL.end(stat, ex, 0);
+            TraceSQL.end(stat, ex, -3);
             throw ex;
         } catch (Throwable t) {
-            TraceSQL.end(stat, t, 0);
+            TraceSQL.end(stat, t, -3);
             throw new SQLException(t);
         }
     }
@@ -150,10 +150,10 @@ public class WrStatement implements java.sql.Statement {
             TraceSQL.end(stat, null, b);
             return b;
         } catch (SQLException ex) {
-            TraceSQL.end(stat, ex, 0);
+            TraceSQL.end(stat, ex, -3);
             throw ex;
         } catch (Throwable t) {
-            TraceSQL.end(stat, t, 0);
+            TraceSQL.end(stat, t, -3);
             throw new SQLException(t);
         }
     }
@@ -165,10 +165,10 @@ public class WrStatement implements java.sql.Statement {
             TraceSQL.end(stat, null, b);
             return b;
         } catch (SQLException ex) {
-            TraceSQL.end(stat, ex, 0);
+            TraceSQL.end(stat, ex, -3);
             throw ex;
         } catch (Throwable t) {
-            TraceSQL.end(stat, t, 0);
+            TraceSQL.end(stat, t, -3);
             throw new SQLException(t);
         }
     }
