@@ -45,6 +45,7 @@ import scouter.lang.step.SocketStep;
 import scouter.lang.step.SocketSum;
 import scouter.lang.step.SqlStep;
 import scouter.lang.step.SqlStep2;
+import scouter.lang.step.SqlStep3;
 import scouter.lang.step.SqlSum;
 import scouter.lang.step.SqlXType;
 import scouter.lang.step.Step;
@@ -317,6 +318,7 @@ public class ProfileText {
 				break;
 			case StepEnum.SQL:
 			case StepEnum.SQL2:
+			case StepEnum.SQL3:
 				SqlStep sql = (SqlStep) stepSingle;
 				slen = sb.length();
 				toString(sb, sql, serverId, lineHead);
@@ -546,6 +548,7 @@ public class ProfileText {
 				break;
 			case StepEnum.SQL:
 			case StepEnum.SQL2:
+			case StepEnum.SQL3:
 				SqlStep sql = (SqlStep) stepSingle;
 				slen = sb.length();
 				toString(sb, sql, serverId, lineHead);
@@ -685,6 +688,12 @@ public class ProfileText {
 			sb.append("[").append(showParam ? p.param : "******").append("]");
 		}
 		sb.append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
+		if (p instanceof SqlStep3) {
+			int updatedCount = ((SqlStep3) p).updated;
+			if (updatedCount > -1) {
+				sb.append(" <Return Count : " + updatedCount + ">");
+			}
+		}
 	}
 
 	public static String spacing(String m, int lineHead) {

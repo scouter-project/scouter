@@ -202,6 +202,7 @@ public class XlogSummarySQLDialog extends Dialog {
 			switch(stepSingle.getStepType()){
 			case StepEnum.SQL:
 			case StepEnum.SQL2:
+			case StepEnum.SQL3:
 				sql = (SqlStep)stepSingle;
 				
 				sqlSumData = sqlMap.get(sql.hash);
