@@ -298,6 +298,7 @@ public class ProfileText {
                 space = indent.get(stepSingle.parent) + spaceCnt;
             }
             indent.put(stepSingle.index, space);
+            lineHead += space;
             while (space > 0) {
                 sb.append(" ");
                 space--;
@@ -528,6 +529,7 @@ public class ProfileText {
                 space = indent.get(stepSingle.parent) + 1;
             }
             indent.put(stepSingle.index, space);
+            lineHead += space;
             while (space > 0) {
                 sb.append(" ");
                 space--;
@@ -694,11 +696,11 @@ public class ProfileText {
             if (updatedCount > -1) {
                 sb.append("\n");
                 sb.append(StringUtil.leftPad("", lineHead));
-                sb.append("<Return Count : " + updatedCount + ">");
+                sb.append("<Affected Rows : " + updatedCount + ">");
             } else if (updatedCount == -2) {
                 sb.append("\n");
                 sb.append(StringUtil.leftPad("", lineHead));
-                sb.append("<Return Count : unknown>");
+                sb.append("<Affected Rows : unknown>");
             }
 //                switch (SqlXType.getMethodType(((SqlStep3) p).xtype)) {
 //                    case SqlXType.METHOD_UPDATE:
