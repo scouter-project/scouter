@@ -43,12 +43,12 @@ public class SqlStep3 extends SqlStep2 {
 
 	public void write(DataOutputX out) throws IOException {
 		super.write(out);
-		out.writeInt(updated);
+		out.writeDecimal(updated);
 	}
 
 	public Step read(DataInputX in) throws IOException {
 		super.read(in);
-		this.updated = in.readInt();
+		this.updated = (int) in.readDecimal();
 		return this;
 	}
 
