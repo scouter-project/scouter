@@ -692,19 +692,27 @@ public class ProfileText {
         if (p instanceof SqlStep3) {
             int updatedCount = ((SqlStep3) p).updated;
             if (updatedCount > -1) {
-                switch (SqlXType.getMethodType(((SqlStep3) p).xtype)) {
-                    case SqlXType.METHOD_UPDATE:
-                        sb.append("\n");
-                        sb.append(StringUtil.leftPad("", lineHead));
-                        sb.append("<Update Count : " + updatedCount + ">");
-                        break;
-                    case SqlXType.METHOD_EXECUTE:
-                        sb.append("\n");
-                        sb.append(StringUtil.leftPad("", lineHead));
-                        sb.append("<Execute Result : " + ((updatedCount == 1) ? "true" : "false") + ">");
-                        break;
-                }
+                sb.append("\n");
+                sb.append(StringUtil.leftPad("", lineHead));
+                sb.append("<Return Count : " + updatedCount + ">");
+            } else if (updatedCount == -2) {
+                sb.append("\n");
+                sb.append(StringUtil.leftPad("", lineHead));
+                sb.append("<Return Count : unknown>");
             }
+//                switch (SqlXType.getMethodType(((SqlStep3) p).xtype)) {
+//                    case SqlXType.METHOD_UPDATE:
+//                        sb.append("\n");
+//                        sb.append(StringUtil.leftPad("", lineHead));
+//                        sb.append("<Update Count : " + updatedCount + ">");
+//                        break;
+//                    case SqlXType.METHOD_EXECUTE:
+//                        sb.append("\n");
+//                        sb.append(StringUtil.leftPad("", lineHead));
+//                        sb.append("<Execute Result : " + ((updatedCount == 1) ? "true" : "false") + ">");
+//                        break;
+//                }
+//            }
         }
     }
 
