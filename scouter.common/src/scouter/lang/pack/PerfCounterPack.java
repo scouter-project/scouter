@@ -27,11 +27,26 @@ import scouter.lang.value.NumberValue;
 import scouter.lang.value.Value;
 import scouter.util.DateUtil;
 
+/**
+ * Object that contains multiple counter information
+ */
 public class PerfCounterPack implements Pack {
 
+	/**
+	 * Counter time
+	 */
 	public long time;
+	/**
+	 * Object name
+	 */
 	public String objName;
+	/**
+	 * Time type. 1:Real-time, 2:OneMin, 3:FiveMin, 4:TenMin, 5:Hour, 6:Day
+	 */
 	public byte timetype;
+	/**
+	 * Multiple counter data. Key is counter name. ref.)scouter.lang.value.MapValue
+	 */
 	public MapValue data = new MapValue();
 
 	public String toString() {

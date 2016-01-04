@@ -32,65 +32,9 @@ import scouter.util.SysJMX;
 
 public class LoginMgr{
 	public static boolean login(int serverId, String user, String password){
-		try {
-			MapPack param = new MapPack();
-			param.put("id", user);
-			String encrypted = CipherUtil.md5(password);
-			param.put("pass", encrypted);
-			param.put("version", Version.getClientFullVersion());
-			param.put("hostname", SysJMX.getHostName());
-			MapPack out = TcpProxy.loginProxy(serverId, param);
-			if (out != null) {
-				long session = out.getLong("session");
-				String error = out.getText("error");
-				if(error != null && session == 0L){
-					return false;
-				}
-				long time = out.getLong("time");
-				String hostname = out.getText("hostname");
-				String type = out.getText("type");
-				String version = out.getText("version");
-				String email = out.getText("email");
-				String timezone = out.getText("timezone");
-				
-				Server server = ServerManager.getInstance().getServer(serverId);
-				server.setOpen(true);
-				server.setSession(session);
-				server.setName(hostname);
-				server.setDelta(time);
-				server.setUserId(user);
-				server.setPassword(encrypted);
-				server.setGroup(type);
-				server.setVersion(version);
-				server.setEmail(email);
-				server.setTimezone(timezone);
-				Value value = out.get("policy");
-				if (value != null) {
-					MapValue mv = (MapValue) value;
-					server.setGroupPolicy(mv);
-				}
-				Value menuV = out.get("menu");
-				if (menuV != null) {
-					MapValue mv = (MapValue) menuV;
-					server.setMenuEnableMap(mv);
-				}
-				CounterEngine counterEngine = server.getCounterEngine();
-				MapPack m = getCounterXmlServer(serverId);
-				if (m != null) {
-					counterEngine.clear();
-					Value v1 = m.get("default");
-					counterEngine.parse(((BlobValue)v1).value);
-					v1 = m.get("custom");
-					if (v1 != null) {
-						counterEngine.parse(((BlobValue)v1).value);
-					}
-				}
-				return true;
-			}
-		} catch(Exception e){
-			e.printStackTrace();
-		}
-		return false;
+		Server server = ServerManager.getInstance().getServer(serverId);
+		String encrypted = CipherUtil.md5(password);
+		return silentLogin(server, user, encrypted);
 	}
 	
 	public static boolean silentLogin(Server server, String user, String encryptedPwd){
@@ -111,14 +55,14 @@ public class LoginMgr{
 				}
 				server.setOpen(true);
 				long time = out.getLong("time");
-				String hostname = out.getText("hostname");
+				String serverName = out.getText("server_id");
 				String type = out.getText("type");
 				String version = out.getText("version");
 				String email = out.getText("email");
 				String timezone = out.getText("timezone");
 				
 				server.setSession(session);
-				server.setName(hostname);
+				server.setName(serverName);
 				server.setDelta(time);
 				server.setUserId(user);
 				server.setPassword(encryptedPwd);

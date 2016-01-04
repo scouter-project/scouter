@@ -24,13 +24,34 @@ import scouter.io.DataOutputX;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 
+/**
+ * Object that contains a part of full profile
+ */
 public class XLogProfilePack implements Pack {
 
+	/**
+	 * Profile time
+	 */
 	public long time;
+	/**
+	 * Object ID
+	 */
 	public int objHash;
+	/**
+	 * Related transaction name hash
+	 */
 	public int service;
+	/**
+	 * Related transaction ID
+	 */
 	public long txid;
+	/**
+	 * Elapsed time until this step(ms)
+	 */
 	public int elapsed;
+	/**
+	 * Byte array of profile steps
+	 */
 	public byte[] profile;
 
 	public byte getPackType() {

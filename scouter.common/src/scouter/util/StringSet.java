@@ -109,7 +109,8 @@ public class StringSet {
 	}
 
 	/**
-	 * add a key to StringSet and return hashcode of the key
+	 * add a key to StringSet and return the key
+	 * If this set has same string value it returns the reference already hava had.
 	 * @param key String
 	 * @return String - parameter key
 	 */

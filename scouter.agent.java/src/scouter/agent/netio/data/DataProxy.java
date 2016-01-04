@@ -15,28 +15,22 @@
  *  limitations under the License. 
  */
 package scouter.agent.netio.data;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.net.DataUdpAgent;
 import scouter.agent.trace.TraceContext;
 import scouter.io.DataOutputX;
 import scouter.lang.TextTypes;
-import scouter.lang.pack.AlertPack;
-import scouter.lang.pack.ObjectPack;
-import scouter.lang.pack.Pack;
-import scouter.lang.pack.PerfCounterPack;
-import scouter.lang.pack.SummaryPack;
-import scouter.lang.pack.TextPack;
-import scouter.lang.pack.XLogPack;
-import scouter.lang.pack.XLogProfilePack;
+import scouter.lang.pack.*;
 import scouter.lang.step.Step;
 import scouter.lang.value.MapValue;
 import scouter.util.HashUtil;
 import scouter.util.IntIntLinkedMap;
 import scouter.util.IntLinkedSet;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 public class DataProxy {
 	private static UDPDataSendThread udpCollect = UDPDataSendThread.getInstance();
 	private static IntIntLinkedMap sqlHash = new IntIntLinkedMap().setMax(5000);
@@ -197,15 +191,15 @@ public class DataProxy {
 		}
 	}
 	static DataUdpAgent udpDirect = DataUdpAgent.getInstance();
-	public static void sendProfile(Step[] p, TraceContext x) {
+	public static void sendProfile(Step[] p, TraceContext context) {
 		if (p == null || p.length == 0)
 			return;
 		XLogProfilePack pk = new XLogProfilePack();
-		pk.txid = x.txid;
+		pk.txid = context.txid;
 		pk.objHash = conf.getObjHash();
 		pk.profile = Step.toBytes(p);
-		pk.service = x.serviceHash;
-		pk.elapsed = (int) (System.currentTimeMillis() - x.startTime);
+		pk.service = context.serviceHash;
+		pk.elapsed = (int) (System.currentTimeMillis() - context.startTime);
 		sendDirect(pk);
 	}
 	public static void sendProfile(List<Step> p, TraceContext x) {

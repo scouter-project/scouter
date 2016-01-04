@@ -16,17 +16,6 @@
  */
 package scouter.agent;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.conf.ConfObserver;
@@ -35,16 +24,10 @@ import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.DateUtil;
-import scouter.util.FileUtil;
-import scouter.util.HashUtil;
-import scouter.util.StringEnumer;
-import scouter.util.StringKeyLinkedMap;
-import scouter.util.StringSet;
-import scouter.util.StringUtil;
-import scouter.util.SysJMX;
-import scouter.util.SystemUtil;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
+
+import java.io.*;
+import java.util.*;
 public class Configure extends Thread {
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
@@ -162,6 +145,8 @@ public class Configure extends Thread {
 	public String log_dir ="";
 	public boolean log_rotation_enabled =true;
 	public int log_keep_days =7;
+	public boolean _log_trace_enabled = false;
+    public boolean _log_trace_use_logger = false;
 
 	//Hook
 	public String hook_args_patterns = "";
@@ -490,6 +475,8 @@ public class Configure extends Thread {
 		this.log_dir = getValue("log_dir", "");
 		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
 		this.log_keep_days = getInt("log_keep_days", 7);
+        this._log_trace_enabled = getBoolean("_log_trace_enabled", false);
+        this._log_trace_use_logger = getBoolean("_log_trace_use_logger", false);
 		
 		this.enduser_trace_endpoint_url = getValue("enduser_trace_endpoint_url", "_scouter_browser.jsp");
 		this.enduser_perf_endpoint_hash = HashUtil.hash(this.enduser_trace_endpoint_url);

@@ -34,7 +34,7 @@ public class AsmUtil implements Opcodes {
 	}
 	public static Type stringType = Type.getType(String.class);
 
-	public static String add(String className, String methodName, String methodSignature) {
+	public static String makeMethodFullName(String className, String methodName, String methodSignature) {
 		return new StringBuffer().append(className.replace('/','.')).append(".").append(methodName).append(methodSignature).toString();
 	}
 

@@ -125,6 +125,7 @@ public class AgentTransformer implements ClassFileTransformer {
                 public void visit(int version, int access, String name, String signature, String superName,
                                   String[] interfaces) {
                     classDesc.set(version, access, name, signature, superName, interfaces);
+                    super.visit(version, access, name, signature, superName, interfaces);
                 }
 
                 @Override

@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import scouter.Version;
 import scouter.client.Activator;
 import scouter.client.net.LoginMgr;
 import scouter.client.preferences.ServerPrefUtil;
@@ -94,7 +95,7 @@ public class LoginDialog {
 	public void show() {
 		switch (openType) {
 		case TYPE_STARTUP:
-			shell.setText("Start");
+			shell.setText(Version.getClientFullVersion());
 			this.address = ServerPrefUtil.getStoredDefaultServer();
 			break;
 		case TYPE_ADD_SERVER:

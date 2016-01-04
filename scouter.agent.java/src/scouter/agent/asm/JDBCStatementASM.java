@@ -15,15 +15,17 @@
  *  limitations under the License. 
  */
 package scouter.agent.asm;
-import java.util.HashSet;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
+import scouter.agent.asm.jdbc.PsUpdateCountMV;
 import scouter.agent.asm.jdbc.StExecuteMV;
 import scouter.agent.asm.util.HookingSet;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
+
+import java.util.HashSet;
 public class JDBCStatementASM implements IASM, Opcodes {
 	public final HashSet<String> target =  HookingSet.getHookingClassSet(Configure.getInstance().hook_jdbc_stmt_classes);
 	public JDBCStatementASM() {
@@ -65,8 +67,10 @@ class StatementCV extends ClassVisitor implements Opcodes {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 		if (StExecuteMV.isTarget(name)) {
 			if (desc.startsWith("(Ljava/lang/String;)")) {
-				return new StExecuteMV(access, desc, mv, owner);
+				return new StExecuteMV(access, desc, mv, owner, name);
 			}
+		} else if ("getUpdateCount".equals(name) && "()I".equals(desc)) {
+			return new PsUpdateCountMV(mv);
 		}
 		return mv;
 	}

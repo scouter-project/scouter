@@ -47,73 +47,74 @@ public class PlugInLoader extends Thread {
 			ThreadUtil.sleep(5000);
 			try {
 				File root = new File(Configure.getInstance().plugin_dir);
-				checkModified(root);
+				reloadIfModified(root);
 			} catch (Throwable t) {
 				t.printStackTrace();
 			}
 		}
 	}
-	private void checkModified(File root) {
-		File script = new File(root, "alert.plug");
-		if (script.canRead() == false) {
+	private void reloadIfModified(File root) {
+		File scriptFile = new File(root, "alert.plug");
+		if (scriptFile.canRead() == false) {
 			PlugInManager.alerts = null;
 		} else {
-			if (PlugInManager.alerts == null || PlugInManager.alerts.lastModified != script.lastModified()) {
-				PlugInManager.alerts = (IAlert) create(script, "AlertImpl", IAlert.class, AlertPack.class);
+			if (PlugInManager.alerts == null || PlugInManager.alerts.lastModified != scriptFile.lastModified()) {
+				PlugInManager.alerts = (IAlert) create(scriptFile, "AlertImpl", IAlert.class, AlertPack.class);
 			}
 		}
-		script = new File(root, "counter.plug");
-		if (script.canRead() == false) {
+		scriptFile = new File(root, "counter.plug");
+		if (scriptFile.canRead() == false) {
 			PlugInManager.counters = null;
 		} else {
-			if (PlugInManager.counters == null || PlugInManager.counters.lastModified != script.lastModified()) {
-				PlugInManager.counters = (ICounter) create(script, "CounterImpl", ICounter.class, PerfCounterPack.class);
+			if (PlugInManager.counters == null || PlugInManager.counters.lastModified != scriptFile.lastModified()) {
+				PlugInManager.counters = (ICounter) create(scriptFile, "CounterImpl", ICounter.class, PerfCounterPack.class);
 			}
 		}
-		script = new File(root, "object.plug");
-		if (script.canRead() == false) {
+		scriptFile = new File(root, "object.plug");
+		if (scriptFile.canRead() == false) {
 			PlugInManager.objects = null;
 		} else {
-			if (PlugInManager.objects == null || PlugInManager.objects.lastModified != script.lastModified()) {
-				PlugInManager.objects = (IObject) create(script, "ObjectImpl", IObject.class, ObjectPack.class);
+			if (PlugInManager.objects == null || PlugInManager.objects.lastModified != scriptFile.lastModified()) {
+				PlugInManager.objects = (IObject) create(scriptFile, "ObjectImpl", IObject.class, ObjectPack.class);
 			}
 		}
-		script = new File(root, "xlog.plug");
-		if (script.canRead() == false) {
+		scriptFile = new File(root, "xlog.plug");
+		if (scriptFile.canRead() == false) {
 			PlugInManager.xlog = null;
 		} else {
-			if (PlugInManager.xlog == null || PlugInManager.xlog.lastModified != script.lastModified()) {
-				PlugInManager.xlog = (IXLog) create(script, "XLogImpl", IXLog.class, XLogPack.class);
+			if (PlugInManager.xlog == null || PlugInManager.xlog.lastModified != scriptFile.lastModified()) {
+				PlugInManager.xlog = (IXLog) create(scriptFile, "XLogImpl", IXLog.class, XLogPack.class);
 			}
 		}
-		script = new File(root, "xlogdb.plug");
-		if (script.canRead() == false) {
+		scriptFile = new File(root, "xlogdb.plug");
+		if (scriptFile.canRead() == false) {
 			PlugInManager.xlogdb = null;
 		} else {
-			if (PlugInManager.xlogdb == null || PlugInManager.xlogdb.lastModified != script.lastModified()) {
-				PlugInManager.xlogdb = (IXLog) create(script, "XLogDBImpl", IXLog.class, XLogPack.class);
+			if (PlugInManager.xlogdb == null || PlugInManager.xlogdb.lastModified != scriptFile.lastModified()) {
+				PlugInManager.xlogdb = (IXLog) create(scriptFile, "XLogDBImpl", IXLog.class, XLogPack.class);
 			}
 		}
-		script = new File(root, "xlogprofile.plug");
-		if (script.canRead() == false) {
+		scriptFile = new File(root, "xlogprofile.plug");
+		if (scriptFile.canRead() == false) {
 			PlugInManager.xlogProfiles = null;
 		} else {
-			if (PlugInManager.xlogProfiles == null || PlugInManager.xlogProfiles.lastModified != script.lastModified()) {
-				PlugInManager.xlogProfiles = (IXLogProfile) create(script, "XLogProfileImpl", IXLogProfile.class,
+			if (PlugInManager.xlogProfiles == null || PlugInManager.xlogProfiles.lastModified != scriptFile.lastModified()) {
+				PlugInManager.xlogProfiles = (IXLogProfile) create(scriptFile, "XLogProfileImpl", IXLogProfile.class,
 						XLogProfilePack.class);
 			}
 		}
-		script = new File(root, "summary.plug");
-		if (script.canRead() == false) {
+		scriptFile = new File(root, "summary.plug");
+		if (scriptFile.canRead() == false) {
 			PlugInManager.summary = null;
 		} else {
-			if (PlugInManager.summary == null || PlugInManager.summary.lastModified != script.lastModified()) {
-				PlugInManager.summary = (ISummary) create(script, "SummaryImpl", ISummary.class,
+			if (PlugInManager.summary == null || PlugInManager.summary.lastModified != scriptFile.lastModified()) {
+				PlugInManager.summary = (ISummary) create(scriptFile, "SummaryImpl", ISummary.class,
 						SummaryPack.class);
 			}
 		}
 	}
-	// 반복적인 컴파일 시도를 막기위해 한번 실패한 파일은 컴파일을 다시 시도하지 않도록 한다.
+
+	// Do Not retry compiling the file failed to compile before to prevent compiling broken files permanently.
 	private LongSet compileErrorFiles = new LongSet();
 	private IPlugIn create(File file, String className, Class superClass, Class paramClass) {
 		long fileSignature = fileSign(file);
