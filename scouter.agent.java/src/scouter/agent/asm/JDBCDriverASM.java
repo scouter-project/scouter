@@ -15,19 +15,16 @@
  *  limitations under the License. 
  */
 package scouter.agent.asm;
-import java.util.Map;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceSQL;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
+import scouter.org.objectweb.asm.*;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+
+import java.util.Map;
 public class JDBCDriverASM implements IASM, Opcodes {
 	//user can define driver.connect()
 	private Map<String, HookingSet> reserved =HookingSet.getHookingSet(Configure.getInstance().hook_jdbc_wrapping_driver_patterns);
@@ -43,7 +40,7 @@ public class JDBCDriverASM implements IASM, Opcodes {
 		if (mset != null){
 			return new JDBCDriverCV(cv, mset, className);
 		}
-		
+
 		return cv;
 	}
 }
@@ -64,7 +61,7 @@ class JDBCDriverCV extends ClassVisitor implements Opcodes {
 		if (AsmUtil.isSpecial(name)) {
 			return mv;
 		}
-		String fullname = AsmUtil.add(className, name, desc);
+		String fullname = AsmUtil.makeMethodFullName(className, name, desc);
        
 		Logger.println("A105", "jdbc db2 driver  loaded: " + fullname);
 		return new JDBCDriverMV(access, desc, mv, fullname);

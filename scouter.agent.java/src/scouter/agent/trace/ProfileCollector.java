@@ -23,52 +23,76 @@ import scouter.lang.step.Step;
 import scouter.lang.step.StepSingle;
 
 public class ProfileCollector implements IProfileCollector {
-	private Configure conf=Configure.getInstance();
-	private TraceContext context;
-	protected Step[] buffer = new Step[conf.profile_step_max_count];
-	protected int position = 0;
+    private Configure conf = Configure.getInstance();
+    private TraceContext context;
+    protected Step[] steps = new Step[conf.profile_step_max_count];
+    protected int pos = 0;
 
-	public int this_index = 0;
-	public int parent_index = -1;
+    public int currentLevel = 0;
+    public int parentLevel = -1;
 
-	public ProfileCollector(TraceContext context) {
-		this.context = context;
-	}
+    public ProfileCollector(TraceContext context) {
+        this.context = context;
+    }
 
-	public  void push(StepSingle stepSingle) {
-		stepSingle.index = this_index;
-		stepSingle.parent = parent_index;
-		parent_index = this_index;
-		this_index++;
-	}
+    /**
+     * (syn: pushAndSetLevel)
+     * set the step's level as the current level and increase one level(to deeper level).
+     * @param stepSingle
+     */
+    public void push(StepSingle stepSingle) {
+        stepSingle.index = currentLevel;
+        stepSingle.parent = parentLevel;
+        parentLevel = currentLevel;
+        currentLevel++;
+    }
 
-	protected   void process(StepSingle stepSingle) {
-		buffer[position++] = stepSingle;
-		if (position >= buffer.length) {
-			Step[] o = buffer;
-			buffer = new Step[conf.profile_step_max_count];
-			position = 0;
-			DataProxy.sendProfile(o, context);
-		}
-	}
+    /**
+     * (syn: addStep)
+     * assign a given step to steps[pos++]
+     * @param stepSingle
+     */
+    protected void process(StepSingle stepSingle) {
+        steps[pos++] = stepSingle;
+        if (pos >= steps.length) {
+            Step[] o = steps;
+            steps = new Step[conf.profile_step_max_count];
+            pos = 0;
+            DataProxy.sendProfile(o, context);
+        }
+    }
 
-	public   void add(StepSingle stepSingle) {
-		stepSingle.index = this_index;
-		stepSingle.parent = parent_index;
-		this_index++;
-		process(stepSingle);
-	}
+    /**
+     * (syn: setLevelAndAddStep)
+     * add a step
+     * @param stepSingle
+     */
+    public void add(StepSingle stepSingle) {
+        stepSingle.index = currentLevel;
+        stepSingle.parent = parentLevel;
+        currentLevel++;
+        process(stepSingle);
+    }
 
-	public   void pop(StepSingle stepSingle) {
-		parent_index = stepSingle.parent;
-		process(stepSingle);
-	}
+    /**
+     * (syn: pullAndAddStep)
+     * add the step already leveled and decrease one level(to lower level).
+     * @param stepSingle
+     */
+    public void pop(StepSingle stepSingle) {
+        parentLevel = stepSingle.parent;
+        process(stepSingle);
+    }
 
-	public void close(boolean ok) {
-		if (ok && position > 0) {
-			StepSingle[] buff = new StepSingle[position];
-			System.arraycopy(buffer, 0, buff, 0, position);
-			DataProxy.sendProfile(buff, context);
-		}
-	}
+    /**
+     * send the Steps[] data
+     * @param ok : send the data or not
+     */
+    public void close(boolean ok) {
+        if (ok && pos > 0) {
+            StepSingle[] newSteps = new StepSingle[pos];
+            System.arraycopy(steps, 0, newSteps, 0, pos);
+            DataProxy.sendProfile(newSteps, context);
+        }
+    }
 }

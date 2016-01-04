@@ -136,14 +136,15 @@ public class AlertDetailListView extends ViewPart implements CalendarDialog.ILoa
 			}
 		});
 		
+		long now = TimeUtil.getCurrentTime(serverId);
 		label = new Label(parentGroup, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
         label.setText("From");
         
 		fromTime = new DateTime(parentGroup, SWT.TIME | SWT.SHORT);
 		fromTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fromTime.setHours(0);
-		fromTime.setMinutes(0);
+		fromTime.setHours(DateUtil.getHour(now) - 1);
+		fromTime.setMinutes(DateUtil.getMin(now));
 		
 		label = new Label(parentGroup, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
@@ -151,8 +152,8 @@ public class AlertDetailListView extends ViewPart implements CalendarDialog.ILoa
         
         toTime = new DateTime(parentGroup, SWT.TIME | SWT.SHORT);
         toTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-        toTime.setHours(1);
-        toTime.setMinutes(0);
+        toTime.setHours(DateUtil.getHour(now));
+        toTime.setMinutes(DateUtil.getMin(now));
         
         label = new Label(parentGroup, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));

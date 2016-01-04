@@ -29,7 +29,6 @@ import scouter.lang.step.MethodSum;
 import scouter.lang.step.SocketStep;
 import scouter.lang.step.SocketSum;
 import scouter.lang.step.SqlStep;
-import scouter.lang.step.SqlStep2;
 import scouter.lang.step.SqlSum;
 import scouter.lang.step.Step;
 import scouter.lang.step.StepEnum;
@@ -122,6 +121,7 @@ public class ProfileSummary implements IProfileCollector {
 			break;
 		case StepEnum.SQL:
 		case StepEnum.SQL2:
+		case StepEnum.SQL3:
 			add((SqlStep) ss);
 			break;
 		case StepEnum.APICALL:

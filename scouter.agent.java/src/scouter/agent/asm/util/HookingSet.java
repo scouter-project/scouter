@@ -17,17 +17,11 @@
 
 package scouter.agent.asm.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import scouter.util.StrMatch;
 import scouter.util.StringUtil;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 public class HookingSet {
 	public byte xType = 0;
@@ -104,29 +98,29 @@ public class HookingSet {
 		return classSet;
 	}
 
-	public static List<HookingSet> getHookingMethodSet(String arg) {
-		String[] c = StringUtil.split(arg, ',');
+	public static List<HookingSet> getHookingMethodSet(String patterns) {
+		String[] methodPatterns = StringUtil.split(patterns, ',');
 
-		Map<String, HookingSet> classSet = new HashMap<String, HookingSet>();
-		for (int i = 0; i < c.length; i++) {
-			String s = c[i];
-			int x = s.lastIndexOf(".");
-			if (x <= 0)
+		Map<String, HookingSet> classMap = new HashMap<String, HookingSet>();
+		for (int i = 0; i < methodPatterns.length; i++) {
+			String pattern = methodPatterns[i];
+			int dotPos = pattern.lastIndexOf(".");
+			if (dotPos <= 0)
 				continue;
-			String cname = s.substring(0, x).replace('.', '/').trim();
-			String mname = s.substring(x + 1).trim();
+			String cname = pattern.substring(0, dotPos).replace('.', '/').trim();
+			String mname = pattern.substring(dotPos + 1).trim();
 
-			HookingSet methodSet = classSet.get(cname);
+			HookingSet methodSet = classMap.get(cname);
 			if (methodSet == null) {
 				methodSet = new HookingSet();
-				classSet.put(cname, methodSet);
+				classMap.put(cname, methodSet);
 			}
 
 			methodSet.add(mname);
 		}
 
 		List<HookingSet> list = new ArrayList<HookingSet>();
-		Iterator<Entry<String, HookingSet>> itr = classSet.entrySet().iterator();
+		Iterator<Entry<String, HookingSet>> itr = classMap.entrySet().iterator();
 		while (itr.hasNext()) {
 			Entry<String, HookingSet> e = itr.next();
 			e.getValue().classMatch = new StrMatch(e.getKey());

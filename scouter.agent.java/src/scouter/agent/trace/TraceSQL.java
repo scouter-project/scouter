@@ -15,10 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.agent.trace;
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterSQL;
@@ -31,18 +27,20 @@ import scouter.agent.summary.ServiceSummary;
 import scouter.jdbc.DetectConnection;
 import scouter.jdbc.WrConnection;
 import scouter.lang.AlertLevel;
-import scouter.lang.step.HashedMessageStep;
-import scouter.lang.step.MessageStep;
-import scouter.lang.step.MethodStep;
-import scouter.lang.step.SqlStep2;
-import scouter.lang.step.SqlXType;
-import scouter.util.EscapeLiteralSQL;
-import scouter.util.HashUtil;
-import scouter.util.IntKeyLinkedMap;
-import scouter.util.IntLinkedSet;
-import scouter.util.StringUtil;
-import scouter.util.SysJMX;
-import scouter.util.ThreadUtil;
+import scouter.lang.step.*;
+import scouter.util.*;
+
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+/**
+ * Trace SQL
+ * @author @author Paul S.J. Kim(sjkim@whatap.io)
+ * @author Gun Lee (gunlee01@gmail.com)
+ * @author Eunsu Kim
+ */
 public class TraceSQL {
 	public final static int MAX_STRING = 20;
 	public static void set(int idx, boolean p) {
@@ -108,7 +106,7 @@ public class TraceSQL {
 		if (ctx == null) {
 			return null;
 		}
-		SqlStep2 step = new SqlStep2();
+		SqlStep3 step = new SqlStep3();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
@@ -126,7 +124,7 @@ public class TraceSQL {
 		ctx.sqltext = sql;
 		return new LocalContext(ctx, step);
 	}
-	public static Object start(Object o, String sql) {
+	public static Object start(Object o, String sql, byte methodType) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.log_background_sql) {
@@ -158,7 +156,7 @@ public class TraceSQL {
 						ThreadUtil.getThreadStack()));
 			}
 		}
-		SqlStep2 step = new SqlStep2();
+		SqlStep3 step = new SqlStep3();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
@@ -169,7 +167,7 @@ public class TraceSQL {
 			sql = escapeLiteral(sql, step);
 		}
 		step.hash = DataProxy.sendSqlText(sql);
-		step.xtype = SqlXType.STMT;
+		step.xtype =(byte)(SqlXType.STMT | methodType);
 		ctx.profile.push(step);
 		ctx.sqltext = sql;
 		return new LocalContext(ctx, step);
@@ -184,7 +182,7 @@ public class TraceSQL {
 	}
 	private static IntLinkedSet noLiteralSql = new IntLinkedSet().setMax(10000);
 	private static IntKeyLinkedMap<ParsedSql> checkedSql = new IntKeyLinkedMap<ParsedSql>().setMax(1001);
-	private static String escapeLiteral(String sql, SqlStep2 step) {
+	private static String escapeLiteral(String sql, SqlStep3 step) {
 		if (conf.profile_sql_escape_enabled == false)
 			return sql;
 		int sqlHash = sql.hashCode();
@@ -212,19 +210,27 @@ public class TraceSQL {
 	private static SQLException tooManyFetch = new TOO_MANY_RECORDS("TOO_MANY_RECORDS", "TOO_MANY_RECORDS");
 	private static SQLException connectionOpenFail = new CONNECTION_OPEN_FAIL("CONNECTION_OPEN_FAIL",
 			"CONNECTION_OPEN_FAIL");
-	public static void end(Object stat, Throwable thr) {
+
+	public static void end(Object stat, Throwable thr, int updatedCount) {
 		if (stat == null) {
 			if (conf.log_background_sql && thr != null) {
 				Logger.println("BG-SQL:" + thr);
 			}
 			return;
 		}
-		LocalContext lctx = (LocalContext) stat;
-		TraceContext tctx = lctx.context;
-		SqlStep2 ps = (SqlStep2) lctx.stepSingle;
-		ps.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - ps.start_time;
-		if (tctx.profile_thread_cputime) {
-			ps.cputime = (int) (SysJMX.getCurrentThreadCPU() - tctx.startCpu) - ps.start_cpu;
+
+        LocalContext lCtx = (LocalContext) stat;
+        TraceContext tCtx = lCtx.context;
+
+        Logger.trace("affected row = " + updatedCount);
+
+        SqlStep3 step = (SqlStep3) lCtx.stepSingle;
+        tCtx.lastSqlStep = step;
+
+		step.elapsed = (int) (System.currentTimeMillis() - tCtx.startTime) - step.start_time;
+		step.updated = updatedCount;
+		if (tCtx.profile_thread_cputime) {
+			step.cputime = (int) (SysJMX.getCurrentThreadCPU() - tCtx.startCpu) - step.start_cpu;
 		}
 		if (thr != null) {
 			String msg = thr.toString();
@@ -241,26 +247,26 @@ public class TraceSQL {
 				msg = sb.toString();
 			}
 			int hash = DataProxy.sendError(msg);
-			if (tctx.error == 0) {
-				tctx.error = hash;
+			if (tCtx.error == 0) {
+				tCtx.error = hash;
 			}
-			ps.error = hash;
-			ServiceSummary.getInstance().process(thr, hash, tctx.serviceHash, tctx.txid, ps.hash, 0);
-		} else if (ps.elapsed > conf.xlog_error_sql_time_max_ms) {
+			step.error = hash;
+			ServiceSummary.getInstance().process(thr, hash, tCtx.serviceHash, tCtx.txid, step.hash, 0);
+		} else if (step.elapsed > conf.xlog_error_sql_time_max_ms) {
 			String msg = "warning slow sql, over " + conf.xlog_error_sql_time_max_ms + " ms";
 			int hash = DataProxy.sendError(msg);
-			if (tctx.error == 0) {
-				tctx.error = hash;
+			if (tCtx.error == 0) {
+				tCtx.error = hash;
 			}
-			ServiceSummary.getInstance().process(slowSql, hash, tctx.serviceHash, tctx.txid, ps.hash, 0);
+			ServiceSummary.getInstance().process(slowSql, hash, tCtx.serviceHash, tCtx.txid, step.hash, 0);
 		}
-		tctx.sqltext = null;
-		tctx.sqlActiveArgs = null;
-		tctx.sqlCount++;
-		tctx.sqlTime += ps.elapsed;
-		ServiceSummary.getInstance().process(ps);
-		MeterSQL.getInstance().add(ps.elapsed, ps.error != 0);
-		tctx.profile.pop(ps);
+		tCtx.sqltext = null;
+		tCtx.sqlActiveArgs = null;
+		tCtx.sqlCount++;
+		tCtx.sqlTime += step.elapsed;
+		ServiceSummary.getInstance().process(step);
+		MeterSQL.getInstance().add(step.elapsed, step.error != 0);
+		tCtx.profile.pop(step);
 	}
 	public static void prepare(Object o, String sql) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
@@ -373,7 +379,7 @@ public class TraceSQL {
 			args.clear();
 		}
 	}
-	public static Object start(Object o, SqlParameter args) {
+	public static Object start(Object o, SqlParameter args, byte methodType) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
 			if (conf.log_background_sql && args != null) {
@@ -405,7 +411,7 @@ public class TraceSQL {
 						ThreadUtil.getThreadStack()));
 			}
 		}
-		SqlStep2 step = new SqlStep2();
+		SqlStep3 step = new SqlStep3();
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		if (ctx.profile_thread_cputime) {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
@@ -420,7 +426,7 @@ public class TraceSQL {
 		if (sql != null) {
 			step.hash = DataProxy.sendSqlText(sql);
 		}
-		step.xtype = SqlXType.PREPARED;
+		step.xtype =(byte)(SqlXType.PREPARED | methodType);
 		ctx.profile.push(step);
 		ctx.sqltext = sql;
 		return new LocalContext(ctx, step);
@@ -618,4 +624,55 @@ public class TraceSQL {
 				.append(sqlname).append(" }").toString());
 		ctx.profile.add(p);
 	}
+
+	/**
+	 * used for tracing the return of xxx.execute()
+	 * @param b true for resultSet, false for no result or update count
+	 * @return resultSet case -1, update count case -2
+     */
+	public static int toInt(boolean b) {
+		//return b?1:0;
+        return b ? -1 : -2;
+	}
+
+	/**
+	 * sum of int array
+	 * @param arr
+	 * @return
+	 */
+	public static int getIntArraySum(int[] arr) {
+		int sum = 0;
+		for(int i=arr.length-1; i>=0; i--) {
+			sum += arr[i];
+		}
+        Logger.trace("executeBatch-count=" + sum);
+        return sum;
+	}
+
+    /**
+     * apply update count
+     * @param cnt
+     * @return
+     */
+    public static int incUpdateCount(int cnt) {
+        Logger.trace("stmt.getUpdateCount()=" + cnt);
+        TraceContext ctx = TraceContextManager.getLocalContext();
+        if (ctx == null) {
+            return cnt;
+        }
+        SqlStep3 lastSqlStep = (SqlStep3)ctx.lastSqlStep;
+        if(lastSqlStep == null) {
+            return cnt;
+        }
+        int lastCnt = lastSqlStep.updated;
+        if(lastCnt == -2 && cnt > 0) { // -2 : execute & the return is the case of update-count
+            lastCnt = cnt;
+            lastSqlStep.updated = lastCnt;
+        } else if(lastCnt >= 0 && cnt > 0) {
+            lastCnt += cnt;
+            lastSqlStep.updated = lastCnt;
+        }
+
+        return cnt;
+    }
 }

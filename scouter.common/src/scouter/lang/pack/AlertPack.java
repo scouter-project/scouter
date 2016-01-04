@@ -17,22 +17,45 @@
 
 package scouter.lang.pack;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.lang.value.MapValue;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
+import java.io.IOException;
 
+/**
+ * Object that contains one alert information
+ */
 public class AlertPack implements Pack {
 
+	/**
+	 * Alert time
+	 */
 	public long time;
+	/**
+	 * Object type
+	 */
 	public String objType;
+	/**
+	 * Object ID
+	 */
 	public int objHash;
+	/**
+	 * Alert level. 0:Info, 1:Warn, 2:Error, 3:Fatal
+	 */
 	public byte level;
+	/**
+	 * Alert title
+	 */
 	public String title;
+	/**
+	 * Alert message
+	 */
 	public String message;
+	/**
+	 * More info
+	 */
 	public MapValue tags = new MapValue();
 
 	public String toString() {

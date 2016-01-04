@@ -28,13 +28,31 @@ import scouter.util.ArrayUtil;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 
+/**
+ * Object that contains multiple summary information
+ */
 public class SummaryPack implements Pack {
 
+	/**
+	 * Summary time
+	 */
 	public long time;
+	/**
+	 * Object ID
+	 */
 	public int objHash;
+	/**
+	 * Object type
+	 */
 	public String objType;
+	/**
+	 * Summary Type. 1:App, 2:SQL, 3:Alert, 4:Ip, 5:ApiCall, 8:User-Agent....
+	 */
 	public byte stype;
-    public MapValue table = new MapValue();
+	/**
+	 * Summary data. ref.)scouter.lang.value.MapValue
+	 */
+	public MapValue table = new MapValue();
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

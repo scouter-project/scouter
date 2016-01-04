@@ -549,6 +549,7 @@ public class XLogFullProfileView extends ViewPart implements XLogViewWithTable {
 						break;
 					case StepEnum.SQL:
 					case StepEnum.SQL2:
+					case StepEnum.SQL3:
 						SqlStep sql = (SqlStep) step;
 						
 						m = TextProxy.sql.getText(sql.hash);
@@ -685,6 +686,7 @@ public class XLogFullProfileView extends ViewPart implements XLogViewWithTable {
 				break;
 			case StepEnum.SQL:
 			case StepEnum.SQL2:
+			case StepEnum.SQL3:
 				putSummary(summary, (SqlStep)step);
 				break;
 			case StepEnum.MESSAGE:
