@@ -46,10 +46,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import scouter.client.Images;
@@ -73,10 +70,10 @@ import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
 import scouter.client.views.ScouterViewPart;
+import scouter.io.DataInputX;
 import scouter.lang.TimeTypeEnum;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
-import scouter.io.DataInputX;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
@@ -84,8 +81,6 @@ import scouter.util.DateUtil;
 public class CounterPastTimeTotalView extends ScouterViewPart implements CalendarDialog.ILoadCalendarDialog {
 	public static final String ID = CounterPastTimeTotalView.class.getName();
 	
-	private IMemento memento;
-
 	protected String objType;
 	protected String counter;
 	private String mode;
@@ -102,12 +97,6 @@ public class CounterPastTimeTotalView extends ScouterViewPart implements Calenda
 	
 	boolean actionReg = false;
 	
-	@Override
-	public void init(IViewSite site, IMemento memento) throws PartInitException {
-		super.init(site, memento);
-		this.memento = memento;
-	}
-
 	public void setInput(long stime, long etime, String objType, String counter, int serverId) throws Exception {
 		this.startTime = stime;
 		this.endTime = etime;
@@ -300,8 +289,6 @@ public class CounterPastTimeTotalView extends ScouterViewPart implements Calenda
 		
 		ScouterUtil.addShowTotalValueListener(canvas, xyGraph);
 		
-	    restoreState();
-	    
 	    canvas.addKeyListener(new KeyListener() {
 			public void keyReleased(KeyEvent e) {
 			}
@@ -381,31 +368,6 @@ public class CounterPastTimeTotalView extends ScouterViewPart implements Calenda
 		if (canvas != null && canvas.isDisposed() == false) {
 			canvas.redraw();
 			xyGraph.repaint();
-		}
-	}
-
-	public void saveState(IMemento memento) {
-		super.saveState(memento);
-		memento = memento.createChild(ID);
-		memento.putString("objType", objType);
-		memento.putString("counter", counter);
-		memento.putString("stime", String.valueOf(this.startTime));
-		memento.putString("etime", String.valueOf(this.endTime));
-	}
-
-	private void restoreState() {
-		if (memento == null)
-			return;
-		IMemento m = memento.getChild(ID);
-		String objType = m.getString("objType");
-		String counter = m.getString("counter");
-		long stime = CastUtil.clong(m.getString("stime"));
-		long etime = CastUtil.clong(m.getString("etime"));
-		int serverId = CastUtil.cint(m.getInteger("serverId"));
-		try {
-			setInput(stime, etime, objType, counter, serverId);
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 

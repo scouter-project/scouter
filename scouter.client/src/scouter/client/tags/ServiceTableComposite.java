@@ -88,7 +88,7 @@ public class ServiceTableComposite extends Composite {
 					XLogData d = new XLogData(data, serverId);
 					d.objName = TextProxy.object.getLoadText(yyyymmdd, data.objHash, serverId);
 					d.serviceName = TextProxy.service.getLoadText(yyyymmdd, data.service, serverId);
-					new OpenXLogProfileJob(d, serverId).schedule();
+					new OpenXLogProfileJob(ServiceTableComposite.this.getDisplay(), d, serverId).schedule();
 				} else {
 					System.out.println(o);
 				}

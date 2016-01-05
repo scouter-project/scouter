@@ -94,11 +94,8 @@ public class XLogSelectionView extends ViewPart {
 				Object o = sel.getFirstElement();
 				if (o instanceof XLogData) {
 					XLogData data = (XLogData) o;
-					Display display = Display.getCurrent();
-					if (display == null) {
-						display = Display.getDefault();
-					}
-					new OpenXLogProfileJob(data, data.serverId).schedule();
+					Display display = XLogSelectionView.this.getViewSite().getShell().getDisplay();
+					new OpenXLogProfileJob(display, data, data.serverId).schedule();
 				} else {
 					System.out.println(o);
 				}

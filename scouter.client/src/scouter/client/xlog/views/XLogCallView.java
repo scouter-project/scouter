@@ -106,7 +106,7 @@ public class XLogCallView extends ViewPart {
 					ArrayList<AgentObject> objList = agentProxy.getObjectList(date, d.serverId);
 					for (AgentObject obj : objList) {
 						if (obj.getObjHash() == d.p.objHash) {
-							new OpenXLogProfileJob(d, d.serverId).schedule();
+							new OpenXLogProfileJob(XLogCallView.this.getViewSite().getShell().getDisplay(), d, d.serverId).schedule();
 							break;
 						}
 					}
