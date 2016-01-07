@@ -52,7 +52,7 @@ public class OpenXLogProfileJob extends Job {
 	String date;
 	long txid;
 	int serverId;
-	String secId = "*";
+	String secId = "profileview";
 	
 	public OpenXLogProfileJob(Display display, String date, long txid) {
 		super("Load XLog Profile");
@@ -95,8 +95,6 @@ public class OpenXLogProfileJob extends Job {
 				data = getXLogData(serverId, date, txid);
 				secId = Hexa32.toString32(txid);
 			}
-		} else {
-			secId = Hexa32.toString32(txid);
 		}
 		if (data == null) {
 			ConsoleProxy.errorSafe("Cannot find : " + Hexa32.toString32(txid));
