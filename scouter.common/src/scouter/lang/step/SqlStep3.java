@@ -35,6 +35,10 @@ public class SqlStep3 extends SqlStep2 {
      * -2 : return type of stmt.execute is a udpate count but 'getUpdateCount' have not been triggered.
      * -3 : SQL exception
 	 */
+	
+	public static final int EXECUTE_RESULT_SET = -1;
+	public static final int EXECUTE_UNKNOWN_COUNT = -2;
+	
 	public int updated;
 
 	public byte getStepType() {

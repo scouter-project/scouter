@@ -690,32 +690,15 @@ public class ProfileText {
             }
             sb.append("[").append(showParam ? p.param : "******").append("]");
         }
-        sb.append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
         if (p instanceof SqlStep3) {
             int updatedCount = ((SqlStep3) p).updated;
-            if (updatedCount > -1) {
-                sb.append("\n");
-                sb.append(StringUtil.leftPad("", lineHead));
-                sb.append("<Affected Rows : " + updatedCount + ">");
-            } else if (updatedCount == -2) {
-                sb.append("\n");
-                sb.append(StringUtil.leftPad("", lineHead));
-                sb.append("<Affected Rows : unknown>");
+            if (updatedCount > SqlStep3.EXECUTE_RESULT_SET) {
+                sb.append(" <Affected Rows : " + updatedCount + ">");
+            } else if (updatedCount == SqlStep3.EXECUTE_UNKNOWN_COUNT) {
+                sb.append(" <Affected Rows : unknown>");
             }
-//                switch (SqlXType.getMethodType(((SqlStep3) p).xtype)) {
-//                    case SqlXType.METHOD_UPDATE:
-//                        sb.append("\n");
-//                        sb.append(StringUtil.leftPad("", lineHead));
-//                        sb.append("<Update Count : " + updatedCount + ">");
-//                        break;
-//                    case SqlXType.METHOD_EXECUTE:
-//                        sb.append("\n");
-//                        sb.append(StringUtil.leftPad("", lineHead));
-//                        sb.append("<Execute Result : " + ((updatedCount == 1) ? "true" : "false") + ">");
-//                        break;
-//                }
-//            }
         }
+        sb.append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
     }
 
     public static String spacing(String m, int lineHead) {

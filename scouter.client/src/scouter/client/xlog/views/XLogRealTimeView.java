@@ -36,6 +36,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import scouter.client.Images;
+import scouter.client.model.AgentDailyListProxy;
 import scouter.client.model.AgentModelThread;
 import scouter.client.model.RefreshThread;
 import scouter.client.model.RefreshThread.Refreshable;
@@ -196,15 +197,18 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 
 	}
 	
+	AgentDailyListProxy agnetProxy = new AgentDailyListProxy();
+	
 	public void loadAdditinalData(long stime, long etime, final boolean reverse) {
 		int max = getMaxCount();
 		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
 		try {
 			MapPack param = new MapPack();
-			param.put("date", DateUtil.yyyymmdd(stime));
+			String date = DateUtil.yyyymmdd(stime);
+			param.put("date", date);
 			param.put("stime", stime);
 			param.put("etime", etime);
-			param.put("objHash", agentThread.getLiveObjHashLV(serverId, objType));
+			param.put("objHash", agnetProxy.getObjHashLv(date, serverId, objType));
 			param.put("reverse", new BooleanValue(reverse));
 			int limit = PManager.getInstance().getInt(PreferenceConstants.P_XLOG_IGNORE_TIME);
 			if (limit > 0) {
