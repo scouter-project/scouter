@@ -24,6 +24,7 @@
 - [Console Mode Running](./server/Console-Mode-Running.md)
 - [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
 - [How to trace NON-HTTP service](./use-case/NON-HTTP-Service-Trace.md) 
+- [method level profiling](./use-case/Method-Profiling_kr.md)
 
 ## Tech note
 - [Why Recent User](./tech/Why-Recent-User.md)

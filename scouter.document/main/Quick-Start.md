@@ -177,6 +177,6 @@ function     |    description
 SFA (Stack Frequency Analyzer)  | the SFA gather thread stacks for a while, then analyze and make statistics for finding out unefficient codes that make system run slow.
 [Trace connection Leak](../tech/JDBC-Connection-Leak-Trace.md)           | Trace Database Connection Leak
 Add user id on a profile        | profile customizing with a plugin scripting feature.
-method profiling               | how to profile deeper - method level profiling
+[method level profiling](../use-case/Method-Profiling.md)          | how to profile deeper - method level profiling
 [Trace Non-Servlet Java application](../use-case/NON-HTTP-Service-Trace.md)    | how to monitoring Non-Servlet Java application like socket deamons.
 
