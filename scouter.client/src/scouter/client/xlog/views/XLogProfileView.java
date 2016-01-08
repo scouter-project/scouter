@@ -71,8 +71,6 @@ public class XLogProfileView extends ViewPart {
 	
 	Step[] steps;
 	
-	private int spaceCnt = 1;
-
 	public void createPartControl(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new GridLayout(1, true));
@@ -105,6 +103,14 @@ public class XLogProfileView extends ViewPart {
 				openSqlSummaryDialog.run();
 			}
 		});
+		final MenuItem bindSqlParamMenu = new MenuItem(contextMenu, SWT.CHECK);
+		bindSqlParamMenu.setText("Bind SQL Parameter");
+		bindSqlParamMenu.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				bindSqlParam = bindSqlParamMenu.getSelection();
+				setInput(steps, xLogData, serverId);
+			}
+		});
 		MenuItem saveProfile = new MenuItem(contextMenu, SWT.PUSH);
 		saveProfile.setText("Save Full Profile");
 		saveProfile.addSelectionListener(new SelectionAdapter() {
@@ -119,6 +125,7 @@ public class XLogProfileView extends ViewPart {
 	
 	boolean truncated;
 	private int serverId;
+	boolean bindSqlParam;
 	
 	CacheTable<String, Boolean> preventDupleEventTable = new CacheTable<String, Boolean>().setDefaultKeepTime(700);
 	public void setInput(Step[] steps, final XLogData item, int serverId) {
@@ -130,7 +137,7 @@ public class XLogProfileView extends ViewPart {
 		setPartName(txid);
 		text.setText("");
 		
-		ProfileText.build(DateUtil.yyyymmdd(xLogData.p.endTime), text, this.xLogData, steps, spaceCnt,  serverId);
+		ProfileText.build(DateUtil.yyyymmdd(xLogData.p.endTime), text, this.xLogData, steps, serverId, bindSqlParam);
 		text.addListener(SWT.MouseUp, new Listener(){
 			public void handleEvent(Event event) {
 				try {

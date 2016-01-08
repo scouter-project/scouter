@@ -19,6 +19,9 @@ package scouter.client.util;
 
 import java.util.ArrayList;
 
+import scouter.lang.step.SqlStep;
+import scouter.util.StringUtil;
+
 public class SqlMakerUtil {
 	public static String SQLDIVIDE = "\r\n\r\n[Bind Variables]\r\n";
 	
@@ -169,9 +172,91 @@ public class SqlMakerUtil {
 		return binds;
 	}
 	
+	public static UnescapedSQL unescapeLiteralSQL(String sql, String params) {
+		if (StringUtil.isEmpty(sql) || StringUtil.isEmpty(params)) {
+			return new UnescapedSQL(sql, params);
+		}
+		ArrayList<String> paramList = divideParams(params);
+		
+		StringBuilder sqlBuilder = new StringBuilder();
+		
+		int sqlLength = sql.length();
+		int search;
+		int index = 0;
+		int pos = 0;
+		
+		while(pos < sqlLength){
+			search = sql.indexOf('@', pos);
+			if(search < 0 ){
+				sqlBuilder.append(sql.substring(pos));
+				break;
+			}
+			sqlBuilder.append(sql.substring(pos, search)).append(paramList.get(index));
+			index++;
+			pos = search + 1;
+		}
+		
+		String sqlParam = null;
+		if (index < paramList.size()) {
+			StringBuffer sb = new StringBuffer();
+			for (; index < paramList.size(); index++) {
+				if (sb.length() > 0) {
+					sb.append(",");
+				}
+				sb.append(paramList.get(index));
+			}
+			sqlParam = sb.toString();
+		}
+		return new UnescapedSQL(sqlBuilder.toString(), sqlParam);
+	}
+	
+	public static class UnescapedSQL {
+		public String sql;
+		public String param;
+		public UnescapedSQL(String sql, String param) {
+			this.sql = sql;
+			this.param = param;
+		}
+		public String toString() {
+			return "UnescapedSQL [sql=" + sql + ", param=" + param + "]";
+		}
+	}
+	
+	public static String replaceSQLParameter(String sql, String params) {
+		UnescapedSQL unescapedSql = unescapeLiteralSQL(sql, params);
+		sql = unescapedSql.sql;
+		params = unescapedSql.param;
+		if (StringUtil.isEmpty(sql) || StringUtil.isEmpty(params)) {
+			return sql;
+		}
+		ArrayList<String> paramList = divideParams(params);
+		StringBuilder sqlBuilder = new StringBuilder();
+		
+		int sqlLength = sql.length();
+		int search;
+		int index = 0;
+		int pos = 0;
+		
+		while(pos < sqlLength){
+			search = sql.indexOf('?', pos);
+			if(search < 0 ){
+				sqlBuilder.append(sql.substring(pos));
+				break;
+			}
+			sqlBuilder.append(sql.substring(pos, search)).append(paramList.get(index));
+			index++;
+			pos = search + 1;
+		}
+		return sqlBuilder.toString();
+	}
+	
 	static public void main(String [] args){
 		try {
 			System.out.println(convertBindVariable("?sel?ect =? test???-?-?"));
+			
+			String sql = "select @,@,@ from emp where emp_id=? and sex=?";
+			String param = "age,weight,score,1234,'M'";
+			System.out.println(SqlMakerUtil.unescapeLiteralSQL(sql, param));
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}

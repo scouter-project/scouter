@@ -303,7 +303,7 @@ public class ProfileTextFull {
 			case StepEnum.SQL3:
 				SqlStep sql = (SqlStep) stepSingle;
 				slen = sb.length();
-				ProfileText.toString(sb, sql, serverId, lineHead);
+				ProfileText.toString(sb, sql, serverId, lineHead, false);
 				if(searchLineIndex == stepSingle.index){
 					sr.add(ProfileText.style(slen, sb.length() - slen, red, SWT.BOLD, yellow));
 				}else{
