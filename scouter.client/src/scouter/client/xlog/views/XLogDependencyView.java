@@ -130,7 +130,7 @@ public class XLogDependencyView extends ViewPart {
 					DependencyElement de = (DependencyElement) o;
 					switch (de.type) {
 						case SERVICE:
-							new OpenXLogProfileJob(date, de.id, de.tags.getInt("serverId")).schedule();
+							new OpenXLogProfileJob(XLogDependencyView.this.getViewSite().getShell().getDisplay(), date, de.id, de.tags.getInt("serverId")).schedule();
 							break;
 						case SQL:
 							List<StyleRange> srList = new ArrayList<StyleRange>();

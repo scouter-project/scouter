@@ -40,4 +40,30 @@ public class EndUserNavigationData {
 	public long loadEventStart;
 	public long loadEventEnd;
 
+    @Override
+    public String toString() {
+        return "EndUserNavigationData{" +
+                "uri=" + uri +
+                ", ip=" + ip +
+                ", count=" + count +
+                ", navigationStart=" + navigationStart +
+                ", unloadEventStart=" + unloadEventStart +
+                ", unloadEventEnd=" + unloadEventEnd +
+                ", fetchStart=" + fetchStart +
+                ", domainLookupStart=" + domainLookupStart +
+                ", domainLookupEnd=" + domainLookupEnd +
+                ", connectStart=" + connectStart +
+                ", connectEnd=" + connectEnd +
+                ", requestStart=" + requestStart +
+                ", responseStart=" + responseStart +
+                ", responseEnd=" + responseEnd +
+                ", domLoading=" + domLoading +
+                ", domInteractive=" + domInteractive +
+                ", domContentLoadedEventStart=" + domContentLoadedEventStart +
+                ", domContentLoadedEventEnd=" + domContentLoadedEventEnd +
+                ", domComplete=" + domComplete +
+                ", loadEventStart=" + loadEventStart +
+                ", loadEventEnd=" + loadEventEnd +
+                '}';
+    }
 }

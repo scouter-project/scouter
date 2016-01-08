@@ -20,7 +20,6 @@ package scouter.client;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.eclipse.ui.IPlaceholderFolderLayout;
 
 import scouter.client.counter.views.CounterRealTimeAllView;
 import scouter.client.counter.views.CounterRealTimeTotalView;
@@ -31,16 +30,10 @@ import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.views.AlertView;
 import scouter.client.views.EQView;
-import scouter.client.views.ObjectActiveServiceListView;
 import scouter.client.views.ObjectDailyListView;
 import scouter.client.views.ObjectNavigationView;
-import scouter.client.views.ObjectThreadDetailView;
 import scouter.client.views.WorkspaceExplorer;
-import scouter.client.xlog.views.XLogDependencyView;
-import scouter.client.xlog.views.XLogProfileView;
 import scouter.client.xlog.views.XLogRealTimeView;
-import scouter.client.xlog.views.XLogSelectionView;
-import scouter.client.xlog.views.XLogZoomTimeView;
 import scouter.lang.counters.CounterConstants;
 
 public class PerspectiveService implements IPerspectiveFactory  {

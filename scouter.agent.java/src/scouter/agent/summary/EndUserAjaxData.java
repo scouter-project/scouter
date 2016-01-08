@@ -23,4 +23,15 @@ public class EndUserAjaxData {
 	//
 	public long duration;
 	public int userAgent;
+
+    @Override
+    public String toString() {
+        return "EndUserAjaxData{" +
+                "uri=" + uri +
+                ", ip=" + ip +
+                ", count=" + count +
+                ", duration=" + duration +
+                ", userAgent=" + userAgent +
+                '}';
+    }
 }

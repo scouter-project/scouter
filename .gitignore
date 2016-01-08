@@ -30,6 +30,7 @@ scouter.server/conf/account_group.xml
 scouter.server/database/
 scouter.client.product/plugin_customization.ini
 scouter.client/plugin_customization.ini
+scouter.client/scouter.client.jar
 
 */*.scouter
 

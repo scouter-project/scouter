@@ -47,27 +47,31 @@ import scouter.util.Hexa32;
 
 public class OpenXLogProfileJob extends Job {
 
+	Display display;
 	XLogData data;
 	String date;
 	long txid;
 	int serverId;
-	String secId = "*";
+	String secId = "profileview";
 	
-	public OpenXLogProfileJob(String date, long txid) {
+	public OpenXLogProfileJob(Display display, String date, long txid) {
 		super("Load XLog Profile");
+		this.display = display;
 		this.date = date;
 		this.txid = txid;
 	}
 	
-	public OpenXLogProfileJob(String date, long txid, int serverId) {
+	public OpenXLogProfileJob(Display display, String date, long txid, int serverId) {
 		super("Load XLog Profile");
+		this.display = display;
 		this.date = date;
 		this.txid = txid;
 		this.serverId =serverId;
 	}
 	
-	public OpenXLogProfileJob(XLogData xlogData, int serverId) {
+	public OpenXLogProfileJob(Display display, XLogData xlogData, int serverId) {
 		super("Load XLog Profile");
+		this.display = display;
 		this.data = xlogData;
 		this.date = DateUtil.yyyymmdd(xlogData.p.endTime);
 		this.txid = xlogData.p.txid;
@@ -98,7 +102,7 @@ public class OpenXLogProfileJob extends Job {
 		}
 		
 		final Step[] steps =XLogProxy.getProfile(date, txid, serverId);
-		ExUtil.exec(Display.getDefault(), new Runnable() {
+		ExUtil.exec(display, new Runnable() {
 			public void run() {
 				try {
 					IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();

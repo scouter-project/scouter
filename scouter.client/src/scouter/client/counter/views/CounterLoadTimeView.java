@@ -30,10 +30,7 @@ import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import scouter.client.model.AgentColorManager;
@@ -48,7 +45,6 @@ import scouter.client.util.ConsoleProxy;
 import scouter.client.util.CounterUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.MenuUtil;
-import scouter.client.util.UIUtil;
 import scouter.client.views.ScouterViewPart;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
@@ -67,14 +63,8 @@ public class CounterLoadTimeView extends ScouterViewPart {
 	
 	private long startTime, endTime;
 	
-	private IMemento memento;
-
 	IWorkbenchWindow window;
 
-	public void init(IViewSite site, IMemento memento) throws PartInitException {
-		super.init(site, memento);
-		this.memento = memento;
-	}
 
 	public void setInput(String date, long startTime, long endTime, int objHash, String objName, String objType, String counter, int serverId) throws Exception{
 		this.date = date;
@@ -245,8 +235,6 @@ public class CounterLoadTimeView extends ScouterViewPart {
 		xyGraph.primaryYAxis.setTitle("");
 
 		xyGraph.addTrace(trace);
-
-		restoreState();
 	}
 	
 	public void setFocus() {
@@ -257,34 +245,5 @@ public class CounterLoadTimeView extends ScouterViewPart {
 	@Override
 	public void dispose() {
 		super.dispose();
-	}
-
-	public void saveState(IMemento memento) {
-		super.saveState(memento);
-		memento = memento.createChild(ID);
-		memento.putString("date", date);
-		memento.putInteger("objHash", objHash);
-		memento.putString("objName", objName);
-		memento.putString("counter", counter);
-		memento.putString("objType", objType);
-		memento.putInteger("serverId", serverId);
-	}
-
-	private void restoreState() {
-		if (memento == null)
-			return;
-		IMemento m = memento.getChild(ID);
-
-		String date = m.getString("date");
-		int objHash = CastUtil.cint(m.getInteger("objHash"));
-		String objName = m.getString("objName");
-		String counter = m.getString("counter");
-		String objType = m.getString("objType");
-		int serverId = CastUtil.cint(m.getInteger("serverId"));
-		try {
-			setInput(date, startTime, endTime, objHash, objName, objType, counter, serverId);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 }
