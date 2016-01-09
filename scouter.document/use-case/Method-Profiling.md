@@ -9,6 +9,7 @@ Scouter를 설치하고 Java Agent에 아무런 설정을 하지 않았다면 Sc
 
 아래 데모시스템에서 method profiling 을 설정하지 않으면 아래와 같은 수준으로 정보를 수집하게 된다.
 > 데모 시스템 설치는 [Quick Start 가이드](../main/Quick-Start_kr.md) 참고
+
 ![](../img/tech/method_none_profile_1.png)
 
 
