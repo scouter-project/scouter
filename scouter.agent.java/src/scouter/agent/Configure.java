@@ -16,6 +16,17 @@
  */
 package scouter.agent;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.conf.ConfObserver;
@@ -24,10 +35,16 @@ import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.*;
-
-import java.io.*;
-import java.util.*;
+import scouter.util.DateUtil;
+import scouter.util.FileUtil;
+import scouter.util.HashUtil;
+import scouter.util.StringEnumer;
+import scouter.util.StringKeyLinkedMap;
+import scouter.util.StringSet;
+import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.SystemUtil;
+import scouter.util.ThreadUtil;
 public class Configure extends Thread {
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
@@ -51,14 +68,13 @@ public class Configure extends Thread {
 	public int net_collector_tcp_so_timeout_ms = 60000;
 	public int net_collector_tcp_connection_timeout_ms = 3000;
 	public int net_udp_packet_max_bytes = 60000;
-	public long udp_udp_collection_interval_ms = 100;
+	public long net_udp_collection_interval_ms = 100;
 
 	//Object
 	public String obj_type = "";
 	public String obj_name = "";
 	public String obj_host_type = "";
 	public String obj_host_name = "";
-	public boolean obj_host_enabled = false;
 	public boolean obj_name_auto_pid_enabled = false;
 	public boolean obj_type_inherit_to_child_enabled = false;
 
@@ -96,10 +112,10 @@ public class Configure extends Thread {
 	public long trace_activeservice_red_time = 8000;
 	public String trace_http_client_ip_header_key = "";
 	public boolean trace_interservice_enabled = false;
-	public String trace_interservice_gxid_header_key = "X-Scouter-Gxid";
+	public String _trace_interservice_gxid_header_key = "X-Scouter-Gxid";
 	public boolean trace_response_gxid_enabled = false;
-	public String trace_interservice_callee_header_key = "X-Scouter-Callee";
-	public String trace_interservice_caller_header_key = "X-Scouter-Caller";
+	public String _trace_interservice_callee_header_key = "X-Scouter-Callee";
+	public String _trace_interservice_caller_header_key = "X-Scouter-Caller";
 	public String trace_user_session_key = "JSESSIONID";
 	public boolean _trace_auto_service_enabled = false;
 	public boolean _trace_auto_service_backstack_enabled = true;
@@ -111,7 +127,7 @@ public class Configure extends Thread {
 
 	//Dir
 	public File plugin_dir = new File("./plugin");
-	public File dump_dir = new File(".");
+	public File dump_dir = new File("./dump");
 	//public File mgr_agent_lib_dir = new File("./_scouter_");
 
 	//Manager
@@ -134,14 +150,13 @@ public class Configure extends Thread {
 	public int alert_message_length = 3000;
 	public long alert_send_interval_ms = 3000;
 	public int alert_perm_warning_pct = 90;
-	public long alert_perm_interval_ms = 30000;
 
 	//Log
-	public boolean log_asm_enabled;
-	public boolean log_udp_xlog_enabled;
-	public boolean log_udp_object_enabled;
-	public boolean log_datasource_lookup_enabled = true;
-	public boolean log_background_sql = false;
+	public boolean _log_asm_enabled;
+	public boolean _log_udp_xlog_enabled;
+	public boolean _log_udp_object_enabled;
+	public boolean _log_datasource_lookup_enabled = true;
+	public boolean _log_background_sql = false;
 	public String log_dir ="";
 	public boolean log_rotation_enabled =true;
 	public int log_keep_days =7;
@@ -201,16 +216,16 @@ public class Configure extends Thread {
 
 	//Summary
 	public boolean summary_enabled = true;
-	public boolean summary_connection_leak_fullstack_enabled = false;
-	public int summary_service_max_count = 5000;
-	public int summary_sql_max_count = 5000;
-	public int summary_api_max_count = 5000;
-	public int summary_ip_max_count = 5000;
-	public int summary_useragent_max_count = 5000;
-	public int summary_error_max_count = 500;
-	public int summary_enduser_nav_max_count = 5000;
-	public int summary_enduser_ajax_max_count = 5000;
-	public int summary_enduser_error_max_count = 5000;
+	public boolean _summary_connection_leak_fullstack_enabled = false;
+	public int _summary_service_max_count = 5000;
+	public int _summary_sql_max_count = 5000;
+	public int _summary_api_max_count = 5000;
+	public int _summary_ip_max_count = 5000;
+	public int _summary_useragent_max_count = 5000;
+	public int _summary_error_max_count = 500;
+	public int _summary_enduser_nav_max_count = 5000;
+	public int _summary_enduser_ajax_max_count = 5000;
+	public int _summary_enduser_error_max_count = 5000;
 	
 	//EndUser
 	public String enduser_trace_endpoint_url = "/_scouter_browser.jsp";
@@ -306,7 +321,7 @@ public class Configure extends Thread {
 		this.trace_service_name_header_key = getValue("trace_service_name_header_key", null);
 		this.trace_service_name_get_key = getValue("trace_service_name_get_key");
 		this.trace_service_name_post_key = getValue("trace_service_name_post_key");
-		this.dump_dir = new File(getValue("dump_dir", "."));
+		this.dump_dir = new File(getValue("dump_dir", "./dump"));
 		try {
 			this.dump_dir.mkdirs();
 		} catch (Exception e) {
@@ -341,8 +356,8 @@ public class Configure extends Thread {
 		this.trace_activeservice_red_time = getLong("trace_activeservice_red_time", 8000);
 		this.mgr_log_ignore_ids = getValue("mgr_log_ignore_ids", "");
 		this.log_ignore_set = getStringSet("mgr_log_ignore_ids", ",");
-		this.log_udp_xlog_enabled = getBoolean("log_udp_xlog_enabled", false);
-		this.log_udp_object_enabled = getBoolean("log_udp_object_enabled", false);
+		this._log_udp_xlog_enabled = getBoolean("_log_udp_xlog_enabled", false);
+		this._log_udp_object_enabled = getBoolean("_log_udp_object_enabled", false);
 		this.net_local_udp_ip = getValue("net_local_udp_ip");
 		this.net_local_udp_port = getInt("net_local_udp_port", 0);
 		this.net_collector_ip = getValue("net_collector_ip", "127.0.0.1");
@@ -357,9 +372,9 @@ public class Configure extends Thread {
 		this.hook_constructor_patterns = getValue("hook_constructor_patterns", "");
 		this.hook_connection_open_patterns = getValue("hook_connection_open_patterns", "");
 
-		this.log_datasource_lookup_enabled = getBoolean("log_datasource_lookup_enabled", true);
+		this._log_datasource_lookup_enabled = getBoolean("_log_datasource_lookup_enabled", true);
 		this.profile_connection_open_enabled = getBoolean("profile_connection_open_enabled", true);
-		this.summary_connection_leak_fullstack_enabled = getBoolean("summary_connection_leak_fullstack_enabled", false);
+		this._summary_connection_leak_fullstack_enabled = getBoolean("_summary_connection_leak_fullstack_enabled", false);
 		this.hook_method_patterns = getValue("hook_method_patterns", "");
 		this.hook_method_access_public_enabled = getBoolean("hook_method_access_public_enabled", true);
 		this.hook_method_access_protected_enabled = getBoolean("hook_method_access_protected_enabled", false);
@@ -404,26 +419,25 @@ public class Configure extends Thread {
 		this.profile_step_max_count = getInt("profile_step_max_count", 1024);
 		if (this.profile_step_max_count < 100)
 			this.profile_step_max_count = 100;
-		this.log_background_sql = getBoolean("log_background_sql", false);
+		this._log_background_sql = getBoolean("_log_background_sql", false);
 		this.profile_fullstack_service_error_enabled = getBoolean("profile_fullstack_service_error_enabled", false);
 		this.profile_fullstack_apicall_error_enabled = getBoolean("profile_fullstack_apicall_error_enabled", false);
 		this.profile_fullstack_sql_error_enabled = getBoolean("profile_fullstack_sql_error_enabled", false);
 		this.profile_fullstack_sql_commit_enabled = getBoolean("profile_fullstack_sql_commit_enabled", false);
 		this.profile_fullstack_max_lines = getInt("profile_fullstack_max_lines", 0);
-		this.udp_udp_collection_interval_ms = getInt("udp_udp_collection_interval_ms", 100);
+		this.net_udp_collection_interval_ms = getInt("net_udp_collection_interval_ms", 100);
 		this.profile_http_parameter_url_prefix = getValue("profile_http_parameter_url_prefix", "/");
 		this.profile_http_header_url_prefix = getValue("profile_http_header_url_prefix", "/");
 		this.trace_http_client_ip_header_key = getValue("trace_http_client_ip_header_key", "");
 		this.trace_interservice_enabled = getBoolean("trace_interservice_enabled", false);
 		this.trace_response_gxid_enabled = getBoolean("trace_response_gxid_enabled", false);
-		this.trace_interservice_gxid_header_key = getValue("trace_interservice_gxid_header_key", "X-Scouter-Gxid");
-		this.trace_interservice_callee_header_key = getValue("trace_interservice_callee_header_key", "X-Scouter-Callee");
-		this.trace_interservice_caller_header_key = getValue("trace_interservice_caller_header_key", "X-Scouter-Caller");
+		this._trace_interservice_gxid_header_key = getValue("_trace_interservice_gxid_header_key", "X-Scouter-Gxid");
+		this._trace_interservice_callee_header_key = getValue("_trace_interservice_callee_header_key", "X-Scouter-Callee");
+		this._trace_interservice_caller_header_key = getValue("_trace_interservice_caller_header_key", "X-Scouter-Caller");
 		this.profile_connection_open_fullstack_enabled = getBoolean("profile_connection_open_fullstack_enabled", false);
 		this.profile_connection_autocommit_status_enabled = getBoolean("profile_connection_autocommit_status_enabled", false);
 		this.trace_user_mode = getInt("trace_user_mode", 2);
 		this.trace_user_session_key = getValue("trace_user_session_key", "JSESSIONID");
-		this.obj_host_enabled = getBoolean("obj_host_enabled", false);
 		this._trace_auto_service_enabled = getBoolean("_trace_auto_service_enabled", false);
 		this._trace_auto_service_backstack_enabled = getBoolean("_trace_auto_service_backstack_enabled", true);
 		this.counter_enabled = getBoolean("counter_enabled", true);
@@ -449,26 +463,25 @@ public class Configure extends Thread {
 		this.trace_webserver_time_header_key = getValue("trace_webserver_time_header_key", "X-Forwarded-Time");
 		// SUMMARY최대 갯수를 관리한다.
 		this.summary_enabled = getBoolean("summary_enabled", true);
-		this.summary_sql_max_count = getInt("summary_sql_max_count", 5000);
-		this.summary_api_max_count = getInt("summary_api_max_count", 5000);
-		this.summary_service_max_count = getInt("summary_service_max_count", 5000);
-		this.summary_ip_max_count = getInt("summary_ip_max_count", 5000);
-		this.summary_useragent_max_count = getInt("summary_useragent_max_count", 5000);
-		this.summary_error_max_count = getInt("summary_error_max_count", 500);
+		this._summary_sql_max_count = getInt("_summary_sql_max_count", 5000);
+		this._summary_api_max_count = getInt("_summary_api_max_count", 5000);
+		this._summary_service_max_count = getInt("_summary_service_max_count", 5000);
+		this._summary_ip_max_count = getInt("_summary_ip_max_count", 5000);
+		this._summary_useragent_max_count = getInt("_summary_useragent_max_count", 5000);
+		this._summary_error_max_count = getInt("_summary_error_max_count", 500);
 		
-		this.summary_enduser_nav_max_count = getInt("summary_enduser_nav_max_count", 5000);
-		this.summary_enduser_ajax_max_count = getInt("summary_enduser_ajax_max_count", 5000);
-		this.summary_enduser_error_max_count = getInt("summary_enduser_error_max_count", 5000);
+		this._summary_enduser_nav_max_count = getInt("_summary_enduser_nav_max_count", 5000);
+		this._summary_enduser_ajax_max_count = getInt("_summary_enduser_ajax_max_count", 5000);
+		this._summary_enduser_error_max_count = getInt("_summary_enduser_error_max_count", 5000);
 
 		
-		this.alert_perm_interval_ms = getLong("alert_perm_interval_ms", 30000);
 		this.alert_perm_warning_pct = getInt("alert_perm_warning_pct", 90);
 		this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", false);
 		this.alert_message_length = getInt("alert_message_length", 3000);
 		this.alert_send_interval_ms = getInt("alert_send_interval_ms", 3000);
 		this.xlog_error_jdbc_fetch_max = getInt("xlog_error_jdbc_fetch_max", 10000);
 		this.xlog_error_sql_time_max_ms = getInt("xlog_error_sql_time_max_ms", 30000);
-		this.log_asm_enabled = getBoolean("log_asm_enabled", false);
+		this._log_asm_enabled = getBoolean("_log_asm_enabled", false);
 		this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
 		this._profile_fullstack_sql_connection_enabled = getBoolean("_profile_fullstack_sql_connection_enabled", false);
 		this._trace_fullstack_socket_open_port = getInt("_trace_fullstack_socket_open_port", 0);

@@ -26,7 +26,7 @@ import scouter.agent.Configure;
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
 import scouter.agent.counter.meter.MeterResource;
-import scouter.agent.netio.data.DataProxy;
+import scouter.agent.trace.AlertProxy;
 import scouter.lang.AlertLevel;
 import scouter.lang.TimeTypeEnum;
 import scouter.lang.counters.CounterConstants;
@@ -64,24 +64,18 @@ public class PermGen {
 		p.put(CounterConstants.JAVA_PERM_USED, new FloatValue(usedM));
 		p.put(CounterConstants.JAVA_PERM_PERCENT, new FloatValue(usedM * 100 / max));
 
-		long now = System.currentTimeMillis();
 		Configure conf = Configure.getInstance();
 		float rate = used * 100 / usage.getMax();
 
 		// /////////////////////////////////////////////////
 		// PermGen Warning 
 		if (rate >= conf.alert_perm_warning_pct) {
-			if (now >= heap_perm_last_warning + conf.alert_perm_interval_ms) {
-				DataProxy.sendAlert(AlertLevel.WARN, "WARNING_MEMORY_HIGH", "warning perm usage used="
-						+ (used / 1024 / 1024) + "MB rate=" + rate + "%", null);
-				heap_perm_last_warning = now;
-			}
+			AlertProxy.sendAlert(AlertLevel.WARN, "WARNING_MEMORY_HIGH", "warning perm usage used="
+					+ (used / 1024 / 1024) + "MB rate=" + rate + "%");
 		}
 		// /////////////////////////////////////////////////
 
 		p = pw.getPack(TimeTypeEnum.FIVE_MIN);
 		p.put(CounterConstants.JAVA_PERM_USED, new FloatValue((float) (meter.getAvg(300) / 1024.f / 1024.f)));
 	}
-
-	long heap_perm_last_warning;
 }

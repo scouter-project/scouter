@@ -54,8 +54,6 @@ object AlertSummary {
     }
 
     def add(p: AlertPack): Unit = {
-        if(conf.summary_alert_enabled==false)
-            return;
         val ok = queue.put(p)
         if (ok == false) {
             Logger.println("S205", 10, "queue exceeded!!");

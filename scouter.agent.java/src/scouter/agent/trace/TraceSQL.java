@@ -127,7 +127,7 @@ public class TraceSQL {
 	public static Object start(Object o, String sql, byte methodType) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
-			if (conf.log_background_sql) {
+			if (conf._log_background_sql) {
 				Logger.println("background: " + sql);
 			}
 			return null;
@@ -213,7 +213,7 @@ public class TraceSQL {
 
 	public static void end(Object stat, Throwable thr, int updatedCount) {
 		if (stat == null) {
-			if (conf.log_background_sql && thr != null) {
+			if (conf._log_background_sql && thr != null) {
 				Logger.println("BG-SQL:" + thr);
 			}
 			return;
@@ -382,7 +382,7 @@ public class TraceSQL {
 	public static Object start(Object o, SqlParameter args, byte methodType) {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null) {
-			if (conf.log_background_sql && args != null) {
+			if (conf._log_background_sql && args != null) {
 				Logger.println("background: " + args.getSql());
 			}
 			return null;
