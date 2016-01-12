@@ -18,7 +18,6 @@
 package scouter.client.xlog.views;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
@@ -48,7 +47,6 @@ import scouter.client.Images;
 import scouter.client.model.XLogData;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ImageUtil;
-import scouter.client.util.MyKeyAdapter;
 import scouter.client.xlog.ProfileText;
 import scouter.client.xlog.SaveProfileJob;
 import scouter.client.xlog.actions.OpenXLogProfileJob;
@@ -73,16 +71,9 @@ public class XLogProfileView extends ViewPart {
 	
 	Step[] steps;
 	
-	private int spaceCnt = 1;
-	MyKeyAdapter adapter;
-
 	public void createPartControl(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new GridLayout(1, true));
-		
-		//createUpperMenu(composite);
-		
-		adapter = new MyKeyAdapter(parent.getShell(), "SelectedLog.txt");
 		
 		text = new StyledText(composite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 		text.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
@@ -93,7 +84,6 @@ public class XLogProfileView extends ViewPart {
 		    text.setFont(new Font(null, "Courier New", 10, SWT.NORMAL));
 		}
 		text.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
-		text.addKeyListener(adapter);
 		
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
 		man.add(openSqlSummaryDialog);
@@ -113,6 +103,14 @@ public class XLogProfileView extends ViewPart {
 				openSqlSummaryDialog.run();
 			}
 		});
+		final MenuItem bindSqlParamMenu = new MenuItem(contextMenu, SWT.CHECK);
+		bindSqlParamMenu.setText("Bind SQL Parameter");
+		bindSqlParamMenu.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				bindSqlParam = bindSqlParamMenu.getSelection();
+				setInput(steps, xLogData, serverId);
+			}
+		});
 		MenuItem saveProfile = new MenuItem(contextMenu, SWT.PUSH);
 		saveProfile.setText("Save Full Profile");
 		saveProfile.addSelectionListener(new SelectionAdapter() {
@@ -127,8 +125,9 @@ public class XLogProfileView extends ViewPart {
 	
 	boolean truncated;
 	private int serverId;
+	boolean bindSqlParam;
 	
-	CacheTable<String, Boolean> preventDupleEventTable = new CacheTable<String, Boolean>().setDefaultKeepTime(500);
+	CacheTable<String, Boolean> preventDupleEventTable = new CacheTable<String, Boolean>().setDefaultKeepTime(700);
 	public void setInput(Step[] steps, final XLogData item, int serverId) {
 		this.steps = steps;
 		this.xLogData = item;
@@ -138,7 +137,7 @@ public class XLogProfileView extends ViewPart {
 		setPartName(txid);
 		text.setText("");
 		
-		ProfileText.build(DateUtil.yyyymmdd(xLogData.p.endTime), text, this.xLogData, steps, spaceCnt,  serverId);
+		ProfileText.build(DateUtil.yyyymmdd(xLogData.p.endTime), text, this.xLogData, steps, serverId, bindSqlParam);
 		text.addListener(SWT.MouseUp, new Listener(){
 			public void handleEvent(Event event) {
 				try {
@@ -151,14 +150,13 @@ public class XLogProfileView extends ViewPart {
 							if (fulltxt.startsWith("► gxid")) {
 								if (preventDupleEventTable.get("gxid") != null) return;
 								synchronized (preventDupleEventTable) {
+									if (preventDupleEventTable.get("gxid") != null) return;
 									preventDupleEventTable.put("gxid", new Boolean(true));
 								}
 								String[] tokens = StringUtil.tokenizer(fulltxt, " =\n");
 								String gxid = tokens[tokens.length - 1];
 								try {
-									XLogDependencyView view = (XLogDependencyView) PlatformUI.getWorkbench()
-									.getActiveWorkbenchWindow()
-									.getActivePage().showView(XLogDependencyView.ID, "*", IWorkbenchPage.VIEW_ACTIVATE);
+									XLogDependencyView view = (XLogDependencyView) window.getActivePage().showView(XLogDependencyView.ID, gxid, IWorkbenchPage.VIEW_ACTIVATE);
 									if (view != null) {
 										view.loadByGxId(DateUtil.yyyymmdd(item.p.endTime), Hexa32.toLong32(gxid));
 									}
@@ -168,14 +166,13 @@ public class XLogProfileView extends ViewPart {
 							} else if (fulltxt.startsWith("► txid")) {
 								if (preventDupleEventTable.get("txid") != null) return;
 								synchronized (preventDupleEventTable) {
+									if (preventDupleEventTable.get("txid") != null) return;
 									preventDupleEventTable.put("txid", new Boolean(true));
 								}
 								String[] tokens = StringUtil.tokenizer(fulltxt, " =\n");
 								String txid = tokens[tokens.length - 1];
 								try {
-									XLogDependencyView view = (XLogDependencyView) PlatformUI.getWorkbench()
-									.getActiveWorkbenchWindow()
-									.getActivePage().showView(XLogDependencyView.ID, "*", IWorkbenchPage.VIEW_ACTIVATE);
+									XLogDependencyView view = (XLogDependencyView) window.getActivePage().showView(XLogDependencyView.ID, txid, IWorkbenchPage.VIEW_ACTIVATE);
 									if (view != null) {
 										view.loadByTxId(DateUtil.yyyymmdd(item.p.endTime), Hexa32.toLong32(txid));
 									}
@@ -185,15 +182,17 @@ public class XLogProfileView extends ViewPart {
 							} else if (fulltxt.startsWith("► caller")) {
 								if (preventDupleEventTable.get("caller") != null) return;
 								synchronized (preventDupleEventTable) {
+									if (preventDupleEventTable.get("caller") != null) return;
 									preventDupleEventTable.put("caller", new Boolean(true));
 								}
 								String[] tokens = StringUtil.tokenizer(fulltxt, " =\n");
 								String txIdStr = tokens[tokens.length - 1];
 								long txid = Hexa32.toLong32(txIdStr);
-								new OpenXLogProfileJob(DateUtil.yyyymmdd(item.p.endTime), txid).schedule();
+								new OpenXLogProfileJob(XLogProfileView.this.getViewSite().getShell().getDisplay(), DateUtil.yyyymmdd(item.p.endTime), txid).schedule();
 							} else if (fulltxt.endsWith(">") && fulltxt.contains("call:")) {
 								if (preventDupleEventTable.get("call") != null) return;
 								synchronized (preventDupleEventTable) {
+									if (preventDupleEventTable.get("call") != null) return;
 									preventDupleEventTable.put("call", new Boolean(true));
 								}
 								int startIndex = fulltxt.lastIndexOf("<");
@@ -201,11 +200,12 @@ public class XLogProfileView extends ViewPart {
 									int endIndex = fulltxt.lastIndexOf(">");
 									String txIdStr = fulltxt.substring(startIndex + 1, endIndex);
 									long txid = Hexa32.toLong32(txIdStr);
-									new OpenXLogProfileJob(DateUtil.yyyymmdd(item.p.endTime), txid).schedule();
+									new OpenXLogProfileJob(XLogProfileView.this.getViewSite().getShell().getDisplay(), DateUtil.yyyymmdd(item.p.endTime), txid).schedule();
 								}
 							}else if (fulltxt.endsWith(">") && fulltxt.contains("thread:")) {
 								if (preventDupleEventTable.get("thread") != null) return;
 								synchronized (preventDupleEventTable) {
+									if (preventDupleEventTable.get("thread") != null) return;
 									preventDupleEventTable.put("thread", new Boolean(true));
 								}
 								int startIndex = fulltxt.lastIndexOf("<");
@@ -223,15 +223,9 @@ public class XLogProfileView extends ViewPart {
 				}
 			}
 		});
-		adapter.setFileName("profile_"+txid+".txt");
 	}
 	
 	public void setFocus() {
-	}
-
-	@Override
-	public void dispose() {
-		super.dispose();
 	}
 	
 	Action openSqlSummaryDialog = new Action("SQL Statistics", ImageUtil.getImageDescriptor(Images.sum)) {

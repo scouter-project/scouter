@@ -77,7 +77,7 @@ public class Configure extends Thread {
 	public boolean log_service_handler_list = false;
 	public boolean log_rotation_enabled = true;
 	public int log_keep_days = 31;
-	public boolean log_sql_parsing_failed = false;
+	public boolean log_sql_parsing_fail_enabled = false;
 
 	//Network
 	public String net_udp_listen_ip = "0.0.0.0";
@@ -138,9 +138,6 @@ public class Configure extends Thread {
 
 	//TagCount
 	public boolean tagcnt_enabled = false;
-
-	//Summary
-	public boolean summary_alert_enabled = true;
 
 	private Configure() {
 		reload(false);
@@ -263,7 +260,7 @@ public class Configure extends Thread {
 		this.log_service_handler_list = getBoolean("log_service_handler_list", false);
 		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
 		this.log_keep_days = getInt("log_keep_days", 31);
-		this.log_sql_parsing_failed = getBoolean("log_sql_parsing_failed", false);
+		this.log_sql_parsing_fail_enabled = getBoolean("log_sql_parsing_fail_enabled", false);
 
 		this._auto_5m_sampling = getBoolean("_auto_5m_sampling", true);
 
@@ -285,7 +282,6 @@ public class Configure extends Thread {
 		this.tagcnt_enabled = getBoolean("tagcnt_enabled", false);
 		
 		this.net_tcp_service_pool_size = getInt("net_tcp_service_pool_size", 100);
-		this.summary_alert_enabled =  getBoolean("summary_alert_enabled", true);
 		
 		ConfObserver.exec();
 	}

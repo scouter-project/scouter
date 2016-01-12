@@ -10,7 +10,7 @@ JDBC Connection을 추적의 목적은 대표적인 Connection 관련 문제를 
 Connecttion Pool크기가 작아 부족한 경우 자주 발생하며  Connection을 새로 맺는 경우에도 발생한다.
 
 ## setAutoCommit True
-setAutoCommit가 true로 setting되면 매 SQL만다 자동으로 Commit이 DB에 전달된다. 
+setAutoCommit가 true로 setting되면 매 SQL마다 자동으로 Commit이 DB에 전달된다. 
 당연히 성능에 문제가 된다.
 
 ## Too many commits

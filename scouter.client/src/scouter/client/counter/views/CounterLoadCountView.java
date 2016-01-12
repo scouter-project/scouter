@@ -34,9 +34,6 @@ import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.PartInitException;
 
 import scouter.client.model.AgentColorManager;
 import scouter.client.model.TextProxy;
@@ -59,20 +56,12 @@ import scouter.util.StringUtil;
 public class CounterLoadCountView extends ScouterViewPart {
 	public static final String ID = CounterLoadCountView.class.getName();
 	
-	private IMemento memento;
-
 	protected String objType;
 	protected String counter;
 	protected String date;
 	protected int objHash;
 	protected int serverId;
 	
-	@Override
-	public void init(IViewSite site, IMemento memento) throws PartInitException {
-		super.init(site, memento);
-		this.memento = memento;
-	}
-
 	public void setInput(String date, String objType, String counter, int objHash, int serverId) throws Exception {
 		this.date = date;
 		this.objHash = objHash;
@@ -168,8 +157,6 @@ public class CounterLoadCountView extends ScouterViewPart {
 
 		// add the trace to xyGraph
 		xyGraph.addTrace(trace);
-		
-		restoreState();
 	}
 	
 	public void setFocus() {
@@ -184,34 +171,6 @@ public class CounterLoadCountView extends ScouterViewPart {
 		}
 	}
 
-	public void saveState(IMemento memento) {
-		super.saveState(memento);
-		memento = memento.createChild(ID);
-		memento.putString("objType", objType);
-		memento.putString("counter", counter);
-		memento.putString("date", this.date);
-		memento.putInteger("objHash", this.objHash);
-	}
-
-	private void restoreState() {
-		if (memento == null)
-			return;
-		IMemento m = memento.getChild(ID);
-		if(m == null)
-			return;
-		String objType = m.getString("objType");
-		String counter = m.getString("counter");
-		int objHash = CastUtil.cint(m.getInteger("objHash"));
-		String date = m.getString("date");
-		int serverId = CastUtil.cint(m.getInteger("serverId"));
-		
-		try {
-			setInput(date, objType, counter, objHash, serverId);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	class LoadJob extends Job {
 
 		public LoadJob(String name) {

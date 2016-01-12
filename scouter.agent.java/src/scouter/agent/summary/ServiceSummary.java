@@ -134,14 +134,14 @@ public class ServiceSummary {
 	}
 
 	private LongKeyLinkedMap<ErrorData> errorMaster = new LongKeyLinkedMap<ErrorData>()
-			.setMax(conf.summary_error_max_count);
+			.setMax(conf._summary_error_max_count);
 
-	private IntKeyLinkedMap<SummaryData> sqlMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_sql_max_count);
-	private IntKeyLinkedMap<SummaryData> apiMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_api_max_count);
+	private IntKeyLinkedMap<SummaryData> sqlMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf._summary_sql_max_count);
+	private IntKeyLinkedMap<SummaryData> apiMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf._summary_api_max_count);
 	private IntKeyLinkedMap<SummaryData> serviceMaster = new IntKeyLinkedMap<SummaryData>()
-			.setMax(conf.summary_service_max_count);
-	private IntIntLinkedMap ipMaster = new IntIntLinkedMap().setMax(conf.summary_ip_max_count);
-	private IntIntLinkedMap uaMaster = new IntIntLinkedMap().setMax(conf.summary_useragent_max_count);
+			.setMax(conf._summary_service_max_count);
+	private IntIntLinkedMap ipMaster = new IntIntLinkedMap().setMax(conf._summary_ip_max_count);
+	private IntIntLinkedMap uaMaster = new IntIntLinkedMap().setMax(conf._summary_useragent_max_count);
 
 	public SummaryPack getAndClear(byte type) {
 		IntKeyLinkedMap<SummaryData> temp;
@@ -150,19 +150,19 @@ public class ServiceSummary {
 			if (serviceMaster.size() == 0)
 				return null;
 			temp = serviceMaster;
-			serviceMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_service_max_count);
+			serviceMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf._summary_service_max_count);
 			break;
 		case SummaryEnum.SQL:
 			if (sqlMaster.size() == 0)
 				return null;
 			temp = sqlMaster;
-			sqlMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_sql_max_count);
+			sqlMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf._summary_sql_max_count);
 			break;
 		case SummaryEnum.APICALL:
 			if (apiMaster.size() == 0)
 				return null;
 			temp = apiMaster;
-			apiMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf.summary_api_max_count);
+			apiMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf._summary_api_max_count);
 			break;
 		default:
 			return null;
@@ -207,13 +207,13 @@ public class ServiceSummary {
 			if (ipMaster.size() == 0)
 				return null;
 			temp = ipMaster;
-			ipMaster = new IntIntLinkedMap().setMax(conf.summary_ip_max_count);
+			ipMaster = new IntIntLinkedMap().setMax(conf._summary_ip_max_count);
 			break;
 		case SummaryEnum.USER_AGENT:
 			if (uaMaster.size() == 0)
 				return null;
 			temp = uaMaster;
-			uaMaster = new IntIntLinkedMap().setMax(conf.summary_useragent_max_count);
+			uaMaster = new IntIntLinkedMap().setMax(conf._summary_useragent_max_count);
 			break;
 		default:
 			return null;
@@ -242,7 +242,7 @@ public class ServiceSummary {
 			return null;
 
 		LongKeyLinkedMap<ErrorData> temp = errorMaster;
-		errorMaster = new LongKeyLinkedMap<ErrorData>().setMax(conf.summary_error_max_count);
+		errorMaster = new LongKeyLinkedMap<ErrorData>().setMax(conf._summary_error_max_count);
 
 		SummaryPack p = new SummaryPack();
 		p.stype = type;

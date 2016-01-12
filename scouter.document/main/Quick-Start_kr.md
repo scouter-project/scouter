@@ -179,6 +179,6 @@ Scouter의 고급 기능에 대한 상세한 내용은 상세 매뉴얼 페이�
 SFA (Stack Frequency Analyzer)  | Thread Stack의 통계 분석을 통한 부하 코드 식별
 [Connection Leak 추적](../tech/JDBC-Connection-Leak-Trace_kr.md)             | Database Connection Leak 추적
 프로파일에 사용자 ID 추가            | Plugin scripting을 통한 프로파일 커스터마이징 방법 - 사용자 ID 추가
-method 상세 프로파일              | method 레벨로 상세 프로파일 하는 방법
+[method 상세 프로파일](../use-case/Method-Profiling_kr.md)              | method 레벨로 상세 프로파일 하는 방법
 [Servlet이 아닌 Java 프로그램 추적](../use-case/NON-HTTP-Service-Trace_kr.md)    | WEB Servlet이 아닌 Java Deamon 프로그램 모니터링 방법
 

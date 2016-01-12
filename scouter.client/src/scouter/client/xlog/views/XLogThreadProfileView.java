@@ -88,7 +88,7 @@ public class XLogThreadProfileView extends ViewPart {
 									int endIndex = fulltxt.lastIndexOf(">");
 									String txIdStr = fulltxt.substring(startIndex + 1, endIndex);
 									long txid = Hexa32.toLong32(txIdStr);
-									new OpenXLogProfileJob(XLogThreadProfileView.this.date, txid).schedule();
+									new OpenXLogProfileJob(XLogThreadProfileView.this.getViewSite().getShell().getDisplay(), XLogThreadProfileView.this.date, txid).schedule();
 								}
 							}else if (fulltxt.endsWith(">") && fulltxt.contains("thread:")) {
 								int startIndex = fulltxt.lastIndexOf("<");

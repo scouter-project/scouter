@@ -57,17 +57,12 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import au.com.bytecode.opencsv.CSVWriter;
-
 import scouter.client.Images;
 import scouter.client.counter.actions.OpenPastLongDateAllAction;
-import scouter.client.counter.views.CounterPastTimeAllView.ExportDataTask;
 import scouter.client.model.AgentColorManager;
 import scouter.client.model.TextProxy;
 import scouter.client.net.INetReader;
@@ -92,7 +87,6 @@ import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
-import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 import scouter.util.StringUtil;
@@ -100,7 +94,6 @@ import scouter.util.StringUtil;
 public class CounterPastLongDateAllView extends ScouterViewPart implements DualCalendarDialog.ILoadDualCounterDialog {
 	public static final String ID = CounterPastLongDateAllView.class.getName();
 
-	private IMemento memento;
 	protected String objType;
 	protected String counter;
 	protected int serverId;
@@ -120,12 +113,6 @@ public class CounterPastLongDateAllView extends ScouterViewPart implements DualC
 	
 	boolean actionReg = false;
 	
-	@Override
-	public void init(IViewSite site, IMemento memento) throws PartInitException {
-		super.init(site, memento);
-		this.memento = memento;
-	}
-
 	public String getCount() {
 		return counter;
 	}
@@ -369,8 +356,6 @@ public class CounterPastLongDateAllView extends ScouterViewPart implements DualC
 				}
 			}
 		});
-		
-		restoreState();
 	}
 	
 	private void createUpperMenu(Composite composite) {
@@ -515,32 +500,6 @@ public class CounterPastLongDateAllView extends ScouterViewPart implements DualC
 		return trace;
 	}
 	
-	public void saveState(IMemento memento) {
-		super.saveState(memento);
-		memento = memento.createChild(ID);
-		memento.putString("counter", counter);
-		memento.putString("objType", objType);
-		memento.putString("sDate", this.sDate);
-		memento.putString("eDate", this.eDate);
-		memento.putInteger("serverId", serverId);
-	}
-
-	private void restoreState() {
-		if (memento == null)
-			return;
-		IMemento m = memento.getChild(ID);
-		String counter = m.getString("counter");
-		String objType = m.getString("objType");
-		String sDate = CastUtil.cString(m.getString("sDate"));
-		String eDate = CastUtil.cString(m.getString("eDate"));
-		int serverId = CastUtil.cint(m.getInteger("serverId"));
-		try {
-			setInput(sDate, eDate, objType, counter, serverId);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	public void onPressedOk(long startTime, long endTime) {
 	}
 	public void onPressedCancel() {

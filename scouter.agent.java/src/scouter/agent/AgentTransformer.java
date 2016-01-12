@@ -148,7 +148,7 @@ public class AgentTransformer implements ClassFileTransformer {
                     cr.accept(cv, ClassReader.EXPAND_FRAMES);
                     classfileBuffer = cw.toByteArray();
                     cv = cw = getClassWriter(classDesc);
-                    if (conf.log_asm_enabled) {
+                    if (conf._log_asm_enabled) {
                         if (this.bciOut == null) {
                             this.bciOut = new Logger.FileLog("./scouter.bci");
                         }

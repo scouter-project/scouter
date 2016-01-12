@@ -93,9 +93,9 @@ public class ForHttpURLConnection implements ApiCallTraceHelper.IHelper {
 				ctx.gxid = ctx.txid;
 			}
 			try {
-				urlCon.setRequestProperty(conf.trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
-				urlCon.setRequestProperty(conf.trace_interservice_callee_header_key, Hexa32.toString32(calleeTxid));
-				urlCon.setRequestProperty(conf.trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
+				urlCon.setRequestProperty(conf._trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
+				urlCon.setRequestProperty(conf._trace_interservice_callee_header_key, Hexa32.toString32(calleeTxid));
+				urlCon.setRequestProperty(conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
 				
 				PluginHttpCallTrace.call(ctx, urlCon);
 			} catch (Throwable t) {

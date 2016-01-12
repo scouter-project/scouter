@@ -77,7 +77,7 @@ public class UDPDataSendThread extends Thread {
 			int size = queue.size();
 			switch (size) {
 			case 0:
-				ThreadUtil.sleep(conf.udp_udp_collection_interval_ms);
+				ThreadUtil.sleep(conf.net_udp_collection_interval_ms);
 				break;
 			case 1:
 				udp.write(queue.pop());

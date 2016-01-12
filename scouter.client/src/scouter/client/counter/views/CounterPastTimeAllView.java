@@ -55,12 +55,10 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.ui.IMemento;
-import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import au.com.bytecode.opencsv.CSVWriter;
 import scouter.client.Images;
 import scouter.client.counter.actions.OpenPastTimeAllAction;
 import scouter.client.model.AgentColorManager;
@@ -88,17 +86,13 @@ import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
-import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 import scouter.util.StringUtil;
-import au.com.bytecode.opencsv.CSVWriter;
 
 public class CounterPastTimeAllView extends ScouterViewPart implements CalendarDialog.ILoadCalendarDialog {
 	public static final String ID = CounterPastTimeAllView.class.getName();
 	
-	private IMemento memento;
-
 	protected String objType;
 	protected String counter;
 	protected long startTime;
@@ -114,12 +108,6 @@ public class CounterPastTimeAllView extends ScouterViewPart implements CalendarD
 	
 	boolean actionReg = false;
 	
-	@Override
-	public void init(IViewSite site, IMemento memento) throws PartInitException {
-		super.init(site, memento);
-		this.memento = memento;
-	}
-
 	public void setInput(long stime, long etime, String objType, String counter, int serverId) throws Exception {
 		this.startTime = stime;
 		this.endTime = etime;
@@ -325,8 +313,6 @@ public class CounterPastTimeAllView extends ScouterViewPart implements CalendarD
 		xyGraph.primaryXAxis.setTitle("");
 		xyGraph.primaryYAxis.setTitle("");
 		
-		restoreState();
-		
 		canvas.addKeyListener(new KeyListener() {
 			public void keyReleased(KeyEvent e) {
 			}
@@ -441,31 +427,6 @@ public class CounterPastTimeAllView extends ScouterViewPart implements CalendarD
 		return trace;
 	}
 	
-	public void saveState(IMemento memento) {
-		super.saveState(memento);
-		memento = memento.createChild(ID);
-		memento.putString("objType", objType);
-		memento.putString("counter", counter);
-		memento.putString("stime", String.valueOf(this.startTime));
-		memento.putString("etime", String.valueOf(this.endTime));
-	}
-
-	private void restoreState() {
-		if (memento == null)
-			return;
-		IMemento m = memento.getChild(ID);
-		String objType = m.getString("objType");
-		String counter = m.getString("counter");
-		long stime = CastUtil.clong(m.getString("stime"));
-		long etime = CastUtil.clong(m.getString("etime"));
-		int serverId = CastUtil.cint(m.getInteger("serverId"));
-		try {
-			setInput(stime, etime, objType, counter, serverId);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	public void onPressedOk(long startTime, long endTime) {
 		try {
 			setInput(startTime, endTime, objType, counter, serverId);

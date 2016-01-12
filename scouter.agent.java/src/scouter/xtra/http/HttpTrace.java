@@ -127,16 +127,16 @@ public class HttpTrace implements IHttpTrace {
 		dump(ctx.profile, request, ctx);
 		if (conf.trace_interservice_enabled) {
 			try {
-				String gxid = request.getHeader(conf.trace_interservice_gxid_header_key);
+				String gxid = request.getHeader(conf._trace_interservice_gxid_header_key);
 				if (gxid != null) {
 					ctx.gxid = Hexa32.toLong32(gxid);
 				}
-				String txid = request.getHeader(conf.trace_interservice_callee_header_key);
+				String txid = request.getHeader(conf._trace_interservice_callee_header_key);
 				if (txid != null) {
 					ctx.txid = Hexa32.toLong32(txid);
 					ctx.is_child_tx = true;
 				}
-				String caller = request.getHeader(conf.trace_interservice_caller_header_key);
+				String caller = request.getHeader(conf._trace_interservice_caller_header_key);
 				if (caller != null) {
 					ctx.caller = Hexa32.toLong32(caller);
 					ctx.is_child_tx = true;
@@ -151,9 +151,9 @@ public class HttpTrace implements IHttpTrace {
 					ctx.gxid = ctx.txid;
 
 				String resGxId = Hexa32.toString32(ctx.gxid) + ":" + ctx.startTime;
-				response.setHeader(conf.trace_interservice_gxid_header_key, resGxId);
+				response.setHeader(conf._trace_interservice_gxid_header_key, resGxId);
 
-				Cookie c = new Cookie(conf.trace_interservice_gxid_header_key, resGxId);
+				Cookie c = new Cookie(conf._trace_interservice_gxid_header_key, resGxId);
 				response.addCookie(c);
 
 			} catch (Throwable t) {

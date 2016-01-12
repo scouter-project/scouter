@@ -32,6 +32,7 @@ import scouter.client.model.XLogData;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
+import scouter.client.util.SqlMakerUtil;
 import scouter.client.xlog.views.XLogProfileView;
 import scouter.lang.CountryCode;
 import scouter.lang.step.ApiCallStep;
@@ -62,8 +63,14 @@ import scouter.util.SortUtil;
 import scouter.util.StringUtil;
 
 public class ProfileText {
-    public static void build(final String date, StyledText text, XLogData xperf, Step[] profiles, int spaceCnt,
-                             int serverId) {
+	
+	public static void build(final String date, StyledText text, XLogData xperf, Step[] profiles, int spaceCnt,
+             int serverId) {
+		 build(date, text, xperf, profiles, serverId, false);
+	}
+	 
+    public static void build(final String date, StyledText text, XLogData xperf, Step[] profiles,
+                             int serverId, boolean bindSqlParam) {
 
         boolean truncated = false;
 
@@ -295,7 +302,7 @@ public class ProfileText {
 
             int space = 0;
             if (indent.containsKey(stepSingle.parent)) {
-                space = indent.get(stepSingle.parent) + spaceCnt;
+                space = indent.get(stepSingle.parent) + 1;
             }
             indent.put(stepSingle.index, space);
             lineHead += space;
@@ -322,7 +329,7 @@ public class ProfileText {
                 case StepEnum.SQL3:
                     SqlStep sql = (SqlStep) stepSingle;
                     slen = sb.length();
-                    toString(sb, sql, serverId, lineHead);
+                    toString(sb, sql, serverId, lineHead, bindSqlParam);
                     sr.add(style(slen, sb.length() - slen, blue, SWT.NORMAL));
                     if (sql.error != 0) {
                         slen = sb.length();
@@ -553,7 +560,7 @@ public class ProfileText {
                 case StepEnum.SQL3:
                     SqlStep sql = (SqlStep) stepSingle;
                     slen = sb.length();
-                    toString(sb, sql, serverId, lineHead);
+                    toString(sb, sql, serverId, lineHead, false);
                     sr.add(style(slen, sb.length() - slen, blue, SWT.NORMAL));
                     if (sql.error != 0) {
                         slen = sb.length();
@@ -672,7 +679,7 @@ public class ProfileText {
         }
     }
 
-    public static void toString(StringBuffer sb, SqlStep p, int serverId, int lineHead) {
+    public static void toString(StringBuffer sb, SqlStep p, int serverId, int lineHead, boolean bindParam) {
         if (p instanceof SqlStep2) {
             sb.append(SqlXType.toString(((SqlStep2) p).xtype));
         }
@@ -680,42 +687,31 @@ public class ProfileText {
         m = spacing(m, lineHead);
         if (m == null)
             m = Hexa32.toString32(p.hash);
-        sb.append(m);
-        if (StringUtil.isEmpty(p.param) == false) {
-            sb.append("\n").append(StringUtil.leftPad("", lineHead));
-            Server server = ServerManager.getInstance().getServer(serverId);
-            boolean showParam = true;
-            if (server != null) {
-                showParam = server.isAllowAction(GroupPolicyConstants.ALLOW_SQLPARAMETER);
-            }
-            sb.append("[").append(showParam ? p.param : "******").append("]");
+        Server server = ServerManager.getInstance().getServer(serverId);
+        boolean showParam = true;
+        if (server != null) {
+            showParam = server.isAllowAction(GroupPolicyConstants.ALLOW_SQLPARAMETER);
         }
-        sb.append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
+        if (showParam && bindParam) {
+        	sb.append(SqlMakerUtil.replaceSQLParameter(m, p.param));
+        } else {
+        	sb.append(m);
+        }
+        if (StringUtil.isEmpty(p.param) == false) {
+            if (bindParam == false) {
+	            sb.append("\n").append(StringUtil.leftPad("", lineHead));
+	            sb.append("[").append(showParam ? p.param : "******").append("]");
+            }
+        }
         if (p instanceof SqlStep3) {
             int updatedCount = ((SqlStep3) p).updated;
-            if (updatedCount > -1) {
-                sb.append("\n");
-                sb.append(StringUtil.leftPad("", lineHead));
-                sb.append("<Affected Rows : " + updatedCount + ">");
-            } else if (updatedCount == -2) {
-                sb.append("\n");
-                sb.append(StringUtil.leftPad("", lineHead));
-                sb.append("<Affected Rows : unknown>");
+            if (updatedCount > SqlStep3.EXECUTE_RESULT_SET) {
+                sb.append(" <Affected Rows : " + updatedCount + ">");
+            } else if (updatedCount == SqlStep3.EXECUTE_UNKNOWN_COUNT) {
+                sb.append(" <Affected Rows : unknown>");
             }
-//                switch (SqlXType.getMethodType(((SqlStep3) p).xtype)) {
-//                    case SqlXType.METHOD_UPDATE:
-//                        sb.append("\n");
-//                        sb.append(StringUtil.leftPad("", lineHead));
-//                        sb.append("<Update Count : " + updatedCount + ">");
-//                        break;
-//                    case SqlXType.METHOD_EXECUTE:
-//                        sb.append("\n");
-//                        sb.append(StringUtil.leftPad("", lineHead));
-//                        sb.append("<Execute Result : " + ((updatedCount == 1) ? "true" : "false") + ">");
-//                        break;
-//                }
-//            }
         }
+        sb.append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
     }
 
     public static String spacing(String m, int lineHead) {

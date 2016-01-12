@@ -13,7 +13,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
-import scouter.client.server.ServerManager;
 import scouter.client.summary.modules.AlertSummaryComposite;
 import scouter.client.summary.modules.ApicallSummaryComposite;
 import scouter.client.summary.modules.ErrorSummaryComposite;
@@ -68,11 +67,9 @@ public class SummaryDialog {
 		errorTab.setText("Exception");
 		errorTab.setControl(getErrorControl(tabFolder));
 		
-		if (ServerManager.getInstance().getServer(serverId).isEnableMenu("alert_summary")) {
-			alertTab = new TabItem(tabFolder, SWT.NULL);
-			alertTab.setText("Alert");
-			alertTab.setControl(getAlertControl(tabFolder));	
-		}
+		alertTab = new TabItem(tabFolder, SWT.NULL);
+		alertTab.setText("Alert");
+		alertTab.setControl(getAlertControl(tabFolder));	
 		
 		Button closeBtn = new Button(dialog, SWT.PUSH);
 		GridData gr = new GridData(SWT.RIGHT, SWT.FILL, false, false);

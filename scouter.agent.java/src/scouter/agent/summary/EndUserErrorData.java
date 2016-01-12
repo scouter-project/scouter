@@ -16,7 +16,7 @@
  */
 package scouter.agent.summary;
 
-public class EndUserErrorData {
+public class  EndUserErrorData {
     public int count;
 
     public int host;
