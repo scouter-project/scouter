@@ -79,9 +79,9 @@ public class ForNettyHttpRequest implements ApiCallTraceHelper.IHelper {
 				if (ctx.gxid == 0) {
 					ctx.gxid = ctx.txid;
 				}
-				httpclient.addHeader(req, conf.trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
-				httpclient.addHeader(req, conf.trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
-				httpclient.addHeader(req, conf.trace_interservice_callee_header_key, Hexa32.toString32(calleeTxid));
+				httpclient.addHeader(req, conf._trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
+				httpclient.addHeader(req, conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
+				httpclient.addHeader(req, conf._trace_interservice_callee_header_key, Hexa32.toString32(calleeTxid));
 				httpclient.addHeader(req, "scouter_caller_url", ctx.serviceName);
 				httpclient.addHeader(req, "scouter_caller_name", conf.getObjName());
 				httpclient.addHeader(req, "scouter_thread_id", Long.toString(ctx.threadId));

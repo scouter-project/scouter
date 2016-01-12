@@ -163,7 +163,7 @@ public class DataProxy {
 	public static void sendXLog(XLogPack p) {
 		p.objHash = conf.getObjHash();
 		sendDirect(p);
-		if (conf.log_udp_xlog_enabled) {
+		if (conf._log_udp_xlog_enabled) {
 			Logger.println(p.toString());
 		}
 	}
@@ -233,7 +233,7 @@ public class DataProxy {
 	}
 	public static void sendHeartBeat(ObjectPack p) {
 		udpCollect.add(p);
-		if (conf.log_udp_object_enabled) {
+		if (conf._log_udp_object_enabled) {
 			Logger.println(p.toString());
 		}
 	}
