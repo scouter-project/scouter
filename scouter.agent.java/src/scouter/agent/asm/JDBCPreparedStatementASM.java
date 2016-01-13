@@ -28,6 +28,12 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 
 import java.util.HashSet;
+
+/**
+ * BCI for a JDBC PreparedStatement
+ * @author @author Paul S.J. Kim(sjkim@whatap.io)
+ * @author Gun Lee (gunlee01@gmail.com)
+ */
 public class JDBCPreparedStatementASM implements IASM, Opcodes {
 	public final HashSet<String> target = HookingSet.getHookingClassSet(Configure.getInstance().hook_jdbc_pstmt_classes);
 	public final HashSet<String> noField = new HashSet<String>();
@@ -44,6 +50,7 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		target.add("org/hsqldb/jdbc/JDBCPreparedStatement");
 		target.add("com/mysql/jdbc/ServerPreparedStatement");
 		target.add("com/mysql/jdbc/PreparedStatement");
+        target.add("cubrid/jdbc/driver/CUBRIDPreparedStatement");
 		// @skyworker - MySQL ServerPreparedStatement는 특별히 필드를 추가하지 않음
 		noField.add("com/mysql/jdbc/ServerPreparedStatement");
 		noField.add("jdbc/FakePreparedStatement2");
@@ -61,22 +68,26 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 	}
 }
 class PreparedStatementCV extends ClassVisitor implements Opcodes {
+
 	HashSet<String> noField;
-	public PreparedStatementCV(ClassVisitor cv, HashSet<String> noField) {
+    private String owner;
+
+    public PreparedStatementCV(ClassVisitor cv, HashSet<String> noField) {
 		super(ASM4, cv);
 		this.noField = noField;
 	}
-	private String owner;
+
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		super.visit(version, access, name, signature, superName, interfaces);
 		this.owner = name;
 		if (noField.contains(name) == false) {
-			// add trace field
+			// add trace fields
 			super.visitField(ACC_PUBLIC, TraceSQL.PSTMT_PARAM_FIELD, Type.getDescriptor(SqlParameter.class), null, null)
 					.visitEnd();
 		}
 	}
+
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
