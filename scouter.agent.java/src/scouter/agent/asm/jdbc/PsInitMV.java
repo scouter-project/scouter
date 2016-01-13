@@ -25,11 +25,19 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
+/**
+ * BCI for a constructor of PreparedStatement
+ * @author @author Paul S.J. Kim(sjkim@whatap.io)
+ * @author Gun Lee (gunlee01@gmail.com)
+ */
 public class PsInitMV extends LocalVariablesSorter implements Opcodes {
 
 	private final static String TRACESQL = TraceSQL.class.getName().replace('.', '/');
 	private final static String METHOD = "prepare";
 	private final static String SIGNATURE = "(Ljava/lang/Object;Lscouter/agent/trace/SqlParameter;Ljava/lang/String;)V";
+
+	private String owner;
+	private int strArgIdx = -1;
 
 	public PsInitMV(int access, String desc, MethodVisitor mv, String owner) {
 		super(ASM4,access, desc, mv);
@@ -37,9 +45,6 @@ public class PsInitMV extends LocalVariablesSorter implements Opcodes {
 		this.strArgIdx = AsmUtil.getStringIdx(access, desc);
 
 	}
-
-	private String owner;
-	private int strArgIdx = -1;
 
 	@Override
 	public void visitInsn(int opcode) {
