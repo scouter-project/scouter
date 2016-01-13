@@ -24,7 +24,11 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 
-
+/**
+ * BCI for a constructor of PreparedStatement
+ * @author @author Paul S.J. Kim(sjkim@whatap.io)
+ * @author Gun Lee (gunlee01@gmail.com)
+ */
 public class AsmUtil implements Opcodes {
 	public static boolean isStatic(int access) {
 		return (access & ACC_STATIC) != 0;
@@ -132,7 +136,9 @@ public class AsmUtil implements Opcodes {
 	}
 
 	public static int getStringIdx(int access, String desc) {
-		Type[] t = Type.getArgumentTypes(desc);
+        return getIdxByType(access, desc, AsmUtil.stringType);
+
+		/*Type[] t = Type.getArgumentTypes(desc);
 		int sidx = (AsmUtil.isStatic(access) ? 0 : 1);
 		for (int i = 0; t != null && i < t.length; i++) {
 			if (AsmUtil.stringType.equals(t[i])) {
@@ -140,8 +146,20 @@ public class AsmUtil implements Opcodes {
 			}
 			sidx += t[i].getSize();
 		}
-		return -1;
+		return -1;*/
 	}
+
+    public static int getIdxByType(int access, String desc, Type type) {
+        Type[] t = Type.getArgumentTypes(desc);
+        int sidx = (AsmUtil.isStatic(access) ? 0 : 1);
+        for (int i = 0; t != null && i < t.length; i++) {
+            if (type.equals(t[i])) {
+                return sidx;
+            }
+            sidx += t[i].getSize();
+        }
+        return -1;
+    }
 	
 	
 	public static boolean isSpecial(String name) {
