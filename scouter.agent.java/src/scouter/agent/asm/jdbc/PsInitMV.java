@@ -16,6 +16,7 @@
 
 package scouter.agent.asm.jdbc;
 
+import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.trace.SqlParameter;
 import scouter.agent.trace.TraceSQL;
@@ -25,25 +26,37 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
+/**
+ * BCI for a constructor of PreparedStatement
+ * @author @author Paul S.J. Kim(sjkim@whatap.io)
+ * @author Gun Lee (gunlee01@gmail.com)
+ */
 public class PsInitMV extends LocalVariablesSorter implements Opcodes {
 
 	private final static String TRACESQL = TraceSQL.class.getName().replace('.', '/');
 	private final static String METHOD = "prepare";
 	private final static String SIGNATURE = "(Ljava/lang/Object;Lscouter/agent/trace/SqlParameter;Ljava/lang/String;)V";
 
+	private String owner;
+	private int sqlIdx = -1;
+    private boolean isUstatement = false;
+
 	public PsInitMV(int access, String desc, MethodVisitor mv, String owner) {
 		super(ASM4,access, desc, mv);
 		this.owner = owner;
-		this.strArgIdx = AsmUtil.getStringIdx(access, desc);
+		this.sqlIdx = AsmUtil.getStringIdx(access, desc);
 
+        if(this.sqlIdx < 0) {
+            //CUBRID Case
+            this.sqlIdx = AsmUtil.getIdxByType(access, desc, Type.getType("Lcubrid/jdbc/jci/UStatement;"));
+            Logger.trace("CUBRID PSTMT LOAD - " + this.sqlIdx);
+            this.isUstatement = true;
+		}
 	}
-
-	private String owner;
-	private int strArgIdx = -1;
 
 	@Override
 	public void visitInsn(int opcode) {
-		if (strArgIdx >= 0 && (opcode >= IRETURN && opcode <= RETURN)) {
+		if (sqlIdx >= 0 && (opcode >= IRETURN && opcode <= RETURN)) {
 
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
@@ -60,7 +73,11 @@ public class PsInitMV extends LocalVariablesSorter implements Opcodes {
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
-			mv.visitVarInsn(ALOAD, strArgIdx);
+			mv.visitVarInsn(ALOAD, sqlIdx);
+
+            if(isUstatement) {
+                mv.visitMethodInsn(INVOKEVIRTUAL, "cubrid/jdbc/jci/UStatement", "getQuery", "()Ljava/lang/String;", false);
+            }
 
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, METHOD, SIGNATURE,false);
 		}

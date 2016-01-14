@@ -38,6 +38,7 @@ public class CounterConstants {
 	public final static String VERTX = "vertx";
 	public final static String JBOSS = "jboss";
 	public final static String JETTY = "jetty";
+	public final static String RESIN = "resin";
 
 	public final static String DATASOURCE = "datasource";
 	public final static String CONTEXT = "context";
