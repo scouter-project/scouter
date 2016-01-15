@@ -61,9 +61,8 @@ public class RCPUtil {
                     page.setPerspective(perspective);
                 }
             }
-            page.setPerspective(registry.findPerspectiveWithId(ids[0]));
+            page.setPerspective(active);
         }
-
     }
 
     public static void hideActions(String[] ids){
