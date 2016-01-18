@@ -320,5 +320,18 @@ public class StringUtil {
 		}
 		return n;
 	}
-
+	
+	public static String stripSideChar(String str, char ch) {
+		if (isEmpty(str) || str.length() <= 1) {
+			return str;
+		}
+		if (str.charAt(0) == ch && str.charAt(str.length() - 1) == ch) {
+			return str.substring(1, str.length() -1);
+		} else if (str.charAt(0) == ch) {
+			return str.substring(1);
+		} else if (str.charAt(str.length() - 1) == ch) {
+			return str.substring(0, str.length() -1);
+		}
+		return str;
+	}
 }

@@ -292,7 +292,7 @@ public class TraceMain {
                     pack.error = DataProxy.sendError(emsg);
                     ServiceSummary.getInstance().process(thr, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
                 }
-            } else if (ctx.userTransaction > 0) {
+            } else if (ctx.userTransaction  > 0 && conf.xlog_error_check_user_transaction_enabled) {
                 pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
                 ServiceSummary.getInstance().process(userTxNotClose, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
             }
@@ -476,7 +476,7 @@ public class TraceMain {
             }
             error = DataProxy.sendError(emsg);
             ServiceSummary.getInstance().process(thr, error, ctx.serviceHash, ctx.txid, 0, 0);
-        } else if (ctx.userTransaction > 0) {
+        } else if (ctx.userTransaction  > 0 && conf.xlog_error_check_user_transaction_enabled) {
             error = DataProxy.sendError("Missing Commit/Rollback Error");
             ServiceSummary.getInstance().process(userTxNotClose, error, ctx.serviceHash, ctx.txid, 0, 0);
         }

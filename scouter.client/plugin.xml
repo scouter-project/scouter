@@ -932,7 +932,7 @@
             icon="icons/user.png"
             id="scouter.client.visitor.views.VisitorRealtimeView"
             name="Visitors"
-            restorable="false">
+            restorable="true">
       </view>
       <view
             allowMultiple="true"

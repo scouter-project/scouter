@@ -34,6 +34,7 @@ public class ObjTypeDetector {
 		bootClass.put("org/jboss/as/server/Main", CounterConstants.JBOSS); // jboss as 7.2.0 final
 		bootClass.put("org/apache/catalina/startup/Bootstrap", CounterConstants.TOMCAT);
 		bootClass.put("org/apache/catalina/startup/Tomcat", CounterConstants.TOMCAT);
+		bootClass.put("com/caucho/server/resin/Resin", CounterConstants.RESIN); // resin 4.x
 	}
 
 	public static String objType = null;

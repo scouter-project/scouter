@@ -19,7 +19,6 @@ package scouter.client.util;
 
 import java.util.ArrayList;
 
-import scouter.lang.step.SqlStep;
 import scouter.util.StringUtil;
 
 public class SqlMakerUtil {
@@ -191,7 +190,7 @@ public class SqlMakerUtil {
 				sqlBuilder.append(sql.substring(pos));
 				break;
 			}
-			sqlBuilder.append(sql.substring(pos, search)).append(paramList.get(index));
+			sqlBuilder.append(sql.substring(pos, search)).append(StringUtil.stripSideChar(paramList.get(index), '\''));
 			index++;
 			pos = search + 1;
 		}
@@ -209,6 +208,8 @@ public class SqlMakerUtil {
 		}
 		return new UnescapedSQL(sqlBuilder.toString(), sqlParam);
 	}
+	
+	
 	
 	public static class UnescapedSQL {
 		public String sql;

@@ -120,6 +120,7 @@ mrhit : MariaDB HitRatio
 		<ObjectType name="java" family="javaee" disp="Java" />
 		<ObjectType name="jboss" family="javaee" disp="JBoss" />
 		<ObjectType name="jetty" family="javaee" disp="Jetty" />
+		<ObjectType name="resin" family="javaee" disp="Resin" />
 		<ObjectType name="apache" family="apache" disp="Apache" />
 		<ObjectType name="datasource" family="datasource" disp="DataSource" sub-object="true" />
 		<ObjectType name="reqproc" family="reqproc" disp="RequestProc" sub-object="true"/>

@@ -28,8 +28,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveListener;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPreferenceConstants;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
@@ -252,8 +250,8 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor im
 
 			RCPUtil.hideActions(hideActions);
 			RCPUtil.hidePreference(removePreferences);
-			RCPUtil.preLoadingPerspective(preLoadingPerspectives);
 			RCPUtil.hidePerspectives(removePerspectives);
+			//RCPUtil.preLoadingPerspective(preLoadingPerspectives);
 			configurer.getWindow().getShell().setMaximized(true);
 			startBackgroundJob();
 		}

@@ -38,8 +38,8 @@ public class PlugInXLogDB extends Thread {
 		return queue.size();
 	}
 	public boolean add(XLogPack p) {
-		Object ok = queue.put(p);
-		if (ok == null) {
+		boolean ok = queue.put(p);
+		if (!ok) {
 			Logger.println("S203", 10, "profile queue exceeded!!");
 			return false;
 		}
