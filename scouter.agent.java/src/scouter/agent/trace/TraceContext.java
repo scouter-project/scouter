@@ -94,7 +94,7 @@ public class TraceContext {
 
 	public String web_name;
 	public int web_time;
-	public boolean utxOpen;
+	public int userTransaction;
 	public boolean debug_sql_call;
 	public String group;
 

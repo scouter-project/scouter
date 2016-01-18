@@ -53,10 +53,11 @@ class UserTxCV extends ClassVisitor implements Opcodes {
 	@Override
 	public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, methodName, desc, signature, exceptions);
-		if ("begin".equals(methodName)) {
+		if ("begin".equals(methodName) && "()V".equals(desc)) {
 			return new UTXOpenMV(access, desc, mv);
 		}
-		if ("commit".equals(methodName) || "rollback".equals(methodName)) {
+		if (("commit".equals(methodName) && "()V".equals(desc)) 
+				|| ("rollback".equals(methodName)  && "()V".equals(desc))) {
 			return new UTXCloseMV(access, desc, mv, methodName);
 		}
 		return mv;
