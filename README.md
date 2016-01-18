@@ -2,7 +2,7 @@
 
 ![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](README_kr.md)
 
-## Open Source S/W Applicaiton Performance Monitoring
+## Open Source S/W Application Performance Monitoring
 
 SCOUTER is an open source APM and a database monitoring tool.
 APM means application performance monitoring or application performance management.
