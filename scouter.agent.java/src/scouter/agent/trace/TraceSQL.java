@@ -465,7 +465,7 @@ public class TraceSQL {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
-		ctx.utxOpen =true;
+		ctx.userTransaction++;
 		MessageStep ms = new MessageStep("utx-begin");
 		ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		ctx.profile.add(ms);
@@ -474,8 +474,9 @@ public class TraceSQL {
 		TraceContext ctx = TraceContextManager.getLocalContext();
 		if (ctx == null)
 			return;
-		ctx.utxOpen =false;
-
+		if (ctx.userTransaction > 0) {
+			ctx.userTransaction--;
+		}
 		MessageStep ms = new MessageStep("utx-" + method);
 		ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 		ctx.profile.add(ms);

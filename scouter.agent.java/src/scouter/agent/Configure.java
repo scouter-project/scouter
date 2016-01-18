@@ -145,6 +145,7 @@ public class Configure extends Thread {
 	public int xlog_lower_bound_time_ms = 0;
 	public int xlog_error_jdbc_fetch_max = 10000;
 	public int xlog_error_sql_time_max_ms = 30000;
+	public boolean xlog_error_check_user_transaction_enabled = true;
 
 	//Alert
 	public int alert_message_length = 3000;
@@ -493,6 +494,8 @@ public class Configure extends Thread {
 		
 		this.enduser_trace_endpoint_url = getValue("enduser_trace_endpoint_url", "_scouter_browser.jsp");
 		this.enduser_perf_endpoint_hash = HashUtil.hash(this.enduser_trace_endpoint_url);
+		
+		this.xlog_error_check_user_transaction_enabled = getBoolean("xlog_error_check_user_transaction_enabled", true);
 			
 		resetObjInfo();
 		setStaticContents();
