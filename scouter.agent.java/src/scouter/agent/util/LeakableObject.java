@@ -18,17 +18,16 @@ package scouter.agent.util;
 
 public class LeakableObject {
 
-	public LeakTracer parent;
-	public int pidx;
+    public LeakableContainer container;
+    public int pidx;
+    public LeakInfo info;
 
-	public LeakData info;
-	
-	public LeakableObject(Error error, String inner, int service, long txid, boolean fullstack) {
-		LeakTracer.add(this);
-		this.info=new LeakData(error, inner, service, txid, fullstack);
-	}
+    public LeakableObject(Error error, String inner, int serviceHash, long txid, boolean fullstack) {
+        LeakableContainer.add(this);
+        this.info = new LeakInfo(error, inner, serviceHash, txid, fullstack);
+    }
 
-	public void close() {
-		parent.bucket[pidx] = null;
-	}
+    public void close() {
+        container.bucket[pidx] = null;
+    }
 }
