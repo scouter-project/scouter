@@ -312,7 +312,7 @@ public class TraceSQL {
 			ServiceSummary.getInstance().process(tooManyFetch, hash, c.serviceHash, c.txid, 0, 0);
 		}
 	}
-	public static void rsclose() {
+	public static void rsclose(Object rs) {
 		TraceContext c = TraceContextManager.getLocalContext();
 		if (c != null) {
 			if (c.rs_start != 0) {

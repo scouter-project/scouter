@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-
 package scouter.agent.asm.jdbc;
 
 
@@ -24,7 +23,7 @@ import scouter.org.objectweb.asm.Opcodes;
 public class RsCloseMV extends MethodVisitor implements Opcodes {
 	private static final String TRACESQL = TraceSQL.class.getName().replace('.', '/');
 	private static final String METHOD = "rsclose";
-	private static final String SIGNATURE = "()V";
+	private static final String SIGNATURE = "(Ljava/lang/Object;)V";
 
 	public RsCloseMV(MethodVisitor mv) {
 		super(ASM4, mv);
