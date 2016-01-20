@@ -17,28 +17,28 @@
 package scouter.agent.util;
 
 
-public class LeakTracer {
-	private final static int MAX_BUCKET = 10;
-	private int pos = 0;
-	public LeakableObject[] bucket = new LeakableObject[MAX_BUCKET];
+public class LeakableContainer {
+    private final static int MAX_BUCKET = 10;
+    private int pos = 0;
 
-	protected void finalize() throws Throwable {
-		for (int i = 0; i < MAX_BUCKET; i++) {
-			if (bucket[i] != null) {
-				AsyncRunner.getInstance().add(bucket[i].info);
-			}
-		}
-	}
+    private static LeakableContainer container = new LeakableContainer();
+    public LeakableObject[] bucket = new LeakableObject[MAX_BUCKET];
 
-	private static LeakTracer trace = new LeakTracer();
+    protected void finalize() throws Throwable {
+        for (int i = 0; i < MAX_BUCKET; i++) {
+            if (bucket[i] != null) {
+                AsyncRunner.getInstance().add(bucket[i].info);
+            }
+        }
+    }
 
-	public synchronized static void add(LeakableObject obj) {
-		trace.bucket[trace.pos] = obj;
-		obj.parent = trace;
-		obj.pidx = trace.pos;
-		trace.pos++;
-		if (trace.pos >= MAX_BUCKET) {
-			trace = new LeakTracer();
-		}
-	}
+    public synchronized static void add(LeakableObject obj) {
+        container.bucket[container.pos] = obj;
+        obj.container = container;
+        obj.pidx = container.pos;
+        container.pos++;
+        if (container.pos >= MAX_BUCKET) {
+            container = new LeakableContainer();
+        }
+    }
 }

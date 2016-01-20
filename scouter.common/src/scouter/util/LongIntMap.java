@@ -88,7 +88,7 @@ public class LongIntMap {
 		return false;
 	}
 
-	public synchronized boolean containsKey(int key) {
+	public synchronized boolean containsKey(long key) {
 		ENTRY tab[] = table;
 		int index = hash(key) % tab.length;
 		for (ENTRY e = tab[index]; e != null; e = e.next) {
@@ -103,7 +103,7 @@ public class LongIntMap {
 		return (int) (key ^ (key >>> 32)) & Integer.MAX_VALUE;
 	}
 
-	public synchronized int get(int key) {
+	public synchronized int get(long key) {
 		ENTRY tab[] = table;
 		int index = hash(key) % tab.length;
 		for (ENTRY e = tab[index]; e != null; e = e.next) {
@@ -175,7 +175,7 @@ public class LongIntMap {
 		return NONE;
 	}
 
-	public synchronized int remove(int key) {
+	public synchronized int remove(long key) {
 		ENTRY tab[] = table;
 		int index = hash(key) % tab.length;
 		for (ENTRY e = tab[index], prev = null; e != null; prev = e, e = e.next) {
