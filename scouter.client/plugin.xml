@@ -706,10 +706,10 @@
       </view>
       <view
             allowMultiple="true"
-            class="scouter.client.xlog.views.XLogDependencyView"
+            class="scouter.client.xlog.views.XLogFlowView"
             icon="icons/page_white_text.png"
-            id="scouter.client.xlog.views.XLogDependencyView"
-            name="XLogDependencyView"
+            id="scouter.client.xlog.views.XLogFlowView"
+            name="XLogFlowView"
             restorable="false">
       </view>
       <view

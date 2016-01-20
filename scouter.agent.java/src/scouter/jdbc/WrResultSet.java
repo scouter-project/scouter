@@ -130,7 +130,7 @@ public class WrResultSet implements java.sql.ResultSet {
 	}
 
 	final public void close() throws java.sql.SQLException {
-		TraceSQL.rsclose();
+		TraceSQL.rsclose(this);
 		this.inner.close();
 	}
 

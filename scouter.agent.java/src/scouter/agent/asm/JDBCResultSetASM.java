@@ -15,7 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.agent.asm;
-import java.util.HashSet;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -25,6 +24,8 @@ import scouter.agent.asm.util.HookingSet;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
+
+import java.util.HashSet;
 public class JDBCResultSetASM implements IASM, Opcodes {
 	public final HashSet<String> target = HookingSet.getHookingClassSet(Configure.getInstance().hook_jdbc_rs_classes);
 	public JDBCResultSetASM() {
@@ -40,6 +41,7 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 		target.add("oracle/jdbc/driver/InsensitiveScrollableResultSet");
 		target.add("oracle/jdbc/driver/SensitiveScrollableResultSet");
 		target.add("org/hsqldb/jdbc/JDBCResultSet");
+		target.add("cubrid/jdbc/driver/CUBRIDResultSet");
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

@@ -98,9 +98,9 @@ import scouter.util.LongKeyLinkedMap;
 import scouter.util.StringUtil;
 
 
-public class XLogDependencyView extends ViewPart {
+public class XLogFlowView extends ViewPart {
 	
-	public final static String ID = XLogDependencyView.class.getName();
+	public final static String ID = XLogFlowView.class.getName();
 	
 	private GraphViewer viewer = null;
 	
@@ -130,7 +130,7 @@ public class XLogDependencyView extends ViewPart {
 					DependencyElement de = (DependencyElement) o;
 					switch (de.type) {
 						case SERVICE:
-							new OpenXLogProfileJob(XLogDependencyView.this.getViewSite().getShell().getDisplay(), date, de.id, de.tags.getInt("serverId")).schedule();
+							new OpenXLogProfileJob(XLogFlowView.this.getViewSite().getShell().getDisplay(), date, de.id, de.tags.getInt("serverId")).schedule();
 							break;
 						case SQL:
 							List<StyleRange> srList = new ArrayList<StyleRange>();
@@ -189,7 +189,7 @@ public class XLogDependencyView extends ViewPart {
 	
 	public void loadByTxId(String date, long txid) {
 		this.date = date;
-		this.setPartName("Overview - "  + Hexa32.toString32(txid));
+		this.setPartName("Service Flow - "  + Hexa32.toString32(txid));
 		MapPack param = new MapPack();
 		param.put("date", date);
 		param.put("txid", txid);
@@ -198,7 +198,7 @@ public class XLogDependencyView extends ViewPart {
 	
 	public void loadByGxId(String date, long gxId) {
 		this.date = date;
-		this.setPartName("Overview - "  + Hexa32.toString32(gxId));
+		this.setPartName("Service Flow - "  + Hexa32.toString32(gxId));
 		MapPack param = new MapPack();
 		param.put("date", date);
 		param.put("gxid", gxId);
@@ -317,12 +317,15 @@ public class XLogDependencyView extends ViewPart {
 				apiElement.error = apicallstep.error;
 				apiElement.name = TextProxy.apicall.getLoadText(date, apicallstep.hash, serverId);
 				apiElement.tags.put("serverId", serverId);
-				serviceElement.addChild(apiElement);
 				if (apicallstep.txid != 0) {
 					DependencyElement calledService = serviceMap.get(apicallstep.txid);
 					if (calledService != null) {
-						apiElement.addChild(calledService);
+						serviceElement.addChild(calledService);
+					} else {
+						serviceElement.addChild(apiElement);
 					}
+				} else {
+					serviceElement.addChild(apiElement);
 				}
 				break;
 			case StepEnum.APICALL_SUM:

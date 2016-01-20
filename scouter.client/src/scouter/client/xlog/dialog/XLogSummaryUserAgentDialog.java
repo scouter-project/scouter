@@ -72,9 +72,9 @@ public class XLogSummaryUserAgentDialog extends XLogSummaryAbstractDialog{
 							summary.error++;
 						}
 						summary.cpu += d.p.cpu;
-						summary.memory = d.p.bytes;
-						summary.sqltime = d.p.sqlTime;
-						summary.apicalltime = d.p.apicallTime;
+						summary.memory += d.p.bytes;
+						summary.sqltime += d.p.sqlTime;
+						summary.apicalltime += d.p.apicallTime;
 					}
 				}
 				for (Integer serverId : loadTextMap.keySet()) {
