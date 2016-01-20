@@ -156,7 +156,7 @@ public class XLogProfileView extends ViewPart {
 								String[] tokens = StringUtil.tokenizer(fulltxt, " =\n");
 								String gxid = tokens[tokens.length - 1];
 								try {
-									XLogDependencyView view = (XLogDependencyView) window.getActivePage().showView(XLogDependencyView.ID, gxid, IWorkbenchPage.VIEW_ACTIVATE);
+									XLogFlowView view = (XLogFlowView) window.getActivePage().showView(XLogFlowView.ID, gxid, IWorkbenchPage.VIEW_ACTIVATE);
 									if (view != null) {
 										view.loadByGxId(DateUtil.yyyymmdd(item.p.endTime), Hexa32.toLong32(gxid));
 									}
@@ -172,7 +172,7 @@ public class XLogProfileView extends ViewPart {
 								String[] tokens = StringUtil.tokenizer(fulltxt, " =\n");
 								String txid = tokens[tokens.length - 1];
 								try {
-									XLogDependencyView view = (XLogDependencyView) window.getActivePage().showView(XLogDependencyView.ID, txid, IWorkbenchPage.VIEW_ACTIVATE);
+									XLogFlowView view = (XLogFlowView) window.getActivePage().showView(XLogFlowView.ID, txid, IWorkbenchPage.VIEW_ACTIVATE);
 									if (view != null) {
 										view.loadByTxId(DateUtil.yyyymmdd(item.p.endTime), Hexa32.toLong32(txid));
 									}
