@@ -123,9 +123,9 @@ class SpecialCounterService {
                 if (v != null) {
                     val arrv = v.asInstanceOf[ListValue]
                     if (arrv.size() >= 3) {
-                        dat.act1 = arrv.getInt(0);
-                        dat.act2 = arrv.getInt(1);
-                        dat.act3 = arrv.getInt(2);
+                        dat.act1 += arrv.getInt(0);
+                        dat.act2 += arrv.getInt(1);
+                        dat.act3 += arrv.getInt(2);
                     }
 
                 }
@@ -162,9 +162,9 @@ class SpecialCounterService {
                 if (v != null) {
                     val arrv = v.asInstanceOf[ListValue]
                     if (arrv.size() >= 3) {
-                        dat.act1 = arrv.getInt(0);
-                        dat.act2 = arrv.getInt(1);
-                        dat.act3 = arrv.getInt(2);
+                        dat.act1 += arrv.getInt(0);
+                        dat.act2 += arrv.getInt(1);
+                        dat.act3 += arrv.getInt(2);
                     }
                 }
             }
