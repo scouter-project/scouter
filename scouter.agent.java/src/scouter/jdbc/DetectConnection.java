@@ -49,9 +49,9 @@ public class DetectConnection implements java.sql.Connection {
         }
 
         if (conf._summary_connection_leak_fullstack_enabled) {
-            this.object = new LeakableObject(new CONNECTION_NOT_CLOSE(), inner.toString(), serviceHash, txid, true);
+            this.object = new LeakableObject(new CONNECTION_NOT_CLOSE(), inner.getClass().getName(), serviceHash, txid, true);
         } else {
-            this.object = new LeakableObject(error, inner.toString(), serviceHash, txid, false);
+            this.object = new LeakableObject(error, inner.getClass().getName(), serviceHash, txid, false);
         }
     }
 
