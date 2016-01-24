@@ -19,26 +19,26 @@ package scouter.agent.util;
 import scouter.agent.error.CONNECTION_NOT_CLOSE;
 
 public class SampleStatement {
-	private static int index = 0;
-	private final LeakableObject object;
+    private static int index = 0;
+    private final LeakableObject object;
 
-	public SampleStatement() {
-		int myid = index++;
-		this.object = new LeakableObject(new CONNECTION_NOT_CLOSE(), "I am #" + (myid),0,0,true);
-		System.out.println("created " + myid);
-	}
+    public SampleStatement() {
+        int myid = index++;
+        this.object = new LeakableObject(new CONNECTION_NOT_CLOSE(), "I am #" + (myid), 0, 0, true, 2);
+        System.out.println("created " + myid);
+    }
 
-	public void close() {
-		object.close();
-	}
+    public void close() {
+        object.close();
+    }
 
-	public static void main(String[] args) throws Exception {
-		for (int i = 0; i < 1000; i++) {
-			SampleStatement s = new SampleStatement();
-			if (i % 100 != 0)
-				s.close();
-		}
-		System.gc();
-		Thread.sleep(5000);
-	}
+    public static void main(String[] args) throws Exception {
+        for (int i = 0; i < 1000; i++) {
+            SampleStatement s = new SampleStatement();
+            if (i % 100 != 0)
+                s.close();
+        }
+        System.gc();
+        Thread.sleep(5000);
+    }
 }

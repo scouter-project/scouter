@@ -22,9 +22,9 @@ public class LeakableObject {
     public int pidx;
     public LeakInfo info;
 
-    public LeakableObject(Error error, String inner, int serviceHash, long txid, boolean fullstack) {
+    public LeakableObject(Error error, String inner, int serviceHash, long txid, boolean fullstack, int fullstackSkip) {
         LeakableContainer.add(this);
-        this.info = new LeakInfo(error, inner, serviceHash, txid, fullstack);
+        this.info = new LeakInfo(error, inner, serviceHash, txid, fullstack, fullstackSkip);
     }
 
     public void close() {

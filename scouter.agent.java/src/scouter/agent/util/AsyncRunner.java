@@ -93,7 +93,7 @@ public class AsyncRunner extends Thread {
             ErrorData d = summary.process(leakInfo.error, 0, leakInfo.serviceHash, leakInfo.txid, 0, 0);
             Logger.println("A156", leakInfo.error + " " + leakInfo.inner);
             if (d != null && d.fullstack == 0) {
-                String fullstack = ThreadUtil.getStackTrace(leakInfo.error.getStackTrace(), 2);
+                String fullstack = ThreadUtil.getStackTrace(leakInfo.error.getStackTrace(), leakInfo.fullstackSkip);
                 d.fullstack = DataProxy.sendError(fullstack);
                 Logger.println("A157", fullstack);
             }
