@@ -533,9 +533,6 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 			objTitle.add(act);
 		}
 		
-		MenuManager xLogMenu = new MenuManager(MenuStr.XLOG, ImageUtil.getImageDescriptor(Images.transrealtime), MenuStr.XLOG_ID);
-		objTitle.add(xLogMenu);
-		
 		act = actionMap.get(objType + ":" + CounterConstants.TRANX_REALTIME);
 		if(act != null){
 			objTitle.add(act);
