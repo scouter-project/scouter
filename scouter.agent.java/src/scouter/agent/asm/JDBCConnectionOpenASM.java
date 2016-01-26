@@ -17,32 +17,48 @@
 
 package scouter.agent.asm;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceSQL;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
+import scouter.org.objectweb.asm.*;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.util.Pair;
 import scouter.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JDBCConnectionOpenASM implements IASM, Opcodes {
 	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_connection_open_patterns);
 	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
 
+	public static class JDBCTargetRegister {
+        private static final List<Pair<String,String>> klassMethod = new ArrayList<Pair<String,String>>();
+        public static final JDBCTargetRegister jtr = new JDBCTargetRegister();
+        public static JDBCTargetRegister getInstance() {
+            return jtr;
+        }
+
+        public static void regist(String klass, String method) {
+
+            
+            klassMethod.add(new Pair<String, String>(klass, method));
+        }
+    }
+
 	public JDBCConnectionOpenASM() {
 		// Tomcat7
 		AsmUtil.add(reserved, "org/apache/tomcat/dbcp/dbcp/BasicDataSource", "getConnection");
 		AsmUtil.add(reserved, "org/apache/tomcat/jdbc/pool/DataSourceProxy", "getConnection");
+
+        for(int i = JDBCTargetRegister.klassMethod.size() - 1; i >= 0; i--) {
+            AsmUtil.add(reserved, JDBCTargetRegister.klassMethod.get(i).getLeft(), JDBCTargetRegister.klassMethod.get(i).getRight());
+        }
 
 	}
 
