@@ -16,7 +16,7 @@
  */
 package scouter.agent.util;
 
-public class LeakableObject {
+public class LeakableObject implements ILeakableObject {
 
     public LeakableContainer container;
     public int pidx;
@@ -27,6 +27,7 @@ public class LeakableObject {
         this.info = new LeakInfo(error, inner, serviceHash, txid, fullstack, fullstackSkip);
     }
 
+    @Override
     public void close() {
         container.bucket[pidx] = null;
     }

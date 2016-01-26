@@ -16,17 +16,6 @@
  */
 package scouter.agent;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.conf.ConfObserver;
@@ -35,16 +24,10 @@ import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.DateUtil;
-import scouter.util.FileUtil;
-import scouter.util.HashUtil;
-import scouter.util.StringEnumer;
-import scouter.util.StringKeyLinkedMap;
-import scouter.util.StringSet;
-import scouter.util.StringUtil;
-import scouter.util.SysJMX;
-import scouter.util.SystemUtil;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
+
+import java.io.*;
+import java.util.*;
 public class Configure extends Thread {
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
@@ -205,6 +188,7 @@ public class Configure extends Thread {
 	public boolean control_reject_redirect_url_enabled = false;
 	public String control_reject_text = "too many request!!";
 	public String control_reject_redirect_url = "/error.html";
+	public boolean _control_connection_leak_autoclose_enabled = false;
 
 	// Counter
 	public boolean counter_enabled = true;
@@ -417,6 +401,7 @@ public class Configure extends Thread {
 		this.control_reject_redirect_url_enabled = getBoolean("control_reject_redirect_url_enabled", false);
 		this.control_reject_text = getValue("control_reject_text", "too many request!!");
 		this.control_reject_redirect_url = getValue("control_reject_redirect_url", "/error.html");
+		this._control_connection_leak_autoclose_enabled = getBoolean("_control_connection_leak_autoclose_enabled", false);
 		this.profile_step_max_count = getInt("profile_step_max_count", 1024);
 		if (this.profile_step_max_count < 100)
 			this.profile_step_max_count = 100;

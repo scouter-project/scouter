@@ -22,7 +22,7 @@ public class LeakableContainer2 {
     private int pos = 0;
 
     private static LeakableContainer2 container = new LeakableContainer2();
-    public LeakableObject[] bucket = new LeakableObject[MAX_BUCKET];
+    public LeakableObject2[] bucket = new LeakableObject2[MAX_BUCKET];
 
     protected void finalize() throws Throwable {
         for (int i = 0; i < MAX_BUCKET; i++) {
@@ -32,7 +32,7 @@ public class LeakableContainer2 {
         }
     }
 
-    public synchronized static void add(LeakableObject obj) {
+    public synchronized static void add(LeakableObject2 obj) {
         container.bucket[container.pos] = obj;
         obj.container = container;
         obj.pidx = container.pos;

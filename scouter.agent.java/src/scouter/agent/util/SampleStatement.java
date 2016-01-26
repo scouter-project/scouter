@@ -20,11 +20,12 @@ import scouter.agent.error.CONNECTION_NOT_CLOSE;
 
 public class SampleStatement {
     private static int index = 0;
-    private final LeakableObject object;
+    private final LeakableObject2 object;
+    private int myid = 0;
 
     public SampleStatement() {
-        int myid = index++;
-        this.object = new LeakableObject(new CONNECTION_NOT_CLOSE(), "I am #" + (myid), 0, 0, true, 2);
+        myid = index++;
+        this.object = new LeakableObject2(new CONNECTION_NOT_CLOSE(), this, CloseManager.getInstance(), 0, 0, true, 2);
         System.out.println("created " + myid);
     }
 
@@ -40,5 +41,28 @@ public class SampleStatement {
         }
         System.gc();
         Thread.sleep(5000);
+    }
+
+    @Override
+    public String toString() {
+        return "util.SampleStatment#" + myid;
+    }
+
+    private static class CloseManager implements ICloseManager {
+        private static CloseManager cmanager = new CloseManager();
+
+        public static CloseManager getInstance() {
+            return cmanager;
+        }
+
+        @Override
+        public boolean close(Object o) {
+            try {
+                ((SampleStatement) o).close();
+                return true;
+            } catch(Exception e) {
+                return false;
+            }
+        }
     }
 }
