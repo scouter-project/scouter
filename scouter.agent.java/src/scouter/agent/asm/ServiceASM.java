@@ -25,29 +25,46 @@ import scouter.agent.trace.TraceMain;
 import scouter.lang.pack.XLogTypes;
 import scouter.org.objectweb.asm.*;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.util.Pair;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceASM implements IASM, Opcodes {
 	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_service_patterns);
+	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
+
+	public static class ServiceTargetRegister {
+        public static final List<Pair<String,String>> klassMethod = new ArrayList<Pair<String,String>>();
+		public static void regist(String klass, String method) {
+			klassMethod.add(new Pair<String, String>(klass, method));
+		}
+	}
 
 	public ServiceASM() {
+		for(int i = ServiceTargetRegister.klassMethod.size() - 1; i >= 0; i--) {
+			AsmUtil.add(reserved, ServiceTargetRegister.klassMethod.get(i).getLeft(), ServiceTargetRegister.klassMethod.get(i).getRight());
+		}
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (Configure.getInstance()._hook_serivce_enabled == false) {
 			return cv;
 		}
+        HookingSet mset = reserved.get(className);
+        if (mset != null)
+            return new ServiceCV(cv, mset, className, mset.xType == 0 ? XLogTypes.APP_SERVICE : mset.xType);
+
 		for (int i = 0; i < target.size(); i++) {
-			HookingSet mset = target.get(i);
+			mset = target.get(i);
 			if (mset.classMatch.include(className)) {
 				return new ServiceCV(cv, mset, className, mset.xType == 0 ? XLogTypes.APP_SERVICE : mset.xType);
 			}
 		}
 		return cv;
-
 	}
-
 }
 
 class ServiceCV extends ClassVisitor implements Opcodes {

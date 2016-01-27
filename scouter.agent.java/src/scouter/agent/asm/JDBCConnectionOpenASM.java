@@ -38,15 +38,8 @@ public class JDBCConnectionOpenASM implements IASM, Opcodes {
 	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
 
 	public static class JDBCTargetRegister {
-        private static final List<Pair<String,String>> klassMethod = new ArrayList<Pair<String,String>>();
-        public static final JDBCTargetRegister jtr = new JDBCTargetRegister();
-        public static JDBCTargetRegister getInstance() {
-            return jtr;
-        }
-
+        public static final List<Pair<String,String>> klassMethod = new ArrayList<Pair<String,String>>();
         public static void regist(String klass, String method) {
-
-            
             klassMethod.add(new Pair<String, String>(klass, method));
         }
     }
@@ -59,7 +52,6 @@ public class JDBCConnectionOpenASM implements IASM, Opcodes {
         for(int i = JDBCTargetRegister.klassMethod.size() - 1; i >= 0; i--) {
             AsmUtil.add(reserved, JDBCTargetRegister.klassMethod.get(i).getLeft(), JDBCTargetRegister.klassMethod.get(i).getRight());
         }
-
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
