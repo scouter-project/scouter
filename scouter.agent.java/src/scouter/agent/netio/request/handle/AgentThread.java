@@ -17,6 +17,7 @@
 package scouter.agent.netio.request.handle;
 import java.io.IOException;
 import java.util.Enumeration;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.task.MakeStack;
@@ -25,8 +26,6 @@ import scouter.agent.proxy.ToolsMainFactory;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
 import scouter.agent.util.DumpUtil;
-import scouter.io.DataInputX;
-import scouter.io.DataOutputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.BooleanValue;
@@ -36,10 +35,8 @@ import scouter.lang.value.NullValue;
 import scouter.lang.value.TextValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
-import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 import scouter.util.SysJMX;
-import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
 public class AgentThread {
 	@RequestHandler(RequestCmd.OBJECT_THREAD_DETAIL)
@@ -125,16 +122,15 @@ public class AgentThread {
 	public Pack activeThreadList(Pack param) {
 		MapPack rPack = new MapPack();
 		ListValue id = rPack.newList("id");
-		ListValue name = rPack.newList("name");
-		ListValue stat = rPack.newList("stat");
-		ListValue cpu = rPack.newList("cpu");
-		ListValue txid = rPack.newList("txid");
 		ListValue elapsed = rPack.newList("elapsed");
 		ListValue service = rPack.newList("service");
+		ListValue stat = rPack.newList("stat");
+		ListValue name = rPack.newList("name");
+		ListValue cpu = rPack.newList("cpu");
+		ListValue txid = rPack.newList("txid");
+		ListValue ip = rPack.newList("ip");
 		ListValue sql = rPack.newList("sql");
 		ListValue subcall = rPack.newList("subcall");
-		ListValue login = rPack.newList("login");
-		ListValue desc = rPack.newList("desc");
 		Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
 		while (en.hasMoreElements()) {
 			TraceContext ctx = en.nextElement();
@@ -146,6 +142,7 @@ public class AgentThread {
 			stat.add(ctx.thread.getState().name());
 			txid.add(new TextValue(Hexa32.toString32(ctx.txid)));
 			service.add(new TextValue(ctx.serviceName));
+			ip.add(ctx.remoteIp);
 			long etime = System.currentTimeMillis() - ctx.startTime;
 			elapsed.add(new DecimalValue(etime));
 			// 추가..
@@ -157,8 +154,6 @@ public class AgentThread {
 				Logger.println("A128", th);
 				cpu.add(0L);
 			}
-			login.add(ctx.login);
-			desc.add(ctx.desc);
 		}
 		rPack.put("complete", new BooleanValue(true));
 		return rPack;
