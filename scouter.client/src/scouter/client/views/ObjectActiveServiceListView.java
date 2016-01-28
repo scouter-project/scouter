@@ -352,16 +352,16 @@ public class ObjectActiveServiceListView extends ViewPart implements Refreshable
 	}
 
 	enum ColumnEnum {
-		NO("No", 40, SWT.RIGHT, true, true, true, 0),
-	    OBJNAME("ObjectName", 150, SWT.LEFT, true, true, false, 1),
-	    ELAPSED("Elapsed", 60, SWT.RIGHT, true, true, true, 2),
-	    SERVICE("Service", 200, SWT.LEFT, true, true, false, 3),
-	    STATE("State", 100, SWT.LEFT, true, true, false, 4),
-	    NAME("Name", 250, SWT.LEFT, true, true, false, 5),
-	    CPU("Cpu", 60, SWT.RIGHT, true, true, true, 6),
-	    TXID("TxId", 70, SWT.LEFT, true, true, false, 7),
-	    IP("IP", 100, SWT.LEFT, true, true, false, 8),
-	    NOTE("Note", 300, SWT.LEFT, true, true, false, 9);
+		OBJNAME("ObjectName", 150, SWT.LEFT, true, true, false, 0),
+		SERVICE("Service", 200, SWT.LEFT, true, true, false, 1),
+		ELAPSED("Elapsed", 60, SWT.RIGHT, true, true, true, 2),
+		NOTE("Note", 200, SWT.LEFT, true, true, false, 3),
+		CPU("Cpu", 60, SWT.RIGHT, true, true, true, 4),
+		IP("IP", 100, SWT.LEFT, true, true, false, 5),
+		STATE("State", 100, SWT.LEFT, true, true, false, 6),
+		NAME("Name", 250, SWT.LEFT, true, true, false, 7),
+		NO("No", 40, SWT.RIGHT, true, true, true, 8),
+	    TXID("TxId", 70, SWT.LEFT, true, true, false, 9);
 
 	    private final String title;
 	    private final int width;
