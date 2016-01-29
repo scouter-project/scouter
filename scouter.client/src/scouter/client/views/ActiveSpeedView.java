@@ -55,7 +55,7 @@ public class ActiveSpeedView extends ActiveSpeedCommonView {
 			objTypeDisplay = server.getCounterEngine().getDisplayNameObjectType(objType);
 		}
 		
-		this.setPartName(objTypeDisplay+" - ActiveSpeed");
+		this.setPartName("ActiveSpeed - " + objTypeDisplay);
 		thread = new RefreshThread(this, 150);
 		thread.start();
 		thread.setName(this.toString() + " - " + "objType:"+objType+", serverId:"+serverId);

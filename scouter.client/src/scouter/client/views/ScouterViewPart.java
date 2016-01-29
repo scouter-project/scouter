@@ -50,7 +50,7 @@ public class ScouterViewPart extends ViewPart{
 			}
 		}
 		
-		this.titleName = objectDisplay+" - "+counterDisplay;
+		this.titleName = counterDisplay + " - " + objectDisplay;
 		setPartName(this.titleName);
 		setTitleImage(Images.getCounterImage(objType, counter, serverId));
 		if(showDescription){

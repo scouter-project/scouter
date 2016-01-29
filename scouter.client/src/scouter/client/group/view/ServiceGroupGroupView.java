@@ -48,7 +48,7 @@ public class ServiceGroupGroupView extends ServiceGroupCommonView {
 	}
 
 	public void createPartControl(Composite parent) {
-		this.setPartName(grpName + " - Service[Throughput]");
+		this.setPartName("Service[Throughput] - " + grpName);
 		super.createPartControl(parent);
 	}
 
@@ -126,10 +126,10 @@ public class ServiceGroupGroupView extends ServiceGroupCommonView {
 	public void setTitleName(MODE mode) {
 		switch (mode) {
 			case THROUGHPUT:
-				this.setPartName(grpName + " - Service[Throughput]");
+				this.setPartName("Service[Throughput] - " + grpName);
 				break;
 			case ELASPED:
-				this.setPartName(grpName + " - Service[Elapsed Time]");
+				this.setPartName("Service[Elapsed Time] - " + grpName);
 				break;
 		}		
 	}
