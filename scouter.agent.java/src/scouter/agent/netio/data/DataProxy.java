@@ -218,6 +218,9 @@ public class DataProxy {
 			List<byte[]> buff = new ArrayList<byte[]>();
 			int bytes = 0;
 			for (int k = 0; k < p.length; k++) {
+				if (conf._log_udp_object_enabled) {
+					Logger.println(p[k].toString());
+				}
 				byte[] b = new DataOutputX().writePack(p[k]).toByteArray();
 				if (bytes + b.length >= conf.net_udp_packet_max_bytes) {
 					sendDirect(buff); // buff.size가 0일수도 있다.
