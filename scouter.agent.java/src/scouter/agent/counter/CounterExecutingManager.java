@@ -119,8 +119,8 @@ public class CounterExecutingManager extends Thread {
 					CounterExecutingManager.getInstance().put(new Invocation(c.newInstance(), m[i], interval));
 					n++;
 				}
-			} catch (Exception e) {
-				scouter.agent.Logger.println("A112", ThreadUtil.getStackTrace(e));
+			} catch (Throwable t) {
+				scouter.agent.Logger.println("A112", ThreadUtil.getStackTrace(t));
 			}
 		}
 		scouter.agent.Logger.println("A113", "Counter Collector Started (#" + n + ")");

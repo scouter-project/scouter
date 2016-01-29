@@ -67,7 +67,7 @@ public class ReqestHandlingProxy {
 		Set<String> classes = new Scanner(pkg).process();
 		Set<String> custom = new Scanner(System.getProperty("scouter.handler")).process();
 		classes.addAll(custom);
-
+		
 		Iterator<String> itr = classes.iterator();
 		while (itr.hasNext()) {
 			try {
@@ -91,8 +91,8 @@ public class ReqestHandlingProxy {
 				} catch (Exception x) {
 					x.printStackTrace();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (Throwable t) {
+				t.printStackTrace();
 			}
 		}
 	}
