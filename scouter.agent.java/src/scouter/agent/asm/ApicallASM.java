@@ -24,7 +24,9 @@ import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceApiCall;
 import scouter.org.objectweb.asm.*;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.util.Pair;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,13 @@ import java.util.Map;
 public class ApicallASM implements IASM, Opcodes {
     private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_apicall_patterns);
     private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
+
+    public static class ApiCallTargetRegister {
+        public static final List<Pair<String,String>> klassMethod = new ArrayList<Pair<String,String>>();
+        public static void regist(String klass, String method) {
+            klassMethod.add(new Pair<String, String>(klass, method));
+        }
+    }
 
     public ApicallASM() {
         AsmUtil.add(reserved, "sun/net/www/protocol/http/HttpURLConnection", "getInputStream()Ljava/io/InputStream;");
@@ -52,6 +61,10 @@ public class ApicallASM implements IASM, Opcodes {
                 "Lcom/sap/mw/jco/JCO$ParameterList;" + //
                 "Ljava/lang/String;Ljava/lang/String;I)V");
         AsmUtil.add(reserved, "io/reactivex/netty/protocol/http/client/HttpClientImpl", "submit");
+
+        for(int i = ApiCallTargetRegister.klassMethod.size() - 1; i >= 0; i--) {
+            AsmUtil.add(reserved, ApiCallTargetRegister.klassMethod.get(i).getLeft(), ApiCallTargetRegister.klassMethod.get(i).getRight());
+        }
     }
 
     public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

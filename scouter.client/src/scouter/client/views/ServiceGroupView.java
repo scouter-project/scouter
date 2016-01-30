@@ -53,7 +53,7 @@ public class ServiceGroupView extends ServiceGroupCommonView {
 	public void createPartControl(Composite parent) {
 		Server server = ServerManager.getInstance().getServer(serverId);
 		if (server != null ) displayObjType = server.getCounterEngine().getDisplayNameObjectType(objType);
-		this.setPartName(displayObjType + " - Service[Throughput]");
+		this.setPartName("Service[Throughput] - " + displayObjType);
 		super.createPartControl(parent);
 	}
 
@@ -89,10 +89,10 @@ public class ServiceGroupView extends ServiceGroupCommonView {
 	public void setTitleName(MODE mode) {
 		switch (mode) {
 			case THROUGHPUT:
-				this.setPartName(displayObjType + " - Service[Throughput]");
+				this.setPartName("Service[Throughput] - " + displayObjType);
 				break;
 			case ELASPED:
-				this.setPartName(displayObjType + " - Service[Elapsed Time]");
+				this.setPartName("Service[Elapsed Time] - " + displayObjType);
 				break;
 		}		
 	}

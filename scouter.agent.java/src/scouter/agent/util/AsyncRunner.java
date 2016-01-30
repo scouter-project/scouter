@@ -84,6 +84,7 @@ public class AsyncRunner extends Thread {
                     process((Runnable) m);
                 }
             } catch (Throwable t) {
+            	t.printStackTrace();
             }
         }
     }

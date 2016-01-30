@@ -35,7 +35,7 @@ public class MenuStr {
 	public static final String ACTIVE_SPEED_REAL                  = "Active Speed";
 	public static final String ACTIVE_SPEED_REAL_ID               = "scouter.client.actions.counter.activespeed";
 	
-	public static final String SERVICE_COUNT = "Service Count";
+	public static final String SERVICE_COUNT = "24H Service Count";
 	public static final String SERVICE_COUNT_ID  = "scouter.client.actions.counter.servicecount";
 	
 	public static final String HOURLY_CHART = "Hourly Chart";

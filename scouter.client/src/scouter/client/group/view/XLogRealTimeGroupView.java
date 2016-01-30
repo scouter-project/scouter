@@ -92,7 +92,7 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 		display = Display.getCurrent();
 		shell = new Shell(display);
 		String objTypeDisplay = defaultServer.getCounterEngine().getDisplayNameObjectType(objType);			
-		this.setPartName(grpName + " - XLog");
+		this.setPartName("XLog - " + grpName);
 		setContentDescription(grpName+" | "+objTypeDisplay+"\'s "+"Group XLog Realtime");
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
 		

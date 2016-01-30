@@ -139,6 +139,7 @@ public class Configure extends Thread {
 	public boolean _log_asm_enabled;
 	public boolean _log_udp_xlog_enabled;
 	public boolean _log_udp_object_enabled;
+	public boolean _log_udp_counter_enabled;
 	public boolean _log_datasource_lookup_enabled = true;
 	public boolean _log_background_sql = false;
 	public String log_dir ="";
@@ -342,6 +343,7 @@ public class Configure extends Thread {
 		this.mgr_log_ignore_ids = getValue("mgr_log_ignore_ids", "");
 		this.log_ignore_set = getStringSet("mgr_log_ignore_ids", ",");
 		this._log_udp_xlog_enabled = getBoolean("_log_udp_xlog_enabled", false);
+		this._log_udp_counter_enabled = getBoolean("_log_udp_counter_enabled", false);
 		this._log_udp_object_enabled = getBoolean("_log_udp_object_enabled", false);
 		this.net_local_udp_ip = getValue("net_local_udp_ip");
 		this.net_local_udp_port = getInt("net_local_udp_port", 0);

@@ -101,7 +101,7 @@ public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDi
 	public void createPartControl(final Composite parent) {
 		display = Display.getCurrent();
 		shell = new Shell(display);
-		this.setPartName(grpName + " - XLog");
+		this.setPartName("XLog - " + grpName);
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
 		
 		create(parent, man);
