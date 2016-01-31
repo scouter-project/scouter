@@ -18,7 +18,7 @@ package scouter.agent.util;
 
 
 public class LeakableContainer {
-    private final static int MAX_BUCKET = 10;
+    private final static int MAX_BUCKET = 20;
     private int pos = 0;
 
     private static LeakableContainer container = new LeakableContainer();

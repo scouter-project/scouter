@@ -62,6 +62,10 @@ public class AsyncRunner extends Thread {
         queue.put(data);
     }
 
+    public void add(LeakInfo2 data) {
+        queue.put(data);
+    }
+
     public void add(Runnable r) {
         queue.put(r);
     }
@@ -74,6 +78,8 @@ public class AsyncRunner extends Thread {
                     hooking((Hook) m);
                 } else if (m instanceof LeakInfo) {
                     alert((LeakInfo) m);
+                } else if (m instanceof LeakInfo2) {
+                    alert((LeakInfo2) m);
                 } else if (m instanceof Runnable) {
                     process((Runnable) m);
                 }
@@ -94,7 +100,7 @@ public class AsyncRunner extends Thread {
             ErrorData d = summary.process(leakInfo.error, 0, leakInfo.serviceHash, leakInfo.txid, 0, 0);
             Logger.println("A156", leakInfo.error + " " + leakInfo.inner);
             if (d != null && d.fullstack == 0) {
-                String fullstack = ThreadUtil.getStackTrace(leakInfo.error.getStackTrace(), 2);
+                String fullstack = ThreadUtil.getStackTrace(leakInfo.error.getStackTrace(), leakInfo.fullstackSkip);
                 d.fullstack = DataProxy.sendError(fullstack);
                 Logger.println("A157", fullstack);
             }
@@ -102,6 +108,25 @@ public class AsyncRunner extends Thread {
             summary.process(leakInfo.error, 0, leakInfo.serviceHash, leakInfo.txid, 0, 0);
             Logger.println("A179", leakInfo.error + " " + leakInfo.inner);
         }
+    }
+
+    private void alert(LeakInfo2 leakInfo2) {
+        ServiceSummary summary = ServiceSummary.getInstance();
+
+        if (leakInfo2.fullstack) {
+            ErrorData d = summary.process(leakInfo2.error, 0, leakInfo2.serviceHash, leakInfo2.txid, 0, 0);
+            Logger.println("A156", leakInfo2.error + " " + leakInfo2.innerObject);
+            if (d != null && d.fullstack == 0) {
+                String fullstack = ThreadUtil.getStackTrace(leakInfo2.error.getStackTrace(), leakInfo2.fullstackSkip);
+                d.fullstack = DataProxy.sendError(fullstack);
+                Logger.println("A157", fullstack);
+            }
+        } else {
+            summary.process(leakInfo2.error, 0, leakInfo2.serviceHash, leakInfo2.txid, 0, 0);
+            Logger.println("A179", leakInfo2.error + " " + leakInfo2.innerObject);
+        }
+        boolean closeResult = leakInfo2.closeManager.close(leakInfo2.innerObject);
+        Logger.println("G003", "connection auto closed:" + closeResult);
     }
 
     private void hooking(Hook m) {

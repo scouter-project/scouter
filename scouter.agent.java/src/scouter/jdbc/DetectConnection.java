@@ -18,11 +18,15 @@
 package scouter.jdbc;
 
 import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.agent.error.CONNECTION_NOT_CLOSE;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
+import scouter.agent.util.ICloseManager;
+import scouter.agent.util.ILeakableObject;
 import scouter.agent.util.LeakableObject;
+import scouter.agent.util.LeakableObject2;
 import scouter.lang.step.MethodStep;
 import scouter.util.SysJMX;
 
@@ -31,11 +35,11 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 public class DetectConnection implements java.sql.Connection {
-    private static CONNECTION_NOT_CLOSE error = new CONNECTION_NOT_CLOSE("connection leak detected");
-    private final LeakableObject object;
-    java.sql.Connection inner;
 
-    static Configure conf = Configure.getInstance();
+    private static CONNECTION_NOT_CLOSE error = new CONNECTION_NOT_CLOSE("connection leak detected");
+    private final ILeakableObject object;
+    java.sql.Connection inner;
+    private static Configure conf = Configure.getInstance();
 
     public DetectConnection(java.sql.Connection inner) {
         this.inner = inner;
@@ -49,9 +53,41 @@ public class DetectConnection implements java.sql.Connection {
         }
 
         if (conf._summary_connection_leak_fullstack_enabled) {
-            this.object = new LeakableObject(new CONNECTION_NOT_CLOSE(), inner.getClass().getName(), serviceHash, txid, true);
+            if(conf.__control_connection_leak_autoclose_enabled && conf.__experimental) {
+                this.object = new LeakableObject2(new CONNECTION_NOT_CLOSE(), inner, ConnectionCloseManager.getInstance(), serviceHash, txid, true, 2);
+            } else {
+                this.object = new LeakableObject(new CONNECTION_NOT_CLOSE(), inner.getClass().getName(), serviceHash, txid, true, 2);
+            }
         } else {
-            this.object = new LeakableObject(error, inner.getClass().getName(), serviceHash, txid, false);
+            if(conf.__control_connection_leak_autoclose_enabled && conf.__experimental) {
+                this.object = new LeakableObject2(error, inner, ConnectionCloseManager.getInstance(), serviceHash, txid, false, 0);
+            } else {
+                this.object = new LeakableObject(error, inner.getClass().getName(), serviceHash, txid, false, 0);
+            }
+        }
+    }
+
+    private static class ConnectionCloseManager implements ICloseManager {
+        private static ConnectionCloseManager connectionCloseManager = new ConnectionCloseManager();
+
+        public static ConnectionCloseManager getInstance() {
+            return connectionCloseManager;
+        }
+
+        @Override
+        public boolean close(Object o) {
+            try {
+                if(o instanceof java.sql.Connection) {
+                    ((java.sql.Connection) o).close();
+                    return true;
+                } else {
+                    Logger.println("G001", "Connection auto close - not a connection instance");
+                    return false;
+                }
+            } catch (SQLException e) {
+                Logger.println("G002", "Connection auto close exception", e);
+                return false;
+            }
         }
     }
 
