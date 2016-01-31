@@ -16,9 +16,6 @@
 
 package scouter.agent.asm.jdbc;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.MethodVisitor;
@@ -26,9 +23,16 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PsSetMV extends LocalVariablesSorter implements Opcodes {
 
+	private String owner;
+	private String name;
+	private Type[] args;
 	private static Map<String, String> target = new HashMap<String, String>();
+
 	static {
 		target.put("setNull", "(II)V");
 
@@ -52,7 +56,7 @@ public class PsSetMV extends LocalVariablesSorter implements Opcodes {
 	}
 
 	public static String getSetSignature(String name) {
-		return target.get(name);
+        return target.get(name);
 	}
 
 	private final static String TRACESQL = TraceSQL.class.getName().replace('.', '/');
@@ -65,20 +69,14 @@ public class PsSetMV extends LocalVariablesSorter implements Opcodes {
 		this.name = name;
 	}
 
-	private String owner;
-	private String name;
-	private Type[] args;
-
 	public void visitCode() {
-
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
 		mv.visitVarInsn(Opcodes.ILOAD, 1);
 
 		if (name.equals("setNull")) {
 			AsmUtil.PUSH(mv, (String) null);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set",
-					"(Lscouter/agent/trace/SqlParameter;ILjava/lang/String;)V",false);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(Lscouter/agent/trace/SqlParameter;ILjava/lang/String;)V",false);
 		} else {
 			Type tp = args[1];
 			switch (tp.getSort()) {
@@ -109,18 +107,15 @@ public class PsSetMV extends LocalVariablesSorter implements Opcodes {
 			case Type.OBJECT:
 				mv.visitVarInsn(Opcodes.ALOAD, 2);
 				if (tp.equals(AsmUtil.stringType)) {
-					mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set",
-							"(Lscouter/agent/trace/SqlParameter;ILjava/lang/String;)V",false);
+					mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(Lscouter/agent/trace/SqlParameter;ILjava/lang/String;)V",false);
 				} else {
-					mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set",
-							"(Lscouter/agent/trace/SqlParameter;ILjava/lang/Object;)V",false);
+					mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(Lscouter/agent/trace/SqlParameter;ILjava/lang/Object;)V",false);
 				}
 				break;
 			default:
 				mv.visitVarInsn(Opcodes.ALOAD, 2);
 				AsmUtil.PUSH(mv, "unknown " + tp);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set",
-						"(Lscouter/agent/trace/SqlParameter;ILjava/lang/String;)V",false);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "set", "(Lscouter/agent/trace/SqlParameter;ILjava/lang/String;)V",false);
 				break;
 			}
 		}

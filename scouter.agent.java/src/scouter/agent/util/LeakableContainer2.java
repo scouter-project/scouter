@@ -16,19 +16,29 @@
  */
 package scouter.agent.util;
 
-public class LeakableObject implements ILeakableObject {
 
-    public LeakableContainer container;
-    public int pidx;
-    public LeakInfo info;
+public class LeakableContainer2 {
+    private final static int MAX_BUCKET = 20;
+    private int pos = 0;
 
-    public LeakableObject(Error error, String inner, int serviceHash, long txid, boolean fullstack, int fullstackSkip) {
-        LeakableContainer.add(this);
-        this.info = new LeakInfo(error, inner, serviceHash, txid, fullstack, fullstackSkip);
+    private static LeakableContainer2 container = new LeakableContainer2();
+    public LeakableObject2[] bucket = new LeakableObject2[MAX_BUCKET];
+
+    protected void finalize() throws Throwable {
+        for (int i = 0; i < MAX_BUCKET; i++) {
+            if (bucket[i] != null) {
+                AsyncRunner.getInstance().add(bucket[i].info);
+            }
+        }
     }
 
-    @Override
-    public void close() {
-        container.bucket[pidx] = null;
+    public synchronized static void add(LeakableObject2 obj) {
+        container.bucket[container.pos] = obj;
+        obj.container = container;
+        obj.pidx = container.pos;
+        container.pos++;
+        if (container.pos >= MAX_BUCKET) {
+            container = new LeakableContainer2();
+        }
     }
 }

@@ -16,15 +16,15 @@
  */
 package scouter.agent.util;
 
-public class LeakableObject implements ILeakableObject {
+public class LeakableObject2 implements ILeakableObject {
 
-    public LeakableContainer container;
+    public LeakableContainer2 container;
     public int pidx;
-    public LeakInfo info;
+    public LeakInfo2 info;
 
-    public LeakableObject(Error error, String inner, int serviceHash, long txid, boolean fullstack, int fullstackSkip) {
-        LeakableContainer.add(this);
-        this.info = new LeakInfo(error, inner, serviceHash, txid, fullstack, fullstackSkip);
+    public LeakableObject2(Error error, Object inner, ICloseManager closeManager, int serviceHash, long txid, boolean fullstack, int fullstackSkip) {
+        LeakableContainer2.add(this);
+        this.info = new LeakInfo2(error, inner, closeManager, serviceHash, txid, fullstack, fullstackSkip);
     }
 
     @Override

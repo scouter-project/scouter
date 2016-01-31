@@ -6,14 +6,16 @@ public class LeakInfo {
     public int serviceHash;
     public long txid;
     public boolean fullstack;
+    public int fullstackSkip;
 
-    public LeakInfo(Error error, String inner, int serviceHash, long txid, boolean fullstack) {
+    public LeakInfo(Error error, String inner, int serviceHash, long txid, boolean fullstack, int fullstackSkip) {
         super();
         this.error = error;
         this.inner = inner;
         this.serviceHash = serviceHash;
         this.txid = txid;
         this.fullstack = fullstack;
+        this.fullstackSkip = fullstackSkip;
     }
 
     @Override
