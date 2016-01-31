@@ -53,13 +53,13 @@ public class DetectConnection implements java.sql.Connection {
         }
 
         if (conf._summary_connection_leak_fullstack_enabled) {
-            if(conf._control_connection_leak_autoclose_enabled) {
+            if(conf.__control_connection_leak_autoclose_enabled && conf.__experimental) {
                 this.object = new LeakableObject2(new CONNECTION_NOT_CLOSE(), inner, ConnectionCloseManager.getInstance(), serviceHash, txid, true, 2);
             } else {
                 this.object = new LeakableObject(new CONNECTION_NOT_CLOSE(), inner.getClass().getName(), serviceHash, txid, true, 2);
             }
         } else {
-            if(conf._control_connection_leak_autoclose_enabled) {
+            if(conf.__control_connection_leak_autoclose_enabled && conf.__experimental) {
                 this.object = new LeakableObject2(error, inner, ConnectionCloseManager.getInstance(), serviceHash, txid, false, 0);
             } else {
                 this.object = new LeakableObject(error, inner.getClass().getName(), serviceHash, txid, false, 0);

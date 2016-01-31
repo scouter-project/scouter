@@ -189,7 +189,6 @@ public class Configure extends Thread {
 	public boolean control_reject_redirect_url_enabled = false;
 	public String control_reject_text = "too many request!!";
 	public String control_reject_redirect_url = "/error.html";
-	public boolean _control_connection_leak_autoclose_enabled = false;
 
 	// Counter
 	public boolean counter_enabled = true;
@@ -215,6 +214,10 @@ public class Configure extends Thread {
 	
 	//EndUser
 	public String enduser_trace_endpoint_url = "/_scouter_browser.jsp";
+
+	//Experimental(ignoreset)
+	public boolean __experimental = false;
+	public boolean __control_connection_leak_autoclose_enabled = false;
 
 	//internal variables
 	private int objHash;
@@ -403,7 +406,7 @@ public class Configure extends Thread {
 		this.control_reject_redirect_url_enabled = getBoolean("control_reject_redirect_url_enabled", false);
 		this.control_reject_text = getValue("control_reject_text", "too many request!!");
 		this.control_reject_redirect_url = getValue("control_reject_redirect_url", "/error.html");
-		this._control_connection_leak_autoclose_enabled = getBoolean("_control_connection_leak_autoclose_enabled", false);
+
 		this.profile_step_max_count = getInt("profile_step_max_count", 1024);
 		if (this.profile_step_max_count < 100)
 			this.profile_step_max_count = 100;
@@ -462,7 +465,10 @@ public class Configure extends Thread {
 		this._summary_enduser_ajax_max_count = getInt("_summary_enduser_ajax_max_count", 5000);
 		this._summary_enduser_error_max_count = getInt("_summary_enduser_error_max_count", 5000);
 
-		
+		//Experimental(ignoreset)
+		this.__experimental = getBoolean("__experimental", false);
+		this.__control_connection_leak_autoclose_enabled = getBoolean("_control_connection_leak_autoclose_enabled", false);
+
 		this.alert_perm_warning_pct = getInt("alert_perm_warning_pct", 90);
 		this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", false);
 		this.alert_message_length = getInt("alert_message_length", 3000);
@@ -658,6 +664,7 @@ public class Configure extends Thread {
 	private static HashSet<String> ignoreSet = new HashSet<String>();
 	static {
 		ignoreSet.add("property");
+		ignoreSet.add("__experimental");
 	}
 	public MapValue getKeyValueInfo() {
 		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
