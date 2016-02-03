@@ -84,21 +84,29 @@ public class Version {
 		return properties;
 	}
 
-	public static Integer versionCompare(String str1, String str2) {
+	public static int versionCompare(String str1, String str2) {
+		if(str1 == null && str2 == null)
+			return 0;
+		if(str1 == null)
+            return -1;
+		if(str2 == null)
+            return 1;
 		str1 = numonly(str1);
 		str2 = numonly(str2);
-		String[] vals1 = str1.split("\\.");
-		String[] vals2 = str2.split("\\.");
-		int i = 0;
-		while (i < vals1.length && i < vals2.length	&& vals1[i].equals(vals2[i])) {
-			i++;
-		}
-		if (i < vals1.length && i < vals2.length) {
-			int diff = Integer.valueOf(vals1[i]).compareTo(Integer.valueOf(vals2[i]));
-			return Integer.signum(diff);
-		} else {
-			return Integer.signum(vals1.length - vals2.length);
-		}
+        String[] thisParts = str1.split("\\.");
+        String[] thatParts = str2.split("\\.");
+        int length = Math.max(thisParts.length, thatParts.length);
+        for(int i = 0; i < length; i++) {
+            long thisPart = i < thisParts.length ?
+                Long.parseLong(thisParts[i]) : 0;
+            long thatPart = i < thatParts.length ?
+            	Long.parseLong(thatParts[i]) : 0;
+            if(thisPart < thatPart)
+                return -1;
+            if(thisPart > thatPart)
+                return 1;
+        }
+        return 0;
 	}
 	
 	private static String numonly(String t) {
