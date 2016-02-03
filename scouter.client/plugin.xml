@@ -701,7 +701,7 @@
             class="scouter.client.views.ObjectDashboardView"
             icon="icons/agent.png"
             id="scouter.client.views.ObjectDashboardView"
-            name="ObjectDashboard"
+            name="ObjectMap"
             restorable="true">
       </view>
       <view
@@ -1029,14 +1029,97 @@
           allPopups="false"
           locationURI="menu:org.eclipse.ui.main.menu">
        <menu
+             id="scouter.menu.file"
+             label="File">
+          <command
+                commandId="scouter.client.actions.OpenClientThreadListAction"
+                label="Client Thread List"
+                style="push">
+          </command>
+          <command
+                commandId="scouter.client.actions.OpenClientEnvViewAction"
+                label="Client Env"
+                style="push">
+          </command>
+          <separator name="file.separator1" visible="true" />
+          <command
+                commandId="scouter.client.actions.OpenWorkspaceExplorerAction"
+                label="Workspace Explorer"
+                style="push">
+          </command>
+          <separator name="file.separator2" visible="true" />
+          <command
+                commandId="scouter.client.actions.RestartAction"
+                label="Restart"
+                style="push">
+          </command>
+          <command
+                commandId="org.eclipse.ui.file.exit"
+                label="Exit"
+                style="push">
+          </command>
+       </menu>
+       <menu
+             id="scouter.menu.management"
+             label="Management">
+             <menu label="Collector Server">
+             	<command
+	                commandId="scouter.client.actions.AddServerAction"
+	                label="Add"
+	                style="push"/>
+	            <command
+	                commandId="scouter.client.actions.OpenServerManagerAction"
+	                label="Manager"
+	                style="push"/>
+             </menu>
+             <separator name="man.separator1" visible="true" />
+             <command
+                commandId="scouter.client.actions.OpenObjectDashboardAction"
+                label="Object Map"
+                style="push"/>
+             <command
+                commandId="scouter.client.actions.OpenConsoleAction"
+                label="Console"
+                style="push"/>
+             <command
+                commandId="scouter.client.actions.OpenAlertRealTimeAction"
+                label="Alert"
+                style="push"/>
+             <command
+                commandId="scouter.client.actions.OpenGroupNavigationAction"
+                label="Group Navigation"
+                style="push"/>
+       </menu>
+       <menu
+             id="scouter.menu.collector"
+             label="Collector">
+       </menu>
+       <menu
+             id="scouter.menu.host"
+             label="Host">
+       </menu>
+       <menu
+             id="scouter.menu.object"
+             label="Object">
+       </menu>
+       <menu
+             id="scouter.menu.window"
+             label="Window">
+          <command
+                commandId="org.eclipse.ui.window.preferences"
+                label="Preferences"
+                style="push">
+          </command>
+       </menu>
+       <menu
+            id="scouter.menu.about"
              label="About">
           <command
                 commandId="org.eclipse.ui.help.aboutAction"
                 label="About"
                 style="push">
           </command>
-       </menu>
-       
+      </menu>
     </menuContribution>
  </extension>
  <extension

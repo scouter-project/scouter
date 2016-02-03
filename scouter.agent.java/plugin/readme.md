@@ -116,7 +116,6 @@
  
 ### WrHttpCallRequest class API
  - void header(Object key, Object value) : Header값 추가
- - String toString(Object value) : 80자 이하로 toString
  - Object inner() : Request Object를 반환
  - boolean isOk() : Plugin 상태 확인
  - Throwable error() : Error 확인

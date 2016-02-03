@@ -232,7 +232,7 @@ public class StringUtil {
 		int x = line.indexOf(delim);
 		if (x < 0)
 			return new String[] { line };
-		String s1 = line.substring(0, x - 1);
+		String s1 = line.substring(0, x );
 		String s2 = line.substring(x + 1);
 		return new String[] { s1, s2 };
 	}

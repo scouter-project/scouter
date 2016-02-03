@@ -17,8 +17,6 @@
 
 package scouter.agent.asm;
 
-import java.util.Map;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
@@ -29,12 +27,28 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.util.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class JspServletASM implements IASM, Opcodes {
 	private Map<String, HookingSet> target = HookingSet.getHookingSet(Configure.getInstance().hook_jsp_patterns);
 
+    public static class JspTargetRegister {
+        public static final List<Pair<String,String>> klassMethod = new ArrayList<Pair<String,String>>();
+        public static void regist(String klass, String method) {
+            klassMethod.add(new Pair<String, String>(klass, method));
+        }
+    }
+
 	public JspServletASM() {
-		AsmUtil.add(target, "org/apache/jasper/servlet/JspServlet", "serviceJspFile");
+        AsmUtil.add(target, "org/apache/jasper/servlet/JspServlet", "serviceJspFile");
+
+        for(int i = JspTargetRegister.klassMethod.size() - 1; i >= 0; i--) {
+            AsmUtil.add(target, JspTargetRegister.klassMethod.get(i).getLeft(), JspTargetRegister.klassMethod.get(i).getRight());
+        }
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

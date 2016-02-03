@@ -170,7 +170,7 @@ public class XLogLoadTimeView extends XLogViewCommon implements TimeRangeDialog.
 			objTypeDisplay = server.getCounterEngine().getDisplayNameObjectType(objType);
 		}
 		
-		this.setPartName(objTypeDisplay + " - XLog");
+		this.setPartName("XLog - " + objTypeDisplay);
 		setContentDescription("ⓢ"+svrName+" | "+objTypeDisplay+"\'s "+"XLog Pasttime"
 						+ " | " + DateUtil.format(stime, "yyyy-MM-dd") + "(" + DateUtil.format(stime, "HH:mm")
 						+ "~" + DateUtil.format(etime, "HH:mm") + ")");

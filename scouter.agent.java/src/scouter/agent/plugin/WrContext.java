@@ -2,9 +2,9 @@ package scouter.agent.plugin;
 
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceContext;
+import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.util.HashUtil;
-import scouter.util.IPUtil;
 import scouter.util.SysJMX;
 
 public class WrContext {
@@ -97,6 +97,25 @@ public class WrContext {
 			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
 		ctx.profile.add(p);
+	}
+
+	/**
+	 * add xlog profile
+	 * profile diplay like --> msg #value elapsed
+	 * @param msg message
+	 * @param value any value to display on a profile.
+	 * @param elapsed any value to display on a profile.
+     */
+	public void hashProfile(String msg, int value, int elapsed) {
+		HashedMessageStep step = new HashedMessageStep();
+		step.hash = DataProxy.sendHashedMessage(msg);
+		step.value = value;
+		step.time = elapsed;
+		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+		}
+		ctx.profile.add(step);
 	}
 
 	public long txid() {

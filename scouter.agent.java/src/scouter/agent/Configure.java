@@ -16,17 +16,6 @@
  */
 package scouter.agent;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.conf.ConfObserver;
@@ -35,16 +24,10 @@ import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.DateUtil;
-import scouter.util.FileUtil;
-import scouter.util.HashUtil;
-import scouter.util.StringEnumer;
-import scouter.util.StringKeyLinkedMap;
-import scouter.util.StringSet;
-import scouter.util.StringUtil;
-import scouter.util.SysJMX;
-import scouter.util.SystemUtil;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
+
+import java.io.*;
+import java.util.*;
 public class Configure extends Thread {
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
@@ -156,6 +139,7 @@ public class Configure extends Thread {
 	public boolean _log_asm_enabled;
 	public boolean _log_udp_xlog_enabled;
 	public boolean _log_udp_object_enabled;
+	public boolean _log_udp_counter_enabled;
 	public boolean _log_datasource_lookup_enabled = true;
 	public boolean _log_background_sql = false;
 	public String log_dir ="";
@@ -230,6 +214,10 @@ public class Configure extends Thread {
 	
 	//EndUser
 	public String enduser_trace_endpoint_url = "/_scouter_browser.jsp";
+
+	//Experimental(ignoreset)
+	public boolean __experimental = false;
+	public boolean __control_connection_leak_autoclose_enabled = false;
 
 	//internal variables
 	private int objHash;
@@ -358,6 +346,7 @@ public class Configure extends Thread {
 		this.mgr_log_ignore_ids = getValue("mgr_log_ignore_ids", "");
 		this.log_ignore_set = getStringSet("mgr_log_ignore_ids", ",");
 		this._log_udp_xlog_enabled = getBoolean("_log_udp_xlog_enabled", false);
+		this._log_udp_counter_enabled = getBoolean("_log_udp_counter_enabled", false);
 		this._log_udp_object_enabled = getBoolean("_log_udp_object_enabled", false);
 		this.net_local_udp_ip = getValue("net_local_udp_ip");
 		this.net_local_udp_port = getInt("net_local_udp_port", 0);
@@ -417,6 +406,7 @@ public class Configure extends Thread {
 		this.control_reject_redirect_url_enabled = getBoolean("control_reject_redirect_url_enabled", false);
 		this.control_reject_text = getValue("control_reject_text", "too many request!!");
 		this.control_reject_redirect_url = getValue("control_reject_redirect_url", "/error.html");
+
 		this.profile_step_max_count = getInt("profile_step_max_count", 1024);
 		if (this.profile_step_max_count < 100)
 			this.profile_step_max_count = 100;
@@ -475,7 +465,10 @@ public class Configure extends Thread {
 		this._summary_enduser_ajax_max_count = getInt("_summary_enduser_ajax_max_count", 5000);
 		this._summary_enduser_error_max_count = getInt("_summary_enduser_error_max_count", 5000);
 
-		
+		//Experimental(ignoreset)
+		this.__experimental = getBoolean("__experimental", false);
+		this.__control_connection_leak_autoclose_enabled = getBoolean("_control_connection_leak_autoclose_enabled", false);
+
 		this.alert_perm_warning_pct = getInt("alert_perm_warning_pct", 90);
 		this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", false);
 		this.alert_message_length = getInt("alert_message_length", 3000);
@@ -671,6 +664,7 @@ public class Configure extends Thread {
 	private static HashSet<String> ignoreSet = new HashSet<String>();
 	static {
 		ignoreSet.add("property");
+		ignoreSet.add("__experimental");
 	}
 	public MapValue getKeyValueInfo() {
 		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));

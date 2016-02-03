@@ -54,7 +54,7 @@ public class EQView extends EQCommonView {
 		if (server != null) {
 			CounterEngine counterEngine = server.getCounterEngine();
 			String displayName = counterEngine.getDisplayNameObjectType(objType);
-			this.setPartName(displayName + " - Active Service EQ");
+			this.setPartName("Active Service EQ - " + displayName);
 		}
 		super.createPartControl(parent);
 	}

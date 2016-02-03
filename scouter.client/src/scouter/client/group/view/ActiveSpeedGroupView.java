@@ -56,7 +56,7 @@ public class ActiveSpeedGroupView extends ActiveSpeedCommonView {
 	}
 	
 	public void createPartControl(Composite parent) {
-		this.setPartName(grpName +" - ActiveSpeed");
+		this.setPartName("ActiveSpeed - " + grpName);
 		super.createPartControl(parent);
 		thread = new RefreshThread(this, 150);
 		thread.start();

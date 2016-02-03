@@ -17,18 +17,9 @@
  */
 package scouter.client;
 
-import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.jface.action.ICoolBarManager;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.Separator;
-import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.actions.ActionFactory;
-import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
-import org.eclipse.ui.actions.ContributionItemFactory;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 
@@ -45,36 +36,8 @@ import scouter.client.actions.RestartAction;
 import scouter.client.constants.MenuStr;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
-import scouter.client.util.ImageUtil;
 
 public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
-
-	private IWorkbenchAction exitAction;
-
-	private IWorkbenchAction aboutAction;
-
-	private IWorkbenchAction preferencesAction;
-
-	private IContributionItem perspective;
-
-	private AddServerAction addServerAction;
-	
-	private OpenServerManagerAction openServerManagerAction;
-	
-	private OpenClientThreadListAction openClientThreadListAction;
-	
-	private OpenWorkspaceExplorerAction openWorkspaceExplorerAction;
-	
-	private OpenGroupNavigationAction openGroupNavigationAction;
-	
-	private OpenClientEnvViewAction openClientEnvAction;
-
-	private RestartAction openRestart;
-
-	private OpenAlertRealTimeAction openAlertRealtimeAction;
-
-	private OpenConsoleAction openConsole;
-	private OpenObjectDashboardAction openObjDashboard;
 
 	public ApplicationActionBarAdvisor(IActionBarConfigurer configurer) {
 		super(configurer);
@@ -88,30 +51,19 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			serverId = server.getId();
 		}
 		
-		exitAction = ActionFactory.QUIT.create(window);
-		exitAction.setImageDescriptor(ImageUtil.getImageDescriptor(Images.MENU_EXIT));
-		register(exitAction);
+		// File
+		register(new OpenClientThreadListAction(window, "Client Thread List", Images.thread));
+		register(new OpenClientEnvViewAction(window));
+		register(new OpenWorkspaceExplorerAction(window, "Workspace Explorer", Images.explorer, serverId));
+		register(new RestartAction(window, "Restart"));
 		
-		aboutAction = ActionFactory.ABOUT.create(window);
-		register(aboutAction);
-		
-		preferencesAction = ActionFactory.PREFERENCES.create(window);
-		preferencesAction.setImageDescriptor(ImageUtil.getImageDescriptor(Images.preference));
-		register(preferencesAction);
-		
-		register(addServerAction = new AddServerAction(window, "Add Server", Images.add));
-		register(openServerManagerAction = new OpenServerManagerAction());
-
-		register(openClientThreadListAction = new OpenClientThreadListAction(window, "Client Thread List", Images.thread));
-		register(openWorkspaceExplorerAction = new OpenWorkspaceExplorerAction(window, "Workspace Explorer", Images.explorer, serverId));
-		register(openGroupNavigationAction = new OpenGroupNavigationAction(window));
-		register(openClientEnvAction = new OpenClientEnvViewAction(window));
-		register(openRestart = new RestartAction(window, "Restart"));
-
-		perspective = ContributionItemFactory.PERSPECTIVES_SHORTLIST.create(window);
-		register(openAlertRealtimeAction = new OpenAlertRealTimeAction(window, MenuStr.ALERT_REAL, Images.alert));
-		register(openConsole = new OpenConsoleAction(window, "Console"));
-		register(openObjDashboard = new OpenObjectDashboardAction(window, "Object Dashboard"));
+		// Management
+		register(new AddServerAction(window, "Add Server", Images.add));
+		register(new OpenServerManagerAction());
+		register(new OpenObjectDashboardAction(window, "Object Dashboard"));
+		register(new OpenConsoleAction(window, "Console"));
+		register(new OpenAlertRealTimeAction(window, MenuStr.ALERT_REAL, Images.alert));
+		register(new OpenGroupNavigationAction(window));
 	}
 
 	public IAction getAction(String id) {
@@ -119,56 +71,5 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	}
 
 	protected void fillMenuBar(IMenuManager menuBar) {
-		MenuManager fileMenu = new MenuManager("&File", IWorkbenchActionConstants.M_FILE);
-		MenuManager serverMenu = new MenuManager("&Server", "scouter.client.menu.server");
-		MenuManager viewMenu = new MenuManager("&Views", "scouter.client.menu.views");
-		MenuManager windowMenu = new MenuManager("&Window", IWorkbenchActionConstants.M_WINDOW);
-		MenuManager reportMenu = new MenuManager("&Report", "scouter.client.menu.report");
-
-		menuBar.add(fileMenu);
-		menuBar.add(serverMenu);
-		menuBar.add(viewMenu);
-		menuBar.add(windowMenu);
-		menuBar.add(reportMenu);
-
-		viewMenu.add(openObjDashboard);
-		viewMenu.add(openConsole);
-		viewMenu.add(openAlertRealtimeAction);
-		viewMenu.add(openGroupNavigationAction);
-
-		MenuManager perspectiveMenu = new MenuManager("&Perspective", "scouter.client.menu.perspective");
-		perspectiveMenu.add(perspective);
-
-		windowMenu.add(perspectiveMenu);
-		windowMenu.add(preferencesAction);
-		
-		serverMenu.add(addServerAction);
-		serverMenu.add(new Separator());
-		serverMenu.add(openServerManagerAction);
-
-		fileMenu.add(new Separator());
-		fileMenu.add(openClientThreadListAction);
-		fileMenu.add(openClientEnvAction);
-		fileMenu.add(new Separator());
-		fileMenu.add(openWorkspaceExplorerAction);
-		fileMenu.add(new Separator());
-		fileMenu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
-		fileMenu.add(new Separator());
-		fileMenu.add(new GroupMarker(IWorkbenchActionConstants.FILE_END));
-
-		fileMenu.add(openRestart);
-		fileMenu.add(exitAction);
-	}
-
-	protected void fillCoolBar(ICoolBarManager coolBar) {
-		// IToolBarManager toolbar = new ToolBarManager(SWT.FLAT);
-		// coolBar.add(new ToolBarContributionItem(toolbar, "main"));
-		// // toolbar.add(new Separator());
-		// toolbar.add(clusterTest);
-	}
-
-	public void fillTrayItemContextMenu(IMenuManager menuManager) {
-		menuManager.add(aboutAction);
-		menuManager.add(exitAction);
 	}
 }

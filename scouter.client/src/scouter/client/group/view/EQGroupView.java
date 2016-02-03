@@ -52,7 +52,7 @@ public class EQGroupView extends EQCommonView {
 	}
 	
 	public void createPartControl(Composite parent) {
-		this.setPartName(grpName + " - Active Service EQ");
+		this.setPartName("Active Service EQ - " + grpName);
 		super.createPartControl(parent);
 	}
 

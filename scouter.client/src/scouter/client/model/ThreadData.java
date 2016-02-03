@@ -26,5 +26,6 @@ public class ThreadData {
 	public String serviceName;
 	public long cpu;
 	public long elapsed;
+	public String ip;
 	public String note;
 }
