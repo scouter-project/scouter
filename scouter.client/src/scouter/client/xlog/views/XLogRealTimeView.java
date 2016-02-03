@@ -143,7 +143,7 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 			objTypeDisplay = server.getCounterEngine().getDisplayNameObjectType(objType);
 			viewPainter.setServerId(serverId);
 		}
-		this.setPartName(objTypeDisplay + " - XLog");
+		this.setPartName("XLog - " + objTypeDisplay);
 		setContentDescription("ⓢ"+svrName+" | "+objTypeDisplay+"\'s "+"XLog Realtime");
 		thread = new RefreshThread(this, 2000);
 		thread.setName(this.toString() + " - " + "objType:"+objType + ", serverId:"+serverId);

@@ -17,11 +17,8 @@
  */
 package scouter.client.views;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -64,15 +61,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
-import scouter.client.popup.AddDescriptionDialog;
-import scouter.client.popup.AddDescriptionDialog.DescriptionSetter;
 import scouter.client.stack.base.MainProcessor;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.RCPUtil;
 import scouter.client.xlog.SaveProfileJob;
 import scouter.client.xlog.views.XLogFullProfileView;
 
-public class WorkspaceExplorer extends ViewPart implements DescriptionSetter{
+public class WorkspaceExplorer extends ViewPart {
 
 	private TreeViewer viewer;
 	private int serverId;
@@ -173,12 +168,6 @@ public class WorkspaceExplorer extends ViewPart implements DescriptionSetter{
 			} catch (Exception e) {
 				e.printStackTrace();
 			} 
-		} else if(selectedFile.getName().endsWith(".hprof")){
-			Clipboard clipboard = new Clipboard(Display.getDefault());
-            clipboard.setContents(new Object[] { selectedFile.getAbsolutePath() }, new Transfer[] { TextTransfer.getInstance() });
-            clipboard.dispose();
-		} else if(AddDescriptionDialog.descriptionFileName.equals(selectedFile.getName())) {
-			
 		} else if(selectedFile.getName().endsWith(".stack")) {
 			MainProcessor.instance().processStackFile(selectedFile.getAbsolutePath());
 		} else {
@@ -204,9 +193,7 @@ public class WorkspaceExplorer extends ViewPart implements DescriptionSetter{
 		for(int inx = 0 ; inx < fileList.size() ; inx++){
 			File f = fileList.get(inx);
 			if(f.isFile() && f.getName().equals(SaveProfileJob.xLogFileName)){
-			}else if(f.isFile() && f.getName().equals(AddDescriptionDialog.descriptionFileName)){
-				arr.add(0, f);
-			}else{
+			} else{
 				arr.add(f);
 			}
 		}
@@ -225,11 +212,6 @@ public class WorkspaceExplorer extends ViewPart implements DescriptionSetter{
             Object lastElement = elements[elements.length - 1];
             if (lastElement instanceof File) {
             	if (((File) lastElement).isFile()) {
-            		if(AddDescriptionDialog.descriptionFileName.equals(((File) lastElement).getName())){
-            			mgr.add(new DeleteSelectedFileAction());
-                		mgr.add(new AddDescriptionAction());
-                		return;
-            		}
             		mgr.add(new OpenSelectedFileAction((File) lastElement));
             		mgr.add(new Separator());
 	            	mgr.add(new CopySelectedFilesAction());
@@ -238,7 +220,6 @@ public class WorkspaceExplorer extends ViewPart implements DescriptionSetter{
 	            	mgr.add(new DeleteSelectedFileAction());
             	} else if (((File) lastElement).isDirectory()) {
             		mgr.add(new DeleteSelectedFileAction());
-            		mgr.add(new AddDescriptionAction());
             	}
             }
         }
@@ -304,8 +285,6 @@ public class WorkspaceExplorer extends ViewPart implements DescriptionSetter{
 						return Images.PROFILE_FULL;
 					}else if(SaveProfileJob.profileSummaryFileName.equals(fileName)){
 						return Images.PROFILE_SUMMARY;
-					}else if(AddDescriptionDialog.descriptionFileName.equals(fileName)){
-						return Images.COMMENT;
 					}
 				}
 				
@@ -323,20 +302,9 @@ public class WorkspaceExplorer extends ViewPart implements DescriptionSetter{
 			if (fileName.length() > 0) {
 				if(SaveProfileJob.profileFileName.equals(fileName)){
 					return "Full Profiles";
-				}else if(SaveProfileJob.profileSummaryFileName.equals(fileName)){
+				} else if(SaveProfileJob.profileSummaryFileName.equals(fileName)){
 					return "Profile Summary";
-				}else if(AddDescriptionDialog.descriptionFileName.equals(fileName)){
-					try {
-						BufferedReader in = new BufferedReader(new FileReader(((File) element)));
-						String s;
-						while ((s = in.readLine()) != null) {
-							return s;
-						}
-						in.close();
-					} catch (IOException e) {
-					}
-					return "";
-				}else if(SaveProfileJob.xLogFileName.equals(fileName)){
+				} else if(SaveProfileJob.xLogFileName.equals(fileName)){
 					return null;
 				}
 				return fileName;
@@ -462,33 +430,6 @@ public class WorkspaceExplorer extends ViewPart implements DescriptionSetter{
 		}
 	}
 	
-	public class AddDescriptionAction extends Action{
-
-		AddDescriptionDialog dialog;
-		public AddDescriptionAction() {
-			super("&Set description");
-			setImageDescriptor(Images.COMMENT_DESCRIPTOR);
-		}
-		public void run() {
-			ISelection sel = viewer.getSelection();
-	        if (sel instanceof StructuredSelection) {
-	        	@SuppressWarnings("unchecked")
-				Iterator<File> i = ((StructuredSelection)sel).iterator();
-	        	while (i.hasNext()) {
-	                File file = i.next();
-	                if (file.isDirectory() || AddDescriptionDialog.descriptionFileName.equals(file.getName())) {
-	                	if (window != null) {
-	            			dialog = new AddDescriptionDialog(window.getShell().getDisplay(), file, WorkspaceExplorer.this);
-	            			dialog.show(serverId, window.getShell().getBounds());
-	            		}
-	                } else {
-	                }
-	            }
-	        }
-	        
-		}
-	}
-
 	public void afterDescriptionCreated() {
 		refreshViewer();
 	}

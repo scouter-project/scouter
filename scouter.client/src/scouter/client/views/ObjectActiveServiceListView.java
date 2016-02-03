@@ -226,13 +226,14 @@ public class ObjectActiveServiceListView extends ViewPart implements Refreshable
 				data.txid = txidLv.getString(i);
 				data.elapsed = elapsedLv.getLong(i);
 				data.serviceName = serviceLv.getString(i);
-				data.ip = ipLv.getString(i);
 				String sql = sqlLv.getString(i);
 				if (StringUtil.isNotEmpty(sql)) {
 					data.note = sql;
 				} else {
 					data.note = subcallLv.getString(i);
 				}
+				if (ipLv != null)
+					data.ip = ipLv.getString(i);
 				datas.add(data);
 			}
 		}
