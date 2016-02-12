@@ -48,15 +48,12 @@ import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
 import scouter.client.constants.MenuStr;
 import scouter.client.group.GroupManager;
 import scouter.client.model.AgentModelThread;
 import scouter.client.model.AgentObject;
-import scouter.client.model.DetachedManager;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.io.DataInputX;
@@ -523,6 +520,45 @@ public class ScouterUtil {
 			}
 		}
 	}
+	
+	public static ISample getNearestPoint(IDataProvider provider, double time) {
+		int high = provider.getSize() - 1;
+		int low = 0;
+		while (true) {
+			int mid = (high + low) / 2;
+			ISample s = provider.getSample(mid);
+			double x = s.getXValue();
+			if (x == time) {
+				return s;
+			} else {
+				if (x > time) {
+					high = mid;
+				} else {
+					low = mid;
+				}
+				if ((high - low) <= 1) {
+					ISample highSample = provider.getSample(high);
+					ISample lowSample = provider.getSample(low);
+					if (highSample == null && lowSample == null) {
+						return null;
+					}
+					if (highSample == null) {
+						return lowSample;
+					}
+					if (lowSample == null) {
+						return highSample;
+					}
+					double highGap = highSample.getXValue() - time;
+					double lowGqp = time - lowSample.getXValue();
+					if (highGap < lowGqp) {
+						return highSample;
+					} else {
+						return lowSample;
+					}
+				}
+			}
+		}
+	}
 
 	public static String humanReadableByteCount(long bytes, boolean si) {
 		int unit = 1024;
@@ -546,5 +582,9 @@ public class ScouterUtil {
 		plotArea.setZoomType(ZoomType.HORIZONTAL_ZOOM);
 		plotArea.enableZoom(withZoom);
 		plotArea.addPropertyChangeListener("horizontal_range", listener);
+	}
+	
+	public static double getPointDistance(double x1, double y1, double x2, double y2) {
+		return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 	}
 }
