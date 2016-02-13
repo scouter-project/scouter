@@ -105,7 +105,7 @@ public class CounterRealTimeAllView extends ScouterViewPart implements Refreshab
 	protected XYGraph xyGraph;
 	protected Map<Integer, CircularBufferDataProvider> datas = new HashMap<Integer, CircularBufferDataProvider>();
 	protected FigureCanvas canvas;
-	boolean selectedMode = false;
+	Trace nearestTrace;
 	
 	ArrayList<Trace> traces = new ArrayList<Trace>();
 	
@@ -180,7 +180,6 @@ public class CounterRealTimeAllView extends ScouterViewPart implements Refreshab
 		toolTip.setFont(new Font(null, "Arial", 10, SWT.BOLD));
 		toolTip.setBackgroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		canvas.addMouseListener(new MouseListener() {
-			Trace nearestTrace = null;
 
 			public void mouseUp(MouseEvent e) {
 				if (nearestTrace != null) {
@@ -188,7 +187,6 @@ public class CounterRealTimeAllView extends ScouterViewPart implements Refreshab
 					nearestTrace = null;
 				}
 				toolTip.hide();
-				selectedMode = false;
 			}
 			
 			public void mouseDown(MouseEvent e) {
@@ -217,7 +215,6 @@ public class CounterRealTimeAllView extends ScouterViewPart implements Refreshab
 					nearestTrace.setLineWidth(width + 2);
 					toolTip.setText(nearestTrace.getName() + "\nvalue : " +  FormatUtil.print(value, "#,###.##"));
 					toolTip.show(new Point(e.x, e.y));
-					selectedMode = true;
 				}
 			}
 			public void mouseDoubleClick(MouseEvent e) {}
@@ -345,7 +342,7 @@ public class CounterRealTimeAllView extends ScouterViewPart implements Refreshab
 				int width = PManager.getInstance().getInt(PreferenceConstants.P_CHART_LINE_WIDTH);
 				synchronized (traces) {
 					for (Trace t : traces) {
-						if (selectedMode == false && t.getLineWidth() != width) {
+						if (nearestTrace == null && t.getLineWidth() != width) {
 							t.setLineWidth(width);
 						}
 						int objHash = HashUtil.hash(t.getName());

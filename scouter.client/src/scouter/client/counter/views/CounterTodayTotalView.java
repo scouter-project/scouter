@@ -291,7 +291,7 @@ public class CounterTodayTotalView extends ScouterViewPart implements Refreshabl
 			counterDisplay = server.getCounterEngine().getCounterDisplayName(objType, counter);
 			counterUnit = server.getCounterEngine().getCounterUnit(objType, counter);
 		}
-		desc = "ⓢ"+svrName+" | (Today) [" + date.substring(0, 4) + "-" + date.substring(4, 6) + "-" + date.substring(6, 8) + "] Total " + counterDisplay+(!"".equals(counterUnit)?" ("+counterUnit+")":"");
+		desc = "ⓢ"+svrName+" | (Today Total) [" + date.substring(0, 4) + "-" + date.substring(4, 6) + "-" + date.substring(6, 8) + "]" + counterDisplay+(!"".equals(counterUnit)?" ("+counterUnit+")":"");
 		try {
 			setViewTab(objType, counter, serverId);
 		} catch (Exception e1) {

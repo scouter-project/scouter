@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
+import org.csstudio.swt.xygraph.dataprovider.ISample;
 import org.csstudio.swt.xygraph.dataprovider.Sample;
 import org.csstudio.swt.xygraph.figures.Trace;
 import org.csstudio.swt.xygraph.figures.Trace.PointStyle;
@@ -101,6 +102,7 @@ public class CounterTodayAllView extends ScouterViewPart implements Refreshable,
 
 	IWorkbenchWindow window;
 	IToolBarManager man;
+	Trace nearestTrace;
 	
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
@@ -187,7 +189,7 @@ public class CounterTodayAllView extends ScouterViewPart implements Refreshable,
 				int width = PManager.getInstance().getInt(PreferenceConstants.P_CHART_LINE_WIDTH);
 				synchronized (traces) {
 					for (Trace t : traces) {
-						if (selectedMode == false && t.getLineWidth() != width) {
+						if (nearestTrace == null && t.getLineWidth() != width) {
 							t.setLineWidth(width);
 						}
 						int objHash = HashUtil.hash(t.getName());
@@ -283,51 +285,40 @@ public class CounterTodayAllView extends ScouterViewPart implements Refreshable,
 		toolTip.setBackgroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		canvas.addMouseListener(new MouseListener() {
 			public void mouseUp(MouseEvent e) {
-				onDeselectObject();
+				if (nearestTrace != null) {
+					nearestTrace.setLineWidth(PManager.getInstance().getInt(PreferenceConstants.P_CHART_LINE_WIDTH));
+					nearestTrace = null;
+				}
 				toolTip.hide();
 			}
+			
 			public void mouseDown(MouseEvent e) {
 				double x = xyGraph.primaryXAxis.getPositionValue(e.x, false);
 				double y = xyGraph.primaryYAxis.getPositionValue(e.y, false);
 				if (x < 0 || y < 0) {
 					return;
 				}
-				Image image = new Image(e.display, 1, 10);
-				GC gc = new GC((FigureCanvas)e.widget);
-				gc.copyArea(image, e.x, e.y > 5 ? e.y - 5 : 0);
-				ImageData imageData = image.getImageData();
-				PaletteData palette = imageData.palette;
-				RGB white = new RGB(255, 255, 255);
-				int point = 5;
-				int offset = 0;
-				while (point >= 0 && point < 10) {
-					int pixelValue = imageData.getPixel(0, point);
-					RGB rgb = palette.getRGB(pixelValue);
-					if (white.equals(rgb) == false) {
-						int objHash = AgentColorManager.getInstance().getObjectHash(rgb);
-						if (objHash != 0) {
-							String objName = TextProxy.object.getText(objHash);
-							double time = xyGraph.primaryXAxis.getPositionValue(e.x, false);
-							double v = 0.0d;
-							for (Trace t : traces) {
-								if (t.getName().equals(objName)) {
-									v = ScouterUtil.getNearestValue(t.getDataProvider(), time);
-									String value = FormatUtil.print(v, "#,###.##");
-									toolTip.setText(objName + "\nvalue : " + value);
-									toolTip.show(new Point(e.x, e.y));
-									onSelectObject(objHash, objName, objType);
-									break;
-								}
-							}
-							break;
+				double minDistance = 30.0d;
+				double value = 0;
+				for (Trace t : traces) {
+					ISample s = ScouterUtil.getNearestPoint(t.getDataProvider(), x);
+					if (s != null) {
+						int x2 = xyGraph.primaryXAxis.getValuePosition(s.getXValue(), false);
+						int y2 = xyGraph.primaryYAxis.getValuePosition(s.getYValue(), false);
+						double distance = ScouterUtil.getPointDistance(e.x, e.y, x2, y2);
+						if (minDistance > distance) {
+							minDistance = distance;
+							nearestTrace = t;
+							value = s.getYValue();
 						}
 					}
-					offset = offset >= 0 ? offset + 1 : offset - 1;
-					offset *= -1;
-					point += offset; 
 				}
-				gc.dispose();
-				image.dispose();
+				if (nearestTrace != null) {
+					int width = PManager.getInstance().getInt(PreferenceConstants.P_CHART_LINE_WIDTH);
+					nearestTrace.setLineWidth(width + 2);
+					toolTip.setText(nearestTrace.getName() + "\nvalue : " +  FormatUtil.print(value, "#,###.##"));
+					toolTip.show(new Point(e.x, e.y));
+				}
 			}
 			public void mouseDoubleClick(MouseEvent e) {}
 		});
@@ -358,7 +349,7 @@ public class CounterTodayAllView extends ScouterViewPart implements Refreshable,
 			counterDisplay = server.getCounterEngine().getCounterDisplayName(objType, counter);
 			counterUnit = server.getCounterEngine().getCounterUnit(objType, counter);
 		}
-		desc = "ⓢ"+svrName+" | (Today) [" + date.substring(0, 4) + "-" + date.substring(4, 6) + "-" + date.substring(6, 8) + "] All " + counterDisplay+(!"".equals(counterUnit)?" ("+counterUnit+")":"");
+		desc = "ⓢ"+svrName+" | (Today All) [" + date.substring(0, 4) + "-" + date.substring(4, 6) + "-" + date.substring(6, 8) + "]" + counterDisplay+(!"".equals(counterUnit)?" ("+counterUnit+")":"");
 		try {
 			setViewTab(objType, counter, serverId);
 		} catch (Exception e1) {
@@ -412,38 +403,6 @@ public class CounterTodayAllView extends ScouterViewPart implements Refreshable,
 		ObjectSelectManager.getInstance().removeObjectCheckStateListener(this);
 	}
 
-	boolean selectedMode = false;
-	
-	public void onSelectObject(int objHash, final String objName, String objType) {
-		if (this.objType.equals(objType) == false) {
-			return;
-		}
-		ExUtil.exec(canvas, new Runnable() {
-			public void run() {
-				int width = PManager.getInstance().getInt(PreferenceConstants.P_CHART_LINE_WIDTH);
-				for (Trace t : traces) {
-					if (t.getName().equals(objName)) {
-						t.setLineWidth(width + 2);
-						selectedMode = true;
-						break;
-					}
-				}
-			}
-		});
-	}
-
-	public void onDeselectObject() {
-		ExUtil.exec(canvas, new Runnable() {
-			public void run() {
-				int width = PManager.getInstance().getInt(PreferenceConstants.P_CHART_LINE_WIDTH);
-				for (Trace t : traces) {
-					t.setLineWidth(width);
-				}
-				selectedMode = false;
-			}
-		});
-	}
-	
 	public void redraw() {
 		if (canvas != null && canvas.isDisposed() == false) {
 			canvas.redraw();
