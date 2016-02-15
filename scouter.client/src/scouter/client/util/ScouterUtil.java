@@ -41,12 +41,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
 import scouter.client.Images;
@@ -265,34 +260,34 @@ public class ScouterUtil {
 			}
 
 			public void mouseDown(MouseEvent e) {
-				Image image = new Image(e.display, 1, 10);
-				GC gc = new GC((FigureCanvas) e.widget);
-				gc.copyArea(image, e.x, e.y > 5 ? e.y - 5 : 0);
-				ImageData imageData = image.getImageData();
-				PaletteData palette = imageData.palette;
-				int point = 5;
-				int offset = 0;
-				while (point >= 0 && point < 10) {
-					int pixelValue = imageData.getPixel(0, point);
-					RGB rgb = palette.getRGB(pixelValue);
-					if (ColorUtil.getInstance().TOTAL_CHART_COLOR.getRGB().equals(rgb)) {
-						double time = xyGraph.primaryXAxis.getPositionValue(e.x, false);
-						Trace t = xyGraph.getPlotArea().getTraceList().get(0);
-						if (t == null) {
-							return;
-						}
-						double d = getNearestValue(t.getDataProvider(), time);
-						String value = FormatUtil.print(d, "#,###.##");
-						toolTip.setText("value : " + value);
-						toolTip.show(new Point(e.x, e.y));
-						break;
-					}
-					offset = offset >= 0 ? offset + 1 : offset - 1;
-					offset *= -1;
-					point += offset;
+				double x = xyGraph.primaryXAxis.getPositionValue(e.x, false);
+				double y = xyGraph.primaryYAxis.getPositionValue(e.y, false);
+				if (x < 0 || y < 0) {
+					return;
 				}
-				gc.dispose();
-				image.dispose();
+				double minDistance = 30.0d;
+				long time = 0;
+				double value = 0;
+				Trace t = xyGraph.getPlotArea().getTraceList().get(0);
+				if (t == null) {
+					return;
+				}
+				ISample s = getNearestPoint(t.getDataProvider(), x);
+				if (s != null) {
+					int x2 = xyGraph.primaryXAxis.getValuePosition(s.getXValue(), false);
+					int y2 = xyGraph.primaryYAxis.getValuePosition(s.getYValue(), false);
+					double distance = ScouterUtil.getPointDistance(e.x, e.y, x2, y2);
+					if (minDistance > distance) {
+						minDistance = distance;
+						time = (long) s.getXValue();
+						value = s.getYValue();
+					}
+				}
+				if (t != null) {
+					toolTip.setText("Time : " + DateUtil.format(time, "HH:mm:ss")
+							+ "\nValue : " +  FormatUtil.print(value, "#,###.##"));
+					toolTip.show(new Point(e.x, e.y));
+				}
 			}
 
 			public void mouseDoubleClick(MouseEvent e) {
