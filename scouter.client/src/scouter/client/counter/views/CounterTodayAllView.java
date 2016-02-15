@@ -299,6 +299,7 @@ public class CounterTodayAllView extends ScouterViewPart implements Refreshable,
 					return;
 				}
 				double minDistance = 30.0d;
+				long time = 0;
 				double value = 0;
 				for (Trace t : traces) {
 					ISample s = ScouterUtil.getNearestPoint(t.getDataProvider(), x);
@@ -309,6 +310,7 @@ public class CounterTodayAllView extends ScouterViewPart implements Refreshable,
 						if (minDistance > distance) {
 							minDistance = distance;
 							nearestTrace = t;
+							time = (long) s.getXValue();
 							value = s.getYValue();
 						}
 					}
@@ -316,7 +318,9 @@ public class CounterTodayAllView extends ScouterViewPart implements Refreshable,
 				if (nearestTrace != null) {
 					int width = PManager.getInstance().getInt(PreferenceConstants.P_CHART_LINE_WIDTH);
 					nearestTrace.setLineWidth(width + 2);
-					toolTip.setText(nearestTrace.getName() + "\nvalue : " +  FormatUtil.print(value, "#,###.##"));
+					toolTip.setText(nearestTrace.getName()
+							+ "\nTime : " + DateUtil.format(time, "HH:mm")
+							+ "\nValue : " +  FormatUtil.print(value, "#,###.##"));
 					toolTip.show(new Point(e.x, e.y));
 				}
 			}

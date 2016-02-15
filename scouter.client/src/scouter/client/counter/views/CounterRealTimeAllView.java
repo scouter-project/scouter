@@ -196,6 +196,7 @@ public class CounterRealTimeAllView extends ScouterViewPart implements Refreshab
 					return;
 				}
 				double minDistance = 30.0d;
+				long time = 0;
 				double value = 0;
 				for (Trace t : traces) {
 					ISample s = ScouterUtil.getNearestPoint(t.getDataProvider(), x);
@@ -206,6 +207,7 @@ public class CounterRealTimeAllView extends ScouterViewPart implements Refreshab
 						if (minDistance > distance) {
 							minDistance = distance;
 							nearestTrace = t;
+							time = (long) s.getXValue();
 							value = s.getYValue();
 						}
 					}
@@ -213,7 +215,9 @@ public class CounterRealTimeAllView extends ScouterViewPart implements Refreshab
 				if (nearestTrace != null) {
 					int width = PManager.getInstance().getInt(PreferenceConstants.P_CHART_LINE_WIDTH);
 					nearestTrace.setLineWidth(width + 2);
-					toolTip.setText(nearestTrace.getName() + "\nvalue : " +  FormatUtil.print(value, "#,###.##"));
+					toolTip.setText(nearestTrace.getName()
+							+ "\nTime : " + DateUtil.format(time, "HH:mm:ss")
+							+ "\nValue : " +  FormatUtil.print(value, "#,###.##"));
 					toolTip.show(new Point(e.x, e.y));
 				}
 			}
