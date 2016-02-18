@@ -519,7 +519,7 @@ public class ScouterUtil {
 	public static ISample getNearestPoint(IDataProvider provider, double time) {
 		int high = provider.getSize() - 1;
 		int low = 0;
-		while (true) {
+		while (high >= low) {
 			int mid = (high + low) / 2;
 			ISample s = provider.getSample(mid);
 			double x = s.getXValue();
@@ -553,6 +553,7 @@ public class ScouterUtil {
 				}
 			}
 		}
+		return null;
 	}
 
 	public static String humanReadableByteCount(long bytes, boolean si) {
