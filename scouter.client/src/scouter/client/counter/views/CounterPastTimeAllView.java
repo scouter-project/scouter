@@ -454,7 +454,7 @@ public class CounterPastTimeAllView extends ScouterViewPart implements CalendarD
 			return trace;
 
 		CircularBufferDataProvider traceDataProvider = new CircularBufferDataProvider(true);
-		traceDataProvider.setBufferSize(7200);
+		traceDataProvider.setBufferSize((int) ((endTime - startTime) / (DateUtil.MILLIS_PER_SECOND * 2)) + 1);
 		traceDataProvider.setCurrentXDataArray(new double[] {});
 		traceDataProvider.setCurrentYDataArray(new double[] {});
 		
