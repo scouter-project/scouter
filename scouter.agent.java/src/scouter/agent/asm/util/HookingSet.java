@@ -165,7 +165,7 @@ public class HookingSet {
 		if(c ==null)
 			return classSet;
 		for (int i = 0; i < c.length; i++) {
-			classSet.add(c[i]);
+			classSet.add(c[i].replace('.', '/').trim());
 		}
 		return classSet;
 	}
