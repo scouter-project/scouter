@@ -101,7 +101,7 @@ public class WrContext {
 
 	/**
 	 * add xlog profile
-	 * profile diplay like --> msg #value elapsed
+	 * profile display like --> msg #value elapsed
 	 * @param msg message
 	 * @param value any value to display on a profile.
 	 * @param elapsed any value to display on a profile.

@@ -194,7 +194,7 @@ public class CounterRealTimeTotalView extends ScouterViewPart implements Refresh
 			counterDisplay = server.getCounterEngine().getCounterDisplayName(objType, counter);
 			counterUnit = server.getCounterEngine().getCounterUnit(objType, counter);
 		}
-		desc = "ⓢ"+svrName+" | (Realtime) Total " + counterDisplay + (!"".equals(counterUnit)?" ("+counterUnit+")":"");
+		desc = "ⓢ"+svrName+" | (Current Total) " + counterDisplay + (!"".equals(counterUnit)?" ("+counterUnit+")":"");
 		try {
 			setViewTab(objType, counter, serverId);
 		} catch (Exception e1) {

@@ -39,19 +39,19 @@ public class OpenXLogLoadTimeAction extends Action implements CalendarDialog.ILo
 	
 	private long stime, etime;
 	
-	public OpenXLogLoadTimeAction(IWorkbenchWindow window, String label, String objType, Image image, int serverId, long stime, long etime) {
+	public OpenXLogLoadTimeAction(IWorkbenchWindow window, String objType, Image image, int serverId, long stime, long etime) {
 		this.window = window;
 		this.objType = objType;
 		this.serverId = serverId;
 		this.stime = stime;
 		this.etime = etime;
-		setText(label);
+		setText("XLog");
 		setId(ID);
 		setImageDescriptor(ImageUtil.getImageDescriptor(image));
 	}
 	
 	public OpenXLogLoadTimeAction(IWorkbenchWindow window, String label, String objType, Image image, int serverId) {
-		this(window, label, objType, image, serverId, 0, 0);
+		this(window, objType, image, serverId, 0, 0);
 	}
 
 	public void run() {

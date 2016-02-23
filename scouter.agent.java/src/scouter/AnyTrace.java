@@ -18,13 +18,11 @@
 package scouter;
 
 import scouter.agent.netio.data.DataProxy;
-import scouter.agent.trace.AlertProxy;
 import scouter.agent.trace.TraceApiCall;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
 import scouter.agent.trace.TraceMain;
 import scouter.lang.pack.XLogTypes;
-import scouter.util.HashUtil;
 import scouter.util.KeyGen;
 
 public class AnyTrace {
@@ -42,7 +40,7 @@ public class AnyTrace {
 	}
 
 	public static void serviceError(String emsg) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null && ctx.error != 0) { // already started
 			ctx.error = DataProxy.sendError(emsg);
 		}
@@ -70,7 +68,7 @@ public class AnyTrace {
 
 	public static void setApicallName(String name) {
 		try {
-			TraceContext ctx = TraceContextManager.getLocalContext();
+			TraceContext ctx = TraceContextManager.getContext();
 			if (ctx != null) {
 				if (ctx.apicall_name != null) { // already started subcall only
 					ctx.apicall_name = name;
@@ -86,7 +84,7 @@ public class AnyTrace {
 
 	public static void desc(String desc) {
 		try {
-			TraceContext ctx = TraceContextManager.getLocalContext();
+			TraceContext ctx = TraceContextManager.getContext();
 			if (ctx != null) {
 				ctx.desc = desc;
 			}
@@ -96,7 +94,7 @@ public class AnyTrace {
 
 	public static void login(String login) {
 		try {
-			TraceContext ctx = TraceContextManager.getLocalContext();
+			TraceContext ctx = TraceContextManager.getContext();
 			if (ctx != null) {
 				ctx.login = login;
 			}

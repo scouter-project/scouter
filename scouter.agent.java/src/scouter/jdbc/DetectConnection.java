@@ -46,7 +46,7 @@ public class DetectConnection implements java.sql.Connection {
         int serviceHash = 0;
         long txid = 0;
 
-        TraceContext ctx = TraceContextManager.getLocalContext();
+        TraceContext ctx = TraceContextManager.getContext();
         if (ctx != null) {
             serviceHash = ctx.serviceHash;
             txid = ctx.txid;
@@ -121,7 +121,7 @@ public class DetectConnection implements java.sql.Connection {
         this.inner.close();
         long etime = System.currentTimeMillis();
 
-        TraceContext ctx = TraceContextManager.getLocalContext();
+        TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null)
             return;
 
@@ -200,7 +200,7 @@ public class DetectConnection implements java.sql.Connection {
     final public void setAutoCommit(boolean a0) throws java.sql.SQLException {
         this.inner.setAutoCommit(a0);
 
-        TraceContext ctx = TraceContextManager.getLocalContext();
+        TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null)
             return;
 
@@ -223,7 +223,7 @@ public class DetectConnection implements java.sql.Connection {
         this.inner.commit();
         long etime = System.currentTimeMillis();
 
-        TraceContext ctx = TraceContextManager.getLocalContext();
+        TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null)
             return;
 

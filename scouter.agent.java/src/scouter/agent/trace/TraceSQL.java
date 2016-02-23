@@ -61,42 +61,42 @@ public class TraceSQL {
     static DBURL unknown = new DBURL(0, null);
 
     public static void set(int idx, boolean p) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
 			ctx.sql.put(idx, Boolean.toString(p));
 		}
 	}
 
 	public static void set(int idx, int p) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
 			ctx.sql.put(idx, Integer.toString(p));
 		}
 	}
 
 	public static void set(int idx, float p) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
 			ctx.sql.put(idx, Float.toString(p));
 		}
 	}
 
 	public static void set(int idx, long p) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
 			ctx.sql.put(idx, Long.toString(p));
 		}
 	}
 
 	public static void set(int idx, double p) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
 			ctx.sql.put(idx, Double.toString(p));
 		}
 	}
 
 	public static void set(int idx, String p) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
 			if (p == null) {
 				ctx.sql.put(idx, "null");
@@ -108,7 +108,7 @@ public class TraceSQL {
 	}
 
 	public static void set(int idx, Object p) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
 			if (p == null) {
 				ctx.sql.put(idx, "null");
@@ -120,14 +120,14 @@ public class TraceSQL {
 	}
 
 	public static void clear(Object o) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
 			ctx.sql.clear();
 		}
 	}
 
 	public static Object start(Object o) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx == null) {
 			return null;
 		}
@@ -151,7 +151,7 @@ public class TraceSQL {
 	}
 
 	public static Object start(Object o, String sql, byte methodType) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx == null) {
 			if (conf._log_background_sql) {
 				Logger.println("background: " + sql);
@@ -290,14 +290,14 @@ public class TraceSQL {
 		tCtx.profile.pop(step);
 	}
 	public static void prepare(Object o, String sql) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
 			ctx.sql.clear();
 			ctx.sql.setSql(sql);
 		}
 	}
 	public static boolean rsnext(boolean b) {
-		TraceContext c = TraceContextManager.getLocalContext();
+		TraceContext c = TraceContextManager.getContext();
 		if (c != null) {
 			if (b) {
 				if (c.rs_start == 0) {
@@ -334,7 +334,7 @@ public class TraceSQL {
 	}
 
 	public static void rsclose(Object rs) {
-		TraceContext c = TraceContextManager.getLocalContext();
+		TraceContext c = TraceContextManager.getContext();
 		if (c != null) {
 			if (c.rs_start != 0) {
 				fetch(c);
@@ -402,7 +402,7 @@ public class TraceSQL {
 	}
 
 	public static Object start(Object o, SqlParameter args, byte methodType) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx == null) {
 			if (conf._log_background_sql && args != null) {
 				Logger.println("background: " + args.getSql());
@@ -481,14 +481,14 @@ public class TraceSQL {
 
 	public static void driverConnect(String url, Throwable thr) {
 		AlertProxy.sendAlert(AlertLevel.ERROR, "CONNECT", url + " " + thr);
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
 			ServiceSummary.getInstance().process(connectionOpenFailException, 0, ctx.serviceHash, ctx.txid, 0, 0);
 		}
 	}
 
 	public static void userTxOpen() {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx == null)
 			return;
 		ctx.userTransaction++;
@@ -498,7 +498,7 @@ public class TraceSQL {
 	}
 
 	public static void userTxClose(String method) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx == null)
 			return;
 		if (ctx.userTransaction > 0) {
@@ -510,7 +510,7 @@ public class TraceSQL {
 	}
 
 	public static Object dbcOpenStart(int hash, String msg, Object pool) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx == null)
 			return null;
 		if (conf.profile_connection_open_enabled == false)
@@ -647,7 +647,7 @@ public class TraceSQL {
 	public static void sqlMap(String methodName, String sqlname) {
 		if (Configure.getInstance().profile_sqlmap_name_enabled == false)
 			return;
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx == null)
 			return;
 		HashedMessageStep p = new HashedMessageStep();
@@ -688,7 +688,7 @@ public class TraceSQL {
      */
     public static int incUpdateCount(int cnt) {
         Logger.trace("stmt.getUpdateCount()=" + cnt);
-        TraceContext ctx = TraceContextManager.getLocalContext();
+        TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null) {
             return cnt;
         }

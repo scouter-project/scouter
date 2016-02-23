@@ -106,7 +106,7 @@ public class CounterPastCountView extends ScouterViewPart {
 		final IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		mgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager mgr) {
-				mgr.add(new OpenDailyServiceCountAction(win, "Load", objType, counter, Images.bar, serverId, date));
+				mgr.add(new OpenDailyServiceCountAction(win, objType, counter, Images.bar, serverId, date));
 			}
 		});
 		Menu menu = mgr.createContextMenu(canvas); 

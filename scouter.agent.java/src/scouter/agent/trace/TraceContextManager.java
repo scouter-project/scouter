@@ -17,11 +17,11 @@
 
 package scouter.agent.trace;
 
-import java.util.Enumeration;
-
 import scouter.agent.Configure;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyMap;
+
+import java.util.Enumeration;
 
 public class TraceContextManager {
 
@@ -66,7 +66,7 @@ public class TraceContextManager {
 		return entry.get(key);
 	}
 
-	public static TraceContext getLocalContext() {
+	public static TraceContext getContext() {
 		return  local.get();
 	}
 

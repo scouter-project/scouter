@@ -264,20 +264,7 @@ public class ObjectDailyListView extends ViewPart {
 						objTitle.add(counterMenuManager);
 					}
 					
-					objTitle.add(new Separator());
-					
-					Action act = actions.get(objType + ":" + CounterConstants.TRANX_REALTIME);
-					if(act != null){
-						act.setText(MenuStr.PASTTIME_XLOG);
-						act.setImageDescriptor(ImageUtil.getImageDescriptor(Images.transrealtime));
-						objTitle.add(act);
-					}
-					act = actions.get(objType + ":" + CounterConstants.TODAY_SERVICE_COUNT);
-					if(act != null){
-						act.setText(MenuStr.LOAD_SERVICE_COUNT);
-						act.setImageDescriptor(ImageUtil.getImageDescriptor(Images.TYPE_SERVICE_COUNT));
-						objTitle.add(act);
-					}
+					MenuUtil.addPastObjTypeSpecialMenu(win, objTitle, serverId, objType, counterEngine, curdate);
 				}
             }
 		}

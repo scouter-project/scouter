@@ -64,7 +64,7 @@ public class TraceMain {
 
     public static Object startHttpService(Object req, Object res) {
         try {
-            TraceContext ctx = TraceContextManager.getLocalContext();
+            TraceContext ctx = TraceContextManager.getContext();
             if (ctx != null) {
                 return null;
             }
@@ -77,7 +77,7 @@ public class TraceMain {
 
     public static Object startHttpFilter(Object req, Object res) {
         try {
-            TraceContext ctx = TraceContextManager.getLocalContext();
+            TraceContext ctx = TraceContextManager.getContext();
             if (ctx != null) {
                 return null;
             }
@@ -206,7 +206,7 @@ public class TraceMain {
                 if (thr == null)
                     return;
                 try {
-                    TraceContext ctx = TraceContextManager.getLocalContext();
+                    TraceContext ctx = TraceContextManager.getContext();
                     if (ctx != null && ctx.error == 0) {
                         Configure conf = Configure.getInstance();
                         String emsg = thr.toString();
@@ -350,7 +350,7 @@ public class TraceMain {
     public static Object startService(String name, String className, String methodName, String methodDesc, Object _this,
                                       Object[] arg, byte xType) {
         try {
-            TraceContext ctx = TraceContextManager.getLocalContext();
+            TraceContext ctx = TraceContextManager.getContext();
             if (ctx != null) {
                 return null;
             }
@@ -484,7 +484,7 @@ public class TraceMain {
     }
 
     public static void capArgs(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
-        TraceContext ctx = TraceContextManager.getLocalContext();
+        TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null)
             return;
         // MessageStep step = new MessageStep();
@@ -499,7 +499,7 @@ public class TraceMain {
     }
 
     public static void jspServlet(Object[] arg) {
-        TraceContext ctx = TraceContextManager.getLocalContext();
+        TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null || arg.length < 3)
             return;
         HashedMessageStep step = new HashedMessageStep();
@@ -556,7 +556,7 @@ public class TraceMain {
     }
 
     public static void capThis(String className, String methodDesc, Object this0) {
-        TraceContext ctx = TraceContextManager.getLocalContext();
+        TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null)
             return;
         // MessageStep step = new MessageStep();
@@ -571,7 +571,7 @@ public class TraceMain {
     }
 
     public static void capReturn(String className, String methodName, String methodDesc, Object this1, Object rtn) {
-        TraceContext ctx = TraceContextManager.getLocalContext();
+        TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null)
             return;
         PluginCaptureTrace.capReturn(ctx, new HookReturn(className, methodName, methodDesc, this1, rtn));
@@ -580,7 +580,7 @@ public class TraceMain {
     public static Object startMethod(int hash, String classMethod) {
         if (conf.profile_method_enabled == false)
             return null;
-        TraceContext ctx = TraceContextManager.getLocalContext();
+        TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null) {
             if (conf._trace_auto_service_enabled) {
                 Object localContext = startService(classMethod, null, null, null, null, null, XLogTypes.APP_SERVICE);
@@ -630,7 +630,7 @@ public class TraceMain {
     }
 
     public static void setServiceName(String name) {
-        TraceContext ctx = TraceContextManager.getLocalContext();
+        TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null || name == null)
             return;
         ctx.serviceName = name;
@@ -638,7 +638,7 @@ public class TraceMain {
     }
 
     public static void setStatus(int httpStatus) {
-        TraceContext ctx = TraceContextManager.getLocalContext();
+        TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null)
             return;
         ctx.status = httpStatus;
@@ -669,7 +669,7 @@ public class TraceMain {
     }
 
     public static void addMessage(String msg) {
-        TraceContext ctx = TraceContextManager.getLocalContext();
+        TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null)
             return;
         MessageStep p = new MessageStep();
