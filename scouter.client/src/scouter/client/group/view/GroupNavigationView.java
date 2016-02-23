@@ -204,26 +204,18 @@ public class GroupNavigationView extends ViewPart implements RefreshThread.Refre
 	                        		}
 	                        	}
                         		manager.add(new Separator());
-                         		if (isActionEnable(objType, CounterConstants.ACTIVE_EQ)) {
+                        		if (isChildOf(objType, CounterConstants.FAMILY_JAVAEE)) {
                         			manager.add(new OpenEQGroupViewAction(win, grpObj.getName()));
-                        		}
-                        		if (isActionEnable(objType, CounterConstants.TOTAL_ACTIVE_SPEED)) {
                         			manager.add(new OpenActiveSpeedGroupViewAction(win, MenuStr.ACTIVE_SPEED_REAL, grpObj));
-                        		}
-                        		MenuManager xLogMenu = new MenuManager(MenuStr.XLOG, ImageUtil.getImageDescriptor(Images.transrealtime), MenuStr.XLOG_ID);
-                        		manager.add(xLogMenu);
-                        		if (isActionEnable(objType, CounterConstants.TRANX_REALTIME)) {
-                        			xLogMenu.add(new OpenRealTimeTranXGroupViewAction(win, MenuStr.REALTIME_XLOG, grpObj));
-                        			xLogMenu.add(new OpenPastTimeTranXGroupViewAction(win, MenuStr.PASTTIME_XLOG, grpObj));
-                        		}
-                        		MenuManager scMenu = new MenuManager(MenuStr.HOURLY_CHART, ImageUtil.getImageDescriptor(Images.bar), MenuStr.HOURLY_CHART_ID);
-                        		manager.add(scMenu);
-                        		if (isActionEnable(objType, CounterConstants.TODAY_SERVICE_COUNT)) {
-                        			scMenu.add(new OpenTodayGroupCountViewAction(win, MenuStr.TODAY_SERVICE_COUNT, CounterConstants.WAS_SERVICE_COUNT, grpObj));
-                        			scMenu.add(new OpenPastDateGroupCountViewAction(win, MenuStr.LOAD_SERVICE_COUNT, CounterConstants.WAS_SERVICE_COUNT, grpObj));
-                        		}
-                        		if (isActionEnable(objType, CounterConstants.SERVICE_GROUP)) {
-                        			manager.add(new OpenServiceGroupGroupAction(win, grpName));
+                        			MenuManager xLogMenu = new MenuManager(MenuStr.XLOG, ImageUtil.getImageDescriptor(Images.transrealtime), MenuStr.XLOG_ID);
+                        			manager.add(xLogMenu);
+                    				xLogMenu.add(new OpenRealTimeTranXGroupViewAction(win, MenuStr.REALTIME_XLOG, grpObj));
+                    				xLogMenu.add(new OpenPastTimeTranXGroupViewAction(win, MenuStr.PASTTIME_XLOG, grpObj));
+                    				MenuManager scMenu = new MenuManager(MenuStr.HOURLY_CHART, ImageUtil.getImageDescriptor(Images.bar), MenuStr.HOURLY_CHART_ID);
+                    				manager.add(scMenu);
+                					scMenu.add(new OpenPastDateGroupCountViewAction(win, MenuStr.LOAD_SERVICE_COUNT, CounterConstants.WAS_SERVICE_COUNT, grpObj));
+                					scMenu.add(new OpenTodayGroupCountViewAction(win, MenuStr.TODAY_SERVICE_COUNT, CounterConstants.WAS_SERVICE_COUNT, grpObj));
+                					manager.add(new OpenServiceGroupGroupAction(win, grpName));
                         		}
                         	}
                         } else if (selObject instanceof AgentObject) {
@@ -328,6 +320,20 @@ public class GroupNavigationView extends ViewPart implements RefreshThread.Refre
 			Server server = ServerManager.getInstance().getServer(serverId);
 			CounterEngine engine = server.getCounterEngine();
 			if (engine.isTrueAction(objType, attrName)) {
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
+	
+	private boolean isChildOf(String objType, String family) {
+		boolean result = false;
+		Set<Integer> serverList = ServerManager.getInstance().getOpenServerList();
+		for (int serverId : serverList) {
+			Server server = ServerManager.getInstance().getServer(serverId);
+			CounterEngine engine = server.getCounterEngine();
+			if (engine.isChildOf(objType, family)) {
 				result = true;
 				break;
 			}

@@ -36,11 +36,11 @@ public class OpenActiveSpeedAction extends Action {
 	private String objType;
 	private int serverId;
 
-	public OpenActiveSpeedAction(IWorkbenchWindow window, String label, String objType, Image image, int serverId) {
+	public OpenActiveSpeedAction(IWorkbenchWindow window, String objType, Image image, int serverId) {
 		this.window = window;
 		this.objType = objType;
 		this.serverId = serverId;
-		setText(label);
+		setText("Active Speed");
 		setId(ID);
 		setImageDescriptor(ImageUtil.getImageDescriptor(image));
 	}

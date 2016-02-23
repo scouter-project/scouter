@@ -621,6 +621,7 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 			MenuManager objTitle = new MenuManager(displayName, objImage, "scouter.menu.id."+displayName);
 			mgr.add(objTitle);
 			addObjectTypeMenu(objTitle, counterEngine, actionMap, serverId, objType);
+			MenuUtil.addObjTypeSpecialMenu(win, objTitle, serverId, objType, counterEngine);
 		}
 	}
 
@@ -633,52 +634,6 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 			if (realtimeAllAct != null) {
 				objTitle.add(realtimeAllAct);
 			}
-		}
-		
-		objTitle.add(new Separator());
-		
-		Action act = actionMap.get(objType + ":" + CounterConstants.ACTIVE_EQ);
-		if(act != null){
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.ACTIVE_THREAD_LIST);
-		if(act != null){
-			act.setText(MenuStr.ACTIVE_SERVICE_LIST);
-			act.setImageDescriptor(ImageUtil.getImageDescriptor(Images.thread));
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.TOTAL_ACTIVE_SPEED);
-		if(act != null){
-			act.setText(MenuStr.ACTIVE_SPEED_REAL);
-			act.setImageDescriptor(ImageUtil.getImageDescriptor(Images.TYPE_ACTSPEED));
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.TRANX_REALTIME);
-		if(act != null){
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.TODAY_SERVICE_COUNT);
-		if(act != null){
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.SERVICE_GROUP);
-		if(act != null){
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.UNIQUE_VISITOR);
-		if(act != null){
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.SERVICE_SUMMARY);
-		if(act != null){
-			objTitle.add(act);
 		}
 	}
 

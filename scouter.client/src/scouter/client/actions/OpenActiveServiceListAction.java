@@ -36,10 +36,10 @@ public class OpenActiveServiceListAction extends Action {
 	private String objType;
 	private int serverId;
 
-	public OpenActiveServiceListAction(IWorkbenchWindow window, String label, String objType, Image image, int serverId) {
+	public OpenActiveServiceListAction(IWorkbenchWindow window, String objType, Image image, int serverId) {
 		this.window = window;
 		this.serverId = serverId;
-		setText(label);
+		setText("Active Service List");
 		setId(ID);
 		setImageDescriptor(ImageUtil.getImageDescriptor(image));
 		this.objType = objType;
