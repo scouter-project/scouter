@@ -69,6 +69,7 @@ import scouter.client.counter.actions.OpenPastLongDateTotalAction;
 import scouter.client.counter.actions.OpenPastTimeAllAction;
 import scouter.client.counter.actions.OpenPastTimeTotalAction;
 import scouter.client.counter.actions.OpenPastTimeViewAction;
+import scouter.client.counter.actions.OpenRTPairAllAction;
 import scouter.client.counter.actions.OpenRealTimeAllAction;
 import scouter.client.counter.actions.OpenRealTimeMultiAction;
 import scouter.client.counter.actions.OpenRealTimeStackAction;
@@ -489,6 +490,7 @@ public class MenuUtil implements IMenuCreator{
 	public static void addObjTypeSpecialMenu(IWorkbenchWindow win, IMenuManager mgr, int serverId, String objType, CounterEngine counterEngine) {
 		if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_JAVAEE)) {
 			mgr.add(new Separator());
+			mgr.add(new OpenRTPairAllAction(win, "Heap Memory", serverId, objType, CounterConstants.JAVA_HEAP_TOT_USAGE));
 			mgr.add(new OpenEQViewAction(win, serverId, objType));
 			mgr.add(new OpenActiveServiceListAction(win, objType, Images.thread, serverId));
 			mgr.add(new OpenActiveSpeedAction(win,objType, Images.TYPE_ACTSPEED, serverId));

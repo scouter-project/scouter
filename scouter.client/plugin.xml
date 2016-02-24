@@ -942,6 +942,22 @@
             name="Visitors"
             restorable="false">
       </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterRTAllPairChart"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterRTAllPairChart"
+            name="RealtimePairChart"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterPTAllPairChart"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterPTAllPairChart"
+            name="PasttimePairChart"
+            restorable="false">
+      </view>
   </extension>
  <extension
          point="org.eclipse.ui.commands">
