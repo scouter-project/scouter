@@ -60,8 +60,8 @@ public class ClientTCP{
 			//*************//
 			if (server.isConnected() == false) {
 				System.out.println("Success to connect " + server.getIp() + ":" + server.getPort());
-				server.setConnected(true);
 			}
+			server.setConnected(true);
 		} catch (Throwable t) {
 			System.out.println(t.getMessage());
 			close();
