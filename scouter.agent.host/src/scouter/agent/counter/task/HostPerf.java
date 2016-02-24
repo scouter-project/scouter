@@ -16,6 +16,7 @@ import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
+import scouter.agent.counter.meter.MeterResource;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.AlertLevel;
 import scouter.lang.TimeTypeEnum;
@@ -31,7 +32,11 @@ public class HostPerf {
 	static int SLEEP_TIME = 2000;
 	static Sigar sigarImpl = new Sigar();
 	static SigarProxy sigar = SigarProxyCache.newInstance(sigarImpl, SLEEP_TIME);
-
+	
+	MeterResource cpuMeter = new MeterResource();
+	MeterResource sysCpuMeter = new MeterResource();
+	MeterResource userCpuMeter = new MeterResource();
+	
 	@Counter
 	public void process(CounterBasket pw) {
 		try {
@@ -48,10 +53,18 @@ public class HostPerf {
 
 		CpuPerc cpuPerc = sigar.getCpuPerc();
 		float cpu = (float) ((1.0D - cpuPerc.getIdle()) * 100);
-		alertCpu(cpu);
+		cpuMeter.add(cpu);
 		float sysCpu = (float) cpuPerc.getSys() * 100;
+		sysCpuMeter.add(sysCpu);
 		float userCpu = (float) cpuPerc.getUser() * 100;
+		userCpuMeter.add(userCpu);
+		
+		cpu = (float) cpuMeter.getAvg(10);
+		sysCpu = (float) sysCpuMeter.getAvg(10);
+		userCpu = (float) userCpuMeter.getAvg(10);
 
+		alertCpu(cpu);
+		
 		Mem m = sigar.getMem();
 		alertMem(m);
 
