@@ -109,8 +109,10 @@ public class AgentTransformer implements ClassFileTransformer {
                     AsyncRunner.getInstance().add(loader, className, classfileBuffer);
                     return null;
                 }
-                if (loader == null) {
-                    return null;
+                if (loader == null ) {
+                    if(conf._hook_boot_prefix==null || conf._hook_boot_prefix.length()==0 || false == className.startsWith(conf._hook_boot_prefix)){
+                        return null;
+                    }
                 }
             }
             if (className.startsWith("scouter/")) {
