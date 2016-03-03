@@ -56,7 +56,7 @@ import scouter.client.util.ColorUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
-import scouter.client.views.ServiceGroupCommonView.StackValue;
+import scouter.client.views.AbstractServiceGroupTPSView.StackValue;
 import scouter.lang.value.MapValue;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;

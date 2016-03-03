@@ -41,7 +41,8 @@ import scouter.client.Images;
 import scouter.client.actions.OpenActiveServiceListAction;
 import scouter.client.actions.OpenActiveSpeedAction;
 import scouter.client.actions.OpenEQViewAction;
-import scouter.client.actions.OpenServiceGroupAction;
+import scouter.client.actions.OpenServiceGroupElapsedAction;
+import scouter.client.actions.OpenServiceGroupTPSAction;
 import scouter.client.actions.SetColorAction;
 import scouter.client.configuration.actions.DefineObjectTypeAction;
 import scouter.client.configuration.actions.OpenAgentConfigureAction;
@@ -496,7 +497,10 @@ public class MenuUtil implements IMenuCreator{
 			mgr.add(new OpenActiveSpeedAction(win,objType, Images.TYPE_ACTSPEED, serverId));
 			mgr.add(new OpenXLogRealTimeAction(win, MenuStr.XLOG, objType, Images.star, serverId));
 			mgr.add(new OpenTodayServiceCountAction(win, MenuStr.SERVICE_COUNT, objType, CounterConstants.WAS_SERVICE_COUNT, Images.bar, serverId));
-			mgr.add(new OpenServiceGroupAction(win, serverId, objType));
+			MenuManager serviceGroupMgr = new MenuManager("Serivce Group", ImageUtil.getImageDescriptor(Images.sum), "scouter.menu.id.javee.servicegroup");
+			mgr.add(serviceGroupMgr);
+			serviceGroupMgr.add(new OpenServiceGroupTPSAction(win, serverId, objType));
+			serviceGroupMgr.add(new OpenServiceGroupElapsedAction(win, serverId, objType));
 			mgr.add(new OpenUniqueTotalVisitorAction(win, serverId, objType));
 			mgr.add(new OpenTypeSummaryAction(win, serverId, objType));
 		}
