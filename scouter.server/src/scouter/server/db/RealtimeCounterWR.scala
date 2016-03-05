@@ -43,7 +43,6 @@ object RealtimeCounterWR {
                 }
                 wdb.activeTime = System.currentTimeMillis();
                 wdb.counterDbHeader.intern(m.data.keySet());
-                PlugInManager.counter(m);
                 val tagbytes = RealtimeCounterDBHelper.getTagBytes(wdb.counterDbHeader.getTagStrInt(), m.data)
                 val posTags = wdb.counterData.write(tagbytes);
                 wdb.counterIndex.write(HashUtil.hash(m.objName), m.time, posTags);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="Common" default="default">
+<project name="Scouter Common" default="default">
 		
 	<property name="class-common-dir" value="./out/bin/common"/>
 	<property name="jar-file" value="./out/jar/scouter.common.jar"/>

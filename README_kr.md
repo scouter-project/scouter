@@ -30,6 +30,7 @@ APM은 Application performance montoring 또는 application performance manageme
 ## Documents
  - [Document Home](./scouter.document/index_kr.md)
  - [Quick Start(Scouter Demo 설치)](./scouter.document/main/Quick-Start_kr.md)
+ - [Live Demo(제공되는 Demo 시스템 바로 접속해 보기)](./scouter.document/main/Live-Demo_kr.md)
  - [Client 화면 설명](./scouter.document/client/How-To-Use-Client_kr.md)
 
 ## Download
@@ -62,11 +63,14 @@ APM은 Application performance montoring 또는 application performance manageme
   - **SWT & GEF4** : Charts and Diagrams
 <br>
 
+## Facebook
+ - [Scouter APM 사용자 모임 - Facebook 그룹](https://www.facebook.com/groups/scouterapm/)
+
+## Scouter에 기여하기
+ - TBD
+
 ## Q&A
  - [Google Groups](https://groups.google.com/forum/#!forum/scouter-project)
-
-## Facebook
- - [Facebook Scouter user group](https://www.facebook.com/groups/1525329794448529/)
 
 ## License
 Licensed under the Apache License, Version 2.0

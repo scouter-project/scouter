@@ -59,7 +59,8 @@ import scouter.client.Images;
 import scouter.client.actions.OpenAddGroupAction;
 import scouter.client.actions.OpenEQGroupViewAction;
 import scouter.client.actions.OpenManageGroupAction;
-import scouter.client.actions.OpenServiceGroupGroupAction;
+import scouter.client.actions.OpenServiceGroupElapsedGroupAction;
+import scouter.client.actions.OpenServiceGroupTPSGroupAction;
 import scouter.client.constants.MenuStr;
 import scouter.client.context.actions.OpenCxtmenuAssginGroupAction;
 import scouter.client.counter.actions.OpenActiveSpeedGroupViewAction;
@@ -215,7 +216,10 @@ public class GroupNavigationView extends ViewPart implements RefreshThread.Refre
                     				manager.add(scMenu);
                 					scMenu.add(new OpenPastDateGroupCountViewAction(win, MenuStr.LOAD_SERVICE_COUNT, CounterConstants.WAS_SERVICE_COUNT, grpObj));
                 					scMenu.add(new OpenTodayGroupCountViewAction(win, MenuStr.TODAY_SERVICE_COUNT, CounterConstants.WAS_SERVICE_COUNT, grpObj));
-                					manager.add(new OpenServiceGroupGroupAction(win, grpName));
+                					MenuManager serviceGroupMgr = new MenuManager("Serivce Group", ImageUtil.getImageDescriptor(Images.sum), "scouter.menu.id.group.javee.servicegroup");
+                					manager.add(serviceGroupMgr);
+                					serviceGroupMgr.add(new OpenServiceGroupTPSGroupAction(win, grpName));
+                					serviceGroupMgr.add(new OpenServiceGroupElapsedGroupAction(win, grpName));
                         		}
                         	}
                         } else if (selObject instanceof AgentObject) {
