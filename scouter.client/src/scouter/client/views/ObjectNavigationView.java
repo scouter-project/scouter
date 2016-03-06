@@ -116,7 +116,6 @@ import scouter.lang.counters.CounterConstants;
 import scouter.lang.counters.CounterEngine;
 import scouter.lang.value.Value;
 import scouter.util.CastUtil;
-import scouter.util.CompareUtil;
 import scouter.util.FormatUtil;
 import scouter.util.HashUtil;
 
@@ -146,9 +145,6 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 	IMenuManager collectorMenuManager;
 	IMenuManager hostMenuManager;
 	IMenuManager objectMenuManager;
-	HierarchyObject lastSelectedCollector;
-	HierarchyObject lastSelectedHost;
-	HierarchyObject lastSelectedObject;
 	
 	public void refresh() {
 		if (mode == PresentMode.HIERACHY_MODE) {
@@ -270,70 +266,6 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 				TreeItem item = objTreeViewer.getTree().getItem(point);
 				if (item != null) {
 					selectedItem = true;
-					ISelection selection = objTreeViewer.getSelection();
-					if (selection instanceof IStructuredSelection) {
-			            IStructuredSelection sel = (IStructuredSelection)selection;
-			            Object[] elements = sel.toArray();
-			            if (elements == null || elements.length < 1) {
-			            	return;
-			            }
-			            Object selObject = elements[elements.length - 1];
-			            if (selObject instanceof ServerObject) {
-			            	if (!CompareUtil.equals(selObject, lastSelectedCollector)) {
-			            		// Update Collector TopMenu
-			            		lastSelectedCollector = fillTopMenu((HierarchyObject) selObject, collectorMenuManager);
-			            		resetTopMenu(hostMenuManager, "Choose Host in ObjectView");
-			            		lastSelectedHost = null;
-			            		resetTopMenu(objectMenuManager, "Choose Object in ObjectView");
-			            		lastSelectedObject = null;
-			            		topMenuManager.update(true);
-			            	}
-			            } else if (selObject instanceof AgentObject) {
-			            	AgentObject agent = (AgentObject) selObject;
-			            	int serverId = agent.getServerId();
-			            	Server server = ServerManager.getInstance().getServer(serverId);
-			            	ServerObject serverObject  = root.get(server.getName());
-			            	CounterEngine engine = server.getCounterEngine();
-			            	if (engine.isChildOf(agent.getObjType(), CounterConstants.FAMILY_HOST)) {
-			            		if (!CompareUtil.equals(agent, lastSelectedHost)) {
-			            			// Update Host TopMenu
-			            			resetTopMenu(objectMenuManager, "Choose Object in ObjectView");
-			            			lastSelectedObject = null;
-			            			lastSelectedHost = fillTopMenu(agent, hostMenuManager);
-				            		if (!CompareUtil.equals(serverObject, lastSelectedCollector)) {
-				            			// Update Collector TopMenu
-				            			if (serverObject != null) {
-				            				lastSelectedCollector = fillTopMenu(serverObject, collectorMenuManager);
-				            			}
-				            		}
-				            		topMenuManager.update(true);
-				            	}	
-			            	} else {
-			            		if (!CompareUtil.equals(agent, lastSelectedObject)) {
-			            			// Update Object TopMenu
-			            			lastSelectedObject = fillTopMenu(agent, objectMenuManager);
-			            			String objName = agent.getObjName();
-			            			String host = objName.substring(0, objName.indexOf("/", 1));
-			            			AgentObject hostAgent = agentThread.getAgentObject(HashUtil.hash(host));
-			            			if (hostAgent == null) {
-			            				resetTopMenu(hostMenuManager, "Cannot find Host agent");
-			            				lastSelectedHost = null;
-			            			} else {
-			            				if (!CompareUtil.equals(hostAgent, lastSelectedHost)) {
-			            					lastSelectedHost = fillTopMenu(hostAgent, hostMenuManager);
-			            				}
-			            			}
-			            			if (!CompareUtil.equals(serverObject, lastSelectedCollector)) {
-				            			// Update Collector TopMenu
-				            			if (serverObject != null) {
-				            				lastSelectedCollector = fillTopMenu(serverObject, collectorMenuManager);
-				            			}
-				            		}
-			            			topMenuManager.update(true);
-				            	}	
-			            	}
-			            }
-					}
 				} else {
 					selectedItem = false;
 				}
@@ -409,6 +341,97 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 		hostMenuManager.add(new DummyAction("Choose Host in ObjectView", Images.alert));
 		objectMenuManager.add(new DummyAction("Choose Object in ObjectView", Images.alert));
 		topMenuManager.update(true);
+		collectorMenuManager.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager mgr) {
+				ISelection selection = objTreeViewer.getSelection();
+				if (selection instanceof IStructuredSelection) {
+		            IStructuredSelection sel = (IStructuredSelection)selection;
+		            Object[] elements = sel.toArray();
+		            ServerObject serverObject = null;
+		            if (elements == null || elements.length < 1) {
+		            	Server defServer = ServerManager.getInstance().getDefaultServer();
+		            	serverObject = root.get(defServer.getName());
+		            } else {
+		            	Object selObject = elements[elements.length - 1];
+		            	if (selObject instanceof ServerObject) {
+		            		serverObject = (ServerObject) selObject;
+		            	} else if (selObject instanceof AgentObject) {
+		            		AgentObject ao = (AgentObject) selObject;
+		            		Server server = ServerManager.getInstance().getServer(ao.getServerId());
+		            		serverObject = root.get(server.getName());
+		            	}
+		            }
+		            if (serverObject != null) {
+		            	fillTopMenu(serverObject, mgr);
+		            } else {
+		            	resetTopMenu(collectorMenuManager, "Choose Collector in ObjectView");
+		            }
+		            
+				}
+			}
+		});
+		hostMenuManager.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager mgr) {
+				ISelection selection = objTreeViewer.getSelection();
+				if (selection instanceof IStructuredSelection) {
+		            IStructuredSelection sel = (IStructuredSelection)selection;
+		            Object[] elements = sel.toArray();
+		            AgentObject hostObject = null;
+		            if (elements == null || elements.length < 1) {
+		            	return;
+		            } else {
+		            	Object selObject = elements[elements.length - 1];
+		            	if (selObject instanceof AgentObject) {
+		            		AgentObject agent = (AgentObject) selObject;
+		            		int serverId = agent.getServerId();
+			            	Server server = ServerManager.getInstance().getServer(serverId);
+			            	CounterEngine engine = server.getCounterEngine();
+			            	if (engine.isChildOf(agent.getObjType(), CounterConstants.FAMILY_HOST)) {
+			            		hostObject = agent;
+			            	} else {
+			            		String objName = agent.getObjName();
+		            			String host = objName.substring(0, objName.indexOf("/", 1));
+		            			hostObject = agentThread.getAgentObject(HashUtil.hash(host));
+			            	}
+		            	}
+		            }
+		            if (hostObject != null) {
+		            	fillTopMenu(hostObject, mgr);
+		            } else {
+		            	resetTopMenu(hostMenuManager, "Choose Host in ObjectView");
+		            }
+				}
+			}
+		});
+		objectMenuManager.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager mgr) {
+				ISelection selection = objTreeViewer.getSelection();
+				if (selection instanceof IStructuredSelection) {
+		            IStructuredSelection sel = (IStructuredSelection)selection;
+		            Object[] elements = sel.toArray();
+		            AgentObject object = null;
+		            if (elements == null || elements.length < 1) {
+		            	return;
+		            } else {
+		            	Object selObject = elements[elements.length - 1];
+		            	if (selObject instanceof AgentObject) {
+		            		AgentObject agent = (AgentObject) selObject;
+		            		int serverId = agent.getServerId();
+			            	Server server = ServerManager.getInstance().getServer(serverId);
+			            	CounterEngine engine = server.getCounterEngine();
+			            	if (!engine.isChildOf(agent.getObjType(), CounterConstants.FAMILY_HOST)) {
+			            		object = agent;
+			            	}
+		            	}
+		            }
+		            if (object != null) {
+		            	fillTopMenu(object, mgr);
+		            } else {
+		            	resetTopMenu(objectMenuManager, "Choose Object in ObjectView");
+		            }
+				}
+			}
+		});
 	}
 
 	private void createQuickMenus(){
@@ -598,6 +621,7 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 			MenuManager objTitle = new MenuManager(displayName, objImage, "scouter.menu.id."+displayName);
 			mgr.add(objTitle);
 			addObjectTypeMenu(objTitle, counterEngine, actionMap, serverId, objType);
+			MenuUtil.addObjTypeSpecialMenu(win, objTitle, serverId, objType, counterEngine);
 		}
 	}
 
@@ -610,52 +634,6 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 			if (realtimeAllAct != null) {
 				objTitle.add(realtimeAllAct);
 			}
-		}
-		
-		objTitle.add(new Separator());
-		
-		Action act = actionMap.get(objType + ":" + CounterConstants.ACTIVE_EQ);
-		if(act != null){
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.ACTIVE_THREAD_LIST);
-		if(act != null){
-			act.setText(MenuStr.ACTIVE_SERVICE_LIST);
-			act.setImageDescriptor(ImageUtil.getImageDescriptor(Images.thread));
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.TOTAL_ACTIVE_SPEED);
-		if(act != null){
-			act.setText(MenuStr.ACTIVE_SPEED_REAL);
-			act.setImageDescriptor(ImageUtil.getImageDescriptor(Images.TYPE_ACTSPEED));
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.TRANX_REALTIME);
-		if(act != null){
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.TODAY_SERVICE_COUNT);
-		if(act != null){
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.SERVICE_GROUP);
-		if(act != null){
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.UNIQUE_VISITOR);
-		if(act != null){
-			objTitle.add(act);
-		}
-		
-		act = actionMap.get(objType + ":" + CounterConstants.SERVICE_SUMMARY);
-		if(act != null){
-			objTitle.add(act);
 		}
 	}
 

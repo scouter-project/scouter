@@ -53,14 +53,14 @@ public class TraceApiCall {
 		}
 	}
 	public static void apiInfo(String className, String methodName, String methodDesc, Object _this, Object[] arg) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null && arg.length >= 2) {
 			ctx.apicall_target = arg[0] + ":" + arg[1];
 		}
 	}
 	public static Object startApicall(String className, String methodName, String methodDesc, Object _this, Object[] arg) {
 		try {
-			TraceContext ctx = TraceContextManager.getLocalContext();
+			TraceContext ctx = TraceContextManager.getContext();
 			if (ctx == null) {
 				return null;
 			}
@@ -85,7 +85,7 @@ public class TraceApiCall {
 		return null;
 	}
 	public static Object startApicall(String name, long apiTxid) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx == null)
 			return null;
 		if (ctx.apicall_name != null) {
@@ -153,7 +153,7 @@ public class TraceApiCall {
 	public static Object startSocket(Socket socket, SocketAddress addr, int timeout) {
 		if (!(addr instanceof InetSocketAddress))
 			return null;
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx == null) {
 			if (Configure.getInstance().trace_background_socket_enabled) {
 				InetSocketAddress inet = (InetSocketAddress) addr;
@@ -211,7 +211,7 @@ public class TraceApiCall {
 		}
 	}
 	public static void open(File file) {
-		TraceContext ctx = TraceContextManager.getLocalContext();
+		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
 			MessageStep m = new MessageStep();
 			m.start_time = (int) (System.currentTimeMillis() - ctx.startTime);

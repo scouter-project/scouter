@@ -479,7 +479,6 @@ public class CounterEngine {
 		CounterEngine ce = new CounterEngine();
 		ce.parse(content);
 		System.out.println(ce.getAllObjectType());
-		System.out.println(ce.getObjTypeListWithDisplay(CounterConstants.TOTAL_ACTIVE_SPEED));
 		System.out.println(ce.getDisplayNameObjectType("tomcat"));
 		System.out.println(ce.getAllCounterList());
 		System.out.println(ce.getTotalCounterList());

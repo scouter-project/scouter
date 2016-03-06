@@ -322,7 +322,7 @@ public class CounterTodayCountView extends ScouterViewPart implements Refreshabl
 		final IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		mgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager mgr) {
-				mgr.add(new OpenDailyServiceCountAction(win, "Load", objType, counter, Images.bar, serverId));
+				mgr.add(new OpenDailyServiceCountAction(win, objType, counter, Images.bar, serverId));
 			}
 		});
 		Menu menu = mgr.createContextMenu(canvas); 

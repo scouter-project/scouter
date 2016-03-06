@@ -456,14 +456,6 @@
             restorable="false">
       </view>
       <view
-            allowMultiple="true"
-            class="scouter.client.views.ServiceGroupCountView"
-            icon="icons/server_chart.png"
-            id="scouter.client.views.ServiceGroupCountView"
-            name="ServiceGroup Count"
-            restorable="true">
-      </view>
-      <view
             allowMultiple="false"
             class="scouter.client.group.view.GroupNavigationView"
             icon="icons/group.png"
@@ -594,27 +586,11 @@
       </view>
       <view
             allowMultiple="true"
-            class="scouter.client.views.ServiceGroupView"
-            icon="icons/sum.png"
-            id="scouter.client.views.ServiceGroupView"
-            name="Service Group"
-            restorable="true">
-      </view>
-      <view
-            allowMultiple="true"
             class="scouter.client.views.LoginUserView"
             icon="icons/user.png"
             id="scouter.client.views.LoginUserView"
             name="LoginUser"
             restorable="false">
-      </view>
-      <view
-            allowMultiple="true"
-            class="scouter.client.group.view.ServiceGroupGroupView"
-            icon="icons/sum.png"
-            id="scouter.client.group.view.ServiceGroupGroupView"
-            name="Service Group of Group"
-            restorable="true">
       </view>
       <view
             allowMultiple="true"
@@ -941,6 +917,54 @@
             id="scouter.client.visitor.views.VisitorLoadView"
             name="Visitors"
             restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterRTAllPairChart"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterRTAllPairChart"
+            name="RealtimePairChart"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterPTAllPairChart"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterPTAllPairChart"
+            name="PasttimePairChart"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ServiceGroupTPSView"
+            icon="icons/sum.png"
+            id="scouter.client.views.ServiceGroupTPSView"
+            name="Service Group TPS"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.ServiceGroupTPSGroupView"
+            icon="icons/sum.png"
+            id="scouter.client.group.view.ServiceGroupTPSGroupView"
+            name="Service Group of Group TPS"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.views.ServiceGroupElapsedView"
+            icon="icons/sum.png"
+            id="scouter.client.views.ServiceGroupElapsedView"
+            name="Service Group Elapsed"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.ServiceGroupElapsedGroupView"
+            icon="icons/sum.png"
+            id="scouter.client.group.view.ServiceGroupElapsedGroupView"
+            name="Service Group of Group Elapsed"
+            restorable="true">
       </view>
   </extension>
  <extension

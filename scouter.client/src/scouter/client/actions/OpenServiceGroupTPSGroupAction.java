@@ -17,40 +17,34 @@
  */
 package scouter.client.actions;
 
-
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 
+import scouter.client.Images;
+import scouter.client.group.view.ServiceGroupTPSGroupView;
 import scouter.client.util.ImageUtil;
-import scouter.client.views.ObjectActiveServiceListView;
 
-
-public class OpenActiveServiceListAction extends Action {
-	public final static String ID = OpenActiveServiceListAction.class.getName();
+public class OpenServiceGroupTPSGroupAction extends Action {
+	public final static String ID = OpenServiceGroupTPSGroupAction.class.getName();
 
 	private final IWorkbenchWindow window;
-	private String objType;
-	private int serverId;
+	String grpName;
 
-	public OpenActiveServiceListAction(IWorkbenchWindow window, String objType, Image image, int serverId) {
+	public OpenServiceGroupTPSGroupAction(IWorkbenchWindow window, String grpName) {
 		this.window = window;
-		this.serverId = serverId;
-		setText("Active Service List");
+		this.grpName = grpName;
+		setText("Throughput");
 		setId(ID);
-		setImageDescriptor(ImageUtil.getImageDescriptor(image));
-		this.objType = objType;
 	}
 
 	public void run() {
 		if (window != null) {
 			try {
-				window.getActivePage().showView(ObjectActiveServiceListView.ID, serverId + "&" + objType, IWorkbenchPage.VIEW_ACTIVATE);
+				window.getActivePage().showView(ServiceGroupTPSGroupView.ID, grpName, IWorkbenchPage.VIEW_ACTIVATE);
 			} catch (PartInitException e) {
-				MessageDialog.openError(window.getShell(), "Error", "Error opening view:" + e.getMessage());
+				e.printStackTrace();
 			}
 		}
 	}

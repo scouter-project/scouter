@@ -31,6 +31,7 @@ import java.util.*;
 public class Configure extends Thread {
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
+
 	public final static synchronized Configure getInstance() {
 		if (instance == null) {
 			instance = new Configure();
@@ -182,6 +183,7 @@ public class Configure extends Thread {
 	public boolean _hook_usertx_enabled = true;
 	public String _hook_direct_patch_classes = "";
 	public boolean _hook_spring_rest_enabled = false;
+	public String _hook_boot_prefix=null;
 
 	//Control
 	public boolean control_reject_service_enabled = false;
@@ -443,6 +445,7 @@ public class Configure extends Thread {
 		this.trace_db2_enabled = getBoolean("trace_db2_enabled", true);
 		this._hook_usertx_enabled = getBoolean("_hook_usertx_enabled", true);
 		this._hook_direct_patch_classes = getValue("_hook_direct_patch_classes", "");
+		this._hook_boot_prefix = getValue("_hook_boot_prefix");
 		this.counter_recentuser_valid_ms = getLong("counter_recentuser_valid_ms", DateUtil.MILLIS_PER_FIVE_MINUTE);
 		this.counter_object_registry_path = getValue("counter_object_registry_path", "/tmp/scouter");
 		this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);

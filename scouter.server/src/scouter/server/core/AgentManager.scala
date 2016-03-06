@@ -81,15 +81,12 @@ object AgentManager {
             objPack.wakeup();
             objPack.tags = p.tags;
             if (CompareUtil.equals(p.address, objPack.address) == false) {
-                objPack.address = p.address;
                 save = true;
             }
             if (CompareUtil.equals(p.objType, objPack.objType) == false) {
-                objPack.objType = p.objType;
                 save = true;
             }
             if (CompareUtil.equals(p.version, objPack.version) == false) {
-                objPack.version = p.version;
                 save = true;
             }
             if (save) {
@@ -97,11 +94,12 @@ object AgentManager {
                 if (objPack.updated % 20 == 0) {
                     alertTooManyChange(objPack);
                 }
-                
-                objMap.put(objPack);
-                procObjName(objPack);
-                ObjectWR.add(objPack);
-                Logger.println("S105", "Update " + objPack);
+                p.updated = objPack.updated;
+                p.wakeup();
+                objMap.put(p);
+                procObjName(p);
+                ObjectWR.add(p);
+                Logger.println("S105", "Update " + p);
             }
         }
     }

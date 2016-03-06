@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="AgentJava" default="default">
+<project name="Scouter Agent Java" default="default">
 
 	<property name="class-agent-dir" value="./out/bin/agent.java"/>
 	<property name="tools-jar-file" value="./out/bin/agent.java/scouter.tools.jar"/>

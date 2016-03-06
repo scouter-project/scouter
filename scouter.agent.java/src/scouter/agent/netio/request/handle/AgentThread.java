@@ -131,6 +131,8 @@ public class AgentThread {
 		ListValue ip = rPack.newList("ip");
 		ListValue sql = rPack.newList("sql");
 		ListValue subcall = rPack.newList("subcall");
+		ListValue login = rPack.newList("login");
+		ListValue desc = rPack.newList("desc");
 		Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
 		while (en.hasMoreElements()) {
 			TraceContext ctx = en.nextElement();
@@ -154,6 +156,8 @@ public class AgentThread {
 				Logger.println("A128", th);
 				cpu.add(0L);
 			}
+			login.add(ctx.login);
+			desc.add(ctx.desc);
 		}
 		rPack.put("complete", new BooleanValue(true));
 		return rPack;

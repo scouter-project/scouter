@@ -117,7 +117,7 @@ public class XLogLoadTimeView extends XLogViewCommon implements TimeRangeDialog.
  	    loadXLogItem.setText("Load");
  	    loadXLogItem.addListener(SWT.Selection, new Listener() {
  			public void handleEvent(Event event) {
- 				new OpenXLogLoadTimeAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Load XLog", objType, Images.server, serverId, stime, etime).run();
+ 				new OpenXLogLoadTimeAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), objType, Images.server, serverId, stime, etime).run();
  			}
  		});
 		
