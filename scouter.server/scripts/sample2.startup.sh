@@ -8,3 +8,4 @@ nohup java $JAVAOPTS -classpath "$TUNAHOME/boot.jar" scouter.boot.Boot "$TUNAHOM
 
 echo "Scouter server launching..."
 echo "See the nohup.out."
+
