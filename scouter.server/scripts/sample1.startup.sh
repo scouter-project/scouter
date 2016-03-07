@@ -6,3 +6,4 @@ sleep 1
 tail -100 nohup.out
 echo "Scouter server launching..."
 echo "See the nohup.out."
+

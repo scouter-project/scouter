@@ -36,7 +36,7 @@ import java.util.HashSet;
 public class JDBCStatementASM implements IASM, Opcodes {
 	public final HashSet<String> target =  HookingSet.getHookingClassSet(Configure.getInstance().hook_jdbc_stmt_classes);
 	public JDBCStatementASM() {
-		target.add("org.mariadb.jdbc.MariaDbStatement");
+		target.add("org/mariadb/jdbc/MariaDbStatement");
 		target.add("org/mariadb/jdbc/MySQLStatement");
 		target.add("oracle/jdbc/driver/OracleStatement");
 		target.add("com/mysql/jdbc/StatementImpl");
