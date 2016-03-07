@@ -335,6 +335,9 @@ public class Configure extends Thread {
 		File file = getPropertyFile();
 		OutputStream out = null;
 		try {
+			if (file.getParentFile().exists() == false) {
+				file.getParentFile().mkdirs();
+			}
 			out = new FileOutputStream(file);
 			out.write(text.getBytes());
 			return true;
