@@ -42,6 +42,7 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 		target.add("oracle/jdbc/driver/SensitiveScrollableResultSet");
 		target.add("org/hsqldb/jdbc/JDBCResultSet");
 		target.add("cubrid/jdbc/driver/CUBRIDResultSet");
+		target.add("org.mariadb.jdbc.MariaDbResultSet");
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

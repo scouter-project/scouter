@@ -4,14 +4,18 @@
 	<property name="deploy-dir" value="./out/package"/>
 	<property name="outpack-dir" value="./out"/>
 	
-	<property name="VERSION" value="0.4.7"/>
+	<property name="VERSION" value="0.4.8"/>
 		
 	
     <target name="packing">
         <mkdir dir="${outpack-dir}"/>
         <tar destfile="${outpack-dir}/${outpack-file}">
+        	<tarfileset dir="${deploy-dir}" mode="755" >
+                <include name="**/*.sh"/>
+            </tarfileset>
             <tarfileset dir="${deploy-dir}">
                 <include name="**/*"/>
+            	<exclude name="**/*.sh"/>
             </tarfileset>
         </tar>
         <gzip src="${outpack-dir}/${outpack-file}" destfile="${outpack-dir}/${outpack-file}.gz"/>
