@@ -35,7 +35,7 @@ mrhit : MariaDB HitRatio
 			<Counter name="RecentUser" disp="Recent User" unit="cnt" icon="visitor.png" />
 			<Counter name="HeapTotUsage" disp="Heap Total Usage" unit="MB" icon="memory.png" all="false" total="false"  />
 			<Counter name="GcCount" disp="GC Count" unit="cnt" icon="gc.png" />
-			<Counter name="ServiceCount" disp="Service Count" unit="cnt" icon="service_count.png" />
+			<Counter name="ServiceCount" disp="Service Count" unit="cnt/min" icon="service_count.png" />
 			<Counter name="ErrorRate" disp="Error Rate" unit="%" icon="rate.png" />
 			<Counter name="HeapUsed" disp="Heap Used" unit="MB" icon="memory.png" total="false"/>
 			<Counter name="ElapsedTime" disp="Elapsed Time" unit="ms" icon="time.png" total="false"/>
