@@ -80,7 +80,7 @@
 * 빌드 후 scouter.client 프로젝트의 lib 폴더를 Refresh 하면 scouter.common.jar 파일이 생성되며 Problem이 해결된다.
 
 ## Branch 변경
-**Pull Request는 master branch가 아닌 dev branch로 해야 하기 때문에 Branch를 변경한다.**
+**Pull Request는 master branch가 아닌 dev branch로 해야 하기 때문에 Branch를 변경한다.(Optional)**
 * Git Perspective 화면에서 scouter -> Branches -> Remote Tracking의 origin/dev를 더블클릭한다.
 
 ><img src="../img/tech/developer/guide_24.png" width="650">
@@ -112,7 +112,7 @@
 
 ><img src="../img/tech/developer/guide_21.png" width="650">
 
-* scouter.client.produce 프로젝트를 Refresh 하면 target/products 폴더에 OS Architecture 별로 패키징된 파일이 생긴 것을 확인할 수 있다.
+* scouter.client.product 프로젝트를 Refresh 하면 target/products 폴더에 OS Architecture 별로 패키징된 파일이 생긴 것을 확인할 수 있다.
 
 ><img src="../img/tech/developer/guide_23.png" width="350">
 
