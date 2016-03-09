@@ -191,7 +191,8 @@ object NetDataProcessor {
                     System.out.println("DEBUG UDP SUMMARY: " + p)
                 }
             case _ =>
-                System.out.println(p)
+                PackExtProcessChain.doChain(p)
+                //System.out.println(p)
         }
     }
 }
