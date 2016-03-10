@@ -43,8 +43,8 @@ Client(Viewer)    | Client program to check the collected performance informatio
 
  - Download a client program
    - download a client for your environment.
-    - [scouter.client.product-win32.win32.x86_64.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-win32.win32.x86.zip)
-    - [scouter.client.product-win32.win32.x86.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-win32.win32.x86_64.zip)
+    - [scouter.client.product-win32.win32.x86_64.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-win32.win32.x86_64.zip)
+    - [scouter.client.product-win32.win32.x86.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-win32.win32.x86.zip)
     - [scouter.client.product-macosx.cocoa.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-macosx.cocoa.x86_64.tar.gz)
     - [scouter.client.product-linux.gtk.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-linux.gtk.x86_64.tar.gz)
 

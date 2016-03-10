@@ -72,7 +72,10 @@ Scouter has three modules:
  - [Scouter APM : Facebook Scouter user group](https://www.facebook.com/groups/scouterapm/)
 
 ## How to contribute
- - TBD
+ - **Notice** : Pull request to **dev branch** only allowed.
+ - Please check the development guide below
+   - [Scouter developer guide](./scouter.document/tech/Developer-Guide.md)
+
 
 
 ## Q&A
