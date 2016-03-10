@@ -70,6 +70,10 @@
 		<copy todir="./out/package/scouter/agent.host">
 			<fileset dir="../scouter.agent.host/scripts" />
 		</copy>
+		<fixcrlf srcdir="./out/package/scouter/agent.host" includes="**/*.sh"
+				 eol="lf"
+				 eof="remove"
+		/>
 		<copy todir="./out/package/scouter/agent.host/conf">
 			<fileset dir="../scouter.agent.host/conf" />
 		</copy>

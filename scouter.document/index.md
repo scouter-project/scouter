@@ -19,6 +19,9 @@
 - [Build on Linux & OSX](./main/Build-Scouter.md)
 - [Build on Window](./main/Build-Scouter-Windows.md)
 
+## For developers and contibutors
+- [Scouter developer guide](./tech/Developer-Guide.md)
+
 ## How to use
 - [How to analyze XLog View](./client/Reading-XLog.md) 
 - [Console Mode Running](./server/Console-Mode-Running.md)

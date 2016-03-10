@@ -140,7 +140,7 @@
         <copy todir="./out/package/scouter/server">
             <fileset dir="../scouter.server/scripts"/>
         </copy>
-    	<fixcrlf srcdir="../scouter.server/scripts" includes="**/*.sh"
+    	<fixcrlf srcdir="./out/package/scouter/server" includes="**/*.sh"
     	  eol="lf"
     	  eof="remove"
     	/>

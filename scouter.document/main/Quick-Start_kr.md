@@ -44,8 +44,8 @@ Client(Viewer)    | 수집된 성능 정보를 확인하기 위한 Client 프로
 
  - Client 다운로드
    - 자신의 환경에 맞는 파일을 다운로드 받는다.
-    - [scouter.client.product-win32.win32.x86_64.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-win32.win32.x86.zip)
-    - [scouter.client.product-win32.win32.x86.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-win32.win32.x86_64.zip)
+    - [scouter.client.product-win32.win32.x86_64.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-win32.win32.x86_64.zip)
+    - [scouter.client.product-win32.win32.x86.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-win32.win32.x86.zip)
     - [scouter.client.product-macosx.cocoa.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-macosx.cocoa.x86_64.tar.gz)
     - [scouter.client.product-linux.gtk.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-linux.gtk.x86_64.tar.gz)
 
