@@ -103,6 +103,8 @@ public class HostPerf {
 
 		p = pw.getPack(conf.getObjName(), TimeTypeEnum.FIVE_MIN);
 		p.put(CounterConstants.HOST_CPU, new FloatValue(cpu));
+		p.put(CounterConstants.HOST_SYSCPU, new FloatValue(sysCpu));
+		p.put(CounterConstants.HOST_USERCPU, new FloatValue(userCpu));
 		p.put(CounterConstants.HOST_MEM, new FloatValue(memrate));
 		p.put(CounterConstants.HOST_MEM_TOTAL, new DecimalValue(tmem / 1024 / 1024));
 		p.put(CounterConstants.HOST_MEM_USED, new DecimalValue(umem / 1024 / 1024));

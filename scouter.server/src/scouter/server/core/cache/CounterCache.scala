@@ -49,14 +49,14 @@ object CounterCache {
         return cache.get(key);
     }
 
-    def getObjectCounters(objHash: Int): Map[String, Value] = {
+    def getObjectCounters(objHash: Int, timeType: Byte): Map[String, Value] = {
         val map = new HashMap[String, Value]();
         try {
 
             val en = cache.keys();
             while (en.hasMoreElements()) {
                 val key = en.nextElement();
-                if (key.objHash == objHash) {
+                if (key.timetype == timeType && key.objHash == objHash) {
                     val value = cache.get(key);
                     if (value != null) {
                         map.put(key.counter, value);
