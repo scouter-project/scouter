@@ -19,6 +19,9 @@
 - [Build on Linux & OSX](./main/Build-Scouter.md)
 - [Build on Window](./main/Build-Scouter-Windows.md)
 
+## For developers and contibutors
+- [Scouter 개발자 가이드](./tech/Developer-Guide_kr.md)
+
 ## How to use
 - [응답시간 분포도(XLog) 보는 방법](../client/Reading-XLog_kr.md)
 - [Console Mode로 시작하기](./server/Console-Mode-Running.md)

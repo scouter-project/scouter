@@ -67,7 +67,9 @@ APM은 Application performance montoring 또는 application performance manageme
  - [Scouter APM 사용자 모임 - Facebook 그룹](https://www.facebook.com/groups/scouterapm/)
 
 ## Scouter에 기여하기
- - TBD
+ - **Pull request**는 반드시 **dev branch**로 요청하여야 합니다.
+ - 상세한 내용은 개발자 가이드를 참조하시기 바랍니다.
+   - [Scouter 개발자 가이드](./scouter.document/tech/Developer-Guide_kr.md)
 
 ## Q&A
  - [Google Groups](https://groups.google.com/forum/#!forum/scouter-project)
