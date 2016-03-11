@@ -54,25 +54,51 @@ public class ObjectRush {
 			int objHash = HashUtil.hash(objName);
 			AgentHeartBeat.addObject(CounterConstants.JAVA, objHash, objName);
 		}
-		System.out.println(objNames);
 		CounterBasket basket = new CounterBasket();
 		int count = 0;
 		while (true) {
-			Logger.info("*********** " + (++count) + " ***********");
+			//Logger.info("*********** " + (++count) + " ***********");
 			for (String objName : objNames) {
 				PerfCounterPack pcp = basket.getPack(objName, TimeTypeEnum.REALTIME);
+				pcp.put(CounterConstants.WAS_TPS, new DecimalValue(5));
+				pcp.put(CounterConstants.WAS_ACTIVE_SPEED, new DecimalValue(5));
+				pcp.put(CounterConstants.WAS_ELAPSED_TIME, new DecimalValue(5));
+				pcp.put(CounterConstants.WAS_ELAPSED_90PCT, new DecimalValue(5));
+				pcp.put(CounterConstants.WAS_SERVICE_COUNT, new DecimalValue(5));
+				pcp.put(CounterConstants.WAS_ERROR_RATE, new DecimalValue(5));
+				pcp.put(CounterConstants.WAS_RECENT_USER, new DecimalValue(5));
+				pcp.put(CounterConstants.WAS_ACTIVE_SERVICE, new DecimalValue(5));
+				pcp.put(CounterConstants.JAVA_GC_COUNT, new DecimalValue(5));
+				pcp.put(CounterConstants.JAVA_GC_TIME, new DecimalValue(5));
+				pcp.put(CounterConstants.JAVA_HEAP_USED, new DecimalValue(5));
+				pcp.put(CounterConstants.JAVA_PERM_USED, new DecimalValue(5));
+				pcp.put(CounterConstants.JAVA_PROCESS_CPU, new DecimalValue(5));
 				int act1 = (int) (Math.random() * 10);
 				int act2 = (int) (Math.random() * 10);
 				int act3 = (int) (Math.random() * 10);
 				int active = act1 + act2 + act3;
-				Logger.info(objName + " : " + active);
+				//Logger.info(objName + " : " + active);
 				ListValue activeSpeed = new ListValue();
 				activeSpeed.add(act1);
 				activeSpeed.add(act2);
 				activeSpeed.add(act3);
 				pcp.put(CounterConstants.WAS_ACTIVE_SPEED, activeSpeed);
 				pcp.put(CounterConstants.WAS_ACTIVE_SERVICE, new DecimalValue(active));
-				DataProxy.sendCounter(new PerfCounterPack[]{pcp});
+				PerfCounterPack fiveminPcp = basket.getPack(objName, TimeTypeEnum.FIVE_MIN);
+				fiveminPcp.put(CounterConstants.WAS_TPS, new DecimalValue(5));
+				fiveminPcp.put(CounterConstants.WAS_ACTIVE_SPEED, new DecimalValue(5));
+				fiveminPcp.put(CounterConstants.WAS_ELAPSED_TIME, new DecimalValue(5));
+				fiveminPcp.put(CounterConstants.WAS_ELAPSED_90PCT, new DecimalValue(5));
+				fiveminPcp.put(CounterConstants.WAS_SERVICE_COUNT, new DecimalValue(5));
+				fiveminPcp.put(CounterConstants.WAS_ERROR_RATE, new DecimalValue(5));
+				fiveminPcp.put(CounterConstants.WAS_RECENT_USER, new DecimalValue(5));
+				fiveminPcp.put(CounterConstants.WAS_ACTIVE_SERVICE, new DecimalValue(5));
+				fiveminPcp.put(CounterConstants.JAVA_GC_COUNT, new DecimalValue(5));
+				fiveminPcp.put(CounterConstants.JAVA_GC_TIME, new DecimalValue(5));
+				fiveminPcp.put(CounterConstants.JAVA_HEAP_USED, new DecimalValue(5));
+				fiveminPcp.put(CounterConstants.JAVA_PERM_USED, new DecimalValue(5));
+				fiveminPcp.put(CounterConstants.JAVA_PROCESS_CPU, new DecimalValue(5));
+				DataProxy.sendCounter(new PerfCounterPack[]{pcp, fiveminPcp});
 			}
 			ThreadUtil.sleep(2000);
 		}
