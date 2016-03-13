@@ -84,17 +84,17 @@ class DailyCounterData(fileName: String, mode: String) extends IClose {
         }
     }
 
-    def read(pos: Long): Array[Byte] = {
+    def read(offset: Long): Array[Byte] = {
         this.synchronized {
             try {
-                dataFile.seek(pos);
+                dataFile.seek(offset);
                 val valueType = dataFile.readByte();
                 val timetype = dataFile.readByte()
 
                 val valueLen = DailyCounterUtils.getLength(valueType);
                 val bucketCount = DailyCounterUtils.getBucketCount(timetype);
 
-                dataFile.seek(pos + 2);
+                dataFile.seek(offset + 2);
                 val buffer = new Array[Byte](valueLen * bucketCount);
                 dataFile.read(buffer);
                 return buffer;
@@ -105,10 +105,10 @@ class DailyCounterData(fileName: String, mode: String) extends IClose {
         }
     }
 
-    def getValues(location: Long): Array[Value] = {
+    def getValues(offset: Long): Array[Value] = {
         this.synchronized {
             try {
-                dataFile.seek(location);
+                dataFile.seek(offset);
                 val valueType = dataFile.readByte();
                 val timetype = dataFile.readByte()
 
@@ -130,10 +130,10 @@ class DailyCounterData(fileName: String, mode: String) extends IClose {
         }
     }
 
-    def getValue(location: Long, hhmm: Int): Value = {
+    def getValue(offset: Long, hhmm: Int): Value = {
         this.synchronized {
             try {
-                dataFile.seek(location);
+                dataFile.seek(offset);
                 val valueType = dataFile.readByte();
                 val intervalType = dataFile.readByte()
 
@@ -141,7 +141,7 @@ class DailyCounterData(fileName: String, mode: String) extends IClose {
                 val bucketCount = DailyCounterUtils.getBucketCount(intervalType);
                 val bucketPos = DailyCounterUtils.getBucketPos(intervalType, hhmm);
                 if (bucketPos < bucketCount) {
-                    dataFile.seek(location + 2 + valueLen * bucketPos);
+                    dataFile.seek(offset + 2 + valueLen * bucketPos);
                     val buffer = new Array[Byte](valueLen);
                     dataFile.read(buffer);
                     return new DataInputX(buffer).readValue();
@@ -154,8 +154,8 @@ class DailyCounterData(fileName: String, mode: String) extends IClose {
         }
     }
 
-    def write(location: Long, key: CounterKey, hhmm: Int, value: Value) {
-        dataFile.seek(location);
+    def write(offset: Long, key: CounterKey, hhmm: Int, value: Value) {
+        dataFile.seek(offset);
         val valueType = dataFile.readByte();
         if (valueType != value.getValueType() && value.getValueType() != ValueEnum.NULL)
             return;
@@ -166,13 +166,12 @@ class DailyCounterData(fileName: String, mode: String) extends IClose {
         val valueLen = DailyCounterUtils.getLength(valueType);
         val bucketPos = DailyCounterUtils.getBucketPos(timetype, hhmm);
 
-        dataFile.seek(location + 2 + bucketPos * valueLen);
+        dataFile.seek(offset + 2 + bucketPos * valueLen);
         dataFile.write(new DataOutputX().writeValue(value).toByteArray());
 
     }
 
-    def write(key: CounterKey, hhmm: Int, value: Value): Long = {
-        //파일에 존재하지 않는 레코드...
+    def writeNew(key: CounterKey, hhmm: Int, value: Value): Long = {
         val valueType = value.getValueType();
 
         val valueLen = DailyCounterUtils.getLength(valueType);
@@ -188,7 +187,7 @@ class DailyCounterData(fileName: String, mode: String) extends IClose {
         dataFile.seek(location);
         dataFile.writeByte(value.getValueType());
         dataFile.writeByte(key.timetype);
-        dataFile.write(new Array[Byte](valueLen * bucketCount)); // 하룻치데이터 전체를 먼저 공백으로 기록한다.
+        dataFile.write(new Array[Byte](valueLen * bucketCount)); //fill 1 day data with blank bytes
 
         dataFile.seek(location + 2 + bucketPos * valueLen);
         dataFile.write(new DataOutputX().writeValue(value).toByteArray());
