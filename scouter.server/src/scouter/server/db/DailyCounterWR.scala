@@ -36,7 +36,8 @@ import scouter.util.RequestQueue
   */
 object DailyCounterWR {
     val queue = new RequestQueue[Data](DBCtr.MAX_QUE_SIZE)
-    val prefix = "5m";
+    val prefix = "5m"
+
     ThreadScala.start("scouter.server.db.DailyCounterWR") {
         while (DBCtr.running) {
             val m = queue.get();
@@ -104,7 +105,7 @@ object DailyCounterWR {
                 f.mkdirs();
             val file = path + "/" + prefix;
             index = DailyCounterIndex.open(file);
-            writer = DailyCounterData.open(file);
+            writer = DailyCounterData.openForWrite(file);
             return;
         } catch {
             case e: Throwable => {
