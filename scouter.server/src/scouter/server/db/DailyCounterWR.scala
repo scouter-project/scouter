@@ -57,13 +57,13 @@ object DailyCounterWR {
                     Logger.println("S122", 10, "can't open db");
                 } else {
                     val key = counterData.key.getBytesKey();
-                    var writingOffset = index.get(key);
-                    if (writingOffset >= 0) {
-                        writer.write(writingOffset, counterData.key, counterData.hhmm, counterData.value);
+                    var dataOffset = index.get(key);
+                    if (dataOffset >= 0) {
+                        writer.write(dataOffset, counterData.key, counterData.hhmm, counterData.value);
                     } else {
                         if (counterData.value.getValueType() != ValueEnum.NULL) {
-                            writingOffset = writer.writeNew(counterData.key, counterData.hhmm, counterData.value);
-                            index.set(key, writingOffset);
+                            dataOffset = writer.writeNew(counterData.key, counterData.hhmm, counterData.value);
+                            index.set(key, dataOffset);
                         }
                     }
                 }
