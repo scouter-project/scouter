@@ -22,6 +22,7 @@ import java.util.Map;
 
 import scouter.lang.AlertLevel;
 import scouter.lang.CounterKey;
+import scouter.lang.TimeTypeEnum;
 import scouter.lang.pack.ObjectPack;
 import scouter.lang.value.Value;
 import scouter.server.core.AgentManager;
@@ -209,7 +210,7 @@ public class RealCounter {
 	}
 
 	public String counterNames() {
-		Map m = CounterCache.getObjectCounters(_objHash);
+		Map m = CounterCache.getObjectCounters(_objHash, TimeTypeEnum.REALTIME);
 		if (m == null)
 			return "[]";
 		return m.keySet().toString();

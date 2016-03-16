@@ -89,6 +89,7 @@ class DailyCounterService {
         // ListValue objNameLv = agentGrp.getList("objName");
         for (i <- 0 to ArrayUtil.len(objHashLv) - 1) {
             val objHash = objHashLv.getInt(i);
+          try {
             val ck = new CounterKey(objHash, counter, TimeTypeEnum.FIVE_MIN);
             val v = DailyCounterRD.getValues(date, ck);
             if (v != null) {
@@ -111,6 +112,12 @@ class DailyCounterService {
                 dout.writeByte(TcpFlag.HasNEXT);
                 dout.writePack(mpack);
             }
+          } catch {
+            case e: Throwable =>
+              val op = AgentManager.getAgent(objHash);
+              println(op.objName + " invalid data : " + e.getMessage())
+              e.printStackTrace()
+          }
         }
     }
 
@@ -136,17 +143,23 @@ class DailyCounterService {
         val objHashLv = objPackMap.getList("objHash");
         for (i <- 0 to ArrayUtil.len(objHashLv) - 1) {
             val objHash = objHashLv.getInt(i);
-            val ck = new CounterKey(objHash, counter, period);
-            val v = DailyCounterRD.getValues(date, ck);
-            for (j <- 0 to ArrayUtil.len(v) - 1) {
-                val value = v(j);
-                var doubleValue = if (value == null) 0.0 else CastUtil.cdouble(value);
-                if (doubleValue > 0) {
-                    cnt(j) += 1;
-                    values(j) += doubleValue;
-                }
-            }
-
+            try {
+              val ck = new CounterKey(objHash, counter, period);
+              val v = DailyCounterRD.getValues(date, ck);
+              for (j <- 0 to ArrayUtil.len(v) - 1) {
+                  val value = v(j);
+                  var doubleValue = if (value == null) 0.0 else CastUtil.cdouble(value);
+                  if (doubleValue > 0) {
+                      cnt(j) += 1;
+                      values(j) += doubleValue;
+                  }
+              }
+            } catch {
+               case e: Throwable =>
+                val op = AgentManager.getAgent(objHash);
+                println(op.objName + " invalid data : " + e.getMessage())
+                e.printStackTrace()
+           }
         }
         val stime = DateUtil.yyyymmdd(date);
         val mpack = new MapPack();
@@ -275,22 +288,28 @@ class DailyCounterService {
             val objHashLv = agentGrp.getList("objHash");
             for (i <- 0 to ArrayUtil.len(objHashLv) - 1) {
                 val objHash = objHashLv.getInt(i);
-
-                val mpack = new MapPack();
-                mpack.put("objHash", objHash);
-                val timeLv = mpack.newList("time");
-                val valueLv = mpack.newList("value");
-
-                val v = DailyCounterRD.getValues(d, new CounterKey(objHash, counter, TimeTypeEnum.FIVE_MIN));
-
-                for (j <- 0 to ArrayUtil.len(v) - 1) {
-                    val time = date + DateUtil.MILLIS_PER_MINUTE * 5 * j;
-                    timeLv.add(time);
-                    valueLv.add(v(j));
+                try {
+                  val mpack = new MapPack();
+                  mpack.put("objHash", objHash);
+                  val timeLv = mpack.newList("time");
+                  val valueLv = mpack.newList("value");
+  
+                  val v = DailyCounterRD.getValues(d, new CounterKey(objHash, counter, TimeTypeEnum.FIVE_MIN));
+  
+                  for (j <- 0 to ArrayUtil.len(v) - 1) {
+                      val time = date + DateUtil.MILLIS_PER_MINUTE * 5 * j;
+                      timeLv.add(time);
+                      valueLv.add(v(j));
+                  }
+                  dout.writeByte(TcpFlag.HasNEXT);
+                  dout.writePack(mpack);
+                  dout.flush();
+                } catch {
+                   case e: Throwable =>
+                    val op = AgentManager.getAgent(objHash);
+                    println(op.objName + " invalid data : " + e.getMessage())
+                    e.printStackTrace()
                 }
-                dout.writeByte(TcpFlag.HasNEXT);
-                dout.writePack(mpack);
-                dout.flush();
             }
             date += DateUtil.MILLIS_PER_DAY;
         };
@@ -332,16 +351,23 @@ class DailyCounterService {
             val objHashLv = agentGrp.getList("objHash");
             for (i <- 0 to ArrayUtil.len(objHashLv) - 1) {
                 val objHash = objHashLv.getInt(i);
-                val ckey = new CounterKey(objHash, counter, period);
-                val outvalue = DailyCounterRD.getValues(d, ckey);
-                for (j <- 0 to ArrayUtil.len(outvalue) - 1) {
-                    val value = outvalue(j);
-                    var doubleValue = CastUtil.cdouble(value);
-
-                    if (doubleValue > 0) {
-                        cnt(dayPointer + j) += 1;
-                        values(dayPointer + j) += doubleValue;
-                    }
+                try {
+                  val ckey = new CounterKey(objHash, counter, period);
+                  val outvalue = DailyCounterRD.getValues(d, ckey);
+                  for (j <- 0 to ArrayUtil.len(outvalue) - 1) {
+                      val value = outvalue(j);
+                      var doubleValue = CastUtil.cdouble(value);
+  
+                      if (doubleValue > 0) {
+                          cnt(dayPointer + j) += 1;
+                          values(dayPointer + j) += doubleValue;
+                      }
+                  }
+                } catch {
+                   case e: Throwable =>
+                    val op = AgentManager.getAgent(objHash);
+                    println(op.objName + " invalid data : " + e.getMessage())
+                    e.printStackTrace()
                 }
             }
             date += DateUtil.MILLIS_PER_DAY;
@@ -471,23 +497,31 @@ class DailyCounterService {
 
         for (i <- 0 to ArrayUtil.len(objHashLv) - 1) {
             val objHash = objHashLv.getInt(i);
-            val ck = new CounterKey(objHash, counter, TimeTypeEnum.FIVE_MIN);
-            val v = DailyCounterRD.getValues(date, ck);
-
-            val mpack = new MapPack();
-            mpack.put("objHash", objHash);
-            val timeLv = mpack.newList("time");
-            val valueLv = mpack.newList("value");
-
-            val delta = TimeTypeEnum.getTime(ck.timetype);
-            for (j <- 0 to ArrayUtil.len(v) - 1) {
-                val time = stime + delta * j;
-                val value = if (v(j) != null) v(j) else new NullValue()
-                timeLv.add(time);
-                valueLv.add(value);
+            
+            try {
+              val ck = new CounterKey(objHash, counter, TimeTypeEnum.FIVE_MIN);
+              val v = DailyCounterRD.getValues(date, ck);
+  
+              val mpack = new MapPack();
+              mpack.put("objHash", objHash);
+              val timeLv = mpack.newList("time");
+              val valueLv = mpack.newList("value");
+  
+              val delta = TimeTypeEnum.getTime(ck.timetype);
+              for (j <- 0 to ArrayUtil.len(v) - 1) {
+                  val time = stime + delta * j;
+                  val value = if (v(j) != null) v(j) else new NullValue()
+                  timeLv.add(time);
+                  valueLv.add(value);
+              }
+              dout.writeByte(TcpFlag.HasNEXT);
+              dout.writePack(mpack);
+             } catch {
+                 case e: Throwable =>
+                  val op = AgentManager.getAgent(objHash);
+                  println(op.objName + " invalid data : " + e.getMessage())
+                  e.printStackTrace()
             }
-            dout.writeByte(TcpFlag.HasNEXT);
-            dout.writePack(mpack);
         }
     }
 
@@ -501,33 +535,40 @@ class DailyCounterService {
         val objHashLv = param.getList("objHash");
         for (i <- 0 to ArrayUtil.len(objHashLv) - 1) {
             val objHash = objHashLv.getInt(i);
-            var time = stime;
-            val key = new CounterKey(objHash, counter, TimeTypeEnum.FIVE_MIN);
-            val mpack = new MapPack();
-            mpack.put("objHash", objHash);
-            val timeLv = mpack.newList("time");
-            val valueLv = mpack.newList("value");
-            var date: String = null;
-            while (lastDay.equals(date) == false) {
-                date = DateUtil.yyyymmdd(time);
-                val oclock = DateUtil.yyyymmdd(date);
-                val v = DailyCounterRD.getValues(date, key);
-                if (v == null) {
-                    for (j <- 0 to 287) {
-                        timeLv.add(oclock + DateUtil.MILLIS_PER_FIVE_MINUTE * j);
-                        valueLv.add(new NullValue());
-                    }
-                } else {
-                    for (j <- 0 to v.length - 1) {
-                        timeLv.add(oclock + DateUtil.MILLIS_PER_FIVE_MINUTE * j);
-                        valueLv.add(v(j));
-                    }
-                }
-                time += DateUtil.MILLIS_PER_DAY;
+            try {
+              var time = stime;
+              val key = new CounterKey(objHash, counter, TimeTypeEnum.FIVE_MIN);
+              val mpack = new MapPack();
+              mpack.put("objHash", objHash);
+              val timeLv = mpack.newList("time");
+              val valueLv = mpack.newList("value");
+              var date: String = null;
+              while (lastDay.equals(date) == false) {
+                  date = DateUtil.yyyymmdd(time);
+                  val oclock = DateUtil.yyyymmdd(date);
+                  val v = DailyCounterRD.getValues(date, key);
+                  if (v == null) {
+                      for (j <- 0 to 287) {
+                          timeLv.add(oclock + DateUtil.MILLIS_PER_FIVE_MINUTE * j);
+                          valueLv.add(new NullValue());
+                      }
+                  } else {
+                      for (j <- 0 to v.length - 1) {
+                          timeLv.add(oclock + DateUtil.MILLIS_PER_FIVE_MINUTE * j);
+                          valueLv.add(v(j));
+                      }
+                  }
+                  time += DateUtil.MILLIS_PER_DAY;
+              }
+              dout.writeByte(TcpFlag.HasNEXT);
+              dout.writePack(mpack);
+              dout.flush();
+            } catch {
+                 case e: Throwable =>
+                  val op = AgentManager.getAgent(objHash);
+                  println(op.objName + " invalid data : " + e.getMessage())
+                  e.printStackTrace()
             }
-            dout.writeByte(TcpFlag.HasNEXT);
-            dout.writePack(mpack);
-            dout.flush();
         }
     }
 }

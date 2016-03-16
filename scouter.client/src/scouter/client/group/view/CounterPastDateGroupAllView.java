@@ -415,7 +415,7 @@ public class CounterPastDateGroupAllView extends ScouterViewPart implements Dual
 		Set<Integer> objHashs = manager.getObjectsByGroup(grpName);
 		for (int objHash : objHashs) {
 			AgentObject agentObj = AgentModelThread.getInstance().getAgentObject(objHash);
-			if (agentObj == null || agentObj.isAlive() == false) {
+			if (agentObj == null) {
 				continue;
 			}
 			int serverId = agentObj.getServerId();

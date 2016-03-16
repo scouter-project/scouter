@@ -46,6 +46,7 @@ public class ServiceHandlingProxy {
 					t.printStackTrace();
 				}
 			} catch (Exception e) {
+				Logger.println("S777", 10, "Service Exception", e);
 				e.printStackTrace();
 			}
 		}

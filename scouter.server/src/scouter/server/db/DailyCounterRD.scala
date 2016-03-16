@@ -14,14 +14,14 @@ object DailyCounterRD {
         if (new File(path).canRead() == false) {
             return null;
         }
-        val file = path + "/" + DailyCounterWR.prefix;
-        val pos = getLocation(key, file);
-        if (pos < 0)
+        val fileName = path + "/" + DailyCounterWR.prefix;
+        val offset = getOffset(key, fileName);
+        if (offset < 0)
             return null;
 
-        val reader = DailyCounterData.open(file);
+        val reader = DailyCounterData.open(fileName);
         try {
-            return reader.getValue(pos, hhmm);
+            return reader.getValue(offset, hhmm);
         } finally {
             FileUtil.close(reader);
         }
@@ -32,20 +32,20 @@ object DailyCounterRD {
         if (new File(path).canRead() == false) {
             return null;
         }
-        val file = path + "/" + DailyCounterWR.prefix;
-        val location = getLocation(key, file);
-        if (location < 0)
+        val fileName = path + "/" + DailyCounterWR.prefix;
+        val offset = getOffset(key, fileName);
+        if (offset < 0)
             return null;
-        val reader = DailyCounterData.open(file);
+        val reader = DailyCounterData.open(fileName);
         try {
-            return reader.getValues(location);
+            return reader.getValues(offset);
         } finally {
             FileUtil.close(reader);
         }
     }
 
-    def getLocation(key: CounterKey, file: String): Long = {
-        val idx = DailyCounterIndex.open(file);
+    def getOffset(key: CounterKey, fileName: String): Long = {
+        val idx = DailyCounterIndex.open(fileName);
         try {
             return idx.get(key.getBytesKey());
         } finally {
@@ -54,18 +54,17 @@ object DailyCounterRD {
     }
 
     def read(date: String, handler: (Array[Byte], Array[Byte]) => Unit) {
-
         val path = DailyCounterWR.getDBPath(date);
         if (new File(path).canRead() == false) {
             return ;
         }
-        val file = path + "/" + DailyCounterWR.prefix;
+        val fileName = path + "/" + DailyCounterWR.prefix;
 
         var idx: DailyCounterIndex = null;
         var reader: DailyCounterData = null;
         try {
-            idx = DailyCounterIndex.open(file);
-            reader = DailyCounterData.open(file);
+            idx = DailyCounterIndex.open(fileName);
+            reader = DailyCounterData.open(fileName);
             idx.read(handler, reader.read);
         } catch {
             case e: Exception => e.printStackTrace();
@@ -76,15 +75,14 @@ object DailyCounterRD {
     }
 
     def readKey(date: String, clo: (Array[Byte]) => Any) {
-
         val path = DailyCounterWR.getDBPath(date);
         if (new File(path).canRead() == false) {
             return ;
         }
-        val file = path + "/" + DailyCounterWR.prefix;
+        val fileName = path + "/" + DailyCounterWR.prefix;
         var idx: DailyCounterIndex = null;
         try {
-            idx = DailyCounterIndex.open(file);
+            idx = DailyCounterIndex.open(fileName);
             val handler = (key: Array[Byte], date: Array[Byte]) => {
                 clo(key);
             }

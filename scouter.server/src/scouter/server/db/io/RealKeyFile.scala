@@ -78,8 +78,8 @@ class RealKeyFile(_path: String) extends IClose {
         this.synchronized {
             this.raf.seek(pos + 1 + 5);
             val in = new DataInputX(raf);
-            val keylen = this.raf.readShort();
-            in.skipBytes(keylen);
+            val keyLen = this.raf.readShort();
+            in.skipBytes(keyLen);
             return in.readBlob()
         }
     }

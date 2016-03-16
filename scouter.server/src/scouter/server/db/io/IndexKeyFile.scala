@@ -51,14 +51,14 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
         return count;
     }
 
-    def put(key: Array[Byte], value: Array[Byte]): Boolean = {
-        if (key == null || value == null) {
+    def put(key: Array[Byte], dataOffset: Array[Byte]): Boolean = {
+        if (key == null || dataOffset == null) {
             throw new IOException("invalid key/value");
         }
 
         val keyHash = HashUtil.hash(key);
         var prevKeyPos = hashBlock.get(keyHash);
-        var newKeyPos = this.keyFile.append(prevKeyPos, key, value);
+        var newKeyPos = this.keyFile.append(prevKeyPos, key, dataOffset);
         this.hashBlock.put(keyHash, newKeyPos);
         return true;
     }
@@ -78,21 +78,21 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
             throw new IOException("invalid key");
         }
         val keyHash = HashUtil.hash(key);
-        var pos = hashBlock.get(keyHash);
+        var realKeyPos = hashBlock.get(keyHash);
 
         try {
-            while (pos > 0) {
-                if (this.keyFile.isDeleted(pos) == false) {
-                    val okey = this.keyFile.getKey(pos);
-                    if (CompareUtil.equals(okey, key)) {
-                        return this.keyFile.getValue(pos);
+            while (realKeyPos > 0) {
+                if (this.keyFile.isDeleted(realKeyPos) == false) {
+                    val oKey = this.keyFile.getKey(realKeyPos);
+                    if (CompareUtil.equals(oKey, key)) {
+                        return this.keyFile.getValue(realKeyPos);
                     }
                 }
-                pos = this.keyFile.getHashLink(pos);
+                realKeyPos = this.keyFile.getHashLink(realKeyPos);
             }
         } catch {
             case e: IOException =>
-                Logger.println("S124", "pos=" + pos + " keyFile.lengrh=" + this.keyFile.getLength());
+                Logger.println("S124", "pos=" + realKeyPos + " keyFile.lengrh=" + this.keyFile.getLength());
                 throw e;
         }
         return null;

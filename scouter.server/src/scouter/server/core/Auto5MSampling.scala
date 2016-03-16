@@ -55,7 +55,7 @@ object Auto5MSampling {
                     DailyCounterWR.add(CastUtil.cint(DateUtil.yyyymmdd(now)), key5m,
                         CastUtil.cint(DateUtil.hhmm(now)), value)
 
-                    CounterCache.put(key5m, value)
+                    //CounterCache.put(key5m, value)
                 }
             }
         }

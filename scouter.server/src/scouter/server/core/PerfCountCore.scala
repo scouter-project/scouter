@@ -56,7 +56,7 @@ object PerfCountCore {
                 val value = counterPack.data.get(k);
                 val counterKey = new CounterKey(objHash, k, counterPack.timetype);
                 DailyCounterWR.add(yyyymmdd, counterKey, hhmm, value);
-                CounterCache.put(counterKey, value);
+                //CounterCache.put(counterKey, value);
             })
         }
     }

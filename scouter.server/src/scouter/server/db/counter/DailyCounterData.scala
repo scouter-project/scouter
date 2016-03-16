@@ -32,155 +32,165 @@ import scouter.util.FileUtil
 import scouter.util.IClose
 
 
-object DailyCounterData  {
-	val table = new Hashtable[String, DailyCounterData]();
-	
-	def  open( file:String) :DailyCounterData={
-		table.synchronized {
-			var reader = table.get(file);
-			if (reader != null) {
-				reader.refrence+=1;
-			} else {
-				reader = new DailyCounterData(file);
-				table.put(file, reader);
-			}
-				return reader;
-		}
-	}
+object DailyCounterData {
+    val table = new Hashtable[String, DailyCounterData]();
+    val preFixForWriter = "w--";
 
+    def openForWrite(fileName: String): DailyCounterData = {
+        val wFileName = preFixForWriter + fileName;
+        table.synchronized {
+            var writer = table.get(wFileName);
+            if (writer != null) {
+                writer.refrence += 1
+            } else {
+                writer = new DailyCounterData(fileName, "rw")
+                table.put(wFileName, writer);
+            }
+            return writer
+        }
+    }
+
+    def open(fileName: String): DailyCounterData = {
+        table.synchronized {
+            var reader = table.get(fileName)
+            if (reader != null) {
+                reader.refrence += 1
+            } else {
+                reader = new DailyCounterData(fileName, "r")
+                table.put(fileName, reader)
+            }
+            return reader
+        }
+    }
 }
- class DailyCounterData(file:String) extends IClose {
-	
 
-   var refrence = 0;
-	var  dataFile = new RandomAccessFile(file + ".data", "rw");
-	
+class DailyCounterData(fileName: String, mode: String) extends IClose {
+    var refrence = 0;
+    var dataFile = new RandomAccessFile(fileName + ".data", mode);
 
-	override def close() {
-		DailyCounterData.table.synchronized  {
-			if (this.refrence == 0) {
-				DailyCounterData.table.remove(this.file);
-				try {
-					dataFile = FileUtil.close(dataFile);
-				} catch  {
-				    case e:Throwable=>
-					e.printStackTrace();
-				}
-			} else {
-				this.refrence-=1;
-			}
-		}
+    override def close() {
+        DailyCounterData.table.synchronized {
+            if (this.refrence == 0) {
+                DailyCounterData.table.remove(this.fileName);
+                try {
+                    dataFile = FileUtil.close(dataFile);
+                } catch {
+                    case e: Throwable =>
+                        e.printStackTrace();
+                }
+            } else {
+                this.refrence -= 1;
+            }
+        }
+    }
 
-	}
+    def read(offset: Long): Array[Byte] = {
+        this.synchronized {
+            try {
+                dataFile.seek(offset);
+                val valueType = dataFile.readByte();
+                val timetype = dataFile.readByte()
 
-	def read( pos:Long):Array[Byte]= {
-	    this.synchronized{
-		try {
-			dataFile.seek(pos);
-			val valueType = dataFile.readByte();
-			val timetype = dataFile.readByte()
+                val valueLen = DailyCounterUtils.getLength(valueType);
+                val bucketCount = DailyCounterUtils.getBucketCount(timetype);
 
-			val valueLen = DailyCounterUtils.getLength(valueType);
-			val bucketCount = DailyCounterUtils.getBucketCount(timetype);
+                dataFile.seek(offset + 2);
+                val buffer = new Array[Byte](valueLen * bucketCount);
+                dataFile.read(buffer);
+                return buffer;
+            } catch {
+                case e: IOException =>
+                    throw new RuntimeException(e);
+            }
+        }
+    }
 
-			dataFile.seek(pos + 2);
-			val buffer = new Array[Byte](valueLen * bucketCount);
-			dataFile.read(buffer);
-			return buffer;
-		} catch{
-		    case e:IOException=>
-			throw new RuntimeException(e);
-		}
-	    }
-	}
+    def getValues(offset: Long): Array[Value] = {
+        this.synchronized {
+            try {
+                dataFile.seek(offset);
+                val valueType = dataFile.readByte();
+                val timetype = dataFile.readByte()
 
-	def getValues( location:Long):Array[Value]= {
-	    this.synchronized{
-		try {
-			dataFile.seek(location);
-			val valueType = dataFile.readByte();
-			val timetype = dataFile.readByte()
+                val valueLen = DailyCounterUtils.getLength(valueType);
+                val bucketCount = DailyCounterUtils.getBucketCount(timetype);
 
-			val valueLen = DailyCounterUtils.getLength(valueType);
-			val bucketCount = DailyCounterUtils.getBucketCount(timetype);
+                val buffer = new Array[Byte](valueLen * bucketCount)
+                dataFile.read(buffer);
 
-			val buffer = new Array[Byte](valueLen * bucketCount)
-			dataFile.read(buffer);
+                val values = new Array[Value](bucketCount)
+                for (i <- 0 to values.length - 1) {
+                    values(i) = new DataInputX(buffer, i * valueLen).readValue();
+                }
+                return values;
+            } catch {
+                case e: Exception =>
+                    throw new RuntimeException(e);
+            }
+        }
+    }
 
-			val values = new Array[Value](bucketCount)
-			for ( i <- 0 to values.length-1) {
-				values(i) = new DataInputX(buffer, i*valueLen).readValue();
-			}
-			return values;
-		} catch  {
-		    case e: Exception=>
-			throw new RuntimeException(e);
-		}
-	}}
+    def getValue(offset: Long, hhmm: Int): Value = {
+        this.synchronized {
+            try {
+                dataFile.seek(offset);
+                val valueType = dataFile.readByte();
+                val intervalType = dataFile.readByte()
 
-	def  getValue( location:Long, hhmm:Int):Value= {
-	    this.synchronized{
-		try {
-			dataFile.seek(location);
-			val valueType = dataFile.readByte();
-			val intervalType = dataFile.readByte()
+                val valueLen = DailyCounterUtils.getLength(valueType);
+                val bucketCount = DailyCounterUtils.getBucketCount(intervalType);
+                val bucketPos = DailyCounterUtils.getBucketPos(intervalType, hhmm);
+                if (bucketPos < bucketCount) {
+                    dataFile.seek(offset + 2 + valueLen * bucketPos);
+                    val buffer = new Array[Byte](valueLen);
+                    dataFile.read(buffer);
+                    return new DataInputX(buffer).readValue();
+                }
+                return null;
+            } catch {
+                case e: IOException =>
+                    throw new RuntimeException(e);
+            }
+        }
+    }
 
-			val valueLen = DailyCounterUtils.getLength(valueType);
-			val bucketCount = DailyCounterUtils.getBucketCount(intervalType);
-			val bucketPos = DailyCounterUtils.getBucketPos(intervalType, hhmm);
-			if (bucketPos < bucketCount) {
-				dataFile.seek(location + 2 + valueLen * bucketPos);
-				val buffer = new Array[Byte](valueLen);
-				dataFile.read(buffer);
-				return new DataInputX(buffer).readValue();
-			}
-			return null;
-		} catch  {
-		    case e:IOException=>
-			throw new RuntimeException(e);
-		}
-	    }
-	}
+    def write(offset: Long, key: CounterKey, hhmm: Int, value: Value) {
+        dataFile.seek(offset);
+        val valueType = dataFile.readByte();
+        if (valueType != value.getValueType() && value.getValueType() != ValueEnum.NULL)
+            return;
+        val timetype = dataFile.readByte()
+        if (timetype != key.timetype)
+            return;
 
-	def write( location:Long,  key:CounterKey,  hhmm:Int,  value:Value)  {
-		dataFile.seek(location);
-		val valueType = dataFile.readByte();
-		if (valueType != value.getValueType() && value.getValueType() != ValueEnum.NULL)
-			return;
-		val timetype = dataFile.readByte()
-		if (timetype != key.timetype)
-			return;
+        val valueLen = DailyCounterUtils.getLength(valueType);
+        val bucketPos = DailyCounterUtils.getBucketPos(timetype, hhmm);
 
-		val valueLen = DailyCounterUtils.getLength(valueType);
-		val bucketPos = DailyCounterUtils.getBucketPos(timetype, hhmm);
+        dataFile.seek(offset + 2 + bucketPos * valueLen);
+        dataFile.write(new DataOutputX().writeValue(value).toByteArray());
 
-		dataFile.seek(location + 2 + bucketPos * valueLen);
-		dataFile.write(new DataOutputX().writeValue(value).toByteArray());
+    }
 
-	}
+    def writeNew(key: CounterKey, hhmm: Int, value: Value): Long = {
+        val valueType = value.getValueType();
 
-	def  write( key:CounterKey,  hhmm:Int,  value:Value):Long= {
-        //파일에 존재하지 않는 레코드...
-		val valueType = value.getValueType();
-			
-		val valueLen = DailyCounterUtils.getLength(valueType);
-		if (valueLen <= 0)
-			return 0;
-		val bucketCount = DailyCounterUtils.getBucketCount(key.timetype);
-		if (bucketCount <= 0)
-			return 0;
+        val valueLen = DailyCounterUtils.getLength(valueType);
+        if (valueLen <= 0)
+            return 0;
+        val bucketCount = DailyCounterUtils.getBucketCount(key.timetype);
+        if (bucketCount <= 0)
+            return 0;
 
-		val bucketPos = DailyCounterUtils.getBucketPos(key.timetype, hhmm);
+        val bucketPos = DailyCounterUtils.getBucketPos(key.timetype, hhmm);
 
-		val location = dataFile.length();
-		dataFile.seek(location);
-		dataFile.writeByte(value.getValueType());
-		dataFile.writeByte(key.timetype);
-		dataFile.write(new Array[Byte](valueLen * bucketCount)); // 하룻치데이터 전체를 먼저 공백으로 기록한다.
+        val location = dataFile.length();
+        dataFile.seek(location);
+        dataFile.writeByte(value.getValueType());
+        dataFile.writeByte(key.timetype);
+        dataFile.write(new Array[Byte](valueLen * bucketCount)); //fill 1 day data with blank bytes
 
-		dataFile.seek(location + 2 + bucketPos * valueLen);
-		dataFile.write(new DataOutputX().writeValue(value).toByteArray());
-		return location;
-	}
-
+        dataFile.seek(location + 2 + bucketPos * valueLen);
+        dataFile.write(new DataOutputX().writeValue(value).toByteArray());
+        return location;
+    }
 }
