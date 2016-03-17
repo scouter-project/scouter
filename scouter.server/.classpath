@@ -8,5 +8,11 @@
 	<classpathentry kind="lib" path="/scouter.deploy/lib/scala/jline.jar"/>
 	<classpathentry kind="lib" path="/scouter.deploy/lib/javassist.jar"/>
 	<classpathentry kind="lib" path="/scouter.deploy/lib/jsqlparser-0.9.4.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/httpclient-4.3.6.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/httpcore-4.3.3.jar" sourcepath="/Users/sjokim/.m2/repository/org/apache/httpcomponents/httpcore/4.3.3/httpcore-4.3.3-sources.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/commons-email-1.4.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/gson-2.3.1.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/javax.mail-1.5.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
