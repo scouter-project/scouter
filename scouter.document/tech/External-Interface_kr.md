@@ -27,10 +27,10 @@
 
 * Example
 ```
-//External Interface
+# External Interface
 send_alert_level=0 // INFO Level 이상의 Alert을 전송
 
-//External Interface (Email)
+# External Interface (Email)
 send_alert_via_email=true
 email_smtp_hostname=smtp.gmail.com
 email_smtp_port=587
@@ -40,7 +40,7 @@ email_tls_enabled=true
 email_from_address=noreply@gmail.com
 email_to_address=scoutertest@yopmail.com
 
-//External Interface (Telegram)
+# External Interface (Telegram)
 send_alert_via_telegram=true
 telegram_bot_token=185786411:AAGVaPyWCoZ8y1mTEGCV1jFmbLwpcjlsJoJY
 telegram_chat_id=@ScouterDemoChannel

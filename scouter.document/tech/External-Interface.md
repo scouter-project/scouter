@@ -27,10 +27,10 @@
 
 * Example
 ```
-//External Interface
+# External Interface
 send_alert_level=0 // INFO Level 이상의 Alert을 전송
 
-//External Interface (Email)
+# External Interface (Email)
 send_alert_via_email=true
 email_smtp_hostname=smtp.gmail.com
 email_smtp_port=587
@@ -40,7 +40,7 @@ email_tls_enabled=true
 email_from_address=noreply@gmail.com
 email_to_address=scoutertest@yopmail.com
 
-//External Interface (Telegram)
+# External Interface (Telegram)
 send_alert_via_telegram=true
 telegram_bot_token=185786411:AAGVaPyWCoZ8y1mTEGCV1jFmbLwpcjlsJoJY
 telegram_chat_id=@ScouterDemoChannel
@@ -79,6 +79,6 @@ telegram_chat_id=@ScouterDemoChannel
 * 브라우져에서 https://api.telegram.org/bot{BOT_TOKEN}/getUpdates 를 호출합니다.
 ><img src="../img/tech/extif/bot7.png" width="700">
 
-* chat id 값을 이용하여 대화창으로 메시지를 전송할 수 있습니다. (공개 채널의 경우 @{channeName}으로 메시지 전송 가능)
+* chat id 값을 이용하여 대화창으로 메시지를 전송할 수 있습니다. (공개 채널의 경우 @{channelName}으로 메시지 전송 가능)
 ><img src="../img/tech/extif/bot8.png" width="700">
 ><img src="../img/tech/extif/bot9.png" width="400">
