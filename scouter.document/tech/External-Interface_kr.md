@@ -1,7 +1,7 @@
 # External Interface (Email, Telegram)
 [![Englsh](https://img.shields.io/badge/language-English-red.svg)](External-Interface.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](External-Interface_kr.md)
 
-본 문서에서는 스카우터 서버가 발생한 Alert 메시지를 Email과 Telegram 메신져로 전송하는 방법에 대해 소개합니다.
+본 문서에서는 스카우터 서버에서 발생한 Alert 메시지를 Email과 Telegram 메신져로 전송하는 방법에 대해 소개합니다.
 
 ## 추가 Properties
 스카우터 서버 설치 경로의 conf/scouter.conf 파일에 외부 연동을 위해 다음 항목을 추가로 정의합니다.
@@ -11,12 +11,12 @@
 
 * Email 관련 항목
 	* **_send\_alert\_via\_email_** : Email 발송 여부 (true / false) - 기본 값은 false
-	* **_email\_smtp\_hostname_** : SMTP 서버의 IP 및 Domain - 기본 값은 smtp.gmail.com
+	* **_email\_smtp\_hostname_** : SMTP 서버의 IP 또는 Domain - 기본 값은 smtp.gmail.com
 	* **_email\_smtp\_port_** : SMTP Port - 기본 값은 587
 	* **_email\_username_** : Email 사용자 계정
 	* **_email\_password_** : Email 사용자 비밀번호
 	* **_email\_tls\_enabled_** : TLS 사용 여부 - 기본 값은 true
-	* **_email\_from\_address_** : Email 발송 계정
+	* **_email\_from\_address_** : Email 발신자 계정
 	* **_email\_to\_address_** : Email 수신 계정(다중 사용자 지정 시 ',' 구분자 사용)
 	* **_email\_cc\_address_** : Email 참조 수신 계정(다중 사용자 지정 시 ',' 구분자 사용)
 	
@@ -56,7 +56,7 @@ telegram_chat_id=@ScouterDemoChannel
 
 ## Appendix
 ##### Telegram 데모 채널 #####
-* https://telegram.me/ScouterDemoChannel을 통해 Telegram 봇을 이용한 메시지 수신 기능을 확인할 수 있습니다.
+* https://telegram.me/ScouterDemoChannel 을 통해 Telegram 봇을 이용한 메시지 수신 기능을 확인할 수 있습니다.
 
 ##### Telegram Bot 생성 #####
 * Telegram App에서 BotFather를 검색합니다.
@@ -79,6 +79,6 @@ telegram_chat_id=@ScouterDemoChannel
 * 브라우져에서 https://api.telegram.org/bot{BOT_TOKEN}/getUpdates 를 호출합니다.
 ><img src="../img/tech/extif/bot7.png" width="700">
 
-* chat id 값을 이용하여 대화창으로 메시지를 전송할 수 있습니다.
+* chat id 값을 이용하여 대화창으로 메시지를 전송할 수 있습니다. (공개 채널의 경우 @{channelName}으로 메시지 전송 가능)
 ><img src="../img/tech/extif/bot8.png" width="700">
 ><img src="../img/tech/extif/bot9.png" width="400">
