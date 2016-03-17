@@ -64,7 +64,7 @@ class GroupService {
             val perf = groupPerfStat.get(hash);
             nameLv.add(if (name == null) "unknown" else name);
             countLv.add(perf.count);
-            elapsedLv.add(perf.elapsed);
+            elapsedLv.add(perf.getAvgElapsed());
             errorLv.add(perf.error);
         })
 

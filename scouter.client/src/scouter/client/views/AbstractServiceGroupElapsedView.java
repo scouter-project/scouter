@@ -268,7 +268,7 @@ public abstract class AbstractServiceGroupElapsedView extends ViewPart implement
 				xyGraph.primaryXAxis.setRange(stime, now + 1);
 				for (int i = 0; i < nameLv.size(); i++) {
 					String name = nameLv.getString(i);
-					double value = CastUtil.cdouble(elapsedLv.get(i)) / 30.0d;
+					double value = CastUtil.cdouble(elapsedLv.get(i));
 					CircularBufferDataProvider provider = (CircularBufferDataProvider) getTrace(name).getDataProvider();
 					provider.addSample(new Sample(now, value));
 				}
