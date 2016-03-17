@@ -62,8 +62,6 @@ object EmailMessage {
                 
                 to.split(",").foreach(email.addTo(_)) 
                 
-                println("to : " + to)
-                
                 if (cc != null) {
                     cc.split(",").foreach(email.addCc(_)) 
                 }
