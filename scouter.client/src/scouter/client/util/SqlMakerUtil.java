@@ -238,15 +238,19 @@ public class SqlMakerUtil {
 		int index = 0;
 		int pos = 0;
 		
-		while(pos < sqlLength){
-			search = sql.indexOf('?', pos);
-			if(search < 0 ){
-				sqlBuilder.append(sql.substring(pos));
-				break;
+		try {
+			while(pos < sqlLength){
+				search = sql.indexOf('?', pos);
+				if(search < 0 ){
+					sqlBuilder.append(sql.substring(pos));
+					break;
+				}
+				sqlBuilder.append(sql.substring(pos, search)).append(paramList.get(index));
+				index++;
+				pos = search + 1;
 			}
-			sqlBuilder.append(sql.substring(pos, search)).append(paramList.get(index));
-			index++;
-			pos = search + 1;
+		} catch (Exception e) {
+			return ">>>> Failed bind parameter : " + e.getMessage();
 		}
 		return sqlBuilder.toString();
 	}
@@ -257,7 +261,7 @@ public class SqlMakerUtil {
 			
 			String sql = "select @,@,@ from emp where emp_id=? and sex=?";
 			String param = "age,weight,score,1234,'M'";
-			System.out.println(SqlMakerUtil.unescapeLiteralSQL(sql, param));
+			System.out.println(SqlMakerUtil.replaceSQLParameter(sql, param));
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}

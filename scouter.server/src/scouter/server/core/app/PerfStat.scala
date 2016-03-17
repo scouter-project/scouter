@@ -29,8 +29,8 @@ class PerfStat {
         this.elapsed += o.elapsed;
     }
 
-    def getAvgElapsed(): Long = {
-        return if (count == 0) 0 else elapsed / count
+    def getAvgElapsed(): Float = {
+        return if (count == 0) 0 else elapsed.toFloat / count
     }
 
 }

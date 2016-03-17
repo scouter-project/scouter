@@ -38,8 +38,8 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 	public final HashSet<String> target = HookingSet.getHookingClassSet(Configure.getInstance().hook_jdbc_pstmt_classes);
 	public final HashSet<String> noField = new HashSet<String>();
 	public JDBCPreparedStatementASM() {
-		target.add("org.mariadb.jdbc.MariaDbClientPreparedStatement");
-		target.add("org.mariadb.jdbc.MariaDbServerPreparedStatement");
+		target.add("org/mariadb/jdbc/MariaDbClientPreparedStatement");
+		target.add("org/mariadb/jdbc/MariaDbServerPreparedStatement");
 		target.add("org/mariadb/jdbc/MySQLPreparedStatement");
 		target.add("oracle/jdbc/driver/OraclePreparedStatement");
 		target.add("org/postgresql/jdbc2/AbstractJdbc2Statement");
@@ -55,8 +55,8 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
         target.add("cubrid/jdbc/driver/CUBRIDPreparedStatement");
 
         // @skyworker - MySQL ServerPreparedStatement는 특별히 필드를 추가하지 않음
-        noField.add("org.mariadb.jdbc.MariaDbServerPreparedStatement");
-		noField.add("com/mysql/jdbc/ServerPreparedStatement");
+        //noField.add("org/mariadb/jdbc/MariaDbServerPreparedStatement");
+		//noField.add("com/mysql/jdbc/ServerPreparedStatement");
 		noField.add("jdbc/FakePreparedStatement2");
 	}
 

@@ -1130,6 +1130,11 @@
              id="scouter.menu.window"
              label="Window">
           <command
+                commandId="org.eclipse.ui.window.resetPerspective"
+                label="Reset Perspective"
+                style="push">
+          </command>
+          <command
                 commandId="org.eclipse.ui.window.preferences"
                 label="Preferences"
                 style="push">
