@@ -19,7 +19,7 @@ object EmailMessage {
         val level = conf.send_alert_level
         
         if (level <= alert.level) {
-            ThreadScala.start("scouter.server.extif.MailMessage") {
+            ThreadScala.start("scouter.server.extif.EmailMessage") {
                 val hostname = conf.email_smtp_hostname
                 val port = conf.email_smtp_port
                 val username = conf.email_username
