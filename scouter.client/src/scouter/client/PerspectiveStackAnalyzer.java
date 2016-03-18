@@ -50,6 +50,7 @@ public class PerspectiveStackAnalyzer implements IPerspectiveFactory  {
 		explorerFolder.addView(WorkspaceExplorer.ID);
 		
 		layout.addPerspectiveShortcut(getId());
+		Activator.getDefault().addPrePerspective(getId());
 	}
 	
 	public static String getId() {
