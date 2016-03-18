@@ -19,13 +19,14 @@ package scouter.client.context.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.IPerspectiveDescriptor;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 
-import scouter.client.Images;
+import scouter.client.Activator;
 import scouter.client.preferences.ServerPrefUtil;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
-import scouter.client.util.ImageUtil;
 import scouter.client.util.RCPUtil;
 
 
@@ -45,8 +46,14 @@ public class SetDefaultServerAction extends Action {
 		if(server != null) {
 			ServerPrefUtil.storeDefaultServer(server.getIp()+":"+server.getPort());
 			ServerManager.getInstance().setDefaultServer(server);
-			if (MessageDialog.openConfirm(win.getShell(), "Reset Perspectives", "Default server is changed. Would you reset all perspective?")) {
-				RCPUtil.resetPerspective();
+			IWorkbenchPage page = win.getActivePage();
+			IPerspectiveDescriptor perspective = page.getPerspective();
+			if (Activator.getDefault().isPrePerspective(perspective.getId())) {
+				if (MessageDialog.openConfirm(win.getShell(), "Reset Perspectives", "Default server is changed. Would you reset current perspective?")) {
+					RCPUtil.resetPerspective();
+				}
+			} else {
+				MessageDialog.openInformation(win.getShell(), "Custom perspective", "Default server is changed. But custom perspective is not applied");
 			}
 		}
 	}

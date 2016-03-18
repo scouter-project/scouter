@@ -21,7 +21,9 @@ package scouter.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.PropertyResourceBundle;
+import java.util.Set;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
@@ -48,6 +50,8 @@ public class Activator extends AbstractUIPlugin {
 	private static Activator plugin;
 	
 	protected PropertyResourceBundle localProperties;
+	
+	private static Set<String> prePerspectiveSet = new HashSet<String>();
 
 	public Activator() {
 		plugin = this;
@@ -86,7 +90,7 @@ public class Activator extends AbstractUIPlugin {
 		return ImageUtil.getExtensionIcon((AbstractUIPlugin) getDefault(), filename);
 	}
 	
-	 public  PropertyResourceBundle getLocalProperties() {
+	public  PropertyResourceBundle getLocalProperties() {
 		 if (localProperties == null){
 			 try {
 				 localProperties = new PropertyResourceBundle(
@@ -96,4 +100,12 @@ public class Activator extends AbstractUIPlugin {
 		 }
 		 return localProperties;
 	 }
+	 
+	public void addPrePerspective(String id) {
+		prePerspectiveSet.add(id);
+	}
+		
+	public boolean isPrePerspective(String id) {
+		return prePerspectiveSet.contains(id);
+	}
 }

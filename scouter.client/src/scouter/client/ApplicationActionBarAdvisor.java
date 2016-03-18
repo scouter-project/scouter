@@ -20,6 +20,7 @@ package scouter.client;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 
@@ -64,6 +65,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		register(new OpenConsoleAction(window, "Console"));
 		register(new OpenAlertRealTimeAction(window, MenuStr.ALERT_REAL, Images.alert));
 		register(new OpenGroupNavigationAction(window));
+		
+		// Window
+		register(ActionFactory.RESET_PERSPECTIVE.create(window));
 	}
 
 	public IAction getAction(String id) {
