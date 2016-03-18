@@ -328,7 +328,7 @@ public class TraceMain {
         switch (pack.xType) {
             case XLogTypes.WEB_SERVICE:
             case XLogTypes.APP_SERVICE:
-                MeterService.getInstance().add(pack.elapsed, pack.error != 0);
+                MeterService.getInstance().add(pack.elapsed, pack.sqlTime, pack.apicallTime, pack.error != 0);
                 ServiceSummary.getInstance().process(pack);
                 break;
             case XLogTypes.BACK_THREAD:
@@ -662,7 +662,7 @@ public class TraceMain {
         if (error != null) {
             pack.error = DataProxy.sendError(error);
         }
-        MeterService.getInstance().add(pack.elapsed, error != null);
+        MeterService.getInstance().add(pack.elapsed, pack.sqlTime, pack.apicallTime, error != null);
         DataProxy.sendXLog(pack);
         MeterUsers.add(pack.userid);
         return pack;
