@@ -62,7 +62,7 @@ public class ListValue implements Value {
 		return 0;
 	}
 
-	public double getFloat(int i) {
+	public float getFloat(int i) {
 		Value v = valueList.get(i);
 		if (v instanceof Number) {
 			return ((Number) v).floatValue();

@@ -35,47 +35,39 @@ public class SqlApiCallPerf {
 		MeterAPI api = MeterAPI.getInstance();
 
 		PerfCounterPack p = pw.getPack(TimeTypeEnum.REALTIME);
-		long time = sql.getAvgTime(30);
-		float count = sql.getCountPerSec(30);
-		float err = sql.getErrorPerSec(30);
-		long timesum = sql.getTimeSum(30);
-		
-		p.put(CounterConstants.WAS_SQL_TIME, new DecimalValue(time));
-		p.put(CounterConstants.WAS_SQL_COUNT, new FloatValue(count));
-		p.put(CounterConstants.WAS_SQL_ERROR, new FloatValue(err));
-		p.put(CounterConstants.WAS_SQL_TIME_SUM, new FloatValue(timesum));
+		long elapsed = sql.getAvgTime(30);
+		float tps = sql.getTps(30);
+		float errRate = sql.getErrorRate(30);
 
-		time = api.getAvgTime(30);
-		count = api.getCountPerSec(30);
-		err = api.getErrorPerSec(30);
-		timesum=api.getTimeSum(30);
-				
-		p.put(CounterConstants.WAS_APICALL_TIME, new DecimalValue(time));
-		p.put(CounterConstants.WAS_APICALL_COUNT, new FloatValue(count));
-		p.put(CounterConstants.WAS_APICALL_ERROR, new FloatValue(err));
-		p.put(CounterConstants.WAS_APICALL_TIME_SUM, new FloatValue(timesum));
+		p.put(CounterConstants.WAS_SQL_TIME, new DecimalValue(elapsed));
+		p.put(CounterConstants.WAS_SQL_TPS, new FloatValue(tps));
+		p.put(CounterConstants.WAS_SQL_ERROR_RATE, new FloatValue(errRate));
+
+		elapsed = api.getAvgTime(30);
+		tps = api.getTps(30);
+		errRate = api.getErrorRate(30);
+
+		p.put(CounterConstants.WAS_APICALL_TIME, new DecimalValue(elapsed));
+		p.put(CounterConstants.WAS_APICALL_TPS, new FloatValue(tps));
+		p.put(CounterConstants.WAS_APICALL_ERROR_RATE, new FloatValue(errRate));
 
 		p = pw.getPack(TimeTypeEnum.FIVE_MIN);
 		
-		time = sql.getAvgTime(300);
-		count = sql.getCountPerSec(300);
-		err = sql.getErrorPerSec(300);
-		timesum = sql.getTimeSum(300);
-				
-		p.put(CounterConstants.WAS_SQL_TIME, new DecimalValue(time));
-		p.put(CounterConstants.WAS_SQL_COUNT, new FloatValue(count));
-		p.put(CounterConstants.WAS_SQL_ERROR, new FloatValue(err));
-		p.put(CounterConstants.WAS_SQL_TIME_SUM, new FloatValue(timesum));
+		elapsed = sql.getAvgTime(300);
+		tps = sql.getTps(300);
+		errRate = sql.getErrorRate(300);
 
-		time = api.getAvgTime(300);
-		count = api.getCountPerSec(300);
-		err = api.getErrorPerSec(300);
-		timesum = api.getTimeSum(300);
-		
-		p.put(CounterConstants.WAS_APICALL_TIME, new DecimalValue(time));
-		p.put(CounterConstants.WAS_APICALL_COUNT, new FloatValue(count));
-		p.put(CounterConstants.WAS_APICALL_ERROR, new FloatValue(err));
-		p.put(CounterConstants.WAS_APICALL_TIME_SUM, new FloatValue(timesum));
+		p.put(CounterConstants.WAS_SQL_TIME, new DecimalValue(elapsed));
+		p.put(CounterConstants.WAS_SQL_TPS, new FloatValue(tps));
+		p.put(CounterConstants.WAS_SQL_ERROR_RATE, new FloatValue(errRate));
+
+		elapsed = api.getAvgTime(300);
+		tps = api.getTps(300);
+		errRate = api.getErrorRate(300);
+
+		p.put(CounterConstants.WAS_APICALL_TIME, new DecimalValue(elapsed));
+		p.put(CounterConstants.WAS_APICALL_TPS, new FloatValue(tps));
+		p.put(CounterConstants.WAS_APICALL_ERROR_RATE, new FloatValue(errRate));
 
 	}
 

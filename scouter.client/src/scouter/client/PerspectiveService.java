@@ -89,6 +89,7 @@ public class PerspectiveService implements IPerspectiveFactory  {
 		
 		
 		layout.addPerspectiveShortcut(getId());
+		Activator.getDefault().addPrePerspective(getId());
 	}
 	
 	public static String getId() {

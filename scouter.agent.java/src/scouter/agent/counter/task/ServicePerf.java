@@ -47,9 +47,11 @@ public class ServicePerf {
 		MeterService service = MeterService.getInstance();
 		int elapsed = service.getElapsedTime(30);
 		float tps = service.getTPS(30);
-		float err = service.getError(30);
+		float errorRate = service.getErrorRate(30);
 		int count = service.getServiceCount(60);
 		int resp90pct = service.getElapsed90Pct(30);
+		int sqlTimeByService = service.getSqlTime(30);
+		int apiTimeByService = service.getApiTime(30);
 
 		int[] act = TraceContextManager.getActiveCount();
 		int active = act[0] + act[1] + act[2];
@@ -65,9 +67,11 @@ public class ServicePerf {
 		p.put(CounterConstants.WAS_ELAPSED_TIME, new DecimalValue(elapsed));
 		p.put(CounterConstants.WAS_SERVICE_COUNT, new DecimalValue(count));
 		p.put(CounterConstants.WAS_TPS, new FloatValue(tps));
-		p.put(CounterConstants.WAS_ERROR_RATE, new FloatValue(err));
+		p.put(CounterConstants.WAS_ERROR_RATE, new FloatValue(errorRate));
 		p.put(CounterConstants.WAS_ACTIVE_SERVICE, new DecimalValue(active));
 		p.put(CounterConstants.WAS_ELAPSED_90PCT, new DecimalValue(resp90pct));
+		p.put(CounterConstants.WAS_APICALL_ELAPSED_TIME_BY_SERVICE, new DecimalValue(apiTimeByService));
+		p.put(CounterConstants.WAS_SQL_ELAPSED_TIME_BY_SERVICE, new DecimalValue(sqlTimeByService));
 
 		ListValue activeSpeed = new ListValue();
 		activeSpeed.add(act[0]);
@@ -81,17 +85,21 @@ public class ServicePerf {
 		count = service.getServiceCount(300);
 		tps = service.getTPS(300);
 		elapsed = service.getElapsedTime(300);
-		err = service.getError(300);
-		int activeSErvice = (int) activeCounter.getAvg(300);
+		errorRate = service.getErrorRate(300);
+		int activeService = (int) activeCounter.getAvg(300);
 		resp90pct = service.getElapsed90Pct(300);
+        sqlTimeByService = service.getSqlTime(300);
+        apiTimeByService = service.getApiTime(300);
 
 		p = pw.getPack(TimeTypeEnum.FIVE_MIN);
 		p.put(CounterConstants.WAS_ELAPSED_TIME, new DecimalValue(elapsed));
 		p.put(CounterConstants.WAS_SERVICE_COUNT, new DecimalValue(count));
 		p.put(CounterConstants.WAS_TPS, new FloatValue(tps));
-		p.put(CounterConstants.WAS_ERROR_RATE, new FloatValue(err));
-		p.put(CounterConstants.WAS_ACTIVE_SERVICE, new DecimalValue(activeSErvice));
+		p.put(CounterConstants.WAS_ERROR_RATE, new FloatValue(errorRate));
+		p.put(CounterConstants.WAS_ACTIVE_SERVICE, new DecimalValue(activeService));
 		p.put(CounterConstants.WAS_ELAPSED_90PCT, new DecimalValue(resp90pct));
+        p.put(CounterConstants.WAS_APICALL_ELAPSED_TIME_BY_SERVICE, new DecimalValue(apiTimeByService));
+        p.put(CounterConstants.WAS_SQL_ELAPSED_TIME_BY_SERVICE, new DecimalValue(sqlTimeByService));
 	}
 
 	private long last_sent = DateUtil.getMinUnit(System.currentTimeMillis()) / 5;

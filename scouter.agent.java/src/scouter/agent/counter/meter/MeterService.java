@@ -36,7 +36,9 @@ public class MeterService {
 	final static class Bucket {
 		final short[] pct90 = new short[PCT_BUCKET];
 		int count;
-		long time;
+		long elapsedTime;
+        long sqlTimeByService;
+        long apiTmeByService;
 
 		int error;
 	}
@@ -49,19 +51,25 @@ public class MeterService {
 		protected void clear(Bucket o) {
 			o.count = 0;
 			o.error = 0;
-			o.time = 0L;
+			o.elapsedTime = 0L;
+            o.sqlTimeByService = 0L;
+            o.apiTmeByService = 0L;
 			for (int i = 0; i < PCT_BUCKET; i++) {
 				o.pct90[i] = 0;
 			}
 		}
 	};
 
-	public synchronized void add(int elapsed, boolean err) {
-		if(elapsed <0)
-			elapsed=0;
+	public synchronized void add(long elapsed, int sqlTime, int apiTime, boolean err) {
+		if(elapsed < 0)
+			elapsed = 0;
+
 		Bucket b = meter.getCurrentBucket();
 		b.count++;
-		b.time += elapsed;
+		b.elapsedTime += elapsed;
+        b.sqlTimeByService += sqlTime;
+        b.apiTmeByService += apiTime;
+
 		if (err) {
 			b.error++;
 		}
@@ -87,7 +95,7 @@ public class MeterService {
 		final INT cnt = new INT();
 		meter.search(period, new Handler<MeterService.Bucket>() {
 			public void process(Bucket b) {
-				sum.value += b.time;
+				sum.value += b.elapsedTime;
 				cnt.value += b.count;
 
 			}
@@ -120,7 +128,35 @@ public class MeterService {
 		return (int) ((cnt.value == 0) ? 0 : sum.value / cnt.value);
 	}
 
-	public float getError(int period) {
+    public int getSqlTime(int period) {
+        final LONG sum = new LONG();
+        final INT cnt = new INT();
+
+        meter.search(period, new Handler<MeterService.Bucket>() {
+            public void process(Bucket b) {
+                sum.value += b.sqlTimeByService;
+                cnt.value += b.count;
+
+            }
+        });
+        return (int) ((cnt.value == 0) ? 0 : sum.value / cnt.value);
+    }
+
+    public int getApiTime(int period) {
+        final LONG sum = new LONG();
+        final INT cnt = new INT();
+
+        meter.search(period, new Handler<MeterService.Bucket>() {
+            public void process(Bucket b) {
+                sum.value += b.apiTmeByService;
+                cnt.value += b.count;
+
+            }
+        });
+        return (int) ((cnt.value == 0) ? 0 : sum.value / cnt.value);
+    }
+
+	public float getErrorRate(int period) {
 
 		final INT cnt = new INT();
 		final INT err = new INT();
