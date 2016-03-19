@@ -107,7 +107,7 @@ class CounterService {
         val param = din.readPack().asInstanceOf[MapPack];
         val objHash = param.getInt("objHash");
 
-        val cntMap = CounterCache.getObjectCounters(objHash);
+        val cntMap = CounterCache.getObjectCounters(objHash, TimeTypeEnum.REALTIME);
 
         val mpack = new MapPack();
         val counters = mpack.newList("counter");
@@ -132,7 +132,7 @@ class CounterService {
         val mpack = new MapPack();
         for (objHash <- liveObjectList) {
             val mapValue = new MapValue();
-            val cntMap = CounterCache.getObjectCounters(objHash.intValue());
+            val cntMap = CounterCache.getObjectCounters(objHash.intValue(), TimeTypeEnum.REALTIME);
             for (counter <- cntMap.keySet()) {
                 val value = cntMap.get(counter);
                 mapValue.put(counter, value);

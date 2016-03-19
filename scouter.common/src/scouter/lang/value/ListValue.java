@@ -17,14 +17,14 @@
 
 package scouter.lang.value;
 
+import scouter.io.DataInputX;
+import scouter.io.DataOutputX;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import scouter.io.DataInputX;
-import scouter.io.DataOutputX;
 
 public class ListValue implements Value {
 
@@ -58,6 +58,14 @@ public class ListValue implements Value {
 		Value v = valueList.get(i);
 		if (v instanceof Number) {
 			return ((Number) v).doubleValue();
+		}
+		return 0;
+	}
+
+	public float getFloat(int i) {
+		Value v = valueList.get(i);
+		if (v instanceof Number) {
+			return ((Number) v).floatValue();
 		}
 		return 0;
 	}

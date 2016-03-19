@@ -23,54 +23,55 @@ import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.util.FileUtil
 import scouter.util.IClose;
+
 object DailyCounterIndex {
     val table = new Hashtable[String, DailyCounterIndex]();
 
-    def open(file: String): DailyCounterIndex = {
+    def open(fileName: String): DailyCounterIndex = {
         table.synchronized {
-            var index = table.get(file);
+            var index = table.get(fileName);
             if (index != null) {
                 index.refrence += 1;
                 return index;
             } else {
-                index = new DailyCounterIndex(file);
-                table.put(file, index);
+                index = new DailyCounterIndex(fileName);
+                table.put(fileName, index);
                 return index;
             }
         }
     }
 }
-class DailyCounterIndex(_file: String) extends IClose {
 
+class DailyCounterIndex(_fileName: String) extends IClose {
     var refrence = 0
-    val file = _file
+    val fileName = _fileName
     var index: IndexKeyFile = null
-   
-    def set(key: Array[Byte], pos: Long) {
+
+    def set(key: Array[Byte], dataOffset: Long) {
         if (this.index == null) {
-            this.index = new IndexKeyFile(file)
+            this.index = new IndexKeyFile(fileName)
         }
-        this.index.put(key, DataOutputX.toBytes5(pos));
+        this.index.put(key, DataOutputX.toBytes5(dataOffset));
     }
 
     def get(key: Array[Byte]): Long = {
         if (this.index == null) {
-            this.index = new IndexKeyFile(file);
+            this.index = new IndexKeyFile(fileName);
         }
-        val buf = this.index.get(key);
-        if (buf == null) -1 else DataInputX.toLong5(buf, 0)
+        val dataOffsetBuff = this.index.get(key);
+        if (dataOffsetBuff == null) -1 else DataInputX.toLong5(dataOffsetBuff, 0)
     }
 
     def read(handler: (Array[Byte], Array[Byte]) => Unit, reader: (Long)=>Array[Byte]) {
         if (this.index == null) {
-            this.index = new IndexKeyFile(file);
+            this.index = new IndexKeyFile(fileName);
         }
         this.index.read(handler, reader);
     }
 
     def read(handler: (Array[Byte], Array[Byte]) => Any) {
         if (this.index == null) {
-            this.index = new IndexKeyFile(file);
+            this.index = new IndexKeyFile(fileName);
         }
         this.index.read(handler);
     }
@@ -78,7 +79,7 @@ class DailyCounterIndex(_file: String) extends IClose {
     def close() {
         DailyCounterIndex.table.synchronized {
             if (this.refrence == 0) {
-                DailyCounterIndex.table.remove(this.file);
+                DailyCounterIndex.table.remove(this.fileName);
                 FileUtil.close(this.index);
             } else {
                 this.refrence -= 1;

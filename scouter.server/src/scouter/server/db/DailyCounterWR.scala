@@ -17,8 +17,6 @@
  */
 package scouter.server.db
 
-;
-
 import java.io.File
 import scouter.lang.CounterKey
 import scouter.lang.value.Value
@@ -36,15 +34,20 @@ import scouter.util.RequestQueue
   */
 object DailyCounterWR {
     val queue = new RequestQueue[Data](DBCtr.MAX_QUE_SIZE)
-    val prefix = "5m";
+    val prefix = "5m"
+
+    var lastDateInt: Int = 0
+    var index: DailyCounterIndex = null
+    var writer: DailyCounterData = null
+
     ThreadScala.start("scouter.server.db.DailyCounterWR") {
         while (DBCtr.running) {
-            val m = queue.get();
+            val counterData = queue.get();
             try {
-                if (lastDateInt != m.date) {
-                    lastDateInt = m.date;
+                if (lastDateInt != counterData.date) {
+                    lastDateInt = counterData.date;
                     close();
-                    open(Integer.toString(m.date));
+                    open(Integer.toString(counterData.date));
                 }
                 if (index == null) {
                     OftenAction.act("DailyCounterWR", 10) {
@@ -53,14 +56,14 @@ object DailyCounterWR {
                     }
                     Logger.println("S122", 10, "can't open db");
                 } else {
-                    val pkey = m.key.getBytesKey();
-                    var location = index.get(pkey);
-                    if (location >= 0) {
-                        writer.write(location, m.key, m.hhmm, m.value);
+                    val key = counterData.key.getBytesKey();
+                    var dataOffset = index.get(key);
+                    if (dataOffset >= 0) {
+                        writer.write(dataOffset, counterData.key, counterData.hhmm, counterData.value);
                     } else {
-                        if (m.value.getValueType() != ValueEnum.NULL) {
-                            location = writer.write(m.key, m.hhmm, m.value);
-                            index.set(pkey, location);
+                        if (counterData.value.getValueType() != ValueEnum.NULL) {
+                            dataOffset = writer.writeNew(counterData.key, counterData.hhmm, counterData.value);
+                            index.set(key, dataOffset);
                         }
                     }
                 }
@@ -71,6 +74,7 @@ object DailyCounterWR {
         close()
     }
 
+
     def add(date: Int, key: CounterKey, hhmm: Int, value: Value) {
         val ok = queue.put(new Data(date, key, hhmm, value));
         if (ok == false) {
@@ -79,15 +83,11 @@ object DailyCounterWR {
     }
 
     class Data(_date: Int, _key: CounterKey, _hhmm: Int, _value: Value) {
-        val date = _date;
-        val key = _key;
-        val hhmm = _hhmm;
-        val value = _value;
+        val date = _date
+        val key = _key
+        val hhmm = _hhmm
+        val value = _value
     }
-
-    var lastDateInt: Int = 0
-    var index: DailyCounterIndex = null
-    var writer: DailyCounterData = null
 
     def close() {
         FileUtil.close(index);
@@ -102,9 +102,9 @@ object DailyCounterWR {
             val f = new File(path);
             if (f.exists() == false)
                 f.mkdirs();
-            val file = path + "/" + prefix;
-            index = DailyCounterIndex.open(file);
-            writer = DailyCounterData.open(file);
+            val fileName = path + "/" + prefix;
+            index = DailyCounterIndex.open(fileName);
+            writer = DailyCounterData.openForWrite(fileName);
             return;
         } catch {
             case e: Throwable => {

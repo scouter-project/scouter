@@ -55,6 +55,8 @@ public class CounterConstants {
 	public final static String WAS_ERROR_RATE = "ErrorRate";
 	public final static String WAS_ACTIVE_SERVICE = "ActiveService";
 	public final static String WAS_RECENT_USER = "RecentUser";
+	public final static String WAS_SQL_ELAPSED_TIME_BY_SERVICE = "SqlTimeByService";
+	public final static String WAS_APICALL_ELAPSED_TIME_BY_SERVICE	 = "ApiTimeByService";
 
 	public final static String JAVA_GC_COUNT = "GcCount";
 	public final static String JAVA_GC_TIME = "GcTime";
@@ -126,13 +128,11 @@ public class CounterConstants {
 			PAST_TIME_ALL, PAST_TIME_TOTAL, PAST_DATE_ALL, PAST_DATE_TOTAL };
 	
 	public static final String WAS_SQL_TIME = "SqlTime";
-	public static final String WAS_SQL_COUNT = "SqlTPS";
-	public static final String WAS_SQL_ERROR = "SqlError";
-	public static final String WAS_SQL_TIME_SUM = "SqlTimeSum";
+	public static final String WAS_SQL_TPS = "SqlTPS";
+	public static final String WAS_SQL_ERROR_RATE = "SqlErrorRate";
 
 	public static final String WAS_APICALL_TIME = "ApiTime";
-	public static final String WAS_APICALL_COUNT = "ApiTPS";
-	public static final String WAS_APICALL_ERROR = "ApiError";
-	public static final String WAS_APICALL_TIME_SUM = "ApiTimeSum";
+	public static final String WAS_APICALL_TPS = "ApiTPS";
+	public static final String WAS_APICALL_ERROR_RATE = "ApiErrorRate";
 
 }
