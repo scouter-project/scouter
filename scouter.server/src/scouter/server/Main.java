@@ -15,8 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.server;
-import java.io.File;
-import java.io.IOException;
 import scouter.Version;
 import scouter.server.account.AccountManager;
 import scouter.server.core.AutoDeleteScheduler;
@@ -28,11 +26,15 @@ import scouter.server.netio.service.ServiceHandlingProxy;
 import scouter.server.netio.service.net.TcpServer;
 import scouter.server.plugin.PlugInManager;
 import scouter.server.plugin.alert.AlertEngine;
+import scouter.server.plugin.builtin.BuiltInPluginManager;
 import scouter.server.term.TermMain;
 import scouter.util.ShellArg;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 import scouter.util.logo.Logo;
+
+import java.io.File;
+import java.io.IOException;
 public class Main {
 	public static void main(String[] args) throws IOException, Exception {
 		Logo.print(true);
@@ -49,6 +51,7 @@ public class Main {
 		ServiceHandlingProxy.load();
 		TcpServer.conf();
 		PlugInManager.load();
+        BuiltInPluginManager.loadPlugins();
 		NetDataProcessor.working();
 		AutoDeleteScheduler.getInstance();
 		Runtime.getRuntime().addShutdownHook(new Thread() {
