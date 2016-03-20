@@ -33,6 +33,8 @@ scouter.client/plugin_customization.ini
 scouter.client/scouter.client.jar
 
 */*.scouter
+scouter.server.boot/conf/*
+scouter.server.boot/database/*
 
 scouter.document/.project
 
