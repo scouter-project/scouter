@@ -62,6 +62,9 @@ public class BuiltInPluginManager {
         if(pluginMap == null) return;
 
         List<PluginInvocation> pluginList = pluginMap.get(pluginPoint);
+
+        if(pluginList == null) return;
+
         int count = pluginList.size();
         for(int i=0; i<count; i++) {
             PluginInvocation invocation = pluginList.get(i);
