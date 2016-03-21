@@ -16,12 +16,9 @@
  */
 package scouter.server.plugin;
 
-import scouter.lang.pack.AlertPack;
-import scouter.lang.pack.ObjectPack;
-import scouter.lang.pack.PerfCounterPack;
-import scouter.lang.pack.SummaryPack;
-import scouter.lang.pack.XLogPack;
-import scouter.lang.pack.XLogProfilePack;
+import scouter.lang.pack.*;
+import scouter.lang.plugin.PluginConstants;
+import scouter.server.plugin.builtin.BuiltInPluginManager;
 
 public class PlugInManager {
 
@@ -34,6 +31,8 @@ public class PlugInManager {
 	static ISummary summary;
 
 	public static void xlog(XLogPack m) {
+        BuiltInPluginManager.invokeAllPlugins(PluginConstants.PLUGIN_SERVER_XLOG, m);
+
 		if (xlog != null) {
 			try {
 				xlog.process(m);
@@ -52,6 +51,8 @@ public class PlugInManager {
 	}
 
 	public static void profile(XLogProfilePack m) {
+        BuiltInPluginManager.invokeAllPlugins(PluginConstants.PLUGIN_SERVER_PROFILE, m);
+
 		if (xlogProfiles != null) {
 			try {
 				xlogProfiles.process(m);
@@ -62,6 +63,8 @@ public class PlugInManager {
 	}
 
 	public static void active(ObjectPack p) {
+        BuiltInPluginManager.invokeAllPlugins(PluginConstants.PLUGIN_SERVER_OBJECT, p);
+
 		if (objects != null) {
 			try {
 				objects.process(p);
@@ -72,6 +75,8 @@ public class PlugInManager {
 	}
 
 	public static void alert(AlertPack p) {
+        BuiltInPluginManager.invokeAllPlugins(PluginConstants.PLUGIN_SERVER_ALERT, p);
+
 		if (alerts != null) {
 			try {
 				alerts.process(p);
@@ -81,6 +86,8 @@ public class PlugInManager {
 	}
 
 	public static void counter(PerfCounterPack p) {
+		BuiltInPluginManager.invokeAllPlugins(PluginConstants.PLUGIN_SERVER_COUNTER, p);
+
 		if (counters != null) {
 			try {
 				counters.process(p);
@@ -90,6 +97,8 @@ public class PlugInManager {
 	}
 
 	public static void summary(SummaryPack p) {
+        BuiltInPluginManager.invokeAllPlugins(PluginConstants.PLUGIN_SERVER_SUMMARY, p);
+
 		if (summary != null) {
 			try {
 				summary.process(p);

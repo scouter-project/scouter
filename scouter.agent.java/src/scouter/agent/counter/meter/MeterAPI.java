@@ -56,7 +56,7 @@ public class MeterAPI {
 		}
 	}
 
-	public float getCountPerSec(int period) {
+	public float getTps(int period) {
 		final INT sum = new INT();
 		period = meter.search(period, new Handler<MeterAPI.Bucket>() {
 			public void process(Bucket b) {
@@ -79,7 +79,7 @@ public class MeterAPI {
 		return (int) ((cnt.value == 0) ? 0 : sum.value / cnt.value);
 	}
 
-	public long getTimeSum(int period) {
+	public long getSumTime(int period) {
 		final LONG sum = new LONG();
 		period = meter.search(period, new Handler<MeterAPI.Bucket>() {
 			public void process(Bucket b) {
@@ -87,19 +87,6 @@ public class MeterAPI {
 			}
 		});
 		return  ((period == 0) ? 0 : sum.value / period);
-	}
-
-	public float getErrorPerSec(int period) {
-
-		final INT cnt = new INT();
-		final INT err = new INT();
-		meter.search(period, new Handler<MeterAPI.Bucket>() {
-			public void process(Bucket b) {
-				cnt.value += b.count;
-				err.value += b.error;
-			}
-		});
-		return (float) ((cnt.value == 0) ? 0 : (((double) err.value / cnt.value) * 100.0));
 	}
 
 	public int getCount(int period) {
@@ -113,7 +100,7 @@ public class MeterAPI {
 		return sum.value;
 	}
 
-	public int getError(int period) {
+	public int getErrorCount(int period) {
 		final INT sum = new INT();
 		meter.search(period, new Handler<MeterAPI.Bucket>() {
 			public void process(Bucket b) {
@@ -121,5 +108,17 @@ public class MeterAPI {
 			}
 		});
 		return sum.value;
+	}
+
+	public float getErrorRate(int period) {
+		final INT cnt = new INT();
+		final INT err = new INT();
+		meter.search(period, new Handler<MeterAPI.Bucket>() {
+			public void process(Bucket b) {
+				cnt.value += b.count;
+				err.value += b.error;
+			}
+		});
+		return (float) ((cnt.value == 0) ? 0 : (((double) err.value / cnt.value) * 100.0));
 	}
 }

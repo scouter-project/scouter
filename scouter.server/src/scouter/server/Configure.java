@@ -17,29 +17,16 @@
 
 package scouter.server;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
 import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.DateUtil;
-import scouter.util.FileUtil;
-import scouter.util.StringEnumer;
-import scouter.util.StringKeyLinkedMap;
-import scouter.util.StringLinkedSet;
-import scouter.util.StringSet;
-import scouter.util.StringUtil;
-import scouter.util.SysJMX;
-import scouter.util.SystemUtil;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
+
+import java.io.*;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 public class Configure extends Thread {
 
@@ -78,6 +65,7 @@ public class Configure extends Thread {
 	public boolean log_rotation_enabled = true;
 	public int log_keep_days = 31;
 	public boolean log_sql_parsing_fail_enabled = false;
+	public boolean _trace = false;
 
 	//Network
 	public String net_udp_listen_ip = "0.0.0.0";
@@ -282,6 +270,7 @@ public class Configure extends Thread {
 		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
 		this.log_keep_days = getInt("log_keep_days", 31);
 		this.log_sql_parsing_fail_enabled = getBoolean("log_sql_parsing_fail_enabled", false);
+		this._trace = getBoolean("_trace", false);
 
 		this._auto_5m_sampling = getBoolean("_auto_5m_sampling", true);
 
