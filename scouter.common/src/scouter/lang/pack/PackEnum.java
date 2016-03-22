@@ -47,12 +47,11 @@ public abstract class PackEnum {
     public static Pack create(byte packType) {
         Pack pack = createNonExt(packType);
         if(pack == null) {
-            if(extPackEnum == null) {
-                return null;
+            if(extPackEnum != null) {
+            	pack = extPackEnum.createExt(packType);
             }
-            pack = extPackEnum.createExt(packType);
             if(pack == null) {
-                throw new RuntimeException("Unknown pack type= " + packType);
+            	throw new RuntimeException("Unknown pack type= " + packType);
             }
         }
         return pack;
