@@ -142,6 +142,37 @@ class CounterService {
         dout.writeByte(TcpFlag.HasNEXT);
         dout.writePack(mpack);
     }
+    
+    @ServiceHandler(RequestCmd.COUNTER_REAL_TIME_ALL_MULTI) 
+    def getRealTimeAllMulti(din: DataInputX, dout: DataOutputX, login: Boolean) {
+      val param = din.readPack().asInstanceOf[MapPack];
+      val counters = param.getList("counter");
+      val objType = param.getText("objType");
+      if (StringUtil.isEmpty(objType)) {
+          System.out.println("please check.. COUNTER_REAL_TIME_ALL objType is null");
+          return ;
+      }
+      val insts = AgentManager.getLiveObjHashList(objType);
+
+      val mpack = new MapPack();
+      val instList = mpack.newList("objHash");
+      val counterList = mpack.newList("counter");
+      val valueList = mpack.newList("value");
+      
+      for(objHash <- insts) {
+        for( i <- 0 to counters.size() - 1) {
+          val key =  new CounterKey(objHash, counters.getString(i), TimeTypeEnum.REALTIME);
+          val value = CounterCache.get(key);
+          if(value != null) {
+            instList.add(objHash);
+            counterList.add(counters.get(i));
+            valueList.add(value);
+          }
+        }
+      }
+      dout.writeByte(TcpFlag.HasNEXT);
+      dout.writePack(mpack);
+    }
 
     @ServiceHandler(RequestCmd.COUNTER_REAL_TIME_TOT)
     def getRealTimeTotal(din: DataInputX, dout: DataOutputX, login: Boolean) {
