@@ -20,7 +20,7 @@ object PackExtProcessChain {
     def doChain(pack: Pack): Unit = {
         var isMatched = false;
         EnumerScala.forward(processorList, (processor: IPackProcessor) => {
-            val matched = processor.process();
+            val matched = processor.process(pack);
             if(matched) {
                 isMatched = true
             }

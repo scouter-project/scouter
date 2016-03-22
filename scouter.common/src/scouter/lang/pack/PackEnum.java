@@ -25,7 +25,13 @@ import scouter.lang.value.TextValue;
 import scouter.lang.value.Value;
 
 
-public class PackEnum {
+/**
+ * Pack type enum.
+ * use less number than 100 as a pack type.(over 100 for extensions)
+ */
+public abstract class PackEnum {
+    private static PackEnum extPackEnum; // extension pack
+
 	public final static byte MAP = 10;
 	public final static byte XLOG = 21;
 	public final static byte XLOG_PROFILE = 26;
@@ -38,32 +44,56 @@ public class PackEnum {
 	public final static byte ALERT = 70;
 	public final static byte OBJECT = 80;
 
-	public static Pack create(byte p) {
-		switch (p) {
-		case MAP:
-			return new MapPack();
-		case PERF_COUNTER:
-			return new PerfCounterPack();
-		case PERF_STATUS:
-			return new StatusPack();
-		case XLOG_PROFILE:
-			return new XLogProfilePack();
-		case XLOG:
-			return new XLogPack();
-		case TEXT:
-			return new TextPack();
-		case ALERT:
-			return new AlertPack();
-		case OBJECT:
-			return new ObjectPack();
-		case STACK:
-			return new StackPack();
-		case SUMMARY:
-			return new SummaryPack();
-		default:
-			throw new RuntimeException("Unknown pack type= " + p);
-		}
+    public static Pack create(byte packType) {
+        Pack pack = createNonExt(packType);
+        if(pack == null) {
+            if(extPackEnum == null) {
+                return null;
+            }
+            pack = extPackEnum.createExt(packType);
+            if(pack == null) {
+                throw new RuntimeException("Unknown pack type= " + packType);
+            }
+        }
+        return pack;
 	}
+
+    public static Pack createNonExt(byte packType) {
+        switch (packType) {
+            case MAP:
+                return new MapPack();
+            case PERF_COUNTER:
+                return new PerfCounterPack();
+            case PERF_STATUS:
+                return new StatusPack();
+            case XLOG_PROFILE:
+                return new XLogProfilePack();
+            case XLOG:
+                return new XLogPack();
+            case TEXT:
+                return new TextPack();
+            case ALERT:
+                return new AlertPack();
+            case OBJECT:
+                return new ObjectPack();
+            case STACK:
+                return new StackPack();
+            case SUMMARY:
+                return new SummaryPack();
+            default:
+                return null;
+        }
+    }
+
+    public abstract Pack createExt(byte PackType);
+
+    /**
+     * add ext pack
+     * @param packEnum
+     */
+    public static synchronized void registPackEnum(PackEnum packEnum) {
+        extPackEnum = packEnum;
+    }
 
 	public static Value toValue(Object value) throws Exception {
 		if (value == null) {
