@@ -73,11 +73,11 @@ class RealtimeCounterData(file: String) extends  IClose {
         if (data == null || data.length == 0)
             return 0;
         this.synchronized {
-            val location = dataFile.length()
-            dataFile.seek(location);
+            val offset = dataFile.length()
+            dataFile.seek(offset);
             dataFile.writeInt(data.length);
             dataFile.write(data);
-            return location;
+            return offset;
         }
     }
 }

@@ -25,10 +25,10 @@ import scouter.util.IClose;
 
 class ITEM {
     var deleted = false;
-    var link = 0L;
-    var key: Array[Byte] = null;
-    var value: Array[Byte] = null;
-    var next = 0L
+    var prevPos = 0L;
+    var timeKey: Array[Byte] = null;
+    var dataPos: Array[Byte] = null;
+    var offset = 0L
 }
 
 class RealKeyFile(_path: String) extends IClose {
@@ -46,10 +46,10 @@ class RealKeyFile(_path: String) extends IClose {
 
             val r = new ITEM();
             r.deleted = in.readBoolean();
-            r.link = in.readLong5();
-            r.key = in.readShortBytes();
-            r.value = in.readBlob();
-            r.next = this.raf.getFilePointer();
+            r.prevPos = in.readLong5();
+            r.timeKey = in.readShortBytes();
+            r.dataPos = in.readBlob();
+            r.offset = this.raf.getFilePointer();
             return r;
         }
     }
@@ -60,21 +60,21 @@ class RealKeyFile(_path: String) extends IClose {
             return new DataInputX(this.raf).readBoolean();
         }
     }
-    def getHashLink(pos: Long): Long = {
+    def getPrevPos(pos: Long): Long = {
         this.synchronized {
             this.raf.seek(pos + 1);
             return new DataInputX(this.raf).readLong5();
         }
     }
 
-    def getKey(pos: Long): Array[Byte] = {
+    def getTimeKey(pos: Long): Array[Byte] = {
         this.synchronized {
             this.raf.seek(pos + 1 + 5);
             return new DataInputX(this.raf).readShortBytes();
         }
     }
 
-    def getValue(pos: Long): Array[Byte] = {
+    def getDataPos(pos: Long): Array[Byte] = {
         this.synchronized {
             this.raf.seek(pos + 1 + 5);
             val in = new DataInputX(raf);
@@ -98,15 +98,15 @@ class RealKeyFile(_path: String) extends IClose {
         }
     }
 
-    def write(pos: Long, prevPos: Long, key: Array[Byte], value: Array[Byte]) {
+    def write(pos: Long, prevPos: Long, timeKey: Array[Byte], dataPos: Array[Byte]) {
         this.synchronized {
             this.raf.seek(pos);
 
             val out = new DataOutputX();
             out.writeBoolean(false);
             out.writeLong5(prevPos);
-            out.writeShortBytes(key);
-            out.writeBlob(value);
+            out.writeShortBytes(timeKey);
+            out.writeBlob(dataPos);
          
             this.raf.write(out.toByteArray())
         }
@@ -128,10 +128,10 @@ class RealKeyFile(_path: String) extends IClose {
             return true;
         }
     }
-    def append(prevPos: Long, key: Array[Byte], value: Array[Byte]): Long = {
+    def append(prevPos: Long, timeKey: Array[Byte], datePos: Array[Byte]): Long = {
         this.synchronized {
             val pos = this.raf.length();
-            write(pos, prevPos, key, value);
+            write(pos, prevPos, timeKey, datePos);
             return pos;
         }
     }
