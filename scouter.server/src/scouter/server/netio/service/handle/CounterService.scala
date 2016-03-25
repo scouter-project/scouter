@@ -16,27 +16,20 @@
  */
 package scouter.server.netio.service.handle;
 
-import scala.collection.JavaConversions._
-import scouter.io.DataInputX
-import scouter.io.DataOutputX
-import scouter.lang.CounterKey
-import scouter.lang.TimeTypeEnum
+import scouter.io.{DataInputX, DataOutputX}
+import scouter.lang.{CounterKey, TimeTypeEnum}
+import scouter.lang.counters.CounterConstants
 import scouter.lang.pack.MapPack
-import scouter.lang.value.DoubleValue
-import scouter.lang.value.ListValue
-import scouter.lang.value.MapValue
-import scouter.lang.value.Value
-import scouter.net.TcpFlag
+import scouter.lang.value.{DoubleValue, MapValue}
+import scouter.net.{RequestCmd, TcpFlag}
 import scouter.server.core.AgentManager
 import scouter.server.core.cache.CounterCache
-import scouter.server.db.ObjectRD
-import scouter.server.db.RealtimeCounterRD
+import scouter.server.db.{ObjectRD, RealtimeCounterRD}
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.server.util.TimedSeries
-import scouter.util.CastUtil
-import scouter.util.DateUtil
-import scouter.util.StringUtil
-import scouter.net.RequestCmd
+import scouter.util.{CastUtil, DateUtil, IntKeyMap, StringUtil}
+
+import scala.collection.JavaConversions._
 
 class CounterService {
 
@@ -219,7 +212,6 @@ class CounterService {
 
         val date = DateUtil.yyyymmdd(stime);
         val objName = getObjName(date, objHash);
-        /////////////////RealtimeCounterRD////////////////////////
 
         val handler = (time: Long, data: MapValue) => {
             val value = data.get(counter);
@@ -250,31 +242,75 @@ class CounterService {
         val agentGrp = AgentManager.getDailyObjects(date, objType);
 
         val objHashLv = agentGrp.getList("objHash");
+        val mapPackMap = new IntKeyMap[MapPack]();
 
         for (i <- 0 to objHashLv.size() - 1) {
             val objHash = objHashLv.getInt(i);
-            val mpack = new MapPack();
-            mpack.put("objHash", objHash);
-            val timeLv = mpack.newList("time");
-            val valueLv = mpack.newList("value");
-
-            val objName = getObjName(date, objHash);
-
-            /////////////////RealtimeCounterRD////////////////////////
-            val handler = (time: Long, data: MapValue) => {
-                val value = data.get(counter);
-                if (value != null) {
-                    timeLv.add(time);
-                    valueLv.add(value);
-                }
-                true;
-            }
-
-            RealtimeCounterRD.read(objName, date, stime, etime, handler)
-            dout.writeByte(TcpFlag.HasNEXT);
-            dout.writePack(mpack);
-            dout.flush();
+            val mapPack = new MapPack();
+            mapPack.put("objHash", objHash);
+            val timeLv = mapPack.newList("time");
+            val valueLv = mapPack.newList("value");
+            mapPackMap.put(objHash, mapPack);
         }
+
+        val handler = (mapValue: MapValue) => {
+            if (mapValue != null) {
+                val objHash = mapValue.getInt(CounterConstants.COMMON_OBJHASH)
+                val time = mapValue.getLong(CounterConstants.COMMON_TIME)
+                val value = mapValue.get(counter)
+                if(value != null) {
+                    val curMapPack = mapPackMap.get(objHash)
+                    if(curMapPack != null) {
+                        curMapPack.getList("time").add(time)
+                        curMapPack.getList("value").add(value)
+                    }
+                }
+            }
+        }
+
+//        val start = System.currentTimeMillis()
+        RealtimeCounterRD.readBulk(date, stime, etime, handler)
+//        val end = System.currentTimeMillis()
+//        println("[elapsed]" + (end-start))
+
+        for (i <- 0 to objHashLv.size() - 1) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            var mpack = mapPackMap.get(objHashLv.getInt(i))
+            //System.out.println(mpack)
+            dout.writePack(mpack)
+            dout.flush()
+        }
+
+// ############### OLD CODE
+//        start = System.currentTimeMillis()
+//        for (i <- 0 to objHashLv.size() - 1) {
+//            val objHash = objHashLv.getInt(i);
+//            val mpack = new MapPack();
+//            mpack.put("objHash", objHash);
+//            val timeLv = mpack.newList("time");
+//            val valueLv = mpack.newList("value");
+//
+//            val objName = getObjName(date, objHash);
+//
+//            val handler2 = (time: Long, data: MapValue) => {
+//                val value = data.get(counter);
+//                if (value != null) {
+//                    timeLv.add(time);
+//                    valueLv.add(value);
+//                }
+//                true;
+//            }
+//            RealtimeCounterRD.read(objName, date, stime, etime, handler2)
+//            //System.out.println(mpack);
+//
+//            dout.writeByte(TcpFlag.HasNEXT);
+//            dout.writePack(mpack);
+//            dout.flush();
+//        }
+//
+//        elapsed = System.currentTimeMillis() - start
+//        System.out.println("[ElapsedNormal]" + elapsed);
+
     }
 
     def getObjName(date: String, objHash: Int): String = {
@@ -356,28 +392,76 @@ class CounterService {
         val stime = param.getLong("stime");
         val etime = param.getLong("etime");
         val date = DateUtil.yyyymmdd(stime);
+        //#############################################
+//        var start = System.currentTimeMillis()
+        val mapPackMap = new IntKeyMap[MapPack]();
         for (i <- 0 to objHashLv.size() - 1) {
             val objHash = objHashLv.getInt(i);
-            val objName = getObjName(date, objHash);
-            val mpack = new MapPack();
-            mpack.put("objHash", objHash);
-            val timeLv = mpack.newList("time");
-            val valueLv = mpack.newList("value");
-
-            val handler = (time: Long, data: MapValue) => {
-                val value = data.get(counter);
-                if (value != null) {
-                    timeLv.add(time);
-                    valueLv.add(value);
-                }
-                true;
-            }
-
-            RealtimeCounterRD.read(objName, date, stime, etime, handler)
-
-            dout.writeByte(TcpFlag.HasNEXT);
-            dout.writePack(mpack);
+            val mapPack = new MapPack();
+            mapPack.put("objHash", objHash);
+            val timeLv = mapPack.newList("time");
+            val valueLv = mapPack.newList("value");
+            mapPackMap.put(objHash, mapPack);
         }
+
+        val handler = (mapValue: MapValue) => {
+            if (mapValue != null) {
+                val objHash = mapValue.getInt(CounterConstants.COMMON_OBJHASH)
+                val time = mapValue.getLong(CounterConstants.COMMON_TIME)
+                val value = mapValue.get(counter)
+                if(value != null) {
+                    val curMapPack = mapPackMap.get(objHash)
+                    if(curMapPack != null) {
+                        curMapPack.getList("time").add(time)
+                        curMapPack.getList("value").add(value)
+                    }
+                }
+            }
+        }
+
+        RealtimeCounterRD.readBulk(date, stime, etime, handler)
+
+        for (i <- 0 to objHashLv.size() - 1) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            var mpack = mapPackMap.get(objHashLv.getInt(i))
+//            System.out.println(mpack)
+            dout.writePack(mpack)
+            dout.flush()
+        }
+
+//        var end = System.currentTimeMillis()
+//        println("[elapsed]" + (end-start))
+
+        //#############################################
+        //OLD
+////        start = System.currentTimeMillis()
+//
+//        for (i <- 0 to objHashLv.size() - 1) {
+//            val objHash = objHashLv.getInt(i);
+//            val objName = getObjName(date, objHash);
+//            val mpack = new MapPack();
+//            mpack.put("objHash", objHash);
+//            val timeLv = mpack.newList("time");
+//            val valueLv = mpack.newList("value");
+//
+//            val handler = (time: Long, data: MapValue) => {
+//                val value = data.get(counter);
+//                if (value != null) {
+//                    timeLv.add(time);
+//                    valueLv.add(value);
+//                }
+//                true;
+//            }
+//
+//            RealtimeCounterRD.read(objName, date, stime, etime, handler)
+////            System.out.println(mpack)
+//            dout.writeByte(TcpFlag.HasNEXT);
+//            dout.writePack(mpack);
+//        }
+//
+////        end = System.currentTimeMillis()
+////        println("[elapsed2]" + (end-start))
+
     }
 
     @ServiceHandler(RequestCmd.COUNTER_REAL_TIME_GROUP)

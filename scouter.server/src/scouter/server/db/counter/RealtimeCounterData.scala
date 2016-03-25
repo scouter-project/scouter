@@ -69,6 +69,17 @@ class RealtimeCounterData(file: String) extends  IClose {
         }
     }
 
+    def readBulk(start: Long, end: Long): Array[Byte] = {
+        this.synchronized {
+            dataFile.seek(end)
+            val length = dataFile.readInt()
+            val buffer = new Array[Byte]((end-start).toInt + length + 4)
+            dataFile.seek(start)
+            dataFile.read(buffer)
+            return buffer
+        }
+    }
+
     def write(data: Array[Byte]): Long = {
         if (data == null || data.length == 0)
             return 0;

@@ -69,6 +69,67 @@ class IndexTimeFile(_path: String) extends IClose {
         return new ArrayList[TimeToData](set);
     }
 
+    private def getDataPosFirst(_stime: Long, _etime: Long): Array[Byte] = {
+        if (_stime <= 0 || _etime <= 0) {
+            throw new IOException("invalid key")
+        }
+        var stime = _stime
+        var i = 0
+        var dataPos = getDataPosFirst(stime)
+        while (dataPos == null && i < DateUtil.SECONDS_PER_DAY * 2 && stime <= _etime) {
+            stime += 500L
+            dataPos = getDataPosFirst(stime)
+            i += 1
+        }
+        return dataPos
+    }
+
+    private def getDataPosFirst(time: Long): Array[Byte] = {
+        if (time <= 0) {
+            throw new IOException("invalid key")
+        }
+        var pos = timeBlockHash.get(time)
+        while (pos > 0) {
+            val prevPos = this.keyFile.getPrevPos(pos)
+            if(prevPos == 0) {
+                return this.keyFile.getDataPos(pos)
+            }
+            pos = prevPos
+        }
+        return null
+    }
+
+    private def getDataPosLast(_stime: Long, _etime: Long): Array[Byte] = {
+        if (_etime <= 0 || _stime <= 0) {
+            throw new IOException("invalid key")
+        }
+        var etime = _etime
+        var i = 0
+        var dataPos = getDataPosLast(etime)
+        while (dataPos == null && i < DateUtil.SECONDS_PER_DAY * 2 && _stime <= etime) {
+            etime -= 500L
+            dataPos = getDataPosLast(etime)
+            i += 1
+        }
+
+        return dataPos
+    }
+
+    private def getDataPosLast(time: Long): Array[Byte] = {
+        if (time <= 0) {
+            throw new IOException("invalid key")
+        }
+        var pos = timeBlockHash.get(time)
+        if(pos == 0) return null
+        return this.keyFile.getDataPos(pos)
+    }
+
+    def getStartEndDataPos(stime: Long, etime: Long): (Array[Byte], Array[Byte]) = {
+        var startDataPos = getDataPosFirst(stime, etime)
+        var endDataPos = getDataPosLast(stime, etime)
+        return (startDataPos, endDataPos)
+    }
+
     def getDirect(pos: Long): TimeToData = {
 
         if (this.keyFile.isDeleted(pos) == false) {
@@ -101,7 +162,7 @@ class IndexTimeFile(_path: String) extends IClose {
 
     def read(_stime: Long, etime: Long, handler: (Long, Array[Byte]) => Any) {
         if (this.keyFile == null)
-            return;
+            return
 
         var i = 0
         var stime = _stime

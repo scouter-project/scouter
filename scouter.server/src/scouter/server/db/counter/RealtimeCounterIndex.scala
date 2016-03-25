@@ -71,6 +71,13 @@ class RealtimeCounterIndex(_file: String) extends IClose {
         this.index.readFromEnd(objHash, stime, etime, handler, dataMap, reader);
     }
 
+    def getStartEndDataPos(stime: Long, etime: Long): (Array[Byte], Array[Byte]) = {
+        if (this.index == null) {
+            this.index = new RealtimeCounterKeyFile(file);
+        }
+        this.index.getStartEndDataPos(stime, etime);
+    }
+
     override def close() {
         RealtimeCounterIndex.table.synchronized {
             if (this.refrence == 0) {

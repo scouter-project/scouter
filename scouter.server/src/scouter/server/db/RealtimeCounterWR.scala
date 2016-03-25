@@ -16,7 +16,10 @@
  *
  */
 package scouter.server.db;
+
+import scouter.lang.counters.CounterConstants
 import scouter.lang.pack.PerfCounterPack
+import scouter.lang.value.DecimalValue
 import scouter.server.Logger
 import scouter.server.db.counter.RealtimeCounterDBHelper
 import scouter.server.plugin.PlugInManager
@@ -33,21 +36,24 @@ object RealtimeCounterWR {
         val last_logtime = System.currentTimeMillis();
         var dBHelper: RealtimeCounterDBHelper = null
         while (DBCtr.running) {
-            val pack = queue.get();
+            val pack = queue.get()
             try {
                 if (dBHelper == null) {
                     dBHelper = writeOpen(pack)
                 } else if (dBHelper.currentDateUnit != DateUtil.getDateUnit(pack.time)) {
-                    dBHelper.close();
-                    dBHelper = writeOpen(pack);
+                    dBHelper.close()
+                    dBHelper = writeOpen(pack)
                 }
-                dBHelper.activeTime = System.currentTimeMillis();
-                dBHelper.counterDbHeader.intern(pack.data.keySet());
+                val objHash = HashUtil.hash(pack.objName)
+                dBHelper.activeTime = System.currentTimeMillis()
+                dBHelper.counterDbHeader.intern(pack.data.keySet())
+
                 val counterBytes = RealtimeCounterDBHelper.getTagBytes(dBHelper.counterDbHeader.getTagStrInt(), pack.data)
-                val dataOffset = dBHelper.counterData.write(counterBytes);
-                dBHelper.counterIndex.write(HashUtil.hash(pack.objName), pack.time, dataOffset);
+                val dataOffset = dBHelper.counterData.write(counterBytes)
+                dBHelper.counterIndex.write(objHash, pack.time, dataOffset)
+
             } catch {
-                case t: Throwable => Logger.println("S133", 10, t.toString());
+                case t: Throwable => Logger.println("S133", 10, t.toString())
             }
         }
         FileUtil.close(dBHelper);
@@ -66,7 +72,7 @@ object RealtimeCounterWR {
     }
 
     def writeOpen(pack: PerfCounterPack): RealtimeCounterDBHelper = {
-        val db = new RealtimeCounterDBHelper().open(pack.objName, DateUtil.yyyymmdd(pack.time), false);
+        val db = new RealtimeCounterDBHelper().open(DateUtil.yyyymmdd(pack.time), false);
         db.currentDateUnit = DateUtil.getDateUnit(pack.time);
         return db;
     }
