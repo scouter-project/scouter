@@ -18,6 +18,8 @@
 package scouter.lang.counters;
 
 public class CounterConstants {
+	public final static String COMMON_OBJHASH = "objHash";
+	public final static String COMMON_TIME = "time";
 
 	public final static String FAMILY_HOST = "host";
 	public final static String FAMILY_JAVAEE = "javaee";

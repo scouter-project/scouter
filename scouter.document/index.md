@@ -28,6 +28,7 @@
 - [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
 - [How to trace NON-HTTP service](./use-case/NON-HTTP-Service-Trace.md) 
 - [method level profiling](./use-case/Method-Profiling.md)
+- [beyond Scouter - Plugin guide](./main/Plugin-Guide.md)
 
 ## Tech note
 - [Why Recent User](./tech/Why-Recent-User.md)

@@ -19,6 +19,7 @@
 package scouter.server.db.counter;
 
 import java.io.File
+import java.util
 import java.util.Enumeration
 import java.util.Iterator
 import java.util.Map
@@ -32,6 +33,8 @@ import scouter.util.IClose
 import scouter.util.IntKeyMap
 import scouter.util.StringIntMap
 import scouter.server.util.EnumerScala
+
+import scala.collection.mutable.ArrayBuffer
 
 object RealtimeCounterDBHelper {
     def setTagBytes(tag: IntKeyMap[String], buff: Array[Byte]): MapValue = {
@@ -53,6 +56,34 @@ object RealtimeCounterDBHelper {
         }
         return items;
     }
+
+    def setTagBytesMulti(tag: IntKeyMap[String], buff: Array[Byte]): ArrayBuffer[MapValue] = {
+        if (buff == null)
+            return null;
+        val arrBuffer = new ArrayBuffer[MapValue]();
+
+        try {
+            val in = new DataInputX(buff)
+            val length = buff.length
+            while(in.getOffset() < length) {
+                in.skipBytes(4)
+                val items = new MapValue();
+                val count = in.readDecimal().toInt
+
+                for (i <- 0 to count - 1) {
+                    val idx = in.readDecimal().toInt;
+                    val name = tag.get(idx);
+                    val value = in.readValue();
+                    items.put(name, value);
+                }
+                arrBuffer += items
+            }
+        } catch {
+            case e: Exception =>
+        }
+        return arrBuffer
+    }
+
 
     def getTagBytes(tagMap: StringIntMap, items: MapValue): Array[Byte] = {
         if (tagMap.size() == 0)
@@ -86,15 +117,15 @@ class RealtimeCounterDBHelper extends IClose {
 
     var path: String = null
 
-    private def getDBPath(objName: String, date: String): String = {
+    private def getDBPath(date: String): String = {
         val sb = new StringBuffer();
         sb.append(DBCtr.getRootPath());
         sb.append("/").append(date).append("/counter");
         return sb.toString();
     }
 
-    def open(objName: String, date: String, readOnly: Boolean): RealtimeCounterDBHelper = {
-        path = getDBPath(objName, date)
+    def open(date: String, readOnly: Boolean): RealtimeCounterDBHelper = {
+        path = getDBPath(date)
         val f = new File(path);
         if (readOnly) {
             if (f.exists() == false)

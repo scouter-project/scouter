@@ -3,36 +3,21 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>scouter</groupId>
-    <artifactId>scouter.common</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <artifactId>scouter.server</artifactId>
+    <version>0.4.9</version>
     <packaging>jar</packaging>
-    <name>scouter.common</name>
+    <name>scouter.server</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
-        </plugins>
-
-        <directory>${basedir}/target</directory>
-        <sourceDirectory>${basedir}/src</sourceDirectory>
-        <outputDirectory>${basedir}/target/classes</outputDirectory>
-        <testSourceDirectory>${basedir}/test</testSourceDirectory>
-        <testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>
-    </build>
-
     <dependencies>
+        <dependency>
+            <groupId>scouter</groupId>
+            <artifactId>scouter.common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

@@ -19,6 +19,8 @@ package scouter.server.core
 
 ;
 
+import scouter.lang.counters.CounterConstants
+import scouter.lang.value.DecimalValue
 import scouter.lang.{CounterKey, TimeTypeEnum}
 import scouter.lang.pack.PerfCounterPack
 import scouter.server.Logger
@@ -41,6 +43,9 @@ object PerfCountCore {
         PlugInManager.counter(counterPack);
 
         if (counterPack.timetype == TimeTypeEnum.REALTIME) {
+            counterPack.data.put(CounterConstants.COMMON_OBJHASH, new DecimalValue(objHash)) //add objHash into datafile
+            counterPack.data.put(CounterConstants.COMMON_TIME, new DecimalValue(counterPack.time)) //add objHash into datafile
+
             RealtimeCounterWR.add(counterPack);
             EnumerScala.foreach(counterPack.data.keySet().iterator(), (k: String) => {
                 val value = counterPack.data.get(k);
