@@ -29,6 +29,7 @@
 - [NON-HTTP 서비스 추적하기](./use-case/NON-HTTP-Service-Trace.md) 
 - [What’s special in SCOUTER?](./What-special-in-SCOUTER)
 - [method 상세 프로파일](./use-case/Method-Profiling_kr.md)
+- [Scouter 확장 - Plugin guide](./main/Plugin-Guide.md)
 
 ## Tech note
 - [Recent User를 사용하는 이유](./tech/Why-Recent-User.md)
