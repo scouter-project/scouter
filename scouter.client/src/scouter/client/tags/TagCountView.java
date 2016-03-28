@@ -106,7 +106,7 @@ import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 import scouter.util.LinkedMap;
-import scouter.util.LinkedMap.ENTRY;
+import scouter.util.LinkedMap.LinkedEntry;
 import scouter.util.StringUtil;
 
 public class TagCountView extends ViewPart {
@@ -692,9 +692,9 @@ public class TagCountView extends ViewPart {
 		cntTraceMap.clear();
 		float[] stackedValue = new float[1440];
 		LinkedMap<String, float[]> tempMap = new LinkedMap<String, float[]>();
-		Enumeration<ENTRY> entries = valueMap.entries();
+		Enumeration<LinkedEntry<String, float[]>> entries = valueMap.entries();
 		while (entries.hasMoreElements()) {
-			ENTRY entry = entries.nextElement();
+			LinkedEntry<String, float[]> entry = entries.nextElement();
 			String key = (String) entry.getKey();
 			float[] values = (float[]) entry.getValue();
 			for (int i = 0; i < values.length; i++) {
@@ -705,9 +705,9 @@ public class TagCountView extends ViewPart {
 			tempMap.putFirst(key, copiedArray);
 		}
 		long stime = DateUtil.yyyymmdd(date);
-		Enumeration<ENTRY> entries2 = tempMap.entries();
+		Enumeration<LinkedEntry<String, float[]>> entries2 = tempMap.entries();
 		while (entries2.hasMoreElements()) {
-			ENTRY entry = entries2.nextElement();
+			LinkedEntry<String, float[]> entry = entries2.nextElement();
 			String key = (String) entry.getKey();
 			float[] values = (float[]) entry.getValue();
 			Trace trace = getCountTrace(key);
