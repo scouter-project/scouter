@@ -18,7 +18,13 @@
 
 package scouter.server.core.cache;
 
-import scouter.lang.pack.AlertPack;
+import scouter.lang.pack.AlertPack
+import scouter.server.Logger
+import scouter.server.Configure
+import scouter.server.extif.TelegramMessage
+import scouter.server.core.AgentManager
+import scouter.lang.AlertLevel
+import scouter.server.extif.EmailMessage
 
 /**
   * singleton object that store realtime AlertPack.
@@ -29,6 +35,19 @@ object AlertCache {
 
     def put(alert: AlertPack) {
         cache.put(CacheHelper.objType.unipoint(alert.objType), alert.objHash, alert);
+        
+        Logger.println("[TYPE] : " + alert.objType)
+        Logger.println("[NAME] : " + AgentManager.getAgentName(alert.objHash))
+        Logger.println("[LEVEL] : " + AlertLevel.getName(alert.level))
+        Logger.println("[MESSAGE] : " + alert.message)
+        
+        if (Configure.getInstance().send_alert_via_email) {
+            EmailMessage.send(alert);
+        }
+        
+        if (Configure.getInstance().send_alert_via_telegram) {
+            TelegramMessage.send(alert);
+        }
     }
 
     def get(objType: String, last_loop: Long, last_index: Int): CacheOut[AlertPack] = {

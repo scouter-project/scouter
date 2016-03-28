@@ -127,6 +127,25 @@ public class Configure extends Thread {
 
 	//TagCount
 	public boolean tagcnt_enabled = false;
+	
+	//External Interface
+	public int send_alert_level = 0;
+	
+	//External Interface (Email)
+	public boolean send_alert_via_email = false;
+	public String email_smtp_hostname = "smtp.gmail.com";
+	public int email_smtp_port = 587;
+	public String email_username;
+	public String email_password;
+	public boolean email_tls_enabled = true;
+	public String email_from_address;
+	public String email_to_address;
+	public String email_cc_address;
+	
+	//External Interface (Telegram)
+	public boolean send_alert_via_telegram = false;
+	public String telegram_bot_token;
+	public String telegram_chat_id;
 
 	private Configure() {
 		reload(false);
@@ -273,6 +292,22 @@ public class Configure extends Thread {
 		this.tagcnt_enabled = getBoolean("tagcnt_enabled", false);
 		
 		this.net_tcp_service_pool_size = getInt("net_tcp_service_pool_size", 100);
+		
+		this.send_alert_level = getInt("send_alert_level", 0);
+		
+		this.send_alert_via_email = getBoolean("send_alert_via_email", false);
+		this.email_smtp_hostname = getValue("email_smtp_hostname", "smtp.gmail.com");
+		this.email_smtp_port = getInt("email_smtp_port", 587);
+		this.email_username = getValue("email_username");
+		this.email_password = getValue("email_password");
+		this.email_tls_enabled = getBoolean("email_tls_enabled", true);
+		this.email_from_address = getValue("email_from_address");
+		this.email_to_address = getValue("email_to_address");
+		this.email_cc_address = getValue("email_cc_address");
+		
+		this.send_alert_via_telegram = getBoolean("send_alert_via_telegram", false);
+		this.telegram_bot_token = getValue("telegram_bot_token");
+		this.telegram_chat_id = getValue("telegram_chat_id");
 		
 		ConfObserver.exec();
 	}
