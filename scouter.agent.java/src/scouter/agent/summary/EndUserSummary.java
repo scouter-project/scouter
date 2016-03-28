@@ -22,6 +22,7 @@ import scouter.lang.pack.SummaryPack;
 import scouter.lang.value.ListValue;
 import scouter.util.BitUtil;
 import scouter.util.LongKeyLinkedMap;
+import scouter.util.LongKeyLinkedMap.LongKeyLinkedEntry;
 
 import java.util.Enumeration;
 
@@ -137,9 +138,9 @@ public class EndUserSummary {
 		ListValue loadEventStart = p.table.newList("loadEventStart");
 		ListValue loadEventEnd = p.table.newList("loadEventEnd");
 
-		Enumeration<LongKeyLinkedMap.ENTRY> en = temp.entries();
+		Enumeration<LongKeyLinkedEntry<EndUserNavigationData>> en = temp.entries();
 		for (int i = 0; i < cnt; i++) {
-			LongKeyLinkedMap.ENTRY<EndUserNavigationData> ent = en.nextElement();
+			LongKeyLinkedEntry<EndUserNavigationData> ent = en.nextElement();
 			long key = ent.getKey();
 			EndUserNavigationData data = ent.getValue();
 			id.add(key);
@@ -188,9 +189,9 @@ public class EndUserSummary {
 		ListValue duration = p.table.newList("duration");
 		ListValue userAgent = p.table.newList("userAgent");
 
-		Enumeration<LongKeyLinkedMap.ENTRY> en = temp.entries();
+		Enumeration<LongKeyLinkedEntry<EndUserAjaxData>> en = temp.entries();
 		for (int i = 0; i < cnt; i++) {
-			LongKeyLinkedMap.ENTRY<EndUserAjaxData> ent = en.nextElement();
+			LongKeyLinkedEntry<EndUserAjaxData> ent = en.nextElement();
 			long key = ent.getKey();
 			EndUserAjaxData data = ent.getValue();
 			id.add(key);
@@ -229,10 +230,10 @@ public class EndUserSummary {
 		ListValue lineNumber = p.table.newList("lineNumber");
 		ListValue columnNumber = p.table.newList("columnNumber");
 
-		Enumeration<LongKeyLinkedMap.ENTRY> en = temp.entries();
+		Enumeration<LongKeyLinkedEntry<EndUserErrorData>> en = temp.entries();
 		for (int i = 0; i < cnt; i++) {
 
-			LongKeyLinkedMap.ENTRY<EndUserErrorData> ent = en.nextElement();
+			LongKeyLinkedEntry<EndUserErrorData> ent = en.nextElement();
 			long key = ent.getKey();
 			EndUserErrorData data = ent.getValue();
 

@@ -20,6 +20,7 @@ import java.util.Enumeration;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.util.LongLongLinkedMap;
+import scouter.util.LongLongLinkedMap.LongLongLinkedEntry;
 
 public class MeterUsers {
 
@@ -40,9 +41,9 @@ public class MeterUsers {
 		int v = 0;
 		long now = System.currentTimeMillis();
 		try {
-			Enumeration<LongLongLinkedMap.ENTRY> en = users.entries();
+			Enumeration<LongLongLinkedEntry> en = users.entries();
 			while (en.hasMoreElements()) {
-				LongLongLinkedMap.ENTRY e = en.nextElement();
+				LongLongLinkedEntry e = en.nextElement();
 				if (now - e.getValue() >max_think_time) {
 				   users.remove(e.getKey());
 				} else {

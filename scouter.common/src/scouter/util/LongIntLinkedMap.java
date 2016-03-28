@@ -1,4 +1,5 @@
 /*
+ * 
  *  Copyright 2015 the original author or authors. 
  *  @https://github.com/scouter-project/scouter
  *
@@ -13,10 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
- * 
+ *
  *  The initial idea for this class is from "org.apache.commons.lang.IntHashMap"; 
  *  http://commons.apache.org/commons-lang-2.6-src.zip
- *
+ *  
  */
 package scouter.util;
 
@@ -25,16 +26,22 @@ import java.util.NoSuchElementException;
 /**
  * @author Paul Kim (sjkim@whatap.io)
  */
-public class StringIntLinkedMap {
+public class LongIntLinkedMap {
 	private static final int DEFAULT_CAPACITY = 101;
 	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
-	private StringIntLinkedEntry table[];
-	private StringIntLinkedEntry header;
+	private LongIntLinkedEntry table[];
+	private LongIntLinkedEntry header;
 	private int count;
 	private int threshold;
 	private float loadFactor;
+	private int NONE = 0;
 
-	public StringIntLinkedMap(int initCapacity, float loadFactor) {
+	public LongIntLinkedMap setNullValue(int none) {
+		this.NONE = none;
+		return this;
+	}
+
+	public LongIntLinkedMap(int initCapacity, float loadFactor) {
 		if (initCapacity < 0)
 			throw new RuntimeException("Capacity Error: " + initCapacity);
 		if (loadFactor <= 0)
@@ -42,36 +49,29 @@ public class StringIntLinkedMap {
 		if (initCapacity == 0)
 			initCapacity = 1;
 		this.loadFactor = loadFactor;
-		this.table = new StringIntLinkedEntry[initCapacity];
-		this.header = new StringIntLinkedEntry(null, 0, null);
+		this.table = new LongIntLinkedEntry[initCapacity];
+		this.header = new LongIntLinkedEntry(0, 0, null);
 		this.header.link_next = header.link_prev = header;
 		threshold = (int) (initCapacity * loadFactor);
 	}
 
-	public StringIntLinkedMap() {
+	public LongIntLinkedMap() {
 		this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
-	}
-
-	private int NONE = 0;
-
-	public StringIntLinkedMap setNullValue(int none) {
-		this.NONE = none;
-		return this;
 	}
 
 	public int size() {
 		return count;
 	}
 
-	public String[] keyArray() {
-		String[] _keys = new String[this.size()];
-		StringEnumer en = this.keys();
+	public long[] keyArray() {
+		long[] _keys = new long[this.size()];
+		LongEnumer en = this.keys();
 		for (int i = 0; i < _keys.length; i++)
-			_keys[i] = en.nextString();
+			_keys[i] = en.nextLong();
 		return _keys;
 	}
 
-	public synchronized StringEnumer keys() {
+	public synchronized LongEnumer keys() {
 		return new Enumer(TYPE.KEYS);
 	}
 
@@ -79,16 +79,15 @@ public class StringIntLinkedMap {
 		return new Enumer(TYPE.VALUES);
 	}
 
-	public synchronized Enumeration<StringIntLinkedEntry> entries() {
-		return new Enumer(TYPE.ENTRIES);
+	public synchronized Enumeration<LongIntLinkedEntry> entries() {
+		return new Enumer<LongIntLinkedEntry>(TYPE.ENTRIES);
 	}
 
 	public synchronized boolean containsValue(int value) {
-		StringIntLinkedEntry tab[] = table;
-		int i = tab.length;
-		while (i-- > 0) {
-			for (StringIntLinkedEntry e = tab[i]; e != null; e = e.next) {
-				if (e.value == value) {
+		LongIntLinkedEntry tab[] = table;
+		for (int i = tab.length; i-- > 0;) {
+			for (LongIntLinkedEntry e = tab[i]; e != null; e = e.hash_next) {
+				if (CompareUtil.equals(e.value, value)) {
 					return true;
 				}
 			}
@@ -96,23 +95,23 @@ public class StringIntLinkedMap {
 		return false;
 	}
 
-	public synchronized boolean containsKey(String key) {
-		StringIntLinkedEntry tab[] = table;
+	public synchronized boolean containsKey(long key) {
+		LongIntLinkedEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (StringIntLinkedEntry e = tab[index]; e != null; e = e.next) {
+		LongIntLinkedEntry e = tab[index];
+		while (e != null) {
 			if (CompareUtil.equals(e.key, key)) {
 				return true;
 			}
+			e = e.hash_next;
 		}
 		return false;
 	}
 
-	public synchronized int get(String key) {
-		if (key == null)
-			return NONE;
-		StringIntLinkedEntry tab[] = table;
+	public synchronized int get(long key) {
+		LongIntLinkedEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (StringIntLinkedEntry e = tab[index]; e != null; e = e.next) {
+		for (LongIntLinkedEntry e = tab[index]; e != null; e = e.hash_next) {
 			if (CompareUtil.equals(e.key, key)) {
 				return e.value;
 			}
@@ -120,37 +119,41 @@ public class StringIntLinkedMap {
 		return NONE;
 	}
 
-	public synchronized int getFirsValue() {
-		if (isEmpty())
-			return NONE;
+	public synchronized long getFirstKey() {
+		return this.header.link_next.key;
+	}
+
+	public synchronized long getLastKey() {
+		return this.header.link_prev.key;
+	}
+
+	public synchronized int getFirstValue() {
 		return this.header.link_next.value;
 	}
 
 	public synchronized int getLastValue() {
-		if (isEmpty())
-			return NONE;
 		return this.header.link_prev.value;
 	}
 
-	private int hash(String key) {
-		return key.hashCode() & Integer.MAX_VALUE;
+	private int hash(long key) {
+		return (int) (key ^ (key >>> 32)) & Integer.MAX_VALUE;
 	}
 
 	protected void rehash() {
 		int oldCapacity = table.length;
-		StringIntLinkedEntry oldMap[] = table;
+		LongIntLinkedEntry oldMap[] = table;
 		int newCapacity = oldCapacity * 2 + 1;
-		StringIntLinkedEntry newMap[] = new StringIntLinkedEntry[newCapacity];
+		LongIntLinkedEntry newMap[] = new LongIntLinkedEntry[newCapacity];
 		threshold = (int) (newCapacity * loadFactor);
 		table = newMap;
 		for (int i = oldCapacity; i-- > 0;) {
-			StringIntLinkedEntry old = oldMap[i];
+			LongIntLinkedEntry old = oldMap[i];
 			while (old != null) {
-				StringIntLinkedEntry e = old;
-				old = old.next;
-				String key = e.key;
+				LongIntLinkedEntry e = old;
+				old = old.hash_next;
+				long key = e.key;
 				int index = hash(key) % newCapacity;
-				e.next = newMap[index];
+				e.hash_next = newMap[index];
 				newMap[index] = e;
 			}
 		}
@@ -158,7 +161,7 @@ public class StringIntLinkedMap {
 
 	private int max;
 
-	public StringIntLinkedMap setMax(int max) {
+	public LongIntLinkedMap setMax(int max) {
 		this.max = max;
 		return this;
 	}
@@ -167,36 +170,22 @@ public class StringIntLinkedMap {
 		FORCE_FIRST, FORCE_LAST, FIRST, LAST
 	};
 
-	public int put(String key, int value) {
+	public int put(long key, int value) {
 		return _put(key, value, MODE.LAST);
 	}
 
-	public int putLast(String key, int value) {
+	public int putLast(long key, int value) {
 		return _put(key, value, MODE.FORCE_LAST);
 	}
 
-	public int putFirst(String key, int value) {
+	public int putFirst(long key, int value) {
 		return _put(key, value, MODE.FORCE_FIRST);
 	}
 
-	public int add(String key, int value) {
-		return _add(key, value, MODE.LAST);
-	}
-
-	public int addLast(String key, int value) {
-		return _add(key, value, MODE.FORCE_LAST);
-	}
-
-	public int addFirst(String key, int value) {
-		return _add(key, value, MODE.FORCE_FIRST);
-	}
-
-	private synchronized int _put(String key, int value, MODE m) {
-		if (key == null)
-			return NONE;
-		StringIntLinkedEntry tab[] = table;
+	private synchronized int _put(long key, int value, MODE m) {
+		LongIntLinkedEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (StringIntLinkedEntry e = tab[index]; e != null; e = e.next) {
+		for (LongIntLinkedEntry e = tab[index]; e != null; e = e.hash_next) {
 			if (CompareUtil.equals(e.key, key)) {
 				int old = e.value;
 				e.value = value;
@@ -222,18 +211,18 @@ public class StringIntLinkedMap {
 			case FORCE_FIRST:
 			case FIRST:
 				while (count >= max) {
-					// removeLast();
-					String k = header.link_prev.key;
-					long v = remove(k);
+					//removeLast();
+					long k = header.link_prev.key;
+					int v = remove(k);
 					overflowed(k, v);
 				}
 				break;
 			case FORCE_LAST:
 			case LAST:
 				while (count >= max) {
-					// removeFirst();
-					String k = header.link_next.key;
-					long v = remove(k);
+					//removeFirst();
+					long k = header.link_next.key;
+					int v = remove(k);
 					overflowed(k, v);
 				}
 				break;
@@ -244,7 +233,7 @@ public class StringIntLinkedMap {
 			tab = table;
 			index = hash(key) % tab.length;
 		}
-		StringIntLinkedEntry e = new StringIntLinkedEntry(key, value, tab[index]);
+		LongIntLinkedEntry e = new LongIntLinkedEntry(key, value, tab[index]);
 		tab[index] = e;
 		switch (m) {
 		case FORCE_FIRST:
@@ -259,16 +248,24 @@ public class StringIntLinkedMap {
 		count++;
 		return NONE;
 	}
-
-	public void overflowed(String key, long value) {
+	protected void overflowed(long key, int value) {
 	}
 
-	private synchronized int _add(String key, int value, MODE m) {
-		if (key == null)
-			return NONE;
-		StringIntLinkedEntry tab[] = table;
+	public int add(long key, int value) {
+		return _add(key, value, MODE.LAST);
+	}
+
+	public int addLast(long key, int value) {
+		return _add(key, value, MODE.FORCE_LAST);
+	}
+
+	public int addFirst(long key, int value) {
+		return _add(key, value, MODE.FORCE_FIRST);
+	}
+	private synchronized int _add(long key, int value, MODE m) {
+		LongIntLinkedEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (StringIntLinkedEntry e = tab[index]; e != null; e = e.next) {
+		for (LongIntLinkedEntry e = tab[index]; e != null; e = e.hash_next) {
 			if (CompareUtil.equals(e.key, key)) {
 				int old = e.value;
 				e.value += value;
@@ -294,19 +291,13 @@ public class StringIntLinkedMap {
 			case FORCE_FIRST:
 			case FIRST:
 				while (count >= max) {
-					// removeLast();
-					String k = header.link_prev.key;
-					long v = remove(k);
-					overflowed(k, v);
+					removeLast();
 				}
 				break;
 			case FORCE_LAST:
 			case LAST:
 				while (count >= max) {
-					// removeFirst();
-					String k = header.link_next.key;
-					long v = remove(k);
-					overflowed(k, v);
+					removeFirst();
 				}
 				break;
 			}
@@ -316,7 +307,7 @@ public class StringIntLinkedMap {
 			tab = table;
 			index = hash(key) % tab.length;
 		}
-		StringIntLinkedEntry e = new StringIntLinkedEntry(key, value, tab[index]);
+		LongIntLinkedEntry e = new LongIntLinkedEntry(key, value, tab[index]);
 		tab[index] = e;
 		switch (m) {
 		case FORCE_FIRST:
@@ -332,38 +323,40 @@ public class StringIntLinkedMap {
 		return NONE;
 	}
 
-	public synchronized int remove(String key) {
-		if (key == null)
-			return NONE;
-		StringIntLinkedEntry tab[] = table;
+	public synchronized int remove(long key) {
+		LongIntLinkedEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (StringIntLinkedEntry e = tab[index], prev = null; e != null; prev = e, e = e.next) {
+		LongIntLinkedEntry e = tab[index];
+		LongIntLinkedEntry prev = null;
+		while (e != null) {
 			if (CompareUtil.equals(e.key, key)) {
 				if (prev != null) {
-					prev.next = e.next;
+					prev.hash_next = e.hash_next;
 				} else {
-					tab[index] = e.next;
+					tab[index] = e.hash_next;
 				}
 				count--;
 				int oldValue = e.value;
-				e.value = 0;
+				e.value = NONE;
 				//
 				unchain(e);
 				return oldValue;
 			}
+			prev = e;
+			e = e.hash_next;
 		}
 		return NONE;
 	}
 
 	public synchronized int removeFirst() {
 		if (isEmpty())
-			return NONE;
+			return 0;
 		return remove(header.link_next.key);
 	}
 
 	public synchronized int removeLast() {
 		if (isEmpty())
-			return NONE;
+			return 0;
 		return remove(header.link_prev.key);
 	}
 
@@ -372,10 +365,11 @@ public class StringIntLinkedMap {
 	}
 
 	public synchronized void clear() {
-		StringIntLinkedEntry tab[] = table;
+		LongIntLinkedEntry tab[] = table;
 		for (int index = tab.length; --index >= 0;)
 			tab[index] = null;
-		this.header.link_next = header.link_prev = header;
+		this.header.link_next = header;
+		this.header.link_prev = header;
 		count = 0;
 	}
 
@@ -384,7 +378,7 @@ public class StringIntLinkedMap {
 		Enumeration it = entries();
 		buf.append("{");
 		for (int i = 0; it.hasMoreElements(); i++) {
-			StringIntLinkedEntry e = (StringIntLinkedEntry) (it.nextElement());
+			LongIntLinkedEntry e = (LongIntLinkedEntry) (it.nextElement());
 			if (i > 0)
 				buf.append(", ");
 			buf.append(e.getKey() + "=" + e.getValue());
@@ -398,78 +392,32 @@ public class StringIntLinkedMap {
 		Enumeration it = entries();
 		buf.append("{\n");
 		while (it.hasMoreElements()) {
-			StringIntLinkedEntry e = (StringIntLinkedEntry) it.nextElement();
+			LongIntLinkedEntry e = (LongIntLinkedEntry) it.nextElement();
 			buf.append("\t").append(e.getKey() + "=" + e.getValue()).append("\n");
 		}
 		buf.append("}");
 		return buf.toString();
 	}
 
-	public static class StringIntLinkedEntry {
-		String key;
-		int value;
-		StringIntLinkedEntry next;
-		StringIntLinkedEntry link_next, link_prev;
-
-		protected StringIntLinkedEntry(String key, int value, StringIntLinkedEntry next) {
-			this.key = key;
-			this.value = value;
-			this.next = next;
-		}
-
-		protected Object clone() {
-			return new StringIntLinkedEntry(key, value, (next == null ? null : (StringIntLinkedEntry) next.clone()));
-		}
-
-		public String getKey() {
-			return key;
-		}
-
-		public int getValue() {
-			return value;
-		}
-
-		public int setValue(int value) {
-			int oldValue = this.value;
-			this.value = value;
-			return oldValue;
-		}
-
-		public boolean equals(Object o) {
-			if (!(o instanceof StringIntLinkedEntry))
-				return false;
-			StringIntLinkedEntry e = (StringIntLinkedEntry) o;
-			return CompareUtil.equals(e.key, key) && CompareUtil.equals(e.value, value);
-		}
-
-		public int hashCode() {
-			return key.hashCode() ^ value;
-		}
-
-		public String toString() {
-			return key + "=" + value;
-		}
-	}
-
 	private enum TYPE {
 		KEYS, VALUES, ENTRIES
 	}
 
-	private class Enumer implements Enumeration, StringEnumer, IntEnumer {
+	private class Enumer<V> implements Enumeration, IntEnumer, LongEnumer {
 		TYPE type;
-		StringIntLinkedEntry entry = StringIntLinkedMap.this.header.link_next;
+		LongIntLinkedEntry entry = LongIntLinkedMap.this.header.link_next;
 
 		Enumer(TYPE type) {
 			this.type = type;
 		}
 
 		public boolean hasMoreElements() {
-			return header != entry && entry != null;
+			return entry != null && header != entry;
 		}
 
 		public Object nextElement() {
 			if (hasMoreElements()) {
-				StringIntLinkedEntry e = entry;
+				LongIntLinkedEntry e = entry;
 				entry = e.link_next;
 				switch (type) {
 				case KEYS:
@@ -485,34 +433,123 @@ public class StringIntLinkedMap {
 
 		public int nextInt() {
 			if (hasMoreElements()) {
-				StringIntLinkedEntry e = entry;
+				LongIntLinkedEntry e = entry;
 				entry = e.link_next;
-				return e.value;
+				switch (type) {
+				case VALUES:
+					return e.value;
+				}
 			}
 			throw new NoSuchElementException("no more next");
 		}
 
-		public String nextString() {
+		public long nextLong() {
 			if (hasMoreElements()) {
-				StringIntLinkedEntry e = entry;
+				LongIntLinkedEntry e = entry;
 				entry = e.link_next;
-				return e.key;
+				switch (type) {
+				case KEYS:
+					return e.key;
+				}
 			}
 			throw new NoSuchElementException("no more next");
 		}
 	}
 
-	private void chain(StringIntLinkedEntry link_prev, StringIntLinkedEntry link_next, StringIntLinkedEntry e) {
+	private void chain(LongIntLinkedEntry link_prev, LongIntLinkedEntry link_next, LongIntLinkedEntry e) {
 		e.link_prev = link_prev;
 		e.link_next = link_next;
 		link_prev.link_next = e;
 		link_next.link_prev = e;
 	}
 
-	private void unchain(StringIntLinkedEntry e) {
+	private void unchain(LongIntLinkedEntry e) {
 		e.link_prev.link_next = e.link_next;
 		e.link_next.link_prev = e.link_prev;
 		e.link_prev = null;
 		e.link_next = null;
+	}
+
+	public static class LongIntLinkedEntry {
+		long key;
+		int value;
+		LongIntLinkedEntry hash_next;
+		LongIntLinkedEntry link_next, link_prev;
+
+		protected LongIntLinkedEntry(long key, int value, LongIntLinkedEntry next) {
+			this.key = key;
+			this.value = value;
+			this.hash_next = next;
+		}
+
+		protected Object clone() {
+			return new LongIntLinkedEntry(key, value,
+					(hash_next == null ? null : (LongIntLinkedEntry) hash_next.clone()));
+		}
+
+		public long getKey() {
+			return key;
+		}
+
+		public int getValue() {
+			return value;
+		}
+
+		public int setValue(int value) {
+			int oldValue = this.value;
+			this.value = value;
+			return oldValue;
+		}
+
+		public boolean equals(Object o) {
+			if (!(o instanceof LongIntLinkedEntry))
+				return false;
+			LongIntLinkedEntry e = (LongIntLinkedEntry) o;
+			return CompareUtil.equals(e.key, key) && CompareUtil.equals(e.value, value);
+		}
+
+		public int hashCode() {
+			return (int) (key ^ (key >>> 32)) ^ value;
+		}
+
+		public String toString() {
+			return key + "=" + value;
+		}
+	}
+
+	public static void main(String[] args) {
+		LongIntLinkedMap m = new LongIntLinkedMap().setMax(6);
+		for (int i = 0; i < 10; i++) {
+			m.put(i, i);
+			System.out.println(m);
+		}
+		System.out.println();
+		// m.putFirst(1, 0);
+		System.out.println(m);
+		System.out.println("==================================");
+		LongEnumer en = m.keys();
+		while (en.hasMoreElements()) {
+			m.remove(5);
+			System.out.println(en.nextLong());
+		}
+		// System.out.println("==================================");
+		// for (int i = 0; i < 10; i++) {
+		// m.putLast(i, i);
+		// System.out.println(m);
+		// }
+		// System.out.println("==================================");
+		// for (int i = 0; i < 10; i++) {
+		// m.putFirst(i, i);
+		// System.out.println(m);
+		// }
+		// System.out.println("==================================");
+		// for (int i = 0; i < 10; i++) {
+		// m.removeFirst();
+		// System.out.println(m);
+		// }
+	}
+
+	private static void print(Object e) {
+		System.out.println(e);
 	}
 }

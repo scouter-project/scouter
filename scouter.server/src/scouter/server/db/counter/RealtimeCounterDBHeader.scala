@@ -34,6 +34,7 @@ import scouter.util.IntKeyMap
 import scouter.lang.ref.INT
 import scouter.server.util.EnumerScala
 import scouter.util.StringIntMap
+import scouter.util.StringIntMap.StringIntEntry
 
 object RealtimeCounterDBHeader {
     val table = new Hashtable[String, RealtimeCounterDBHeader]();
@@ -130,7 +131,7 @@ class RealtimeCounterDBHeader(file: String) extends IClose {
             val out = new DataOutputX();
             out.writeInt(tagIntStr.size());
 
-            EnumerScala.foreach(tagStrInt.entries(), (ent: StringIntMap.ENTRY) => {
+            EnumerScala.foreach(tagStrInt.entries(), (ent: StringIntEntry) => {
                 out.writeText(ent.getKey());
                 out.writeInt(ent.getValue());
             });

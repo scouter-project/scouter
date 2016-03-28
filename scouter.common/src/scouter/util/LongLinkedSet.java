@@ -21,19 +21,17 @@
 package scouter.util;
 
 import java.util.NoSuchElementException;
-/**
- * @author Paul Kim (sjkim@whatap.io)
- */
-public class IntLinkedSet {
+
+public class LongLinkedSet {
 	private static final int DEFAULT_CAPACITY = 101;
 	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
-	private IntLinkedSetry table[];
-	private IntLinkedSetry header;
+	private LongLinkedSetry table[];
+	private LongLinkedSetry header;
 	private int count;
 	private int threshold;
 	private float loadFactor;
 
-	public IntLinkedSet(int initCapacity, float loadFactor) {
+	public LongLinkedSet(int initCapacity, float loadFactor) {
 		if (initCapacity < 0)
 			throw new RuntimeException("Capacity Error: " + initCapacity);
 		if (loadFactor <= 0)
@@ -41,19 +39,19 @@ public class IntLinkedSet {
 		if (initCapacity == 0)
 			initCapacity = 1;
 		this.loadFactor = loadFactor;
-		this.table = new IntLinkedSetry[initCapacity];
-		this.header = new IntLinkedSetry(0, null);
+		this.table = new LongLinkedSetry[initCapacity];
+		this.header = new LongLinkedSetry(0, null);
 		this.header.link_next = header.link_prev = header;
 		threshold = (int) (initCapacity * loadFactor);
 	}
 
-	public IntLinkedSet() {
+	public LongLinkedSet() {
 		this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
 	}
 
-	private int NONE = 0;
+	private long NONE = 0;
 
-	public IntLinkedSet setNullValue(int none) {
+	public LongLinkedSet setNullValue(long none) {
 		this.NONE = none;
 		return this;
 	}
@@ -62,22 +60,22 @@ public class IntLinkedSet {
 		return count;
 	}
 
-	public int[] getArray() {
-		int[] _keys = new int[this.size()];
-		IntEnumer en = this.elements();
+	public long[] getArray() {
+		long[] _keys = new long[this.size()];
+		LongEnumer en = this.elements();
 		for (int i = 0; i < _keys.length; i++)
-			_keys[i] = en.nextInt();
+			_keys[i] = en.nextLong();
 		return _keys;
 	}
 
-	public synchronized IntEnumer elements() {
+	public synchronized LongEnumer elements() {
 		return new Enumer();
 	}
 
-	public synchronized boolean contains(int key) {
-		IntLinkedSetry buk[] = table;
+	public synchronized boolean contains(long key) {
+		LongLinkedSetry buk[] = table;
 		int index = hash(key) % buk.length;
-		for (IntLinkedSetry e = buk[index]; e != null; e = e.next) {
+		for (LongLinkedSetry e = buk[index]; e != null; e = e.next) {
 			if (CompareUtil.equals(e.key, key)) {
 				return true;
 			}
@@ -85,31 +83,31 @@ public class IntLinkedSet {
 		return false;
 	}
 
-	public synchronized int getFirst() {
+	public synchronized long getFirst() {
 		return this.header.link_next.key;
 	}
 
-	public synchronized int getLast() {
+	public synchronized long getLast() {
 		return this.header.link_prev.key;
 	}
 
-	private int hash(int key) {
-		return key & Integer.MAX_VALUE;
+	private int hash(long key) {
+		return ((int) key) & Integer.MAX_VALUE;
 	}
 
 	protected void rehash() {
 		int oldCapacity = table.length;
-		IntLinkedSetry oldMap[] = table;
+		LongLinkedSetry oldMap[] = table;
 		int newCapacity = oldCapacity * 2 + 1;
-		IntLinkedSetry newMap[] = new IntLinkedSetry[newCapacity];
+		LongLinkedSetry newMap[] = new LongLinkedSetry[newCapacity];
 		threshold = (int) (newCapacity * loadFactor);
 		table = newMap;
 		for (int i = oldCapacity; i-- > 0;) {
-			IntLinkedSetry old = oldMap[i];
+			LongLinkedSetry old = oldMap[i];
 			while (old != null) {
-				IntLinkedSetry e = old;
+				LongLinkedSetry e = old;
 				old = old.next;
-				int key = e.key;
+				long key = e.key;
 				int index = hash(key) % newCapacity;
 				e.next = newMap[index];
 				newMap[index] = e;
@@ -119,7 +117,7 @@ public class IntLinkedSet {
 
 	private int max;
 
-	public IntLinkedSet setMax(int max) {
+	public LongLinkedSet setMax(int max) {
 		this.max = max;
 		return this;
 	}
@@ -128,22 +126,22 @@ public class IntLinkedSet {
 		FORCE_FIRST, FORCE_LAST, FIRST, LAST
 	};
 
-	public int put(int key) {
+	public long put(long key) {
 		return _put(key, MODE.LAST);
 	}
 
-	public int putLast(int key) {
+	public long putLast(long key) {
 		return _put(key, MODE.FORCE_LAST);
 	}
 
-	public int putFirst(int key) {
+	public long putFirst(long key) {
 		return _put(key, MODE.FORCE_FIRST);
 	}
 
-	private synchronized int _put(int key, MODE m) {
-		IntLinkedSetry buk[] = table;
+	private synchronized long _put(long key, MODE m) {
+		LongLinkedSetry buk[] = table;
 		int index = hash(key) % buk.length;
-		for (IntLinkedSetry e = buk[index]; e != null; e = e.next) {
+		for (LongLinkedSetry e = buk[index]; e != null; e = e.next) {
 			if (CompareUtil.equals(e.key, key)) {
 				switch (m) {
 				case FORCE_FIRST:
@@ -167,7 +165,8 @@ public class IntLinkedSet {
 			case FORCE_FIRST:
 			case FIRST:
 				while (count >= max) {
-					int v = header.link_prev.key;
+					// removeLast();
+					long v = header.link_prev.key;
 					remove(v);
 					overflowed(v);
 				}
@@ -175,7 +174,8 @@ public class IntLinkedSet {
 			case FORCE_LAST:
 			case LAST:
 				while (count >= max) {
-					int v = header.link_next.key;
+					// removeFirst();
+					long v = header.link_next.key;
 					remove(v);
 					overflowed(v);
 				}
@@ -187,7 +187,7 @@ public class IntLinkedSet {
 			buk = table;
 			index = hash(key) % buk.length;
 		}
-		IntLinkedSetry e = new IntLinkedSetry(key, buk[index]);
+		LongLinkedSetry e = new LongLinkedSetry(key, buk[index]);
 		buk[index] = e;
 		switch (m) {
 		case FORCE_FIRST:
@@ -203,13 +203,13 @@ public class IntLinkedSet {
 		return NONE;
 	}
 
-	protected void overflowed(int value) {		
+	protected void overflowed(long value) {
 	}
 
-	public synchronized int remove(int key) {
-		IntLinkedSetry buk[] = table;
+	public synchronized long remove(long key) {
+		LongLinkedSetry buk[] = table;
 		int index = hash(key) % buk.length;
-		for (IntLinkedSetry e = buk[index], prev = null; e != null; prev = e, e = e.next) {
+		for (LongLinkedSetry e = buk[index], prev = null; e != null; prev = e, e = e.next) {
 			if (CompareUtil.equals(e.key, key)) {
 				if (prev != null) {
 					prev.next = e.next;
@@ -225,13 +225,13 @@ public class IntLinkedSet {
 		return NONE;
 	}
 
-	public synchronized int removeFirst() {
+	public synchronized long removeFirst() {
 		if (isEmpty())
 			return NONE;
 		return remove(header.link_next.key);
 	}
 
-	public synchronized int removeLast() {
+	public synchronized long removeLast() {
 		if (isEmpty())
 			return NONE;
 		return remove(header.link_prev.key);
@@ -242,7 +242,7 @@ public class IntLinkedSet {
 	}
 
 	public synchronized void clear() {
-		IntLinkedSetry buk[] = table;
+		LongLinkedSetry buk[] = table;
 		for (int index = buk.length; --index >= 0;)
 			buk[index] = null;
 		this.header.link_next = header.link_prev = header;
@@ -251,27 +251,27 @@ public class IntLinkedSet {
 
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
-		IntEnumer it = elements();
+		LongEnumer it = elements();
 		buf.append("{");
 		while (it.hasMoreElements()) {
 			if (buf.length() > 1)
 				buf.append(",");
-			buf.append(it.nextInt());
+			buf.append(it.nextLong());
 		}
 		buf.append("}");
 		return buf.toString();
 	}
 
-	private class Enumer implements IntEnumer {
-		IntLinkedSetry entry = IntLinkedSet.this.header.link_next;
+	private class Enumer implements LongEnumer {
+		LongLinkedSetry entry = LongLinkedSet.this.header.link_next;
 
 		public boolean hasMoreElements() {
 			return header != entry && entry != null;
 		}
 
-		public int nextInt() {
+		public long nextLong() {
 			if (hasMoreElements()) {
-				IntLinkedSetry e = entry;
+				LongLinkedSetry e = entry;
 				entry = e.link_next;
 				return e.key;
 			}
@@ -279,51 +279,52 @@ public class IntLinkedSet {
 		}
 	}
 
-	private void chain(IntLinkedSetry link_prev, IntLinkedSetry link_next, IntLinkedSetry e) {
+	private void chain(LongLinkedSetry link_prev, LongLinkedSetry link_next, LongLinkedSetry e) {
 		e.link_prev = link_prev;
 		e.link_next = link_next;
 		link_prev.link_next = e;
 		link_next.link_prev = e;
 	}
 
-	private void unchain(IntLinkedSetry e) {
+	private void unchain(LongLinkedSetry e) {
 		e.link_prev.link_next = e.link_next;
 		e.link_next.link_prev = e.link_prev;
 		e.link_prev = null;
 		e.link_next = null;
 	}
 
-	public static class IntLinkedSetry {
-		int key;
-		IntLinkedSetry next;
-		IntLinkedSetry link_next, link_prev;
+	public static class LongLinkedSetry {
+		long key;
+		LongLinkedSetry next;
+		LongLinkedSetry link_next, link_prev;
 
-		protected IntLinkedSetry(int key, IntLinkedSetry next) {
+		protected LongLinkedSetry(long key, LongLinkedSetry next) {
 			this.key = key;
 			this.next = next;
 		}
 
 		protected Object clone() {
-			return new IntLinkedSetry(key, (next == null ? null : (IntLinkedSetry) next.clone()));
+			return new LongLinkedSetry(key, (next == null ? null : (LongLinkedSetry) next.clone()));
 		}
 
-		public int getKey() {
+		public long getKey() {
 			return key;
 		}
 
 		public boolean equals(Object o) {
-			if (!(o instanceof IntLinkedSetry))
+			if (!(o instanceof LongLinkedSetry))
 				return false;
-			IntLinkedSetry e = (IntLinkedSetry) o;
+			LongLinkedSetry e = (LongLinkedSetry) o;
 			return CompareUtil.equals(e.key, key);
 		}
 
 		public int hashCode() {
-			return key;
+			return (int) key;
 		}
 
 		public String toString() {
-			return Integer.toString(key);
+			return Long.toString(key);
 		}
 	}
+
 }

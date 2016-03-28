@@ -1,4 +1,5 @@
 /*
+ * 
  *  Copyright 2015 the original author or authors. 
  *  @https://github.com/scouter-project/scouter
  *
@@ -13,10 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
- * 
+ *
  *  The initial idea for this class is from "org.apache.commons.lang.IntHashMap"; 
  *  http://commons.apache.org/commons-lang-2.6-src.zip
- *
+ *  
  */
 package scouter.util;
 
@@ -25,23 +26,22 @@ import java.util.NoSuchElementException;
 /**
  * @author Paul Kim (sjkim@whatap.io)
  */
-public class LongLongLinkedMap {
+public class LongFloatLinkedMap {
 	private static final int DEFAULT_CAPACITY = 101;
 	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
-	private LongLongLinkedEntry table[];
-	private LongLongLinkedEntry header;
-
+	private LongFloatLinkedEntry table[];
+	private LongFloatLinkedEntry header;
 	private int count;
 	private int threshold;
 	private float loadFactor;
-	private long NONE = 0;
+	private int NONE = 0;
 
-	public LongLongLinkedMap setNullValue(int none) {
+	public LongFloatLinkedMap setNullValue(int none) {
 		this.NONE = none;
 		return this;
 	}
 
-	public LongLongLinkedMap(int initCapacity, float loadFactor) {
+	public LongFloatLinkedMap(int initCapacity, float loadFactor) {
 		if (initCapacity < 0)
 			throw new RuntimeException("Capacity Error: " + initCapacity);
 		if (loadFactor <= 0)
@@ -49,15 +49,13 @@ public class LongLongLinkedMap {
 		if (initCapacity == 0)
 			initCapacity = 1;
 		this.loadFactor = loadFactor;
-		this.table = new LongLongLinkedEntry[initCapacity];
-
-		this.header = new LongLongLinkedEntry(0, 0, null);
+		this.table = new LongFloatLinkedEntry[initCapacity];
+		this.header = new LongFloatLinkedEntry(0, 0, null);
 		this.header.link_next = header.link_prev = header;
-
 		threshold = (int) (initCapacity * loadFactor);
 	}
 
-	public LongLongLinkedMap() {
+	public LongFloatLinkedMap() {
 		this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
 	}
 
@@ -77,19 +75,18 @@ public class LongLongLinkedMap {
 		return new Enumer(TYPE.KEYS);
 	}
 
-	public synchronized LongEnumer values() {
+	public synchronized FloatEnumer values() {
 		return new Enumer(TYPE.VALUES);
 	}
 
-	public synchronized Enumeration<LongLongLinkedEntry> entries() {
-		return new Enumer<LongLongLinkedEntry>(TYPE.ENTRIES);
+	public synchronized Enumeration<LongFloatLinkedEntry> entries() {
+		return new Enumer<LongFloatLinkedEntry>(TYPE.ENTRIES);
 	}
 
-	public synchronized boolean containsValue(long value) {
-		LongLongLinkedEntry tab[] = table;
-		int i = tab.length;
-		while (i-- > 0) {
-			for (LongLongLinkedEntry e = tab[i]; e != null; e = e.next) {
+	public synchronized boolean containsValue(float value) {
+		LongFloatLinkedEntry tab[] = table;
+		for (int i = tab.length; i-- > 0;) {
+			for (LongFloatLinkedEntry e = tab[i]; e != null; e = e.hash_next) {
 				if (CompareUtil.equals(e.value, value)) {
 					return true;
 				}
@@ -99,20 +96,22 @@ public class LongLongLinkedMap {
 	}
 
 	public synchronized boolean containsKey(long key) {
-		LongLongLinkedEntry tab[] = table;
+		LongFloatLinkedEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (LongLongLinkedEntry e = tab[index]; e != null; e = e.next) {
+		LongFloatLinkedEntry e = tab[index];
+		while (e != null) {
 			if (CompareUtil.equals(e.key, key)) {
 				return true;
 			}
+			e = e.hash_next;
 		}
 		return false;
 	}
 
-	public synchronized long get(long key) {
-		LongLongLinkedEntry tab[] = table;
+	public synchronized float get(long key) {
+		LongFloatLinkedEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (LongLongLinkedEntry e = tab[index]; e != null; e = e.next) {
+		for (LongFloatLinkedEntry e = tab[index]; e != null; e = e.hash_next) {
 			if (CompareUtil.equals(e.key, key)) {
 				return e.value;
 			}
@@ -128,11 +127,11 @@ public class LongLongLinkedMap {
 		return this.header.link_prev.key;
 	}
 
-	public synchronized long getFirstValue() {
+	public synchronized float getFirstValue() {
 		return this.header.link_next.value;
 	}
 
-	public synchronized long getLastValue() {
+	public synchronized float getLastValue() {
 		return this.header.link_prev.value;
 	}
 
@@ -142,19 +141,19 @@ public class LongLongLinkedMap {
 
 	protected void rehash() {
 		int oldCapacity = table.length;
-		LongLongLinkedEntry oldMap[] = table;
+		LongFloatLinkedEntry oldMap[] = table;
 		int newCapacity = oldCapacity * 2 + 1;
-		LongLongLinkedEntry newMap[] = new LongLongLinkedEntry[newCapacity];
+		LongFloatLinkedEntry newMap[] = new LongFloatLinkedEntry[newCapacity];
 		threshold = (int) (newCapacity * loadFactor);
 		table = newMap;
 		for (int i = oldCapacity; i-- > 0;) {
-			LongLongLinkedEntry old = oldMap[i];
+			LongFloatLinkedEntry old = oldMap[i];
 			while (old != null) {
-				LongLongLinkedEntry e = old;
-				old = old.next;
+				LongFloatLinkedEntry e = old;
+				old = old.hash_next;
 				long key = e.key;
 				int index = hash(key) % newCapacity;
-				e.next = newMap[index];
+				e.hash_next = newMap[index];
 				newMap[index] = e;
 			}
 		}
@@ -162,7 +161,7 @@ public class LongLongLinkedMap {
 
 	private int max;
 
-	public LongLongLinkedMap setMax(int max) {
+	public LongFloatLinkedMap setMax(int max) {
 		this.max = max;
 		return this;
 	}
@@ -171,24 +170,24 @@ public class LongLongLinkedMap {
 		FORCE_FIRST, FORCE_LAST, FIRST, LAST
 	};
 
-	public long put(long key, long value) {
+	public float put(long key, float value) {
 		return _put(key, value, MODE.LAST);
 	}
 
-	public long putLast(long key, long value) {
+	public float putLast(long key, float value) {
 		return _put(key, value, MODE.FORCE_LAST);
 	}
 
-	public long putFirst(long key, long value) {
+	public float putFirst(long key, float value) {
 		return _put(key, value, MODE.FORCE_FIRST);
 	}
 
-	private synchronized long _put(long key, long value, MODE m) {
-		LongLongLinkedEntry tab[] = table;
+	private synchronized float _put(long key, float value, MODE m) {
+		LongFloatLinkedEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (LongLongLinkedEntry e = tab[index]; e != null; e = e.next) {
+		for (LongFloatLinkedEntry e = tab[index]; e != null; e = e.hash_next) {
 			if (CompareUtil.equals(e.key, key)) {
-				long old = e.value;
+				float old = e.value;
 				e.value = value;
 				switch (m) {
 				case FORCE_FIRST:
@@ -207,7 +206,6 @@ public class LongLongLinkedMap {
 				return old;
 			}
 		}
-
 		if (max > 0) {
 			switch (m) {
 			case FORCE_FIRST:
@@ -215,7 +213,7 @@ public class LongLongLinkedMap {
 				while (count >= max) {
 					//removeLast();
 					long k = header.link_prev.key;
-					long v = remove(k);
+					float v = remove(k);
 					overflowed(k, v);
 				}
 				break;
@@ -224,21 +222,19 @@ public class LongLongLinkedMap {
 				while (count >= max) {
 					//removeFirst();
 					long k = header.link_next.key;
-					long v = remove(k);
+					float v = remove(k);
 					overflowed(k, v);
 				}
 				break;
 			}
 		}
-
 		if (count >= threshold) {
 			rehash();
 			tab = table;
 			index = hash(key) % tab.length;
 		}
-		LongLongLinkedEntry e = new LongLongLinkedEntry(key, value, tab[index]);
+		LongFloatLinkedEntry e = new LongFloatLinkedEntry(key, value, tab[index]);
 		tab[index] = e;
-
 		switch (m) {
 		case FORCE_FIRST:
 		case FIRST:
@@ -249,45 +245,45 @@ public class LongLongLinkedMap {
 			chain(header.link_prev, header, e);
 			break;
 		}
-
 		count++;
 		return NONE;
 	}
 
-	private void overflowed(long k, long v) {
-		// TODO Auto-generated method stub
-		
+	protected void overflowed(long key, float value) {
 	}
 
-	public synchronized long remove(long key) {
-		LongLongLinkedEntry tab[] = table;
+	public synchronized float remove(long key) {
+		LongFloatLinkedEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (LongLongLinkedEntry e = tab[index], prev = null; e != null; prev = e, e = e.next) {
+		LongFloatLinkedEntry e = tab[index];
+		LongFloatLinkedEntry prev = null;
+		while (e != null) {
 			if (CompareUtil.equals(e.key, key)) {
 				if (prev != null) {
-					prev.next = e.next;
+					prev.hash_next = e.hash_next;
 				} else {
-					tab[index] = e.next;
+					tab[index] = e.hash_next;
 				}
 				count--;
-				long oldValue = e.value;
+				float oldValue = e.value;
 				e.value = NONE;
 				//
 				unchain(e);
-
 				return oldValue;
 			}
+			prev = e;
+			e = e.hash_next;
 		}
 		return NONE;
 	}
 
-	public synchronized long removeFirst() {
+	public synchronized float removeFirst() {
 		if (isEmpty())
 			return 0;
 		return remove(header.link_next.key);
 	}
 
-	public synchronized long removeLast() {
+	public synchronized float removeLast() {
 		if (isEmpty())
 			return 0;
 		return remove(header.link_prev.key);
@@ -298,12 +294,11 @@ public class LongLongLinkedMap {
 	}
 
 	public synchronized void clear() {
-		LongLongLinkedEntry tab[] = table;
+		LongFloatLinkedEntry tab[] = table;
 		for (int index = tab.length; --index >= 0;)
 			tab[index] = null;
-
-		this.header.link_next = header.link_prev = header;
-
+		this.header.link_next = header;
+		this.header.link_prev = header;
 		count = 0;
 	}
 
@@ -312,11 +307,10 @@ public class LongLongLinkedMap {
 		Enumeration it = entries();
 		buf.append("{");
 		for (int i = 0; it.hasMoreElements(); i++) {
-			LongLongLinkedEntry e = (LongLongLinkedEntry) (it.nextElement());
+			LongFloatLinkedEntry e = (LongFloatLinkedEntry) (it.nextElement());
 			if (i > 0)
 				buf.append(", ");
 			buf.append(e.getKey() + "=" + e.getValue());
-
 		}
 		buf.append("}");
 		return buf.toString();
@@ -327,7 +321,7 @@ public class LongLongLinkedMap {
 		Enumeration it = entries();
 		buf.append("{\n");
 		while (it.hasMoreElements()) {
-			LongLongLinkedEntry e = (LongLongLinkedEntry) it.nextElement();
+			LongFloatLinkedEntry e = (LongFloatLinkedEntry) it.nextElement();
 			buf.append("\t").append(e.getKey() + "=" + e.getValue()).append("\n");
 		}
 		buf.append("}");
@@ -338,37 +332,21 @@ public class LongLongLinkedMap {
 		KEYS, VALUES, ENTRIES
 	}
 
-	private class Enumer<V> implements Enumeration, LongEnumer {
+	private class Enumer<V> implements Enumeration, FloatEnumer, LongEnumer {
 		TYPE type;
-		LongLongLinkedEntry entry = LongLongLinkedMap.this.header.link_next;
+		LongFloatLinkedEntry entry = LongFloatLinkedMap.this.header.link_next;
 
 		Enumer(TYPE type) {
 			this.type = type;
 		}
 
 		public boolean hasMoreElements() {
-			return header != entry && entry != null;
+			return entry != null && header != entry;
 		}
 
-		public V nextElement() {
+		public Object nextElement() {
 			if (hasMoreElements()) {
-				LongLongLinkedEntry e = entry;
-				entry = e.link_next;
-				switch (type) {
-				case KEYS:
-					return (V) new Long(e.key);
-				case VALUES:
-					return (V) new Long(e.value);
-				default:
-					return (V) e;
-				}
-			}
-			throw new NoSuchElementException("no more next");
-		}
-
-		public long nextLong() {
-			if (hasMoreElements()) {
-				LongLongLinkedEntry e = entry;
+				LongFloatLinkedEntry e = entry;
 				entry = e.link_next;
 				switch (type) {
 				case KEYS:
@@ -376,93 +354,100 @@ public class LongLongLinkedMap {
 				case VALUES:
 					return e.value;
 				default:
-					return NONE;
+					return e;
+				}
+			}
+			throw new NoSuchElementException("no more next");
+		}
+
+		public float nextFloat() {
+			if (hasMoreElements()) {
+				LongFloatLinkedEntry e = entry;
+				entry = e.link_next;
+				switch (type) {
+				case VALUES:
+					return e.value;
+				}
+			}
+			throw new NoSuchElementException("no more next");
+		}
+
+		public long nextLong() {
+			if (hasMoreElements()) {
+				LongFloatLinkedEntry e = entry;
+				entry = e.link_next;
+				switch (type) {
+				case KEYS:
+					return e.key;
 				}
 			}
 			throw new NoSuchElementException("no more next");
 		}
 	}
 
-	private void chain(LongLongLinkedEntry link_prev, LongLongLinkedEntry link_next, LongLongLinkedEntry e) {
+	private void chain(LongFloatLinkedEntry link_prev, LongFloatLinkedEntry link_next, LongFloatLinkedEntry e) {
 		e.link_prev = link_prev;
 		e.link_next = link_next;
 		link_prev.link_next = e;
 		link_next.link_prev = e;
 	}
 
-	private void unchain(LongLongLinkedEntry e) {
+	private void unchain(LongFloatLinkedEntry e) {
 		e.link_prev.link_next = e.link_next;
 		e.link_next.link_prev = e.link_prev;
 		e.link_prev = null;
 		e.link_next = null;
 	}
 
-	public static class LongLongLinkedEntry {
-		long key;
-		long value;
-		LongLongLinkedEntry next;
-		LongLongLinkedEntry link_next, link_prev;
+	private static void print(Object e) {
+		System.out.println(e);
+	}
 
-		protected LongLongLinkedEntry(long key, long value, LongLongLinkedEntry next) {
+	public static class LongFloatLinkedEntry {
+		long key;
+		float value;
+		LongFloatLinkedEntry hash_next;
+		LongFloatLinkedEntry link_next, link_prev;
+
+		protected LongFloatLinkedEntry(long key, float value, LongFloatLinkedEntry next) {
 			this.key = key;
 			this.value = value;
-			this.next = next;
+			this.hash_next = next;
 		}
 
 		protected Object clone() {
-			return new LongLongLinkedEntry(key, value, (next == null ? null : (LongLongLinkedEntry) next.clone()));
+			return new LongFloatLinkedEntry(key, value,
+					(hash_next == null ? null : (LongFloatLinkedEntry) hash_next.clone()));
 		}
 
 		public long getKey() {
 			return key;
 		}
 
-		public long getValue() {
+		public float getValue() {
 			return value;
 		}
 
-		public long setValue(long value) {
-
-			long oldValue = this.value;
+		public float setValue(float value) {
+			float oldValue = this.value;
 			this.value = value;
 			return oldValue;
 		}
 
 		public boolean equals(Object o) {
-			if (!(o instanceof LongLongLinkedEntry))
+			if (!(o instanceof LongFloatLinkedEntry))
 				return false;
-			LongLongLinkedEntry e = (LongLongLinkedEntry) o;
+			LongFloatLinkedEntry e = (LongFloatLinkedEntry) o;
 			return CompareUtil.equals(e.key, key) && CompareUtil.equals(e.value, value);
 		}
 
 		public int hashCode() {
-			return (int) (key ^ (key >>> 32)) ^ (int) (value ^ (value >>> 32));
+			int x = Float.floatToIntBits(value);
+			return x;
 		}
 
 		public String toString() {
 			return key + "=" + value;
 		}
 	}
-
-	public static void main(String[] args) {
-		LongLongLinkedMap m = new LongLongLinkedMap();
-		// m.put(1, 1);
-		// m.put(2, 1);
-		// m.put(3, 1);
-		// m.put(4, 1);
-		//
-		LongEnumer e = m.keys();
-		System.out.println(e.nextLong());
-		System.out.println(e.nextLong());
-		System.out.println(e.nextLong());
-		System.out.println(e.nextLong());
-
-		// System.out.println(e.nextLong());
-
-	}
-
-	private static void print(Object e) {
-		System.out.println(e);
-	}
-
 }
