@@ -62,17 +62,19 @@ object AgentManager {
         if (p.objHash == 0) {
             p.objHash = HashUtil.hash(p.objName);
         }
-        PlugInManager.active(p);
         var objPack = objMap.getObject(p.objHash);
         if (objPack == null) {
+            // in case of new object
+            PlugInManager.active(p);
             objPack = p;
             objPack.wakeup();
-            //
             objMap.put(objPack);
             procObjName(objPack);
             ObjectWR.add(objPack);
             Logger.println("S104", "New " + objPack);
         } else {
+            // in case of existing object
+            PlugInManager.active(objPack);
             var save = false;
             if (DateUtil.getDateUnit(objPack.wakeup) != DateUtil.getDateUnit(System.currentTimeMillis())) {
                 objPack.updated = 0;
@@ -147,6 +149,9 @@ object AgentManager {
         val objPack = objMap.getObject(objHash);
         if (objPack != null && objPack.alive) {
             objPack.alive = false;
+            // to recognize inactive status
+            PlugInManager.active(objPack);
+            objPack.wakeup = 0L;
             val obj = counterEngine.getObjectType(objPack.objType);
             if (obj != null && obj.isSubObject() == false) {
                 alertInactiveObject(objPack);
