@@ -1,38 +1,33 @@
-# HyperLogLog를 이용하여 방문자 계산하기
+# Getting unique visitors with HyperLogLog algorithm
 ![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Counting-Visit-Users_kr.md)
 
-하룻동안 방문한 사용자는 시스템의 성능과 비즈니스 연관도를 설명하기 위한 중요한 지표이다. 
-성능적으로 보면 동시 사용자가 중요한 기준이 되지만 
-IT담당자가 아닌경우에 동시사용자 보다는 방문사용자를 많이 사용한다. 
+'Visitors' is important metric to understand relationship between business frequency and system performance. Just with performance, the highest concurrent users are in case. But with the perspective of business visitors are more important than concurrent user. 
 
-## 방문사용자를 어떻게 측정할 것인가?
+## How to count unique visitors?
 
-방문사용자는 측정하기 위해서는 먼저 서버 시스템에서 사용자를 유일하게 식별할  수 있어야 한다.
-사용자를 유일하게 식별하는 방법은 로그인 아이디나 IP를 사용하거나JSESSIONID혹은 그와 유사한 사용자별 고유의 식별아이디를 사용할 수 있다.
+When it count the unique vistors, each user's request should be distinguishable. There are serveral ways to give uniqueness to each request like using login ID, IP address, checking special cookie (like JSESSIONID), or other methodologies giving unique ID.
  
-각 방법마다 약간의 단점들이 있다.
-* 로그인 - 사용자가 로그인하기 전에는 측정이 않됨
-* IP - 서버에서는 식별이안됨
-* JSESSIONID - 한 사용자가 여러번 반복 로그인할경우 사용자가 과댜계산될 수 있음
-* COOKIE - 시스템에 Cookie를 추가하기 때문에 영향을 줄 수 있음
-이러한 단점들을 고려하여 서비스 요청별 사용자를 식별한다. 
+Each way has pros also cons,
+* Login ID - It will not be counted until user logged in the system.
+* IP Address - In some environments getting client's IP adress is not possible.
+* JSESSIONID - Multiple accessing of system within counting period will be counted redundantly.
+* COOKIE - Adopting new cookie can make system more complexed.
 
-그런데 방문자 측정에 가장 어려운점은 사용자 식별보다는 실제 숫자를 계산해 내는 것에 있다. 
-HashSet과 같은 클래스를 통해 몇명인지를 계산하는것이 정확하지만 메모리를 많이 사용하기 때문에 쉽지 않다. 
+You should understand all of this technique and cons to count exact visiting number. 
 
-이러한 문제를 해결하고 적은 메모리로 방문사용자를 계산할 수 있는 적합한 알고리즘이 HyperLogLog이다. 
+For the developer it is also difficult to implement effective source code to count up, because counting is very slow and greedy. For example counting with HashSet collection consumes very much memory.
 
-자세한 설명은 HyperLogLog에 대한 설명을 참조하고 여기서는 샘플 프로그램을 통해서 방문 사용자 계산하는 방법을 시뮬레이션 해본다. 
+The HyperLogLog is proper algorithm not consuming so much memory to estimate or approximate unique visitors. Please refer to the other articles or documents for more about HyperLogLog. Here is the simulation of it. 
 
-## 소스 코드
+## Example
 
-TestHLL은 천만명의 사용자를 가정하고 HyperLogLog를 사용하여 계산하면 어떤 결과가 나오는지를 시뮬레이션 해보았다.
+TestHLL example had simulated the situation of 10 million users accessing the system, and caculated result with HyperLogLog.
 
-* realSet => 실제 방문자를 계산한다(기준값)
-* all =>전체 
-* even => 짝수번호 사용자
-* odd => 홀수 번호 사용자
-* sum => all + even + odd
+* realSet : Calculate real visitor
+* all : means total users 
+* even : user with even number ticket
+* odd : user with odd number ticket
+* sum = all + even + odd
 
 ```
 import java.util.HashSet;
@@ -80,7 +75,7 @@ public class TestHLL {
 }
 ```
 
-## 실행결과
+## Results
 ```
 10 => all=10 even=5 odd=5  sum=10
 20 => all=20 even=10 odd=10  sum=20
@@ -138,11 +133,9 @@ public class TestHLL {
 9000000 => all=8986135 even=4495527 odd=4506118  sum=8986135
 10000000 => all=9984382 even=4992773 odd=5001554  sum=9984382
 ```
-천만명이 방문한다고 가정하고 각 구간별로 HyperLogLog알고리즘으로 계산된 방문자의 숫자이다.
-어느정도 인정한만한 오차범위에서 값을 계산해 내는 것을 볼 수 있다. 
+Each row represents the simulation result to 10 million users. As HyperLogLog algorithm is using statistical approach, the counring number is not absolutly exact number, provides margin of error. But the margin rate is low and acceptable. 
 
-특히 부분 사용자를 통해 전체를 구할 수 있다.
-위의  TestHLL 소스코드를 보면 sum에 all 변수의 사용자 값을 모두 add하여도 sum ==all을 확인 할 수 있다. 
+And with the number of part user, we can get all user value. You can find that 'sum' variable is equivalent to 'all' variable.
 ```
 HyperLogLog sum = new HyperLogLog(20);
 	sum.addAll(even);
@@ -150,8 +143,6 @@ HyperLogLog sum = new HyperLogLog(20);
 	sum.addAll(all);
 ```
 
-이것은 서버별 방문자를 계산한 다음 업무별 사용자를 다시 계산 할 수 있는 의미가 된다.
+This means counting users for each business function and each server.
 
-방문사용자는 시스템의 성능이나 장애가 비즈니스에 미치는 영향도를 파악하는데 중요한 지표이다.
-하지만 그 값이 완전히 정교할 필요는 없으며 어떠한 방법을 사용하여도 실제의 값을 구할 수는 없다.
-어차피 대략의 규모를 효과적으로 파악하는 것이 중요하다.
+Unique visitors is important because it has relationship between incoming request and system performance. And it is important to apply estimating or approximating algorithm with acceptable margin of errors.
