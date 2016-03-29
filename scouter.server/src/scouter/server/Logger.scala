@@ -34,29 +34,37 @@ object Logger {
     private val lastLog = new StringLongLinkedMap().setMax(1000);
 
     def println(message: Any) {
-        Logger.println(DateUtil.datetime(System.currentTimeMillis()) + " " + message);
+        Logger.printlnInternal(DateUtil.datetime(System.currentTimeMillis()) + " " + message);
     }
 
     def println(id: String, message: Any) {
         if (checkOk(id, 0) == false) {
             return ;
         }
-        println(DateUtil.datetime(System.currentTimeMillis()) + " [" + id + "] " + message);
+        printlnInternal(DateUtil.datetime(System.currentTimeMillis()) + " [" + id + "] " + message);
     }
 
     def println(id: String, sec: Int, message: Any) {
         if (checkOk(id, sec) == false) {
             return ;
         }
-        println(DateUtil.datetime(System.currentTimeMillis()) + " [" + id + "] " + message);
+        printlnInternal(DateUtil.datetime(System.currentTimeMillis()) + " [" + id + "] " + message);
     }
 
     def println(id: String, sec: Int, message: Any, t: Throwable) {
         if (checkOk(id, sec) == false) {
             return ;
         }
-        println(DateUtil.datetime(System.currentTimeMillis()) + " [" + id + "] " + message);
-        println(ThreadUtil.getStackTrace(t));
+        printlnInternal(DateUtil.datetime(System.currentTimeMillis()) + " [" + id + "] " + message);
+        printlnInternal(ThreadUtil.getStackTrace(t));
+    }
+
+    def printStackTrace(t: Throwable): Unit = {
+        println(getCallStack(t));
+    }
+
+    def printStackTrace(id: String, t: Throwable): Unit = {
+        println(id, getCallStack(t));
     }
 
     def getCallStack(t: Throwable): String = {
@@ -88,9 +96,12 @@ object Logger {
     private var lastDir = ".";
     private var lastFileRotation = true;
 
-    private def println(msg: String) {
+    private def printlnInternal(msg: String) {
         try {
             if (pw != null) {
+                if(conf._trace) {
+                    System.out.println(msg);
+                }
                 pw.println(msg);
                 pw.flush();
                 return ;
@@ -99,6 +110,9 @@ object Logger {
             if (pw == null) {
                 System.out.println(msg);
             } else {
+                if(conf._trace) {
+                    System.out.println(msg);
+                }
                 pw.println(msg);
                 pw.flush();
             }
