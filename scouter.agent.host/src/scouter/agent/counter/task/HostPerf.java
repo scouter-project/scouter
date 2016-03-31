@@ -78,7 +78,7 @@ public class HostPerf {
 		long pageout = sw.getPageOut();
 		long tswap = sw.getTotal();
 		long uswap = sw.getUsed();
-		float swaprate = uswap * 100.0f / tswap;
+		float swaprate = (tswap == 0) ? 0 : uswap * 100.0f / tswap;
 
 		PerfCounterPack p = pw.getPack(conf.getObjName(), TimeTypeEnum.REALTIME);
 		p.put(CounterConstants.HOST_CPU, new FloatValue(cpu));
