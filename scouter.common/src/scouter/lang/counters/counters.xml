@@ -11,20 +11,20 @@ mrhit : MariaDB HitRatio
 			<Counter name="Cpu" disp="CPU" unit="%" icon="cpu.png" total="false" />
 			<Counter name="SysCpu" disp="SysCPU" unit="%" icon="cpu.png" all="false" total="false" />
 			<Counter name="UserCpu" disp="UserCPU" unit="%" icon="cpu.png" all="false" total="false" />
-			
+
 			<Counter name="Mem" disp="Memory" unit="%" icon="memory.png" total="false"/>
 			<Counter name="MemA" disp="Memory | Avaliable" unit="MB" icon="memory.png" total="false"/>
 			<Counter name="MemU" disp="Memory | ActualUsed" unit="MB" icon="memory.png" total="false"/>
 			<Counter name="MemT" disp="Memory | Total" unit="MB" icon="memory.png" total="false"/>
-			
+
 			<Counter name="PageIn" disp="Swap | PageIn" unit="page" icon="swap.png" total="false"/>
 			<Counter name="PageOut" disp="Swap | PageOut" unit="page" icon="swap.png" total="false"/>
 			<Counter name="Swap" disp="Swap" unit="%" icon="swap.png" total="false"/>
 			<Counter name="SwapT" disp="Swap | Total" unit="MB" icon="swap.png" total="false"/>
 			<Counter name="SwapU" disp="Swap | Used" unit="MB" icon="swap.png" total="false"/>
-			
+
 			<Counter name="NetInBound" disp="Net | NetInBound" unit="cnt" icon="bytes_recv.png" total="false"/>
-			<Counter name="NetOutBound" disp="Net | NetOutBound" unit="cnt" icon="bytes_recv.png" total="false"/>			
+			<Counter name="NetOutBound" disp="Net | NetOutBound" unit="cnt" icon="bytes_recv.png" total="false"/>
 			<Counter name="TcpStatCLS" disp="Net | TcpStatCLS" unit="cnt" icon="drop.png" total="false"/>
 			<Counter name="TcpStatTIM" disp="Net | TcpStatTIM" unit="cnt" icon="time_read.png" total="false"/>
 			<Counter name="TcpStatFIN" disp="Net | TcpStatFIN" unit="cnt" icon="time_read.png" total="false"/>
@@ -101,6 +101,77 @@ mrhit : MariaDB HitRatio
 			<Counter name="TBL_LOCK_W" disp="Table Locks Waited" unit="cnt" icon="database.png" />
 			<Counter name="WAIT_COUNT" disp="Wait Count" unit="cnt" icon="database.png" />
 		</Family>
+		<Family master="048" name="mariad">
+			<Counter disp="Aborted Clients" icon="database.png" name="001" unit="cnt"/>
+			<Counter disp="Aborted Connects " icon="database.png" name="002" unit="cnt"/>
+			<Counter disp="Bytes Received" icon="database.png" name="003" unit="bytes"/>
+			<Counter disp="Bytes Sent" icon="database.png" name="004" unit="bytes"/>
+			<Counter disp="COM Call Procedure" icon="database.png" name="005" unit="cnt"/>
+			<Counter disp="COM Commit" icon="database.png" name="006" unit="cnt"/>
+			<Counter disp="COM Delete" icon="database.png" name="007" unit="cnt"/>
+			<Counter disp="COM Insert" icon="database.png" name="008" unit="cnt"/>
+			<Counter disp="COM Rollback" icon="database.png" name="009" unit="cnt"/>
+			<Counter disp="COM Select" icon="database.png" name="010" unit="cnt"/>
+			<Counter disp="COM Update" icon="database.png" name="011" unit="cnt"/>
+			<Counter disp="Connections" icon="database.png" name="012" unit="cnt"/>
+			<Counter disp="Created tmp disk tables" icon="database.png" name="013" unit="cnt"/>
+			<Counter disp="Created tmp files" icon="database.png" name="014" unit="cnt"/>
+			<Counter disp="Created tmp tables" icon="database.png" name="015" unit="cnt"/>
+			<Counter disp="Innodb Buffer Pool Pages Data" icon="database.png" name="016" unit="cnt"/>
+			<Counter disp="Innodb Buffer Pool Pages Dirty" icon="database.png" name="017" unit="cnt"/>
+			<Counter disp="Innodb Buffer Pool Pages Free" icon="database.png" name="018" unit="cnt"/>
+			<Counter disp="Innodb Buffer Pool Pages Total" icon="database.png" name="019" unit="cnt"/>
+			<Counter disp="Innodb Buffer Pool Read Requests" icon="database.png" name="020" unit="cnt"/>
+			<Counter disp="Innodb Buffer Pool Reads" icon="database.png" name="021" unit="cnt"/>
+			<Counter disp="Innodb Log Waits" icon="database.png" name="022" unit="cnt"/>
+			<Counter disp="Innodb Log Write Requests" icon="database.png" name="023" unit="cnt"/>
+			<Counter disp="Innodb Log Writes" icon="database.png" name="024" unit="cnt"/>
+			<Counter disp="Innodb Mutex Os Waits" icon="database.png" name="025" unit="cnt"/>
+			<Counter disp="Innodb Mutex Spin Rounds" icon="database.png" name="026" unit="cnt"/>
+			<Counter disp="Innodb Mutex Spin Waits" icon="database.png" name="027" unit="cnt"/>
+			<Counter disp="Innodb Os Log Written" icon="database.png" name="028" unit="cnt"/>
+			<Counter disp="Innodb Pages Created" icon="database.png" name="029" unit="cnt"/>
+			<Counter disp="Innodb Pages Read" icon="database.png" name="030" unit="cnt"/>
+			<Counter disp="Innodb Pages Written" icon="database.png" name="031" unit="cnt"/>
+			<Counter disp="Innodb Row Lock Current Waits" icon="database.png" name="032" unit="cnt"/>
+			<Counter disp="Innodb Row Lock Time" icon="database.png" name="033" unit="cnt"/>
+			<Counter disp="Innodb Row Lock Waits" icon="database.png" name="034" unit="cnt"/>
+			<Counter disp="Innodb Rows Deleted" icon="database.png" name="035" unit="cnt"/>
+			<Counter disp="Innodb Rows Inserted" icon="database.png" name="036" unit="cnt"/>
+			<Counter disp="Innodb Rows Read" icon="database.png" name="037" unit="cnt"/>
+			<Counter disp="Innodb Rows Updated" icon="database.png" name="038" unit="cnt"/>
+			<Counter disp="Key Blocks Not Flushed" icon="database.png" name="039" unit="cnt"/>
+			<Counter disp="Key Blocks used" icon="database.png" name="040" unit="cnt"/>
+			<Counter disp="Key Read Requests" icon="database.png" name="041" unit="cnt"/>
+			<Counter disp="Key Reads" icon="database.png" name="042" unit="cnt"/>
+			<Counter disp="Key Write Requests" icon="database.png" name="043" unit="cnt"/>
+			<Counter disp="Key Writes" icon="database.png" name="044" unit="cnt"/>
+			<Counter disp="Opened Table Definitions" icon="database.png" name="045" unit="cnt"/>
+			<Counter disp="Qcache Hits" icon="database.png" name="046" unit="cnt"/>
+			<Counter disp="Qcache inserts" icon="database.png" name="047" unit="cnt"/>
+			<Counter disp="Questions" icon="database.png" name="048" unit="cnt"/>
+			<Counter disp="Select Full Join" icon="database.png" name="049" unit="cnt"/>
+			<Counter disp="Select Full Range Join" icon="database.png" name="050" unit="cnt"/>
+			<Counter disp="Select Range" icon="database.png" name="051" unit="cnt"/>
+			<Counter disp="Select Range Check" icon="database.png" name="052" unit="cnt"/>
+			<Counter disp="Select Scan" icon="database.png" name="053" unit="cnt"/>
+			<Counter disp="Slow Queries" icon="database.png" name="054" unit="cnt"/>
+			<Counter disp="Sort Merge Passes" icon="database.png" name="055" unit="cnt"/>
+			<Counter disp="Sort Priority Queue Sorts" icon="database.png" name="056" unit="cnt"/>
+			<Counter disp="Sort Range" icon="database.png" name="057" unit="cnt"/>
+			<Counter disp="Sort Rows" icon="database.png" name="058" unit="cnt"/>
+			<Counter disp="Sort Scan" icon="database.png" name="059" unit="cnt"/>
+			<Counter disp="Table Locks Immediate" icon="database.png" name="060" unit="cnt"/>
+			<Counter disp="Table Locks Waited" icon="database.png" name="061" unit="cnt"/>
+			<Counter disp="Threads Cached" icon="database.png" name="062" unit="cnt"/>
+			<Counter disp="Threads Connected" icon="database.png" name="063" unit="cnt"/>
+			<Counter disp="Threads Created" icon="database.png" name="064" unit="cnt"/>
+			<Counter disp="Threads Running" icon="database.png" name="065" unit="cnt"/>
+			<Counter disp="Max Connections" icon="database.png" name="066" unit="cnt"/>
+			<Counter disp="Lock Holder" icon="database.png" name="067" unit="cnt"/>
+			<Counter disp="Lock Waiter" icon="database.png" name="068" unit="cnt"/>
+			<Counter disp="Replication delay" icon="database.png" name="101" unit="cnt"/>
+		</Family>
 	</Familys>
 	<Types>
 		<ObjectType name="linux" family="host" disp="Linux" />
@@ -116,5 +187,6 @@ mrhit : MariaDB HitRatio
 		<ObjectType name="datasource" family="datasource" disp="DataSource" sub-object="true" />
 		<ObjectType name="reqproc" family="reqproc" disp="RequestProc" sub-object="true"/>
 		<ObjectType name="mariaplugin" family="maria" disp="Maria Plugin" />
+		<ObjectType name="mariadb" family="mariad" disp="MariaDB" />
 	</Types>
 </Counters>
