@@ -150,9 +150,7 @@ class XLogService {
         val handler = (time: Long, data: Array[Byte]) => {
 
             val x = new DataInputX(data).readPack().asInstanceOf[XLogPack];
-            if (x.elapsed < limit)
-                return ;
-            if (objHashSet.contains(x.objHash)) {
+            if (objHashSet.contains(x.objHash) && x.elapsed > limit) {
                 dout.writeByte(TcpFlag.HasNEXT);
                 dout.write(data);
                 dout.flush();

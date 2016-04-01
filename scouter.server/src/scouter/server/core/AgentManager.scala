@@ -122,8 +122,7 @@ object AgentManager {
         p.message = objPack.objName + " is not running. " + objPack;
         p.time = System.currentTimeMillis();
         p.objType = "scouter";
-        AlertCache.put(p);
-        AlertWR.add(p);
+        AlertCore.add(p);
     }
 
     private def procObjName(objPack: ObjectPack) {

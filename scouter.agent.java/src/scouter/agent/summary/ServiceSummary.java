@@ -30,8 +30,11 @@ import scouter.lang.value.ListValue;
 import scouter.util.BitUtil;
 import scouter.util.IPUtil;
 import scouter.util.IntIntLinkedMap;
+import scouter.util.IntIntLinkedMap.IntIntLinkedEntry;
 import scouter.util.IntKeyLinkedMap;
+import scouter.util.IntKeyLinkedMap.IntKeyLinkedEntry;
 import scouter.util.LongKeyLinkedMap;
+import scouter.util.LongKeyLinkedMap.LongKeyLinkedEntry;
 
 public class ServiceSummary {
 
@@ -183,9 +186,9 @@ public class ServiceSummary {
 			cpu = p.table.newList("cpu");
 			mem = p.table.newList("mem");
 		}
-		Enumeration<IntKeyLinkedMap.ENTRY> en = temp.entries();
+		Enumeration<IntKeyLinkedEntry<SummaryData>> en = temp.entries();
 		for (int i = 0; i < cnt; i++) {
-			IntKeyLinkedMap.ENTRY<SummaryData> ent = en.nextElement();
+			IntKeyLinkedEntry<SummaryData> ent = en.nextElement();
 			int key = ent.getKey();
 			SummaryData data = ent.getValue();
 			id.add(key);
@@ -226,9 +229,9 @@ public class ServiceSummary {
 		ListValue id = p.table.newList("id");
 		ListValue count = p.table.newList("count");
 
-		Enumeration<IntIntLinkedMap.ENTRY> en = temp.entries();
+		Enumeration<IntIntLinkedEntry> en = temp.entries();
 		for (int i = 0; i < cnt; i++) {
-			IntIntLinkedMap.ENTRY ent = en.nextElement();
+			IntIntLinkedEntry ent = en.nextElement();
 			int key = ent.getKey();
 			int value = ent.getValue();
 			id.add(key);
@@ -259,9 +262,9 @@ public class ServiceSummary {
 		ListValue apicall = p.table.newList("apicall");
 		ListValue fullstack = p.table.newList("fullstack");
 
-		Enumeration<LongKeyLinkedMap.ENTRY> en = temp.entries();
+		Enumeration<LongKeyLinkedEntry<ErrorData>> en = temp.entries();
 		for (int i = 0; i < cnt; i++) {
-			LongKeyLinkedMap.ENTRY<ErrorData> ent = en.nextElement();
+			LongKeyLinkedEntry<ErrorData> ent = en.nextElement();
 			long key = ent.getKey();
 			ErrorData data = ent.getValue();
 			id.add(key);

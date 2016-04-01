@@ -41,7 +41,7 @@ class StatusService {
         if (pk.key == key && pk.objHash == objHash) {
           dout.writeByte(TcpFlag.HasNEXT);
           dout.writePack(pk);
-          return;
+          return
         }
     }
     StatusRD.readByTime(date, time, time + DateUtil.MILLIS_PER_MINUTE, handler);

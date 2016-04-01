@@ -61,7 +61,7 @@ object XLogRD {
                 table = new IndexTimeFile(file + XLogIndex.POSTFIX_TIME);
                 table.readFromEnd(fromTime, toTime, handler, reader.read)
             } catch {
-                case e: Throwable => e.printStackTrace();
+                case e: Throwable => //e.printStackTrace();
             } finally {
                 FileUtil.close(table);
                 FileUtil.close(reader);

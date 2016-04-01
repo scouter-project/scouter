@@ -27,6 +27,14 @@
 
         <directory>${basedir}/target</directory>
         <sourceDirectory>${basedir}/src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <outputDirectory>${basedir}/target/classes</outputDirectory>
         <testSourceDirectory>${basedir}/test</testSourceDirectory>
         <testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>

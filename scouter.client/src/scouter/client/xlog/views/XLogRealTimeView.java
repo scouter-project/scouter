@@ -118,7 +118,7 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 		// Add context menu
 		new MenuItem(contextMenu, SWT.SEPARATOR);
 	    MenuItem loadXLogItem = new MenuItem(contextMenu, SWT.PUSH);
-	    loadXLogItem.setText("Load");
+	    loadXLogItem.setText("Load History");
 	    loadXLogItem.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
 				new OpenXLogLoadTimeAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), "Load XLog", objType, Images.server, serverId).run();
