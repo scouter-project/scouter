@@ -13,7 +13,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
- *
  * 
  *  The initial idea for this class is from "org.apache.commons.lang.IntHashMap"; 
  *  http://commons.apache.org/commons-lang-2.6-src.zip
@@ -25,16 +24,16 @@ package scouter.util;
 
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
-
+/**
+ * @author Paul Kim (sjkim@whatap.io)
+ */
 public class LongIntMap {
 	private static final int DEFAULT_CAPACITY = 101;
 	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
-
-	private ENTRY table[];
+	private LongIntEntry table[];
 	private int count;
 	private int threshold;
 	private float loadFactor;
-
 	private int NONE = 0;
 
 	public LongIntMap setNullValue(int none) {
@@ -47,11 +46,10 @@ public class LongIntMap {
 			throw new RuntimeException("Capacity Error: " + initCapacity);
 		if (loadFactor <= 0)
 			throw new RuntimeException("Load Count Error: " + loadFactor);
-
 		if (initCapacity == 0)
 			initCapacity = 1;
 		this.loadFactor = loadFactor;
-		table = new ENTRY[initCapacity];
+		table = new LongIntEntry[initCapacity];
 		threshold = (int) (initCapacity * loadFactor);
 	}
 
@@ -71,15 +69,15 @@ public class LongIntMap {
 		return new Enumer(TYPE.VALUES);
 	}
 
-	public synchronized Enumeration<ENTRY> entries() {
+	public synchronized Enumeration<LongIntEntry> entries() {
 		return new Enumer(TYPE.ENTRIES);
 	}
 
 	public synchronized boolean containsValue(int value) {
-		ENTRY tab[] = table;
+		LongIntEntry tab[] = table;
 		int i = tab.length;
 		while (i-- > 0) {
-			for (ENTRY e = tab[i]; e != null; e = e.next) {
+			for (LongIntEntry e = tab[i]; e != null; e = e.next) {
 				if (CompareUtil.equals(e.value, value)) {
 					return true;
 				}
@@ -89,9 +87,9 @@ public class LongIntMap {
 	}
 
 	public synchronized boolean containsKey(long key) {
-		ENTRY tab[] = table;
+		LongIntEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (ENTRY e = tab[index]; e != null; e = e.next) {
+		for (LongIntEntry e = tab[index]; e != null; e = e.next) {
 			if (e.key == key) {
 				return true;
 			}
@@ -104,9 +102,9 @@ public class LongIntMap {
 	}
 
 	public synchronized int get(long key) {
-		ENTRY tab[] = table;
+		LongIntEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (ENTRY e = tab[index]; e != null; e = e.next) {
+		for (LongIntEntry e = tab[index]; e != null; e = e.next) {
 			if (e.key == key) {
 				return e.value;
 			}
@@ -116,19 +114,15 @@ public class LongIntMap {
 
 	protected void rehash() {
 		int oldCapacity = table.length;
-		ENTRY oldMap[] = table;
-
+		LongIntEntry oldMap[] = table;
 		int newCapacity = oldCapacity * 2 + 1;
-		ENTRY newMap[] = new ENTRY[newCapacity];
-
+		LongIntEntry newMap[] = new LongIntEntry[newCapacity];
 		threshold = (int) (newCapacity * loadFactor);
 		table = newMap;
-
 		for (int i = oldCapacity; i-- > 0;) {
-			for (ENTRY old = oldMap[i]; old != null;) {
-				ENTRY e = old;
+			for (LongIntEntry old = oldMap[i]; old != null;) {
+				LongIntEntry e = old;
 				old = old.next;
-
 				int index = hash(e.key) % newCapacity;
 				e.next = newMap[index];
 				newMap[index] = e;
@@ -153,10 +147,10 @@ public class LongIntMap {
 	}
 
 	public synchronized int put(long key, int value) {
-		ENTRY tab[] = table;
+		LongIntEntry tab[] = table;
 		int _hash = hash(key);
 		int index = _hash % tab.length;
-		for (ENTRY e = tab[index]; e != null; e = e.next) {
+		for (LongIntEntry e = tab[index]; e != null; e = e.next) {
 			if (e.key == key) {
 				int old = e.value;
 				e.value = value;
@@ -168,17 +162,16 @@ public class LongIntMap {
 			tab = table;
 			index = _hash % tab.length;
 		}
-
-		ENTRY e = new ENTRY(key, value, tab[index]);
+		LongIntEntry e = new LongIntEntry(key, value, tab[index]);
 		tab[index] = e;
 		count++;
 		return NONE;
 	}
 
 	public synchronized int remove(long key) {
-		ENTRY tab[] = table;
+		LongIntEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (ENTRY e = tab[index], prev = null; e != null; prev = e, e = e.next) {
+		for (LongIntEntry e = tab[index], prev = null; e != null; prev = e, e = e.next) {
 			if (e.key == key) {
 				if (prev != null) {
 					prev.next = e.next;
@@ -195,56 +188,131 @@ public class LongIntMap {
 	}
 
 	public synchronized void clear() {
-		ENTRY tab[] = table;
+		LongIntEntry tab[] = table;
 		for (int index = tab.length; --index >= 0;)
 			tab[index] = null;
 		count = 0;
 	}
 
 	public String toString() {
-
 		StringBuffer buf = new StringBuffer();
 		Enumeration it = entries();
-
 		buf.append("{");
 		for (int i = 0; it.hasMoreElements(); i++) {
-			ENTRY e = (ENTRY) (it.nextElement());
+			LongIntEntry e = (LongIntEntry) (it.nextElement());
 			if (i > 0)
 				buf.append(", ");
 			buf.append(e.getKey() + "=" + e.getValue());
-
 		}
 		buf.append("}");
 		return buf.toString();
 	}
 
 	public String toFormatString() {
-
 		StringBuffer buf = new StringBuffer();
 		Enumeration it = entries();
-
 		buf.append("{\n");
 		while (it.hasMoreElements()) {
-			ENTRY e = (ENTRY) it.nextElement();
+			LongIntEntry e = (LongIntEntry) it.nextElement();
 			buf.append("\t").append(e.getKey() + "=" + e.getValue()).append("\n");
 		}
 		buf.append("}");
 		return buf.toString();
 	}
 
-	public static class ENTRY {
+	private enum TYPE {
+		KEYS, VALUES, ENTRIES
+	}
+
+	private class Enumer implements Enumeration, IntEnumer, LongEnumer {
+		LongIntEntry[] table = LongIntMap.this.table;
+		int index = table.length;
+		LongIntEntry entry = null;
+		LongIntEntry lastReturned = null;
+		TYPE type;
+
+		Enumer(TYPE type) {
+			this.type = type;
+		}
+
+		public boolean hasMoreElements() {
+			while (entry == null && index > 0)
+				entry = table[--index];
+			return entry != null;
+		}
+
+		public Object nextElement() {
+			while (entry == null && index > 0)
+				entry = table[--index];
+			if (entry != null) {
+				LongIntEntry e = lastReturned = entry;
+				entry = e.next;
+				switch (type) {
+				case KEYS:
+					return e.key;
+				case VALUES:
+					return e.value;
+				default:
+					return e;
+				}
+			}
+			throw new NoSuchElementException("no more next");
+		}
+
+		public int nextInt() {
+			while (entry == null && index > 0)
+				entry = table[--index];
+			if (entry != null) {
+				LongIntEntry e = lastReturned = entry;
+				entry = e.next;
+				switch (type) {
+				case VALUES:
+					return e.value;
+				default:
+					return NONE;
+				}
+			}
+			throw new NoSuchElementException("no more next");
+		}
+
+		public long nextLong() {
+			while (entry == null && index > 0)
+				entry = table[--index];
+			if (entry != null) {
+				LongIntEntry e = lastReturned = entry;
+				entry = e.next;
+				switch (type) {
+				case KEYS:
+					return e.key;
+				default:
+					return NONE;
+				}
+			}
+			throw new NoSuchElementException("no more next");
+		}
+	}
+
+	public void putAll(LongIntMap other) {
+		Enumeration it = other.entries();
+		for (int i = 0, max = other.size(); i <= max; i++) {
+			LongIntEntry e = (LongIntEntry) (it.nextElement());
+			this.put(e.getKey(), e.getValue());
+		}
+	}
+
+	public static class LongIntEntry {
 		long key;
 		int value;
-		ENTRY next;
+		LongIntEntry next;
 
-		protected ENTRY(long key, int value, ENTRY next) {
+		protected LongIntEntry(long key, int value, LongIntEntry next) {
 			this.key = key;
 			this.value = value;
 			this.next = next;
 		}
 
 		protected Object clone() {
-			return new ENTRY(key, value, (next == null ? null : (ENTRY) next.clone()));
+			return new LongIntEntry(key, value, (next == null ? null : (LongIntEntry) next.clone()));
 		}
 
 		public long getKey() {
@@ -262,9 +330,9 @@ public class LongIntMap {
 		}
 
 		public boolean equals(Object o) {
-			if (!(o instanceof ENTRY))
+			if (!(o instanceof LongIntEntry))
 				return false;
-			ENTRY e = (ENTRY) o;
+			LongIntEntry e = (LongIntEntry) o;
 			return (key == e.getKey()) && (value == e.getValue());
 		}
 
@@ -278,89 +346,4 @@ public class LongIntMap {
 			return key + "=" + value;
 		}
 	}
-
-	private enum TYPE {
-		KEYS, VALUES, ENTRIES
-	}
-
-	private class Enumer implements Enumeration, IntEnumer, LongEnumer {
-		ENTRY[] table = LongIntMap.this.table;
-		int index = table.length;
-		ENTRY entry = null;
-		ENTRY lastReturned = null;
-		TYPE type;
-
-		Enumer(TYPE type) {
-			this.type = type;
-		}
-
-		public boolean hasMoreElements() {
-			while (entry == null && index > 0)
-				entry = table[--index];
-
-			return entry != null;
-		}
-
-		public Object nextElement() {
-			while (entry == null && index > 0)
-				entry = table[--index];
-
-			if (entry != null) {
-				ENTRY e = lastReturned = entry;
-				entry = e.next;
-				switch (type) {
-				case KEYS:
-					return e.key;
-				case VALUES:
-					return e.value;
-				default:
-					return e;
-				}
-			}
-			throw new NoSuchElementException("no more next");
-		}
-
-		public int nextInt() {
-			while (entry == null && index > 0)
-				entry = table[--index];
-
-			if (entry != null) {
-				ENTRY e = lastReturned = entry;
-				entry = e.next;
-				switch (type) {
-				case VALUES:
-					return e.value;
-				default:
-					return NONE;
-				}
-			}
-			throw new NoSuchElementException("no more next");
-		}
-
-		public long nextLong() {
-			while (entry == null && index > 0)
-				entry = table[--index];
-
-			if (entry != null) {
-				ENTRY e = lastReturned = entry;
-				entry = e.next;
-				switch (type) {
-				case KEYS:
-					return e.key;
-				default:
-					return NONE;
-				}
-			}
-			throw new NoSuchElementException("no more next");
-		}
-	}
-
-	public void putAll(LongIntMap other) {
-		Enumeration it = other.entries();
-		for (int i = 0, max = other.size(); i <= max; i++) {
-			ENTRY e = (ENTRY) (it.nextElement());
-			this.put(e.getKey(), e.getValue());
-		}
-	}
-
 }

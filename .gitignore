@@ -5,6 +5,7 @@ scouter.common/bin-test/*
 scouter.server/bin/*
 scouter.server/bin-test/*
 scouter.deploy/out
+scouter.server.boot/testlib
 */.cache
 */.svn
 scouter.client/lib/scouter.common.jar
@@ -33,6 +34,8 @@ scouter.client/plugin_customization.ini
 scouter.client/scouter.client.jar
 
 */*.scouter
+scouter.server.boot/conf/*
+scouter.server.boot/database/*
 
 scouter.document/.project
 

@@ -38,7 +38,7 @@ object StatusRD {
         table = StatusIndex.open(file)
         table.read(fromTime, toTime, handler, reader.read) 
       } catch {
-        case e: Throwable => e.printStackTrace();
+        case e: Throwable => //e.printStackTrace();
       } finally {
         FileUtil.close(table);
         FileUtil.close(reader);
@@ -70,7 +70,7 @@ object StatusRD {
         table = StatusIndex.open(file);
         table.readFromEnd(fromTime, toTime, handler, reader.read) 
       } catch {
-        case e: Throwable => e.printStackTrace();
+        case e: Throwable => //e.printStackTrace();
       } finally {
         FileUtil.close(table);
         FileUtil.close(reader);

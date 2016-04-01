@@ -16,7 +16,10 @@
  *
  */
 package scouter.server.db;
+
+import scouter.lang.counters.CounterConstants
 import scouter.lang.pack.PerfCounterPack
+import scouter.lang.value.DecimalValue
 import scouter.server.Logger
 import scouter.server.db.counter.RealtimeCounterDBHelper
 import scouter.server.plugin.PlugInManager
@@ -31,26 +34,29 @@ object RealtimeCounterWR {
     val queue = new RequestQueue[PerfCounterPack](DBCtr.MAX_QUE_SIZE);
     ThreadScala.start("scouter.server.db.RealtimeCounterWR") {
         val last_logtime = System.currentTimeMillis();
-        var wdb: RealtimeCounterDBHelper = null
+        var dBHelper: RealtimeCounterDBHelper = null
         while (DBCtr.running) {
-            val m = queue.get();
+            val pack = queue.get()
             try {
-                if (wdb == null) {
-                    wdb = writeOpen(m)
-                } else if (wdb.currentDateUnit != DateUtil.getDateUnit(m.time)) {
-                    wdb.close();
-                    wdb = writeOpen(m);
+                if (dBHelper == null) {
+                    dBHelper = writeOpen(pack)
+                } else if (dBHelper.currentDateUnit != DateUtil.getDateUnit(pack.time)) {
+                    dBHelper.close()
+                    dBHelper = writeOpen(pack)
                 }
-                wdb.activeTime = System.currentTimeMillis();
-                wdb.counterDbHeader.intern(m.data.keySet());
-                val tagbytes = RealtimeCounterDBHelper.getTagBytes(wdb.counterDbHeader.getTagStrInt(), m.data)
-                val posTags = wdb.counterData.write(tagbytes);
-                wdb.counterIndex.write(HashUtil.hash(m.objName), m.time, posTags);
+                val objHash = HashUtil.hash(pack.objName)
+                dBHelper.activeTime = System.currentTimeMillis()
+                dBHelper.counterDbHeader.intern(pack.data.keySet())
+
+                val counterBytes = RealtimeCounterDBHelper.getTagBytes(dBHelper.counterDbHeader.getTagStrInt(), pack.data)
+                val dataOffset = dBHelper.counterData.write(counterBytes)
+                dBHelper.counterIndex.write(objHash, pack.time, dataOffset)
+
             } catch {
-                case t: Throwable => Logger.println("S133", 10, t.toString());
+                case t: Throwable => Logger.println("S133", 10, t.toString())
             }
         }
-        FileUtil.close(wdb);
+        FileUtil.close(dBHelper);
     }
     def addWait(p: PerfCounterPack, max: Int) {
         while (queue.size() >= max) {
@@ -64,9 +70,10 @@ object RealtimeCounterWR {
             Logger.println("S134", 10, "queue exceeded!!");
         }
     }
-    def writeOpen(m: PerfCounterPack): RealtimeCounterDBHelper = {
-        val db = new RealtimeCounterDBHelper().open(m.objName, DateUtil.yyyymmdd(m.time), false);
-        db.currentDateUnit = DateUtil.getDateUnit(m.time);
+
+    def writeOpen(pack: PerfCounterPack): RealtimeCounterDBHelper = {
+        val db = new RealtimeCounterDBHelper().open(DateUtil.yyyymmdd(pack.time), false);
+        db.currentDateUnit = DateUtil.getDateUnit(pack.time);
         return db;
     }
 }

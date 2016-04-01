@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Build server boot jar" default="packaging">
+    <property name="dir.target.jar" value="../scouter.server.boot/testlib" />
+    <property name="dir.classes" value="./bin" />
+    <property name="dir.deploy.lib" value="../scouter.deploy/lib" />
+    <property name="dir.deploy.lib.scala" value="../scouter.deploy/lib/scala" />
+
+    <target name="packaging">
+        <jar destfile="${dir.target.jar}/scouter.server.jar">
+            <fileset dir="${dir.classes}"/>
+        </jar>
+        <copy file="${dir.deploy.lib.scala}/scala-library.jar" todir="${dir.target.jar}" verbose="true"/>
+        <copy file="${dir.deploy.lib.scala}/scala-reflect.jar" todir="${dir.target.jar}" verbose="true"/>
+        <copy file="${dir.deploy.lib.scala}/jline.jar" todir="${dir.target.jar}" verbose="true"/>
+        <copy file="${dir.deploy.lib}/javassist.jar" todir="${dir.target.jar}" verbose="true"/>
+        <copy file="${dir.deploy.lib}/jsqlparser-0.9.4.jar" todir="${dir.target.jar}" verbose="true"/>
+        <copy file="${dir.deploy.lib}/maxmind.geoip.jar" todir="${dir.target.jar}" verbose="true"/>
+    </target>
+
+</project>

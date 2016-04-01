@@ -53,27 +53,88 @@ class IndexTimeFile(_path: String) extends IClose {
         return newKeyPos;
     }
 
-    private def getSecAll(time: Long): ArrayList[TimeValue] = {
+    private def getSecAll(time: Long): ArrayList[TimeToData] = {
         if (time <= 0) {
             throw new IOException("invalid key");
         }
-        val map = new TreeSet[TimeValue]();
+        val set = new TreeSet[TimeToData]();
         var pos = timeBlockHash.get(time);
         while (pos > 0) {
             if (this.keyFile.isDeleted(pos) == false) {
-                val m = this.keyFile.getRecord(pos);
-                map.add(new TimeValue(DataInputX.toLong(m.key, 0), m.value));
+                val record = this.keyFile.getRecord(pos);
+                set.add(new TimeToData(DataInputX.toLong(record.timeKey, 0), record.dataPos));
             }
-            pos = this.keyFile.getHashLink(pos);
+            pos = this.keyFile.getPrevPos(pos);
         }
-        return new ArrayList[TimeValue](map);
+        return new ArrayList[TimeToData](set);
     }
 
-    def getDirect(pos: Long): TimeValue = {
+    private def getDataPosFirst(_stime: Long, _etime: Long): Array[Byte] = {
+        if (_stime <= 0 || _etime <= 0) {
+            throw new IOException("invalid key")
+        }
+        var stime = _stime
+        var i = 0
+        var dataPos = getDataPosFirst(stime)
+        while (dataPos == null && i < DateUtil.SECONDS_PER_DAY * 2 && stime <= _etime) {
+            stime += 500L
+            dataPos = getDataPosFirst(stime)
+            i += 1
+        }
+        return dataPos
+    }
+
+    private def getDataPosFirst(time: Long): Array[Byte] = {
+        if (time <= 0) {
+            throw new IOException("invalid key")
+        }
+        var pos = timeBlockHash.get(time)
+        while (pos > 0) {
+            val prevPos = this.keyFile.getPrevPos(pos)
+            if(prevPos == 0) {
+                return this.keyFile.getDataPos(pos)
+            }
+            pos = prevPos
+        }
+        return null
+    }
+
+    private def getDataPosLast(_stime: Long, _etime: Long): Array[Byte] = {
+        if (_etime <= 0 || _stime <= 0) {
+            throw new IOException("invalid key")
+        }
+        var etime = _etime
+        var i = 0
+        var dataPos = getDataPosLast(etime)
+        while (dataPos == null && i < DateUtil.SECONDS_PER_DAY * 2 && _stime <= etime) {
+            etime -= 500L
+            dataPos = getDataPosLast(etime)
+            i += 1
+        }
+
+        return dataPos
+    }
+
+    private def getDataPosLast(time: Long): Array[Byte] = {
+        if (time <= 0) {
+            throw new IOException("invalid key")
+        }
+        var pos = timeBlockHash.get(time)
+        if(pos == 0) return null
+        return this.keyFile.getDataPos(pos)
+    }
+
+    def getStartEndDataPos(stime: Long, etime: Long): (Array[Byte], Array[Byte]) = {
+        var startDataPos = getDataPosFirst(stime, etime)
+        var endDataPos = getDataPosLast(stime, etime)
+        return (startDataPos, endDataPos)
+    }
+
+    def getDirect(pos: Long): TimeToData = {
 
         if (this.keyFile.isDeleted(pos) == false) {
             val m = this.keyFile.getRecord(pos);
-            return new TimeValue(DataInputX.toLong(m.key, 0), m.value);
+            return new TimeToData(DataInputX.toLong(m.timeKey, 0), m.dataPos);
         }
         return null;
     }
@@ -91,7 +152,7 @@ class IndexTimeFile(_path: String) extends IClose {
                     this.keyFile.setDelete(pos, true);
                     deleted += 1;
                 }
-                pos = this.keyFile.getHashLink(pos);
+                pos = this.keyFile.getPrevPos(pos);
             }
             this.timeBlockHash.put(time, 0);
             this.timeBlockHash.addCount(-deleted);
@@ -101,14 +162,14 @@ class IndexTimeFile(_path: String) extends IClose {
 
     def read(_stime: Long, etime: Long, handler: (Long, Array[Byte]) => Any) {
         if (this.keyFile == null)
-            return;
+            return
 
         var i = 0
         var stime = _stime
         while (i < DateUtil.SECONDS_PER_DAY * 2 && stime <= etime) {
             val data = getSecAll(stime);
-            EnumerScala.forward(data, (tv: TimeValue) => {
-                handler(tv.time, tv.value)
+            EnumerScala.forward(data, (timeToData: TimeToData) => {
+                handler(timeToData.time, timeToData.dataPos)
             })
             i += 1
             stime = stime + 500L
@@ -124,8 +185,8 @@ class IndexTimeFile(_path: String) extends IClose {
         while (i < DateUtil.SECONDS_PER_DAY * 2 && stime <= etime) {
             val data = getSecAll(etime);
 
-            EnumerScala.backward(data, (tv: TimeValue) => {
-                handler(tv.time, tv.value)
+            EnumerScala.backward(data, (tv: TimeToData) => {
+                handler(tv.time, tv.dataPos)
             })
             i += 1
             etime = etime - 500L
@@ -141,9 +202,9 @@ class IndexTimeFile(_path: String) extends IClose {
         while (i < DateUtil.SECONDS_PER_DAY * 2 && stime <= etime) {
             val data = getSecAll(stime);
 
-            EnumerScala.forward(data, (tv: TimeValue) => {
+            EnumerScala.forward(data, (tv: TimeToData) => {
                 if (tv.time >= _stime && tv.time <= etime) {
-                    handler(tv.time, reader(DataInputX.toLong5(tv.value, 0)))
+                    handler(tv.time, reader(DataInputX.toLong5(tv.dataPos, 0)))
                 }
             })
 
@@ -161,9 +222,9 @@ class IndexTimeFile(_path: String) extends IClose {
         while (i < DateUtil.SECONDS_PER_DAY * 2 && stime <= etime) {
             val data = getSecAll(etime);
 
-            EnumerScala.backward(data, (tv: TimeValue) => {
+            EnumerScala.backward(data, (tv: TimeToData) => {
                 if (tv.time >= stime && tv.time <= _etime) {
-                    handler(tv.time, reader(DataInputX.toLong5(tv.value, 0)))
+                    handler(tv.time, reader(DataInputX.toLong5(tv.dataPos, 0)))
                 }
             })
 
@@ -183,10 +244,10 @@ class IndexTimeFile(_path: String) extends IClose {
             while (pos < length) {
                 val r = this.keyFile.getRecord(pos);
                 if (r.deleted == false) {
-                    handler(r.key, r.value)
+                    handler(r.timeKey, r.dataPos)
                 }
                 done += 1;
-                pos = r.next;
+                pos = r.offset;
             }
         } catch {
             case t: Throwable =>
@@ -200,21 +261,21 @@ class IndexTimeFile(_path: String) extends IClose {
         keyFile.close();
     }
 
-    class TimeValue(_time: Long, _value: Array[Byte]) extends Comparable[TimeValue] {
+    class TimeToData(_time: Long, _dataPos: Array[Byte]) extends Comparable[TimeToData] {
         val time = _time
-        val value = _value
+        val dataPos = _dataPos
 
-        override def compareTo(t: TimeValue): Int = {
+        override def compareTo(t: TimeToData): Int = {
             val v = this.time - t.time;
             if (v == 0) {
-                return CompareUtil.compareTo(this.value, t.value);
+                return CompareUtil.compareTo(this.dataPos, t.dataPos);
             }
             return if (v > 0) 1 else -1
         }
 
         override def equals(obj: Any): Boolean = {
-            if (obj.isInstanceOf[TimeValue]) {
-                return compareTo(obj.asInstanceOf[TimeValue]) == 0;
+            if (obj.isInstanceOf[TimeToData]) {
+                return compareTo(obj.asInstanceOf[TimeToData]) == 0;
             } else false
         }
 
@@ -223,7 +284,7 @@ class IndexTimeFile(_path: String) extends IClose {
         }
 
         override def toString(): String = {
-            return DateUtil.timestamp(time) + " byte[" + BytesUtil.getLength(value) + "]";
+            return DateUtil.timestamp(time) + " byte[" + BytesUtil.getLength(dataPos) + "]";
         }
     }
 

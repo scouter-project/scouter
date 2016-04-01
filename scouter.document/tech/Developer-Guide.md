@@ -131,6 +131,81 @@
 
 ><img src="../img/tech/developer/guide_30.png" width="650">
 
+## Fork된 Repository를 최신으로 변경하기
+개인 또는 조직의 Repository에 Scouter를 Fork 한 경우 다음 과정을 통해 최신 소스로 변경할 수 있다.
+
+**git command를 이용한 sync도 가능하지만, 본 가이드에서는 Eclipse를 이용한 Sync 방법을 가이드한다.**
+
+* Git Repositories 탭에서 scouter repository > Remotes 선택 후 마우스 오른쪽 버튼을 클릭하여 Create Remotes를 선택한다.
+
+><img src="../img/tech/developer/sync_01.png" width="450">
+
+* Remote name에 "upstream"을 입력하고, Configure fetch를 선택 후 OK 버튼을 클릭한다.
+
+><img src="../img/tech/developer/sync_02.png" width="450">
+
+* Change 버튼을 클릭하고 URI에 "https://github.com/scouter-project/scouter.git"를 입력 후 Finish 버튼을 클릭한다.
+
+><img src="../img/tech/developer/sync_03.png" width="550">
+
+><img src="../img/tech/developer/sync_04.png" width="450">
+
+* Save 버튼을 클릭한다. 여기까지는 upstream이 없는 경우에 해당하는 내용으로 이미 upstream을 생성한 경우에는 아래의 Fetch 부터 수행하면 된다.
+
+><img src="../img/tech/developer/sync_05.png" width="550">
+
+* upstream으로부터 Fetch를 수행하면 최신 정보를 내려받는다.
+
+><img src="../img/tech/developer/sync_06.png" width="550">
+
+><img src="../img/tech/developer/sync_07.png" width="520">
+
+* Branches > Remote Tracking에 upstream으로부터 내려받은 branch 항목들이 표시되며, 현재 Local에 선택된 branch와 동일한 upstream의 branch를 선택후 Merge를 수행한다.
+
+><img src="../img/tech/developer/sync_08.png" width="700">
+
+><img src="../img/tech/developer/sync_09.png" width="520">
+
+* Push to Upstream을 통해 자신의 원격 Repository로 변경 내용을 저장한다.
+
+><img src="../img/tech/developer/sync_10.png" width="650">
+
+* Push가 완료되고 index 및 Message가 동일해진 것을 확인할 수 있다.
+
+><img src="../img/tech/developer/sync_11.png" width="650">
+
+><img src="../img/tech/developer/sync_12.png" width="650">
+
+이상의 작업은 branch 별로 동작하므로 최신으로 변경하고자 하는 branch가 더 있을 경우 해당 Local branch를 선택하고 위의 Merge 이후 작업을 반복한다.
+
+만약 소스가 변경되어 자신의 Remote Repository에 push 되어 있는 경우에는 Merge 작업 시 두 branch가 병합되어 새로운 index가 생성된다.
+
+이때 Pull Request가 아닌 upstream의 branch와 동일하게 맞추길 원하는 경우 다음과 같이 진행한다.
+
+* upstream으로부터 Fetch를 수행한다.
+
+* 현재 Local에 선택된 branch와 동일한 upstream의 branch를 선택후 Hard Reset을 수행한다.
+
+><img src="../img/tech/developer/sync_13.png" width="650">
+
+><img src="../img/tech/developer/sync_14.png" width="450">
+
+* Local branch를 선택 후 Push Branch를 수행한다.
+
+><img src="../img/tech/developer/sync_15.png" width="650">
+
+* "Force overwrite branch in remote if it exists and has diverged"를 체크하고 Next 버튼을 클릭한다.
+
+><img src="../img/tech/developer/sync_16.png" width="550">
+
+* Confirm을 수행 후 Push Branch가 완료되면 Local, Remote, Upstrem의 해당 branch가 완벽히 일치된 것을 확인할 수 있다.
+
+><img src="../img/tech/developer/sync_17.png" width="500">
+
+><img src="../img/tech/developer/sync_18.png" width="550">
+
+><img src="../img/tech/developer/sync_19.png" width="650">
+
 ## Appendix
 ##### Scala IDE 설치하기(scouter.server 프로젝트가 scala로 구현되어 있음) #####
 * Help - Eclipse Marketplace 창을 열고 "scala ide"로 검색한다.

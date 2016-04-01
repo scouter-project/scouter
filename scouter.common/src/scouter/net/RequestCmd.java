@@ -124,6 +124,7 @@ public class RequestCmd {
 	public static final String COUNTER_REAL_TIME_OBJECT_TYPE_ALL = "COUNTER_REAL_TIME_OBJECT_TYPE_ALL";
 	public static final String COUNTER_REAL_TIME_MULTI = "COUNTER_REAL_TIME_MULTI";
 	public static final String COUNTER_REAL_TIME_GROUP = "COUNTER_REAL_TIME_GROUP";
+	public static final String COUNTER_REAL_TIME_ALL_MULTI = "COUNTER_REAL_TIME_ALL_MULTI";
 
 	public static final String COUNTER_TODAY = "COUNTER_TODAY";
 	public static final String COUNTER_TODAY_ALL = "COUNTER_TODAY_ALL";

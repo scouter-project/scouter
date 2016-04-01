@@ -90,6 +90,11 @@ public class MemTimeBlock implements IFlushable {
 
     public synchronized long get(long time) throws IOException {
         int pos = _offset(time);
+//        for(int i=0; i<memBuffer.length; i++) {
+//            if(memBuffer[i] != 0x00) {
+//                System.out.println("[i]" + i + " [val]" + memBuffer[i]);
+//            }
+//        }
         return DataInputX.toLong5(this.memBuffer, pos);
     }
 

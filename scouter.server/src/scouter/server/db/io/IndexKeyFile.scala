@@ -83,12 +83,12 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
         try {
             while (realKeyPos > 0) {
                 if (this.keyFile.isDeleted(realKeyPos) == false) {
-                    val oKey = this.keyFile.getKey(realKeyPos);
+                    val oKey = this.keyFile.getTimeKey(realKeyPos);
                     if (CompareUtil.equals(oKey, key)) {
-                        return this.keyFile.getValue(realKeyPos);
+                        return this.keyFile.getDataPos(realKeyPos);
                     }
                 }
-                realKeyPos = this.keyFile.getHashLink(realKeyPos);
+                realKeyPos = this.keyFile.getPrevPos(realKeyPos);
             }
         } catch {
             case e: IOException =>
@@ -107,12 +107,12 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
         var pos = hashBlock.get(keyHash);
         while (pos > 0) {
             if (!this.keyFile.isDeleted(pos)) {
-                val okey = this.keyFile.getKey(pos);
+                val okey = this.keyFile.getTimeKey(pos);
                 if (CompareUtil.equals(okey, key)) {
                     return true;
                 }
             }
-            pos = this.keyFile.getHashLink(pos);
+            pos = this.keyFile.getPrevPos(pos);
         }
 
         return false;
@@ -127,12 +127,12 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
         var pos = hashBlock.get(keyHash);
         while (pos > 0) {
             if (this.keyFile.isDeleted(pos) == false) {
-                val okey = this.keyFile.getKey(pos);
+                val okey = this.keyFile.getTimeKey(pos);
                 if (CompareUtil.equals(okey, key)) {
-                    out.add(this.keyFile.getValue(pos));
+                    out.add(this.keyFile.getDataPos(pos));
                 }
             }
-            pos = this.keyFile.getHashLink(pos);
+            pos = this.keyFile.getPrevPos(pos);
         }
         return out;
     }
@@ -147,13 +147,13 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
         var deleted = 0;
         while (pos > 0) {
             if (this.keyFile.isDeleted(pos) == false) {
-                val okey = this.keyFile.getKey(pos);
+                val okey = this.keyFile.getTimeKey(pos);
                 if (CompareUtil.equals(okey, key)) {
                     this.keyFile.setDelete(pos, true);
                     deleted += 1;
                 }
             }
-            pos = this.keyFile.getHashLink(pos);
+            pos = this.keyFile.getPrevPos(pos);
         }
         return deleted;
     }
@@ -168,10 +168,10 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
             while (pos < length && pos >0) {
                 val r = this.keyFile.getRecord(pos);
                 if (r.deleted == false) {
-                    handler(r.key, r.value)
+                    handler(r.timeKey, r.dataPos)
                 }
                 done += 1;
-                pos = r.next;
+                pos = r.offset;
             }
         } catch {
             case t: Throwable =>
@@ -189,10 +189,10 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
             while (pos < length && pos >0) {
                 val r = this.keyFile.getRecord(pos);
                 if (r.deleted == false) {
-                    handler(r.key, reader(DataInputX.toLong5(r.value, 0)))
+                    handler(r.timeKey, reader(DataInputX.toLong5(r.dataPos, 0)))
                 }
                 done += 1;
-                pos = r.next;
+                pos = r.offset;
             }
         } catch {
             case t: Throwable =>
@@ -212,7 +212,7 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
             } else {
                 count += 1;
             }
-            pos = r.next;
+            pos = r.offset;
         }
         val scatter = hashBlock.getCount();
 

@@ -13,73 +13,62 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
- *
  * 
  *  The initial idea for this class is from "org.apache.commons.lang.IntHashMap"; 
  *  http://commons.apache.org/commons-lang-2.6-src.zip
  *
  *  https://github.com/itext/itextpdf/archive/iText_5_5_1.zip
- *                           com.itextpdf.text.pdf.IntHashtable.java
+ *                           com.itextpdf.text.pdf.IntHashtable.java                         
  */
 package scouter.util;
-
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
-
+/**
+ * @author Paul Kim (sjkim@whatap.io)
+ */
 public class IntFloatMap {
 	private static final int DEFAULT_CAPACITY = 101;
 	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
-
-	private ENTRY table[];
+	private IntFloatEntry table[];
 	private int count;
 	private int threshold;
 	private float loadFactor;
-
 	private int NONE = 0;
-
 	public IntFloatMap setNullValue(int none) {
 		this.NONE = none;
 		return this;
 	}
-
 	public IntFloatMap(int initCapacity, float loadFactor) {
 		if (initCapacity < 0)
 			throw new RuntimeException("Capacity Error: " + initCapacity);
 		if (loadFactor <= 0)
 			throw new RuntimeException("Load Count Error: " + loadFactor);
-
 		if (initCapacity == 0)
 			initCapacity = 1;
 		this.loadFactor = loadFactor;
-		table = new ENTRY[initCapacity];
+		table = new IntFloatEntry[initCapacity];
 		threshold = (int) (initCapacity * loadFactor);
 	}
-
 	public IntFloatMap() {
 		this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
 	}
-
 	public int size() {
 		return count;
 	}
-
 	public synchronized IntEnumer keys() {
 		return new Enumer(TYPE.KEYS);
 	}
-
 	public synchronized FloatEnumer values() {
 		return new Enumer(TYPE.VALUES);
 	}
-
-	public synchronized Enumeration<ENTRY> entries() {
+	public synchronized Enumeration<IntFloatEntry> entries() {
 		return new Enumer(TYPE.ENTRIES);
 	}
-
 	public synchronized boolean containsValue(int value) {
-		ENTRY tab[] = table;
+		IntFloatEntry tab[] = table;
 		int i = tab.length;
 		while (i-- > 0) {
-			for (ENTRY e = tab[i]; e != null; e = e.next) {
+			for (IntFloatEntry e = tab[i]; e != null; e = e.next) {
 				if (CompareUtil.equals(e.value, value)) {
 					return true;
 				}
@@ -87,57 +76,48 @@ public class IntFloatMap {
 		}
 		return false;
 	}
-
 	public synchronized boolean containsKey(int key) {
-		ENTRY tab[] = table;
+		IntFloatEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (ENTRY e = tab[index]; e != null; e = e.next) {
+		for (IntFloatEntry e = tab[index]; e != null; e = e.next) {
 			if (e.key == key) {
 				return true;
 			}
 		}
 		return false;
 	}
-
 	private int hash(int h) {
 		h ^= (h >>> 20) ^ (h >>> 12);
 		h = h ^ (h >>> 7) ^ (h >>> 4);
 		return h & Integer.MAX_VALUE;
 	}
-
 	public synchronized float get(int key) {
-		ENTRY tab[] = table;
+		IntFloatEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (ENTRY e = tab[index]; e != null; e = e.next) {
+		for (IntFloatEntry e = tab[index]; e != null; e = e.next) {
 			if (e.key == key) {
 				return e.value;
 			}
 		}
 		return NONE;
 	}
-
 	protected void rehash() {
 		int oldCapacity = table.length;
-		ENTRY oldMap[] = table;
-
+		IntFloatEntry oldMap[] = table;
 		int newCapacity = oldCapacity * 2 + 1;
-		ENTRY newMap[] = new ENTRY[newCapacity];
-
+		IntFloatEntry newMap[] = new IntFloatEntry[newCapacity];
 		threshold = (int) (newCapacity * loadFactor);
 		table = newMap;
-
 		for (int i = oldCapacity; i-- > 0;) {
-			for (ENTRY old = oldMap[i]; old != null;) {
-				ENTRY e = old;
+			for (IntFloatEntry old = oldMap[i]; old != null;) {
+				IntFloatEntry e = old;
 				old = old.next;
-
 				int index = hash(e.key) % newCapacity;
 				e.next = newMap[index];
 				newMap[index] = e;
 			}
 		}
 	}
-
 	public synchronized int[] keyArray() {
 		int[] _keys = new int[this.size()];
 		IntEnumer en = this.keys();
@@ -145,7 +125,6 @@ public class IntFloatMap {
 			_keys[i] = en.nextInt();
 		return _keys;
 	}
-
 	public synchronized float[] valueArray() {
 		float[] _values = new float[this.size()];
 		FloatEnumer en = this.values();
@@ -153,36 +132,31 @@ public class IntFloatMap {
 			_values[i] = en.nextFloat();
 		return _values;
 	}
-
 	public synchronized float put(int key, float value) {
-		ENTRY tab[] = table;
+		IntFloatEntry tab[] = table;
 		int _hash = hash(key);
 		int index = _hash % tab.length;
-		for (ENTRY e = tab[index]; e != null; e = e.next) {
+		for (IntFloatEntry e = tab[index]; e != null; e = e.next) {
 			if (e.key == key) {
 				float old = e.value;
 				e.value = value;
 				return old;
 			}
 		}
-
 		if (count >= threshold) {
 			rehash();
-
 			tab = table;
 			index = _hash % tab.length;
 		}
-
-		ENTRY e = new ENTRY(key, value, tab[index]);
+		IntFloatEntry e = new IntFloatEntry(key, value, tab[index]);
 		tab[index] = e;
 		count++;
 		return NONE;
 	}
-
 	public synchronized float remove(int key) {
-		ENTRY tab[] = table;
+		IntFloatEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (ENTRY e = tab[index], prev = null; e != null; prev = e, e = e.next) {
+		for (IntFloatEntry e = tab[index], prev = null; e != null; prev = e, e = e.next) {
 			if (e.key == key) {
 				if (prev != null) {
 					prev.next = e.next;
@@ -197,118 +171,94 @@ public class IntFloatMap {
 		}
 		return NONE;
 	}
-
 	public synchronized void clear() {
-		ENTRY tab[] = table;
+		IntFloatEntry tab[] = table;
 		for (int index = tab.length; --index >= 0;)
 			tab[index] = null;
 		count = 0;
 	}
-
 	public String toString() {
-
 		StringBuffer buf = new StringBuffer();
 		Enumeration it = entries();
-
 		buf.append("{");
 		for (int i = 0; it.hasMoreElements(); i++) {
-			ENTRY e = (ENTRY) (it.nextElement());
+			IntFloatEntry e = (IntFloatEntry) (it.nextElement());
 			if (i > 0)
 				buf.append(", ");
 			buf.append(e.getKey() + "=" + e.getValue());
-
 		}
 		buf.append("}");
 		return buf.toString();
 	}
-
 	public String toFormatString() {
-
 		StringBuffer buf = new StringBuffer();
 		Enumeration it = entries();
-
 		buf.append("{\n");
 		while (it.hasMoreElements()) {
-			ENTRY e = (ENTRY) it.nextElement();
+			IntFloatEntry e = (IntFloatEntry) it.nextElement();
 			buf.append("\t").append(e.getKey() + "=" + e.getValue()).append("\n");
 		}
 		buf.append("}");
 		return buf.toString();
 	}
-
-	public static class ENTRY {
+	public static class IntFloatEntry {
 		int key;
 		float value;
-		ENTRY next;
-
-		protected ENTRY(int key, float value, ENTRY next) {
+		IntFloatEntry next;
+		protected IntFloatEntry(int key, float value, IntFloatEntry next) {
 			this.key = key;
 			this.value = value;
 			this.next = next;
 		}
-
 		protected Object clone() {
-			return new ENTRY(key, value, (next == null ? null : (ENTRY) next.clone()));
+			return new IntFloatEntry(key, value, (next == null ? null : (IntFloatEntry) next.clone()));
 		}
-
 		public int getKey() {
 			return key;
 		}
-
 		public float getValue() {
 			return value;
 		}
-
 		public float setValue(float value) {
 			float oldValue = this.value;
 			this.value = value;
 			return oldValue;
 		}
-
 		public boolean equals(Object o) {
-			if (!(o instanceof ENTRY))
+			if (!(o instanceof IntFloatEntry))
 				return false;
-			ENTRY e = (ENTRY) o;
+			IntFloatEntry e = (IntFloatEntry) o;
 			return (key == e.getKey()) && (value == e.getValue());
 		}
-
 		public int hashCode() {
 			return key ^ (int)value;
 		}
-
 		public String toString() {
 			return key + "=" + value;
 		}
 	}
-
 	private enum TYPE {
 		KEYS, VALUES, ENTRIES
 	}
-
 	private class Enumer implements Enumeration, IntEnumer, FloatEnumer {
-		ENTRY[] table = IntFloatMap.this.table;
+		IntFloatEntry[] table = IntFloatMap.this.table;
 		int index = table.length;
-		ENTRY entry = null;
-		ENTRY lastReturned = null;
+		IntFloatEntry entry = null;
+		IntFloatEntry lastReturned = null;
 		TYPE type;
-
 		Enumer(TYPE type) {
 			this.type = type;
 		}
-
 		public boolean hasMoreElements() {
 			while (entry == null && index > 0)
 				entry = table[--index];
-
 			return entry != null;
 		}
-
 		public Object nextElement() {
 			while (entry == null && index > 0)
 				entry = table[--index];
-
 			if (entry != null) {
-				ENTRY e = lastReturned = entry;
+				IntFloatEntry e = lastReturned = entry;
 				entry = e.next;
 				switch (type) {
 				case KEYS:
@@ -321,13 +271,11 @@ public class IntFloatMap {
 			}
 			throw new NoSuchElementException("no more next");
 		}
-
 		public int nextInt() {
 			while (entry == null && index > 0)
 				entry = table[--index];
-
 			if (entry != null) {
-				ENTRY e = lastReturned = entry;
+				IntFloatEntry e = lastReturned = entry;
 				entry = e.next;
 				switch (type) {
 				case KEYS:
@@ -338,13 +286,11 @@ public class IntFloatMap {
 			}
 			throw new NoSuchElementException("no more next");
 		}
-
 		public float nextFloat() {
 			while (entry == null && index > 0)
 				entry = table[--index];
-
 			if (entry != null) {
-				ENTRY e = lastReturned = entry;
+				IntFloatEntry e = lastReturned = entry;
 				entry = e.next;
 				switch (type) {
 				case VALUES:
@@ -356,13 +302,11 @@ public class IntFloatMap {
 			throw new NoSuchElementException("no more next");
 		}
 	}
-
 	public void putAll(IntFloatMap other) {
 		Enumeration it = other.entries();
 		for (int i = 0, max = other.size(); i <= max; i++) {
-			ENTRY e = (ENTRY) (it.nextElement());
+			IntFloatEntry e = (IntFloatEntry) (it.nextElement());
 			this.put(e.getKey(), e.getValue());
 		}
 	}
-
 }

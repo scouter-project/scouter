@@ -13,7 +13,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
- *
  * 
  *  The initial idea for this class is from "org.apache.commons.lang.IntHashMap"; 
  *  http://commons.apache.org/commons-lang-2.6-src.zip
@@ -23,14 +22,14 @@ package scouter.util;
 
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
-
+/**
+ * @author Paul Kim (sjkim@whatap.io)
+ */
 public class IntKeyLinkedMap<V> {
 	private static final int DEFAULT_CAPACITY = 101;
 	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
-
-	private ENTRY<V> table[];
-	private ENTRY<V> header;
-
+	private IntKeyLinkedEntry<V> table[];
+	private IntKeyLinkedEntry<V> header;
 	private int count;
 	private int threshold;
 	private float loadFactor;
@@ -40,15 +39,12 @@ public class IntKeyLinkedMap<V> {
 			throw new RuntimeException("Capacity Error: " + initCapacity);
 		if (loadFactor <= 0)
 			throw new RuntimeException("Load Count Error: " + loadFactor);
-
 		if (initCapacity == 0)
 			initCapacity = 1;
 		this.loadFactor = loadFactor;
-		this.table = new ENTRY[initCapacity];
-
-		this.header = new ENTRY(0, null, null);
+		this.table = new IntKeyLinkedEntry[initCapacity];
+		this.header = new IntKeyLinkedEntry(0, null, null);
 		this.header.link_next = header.link_prev = header;
-
 		threshold = (int) (initCapacity * loadFactor);
 	}
 
@@ -76,19 +72,18 @@ public class IntKeyLinkedMap<V> {
 		return new Enumer<V>(TYPE.VALUES);
 	}
 
-	public synchronized Enumeration<ENTRY> entries() {
-		return new Enumer<ENTRY>(TYPE.ENTRIES);
+	public synchronized Enumeration<IntKeyLinkedEntry<V>> entries() {
+		return new Enumer<IntKeyLinkedEntry>(TYPE.ENTRIES);
 	}
 
 	public synchronized boolean containsValue(Object value) {
 		if (value == null) {
 			throw new NullPointerException();
 		}
-
-		ENTRY tab[] = table;
+		IntKeyLinkedEntry tab[] = table;
 		int i = tab.length;
 		while (i-- > 0) {
-			for (ENTRY e = tab[i]; e != null; e = e.next) {
+			for (IntKeyLinkedEntry e = tab[i]; e != null; e = e.next) {
 				if (CompareUtil.equals(e.value, value)) {
 					return true;
 				}
@@ -98,9 +93,9 @@ public class IntKeyLinkedMap<V> {
 	}
 
 	public synchronized boolean containsKey(int key) {
-		ENTRY tab[] = table;
+		IntKeyLinkedEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (ENTRY e = tab[index]; e != null; e = e.next) {
+		for (IntKeyLinkedEntry e = tab[index]; e != null; e = e.next) {
 			if (CompareUtil.equals(e.key, key)) {
 				return true;
 			}
@@ -109,9 +104,9 @@ public class IntKeyLinkedMap<V> {
 	}
 
 	public synchronized V get(int key) {
-		ENTRY<V> tab[] = table;
+		IntKeyLinkedEntry<V> tab[] = table;
 		int index = hash(key) % tab.length;
-		for (ENTRY<V> e = tab[index]; e != null; e = e.next) {
+		for (IntKeyLinkedEntry<V> e = tab[index]; e != null; e = e.next) {
 			if (CompareUtil.equals(e.key, key)) {
 				return e.value;
 			}
@@ -134,6 +129,69 @@ public class IntKeyLinkedMap<V> {
 	public synchronized V getLastValue() {
 		return this.header.link_prev.value;
 	}
+ 
+	protected void overflowed(int key, V value){
+	}
+	protected V create(int key) {
+		throw new RuntimeException("not implemented create()");
+	}
+
+	public V intern(int key) {
+		return _intern(key, MODE.LAST);
+	}
+
+	private synchronized V _intern(int key, MODE m) {
+		IntKeyLinkedEntry tab[] = table;
+		int index = hash(key) % tab.length;
+		for (IntKeyLinkedEntry<V> e = tab[index]; e != null; e = e.next) {
+			if (CompareUtil.equals(e.key, key)) {
+				return e.value;
+			}
+		}
+		V value = create(key);
+		if (value == null)
+			return null;
+
+		if (max > 0) {
+			switch (m) {
+			case FORCE_FIRST:
+			case FIRST:
+				while (count >= max) {
+					int k = header.link_prev.key;
+					V v = remove(k);
+					overflowed(k, v);
+				}
+				break;
+			case FORCE_LAST:
+			case LAST:
+				while (count >= max) {
+					int k = header.link_next.key;
+					V v = remove(k);
+					overflowed(k, v);
+				}
+				break;
+			}
+		}
+		if (count >= threshold) {
+			rehash();
+			tab = table;
+			index = hash(key) % tab.length;
+		}
+		IntKeyLinkedEntry<V> e = new IntKeyLinkedEntry<V>(key, value, tab[index]);
+		tab[index] = e;
+		switch (m) {
+		case FORCE_FIRST:
+		case FIRST:
+			chain(header, header.link_next, e);
+			break;
+		case FORCE_LAST:
+		case LAST:
+			chain(header.link_prev, header, e);
+			break;
+		}
+		count++;
+		return value;
+	}
 
 	private int hash(int key) {
 		return key & Integer.MAX_VALUE;
@@ -141,20 +199,16 @@ public class IntKeyLinkedMap<V> {
 
 	protected void rehash() {
 		int oldCapacity = table.length;
-		ENTRY oldMap[] = table;
-
+		IntKeyLinkedEntry oldMap[] = table;
 		int newCapacity = oldCapacity * 2 + 1;
-		ENTRY newMap[] = new ENTRY[newCapacity];
-
+		IntKeyLinkedEntry newMap[] = new IntKeyLinkedEntry[newCapacity];
 		threshold = (int) (newCapacity * loadFactor);
 		table = newMap;
-
 		for (int i = oldCapacity; i-- > 0;) {
-			ENTRY<V> old = oldMap[i];
+			IntKeyLinkedEntry<V> old = oldMap[i];
 			while (old != null) {
-				ENTRY<V> e = old;
+				IntKeyLinkedEntry<V> e = old;
 				old = old.next;
-
 				int key = e.key;
 				int index = hash(key) % newCapacity;
 				e.next = newMap[index];
@@ -187,9 +241,9 @@ public class IntKeyLinkedMap<V> {
 	}
 
 	private synchronized V _put(int key, V value, MODE m) {
-		ENTRY tab[] = table;
+		IntKeyLinkedEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (ENTRY<V> e = tab[index]; e != null; e = e.next) {
+		for (IntKeyLinkedEntry<V> e = tab[index]; e != null; e = e.next) {
 			if (CompareUtil.equals(e.key, key)) {
 				V old = e.value;
 				e.value = value;
@@ -210,33 +264,36 @@ public class IntKeyLinkedMap<V> {
 				return old;
 			}
 		}
-
 		if (max > 0) {
-			switch(m){
+			switch (m) {
 			case FORCE_FIRST:
 			case FIRST:
-				  while(count >= max){
-					  removeLast();
-				  }
+				while (count >= max) {
+					//removeLast();
+					int k = header.link_prev.key;
+					V v = remove(k);
+					overflowed(k, v);
+				}
 				break;
 			case FORCE_LAST:
 			case LAST:
-				while(count >= max){
-					  removeFirst();
-				  }
+				while (count >= max) {
+					//removeFirst();
+					int k = header.link_next.key;
+					V v = remove(k);
+					overflowed(k, v);
+
+				}
 				break;
 			}
 		}
-
 		if (count >= threshold) {
 			rehash();
 			tab = table;
 			index = hash(key) % tab.length;
 		}
-
-		ENTRY<V> e = new ENTRY<V>(key, value, tab[index]);
+		IntKeyLinkedEntry<V> e = new IntKeyLinkedEntry<V>(key, value, tab[index]);
 		tab[index] = e;
-
 		switch (m) {
 		case FORCE_FIRST:
 		case FIRST:
@@ -247,15 +304,14 @@ public class IntKeyLinkedMap<V> {
 			chain(header.link_prev, header, e);
 			break;
 		}
-
 		count++;
 		return null;
 	}
 
 	public synchronized V remove(int key) {
-		ENTRY tab[] = table;
+		IntKeyLinkedEntry tab[] = table;
 		int index = hash(key) % tab.length;
-		for (ENTRY<V> e = tab[index], prev = null; e != null; prev = e, e = e.next) {
+		for (IntKeyLinkedEntry<V> e = tab[index], prev = null; e != null; prev = e, e = e.next) {
 			if (CompareUtil.equals(e.key, key)) {
 				if (prev != null) {
 					prev.next = e.next;
@@ -267,7 +323,6 @@ public class IntKeyLinkedMap<V> {
 				e.value = null;
 				//
 				unchain(e);
-
 				return oldValue;
 			}
 		}
@@ -291,93 +346,37 @@ public class IntKeyLinkedMap<V> {
 	}
 
 	public synchronized void clear() {
-		ENTRY tab[] = table;
+		IntKeyLinkedEntry tab[] = table;
 		for (int index = tab.length; --index >= 0;)
 			tab[index] = null;
-
 		this.header.link_next = header.link_prev = header;
-
 		count = 0;
 	}
 
 	public String toString() {
-
 		StringBuffer buf = new StringBuffer();
 		Enumeration it = entries();
-
 		buf.append("{");
 		for (int i = 0; it.hasMoreElements(); i++) {
-			ENTRY e = (ENTRY) (it.nextElement());
+			IntKeyLinkedEntry e = (IntKeyLinkedEntry) (it.nextElement());
 			if (i > 0)
 				buf.append(", ");
 			buf.append(e.getKey() + "=" + e.getValue());
-
 		}
 		buf.append("}");
 		return buf.toString();
 	}
 
 	public String toFormatString() {
-
 		StringBuffer buf = new StringBuffer();
 		Enumeration it = entries();
-
 		buf.append("{\n");
 		while (it.hasMoreElements()) {
-			ENTRY e = (ENTRY) it.nextElement();
+			IntKeyLinkedEntry e = (IntKeyLinkedEntry) it.nextElement();
 			buf.append("\t").append(e.getKey() + "=" + e.getValue()).append("\n");
 		}
 		buf.append("}");
 		return buf.toString();
-	}
-
-	public static class ENTRY<V> {
-		int key;
-		V value;
-		ENTRY<V> next;
-		ENTRY<V> link_next, link_prev;
-
-		protected ENTRY(int key, V value, ENTRY<V> next) {
-			this.key = key;
-			this.value = value;
-			this.next = next;
-		}
-
-		protected Object clone() {
-			return new ENTRY<V>(key, value, (next == null ? null : (ENTRY<V>) next.clone()));
-		}
-
-		public int getKey() {
-			return key;
-		}
-
-		public V getValue() {
-			return value;
-		}
-
-		public V setValue(V value) {
-			if (value == null)
-				throw new NullPointerException();
-
-			V oldValue = this.value;
-			this.value = value;
-			return oldValue;
-		}
-
-		public boolean equals(Object o) {
-			if (!(o instanceof ENTRY))
-				return false;
-			ENTRY e = (ENTRY) o;
-			return CompareUtil.equals(e.key, key) && CompareUtil.equals(e.value, value);
-		}
-
-		public int hashCode() {
-			return key ^ (value == null ? 0 : value.hashCode());
-		}
-
-		public String toString() {
-			return key + "=" + value;
-		}
 	}
 
 	private enum TYPE {
@@ -385,9 +384,8 @@ public class IntKeyLinkedMap<V> {
 	}
 
 	private class Enumer<V> implements Enumeration, IntEnumer {
-
 		TYPE type;
-		ENTRY entry = IntKeyLinkedMap.this.header.link_next;
+		IntKeyLinkedEntry entry = IntKeyLinkedMap.this.header.link_next;
 
 		Enumer(TYPE type) {
 			this.type = type;
@@ -399,7 +397,7 @@ public class IntKeyLinkedMap<V> {
 
 		public V nextElement() {
 			if (hasMoreElements()) {
-				ENTRY e = entry;
+				IntKeyLinkedEntry e = entry;
 				entry = e.link_next;
 				switch (type) {
 				case KEYS:
@@ -415,7 +413,7 @@ public class IntKeyLinkedMap<V> {
 
 		public int nextInt() {
 			if (hasMoreElements()) {
-				ENTRY e = entry;
+				IntKeyLinkedEntry e = entry;
 				entry = e.link_next;
 				return e.key;
 			}
@@ -423,18 +421,66 @@ public class IntKeyLinkedMap<V> {
 		}
 	}
 
-	private void chain(ENTRY link_prev, ENTRY link_next, ENTRY e) {
+	private void chain(IntKeyLinkedEntry link_prev, IntKeyLinkedEntry link_next, IntKeyLinkedEntry e) {
 		e.link_prev = link_prev;
 		e.link_next = link_next;
 		link_prev.link_next = e;
 		link_next.link_prev = e;
 	}
 
-	private void unchain(ENTRY e) {
+	private void unchain(IntKeyLinkedEntry e) {
 		e.link_prev.link_next = e.link_next;
 		e.link_next.link_prev = e.link_prev;
 		e.link_prev = null;
 		e.link_next = null;
+	}
+
+	public static class IntKeyLinkedEntry<V> {
+		int key;
+		V value;
+		IntKeyLinkedEntry<V> next;
+		IntKeyLinkedEntry<V> link_next, link_prev;
+
+		protected IntKeyLinkedEntry(int key, V value, IntKeyLinkedEntry<V> next) {
+			this.key = key;
+			this.value = value;
+			this.next = next;
+		}
+
+		protected Object clone() {
+			return new IntKeyLinkedEntry<V>(key, value, (next == null ? null : (IntKeyLinkedEntry<V>) next.clone()));
+		}
+
+		public int getKey() {
+			return key;
+		}
+
+		public V getValue() {
+			return value;
+		}
+
+		public V setValue(V value) {
+			if (value == null)
+				throw new NullPointerException();
+			V oldValue = this.value;
+			this.value = value;
+			return oldValue;
+		}
+
+		public boolean equals(Object o) {
+			if (!(o instanceof IntKeyLinkedEntry))
+				return false;
+			IntKeyLinkedEntry e = (IntKeyLinkedEntry) o;
+			return CompareUtil.equals(e.key, key) && CompareUtil.equals(e.value, value);
+		}
+
+		public int hashCode() {
+			return key ^ (value == null ? 0 : value.hashCode());
+		}
+
+		public String toString() {
+			return key + "=" + value;
+		}
 	}
 
 	public static void main(String[] args) {
@@ -465,11 +511,9 @@ public class IntKeyLinkedMap<V> {
 		while (e.hasMoreElements()) {
 			System.out.println(e.nextInt());
 		}
-
 	}
 
 	private static void print(Object e) {
 		System.out.println(e);
 	}
-
 }
