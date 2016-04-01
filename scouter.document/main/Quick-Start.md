@@ -38,15 +38,15 @@ Client(Viewer)    | Client program to check the collected performance informatio
 
 #### (1) **Download** integrated demonstration environment and a client program
  - Download integrated demonstration environment
-   - [Download demo-env1.tar.gz](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.4/demo-env1.tar.gz) (It includes collector server, host agent, java agent, tomcat for demo system and start scripts...)
-   - Windows Case : [Download demo-env1.zip](https://github.com/scouter-project/scouter-demo/releases/download/v0.0.4/demo-env1.zip)
+   - [Download demo-env1.tar.gz](https://github.com/scouter-project/scouter-demo/releases/download/0.0.5/demo-env1.tar.gz) (It includes collector server, host agent, java agent, tomcat for demo system and start scripts...)
+   - Windows Case : [Download demo-env1.zip](https://github.com/scouter-project/scouter-demo/releases/download/0.0.5/demo-env1.zip)
 
  - Download a client program
    - download a client for your environment.
-    - [scouter.client.product-win32.win32.x86_64.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-win32.win32.x86_64.zip)
-    - [scouter.client.product-win32.win32.x86.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-win32.win32.x86.zip)
-    - [scouter.client.product-macosx.cocoa.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-macosx.cocoa.x86_64.tar.gz)
-    - [scouter.client.product-linux.gtk.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.5/scouter.client.product-linux.gtk.x86_64.tar.gz)
+    - [scouter.client.product-win32.win32.x86_64.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.10/scouter.client.product-win32.win32.x86_64.zip)
+    - [scouter.client.product-win32.win32.x86.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.10/scouter.client.product-win32.win32.x86.zip)
+    - [scouter.client.product-macosx.cocoa.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.10/scouter.client.product-macosx.cocoa.x86_64.tar.gz)
+    - [scouter.client.product-linux.gtk.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.10/scouter.client.product-linux.gtk.x86_64.tar.gz)
 
 #### (2) Decompress the downloaded file.
  decompress file and all installation is done.
