@@ -78,14 +78,16 @@ public class ServerManager extends Thread {
 				TcpProxy tcp = TcpProxy.getTcpProxy(server.getId());
 				try {
 					MapPack p = (MapPack) tcp.getSingle(RequestCmd.SERVER_STATUS, null);
-					long time = p.getLong("time");
-					if (time > 0) {
-						server.setDelta(time);
+					if (p != null) {
+						long time = p.getLong("time");
+						if (time > 0) {
+							server.setDelta(time);
+						}
+						long usedMemory = p.getLong("used");
+						long totalMemory = p.getLong("total");
+						server.setUsedMemory(usedMemory);
+						server.setTotalMemory(totalMemory);
 					}
-					long usedMemory = p.getLong("used");
-					long totalMemory = p.getLong("total");
-					server.setUsedMemory(usedMemory);
-					server.setTotalMemory(totalMemory);
 				} catch (Throwable th) {
 					th.printStackTrace();
 				} finally {
