@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import scouter.lang.pack.Pack;
+import scouter.lang.value.Value;
 
 public class DummyTcpProxy extends TcpProxy {
 	
@@ -31,5 +32,17 @@ public class DummyTcpProxy extends TcpProxy {
 	}
 
 	public synchronized void process(String cmd, Object param, INetReader recv) {
+	}
+	
+	public Pack getSingle(String cmd, Pack param) {
+		return null;
+	}
+
+	public Value getSingleValue(String cmd, Pack param) {
+		return null;
+	}
+
+	public List<Value> processValues(String cmd, Pack param) {
+		return new ArrayList<Value>(0);
 	}
 }
