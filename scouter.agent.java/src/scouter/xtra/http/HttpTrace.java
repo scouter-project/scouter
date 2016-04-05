@@ -40,288 +40,306 @@ import java.io.PrintWriter;
 import java.util.Enumeration;
 
 public class HttpTrace implements IHttpTrace {
-	public HttpTrace() {
-		Configure conf = Configure.getInstance();
-		this.remote_by_header = StringUtil.isEmpty(conf.trace_http_client_ip_header_key) == false;
-		this.http_remote_ip_header_key = conf.trace_http_client_ip_header_key;
+    private boolean remote_by_header;
+    private boolean __ip_dummy_test;
+    private String http_remote_ip_header_key;
 
-		ConfObserver.add(HttpTrace.class.getName(), new Runnable() {
-			public void run() {
-				String x = Configure.getInstance().trace_http_client_ip_header_key;
-				if (CompareUtil.equals(x, http_remote_ip_header_key) == false) {
-					remote_by_header = StringUtil.isEmpty(x) == false;
-					http_remote_ip_header_key = x;
-				}
-			}
-		});
-	}
+    public static String[] ipRandom = {"27.114.0.121", "58.3.128.121",
+            "101.53.64.121", "125.7.128.121", "202.68.224.121", "62.241.64.121", "86.63.224.121", "78.110.176.121",
+            "84.18.128.121", "95.142.176.121", "61.47.128.121", "110.76.32.121", "116.251.64.121", "123.150.0.121",
+            "125.254.128.121", "5.134.32.0", "5.134.32.121", "52.119.0.121", "154.0.128.121", "190.46.0.121"};
 
-	public String getParameter(Object req, String key) {
-		HttpServletRequest request = (HttpServletRequest) req;
+    public HttpTrace() {
+        Configure conf = Configure.getInstance();
+        this.remote_by_header = !StringUtil.isEmpty(conf.trace_http_client_ip_header_key);
+        this.__ip_dummy_test = conf.__ip_dummy_test;
 
-		String ctype = request.getContentType();
-		if (ctype != null && ctype.startsWith("application/x-www-form-urlencoded"))
-			return null;
+        ConfObserver.add(HttpTrace.class.getName(), new Runnable() {
+            public void run() {
+                String x = Configure.getInstance().trace_http_client_ip_header_key;
+                if (CompareUtil.equals(x, http_remote_ip_header_key) == false) {
+                    remote_by_header = StringUtil.isEmpty(x) == false;
+                    http_remote_ip_header_key = x;
+                }
+            }
+        });
+    }
 
-		return request.getParameter(key);
-	}
+    public String getParameter(Object req, String key) {
+        HttpServletRequest request = (HttpServletRequest) req;
 
-	public String getHeader(Object req, String key) {
-		HttpServletRequest request = (HttpServletRequest) req;
-		return request.getHeader(key);
-	}
+        String ctype = request.getContentType();
+        if (ctype != null && ctype.startsWith("application/x-www-form-urlencoded"))
+            return null;
 
-	public void start(TraceContext ctx, Object req, Object res) {
-		Configure conf = Configure.getInstance();
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
+        return request.getParameter(key);
+    }
 
-		ctx.serviceName = getRequestURI(request);
-		ctx.serviceHash = HashUtil.hash(ctx.serviceName);
+    public String getHeader(Object req, String key) {
+        HttpServletRequest request = (HttpServletRequest) req;
+        return request.getHeader(key);
+    }
 
-        if(ctx.serviceHash == conf.getEndUserPerfEndpointHash()){
-			ctx.isStaticContents=true;
-			processEndUserData(request);
-			return;
-		}
-		
-		ctx.isStaticContents = TraceMain.isStaticContents(ctx.serviceName);
+    public void start(TraceContext ctx, Object req, Object res) {
+        Configure conf = Configure.getInstance();
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
 
-		
-		ctx.http_method = request.getMethod();
-		ctx.http_query = request.getQueryString();
-		ctx.http_content_type = request.getContentType();
+        ctx.serviceName = getRequestURI(request);
+        ctx.serviceHash = HashUtil.hash(ctx.serviceName);
 
-		ctx.remoteIp = getRemoteAddr(request);
+        if (ctx.serviceHash == conf.getEndUserPerfEndpointHash()) {
+            ctx.isStaticContents = true;
+            processEndUserData(request);
+            return;
+        }
 
-		try {
-			switch (conf.trace_user_mode) {
-			case 2:
-				ctx.userid = UseridUtil.getUserid(request, response);
-				break;
-			case 1:
-				ctx.userid = UseridUtil.getUseridCustom(request, response, conf.trace_user_session_key);
-				if (ctx.userid == 0 && ctx.remoteIp != null) {
-					ctx.userid = HashUtil.hash(ctx.remoteIp);
-				}
-				break;
-			default:
-				if (ctx.remoteIp != null) {
-					ctx.userid = HashUtil.hash(ctx.remoteIp);
-				}
-				break;
-			}
-			MeterUsers.add(ctx.userid);
-		} catch (Throwable e) {
-			// ignore
-		}
-		String referer = request.getHeader("Referer");
-		if (referer != null) {
-			ctx.referer = DataProxy.sendReferer(referer);
-		}
-		String userAgent = request.getHeader("User-Agent");
-		if (userAgent != null) {
-			ctx.userAgent = DataProxy.sendUserAgent(userAgent);
-			ctx.userAgentString = userAgent;
-		}
-		dump(ctx.profile, request, ctx);
-		if (conf.trace_interservice_enabled) {
-			try {
-				String gxid = request.getHeader(conf._trace_interservice_gxid_header_key);
-				if (gxid != null) {
-					ctx.gxid = Hexa32.toLong32(gxid);
-				}
-				String txid = request.getHeader(conf._trace_interservice_callee_header_key);
-				if (txid != null) {
-					ctx.txid = Hexa32.toLong32(txid);
-					ctx.is_child_tx = true;
-				}
-				String caller = request.getHeader(conf._trace_interservice_caller_header_key);
-				if (caller != null) {
-					ctx.caller = Hexa32.toLong32(caller);
-					ctx.is_child_tx = true;
-				}
-			} catch (Throwable t) {
-			}
-		}
+        ctx.isStaticContents = TraceMain.isStaticContents(ctx.serviceName);
 
-		if (conf.trace_response_gxid_enabled && !ctx.isStaticContents) {
-			try {
-				if (ctx.gxid == 0)
-					ctx.gxid = ctx.txid;
 
-				String resGxId = Hexa32.toString32(ctx.gxid) + ":" + ctx.startTime;
-				response.setHeader(conf._trace_interservice_gxid_header_key, resGxId);
+        ctx.http_method = request.getMethod();
+        ctx.http_query = request.getQueryString();
+        ctx.http_content_type = request.getContentType();
 
-				Cookie c = new Cookie(conf._trace_interservice_gxid_header_key, resGxId);
-				response.addCookie(c);
+        ctx.remoteIp = getRemoteAddr(request);
 
-			} catch (Throwable t) {
-			}
-		}
+        try {
+            switch (conf.trace_user_mode) {
+                case 2:
+                    ctx.userid = UseridUtil.getUserid(request, response);
+                    break;
+                case 1:
+                    ctx.userid = UseridUtil.getUseridCustom(request, response, conf.trace_user_session_key);
+                    if (ctx.userid == 0 && ctx.remoteIp != null) {
+                        ctx.userid = HashUtil.hash(ctx.remoteIp);
+                    }
+                    break;
+                default:
+                    if (ctx.remoteIp != null) {
+                        ctx.userid = HashUtil.hash(ctx.remoteIp);
+                    }
+                    break;
+            }
+            MeterUsers.add(ctx.userid);
+        } catch (Throwable e) {
+            // ignore
+        }
+        String referer = request.getHeader("Referer");
+        if (referer != null) {
+            ctx.referer = DataProxy.sendReferer(referer);
+        }
+        String userAgent = request.getHeader("User-Agent");
+        if (userAgent != null) {
+            ctx.userAgent = DataProxy.sendUserAgent(userAgent);
+            ctx.userAgentString = userAgent;
+        }
+        dump(ctx.profile, request, ctx);
+        if (conf.trace_interservice_enabled) {
+            try {
+                String gxid = request.getHeader(conf._trace_interservice_gxid_header_key);
+                if (gxid != null) {
+                    ctx.gxid = Hexa32.toLong32(gxid);
+                }
+                String txid = request.getHeader(conf._trace_interservice_callee_header_key);
+                if (txid != null) {
+                    ctx.txid = Hexa32.toLong32(txid);
+                    ctx.is_child_tx = true;
+                }
+                String caller = request.getHeader(conf._trace_interservice_caller_header_key);
+                if (caller != null) {
+                    ctx.caller = Hexa32.toLong32(caller);
+                    ctx.is_child_tx = true;
+                }
+            } catch (Throwable t) {
+            }
+        }
 
-		if (conf.trace_webserver_enabled) {
-			try {
-				ctx.web_name = request.getHeader(conf.trace_webserver_name_header_key);
-				String web_time = request.getHeader(conf.trace_webserver_time_header_key);
-				if (web_time != null) {
-					int x = web_time.indexOf("t=");
-					if (x >= 0) {
-						web_time = web_time.substring(x + 2);
-						x = web_time.indexOf(' ');
-						if (x > 0) {
-							web_time = web_time.substring(0, x);
-						}
-						ctx.web_time = (int) (System.currentTimeMillis() - (Long.parseLong(web_time) / 1000));
-					}
-				}
-			} catch (Throwable t) {
-			}
-		}
-	}
+        if (conf.trace_response_gxid_enabled && !ctx.isStaticContents) {
+            try {
+                if (ctx.gxid == 0)
+                    ctx.gxid = ctx.txid;
 
-	private void processEndUserData(HttpServletRequest request) {
-		EndUserNavigationData nav;
-		EndUserErrorData err;
-		EndUserAjaxData ajax;
+                String resGxId = Hexa32.toString32(ctx.gxid) + ":" + ctx.startTime;
+                response.setHeader(conf._trace_interservice_gxid_header_key, resGxId);
 
-		if("err".equals(request.getParameter("p"))) {
-			EndUserErrorData data = new EndUserErrorData();
+                Cookie c = new Cookie(conf._trace_interservice_gxid_header_key, resGxId);
+                response.addCookie(c);
+
+            } catch (Throwable t) {
+            }
+        }
+
+        if (conf.trace_webserver_enabled) {
+            try {
+                ctx.web_name = request.getHeader(conf.trace_webserver_name_header_key);
+                String web_time = request.getHeader(conf.trace_webserver_time_header_key);
+                if (web_time != null) {
+                    int x = web_time.indexOf("t=");
+                    if (x >= 0) {
+                        web_time = web_time.substring(x + 2);
+                        x = web_time.indexOf(' ');
+                        if (x > 0) {
+                            web_time = web_time.substring(0, x);
+                        }
+                        ctx.web_time = (int) (System.currentTimeMillis() - (Long.parseLong(web_time) / 1000));
+                    }
+                }
+            } catch (Throwable t) {
+            }
+        }
+    }
+
+    private void processEndUserData(HttpServletRequest request) {
+        EndUserNavigationData nav;
+        EndUserErrorData err;
+        EndUserAjaxData ajax;
+
+        if ("err".equals(request.getParameter("p"))) {
+            EndUserErrorData data = new EndUserErrorData();
 
             data.count = 1;
-			data.stacktrace = DataProxy.sendError(StringUtil.nullToEmpty(request.getParameter("stacktrace")));
-			data.userAgent = DataProxy.sendUserAgent(StringUtil.nullToEmpty(request.getParameter("userAgent")));
+            data.stacktrace = DataProxy.sendError(StringUtil.nullToEmpty(request.getParameter("stacktrace")));
+            data.userAgent = DataProxy.sendUserAgent(StringUtil.nullToEmpty(request.getParameter("userAgent")));
             data.host = DataProxy.sendServiceName(StringUtil.nullToEmpty(request.getParameter("host")));
             data.uri = DataProxy.sendServiceName(StringUtil.nullToEmpty(request.getParameter("uri")));
-			data.message = DataProxy.sendError(StringUtil.nullToEmpty(request.getParameter("message")));
+            data.message = DataProxy.sendError(StringUtil.nullToEmpty(request.getParameter("message")));
             data.name = DataProxy.sendError(StringUtil.nullToEmpty(request.getParameter("name")));
             data.file = DataProxy.sendServiceName(StringUtil.nullToEmpty(request.getParameter("file")));
-			data.lineNumber = CastUtil.cint(request.getParameter("lineNumber"));
-			data.columnNumber = CastUtil.cint(request.getParameter("columnNumber"));
+            data.lineNumber = CastUtil.cint(request.getParameter("lineNumber"));
+            data.columnNumber = CastUtil.cint(request.getParameter("columnNumber"));
 
             //Logger.println("@ input error data -> print");
             //Logger.println(data);
 
             EndUserSummary.getInstance().process(data);
 
-		} else if("nav".equals(request.getParameter("p"))) {
+        } else if ("nav".equals(request.getParameter("p"))) {
 
-		} else if("ax".equals(request.getParameter("p"))) {
+        } else if ("ax".equals(request.getParameter("p"))) {
 
-		}
+        }
 
-		//EndUserSummary.getInstance().process(p);
-		
-	}
+        //EndUserSummary.getInstance().process(p);
 
-	private String getRequestURI(HttpServletRequest request) {
-		String uri = request.getRequestURI();
-		if (uri == null)
-			return "no-url";
-		int x = uri.indexOf(';');
-		if (x > 0)
-			return uri.substring(0, x);
-		else
-			return uri;
-	}
+    }
 
-	private boolean remote_by_header;
-	private String http_remote_ip_header_key;
+    private String getRequestURI(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        if (uri == null)
+            return "no-url";
+        int x = uri.indexOf(';');
+        if (x > 0)
+            return uri.substring(0, x);
+        else
+            return uri;
+    }
 
-	private String getRemoteAddr(HttpServletRequest request) {
-		try {
-			if (remote_by_header) {
-				return request.getHeader(http_remote_ip_header_key);
-			} else {
-				return request.getRemoteAddr();
-			}
-		} catch (Throwable t) {
-			remote_by_header = false;
-			return "0.0.0.0";
-		}
-	}
+    private String getRemoteAddr(HttpServletRequest request) {
+        try {
+            //For Testing
+            if (__ip_dummy_test) {
+                return getRandomIp();
+            }
 
-	public void end(TraceContext ctx, Object req, Object res) {
-		// HttpServletRequest request = (HttpServletRequest)req;
-		// HttpServletResponse response = (HttpServletResponse)res;
-		//
-	}
+            if (remote_by_header) {
+                return request.getHeader(http_remote_ip_header_key);
+            } else {
+                return request.getRemoteAddr();
+            }
 
-	private static void dump(IProfileCollector p, HttpServletRequest request, TraceContext ctx) {
-		Configure conf = Configure.getInstance();
-		if (conf.profile_http_querystring_enabled) {
-			String msg = request.getMethod() + " ?" + StringUtil.trimToEmpty(request.getQueryString());
-			MessageStep step = new MessageStep(msg);
-			step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-			p.add(step);
-		}
-		if (conf.profile_http_header_enabled) {
-			if (conf.profile_http_header_url_prefix == null || ctx.serviceName.indexOf(conf.profile_http_header_url_prefix) >= 0) {
-				Enumeration en = request.getHeaderNames();
-				if (en != null) {
-					int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-					while (en.hasMoreElements()) {
-						String key = (String) en.nextElement();
-						String value = new StringBuilder().append("header: ").append(key).append("=")
-								.append(StringUtil.limiting(request.getHeader(key), 1024)).toString();
+        } catch (Throwable t) {
+            remote_by_header = false;
+            return "0.0.0.0";
+        }
+    }
 
-						MessageStep step = new MessageStep(value);
-						step.start_time = start_time;
-						// step.start_cpu = (int) (SysJMX.getCurrentThreadCPU()
-						// -
-						// ctx.startCpu);
+    private String getRandomIp() {
+        int len = ipRandom.length;
+        int randomNum = (int) (Math.random() * (len-1));
+        return ipRandom[randomNum];
+    }
 
-						p.add(step);
-					}
-				}
-			}
-		}
-		if (conf.profile_http_parameter_enabled) {
-			if (conf.profile_http_parameter_url_prefix == null || ctx.serviceName.indexOf(conf.profile_http_parameter_url_prefix) >= 0) {
-				String ctype = request.getContentType();
-				if (ctype != null && ctype.indexOf("multipart") >= 0)
-					return;
+    public void end(TraceContext ctx, Object req, Object res) {
+        // HttpServletRequest request = (HttpServletRequest)req;
+        // HttpServletResponse response = (HttpServletResponse)res;
+        //
+    }
 
-				Enumeration en = request.getParameterNames();
-				if (en != null) {
-					int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-					while (en.hasMoreElements()) {
-						String key = (String) en.nextElement();
-						String value = new StringBuilder().append("parameter: ").append(key).append("=")
-								.append(StringUtil.limiting(request.getParameter(key), 1024)).toString();
+    private static void dump(IProfileCollector p, HttpServletRequest request, TraceContext ctx) {
+        Configure conf = Configure.getInstance();
+        if (conf.profile_http_querystring_enabled) {
+            String msg = request.getMethod() + " ?" + StringUtil.trimToEmpty(request.getQueryString());
+            MessageStep step = new MessageStep(msg);
+            step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+            p.add(step);
+        }
+        if (conf.profile_http_header_enabled) {
+            if (conf.profile_http_header_url_prefix == null || ctx.serviceName.indexOf(conf.profile_http_header_url_prefix) >= 0) {
+                Enumeration en = request.getHeaderNames();
+                if (en != null) {
+                    int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+                    while (en.hasMoreElements()) {
+                        String key = (String) en.nextElement();
+                        String value = new StringBuilder().append("header: ").append(key).append("=")
+                                .append(StringUtil.limiting(request.getHeader(key), 1024)).toString();
 
-						MessageStep step = new MessageStep(value);
-						step.start_time = start_time;
-						// step.start_cpu = (int) (SysJMX.getCurrentThreadCPU()
-						// - ctx.startCpu);
+                        MessageStep step = new MessageStep(value);
+                        step.start_time = start_time;
+                        // step.start_cpu = (int) (SysJMX.getCurrentThreadCPU()
+                        // -
+                        // ctx.startCpu);
 
-						p.add(step);
-					}
-				}
-			}
-		}
-	}
+                        p.add(step);
+                    }
+                }
+            }
+        }
+        if (conf.profile_http_parameter_enabled) {
+            if (conf.profile_http_parameter_url_prefix == null || ctx.serviceName.indexOf(conf.profile_http_parameter_url_prefix) >= 0) {
+                String ctype = request.getContentType();
+                if (ctype != null && ctype.indexOf("multipart") >= 0)
+                    return;
 
-	public void rejectText(Object res, String text) {
-		HttpServletResponse response = (HttpServletResponse) res;
-		try {
-			PrintWriter pw = response.getWriter();
-			pw.println(text);
-		} catch (IOException e) {
-		}
-	}
+                Enumeration en = request.getParameterNames();
+                if (en != null) {
+                    int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+                    while (en.hasMoreElements()) {
+                        String key = (String) en.nextElement();
+                        String value = new StringBuilder().append("parameter: ").append(key).append("=")
+                                .append(StringUtil.limiting(request.getParameter(key), 1024)).toString();
 
-	public void rejectUrl(Object res, String url) {
-		HttpServletResponse response = (HttpServletResponse) res;
-		try {
-			response.sendRedirect(url);
-		} catch (IOException e) {
-		}
-	}
+                        MessageStep step = new MessageStep(value);
+                        step.start_time = start_time;
+                        // step.start_cpu = (int) (SysJMX.getCurrentThreadCPU()
+                        // - ctx.startCpu);
 
-	
-	public static void main(String[] args) {
-		System.out.println("http trace".indexOf(null));
-	}
+                        p.add(step);
+                    }
+                }
+            }
+        }
+    }
+
+    public void rejectText(Object res, String text) {
+        HttpServletResponse response = (HttpServletResponse) res;
+        try {
+            PrintWriter pw = response.getWriter();
+            pw.println(text);
+        } catch (IOException e) {
+        }
+    }
+
+    public void rejectUrl(Object res, String url) {
+        HttpServletResponse response = (HttpServletResponse) res;
+        try {
+            response.sendRedirect(url);
+        } catch (IOException e) {
+        }
+    }
+
+
+    public static void main(String[] args) {
+        System.out.println("http trace".indexOf(null));
+    }
 
 }

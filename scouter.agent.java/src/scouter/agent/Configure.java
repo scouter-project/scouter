@@ -220,6 +220,7 @@ public class Configure extends Thread {
 	//Experimental(ignoreset)
 	public boolean __experimental = false;
 	public boolean __control_connection_leak_autoclose_enabled = false;
+	public boolean __ip_dummy_test = false;
 
 	//internal variables
 	private int objHash;
@@ -470,7 +471,10 @@ public class Configure extends Thread {
 
 		//Experimental(ignoreset)
 		this.__experimental = getBoolean("__experimental", false);
-		this.__control_connection_leak_autoclose_enabled = getBoolean("_control_connection_leak_autoclose_enabled", false);
+		this.__control_connection_leak_autoclose_enabled = getBoolean("__control_connection_leak_autoclose_enabled", false);
+
+        //For testing
+        this.__ip_dummy_test = getBoolean("__ip_dummy_test", false);
 
 		this.alert_perm_warning_pct = getInt("alert_perm_warning_pct", 90);
 		this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", false);
