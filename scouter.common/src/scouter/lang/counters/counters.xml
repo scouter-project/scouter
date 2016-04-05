@@ -68,6 +68,7 @@ mrhit : MariaDB HitRatio
 		<Family name="datasource" master="ConnActive">
 			<Counter name="ConnIdle" disp="Conn Idle" unit="cnt" icon="conn_idle.png" />
 			<Counter name="ConnActive" disp="Conn Active" unit="cnt" icon="conn_act.png" />
+			<Counter name="ConnMax" disp="Conn Max" unit="cnt" icon="database_go.png" />
 		</Family>
 		<Family name="reqproc" master="BytesSent">
 			<Counter name="ErrorCount" disp="Error Count" unit="cnt" icon="error_count.png" />
