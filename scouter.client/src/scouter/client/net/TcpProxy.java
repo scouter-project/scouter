@@ -44,7 +44,7 @@ public class TcpProxy {
 	
 	public static synchronized TcpProxy getTcpProxy(int serverId) {
 		Server server = ServerManager.getInstance().getServer(serverId);
-		if (server == null || server.isOpen() == false) {
+		if (server == null || server.isOpen() == false || server.isConnected() == false) {
 			return new DummyTcpProxy();
 		}
 		ConnectionPool pool = server.getConnectionPool();
