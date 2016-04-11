@@ -188,6 +188,5 @@ mrhit : MariaDB HitRatio
 		<ObjectType name="datasource" family="datasource" disp="DataSource" sub-object="true" />
 		<ObjectType name="reqproc" family="reqproc" disp="RequestProc" sub-object="true"/>
 		<ObjectType name="mariaplugin" family="maria" disp="Maria Plugin" />
-		<ObjectType name="mariadb" family="mariad" disp="MariaDB" />
 	</Types>
 </Counters>
