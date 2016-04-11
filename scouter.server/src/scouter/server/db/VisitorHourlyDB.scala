@@ -142,7 +142,7 @@ object VisitorHourlyDB {
         val totalVisitor = new HyperLogLog(rsd)
         while (etime >= time) {
           EnumerScala.foreach(objHashLv, (obj: DecimalValue) => {
-            val h = load(date, stime, Hexa32.toString32(obj.intValue()))
+            val h = load(date, time, Hexa32.toString32(obj.intValue()))
             if (h != null) totalVisitor.addAll(h)
           })
           time = time + DateUtil.MILLIS_PER_HOUR
