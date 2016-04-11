@@ -35,7 +35,7 @@
 
 
     <target name="init">
-        <delete dir="${deploy-lib-dir}"/>
+    	<delete dir="${deploy-boot-dir}"/>
         <delete dir="${class-server-dir}"/>
         <delete dir="${class-boot-dir}"/>
         <delete file="${jar-boot-file}"/>
