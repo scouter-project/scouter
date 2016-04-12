@@ -25,6 +25,9 @@ import scouter.net.TcpFlag
 import scouter.server.db.VisitorDB
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.net.RequestCmd
+import scouter.util.DateUtil
+import scouter.lang.pack.MapPack
+import scouter.server.db.VisitorHourlyDB
 
 class VisitorService {
 
@@ -64,5 +67,48 @@ class VisitorService {
     val value = VisitorDB.getVisitorObjType(date, objType);
     dout.writeByte(TcpFlag.HasNEXT);
     dout.writeValue(new DecimalValue(value));
+  }
+  
+  @ServiceHandler(RequestCmd.VISITOR_LOADDATE_GROUP)
+  def visitorLoaddateGroup(din: DataInputX, dout: DataOutputX, login: Boolean) {
+    val m = din.readMapPack();
+    val objHashLv = m.getList("objHash");
+    val startDate = m.getText("startDate");
+    val endDate = m.getText("endDate");
+    var time = DateUtil.yyyymmdd(startDate)
+    var etime = DateUtil.yyyymmdd(endDate)
+    val resultPack = new MapPack()
+    val dateLv = resultPack.newList("date")
+    val valueLv = resultPack.newList("value")
+    while (time <= etime) {
+      var date = DateUtil.yyyymmdd(time)
+      var value = VisitorDB.getMergedVisitorObject(date, objHashLv)
+      dateLv.add(date)
+      valueLv.add(value)
+      time = time + DateUtil.MILLIS_PER_DAY
+    }
+    dout.writeByte(TcpFlag.HasNEXT);
+    dout.writePack(resultPack);
+  }
+  
+  @ServiceHandler(RequestCmd.VISITOR_LOADHOUR_GROUP)
+  def visitorLoadhourGroup(din: DataInputX, dout: DataOutputX, login: Boolean) {
+    val m = din.readMapPack();
+    val objHashLv = m.getList("objHash");
+    val stime = m.getLong("stime");
+    val etime = m.getLong("etime");
+    val resultPack = new MapPack()
+    val timeLv = resultPack.newList("time")
+    val valueLv = resultPack.newList("value")
+    var time = stime
+    while (time <= etime) {
+      var date = DateUtil.yyyymmdd(time)
+      var value = VisitorHourlyDB.getMergedVisitorObject(date, time, objHashLv)
+      timeLv.add(time)
+      valueLv.add(value)
+      time = time + DateUtil.MILLIS_PER_HOUR
+    }
+    dout.writeByte(TcpFlag.HasNEXT);
+    dout.writePack(resultPack);
   }
 }

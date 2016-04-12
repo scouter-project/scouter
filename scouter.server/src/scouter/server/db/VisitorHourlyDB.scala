@@ -136,17 +136,13 @@ object VisitorHourlyDB {
         if (h == null) 0 else h.cardinality()
     }
     
-    def getVisitorObject(date: String, stime: Long, etime: Long, objHashLv: ListValue): Long = {
+    def getMergedVisitorObject(date: String, time: Long, objHashLv: ListValue): Long = {
         var cardinality = 0L;
-        var time = stime
         val totalVisitor = new HyperLogLog(rsd)
-        while (etime >= time) {
-          EnumerScala.foreach(objHashLv, (obj: DecimalValue) => {
-            val h = load(date, time, Hexa32.toString32(obj.intValue()))
-            if (h != null) totalVisitor.addAll(h)
-          })
-          time = time + DateUtil.MILLIS_PER_HOUR
-        }
+        EnumerScala.foreach(objHashLv, (obj: DecimalValue) => {
+          val h = load(date, time, Hexa32.toString32(obj.intValue()))
+          if (h != null) totalVisitor.addAll(h)
+        })
         totalVisitor.cardinality()
     }
 }
