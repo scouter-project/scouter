@@ -35,6 +35,7 @@ import scouter.util.HashUtil
 import scouter.util.Hexa32
 import scouter.server.util.EnumerScala
 import scouter.server.db.VisitorDB
+import scouter.server.db.VisitorHourlyDB
 
 object VisitorCore {
 
@@ -66,9 +67,13 @@ object VisitorCore {
             Logger.println("S208", 10, "VisitDay queue exceeded!!");
         }
     }
+    
     def process(objType: String, x: XLogPack) {
         VisitorDB.getNewObjType(objType).offer(x.userid)
         VisitorDB.getNewObject(x.objHash).offer(x.userid)
+        if (Configure.getInstance.visitor_hourly_count_enabled) {
+          VisitorHourlyDB.getNewObject(x.objHash).offer(x.userid)
+        }
     }
 }
   
