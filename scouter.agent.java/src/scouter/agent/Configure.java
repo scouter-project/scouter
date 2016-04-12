@@ -31,8 +31,13 @@ import java.util.*;
 public class Configure extends Thread {
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
+	private long last_load_time = -1;
+	public Properties property = new Properties();
+	private boolean running = true;
+    private File propertyFile;
+    long last_check = 0;
 
-	public final static synchronized Configure getInstance() {
+    public final static synchronized Configure getInstance() {
 		if (instance == null) {
 			instance = new Configure();
 			instance.setDaemon(true);
@@ -247,11 +252,10 @@ public class Configure extends Thread {
 		this.property = p;
 		reload(false);
 	}
+
 	private Configure(boolean b) {
 	}
-	private long last_load_time = -1;
-	public Properties property = new Properties();
-	private boolean running = true;
+
 	public void run() {
 		Logger.println("Version " + Version.getAgentFullVersion());
 		long dateUnit = DateUtil.getDateUnit();
@@ -266,7 +270,6 @@ public class Configure extends Thread {
 			ThreadUtil.sleep(3000);
 		}
 	}
-	private File propertyFile;
 	public File getPropertyFile() {
 		if (propertyFile != null) {
 			return propertyFile;
@@ -275,8 +278,7 @@ public class Configure extends Thread {
 		propertyFile = new File(s.trim());
 		return propertyFile;
 	}
-	long last_check = 0;
-	
+
 	public synchronized boolean reload(boolean force) {
 		long now = System.currentTimeMillis();
 		if (force == false && now < last_check + 3000)

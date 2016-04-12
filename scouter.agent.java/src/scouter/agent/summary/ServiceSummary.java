@@ -16,8 +16,6 @@
  */
 package scouter.agent.summary;
 
-import java.util.Enumeration;
-
 import scouter.agent.Configure;
 import scouter.agent.netio.data.DataProxy;
 import scouter.io.DataInputX;
@@ -27,14 +25,12 @@ import scouter.lang.pack.XLogPack;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.SqlStep;
 import scouter.lang.value.ListValue;
-import scouter.util.BitUtil;
-import scouter.util.IPUtil;
-import scouter.util.IntIntLinkedMap;
+import scouter.util.*;
 import scouter.util.IntIntLinkedMap.IntIntLinkedEntry;
-import scouter.util.IntKeyLinkedMap;
 import scouter.util.IntKeyLinkedMap.IntKeyLinkedEntry;
-import scouter.util.LongKeyLinkedMap;
 import scouter.util.LongKeyLinkedMap.LongKeyLinkedEntry;
+
+import java.util.Enumeration;
 
 public class ServiceSummary {
 
@@ -73,24 +69,24 @@ public class ServiceSummary {
 		}
 	}
 
-	public ErrorData process(Throwable p, int message, int service, long txid, int sql, int api) {
+	public ErrorData process(Throwable thr, int message, int service, long txid, int sql, int api) {
 		if (conf.summary_enabled == false)
 			return null;
-		String errName = p.getClass().getName();
+		String errName = thr.getClass().getName();
 
 		int errHash = DataProxy.sendError(errName);
-		ErrorData d = getSummaryError(errorMaster, BitUtil.composite(errHash, service));
-		d.error = errHash;
-		d.service = service;
-		d.message = (message == 0 ? errHash : message);
-		d.count++;
-		d.txid = txid;
+		ErrorData errData = getSummaryError(errorMaster, BitUtil.composite(errHash, service));
+		errData.error = errHash;
+		errData.service = service;
+		errData.message = (message == 0 ? errHash : message);
+		errData.count++;
+		errData.txid = txid;
 
 		if (sql != 0)
-			d.sql = sql;
+			errData.sql = sql;
 		if (api != 0)
-			d.apicall = api;
-		return d;
+			errData.apicall = api;
+		return errData;
 	}
 
 	public void process(SqlStep sqlStep) {
