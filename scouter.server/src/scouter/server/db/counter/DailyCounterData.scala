@@ -72,15 +72,20 @@ class DailyCounterData(fileName: String, mode: String) extends IClose {
         DailyCounterData.table.synchronized {
             if (this.refrence == 0) {
                 DailyCounterData.table.remove(this.fileName);
-                try {
-                    dataFile = FileUtil.close(dataFile);
-                } catch {
-                    case e: Throwable =>
-                        e.printStackTrace();
-                }
+                DailyCounterData.table.remove(DailyCounterData.preFixForWriter + this.fileName);
+                dataFile = FileUtil.close(dataFile);
             } else {
                 this.refrence -= 1;
             }
+        }
+    }
+
+    def closeForce() {
+        DailyCounterData.table.synchronized {
+            DailyCounterData.table.remove(this.fileName);
+            DailyCounterData.table.remove(DailyCounterData.preFixForWriter + this.fileName);
+            dataFile = FileUtil.close(dataFile);
+            this.refrence = 0;
         }
     }
 

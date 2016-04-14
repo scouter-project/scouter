@@ -17,27 +17,15 @@
 
 package scouter.util;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.RandomAccessFile;
-import java.io.Reader;
-import java.io.Writer;
+import scouter.io.DataInputX;
+import scouter.io.DataOutputX;
+
+import java.io.*;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.util.Properties;
-
-import scouter.io.DataInputX;
-import scouter.io.DataOutputX;
 
 public class FileUtil {
 

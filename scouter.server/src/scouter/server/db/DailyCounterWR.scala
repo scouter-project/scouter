@@ -51,6 +51,7 @@ object DailyCounterWR {
                 }
                 if (index == null || writer == null || writer.dataFile == null || index.index == null) {
                     OftenAction.act("DailyCounterWR", 10) {
+                        closeForce();
                         queue.clear();
                         lastDateInt = 0;
                     }
@@ -92,6 +93,21 @@ object DailyCounterWR {
     def close() {
         FileUtil.close(index);
         FileUtil.close(writer);
+        index = null;
+        writer = null;
+    }
+
+    def closeForce() {
+        try {
+            if (index != null) index.closeForce();
+        } catch {
+            case e: Throwable => e.printStackTrace
+        }
+        try {
+            if (writer != null) writer.closeForce();
+        } catch {
+            case e: Throwable => e.printStackTrace
+        }
         index = null;
         writer = null;
     }
