@@ -49,7 +49,7 @@ object DailyCounterWR {
                     close();
                     open(Integer.toString(counterData.date));
                 }
-                if (index == null) {
+                if (index == null || writer == null || writer.dataFile == null || index.index == null) {
                     OftenAction.act("DailyCounterWR", 10) {
                         queue.clear();
                         lastDateInt = 0;
@@ -108,7 +108,10 @@ object DailyCounterWR {
             return;
         } catch {
             case e: Throwable => {
-                e.printStackTrace();
+                index = null
+                writer = null
+                Logger.println("G103", e.getMessage())
+                Logger.printStackTrace("G104", e)
                 close()
             }
         }
