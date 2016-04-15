@@ -1,27 +1,19 @@
 # Why Recent User
 ![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Why-Recent-User_kr.md)
 
-사용자는 크게 방문자, 동시사용자, 액티브 사용자로 구분할 수 있다.  각 사용자 개념은 다른 목적을 가지고 활용된다. 
-그런데 시스템의 성능을 이야기 할 때는 가장 중요한 숫자가 동시 사용자이다. 
+The concept of 'users' is seperated by Visitors, Concurrent Users, and Active Users. Each one has different purpose to tell about system. With the view of performance, concurrent users are most important. 
 
-### 동시 사용자 의미
-동시 사용자는 어떤 싯점에 시스템을 접속해서 사용하고 있는 사람을 말한다.
-어떤사람은 블러그에 글을 입력하는 사람, 어떤 사람은 서버에 submit을 호출한 사람, 서버의 응답을 기다리는 사람등이 모두 포함된다. 
-상담원이 500명인 시스템은 동시사용자가 500명일 가능성이 높다. 
-상담중일수도 있고 현재 값을 입력중일 수도 있지만 사용자 입장에서 현재 시스템을 사용하고 있다는 것이다. 
+### Concurrent Users
+Concurrent users represents the number of users who are connecting to the system at the same time. Someone is writing text on the client text box, and anothers are sending submit() signal, and others are waiting the reponse. All of these users are counted to concurrent users. For instance, let's assume some CRM center has 500 tellers. At the peak time, concurrent users of CRM system is above 500. 500 people is telling via their telephone and others are waiting on the line. 
 
-### 측정의 어려움
-그런데 이 동시 사용자는 중요한 수치임에도 측정하기가 만만치 않다.
-Little’s Rule을 이용하여 응답시간과 TPS, 호출 간격등을 어렵게 측정하여 계산식으로 뽑아내어도 측정방식의 편차로 인해 그래프가 틀어지는 경우가 많다. 
-특히 막상 장애가 났을때  사용자가 증가하여 부하를 받고 응답이 늦어졌는지 아니면 반대로 응답이 지연되여 동시사용자가 증가한 것으로 나타난 것인지를 판단하기 어렵게된다. 
-이것은 동시사용자가 응답시간이 포함된 계산식에 의해 측정되기 때문에 나타나는 현상이다. 
+### Difficulty on Measurement
+Though concurrent users are important metric to system, it is not easy to calculate and measure. With Little's Rule caculation of reponse time, TPS, think time, the equation result may not be exact. Because reponse time is affecting factor. There is no clear evidence to tell the preceding relationship between lateness of reponse time and arisen concurrent users. 
 
-### 그래서 SCOUTER는 최근사용자(RecentUser)를 사용한다.
-Scouter는 각 인스턴스별로 최근방문사용자를 측정한고 이것을 RecentUser라고 표기한다.
-이 경우 최근이라는 개념을 얼마의 시간으로 얼마로 할것인가의 문제가 발생한다.
-기본은 최근 5분동안 방문한 Unique사용자를 Recent User로 계산한다.
-그런데 3분단위로 성능테스팅을 한다면 5분은 너무 긴시간이다. 따라서 성능테스트 시점에는 시간을 줄여 주어야한다.
-이때 사용하는 파라미터가 max_think_time이다 이시간 이내에 다시 트랜잭션을 발생시킨 사용자의 수만 최근 사용자로 측정된다.
+### Recent Users
+Scouter measures recently visited user count, and display it as 'RecentUsers'. The time period of measurement is important unit in RecentUsers concept. By default, Scouter is measuring the number of unique vistors of last 5 minutes. But some cases like performance test which has lower thant 5 mins of think time, this should be modifiable.
+
+You can specify this time period by modifying conter_recentuser_valid_ms.
+
 ```properties
 counter_recentuser_valid_ms=300000
 ```
