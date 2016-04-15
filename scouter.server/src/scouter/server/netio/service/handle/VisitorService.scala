@@ -78,17 +78,15 @@ class VisitorService {
     var time = DateUtil.yyyymmdd(startDate)
     var etime = DateUtil.yyyymmdd(endDate)
     val resultPack = new MapPack()
-    val dateLv = resultPack.newList("date")
-    val valueLv = resultPack.newList("value")
     while (time <= etime) {
       var date = DateUtil.yyyymmdd(time)
       var value = VisitorDB.getMergedVisitorObject(date, objHashLv)
-      dateLv.add(date)
-      valueLv.add(value)
+      resultPack.put("date", date)
+      resultPack.put("value", value)
+      dout.writeByte(TcpFlag.HasNEXT);
+      dout.writePack(resultPack);
       time = time + DateUtil.MILLIS_PER_DAY
     }
-    dout.writeByte(TcpFlag.HasNEXT);
-    dout.writePack(resultPack);
   }
   
   @ServiceHandler(RequestCmd.VISITOR_LOADHOUR_GROUP)
@@ -98,11 +96,19 @@ class VisitorService {
     val stime = m.getLong("stime");
     val etime = m.getLong("etime");
     val resultPack = new MapPack()
-    val timeLv = resultPack.newList("time")
-    val valueLv = resultPack.newList("value")
+    var timeLv = resultPack.newList("time")
+    var valueLv = resultPack.newList("value")
     var time = stime
+    var date = DateUtil.yyyymmdd(time)
     while (time <= etime) {
-      var date = DateUtil.yyyymmdd(time)
+      var dt = DateUtil.yyyymmdd(time)
+      if (date != dt) {
+        date = dt
+        dout.writeByte(TcpFlag.HasNEXT);
+        dout.writePack(resultPack);
+        timeLv = resultPack.newList("time")
+        valueLv = resultPack.newList("value")
+      }
       var value = VisitorHourlyDB.getMergedVisitorObject(date, time, objHashLv)
       timeLv.add(time)
       valueLv.add(value)
