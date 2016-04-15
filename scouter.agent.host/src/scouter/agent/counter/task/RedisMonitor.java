@@ -1,19 +1,22 @@
 package scouter.agent.counter.task;
 
+import scouter.agent.Configure;
+import scouter.agent.counter.CounterBasket;
+import scouter.lang.TimeTypeEnum;
+import scouter.lang.pack.PerfCounterPack;
+import scouter.lang.value.DecimalValue;
+import scouter.lang.value.FloatValue;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashSet;
 
-import scouter.agent.Configure;
-import scouter.agent.counter.CounterBasket;
-import scouter.agent.counter.anotation.Counter;
-import scouter.lang.TimeTypeEnum;
-import scouter.lang.pack.PerfCounterPack;
-import scouter.lang.value.DecimalValue;
-import scouter.lang.value.FloatValue;
-
+/**
+ * This prototype was contributed by jeonwoosung@gmail.com
+ * Deprecated - This feature is going to move https://github.com/scouter-project/scouter-redis-agent
+ */
 public class RedisMonitor {
 	private static HashSet<String> floatSet = new HashSet<String>();
 	private static HashSet<String> decimalSet = new HashSet<String>();
@@ -53,7 +56,7 @@ public class RedisMonitor {
 		decimalSet.add("vm_enabled");
 	}
 
-	@Counter(interval = 10000)
+	//@Counter(interval = 10000)
 	public void process(CounterBasket pw) throws IOException {
 		Configure conf = Configure.getInstance();
 
