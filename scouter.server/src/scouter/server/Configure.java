@@ -127,6 +127,9 @@ public class Configure extends Thread {
 
 	//TagCount
 	public boolean tagcnt_enabled = false;
+	
+	//Visitor Hourly
+	public boolean visitor_hourly_count_enabled = true;
 
 	private Configure() {
 		reload(false);
@@ -271,6 +274,8 @@ public class Configure extends Thread {
 		this.mgr_log_ignore_ids = getStringSet("mgr_log_ignore_ids", ",");
 
 		this.tagcnt_enabled = getBoolean("tagcnt_enabled", false);
+		
+		this.visitor_hourly_count_enabled = getBoolean("visitor_hourly_count_enabled", true);
 		
 		this.net_tcp_service_pool_size = getInt("net_tcp_service_pool_size", 100);
 		

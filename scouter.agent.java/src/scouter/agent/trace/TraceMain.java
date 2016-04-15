@@ -60,7 +60,7 @@ public class TraceMain {
     private static IHttpTrace http = null;
     private static Configure conf = Configure.getInstance();
     private static Error REJECT = new REQUEST_REJECT("service rejected");
-    private static Error userTxNotClose = new USERTX_NOT_CLOSE("Missing Commit/Rollback Error");
+    private static Error userTxNotClose = new USERTX_NOT_CLOSE("UserTransaction missing commit/rollback Error");
 
     public static Object startHttpService(Object req, Object res) {
         try {
@@ -293,7 +293,7 @@ public class TraceMain {
                     ServiceSummary.getInstance().process(thr, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
                 }
             } else if (ctx.userTransaction  > 0 && conf.xlog_error_check_user_transaction_enabled) {
-                pack.error = DataProxy.sendError("Missing Commit/Rollback Error");
+                pack.error = DataProxy.sendError("UserTransaction missing commit/rollback Error");
                 ServiceSummary.getInstance().process(userTxNotClose, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
             }
             if (ctx.group != null) {

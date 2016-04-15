@@ -3,21 +3,19 @@
 
 ![Screen](../img/client/client-view.png)
 
-* **(1)** Perspective를 관리한다. 이미 만들어진 화면 구성이 있다면 (+)를 클릭하여 추가할 수 있다.
-* **(2)** 현재의 Perspective(화면구성)이다. 화면에서 새로운 차트를 추가하고 재배치했다면 (2)에서 오른쪽 마우스를 눌러 다른 이름으로 저장할 수 있다. 이전 원래 구성(Service)은 (1)을 눌러서 다시 추가할 수있다.
-* **(3)** 오픈잭트 익스플로서의 툴바 버튼들이다. 오브젝트를 필터링하거나 인액티브 상태의 오브젝트들을화면에서 제거하는 메뉴들이 있다.
-* **(4)** 액티브 서비스 이퀄라이져이다. 바를 더블 클릭하면 현재의 액티브서비스 리스트를 상세히 조회 할 수 있다.
-* **(5)** XLOG 차트의 응답시간 축이다. (5) 글자 부근을 클릭하면 명시적으로 값을 입력할 수 있다. 또는 화면을 한번 선택한 후에 up/down키을 이용하여 응답시간 축의 MAX값을 변경할 수있다.
-* **(6)** 현재 XLOG 차트에 나타나고 있는 트랜잭션 수이다.
-* **(7)** 오브젝트 네비게이션 창이다 화면에서 최상의(sjhost_6100)오브젝트는 Scouter서버이다. 
- * 서버의 상태 조회나 하위 객체들을 전체 그룹관점에서 조회할 수 있는 메뉴들이 링크되어있다. 
- * 메뉴는 오른쪽 마우스를 통해 선택할 수 있다. 오른쪽 마우스를 클릭하면 시스템에 대한 성능들을  조회할 수 있다. 
- * Scouter서버 아래의 sjhost는 서버OS를 의미한다.그리고 tomcat1/tomcat2는 JAVAEE 타입의 오브잭트이다. JAVA/WAS과련 성능 정보를 조회할 수 있으며 화면의 XLOG또한 Tomcat타입이 디플트이다. 
- * 임의의 오브젝트를 **Doublic click**하면 선택한 오브젝트로 필터링 된다
-* **(8)** 클라이언트의 힙메모리 사용량이다. 이것을 보고 메모리 부족을 판단할 수 있다. 
-* **(9)** XLOG을 제어하기 위한 툴바, 에러만보기, 혹은 필터링을 위한 화면을 열수 있다.
-* **(10)** 오브잭트별 대표 성응조표를 조회 할 수 있다. 예를 들어 host type(sjhost)은 cpu
-      tomcat type(tomcat1)은 Active Service Count가 보여진다. 
-* **(11)** XLOG의 X 축은 트랜잭션이 종료된 시간이다. (<- ->)이등이나 (+/-) 확대축소가 가능하다.
-* **(12)** XLOG에서는 왼쪽 마우스를 드레그 하여 영역을 선택할 수 있고 해당 영역의 점들(트랜잭션)의 
-       성능을 상세 분석할 수 있다. 
+* **(1)** Manage perspectives. Any existed perspectives can be added by clicking (+) button.
+* **(2)** It is currently viewed perspectives. Perspective you cutomized like adding new chart can be save to new name, by clicking save button on floating menu. You can load previous perspective as well along to (1).
+* **(3)** This is toolbar buttons on object explorer. You can mange objectes currenly loaded to show monitoring  metrics. Adding filter to objects, removing objects which is not used.
+* **(4)** Active service equalizer. When you double-click the bar, you can see more detailed active service list.
+* **(5)** Y-axis of response time on XLOG chart. The maximum(highest on Y-axis) value can be modified by clicking axis and input new specific value. Or after activating XLOG chart, use up/down arrow key.
+* **(6)** The number of transactions displayed on XLOG chart.
+* **(7)** Object navigation view. Top most object(sjhost_6100) is Scouter server. 
+ * With a view of monitoring group, you can monitor each server's status and its services on tree view. 
+ * You can see each monitring metrics by clicking right mouse button on each object. 
+ * 'sjhost' below Scounter server (sjhost_6100) means watching server host. And tomcat1 and 2 is JAVAEE object. The XLOG chart on example screen is Tomcat mode, and it is default view of it. 
+ * You can filter the object type by **double-clicking** you want.
+* **(8)** The HEAP memory usage on client program. You can check memory shortage. 
+* **(9)** Toolbar for managing displayed data on XLOG chart. It is supported filtering diaglog, only error transactions, and so on.
+* **(10)** It is the realtime monitoring value. For example, host type object is showing CPU usage, Tomcat type is displaying active service counter. 
+* **(11)** X-axis on XLOG chart is used to show the end time of each transaction. To move time use left/right arrow key. To zoom in/out use + or - key.
+* **(12)** To see more detailed transaction data, drag markers on XLOG chart. 

@@ -34,7 +34,7 @@ object DailyCounterIndex {
                 index.refrence += 1;
                 return index;
             } else {
-                index = new DailyCounterIndex(fileName);
+                index = new DailyCounterIndex(fileName)
                 table.put(fileName, index);
                 return index;
             }
@@ -45,7 +45,7 @@ object DailyCounterIndex {
 class DailyCounterIndex(_fileName: String) extends IClose {
     var refrence = 0
     val fileName = _fileName
-    var index: IndexKeyFile = null
+    var index: IndexKeyFile = new IndexKeyFile(fileName)
 
     def set(key: Array[Byte], dataOffset: Long) {
         if (this.index == null) {
@@ -84,6 +84,15 @@ class DailyCounterIndex(_fileName: String) extends IClose {
             } else {
                 this.refrence -= 1;
             }
+        }
+    }
+
+    def closeForce() {
+        DailyCounterIndex.table.synchronized {
+            DailyCounterIndex.table.remove(this.fileName);
+            FileUtil.close(this.index);
+            this.index = null;
+            this.refrence = 0;
         }
     }
 

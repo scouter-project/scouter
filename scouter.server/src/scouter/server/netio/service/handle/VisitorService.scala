@@ -25,6 +25,9 @@ import scouter.net.TcpFlag
 import scouter.server.db.VisitorDB
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.net.RequestCmd
+import scouter.util.DateUtil
+import scouter.lang.pack.MapPack
+import scouter.server.db.VisitorHourlyDB
 
 class VisitorService {
 
@@ -64,5 +67,54 @@ class VisitorService {
     val value = VisitorDB.getVisitorObjType(date, objType);
     dout.writeByte(TcpFlag.HasNEXT);
     dout.writeValue(new DecimalValue(value));
+  }
+  
+  @ServiceHandler(RequestCmd.VISITOR_LOADDATE_GROUP)
+  def visitorLoaddateGroup(din: DataInputX, dout: DataOutputX, login: Boolean) {
+    val m = din.readMapPack();
+    val objHashLv = m.getList("objHash");
+    val startDate = m.getText("startDate");
+    val endDate = m.getText("endDate");
+    var time = DateUtil.yyyymmdd(startDate)
+    var etime = DateUtil.yyyymmdd(endDate)
+    val resultPack = new MapPack()
+    while (time <= etime) {
+      var date = DateUtil.yyyymmdd(time)
+      var value = VisitorDB.getMergedVisitorObject(date, objHashLv)
+      resultPack.put("date", date)
+      resultPack.put("value", value)
+      dout.writeByte(TcpFlag.HasNEXT);
+      dout.writePack(resultPack);
+      time = time + DateUtil.MILLIS_PER_DAY
+    }
+  }
+  
+  @ServiceHandler(RequestCmd.VISITOR_LOADHOUR_GROUP)
+  def visitorLoadhourGroup(din: DataInputX, dout: DataOutputX, login: Boolean) {
+    val m = din.readMapPack();
+    val objHashLv = m.getList("objHash");
+    val stime = m.getLong("stime");
+    val etime = m.getLong("etime");
+    val resultPack = new MapPack()
+    var timeLv = resultPack.newList("time")
+    var valueLv = resultPack.newList("value")
+    var time = stime
+    var date = DateUtil.yyyymmdd(time)
+    while (time <= etime) {
+      var dt = DateUtil.yyyymmdd(time)
+      if (date != dt) {
+        date = dt
+        dout.writeByte(TcpFlag.HasNEXT);
+        dout.writePack(resultPack);
+        timeLv = resultPack.newList("time")
+        valueLv = resultPack.newList("value")
+      }
+      var value = VisitorHourlyDB.getMergedVisitorObject(date, time, objHashLv)
+      timeLv.add(time)
+      valueLv.add(value)
+      time = time + DateUtil.MILLIS_PER_HOUR
+    }
+    dout.writeByte(TcpFlag.HasNEXT);
+    dout.writePack(resultPack);
   }
 }

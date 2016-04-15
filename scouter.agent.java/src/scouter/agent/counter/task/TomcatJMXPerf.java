@@ -190,6 +190,8 @@ public class TomcatJMXPerf {
 								CounterConstants.DATASOURCE_CONN_ACTIVE);
 						add(objName, mbean, objType, ValueEnum.DECIMAL, "numIdle",
 								CounterConstants.DATASOURCE_CONN_IDLE);
+						add(objName, mbean, objType, ValueEnum.DECIMAL, "maxActive",
+								CounterConstants.DATASOURCE_CONN_MAX);
 					} catch (Exception e) {
 					}
 				}
