@@ -28,13 +28,14 @@ import scouter.server.util.cardinality.HyperLogLog
 import scouter.util.DateUtil
 import scouter.util.ThreadUtil
 import scouter.util.IntKeyLinkedMap
-
 import java.io.File
 import scouter.util.FileUtil
 import scouter.util.HashUtil
 import scouter.util.Hexa32
 import scouter.server.util.EnumerScala
 import scouter.server.core.CoreRun
+import scouter.lang.value.ListValue
+import scouter.lang.value.DecimalValue
 
 object VisitorDB {
     val rsd = 20
@@ -161,5 +162,14 @@ object VisitorDB {
     def getVisitorObject(date: String, objHash: Int): Long = {
         val h = load(date, Hexa32.toString32(objHash))
         if (h == null) 0 else h.cardinality()
+    }
+    
+    def getMergedVisitorObject(date: String, objHashLv: ListValue): Long = {
+        val totalVisitor = new HyperLogLog(rsd)
+        EnumerScala.foreach(objHashLv, (obj: DecimalValue) => {
+          val h = load(date, Hexa32.toString32(obj.intValue()))
+          if (h != null) totalVisitor.addAll(h)
+        })
+        totalVisitor.cardinality()
     }
 }

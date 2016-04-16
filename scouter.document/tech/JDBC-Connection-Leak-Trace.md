@@ -1,38 +1,34 @@
-# JDBC Connection Leak Trace
+# Trace of JDBC Connection Leak
 ![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](JDBC-Connection-Leak-Trace_kr.md)
 
-JDBC Connection을 추적의 목적은 대표적인 Connection 관련 문제를 감지하기 위한 것이다. 
+The purpose of tracking JDBC connection is most common methodology to detect DB connection problem. 
 
 ## Connection Leak 
- Connection을 pool에 반환하지 않는 문제이다. Statement나 ResultSet을 close하지 않는 문제는 크게 문제 되지 않는다.(문제 될 경우도 있다.), JDBC드라이버가 어느정도 해결해 주고 있다.  하지만  Connection미반환 문제는 반드시 해결하는 문제이다.
+It is the problem not to return the leased connection to the connection pool. Not closing Statement or ResultSet is not so siginificant in most of cases;JDBC driver is handling this. But not returning problem must be analyzed and solved.
 
 ## getConnection Delay
-Connecttion Pool크기가 작아 부족한 경우 자주 발생하며  Connection을 새로 맺는 경우에도 발생한다.
+It tends to occur under the condition of low number of connection pool, and also making new connection.
 
 ## setAutoCommit True
-setAutoCommit가 true로 setting되면 매 SQL마다 자동으로 Commit이 DB에 전달된다. 
-당연히 성능에 문제가 된다.
+Enabling setAutoCommit to true, each SQL execution of statement is firing commit signal to DB automatically. This can be performance problem.
 
 ## Too many commits
-"setAutoCommit"과 연관된 문제이기는 하지만 setAutoCommit이 False인 경우에서 개발자들이 명시적으로 빈번하게 
-      커밋을 호출하는 경우가 있다(보통은 프레임웍에서 중간에 커밋하지 못하도록 막아준다.)
+The explicit calling of commit() function on source code can drop down system performance, though setAutoCommit is false. (Nomally framework cut off this explicit commits in the middle)
 
 ## Commit Delay
-너무 많은 데이터를 입력하고 커밋하는 경우에 커밋지연이 발생하는데 
-데이터베이스 쪽에서 상세하게 분석해야 한다.
+Commit delay is occurring due to the massive data insertion. This should be digging down on DB side.
 
 ## Close Delay
-보통 WAS환경에서는 Close가 호출된다. Connection이 Pool에 반환된다. 
-Close에서 delay가 발생하면 Pool의 상태를 분석해야한다
+On the common environment using connection pool handled by WAS, close() function was called to return leased connection to connection pool. When close() is called frequently you should check the status of connection pool.
 
 
-이러한 문제가 clear되었다고 확신한다면 Connection 추적을 off 한다.
+Most of problems are solved, you can turn off tracking function.
 ```
    profile_connection_open_enabled=false (기본값: true)   
 ```
-톰켓의 경우에는 자동으로  Connection을 추적한다 하지만 MyBatis같은 프레임웍에서 다른 DataSource 를 사용하는 경우에는 명시적으로 설정한다.
+Tomcat Agent is using tracking connection pool by default. If you are not using WAS pool, add explicit tracking option.
 
-아래는 MyBastis설정이다. 
+Let's check this case out, below is for MyBatis framework, 
 ```
 <!— MyBatis -->
 <bean id="dataSource"
@@ -43,8 +39,7 @@ Close에서 delay가 발생하면 Pool의 상태를 분석해야한다
 	<property name="password" value="" />
 </bean>
 ```
-이런 경우 org.springframework.jdbc.datasource.SimpleDriverDataSource을 다운받아서 역컴파일 해본다. 
-그러면 아래와 같이 AbstractDriverBasedDataSource을 상속하고 있고 자체에는 getConnection이 없는 것을 확인할 수 있다.
+With this case, decompile org.springframework.jdbc.datasource.SimpleDriverDataSource class. As you can see below, this class is extends AbstractDriverBasedDataSource and it doesn't have getConnection() function.
 
 ```
 package org.springframework.jdbc.datasource;
@@ -54,12 +49,11 @@ public class SimpleDriverDataSource extends AbstractDriverBasedDataSource
 {
  …
 ```
-다시 AbstractDriverBasedDataSource을 다운받아서 확인하면 getConnection이 있는 것을 확인할 수 있다.
-아래의 옵션을 에이전트에 추가하고 재기동하면 
+Let's check AbstractDriverBasedDataSource. It has getConnection() function. This is the case application is reponsible for creating and managing connection pool inside of it. JDBC tracking option is needed.
 ```
 hook_connection_open_patterns=org.springframework.jdbc.datasource.AbstractDriverBasedDataSource.getConnection
 ```
-프로파일에서 아래와 같은 내용을 확인 할 수 있다.
+In the profiling data, you can see below logs,
 
 ```
    -    [000002] 22:49:09.445        0      0  OPEN-DBC jdbc:fake:

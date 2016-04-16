@@ -1,17 +1,11 @@
-# TagCounting 분석기법
+# TagCounting Analysis
 ![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](TagCounting-Analysis_kr.md)
 
-서비스 성능은 응답시간과 처리건수로 측정된다.  더 정확히 이야기하면
-단위 시간당 호출된 건수와 이것을 처리하기 위해 걸린시간을 기준으로 서비스의 성능을 관리한다.
+Peformance of service is measured by response time and the number of transactions. Speaking more accurately, by processed transactions per specified time unit and its processing time.
 
-그런데 실제 환경에서 서비스는 다수의 사용자에 의해 다수의 서비스가 동시에 호출되며 이 서비스 들은 다수의 서로 다른 자원들을 공유하거나 배타적으로 사용한다.
-따라서 성능의 문제를 분석할때는 이들 서비스를 개별로 분석해야만 서비스의 현황을 정확히 파악할 수 있다. 이렇게 만들어진것이 응답시간 분포도(XLOG)이다. 
-그런데 이들 서비스 들은 독립된 공간에서 혼자 실행되는것이 아니고 서로다를 서비스들과 어떤 자원들을 공유하며 실행되기 때문에 통계적 분석이 (또한) 필요하게 된다. 이것을 위해 만들어진 기능은 TagCounting이다.
+When many users use production system, each service on same system uses shared computational resources exclusively or not. To analyze the performance of system, we should take look at each service independently. XLog chart can help this. We also need statistical analysis as the usage of shared resources of one system can affect the other. TagCounting makes this more simple.
 
-하나의 서비스가 수행되면 이것을 트랜잭션이라고 부른다. 
-하나의 트랜잭션에는 여러가지 정보들을 가지고 있다. 어떤URL인지, 어떤 IP에서 호출했는지 혹은 어떤 사용자가 호출했는지 등등 이러한 정보들을 각가 테그라고 부른다.
-예를 들어 ip라는 테그에는 값이 192.168.10.10 이러한 방식으로 각 테그에는 값들이 포함되어있다. 
-이해를 돕기 위해 트랜잭션 하나를 예로 들어보자
+We call the result of one service as transaction. A transaction contains information about itself, URL of it, client IP addrss, user information and so on. Each information is called as tag. For example, IP address tag has the value of 192.168.10.10. Let's look at example transaction to clarify,
 
 ```
 ► objName = /sjhost/node1
@@ -32,19 +26,17 @@
 ► login = joe
 ```
 
-테그카운팅이란 각 속성즉 테그/값 별로 수행 통계를 분석하는 것이다.
-예를 들어 ipaddr/192.168.10.10 이 테그를 가진 트랜잭션이 금일 몇개나 발생했는지 파악해 본다. 또는 userAgent/Java/1.7.0_55 이런 테그를 가진 트랜잭션이 몇개나 발생했는지 하루 추의를 분석한다. 
-이렇게 분석해 보면 공통점을 발견하거나 공통점이 없다는 확신을 할 수 있게 된다. 
+It is TagCounting that analyze processing statistics with each tag and their value. For exmaple, list up a tag with 'ipaddr/192.168.10.10' of today to analyze a client behavior. Or sum up the number of transactions with tag 'userAgent/Java/1.7.0_55' of a day. With this action we can have intuitive view of characteristics of transactions.
+ 
 
-전체 건수를 보여준다.
+Below is the statistical analysis example of 24 hours.
 ![TagCounting #1](../img/client/tagcnt_1.png)
 
-차트에서 왼쪽마우스로 드레그하면 해당 구간의시간을 상세히 볼수 있다.
-그리고 하나의 바를 더블클릭하면 아래에 세부 리스트를 볼수 있다.
+You can get the detailed graph of a time period specified by mouse dragging. And double-clicking any bar will show detaied transactions list.
 ![TagCounting #2](../img/client/tagcnt_2.png)
 
-세부리스트에서 특정 열을 클릭하면 프로파일 정보를 볼수 있다.
+You can check profiled information on each row.
 ![TagCounting #3](../img/client/tagcnt_3.png)
 
-특정테그/값을 선택하여 수행현황을 조회할 수 있다.
+Also select specific tag or its value.
 ![TagCounting #4](../img/client/tagcnt_4.png)

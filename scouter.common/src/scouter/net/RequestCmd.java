@@ -242,6 +242,8 @@ public class RequestCmd {
 	public static final String VISITOR_REALTIME_TOTAL = "VISITOR_REALTIME_TOTAL";
 	public static final String VISITOR_LOADDATE = "VISITOR_LOADDATE";
 	public static final String VISITOR_LOADDATE_TOTAL = "VISITOR_LOADDATE_TOTAL";
+	public static final String VISITOR_LOADDATE_GROUP = "VISITOR_LOADDATE_GROUP";
+	public static final String VISITOR_LOADHOUR_GROUP = "VISITOR_LOADHOUR_GROUP";
 
 	// SUMMARY
 	public static final String LOAD_SERVICE_SUMMARY = "LOAD_SERVICE_SUMMARY";

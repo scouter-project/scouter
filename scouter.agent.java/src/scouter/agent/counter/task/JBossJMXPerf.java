@@ -191,6 +191,8 @@ public class JBossJMXPerf {
 					continue;
 				}
 				String statistics = mbean.getKeyProperty("statistics");
+				
+				// JBOSS AS 7
 				if ("datasources".equals(subsystem) && "pool".equals(statistics)) {
 					String name = mbean.getKeyProperty("data-source");
 					if (StringUtil.isNotEmpty(name)) {
@@ -200,15 +202,14 @@ public class JBossJMXPerf {
 
 							AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
 
-							add(objName, mbean, objType, ValueEnum.DECIMAL, "ActiveCount",
+							add(objName, mbean, objType, ValueEnum.DECIMAL, "InUseCount",
 									CounterConstants.DATASOURCE_CONN_ACTIVE);
 							add(objName, mbean, objType, ValueEnum.DECIMAL, "AvailableCount",
-									CounterConstants.DATASOURCE_CONN_IDLE);
+									CounterConstants.DATASOURCE_CONN_MAX);
 						} catch (Exception e) {
 						}
 					}
-				}
-				if ("web".equals(subsystem)) {
+				} else if ("web".equals(subsystem)) {
 					String connector = mbean.getKeyProperty("connector");
 					if (connector == null) {
 						continue;

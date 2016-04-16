@@ -52,7 +52,7 @@ public class SessionObserver extends Thread {
 					if (server.isConnected() == false && server.getConnectionPool().size() < 1) {
 						server.setSession(0); // reset session
 					}
-					if (server.isConnected() && server.getSession() == 0) {
+					if (/*server.isConnected() &&*/ server.getSession() == 0) {
 						boolean success = LoginMgr.silentLogin(server, server.getUserId(), server.getPassword());
 						if (success) {
 							ConsoleProxy.infoSafe("Success re-login to " + server.getName());

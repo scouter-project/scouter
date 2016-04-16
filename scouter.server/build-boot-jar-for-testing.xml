@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="Build server boot jar" default="packaging">
+<project name="(Test)Build scouter server boot jar" default="packaging">
     <property name="dir.target.jar" value="../scouter.server.boot/testlib" />
     <property name="dir.classes" value="./bin" />
     <property name="dir.deploy.lib" value="../scouter.deploy/lib" />

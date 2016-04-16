@@ -81,6 +81,7 @@ public class CounterConstants {
 
 	public final static String DATASOURCE_CONN_ACTIVE = "ConnActive";
 	public final static String DATASOURCE_CONN_IDLE = "ConnIdle";
+	public final static String DATASOURCE_CONN_MAX = "ConnMax";
 
 	public final static String HOST_CPU = "Cpu";
 	public final static String HOST_SYSCPU = "SysCpu";

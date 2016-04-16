@@ -49,8 +49,9 @@ object DailyCounterWR {
                     close();
                     open(Integer.toString(counterData.date));
                 }
-                if (index == null) {
+                if (index == null || writer == null || writer.dataFile == null || index.index == null) {
                     OftenAction.act("DailyCounterWR", 10) {
+                        closeForce();
                         queue.clear();
                         lastDateInt = 0;
                     }
@@ -96,6 +97,21 @@ object DailyCounterWR {
         writer = null;
     }
 
+    def closeForce() {
+        try {
+            if (index != null) index.closeForce();
+        } catch {
+            case e: Throwable => e.printStackTrace
+        }
+        try {
+            if (writer != null) writer.closeForce();
+        } catch {
+            case e: Throwable => e.printStackTrace
+        }
+        index = null;
+        writer = null;
+    }
+
     def open(date: String) {
         try {
             val path = getDBPath(date);
@@ -108,7 +124,10 @@ object DailyCounterWR {
             return;
         } catch {
             case e: Throwable => {
-                e.printStackTrace();
+                index = null
+                writer = null
+                Logger.println("G103", e.getMessage())
+                Logger.printStackTrace("G104", e)
                 close()
             }
         }
