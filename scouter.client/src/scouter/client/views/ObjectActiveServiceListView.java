@@ -18,6 +18,8 @@
 package scouter.client.views;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
@@ -213,29 +215,36 @@ public class ObjectActiveServiceListView extends ViewPart implements Refreshable
 			ListValue sqlLv = mpack.getList("sql");
 			ListValue subcallLv = mpack.getList("subcall");
 			
-			int size = idLv.size();
-			count.value = count.value + size;
-			
-			for (int i = 0; i < size; i++) {
-				ThreadData data = new ThreadData();
-				data.id = idLv.getLong(i);
-				data.objHash = objHash;
-				data.name = nameLv.getString(i);
-				data.state = statLv.getString(i);
-				data.cpu = cpuLv.getLong(i);
-				data.txid = txidLv.getString(i);
-				data.elapsed = elapsedLv.getLong(i);
-				data.serviceName = serviceLv.getString(i);
-				String sql = sqlLv.getString(i);
-				if (StringUtil.isNotEmpty(sql)) {
-					data.note = sql;
-				} else {
-					data.note = subcallLv.getString(i);
+			if (idLv != null) {
+				int size = idLv.size();
+				count.value = count.value + size;
+				
+				for (int i = 0; i < size; i++) {
+					ThreadData data = new ThreadData();
+					data.id = idLv.getLong(i);
+					data.objHash = objHash;
+					data.name = nameLv.getString(i);
+					data.state = statLv.getString(i);
+					data.cpu = cpuLv.getLong(i);
+					data.txid = txidLv.getString(i);
+					data.elapsed = elapsedLv.getLong(i);
+					data.serviceName = serviceLv.getString(i);
+					String sql = sqlLv.getString(i);
+					if (StringUtil.isNotEmpty(sql)) {
+						data.note = sql;
+					} else {
+						data.note = subcallLv.getString(i);
+					}
+					if (ipLv != null)
+						data.ip = ipLv.getString(i);
+					datas.add(data);
 				}
-				if (ipLv != null)
-					data.ip = ipLv.getString(i);
-				datas.add(data);
 			}
+			Collections.sort(datas, new Comparator<ThreadData>() {
+				public int compare(ThreadData o1, ThreadData o2) {
+					return o1.elapsed > o2.elapsed ? -1 : 1;
+				}
+			});
 		}
 		if (error.length() > 0) {
 			error.append("may be not loaded.");
