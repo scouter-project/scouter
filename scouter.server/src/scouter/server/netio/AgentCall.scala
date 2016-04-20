@@ -38,8 +38,10 @@ import scouter.server.netio.service.net.TcpAgentManager
 object AgentCall {
 
     def call(o: ObjectPack, cmd: String, param: MapPack): MapPack = {
-        if (o == null)
+        if (o == null) {
+            Logger.println("S502", "Agent Call error. Object pack is null");
             return null;
+        }
 
         val tcpAgent = TcpAgentManager.get(o.objHash);
         if (tcpAgent != null) {
@@ -62,13 +64,18 @@ object AgentCall {
             } finally {
                 TcpAgentManager.add(o.objHash, tcpAgent)
             }
+        } else {
+            Logger.println("S501", "Cannot find a tcp agent for " + o.objName);
         }
+
         return null;
     }
 
     def call(o: ObjectPack, cmd: String, param: MapPack, handler: (Int, DataInputX, DataOutputX) => Unit) {
-        if (o == null)
-            return ;
+        if (o == null) {
+            Logger.println("S503", "Agent Call error. Object pack is null");
+            return null;
+        }
         val tcpAgent = TcpAgentManager.get(o.objHash);
         if (tcpAgent != null) {
             try {
@@ -78,6 +85,8 @@ object AgentCall {
             } finally {
                 TcpAgentManager.add(o.objHash, tcpAgent)
             }
+        }else {
+            Logger.println("S504", "Cannot find a tcp agent for " + o.objName);
         }
     }
 
