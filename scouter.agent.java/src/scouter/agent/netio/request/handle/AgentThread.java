@@ -70,9 +70,12 @@ public class AgentThread {
 			if (ctx != null) {
 				if ("interrupt".equalsIgnoreCase(action)) {
 					ctx.thread.interrupt();
-				}
-				if ("stop".equalsIgnoreCase(action)) {
+				} else if ("stop".equalsIgnoreCase(action)) {
 					ctx.thread.stop();
+				} else if ("resume".equalsIgnoreCase(action)) {
+					ctx.thread.resume();
+				} else if ("suspend".equalsIgnoreCase(action)) {
+					ctx.thread.suspend();
 				}
 			}
 		} catch (Throwable t) {
