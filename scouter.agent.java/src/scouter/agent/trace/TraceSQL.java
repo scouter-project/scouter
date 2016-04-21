@@ -333,6 +333,28 @@ public class TraceSQL {
 		}
 	}
 
+    public static void stmtInit(Object stmt) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx != null) {
+            if(conf.trace_stmt_leak_enabled) {
+                if(conf.profile_fullstack_stmt_leak_enabled) {
+                    ctx.unclosedStmtMap.put(System.identityHashCode(stmt), ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2));
+                } else {
+                    ctx.unclosedStmtMap.put(System.identityHashCode(stmt), "");
+                }
+            }
+        }
+    }
+
+    public static void stmtClose(Object stmt) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx != null) {
+            if(conf.trace_stmt_leak_enabled) {
+                ctx.unclosedStmtMap.remove(System.identityHashCode(stmt));
+            }
+        }
+    }
+
 	public static void rsInit(Object rs) {
 		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
