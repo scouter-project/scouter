@@ -15,10 +15,12 @@
  *  limitations under the License. 
  */
 package scouter.agent.asm;
+
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.jdbc.RsCloseMV;
+import scouter.agent.asm.jdbc.RsInitMV;
 import scouter.agent.asm.jdbc.RsNextMV;
 import scouter.agent.asm.util.HookingSet;
 import scouter.org.objectweb.asm.ClassVisitor;
@@ -63,7 +65,10 @@ class ResultSetCV extends ClassVisitor implements Opcodes {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		if ("next".equals(name) && "()Z".equals(desc)) {
+
+		if ("<init>".equals(name)) {
+			return new RsInitMV(access, desc, mv);
+		} else if ("next".equals(name) && "()Z".equals(desc)) {
 			return new RsNextMV(mv);
 		} else if ("close".equals(name) && "()V".equals(desc)) {
 			return new RsCloseMV(mv);
