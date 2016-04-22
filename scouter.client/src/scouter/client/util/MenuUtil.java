@@ -71,6 +71,7 @@ import scouter.client.counter.actions.OpenPastTimeAllAction;
 import scouter.client.counter.actions.OpenPastTimeTotalAction;
 import scouter.client.counter.actions.OpenPastTimeViewAction;
 import scouter.client.counter.actions.OpenRTPairAllAction;
+import scouter.client.counter.actions.OpenRTPairAllAction2;
 import scouter.client.counter.actions.OpenRealTimeAllAction;
 import scouter.client.counter.actions.OpenRealTimeMultiAction;
 import scouter.client.counter.actions.OpenRealTimeStackAction;
@@ -503,6 +504,9 @@ public class MenuUtil implements IMenuCreator{
 			serviceGroupMgr.add(new OpenServiceGroupElapsedAction(win, serverId, objType));
 			mgr.add(new OpenUniqueTotalVisitorAction(win, serverId, objType));
 			mgr.add(new OpenTypeSummaryAction(win, serverId, objType));
+		} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_DATASOURCE)) {
+			mgr.add(new Separator());
+			mgr.add(new OpenRTPairAllAction2(win, "Pool Chart", serverId, objType, CounterConstants.DATASOURCE_CONN_MAX, CounterConstants.DATASOURCE_CONN_ACTIVE));
 		}
 	}
 	
