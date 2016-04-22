@@ -181,7 +181,14 @@ public class TomcatJMXPerf {
 				String name = mbean.getKeyProperty("name");
 				if (StringUtil.isNotEmpty(name)) {
 					try {
-						String objName = conf.getObjName() + "/" + checkObjName(name);
+						String context = mbean.getKeyProperty("context");
+						if (context != null && context.length() > 0) {
+							context = context.substring(1); 
+						}
+						if (StringUtil.isEmpty(context)) {
+							context = "ROOT";
+						}
+						String objName = conf.getObjName() + "/" + checkObjName(context + "_" + name);
 						String objType = getDataSourceType();
 						AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
 						add(objName, mbean, objType, ValueEnum.DECIMAL, "numActive",
