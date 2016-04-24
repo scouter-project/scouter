@@ -18,6 +18,7 @@
 package scouter.agent.trace;
 
 import scouter.lang.step.SqlStep;
+import scouter.util.IntKeyMap;
 import scouter.util.SysJMX;
 
 public class TraceContext {
@@ -94,7 +95,11 @@ public class TraceContext {
 
 	public String web_name;
 	public int web_time;
+
 	public int userTransaction;
+	public IntKeyMap<String> unclosedRsMap = new IntKeyMap<String>();
+	public IntKeyMap<String> unclosedStmtMap = new IntKeyMap<String>();;
+
 	public boolean debug_sql_call;
 	public String group;
 

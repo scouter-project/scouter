@@ -118,7 +118,9 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 
 			} else if ("getUpdateCount".equals(name) && "()I".equals(desc)) {
                 return new PsUpdateCountMV(mv);
-            }
+            } else if ("close".equals(name) && "()V".equals(desc)) {
+				return new PsCloseMV(mv);
+			}
 		}
 		return mv;
 	}

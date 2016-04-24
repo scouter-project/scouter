@@ -50,7 +50,7 @@ public class ClientTCP{
 			///
 			socket.connect(new InetSocketAddress(server.getIp(), server.getPort()),3000);
 			socket.setTcpNoDelay(true);
-			socket.setSoTimeout(4000);
+			socket.setSoTimeout(server.getSoTimeOut());
 			in = new DataInputX(new BufferedInputStream(socket.getInputStream()));
 			out = new DataOutputX(new BufferedOutputStream(socket.getOutputStream()));
 			

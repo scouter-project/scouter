@@ -612,10 +612,10 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 		Set<String> agentTypeList = agentThread.getCurrentObjectTypeList(serverId);
 		for(String objType : agentTypeList){
 			ObjectType type = counterEngine.getObjectType(objType);
-			if (type.isSubObject()) {
+			/*if (type.isSubObject()) {
 				// DataSource, RequestProcessor.....etc.
 				continue;
-			}
+			}*/
 			String displayName = type.getDisplayName();
 			ImageDescriptor objImage = Images.getObjectImageDescriptor(objType, true, serverId);
 			MenuManager objTitle = new MenuManager(displayName, objImage, "scouter.menu.id."+displayName);

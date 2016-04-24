@@ -21,6 +21,8 @@ import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterService;
 import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.error.REQUEST_REJECT;
+import scouter.agent.error.RESULTSET_LEAK_SUSPECT;
+import scouter.agent.error.STATEMENT_LEAK_SUSPECT;
 import scouter.agent.error.USERTX_NOT_CLOSE;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.PluginAppServiceTrace;
@@ -61,6 +63,8 @@ public class TraceMain {
     private static Configure conf = Configure.getInstance();
     private static Error REJECT = new REQUEST_REJECT("service rejected");
     private static Error userTxNotClose = new USERTX_NOT_CLOSE("UserTransaction missing commit/rollback Error");
+    private static Error resultSetLeakSuspect = new RESULTSET_LEAK_SUSPECT("ResultSet Leak suspected!");
+    private static Error statementLeakSuspect = new STATEMENT_LEAK_SUSPECT("Statement Leak suspected!");
 
     public static Object startHttpService(Object req, Object res) {
         try {
@@ -246,6 +250,35 @@ public class TraceMain {
             }
             // Plug-in end
             PluginHttpServiceTrace.end(ctx, stat0.req, stat0.res);
+
+            //profile rs
+            if(conf.trace_rs_leak_enabled && ctx.unclosedRsMap.size() > 0) {
+                if(conf.profile_fullstack_rs_leak_enabled) {
+                    String message = ctx.unclosedRsMap.values().nextElement();
+                    if(message != null) {
+                        message = "ResultSet Leak suspected!\n" + message;
+                        HashedMessageStep step = new HashedMessageStep();
+                        step.hash = DataProxy.sendHashedMessage(message);
+                        step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+                        ctx.profile.add(step);
+                    }
+                }
+            }
+
+            //profile stmt
+            if(conf.trace_stmt_leak_enabled && ctx.unclosedStmtMap.size() > 0) {
+                if(conf.profile_fullstack_stmt_leak_enabled) {
+                    String message = ctx.unclosedStmtMap.values().nextElement();
+                    if(message != null) {
+                        message = "Statement Leak suspected!\n" + message;
+                        HashedMessageStep step = new HashedMessageStep();
+                        step.hash = DataProxy.sendHashedMessage(message);
+                        step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+                        ctx.profile.add(step);
+                    }
+                }
+            }
+
             // profile close
             TraceContextManager.end(ctx.threadId);
             Configure conf = Configure.getInstance();
@@ -295,7 +328,14 @@ public class TraceMain {
             } else if (ctx.userTransaction  > 0 && conf.xlog_error_check_user_transaction_enabled) {
                 pack.error = DataProxy.sendError("UserTransaction missing commit/rollback Error");
                 ServiceSummary.getInstance().process(userTxNotClose, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
+            } else if(conf.trace_rs_leak_enabled && ctx.unclosedRsMap.size() > 0) {
+                pack.error = DataProxy.sendError("ResultSet Leak suspected!");
+                ServiceSummary.getInstance().process(resultSetLeakSuspect, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
+            } else if(conf.trace_stmt_leak_enabled && ctx.unclosedStmtMap.size() > 0) {
+                pack.error = DataProxy.sendError("Statement Leak suspected!");
+                ServiceSummary.getInstance().process(statementLeakSuspect, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
             }
+
             if (ctx.group != null) {
                 pack.group = DataProxy.sendGroup(ctx.group);
             }

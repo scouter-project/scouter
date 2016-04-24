@@ -60,6 +60,7 @@ public class LoginMgr{
 				String version = out.getText("version");
 				String email = out.getText("email");
 				String timezone = out.getText("timezone");
+				int soTimeOut = out.getInt("so_time_out");
 				
 				server.setSession(session);
 				server.setName(serverName);
@@ -70,6 +71,7 @@ public class LoginMgr{
 				server.setVersion(version);
 				server.setEmail(email);
 				server.setTimezone(timezone);
+				server.setSoTimeOut(soTimeOut);
 				Value value = out.get("policy");
 				if (value != null) {
 					MapValue mv = (MapValue) value;

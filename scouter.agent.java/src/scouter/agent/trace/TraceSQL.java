@@ -333,14 +333,52 @@ public class TraceSQL {
 		}
 	}
 
+    public static void stmtInit(Object stmt) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx != null) {
+            if(conf.trace_stmt_leak_enabled) {
+                if(conf.profile_fullstack_stmt_leak_enabled) {
+                    ctx.unclosedStmtMap.put(System.identityHashCode(stmt), ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2));
+                } else {
+                    ctx.unclosedStmtMap.put(System.identityHashCode(stmt), "");
+                }
+            }
+        }
+    }
+
+    public static void stmtClose(Object stmt) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx != null) {
+            if(conf.trace_stmt_leak_enabled) {
+                ctx.unclosedStmtMap.remove(System.identityHashCode(stmt));
+            }
+        }
+    }
+
+	public static void rsInit(Object rs) {
+		TraceContext ctx = TraceContextManager.getContext();
+		if (ctx != null) {
+            if(conf.trace_rs_leak_enabled) {
+                if(conf.profile_fullstack_rs_leak_enabled) {
+                    ctx.unclosedRsMap.put(System.identityHashCode(rs), ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2));
+                } else {
+                    ctx.unclosedRsMap.put(System.identityHashCode(rs), "");
+                }
+            }
+		}
+	}
+
 	public static void rsclose(Object rs) {
-		TraceContext c = TraceContextManager.getContext();
-		if (c != null) {
-			if (c.rs_start != 0) {
-				fetch(c);
+		TraceContext ctx = TraceContextManager.getContext();
+		if (ctx != null) {
+			if (ctx.rs_start != 0) {
+                if(conf.trace_rs_leak_enabled) {
+                    ctx.unclosedRsMap.remove(System.identityHashCode(rs));
+                }
+				fetch(ctx);
 			}
-			c.rs_start = 0;
-			c.rs_count = 0;
+			ctx.rs_start = 0;
+			ctx.rs_count = 0;
 		}
 	}
 
