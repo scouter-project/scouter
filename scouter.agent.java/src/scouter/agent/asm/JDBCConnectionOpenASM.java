@@ -45,9 +45,9 @@ public class JDBCConnectionOpenASM implements IASM, Opcodes {
     }
 
 	public JDBCConnectionOpenASM() {
-		// Tomcat7
 		AsmUtil.add(reserved, "org/apache/tomcat/dbcp/dbcp/BasicDataSource", "getConnection");
 		AsmUtil.add(reserved, "org/apache/tomcat/jdbc/pool/DataSourceProxy", "getConnection");
+        AsmUtil.add(reserved, "org/apache/commons/dbcp2/BasicDataSource", "getConnection");
 
         for(int i = JDBCTargetRegister.klassMethod.size() - 1; i >= 0; i--) {
             AsmUtil.add(reserved, JDBCTargetRegister.klassMethod.get(i).getLeft(), JDBCTargetRegister.klassMethod.get(i).getRight());
