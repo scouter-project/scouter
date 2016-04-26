@@ -144,7 +144,7 @@ public class CounterRealTimeView extends ScouterViewPart implements Refreshable 
 			param.put("objType", objType);
 			param.put("counter", counter);
 
-			long etime = System.currentTimeMillis();
+			long etime = TimeUtil.getCurrentTime(serverId);
 			long stime = etime - DateUtil.MILLIS_PER_MINUTE * 5;
 			param.put("stime", stime);
 			param.put("etime", etime);
