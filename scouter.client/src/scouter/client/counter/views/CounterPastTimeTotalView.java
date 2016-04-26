@@ -118,6 +118,8 @@ public class CounterPastTimeTotalView extends ScouterViewPart implements Calenda
 		
 		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter);
 		
+		traceDataProvider.setBufferSize((int) ((etime - stime) / TimeTypeEnum.getTime(TimeTypeEnum.REALTIME) + 10));
+		
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
 				load();
@@ -264,7 +266,6 @@ public class CounterPastTimeTotalView extends ScouterViewPart implements Calenda
 //		xyGraph.primaryYAxis.setTitle("");
 		
 		traceDataProvider = new CircularBufferDataProvider(true);
-		traceDataProvider.setBufferSize(1800);
 		traceDataProvider.setCurrentXDataArray(new double[] {});
 		traceDataProvider.setCurrentYDataArray(new double[] {});
 

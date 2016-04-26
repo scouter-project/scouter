@@ -83,7 +83,7 @@ public class TimeTypeEnum {
 	public static int getTime(byte timeCode) {
 		switch (timeCode) {
 		case REALTIME:
-			return 1000;
+			return 2000;
 		case ONE_MIN:
 			return 60 * 1000;
 		case FIVE_MIN:
