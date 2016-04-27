@@ -65,7 +65,9 @@ public class ClientTCP{
 		} catch (Throwable t) {
 			System.out.println(t.getMessage());
 			close();
-			server.setConnected(false);
+			if (server.getConnectionPool().size() < 1) {
+				server.setConnected(false);
+			}
 		}
 	}
 	
