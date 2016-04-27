@@ -69,7 +69,7 @@ public class AlertView extends ViewPart implements IAlertListener {
 				}
 				AlertData d = (AlertData) o;
 				String objName = TextProxy.object.getLoadText(DateUtil.yyyymmdd(d.p.time), d.p.objHash, d.serverId);
-				alertDialog = new AlertNotifierDialog(getViewSite().getShell().getDisplay());
+				alertDialog = new AlertNotifierDialog(getViewSite().getShell().getDisplay(), d.serverId);
 				alertDialog.setObjName(objName);
 				alertDialog.setPack(d.p);
 				alertDialog.show(getViewSite().getShell().getBounds());

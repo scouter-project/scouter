@@ -79,7 +79,7 @@ public class AlertTableComposite extends Composite {
 				Object o = sel.getFirstElement();
 				if (o instanceof AlertPack) {
 					String objName = TextProxy.object.getLoadText(yyyymmdd, ((AlertPack) o).objHash, serverId);
-					AlertNotifierDialog alertDialog = new AlertNotifierDialog(parent.getDisplay());
+					AlertNotifierDialog alertDialog = new AlertNotifierDialog(parent.getDisplay(), serverId);
 					alertDialog.setObjName(objName);
 					alertDialog.setPack((AlertPack) o);
 					alertDialog.show(parent.getBounds());

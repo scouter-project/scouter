@@ -38,6 +38,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import scouter.client.Images;
+import scouter.client.model.TextModel;
+import scouter.client.model.TextProxy;
 import scouter.client.preferences.PManager;
 import scouter.client.preferences.PreferenceConstants;
 import scouter.client.util.ExUtil;
@@ -51,13 +53,15 @@ public class AlertNotifierDialog {
 	private final Display display;
 	private Shell dialog;
 	private String objName;
+	private int serverId;
 	
 	Label timeLbl, levelLbl, titleLbl, messageLbl, objectLbl;
 	AlertPack p;
 	Timer timer;
 	
-	public AlertNotifierDialog(Display display) {
+	public AlertNotifierDialog(Display display, int serverId) {
 		this.display = display;
+		this.serverId = serverId;
 	}
 	
 	public void setObjName(String objName) {
@@ -158,7 +162,7 @@ public class AlertNotifierDialog {
 		}
 		titleLbl.setText(p.title);
 	    titleLbl.setLayoutData(UIUtil.formData(0, 5, levelLbl, 5, 100, -5, null, -1));
-	    fD[0].setHeight(30);
+	    fD[0].setHeight(20);
 	    fD[0].setStyle(SWT.BOLD);
 	    titleLbl.setFont( new Font(display,fD[0]));
 	    
@@ -182,7 +186,25 @@ public class AlertNotifierDialog {
 	    	StringBuilder sb = new StringBuilder();
 	    	Set<String> keySet = p.tags.keySet();
 	    	for (String key : keySet) {
-	    		sb.append(key + " : " + p.tags.get(key) + "\n");
+	    		int hashIndex = key.indexOf(AlertPack.HASH_FLAG);
+	    		if (hashIndex > -1) {
+	    			int titleIndex = key.lastIndexOf("_");
+	    			String title = key.substring(titleIndex + 1);
+	    			String textType = null;
+	    			if (titleIndex > hashIndex) {
+	    				textType = key.substring(AlertPack.HASH_FLAG.length(), titleIndex);
+	    			} else {
+	    				textType = key.substring(AlertPack.HASH_FLAG.length());
+	    			}
+	    			sb.append(title + " : ");
+	    			TextModel model = TextProxy.getTextModel(textType);
+	    			if (model != null) {
+	    				sb.append(model.getLoadText(DateUtil.yyyymmdd(p.time), p.tags.getInt(key), serverId));
+	    			}
+	    			sb.append("\n");
+	    		} else {
+	    			sb.append(key + " : " + p.tags.get(key) + "\n");
+	    		}
 	    	}
 	    	tagLabel.setText(sb.toString());
 	    }
