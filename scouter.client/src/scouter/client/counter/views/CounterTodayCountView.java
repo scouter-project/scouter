@@ -167,13 +167,12 @@ public class CounterTodayCountView extends ScouterViewPart implements Refreshabl
 			public void run() {
 				if (isActive == true) {
 					setActive();
+					traceDataProvider.clearTrace();
+					for (int i = 0; i < values.length; i++) {
+						traceDataProvider.addSample(new Sample(CastUtil.cdouble(i) + 0.5d, CastUtil.cdouble(values[i])));
+					}
 				} else {
 					setInactive();
-					return;
-				}
-				traceDataProvider.clearTrace();
-				for (int i = 0; i < values.length; i++) {
-					traceDataProvider.addSample(new Sample(CastUtil.cdouble(i) + 0.5d, CastUtil.cdouble(values[i])));
 				}
 				if (CounterUtil.isPercentValue(objType, counter)) {
 					xyGraph.primaryYAxis.setRange(0, 100);
