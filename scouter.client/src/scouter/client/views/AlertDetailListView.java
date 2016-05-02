@@ -256,7 +256,7 @@ public class AlertDetailListView extends ViewPart implements CalendarDialog.ILoa
 					if (display == null) {
 						display = Display.getDefault();
 					}
-					AlertNotifierDialog alertDialog = new AlertNotifierDialog(display);
+					AlertNotifierDialog alertDialog = new AlertNotifierDialog(display, serverId);
 					alertDialog.setObjName(data.object);
 					alertDialog.setPack(data.toPack());
 					alertDialog.show(getViewSite().getShell().getBounds());

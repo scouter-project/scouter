@@ -42,6 +42,7 @@ public class BuiltInPluginManager {
                         pluginMap.put(pluginPoint, pluginList);
                     }
 
+                    Logger.println("[BuiltInPlugin]" + c.getName() + "=>" + m[i].getName());
                     pluginList.add(new PluginInvocation(c.newInstance(), m[i]));
                 }
             } catch (Throwable t) {

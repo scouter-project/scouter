@@ -31,12 +31,16 @@ import scouter.agent.plugin.PluginHttpServiceTrace;
 import scouter.agent.proxy.HttpTraceFactory;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
+import scouter.lang.AlertLevel;
+import scouter.lang.TextTypes;
+import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.MethodStep2;
+import scouter.lang.value.MapValue;
 import scouter.util.*;
 
 import javax.sql.DataSource;
@@ -253,6 +257,9 @@ public class TraceMain {
 
             //profile rs
             if(conf.trace_rs_leak_enabled && ctx.unclosedRsMap.size() > 0) {
+                MapValue mv = new MapValue();
+                mv.put(AlertPack.HASH_FLAG + TextTypes.SERVICE + "_service-name", ctx.serviceHash);
+
                 if(conf.profile_fullstack_rs_leak_enabled) {
                     String message = ctx.unclosedRsMap.values().nextElement();
                     if(message != null) {
@@ -261,12 +268,17 @@ public class TraceMain {
                         step.hash = DataProxy.sendHashedMessage(message);
                         step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
                         ctx.profile.add(step);
+                        mv.put(AlertPack.HASH_FLAG + TextTypes.HASH_MSG + "_full-stack", step.hash);
                     }
                 }
+                DataProxy.sendAlert(AlertLevel.WARN, "RESULTSET_LEAK_SUSPECT", "ResultSet Leak suspected!", mv);
             }
 
             //profile stmt
             if(conf.trace_stmt_leak_enabled && ctx.unclosedStmtMap.size() > 0) {
+                MapValue mv = new MapValue();
+                mv.put(AlertPack.HASH_FLAG + TextTypes.SERVICE + "_service-name", ctx.serviceHash);
+
                 if(conf.profile_fullstack_stmt_leak_enabled) {
                     String message = ctx.unclosedStmtMap.values().nextElement();
                     if(message != null) {
@@ -275,8 +287,10 @@ public class TraceMain {
                         step.hash = DataProxy.sendHashedMessage(message);
                         step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
                         ctx.profile.add(step);
+                        mv.put(AlertPack.HASH_FLAG + TextTypes.HASH_MSG + "_full-stack", step.hash);
                     }
                 }
+                DataProxy.sendAlert(AlertLevel.WARN, "STATEMENT_LEAK_SUSPECT", "Statement Leak suspected!", mv);
             }
 
             // profile close

@@ -46,6 +46,8 @@ public class DetectConnection implements java.sql.Connection {
         int serviceHash = 0;
         long txid = 0;
 
+        //if(conf._log_trace_enabled) Logger.trace("[DetectConn-InnerObject]" + System.identityHashCode(inner));
+
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx != null) {
             serviceHash = ctx.serviceHash;

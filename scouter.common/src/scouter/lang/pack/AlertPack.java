@@ -30,6 +30,11 @@ import java.io.IOException;
 public class AlertPack implements Pack {
 
 	/**
+	 * indicate sign about hash value
+	 */
+	public static String HASH_FLAG = "_hash_";
+
+	/**
 	 * Alert time
 	 */
 	public long time;
