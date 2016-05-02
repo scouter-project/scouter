@@ -71,6 +71,7 @@ class LoginService {
       val menuMv = new MapValue();
       m.put("menu", menuMv);
       menuMv.put("tag_count", new BooleanValue(Configure.getInstance().tagcnt_enabled));
+      m.put("so_time_out", Configure.getInstance().net_tcp_client_so_timeout_ms);
       
     }
     dout.writeByte(TcpFlag.HasNEXT);

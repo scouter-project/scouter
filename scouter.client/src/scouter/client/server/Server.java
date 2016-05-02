@@ -46,6 +46,8 @@ public class Server {
 	private long totalMemory;
 	private boolean dirty = false;
 	
+	private int soTimeOut = 8000;
+	
 	private MapValue groupPolicyMap = new MapValue();
 	private MapValue menuEnableMap = new MapValue();
 	
@@ -220,6 +222,14 @@ public class Server {
 	
 	public long getCurrentTime() {
 		return System.currentTimeMillis() + getDelta();
+	}
+	
+	public int getSoTimeOut() {
+		return soTimeOut;
+	}
+
+	public void setSoTimeOut(int soTimeOut) {
+		this.soTimeOut = soTimeOut;
 	}
 
 	public String toString() {

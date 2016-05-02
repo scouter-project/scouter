@@ -21,11 +21,17 @@ import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.summary.ErrorData;
 import scouter.agent.summary.ServiceSummary;
+import scouter.lang.AlertLevel;
+import scouter.lang.TextTypes;
+import scouter.lang.pack.AlertPack;
+import scouter.lang.value.MapValue;
 import scouter.util.RequestQueue;
 import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
 
 import java.lang.instrument.ClassDefinition;
+
+import static scouter.agent.util.DumpUtil.conf;
 
 public class AsyncRunner extends Thread {
 
@@ -96,6 +102,9 @@ public class AsyncRunner extends Thread {
     private void alert(LeakInfo leakInfo) {
         ServiceSummary summary = ServiceSummary.getInstance();
 
+        MapValue mv = new MapValue();
+        mv.put(AlertPack.HASH_FLAG + TextTypes.SERVICE + "_service-name", leakInfo.serviceHash);
+
         if (leakInfo.fullstack) {
             ErrorData d = summary.process(leakInfo.error, 0, leakInfo.serviceHash, leakInfo.txid, 0, 0);
             Logger.println("A156", leakInfo.error + " " + leakInfo.inner);
@@ -104,14 +113,22 @@ public class AsyncRunner extends Thread {
                 d.fullstack = DataProxy.sendError(fullstack);
                 Logger.println("A157", fullstack);
             }
+
+            mv.put(AlertPack.HASH_FLAG + TextTypes.ERROR + "_full-stack", d.fullstack);
+
         } else {
             summary.process(leakInfo.error, 0, leakInfo.serviceHash, leakInfo.txid, 0, 0);
             Logger.println("A179", leakInfo.error + " " + leakInfo.inner);
         }
+
+        DataProxy.sendAlert(AlertLevel.WARN, "CONNECTION_NOT_CLOSE", "Connection may not closed", mv);
     }
 
     private void alert(LeakInfo2 leakInfo2) {
         ServiceSummary summary = ServiceSummary.getInstance();
+
+        MapValue mv = new MapValue();
+        mv.put(AlertPack.HASH_FLAG + TextTypes.SERVICE + "_service-name", leakInfo2.serviceHash);
 
         if (leakInfo2.fullstack) {
             ErrorData d = summary.process(leakInfo2.error, 0, leakInfo2.serviceHash, leakInfo2.txid, 0, 0);
@@ -121,12 +138,18 @@ public class AsyncRunner extends Thread {
                 d.fullstack = DataProxy.sendError(fullstack);
                 Logger.println("A157", fullstack);
             }
+            mv.put(AlertPack.HASH_FLAG + TextTypes.ERROR + "_full-stack", d.fullstack);
+
         } else {
             summary.process(leakInfo2.error, 0, leakInfo2.serviceHash, leakInfo2.txid, 0, 0);
             Logger.println("A179", leakInfo2.error + " " + leakInfo2.innerObject);
         }
+        DataProxy.sendAlert(AlertLevel.WARN, "CONNECTION_NOT_CLOSE", "Connection may not closed", mv);
+
+        if(conf._log_trace_enabled) Logger.trace("[Force-Close-InnerObject]" + System.identityHashCode(leakInfo2.innerObject));
+
         boolean closeResult = leakInfo2.closeManager.close(leakInfo2.innerObject);
-        Logger.println("G003", "connection auto closed:" + closeResult);
+        //Logger.println("G003", "connection auto closed:" + closeResult);
     }
 
     private void hooking(Hook m) {

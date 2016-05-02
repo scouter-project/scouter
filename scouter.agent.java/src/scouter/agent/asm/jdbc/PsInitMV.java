@@ -37,6 +37,9 @@ public class PsInitMV extends LocalVariablesSorter implements Opcodes {
 	private final static String METHOD = "prepare";
 	private final static String SIGNATURE = "(Ljava/lang/Object;Lscouter/agent/trace/SqlParameter;Ljava/lang/String;)V";
 
+	private final static String METHOD_INIT = "stmtInit";
+	private final static String SIGNATURE_INIT = "(Ljava/lang/Object;)V";
+
 	private String owner;
 	private int sqlIdx = -1;
     private boolean isUstatement = false;
@@ -57,6 +60,8 @@ public class PsInitMV extends LocalVariablesSorter implements Opcodes {
 	@Override
 	public void visitInsn(int opcode) {
 		if (sqlIdx >= 0 && (opcode >= IRETURN && opcode <= RETURN)) {
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, METHOD_INIT, SIGNATURE_INIT, false);
 
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");

@@ -966,6 +966,22 @@
             name="Service Group of Group Elapsed"
             restorable="true">
       </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterPTAllPairChart2"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterPTAllPairChart2"
+            name="PasttimePairChart"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.counter.views.CounterRTAllPairChart2"
+            icon="icons/perf.png"
+            id="scouter.client.counter.views.CounterRTAllPairChart2"
+            name="RealtimePairChart"
+            restorable="true">
+      </view>
   </extension>
  <extension
          point="org.eclipse.ui.commands">

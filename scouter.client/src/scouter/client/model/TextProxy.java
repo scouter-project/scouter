@@ -17,6 +17,9 @@
  */
 package scouter.client.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import scouter.lang.TextTypes;
 
 public class TextProxy {
@@ -42,4 +45,28 @@ public class TextProxy {
 	final public static TextModel desc = new TextModel(TextTypes.DESC, 1024);
 	final public static TextModel hashMessage = new TextModel(TextTypes.HASH_MSG, 1024);
 
+	private static Map<String, TextModel> textModelMap = new HashMap<String, TextModel>();
+
+	static {
+		textModelMap.put(TextTypes.SERVICE, service);
+		textModelMap.put(TextTypes.SQL, sql);
+		textModelMap.put(TextTypes.METHOD, method);
+		textModelMap.put(TextTypes.ERROR, error);
+		textModelMap.put(TextTypes.APICALL, apicall);
+		textModelMap.put(TextTypes.OBJECT, object);
+		textModelMap.put(TextTypes.REFERER, referer);
+		textModelMap.put(TextTypes.USER_AGENT, userAgent);
+		textModelMap.put(TextTypes.GROUP, group);
+		textModelMap.put(TextTypes.SQL_TABLES, sql_tables);
+		textModelMap.put(TextTypes.CITY, city);
+		textModelMap.put(TextTypes.MARIA, maria);
+		textModelMap.put(TextTypes.WEB, web);
+		textModelMap.put(TextTypes.LOGIN, login);
+		textModelMap.put(TextTypes.DESC, desc);
+		textModelMap.put(TextTypes.HASH_MSG, hashMessage);
+	}
+	
+	public static TextModel getTextModel(String textType) {
+		return textModelMap.get(textType);
+	}
 }

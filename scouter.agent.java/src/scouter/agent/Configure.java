@@ -90,6 +90,8 @@ public class Configure extends Thread {
 	public int profile_fullstack_max_lines = 0;
 	public boolean profile_sql_escape_enabled = true;
 	public boolean _profile_fullstack_sql_connection_enabled = false;
+	public boolean profile_fullstack_rs_leak_enabled = false;
+	public boolean profile_fullstack_stmt_leak_enabled = false;
 
 	//Trace
 	public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:SetCookie
@@ -113,6 +115,9 @@ public class Configure extends Thread {
 	public String trace_webserver_name_header_key = "X-Forwarded-Host";
 	public String trace_webserver_time_header_key = "X-Forwarded-Time";
 	public int _trace_fullstack_socket_open_port = 0;
+
+	public boolean trace_rs_leak_enabled = false;
+	public boolean trace_stmt_leak_enabled = false;
 
 	//Dir
 	public File plugin_dir = new File("./plugin");
@@ -421,6 +426,9 @@ public class Configure extends Thread {
 		this.profile_fullstack_sql_error_enabled = getBoolean("profile_fullstack_sql_error_enabled", false);
 		this.profile_fullstack_sql_commit_enabled = getBoolean("profile_fullstack_sql_commit_enabled", false);
 		this.profile_fullstack_max_lines = getInt("profile_fullstack_max_lines", 0);
+		this.profile_fullstack_rs_leak_enabled = getBoolean("profile_fullstack_rs_leak_enabled", false);
+		this.profile_fullstack_stmt_leak_enabled = getBoolean("profile_fullstack_stmt_leak_enabled", false);
+
 		this.net_udp_collection_interval_ms = getInt("net_udp_collection_interval_ms", 100);
 		this.profile_http_parameter_url_prefix = getValue("profile_http_parameter_url_prefix", "/");
 		this.profile_http_header_url_prefix = getValue("profile_http_header_url_prefix", "/");
@@ -458,6 +466,10 @@ public class Configure extends Thread {
 		this.trace_webserver_enabled = getBoolean("trace_webserver_enabled", false);
 		this.trace_webserver_name_header_key = getValue("trace_webserver_name_header_key", "X-Forwarded-Host");
 		this.trace_webserver_time_header_key = getValue("trace_webserver_time_header_key", "X-Forwarded-Time");
+
+		this.trace_rs_leak_enabled = getBoolean("trace_rs_leak_enabled", false);
+		this.trace_stmt_leak_enabled = getBoolean("trace_stmt_leak_enabled", false);
+
 		// SUMMARY최대 갯수를 관리한다.
 		this.summary_enabled = getBoolean("summary_enabled", true);
 		this._summary_sql_max_count = getInt("_summary_sql_max_count", 5000);
