@@ -391,6 +391,7 @@ public class MenuUtil implements IMenuCreator{
 		final Counter counterObj = counterEngine.getObjectType(objType).getFamily().getCounter(counter);
 		mgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager mgr) {
+				if (mgr == null) return;
 				IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 				if (counterObj.isAll()) {
 					Action act = new OpenRealTimeAllAction(win, "Current All", objType, counter, Images.all, serverId);
