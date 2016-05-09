@@ -46,6 +46,7 @@ mrhit : MariaDB HitRatio
 			<Counter name="ProcCpu" disp="ProcessCpu" unit="%" icon="cpu.png" total="false"/>
 			<Counter name="PermUsed" disp="Perm Used" unit="MB" icon="memory.png" total="false"/>
 			<Counter name="PermPercent" disp="Perm %" unit="%" icon="memory.png" total="false"/>
+			<Counter name="FdUsage" disp="File Descriptor" unit="cnt" icon="memory.png" all="false" total="false"/>
 		</Family>
 		<Family name="apache" master="ReqPerSec">
 			<Counter name="BytesPerReq" disp="Bytes Per Request" unit="bytes" icon="bytes_per_sec.png" />
