@@ -70,6 +70,7 @@ APM은 Application performance montoring 또는 application performance manageme
  - **Pull request**는 반드시 **dev branch**로 요청하여야 합니다.
  - 상세한 내용은 개발자 가이드를 참조하시기 바랍니다.
    - [Scouter 개발자 가이드](./scouter.document/tech/Developer-Guide_kr.md)
+ - 최초 Pull-Request시 다음 [CLA](http://goo.gl/forms/xSmYs8qM9J)(Contributor License Agreement)에 서명하여 제출하여야 합니다.
 
 ## Q&A
  - [Google Groups](https://groups.google.com/forum/#!forum/scouter-project)
