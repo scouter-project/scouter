@@ -1,17 +1,27 @@
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ */
+
 package scouter.agent.counter.task;
 
-import org.hyperic.sigar.CpuPerc;
-import org.hyperic.sigar.FileSystem;
-import org.hyperic.sigar.FileSystemUsage;
-import org.hyperic.sigar.Mem;
-import org.hyperic.sigar.NetStat;
-import org.hyperic.sigar.NfsFileSystem;
-import org.hyperic.sigar.Sigar;
-import org.hyperic.sigar.SigarException;
-import org.hyperic.sigar.SigarProxy;
-import org.hyperic.sigar.SigarProxyCache;
-import org.hyperic.sigar.Swap;
-
+import org.hyperic.sigar.*;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.CounterBasket;
@@ -36,7 +46,7 @@ public class HostPerf {
 	MeterResource cpuMeter = new MeterResource();
 	MeterResource sysCpuMeter = new MeterResource();
 	MeterResource userCpuMeter = new MeterResource();
-	
+
 	@Counter
 	public void process(CounterBasket pw) {
 		try {
@@ -101,6 +111,17 @@ public class HostPerf {
 		p.put(CounterConstants.HOST_TCPSTAT_TIM, new DecimalValue(tcpstat_time));
 		p.put(CounterConstants.HOST_TCPSTAT_EST, new DecimalValue(tcpstat_est));
 
+		p.put(CounterConstants.HOST_NET_RX_BYTES, new DecimalValue(HostNetDiskPerf.getRxTotalBytesPerSec()));
+		p.put(CounterConstants.HOST_NET_TX_BYTES, new DecimalValue(HostNetDiskPerf.getTxTotalBytesPerSec()));
+
+		p.put(CounterConstants.HOST_DISK_READ_BYTES, new DecimalValue(HostNetDiskPerf.getReadTotalBytesPerSec()));
+		p.put(CounterConstants.HOST_DISK_WRITE_BYTES, new DecimalValue(HostNetDiskPerf.getWriteTotalBytesPerSec()));
+
+//		System.out.println("rx:" + HostNetDiskPerf.getRxTotalBytesPerSec());
+//		System.out.println("tx:" + HostNetDiskPerf.getTxTotalBytesPerSec());
+//		System.out.println("read:" + HostNetDiskPerf.getReadTotalBytesPerSec());
+//		System.out.println("write:" + HostNetDiskPerf.getWriteTotalBytesPerSec());
+
 		p = pw.getPack(conf.getObjName(), TimeTypeEnum.FIVE_MIN);
 		p.put(CounterConstants.HOST_CPU, new FloatValue(cpu));
 		p.put(CounterConstants.HOST_SYSCPU, new FloatValue(sysCpu));
@@ -120,6 +141,7 @@ public class HostPerf {
 		p.put(CounterConstants.HOST_TCPSTAT_FIN, new DecimalValue(tcpstat_fin1 + tcpstat_fin2));
 		p.put(CounterConstants.HOST_TCPSTAT_TIM, new DecimalValue(tcpstat_time));
 		p.put(CounterConstants.HOST_TCPSTAT_EST, new DecimalValue(tcpstat_est));
+
 		SigarProxyCache.clear(sigar);
 	}
 

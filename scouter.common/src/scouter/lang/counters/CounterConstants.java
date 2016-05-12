@@ -113,6 +113,12 @@ public class CounterConstants {
 	public final static String HOST_TCPSTAT_FIN = "TcpStatFIN";
 	public final static String HOST_TCPSTAT_EST = "TcpStatEST";
 
+	public final static String HOST_NET_RX_BYTES = "NetRxBytes";
+	public final static String HOST_NET_TX_BYTES = "NetTxBytes";
+
+	public final static String HOST_DISK_READ_BYTES = "DiskReadBytes";
+	public final static String HOST_DISK_WRITE_BYTES = "DiskWriteBytes";
+
 	public final static String REAL_TIME_ALL = "rt-all";
 	public final static String REAL_TIME_TOTAL = "rt-tot";
 	public final static String TODAY_ALL = "td-all";
