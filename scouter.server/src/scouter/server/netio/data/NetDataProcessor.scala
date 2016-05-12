@@ -17,8 +17,10 @@
  */
 package scouter.server.netio.data
 import java.net.InetAddress
+
 import scouter.io.DataInputX
-import scouter.lang.TextTypes
+import scouter.lang.{TextTypes, TimeTypeEnum}
+import scouter.lang.counters.CounterConstants
 import scouter.lang.pack.AlertPack
 import scouter.lang.pack.ObjectPack
 import scouter.lang.pack.Pack
@@ -42,12 +44,11 @@ import scouter.server.core.StatusCore
 import scouter.server.core.TextCore
 import scouter.server.core.cache.TextCache
 import scouter.server.util.ThreadScala
-import scouter.util.BytesUtil
-import scouter.util.RequestQueue
-import scouter.util.StringUtil
+import scouter.util.{BytesUtil, HashUtil, RequestQueue, StringUtil}
 import scouter.server.core.SummaryCore
 import scouter.lang.pack.SummaryPack
 import scouter.lang.pack.SummaryPack
+import scouter.lang.value.DecimalValue
 object NetDataProcessor {
     class NetData(_data: Array[Byte], _addr: InetAddress) {
         val addr = _addr
@@ -142,7 +143,18 @@ object NetDataProcessor {
         }
         p.getPackType() match {
             case PackEnum.PERF_COUNTER =>
-                PerfCountCore.add(p.asInstanceOf[PerfCounterPack])
+                val counterPack = p.asInstanceOf[PerfCounterPack]
+                val objHash = HashUtil.hash(counterPack.objName)
+                if (counterPack.time == 0) {
+                    counterPack.time = System.currentTimeMillis();
+                }
+                if (counterPack.timetype == 0) {
+                    counterPack.timetype = TimeTypeEnum.REALTIME;
+                }
+                counterPack.data.put(CounterConstants.COMMON_OBJHASH, new DecimalValue(objHash)) //add objHash into datafile
+                counterPack.data.put(CounterConstants.COMMON_TIME, new DecimalValue(counterPack.time)) //add objHash into datafile
+
+                PerfCountCore.add(counterPack)
                 if (conf.log_udp_counter) {
                     System.out.println("DEBUG UDP COUNTER: " + p)
                 }

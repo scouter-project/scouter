@@ -32,7 +32,6 @@ public class ImageCache {
 
 	private static ImageCache instance;
 	private Map<RGB, Image> xLogDotMap = new HashMap<RGB, Image>();
-	private Map<RGB, Image> objectDotMap = new HashMap<RGB, Image>();
 	private Image errorXpDot = null;
 
 	public synchronized static ImageCache getInstance() {
@@ -99,20 +98,6 @@ public class ImageCache {
 			errorXpDot = createXPImage(ColorUtil.getInstance().getColor("red").getRGB());
 		}
 		return errorXpDot;
-	}
-
-	public synchronized Image getObjectImage(int objHash) {
-		Color agentColor = AgentColorManager.getInstance().getColor(objHash);
-		if (agentColor == null) {
-			agentColor = ColorUtil.getInstance().getColor("gray");
-		}
-		RGB rgb = agentColor.getRGB();
-		Image dot = objectDotMap.get(rgb);
-		if (dot == null) {
-			dot = createObjectImage(rgb);
-			objectDotMap.put(rgb, dot);
-		}
-		return dot;
 	}
 
 	private Image createObjectImage(RGB rgb) {

@@ -391,6 +391,7 @@ public class MenuUtil implements IMenuCreator{
 		final Counter counterObj = counterEngine.getObjectType(objType).getFamily().getCounter(counter);
 		mgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager mgr) {
+				if (mgr == null) return;
 				IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 				if (counterObj.isAll()) {
 					Action act = new OpenRealTimeAllAction(win, "Current All", objType, counter, Images.all, serverId);
@@ -504,6 +505,7 @@ public class MenuUtil implements IMenuCreator{
 			serviceGroupMgr.add(new OpenServiceGroupElapsedAction(win, serverId, objType));
 			mgr.add(new OpenUniqueTotalVisitorAction(win, serverId, objType));
 			mgr.add(new OpenTypeSummaryAction(win, serverId, objType));
+			mgr.add(new OpenRTPairAllAction(win, "File Descriptor", serverId, objType, CounterConstants.JAVA_FD_USAGE));
 		} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_DATASOURCE)) {
 			mgr.add(new Separator());
 			mgr.add(new OpenRTPairAllAction2(win, "Pool Chart", serverId, objType, CounterConstants.DATASOURCE_CONN_MAX, CounterConstants.DATASOURCE_CONN_ACTIVE));
