@@ -1,4 +1,4 @@
-![scouter](./scouter.document/img/main/scouter-logo-w200.png)
+﻿![scouter](./scouter.document/img/main/scouter-logo-w200.png)
 
 [![Englsh](https://img.shields.io/badge/language-English-red.svg)](README.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
@@ -53,7 +53,7 @@ APM은 Application performance montoring 또는 application performance manageme
 <br>
 
 - **Server (Collector)** : Agent가 전송한 데이터를 저장하고 Client 요청시 Client에게 적절한 데이터를 전송
-  - **Scala** : Written in Scala. It will provide a variety of features and performance scalability that can not be written in Java.
+  - **Scala** : Scala를 사용하여 개발하였음으로, 자바 코딩으로는 제공하기 어려운 성능 확장성 및 여러가지 기능들을 제공 할수 있음.
   - **HASH FILE** : 고속의 자체 개발한 Hash 인덱스 방식의 파일 Repository 사용으로 최상의 속도를 동작하며 추가적인 DB 및 라이브러리의 설치가 불필요하여 압축 해제만으로 쉽게 설치 가능.
   - **GZIP** : 압축 옵션을 통해 저장 공간을 절약하도록 개발됨.
 <br>
