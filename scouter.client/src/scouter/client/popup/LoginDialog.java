@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.Text;
 import scouter.Version;
 import scouter.client.Activator;
 import scouter.client.net.LoginMgr;
+import scouter.client.net.LoginResult;
 import scouter.client.preferences.ServerPrefUtil;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
@@ -319,7 +320,7 @@ public class LoginDialog {
 			String addr[] = address.split(":");
 			ip = addr[0];
 			port = addr[1];
-			msg("Logging in..." + address);
+			msg("Log in..." + address);
 
 			ServerManager srvMgr = ServerManager.getInstance();
 			if (this.openType != TYPE_EDIT_SERVER && srvMgr.isRunningServer(ip, port)) {
@@ -335,8 +336,8 @@ public class LoginDialog {
 				existServer = true;
 			}
 
-			boolean success = LoginMgr.login(server.getId(), id.getText(), pass.getText());
-			if (success) {
+			LoginResult result = LoginMgr.login(server.getId(), id.getText(), pass.getText());
+			if (result.success) {
 				msg("Successfully log in to " + address);
 				ServerPrefUtil.addServerAddr(address);
 				if (autoLogin) {
@@ -359,7 +360,7 @@ public class LoginDialog {
 				if (existServer == false) {
 					ServerManager.getInstance().removeServer(server.getId());
 				}
-				errMsg("Please check your ID/Password or network.");
+				errMsg(result.getErrorMessage());
 				msg("");
 				return false;
 			}

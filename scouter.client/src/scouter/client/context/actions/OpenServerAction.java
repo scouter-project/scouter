@@ -21,13 +21,12 @@ package scouter.client.context.actions;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Display;
 
-import scouter.client.Images;
 import scouter.client.net.LoginMgr;
+import scouter.client.net.LoginResult;
 import scouter.client.popup.LoginDialog;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.util.ConsoleProxy;
-import scouter.client.util.ImageUtil;
 import scouter.util.StringUtil;
 
 
@@ -44,9 +43,9 @@ public class OpenServerAction extends Action {
 	public void run() {
 		Server server = ServerManager.getInstance().getServer(serverId);
 		if (StringUtil.isNotEmpty(server.getUserId()) && StringUtil.isNotEmpty(server.getPassword())) {
-			boolean result = LoginMgr.silentLogin(server, server.getUserId(), server.getPassword());
-			if (result == false) {
-				ConsoleProxy.errorSafe("Failed opening server");
+			LoginResult result = LoginMgr.silentLogin(server, server.getUserId(), server.getPassword());
+			if (result.success == false) {
+				ConsoleProxy.errorSafe(result.getErrorMessage());
 			}
 		} else {
 			LoginDialog dialog = new LoginDialog(Display.getDefault(), null, LoginDialog.TYPE_OPEN_SERVER, server.getIp() + ":" + server.getPort());
