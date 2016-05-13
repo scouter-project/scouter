@@ -56,6 +56,32 @@ public class CipherUtil {
 
 		return md5Text;
 	}
+	
+	public static String sha256(String plainText) {
+		String sha256Text = null;
+		if (plainText != null) {
+			try {
+				byte[] byteArray = plainText.getBytes();
+				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+				sha256.update(byteArray);
+
+				byte[] sha256Bytes = sha256.digest();
+				StringBuffer buf = new StringBuffer();
+
+				for (int i = 0; i < sha256Bytes.length; i++) {
+					if ((sha256Bytes[i] & 0xff) < 0x10) {
+						buf.append("0");
+					}
+					buf.append(Long.toString(sha256Bytes[i] & 0xff, 16));
+				}
+
+				sha256Text = buf.toString();
+			} catch (Throwable t) {
+				return plainText;
+			}
+		}
+		return sha256Text;
+	}
 
 	private static Key genKey() throws GeneralSecurityException {
 		String nm = CipherUtil.class.getSimpleName();	
@@ -109,9 +135,11 @@ public class CipherUtil {
 		String md5 = md5(pwd);
 		String cnd = encode(pwd);
 		String rtn = decode(cnd);
+		String sha256 = sha256(pwd);
 		System.out.println("'" + pwd + "'");
 		System.out.println("'" + md5 + "'");
 		System.out.println("'" + cnd + "'");
 		System.out.println("'" + rtn + "'");
+		System.out.println("'" + sha256 + "'");
 	}
 }

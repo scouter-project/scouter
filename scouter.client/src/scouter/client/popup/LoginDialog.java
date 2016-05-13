@@ -51,7 +51,6 @@ import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.util.UIUtil;
 import scouter.net.NetConstants;
-import scouter.util.CipherUtil;
 import scouter.util.StringUtil;
 
 public class LoginDialog {
@@ -341,7 +340,7 @@ public class LoginDialog {
 				msg("Successfully log in to " + address);
 				ServerPrefUtil.addServerAddr(address);
 				if (autoLogin) {
-					ServerPrefUtil.addAutoLoginServer(address, id.getText(), CipherUtil.md5(pass.getText()));
+					ServerPrefUtil.addAutoLoginServer(address, id.getText(), server.getPassword());
 				} else {
 					ServerPrefUtil.removeAutoLoginServer(address);
 				}

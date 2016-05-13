@@ -33,7 +33,7 @@ import scouter.util.SysJMX;
 public class LoginMgr{
 	public static boolean login(int serverId, String user, String password){
 		Server server = ServerManager.getInstance().getServer(serverId);
-		String encrypted = CipherUtil.md5(password);
+		String encrypted = CipherUtil.sha256(password);
 		return silentLogin(server, user, encrypted);
 	}
 	
