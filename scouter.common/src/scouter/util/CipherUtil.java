@@ -58,14 +58,14 @@ public class CipherUtil {
 	}
 	
 	public static String sha256(String plainText) {
+		String salt = "qwertyuiop!@#$%^&*()zxcvbnm,.";
 		String sha256Text = null;
 		if (plainText != null) {
 			try {
-				byte[] byteArray = plainText.getBytes();
 				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-				sha256.update(byteArray);
-
-				byte[] sha256Bytes = sha256.digest();
+				sha256.update(salt.getBytes());
+				byte[] byteArray = plainText.getBytes();
+				byte[] sha256Bytes = sha256.digest(byteArray);
 				StringBuffer buf = new StringBuffer();
 
 				for (int i = 0; i < sha256Bytes.length; i++) {
@@ -131,7 +131,7 @@ public class CipherUtil {
 	}
 
 	public static void main(String[] args) {
-		String pwd = "admin";
+		String pwd = "guest";
 		String md5 = md5(pwd);
 		String cnd = encode(pwd);
 		String rtn = decode(cnd);
