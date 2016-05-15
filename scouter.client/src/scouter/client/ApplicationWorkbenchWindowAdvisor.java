@@ -33,6 +33,7 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
 import scouter.Version;
 import scouter.client.net.LoginMgr;
+import scouter.client.net.LoginResult;
 import scouter.client.popup.LoginDialog;
 import scouter.client.popup.LoginDialog.ILoginDialog;
 import scouter.client.preferences.PreferenceConstants;
@@ -119,8 +120,8 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor im
 						if (index > -1) {
 							String id = accountInfo.substring(0, index);
 							String pwd = accountInfo.substring(index + 1, accountInfo.length());
-							boolean result = LoginMgr.silentLogin(server, id, pwd);
-							if (result) {
+							LoginResult result = LoginMgr.silentLogin(server, id, pwd);
+							if (result.success) {
 								autoLogined = true;
 							}
 						}

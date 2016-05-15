@@ -43,8 +43,8 @@ object PerfCountCore {
         PlugInManager.counter(counterPack);
 
         if (counterPack.timetype == TimeTypeEnum.REALTIME) {
-            counterPack.data.put(CounterConstants.COMMON_OBJHASH, new DecimalValue(objHash)) //add objHash into datafile
-            counterPack.data.put(CounterConstants.COMMON_TIME, new DecimalValue(counterPack.time)) //add objHash into datafile
+            //counterPack.data.put(CounterConstants.COMMON_OBJHASH, new DecimalValue(objHash)) //add objHash into datafile
+            //counterPack.data.put(CounterConstants.COMMON_TIME, new DecimalValue(counterPack.time)) //add objHash into datafile
 
             RealtimeCounterWR.add(counterPack);
             EnumerScala.foreach(counterPack.data.keySet().iterator(), (k: String) => {
@@ -67,13 +67,6 @@ object PerfCountCore {
     }
 
     def add(p: PerfCounterPack) {
-        if (p.time == 0) {
-            p.time = System.currentTimeMillis();
-        }
-        if (p.timetype == 0) {
-            p.timetype = TimeTypeEnum.REALTIME;
-        }
-
         val ok = queue.put(p);
         if (!ok) {
             Logger.println("S109", 10, "queue exceeded!!");

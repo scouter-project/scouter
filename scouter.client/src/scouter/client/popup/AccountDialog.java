@@ -317,7 +317,7 @@ public class AccountDialog {
 				try {
 					MapPack param = new MapPack();
 					param.put("id", id);
-					param.put("pass", CipherUtil.md5(password));
+					param.put("pass", CipherUtil.sha256(password));
 					param.put("email", email);
 					param.put("group", selectedGroup);
 					MapPack p = (MapPack) tcp.getSingle(RequestCmd.ADD_ACCOUNT, param);
@@ -355,7 +355,7 @@ public class AccountDialog {
 				try {
 					MapPack param = new MapPack();
 					param.put("id", id);
-					param.put("pass", CipherUtil.md5(password));
+					param.put("pass", CipherUtil.sha256(password));
 					param.put("email", email);
 					param.put("group", selectedGroup);
 					MapPack p = (MapPack) tcp.getSingle(RequestCmd.EDIT_ACCOUNT, param);

@@ -159,6 +159,13 @@ public class DataProxy {
 		apicall.clear();
 		methodName.clear();
 		sqlText.clear();
+		referer.clear();
+		userAgent.clear();
+		descTable.clear();
+		loginTable.clear();
+		webNameTable.clear();
+		groupAgent.clear();
+		hashMessage.clear();
 	}
 	public static void sendXLog(XLogPack p) {
 		p.objHash = conf.getObjHash();

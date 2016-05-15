@@ -243,7 +243,7 @@ public class TraceSQL {
         LocalContext lCtx = (LocalContext) stat;
         TraceContext tCtx = lCtx.context;
 
-        Logger.trace("affected row = " + updatedCount);
+        //Logger.trace("affected row = " + updatedCount);
 
         SqlStep3 step = (SqlStep3) lCtx.stepSingle;
         tCtx.lastSqlStep = step;

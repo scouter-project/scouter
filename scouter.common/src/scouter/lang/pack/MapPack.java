@@ -112,6 +112,10 @@ public class MapPack implements Pack {
 	public Value put(String key, long value) {
 		return put(key, new DecimalValue(value));
 	}
+	
+	public Value put(String key, boolean value) {
+		return put(key, new BooleanValue(value));
+	}
 
 	public Value remove(String key) {
 		return (Value) table.remove(key);

@@ -40,6 +40,7 @@ import scouter.util.DateUtil;
 public class ServicePerf {
 
 	private MeterResource activeCounter = new MeterResource();
+	private Configure conf = Configure.getInstance();
 
 	@Counter
 	public void getServicePerf(CounterBasket pw) {
@@ -108,6 +109,11 @@ public class ServicePerf {
 	public void summay(CounterBasket pw) {
 		long time = System.currentTimeMillis();
 		long now = DateUtil.getMinUnit(time) / 5;
+
+		if(conf.getBoolean("_dev_summary_test", false)) {
+			now = time / 1000 / 15;
+		}
+
 		if (now == last_sent)
 			return;
 		last_sent = now;

@@ -45,8 +45,8 @@ public class Logger {
     }
 
     public static void trace(Object message) {
-        if(conf._log_trace_enabled) {
-            if(conf._log_trace_use_logger) {
+        if(conf._trace) {
+            if(conf._trace_use_logger) {
                 println(build("SCOUTER-TRC", toString(message)), true);
             } else {
                 System.out.println(build("SCOUTER-TRC", toString(message)));
