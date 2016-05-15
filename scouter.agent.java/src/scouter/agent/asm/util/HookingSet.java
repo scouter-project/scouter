@@ -79,7 +79,7 @@ public class HookingSet {
 
 	public static Map<String, HookingSet> getHookingSet(String arg) {
 		String[] c = StringUtil.split(arg, ',');
-		Map<String, HookingSet> classSet = new HashMap<String, HookingSet>();
+		Map<String, HookingSet> classMap = new HashMap<String, HookingSet>();
 		for (int i = 0; i < c.length; i++) {
 			String s = c[i];
 			int x = s.lastIndexOf(".");
@@ -88,14 +88,14 @@ public class HookingSet {
 			String cname = s.substring(0, x).replace('.', '/');
 			String mname = s.substring(x + 1);
 
-			HookingSet methodSet = classSet.get(cname);
+			HookingSet methodSet = classMap.get(cname);
 			if (methodSet == null) {
 				methodSet = new HookingSet();
-				classSet.put(cname, methodSet);
+				classMap.put(cname, methodSet);
 			}
 			methodSet.add(mname);
 		}
-		return classSet;
+		return classMap;
 	}
 
 	public static List<HookingSet> getHookingMethodSet(String patterns) {

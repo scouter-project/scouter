@@ -21,8 +21,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.ObjTypeDetector;
@@ -85,7 +87,6 @@ public class TomcatJMXPerf {
 		}
 	}
 	private MBeanServer server;
-	private String version;
 	List<MBeanObj> beanList = new ArrayList<MBeanObj>();
 	public long collectCnt = 0;
 	@Counter
@@ -146,18 +147,6 @@ public class TomcatJMXPerf {
 			String type = mbean.getKeyProperty("type");
 			if (type == null) {
 				continue;
-			}
-			if (StringUtil.isEmpty(version) && "Server".equals(type)) { // Server
-																		// Bean
-				try {
-					Object value = server.getAttribute(mbean, "serverInfo");
-					if (value != null) {
-						version = value.toString().split("/")[1];
-						Logger.println("Tomcat version = " + version);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
 			}
 			if ("GlobalRequestProcessor".equals(type)) {
 				String port = mbean.getKeyProperty("name");

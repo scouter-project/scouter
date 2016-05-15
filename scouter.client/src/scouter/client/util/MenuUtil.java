@@ -113,6 +113,7 @@ import scouter.client.stack.actions.TurnOnStackAction;
 import scouter.client.xlog.actions.OpenXLogLoadTimeAction;
 import scouter.client.xlog.actions.OpenXLogRealTimeAction;
 import scouter.lang.Counter;
+import scouter.lang.ObjectType;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.counters.CounterEngine;
 import scouter.util.DateUtil;
@@ -388,7 +389,9 @@ public class MenuUtil implements IMenuCreator{
 		MenuManager mgr = new MenuManager(); 
 		mgr.setRemoveAllWhenShown(true);
 		final CounterEngine counterEngine = ServerManager.getInstance().getServer(serverId).getCounterEngine();
-		final Counter counterObj = counterEngine.getObjectType(objType).getFamily().getCounter(counter);
+		ObjectType objectType = counterEngine.getObjectType(objType);
+		if (objectType == null) return;
+		final Counter counterObj = objectType.getFamily().getCounter(counter);
 		mgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager mgr) {
 				if (mgr == null) return;

@@ -31,13 +31,14 @@ import scouter.util.CipherUtil;
 import scouter.util.SysJMX;
 
 public class LoginMgr{
-	public static boolean login(int serverId, String user, String password){
+	public static LoginResult login(int serverId, String user, String password){
 		Server server = ServerManager.getInstance().getServer(serverId);
-		String encrypted = CipherUtil.md5(password);
+		String encrypted = CipherUtil.sha256(password);
 		return silentLogin(server, user, encrypted);
 	}
 	
-	public static boolean silentLogin(Server server, String user, String encryptedPwd){
+	public static LoginResult silentLogin(Server server, String user, String encryptedPwd){
+		LoginResult result = new LoginResult();
 		try {
 			MapPack param = new MapPack();
 			param.put("id", user);
@@ -46,12 +47,16 @@ public class LoginMgr{
 			param.put("hostname", SysJMX.getHostName());
 			
 			MapPack out = TcpProxy.loginProxy(server.getId(), param);
-			
-			if (out != null) {
+			if (out == null) {
+				result.success = false;
+				result.errorMessage = "Network connection failed";
+			} else {
 				long session = out.getLong("session");
 				String error = out.getText("error");
 				if(error != null && session == 0L){
-					return false;
+					result.success = false;
+					result.errorMessage = "Authentication failed";
+					return result;
 				}
 				server.setOpen(true);
 				long time = out.getLong("time");
@@ -93,12 +98,14 @@ public class LoginMgr{
 						counterEngine.parse(((BlobValue)v1).value);
 					}
 				}
-				return true;
+				result.success = true;
 			}
 		} catch(Exception e){
 			e.printStackTrace();
+			result.success = false;
+			result.errorMessage = "Network connection failed : " + e.getMessage();
 		}
-		return false;
+		return result;
 	}
 	
 	public static MapPack getCounterXmlServer(int serverId) {

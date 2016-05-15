@@ -92,7 +92,7 @@ public class Configure extends Thread {
 	public int cpu_fatal_history = 3;
 
 	//Memory
-	public boolean mem_alert_enabled = true;
+	public boolean mem_alert_enabled = false;
 	public long mem_alert_interval_ms = 30000;
 	public int mem_warning_pct = 80;
 	public int mem_fatal_pct = 90;
@@ -216,7 +216,7 @@ public class Configure extends Thread {
 		this.cpu_warning_history = getInt("cpu_warning_history", 3);
 		this.cpu_fatal_history = getInt("cpu_fatal_history", 3);
 
-		this.mem_alert_enabled = getBoolean("mem_alert_enabled", true);
+		this.mem_alert_enabled = getBoolean("mem_alert_enabled", false);
 		this.mem_alert_interval_ms = getLong("mem_alert_interval_ms", 30000);
 		this.mem_warning_pct = getInt("mem_warning_pct", 80);
 		this.mem_fatal_pct = getInt("mem_fatal_pct", 90);

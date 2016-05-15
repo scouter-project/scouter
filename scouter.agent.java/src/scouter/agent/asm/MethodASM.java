@@ -17,20 +17,25 @@
 
 package scouter.agent.asm;
 
+import java.util.List;
+
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceMain;
-import scouter.org.objectweb.asm.*;
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.Label;
+import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
-
-import java.util.List;
 
 public class MethodASM implements IASM, Opcodes {
 
 	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_method_patterns);
+	private List<HookingSet> excludeTarget = HookingSet.getHookingMethodSet(Configure.getInstance().hook_method_exclude_patterns);
 
 	Configure conf = Configure.getInstance();
 
@@ -47,7 +52,7 @@ public class MethodASM implements IASM, Opcodes {
 		for (int i = 0; i < target.size(); i++) {
 			HookingSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {
-				return new MethodCV(cv, mset, className);
+				return new MethodCV(cv, mset, excludeTarget, className);
 			}
 		}
 		return cv;
@@ -58,10 +63,12 @@ class MethodCV extends ClassVisitor implements Opcodes {
 
 	public String className;
 	private HookingSet mset;
+	private List<HookingSet> excludeTarget;
 
-	public MethodCV(ClassVisitor cv, HookingSet mset, String className) {
+	public MethodCV(ClassVisitor cv, HookingSet mset, List<HookingSet> excludeTarget, String className) {
 		super(ASM4, cv);
 		this.mset = mset;
+		this.excludeTarget = excludeTarget;
 		this.className = className;
 	}
 
@@ -73,6 +80,16 @@ class MethodCV extends ClassVisitor implements Opcodes {
 		}
 		if (AsmUtil.isSpecial(name)) {
 			return mv;
+		}
+		
+		// check exclude method set
+		for (int i = 0; i < excludeTarget.size(); i++) {
+			HookingSet excludeSet = excludeTarget.get(i);
+			if (excludeSet.classMatch.include(className)) {
+				if (excludeSet.isA(name, desc)) {
+					return mv;
+				}
+			}
 		}
 
 		Configure conf = Configure.getInstance();
