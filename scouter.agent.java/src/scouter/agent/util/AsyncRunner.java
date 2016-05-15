@@ -146,7 +146,7 @@ public class AsyncRunner extends Thread {
         }
         DataProxy.sendAlert(AlertLevel.WARN, "CONNECTION_NOT_CLOSE", "Connection may not closed", mv);
 
-        if(conf._log_trace_enabled) Logger.trace("[Force-Close-InnerObject]" + System.identityHashCode(leakInfo2.innerObject));
+        if(conf._trace) Logger.trace("[Force-Close-InnerObject]" + System.identityHashCode(leakInfo2.innerObject));
 
         boolean closeResult = leakInfo2.closeManager.close(leakInfo2.innerObject);
         //Logger.println("G003", "connection auto closed:" + closeResult);

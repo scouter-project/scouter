@@ -156,8 +156,8 @@ public class Configure extends Thread {
 	public String log_dir ="";
 	public boolean log_rotation_enabled =true;
 	public int log_keep_days =7;
-	public boolean _log_trace_enabled = false;
-    public boolean _log_trace_use_logger = false;
+	public boolean _trace = false;
+    public boolean _trace_use_logger = false;
 
 	//Hook
 	public String hook_args_patterns = "";
@@ -505,8 +505,8 @@ public class Configure extends Thread {
 		this.log_dir = getValue("log_dir", "");
 		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
 		this.log_keep_days = getInt("log_keep_days", 7);
-        this._log_trace_enabled = getBoolean("_log_trace_enabled", false);
-        this._log_trace_use_logger = getBoolean("_log_trace_use_logger", false);
+        this._trace = getBoolean("_trace", false);
+        this._trace_use_logger = getBoolean("_trace_use_logger", false);
 		
 		this.enduser_trace_endpoint_url = getValue("enduser_trace_endpoint_url", "_scouter_browser.jsp");
 		this.enduser_perf_endpoint_hash = HashUtil.hash(this.enduser_trace_endpoint_url);
