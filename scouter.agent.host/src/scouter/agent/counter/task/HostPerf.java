@@ -308,7 +308,7 @@ public class HostPerf {
 			}
 
 		} catch (Throwable t) {
-			Logger.println("DISK", 10, "disk perf error", t);
+			Logger.println("DISK", 60, "disk perf error", t);
 		}
 	}
 
