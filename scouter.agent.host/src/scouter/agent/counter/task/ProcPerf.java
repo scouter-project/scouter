@@ -97,7 +97,7 @@ public class ProcPerf {
 				ProcCpu cpu = sigar.getProcCpu(pid);
 				double value = cpu.getPercent() * 100.0D/cpuCores;
 				meter.add(value);
-				float procCpu = (float) meter.getAvg(10);
+				float procCpu = (float) meter.getAvg(Configure.getInstance()._cpu_value_avg_sec);
 				PerfCounterPack p = pw.getPack(objname, TimeTypeEnum.REALTIME);
 				p.put(CounterConstants.PROC_CPU, new FloatValue(procCpu));
 				p = pw.getPack(objname, TimeTypeEnum.FIVE_MIN);
