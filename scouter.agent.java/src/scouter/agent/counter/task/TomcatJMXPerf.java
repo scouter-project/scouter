@@ -174,10 +174,10 @@ public class TomcatJMXPerf {
 						if (context != null && context.length() > 0) {
 							context = context.substring(1); 
 						}
-						if (StringUtil.isEmpty(context)) {
-							context = "ROOT";
+						if (StringUtil.isNotEmpty(context)) {
+							name = context + "_" + name;
 						}
-						String objName = conf.getObjName() + "/" + checkObjName(context + "_" + name);
+						String objName = conf.getObjName() + "/" + checkObjName(name);
 						String objType = getDataSourceType();
 						AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
 						add(objName, mbean, objType, ValueEnum.DECIMAL, "numActive",
