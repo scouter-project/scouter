@@ -1,22 +1,24 @@
-# Scouter Plugin Guide
+﻿# Scouter Plugin Guide
 ![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Plugin-Guide_kr.md)
 
-이 글에서는 Scouter를 확장 가능하게 만들어 주는 Plugin 기능에 대해 설명한다. 
-Scouter collector sever의 Plugin 기능을 통하여 scouter의 수집 데이터를 선처리 하거나 타 소프트웨어로 전송할 수 있으며 agent plugin을 통하여 특정 데이터를 선처리하거나 업무적으로 의미있는 데이터를 XLog나 프로파일에 추가할 수 있다. 
+This article explains plugin funtion which enables scouter's extensibility. 
 
-> Scouter plugin을 통해 다른 open source들과 조합을 통한 구성 및 확장이 가능하다. 
+With the plugin fuction of Scouter collector sever, data collected by scouter can be modified and can be shared to other softwares. With agent plugin, certain types of data can be modified (선 처리의 개념이 모호하여  modifed 로 번역 하였으나 의미에 따라 pre-handled 등으로 변경 해야 할 수 도 있음.) and other business-meaningful data can be added data to XLog or profile. 
 
-Scouter의 프로파일은 collector server에 적용 가능한 **server plugin**, 그리고 Java agent에 적용할 수 있는 **agent Plugin**으로 구분이 되며 server plugin은 **scripting plugin**과 **built-in plugin**으로 나누어 진다. 
-현재 agent plugin은 java agent용의 scripting plugin만 제공된다. 
+> With Scouter plugin, configuration and extension can be done to enable collarboaration with other open source.
 
-## 제공되는 plugin 목록
-아래 항목들은 scouter project에서 공식 제공되거나 contributor에 의해 작성된 plugin들이다. 
+Scouter's profiles has two parts. **server plug-in** is for to collector server and **agent Plugin** is for to Java agent. server plugin has two parts including **scripting plugin** and **built-in plugin**.
+Currently, scripting plugin is only one available plugin for java agent. 
+
+## List of available plugins
+Below are the list of official plugins from scouter project and from contributors.
 
 #### 1. server plugins
-* **[scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)** : 수집데이터를 단순히 출력해 주는 sample plugin
-* **[scouter-plugin-server-email](https://github.com/scouter-project/scouter-plugin-server-alert-email)** : Scouter에서 발생하는 alert를 email로 전송하는 plugin
-* **[scouter-plugin-server-telegram](https://github.com/scouter-project/scouter-plugin-server-alert-telegram)** : Scouter에서 발생하는 alert를 telegram으로 전송하는 plugin
-* **[scouter-plugin-server-influxdb](https://github.com/scouter-project/scouter-plugin-server-influxdb)** : Scouter의 성능 counter 데이터를 시계열 DB인 influxDB로 연동하는 plugin
+* **[scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)** : sample plugin 
+ prints out data collected
+* **[scouter-plugin-server-email](https://github.com/scouter-project/scouter-plugin-server-alert-email)** : emails alters from Scouter
+* **[scouter-plugin-server-telegram](https://github.com/scouter-project/scouter-plugin-server-alert-telegram)** : transfer altert from Scouter to telegram
+* **[scouter-plugin-server-influxdb](https://github.com/scouter-project/scouter-plugin-server-influxdb)** : transfer performance data from Scouter to influxDB(time series DB)
 
 #### 2. agent plugins
 * TBD
