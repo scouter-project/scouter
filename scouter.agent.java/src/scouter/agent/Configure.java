@@ -143,7 +143,7 @@ public class Configure extends Thread {
 
 	//Alert
 	public int alert_message_length = 3000;
-	public long alert_send_interval_ms = 3000;
+	public long alert_send_interval_ms = 10000;
 	public int alert_perm_warning_pct = 90;
 
 	//Log
@@ -495,7 +495,7 @@ public class Configure extends Thread {
 		this.alert_perm_warning_pct = getInt("alert_perm_warning_pct", 90);
 		this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", false);
 		this.alert_message_length = getInt("alert_message_length", 3000);
-		this.alert_send_interval_ms = getInt("alert_send_interval_ms", 3000);
+		this.alert_send_interval_ms = getInt("alert_send_interval_ms", 10000);
 		this.xlog_error_jdbc_fetch_max = getInt("xlog_error_jdbc_fetch_max", 10000);
 		this.xlog_error_sql_time_max_ms = getInt("xlog_error_sql_time_max_ms", 30000);
 		this._log_asm_enabled = getBoolean("_log_asm_enabled", false);
