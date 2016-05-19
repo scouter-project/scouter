@@ -9,8 +9,8 @@ mrhit : MariaDB HitRatio
 	<Familys>
 		<Family name="host" master="Cpu">
 			<Counter name="Cpu" disp="CPU" unit="%" icon="cpu.png" total="false" />
-			<Counter name="SysCpu" disp="SysCPU" unit="%" icon="cpu.png" all="false" total="false" />
-			<Counter name="UserCpu" disp="UserCPU" unit="%" icon="cpu.png" all="false" total="false" />
+			<Counter name="SysCpu" disp="CPU | Sys" unit="%" icon="cpu.png" all="false" total="false" />
+			<Counter name="UserCpu" disp="CPU | User" unit="%" icon="cpu.png" all="false" total="false" />
 
 			<Counter name="Mem" disp="Memory" unit="%" icon="memory.png" total="false"/>
 			<Counter name="MemA" disp="Memory | Avaliable" unit="MB" icon="memory.png" total="false"/>
