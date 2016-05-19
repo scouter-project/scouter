@@ -37,12 +37,17 @@ public class LoginMgr{
 		return silentLogin(server, user, encrypted);
 	}
 	
-	public static LoginResult silentLogin(Server server, String user, String encryptedPwd){
+	public static LoginResult login(int serverId, String user, String password, boolean ldapLogin){
+		Server server = ServerManager.getInstance().getServer(serverId);
+		return silentLogin(server, user, password);
+	}
+	
+	public static LoginResult silentLogin(Server server, String user, String password){
 		LoginResult result = new LoginResult();
 		try {
 			MapPack param = new MapPack();
 			param.put("id", user);
-			param.put("pass", encryptedPwd);
+			param.put("pass", password);
 			param.put("version", Version.getClientFullVersion());
 			param.put("hostname", SysJMX.getHostName());
 			
@@ -71,7 +76,7 @@ public class LoginMgr{
 				server.setName(serverName);
 				server.setDelta(time);
 				server.setUserId(user);
-				server.setPassword(encryptedPwd);
+				server.setPassword(password);
 				server.setGroup(type);
 				server.setVersion(version);
 				server.setEmail(email);
@@ -121,4 +126,5 @@ public class LoginMgr{
 		}
 		return (MapPack) p;
 	}
+	
 }

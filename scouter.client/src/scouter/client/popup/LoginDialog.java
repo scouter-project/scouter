@@ -74,8 +74,9 @@ public class LoginDialog {
 
 	List list;
 
-	Button autoLoginCheck, showPass;
+	Button autoLoginCheck, showPass, ldapLoginCheck;
 	boolean autoLogin;
+	boolean ldapLogin;
 
 	String address = null;
 	boolean showPassword = false;
@@ -181,12 +182,26 @@ public class LoginDialog {
 			}
 		});
 		autoLoginCheck.setSelection(false);
-
+		
+		ldapLoginCheck = new Button(parentGroup, SWT.CHECK);
+		ldapLoginCheck.setText("Ldap Login");
+		ldapLoginCheck.setLayoutData(UIUtil.formData(null, -1, autoLoginCheck, 10, 100, -5, null, -1));
+		ldapLoginCheck.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (ldapLoginCheck.getSelection()) {
+					ldapLogin = true;
+				} else {
+					ldapLogin = false;
+				}
+			}
+		});
+		
 		list = new List(parentGroup, SWT.NONE);
-		list.setLayoutData(UIUtil.formData(0, 5, autoLoginCheck, 10, 100, -5, null, -1, -1, 60));
+		list.setLayoutData(UIUtil.formData(0, 5, ldapLoginCheck, 10, 100, -5, null, -1, -1, 60));
 		list.add("Type your authentication info...");
 		list.select(list.getItemCount() - 1);
 		list.showSelection();
+		
 
 		Composite footer = new Composite(shell, SWT.NONE);
 		footer.setLayoutData(UIUtil.formData(0, 5, parentGroup, 10, 100, -5, null, -1));
@@ -336,7 +351,7 @@ public class LoginDialog {
 				existServer = true;
 			}
 
-			LoginResult result = LoginMgr.login(server.getId(), id.getText(), pass.getText());
+			LoginResult result = LoginMgr.login(server.getId(), id.getText(), pass.getText(), ldapLogin);
 			if (result.success) {
 				msg("Successfully log in to " + address);
 				ServerPrefUtil.addServerAddr(address);
