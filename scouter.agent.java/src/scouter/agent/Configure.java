@@ -18,6 +18,7 @@ package scouter.agent;
 
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
+import scouter.agent.util.JarUtil;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.counters.CounterConstants;
@@ -36,6 +37,10 @@ public class Configure extends Thread {
 	private boolean running = true;
     private File propertyFile;
     long last_check = 0;
+    public static String agent_dir_path;
+    static {
+    	agent_dir_path = JarUtil.getThisJarFile().getParent();
+    }
 
     public final static synchronized Configure getInstance() {
 		if (instance == null) {
@@ -120,8 +125,8 @@ public class Configure extends Thread {
 	public boolean trace_stmt_leak_enabled = false;
 
 	//Dir
-	public File plugin_dir = new File("./plugin");
-	public File dump_dir = new File("./dump");
+	public File plugin_dir = new File(agent_dir_path + "/plugin");
+	public File dump_dir = new File(agent_dir_path + "/dump");
 	//public File mgr_agent_lib_dir = new File("./_scouter_");
 
 	//Manager
@@ -280,7 +285,7 @@ public class Configure extends Thread {
 		if (propertyFile != null) {
 			return propertyFile;
 		}
-		String s = System.getProperty("scouter.config", "./scouter.conf");
+		String s = System.getProperty("scouter.config", agent_dir_path + "/conf/scouter.conf");
 		propertyFile = new File(s.trim());
 		return propertyFile;
 	}
@@ -321,7 +326,7 @@ public class Configure extends Thread {
 		this.trace_service_name_header_key = getValue("trace_service_name_header_key", null);
 		this.trace_service_name_get_key = getValue("trace_service_name_get_key");
 		this.trace_service_name_post_key = getValue("trace_service_name_post_key");
-		this.dump_dir = new File(getValue("dump_dir", "./dump"));
+		this.dump_dir = new File(getValue("dump_dir", agent_dir_path + "/dump"));
 		try {
 			this.dump_dir.mkdirs();
 		} catch (Exception e) {
@@ -331,7 +336,7 @@ public class Configure extends Thread {
 //			this.mgr_agent_lib_dir.mkdirs();
 //		} catch (Exception e) {
 //		}
-		this.plugin_dir = new File(getValue("plugin_dir", "./plugin"));
+		this.plugin_dir = new File(getValue("plugin_dir", agent_dir_path + "/plugin"));
 		
 		this.autodump_enabled = getBoolean("autodump_enabled", false);
 		this.autodump_trigger_active_service_cnt = getInt("autodump_trigger_active_service_cnt", 10000);
@@ -610,7 +615,7 @@ public class Configure extends Thread {
 		this.objHash = HashUtil.hash(objName);
 		System.setProperty("scouter.objname", this.objName);
 		System.setProperty("scouter.objtype", this.obj_type);
-		System.setProperty("scouter.dir", new File(".").getAbsolutePath());
+		System.setProperty("scouter.dir", agent_dir_path);
 	}
 	public String getValue(String key) {
 		return StringUtil.trim(property.getProperty(key));

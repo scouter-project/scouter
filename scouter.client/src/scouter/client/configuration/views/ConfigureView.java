@@ -226,7 +226,7 @@ public class ConfigureView extends ViewPart {
 		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
 		try {
 			MapPack param = new MapPack();
-			param.put("setConfig", text.getText());
+			param.put("setConfig", text.getText().replaceAll("\\\\", "\\\\\\\\"));
 			MapPack out = null;
 			if (objHash == 0) {
 				out = (MapPack) tcp.getSingle(RequestCmd.SET_CONFIGURE_SERVER, param);
