@@ -39,6 +39,10 @@ public class LoginMgr{
 	
 	public static LoginResult login(int serverId, String user, String password, boolean ldapLogin){
 		Server server = ServerManager.getInstance().getServer(serverId);
+		
+		if(!ldapLogin)
+			password = CipherUtil.sha256(password);
+		
 		return silentLogin(server, user, password);
 	}
 	
