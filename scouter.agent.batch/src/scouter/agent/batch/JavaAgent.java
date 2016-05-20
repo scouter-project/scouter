@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 the original author or authors. 
+ *  Copyright 2016 the original author or authors. 
  *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -18,10 +18,8 @@ package scouter.agent.batch;
 
 import java.lang.instrument.Instrumentation;
 
-import scouter.agent.util.AsyncRunner;
 import scouter.util.logo.Logo;
 import scouter.agent.AgentTransformer;
-import scouter.agent.BackJobs;
 
 public class JavaAgent {
 	private static Instrumentation instrumentation;
@@ -41,7 +39,12 @@ public class JavaAgent {
 
 	private static void intro() {
 		try {
-			System.setProperty("scouter.enabled", "true");
+			String confFile = System.getProperty("scouter.config"); 
+			if( confFile == null){
+				System.setProperty("scouter.enabled", "false");
+			}else{
+				System.setProperty("scouter.enabled", "true");
+			}
 			Logo.print(false);
 			String nativeName = JavaAgent.class.getName().replace('.', '/') + ".class";
 			ClassLoader cl = JavaAgent.class.getClassLoader();
@@ -52,6 +55,8 @@ public class JavaAgent {
 				Logger.println("loaded by app classloader ");
 				Logger.println(cut("" + cl.getResource(nativeName)));
 			}
+			Logger.println("scouter.enabled=" + System.getProperty("scouter.enabled"));
+			Logger.println("scouter.config=" + confFile);
 		} catch (Throwable t) {
 		}
 	}

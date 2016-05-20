@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 the original author or authors. 
+ *  Copyright 2016 the original author or authors. 
  *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 

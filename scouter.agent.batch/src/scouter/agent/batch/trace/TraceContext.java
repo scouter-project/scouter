@@ -18,8 +18,8 @@
 package scouter.agent.batch.trace;
 
 import java.lang.management.ManagementFactory;
-import java.util.Iterator;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.StringTokenizer;
 
 import scouter.agent.batch.Configure;
@@ -36,7 +36,8 @@ public class TraceContext {
 	}
 	
 	private TraceContext() {
-		startTime = System.currentTimeMillis();
+		startTime = ManagementFactory.getRuntimeMXBean().getStartTime();
+		
 		readBatchId();
 	}
 	
@@ -47,7 +48,6 @@ public class TraceContext {
 		}else{
 			StringTokenizer token = new StringTokenizer(System.getProperty("sun.java.command"), " ");
 			if("args".equals(config.batch_id_type)){
-				List<String> list = ManagementFactory.getRuntimeMXBean().getInputArguments();
 				int index = Integer.parseInt(config.batch_id);
 				int currentIndex = -1;
 				while(token.hasMoreTokens()){
@@ -70,6 +70,20 @@ public class TraceContext {
 			batchJobId ="NoId[Scouter]";
 		}
 		Logger.println("Batch ID="+  batchJobId);		
+	}
+	
+	public String toString(){
+		StringBuilder buffer = new StringBuilder(100);
+		
+		buffer.append("\r\n");
+		buffer.append("-[Result]----------------------------------------------\r\n");
+		buffer.append("Batch     ID: ").append(this.batchJobId).append("\r\n");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append("\r\n");
+		buffer.append("Stop    Time: ").append(sdf.format(new Date(this.endTime))).append("\r\n");
+		buffer.append("Elapsed Time: ").append((this.endTime - this.startTime)).append("ms\r\n");
+		buffer.append("-------------------------------------------------------\r\n");
+		return buffer.toString();
 	}
 
 	public String batchJobId;

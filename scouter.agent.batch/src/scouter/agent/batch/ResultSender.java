@@ -1,5 +1,6 @@
 /*
- *  Copyright 2016 Scouter Project.
+ *  Copyright 2016 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -13,27 +14,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
+
 package scouter.agent.batch;
 
 import scouter.agent.batch.trace.TraceContext;
-import scouter.util.ThreadUtil;
 
-public class BatchMonitor extends Thread {
-	private static BatchMonitor instance = null;
-	
-	static public BatchMonitor getInstance(){
-		if(instance == null){
-			instance = new BatchMonitor();
-            instance.setDaemon(true);
-            instance.setName(ThreadUtil.getName(instance));
-            
-            TraceContext.getInstance();
-            Runtime.getRuntime().addShutdownHook(new ResultSender());
-
-            instance.start();
- 		}
-		return instance;
-	}
-	public void run() {
+public class ResultSender extends Thread {
+	public void run(){
+		try {
+			TraceContext trace = TraceContext.getInstance();
+			trace.endTime = System.currentTimeMillis();
+			
+			Logger.println(trace.toString());
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
 	}
 }

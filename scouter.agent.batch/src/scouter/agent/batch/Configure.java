@@ -71,7 +71,7 @@ public class Configure {
 	public long net_udp_collection_interval_ms = 100;
 
 	//Object
-	public String obj_type = "";
+	public String obj_type = "batch";
 	public String obj_name = "";
 	public String obj_host_type = "";
 	public String obj_host_name = "";
@@ -298,6 +298,7 @@ public class Configure {
 	}
 
 	private void apply() {
+		// start for batch
 		this.batch_id_type = getValue("batch_id_type", "class");
 		if("class".equals(this.batch_id_type)){
 			this.batch_id = getValue("batch_id", "");
@@ -306,6 +307,8 @@ public class Configure {
 		}else if("props".equals(this.batch_id_type)){
 			this.batch_id = getValue("batch_id", "JobId");			
 		}
+		this.obj_name = getValue("obj_name", "batch");
+		// end for batch
 		
 		this.profile_http_querystring_enabled = getBoolean("profile_http_querystring_enabled", false);
 		this.profile_http_header_enabled = getBoolean("profile_http_header_enabled", false);
