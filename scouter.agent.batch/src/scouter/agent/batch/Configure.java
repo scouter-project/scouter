@@ -27,33 +27,21 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import scouter.Version;
-import scouter.agent.netio.data.DataProxy;
+
 import scouter.agent.util.JarUtil;
-import scouter.lang.conf.ConfObserver;
 import scouter.lang.conf.ConfigValueUtil;
-import scouter.lang.value.ListValue;
-import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
 import scouter.util.DateUtil;
 import scouter.util.FileUtil;
 import scouter.util.HashUtil;
-import scouter.util.StringEnumer;
-import scouter.util.StringKeyLinkedMap;
 import scouter.util.StringSet;
 import scouter.util.StringUtil;
-import scouter.util.SysJMX;
-import scouter.util.SystemUtil;
-import scouter.util.ThreadUtil;
 
 public class Configure {
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
-	private long last_load_time = -1;
 	public Properties property = new Properties();
-	private boolean running = true;
     private File propertyFile;
-    long last_check = 0;
     public static String agent_dir_path;
     static {
     	agent_dir_path = JarUtil.getThisJarFile().getParent();
@@ -315,7 +303,7 @@ public class Configure {
 			this.batch_id = getValue("batch_id", "");
 		}else if("args".equals(this.batch_id_type)){
 			this.batch_id = getValue("batch_id", "0");		
-		}else if("class".equals(this.batch_id_type)){
+		}else if("props".equals(this.batch_id_type)){
 			this.batch_id = getValue("batch_id", "JobId");			
 		}
 		

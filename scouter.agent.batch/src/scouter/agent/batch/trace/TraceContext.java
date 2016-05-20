@@ -18,9 +18,12 @@
 package scouter.agent.batch.trace;
 
 import java.lang.management.ManagementFactory;
+import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import scouter.agent.batch.Configure;
+import scouter.agent.batch.Logger;
 
 public class TraceContext {
 	private static TraceContext instance = null;
@@ -34,31 +37,39 @@ public class TraceContext {
 	
 	private TraceContext() {
 		startTime = System.currentTimeMillis();
-		
+		readBatchId();
+	}
+	
+	private void readBatchId(){
 		Configure config = Configure.getInstance();
 		if("props".equals(config.batch_id_type)){
 			batchJobId = config.getValue(config.batch_id);
-		}else if("args".equals(config.batch_id_type)){	
-			List<String> list = ManagementFactory.getRuntimeMXBean().getInputArguments();
-			int index = Integer.parseInt(config.batch_id);
-			if(list != null && list.size() > index){
-				batchJobId = list.get(index);
+		}else{
+			StringTokenizer token = new StringTokenizer(System.getProperty("sun.java.command"), " ");
+			if("args".equals(config.batch_id_type)){
+				List<String> list = ManagementFactory.getRuntimeMXBean().getInputArguments();
+				int index = Integer.parseInt(config.batch_id);
+				int currentIndex = -1;
+				while(token.hasMoreTokens()){
+					if(currentIndex == index){
+						batchJobId = token.nextToken();
+						break;
+					}else{
+						token.nextToken();
+					}
+					currentIndex++;
+				}
+			}else if("class".equals(config.batch_id_type)){
+				if(token.hasMoreTokens()){
+					batchJobId = token.nextToken();
+				}
 			}
-		}else if("class".equals(config.batch_id_type)){
-			 ManagementFactory.getRuntimeMXBean();
 		}
 		
 		if(batchJobId == null || batchJobId.length() == 0){
 			batchJobId ="NoId[Scouter]";
 		}
-		System.out.println("JobID="+  batchJobId);
-		try{
-			throw new Exception("test");
-		}catch(Exception ex){
-			ex.printStackTrace();
-		}
-		
-		System.getProperties().list(System.out);
+		Logger.println("Batch ID="+  batchJobId);		
 	}
 
 	public String batchJobId;
