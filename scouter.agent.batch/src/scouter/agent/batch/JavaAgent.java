@@ -32,10 +32,11 @@ public class JavaAgent {
 		}
 		intro();
 		Configure.getInstance();
-		BackJobs.getInstance().put(Logger.class.getName(), 3000, Logger.initializer);
+		//BackJobs.getInstance().put(Logger.class.getName(), 3000, Logger.initializer);
 		JavaAgent.instrumentation = instrum;
 		JavaAgent.instrumentation.addTransformer(new AgentTransformer());
-		AsyncRunner.getInstance().add(new AgentBoot());
+		
+		BatchMonitor.getInstance();
 	}
 
 	private static void intro() {

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 the original author or authors. 
+ *  Copyright 2016 the original author or authors. 
  *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -46,7 +46,7 @@ import scouter.util.SysJMX;
 import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
 
-public class Configure extends Thread {
+public class Configure {
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
 	private long last_load_time = -1;
@@ -62,13 +62,14 @@ public class Configure extends Thread {
     public final static synchronized Configure getInstance() {
 		if (instance == null) {
 			instance = new Configure();
-			instance.setDaemon(true);
-			instance.setName(ThreadUtil.getName(instance));
-			instance.start();
 		}
 		return instance;
 	}
-
+    
+    // Batch 기본 설정
+    public String batch_id_type = ""; // Class, Args, Props 
+    public String batch_id = "";
+    
 	//Network
 	public String net_local_udp_ip = null;
 	public int net_local_udp_port;
@@ -278,45 +279,20 @@ public class Configure extends Thread {
 		args.putAll(System.getProperties());
 		p.putAll(args);
 		this.property = p;
-		reload(false);
+		reload();
 	}
-
-	private Configure(boolean b) {
-	}
-
-	public void run() {
-		Logger.println("Version " + Version.getAgentFullVersion());
-		long dateUnit = DateUtil.getDateUnit();
-		while (running) {
-			reload(false);
-			// Text Data Reset..
-			long nowUnit = DateUtil.getDateUnit();
-			if (dateUnit != nowUnit) {
-				dateUnit = nowUnit;
-				DataProxy.reset();
-			}
-			ThreadUtil.sleep(3000);
-		}
-	}
+	
 	public File getPropertyFile() {
 		if (propertyFile != null) {
 			return propertyFile;
 		}
-		String s = System.getProperty("scouter.config", agent_dir_path + "/conf/scouter.conf");
+		String s = System.getProperty("scouter.config", agent_dir_path + "/conf/scouter.batch.conf");
 		propertyFile = new File(s.trim());
 		return propertyFile;
 	}
 
-	public synchronized boolean reload(boolean force) {
-		long now = System.currentTimeMillis();
-		if (force == false && now < last_check + 3000)
-			return false;
-		last_check = now;
+	public void reload() {
 		File file = getPropertyFile();
-		if (file.lastModified() == last_load_time) {
-			return false;
-		}
-		last_load_time = file.lastModified();
 		Properties temp = new Properties();
 		if (file.canRead()) {
 			FileInputStream in = null;
@@ -331,10 +307,18 @@ public class Configure extends Thread {
 		}
 		property = ConfigValueUtil.replaceSysProp(temp);
 		apply();
-		ConfObserver.run();
-		return true;
 	}
+
 	private void apply() {
+		this.batch_id_type = getValue("batch_id_type", "class");
+		if("class".equals(this.batch_id_type)){
+			this.batch_id = getValue("batch_id", "");
+		}else if("args".equals(this.batch_id_type)){
+			this.batch_id = getValue("batch_id", "0");		
+		}else if("class".equals(this.batch_id_type)){
+			this.batch_id = getValue("batch_id", "JobId");			
+		}
+		
 		this.profile_http_querystring_enabled = getBoolean("profile_http_querystring_enabled", false);
 		this.profile_http_header_enabled = getBoolean("profile_http_header_enabled", false);
 		this.profile_http_parameter_enabled = getBoolean("profile_http_parameter_enabled", false);
@@ -681,35 +665,9 @@ public class Configure extends Thread {
 		ignoreSet.add("property");
 		ignoreSet.add("__experimental");
 	}
-	public MapValue getKeyValueInfo() {
-		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
-		StringKeyLinkedMap<Object> curMap = ConfigValueUtil.getConfigDefault(this);
-		MapValue m = new MapValue();
-		ListValue nameList = m.newList("key");
-		ListValue valueList = m.newList("value");
-		ListValue defList = m.newList("default");
-		StringEnumer enu = defMap.keys();
-		while (enu.hasMoreElements()) {
-			String key = enu.nextString();
-			if (ignoreSet.contains(key))
-				continue;
-			nameList.add(key);
-			valueList.add(ConfigValueUtil.toValue(curMap.get(key)));
-			defList.add(ConfigValueUtil.toValue(defMap.get(key)));
-		}
-		return m;
-	}
+
 	public int getHookSignature() {
 		return this.hook_signature;
 	}
-	public static void main(String[] args) {
-		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
-		StringEnumer enu = defMap.keys();
-		while (enu.hasMoreElements()) {
-			String key = enu.nextString();
-			if (ignoreSet.contains(key))
-				continue;
-			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key)));
-		}
-	}
+
 }
