@@ -29,12 +29,13 @@ public class JavaAgent {
 			return;
 		}
 		intro();
-		Configure.getInstance();
-		//BackJobs.getInstance().put(Logger.class.getName(), 3000, Logger.initializer);
-		JavaAgent.instrumentation = instrum;
-		JavaAgent.instrumentation.addTransformer(new AgentTransformer());
+		Configure config = Configure.getInstance();
 		
-		BatchMonitor.getInstance();
+		JavaAgent.instrumentation = instrum;
+		if(config.scouter_enabled){
+			JavaAgent.instrumentation.addTransformer(new AgentTransformer());			
+			BatchMonitor.getInstance();
+		}
 	}
 
 	private static void intro() {
@@ -43,7 +44,9 @@ public class JavaAgent {
 			if( confFile == null){
 				System.setProperty("scouter.enabled", "false");
 			}else{
-				System.setProperty("scouter.enabled", "true");
+				if(System.getProperty("scouter.enabled") == null){
+					System.setProperty("scouter.enabled", "true");
+				}
 			}
 			Logo.print(false);
 			String nativeName = JavaAgent.class.getName().replace('.', '/') + ".class";
@@ -55,7 +58,6 @@ public class JavaAgent {
 				Logger.println("loaded by app classloader ");
 				Logger.println(cut("" + cl.getResource(nativeName)));
 			}
-			Logger.println("scouter.enabled=" + System.getProperty("scouter.enabled"));
 			Logger.println("scouter.config=" + confFile);
 		} catch (Throwable t) {
 		}

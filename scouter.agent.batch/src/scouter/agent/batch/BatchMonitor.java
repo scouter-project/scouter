@@ -34,6 +34,7 @@ public class BatchMonitor extends Thread {
  		}
 		return instance;
 	}
+	
 	public void run() {
 	}
 }

@@ -54,7 +54,10 @@ public class Configure {
 		return instance;
 	}
     
-    // Batch 기본 설정
+    // Scouter enable/disable
+    public boolean scouter_enabled = true;
+    
+    // Batch basic configuration
     public String batch_id_type = ""; // Class, Args, Props 
     public String batch_id = "";
     
@@ -295,9 +298,17 @@ public class Configure {
 		}
 		property = ConfigValueUtil.replaceSysProp(temp);
 		apply();
+		
+		Logger.println("scouter_enabled=" + this.scouter_enabled);		
 	}
 
 	private void apply() {
+		// enable or disable
+		this.scouter_enabled = getBoolean("scouter_enabled", true);
+		if(getValue("scouter.enabled") != null){
+			this.scouter_enabled = getBoolean("scouter.enabled", true);
+		}
+		
 		// start for batch
 		this.batch_id_type = getValue("batch_id_type", "class");
 		if("class".equals(this.batch_id_type)){

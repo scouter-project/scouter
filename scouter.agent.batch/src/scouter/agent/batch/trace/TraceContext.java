@@ -46,7 +46,8 @@ public class TraceContext {
 		if("props".equals(config.batch_id_type)){
 			batchJobId = config.getValue(config.batch_id);
 		}else{
-			StringTokenizer token = new StringTokenizer(System.getProperty("sun.java.command"), " ");
+			args = System.getProperty("sun.java.command");
+			StringTokenizer token = new StringTokenizer(args, " ");
 			if("args".equals(config.batch_id_type)){
 				int index = Integer.parseInt(config.batch_id);
 				int currentIndex = -1;
@@ -78,6 +79,7 @@ public class TraceContext {
 		buffer.append("\r\n");
 		buffer.append("-[Result]----------------------------------------------\r\n");
 		buffer.append("Batch     ID: ").append(this.batchJobId).append("\r\n");
+		buffer.append("Run  Command: ").append(this.args).append("\r\n");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append("\r\n");
 		buffer.append("Stop    Time: ").append(sdf.format(new Date(this.endTime))).append("\r\n");
