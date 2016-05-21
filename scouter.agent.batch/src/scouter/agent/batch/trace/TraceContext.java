@@ -20,12 +20,15 @@ package scouter.agent.batch.trace;
 import java.lang.management.ManagementFactory;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
 
 public class TraceContext {
+	private static final String SQL_OTHERS = "Others";
+	private static final int SQL_OTHERS_HASH = "Others".hashCode();
 	private static TraceContext instance = null;
 	
 	final public static TraceContext getInstance(){
@@ -39,6 +42,7 @@ public class TraceContext {
 		startTime = ManagementFactory.getRuntimeMXBean().getStartTime();
 		
 		readBatchId();
+		sqlMaxCount = Configure.getInstance().sql_max_count;
 	}
 	
 	private void readBatchId(){
@@ -73,6 +77,26 @@ public class TraceContext {
 		Logger.println("Batch ID="+  batchJobId);		
 	}
 	
+	public int getSQLHash(String sqltext, int hashValue){
+		synchronized(uniqueSqls){
+			if(uniqueSqls.get(hashValue) != null){
+				return hashValue;
+			}
+	
+			if(uniqueSqls.size() < sqlMaxCount){
+				uniqueSqls.put(hashValue, sqltext);
+				return hashValue;
+			}else if(uniqueSqls.size() == sqlMaxCount){
+				uniqueSqls.put(SQL_OTHERS_HASH, SQL_OTHERS);
+			}
+			return SQL_OTHERS_HASH;
+		}
+	}
+	
+	public HashMap<Integer, String> getUniqueSQLs(){
+		return uniqueSqls;
+	}
+	
 	public String toString(){
 		StringBuilder buffer = new StringBuilder(100);
 		
@@ -87,30 +111,17 @@ public class TraceContext {
 		buffer.append("-------------------------------------------------------\r\n");
 		return buffer.toString();
 	}
-
+	
 	public String batchJobId;
 	public String args;
 	
 	public long startTime;
 	public long endTime;
 	
-	public int maxThreadCnt = 0;
+	public int threadCnt = 0;
 	public long startCpu;
 	public long endCpu;
 
-	public long bytes;
-	public int status;
-
-	public int error;
-
-	// sql
-	public int sqlCount;
-	public int sqlTime;
-	public String sqltext;
-
-	// apicall
-	public String apicall_name;
-	public int apicall_count;
-	public int apicall_time;
-	public String apicall_target;
+	private HashMap<Integer, String> uniqueSqls = new HashMap<Integer, String>(100);
+	private int sqlMaxCount;
 }

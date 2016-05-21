@@ -61,6 +61,9 @@ public class Configure {
     public String batch_id_type = ""; // Class, Args, Props 
     public String batch_id = "";
     
+    // SQL
+    public int sql_max_count = 100;
+    
 	//Network
 	public String net_local_udp_ip = null;
 	public int net_local_udp_port;
@@ -320,6 +323,11 @@ public class Configure {
 		}
 		this.obj_name = getValue("obj_name", "batch");
 		// end for batch
+		
+		// SQL
+		this.sql_max_count = getInt("sql_max_count", 100);
+		
+		
 		
 		this.profile_http_querystring_enabled = getBoolean("profile_http_querystring_enabled", false);
 		this.profile_http_header_enabled = getBoolean("profile_http_header_enabled", false);
