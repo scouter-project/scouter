@@ -1,15 +1,14 @@
 package scouter.agent.batch.trace;
 
-import scouter.agent.batch.Configure;
-
 public class TraceSQL extends java.util.HashMap<Integer, SQL>{
+	public static final String CURRENT_SQL_FIELD = "_current_sql_";
 	private static final long serialVersionUID = 1L;
-		
+	
 	public TraceSQL() {
 		super(100);
 	}
 	
-	public SQL get(String sqlText){
+	private SQL get(String sqlText){
 		int hashValue  = sqlText.hashCode();
 		SQL sql = super.get(hashValue);
 		if(sql == null){
@@ -20,5 +19,5 @@ public class TraceSQL extends java.util.HashMap<Integer, SQL>{
 			super.put(hashValue, sql);
 		}
 		return sql;
-	}
+	}	
 }

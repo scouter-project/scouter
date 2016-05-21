@@ -38,8 +38,11 @@ import scouter.util.StringSet;
 import scouter.util.StringUtil;
 
 public class Configure {
+	public static final String CONFIG_SCOUTER_ENABLED = "scouter_enabled";
+	public static final String VM_SCOUTER_ENABLED = "scouter.enabled";
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
+	
 	public Properties property = new Properties();
     private File propertyFile;
     public static String agent_dir_path;
@@ -302,14 +305,14 @@ public class Configure {
 		property = ConfigValueUtil.replaceSysProp(temp);
 		apply();
 		
-		Logger.println("scouter_enabled=" + this.scouter_enabled);		
+		Logger.println(CONFIG_SCOUTER_ENABLED + "=" + this.scouter_enabled);		
 	}
 
 	private void apply() {
 		// enable or disable
-		this.scouter_enabled = getBoolean("scouter_enabled", true);
-		if(getValue("scouter.enabled") != null){
-			this.scouter_enabled = getBoolean("scouter.enabled", true);
+		this.scouter_enabled = getBoolean(CONFIG_SCOUTER_ENABLED, true);
+		if(getValue(VM_SCOUTER_ENABLED) != null){
+			this.scouter_enabled = getBoolean(VM_SCOUTER_ENABLED, true);
 		}
 		
 		// start for batch

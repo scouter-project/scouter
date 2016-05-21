@@ -21,6 +21,7 @@ import java.lang.management.ManagementFactory;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.StringTokenizer;
 
 import scouter.agent.batch.Configure;
@@ -112,6 +113,57 @@ public class TraceContext {
 		return buffer.toString();
 	}
 	
+	public void addSQLStats(TraceSQL traceSql){
+		if(traceSql == null || traceSql.size() == 0){
+			return;
+		}
+		
+		Integer hashValue;
+		SQL statsSql;
+		for(SQL sql : traceSql.values()){
+			hashValue = sql.hashValue;
+			synchronized(sqlMap){
+				statsSql = sqlMap.get(hashValue);
+				if(statsSql == null){
+					statsSql = new SQL();
+					statsSql.hashValue = hashValue;
+					sqlMap.put(hashValue, statsSql);
+				}
+			}
+			synchronized(statsSql){
+				statsSql.count += sql.count;
+				statsSql.totalTime += sql.totalTime;
+				statsSql.processedRows += sql.processedRows;
+				if(statsSql.startTime > sql.startTime){
+					statsSql.startTime = sql.startTime;
+				}
+				if(statsSql.endTime < sql.endTime){
+					statsSql.startTime = sql.startTime;
+				}
+				if(statsSql.minTime > sql.minTime){
+					statsSql.minTime = sql.minTime;
+				}
+				if(statsSql.maxTime < sql.maxTime){
+					statsSql.maxTime = sql.maxTime;
+				}
+				
+			}
+		}
+	}
+	
+	public void addTraceSQL(TraceSQL traceSql){
+		synchronized(remainMap){
+			remainMap.add(traceSql);
+		}
+	}
+
+	public void removeTraceSQL(TraceSQL traceSql){
+		synchronized(remainMap){
+			remainMap.remove(traceSql);
+		}
+		addSQLStats(traceSql);
+	}
+	
 	public String batchJobId;
 	public String args;
 	
@@ -123,5 +175,8 @@ public class TraceContext {
 	public long endCpu;
 
 	private HashMap<Integer, String> uniqueSqls = new HashMap<Integer, String>(100);
+	private HashMap<Integer, SQL> sqlMap = new HashMap<Integer, SQL>(100);
+	private HashSet<TraceSQL> remainMap = new HashSet<TraceSQL>();
+	
 	private int sqlMaxCount;
 }

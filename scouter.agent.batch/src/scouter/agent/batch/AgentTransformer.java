@@ -17,6 +17,8 @@
 
 package scouter.agent.batch;
 
+import scouter.agent.batch.asm.JDBCPreparedStatementASM;
+
 import scouter.agent.ClassDesc;
 import scouter.agent.DirectPatch;
 import scouter.agent.ObjTypeDetector;
@@ -58,15 +60,9 @@ public class AgentTransformer implements ClassFileTransformer {
         List<IASM> temp = new ArrayList<IASM>();
 
         temp.add(new JDBCPreparedStatementASM());
-        temp.add(new JDBCResultSetASM());
-        temp.add(new JDBCStatementASM());
-        temp.add(new SqlMapASM());
-        temp.add(new UserTxASM());
-
-        temp.add(new JDBCConnectionOpenASM());
-        temp.add(new JDBCDriverASM());
-        temp.add(new InitialContextASM());
-
+ //       temp.add(new JDBCResultSetASM());
+ //      temp.add(new JDBCStatementASM());
+  
         asms = temp;
     }
 

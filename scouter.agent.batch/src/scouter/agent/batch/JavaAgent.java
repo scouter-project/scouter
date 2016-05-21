@@ -42,10 +42,10 @@ public class JavaAgent {
 		try {
 			String confFile = System.getProperty("scouter.config"); 
 			if( confFile == null){
-				System.setProperty("scouter.enabled", "false");
+				System.setProperty(Configure.VM_SCOUTER_ENABLED, "false");
 			}else{
-				if(System.getProperty("scouter.enabled") == null){
-					System.setProperty("scouter.enabled", "true");
+				if(System.getProperty(Configure.VM_SCOUTER_ENABLED) == null){
+					System.setProperty(Configure.VM_SCOUTER_ENABLED, "true");
 				}
 			}
 			Logo.print(false);

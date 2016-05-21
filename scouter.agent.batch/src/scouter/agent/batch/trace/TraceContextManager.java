@@ -1,5 +1,5 @@
 /*
- *  Copyright 2016 the original author or authors. 
+ *  Copyright 2015 the original author or authors. 
  *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -14,16 +14,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-package scouter.agent.batch.test;
 
-public class BatchAgentTest {
-	static public void main(String [] args){
-		try {
-			System.out.println("start BatchAgentTest");
-			Thread.sleep(5000);
-			System.out.println("end BatchAgentTest");
-		}catch(Exception ex){
-			ex.printStackTrace();
-		}
+package scouter.agent.batch.trace;
+
+public class TraceContextManager {
+
+	private static ThreadLocal<TraceSQL> local = new ThreadLocal<TraceSQL>();
+
+	public static void start(Thread thread) {
+		TraceSQL traceSql = new TraceSQL();
+		local.set(traceSql);
+		TraceContext.getInstance().addTraceSQL(traceSql);
+	}
+
+	public static void end(){
+		TraceSQL traceSql = local.get();
+		local.set(null);
+		TraceContext.getInstance().removeTraceSQL(traceSql);
 	}
 }
