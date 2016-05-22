@@ -19,11 +19,12 @@ package scouter.agent.batch.asm;
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
 import scouter.agent.batch.trace.TraceSQL;
-import scouter.agent.batch.trace.SQL;
+import scouter.agent.batch.asm.jdbc.PsInitMV;
+import scouter.agent.batch.asm.jdbc.PsExecuteMV;
+import scouter.agent.batch.asm.jdbc.StExecuteMV;
 
 import scouter.agent.asm.IASM;
 import scouter.agent.ClassDesc;
-import scouter.agent.asm.jdbc.*;
 import scouter.agent.asm.util.HookingSet;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
@@ -36,6 +37,7 @@ import java.util.HashSet;
  * BCI for a JDBC PreparedStatement
  * @author @author Paul S.J. Kim(sjkim@whatap.io)
  * @author Gun Lee (gunlee01@gmail.com)
+ * @author Munsoo Kwon (mskweon82@daum.net)
  */
 public class JDBCPreparedStatementASM implements IASM, Opcodes {
 	public final HashSet<String> target = HookingSet.getHookingClassSet(Configure.getInstance().hook_jdbc_pstmt_classes);
@@ -94,7 +96,7 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 		this.owner = name;
 		if (noField.contains(name) == false) {
 			// add trace fields
-			super.visitField(ACC_PUBLIC, TraceSQL.CURRENT_SQL_FIELD, Type.getDescriptor(SQL.class), null, null)
+			super.visitField(ACC_PUBLIC, TraceSQL.CURRENT_TRACESQL_FIELD, Type.getDescriptor(TraceSQL.class), null, null)
 					.visitEnd();
 		}
 	}
@@ -106,25 +108,15 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 			return new PsInitMV(access, desc, mv, owner);
 
 		} else {
-			String targetDesc = PsSetMV.getSetSignature(name);
-			if (targetDesc != null) {
-				if (targetDesc.equals(desc)) {
-					return new PsSetMV(access, name, desc, mv, owner);
-				}
-			} else if (PsExecuteMV.isTarget(name)) {
+			if (PsExecuteMV.isTarget(name)) {
 				if (desc.startsWith("()")) {
 					return new PsExecuteMV(access, desc, mv, owner, name);
 				} else if (desc.startsWith("(Ljava/lang/String;)")) {
 					return new StExecuteMV(access, desc, mv, owner, name);
 				}
-			} else if ("clearParameters".equals(name) && "()V".equals(desc)) {
-				return new PsClearParametersMV(access, desc, mv, owner);
-
-			} else if ("getUpdateCount".equals(name) && "()I".equals(desc)) {
-                return new PsUpdateCountMV(mv);
-            } else if ("close".equals(name) && "()V".equals(desc)) {
-				return new PsCloseMV(mv);
-			}
+//			} else if ("getUpdateCount".equals(name) && "()I".equals(desc)) {
+//                return new PsUpdateCountMV(mv);
+            }
 		}
 		return mv;
 	}

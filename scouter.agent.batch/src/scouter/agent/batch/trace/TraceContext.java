@@ -113,19 +113,19 @@ public class TraceContext {
 		return buffer.toString();
 	}
 	
-	public void addSQLStats(TraceSQL traceSql){
-		if(traceSql == null || traceSql.size() == 0){
+	public void addSQLStats(LocalSQL localSql){
+		if(localSql == null || localSql.size() == 0){
 			return;
 		}
 		
 		Integer hashValue;
-		SQL statsSql;
-		for(SQL sql : traceSql.values()){
+		TraceSQL statsSql;
+		for(TraceSQL sql : localSql.values()){
 			hashValue = sql.hashValue;
 			synchronized(sqlMap){
 				statsSql = sqlMap.get(hashValue);
 				if(statsSql == null){
-					statsSql = new SQL();
+					statsSql = new TraceSQL();
 					statsSql.hashValue = hashValue;
 					sqlMap.put(hashValue, statsSql);
 				}
@@ -151,17 +151,17 @@ public class TraceContext {
 		}
 	}
 	
-	public void addTraceSQL(TraceSQL traceSql){
+	public void addTraceSQL(LocalSQL localSql){
 		synchronized(remainMap){
-			remainMap.add(traceSql);
+			remainMap.add(localSql);
 		}
 	}
 
-	public void removeTraceSQL(TraceSQL traceSql){
+	public void removeTraceSQL(LocalSQL localSql){
 		synchronized(remainMap){
-			remainMap.remove(traceSql);
+			remainMap.remove(localSql);
 		}
-		addSQLStats(traceSql);
+		addSQLStats(localSql);
 	}
 	
 	public String batchJobId;
@@ -175,8 +175,8 @@ public class TraceContext {
 	public long endCpu;
 
 	private HashMap<Integer, String> uniqueSqls = new HashMap<Integer, String>(100);
-	private HashMap<Integer, SQL> sqlMap = new HashMap<Integer, SQL>(100);
-	private HashSet<TraceSQL> remainMap = new HashSet<TraceSQL>();
+	private HashMap<Integer, TraceSQL> sqlMap = new HashMap<Integer, TraceSQL>(100);
+	private HashSet<LocalSQL> remainMap = new HashSet<LocalSQL>();
 	
 	private int sqlMaxCount;
 }

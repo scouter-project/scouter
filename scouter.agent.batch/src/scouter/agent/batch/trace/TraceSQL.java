@@ -1,23 +1,32 @@
+/*
+ *  Copyright 2016 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License"); 
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License. 
+ */
 package scouter.agent.batch.trace;
 
-public class TraceSQL extends java.util.HashMap<Integer, SQL>{
-	public static final String CURRENT_SQL_FIELD = "_current_sql_";
-	private static final long serialVersionUID = 1L;
+public class TraceSQL {
+	public static final String CURRENT_TRACESQL_FIELD = "_current_trace_sql_";
 	
-	public TraceSQL() {
-		super(100);
-	}
+	public Integer hashValue;
+	public int count = 0;
 	
-	private SQL get(String sqlText){
-		int hashValue  = sqlText.hashCode();
-		SQL sql = super.get(hashValue);
-		if(sql == null){
-			hashValue = TraceContext.getInstance().getSQLHash(sqlText, hashValue);
-			
-			sql = new SQL();
-			sql.hashValue = hashValue;
-			super.put(hashValue, sql);
-		}
-		return sql;
-	}	
+	public int startTime = -1;
+	public int endTime = 0;
+	public int totalTime = 0;
+	public int minTime = 0;
+	public int maxTime = 0;
+	
+	public long processedRows = 0L;
 }
