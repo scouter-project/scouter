@@ -58,8 +58,12 @@ public class TcpProxy {
 		if (t == null)
 			return;
 		if (t.isValid()) {
-			ConnectionPool pool = t.getServer().getConnectionPool();
-			pool.put(t);
+			if (t.getServer().isConnected()) {
+				ConnectionPool pool = t.getServer().getConnectionPool();
+				pool.put(t);
+			} else {
+				t.close();
+			}
 		}
 	}
 	
