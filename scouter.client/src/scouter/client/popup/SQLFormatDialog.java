@@ -39,6 +39,7 @@ import org.hibernate.jdbc.util.BasicFormatterImpl;
 import scouter.client.util.SqlFormatUtil;
 import scouter.client.util.SqlMakerUtil;
 import scouter.client.util.UIUtil;
+import scouter.util.StringUtil;
 
 public class SQLFormatDialog {
 	public void show(final String message, final String error){
@@ -137,6 +138,19 @@ public class SQLFormatDialog {
 					MessageDialog.openInformation(dialog, "Copy", "Copied to clipboard");
 			}
 		});
+		
+		final Button bindBtn = new Button(bottomComp, SWT.PUSH);
+		bindBtn.setLayoutData(UIUtil.formData(null, -1, null, -1, copyBtn, -5, null, -1, 100));
+		bindBtn.setText("&Bind");
+		bindBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				text.setText(SqlMakerUtil.replaceSQLParameter(message, params));
+			}
+		});
+		
+		if (StringUtil.isEmpty(params)) {
+			bindBtn.setEnabled(false);
+		}
 		
 		dialog.pack();
 		dialog.open();
