@@ -39,7 +39,12 @@ public class Configure extends Thread {
     long last_check = 0;
     public static String agent_dir_path;
     static {
-    	agent_dir_path = JarUtil.getThisJarFile().getParent();
+    	File jarFile = JarUtil.getThisJarFile();
+    	if (jarFile == null) {
+    		agent_dir_path = new File("./").getAbsolutePath();
+    	} else {
+    		agent_dir_path = jarFile.getParent();
+    	}
     }
 
     public final static synchronized Configure getInstance() {

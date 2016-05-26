@@ -32,10 +32,14 @@ public class JarUtil {
 		} else {
 			path = "" + cl.getResource(JavaAgent.class.getName().replace('.', '/') + ".class");
 		}
-		path = path.substring("jar:file:/".length(), path.indexOf("!"));
-		if (path.indexOf(':') > 0)
-			return new File(path);
-		else
-			return new File("/" + path);
+		try {
+			path = path.substring("jar:file:/".length(), path.indexOf("!"));
+			if (path.indexOf(':') > 0)
+				return new File(path);
+			else
+				return new File("/" + path);
+		} catch (Throwable th) {
+			return null;
+		}
 	}
 }
