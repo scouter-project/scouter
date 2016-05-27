@@ -23,6 +23,7 @@ import java.io.RandomAccessFile;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Date;
 
 import javax.management.MBeanServer;
 
@@ -36,6 +37,7 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.net.TcpFlag;
 import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
 import scouter.util.SystemUtil;
 
 
@@ -58,7 +60,7 @@ public class AgentHeapDump {
 		lastCallTime = curTime;
 		long time = ((MapPack) param).getLong("time");
 		String yyyymmdd = DateUtil.yyyymmdd(time);
-		String hhmmss = DateUtil.hhmmss(time);
+		String hhmmss = FormatUtil.print(new Date(time), "HHmmss");
 		String fName = yyyymmdd + "-" + hhmmss + ((MapPack) param).getText("fName").replaceAll("/", "_") + fileExt;
 
 		File hprofDir = new File(folderName);

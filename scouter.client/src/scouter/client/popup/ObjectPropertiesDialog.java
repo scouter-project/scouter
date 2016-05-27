@@ -18,6 +18,7 @@
 package scouter.client.popup;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -52,6 +53,7 @@ import scouter.lang.pack.ObjectPack;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
 
 public class ObjectPropertiesDialog {
 	
@@ -144,7 +146,7 @@ public class ObjectPropertiesDialog {
 		propertyList.add(new PropertyData("address", this.objectPack.address));
 		propertyList.add(new PropertyData("version", this.objectPack.version));
 		propertyList.add(new PropertyData("alive", String.valueOf(this.objectPack.alive)));
-		propertyList.add(new PropertyData("wakeUp", DateUtil.timestamp(this.objectPack.wakeup)));
+		propertyList.add(new PropertyData("wakeUp", FormatUtil.print(new Date(this.objectPack.wakeup), "yyyyMMdd HH:mm:ss.sss")));
 		propertyList.add(new PropertyData("color", AgentColorManager.getInstance().assignColor(this.objectPack.objType, objHash)));
 		for (String key : this.objectPack.tags.keySet()) {
 			propertyList.add(new PropertyData(key, CastUtil.cString(this.objectPack.tags.get(key))));

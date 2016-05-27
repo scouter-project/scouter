@@ -17,6 +17,7 @@
 package scouter.client.tags;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -167,9 +168,9 @@ public class ServiceTableComposite extends Composite {
 			case SERVICE :
 				return TextProxy.service.getLoadText(yyyymmdd, p.service, serverId);
 			case START_TIME :
-				return DateUtil.getLogTime(p.endTime - p.elapsed);
+				return FormatUtil.print(new Date(p.endTime - p.elapsed), "HH:mm:ss.sss");
 			case END_TIME :
-				return DateUtil.getLogTime(p.endTime);
+				return FormatUtil.print(new Date(p.endTime), "HH:mm:ss.sss");
 			case TX_ID :
 				return Hexa32.toString32(p.txid);
 			case CPU :

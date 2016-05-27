@@ -18,6 +18,7 @@
 package scouter.client.xlog.views;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
@@ -189,9 +190,9 @@ public class XLogSelectionView extends ViewPart {
 				}
 				return d.serviceName;
 			case START_TIME :
-				return DateUtil.getLogTime(d.p.endTime - d.p.elapsed);
+				return FormatUtil.print(new Date(d.p.endTime - d.p.elapsed), "HH:mm:ss.sss");
 			case END_TIME :
-				return DateUtil.getLogTime(d.p.endTime);
+				return FormatUtil.print(new Date(d.p.endTime), "HH:mm:ss.sss");
 			case TX_ID :
 				return Hexa32.toString32(d.p.txid);
 			case CPU :
