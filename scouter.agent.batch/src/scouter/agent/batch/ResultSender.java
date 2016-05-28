@@ -22,6 +22,9 @@ import scouter.agent.batch.trace.TraceContext;
 public class ResultSender extends Thread {
 	public void run(){
 		try {
+			Configure config = Configure.getInstance();
+			config.scouter_stop = true;
+			
 			TraceContext trace = TraceContext.getInstance();
 			trace.endTime = System.currentTimeMillis();
 			

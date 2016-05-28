@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -59,14 +60,22 @@ public class Configure {
     
     // Scouter enable/disable
     public boolean scouter_enabled = true;
+    public boolean scouter_stop = false;
     
     // Batch basic configuration
     public String batch_id_type = ""; // Class, Args, Props 
     public String batch_id = "";
-    
+        
     // SQL
     public int sql_max_count = 100;
     
+    // Thread Dump
+    public long dump_interval_ms = 10000;
+    public String [] dump_filter = null;
+	public File dump_dir = new File(agent_dir_path + "/dump");
+	public boolean dump_enabled = true;
+	public boolean dump_header_exists = true;
+	
 	//Network
 	public String net_local_udp_ip = null;
 	public int net_local_udp_port;
@@ -141,7 +150,6 @@ public class Configure {
 
 	//Dir
 	public File plugin_dir = new File(agent_dir_path + "/plugin");
-	public File dump_dir = new File(agent_dir_path + "/dump");
 	//public File mgr_agent_lib_dir = new File("./_scouter_");
 
 	//Manager
@@ -330,7 +338,47 @@ public class Configure {
 		// SQL
 		this.sql_max_count = getInt("sql_max_count", 100);
 		
+		// Batch Dump
+		this.dump_interval_ms = getInt("dump_interval_ms", 10000);
+		if (this.dump_interval_ms < 5000) {
+			this.dump_interval_ms = 5000;
+		}
+		String value = getValue("dump_filter");
+		if(value != null){
+			String [] arrs = StringUtil.split(value, ',');
+			if(arrs != null && arrs.length > 0){
+				ArrayList<String> lists = new ArrayList<String>();
+				for(String line:arrs){
+					line = line.trim();
+					if(line.length() == 0){
+						continue;
+					}
+					lists.add(line);
+				}
+				if(lists.size() > 0){
+					this.dump_filter = new String[lists.size()];
+					for(int i=0; i < lists.size();i++){
+						this.dump_filter[i] = lists.get(i);
+					}
+				}
+			}
+		}
 		
+		value = getValue("dump_dir");
+		if(value !=null){
+			File dir = new File(value);
+			if(!dir.exists() || !dir.isDirectory()){
+				System.err.println("dump_dir(" + value + ") is not exists or not a directory");
+			}
+			this.dump_dir = dir;
+		}
+		this.dump_enabled = getBoolean("dump_enabled", true);		
+		if(!dump_dir.canWrite()){
+			this.dump_enabled = false;
+			System.err.println("dump_dir(" + dump_dir.getAbsolutePath() + ") can't write");				
+		}
+		
+		this.dump_header_exists = getBoolean("dump_header_exists", true);
 		
 		this.profile_http_querystring_enabled = getBoolean("profile_http_querystring_enabled", false);
 		this.profile_http_header_enabled = getBoolean("profile_http_header_enabled", false);

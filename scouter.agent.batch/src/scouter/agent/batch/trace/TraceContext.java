@@ -17,6 +17,7 @@
 
 package scouter.agent.batch.trace;
 
+import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -173,6 +174,8 @@ public class TraceContext {
 	public int threadCnt = 0;
 	public long startCpu;
 	public long endCpu;
+
+	public File stackLogFile = null;
 
 	private HashMap<Integer, String> uniqueSqls = new HashMap<Integer, String>(100);
 	private HashMap<Integer, TraceSQL> sqlMap = new HashMap<Integer, TraceSQL>(100);
