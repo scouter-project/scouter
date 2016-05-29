@@ -43,4 +43,10 @@ public class TraceContextManager {
 		System.out.println("==>SQL return:" + traceSql);
 		return traceSql;
 	}
+	
+	public static TraceSQL startTraceSQL(String sqlText){
+		TraceSQL traceSql = getTraceSQL(sqlText);
+		traceSql.start();
+		return traceSql;
+	}
 }

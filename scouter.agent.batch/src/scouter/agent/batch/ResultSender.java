@@ -27,7 +27,7 @@ public class ResultSender extends Thread {
 			
 			TraceContext trace = TraceContext.getInstance();
 			trace.endTime = System.currentTimeMillis();
-			
+			trace.caculateLast();
 			Logger.println(trace.toString());
 		}catch(Exception ex){
 			ex.printStackTrace();

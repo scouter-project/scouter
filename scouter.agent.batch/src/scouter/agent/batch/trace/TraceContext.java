@@ -113,6 +113,19 @@ public class TraceContext {
 		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append("\r\n");
 		buffer.append("Stop    Time: ").append(sdf.format(new Date(this.endTime))).append("\r\n");
 		buffer.append("Elapsed Time: ").append((this.endTime - this.startTime)).append("ms\r\n");
+		
+		buffer.append("<SQLs>").append("\r\n");
+		int index = 0;
+		for(TraceSQL traceSql : sqlMap.values()){
+			index++;
+			buffer.append("-----------\r\n");
+			buffer.append(index).append(':').append(uniqueSqls.get(traceSql.hashValue)).append("\r\n");
+			buffer.append("Count     :").append(traceSql.count).append("\r\n");
+			buffer.append("Total Time:").append(traceSql.totalTime).append("\r\n");
+			buffer.append("Min   Time:").append(traceSql.minTime).append("\r\n");
+			buffer.append("Max   Time:").append(traceSql.maxTime).append("\r\n");
+			buffer.append("Rows      :").append(traceSql.processedRows).append("\r\n");	
+		}
 		buffer.append("-------------------------------------------------------\r\n");
 		return buffer.toString();
 	}
@@ -152,6 +165,15 @@ public class TraceContext {
 				}
 				
 			}
+		}
+	}
+	
+	public void caculateLast(){
+		synchronized(remainMap){
+			for(LocalSQL localSql : remainMap){
+				addSQLStats(localSql);
+			}
+			remainMap.clear();
 		}
 	}
 	
