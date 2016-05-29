@@ -46,9 +46,9 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 
 	private final static String TRACESQL = TraceSQL.class.getName().replace('.', '/');
 	private final static String START_METHOD = "start";
-	private static final String START_SIGNATURE = "(Ljava/lang/Object;Lscouter/agent/trace/SqlParameter;B)Ljava/lang/Object;";
+	private static final String START_SIGNATURE = "()V";
 	private final static String END_METHOD = "end";
-	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;I)V";
+	private static final String END_SIGNATURE = "()V";
 
 	public PsExecuteMV(int access, String desc, MethodVisitor mv, String owner,String name) {
 		super(ASM4,access, desc, mv);
@@ -63,7 +63,7 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 	private int statIdx;
 	private final Type returnType;
     private final String desc;
-
+/*
 	@Override
 	public void visitCode() {
 		mv.visitVarInsn(ALOAD, 0);
@@ -78,49 +78,24 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 		mv.visitLabel(startFinally);
 		mv.visitCode();
 	}
+*/
+	@Override
+	public void visitCode() {
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 0);
+	    mv.visitFieldInsn(GETFIELD, owner, TraceSQL.CURRENT_TRACESQL_FIELD, "Lscouter/agent/batch/trace/TraceSQL;");
+		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, TRACESQL, START_METHOD, START_SIGNATURE,false);
+		mv.visitLabel(startFinally);
+		mv.visitCode();
+	}
 
 	@Override
 	public void visitInsn(int opcode) {
-		if ((opcode >= IRETURN && opcode <= RETURN)) {
-            int lvPosReturn;
-			switch (returnType.getSort()) {
-                case Type.ARRAY:
-                    if(returnType.getElementType().getSort() == Type.INT) {
-                        lvPosReturn = newLocal(returnType);
-                        mv.visitVarInsn(Opcodes.ASTORE, lvPosReturn);
-                        mv.visitVarInsn(Opcodes.ALOAD, lvPosReturn);
-
-                        mv.visitVarInsn(Opcodes.ALOAD, statIdx);
-                        mv.visitInsn(Opcodes.ACONST_NULL);
-                        mv.visitVarInsn(Opcodes.ALOAD, lvPosReturn);
-                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "getIntArraySum", "([I)I", false);
-
-                    } else {
-                        mv.visitVarInsn(Opcodes.ALOAD, statIdx);
-                        mv.visitInsn(Opcodes.ACONST_NULL);
-                        AsmUtil.PUSH(mv, -1);
-                    }
-                    break;
-                case Type.BOOLEAN:
-                case Type.INT:
-                    lvPosReturn = newLocal(returnType);
-					mv.visitVarInsn(Opcodes.ISTORE, lvPosReturn);
-					mv.visitVarInsn(Opcodes.ILOAD, lvPosReturn);
-
-					mv.visitVarInsn(Opcodes.ALOAD, statIdx);
-					mv.visitInsn(Opcodes.ACONST_NULL);
-					mv.visitVarInsn(Opcodes.ILOAD, lvPosReturn);
-
-                    if(returnType.getSort()== Type.BOOLEAN){
-						mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, "toInt", "(Z)I",false);
-					}
-					break;
-				default:
-					mv.visitVarInsn(Opcodes.ALOAD, statIdx);
-					mv.visitInsn(Opcodes.ACONST_NULL);
-					AsmUtil.PUSH(mv, -1);
-			}
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, END_METHOD, END_SIGNATURE,false);
+		if ((opcode >= IRETURN && opcode <= RETURN)) {		
+			//mv.visitVarInsn(ALOAD, 0);
+			mv.visitVarInsn(ALOAD, 0);
+		    mv.visitFieldInsn(GETFIELD, owner, TraceSQL.CURRENT_TRACESQL_FIELD, "Lscouter/agent/batch/trace/TraceSQL;");
+			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, TRACESQL, END_METHOD, END_SIGNATURE,false);
 		}
 		mv.visitInsn(opcode);
 	}
@@ -130,16 +105,16 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 		Label endFinally = new Label();
 		mv.visitTryCatchBlock(startFinally, endFinally, endFinally, null);
 		mv.visitLabel(endFinally);
-		mv.visitInsn(DUP);
+		
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 0);
+	    mv.visitFieldInsn(GETFIELD, owner, TraceSQL.CURRENT_TRACESQL_FIELD, "Lscouter/agent/batch/trace/TraceSQL;");
+		mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, TRACESQL, END_METHOD, END_SIGNATURE,false);
+		
 		int errIdx = newLocal(Type.getType(Throwable.class));
 		mv.visitVarInsn(Opcodes.ASTORE, errIdx);
-
-		mv.visitVarInsn(Opcodes.ALOAD, statIdx);
-		mv.visitVarInsn(Opcodes.ALOAD, errIdx);
-		AsmUtil.PUSH(mv, -3);
-
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, END_METHOD, END_SIGNATURE,false);
 		mv.visitInsn(ATHROW);
+		
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
 	}
 

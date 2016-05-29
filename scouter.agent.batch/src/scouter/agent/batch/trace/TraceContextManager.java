@@ -21,15 +21,26 @@ public class TraceContextManager {
 
 	private static ThreadLocal<LocalSQL> local = new ThreadLocal<LocalSQL>();
 
-	public static void startThread() {
-		LocalSQL localSql = new LocalSQL();
-		local.set(localSql);
-		TraceContext.getInstance().addTraceSQL(localSql);
+	public static LocalSQL getLocalSQL(){
+		LocalSQL localSql = local.get();
+		if(localSql == null){
+			localSql = new LocalSQL();
+			local.set(localSql);
+			TraceContext.getInstance().addTraceSQL(localSql);
+		}
+		return localSql;
 	}
-
+	
 	public static void endThread(){
 		LocalSQL localSql = local.get();
 		local.set(null);
 		TraceContext.getInstance().removeTraceSQL(localSql);
+	}
+	
+	public static TraceSQL getTraceSQL(String sqlText){
+		System.out.println("==>SQL:" + sqlText);
+		TraceSQL traceSql = getLocalSQL().get(sqlText);
+		System.out.println("==>SQL return:" + traceSql);
+		return traceSql;
 	}
 }

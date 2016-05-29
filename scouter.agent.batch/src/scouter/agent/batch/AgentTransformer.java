@@ -141,6 +141,7 @@ public class AgentTransformer implements ClassFileTransformer {
                     }
                 }
             }
+            //dump(className, classfileBuffer);
             return classfileBuffer;
         } catch (Throwable t) {
             Logger.println("A101", "Transformer Error", t);
@@ -169,7 +170,8 @@ public class AgentTransformer implements ClassFileTransformer {
     }
 
     private void dump(String className, byte[] bytes) {
-        String fname = "/tmp/" + className.replace('/', '_');
+        //String fname = "/tmp/" + className.replace('/', '_');
+        String fname = "./dump" + className.replace('/', '_');
         FileUtil.save(fname, bytes);
     }
 }

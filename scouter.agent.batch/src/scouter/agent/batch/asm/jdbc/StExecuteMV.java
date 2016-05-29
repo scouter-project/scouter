@@ -17,7 +17,7 @@
 package scouter.agent.batch.asm.jdbc;
 
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.trace.TraceSQL;
+import scouter.agent.batch.trace.TraceSQL;
 import scouter.lang.step.SqlXType;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;

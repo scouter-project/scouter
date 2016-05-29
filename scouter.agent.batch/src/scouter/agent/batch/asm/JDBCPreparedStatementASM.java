@@ -22,6 +22,7 @@ import scouter.agent.batch.trace.TraceSQL;
 import scouter.agent.batch.asm.jdbc.PsInitMV;
 import scouter.agent.batch.asm.jdbc.PsExecuteMV;
 import scouter.agent.batch.asm.jdbc.StExecuteMV;
+import scouter.agent.batch.asm.jdbc.PsUpdateCountMV;
 
 import scouter.agent.asm.IASM;
 import scouter.agent.ClassDesc;
@@ -106,17 +107,16 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 		if ("<init>".equals(name)) {
 			return new PsInitMV(access, desc, mv, owner);
-
 		} else {
 			if (PsExecuteMV.isTarget(name)) {
 				if (desc.startsWith("()")) {
 					return new PsExecuteMV(access, desc, mv, owner, name);
-				} else if (desc.startsWith("(Ljava/lang/String;)")) {
-					return new StExecuteMV(access, desc, mv, owner, name);
+/*				} else if (desc.startsWith("(Ljava/lang/String;)")) {
+					return new StExecuteMV(access, desc, mv, owner, name); */
 				}
-//			} else if ("getUpdateCount".equals(name) && "()I".equals(desc)) {
-//                return new PsUpdateCountMV(mv);
-            }
+/*			} else if ("getUpdateCount".equals(name) && "()I".equals(desc)) {
+                return new PsUpdateCountMV(mv); */
+            } 
 		}
 		return mv;
 	}

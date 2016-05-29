@@ -25,8 +25,40 @@ public class TraceSQL {
 	public int startTime = -1;
 	public int endTime = 0;
 	public int totalTime = 0;
-	public int minTime = 0;
+	public int minTime = Integer.MAX_VALUE;
 	public int maxTime = 0;
-	
 	public long processedRows = 0L;
+	
+	public long sqlStartTime;
+	
+	public void start(){
+		sqlStartTime = System.currentTimeMillis();
+		if(startTime == -1){
+			startTime =  (int)(sqlStartTime - TraceContext.getInstance().startTime);
+		}
+		System.out.println("==>Start:" + sqlStartTime);
+	}
+	
+	public void end(){
+		int responseTime = (int)(System.currentTimeMillis() - sqlStartTime);
+		count++;
+		totalTime += responseTime;
+		endTime = (int)(System.currentTimeMillis() - TraceContext.getInstance().startTime);
+		
+		if(minTime > responseTime){
+			minTime = responseTime;
+		}
+		if(maxTime < responseTime){
+			maxTime = responseTime;
+		}
+		System.out.println("==>End:" + count + " - " + totalTime + " - " + responseTime);
+	}
+	
+	public void addRows(){
+		processedRows++;
+	}
+	
+	public void addRows(int rows){
+		processedRows += rows;
+	}
 }
