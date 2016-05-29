@@ -24,11 +24,9 @@ import scouter.agent.DirectPatch;
 import scouter.agent.ObjTypeDetector;
 import scouter.agent.asm.*;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
 import scouter.org.objectweb.asm.*;
 import scouter.util.FileUtil;
-import scouter.util.IntSet;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -68,6 +66,7 @@ public class AgentTransformer implements ClassFileTransformer {
 
     // //////////////////////////////////////////////////////////////
     // boot class이지만 Hooking되어야하는 클래스를 등록한다.
+/*
     private static IntSet asynchook = new IntSet();
 
     static {
@@ -76,7 +75,7 @@ public class AgentTransformer implements ClassFileTransformer {
         asynchook.add("java/net/Socket".hashCode());
         asynchook.add("javax/naming/InitialContext".hashCode());
     }
-
+*/
     private Configure conf = Configure.getInstance();
     private Logger.FileLog bciOut;
 
@@ -87,10 +86,12 @@ public class AgentTransformer implements ClassFileTransformer {
             if (className == null)
                 return null;
             if (classBeingRedefined == null) {
+/*
                 if (asynchook.contains(className.hashCode())) {
                     AsyncRunner.getInstance().add(loader, className, classfileBuffer);
                     return null;
-                }
+                } 
+*/
                 if (loader == null ) {
                     if(conf._hook_boot_prefix==null || conf._hook_boot_prefix.length()==0 || false == className.startsWith(conf._hook_boot_prefix)){
                         return null;

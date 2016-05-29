@@ -106,6 +106,9 @@ public class TraceContext {
 		buffer.append("-[Result]----------------------------------------------\r\n");
 		buffer.append("Batch     ID: ").append(this.batchJobId).append("\r\n");
 		buffer.append("Run  Command: ").append(this.args).append("\r\n");
+		if(this.stackLogFile != null){
+			buffer.append("Stack   Dump: ").append(this.stackLogFile.getAbsolutePath()).append("\r\n");
+		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append("\r\n");
 		buffer.append("Stop    Time: ").append(sdf.format(new Date(this.endTime))).append("\r\n");
