@@ -99,17 +99,21 @@ class ServiceWorker(_socket: Socket) extends Runnable {
         try {
 
             ServiceWorker.inc();
-
+            var sessionOk = false;
             while (true) {
                 val cmd = in.readText();
                 if (RequestCmd.CLOSE.equals(cmd)) {
                     return
                 }
                 val session = in.readLong();
-                val login = LoginManager.okSession(session);
-
+                if (sessionOk == false && RequestCmd.LOGIN.equals(cmd) == false) {
+                	sessionOk = LoginManager.okSession(session);
+                  if (sessionOk == false) {
+                    throw new RuntimeException("Invalid session key : " + remoteAddr);
+                  }
+                }
                 RequestLogger.getInstance().add(cmd, session);
-                ServiceHandlingProxy.process(cmd, in, out, login);
+                ServiceHandlingProxy.process(cmd, in, out, sessionOk);
 
                 out.writeByte(TcpFlag.NoNEXT);
                 out.flush();
