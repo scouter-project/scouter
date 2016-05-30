@@ -78,6 +78,8 @@ public class ServerPropertiesDialog {
 		propertyList.add(new PropertyData("user id", server.getUserId()));
 		propertyList.add(new PropertyData("group", server.getGroup()));
 		propertyList.add(new PropertyData("timezone", server.getTimezone()));
+		propertyList.add(new PropertyData("session", server.getSession()));
+		propertyList.add(new PropertyData("time delta(ms)", server.getDelta()));
 		propertyTableViewer.refresh();
 		dialog.pack();
 		dialog.open();
