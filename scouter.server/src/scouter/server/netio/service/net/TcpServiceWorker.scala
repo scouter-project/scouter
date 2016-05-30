@@ -106,7 +106,7 @@ class ServiceWorker(_socket: Socket) extends Runnable {
                     return
                 }
                 val session = in.readLong();
-                if (sessionOk == false && RequestCmd.LOGIN.equals(cmd) == false) {
+                if (sessionOk == false && RequestCmd.isFreeCmd(cmd) == false) {
                 	sessionOk = LoginManager.okSession(session);
                   if (sessionOk == false) {
                     throw new RuntimeException("Invalid session key : " + remoteAddr);
