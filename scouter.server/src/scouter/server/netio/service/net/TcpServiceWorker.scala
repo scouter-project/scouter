@@ -109,7 +109,7 @@ class ServiceWorker(_socket: Socket) extends Runnable {
                 if (sessionOk == false && RequestCmd.isFreeCmd(cmd) == false) {
                 	sessionOk = LoginManager.okSession(session);
                   if (sessionOk == false) {
-                    throw new RuntimeException("Invalid session key : " + remoteAddr);
+                    throw new RuntimeException("Invalid session key : " + cmd);
                   }
                 }
                 RequestLogger.getInstance().add(cmd, session);
@@ -137,7 +137,8 @@ class ServiceWorker(_socket: Socket) extends Runnable {
                 if (conf.log_tcp_action_enabled) {
                     Logger.println("Client : " + remoteAddr + " closed " + e + " workers=" + ServiceWorker.getActiveCount());
                 }
-            case t: Throwable => t.printStackTrace();
+            case t: Throwable =>
+                Logger.println("SC-400", 30, "ServiceWorker closed", t)
         } finally {
             FileUtil.close(in);
             FileUtil.close(out);

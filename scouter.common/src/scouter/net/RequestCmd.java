@@ -261,7 +261,7 @@ public class RequestCmd {
 	public static final String LOAD_ENDUSER_AJAX_SUMMARY = "LOAD_ENDUSER_AJAX_SUMMARY";
 	public static final String LOAD_ENDUSER_ERROR_SUMMARY = "LOAD_ENDUSER_ERROR_SUMMARY";
 	
-	private static Set<String> freeCmdSet = new HashSet<String>();
+	protected static Set<String> freeCmdSet = new HashSet<String>();
 	
 	static {
 		freeCmdSet.add(LOGIN);
