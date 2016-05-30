@@ -204,7 +204,7 @@ public class Configure extends Thread {
 
 		this.counter_object_registry_path = getValue("counter_object_registry_path", "/tmp/scouter");
 
-		this.disk_alert_enabled = getBoolean("disk_alert_enablee", true);
+		this.disk_alert_enabled = getBoolean("disk_alert_enabled", true);
 		this.disk_warning_pct = getInt("disk_warning_pct", 70);
 		this.disk_fatal_pct = getInt("disk_fatal_pct", 90);
 		this.disk_ignore_names = getStringSet("disk_ignore_names", ",");
