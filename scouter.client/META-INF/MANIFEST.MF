@@ -18,4 +18,5 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  lib/scouter.common.jar,
  lib/hibernate-core-3.3.2.GA.jar,
- lib/opencsv-2.4.jar
+ lib/opencsv-2.4.jar,
+ lib/opal-1.0.3.jar
