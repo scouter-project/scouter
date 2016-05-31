@@ -170,7 +170,7 @@ public class LoginDialog {
 		// to hash password before transfer, default true
 		secureCheck = new Button(parentGroup, SWT.CHECK);
 		secureCheck.setText("Secure Login");
-		secureCheck.setLayoutData(UIUtil.formData(null, -1, passLabel, 10, autoLoginCheck, -10, null, -1));
+		secureCheck.setLayoutData(UIUtil.formData(null, -1, passLabel, 10, autoLoginCheck, -5, null, -1));
 		secureCheck.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (secureCheck.getSelection()) {
