@@ -57,13 +57,11 @@ public class TcpProxy {
 	public static synchronized void putTcpProxy(TcpProxy t) {
 		if (t == null)
 			return;
-		if (t.isValid()) {
-			if (t.getServer().isConnected()) {
-				ConnectionPool pool = t.getServer().getConnectionPool();
-				pool.put(t);
-			} else {
-				t.close();
-			}
+		if (t.isValid() && t.getServer().isConnected()) {
+			ConnectionPool pool = t.getServer().getConnectionPool();
+			pool.put(t);
+		} else {
+			t.close();
 		}
 	}
 	
@@ -156,8 +154,12 @@ public class TcpProxy {
 					out.writePack((Pack) param);
 				}
 				out.flush();
-				while (in.readByte() == TcpFlag.HasNEXT) {
+				byte resFlag;
+				while ((resFlag = in.readByte()) == TcpFlag.HasNEXT) {
 					recv.process(in);
+				}
+				if (resFlag == TcpFlag.INVALID_SESSION) {
+					server.setSession(0); // SessionObserver will relogin
 				}
 			} catch (Throwable e) {
 				tcp.close();
