@@ -160,6 +160,7 @@ public class TcpProxy {
 				}
 				if (resFlag == TcpFlag.INVALID_SESSION) {
 					server.setSession(0); // SessionObserver will relogin
+					tcp.close();
 				}
 			} catch (Throwable e) {
 				tcp.close();
