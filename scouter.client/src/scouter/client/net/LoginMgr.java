@@ -37,12 +37,12 @@ public class LoginMgr{
 		return silentLogin(server, user, encrypted);
 	}
 	
-	public static LoginResult login(int serverId, String user, String password, boolean ldapLogin){
+	public static LoginResult login(int serverId, String user, String password, boolean secureLogin){
 		Server server = ServerManager.getInstance().getServer(serverId);
-		
-		if(!ldapLogin)
+		if(secureLogin) {
 			password = CipherUtil.sha256(password);
-		
+		}
+		server.setSecureMode(secureLogin);
 		return silentLogin(server, user, password);
 	}
 	

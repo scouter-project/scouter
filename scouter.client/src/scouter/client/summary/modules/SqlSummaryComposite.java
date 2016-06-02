@@ -8,12 +8,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
+import scouter.client.popup.SQLFormatDialog;
 import scouter.client.util.ExUtil;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
@@ -93,6 +97,17 @@ public class SqlSummaryComposite extends AbstractSummaryComposite {
 				c.setLabelProvider(labelProvider);
 			}
 		}
+		viewer.addDoubleClickListener(new IDoubleClickListener() {
+			public void doubleClick(DoubleClickEvent event) {
+				StructuredSelection sel = (StructuredSelection) event.getSelection();
+				Object o = sel.getFirstElement();
+				if (o instanceof SummaryData) {
+					SummaryData data = (SummaryData) o;
+					String sql = TextProxy.sql.getText(data.hash);
+					new SQLFormatDialog().show(sql, null);
+				}
+			}
+		});
 	}
 	
 	enum SqlColumnEnum {
