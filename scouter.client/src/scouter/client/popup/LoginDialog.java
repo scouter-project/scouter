@@ -74,12 +74,11 @@ public class LoginDialog {
 
 	List list;
 
-	Button autoLoginCheck, showPass, ldapLoginCheck;
+	Button autoLoginCheck, secureCheck;
 	boolean autoLogin;
-	boolean ldapLogin;
+	boolean secureLogin = true;
 
 	String address = null;
-	boolean showPassword = false;
 
 	public LoginDialog(Display display, ILoginDialog callback, int openType) {
 		this(display, callback, openType, null);
@@ -152,26 +151,11 @@ public class LoginDialog {
 		passLabel.setText("Password :");
 		passLabel.setLayoutData(UIUtil.formData(null, -1, id, 10, null, -1, null, -1, 100));
 
-		createPasswordInput(parentGroup, showPassword, "");
-
-		showPass = new Button(parentGroup, SWT.CHECK);
-		showPass.setText("Show password");
-		showPass.setSelection(showPassword);
-		showPass.setLayoutData(UIUtil.formData(null, -1, passLabel, 10, 100, -5, null, -1));
-		showPass.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				String ontyping = pass.getText();
-				if (pass != null && !pass.isDisposed()) {
-					pass.dispose();
-				}
-				createPasswordInput(parentGroup, showPass.getSelection(), ontyping);
-				parentGroup.layout();
-			}
-		});
+		createPasswordInput(parentGroup);
 
 		autoLoginCheck = new Button(parentGroup, SWT.CHECK);
 		autoLoginCheck.setText("Auto Login");
-		autoLoginCheck.setLayoutData(UIUtil.formData(null, -1, showPass, 10, 100, -5, null, -1));
+		autoLoginCheck.setLayoutData(UIUtil.formData(null, -1, passLabel, 10, 100, -5, null, -1));
 		autoLoginCheck.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (autoLoginCheck.getSelection()) {
@@ -183,21 +167,23 @@ public class LoginDialog {
 		});
 		autoLoginCheck.setSelection(false);
 		
-		ldapLoginCheck = new Button(parentGroup, SWT.CHECK);
-		ldapLoginCheck.setText("Ldap Login");
-		ldapLoginCheck.setLayoutData(UIUtil.formData(null, -1, autoLoginCheck, 10, 100, -5, null, -1));
-		ldapLoginCheck.addSelectionListener(new SelectionAdapter() {
+		// to hash password before transfer, default true
+		secureCheck = new Button(parentGroup, SWT.CHECK);
+		secureCheck.setText("Secure Login");
+		secureCheck.setLayoutData(UIUtil.formData(null, -1, passLabel, 10, autoLoginCheck, -5, null, -1));
+		secureCheck.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if (ldapLoginCheck.getSelection()) {
-					ldapLogin = true;
+				if (secureCheck.getSelection()) {
+					secureLogin = true;
 				} else {
-					ldapLogin = false;
+					secureLogin = false;
 				}
 			}
 		});
+		secureCheck.setSelection(true);
 		
 		list = new List(parentGroup, SWT.NONE);
-		list.setLayoutData(UIUtil.formData(0, 5, ldapLoginCheck, 10, 100, -5, null, -1, -1, 60));
+		list.setLayoutData(UIUtil.formData(0, 5, secureCheck, 10, 100, -5, null, -1, -1, 60));
 		list.add("Type your authentication info...");
 		list.select(list.getItemCount() - 1);
 		list.showSelection();
@@ -250,6 +236,7 @@ public class LoginDialog {
 			Server server = ServerManager.getInstance().getServer(address);
 			if (server != null && StringUtil.isNotEmpty(server.getUserId())) {
 				id.setText(server.getUserId());
+				secureCheck.setSelection(server.isSecureMode());
 			}
 			autoLoginCheck.setSelection(ServerPrefUtil.isAutoLoginAddress(address));
 		} else if (openType == TYPE_STARTUP){
@@ -299,13 +286,8 @@ public class LoginDialog {
 		}
 	}
 
-	private void createPasswordInput(Composite parentGroup, boolean showPassword, String ontyping) {
-		if (showPassword) {
-			pass = new Text(parentGroup, SWT.SINGLE | SWT.BORDER);
-		} else {
-			pass = new Text(parentGroup, SWT.SINGLE | SWT.BORDER | SWT.PASSWORD);
-		}
-		pass.setText(ontyping);
+	private void createPasswordInput(Composite parentGroup) {
+		pass = new Text(parentGroup, SWT.SINGLE | SWT.BORDER | SWT.PASSWORD);
 		pass.addFocusListener(new FocusListener() {
 			public void focusLost(FocusEvent e) {
 			}
@@ -351,7 +333,7 @@ public class LoginDialog {
 				existServer = true;
 			}
 
-			LoginResult result = LoginMgr.login(server.getId(), id.getText(), pass.getText(), ldapLogin);
+			LoginResult result = LoginMgr.login(server.getId(), id.getText(), pass.getText(), secureLogin);
 			if (result.success) {
 				msg("Successfully log in to " + address);
 				ServerPrefUtil.addServerAddr(address);

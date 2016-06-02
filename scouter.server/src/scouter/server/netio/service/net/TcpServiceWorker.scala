@@ -109,6 +109,8 @@ class ServiceWorker(_socket: Socket) extends Runnable {
                 if (sessionOk == false && RequestCmd.isFreeCmd(cmd) == false) {
                 	sessionOk = LoginManager.okSession(session);
                   if (sessionOk == false) {
+                    out.writeByte(TcpFlag.INVALID_SESSION);
+                    out.flush();
                     throw new RuntimeException("Invalid session key : " + cmd);
                   }
                 }

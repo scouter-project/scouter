@@ -80,6 +80,7 @@ public class ServerPropertiesDialog {
 		propertyList.add(new PropertyData("timezone", server.getTimezone()));
 		propertyList.add(new PropertyData("session", server.getSession()));
 		propertyList.add(new PropertyData("time delta(ms)", server.getDelta()));
+		propertyList.add(new PropertyData("secure_mode", server.isSecureMode()));
 		propertyTableViewer.refresh();
 		dialog.pack();
 		dialog.open();
