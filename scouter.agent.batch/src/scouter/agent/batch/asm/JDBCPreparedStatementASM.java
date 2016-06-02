@@ -111,11 +111,11 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 			if (PsExecuteMV.isTarget(name)) {
 				if (desc.startsWith("()")) {
 					return new PsExecuteMV(access, desc, mv, owner, name);
-/*				} else if (desc.startsWith("(Ljava/lang/String;)")) {
-					return new StExecuteMV(access, desc, mv, owner, name); */
+				} else if (desc.startsWith("(Ljava/lang/String;)")) {
+					return new StExecuteMV(access, desc, mv, owner, name);
 				}
-/*			} else if ("getUpdateCount".equals(name) && "()I".equals(desc)) {
-                return new PsUpdateCountMV(mv); */
+//			} else if ("getUpdateCount".equals(name) && "()I".equals(desc)) {
+ //               return new PsUpdateCountMV(mv);
             } 
 		}
 		return mv;

@@ -22,28 +22,26 @@ public class TraceSQL {
 	public Integer hashValue;
 	public int count = 0;
 	
-	public int startTime = -1;
-	public int endTime = 0;
-	public int totalTime = 0;
-	public int minTime = Integer.MAX_VALUE;
-	public int maxTime = 0;
+	public long startTime = -1L;
+	public long endTime = 0L;
+	public long totalTime = 0L;
+	public long minTime = Long.MAX_VALUE;
+	public long maxTime = 0L;
 	public long processedRows = 0L;
 	
 	public long sqlStartTime;
 	
 	public void start(){
-		sqlStartTime = System.currentTimeMillis();
-		if(startTime == -1){
-			startTime =  (int)(sqlStartTime - TraceContext.getInstance().startTime);
+		if(startTime == -1L){
+			startTime = System.currentTimeMillis();
 		}
-		System.out.println("==>Start:" + sqlStartTime);
+		sqlStartTime = System.nanoTime();
 	}
 	
 	public void end(){
-		int responseTime = (int)(System.currentTimeMillis() - sqlStartTime);
+		long responseTime = System.nanoTime() - sqlStartTime;
 		count++;
 		totalTime += responseTime;
-		endTime = (int)(System.currentTimeMillis() - TraceContext.getInstance().startTime);
 		
 		if(minTime > responseTime){
 			minTime = responseTime;
@@ -51,7 +49,7 @@ public class TraceSQL {
 		if(maxTime < responseTime){
 			maxTime = responseTime;
 		}
-		System.out.println("==>End:" + count + " - " + totalTime + " - " + responseTime);
+		endTime = System.currentTimeMillis();
 	}
 	
 	public void addRows(){
@@ -61,4 +59,29 @@ public class TraceSQL {
 	public void addRows(int rows){
 		processedRows += rows;
 	}
+	
+	public long getTotalTimeByMillis(){
+		return totalTime / 1000000L;		
+	}
+
+	public long getTotalTimeByMicro(){
+		return totalTime / 1000L;
+	}
+
+	public long getMinTimeByMillis(){
+		return minTime / 1000000L;		
+	}
+
+	public long getMinTimeByMicro(){
+		return minTime / 1000L;
+	}
+
+	public long getMaxTimeByMillis(){
+		return maxTime / 1000000L;		
+	}
+
+	public long getMaxTimeByMicro(){
+		return maxTime / 1000L;
+	}
+	
 }

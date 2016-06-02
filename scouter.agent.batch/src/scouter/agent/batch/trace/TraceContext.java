@@ -20,9 +20,10 @@ package scouter.agent.batch.trace;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import scouter.agent.batch.Configure;
@@ -33,10 +34,11 @@ public class TraceContext {
 	private static final int SQL_OTHERS_HASH = "Others".hashCode();
 	private static TraceContext instance = null;
 	
+	static {
+		instance = new TraceContext();		
+	}
+	
 	final public static TraceContext getInstance(){
-		if(instance == null){
-			instance = new TraceContext();
-		}
 		return instance;
 	}
 	
@@ -120,10 +122,12 @@ public class TraceContext {
 			index++;
 			buffer.append("-----------\r\n");
 			buffer.append(index).append(':').append(uniqueSqls.get(traceSql.hashValue)).append("\r\n");
+			buffer.append("Start Time:").append(traceSql.startTime).append("\r\n");
+			buffer.append("End   Time:").append(traceSql.endTime).append("\r\n");
 			buffer.append("Count     :").append(traceSql.count).append("\r\n");
-			buffer.append("Total Time:").append(traceSql.totalTime).append("\r\n");
-			buffer.append("Min   Time:").append(traceSql.minTime).append("\r\n");
-			buffer.append("Max   Time:").append(traceSql.maxTime).append("\r\n");
+			buffer.append("Total Time:").append(traceSql.getTotalTimeByMillis()).append("\r\n");
+			buffer.append("Min   Time:").append(traceSql.getMinTimeByMillis()).append("\r\n");
+			buffer.append("Max   Time:").append(traceSql.getMaxTimeByMillis()).append("\r\n");
 			buffer.append("Rows      :").append(traceSql.processedRows).append("\r\n");	
 		}
 		buffer.append("-------------------------------------------------------\r\n");
@@ -151,11 +155,11 @@ public class TraceContext {
 				statsSql.count += sql.count;
 				statsSql.totalTime += sql.totalTime;
 				statsSql.processedRows += sql.processedRows;
-				if(statsSql.startTime > sql.startTime){
+				if( statsSql.startTime > sql.startTime || statsSql.startTime == -1L){
 					statsSql.startTime = sql.startTime;
 				}
 				if(statsSql.endTime < sql.endTime){
-					statsSql.startTime = sql.startTime;
+					statsSql.endTime = sql.endTime;
 				}
 				if(statsSql.minTime > sql.minTime){
 					statsSql.minTime = sql.minTime;
@@ -177,7 +181,7 @@ public class TraceContext {
 		}
 	}
 	
-	public void addTraceSQL(LocalSQL localSql){
+	public void addLocalSQL(LocalSQL localSql){
 		synchronized(remainMap){
 			remainMap.add(localSql);
 		}
@@ -204,7 +208,7 @@ public class TraceContext {
 
 	private HashMap<Integer, String> uniqueSqls = new HashMap<Integer, String>(100);
 	private HashMap<Integer, TraceSQL> sqlMap = new HashMap<Integer, TraceSQL>(100);
-	private HashSet<LocalSQL> remainMap = new HashSet<LocalSQL>();
+	private List<LocalSQL> remainMap = new ArrayList<LocalSQL>();
 	
 	private int sqlMaxCount;
 }

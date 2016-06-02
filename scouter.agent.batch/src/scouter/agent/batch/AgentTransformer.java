@@ -18,11 +18,13 @@
 package scouter.agent.batch;
 
 import scouter.agent.batch.asm.JDBCPreparedStatementASM;
+import scouter.agent.batch.asm.JDBCStatementASM;
 
+import scouter.agent.asm.ScouterClassWriter;
+import scouter.agent.asm.IASM;
 import scouter.agent.ClassDesc;
 import scouter.agent.DirectPatch;
 import scouter.agent.ObjTypeDetector;
-import scouter.agent.asm.*;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.lang.conf.ConfObserver;
 import scouter.org.objectweb.asm.*;
@@ -58,6 +60,8 @@ public class AgentTransformer implements ClassFileTransformer {
         List<IASM> temp = new ArrayList<IASM>();
 
         temp.add(new JDBCPreparedStatementASM());
+        temp.add(new JDBCStatementASM());
+
  //       temp.add(new JDBCResultSetASM());
  //      temp.add(new JDBCStatementASM());
   
@@ -138,10 +142,10 @@ public class AgentTransformer implements ClassFileTransformer {
                             this.bciOut = new Logger.FileLog("./scouter.bci");
                         }
                         this.bciOut.println(className + "\t\t[" + loader + "]");
+                        dump(className, classfileBuffer);
                     }
                 }
             }
-            //dump(className, classfileBuffer);
             return classfileBuffer;
         } catch (Throwable t) {
             Logger.println("A101", "Transformer Error", t);
@@ -171,7 +175,7 @@ public class AgentTransformer implements ClassFileTransformer {
 
     private void dump(String className, byte[] bytes) {
         //String fname = "/tmp/" + className.replace('/', '_');
-        String fname = "./dump" + className.replace('/', '_');
+        String fname = "./dump/" + className.replace('/', '_') + ".class";
         FileUtil.save(fname, bytes);
     }
 }

@@ -18,7 +18,6 @@ package scouter.agent.batch;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import scouter.agent.batch.dump.ThreadDumpHandler;
 import scouter.agent.batch.trace.TraceContext;

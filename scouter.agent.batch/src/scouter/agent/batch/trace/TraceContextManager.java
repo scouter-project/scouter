@@ -26,7 +26,7 @@ public class TraceContextManager {
 		if(localSql == null){
 			localSql = new LocalSQL();
 			local.set(localSql);
-			TraceContext.getInstance().addTraceSQL(localSql);
+			TraceContext.getInstance().addLocalSQL(localSql);
 		}
 		return localSql;
 	}
@@ -38,9 +38,7 @@ public class TraceContextManager {
 	}
 	
 	public static TraceSQL getTraceSQL(String sqlText){
-		System.out.println("==>SQL:" + sqlText);
 		TraceSQL traceSql = getLocalSQL().get(sqlText);
-		System.out.println("==>SQL return:" + traceSql);
 		return traceSql;
 	}
 	
