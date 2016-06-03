@@ -26,7 +26,7 @@ import scouter.org.objectweb.asm.Type;
 
 public class RsNextMV extends MethodVisitor implements Opcodes {
 	private static final String TRACESQL = TraceSQL.class.getName().replace('.', '/');
-	private static final String METHOD = "addRows";
+	private static final String METHOD = "addRow";
 	private static final String SIGNATURE = "()V";
 
 	public RsNextMV(String owner, MethodVisitor mv) {

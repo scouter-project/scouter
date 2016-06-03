@@ -31,7 +31,7 @@ import scouter.agent.batch.Logger;
 
 public class TraceContext {
 	private static final String SQL_OTHERS = "Others";
-	private static final int SQL_OTHERS_HASH = "Others".hashCode();
+	private static final int SQL_OTHERS_HASH = SQL_OTHERS.hashCode();
 	private static TraceContext instance = null;
 	
 	static {
@@ -115,6 +115,7 @@ public class TraceContext {
 		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append("\r\n");
 		buffer.append("Stop    Time: ").append(sdf.format(new Date(this.endTime))).append("\r\n");
 		buffer.append("Elapsed Time: ").append((this.endTime - this.startTime)).append("ms\r\n");
+		buffer.append("Thread Count: ").append(this.threadCnt).append("\r\n");
 		
 		buffer.append("<SQLs>").append("\r\n");
 		int index = 0;
@@ -122,8 +123,8 @@ public class TraceContext {
 			index++;
 			buffer.append("-----------\r\n");
 			buffer.append(index).append(':').append(uniqueSqls.get(traceSql.hashValue)).append("\r\n");
-			buffer.append("Start Time:").append(traceSql.startTime).append("\r\n");
-			buffer.append("End   Time:").append(traceSql.endTime).append("\r\n");
+			buffer.append("Start Time:").append(sdf.format(new Date(traceSql.startTime))).append("\r\n");
+			buffer.append("End   Time:").append(sdf.format(new Date(traceSql.endTime))).append("\r\n");
 			buffer.append("Count     :").append(traceSql.count).append("\r\n");
 			buffer.append("Total Time:").append(traceSql.getTotalTimeByMillis()).append("\r\n");
 			buffer.append("Min   Time:").append(traceSql.getMinTimeByMillis()).append("\r\n");
@@ -184,6 +185,7 @@ public class TraceContext {
 	public void addLocalSQL(LocalSQL localSql){
 		synchronized(remainMap){
 			remainMap.add(localSql);
+			threadCnt++;
 		}
 	}
 

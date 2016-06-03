@@ -52,12 +52,25 @@ public class TraceSQL {
 		endTime = System.currentTimeMillis();
 	}
 	
-	public void addRows(){
+	public void addRow(){
 		processedRows++;
 	}
 	
-	public void addRows(int rows){
+	public void addRow(int rows){
 		processedRows += rows;
+	}
+
+	public void addRows(int [] rows){
+		if(rows == null || rows.length < 1)
+			return;
+		for(int i = 0; i < rows.length; i++){
+			System.out.println("==> I: " + i + "<-" + rows[i]);
+			if(rows[i] > 0){
+				processedRows += rows[i];
+			}else if(rows[i] == -2){
+				processedRows++;				
+			}
+		}
 	}
 	
 	public long getTotalTimeByMillis(){

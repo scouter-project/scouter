@@ -18,7 +18,7 @@ package scouter.agent.batch.asm.jdbc;
 
 import scouter.agent.batch.trace.TraceSQL;
 
-import scouter.agent.asm.util.AsmUtil;
+import scouter.javassist.bytecode.Opcode;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
@@ -49,6 +49,10 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 	private static final String START_SIGNATURE = "()V";
 	private final static String END_METHOD = "end";
 	private static final String END_SIGNATURE = "()V";
+	private final static String ADD_METHOD = "addRow";
+	private static final String ADD_SIGNATURE = "(I)V";
+	private final static String ADDS_METHOD = "addRows";
+	private static final String ADDS_SIGNATURE = "([I)V";
 
 	public PsExecuteMV(int access, String desc, MethodVisitor mv, String owner,String name) {
 		super(ASM4,access, desc, mv);
@@ -76,12 +80,37 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 
 	@Override
 	public void visitInsn(int opcode) {
-		if ((opcode >= IRETURN && opcode <= RETURN)) {		
-			//mv.visitVarInsn(ALOAD, 0);
+		if ((opcode >= IRETURN && opcode <= RETURN)) {
+			int lvPosReturn;
+			switch (returnType.getSort()) {
+            case Type.ARRAY:
+                if(returnType.getElementType().getSort() == Type.INT) {
+                    lvPosReturn = newLocal(returnType);
+                    mv.visitVarInsn(Opcodes.ASTORE, lvPosReturn);
+                    mv.visitVarInsn(Opcodes.ALOAD, lvPosReturn);
+        			mv.visitVarInsn(ALOAD, 0);
+        		    mv.visitFieldInsn(GETFIELD, owner, TraceSQL.CURRENT_TRACESQL_FIELD, "Lscouter/agent/batch/trace/TraceSQL;");
+                    mv.visitVarInsn(Opcodes.ALOAD, lvPosReturn);
+        			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, TRACESQL, ADDS_METHOD, ADDS_SIGNATURE,false);
+                }
+                break;
+            case Type.INT:
+            	lvPosReturn = newLocal(returnType);
+                mv.visitVarInsn(Opcodes.ISTORE, lvPosReturn);
+                mv.visitVarInsn(Opcodes.ILOAD, lvPosReturn);
+    			mv.visitVarInsn(ALOAD, 0);
+    		    mv.visitFieldInsn(GETFIELD, owner, TraceSQL.CURRENT_TRACESQL_FIELD, "Lscouter/agent/batch/trace/TraceSQL;");
+                mv.visitVarInsn(Opcodes.ILOAD, lvPosReturn);
+    			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, TRACESQL, ADD_METHOD, ADD_SIGNATURE,false);
+                break;
+			}
+			
+			// Return 결과 셋팅
 			mv.visitVarInsn(ALOAD, 0);
 		    mv.visitFieldInsn(GETFIELD, owner, TraceSQL.CURRENT_TRACESQL_FIELD, "Lscouter/agent/batch/trace/TraceSQL;");
 			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, TRACESQL, END_METHOD, END_SIGNATURE,false);
 		}
+		
 		mv.visitInsn(opcode);
 	}
 
