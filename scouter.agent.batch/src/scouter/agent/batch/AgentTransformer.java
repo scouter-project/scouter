@@ -19,6 +19,7 @@ package scouter.agent.batch;
 
 import scouter.agent.batch.asm.JDBCPreparedStatementASM;
 import scouter.agent.batch.asm.JDBCStatementASM;
+import scouter.agent.batch.asm.JDBCResultSetASM;
 
 import scouter.agent.asm.ScouterClassWriter;
 import scouter.agent.asm.IASM;
@@ -61,10 +62,8 @@ public class AgentTransformer implements ClassFileTransformer {
 
         temp.add(new JDBCPreparedStatementASM());
         temp.add(new JDBCStatementASM());
-
- //       temp.add(new JDBCResultSetASM());
- //      temp.add(new JDBCStatementASM());
-  
+        temp.add(new JDBCResultSetASM());
+        
         asms = temp;
     }
 

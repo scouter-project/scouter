@@ -42,6 +42,10 @@ public class TraceContextManager {
 		return traceSql;
 	}
 	
+	public static TraceSQL getCurrentTraceSQL(){
+		return getLocalSQL().getCurrentTraceSQL();
+	}
+	
 	public static TraceSQL startTraceSQL(String sqlText){
 		TraceSQL traceSql = getTraceSQL(sqlText);
 		traceSql.start();

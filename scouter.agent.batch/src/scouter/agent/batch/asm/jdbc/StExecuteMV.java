@@ -16,7 +16,6 @@
 
 package scouter.agent.batch.asm.jdbc;
 
-import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.batch.trace.TraceContextManager;
 import scouter.agent.batch.trace.TraceSQL;
 import scouter.lang.step.SqlXType;
