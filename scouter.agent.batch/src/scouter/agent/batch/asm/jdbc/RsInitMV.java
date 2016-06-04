@@ -16,8 +16,6 @@
 
 package scouter.agent.batch.asm.jdbc;
 
-import java.sql.ResultSet;
-
 import scouter.agent.batch.trace.TraceContextManager;
 import scouter.agent.batch.trace.TraceSQL;
 import scouter.org.objectweb.asm.MethodVisitor;
@@ -33,7 +31,6 @@ public class RsInitMV extends LocalVariablesSorter implements Opcodes {
 	private final static String TRACECONTEXTMANAGER = TraceContextManager.class.getName().replace('.', '/');
 	private final static String METHOD = "getCurrentTraceSQL";
 	private final static String SIGNATURE = "()Lscouter/agent/batch/trace/TraceSQL;";
-	private final static String TRACESQL = TraceSQL.class.getName().replace('.', '/');
 
 	public RsInitMV(int access, String owner, String desc, MethodVisitor mv) {
 		super(ASM4, access, desc, mv);

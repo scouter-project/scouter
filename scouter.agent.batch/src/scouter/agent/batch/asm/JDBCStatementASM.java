@@ -18,7 +18,6 @@ package scouter.agent.batch.asm;
 
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
-import scouter.agent.batch.asm.jdbc.PsUpdateCountMV;
 import scouter.agent.batch.asm.jdbc.StExecuteMV;
 import scouter.agent.batch.trace.TraceSQL;
 
@@ -55,7 +54,7 @@ public class JDBCStatementASM implements IASM, Opcodes {
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-		if (Configure.getInstance()._hook_dbsql_enabled == false) {
+		if (Configure.getInstance().sql_enabled == false) {
 			return cv;
 		}
 		if (target.contains(className) == false) {
@@ -86,8 +85,6 @@ class StatementCV extends ClassVisitor implements Opcodes {
 			if (desc.startsWith("(Ljava/lang/String;)")) {
 				return new StExecuteMV(access, desc, mv, owner, name);
 			}
-//		} else if ("getUpdateCount".equals(name) && "()I".equals(desc)) {
-//			return new PsUpdateCountMV(mv);
 		}
 		return mv;
 	}

@@ -18,14 +18,12 @@ package scouter.agent.batch.asm.jdbc;
 
 import scouter.agent.batch.trace.TraceSQL;
 
-import scouter.javassist.bytecode.Opcode;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
-import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,8 +36,6 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 		target.add("executeUpdate");
 		target.add("executeBatch");
 	}
-
-	private final byte methodType;
 
 	public static boolean isTarget(String name) {
 		return target.contains(name);
@@ -55,23 +51,15 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 	private final static String ADDS_METHOD = "addRows";
 	private static final String ADDS_SIGNATURE = "([I)V";
 
-	private final static String STATMENT = Statement.class.getName().replace('.', '/');
-	private final static String GETUPDATECOUNT_METHOD = "getUpdateCount";
-	private static final String GETUPDATECOUNT_SIGNATURE = "()I";
-
 	public PsExecuteMV(int access, String desc, MethodVisitor mv, String owner,String name) {
 		super(ASM4,access, desc, mv);
 		this.owner = owner;
 		this.returnType = Type.getReturnType(desc);
-        this.desc = desc;
-		this.methodType = StExecuteMV.methodType(name);
 	}
+	
 	private Label startFinally = new Label();
-
 	private String owner;
-	private int statIdx;
 	private final Type returnType;
-    private final String desc;
 
 	@Override
 	public void visitCode() {

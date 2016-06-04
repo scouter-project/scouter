@@ -24,10 +24,8 @@ import scouter.agent.batch.asm.JDBCResultSetASM;
 import scouter.agent.asm.ScouterClassWriter;
 import scouter.agent.asm.IASM;
 import scouter.agent.ClassDesc;
-import scouter.agent.DirectPatch;
 import scouter.agent.ObjTypeDetector;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.lang.conf.ConfObserver;
 import scouter.org.objectweb.asm.*;
 import scouter.util.FileUtil;
 
@@ -38,74 +36,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AgentTransformer implements ClassFileTransformer {
-    public static ThreadLocal<ClassLoader> hookingCtx = new ThreadLocal<ClassLoader>();
-    private static List<IASM> asms = new ArrayList<IASM>();
+	private static List<String> filters = new ArrayList<String>();
+	private static List<IASM> asms = new ArrayList<IASM>();
     // hook 관련 설정이 변경되면 자동으로 변경된다.
-    private static int hook_signature;
-
+ 
     static {
-        final Configure conf = Configure.getInstance();
-        reload();
-        hook_signature = conf.getHookSignature();
-        ConfObserver.add("AgentTransformer", new Runnable() {
-            public void run() {
-                if (conf.getHookSignature() != hook_signature) {
-                    reload();
-                }
-                hook_signature = conf.getHookSignature();
-            }
-        });
+    	asms.add(new JDBCPreparedStatementASM());
+    	asms.add(new JDBCStatementASM());
+    	asms.add(new JDBCResultSetASM());
+    	
+    	filters.add("Statement");
+    	filters.add("ResultSet");
     }
 
-    public static void reload() {
-        List<IASM> temp = new ArrayList<IASM>();
-
-        temp.add(new JDBCPreparedStatementASM());
-        temp.add(new JDBCStatementASM());
-        temp.add(new JDBCResultSetASM());
-        
-        asms = temp;
-    }
-
-    // //////////////////////////////////////////////////////////////
-    // boot class이지만 Hooking되어야하는 클래스를 등록한다.
-/*
-    private static IntSet asynchook = new IntSet();
-
-    static {
-        asynchook.add("sun/net/www/protocol/http/HttpURLConnection".hashCode());
-        asynchook.add("sun/net/www/http/HttpClient".hashCode());
-        asynchook.add("java/net/Socket".hashCode());
-        asynchook.add("javax/naming/InitialContext".hashCode());
-    }
-*/
     private Configure conf = Configure.getInstance();
     private Logger.FileLog bciOut;
 
     public byte[] transform(ClassLoader loader, String className, Class classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
-            hookingCtx.set(loader);
-            if (className == null)
-                return null;
-            if (classBeingRedefined == null) {
-/*
-                if (asynchook.contains(className.hashCode())) {
-                    AsyncRunner.getInstance().add(loader, className, classfileBuffer);
-                    return null;
-                } 
-*/
-                if (loader == null ) {
-                    if(conf._hook_boot_prefix==null || conf._hook_boot_prefix.length()==0 || false == className.startsWith(conf._hook_boot_prefix)){
-                        return null;
-                    }
-                }
-            }
-            if (className.startsWith("scouter/")) {
+        	if(!conf.sql_enabled || className == null){
+        		return null;
+        	}
+        	
+            if (className.startsWith("scouter/") || !filter(className)) {
                 return null;
             }
-            //
-            classfileBuffer = DirectPatch.patch(className, classfileBuffer);
+
+            //classfileBuffer = DirectPatch.patch(className, classfileBuffer);
             ObjTypeDetector.check(className);
             final ClassDesc classDesc = new ClassDesc();
             ClassReader cr = new ClassReader(classfileBuffer);
@@ -149,8 +107,6 @@ public class AgentTransformer implements ClassFileTransformer {
         } catch (Throwable t) {
             Logger.println("A101", "Transformer Error", t);
             t.printStackTrace();
-        } finally {
-            hookingCtx.set(null);
         }
         return null;
     }
@@ -171,9 +127,17 @@ public class AgentTransformer implements ClassFileTransformer {
         }
         return cw;
     }
+    
+    private boolean filter(String className){
+    	for(String name: filters){
+    		if(className.indexOf(name) >= 0){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
 
     private void dump(String className, byte[] bytes) {
-        //String fname = "/tmp/" + className.replace('/', '_');
         String fname = "./dump/" + className.replace('/', '_') + ".class";
         FileUtil.save(fname, bytes);
     }

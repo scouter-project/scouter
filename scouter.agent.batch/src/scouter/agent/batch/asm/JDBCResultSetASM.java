@@ -51,7 +51,7 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-		if (Configure.getInstance()._hook_dbsql_enabled == false) {
+		if (Configure.getInstance().sql_enabled == false) {
 			return cv;
 		}
 		if (target.contains(className) == false) {

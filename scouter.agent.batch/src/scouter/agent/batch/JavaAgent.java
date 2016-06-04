@@ -43,11 +43,8 @@ public class JavaAgent {
 			String confFile = System.getProperty("scouter.config"); 
 			if( confFile == null){
 				System.setProperty(Configure.VM_SCOUTER_ENABLED, "false");
-			}else{
-				if(System.getProperty(Configure.VM_SCOUTER_ENABLED) == null){
-					System.setProperty(Configure.VM_SCOUTER_ENABLED, "true");
-				}
 			}
+			
 			Logo.print(false);
 			String nativeName = JavaAgent.class.getName().replace('.', '/') + ".class";
 			ClassLoader cl = JavaAgent.class.getClassLoader();

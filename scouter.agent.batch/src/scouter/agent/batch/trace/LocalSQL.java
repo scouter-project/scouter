@@ -2,12 +2,14 @@ package scouter.agent.batch.trace;
 
 public class LocalSQL extends java.util.HashMap<Integer, TraceSQL>{
 	private static final long serialVersionUID = 1L;
-	private String threadName;
+	private String currentThreadName;
 	private TraceSQL currentTraceSql;
+	private Thread currentThread;
 	
 	public LocalSQL() {
 		super(100);
-		this.threadName = Thread.currentThread().getName();
+		this.currentThread = Thread.currentThread();
+		this.currentThreadName = this.currentThread.getName();
 	}
 	
 	public TraceSQL get(String sqlText){
@@ -28,7 +30,11 @@ public class LocalSQL extends java.util.HashMap<Integer, TraceSQL>{
 		return currentTraceSql;
 	}
 	
+	public Thread getThread(){
+		return currentThread;
+	}
+	
 	public String toString(){
-		return threadName + ": " + super.toString();
+		return currentThreadName + ": " + super.toString();
 	}
 }

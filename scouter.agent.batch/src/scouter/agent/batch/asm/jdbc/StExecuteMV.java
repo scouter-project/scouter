@@ -38,7 +38,6 @@ public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 	}
 
 	private final Type returnType;
-	private final byte methodType;
 
 	public static boolean isTarget(String name) {
 		return target.contains(name);
@@ -59,9 +58,7 @@ public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 	public StExecuteMV(int access, String desc, MethodVisitor mv, String owner, String name) {
 		super(ASM4, access, desc, mv);
 		this.returnType = Type.getReturnType(desc);
-        this.desc = desc;
-		this.methodType = methodType(name);
-		this.owner = owner;
+        this.owner = owner;
 	}
 
 	public static byte methodType(String name) {
@@ -78,9 +75,7 @@ public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 	}
 
 	private Label startFinally = new Label();
-	private int statIdx;
-    private String desc;
-    private String owner;
+	private String owner;
     
 	@Override
 	public void visitCode() {

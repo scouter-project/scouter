@@ -43,27 +43,32 @@ public class BatchMonitor extends Thread {
 	public void run() {
 		try {			
 			config = Configure.getInstance();			
-			if(!config.dump_enabled){
-				return;
-			}
-			
 			TraceContext traceContext = TraceContext.getInstance();
-			Date dt = new Date(traceContext.startTime);
-			String fileSeparator = System.getProperty("file.separator");
-			String date = new SimpleDateFormat("yyyyMMdd").format(dt);
+			File stackFile = null;
 			
-			File dir = new File(new StringBuilder(100).append(config.dump_dir.getAbsolutePath()).append(fileSeparator).append(date).toString());
-			if(!dir.exists()){
-				dir.mkdirs();
+			
+			if(config.sfa_dump_enabled){
+				Date dt = new Date(traceContext.startTime);
+				String fileSeparator = System.getProperty("file.separator");
+				String date = new SimpleDateFormat("yyyyMMdd").format(dt);
+				
+				File dir = new File(new StringBuilder(100).append(config.sfa_dump_dir.getAbsolutePath()).append(fileSeparator).append(date).toString());
+				if(!dir.exists()){
+					dir.mkdirs();
+				}
+			
+				stackFile = new File(new StringBuilder(100).append(dir.getAbsolutePath()).append(fileSeparator).append(traceContext.batchJobId).append('_').append(date).append('_').append(new SimpleDateFormat("HHmmss.SSS").format(dt)).append(".log").toString());
+				if(stackFile.exists()){
+					stackFile = null;
+				}else{
+					traceContext.stackLogFile = stackFile;					
+				}
 			}
-			File stackFile = new File(new StringBuilder(100).append(dir.getAbsolutePath()).append(fileSeparator).append(traceContext.batchJobId).append('_').append(date).append('_').append(new SimpleDateFormat("HHmmss.SSS").format(dt)).append(".log").toString());
-			if(stackFile.exists()){
-				return;
-			}
-			traceContext.stackLogFile = stackFile;
+			
 			while(!config.scouter_stop){
-				ThreadDumpHandler.processDump(stackFile, config.dump_filter, config.dump_header_exists);
-				Thread.sleep(config.dump_interval_ms);
+				ThreadDumpHandler.processDump(stackFile, config.sfa_dump_filter, config.sfa_dump_header_exists);
+				traceContext.checkThread();
+				Thread.sleep(config.sfa_dump_interval_ms);
 			}
 		}catch(Throwable ex){
 			Logger.println("ERROR: " + ex.getMessage());

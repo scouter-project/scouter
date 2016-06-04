@@ -115,27 +115,31 @@ public class TraceContext {
 		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append("\r\n");
 		buffer.append("Stop    Time: ").append(sdf.format(new Date(this.endTime))).append("\r\n");
 		buffer.append("Elapsed Time: ").append((this.endTime - this.startTime)).append("ms\r\n");
-		buffer.append("Thread Count: ").append(this.threadCnt).append("\r\n");
+		if(threadCnt > 0){
+			buffer.append("Thread Count: ").append(this.threadCnt).append("\r\n");
+		}
 		
-		buffer.append("<SQLs>").append("\r\n");
-		int index = 0;
-		for(TraceSQL traceSql : sqlMap.values()){
-			index++;
-			buffer.append("-----------\r\n");
-			buffer.append(index).append(':').append(uniqueSqls.get(traceSql.hashValue)).append("\r\n");
-			buffer.append("Start Time:").append(sdf.format(new Date(traceSql.startTime))).append("\r\n");
-			buffer.append("End   Time:").append(sdf.format(new Date(traceSql.endTime))).append("\r\n");
-			buffer.append("Count     :").append(traceSql.count).append("\r\n");
-			buffer.append("Total Time:").append(traceSql.getTotalTimeByMillis()).append("\r\n");
-			buffer.append("Min   Time:").append(traceSql.getMinTimeByMillis()).append("\r\n");
-			buffer.append("Max   Time:").append(traceSql.getMaxTimeByMillis()).append("\r\n");
-			buffer.append("Rows      :").append(traceSql.processedRows).append('(').append(traceSql.rowed).append(')').append("\r\n");	
+		if(sqlMap.size() > 0){
+			buffer.append("<SQLs>").append("\r\n");
+			int index = 0;
+			for(TraceSQL traceSql : sqlMap.values()){
+				index++;
+				buffer.append("-----------\r\n");
+				buffer.append(index).append(':').append(uniqueSqls.get(traceSql.hashValue)).append("\r\n");
+				buffer.append("Start Time:").append(sdf.format(new Date(traceSql.startTime))).append("\r\n");
+				buffer.append("End   Time:").append(sdf.format(new Date(traceSql.endTime))).append("\r\n");
+				buffer.append("Count     :").append(traceSql.count).append("\r\n");
+				buffer.append("Total Time:").append(traceSql.getTotalTimeByMillis()).append("\r\n");
+				buffer.append("Min   Time:").append(traceSql.getMinTimeByMillis()).append("\r\n");
+				buffer.append("Max   Time:").append(traceSql.getMaxTimeByMillis()).append("\r\n");
+				buffer.append("Rows      :").append(traceSql.processedRows).append('(').append(traceSql.rowed).append(')').append("\r\n");	
+			}
 		}
 		buffer.append("-------------------------------------------------------\r\n");
 		return buffer.toString();
 	}
 	
-	public void addSQLStats(LocalSQL localSql){
+	public void addSQLStats(LocalSQL localSql){	
 		if(localSql == null || localSql.size() == 0){
 			return;
 		}
@@ -176,26 +180,47 @@ public class TraceContext {
 	}
 	
 	public void caculateLast(){
-		synchronized(remainMap){
-			for(LocalSQL localSql : remainMap){
+		synchronized(localSQLList){
+			for(LocalSQL localSql : localSQLList){
 				addSQLStats(localSql);
 			}
-			remainMap.clear();
+			localSQLList.clear();
 		}
 	}
 	
+	public void checkThread(){
+		Thread thread;
+		LocalSQL localSql;
+		int inx;
+		
+		synchronized(localSQLList){
+			for(inx = localSQLList.size() - 1; inx >=0; inx--){
+				localSql = localSQLList.get(inx);
+				thread = localSql.getThread();
+				if(!thread.isAlive()){
+					addSQLStats(localSql);
+					localSQLList.remove(inx);
+				}
+			}
+		}
+	}	
+	
 	public void addLocalSQL(LocalSQL localSql){
-		synchronized(remainMap){
-			remainMap.add(localSql);
+		synchronized(localSQLList){
+			localSQLList.add(localSql);
 			threadCnt++;
 		}
 	}
 
-	public void removeTraceSQL(LocalSQL localSql){
-		synchronized(remainMap){
-			remainMap.remove(localSql);
+	public void removeLocalSQL(LocalSQL localSql){
+		synchronized(localSQLList){
+			localSQLList.remove(localSql);
 		}
 		addSQLStats(localSql);
+	}
+	
+	public List<LocalSQL> getLocalSQLList(){
+		return localSQLList;
 	}
 	
 	public String batchJobId;
@@ -212,7 +237,7 @@ public class TraceContext {
 
 	private HashMap<Integer, String> uniqueSqls = new HashMap<Integer, String>(100);
 	private HashMap<Integer, TraceSQL> sqlMap = new HashMap<Integer, TraceSQL>(100);
-	private List<LocalSQL> remainMap = new ArrayList<LocalSQL>();
+	private List<LocalSQL> localSQLList = new ArrayList<LocalSQL>();
 	
 	private int sqlMaxCount;
 }

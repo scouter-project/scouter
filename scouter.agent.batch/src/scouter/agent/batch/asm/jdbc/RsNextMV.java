@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015 Scouter Project.
+ *  Copyright 2016 Scouter Project.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
  *  you may not use this file except in compliance with the License.
@@ -18,11 +18,9 @@ package scouter.agent.batch.asm.jdbc;
 
 
 import scouter.agent.batch.trace.TraceSQL;
-import scouter.javassist.bytecode.Opcode;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
 
 public class RsNextMV extends MethodVisitor implements Opcodes {
 	private static final String TRACESQL = TraceSQL.class.getName().replace('.', '/');

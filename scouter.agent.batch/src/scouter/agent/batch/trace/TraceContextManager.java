@@ -34,7 +34,7 @@ public class TraceContextManager {
 	public static void endThread(){
 		LocalSQL localSql = local.get();
 		local.set(null);
-		TraceContext.getInstance().removeTraceSQL(localSql);
+		TraceContext.getInstance().removeLocalSQL(localSql);
 	}
 	
 	public static TraceSQL getTraceSQL(String sqlText){

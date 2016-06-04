@@ -30,7 +30,11 @@ import scouter.util.ThreadUtil;
 public class ThreadDumpHandler {
 	private static final String TOOLS_MAIN = "scouter.xtra.tools.ToolsMain";
 	
-	public static void processDump(File stackFile, String [] filters, boolean headerExists) throws Throwable{		
+	public static void processDump(File stackFile, String [] filters, boolean headerExists) throws Throwable{
+		if(stackFile == null){
+			return;
+		}
+		
 		List<String> dumpList = threadDump();
 		if(dumpList == null || dumpList.size() == 0){
 			return;
@@ -140,7 +144,7 @@ public class ThreadDumpHandler {
 		}
 		
 		try {
-			Class c = Class.forName(TOOLS_MAIN, true, loader);
+			Class<?> c = Class.forName(TOOLS_MAIN, true, loader);
 			IToolsMain toolsMain = (IToolsMain) c.newInstance();
 			out = (List<String>) toolsMain.threadDump(0, 100000);
 		} catch (Exception e) {

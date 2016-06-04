@@ -19,9 +19,7 @@ package scouter.agent.batch.asm.jdbc;
 import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.batch.trace.TraceContextManager;
-import scouter.agent.trace.SqlParameter;
 import scouter.agent.batch.trace.TraceSQL;
-import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
@@ -53,39 +51,7 @@ public class PsInitMV extends LocalVariablesSorter implements Opcodes {
             this.isUstatement = true;
 		}
 	}
-/*
-	@Override
-	public void visitInsn(int opcode) {
-		if (sqlIdx >= 0 && (opcode >= IRETURN && opcode <= RETURN)) {
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, METHOD_INIT, SIGNATURE_INIT, false);
 
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
-
-			Label end = new Label();
-			mv.visitJumpInsn(IFNONNULL, end);
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitTypeInsn(NEW, Type.getInternalName(SqlParameter.class));
-			mv.visitInsn(DUP);
-			mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(SqlParameter.class), "<init>", "()V",false);
-			mv.visitFieldInsn(PUTFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
-
-			mv.visitLabel(end);
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitFieldInsn(GETFIELD, owner, TraceSQL.PSTMT_PARAM_FIELD, "Lscouter/agent/trace/SqlParameter;");
-			mv.visitVarInsn(ALOAD, sqlIdx);
-
-            if(isUstatement) {
-                mv.visitMethodInsn(INVOKEVIRTUAL, "cubrid/jdbc/jci/UStatement", "getQuery", "()Ljava/lang/String;", false);
-            }
-
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACESQL, METHOD, SIGNATURE,false);
-		}
-		mv.visitInsn(opcode);
-	}
-*/
 	@Override
 	public void visitInsn(int opcode) {
 		if (sqlIdx >= 0 && (opcode >= IRETURN && opcode <= RETURN)) {

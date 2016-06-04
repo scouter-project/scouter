@@ -74,10 +74,11 @@ public class Logger {
 			pw.close();
 		}
 	}
-
+	
 	private static boolean checkOk(String id, int sec) {
 		if (Configure.getInstance().isIgnoreLog(id))
 			return false;
+		
 		if (sec > 0) {
 			long last = lastLog.get(id);
 			long now = System.currentTimeMillis();
