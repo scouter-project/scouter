@@ -71,7 +71,6 @@ public class TraceSQL {
 		
 		if(!rowed) rowed = true;
 		for(int i = 0; i < rows.length; i++){
-			System.out.println("==> I: " + i + "<-" + rows[i]);
 			if(rows[i] > 0){
 				processedRows += rows[i];
 			}else if(rows[i] == -2){
