@@ -25,6 +25,7 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
+import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,6 +54,10 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 	private static final String ADD_SIGNATURE = "(I)V";
 	private final static String ADDS_METHOD = "addRows";
 	private static final String ADDS_SIGNATURE = "([I)V";
+
+	private final static String STATMENT = Statement.class.getName().replace('.', '/');
+	private final static String GETUPDATECOUNT_METHOD = "getUpdateCount";
+	private static final String GETUPDATECOUNT_SIGNATURE = "()I";
 
 	public PsExecuteMV(int access, String desc, MethodVisitor mv, String owner,String name) {
 		super(ASM4,access, desc, mv);
@@ -103,6 +108,16 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
                 mv.visitVarInsn(Opcodes.ILOAD, lvPosReturn);
     			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, TRACESQL, ADD_METHOD, ADD_SIGNATURE,false);
                 break;
+ /*           case Type.BOOLEAN:
+            	lvPosReturn = newLocal(returnType);
+                mv.visitVarInsn(Opcodes.ISTORE, lvPosReturn);
+    			mv.visitVarInsn(ALOAD, 0);
+    		    mv.visitFieldInsn(GETFIELD, owner, TraceSQL.CURRENT_TRACESQL_FIELD, "Lscouter/agent/batch/trace/TraceSQL;");
+                mv.visitVarInsn(ALOAD, 0);
+    			mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, STATMENT, GETUPDATECOUNT_METHOD, GETUPDATECOUNT_SIGNATURE,false);
+    			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, TRACESQL, ADD_METHOD, ADD_SIGNATURE,false);    		    
+                mv.visitVarInsn(Opcodes.ILOAD, lvPosReturn);           	
+            	break;*/
 			}
 			
 			// Return 결과 셋팅

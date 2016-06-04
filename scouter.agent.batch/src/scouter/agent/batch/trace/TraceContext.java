@@ -129,7 +129,7 @@ public class TraceContext {
 			buffer.append("Total Time:").append(traceSql.getTotalTimeByMillis()).append("\r\n");
 			buffer.append("Min   Time:").append(traceSql.getMinTimeByMillis()).append("\r\n");
 			buffer.append("Max   Time:").append(traceSql.getMaxTimeByMillis()).append("\r\n");
-			buffer.append("Rows      :").append(traceSql.processedRows).append("\r\n");	
+			buffer.append("Rows      :").append(traceSql.processedRows).append('(').append(traceSql.rowed).append(')').append("\r\n");	
 		}
 		buffer.append("-------------------------------------------------------\r\n");
 		return buffer.toString();
@@ -168,7 +168,9 @@ public class TraceContext {
 				if(statsSql.maxTime < sql.maxTime){
 					statsSql.maxTime = sql.maxTime;
 				}
-				
+				if(sql.rowed){
+					statsSql.rowed = true;
+				}
 			}
 		}
 	}

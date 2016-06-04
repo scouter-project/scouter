@@ -28,6 +28,7 @@ public class TraceSQL {
 	public long minTime = Long.MAX_VALUE;
 	public long maxTime = 0L;
 	public long processedRows = 0L;
+	public boolean rowed = false;
 	
 	public long sqlStartTime;
 	
@@ -53,16 +54,22 @@ public class TraceSQL {
 	}
 	
 	public void addRow(){
+		if(!rowed) rowed = true;
 		processedRows++;
 	}
 	
 	public void addRow(int rows){
-		processedRows += rows;
+		if(!rowed) rowed = true;
+		if(rows > 0){
+			processedRows += rows;
+		}
 	}
 
 	public void addRows(int [] rows){
 		if(rows == null || rows.length < 1)
 			return;
+		
+		if(!rowed) rowed = true;
 		for(int i = 0; i < rows.length; i++){
 			System.out.println("==> I: " + i + "<-" + rows[i]);
 			if(rows[i] > 0){
