@@ -59,6 +59,9 @@ public class Configure {
     public boolean scouter_enabled = true;
     public boolean scouter_stop = false;
     
+    // Standalone
+    public boolean scouter_standalone = false;
+    
     // Batch basic configuration
     public String batch_id_type = ""; // Class, Args, Props 
     public String batch_id = "";
@@ -76,6 +79,9 @@ public class Configure {
 	public String [] sfa_dump_filter = null;
 	public File sfa_dump_dir = new File(agent_dir_path + "/dump");
 	public boolean sfa_dump_header_exists = true;
+	
+	// dump send time
+	public long dump_send_elapsed_ms = 0L;
 	
 	//Network
 	public String net_collector_ip = "127.0.0.1";
@@ -171,6 +177,9 @@ public class Configure {
 			this.scouter_enabled = getBoolean(VM_SCOUTER_ENABLED, true);
 		}
 		
+		// standalone mode
+		this.scouter_standalone = getBoolean("scouter_standalone", true);
+		
 		// start for batch
 		this.batch_id_type = getValue("batch_id_type", "class");
 		if("class".equals(this.batch_id_type)){
@@ -235,6 +244,8 @@ public class Configure {
 			this.sfa_dump_dir = dir;
 			this.sfa_dump_header_exists = getBoolean("sfa_dump_header_exists", true);
 		}
+		
+		this.dump_send_elapsed_ms = getLong("dump_send_elapsed_ms", 0L);
 		
 		this.plugin_dir = new File(getValue("plugin_dir", agent_dir_path + "/plugin"));
 		

@@ -21,6 +21,8 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -106,42 +108,56 @@ public class TraceContext {
 	
 	public String toString(){
 		StringBuilder buffer = new StringBuilder(100);
+		String lineSeparator = System.getProperty("line.separator");
 		
-		buffer.append("\r\n");
-		buffer.append("-[Result]----------------------------------------------\r\n");
-		buffer.append("Batch     ID: ").append(this.batchJobId).append("\r\n");
-		buffer.append("Run  Command: ").append(this.args).append("\r\n");
+		buffer.append(lineSeparator);
+		buffer.append("-[Result]----------------------------------------------").append(lineSeparator);
+		buffer.append("Batch     ID: ").append(this.batchJobId).append(lineSeparator);
+		buffer.append("Run  Command: ").append(this.args).append(lineSeparator);
 		if(this.stackLogFile != null){
-			buffer.append("Stack   Dump: ").append(this.stackLogFile.getAbsolutePath()).append("\r\n");
+			buffer.append("Stack   Dump: ").append(this.stackLogFile.getAbsolutePath()).append(lineSeparator);
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append("\r\n");
-		buffer.append("Stop    Time: ").append(sdf.format(new Date(this.endTime))).append("\r\n");
-		buffer.append("Elapsed Time: ").append((this.endTime - this.startTime)).append("ms\r\n");
+		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append(lineSeparator);
+		buffer.append("Stop    Time: ").append(sdf.format(new Date(this.endTime))).append(lineSeparator);
+		buffer.append("Elapsed Time: ").append((this.endTime - this.startTime)).append("ms").append(lineSeparator);
 		if(this.getCPUTimeByMillis() > 0){
-			buffer.append("CPU     Time: ").append(this.getCPUTimeByMillis()).append("ms\r\n");
+			buffer.append("CPU     Time: ").append(this.getCPUTimeByMillis()).append("ms").append(lineSeparator);
+		}
+		if(sqlMap.size() > 0){
+			long SqlTime = 0L;
+			int sqlRunCount = 0;
+		
+			for(TraceSQL traceSql : sqlMap.values()){
+				SqlTime += traceSql.totalTime;
+				sqlRunCount += traceSql.count;
+			}
+			buffer.append("SQL     Time: ").append((SqlTime/1000000L)).append("ms").append(lineSeparator);
+			buffer.append("SQL     Type: ").append(sqlMap.size()).append(lineSeparator);
+			buffer.append("SQL RunCount: ").append(sqlRunCount).append(lineSeparator);
 		}
 		if(threadCnt > 0){
-			buffer.append("Thread Count: ").append(this.threadCnt).append("\r\n");
+			buffer.append("Thread Count: ").append(this.threadCnt).append(lineSeparator);
 		}
 		
 		if(sqlMap.size() > 0){
-			buffer.append("<SQLs>").append("\r\n");
+			buffer.append(lineSeparator).append("<SQLs>").append(lineSeparator);
 			int index = 0;
-			for(TraceSQL traceSql : sqlMap.values()){
+			
+			for(TraceSQL traceSql : sortTraceSQLList()){
 				index++;
-				buffer.append("-----------\r\n");
-				buffer.append(index).append(':').append(uniqueSqls.get(traceSql.hashValue)).append("\r\n");
-				buffer.append("Start Time:").append(sdf.format(new Date(traceSql.startTime))).append("\r\n");
-				buffer.append("End   Time:").append(sdf.format(new Date(traceSql.endTime))).append("\r\n");
-				buffer.append("Count     :").append(traceSql.count).append("\r\n");
-				buffer.append("Total Time:").append(traceSql.getTotalTimeByMillis()).append("\r\n");
-				buffer.append("Min   Time:").append(traceSql.getMinTimeByMillis()).append("\r\n");
-				buffer.append("Max   Time:").append(traceSql.getMaxTimeByMillis()).append("\r\n");
-				buffer.append("Rows      :").append(traceSql.processedRows).append('(').append(traceSql.rowed).append(')').append("\r\n");	
+				buffer.append("-----------").append(lineSeparator);
+				buffer.append(index).append(':').append(uniqueSqls.get(traceSql.hashValue)).append(lineSeparator);
+				buffer.append("Start Time:").append(sdf.format(new Date(traceSql.startTime))).append(lineSeparator);
+				buffer.append("End   Time:").append(sdf.format(new Date(traceSql.endTime))).append(lineSeparator);
+				buffer.append("Count     :").append(traceSql.count).append(lineSeparator);
+				buffer.append("Total Time:").append(traceSql.getTotalTimeByMillis()).append(lineSeparator);
+				buffer.append("Min   Time:").append(traceSql.getMinTimeByMillis()).append(lineSeparator);
+				buffer.append("Max   Time:").append(traceSql.getMaxTimeByMillis()).append(lineSeparator);
+				buffer.append("Rows      :").append(traceSql.processedRows).append('(').append(traceSql.rowed).append(')').append(lineSeparator);	
 			}
 		}
-		buffer.append("-------------------------------------------------------\r\n");
+		buffer.append("-------------------------------------------------------").append(lineSeparator);
 		return buffer.toString();
 	}
 	
@@ -238,6 +254,41 @@ public class TraceContext {
 		return ((endCpu - startCpu)/1000000L);
 	}
 	
+	public String getLogFilename(){
+		Date dt = new Date(startTime);
+		String fileSeparator = System.getProperty("file.separator");
+		String date = new SimpleDateFormat("yyyyMMdd").format(dt);
+		
+		File dir = new File(new StringBuilder(100).append(Configure.getInstance().sfa_dump_dir.getAbsolutePath()).append(fileSeparator).append(date).toString());
+		if(!dir.exists()){
+			dir.mkdirs();
+		}
+		return new StringBuilder(100).append(dir.getAbsolutePath()).append(fileSeparator).append(batchJobId).append('_').append(date).append('_').append(new SimpleDateFormat("HHmmss.SSS").format(dt)).append('_').append(pID).toString();	
+	}
+	
+	public List<TraceSQL> sortTraceSQLList(){
+		List<TraceSQL> inList = new ArrayList<TraceSQL>(sqlMap.size() + 1);
+		synchronized(sqlMap){
+			for(TraceSQL traceSql : sqlMap.values()){
+				inList.add(traceSql);
+			}
+		}
+		Collections.sort(inList,
+				new Comparator<TraceSQL>(){
+					@Override
+					public int compare(TraceSQL o1, TraceSQL o2) {
+						if(o1.totalTime < o2.totalTime){
+							return 1;
+						}else if(o1.totalTime > o2.totalTime){
+							return -1;
+						}
+						return 0;
+					}
+					
+				});
+		return inList;
+	}
+	
 	public String batchJobId;
 	public String args;
 	public Integer pID;
@@ -250,6 +301,7 @@ public class TraceContext {
 	public long endCpu;
 
 	public File stackLogFile = null;
+	public File standAloneFile = null;
 
 	private HashMap<Integer, String> uniqueSqls = new HashMap<Integer, String>(100);
 	private HashMap<Integer, TraceSQL> sqlMap = new HashMap<Integer, TraceSQL>(100);

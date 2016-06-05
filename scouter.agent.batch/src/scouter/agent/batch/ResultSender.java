@@ -17,6 +17,9 @@
 
 package scouter.agent.batch;
 
+import java.io.File;
+import java.io.FileWriter;
+
 import scouter.agent.batch.trace.TraceContext;
 
 public class ResultSender extends Thread {
@@ -25,12 +28,35 @@ public class ResultSender extends Thread {
 			Configure config = Configure.getInstance();
 			config.scouter_stop = true;
 			
-			TraceContext trace = TraceContext.getInstance();
-			trace.endTime = System.currentTimeMillis();
-			trace.caculateLast();
-			Logger.println(trace.toString());
+			TraceContext traceContext = TraceContext.getInstance();
+			traceContext.endTime = System.currentTimeMillis();
+			traceContext.caculateLast();
+			
+			String result = traceContext.toString();
+			if(config.scouter_standalone){
+				saveStandAloneResult(traceContext, result);
+			}
+			Logger.println(result);
 		}catch(Exception ex){
 			ex.printStackTrace();
+		}
+	}
+	
+	public void saveStandAloneResult(TraceContext traceContext, String result){
+		File resultFile = new File(traceContext.getLogFilename() + ".sbr");
+		if(resultFile.exists()){
+			return;
+		}
+		FileWriter writer = null;
+		try {
+			writer = new FileWriter(resultFile);
+			writer.write(result);
+		}catch(Exception ex){
+			Logger.println(ex.toString());
+		}finally{
+			if(writer != null){
+				try{ writer.close(); }catch(Exception ex){}
+			}
 		}
 	}
 }

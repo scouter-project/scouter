@@ -16,8 +16,6 @@
 package scouter.agent.batch;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import scouter.agent.batch.dump.ThreadDumpHandler;
 import scouter.agent.batch.trace.TraceContext;
@@ -46,22 +44,12 @@ public class BatchMonitor extends Thread {
 			TraceContext traceContext = TraceContext.getInstance();
 			File stackFile = null;
 			
-			
 			if(config.sfa_dump_enabled){
-				Date dt = new Date(traceContext.startTime);
-				String fileSeparator = System.getProperty("file.separator");
-				String date = new SimpleDateFormat("yyyyMMdd").format(dt);
-				
-				File dir = new File(new StringBuilder(100).append(config.sfa_dump_dir.getAbsolutePath()).append(fileSeparator).append(date).toString());
-				if(!dir.exists()){
-					dir.mkdirs();
-				}
-			
-				stackFile = new File(new StringBuilder(100).append(dir.getAbsolutePath()).append(fileSeparator).append(traceContext.batchJobId).append('_').append(date).append('_').append(new SimpleDateFormat("HHmmss.SSS").format(dt)).append('_').append(traceContext.pID).append(".log").toString());
+				stackFile = new File(traceContext.getLogFilename() + ".log");
 				if(stackFile.exists()){
 					stackFile = null;
 				}else{
-					traceContext.stackLogFile = stackFile;					
+					traceContext.stackLogFile = stackFile;
 				}
 			}
 			
