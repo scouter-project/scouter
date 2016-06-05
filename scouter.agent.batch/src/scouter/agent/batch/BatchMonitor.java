@@ -57,7 +57,7 @@ public class BatchMonitor extends Thread {
 					dir.mkdirs();
 				}
 			
-				stackFile = new File(new StringBuilder(100).append(dir.getAbsolutePath()).append(fileSeparator).append(traceContext.batchJobId).append('_').append(date).append('_').append(new SimpleDateFormat("HHmmss.SSS").format(dt)).append(".log").toString());
+				stackFile = new File(new StringBuilder(100).append(dir.getAbsolutePath()).append(fileSeparator).append(traceContext.batchJobId).append('_').append(date).append('_').append(new SimpleDateFormat("HHmmss.SSS").format(dt)).append('_').append(traceContext.pID).append(".log").toString());
 				if(stackFile.exists()){
 					stackFile = null;
 				}else{

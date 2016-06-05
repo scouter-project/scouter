@@ -28,6 +28,7 @@ import java.util.StringTokenizer;
 
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
+import scouter.util.SysJMX;
 
 public class TraceContext {
 	private static final String SQL_OTHERS = "Others";
@@ -35,7 +36,7 @@ public class TraceContext {
 	private static TraceContext instance = null;
 	
 	static {
-		instance = new TraceContext();		
+		instance = new TraceContext();
 	}
 	
 	final public static TraceContext getInstance(){
@@ -47,6 +48,8 @@ public class TraceContext {
 		
 		readBatchId();
 		sqlMaxCount = Configure.getInstance().sql_max_count;
+		pID = SysJMX.getProcessPID();
+		startCpu = SysJMX.getProcessCPU();
 	}
 	
 	private void readBatchId(){
@@ -115,6 +118,9 @@ public class TraceContext {
 		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append("\r\n");
 		buffer.append("Stop    Time: ").append(sdf.format(new Date(this.endTime))).append("\r\n");
 		buffer.append("Elapsed Time: ").append((this.endTime - this.startTime)).append("ms\r\n");
+		if(this.getCPUTimeByMillis() > 0){
+			buffer.append("CPU     Time: ").append(this.getCPUTimeByMillis()).append("ms\r\n");
+		}
 		if(threadCnt > 0){
 			buffer.append("Thread Count: ").append(this.threadCnt).append("\r\n");
 		}
@@ -186,6 +192,7 @@ public class TraceContext {
 			}
 			localSQLList.clear();
 		}
+		this.endCpu = SysJMX.getProcessCPU();
 	}
 	
 	public void checkThread(){
@@ -223,8 +230,17 @@ public class TraceContext {
 		return localSQLList;
 	}
 	
+	public long getCPUTimeByMicro(){
+		return ((endCpu - startCpu)/1000L);
+	}
+	
+	public long getCPUTimeByMillis(){
+		return ((endCpu - startCpu)/1000000L);
+	}
+	
 	public String batchJobId;
 	public String args;
+	public Integer pID;
 	
 	public long startTime;
 	public long endTime;
@@ -240,4 +256,6 @@ public class TraceContext {
 	private List<LocalSQL> localSQLList = new ArrayList<LocalSQL>();
 	
 	private int sqlMaxCount;
+	
+	public String lastStack;
 }

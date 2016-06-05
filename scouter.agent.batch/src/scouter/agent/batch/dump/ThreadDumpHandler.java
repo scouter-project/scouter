@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import scouter.agent.Logger;
+import scouter.agent.batch.trace.TraceContext;
 import scouter.agent.proxy.IToolsMain;
 import scouter.agent.proxy.LoaderManager;
 import scouter.util.SystemUtil;
@@ -44,6 +45,8 @@ public class ThreadDumpHandler {
 		if(stack == null || stack.length() == 0){
 			return;
 		}
+		
+		TraceContext.getInstance().lastStack = stack;
 
 		FileWriter writer = null;
 		try{
