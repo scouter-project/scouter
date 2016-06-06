@@ -16,6 +16,7 @@
 package scouter.agent.batch;
 
 import java.io.File;
+import java.io.FileWriter;
 
 import scouter.agent.batch.dump.ThreadDumpHandler;
 import scouter.agent.batch.trace.TraceContext;
@@ -39,27 +40,41 @@ public class BatchMonitor extends Thread {
 	}
 	
 	public void run() {
-		try {			
+		FileWriter stackWriter = null;
+		FileWriter indexWriter = null;
+		try {		
+			File stackFile = null;
 			config = Configure.getInstance();			
 			TraceContext traceContext = TraceContext.getInstance();
-			File stackFile = null;
-			
 			if(config.sfa_dump_enabled){
+				File indexFile = null;
+
 				stackFile = new File(traceContext.getLogFilename() + ".log");
 				if(stackFile.exists()){
 					stackFile = null;
 				}else{
-					traceContext.stackLogFile = stackFile;
+					traceContext.stackLogFile = stackFile.getAbsolutePath();
+					
+					stackWriter = new FileWriter(stackFile);
+					indexWriter = new FileWriter(new File(traceContext.getLogFilename() + ".inx"));
 				}
 			}
-			
-			while(!config.scouter_stop){
-				ThreadDumpHandler.processDump(stackFile, config.sfa_dump_filter, config.sfa_dump_header_exists);
-				traceContext.checkThread();
-				Thread.sleep(config.sfa_dump_interval_ms);
+			if(stackWriter != null){
+				while(!config.scouter_stop){
+					ThreadDumpHandler.processDump(stackFile, stackWriter, indexWriter, config.sfa_dump_filter, config.sfa_dump_header_exists);
+					traceContext.checkThread();
+					Thread.sleep(config.sfa_dump_interval_ms);
+				}
 			}
 		}catch(Throwable ex){
 			Logger.println("ERROR: " + ex.getMessage());
+		}finally{
+			if(stackWriter != null){
+				try{ stackWriter.close(); }catch(Exception ex){}	
+			}
+			if(indexWriter != null){
+				try{ indexWriter.close(); }catch(Exception ex){}	
+			}
 		}
 	}
 }
