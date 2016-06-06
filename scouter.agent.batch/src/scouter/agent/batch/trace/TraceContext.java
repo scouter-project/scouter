@@ -115,7 +115,7 @@ public class TraceContext {
 		buffer.append("Batch     ID: ").append(this.batchJobId).append(lineSeparator);
 		buffer.append("Run  Command: ").append(this.args).append(lineSeparator);
 		if(this.stackLogFile != null){
-			buffer.append("Stack   Dump: ").append(this.stackLogFile.getAbsolutePath()).append(lineSeparator);
+			buffer.append("Stack   Dump: ").append(this.stackLogFile).append(lineSeparator);
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append(lineSeparator);
@@ -300,8 +300,8 @@ public class TraceContext {
 	public long startCpu;
 	public long endCpu;
 
-	public File stackLogFile = null;
-	public File standAloneFile = null;
+	public String stackLogFile = null;
+	public String standAloneFile = null;
 
 	private HashMap<Integer, String> uniqueSqls = new HashMap<Integer, String>(100);
 	private HashMap<Integer, TraceSQL> sqlMap = new HashMap<Integer, TraceSQL>(100);

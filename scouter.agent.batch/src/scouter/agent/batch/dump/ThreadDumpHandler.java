@@ -21,7 +21,6 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import scouter.agent.Logger;
 import scouter.agent.batch.trace.TraceContext;
 import scouter.agent.proxy.IToolsMain;
 import scouter.agent.proxy.LoaderManager;
@@ -31,8 +30,8 @@ import scouter.util.ThreadUtil;
 public class ThreadDumpHandler {
 	private static final String TOOLS_MAIN = "scouter.xtra.tools.ToolsMain";
 	
-	public static void processDump(File stackFile, String [] filters, boolean headerExists) throws Throwable{
-		if(stackFile == null){
+	public static void processDump(File stackFile, FileWriter stackWriter, FileWriter indexWriter, String [] filters, boolean headerExists) throws Throwable{
+		if(stackWriter == null){
 			return;
 		}
 		
@@ -48,17 +47,10 @@ public class ThreadDumpHandler {
 		
 		TraceContext.getInstance().lastStack = stack;
 
-		FileWriter writer = null;
-		try{
-			writer = new FileWriter(stackFile, true);
-			writer.write(stack);
-		}catch(Exception ex){
-			Logger.println(ex.getMessage());
-		}finally{
-			if(writer != null){
-				try{writer.close();}catch(Exception ex){}
-			}
-		}
+		indexWriter.write(new StringBuilder(50).append(System.currentTimeMillis()).append(' ').append(stackFile.length()).append(System.getProperty("line.separator")).toString());
+		indexWriter.flush();
+		stackWriter.write(stack);
+		stackWriter.flush();
 	}
 	
 	private static String filter(List<String> dumpList, String [] filters, boolean headerExists){
