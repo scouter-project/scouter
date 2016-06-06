@@ -152,7 +152,7 @@ object NetDataProcessor {
                     counterPack.timetype = TimeTypeEnum.REALTIME;
                 }
                 counterPack.data.put(CounterConstants.COMMON_OBJHASH, new DecimalValue(objHash)) //add objHash into datafile
-                counterPack.data.put(CounterConstants.COMMON_TIME, new DecimalValue(counterPack.time)) //add objHash into datafile
+                counterPack.data.put(CounterConstants.COMMON_TIME, new DecimalValue(counterPack.time)) //add time into datafile
 
                 PerfCountCore.add(counterPack)
                 if (conf.log_udp_counter) {
