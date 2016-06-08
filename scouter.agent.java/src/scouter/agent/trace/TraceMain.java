@@ -220,7 +220,7 @@ public class TraceMain {
                         String emsg = thr.toString();
                         if (conf.profile_fullstack_service_error_enabled) {
                             StringBuffer sb = new StringBuffer();
-                            sb.append(emsg).append("\n");
+                            sb.append(thr.getClass().getName()).append("\n");
                             ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
                             Throwable thrCause = thr.getCause();
                             if(thrCause != null) {
