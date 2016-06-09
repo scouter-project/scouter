@@ -17,8 +17,10 @@
 
 package scouter.agent.trace;
 
+import scouter.agent.Configure;
+
 public class SqlParameter {
-	private final static int MAX_SIZE = 128;
+	private final static int MAX_SIZE = Configure.getInstance()._trace_sql_parameter_max_count;
 	protected int count = 0;
 	protected String[] entry = new String[MAX_SIZE];
 	protected String sql;
@@ -39,11 +41,12 @@ public class SqlParameter {
 	}
 
 	public void put(int x, String value) {
-		if (MAX_SIZE <= x)
+		int inx = x - 1;
+		if (MAX_SIZE <= inx || inx < 0)
 			return;
-		entry[x] = value;
-		if (x >= count) {
-			count = x + 1;
+		entry[inx] = value;
+		if (inx >= count) {
+			count = inx + 1;
 		}
 	}
 

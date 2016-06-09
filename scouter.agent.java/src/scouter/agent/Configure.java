@@ -125,6 +125,7 @@ public class Configure extends Thread {
 	public String trace_webserver_name_header_key = "X-Forwarded-Host";
 	public String trace_webserver_time_header_key = "X-Forwarded-Time";
 	public int _trace_fullstack_socket_open_port = 0;
+	public int _trace_sql_parameter_max_count = 128;
 
 	public boolean trace_rs_leak_enabled = false;
 	public boolean trace_stmt_leak_enabled = false;
@@ -512,6 +513,7 @@ public class Configure extends Thread {
 		this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
 		this._profile_fullstack_sql_connection_enabled = getBoolean("_profile_fullstack_sql_connection_enabled", false);
 		this._trace_fullstack_socket_open_port = getInt("_trace_fullstack_socket_open_port", 0);
+		this._trace_sql_parameter_max_count = getInt("_trace_sql_parameter_max_count", 128);
 		this.log_dir = getValue("log_dir", "");
 		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
 		this.log_keep_days = getInt("log_keep_days", 7);
