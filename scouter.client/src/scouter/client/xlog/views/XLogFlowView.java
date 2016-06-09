@@ -344,15 +344,14 @@ public class XLogFlowView extends ViewPart {
 				SqlStep sqlstep = (SqlStep) step;
 				DependencyElement sqlElement = new DependencyElement(ElementType.SQL, sqlstep.hash);
 				sqlElement.elapsed = sqlstep.elapsed;
-				String name = TextProxy.sql_tables.getLoadText(date, sqlstep.hash, serverId);
-				if(name != null){
-					String sql = TextProxy.sql.getLoadText(date, sqlstep.hash, serverId).trim();
-					sqlElement.name =  name;
-					sqlElement.error = sqlstep.error;
-					sqlElement.tags.put("serverId", serverId);
-					sqlElement.tags.put("sql", sql);
-					serviceElement.addChild(sqlElement);
-				}
+				String table = TextProxy.sql_tables.getLoadText(date, sqlstep.hash, serverId);
+				String sql = TextProxy.sql.getLoadText(date, sqlstep.hash, serverId).trim();
+				sqlElement.name =  StringUtil.isNotEmpty(table) ? table : StringUtil.truncate(sql, 20) + "...";
+				sqlElement.name =  table;
+				sqlElement.error = sqlstep.error;
+				sqlElement.tags.put("serverId", serverId);
+				sqlElement.tags.put("sql", sql);
+				serviceElement.addChild(sqlElement);
 				break;
 			case StepEnum.SQL_SUM:
 				SqlSum sqlsum = (SqlSum) step;
@@ -360,14 +359,12 @@ public class XLogFlowView extends ViewPart {
 				sqlSumElement.dupleCnt = sqlsum.count;
 				sqlSumElement.elapsed = (int) sqlsum.elapsed;
 				sqlSumElement.error = sqlsum.error;
-				name = TextProxy.sql_tables.getLoadText(date, sqlsum.hash, serverId);
-				if(name!=null){
-					String sql = TextProxy.sql.getLoadText(date, sqlsum.hash, serverId).trim();
-					sqlSumElement.name = name;
-					sqlSumElement.tags.put("serverId", serverId);
-					sqlSumElement.tags.put("sql", sql);
-					serviceElement.addChild(sqlSumElement);
-				}
+				table = TextProxy.sql_tables.getLoadText(date, sqlsum.hash, serverId);
+				sql = TextProxy.sql.getLoadText(date, sqlsum.hash, serverId).trim();
+				sqlSumElement.name =  StringUtil.isNotEmpty(table) ? table : StringUtil.truncate(sql, 20) + "...";
+				sqlSumElement.tags.put("serverId", serverId);
+				sqlSumElement.tags.put("sql", sql);
+				serviceElement.addChild(sqlSumElement);
 				break;
 			case StepEnum.THREAD_SUBMIT:
 				ThreadSubmitStep tsStep = (ThreadSubmitStep) step;
