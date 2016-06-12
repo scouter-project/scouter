@@ -20,6 +20,7 @@ package scouter.client.xlog;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.eclipse.swt.SWT;
@@ -110,7 +111,7 @@ public class ProfileText {
             sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
         }
         sb.append("► objName = ").append(xperf.objName).append("\n");
-        sb.append("► endtime = ").append(DateUtil.timestamp(xperf.p.endTime)).append("\n");
+        sb.append("► endtime = ").append(FormatUtil.print(new Date(xperf.p.endTime), "yyyyMMdd HH:mm:ss.sss")).append("\n");
         sb.append("► elapsed = ").append(FormatUtil.print(xperf.p.elapsed, "#,##0")).append(" ms\n");
         sb.append("► service = ").append(TextProxy.service.getText(xperf.p.service)).append("\n");
         if (error != null) {
@@ -190,7 +191,7 @@ public class ProfileText {
         sb.append(" ");
         sb.append("[******]");
         sb.append(" ");
-        sb.append(DateUtil.getLogTime(stime));
+        sb.append(FormatUtil.print(new Date(stime), "HH:mm:ss.sss"));
         sb.append("   ");
         sb.append(String.format("%6s", "0"));
         sb.append(" ");
@@ -263,7 +264,7 @@ public class ProfileText {
 
                         sb.append("[******]");
                         sb.append(" ");
-                        sb.append(DateUtil.getLogTime(tm));
+                        sb.append(FormatUtil.print(new Date(tm), "HH:mm:ss.sss"));
                         sb.append("   ");
                         sb.append(String.format("%6s", FormatUtil.print(tm - prev_tm, "#,##0")));
                         sb.append(" ");
@@ -292,7 +293,7 @@ public class ProfileText {
             sb.append(" ");
             sb.append(String.format("[%06d]", stepSingle.index));
             sb.append(" ");
-            sb.append(DateUtil.getLogTime(tm));
+            sb.append(FormatUtil.print(new Date(tm), "HH:mm:ss.sss"));
             sb.append("   ");
             sb.append(String.format("%6s", FormatUtil.print(tm - prev_tm, "#,##0")));
             sb.append(" ");
@@ -394,7 +395,7 @@ public class ProfileText {
             sb.append(" ");
             sb.append("[******]");
             sb.append(" ");
-            sb.append(DateUtil.getLogTime(tm));
+            sb.append(FormatUtil.print(new Date(tm), "HH:mm:ss.sss"));
             sb.append("   ");
             sb.append(String.format("%6s", FormatUtil.print(tm - prev_tm, "#,##0")));
             sb.append(" ");
@@ -492,7 +493,7 @@ public class ProfileText {
                         sb.delete(sb.length() - 9, sb.length());
                         sb.append("[******]");
                         sb.append(" ");
-                        sb.append(DateUtil.getLogTime(data.p.endTime));
+                        sb.append(FormatUtil.print(new Date(data.p.endTime), "HH:mm:ss.sss"));
                         sb.append("   ");
                         sb.append(String.format("%6s", FormatUtil.print(data.p.elapsed, "#,##0")));
                         sb.append(" ");
@@ -518,7 +519,7 @@ public class ProfileText {
             sb.append(" ");
             sb.append(String.format("[%06d]", stepSingle.index));
             sb.append(" ");
-            sb.append(DateUtil.getLogTime(tm));
+            sb.append(FormatUtil.print(new Date(tm), "HH:mm:ss.sss"));
             sb.append("   ");
             sb.append(String.format("%6s", FormatUtil.print(tm - prev_tm, "#,##0")));
             sb.append(" ");

@@ -149,6 +149,74 @@ public class XLogUtil {
 		}
 		return 0;
 	}
+	
+	public static String getStepContents(Step p) {
+		StringBuilder sb = new StringBuilder();
+		switch (p.getStepType()) {
+			case StepEnum.METHOD:
+			case StepEnum.METHOD2:
+				MethodStep ms = (MethodStep) p;
+				sb.append(TextProxy.method.getText(ms.hash));
+				break;
+			case StepEnum.SQL3:
+			case StepEnum.SQL2:
+			case StepEnum.SQL:
+            	SqlStep ss = (SqlStep) p;
+            	sb.append(TextProxy.sql.getText(ss.hash));
+            	break;
+			case StepEnum.MESSAGE:
+				MessageStep mms = (MessageStep) p;
+				sb.append(mms.message);
+				break;
+			case StepEnum.HASHED_MESSAGE:
+				HashedMessageStep hms = (HashedMessageStep) p;
+				sb.append(TextProxy.hashMessage.getText(hms.hash) + " #" + FormatUtil.print(hms.value, "#,##0"));
+				break;
+			case StepEnum.APICALL:
+				ApiCallStep acs = (ApiCallStep) p;
+				sb.append("call:").append(TextProxy.apicall.getText(acs.hash));
+				if (acs.txid != 0) {
+		            sb.append(" <" + Hexa32.toString32(acs.txid) + ">");
+		        }
+				break;
+			case StepEnum.SOCKET:
+				SocketStep sos = (SocketStep) p;
+				String ip = IPUtil.toString(sos.ipaddr);
+		        sb.append("socket: ").append(ip == null ? "unknown" : ip).append(":").append(sos.port);
+		        break;			
+			case StepEnum.THREAD_SUBMIT:
+				ThreadSubmitStep tss = (ThreadSubmitStep) p;
+				sb.append("thread: ").append(TextProxy.apicall.getText(tss.hash));
+				if (tss.txid != 0) {
+		            sb.append(" <" + Hexa32.toString32(tss.txid) + ">");
+		        }
+				break;
+		}
+		return sb.toString();
+	}
+	
+	public static String getErrorMessage(Step p) {
+		switch (p.getStepType()) {
+			case StepEnum.METHOD2:
+				MethodStep2 ms2 = (MethodStep2) p;
+				return TextProxy.error.getText(ms2.error);
+			 case StepEnum.SQL:
+             case StepEnum.SQL2:
+             case StepEnum.SQL3:
+            	 SqlStep ss = (SqlStep) p;
+            	 return TextProxy.error.getText(ss.error);
+             case StepEnum.APICALL:
+            	 ApiCallStep acs = (ApiCallStep) p;
+            	 return TextProxy.error.getText(acs.error);
+             case StepEnum.SOCKET:
+            	 SocketStep sos = (SocketStep) p;
+            	 return TextProxy.error.getText(sos.error);
+             case StepEnum.THREAD_SUBMIT:
+            	 ThreadSubmitStep tss = (ThreadSubmitStep) p;
+            	 return TextProxy.error.getText(tss.error);
+		}
+		return null;
+	}
 
 	public static String toStringStepSingleType(StepSingle step) {
 		switch (step.getStepType()) {

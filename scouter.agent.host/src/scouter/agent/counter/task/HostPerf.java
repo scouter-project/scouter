@@ -69,9 +69,9 @@ public class HostPerf {
 		float userCpu = (float) cpuPerc.getUser() * 100;
 		userCpuMeter.add(userCpu);
 		
-		cpu = (float) cpuMeter.getAvg(10);
-		sysCpu = (float) sysCpuMeter.getAvg(10);
-		userCpu = (float) userCpuMeter.getAvg(10);
+		cpu = (float) cpuMeter.getAvg(conf._cpu_value_avg_sec);
+		sysCpu = (float) sysCpuMeter.getAvg(conf._cpu_value_avg_sec);
+		userCpu = (float) userCpuMeter.getAvg(conf._cpu_value_avg_sec);
 
 		alertCpu(cpu);
 		
@@ -308,7 +308,7 @@ public class HostPerf {
 			}
 
 		} catch (Throwable t) {
-			Logger.println("DISK", 10, "disk perf error", t);
+			Logger.println("DISK", 60, "disk perf error", t);
 		}
 	}
 

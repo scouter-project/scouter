@@ -18,6 +18,7 @@
 package scouter.client.xlog.views;
 
 import java.io.IOException;
+import java.util.Date;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -72,6 +73,7 @@ import scouter.lang.value.DecimalValue;
 import scouter.io.DataInputX;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
 import scouter.util.ThreadUtil;
 
 
@@ -277,8 +279,8 @@ public class XLogLoadTimeView extends XLogViewCommon implements TimeRangeDialog.
 				}
 		
 				ConsoleProxy.infoSafe("Load old XLog data");
-				ConsoleProxy.infoSafe("stime :" + DateUtil.timestamp(stime));
-				ConsoleProxy.infoSafe("etime :" + DateUtil.timestamp(etime));
+				ConsoleProxy.infoSafe("stime :" + FormatUtil.print(new Date(stime), "yyyyMMdd HH:mm:ss.sss"));
+				ConsoleProxy.infoSafe("etime :" + FormatUtil.print(new Date(etime), "yyyyMMdd HH:mm:ss.sss"));
 				ConsoleProxy.infoSafe("objType :" + objType);
 				ConsoleProxy.infoSafe("limit :" + limit + "   max:"+max);
 				

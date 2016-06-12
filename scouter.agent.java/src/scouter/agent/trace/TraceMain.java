@@ -220,13 +220,16 @@ public class TraceMain {
                         String emsg = thr.toString();
                         if (conf.profile_fullstack_service_error_enabled) {
                             StringBuffer sb = new StringBuffer();
-                            sb.append(emsg).append("\n");
+                            sb.append(thr.getClass().getName()).append("\n");
                             ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                            thr = thr.getCause();
-                            while (thr != null) {
-                                sb.append("\nCause...\n");
-                                ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                                thr = thr.getCause();
+                            Throwable thrCause = thr.getCause();
+                            if(thrCause != null) {
+                                thr = thrCause;
+                                while (thr != null) {
+                                    sb.append("\nCause...\n");
+                                    ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+                                    thr = thr.getCause();
+                                }
                             }
                             emsg = sb.toString();
                         }
@@ -328,11 +331,14 @@ public class TraceMain {
                         StringBuffer sb = new StringBuffer();
                         sb.append(emsg).append("\n");
                         ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                        thr = thr.getCause();
-                        while (thr != null) {
-                            sb.append("\nCause...\n");
-                            ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                            thr = thr.getCause();
+                        Throwable thrCause = thr.getCause();
+                        if(thrCause != null) {
+                            thr = thrCause;
+                            while (thr != null) {
+                                sb.append("\nCause...\n");
+                                ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+                                thr = thr.getCause();
+                            }
                         }
                         emsg = sb.toString();
                     }
@@ -520,11 +526,14 @@ public class TraceMain {
                 StringBuffer sb = new StringBuffer();
                 sb.append(emsg).append("\n");
                 ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                thr = thr.getCause();
-                while (thr != null) {
-                    sb.append("\nCause...\n");
-                    ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                    thr = thr.getCause();
+                Throwable thrCause = thr.getCause();
+                if(thrCause != null) {
+                    thr = thrCause;
+                    while (thr != null) {
+                        sb.append("\nCause...\n");
+                        ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+                        thr = thr.getCause();
+                    }
                 }
                 emsg = sb.toString();
             }

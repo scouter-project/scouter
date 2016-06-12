@@ -17,16 +17,15 @@
 
 package scouter.util;
 
-import java.security.GeneralSecurityException;
-import java.security.Key;
-import java.security.MessageDigest;
+import scouter.io.DataInputX;
+import scouter.io.DataOutputX;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
-
-import scouter.io.DataInputX;
-import scouter.io.DataOutputX;
+import java.security.GeneralSecurityException;
+import java.security.Key;
+import java.security.MessageDigest;
 
 public class CipherUtil {
 	public static String md5(String plainText) {
@@ -120,9 +119,7 @@ public class CipherUtil {
 		}
 		return null;
 	}
-	
-	
-	
+
 	private static byte[] padding(byte[] src) {
 		int destlen = (src.length / 8 + 1) * 8;
 		byte[] dest = new byte[destlen];
@@ -130,16 +127,46 @@ public class CipherUtil {
 		return dest;
 	}
 
+	public static String sha2562(String plainText) {
+		String salt = "qwertyuiop!@#$%^&*()zxcvbnm,.";
+		String sha256Text = null;
+
+		if (plainText != null) {
+			try {
+				String saltText = salt != null && !"".equals(salt)?plainText + "{" + salt.toString() + "}":plainText;
+
+				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+				byte[] byteArray = saltText.getBytes();
+				byte[] sha256Bytes = sha256.digest(byteArray);
+
+				StringBuffer buf = new StringBuffer();
+
+				for (int i = 0; i < sha256Bytes.length; i++) {
+					if ((sha256Bytes[i] & 0xff) < 0x10) {
+						buf.append("0");
+					}
+					buf.append(Long.toString(sha256Bytes[i] & 0xff, 16));
+				}
+				sha256Text = buf.toString();
+			} catch (Throwable t) {
+				return plainText;
+			}
+		}
+		return sha256Text;
+	}
+
 	public static void main(String[] args) {
-		String pwd = "guest";
+		String pwd = "admin";
 		String md5 = md5(pwd);
 		String cnd = encode(pwd);
 		String rtn = decode(cnd);
 		String sha256 = sha256(pwd);
+		String sha2562 = sha2562(pwd);
 		System.out.println("'" + pwd + "'");
 		System.out.println("'" + md5 + "'");
 		System.out.println("'" + cnd + "'");
 		System.out.println("'" + rtn + "'");
 		System.out.println("'" + sha256 + "'");
+		System.out.println("'" + sha2562 + "'");
 	}
 }

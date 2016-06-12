@@ -90,6 +90,7 @@ public class Configure extends Thread {
 	public int cpu_fatal_pct = 90;
 	public int cpu_warning_history = 3;
 	public int cpu_fatal_history = 3;
+	public int _cpu_value_avg_sec = 10;
 
 	//Memory
 	public boolean mem_alert_enabled = false;
@@ -203,7 +204,7 @@ public class Configure extends Thread {
 
 		this.counter_object_registry_path = getValue("counter_object_registry_path", "/tmp/scouter");
 
-		this.disk_alert_enabled = getBoolean("disk_alert_enablee", true);
+		this.disk_alert_enabled = getBoolean("disk_alert_enabled", true);
 		this.disk_warning_pct = getInt("disk_warning_pct", 70);
 		this.disk_fatal_pct = getInt("disk_fatal_pct", 90);
 		this.disk_ignore_names = getStringSet("disk_ignore_names", ",");
@@ -215,6 +216,7 @@ public class Configure extends Thread {
 		this.cpu_fatal_pct = getInt("cpu_fatal_pct", 90);
 		this.cpu_warning_history = getInt("cpu_warning_history", 3);
 		this.cpu_fatal_history = getInt("cpu_fatal_history", 3);
+		this._cpu_value_avg_sec = getInt("_cpu_value_avg_sec", 10);
 
 		this.mem_alert_enabled = getBoolean("mem_alert_enabled", false);
 		this.mem_alert_interval_ms = getLong("mem_alert_interval_ms", 30000);

@@ -1,6 +1,8 @@
 package scouter.agent.counter.task;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.hyperic.sigar.ProcCpu;
 import org.hyperic.sigar.Sigar;
@@ -12,6 +14,7 @@ import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
+import scouter.agent.counter.meter.MeterResource;
 import scouter.lang.TimeTypeEnum;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.counters.CounterConstants;
@@ -25,8 +28,10 @@ public class ProcPerf {
 	static int SLEEP_TIME = 2000;
 	static Sigar sigarImpl = new Sigar();
 	static SigarProxy sigar = SigarProxyCache.newInstance(sigarImpl, SLEEP_TIME);
-
+	
 	private static File regRoot = null;
+	
+	Map<String, MeterResource> meterMap = new HashMap<String, MeterResource>();
 
 	public static void ready() {
 		String objReg = Configure.getInstance().counter_object_registry_path;
@@ -83,13 +88,20 @@ public class ProcPerf {
 
 			String objname = new String(FileUtil.readAll(pids[i]));
 
+			MeterResource meter = meterMap.get(objname);
+			if (meter == null) {
+				meter = new MeterResource();
+				meterMap.put(objname, meter);
+			}
 			try {
 				ProcCpu cpu = sigar.getProcCpu(pid);
 				double value = cpu.getPercent() * 100.0D/cpuCores;
+				meter.add(value);
+				float procCpu = (float) meter.getAvg(Configure.getInstance()._cpu_value_avg_sec);
 				PerfCounterPack p = pw.getPack(objname, TimeTypeEnum.REALTIME);
-				p.put(CounterConstants.PROC_CPU, new FloatValue((float) value));
+				p.put(CounterConstants.PROC_CPU, new FloatValue(procCpu));
 				p = pw.getPack(objname, TimeTypeEnum.FIVE_MIN);
-				p.put(CounterConstants.PROC_CPU, new FloatValue((float) value));
+				p.put(CounterConstants.PROC_CPU, new FloatValue(procCpu));
 			} catch (Exception e) {
 				// ignore no proc
 			}

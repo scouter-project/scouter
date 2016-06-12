@@ -84,7 +84,7 @@ public class TimeRangeDialog {
 						 long stime = DateUtil.getTime(fromTime, "yyyyMMddHHmm");
 						 long etime = DateUtil.getTime(toTime, "yyyyMMddHHmm");
 						 if (etime <= stime) {
-							 MessageDialog.openWarning(dialog, "Warning", "Time range is incorrect. " + DateUtil.timestamp(stime) + " ~ " + DateUtil.timestamp(etime));
+							 MessageDialog.openWarning(dialog, "Warning", "Time range is incorrect. ");
 						 } else {
 							 callback.setTimeRange(stime, etime);
 							 dialog.close();

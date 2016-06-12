@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Display;
 
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
+import scouter.client.threads.ObjectSelectManager;
 import scouter.client.util.ExUtil;
 import scouter.util.DateUtil;
 import scouter.util.LongEnumer;
@@ -51,7 +52,7 @@ public class XLogSummaryServiceDialog extends XLogSummaryAbstractDialog{
 				while (longEnumer.hasMoreElements()) {
 					XLogData d = dataMap.get(longEnumer.nextLong());
 					long time = d.p.endTime;
-					if (d.filter_ok && time >= stime && time <= etime) {
+					if (d.filter_ok && time >= stime && time <= etime && !ObjectSelectManager.getInstance().isUnselectedObject(d.p.objHash)) {
 						ServiceSummary summary = summaryMap.get(d.p.service);
 						if (summary == null) {
 							summary = new ServiceSummary(d.p.service);

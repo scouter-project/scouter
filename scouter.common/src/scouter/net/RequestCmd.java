@@ -17,6 +17,9 @@
 
 package scouter.net;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class RequestCmd {
 	public static final String CLOSE = "CLOSE";
 	public static final String LOGIN = "LOGIN";
@@ -257,5 +260,17 @@ public class RequestCmd {
 	public static final String LOAD_ENDUSER_NAV_SUMMARY = "LOAD_ENDUSER_NAV_SUMMARY";
 	public static final String LOAD_ENDUSER_AJAX_SUMMARY = "LOAD_ENDUSER_AJAX_SUMMARY";
 	public static final String LOAD_ENDUSER_ERROR_SUMMARY = "LOAD_ENDUSER_ERROR_SUMMARY";
+	
+	protected static Set<String> freeCmdSet = new HashSet<String>();
+	
+	static {
+		freeCmdSet.add(LOGIN);
+		freeCmdSet.add(SERVER_VERSION);
+		freeCmdSet.add(SERVER_TIME);
+	}
+	
+	public static boolean isFreeCmd(String cmd) {
+		return freeCmdSet.contains(cmd);
+	}
 
 }

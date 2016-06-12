@@ -273,6 +273,8 @@ public class ObjectThreadDetailView extends ViewPart implements ViewWithTable{
 				if (stopBtn != null && interruptBtn != null) {
 					stopBtn.setEnabled(serviceThread);
 					interruptBtn.setEnabled(serviceThread);
+					resumeBtn.setEnabled(serviceThread);
+					suspendBtn.setEnabled(serviceThread);
 				}
 				sortTable();
 			}

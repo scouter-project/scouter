@@ -19,7 +19,7 @@ import scouter.server.account.AccountManager
 import scouter.server.util.{EnumerScala, ThreadScala}
 import scouter.util.{CacheTable, DateUtil, KeyGen, ThreadUtil}
 object LoginManager {
-    val sessionTable = new CacheTable[Long, LoginUser]().setDefaultKeepTime(DateUtil.MILLIS_PER_MINUTE);
+    val sessionTable = new CacheTable[Long, LoginUser]().setDefaultKeepTime(DateUtil.MILLIS_PER_HOUR * 3);
     ThreadScala.startDaemon("scouter.server.LoginManager") {
         while (true) {
             sessionTable.clearExpiredItems();

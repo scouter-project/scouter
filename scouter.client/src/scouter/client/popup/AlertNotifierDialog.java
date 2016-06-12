@@ -17,6 +17,7 @@
  */
 package scouter.client.popup;
 
+import java.util.Date;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -47,6 +48,7 @@ import scouter.client.util.UIUtil;
 import scouter.lang.AlertLevel;
 import scouter.lang.pack.AlertPack;
 import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
 
 public class AlertNotifierDialog {
 	
@@ -133,7 +135,7 @@ public class AlertNotifierDialog {
 	    mainComp.setLayout(UIUtil.formLayout(0, 0));
 	    
 	    timeLbl = new Label(mainComp, SWT.RIGHT);
-	    timeLbl.setText(DateUtil.getLogTime(p.time)); 
+	    timeLbl.setText(FormatUtil.print(new Date(p.time), "HH:mm:ss.sss")); 
 	    timeLbl.setLayoutData(UIUtil.formData(0, 5, 0, 0, 100, -5, null, -1));
 	    FontData[] fD = timeLbl.getFont().getFontData();
 	    fD[0].setStyle(SWT.BOLD);
