@@ -92,7 +92,7 @@ public class AgentEnv {
 		File dumpDir = Configure.getInstance().dump_dir;
 		if (dumpDir.canRead()) {
 			for (File file : dumpDir.listFiles()) {
-				if (file.isFile() && file.getName().startsWith("scouter.") && file.getName().endsWith(".dump")) {
+				if (file.isFile()) {
 					nameLv.add(file.getName());
 					sizeLv.add(file.length());
 					lastModifedLv.add(file.lastModified());

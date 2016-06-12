@@ -1,3 +1,4 @@
+scouter.agent.batch/bin/*
 scouter.agent.java/bin/*
 scouter.client/bin/*
 scouter.common/bin/*
@@ -98,3 +99,7 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 
+scouter.client.build/.settings/org.eclipse.core.resources.prefs
+scouter.common/.settings/org.eclipse.core.resources.prefs
+scouter.agent.host/.settings/org.eclipse.core.resources.prefs
+scouter.agent.batch/.settings/org.eclipse.core.resources.prefs

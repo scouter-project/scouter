@@ -25,6 +25,7 @@ public class TcpFlag {
 	public final static byte NoNEXT = 0x04;
 	
 	public static final byte FAIL = 0x05;
+	public static final byte INVALID_SESSION = 0x44;
 
 	public static final byte CLUSTER_SEND_NEXT = 0x03;
 	public static final byte CLUSTER_SEND_STOP = 0x04;

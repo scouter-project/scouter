@@ -18,6 +18,7 @@
 package scouter.client.xlog;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
@@ -43,7 +44,6 @@ import scouter.lang.step.SqlSum;
 import scouter.lang.step.StepEnum;
 import scouter.lang.step.StepSingle;
 import scouter.lang.step.StepSummary;
-import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 import scouter.util.Hexa32;
 import scouter.util.IPUtil;
@@ -66,7 +66,7 @@ public class ProfileTextFull {
 		final StringBuffer sb = new StringBuffer();
 		sb.append("► txid    = ").append(Hexa32.toString32(p.txid)).append("\n");
 		sb.append("► objName = ").append(objName).append("\n");
-		sb.append("► endtime = ").append(DateUtil.timestamp(p.endTime)).append("\n");
+		sb.append("► endtime = ").append(FormatUtil.print(new Date(p.endTime), "yyyyMMdd HH:mm:ss.sss")).append("\n");
 		sb.append("► elapsed = ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms\n");
 		sb.append("► service = ").append(TextProxy.service.getText(p.service)).append("\n");
 		if (error != null) {
@@ -176,7 +176,7 @@ public class ProfileTextFull {
 			sb.append(" ");
 			sb.append("["+astarStr+"]");
 			sb.append(" ");
-			sb.append(DateUtil.getLogTime(stime));
+			sb.append(FormatUtil.print(new Date(stime), "HH:mm:ss.sss"));
 			sb.append("   ");
 			sb.append(String.format("%6s", "0"));
 			sb.append(" ");
@@ -263,7 +263,7 @@ public class ProfileTextFull {
 			sb.append(" ");
 			sb.append(String.format("[%0"+length+"d]", stepSingle.index));
 			sb.append(" ");
-			sb.append(DateUtil.getLogTime(tm));
+			sb.append(FormatUtil.print(new Date(tm), "HH:mm:ss.sss"));
 			sb.append("   ");
 			sb.append(String.format("%6s", FormatUtil.print(tm - prev_tm, "#,##0")));
 			sb.append(" ");
@@ -378,7 +378,7 @@ public class ProfileTextFull {
 			sb.append(" ");
 			sb.append("["+astarStr+"]");
 			sb.append(" ");
-			sb.append(DateUtil.getLogTime(tm));
+			sb.append(FormatUtil.print(new Date(tm), "HH:mm:ss.sss"));
 			sb.append("   ");
 			if(!isSummary){
 				sb.append(String.format("%6s", FormatUtil.print(tm - prev_tm, "#,##0")));

@@ -39,6 +39,7 @@ public class Server {
 	private String group;
 	private String version;
 	private String email;
+	private boolean secureMode = true;
 	
 	private boolean open = false;
 	
@@ -230,6 +231,14 @@ public class Server {
 
 	public void setSoTimeOut(int soTimeOut) {
 		this.soTimeOut = soTimeOut;
+	}
+	
+	public boolean isSecureMode() {
+		return secureMode;
+	}
+
+	public void setSecureMode(boolean secureMode) {
+		this.secureMode = secureMode;
 	}
 
 	public String toString() {

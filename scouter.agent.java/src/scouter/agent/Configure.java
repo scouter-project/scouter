@@ -18,6 +18,7 @@ package scouter.agent;
 
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
+import scouter.agent.util.JarUtil;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.counters.CounterConstants;
@@ -36,6 +37,15 @@ public class Configure extends Thread {
 	private boolean running = true;
     private File propertyFile;
     long last_check = 0;
+    public static String agent_dir_path;
+    static {
+    	File jarFile = JarUtil.getThisJarFile();
+    	if (jarFile == null) {
+    		agent_dir_path = new File("./").getAbsolutePath();
+    	} else {
+    		agent_dir_path = jarFile.getParent();
+    	}
+    }
 
     public final static synchronized Configure getInstance() {
 		if (instance == null) {
@@ -115,13 +125,14 @@ public class Configure extends Thread {
 	public String trace_webserver_name_header_key = "X-Forwarded-Host";
 	public String trace_webserver_time_header_key = "X-Forwarded-Time";
 	public int _trace_fullstack_socket_open_port = 0;
+	public int _trace_sql_parameter_max_count = 128;
 
 	public boolean trace_rs_leak_enabled = false;
 	public boolean trace_stmt_leak_enabled = false;
 
 	//Dir
-	public File plugin_dir = new File("./plugin");
-	public File dump_dir = new File("./dump");
+	public File plugin_dir = new File(agent_dir_path + "/plugin");
+	public File dump_dir = new File(agent_dir_path + "/dump");
 	//public File mgr_agent_lib_dir = new File("./_scouter_");
 
 	//Manager
@@ -143,7 +154,7 @@ public class Configure extends Thread {
 
 	//Alert
 	public int alert_message_length = 3000;
-	public long alert_send_interval_ms = 3000;
+	public long alert_send_interval_ms = 10000;
 	public int alert_perm_warning_pct = 90;
 
 	//Log
@@ -280,7 +291,7 @@ public class Configure extends Thread {
 		if (propertyFile != null) {
 			return propertyFile;
 		}
-		String s = System.getProperty("scouter.config", "./scouter.conf");
+		String s = System.getProperty("scouter.config", agent_dir_path + "/conf/scouter.conf");
 		propertyFile = new File(s.trim());
 		return propertyFile;
 	}
@@ -321,7 +332,7 @@ public class Configure extends Thread {
 		this.trace_service_name_header_key = getValue("trace_service_name_header_key", null);
 		this.trace_service_name_get_key = getValue("trace_service_name_get_key");
 		this.trace_service_name_post_key = getValue("trace_service_name_post_key");
-		this.dump_dir = new File(getValue("dump_dir", "./dump"));
+		this.dump_dir = new File(getValue("dump_dir", agent_dir_path + "/dump"));
 		try {
 			this.dump_dir.mkdirs();
 		} catch (Exception e) {
@@ -331,7 +342,7 @@ public class Configure extends Thread {
 //			this.mgr_agent_lib_dir.mkdirs();
 //		} catch (Exception e) {
 //		}
-		this.plugin_dir = new File(getValue("plugin_dir", "./plugin"));
+		this.plugin_dir = new File(getValue("plugin_dir", agent_dir_path + "/plugin"));
 		
 		this.autodump_enabled = getBoolean("autodump_enabled", false);
 		this.autodump_trigger_active_service_cnt = getInt("autodump_trigger_active_service_cnt", 10000);
@@ -495,13 +506,14 @@ public class Configure extends Thread {
 		this.alert_perm_warning_pct = getInt("alert_perm_warning_pct", 90);
 		this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", false);
 		this.alert_message_length = getInt("alert_message_length", 3000);
-		this.alert_send_interval_ms = getInt("alert_send_interval_ms", 3000);
+		this.alert_send_interval_ms = getInt("alert_send_interval_ms", 10000);
 		this.xlog_error_jdbc_fetch_max = getInt("xlog_error_jdbc_fetch_max", 10000);
 		this.xlog_error_sql_time_max_ms = getInt("xlog_error_sql_time_max_ms", 30000);
 		this._log_asm_enabled = getBoolean("_log_asm_enabled", false);
 		this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
 		this._profile_fullstack_sql_connection_enabled = getBoolean("_profile_fullstack_sql_connection_enabled", false);
 		this._trace_fullstack_socket_open_port = getInt("_trace_fullstack_socket_open_port", 0);
+		this._trace_sql_parameter_max_count = getInt("_trace_sql_parameter_max_count", 128);
 		this.log_dir = getValue("log_dir", "");
 		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
 		this.log_keep_days = getInt("log_keep_days", 7);
@@ -610,7 +622,7 @@ public class Configure extends Thread {
 		this.objHash = HashUtil.hash(objName);
 		System.setProperty("scouter.objname", this.objName);
 		System.setProperty("scouter.objtype", this.obj_type);
-		System.setProperty("scouter.dir", new File(".").getAbsolutePath());
+		System.setProperty("scouter.dir", agent_dir_path);
 	}
 	public String getValue(String key) {
 		return StringUtil.trim(property.getProperty(key));

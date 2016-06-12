@@ -17,6 +17,8 @@
  */
 package scouter.client.views;
 
+import java.util.Date;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
@@ -42,6 +44,7 @@ import scouter.client.util.UIUtil;
 import scouter.lang.AlertLevel;
 import scouter.lang.pack.AlertPack;
 import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
 
 public class AlertView extends ViewPart implements IAlertListener {
 	public static final String ID = AlertView.class.getName();
@@ -172,7 +175,7 @@ public class AlertView extends ViewPart implements IAlertListener {
 				AlertData data = new AlertData(serverId, alert);
 				TableItem t = new TableItem(table, SWT.NONE, 0);
 				t.setText(new String[] { //
-						DateUtil.getLogTime(alert.time),//
+						FormatUtil.print(new Date(alert.time), "HH:mm:ss.sss"),
 						AlertLevel.getName(alert.level), //
 						alert.title, //
 						alert.message,//

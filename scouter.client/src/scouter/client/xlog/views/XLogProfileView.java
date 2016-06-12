@@ -45,6 +45,9 @@ import org.eclipse.ui.part.ViewPart;
 import scouter.client.Activator;
 import scouter.client.Images;
 import scouter.client.model.XLogData;
+import scouter.client.server.GroupPolicyConstants;
+import scouter.client.server.Server;
+import scouter.client.server.ServerManager;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ImageUtil;
 import scouter.client.xlog.ProfileText;
@@ -66,6 +69,8 @@ public class XLogProfileView extends ViewPart {
 	private XLogData xLogData;
 	private String txid;
 	Menu contextMenu;
+	MenuItem sqlSummary;
+	MenuItem bindSqlParamMenu;
 	
 	IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 	
@@ -96,14 +101,14 @@ public class XLogProfileView extends ViewPart {
 	
 	private void createContextMenu() {
 		contextMenu = new Menu(text);
-		MenuItem sqlSummary = new MenuItem(contextMenu, SWT.PUSH);
+		sqlSummary = new MenuItem(contextMenu, SWT.PUSH);
 		sqlSummary.setText("SQL Statistics");
 		sqlSummary.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				openSqlSummaryDialog.run();
 			}
 		});
-		final MenuItem bindSqlParamMenu = new MenuItem(contextMenu, SWT.CHECK);
+		bindSqlParamMenu = new MenuItem(contextMenu, SWT.CHECK);
 		bindSqlParamMenu.setText("Bind SQL Parameter");
 		bindSqlParamMenu.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -133,6 +138,10 @@ public class XLogProfileView extends ViewPart {
 		this.xLogData = item;
 		this.txid = Hexa32.toString32(item.p.txid);
 		this.serverId = serverId;
+		
+		Server server = ServerManager.getInstance().getServer(serverId);
+		sqlSummary.setEnabled(server.isAllowAction(GroupPolicyConstants.ALLOW_SQLPARAMETER));
+		bindSqlParamMenu.setEnabled(server.isAllowAction(GroupPolicyConstants.ALLOW_SQLPARAMETER));
 		
 		setPartName(txid);
 		text.setText("");

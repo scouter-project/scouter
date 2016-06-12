@@ -8,9 +8,11 @@ import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
+import scouter.agent.trace.AlertProxy;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
 import scouter.agent.util.DumpUtil;
+import scouter.lang.AlertLevel;
 import scouter.util.DateUtil;
 import scouter.util.FileUtil;
 import scouter.util.Hexa32;
@@ -22,6 +24,7 @@ public class Debug {
 		if (conf.autodump_stuck_thread_ms <= 0)
 			return;
 		PrintWriter out = null;
+		StringBuilder msg = new StringBuilder();
 		try {
 			Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
 			while (en.hasMoreElements()) {
@@ -57,10 +60,20 @@ public class Debug {
 						FileUtil.close(out);
 						return;
 					}
+					msg.append(ctx.serviceName + System.getProperty("line.separator"));
+					msg.append(etime + " ms" + System.getProperty("line.separator"));
+					msg.append(ctx.thread.getName() + ":");
+					msg.append(ctx.thread.getState().name() + ":");
+					msg.append("cpu " + SysJMX.getThreadCpuTime(ctx.thread) + System.getProperty("line.separator"));
+					msg.append(Hexa32.toString32(ctx.txid) + System.getProperty("line.separator"));
+					msg.append(System.getProperty("line.separator"));
 				}
 			}
 		} finally {
 			FileUtil.close(out);
+		}
+		if (msg.length() > 0) {
+			AlertProxy.sendAlert(AlertLevel.WARN, "DELAYED_SERVICE", msg.toString());
 		}
 	}
 	public PrintWriter open() throws IOException {
