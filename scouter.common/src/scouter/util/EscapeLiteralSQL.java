@@ -32,6 +32,8 @@ public class EscapeLiteralSQL {
 	private char[] chars;
 	private int pos;
 	private int length;
+	
+	private int count;
 
 	final StringBuffer parsedSql;
 	final StringBuffer param;
@@ -172,7 +174,7 @@ public class EscapeLiteralSQL {
 			break;
 		case QUTATION:
 			param.append("'");
-			parsedSql.append('\'').append(substitute).append('\'');
+			parsedSql.append('\'').append(substitute).append("{").append(++count).append("}").append('\'');
 			status = STAT.NORMAL;
 			break;
 		}
@@ -262,7 +264,7 @@ public class EscapeLiteralSQL {
 				param.append(",");
 			}
 			param.append(chars[pos]);
-			parsedSql.append(substitute_num);
+			parsedSql.append(substitute_num).append("{").append(++count).append("}");
 			status = STAT.NUMBER;
 			break;
 		case COMMENT:
