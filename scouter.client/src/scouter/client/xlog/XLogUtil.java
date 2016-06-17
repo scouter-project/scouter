@@ -150,6 +150,27 @@ public class XLogUtil {
 		return 0;
 	}
 	
+	public static int getCpuTime(Step p) {
+		switch (p.getStepType()) {
+		case StepEnum.SQL:
+		case StepEnum.SQL2:
+		case StepEnum.SQL3:
+			SqlStep ss = (SqlStep) p;
+			return ss.cputime;
+		case StepEnum.METHOD:
+		case StepEnum.METHOD2:
+			MethodStep ms = (MethodStep) p;
+			return ms.cputime;
+		case StepEnum.APICALL:
+			ApiCallStep acs = (ApiCallStep) p;
+			return acs.cputime;
+		case StepEnum.THREAD_SUBMIT:
+			ThreadSubmitStep tss = (ThreadSubmitStep) p;
+			return tss.cputime;
+		}
+		return 0;
+	}
+	
 	public static String getStepContents(Step p) {
 		StringBuilder sb = new StringBuilder();
 		switch (p.getStepType()) {
