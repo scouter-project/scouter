@@ -302,8 +302,6 @@ public class TraceMain {
             XLogPack pack = new XLogPack();
             // pack.endTime = System.currentTimeMillis();
             pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
-            boolean sendOk = pack.elapsed >= conf.xlog_lower_bound_time_ms;
-            ctx.profile.close(sendOk);
             ctx.serviceHash = DataProxy.sendServiceName(ctx.serviceName);
             pack.service = ctx.serviceHash;
             pack.xType = XLogTypes.WEB_SERVICE;
@@ -356,6 +354,8 @@ public class TraceMain {
                 ServiceSummary.getInstance().process(statementLeakSuspect, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
             }
 
+            boolean sendOk = (pack.elapsed >= conf.xlog_lower_bound_time_ms) || pack.error != 0;
+            ctx.profile.close(sendOk);
             if (ctx.group != null) {
                 pack.group = DataProxy.sendGroup(ctx.group);
             }
@@ -477,7 +477,8 @@ public class TraceMain {
             pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
             // pack.endTime = System.currentTimeMillis();
             pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
-            boolean sendOk = pack.elapsed >= Configure.getInstance().xlog_lower_bound_time_ms;
+            pack.error = errorCheck(ctx, thr);
+            boolean sendOk = (pack.elapsed >= Configure.getInstance().xlog_lower_bound_time_ms) || pack.error != 0;
             ctx.profile.close(sendOk);
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
@@ -492,7 +493,6 @@ public class TraceMain {
             pack.caller = ctx.caller;
             pack.ipaddr = IPUtil.toBytes(ctx.remoteIp);
             pack.userid = ctx.userid;
-            pack.error = errorCheck(ctx, thr);
             // 2015.11.10
             if (ctx.group != null) {
                 pack.group = DataProxy.sendGroup(ctx.group);
