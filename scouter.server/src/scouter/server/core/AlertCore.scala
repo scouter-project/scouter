@@ -32,7 +32,9 @@ object AlertCore {
         val p = queue.get();
         ServerStat.put("alert.core.queue", queue.size());
         p.time = System.currentTimeMillis()
-        PlugInManager.alert(p)
+        if (Configure.WORKABLE) {
+          PlugInManager.alert(p)
+        }
         AlertSummary.add(p)
         AlertCache.put(p)
         AlertWR.add(p)
