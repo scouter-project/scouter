@@ -32,8 +32,8 @@ public abstract class MeteringUtil<T> {
 	public MeteringUtil(int timeUnit, int bucketSize) {
 		this.TIME_UNIT=timeUnit;
 		this.BUCKET_SIZE = bucketSize;
-		this._pos_ = (int) (_time_ % BUCKET_SIZE);
 		this._time_ = getTime();
+		this._pos_ = (int) (_time_ % BUCKET_SIZE);
 		this.table = new Object[bucketSize];
 		for (int i = 0; i < bucketSize; i++) {
 			this.table[i] = create();
