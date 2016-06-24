@@ -99,20 +99,19 @@ public class DebugService {
 				}
 				out.print(ctx.thread.getId() + ":");
 				out.print(ctx.thread.getName() + ":");
-				out.print(ctx.thread.getState().name() + ":");
-				out.print("cpu " + SysJMX.getThreadCpuTime(ctx.thread) + ":");
-				out.print(Hexa32.toString32(ctx.txid) + ":");
+				out.println(ctx.thread.getState().name());
+				out.println("cpu " + SysJMX.getThreadCpuTime(ctx.thread));
+				out.println(Hexa32.toString32(ctx.txid));
 				out.print(ctx.serviceName + ":");
-				out.print(etime + " ms");
+				out.println(etime + " ms");
 				if (ctx.sqltext != null) {
-					out.print(":sql=" + ctx.sqltext );
+					out.println("sql=" + ctx.sqltext );
 					if(ctx.sqlActiveArgs!=null){
-						out.print("[" + ctx.sqlActiveArgs + "]");
+						out.println("[" + ctx.sqlActiveArgs + "]");
 					}
-					out.print(":");
 				}
 				if (ctx.apicall_name != null) {
-					out.println(":apicall=" + ctx.apicall_name);
+					out.println("apicall=" + ctx.apicall_name);
 				}
 				out.println("");
 				DumpUtil.printStack(out, ctx.thread.getId());
