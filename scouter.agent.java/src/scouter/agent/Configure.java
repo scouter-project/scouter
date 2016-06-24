@@ -126,6 +126,7 @@ public class Configure extends Thread {
 	public String trace_webserver_time_header_key = "X-Forwarded-Time";
 	public int _trace_fullstack_socket_open_port = 0;
 	public int _trace_sql_parameter_max_count = 128;
+	public String trace_delayed_service_mgr_filename = "setting_delayed_service.properties";
 
 	public boolean trace_rs_leak_enabled = false;
 	public boolean trace_stmt_leak_enabled = false;
@@ -145,6 +146,7 @@ public class Configure extends Thread {
 	public long autodump_interval_ms = 30000;
 	public int autodump_level = 1; // 1:ThreadDump, 2:ActiveService, 3:ThreadList
 	public int autodump_stuck_thread_ms = 0;
+	public int autodump_stuck_check_interval_ms = 10000;
 
 	//XLog
 	public int xlog_lower_bound_time_ms = 0;
@@ -355,6 +357,7 @@ public class Configure extends Thread {
 			this.autodump_interval_ms = 5000;
 		}
 		this.autodump_stuck_thread_ms = getInt("autodump_stuck_thread_ms", 0);
+		this.autodump_stuck_check_interval_ms = getInt("autodump_stuck_check_interval_ms", 10000);
 		this.mgr_static_content_extensions = getValue("mgr_static_content_extensions", "js, htm, html, gif, png, jpg, css");
 		this.profile_thread_cputime_enabled = getBoolean("profile_thread_cputime_enabled", false);
 		this.profile_socket_open_fullstack_enabled = getBoolean("profile_socket_open_fullstack_enabled", false);
@@ -482,6 +485,8 @@ public class Configure extends Thread {
 
 		this.trace_rs_leak_enabled = getBoolean("trace_rs_leak_enabled", false);
 		this.trace_stmt_leak_enabled = getBoolean("trace_stmt_leak_enabled", false);
+		
+		this.trace_delayed_service_mgr_filename = getValue("trace_delayed_service_mgr_filename", "setting_delayed_service.properties");
 
 		// SUMMARY최대 갯수를 관리한다.
 		this.summary_enabled = getBoolean("summary_enabled", true);
