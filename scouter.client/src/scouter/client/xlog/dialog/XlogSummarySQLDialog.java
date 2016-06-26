@@ -44,6 +44,7 @@ import scouter.client.popup.SQLFormatDialog;
 import scouter.client.util.UIUtil;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.SqlStep;
+import scouter.lang.step.SqlStep3;
 import scouter.lang.step.Step;
 import scouter.lang.step.StepEnum;
 import scouter.lang.step.StepSingle;
@@ -195,7 +196,7 @@ public class XlogSummarySQLDialog extends Dialog {
 		SQLSumData sqlSumData = null;
 		BindSumData bindSumData = null;
 		String bindParam;
-		
+	
 		for (int i = 0; i < steps.length; i++) {
 			stepSingle = (StepSingle)steps[i];
 
@@ -229,6 +230,14 @@ public class XlogSummarySQLDialog extends Dialog {
 				}
 				bindSumData.execs++;
 				bindSumData.execTime += sql.elapsed;
+				
+				if(StepEnum.SQL3 == stepSingle.getStepType()){
+			             int updatedCount = ((SqlStep3)stepSingle).updated;
+			             if (updatedCount > SqlStep3.EXECUTE_RESULT_SET) {
+			            	 sqlSumData.totalRows += updatedCount;
+			            	 bindSumData.totalRows += updatedCount;
+			             }
+				}
 				break;
 			case  StepEnum.HASHED_MESSAGE:
 				message = (HashedMessageStep)stepSingle;
