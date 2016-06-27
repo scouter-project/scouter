@@ -69,6 +69,7 @@ public class TraceMain {
     private static Error userTxNotClose = new USERTX_NOT_CLOSE("UserTransaction missing commit/rollback Error");
     private static Error resultSetLeakSuspect = new RESULTSET_LEAK_SUSPECT("ResultSet Leak suspected!");
     private static Error statementLeakSuspect = new STATEMENT_LEAK_SUSPECT("Statement Leak suspected!");
+    private static DelayedServiceManager delayedServiceManager = DelayedServiceManager.getInstance();
 
     public static Object startHttpService(Object req, Object res) {
         try {
@@ -375,6 +376,7 @@ public class TraceMain {
                 pack.webHash = DataProxy.sendWebName(ctx.web_name);
                 pack.webTime = ctx.web_time;
             }
+            delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
             if (sendOk) {
                 DataProxy.sendXLog(pack);
@@ -506,6 +508,7 @@ public class TraceMain {
             if (ctx.desc != null) {
                 pack.desc = DataProxy.sendDesc(ctx.desc);
             }
+            delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
             if (sendOk) {
                 DataProxy.sendXLog(pack);
