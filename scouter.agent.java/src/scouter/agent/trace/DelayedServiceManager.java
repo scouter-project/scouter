@@ -40,7 +40,7 @@ public class DelayedServiceManager extends Thread {
 	private static volatile DelayedServiceManager instance;
 	Configure conf = Configure.getInstance();
 	long lastModifiedTime;
-	boolean stopChecking = false;
+	static volatile boolean stopChecking = false;
 	
 	HashMap<Integer, DelayedCondition> conditionMap = new HashMap<Integer, DelayedCondition>();
 	
