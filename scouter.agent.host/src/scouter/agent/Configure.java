@@ -20,6 +20,7 @@ package scouter.agent;
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.conf.ConfObserver;
+import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
@@ -49,6 +50,7 @@ public class Configure extends Thread {
 	}
 
 	//Network
+	@ConfigDesc("Local ip using udp")
 	public String net_local_udp_ip = null;
 	public int net_local_udp_port;
 	public String net_collector_ip = "127.0.0.1";
@@ -380,15 +382,21 @@ public class Configure extends Thread {
 
 		return m;
 	}
+	
+	public StringKeyLinkedMap<String> getConfigureDesc() {
+		return ConfigValueUtil.getConfigDescMap(this);
+	}
 
 	public static void main(String[] args) {
-		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
+		Configure o = new Configure(true);
+		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(o);
+		StringKeyLinkedMap<String> descMap = ConfigValueUtil.getConfigDescMap(o);
 		StringEnumer enu = defMap.keys();
 		while (enu.hasMoreElements()) {
 			String key = enu.nextString();
 			if (ignoreSet.contains(key))
 				continue;
-			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key)));
+			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key))  + (descMap.containsKey(key) ? " (" + descMap.get(key) + ")" : ""));
 		}
 	}
 }

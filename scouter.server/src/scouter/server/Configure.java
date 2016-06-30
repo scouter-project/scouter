@@ -17,16 +17,30 @@
 
 package scouter.server;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.StringTokenizer;
+
+import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.*;
-
-import java.io.*;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import scouter.util.DateUtil;
+import scouter.util.FileUtil;
+import scouter.util.StringEnumer;
+import scouter.util.StringKeyLinkedMap;
+import scouter.util.StringLinkedSet;
+import scouter.util.StringSet;
+import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.SystemUtil;
+import scouter.util.ThreadUtil;
 
 public class Configure extends Thread {
 
@@ -45,6 +59,7 @@ public class Configure extends Thread {
 
 
 	//SERVER
+	@ConfigDesc("Server ID")
 	public String server_id = SysJMX.getHostName();
 
 	//Log
@@ -367,13 +382,15 @@ public class Configure extends Thread {
 	}
 
 	public static void main(String[] args) {
-		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
+		Configure o = new Configure(true);
+		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(o);
+		StringKeyLinkedMap<String> descMap = ConfigValueUtil.getConfigDescMap(o);
 		StringEnumer enu = defMap.keys();
 		while (enu.hasMoreElements()) {
 			String key = enu.nextString();
 			if (ignoreSet.contains(key))
 				continue;
-			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key)));
+			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key) + (descMap.containsKey(key) ? " (" + descMap.get(key) + ")" : "")));
 		}
 	}
 
@@ -402,6 +419,10 @@ public class Configure extends Thread {
 		}
 
 		return m;
+	}
+	
+	public StringKeyLinkedMap<String> getConfigureDesc() {
+		return ConfigValueUtil.getConfigDescMap(this);
 	}
 
 	public static StringLinkedSet toOrderSet(String values, String deli) {

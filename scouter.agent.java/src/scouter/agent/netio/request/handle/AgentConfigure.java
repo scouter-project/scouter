@@ -19,6 +19,7 @@ package scouter.agent.netio.request.handle;
 
 import java.lang.instrument.ClassDefinition;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashSet;
 
 import scouter.agent.Configure;
@@ -31,6 +32,8 @@ import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.RequestCmd;
 import scouter.util.ClassUtil;
+import scouter.util.StringKeyLinkedMap;
+import scouter.util.StringKeyLinkedMap.StringKeyLinkedEntry;
 
 public class AgentConfigure {
 	
@@ -113,5 +116,17 @@ public class AgentConfigure {
 			}
 		}
 		return p;
+	}
+	
+	@RequestHandler(RequestCmd.CONFIGURE_DESC)
+	public Pack getConfigureDesc(Pack param) {
+		StringKeyLinkedMap<String> descMap = Configure.getInstance().getConfigureDesc();
+		MapPack pack = new MapPack();
+		Enumeration<StringKeyLinkedEntry<String>> entries = descMap.entries();
+		while (entries.hasMoreElements()) {
+			StringKeyLinkedEntry<String> entry = entries.nextElement();
+			pack.put(entry.getKey(), entry.getValue());
+		}
+		return pack;
 	}
 }

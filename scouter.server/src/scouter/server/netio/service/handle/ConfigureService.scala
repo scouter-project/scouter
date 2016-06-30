@@ -18,23 +18,23 @@
 
 package scouter.server.netio.service.handle;
 
-import java.io.IOException;
-
-import scouter.lang.pack.MapPack;
-import scouter.lang.pack.ObjectPack;
-import scouter.lang.pack.Pack;
-import scouter.lang.value.BlobValue;
-import scouter.lang.value.BooleanValue;
-import scouter.lang.value.MapValue;
-import scouter.io.DataInputX;
-import scouter.io.DataOutputX;
-import scouter.net.RequestCmd;
-import scouter.net.TcpFlag;
-import scouter.server.Configure;
-import scouter.server.CounterManager;
-import scouter.server.core.AgentManager;
-import scouter.server.netio.AgentCall;
-import scouter.server.netio.service.anotation.ServiceHandler;
+import scouter.io.DataInputX
+import scouter.io.DataOutputX
+import scouter.lang.pack.MapPack
+import scouter.lang.pack.ObjectPack
+import scouter.lang.pack.Pack
+import scouter.lang.value.BlobValue
+import scouter.lang.value.BooleanValue
+import scouter.lang.value.MapValue
+import scouter.net.RequestCmd
+import scouter.net.TcpFlag
+import scouter.server.Configure
+import scouter.server.CounterManager
+import scouter.server.core.AgentManager
+import scouter.server.netio.AgentCall
+import scouter.server.netio.service.anotation.ServiceHandler
+import scouter.util.StringKeyLinkedMap.StringKeyLinkedEntry
+import scouter.server.util.EnumerScala
 
 class ConfigureService {
 
@@ -154,5 +154,27 @@ class ConfigureService {
     val success = CounterManager.getInstance().editObjectType(param);
     dout.writeByte(TcpFlag.HasNEXT);
     dout.writeValue(new BooleanValue(success));
+  }
+  
+  @ServiceHandler(RequestCmd.CONFIGURE_DESC)
+  def getConfigureDesc(din: DataInputX, dout: DataOutputX, login: Boolean) {
+    val param = din.readPack().asInstanceOf[MapPack];
+    val objHash = param.getInt("objHash");
+    if (objHash == 0) {
+      val p = new MapPack()
+      val descMap = Configure.getInstance.getConfigureDesc();
+      EnumerScala.foreach(descMap.entries(), (entry: StringKeyLinkedEntry[String]) => {
+        p.put(entry.getKey(), entry.getValue())
+      })
+      dout.writeByte(TcpFlag.HasNEXT);
+      dout.writePack(p);
+    } else {
+      val o = AgentManager.getAgent(objHash);
+      val p = AgentCall.call(o, RequestCmd.CONFIGURE_DESC, param);
+      if (p != null) {
+        dout.writeByte(TcpFlag.HasNEXT);
+        dout.writePack(p);
+      }
+    }
   }
 }

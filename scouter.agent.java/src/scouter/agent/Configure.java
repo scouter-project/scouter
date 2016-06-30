@@ -16,19 +16,37 @@
  */
 package scouter.agent;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.util.JarUtil;
 import scouter.lang.conf.ConfObserver;
+import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.*;
-
-import java.io.*;
-import java.util.*;
+import scouter.util.DateUtil;
+import scouter.util.FileUtil;
+import scouter.util.HashUtil;
+import scouter.util.StringEnumer;
+import scouter.util.StringKeyLinkedMap;
+import scouter.util.StringSet;
+import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.SystemUtil;
+import scouter.util.ThreadUtil;
 public class Configure extends Thread {
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
@@ -58,10 +76,15 @@ public class Configure extends Thread {
 	}
 
 	//Network
+    @ConfigDesc("Local ip using udp")
 	public String net_local_udp_ip = null;
+    @ConfigDesc("Local port using udp")
 	public int net_local_udp_port;
+    @ConfigDesc("Collector server ip")
 	public String net_collector_ip = "127.0.0.1";
+    @ConfigDesc("Collector Server udp port")
 	public int net_collector_udp_port = NetConstants.SERVER_UDP_PORT;
+    @ConfigDesc("Collector Server tcp port")
 	public int net_collector_tcp_port = NetConstants.SERVER_TCP_PORT;
 	public int net_collector_tcp_session_count = 1;
 	public int net_collector_tcp_so_timeout_ms = 60000;
@@ -727,17 +750,23 @@ public class Configure extends Thread {
 		}
 		return m;
 	}
+	
+	public StringKeyLinkedMap<String> getConfigureDesc() {
+		return ConfigValueUtil.getConfigDescMap(this);
+	}
 	public int getHookSignature() {
 		return this.hook_signature;
 	}
 	public static void main(String[] args) {
-		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
+		Configure o = new Configure(true);
+		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(o);
+		StringKeyLinkedMap<String> descMap = ConfigValueUtil.getConfigDescMap(o);
 		StringEnumer enu = defMap.keys();
 		while (enu.hasMoreElements()) {
 			String key = enu.nextString();
 			if (ignoreSet.contains(key))
 				continue;
-			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key)));
+			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key)) + (descMap.containsKey(key) ? " (" + descMap.get(key) + ")" : ""));
 		}
 	}
 }
