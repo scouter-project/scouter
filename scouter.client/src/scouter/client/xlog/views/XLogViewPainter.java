@@ -305,21 +305,28 @@ public class XLogViewPainter {
 	public void drawSelectArea(GC gc) {
 		if (mouse.x1 >= 0 && mouse.y1 >= 0) {
 			if (mouse.x2 + mouse.y2 > 0) {
-				gc.setLineWidth(2);
+				Color color = null;
 				switch (mouse.mode) {
 				case LIST_XLOG:
-					gc.setForeground(XLogViewPainter.color_blue);
+					color = XLogViewPainter.color_blue;
+					
 					break;
 				case ZOOM_AREA:
-					gc.setForeground(XLogViewPainter.color_red);
+					color = XLogViewPainter.color_red;
 					break;
 				default:
-					gc.setForeground(XLogViewPainter.color_blue);
 					break;
 				}
-				gc.setLineStyle(SWT.LINE_DASHDOT);
-
-				gc.drawRectangle(mouse.x1, mouse.y1, mouse.x2 - mouse.x1, mouse.y2 - mouse.y1);
+				if (color != null) {
+					gc.setBackground(color);
+					gc.setAlpha(15);
+					gc.setLineStyle(SWT.LINE_SOLID);
+					gc.fillRectangle(mouse.x1, mouse.y1, mouse.x2 - mouse.x1, mouse.y2 - mouse.y1);
+					gc.setAlpha(150);
+					gc.setLineWidth(1);
+					gc.setForeground(color);
+					gc.drawRectangle(mouse.x1, mouse.y1, mouse.x2 - mouse.x1, mouse.y2 - mouse.y1);
+				}
 			}
 		}
 	}
