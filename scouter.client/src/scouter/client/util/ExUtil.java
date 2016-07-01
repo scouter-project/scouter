@@ -48,6 +48,33 @@ public class ExUtil {
 		}
 	}
 	
+	public static void syncExec(Runnable r) {
+		syncExec(Display.getCurrent(), r);
+	}
+
+	public static void syncExec(Display display, final Runnable r) {
+		if (display == null || r == null) {
+			return;
+		}
+		display.syncExec(new Runnable() {
+			public void run() {
+				try {
+					r.run();
+				} catch (Throwable t) {
+				}
+			}
+		});
+	}
+
+	public static void syncExec(Composite c, Runnable r) {
+		if (c == null)
+			return;
+		try {
+			syncExec(c.getDisplay(), r);
+		} catch (Throwable t) {
+		}
+	}
+	
 	public static void asyncRun(Runnable r) {
 		asyncRun(null, r);
 	}
