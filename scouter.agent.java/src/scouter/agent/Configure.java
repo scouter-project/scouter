@@ -76,192 +76,334 @@ public class Configure extends Thread {
 	}
 
 	//Network
-    @ConfigDesc("Local ip using udp")
+    @ConfigDesc("UDP local IP")
 	public String net_local_udp_ip = null;
-    @ConfigDesc("Local port using udp")
+    @ConfigDesc("UDP local Port")
 	public int net_local_udp_port;
-    @ConfigDesc("Collector server ip")
+    @ConfigDesc("Collector IP")
 	public String net_collector_ip = "127.0.0.1";
-    @ConfigDesc("Collector Server udp port")
+    @ConfigDesc("Collector UDP Port")
 	public int net_collector_udp_port = NetConstants.SERVER_UDP_PORT;
-    @ConfigDesc("Collector Server tcp port")
+    @ConfigDesc("Collector TCP Port")
 	public int net_collector_tcp_port = NetConstants.SERVER_TCP_PORT;
+    @ConfigDesc("Collector TCP Session Count")
 	public int net_collector_tcp_session_count = 1;
+    @ConfigDesc("Collector TCP Socket Timeout(ms)")
 	public int net_collector_tcp_so_timeout_ms = 60000;
+    @ConfigDesc("Collector TCP Connection Timeout(ms)")
 	public int net_collector_tcp_connection_timeout_ms = 3000;
+    @ConfigDesc("UDP Buffer Size")
 	public int net_udp_packet_max_bytes = 60000;
+    @ConfigDesc("UDP Collection Interval(ms)")
 	public long net_udp_collection_interval_ms = 100;
 
 	//Object
+    @ConfigDesc("Object Type")
 	public String obj_type = "";
+    @ConfigDesc("Object Name")
 	public String obj_name = "";
+    @ConfigDesc("Host Type")
 	public String obj_host_type = "";
+    @ConfigDesc("Host Name")
 	public String obj_host_name = "";
+    @ConfigDesc("Activating for using object name as PID")
 	public boolean obj_name_auto_pid_enabled = false;
+    @ConfigDesc("Redefining DS, RP type according to main object")
 	public boolean obj_type_inherit_to_child_enabled = false;
 
 	//profile
+    @ConfigDesc("Http Query String profile")
 	public boolean profile_http_querystring_enabled;
+    @ConfigDesc("Http Header profile")
 	public boolean profile_http_header_enabled;
+    @ConfigDesc("Service URL prefix for Http header profile")
 	public String profile_http_header_url_prefix = "/";
+    @ConfigDesc("Http Parameter profile")
 	public boolean profile_http_parameter_enabled;
+    @ConfigDesc("Service URL prefix for Http parameter profile")
 	public String profile_http_parameter_url_prefix = "/";
+    @ConfigDesc("Activating profile summary function")
 	public boolean profile_summary_mode_enabled = false;
+    @ConfigDesc("Calculating CPU time by profile")
 	public boolean profile_thread_cputime_enabled = false;
+    @ConfigDesc("ThreadStack profile for open socket")
 	public boolean profile_socket_open_fullstack_enabled = false;
+    @ConfigDesc("ThreadStack profile for a certain port of open socket")
 	public int profile_socket_open_fullstack_port = 0;
+    @ConfigDesc("SQL Map profile")
 	public boolean profile_sqlmap_name_enabled = true;
+    @ConfigDesc("DBConnection profile")
 	public boolean profile_connection_open_enabled = true;
+    @ConfigDesc("Activating stack information profile in opening DB connection")
 	public boolean profile_connection_open_fullstack_enabled = false;
+    @ConfigDesc("AutoCommit profile")
 	public boolean profile_connection_autocommit_status_enabled = false;
+    @ConfigDesc("Method profile")
 	public boolean profile_method_enabled = true;
+    @ConfigDesc("Profile Buffer Size")
 	public int profile_step_max_count = 1024;
+    @ConfigDesc("Stack profile in occurrence of service error")
 	public boolean profile_fullstack_service_error_enabled = false;
+    @ConfigDesc("Stack profile in occurrence of apicall error")
 	public boolean profile_fullstack_apicall_error_enabled = false;
+    @ConfigDesc("Stack profile in occurrence of sql error")
 	public boolean profile_fullstack_sql_error_enabled = false;
+    @ConfigDesc("Stack profile in occurrence of commit error")
 	public boolean profile_fullstack_sql_commit_enabled = false;
+    @ConfigDesc("Number of stack profile lines in occurrence of error")
 	public int profile_fullstack_max_lines = 0;
+    @ConfigDesc("Activating SQL literal task")
 	public boolean profile_sql_escape_enabled = true;
+    @ConfigDesc("")
 	public boolean _profile_fullstack_sql_connection_enabled = false;
+    @ConfigDesc("")
 	public boolean profile_fullstack_rs_leak_enabled = false;
+    @ConfigDesc("")
 	public boolean profile_fullstack_stmt_leak_enabled = false;
 
 	//Trace
+    @ConfigDesc("User ID based(0 : Remote Address, 1 : JSessionID, 2 : Scouter Cookie)")
 	public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:SetCookie
+    @ConfigDesc("Tracing background thread socket")
 	public boolean trace_background_socket_enabled = true;
+    @ConfigDesc("Adding assigned header value to the service name")
 	public String trace_service_name_header_key;
+    @ConfigDesc("Adding assigned get parameter to the service name")
 	public String trace_service_name_get_key;
+    @ConfigDesc("Adding assigned post parameter to the service name")
 	public String trace_service_name_post_key;
+    @ConfigDesc("Active Thread Warning Time(ms)")
 	public long trace_activeserivce_yellow_time = 3000;
+    @ConfigDesc("Active Thread Fatal Time(ms)")
 	public long trace_activeservice_red_time = 8000;
+    @ConfigDesc("Identifying header key of Remote IP")
 	public String trace_http_client_ip_header_key = "";
+    @ConfigDesc("Activating gxid connection in HttpTransfer")
 	public boolean trace_interservice_enabled = false;
+    @ConfigDesc("")
 	public String _trace_interservice_gxid_header_key = "X-Scouter-Gxid";
+    @ConfigDesc("")
 	public boolean trace_response_gxid_enabled = false;
+    @ConfigDesc("")
 	public String _trace_interservice_callee_header_key = "X-Scouter-Callee";
+    @ConfigDesc("")
 	public String _trace_interservice_caller_header_key = "X-Scouter-Caller";
+    @ConfigDesc("JSession key for user ID")
 	public String trace_user_session_key = "JSESSIONID";
+    @ConfigDesc("")
 	public boolean _trace_auto_service_enabled = false;
+    @ConfigDesc("")
 	public boolean _trace_auto_service_backstack_enabled = true;
+    @ConfigDesc("Activating trace DB2")
 	public boolean trace_db2_enabled = true;
+    @ConfigDesc("")
 	public boolean trace_webserver_enabled = false;
+    @ConfigDesc("Webserver name header key")
 	public String trace_webserver_name_header_key = "X-Forwarded-Host";
+    @ConfigDesc("Webserver time header key")
 	public String trace_webserver_time_header_key = "X-Forwarded-Time";
+    @ConfigDesc("")
 	public int _trace_fullstack_socket_open_port = 0;
+    @ConfigDesc("")
 	public int _trace_sql_parameter_max_count = 128;
+    @ConfigDesc("")
 	public String trace_delayed_service_mgr_filename = "setting_delayed_service.properties";
-
+    @ConfigDesc("")
 	public boolean trace_rs_leak_enabled = false;
+    @ConfigDesc("")
 	public boolean trace_stmt_leak_enabled = false;
 
 	//Dir
+    @ConfigDesc("Plugin directory")
 	public File plugin_dir = new File(agent_dir_path + "/plugin");
+    @ConfigDesc("Dump directory")
 	public File dump_dir = new File(agent_dir_path + "/dump");
 	//public File mgr_agent_lib_dir = new File("./_scouter_");
 
 	//Manager
+    @ConfigDesc("")
 	public String mgr_static_content_extensions = "js, htm, html, gif, png, jpg, css";
+    @ConfigDesc("")
 	public String mgr_log_ignore_ids = "";
 
 	//Autodump
+    @ConfigDesc("Activating auto dump function")
 	public boolean autodump_enabled = false;
+    @ConfigDesc("Minimum count of active service for auto dump")
 	public int autodump_trigger_active_service_cnt = 10000;
+    @ConfigDesc("Minimum interval(ms) for operating auto dump function")
 	public long autodump_interval_ms = 30000;
+    @ConfigDesc("Auto dump level (1 : ThreadDump, 2 : active service, 3 : thread list)")
 	public int autodump_level = 1; // 1:ThreadDump, 2:ActiveService, 3:ThreadList
+    @ConfigDesc("Minimum delay time(ms) for auto dump threadstack")
 	public int autodump_stuck_thread_ms = 0;
+    @ConfigDesc("")
 	public int autodump_stuck_check_interval_ms = 10000;
 
 	//XLog
+    @ConfigDesc("XLog Ignore Time")
 	public int xlog_lower_bound_time_ms = 0;
+    @ConfigDesc("Error line for result set count to fetch")
 	public int xlog_error_jdbc_fetch_max = 10000;
+    @ConfigDesc("Error line for SQL time (ms)")
 	public int xlog_error_sql_time_max_ms = 30000;
+    @ConfigDesc("Activating xlog error when UserTransaction did not paired")
 	public boolean xlog_error_check_user_transaction_enabled = true;
 
 	//Alert
+    @ConfigDesc("Limited length of alert message")
 	public int alert_message_length = 3000;
+    @ConfigDesc("Minimum interval(ms) in fetching the same alert")
 	public long alert_send_interval_ms = 10000;
+    @ConfigDesc("PermGen usage for send alert")
 	public int alert_perm_warning_pct = 90;
 
 	//Log
+    @ConfigDesc("")
 	public boolean _log_asm_enabled;
+    @ConfigDesc("")
 	public boolean _log_udp_xlog_enabled;
+    @ConfigDesc("")
 	public boolean _log_udp_object_enabled;
+    @ConfigDesc("")
 	public boolean _log_udp_counter_enabled;
+    @ConfigDesc("")
 	public boolean _log_datasource_lookup_enabled = true;
+    @ConfigDesc("")
 	public boolean _log_background_sql = false;
+    @ConfigDesc("Log directory")
 	public String log_dir ="";
+    @ConfigDesc("Retaining log according to date")
 	public boolean log_rotation_enabled =true;
+    @ConfigDesc("Keeping period of log")
 	public int log_keep_days =7;
+    @ConfigDesc("")
 	public boolean _trace = false;
+    @ConfigDesc("")
     public boolean _trace_use_logger = false;
 
 	//Hook
+    @ConfigDesc("Method set for argument hooking")
 	public String hook_args_patterns = "";
+    @ConfigDesc("Method set for return hooking")
 	public String hook_return_patterns = "";
+    @ConfigDesc("Method set for constructor hooking")
 	public String hook_constructor_patterns = "";
+    @ConfigDesc("Method set for dbconnection hooking")
 	public String hook_connection_open_patterns = "";
+    @ConfigDesc("IntialContext Class Set")
 	public String hook_context_classes = "javax/naming/InitialContext";
+    @ConfigDesc("Method set for method hooking")
 	public String hook_method_patterns = "";
+    @ConfigDesc("Prefix without Method hooking")
 	public String hook_method_ignore_prefixes = "get,set";
+    @ConfigDesc("Class set without Method hookingt")
 	public String hook_method_ignore_classes = "";
+    @ConfigDesc("")
 	public String hook_method_exclude_patterns = "";
-	private StringSet _hook_method_ignore_classes = new StringSet();
+    @ConfigDesc("Activating public Method hooking")
 	public boolean hook_method_access_public_enabled = true;
+    @ConfigDesc("Activating private Method hooking")
 	public boolean hook_method_access_private_enabled = false;
+    @ConfigDesc("Activating protected Method hooking")
 	public boolean hook_method_access_protected_enabled = false;
+    @ConfigDesc("Activating none Method hooking")
 	public boolean hook_method_access_none_enabled = false;
+    @ConfigDesc("Method set for service hooking")
 	public String hook_service_patterns = "";
+    @ConfigDesc("Method set for apicall hooking")
 	public String hook_apicall_patterns = "";
+    @ConfigDesc("Method set for apicallinfo hooking")
 	public String hook_apicall_info_patterns = "";
+    @ConfigDesc("Method set for jsp hooking")
 	public String hook_jsp_patterns = "";
+    @ConfigDesc("Method set for preparestatement hooking")
 	public String hook_jdbc_pstmt_classes = "";
+    @ConfigDesc("Method set for statement hooking")
 	public String hook_jdbc_stmt_classes = "";
+    @ConfigDesc("Method set for resultset hooking")
 	public String hook_jdbc_rs_classes = "";
+    @ConfigDesc("Method set for dbconnection wrapping")
 	public String hook_jdbc_wrapping_driver_patterns = "";
+    @ConfigDesc("")
 	public String hook_add_fields = "";
+    @ConfigDesc("")
 	public boolean _hook_serivce_enabled = true;
+    @ConfigDesc("")
 	public boolean _hook_dbsql_enabled = true;
+    @ConfigDesc("")
 	public boolean _hook_dbconn_enabled = true;
+    @ConfigDesc("")
 	public boolean _hook_cap_enabled = true;
+    @ConfigDesc("")
 	public boolean _hook_methods_enabled = true;
+    @ConfigDesc("")
 	public boolean _hook_socket_enabled = true;
+    @ConfigDesc("")
 	public boolean _hook_jsp_enabled = true;
+    @ConfigDesc("")
 	public boolean _hook_async_enabled = true;
+    @ConfigDesc("")
 	public boolean _hook_usertx_enabled = true;
+    @ConfigDesc("")
 	public String _hook_direct_patch_classes = "";
+    @ConfigDesc("")
 	public boolean _hook_spring_rest_enabled = false;
+    @ConfigDesc("")
 	public String _hook_boot_prefix=null;
 
 	//Control
+    @ConfigDesc("Activating Reject service")
 	public boolean control_reject_service_enabled = false;
+    @ConfigDesc("Minimum count of rejecting active service")
 	public int control_reject_service_max_count = 10000;
+    @ConfigDesc("Activating Reject URL")
 	public boolean control_reject_redirect_url_enabled = false;
+    @ConfigDesc("Reject Text")
 	public String control_reject_text = "too many request!!";
+    @ConfigDesc("Reject URL")
 	public String control_reject_redirect_url = "/error.html";
 
 	// Counter
+    @ConfigDesc("Activating collect counter")
 	public boolean counter_enabled = true;
+    @ConfigDesc("think time (ms) of recent user")
 	public long counter_recentuser_valid_ms = DateUtil.MILLIS_PER_FIVE_MINUTE;
+    @ConfigDesc("Path to file creation directory of process ID file")
 	public String counter_object_registry_path = "/tmp/scouter";
 
 	// SFA(Stack Frequency Analyzer)
+    @ConfigDesc("Activating period threaddump function")
 	public boolean sfa_dump_enabled = false;
+    @ConfigDesc("Threaddump Interval(ms)")
 	public int sfa_dump_interval_ms = 10000;
 
 	//Summary
+    @ConfigDesc("Activating summary function")
 	public boolean summary_enabled = true;
+    @ConfigDesc("")
 	public boolean _summary_connection_leak_fullstack_enabled = false;
+    @ConfigDesc("")
 	public int _summary_service_max_count = 5000;
+    @ConfigDesc("")
 	public int _summary_sql_max_count = 5000;
+    @ConfigDesc("")
 	public int _summary_api_max_count = 5000;
+    @ConfigDesc("")
 	public int _summary_ip_max_count = 5000;
+    @ConfigDesc("")
 	public int _summary_useragent_max_count = 5000;
+    @ConfigDesc("")
 	public int _summary_error_max_count = 500;
+    @ConfigDesc("")
 	public int _summary_enduser_nav_max_count = 5000;
+    @ConfigDesc("")
 	public int _summary_enduser_ajax_max_count = 5000;
+    @ConfigDesc("")
 	public int _summary_enduser_error_max_count = 5000;
 	
 	//EndUser
+    @ConfigDesc("Path to jsp to collect enduser data")
 	public String enduser_trace_endpoint_url = "/_scouter_browser.jsp";
 
 	//Experimental(ignoreset)
@@ -279,6 +421,7 @@ public class Configure extends Thread {
 	private String[] _hook_method_ignore_prefix = null;
 	private int _hook_method_ignore_prefix_len = 0;
 	private int hook_signature;
+	private StringSet _hook_method_ignore_classes = new StringSet();
 	private int enduser_perf_endpoint_hash = HashUtil.hash(enduser_trace_endpoint_url);
 
 	/**

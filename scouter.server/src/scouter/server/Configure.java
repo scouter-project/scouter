@@ -63,84 +63,141 @@ public class Configure extends Thread {
 	public String server_id = SysJMX.getHostName();
 
 	//Log
+	@ConfigDesc("Logging TCP connection related event")
 	public boolean log_tcp_action_enabled = false;
+	@ConfigDesc("Logging incoming MultiPacket")
 	public boolean log_udp_multipacket = false;
+	@ConfigDesc("Logging expired MultiPacket")
 	public boolean log_expired_multipacket = true;
+	@ConfigDesc("Logging all incoming packs")
 	public boolean log_udp_packet = false;
+	@ConfigDesc("Logging incoming CounterPack")
 	public boolean log_udp_counter = false;
+	@ConfigDesc("Logging incoming XLogPack")
 	public boolean log_udp_xlog = false;
+	@ConfigDesc("Logging incoming ProfilePack")
 	public boolean log_udp_profile = false;
+	@ConfigDesc("Logging incoming TextPack")
 	public boolean log_udp_text = false;
+	@ConfigDesc("Logging incoming AlertPack")
 	public boolean log_udp_alert = false;
+	@ConfigDesc("Logging incoming ObjectPack")
 	public boolean log_udp_object = false;
+	@ConfigDesc("Logging incoming StatusPack")
 	public boolean log_udp_status = false;
+	@ConfigDesc("Logging incoming StackPack")
 	public boolean log_udp_stack = false;
+	@ConfigDesc("Logging incoming SummaryPack")
 	public boolean log_udp_summary = false;
+	@ConfigDesc("Logging all request handlers in starting")	
 	public boolean log_service_handler_list = false;
+	@ConfigDesc("Retaining log according to date")
 	public boolean log_rotation_enabled = true;
+	@ConfigDesc("Keeping period of log")
 	public int log_keep_days = 31;
+	@ConfigDesc("Logging sql failed to parse")
 	public boolean log_sql_parsing_fail_enabled = false;
+	@ConfigDesc("")
 	public boolean _trace = false;
 
 	//Network
+	@ConfigDesc("UDP Host")
 	public String net_udp_listen_ip = "0.0.0.0";
+	@ConfigDesc("UDP Port")
 	public int net_udp_listen_port = NetConstants.SERVER_UDP_PORT;
+	@ConfigDesc("TCP Host")
 	public String net_tcp_listen_ip = "0.0.0.0";
+	@ConfigDesc("TCP Port")
 	public int net_tcp_listen_port = NetConstants.SERVER_TCP_PORT;
+	@ConfigDesc("Client Socket Timeout(ms)")
 	public int net_tcp_client_so_timeout_ms = 8000;
+	@ConfigDesc("Agent Socket Timeout(ms)")
 	public int net_tcp_agent_so_timeout_ms = 60000;
+	@ConfigDesc("Transfer period(ms) of KEEP_ALIVE")
 	public int net_tcp_agent_keepalive_interval_ms = 5000;
+	@ConfigDesc("Waiting time(ms) for agent session")
 	public int net_tcp_get_agent_connection_wait_ms = 1000;
+	@ConfigDesc("UDP Packet Buffer Size")
 	public int net_udp_packet_buffer_size = 65535;
+	@ConfigDesc("UDP Receiver Buffer Size")
 	public int net_udp_so_rcvbuf_size = 1024 * 1024 * 4;
+	@ConfigDesc("")
 	public int _net_udp_worker_thread_count = 3;
+	@ConfigDesc("TCP Thread Pool Size")
 	public int net_tcp_service_pool_size = 100;
 
 	//Dir
+	@ConfigDesc("Store directory of database")
 	public String db_dir = "./database";
+	@ConfigDesc("Path to log directory")
 	public String log_dir = "./logs";
+	@ConfigDesc("Path to plugin directory")
 	public String plugin_dir = "./plugin";
+	@ConfigDesc("Path to client related directory")
 	public String client_dir = "./client";
 
 	//Object
+	@ConfigDesc("Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
 	public int object_deadtime_ms = 8000;
 
 	//Compress
+	@ConfigDesc("Activating XLog data in zip file")
 	public boolean compress_xlog_enabled = false;
+	@ConfigDesc("Activating profile data in zip file")
 	public boolean compress_profile_enabled = false;
+	@ConfigDesc("")
 	public int _compress_write_buffer_block_count = 3;
+	@ConfigDesc("")
 	public int _compress_read_cache_block_count = 3;
+	@ConfigDesc("")
 	public long _compress_read_cache_expired_ms = DateUtil.MILLIS_PER_MINUTE;
+	@ConfigDesc("")
 	public int _compress_dailycount_header_cache_size = 3;
+	@ConfigDesc("")
 	public int _compress_write_thread = 2;
 
 	//Auto
+	@ConfigDesc("")
 	public boolean _auto_5m_sampling = true;
 
 	//Manager
+	@ConfigDesc("Activating automatic deletion function in the database")
 	public boolean mgr_purge_enabled = true;
+	@ConfigDesc("Automatic deletion only for XLog data")
 	public boolean mgr_purge_only_xlog_enabled = false;
+	@ConfigDesc("Condition of disc usage for automatic deletion")
 	public int mgr_purge_disk_usage_pct = 80;
+	@ConfigDesc("Retaining date for automatic deletion")
 	public int mgr_purge_keep_days = 0;
+	@ConfigDesc("Ignored log ID set")
 	public StringSet mgr_log_ignore_ids = new StringSet();
 
 	//XLog
+	@ConfigDesc("XLog Writer Queue Size")
 	public int xlog_queue_size = 10000;
+	@ConfigDesc("Ignored time(ms) in retrieving XLog in real time")
 	public int xlog_realtime_lower_bound_ms = 0;
+	@ConfigDesc("Ignored time(ms) in retrieving previous XLog")
 	public int xlog_pasttime_lower_bound_ms = 0;
+	@ConfigDesc("Ignored profile time(ms) without saving")
 	public int xlog_profile_save_lower_bound_ms = 0;
 
 	//Profile
+	@ConfigDesc("Profile Writer Queue Size")
 	public int profile_queue_size = 1000;
 
 	//GeoIP
+	@ConfigDesc("Activating IP-based city/country extraction")
 	public boolean geoip_enabled = true;
+	@ConfigDesc("Path to GeoIP data file")
 	public String geoip_data_city_file = "./GeoLiteCity.dat";
 
 	//SQL
+	@ConfigDesc("Activating table-based SQL compression")
 	public boolean sql_table_parsing_enabled = true;
 
 	//TagCount
+	@ConfigDesc("Activating TagCount function")
 	public boolean tagcnt_enabled = false;
 	
 	//Visitor Hourly
