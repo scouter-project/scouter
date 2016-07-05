@@ -26,7 +26,9 @@ import java.util.PropertyResourceBundle;
 import java.util.Set;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -51,8 +53,6 @@ public class Activator extends AbstractUIPlugin {
 	
 	protected PropertyResourceBundle localProperties;
 	
-	private static Set<String> prePerspectiveSet = new HashSet<String>();
-
 	public Activator() {
 		plugin = this;
 	}
@@ -101,11 +101,12 @@ public class Activator extends AbstractUIPlugin {
 		 return localProperties;
 	 }
 	 
-	public void addPrePerspective(String id) {
-		prePerspectiveSet.add(id);
-	}
-		
 	public boolean isPrePerspective(String id) {
+		IConfigurationElement[] elements = Platform.getExtensionRegistry().getConfigurationElementsFor("org.eclipse.ui.perspectives");
+		HashSet<String> prePerspectiveSet = new HashSet<String>();
+		for (IConfigurationElement element : elements) {
+			prePerspectiveSet.add(element.getAttribute("id"));
+		}
 		return prePerspectiveSet.contains(id);
 	}
 }
