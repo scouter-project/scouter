@@ -179,8 +179,8 @@ public class Configure extends Thread {
 	public int xlog_realtime_lower_bound_ms = 0;
 	@ConfigDesc("Ignored time(ms) in retrieving previous XLog")
 	public int xlog_pasttime_lower_bound_ms = 0;
-	@ConfigDesc("Ignored profile time(ms) without saving")
-	public int xlog_profile_save_lower_bound_ms = 0;
+//	@ConfigDesc("Ignored profile time(ms) without saving")
+//	public int xlog_profile_save_lower_bound_ms = 0;
 
 	//Profile
 	@ConfigDesc("Profile Writer Queue Size")
@@ -190,7 +190,7 @@ public class Configure extends Thread {
 	@ConfigDesc("Activating IP-based city/country extraction")
 	public boolean geoip_enabled = true;
 	@ConfigDesc("Path to GeoIP data file")
-	public String geoip_data_city_file = "./GeoLiteCity.dat";
+	public String geoip_data_city_file = CONF_DIR + "GeoLiteCity.dat";
 
 	//SQL
 	@ConfigDesc("Activating table-based SQL compression")
@@ -337,10 +337,10 @@ public class Configure extends Thread {
 		this.mgr_purge_disk_usage_pct = getInt("mgr_purge_disk_usage_pct", 80);
 		this.mgr_purge_keep_days = getInt("mgr_purge_keep_days", 0);
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
-		this.geoip_data_city_file = getValue("geoip_data_city_file", "./GeoLiteCity.dat");
+		this.geoip_data_city_file = getValue("geoip_data_city_file", CONF_DIR + "GeoLiteCity.dat");
 		this.geoip_enabled = getBoolean("geoip_enabled", true);
 
-		this.xlog_profile_save_lower_bound_ms = getInt("xlog_profile_save_lower_bound_ms", 0);
+		//this.xlog_profile_save_lower_bound_ms = getInt("xlog_profile_save_lower_bound_ms", 0);
 		this.sql_table_parsing_enabled = getBoolean("sql_table_parsing_enabled", true);
 
 		this.mgr_log_ignore_ids = getStringSet("mgr_log_ignore_ids", ",");
