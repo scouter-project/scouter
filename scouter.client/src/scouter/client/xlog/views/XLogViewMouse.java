@@ -229,11 +229,11 @@ public class XLogViewMouse implements MouseListener, MouseMoveListener {
 								}
 								break;
 							case HEAP_USED:
-								if (item.p.bytes / 1024.0d > max) {
-									max = item.p.bytes / 1024.0d ;
+								if (item.p.kbytes > max) {
+									max = item.p.kbytes;
 								}
-								if (item.p.bytes / 1024.0d < min) {
-									min = item.p.bytes / 1024.0d ;
+								if (item.p.kbytes < min) {
+									min = item.p.kbytes;
 								}
 								break;
 							default:

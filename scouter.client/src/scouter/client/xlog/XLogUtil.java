@@ -316,7 +316,7 @@ public class XLogUtil {
 		sb.append("ipaddr=" + IPUtil.toString(pack.ipaddr) + ", ");
 		sb.append("visitor=" + pack.userid + ", ");
 		sb.append("cpu=" + FormatUtil.print(pack.cpu, "#,##0") + " ms, ");
-		sb.append("bytes=" + pack.bytes + ", ");
+		sb.append("kbytes=" + pack.kbytes + ", ");
 		sb.append("status=" + pack.status + ", ");
 		if (pack.sqlCount > 0) {
 			sb.append("sqlCount=" + pack.sqlCount + ", ");

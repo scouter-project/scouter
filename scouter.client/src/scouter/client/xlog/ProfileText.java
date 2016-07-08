@@ -124,7 +124,7 @@ public class ProfileText {
         sb.append("► ipaddr=" + IPUtil.toString(xperf.p.ipaddr) + ", ");
         sb.append("userid=" + xperf.p.userid);
         sb.append("\n► cpu=" + FormatUtil.print(xperf.p.cpu, "#,##0") + " ms, ");
-        sb.append("bytes=" + xperf.p.bytes);
+        sb.append("kbytes=" + xperf.p.kbytes);
 //		sb.append("bytes=" + xperf.p.bytes + ", ");
 //		sb.append("status=" + xperf.p.status);
         if (xperf.p.sqlCount > 0) {

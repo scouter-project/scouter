@@ -309,7 +309,7 @@ public class TraceMain {
             pack.txid = ctx.txid;
             pack.gxid = ctx.gxid;
             pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-            pack.bytes = (int) (SysJMX.getCurrentThreadAllocBytes() - ctx.bytes);
+            pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
             pack.status = ctx.status;
             pack.sqlCount = ctx.sqlCount;
             pack.sqlTime = ctx.sqlTime;
@@ -486,7 +486,7 @@ public class TraceMain {
             pack.service = ctx.serviceHash;
             pack.xType = ctx.xType;
             pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-            pack.bytes = (int) (SysJMX.getCurrentThreadAllocBytes() - ctx.bytes);
+            pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
             pack.status = ctx.status;
             pack.sqlCount = ctx.sqlCount;
             pack.sqlTime = ctx.sqlTime;
@@ -718,7 +718,7 @@ public class TraceMain {
         pack.elapsed = elapsed;
         DataProxy.sendServiceName(service_hash, serviceName);
         pack.service = service_hash;
-        pack.bytes = 0;
+        pack.kbytes = 0;
         pack.status = 0;
         pack.sqlCount = sqlCount;
         pack.sqlTime = sqlTime;

@@ -471,10 +471,10 @@ public class XLogViewPainter {
 						}
 						break;
 					case HEAP_USED:
-						if ((double) d.p.bytes / 1024.0d >= yValueMax) {
+						if (d.p.kbytes >= yValueMax) {
 							value = -1;
 						} else {
-							value = d.p.bytes / 1024.0d;
+							value = d.p.kbytes;
 						}
 						break;
 					default:

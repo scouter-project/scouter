@@ -65,7 +65,7 @@ public class XLogSummaryUserDialog extends XLogSummaryAbstractDialog{
 							summary.error++;
 						}
 						summary.cpu += d.p.cpu;
-						summary.memory += d.p.bytes;
+						summary.memory += d.p.kbytes;
 						summary.sqltime += d.p.sqlTime;
 						summary.apicalltime += d.p.apicallTime;
 					}
