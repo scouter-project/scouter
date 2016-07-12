@@ -124,7 +124,7 @@ public class ProfileText {
         sb.append("► ipaddr=" + IPUtil.toString(xperf.p.ipaddr) + ", ");
         sb.append("userid=" + xperf.p.userid);
         sb.append("\n► cpu=" + FormatUtil.print(xperf.p.cpu, "#,##0") + " ms, ");
-        sb.append("bytes=" + xperf.p.bytes);
+        sb.append("kbytes=" + xperf.p.kbytes);
 //		sb.append("bytes=" + xperf.p.bytes + ", ");
 //		sb.append("status=" + xperf.p.status);
         if (xperf.p.sqlCount > 0) {
@@ -297,7 +297,7 @@ public class ProfileText {
             sb.append("   ");
             sb.append(String.format("%6s", FormatUtil.print(tm - prev_tm, "#,##0")));
             sb.append(" ");
-            sb.append(String.format("%6s", FormatUtil.print(cpu - prev_cpu, "#,##0")));
+            sb.append(String.format("%6s", FormatUtil.print(XLogUtil.getCpuTime(stepSingle), "#,##0")));
             sb.append("  ");
             int lineHead = sb.length() - p1;
 
@@ -526,7 +526,7 @@ public class ProfileText {
             if (prev_cpu == -1) {
                 sb.append(String.format("%6s", FormatUtil.print(0, "#,##0")));
             } else {
-                sb.append(String.format("%6s", FormatUtil.print(cpu - prev_cpu, "#,##0")));
+                sb.append(String.format("%6s", FormatUtil.print(XLogUtil.getCpuTime(stepSingle), "#,##0")));
             }
 
             sb.append("  ");

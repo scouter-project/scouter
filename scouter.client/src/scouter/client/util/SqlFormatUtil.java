@@ -35,7 +35,7 @@ public class SqlFormatUtil {
 			"group", "by", "create", "default", "use", "desc", "alter",
 			"fetch", "order", "and", "or", "as", "round", "decode", "nvl",
 			"instr", "sysdate", "sum", "rownum", "in", "left", "outer",
-			"close", "continue", "into", "values" };
+			"close", "continue", "into", "values", "now()" };
 	
 	public static void applyStyledFormat(StyledText text, String sql) {
 		if (StringUtil.isEmpty(sql)) return;

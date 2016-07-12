@@ -17,12 +17,16 @@
 
 package scouter.agent.netio.request.handle;
 
+import java.util.Enumeration;
+
 import scouter.agent.Configure;
 import scouter.agent.netio.request.anotation.RequestHandler;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.MapValue;
 import scouter.net.RequestCmd;
+import scouter.util.StringKeyLinkedMap;
+import scouter.util.StringKeyLinkedMap.StringKeyLinkedEntry;
 
 public class HostAgentConfigure {
 
@@ -63,5 +67,16 @@ public class HostAgentConfigure {
 		pack.put("default", m.getList("default"));
 		return pack;
 	}
-
+	
+	@RequestHandler(RequestCmd.CONFIGURE_DESC)
+	public Pack getConfigureDesc(Pack param) {
+		StringKeyLinkedMap<String> descMap = Configure.getInstance().getConfigureDesc();
+		MapPack pack = new MapPack();
+		Enumeration<StringKeyLinkedEntry<String>> entries = descMap.entries();
+		while (entries.hasMoreElements()) {
+			StringKeyLinkedEntry<String> entry = entries.nextElement();
+			pack.put(entry.getKey(), entry.getValue());
+		}
+		return pack;
+	}
 }

@@ -68,8 +68,8 @@ object XLogTagCount {
         if (x.elapsed > 0) {
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.service_time_sum, new TextHashValue(x.service), x.elapsed)
         }
-        if (x.bytes > 0) {
-            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.service_byte_sum, new TextHashValue(x.service), x.bytes)
+        if (x.kbytes > 0) {
+            TagCountProxy.add(x.endTime, objType, TagCountConfig.service.service_kbyte_sum, new TextHashValue(x.service), x.kbytes)
         }
         if (x.error != 0) {
             TagCountProxy.add(x.endTime, objType, TagCountConfig.service.service_error_sum, new TextHashValue(x.service), 1)

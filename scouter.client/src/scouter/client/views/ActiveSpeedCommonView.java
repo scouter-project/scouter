@@ -93,7 +93,7 @@ public abstract class ActiveSpeedCommonView extends ViewPart implements RefreshT
 			update = 0;
 		}
 		draw();
-		ExUtil.exec(canvas, new Runnable() {
+		ExUtil.syncExec(canvas, new Runnable() {
 			public void run() {
 				canvas.redraw();
 			}

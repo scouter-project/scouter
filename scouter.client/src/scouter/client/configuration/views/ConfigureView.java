@@ -18,6 +18,8 @@
 package scouter.client.configuration.views;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
@@ -28,10 +30,12 @@ import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
@@ -47,10 +51,13 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -98,6 +105,8 @@ public class ConfigureView extends ViewPart {
 	CustomLineStyleListener listener;
 	
 	boolean devMode;
+	
+	HashMap<String, String> descMap = new HashMap<String, String>();
 	
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
@@ -154,6 +163,29 @@ public class ConfigureView extends ViewPart {
 		viewer.setContentProvider(new ArrayContentProvider());
 	    viewer.setComparator(new ColumnLabelSorter(viewer));
 	    viewer.addFilter(filter);
+	    final DefaultToolTip toolTip = new DefaultToolTip(table, DefaultToolTip.RECREATE, true);
+		toolTip.setFont(new Font(null, "Arial", 10, SWT.BOLD));
+		toolTip.setBackgroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+	    table.addMouseListener(new MouseListener() {
+			public void mouseUp(MouseEvent e) {
+			}
+			
+			public void mouseDown(MouseEvent e) {
+				toolTip.hide();
+				StructuredSelection sel = (StructuredSelection) viewer.getSelection();
+				Object o = sel.getFirstElement();
+				if (o instanceof ConfObject) {
+					String configName = ((ConfObject) o).key;
+					String desc = descMap.get(configName);
+					if (StringUtil.isNotEmpty(desc)) {
+						toolTip.setText(desc);
+						toolTip.show(new Point(e.x + 10, e.y + 20));
+					}
+				}
+			}
+			public void mouseDoubleClick(MouseEvent e) {
+			}
+		});
 		table.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if(e.stateMask == SWT.CTRL || e.stateMask == SWT.COMMAND){
@@ -187,6 +219,7 @@ public class ConfigureView extends ViewPart {
 			setPartName("Config Server[" + server.getName() + "]");
 			loadConfig(RequestCmd.GET_CONFIGURE_SERVER, null);
 			loadConfigList(RequestCmd.LIST_CONFIGURE_SERVER, null);
+			loadConfigDesc(new MapPack());
 		}
 	}
 	
@@ -200,6 +233,7 @@ public class ConfigureView extends ViewPart {
 			param.put("objHash", objHash);
 			loadConfig(RequestCmd.GET_CONFIGURE_WAS, param);
 			loadConfigList(RequestCmd.LIST_CONFIGURE_WAS, param);
+			loadConfigDesc(param);
 		}
 	}
 	
@@ -341,6 +375,29 @@ public class ConfigureView extends ViewPart {
 							searchTxt.notifyListeners(SWT.Modify, new Event());
 						}
 					});
+				}
+			}
+		});
+	}
+	
+	private void loadConfigDesc(final MapPack param) {
+		ExUtil.asyncRun(new Runnable() {
+			public void run() {
+				MapPack pack = null;
+				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+				try {
+					pack = (MapPack) tcp.getSingle(RequestCmd.CONFIGURE_DESC, param);
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					TcpProxy.putTcpProxy(tcp);
+				}
+				if (pack != null) {
+					Iterator<String> keys = pack.keys();
+					while (keys.hasNext()) {
+						String key = keys.next();
+						descMap.put(key, pack.getText(key));
+					}
 				}
 			}
 		});

@@ -56,7 +56,7 @@ public class ServiceSummary {
 			d.error_cnt++;
 		}
 		d.cpu += p.cpu;
-		d.mem += p.bytes;
+		d.mem += p.kbytes;
 
 		// ip summary
 		if (IPUtil.isOK(p.ipaddr) && p.ipaddr[0] != 0 && p.ipaddr[0] != 127) {

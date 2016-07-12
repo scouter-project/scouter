@@ -38,9 +38,9 @@ object ProfileCore {
         ServerStat.put("profile.core.queue",queue.size());
         if (BytesUtil.getLength(m.profile) > 0) {
             PlugInManager.profile(m)
-            if (conf.xlog_profile_save_lower_bound_ms <= m.elapsed) {
-                XLogProfileWR.add(m.time, m.txid, m.profile)
-            }
+            //if (conf.xlog_profile_save_lower_bound_ms <= m.elapsed) {
+            XLogProfileWR.add(m.time, m.txid, m.profile)
+            //}
         }
     }
 
