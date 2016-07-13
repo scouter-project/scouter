@@ -20,7 +20,7 @@ package scouter.agent.trace;
 import scouter.agent.Configure;
 
 public class SqlParameter {
-	private final static int MAX_SIZE = Configure.getInstance()._trace_sql_parameter_max_count;
+	private int MAX_SIZE = Configure.getInstance()._trace_sql_parameter_max_count;
 	protected int count = 0;
 	protected String[] entry = new String[MAX_SIZE];
 	protected String sql;

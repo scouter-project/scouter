@@ -18,16 +18,21 @@ package scouter.agent.trace;
 
 import scouter.agent.Configure;
 import scouter.agent.netio.data.DataProxy;
+import scouter.lang.value.MapValue;
 import scouter.util.LinkedMap;
 import scouter.util.StringUtil;
 
 public class AlertProxy {
-	// 타이틀별로 구분하여 최대 200가지에 대한 3초이내 중복전송을 막는다.
+	// 타이틀별로 구분하여 최대 200가지에 대한 10초이내 중복전송을 막는다.
 	private static LinkedMap<String, Long> sendTimeTable = new LinkedMap<String, Long>().setMax(200);
 
 	static Configure conf = Configure.getInstance();
 
 	public static void sendAlert(byte level, String title, String emsg) {
+		sendAlert(level, title, emsg, null);
+	}
+	
+	public static void sendAlert(byte level, String title, String emsg, MapValue tags) {
 		long now = System.currentTimeMillis();
 
 		if (title == null)
@@ -37,8 +42,7 @@ public class AlertProxy {
 
 		if (last == null || now - last.longValue() >= conf.alert_send_interval_ms) {
 			sendTimeTable.put(title, now);
-			DataProxy.sendAlert(level, title, StringUtil.limiting(emsg, conf.alert_message_length), null);
+			DataProxy.sendAlert(level, title, StringUtil.limiting(emsg, conf.alert_message_length), tags);
 		}
 	}
-
 }

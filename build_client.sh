@@ -14,5 +14,5 @@ if [ -z "$MVN" ]; then
     echo maven not found.
 	exit 1
 else
-    $MVN -Dtycho.debug.resolver=true -X -f ./scouter.client.build/pom.xml clean install
+    $MVN -Dtycho.debug.resolver=true -X -f ./scouter.client.build/pom.xml clean package
 fi

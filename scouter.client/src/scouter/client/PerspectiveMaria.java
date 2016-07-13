@@ -82,7 +82,6 @@ public class PerspectiveMaria implements IPerspectiveFactory  {
 		layout4.addView(DbRealtimeTotalHitRatioView.ID + ":" + serverId);
 		
 		layout.addPerspectiveShortcut(getId());
-		Activator.getDefault().addPrePerspective(getId());
 	}
 	
 	public static String getId() {

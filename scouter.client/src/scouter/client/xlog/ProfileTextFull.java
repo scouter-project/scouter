@@ -79,7 +79,7 @@ public class ProfileTextFull {
 		sb.append("► ipaddr=" + IPUtil.toString(p.ipaddr) + ", ");
 		sb.append("userid=" + p.userid);
 		sb.append("\n► cpu=" + FormatUtil.print(p.cpu, "#,##0") + " ms, ");
-		sb.append("bytes=" + p.bytes + ", ");
+		sb.append("kbytes=" + p.kbytes + ", ");
 		sb.append("status=" + p.status);
 		if (p.sqlCount > 0) {
 			sb.append("\n► sqlCount=" + p.sqlCount + ", ");

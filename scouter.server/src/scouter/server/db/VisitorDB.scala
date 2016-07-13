@@ -164,6 +164,18 @@ object VisitorDB {
         if (h == null) 0 else h.cardinality()
     }
     
+    def getMergedVisitorObject(objHashLv: ListValue): Long = {
+        val totalVisitor = new HyperLogLog(rsd)
+        EnumerScala.foreach(objHashLv, (obj: DecimalValue) => {
+          var h = objHashHyperTable.get(obj.intValue())
+          if (h == null) {
+              h = load(DateUtil.yyyymmdd(), Hexa32.toString32(obj.intValue()))
+          }
+          if (h != null) totalVisitor.addAll(h)
+        })
+        totalVisitor.cardinality()
+    }
+    
     def getMergedVisitorObject(date: String, objHashLv: ListValue): Long = {
         val totalVisitor = new HyperLogLog(rsd)
         EnumerScala.foreach(objHashLv, (obj: DecimalValue) => {

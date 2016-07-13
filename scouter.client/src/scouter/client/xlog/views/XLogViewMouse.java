@@ -103,15 +103,15 @@ public class XLogViewMouse implements MouseListener, MouseMoveListener {
 		}
 	}
 
-	long last_draw = TimeUtil.getCurrentTime();
+	long last_draw = System.currentTimeMillis();
 	public String yyyymmdd;
 
 	public void mouseMove(MouseEvent e) {
 		if (mode != null && x1 >= 0 && y1 >= 0) {
 			x2 = e.x;
 			y2 = e.y;
-			long now = TimeUtil.getCurrentTime();
-			if (now > last_draw + 100) {
+			long now = System.currentTimeMillis();
+			if (now > last_draw + 50) {
 				last_draw = now;
 				canvas.redraw();
 			}
@@ -229,11 +229,11 @@ public class XLogViewMouse implements MouseListener, MouseMoveListener {
 								}
 								break;
 							case HEAP_USED:
-								if (item.p.bytes / 1024.0d > max) {
-									max = item.p.bytes / 1024.0d ;
+								if (item.p.kbytes > max) {
+									max = item.p.kbytes;
 								}
-								if (item.p.bytes / 1024.0d < min) {
-									min = item.p.bytes / 1024.0d ;
+								if (item.p.kbytes < min) {
+									min = item.p.kbytes;
 								}
 								break;
 							default:

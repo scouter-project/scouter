@@ -68,7 +68,7 @@ object TagCountConfig {
         val service = new Tag(TagConstants.GROUP_SERVICE, TagConstants.GROUP_SERVICE);
         
         val service_time_sum= new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_TIME_SUM);
-        val service_byte_sum = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_BYTE_SUM);
+        val service_kbyte_sum = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_KBYTE_SUM);
         val service_error_sum = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_SERVICE_ERROR_SUM);
         
         val userAgent = new Tag(TagConstants.GROUP_SERVICE, TagConstants.NAME_USER_AGENT);

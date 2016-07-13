@@ -39,6 +39,7 @@ public class RequestCmd {
 	public static final String OBJECT_STAT_LIST = "OBJECT_STAT_LIST";
 	public static final String OBJECT_RESET_CACHE = "OBJECT_RESET_CACHE";
 	public static final String OBJECT_ACTIVE_SERVICE_LIST = "OBJECT_ACTIVE_SERVICE_LIST";
+	public static final String OBJECT_ACTIVE_SERVICE_LIST_GROUP = "OBJECT_ACTIVE_SERVICE_LIST_GROUP";
 	public static final String OBJECT_TODAY_FULL_LIST = "OBJECT_TODAY_FULL_LIST";
 	public static final String OBJECT_REMOVE = "OBJECT_REMOVE";
 	public static final String OBJECT_HEAPHISTO = "OBJECT_HEAPHISTO";
@@ -157,6 +158,7 @@ public class RequestCmd {
 	public static final String SET_CONFIGURE_WAS = "SET_CONFIGURE_WAS";
 	public static final String LIST_CONFIGURE_WAS = "LIST_CONFIGURE_WAS";
 	public static final String REDEFINE_CLASSES = "REDEFINE_CLASSES";
+	public static final String CONFIGURE_DESC = "CONFIGURE_DESC";
 
 	public static final String GET_XML_COUNTER = "GET_XML_COUNTER";
 
@@ -243,6 +245,7 @@ public class RequestCmd {
 	// VISITOR
 	public static final String VISITOR_REALTIME = "VISITOR_REALTIME";
 	public static final String VISITOR_REALTIME_TOTAL = "VISITOR_REALTIME_TOTAL";
+	public static final String VISITOR_REALTIME_GROUP = "VISITOR_REALTIME_GROUP";
 	public static final String VISITOR_LOADDATE = "VISITOR_LOADDATE";
 	public static final String VISITOR_LOADDATE_TOTAL = "VISITOR_LOADDATE_TOTAL";
 	public static final String VISITOR_LOADDATE_GROUP = "VISITOR_LOADDATE_GROUP";

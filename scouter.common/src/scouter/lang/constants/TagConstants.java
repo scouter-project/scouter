@@ -11,7 +11,7 @@ public class TagConstants {
 	//public static final String NAME_IP = "ip";
 	public static final String NAME_SERVICE = "service";
 	public static final String NAME_SERVICE_TIME_SUM = "service-time-sum";
-	public static final String NAME_SERVICE_BYTE_SUM = "service-byte-sum";
+	public static final String NAME_SERVICE_KBYTE_SUM = "service-kbyte-sum";
 	public static final String NAME_SERVICE_ERROR_SUM = "service-error-sum";
 	public static final String NAME_USER_AGENT = "user-agent";
 	public static final String NAME_ERROR = "error";
@@ -43,7 +43,7 @@ public class TagConstants {
 	static{
 		serviceHashGroup.put(NAME_SERVICE);
 		serviceHashGroup.put(NAME_SERVICE_TIME_SUM);
-		serviceHashGroup.put(NAME_SERVICE_BYTE_SUM);
+		serviceHashGroup.put(NAME_SERVICE_KBYTE_SUM);
 		serviceHashGroup.put(NAME_SERVICE_ERROR_SUM);
 		
 		serviceHashGroup.put(NAME_SQL_COUNT_SUM);

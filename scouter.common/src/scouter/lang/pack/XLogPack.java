@@ -78,9 +78,9 @@ public class XLogPack implements Pack {
 	 */
 	public byte[] ipaddr;
 	/**
-	 * Allocated memory(byte)
+	 * Allocated memory(kilo byte)
 	 */
-	public int bytes;
+	public int kbytes;
 	/**
 	 * Http status
 	 */
@@ -173,7 +173,7 @@ public class XLogPack implements Pack {
 		o.writeDecimal(sqlCount);
 		o.writeDecimal(sqlTime);
 		o.writeBlob(ipaddr);
-		o.writeDecimal(bytes);
+		o.writeDecimal(kbytes);
 		o.writeDecimal(status);
 		o.writeDecimal(userid);
 		o.writeDecimal(userAgent);
@@ -210,7 +210,7 @@ public class XLogPack implements Pack {
 		this.sqlCount = (int) d.readDecimal();
 		this.sqlTime = (int) d.readDecimal();
 		this.ipaddr = d.readBlob();
-		this.bytes = (int) d.readDecimal();
+		this.kbytes = (int) d.readDecimal();
 		this.status = (int) d.readDecimal();
 		this.userid = d.readDecimal();
 		this.userAgent = (int) d.readDecimal();

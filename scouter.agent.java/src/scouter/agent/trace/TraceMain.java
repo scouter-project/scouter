@@ -69,6 +69,7 @@ public class TraceMain {
     private static Error userTxNotClose = new USERTX_NOT_CLOSE("UserTransaction missing commit/rollback Error");
     private static Error resultSetLeakSuspect = new RESULTSET_LEAK_SUSPECT("ResultSet Leak suspected!");
     private static Error statementLeakSuspect = new STATEMENT_LEAK_SUSPECT("Statement Leak suspected!");
+    private static DelayedServiceManager delayedServiceManager = DelayedServiceManager.getInstance();
 
     public static Object startHttpService(Object req, Object res) {
         try {
@@ -302,15 +303,13 @@ public class TraceMain {
             XLogPack pack = new XLogPack();
             // pack.endTime = System.currentTimeMillis();
             pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
-            boolean sendOk = pack.elapsed >= conf.xlog_lower_bound_time_ms;
-            ctx.profile.close(sendOk);
             ctx.serviceHash = DataProxy.sendServiceName(ctx.serviceName);
             pack.service = ctx.serviceHash;
             pack.xType = XLogTypes.WEB_SERVICE;
             pack.txid = ctx.txid;
             pack.gxid = ctx.gxid;
             pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-            pack.bytes = (int) (SysJMX.getCurrentThreadAllocBytes() - ctx.bytes);
+            pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
             pack.status = ctx.status;
             pack.sqlCount = ctx.sqlCount;
             pack.sqlTime = ctx.sqlTime;
@@ -356,6 +355,8 @@ public class TraceMain {
                 ServiceSummary.getInstance().process(statementLeakSuspect, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
             }
 
+            boolean sendOk = (pack.elapsed >= conf.xlog_lower_bound_time_ms) || pack.error != 0;
+            ctx.profile.close(sendOk);
             if (ctx.group != null) {
                 pack.group = DataProxy.sendGroup(ctx.group);
             }
@@ -375,6 +376,7 @@ public class TraceMain {
                 pack.webHash = DataProxy.sendWebName(ctx.web_name);
                 pack.webTime = ctx.web_time;
             }
+            delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
             if (sendOk) {
                 DataProxy.sendXLog(pack);
@@ -477,13 +479,14 @@ public class TraceMain {
             pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
             // pack.endTime = System.currentTimeMillis();
             pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
-            boolean sendOk = pack.elapsed >= Configure.getInstance().xlog_lower_bound_time_ms;
+            pack.error = errorCheck(ctx, thr);
+            boolean sendOk = (pack.elapsed >= Configure.getInstance().xlog_lower_bound_time_ms) || pack.error != 0;
             ctx.profile.close(sendOk);
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
             pack.xType = ctx.xType;
             pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-            pack.bytes = (int) (SysJMX.getCurrentThreadAllocBytes() - ctx.bytes);
+            pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
             pack.status = ctx.status;
             pack.sqlCount = ctx.sqlCount;
             pack.sqlTime = ctx.sqlTime;
@@ -492,7 +495,6 @@ public class TraceMain {
             pack.caller = ctx.caller;
             pack.ipaddr = IPUtil.toBytes(ctx.remoteIp);
             pack.userid = ctx.userid;
-            pack.error = errorCheck(ctx, thr);
             // 2015.11.10
             if (ctx.group != null) {
                 pack.group = DataProxy.sendGroup(ctx.group);
@@ -506,6 +508,7 @@ public class TraceMain {
             if (ctx.desc != null) {
                 pack.desc = DataProxy.sendDesc(ctx.desc);
             }
+            delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
             if (sendOk) {
                 DataProxy.sendXLog(pack);
@@ -715,7 +718,7 @@ public class TraceMain {
         pack.elapsed = elapsed;
         DataProxy.sendServiceName(service_hash, serviceName);
         pack.service = service_hash;
-        pack.bytes = 0;
+        pack.kbytes = 0;
         pack.status = 0;
         pack.sqlCount = sqlCount;
         pack.sqlTime = sqlTime;

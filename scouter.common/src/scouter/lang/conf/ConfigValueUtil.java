@@ -72,6 +72,25 @@ public class ConfigValueUtil {
 		}
 		return map;
 	}
+	
+	public static StringKeyLinkedMap<String> getConfigDescMap(Object o) {
+		StringKeyLinkedMap<String> descMap = new StringKeyLinkedMap<String>();
+		Field[] fields = o.getClass().getFields();
+		for (int i = 0; i < fields.length; i++) {
+			int mod = fields[i].getModifiers();
+			if (Modifier.isStatic(mod) == false && Modifier.isPublic(mod)) {
+				try {
+					ConfigDesc desc = fields[i].getAnnotation(ConfigDesc.class);
+					if (desc != null && StringUtil.isNotEmpty(desc.value())) {
+						String name = fields[i].getName();
+						descMap.put(name, desc.value());
+					}
+				} catch (Exception e) {
+				}
+			}
+		}
+		return descMap;
+	}
 
 	public static Value toValue(Object o) {
 		if (o == null)

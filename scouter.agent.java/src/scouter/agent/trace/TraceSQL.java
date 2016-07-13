@@ -641,6 +641,9 @@ public class TraceSQL {
 				ms.hash = DataProxy.sendHashedMessage("AutoCommit : " + e);
 			}
 			ms.start_time = (int) (System.currentTimeMillis() - tctx.startTime);
+			if (tctx.profile_thread_cputime) {
+				ms.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - tctx.startCpu);
+	        }
 			tctx.profile.add(ms);
 		}
 		if (conn instanceof DetectConnection)
@@ -690,6 +693,9 @@ public class TraceSQL {
 			return;
 		HashedMessageStep p = new HashedMessageStep();
 		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		if (ctx.profile_thread_cputime) {
+            p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+        }
 		p.hash = DataProxy.sendHashedMessage(new StringBuilder(40).append("SQLMAP ").append(methodName).append(" { ")
 				.append(sqlname).append(" }").toString());
 		ctx.profile.add(p);

@@ -331,6 +331,7 @@ public class LoginDialog {
 				srvMgr.addServer(server);
 			} else {
 				existServer = true;
+				server = srvMgr.getServer(server.getId());
 			}
 
 			LoginResult result = LoginMgr.login(server.getId(), id.getText(), pass.getText(), secureLogin);

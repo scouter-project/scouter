@@ -139,16 +139,13 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 	
 	private void drawEQImage(GC gc) {
 		if (ibuffer != null) {
-			synchronized (ibuffer) {
-				if (AXIS_PADDING + (MINIMUM_UNIT_HEIGHT * size) > winYSize) {
-					scroll.setMinSize(canvas.computeSize(SWT.DEFAULT, AXIS_PADDING + (MINIMUM_UNIT_HEIGHT * size)));	
-				} else {
-					scroll.setMinSize(canvas.computeSize(SWT.DEFAULT, winYSize));	
-				}
-				if (ibuffer.isDisposed() == false) {
-						gc.drawImage(ibuffer, 0, 0);
-					
-				}
+			if (AXIS_PADDING + (MINIMUM_UNIT_HEIGHT * size) > winYSize) {
+				scroll.setMinSize(canvas.computeSize(SWT.DEFAULT, AXIS_PADDING + (MINIMUM_UNIT_HEIGHT * size)));	
+			} else {
+				scroll.setMinSize(canvas.computeSize(SWT.DEFAULT, winYSize));	
+			}
+			if (ibuffer.isDisposed() == false) {
+				gc.drawImage(ibuffer, 0, 0);
 			}
 		}
 	}
@@ -351,7 +348,7 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 			valueSet.clear();
 			fetch();
 		}
-		ExUtil.exec(canvas, new Runnable() {
+		ExUtil.syncExec(canvas, new Runnable() {
 			public void run() {
 				canvas.redraw();
 			}

@@ -20,6 +20,7 @@ package scouter.agent;
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.conf.ConfObserver;
+import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
@@ -49,31 +50,49 @@ public class Configure extends Thread {
 	}
 
 	//Network
+	@ConfigDesc("UDP local IP")
 	public String net_local_udp_ip = null;
+	@ConfigDesc("UDP local Port")
 	public int net_local_udp_port;
+	@ConfigDesc("Collector IP")
 	public String net_collector_ip = "127.0.0.1";
+	@ConfigDesc("Collector UDP Port")
 	public int net_collector_udp_port = NetConstants.SERVER_UDP_PORT;
+	@ConfigDesc("Collector TCP Port")
 	public int net_collector_tcp_port = NetConstants.SERVER_TCP_PORT;
+	@ConfigDesc("Collector TCP Session Count")
 	public int net_collector_tcp_session_count = 1;
+	@ConfigDesc("Collector TCP Socket Timeout(ms)")
 	public int net_collector_tcp_so_timeout_ms = 60000;
+	@ConfigDesc("Collector TCP Connection Timeout(ms)")
 	public int net_collector_tcp_connection_timeout_ms = 3000;
+	@ConfigDesc("UDP Buffer Size")
 	public int net_udp_packet_max_bytes = 60000;
 
 	//Object
+	@ConfigDesc("Object Type")
 	public String obj_type = "";
+	@ConfigDesc("Object Name")
 	public String obj_name = "";
 
 	//Manager
+	@ConfigDesc("")
 	public StringSet mgr_log_ignore_ids = new StringSet();
 
 	//Counter
+	@ConfigDesc("Activating collect counter")
 	public boolean counter_enabled = true;
+	@ConfigDesc("Path to file reading directory of java process ID file")
 	public String counter_object_registry_path = "/tmp/scouter";
 
 	//Log
+	@ConfigDesc("")
 	public boolean log_udp_object = false;
+	@ConfigDesc("Retaining log according to date")
 	public boolean log_rotation_enalbed = true;
+	@ConfigDesc("Log directory")
 	public String log_dir = "./logs";
+	@ConfigDesc("Keeping period of log")
 	public int log_keep_days = 365;
 
 	//Disk
@@ -380,15 +399,21 @@ public class Configure extends Thread {
 
 		return m;
 	}
+	
+	public StringKeyLinkedMap<String> getConfigureDesc() {
+		return ConfigValueUtil.getConfigDescMap(this);
+	}
 
 	public static void main(String[] args) {
-		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
+		Configure o = new Configure(true);
+		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(o);
+		StringKeyLinkedMap<String> descMap = ConfigValueUtil.getConfigDescMap(o);
 		StringEnumer enu = defMap.keys();
 		while (enu.hasMoreElements()) {
 			String key = enu.nextString();
 			if (ignoreSet.contains(key))
 				continue;
-			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key)));
+			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key))  + (descMap.containsKey(key) ? " (" + descMap.get(key) + ")" : ""));
 		}
 	}
 }

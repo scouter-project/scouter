@@ -117,7 +117,7 @@ public class TagCountUtil {
 		if (tagName.equals(TagConstants.NAME_OBJECT)
 			|| tagName.equals(TagConstants.NAME_SERVICE)
 			|| tagName.equals(TagConstants.NAME_SERVICE_TIME_SUM)
-			|| tagName.equals(TagConstants.NAME_SERVICE_BYTE_SUM)
+			|| tagName.equals(TagConstants.NAME_SERVICE_KBYTE_SUM)
 			|| tagName.equals(TagConstants.NAME_SERVICE_ERROR_SUM)
 			|| tagName.equals(TagConstants.NAME_GROUP)
 			|| tagName.equals(TagConstants.NAME_USER_AGENT)

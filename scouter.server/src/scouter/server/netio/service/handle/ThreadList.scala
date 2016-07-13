@@ -124,6 +124,27 @@ class ThreadList {
       }
     }
   }
+  
+  @ServiceHandler(RequestCmd.OBJECT_ACTIVE_SERVICE_LIST_GROUP)
+  def agentActiveServiceListGroup(din: DataInputX, dout: DataOutputX, login: Boolean) {
+    val param = din.readMapPack();
+    val objHashLv = param.getList("objHash");
+    for (i <- 0 to objHashLv.size() - 1) {
+      val objHash = objHashLv.getInt(i)
+      val o = AgentManager.getAgent(objHash);
+      val p = AgentCall.call(o, RequestCmd.OBJECT_ACTIVE_SERVICE_LIST, param);
+      if (p == null) {
+    		val emptyPack = new MapPack();
+    		emptyPack.put("objHash", objHash);
+    		dout.writeByte(TcpFlag.HasNEXT);
+    		dout.writePack(emptyPack);
+      } else {
+        p.put("objHash", objHash);
+        dout.writeByte(TcpFlag.HasNEXT);
+        dout.writePack(p);
+      }
+    }
+  }
 
   @ServiceHandler(RequestCmd.OBJECT_THREAD_DUMP)
   def agentThreadDump(din: DataInputX, dout: DataOutputX, login: Boolean) {
