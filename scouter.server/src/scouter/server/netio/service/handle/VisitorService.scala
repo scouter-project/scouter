@@ -48,6 +48,15 @@ class VisitorService {
     dout.writeByte(TcpFlag.HasNEXT);
     dout.writeValue(new DecimalValue(value));
   }
+  
+  @ServiceHandler(RequestCmd.VISITOR_REALTIME_GROUP)
+  def visitorRealtimeGroup(din: DataInputX, dout: DataOutputX, login: Boolean) {
+    val m = din.readMapPack();
+    val objHashLv = m.getList("objHash");
+    val value = VisitorDB.getMergedVisitorObject(objHashLv)
+    dout.writeByte(TcpFlag.HasNEXT);
+    dout.writeValue(new DecimalValue(value));
+  }
 
   @ServiceHandler(RequestCmd.VISITOR_LOADDATE)
   def visitorLoaddate(din: DataInputX, dout: DataOutputX, login: Boolean) {
