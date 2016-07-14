@@ -146,7 +146,7 @@ public class ObjectPropertiesDialog {
 		propertyList.add(new PropertyData("address", this.objectPack.address));
 		propertyList.add(new PropertyData("version", this.objectPack.version));
 		propertyList.add(new PropertyData("alive", String.valueOf(this.objectPack.alive)));
-		propertyList.add(new PropertyData("wakeUp", FormatUtil.print(new Date(this.objectPack.wakeup), "yyyyMMdd HH:mm:ss.sss")));
+		propertyList.add(new PropertyData("wakeUp", FormatUtil.print(new Date(this.objectPack.wakeup), "yyyyMMdd HH:mm:ss.SSS")));
 		propertyList.add(new PropertyData("color", AgentColorManager.getInstance().assignColor(this.objectPack.objType, objHash)));
 		for (String key : this.objectPack.tags.keySet()) {
 			propertyList.add(new PropertyData(key, CastUtil.cString(this.objectPack.tags.get(key))));

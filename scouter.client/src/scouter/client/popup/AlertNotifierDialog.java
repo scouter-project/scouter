@@ -135,7 +135,7 @@ public class AlertNotifierDialog {
 	    mainComp.setLayout(UIUtil.formLayout(0, 0));
 	    
 	    timeLbl = new Label(mainComp, SWT.RIGHT);
-	    timeLbl.setText(FormatUtil.print(new Date(p.time), "HH:mm:ss.sss")); 
+	    timeLbl.setText(FormatUtil.print(new Date(p.time), "HH:mm:ss.SSS")); 
 	    timeLbl.setLayoutData(UIUtil.formData(0, 5, 0, 0, 100, -5, null, -1));
 	    FontData[] fD = timeLbl.getFont().getFontData();
 	    fD[0].setStyle(SWT.BOLD);
