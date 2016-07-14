@@ -175,7 +175,7 @@ public class AlertView extends ViewPart implements IAlertListener {
 				AlertData data = new AlertData(serverId, alert);
 				TableItem t = new TableItem(table, SWT.NONE, 0);
 				t.setText(new String[] { //
-						FormatUtil.print(new Date(alert.time), "HH:mm:ss.sss"),
+						FormatUtil.print(new Date(alert.time), "HH:mm:ss.SSS"),
 						AlertLevel.getName(alert.level), //
 						alert.title, //
 						alert.message,//

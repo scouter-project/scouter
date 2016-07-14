@@ -279,8 +279,8 @@ public class XLogLoadTimeView extends XLogViewCommon implements TimeRangeDialog.
 				}
 		
 				ConsoleProxy.infoSafe("Load old XLog data");
-				ConsoleProxy.infoSafe("stime :" + FormatUtil.print(new Date(stime), "yyyyMMdd HH:mm:ss.sss"));
-				ConsoleProxy.infoSafe("etime :" + FormatUtil.print(new Date(etime), "yyyyMMdd HH:mm:ss.sss"));
+				ConsoleProxy.infoSafe("stime :" + FormatUtil.print(new Date(stime), "yyyyMMdd HH:mm:ss.SSS"));
+				ConsoleProxy.infoSafe("etime :" + FormatUtil.print(new Date(etime), "yyyyMMdd HH:mm:ss.SSS"));
 				ConsoleProxy.infoSafe("objType :" + objType);
 				ConsoleProxy.infoSafe("limit :" + limit + "   max:"+max);
 				

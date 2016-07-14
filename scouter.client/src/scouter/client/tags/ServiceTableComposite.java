@@ -168,9 +168,9 @@ public class ServiceTableComposite extends Composite {
 			case SERVICE :
 				return TextProxy.service.getLoadText(yyyymmdd, p.service, serverId);
 			case START_TIME :
-				return FormatUtil.print(new Date(p.endTime - p.elapsed), "HH:mm:ss.sss");
+				return FormatUtil.print(new Date(p.endTime - p.elapsed), "HH:mm:ss.SSS");
 			case END_TIME :
-				return FormatUtil.print(new Date(p.endTime), "HH:mm:ss.sss");
+				return FormatUtil.print(new Date(p.endTime), "HH:mm:ss.SSS");
 			case TX_ID :
 				return Hexa32.toString32(p.txid);
 			case CPU :

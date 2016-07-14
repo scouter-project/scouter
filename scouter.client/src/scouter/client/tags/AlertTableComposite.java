@@ -135,7 +135,7 @@ public class AlertTableComposite extends Composite {
 			AlertColumnEnum column = columnList.get(columnIndex);
 			switch (column) {
 			case TIME :
-				return DateUtil.format(p.time, "HH:mm:ss.sss");
+				return DateUtil.format(p.time, "HH:mm:ss.SSS");
 			case LEVEL :
 				return AlertLevel.getName(p.level);
 			case OBJECT :

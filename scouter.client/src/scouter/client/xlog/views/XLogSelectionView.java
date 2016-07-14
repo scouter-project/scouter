@@ -190,9 +190,9 @@ public class XLogSelectionView extends ViewPart {
 				}
 				return d.serviceName;
 			case START_TIME :
-				return FormatUtil.print(new Date(d.p.endTime - d.p.elapsed), "HH:mm:ss.sss");
+				return FormatUtil.print(new Date(d.p.endTime - d.p.elapsed), "HH:mm:ss.SSS");
 			case END_TIME :
-				return FormatUtil.print(new Date(d.p.endTime), "HH:mm:ss.sss");
+				return FormatUtil.print(new Date(d.p.endTime), "HH:mm:ss.SSS");
 			case TX_ID :
 				return Hexa32.toString32(d.p.txid);
 			case CPU :
