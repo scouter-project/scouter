@@ -66,7 +66,7 @@ public class ProfileTextFull {
 		final StringBuffer sb = new StringBuffer();
 		sb.append("► txid    = ").append(Hexa32.toString32(p.txid)).append("\n");
 		sb.append("► objName = ").append(objName).append("\n");
-		sb.append("► endtime = ").append(FormatUtil.print(new Date(p.endTime), "yyyyMMdd HH:mm:ss.sss")).append("\n");
+		sb.append("► endtime = ").append(FormatUtil.print(new Date(p.endTime), "yyyyMMdd HH:mm:ss.SSS")).append("\n");
 		sb.append("► elapsed = ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms\n");
 		sb.append("► service = ").append(TextProxy.service.getText(p.service)).append("\n");
 		if (error != null) {
@@ -176,7 +176,7 @@ public class ProfileTextFull {
 			sb.append(" ");
 			sb.append("["+astarStr+"]");
 			sb.append(" ");
-			sb.append(FormatUtil.print(new Date(stime), "HH:mm:ss.sss"));
+			sb.append(FormatUtil.print(new Date(stime), "HH:mm:ss.SSS"));
 			sb.append("   ");
 			sb.append(String.format("%6s", "0"));
 			sb.append(" ");
@@ -263,7 +263,7 @@ public class ProfileTextFull {
 			sb.append(" ");
 			sb.append(String.format("[%0"+length+"d]", stepSingle.index));
 			sb.append(" ");
-			sb.append(FormatUtil.print(new Date(tm), "HH:mm:ss.sss"));
+			sb.append(FormatUtil.print(new Date(tm), "HH:mm:ss.SSS"));
 			sb.append("   ");
 			sb.append(String.format("%6s", FormatUtil.print(tm - prev_tm, "#,##0")));
 			sb.append(" ");
@@ -378,7 +378,7 @@ public class ProfileTextFull {
 			sb.append(" ");
 			sb.append("["+astarStr+"]");
 			sb.append(" ");
-			sb.append(FormatUtil.print(new Date(tm), "HH:mm:ss.sss"));
+			sb.append(FormatUtil.print(new Date(tm), "HH:mm:ss.SSS"));
 			sb.append("   ");
 			if(!isSummary){
 				sb.append(String.format("%6s", FormatUtil.print(tm - prev_tm, "#,##0")));
