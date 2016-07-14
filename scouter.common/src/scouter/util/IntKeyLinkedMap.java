@@ -20,8 +20,12 @@
  */
 package scouter.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
+
 /**
  * @author Paul Kim (sjkim@whatap.io)
  */
@@ -129,9 +133,10 @@ public class IntKeyLinkedMap<V> {
 	public synchronized V getLastValue() {
 		return this.header.link_prev.value;
 	}
- 
-	protected void overflowed(int key, V value){
+
+	protected void overflowed(int key, V value) {
 	}
+
 	protected V create(int key) {
 		throw new RuntimeException("not implemented create()");
 	}
@@ -269,7 +274,7 @@ public class IntKeyLinkedMap<V> {
 			case FORCE_FIRST:
 			case FIRST:
 				while (count >= max) {
-					//removeLast();
+					// removeLast();
 					int k = header.link_prev.key;
 					V v = remove(k);
 					overflowed(k, v);
@@ -278,7 +283,7 @@ public class IntKeyLinkedMap<V> {
 			case FORCE_LAST:
 			case LAST:
 				while (count >= max) {
-					//removeFirst();
+					// removeFirst();
 					int k = header.link_next.key;
 					V v = remove(k);
 					overflowed(k, v);
@@ -483,37 +488,33 @@ public class IntKeyLinkedMap<V> {
 		}
 	}
 
-	public static void main(String[] args) {
-		IntKeyLinkedMap<Integer> m = new IntKeyLinkedMap<Integer>();
-		// System.out.println(m.getFirstValue());
-		// System.out.println(m.getLastKey());
-		for (int i = 0; i < 10; i++) {
-			m.put(i, i);
-			System.out.println(m);
+	public synchronized void sort(Comparator<IntKeyLinkedEntry<V>> c) {
+		ArrayList<IntKeyLinkedEntry<V>> list = new ArrayList<IntKeyLinkedEntry<V>>(this.size());
+		Enumeration<IntKeyLinkedEntry<V>> en = this.entries();
+		while (en.hasMoreElements()) {
+			list.add(en.nextElement());
 		}
-		// System.out.println("==================================");
-		// for(int i=0; i <10; i++){
-		// m.putLast(i, i);
-		// System.out.println(m);
-		// }
-		// System.out.println("==================================");
-		// for(int i=0; i <10; i++){
-		// m.putFirst(i, i);
-		// System.out.println(m);
-		// }
-		IntEnumer e = m.keys();
-		System.out.println("==================================");
-		for (int i = 0; i < 10; i++) {
-			m.removeFirst();
-			System.out.println(m);
-		}
-		System.out.println("==================================");
-		while (e.hasMoreElements()) {
-			System.out.println(e.nextInt());
+		Collections.sort(list, c);
+		this.clear();
+		for (int i = 0; i < list.size(); i++) {
+			IntKeyLinkedEntry<V> e = list.get(i);
+			this.put(e.getKey(), e.getValue());
 		}
 	}
 
-	private static void print(Object e) {
-		System.out.println(e);
+	public static void main(String[] args) {
+		IntKeyLinkedMap<Integer> m = new IntKeyLinkedMap<Integer>();
+		for (int i = 0; i < 10; i++) {
+			m.put(i, i);
+		}
+		System.out.println(m);
+		m.sort(new Comparator<IntKeyLinkedEntry<Integer>>() {
+			@Override
+			public int compare(IntKeyLinkedEntry<Integer> o1, IntKeyLinkedEntry<Integer> o2) {
+				return CompareUtil.compareTo(o2.getKey(), o1.getKey());
+			}
+		});
+		System.out.println(m);
 	}
+
 }

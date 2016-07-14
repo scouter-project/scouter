@@ -20,6 +20,7 @@
  */
 package scouter.util;
 
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 public class LongLinkedSet {
@@ -325,6 +326,34 @@ public class LongLinkedSet {
 		public String toString() {
 			return Long.toString(key);
 		}
+	}
+	public synchronized void sort(boolean asc) {
+		if(this.size() <=1)
+			return;
+		long[] list = new long[this.size()];
+		LongEnumer en = this.elements();
+		for (int i=0; en.hasMoreElements();i++) {
+			list[i]=en.nextLong();
+		}
+		Arrays.sort(list);
+		this.clear();
+		
+		if(asc){
+			for(long n : list)
+				this.put(n);
+		}else{
+			for(int i=list.length-1 ; i>=0; i--){
+				this.put(list[i]);
+			}
+		}
+	}
+	public static void main(String[] args) {
+		LongLinkedSet s = new LongLinkedSet();
+		s.put(10);
+		s.put(20);
+		System.out.println(s);
+		s.sort(false);
+		System.out.println(s);
 	}
 
 }
