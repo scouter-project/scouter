@@ -9,6 +9,7 @@
     <property name="jar-geoip-file" value="./lib/maxmind.geoip.jar"/>
     <property name="jar-jsqlparser-file" value="./lib/jsqlparser-0.9.4.jar"/>
     <property name="jar-javassist-file" value="./lib/javassist.jar"/>
+	<property name="jar-jetty-all" value="./lib/jetty-all-8.1.19.v20160209.jar" />
 
     <property name="deploy-jar-file"
               value="./out/package/scouter/server/lib/scouter.server-${VERSION}.jar"/>
@@ -88,6 +89,7 @@
                 <pathelement location="${jar-jsqlparser-file}"/>
                 <pathelement location="${jar-javassist-file}"/>
                 <pathelement location="${jar-geoip-file}"/>
+            	<pathelement location="${jar-jetty-all}"/>
             </classpath>
         </scalac>
 
@@ -102,6 +104,7 @@
                 <pathelement location="${jar-jsqlparser-file}"/>
                 <pathelement location="${jar-javassist-file}"/>
                 <pathelement location="${jar-geoip-file}"/>
+            	<pathelement location="${jar-jetty-all}"/>
             </classpath>
         </javac>
 
@@ -125,7 +128,6 @@
               verbose="true"/>
         <copy file="${jar-scala-lib}/jline.jar" todir="${deploy-lib-dir}"
               verbose="true"/>
-
     </target>
 
     <target name="deploy">
@@ -136,6 +138,8 @@
         <copy file="${jar-jsqlparser-file}" todir="${deploy-lib-dir}"
               verbose="true"/>
         <copy file="${jar-javassist-file}" todir="${deploy-lib-dir}"
+              verbose="true"/>
+    	<copy file="${jar-jetty-all}" todir="${deploy-lib-dir}"
               verbose="true"/>
         <copy todir="./out/package/scouter/server">
             <fileset dir="../scouter.server/scripts"/>
