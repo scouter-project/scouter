@@ -18,12 +18,17 @@ package scouter.server;
 
 import java.io.File;
 import java.io.InputStream;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import scouter.lang.Counter;
+import scouter.lang.Family;
 import scouter.lang.ObjectType;
 import scouter.lang.counters.CounterEngine;
 import scouter.lang.pack.MapPack;
@@ -91,6 +96,15 @@ public class CounterManager {
 		return xmlCustomContent;
 	}
 	
+	public synchronized boolean addFamily(Family family) {
+		boolean success = appendFamily(family);
+		if (success) {
+			xmlCustomContent = FileUtil.readAll(customFile);
+			engine.addFamily(family);
+		}
+		return success;
+	}
+	
 	public synchronized boolean addObjectType(MapPack param) {
 		String name = param.getText(CounterEngine.ATTR_NAME);
 		if (engine.getObjectType(name) != null) {
@@ -106,6 +120,10 @@ public class CounterManager {
 		objType.setIcon(icon);
 		objType.setFamily(engine.getFamily(family));
 		objType.setSubObject(subobject);
+		return addObjectType(objType);
+	}
+	
+	public synchronized boolean addObjectType(ObjectType objType) {
 		boolean success = appendObjectType(objType);
 		if (success) {
 			xmlCustomContent = FileUtil.readAll(customFile);
@@ -139,15 +157,23 @@ public class CounterManager {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = dbf.newDocumentBuilder();
 			Document doc = null;
-			Element parentElement = null;
+			Element rootElement = null;
+			Element typesElements = null;
 			if (customFile.canRead()) {
 				doc = builder.parse(customFile);
 				doc.getDocumentElement().normalize();
-				parentElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_TYPES).item(0);
+				rootElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_COUNTERS).item(0);
+				typesElements = (Element) doc.getElementsByTagName(CounterEngine.TAG_TYPES).item(0);
 			} else {
 				doc = builder.newDocument();
-				parentElement = doc.createElement(CounterEngine.TAG_TYPES);
-				doc.appendChild(parentElement);
+			}
+			if (rootElement == null) {
+				rootElement = doc.createElement(CounterEngine.TAG_COUNTERS);
+				doc.appendChild(rootElement);
+			}
+			if (typesElements == null) {
+				typesElements = doc.createElement(CounterEngine.TAG_TYPES);
+				rootElement.appendChild(typesElements);
 			}
 			Element objElement = doc.createElement(CounterEngine.TAG_OBJECT_TYPE);
 			objElement.setAttribute(CounterEngine.ATTR_NAME, objType.getName());
@@ -155,10 +181,10 @@ public class CounterManager {
 			objElement.setAttribute(CounterEngine.ATTR_FAMILY, objType.getFamily().getName());
 			objElement.setAttribute(CounterEngine.ATTR_ICON, objType.getIcon());
 			objElement.setAttribute(CounterEngine.ATTR_SUBOBJECT, objType.isSubObject() ? "true" : "false");
-			parentElement.appendChild(objElement);
+			typesElements.appendChild(objElement);
 			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 		} catch (Exception e) {
-			Logger.println(e.getMessage());
+			Logger.printStackTrace(e);
 			return false;
 		}
 		return true;
@@ -169,16 +195,24 @@ public class CounterManager {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = dbf.newDocumentBuilder();
 			Document doc = null;
-			Element parentElement = null;
+			Element rootElement = null;
+			Element typesElements = null;
 			boolean found = false;
 			if (customFile.canRead()) {
 				doc = builder.parse(customFile);
 				doc.getDocumentElement().normalize();
-				parentElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_TYPES).item(0);
+				rootElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_COUNTERS).item(0);
+				typesElements = (Element) doc.getElementsByTagName(CounterEngine.TAG_TYPES).item(0);
 			} else {
 				doc = builder.newDocument();
-				parentElement = doc.createElement(CounterEngine.TAG_TYPES);
-				doc.appendChild(parentElement);
+			}
+			if (rootElement == null) {
+				rootElement = doc.createElement(CounterEngine.TAG_COUNTERS);
+				doc.appendChild(rootElement);
+			}
+			if (typesElements == null) {
+				typesElements = doc.createElement(CounterEngine.TAG_TYPES);
+				rootElement.appendChild(typesElements);
 			}
 			NodeList list = doc.getElementsByTagName(CounterEngine.TAG_OBJECT_TYPE);
 			if (list == null || list.getLength() < 1) {
@@ -188,7 +222,7 @@ public class CounterManager {
 				objElement.setAttribute(CounterEngine.ATTR_FAMILY, objType.getFamily().getName());
 				objElement.setAttribute(CounterEngine.ATTR_ICON, objType.getIcon());
 				objElement.setAttribute(CounterEngine.ATTR_SUBOBJECT, objType.isSubObject() ? "true" : "false");
-				parentElement.appendChild(objElement);
+				typesElements.appendChild(objElement);
 				found = true;
 			} else {
 				for (int i = 0; i <  list.getLength(); i++) {
@@ -213,7 +247,7 @@ public class CounterManager {
 					objElement.setAttribute(CounterEngine.ATTR_FAMILY, objType.getFamily().getName());
 					objElement.setAttribute(CounterEngine.ATTR_ICON, objType.getIcon());
 					objElement.setAttribute(CounterEngine.ATTR_SUBOBJECT, objType.isSubObject() ? "true" : "false");
-					parentElement.appendChild(objElement);
+					typesElements.appendChild(objElement);
 					found = true;
 				}
 			}
@@ -222,10 +256,55 @@ public class CounterManager {
 				return true;
 			}
 		} catch (Exception e) {
-			Logger.println(e.getMessage());
+			Logger.printStackTrace(e);
 			return false;
 		}
 		return false;
+	}
+	
+	private boolean appendFamily(Family family) {
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = dbf.newDocumentBuilder();
+			Document doc = null;
+			Element rootElement = null;
+			Element familysElement = null;
+			if (customFile.canRead()) {
+				doc = builder.parse(customFile);
+				doc.getDocumentElement().normalize();
+				rootElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_COUNTERS).item(0);
+				familysElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_FAMILYS).item(0);
+			} else {
+				doc = builder.newDocument();
+			}
+			if (rootElement == null) {
+				rootElement = doc.createElement(CounterEngine.TAG_COUNTERS);
+				doc.appendChild(rootElement);
+			}
+			if (familysElement == null) {
+				familysElement = doc.createElement(CounterEngine.TAG_FAMILYS);
+				rootElement.appendChild(familysElement);
+			}
+			Element objElement = doc.createElement(CounterEngine.TAG_FAMILY);
+			objElement.setAttribute(CounterEngine.ATTR_NAME, family.getName());
+			objElement.setAttribute(CounterEngine.ATTR_MASTER, family.getMaster());
+			familysElement.appendChild(objElement);
+			for (Counter counter : family.listCounters()) {
+				Element counterElement = doc.createElement(CounterEngine.TAG_COUNTER);
+				counterElement.setAttribute(CounterEngine.ATTR_NAME, counter.getName());
+				counterElement.setAttribute(CounterEngine.ATTR_DISPLAY, counter.getDisplayName());
+				counterElement.setAttribute(CounterEngine.ATTR_UNIT, counter.getUnit());
+				counterElement.setAttribute(CounterEngine.ATTR_ICON, counter.getIcon());
+				counterElement.setAttribute(CounterEngine.ATTR_ALL, counter.isAll() ? "true" : "false");
+				counterElement.setAttribute(CounterEngine.ATTR_TOTAL, counter.isTotal() ? "true" : "false");
+				objElement.appendChild(counterElement);
+			}
+			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
+		} catch (Exception e) {
+			Logger.printStackTrace(e);
+			return false;
+		}
+		return true;
 	}
 	
 	public static void main(String[] args) {

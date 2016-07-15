@@ -45,6 +45,7 @@ import scouter.util.StringKeyLinkedMap;
 
 public class CounterEngine {
 	
+	public static final String TAG_COUNTERS = "Counters";
 	public static final String TAG_FAMILYS = "Familys";
 	public static final String TAG_TYPES = "Types";
 	public static final String TAG_FAMILY = "Family";
@@ -466,6 +467,10 @@ public class CounterEngine {
 	
 	public ObjectType addObjectType(ObjectType objType) {
 		return objTypeMap.put(objType.getName(), objType);
+	}
+	
+	public Family addFamily(Family family) {
+		return familyMap.put(family.getName(), family);
 	}
 	
 	public String[] getFamilyNames() {
