@@ -10,6 +10,7 @@
     <property name="jar-jsqlparser-file" value="./lib/jsqlparser-0.9.4.jar"/>
     <property name="jar-javassist-file" value="./lib/javassist.jar"/>
 	<property name="jar-jetty-all" value="./lib/jetty-all-8.1.19.v20160209.jar" />
+	<property name="jar-json" value="./lib/json-simple-1.1.1.jar" />
 
     <property name="deploy-jar-file"
               value="./out/package/scouter/server/lib/scouter.server-${VERSION}.jar"/>
@@ -90,6 +91,7 @@
                 <pathelement location="${jar-javassist-file}"/>
                 <pathelement location="${jar-geoip-file}"/>
             	<pathelement location="${jar-jetty-all}"/>
+            	<pathelement location="${jar-json}"/>
             </classpath>
         </scalac>
 
@@ -105,6 +107,7 @@
                 <pathelement location="${jar-javassist-file}"/>
                 <pathelement location="${jar-geoip-file}"/>
             	<pathelement location="${jar-jetty-all}"/>
+            	<pathelement location="${jar-json}"/>
             </classpath>
         </javac>
 
@@ -141,6 +144,8 @@
               verbose="true"/>
     	<copy file="${jar-jetty-all}" todir="${deploy-lib-dir}"
               verbose="true"/>
+    	<copy file="${jar-json}" todir="${deploy-lib-dir}"
+    	      verbose="true"/>
         <copy todir="./out/package/scouter/server">
             <fileset dir="../scouter.server/scripts"/>
         </copy>
