@@ -83,6 +83,7 @@ public class RegisterHandler {
 				}
 				objectType.setIcon("");
 				Family family = new Family();
+				objectType.setFamily(family);
 				if (counterManager.getCounterEngine().getFamily(objType) == null) {
 					family.setName(objType);
 				} else {
