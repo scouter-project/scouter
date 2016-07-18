@@ -114,6 +114,7 @@ public class CounterManager {
 			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 			xmlCustomContent = FileUtil.readAll(customFile);
 			engine.addFamily(family);
+			engine.addObjectType(objectType);
 			return true;
 		}
 		return false;
