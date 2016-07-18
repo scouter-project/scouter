@@ -24,15 +24,20 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import scouter.server.http.handler.CounterHandler;
+import scouter.server.http.handler.RegisterHandler;
 
-public class CounterServlet extends HttpServlet {
+public class RegisterServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		CounterHandler.process(req.getReader());
+		boolean result = RegisterHandler.process(req.getReader());
+		if (result) {
+			resp.setStatus(HttpServletResponse.SC_CREATED);
+		} else {
+			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
 	}
 
 }

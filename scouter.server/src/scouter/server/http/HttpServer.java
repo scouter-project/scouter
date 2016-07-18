@@ -23,6 +23,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 
 import scouter.server.Configure;
 import scouter.server.http.servlet.CounterServlet;
+import scouter.server.http.servlet.RegisterServlet;
 import scouter.util.ThreadUtil;
 
 public class HttpServer extends Thread {
@@ -53,6 +54,7 @@ public class HttpServer extends Thread {
 			context.setContextPath("/");
 	        server.setHandler(context);
 	        context.addServlet(new ServletHolder(CounterServlet.class), "/counter/*");
+	        context.addServlet(new ServletHolder(RegisterServlet.class), "/register/*");
 	        try {
 		        server.start();
 		        server.join();

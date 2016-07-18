@@ -97,15 +97,29 @@ public class CounterManager {
 	}
 	
 	public synchronized boolean addFamily(Family family) {
-		boolean success = appendFamily(family);
-		if (success) {
+		Document doc = appendFamily(family, getDocument());
+		if (doc != null) {
+			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 			xmlCustomContent = FileUtil.readAll(customFile);
 			engine.addFamily(family);
+			return true;
 		}
-		return success;
+		return false;
 	}
 	
-	public synchronized boolean addObjectType(MapPack param) {
+	public synchronized boolean addFamilyAndObjectType(Family family, ObjectType objectType) {
+		Document doc = appendFamily(family, getDocument());
+		doc = appendObjectType(objectType, doc);
+		if (doc != null) {
+			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
+			xmlCustomContent = FileUtil.readAll(customFile);
+			engine.addFamily(family);
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean addObjectType(MapPack param) {
 		String name = param.getText(CounterEngine.ATTR_NAME);
 		if (engine.getObjectType(name) != null) {
 			return false;
@@ -124,12 +138,14 @@ public class CounterManager {
 	}
 	
 	public synchronized boolean addObjectType(ObjectType objType) {
-		boolean success = appendObjectType(objType);
-		if (success) {
+		Document doc = appendObjectType(objType, getDocument());
+		if (doc != null) {
+			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 			xmlCustomContent = FileUtil.readAll(customFile);
 			engine.addObjectType(objType);
+			return true;
 		}
-		return success;
+		return false;
 	}
 	
 	public synchronized boolean editObjectType(MapPack param) {
@@ -144,29 +160,20 @@ public class CounterManager {
 		objType.setIcon(icon);
 		objType.setFamily(engine.getFamily(family));
 		objType.setSubObject(subobject);
-		boolean success = editOrAppendObjectType(objType);
-		if (success) {
+		Document doc = editOrAppendObjectType(objType, getDocument());
+		if (doc != null) {
+			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 			xmlCustomContent = FileUtil.readAll(customFile);
 			engine.addObjectType(objType);
+			return true;
 		}
-		return success;
+		return false;
 	}
 	
-	private boolean appendObjectType(ObjectType objType) {
+	private Document appendObjectType(ObjectType objType, Document doc) {
 		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = dbf.newDocumentBuilder();
-			Document doc = null;
-			Element rootElement = null;
-			Element typesElements = null;
-			if (customFile.canRead()) {
-				doc = builder.parse(customFile);
-				doc.getDocumentElement().normalize();
-				rootElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_COUNTERS).item(0);
-				typesElements = (Element) doc.getElementsByTagName(CounterEngine.TAG_TYPES).item(0);
-			} else {
-				doc = builder.newDocument();
-			}
+			Element rootElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_COUNTERS).item(0);
+			Element typesElements = (Element) doc.getElementsByTagName(CounterEngine.TAG_TYPES).item(0);
 			if (rootElement == null) {
 				rootElement = doc.createElement(CounterEngine.TAG_COUNTERS);
 				doc.appendChild(rootElement);
@@ -182,30 +189,18 @@ public class CounterManager {
 			objElement.setAttribute(CounterEngine.ATTR_ICON, objType.getIcon());
 			objElement.setAttribute(CounterEngine.ATTR_SUBOBJECT, objType.isSubObject() ? "true" : "false");
 			typesElements.appendChild(objElement);
-			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 		} catch (Exception e) {
 			Logger.printStackTrace(e);
-			return false;
+			return null;
 		}
-		return true;
+		return doc;
 	}
 	
-	private boolean editOrAppendObjectType(ObjectType objType) {
+	private Document editOrAppendObjectType(ObjectType objType, Document doc) {
 		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = dbf.newDocumentBuilder();
-			Document doc = null;
-			Element rootElement = null;
-			Element typesElements = null;
+			Element rootElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_COUNTERS).item(0);
+			Element typesElements = (Element) doc.getElementsByTagName(CounterEngine.TAG_TYPES).item(0);
 			boolean found = false;
-			if (customFile.canRead()) {
-				doc = builder.parse(customFile);
-				doc.getDocumentElement().normalize();
-				rootElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_COUNTERS).item(0);
-				typesElements = (Element) doc.getElementsByTagName(CounterEngine.TAG_TYPES).item(0);
-			} else {
-				doc = builder.newDocument();
-			}
 			if (rootElement == null) {
 				rootElement = doc.createElement(CounterEngine.TAG_COUNTERS);
 				doc.appendChild(rootElement);
@@ -252,31 +247,20 @@ public class CounterManager {
 				}
 			}
 			if (found) {
-				XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
-				return true;
+				return doc;
 			}
 		} catch (Exception e) {
 			Logger.printStackTrace(e);
-			return false;
+			return null;
 		}
-		return false;
+		return null;
 	}
 	
-	private boolean appendFamily(Family family) {
+	private Document appendFamily(Family family, Document doc) {
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = dbf.newDocumentBuilder();
-			Document doc = null;
-			Element rootElement = null;
-			Element familysElement = null;
-			if (customFile.canRead()) {
-				doc = builder.parse(customFile);
-				doc.getDocumentElement().normalize();
-				rootElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_COUNTERS).item(0);
-				familysElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_FAMILYS).item(0);
-			} else {
-				doc = builder.newDocument();
-			}
+			Element rootElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_COUNTERS).item(0);
+			Element familysElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_FAMILYS).item(0);
 			if (rootElement == null) {
 				rootElement = doc.createElement(CounterEngine.TAG_COUNTERS);
 				doc.appendChild(rootElement);
@@ -299,12 +283,28 @@ public class CounterManager {
 				counterElement.setAttribute(CounterEngine.ATTR_TOTAL, counter.isTotal() ? "true" : "false");
 				objElement.appendChild(counterElement);
 			}
-			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 		} catch (Exception e) {
 			Logger.printStackTrace(e);
-			return false;
+			return null;
 		}
-		return true;
+		return doc;
+	}
+	
+	private Document getDocument() {
+		Document doc = null;
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = dbf.newDocumentBuilder();
+			if (customFile.canRead()) {
+				doc = builder.parse(customFile);
+				doc.getDocumentElement().normalize();
+			} else {
+				doc = builder.newDocument();
+			}
+		} catch (Exception e) {
+			Logger.printStackTrace(e);
+		}
+		return doc;
 	}
 	
 	public static void main(String[] args) {
