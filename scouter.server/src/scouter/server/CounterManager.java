@@ -97,7 +97,7 @@ public class CounterManager {
 	}
 	
 	public synchronized boolean addFamily(Family family) {
-		Document doc = appendFamily(family, getDocument());
+		Document doc = appendFamily(family, getCustomDocument());
 		if (doc != null) {
 			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 			xmlCustomContent = FileUtil.readAll(customFile);
@@ -108,7 +108,7 @@ public class CounterManager {
 	}
 	
 	public synchronized boolean addFamilyAndObjectType(Family family, ObjectType objectType) {
-		Document doc = appendFamily(family, getDocument());
+		Document doc = appendFamily(family, getCustomDocument());
 		doc = appendObjectType(objectType, doc);
 		if (doc != null) {
 			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
@@ -139,7 +139,7 @@ public class CounterManager {
 	}
 	
 	public synchronized boolean addObjectType(ObjectType objType) {
-		Document doc = appendObjectType(objType, getDocument());
+		Document doc = appendObjectType(objType, getCustomDocument());
 		if (doc != null) {
 			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 			xmlCustomContent = FileUtil.readAll(customFile);
@@ -149,7 +149,7 @@ public class CounterManager {
 		return false;
 	}
 	
-	public synchronized boolean editObjectType(MapPack param) {
+	public boolean editObjectType(MapPack param) {
 		String name = param.getText(CounterEngine.ATTR_NAME);
 		String displayName = param.getText(CounterEngine.ATTR_DISPLAY);
 		String family = param.getText(CounterEngine.ATTR_FAMILY);
@@ -161,7 +161,11 @@ public class CounterManager {
 		objType.setIcon(icon);
 		objType.setFamily(engine.getFamily(family));
 		objType.setSubObject(subobject);
-		Document doc = editOrAppendObjectType(objType, getDocument());
+		return editObjectType(objType);
+	}
+	
+	public synchronized boolean editObjectType(ObjectType objType) {
+		Document doc = editOrAppendObjectType(objType, getCustomDocument());
 		if (doc != null) {
 			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 			xmlCustomContent = FileUtil.readAll(customFile);
@@ -184,11 +188,7 @@ public class CounterManager {
 				rootElement.appendChild(typesElements);
 			}
 			Element objElement = doc.createElement(CounterEngine.TAG_OBJECT_TYPE);
-			objElement.setAttribute(CounterEngine.ATTR_NAME, objType.getName());
-			objElement.setAttribute(CounterEngine.ATTR_DISPLAY, objType.getDisplayName());
-			objElement.setAttribute(CounterEngine.ATTR_FAMILY, objType.getFamily().getName());
-			objElement.setAttribute(CounterEngine.ATTR_ICON, objType.getIcon());
-			objElement.setAttribute(CounterEngine.ATTR_SUBOBJECT, objType.isSubObject() ? "true" : "false");
+			setObjectTypeAttribute(doc, objElement, objType);
 			typesElements.appendChild(objElement);
 		} catch (Exception e) {
 			Logger.printStackTrace(e);
@@ -213,11 +213,7 @@ public class CounterManager {
 			NodeList list = doc.getElementsByTagName(CounterEngine.TAG_OBJECT_TYPE);
 			if (list == null || list.getLength() < 1) {
 				Element objElement = doc.createElement(CounterEngine.TAG_OBJECT_TYPE);
-				objElement.setAttribute(CounterEngine.ATTR_NAME, objType.getName());
-				objElement.setAttribute(CounterEngine.ATTR_DISPLAY, objType.getDisplayName());
-				objElement.setAttribute(CounterEngine.ATTR_FAMILY, objType.getFamily().getName());
-				objElement.setAttribute(CounterEngine.ATTR_ICON, objType.getIcon());
-				objElement.setAttribute(CounterEngine.ATTR_SUBOBJECT, objType.isSubObject() ? "true" : "false");
+				setObjectTypeAttribute(doc, objElement, objType);
 				typesElements.appendChild(objElement);
 				found = true;
 			} else {
@@ -227,10 +223,7 @@ public class CounterManager {
 						Element objElement = (Element) node;
 						String name = objElement.getAttribute(CounterEngine.ATTR_NAME);
 						if (objType.getName().equals(name)) {
-							objElement.setAttribute(CounterEngine.ATTR_DISPLAY, objType.getDisplayName());
-							objElement.setAttribute(CounterEngine.ATTR_FAMILY, objType.getFamily().getName());
-							objElement.setAttribute(CounterEngine.ATTR_ICON, objType.getIcon());
-							objElement.setAttribute(CounterEngine.ATTR_SUBOBJECT, objType.isSubObject() ? "true" : "false");
+							setObjectTypeAttribute(doc, objElement, objType);
 							found = true;
 							break;
 						}
@@ -238,11 +231,7 @@ public class CounterManager {
 				}
 				if (found == false) {
 					Element objElement = doc.createElement(CounterEngine.TAG_OBJECT_TYPE);
-					objElement.setAttribute(CounterEngine.ATTR_NAME, objType.getName());
-					objElement.setAttribute(CounterEngine.ATTR_DISPLAY, objType.getDisplayName());
-					objElement.setAttribute(CounterEngine.ATTR_FAMILY, objType.getFamily().getName());
-					objElement.setAttribute(CounterEngine.ATTR_ICON, objType.getIcon());
-					objElement.setAttribute(CounterEngine.ATTR_SUBOBJECT, objType.isSubObject() ? "true" : "false");
+					setObjectTypeAttribute(doc, objElement, objType);
 					typesElements.appendChild(objElement);
 					found = true;
 				}
@@ -257,9 +246,26 @@ public class CounterManager {
 		return null;
 	}
 	
+	private static void setObjectTypeAttribute(Document doc, Element objElement, ObjectType objType) {
+		objElement.setAttribute(CounterEngine.ATTR_NAME, objType.getName());
+		objElement.setAttribute(CounterEngine.ATTR_DISPLAY, objType.getDisplayName());
+		objElement.setAttribute(CounterEngine.ATTR_FAMILY, objType.getFamily().getName());
+		objElement.setAttribute(CounterEngine.ATTR_ICON, objType.getIcon());
+		objElement.setAttribute(CounterEngine.ATTR_SUBOBJECT, objType.isSubObject() ? "true" : "false");
+		for (Counter counter : objType.listObjectTypeCounters()) {
+			Element counterElement = doc.createElement(CounterEngine.TAG_COUNTER);
+			counterElement.setAttribute(CounterEngine.ATTR_NAME, counter.getName());
+			counterElement.setAttribute(CounterEngine.ATTR_DISPLAY, counter.getDisplayName());
+			counterElement.setAttribute(CounterEngine.ATTR_UNIT, counter.getUnit());
+			counterElement.setAttribute(CounterEngine.ATTR_ICON, counter.getIcon());
+			counterElement.setAttribute(CounterEngine.ATTR_ALL, counter.isAll() ? "true" : "false");
+			counterElement.setAttribute(CounterEngine.ATTR_TOTAL, counter.isTotal() ? "true" : "false");
+			objElement.appendChild(counterElement);
+		}
+	}
+	
 	private Document appendFamily(Family family, Document doc) {
 		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			Element rootElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_COUNTERS).item(0);
 			Element familysElement = (Element) doc.getElementsByTagName(CounterEngine.TAG_FAMILYS).item(0);
 			if (rootElement == null) {
@@ -270,10 +276,10 @@ public class CounterManager {
 				familysElement = doc.createElement(CounterEngine.TAG_FAMILYS);
 				rootElement.appendChild(familysElement);
 			}
-			Element objElement = doc.createElement(CounterEngine.TAG_FAMILY);
-			objElement.setAttribute(CounterEngine.ATTR_NAME, family.getName());
-			objElement.setAttribute(CounterEngine.ATTR_MASTER, family.getMaster());
-			familysElement.appendChild(objElement);
+			Element familyElement = doc.createElement(CounterEngine.TAG_FAMILY);
+			familyElement.setAttribute(CounterEngine.ATTR_NAME, family.getName());
+			familyElement.setAttribute(CounterEngine.ATTR_MASTER, family.getMaster());
+			familysElement.appendChild(familyElement);
 			for (Counter counter : family.listCounters()) {
 				Element counterElement = doc.createElement(CounterEngine.TAG_COUNTER);
 				counterElement.setAttribute(CounterEngine.ATTR_NAME, counter.getName());
@@ -282,7 +288,7 @@ public class CounterManager {
 				counterElement.setAttribute(CounterEngine.ATTR_ICON, counter.getIcon());
 				counterElement.setAttribute(CounterEngine.ATTR_ALL, counter.isAll() ? "true" : "false");
 				counterElement.setAttribute(CounterEngine.ATTR_TOTAL, counter.isTotal() ? "true" : "false");
-				objElement.appendChild(counterElement);
+				familyElement.appendChild(counterElement);
 			}
 		} catch (Exception e) {
 			Logger.printStackTrace(e);
@@ -291,7 +297,7 @@ public class CounterManager {
 		return doc;
 	}
 	
-	private Document getDocument() {
+	private Document getCustomDocument() {
 		Document doc = null;
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

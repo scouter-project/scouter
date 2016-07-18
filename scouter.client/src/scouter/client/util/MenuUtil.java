@@ -391,7 +391,7 @@ public class MenuUtil implements IMenuCreator{
 		final CounterEngine counterEngine = ServerManager.getInstance().getServer(serverId).getCounterEngine();
 		ObjectType objectType = counterEngine.getObjectType(objType);
 		if (objectType == null) return;
-		final Counter counterObj = objectType.getFamily().getCounter(counter);
+		final Counter counterObj = objectType.getCounter(counter);
 		mgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager mgr) {
 				if (mgr == null) return;

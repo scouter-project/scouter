@@ -133,7 +133,6 @@ public class CounterEngine {
 								}
 							}
 							if (counter.getName() != null) {
-								counter.setFamily(family.getName());
 								family.addCounter(counter);
 							}
 						}
@@ -172,7 +171,50 @@ public class CounterEngine {
 						}
 					}
 					if (objType.getName() != null) {
-						objTypeMap.put(objType.getName(), objType);
+						ObjectType existType = objTypeMap.get(objType.getName());
+						if (existType == null) {
+							objTypeMap.put(objType.getName(), objType);
+						} else {
+							objType = existType;
+						}
+					}
+					NodeList counterNodes = objElement.getElementsByTagName(TAG_COUNTER);
+					for (int j = 0; counterNodes != null && j <  counterNodes.getLength(); j++) {
+						Node counterNode = counterNodes.item(j);
+						if (counterNode.getNodeType() == Node.ELEMENT_NODE) {
+							Element counterElement = (Element) counterNode;
+							NamedNodeMap counterAttrMap = counterElement.getAttributes();
+							if (counterAttrMap == null) {
+								continue;
+							}
+							scouter.lang.Counter counter = new scouter.lang.Counter();
+							for (int k = 0; k < counterAttrMap.getLength(); k++) {
+								Node counterAttr = counterAttrMap.item(k);
+								if (counterAttr.getNodeType() == Node.ATTRIBUTE_NODE) {
+									Attr attr = (Attr) counterAttr;
+									String name = attr.getName();
+									String value = attr.getValue();
+									if (ATTR_NAME.equals(name)) {
+										counter.setName(value);
+									} else if (ATTR_DISPLAY.equals(name)) {
+										counter.setDisplayName(value);
+									} else if (ATTR_UNIT.equals(name)) {
+										counter.setUnit(value);
+									} else if (ATTR_ICON.equals(name)) {
+										counter.setIcon(value);
+									} else if (ATTR_ALL.equals(name)) {
+										counter.setAll(Boolean.valueOf(value));
+									} else if (ATTR_TOTAL.equals(name)) {
+										counter.setTotal(Boolean.valueOf(value));
+									} else {
+										counter.setAttribute(name, value);
+									}
+								}
+							}
+							if (counter.getName() != null) {
+								objType.addCounter(counter);
+							}
+						}
 					}
 				}
 			}
@@ -236,8 +278,7 @@ public class CounterEngine {
 		Enumeration<ObjectType> types = objTypeMap.values();
 		while (types.hasMoreElements()) {
 			ObjectType obj = types.nextElement();
-			Family family = obj.getFamily();
-			scouter.lang.Counter[] counters = family.listCounters();
+			scouter.lang.Counter[] counters = obj.listCounters();
 			for (scouter.lang.Counter counter : counters) {
 				if (counter.isAll()) {
 					list.add(obj.getName() + ":" + counter.getDisplayName() + ":" + counter.getName());
@@ -253,8 +294,7 @@ public class CounterEngine {
 		if (obj == null) {
 			return list;
 		}
-		Family family = obj.getFamily();
-		scouter.lang.Counter[] counters = family.listCounters();
+		scouter.lang.Counter[] counters = obj.listCounters();
 		for (scouter.lang.Counter counter : counters) {
 			if (counter.isAll()) {
 				list.add(counter.getName());
@@ -268,8 +308,7 @@ public class CounterEngine {
 		Enumeration<ObjectType> types = objTypeMap.values();
 		while (types.hasMoreElements()) {
 			ObjectType obj = types.nextElement();
-			Family family = obj.getFamily();
-			scouter.lang.Counter[] counters = family.listCounters();
+			scouter.lang.Counter[] counters = obj.listCounters();
 			for (scouter.lang.Counter counter : counters) {
 				if (counter.isTotal()) {
 					list.add(obj.getName() + ":" + counter.getDisplayName() + ":" + counter.getName());
@@ -285,8 +324,7 @@ public class CounterEngine {
 		if (obj == null) {
 			return list;
 		}
-		Family family = obj.getFamily();
-		scouter.lang.Counter[] counters = family.listCounters();
+		scouter.lang.Counter[] counters = obj.listCounters();
 		for (scouter.lang.Counter counter : counters) {
 			if (counter.isTotal()) {
 				list.add(counter.getName());
@@ -300,7 +338,7 @@ public class CounterEngine {
 		if (obj == null) {
 			return "";
 		}
-		scouter.lang.Counter c = obj.getFamily().getCounter(counter);
+		scouter.lang.Counter c = obj.getCounter(counter);
 		if (c == null) {
 			return "";
 		}
@@ -313,7 +351,7 @@ public class CounterEngine {
 			return "";
 		}
 		String master = obj.getFamily().getMaster();
-		scouter.lang.Counter counter = obj.getFamily().getCounter(master);
+		scouter.lang.Counter counter = obj.getCounter(master);
 		if (counter == null) {
 			return "";
 		}
@@ -334,7 +372,7 @@ public class CounterEngine {
 			return null;
 		}
 		ArrayList<String> list = new ArrayList<String>();
-		scouter.lang.Counter[] counters = obj.getFamily().listCounters();
+		scouter.lang.Counter[] counters = obj.listCounters();
 		for (scouter.lang.Counter counter : counters) {
 			list.add(counter.getName());
 		}
@@ -348,7 +386,7 @@ public class CounterEngine {
 			return null;
 		}
 		ArrayList<String> list = new ArrayList<String>();
-		scouter.lang.Counter[] counters = obj.getFamily().listCounters();
+		scouter.lang.Counter[] counters = obj.listCounters();
 		for (scouter.lang.Counter counter : counters) {
 			list.add(counter.getDisplayName());
 		}
@@ -362,7 +400,7 @@ public class CounterEngine {
 			return null;
 		}
 		ArrayList<String> list = new ArrayList<String>();
-		scouter.lang.Counter[] counters = obj.getFamily().listCounters();
+		scouter.lang.Counter[] counters = obj.listCounters();
 		for (scouter.lang.Counter counter : counters) {
 			if (counter.isAll()) {
 				list.add(counter.getDisplayName() + ":" + counter.getName());
@@ -380,13 +418,21 @@ public class CounterEngine {
 		return familyName.equalsIgnoreCase(obj.getFamily().getName());
 	}
 	
+	public boolean isCounterOf(String counter, String objType) {
+		ObjectType obj = objTypeMap.get(objType);
+		if (obj == null) {
+			return false;
+		}
+		return obj.getCounter(counter) != null;
+	}
+	
 	public Set<String> getCounterSet(String objType) {
 		HashSet<String> set = new HashSet<String>();
 		ObjectType obj = objTypeMap.get(objType);
 		if (obj == null) {
 			return set;
 		}
-		scouter.lang.Counter[] counters = obj.getFamily().listCounters();
+		scouter.lang.Counter[] counters = obj.listCounters();
 		for (scouter.lang.Counter counter : counters) {
 			set.add(counter.getName());
 		}
@@ -399,7 +445,7 @@ public class CounterEngine {
 		if (obj == null) {
 			return set;
 		}
-		scouter.lang.Counter[] counters = obj.getFamily().listCounters();
+		scouter.lang.Counter[] counters = obj.listCounters();
 		for (scouter.lang.Counter counter : counters) {
 			set.add(counter);
 		}
@@ -411,7 +457,7 @@ public class CounterEngine {
 		if (obj == null) {
 			return null;
 		}
-		scouter.lang.Counter c = obj.getFamily().getCounter(counter);
+		scouter.lang.Counter c = obj.getCounter(counter);
 		if (c == null) {
 			return "";
 		}
@@ -423,7 +469,7 @@ public class CounterEngine {
 		if (obj == null) {
 			return null;
 		}
-		scouter.lang.Counter c = obj.getFamily().getCounter(counter);
+		scouter.lang.Counter c = obj.getCounter(counter);
 		if (c == null) {
 			return "";
 		}

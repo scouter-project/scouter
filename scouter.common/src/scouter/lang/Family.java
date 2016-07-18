@@ -17,7 +17,9 @@
 
 package scouter.lang;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import scouter.util.StringKeyLinkedMap;
 
@@ -60,16 +62,17 @@ public class Family {
 		return counterMap.put(counter.getName(), counter);
 	}
 	
-	public Counter getCounter(String counter) {
+	protected Counter getCounter(String counter) {
 		return counterMap.get(counter);
 	}
 	
-	public Counter[] listCounters() {
-		Counter[] array= new Counter[counterMap.size()];
+	public List<Counter> listCounters() {
+		List<Counter> list = new ArrayList<Counter>(counterMap.size());
 		Enumeration<Counter> en = counterMap.values();
-		for(int i = 0 ; i < array.length;i++)
-			array[i] = en.nextElement();
-		return array;
+		while (en.hasMoreElements()) {
+			list.add(en.nextElement());
+		}
+		return list;
 	}
 
 	public int hashCode() {

@@ -120,16 +120,50 @@ public class RegisterHandler {
 				}
 				boolean result = counterManager.addFamilyAndObjectType(family, objectType);
 				if (result) {
-					AsyncRun.getInstance().add(new Runnable() {
-						public void run() {
-							RemoteControl control = new RemoteControl("REFETCH_COUNTER_XML", System.currentTimeMillis(), new MapPack(), 0);
-							LoginUser[] users = LoginManager.getLoginUserList();
-							for (int i = 0, len = (users != null ? users.length : 0); i < len; i++) {
-								long session = users[i].session();
-								RemoteControlManager.add(session, control);
-							}
-						}
-					});
+					notifyAllClients();
+					return true;
+				}
+			} else {
+				ObjectType addObjectType = new ObjectType();
+				addObjectType.setName(objType);
+				addObjectType.setFamily(objectType.getFamily());
+				addObjectType.setIcon(objectType.getIcon());
+				addObjectType.setSubObject(objectType.isSubObject());
+				if (objectInfo.containsKey("display")) {
+					addObjectType.setDisplayName((String) objectInfo.get("display"));
+				} else {
+					addObjectType.setDisplayName(objectType.getDisplayName());
+				}
+				int counterSize = countersArray.size();
+				for (int i = 0; i < counterSize; i++) {
+					JSONObject counterInfo = (JSONObject)countersArray.get(i);
+					String name = (String) counterInfo.get("name");
+					if (objectType.getCounter(name) != null) continue;
+					String unit = (String) counterInfo.get("unit");
+					String display = name;
+					if (counterInfo.containsKey("display")) {
+						display = (String) counterInfo.get("display");
+					}
+					boolean total = true;
+					if (counterInfo.containsKey("total")) {
+						total = (Boolean) counterInfo.get("total");
+					}
+					boolean all = true;
+					if (counterInfo.containsKey("all")) {
+						all = (Boolean) counterInfo.get("all");
+					}
+					Counter counter = new Counter();
+					counter.setName(name);
+					counter.setUnit(unit);
+					counter.setDisplayName(display);
+					counter.setIcon("");
+					counter.setTotal(total);
+					counter.setAll(all);
+					addObjectType.addCounter(counter);
+				}
+				boolean result = counterManager.editObjectType(addObjectType);
+				if (result) {
+					notifyAllClients();
 					return true;
 				}
 			}
@@ -138,5 +172,18 @@ public class RegisterHandler {
 			return false;
 		}
 		return false;
+	}
+	
+	private static void notifyAllClients() {
+		AsyncRun.getInstance().add(new Runnable() {
+			public void run() {
+				RemoteControl control = new RemoteControl("REFETCH_COUNTER_XML", System.currentTimeMillis(), new MapPack(), 0);
+				LoginUser[] users = LoginManager.getLoginUserList();
+				for (int i = 0, len = (users != null ? users.length : 0); i < len; i++) {
+					long session = users[i].session();
+					RemoteControlManager.add(session, control);
+				}
+			}
+		});
 	}
 }
