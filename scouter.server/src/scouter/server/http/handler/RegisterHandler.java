@@ -114,6 +114,9 @@ public class RegisterHandler {
 					counter.setTotal(total);
 					counter.setAll(all);
 					family.addCounter(counter);
+					if (i == 0) {
+						family.setMaster(name);
+					}
 				}
 				boolean result = counterManager.addFamilyAndObjectType(family, objectType);
 				if (result) {
