@@ -37,6 +37,7 @@ import scouter.server.CounterManager;
 import scouter.server.netio.data.NetDataProcessor;
 import scouter.util.HashUtil;
 import scouter.util.IPUtil;
+import scouter.util.StringUtil;
 
 
 /*
@@ -120,8 +121,10 @@ public class CounterHandler {
 		StringBuilder sb = new StringBuilder();
 		sb.append("/");
 		sb.append(host);
-		sb.append("/");
-		sb.append(name);
+		if (StringUtil.isNotEmpty(name)) {
+			sb.append("/");
+			sb.append(name);
+		}
 		return sb.toString();
 	}
 }

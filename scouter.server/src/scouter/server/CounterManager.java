@@ -101,7 +101,7 @@ public class CounterManager {
 		if (doc != null) {
 			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 			xmlCustomContent = FileUtil.readAll(customFile);
-			engine.addFamily(family);
+			reloadEngine();
 			return true;
 		}
 		return false;
@@ -113,8 +113,7 @@ public class CounterManager {
 		if (doc != null) {
 			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 			xmlCustomContent = FileUtil.readAll(customFile);
-			engine.addFamily(family);
-			engine.addObjectType(objectType);
+			reloadEngine();
 			return true;
 		}
 		return false;
@@ -143,7 +142,7 @@ public class CounterManager {
 		if (doc != null) {
 			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 			xmlCustomContent = FileUtil.readAll(customFile);
-			engine.addObjectType(objType);
+			reloadEngine();
 			return true;
 		}
 		return false;
@@ -169,7 +168,7 @@ public class CounterManager {
 		if (doc != null) {
 			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
 			xmlCustomContent = FileUtil.readAll(customFile);
-			engine.addObjectType(objType);
+			reloadEngine();
 			return true;
 		}
 		return false;
@@ -317,5 +316,11 @@ public class CounterManager {
 	public static void main(String[] args) {
 		File f = Configure.getInstance().getPropertyFile();
 		System.out.println(f.getParent());
+	}
+	
+	private void reloadEngine() {
+		engine.clear();
+		engine.parse(xmlContent);
+		engine.parse(xmlCustomContent);
 	}
 }

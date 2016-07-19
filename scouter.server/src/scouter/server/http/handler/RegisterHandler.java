@@ -39,23 +39,23 @@ import scouter.server.util.AsyncRun;
 {
 	"object" : {
 		"type" : "redis",
-		"display" : "Redis" //optional
+		"display" : "Redis"
 	},
 	"counters" : [
 		{"name" : "aof_rewrite_scheduled",
 		 "unit" : "cnt",
-		 "display" : "AofRewriteScheduled", // optional(default : name)
-		 "total" : true,  //optional(default : true)
-		 "all" : true  // optional(default : true)
+		 "display" : "AofRewriteScheduled",
+		 "total" : true,
+		 "all" : true 
 		},
 		{"name" : "client_longest_output_list",
 		 "unit" : "cnt",
-		 "display" : "ClientLongOutList", // optional 
+		 "display" : "ClientLongOutList",
 		},
 		{"name" : "used_cpu_user",
 		 "unit" : "cnt",
-		 "display" : "UsedCpuUser", // optional 
-		 "total" : false,  //optional
+		 "display" : "UsedCpuUser",
+		 "total" : false
 		},
 	]
 }
