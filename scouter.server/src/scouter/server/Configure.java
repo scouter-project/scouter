@@ -126,7 +126,7 @@ public class Configure extends Thread {
 	@ConfigDesc("TCP Thread Pool Size")
 	public int net_tcp_service_pool_size = 100;
 	@ConfigDesc("Activating Http Server")
-	public boolean net_http_server_enabled = true;
+	public boolean net_http_server_enabled = false;
 	@ConfigDesc("Http Port")
 	public int net_http_port = 6180;
 
@@ -290,7 +290,7 @@ public class Configure extends Thread {
 		this.net_tcp_agent_so_timeout_ms = getInt("net_tcp_agent_so_timeout_ms", 60000);
 		this.net_tcp_agent_keepalive_interval_ms = getInt("net_tcp_agent_keepalive_interval_ms", 5000);
 		this.net_tcp_get_agent_connection_wait_ms = getInt("net_tcp_get_agent_connection_wait_ms", 1000);
-		this.net_http_server_enabled = getBoolean("net_http_server_enabled", true);
+		this.net_http_server_enabled = getBoolean("net_http_server_enabled", false);
 		this.net_http_port = getInt("net_http_port", 6180);
 
 		this.server_id = getValue("server_id", SysJMX.getHostName());
