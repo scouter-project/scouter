@@ -109,12 +109,14 @@ public class CounterManager {
 	
 	public synchronized boolean addFamilyAndObjectType(Family family, ObjectType objectType) {
 		Document doc = appendFamily(family, getCustomDocument());
-		doc = appendObjectType(objectType, doc);
 		if (doc != null) {
-			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
-			xmlCustomContent = FileUtil.readAll(customFile);
-			reloadEngine();
-			return true;
+			doc = appendObjectType(objectType, doc);
+			if (doc != null) {
+				XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
+				xmlCustomContent = FileUtil.readAll(customFile);
+				reloadEngine();
+				return true;
+			}
 		}
 		return false;
 	}

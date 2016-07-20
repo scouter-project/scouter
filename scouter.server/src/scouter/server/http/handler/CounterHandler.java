@@ -65,13 +65,16 @@ public class CounterHandler {
 		try {
 			JSONObject json = (JSONObject) parser.parse(in);
 			JSONObject objectInfo = (JSONObject) json.get("object");
-			ObjectPack objPack = extractObjectPack(objectInfo);
-			InetAddress addr = extractIpv4Address(objectInfo);
-			passToNetDataProcessor(objPack, addr);
-			
-			JSONArray perfArray = (JSONArray) json.get("counters");
-			PerfCounterPack perfPack = extractPerfCounterPack(perfArray, objPack.objName);
-			passToNetDataProcessor(perfPack, addr);
+			if (objectInfo != null) {
+				ObjectPack objPack = extractObjectPack(objectInfo);
+				InetAddress addr = extractIpv4Address(objectInfo);
+				passToNetDataProcessor(objPack, addr);
+				JSONArray perfArray = (JSONArray) json.get("counters");
+				if (perfArray != null) {
+					PerfCounterPack perfPack = extractPerfCounterPack(perfArray, objPack.objName);
+					passToNetDataProcessor(perfPack, addr);
+				}
+			}
 		} catch(Throwable th) {
 			scouter.server.Logger.println("SC-8000", 30, "Http body parsing error", th);
 		}
