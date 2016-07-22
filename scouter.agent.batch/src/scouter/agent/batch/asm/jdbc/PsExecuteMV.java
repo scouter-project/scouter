@@ -96,7 +96,7 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
                 mv.visitVarInsn(Opcodes.ILOAD, lvPosReturn);
     			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, TRACESQL, ADD_METHOD, ADD_SIGNATURE,false);
                 break;
- /*           case Type.BOOLEAN:
+/*            case Type.BOOLEAN:
             	lvPosReturn = newLocal(returnType);
                 mv.visitVarInsn(Opcodes.ISTORE, lvPosReturn);
     			mv.visitVarInsn(ALOAD, 0);
@@ -106,6 +106,7 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
     			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, TRACESQL, ADD_METHOD, ADD_SIGNATURE,false);    		    
                 mv.visitVarInsn(Opcodes.ILOAD, lvPosReturn);           	
             	break;*/
+              default:
 			}
 			
 			// Return 결과 셋팅
@@ -113,10 +114,9 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 		    mv.visitFieldInsn(GETFIELD, owner, TraceSQL.CURRENT_TRACESQL_FIELD, "Lscouter/agent/batch/trace/TraceSQL;");
 			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, TRACESQL, END_METHOD, END_SIGNATURE,false);
 		}
-		
 		mv.visitInsn(opcode);
 	}
-
+	
 	@Override
 	public void visitMaxs(int maxStack, int maxLocals) {
 		Label endFinally = new Label();
@@ -134,13 +134,11 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 		
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
 	}
-
+	
     public static void main(String[] args) {
         Type type = Type.getReturnType("(Z)[I");
         System.out.println("type = " + type.getSort());
         System.out.println("dim = " + type.getDimensions());
         System.out.println("element = " + type.getElementType());
-
     }
-
 }
