@@ -54,8 +54,9 @@
   	<list>java.util.logging.</list>								<!-- common -->
     <list>System.out.</list>
     <list>System.err.</list>
-    <list>org.apache.commons.logging.impl.Log4JLogger</list>	<!-- apache Log4J -->
+    <list>org.apache.commons.logging.</list>					<!-- apache Log4J -->
 	<list>org.apache.logging.log4j</list>
+	<list>ch.qos.logback.</list>								<!--  Logback -->
     <list>devon.core.log.LLogger</list>							<!-- devonframework -->
   </log>
   <excludeStack>

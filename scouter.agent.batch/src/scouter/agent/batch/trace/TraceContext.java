@@ -110,9 +110,7 @@ public class TraceContext {
 		StringBuilder buffer = new StringBuilder(100);
 		String lineSeparator = System.getProperty("line.separator");
 		
-		buffer.append(lineSeparator);
-		buffer.append("-[Result]----------------------------------------------").append(lineSeparator);
-		buffer.append("Batch     ID: ").append(this.batchJobId).append(lineSeparator);
+		buffer.append("-[").append(this.batchJobId).append("]----------------------------------------------").append(lineSeparator);
 		buffer.append("Run  Command: ").append(this.args).append(lineSeparator);
 		if(this.stackLogFile != null){
 			buffer.append("Stack   Dump: ").append(this.stackLogFile).append(lineSeparator);
@@ -143,21 +141,31 @@ public class TraceContext {
 		if(sqlMap.size() > 0){
 			buffer.append(lineSeparator).append("<SQLs>").append(lineSeparator);
 			int index = 0;
-			
+			buffer.append("Index StartTime               EndTime                         Count     TotalTime       MinTime       MaxTime          Rows (Measured)").append(lineSeparator);
+			buffer.append("--------------------------------------------------------------------------------------------------------------------------------------");
 			for(TraceSQL traceSql : sortTraceSQLList()){
 				index++;
-				buffer.append("-----------").append(lineSeparator);
-				buffer.append(index).append(':').append(uniqueSqls.get(traceSql.hashValue)).append(lineSeparator);
-				buffer.append("Start Time:").append(sdf.format(new Date(traceSql.startTime))).append(lineSeparator);
-				buffer.append("End   Time:").append(sdf.format(new Date(traceSql.endTime))).append(lineSeparator);
-				buffer.append("Count     :").append(traceSql.count).append(lineSeparator);
-				buffer.append("Total Time:").append(traceSql.getTotalTimeByMillis()).append(lineSeparator);
-				buffer.append("Min   Time:").append(traceSql.getMinTimeByMillis()).append(lineSeparator);
-				buffer.append("Max   Time:").append(traceSql.getMaxTimeByMillis()).append(lineSeparator);
-				buffer.append("Rows      :").append(traceSql.processedRows).append('(').append(traceSql.rowed).append(')').append(lineSeparator);	
+				buffer.append(lineSeparator);
+				buffer.append(String.format("%5s", index)).append(' ');
+				buffer.append(sdf.format(new Date(traceSql.startTime))).append(' ');
+				buffer.append(sdf.format(new Date(traceSql.endTime))).append(' ');
+				buffer.append(String.format("%,13d", 1234567890)).append(' '); //traceSql.count
+				buffer.append(String.format("%,13d", traceSql.getTotalTimeByMillis())).append(' ');
+				buffer.append(String.format("%,13d", traceSql.getMinTimeByMillis())).append(' ');
+				buffer.append(String.format("%,13d", traceSql.getMaxTimeByMillis())).append(' ');
+				buffer.append(String.format("%,13d", traceSql.processedRows)).append(' ').append(String.format("%s", traceSql.rowed));
 			}
+			buffer.append(lineSeparator).append("--------------------------------------------------------------------------------------------------------------------------------------").append(lineSeparator);
+
+			buffer.append(lineSeparator).append("<SQL Texts>").append(lineSeparator);
+			index = 0;
+			for(TraceSQL traceSql : sortTraceSQLList()){
+				index++;
+				buffer.append("-----------------").append(lineSeparator);
+				buffer.append("#SQLINX-").append(index).append(lineSeparator);
+				buffer.append(uniqueSqls.get(traceSql.hashValue)).append(lineSeparator);
+			}			
 		}
-		buffer.append("-------------------------------------------------------").append(lineSeparator);
 		return buffer.toString();
 	}
 	
