@@ -216,7 +216,7 @@ public class ObjectThreadDumpView extends ViewPart {
 	}
 
 	public void setInput(String stackText, String objName, long stackTime){
-		this.setPartName("ThreadDump[" + objName + DateUtil.yyyymmdd(stackTime) + "]");
+		this.setPartName("ThreadDump[" + objName + " " + DateUtil.yyyymmdd(stackTime) + "]");
 		text.setText(stackText);
 	}
 	
