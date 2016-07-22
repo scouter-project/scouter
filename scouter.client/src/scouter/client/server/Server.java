@@ -39,6 +39,7 @@ public class Server {
 	private String group;
 	private String version;
 	private String email;
+	private String services;
 	private boolean secureMode = true;
 	
 	private boolean open = false;
@@ -177,6 +178,14 @@ public class Server {
 		return this.email;
 	}
 	
+	public String getServices() {
+		return services;
+	}
+
+	public void setServices(String services) {
+		this.services = services;
+	}
+
 	public CounterEngine getCounterEngine() {
 		return counterEngine;
 	}
@@ -245,6 +254,6 @@ public class Server {
 		return "Server [id=" + id + ", name=" + name + ", ip=" + ip + ", port="
 				+ port + ", connected=" + connected + ", delta=" + delta
 				+ ", userId=" + userId + ", group=" + group + ", version="
-				+ version + "]";
+				+ version + ", services="+services+ " ]";
 	}
 }

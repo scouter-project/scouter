@@ -40,11 +40,13 @@ class AccountService {
     val id = m.getText("id");
     val passwd = m.getText("pass");
     val email = m.getText("email");
+    val services = m.getText("services");
     val group = m.getText("group");
     val account = new Account();
     account.id = id;
     account.password = passwd;
     account.email = email;
+    account.services = services;
     account.group = group;
     val result = AccountManager.addAccount(account);
     val pack = new MapPack();
@@ -59,12 +61,14 @@ class AccountService {
     val id = m.getText("id");
     val passwd = m.getText("pass");
     val email = m.getText("email");
-    val group = m.getText("group");
+    val services = m.getText("services");
+    val group = m.getText("group");    
     val account = new Account();
     account.id = id;
     account.password = passwd;
     account.email = email;
-    account.group = group;
+    account.services = services;
+    account.group = group;    
     val result = AccountManager.editAccount(account);
     val pack = new MapPack();
     pack.put("result", new BooleanValue(result));
@@ -87,6 +91,7 @@ class AccountService {
   def listAccount(din: DataInputX, dout: DataOutputX, login: Boolean) {
     val accountList = AccountManager.getAccountList();
     accountList.toList.foreach { x =>
+      System.out.println(x);
       dout.writeByte(TcpFlag.HasNEXT);
       dout.writeValue(new BlobValue(x.toBytes()));
     }

@@ -182,7 +182,17 @@ public class AccountListView extends ViewPart {
 					}
 				};
 				break;
-			}
+			case SERVICES :
+				labelProvider = new ColumnLabelProvider() {
+					public String getText(Object element) {
+						if (element instanceof Account) {
+							return ((Account)element).services;
+						}
+						return null;
+					}
+				};
+				break;
+			}			
 			if (labelProvider != null) {
 				c.setLabelProvider(labelProvider);
 			}
@@ -210,7 +220,8 @@ public class AccountListView extends ViewPart {
 	enum AccountEnum {
 	    ID("ID", 50, SWT.CENTER, true, true, false), //
 	    GROUP("Group", 50, SWT.CENTER, true, true, false), //
-	    EMAIL("Email", 50, SWT.LEFT, true, true, false);
+	    EMAIL("Email", 50, SWT.LEFT, true, true, false),
+		SERVICES("Services", 50, SWT.LEFT, true, true, false);
 
 	    private final String title;
 	    private final int width;

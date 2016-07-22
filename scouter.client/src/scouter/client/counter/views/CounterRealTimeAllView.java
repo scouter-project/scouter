@@ -116,6 +116,7 @@ public class CounterRealTimeAllView extends ScouterViewPart implements Refreshab
 		this.serverId = CastUtil.cint(ids[0]);
 		this.objType = ids[1];
 		this.counter = ids[2];
+		
 	}
 
 	

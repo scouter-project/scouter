@@ -63,6 +63,8 @@ class LoginService {
       if (acc != null) {
         m.put("email", acc.email);
       }
+      if(user.services != null)
+        m.put("services", user.services);
       m.put("timezone", TimeZone.getDefault().getDisplayName());
       val mv = AccountManager.getGroupPolicy(user.group);
       if (mv != null) {

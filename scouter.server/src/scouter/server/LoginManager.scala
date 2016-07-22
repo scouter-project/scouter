@@ -31,11 +31,13 @@ object LoginManager {
         if (account == null) {
             return 0;
         }
+        println("account : "+account);
         val u = new LoginUser();
         u.id = id;
         u.ip = ip;
         u.passwd = pwd;
         u.group = account.group;
+        u.services = account.services;
         u.logintime = System.currentTimeMillis();
         val key = KeyGen.next();
         u.session = key;

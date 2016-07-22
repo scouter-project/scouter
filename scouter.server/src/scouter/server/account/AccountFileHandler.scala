@@ -35,6 +35,7 @@ object AccountFileHandler {
     val TAG_ACCOUNTS = "Accounts";
     val TAG_ACCOUNT = "Account";
     val TAG_EMAIL = "Email";
+    val TAG_SERVICES = "Services";
     val ATTR_ID = "id";
     val ATTR_PASS = "pass";
     val ATTR_GROUP = "group";
@@ -55,6 +56,8 @@ object AccountFileHandler {
                 acObj.password = accountElement.getAttribute(ATTR_PASS);
                 acObj.group = accountElement.getAttribute(ATTR_GROUP);
                 acObj.email = extractTextValue(accountElement, TAG_EMAIL);
+                acObj.services = extractTextValue(accountElement, TAG_SERVICES);
+                System.out.println(acObj.toString());
                 accountMap.put(acObj.id, acObj);
             }
         })
@@ -75,7 +78,11 @@ object AccountFileHandler {
         val emailEle = doc.createElement(TAG_EMAIL);
         emailEle.setTextContent(account.email);
         accountEle.appendChild(emailEle);
+        val servicesEle = doc.createElement(TAG_SERVICES);
+        servicesEle.setTextContent(account.services);
+        accountEle.appendChild(servicesEle);
         accounts.appendChild(accountEle);
+        
         XmlUtil.writeXmlFileWithIndent(doc, file, 2);
     }
 
@@ -91,9 +98,11 @@ object AccountFileHandler {
                 val element = node.asInstanceOf[Element];
                 val id = element.getAttribute(ATTR_ID);
                 if (account.id.equals(id)) {
+                  System.out.println("AccountFileHandling account :"+account);
                     element.setAttribute(ATTR_PASS, account.password);
                     element.setAttribute(ATTR_GROUP, account.group);
                     element.getElementsByTagName(TAG_EMAIL).item(0).setTextContent(account.email);
+                    element.getElementsByTagName(TAG_SERVICES).item(0).setTextContent(account.services);
                     XmlUtil.writeXmlFileWithIndent(doc, file, 2);
                     return ;
                 }

@@ -25,5 +25,6 @@ class LoginUser {
     var ip = ""
     var hostname = ""
     var version = ""
+    var services = ""
     var group = ""
 }

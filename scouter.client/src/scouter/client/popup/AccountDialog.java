@@ -17,6 +17,7 @@
  */
 package scouter.client.popup;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
@@ -44,13 +46,15 @@ import scouter.client.util.ChartUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.RCPUtil;
 import scouter.client.util.UIUtil;
-import scouter.util.StringUtil;
+import scouter.io.DataInputX;
 import scouter.lang.Account;
 import scouter.lang.pack.MapPack;
+import scouter.lang.pack.ObjectPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.CipherUtil;
+import scouter.util.StringUtil;
 
 public class AccountDialog {
 
@@ -66,6 +70,7 @@ public class AccountDialog {
 	Text passText;
 	Text rePassText;
 	Text emailText;
+	Text servicesText;
 	Button okBtn;
 	String selectedGroup = null;
 
@@ -108,10 +113,12 @@ public class AccountDialog {
 				Server server = ServerManager.getInstance().getServer(serverId);
 				idText.setText(server.getUserId());
 				emailText.setText(server.getEmail());
+				servicesText.setText(server.getServices());
 				group = server.getGroup();
 			} else {
 				idText.setText(targetAccount.id);
 				emailText.setText(targetAccount.email);
+				servicesText.setText(targetAccount.services);
 				group = targetAccount.group;
 			}
 			idText.setEnabled(false);
@@ -237,6 +244,20 @@ public class AccountDialog {
 		emailText = new Text(profileGrp, SWT.SINGLE | SWT.BORDER);
 		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		emailText.setLayoutData(data);
+		
+		label = new Label(profileGrp, SWT.NONE);
+		label.setText("");
+		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+		
+		label = new Label(profileGrp, SWT.NONE);
+		label.setText("Services");
+		label.setAlignment(SWT.RIGHT);
+		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		label.setLayoutData(data);
+		
+		servicesText = new Text(profileGrp, SWT.SINGLE | SWT.BORDER);
+		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		servicesText.setLayoutData(data);
 
 		label = new Label(profileGrp, SWT.NONE);
 		label.setText("");
@@ -291,6 +312,7 @@ public class AccountDialog {
 		}
 		String password = passText.getText();
 		String repassword = rePassText.getText();
+		String services = servicesText.getText();
 		if (StringUtil.isEmpty(password)) {
 			MessageDialog.openWarning(dialog, "Confirm Password", "Please check password");
 			return false;
@@ -303,13 +325,36 @@ public class AccountDialog {
 			MessageDialog.openWarning(dialog, "Confirm Group", "Please check group");
 			return false;
 		}
+		if(!StringUtil.isEmpty(services)){
+			List<String> objList =  getServiceList();
+			String[] serviceList = services.split(",");
+			for(String s : serviceList ){
+				if(!objList.contains("/"+s)){
+					MessageDialog.openWarning(dialog, "Confirm Services", "Please check Service(objectName)");
+					return false;
+				}
+			}
+		}
 		return true;
+	}
+	
+	private ArrayList<String> getServiceList() {
+		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+		final ArrayList<String> agentList = new ArrayList<String>();
+		tcp.process(RequestCmd.OBJECT_LIST_REAL_TIME, null, new INetReader() {
+			public void process(DataInputX in) throws IOException {
+				ObjectPack o = (ObjectPack) in.readPack();
+				agentList.add(o.objName);				
+			}
+		});
+		return agentList;
 	}
 	
 	private void addAccount() {
 		final String id = idText.getText();
 		final String password = passText.getText();
 		final String email = emailText.getText();
+		final String services = servicesText.getText();
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
 				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
@@ -319,6 +364,7 @@ public class AccountDialog {
 					param.put("id", id);
 					param.put("pass", CipherUtil.sha256(password));
 					param.put("email", email);
+					param.put("services", services);
 					param.put("group", selectedGroup);
 					MapPack p = (MapPack) tcp.getSingle(RequestCmd.ADD_ACCOUNT, param);
 					result = p.getBoolean("result");
@@ -348,6 +394,7 @@ public class AccountDialog {
 		final String id = idText.getText();
 		final String password = passText.getText();
 		final String email = emailText.getText();
+		final String services = servicesText.getText();
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
 				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
@@ -357,6 +404,7 @@ public class AccountDialog {
 					param.put("id", id);
 					param.put("pass", CipherUtil.sha256(password));
 					param.put("email", email);
+					param.put("services", services);
 					param.put("group", selectedGroup);
 					MapPack p = (MapPack) tcp.getSingle(RequestCmd.EDIT_ACCOUNT, param);
 					result = p.getBoolean("result");

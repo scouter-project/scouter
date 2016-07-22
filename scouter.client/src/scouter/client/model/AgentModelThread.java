@@ -19,15 +19,18 @@ package scouter.client.model;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
+import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.io.DataInputX;
 import scouter.lang.counters.CounterEngine;
@@ -78,14 +81,23 @@ public class AgentModelThread extends Thread {
 		if (serverIdSet.size() > 0) {
 			Integer[] serverIds = serverIdSet.toArray(new Integer[serverIdSet.size()]);
 			for (int serverId : serverIds) {
-				CounterEngine counterEngine = ServerManager.getInstance().getServer(serverId).getCounterEngine();
+				
+				
+				final Server server = ServerManager.getInstance().getServer(serverId);
+				CounterEngine counterEngine = server.getCounterEngine();
+				final List<String> services = Arrays.asList(server.getServices());
 				TcpProxy proxy = TcpProxy.getTcpProxy(serverId);
 				try {
 					final ArrayList<ObjectPack> agentList = new ArrayList<ObjectPack>();
 					proxy.process(RequestCmd.OBJECT_LIST_REAL_TIME, null, new INetReader() {
 						public void process(DataInputX in) throws IOException {
 							ObjectPack o = (ObjectPack) in.readPack();
-							agentList.add(o);
+							for(String service : services){
+								if(server.getGroup().equals("admin"))
+									agentList.add(o);
+								else if(o.objName.indexOf(service) != -1)
+									agentList.add(o);
+							}
 						}
 					});
 					objectPackList.addAll(agentList);
