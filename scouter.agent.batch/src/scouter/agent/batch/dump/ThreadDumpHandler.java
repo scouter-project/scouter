@@ -146,6 +146,5 @@ public class ThreadDumpHandler {
 			e.printStackTrace();
 		}
 		return out;
-
 	}
 }

@@ -20,7 +20,7 @@ public class TraceSQL {
 	public static final String CURRENT_TRACESQL_FIELD = "_current_trace_sql_";
 	
 	public Integer hashValue;
-	public int count = 0;
+	public int runs = 0;
 	
 	public long startTime = -1L;
 	public long endTime = 0L;
@@ -41,7 +41,7 @@ public class TraceSQL {
 	
 	public void end(){
 		long responseTime = System.nanoTime() - sqlStartTime;
-		count++;
+		runs++;
 		totalTime += responseTime;
 		
 		if(minTime > responseTime){

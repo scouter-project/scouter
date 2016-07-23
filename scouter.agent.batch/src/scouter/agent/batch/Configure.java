@@ -28,12 +28,17 @@ import java.util.Map;
 import java.util.Properties;
 
 
+import scouter.agent.ObjTypeDetector;
 import scouter.agent.util.JarUtil;
 import scouter.lang.conf.ConfigValueUtil;
+import scouter.lang.counters.CounterConstants;
 import scouter.net.NetConstants;
 import scouter.util.FileUtil;
+import scouter.util.HashUtil;
 import scouter.util.StringSet;
 import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.SystemUtil;
 
 public class Configure {
 	public static final String CONFIG_SCOUTER_ENABLED = "scouter_enabled";
@@ -189,8 +194,6 @@ public class Configure {
 		}else if("props".equals(this.batch_id_type)){
 			this.batch_id = getValue("batch_id", "JobId");			
 		}
-		this.obj_name = getValue("obj_name", "batch");
-		// end for batch
 		
 		// SQL
 		this.sql_max_count = getInt("sql_max_count", 100);
@@ -274,6 +277,7 @@ public class Configure {
         this._trace_use_logger = getBoolean("_trace_use_logger", false);
 		this.log_ignore_set = getStringSet("mgr_log_ignore_ids", ",");
 
+		resetObjInfo();
 	}
 
 	public int getObjHash() {
@@ -296,6 +300,42 @@ public class Configure {
 		return log_ignore_set.hasKey(id);
 	}
 	
+	
+	public synchronized void resetObjInfo() {
+		String detected = ObjTypeDetector.drivedType != null ? ObjTypeDetector.drivedType
+				: ObjTypeDetector.objType != null ? ObjTypeDetector.objType : CounterConstants.JAVA;
+		this.obj_type = getValue("obj_type", detected);
+		detected = CounterConstants.HOST;
+		if (SystemUtil.IS_LINUX) {
+			detected = CounterConstants.LINUX;
+		} else if (SystemUtil.IS_WINDOWS) {
+			detected = CounterConstants.WINDOWS;
+		} else if (SystemUtil.IS_MAC_OSX) {
+			detected = CounterConstants.OSX;
+		} else if (SystemUtil.IS_AIX) {
+			detected = CounterConstants.AIX;
+		} else if (SystemUtil.IS_HP_UX) {
+			detected = CounterConstants.HPUX;
+		}
+		this.obj_host_type = getValue("obj_host_type", detected);
+		this.obj_host_name = getValue("obj_host_name", SysJMX.getHostName());
+		this.objHostName = "/" + this.obj_host_name;
+		this.objHostHash = HashUtil.hash(objHostName);
+		this.obj_name_auto_pid_enabled = getBoolean("obj_name_auto_pid_enabled", false);
+		String defaultName;
+		if (this.obj_name_auto_pid_enabled == true) {
+			defaultName = "" + SysJMX.getProcessPID();
+		} else {
+			defaultName = this.obj_type + "1";
+		}
+		this.obj_name = getValue("obj_name", "batch");
+		this.objName = objHostName + "/" + this.obj_name;
+		this.objHash = HashUtil.hash(objName);
+		System.setProperty("scouter.objname", this.objName);
+		System.setProperty("scouter.objtype", this.obj_type);
+		System.setProperty("scouter.dir", agent_dir_path);
+	}
+		
 	private StringSet getStringSet(String key, String deli) {
 		StringSet set = new StringSet();
 		String v = getValue(key);
