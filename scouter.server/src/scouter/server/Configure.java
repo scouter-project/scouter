@@ -89,6 +89,8 @@ public class Configure extends Thread {
 	public boolean log_udp_stack = false;
 	@ConfigDesc("Logging incoming SummaryPack")
 	public boolean log_udp_summary = false;
+	@ConfigDesc("Logging incoming BatchPack")
+	public boolean log_udp_batch = false;	
 	@ConfigDesc("Logging all request handlers in starting")	
 	public boolean log_service_handler_list = false;
 	@ConfigDesc("Retaining log according to date")
@@ -328,6 +330,7 @@ public class Configure extends Thread {
 		this.log_udp_status = getBoolean("log_udp_status", false);
 		this.log_udp_stack = getBoolean("log_udp_stack", false);
 		this.log_udp_summary = getBoolean("log_udp_summary", false);
+		this.log_udp_batch = getBoolean("log_udp_batch", false);
 		this.log_service_handler_list = getBoolean("log_service_handler_list", false);
 		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
 		this.log_keep_days = getInt("log_keep_days", 31);

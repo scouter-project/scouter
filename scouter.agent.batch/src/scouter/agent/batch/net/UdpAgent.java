@@ -24,6 +24,7 @@ import scouter.agent.batch.Configure;
 
 import scouter.io.DataOutputX;
 import scouter.lang.pack.Pack;
+import scouter.net.NetCafe;
 public class UdpAgent {
 	static public void sendUdpPack(Pack pack){
 		Configure conf = Configure.getInstance();
@@ -31,16 +32,17 @@ public class UdpAgent {
 		InetAddress server = null;
 		try {
 			server = InetAddress.getByName(conf.net_collector_ip);
-			datagram = new DatagramSocket(conf.net_collector_udp_port, InetAddress.getByName(conf.net_collector_ip));
+			datagram = new DatagramSocket();
 
-			byte[] buff = new DataOutputX().writePack(pack).toByteArray();
+			byte[] buff = new DataOutputX().write(NetCafe.CAFE).writePack(pack).toByteArray();
 			DatagramPacket packet = new DatagramPacket(buff, buff.length);
 			packet.setAddress(server);
 			packet.setPort(conf.net_collector_udp_port);
-			datagram.send(packet);			
+			datagram.send(packet);		
+System.out.println("Send:" + conf.net_collector_ip + "-" + conf.net_collector_udp_port);
+Thread.sleep(2000);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return;
 		} finally{
 			if(datagram != null){
 				try { datagram.close(); } catch(Exception ex){}

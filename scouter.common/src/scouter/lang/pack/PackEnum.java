@@ -80,6 +80,8 @@ public abstract class PackEnum {
                 return new StackPack();
             case SUMMARY:
                 return new SummaryPack();
+            case BATCH:
+            	return new BatchPack();
             default:
                 return null;
         }
