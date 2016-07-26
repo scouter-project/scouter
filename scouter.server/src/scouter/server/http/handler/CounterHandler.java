@@ -41,10 +41,11 @@ import scouter.util.StringUtil;
 
 
 /*
+ [
  {
  	"object" : {
  	    "host" : "VM123",
- 		"name" : "my_server",
+ 		"name" : "my_server1",
  		"type" : "redis",
  		"address" : "10.10.10.10"
  	},
@@ -53,8 +54,22 @@ import scouter.util.StringUtil;
 		{"name" : "client_longest_output_list", "value" : 245},
 		{"name" : "used_cpu_user", "value" : 4245}
 	]
+ },
+ {
+ 	"object" : {
+ 	    "host" : "VM123",
+ 		"name" : "my_server2",
+ 		"type" : "redis",
+ 		"address" : "10.10.10.10"
+ 	},
+	"counters" : [
+		{"name" : "aof_rewrite_scheduled", "value" : 35},
+		{"name" : "client_longest_output_list", "value" : 65},
+		{"name" : "used_cpu_user", "value" : 8888}
+	]
  }
   
+ ]
  */
 public class CounterHandler {
 	
@@ -63,20 +78,36 @@ public class CounterHandler {
 	public static void process(Reader in) {
 		JSONParser parser = new JSONParser();
 		try {
-			JSONObject json = (JSONObject) parser.parse(in);
-			JSONObject objectInfo = (JSONObject) json.get("object");
-			if (objectInfo != null) {
-				ObjectPack objPack = extractObjectPack(objectInfo);
-				InetAddress addr = extractIpv4Address(objectInfo);
-				passToNetDataProcessor(objPack, addr);
-				JSONArray perfArray = (JSONArray) json.get("counters");
-				if (perfArray != null) {
-					PerfCounterPack perfPack = extractPerfCounterPack(perfArray, objPack.objName);
-					passToNetDataProcessor(perfPack, addr);
+			Object o = parser.parse(in);
+			if (o instanceof JSONArray) {
+				JSONArray jsonArray = (JSONArray) o;
+				for (int i = 0; i <jsonArray.size(); i++) {
+					Object element = jsonArray.get(i);
+					if (element instanceof JSONObject) {
+						process((JSONObject) element);
+					}
 				}
+			} else if (o instanceof JSONObject) {
+				process((JSONObject) o);
+			} else {
+				scouter.server.Logger.println("SC-8001", 30, "Incorrect body");
 			}
 		} catch(Throwable th) {
 			scouter.server.Logger.println("SC-8000", 30, "Http body parsing error", th);
+		}
+	}
+	
+	private static void process(JSONObject json) throws Exception {
+		JSONObject objectInfo = (JSONObject) json.get("object");
+		if (objectInfo != null) {
+			ObjectPack objPack = extractObjectPack(objectInfo);
+			InetAddress addr = extractIpv4Address(objectInfo);
+			passToNetDataProcessor(objPack, addr);
+			JSONArray perfArray = (JSONArray) json.get("counters");
+			if (perfArray != null) {
+				PerfCounterPack perfPack = extractPerfCounterPack(perfArray, objPack.objName);
+				passToNetDataProcessor(perfPack, addr);
+			}
 		}
 	}
 	
