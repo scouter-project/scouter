@@ -148,6 +148,15 @@
         <directory>${basedir}/target</directory>
         <sourceDirectory>${basedir}/src</sourceDirectory>
         <outputDirectory>${basedir}/target/classes</outputDirectory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                    <exclude>**/*.scala</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <testSourceDirectory>${basedir}/test</testSourceDirectory>
         <testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>
     </build>
