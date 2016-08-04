@@ -49,14 +49,14 @@ public class BatchMonitor extends Thread {
 			if(config.sfa_dump_enabled){
 				File indexFile = null;
 
-				stackFile = new File(traceContext.getLogFilename() + ".log");
+				stackFile = new File(traceContext.getLogFullFilename() + ".log");
 				if(stackFile.exists()){
 					stackFile = null;
 				}else{
 					traceContext.stackLogFile = stackFile.getAbsolutePath();
 					
 					stackWriter = new FileWriter(stackFile);
-					indexWriter = new FileWriter(new File(traceContext.getLogFilename() + ".inx"));
+					indexWriter = new FileWriter(new File(traceContext.getLogFullFilename() + ".inx"));
 				}
 			}
 			if(stackWriter != null){

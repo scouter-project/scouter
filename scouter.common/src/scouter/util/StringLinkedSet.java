@@ -20,6 +20,7 @@
  */
 package scouter.util;
 
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 /**
  * @author Paul Kim (sjkim@whatap.io)
@@ -339,5 +340,36 @@ public class StringLinkedSet {
 		e.link_next.link_prev = e.link_prev;
 		e.link_prev = null;
 		e.link_next = null;
+	}
+	public synchronized void sort(boolean asc) {
+		if (this.size() <= 1)
+			return;
+		String[] list = new String[this.size()];
+		StringEnumer en = this.elements();
+		for (int i = 0; en.hasMoreElements(); i++) {
+			list[i] = en.nextString();
+		}
+		Arrays.sort(list);
+		this.clear();
+
+		if (asc) {
+			for (String n : list)
+				this.put(n);
+		} else {
+			for (int i = list.length - 1; i >= 0; i--) {
+				this.put(list[i]);
+			}
+		}
+	}
+
+	public static void main(String[] args) {
+		StringLinkedSet s = new StringLinkedSet();
+		s.put("aa");
+		s.put("bb");
+		s.put("00");
+		s.sort(true);
+		System.out.println(s);
+		s.sort(false);
+		System.out.println(s);
 	}
 }

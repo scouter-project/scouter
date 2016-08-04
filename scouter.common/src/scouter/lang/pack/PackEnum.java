@@ -40,6 +40,7 @@ public abstract class PackEnum {
 	public final static byte PERF_STATUS = 61;
 	public final static byte STACK = 62;
 	public final static byte SUMMARY = 63;
+	public final static byte BATCH = 64;
 
 	public final static byte ALERT = 70;
 	public final static byte OBJECT = 80;
@@ -79,6 +80,8 @@ public abstract class PackEnum {
                 return new StackPack();
             case SUMMARY:
                 return new SummaryPack();
+            case BATCH:
+            	return new BatchPack();
             default:
                 return null;
         }

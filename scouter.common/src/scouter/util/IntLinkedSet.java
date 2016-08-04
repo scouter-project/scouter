@@ -20,6 +20,10 @@
  */
 package scouter.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.NoSuchElementException;
 /**
  * @author Paul Kim (sjkim@whatap.io)
@@ -325,5 +329,33 @@ public class IntLinkedSet {
 		public String toString() {
 			return Integer.toString(key);
 		}
+	}
+	public synchronized void sort(boolean asc) {
+		if(this.size() <=1)
+			return;
+		int[] list = new int[this.size()];
+		IntEnumer en = this.elements();
+		for (int i=0; en.hasMoreElements();i++) {
+			list[i]=en.nextInt();
+		}
+		Arrays.sort(list);
+		this.clear();
+		
+		if(asc){
+			for(int n : list)
+				this.put(n);
+		}else{
+			for(int i=list.length-1 ; i>=0; i--){
+				this.put(list[i]);
+			}
+		}
+	}
+	public static void main(String[] args) {
+		IntLinkedSet s = new IntLinkedSet();
+		s.put(10);
+		s.put(20);
+		System.out.println(s);
+		s.sort(false);
+		System.out.println(s);
 	}
 }

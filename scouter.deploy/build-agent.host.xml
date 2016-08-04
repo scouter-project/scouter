@@ -25,7 +25,6 @@
 	<target name="compile">
 		<javac srcdir="../scouter.common/src" destdir="${class-agent-dir}" source="1.5" target="1.5" debug="true" encoding="UTF-8" includeantruntime="false" />
 		<copy file="../scouter.common/src/scouter/util/logo/scouter.logo" tofile="${class-agent-dir}/scouter/util/logo/scouter.logo" verbose="true" />
-		<copy file="../scouter.common/src/scouter/lang/countrycode.txt" tofile="${class-agent-dir}/scouter/lang/countrycode.txt" verbose="true" />
 
 		<propertyfile file="${class-agent-dir}/scouter/v.properties" comment="Scouter Version">
 			<entry key="VERSION" value="${VERSION}" />

@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-mrcon : MariaDB Connections
-mract : MariaDB Activity
-mrres : MariaDB ResponseTime
-mrhit : MariaDB HitRatio
--->
 <Counters>
 	<Familys>
 		<Family name="host" master="Cpu">
@@ -52,24 +46,6 @@ mrhit : MariaDB HitRatio
 			<Counter name="PermPercent" disp="Perm %" unit="%" icon="memory.png" total="false"/>
 			<Counter name="FdUsage" disp="File Descriptor" unit="cnt" icon="memory.png" all="false" total="false"/>
 		</Family>
-		<Family name="apache" master="ReqPerSec">
-			<Counter name="BytesPerReq" disp="Bytes Per Request" unit="bytes" icon="bytes_per_sec.png" />
-			<Counter name="BytesPerSec" disp="Bytes Per Second" unit="bytes" icon="bytes_per_sec.png" />
-			<Counter name="ReqPerSec" disp="Request Per Second" unit="cnt" icon="request_per_sec.png" />
-			<Counter name="BusyWorkers" disp="Busy Workers" unit="cnt" icon="worker.png" />
-			<Counter name="CPULoad" disp="CPU Load" unit="%" icon="cpu.png" />
-			<Counter name="IdleWorkers" disp="IdleWorkers" unit="cnt" icon="worker.png"/>
-			<Counter name="G" disp="(G)Gracefully finishing" unit="cnt" icon="service_count.png" />
-			<Counter name="L" disp="(L)Logging" unit="cnt" icon="service_count.png" />
-			<Counter name="K" disp="(K)Keepalive" unit="cnt" icon="service_count.png" />
-			<Counter name="I" disp="(I)Idle cleanup of worker" unit="cnt" icon="service_count.png" />
-			<Counter name="S" disp="(S)Starting up" unit="cnt" icon="service_count.png" />
-			<Counter name="R" disp="(R)Reading Request" unit="cnt" icon="service_count.png" />
-			<Counter name="W" disp="(W)Sending Reply" unit="cnt" icon="service_count.png" />
-			<Counter name="_" disp="(_)Waiting for Connection" unit="cnt" icon="service_count.png" />
-			<Counter name="D" disp="(D)DNS" unit="cnt" icon="service_count.png" />
-			<Counter name="C" disp="(C)Closing connection" unit="cnt" icon="service_count.png" />
-		</Family>
 		<Family name="datasource" master="ConnActive">
 			<Counter name="ConnIdle" disp="Conn Idle" unit="cnt" icon="conn_idle.png" />
 			<Counter name="ConnActive" disp="Conn Active" unit="cnt" icon="conn_act.png" />
@@ -82,31 +58,6 @@ mrhit : MariaDB HitRatio
 			<Counter name="ProcessingTime" disp="Processing Time" unit="sec" icon="proc_time.png" />
 			<Counter name="BytesReceived" disp="Bytes Received" unit="bytes" icon="bytes_recv.png" />
 		</Family>
-		<Family name="maria" master="QPS" mrcon="true" mract="true" mrres="true" mrhit="true">
-			<Counter name="THREADS_RUNNING" disp="Thread Running" unit="cnt" icon="database.png" />
-			<Counter name="THREADS_TOTAL" disp="Thread Total" unit="cnt" icon="database.png" />
-			<Counter name="COM_CALL_PROCEDURE" disp="Call Procedure" unit="cnt" icon="database.png" />
-			<Counter name="COM_SELECT" disp="Select" unit="cnt" icon="database.png" />
-			<Counter name="COM_INSERT" disp="Insert" unit="cnt" icon="database.png" />
-			<Counter name="COM_UPDATE" disp="Update" unit="cnt" icon="database.png" />
-			<Counter name="COM_DELETE" disp="Delete" unit="cnt" icon="database.png" />
-			<Counter name="INNO_BUF_HIT" disp="InnoDB Buffer Hit Ratio" unit="%" icon="database.png" />
-			<Counter name="KEY_RATIO" disp="Key Cache Hit Ratio"  unit="%" icon="database.png" />
-			<Counter name="QCACHE_RATIO" disp="Query Cache Hit Ratio" unit="%" icon="database.png" />
-			<Counter name="TCACHE_RATIO" disp="Thread Cache Hit Ratio" unit="%" icon="database.png" />
-			<Counter name="QPS" disp="QPS" unit="cnt" icon="database.png" />
-			<Counter name="TPS" disp="TPS" unit="cnt" icon="database.png" />
-			<Counter name="SLOW_QUERY" disp="Slow Queries" unit="cnt" icon="database.png" />
-			<Counter name="FULL_SCAN" disp="Table Full Scan" unit="cnt" icon="database.png" />
-			<Counter name="OT_DEF" disp="Opened Table Definitions" unit="cnt" icon="database.png" />
-			<Counter name="OT_COUNT" disp="Opened Tables" unit="cnt" icon="database.png" />
-			<Counter name="DTEMP_TBL" disp="Disk Temp Tables" unit="cnt" icon="database.png" />
-			<Counter name="MTEMP_TBL" disp="Memory Temp Tables" unit="cnt" icon="database.png" />
-			<Counter name="INNO_RLOCK_W" disp="InnoDB Row Lock Waits" unit="cnt" icon="database.png" />
-			<Counter name="TBL_LOCK" disp="Table Locks Immediate" unit="cnt" icon="database.png" />
-			<Counter name="TBL_LOCK_W" disp="Table Locks Waited" unit="cnt" icon="database.png" />
-			<Counter name="WAIT_COUNT" disp="Wait Count" unit="cnt" icon="database.png" />
-		</Family>
 	</Familys>
 	<Types>
 		<ObjectType name="linux" family="host" disp="Linux" />
@@ -118,9 +69,7 @@ mrhit : MariaDB HitRatio
 		<ObjectType name="jboss" family="javaee" disp="JBoss" />
 		<ObjectType name="jetty" family="javaee" disp="Jetty" />
 		<ObjectType name="resin" family="javaee" disp="Resin" />
-		<ObjectType name="apache" family="apache" disp="Apache" />
 		<ObjectType name="datasource" family="datasource" disp="DataSource" sub-object="true" />
 		<ObjectType name="reqproc" family="reqproc" disp="RequestProc" sub-object="true"/>
-		<ObjectType name="mariaplugin" family="maria" disp="Maria Plugin" />
 	</Types>
 </Counters>

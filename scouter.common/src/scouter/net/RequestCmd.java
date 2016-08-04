@@ -102,6 +102,7 @@ public class RequestCmd {
 	public static final String TRANX_PROFILE = "TRANX_PROFILE";
 	public static final String TRANX_PROFILE_FULL = "TRANX_PROFILE_FULL";
 	public static final String TRANX_REAL_TIME_GROUP = "TRANX_REAL_TIME_GROUP";
+	public static final String TRANX_REAL_TIME_GROUP_LATEST = "TRANX_REAL_TIME_GROUP_LATEST";
 	public static final String TRANX_LOAD_TIME_GROUP = "TRANX_LOAD_TIME_GROUP";
 	public static final String QUICKSEARCH_XLOG_LIST = "QUICKSEARCH_XLOG_LIST";
 	public static final String SEARCH_XLOG_LIST = "SEARCH_XLOG_LIST";

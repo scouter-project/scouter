@@ -21,6 +21,9 @@
  */
 package scouter.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 /**
@@ -518,44 +521,17 @@ public class IntIntLinkedMap {
 		}
 	}
 
-	public static void main(String[] args) {
-		IntIntLinkedMap m = new IntIntLinkedMap().setMax(6);
-		for (int i = 0; i < 10; i++) {
-			m.putFirst(i, i);
-			System.out.println(m);
+	public synchronized void sort(Comparator<IntIntLinkedEntry> c){
+		ArrayList<IntIntLinkedEntry> list = new ArrayList<IntIntLinkedEntry>(this.size());
+		Enumeration<IntIntLinkedEntry> en = this.entries();
+		while(en.hasMoreElements()){
+			list.add(en.nextElement());
 		}
-		m.setMax(2);
-		m.put(100, 100);
-		System.out.println(m);
-		System.out.println();
-		// m.putFirst(1, 0);
-
-		// System.out.println(m);
-		// System.out.println("==================================");
-		// IntEnumer en = m.keys();
-		// while(en.hasMoreElements()){
-		// m.remove(5);
-		// System.out.println(en.nextInt());
-		// }
-
-		// System.out.println("==================================");
-		// for (int i = 0; i < 10; i++) {
-		// m.putLast(i, i);
-		// System.out.println(m);
-		// }
-		// System.out.println("==================================");
-		// for (int i = 0; i < 10; i++) {
-		// m.putFirst(i, i);
-		// System.out.println(m);
-		// }
-		// System.out.println("==================================");
-		// for (int i = 0; i < 10; i++) {
-		// m.removeFirst();
-		// System.out.println(m);
-		// }
-	}
-
-	private static void print(Object e) {
-		System.out.println(e);
+		Collections.sort(list, c);
+		this.clear();
+		for(int i = 0 ; i<list.size() ; i++){
+			IntIntLinkedEntry e = list.get(i);
+			this.put(e.getKey(), e.getValue());
+		}
 	}
 }

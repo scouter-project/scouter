@@ -21,6 +21,9 @@
  */
 package scouter.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 /**
@@ -446,6 +449,20 @@ public class IntLongLinkedMap {
 		}
 	}
 
+	public synchronized void sort(Comparator<IntLongLinkedEntry> c){
+		ArrayList<IntLongLinkedEntry> list = new ArrayList<IntLongLinkedEntry>(this.size());
+		Enumeration<IntLongLinkedEntry> en = this.entries();
+		while(en.hasMoreElements()){
+			list.add(en.nextElement());
+		}
+		Collections.sort(list, c);
+		this.clear();
+		for(int i = 0 ; i<list.size() ; i++){
+			IntLongLinkedEntry e = list.get(i);
+			this.put(e.getKey(), e.getValue());
+		}
+	}
+	
 	public static void main(String[] args) {
 		IntLongLinkedMap m = new IntLongLinkedMap().setMax(6);
 		for (int i = 0; i < 10; i++) {

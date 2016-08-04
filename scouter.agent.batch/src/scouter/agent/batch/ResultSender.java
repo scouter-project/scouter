@@ -20,6 +20,7 @@ package scouter.agent.batch;
 import java.io.File;
 import java.io.FileWriter;
 
+import scouter.agent.batch.net.UdpAgent;
 import scouter.agent.batch.trace.TraceContext;
 
 public class ResultSender extends Thread {
@@ -39,11 +40,17 @@ public class ResultSender extends Thread {
 			Logger.println(result);
 		}catch(Exception ex){
 			ex.printStackTrace();
+		}finally{
+			try {
+				UdpAgent.sendUdpPack(TraceContext.getInstance().makePack());				
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
 		}
 	}
 	
 	public void saveStandAloneResult(TraceContext traceContext, String result){
-		File resultFile = new File(traceContext.getLogFilename() + ".sbr");
+		File resultFile = new File(traceContext.getLogFullFilename() + ".sbr");
 		if(resultFile.exists()){
 			return;
 		}

@@ -20,6 +20,9 @@
  */
 package scouter.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
@@ -539,5 +542,20 @@ public class LinkedMap<K, V> {
 			return key + "=" + value;
 		}
 	}
-
+	public synchronized void sort(Comparator<LinkedEntry<K,V>> c) {
+		ArrayList<LinkedEntry<K,V>> list = new ArrayList<LinkedEntry<K,V>>(this.size());
+		Enumeration<LinkedEntry<K,V>> en = this.entries();
+		while (en.hasMoreElements()) {
+			LinkedEntry<K,V> n=en.nextElement();
+			if(n!=null){
+				list.add(n);
+			}
+		}
+		Collections.sort(list, c);
+		this.clear();
+		for (int i = 0; i < list.size(); i++) {
+			LinkedEntry<K,V> e = list.get(i);
+			this.put(e.getKey(), e.getValue());
+		}
+	}
 }

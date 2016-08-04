@@ -616,6 +616,7 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 				// DataSource, RequestProcessor.....etc.
 				continue;
 			}*/
+			if (type == null) return;
 			String displayName = type.getDisplayName();
 			ImageDescriptor objImage = Images.getObjectImageDescriptor(objType, true, serverId);
 			MenuManager objTitle = new MenuManager(displayName, objImage, "scouter.menu.id."+displayName);
