@@ -652,13 +652,17 @@ public class TraceMain {
                 Object localContext = startService(classMethod, null, null, null, null, null, XLogTypes.APP_SERVICE);
                 //startService내부에서 에러가 나는 경우(발생하면 안됨)
                 //Null이 리턴될 수 있음(방어코드)
-                //@skyworker
-                if (localContext != null && conf._trace_auto_service_backstack_enabled) {
-                    String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
-                    AutoServiceStartAnalyzer.put(classMethod, stack);
-                    MessageStep m = new MessageStep();
-                    m.message = "SERVICE BACKSTACK:\n" + stack;
-                    ((LocalContext) localContext).context.profile.add(m);
+                //@PaulKen
+				if (localContext != null) {
+					//service start
+					((LocalContext) localContext).service = true;
+					if (conf._trace_auto_service_backstack_enabled) {
+						String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
+						AutoServiceStartAnalyzer.put(classMethod, stack);
+						MessageStep m = new MessageStep();
+						m.message = "SERVICE BACKSTACK:\n" + stack;
+						((LocalContext) localContext).context.profile.add(m);
+					}
                 }
                 return localContext;
             }
@@ -679,7 +683,7 @@ public class TraceMain {
             return;
         LocalContext lctx = (LocalContext) localContext;
         if (lctx.service) {
-            endService(lctx.option, null, thr);
+            endService(lctx, null, thr);
             return;
         }
         MethodStep step = (MethodStep) lctx.stepSingle;
