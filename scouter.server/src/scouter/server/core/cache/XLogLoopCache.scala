@@ -111,7 +111,10 @@ class XLogLoopCache[V](capacity: Int) {
         var  count = _count
         (this.loop - start_loop) match {
             case 0 =>
-                count = Math.min(count, this.index - start_index)
+                val gap = this.index - start_index
+                if(gap > 0) {
+                    count = Math.min(count, gap)
+                }
             case 1 =>
                 count = Math.min(count, queue.length - start_index + this.index)
             case _ =>
