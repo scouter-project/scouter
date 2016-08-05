@@ -41,6 +41,8 @@ public class CounterConstants {
 	public final static String JBOSS = "jboss";
 	public final static String JETTY = "jetty";
 	public final static String RESIN = "resin";
+	
+	public final static String BATCH = "batch";
 
 	public final static String DATASOURCE = "datasource";
 	public final static String CONTEXT = "context";

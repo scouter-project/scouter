@@ -30,6 +30,9 @@ import scouter.util.Hexa32;
 public class BatchPack implements Pack {
 	public int objHash;
 
+	public String objName;
+	public String objType;
+	
 	public String batchJobId;
 	public String args;
 	public Integer pID;
@@ -84,6 +87,9 @@ public class BatchPack implements Pack {
 		o.writeBoolean(isResult);
 		o.writeBoolean(isLog);
 		
+		o.writeText(objName);
+		o.writeText(objType);
+		
 		out.writeBlob(o.toByteArray());
 	}
 
@@ -109,6 +115,9 @@ public class BatchPack implements Pack {
 		this.isResult = d.readBoolean();
 		this.isLog = d.readBoolean();
 		
+		this.objName = d.readText();
+		this.objType = d.readText();
+
 		return this;
 	}
 

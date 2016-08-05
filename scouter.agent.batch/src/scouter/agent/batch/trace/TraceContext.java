@@ -302,6 +302,8 @@ public class TraceContext {
 		Configure config = Configure.getInstance();
 		
 		pack.objHash = config.getObjHash();
+		pack.objName = config.getObjName();
+		pack.objType = config.obj_type;
 		pack.batchJobId = this.batchJobId;
 		pack.batchJobId =  this.batchJobId;
 		pack.args =  this.args;

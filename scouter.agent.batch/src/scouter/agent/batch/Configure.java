@@ -99,7 +99,7 @@ public class Configure {
 	public long net_udp_collection_interval_ms = 100;
 
 	//Object
-	public String obj_type = "batch";
+	public String obj_type = CounterConstants.BATCH;
 	public String obj_name = "";
 	public String obj_host_type = "";
 	public String obj_host_name = "";
@@ -302,10 +302,8 @@ public class Configure {
 	
 	
 	public synchronized void resetObjInfo() {
-		String detected = ObjTypeDetector.drivedType != null ? ObjTypeDetector.drivedType
-				: ObjTypeDetector.objType != null ? ObjTypeDetector.objType : CounterConstants.JAVA;
-		this.obj_type = getValue("obj_type", detected);
-		detected = CounterConstants.HOST;
+		this.obj_type = getValue("obj_type", CounterConstants.BATCH);
+		String detected = CounterConstants.HOST;
 		if (SystemUtil.IS_LINUX) {
 			detected = CounterConstants.LINUX;
 		} else if (SystemUtil.IS_WINDOWS) {
@@ -331,6 +329,7 @@ public class Configure {
 		this.obj_name = getValue("obj_name", "batch");
 		this.objName = objHostName + "/" + this.obj_name;
 		this.objHash = HashUtil.hash(objName);
+		
 		System.setProperty("scouter.objname", this.objName);
 		System.setProperty("scouter.objtype", this.obj_type);
 		System.setProperty("scouter.dir", agent_dir_path);
