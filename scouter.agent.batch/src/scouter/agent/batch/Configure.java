@@ -124,6 +124,8 @@ public class Configure {
 	public int net_collector_tcp_so_timeout_ms = 60000;
     @ConfigDesc("Collector TCP Connection Timeout(ms)")
 	public int net_collector_tcp_connection_timeout_ms = 3000;
+    @ConfigDesc("Local UDP Port")
+ 	public int net_local_udp_port = NetConstants.LOCAL_UDP_PORT;
     @ConfigDesc("UDP Buffer Size")
 	public int net_udp_packet_max_bytes = 60000;
     @ConfigDesc("UDP Collection Interval(ms)")

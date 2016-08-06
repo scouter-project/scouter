@@ -26,11 +26,12 @@ import scouter.agent.batch.trace.TraceContext;
 public class ResultSender extends Thread {
 	public void run(){
 		Configure config = null;
+		TraceContext traceContext = null;
 		try {
 			config = Configure.getInstance();
 			config.scouter_stop = true;
 			
-			TraceContext traceContext = TraceContext.getInstance();
+			traceContext = TraceContext.getInstance();
 			traceContext.endTime = System.currentTimeMillis();
 			traceContext.caculateLast();
 			
@@ -43,8 +44,9 @@ public class ResultSender extends Thread {
 			ex.printStackTrace();
 		}finally{
 			try {
-				if(config != null && !config.scouter_standalone){
-					UdpAgent.sendUdpPack(TraceContext.getInstance().makePack());
+				if(config != null && !config.scouter_standalone && traceContext != null){
+					UdpAgent.sendUdpPack(traceContext.makePack());
+					UdpAgent.sendLocalServer(traceContext.getLogFullFilename());
 				}
 			}catch(Exception ex){
 				ex.printStackTrace();

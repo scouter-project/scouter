@@ -4,6 +4,7 @@ import java.io.File;
 
 import scouter.Version;
 import scouter.agent.batch.netio.data.net.TcpRequestMgr;
+import scouter.agent.batch.netio.data.net.UdpLocalServer;
 import scouter.agent.batch.netio.request.ReqestHandlingProxy;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
@@ -16,8 +17,9 @@ public class Main {
 		Logger.println("A01", "Scouter Batch Agent Version " + Version.getServerFullVersion());
 		
 		ReqestHandlingProxy.load(ReqestHandlingProxy.class);
+		UdpLocalServer.getInstance();
 		TcpRequestMgr.getInstance();
-				
+		
 		File exit = new File(SysJMX.getProcessPID() + ".scouter");
 		try {
 			exit.createNewFile();
@@ -40,5 +42,4 @@ public class Main {
 		}
 
 	}
-
 }

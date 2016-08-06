@@ -31,6 +31,8 @@ import java.util.StringTokenizer;
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
 import scouter.lang.pack.BatchPack;
+import scouter.lang.value.BooleanValue;
+import scouter.lang.value.MapValue;
 import scouter.util.SysJMX;
 
 public class TraceContext {
@@ -137,7 +139,8 @@ public class TraceContext {
 			int index = 0;
 			buffer.append("Index          Runs     TotalTime       MinTime       MaxTime          Rows (Measured) StartTime               EndTime").append(lineSeparator);
 			buffer.append("--------------------------------------------------------------------------------------------------------------------------------------");
-			for(TraceSQL traceSql : sortTraceSQLList()){
+			List<TraceSQL> list = sortTraceSQLList();
+			for(TraceSQL traceSql : list){
 				index++;
 				buffer.append(lineSeparator);
 				buffer.append(String.format("%5s", index)).append(' ');
@@ -153,7 +156,7 @@ public class TraceContext {
 
 			buffer.append(lineSeparator).append("<SQL Texts>").append(lineSeparator);
 			index = 0;
-			for(TraceSQL traceSql : sortTraceSQLList()){
+			for(TraceSQL traceSql : list){
 				index++;
 				buffer.append("-----------------").append(lineSeparator);
 				buffer.append("#SQLINX-").append(index).append(lineSeparator);
@@ -316,9 +319,27 @@ public class TraceContext {
 		pack.sqlTotalRows =  this.sqlTotalRows;
 		pack.sqlTotalRuns =  this.sqlTotalRuns;
 
-		pack.isResult = (standAloneFile != null)?true:false;
 		pack.isLog = (stackLogFile != null)?true:false;
 		
+		if(this.sqlTotalCnt > 0){
+			pack.uniqueSqls = this.uniqueSqls;		
+			pack.sqlStats = new ArrayList<MapValue>((int)this.sqlTotalCnt);
+			MapValue value;
+			for(TraceSQL traceSql : sortTraceSQLList()){
+				value = new MapValue();
+				pack.sqlStats.add(value);
+	
+				value.put("hashValue", (long)traceSql.hashValue);
+				value.put("runs", (long)traceSql.runs);
+				value.put("startTime", traceSql.startTime);
+				value.put("endTime", traceSql.endTime);
+				value.put("totalTime", traceSql.totalTime);
+				value.put("minTime", traceSql.minTime);
+				value.put("maxTime", traceSql.maxTime);
+				value.put("processedRows", traceSql.processedRows);
+				value.put("rowed", new BooleanValue(traceSql.rowed));
+			}
+		}
 		return pack;
 	}
 	
@@ -333,7 +354,7 @@ public class TraceContext {
 	public long startCpu;
 	public long endCpu;
 
-	public long sqlTotalCnt = 0L;
+	public int sqlTotalCnt = 0;
 	public long sqlTotalTime = 0L;
 	public long sqlTotalRows = 0L;
 	public long sqlTotalRuns = 0L;

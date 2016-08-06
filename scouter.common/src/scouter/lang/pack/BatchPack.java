@@ -18,9 +18,15 @@
 package scouter.lang.pack;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+import scouter.lang.value.BooleanValue;
+import scouter.lang.value.MapValue;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 
@@ -43,14 +49,16 @@ public class BatchPack implements Pack {
 	public int threadCnt = 0;
 	public long cpuTime = 0L;
 
-	public long sqlTotalCnt = 0L;
+	public int sqlTotalCnt = 0;
 	public long sqlTotalTime = 0L;
 	public long sqlTotalRows = 0L;
 	public long sqlTotalRuns = 0L;
 
-	public boolean isResult = false;
 	public boolean isLog = false;
-		
+	
+	public List<MapValue> sqlStats = null;
+	public Map<Integer, String> uniqueSqls = null;
+	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Batch ");
@@ -79,16 +87,34 @@ public class BatchPack implements Pack {
 		o.writeInt(threadCnt);
 		o.writeLong(cpuTime);
 				
-		o.writeLong(sqlTotalCnt);
+		o.writeInt(sqlTotalCnt);
 		o.writeLong(sqlTotalTime);
 		o.writeLong(sqlTotalRows);
 		o.writeLong(sqlTotalRuns);
 		
-		o.writeBoolean(isResult);
 		o.writeBoolean(isLog);
 		
 		o.writeText(objName);
 		o.writeText(objType);
+		
+		if(sqlTotalCnt > 0){
+			for(MapValue value: sqlStats){
+				o.writeInt((int)value.getLong("hashValue"));
+				o.writeInt((int)value.getLong("runs"));
+				o.writeLong(value.getLong("startTime"));
+				o.writeLong(value.getLong("endTime"));
+				o.writeLong(value.getLong("totalTime"));
+				o.writeLong(value.getLong("minTime"));
+				o.writeLong(value.getLong("maxTime"));
+				o.writeLong(value.getLong("processedRows"));
+				o.writeBoolean(value.getBoolean("rowed"));		
+			}
+			
+			for(Integer key : this.uniqueSqls.keySet()){
+				o.writeInt(key.intValue());
+				o.writeText(this.uniqueSqls.get(key));
+			}
+		}
 		
 		out.writeBlob(o.toByteArray());
 	}
@@ -107,18 +133,39 @@ public class BatchPack implements Pack {
 		this.threadCnt = d.readInt();
 		this.cpuTime = d.readLong();
 
-		this.sqlTotalCnt = d.readLong();
+		this.sqlTotalCnt = d.readInt();
 		this.sqlTotalTime = d.readLong();
 		this.sqlTotalRows = d.readLong();
 		this.sqlTotalRuns = d.readLong();
 		
-		this.isResult = d.readBoolean();
 		this.isLog = d.readBoolean();
 		
 		this.objName = d.readText();
 		this.objType = d.readText();
 
+		if(this.sqlTotalCnt > 0){
+			this.sqlStats = new ArrayList<MapValue>((int)this.sqlTotalCnt);
+			MapValue value;
+			for(int i=0; i<this.sqlTotalCnt; i++){
+				value = new MapValue();
+				this.sqlStats.add(value);
+				value.put("hashValue",(long)d.readInt());
+				value.put("runs", (long)d.readInt());
+				value.put("startTime", d.readLong());
+				value.put("endTime", d.readLong());
+				value.put("totalTime", d.readLong());
+				value.put("minTime", d.readLong());
+				value.put("maxTime", d.readLong());
+				value.put("processedRows", d.readLong());
+				value.put("rowed", new BooleanValue(d.readBoolean()));
+			}
+			
+			this.uniqueSqls = new HashMap<Integer, String>(this.sqlTotalCnt);
+			for(int i=0; i<this.sqlTotalCnt; i++){
+				this.uniqueSqls.put(d.readInt(), d.readText());
+			}
+		}
+		
 		return this;
 	}
-
 }
