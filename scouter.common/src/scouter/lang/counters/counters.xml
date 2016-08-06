@@ -58,6 +58,9 @@
 			<Counter name="ProcessingTime" disp="Processing Time" unit="sec" icon="proc_time.png" />
 			<Counter name="BytesReceived" disp="Bytes Received" unit="bytes" icon="bytes_recv.png" />
 		</Family>
+		<Family name="batch" master="RunCount">
+			<Counter name="RunCount" disp="Run Count" unit="cnt" icon="req_count.gif" />
+		</Family>
 	</Familys>
 	<Types>
 		<ObjectType name="linux" family="host" disp="Linux" />
@@ -69,6 +72,7 @@
 		<ObjectType name="jboss" family="javaee" disp="JBoss" />
 		<ObjectType name="jetty" family="javaee" disp="Jetty" />
 		<ObjectType name="resin" family="javaee" disp="Resin" />
+		<ObjectType name="batch" family="batch" disp="Batch" />
 		<ObjectType name="datasource" family="datasource" disp="DataSource" sub-object="true" />
 		<ObjectType name="reqproc" family="reqproc" disp="RequestProc" sub-object="true"/>
 	</Types>

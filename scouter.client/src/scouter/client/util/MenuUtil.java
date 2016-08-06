@@ -368,6 +368,10 @@ public class MenuUtil implements IMenuCreator{
 				mgr.add(new Separator());
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
 					mgr.add(new OpenAgentConfigureAction(win, MenuStr.CONFIGURE, objHash, serverId));
+			} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_BATCH)) {				
+				mgr.add(new Separator());
+				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
+					mgr.add(new OpenAgentConfigureAction(win, MenuStr.CONFIGURE, objHash, serverId));
 			} 
     	}
     	if (server.isAllowAction(GroupPolicyConstants.ALLOW_DEFINEOBJTYPE)) {
