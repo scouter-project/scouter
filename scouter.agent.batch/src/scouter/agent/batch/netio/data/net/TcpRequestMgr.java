@@ -28,7 +28,7 @@ public class TcpRequestMgr extends Thread {
 			int sessionCount = Configure.getInstance().net_collector_tcp_session_count;
 			ThreadUtil.sleep(1000);
 			try {
-				System.out.println(sessionCount + ":" + TcpWorker.LIVE.size());
+				//System.out.println(sessionCount + ":" + TcpWorker.LIVE.size());
 				for (int i = 0; i < sessionCount && TcpWorker.LIVE.size() < sessionCount; i++) {
 					TcpWorker w = new TcpWorker();
 					if (w.prepare()) {

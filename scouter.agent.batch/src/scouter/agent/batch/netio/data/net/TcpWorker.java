@@ -70,7 +70,7 @@ public class TcpWorker implements Runnable {
 			out = new DataOutputX(new BufferedOutputStream(socket.getOutputStream()));
 
 			out.writeInt(NetCafe.TCP_AGENT);
-			out.writeInt(objHash);
+			out.writeInt(objHash);			
 			out.flush();
 
 			while (objHash == Configure.getInstance().getObjHash()) {
@@ -105,7 +105,7 @@ public class TcpWorker implements Runnable {
 
 			out.writeInt(NetCafe.TCP_AGENT_V2);
 			out.writeInt(objHash);
-			out.flush();
+			out.flush();		
 
 			//에이전트 이름, 서버 주소포트가 같은 동안만 세션을 유지하라.
 			while (objHash == Configure.getInstance().getObjHash() && server_addr.equals(conf.net_collector_ip)

@@ -28,8 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import javax.security.auth.login.Configuration;
-
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
 import scouter.lang.pack.BatchPack;
@@ -301,7 +299,7 @@ public class TraceContext {
 		BatchPack pack = new BatchPack();
 		Configure config = Configure.getInstance();
 		
-		pack.objHash = config.getObjHash();
+		pack.objHash = config.getObjHash();	
 		pack.objName = config.getObjName();
 		pack.objType = config.obj_type;
 		pack.batchJobId = this.batchJobId;

@@ -365,17 +365,13 @@ public class Configure {
 		this.obj_host_type = getValue("obj_host_type", detected);
 		this.obj_host_name = getValue("obj_host_name", SysJMX.getHostName());
 		this.objHostName = "/" + this.obj_host_name;
-		this.objHostHash = HashUtil.hash(objHostName);
+		this.objHostHash = HashUtil.hash(this.objHostName);
 		this.obj_name_auto_pid_enabled = getBoolean("obj_name_auto_pid_enabled", false);
-		String defaultName;
-		if (this.obj_name_auto_pid_enabled == true) {
-			defaultName = "" + SysJMX.getProcessPID();
-		} else {
-			defaultName = this.obj_type + "1";
-		}
+		
 		this.obj_name = getValue("obj_name", "batch");
-		this.objName = objHostName + "/" + this.obj_name;
-		this.objHash = HashUtil.hash(objName);
+		this.objName = this.objHostName + "/" + this.obj_name;
+		// make hash value 
+		try { this.objHash = HashUtil.hash( objName.getBytes("UTF-8")); }catch(Throwable ex){}
 		
 		System.setProperty("scouter.objname", this.objName);
 		System.setProperty("scouter.objtype", this.obj_type);
