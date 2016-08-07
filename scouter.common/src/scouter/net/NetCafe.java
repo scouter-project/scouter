@@ -43,6 +43,9 @@ public class NetCafe {
 	
 	public static final int TCP_SHUTDOWN = 0xCAFE1999;
 	
+	// TCP_AGEMT_REQ types
+	public static final int TCP_SEND_STACK = 0xEDED0001;
+	
 	public static void main(String[] args) {
 		
 		System.out.println("CAFE = 0x" +Integer.toHexString(DataInputX.toInt(CAFE, 0)));

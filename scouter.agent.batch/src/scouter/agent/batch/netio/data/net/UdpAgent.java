@@ -50,7 +50,7 @@ System.out.println("Send:" + conf.net_collector_ip + "-" + conf.net_collector_ud
 		}
 	}
 
-	static public void sendLocalServer(String fileName){
+	static public void sendLocalServer(long time, String fileName){
 		Configure conf = Configure.getInstance();
 		DatagramSocket datagram = null;
 		InetAddress server = null;
@@ -58,7 +58,7 @@ System.out.println("Send:" + conf.net_collector_ip + "-" + conf.net_collector_ud
 			server = InetAddress.getByName("127.0.0.1");
 			datagram = new DatagramSocket();
 
-			byte[] buff = fileName.getBytes("UTF-8");
+			byte[] buff = (time + " " + fileName).getBytes("UTF-8");
 			DatagramPacket packet = new DatagramPacket(buff, buff.length);
 			packet.setAddress(server);
 			packet.setPort(conf.net_local_udp_port);

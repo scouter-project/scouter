@@ -78,7 +78,8 @@ class ServiceWorker(_socket: Socket) extends Runnable {
                     return
                 case NetCafe.TCP_AGENT_REQ =>
                     val objHash = in.readInt()
-                    new TcpAgentReqWorker(objHash, socket).start()
+                    val worker = new TcpAgentReqWorker(objHash, socket)
+                    worker.start()
                     return
                 case NetCafe.TCP_CLIENT =>
                     if (conf.log_tcp_action_enabled) {

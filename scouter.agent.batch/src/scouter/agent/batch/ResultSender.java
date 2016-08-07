@@ -46,7 +46,7 @@ public class ResultSender extends Thread {
 			try {
 				if(config != null && !config.scouter_standalone && traceContext != null){
 					UdpAgent.sendUdpPack(traceContext.makePack());
-					UdpAgent.sendLocalServer(traceContext.getLogFullFilename());
+					UdpAgent.sendLocalServer(traceContext.startTime, traceContext.getLogFullFilename());
 				}
 			}catch(Exception ex){
 				ex.printStackTrace();

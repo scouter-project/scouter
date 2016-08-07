@@ -1,4 +1,4 @@
-package scouter.agent.batch.netio.service.net;
+package scouter.agent.batch.netio.data.net;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -27,11 +27,12 @@ public class UdpLocalServer extends Thread{
 			serverSocket = new DatagramSocket(conf.net_local_udp_port);
 	        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 	        
-	        String fileName = null;
+	        String filename = null;
 	        while(true){
 	        	serverSocket.receive(receivePacket);
-	        	fileName = new String(receivePacket.getData(), "UTF-8");
-System.out.println("File:" + fileName);
+	        	filename = new String(receivePacket.getData(), "UTF-8");
+	        	TcpAgentReqMgr.getInstance().addJob(filename);
+System.out.println("File:" + filename);
 	        }
 		}catch(Exception ex){
 			ex.printStackTrace();
