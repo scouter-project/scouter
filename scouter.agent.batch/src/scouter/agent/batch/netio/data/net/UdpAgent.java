@@ -15,7 +15,7 @@
  *  limitations under the License. 
  */
 
-package scouter.agent.batch.net;
+package scouter.agent.batch.netio.data.net;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

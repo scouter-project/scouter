@@ -20,7 +20,7 @@ package scouter.agent.batch;
 import java.io.File;
 import java.io.FileWriter;
 
-import scouter.agent.batch.net.UdpAgent;
+import scouter.agent.batch.netio.data.net.UdpAgent;
 import scouter.agent.batch.trace.TraceContext;
 
 public class ResultSender extends Thread {

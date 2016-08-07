@@ -3,9 +3,9 @@ package scouter.agent.batch;
 import java.io.File;
 
 import scouter.Version;
-import scouter.agent.batch.netio.data.net.TcpRequestMgr;
-import scouter.agent.batch.netio.data.net.UdpLocalServer;
 import scouter.agent.batch.netio.request.ReqestHandlingProxy;
+import scouter.agent.batch.netio.service.net.TcpRequestMgr;
+import scouter.agent.batch.netio.service.net.UdpLocalServer;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 import scouter.util.logo.Logo;

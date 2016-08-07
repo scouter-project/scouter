@@ -130,7 +130,9 @@ public class Configure {
 	public int net_udp_packet_max_bytes = 60000;
     @ConfigDesc("UDP Collection Interval(ms)")
 	public long net_udp_collection_interval_ms = 100;
-
+    @ConfigDesc("Stack Log TCP Session Count")
+	public int net_tcp_stack_session_count = 1;
+    
 	//Object
     @ConfigDesc("Object Type")
 	public String obj_type = CounterConstants.BATCH;
@@ -309,6 +311,9 @@ public class Configure {
 		this.net_collector_tcp_connection_timeout_ms = getInt("net_collector_tcp_connection_timeout_ms", 3000);
 		this.net_collector_tcp_so_timeout_ms = getInt("net_collector_tcp_so_timeout_ms", 60000);
 
+		this.net_local_udp_port = getInt("net_local_udp_port", NetConstants.LOCAL_UDP_PORT);
+		this.net_tcp_stack_session_count = getInt("net_tcp_stack_session_count", 1);
+		
 		
 		this.sql_enabled = getBoolean("sql_enabled", true);
 		this.hook_jdbc_pstmt_classes = getValue("hook_jdbc_pstmt_classes", "");

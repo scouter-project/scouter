@@ -1,4 +1,4 @@
-package scouter.agent.batch.netio.data.net;
+package scouter.agent.batch.netio.service.net;
 
 import java.util.concurrent.Executor;
 
