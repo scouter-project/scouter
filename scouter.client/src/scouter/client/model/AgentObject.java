@@ -47,7 +47,7 @@ public class AgentObject extends HierarchyObject {
 		this.objName = objName;
 		this.color = AgentColorManager.getInstance().assignColor(objType, objHash);
 		this.serverId = serverId;
-		String[] objPaths = StringUtil.tokenizer(objName, "/");
+		String[] objPaths = StringUtil.tokenizer(objName, "/");		
 		this.displayName = objPaths[objPaths.length - 1];
 	}
 	

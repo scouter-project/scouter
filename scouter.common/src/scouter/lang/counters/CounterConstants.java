@@ -27,6 +27,7 @@ public class CounterConstants {
 	public final static String FAMILY_DATASOURCE = "datasource";
 	public final static String FAMILY_REQUEST_PROCESS = "reqproc";
 	public final static String FAMILY_MARIA = "maria";
+	public final static String FAMILY_BATCH = "batch";
 
 	public final static String HOST = "host";
 	public final static String WINDOWS = "windows";
@@ -41,6 +42,8 @@ public class CounterConstants {
 	public final static String JBOSS = "jboss";
 	public final static String JETTY = "jetty";
 	public final static String RESIN = "resin";
+	
+	public final static String BATCH = "batch";
 
 	public final static String DATASOURCE = "datasource";
 	public final static String CONTEXT = "context";

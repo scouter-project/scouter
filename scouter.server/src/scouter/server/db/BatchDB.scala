@@ -34,6 +34,7 @@ import scouter.util.Hexa32
 import scouter.server.util.EnumerScala
 import scouter.server.core.CoreRun
 import scouter.lang.pack.BatchPack
+import scouter.lang.pack.ObjectPack
 import scouter.server.core.AgentManager
 import scouter.util.LongKeyLinkedMap
 import scouter.util.BitUtil
@@ -156,7 +157,7 @@ object BatchDB {
         if (opath != null)
             return opath
         else {
-            val objName = getObjName(m.objHash)
+            val objName = getObjName(m)
             if (objName != null) {
                 val date = DateUtil.yyyymmdd(m.startTime)
                 val path = getDBPath(date, objName)
@@ -178,11 +179,16 @@ object BatchDB {
         sb.append("/").append(date).append(objName);
         return sb.toString();
     }
-    protected def getObjName(objHash: Int): String = {
-        val objInfo = AgentManager.getAgent(objHash)
-        if (objInfo != null) {
-            return objInfo.objName
+    protected def getObjName(m: BatchPack): String = {
+        val objInfo = AgentManager.getAgent(m.objHash)
+        if (objInfo == null) {
+            val objInfoNew = new ObjectPack(); 
+            objInfoNew.objHash = m.objHash;
+            objInfoNew.objName = m.objName;
+            objInfoNew.objType = m.objType;
+            AgentManager.active(objInfoNew);
+            return objInfoNew.objName;
         }
-        return null
+        return objInfo.objName;
     }
 }

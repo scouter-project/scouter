@@ -27,14 +27,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 
-
-import scouter.agent.ObjTypeDetector;
 import scouter.agent.util.JarUtil;
+import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.counters.CounterConstants;
+import scouter.lang.value.ListValue;
+import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
 import scouter.util.FileUtil;
 import scouter.util.HashUtil;
+import scouter.util.StringEnumer;
+import scouter.util.StringKeyLinkedMap;
 import scouter.util.StringSet;
 import scouter.util.StringUtil;
 import scouter.util.SysJMX;
@@ -50,7 +53,12 @@ public class Configure {
     private File propertyFile;
     public static String agent_dir_path;
     static {
-    	agent_dir_path = JarUtil.getThisJarFile().getParent();
+    	File jarFile = JarUtil.getThisJarFile();
+    	if(jarFile != null){
+    		agent_dir_path = jarFile.getParent();
+    	}else{
+    		agent_dir_path = new File(".").getAbsolutePath();
+    	}
     }
 
     public final static synchronized Configure getInstance() {
@@ -61,62 +69,102 @@ public class Configure {
 	}
     
     // Scouter enable/disable
+    @ConfigDesc("Enable scouter monitor")
     public boolean scouter_enabled = true;
     public boolean scouter_stop = false;
     
     // Standalone
+    @ConfigDesc("Standalone mode")
     public boolean scouter_standalone = false;
     
     // Batch basic configuration
+    @ConfigDesc("Batch ID type(class,args, props)")
     public String batch_id_type = ""; // Class, Args, Props 
+    @ConfigDesc("Batch ID(args-index number, props-key string)")
     public String batch_id = "";
         
     // SQL
+    @ConfigDesc("Collect sql statistics")
     public boolean sql_enabled = true;
+    @ConfigDesc("SQL max count")
     public int sql_max_count = 100;
+    @ConfigDesc("Method set for preparestatement hooking")
     public String hook_jdbc_pstmt_classes = "";
+    @ConfigDesc("Method set for statement hooking")    
 	public String hook_jdbc_stmt_classes = "";
+    @ConfigDesc("Method set for resultset hooking")    
 	public String hook_jdbc_rs_classes = "";    
     
     // SFA(Stack Frequency Analyzer) Thread Dump
+    @ConfigDesc("Stack dump collector")
 	public boolean sfa_dump_enabled = true;
+    @ConfigDesc("Stack dump interval(ms)")
 	public int sfa_dump_interval_ms = 10000;
+    @ConfigDesc("Stack dump filter(,)")
 	public String [] sfa_dump_filter = null;
+    @ConfigDesc("Stack dump directory")
 	public File sfa_dump_dir = new File(agent_dir_path + "/dump");
+    @ConfigDesc("Add Stack dump header")
 	public boolean sfa_dump_header_exists = true;
 	
 	// dump send time
+    @ConfigDesc("Collector IP")
 	public long dump_send_elapsed_ms = 0L;
 	
 	//Network
+    @ConfigDesc("Collector IP")
 	public String net_collector_ip = "127.0.0.1";
+    @ConfigDesc("Collector UDP Port")
 	public int net_collector_udp_port = NetConstants.SERVER_UDP_PORT;
+    @ConfigDesc("Collector TCP Port")
 	public int net_collector_tcp_port = NetConstants.SERVER_TCP_PORT;
+    @ConfigDesc("Collector TCP Session Count")
 	public int net_collector_tcp_session_count = 1;
+    @ConfigDesc("Collector TCP Socket Timeout(ms)")
 	public int net_collector_tcp_so_timeout_ms = 60000;
+    @ConfigDesc("Collector TCP Connection Timeout(ms)")
 	public int net_collector_tcp_connection_timeout_ms = 3000;
+    @ConfigDesc("Local UDP Port")
+ 	public int net_local_udp_port = NetConstants.LOCAL_UDP_PORT;
+    @ConfigDesc("UDP Buffer Size")
 	public int net_udp_packet_max_bytes = 60000;
+    @ConfigDesc("UDP Collection Interval(ms)")
 	public long net_udp_collection_interval_ms = 100;
-
+    @ConfigDesc("Stack Log TCP Session Count")
+	public int net_tcp_stack_session_count = 1;
+    
 	//Object
-	public String obj_type = "batch";
+    @ConfigDesc("Object Type")
+	public String obj_type = CounterConstants.BATCH;
+    @ConfigDesc("Object Name")
 	public String obj_name = "";
+    @ConfigDesc("Host Type")
 	public String obj_host_type = "";
+    @ConfigDesc("Host Name")
 	public String obj_host_name = "";
+    @ConfigDesc("Activating for using object name as PID")
 	public boolean obj_name_auto_pid_enabled = false;
+    @ConfigDesc("Redefining DS, RP type according to main object")
 	public boolean obj_type_inherit_to_child_enabled = false;
 
 	//Dir
+    @ConfigDesc("Plugin directory")
 	public File plugin_dir = new File(agent_dir_path + "/plugin");
 	//public File mgr_agent_lib_dir = new File("./_scouter_");
 
 	//Log
+    @ConfigDesc("")
 	public boolean _log_asm_enabled;
 	
+    @ConfigDesc("Log directory")
 	public String log_dir ="";
+    @ConfigDesc("Retaining log according to date")
 	public boolean log_rotation_enabled =true;
+    @ConfigDesc("Keeping period of log")
 	public int log_keep_days =7;
+    @ConfigDesc("")
 	public boolean _trace = false;
+    @ConfigDesc("")
     public boolean _trace_use_logger = false;
 
 	//internal variables
@@ -139,6 +187,9 @@ public class Configure {
 		p.putAll(args);
 		this.property = p;
 		reload();
+	}
+	
+	private Configure(boolean b) {
 	}
 	
 	public File getPropertyFile() {
@@ -260,6 +311,9 @@ public class Configure {
 		this.net_collector_tcp_connection_timeout_ms = getInt("net_collector_tcp_connection_timeout_ms", 3000);
 		this.net_collector_tcp_so_timeout_ms = getInt("net_collector_tcp_so_timeout_ms", 60000);
 
+		this.net_local_udp_port = getInt("net_local_udp_port", NetConstants.LOCAL_UDP_PORT);
+		this.net_tcp_stack_session_count = getInt("net_tcp_stack_session_count", 1);
+		
 		
 		this.sql_enabled = getBoolean("sql_enabled", true);
 		this.hook_jdbc_pstmt_classes = getValue("hook_jdbc_pstmt_classes", "");
@@ -302,10 +356,8 @@ public class Configure {
 	
 	
 	public synchronized void resetObjInfo() {
-		String detected = ObjTypeDetector.drivedType != null ? ObjTypeDetector.drivedType
-				: ObjTypeDetector.objType != null ? ObjTypeDetector.objType : CounterConstants.JAVA;
-		this.obj_type = getValue("obj_type", detected);
-		detected = CounterConstants.HOST;
+		this.obj_type = getValue("obj_type", CounterConstants.BATCH);
+		String detected = CounterConstants.HOST;
 		if (SystemUtil.IS_LINUX) {
 			detected = CounterConstants.LINUX;
 		} else if (SystemUtil.IS_WINDOWS) {
@@ -320,17 +372,14 @@ public class Configure {
 		this.obj_host_type = getValue("obj_host_type", detected);
 		this.obj_host_name = getValue("obj_host_name", SysJMX.getHostName());
 		this.objHostName = "/" + this.obj_host_name;
-		this.objHostHash = HashUtil.hash(objHostName);
+		this.objHostHash = HashUtil.hash(this.objHostName);
 		this.obj_name_auto_pid_enabled = getBoolean("obj_name_auto_pid_enabled", false);
-		String defaultName;
-		if (this.obj_name_auto_pid_enabled == true) {
-			defaultName = "" + SysJMX.getProcessPID();
-		} else {
-			defaultName = this.obj_type + "1";
-		}
+		
 		this.obj_name = getValue("obj_name", "batch");
-		this.objName = objHostName + "/" + this.obj_name;
-		this.objHash = HashUtil.hash(objName);
+		this.objName = this.objHostName + "/" + this.obj_name;
+		// make hash value 
+		try { this.objHash = HashUtil.hash( objName.getBytes("UTF-8")); }catch(Throwable ex){}
+		
 		System.setProperty("scouter.objname", this.objName);
 		System.setProperty("scouter.objtype", this.obj_type);
 		System.setProperty("scouter.dir", agent_dir_path);
@@ -422,12 +471,39 @@ public class Configure {
 		}
 		return false;
 	}
+	
 	public void printConfig() {
 		Logger.info("Configure -Dscouter.config=" + propertyFile);
 	}
+	
+	public MapValue getKeyValueInfo() {
+		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
+		StringKeyLinkedMap<Object> curMap = ConfigValueUtil.getConfigDefault(this);
+		MapValue m = new MapValue();
+		ListValue nameList = m.newList("key");
+		ListValue valueList = m.newList("value");
+		ListValue defList = m.newList("default");
+		StringEnumer enu = defMap.keys();
+		while (enu.hasMoreElements()) {
+			String key = enu.nextString();
+			if (ignoreSet.contains(key))
+				continue;
+			nameList.add(key);
+			valueList.add(ConfigValueUtil.toValue(curMap.get(key)));
+			defList.add(ConfigValueUtil.toValue(defMap.get(key)));
+		}
+		return m;
+	}
+	
+	
+	public StringKeyLinkedMap<String> getConfigureDesc() {
+		return ConfigValueUtil.getConfigDescMap(this);
+	}	
+
 	private static HashSet<String> ignoreSet = new HashSet<String>();
 	static {
 		ignoreSet.add("property");
 		ignoreSet.add("__experimental");
 	}
+	
 }

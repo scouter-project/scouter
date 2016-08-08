@@ -15,7 +15,7 @@
  *  limitations under the License. 
  */
 
-package scouter.agent.batch.net;
+package scouter.agent.batch.netio.data.net;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -25,6 +25,7 @@ import scouter.agent.batch.Configure;
 import scouter.io.DataOutputX;
 import scouter.lang.pack.Pack;
 import scouter.net.NetCafe;
+
 public class UdpAgent {
 	static public void sendUdpPack(Pack pack){
 		Configure conf = Configure.getInstance();
@@ -40,7 +41,6 @@ public class UdpAgent {
 			packet.setPort(conf.net_collector_udp_port);
 			datagram.send(packet);		
 System.out.println("Send:" + conf.net_collector_ip + "-" + conf.net_collector_udp_port);
-Thread.sleep(2000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally{
@@ -49,4 +49,27 @@ Thread.sleep(2000);
 			}
 		}
 	}
+
+	static public void sendLocalServer(long time, String fileName){
+		Configure conf = Configure.getInstance();
+		DatagramSocket datagram = null;
+		InetAddress server = null;
+		try {
+			server = InetAddress.getByName("127.0.0.1");
+			datagram = new DatagramSocket();
+
+			byte[] buff = (time + " " + fileName).getBytes("UTF-8");
+			DatagramPacket packet = new DatagramPacket(buff, buff.length);
+			packet.setAddress(server);
+			packet.setPort(conf.net_local_udp_port);
+			datagram.send(packet);		
+System.out.println("Send Local:" + conf.net_local_udp_port);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally{
+			if(datagram != null){
+				try { datagram.close(); } catch(Exception ex){}
+			}
+		}
+	}	
 }

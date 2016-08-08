@@ -31,6 +31,7 @@ import scouter.net.TcpFlag
 import scouter.server.{Logger, LoginManager, Configure}
 import scouter.server.logs.RequestLogger
 import scouter.server.netio.service.ServiceHandlingProxy
+import scouter.server.netio.req.net.TcpAgentReqWorker
 import scouter.util.FileUtil
 import scouter.util.Hexa32
 
@@ -74,6 +75,11 @@ class ServiceWorker(_socket: Socket) extends Runnable {
                     if (conf.log_tcp_action_enabled) {
                         Logger.println("Agent : " + remoteAddr + " open [" + Hexa32.toString32(objHash) + "] #" + num);
                     }
+                    return
+                case NetCafe.TCP_AGENT_REQ =>
+                    val objHash = in.readInt()
+                    val worker = new TcpAgentReqWorker(objHash, socket)
+                    worker.start()
                     return
                 case NetCafe.TCP_CLIENT =>
                     if (conf.log_tcp_action_enabled) {

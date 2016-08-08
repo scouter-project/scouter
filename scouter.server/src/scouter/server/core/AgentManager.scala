@@ -26,6 +26,7 @@ import scouter.server.db.{AlertWR, ObjectRD, ObjectWR}
 import scouter.server.plugin.PlugInManager
 import scouter.server.util.{EnumerScala, ThreadScala}
 import scouter.util.{CompareUtil, DateUtil, HashUtil}
+import scouter.lang.counters.CounterConstants
 
 object AgentManager {
     private val counterEngine = scouter.server.CounterManager.getInstance().getCounterEngine();
@@ -44,10 +45,12 @@ object AgentManager {
         var primaryObjCount = 0;
         while (en.hasMoreElements()) {
             val objPack = en.nextElement();
-            if (now > objPack.wakeup + deadtime) {
-                inactive(objPack.objHash);
-            } else if (counterEngine.isPrimaryObject(objPack.objType)) {
-                primaryObjCount += 1;
+            if(!CounterConstants.BATCH.equals(objPack.objType)){
+	            if (now > objPack.wakeup + deadtime) {
+	                inactive(objPack.objHash);
+	            } else if (counterEngine.isPrimaryObject(objPack.objType)) {
+	                primaryObjCount += 1;
+	            }
             }
         }
         this.primaryObjCount = primaryObjCount;

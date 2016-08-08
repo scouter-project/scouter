@@ -36,11 +36,15 @@ public class NetCafe {
 	public final static int UDP_JAVA_N = 0x4a41564e;
 	public final static int UDP_JAVA_MTU = 0x4a4d5455;
 	//
-	public static final int TCP_AGENT =0xCAFE1001;
-	public static final int TCP_AGENT_V2 =0xCAFE1002;
-	public static final int TCP_CLIENT = 0xCAFE2001;
+	public static final int TCP_AGENT =0xCAFE1001;      // server request a service to agent
+	public static final int TCP_AGENT_V2 =0xCAFE1002;   // server request a service to agent  V2
+	public static final int TCP_AGENT_REQ = 0xCAFE1011; // agent request a service to server
+	public static final int TCP_CLIENT = 0xCAFE2001;    // client request a service to server
 	
 	public static final int TCP_SHUTDOWN = 0xCAFE1999;
+	
+	// TCP_AGEMT_REQ types
+	public static final int TCP_SEND_STACK = 0xEDED0001;
 	
 	public static void main(String[] args) {
 		

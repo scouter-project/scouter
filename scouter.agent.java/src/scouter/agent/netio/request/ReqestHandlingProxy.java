@@ -62,8 +62,8 @@ public class ReqestHandlingProxy {
 		}
 	}
 
-	public static void load() {
-		String pkg = Scanner.cutOutLast(ReqestHandlingProxy.class.getName(), ".");
+	public static void load(Class cls) {
+		String pkg = Scanner.cutOutLast(cls.getName(), ".");
 		Set<String> classes = new Scanner(pkg).process();
 		Set<String> custom = new Scanner(System.getProperty("scouter.handler")).process();
 		classes.addAll(custom);
@@ -110,7 +110,7 @@ public class ReqestHandlingProxy {
 	}
 
 	public static void main(String[] args) {
-		load();
+		load(ReqestHandlingProxy.class);
 	}
 
 }
