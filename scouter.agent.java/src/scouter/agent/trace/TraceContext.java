@@ -24,6 +24,7 @@ import scouter.util.SysJMX;
 public class TraceContext {
 	private boolean isSummary;
 	public boolean isStaticContents;
+	public boolean discard;
 
 	protected TraceContext() {
 	}
