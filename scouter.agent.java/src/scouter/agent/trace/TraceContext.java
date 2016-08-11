@@ -36,7 +36,7 @@ public class TraceContext {
 			this.profile = new ProfileCollector(this);
 		}
 	}
-	
+
 	public TraceContext parent;
 	public long txid;
 	public Thread thread;
