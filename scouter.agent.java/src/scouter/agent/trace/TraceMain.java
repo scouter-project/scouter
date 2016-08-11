@@ -371,8 +371,8 @@ public class TraceMain {
                 ServiceSummary.getInstance().process(statementLeakSuspect, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
             }
 
-            boolean sendOk = (pack.elapsed >= conf.xlog_lower_bound_time_ms) || pack.error != 0;
-            ctx.profile.close(sendOk);
+            boolean sendable = (!TraceMain.evaluateXLogDiscard(pack.elapsed) || pack.error != 0);
+            ctx.profile.close(sendable);
             if (ctx.group != null) {
                 pack.group = DataProxy.sendGroup(ctx.group);
             }
@@ -394,7 +394,7 @@ public class TraceMain {
             }
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
-            if (sendOk) {
+            if (sendable) {
                 DataProxy.sendXLog(pack);
             }
         } catch (Throwable e) {
@@ -502,8 +502,9 @@ public class TraceMain {
             // pack.endTime = System.currentTimeMillis();
             pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
             pack.error = errorCheck(ctx, thr);
-            boolean sendOk = (pack.elapsed >= Configure.getInstance().xlog_lower_bound_time_ms) || pack.error != 0;
-            ctx.profile.close(sendOk);
+
+            boolean sendable = (!TraceMain.evaluateXLogDiscard(pack.elapsed) || pack.error != 0);
+            ctx.profile.close(sendable);
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
             pack.xType = ctx.xType;
@@ -532,7 +533,8 @@ public class TraceMain {
             }
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
-            if (sendOk) {
+
+            if (sendable) {
                 DataProxy.sendXLog(pack);
             }
         } catch (Throwable t) {
@@ -787,5 +789,35 @@ public class TraceMain {
         if (ctx instanceof DataSource) {
             LoadedContext.put((DataSource) ctx);
         }
+    }
+
+    private static boolean evaluateXLogDiscard(int elapsed) {
+        boolean isXLogDisard = false;
+
+        if( elapsed < conf.xlog_lower_bound_time_ms) {
+            isXLogDisard = true;
+            return isXLogDisard;
+        }
+
+        if(conf.xlog_sampling_enabled) {
+            if(elapsed < conf.xlog_sampling_step1_ms) {
+                if(Math.abs(KeyGen.next()%100) >= conf.xlog_sampling_step1_rate_pct) {
+                    isXLogDisard = true;
+                }
+            } else if(elapsed < conf.xlog_sampling_step2_ms) {
+                if(Math.abs(KeyGen.next()%100) >= conf.xlog_sampling_step2_rate_pct) {
+                    isXLogDisard = true;
+                }
+            } else if(elapsed < conf.xlog_sampling_step3_ms) {
+                if(Math.abs(KeyGen.next()%100) >= conf.xlog_sampling_step3_rate_pct) {
+                    isXLogDisard = true;
+                }
+            } else {
+                if(Math.abs(KeyGen.next()%100) >= conf.xlog_sampling_over_rate_pct) {
+                    isXLogDisard = true;
+                }
+            }
+        }
+        return isXLogDisard;
     }
 }

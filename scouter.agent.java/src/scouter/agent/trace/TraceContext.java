@@ -24,7 +24,6 @@ import scouter.util.SysJMX;
 public class TraceContext {
 	private boolean isSummary;
 	public boolean isStaticContents;
-	public boolean discard;
 
 	protected TraceContext() {
 	}
@@ -37,7 +36,7 @@ public class TraceContext {
 			this.profile = new ProfileCollector(this);
 		}
 	}
-	
+
 	public TraceContext parent;
 	public long txid;
 	public Thread thread;

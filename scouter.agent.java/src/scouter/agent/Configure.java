@@ -224,13 +224,13 @@ public class Configure extends Thread {
 	public int autodump_stuck_check_interval_ms = 10000;
 
 	//XLog
-    @ConfigDesc("XLog Ignore Time")
+    @ConfigDesc("XLog Ignore Time - (deprecated) for backward compatibility. Use xlog_sampling_xxx options instead")
 	public int xlog_lower_bound_time_ms = 0;
-    @ConfigDesc("Error line for result set count to fetch")
+    @ConfigDesc("Leave an error message at XLog in case of over fetching. (fetch count)")
 	public int xlog_error_jdbc_fetch_max = 10000;
-    @ConfigDesc("Error line for SQL time (ms)")
+    @ConfigDesc("Leave an error message at XLog in case of over timing query. (ms)")
 	public int xlog_error_sql_time_max_ms = 30000;
-    @ConfigDesc("Activating xlog error when UserTransaction did not paired")
+    @ConfigDesc("Leave an error message at XLog when UserTransaction's begin/end unpaired")
 	public boolean xlog_error_check_user_transaction_enabled = true;
 
 	//XLog hard sampling options
@@ -242,15 +242,15 @@ public class Configure extends Thread {
 	//XLog soft sampling options
 	@ConfigDesc("XLog sampling mode enabled")
 	public boolean xlog_sampling_enabled = false;
-	@ConfigDesc("XLog sampling bound millisecond - step1(lowest : ragne - from 0 to here)")
+	@ConfigDesc("XLog sampling bound millisecond - step1(lowest : range - from 0 to here)")
 	public int xlog_sampling_step1_ms = 100;
 	@ConfigDesc("XLog sampling step1 percentage(%)")
 	public int xlog_sampling_step1_rate_pct = 3;
-	@ConfigDesc("XLog sampling bound millisecond - step2(ragne - from step1 to here)")
+	@ConfigDesc("XLog sampling bound millisecond - step2(range - from step1 to here)")
 	public int xlog_sampling_step2_ms = 1000;
 	@ConfigDesc("XLog sampling step2 percentage(%)")
 	public int xlog_sampling_step2_rate_pct = 10;
-	@ConfigDesc("XLog sampling bound millisecond - step3(highest : ragne - from step2 to here)")
+	@ConfigDesc("XLog sampling bound millisecond - step3(highest : range - from step2 to here)")
 	public int xlog_sampling_step3_ms = 3000;
 	@ConfigDesc("XLog sampling step3 percentage(%)")
 	public int xlog_sampling_step3_rate_pct = 30;
