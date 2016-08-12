@@ -182,7 +182,7 @@ object NetDataProcessor {
                 }
             case PackEnum.OBJECT =>
                 val h = p.asInstanceOf[ObjectPack]
-                if (StringUtil.isNotEmpty(h.address)) {
+                if (StringUtil.isEmpty(h.address)) {
                     h.address = addr.getHostAddress()
                 }
                 AgentManager.active(h)
