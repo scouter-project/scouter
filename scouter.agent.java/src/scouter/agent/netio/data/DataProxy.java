@@ -270,12 +270,23 @@ public class DataProxy {
 	}
 	private static IntLinkedSet hashMessage = new IntLinkedSet().setMax(500);
 	public static int sendHashedMessage(String text) {
-			int hash = HashUtil.hash(text);	
-			if (hashMessage.contains(hash)) {
-				return hash;
-			}
-			hashMessage.put(hash);
-			udpCollect.add(new TextPack(TextTypes.HASH_MSG, hash, text));
+		int hash = HashUtil.hash(text);
+		if (hashMessage.contains(hash)) {
 			return hash;
 		}
+		hashMessage.put(hash);
+		udpCollect.add(new TextPack(TextTypes.HASH_MSG, hash, text));
+		return hash;
+	}
+
+	private static IntLinkedSet stackElement = new IntLinkedSet().setMax(20000);
+	public static int sendStackElement(String name) {
+		int hash = HashUtil.hash(name);
+		if (stackElement.contains(hash)) {
+			return hash;
+		}
+		stackElement.put(hash);
+		udpCollect.add(new TextPack(TextTypes.STACK_ELEMENT, hash, name));
+		return hash;
+	}
 }

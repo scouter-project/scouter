@@ -31,6 +31,7 @@ public class StepEnum {
 	public final static byte APICALL = 6;
 	public static final byte THREAD_SUBMIT = 7;
 	public final static byte HASHED_MESSAGE = 9;
+	public final static byte DUMP = 12;
 
 	public final static byte METHOD_SUM = 11;
 	public final static byte SQL_SUM = 21;

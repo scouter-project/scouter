@@ -17,6 +17,7 @@
 
 package scouter.agent.trace;
 
+import scouter.lang.step.DumpStep;
 import scouter.lang.step.SqlStep;
 import scouter.util.IntKeyMap;
 import scouter.util.SysJMX;
@@ -104,6 +105,7 @@ public class TraceContext {
 	public String group;
 
 	public SqlStep lastSqlStep;
+    public DumpStep temporaryDumpStep;
 
 	public TraceContext createChild() {
 		TraceContext child = new TraceContext(this.isSummary);

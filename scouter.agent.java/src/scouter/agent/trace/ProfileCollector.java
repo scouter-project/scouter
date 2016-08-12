@@ -19,6 +19,7 @@ package scouter.agent.trace;
 
 import scouter.agent.Configure;
 import scouter.agent.netio.data.DataProxy;
+import scouter.lang.step.DumpStep;
 import scouter.lang.step.Step;
 import scouter.lang.step.StepSingle;
 
@@ -41,6 +42,7 @@ public class ProfileCollector implements IProfileCollector {
      * @param stepSingle
      */
     public void push(StepSingle stepSingle) {
+        checkDumpStep();
         stepSingle.index = currentLevel;
         stepSingle.parent = parentLevel;
         parentLevel = currentLevel;
@@ -53,6 +55,7 @@ public class ProfileCollector implements IProfileCollector {
      * @param stepSingle
      */
     protected void process(StepSingle stepSingle) {
+        checkDumpStep();
         steps[pos++] = stepSingle;
         if (pos >= steps.length) {
             Step[] o = steps;
@@ -68,6 +71,7 @@ public class ProfileCollector implements IProfileCollector {
      * @param stepSingle
      */
     public void add(StepSingle stepSingle) {
+        checkDumpStep();
         stepSingle.index = currentLevel;
         stepSingle.parent = parentLevel;
         currentLevel++;
@@ -80,6 +84,7 @@ public class ProfileCollector implements IProfileCollector {
      * @param stepSingle
      */
     public void pop(StepSingle stepSingle) {
+        checkDumpStep();
         parentLevel = stepSingle.parent;
         process(stepSingle);
     }
@@ -89,10 +94,19 @@ public class ProfileCollector implements IProfileCollector {
      * @param ok : send the data or not
      */
     public void close(boolean ok) {
+        checkDumpStep();
         if (ok && pos > 0) {
             StepSingle[] newSteps = new StepSingle[pos];
             System.arraycopy(steps, 0, newSteps, 0, pos);
             DataProxy.sendProfile(newSteps, context);
+        }
+    }
+
+    private void checkDumpStep() {
+        if(context.temporaryDumpStep != null) {
+            DumpStep dumpStep = context.temporaryDumpStep;
+            context.temporaryDumpStep = null;
+            add(dumpStep);
         }
     }
 }
