@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import scouter.net.TcpFlag;
+import scouter.server.Configure;
+import scouter.server.Logger;
 import scouter.server.db.BatchZipDB;
 import scouter.util.DataUtil;
 
@@ -15,7 +17,9 @@ public class TcpSendStack implements ReqCommand {
 		String filename = DataUtil.readText(in);
 		long fileSize = DataUtil.readLong(in);
 		
-System.out.println("processing..." + startTime + " : " + objName + " : " + filename);
+        if (Configure.getInstance().log_udp_batch) {
+            Logger.println(new StringBuilder(100).append("Batch stack file: ").append(objName).append('(').append(startTime).append(") - ").append(filename).toString());
+        }		
 		BatchZipDB.write(startTime, objName, filename, fileSize, in);
 		out.write(TcpFlag.OK);
 	}	

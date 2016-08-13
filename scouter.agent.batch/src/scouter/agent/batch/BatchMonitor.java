@@ -47,8 +47,6 @@ public class BatchMonitor extends Thread {
 			config = Configure.getInstance();			
 			TraceContext traceContext = TraceContext.getInstance();
 			if(config.sfa_dump_enabled){
-				File indexFile = null;
-
 				stackFile = new File(traceContext.getLogFullFilename() + ".log");
 				if(stackFile.exists()){
 					stackFile = null;

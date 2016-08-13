@@ -1,17 +1,21 @@
 package scouter.server.db;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import scouter.server.Configure;
+import scouter.server.Logger;
 import scouter.util.DateUtil;
 
 public class BatchZipDB {
 	static public void write(long time, String objName, String filename, long fileSize, InputStream in) throws IOException{
 		String path  = getDBPath(time, objName);
+        if (Configure.getInstance().log_udp_batch) {
+            Logger.println(new StringBuilder(100).append("Batch stack path: ").append(path).toString());
+        }		
         File f = new File(path);
         if (!f.exists()) {
             f.mkdirs();
@@ -43,7 +47,7 @@ public class BatchZipDB {
 	static public String getDBPath(long time, String objName){
 		StringBuilder buffer = new StringBuilder();
 		buffer.append(DBCtr.getRootPath());
-        buffer.append("/").append(DateUtil.yyyymmdd(time)).append(objName);
+        buffer.append('/').append(DateUtil.yyyymmdd(time)).append('/').append(objName).append('/').append(DateUtil.getHour(time));
 		return buffer.toString();
 	}
 }

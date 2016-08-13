@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import scouter.server.Configure;
+import scouter.server.Logger;
 import scouter.util.DataUtil;
 
 public class TcpAgentReqWorker extends Thread {
@@ -30,7 +32,6 @@ public class TcpAgentReqWorker extends Thread {
 			ReqCommand command;
 			while (true) {
 				cmd = DataUtil.readInt(in);
-System.out.println("CMD==>" + cmd);					
 				command = ReqCommandFactory.makeReqCommand(cmd);
 				if(command == null){
 					break;

@@ -25,8 +25,7 @@ public class TcpAgentReqMgr extends Thread{
 
 	@Override
 	public void run() {
-		while (true) {
-System.out.println("Thread Cnt:" + TCPStackZipWorker.LIVE.size());			
+		while (true) {			
 			int sessionCount = Configure.getInstance().net_tcp_stack_session_count;
 			ThreadUtil.sleep(1000);
 			try {

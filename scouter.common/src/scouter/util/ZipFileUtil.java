@@ -5,7 +5,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -20,23 +19,14 @@ public class ZipFileUtil {
 			zipFilename = zipFilename.substring(index+1);
 		}
 			  
-		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-		byte[] buffer = new byte[FILE_BUFFER_SIZE];
-		int readSize = 0;
-		CRC32 crc = new CRC32();
-		while (0 != (readSize = bis.read(buffer))) {
-			if(-1 == readSize) break;
-			crc.update(buffer, 0, readSize);
-		}
-		bis.close();
-		
 		ZipEntry zipEntry = new ZipEntry(zipFilename);
-		zipEntry.setMethod(ZipEntry.STORED);
-		zipEntry.setCompressedSize(file.length());
+		zipEntry.setMethod(ZipEntry.DEFLATED);
 		zipEntry.setSize(file.length());
-		zipEntry.setCrc(crc.getValue());
 		zos.putNextEntry(zipEntry);
-		bis = new BufferedInputStream(new FileInputStream(file));
+		int readSize = 0;		
+		byte[] buffer = new byte[FILE_BUFFER_SIZE];
+
+		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
 		while (0 != (readSize = bis.read(buffer))) {
 			if(-1 == readSize) break;
 			zos.write(buffer, 0, readSize);
