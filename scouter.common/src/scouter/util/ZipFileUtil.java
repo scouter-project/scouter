@@ -17,7 +17,7 @@ public class ZipFileUtil {
 		String zipFilename = file.getAbsolutePath();
 		int index = zipFilename.lastIndexOf(File.separator);
 		if(index >= 0){
-			zipFilename = zipFilename.substring(index);
+			zipFilename = zipFilename.substring(index+1);
 		}
 			  
 		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));

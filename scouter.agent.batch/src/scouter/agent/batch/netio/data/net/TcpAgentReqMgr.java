@@ -7,7 +7,7 @@ import scouter.agent.batch.Configure;
 import scouter.util.ThreadUtil;
 
 public class TcpAgentReqMgr extends Thread{
-	private static ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<String>();
+	private static ConcurrentLinkedQueue<byte []> queue = new ConcurrentLinkedQueue<byte []>();
 	
 	private static TcpAgentReqMgr instance;
 
@@ -25,14 +25,14 @@ public class TcpAgentReqMgr extends Thread{
 
 	@Override
 	public void run() {
-
 		while (true) {
+System.out.println("Thread Cnt:" + TCPStackZipWorker.LIVE.size());			
 			int sessionCount = Configure.getInstance().net_tcp_stack_session_count;
 			ThreadUtil.sleep(1000);
 			try {
 				for (int i = 0; i < sessionCount && TCPStackZipWorker.LIVE.size() < sessionCount; i++) {
 					TCPStackZipWorker w = new TCPStackZipWorker(this);
-					if (w.prepare()) {
+					if (w.prepare(false)) {
 						pool.execute(w);
 					} else {
 						ThreadUtil.sleep(3000);
@@ -40,23 +40,31 @@ public class TcpAgentReqMgr extends Thread{
 				}
 				while (TCPStackZipWorker.LIVE.size() > sessionCount) {
 					TCPStackZipWorker w = TCPStackZipWorker.LIVE.removeFirst();
-					w.close();
+					w.close(true);
 				}
 			} catch (Throwable t) {
 			}
 		}
 	}
 	
-	public void addJob(String job){
+	public void addJob(byte [] job){
 		queue.add(job);
-		queue.notify();
+		System.out.println("AddJob");		
+		synchronized(queue){
+			queue.notify();
+		}
 	}
 	
-	public String getJob(){
-		String job = null;
-		while((job = queue.poll()) != null){
-			try{ queue.wait(3000); }catch(Exception ex){};
+	public byte [] getJob(){
+		byte [] job = null;
+		while((job = queue.poll()) == null){
+			try{ 
+				synchronized(queue){
+					queue.wait(3000); 
+				}
+			}catch(Exception ex){};
 		}
+System.out.println("GetJob->" + job.length);	
 		return job;
 	}
 }

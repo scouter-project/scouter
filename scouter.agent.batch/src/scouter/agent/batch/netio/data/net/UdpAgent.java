@@ -21,6 +21,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import scouter.agent.batch.Configure;
+import scouter.agent.batch.trace.TraceContext;
 
 import scouter.io.DataOutputX;
 import scouter.lang.pack.Pack;
@@ -50,7 +51,7 @@ System.out.println("Send:" + conf.net_collector_ip + "-" + conf.net_collector_ud
 		}
 	}
 
-	static public void sendLocalServer(long time, String fileName){
+	static public void sendLocalServer(TraceContext traceContext){
 		Configure conf = Configure.getInstance();
 		DatagramSocket datagram = null;
 		InetAddress server = null;
@@ -58,7 +59,11 @@ System.out.println("Send:" + conf.net_collector_ip + "-" + conf.net_collector_ud
 			server = InetAddress.getByName("127.0.0.1");
 			datagram = new DatagramSocket();
 
-			byte[] buff = (time + " " + fileName).getBytes("UTF-8");
+			DataOutputX out = new DataOutputX();
+			out.writeLong(traceContext.startTime);
+			out.writeText(conf.getObjName());
+			out.writeText(traceContext.getLogFullFilename());
+			byte[] buff = out.toByteArray();
 			DatagramPacket packet = new DatagramPacket(buff, buff.length);
 			packet.setAddress(server);
 			packet.setPort(conf.net_local_udp_port);
