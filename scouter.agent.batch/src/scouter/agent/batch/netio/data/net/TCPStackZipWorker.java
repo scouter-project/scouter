@@ -41,13 +41,13 @@ public class TCPStackZipWorker implements Runnable {
 		Configure conf = Configure.getInstance();
 		String host = conf.net_collector_ip;
 		int port = conf.net_collector_tcp_port;
-		//int so_timeout = conf.net_collector_tcp_so_timeout_ms;
+		int so_timeout = conf.net_collector_tcp_so_timeout_ms;
 		int connection_timeout = conf.net_collector_tcp_connection_timeout_ms;
 
 		socket = new Socket();
 		try {
 			socket.connect(new InetSocketAddress(host, port), connection_timeout);
-			socket.setSoTimeout(0);
+			socket.setSoTimeout(so_timeout);
 			
 			if(!reConnect){
 				LIVE.put(this.hashCode(), this);
@@ -78,7 +78,7 @@ public class TCPStackZipWorker implements Runnable {
 		} finally {
 			prepare(true);
 		}
-System.out.println("TcpStackSzipWorker close: " + this.hashCode());		
+		System.out.println("TcpStackSzipWorker close: " + this.hashCode());		
 		LIVE.remove(this.hashCode());
 	}
 	
@@ -91,7 +91,7 @@ System.out.println("TcpStackSzipWorker close: " + this.hashCode());
 		startTime = reader.readLong();
 		objName = reader.readText();
 		filename = reader.readText();
-System.out.println("==>" + startTime + " - " + objName + " : " + filename);
+		System.out.println("==>" + startTime + " - " + objName + " : " + filename);
 		
 		if(startTime == 0L || filename == null){
 			return;
@@ -139,16 +139,20 @@ System.out.println("==>" + startTime + " - " + objName + " : " + filename);
 		}
 		
 		if(!isSuccess){
-System.out.println("Send Fail!!!");			
+			System.out.println("Send Fail!!!");			
 			return;
 		}
-System.out.println("Send Success!!!");
+		System.out.println("Send Success!!!");
 
 		try {
 			for(File file : files){
-				file.delete();
+				if(!file.delete()){
+					TcpAgentReqMgr.getInstance().addFile(file);
+				}
 			}
-		}catch(Exception ex){}
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
 	}
 		
 	public void close(boolean remove) {

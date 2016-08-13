@@ -4,7 +4,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
 import scouter.agent.batch.Configure;
-import scouter.io.DataInputX;
 
 public class UdpLocalServer extends Thread{
 	private static UdpLocalServer instance;
@@ -29,7 +28,6 @@ public class UdpLocalServer extends Thread{
 	        
 	        while(true){
 	        	serverSocket.receive(receivePacket);
-System.out.println("Local Server Receive==>" + receivePacket.getLength());
 				byte [] data = new byte[receivePacket.getLength()];
 				System.arraycopy(receivePacket.getData(), 0, data, 0, receivePacket.getLength());
 	        	TcpAgentReqMgr.getInstance().addJob(data);
