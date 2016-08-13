@@ -15,11 +15,13 @@
  *  limitations under the License. 
  */
 
-package scouter.agent.batch;
+package scouter.agent.batch.task;
 
 import java.io.File;
 import java.io.FileWriter;
 
+import scouter.agent.batch.Configure;
+import scouter.agent.batch.Logger;
 import scouter.agent.batch.netio.data.net.UdpAgent;
 import scouter.agent.batch.trace.TraceContext;
 

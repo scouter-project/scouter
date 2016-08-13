@@ -41,7 +41,7 @@ public class UdpAgent {
 			packet.setAddress(server);
 			packet.setPort(conf.net_collector_udp_port);
 			datagram.send(packet);		
-System.out.println("Send:" + conf.net_collector_ip + "-" + conf.net_collector_udp_port);
+//System.out.println("Send:" + conf.net_collector_ip + "-" + conf.net_collector_udp_port);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally{
@@ -68,7 +68,7 @@ System.out.println("Send:" + conf.net_collector_ip + "-" + conf.net_collector_ud
 			packet.setAddress(server);
 			packet.setPort(conf.net_local_udp_port);
 			datagram.send(packet);		
-System.out.println("Send Local:" + conf.net_local_udp_port);
+//System.out.println("Send Local:" + conf.net_local_udp_port);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally{
