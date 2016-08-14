@@ -50,9 +50,11 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
@@ -91,12 +93,14 @@ public class ObjectBatchHistoryView extends ViewPart {
 	public static final String ID = ObjectBatchHistoryView.class.getName();
 	
 	private int objHash;
-	private int currentPage = 1;
-	private int totalPage = 1;
 	
-	private Text filterText;
-	private Button leftButton;
-	private Button rightButton;
+	
+	private DateTime date;
+	private DateTime fromTime;
+	private DateTime toTime;
+	
+	private Text searchText;
+	private Text responseTimeText;
 	
 	private TableViewer tableViewer;
 	private TableColumnLayout tableColumnLayout;
@@ -120,7 +124,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 	}
 	
 	public void load() {
-		final String filter = filterText.getText();
+		final String search = searchText.getText();
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
 				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
@@ -128,10 +132,9 @@ public class ObjectBatchHistoryView extends ViewPart {
 				try {
 					MapPack param = new MapPack();
 					param.put("objHash", objHash);
-					if (StringUtil.isNotEmpty(filter)) {
-						param.put("filter", filter);
+					if (StringUtil.isNotEmpty(search)) {
+						param.put("filter", search);
 					}
-					param.put("page", currentPage);
 					out = (MapPack) tcp.getSingle(RequestCmd.OBJECT_CLASS_LIST, param);
 					if (out == null) {
 						return;
@@ -141,9 +144,6 @@ public class ObjectBatchHistoryView extends ViewPart {
 				} finally {
 					TcpProxy.putTcpProxy(tcp);
 				}
-				
-				currentPage = out.getInt("page");
-				totalPage = out.getInt("totalPage");
 				
 				ListValue indexLv = out.getList("index");
 				if (indexLv == null) {
@@ -170,7 +170,6 @@ public class ObjectBatchHistoryView extends ViewPart {
 				}
 				ExUtil.exec(tableViewer.getTable(), new Runnable() {
 					public void run() {
-						validatePageButton();
 						tableViewer.setInput(classDataList);
 					}
 				});
@@ -370,21 +369,37 @@ public class ObjectBatchHistoryView extends ViewPart {
 	private void createUpperMenu(Composite composite) {
 		Group parentGroup = new Group(composite, SWT.NONE);
 		parentGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		GridLayout layout = new GridLayout(5, false);
+		GridLayout layout = new GridLayout(9, false);
 		parentGroup.setLayout(layout);
 		
-		filterText = new Text(parentGroup, SWT.BORDER);
-		GridData gridData = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
+		date = new DateTime(parentGroup, SWT.DATE);
+		fromTime = new DateTime(parentGroup, SWT.TIME);
+		fromTime.setTime(0, 0, 0);
+		Label label = new Label(parentGroup, SWT.CENTER);
+		label.setText(" ~ ");
+		toTime = new DateTime(parentGroup, SWT.TIME);
+		toTime.setTime(23, 59, 59);
+	
+		label = new Label(parentGroup, SWT.RIGHT);
+		label.setText("Job ID");
+		searchText = new Text(parentGroup, SWT.LEFT | SWT.BORDER);
+		GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, true, false);
 		gridData.minimumWidth = 150;
-		filterText.setLayoutData(gridData);
-		
+		searchText.setLayoutData(gridData);
+
+		label = new Label(parentGroup, SWT.RIGHT);
+		label.setText("Min Response Time");
+		responseTimeText = new Text(parentGroup, SWT.LEFT | SWT.BORDER);
+		gridData = new GridData(SWT.LEFT, SWT.CENTER, true, false);
+		gridData.minimumWidth = 80;
+		responseTimeText.setLayoutData(gridData);
+	
 		final Button applyButton = new Button(parentGroup, SWT.PUSH);
-		applyButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+		applyButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		applyButton.setImage(Images.filter);
-		applyButton.setText("Apply Filter");
+		applyButton.setText("Search");
 		applyButton.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
-				currentPage = 1;
 				ExUtil.exec(new Runnable() {
 					public void run() {
 						load();
@@ -393,52 +408,17 @@ public class ObjectBatchHistoryView extends ViewPart {
 			}
 		});
 		
-		filterText.addTraverseListener(new TraverseListener() {
+		searchText.addTraverseListener(new TraverseListener() {
 			public void keyTraversed(TraverseEvent e) {
 				if (e.detail == SWT.TRAVERSE_RETURN) {
 					applyButton.notifyListeners(SWT.Selection, new Event());
 				}
 			}
 		});
-		
-		leftButton = new Button(parentGroup, SWT.PUSH);
-		leftButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-		leftButton.setText("<");
-		leftButton.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				if (currentPage > 1) {
-					currentPage--;
-					ExUtil.exec(new Runnable() {
-						public void run() {
-							load();
-						}
-					});
-				}
-			}
-		});
-		
-        rightButton = new Button(parentGroup, SWT.PUSH);
-        rightButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-        rightButton.setText(">");
-        rightButton.addListener(SWT.Selection, new Listener() {
-
-			public void handleEvent(Event event) {
-				if (currentPage < totalPage) {
-					currentPage++;
-					ExUtil.exec(new Runnable() {
-						public void run() {
-							load();
-						}
-					});
-				}
-			}
-			
-		});
-        validatePageButton();
 	}
 
 	private void createColumns() {
-		for (ClassColumnEnum column : ClassColumnEnum.values()) {
+		for (BatchColumnEnum column : BatchColumnEnum.values()) {
 			TableViewerColumn c = createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
 			ColumnLabelProvider labelProvider = null;
 			switch (column) {
@@ -453,7 +433,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 					}
 				};
 				break;
-			case TYPE:
+			case TIME:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
@@ -464,7 +444,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 					}
 				};
 				break;
-			case NAME:
+			case JOBID:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
@@ -475,7 +455,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 					}
 				};
 				break;
-			case SUPERCLASS:
+			case RESPONSETIME:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
@@ -486,7 +466,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 					}
 				};
 				break;
-			case INTERFACES:
+			case SQLTIME:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
@@ -497,7 +477,29 @@ public class ObjectBatchHistoryView extends ViewPart {
 					}
 				};
 				break;
-			case RESOURCE:
+			case SQLRUNS:
+				labelProvider = new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						if (element instanceof ClassData) {
+							return ((ClassData) element).resources;
+						}
+						return null;
+					}
+				};
+				break;
+			case THREADS:
+				labelProvider = new ColumnLabelProvider() {
+					@Override
+					public String getText(Object element) {
+						if (element instanceof ClassData) {
+							return ((ClassData) element).resources;
+						}
+						return null;
+					}
+				};
+				break;
+			case STACK:
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
@@ -535,20 +537,6 @@ public class ObjectBatchHistoryView extends ViewPart {
 
 	public void setFocus() {
 	}
-
-	private void validatePageButton() {
-		if (this.currentPage <= 1) {
-			this.leftButton.setEnabled(false);
-		} else {
-			this.leftButton.setEnabled(true);
-		}
-		
-		if (this.currentPage == this.totalPage) {
-			this.rightButton.setEnabled(false);
-		} else {
-			this.rightButton.setEnabled(true);
-		}
-	}
 	
 	private void selectionCopyToClipboard() {
 		if (tableViewer != null) {
@@ -564,14 +552,15 @@ public class ObjectBatchHistoryView extends ViewPart {
 		}
 	}
 	
-	enum ClassColumnEnum {
-
-		NO("No", 20, SWT.RIGHT, true, true, true),
-	    TYPE("Type", 30, SWT.CENTER, true, true, false),
-	    NAME("Name", 250, SWT.LEFT, true, true, false),
-	    SUPERCLASS("SuperClass", 150, SWT.LEFT, true, true, false),
-	    INTERFACES("Interfaces", 150, SWT.LEFT, true, true, false),
-	    RESOURCE("Resources", 150, SWT.LEFT, true, true, false);
+	enum BatchColumnEnum {
+		NO("No", 60, SWT.RIGHT, true, true, true),
+	    TIME("Time", 100, SWT.CENTER, true, true, false),
+	    JOBID("Job ID", 100, SWT.LEFT, true, true, false),
+	    RESPONSETIME("Response Time", 120, SWT.RIGHT, true, true, false),
+	    SQLTIME("SQL Time", 120, SWT.RIGHT, true, true, false),
+	    SQLRUNS("SQL Runs", 120, SWT.RIGHT, true, true, false),
+	    THREADS("Threads", 100, SWT.RIGHT, true, true, false),
+	    STACK("Stack", 50, SWT.CENTER, true, true, false);
 
 	    private final String title;
 	    private final int width;
@@ -580,7 +569,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 	    private final boolean moveable;
 	    private final boolean isNumber;
 
-	    private ClassColumnEnum(String text, int width, int alignment, boolean resizable, boolean moveable, boolean isNumber) {
+	    private BatchColumnEnum(String text, int width, int alignment, boolean resizable, boolean moveable, boolean isNumber) {
 	        this.title = text;
 	        this.width = width;
 	        this.alignment = alignment;
