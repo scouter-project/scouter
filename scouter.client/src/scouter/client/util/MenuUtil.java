@@ -44,6 +44,7 @@ import scouter.client.actions.OpenEQViewAction;
 import scouter.client.actions.OpenServiceGroupElapsedAction;
 import scouter.client.actions.OpenServiceGroupTPSAction;
 import scouter.client.actions.SetColorAction;
+import scouter.client.batch.action.OpenCxtmenuBatchHistoryAction;
 import scouter.client.configuration.actions.DefineObjectTypeAction;
 import scouter.client.configuration.actions.OpenAgentConfigureAction;
 import scouter.client.constants.MenuStr;
@@ -368,7 +369,8 @@ public class MenuUtil implements IMenuCreator{
 				mgr.add(new Separator());
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
 					mgr.add(new OpenAgentConfigureAction(win, MenuStr.CONFIGURE, objHash, serverId));
-			} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_BATCH)) {				
+			} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_BATCH)) {
+				performanceCounter.add(new OpenCxtmenuBatchHistoryAction(win, MenuStr.BATCH_HISTORY, objHash, serverId));
 				mgr.add(new Separator());
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
 					mgr.add(new OpenAgentConfigureAction(win, MenuStr.CONFIGURE, objHash, serverId));

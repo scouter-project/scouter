@@ -60,6 +60,7 @@ public class Main {
 		pack.objHash = conf.getObjHash();
 		pack.objName = conf.getObjName();
 		pack.objType = conf.obj_type;
+		pack.version = Version.getAgentFullVersion();
 		return pack;
 	}
 }
