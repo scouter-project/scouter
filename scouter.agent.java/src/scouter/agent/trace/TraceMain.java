@@ -77,6 +77,9 @@ public class TraceMain {
             if (ctx != null) {
                 return null;
             }
+            if(TraceContextManager.startForceDiscard()) {
+                return null;
+            }
             return startHttp(req, res);
         } catch (Throwable t) {
             Logger.println("A143", "fail to deploy ", t);
@@ -88,6 +91,9 @@ public class TraceMain {
         try {
             TraceContext ctx = TraceContextManager.getContext();
             if (ctx != null) {
+                return null;
+            }
+            if(TraceContextManager.startForceDiscard()) {
                 return null;
             }
             return startHttp(req, res);
@@ -209,11 +215,18 @@ public class TraceMain {
     }
 
     public static void endHttpService(Object stat, Throwable thr) {
+        if(TraceContextManager.isForceDiscarded()) {
+            TraceContextManager.clearForceDiscard();
+            return;
+        }
+
         try {
             Stat stat0 = (Stat) stat;
             if (stat0 == null) {
-                if (thr == null)
+                if (thr == null) {
+                    TraceContextManager.clearForceDiscard();
                     return;
+                }
                 try {
                     TraceContext ctx = TraceContextManager.getContext();
                     if (ctx != null && ctx.error == 0) {
@@ -239,6 +252,8 @@ public class TraceMain {
                     }
                 } catch (Throwable t) {
                 }
+
+                TraceContextManager.clearForceDiscard();
                 return;
             }
             TraceContext ctx = stat0.ctx;
@@ -299,6 +314,7 @@ public class TraceMain {
 
             // profile close
             TraceContextManager.end(ctx.threadId);
+
             Configure conf = Configure.getInstance();
             XLogPack pack = new XLogPack();
             // pack.endTime = System.currentTimeMillis();
@@ -355,8 +371,8 @@ public class TraceMain {
                 ServiceSummary.getInstance().process(statementLeakSuspect, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
             }
 
-            boolean sendOk = (pack.elapsed >= conf.xlog_lower_bound_time_ms) || pack.error != 0;
-            ctx.profile.close(sendOk);
+            boolean sendable = (!TraceMain.evaluateXLogDiscard(pack.elapsed) || pack.error != 0);
+            ctx.profile.close(sendable);
             if (ctx.group != null) {
                 pack.group = DataProxy.sendGroup(ctx.group);
             }
@@ -378,7 +394,7 @@ public class TraceMain {
             }
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
-            if (sendOk) {
+            if (sendable) {
                 DataProxy.sendXLog(pack);
             }
         } catch (Throwable e) {
@@ -416,6 +432,10 @@ public class TraceMain {
             if (ctx != null) {
                 return null;
             }
+            if(TraceContextManager.startForceDiscard()) {
+                return null;
+            }
+
             Configure conf = Configure.getInstance();
             ctx = new TraceContext(conf.profile_summary_mode_enabled);
             String service_name = name;
@@ -453,10 +473,12 @@ public class TraceMain {
         try {
             LocalContext localCtx = (LocalContext) stat;
             if (localCtx == null) {
+                TraceContextManager.clearForceDiscard();
                 return;
             }
             TraceContext ctx = localCtx.context;
             if (ctx == null) {
+                TraceContextManager.clearForceDiscard();
                 return;
             }
             if (ctx.xType == XLogTypes.BACK_THREAD) {
@@ -480,8 +502,9 @@ public class TraceMain {
             // pack.endTime = System.currentTimeMillis();
             pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
             pack.error = errorCheck(ctx, thr);
-            boolean sendOk = (pack.elapsed >= Configure.getInstance().xlog_lower_bound_time_ms) || pack.error != 0;
-            ctx.profile.close(sendOk);
+
+            boolean sendable = (!TraceMain.evaluateXLogDiscard(pack.elapsed) || pack.error != 0);
+            ctx.profile.close(sendable);
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
             pack.xType = ctx.xType;
@@ -510,7 +533,8 @@ public class TraceMain {
             }
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
-            if (sendOk) {
+
+            if (sendable) {
                 DataProxy.sendXLog(pack);
             }
         } catch (Throwable t) {
@@ -644,8 +668,14 @@ public class TraceMain {
     }
 
     public static Object startMethod(int hash, String classMethod) {
-        if (conf.profile_method_enabled == false)
+        if (conf.profile_method_enabled == false) {
             return null;
+        }
+
+        if(TraceContextManager.isForceDiscarded()) {
+            return null;
+        }
+
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null) {
             if (conf._trace_auto_service_enabled) {
@@ -752,8 +782,42 @@ public class TraceMain {
     }
 
     public static void ctxLookup(Object this1, Object ctx) {
+        if(TraceContextManager.isForceDiscarded()) {
+            return;
+        }
+
         if (ctx instanceof DataSource) {
             LoadedContext.put((DataSource) ctx);
         }
+    }
+
+    private static boolean evaluateXLogDiscard(int elapsed) {
+        boolean isXLogDisard = false;
+
+        if( elapsed < conf.xlog_lower_bound_time_ms) {
+            isXLogDisard = true;
+            return isXLogDisard;
+        }
+
+        if(conf.xlog_sampling_enabled) {
+            if(elapsed < conf.xlog_sampling_step1_ms) {
+                if(Math.abs(KeyGen.next()%100) >= conf.xlog_sampling_step1_rate_pct) {
+                    isXLogDisard = true;
+                }
+            } else if(elapsed < conf.xlog_sampling_step2_ms) {
+                if(Math.abs(KeyGen.next()%100) >= conf.xlog_sampling_step2_rate_pct) {
+                    isXLogDisard = true;
+                }
+            } else if(elapsed < conf.xlog_sampling_step3_ms) {
+                if(Math.abs(KeyGen.next()%100) >= conf.xlog_sampling_step3_rate_pct) {
+                    isXLogDisard = true;
+                }
+            } else {
+                if(Math.abs(KeyGen.next()%100) >= conf.xlog_sampling_over_rate_pct) {
+                    isXLogDisard = true;
+                }
+            }
+        }
+        return isXLogDisard;
     }
 }

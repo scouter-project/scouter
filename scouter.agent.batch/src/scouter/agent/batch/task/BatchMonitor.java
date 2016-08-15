@@ -13,12 +13,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-package scouter.agent.batch;
+package scouter.agent.batch.task;
 
 import java.io.File;
 import java.io.FileWriter;
 
+import scouter.agent.batch.Configure;
+import scouter.agent.batch.Logger;
+import scouter.agent.batch.Main;
 import scouter.agent.batch.dump.ThreadDumpHandler;
+import scouter.agent.batch.netio.data.net.UdpAgent;
 import scouter.agent.batch.trace.TraceContext;
 import scouter.util.ThreadUtil;
 
@@ -46,9 +50,9 @@ public class BatchMonitor extends Thread {
 			File stackFile = null;
 			config = Configure.getInstance();			
 			TraceContext traceContext = TraceContext.getInstance();
+			
+			UdpAgent.sendUdpPack(Main.getObjectPack());
 			if(config.sfa_dump_enabled){
-				File indexFile = null;
-
 				stackFile = new File(traceContext.getLogFullFilename() + ".log");
 				if(stackFile.exists()){
 					stackFile = null;

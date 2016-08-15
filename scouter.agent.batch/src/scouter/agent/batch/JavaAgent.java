@@ -20,6 +20,7 @@ import java.lang.instrument.Instrumentation;
 
 import scouter.util.logo.Logo;
 import scouter.agent.batch.AgentTransformer;
+import scouter.agent.batch.task.BatchMonitor;
 
 public class JavaAgent {
 	private static Instrumentation instrumentation;

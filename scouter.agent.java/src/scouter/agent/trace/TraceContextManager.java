@@ -18,15 +18,20 @@
 package scouter.agent.trace;
 
 import scouter.agent.Configure;
+import scouter.util.KeyGen;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyMap;
 
 import java.util.Enumeration;
 
 public class TraceContextManager {
+	private static Configure conf = Configure.getInstance();
 
 	private static LongKeyMap<TraceContext> entry = new LongKeyMap<TraceContext>();
 	private static ThreadLocal<TraceContext> local = new ThreadLocal<TraceContext>();
+
+	//pass = 1, discard = 2, end-processing-with-path = -1, end-processing-with-path = -2
+	private static ThreadLocal<Integer> forceDiscard = new ThreadLocal<Integer>();
 
 	public static LongEnumer keys() {
 		return entry.keys();
@@ -39,7 +44,6 @@ public class TraceContextManager {
 	public static int[] getActiveCount() {
 		int[] act = new int[3];
 		try {
-			Configure conf = Configure.getInstance();
 			long now = System.currentTimeMillis();
 			Enumeration<TraceContext> en = entry.values();
 			while (en.hasMoreElements()) {
@@ -70,6 +74,61 @@ public class TraceContextManager {
 		return  local.get();
 	}
 
+	public static void clearForceDiscard() {
+		if(!conf._xlog_hard_sampling_enabled) {
+			return;
+		}
+		Integer num = forceDiscard.get();
+		if(num == null) {
+			forceDiscard.set(-1);
+		} else {
+			if(num == 1) {
+				forceDiscard.set(-1);
+			} else if(num == 2) {
+				forceDiscard.set(-2);
+			}
+		}
+	}
+
+	public static boolean isForceDiscarded() {
+		if(!conf._xlog_hard_sampling_enabled) {
+			return false;
+		}
+
+		boolean discard = false;
+		Integer num = forceDiscard.get();
+		if(num == null) {
+			return false;
+		}
+		if(num == 2 || num == -2) {
+			discard = true;
+		}
+		return discard;
+	}
+
+	public static boolean startForceDiscard() {
+		if(!conf._xlog_hard_sampling_enabled) {
+			return false;
+		}
+
+		boolean discard = false;
+		Integer num = forceDiscard.get();
+		if(num == null || num == -1 || num == -2) {
+			if(Math.abs(KeyGen.next()%100) >= conf._xlog_hard_sampling_rate_pct) {
+				discard = true;
+				forceDiscard.set(2); //discard
+			} else {
+				forceDiscard.set(1); //pass
+			}
+		} else {
+			if(num == 2) { //discard
+				discard = true;
+			}
+		}
+		return discard;
+	}
+
+
 	public static long start(Thread thread, TraceContext o) {
 		long key = thread.getId();
 		local.set(o);
@@ -80,5 +139,6 @@ public class TraceContextManager {
 	public static void end(long key) {
 		local.set(null);
 		entry.remove(key);
+		clearForceDiscard();
 	}
 }

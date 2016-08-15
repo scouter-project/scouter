@@ -3,6 +3,9 @@ package scouter.agent.batch.netio.data.net;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.zip.ZipOutputStream;
@@ -11,6 +14,7 @@ import scouter.agent.batch.Configure;
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.net.NetCafe;
+import scouter.net.TcpFlag;
 import scouter.util.FileUtil;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.ZipFileUtil;
@@ -29,7 +33,11 @@ public class TCPStackZipWorker implements Runnable {
 		this.objHash = Configure.getInstance().getObjHash();
 	}
 	
-	public boolean prepare() {
+	public boolean prepare(boolean reConnect) {
+		if(reConnect){
+			close(false);
+		}
+		
 		Configure conf = Configure.getInstance();
 		String host = conf.net_collector_ip;
 		int port = conf.net_collector_tcp_port;
@@ -40,8 +48,11 @@ public class TCPStackZipWorker implements Runnable {
 		try {
 			socket.connect(new InetSocketAddress(host, port), connection_timeout);
 			socket.setSoTimeout(so_timeout);
-			LIVE.put(this.hashCode(), this);
-		
+			
+			if(!reConnect){
+				LIVE.put(this.hashCode(), this);
+			}
+			
 			in = new DataInputX(new BufferedInputStream(socket.getInputStream()));
 			out = new DataOutputX(new BufferedOutputStream(socket.getOutputStream()));
 			out.writeInt(NetCafe.TCP_AGENT_REQ);
@@ -49,6 +60,7 @@ public class TCPStackZipWorker implements Runnable {
 			out.flush();
 			return true;
 		} catch (Exception e) {
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -56,65 +68,135 @@ public class TCPStackZipWorker implements Runnable {
 	public void run() {
 		if (socket == null)
 			return;
+		byte [] job = null;
 		try {
-			String job;
 			while((job = tcpAgentReqMgr.getJob()) != null){
 				process(job);
 			}
-		} catch (Throwable t) {
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		} finally {
-			close();
+			prepare(true);
 		}
+		System.out.println("TcpStackSzipWorker close: " + this.hashCode());		
+		LIVE.remove(this.hashCode());
 	}
 	
-	public void process(String job){
+	public void process(byte [] job) throws Exception{
 		long startTime = 0L;
+		String objName = null;
 		String filename = null;
-		try {
-			int index = job.indexOf(" ");
-			startTime = Long.parseLong(job.substring(0, index));
-			filename = job.substring(index+1);
-		}catch(Throwable ex){
-			ex.printStackTrace();
-		}
+	
+        DataInputX reader = new DataInputX(job);
+		startTime = reader.readLong();
+		objName = reader.readText();
+		filename = reader.readText();
+		System.out.println("==>" + startTime + " - " + objName + " : " + filename);
 		
 		if(startTime == 0L || filename == null){
 			return;
 		}
-System.out.println("Job=>" + startTime + " : " + filename);			
-		ZipOutputStream zos = null;
-		File file;
+		
+		File [] files = null;
+		boolean isSuccess = false;
+		BufferedInputStream bin = null;
 		try {
+			files = makeZipFile(filename);
+			long fileSize = files[0].length();
+			
 			out.writeInt(NetCafe.TCP_SEND_STACK);
 			out.writeLong(startTime);
-			out.writeText(filename);
+			out.writeText(objName);
 			
-			zos = new ZipOutputStream(socket.getOutputStream());
-			file = new File(filename + ".inx"); // Index file
-			if(!file.exists()){
-				return;
+			int index = filename.lastIndexOf(File.separator);
+			String pureName;
+			if(index >= 0){
+				pureName = filename.substring(index + 1);
+			}else{
+				pureName = filename;
 			}
-			ZipFileUtil.sendZipFile(zos, file);
-			file = new File(filename + ".log"); // stack log file
-			if(!file.exists()){
-				return;
+			out.writeText(pureName);
+			out.writeLong(fileSize);
+			out.flush();
+			
+			bin = new BufferedInputStream(new FileInputStream(files[0]));
+			byte [] buffer = new byte[4096];
+			OutputStream os = socket.getOutputStream();
+			while((index = bin.read(buffer)) != -1){
+				os.write(buffer, 0, index);
 			}
-			ZipFileUtil.sendZipFile(zos, file);
+			os.flush();
+			bin.close();
+			bin = null;
+			
+			if(in.readByte() == TcpFlag.OK){
+				isSuccess = true;
+			}
+		}finally{
+			if(bin != null){
+				try { bin.close(); }catch(Exception ex){}
+			}
+		}
+		
+		if(!isSuccess){
+			System.out.println("Send Fail!!!");			
+			return;
+		}
+		System.out.println("Send Success!!!");
+
+		try {
+			for(File file : files){
+				if(!file.delete()){
+					TcpAgentReqMgr.getInstance().addFile(file);
+				}
+			}
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+	}
+		
+	public void close(boolean remove) {
+		FileUtil.close(in);
+		FileUtil.close(out);
+		FileUtil.close(socket);
+		socket = null;
+		if(remove){
+			LIVE.remove(this.hashCode());
+		}
+	}
+	
+	public File [] makeZipFile(String filename ){
+		File indexFile = null;
+		File stackFile = null;
+		ZipOutputStream zos = null;
+		File zipFile = new File(filename + ".zip");
+		
+		try {
+			zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
+			zos.setLevel(9);
+			indexFile = new File(filename + ".inx"); // Index file
+			if(!indexFile.exists()){
+				return null;
+			}
+			ZipFileUtil.sendZipFile(zos, indexFile);
+			stackFile = new File(filename + ".log"); // stack log file
+			if(!stackFile.exists()){
+				return null;
+			}
+			ZipFileUtil.sendZipFile(zos, stackFile);
 			zos.flush();
 		}catch(Exception ex){
 			ex.printStackTrace();
+			return null;
 		}finally{
 			if(zos != null){
 				try{ zos.close(); }catch(Exception ex){}
 			}
 		}
+		File [] files = new File[3];
+		files[0] = zipFile;
+		files[1] = indexFile;
+		files[2] = stackFile;
+		return files;
 	}
-	
-	public void close() {
-		FileUtil.close(in);
-		FileUtil.close(out);
-		FileUtil.close(socket);
-		socket = null;
-		LIVE.remove(this.hashCode());
-	}	
 }

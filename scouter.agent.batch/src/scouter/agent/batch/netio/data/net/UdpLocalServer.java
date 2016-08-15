@@ -22,17 +22,15 @@ public class UdpLocalServer extends Thread{
 		Configure conf = Configure.getInstance();
 		byte[] receiveData = new byte[1024];
 		DatagramSocket serverSocket = null;
-		
 		try {
 			serverSocket = new DatagramSocket(conf.net_local_udp_port);
 	        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 	        
-	        String filename = null;
 	        while(true){
 	        	serverSocket.receive(receivePacket);
-	        	filename = new String(receivePacket.getData(), "UTF-8");
-	        	TcpAgentReqMgr.getInstance().addJob(filename);
-System.out.println("File:" + filename);
+				byte [] data = new byte[receivePacket.getLength()];
+				System.arraycopy(receivePacket.getData(), 0, data, 0, receivePacket.getLength());
+	        	TcpAgentReqMgr.getInstance().addJob(data);
 	        }
 		}catch(Exception ex){
 			ex.printStackTrace();

@@ -495,7 +495,6 @@ public class Configure {
 		return m;
 	}
 	
-	
 	public StringKeyLinkedMap<String> getConfigureDesc() {
 		return ConfigValueUtil.getConfigDescMap(this);
 	}	

@@ -121,13 +121,15 @@ public class Logger {
 				return;
 			}
 
+			String name = prefix + ((conf.batch_id == null)?"batch":conf.batch_id + "_" + SysJMX.getProcessPID());
+			
 			if (conf.log_rotation_enabled) {
-				File file = new File(conf.log_dir, "scouter-" + prefix + "-" + DateUtil.yyyymmdd() + ".log");
+				File file = new File(conf.log_dir, "scouter-" + name + "-" + DateUtil.yyyymmdd() + ".log");
 				FileWriter fw = new FileWriter(file, true);
 				pw = new PrintWriter(fw);
 				logfile = file;
 			} else {
-				File file = new File(conf.log_dir, "scouter-" + prefix + ".log");
+				File file = new File(conf.log_dir, "scouter-" + name + ".log");
 				pw = new PrintWriter(new FileWriter(file, true));
 				logfile = file;
 			}

@@ -59,7 +59,7 @@
 			<Counter name="BytesReceived" disp="Bytes Received" unit="bytes" icon="bytes_recv.png" />
 		</Family>
 		<Family name="batch" master="RunCount">
-			<Counter name="RunCount" disp="Run Count" unit="cnt" icon="req_count.gif" />
+			<Counter name="BatchService" disp="Batch Service" unit="cnt" icon="service_count.png" />
 		</Family>
 	</Familys>
 	<Types>

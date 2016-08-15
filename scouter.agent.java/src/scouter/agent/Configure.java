@@ -16,17 +16,6 @@
  */
 package scouter.agent;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.util.JarUtil;
@@ -37,16 +26,10 @@ import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.DateUtil;
-import scouter.util.FileUtil;
-import scouter.util.HashUtil;
-import scouter.util.StringEnumer;
-import scouter.util.StringKeyLinkedMap;
-import scouter.util.StringSet;
-import scouter.util.StringUtil;
-import scouter.util.SysJMX;
-import scouter.util.SystemUtil;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
+
+import java.io.*;
+import java.util.*;
 public class Configure extends Thread {
 	public static boolean JDBC_REDEFINED = false;
 	private static Configure instance = null;
@@ -241,14 +224,38 @@ public class Configure extends Thread {
 	public int autodump_stuck_check_interval_ms = 10000;
 
 	//XLog
-    @ConfigDesc("XLog Ignore Time")
+    @ConfigDesc("XLog Ignore Time - (deprecated) for backward compatibility. Use xlog_sampling_xxx options instead")
 	public int xlog_lower_bound_time_ms = 0;
-    @ConfigDesc("Error line for result set count to fetch")
+    @ConfigDesc("Leave an error message at XLog in case of over fetching. (fetch count)")
 	public int xlog_error_jdbc_fetch_max = 10000;
-    @ConfigDesc("Error line for SQL time (ms)")
+    @ConfigDesc("Leave an error message at XLog in case of over timing query. (ms)")
 	public int xlog_error_sql_time_max_ms = 30000;
-    @ConfigDesc("Activating xlog error when UserTransaction did not paired")
+    @ConfigDesc("Leave an error message at XLog when UserTransaction's begin/end unpaired")
 	public boolean xlog_error_check_user_transaction_enabled = true;
+
+	//XLog hard sampling options
+	@ConfigDesc("XLog hard sampling mode enabled - for the best performance but it affects all statistics data")
+	public boolean _xlog_hard_sampling_enabled = false;
+	@ConfigDesc("XLog hard sampling rate(%) - discard data over the percentage")
+	public int _xlog_hard_sampling_rate_pct = 10;
+
+	//XLog soft sampling options
+	@ConfigDesc("XLog sampling mode enabled")
+	public boolean xlog_sampling_enabled = false;
+	@ConfigDesc("XLog sampling bound millisecond - step1(lowest : range - from 0 to here)")
+	public int xlog_sampling_step1_ms = 100;
+	@ConfigDesc("XLog sampling step1 percentage(%)")
+	public int xlog_sampling_step1_rate_pct = 3;
+	@ConfigDesc("XLog sampling bound millisecond - step2(range - from step1 to here)")
+	public int xlog_sampling_step2_ms = 1000;
+	@ConfigDesc("XLog sampling step2 percentage(%)")
+	public int xlog_sampling_step2_rate_pct = 10;
+	@ConfigDesc("XLog sampling bound millisecond - step3(highest : range - from step2 to here)")
+	public int xlog_sampling_step3_ms = 3000;
+	@ConfigDesc("XLog sampling step3 percentage(%)")
+	public int xlog_sampling_step3_rate_pct = 30;
+	@ConfigDesc("XLog sampling over step3 percentage(%)")
+	public int xlog_sampling_over_rate_pct = 100;
 
 	//Alert
     @ConfigDesc("Limited length of alert message")
@@ -695,6 +702,18 @@ public class Configure extends Thread {
 		this.enduser_perf_endpoint_hash = HashUtil.hash(this.enduser_trace_endpoint_url);
 		
 		this.xlog_error_check_user_transaction_enabled = getBoolean("xlog_error_check_user_transaction_enabled", true);
+
+		this._xlog_hard_sampling_enabled = getBoolean("_xlog_hard_sampling_enabled", false);
+		this._xlog_hard_sampling_rate_pct = getInt("_xlog_hard_sampling_rate_pct", 10);
+
+		this.xlog_sampling_enabled = getBoolean("xlog_sampling_enabled", false);
+		this.xlog_sampling_step1_ms = getInt("xlog_sampling_step1_ms", 100);
+		this.xlog_sampling_step1_rate_pct = getInt("xlog_sampling_step1_rate_pct", 3);
+		this.xlog_sampling_step2_ms = getInt("xlog_sampling_step2_ms", 1000);
+		this.xlog_sampling_step2_rate_pct = getInt("xlog_sampling_step2_rate_pct", 10);
+		this.xlog_sampling_step3_ms = getInt("xlog_sampling_step3_ms", 3000);
+		this.xlog_sampling_step3_rate_pct = getInt("xlog_sampling_step3_rate_pct", 30);
+		this.xlog_sampling_over_rate_pct = getInt("xlog_sampling_over_rate_pct", 100);
 			
 		resetObjInfo();
 		setStaticContents();

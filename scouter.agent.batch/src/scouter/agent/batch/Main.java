@@ -3,9 +3,11 @@ package scouter.agent.batch;
 import java.io.File;
 
 import scouter.Version;
+import scouter.agent.batch.netio.data.net.UdpAgent;
 import scouter.agent.batch.netio.data.net.UdpLocalServer;
 import scouter.agent.batch.netio.request.ReqestHandlingProxy;
 import scouter.agent.batch.netio.service.net.TcpRequestMgr;
+import scouter.lang.pack.ObjectPack;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 import scouter.util.logo.Logo;
@@ -34,12 +36,31 @@ public class Main {
 		}
 		exit.deleteOnExit();
 		System.out.println("System JRE version : " + System.getProperty("java.version"));
+		long startTime = System.currentTimeMillis();
+		long currentTime;
 		while (true) {
+			currentTime = System.currentTimeMillis();
+			if((currentTime - startTime) >= 10000){
+				UdpAgent.sendUdpPack(getObjectPack());
+				startTime = currentTime;
+			}
 			if (exit.exists() == false) {
 				System.exit(0);
 			}
 			ThreadUtil.sleep(1000);
+			
 		}
 
+	}
+	
+	static public ObjectPack getObjectPack(){
+		Configure conf = Configure.getInstance();
+		ObjectPack pack = new ObjectPack();
+		pack.alive = true;
+		pack.objHash = conf.getObjHash();
+		pack.objName = conf.getObjName();
+		pack.objType = conf.obj_type;
+		pack.version = Version.getAgentFullVersion();
+		return pack;
 	}
 }

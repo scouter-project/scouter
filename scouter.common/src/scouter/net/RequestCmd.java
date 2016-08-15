@@ -265,6 +265,9 @@ public class RequestCmd {
 	public static final String LOAD_ENDUSER_AJAX_SUMMARY = "LOAD_ENDUSER_AJAX_SUMMARY";
 	public static final String LOAD_ENDUSER_ERROR_SUMMARY = "LOAD_ENDUSER_ERROR_SUMMARY";
 	
+	// batch job
+	public static final String BATCH_HISTORY_LIST = "BATCH_HISTORY_LIST";
+	
 	protected static Set<String> freeCmdSet = new HashSet<String>();
 	
 	static {

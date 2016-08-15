@@ -1,16 +1,18 @@
 package scouter.server.netio.req.net;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
+
+import scouter.server.Configure;
+import scouter.server.Logger;
+import scouter.util.DataUtil;
 
 public class TcpAgentReqWorker extends Thread {
 	private int objHash;
 	private Socket socket;
-	private DataInputStream in;
-	private DataOutputStream out;
+	private InputStream in;
+	private OutputStream out;
 	
 	public TcpAgentReqWorker(int objHash, Socket socket){
 		this.socket = socket;
@@ -23,21 +25,25 @@ public class TcpAgentReqWorker extends Thread {
 	public void run() {
 		int cmd;
 		try {
-			in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-			out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));		
-			
+			socket.setSoTimeout(0);
+			in = socket.getInputStream();
+			out = socket.getOutputStream();		
+						
 			ReqCommand command;
 			while (true) {
-				cmd = in.readInt();
+				cmd = DataUtil.readInt(in);
 				command = ReqCommandFactory.makeReqCommand(cmd);
+				if(command == null){
+					break;
+				}
 				command.process(in, out);
 			}
 		}catch(Throwable ex){
 			ex.printStackTrace();
 		}finally{
-			if(socket != null){
-				try { socket.close();}catch(Exception ex){}
-			}
+			if(in != null){	try { in.close();}catch(Exception ex){} }
+			if(out != null){ try { out.close();}catch(Exception ex){}}
+			if(socket != null){ try { socket.close();}catch(Exception ex){} }
 		}
 	}
 }

@@ -15,11 +15,13 @@
  *  limitations under the License. 
  */
 
-package scouter.agent.batch;
+package scouter.agent.batch.task;
 
 import java.io.File;
 import java.io.FileWriter;
 
+import scouter.agent.batch.Configure;
+import scouter.agent.batch.Logger;
 import scouter.agent.batch.netio.data.net.UdpAgent;
 import scouter.agent.batch.trace.TraceContext;
 
@@ -46,7 +48,7 @@ public class ResultSender extends Thread {
 			try {
 				if(config != null && !config.scouter_standalone && traceContext != null){
 					UdpAgent.sendUdpPack(traceContext.makePack());
-					UdpAgent.sendLocalServer(traceContext.startTime, traceContext.getLogFullFilename());
+					UdpAgent.sendLocalServer(traceContext);
 				}
 			}catch(Exception ex){
 				ex.printStackTrace();
