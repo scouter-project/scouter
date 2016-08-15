@@ -132,5 +132,4 @@ public class TcpWorker implements Runnable {
 			FileUtil.close(out);
 		}
 	}
-
 }

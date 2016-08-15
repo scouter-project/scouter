@@ -120,11 +120,12 @@ public class ObjectBatchHistoryView extends ViewPart {
 		this.setPartName("Batch History List[" + TextProxy.object.getLoadText(DateUtil.yyyymmdd(TimeUtil.getCurrentTime(serverId)), objHash, serverId) + "]");
 		initialLayout(parent);
 		clipboard = new Clipboard(null);
-		load();
+		//search();
 	}
 	
-	public void load() {
+	public void search() {
 		final String search = searchText.getText();
+		final String time = responseTimeText.getText();
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
 				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
@@ -135,7 +136,10 @@ public class ObjectBatchHistoryView extends ViewPart {
 					if (StringUtil.isNotEmpty(search)) {
 						param.put("filter", search);
 					}
-					out = (MapPack) tcp.getSingle(RequestCmd.OBJECT_CLASS_LIST, param);
+					if (StringUtil.isNotEmpty(search)) {
+						param.put("time", time);
+					}					
+					out = (MapPack) tcp.getSingle(RequestCmd.BATCH_HISTORY_LIST, param);
 					if (out == null) {
 						return;
 					}
@@ -149,28 +153,34 @@ public class ObjectBatchHistoryView extends ViewPart {
 				if (indexLv == null) {
 					return;
 				}
-				ListValue nameLv = out.getList("name");
-				ListValue typeLv = out.getList("type");
-				ListValue superClassLv = out.getList("superClass");
-				ListValue interfaceLv = out.getList("interfaces");
-				ListValue resourceLv = out.getList("resource");
+				ListValue startTimeLv = out.getList("startTime");
+				ListValue jobIdLv = out.getList("jobId");
+				ListValue responseTimeLv = out.getList("reponseTime");
+				ListValue sqlTimeLv = out.getList("sqlTime");
+				ListValue sqlRunsLv = out.getList("sqlRuns");
+				ListValue threadsLv = out.getList("threads");
+				ListValue isStackLv = out.getList("isStack");
+				ListValue positionLv = out.getList("position");
 				
 				int count = indexLv.size();
-				final List<ClassData> classDataList = new ArrayList<ClassData>(count);
+				final List<BatchData> batchDataList = new ArrayList<BatchData>(count);
 				
 				for (int i = 0; i < count; i++) {
-					ClassData data = new ClassData();
+					BatchData data = new BatchData();
 					data.index = indexLv.getLong(i);
-					data.type = typeLv.getString(i);
-					data.name = nameLv.getString(i);
-					data.superClass = superClassLv.getString(i);
-					data.interfaces = interfaceLv.getString(i);
-					data.resources = resourceLv.getString(i);
-					classDataList.add(data);
+					data.startTime = startTimeLv.getLong(i);
+					data.jobId = jobIdLv.getString(i);
+					data.responseTime = responseTimeLv.getLong(i);
+					data.sqlTime = sqlTimeLv.getLong(i);
+					data.sqlRuns = sqlRunsLv.getLong(i);
+					data.threads = threadsLv.getInt(i);
+					data.isStack = isStackLv.getBoolean(i);
+					data.position = positionLv.getLong(i);
+					batchDataList.add(data);
 				}
 				ExUtil.exec(tableViewer.getTable(), new Runnable() {
 					public void run() {
-						tableViewer.setInput(classDataList);
+						tableViewer.setInput(batchDataList);
 					}
 				});
 			}
@@ -221,9 +231,9 @@ public class ObjectBatchHistoryView extends ViewPart {
 		    manager.add(new Action("&Export Class") {
 		    	public void run() {
 		    		StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
-					ClassData data = (ClassData) selection.getFirstElement();
-					final String className = data.name;
-					if (StringUtil.isEmpty(className)) {
+					BatchData data = (BatchData) selection.getFirstElement();
+					final String jobId = data.jobId;
+					if (StringUtil.isEmpty(jobId)) {
 						return;
 					}
 					ExUtil.asyncRun(new Runnable() {
@@ -233,7 +243,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 							try {
 								MapPack param = new MapPack();
 								param.put("objHash", objHash);
-								param.put("class", className);
+								param.put("class", jobId);
 								p = (MapPack) tcp.getSingle(RequestCmd.OBJECT_LOAD_CLASS_BY_STREAM, param);
 							} catch (Exception e) {
 								ConsoleProxy.errorSafe(e.getMessage());
@@ -250,7 +260,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 									final BlobValue bv = (BlobValue) v;
 									ExUtil.exec(tableViewer.getTable(), new Runnable() {
 										public void run() {
-											saveClassFile(className, bv);
+											saveClassFile(jobId, bv);
 										}
 									});
 								}
@@ -262,8 +272,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 		    manager.add(new Action("&Export Jar") {
 		    	public void run() {
 		    		StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
-					final ClassData data = (ClassData) selection.getFirstElement();
-					final String resource = data.resources;
+					final BatchData data = (BatchData) selection.getFirstElement();
+					final String resource = "" + data.isStack;
 					if (StringUtil.isEmpty(resource)) {
 						return;
 					}
@@ -290,7 +300,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 									final long size = p.getLong("size");
 									ExUtil.exec(tableViewer.getTable(), new Runnable() {
 										public void run() {
-											if(MessageDialog.openQuestion(tableViewer.getTable().getShell(), data.name
+											if(MessageDialog.openQuestion(tableViewer.getTable().getShell(), data.jobId
 													, name + "(" + ScouterUtil.humanReadableByteCount(size, true) +") will be downloaded.\nContinue?")) {
 												Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()	.getShell();
 												FileDialog dialog = new FileDialog(shell, SWT.SAVE);
@@ -324,15 +334,15 @@ public class ObjectBatchHistoryView extends ViewPart {
 		    manager.add(new Action("&Redefine class") {
 		    	public void run() {
 		    		StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
-		    		final ListValue classLv = new ListValue(); 
+		    		final ListValue jobIdLv = new ListValue(); 
 		    		Object[] datas = selection.toArray();
 		    		for (int i = 0; i < datas.length; i++) {
-		    			ClassData data = (ClassData) datas[i];
-		    			classLv.add(data.name);
+		    			BatchData data = (BatchData) datas[i];
+		    			jobIdLv.add(data.jobId);
 		    		}
-					if(MessageDialog.openQuestion(tableViewer.getTable().getShell(), classLv.size() + " class(es) selected"
+					if(MessageDialog.openQuestion(tableViewer.getTable().getShell(), jobIdLv.size() + " class(es) selected"
 							, "Redefine class may affect this server.\nContinue?")) {
-						new RedefineClassJob(classLv).schedule();
+						new RedefineClassJob(jobIdLv).schedule();
 					}
 				}
 		    });
@@ -402,7 +412,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 			public void handleEvent(Event event) {
 				ExUtil.exec(new Runnable() {
 					public void run() {
-						load();
+						search();
 					}
 				});
 			}
@@ -426,8 +436,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof ClassData) {
-							return String.valueOf(((ClassData)element).index);
+						if (element instanceof BatchData) {
+							return String.valueOf(((BatchData)element).index);
 						}
 						return null;
 					}
@@ -437,8 +447,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof ClassData) {
-							return ((ClassData) element).type;
+						if (element instanceof BatchData) {
+							return DateUtil.yyyymmdd(((BatchData) element).startTime) + " " + DateUtil.hhmmss(((BatchData) element).startTime);
 						}
 						return null;
 					}
@@ -448,8 +458,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof ClassData) {
-							return ((ClassData) element).name;
+						if (element instanceof BatchData) {
+							return ((BatchData) element).jobId;
 						}
 						return null;
 					}
@@ -459,8 +469,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof ClassData) {
-							return ((ClassData) element).superClass;
+						if (element instanceof BatchData) {
+							return "" + ((BatchData) element).responseTime;
 						}
 						return null;
 					}
@@ -470,8 +480,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof ClassData) {
-							return ((ClassData) element).interfaces;
+						if (element instanceof BatchData) {
+							return "" + ((BatchData) element).sqlTime;
 						}
 						return null;
 					}
@@ -481,8 +491,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof ClassData) {
-							return ((ClassData) element).resources;
+						if (element instanceof BatchData) {
+							return "" + ((BatchData) element).sqlRuns;
 						}
 						return null;
 					}
@@ -492,8 +502,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof ClassData) {
-							return ((ClassData) element).resources;
+						if (element instanceof BatchData) {
+							return "" + ((BatchData) element).threads;
 						}
 						return null;
 					}
@@ -503,8 +513,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof ClassData) {
-							return ((ClassData) element).resources;
+						if (element instanceof BatchData) {
+							return ((BatchData) element).isStack?"O":"";
 						}
 						return null;
 					}
@@ -544,7 +554,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 			if (items != null && items.length > 0) {
 				StringBuffer sb = new StringBuffer();
 				for (int i = 0; i < items.length; i++) {
-					ClassData data = (ClassData) items[i].getData();
+					BatchData data = (BatchData) items[i].getData();
 					sb.append(data.toString());
 				}
 				clipboard.setContents(new Object[] {sb.toString()}, new Transfer[] {TextTransfer.getInstance()});
@@ -603,16 +613,19 @@ public class ObjectBatchHistoryView extends ViewPart {
 		}
 	}
 	
-	class ClassData {
+	class BatchData {
 		public long index;
-		public String type;
-		public String name;
-		public String superClass;
-		public String interfaces;
-		public String resources;
+		public long startTime;
+		public String jobId;
+		public long responseTime;
+		public long sqlTime;
+		public long sqlRuns;
+		public int threads;
+		public boolean isStack;
+		public long position;
 		
 		public String toString() {
-			return index + "\t" + type + "\t" + name + "\t" + superClass + "\t" + interfaces + "\t" + resources + "\n";
+			return new StringBuilder(100).append(index).append('\t').append(DateUtil.yyyymmdd(startTime)).append(' ').append(DateUtil.hhmmss(startTime)).append('\t').append(jobId).append('\t').append(responseTime).append('\t').append(sqlTime).append('\t').append(sqlRuns).append('\t').append(threads).append('\t').append(isStack).append('\n').toString();
 		}
 	}
 	
@@ -702,8 +715,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 	
 	private void openDescription() {
 		StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
-		ClassData data = (ClassData) selection.getFirstElement();
-		final String className = data.name;
+		BatchData data = (BatchData) selection.getFirstElement();
+		final String className = data.jobId;
 		if (StringUtil.isEmpty(className)) {
 			return;
 		}

@@ -319,7 +319,7 @@ public class TraceContext {
 		pack.sqlTotalRows =  this.sqlTotalRows;
 		pack.sqlTotalRuns =  this.sqlTotalRuns;
 
-		pack.isLog = (stackLogFile != null)?true:false;
+		pack.isStack = (stackLogFile != null)?true:false;
 		
 		if(this.sqlTotalCnt > 0){
 			pack.uniqueSqls = this.uniqueSqls;		

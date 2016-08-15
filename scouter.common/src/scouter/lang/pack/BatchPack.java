@@ -54,7 +54,7 @@ public class BatchPack implements Pack {
 	public long sqlTotalRows = 0L;
 	public long sqlTotalRuns = 0L;
 
-	public boolean isLog = false;
+	public boolean isStack = false;
 	
 	public List<MapValue> sqlStats = null;
 	public Map<Integer, String> uniqueSqls = null;
@@ -92,7 +92,7 @@ public class BatchPack implements Pack {
 		o.writeLong(sqlTotalRows);
 		o.writeLong(sqlTotalRuns);
 		
-		o.writeBoolean(isLog);
+		o.writeBoolean(isStack);
 		
 		o.writeText(objName);
 		o.writeText(objType);
@@ -138,7 +138,7 @@ public class BatchPack implements Pack {
 		this.sqlTotalRows = d.readLong();
 		this.sqlTotalRuns = d.readLong();
 		
-		this.isLog = d.readBoolean();
+		this.isStack = d.readBoolean();
 		
 		this.objName = d.readText();
 		this.objType = d.readText();
