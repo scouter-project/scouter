@@ -982,6 +982,14 @@
             name="RealtimePairChart"
             restorable="true">
       </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.batch.view.ObjectBatchHistoryView"
+            icon="icons/profilefull.png"
+            id="scouter.client.batch.view.ObjectBatchHistoryView"
+            name="Batch Execution History List"
+            restorable="true">
+      </view>      
   </extension>
  <extension
          point="org.eclipse.ui.commands">

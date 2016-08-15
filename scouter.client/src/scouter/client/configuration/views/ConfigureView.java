@@ -30,6 +30,8 @@ import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -184,8 +186,20 @@ public class ConfigureView extends ViewPart {
 				}
 			}
 			public void mouseDoubleClick(MouseEvent e) {
+				StructuredSelection selection = (StructuredSelection)viewer.getSelection();
+				if(selection == null)
+					return;
+				ConfObject confObject = (ConfObject)selection.getFirstElement();
+				if(confObject != null){
+					String configText = text.getText();
+					if(configText == null || configText.indexOf(confObject.key) >=0 ){
+						return;
+					}
+					text.setText(configText + "\n" + confObject.key + "=");
+				}				
 			}
 		});
+	    
 		table.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if(e.stateMask == SWT.CTRL || e.stateMask == SWT.COMMAND){
@@ -206,7 +220,7 @@ public class ConfigureView extends ViewPart {
 				}
 			}
 		});
-		
+				
 		sashForm.setWeights(new int[] {1, 1});
 		sashForm.setMaximizedControl(null);
 		initialToolBar();
@@ -374,7 +388,7 @@ public class ConfigureView extends ViewPart {
 						public void run() {
 							searchTxt.notifyListeners(SWT.Modify, new Event());
 						}
-					});
+					});					
 				}
 			}
 		});

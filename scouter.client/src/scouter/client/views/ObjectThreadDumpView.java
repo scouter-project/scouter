@@ -214,6 +214,11 @@ public class ObjectThreadDumpView extends ViewPart {
 		this.setPartName("ThreadDump[" + TextProxy.object.getLoadText(DateUtil.yyyymmdd(TimeUtil.getCurrentTime(serverId)), objHash, serverId) + "]");
 		load();
 	}
+
+	public void setInput(String stackText, String objName, long stackTime){
+		this.setPartName("ThreadDump[" + objName + " " + DateUtil.yyyymmdd(stackTime) + "]");
+		text.setText(stackText);
+	}
 	
 	public void load() {
 		ExUtil.asyncRun(new Runnable() {

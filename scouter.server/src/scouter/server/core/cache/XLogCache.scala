@@ -36,4 +36,8 @@ object XLogCache {
         return cache.get(objHashSet, last_loop, last_index, time);
     }
 
+    def getWithinCount(objHashSet: IntSet, last_loop: Long, last_index: Int, count: Int): CacheOut[Array[Byte]] = {
+        return cache.getWithinCount(objHashSet, last_loop, last_index, count);
+    }
+
 }

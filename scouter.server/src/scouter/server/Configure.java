@@ -89,6 +89,8 @@ public class Configure extends Thread {
 	public boolean log_udp_stack = false;
 	@ConfigDesc("Logging incoming SummaryPack")
 	public boolean log_udp_summary = false;
+	@ConfigDesc("Logging incoming BatchPack")
+	public boolean log_udp_batch = false;	
 	@ConfigDesc("Logging all request handlers in starting")	
 	public boolean log_service_handler_list = false;
 	@ConfigDesc("Retaining log according to date")
@@ -125,6 +127,10 @@ public class Configure extends Thread {
 	public int _net_udp_worker_thread_count = 3;
 	@ConfigDesc("TCP Thread Pool Size")
 	public int net_tcp_service_pool_size = 100;
+	@ConfigDesc("Activating Http Server")
+	public boolean net_http_server_enabled = false;
+	@ConfigDesc("Http Port")
+	public int net_http_port = 6180;
 
 	//Dir
 	@ConfigDesc("Store directory of database")
@@ -286,6 +292,8 @@ public class Configure extends Thread {
 		this.net_tcp_agent_so_timeout_ms = getInt("net_tcp_agent_so_timeout_ms", 60000);
 		this.net_tcp_agent_keepalive_interval_ms = getInt("net_tcp_agent_keepalive_interval_ms", 5000);
 		this.net_tcp_get_agent_connection_wait_ms = getInt("net_tcp_get_agent_connection_wait_ms", 1000);
+		this.net_http_server_enabled = getBoolean("net_http_server_enabled", false);
+		this.net_http_port = getInt("net_http_port", 6180);
 
 		this.server_id = getValue("server_id", SysJMX.getHostName());
 		this.db_dir = getValue("db_dir", "./database");
@@ -322,6 +330,7 @@ public class Configure extends Thread {
 		this.log_udp_status = getBoolean("log_udp_status", false);
 		this.log_udp_stack = getBoolean("log_udp_stack", false);
 		this.log_udp_summary = getBoolean("log_udp_summary", false);
+		this.log_udp_batch = getBoolean("log_udp_batch", false);
 		this.log_service_handler_list = getBoolean("log_service_handler_list", false);
 		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
 		this.log_keep_days = getInt("log_keep_days", 31);

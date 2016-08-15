@@ -35,7 +35,7 @@ public class AgentBoot implements Runnable {
 		booted = true;
 			
 		CounterExecutingManager.load();
-		ReqestHandlingProxy.load();
+		ReqestHandlingProxy.load(ReqestHandlingProxy.class);
 		
 		Configure.getInstance().printConfig();
 		

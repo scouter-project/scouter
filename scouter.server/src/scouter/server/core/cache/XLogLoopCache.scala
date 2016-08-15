@@ -107,6 +107,30 @@ class XLogLoopCache[V](capacity: Int) {
         return buff;
     }
 
+    def getListWithinCount(objHashSet: IntSet, start_loop: Long, start_index: Int, _count: Int): List[V] = {
+        var  count = _count
+        (this.loop - start_loop) match {
+            case 0 =>
+                val gap = this.index - start_index
+                if(gap > 0) {
+                    count = Math.min(count, gap)
+                }
+            case 1 =>
+                count = Math.min(count, queue.length - start_index + this.index)
+            case _ =>
+        }
+
+        val buff = new ArrayList[V](count)
+        if(count > this.index) {
+            copy(objHashSet, buff, queue.length-(count-this.index), queue.length)
+            copy(objHashSet, buff, 0, this.index, queue.length)
+        } else {
+            copy(objHashSet, buff, this.index - count, this.index)
+        }
+
+        return buff
+    }
+
     private def copy(objHashSet: IntSet, buff: List[V], _from: Int, _to: Int, time: Int) {
         var i = _from
         while (i < _to) {
@@ -116,6 +140,16 @@ class XLogLoopCache[V](capacity: Int) {
                 }
             }
             i += 1
+        }
+    }
+
+    private def copy(objHashSet: IntSet, buff: List[V], _from: Int, _to: Int) {
+        (_from until _to) foreach { i =>
+            if (objHashSet == null || objHashSet.contains(objHashTable(i))) {
+                if (queue(i) != null) {
+                    buff.add(queue(i).asInstanceOf[V]);
+                }
+            }
         }
     }
 
@@ -130,6 +164,14 @@ class XLogLoopCache[V](capacity: Int) {
     def get(objHashSet: IntSet, last_loop: Long, last_index: Int, time: Int): CacheOut[V] = {
         val d = new CacheOut[V]();
         d.data = getList(objHashSet, last_loop, last_index, time);
+        d.loop = this.loop;
+        d.index = this.index;
+        return d;
+    }
+
+    def getWithinCount(objHashSet: IntSet, last_loop: Long, last_index: Int, count: Int): CacheOut[V] = {
+        val d = new CacheOut[V]();
+        d.data = getListWithinCount(objHashSet, last_loop, last_index, count);
         d.loop = this.loop;
         d.index = this.index;
         return d;

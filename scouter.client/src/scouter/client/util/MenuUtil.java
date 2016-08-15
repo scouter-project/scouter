@@ -44,6 +44,7 @@ import scouter.client.actions.OpenEQViewAction;
 import scouter.client.actions.OpenServiceGroupElapsedAction;
 import scouter.client.actions.OpenServiceGroupTPSAction;
 import scouter.client.actions.SetColorAction;
+import scouter.client.batch.action.OpenCxtmenuBatchHistoryAction;
 import scouter.client.configuration.actions.DefineObjectTypeAction;
 import scouter.client.configuration.actions.OpenAgentConfigureAction;
 import scouter.client.constants.MenuStr;
@@ -368,6 +369,11 @@ public class MenuUtil implements IMenuCreator{
 				mgr.add(new Separator());
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
 					mgr.add(new OpenAgentConfigureAction(win, MenuStr.CONFIGURE, objHash, serverId));
+			} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_BATCH)) {
+				performanceCounter.add(new OpenCxtmenuBatchHistoryAction(win, MenuStr.BATCH_HISTORY, objHash, serverId));
+				mgr.add(new Separator());
+				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
+					mgr.add(new OpenAgentConfigureAction(win, MenuStr.CONFIGURE, objHash, serverId));
 			} 
     	}
     	if (server.isAllowAction(GroupPolicyConstants.ALLOW_DEFINEOBJTYPE)) {
@@ -391,7 +397,7 @@ public class MenuUtil implements IMenuCreator{
 		final CounterEngine counterEngine = ServerManager.getInstance().getServer(serverId).getCounterEngine();
 		ObjectType objectType = counterEngine.getObjectType(objType);
 		if (objectType == null) return;
-		final Counter counterObj = objectType.getFamily().getCounter(counter);
+		final Counter counterObj = objectType.getCounter(counter);
 		mgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager mgr) {
 				if (mgr == null) return;

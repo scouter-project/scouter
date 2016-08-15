@@ -20,7 +20,6 @@ package scouter.lang;
 import scouter.util.StringKeyLinkedMap;
 
 public class Counter implements Comparable<Counter> {
-	private String family;
 	private String name;
 	private String displayName;
 	private String unit;
@@ -29,12 +28,6 @@ public class Counter implements Comparable<Counter> {
 	private boolean total = true;
 	private StringKeyLinkedMap<String> attrMap = new StringKeyLinkedMap<String>();
 	
-	public String getFamily() {
-		return family;
-	}
-	public void setFamily(String family) {
-		this.family = family;
-	}
 	public String getName() {
 		return name;
 	}
@@ -91,7 +84,6 @@ public class Counter implements Comparable<Counter> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((family == null) ? 0 : family.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
@@ -103,11 +95,6 @@ public class Counter implements Comparable<Counter> {
 		if (getClass() != obj.getClass())
 			return false;
 		Counter other = (Counter) obj;
-		if (family == null) {
-			if (other.family != null)
-				return false;
-		} else if (!family.equals(other.family))
-			return false;
 		if (name == null) {
 			if (other.name != null)
 				return false;

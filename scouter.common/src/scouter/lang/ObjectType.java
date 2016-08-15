@@ -17,6 +17,9 @@
 
 package scouter.lang;
 
+import java.util.Enumeration;
+import java.util.List;
+
 import scouter.util.StringKeyLinkedMap;
 
 public class ObjectType {
@@ -25,6 +28,7 @@ public class ObjectType {
 	private Family family;
 	private String icon;
 	private boolean subObject;
+	private StringKeyLinkedMap<Counter> counterMap = new StringKeyLinkedMap<Counter>();
 	private StringKeyLinkedMap<String> attrMap = new StringKeyLinkedMap<String>();
 	public String getName() {
 		return name;
@@ -74,6 +78,39 @@ public class ObjectType {
 		}
 		return Boolean.valueOf(value);
 	}
+	
+	public Counter[] listCounters() {
+		List<Counter> list = family.listCounters();
+		Enumeration<Counter> en = counterMap.values();
+		while (en.hasMoreElements()) {
+			list.add(en.nextElement());
+		}
+		return list.toArray(new Counter[list.size()]);
+	}
+	
+	public Counter[] listObjectTypeCounters() {
+		Counter[] counters = new Counter[counterMap.size()];
+		Enumeration<Counter> en = counterMap.values();
+		int i = 0;
+		while (en.hasMoreElements()) {
+			counters[i] = en.nextElement();
+			i++;
+		}
+		return counters;
+	}
+	
+	public Counter getCounter(String name) {
+		Counter c = counterMap.get(name);
+		if (c == null) {
+			c = family.getCounter(name);
+		}
+		return c;
+	}
+	
+	public void addCounter(Counter c) {
+		this.counterMap.put(c.getName(), c);
+	}
+	
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

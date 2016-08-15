@@ -8,5 +8,7 @@
 	<classpathentry kind="lib" path="/scouter.deploy/lib/scala/jline.jar"/>
 	<classpathentry kind="lib" path="/scouter.deploy/lib/javassist.jar"/>
 	<classpathentry kind="lib" path="/scouter.deploy/lib/jsqlparser-0.9.4.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/jetty-all-8.1.19.v20160209.jar"/>
+	<classpathentry kind="lib" path="/scouter.deploy/lib/json-simple-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

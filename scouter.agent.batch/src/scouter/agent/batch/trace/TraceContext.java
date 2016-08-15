@@ -30,6 +30,9 @@ import java.util.StringTokenizer;
 
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
+import scouter.lang.pack.BatchPack;
+import scouter.lang.value.BooleanValue;
+import scouter.lang.value.MapValue;
 import scouter.util.SysJMX;
 
 public class TraceContext {
@@ -110,9 +113,7 @@ public class TraceContext {
 		StringBuilder buffer = new StringBuilder(100);
 		String lineSeparator = System.getProperty("line.separator");
 		
-		buffer.append(lineSeparator);
-		buffer.append("-[Result]----------------------------------------------").append(lineSeparator);
-		buffer.append("Batch     ID: ").append(this.batchJobId).append(lineSeparator);
+		buffer.append("-[").append(this.batchJobId).append("]----------------------------------------------").append(lineSeparator);
 		buffer.append("Run  Command: ").append(this.args).append(lineSeparator);
 		if(this.stackLogFile != null){
 			buffer.append("Stack   Dump: ").append(this.stackLogFile).append(lineSeparator);
@@ -125,16 +126,9 @@ public class TraceContext {
 			buffer.append("CPU     Time: ").append(this.getCPUTimeByMillis()).append("ms").append(lineSeparator);
 		}
 		if(sqlMap.size() > 0){
-			long SqlTime = 0L;
-			int sqlRunCount = 0;
-		
-			for(TraceSQL traceSql : sqlMap.values()){
-				SqlTime += traceSql.totalTime;
-				sqlRunCount += traceSql.count;
-			}
-			buffer.append("SQL     Time: ").append((SqlTime/1000000L)).append("ms").append(lineSeparator);
+			buffer.append("SQL     Time: ").append((sqlTotalTime/1000000L)).append("ms").append(lineSeparator);
 			buffer.append("SQL     Type: ").append(sqlMap.size()).append(lineSeparator);
-			buffer.append("SQL RunCount: ").append(sqlRunCount).append(lineSeparator);
+			buffer.append("SQL     Runs: ").append(sqlTotalRuns).append(lineSeparator);
 		}
 		if(threadCnt > 0){
 			buffer.append("Thread Count: ").append(this.threadCnt).append(lineSeparator);
@@ -143,21 +137,32 @@ public class TraceContext {
 		if(sqlMap.size() > 0){
 			buffer.append(lineSeparator).append("<SQLs>").append(lineSeparator);
 			int index = 0;
-			
-			for(TraceSQL traceSql : sortTraceSQLList()){
+			buffer.append("Index          Runs     TotalTime       MinTime       MaxTime          Rows (Measured) StartTime               EndTime").append(lineSeparator);
+			buffer.append("--------------------------------------------------------------------------------------------------------------------------------------");
+			List<TraceSQL> list = sortTraceSQLList();
+			for(TraceSQL traceSql : list){
 				index++;
-				buffer.append("-----------").append(lineSeparator);
-				buffer.append(index).append(':').append(uniqueSqls.get(traceSql.hashValue)).append(lineSeparator);
-				buffer.append("Start Time:").append(sdf.format(new Date(traceSql.startTime))).append(lineSeparator);
-				buffer.append("End   Time:").append(sdf.format(new Date(traceSql.endTime))).append(lineSeparator);
-				buffer.append("Count     :").append(traceSql.count).append(lineSeparator);
-				buffer.append("Total Time:").append(traceSql.getTotalTimeByMillis()).append(lineSeparator);
-				buffer.append("Min   Time:").append(traceSql.getMinTimeByMillis()).append(lineSeparator);
-				buffer.append("Max   Time:").append(traceSql.getMaxTimeByMillis()).append(lineSeparator);
-				buffer.append("Rows      :").append(traceSql.processedRows).append('(').append(traceSql.rowed).append(')').append(lineSeparator);	
+				buffer.append(lineSeparator);
+				buffer.append(String.format("%5s", index)).append(' ');
+				buffer.append(String.format("%,13d", traceSql.runs)).append(' ');
+				buffer.append(String.format("%,13d", traceSql.getTotalTimeByMillis())).append(' ');
+				buffer.append(String.format("%,13d", traceSql.getMinTimeByMillis())).append(' ');
+				buffer.append(String.format("%,13d", traceSql.getMaxTimeByMillis())).append(' ');
+				buffer.append(String.format("%,13d", traceSql.processedRows)).append(' ').append(String.format("%10s", traceSql.rowed)).append(' ');
+				buffer.append(sdf.format(new Date(traceSql.startTime))).append(' ');
+				buffer.append(sdf.format(new Date(traceSql.endTime)));
 			}
+			buffer.append(lineSeparator).append("--------------------------------------------------------------------------------------------------------------------------------------").append(lineSeparator);
+
+			buffer.append(lineSeparator).append("<SQL Texts>").append(lineSeparator);
+			index = 0;
+			for(TraceSQL traceSql : list){
+				index++;
+				buffer.append("-----------------").append(lineSeparator);
+				buffer.append("#SQLINX-").append(index).append(lineSeparator);
+				buffer.append(uniqueSqls.get(traceSql.hashValue)).append(lineSeparator);
+			}			
 		}
-		buffer.append("-------------------------------------------------------").append(lineSeparator);
 		return buffer.toString();
 	}
 	
@@ -176,12 +181,16 @@ public class TraceContext {
 					statsSql = new TraceSQL();
 					statsSql.hashValue = hashValue;
 					sqlMap.put(hashValue, statsSql);
+					this.sqlTotalCnt++;
 				}
 			}
 			synchronized(statsSql){
-				statsSql.count += sql.count;
+				statsSql.runs += sql.runs;
+				this.sqlTotalRuns += sql.runs;
 				statsSql.totalTime += sql.totalTime;
+				this.sqlTotalTime += sql.totalTime;
 				statsSql.processedRows += sql.processedRows;
+				this.sqlTotalRows += sql.processedRows;
 				if( statsSql.startTime > sql.startTime || statsSql.startTime == -1L){
 					statsSql.startTime = sql.startTime;
 				}
@@ -254,7 +263,7 @@ public class TraceContext {
 		return ((endCpu - startCpu)/1000000L);
 	}
 	
-	public String getLogFilename(){
+	public String getLogFullFilename(){
 		Date dt = new Date(startTime);
 		String fileSeparator = System.getProperty("file.separator");
 		String date = new SimpleDateFormat("yyyyMMdd").format(dt);
@@ -289,6 +298,51 @@ public class TraceContext {
 		return inList;
 	}
 	
+	public BatchPack makePack(){
+		BatchPack pack = new BatchPack();
+		Configure config = Configure.getInstance();
+		
+		pack.objHash = config.getObjHash();	
+		pack.objName = config.getObjName();
+		pack.objType = config.obj_type;
+		pack.batchJobId = this.batchJobId;
+		pack.batchJobId =  this.batchJobId;
+		pack.args =  this.args;
+		pack.pID =  this.pID;
+		pack.startTime =  this.startTime;
+		pack.elapsedTime =  (this.endTime - this.startTime);
+		pack.threadCnt =  this.threadCnt;
+		pack.cpuTime =  (this.endCpu - this.startCpu);
+		
+		pack.sqlTotalCnt =  this.sqlTotalCnt;
+		pack.sqlTotalTime =  this.sqlTotalTime;
+		pack.sqlTotalRows =  this.sqlTotalRows;
+		pack.sqlTotalRuns =  this.sqlTotalRuns;
+
+		pack.isStack = (stackLogFile != null)?true:false;
+		
+		if(this.sqlTotalCnt > 0){
+			pack.uniqueSqls = this.uniqueSqls;		
+			pack.sqlStats = new ArrayList<MapValue>((int)this.sqlTotalCnt);
+			MapValue value;
+			for(TraceSQL traceSql : sortTraceSQLList()){
+				value = new MapValue();
+				pack.sqlStats.add(value);
+	
+				value.put("hashValue", (long)traceSql.hashValue);
+				value.put("runs", (long)traceSql.runs);
+				value.put("startTime", traceSql.startTime);
+				value.put("endTime", traceSql.endTime);
+				value.put("totalTime", traceSql.totalTime);
+				value.put("minTime", traceSql.minTime);
+				value.put("maxTime", traceSql.maxTime);
+				value.put("processedRows", traceSql.processedRows);
+				value.put("rowed", new BooleanValue(traceSql.rowed));
+			}
+		}
+		return pack;
+	}
+	
 	public String batchJobId;
 	public String args;
 	public Integer pID;
@@ -299,6 +353,11 @@ public class TraceContext {
 	public int threadCnt = 0;
 	public long startCpu;
 	public long endCpu;
+
+	public int sqlTotalCnt = 0;
+	public long sqlTotalTime = 0L;
+	public long sqlTotalRows = 0L;
+	public long sqlTotalRuns = 0L;
 
 	public String stackLogFile = null;
 	public String standAloneFile = null;

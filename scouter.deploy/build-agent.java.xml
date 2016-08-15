@@ -30,10 +30,8 @@
 		</javac>
 		<copy file="../scouter.common/src/scouter/util/logo/scouter.logo"
 			  tofile="${class-agent-dir}/scouter/util/logo/scouter.logo" verbose="true"/>
-		<copy file="../scouter.common/src/scouter/lang/countrycode.txt"
-			  tofile="${class-agent-dir}/scouter/lang/countrycode.txt" verbose="true"/>
 
-		<propertyfile	    file="${class-agent-dir}/scouter/v.properties"	comment="Scouter Version" >
+		<propertyfile file="${class-agent-dir}/scouter/v.properties" comment="Scouter Version" >
 		  <entry  key="VERSION" value="${VERSION}" />
 		  <entry  key="BUILD" value="${today}"/>
 		</propertyfile>

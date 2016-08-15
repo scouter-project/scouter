@@ -20,6 +20,7 @@ import scouter.server.account.AccountManager;
 import scouter.server.core.AutoDeleteScheduler;
 import scouter.server.core.TextCacheReset;
 import scouter.server.db.DBCtr;
+import scouter.server.http.HttpServer;
 import scouter.server.netio.data.NetDataProcessor;
 import scouter.server.netio.data.net.DataUdpServer;
 import scouter.server.netio.service.ServiceHandlingProxy;
@@ -50,6 +51,7 @@ public class Main {
 		DataUdpServer.conf();
 		ServiceHandlingProxy.load();
 		TcpServer.conf();
+		HttpServer.load();
 		PlugInManager.load();
         BuiltInPluginManager.loadPlugins();
 		NetDataProcessor.working();

@@ -20,4 +20,5 @@ package scouter.net;
 public interface NetConstants {
 	public static int SERVER_TCP_PORT = 6100;
 	public static int SERVER_UDP_PORT = 6100;
+	public static int LOCAL_UDP_PORT = 6101;
 }

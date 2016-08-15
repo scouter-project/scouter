@@ -30,6 +30,7 @@ import scouter.lang.pack.StackPack
 import scouter.lang.pack.StatusPack
 import scouter.lang.pack.TextPack
 import scouter.lang.pack.XLogPack
+import scouter.lang.pack.BatchPack
 import scouter.lang.pack.XLogProfilePack
 import scouter.net.NetCafe
 import scouter.server.Configure
@@ -42,6 +43,7 @@ import scouter.server.core.XLogCore
 import scouter.server.core.StackAnalyzerCore
 import scouter.server.core.StatusCore
 import scouter.server.core.TextCore
+import scouter.server.core.BatchCore
 import scouter.server.core.cache.TextCache
 import scouter.server.util.ThreadScala
 import scouter.util.{BytesUtil, HashUtil, RequestQueue, StringUtil}
@@ -180,7 +182,7 @@ object NetDataProcessor {
                 }
             case PackEnum.OBJECT =>
                 val h = p.asInstanceOf[ObjectPack]
-                if (StringUtil.isNotEmpty(h.address)) {
+                if (StringUtil.isEmpty(h.address)) {
                     h.address = addr.getHostAddress()
                 }
                 AgentManager.active(h)
@@ -201,6 +203,11 @@ object NetDataProcessor {
                 SummaryCore.add(p.asInstanceOf[SummaryPack])
                 if (conf.log_udp_summary) {
                     System.out.println("DEBUG UDP SUMMARY: " + p)
+                }
+             case PackEnum.BATCH =>
+                BatchCore.add(p.asInstanceOf[BatchPack])
+                if (conf.log_udp_batch) {
+                    System.out.println("DEBUG UDP Batch: " + p)
                 }
             case _ =>
                 PackExtProcessChain.doChain(p)

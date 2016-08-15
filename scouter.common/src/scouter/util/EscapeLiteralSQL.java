@@ -18,7 +18,9 @@
 package scouter.util;
 
 import java.io.File;
-
+/**
+ * bugfix :  parse error for '*' by 2016.08.12 Paul S.J.Kim
+ */
 public class EscapeLiteralSQL {
 
 	static enum STAT {
@@ -195,6 +197,9 @@ public class EscapeLiteralSQL {
 				status = STAT.NORMAL;
 			}
 			break;
+		case QUTATION:
+			param.append(chars[pos]);
+			break;
 		default:
 			parsedSql.append(chars[pos]);
 			status = STAT.NORMAL;
@@ -205,6 +210,9 @@ public class EscapeLiteralSQL {
 		switch (status) {
 		case COMMENT:
 			parsedSql.append(chars[pos]);
+			break;
+		case QUTATION:
+			param.append(chars[pos]);
 			break;
 		default:
 			if (getNext(pos) == '*') {

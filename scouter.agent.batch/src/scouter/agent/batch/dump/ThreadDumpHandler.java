@@ -134,11 +134,13 @@ public class ThreadDumpHandler {
 
 		ClassLoader loader = LoaderManager.getToolsLoader();
 		if (loader == null) {
+System.out.println("=========>Test1");			
 			out =  ThreadUtil.getThreadDumpList();
 			return out;
 		}
 		
 		try {
+System.out.println("=========>Test2");			
 			Class<?> c = Class.forName(TOOLS_MAIN, true, loader);
 			IToolsMain toolsMain = (IToolsMain) c.newInstance();
 			out = (List<String>) toolsMain.threadDump(0, 100000);
@@ -146,6 +148,5 @@ public class ThreadDumpHandler {
 			e.printStackTrace();
 		}
 		return out;
-
 	}
 }

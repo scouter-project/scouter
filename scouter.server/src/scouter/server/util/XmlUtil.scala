@@ -29,7 +29,7 @@ import java.util.ArrayList
 
 object XmlUtil {
     def writeXmlFileWithIndent(doc: Document, file: File, indent: Int) {
-        val transformerFactory = TransformerFactory.newInstance();
+        val transformerFactory = TransformerFactory.newInstance("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl", this.getClass().getClassLoader());
         val transformer = transformerFactory.newTransformer();
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", String.valueOf(indent));

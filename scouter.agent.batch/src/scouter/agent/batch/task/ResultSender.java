@@ -15,20 +15,25 @@
  *  limitations under the License. 
  */
 
-package scouter.agent.batch;
+package scouter.agent.batch.task;
 
 import java.io.File;
 import java.io.FileWriter;
 
+import scouter.agent.batch.Configure;
+import scouter.agent.batch.Logger;
+import scouter.agent.batch.netio.data.net.UdpAgent;
 import scouter.agent.batch.trace.TraceContext;
 
 public class ResultSender extends Thread {
 	public void run(){
+		Configure config = null;
+		TraceContext traceContext = null;
 		try {
-			Configure config = Configure.getInstance();
+			config = Configure.getInstance();
 			config.scouter_stop = true;
 			
-			TraceContext traceContext = TraceContext.getInstance();
+			traceContext = TraceContext.getInstance();
 			traceContext.endTime = System.currentTimeMillis();
 			traceContext.caculateLast();
 			
@@ -39,11 +44,20 @@ public class ResultSender extends Thread {
 			Logger.println(result);
 		}catch(Exception ex){
 			ex.printStackTrace();
+		}finally{
+			try {
+				if(config != null && !config.scouter_standalone && traceContext != null){
+					UdpAgent.sendUdpPack(traceContext.makePack());
+					UdpAgent.sendLocalServer(traceContext);
+				}
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
 		}
 	}
 	
 	public void saveStandAloneResult(TraceContext traceContext, String result){
-		File resultFile = new File(traceContext.getLogFilename() + ".sbr");
+		File resultFile = new File(traceContext.getLogFullFilename() + ".sbr");
 		if(resultFile.exists()){
 			return;
 		}
