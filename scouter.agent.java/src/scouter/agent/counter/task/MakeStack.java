@@ -1,6 +1,7 @@
 package scouter.agent.counter.task;
 
 import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
 import scouter.agent.netio.data.DataProxy;
@@ -18,6 +19,7 @@ import java.lang.management.ThreadMXBean;
 import java.util.Enumeration;
 
 public class MakeStack {
+	static Configure conf = Configure.getInstance();
 
 	public long lastStackTime;
 	@Counter
@@ -27,7 +29,7 @@ public class MakeStack {
 			return;
 		}
 		long now = System.currentTimeMillis();
-		if (now < lastStackTime + getInterval())
+		if (now < lastStackTime + getSFAInterval())
 			return;
 		lastStackTime = now;
 		StringWriter sw = new StringWriter();
@@ -43,30 +45,36 @@ public class MakeStack {
 
 		StackPack p = new StackPack();
 		p.time = System.currentTimeMillis();
-		p.objHash = Configure.getInstance().getObjHash();
+		p.objHash = conf.getObjHash();
 		p.setStack(stack);
 
 		DataProxy.sendDirect(p);
+
+		long elapsed = (System.currentTimeMillis() - now);
+		Logger.trace("[SFA Counter Elasped]" + elapsed);
 	}
 	
 	public static long pstack_requested;
 	private boolean isPStackEnabled() {
-		return Configure.getInstance().sfa_dump_enabled || System.currentTimeMillis() < pstack_requested;
+		return conf.sfa_dump_enabled || System.currentTimeMillis() < pstack_requested;
 	}
-	private long getInterval() {
-		return Configure.getInstance().sfa_dump_interval_ms;
+	private long getSFAInterval() {
+		return conf.sfa_dump_interval_ms;
 	}
 
 
-	long lastRegularDumpTime = 0;
+	long lastStackTraceGenTime = 0;
 	@Counter
-	public void regularDump(CounterBasket pw) {
-
-		long now = System.currentTimeMillis();
-		if (now < lastRegularDumpTime + 10000) {
+	public void stackTraceStepGenerator(CounterBasket pw) {
+		if (!conf.asts_enabled){
 			return;
 		}
-		lastRegularDumpTime = now;
+
+		long now = System.currentTimeMillis();
+		if (now < lastStackTraceGenTime + conf.asts_dump_interval_ms) {
+			return;
+		}
+		lastStackTraceGenTime = now;
 
 		ThreadMXBean tmxBean = ManagementFactory.getThreadMXBean();
 		Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
@@ -87,6 +95,7 @@ public class MakeStack {
 				stacks[i] = DataProxy.sendStackElement(elements[i].toString());
 			}
 			DumpStep dumpStep = new DumpStep();
+			dumpStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 			dumpStep.stacks = stacks;
 			dumpStep.threadId = ctx.threadId;
 			dumpStep.threadName = tInfo.getThreadName();
@@ -96,6 +105,10 @@ public class MakeStack {
 			dumpStep.lockOwnerName = tInfo.getLockOwnerName();
 
 			ctx.temporaryDumpStep = dumpStep;
+			ctx.hasDumpStack = true;
 		}
+
+		long elapsed = (System.currentTimeMillis() - now);
+		Logger.trace("[ASTS Elasped]" + elapsed);
 	}
 }

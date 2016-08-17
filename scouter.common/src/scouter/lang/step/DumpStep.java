@@ -37,11 +37,17 @@ public class DumpStep extends StepSingle {
 	public byte getStepType() {
 		return StepEnum.DUMP;
 	}
-	public String toString() {
-		return "none";
-	}
 
-	public void write(DataOutputX out) throws IOException {
+    @Override
+    public String toString() {
+        return "DumpStep{" +
+                "threadId=" + threadId +
+                ", threadName='" + threadName + '\'' +
+                ", threadState='" + threadState + '\'' +
+                '}';
+    }
+
+    public void write(DataOutputX out) throws IOException {
 		super.write(out);
         out.writeArray(stacks);
         out.writeLong(threadId);

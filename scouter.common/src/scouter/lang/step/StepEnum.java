@@ -63,7 +63,8 @@ public class StepEnum {
 			return new ThreadSubmitStep();
 		case HASHED_MESSAGE:
 			return new HashedMessageStep();
-			
+		case DUMP:
+			return new DumpStep();
 		case MESSAGE_SUM:
 			return new MessageSum();
 		case METHOD_SUM:

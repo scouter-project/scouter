@@ -106,6 +106,7 @@ public class TraceContext {
 
 	public SqlStep lastSqlStep;
     public DumpStep temporaryDumpStep;
+	public boolean hasDumpStack;
 
 	public TraceContext createChild() {
 		TraceContext child = new TraceContext(this.isSummary);
