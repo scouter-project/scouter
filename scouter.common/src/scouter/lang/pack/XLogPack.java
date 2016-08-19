@@ -17,12 +17,12 @@
 
 package scouter.lang.pack;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
+
+import java.io.IOException;
 
 /**
  * Object that contains one transaction information
@@ -138,6 +138,10 @@ public class XLogPack implements Pack {
 	 * WebServer -> WAS time(ms)
 	 */
 	public int webTime; // WEB서버 --> WAS 시작 시점까지의 시간
+	/**
+	 * has Thread Dump ? No:0, Yes:1
+	 */
+	public byte hasDump;
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -191,6 +195,8 @@ public class XLogPack implements Pack {
 		o.writeDecimal(webHash);
 		o.writeDecimal(webTime);
 
+		o.writeByte(hasDump);
+
 		out.writeBlob(o.toByteArray());
 	}
 
@@ -232,6 +238,9 @@ public class XLogPack implements Pack {
 		if (d.available() > 0) {
 			this.webHash = (int) d.readDecimal();
 			this.webTime = (int) d.readDecimal();
+		}
+		if (d.available() >0) {
+			this.hasDump = d.readByte();
 		}
 	
 		return this;

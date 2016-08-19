@@ -35,4 +35,5 @@ public interface TextTypes{
 	public static  String DESC = "desc";
 	public static  String WEB = "web";
 	public static  String HASH_MSG = "hmsg";
+	public static  String STACK_ELEMENT = "stackelem";
 }

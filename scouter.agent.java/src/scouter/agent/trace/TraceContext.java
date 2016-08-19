@@ -17,9 +17,13 @@
 
 package scouter.agent.trace;
 
+import scouter.lang.step.DumpStep;
 import scouter.lang.step.SqlStep;
 import scouter.util.IntKeyMap;
 import scouter.util.SysJMX;
+
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class TraceContext {
 	private boolean isSummary;
@@ -104,6 +108,8 @@ public class TraceContext {
 	public String group;
 
 	public SqlStep lastSqlStep;
+    public Queue<DumpStep> temporaryDumpSteps = new LinkedBlockingQueue<DumpStep>(5);
+	public boolean hasDumpStack;
 
 	public TraceContext createChild() {
 		TraceContext child = new TraceContext(this.isSummary);

@@ -331,6 +331,11 @@ public class TraceMain {
             pack.sqlTime = ctx.sqlTime;
             pack.ipaddr = IPUtil.toBytes(ctx.remoteIp);
             pack.userid = ctx.userid;
+            if(ctx.hasDumpStack) {
+                pack.hasDump = 1;
+            } else {
+                pack.hasDump = 0;
+            }
             // ////////////////////////////////////////////////////////
             if (ctx.error != 0) {
                 pack.error = ctx.error;

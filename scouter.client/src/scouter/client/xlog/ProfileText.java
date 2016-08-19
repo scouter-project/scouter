@@ -17,17 +17,10 @@
  */
 package scouter.client.xlog;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
-
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
 import scouter.client.server.GroupPolicyConstants;
@@ -36,32 +29,14 @@ import scouter.client.server.ServerManager;
 import scouter.client.util.SqlMakerUtil;
 import scouter.client.xlog.views.XLogProfileView;
 import scouter.lang.CountryCode;
-import scouter.lang.step.ApiCallStep;
-import scouter.lang.step.ApiCallSum;
-import scouter.lang.step.HashedMessageStep;
-import scouter.lang.step.MessageStep;
-import scouter.lang.step.MethodStep;
-import scouter.lang.step.MethodStep2;
-import scouter.lang.step.MethodSum;
-import scouter.lang.step.SocketStep;
-import scouter.lang.step.SocketSum;
-import scouter.lang.step.SqlStep;
-import scouter.lang.step.SqlStep2;
-import scouter.lang.step.SqlStep3;
-import scouter.lang.step.SqlSum;
-import scouter.lang.step.SqlXType;
-import scouter.lang.step.Step;
-import scouter.lang.step.StepControl;
-import scouter.lang.step.StepEnum;
-import scouter.lang.step.StepSingle;
-import scouter.lang.step.StepSummary;
-import scouter.lang.step.ThreadSubmitStep;
-import scouter.util.DateUtil;
-import scouter.util.FormatUtil;
-import scouter.util.Hexa32;
-import scouter.util.IPUtil;
-import scouter.util.SortUtil;
-import scouter.util.StringUtil;
+import scouter.lang.step.*;
+import scouter.util.*;
+
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 public class ProfileText {
 	
@@ -168,6 +143,9 @@ public class ProfileText {
         t = TextProxy.desc.getLoadText(date, xperf.p.desc, serverId);
         if (StringUtil.isNotEmpty(t)) {
             sb.append("\n► desc=" + t);
+        }
+        if (xperf.p.hasDump == 1) {
+            sb.append("\n► dump=Y");
         }
         sb.append("\n");
 
@@ -346,6 +324,11 @@ public class ProfileText {
                 case StepEnum.HASHED_MESSAGE:
                     slen = sb.length();
                     toString(sb, (HashedMessageStep) stepSingle);
+                    sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
+                    break;
+                case StepEnum.DUMP:
+                    slen = sb.length();
+                    toString(sb, (DumpStep) stepSingle, lineHead);
                     sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
                     break;
                 case StepEnum.APICALL:
@@ -579,6 +562,11 @@ public class ProfileText {
                     toString(sb, (HashedMessageStep) stepSingle);
                     sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
                     break;
+                case StepEnum.DUMP:
+                    slen = sb.length();
+                    toString(sb, (DumpStep) stepSingle, lineHead);
+                    sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
+                    break;
                 case StepEnum.APICALL:
                     ApiCallStep apicall = (ApiCallStep) stepSingle;
                     slen = sb.length();
@@ -639,6 +627,28 @@ public class ProfileText {
         if (m == null)
             m = Hexa32.toString32(p.hash);
         sb.append(m).append(" #").append(FormatUtil.print(p.value, "#,##0")).append(" ").append(FormatUtil.print(p.time, "#,##0")).append(" ms");
+    }
+
+    public static void toString(StringBuffer sb, DumpStep p, int lineHead) {
+        sb.append("<auto generated thread dump>:[").append(p.threadId).append("] ").append(p.threadName).append('\n');
+        sb.append(StringUtil.leftPad("", lineHead)).append("   -> State : ").append(p.threadState).append('\n');
+        if(StringUtil.isNotEmpty(p.lockName)) {
+            sb.append(StringUtil.leftPad("", lineHead)).append("   -> Lock : ").append(p.lockName).append('\n');
+        }
+        if(StringUtil.isNotEmpty(p.lockOwnerName)) {
+            sb.append(StringUtil.leftPad("", lineHead)).append("   -> Lock Owner : ").append(p.lockOwnerName).append('\n');
+        }
+        if(p.lockOwnerId > 0) {
+            sb.append(StringUtil.leftPad("", lineHead)).append("   -> Lock Owner Id ").append(p.lockOwnerId).append('\n');
+        }
+
+        for(int stackElementHash : p.stacks) {
+            String m = TextProxy.stackElement.getText(stackElementHash);
+            if(m == null) {
+                m = Hexa32.toString32(stackElementHash);
+            }
+            sb.append(StringUtil.leftPad("", lineHead)).append(m).append('\n');
+        }
     }
 
     public static void toString(StringBuffer sb, ThreadSubmitStep p) {
