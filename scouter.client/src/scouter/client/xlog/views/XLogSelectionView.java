@@ -243,22 +243,22 @@ public class XLogSelectionView extends ViewPart {
 	}
 	
 	enum XLogColumnEnum {
-	    OBJECT("Object", 100, SWT.LEFT, true, true, false),
+	    OBJECT("Object", 80, SWT.LEFT, true, true, false),
 	    ELAPSED("Elapsed", 50, SWT.RIGHT, true, true, true),
 	    SERVICE("Service", 100, SWT.LEFT, true, true, false),
-	    START_TIME("StartTime", 60, SWT.CENTER, true, true, true),
-	    END_TIME("EndTime", 60, SWT.CENTER, true, true, true),
-	    TX_ID("Txid", 30, SWT.LEFT, true, true, false),
-	    CPU("Cpu", 50, SWT.RIGHT, true, true, true),
-	    SQL_COUNT("SQL Count", 50, SWT.RIGHT, true, true, true),
-	    SQL_TIME("SQL Time", 50, SWT.RIGHT, true, true, true),
-	    KBYTES("KBytes", 50, SWT.RIGHT, true, true, true),
-	    IP("IP", 100, SWT.LEFT, true, true, false),
-	    ERROR("Error", 50, SWT.LEFT, true, true, false),
-	    GX_ID("Gxid", 30, SWT.LEFT, true, true, false),
-		LOGIN("Login", 70, SWT.LEFT, true, true, false),
-		DESC("Desc", 70, SWT.LEFT, true, true, false),
-		DUMP("Dump", 30, SWT.CENTER, true, true, false);
+	    END_TIME("EndTime", 70, SWT.CENTER, true, true, true),
+		CPU("Cpu", 40, SWT.RIGHT, true, true, true),
+		SQL_COUNT("SQL Count", 50, SWT.RIGHT, true, true, true),
+		SQL_TIME("SQL Time", 50, SWT.RIGHT, true, true, true),
+		KBYTES("KBytes", 60, SWT.RIGHT, true, true, true),
+		IP("IP", 90, SWT.LEFT, true, true, false),
+		LOGIN("Login", 50, SWT.LEFT, true, true, false),
+		DUMP("Dump", 40, SWT.CENTER, true, true, false),
+		ERROR("Error", 50, SWT.LEFT, true, true, false),
+		TX_ID("Txid", 30, SWT.LEFT, true, true, false),
+		GX_ID("Gxid", 30, SWT.LEFT, true, true, false),
+		DESC("Desc", 50, SWT.LEFT, true, true, false),
+		START_TIME("StartTime", 70, SWT.CENTER, true, true, true);
 
 	    private final String title;
 	    private final int weight;

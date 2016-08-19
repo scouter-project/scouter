@@ -166,6 +166,8 @@ public class DataProxy {
 		webNameTable.clear();
 		groupAgent.clear();
 		hashMessage.clear();
+		stackElement.clear();
+
 	}
 	public static void sendXLog(XLogPack p) {
 		p.objHash = conf.getObjHash();

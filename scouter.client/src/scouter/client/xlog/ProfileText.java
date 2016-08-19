@@ -144,7 +144,6 @@ public class ProfileText {
         if (StringUtil.isNotEmpty(t)) {
             sb.append("\n► desc=" + t);
         }
-        sb.append("\n");
         if (xperf.p.hasDump == 1) {
             sb.append("\n► dump=Y");
         }
@@ -329,7 +328,7 @@ public class ProfileText {
                     break;
                 case StepEnum.DUMP:
                     slen = sb.length();
-                    toString(sb, (DumpStep) stepSingle);
+                    toString(sb, (DumpStep) stepSingle, lineHead);
                     sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
                     break;
                 case StepEnum.APICALL:
@@ -565,7 +564,7 @@ public class ProfileText {
                     break;
                 case StepEnum.DUMP:
                     slen = sb.length();
-                    toString(sb, (DumpStep) stepSingle);
+                    toString(sb, (DumpStep) stepSingle, lineHead);
                     sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
                     break;
                 case StepEnum.APICALL:
@@ -630,14 +629,25 @@ public class ProfileText {
         sb.append(m).append(" #").append(FormatUtil.print(p.value, "#,##0")).append(" ").append(FormatUtil.print(p.time, "#,##0")).append(" ms");
     }
 
-    public static void toString(StringBuffer sb, DumpStep p) {
-        sb.append(p.threadId).append(" - ").append(p.threadName).append('\n');
+    public static void toString(StringBuffer sb, DumpStep p, int lineHead) {
+        sb.append("<auto generated thread dump>:[").append(p.threadId).append("] ").append(p.threadName).append('\n');
+        sb.append(StringUtil.leftPad("", lineHead)).append("   -> State : ").append(p.threadState).append('\n');
+        if(StringUtil.isNotEmpty(p.lockName)) {
+            sb.append(StringUtil.leftPad("", lineHead)).append("   -> Lock : ").append(p.lockName).append('\n');
+        }
+        if(StringUtil.isNotEmpty(p.lockOwnerName)) {
+            sb.append(StringUtil.leftPad("", lineHead)).append("   -> Lock Owner : ").append(p.lockOwnerName).append('\n');
+        }
+        if(p.lockOwnerId > 0) {
+            sb.append(StringUtil.leftPad("", lineHead)).append("   -> Lock Owner Id ").append(p.lockOwnerId).append('\n');
+        }
+
         for(int stackElementHash : p.stacks) {
             String m = TextProxy.stackElement.getText(stackElementHash);
             if(m == null) {
                 m = Hexa32.toString32(stackElementHash);
             }
-            sb.append(m).append('\n');
+            sb.append(StringUtil.leftPad("", lineHead)).append(m).append('\n');
         }
     }
 

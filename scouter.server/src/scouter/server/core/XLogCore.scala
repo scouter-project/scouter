@@ -58,8 +58,6 @@ object XLogCore {
         case _ => //기타 타입은 무시한다.
       }
 
-      println("[XLog-hasdump]" + m.hasDump);
-
       PlugInManager.xlogdb(m);
       val b = new DataOutputX().writePack(m).toByteArray();
       XLogCache.put(m.objHash, m.elapsed, m.error != 0, b);
