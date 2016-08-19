@@ -28,6 +28,7 @@ public class ProfileCollector implements IProfileCollector {
     private TraceContext context;
     protected Step[] steps = new Step[conf.profile_step_max_count];
     protected int pos = 0;
+    private boolean doingDumpStepJob = false;
 
     public int currentLevel = 0;
     public int parentLevel = -1;
@@ -103,10 +104,19 @@ public class ProfileCollector implements IProfileCollector {
     }
 
     private void checkDumpStep() {
-        if(context.temporaryDumpStep != null) {
-            DumpStep dumpStep = context.temporaryDumpStep;
-            context.temporaryDumpStep = null;
+        if(doingDumpStepJob) {
+            return;
+        }
+
+        DumpStep dumpStep;
+        doingDumpStepJob = true;
+        while(true) {
+            dumpStep = context.temporaryDumpSteps.poll();
+            if(dumpStep == null) {
+                break;
+            }
             add(dumpStep);
         }
+        doingDumpStepJob = false;
     }
 }

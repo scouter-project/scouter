@@ -104,7 +104,7 @@ public class MakeStack {
 			dumpStep.lockName = tInfo.getLockName();
 			dumpStep.lockOwnerName = tInfo.getLockOwnerName();
 
-			ctx.temporaryDumpStep = dumpStep;
+			ctx.temporaryDumpSteps.offer(dumpStep);
 			ctx.hasDumpStack = true;
 		}
 
