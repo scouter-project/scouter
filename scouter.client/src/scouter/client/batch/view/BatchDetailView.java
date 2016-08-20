@@ -72,7 +72,7 @@ public class BatchDetailView extends ViewPart {
 		text.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
 		
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
-		man.add(openSqlSummaryDialog);
+		man.add(openSFADialog);
 			    
 	    createContextMenu();
 	}
@@ -83,7 +83,7 @@ public class BatchDetailView extends ViewPart {
 		sqlSummary.setText("SQL Statistics");
 		sqlSummary.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				openSqlSummaryDialog.run();
+				openSFADialog.run();
 			}
 		});
 
@@ -158,7 +158,7 @@ public class BatchDetailView extends ViewPart {
 	public void setFocus() {
 	}
 	
-	Action openSqlSummaryDialog = new Action("SQL Statistics", ImageUtil.getImageDescriptor(Images.sum)) {
+	Action openSFADialog = new Action("Stack Frequency Analyzer", ImageUtil.getImageDescriptor(Images.page_white_stack)) {
 		public void run() { 
 			//XlogSummarySQLDialog summberSQLDialog = new XlogSummarySQLDialog(new Shell(Display.getDefault(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN), steps, xLogData);
 			//summberSQLDialog.open();
