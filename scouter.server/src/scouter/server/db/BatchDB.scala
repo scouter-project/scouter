@@ -69,7 +69,7 @@ object BatchDB {
             Logger.println("S000", 10, "queue exceeded!!");
         }
     }
-    def read(objName: String, from: Long, to: Long, handler: (Long, Array[Byte]) => Any) {
+    def read(objName: String, from: Long, to: Long, filter: String, response: Long, handler: (Long, BatchPack) => Any) {
         val date = DateUtil.yyyymmdd(from)
         val path = getDBPath(date, objName)
         val idxFile = new File(path + "/batch.idx")
@@ -87,6 +87,7 @@ object BatchDB {
         if (x < 0) {
             return
         }
+        var isSend = false
         while (x < len) {
             idxRAF.seek(x * IDX_LEN);
             val time = new DataInputX(idxRAF).readLong()
@@ -97,7 +98,25 @@ object BatchDB {
                 val dataIn = new DataInputX(dataFile)
                 val len = DataInputX.toInt(dataIn.read(4), 0)
                 val data = dataIn.read(len)
-                handler(time, data)
+                isSend = true
+                val batchPack = new BatchPack()
+                batchPack.readSimplePack(data)
+                if(filter != null || response > 0){
+                	if(filter != null){
+                	  if(batchPack.batchJobId.indexOf(filter) < 0){
+                	    isSend = false;
+                	  }
+                	}
+                	if(response > 0){
+                	  if(batchPack.elapsedTime < response){
+                	    isSend = false;
+                	  }
+                	}
+                }
+                if(isSend){
+                	batchPack.position = dataPos
+                	handler(time, batchPack)
+            	}
                 x += 1
             } else {
                 x = len // break

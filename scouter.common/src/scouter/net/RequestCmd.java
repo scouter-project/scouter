@@ -267,6 +267,7 @@ public class RequestCmd {
 	
 	// batch job
 	public static final String BATCH_HISTORY_LIST = "BATCH_HISTORY_LIST";
+	public static final String BATCH_HISTORY_DETAIL = "BATCH_HISTORY_DETAIL";
 	
 	protected static Set<String> freeCmdSet = new HashSet<String>();
 	

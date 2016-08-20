@@ -17,7 +17,9 @@
  */
 package scouter.client.batch.view;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -51,6 +53,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
@@ -68,6 +71,8 @@ import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
+import scouter.client.model.XLogData;
+import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.client.popup.EditableMessageDialog;
 import scouter.client.server.GroupPolicyConstants;
@@ -78,6 +83,10 @@ import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.ScouterUtil;
+import scouter.client.xlog.actions.OpenXLogProfileJob;
+import scouter.client.xlog.views.XLogSelectionView;
+import scouter.io.DataInputX;
+import scouter.lang.pack.BatchPack;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.BlobValue;
 import scouter.lang.value.ListValue;
@@ -126,66 +135,57 @@ public class ObjectBatchHistoryView extends ViewPart {
 	public void search() {
 		final String search = searchText.getText();
 		final String time = responseTimeText.getText();
+		final long [] period = getTimePeriod();		
+		final List<BatchPack> list = new ArrayList<BatchPack>();
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
 				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
-				MapPack out = null;
 				try {
 					MapPack param = new MapPack();
 					param.put("objHash", objHash);
 					if (StringUtil.isNotEmpty(search)) {
 						param.put("filter", search);
 					}
-					if (StringUtil.isNotEmpty(search)) {
-						param.put("time", time);
-					}					
-					out = (MapPack) tcp.getSingle(RequestCmd.BATCH_HISTORY_LIST, param);
-					if (out == null) {
-						return;
+					if (StringUtil.isNotEmpty(time)) {
+						long response = Long.parseLong(time);
+						param.put("response", response);
 					}
+					param.put("from", period[0]);
+					param.put("to", period[1]);
+					
+					tcp.process(RequestCmd.BATCH_HISTORY_LIST, param, new INetReader() {
+						public void process(DataInputX in) throws IOException {
+							BatchPack pack = new BatchPack();
+							pack.readSimple(in);
+							list.add(pack);
+							pack.index = list.size();
+						}
+					});
 				} catch (Throwable t) {
 					ConsoleProxy.errorSafe(t.toString());
 				} finally {
 					TcpProxy.putTcpProxy(tcp);
 				}
 				
-				ListValue indexLv = out.getList("index");
-				if (indexLv == null) {
-					return;
-				}
-				ListValue startTimeLv = out.getList("startTime");
-				ListValue jobIdLv = out.getList("jobId");
-				ListValue responseTimeLv = out.getList("reponseTime");
-				ListValue sqlTimeLv = out.getList("sqlTime");
-				ListValue sqlRunsLv = out.getList("sqlRuns");
-				ListValue threadsLv = out.getList("threads");
-				ListValue isStackLv = out.getList("isStack");
-				ListValue positionLv = out.getList("position");
-				
-				int count = indexLv.size();
-				final List<BatchData> batchDataList = new ArrayList<BatchData>(count);
-				
-				for (int i = 0; i < count; i++) {
-					BatchData data = new BatchData();
-					data.index = indexLv.getLong(i);
-					data.startTime = startTimeLv.getLong(i);
-					data.jobId = jobIdLv.getString(i);
-					data.responseTime = responseTimeLv.getLong(i);
-					data.sqlTime = sqlTimeLv.getLong(i);
-					data.sqlRuns = sqlRunsLv.getLong(i);
-					data.threads = threadsLv.getInt(i);
-					data.isStack = isStackLv.getBoolean(i);
-					data.position = positionLv.getLong(i);
-					batchDataList.add(data);
-				}
 				ExUtil.exec(tableViewer.getTable(), new Runnable() {
 					public void run() {
-						tableViewer.setInput(batchDataList);
+						tableViewer.setInput(list);
 					}
 				});
 			}
 		});
 		
+	}
+	
+	private long [] getTimePeriod(){
+		long [] period = new long[2];
+		Calendar cal = Calendar.getInstance();
+		cal.set(date.getYear(), date.getMonth(), date.getDay(), 0, 0, 0);
+		long dayTime = cal.getTimeInMillis();
+		dayTime = dayTime - (dayTime % 1000L);
+		period[0] = dayTime + (fromTime.getHours() *3600000L) + (fromTime.getMinutes() * 60000L) + (fromTime.getSeconds() * 1000L);
+		period[1] = dayTime + (toTime.getHours() *3600000L) + (toTime.getMinutes() * 60000L) + (toTime.getSeconds() * 1000L);
+		return period;
 	}
 
 	private void initialLayout(Composite parent) {
@@ -208,8 +208,16 @@ public class ObjectBatchHistoryView extends ViewPart {
 	    table.setLinesVisible(true);
 	    createTableContextMenu();
 	    tableViewer.addDoubleClickListener(new IDoubleClickListener() {
-			public void doubleClick(DoubleClickEvent arg0) {
-				openDescription();
+			public void doubleClick(DoubleClickEvent evt) {
+				StructuredSelection sel = (StructuredSelection) evt.getSelection();
+				Object o = sel.getFirstElement();
+				if (o instanceof BatchPack) {
+					BatchPack pack = (BatchPack) o;
+					Display display = BatchDetailView.this.getViewSite().getShell().getDisplay();
+					new OpenBatchDetailJob(display, pack, serverId).schedule();
+				} else {
+					System.out.println(o);
+				}
 			}
 		});
 	    tableViewer.setContentProvider(new ArrayContentProvider());
@@ -217,6 +225,21 @@ public class ObjectBatchHistoryView extends ViewPart {
 	    GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
 	    tableViewer.getControl().setLayoutData(gridData);
 	}
+/*
+ 	    table.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				StructuredSelection sel = (StructuredSelection) viewer.getSelection();
+				Object o = sel.getFirstElement();
+				if (o instanceof XLogData) {
+					XLogData data = (XLogData) o;
+					Display display = XLogSelectionView.this.getViewSite().getShell().getDisplay();
+					new OpenXLogProfileJob(display, data, data.serverId).schedule();
+				} else {
+					System.out.println(o);
+				}
+			}
+		}); 	
+ */
 	
 	private void createTableContextMenu() {
 		MenuManager manager = new MenuManager();
@@ -231,8 +254,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 		    manager.add(new Action("&Export Class") {
 		    	public void run() {
 		    		StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
-					BatchData data = (BatchData) selection.getFirstElement();
-					final String jobId = data.jobId;
+					BatchPack data = (BatchPack) selection.getFirstElement();
+					final String jobId = data.batchJobId;
 					if (StringUtil.isEmpty(jobId)) {
 						return;
 					}
@@ -272,7 +295,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 		    manager.add(new Action("&Export Jar") {
 		    	public void run() {
 		    		StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
-					final BatchData data = (BatchData) selection.getFirstElement();
+					final BatchPack data = (BatchPack) selection.getFirstElement();
 					final String resource = "" + data.isStack;
 					if (StringUtil.isEmpty(resource)) {
 						return;
@@ -300,7 +323,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 									final long size = p.getLong("size");
 									ExUtil.exec(tableViewer.getTable(), new Runnable() {
 										public void run() {
-											if(MessageDialog.openQuestion(tableViewer.getTable().getShell(), data.jobId
+											if(MessageDialog.openQuestion(tableViewer.getTable().getShell(), data.batchJobId
 													, name + "(" + ScouterUtil.humanReadableByteCount(size, true) +") will be downloaded.\nContinue?")) {
 												Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()	.getShell();
 												FileDialog dialog = new FileDialog(shell, SWT.SAVE);
@@ -337,8 +360,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 		    		final ListValue jobIdLv = new ListValue(); 
 		    		Object[] datas = selection.toArray();
 		    		for (int i = 0; i < datas.length; i++) {
-		    			BatchData data = (BatchData) datas[i];
-		    			jobIdLv.add(data.jobId);
+		    			BatchPack data = (BatchPack) datas[i];
+		    			jobIdLv.add(data.batchJobId);
 		    		}
 					if(MessageDialog.openQuestion(tableViewer.getTable().getShell(), jobIdLv.size() + " class(es) selected"
 							, "Redefine class may affect this server.\nContinue?")) {
@@ -436,8 +459,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof BatchData) {
-							return String.valueOf(((BatchData)element).index);
+						if (element instanceof BatchPack) {
+							return "" + (((BatchPack)element).index);
 						}
 						return null;
 					}
@@ -447,8 +470,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof BatchData) {
-							return DateUtil.yyyymmdd(((BatchData) element).startTime) + " " + DateUtil.hhmmss(((BatchData) element).startTime);
+						if (element instanceof BatchPack) {
+							return DateUtil.yyyymmdd(((BatchPack) element).startTime) + " " + DateUtil.hhmmss(((BatchPack) element).startTime);
 						}
 						return null;
 					}
@@ -458,8 +481,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof BatchData) {
-							return ((BatchData) element).jobId;
+						if (element instanceof BatchPack) {
+							return ((BatchPack) element).batchJobId;
 						}
 						return null;
 					}
@@ -469,8 +492,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof BatchData) {
-							return "" + ((BatchData) element).responseTime;
+						if (element instanceof BatchPack) {
+							return String.format("%,13d",((BatchPack) element).elapsedTime);
 						}
 						return null;
 					}
@@ -480,8 +503,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof BatchData) {
-							return "" + ((BatchData) element).sqlTime;
+						if (element instanceof BatchPack) {
+							return String.format("%,13d",(((BatchPack) element).sqlTotalTime/1000000L));
 						}
 						return null;
 					}
@@ -491,8 +514,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof BatchData) {
-							return "" + ((BatchData) element).sqlRuns;
+						if (element instanceof BatchPack) {
+							return String.format("%,13d",((BatchPack) element).sqlTotalRuns);
 						}
 						return null;
 					}
@@ -502,8 +525,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof BatchData) {
-							return "" + ((BatchData) element).threads;
+						if (element instanceof BatchPack) {
+							return String.format("%,13d",((BatchPack) element).threadCnt);
 						}
 						return null;
 					}
@@ -513,8 +536,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 				labelProvider = new ColumnLabelProvider() {
 					@Override
 					public String getText(Object element) {
-						if (element instanceof BatchData) {
-							return ((BatchData) element).isStack?"O":"";
+						if (element instanceof BatchPack) {
+							return ((BatchPack) element).isStack?"O":"";
 						}
 						return null;
 					}
@@ -554,7 +577,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 			if (items != null && items.length > 0) {
 				StringBuffer sb = new StringBuffer();
 				for (int i = 0; i < items.length; i++) {
-					BatchData data = (BatchData) items[i].getData();
+					BatchPack data = (BatchPack) items[i].getData();
 					sb.append(data.toString());
 				}
 				clipboard.setContents(new Object[] {sb.toString()}, new Transfer[] {TextTransfer.getInstance()});
@@ -612,23 +635,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 			return this.isNumber;
 		}
 	}
-	
-	class BatchData {
-		public long index;
-		public long startTime;
-		public String jobId;
-		public long responseTime;
-		public long sqlTime;
-		public long sqlRuns;
-		public int threads;
-		public boolean isStack;
-		public long position;
-		
-		public String toString() {
-			return new StringBuilder(100).append(index).append('\t').append(DateUtil.yyyymmdd(startTime)).append(' ').append(DateUtil.hhmmss(startTime)).append('\t').append(jobId).append('\t').append(responseTime).append('\t').append(sqlTime).append('\t').append(sqlRuns).append('\t').append(threads).append('\t').append(isStack).append('\n').toString();
-		}
-	}
-	
+
 	class RedefineClassJob extends Job {
 		
 		ListValue classLv;
@@ -715,8 +722,8 @@ public class ObjectBatchHistoryView extends ViewPart {
 	
 	private void openDescription() {
 		StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
-		BatchData data = (BatchData) selection.getFirstElement();
-		final String className = data.jobId;
+		BatchPack data = (BatchPack) selection.getFirstElement();
+		final String className = data.batchJobId;
 		if (StringUtil.isEmpty(className)) {
 			return;
 		}
