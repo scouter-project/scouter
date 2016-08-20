@@ -17,8 +17,6 @@
  */
 package scouter.client.batch.action;
 
-import java.util.Set;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -28,23 +26,14 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
-import scouter.client.model.TextProxy;
-import scouter.client.model.XLogData;
-import scouter.client.model.XLogProxy;
+import scouter.client.batch.view.BatchDetailView;
 import scouter.client.net.TcpProxy;
-import scouter.client.server.ServerManager;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
-import scouter.client.xlog.XLogUtil;
-import scouter.client.xlog.views.XLogProfileView;
 import scouter.lang.pack.BatchPack;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
-import scouter.lang.pack.XLogPack;
-import scouter.lang.step.Step;
 import scouter.net.RequestCmd;
-import scouter.util.DateUtil;
-import scouter.util.Hexa32;
 
 public class OpenBatchDetailJob extends Job {
 
@@ -54,7 +43,7 @@ public class OpenBatchDetailJob extends Job {
 	String secId = "batchdetailview";
 	
 	public OpenBatchDetailJob(Display display, BatchPack pack, int serverId) {
-		super("Load XLog Profile");
+		super("Load Batch History Detail");
 		this.display = display;
 		this.pack = pack;
 		this.serverId = serverId;
@@ -69,9 +58,8 @@ public class OpenBatchDetailJob extends Job {
 				public void run() {
 					try {
 						IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-						XLogProfileView view = (XLogProfileView) win.getActivePage().showView(XLogProfileView.ID, secId,
-								IWorkbenchPage.VIEW_ACTIVATE);
-						view.setInput(steps, data, data.serverId);	
+						BatchDetailView view = (BatchDetailView) win.getActivePage().showView(BatchDetailView.ID, secId, IWorkbenchPage.VIEW_ACTIVATE);
+						view.setInput(recvPack);	
 					} catch (Exception ex) {
 						ex.printStackTrace();
 					}
@@ -99,5 +87,4 @@ public class OpenBatchDetailJob extends Job {
 		}
 		return null;
 	}
-	
 }

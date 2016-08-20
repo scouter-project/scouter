@@ -17,62 +17,41 @@
  */
 package scouter.client.batch.view;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Activator;
 import scouter.client.Images;
-import scouter.client.model.XLogData;
-import scouter.client.server.GroupPolicyConstants;
-import scouter.client.server.Server;
-import scouter.client.server.ServerManager;
-import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ImageUtil;
-import scouter.client.xlog.ProfileText;
-import scouter.client.xlog.SaveProfileJob;
-import scouter.client.xlog.actions.OpenXLogProfileJob;
-import scouter.client.xlog.actions.OpenXLogThreadProfileJob;
-import scouter.client.xlog.dialog.XlogSummarySQLDialog;
-import scouter.client.xlog.views.XLogFlowView;
 import scouter.lang.pack.BatchPack;
 import scouter.lang.step.Step;
-import scouter.util.CacheTable;
-import scouter.util.DateUtil;
-import scouter.util.Hexa32;
-import scouter.util.StringUtil;
+import scouter.lang.value.MapValue;
 import scouter.util.SystemUtil;
-
 
 public class BatchDetailView extends ViewPart {
 	public static final String ID = BatchDetailView.class.getName();
 	private StyledText text;
-	private XLogData xLogData;
-	private String txid;
+	private BatchPack pack;
 	Menu contextMenu;
 	MenuItem sqlSummary;
-	MenuItem bindSqlParamMenu;
 	
 	IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 	
@@ -94,10 +73,7 @@ public class BatchDetailView extends ViewPart {
 		
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
 		man.add(openSqlSummaryDialog);
-		
-	    IMenuManager menuManager = getViewSite().getActionBars().getMenuManager();
-	    menuManager.add(saveFullProfile);
-	    
+			    
 	    createContextMenu();
 	}
 	
@@ -110,148 +86,83 @@ public class BatchDetailView extends ViewPart {
 				openSqlSummaryDialog.run();
 			}
 		});
-		bindSqlParamMenu = new MenuItem(contextMenu, SWT.CHECK);
-		bindSqlParamMenu.setText("Bind SQL Parameter");
-		bindSqlParamMenu.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				bindSqlParam = bindSqlParamMenu.getSelection();
-		//		setInput(steps, xLogData, serverId);
-			}
-		});
-		MenuItem saveProfile = new MenuItem(contextMenu, SWT.PUSH);
-		saveProfile.setText("Save Full Profile");
-		saveProfile.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				saveFullProfile.run();
-			}
-		});
+
 	    text.setMenu(contextMenu);
 	}
-
-	public static boolean isSummary;
 	
-	boolean truncated;
-	private int serverId;
-	boolean bindSqlParam;
-	
-	CacheTable<String, Boolean> preventDupleEventTable = new CacheTable<String, Boolean>().setDefaultKeepTime(700);
 	public void setInput(BatchPack pack) {
-	/*	
-		this.steps = steps;
-		this.xLogData = item;
-		this.txid = Hexa32.toString32(item.p.txid);
-		this.serverId = serverId;
+		this.pack = pack;
+		setPartName(pack.objName + " - " + pack.batchJobId);
+
+		StringBuilder buffer = new StringBuilder(10240);		
+		String lineSeparator = System.getProperty("line.separator");
+			
+		buffer.append("-[").append(pack.batchJobId).append("]----------------------------------------------").append(lineSeparator);
+		buffer.append("PID         : ").append(pack.pID).append(lineSeparator);
+		buffer.append("Run  Command: ").append(pack.args).append(lineSeparator);
+		if(pack.isStack){
+				buffer.append("Stack   Dump: O").append(lineSeparator);
+		}else{
+			buffer.append("Stack   Dump: X").append(lineSeparator);
+		}
 		
-		Server server = ServerManager.getInstance().getServer(serverId);
-		sqlSummary.setEnabled(server.isAllowAction(GroupPolicyConstants.ALLOW_SQLPARAMETER));
-		bindSqlParamMenu.setEnabled(server.isAllowAction(GroupPolicyConstants.ALLOW_SQLPARAMETER));
-		
-		setPartName(txid);
-		text.setText("");
-		
-		ProfileText.build(DateUtil.yyyymmdd(xLogData.p.endTime), text, this.xLogData, steps, serverId, bindSqlParam);
-		text.addListener(SWT.MouseUp, new Listener(){
-			public void handleEvent(Event event) {
-				try {
-					int offset = text.getOffsetAtLocation(new Point (event.x, event.y));
-					StyleRange style = text.getStyleRangeAtOffset(offset);
-					if (style != null && style.underline && style.underlineStyle == SWT.UNDERLINE_LINK) {
-						int line = text.getLineAtOffset(offset);
-						String fulltxt = text.getLine(line);
-						if (StringUtil.isNotEmpty(fulltxt)) {
-							if (fulltxt.startsWith("► gxid")) {
-								if (preventDupleEventTable.get("gxid") != null) return;
-								synchronized (preventDupleEventTable) {
-									if (preventDupleEventTable.get("gxid") != null) return;
-									preventDupleEventTable.put("gxid", new Boolean(true));
-								}
-								String[] tokens = StringUtil.tokenizer(fulltxt, " =\n");
-								String gxid = tokens[tokens.length - 1];
-								try {
-									XLogFlowView view = (XLogFlowView) window.getActivePage().showView(XLogFlowView.ID, gxid, IWorkbenchPage.VIEW_ACTIVATE);
-									if (view != null) {
-										view.loadByGxId(DateUtil.yyyymmdd(item.p.endTime), Hexa32.toLong32(gxid));
-									}
-								} catch (PartInitException e) {
-									ConsoleProxy.error(e.toString());
-								}
-							} else if (fulltxt.startsWith("► txid")) {
-								if (preventDupleEventTable.get("txid") != null) return;
-								synchronized (preventDupleEventTable) {
-									if (preventDupleEventTable.get("txid") != null) return;
-									preventDupleEventTable.put("txid", new Boolean(true));
-								}
-								String[] tokens = StringUtil.tokenizer(fulltxt, " =\n");
-								String txid = tokens[tokens.length - 1];
-								try {
-									XLogFlowView view = (XLogFlowView) window.getActivePage().showView(XLogFlowView.ID, txid, IWorkbenchPage.VIEW_ACTIVATE);
-									if (view != null) {
-										view.loadByTxId(DateUtil.yyyymmdd(item.p.endTime), Hexa32.toLong32(txid));
-									}
-								} catch (PartInitException e) {
-									ConsoleProxy.error(e.toString());
-								}
-							} else if (fulltxt.startsWith("► caller")) {
-								if (preventDupleEventTable.get("caller") != null) return;
-								synchronized (preventDupleEventTable) {
-									if (preventDupleEventTable.get("caller") != null) return;
-									preventDupleEventTable.put("caller", new Boolean(true));
-								}
-								String[] tokens = StringUtil.tokenizer(fulltxt, " =\n");
-								String txIdStr = tokens[tokens.length - 1];
-								long txid = Hexa32.toLong32(txIdStr);
-								new OpenXLogProfileJob(BatchDetailView.this.getViewSite().getShell().getDisplay(), DateUtil.yyyymmdd(item.p.endTime), txid).schedule();
-							} else if (fulltxt.endsWith(">") && fulltxt.contains("call:")) {
-								if (preventDupleEventTable.get("call") != null) return;
-								synchronized (preventDupleEventTable) {
-									if (preventDupleEventTable.get("call") != null) return;
-									preventDupleEventTable.put("call", new Boolean(true));
-								}
-								int startIndex = fulltxt.lastIndexOf("<");
-								if (startIndex > -1) {
-									int endIndex = fulltxt.lastIndexOf(">");
-									String txIdStr = fulltxt.substring(startIndex + 1, endIndex);
-									long txid = Hexa32.toLong32(txIdStr);
-									new OpenXLogProfileJob(BatchDetailView.this.getViewSite().getShell().getDisplay(), DateUtil.yyyymmdd(item.p.endTime), txid).schedule();
-								}
-							}else if (fulltxt.endsWith(">") && fulltxt.contains("thread:")) {
-								if (preventDupleEventTable.get("thread") != null) return;
-								synchronized (preventDupleEventTable) {
-									if (preventDupleEventTable.get("thread") != null) return;
-									preventDupleEventTable.put("thread", new Boolean(true));
-								}
-								int startIndex = fulltxt.lastIndexOf("<");
-								if (startIndex > -1) {
-									int endIndex = fulltxt.lastIndexOf(">");
-									String txIdStr = fulltxt.substring(startIndex + 1, endIndex);
-									long threadTxid = Hexa32.toLong32(txIdStr);
-									new OpenXLogThreadProfileJob(xLogData, threadTxid).schedule();
-								}
-							}
-						}
-					}
-				} catch (IllegalArgumentException e) {
-					// no character under event.x, event.y
-				}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		buffer.append("Start   Time: ").append(sdf.format(new Date(pack.startTime))).append(lineSeparator);
+		buffer.append("Stop    Time: ").append(sdf.format(new Date(pack.startTime + pack.elapsedTime))).append(lineSeparator);
+		buffer.append("Elapsed Time: ").append(String.format("%,d",pack.elapsedTime)).append("ms").append(lineSeparator);
+		if(pack.cpuTime > 0){
+			buffer.append("CPU     Time: ").append(String.format("%,d",pack.cpuTime/1000000L)).append("ms").append(lineSeparator);
+		}
+		if(pack.sqlTotalCnt > 0){
+			buffer.append("SQL     Time: ").append(String.format("%,d",(pack.sqlTotalTime/1000000L))).append("ms").append(lineSeparator);
+			buffer.append("SQL     Type: ").append(pack.sqlTotalCnt).append(lineSeparator);
+			buffer.append("SQL     Runs: ").append(String.format("%,d",pack.sqlTotalRuns)).append(lineSeparator);
+		}
+		if(pack.threadCnt > 0){
+			buffer.append("Thread Count: ").append(pack.threadCnt).append(lineSeparator);
+		}
+			
+		if(pack.sqlTotalCnt > 0){
+			buffer.append(lineSeparator).append("<SQLs>").append(lineSeparator);
+			int index = 0;
+			buffer.append("Index          Runs     TotalTime       MinTime       MaxTime          Rows (Measured) StartTime               EndTime").append(lineSeparator);
+			buffer.append("--------------------------------------------------------------------------------------------------------------------------------------");
+			List<MapValue> stats = pack.sqlStats;
+			for(MapValue mapValue : stats){
+				index++;
+				buffer.append(lineSeparator);
+				buffer.append(String.format("%5s", index)).append(' ');
+				buffer.append(String.format("%,13d", mapValue.getLong("runs"))).append(' ');
+				buffer.append(String.format("%,13d", (mapValue.getLong("totalTime")/1000000L))).append(' ');
+				buffer.append(String.format("%,13d", (mapValue.getLong("minTime")/1000000L))).append(' ');
+				buffer.append(String.format("%,13d", (mapValue.getLong("maxTime")/1000000L))).append(' ');
+				buffer.append(String.format("%,13d", (mapValue.getLong("processedRows")/1000000L))).append(' ').append(String.format("%10s", mapValue.getBoolean("processedRows"))).append(' ');
+				buffer.append(sdf.format(new Date(mapValue.getLong("startTime")))).append(' ');
+				buffer.append(sdf.format(new Date(mapValue.getLong("endTime"))));
 			}
-		});
-		*/
+			buffer.append(lineSeparator).append("--------------------------------------------------------------------------------------------------------------------------------------").append(lineSeparator);
+
+			buffer.append(lineSeparator).append("<SQL Texts>").append(lineSeparator);
+			index = 0;
+			Map<Integer, String> sqls = pack.uniqueSqls;
+			for(MapValue mapValue : stats){
+				index++;
+				buffer.append("-----------------").append(lineSeparator);
+				buffer.append("#SQLINX-").append(index).append(lineSeparator);
+				buffer.append(sqls.get((int)mapValue.getLong("hashValue"))).append(lineSeparator);
+			}
+		}
+		text.setText(buffer.toString());
 	}
-	
+
 	public void setFocus() {
 	}
 	
 	Action openSqlSummaryDialog = new Action("SQL Statistics", ImageUtil.getImageDescriptor(Images.sum)) {
 		public void run() { 
-			XlogSummarySQLDialog summberSQLDialog = new XlogSummarySQLDialog(new Shell(Display.getDefault(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN), steps, xLogData);
-			summberSQLDialog.open();
+			//XlogSummarySQLDialog summberSQLDialog = new XlogSummarySQLDialog(new Shell(Display.getDefault(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN), steps, xLogData);
+			//summberSQLDialog.open();
 		}
 	};
 	
-	Action saveFullProfile = new Action("Save Full Profile") {
-		public void run() {
-			SaveProfileJob job = new SaveProfileJob("Save Profile...", xLogData.p.endTime, xLogData, txid, serverId, isSummary);
-			job.schedule();
-		}
-    };
 }

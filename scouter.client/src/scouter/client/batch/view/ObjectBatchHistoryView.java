@@ -70,8 +70,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
+import scouter.client.batch.action.OpenBatchDetailJob;
 import scouter.client.model.TextProxy;
-import scouter.client.model.XLogData;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.client.popup.EditableMessageDialog;
@@ -83,8 +83,6 @@ import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.ScouterUtil;
-import scouter.client.xlog.actions.OpenXLogProfileJob;
-import scouter.client.xlog.views.XLogSelectionView;
 import scouter.io.DataInputX;
 import scouter.lang.pack.BatchPack;
 import scouter.lang.pack.MapPack;
@@ -213,7 +211,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 				Object o = sel.getFirstElement();
 				if (o instanceof BatchPack) {
 					BatchPack pack = (BatchPack) o;
-					Display display = BatchDetailView.this.getViewSite().getShell().getDisplay();
+					Display display = ObjectBatchHistoryView.this.getViewSite().getShell().getDisplay();
 					new OpenBatchDetailJob(display, pack, serverId).schedule();
 				} else {
 					System.out.println(o);
@@ -225,21 +223,6 @@ public class ObjectBatchHistoryView extends ViewPart {
 	    GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
 	    tableViewer.getControl().setLayoutData(gridData);
 	}
-/*
- 	    table.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				StructuredSelection sel = (StructuredSelection) viewer.getSelection();
-				Object o = sel.getFirstElement();
-				if (o instanceof XLogData) {
-					XLogData data = (XLogData) o;
-					Display display = XLogSelectionView.this.getViewSite().getShell().getDisplay();
-					new OpenXLogProfileJob(display, data, data.serverId).schedule();
-				} else {
-					System.out.println(o);
-				}
-			}
-		}); 	
- */
 	
 	private void createTableContextMenu() {
 		MenuManager manager = new MenuManager();

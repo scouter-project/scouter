@@ -69,6 +69,7 @@ object BatchDB {
             Logger.println("S000", 10, "queue exceeded!!");
         }
     }
+    
     def read(objName: String, from: Long, to: Long, filter: String, response: Long, handler: (Long, BatchPack) => Any) {
         val date = DateUtil.yyyymmdd(from)
         val path = getDBPath(date, objName)
@@ -123,6 +124,8 @@ object BatchDB {
             }
         }
     }
+
+    
     def read(objName: String, from: Long, to: Long, handler: (Long) => Any) {
         val date = DateUtil.yyyymmdd(from)
         val path = getDBPath(date, objName)
@@ -153,6 +156,21 @@ object BatchDB {
         }
     }
 
+    def read(objName: String, time: Long, position: Long) : Array[Byte] = {
+        val date = DateUtil.yyyymmdd(time)
+        val path = getDBPath(date, objName)
+        val datFile = new File(path + "/batch.idx")
+        if (datFile.canRead() == false)
+            return null
+
+        val dataFile = new RandomAccessFile(path + "/batch.dat", "rw");    
+        dataFile.seek(position)
+        val dataIn = new DataInputX(dataFile)
+        val len = DataInputX.toInt(dataIn.read(4), 0)
+        val data = dataIn.read(len)
+        return data;
+    }
+    
     protected def append(path: String, m: BatchPack): Long = {
         val file = new File(path + "/batch.dat")
         val offset = file.length();

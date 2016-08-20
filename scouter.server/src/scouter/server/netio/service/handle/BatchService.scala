@@ -44,4 +44,25 @@ class BatchService {
            BatchDB.read(objName, from, to, filter, response, handler)
         }
     }
+
+    @ServiceHandler(RequestCmd.BATCH_HISTORY_DETAIL)
+    def readDetail(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        val param = din.readPack().asInstanceOf[MapPack]
+        val objHash = param.getInt("objHash")
+        val time = param.getLong("time")
+        val position = param.getLong("position")
+        val objInfo = AgentManager.getAgent(objHash)
+        if(objInfo == null){
+          return;
+        }
+        val objName = objInfo.objName
+
+        val data = BatchDB.read(objName, time, position)
+        if(data != null){
+        	val ins = new DataInputX(data)
+        	val pack = ins.readPack();
+        	dout.writeByte(TcpFlag.HasNEXT);
+        	dout.writePack(pack);
+        }
+    } 
 }
