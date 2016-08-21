@@ -60,7 +60,6 @@ public class DevonFileStackParser extends StackParser {
             boolean isWorking = false;
             ArrayList<String> workingList = new ArrayList<String>(300);
             ArrayList<String> workerThread = getWorkerThread();
-            ArrayList<String> workingThread = getWorkingThread();
 
             int lineCount = 0;
             int workerCount = 0;
@@ -99,7 +98,7 @@ public class DevonFileStackParser extends StackParser {
                 // Dump time
                 if ( lineCount == 0 ) {
 	    			if(timeMatchStr != null && line.matches(timeMatchStr) && line.length() >= (timePosition + timeSize)){
-                        if ( timeBuffer != null && timeBuffer.length() > 10 ) {
+                        if(timeBuffer != null && timeBuffer.length() > 10 ) {
                             timeBuffer.append('\t').append(workerCount).append('\t').append(workingCount);
             				for(int tsIndex = 0; tsIndex < tsinfo.geSize(); tsIndex++){
             					timeBuffer.append('\t').append(tsinfo.getValue(tsIndex));    							
@@ -113,8 +112,8 @@ public class DevonFileStackParser extends StackParser {
                         workerCount = 0;
                         workingCount = 0;
                         dumpCount++;
-                    } else {
-                        if ( StringUtils.checkExist(line, workerThread) ) {
+                    }else{
+                        if(StringUtils.checkExist(line, workerThread)){
                             workerCount++;
                             totalWorkerCount++;
                         }
@@ -122,7 +121,7 @@ public class DevonFileStackParser extends StackParser {
                 }
 
                 // Working Thread
-                if ( !isWorking && StringUtils.checkExist(line, workingThread) ) {
+                if ( !isWorking && isWorkingThread(line)) {
                     isWorking = true;
                     workingCount++;
                 }

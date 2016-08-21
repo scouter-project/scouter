@@ -20,18 +20,11 @@ package scouter.client.batch.view;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -40,14 +33,14 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -55,18 +48,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
@@ -74,25 +64,16 @@ import scouter.client.batch.action.OpenBatchDetailJob;
 import scouter.client.model.TextProxy;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
-import scouter.client.popup.EditableMessageDialog;
-import scouter.client.server.GroupPolicyConstants;
-import scouter.client.server.Server;
-import scouter.client.server.ServerManager;
 import scouter.client.sorter.ColumnLabelSorter;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
 import scouter.client.util.TimeUtil;
-import scouter.client.util.ScouterUtil;
 import scouter.io.DataInputX;
 import scouter.lang.pack.BatchPack;
 import scouter.lang.pack.MapPack;
-import scouter.lang.value.BlobValue;
-import scouter.lang.value.ListValue;
-import scouter.lang.value.Value;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
-import scouter.util.FileUtil;
 import scouter.util.StringUtil;
 
 public class ObjectBatchHistoryView extends ViewPart {
@@ -112,7 +93,6 @@ public class ObjectBatchHistoryView extends ViewPart {
 	private TableViewer tableViewer;
 	private TableColumnLayout tableColumnLayout;
 	
-	private Clipboard clipboard;
 	private int serverId;
 	
 	public void init(IViewSite site) throws PartInitException {
@@ -126,8 +106,6 @@ public class ObjectBatchHistoryView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		this.setPartName("Batch History List[" + TextProxy.object.getLoadText(DateUtil.yyyymmdd(TimeUtil.getCurrentTime(serverId)), objHash, serverId) + "]");
 		initialLayout(parent);
-		clipboard = new Clipboard(null);
-		//search();
 	}
 	
 	public void search() {
@@ -204,7 +182,6 @@ public class ObjectBatchHistoryView extends ViewPart {
 		final Table table = tableViewer.getTable();
 	    table.setHeaderVisible(true);
 	    table.setLinesVisible(true);
-	    createTableContextMenu();
 	    tableViewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent evt) {
 				StructuredSelection sel = (StructuredSelection) evt.getSelection();
@@ -224,163 +201,6 @@ public class ObjectBatchHistoryView extends ViewPart {
 	    tableViewer.getControl().setLayoutData(gridData);
 	}
 	
-	private void createTableContextMenu() {
-		MenuManager manager = new MenuManager();
-	    tableViewer.getControl().setMenu(manager.createContextMenu(tableViewer.getControl()));
-	    manager.add(new Action("&Copy", ImageDescriptor.createFromImage(Images.copy)) {
-			public void run() {
-				selectionCopyToClipboard();
-			}
-	    }); 
-	    Server server = ServerManager.getInstance().getServer(serverId);
-	    if (server.isAllowAction(GroupPolicyConstants.ALLOW_EXPORTCLASS)) {
-		    manager.add(new Action("&Export Class") {
-		    	public void run() {
-		    		StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
-					BatchPack data = (BatchPack) selection.getFirstElement();
-					final String jobId = data.batchJobId;
-					if (StringUtil.isEmpty(jobId)) {
-						return;
-					}
-					ExUtil.asyncRun(new Runnable() {
-						public void run() {
-							TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
-							MapPack p = null;
-							try {
-								MapPack param = new MapPack();
-								param.put("objHash", objHash);
-								param.put("class", jobId);
-								p = (MapPack) tcp.getSingle(RequestCmd.OBJECT_LOAD_CLASS_BY_STREAM, param);
-							} catch (Exception e) {
-								ConsoleProxy.errorSafe(e.getMessage());
-							} finally {
-								TcpProxy.putTcpProxy(tcp);
-							}
-							if (p != null) {
-								String error = CastUtil.cString(p.get("error"));
-								if (StringUtil.isNotEmpty(error)) {
-									ConsoleProxy.errorSafe(error);
-								}
-								Value v = p.get("class");
-								if (v != null) {
-									final BlobValue bv = (BlobValue) v;
-									ExUtil.exec(tableViewer.getTable(), new Runnable() {
-										public void run() {
-											saveClassFile(jobId, bv);
-										}
-									});
-								}
-							}
-						}
-					});
-				}
-		    });
-		    manager.add(new Action("&Export Jar") {
-		    	public void run() {
-		    		StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
-					final BatchPack data = (BatchPack) selection.getFirstElement();
-					final String resource = "" + data.isStack;
-					if (StringUtil.isEmpty(resource)) {
-						return;
-					}
-					ExUtil.asyncRun(new Runnable() {
-						public void run() {
-							TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
-							MapPack p = null;
-							try {
-								MapPack param = new MapPack();
-								param.put("objHash", objHash);
-								param.put("resource", resource);
-								p = (MapPack) tcp.getSingle(RequestCmd.OBJECT_CHECK_RESOURCE_FILE, param);
-							} catch (Exception e) {
-								ConsoleProxy.errorSafe(e.getMessage());
-							} finally {
-								TcpProxy.putTcpProxy(tcp);
-							}
-							if (p != null) {
-								String error = p.getText("error");
-								if (StringUtil.isNotEmpty(error)) {
-									ConsoleProxy.errorSafe(error);
-								} else {
-									final String name = p.getText("name");
-									final long size = p.getLong("size");
-									ExUtil.exec(tableViewer.getTable(), new Runnable() {
-										public void run() {
-											if(MessageDialog.openQuestion(tableViewer.getTable().getShell(), data.batchJobId
-													, name + "(" + ScouterUtil.humanReadableByteCount(size, true) +") will be downloaded.\nContinue?")) {
-												Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()	.getShell();
-												FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-												dialog.setOverwrite(true);
-												dialog.setFileName(name);
-												dialog.setFilterExtensions(new String[] { "*.jar", "*.*" });
-												dialog.setFilterNames(new String[] { "Jar File(*.jar)", "All Files" });
-												String fileSelected = dialog.open();
-												if (fileSelected != null) {
-													new DownloadJarFileJob(name, resource, fileSelected).schedule();
-												}
-											}
-										}
-									});
-								}
-							}
-						}
-					});
-				}
-		    });
-	    }
-	    
-	    manager.add(new Action("&Description") {
-	    	public void run() {
-	    		openDescription();
-	    	}
-	    });
-	    manager.add(new Separator());
-	    
-	    if (server.isAllowAction(GroupPolicyConstants.ALLOW_REDEFINECLASS)) {
-		    manager.add(new Action("&Redefine class") {
-		    	public void run() {
-		    		StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
-		    		final ListValue jobIdLv = new ListValue(); 
-		    		Object[] datas = selection.toArray();
-		    		for (int i = 0; i < datas.length; i++) {
-		    			BatchPack data = (BatchPack) datas[i];
-		    			jobIdLv.add(data.batchJobId);
-		    		}
-					if(MessageDialog.openQuestion(tableViewer.getTable().getShell(), jobIdLv.size() + " class(es) selected"
-							, "Redefine class may affect this server.\nContinue?")) {
-						new RedefineClassJob(jobIdLv).schedule();
-					}
-				}
-		    });
-	    }
-	    tableViewer.getTable().addListener(SWT.KeyDown, new Listener() {
-			public void handleEvent(Event e) {
-				if(e.stateMask == SWT.CTRL){
-					if (e.keyCode == 'c' || e.keyCode == 'C') {
-						selectionCopyToClipboard();
-					}					
-				}
-			}
-		});
-	}
-	
-	public void saveClassFile(String className, final BlobValue bv) {
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()	.getShell();
-		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-		dialog.setOverwrite(true);
-		dialog.setFileName(className + ".class");
-		dialog.setFilterExtensions(new String[] { "*.class", "*.*" });
-		dialog.setFilterNames(new String[] { "Class File(*.class)", "All Files" });
-		final String fileSelected = dialog.open();
-		if (fileSelected != null) {
-			ExUtil.asyncRun("Decompile-" + className + TimeUtil.getCurrentTime(serverId), new Runnable() {
-				public void run() {
-					FileUtil.save(fileSelected, bv.value);
-					ConsoleProxy.infoSafe(fileSelected + " saved.");
-				}
-			});
-		}
-	}
 	
 	private void createUpperMenu(Composite composite) {
 		Group parentGroup = new Group(composite, SWT.NONE);
@@ -520,12 +340,43 @@ public class ObjectBatchHistoryView extends ViewPart {
 					@Override
 					public String getText(Object element) {
 						if (element instanceof BatchPack) {
-							return ((BatchPack) element).isStack?"O":"";
+							return ((BatchPack) element).isStack?"SFA":"";
 						}
 						return null;
 					}
 				};
 				break;
+/*				
+			case STACK:
+				labelProvider = new ColumnLabelProvider() {
+			            //make sure you dispose these buttons when viewer input changes
+			            Map<Object, Button> buttons = new HashMap<Object, Button>();
+			            
+			            @Override
+			            public void update(ViewerCell cell) {
+			                TableItem item = (TableItem) cell.getItem();
+			                Button button = null;
+			            	if(((BatchPack)(cell.getViewerRow().getElement())).isStack){
+				                if(buttons.containsKey(cell.getElement()))
+				                {
+				                    button = buttons.get(cell.getElement());
+				                }
+				                else
+				                {
+				                	button = new Button((Composite) cell.getViewerRow().getControl(),SWT.NONE);
+				                    button.setText("SFA");
+				                    buttons.put(cell.getElement(), button);
+				                }
+			            	}
+			                TableEditor editor = new TableEditor(item.getParent());
+			                editor.grabHorizontal  = true;
+			                editor.grabVertical = true;
+			                editor.setEditor(button , item, cell.getColumnIndex());
+			                editor.layout();
+			            }
+			        };
+			    break;
+*/			    
 			}
 			if (labelProvider != null) {
 				c.setLabelProvider(labelProvider);
@@ -554,28 +405,14 @@ public class ObjectBatchHistoryView extends ViewPart {
 	public void setFocus() {
 	}
 	
-	private void selectionCopyToClipboard() {
-		if (tableViewer != null) {
-			TableItem[] items = tableViewer.getTable().getSelection();
-			if (items != null && items.length > 0) {
-				StringBuffer sb = new StringBuffer();
-				for (int i = 0; i < items.length; i++) {
-					BatchPack data = (BatchPack) items[i].getData();
-					sb.append(data.toString());
-				}
-				clipboard.setContents(new Object[] {sb.toString()}, new Transfer[] {TextTransfer.getInstance()});
-			}
-		}
-	}
-	
 	enum BatchColumnEnum {
 		NO("No", 60, SWT.RIGHT, true, true, true),
 	    TIME("Time", 100, SWT.CENTER, true, true, false),
 	    JOBID("Job ID", 100, SWT.LEFT, true, true, false),
-	    RESPONSETIME("Response Time", 120, SWT.RIGHT, true, true, false),
-	    SQLTIME("SQL Time", 120, SWT.RIGHT, true, true, false),
-	    SQLRUNS("SQL Runs", 120, SWT.RIGHT, true, true, false),
-	    THREADS("Threads", 100, SWT.RIGHT, true, true, false),
+	    RESPONSETIME("Response Time", 120, SWT.RIGHT, true, true, true),
+	    SQLTIME("SQL Time", 120, SWT.RIGHT, true, true, true),
+	    SQLRUNS("SQL Runs", 120, SWT.RIGHT, true, true, true),
+	    THREADS("Threads", 100, SWT.RIGHT, true, true, true),
 	    STACK("Stack", 50, SWT.CENTER, true, true, false);
 
 	    private final String title;
@@ -617,127 +454,5 @@ public class ObjectBatchHistoryView extends ViewPart {
 		public boolean isNumber() {
 			return this.isNumber;
 		}
-	}
-
-	class RedefineClassJob extends Job {
-		
-		ListValue classLv;
-
-		public RedefineClassJob(ListValue classLv) {
-			super("Redefine.... " + classLv.size() + " classes.....");
-			this.classLv = classLv;
-		}
-
-		protected IStatus run(IProgressMonitor monitor) {
-			monitor.beginTask("Redefine class", IProgressMonitor.UNKNOWN);
-			TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
-			MapPack p = null;
-			try {
-				MapPack param = new MapPack();
-				param.put("objHash", objHash);
-				param.put("class", classLv);
-				p = (MapPack) tcp.getSingle(RequestCmd.REDEFINE_CLASSES, param);
-			} catch(Exception e) {
-				ConsoleProxy.errorSafe(e.getMessage());
-			} finally {
-				TcpProxy.putTcpProxy(tcp);
-			}
-			if (p != null) {
-				boolean success = p.getBoolean("success");
-				if (success) {
-					ConsoleProxy.infoSafe("Redefine complete");
-				} else {
-					String error = p.getText("error");
-					if (StringUtil.isNotEmpty(error)) {
-						ConsoleProxy.errorSafe(error);
-					} else {
-						ConsoleProxy.errorSafe("Redefine failed.");
-					}
-				}
-			}
-			return Status.CANCEL_STATUS;
-		}
-		
-	}
-	
-	class DownloadJarFileJob extends Job {
-		
-		String resource;
-		String saveFile;
-
-		public DownloadJarFileJob(String name, String resource, String saveFile) {
-			super("Download...." + name);
-			this.resource = resource;
-			this.saveFile = saveFile;
-		}
-
-		protected IStatus run(IProgressMonitor monitor) {
-			monitor.beginTask("Downloading resource", IProgressMonitor.UNKNOWN);
-			TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
-			MapPack p = null;
-			try {
-				MapPack param = new MapPack();
-				param.put("objHash", objHash);
-				param.put("resource", resource);
-				p = (MapPack) tcp.getSingle(RequestCmd.OBJECT_DOWNLOAD_JAR, param);
-			} catch(Exception e) {
-				ConsoleProxy.errorSafe(e.getMessage());
-			} finally {
-				TcpProxy.putTcpProxy(tcp);
-			}
-			if (p != null) {
-				String error = p.getText("error");
-				if (StringUtil.isNotEmpty(error)) {
-					ConsoleProxy.errorSafe(error);
-				} else {
-					Value v = p.get("jar");
-					if (v != null) {
-						BlobValue bv = (BlobValue) v;
-						FileUtil.save(saveFile, bv.value);
-						return Status.OK_STATUS;
-					}
-				}
-			}
-			return Status.CANCEL_STATUS;
-		}
-		
-	}
-	
-	private void openDescription() {
-		StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
-		BatchPack data = (BatchPack) selection.getFirstElement();
-		final String className = data.batchJobId;
-		if (StringUtil.isEmpty(className)) {
-			return;
-		}
-		ExUtil.asyncRun(new Runnable() {
-			public void run() {
-				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
-				MapPack p = null;
-				try {
-					MapPack param = new MapPack();
-					param.put("objHash", objHash);
-					param.put("class", className);
-					p = (MapPack) tcp.getSingle(RequestCmd.OBJECT_CLASS_DESC, param);
-				} catch (Exception e) {
-					ConsoleProxy.errorSafe(e.getMessage());
-				} finally {
-					TcpProxy.putTcpProxy(tcp);
-				}
-				if (p != null) {
-					final String error = CastUtil.cString(p.get("error"));
-					final Value v = p.get("class");
-					ExUtil.exec(tableViewer.getTable(), new Runnable() {
-						public void run() {
-							if (StringUtil.isNotEmpty(error)) {
-								new EditableMessageDialog().show("ERROR", error);
-								return;
-							}
-							new EditableMessageDialog().show(className, CastUtil.cString(v));
-						}
-					});
-				}
-			}
-		});
 	}
 }
