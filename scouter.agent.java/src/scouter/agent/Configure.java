@@ -661,8 +661,8 @@ public class Configure extends Thread {
         this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);
         this.sfa_dump_interval_ms = getInt("sfa_dump_interval_ms", 10000);
 
-        this.psts_enabled = getBoolean("asts_enabled", true);
-        this.psts_dump_interval_ms = getInt("asts_dump_interval_ms", 10000);
+        this.psts_enabled = getBoolean("psts_enabled", true);
+        this.psts_dump_interval_ms = getInt("psts_dump_interval_ms", 10000);
 
         // 웹시스템으로 부터 WAS 사이의 성능과 어떤 웹서버가 요청을 보내 왔는지를 추적하는 기능을 ON/OFF하고
         // 관련 키정보를 지정한다.
