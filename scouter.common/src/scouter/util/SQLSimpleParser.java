@@ -27,7 +27,7 @@ public class SQLSimpleParser {
 	int parenthesisCount = 0;
 
 	// Stack<SQLNode> sqlStack = new Stack<SQLNode>();
-	class SQLNode {
+	public class SQLNode {
 		SQLTypeEnum type;
 		ArrayList<String> tableList;
 		int depth;
@@ -65,7 +65,7 @@ public class SQLSimpleParser {
 			case INSERT:
 				return "C";
 			case MERGE:
-				return "C,U";
+				return "C";
 			default:
 				return "R";
 			}
@@ -99,10 +99,24 @@ public class SQLSimpleParser {
 		head.nextNode = newNode;
 	}
 
-	private void reset() {
-		sqlNode = null;
+	private void release() {
+		clearNode(sqlNode);
 		depth = 0;
 		parenthesisCount = 0;
+	}
+	
+	private void clearNode(SQLNode node) {
+		if(node == null) {
+			return;
+		}
+		SQLNode nextNode = null;
+		if(node.nextNode != null) {
+			nextNode = node.nextNode;
+			node = null;
+		} else {
+			node = null;
+		}
+		clearNode(nextNode);
 	}
 
 	public String getCrudInfo(String value) {
@@ -118,26 +132,23 @@ public class SQLSimpleParser {
 
 		StringBuffer sb = new StringBuffer();
 		ArrayList<String> tempList = new ArrayList<String>();
+		SQLNode node = sqlNode;
 		do {
-			for (int i = 0; i < sqlNode.tableList.size(); i++) {
+			for (int i = 0; i < node.tableList.size(); i++) {
 				if (sb.length() > 0) {
 					sb.append(",");
 				}
 				StringBuffer s = new StringBuffer();
-				String tblInfo = s.append(sqlNode.tableList.get(i)).append("(").append(sqlNode.type.toString())
+				String tblInfo = s.append(node.tableList.get(i)).append("(").append(node.type.toString())
 						.append(")").toString();
 				if (!tempList.contains(tblInfo)) {
 					sb.append(tblInfo);
 				}
-				/*
-				 * if(i < sqlNode.tableList.size() -1) { sb.append(","); }
-				 */
-
 			}
-			sqlNode = sqlNode.nextNode;
-		} while (sqlNode != null);
+			node = node.nextNode;
+		} while (node != null);
 		// printCRUD() ;
-		reset();
+		release();
 		return sb.toString();
 	}
 
@@ -221,7 +232,7 @@ public class SQLSimpleParser {
 					break;
 				}
 				case "JOIN": {
-					createOrAppendNode(SQLTypeEnum.UPDATE);
+					createOrAppendNode(SQLTypeEnum.SELECT);
 					i = applyNode(i, tokens);
 					break;
 				}
@@ -237,6 +248,9 @@ public class SQLSimpleParser {
 		int returnIndex = index;
 		try {
 			SQLNode node = findNode(depth);
+			if(node == null) {
+				throw new RuntimeException("Can't find node which has proper depth.");
+			}
 			if (node.type == SQLTypeEnum.SELECT) {
 				if (!tokens[index + 1].equals("(")) {
 					node.tableList.add((tokens[index + 1]));
@@ -287,15 +301,14 @@ public class SQLSimpleParser {
 
 	private SQLNode findNode(int depth) {
 		SQLNode node = sqlNode;
-
-		if (sqlNode.nextNode == null) {
+		if (node.nextNode == null) {
 			return node;
 		} else {
-			while (sqlNode.nextNode != null) {
+			while (node.nextNode != null) {
+				node = node.nextNode;
 				if (node.depth == depth) {
 					break;
 				}
-				node = sqlNode.nextNode;
 			}
 		}
 		return node;
@@ -405,11 +418,15 @@ public class SQLSimpleParser {
 	public static void main(String[] args) {
 		try {
 			testCrudInfo();
+			
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	
+	
 	
 	private static void testCrudInfo() throws Exception {
 		SQLSimpleParser parser = new SQLSimpleParser();
@@ -491,7 +508,7 @@ public class SQLSimpleParser {
 		sql = "select * from table1 t1 join table2 t2 on t1.id = t2.id and t2.name = 4 where t1.name='kkk'";
 		printInfo(parser,sql);
 		
-		sql = "select * from table1 t1 join table2 t2 on t1.id = t2.id and t2.name = 4 where t1.name= (select id frim tbl) ";
+		sql = "select * from table1 t1 join table2 t2 on t1.id = t2.id and t2.name = 4 where t1.name= (select id from tbl) ";
 		printInfo(parser,sql);
 		
 		sql= "SELECT start_time,user_host,query_time,lock_time, rows_sent,rows_examined,db,sql_text,thread_id FROM mysql.slow_log WHERE start_time > '2016-04-19 17:18:06.097729'";
@@ -518,4 +535,7 @@ public class SQLSimpleParser {
 		System.out.println();
 		
 	}
+	
+	
+	
 }
