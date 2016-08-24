@@ -100,23 +100,25 @@ public class SQLSimpleParser {
 	}
 
 	private void release() {
-		clearNode(sqlNode);
+		//clearNode(sqlNode);
+		clearNode();
 		depth = 0;
 		parenthesisCount = 0;
 	}
 	
-	private void clearNode(SQLNode node) {
-		if(node == null) {
+	private void clearNode() {
+		if(sqlNode == null) {
 			return;
 		}
-		SQLNode nextNode = null;
-		if(node.nextNode != null) {
-			nextNode = node.nextNode;
-			node = null;
+		SQLNode currNode = null;
+		if(sqlNode.nextNode != null) {
+			currNode = sqlNode;
+			sqlNode = sqlNode.nextNode;
+			currNode = null;
 		} else {
-			node = null;
+			sqlNode = null;
 		}
-		clearNode(nextNode);
+		clearNode();
 	}
 
 	public String getCrudInfo(String value) {
@@ -526,6 +528,9 @@ public class SQLSimpleParser {
 		
 		sql = "update tbl set name = 'test' where id = (select max(id) from test2)";
 		printInfo(parser,sql);
+		
+	
+		
 		
 	}
 	
