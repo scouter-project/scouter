@@ -389,9 +389,9 @@ public class Configure extends Thread {
 
     //PSTS(Preiodical Stacktrace Step)
     @ConfigDesc("Activating periodical stacktrace step (write fixed interval thread dump on a profile)")
-    public boolean psts_enabled = true;
+    public boolean _psts_enabled = false;
     @ConfigDesc("PSTS(periodical stacktrace step) thread dump Interval(ms) - hard min limit 2000")
-    public int psts_dump_interval_ms = 10000;
+    public int _psts_dump_interval_ms = 10000;
 
     //Summary
     @ConfigDesc("Activating summary function")
@@ -661,8 +661,8 @@ public class Configure extends Thread {
         this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);
         this.sfa_dump_interval_ms = getInt("sfa_dump_interval_ms", 10000);
 
-        this.psts_enabled = getBoolean("psts_enabled", true);
-        this.psts_dump_interval_ms = getInt("psts_dump_interval_ms", 10000);
+        this._psts_enabled = getBoolean("_psts_enabled", false);
+        this._psts_dump_interval_ms = getInt("_psts_dump_interval_ms", 10000);
 
         // 웹시스템으로 부터 WAS 사이의 성능과 어떤 웹서버가 요청을 보내 왔는지를 추적하는 기능을 ON/OFF하고
         // 관련 키정보를 지정한다.

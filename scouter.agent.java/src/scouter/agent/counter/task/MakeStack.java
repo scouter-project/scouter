@@ -66,12 +66,12 @@ public class MakeStack {
 	long lastStackTraceGenTime = 0;
 	@Counter
 	public void stackTraceStepGenerator(CounterBasket pw) {
-		if (!conf.psts_enabled){
+		if (!conf._psts_enabled){
 			return;
 		}
 
 		long now = System.currentTimeMillis();
-		if (now < lastStackTraceGenTime + conf.psts_dump_interval_ms) {
+		if (now < lastStackTraceGenTime + conf._psts_dump_interval_ms) {
 			return;
 		}
 		lastStackTraceGenTime = now;
