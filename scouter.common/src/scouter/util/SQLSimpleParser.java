@@ -74,7 +74,7 @@ public class SQLSimpleParser {
 	};
 
 	private ArrayList<Character> spliter = new ArrayList<Character>(
-			Arrays.asList('=', '<', '>', '!', ',', ' ', '(', ')'));
+			Arrays.asList('=', '<', '>', '!', ',', ' ', '(', ')','\r','\n'));
 	int depth = 0;
 
 	private void createOrAppendNode(SQLTypeEnum type) {
@@ -102,6 +102,7 @@ public class SQLSimpleParser {
 	private void release() {
 		//clearNode(sqlNode);
 		clearNode();
+		sqlNode = null;
 		depth = 0;
 		parenthesisCount = 0;
 	}
@@ -123,11 +124,14 @@ public class SQLSimpleParser {
 
 	public String getCrudInfo(String value) {
 		try {
-			String[] lines = value.split("[\r\n]");
+			/*String[] lines = value.split("[\r\n]");
 			for (int i = 0; i < lines.length; i++) {
 				String[] tokens = tokenize(lines[i], false);
 				crudInfo(tokens);
-			}
+			}*/
+			
+			String[] tokens = tokenize(value, true);
+			crudInfo(tokens);
 		} catch (Exception ex) {
 			return "";
 		}
@@ -165,23 +169,19 @@ public class SQLSimpleParser {
 		} while (sqlNode != null);
 	}
 
-	public void crudInfo(String[] tokens) {
+	public void crudInfo(String[] tokens) throws Exception {
 		try {
 			for (int i = 0; i < tokens.length; i++) {
-				switch (tokens[i].toUpperCase()) { 
-				case "(": {
+				String token = tokens[i].toUpperCase();
+				if(token.equals("(")){
 					parenthesisCount++;
 					inParenthesis = true;
-					break;
-				}
-				case ")": {
+				} else if(token.equals(")")) {
 					parenthesisCount--;
 					if (parenthesisCount == 0) {
 						inParenthesis = false;
 					}
-					break;
-				}
-				case "SELECT": {
+				} else if(token.equals("SELECT")) {
 					if (inParenthesis) {
 						for (int j = i + 1; j < tokens.length; j++) {
 							if (tokens[j].toLowerCase().equals("from")) {
@@ -204,40 +204,24 @@ public class SQLSimpleParser {
 					} else {
 						createOrAppendNode(SQLTypeEnum.SELECT);
 					}
-					break;
-				}
-				case "DELETE": {
+				} else if(token.equals("DELETE")) {
 					createOrAppendNode(SQLTypeEnum.DELETE);
-					break;
-				}
-				case "INSERT": {
+				} else if(token.equals("INSERT")) {
 					createOrAppendNode(SQLTypeEnum.INSERT);
-					break;
-				}
-				case "UPDATE": {
+				} else if(token.equals("UPDATE")) {
 					createOrAppendNode(SQLTypeEnum.UPDATE);
 					i = applyNode(i, tokens);
-					break;
-				}
-				case "MERGE": {
+				} else if(token.equals("MERGE")) {
 					if (tokens[i + 1].toUpperCase().equals("INTO")) {
 						createOrAppendNode(SQLTypeEnum.MERGE);
 					}
-					break;
-				}
-				case "FROM": {
+				} else if(token.equals("FROM")) {
 					i = applyNode(i, tokens);
-					break;
-				}
-				case "INTO": {
+				} else if(token.equals("INTO")) {
 					i = applyNode(i, tokens);
-					break;
-				}
-				case "JOIN": {
+				} else if(token.equals("JOIN")) {
 					createOrAppendNode(SQLTypeEnum.SELECT);
 					i = applyNode(i, tokens);
-					break;
-				}
 				}
 			}
 		} catch (Exception e) {
@@ -246,9 +230,15 @@ public class SQLSimpleParser {
 
 	}
 
-	private int applyNode(int index, String[] tokens) {
+	private int applyNode(int index, String[] tokens) throws Exception {
 		int returnIndex = index;
 		try {
+			if(index == tokens.length -1 ) {
+				throw new RuntimeException(index + " is the last index of tokens.");
+			}
+			if(depth == 0) {
+				return index;
+			}
 			SQLNode node = findNode(depth);
 			if(node == null) {
 				throw new RuntimeException("Can't find node which has proper depth.");
@@ -294,7 +284,6 @@ public class SQLSimpleParser {
 			node.depth = -1; // set node.depth = -1 if node used.
 			depth--;
 		} catch (Exception ex) {
-
 			throw ex;
 		}
 		return returnIndex;
@@ -327,7 +316,8 @@ public class SQLSimpleParser {
 	private String[] tokenize(String value, boolean keepComments) throws Exception {
 		char[] arrays = value.toCharArray();
 		boolean hasQuotation = false;
-		boolean hasComments = false;
+		boolean hasSingleLineComments = false;
+		boolean hasMultiLineComments = false;
 		int start = 0;
 
 		ArrayList<String> tokenList = new ArrayList<String>();
@@ -337,7 +327,9 @@ public class SQLSimpleParser {
 				if (spliter.contains(arrays[i])) {
 					char[] token = Arrays.copyOfRange(arrays, start, len - 1);
 					tokenList.add(new String(token));
-					tokenList.add(String.valueOf(arrays[i]));
+					if(arrays[i] != ' ') {
+						tokenList.add(String.valueOf(arrays[i]));
+					}
 				} else {
 					char[] token = Arrays.copyOfRange(arrays, start, len);
 					tokenList.add(new String(token));
@@ -356,7 +348,7 @@ public class SQLSimpleParser {
 			if (arrays[i] == '-') {
 				if (!hasQuotation) {
 					if (i < len - 1 && arrays[i + 1] == '-') { // sql comment
-						hasComments = true;
+						hasSingleLineComments = true;
 					}
 				}
 				continue;
@@ -364,17 +356,24 @@ public class SQLSimpleParser {
 
 			if (arrays[i] == '#') {
 				if (!hasQuotation) { // sql comments for mysql
-					hasComments = true;
+					hasSingleLineComments = true;
 				}
 				continue;
+			}
+			
+			if(arrays[i] == '\n') {
+				if(hasSingleLineComments) {
+					hasSingleLineComments = false;
+				}
+
 			}
 
 			if (arrays[i] == '/') {
 				if (i < len - 1 && arrays[i + 1] == '*') { // sql comments or hint
-					hasComments = true;
+					hasMultiLineComments = true;
 				}
-				if (i > 0 && arrays[i - 1] == '*' && hasComments) {
-					hasComments = false;
+				if (i > 0 && arrays[i - 1] == '*' && hasMultiLineComments) {
+					hasMultiLineComments = false;
 					if (!keepComments) {
 						start = i + 1;
 					}
@@ -383,31 +382,51 @@ public class SQLSimpleParser {
 			}
 
 			if (i > 0 && spliter.contains(arrays[i])) {
-				if (hasQuotation || hasComments) { // ignore comments, literal
+				if (hasQuotation || hasSingleLineComments || hasMultiLineComments) { // ignore comments, literal
 					continue;
 				}
 				if (i >= start) {
 					char[] token = Arrays.copyOfRange(arrays, start, i);
 					/*
-					 * 구분자가 연속으로 있는 경우 -> ex: 공백 + ( select * from id in (...)
+					 * 구분자가 연속으로 있는 경우 -> ex: 공백 + ( ==> select * from id in (...)
 					 * start 와 index 는 동일값. 이러한 경우 token.length = 0
 					 */
 					if (token.length > 0) {
 						tokenList.add(new String(token));
 					}
-					if (arrays[i] != ' ') {
-						if (spliter.contains(arrays[i + 1])) { // ex) >=, <=,
-																// <>...
-							String temp = "" + arrays[i] + arrays[i + 1];
-							if (temp.equals("<>") || temp.equals("!=") || temp.equals("<=") || temp.equals(">=")) {
-								tokenList.add(temp);
-							} else {
-								tokenList.add(String.valueOf(arrays[i]));
-							}
+					
+					if(arrays[i] ==' ') {
+						start = i+1;
+						continue;
+					}
+					
+					if(arrays[i] == '\r') {
+						if(arrays[i+1] == '\n') {
+							start = i + 2;
+							i++;
+							continue;
+						} else {
+							start = i+1;
+						}
+						continue;
+					}
+					
+					if(arrays[i] == '\n') {
+						start = i+1;
+						continue;
+					}
+					//other case =>  '=' '<' '>'  '!'  ','  '('   ')'
+					if (spliter.contains(arrays[i+1])) { // ex) >=, <=, <>...
+						String temp = "" + arrays[i] + arrays[i + 1];
+						if (temp.equals("<>") || temp.equals("!=") || temp.equals("<=") || temp.equals(">=")) {
+							tokenList.add(temp);
+							start = i + 1;
+							i++;
 						} else {
 							tokenList.add(String.valueOf(arrays[i]));
 						}
-						start = i + 1;
+					} else {
+						tokenList.add(String.valueOf(arrays[i]));
 					}
 				}
 				start = i + 1;
@@ -416,131 +435,4 @@ public class SQLSimpleParser {
 		}
 		return tokenList.toArray(new String[tokenList.size()]);
 	}
-
-	public static void main(String[] args) {
-		try {
-			testCrudInfo();
-			
-			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	
-	
-	private static void testCrudInfo() throws Exception {
-		SQLSimpleParser parser = new SQLSimpleParser();
-		String sql = "select * , (select 1 ) from test,test1";
-		printInfo(parser,sql);
-		
-		sql = "select * from test";
-		printInfo(parser,sql);
-		
-		sql = "update tbl2 set id = 1 where neme='aaa'";
-		printInfo(parser,sql);
-		
-		sql= "select t1.id , t2.name from table1 t1 join table2 t2 on t1.id = t2.id";
-		printInfo(parser,sql);
-		
-		sql = "select *   from tabl3 where id4 in (1,2,3) and id=   'abde' "
-				+ "and id2 != -1234 and id3= 45.2 and id4 in (1, 3, 4,5) "
-				+ " and id5 IN (1, 3, 4, 5 ) and id5='aaaa' "
-				+ "and id4 between   'a' and 'b';";
-		printInfo(parser,sql);
-		
-		sql="SELECT /*+ INDEX(E EMP_N1) */ * FROM EMP E, DEPT D WHERE E.DEPTNO = D.DEPTNO ND   D.DEPTNO = :B1; ";
-		printInfo(parser,sql);
-		
-		sql = "select * from table where id = 'P'";
-		printInfo(parser,sql);
-		
-		sql = "select * from tabl3 where id= 'abde' and id2 = 123456 and id3= 45.2 and id4 in (1,3,4,5) and id5='aaaa' and id6 like '%aa';";
-		printInfo(parser,sql);
-		
-		sql = "SELECT PK_ID||'_'||DATE_FORMAT(TRANSACTION_DATE,'%Y%m%d%H%i%s') as DocumentID, --comments   \r\n          " +
-					"CONTAINER_NO as BusinessID, '688298116' as EDI_SENDER_ID,                                   " +
-					"'687822338' as EDI_RECEIVER_ID,                                                             " +
-					"INTERFACE_ID as XML_DOCUMENT_NO,                                                            " +
-					"'' as DOCUMENT_SEQ_NO,                                                                      " +
-					"CORP_TYPE as LOU_CODE,                                                                      " +
-					"ATTRIBUTE9 as D_PLACE_NAME,                                                                 " +
-					"CORP_TYPE, DC_CD, SHIPPING_LINE1, SHIPPING_LINE2,                                           " +
-					"CARRIER_CODE1, CARRIER_CODE2, ORDER_NO, LINE_NO,                                            " +
-					"ALLOCATION_NO, CC_NO, TOTAL_SHP_QTY, ORDER_QTY,                                             " +
-					"INVOICE_NO, AFFILIATE_FLAG, SHIP_METHOD, TRANSPORT_TYPE,                                    " +
-					"ACCOUNT_UNIT, WEIGHT, UNIT_CBM, CBM_SUM,                                                    " +
-					"DATE_FORMAT(PICK_RELEASE_DATE,'%Y%m%d%H%i%s') as PICK_RELEASE_DATE,                         " +
-					"DATE_FORMAT(PG_YMD,'%Y%m%d%H%i%s') as PG_YMD,                                               " +
-					"DATE_FORMAT(IOD_DATE,'%Y%m%d%H%i%s') as IOD_DATE,                                           " +
-					"CURRENCY_CODE, ORDER_PRICE, ORDER_TYPE, CONTAINER_TYPE,                                     " +
-					"LCL_FLAG, CONTAINER_NO, MODEL_CD, PRODUCT_TYPE,                                             " +
-					"BILL_TO_CODE, BILL_TO_NAME, SHIP_TO_CODE, SHIP_TO_NAME,                                     " +
-					"L_PORT, D_PORT, F_DEST, NATION,                                                             " +
-					"DATE_FORMAT(CREATION_DATE,'%Y%m%d%H%i%s') as CREATION_DATE,                                 " +
-					"DATE_FORMAT(LAST_UPDATE_DATE,'%Y%m%d%H%i%s') as LAST_UPDATE_DATE,                           " +
-					"PRCS_MESSAGE, ATTRIBUTE1, ATTRIBUTE2, ATTRIBUTE3,                                           " +
-					"ATTRIBUTE4, ATTRIBUTE5, ATTRIBUTE6, ATTRIBUTE7,                                             " +
-					"ATTRIBUTE8, ATTRIBUTE9, ATTRIBUTE10, ATTRIBUTE11,                                           " +
-					"ATTRIBUTE12, ATTRIBUTE13, ATTRIBUTE14, ATTRIBUTE15,                                         " +
-					"ATTRIBUTE16, ATTRIBUTE17, ATTRIBUTE18, ATTRIBUTE19,                                         " +
-					"ATTRIBUTE20, LAST_UPDATE_USER_ID, PRCS_STATUS, TRANSFER_MESSAGE,                            " +
-					"PRICE_TERMS, PAYMENT_TERM, CUSTOMER_PO_NO, INFO_CHANGE_FLAG,                                " +
-					"ORIGIN_ALLOCATION_NO, DROP_QTY, INTERFACE_ID, OPTION_NO,                                    " +
-					"SERVICE_FLAG, LOADING_TYPE_CODE, SOURCE_SYSTEM_CODE, CONTAINER_TXN_ID,                      " +
-					"DATE_FORMAT(LOAD_CONFIRM_DATE,'%Y%m%d%H%i%s') as LOAD_CONFIRM_DATE,                         " +
-					"DATE_FORMAT(RETURN_ORDER_DATE,'%Y%m%d%H%i%s') as RETURN_ORDER_DATE,                         " +
-					"SHUTTLE_QTY, EXPENSE_ID, COMPANY_CODE, SEAL_NO,                                             " +
-					"DATE_FORMAT(EDI_INTERFACE_DATE,'%Y%m%d%H%i%s') as EDI_INTERFACE_DATE,                       " +
-					"ERROR_EDI_INTERFACE_FLAG,                                                                   " +
-					"DATE_FORMAT(ERROR_EDI_INTERFACE_DATE,'%Y%m%d%H%i%s') as ERROR_EDI_INTERFACE_DATE,           " +
-					"STEP_CODE, STEP_STATUS_CODE,                                                                " +
-					"EDI_FUNC_ACKNOWLDG_NO,                                                                      " +
-					"DATE_FORMAT(EDI_FUNC_ACKNOWLDG_DATE,'%Y%m%d%H%i%s') as EDI_FUNC_ACKNOWLDG_DATE,             " +
-					"EDI_FUNC_ACKNOWLDG_STATUS_CODE,                                                             " +
-					"EDI_ERROR_CODE, EDI_ERROR_MESSAGE_TEXT, EDI_SENDER_ID, EDI_RECEIVER_ID,                     " +
-					"XML_DOCUMENT_NO, DOCUMENT_SEQ_NO, EDI_ENVELOPE_NO, EDI_GROUP_NO,                            " +
-					"EDI_TRANSACTION_NO,                                                                         " +
-					"DATE_FORMAT(TRANSACTION_DATE,'%Y%m%d%H%i%s') as TRANSACTION_DATE                            " +
-					"FROM TB_LI_GERP_SEW_SHIP                                                                    " +
-					"WHERE  TRANSFER_FLAG1 = 'P'; ";
-		printInfo(parser,sql);
-		
-		sql = "select * from table1 t1 join table2 t2 on t1.id = t2.id and t2.name = 4 where t1.name='kkk'";
-		printInfo(parser,sql);
-		
-		sql = "select * from table1 t1 join table2 t2 on t1.id = t2.id and t2.name = 4 where t1.name= (select id from tbl) ";
-		printInfo(parser,sql);
-		
-		sql= "SELECT start_time,user_host,query_time,lock_time, rows_sent,rows_examined,db,sql_text,thread_id FROM mysql.slow_log WHERE start_time > '2016-04-19 17:18:06.097729'";
-		printInfo(parser,sql);
-		
-		sql = "update table tbl set flag_1='Y', date1= NOW(), code='A1' where flag02='P'";
-		printInfo(parser,sql);
-		
-		sql = "DELETE FROM TB_LI_GLA_OERDERMOU D_AMT  WHERE D_AMT.CORP_TYPE= 46 and D_AMT.DELIV_TYPE=262 " +
-			  "AND D_AMT.ORD_NO LIKE 'SWWZ1DDDDD' || '%' ";
-		printInfo(parser,sql);
-		
-		sql = "SELECT itemid, (SELECT MAX(catid) FROM category),(SELECT 1)  FROM inventory";
-		printInfo(parser,sql);
-		
-		sql = "update tbl set name = 'test' where id = (select max(id) from test2)";
-		printInfo(parser,sql);
-		
-	
-		
-		
-	}
-	
-	static void printInfo(SQLSimpleParser parser, String sql) {
-		System.out.println(sql);
-		System.out.println(parser.getCrudInfo(sql));
-		System.out.println();
-		
-	}
-	
-	
-	
 }
