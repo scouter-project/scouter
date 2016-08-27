@@ -243,9 +243,10 @@ public class HttpTrace implements IHttpTrace {
             
             if (remote_by_header) {
             	String remoteIp = request.getHeader(http_remote_ip_header_key);
-                
-                if (remoteIp != null && remoteIp.indexOf(",") > -1) {
-                	remoteIp = remoteIp.substring(0, remoteIp.indexOf(","));
+
+                int commaPos = remoteIp.indexOf(',');
+                if (remoteIp != null && commaPos > -1) {
+                	remoteIp = remoteIp.substring(0, commaPos);
                 }
             	
                 return remoteIp;
