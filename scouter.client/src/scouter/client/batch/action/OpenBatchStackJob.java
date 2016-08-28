@@ -17,6 +17,10 @@
  */
 package scouter.client.batch.action;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -26,65 +30,76 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
-import scouter.client.batch.view.BatchDetailView;
+import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
+import scouter.io.DataInputX;
 import scouter.lang.pack.BatchPack;
 import scouter.lang.pack.MapPack;
-import scouter.lang.pack.Pack;
 import scouter.net.RequestCmd;
 
-public class OpenBatchDetailJob extends Job {
+public class OpenBatchStackJob extends Job {
 
 	Display display;
 	BatchPack pack;
 	int serverId;
-	String secId = "batchdetailview";
+	String secId = "batchstackview";
 	
-	public OpenBatchDetailJob(Display display, BatchPack pack, int serverId) {
-		super("Load Batch History Detail");
+	public OpenBatchStackJob(Display display, BatchPack pack, int serverId) {
+		super("Load Batch History Stack");
 		this.display = display;
 		this.pack = pack;
 		this.serverId = serverId;
 	}
 
 	protected IStatus run(IProgressMonitor monitor) {
-		monitor.beginTask("Load Batch Detail....", IProgressMonitor.UNKNOWN);
+		monitor.beginTask("Load Batch Stack....", IProgressMonitor.UNKNOWN);
 
-		final BatchPack recvPack = (BatchPack)getPackData(serverId, pack);
-		if(recvPack != null){
-			ExUtil.exec(display, new Runnable() {
-				public void run() {
-					try {
-						IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-						BatchDetailView view = (BatchDetailView) win.getActivePage().showView(BatchDetailView.ID, secId, IWorkbenchPage.VIEW_ACTIVATE);
-						view.setInput(recvPack, serverId);	
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
-				}
-			});
+		if(!getStackData(serverId, pack)){
+			return Status.CANCEL_STATUS;
 		}
+					
+		ExUtil.exec(display, new Runnable() {
+			public void run() {
+				try {
+//					IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+//					BatchDetailView view = (BatchDetailView) win.getActivePage().showView(BatchDetailView.ID, secId, IWorkbenchPage.VIEW_ACTIVATE);
+//					view.setInput(recvPack, serverId);	
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+		});
 		return Status.OK_STATUS;
 	}
 	
-	private Pack getPackData(int serverId, BatchPack input) {
+	private boolean getStackData(int serverId, BatchPack input) {
 		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
 		try {
 			MapPack param = new MapPack();
 			param.put("objHash", input.objHash);
 			param.put("time", input.startTime);
-			param.put("position", input.position);
-			Pack p = tcp.getSingle(RequestCmd.BATCH_HISTORY_DETAIL, param);
-			if (p != null) {
-				return p;
-			}
+			param.put("filename", getStackFilename());
+			
+			tcp.process(RequestCmd.BATCH_HISTORY_STACK, param, new INetReader() {
+				public void process(DataInputX in) throws IOException {
+					byte [] data = in.readBlob();
+				}
+			});
 		} catch (Throwable th) {
 			ConsoleProxy.errorSafe(th.toString());
+			return false;
 		} finally {
 			TcpProxy.putTcpProxy(tcp);
 		}
-		return null;
+		return true;
+	}
+	
+	private String getStackFilename(){
+		StringBuilder buffer = new StringBuilder(100);
+		Date date = new Date(pack.startTime);
+		buffer.append(pack.batchJobId).append('_').append(new SimpleDateFormat("yyyyMMdd").format(date)).append('_').append(new SimpleDateFormat("HHmmss.SSS").format(date)).append('_').append(pack.pID).append(".zip");
+		return buffer.toString();
 	}
 }
