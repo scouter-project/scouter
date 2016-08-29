@@ -41,7 +41,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Activator;
 import scouter.client.Images;
-import scouter.client.batch.action.OpenBatchDetailJob;
+import scouter.client.batch.action.OpenBatchStackJob;
 import scouter.client.util.ImageUtil;
 import scouter.lang.pack.BatchPack;
 import scouter.lang.step.Step;
@@ -163,7 +163,7 @@ public class BatchDetailView extends ViewPart {
 	
 	Action openSFADialog = new Action("Stack Frequency Analyzer", ImageUtil.getImageDescriptor(Images.page_white_stack)) {
 		public void run() { 
-			new OpenBatchDetailJob(Display.getDefault(), pack, serverId).schedule();
+			new OpenBatchStackJob(Display.getDefault(), pack, serverId).schedule();
 			//XlogSummarySQLDialog summberSQLDialog = new XlogSummarySQLDialog(new Shell(Display.getDefault(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN), steps, xLogData);
 			//summberSQLDialog.open();
 		}

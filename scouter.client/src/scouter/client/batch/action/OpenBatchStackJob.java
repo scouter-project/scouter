@@ -17,9 +17,15 @@
  */
 package scouter.client.batch.action;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.zip.ZipInputStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -34,10 +40,13 @@ import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
+import scouter.client.util.RCPUtil;
+import scouter.client.util.StackUtil;
 import scouter.io.DataInputX;
 import scouter.lang.pack.BatchPack;
 import scouter.lang.pack.MapPack;
 import scouter.net.RequestCmd;
+import scouter.util.ZipFileUtil;
 
 public class OpenBatchStackJob extends Job {
 
@@ -56,10 +65,11 @@ public class OpenBatchStackJob extends Job {
 	protected IStatus run(IProgressMonitor monitor) {
 		monitor.beginTask("Load Batch Stack....", IProgressMonitor.UNKNOWN);
 
-		if(!getStackData(serverId, pack)){
+		String stackfile = getStackData(serverId, pack);
+		if(stackfile == null){
 			return Status.CANCEL_STATUS;
 		}
-					
+							
 		ExUtil.exec(display, new Runnable() {
 			public void run() {
 				try {
@@ -74,32 +84,55 @@ public class OpenBatchStackJob extends Job {
 		return Status.OK_STATUS;
 	}
 	
-	private boolean getStackData(int serverId, BatchPack input) {
+	private String getStackData(int serverId, BatchPack input) {
 		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+		String dirPath = StackUtil.getStackWorkspaceDir(input.objName);
+		String filename = getStackFilename();
+		String zipFilename = filename + ".zip";
+		File zipFile = new File(dirPath, zipFilename);
 		try {
 			MapPack param = new MapPack();
 			param.put("objHash", input.objHash);
 			param.put("time", input.startTime);
-			param.put("filename", getStackFilename());
-			
-			tcp.process(RequestCmd.BATCH_HISTORY_STACK, param, new INetReader() {
-				public void process(DataInputX in) throws IOException {
-					byte [] data = in.readBlob();
+			param.put("filename", zipFilename);
+
+			ZipInputStream zis = null;
+			final BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(zipFile));
+			try {
+				tcp.process(RequestCmd.BATCH_HISTORY_STACK, param, new INetReader() {
+					public void process(DataInputX in) throws IOException {
+						byte [] data = in.readBlob();
+						if(data != null && data.length >= 0){
+							out.write(data);
+						}
+					}
+				});			
+				out.flush();
+				
+				zis = new ZipInputStream(new FileInputStream(zipFile));
+				ZipFileUtil.recieveZipFile(zis, dirPath);
+			}finally{
+				if(out != null){
+					try {out.close(); } catch(Exception ex){}
 				}
-			});
+				if(zis != null){
+					try {zis.close(); } catch(Exception ex){}
+				}
+			}
+			zipFile.delete();
 		} catch (Throwable th) {
 			ConsoleProxy.errorSafe(th.toString());
-			return false;
+			return null;
 		} finally {
 			TcpProxy.putTcpProxy(tcp);
 		}
-		return true;
+		return filename;
 	}
 	
 	private String getStackFilename(){
 		StringBuilder buffer = new StringBuilder(100);
 		Date date = new Date(pack.startTime);
-		buffer.append(pack.batchJobId).append('_').append(new SimpleDateFormat("yyyyMMdd").format(date)).append('_').append(new SimpleDateFormat("HHmmss.SSS").format(date)).append('_').append(pack.pID).append(".zip");
+		buffer.append(pack.batchJobId).append('_').append(new SimpleDateFormat("yyyyMMdd").format(date)).append('_').append(new SimpleDateFormat("HHmmss.SSS").format(date)).append('_').append(pack.pID);
 		return buffer.toString();
 	}
 }
