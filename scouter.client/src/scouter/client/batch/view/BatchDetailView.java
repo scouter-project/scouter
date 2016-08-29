@@ -32,6 +32,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -40,6 +41,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Activator;
 import scouter.client.Images;
+import scouter.client.batch.action.OpenBatchDetailJob;
 import scouter.client.util.ImageUtil;
 import scouter.lang.pack.BatchPack;
 import scouter.lang.step.Step;
@@ -50,13 +52,13 @@ public class BatchDetailView extends ViewPart {
 	public static final String ID = BatchDetailView.class.getName();
 	private StyledText text;
 	private BatchPack pack;
+	private int serverId;
+	
 	Menu contextMenu;
-	MenuItem sqlSummary;
+	MenuItem sfa;
 	
 	IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-	
-	Step[] steps;
-	
+		
 	public void createPartControl(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new GridLayout(1, true));
@@ -70,18 +72,17 @@ public class BatchDetailView extends ViewPart {
 		    text.setFont(new Font(null, "Courier New", 10, SWT.NORMAL));
 		}
 		text.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
-		
+
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
 		man.add(openSFADialog);
-			    
-	    createContextMenu();
+		//createContextMenu();
 	}
-	
+		
 	private void createContextMenu() {
 		contextMenu = new Menu(text);
-		sqlSummary = new MenuItem(contextMenu, SWT.PUSH);
-		sqlSummary.setText("SQL Statistics");
-		sqlSummary.addSelectionListener(new SelectionAdapter() {
+		sfa = new MenuItem(contextMenu, SWT.PUSH);
+		sfa.setText("Stack Frequency Analyzer");
+		sfa.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				openSFADialog.run();
 			}
@@ -90,8 +91,9 @@ public class BatchDetailView extends ViewPart {
 	    text.setMenu(contextMenu);
 	}
 	
-	public void setInput(BatchPack pack) {
+	public void setInput(BatchPack pack, int serverId) {
 		this.pack = pack;
+		this.serverId = serverId;
 		setPartName(pack.objName + " - " + pack.batchJobId);
 
 		StringBuilder buffer = new StringBuilder(10240);		
@@ -101,7 +103,8 @@ public class BatchDetailView extends ViewPart {
 		buffer.append("PID         : ").append(pack.pID).append(lineSeparator);
 		buffer.append("Run  Command: ").append(pack.args).append(lineSeparator);
 		if(pack.isStack){
-				buffer.append("Stack   Dump: O").append(lineSeparator);
+			buffer.append("Stack   Dump: O").append(lineSeparator);
+			createContextMenu();
 		}else{
 			buffer.append("Stack   Dump: X").append(lineSeparator);
 		}
@@ -160,6 +163,7 @@ public class BatchDetailView extends ViewPart {
 	
 	Action openSFADialog = new Action("Stack Frequency Analyzer", ImageUtil.getImageDescriptor(Images.page_white_stack)) {
 		public void run() { 
+			new OpenBatchDetailJob(Display.getDefault(), pack, serverId).schedule();
 			//XlogSummarySQLDialog summberSQLDialog = new XlogSummarySQLDialog(new Shell(Display.getDefault(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN), steps, xLogData);
 			//summberSQLDialog.open();
 		}

@@ -18,7 +18,8 @@ import scouter.server.netio.AgentCall
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.util.StringKeyLinkedMap.StringKeyLinkedEntry
 import scouter.server.util.EnumerScala
-import scouter.server.db.BatchDB;
+import scouter.server.db.BatchDB
+import scouter.server.db.BatchZipDB
 
 class BatchService {
     @ServiceHandler(RequestCmd.BATCH_HISTORY_LIST)
@@ -65,4 +66,19 @@ class BatchService {
         	dout.writePack(pack);
         }
     } 
+
+    @ServiceHandler(RequestCmd.BATCH_HISTORY_STACK)
+    def readStack(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        val param = din.readPack().asInstanceOf[MapPack]
+        val objHash = param.getInt("objHash")
+        val time = param.getLong("time")
+        val filename = param.getText("filename")
+        val objInfo = AgentManager.getAgent(objHash)
+        if(objInfo == null){
+          return;
+        }
+        val objName = objInfo.objName
+        
+        BatchZipDB.read(objName, time, filename, dout) 
+	}
 }

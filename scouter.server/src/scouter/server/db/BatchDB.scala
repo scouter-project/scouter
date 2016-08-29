@@ -125,37 +125,6 @@ object BatchDB {
         }
     }
 
-    
-    def read(objName: String, from: Long, to: Long, handler: (Long) => Any) {
-        val date = DateUtil.yyyymmdd(from)
-        val path = getDBPath(date, objName)
-        val idxFile = new File(path + "/batch.idx")
-        if (idxFile.canRead() == false)
-            return
-
-        val idxRAF = new RandomAccessFile(path + "/batch.idx", "rw");
-        val dataFile = new RandomAccessFile(path + "/batch.dat", "rw");
-        val len = (idxFile.length / IDX_LEN).toInt
-        val bs = new BinSearch[Long](len, (a: Long) => { idxRAF.seek(a * IDX_LEN); new DataInputX(idxRAF).readLong() },
-            (a: Long, b: Long) => (b - a).toInt)
-
-        var x = bs.searchBE(from).toInt
-
-        if (x < 0) {
-            return
-        }
-        while (x < len) {
-            idxRAF.seek(x * IDX_LEN);
-            val time = new DataInputX(idxRAF).readLong()
-            if (time <= to) {
-                handler(time)
-                x += 1
-            } else {
-                x = len // break
-            }
-        }
-    }
-
     def read(objName: String, time: Long, position: Long) : Array[Byte] = {
         val date = DateUtil.yyyymmdd(time)
         val path = getDBPath(date, objName)

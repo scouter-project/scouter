@@ -82,7 +82,6 @@ public class ObjectBatchHistoryView extends ViewPart {
 	
 	private int objHash;
 	
-	
 	private DateTime date;
 	private DateTime fromTime;
 	private DateTime toTime;
@@ -340,7 +339,7 @@ public class ObjectBatchHistoryView extends ViewPart {
 					@Override
 					public String getText(Object element) {
 						if (element instanceof BatchPack) {
-							return ((BatchPack) element).isStack?"SFA":"";
+							return ((BatchPack) element).isStack?"O":"";
 						}
 						return null;
 					}
