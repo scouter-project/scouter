@@ -727,6 +727,7 @@ public class MainProcessor{
     	IWorkbenchWindow window = workbench.getActiveWorkbenchWindow(); 
     	try{ 
     		workbench.showPerspective(PerspectiveStackAnalyzer.ID, window);
+    		window.getActivePage().showView(StackAnalyzerView.ID);
     	} catch (WorkbenchException e) { 
     		System.out.println("Unable to open Perspective: " + PerspectiveStackAnalyzer.ID); 
     	}    	
