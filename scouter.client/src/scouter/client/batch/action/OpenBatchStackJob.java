@@ -21,7 +21,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,6 +37,7 @@ import org.eclipse.ui.PlatformUI;
 
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
+import scouter.client.stack.base.MainProcessor;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
 import scouter.client.util.RCPUtil;
@@ -65,17 +65,15 @@ public class OpenBatchStackJob extends Job {
 	protected IStatus run(IProgressMonitor monitor) {
 		monitor.beginTask("Load Batch Stack....", IProgressMonitor.UNKNOWN);
 
-		String stackfile = getStackData(serverId, pack);
+		final String stackfile = getStackData(serverId, pack);
 		if(stackfile == null){
 			return Status.CANCEL_STATUS;
 		}
-							
-		ExUtil.exec(display, new Runnable() {
+		
+		ExUtil.exec(Display.getDefault(), new Runnable() {
 			public void run() {
 				try {
-//					IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-//					BatchDetailView view = (BatchDetailView) win.getActivePage().showView(BatchDetailView.ID, secId, IWorkbenchPage.VIEW_ACTIVATE);
-//					view.setInput(recvPack, serverId);	
+					MainProcessor.instance().processStackFile(stackfile);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
@@ -126,7 +124,7 @@ public class OpenBatchStackJob extends Job {
 		} finally {
 			TcpProxy.putTcpProxy(tcp);
 		}
-		return filename;
+		return dirPath + filename + ".log";
 	}
 	
 	private String getStackFilename(){

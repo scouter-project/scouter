@@ -156,7 +156,7 @@ public class StringUtils {
 	}
 	
 	static public String makeStackValue(String value, boolean isRemoveLine){
-        int sIndex = value.indexOf(STARTSTACK);
+        int sIndex = getStartIindex(value);
         if(sIndex < 0){
         	throw new RuntimeException(value + " is not stack!");
         }
@@ -170,5 +170,22 @@ public class StringUtils {
         }else{
         	return value.substring(sIndex + 3);                	
         }		
+	}
+	
+	static int getStartIindex(String line){
+		int sIndex = line.indexOf(STARTSTACK);
+       	if(sIndex >=0){
+       		return sIndex;
+       	}
+       	
+		int length = line.length();
+		char ch;
+		for(int i = 0; i < length; i++){
+			ch = line.charAt(i);
+			if(ch != ' ' && ch != '\t'){
+				return i;
+			}
+		}
+		return -1;
 	}
 }

@@ -139,7 +139,7 @@ public class BatchDetailView extends ViewPart {
 				buffer.append(String.format("%,13d", (mapValue.getLong("totalTime")/1000000L))).append(' ');
 				buffer.append(String.format("%,13d", (mapValue.getLong("minTime")/1000000L))).append(' ');
 				buffer.append(String.format("%,13d", (mapValue.getLong("maxTime")/1000000L))).append(' ');
-				buffer.append(String.format("%,13d", (mapValue.getLong("processedRows")/1000000L))).append(' ').append(String.format("%10s", mapValue.getBoolean("processedRows"))).append(' ');
+				buffer.append(String.format("%,13d", mapValue.getLong("processedRows"))).append(' ').append(String.format("%10s", mapValue.getBoolean("rowed"))).append(' ');
 				buffer.append(sdf.format(new Date(mapValue.getLong("startTime")))).append(' ');
 				buffer.append(sdf.format(new Date(mapValue.getLong("endTime"))));
 			}

@@ -53,7 +53,7 @@ public class BatchPack implements Pack {
 	public long sqlTotalTime = 0L;
 	public long sqlTotalRows = 0L;
 	public long sqlTotalRuns = 0L;
-
+	
 	public boolean isStack = false;
 	
 	public long position  = 0L;
