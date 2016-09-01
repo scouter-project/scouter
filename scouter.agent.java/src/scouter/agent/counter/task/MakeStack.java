@@ -92,7 +92,7 @@ public class MakeStack {
 			int[] stacks = new int[length];
 
 			for(int i=0; i<length; i++) {
-				stacks[i] = DataProxy.sendStackElement(elements[i].toString());
+				stacks[i] = DataProxy.sendStackElement(elements[i]);
 			}
 			DumpStep dumpStep = new DumpStep();
 			dumpStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
