@@ -87,7 +87,7 @@ public class StackListDialog extends Dialog {
 					return;
 				}				
 				long from = (Long) items[0].getData();
-				new FetchSingleStackJob(serverId, objName, from ).schedule(500);
+				new FetchSingleStackJob(serverId, objName, from, getTableList(), null).schedule(500);
 				cancelProessed();
 			}
 
@@ -178,5 +178,17 @@ public class StackListDialog extends Dialog {
 	
 	protected void cancelProessed(){
 		super.cancelPressed();
+	}
+	
+	private List<Long> getTableList(){
+		TableItem [] items = table.getItems();
+		if(items == null){
+			return null;
+		}
+		List<Long> list = new ArrayList<Long>();
+		for(TableItem item : items){
+			list.add((Long)item.getData());
+		}
+		return list;
 	}
 }

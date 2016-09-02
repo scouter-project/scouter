@@ -1,9 +1,7 @@
 package scouter.client.stack.actions;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -31,12 +29,16 @@ public class FetchSingleStackJob extends Job {
 	int serverId;
 	String objName;
 	long time;
+	List<Long> list;
+	ObjectThreadDumpView view;
 	
-	public FetchSingleStackJob(int serverId, String objName, long time) {
+	public FetchSingleStackJob(int serverId, String objName, long time, List<Long> list, ObjectThreadDumpView view) {
 		super(objName + " stack ...");
 		this.serverId = serverId;
 		this.objName = objName;
 		this.time = time;
+		this.list = list;
+		this.view = view;
 	}
 
 	protected IStatus run(final IProgressMonitor monitor) {
@@ -69,10 +71,13 @@ public class FetchSingleStackJob extends Job {
 		    	IWorkbenchWindow window = workbench.getActiveWorkbenchWindow(); 				
 				if (window != null) {
 					try {
-						ObjectThreadDumpView view = (ObjectThreadDumpView) window.getActivePage().showView(ObjectThreadDumpView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
-						if (view != null) {
-							view.setInput(content.toString(), objName, time);
-							view.setInput(serverId);
+						if(view == null){
+							ObjectThreadDumpView newView = (ObjectThreadDumpView) window.getActivePage().showView(ObjectThreadDumpView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
+							if (newView != null) {
+								newView.setInput(content.toString(), objName, serverId, time, list);
+							}
+						}else{
+							view.setInput(content.toString());
 						}
 					} catch (PartInitException e) {
 						MessageDialog.openError(window.getShell(), "Error", "Error opening view:" + e.getMessage());
