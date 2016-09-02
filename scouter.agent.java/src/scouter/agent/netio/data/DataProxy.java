@@ -282,13 +282,13 @@ public class DataProxy {
 	}
 
 	private static IntLinkedSet stackElement = new IntLinkedSet().setMax(20000);
-	public static int sendStackElement(String name) {
-		int hash = HashUtil.hash(name);
+	public static int sendStackElement(StackTraceElement ste) {
+		int hash = ste.hashCode();
 		if (stackElement.contains(hash)) {
 			return hash;
 		}
 		stackElement.put(hash);
-		udpCollect.add(new TextPack(TextTypes.STACK_ELEMENT, hash, name));
+		udpCollect.add(new TextPack(TextTypes.STACK_ELEMENT, hash, ste.toString()));
 		return hash;
 	}
 }

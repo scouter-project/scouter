@@ -1,6 +1,5 @@
 package scouter.agent.plugin;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+
 import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.AlertProxy;
@@ -13,15 +12,92 @@ import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ThreadSubmitStep;
 import scouter.util.KeyGen;
 import scouter.util.SysJMX;
-import scouter.util.ThreadUtil;
+
+import java.lang.reflect.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class AbstractPlugin {
+	private static Map<String, AccessibleObject> reflCache = Collections.synchronizedMap(new LinkedHashMap<String, AccessibleObject>(100));
+
 	long lastModified;
+
 	public void log(Object c) {
 		Logger.println("A158", c.toString());
 	}
 	public void println(Object c) {
 		System.out.println(c);
 	}
+
+	public static Object invokeMethod(Object o, String methodName) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+		Object[] objs = {};
+		return invokeMethod(o, methodName, objs);
+	}
+
+	public static Object invokeMethod(Object o, String methodName, Object... args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+		int argsSize = args.length;
+		StringBuilder signature = new StringBuilder(o.getClass().getName()).append(":").append(methodName).append("():");
+
+		Class[] argClazzes = new Class[argsSize];
+
+		for(int i=0; i<argsSize; i++) {
+			argClazzes[i] = args[i].getClass();
+			signature.append(argClazzes[i].getName()).append("+");
+		}
+		Method m = (Method) reflCache.get(signature.toString());
+		if(m == null) {
+			m = o.getClass().getMethod(methodName, argClazzes);
+			reflCache.put(signature.toString(), m);
+		}
+		return m.invoke(o, args);
+	}
+
+	public static Object newInstance(String className) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+		return newInstance(className, Thread.currentThread().getContextClassLoader());
+	}
+
+	public static Object newInstance(String className, ClassLoader loader) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+		Object[] objs = {};
+		return newInstance(className, loader, objs);
+	}
+
+	public static Object newInstance(String className, Object... args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+		return newInstance(className, Thread.currentThread().getContextClassLoader(), args);
+	}
+
+	public static Object newInstance(String className, ClassLoader loader, Object... args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+		int argsSize = args.length;
+		Class[] argClazzes = new Class[argsSize];
+		StringBuilder signature = new StringBuilder(className).append(":<init>:");
+
+		for(int i=0; i<argsSize; i++) {
+			argClazzes[i] = args[i].getClass();
+			signature.append(argClazzes[i].getName()).append("+");
+		}
+
+		Class clazz = Class.forName(className, true, loader);
+		Constructor constructor = (Constructor)reflCache.get(signature.toString());
+
+		if(constructor == null) {
+			constructor = clazz.getConstructor(argClazzes);
+			reflCache.put(signature.toString(), constructor);
+		}
+
+		return constructor.newInstance(args);
+	}
+
+	public static Object getFieldValue(Object o, String fieldName) throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+		StringBuilder signature = new StringBuilder(o.getClass().getName()).append(":").append(fieldName).append(":");
+		Field f = (Field) reflCache.get(signature.toString());
+		if(f == null) {
+			f = o.getClass().getField(fieldName);
+			reflCache.put(signature.toString(), f);
+		}
+		return f.get(o);
+	}
+
+	@Deprecated
 	public Object field(Object o, String field) {
 		if (o == null)
 			return null;
@@ -33,6 +109,7 @@ public class AbstractPlugin {
 		}
 		return null;
 	}
+	@Deprecated
 	public Object method(Object o, String method) {
 		if (o == null)
 			return null;
@@ -44,6 +121,7 @@ public class AbstractPlugin {
 		}
 		return null;
 	}
+	@Deprecated
 	public Object method1(Object o, String method) {
 		if (o == null)
 			return null;
@@ -54,6 +132,7 @@ public class AbstractPlugin {
 			return e.toString();
 		}
 	}
+	@Deprecated
 	public Object method(Object o, String method, String param) {
 		if (o == null)
 			return null;

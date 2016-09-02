@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HostNetDiskPerf {
+	static char ch_l = 'l';
+	static char ch_o = 'o';
 	static int SLEEP_TIME = 2000;
 	static Sigar sigarImpl = new Sigar();
 	static SigarProxy sigar = SigarProxyCache.newInstance(sigarImpl, SLEEP_TIME);
@@ -89,12 +91,18 @@ public class HostNetDiskPerf {
 			long tmpTxTotal = 0L;
 
 			for (int i = 0; i < netIf.length; i++) {
+				String netIfName = netIf[i];
+				if(netIfName.length() >= 2) {
+					if(netIfName.charAt(0) == ch_l && netIfName.charAt(1) == ch_o) {
+						continue;
+					}
+				}
 				NetInterfaceStat net = null;
 				try {
-					net = sigar.getNetInterfaceStat(netIf[i]);
+					net = sigar.getNetInterfaceStat(netIfName);
 				} catch (SigarException e) {
 					// Ignore the exception when trying to stat network interface
-					Logger.println("A143", 300, "SigarException trying to stat network device " + netIf[i], e);
+					Logger.println("A143", 300, "SigarException trying to stat network device " + netIfName, e);
 					continue;
 				}
 				Map<String, Long> netMap = new HashMap<String, Long>();
@@ -104,7 +112,7 @@ public class HostNetDiskPerf {
 				netMap.put(CounterConstants.HOST_NET_RX_BYTES, rxBytes);
 				netMap.put(CounterConstants.HOST_NET_TX_BYTES, txBytes);
 
-				Map<String, Long> preMap = previousNetworkStats.get(netIf[i]);
+				Map<String, Long> preMap = previousNetworkStats.get(netIfName);
 
 				if (preMap != null) {
 					long rxDelta = (rxBytes - preMap.get(CounterConstants.HOST_NET_RX_BYTES)) / checkIntervalSec; // per sec delta
@@ -116,7 +124,7 @@ public class HostNetDiskPerf {
 					tmpRxTotal += rxDelta;
 					tmpTxTotal += txDelta;
 				}
-				previousNetworkStats.put(netIf[i], netMap);
+				previousNetworkStats.put(netIfName, netMap);
 			}
 
 			HostNetDiskPerf.rxTotalBytesPerSec = tmpRxTotal;
