@@ -59,7 +59,7 @@ object BatchDB {
             val path = open(m)
             if (path != null) {
                 val pos = append(path, m);
-                appendX(path, m.startTime, pos);
+                appendX(path, (m.startTime + m.elapsedTime), pos);
             }
         }
     }
@@ -158,14 +158,14 @@ object BatchDB {
         out.close();
     }
     protected def open(m: BatchPack): String = {
-        val key = BitUtil.setHigh(DateUtil.getDateUnit(m.startTime), m.objHash)
+        val key = BitUtil.setHigh(DateUtil.getDateUnit(m.startTime + m.elapsedTime), m.objHash)
         val opath = dbinfo.get(key)
         if (opath != null)
             return opath
         else {
             val objName = getObjName(m)
             if (objName != null) {
-                val date = DateUtil.yyyymmdd(m.startTime)
+                val date = DateUtil.yyyymmdd(m.startTime + m.elapsedTime)
                 val path = getDBPath(date, objName)
                 val f = new File(path)
                 if (f.exists() == false) {

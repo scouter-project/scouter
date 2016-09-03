@@ -44,7 +44,6 @@ import scouter.client.Images;
 import scouter.client.batch.action.OpenBatchStackJob;
 import scouter.client.util.ImageUtil;
 import scouter.lang.pack.BatchPack;
-import scouter.lang.step.Step;
 import scouter.lang.value.MapValue;
 import scouter.util.SystemUtil;
 
@@ -55,7 +54,6 @@ public class BatchDetailView extends ViewPart {
 	private int serverId;
 	
 	Menu contextMenu;
-	MenuItem sfa;
 	
 	IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		
@@ -74,20 +72,35 @@ public class BatchDetailView extends ViewPart {
 		text.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
 
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
+		man.add(openThreadDumpDialog);
 		man.add(openSFADialog);
 		//createContextMenu();
 	}
 		
 	private void createContextMenu() {
 		contextMenu = new Menu(text);
-		sfa = new MenuItem(contextMenu, SWT.PUSH);
-		sfa.setText("Stack Frequency Analyzer");
-		sfa.addSelectionListener(new SelectionAdapter() {
+		MenuItem menu = new MenuItem(contextMenu, SWT.PUSH);
+		menu.setText("Stack Frequency Analyzer");
+		menu.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
+				if(pack == null || !pack.isStack){
+					return;
+				}
 				openSFADialog.run();
 			}
 		});
 
+		menu = new MenuItem(contextMenu, SWT.PUSH);
+		menu.setText("Batch Thread Dump View");
+		menu.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if(pack == null || !pack.isStack){
+					return;
+				}
+				openThreadDumpDialog.run();
+			}
+		});
+		
 	    text.setMenu(contextMenu);
 	}
 	
@@ -103,6 +116,7 @@ public class BatchDetailView extends ViewPart {
 		buffer.append("PID         : ").append(pack.pID).append(lineSeparator);
 		buffer.append("Run  Command: ").append(pack.args).append(lineSeparator);
 		if(pack.isStack){
+			
 			buffer.append("Stack   Dump: O").append(lineSeparator);
 			createContextMenu();
 		}else{
@@ -163,10 +177,13 @@ public class BatchDetailView extends ViewPart {
 	
 	Action openSFADialog = new Action("Stack Frequency Analyzer", ImageUtil.getImageDescriptor(Images.page_white_stack)) {
 		public void run() { 
-			new OpenBatchStackJob(Display.getDefault(), pack, serverId).schedule();
-			//XlogSummarySQLDialog summberSQLDialog = new XlogSummarySQLDialog(new Shell(Display.getDefault(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN), steps, xLogData);
-			//summberSQLDialog.open();
+			new OpenBatchStackJob(Display.getDefault(), pack, serverId, true).schedule();
 		}
 	};
-	
+
+	Action openThreadDumpDialog = new Action("Batch Thread Dump View", ImageUtil.getImageDescriptor(Images.thread)) {
+		public void run() { 
+			new OpenBatchStackJob(Display.getDefault(), pack, serverId, false).schedule();
+		}
+	};
 }

@@ -17,6 +17,8 @@
  */
 package scouter.client.views;
 
+import java.io.File;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +88,7 @@ public class ObjectThreadDumpView extends ViewPart {
 	private boolean isTable = true;
 	
 	private Table table;
+	private String indexFilename = null;
 	
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
@@ -217,18 +220,23 @@ public class ObjectThreadDumpView extends ViewPart {
 			
 			table.addMouseListener(new MouseListener(){
 				public void mouseDoubleClick(MouseEvent e) {
+				}
+	
+				public void mouseDown(MouseEvent e) {
 					TableItem[] items = table.getSelection();
 					if(items == null){
 						return;
-					}				
-					long from = (Long) items[0].getData();
-					new FetchSingleStackJob(serverId, objName, from, null, ObjectThreadDumpView.this).schedule(500);
+					}
+					if(serverId != 0){
+						long from = (Long) items[0].getData();
+						new FetchSingleStackJob(serverId, objName, from, null, ObjectThreadDumpView.this).schedule(500);
+					}else{
+						loadBatchStackContents((Long) items[0].getData(), Integer.parseInt(items[0].getText()));
+					}
 				}
-	
-				public void mouseDown(MouseEvent arg0) {
+				
+				public void mouseUp(MouseEvent e) {
 				}
-				public void mouseUp(MouseEvent arg0) {
-				}			
 			});
 			
 			TableColumn indexColumn = new TableColumn(table, SWT.NONE);
@@ -293,6 +301,19 @@ public class ObjectThreadDumpView extends ViewPart {
 		loadAgentStackList(list);
 	}
 	
+	public void setInput(String objName, String filename, List<Long> [] lists){
+		this.setPartName("ThreadDump[" + objName + " " + DateUtil.yyyymmdd(lists[0].get(0)) + "]");
+		this.objName = objName;
+		this.indexFilename = filename;
+		loadBatchStackList(lists);
+		if(lists != null){
+			if(lists[1].size() == 1){
+				loadThreadDump(0, 0);
+			}else{
+				loadThreadDump(0, ((Long)lists[1].get(1)).intValue());				
+			}		}
+	}
+	
 	public void load() {
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
@@ -347,7 +368,72 @@ public class ObjectThreadDumpView extends ViewPart {
 		});		
 	}
 	
+	private void loadBatchStackList(final List<Long> [] lists){
+		if(lists == null){
+			return;
+		}
+		ExUtil.exec(table, new Runnable() {
+			public void run() {
+				List<Long> time = lists[0];
+				List<Long> position = lists[1];
+				for (int i = 0 ; i < time.size(); i++) {
+					TableItem item = new TableItem(table, SWT.NONE);
+					item.setText(0, String.valueOf(i+1));
+					item.setText(1, DateUtil.format(time.get(i), "yyyy-MM-dd HH:mm:ss"));
+					item.setData(position.get(i));
+				}
+			}
+		});		
+	}	
 	public void setFocus() {
 	}
 
+	private void loadThreadDump(long position, int length){
+		File stackFile = null;
+		if(this.indexFilename == null){
+			return;
+		}else{
+			stackFile = new File(this.indexFilename.substring(0, this.indexFilename.length() - 4) + ".log");
+		}
+		
+		String contents = "";
+		RandomAccessFile afr = null;
+		try {
+			if(length == 0){
+				length = (int)(stackFile.length() - position);
+			}
+			afr = new RandomAccessFile(stackFile, "r");
+			afr.seek(position);
+			byte [] buffer = new byte[length];
+			int totalSize= 0;
+			int readSize;
+			while((readSize = afr.read(buffer, totalSize, length-totalSize)) > 0){
+				totalSize += readSize;
+				if(totalSize >= length){
+					break;
+				}
+			}
+			contents = new String(buffer, "UTF-8");
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}finally{
+			if(afr != null){
+				try {afr.close(); }catch(Exception ex){}
+			}
+		}
+		text.setText(contents);
+	}
+	
+	private void loadBatchStackContents(long position, int index){
+		TableItem item = null;
+		if(index < table.getItemCount()){
+			item = table.getItem(index);
+		}
+		int length = 0;
+		if(item != null){
+			length = ((Long)item.getData()).intValue();
+			length = (int)(length - position);
+		}
+		loadThreadDump(position, length);		
+	}
 }
