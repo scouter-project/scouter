@@ -63,12 +63,24 @@ public class BatchMonitor extends Thread {
 					indexWriter = new FileWriter(new File(traceContext.getLogFullFilename() + ".inx"));
 				}
 			}
-			if(stackWriter != null){
-				while(!config.scouter_stop){
-					ThreadDumpHandler.processDump(stackFile, stackWriter, indexWriter, config.sfa_dump_filter, config.sfa_dump_header_exists);
-					traceContext.checkThread();
-					Thread.sleep(config.sfa_dump_interval_ms);
+			
+			long lastStackDumpTime = 0L;
+			long lastCheckThreadTime = 0L;
+			long currentTime;
+
+			while(!config.scouter_stop){
+				currentTime = System.currentTimeMillis();
+				if(stackWriter != null){
+					if((currentTime - lastStackDumpTime) >= config.sfa_dump_interval_ms){
+						ThreadDumpHandler.processDump(stackFile, stackWriter, indexWriter, config.sfa_dump_filter, config.sfa_dump_header_exists);
+						lastStackDumpTime = currentTime;
+					}
 				}
+				if((currentTime - lastCheckThreadTime) >= config.thread_check_interval_ms){
+					traceContext.checkThread();
+					lastCheckThreadTime = currentTime;
+				}
+				Thread.sleep(100L);
 			}
 		}catch(Throwable ex){
 			Logger.println("ERROR: " + ex.getMessage());

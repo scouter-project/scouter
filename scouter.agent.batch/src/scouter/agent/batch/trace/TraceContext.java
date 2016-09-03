@@ -40,6 +40,33 @@ public class TraceContext {
 	private static final int SQL_OTHERS_HASH = SQL_OTHERS.hashCode();
 	private static TraceContext instance = null;
 	
+	public String batchJobId;
+	public String args;
+	public Integer pID;
+	
+	public long startTime;
+	public long endTime;
+	
+	public int threadCnt = 0;
+	public long startCpu;
+	public long endCpu;
+
+	public int sqlTotalCnt = 0;
+	public long sqlTotalTime = 0L;
+	public long sqlTotalRows = 0L;
+	public long sqlTotalRuns = 0L;
+
+	public String stackLogFile = null;
+	public String standAloneFile = null;
+
+	private HashMap<Integer, String> uniqueSqls = new HashMap<Integer, String>(100);
+	private HashMap<Integer, TraceSQL> sqlMap = new HashMap<Integer, TraceSQL>(100);
+	private List<LocalSQL> localSQLList = new ArrayList<LocalSQL>();
+	
+	private int sqlMaxCount;
+	
+	public String lastStack;	
+	
 	static {
 		instance = new TraceContext();
 	}
@@ -238,7 +265,7 @@ public class TraceContext {
 	}	
 	
 	public void addLocalSQL(LocalSQL localSql){
-		synchronized(localSQLList){
+		synchronized(localSQLList){		
 			localSQLList.add(localSql);
 			threadCnt++;
 		}
@@ -342,31 +369,4 @@ public class TraceContext {
 		}
 		return pack;
 	}
-	
-	public String batchJobId;
-	public String args;
-	public Integer pID;
-	
-	public long startTime;
-	public long endTime;
-	
-	public int threadCnt = 0;
-	public long startCpu;
-	public long endCpu;
-
-	public int sqlTotalCnt = 0;
-	public long sqlTotalTime = 0L;
-	public long sqlTotalRows = 0L;
-	public long sqlTotalRuns = 0L;
-
-	public String stackLogFile = null;
-	public String standAloneFile = null;
-
-	private HashMap<Integer, String> uniqueSqls = new HashMap<Integer, String>(100);
-	private HashMap<Integer, TraceSQL> sqlMap = new HashMap<Integer, TraceSQL>(100);
-	private List<LocalSQL> localSQLList = new ArrayList<LocalSQL>();
-	
-	private int sqlMaxCount;
-	
-	public String lastStack;
 }

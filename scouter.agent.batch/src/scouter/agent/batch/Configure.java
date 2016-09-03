@@ -111,6 +111,9 @@ public class Configure {
     @ConfigDesc("Collector IP")
 	public long dump_send_elapsed_ms = 0L;
 	
+    // Thread Live Check추가
+    public long thread_check_interval_ms = 1000L;
+    
 	//Network
     @ConfigDesc("Collector IP")
 	public String net_collector_ip = "127.0.0.1";
@@ -300,6 +303,8 @@ public class Configure {
 		}
 		
 		this.dump_send_elapsed_ms = getLong("dump_send_elapsed_ms", 0L);
+		
+		this.thread_check_interval_ms = getLong("thread_check_interval_ms", 1000L);
 		
 		this.plugin_dir = new File(getValue("plugin_dir", agent_dir_path + "/plugin"));
 		
