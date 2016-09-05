@@ -16,9 +16,7 @@
    <launcherArgs>
       <vmArgs>-Xms128m
 -Xmx512m
--XX:+UseParallelGC
--XX:PermSize=64M
--XX:MaxPermSize=128M
+-XX:+UseG1GC
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
