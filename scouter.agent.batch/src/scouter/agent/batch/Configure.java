@@ -108,10 +108,13 @@ public class Configure {
 	public boolean sfa_dump_header_exists = true;
 	
 	// dump send time
-    @ConfigDesc("Collector IP")
-	public long dump_send_elapsed_ms = 0L;
+    @ConfigDesc("Batch elapsed time(millisecond) to send SFA dump file to scouter server")
+	public long sfa_dump_send_elapsed_ms = 30000L;
+    @ConfigDesc("Batch elapsed time(millisecond) to send batch log to scouter server")
+	public long batch_log_send_elapsed_ms = 30000L;
 	
     // Thread Live Check추가
+    @ConfigDesc("Thread check interval time(millisecond)")
     public long thread_check_interval_ms = 1000L;
     
 	//Network
@@ -302,7 +305,8 @@ public class Configure {
 			this.sfa_dump_header_exists = getBoolean("sfa_dump_header_exists", true);
 		}
 		
-		this.dump_send_elapsed_ms = getLong("dump_send_elapsed_ms", 0L);
+		this.sfa_dump_send_elapsed_ms = getLong("sfa_dump_send_elapsed_ms", 30000L);
+		this.batch_log_send_elapsed_ms = getLong("batch_log_send_elapsed_ms", 30000L);
 		
 		this.thread_check_interval_ms = getLong("thread_check_interval_ms", 1000L);
 		

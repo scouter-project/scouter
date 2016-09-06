@@ -56,7 +56,7 @@ public class TraceContext {
 	public long sqlTotalRows = 0L;
 	public long sqlTotalRuns = 0L;
 
-	public String stackLogFile = null;
+	public boolean isStackLogFile = false;
 	public String standAloneFile = null;
 
 	private HashMap<Integer, String> uniqueSqls = new HashMap<Integer, String>(100);
@@ -142,8 +142,8 @@ public class TraceContext {
 		
 		buffer.append("-[").append(this.batchJobId).append("]----------------------------------------------").append(lineSeparator);
 		buffer.append("Run  Command: ").append(this.args).append(lineSeparator);
-		if(this.stackLogFile != null){
-			buffer.append("Stack   Dump: ").append(this.stackLogFile).append(lineSeparator);
+		if(this.isStackLogFile){
+			buffer.append("Stack   Dump: ").append(this.getLogFullFilename()).append(lineSeparator);
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append(lineSeparator);
@@ -346,7 +346,7 @@ public class TraceContext {
 		pack.sqlTotalRows =  this.sqlTotalRows;
 		pack.sqlTotalRuns =  this.sqlTotalRuns;
 
-		pack.isStack = (stackLogFile != null)?true:false;
+		pack.isStack = isStackLogFile;
 		
 		if(this.sqlTotalCnt > 0){
 			pack.uniqueSqls = this.uniqueSqls;		

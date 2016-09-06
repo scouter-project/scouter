@@ -57,7 +57,7 @@ public class BatchMonitor extends Thread {
 				if(stackFile.exists()){
 					stackFile = null;
 				}else{
-					traceContext.stackLogFile = stackFile.getAbsolutePath();
+					traceContext.isStackLogFile = true;
 					
 					stackWriter = new FileWriter(stackFile);
 					indexWriter = new FileWriter(new File(traceContext.getLogFullFilename() + ".inx"));

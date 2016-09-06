@@ -29,26 +29,43 @@ public class ResultSender extends Thread {
 	public void run(){
 		Configure config = null;
 		TraceContext traceContext = null;
+		long elapsedTime = 0L;
+
 		try {
 			config = Configure.getInstance();
 			config.scouter_stop = true;
 			
 			traceContext = TraceContext.getInstance();
 			traceContext.endTime = System.currentTimeMillis();
-			traceContext.caculateLast();
+			elapsedTime = (traceContext.endTime - traceContext.startTime);
 			
-			String result = traceContext.toString();
-			if(config.scouter_standalone){
-				saveStandAloneResult(traceContext, result);
+			if(config.batch_log_send_elapsed_ms <= elapsedTime){
+				traceContext.caculateLast();
+				String result = traceContext.toString();
+				if(config.scouter_standalone){
+					saveStandAloneResult(traceContext, result);
+				}
+				Logger.println(result);
 			}
-			Logger.println(result);
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}finally{
 			try {
-				if(config != null && !config.scouter_standalone && traceContext != null){
-					UdpAgent.sendUdpPack(traceContext.makePack());
-					UdpAgent.sendLocalServer(traceContext);
+				if(config != null && traceContext != null){
+					if(!config.scouter_standalone ){
+						if(config.batch_log_send_elapsed_ms <= elapsedTime){					
+							if(config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms > elapsedTime){
+								traceContext.isStackLogFile = false;
+							}
+							UdpAgent.sendUdpPack(traceContext.makePack());
+						}
+						if(config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms <= elapsedTime){
+							UdpAgent.sendLocalServer(traceContext);
+						}
+					}
+					if(config.sfa_dump_enabled && config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms > elapsedTime){
+						deleteFiles(traceContext);
+					}
 				}
 			}catch(Exception ex){
 				ex.printStackTrace();
@@ -71,6 +88,18 @@ public class ResultSender extends Thread {
 			if(writer != null){
 				try{ writer.close(); }catch(Exception ex){}
 			}
+		}
+	}
+	
+	public void deleteFiles(TraceContext traceContext){
+		String filename = traceContext.getLogFullFilename();
+		try{
+			File file = new File(filename + ".log");
+			file.delete();
+			file = new File(filename + ".inx");
+			file.delete();
+		}catch(Exception ex){
+			ex.printStackTrace();
 		}
 	}
 }
