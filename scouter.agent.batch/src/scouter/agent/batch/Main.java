@@ -1,18 +1,22 @@
 package scouter.agent.batch;
 
 import java.io.File;
+import java.util.Hashtable;
 
 import scouter.Version;
 import scouter.agent.batch.netio.data.net.UdpAgent;
 import scouter.agent.batch.netio.data.net.UdpLocalServer;
 import scouter.agent.batch.netio.request.ReqestHandlingProxy;
 import scouter.agent.batch.netio.service.net.TcpRequestMgr;
+import scouter.lang.pack.MapPack;
 import scouter.lang.pack.ObjectPack;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 import scouter.util.logo.Logo;
 
 public class Main {
+	static public Hashtable<String, MapPack> batchMap = new Hashtable<String, MapPack>();
+	
 	public static void main(String[] args) {		
 		Logo.print(true);
 		System.out.println("Scouter Batch Agent Version " + Version.getServerFullVersion());
@@ -41,7 +45,7 @@ public class Main {
 		while (true) {
 			currentTime = System.currentTimeMillis();
 			if((currentTime - startTime) >= 10000){
-				UdpAgent.sendUdpPack(getObjectPack());
+				UdpAgent.sendUdpPackToServer(getObjectPack());
 				startTime = currentTime;
 			}
 			if (exit.exists() == false) {

@@ -57,15 +57,16 @@ public class ResultSender extends Thread {
 							if(config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms > elapsedTime){
 								traceContext.isStackLogFile = false;
 							}
-							UdpAgent.sendUdpPack(traceContext.makePack());
+							UdpAgent.sendUdpPackToServer(traceContext.makePack());
 						}
 						if(config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms <= elapsedTime){
-							UdpAgent.sendLocalServer(traceContext);
+							UdpAgent.sendDumpFileInfo(traceContext);
 						}
 					}
 					if(config.sfa_dump_enabled && config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms > elapsedTime){
 						deleteFiles(traceContext);
 					}
+					UdpAgent.sendEndInfo(traceContext);
 				}
 			}catch(Exception ex){
 				ex.printStackTrace();

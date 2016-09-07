@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
 import scouter.lang.pack.BatchPack;
+import scouter.lang.pack.MapPack;
 import scouter.lang.value.BooleanValue;
 import scouter.lang.value.MapValue;
 import scouter.util.SysJMX;
@@ -65,7 +66,7 @@ public class TraceContext {
 	
 	private int sqlMaxCount;
 	
-	public String lastStack;	
+	public String lastStack = null;	
 	
 	static {
 		instance = new TraceContext();
@@ -246,6 +247,43 @@ public class TraceContext {
 		}
 		this.endCpu = SysJMX.getProcessCPU();
 	}
+	
+	public MapPack caculateTemp(){
+		MapPack map = new MapPack();
+		map.put("bathJobId", this.batchJobId);
+		map.put("args", this.args);
+		map.put("pID", (long)this.pID);
+		map.put("startTime", this.startTime);
+		map.put("elapsedTime", (System.currentTimeMillis() - this.startTime));
+		map.put("cPUTime", (SysJMX.getProcessCPU() - startCpu));
+
+		long tempSqlTotalTime = this.sqlTotalTime;
+		long tempSqlTotalRows = this.sqlTotalRows;
+		long tempSqlTotalRuns = this.sqlTotalRuns;
+		
+		synchronized(localSQLList){
+			for(LocalSQL localSql : localSQLList){
+				for(TraceSQL sql : localSql.values()){
+					tempSqlTotalTime += sql.totalTime;
+					tempSqlTotalRows += sql.processedRows;
+					tempSqlTotalRuns += sql.runs;
+				}
+			}
+		}
+		
+
+		map.put("sqlTotalTime", tempSqlTotalTime);
+		map.put("sqlTotalRows", tempSqlTotalRows);
+		map.put("sqlTotalRuns", tempSqlTotalRuns);		
+		
+		if(this.lastStack == null){
+			map.put("lastStack", "None");			
+		}else{
+			map.put("lastStack", this.lastStack);			
+		}
+
+		return map;
+	}	
 	
 	public void checkThread(){
 		Thread thread;

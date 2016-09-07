@@ -24,57 +24,77 @@ import scouter.agent.batch.Configure;
 import scouter.agent.batch.trace.TraceContext;
 
 import scouter.io.DataOutputX;
+import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.net.NetCafe;
 
 public class UdpAgent {
-	static public void sendUdpPack(Pack pack){
+	static public void sendUdpPackToServer(Pack pack){
 		Configure conf = Configure.getInstance();
-		DatagramSocket datagram = null;
-		InetAddress server = null;
 		try {
-			server = InetAddress.getByName(conf.net_collector_ip);
-			datagram = new DatagramSocket();
-
-			byte[] buff = new DataOutputX().write(NetCafe.CAFE).writePack(pack).toByteArray();
-			DatagramPacket packet = new DatagramPacket(buff, buff.length);
-			packet.setAddress(server);
-			packet.setPort(conf.net_collector_udp_port);
-			datagram.send(packet);		
-//System.out.println("Send:" + conf.net_collector_ip + "-" + conf.net_collector_udp_port);
+			sendUdp(conf.net_collector_ip, conf.net_collector_udp_port, new DataOutputX().write(NetCafe.CAFE).writePack(pack).toByteArray());
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally{
-			if(datagram != null){
-				try { datagram.close(); } catch(Exception ex){}
-			}
 		}
 	}
 
-	static public void sendLocalServer(TraceContext traceContext){
-		Configure conf = Configure.getInstance();
+	static public void sendUdp(String IPAddress, int port, byte [] byteArray){
 		DatagramSocket datagram = null;
 		InetAddress server = null;
 		try {
-			server = InetAddress.getByName("127.0.0.1");
+			server = InetAddress.getByName(IPAddress);
 			datagram = new DatagramSocket();
-
-			DataOutputX out = new DataOutputX();
-			out.writeLong(traceContext.startTime);
-			out.writeText(conf.getObjName());
-			out.writeText(traceContext.getLogFullFilename());
-			byte[] buff = out.toByteArray();
-			DatagramPacket packet = new DatagramPacket(buff, buff.length);
+			DatagramPacket packet = new DatagramPacket(byteArray, byteArray.length);
 			packet.setAddress(server);
-			packet.setPort(conf.net_local_udp_port);
-			datagram.send(packet);		
-//System.out.println("Send Local:" + conf.net_local_udp_port);
+			packet.setPort(port);
+			datagram.send(packet);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally{
 			if(datagram != null){
 				try { datagram.close(); } catch(Exception ex){}
 			}
+		}		
+	}
+	
+	static public void sendDumpFileInfo(TraceContext traceContext){
+		Configure conf = Configure.getInstance();
+		try {
+			DataOutputX out = new DataOutputX();
+			out.writeInt(BatchNetFlag.BATCH_END_DUMPFILE_INFO);
+			out.writeLong(traceContext.startTime);
+			out.writeText(conf.getObjName());
+			out.writeText(traceContext.getLogFullFilename());
+			sendUdp("127.0.0.1", conf.net_local_udp_port, out.toByteArray());
+		}catch(Exception ex){
+			ex.printStackTrace();
 		}
-	}	
+	}
+	
+	static public void sendRunningInfo(TraceContext traceContext){
+		MapPack mapPack = traceContext.caculateTemp();
+		Configure conf = Configure.getInstance();
+		try {
+			DataOutputX output = new DataOutputX();
+			output.writeInt(BatchNetFlag.BATCH_RUNNING_INFO);
+			mapPack.write(output);
+			sendUdp("127.0.0.1", conf.net_local_udp_port, output.toByteArray());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	static public void sendEndInfo(TraceContext traceContext){
+		Configure conf = Configure.getInstance();
+		try {
+			DataOutputX out = new DataOutputX();
+			out.writeInt(BatchNetFlag.BATCH_END_INFO);
+			out.writeText(traceContext.batchJobId);
+			out.writeInt(traceContext.pID);
+			out.writeLong(traceContext.startTime);
+			sendUdp("127.0.0.1", conf.net_local_udp_port, out.toByteArray());
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+	}
 }

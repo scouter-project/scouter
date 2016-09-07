@@ -51,7 +51,7 @@ public class BatchMonitor extends Thread {
 			config = Configure.getInstance();			
 			TraceContext traceContext = TraceContext.getInstance();
 			
-			UdpAgent.sendUdpPack(Main.getObjectPack());
+			UdpAgent.sendUdpPackToServer(Main.getObjectPack());
 			if(config.sfa_dump_enabled){
 				stackFile = new File(traceContext.getLogFullFilename() + ".log");
 				if(stackFile.exists()){
@@ -73,6 +73,7 @@ public class BatchMonitor extends Thread {
 				if(stackWriter != null){
 					if((currentTime - lastStackDumpTime) >= config.sfa_dump_interval_ms){
 						ThreadDumpHandler.processDump(stackFile, stackWriter, indexWriter, config.sfa_dump_filter, config.sfa_dump_header_exists);
+						UdpAgent.sendRunningInfo(traceContext);
 						lastStackDumpTime = currentTime;
 					}
 				}
