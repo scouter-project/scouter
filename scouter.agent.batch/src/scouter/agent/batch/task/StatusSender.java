@@ -15,6 +15,7 @@ import scouter.agent.netio.data.DataProxy;
 import scouter.io.DataOutputX;
 import scouter.lang.TimeTypeEnum;
 import scouter.lang.counters.CounterConstants;
+import scouter.lang.pack.MapPack;
 import scouter.lang.pack.PerfCounterPack;
 import scouter.lang.value.DecimalValue;
 import scouter.net.NetCafe;
@@ -23,6 +24,7 @@ public class StatusSender {
 	private Configure conf;
 	private InetAddress server;
     private CounterBasket cb;
+    private long lastCheckTime = 0L;
     
 	public StatusSender(){
 		conf =  Configure.getInstance();
@@ -35,10 +37,12 @@ public class StatusSender {
 		}
 	}
 	
-	public void sendBatchService(){
+	public void sendBatchService(long currentTime){
 		if(server == null){
 			return;
 		}
+		
+		checkBatchService(currentTime);
 		updateBatchService();
 		PerfCounterPack[] pks = cb.getList();
 		sendCounter(pks);
@@ -47,6 +51,29 @@ public class StatusSender {
 	private void updateBatchService(){
 		PerfCounterPack pack = cb.getPack(conf.getObjName(), TimeTypeEnum.REALTIME);
 		pack.put(CounterConstants.BATCH_SERVICE, new DecimalValue(Main.batchMap.size()));
+	}
+	
+	private void checkBatchService(long currentTime){
+		boolean isCheck = false;
+
+		if((currentTime - lastCheckTime) >= conf.sfa_dump_interval_ms){
+			isCheck = true;
+			currentTime = lastCheckTime;
+		}
+		if(!isCheck){
+			return;
+		}
+		
+		MapPack map;
+		long stdTime = conf.sfa_dump_interval_ms * 3;
+		long gapTime;
+		for(String key : Main.batchMap.keySet()){
+			map = Main.batchMap.get(key);
+			gapTime = currentTime - (map.getLong("startTime") + map.getLong("elapsedTime"));
+			if(gapTime >= stdTime){
+				Main.batchMap.remove(key);
+			}
+		}
 	}
 	
 	private void sendCounter(PerfCounterPack[] p) {

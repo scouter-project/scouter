@@ -54,7 +54,7 @@ public class Main {
 			if (exit.exists() == false) {
 				System.exit(0);
 			}
-			statusSender.sendBatchService();
+			statusSender.sendBatchService(currentTime);
 			ThreadUtil.sleep(1000);
 			
 		}
