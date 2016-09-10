@@ -40,7 +40,6 @@ public class Main {
 			}
 		}
 		exit.deleteOnExit();
-		System.out.println("System JRE version : " + System.getProperty("java.version"));
 		long startTime = System.currentTimeMillis();
 		long currentTime;
 		

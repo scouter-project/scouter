@@ -177,13 +177,13 @@ public class BatchDetailView extends ViewPart {
 	
 	Action openSFADialog = new Action("Stack Frequency Analyzer", ImageUtil.getImageDescriptor(Images.page_white_stack)) {
 		public void run() { 
-			new OpenBatchStackJob(Display.getDefault(), pack, serverId, true).schedule();
+			new OpenBatchStackJob(pack, serverId, true).schedule();
 		}
 	};
 
 	Action openThreadDumpDialog = new Action("Batch Thread Dump View", ImageUtil.getImageDescriptor(Images.thread)) {
 		public void run() { 
-			new OpenBatchStackJob(Display.getDefault(), pack, serverId, false).schedule();
+			new OpenBatchStackJob(pack, serverId, false).schedule();
 		}
 	};
 }

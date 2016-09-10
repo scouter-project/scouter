@@ -54,15 +54,12 @@ import scouter.util.ZipFileUtil;
 
 public class OpenBatchStackJob extends Job {
 
-	private Display display;
 	private BatchPack pack;
 	private int serverId;
-	private String secId = "batchstackview";
 	private boolean isSFA;
 	
-	public OpenBatchStackJob(Display display, BatchPack pack, int serverId, boolean isSFA) {
+	public OpenBatchStackJob(BatchPack pack, int serverId, boolean isSFA) {
 		super("Load Batch History Stack");
-		this.display = display;
 		this.pack = pack;
 		this.serverId = serverId;
 		this.isSFA = isSFA;

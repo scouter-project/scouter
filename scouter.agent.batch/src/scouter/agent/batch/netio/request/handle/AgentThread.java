@@ -28,7 +28,7 @@ import scouter.net.RequestCmd;
 
 public class AgentThread {
 	@RequestHandler(RequestCmd.OBJECT_BATCH_ACTIVE_LIST)
-	public Pack activeThreadList(Pack param) {
+	public Pack getActiveList(Pack param) {
 		MapPack rPack = new MapPack();
 		ListValue keys = rPack.newList("key");
 		ListValue bathJobId = rPack.newList("batchJobId");
@@ -69,4 +69,15 @@ public class AgentThread {
 		rPack.put("complete", new BooleanValue(true));
 		return rPack;
 	}
+	
+	@RequestHandler(RequestCmd.BATCH_ACTIVE_STACK)
+	public Pack getActiveStack(Pack param) {
+		MapPack pack = new MapPack();
+		String key = ((MapPack)param).getText("key");
+		MapPack map = Main.batchMap.get(key);
+		if(map != null){
+			pack.put("stack", map.get("lastStack"));
+		}
+		return pack;
+	}	
 }

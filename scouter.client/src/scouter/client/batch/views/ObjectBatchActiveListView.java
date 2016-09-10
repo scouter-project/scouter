@@ -45,6 +45,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -56,6 +57,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
+import scouter.client.batch.actions.OpenBatchActiveStackJob;
+import scouter.client.batch.actions.OpenBatchStackJob;
 import scouter.client.model.AgentDataProxy;
 import scouter.client.model.BatchData;
 import scouter.client.model.RefreshThread;
@@ -83,6 +86,7 @@ public class ObjectBatchActiveListView extends ViewPart implements Refreshable {
 	private String objType;
 	private int objHash = 0;
 	CounterEngine counterEngine;
+	private String key;
 	
 	private TableViewer tableViewer;
 	private TableColumnLayout tableColumnLayout;
@@ -168,12 +172,11 @@ public class ObjectBatchActiveListView extends ViewPart implements Refreshable {
 				Object o = sel.getFirstElement();
 				if (o instanceof BatchData) {
 					BatchData data = (BatchData) o;
-					try {
-						IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-//						ObjectThreadDetailView view = (ObjectThreadDetailView) win.getActivePage().showView(ObjectThreadDetailView.ID, serverId + "&" + data.objHash, IWorkbenchPage.VIEW_ACTIVATE);
-//						view.setInput(data.id);
-					} catch (Exception d) {
+					if(!data.lastStack){
+						return;
 					}
+					key = data.key;
+					openThreadDumpDialog.run();
 				}
 			}
 		});
@@ -220,10 +223,9 @@ public class ObjectBatchActiveListView extends ViewPart implements Refreshable {
 			if (keys != null) {
 				int size = keys.size();
 				count.value = count.value + size;
-				
+				BatchData data;
 				for (int i = 0; i < size; i++) {
-					BatchData data = new BatchData();
-					data.id  = i + 1;
+					data = new BatchData();
 					data.key = keys.getString(i);
 					data.objHash = objHash;
 					data.batchJobId = batchJobId.getString(i);
@@ -244,6 +246,12 @@ public class ObjectBatchActiveListView extends ViewPart implements Refreshable {
 					return o1.elapsedTime > o2.elapsedTime ? -1 : 1;
 				}
 			});
+			
+			int index = 1;
+			for(BatchData data : datas){
+				data.id = index;
+				index++;
+			}
 		}
 		if (error.length() > 0) {
 			error.append("may be not loaded.");
@@ -371,9 +379,9 @@ public class ObjectBatchActiveListView extends ViewPart implements Refreshable {
 	enum ColumnEnum {
 		NO("NO", 60, SWT.RIGHT, true, true, true, 0),
 		OBJNAME("Object Name", 150, SWT.LEFT, true, true, false, 1),
-		BATCHJOBID("Bath Job ID", 100, SWT.LEFT, true, true, false, 2),
-		ARGS("Arguments", 160, SWT.LEFT, true, true, false, 3),
-		PID("PID", 200, SWT.LEFT, true, true, true, 4),
+		BATCHJOBID("Bath Job ID", 150, SWT.LEFT, true, true, false, 2),
+		ARGS("Arguments", 200, SWT.LEFT, true, true, false, 3),
+		PID("PID", 80, SWT.LEFT, true, true, true, 4),
 		STARTTIME("Start Time", 150, SWT.RIGHT, true, true, false, 5),
 		ELAPSEDTIME("Elapsed Time", 100, SWT.RIGHT, true, true, true, 6),
 		CPUTIME("CPU Time", 100, SWT.RIGHT, true, true, true, 7),
@@ -429,4 +437,10 @@ public class ObjectBatchActiveListView extends ViewPart implements Refreshable {
 		}
 	}
 
+	Action openThreadDumpDialog = new Action("Batch Thread Dump View", ImageUtil.getImageDescriptor(Images.thread)) {
+		public void run() {
+			new OpenBatchActiveStackJob(key, objHash, serverId).schedule();
+		}
+	};
+	
 }
