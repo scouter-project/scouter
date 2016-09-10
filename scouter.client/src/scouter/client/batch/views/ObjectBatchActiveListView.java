@@ -356,7 +356,7 @@ public class ObjectBatchActiveListView extends ViewPart implements Refreshable {
 				} else if (columnIndex == ColumnEnum.CPUTIME.getIndex()) {
 					return FormatUtil.print(((BatchData) element).cPUTime, "#,##0");
 				} else if (columnIndex == ColumnEnum.SQLTOTALTIME.getIndex()) {
-					return FormatUtil.print(((BatchData) element).sqlTotalTime, "#,##0");
+					return FormatUtil.print((((BatchData) element).sqlTotalTime / 1000000L), "#,##0");
 				} else if (columnIndex == ColumnEnum.SQLTOTALROWS.getIndex()) {
 					return FormatUtil.print(((BatchData) element).sqlTotalRows, "#,##0");
 				} else if (columnIndex == ColumnEnum.SQLTOTALRUNS.getIndex()) {

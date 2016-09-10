@@ -23,8 +23,8 @@ JAVA_OPTS=" ${JAVA_OPTS} -Dscouter.config=${SCOUTER_AGENT_DIR}/scouter.batch.con
 `${SCOUTER_AGENT_DIR}/scouter.batch.conf` 같이 환경설정 파일을 지정하고, 내용을 수정함으로써 적용 옵션을 변경할 수 있다.
 > 옵션이 없으면 기본 값이 적용된다.
 
-##### 예
-*${appropriate_directory}/scouter.conf*
+### 예
+*${appropriate_directory}/scouter.batch.conf*
 ```
 # Stand-Alone mode
 scouter_standalone=false
@@ -43,9 +43,19 @@ net_collector_tcp_port=6100
 # Scouter Name(Default : batch)
 obj_name=exbatch
 ```
-For more options, refer Options page(Coming soon).
 ***
 
+## 자바 에이전트와 차이점
+스카우터 배치 에이전트가 스카우트 자바 에이전트와 다른 점은 배치 에이전트가 설치된 서버에 별도 스카스터 배치 데몬을 실행시켜야 한다는 것이다.
+이는 배치 프로세스 항상 수행중이지 않고, 수십개 이상 프로세스가 동시에 수행하기 때문에 항상 데몬 형태로 배치 서버에 상주하면서 배치 에이전트 환경설정이나 통합 정보 수집 및 전송을 담당할 프로세스가 필요하다.
+스카우터 배치 데몬은 scouter.agent.batch.jar 내 포함되어 있다.
 
+*start-batch-agent.sh*
+```
+nohup java -cp ${SCOUTER_AGENT_DIR}/scouter.agent.batch.jar -Dscouter.config=${SCOUTER_AGENT_DIR}/scouter.batch.conf scouter.agent.batch.Main &
+```
+***
+스카우터 배치 데몬이 실행되지 않으면 배치 클라이언트에서 환경설정 수정, 스택 수집, 배치 성능 카운트 수집 등 기능이 정상 동작하지 않는다.
 
-![login](../img/main/live-demo-client-login.png)
+## 스카우터 배치 모니터링 화면
+![Scouter](../img/client/batch_monitor_example1.png.png)
