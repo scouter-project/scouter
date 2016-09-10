@@ -22,7 +22,7 @@ import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
 import scouter.agent.batch.Main;
 import scouter.agent.batch.dump.ThreadDumpHandler;
-import scouter.agent.batch.netio.data.net.UdpAgent;
+import scouter.agent.batch.netio.data.net.UdpLocalAgent;
 import scouter.agent.batch.trace.TraceContext;
 import scouter.util.ThreadUtil;
 
@@ -51,7 +51,7 @@ public class BatchMonitor extends Thread {
 			config = Configure.getInstance();			
 			TraceContext traceContext = TraceContext.getInstance();
 			
-			UdpAgent.sendUdpPackToServer(Main.getObjectPack());
+			UdpLocalAgent.sendUdpPackToServer(Main.getObjectPack());
 			if(config.sfa_dump_enabled){
 				stackFile = new File(traceContext.getLogFullFilename() + ".log");
 				if(stackFile.exists()){
@@ -73,7 +73,7 @@ public class BatchMonitor extends Thread {
 				if(stackWriter != null){
 					if((currentTime - lastStackDumpTime) >= config.sfa_dump_interval_ms){
 						ThreadDumpHandler.processDump(stackFile, stackWriter, indexWriter, config.sfa_dump_filter, config.sfa_dump_header_exists);
-						UdpAgent.sendRunningInfo(traceContext);
+						UdpLocalAgent.sendRunningInfo(traceContext);
 						lastStackDumpTime = currentTime;
 					}
 				}

@@ -22,7 +22,7 @@ import java.io.FileWriter;
 
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
-import scouter.agent.batch.netio.data.net.UdpAgent;
+import scouter.agent.batch.netio.data.net.UdpLocalAgent;
 import scouter.agent.batch.trace.TraceContext;
 
 public class ResultSender extends Thread {
@@ -57,16 +57,16 @@ public class ResultSender extends Thread {
 							if(config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms > elapsedTime){
 								traceContext.isStackLogFile = false;
 							}
-							UdpAgent.sendUdpPackToServer(traceContext.makePack());
+							UdpLocalAgent.sendUdpPackToServer(traceContext.makePack());
 						}
 						if(config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms <= elapsedTime){
-							UdpAgent.sendDumpFileInfo(traceContext);
+							UdpLocalAgent.sendDumpFileInfo(traceContext);
 						}
 					}
 					if(config.sfa_dump_enabled && config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms > elapsedTime){
 						deleteFiles(traceContext);
 					}
-					UdpAgent.sendEndInfo(traceContext);
+					UdpLocalAgent.sendEndInfo(traceContext);
 				}
 			}catch(Exception ex){
 				ex.printStackTrace();

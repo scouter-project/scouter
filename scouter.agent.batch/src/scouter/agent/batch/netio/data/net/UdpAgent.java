@@ -17,84 +17,88 @@
 
 package scouter.agent.batch.netio.data.net;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import scouter.agent.batch.Configure;
-import scouter.agent.batch.trace.TraceContext;
 
+import scouter.agent.Logger;
+import scouter.agent.batch.Configure;
+
+import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
-import scouter.lang.pack.MapPack;
-import scouter.lang.pack.Pack;
 import scouter.net.NetCafe;
+import scouter.util.KeyGen;
 
 public class UdpAgent {
-	static public void sendUdpPackToServer(Pack pack){
-		Configure conf = Configure.getInstance();
-		try {
-			sendUdp(conf.net_collector_ip, conf.net_collector_udp_port, new DataOutputX().write(NetCafe.CAFE).writePack(pack).toByteArray());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	static public void sendUdp(String IPAddress, int port, byte [] byteArray){
-		DatagramSocket datagram = null;
+	static public boolean sendUdp(String IPAddress, int port, byte [] byteArray){
 		InetAddress server = null;
 		try {
 			server = InetAddress.getByName(IPAddress);
+			return sendUdp(server, port, byteArray);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	static public boolean sendUdp(InetAddress IPAddress, int port, byte [] byteArray){
+		DatagramSocket datagram = null;
+		try {
+			Configure conf = Configure.getInstance();
+			if (byteArray.length > conf.net_udp_packet_max_bytes) {
+				return sendMTU(IPAddress, port, byteArray, conf.net_udp_packet_max_bytes);
+			}
 			datagram = new DatagramSocket();
 			DatagramPacket packet = new DatagramPacket(byteArray, byteArray.length);
-			packet.setAddress(server);
+			packet.setAddress(IPAddress);
 			packet.setPort(port);
 			datagram.send(packet);
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally{
 			if(datagram != null){
 				try { datagram.close(); } catch(Exception ex){}
 			}
-		}		
+		}
+		return false;
 	}
 	
-	static public void sendDumpFileInfo(TraceContext traceContext){
-		Configure conf = Configure.getInstance();
+	static public boolean sendMTU(InetAddress IPAddress, int port, byte[] data, int packetSize) {
 		try {
-			DataOutputX out = new DataOutputX();
-			out.writeInt(BatchNetFlag.BATCH_END_DUMPFILE_INFO);
-			out.writeLong(traceContext.startTime);
-			out.writeText(conf.getObjName());
-			out.writeText(traceContext.getLogFullFilename());
-			sendUdp("127.0.0.1", conf.net_local_udp_port, out.toByteArray());
-		}catch(Exception ex){
-			ex.printStackTrace();
+			if (IPAddress == null)
+				return false;
+			long pkid = KeyGen.next();
+			int total = data.length / packetSize;
+			int remainder = data.length % packetSize;
+			if (remainder > 0)
+				total++;
+			int num = 0;
+			boolean isSuccess = true;
+			for (num = 0; (isSuccess && num < (data.length / packetSize)); num++) {
+				isSuccess = SendMTU(IPAddress, port, pkid, total, num, packetSize, DataInputX.get(data, num * packetSize, packetSize));
+			}
+			if (isSuccess && remainder > 0) {
+				SendMTU(IPAddress, port, pkid, total, num, remainder, DataInputX.get(data, data.length - remainder, remainder));
+			}
+			return isSuccess;
+		} catch (IOException e) {
+			Logger.println("A121","UDP", e);
 		}
+		return false;
 	}
 	
-	static public void sendRunningInfo(TraceContext traceContext){
-		MapPack mapPack = traceContext.caculateTemp();
+	static private boolean SendMTU(InetAddress IPAddress, int port, long pkid, int total, int num, int packetSize, byte[] data) throws IOException {
 		Configure conf = Configure.getInstance();
-		try {
-			DataOutputX output = new DataOutputX();
-			output.writeInt(BatchNetFlag.BATCH_RUNNING_INFO);
-			mapPack.write(output);
-			sendUdp("127.0.0.1", conf.net_local_udp_port, output.toByteArray());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	static public void sendEndInfo(TraceContext traceContext){
-		Configure conf = Configure.getInstance();
-		try {
-			DataOutputX out = new DataOutputX();
-			out.writeInt(BatchNetFlag.BATCH_END_INFO);
-			out.writeText(traceContext.batchJobId);
-			out.writeInt(traceContext.pID);
-			out.writeLong(traceContext.startTime);
-			sendUdp("127.0.0.1", conf.net_local_udp_port, out.toByteArray());
-		}catch(Exception ex){
-			ex.printStackTrace();
-		}
+		DataOutputX out = new DataOutputX();
+		out.write(NetCafe.CAFE_MTU);
+		out.writeInt(conf.getObjHash());
+		out.writeLong(pkid);
+		out.writeShort(total);
+		out.writeShort(num);
+		out.writeBlob(data);
+				
+		return sendUdp(IPAddress, port, out.toByteArray());
 	}
 }

@@ -4,10 +4,11 @@ import java.io.File;
 import java.util.Hashtable;
 
 import scouter.Version;
-import scouter.agent.batch.netio.data.net.UdpAgent;
+import scouter.agent.batch.netio.data.net.UdpLocalAgent;
 import scouter.agent.batch.netio.data.net.UdpLocalServer;
 import scouter.agent.batch.netio.request.ReqestHandlingProxy;
 import scouter.agent.batch.netio.service.net.TcpRequestMgr;
+import scouter.agent.batch.task.StatusSender;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.ObjectPack;
 import scouter.util.SysJMX;
@@ -42,15 +43,18 @@ public class Main {
 		System.out.println("System JRE version : " + System.getProperty("java.version"));
 		long startTime = System.currentTimeMillis();
 		long currentTime;
+		
+		StatusSender statusSender = new StatusSender();
 		while (true) {
 			currentTime = System.currentTimeMillis();
 			if((currentTime - startTime) >= 10000){
-				UdpAgent.sendUdpPackToServer(getObjectPack());
+				UdpLocalAgent.sendUdpPackToServer(getObjectPack());
 				startTime = currentTime;
 			}
 			if (exit.exists() == false) {
 				System.exit(0);
 			}
+			statusSender.sendBatchService();
 			ThreadUtil.sleep(1000);
 			
 		}

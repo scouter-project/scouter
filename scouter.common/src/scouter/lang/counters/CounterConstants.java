@@ -147,5 +147,6 @@ public class CounterConstants {
 	public static final String WAS_APICALL_TIME = "ApiTime";
 	public static final String WAS_APICALL_TPS = "ApiTPS";
 	public static final String WAS_APICALL_ERROR_RATE = "ApiErrorRate";
-
+	
+	public static final String BATCH_SERVICE = "BatchService";
 }
