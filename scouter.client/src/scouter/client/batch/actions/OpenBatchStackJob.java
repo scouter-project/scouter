@@ -15,7 +15,7 @@
  *  limitations under the License. 
  *
  */
-package scouter.client.batch.action;
+package scouter.client.batch.actions;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;

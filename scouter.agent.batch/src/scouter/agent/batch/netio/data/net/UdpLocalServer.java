@@ -63,7 +63,7 @@ public class UdpLocalServer extends Thread{
 		try{
 			MapPack mapPack = new MapPack();
 			mapPack.read(input);
-			String key = new StringBuilder(50).append(mapPack.getText("bathJobId")).append('-').append(mapPack.getLong("pID")).append('-').append(mapPack.getLong("startTime")).toString();
+			String key = new StringBuilder(50).append(mapPack.getText("batchJobId")).append('-').append(mapPack.getLong("pID")).append('-').append(mapPack.getLong("startTime")).toString();
 			Main.batchMap.put(key, mapPack);
 		}catch(Exception ex){
 			ex.printStackTrace();

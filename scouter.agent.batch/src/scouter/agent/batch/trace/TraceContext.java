@@ -250,7 +250,7 @@ public class TraceContext {
 	
 	public MapPack caculateTemp(){
 		MapPack map = new MapPack();
-		map.put("bathJobId", this.batchJobId);
+		map.put("batchJobId", this.batchJobId);
 		map.put("args", this.args);
 		map.put("pID", (long)this.pID);
 		map.put("startTime", this.startTime);

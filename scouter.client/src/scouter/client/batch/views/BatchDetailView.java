@@ -15,7 +15,7 @@
  *  limitations under the License. 
  *
  */
-package scouter.client.batch.view;
+package scouter.client.batch.views;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,7 +41,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Activator;
 import scouter.client.Images;
-import scouter.client.batch.action.OpenBatchStackJob;
+import scouter.client.batch.actions.OpenBatchStackJob;
 import scouter.client.util.ImageUtil;
 import scouter.lang.pack.BatchPack;
 import scouter.lang.value.MapValue;

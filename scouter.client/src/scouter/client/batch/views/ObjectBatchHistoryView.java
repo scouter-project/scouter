@@ -15,7 +15,7 @@
  *  limitations under the License. 
  *
  */
-package scouter.client.batch.view;
+package scouter.client.batch.views;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Images;
-import scouter.client.batch.action.OpenBatchDetailJob;
+import scouter.client.batch.actions.OpenBatchDetailJob;
 import scouter.client.model.TextProxy;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;

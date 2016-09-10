@@ -60,6 +60,22 @@ public class AgentDataProxy {
 		return null;
 	}
 
+	public static List<Pack> getBatchActiveList(String objType, int objHash, int serverId) {
+		MapPack param = new MapPack();
+		param.put("objType", objType);
+		param.put("objHash", objHash);
+
+		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+		try {
+			return tcp.process(RequestCmd.OBJECT_BATCH_ACTIVE_LIST, param);
+		} catch (Exception e) {
+			ConsoleProxy.errorSafe(e.toString());
+		} finally {
+			TcpProxy.putTcpProxy(tcp);
+		}
+		return null;
+	}
+	
 	public static MapPack getThreadDetail(int objHash, long id, int serverId) {
 		MapPack param = new MapPack();
 		param.put("objHash", objHash);

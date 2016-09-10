@@ -15,7 +15,7 @@
  *  limitations under the License. 
  *
  */
-package scouter.client.batch.action;
+package scouter.client.batch.actions;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -26,7 +26,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
-import scouter.client.batch.view.BatchDetailView;
+import scouter.client.batch.views.BatchDetailView;
 import scouter.client.net.TcpProxy;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
