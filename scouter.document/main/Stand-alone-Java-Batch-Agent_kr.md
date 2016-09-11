@@ -45,6 +45,45 @@ obj_name=exbatch
 ```
 ***
 
+###  환경설정 값
+항목     |    기본 값    | 설명
+------------ | -------------- | --------------
+scouter_enabled | true | 스카우터 자바 배치 에이언트가 모니터링을 할지 여부를 설정함(true - 모니터링 가동)
+scouter_standalone | false | 스카우터 서버에 모니터링 결과를 전송할 지 여부를 설정함(true - 스카우터 서버에 모니터링 결과 전송). false로 지정하면 log_dir에 모니터링 결과를 배치 종합 모니터링(sbr파일)과 스택 로그(log파일)을 남긴다. true는 종합 모니터링은 파일 남기지 않고 스택 로그 파일은 서버 전송 후 삭제 한다.
+batch_id_type | class | 배치 JOB ID를 추출하는 규칙 지정(class - 배치 프로세스 시작 자바 클래스를 JOB ID로 지정, args - 실행 클래스 뒤에 추가 설정된 파라미터중 한개를 JOB ID로 지정, props - JVM 설정 파라미터중 한 개를 JOB ID로 설정) 
+batch_id |       | batch_id_type 설정에 따른 JOB ID 추출을 위한 세부 설정임. batch_id_type에 따라 의미가 다름(args - 실행 명령에 추가된 파라미터에서 JOB ID의 색인 위치(0부터 시작), props - JVM 설정 파라미터의 이름(예: -DjobID=TEST001 이면 설정 값은 jobID)) 
+sql_enabled | true | SQL 수행 통계 수집 여부 실정(true - SQL 통계 수집)
+sql_max_count | 100 | SQL 수행 통계 수집 시 모니터링할 최대 SQL 수(실행된 SQL문이 기본 값인 100가지를 넘으면 나머지 SQL문들은 전체가 하나의 SQL문 통계로 잡히고 SQL문은 "Others"로 기록됨)
+hook_jdbc_pstmt_classes |  | SQL 수행 통계 수집을 위해 기본 설정된 JDBC PreparedStatement 클래스 이외 다른 PreparedStatement 클래스를 추가할 때 해당 클래스 명을 추가함(구분 기호는 쉼표(,))
+hook_jdbc_stmt_classes |  | SQL 수행 통계 수집을 위해 기본 설정된 JDBC Statement 클래스 이외 다른 Statement 클래스를 추가할 때 해당 클래스 명을 추가함(구분 기호는 쉼표(,))
+hook_jdbc_rs_classes |  | SQL 수행 통계 수집을 위해 기본 설정된 JDBC ResultSet 클래스 이외 다른 ResultSet 클래스를 추가할 때 해당 클래스 명을 추가함(구분 기호는 쉼표(,))
+sfa_dump_enabled | true | 자바 배치 수행 시에 주기적으로 스택을 수집하여 함수 레벨까지 성능을 분석할 수 있도록 하는 기능(true - 스택 수집). 스택 분석 시에는 Stack Frequency Analyzer를 사용함
+sfa_dump_interval_ms | 10000 | 자바 배치 스택 수집 주기 설정(기본: 10초)
+sfa_dump_filter |  | 스택 상에 특정 문자열이 들어가 있는 경우에만 선택하여 스택을 수집할 경우에 필터를 설정함(필터간 구분자는 쉼표(,) 사용). 수집되는 스택의 양을 줄여 전체 로그 파일 크기를 줄이고자 할 때 사용함
+sfa_dump_dir | 에이전트 디렉토리 밑 dump | 스택 로그 파일이 쌓일 디렉토리를 지정함(기본: 자바 배치 에이전트가 설치된 홈 디렉토리 아래 dump 디렉토리에 쌓임). 스카우터 서버로 전송이 이루어지면 스택 로그 파일은 삭제됨
+sfa_dump_header_exists | true | 스택 수집시에 수집 시간과 JVM 정보등 헤더 정보를 남길 지 여부를 설정함(true - 헤드 정보 남김)
+sfa_dump_send_elapsed_ms | 30000 | 자바 배치 수행 시간이 여기 설정된 시간 이상인 경우에만 스카우터 서버로 수집된 스택 로그를 전송함(기본: 30초) 
+batch_log_send_elapsed_ms | 30000L | 자바 배치 수행 시간이 여기 설정된 시간 이상인 경우에만 스카우터 서버로 배치 수행 정보를 전송하(기본: 30초)
+thread_check_interval_ms | 1000 | 자바 배치 내부에 스레드가 종료되었는지 주기적으로 체크하는 시간(기본: 1초). 자바 배치 에이전트는 스레드 단위로 SQL 수행 통계를 수집하는데 스레드가 종료되면 해당 스레드의 통계를 전체 통계에 통합하는 작업을 수행함. 이때 스레드 종료 여부를 확인함
+net_collector_ip | 127.0.0.1 |
+net_collector_udp_port | 6100 |
+net_collector_tcp_port | 6100 |
+net_collector_tcp_session_count | 1 |
+net_collector_tcp_so_timeout_ms | 60000 |
+net_collector_tcp_connection_timeout_ms | 3000 |
+net_local_udp_port | 6101 |
+net_udp_packet_max_bytes | 60000 |
+net_udp_collection_interval_ms | 100 |
+net_tcp_stack_session_count | 1 |
+obj_name | |
+obj_host_type | |
+obj_host_name | |
+_log_asm_enabled | false |
+log_dir | |
+log_rotation_enabled | true |
+log_keep_days | 7 |
+
+
 ## 자바 에이전트와 차이점
 스카우터 배치 에이전트가 스카우트 자바 에이전트와 다른 점은 배치 에이전트가 설치된 서버에 별도 스카스터 배치 데몬을 실행시켜야 한다는 것이다.
 이는 배치 프로세스는 항상 수행중이지 않고, 수십개 이상 프로세스가 동시에 수행하기 때문에 항상 데몬 형태로 배치 서버에 상주하면서 배치 에이전트 환경설정이나 통합 정보 수집 및 전송을 담당할 프로세스가 필요하다.

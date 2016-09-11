@@ -79,7 +79,7 @@ public class Configure {
     
     // Batch basic configuration
     @ConfigDesc("Batch ID type(class,args, props)")
-    public String batch_id_type = ""; // Class, Args, Props 
+    public String batch_id_type = "class"; // Class, Args, Props 
     @ConfigDesc("Batch ID(args-index number, props-key string)")
     public String batch_id = "";
         
