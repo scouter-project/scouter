@@ -8,6 +8,11 @@
 - SQL 프로파일링(SQL문, SQL 수행시간, SQL 처리건수, SQL 수행횟수)
 - 주기적인 프로세스 스택 수집  
 
+## 인스톨 순서
+스카우터 서버와 클라이언트가 설치되어 있다면 아래 두단계를 거치면 자바 배치 모니터링이 가능하다.
+1. 자바 배치 프로세스에 옵션 추가(참고: 자바옵션)
+2. 스카우터 배치 데몬 실행(참고: 자바 에이젠트와 차이점)
+
 ## 자바 옵션
 스카우터 배치 에이전트의 기본 설치 방법은 WAS 기반 자바 에이전트와 동일하다.
 자바 배치 실행 명령(쉘 스크립트 파일)에 -javaagent와 -Dscouter.config 설정을 추가하면 모니터링이 가능하다.
@@ -58,30 +63,28 @@ hook_jdbc_pstmt_classes |  | SQL 수행 통계 수집을 위해 기본 설정된 JDBC Prepared
 hook_jdbc_stmt_classes |  | SQL 수행 통계 수집을 위해 기본 설정된 JDBC Statement 클래스 이외 다른 Statement 클래스를 추가할 때 해당 클래스 명을 추가함(구분 기호는 쉼표(,))
 hook_jdbc_rs_classes |  | SQL 수행 통계 수집을 위해 기본 설정된 JDBC ResultSet 클래스 이외 다른 ResultSet 클래스를 추가할 때 해당 클래스 명을 추가함(구분 기호는 쉼표(,))
 sfa_dump_enabled | true | 자바 배치 수행 시에 주기적으로 스택을 수집하여 함수 레벨까지 성능을 분석할 수 있도록 하는 기능(true - 스택 수집). 스택 분석 시에는 Stack Frequency Analyzer를 사용함
-sfa_dump_interval_ms | 10000 | 자바 배치 스택 수집 주기 설정(기본: 10초)
+sfa_dump_interval_ms | 10000 | 자바 배치 스택 수집 주기 설정(밀리초)
 sfa_dump_filter |  | 스택 상에 특정 문자열이 들어가 있는 경우에만 선택하여 스택을 수집할 경우에 필터를 설정함(필터간 구분자는 쉼표(,) 사용). 수집되는 스택의 양을 줄여 전체 로그 파일 크기를 줄이고자 할 때 사용함
 sfa_dump_dir | 에이전트 디렉토리 밑 dump | 스택 로그 파일이 쌓일 디렉토리를 지정함(기본: 자바 배치 에이전트가 설치된 홈 디렉토리 아래 dump 디렉토리에 쌓임). 스카우터 서버로 전송이 이루어지면 스택 로그 파일은 삭제됨
 sfa_dump_header_exists | true | 스택 수집시에 수집 시간과 JVM 정보등 헤더 정보를 남길 지 여부를 설정함(true - 헤드 정보 남김)
-sfa_dump_send_elapsed_ms | 30000 | 자바 배치 수행 시간이 여기 설정된 시간 이상인 경우에만 스카우터 서버로 수집된 스택 로그를 전송함(기본: 30초) 
-batch_log_send_elapsed_ms | 30000L | 자바 배치 수행 시간이 여기 설정된 시간 이상인 경우에만 스카우터 서버로 배치 수행 정보를 전송하(기본: 30초)
+sfa_dump_send_elapsed_ms | 30000 | 자바 배치 수행 시간이 여기 설정된 시간 이상인 경우에만 스카우터 서버로 수집된 스택 로그를 전송함(밀리초) 
+batch_log_send_elapsed_ms | 30000 | 자바 배치 수행 시간이 여기 설정된 시간 이상인 경우에만 스카우터 서버로 배치 수행 정보를 전송하(밀리초)
 thread_check_interval_ms | 1000 | 자바 배치 내부에 스레드가 종료되었는지 주기적으로 체크하는 시간(기본: 1초). 자바 배치 에이전트는 스레드 단위로 SQL 수행 통계를 수집하는데 스레드가 종료되면 해당 스레드의 통계를 전체 통계에 통합하는 작업을 수행함. 이때 스레드 종료 여부를 확인함
-net_collector_ip | 127.0.0.1 |
-net_collector_udp_port | 6100 |
-net_collector_tcp_port | 6100 |
-net_collector_tcp_session_count | 1 |
-net_collector_tcp_so_timeout_ms | 60000 |
-net_collector_tcp_connection_timeout_ms | 3000 |
-net_local_udp_port | 6101 |
-net_udp_packet_max_bytes | 60000 |
-net_udp_collection_interval_ms | 100 |
-net_tcp_stack_session_count | 1 |
-obj_name | |
-obj_host_type | |
-obj_host_name | |
-_log_asm_enabled | false |
-log_dir | |
-log_rotation_enabled | true |
-log_keep_days | 7 |
+net_collector_ip | 127.0.0.1 | 스카우터 서버 IP 주소
+net_collector_udp_port | 6100 | 스카우터 서버의 UDP 수집 Port 번호
+net_collector_tcp_port | 6100 | 스카우터 서버의 TCP 통신 Port 번호
+net_collector_tcp_session_count | 1 | 스카우터 서버와 TCP 통신 연결 수
+net_collector_tcp_so_timeout_ms | 60000 | 스카우터 서버와 TCP 연결 소켓 읽기 타임아웃 시간(밀리초)
+net_collector_tcp_connection_timeout_ms | 3000 | 스카우터 서버와 TCP 연결 소켓 읽기 타임아웃 시간(밀리초)
+net_local_udp_port | 6101 | 스카우터 자바 배치 에이전트의 UDP 통신 Port. 각 배치 프로세스가 배치 에이전터에 상태 데이터를 전송할 때 사용하는 UDP 포트
+net_udp_packet_max_bytes | 60000 | UDP 통신 시 최대 패킷 크기
+obj_name | | 자바 배치 에이전터의 명칭(기본 명을 변경하고자 할 때 사용함)
+obj_host_type | | 자바 배치가 수행하는 서버의 타입 지정
+obj_host_name | | 자바 배치가 수행하는 서버의 호스트 명을 지정(스카우터 호스트 에이전트에서 Obj_name을 변경한 경우 해당 서버 내부에 있는 각 에이전트의 소속 호스트 명도 수정해야 함) 
+_log_asm_enabled | false | 스카우터가 모니터링을 위한 바이트코드 엔지니어링을 정상적으로 수행하는지 여부를 확인하기 위한 디버그 설정(false - 디버그 해제)
+log_dir | | 자바 스택 로그와 단독 실행 모드에서 생성되는 자바 통합 실행 통계 파일(sbr)이 생성되는 디렉토리(기본은 자바 배치 에이전트 설치 디렉토리 아래 log 디렉토리) 
+log_rotation_enabled | true | 자바 배치 에이전트 로그 파일을 일단위로 구분하여 생성할지 여부를 설정함(true - 일단위 로그 생성)
+log_keep_days | 7 | 자바 배치 에이전트 로그를 보관하는 기간 설정(일)
 
 
 ## 자바 에이전트와 차이점
