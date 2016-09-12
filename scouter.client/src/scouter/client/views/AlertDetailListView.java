@@ -17,11 +17,14 @@
  */
 package scouter.client.views;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -46,27 +49,32 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
+import au.com.bytecode.opencsv.CSVWriter;
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
 import scouter.client.popup.AlertNotifierDialog;
 import scouter.client.popup.CalendarDialog;
+import scouter.client.server.Server;
+import scouter.client.server.ServerManager;
 import scouter.client.sorter.ColumnLabelSorter;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
+import scouter.client.util.ImageUtil;
 import scouter.client.util.TimeUtil;
-import scouter.util.StringUtil;
 import scouter.lang.AlertLevel;
 import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.MapPack;
@@ -76,6 +84,7 @@ import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 import scouter.util.HashUtil;
 import scouter.util.StringEnumer;
+import scouter.util.StringUtil;
 
 public class AlertDetailListView extends ViewPart implements CalendarDialog.ILoadCalendarDialog {
 	
@@ -262,6 +271,53 @@ public class AlertDetailListView extends ViewPart implements CalendarDialog.ILoa
 					alertDialog.show(getViewSite().getShell().getBounds());
 				} else {
 					System.out.println(o);
+				}
+			}
+		});
+	    
+	    IToolBarManager man =  getViewSite().getActionBars().getToolBarManager();
+		man.add(new Action("Export CSV", ImageUtil.getImageDescriptor(Images.csv)) {
+			public void run() {
+				Server server = ServerManager.getInstance().getServer(serverId);
+				FileDialog dialog = new FileDialog(getViewSite().getShell(), SWT.SAVE);
+				dialog.setOverwrite(true);
+				String filename = "[" + server.getName() + "]" + yyyymmdd + "_" + fromTime.getHours() + fromTime.getMinutes() + "_" + toTime.getHours() + toTime.getMinutes() + ".csv";
+				dialog.setFileName(filename);
+				dialog.setFilterExtensions(new String[] { "*.csv", "*.*" });
+				dialog.setFilterNames(new String[] { "CSV File(*.csv)", "All Files" });
+				String fileSelected = dialog.open();
+				if (fileSelected != null) {
+					CSVWriter cw = null;
+					try {
+						cw = new CSVWriter(new FileWriter(fileSelected));
+						int colCnt = viewer.getTable().getColumnCount();
+						List<String> list = new ArrayList<String>();
+						for (int i = 0; i < colCnt; i++) {
+							TableColumn column = viewer.getTable().getColumn(i);
+							list.add(column.getText());
+						}
+						cw.writeNext(list.toArray(new String[list.size()]));
+						cw.flush();
+						TableItem[] items = viewer.getTable().getItems();
+						if (items != null && items.length > 0) {
+							for (TableItem item : items) {
+								list.clear();
+								for (int i = 0; i < colCnt; i++) {
+									list.add(item.getText(i));
+								}
+								cw.writeNext(list.toArray(new String[list.size()]));
+								cw.flush();
+							}
+						}
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					} finally {
+						try {
+							if (cw != null) {
+								cw.close();
+							}
+						} catch (Throwable th) {}
+					}
 				}
 			}
 		});
@@ -524,4 +580,5 @@ public class AlertDetailListView extends ViewPart implements CalendarDialog.ILoa
 					+ ", tags=" + tags + ", objType=" + objType + "]";
 		}
 	}
+	
 }
