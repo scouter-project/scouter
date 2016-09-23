@@ -30,7 +30,7 @@ JAVA_OPTS=" ${JAVA_OPTS} -Dscouter.config=${SCOUTER_AGENT_DIR}/conf/scouter.batc
 > 옵션이 없으면 기본 값이 적용된다.
 
 ### 예
-*${appropriate_directory}/scouter.batch.conf*
+*${scouter_agent_directory}/conf/scouter.batch.conf*
 ```
 # Stand-Alone mode
 scouter_standalone=false
