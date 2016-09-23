@@ -20,7 +20,7 @@
 
 ```
 JAVA_OPTS=" ${JAVA_OPTS} -javaagent:${SCOUTER_AGENT_DIR}/scouter.agent.batch.jar"
-JAVA_OPTS=" ${JAVA_OPTS} -Dscouter.config=${SCOUTER_AGENT_DIR}/scouter.batch.conf"
+JAVA_OPTS=" ${JAVA_OPTS} -Dscouter.config=${SCOUTER_AGENT_DIR}/conf/scouter.batch.conf"
 ```
 
 ## 환경설정
@@ -93,9 +93,9 @@ log_keep_days | 7 | 자바 배치 에이전트 로그를 보관하는 기간 설
 배치 프로세스는 항상 실행중이지 않고, 수십개 이상 프로세스가 동시에 실행하기 때문에 항상 데몬 형태로 배치 서버에 상주하면서 배치 에이전트 환경설정이나 통합 정보 수집 및 전송을 담당할 프로세스가 필요하다.
 스카우터 배치 데몬은 scouter.agent.batch.jar 내 포함되어 있다.
 
-*start-batch-agent.sh*
+*startup.sh*
 ```
-nohup java -cp ${SCOUTER_AGENT_DIR}/scouter.agent.batch.jar -Dscouter.config=${SCOUTER_AGENT_DIR}/scouter.batch.conf scouter.agent.batch.Main &
+nohup java -cp ./scouter.agent.batch.jar -Dscouter.config=./conf/scouter.batch.conf scouter.agent.batch.Main &
 ```
 ***
 스카우터 배치 데몬이 실행되지 않으면 배치 클라이언트에서 환경설정 수정, 스택 수집, 배치 성능 카운트 수집 등 기능이 정상 동작하지 않는다.
