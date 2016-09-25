@@ -130,6 +130,10 @@ public class BatchDetailView extends ViewPart {
 		if(pack.cpuTime > 0){
 			buffer.append("CPU     Time: ").append(String.format("%,d",pack.cpuTime/1000000L)).append("ms").append(lineSeparator);
 		}
+		if(pack.gcCount > 0){
+			buffer.append("GC     Count: ").append(pack.gcCount).append(lineSeparator);
+			buffer.append("GC      Time: ").append(pack.gcTime).append("ms").append(lineSeparator);
+		}
 		if(pack.sqlTotalCnt > 0){
 			buffer.append("SQL     Time: ").append(String.format("%,d",(pack.sqlTotalTime/1000000L))).append("ms").append(lineSeparator);
 			buffer.append("SQL     Type: ").append(pack.sqlTotalCnt).append(lineSeparator);

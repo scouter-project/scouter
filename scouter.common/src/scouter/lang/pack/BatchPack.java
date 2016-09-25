@@ -48,6 +48,8 @@ public class BatchPack implements Pack {
 	
 	public int threadCnt = 0;
 	public long cpuTime = 0L;
+	public long gcTime = 0L;
+	public long gcCount = 0L;
 
 	public int sqlTotalCnt = 0;
 	public long sqlTotalTime = 0L;
@@ -96,6 +98,8 @@ public class BatchPack implements Pack {
 		o.writeLong(elapsedTime);
 		o.writeInt(threadCnt);
 		o.writeLong(cpuTime);
+		o.writeLong(gcTime);
+		o.writeLong(gcCount);
 				
 		o.writeInt(sqlTotalCnt);
 		o.writeLong(sqlTotalTime);
@@ -162,6 +166,8 @@ public class BatchPack implements Pack {
 		this.elapsedTime = d.readLong();
 		this.threadCnt = d.readInt();
 		this.cpuTime = d.readLong();
+		this.gcTime = d.readLong();
+		this.gcCount = d.readLong();
 
 		this.sqlTotalCnt = d.readInt();
 		this.sqlTotalTime = d.readLong();

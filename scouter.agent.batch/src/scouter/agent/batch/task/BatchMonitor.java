@@ -24,6 +24,7 @@ import scouter.agent.batch.Main;
 import scouter.agent.batch.dump.ThreadDumpHandler;
 import scouter.agent.batch.netio.data.net.UdpLocalAgent;
 import scouter.agent.batch.trace.TraceContext;
+import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 
 public class BatchMonitor extends Thread {
@@ -66,8 +67,10 @@ public class BatchMonitor extends Thread {
 			
 			long lastStackDumpTime = 0L;
 			long lastCheckThreadTime = 0L;
+			long lastCheckGCTime = 0L;
 			long currentTime;
 
+			long [] gcInfo;
 			while(!config.scouter_stop){
 				currentTime = System.currentTimeMillis();
 				if(stackWriter != null){
@@ -76,6 +79,10 @@ public class BatchMonitor extends Thread {
 						UdpLocalAgent.sendRunningInfo(traceContext);
 						lastStackDumpTime = currentTime;
 					}
+				}
+				if((currentTime - lastCheckGCTime) >= 5000L){
+					traceContext.caculateResource();
+					lastCheckGCTime = currentTime;
 				}
 				if((currentTime - lastCheckThreadTime) >= config.thread_check_interval_ms){
 					traceContext.checkThread();

@@ -52,6 +52,10 @@ public class TraceContext {
 	public long startCpu;
 	public long endCpu;
 
+	public long gcTime= 0L;
+	public long gcCount = 0L;
+	
+
 	public int sqlTotalCnt = 0;
 	public long sqlTotalTime = 0L;
 	public long sqlTotalRows = 0L;
@@ -153,6 +157,11 @@ public class TraceContext {
 		if(this.getCPUTimeByMillis() > 0){
 			buffer.append("CPU     Time: ").append(this.getCPUTimeByMillis()).append("ms").append(lineSeparator);
 		}
+		if(this.gcCount > 0){
+			buffer.append("GC     Count: ").append(this.gcCount).append(lineSeparator);
+			buffer.append("GC      Time: ").append(this.gcTime).append("ms").append(lineSeparator);
+		}
+		
 		if(sqlMap.size() > 0){
 			buffer.append("SQL     Time: ").append((sqlTotalTime/1000000L)).append("ms").append(lineSeparator);
 			buffer.append("SQL     Type: ").append(sqlMap.size()).append(lineSeparator);
@@ -245,7 +254,14 @@ public class TraceContext {
 			}
 			localSQLList.clear();
 		}
+		caculateResource();
+	}
+	
+	public void caculateResource(){
 		this.endCpu = SysJMX.getProcessCPU();
+		long [] gcInfo = SysJMX.getCurrentProcGcInfo();
+		this.gcCount = gcInfo[0];
+		this.gcTime = gcInfo[1];
 	}
 	
 	public MapPack caculateTemp(){
@@ -255,7 +271,9 @@ public class TraceContext {
 		map.put("pID", (long)this.pID);
 		map.put("startTime", this.startTime);
 		map.put("elapsedTime", (System.currentTimeMillis() - this.startTime));
-		map.put("cPUTime", (SysJMX.getProcessCPU() - startCpu));
+		map.put("cPUTime", (this.endCpu - startCpu));
+		map.put("gcCount", this.gcCount);
+		map.put("gcTime", this.gcTime);
 
 		long tempSqlTotalTime = this.sqlTotalTime;
 		long tempSqlTotalRows = this.sqlTotalRows;
@@ -378,6 +396,7 @@ public class TraceContext {
 		pack.elapsedTime =  (this.endTime - this.startTime);
 		pack.threadCnt =  this.threadCnt;
 		pack.cpuTime =  (this.endCpu - this.startCpu);
+		
 		
 		pack.sqlTotalCnt =  this.sqlTotalCnt;
 		pack.sqlTotalTime =  this.sqlTotalTime;
