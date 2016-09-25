@@ -37,6 +37,8 @@ public class AgentThread {
 		ListValue startTime = rPack.newList("startTime");
 		ListValue elapsedTime = rPack.newList("elapsedTime");
 		ListValue cPUTime = rPack.newList("cPUTime");
+		ListValue gcCount = rPack.newList("gcCount");
+		ListValue gcTime = rPack.newList("gcTime");
 		ListValue sqlTotalTime = rPack.newList("sqlTotalTime");
 		ListValue sqlTotalRows = rPack.newList("sqlTotalRows");
 		ListValue sqlTotalRuns = rPack.newList("sqlTotalRuns");
@@ -57,6 +59,8 @@ public class AgentThread {
 			startTime.add(pack.get("startTime"));
 			elapsedTime.add(pack.get("elapsedTime"));
 			cPUTime.add(pack.get("cPUTime"));
+			gcCount.add(pack.get("gcCount"));
+			gcTime.add(pack.get("gcTime"));
 			sqlTotalTime.add(pack.get("sqlTotalTime"));
 			sqlTotalRows.add(pack.get("sqlTotalRows"));
 			sqlTotalRuns.add(pack.get("sqlTotalRuns"));
@@ -75,8 +79,12 @@ public class AgentThread {
 		MapPack pack = new MapPack();
 		String key = ((MapPack)param).getText("key");
 		MapPack map = Main.batchMap.get(key);
+		
 		if(map != null){
-			pack.put("stack", map.get("lastStack"));
+			String stackContents = map.getText("lastStack");
+			long gapTime = System.currentTimeMillis() - (map.getLong("startTime") + map.getLong("elapsedTime"));
+			stackContents = new StringBuilder(stackContents.length()+ 100).append("Stack before ").append(((int)(gapTime/1000L))).append(" seconds\n\n").append(stackContents).toString();
+			pack.put("stack", stackContents);
 		}
 		return pack;
 	}	

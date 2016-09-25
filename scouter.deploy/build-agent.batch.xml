@@ -114,7 +114,7 @@
 	</target>
 
 	<target name="default">
-		<echo>Agent Java</echo>
+		<echo>Agent Java Batch</echo>
     	<antcall target="init"/>
 		<antcall target="compile"/>
     	<antcall target="packing"/>
