@@ -2,7 +2,8 @@
 ![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](JavaAgent-Plugin-Scripting_kr.md)
 
 ## Javaagent Plugin
- - Default File Location : ${WAS_START_SCRIPT_DIR}/plugin
+ - Default File Location : ${directory of scouter.agent.jar}/plugin
+   Or able to configure it for example - plugin_dir=/aaa/bbb/ccc/plugin
  - Dynamic application
  - By java code
  - Plugin 종류
