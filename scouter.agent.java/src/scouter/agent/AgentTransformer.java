@@ -24,6 +24,8 @@ import scouter.org.objectweb.asm.*;
 import scouter.util.FileUtil;
 import scouter.util.IntSet;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AgentTransformer implements ClassFileTransformer {
+    public static final String JAVA_UTIL_MAP = "java/util/Map";
     public static ThreadLocal<ClassLoader> hookingCtx = new ThreadLocal<ClassLoader>();
     private static List<IASM> asms = new ArrayList<IASM>();
     // hook 관련 설정이 변경되면 자동으로 변경된다.
@@ -81,6 +84,8 @@ public class AgentTransformer implements ClassFileTransformer {
 
         temp.add(new AddFieldASM());
 
+        temp.add(new MapImplASM());
+
         asms = temp;
     }
 
@@ -98,10 +103,11 @@ public class AgentTransformer implements ClassFileTransformer {
     private Configure conf = Configure.getInstance();
     private Logger.FileLog bciOut;
 
-    public byte[] transform(ClassLoader loader, String className, Class classBeingRedefined,
+    public byte[] transform(final ClassLoader loader, String className, final Class classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
             hookingCtx.set(loader);
+            //System.out.println("loading ... className=" + className);
             if (className == null)
                 return null;
             if (classBeingRedefined == null) {
@@ -109,8 +115,8 @@ public class AgentTransformer implements ClassFileTransformer {
                     AsyncRunner.getInstance().add(loader, className, classfileBuffer);
                     return null;
                 }
-                if (loader == null ) {
-                    if(conf._hook_boot_prefix==null || conf._hook_boot_prefix.length()==0 || false == className.startsWith(conf._hook_boot_prefix)){
+                if (loader == null) {
+                    if (conf._hook_boot_prefix == null || conf._hook_boot_prefix.length() == 0 || false == className.startsWith(conf._hook_boot_prefix)) {
                         return null;
                     }
                 }
@@ -127,6 +133,9 @@ public class AgentTransformer implements ClassFileTransformer {
                 public void visit(int version, int access, String name, String signature, String superName,
                                   String[] interfaces) {
                     classDesc.set(version, access, name, signature, superName, interfaces);
+                    if (conf._hook_map_impl_enabled) {
+                        classDesc.isMapImpl = isMapImpl(superName, interfaces, loader);
+                    }
                     super.visit(version, access, name, signature, superName, interfaces);
                 }
 
@@ -166,6 +175,63 @@ public class AgentTransformer implements ClassFileTransformer {
             hookingCtx.set(null);
         }
         return null;
+    }
+
+    private boolean isMapImpl(String superName, String[] interfaces, ClassLoader loader) {
+        String[] classes = new String[interfaces.length + 1];
+        System.arraycopy(interfaces, 0, classes, 0, interfaces.length);
+        classes[classes.length-1] = superName;
+
+        for (int i = 0; i < classes.length; i++) {
+            if (isMapImpl(classes[i], loader)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isMapImpl(String clazz, ClassLoader loader) {
+        if("java/lang/Object".equals(clazz)) {
+            return false;
+        }
+
+        if (JAVA_UTIL_MAP.equals(clazz)) {
+            return true;
+        }
+
+        if(loader == null) {
+            loader = ClassLoader.getSystemClassLoader();
+        }
+
+        InputStream in = loader.getResourceAsStream(clazz + ".class");
+
+        try {
+            ClassReader classReader = new ClassReader(in);
+            String[] interfaces = classReader.getInterfaces();
+            if (interfaces != null && interfaces.length > 0) {
+                for (int i = 0; i < interfaces.length; i++) {
+                    if(JAVA_UTIL_MAP.equals(interfaces[i])) {
+                        return true;
+                    }
+                    isMapImpl(interfaces[i], loader);
+                }
+            }
+
+            String superClassName = classReader.getSuperName();
+            if(superClassName == null) {
+                return false;
+            }
+
+            if(JAVA_UTIL_MAP.equals(superClassName)) {
+                return true;
+            }
+            isMapImpl(superClassName, loader);
+
+        } catch (IOException e) {
+            System.out.println("[A189]-isMapImpl-check super class : " + clazz);
+        }
+        return false;
     }
 
     private ClassWriter getClassWriter(final ClassDesc classDesc) {

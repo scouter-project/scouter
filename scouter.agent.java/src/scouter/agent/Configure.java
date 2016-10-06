@@ -360,6 +360,10 @@ public class Configure extends Thread {
     public boolean _hook_spring_rest_enabled = false;
     @ConfigDesc("")
     public String _hook_boot_prefix = null;
+    @ConfigDesc("for warning a big Map type object that have a lot of entities. It may increase system load. be careful to enable this option.")
+    public boolean _hook_map_impl_enabled = false;
+    @ConfigDesc("")
+    public int _hook_map_impl_warning_size = 50000;
 
     //Control
     @ConfigDesc("Activating Reject service")
@@ -656,6 +660,9 @@ public class Configure extends Thread {
         this._hook_usertx_enabled = getBoolean("_hook_usertx_enabled", true);
         this._hook_direct_patch_classes = getValue("_hook_direct_patch_classes", "");
         this._hook_boot_prefix = getValue("_hook_boot_prefix");
+        this._hook_map_impl_enabled = getBoolean("_hook_map_impl_enabled", false);
+        this._hook_map_impl_warning_size = getInt("_hook_map_impl_warning_size", 50000);
+
         this.counter_recentuser_valid_ms = getLong("counter_recentuser_valid_ms", DateUtil.MILLIS_PER_FIVE_MINUTE);
         this.counter_object_registry_path = getValue("counter_object_registry_path", "/tmp/scouter");
         this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);

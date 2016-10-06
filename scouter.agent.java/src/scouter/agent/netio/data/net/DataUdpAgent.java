@@ -15,22 +15,19 @@
  *  limitations under the License. 
  */
 package scouter.agent.netio.data.net;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.List;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.lang.conf.ConfObserver;
 import scouter.net.NetCafe;
-import scouter.util.CastUtil;
-import scouter.util.CompareUtil;
-import scouter.util.KeyGen;
-import scouter.util.ShellArg;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.List;
 public class DataUdpAgent {
 	private static DataUdpAgent inst;
 	InetAddress server_host;
@@ -170,7 +167,8 @@ public class DataUdpAgent {
 				} else if (b.length + buffer.getWriteSize() > conf.net_udp_packet_max_bytes) {
 					sendList(bufferCount, buffer.toByteArray());
 					buffer = new DataOutputX();
-					bufferCount = 0;
+					bufferCount = 1;
+					buffer.write(b);
 				} else {
 					bufferCount++;
 					buffer.write(b);
