@@ -58,6 +58,7 @@ import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
 import scouter.client.actions.OpenAddGroupAction;
 import scouter.client.actions.OpenEQGroupViewAction;
+import scouter.client.actions.OpenVerticalEQGroupViewAction;
 import scouter.client.actions.OpenManageGroupAction;
 import scouter.client.actions.OpenServiceGroupElapsedGroupAction;
 import scouter.client.actions.OpenServiceGroupTPSGroupAction;
@@ -207,6 +208,7 @@ public class GroupNavigationView extends ViewPart implements RefreshThread.Refre
                         		manager.add(new Separator());
                         		if (isChildOf(objType, CounterConstants.FAMILY_JAVAEE)) {
                         			manager.add(new OpenEQGroupViewAction(win, grpObj.getName()));
+                        			manager.add(new OpenVerticalEQGroupViewAction(win, grpObj.getName()));
                         			manager.add(new OpenActiveSpeedGroupViewAction(win, MenuStr.ACTIVE_SPEED_REAL, grpObj));
                         			MenuManager xLogMenu = new MenuManager(MenuStr.XLOG, ImageUtil.getImageDescriptor(Images.transrealtime), MenuStr.XLOG_ID);
                         			manager.add(xLogMenu);
