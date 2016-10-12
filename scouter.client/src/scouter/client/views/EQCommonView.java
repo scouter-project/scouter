@@ -299,7 +299,56 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 					gc.setFont(verdana10Bold);
 					gc.setForeground(black);
 					String v = Long.toString(total);
-					gc.drawString(v, barX + (BAR_WIDTH * 2 ), AXIS_PADDING + (unitHeight * i) + ((unitHeight - gc.stringExtent(v).y) / 2) , true);
+					
+					String all = "(" +  Long.toString(asd.act3) + " / " + Long.toString(asd.act2) + " / " + Long.toString(asd.act1) + ")";
+
+					int xaxis = barX + (BAR_WIDTH * 2);
+					int yaxis = AXIS_PADDING + (unitHeight * i) + ((unitHeight - gc.stringExtent(v).y) / 2);
+					
+					if (total > 0 && unitHeight >= 52) {
+						xaxis += ((gc.stringExtent(all).x / 2) * 0.7);
+						yaxis -= gc.stringExtent(v).y; 
+					}
+					gc.drawString(v, xaxis, yaxis, true);
+					
+					if (total > 0 && unitHeight >= 52) {
+						yaxis += gc.stringExtent(v).y; 
+						
+						gc.setFont(verdana7);
+						xaxis = barX + (BAR_WIDTH * 2);
+						v = "(";
+						gc.drawString(v, xaxis, yaxis, true);
+	
+						xaxis += gc.stringExtent(v).x + 1;
+						gc.setForeground(ColorUtil.getInstance().ac3);
+						v = Long.toString(asd.act3);
+						gc.drawString(v, xaxis, yaxis, true);
+						
+						xaxis += gc.stringExtent(v).x + 1;
+						gc.setForeground(black);
+						v = " / ";
+						gc.drawString(v, xaxis, yaxis, true);
+						
+						xaxis += gc.stringExtent(v).x + 1;
+						gc.setForeground(ColorUtil.getInstance().ac2);
+						v = Long.toString(asd.act2);
+						gc.drawString(v, xaxis, yaxis, true);
+						
+						xaxis += gc.stringExtent(v).x + 1;
+						gc.setForeground(black);
+						v = " / ";
+						gc.drawString(v, xaxis, yaxis, true);
+						
+						xaxis += gc.stringExtent(v).x + 1;
+						gc.setForeground(ColorUtil.getInstance().ac1);
+						v = Long.toString(asd.act1);
+						gc.drawString(v, xaxis, yaxis, true);
+						
+						xaxis += gc.stringExtent(v).x + 1;
+						gc.setForeground(black);
+						v = ")";
+						gc.drawString(v, xaxis, yaxis, true);
+					}
 				}
 			}
 			
