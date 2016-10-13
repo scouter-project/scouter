@@ -326,12 +326,12 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 					int yaxis = barY - (BAR_HEIGHT * 2) - 4;
 					
 					if (total > 0 && unitWidth >= 52) {
-						yaxis -= gc.stringExtent(v).y - 2; 
+						yaxis -= gc.stringExtent(all).y - 2; 
 					}
 					gc.drawString(v, xaxis, yaxis, true);
 					
 					if (total > 0 && unitWidth >= 52) {
-						yaxis += gc.stringExtent(v).y + 2; 
+						yaxis += gc.stringExtent(all).y + 2; 
 
 						gc.setFont(verdana7);
 						xaxis = AXIS_PADDING + (unitWidth * i) + ((unitWidth - gc.stringExtent(all).x) / 2) - (Long.toString(total).length() * 2);

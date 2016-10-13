@@ -305,14 +305,14 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 					int xaxis = barX + (BAR_WIDTH * 2);
 					int yaxis = AXIS_PADDING + (unitHeight * i) + ((unitHeight - gc.stringExtent(v).y) / 2);
 					
-					if (total > 0 && unitHeight >= 52) {
+					if (total > 0 && unitHeight >= 40) {
 						xaxis += ((gc.stringExtent(all).x / 2) * 0.7);
-						yaxis -= gc.stringExtent(v).y; 
+						yaxis -= (gc.stringExtent(all).y / 2); 
 					}
 					gc.drawString(v, xaxis, yaxis, true);
 					
-					if (total > 0 && unitHeight >= 52) {
-						yaxis += gc.stringExtent(v).y; 
+					if (total > 0 && unitHeight >= 40) {
+						yaxis += gc.stringExtent(all).y; 
 						
 						gc.setFont(verdana7);
 						xaxis = barX + (BAR_WIDTH * 2);
