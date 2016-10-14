@@ -112,16 +112,20 @@ public class ChartUtil {
 		return rounding(val * 100) / 100;
 		*/
 
-		// Add margin(3-bars width or height) for detailed active service counts.
-		// run main() method to test.
-		if (val < 97)
-			return ((int) val + 13) / 10 * 10;
-		if (val < 497)
-			return (((int) val + 3) / 50 + 1) * 50;
-		if (val < 997)
-			return (((int) val + 3) / 100 + 1) * 100;
-		
-		return (((int) val + 3) / 500 + 1) * 500;
+		// Add margin(width or height) for detailed active service counts.
+		if (val < 7)
+			return 10;
+		if (val < 20)
+			return 30;
+		if (val < 40)
+			return 60;
+		if (val < 70)
+			return 100;
+		if (val < 300)
+			return 500;
+		if (val < 500)
+			return (double) ((int) ((val* 2) / 100) * 100);
+		return (double) ((int) ((val* 3) / 1000) * 1000);
 	}
 
 	public static double getYaxisUnit(double val, int height) {
@@ -279,17 +283,5 @@ public class ChartUtil {
 	
 	public static void main(String[] args) {
 		System.out.println(getMaxValue(20));
-
-		for (int i = 1; i < 100; i++)
-			System.out.println(i + " : " + getEqMaxValue(i));
-		
-		for (int i = 90; i < 110; i++)
-			System.out.println(i + " : " + getEqMaxValue(i));
-		
-		for (int i = 490; i < 510; i++)
-			System.out.println(i + " : " + getEqMaxValue(i));
-		
-		for (int i = 990; i < 1010; i++)
-			System.out.println(i + " : " + getEqMaxValue(i));
 	}
 }

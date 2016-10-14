@@ -249,7 +249,7 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 						int noOfAct2 = (int) (noOfBars * ((double)asd.act2  / total));
 						int noOfAct3 = (int) (noOfBars * ((double)asd.act3 / total));
 						int sediments = noOfBars - (noOfAct1 + noOfAct2 + noOfAct3);
-						while (sediments > 0) {
+						while (sediments >= 0) {
 							if (asd.act3 > 0) {
 								noOfAct3++;
 								sediments--;
