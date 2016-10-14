@@ -22,7 +22,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IWorkbenchWindow;
 
-import scouter.client.popup.LoginDialog;
+import scouter.client.popup.LoginDialog2;
 import scouter.client.util.ImageUtil;
 
 
@@ -40,12 +40,12 @@ public class AddServerAction extends Action {
 
 	}
 	
-	LoginDialog dialog;
+	LoginDialog2 dialog;
 
 	public void run() {
 		if (window != null) {
-			dialog = new LoginDialog(window.getShell().getDisplay(), null, LoginDialog.TYPE_ADD_SERVER);
-			dialog.show();
+			dialog = new LoginDialog2(window.getShell(), null, LoginDialog2.TYPE_ADD_SERVER, null);
+			dialog.open();
 		}
 	}
 }
