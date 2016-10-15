@@ -19,9 +19,12 @@ package scouter.client.views;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.csstudio.swt.xygraph.util.SingleSourceHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.MouseAdapter;
@@ -54,22 +57,22 @@ import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
 import scouter.client.xlog.views.XLogViewPainter;
 
-public abstract class EQCommonView extends ViewPart implements RefreshThread.Refreshable {
+public abstract class VerticalEQCommonView extends ViewPart implements RefreshThread.Refreshable {
 	private static final int MARGIN = 10;
-	private static final int BAR_WIDTH = 7;
-	private static final int BAR_PADDING_HEIGHT = 2;
+	private static final int BAR_HEIGHT = 7;
+	private static final int BAR_PADDING_WIDTH = 2;
 	private static final int AXIS_PADDING = 16;
 	private static final int REFRESH_INTERVAL = 200;
 	private static final int FETCH_INTERVAL = 2000;
 	public static double CYCLE_INTERVAL = 1000;
-	private static int MINIMUM_UNIT_HEIGHT = 20;
+	private static int MINIMUM_UNIT_WIDTH = 20;
 
 	protected RefreshThread thread;
 	
 	protected Canvas canvas;
 	private long lastFetchedTime;
 	protected Set<EqData> valueSet = new TreeSet<EqData>(new EqDataComparator());
-	private int unitHeight;
+	private int unitWidth;
 	
 	private Image ibuffer;
 	
@@ -98,13 +101,13 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 		});
 		canvas.addMouseListener(new MouseAdapter() {
 			public void mouseDoubleClick(MouseEvent e) {
-				if (unitHeight == 0 || datas == null) {
+				if (unitWidth == 0 || datas == null) {
 					return;
 				}
-				if (e.y <= AXIS_PADDING) {
+				if (e.x <= AXIS_PADDING) {
 					return;
 				}
-				int index = (e.y - AXIS_PADDING) / unitHeight;
+				int index = (e.x - AXIS_PADDING) / unitWidth;
 				if (datas.length < index + 1 || datas[index].isAlive == false) {
 					return;
 				}
@@ -139,8 +142,8 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 	
 	private void drawEQImage(GC gc) {
 		if (ibuffer != null) {
-			if (AXIS_PADDING + (MINIMUM_UNIT_HEIGHT * size) > winYSize) {
-				scroll.setMinSize(canvas.computeSize(SWT.DEFAULT, AXIS_PADDING + (MINIMUM_UNIT_HEIGHT * size)));	
+			if (AXIS_PADDING + (MINIMUM_UNIT_WIDTH * size) > winYSize) {
+				scroll.setMinSize(canvas.computeSize(SWT.DEFAULT, AXIS_PADDING + (MINIMUM_UNIT_WIDTH * size)));	
 			} else {
 				scroll.setMinSize(canvas.computeSize(SWT.DEFAULT, winYSize));	
 			}
@@ -159,6 +162,8 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 	static Color black = ColorUtil.getInstance().getColor(SWT.COLOR_BLACK);
 	static Color red = ColorUtil.getInstance().getColor(SWT.COLOR_RED);
 	static Color dark_gary  = ColorUtil.getInstance().getColor(SWT.COLOR_GRAY);
+
+	private Map<String, Image> objectNameImageMap = new HashMap<String, Image>();
 	
 	protected void buildBars() {
 		long now = TimeUtil.getCurrentTime();
@@ -172,6 +177,7 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 		int height = area.height > 50 ? area.height : 50;
 		Image img = new Image(null, width, height);
 		GC gc = new GC(img);
+		
 		try {
 			lastDrawTime = now;
 			double maxValue = 0;
@@ -194,29 +200,33 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 				return;
 			}
 			datas = list.toArray(new EqData[size]);
-			unitHeight = (height - AXIS_PADDING) / size;
 			
-			if (unitHeight < MINIMUM_UNIT_HEIGHT) {
-				unitHeight = MINIMUM_UNIT_HEIGHT;
+			unitWidth = (width - AXIS_PADDING) / size;
+			
+			if (unitWidth < MINIMUM_UNIT_WIDTH) {
+				unitWidth = MINIMUM_UNIT_WIDTH;
 			}
 			
 			// draw horizontal line
 			gc.setForeground(XLogViewPainter.color_grid_narrow);
 			gc.setLineStyle(SWT.LINE_DOT);
-			for (int i = AXIS_PADDING + unitHeight; i <= height - unitHeight; i = i + unitHeight) {
-				gc.drawLine(0, i, width, i);
+
+			for (int i = AXIS_PADDING + unitWidth; i <= width - unitWidth; i = i + unitWidth) {
+				gc.drawLine(i, 0, i, height);
 			}
 			
 			// draw axis line
 			gc.setForeground(black);
 			gc.setLineStyle(SWT.LINE_SOLID);
 			int verticalLineX = 6;
-			gc.drawLine(verticalLineX, AXIS_PADDING , verticalLineX, height);
-			gc.drawLine(verticalLineX, AXIS_PADDING , width, AXIS_PADDING);
-
+			int verticalLineY = 6;
+			
+			gc.drawLine(AXIS_PADDING, verticalLineY, AXIS_PADDING, height - verticalLineY);
+			gc.drawLine(AXIS_PADDING, height - verticalLineY, width, height - verticalLineY);
+			
 			int groundWidth = area.width - verticalLineX;
-			int barSpace = width - verticalLineX - (3 * BAR_WIDTH);
-			int imgHeight = unitHeight - (BAR_PADDING_HEIGHT  * 2);
+			int barSpace = height - verticalLineY - (3 * BAR_HEIGHT);
+			int imgWidth = unitWidth - (BAR_PADDING_WIDTH  * 2);
 			int mod = (int) (TimeUtil.getCurrentTime() % CYCLE_INTERVAL);
 			for (int i = 0; i < datas.length; i++) {
 				// draw objName
@@ -224,27 +234,36 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 				gc.setForeground(dark_gary);
 				gc.setFont(verdana10Italic);
 				int strWidth = gc.stringExtent(objName).x;
+				
 				while (groundWidth <= (strWidth+5)) {
 					objName = objName.substring(1);
 					strWidth = gc.stringExtent(objName).x;
 				}
-				int x1 = width - strWidth - 5;
-				int y1 = AXIS_PADDING + (unitHeight * i) + ((unitHeight - (gc.stringExtent(objName).y + 2)));
-				gc.drawString(objName, x1,  y1, true);
+
+				int x = (unitWidth * (i + 1)) - 1;
+				int y = verticalLineY;
+				
+				if (objectNameImageMap.get(objName) == null) {
+					objectNameImageMap.put(objName, SingleSourceHelper.createVerticalTextImage(objName, gc.getFont(), dark_gary.getRGB(), false));
+				}
+				
+				gc.drawImage(objectNameImageMap.get(objName), x,  y);
+				
 				if (datas[i].isAlive == false) {
 					gc.setForeground(dark_gary);
 					gc.setLineWidth(2);
-					gc.drawLine(x1-1,  y1 + (gc.stringExtent(objName).y / 2), x1 + gc.stringExtent(objName).x + 1, y1 + (gc.stringExtent(objName).y / 2));
+					gc.drawLine(x + (gc.stringExtent(objName).y / 2), y - 1, x + (gc.stringExtent(objName).y / 2), y + gc.stringExtent(objName).x + 1);
 				}
 				gc.setLineWidth(1);
 				ActiveSpeedData asd = datas[i].asd;
 				long total = asd.act1 + asd.act2 + asd.act3;
 				double reach = barSpace * (total / maxValue);
-				int barX = verticalLineX + 1;
+				
+				int barY = height - verticalLineY - 8;
 				if (total > 0) {
 					try {
 						// distribute bars to 3 types
-						int noOfBars = (int) reach / BAR_WIDTH;
+						int noOfBars = (int) reach / BAR_HEIGHT;
 						int noOfAct1 = (int) (noOfBars * ((double)asd.act1 / total));
 						int noOfAct2 = (int) (noOfBars * ((double)asd.act2  / total));
 						int noOfAct3 = (int) (noOfBars * ((double)asd.act3 / total));
@@ -263,31 +282,32 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 								sediments--;
 							}
 						}
-						int barY = AXIS_PADDING + ((unitHeight * i) + BAR_PADDING_HEIGHT);
+						
+						int barX = AXIS_PADDING + ((unitWidth * i) + BAR_PADDING_WIDTH);
 						Color lastColor = null;
 						
 						for (int j = 0; j < noOfAct3; j++) {
 							// draw red bar
-							drawNemo(gc, ColorUtil.getInstance().ac3, barX + 1, barY + 1, BAR_WIDTH - 2, imgHeight - 2);
-							barX += BAR_WIDTH;
+							drawNemo(gc, ColorUtil.getInstance().ac3, barX + 1, barY + 1, imgWidth - 2, BAR_HEIGHT - 2);
+							barY -= BAR_HEIGHT;
 							lastColor = ColorUtil.getInstance().ac3; 
 						}
 						for (int j = 0; j < noOfAct2; j++) {
 							// draw yellow bar
-							drawNemo(gc, ColorUtil.getInstance().ac2, barX + 1, barY + 1, BAR_WIDTH - 2, imgHeight - 2);
-							barX += BAR_WIDTH;
+							drawNemo(gc, ColorUtil.getInstance().ac2, barX + 1, barY + 1, imgWidth - 2, BAR_HEIGHT - 2);
+							barY -= BAR_HEIGHT;
 							lastColor = ColorUtil.getInstance().ac2; 
 						}
 						for (int j = 0; j < noOfAct1; j++) {
 							// draw blue bar
-							drawNemo(gc, ColorUtil.getInstance().ac1, barX + 1, barY + 1, BAR_WIDTH - 2, imgHeight - 2);
-							barX += BAR_WIDTH;
+							drawNemo(gc, ColorUtil.getInstance().ac1, barX + 1, barY + 1, imgWidth - 2, BAR_HEIGHT - 2);
+							barY -= BAR_HEIGHT;
 							lastColor = ColorUtil.getInstance().ac1; 
 						}
 						
 						// draw tong-tong bar
 						if (lastColor != null) {
-							drawNemo(gc, lastColor, barX + 1 + (int) calculateReach(mod, BAR_WIDTH * 0.7d), barY + 1, BAR_WIDTH - 2, imgHeight - 2);
+							drawNemo(gc, lastColor, barX + 1, barY + 1 - ((int) calculateReach(mod, BAR_HEIGHT * 0.7d)), imgWidth - 2, BAR_HEIGHT - 2);
 						}
 					} catch (Throwable th) {
 						th.printStackTrace();
@@ -301,21 +321,20 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 					String v = Long.toString(total);
 					
 					String all = "(" +  Long.toString(asd.act3) + " / " + Long.toString(asd.act2) + " / " + Long.toString(asd.act1) + ")";
-
-					int xaxis = barX + (BAR_WIDTH * 2);
-					int yaxis = AXIS_PADDING + (unitHeight * i) + ((unitHeight - gc.stringExtent(v).y) / 2);
 					
-					if (total > 0 && unitHeight >= 40) {
-						xaxis += ((gc.stringExtent(all).x / 2) * 0.7);
-						yaxis -= (gc.stringExtent(all).y / 2); 
+					int xaxis = AXIS_PADDING + (unitWidth * i) + ((unitWidth - gc.stringExtent(v).x) / 2);
+					int yaxis = barY - (BAR_HEIGHT * 2) - 4;
+					
+					if (total > 0 && unitWidth >= 52) {
+						yaxis -= gc.stringExtent(all).y - 2; 
 					}
 					gc.drawString(v, xaxis, yaxis, true);
 					
-					if (total > 0 && unitHeight >= 40) {
-						yaxis += gc.stringExtent(all).y; 
-						
+					if (total > 0 && unitWidth >= 52) {
+						yaxis += gc.stringExtent(all).y + 2; 
+
 						gc.setFont(verdana7);
-						xaxis = barX + (BAR_WIDTH * 2);
+						xaxis = AXIS_PADDING + (unitWidth * i) + ((unitWidth - gc.stringExtent(all).x) / 2) - (Long.toString(total).length() * 2);
 						v = "(";
 						gc.drawString(v, xaxis, yaxis, true);
 	
@@ -357,10 +376,10 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 			gc.setFont(verdana7);
 			int max = (int) maxValue;
 			String v = Integer.toString(max);
-			String v2 = Integer.toString(max / 2);
-			gc.drawString(v, width - gc.stringExtent(v).x - 2, 2 , true);
-			gc.drawString(v2, verticalLineX + ((width - verticalLineX) / 2) - gc.stringExtent(v2).x, 2 , true);
-			gc.drawString("0", verticalLineX, 2 , true);
+			String v2 = Integer.toString(max / 2);			
+			gc.drawString(v, 2, 4, true);
+			gc.drawString(v2, 2, verticalLineY + ((height - verticalLineY) / 2) - gc.stringExtent(v2).y, true);
+			gc.drawString("0", 2, height - gc.stringExtent(v).y - 4, true);
 		} catch (Throwable th) { th.printStackTrace(); }
 		finally {
 			gc.dispose();
@@ -373,7 +392,7 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 		}
 	}
 	
-	private void drawNemo(GC gc, Color background, int x, int y, int width, int height) {
+	protected void drawNemo(GC gc, Color background, int x, int y, int width, int height) {
 		gc.setBackground(background);
 		gc.fillRectangle(x, y, width, height);
 		gc.setForeground(black);
@@ -385,7 +404,7 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 	}
 	
 	
-	private double calculateReach(int mod, double weight) {
+	protected double calculateReach(int mod, double weight) {
 		return (Math.cos(mod * (Math.PI / (CYCLE_INTERVAL / 2.0)) + Math.PI) + 1) / 2 * weight;
 	}
 	

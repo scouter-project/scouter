@@ -40,6 +40,7 @@ import org.eclipse.ui.PlatformUI;
 import scouter.client.Images;
 import scouter.client.actions.OpenActiveServiceListAction;
 import scouter.client.actions.OpenActiveSpeedAction;
+import scouter.client.actions.OpenVerticalEQViewAction;
 import scouter.client.actions.OpenEQViewAction;
 import scouter.client.actions.OpenServiceGroupElapsedAction;
 import scouter.client.actions.OpenServiceGroupTPSAction;
@@ -506,6 +507,7 @@ public class MenuUtil implements IMenuCreator{
 			mgr.add(new Separator());
 			mgr.add(new OpenRTPairAllAction(win, "Heap Memory", serverId, objType, CounterConstants.JAVA_HEAP_TOT_USAGE));
 			mgr.add(new OpenEQViewAction(win, serverId, objType));
+			mgr.add(new OpenVerticalEQViewAction(win, serverId, objType));
 			mgr.add(new OpenActiveServiceListAction(win, objType, Images.thread, serverId));
 			mgr.add(new OpenActiveSpeedAction(win,objType, Images.TYPE_ACTSPEED, serverId));
 			mgr.add(new OpenXLogRealTimeAction(win, MenuStr.XLOG, objType, Images.star, serverId));
