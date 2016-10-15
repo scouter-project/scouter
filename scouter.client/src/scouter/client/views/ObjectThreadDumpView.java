@@ -17,18 +17,28 @@
  */
 package scouter.client.views;
 
+import java.io.File;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -38,6 +48,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
@@ -46,13 +59,13 @@ import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
+import scouter.client.stack.actions.FetchSingleStackJob;
 import scouter.client.stack.base.MainProcessor;
 import scouter.client.util.ColoringWord;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.CustomLineStyleListener;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
-import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
 import scouter.lang.pack.MapPack;
@@ -69,8 +82,13 @@ public class ObjectThreadDumpView extends ViewPart {
 	private ArrayList<ColoringWord> defaultHighlightings;
 	
 	private StyledText text;
+	private String objName;
 	private int objHash;
 	private int serverId;
+	private boolean isTable = true;
+	
+	private Table table;
+	private String indexFilename = null;
 	
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
@@ -78,6 +96,7 @@ public class ObjectThreadDumpView extends ViewPart {
 		if (secondId != null) {
 			String[] tokens = StringUtil.tokenizer(secondId, "&");
 			this.objHash = CastUtil.cint(tokens[0]);
+			this.isTable = false;
 		}
 		initializeColoring();
 	}
@@ -174,12 +193,64 @@ public class ObjectThreadDumpView extends ViewPart {
 		gLayout.marginWidth = 0;
 		composite.setLayout(gLayout);
 		createUpperMenu(composite);
-		
+				
 		Composite textComposite = new Composite(composite, SWT.NONE);
 		textComposite.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 		textComposite.setLayout(new FillLayout());
-		text = new StyledText(textComposite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		
+		SashForm sashHoriForm = null;
+		if(isTable){
+			sashHoriForm = new SashForm(textComposite, SWT.HORIZONTAL);
+			sashHoriForm.SASH_WIDTH = 3;
+			
+			Composite tableComposite = new Composite(sashHoriForm, SWT.NONE);
+			table = new Table(tableComposite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION);
+			table.setLinesVisible(true);
+			table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			table.addSelectionListener(new SelectionListener() {
+				public void widgetSelected(SelectionEvent e) {
+					TableItem[] items = table.getSelection();
+					if (items != null && items.length > 0) {
+						TableItem first = items[0];
+						TableItem last = items[items.length - 1];
+					}
+				}
+				public void widgetDefaultSelected(SelectionEvent e) {}
+			});
+			
+			table.addMouseListener(new MouseListener(){
+				public void mouseDoubleClick(MouseEvent e) {
+				}
+	
+				public void mouseDown(MouseEvent e) {
+					TableItem[] items = table.getSelection();
+					if(items == null){
+						return;
+					}
+					if(serverId != 0){
+						long from = (Long) items[0].getData();
+						new FetchSingleStackJob(serverId, objName, from, null, ObjectThreadDumpView.this).schedule(500);
+					}else{
+						loadBatchStackContents((Long) items[0].getData(), Integer.parseInt(items[0].getText()));
+					}
+				}
+				
+				public void mouseUp(MouseEvent e) {
+				}
+			});
+			
+			TableColumn indexColumn = new TableColumn(table, SWT.NONE);
+			TableColumn timeColumn = new TableColumn(table, SWT.NONE);
+			TableColumnLayout tableColumnLayout = new TableColumnLayout();
+			tableColumnLayout.setColumnData(indexColumn, new ColumnWeightData(20));
+			tableColumnLayout.setColumnData(timeColumn, new ColumnWeightData(80));
+			tableComposite.setLayout(tableColumnLayout);
+			
+			
+			text = new StyledText(sashHoriForm, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		}else{
+			text = new StyledText(textComposite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);			
+		}
 		text.addKeyListener(new KeyListener() {
 			public void keyReleased(KeyEvent e) {
 			}
@@ -207,6 +278,9 @@ public class ObjectThreadDumpView extends ViewPart {
 	            MessageDialog.openInformation(parent.getShell(), "Copied", "Copy all contents to clipboard");
 			}
 		});
+		if(sashHoriForm != null){
+			sashHoriForm.setWeights(new int [] {10, 40});
+		}
 	}
 
 	public void setInput(int serverId){
@@ -214,10 +288,30 @@ public class ObjectThreadDumpView extends ViewPart {
 		this.setPartName("ThreadDump[" + TextProxy.object.getLoadText(DateUtil.yyyymmdd(TimeUtil.getCurrentTime(serverId)), objHash, serverId) + "]");
 		load();
 	}
-
-	public void setInput(String stackText, String objName, long stackTime){
-		this.setPartName("ThreadDump[" + objName + " " + DateUtil.yyyymmdd(stackTime) + "]");
+	
+	public void setInput(String stackText){
 		text.setText(stackText);
+	}
+	
+	public void setInput(String stackText, String objName, int serverId, long stackTime, List<Long> list){
+		this.setPartName("ThreadDump[" + objName + " " + DateUtil.yyyymmdd(stackTime) + "]");
+		this.objName = objName;
+		this.serverId = serverId;
+		text.setText(stackText);
+		loadAgentStackList(list);
+	}
+	
+	public void setInput(String objName, String filename, List<Long> [] lists){
+		this.setPartName("ThreadDump[" + objName + " " + DateUtil.yyyymmdd(lists[0].get(0)) + "]");
+		this.objName = objName;
+		this.indexFilename = filename;
+		loadBatchStackList(lists);
+		if(lists != null){
+			if(lists[1].size() == 1){
+				loadThreadDump(0, 0);
+			}else{
+				loadThreadDump(0, ((Long)lists[1].get(1)).intValue());				
+			}		}
 	}
 	
 	public void load() {
@@ -256,7 +350,90 @@ public class ObjectThreadDumpView extends ViewPart {
 		});
 	}
 
+	private void loadAgentStackList(final List<Long> list){
+		if(list == null){
+			return;
+		}
+		ExUtil.exec(table, new Runnable() {
+			public void run() {
+				long value;
+				for (int i = 0 ; i < list.size(); i++) {
+					value = list.get(i);
+					TableItem item = new TableItem(table, SWT.NONE);
+					item.setText(0, String.valueOf(i+1));
+					item.setText(1, DateUtil.format(value, "yyyy-MM-dd HH:mm:ss"));
+					item.setData(value);
+				}
+			}
+		});		
+	}
+	
+	private void loadBatchStackList(final List<Long> [] lists){
+		if(lists == null){
+			return;
+		}
+		ExUtil.exec(table, new Runnable() {
+			public void run() {
+				List<Long> time = lists[0];
+				List<Long> position = lists[1];
+				for (int i = 0 ; i < time.size(); i++) {
+					TableItem item = new TableItem(table, SWT.NONE);
+					item.setText(0, String.valueOf(i+1));
+					item.setText(1, DateUtil.format(time.get(i), "yyyy-MM-dd HH:mm:ss"));
+					item.setData(position.get(i));
+				}
+			}
+		});		
+	}	
 	public void setFocus() {
 	}
 
+	private void loadThreadDump(long position, int length){
+		File stackFile = null;
+		if(this.indexFilename == null){
+			return;
+		}else{
+			stackFile = new File(this.indexFilename.substring(0, this.indexFilename.length() - 4) + ".log");
+		}
+		
+		String contents = "";
+		RandomAccessFile afr = null;
+		try {
+			if(length == 0){
+				length = (int)(stackFile.length() - position);
+			}
+			afr = new RandomAccessFile(stackFile, "r");
+			afr.seek(position);
+			byte [] buffer = new byte[length];
+			int totalSize= 0;
+			int readSize;
+			while((readSize = afr.read(buffer, totalSize, length-totalSize)) > 0){
+				totalSize += readSize;
+				if(totalSize >= length){
+					break;
+				}
+			}
+			contents = new String(buffer, "UTF-8");
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}finally{
+			if(afr != null){
+				try {afr.close(); }catch(Exception ex){}
+			}
+		}
+		text.setText(contents);
+	}
+	
+	private void loadBatchStackContents(long position, int index){
+		TableItem item = null;
+		if(index < table.getItemCount()){
+			item = table.getItem(index);
+		}
+		int length = 0;
+		if(item != null){
+			length = ((Long)item.getData()).intValue();
+			length = (int)(length - position);
+		}
+		loadThreadDump(position, length);		
+	}
 }

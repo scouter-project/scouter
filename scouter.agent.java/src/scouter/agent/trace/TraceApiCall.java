@@ -124,6 +124,9 @@ public class TraceApiCall {
 			tctx.apicall_time += step.elapsed;
 			if (thr != null) {
 				String msg = thr.getMessage();
+				if(msg == null){
+					msg = thr.toString();
+				}
 				Configure conf = Configure.getInstance();
 				if (conf.profile_fullstack_apicall_error_enabled) {
 					StringBuffer sb = new StringBuffer();

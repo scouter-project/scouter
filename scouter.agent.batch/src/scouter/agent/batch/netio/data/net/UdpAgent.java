@@ -17,58 +17,44 @@
 
 package scouter.agent.batch.netio.data.net;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import scouter.agent.batch.Configure;
-import scouter.agent.batch.trace.TraceContext;
 
+import scouter.agent.Logger;
+import scouter.agent.batch.Configure;
+
+import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
-import scouter.lang.pack.Pack;
 import scouter.net.NetCafe;
+import scouter.util.KeyGen;
 
 public class UdpAgent {
-	static public void sendUdpPack(Pack pack){
-		Configure conf = Configure.getInstance();
-		DatagramSocket datagram = null;
+	static public boolean sendUdp(String IPAddress, int port, byte [] byteArray){
 		InetAddress server = null;
 		try {
-			server = InetAddress.getByName(conf.net_collector_ip);
-			datagram = new DatagramSocket();
-
-			byte[] buff = new DataOutputX().write(NetCafe.CAFE).writePack(pack).toByteArray();
-			DatagramPacket packet = new DatagramPacket(buff, buff.length);
-			packet.setAddress(server);
-			packet.setPort(conf.net_collector_udp_port);
-			datagram.send(packet);		
-//System.out.println("Send:" + conf.net_collector_ip + "-" + conf.net_collector_udp_port);
+			server = InetAddress.getByName(IPAddress);
+			return sendUdp(server, port, byteArray);
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally{
-			if(datagram != null){
-				try { datagram.close(); } catch(Exception ex){}
-			}
 		}
+		return false;
 	}
-
-	static public void sendLocalServer(TraceContext traceContext){
-		Configure conf = Configure.getInstance();
+	
+	static public boolean sendUdp(InetAddress IPAddress, int port, byte [] byteArray){
 		DatagramSocket datagram = null;
-		InetAddress server = null;
 		try {
-			server = InetAddress.getByName("127.0.0.1");
+			Configure conf = Configure.getInstance();
+			if (byteArray.length > conf.net_udp_packet_max_bytes) {
+				return sendMTU(IPAddress, port, byteArray, conf.net_udp_packet_max_bytes);
+			}
 			datagram = new DatagramSocket();
-
-			DataOutputX out = new DataOutputX();
-			out.writeLong(traceContext.startTime);
-			out.writeText(conf.getObjName());
-			out.writeText(traceContext.getLogFullFilename());
-			byte[] buff = out.toByteArray();
-			DatagramPacket packet = new DatagramPacket(buff, buff.length);
-			packet.setAddress(server);
-			packet.setPort(conf.net_local_udp_port);
-			datagram.send(packet);		
-//System.out.println("Send Local:" + conf.net_local_udp_port);
+			DatagramPacket packet = new DatagramPacket(byteArray, byteArray.length);
+			packet.setAddress(IPAddress);
+			packet.setPort(port);
+			datagram.send(packet);
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally{
@@ -76,5 +62,43 @@ public class UdpAgent {
 				try { datagram.close(); } catch(Exception ex){}
 			}
 		}
-	}	
+		return false;
+	}
+	
+	static public boolean sendMTU(InetAddress IPAddress, int port, byte[] data, int packetSize) {
+		try {
+			if (IPAddress == null)
+				return false;
+			long pkid = KeyGen.next();
+			int total = data.length / packetSize;
+			int remainder = data.length % packetSize;
+			if (remainder > 0)
+				total++;
+			int num = 0;
+			boolean isSuccess = true;
+			for (num = 0; (isSuccess && num < (data.length / packetSize)); num++) {
+				isSuccess = SendMTU(IPAddress, port, pkid, total, num, packetSize, DataInputX.get(data, num * packetSize, packetSize));
+			}
+			if (isSuccess && remainder > 0) {
+				SendMTU(IPAddress, port, pkid, total, num, remainder, DataInputX.get(data, data.length - remainder, remainder));
+			}
+			return isSuccess;
+		} catch (IOException e) {
+			Logger.println("A121","UDP", e);
+		}
+		return false;
+	}
+	
+	static private boolean SendMTU(InetAddress IPAddress, int port, long pkid, int total, int num, int packetSize, byte[] data) throws IOException {
+		Configure conf = Configure.getInstance();
+		DataOutputX out = new DataOutputX();
+		out.write(NetCafe.CAFE_MTU);
+		out.writeInt(conf.getObjHash());
+		out.writeLong(pkid);
+		out.writeShort(total);
+		out.writeShort(num);
+		out.writeBlob(data);
+				
+		return sendUdp(IPAddress, port, out.toByteArray());
+	}
 }

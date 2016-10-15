@@ -51,7 +51,8 @@ public class HttpTrace implements IHttpTrace {
 
     public HttpTrace() {
         Configure conf = Configure.getInstance();
-        this.remote_by_header = !StringUtil.isEmpty(conf.trace_http_client_ip_header_key);
+        this.http_remote_ip_header_key = conf.trace_http_client_ip_header_key;
+        this.remote_by_header = !StringUtil.isEmpty(this.http_remote_ip_header_key);
         this.__ip_dummy_test = conf.__ip_dummy_test;
 
         ConfObserver.add(HttpTrace.class.getName(), new Runnable() {
@@ -95,7 +96,6 @@ public class HttpTrace implements IHttpTrace {
         }
 
         ctx.isStaticContents = TraceMain.isStaticContents(ctx.serviceName);
-
 
         ctx.http_method = request.getMethod();
         ctx.http_query = request.getQueryString();
@@ -240,9 +240,16 @@ public class HttpTrace implements IHttpTrace {
             if (__ip_dummy_test) {
                 return getRandomIp();
             }
-
+            
             if (remote_by_header) {
-                return request.getHeader(http_remote_ip_header_key);
+            	String remoteIp = request.getHeader(http_remote_ip_header_key);
+
+                int commaPos = remoteIp.indexOf(',');
+                if (remoteIp != null && commaPos > -1) {
+                	remoteIp = remoteIp.substring(0, commaPos);
+                }
+            	
+                return remoteIp;
             } else {
                 return request.getRemoteAddr();
             }

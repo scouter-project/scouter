@@ -38,6 +38,9 @@ public class ZipFileUtil {
 	static public void recieveZipFile(ZipInputStream zis, String relativePath) throws Exception {
 		ZipEntry zipEntry = null;
 		  		  
+		int readSize;			
+		byte[] buffer = new byte[FILE_BUFFER_SIZE];
+
 		while(null != (zipEntry = zis.getNextEntry())){
 			File outFile = new File(relativePath + "/" + zipEntry.getName());
 			
@@ -46,19 +49,19 @@ public class ZipFileUtil {
 				parentFolder.mkdirs();
 			}
 		   
-			BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(outFile));
-			int fileLength = (int)zipEntry.getSize();
-			int remainLength = fileLength;
-			int readSize;
-			
-			byte[] buffer = new byte[FILE_BUFFER_SIZE];
-			readSize = caculReadSize(remainLength);
-			while((readSize = zis.read(buffer, 0, readSize)) > 0){
-				fos.write(buffer, 0, readSize);
-				remainLength -= readSize;
-				readSize = caculReadSize(remainLength);
+			BufferedOutputStream fos = null;	
+			try{
+				fos = new BufferedOutputStream(new FileOutputStream(outFile));
+	
+				while((readSize = zis.read(buffer)) > 0){
+					fos.write(buffer, 0, readSize);
+				}
+				fos.flush();
+			}finally{
+				if(fos != null){
+					try { fos.close(); }catch(Exception ex){}
+				}
 			}
-			fos.close();
 		}
 	}
 	

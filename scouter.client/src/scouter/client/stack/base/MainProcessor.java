@@ -64,8 +64,9 @@ public class MainProcessor{
     private boolean m_isInerPercent = false;
     private boolean m_isSortByFunction = false;
     private boolean m_isSimpleDumpTimeList = true;
-    private boolean m_isDefaultConfiguration = false;	
-	
+    private boolean m_isDefaultConfiguration = false;
+    private boolean m_isAnalyzeAllThreads = false;
+    
 	static {
 		m_mainProcessor = new MainProcessor();
 	}
@@ -136,6 +137,14 @@ public class MainProcessor{
 
 	public void setDefaultConfiguration(boolean value) {
 		m_isDefaultConfiguration = value;
+	}
+	
+	public boolean isAnalyzeAllThreads(){
+		return m_isAnalyzeAllThreads;
+	}
+	
+	public void setAnalyzeAllThread(boolean value){
+		m_isAnalyzeAllThreads = value;
 	}
 	
 	public void processMenu(String menuName){
@@ -718,6 +727,7 @@ public class MainProcessor{
     	IWorkbenchWindow window = workbench.getActiveWorkbenchWindow(); 
     	try{ 
     		workbench.showPerspective(PerspectiveStackAnalyzer.ID, window);
+    		window.getActivePage().showView(StackAnalyzerView.ID);
     	} catch (WorkbenchException e) { 
     		System.out.println("Unable to open Perspective: " + PerspectiveStackAnalyzer.ID); 
     	}    	

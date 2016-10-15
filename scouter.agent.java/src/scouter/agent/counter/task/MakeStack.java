@@ -66,12 +66,12 @@ public class MakeStack {
 	long lastStackTraceGenTime = 0;
 	@Counter
 	public void stackTraceStepGenerator(CounterBasket pw) {
-		if (!conf.asts_enabled){
+		if (!conf._psts_enabled){
 			return;
 		}
 
 		long now = System.currentTimeMillis();
-		if (now < lastStackTraceGenTime + conf.asts_dump_interval_ms) {
+		if (now < lastStackTraceGenTime + conf._psts_dump_interval_ms) {
 			return;
 		}
 		lastStackTraceGenTime = now;
@@ -92,7 +92,7 @@ public class MakeStack {
 			int[] stacks = new int[length];
 
 			for(int i=0; i<length; i++) {
-				stacks[i] = DataProxy.sendStackElement(elements[i].toString());
+				stacks[i] = DataProxy.sendStackElement(elements[i]);
 			}
 			DumpStep dumpStep = new DumpStep();
 			dumpStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);

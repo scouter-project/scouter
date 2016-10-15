@@ -95,6 +95,9 @@ public abstract class StackParser {
     // ProgressPar
 	private int m_totalLineCount = 0;
 	private int m_processPercent = 0; 
+	
+	// MainProcessor
+	private MainProcessor m_mainProcessor = null;
 
 	// Single Stack
 	HashMap<Integer, UniqueStackValue> m_uniqueStackMap = null;
@@ -191,10 +194,10 @@ public abstract class StackParser {
         m_stackFile.clearAll();
         m_stackFile.setUsedParser(this);
         m_stackFile.setParserConfig(m_config);
-
+        m_mainProcessor = MainProcessor.instance();
+        
         init();
-
-    	m_progressBarWindow = new ProgressBarWindow(MainProcessor.instance().getParentComposite().getShell(), "Stack log file Analyzing");
+    	m_progressBarWindow = new ProgressBarWindow(m_mainProcessor.getParentComposite().getShell(), "Stack log file Analyzing");
 
         try {
             process();
@@ -760,6 +763,16 @@ public abstract class StackParser {
 			}
 	        m_progressBarWindow.setValue(m_processPercent);
 		}
+    }
+    
+    protected boolean isWorkingThread(String line){
+    	if(m_mainProcessor.isAnalyzeAllThreads()){
+    		return true;
+    	}
+    	if(StringUtils.checkExist(line, m_workingThread)){
+    		return true;
+    	}
+    	return false;
     }
     
     static public StackFileInfo loadAnalyzedInfo( String filename ) {

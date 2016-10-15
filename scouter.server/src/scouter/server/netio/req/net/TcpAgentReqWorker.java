@@ -3,20 +3,15 @@ package scouter.server.netio.req.net;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-
-import scouter.server.Configure;
-import scouter.server.Logger;
 import scouter.util.DataUtil;
 
 public class TcpAgentReqWorker extends Thread {
-	private int objHash;
 	private Socket socket;
 	private InputStream in;
 	private OutputStream out;
 	
 	public TcpAgentReqWorker(int objHash, Socket socket){
 		this.socket = socket;
-		this.objHash = objHash;
 		this.setName("SCOUTER-TCP-REQ-" + socket.getRemoteSocketAddress().toString());
 		this.setDaemon(true);
 	}

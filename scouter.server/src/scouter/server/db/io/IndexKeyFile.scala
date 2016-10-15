@@ -51,14 +51,14 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
         return count;
     }
 
-    def put(key: Array[Byte], dataOffset: Array[Byte]): Boolean = {
-        if (key == null || dataOffset == null) {
+    def put(indexKey: Array[Byte], dataOffset: Array[Byte]): Boolean = {
+        if (indexKey == null || dataOffset == null) {
             throw new IOException("invalid key/value");
         }
 
-        val keyHash = HashUtil.hash(key);
+        val keyHash = HashUtil.hash(indexKey);
         var prevKeyPos = hashBlock.get(keyHash);
-        var newKeyPos = this.keyFile.append(prevKeyPos, key, dataOffset);
+        var newKeyPos = this.keyFile.append(prevKeyPos, indexKey, dataOffset);
         this.hashBlock.put(keyHash, newKeyPos);
         return true;
     }

@@ -107,7 +107,6 @@ public class TcpWorker implements Runnable {
 			out.writeInt(objHash);
 			out.flush();		
 
-			//에이전트 이름, 서버 주소포트가 같은 동안만 세션을 유지하라.
 			while (objHash == Configure.getInstance().getObjHash() && server_addr.equals(conf.net_collector_ip)
 					&& port == conf.net_collector_tcp_port) {
 				

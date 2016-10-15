@@ -30,6 +30,7 @@ import scouter.server.db.{TextRD, TextWR}
 import scouter.server.util.ThreadScala
 import scouter.server.{Configure, Logger}
 import scouter.util.{IntLinkedSet, RequestQueue, StringKeyLinkedMap}
+import scouter.util.SQLSimpleParser;
 
 object SqlTables {
     val MAX_Q1 = 500;
@@ -109,66 +110,6 @@ object SqlTables {
     }
 
     def parseTable(sqlText: String): String = {
-        val sb = new StringBuffer();
-        val statement = new CCJSqlParserManager().parse(new StringReader(sqlText.replace('@', '0')));
-        if (statement.isInstanceOf[Select]) {
-            val select = statement.asInstanceOf[Select];
-            val tableFinder = new TableFinder();
-            if (select.getSelectBody() != null) {
-                select.getSelectBody().accept(tableFinder);
-                val iter = tableFinder.getTableList().iterator()
-                while (iter.hasNext()) {
-                    val tableName = iter.next();
-                    if (sb.length() > 0)
-                        sb.append(',');
-                    sb.append(tableName).append("(S)");
-                }
-            }
-        } else if (statement.isInstanceOf[Insert]) {
-            val x = statement.asInstanceOf[Insert]
-            val t = x.getTable();
-            sb.append(x.getTable().getName()).append("(I)");
-            if (x.getSelect() != null) {
-                val selectStatement = x.getSelect();
-                val tableFinder = new TableFinder();
-                selectStatement.getSelectBody().accept(tableFinder);
-                val iter = tableFinder.getTableList().iterator()
-                while (iter.hasNext()) {
-                    def tableName = iter.next();
-                    sb.append(',').append(tableName).append("(S)");
-                }
-            }
-        } else if (statement.isInstanceOf[Delete]) {
-            val x = statement.asInstanceOf[Delete]
-            val t = x.getTable();
-            sb.append(x.getTable().getName()).append("(D)");
-            if (x.getWhere() != null) {
-                val tableFinder = new TableFinder();
-                x.getWhere().accept(tableFinder);
-                val iter = tableFinder.getTableList().iterator()
-                while (iter.hasNext()) {
-                    val tableName = iter.next();
-                    sb.append(',').append(tableName).append("(S)");
-                }
-            }
-        } else if (statement.isInstanceOf[Update]) {
-            val x = statement.asInstanceOf[Update]
-            val tables = x.getTables().iterator()
-            while (tables.hasNext()) {
-                val tableName = tables.next();
-                sb.append(',')
-                sb.append(tableName).append("(U)");
-            }
-            if (x.getWhere() != null) {
-                val tableFinder = new TableFinder();
-                x.getWhere().accept(tableFinder);
-                val iter = tableFinder.getTableList().iterator()
-                while (iter.hasNext()) {
-                    val tableName = iter.next();
-                    sb.append(',').append(tableName).append("(S)");
-                }
-            }
-        }
-        return sb.toString();
+        return new SQLSimpleParser().getCrudInfo(sqlText);
     }
 }

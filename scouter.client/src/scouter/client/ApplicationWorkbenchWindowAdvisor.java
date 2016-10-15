@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.WorkbenchException;
@@ -34,8 +35,8 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import scouter.Version;
 import scouter.client.net.LoginMgr;
 import scouter.client.net.LoginResult;
-import scouter.client.popup.LoginDialog;
-import scouter.client.popup.LoginDialog.ILoginDialog;
+import scouter.client.popup.LoginDialog2.ILoginDialog;
+import scouter.client.popup.LoginDialog2;
 import scouter.client.preferences.PreferenceConstants;
 import scouter.client.preferences.ServerPrefUtil;
 import scouter.client.remote.CheckMyJob;
@@ -60,7 +61,6 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor im
 	
 	private ApplicationActionBarAdvisor actionBarAdvisor;
 	Display display;
-	boolean finish = false;
 	
 	public ApplicationWorkbenchWindowAdvisor(
 			IWorkbenchWindowConfigurer configurer) {
@@ -137,12 +137,11 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor im
 			}
 		}
 		if (autoLogined == false) {
-			LoginDialog dialog = new LoginDialog(display, this, LoginDialog.TYPE_STARTUP);
-			dialog.show();
-			while (!finish) {
-				if (!display.readAndDispatch()) {
-					display.sleep();
-				}
+			LoginDialog2 dialog = new LoginDialog2(display.getActiveShell(), this, LoginDialog2.TYPE_STARTUP, null);
+			if (dialog.open() == Window.OK) {
+				
+			} else {
+				System.exit(0);
 			}
 		}
 		configurer.setTitle("Version - "+Version.getClientFullVersion() + "(" + TimeZone.getDefault().getDisplayName() + ")");
@@ -189,16 +188,10 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor im
 		AlertProxyThread.getInstance();
 	}
 
-	public void onPressedCancel() {
-		if(!finish){
-    		System.exit(0);
-    	}
-	}
-
-	public void onPressedOk(String serverAddr, int serverId) {
+	@Override
+	public void loginSuccess(String serverAddr, int serverId) {
 		Server server = ServerManager.getInstance().getServer(serverId);
 		ServerPrefUtil.storeDefaultServer(server.getIp()+":"+server.getPort());
 		ServerManager.getInstance().setDefaultServer(server);
-		finish = true;
 	}
 }

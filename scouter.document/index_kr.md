@@ -10,6 +10,7 @@
 - [DB Lock 상황 시뮬레이션](./use-case/Simulate-DB-Lock.md) 
 - [클라이언트 사용법](./client/How-To-Use-Client.md)  
 - [SCOUTER가 특별한 이유](./main/What-special-in-SCOUTER.md)
+- [단독 실행형 자바 배치 모니터링 에이전트](./main/Stand-alone-Java-Batch-Agent_kr.md)
 
 ## Install
 - [Installation](./main/Setup.md)

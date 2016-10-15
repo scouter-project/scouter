@@ -50,7 +50,7 @@
 			  tofile="${class-agent-dir}/scouter/util/logo/scouter.logo" verbose="true"/>
 		<copy file="../scouter.common/src/scouter/lang/countrycode.txt"
 			  tofile="${class-agent-dir}/scouter/lang/countrycode.txt" verbose="true"/>
-
+		
 		<propertyfile	    file="${class-agent-dir}/scouter/v.properties"	comment="Scouter Version" >
 		  <entry  key="VERSION" value="${VERSION}" />
 		  <entry  key="BUILD" value="${today}"/>
@@ -74,7 +74,13 @@
 				<pathelement location="${class-agent-java-dir}"/>
 			</classpath>
 		</javac>
-	
+
+        <copy todir="./out/package/scouter/agent.batch">
+            <fileset dir="../scouter.agent.batch/scripts"/>
+        </copy>
+        <copy todir="./out/package/scouter/agent.batch/conf">
+            <fileset dir="../scouter.agent.batch/conf"/>
+        </copy>		
 	</target>
 
 	<target name="packing">
@@ -108,7 +114,7 @@
 	</target>
 
 	<target name="default">
-		<echo>Agent Java</echo>
+		<echo>Agent Java Batch</echo>
     	<antcall target="init"/>
 		<antcall target="compile"/>
     	<antcall target="packing"/>
