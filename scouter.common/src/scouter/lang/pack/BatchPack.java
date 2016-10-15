@@ -48,16 +48,24 @@ public class BatchPack implements Pack {
 	
 	public int threadCnt = 0;
 	public long cpuTime = 0L;
+	public long gcTime = 0L;
+	public long gcCount = 0L;
 
 	public int sqlTotalCnt = 0;
 	public long sqlTotalTime = 0L;
 	public long sqlTotalRows = 0L;
 	public long sqlTotalRuns = 0L;
-
+	
 	public boolean isStack = false;
+	
+	public long position  = 0L;
 	
 	public List<MapValue> sqlStats = null;
 	public Map<Integer, String> uniqueSqls = null;
+	
+	
+	// not variable 
+	public int index = 0;
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -73,12 +81,16 @@ public class BatchPack implements Pack {
 	public byte getPackType() {
 		return PackEnum.BATCH;
 	}
-
-	public void write(DataOutputX out) throws IOException {
+	
+	public void writeSimple(DataOutputX out) throws IOException {
 		DataOutputX o = new DataOutputX();
-		
-		o.writeDecimal(startTime);		
-		o.writeDecimal(objHash);
+		writeInternal(o);
+		out.writeBlob(o.toByteArray());
+	}
+	
+	private void writeInternal(DataOutputX o) throws IOException {
+		o.writeLong(startTime);		
+		o.writeInt(objHash);
 		o.writeText(batchJobId);
 		o.writeText(args);
 		o.writeInt(pID.intValue());
@@ -86,6 +98,8 @@ public class BatchPack implements Pack {
 		o.writeLong(elapsedTime);
 		o.writeInt(threadCnt);
 		o.writeLong(cpuTime);
+		o.writeLong(gcTime);
+		o.writeLong(gcCount);
 				
 		o.writeInt(sqlTotalCnt);
 		o.writeLong(sqlTotalTime);
@@ -96,6 +110,13 @@ public class BatchPack implements Pack {
 		
 		o.writeText(objName);
 		o.writeText(objType);
+		
+		o.writeLong(position);
+	}
+
+	public void write(DataOutputX out) throws IOException {
+		DataOutputX o = new DataOutputX();		
+		writeInternal(o);
 		
 		if(sqlTotalCnt > 0){
 			for(MapValue value: sqlStats){
@@ -119,12 +140,25 @@ public class BatchPack implements Pack {
 		out.writeBlob(o.toByteArray());
 	}
 
-	public Pack read(DataInputX din) throws IOException {
 
+	public Pack readSimplePack(byte [] data) throws IOException {
+		DataInputX d = new DataInputX(data);
+		d.readByte(); // Type
+		byte [] internalData = d.readBlob(); // Body
+		d = new DataInputX(internalData);
+		readInternal(d);
+		return this;
+	}
+	
+	public Pack readSimple(DataInputX din) throws IOException {
 		DataInputX d = new DataInputX(din.readBlob());
+		readInternal(d);
+		return this;
+	}
 
-		this.startTime = d.readDecimal();		
-		this.objHash = (int)d.readDecimal();
+	private void readInternal(DataInputX d) throws IOException {
+		this.startTime = d.readLong();		
+		this.objHash = d.readInt();
 		this.batchJobId = d.readText();
 		this.args = d.readText();
 		this.pID = d.readInt();
@@ -132,6 +166,8 @@ public class BatchPack implements Pack {
 		this.elapsedTime = d.readLong();
 		this.threadCnt = d.readInt();
 		this.cpuTime = d.readLong();
+		this.gcTime = d.readLong();
+		this.gcCount = d.readLong();
 
 		this.sqlTotalCnt = d.readInt();
 		this.sqlTotalTime = d.readLong();
@@ -142,6 +178,13 @@ public class BatchPack implements Pack {
 		
 		this.objName = d.readText();
 		this.objType = d.readText();
+		
+		this.position = d.readLong();
+	}
+	
+	public Pack read(DataInputX din) throws IOException {
+		DataInputX d = new DataInputX(din.readBlob());
+		readInternal(d);
 
 		if(this.sqlTotalCnt > 0){
 			this.sqlStats = new ArrayList<MapValue>((int)this.sqlTotalCnt);

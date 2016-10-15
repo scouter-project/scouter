@@ -1,5 +1,5 @@
 /*
- *  Copyright 2016 the original author or authors. 
+ *  Copyright 2015 the original author or authors. 
  *  @https://github.com/scouter-project/scouter
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -15,7 +15,7 @@
  *  limitations under the License. 
  *
  */
-package scouter.client.batch.action;
+package scouter.client.batch.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -23,17 +23,20 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 
-import scouter.client.batch.view.ObjectBatchHistoryView;
+import scouter.client.batch.views.ObjectBatchActiveListView;
 
-public class OpenCxtmenuBatchHistoryAction extends Action {
-	public final static String ID = OpenCxtmenuBatchHistoryAction.class.getName();
+public class OpenCxtmenuBatchActiveListAction extends Action {
+	public final static String ID = OpenCxtmenuBatchActiveListAction.class.getName();
 
 	private final IWorkbenchWindow win;
 	private int objHash;
+	private String objType;
 	private int serverId;
-	public OpenCxtmenuBatchHistoryAction(IWorkbenchWindow win, String label, int objHash, int serverId) {
+
+	public OpenCxtmenuBatchActiveListAction(IWorkbenchWindow win, String label, int objHash, String objType, int serverId) {
 		this.win = win;
 		this.objHash = objHash;
+		this.objType = objType;
 		this.serverId = serverId;
 		setText(label);
 	}
@@ -41,8 +44,7 @@ public class OpenCxtmenuBatchHistoryAction extends Action {
 	public void run() {
 		if (win != null) {
 			try {
-				win.getActivePage().showView(ObjectBatchHistoryView.ID,
-						serverId + "&" + objHash, IWorkbenchPage.VIEW_ACTIVATE);
+				win.getActivePage().showView(ObjectBatchActiveListView.ID, serverId + "&" + objType + "&" + objHash, IWorkbenchPage.VIEW_ACTIVATE);
 			} catch (PartInitException e) {
 				MessageDialog.openError(win.getShell(), "Error", "Error opening view:" + e.getMessage());
 			}

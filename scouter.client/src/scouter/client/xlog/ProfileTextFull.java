@@ -17,37 +17,23 @@
  */
 package scouter.client.xlog;
 
-import java.util.ArrayList;
-import java.util.Date;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Button;
-
 import scouter.client.model.TextProxy;
 import scouter.client.util.StepWrapper;
 import scouter.client.xlog.views.XLogProfileView;
 import scouter.lang.pack.XLogPack;
-import scouter.lang.step.ApiCallStep;
-import scouter.lang.step.ApiCallSum;
-import scouter.lang.step.HashedMessageStep;
-import scouter.lang.step.MessageStep;
-import scouter.lang.step.MethodStep;
-import scouter.lang.step.MethodStep2;
-import scouter.lang.step.MethodSum;
-import scouter.lang.step.SocketStep;
-import scouter.lang.step.SocketSum;
-import scouter.lang.step.SqlStep;
-import scouter.lang.step.SqlSum;
-import scouter.lang.step.StepEnum;
-import scouter.lang.step.StepSingle;
-import scouter.lang.step.StepSummary;
+import scouter.lang.step.*;
 import scouter.util.FormatUtil;
 import scouter.util.Hexa32;
 import scouter.util.IPUtil;
 import scouter.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 public class ProfileTextFull {
 	
@@ -103,6 +89,10 @@ public class ProfileTextFull {
 		t = TextProxy.group.getLoadText(date, p.group, serverId);
 		if (StringUtil.isNotEmpty(t)) {
 			sb.append("\n► group=" + t);
+		}
+
+		if (p.hasDump == 1) {
+			sb.append("\n► dump=Y");
 		}
 		
 		sb.append("\n");

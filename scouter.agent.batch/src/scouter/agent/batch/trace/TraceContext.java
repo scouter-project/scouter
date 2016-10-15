@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
 import scouter.lang.pack.BatchPack;
+import scouter.lang.pack.MapPack;
 import scouter.lang.value.BooleanValue;
 import scouter.lang.value.MapValue;
 import scouter.util.SysJMX;
@@ -39,6 +40,37 @@ public class TraceContext {
 	private static final String SQL_OTHERS = "Others";
 	private static final int SQL_OTHERS_HASH = SQL_OTHERS.hashCode();
 	private static TraceContext instance = null;
+	
+	public String batchJobId;
+	public String args;
+	public Integer pID;
+	
+	public long startTime;
+	public long endTime;
+	
+	public int threadCnt = 0;
+	public long startCpu;
+	public long endCpu;
+
+	public long gcTime= 0L;
+	public long gcCount = 0L;
+	
+
+	public int sqlTotalCnt = 0;
+	public long sqlTotalTime = 0L;
+	public long sqlTotalRows = 0L;
+	public long sqlTotalRuns = 0L;
+
+	public boolean isStackLogFile = false;
+	public String standAloneFile = null;
+
+	private HashMap<Integer, String> uniqueSqls = new HashMap<Integer, String>(100);
+	private HashMap<Integer, TraceSQL> sqlMap = new HashMap<Integer, TraceSQL>(100);
+	private List<LocalSQL> localSQLList = new ArrayList<LocalSQL>();
+	
+	private int sqlMaxCount;
+	
+	public String lastStack = null;	
 	
 	static {
 		instance = new TraceContext();
@@ -115,8 +147,8 @@ public class TraceContext {
 		
 		buffer.append("-[").append(this.batchJobId).append("]----------------------------------------------").append(lineSeparator);
 		buffer.append("Run  Command: ").append(this.args).append(lineSeparator);
-		if(this.stackLogFile != null){
-			buffer.append("Stack   Dump: ").append(this.stackLogFile).append(lineSeparator);
+		if(this.isStackLogFile){
+			buffer.append("Stack   Dump: ").append(this.getLogFullFilename()).append(lineSeparator);
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append(lineSeparator);
@@ -125,6 +157,11 @@ public class TraceContext {
 		if(this.getCPUTimeByMillis() > 0){
 			buffer.append("CPU     Time: ").append(this.getCPUTimeByMillis()).append("ms").append(lineSeparator);
 		}
+		if(this.gcCount > 0){
+			buffer.append("GC     Count: ").append(this.gcCount).append(lineSeparator);
+			buffer.append("GC      Time: ").append(this.gcTime).append("ms").append(lineSeparator);
+		}
+		
 		if(sqlMap.size() > 0){
 			buffer.append("SQL     Time: ").append((sqlTotalTime/1000000L)).append("ms").append(lineSeparator);
 			buffer.append("SQL     Type: ").append(sqlMap.size()).append(lineSeparator);
@@ -217,8 +254,54 @@ public class TraceContext {
 			}
 			localSQLList.clear();
 		}
-		this.endCpu = SysJMX.getProcessCPU();
+		caculateResource();
 	}
+	
+	public void caculateResource(){
+		this.endCpu = SysJMX.getProcessCPU();
+		long [] gcInfo = SysJMX.getCurrentProcGcInfo();
+		this.gcCount = gcInfo[0];
+		this.gcTime = gcInfo[1];
+	}
+	
+	public MapPack caculateTemp(){
+		MapPack map = new MapPack();
+		map.put("batchJobId", this.batchJobId);
+		map.put("args", this.args);
+		map.put("pID", (long)this.pID);
+		map.put("startTime", this.startTime);
+		map.put("elapsedTime", (System.currentTimeMillis() - this.startTime));
+		map.put("cPUTime", (this.endCpu - startCpu));
+		map.put("gcCount", this.gcCount);
+		map.put("gcTime", this.gcTime);
+
+		long tempSqlTotalTime = this.sqlTotalTime;
+		long tempSqlTotalRows = this.sqlTotalRows;
+		long tempSqlTotalRuns = this.sqlTotalRuns;
+		
+		synchronized(localSQLList){
+			for(LocalSQL localSql : localSQLList){
+				for(TraceSQL sql : localSql.values()){
+					tempSqlTotalTime += sql.totalTime;
+					tempSqlTotalRows += sql.processedRows;
+					tempSqlTotalRuns += sql.runs;
+				}
+			}
+		}
+		
+
+		map.put("sqlTotalTime", tempSqlTotalTime);
+		map.put("sqlTotalRows", tempSqlTotalRows);
+		map.put("sqlTotalRuns", tempSqlTotalRuns);		
+		
+		if(this.lastStack == null){
+			map.put("lastStack", "None");			
+		}else{
+			map.put("lastStack", this.lastStack);			
+		}
+
+		return map;
+	}	
 	
 	public void checkThread(){
 		Thread thread;
@@ -238,7 +321,7 @@ public class TraceContext {
 	}	
 	
 	public void addLocalSQL(LocalSQL localSql){
-		synchronized(localSQLList){
+		synchronized(localSQLList){		
 			localSQLList.add(localSql);
 			threadCnt++;
 		}
@@ -314,12 +397,13 @@ public class TraceContext {
 		pack.threadCnt =  this.threadCnt;
 		pack.cpuTime =  (this.endCpu - this.startCpu);
 		
+		
 		pack.sqlTotalCnt =  this.sqlTotalCnt;
 		pack.sqlTotalTime =  this.sqlTotalTime;
 		pack.sqlTotalRows =  this.sqlTotalRows;
 		pack.sqlTotalRuns =  this.sqlTotalRuns;
 
-		pack.isStack = (stackLogFile != null)?true:false;
+		pack.isStack = isStackLogFile;
 		
 		if(this.sqlTotalCnt > 0){
 			pack.uniqueSqls = this.uniqueSqls;		
@@ -342,31 +426,4 @@ public class TraceContext {
 		}
 		return pack;
 	}
-	
-	public String batchJobId;
-	public String args;
-	public Integer pID;
-	
-	public long startTime;
-	public long endTime;
-	
-	public int threadCnt = 0;
-	public long startCpu;
-	public long endCpu;
-
-	public int sqlTotalCnt = 0;
-	public long sqlTotalTime = 0L;
-	public long sqlTotalRows = 0L;
-	public long sqlTotalRuns = 0L;
-
-	public String stackLogFile = null;
-	public String standAloneFile = null;
-
-	private HashMap<Integer, String> uniqueSqls = new HashMap<Integer, String>(100);
-	private HashMap<Integer, TraceSQL> sqlMap = new HashMap<Integer, TraceSQL>(100);
-	private List<LocalSQL> localSQLList = new ArrayList<LocalSQL>();
-	
-	private int sqlMaxCount;
-	
-	public String lastStack;
 }

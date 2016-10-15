@@ -238,7 +238,7 @@ public class HostPerf {
 
 	void netstat() throws SigarException {
 		long now = System.currentTimeMillis();
-		if (now - last_time < 5000) {
+		if (now - last_time < 10000) {
 			return;
 		}
 		last_time = now;

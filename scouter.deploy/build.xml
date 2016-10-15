@@ -4,7 +4,7 @@
 	<property name="deploy-dir" value="./out/package"/>
 	<property name="outpack-dir" value="./out"/>
 	
-	<property name="VERSION" value="0.4.18"/>
+	<property name="VERSION" value="0.4.19"/>
 		
 	
     <target name="packing">
@@ -33,6 +33,7 @@
         <echo>Scouter ${VERSION} ${today}</echo>
     	<ant antfile="build-common.xml" dir="."/>
        	<ant antfile="build-agent.java.xml" dir="."/>
+       	<ant antfile="build-agent.batch.xml" dir="."/>
     	<ant antfile="build-server.xml" dir="."/>
        	<ant antfile="build-agent.host.xml" dir="."/>
         <antcall target="packing"/>

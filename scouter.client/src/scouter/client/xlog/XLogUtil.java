@@ -17,36 +17,15 @@
  */
 package scouter.client.xlog;
 
-import java.util.HashMap;
-import java.util.HashSet;
-
 import scouter.client.model.TextProxy;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
-import scouter.lang.step.ApiCallStep;
-import scouter.lang.step.ApiCallSum;
-import scouter.lang.step.HashedMessageStep;
-import scouter.lang.step.MessageStep;
-import scouter.lang.step.MethodStep;
-import scouter.lang.step.MethodStep2;
-import scouter.lang.step.MethodSum;
-import scouter.lang.step.SocketStep;
-import scouter.lang.step.SocketSum;
-import scouter.lang.step.SqlStep;
-import scouter.lang.step.SqlSum;
-import scouter.lang.step.Step;
-import scouter.lang.step.StepControl;
-import scouter.lang.step.StepEnum;
-import scouter.lang.step.StepSingle;
-import scouter.lang.step.StepSummary;
-import scouter.lang.step.ThreadSubmitStep;
-import scouter.util.DateUtil;
-import scouter.util.FormatUtil;
-import scouter.util.Hexa32;
-import scouter.util.IPUtil;
-import scouter.util.SortUtil;
-import scouter.util.StringUtil;
+import scouter.lang.step.*;
+import scouter.util.*;
+
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class XLogUtil {
 
@@ -56,6 +35,7 @@ public class XLogUtil {
 		HashSet<Integer> subcallSet = new HashSet<Integer>();
 		HashSet<Integer> errorSet = new HashSet<Integer>();
 		HashSet<Integer> hashedMsgSet = new HashSet<Integer>();
+        HashSet<Integer> stackElementSet = new HashSet<Integer>();
 		for (int i = 0; i < p.length; i++) {
 			switch (p[i].getStepType()) {
 			case StepEnum.SQL:
@@ -78,6 +58,14 @@ public class XLogUtil {
 					hashedMsgSet.add(((HashedMessageStep) p[i]).hash);
 				}
 				break;
+            case StepEnum.DUMP:
+                DumpStep dumpStep = (DumpStep) p[i];
+                for(int stackElementHash : dumpStep.stacks) {
+                    if(TextProxy.stackElement.getText(stackElementHash) == null) {
+                        stackElementSet.add(stackElementHash);
+                    }
+                }
+                break;
 			case StepEnum.METHOD:
 			case StepEnum.METHOD2:
 				if (TextProxy.method.getText(((MethodStep) p[i]).hash) == null) {
@@ -124,6 +112,7 @@ public class XLogUtil {
 		TextProxy.apicall.load(yyyymmdd, subcallSet, serverId);
 		TextProxy.error.load(yyyymmdd, errorSet, serverId);
 		TextProxy.hashMessage.load(yyyymmdd, hashedMsgSet, serverId);
+        TextProxy.stackElement.load(yyyymmdd, stackElementSet, serverId);
 	}
 
 	public static int getStepElaspedTime(Step p) {
@@ -193,6 +182,13 @@ public class XLogUtil {
 				HashedMessageStep hms = (HashedMessageStep) p;
 				sb.append(TextProxy.hashMessage.getText(hms.hash) + " #" + FormatUtil.print(hms.value, "#,##0"));
 				break;
+            case StepEnum.DUMP:
+                DumpStep dumpStep = (DumpStep) p;
+                sb.append(dumpStep.threadId).append(" - ").append(dumpStep.threadName).append('\n');
+                for(int stackElementHash : dumpStep.stacks) {
+                    sb.append(TextProxy.stackElement.getText(stackElementHash)).append('\n');
+                }
+                break;
 			case StepEnum.APICALL:
 				ApiCallStep acs = (ApiCallStep) p;
 				sb.append("call:").append(TextProxy.apicall.getText(acs.hash));
@@ -249,6 +245,8 @@ public class XLogUtil {
 			return "MSG";
 		case StepEnum.HASHED_MESSAGE:
 			return "HSG";
+        case StepEnum.DUMP:
+            return "DMP";
 		case StepEnum.SQL:
 			return "SQL";
 		case StepEnum.SQL2:
@@ -502,6 +500,9 @@ public class XLogUtil {
 			case StepEnum.HASHED_MESSAGE:
 				toString(sb, (HashedMessageStep) stepSingle);
 				break;
+            case StepEnum.DUMP:
+                toString(sb, (DumpStep) stepSingle);
+                break;
 			case StepEnum.SOCKET:
 				SocketStep socket = (SocketStep) stepSingle;
 				toString(sb, socket);
@@ -611,12 +612,17 @@ public class XLogUtil {
 	private static void toString(StringBuffer sb, MessageStep p) {
 		sb.append("<font color=green>").append(p.message.replaceAll("\n", BR)).append("</font>");
 	}
+
 	private static void toString(StringBuffer sb, HashedMessageStep p) {
 		String m = TextProxy.hashMessage.getText(p.hash);
 		if (m == null)
 			m = Hexa32.toString32(p.hash);
 		sb.append("<font color=green>").append(m.replaceAll("\n", BR)).append("</font>");
 	}
+
+    private static void toString(StringBuffer sb, DumpStep p) {
+        sb.append("<font color=green>").append("<Thread dump>").append("</font>");
+    }
 
 	private static void toString(StringBuffer sb, StepControl p) {
 		sb.append("<font color=red>").append(p.message.replaceAll("\n", BR)).append("</font>");

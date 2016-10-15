@@ -25,6 +25,8 @@ public class PopupMenuListener implements Listener {
 					mainProcessor.setSimpleDumpTimeList(item.getSelection());
 				}else if("Use Default Parser Configuration".endsWith(menuText)){
 					mainProcessor.setDefaultConfiguration(item.getSelection());
+				}else if("Analyze All Threads In Stack(No Filter)".endsWith(menuText)){
+					mainProcessor.setAnalyzeAllThread(item.getSelection());
 				}
 			}else{
 				mainProcessor.processMenu(menuText);

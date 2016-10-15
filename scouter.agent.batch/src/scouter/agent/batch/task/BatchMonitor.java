@@ -22,8 +22,9 @@ import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
 import scouter.agent.batch.Main;
 import scouter.agent.batch.dump.ThreadDumpHandler;
-import scouter.agent.batch.netio.data.net.UdpAgent;
+import scouter.agent.batch.netio.data.net.UdpLocalAgent;
 import scouter.agent.batch.trace.TraceContext;
+import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 
 public class BatchMonitor extends Thread {
@@ -51,24 +52,43 @@ public class BatchMonitor extends Thread {
 			config = Configure.getInstance();			
 			TraceContext traceContext = TraceContext.getInstance();
 			
-			UdpAgent.sendUdpPack(Main.getObjectPack());
+			UdpLocalAgent.sendUdpPackToServer(Main.getObjectPack());
 			if(config.sfa_dump_enabled){
 				stackFile = new File(traceContext.getLogFullFilename() + ".log");
 				if(stackFile.exists()){
 					stackFile = null;
 				}else{
-					traceContext.stackLogFile = stackFile.getAbsolutePath();
+					traceContext.isStackLogFile = true;
 					
 					stackWriter = new FileWriter(stackFile);
 					indexWriter = new FileWriter(new File(traceContext.getLogFullFilename() + ".inx"));
 				}
 			}
-			if(stackWriter != null){
-				while(!config.scouter_stop){
-					ThreadDumpHandler.processDump(stackFile, stackWriter, indexWriter, config.sfa_dump_filter, config.sfa_dump_header_exists);
-					traceContext.checkThread();
-					Thread.sleep(config.sfa_dump_interval_ms);
+			
+			long lastStackDumpTime = 0L;
+			long lastCheckThreadTime = 0L;
+			long lastCheckGCTime = 0L;
+			long currentTime;
+
+			long [] gcInfo;
+			while(!config.scouter_stop){
+				currentTime = System.currentTimeMillis();
+				if(stackWriter != null){
+					if((currentTime - lastStackDumpTime) >= config.sfa_dump_interval_ms){
+						ThreadDumpHandler.processDump(stackFile, stackWriter, indexWriter, config.sfa_dump_filter, config.sfa_dump_header_exists);
+						UdpLocalAgent.sendRunningInfo(traceContext);
+						lastStackDumpTime = currentTime;
+					}
 				}
+				if((currentTime - lastCheckGCTime) >= 5000L){
+					traceContext.caculateResource();
+					lastCheckGCTime = currentTime;
+				}
+				if((currentTime - lastCheckThreadTime) >= config.thread_check_interval_ms){
+					traceContext.checkThread();
+					lastCheckThreadTime = currentTime;
+				}
+				Thread.sleep(100L);
 			}
 		}catch(Throwable ex){
 			Logger.println("ERROR: " + ex.getMessage());

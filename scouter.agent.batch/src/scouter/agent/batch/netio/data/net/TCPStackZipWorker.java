@@ -78,7 +78,7 @@ public class TCPStackZipWorker implements Runnable {
 		} finally {
 			prepare(true);
 		}
-		System.out.println("TcpStackSzipWorker close: " + this.hashCode());		
+		//System.out.println("TcpStackSzipWorker close: " + this.hashCode());		
 		LIVE.remove(this.hashCode());
 	}
 	
@@ -91,7 +91,7 @@ public class TCPStackZipWorker implements Runnable {
 		startTime = reader.readLong();
 		objName = reader.readText();
 		filename = reader.readText();
-		System.out.println("==>" + startTime + " - " + objName + " : " + filename);
+		//System.out.println("==>" + startTime + " - " + objName + " : " + filename);
 		
 		if(startTime == 0L || filename == null){
 			return;
@@ -139,10 +139,10 @@ public class TCPStackZipWorker implements Runnable {
 		}
 		
 		if(!isSuccess){
-			System.out.println("Send Fail!!!");			
+			//System.out.println("Send Fail!!!");			
 			return;
 		}
-		System.out.println("Send Success!!!");
+		//System.out.println("Send Success!!!");
 
 		try {
 			for(File file : files){

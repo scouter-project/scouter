@@ -16,11 +16,14 @@
  */
 package scouter.agent;
 
-import java.lang.instrument.Instrumentation;
-
 import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.util.AsyncRunner;
+import scouter.util.StringSet;
 import scouter.util.logo.Logo;
+
+import java.lang.instrument.Instrumentation;
+
+import static scouter.agent.Logger.conf;
 
 public class JavaAgent {
 	private static Instrumentation instrumentation;
@@ -35,8 +38,24 @@ public class JavaAgent {
 		JavaAgent.instrumentation = instrum;
 		JavaAgent.instrumentation.addTransformer(new AgentTransformer());
 		// RequestAgent.getInstance();
+
+		addAsyncRedefineClasses();
+
 		TcpRequestMgr.getInstance();
 		AsyncRunner.getInstance().add(new AgentBoot());
+	}
+
+	private static void addAsyncRedefineClasses() {
+		//preloaded map impl classes before arriving trnasform method.
+		if(conf._hook_map_impl_enabled) {
+			StringSet redefineClasses = new StringSet();
+			redefineClasses.put("java.util.HashMap");
+			redefineClasses.put("java.util.LinkedHashMap");
+			redefineClasses.put("java.util.concurrent.ConcurrentHashMap");
+			redefineClasses.put("java.util.HashTable");
+
+			AsyncRunner.getInstance().add(redefineClasses);
+		}
 	}
 
 	private static void intro() {

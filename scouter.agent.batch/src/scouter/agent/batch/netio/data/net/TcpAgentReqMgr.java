@@ -68,7 +68,7 @@ public class TcpAgentReqMgr extends Thread{
 	
 	public void addJob(byte [] job){
 		jobQueue.add(job);
-		System.out.println("AddJob");		
+		//System.out.println("AddJob");		
 		synchronized(jobQueue){
 			jobQueue.notify();
 		}
@@ -89,7 +89,7 @@ public class TcpAgentReqMgr extends Thread{
 				}
 			}catch(Exception ex){};
 		}
-		System.out.println("GetJob->" + job.length);	
+		//System.out.println("GetJob->" + job.length);	
 		return job;
 	}
 }

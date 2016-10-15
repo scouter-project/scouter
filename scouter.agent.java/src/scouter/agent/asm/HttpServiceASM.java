@@ -30,6 +30,7 @@ public class HttpServiceASM implements IASM, Opcodes {
 	public HashSet<String> servlets = new HashSet<String>();
 	public HttpServiceASM() {
 		servlets.add("javax/servlet/http/HttpServlet");
+		servlets.add("weblogic/servlet/jsp/JspBase");	
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

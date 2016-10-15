@@ -98,14 +98,14 @@ class RealKeyFile(_path: String) extends IClose {
         }
     }
 
-    def write(pos: Long, prevPos: Long, timeKey: Array[Byte], dataPos: Array[Byte]) {
+    def write(pos: Long, prevPos: Long, indexKey: Array[Byte], dataPos: Array[Byte]) {
         this.synchronized {
             this.raf.seek(pos);
 
             val out = new DataOutputX();
             out.writeBoolean(false);
             out.writeLong5(prevPos);
-            out.writeShortBytes(timeKey);
+            out.writeShortBytes(indexKey);
             out.writeBlob(dataPos);
          
             this.raf.write(out.toByteArray())
@@ -128,10 +128,10 @@ class RealKeyFile(_path: String) extends IClose {
             return true;
         }
     }
-    def append(prevPos: Long, timeKey: Array[Byte], datePos: Array[Byte]): Long = {
+    def append(prevPos: Long, indexKey: Array[Byte], datePos: Array[Byte]): Long = {
         this.synchronized {
             val pos = this.raf.length();
-            write(pos, prevPos, timeKey, datePos);
+            write(pos, prevPos, indexKey, datePos);
             return pos;
         }
     }

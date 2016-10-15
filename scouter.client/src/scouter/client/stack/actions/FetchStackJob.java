@@ -16,6 +16,7 @@ import scouter.client.net.TcpProxy;
 import scouter.client.stack.base.MainProcessor;
 import scouter.client.util.ExUtil;
 import scouter.client.util.RCPUtil;
+import scouter.client.util.StackUtil;
 import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.StackPack;
@@ -39,12 +40,7 @@ public class FetchStackJob extends Job {
 	}
 
 	protected IStatus run(final IProgressMonitor monitor) {
-		File workDir = RCPUtil.getWorkingDirectory();
-		String dirPath = workDir.getAbsolutePath() + objName + "/stack/";
-		File dir = new File(dirPath);
-		if (dir.exists() == false) {
-			dir.mkdirs();
-		}
+		String dirPath = StackUtil.getStackWorkspaceDir(this.objName);
 		StringBuilder sb = new StringBuilder();
 		sb.append(DateUtil.format(from, "yyyyMMdd"));
 		sb.append("_");

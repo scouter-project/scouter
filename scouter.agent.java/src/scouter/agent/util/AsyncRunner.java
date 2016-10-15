@@ -25,11 +25,10 @@ import scouter.lang.AlertLevel;
 import scouter.lang.TextTypes;
 import scouter.lang.pack.AlertPack;
 import scouter.lang.value.MapValue;
-import scouter.util.RequestQueue;
-import scouter.util.SystemUtil;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
 
 import java.lang.instrument.ClassDefinition;
+import java.util.ArrayList;
 
 import static scouter.agent.util.DumpUtil.conf;
 
@@ -60,6 +59,13 @@ public class AsyncRunner extends Thread {
         byte[] body;
     }
 
+    private static class RedefineClasses {
+        StringSet classnames;
+        public RedefineClasses(StringSet classnames) {
+            this.classnames = classnames;
+        }
+    }
+
     public void add(ClassLoader loader, String classname, byte[] body) {
         queue.put(new Hook(loader, classname, body));
     }
@@ -76,6 +82,10 @@ public class AsyncRunner extends Thread {
         queue.put(r);
     }
 
+    public void add(StringSet classnames) {
+        queue.put(new RedefineClasses(classnames));
+    }
+
     public void run() {
         while (true) {
             Object m = queue.get(1000);
@@ -88,9 +98,39 @@ public class AsyncRunner extends Thread {
                     alert((LeakInfo2) m);
                 } else if (m instanceof Runnable) {
                     process((Runnable) m);
+                } else if (m instanceof RedefineClasses) {
+                    redefine(((RedefineClasses) m).classnames);
                 }
             } catch (Throwable t) {
             	t.printStackTrace();
+            }
+        }
+    }
+
+    private void redefine(StringSet clazzes) {
+        Class[] loadedClasses = JavaAgent.getInstrumentation().getAllLoadedClasses();
+
+        ArrayList<ClassDefinition> definitionList = new ArrayList<ClassDefinition>();
+        boolean allSuccess = true;
+        for (int i = 0; i < loadedClasses.length; i++) {
+            if (clazzes.hasKey(loadedClasses[i].getName())) {
+                try {
+                    byte[] buff = ClassUtil.getByteCode(loadedClasses[i]);
+                    if (buff == null) {
+                        continue;
+                    }
+                    definitionList.add(new ClassDefinition(loadedClasses[i], buff));
+                } catch (Exception e) {
+                    allSuccess = false;
+                    break;
+                }
+            }
+        }
+        if (definitionList.size() > 0 && allSuccess) {
+            try {
+                JavaAgent.getInstrumentation().redefineClasses(definitionList.toArray(new ClassDefinition[definitionList.size()]));
+            } catch (Throwable th) {
+                Logger.println("A183", "redefine error : " + loadedClasses);
             }
         }
     }

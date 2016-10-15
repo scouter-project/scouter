@@ -284,6 +284,11 @@ public class StackAnalyzerView extends ViewPart {
 		menuItem.setSelection(mainProcessor.isDefaultConfiguration());
 		menuItem.addListener(SWT.Selection, listener);
 
+		menuItem = new MenuItem(popupMenu, SWT.CHECK);
+		menuItem.setText("Analyze All Threads In Stack(No Filter)");
+		menuItem.setSelection(mainProcessor.isAnalyzeAllThreads());
+		menuItem.addListener(SWT.Selection, listener);
+		
 		m_mainTree.setMenu(popupMenu);
 	}
 	

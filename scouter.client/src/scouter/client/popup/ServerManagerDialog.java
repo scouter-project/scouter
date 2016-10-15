@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import scouter.client.Images;
 import scouter.client.popup.AddServerAddressDialog.ServerAddressAddition;
-import scouter.client.popup.LoginDialog.ILoginDialog;
+import scouter.client.popup.LoginDialog2.ILoginDialog;
 import scouter.client.preferences.ServerPrefUtil;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
@@ -138,11 +138,11 @@ public class ServerManagerDialog implements ServerAddressAddition, ILoginDialog 
 				if (items != null && items.length > 0) {
 					String addr = (String) items[0].getData();
 					if (items[0].getForeground().getRGB().equals(ColorUtil.getInstance().getColor(SWT.COLOR_RED).getRGB())) {
-						LoginDialog loginDialog  = new LoginDialog(Display.getDefault(), ServerManagerDialog.this, LoginDialog.TYPE_ADD_SERVER, addr);
-						loginDialog.show();
+						LoginDialog2 loginDialog  = new LoginDialog2(dialog, ServerManagerDialog.this, LoginDialog2.TYPE_ADD_SERVER, addr);
+						loginDialog.open();
 					} else {
-						LoginDialog loginDialog  = new LoginDialog(Display.getDefault(), ServerManagerDialog.this, LoginDialog.TYPE_EDIT_SERVER, addr);
-						loginDialog.show();
+						LoginDialog2 loginDialog  = new LoginDialog2(dialog, ServerManagerDialog.this, LoginDialog2.TYPE_EDIT_SERVER, addr);
+						loginDialog.open();
 					}
 				}
 			}
@@ -224,7 +224,8 @@ public class ServerManagerDialog implements ServerAddressAddition, ILoginDialog 
 		addrSet.add(newAddress);
 	}
 
-	public void onPressedOk(String serverAddr, int serverId) {
+	@Override
+	public void loginSuccess(String serverAddr, int serverId) {
 		TableItem items[] = table.getSelection();
 		if (items[0].getData().equals(serverAddr)) {
 			items[0].setForeground(null);
@@ -234,6 +235,4 @@ public class ServerManagerDialog implements ServerAddressAddition, ILoginDialog 
 			}
 		}
 	}
-
-	public void onPressedCancel() {}
 }

@@ -17,10 +17,10 @@
  */
 package scouter.client.model;
 
+import scouter.lang.TextTypes;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import scouter.lang.TextTypes;
 
 public class TextProxy {
 
@@ -44,6 +44,7 @@ public class TextProxy {
 	final public static TextModel login = new TextModel(TextTypes.LOGIN, 1024);
 	final public static TextModel desc = new TextModel(TextTypes.DESC, 1024);
 	final public static TextModel hashMessage = new TextModel(TextTypes.HASH_MSG, 1024);
+    final public static TextModel stackElement = new TextModel(TextTypes.STACK_ELEMENT, 8192);
 
 	private static Map<String, TextModel> textModelMap = new HashMap<String, TextModel>();
 
@@ -64,6 +65,7 @@ public class TextProxy {
 		textModelMap.put(TextTypes.LOGIN, login);
 		textModelMap.put(TextTypes.DESC, desc);
 		textModelMap.put(TextTypes.HASH_MSG, hashMessage);
+        textModelMap.put(TextTypes.STACK_ELEMENT, stackElement);
 	}
 	
 	public static TextModel getTextModel(String textType) {

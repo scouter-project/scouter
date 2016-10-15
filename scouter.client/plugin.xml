@@ -984,12 +984,28 @@
       </view>
       <view
             allowMultiple="true"
-            class="scouter.client.batch.view.ObjectBatchHistoryView"
+            class="scouter.client.batch.views.ObjectBatchHistoryView"
             icon="icons/profilefull.png"
-            id="scouter.client.batch.view.ObjectBatchHistoryView"
+            id="scouter.client.batch.views.ObjectBatchHistoryView"
             name="Batch Execution History List"
             restorable="true">
       </view>      
+      <view
+            allowMultiple="true"
+            class="scouter.client.batch.views.BatchDetailView"
+            icon="icons/profilefull.png"
+            id="scouter.client.batch.views.BatchDetailView"
+            name="Batch Execution History Detail"
+            restorable="false">
+      </view>      
+      <view
+            allowMultiple="true"
+            class="scouter.client.batch.views.ObjectBatchActiveListView"
+            icon="icons/thread.png"
+            id="scouter.client.batch.views.ObjectBatchActiveListView"
+            name="Batch Active List"
+            restorable="false">
+      </view> 
   </extension>
  <extension
          point="org.eclipse.ui.commands">

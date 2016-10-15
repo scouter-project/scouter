@@ -59,7 +59,7 @@ object BatchDB {
             val path = open(m)
             if (path != null) {
                 val pos = append(path, m);
-                appendX(path, m.startTime, pos);
+                appendX(path, (m.startTime + m.elapsedTime), pos);
             }
         }
     }
@@ -69,7 +69,8 @@ object BatchDB {
             Logger.println("S000", 10, "queue exceeded!!");
         }
     }
-    def read(objName: String, from: Long, to: Long, handler: (Long, Array[Byte]) => Any) {
+    
+    def read(objName: String, from: Long, to: Long, filter: String, response: Long, handler: (Long, BatchPack) => Any) {
         val date = DateUtil.yyyymmdd(from)
         val path = getDBPath(date, objName)
         val idxFile = new File(path + "/batch.idx")
@@ -87,6 +88,7 @@ object BatchDB {
         if (x < 0) {
             return
         }
+        var isSend = false
         while (x < len) {
             idxRAF.seek(x * IDX_LEN);
             val time = new DataInputX(idxRAF).readLong()
@@ -97,43 +99,47 @@ object BatchDB {
                 val dataIn = new DataInputX(dataFile)
                 val len = DataInputX.toInt(dataIn.read(4), 0)
                 val data = dataIn.read(len)
-                handler(time, data)
+                isSend = true
+                val batchPack = new BatchPack()
+                batchPack.readSimplePack(data)
+                if(filter != null || response > 0){
+                	if(filter != null){
+                	  if(batchPack.batchJobId.indexOf(filter) < 0){
+                	    isSend = false;
+                	  }
+                	}
+                	if(response > 0){
+                	  if(batchPack.elapsedTime < response){
+                	    isSend = false;
+                	  }
+                	}
+                }
+                if(isSend){
+                	batchPack.position = dataPos
+                	handler(time, batchPack)
+            	}
                 x += 1
             } else {
                 x = len // break
             }
         }
     }
-    def read(objName: String, from: Long, to: Long, handler: (Long) => Any) {
-        val date = DateUtil.yyyymmdd(from)
+
+    def read(objName: String, time: Long, position: Long) : Array[Byte] = {
+        val date = DateUtil.yyyymmdd(time)
         val path = getDBPath(date, objName)
-        val idxFile = new File(path + "/batch.idx")
-        if (idxFile.canRead() == false)
-            return
+        val datFile = new File(path + "/batch.idx")
+        if (datFile.canRead() == false)
+            return null
 
-        val idxRAF = new RandomAccessFile(path + "/batch.idx", "rw");
-        val dataFile = new RandomAccessFile(path + "/batch.dat", "rw");
-        val len = (idxFile.length / IDX_LEN).toInt
-        val bs = new BinSearch[Long](len, (a: Long) => { idxRAF.seek(a * IDX_LEN); new DataInputX(idxRAF).readLong() },
-            (a: Long, b: Long) => (b - a).toInt)
-
-        var x = bs.searchBE(from).toInt
-
-        if (x < 0) {
-            return
-        }
-        while (x < len) {
-            idxRAF.seek(x * IDX_LEN);
-            val time = new DataInputX(idxRAF).readLong()
-            if (time <= to) {
-                handler(time)
-                x += 1
-            } else {
-                x = len // break
-            }
-        }
+        val dataFile = new RandomAccessFile(path + "/batch.dat", "rw");    
+        dataFile.seek(position)
+        val dataIn = new DataInputX(dataFile)
+        val len = DataInputX.toInt(dataIn.read(4), 0)
+        val data = dataIn.read(len)
+        return data;
     }
-
+    
     protected def append(path: String, m: BatchPack): Long = {
         val file = new File(path + "/batch.dat")
         val offset = file.length();
@@ -152,14 +158,14 @@ object BatchDB {
         out.close();
     }
     protected def open(m: BatchPack): String = {
-        val key = BitUtil.setHigh(DateUtil.getDateUnit(m.startTime), m.objHash)
+        val key = BitUtil.setHigh(DateUtil.getDateUnit(m.startTime + m.elapsedTime), m.objHash)
         val opath = dbinfo.get(key)
         if (opath != null)
             return opath
         else {
             val objName = getObjName(m)
             if (objName != null) {
-                val date = DateUtil.yyyymmdd(m.startTime)
+                val date = DateUtil.yyyymmdd(m.startTime + m.elapsedTime)
                 val path = getDBPath(date, objName)
                 val f = new File(path)
                 if (f.exists() == false) {

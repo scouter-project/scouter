@@ -166,6 +166,8 @@ public class DataProxy {
 		webNameTable.clear();
 		groupAgent.clear();
 		hashMessage.clear();
+		stackElement.clear();
+
 	}
 	public static void sendXLog(XLogPack p) {
 		p.objHash = conf.getObjHash();
@@ -270,12 +272,23 @@ public class DataProxy {
 	}
 	private static IntLinkedSet hashMessage = new IntLinkedSet().setMax(500);
 	public static int sendHashedMessage(String text) {
-			int hash = HashUtil.hash(text);	
-			if (hashMessage.contains(hash)) {
-				return hash;
-			}
-			hashMessage.put(hash);
-			udpCollect.add(new TextPack(TextTypes.HASH_MSG, hash, text));
+		int hash = HashUtil.hash(text);
+		if (hashMessage.contains(hash)) {
 			return hash;
 		}
+		hashMessage.put(hash);
+		udpCollect.add(new TextPack(TextTypes.HASH_MSG, hash, text));
+		return hash;
+	}
+
+	private static IntLinkedSet stackElement = new IntLinkedSet().setMax(20000);
+	public static int sendStackElement(StackTraceElement ste) {
+		int hash = ste.hashCode();
+		if (stackElement.contains(hash)) {
+			return hash;
+		}
+		stackElement.put(hash);
+		udpCollect.add(new TextPack(TextTypes.STACK_ELEMENT, hash, ste.toString()));
+		return hash;
+	}
 }
