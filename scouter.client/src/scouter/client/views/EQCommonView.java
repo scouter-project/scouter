@@ -249,7 +249,7 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 						int noOfAct2 = (int) (noOfBars * ((double)asd.act2  / total));
 						int noOfAct3 = (int) (noOfBars * ((double)asd.act3 / total));
 						int sediments = noOfBars - (noOfAct1 + noOfAct2 + noOfAct3);
-						while (sediments >= 0) {
+						while (sediments > 0) {
 							if (asd.act3 > 0) {
 								noOfAct3++;
 								sediments--;
@@ -299,56 +299,7 @@ public abstract class EQCommonView extends ViewPart implements RefreshThread.Ref
 					gc.setFont(verdana10Bold);
 					gc.setForeground(black);
 					String v = Long.toString(total);
-					
-					String all = "(" +  Long.toString(asd.act3) + " / " + Long.toString(asd.act2) + " / " + Long.toString(asd.act1) + ")";
-
-					int xaxis = barX + (BAR_WIDTH * 2);
-					int yaxis = AXIS_PADDING + (unitHeight * i) + ((unitHeight - gc.stringExtent(v).y) / 2);
-					
-					if (total > 0 && unitHeight >= 40) {
-						xaxis += ((gc.stringExtent(all).x / 2) * 0.7);
-						yaxis -= (gc.stringExtent(all).y / 2); 
-					}
-					gc.drawString(v, xaxis, yaxis, true);
-					
-					if (total > 0 && unitHeight >= 40) {
-						yaxis += gc.stringExtent(all).y; 
-						
-						gc.setFont(verdana7);
-						xaxis = barX + (BAR_WIDTH * 2);
-						v = "(";
-						gc.drawString(v, xaxis, yaxis, true);
-	
-						xaxis += gc.stringExtent(v).x + 1;
-						gc.setForeground(ColorUtil.getInstance().ac3);
-						v = Long.toString(asd.act3);
-						gc.drawString(v, xaxis, yaxis, true);
-						
-						xaxis += gc.stringExtent(v).x + 1;
-						gc.setForeground(black);
-						v = " / ";
-						gc.drawString(v, xaxis, yaxis, true);
-						
-						xaxis += gc.stringExtent(v).x + 1;
-						gc.setForeground(ColorUtil.getInstance().ac2);
-						v = Long.toString(asd.act2);
-						gc.drawString(v, xaxis, yaxis, true);
-						
-						xaxis += gc.stringExtent(v).x + 1;
-						gc.setForeground(black);
-						v = " / ";
-						gc.drawString(v, xaxis, yaxis, true);
-						
-						xaxis += gc.stringExtent(v).x + 1;
-						gc.setForeground(ColorUtil.getInstance().ac1);
-						v = Long.toString(asd.act1);
-						gc.drawString(v, xaxis, yaxis, true);
-						
-						xaxis += gc.stringExtent(v).x + 1;
-						gc.setForeground(black);
-						v = ")";
-						gc.drawString(v, xaxis, yaxis, true);
-					}
+					gc.drawString(v, barX + (BAR_WIDTH * 2 ), AXIS_PADDING + (unitHeight * i) + ((unitHeight - gc.stringExtent(v).y) / 2) , true);
 				}
 			}
 			
