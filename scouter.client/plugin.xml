@@ -578,10 +578,26 @@
       </view>
       <view
             allowMultiple="true"
+            class="scouter.client.views.VerticalEQView"
+            icon="icons/ymin.png"
+            id="scouter.client.views.VerticalEQView"
+            name="Vertical EQ"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
             class="scouter.client.group.view.EQGroupView"
             icon="icons/align_left.png"
             id="scouter.client.group.view.EQGroupView"
             name="EQ Group"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="scouter.client.group.view.VerticalEQGroupView"
+            icon="icons/ymin.png"
+            id="scouter.client.group.view.VerticalEQGroupView"
+            name="Vertical EQ Group"
             restorable="true">
       </view>
       <view
