@@ -102,12 +102,27 @@ public class ChartUtil {
 	}
 	
 	public static double getEqMaxValue(double val) {
+		/*
 		if (val < 10)
 			return 10;
 		if (val < 30)
 			return 30;
 		if (val < 50)
 			return 50;
+		return rounding(val * 100) / 100;
+		*/
+
+		// Add margin(width or height) for detailed active service counts.
+		if (val < 7)
+			return 10;
+		if (val < 20)
+			return 30;
+		if (val < 40)
+			return 60;
+		if (val < 70)
+			return 100;
+		if (val < 300)
+			return 500;
 		return rounding(val * 100) / 100;
 	}
 
