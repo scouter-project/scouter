@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Display;
 
 import scouter.client.net.LoginMgr;
 import scouter.client.net.LoginResult;
-import scouter.client.popup.LoginDialog;
+import scouter.client.popup.LoginDialog2;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.util.ConsoleProxy;
@@ -48,8 +48,8 @@ public class OpenServerAction extends Action {
 				ConsoleProxy.errorSafe(result.getErrorMessage());
 			}
 		} else {
-			LoginDialog dialog = new LoginDialog(Display.getDefault(), null, LoginDialog.TYPE_OPEN_SERVER, server.getIp() + ":" + server.getPort());
-			dialog.show();
+			LoginDialog2 dialog = new LoginDialog2(Display.getDefault().getActiveShell(), null, LoginDialog2.TYPE_OPEN_SERVER, server.getIp() + ":" + server.getPort());
+			dialog.open();
 		}
 	}
 }

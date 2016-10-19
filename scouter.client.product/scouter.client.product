@@ -15,7 +15,7 @@
 
    <launcherArgs>
       <programArgsMac>-data
-/tmp
+/tmp/scouter
       </programArgsMac>
       <vmArgs>-Xms128m
 -Xmx512m
@@ -41,6 +41,7 @@
          <bmp/>
       </win>
    </launcher>
+
 
    <vm>
    </vm>

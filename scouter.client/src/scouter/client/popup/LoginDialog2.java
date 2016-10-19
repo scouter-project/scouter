@@ -19,32 +19,29 @@ package scouter.client.popup;
 
 import java.util.ArrayList;
 
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import scouter.Version;
-import scouter.client.Activator;
 import scouter.client.net.LoginMgr;
 import scouter.client.net.LoginResult;
 import scouter.client.preferences.ServerPrefUtil;
@@ -54,10 +51,9 @@ import scouter.client.util.UIUtil;
 import scouter.net.NetConstants;
 import scouter.util.StringUtil;
 
-public class LoginDialog {
-	public static final String ID = LoginDialog.class.getName();
+public class LoginDialog2 extends Dialog {
+	public static final String ID = LoginDialog2.class.getName();
 
-	private final Display display;
 	private final Shell shell;
 	private final ILoginDialog callback;
 	private final int openType;
@@ -80,41 +76,21 @@ public class LoginDialog {
 
 	String address = null;
 
-	public LoginDialog(Display display, ILoginDialog callback, int openType) {
-		this(display, callback, openType, null);
-	}
-
-	public LoginDialog(Display display, ILoginDialog callback, int openType, String address) {
-		this.display = display;
-		this.shell = new Shell(display, (SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL) & ~SWT.CLOSE);
+	public LoginDialog2(Shell shell, ILoginDialog callback, int openType, String address) {
+		super(shell);
+		this.shell = shell;
 		this.callback = callback;
 		this.openType = openType;
 		this.address = address;
 	}
+	
+	
 
-	public void show() {
-		switch (openType) {
-		case TYPE_STARTUP:
-			shell.setText(Version.getClientFullVersion());
-			this.address = ServerPrefUtil.getStoredDefaultServer();
-			break;
-		case TYPE_ADD_SERVER:
-			shell.setText("Add Server");
-			break;
-		case TYPE_OPEN_SERVER:
-			shell.setText("Open Server");
-			break;
-		case TYPE_EDIT_SERVER:
-			shell.setText("Edit Server");
-			break;
-		default:
-			shell.setText("Login");
-			break;
-		}
-		shell.setImage(Activator.getImage("icons/h128.png"));
-		shell.setLayout(UIUtil.formLayout(5, 5));
-
-		final Group parentGroup = new Group(shell, SWT.NONE);
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		Composite comp =  (Composite) super.createDialogArea(parent);
+		comp.setLayout(UIUtil.formLayout(5, 5));
+		final Group parentGroup = new Group(comp, SWT.NONE);
 		parentGroup.setText("Authentication Info");
 		parentGroup.setLayout(UIUtil.formLayout(5, 5));
 		parentGroup.setLayoutData(UIUtil.formData(null, -1, 0, 0, null, -1, null, -1));
@@ -187,49 +163,7 @@ public class LoginDialog {
 		list.add("Type your authentication info...");
 		list.select(list.getItemCount() - 1);
 		list.showSelection();
-		
 
-		Composite footer = new Composite(shell, SWT.NONE);
-		footer.setLayoutData(UIUtil.formData(0, 5, parentGroup, 10, 100, -5, null, -1));
-
-		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 2;
-		gridLayout.makeColumnsEqualWidth = true;
-		footer.setLayout(gridLayout);
-
-		Button okButton = new Button(footer, SWT.PUSH);
-		okButton.setText("&OK");
-		okButton.setEnabled(true);
-		okButton.setLayoutData(new GridData(GridData.FILL_BOTH));
-		okButton.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) {
-				boolean success = false;
-				success = loginInToServer(addrCombo.getText());
-				if (success) {
-					shell.close();
-					shell.dispose();
-				}
-			}
-
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-
-		Button cancelButton = new Button(footer, SWT.PUSH);
-		cancelButton.setText("&Cancel");
-		cancelButton.setLayoutData(new GridData(GridData.FILL_BOTH));
-		cancelButton.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) {
-				shell.close();
-				shell.dispose();
-				if (callback != null) {
-					callback.onPressedCancel();
-				}
-			}
-
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
 
 		if (StringUtil.isNotEmpty(this.address)) {
 			addrCombo.setText(address);
@@ -243,49 +177,51 @@ public class LoginDialog {
 			addrCombo.setText("127.0.0.1:" + NetConstants.SERVER_TCP_PORT);
 			id.setText("admin");
 		}
-
-		shell.setDefaultButton(okButton);
-
-		// Text aboutLabel = new Text(shell, SWT.BORDER | SWT.READ_ONLY |
-		// SWT.WRAP | SWT.V_SCROLL | SWT.H_SCROLL);
-		// aboutLabel.setLayoutData(UIUtil.formData(0, 5, footer, 10, 100, -5,
-		// null, -1, 100, 70));
-		// aboutLabel.setText(ApplicationWorkbenchWindowAdvisor.aboutText.trim());
-
-		shell.pack();
-
-		// POSITION SETTING - SCREEN CENTER
-		Monitor primaryMonitor = display.getPrimaryMonitor();
+		
+		return comp;
+	}
+	
+	
+	
+	@Override
+	protected Point getInitialLocation(Point initialSize) {
+		Monitor primaryMonitor = Display.getDefault().getPrimaryMonitor();
 		Rectangle bounds = primaryMonitor.getBounds();
-		Rectangle rect = shell.getBounds();
-		int x = bounds.x + (bounds.width - rect.width) / 2;
-		int y = bounds.y + (bounds.height - rect.height) / 2;
-		shell.setLocation(x, y);
-
-		shell.addListener(SWT.Traverse, new Listener() {
-			public void handleEvent(Event event) {
-				switch (event.detail) {
-				case SWT.TRAVERSE_ESCAPE:
-					shell.close();
-					event.detail = SWT.TRAVERSE_NONE;
-					event.doit = false;
-					if (callback != null) {
-						callback.onPressedCancel();
-					}
-					break;
-				}
-			}
-		});
-
-		shell.open();
+		int x = bounds.x + (bounds.width) / 2;
+		int y = bounds.y + (bounds.height) / 2;
+		return new Point(x, y);
 	}
 
-	public void close() {
-		if (shell != null) {
-			shell.close();
+
+
+	@Override
+	protected void configureShell(Shell newShell) {
+		super.configureShell(newShell);
+		switch (openType) {
+		case TYPE_STARTUP:
+			newShell.setText(Version.getClientFullVersion());
+			this.address = ServerPrefUtil.getStoredDefaultServer();
+			break;
+		case TYPE_ADD_SERVER:
+			newShell.setText("Add Server");
+			break;
+		case TYPE_OPEN_SERVER:
+			newShell.setText("Open Server");
+			break;
+		case TYPE_EDIT_SERVER:
+			newShell.setText("Edit Server");
+			break;
+		default:
+			newShell.setText("Login");
+			break;
 		}
 	}
 
+	@Override
+	protected boolean isResizable() {
+		return false;
+	}
+	
 	private void createPasswordInput(Composite parentGroup) {
 		pass = new Text(parentGroup, SWT.SINGLE | SWT.BORDER | SWT.PASSWORD);
 		pass.addFocusListener(new FocusListener() {
@@ -298,6 +234,17 @@ public class LoginDialog {
 		});
 		pass.setLayoutData(UIUtil.formData(passLabel, 5, id, 7, 100, -5, null, -1));
 	}
+	
+	
+
+	@Override
+	protected void okPressed() {
+		if (loginInToServer(addrCombo.getText())) {
+			super.okPressed();
+		}
+	}
+
+
 
 	public boolean loginInToServer(String address) {
 		Server server = null;
@@ -346,7 +293,7 @@ public class LoginDialog {
 				msg("Completed !!!");
 				msg("");
 				if (callback != null) {
-					callback.onPressedOk(address, server.getId());
+					callback.loginSuccess(address, server.getId());
 				}
 				try {
 					Thread.sleep(100);
@@ -383,9 +330,7 @@ public class LoginDialog {
 	}
 
 	public interface ILoginDialog {
-		void onPressedOk(String serverAddr, int serverId);
-
-		void onPressedCancel();
+		void loginSuccess(String serverAddr, int serverId);
 	}
 
 }
