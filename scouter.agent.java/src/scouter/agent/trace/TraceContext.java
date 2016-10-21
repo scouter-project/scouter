@@ -22,6 +22,7 @@ import scouter.lang.step.SqlStep;
 import scouter.util.IntKeyMap;
 import scouter.util.SysJMX;
 
+import java.util.ArrayList;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -111,6 +112,7 @@ public class TraceContext {
     public Queue<DumpStep> temporaryDumpSteps = new LinkedBlockingQueue<DumpStep>(5);
 	public boolean hasDumpStack;
 
+	public ArrayList<String> plcGroupList = new ArrayList<String>();
 	public TraceContext createChild() {
 		TraceContext child = new TraceContext(this.isSummary);
 		child.parent = this;

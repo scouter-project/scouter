@@ -72,16 +72,6 @@ class XLogLoopCache[V](capacity: Int) {
         return buff;
     }
 
-    def copy(buff: List[V], _from: Int, _to: Int, time: Int) {
-        var i = _from
-        while (i < _to) {
-            if (queue(i) != null && (elapsed(i) >= time || error(i) == true)) {
-                buff.add(queue(i).asInstanceOf[V]);
-            }
-            i += 1
-        }
-    }
-
     def getList(objHashSet: IntSet, start_loop: Long, start_index: Int, time: Int): List[V] = {
         val end_index = this.index;
         val end_loop = this.loop;
@@ -107,6 +97,30 @@ class XLogLoopCache[V](capacity: Int) {
         return buff;
     }
 
+    def getListWithinCount(start_loop: Long, start_index: Int, _count: Int): List[V] = {
+        var  count = _count
+        (this.loop - start_loop) match {
+            case 0 =>
+                val gap = this.index - start_index
+                if(gap > 0) {
+                    count = Math.min(count, gap)
+                }
+            case 1 =>
+                count = Math.min(count, queue.length - start_index + this.index)
+            case _ =>
+        }
+
+        val buff = new ArrayList[V](count)
+        if(count > this.index) {
+            copy(buff, queue.length-(count-this.index), queue.length)
+            copy(buff, 0, this.index)
+        } else {
+            copy(buff, this.index - count, this.index)
+        }
+
+        return buff
+    }
+
     def getListWithinCount(objHashSet: IntSet, start_loop: Long, start_index: Int, _count: Int): List[V] = {
         var  count = _count
         (this.loop - start_loop) match {
@@ -123,7 +137,7 @@ class XLogLoopCache[V](capacity: Int) {
         val buff = new ArrayList[V](count)
         if(count > this.index) {
             copy(objHashSet, buff, queue.length-(count-this.index), queue.length)
-            copy(objHashSet, buff, 0, this.index, queue.length)
+            copy(objHashSet, buff, 0, this.index)
         } else {
             copy(objHashSet, buff, this.index - count, this.index)
         }
@@ -138,6 +152,26 @@ class XLogLoopCache[V](capacity: Int) {
                 if (queue(i) != null && (elapsed(i) >= time || error(i) == true)) {
                     buff.add(queue(i).asInstanceOf[V]);
                 }
+            }
+            i += 1
+        }
+    }
+
+    def copy(buff: List[V], _from: Int, _to: Int, time: Int) {
+        var i = _from
+        while (i < _to) {
+            if (queue(i) != null && (elapsed(i) >= time || error(i) == true)) {
+                buff.add(queue(i).asInstanceOf[V]);
+            }
+            i += 1
+        }
+    }
+
+    def copy(buff: List[V], _from: Int, _to: Int) {
+        var i = _from
+        while (i < _to) {
+            if (queue(i) != null) {
+                buff.add(queue(i).asInstanceOf[V]);
             }
             i += 1
         }
@@ -169,6 +203,14 @@ class XLogLoopCache[V](capacity: Int) {
         return d;
     }
 
+    def getWithinCount(last_loop: Long, last_index: Int, count: Int): CacheOut[V] = {
+        val d = new CacheOut[V]();
+        d.data = getListWithinCount(last_loop, last_index, count);
+        d.loop = this.loop;
+        d.index = this.index;
+        return d;
+    }
+
     def getWithinCount(objHashSet: IntSet, last_loop: Long, last_index: Int, count: Int): CacheOut[V] = {
         val d = new CacheOut[V]();
         d.data = getListWithinCount(objHashSet, last_loop, last_index, count);
@@ -176,4 +218,5 @@ class XLogLoopCache[V](capacity: Int) {
         d.index = this.index;
         return d;
     }
+
 }
