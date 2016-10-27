@@ -35,7 +35,7 @@ import java.util.List;
 public class AgentTransformer implements ClassFileTransformer {
     public static final String JAVA_UTIL_MAP = "java/util/Map";
     public static ThreadLocal<ClassLoader> hookingCtx = new ThreadLocal<ClassLoader>();
-    private static List<IASM> asms = new ArrayList<IASM>();
+    protected static List<IASM> asms = new ArrayList<IASM>();
     // hook 관련 설정이 변경되면 자동으로 변경된다.
     private static int hook_signature;
 
