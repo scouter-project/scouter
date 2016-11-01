@@ -58,8 +58,9 @@ object XLogCore {
       }
 
       PlugInManager.xlog(m);
-      //PlugInManager.xlogdb(m);
-      
+      //for backward compatibility
+      PlugInManager.xlogdb(m);
+
       val b = new DataOutputX().writePack(m).toByteArray();
       XLogCache.put(m.objHash, m.elapsed, m.error != 0, b);
       if (conf.tagcnt_enabled) {
