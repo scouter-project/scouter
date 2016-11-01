@@ -48,7 +48,6 @@ object XLogCore {
 
     if (Configure.WORKABLE) {
 
-      PlugInManager.xlog(m);
       m.xType match {
         case XLogTypes.WEB_SERVICE =>
           VisitorCore.add(m)
@@ -58,7 +57,9 @@ object XLogCore {
         case _ => //기타 타입은 무시한다.
       }
 
-      PlugInManager.xlogdb(m);
+      PlugInManager.xlog(m);
+      //PlugInManager.xlogdb(m);
+      
       val b = new DataOutputX().writePack(m).toByteArray();
       XLogCache.put(m.objHash, m.elapsed, m.error != 0, b);
       if (conf.tagcnt_enabled) {
