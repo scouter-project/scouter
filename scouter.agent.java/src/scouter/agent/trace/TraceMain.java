@@ -709,9 +709,6 @@ public class TraceMain {
         if (ctx == null) {
             if (conf._trace_auto_service_enabled) {
                 Object localContext = startService(classMethod, null, null, null, null, null, XLogTypes.APP_SERVICE);
-                //startService�궡遺��뿉�꽌 �뿉�윭媛� �굹�뒗 寃쎌슦(諛쒖깮�븯硫� �븞�맖)
-                //Null�씠 由ы꽩�맆 �닔 �엳�쓬(諛⑹뼱肄붾뱶)
-                //@PaulKen
 				if (localContext != null) {
 					//service start
 					((LocalContext) localContext).service = true;

@@ -431,6 +431,7 @@ public class Configure extends Thread {
     public boolean __ip_dummy_test = false;
 
     //internal variables
+    private String objExtType = "";
     private int objHash;
     private String objName;
     private int objHostHash;
@@ -740,6 +741,14 @@ public class Configure extends Thread {
         setStaticContents();
     }
 
+    public String getObjExtType() {
+        return this.objExtType;
+    }
+
+    public void setObjExtType(String objExtType) {
+        this.objExtType = objExtType;
+    }
+
     public int getObjHash() {
         return this.objHash;
     }
@@ -810,6 +819,8 @@ public class Configure extends Thread {
         String detected = ObjTypeDetector.drivedType != null ? ObjTypeDetector.drivedType
                 : ObjTypeDetector.objType != null ? ObjTypeDetector.objType : CounterConstants.JAVA;
         this.obj_type = getValue("obj_type", detected);
+        this.objExtType = ObjTypeDetector.objExtType;
+
         detected = CounterConstants.HOST;
         if (SystemUtil.IS_LINUX) {
             detected = CounterConstants.LINUX;

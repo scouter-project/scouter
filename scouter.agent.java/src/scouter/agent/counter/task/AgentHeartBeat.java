@@ -15,8 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.agent.counter.task;
-import java.io.File;
-import java.util.Enumeration;
 import scouter.Version;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -29,7 +27,11 @@ import scouter.lang.pack.ObjectPack;
 import scouter.lang.value.BooleanValue;
 import scouter.util.FileUtil;
 import scouter.util.StringKeyLinkedMap;
+import scouter.util.StringUtil;
 import scouter.util.SysJMX;
+
+import java.io.File;
+import java.util.Enumeration;
 public class AgentHeartBeat {
 	static {
 		Logger.println("objType:" + Configure.getInstance().obj_type);
@@ -67,6 +69,9 @@ public class AgentHeartBeat {
 		p.objName = conf.getObjName();
 		p.version = Version.getAgentFullVersion();
 		p.address = TcpWorker.localAddr;
+		if(StringUtil.isNotEmpty(conf.getObjExtType())){
+			p.tags.put("objExtType", conf.getObjExtType());
+		}
 		if (ToolsMainFactory.activeStack) {
 			p.tags.put("ActiveStack", new BooleanValue(true));
 		}
