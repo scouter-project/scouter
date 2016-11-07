@@ -32,7 +32,9 @@ import scouter.agent.counter.anotation.Counter;
 import scouter.lang.counters.CounterConstants;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class HostNetDiskPerf {
 	static char ch_l = 'l';
@@ -40,6 +42,7 @@ public class HostNetDiskPerf {
 	static int SLEEP_TIME = 2000;
 	static Sigar sigarImpl = new Sigar();
 	static SigarProxy sigar = SigarProxyCache.newInstance(sigarImpl, SLEEP_TIME);
+	private Set<String> fsExceptionOccured = new HashSet<String>();
 	
 	private static String[] netIf = null;
 	private static FileSystem[] fs = null;
@@ -150,10 +153,14 @@ public class HostNetDiskPerf {
 				try {
 					usage = sigar.getFileSystemUsage(fs[i].getDirName());
 				} catch (SigarException e) {
-					// Ignore the exception when trying to stat file interface
-					Logger.println("A145", 300, "SigarException trying to stat file system device " + fs[i], e);
+					if(!fsExceptionOccured.contains(fs[i].getDirName())) {
+						// Ignore the exception when trying to stat file interface
+						Logger.println("A145", 300, "SigarException trying to stat file system device " + fs[i], e);
+						fsExceptionOccured.add(fs[i].getDirName());
+					}
 					continue;
 				}
+				fsExceptionOccured.remove(fs[i].getDirName());
 				Map<String, Long> fsMap = new HashMap<String, Long>();
 				long readBytes = usage.getDiskReadBytes();
 				long writeBytes = usage.getDiskWriteBytes();
