@@ -73,12 +73,14 @@ public class CachingPreferencePage extends FieldEditorPreferencePage implements 
 		Label serviceLbl = new Label(layoutGroup, SWT.NONE);
 		serviceLbl.setText(M.PREFERENCE_TEXT_CACHE_SERVICE);
 		serviceLbl.setLayoutData(UIUtil.formData(null, -1, 0, 10, null, -1, null, -1, 160));
-		
+		IntegerVerifyListener verifyListener = new IntegerVerifyListener();
+
 		service = new Text(layoutGroup, SWT.BORDER);
 		service.setText(""+serviceCache); //$NON-NLS-1$
 		service.setLayoutData(UIUtil.formData(serviceLbl, 10, 0, 8, 100, -5, null, -1));
 		service.addFocusListener(listener);
-		
+		service.addVerifyListener(verifyListener);
+
 		
 		Label sqlLbl = new Label(layoutGroup, SWT.NONE);
 		sqlLbl.setText(M.PREFERENCE_TEXT_CACHE_SQL);
@@ -88,7 +90,8 @@ public class CachingPreferencePage extends FieldEditorPreferencePage implements 
 		sql.setText(""+sqlCache); //$NON-NLS-1$
 		sql.setLayoutData(UIUtil.formData(sqlLbl, 10, serviceLbl, 8, 100, -5, null, -1));
 		sql.addFocusListener(listener);
-		
+		sql.addVerifyListener(verifyListener);
+
 		
 		Label methodLbl = new Label(layoutGroup, SWT.NONE);
 		methodLbl.setText(M.PREFERENCE_TEXT_CACHE_METHOD);
@@ -98,7 +101,8 @@ public class CachingPreferencePage extends FieldEditorPreferencePage implements 
 		method.setText(""+methodCache); //$NON-NLS-1$
 		method.setLayoutData(UIUtil.formData(methodLbl, 10, sqlLbl, 8, 100, -5, null, -1));
 		method.addFocusListener(listener);
-		
+		method.addVerifyListener(verifyListener);
+
 		
 		Label errorLbl = new Label(layoutGroup, SWT.NONE);
 		errorLbl.setText(M.PREFERENCE_TEXT_CACHE_ERROR);
@@ -108,7 +112,8 @@ public class CachingPreferencePage extends FieldEditorPreferencePage implements 
 		error.setText(""+errorCache); //$NON-NLS-1$
 		error.setLayoutData(UIUtil.formData(errorLbl, 10, methodLbl, 8, 100, -5, null, -1));
 		error.addFocusListener(listener);
-		
+		error.addVerifyListener(verifyListener);
+
 		
 		Label subcallLbl = new Label(layoutGroup, SWT.NONE);
 		subcallLbl.setText(M.PREFERENCE_TEXT_CACHE_APICALL);
@@ -118,7 +123,8 @@ public class CachingPreferencePage extends FieldEditorPreferencePage implements 
 		subcall.setText(""+subcallCache); //$NON-NLS-1$
 		subcall.setLayoutData(UIUtil.formData(subcallLbl, 10, errorLbl, 8, 100, -5, null, -1));
 		subcall.addFocusListener(listener);
-		
+		subcall.addVerifyListener(verifyListener);
+
 		
 		Label objectLbl = new Label(layoutGroup, SWT.NONE);
 		objectLbl.setText(M.PREFERENCE_TEXT_CACHE_OBJECT);
@@ -128,7 +134,8 @@ public class CachingPreferencePage extends FieldEditorPreferencePage implements 
 		object.setText(""+objectCache); //$NON-NLS-1$
 		object.setLayoutData(UIUtil.formData(objectLbl, 10, subcallLbl, 8, 100, -5, null, -1));
 		object.addFocusListener(listener);
-		
+		object.addVerifyListener(verifyListener);
+
 		
 		Label refererLbl = new Label(layoutGroup, SWT.NONE);
 		refererLbl.setText(M.PREFERENCE_TEXT_CACHE_REFERER);
@@ -138,7 +145,8 @@ public class CachingPreferencePage extends FieldEditorPreferencePage implements 
 		referer.setText(""+refererCache); //$NON-NLS-1$
 		referer.setLayoutData(UIUtil.formData(refererLbl, 10, objectLbl, 8, 100, -5, null, -1));
 		referer.addFocusListener(listener);
-		
+		referer.addVerifyListener(verifyListener);
+
 		
 		Label userAgentLbl = new Label(layoutGroup, SWT.NONE);
 		userAgentLbl.setText(M.PREFERENCE_TEXT_CACHE_USERAGENT);
@@ -148,7 +156,8 @@ public class CachingPreferencePage extends FieldEditorPreferencePage implements 
 		userAgent.setText(""+userAgentCache); //$NON-NLS-1$
 		userAgent.setLayoutData(UIUtil.formData(userAgentLbl, 10, refererLbl, 8, 100, -5, null, -1));
 		userAgent.addFocusListener(listener);
-		
+		userAgent.addVerifyListener(verifyListener);
+
 		Label groupLbl = new Label(layoutGroup, SWT.NONE);
 		groupLbl.setText(M.PREFERENCE_TEXT_CACHE_SERVICEGROUP);
 		groupLbl.setLayoutData(UIUtil.formData(null, -1, userAgentLbl, 10, null, -1, null, -1, 160));
@@ -157,7 +166,8 @@ public class CachingPreferencePage extends FieldEditorPreferencePage implements 
 		group.setText(""+groupCache); //$NON-NLS-1$
 		group.setLayoutData(UIUtil.formData(groupLbl, 10, userAgentLbl, 8, 100, -5, null, -1));
 		group.addFocusListener(listener);
-		
+		group.addVerifyListener(verifyListener);
+
 		Label sqlTableLbl = new Label(layoutGroup, SWT.NONE);
 		sqlTableLbl.setText(M.PREFERENCE_TEXT_CACHE_SQLTABLE);
 		sqlTableLbl.setLayoutData(UIUtil.formData(null, -1, groupLbl, 10, null, -1, null, -1, 160));
@@ -166,7 +176,8 @@ public class CachingPreferencePage extends FieldEditorPreferencePage implements 
 		sql_tables.setText(""+sqlTablesCache); //$NON-NLS-1$
 		sql_tables.setLayoutData(UIUtil.formData(sqlTableLbl, 10, groupLbl, 8, 100, -5, null, -1));
 		sql_tables.addFocusListener(listener);
-		
+		sql_tables.addVerifyListener(verifyListener);
+
 		return super.createContents(parent);
 	}
 	

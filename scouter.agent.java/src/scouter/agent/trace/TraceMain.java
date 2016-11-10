@@ -70,6 +70,7 @@ public class TraceMain {
     private static Error resultSetLeakSuspect = new RESULTSET_LEAK_SUSPECT("ResultSet Leak suspected!");
     private static Error statementLeakSuspect = new STATEMENT_LEAK_SUSPECT("Statement Leak suspected!");
     private static DelayedServiceManager delayedServiceManager = DelayedServiceManager.getInstance();
+    public static ILoadController plController;
 
     public static Object startHttpService(Object req, Object res) {
         try {
@@ -105,6 +106,21 @@ public class TraceMain {
 
     public static Object reject(Object stat, Object req, Object res) {
         Configure conf = Configure.getInstance();
+        if(plController != null) {
+        	if (stat == null || req == null || res == null)
+                return null;
+        	if (http == null) {
+                initHttp(req);
+            }
+    	    Stat stat0 = (Stat) stat;
+            if (stat0.isStaticContents) {
+                return null;
+            }
+        	if(plController.reject(stat0.ctx, req, res,http)) {
+        		endHttpService(stat0, REJECT);
+        		return REJECT;
+        	}
+        }
         if (conf.control_reject_service_enabled) {
             if (stat == null || req == null || res == null)
                 return null;
@@ -114,6 +130,8 @@ public class TraceMain {
             Stat stat0 = (Stat) stat;
             if (stat0.isStaticContents)
                 return null;
+            
+           
             // reject by customized plugin
             if (PluginHttpServiceTrace.reject(stat0.ctx, req, res)
                     // reject by control_reject_service_max_count
@@ -184,6 +202,7 @@ public class TraceMain {
         if (http == null) {
             initHttp(req);
         }
+        
         Configure conf = Configure.getInstance();
         TraceContext ctx = new TraceContext(conf.profile_summary_mode_enabled);
         ctx.thread = Thread.currentThread();
@@ -202,6 +221,9 @@ public class TraceMain {
 
         if (stat.isStaticContents == false) {
             PluginHttpServiceTrace.start(ctx, req, res);
+            if(plController != null) {
+            	plController.start(ctx, req, res);
+            }
         }
         return stat;
     }
@@ -273,7 +295,9 @@ public class TraceMain {
             }
             // Plug-in end
             PluginHttpServiceTrace.end(ctx, stat0.req, stat0.res);
-
+            if(plController != null) {
+            	plController.end(ctx, stat0.req, stat0.res);
+            }
             //profile rs
             if(conf.trace_rs_leak_enabled && ctx.unclosedRsMap.size() > 0) {
                 MapValue mv = new MapValue();
@@ -685,9 +709,6 @@ public class TraceMain {
         if (ctx == null) {
             if (conf._trace_auto_service_enabled) {
                 Object localContext = startService(classMethod, null, null, null, null, null, XLogTypes.APP_SERVICE);
-                //startService내부에서 에러가 나는 경우(발생하면 안됨)
-                //Null이 리턴될 수 있음(방어코드)
-                //@PaulKen
 				if (localContext != null) {
 					//service start
 					((LocalContext) localContext).service = true;

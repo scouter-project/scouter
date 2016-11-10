@@ -21,6 +21,7 @@ import scouter.agent.util.AsyncRunner;
 import scouter.util.StringSet;
 import scouter.util.logo.Logo;
 
+import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 
 import static scouter.agent.Logger.conf;
@@ -29,6 +30,10 @@ public class JavaAgent {
 	private static Instrumentation instrumentation;
 
 	public static void premain(String options, Instrumentation instrum) {
+		preStart(options, instrum, new AgentTransformer());
+	}
+
+	public static void preStart(String options, Instrumentation instrum, ClassFileTransformer transformer) {
 		if (JavaAgent.instrumentation != null) {
 			return;
 		}
@@ -36,7 +41,7 @@ public class JavaAgent {
 		Configure.getInstance();
 		BackJobs.getInstance().put(Logger.class.getName(), 3000, Logger.initializer);
 		JavaAgent.instrumentation = instrum;
-		JavaAgent.instrumentation.addTransformer(new AgentTransformer());
+		JavaAgent.instrumentation.addTransformer(transformer);
 		// RequestAgent.getInstance();
 
 		addAsyncRedefineClasses();

@@ -26,28 +26,22 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import scouter.Version;
-import scouter.client.Activator;
 import scouter.client.net.LoginMgr;
 import scouter.client.net.LoginResult;
 import scouter.client.preferences.ServerPrefUtil;
@@ -169,49 +163,7 @@ public class LoginDialog2 extends Dialog {
 		list.add("Type your authentication info...");
 		list.select(list.getItemCount() - 1);
 		list.showSelection();
-		
 
-//		Composite footer = new Composite(comp, SWT.NONE);
-//		footer.setLayoutData(UIUtil.formData(0, 5, parentGroup, 10, 100, -5, null, -1));
-//
-//		GridLayout gridLayout = new GridLayout();
-//		gridLayout.numColumns = 2;
-//		gridLayout.makeColumnsEqualWidth = true;
-//		footer.setLayout(gridLayout);
-
-//		Button okButton = new Button(footer, SWT.PUSH);
-//		okButton.setText("&OK");
-//		okButton.setEnabled(true);
-//		okButton.setLayoutData(new GridData(GridData.FILL_BOTH));
-//		okButton.addSelectionListener(new SelectionListener() {
-//			public void widgetSelected(SelectionEvent e) {
-//				boolean success = false;
-//				success = loginInToServer(addrCombo.getText());
-//				if (success) {
-//					shell.close();
-//					shell.dispose();
-//				}
-//			}
-//
-//			public void widgetDefaultSelected(SelectionEvent e) {
-//			}
-//		});
-//
-//		Button cancelButton = new Button(footer, SWT.PUSH);
-//		cancelButton.setText("&Cancel");
-//		cancelButton.setLayoutData(new GridData(GridData.FILL_BOTH));
-//		cancelButton.addSelectionListener(new SelectionListener() {
-//			public void widgetSelected(SelectionEvent e) {
-//				shell.close();
-//				shell.dispose();
-//				if (callback != null) {
-//					callback.onPressedCancel();
-//				}
-//			}
-//
-//			public void widgetDefaultSelected(SelectionEvent e) {
-//			}
-//		});
 
 		if (StringUtil.isNotEmpty(this.address)) {
 			addrCombo.setText(address);
@@ -235,9 +187,8 @@ public class LoginDialog2 extends Dialog {
 	protected Point getInitialLocation(Point initialSize) {
 		Monitor primaryMonitor = Display.getDefault().getPrimaryMonitor();
 		Rectangle bounds = primaryMonitor.getBounds();
-		Rectangle rect = shell.getBounds();
-		int x = bounds.x + (bounds.width - rect.width) / 2;
-		int y = bounds.y + (bounds.height - rect.height) / 2;
+		int x = bounds.x + (bounds.width) / 2;
+		int y = bounds.y + (bounds.height) / 2;
 		return new Point(x, y);
 	}
 

@@ -67,6 +67,8 @@ public class ChartPreferencePage extends FieldEditorPreferencePage implements IW
 		gdata.horizontalAlignment = SWT.FILL;		
 		layoutGroup.setLayoutData(gdata);
 	    
+		IntegerVerifyListener verifyListener = new IntegerVerifyListener();
+
 		
 		Label lineWidthLbl = new Label(layoutGroup, SWT.RIGHT);
 		lineWidthLbl.setText(M.PREFERENCE_CHARTLINE_WIDTH);
@@ -75,7 +77,8 @@ public class ChartPreferencePage extends FieldEditorPreferencePage implements IW
 		lineWidthTxt = new Text(layoutGroup, SWT.BORDER);
 		lineWidthTxt.setText(""+lineWidth); //$NON-NLS-1$
 		lineWidthTxt.setLayoutData(UIUtil.formData(lineWidthLbl, 10, 0, 8, 100, -5, null, -1));
-		
+		lineWidthTxt.addVerifyListener(verifyListener);
+
 		Label ignoreLbl = new Label(layoutGroup, SWT.RIGHT);
 		ignoreLbl.setText(M.PREFERENCE_CHARTXLOG_IGNORE_TIME);
 		ignoreLbl.setLayoutData(UIUtil.formData(null, -1, lineWidthTxt, 10, null, -1, null, -1, 160));
@@ -83,7 +86,8 @@ public class ChartPreferencePage extends FieldEditorPreferencePage implements IW
 		xlogIgnoreTxt = new Text(layoutGroup, SWT.BORDER);
 		xlogIgnoreTxt.setText(Integer.toString(xLogIgnoreTime));
 		xlogIgnoreTxt.setLayoutData(UIUtil.formData(ignoreLbl, 10, lineWidthTxt, 8, 100, -5, null, -1, 150));
-		
+		xlogIgnoreTxt.addVerifyListener(verifyListener);
+
 		Label maxCntLbl = new Label(layoutGroup, SWT.RIGHT);
 		maxCntLbl.setText(M.PREFERENCE_CHARTXLOG_MAX_COUNT);
 		maxCntLbl.setLayoutData(UIUtil.formData(null, -1, xlogIgnoreTxt, 10, null, -1, null, -1, 160));
@@ -91,6 +95,8 @@ public class ChartPreferencePage extends FieldEditorPreferencePage implements IW
 		xlogMxCntTxt = new Text(layoutGroup, SWT.BORDER);
 		xlogMxCntTxt.setText(Integer.toString(xLogMaxCount));
 		xlogMxCntTxt.setLayoutData(UIUtil.formData(ignoreLbl, 10, xlogIgnoreTxt, 8, 100, -5, null, -1, 150));
+		xlogMxCntTxt.addVerifyListener(verifyListener);
+
 		return super.createContents(parent);
 	}
 	

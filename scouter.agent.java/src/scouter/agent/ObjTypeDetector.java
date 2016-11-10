@@ -17,46 +17,52 @@
 
 package scouter.agent;
 
+import scouter.lang.counters.CounterConstants;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import scouter.lang.counters.CounterConstants;
-
 public class ObjTypeDetector {
 
-	public static Map<String, String> bootClass = new HashMap<String, String>();
-	public static Set<String> extClass = new HashSet<String>();
-	static {
-		bootClass.put("org/eclipse/jetty/server/Server", CounterConstants.JETTY);
-		bootClass.put("org/jboss/Main", CounterConstants.JBOSS); // jboss as 6.1.0
-		bootClass.put("org/jboss/as/server/Main", CounterConstants.JBOSS); // jboss as 7.2.0 final
-		bootClass.put("org/apache/catalina/startup/Bootstrap", CounterConstants.TOMCAT);
-		bootClass.put("org/apache/catalina/startup/Tomcat", CounterConstants.TOMCAT);
-		bootClass.put("com/caucho/server/resin/Resin", CounterConstants.RESIN); // resin 4.x
-	}
+    public static Map<String, String> bootClass = new HashMap<String, String>();
+    public static Set<String> extClass = new HashSet<String>();
 
-	public static String objType = null;
-	public static String drivedType = null;
-    private static boolean initLog=false;
-	public static void check(String className) {
-		String type = bootClass.get(className);
-		if (type == null)
-			return;
-		if(extClass.contains(type)){
-			drivedType=type;
-		}else{
-		    objType = type;
-		}
-		Configure.getInstance().resetObjInfo();
-		if(initLog==false){
-			Logger.initializer.run();
-			initLog=true;
-		}
-		
-		dirtyConfig=true;
-	}
-	public static boolean dirtyConfig=false;
-	
+    static {
+        bootClass.put("org/eclipse/jetty/server/Server", CounterConstants.JETTY);
+        bootClass.put("org/jboss/Main", CounterConstants.JBOSS); // jboss as 6.1.0
+        bootClass.put("org/jboss/as/server/Main", CounterConstants.JBOSS); // jboss as 7.2.0 final
+        bootClass.put("org/apache/catalina/startup/Bootstrap", CounterConstants.TOMCAT);
+        bootClass.put("org/apache/catalina/startup/Tomcat", CounterConstants.TOMCAT);
+        bootClass.put("com/caucho/server/resin/Resin", CounterConstants.RESIN); // resin 4.x
+    }
+
+    public static String objType = null;
+    public static String drivedType = null;
+    public static String objExtType = null;
+
+    private static boolean initLog = false;
+
+    public static void check(String className) {
+        String type = bootClass.get(className);
+        if (type == null)
+            return;
+        if (extClass.contains(type)) {
+            drivedType = type;
+        } else {
+            objType = type;
+        }
+
+        Configure.getInstance().resetObjInfo();
+        if (initLog == false) {
+            Logger.initializer.run();
+            initLog = true;
+        }
+
+        dirtyConfig = true;
+    }
+
+    public static boolean dirtyConfig = false;
+
 }

@@ -17,27 +17,52 @@
 
 package scouter.agent.asm;
 
-import java.util.List;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceMain;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
+import scouter.org.objectweb.asm.*;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MethodASM implements IASM, Opcodes {
+	private static List<String> defaultPatterns = new ArrayList<String>();
+	private static List<String> defaultExcludePatterns = new ArrayList<String>();
 
-	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_method_patterns);
-	private List<HookingSet> excludeTarget = HookingSet.getHookingMethodSet(Configure.getInstance().hook_method_exclude_patterns);
+	private Configure conf = Configure.getInstance();
+	private List<HookingSet> target;
+	private List<HookingSet> excludeTarget;
 
-	Configure conf = Configure.getInstance();
+	public MethodASM() {
+		String patterns = buildPatterns(conf.hook_method_patterns, defaultPatterns);
+		String excludPatterns = buildPatterns(conf.hook_method_exclude_patterns, defaultExcludePatterns);
+		target = HookingSet.getHookingMethodSet(patterns);
+		excludeTarget = HookingSet.getHookingMethodSet(excludPatterns);
+	}
+
+	public static void addPatterns(String methodPattern) {
+		defaultPatterns.add(methodPattern);
+	}
+
+	public static void addExcludePatterns(String methodPattern) {
+		defaultExcludePatterns.add(methodPattern);
+	}
+
+	private String buildPatterns(String patterns, List<String> patternsList) {
+		for(int i=0; i<patternsList.size(); i++) {
+			if(StringUtil.isNotEmpty(StringUtil.trim(patterns))) {
+				patterns = patterns + "," + patternsList.get(i);
+			} else {
+				patterns = patternsList.get(i);
+			}
+		}
+		return patterns;
+	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (conf._hook_methods_enabled == false) {
