@@ -29,8 +29,8 @@ public class LogMonitor extends Thread {
 			while(!config.scouter_stop){
 				currentTime = System.currentTimeMillis();
 				logKeepTime = (config.log_keep_days * 86400000L); 
-				deleteLogFiles(config.sfa_dump_dir, currentTime, logKeepTime, new String [] {".log", ".inx", ".sbr"});
-				deleteLogFiles(new File(config.log_dir), currentTime, logKeepTime, new String [] {".log"});
+				deleteLogFiles(config.sfa_dump_dir, currentTime, logKeepTime, new String [] {".log", ".inx", ".sbr"}, true, 0);
+				deleteLogFiles(new File(config.log_dir), currentTime, logKeepTime, new String [] {".log"}, false, 0);
 				Thread.sleep(3600000L);
 			}
 		}catch(Throwable ex){
@@ -38,22 +38,30 @@ public class LogMonitor extends Thread {
 		}
 	}
 	
-	private void deleteLogFiles(File dir, long currentTime, long logKeeptime, String [] fileExtension){
+	private boolean deleteLogFiles(File dir, long currentTime, long logKeeptime, String [] fileExtension, boolean isDeleteEmpty, int index){
 		long lastTime;
 		String fileName;
+		int listSize = 0;
+		int deleteSize = 0;
 		try{
 			File [] list = 	dir.listFiles();
 			if(list == null){
-				return;
+				return false;
 			}
+			listSize = list.length;
 			for(File file :list){
 				fileName = file.getName();
 				if(fileName.equals(".") || fileName.equals("..")){
+					deleteSize++;
 					continue;
 				}
 				
 				if(file.isDirectory()){
-					deleteLogFiles(file, currentTime, logKeeptime, fileExtension);
+					if(deleteLogFiles(file, currentTime, logKeeptime, fileExtension, isDeleteEmpty, (index + 1))){
+						file.delete();
+						deleteSize++;
+						Logger.println("LOG: delete directory - " + file.getAbsolutePath());			
+					}
 					continue;
 				} else if(!checkExtenstion(fileName, fileExtension)){
 					continue;
@@ -61,6 +69,7 @@ public class LogMonitor extends Thread {
 				lastTime = file.lastModified();
 				if((currentTime - lastTime) >= logKeeptime){
 					file.delete();
+					deleteSize++;
 					Logger.println("LOG: delete file - " + file.getAbsolutePath());			
 				}
 			}
@@ -68,8 +77,12 @@ public class LogMonitor extends Thread {
 			ex.printStackTrace();
 			Logger.println("ERROR: LogDelete - " + ex.getMessage());			
 		}
-		
+		if(listSize == deleteSize){
+			return true;
+		}
+		return false;
 	}
+	
 	private boolean checkExtenstion(String fileName, String [] fileExtenstion){
 		if(fileExtenstion == null){
 			return false;
