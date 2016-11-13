@@ -27,6 +27,11 @@ import scouter.lang.pack.MapPack;
 public class UdpLocalServer extends Thread{
 	private static UdpLocalServer instance;
 
+	private int days = 0;
+	private int startBatchs = 0;
+	private int endBatchs = 0;
+	private int endNoSignalBatchs = 0;
+	
 	public static synchronized UdpLocalServer getInstance() {
 		if (instance == null) {
 			instance = new UdpLocalServer();
@@ -74,12 +79,41 @@ public class UdpLocalServer extends Thread{
 		}
 	}
 	
+	public int getStartBatchs(){
+		return startBatchs;
+	}
+	
+	public int getEndBatchs(){
+		return endBatchs;
+	}
+	
+	public int getEndNoSignalBatchs(){
+		return endNoSignalBatchs;
+	}
+	
+	public void addEndNoSignalBatchs(){
+		checkDays();
+		endNoSignalBatchs++;
+	}
+	
+	private void checkDays(){
+		int currentDays = (int)(System.currentTimeMillis() / 86400000L);
+		if(currentDays != days){
+			startBatchs = endBatchs = endNoSignalBatchs = 0;
+			days = currentDays;
+		}
+	}
+	
 	private void processRunningInfo(byte [] data){
 		DataInputX input = new DataInputX(data);
 		try{
 			MapPack mapPack = new MapPack();
 			mapPack.read(input);
 			String key = new StringBuilder(50).append(mapPack.getText("batchJobId")).append('-').append(mapPack.getLong("pID")).append('-').append(mapPack.getLong("startTime")).toString();
+			checkDays();
+			if(!Main.batchMap.contains(key)){
+				startBatchs++;
+			}
 			Main.batchMap.put(key, mapPack);
 		}catch(Exception ex){
 			ex.printStackTrace();
@@ -90,9 +124,13 @@ public class UdpLocalServer extends Thread{
 		DataInputX input = new DataInputX(data);
 		try{
 			String key = new StringBuilder(50).append(input.readText()).append('-').append(input.readInt()).append('-').append(input.readLong()).toString();
+			checkDays();
+			if(!Main.batchMap.contains(key)){
+				endBatchs++;
+			}
 			Main.batchMap.remove(key);
 		}catch(Exception ex){
 			ex.printStackTrace();
-		}		
+		}
 	}
 }

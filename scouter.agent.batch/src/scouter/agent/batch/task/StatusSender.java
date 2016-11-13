@@ -17,7 +17,6 @@
 package scouter.agent.batch.task;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +25,8 @@ import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
 import scouter.agent.batch.Main;
 import scouter.agent.batch.netio.data.net.UdpAgent;
+import scouter.agent.batch.netio.data.net.UdpLocalServer;
 import scouter.agent.counter.CounterBasket;
-import scouter.agent.netio.data.DataProxy;
 import scouter.io.DataOutputX;
 import scouter.lang.TimeTypeEnum;
 import scouter.lang.counters.CounterConstants;
@@ -88,6 +87,7 @@ public class StatusSender {
 			gapTime = currentTime - (map.getLong("startTime") + map.getLong("elapsedTime"));
 			if(gapTime >= stdTime){
 				Main.batchMap.remove(key);
+				UdpLocalServer.getInstance().addEndNoSignalBatchs();
 			}
 		}
 	}
