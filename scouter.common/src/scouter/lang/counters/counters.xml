@@ -60,6 +60,9 @@
 		</Family>
 		<Family name="batch" master="RunCount">
 			<Counter name="BatchService" disp="Batch Service" unit="cnt" icon="service_count.png" />
+			<Counter name="BatchStart" disp="Batch Accumulate Start" unit="cnt" icon="service_count.png" />
+			<Counter name="BatchEnd" disp="Batch Accumulate End" unit="cnt" icon="service_count.png" />
+			<Counter name="BatchEndNoSignal" disp="Batch Accumulate End(No Signal)" unit="cnt" icon="service_count.png" />
 		</Family>
 	</Familys>
 	<Types>
