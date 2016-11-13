@@ -65,7 +65,11 @@ public class StatusSender {
 	
 	private void updateBatchService(){
 		PerfCounterPack pack = cb.getPack(conf.getObjName(), TimeTypeEnum.REALTIME);
+		UdpLocalServer localServer = UdpLocalServer.getInstance();
 		pack.put(CounterConstants.BATCH_SERVICE, new DecimalValue(Main.batchMap.size()));
+		pack.put(CounterConstants.BATCH_START, new DecimalValue(localServer.getStartBatchs()));
+		pack.put(CounterConstants.BATCH_END, new DecimalValue(localServer.getEndBatchs()));
+		pack.put(CounterConstants.BATCH_ENDNOSIGNAL, new DecimalValue(localServer.getEndNoSignalBatchs()));
 	}
 	
 	private void checkBatchService(long currentTime){
@@ -73,7 +77,7 @@ public class StatusSender {
 
 		if((currentTime - lastCheckTime) >= conf.sfa_dump_interval_ms){
 			isCheck = true;
-			currentTime = lastCheckTime;
+			lastCheckTime = currentTime;
 		}
 		if(!isCheck){
 			return;
