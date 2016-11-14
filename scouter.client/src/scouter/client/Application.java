@@ -100,17 +100,15 @@ public class Application implements IApplication {
 					}
 					
 				}, LoginDialog2.TYPE_STARTUP, null);
-				if (dialog.open() == Window.OK) {
-					int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
-					if (returnCode == PlatformUI.RETURN_RESTART)
-						return IApplication.EXIT_RESTART;
-					else
-						return IApplication.EXIT_OK;
-				} else {
+				if (dialog.open() != Window.OK) {
 					System.exit(0);
 				}
 			}
-			return IApplication.EXIT_OK;
+			int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
+			if (returnCode == PlatformUI.RETURN_RESTART)
+				return IApplication.EXIT_RESTART;
+			else
+				return IApplication.EXIT_OK;
 		} finally {
 			display.dispose();
 		}
