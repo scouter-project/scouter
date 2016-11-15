@@ -47,10 +47,11 @@ public class Application implements IApplication {
 		Object exitStrategy = IApplication.EXIT_OK;
 		try {
 			boolean loginSuccessed = loginAutomaticallyWhenAutoLoginEnabled();
+			if (loginSuccessed == false) {
+				loginSuccessed = openLoginDialog(display);
+			}
 			if (loginSuccessed) {
 				exitStrategy = createAndRunWorkbench(display);
-			} else {
-				loginSuccessed = openLoginDialog(display);
 			}
 			return exitStrategy;
 		} finally {
