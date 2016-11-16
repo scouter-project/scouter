@@ -31,14 +31,14 @@ import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ScouterUtil;
-import scouter.client.views.VerticalEQCommonView;
-import scouter.io.DataInputX;
+import scouter.client.views.EQCommonView;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
+import scouter.io.DataInputX;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 
-public class VerticalEQGroupView extends VerticalEQCommonView {
+public class VerticalEQGroupView extends EQCommonView {
 	
 	public static final String ID = VerticalEQGroupView.class.getName();
 	
