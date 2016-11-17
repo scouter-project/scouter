@@ -4,13 +4,18 @@
 
 ## 오픈소스 S/W 어플리케이션 성능 모니터링
 
-APM은 Application performance montoring 또는 application performance management를 의미하고 SCOUTER는 오픈소스 APM 도구로서 Java, WAS에 대한 모니터링 및 DB Agent를 통해 오픈소스 DB 모니터링 기능을 제공한다.
+SCOUTER는 오픈소스 APM 도구로서 Java, WAS에 대한 모니터링 모니터링 기능을 제공한다.
+ - **APM** : Application performance montoring / application performance management
 
 기업용 IT는 상용 서비스를 기반으로 진화하여 왔다. 그러나 이제는 점점 더 오픈 소스 기반의 시스템 구축이 늘어나고 있다. 오픈소스 기반의 시스템을 구축할때 성능 관리 또한 같이 고려 되어야하는데 오픈 소스인 Scouter는 가장 훌륭한 선택이 될 것이다.
 
- - 모니터링 대상 
-   - 오픈소스 WAS - Tomcat, JBoss, Resin ...
-   - 오픈소스 DB - MariaDB (클로즈 베타 테스트 진행중)
+ - 모니터링 대상 (현재)
+   - Java application - Web application (on Tomcat, JBoss, Resin ...), Standalone java application
+   - OS - LInux, Windows, Unix
+
+ - 모니터링 대상 (TOBE)
+   - Nodejs, Redis, Apach HTTPD, nginX, php ...
+
 
 ![Screen](./scouter.document/img/main/dashboard-sample-1.png)
 
