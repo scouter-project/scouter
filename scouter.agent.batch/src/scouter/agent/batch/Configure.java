@@ -304,7 +304,6 @@ public class Configure {
 			this.sfa_dump_dir = dir;
 			this.sfa_dump_header_exists = getBoolean("sfa_dump_header_exists", true);
 		}
-		
 		this.sfa_dump_send_elapsed_ms = getLong("sfa_dump_send_elapsed_ms", 30000L);
 		this.batch_log_send_elapsed_ms = getLong("batch_log_send_elapsed_ms", 30000L);
 		
@@ -321,9 +320,8 @@ public class Configure {
 		this.net_collector_tcp_so_timeout_ms = getInt("net_collector_tcp_so_timeout_ms", 60000);
 
 		this.net_local_udp_port = getInt("net_local_udp_port", NetConstants.LOCAL_UDP_PORT);
-		this.net_tcp_stack_session_count = getInt("net_tcp_stack_session_count", 1);
-		
-		
+		this.net_tcp_stack_session_count = getInt("net_tcp_stack_session_count", 1, 1);
+
 		this.sql_enabled = getBoolean("sql_enabled", true);
 		this.hook_jdbc_pstmt_classes = getValue("hook_jdbc_pstmt_classes", "");
 		this.hook_jdbc_stmt_classes = getValue("hook_jdbc_stmt_classes", "");
@@ -333,10 +331,11 @@ public class Configure {
 		this._log_asm_enabled = getBoolean("_log_asm_enabled", false);
 		this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
 		
-		this.log_dir = getValue("log_dir", "");
+		this.log_dir = getValue("log_dir", ".");
 		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
-		this.log_keep_days = getInt("log_keep_days", 7);
-        this._trace = getBoolean("_trace", false);
+		this.log_keep_days = getInt("log_keep_days", 7, 1);
+
+		this._trace = getBoolean("_trace", false);
         this._trace_use_logger = getBoolean("_trace_use_logger", false);
 		this.log_ignore_set = getStringSet("mgr_log_ignore_ids", ",");
 

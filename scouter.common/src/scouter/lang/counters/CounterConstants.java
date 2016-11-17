@@ -149,4 +149,7 @@ public class CounterConstants {
 	public static final String WAS_APICALL_ERROR_RATE = "ApiErrorRate";
 	
 	public static final String BATCH_SERVICE = "BatchService";
+	public static final String BATCH_START = "BatchStart";
+	public static final String BATCH_END = "BatchEnd";
+	public static final String BATCH_ENDNOSIGNAL = "BatchEndNoSignal";
 }

@@ -24,7 +24,6 @@ import scouter.agent.batch.Main;
 import scouter.agent.batch.dump.ThreadDumpHandler;
 import scouter.agent.batch.netio.data.net.UdpLocalAgent;
 import scouter.agent.batch.trace.TraceContext;
-import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 
 public class BatchMonitor extends Thread {

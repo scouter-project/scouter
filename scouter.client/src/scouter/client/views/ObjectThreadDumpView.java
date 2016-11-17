@@ -223,6 +223,9 @@ public class ObjectThreadDumpView extends ViewPart {
 				}
 	
 				public void mouseDown(MouseEvent e) {
+				}
+				
+				public void mouseUp(MouseEvent e) {
 					TableItem[] items = table.getSelection();
 					if(items == null){
 						return;
@@ -233,9 +236,6 @@ public class ObjectThreadDumpView extends ViewPart {
 					}else{
 						loadBatchStackContents((Long) items[0].getData(), Integer.parseInt(items[0].getText()));
 					}
-				}
-				
-				public void mouseUp(MouseEvent e) {
 				}
 			});
 			
