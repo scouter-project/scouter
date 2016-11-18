@@ -32,11 +32,15 @@ import scouter.util.SysJMX;
 
 import java.io.File;
 import java.util.Enumeration;
+
+import static scouter.lang.constants.ScoutrerConstants.*;
+
 public class AgentHeartBeat {
 	static {
 		Logger.println("objType:" + Configure.getInstance().obj_type);
 		Logger.println("objName:" + Configure.getInstance().getObjName());
 	}
+
 	private static StringKeyLinkedMap<ObjectPack> objects = new StringKeyLinkedMap<ObjectPack>();
 	public static void addObject(String objType, int objHash, String objName) {
 		if (objName == null)
@@ -53,6 +57,7 @@ public class AgentHeartBeat {
 		p.objName = objName;
 		objects.put(objName, p);
 	}
+
 	@Counter
 	public void alive(CounterBasket pw) {
 		DataProxy.sendHeartBeat(getMainObject());
@@ -61,6 +66,7 @@ public class AgentHeartBeat {
 			DataProxy.sendHeartBeat(en.nextElement());
 		}
 	}
+
 	private ObjectPack getMainObject() {
 		Configure conf = Configure.getInstance();
 		ObjectPack p = new ObjectPack();
@@ -70,13 +76,19 @@ public class AgentHeartBeat {
 		p.version = Version.getAgentFullVersion();
 		p.address = TcpWorker.localAddr;
 		if(StringUtil.isNotEmpty(conf.getObjExtType())){
-			p.tags.put("objExtType", conf.getObjExtType());
+			p.tags.put(TAG_OBJ_EXT_TYPE, conf.getObjExtType());
 		}
 		if (ToolsMainFactory.activeStack) {
-			p.tags.put("ActiveStack", new BooleanValue(true));
+			p.tags.put(TAG_ACTIVE_STACK, new BooleanValue(true));
+		}
+		p.tags.put(TAG_AUTODUMP_CPU_ENABLED, new BooleanValue(conf.autodump_cpu_exceeded_enabled));
+		if (conf.autodump_cpu_exceeded_enabled) {
+            p.tags.put(TAG_AUTODUMP_CPU_THRESHOLD, conf.autodump_cpu_exceeded_threshold_pct);
+			p.tags.put(TAG_AUTODUMP_CPU_DURATION, conf.autodump_cpu_exceeded_duration_ms);
 		}
 		return p;
 	}
+
 	public static void clearSubObjects() {
 		objects.clear();
 	}
