@@ -15,31 +15,30 @@
  *  limitations under the License. 
  */
 package scouter.agent.netio.request.handle;
-import java.io.IOException;
-import java.util.Enumeration;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.task.MakeStack;
 import scouter.agent.netio.request.anotation.RequestHandler;
+import scouter.agent.netio.request.worker.DumpOnCpuExceedanceWorker;
 import scouter.agent.proxy.ToolsMainFactory;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
 import scouter.agent.util.DumpUtil;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
-import scouter.lang.value.BooleanValue;
-import scouter.lang.value.DecimalValue;
-import scouter.lang.value.ListValue;
-import scouter.lang.value.NullValue;
-import scouter.lang.value.TextValue;
-import scouter.net.RequestCmd;
+import scouter.lang.value.*;
 import scouter.util.CastUtil;
 import scouter.util.Hexa32;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
+
+import java.io.IOException;
+import java.util.Enumeration;
+
+import static scouter.net.RequestCmd.*;
+
 public class AgentThread {
-	@RequestHandler(RequestCmd.OBJECT_THREAD_DETAIL)
+	@RequestHandler(OBJECT_THREAD_DETAIL)
 	public Pack threadDetail(Pack param) {
 		long thread = ((MapPack) param).getLong("id");
 		MapPack p = ThreadUtil.getThreadDetail(thread);
@@ -60,7 +59,7 @@ public class AgentThread {
 		}
 		return p;
 	}
-	@RequestHandler(RequestCmd.OBJECT_THREAD_CONTROL)
+	@RequestHandler(OBJECT_THREAD_CONTROL)
 	public Pack threadKill(Pack param) {
 		long thread = ((MapPack) param).getLong("id");
 		String action = ((MapPack) param).getText("action");
@@ -97,7 +96,7 @@ public class AgentThread {
 		}
 		return p;
 	}
-	@RequestHandler(RequestCmd.OBJECT_THREAD_LIST)
+	@RequestHandler(OBJECT_THREAD_LIST)
 	public Pack threadList(Pack param) {
 		MapPack mpack = ThreadUtil.getThreadList();
 		ListValue ids = mpack.getList("id");
@@ -121,7 +120,7 @@ public class AgentThread {
 		return mpack;
 	}
 	Configure conf = Configure.getInstance();
-	@RequestHandler(RequestCmd.OBJECT_ACTIVE_SERVICE_LIST)
+	@RequestHandler(OBJECT_ACTIVE_SERVICE_LIST)
 	public Pack activeThreadList(Pack param) {
 		MapPack rPack = new MapPack();
 		ListValue id = rPack.newList("id");
@@ -165,7 +164,7 @@ public class AgentThread {
 		rPack.put("complete", new BooleanValue(true));
 		return rPack;
 	}
-	@RequestHandler(RequestCmd.OBJECT_THREAD_DUMP)
+	@RequestHandler(OBJECT_THREAD_DUMP)
 	public Pack threadDump(Pack param) {
 		try {
 			return ToolsMainFactory.threadDump(param);
@@ -174,19 +173,29 @@ public class AgentThread {
 		}
 		return null;
 	}
-	@RequestHandler(RequestCmd.TRIGGER_ACTIVE_SERVICE_LIST)
+	@RequestHandler(TRIGGER_ACTIVE_SERVICE_LIST)
 	public Pack triggerActiveServiceList(Pack param) {
 		return DumpUtil.triggerActiveService();
 	}
-	@RequestHandler(RequestCmd.TRIGGER_THREAD_LIST)
+
+	@RequestHandler(TRIGGER_THREAD_LIST)
 	public Pack triggerThreadList(Pack param) {
 		return DumpUtil.triggerThreadList();
 	}
-	@RequestHandler(RequestCmd.TRIGGER_THREAD_DUMP)
+
+	@RequestHandler(TRIGGER_THREAD_DUMP)
 	public Pack triggerThreadDump(Pack param) {
 		return DumpUtil.triggerThreadDump();
 	}
-	@RequestHandler(RequestCmd.PSTACK_ON)
+
+	@RequestHandler(TRIGGER_THREAD_DUMPS_FROM_CONDITIONS)
+	public Pack triggerThreadDumpsFromConditions(Pack param) {
+		MapPack mpack = (MapPack) param;
+		DumpOnCpuExceedanceWorker.getInstance().add(mpack.getText(TRIGGER_DUMP_REASON));
+		return null;
+	}
+
+	@RequestHandler(PSTACK_ON)
 	public Pack turnOn(Pack param) {
 		MapPack p = (MapPack) param;
 		long time = p.getLong("time");

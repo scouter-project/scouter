@@ -129,7 +129,7 @@ public class ToolsMainFactory {
 
 	public static boolean activeStack = false;
 
-	public static void threadDump(PrintWriter out) throws Throwable {
+	public static synchronized void threadDump(PrintWriter out) throws Throwable {
 		activeStack = true;
 		if (SystemUtil.IS_JAVA_1_5 || SystemUtil.JAVA_VENDOR.startsWith("IBM")) {
 			out.print(ThreadUtil.getThreadDump());

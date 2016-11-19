@@ -211,7 +211,7 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public String mgr_log_ignore_ids = "";
 
-    //Autodump
+    //Auto dump options when active service is exceed the set threshold count.
     @ConfigDesc("Activating auto dump - append dumps onto the dump file in dump directory.")
     public boolean autodump_enabled = false;
     @ConfigDesc("Auto dump trigger point (dump when exceeding this active service count)")
@@ -220,10 +220,24 @@ public class Configure extends Thread {
     public long autodump_interval_ms = 30000;
     @ConfigDesc("Auto dump level (1 : ThreadDump, 2 : active service, 3 : thread list)")
     public int autodump_level = 1; // 1:ThreadDump, 2:ActiveService, 3:ThreadList
+
+    //Auto dump options about the thread on stuck
     @ConfigDesc("Dump when a thread are running over this time - 0 is disabled")
     public int autodump_stuck_thread_ms = 0;
     @ConfigDesc("")
     public int autodump_stuck_check_interval_ms = 10000;
+
+    //Auto dump options on exceeded process cpu
+    @ConfigDesc("Enable the function to generate dump file when this process cpu is over than the set threshold")
+    public boolean autodump_cpu_exceeded_enabled = false;
+    @ConfigDesc("Threshold of cpu to generate dump file")
+    public int autodump_cpu_exceeded_threshold_pct = 90;
+    @ConfigDesc("Threshold of over-cpu-threshold duration")
+    public int autodump_cpu_exceeded_duration_ms = 30000;
+    @ConfigDesc("Dump file generation interval")
+    public int autodump_cpu_exceeded_dump_interval_ms = 3000;
+    @ConfigDesc("value of how many dump is generated.")
+    public int autodump_cpu_exceeded_dump_cnt = 3;
 
     //XLog
     @ConfigDesc("XLog Ignore Time - (deprecated) for backward compatibility. Use xlog_sampling_xxx options instead")
@@ -544,8 +558,16 @@ public class Configure extends Thread {
         if (this.autodump_interval_ms < 5000) {
             this.autodump_interval_ms = 5000;
         }
+
         this.autodump_stuck_thread_ms = getInt("autodump_stuck_thread_ms", 0);
         this.autodump_stuck_check_interval_ms = getInt("autodump_stuck_check_interval_ms", 10000);
+
+        this.autodump_cpu_exceeded_enabled = getBoolean("autodump_cpu_exceeded_enabled", false);
+        this.autodump_cpu_exceeded_threshold_pct = getInt("autodump_cpu_exceeded_threshold_pct", 90);
+        this.autodump_cpu_exceeded_duration_ms = getInt("autodump_cpu_exceeded_duration_ms", 30000);
+        this.autodump_cpu_exceeded_dump_interval_ms = getInt("autodump_cpu_exceeded_dump_interval_ms", 3000);
+        this.autodump_cpu_exceeded_dump_cnt = getInt("autodump_cpu_exceeded_dump_cnt", 3);
+
         this.mgr_static_content_extensions = getValue("mgr_static_content_extensions", "js, htm, html, gif, png, jpg, css");
         this.profile_thread_cputime_enabled = getBoolean("profile_thread_cputime_enabled", false);
         this.profile_socket_open_fullstack_enabled = getBoolean("profile_socket_open_fullstack_enabled", false);

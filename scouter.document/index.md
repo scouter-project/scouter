@@ -15,6 +15,7 @@
 ## Install
 - [Installation](./main/Setup.md)
 - [Installation FAQ](./main/Setup-FAQ.md)
+- [Configuration - options](./main/Configuration.md)
 
 ## Build Scouter
 - [Build on Linux & OSX](./main/Build-Scouter.md)

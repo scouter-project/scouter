@@ -47,8 +47,13 @@ public class RequestCmd {
 
 	public static final String TRIGGER_ACTIVE_SERVICE_LIST = "TRIGGER_ACTIVE_SERVICE_LIST";
 	public static final String TRIGGER_THREAD_DUMP = "TRIGGER_THREAD_DUMP";
+    public static final String TRIGGER_THREAD_DUMPS_FROM_CONDITIONS = "TRIGGER_THREAD_DUMPS_FROM_CONDITIONS";
 	public static final String TRIGGER_THREAD_LIST = "TRIGGER_THREAD_LIST";
 	public static final String TRIGGER_HEAPHISTO = "TRIGGER_HEAPHISTO";
+
+    public static final String TRIGGER_DUMP_REASON = "TRIGGER_DUMP_REASON";
+    public static final String TRIGGER_DUMP_REASON_TYPE_CPU_EXCEEDED = "TRIGGER_DUMP_REASON_TYPE_CPU_EXCEEDED";
+
 	public static final String OBJECT_SYSTEM_GC = "OBJECT_SYSTEM_GC";
 	public static final String OBJECT_DUMP_FILE_LIST = "OBJECT_DUMP_FILE_LIST";
 	public static final String OBJECT_DUMP_FILE_DETAIL = "OBJECT_DUMP_FILE_DETAIL";
