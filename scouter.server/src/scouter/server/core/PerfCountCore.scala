@@ -24,6 +24,7 @@ import scouter.lang.value.DecimalValue
 import scouter.lang.{CounterKey, TimeTypeEnum}
 import scouter.lang.pack.PerfCounterPack
 import scouter.server.Logger
+import scouter.server.core.app.ObjectCpuChecker
 import scouter.server.core.cache.CounterCache
 import scouter.server.db.{DailyCounterWR, RealtimeCounterWR}
 import scouter.server.plugin.PlugInManager
@@ -54,6 +55,10 @@ object PerfCountCore {
                 CounterCache.put(counterKey, value);
                 AlertEngine.putRealTime(counterKey, value); //experimental
             })
+
+            //cpu check and ask generating threaddump if the cpu threshold is exceeded
+            ObjectCpuChecker.checkCpu(counterPack)
+
         } else {
             val yyyymmdd = CastUtil.cint(DateUtil.yyyymmdd(counterPack.time));
             val hhmm = CastUtil.cint(DateUtil.hhmm(counterPack.time));
