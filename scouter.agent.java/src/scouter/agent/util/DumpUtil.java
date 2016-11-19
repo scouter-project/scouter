@@ -17,14 +17,6 @@
 
 package scouter.agent.util;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
-import java.util.Enumeration;
-
 import scouter.agent.Configure;
 import scouter.agent.proxy.ToolsMainFactory;
 import scouter.agent.trace.TraceContext;
@@ -32,12 +24,15 @@ import scouter.agent.trace.TraceContextManager;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
-import scouter.util.CastUtil;
-import scouter.util.DateUtil;
-import scouter.util.FileUtil;
-import scouter.util.Hexa32;
-import scouter.util.SysJMX;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
+import java.util.Enumeration;
 
 public class DumpUtil extends Thread {
 
@@ -218,9 +213,10 @@ public class DumpUtil extends Thread {
 	}
 
 	private static long last_auto_dump = 0;
+    private static boolean stopAutoDumpTemporarily = false;
 
 	public static void autoDump() {
-		if (conf.autodump_enabled == false)
+		if (conf.autodump_enabled == false || stopAutoDumpTemporarily == true)
 			return;
 
 		long now = System.currentTimeMillis();
@@ -229,6 +225,34 @@ public class DumpUtil extends Thread {
 		last_auto_dump = now;
 
 		DumpUtil.getInstance().trigger();
+	}
+
+	public static void autoDumpByCpuExceedance() {
+		if (conf.autodump_enabled && conf.autodump_interval_ms <= conf.autodump_cpu_exceeded_dump_interval_ms) {
+			return;
+		}
+
+		if(conf.autodump_cpu_exceeded_enabled == false) {
+			return;
+		}
+
+        stopAutoDumpTemporarily = true;
+
+        try{
+            for(int i=0; i<conf.autodump_cpu_exceeded_dump_cnt; i++) {
+                long now = System.currentTimeMillis();
+                if(now < last_auto_dump + conf.autodump_cpu_exceeded_dump_interval_ms) {
+                    continue;
+                }
+                last_auto_dump = now;
+                DumpUtil.getInstance().trigger();
+                Thread.sleep(conf.autodump_cpu_exceeded_dump_interval_ms);
+            }
+        } catch (Throwable t) {
+        } finally {
+            stopAutoDumpTemporarily = false;
+        }
+
 	}
 
 }
