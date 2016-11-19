@@ -33,7 +33,7 @@ import scouter.util.SysJMX;
 import java.io.File;
 import java.util.Enumeration;
 
-import static scouter.lang.constants.ScoutrerConstants.*;
+import static scouter.lang.constants.ScouterConstants.*;
 
 public class AgentHeartBeat {
 	static {
