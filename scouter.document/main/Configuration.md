@@ -275,7 +275,7 @@ public String mgr_static_content_extensions = "js, htm, html, gif, png, jpg, css
 
    * example
    ```properties
-   net_colector_ip = 127.0.0.1
+   net_collector_ip = 127.0.0.1
    cpu_alert_enabled = false
    ```
    
