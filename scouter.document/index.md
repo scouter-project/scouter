@@ -10,7 +10,7 @@
 - [Simulate DB Lock](./use-case/Simulate-DB-Lock.md) 
 - [How to use a client program](./client/How-To-Use-Client.md)  
 - [What’s special in SCOUTER?](./main/What-special-in-SCOUTER.md)
-- [Stand-alone Java Batch Agent](./main/Stand-alone-Java-Batch-Agent_kr.md)
+- [Stand-alone Java Batch Agent](./main/Stand-alone-Java-Batch-Agent.md)
 
 ## Install
 - [Installation](./main/Setup.md)
