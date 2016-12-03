@@ -74,11 +74,16 @@ public class StackListDialog extends Dialog {
 	
 	protected Control createDialogArea(Composite parent) {
 		Composite container =  (Composite) super.createDialogArea(parent);
-		Label label = new Label(container, SWT.NONE);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		label.setAlignment(SWT.RIGHT);
-		label.setFont(new Font(null, "Airal", 10, SWT.BOLD));
-		label.setText("Select range to analyze (using shift key)");
+		Label label1 = new Label(container, SWT.NONE);
+		label1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		label1.setAlignment(SWT.RIGHT);
+		label1.setFont(new Font(null, "Airal", 10, SWT.BOLD));
+		label1.setText("Select range to analyze (using shift key) and click \"OK\".");
+		Label label2 = new Label(container, SWT.NONE);
+		label2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		label2.setAlignment(SWT.RIGHT);
+		label2.setFont(new Font(null, "Airal", 10, SWT.NONE));
+		label2.setText("Double click to view a single thread dump as raw text.");
 		Composite tableComposite = new Composite(container, SWT.NONE);
 		tableComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		table = new Table(tableComposite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION);
@@ -165,7 +170,7 @@ public class StackListDialog extends Dialog {
 	
 	@Override
 	protected Point getInitialSize() {
-		return new Point(400, 500);
+		return new Point(500, 500);
 	}
 
 	@Override
