@@ -1,7 +1,7 @@
 # Stand-alone Java Batch Agent
 
-Scouter APM does not provides only WAS monitoring, also provides Batch monitoring function.
-General APM is not possible to monitor the Batch that process the large amounts records, or possible but, performance is reduced. Scouter gather statistical performance data in consideration of the characteristics of the Batch and can analyze to Java function level, yet large level without degradation in performance and powerful.
+Scouter APM provides batch monitoring as well as WAS monitoring.
+General APM is not possible to monitor the batch that process the large amounts records, or possible but, performance is reduced. Scouter gather statistical performance data in consideration of the characteristics of the batch and can analyze to Java function level, yet large level without degradation in performance and powerful.
 
 Scouter batch agent provides the following functions.
 - Execution elapsed time(CPU usage)
