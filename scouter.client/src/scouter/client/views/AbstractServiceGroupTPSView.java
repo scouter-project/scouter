@@ -18,12 +18,16 @@
 package scouter.client.views;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
+import org.csstudio.swt.xygraph.dataprovider.ISample;
 import org.csstudio.swt.xygraph.dataprovider.Sample;
 import org.csstudio.swt.xygraph.figures.Trace;
 import org.csstudio.swt.xygraph.figures.Trace.PointStyle;
@@ -58,12 +62,14 @@ import scouter.client.model.ServiceGroupColorManager;
 import scouter.client.util.ChartUtil;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.ExUtil;
+import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
 import scouter.util.LinkedMap;
 
 public abstract class AbstractServiceGroupTPSView extends ViewPart implements Refreshable {
@@ -127,9 +133,35 @@ public abstract class AbstractServiceGroupTPSView extends ViewPart implements Re
 				RGB rgb = palette.getRGB(pixelValue);
 				selectedName = ServiceGroupColorManager.getInstance().getServiceGroup(rgb);
 				if (selectedName != null) {
+					double x = xyGraph.primaryXAxis.getPositionValue(e.x, false);
 					Trace trace = traces.get(selectedName);
+					
+					Comparator<Trace> byYValue = (t1, t2) -> {
+						ISample sample1 = ScouterUtil.getNearestPoint(t1.getDataProvider(), x);
+						ISample sample2 = ScouterUtil.getNearestPoint(t2.getDataProvider(), x);
+						return Double.compare(sample1.getYValue(), sample2.getYValue());
+					};
+				
+					List<Trace> sortedTraces = traces.values()
+							.parallelStream()
+							.sorted(byYValue)
+							.collect(Collectors.toList());
+					
+					double total = ScouterUtil.getNearestValue(sortedTraces.get(0).getDataProvider(), x);
+					double value = 0;
+					for (int i = 0; i < sortedTraces.size(); i++) {
+						Trace t = sortedTraces.get(i);
+						if (t == trace) {
+							value = ScouterUtil.getNearestValue(t.getDataProvider(), x);
+							if (i < sortedTraces.size() - 1) {
+								value = value - ScouterUtil.getNearestValue(sortedTraces.get(i+1).getDataProvider(), x);
+							}
+							break;
+						}
+					}
+					double percent = value * 100 / total;
 					trace.setTraceColor(ColorUtil.getInstance().getColor("dark magenta"));
-					toolTip.setText(selectedName);
+					toolTip.setText(selectedName + "\n" + FormatUtil.print(percent, "##0.0"));
 					toolTip.show(new Point(e.x, e.y));
 				}
 				gc.dispose();
