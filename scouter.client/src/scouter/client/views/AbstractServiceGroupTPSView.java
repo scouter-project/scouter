@@ -139,7 +139,7 @@ public abstract class AbstractServiceGroupTPSView extends ViewPart implements Re
 					Comparator<Trace> byYValue = (t1, t2) -> {
 						ISample sample1 = ScouterUtil.getNearestPoint(t1.getDataProvider(), x);
 						ISample sample2 = ScouterUtil.getNearestPoint(t2.getDataProvider(), x);
-						return Double.compare(sample1.getYValue(), sample2.getYValue());
+						return Double.compare(sample2.getYValue(), sample1.getYValue());
 					};
 				
 					List<Trace> sortedTraces = traces.values()
@@ -154,14 +154,22 @@ public abstract class AbstractServiceGroupTPSView extends ViewPart implements Re
 						if (t == trace) {
 							value = ScouterUtil.getNearestValue(t.getDataProvider(), x);
 							if (i < sortedTraces.size() - 1) {
-								value = value - ScouterUtil.getNearestValue(sortedTraces.get(i+1).getDataProvider(), x);
+								int j = i + 1;
+								double nextStackValue = value;
+								while (nextStackValue == value && j < sortedTraces.size()) {
+									nextStackValue = ScouterUtil.getNearestValue(sortedTraces.get(j).getDataProvider(), x);
+									j++;
+								}
+								if (nextStackValue < value) {
+									value = value - nextStackValue; 
+								}
 							}
 							break;
 						}
 					}
 					double percent = value * 100 / total;
 					trace.setTraceColor(ColorUtil.getInstance().getColor("dark magenta"));
-					toolTip.setText(selectedName + "\n" + FormatUtil.print(percent, "##0.0"));
+					toolTip.setText(selectedName + "\n" + FormatUtil.print(percent, "##0.0") + " %");
 					toolTip.show(new Point(e.x, e.y));
 				}
 				gc.dispose();
@@ -341,6 +349,7 @@ public abstract class AbstractServiceGroupTPSView extends ViewPart implements Re
 			trace.setTraceType(TraceType.AREA);
 			trace.setAreaAlpha(255);
 			trace.setTraceColor(ServiceGroupColorManager.getInstance().assignColor(name));
+			System.out.println(name + " = " + trace.getTraceColor().getRGB());
 			xyGraph.addTrace(trace);
 			traces.put(name, trace);
 		}
