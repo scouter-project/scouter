@@ -349,7 +349,6 @@ public abstract class AbstractServiceGroupTPSView extends ViewPart implements Re
 			trace.setTraceType(TraceType.AREA);
 			trace.setAreaAlpha(255);
 			trace.setTraceColor(ServiceGroupColorManager.getInstance().assignColor(name));
-			System.out.println(name + " = " + trace.getTraceColor().getRGB());
 			xyGraph.addTrace(trace);
 			traces.put(name, trace);
 		}
