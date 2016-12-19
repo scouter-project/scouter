@@ -11,7 +11,7 @@
 		<module>../scouter.client.product</module>
 	</modules>
 	<properties>
-		<tycho-version>0.25.0</tycho-version>
+		<tycho-version>0.26.0</tycho-version>
 		<neon.repo-url>http://download.eclipse.org/releases/neon</neon.repo-url>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
