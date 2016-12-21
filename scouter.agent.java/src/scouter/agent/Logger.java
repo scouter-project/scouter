@@ -201,7 +201,7 @@ public class Logger {
 			try {
 				long d = DateUtil.yyyymmdd(date);
 				long fileUnit = DateUtil.getDateUnit(d);
-				if (nowUnit - fileUnit > DateUtil.MILLIS_PER_DAY * conf.log_keep_days) {
+				if (nowUnit - fileUnit > conf.log_keep_days) {
 					files[i].delete();
 				}
 			} catch (Exception e) {
