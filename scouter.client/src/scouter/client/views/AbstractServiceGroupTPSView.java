@@ -18,7 +18,6 @@
 package scouter.client.views;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -124,7 +123,7 @@ public abstract class AbstractServiceGroupTPSView extends ViewPart implements Re
 				selectedName = null;
 			}
 			public void mouseDown(MouseEvent e) {
-				Image image = new Image(e.display, 1, 1);
+				Image image = new Image(e.display, 5, 1);
 				GC gc = new GC((FigureCanvas)e.widget);
 				gc.copyArea(image, e.x, e.y);
 				ImageData imageData = image.getImageData();
@@ -133,31 +132,27 @@ public abstract class AbstractServiceGroupTPSView extends ViewPart implements Re
 				RGB rgb = palette.getRGB(pixelValue);
 				selectedName = ServiceGroupColorManager.getInstance().getServiceGroup(rgb);
 				if (selectedName != null) {
-					double x = xyGraph.primaryXAxis.getPositionValue(e.x, false);
+					double time = xyGraph.primaryXAxis.getPositionValue(e.x, false);
 					Trace trace = traces.get(selectedName);
 					
-					Comparator<Trace> byYValue = (t1, t2) -> {
-						ISample sample1 = ScouterUtil.getNearestPoint(t1.getDataProvider(), x);
-						ISample sample2 = ScouterUtil.getNearestPoint(t2.getDataProvider(), x);
-						return Double.compare(sample2.getYValue(), sample1.getYValue());
-					};
-				
 					List<Trace> sortedTraces = traces.values()
-							.parallelStream()
-							.sorted(byYValue)
+							.stream()
+							.sorted(ScouterUtil.comparatorByTime.apply(time))
 							.collect(Collectors.toList());
 					
-					double total = ScouterUtil.getNearestValue(sortedTraces.get(0).getDataProvider(), x);
+					ISample topSample = ScouterUtil.getNearestPoint(sortedTraces.get(0).getDataProvider(), time);
+					double valueTime = topSample.getXValue();
+					double total = topSample.getYValue();
 					double value = 0;
 					for (int i = 0; i < sortedTraces.size(); i++) {
 						Trace t = sortedTraces.get(i);
 						if (t == trace) {
-							value = ScouterUtil.getNearestValue(t.getDataProvider(), x);
+							value = ScouterUtil.getNearestValue(t.getDataProvider(), time);
 							if (i < sortedTraces.size() - 1) {
 								int j = i + 1;
 								double nextStackValue = value;
 								while (nextStackValue == value && j < sortedTraces.size()) {
-									nextStackValue = ScouterUtil.getNearestValue(sortedTraces.get(j).getDataProvider(), x);
+									nextStackValue = ScouterUtil.getNearestValue(sortedTraces.get(j).getDataProvider(), time);
 									j++;
 								}
 								if (nextStackValue < value) {
@@ -169,7 +164,7 @@ public abstract class AbstractServiceGroupTPSView extends ViewPart implements Re
 					}
 					double percent = value * 100 / total;
 					trace.setTraceColor(ColorUtil.getInstance().getColor("dark magenta"));
-					toolTip.setText(selectedName + "\n" + FormatUtil.print(percent, "##0.0") + " %");
+					toolTip.setText(DateUtil.format(CastUtil.clong(valueTime), "HH:mm:ss") + "\n" + selectedName + "\n" + FormatUtil.print(percent, "##0.0") + " %");
 					toolTip.show(new Point(e.x, e.y));
 				}
 				gc.dispose();

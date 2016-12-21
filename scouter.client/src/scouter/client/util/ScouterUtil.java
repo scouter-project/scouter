@@ -20,6 +20,7 @@ package scouter.client.util;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 import org.csstudio.swt.xygraph.dataprovider.IDataProvider;
 import org.csstudio.swt.xygraph.dataprovider.ISample;
@@ -583,4 +585,10 @@ public class ScouterUtil {
 	public static double getPointDistance(double x1, double y1, double x2, double y2) {
 		return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 	}
+	
+	public static Function<Double, Comparator<Trace>> comparatorByTime = (time) -> (t1, t2) -> {				
+		ISample sample1 = ScouterUtil.getNearestPoint(t1.getDataProvider(), time);
+		ISample sample2 = ScouterUtil.getNearestPoint(t2.getDataProvider(), time);
+		return Double.compare(sample2.getYValue(), sample1.getYValue());
+};
 }
