@@ -123,52 +123,51 @@ public abstract class AbstractServiceGroupTPSView extends ViewPart implements Re
 				selectedName = null;
 			}
 			public void mouseDown(MouseEvent e) {
-				Image image = new Image(e.display, 5, 1);
-				GC gc = new GC((FigureCanvas)e.widget);
-				gc.copyArea(image, e.x, e.y);
-				ImageData imageData = image.getImageData();
-				PaletteData palette = imageData.palette;
-				int pixelValue = imageData.getPixel(0, 0);
-				RGB rgb = palette.getRGB(pixelValue);
-				selectedName = ServiceGroupColorManager.getInstance().getServiceGroup(rgb);
-				if (selectedName != null) {
-					double time = xyGraph.primaryXAxis.getPositionValue(e.x, false);
-					Trace trace = traces.get(selectedName);
-					
-					List<Trace> sortedTraces = traces.values()
-							.stream()
-							.sorted(ScouterUtil.comparatorByTime.apply(time))
-							.collect(Collectors.toList());
-					
-					ISample topSample = ScouterUtil.getNearestPoint(sortedTraces.get(0).getDataProvider(), time);
-					double valueTime = topSample.getXValue();
-					double total = topSample.getYValue();
-					double value = 0;
-					for (int i = 0; i < sortedTraces.size(); i++) {
-						Trace t = sortedTraces.get(i);
-						if (t == trace) {
-							value = ScouterUtil.getNearestValue(t.getDataProvider(), time);
-							if (i < sortedTraces.size() - 1) {
-								int j = i + 1;
-								double nextStackValue = value;
-								while (nextStackValue == value && j < sortedTraces.size()) {
-									nextStackValue = ScouterUtil.getNearestValue(sortedTraces.get(j).getDataProvider(), time);
-									j++;
-								}
-								if (nextStackValue < value) {
-									value = value - nextStackValue; 
-								}
-							}
-							break;
-						}
+				double xValue = xyGraph.primaryXAxis.getPositionValue(e.x, false);
+				double yValue = xyGraph.primaryYAxis.getPositionValue(e.y, false);
+				if (xyGraph.primaryXAxis.getRange().getLower() > xValue || xyGraph.primaryXAxis.getRange().getUpper() < xValue) return;
+				if (xyGraph.primaryYAxis.getRange().getLower() > yValue || xyGraph.primaryYAxis.getRange().getUpper() < yValue) return;
+				
+				List<Trace> sortedTraces = traces.values()
+						.stream()
+						.sorted(ScouterUtil.comparatorByTime.apply(xValue))
+						.collect(Collectors.toList());
+				
+				ISample topSample = ScouterUtil.getNearestPoint(sortedTraces.get(0).getDataProvider(), xValue);
+				double valueTime = topSample.getXValue();
+				double total = topSample.getYValue();
+				if (yValue > total) return;
+				int i = 0;
+				Trace selectedTrace = null;
+				for (; i < sortedTraces.size(); i++) {
+					Trace t = sortedTraces.get(i);
+					double stackValue = ScouterUtil.getNearestValue(t.getDataProvider(), valueTime);
+					if (stackValue < yValue) {
+						i = i - 1;
+						selectedTrace = sortedTraces.get(i);
+						break;
 					}
-					double percent = value * 100 / total;
-					trace.setTraceColor(ColorUtil.getInstance().getColor("dark magenta"));
-					toolTip.setText(DateUtil.format(CastUtil.clong(valueTime), "HH:mm:ss") + "\n" + selectedName + "\n" + FormatUtil.print(percent, "##0.0") + " %");
-					toolTip.show(new Point(e.x, e.y));
 				}
-				gc.dispose();
-				image.dispose();
+				if (selectedTrace == null) {
+					selectedTrace = sortedTraces.get(i-1);
+				}
+				selectedName = selectedTrace.getName();
+				double value = ScouterUtil.getNearestValue(selectedTrace.getDataProvider(), valueTime);
+				if (i < sortedTraces.size() - 1) {
+					int j = i + 1;
+					double nextStackValue = value;
+					while (nextStackValue == value && j < sortedTraces.size()) {
+						nextStackValue = ScouterUtil.getNearestValue(sortedTraces.get(j).getDataProvider(), valueTime);
+						j++;
+					}
+					if (nextStackValue < value) {
+						value = value - nextStackValue; 
+					}
+				}
+				double percent = value * 100 / total;
+				selectedTrace.setTraceColor(ColorUtil.getInstance().getColor("dark magenta"));
+				toolTip.setText(DateUtil.format(CastUtil.clong(valueTime), "HH:mm:ss") + "\n" + selectedName + "\n" + FormatUtil.print(percent, "##0.0") + " %");
+				toolTip.show(new Point(e.x, e.y));
 			}
 			public void mouseDoubleClick(MouseEvent e) {}
 		});
