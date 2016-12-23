@@ -17,12 +17,7 @@
  */
 package scouter.client.views;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
@@ -70,6 +65,10 @@ import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 import scouter.util.LinkedMap;
+
+import static java.util.Comparator.comparingDouble;
+import static java.util.stream.Collectors.toList;
+import static scouter.client.util.ScouterUtil.nearestPointYValueFunc;
 
 public abstract class AbstractServiceGroupTPSView extends ViewPart implements Refreshable {
 	
@@ -130,8 +129,8 @@ public abstract class AbstractServiceGroupTPSView extends ViewPart implements Re
 				
 				List<Trace> sortedTraces = traces.values()
 						.stream()
-						.sorted(ScouterUtil.comparatorByTime.apply(xValue))
-						.collect(Collectors.toList());
+						.sorted(comparingDouble(nearestPointYValueFunc(xValue)).reversed())
+						.collect(toList());
 				
 				ISample topSample = ScouterUtil.getNearestPoint(sortedTraces.get(0).getDataProvider(), xValue);
 				double valueTime = topSample.getXValue();
@@ -166,7 +165,9 @@ public abstract class AbstractServiceGroupTPSView extends ViewPart implements Re
 				}
 				double percent = value * 100 / total;
 				selectedTrace.setTraceColor(ColorUtil.getInstance().getColor("dark magenta"));
-				toolTip.setText(DateUtil.format(CastUtil.clong(valueTime), "HH:mm:ss") + "\n" + selectedName + "\n" + FormatUtil.print(percent, "##0.0") + " %");
+				toolTip.setText(DateUtil.format(CastUtil.clong(valueTime), "HH:mm:ss") 
+						+ "\n" + selectedName 
+						+ "\n" + FormatUtil.print(value, "#,###0.#") + "(" + FormatUtil.print(percent, "##0.0") + " %)");
 				toolTip.show(new Point(e.x, e.y));
 			}
 			public void mouseDoubleClick(MouseEvent e) {}

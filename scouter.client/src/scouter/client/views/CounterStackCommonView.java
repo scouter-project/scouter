@@ -17,6 +17,9 @@
  */
 package scouter.client.views;
 
+import static java.util.Comparator.comparingDouble;
+import static scouter.client.util.ScouterUtil.nearestPointYValueFunc;
+
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -117,7 +120,7 @@ public abstract class CounterStackCommonView extends ViewPart implements Refresh
 				
 				List<Trace> sortedTraces = traces.values()
 						.stream()
-						.sorted(ScouterUtil.comparatorByTime.apply(xValue))
+						.sorted(comparingDouble(nearestPointYValueFunc(xValue)).reversed())
 						.collect(Collectors.toList());
 				
 				ISample topSample = ScouterUtil.getNearestPoint(sortedTraces.get(0).getDataProvider(), xValue);
