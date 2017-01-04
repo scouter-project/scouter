@@ -220,6 +220,7 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 	}
 
 	public void loadAdditinalData(long stime, long etime, final boolean reverse) {
+		viewPainter.setViewIsInAdditionalDataLoading(true);
 		collectObj();
 		Iterator<Integer> serverIds = serverObjMap.keySet().iterator();
 		final TreeSet<XLogData> tempSet = new TreeSet<XLogData>(new XLogDataComparator());
@@ -254,6 +255,7 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 			} catch (Throwable t) {
 				ConsoleProxy.errorSafe(t.toString());
 			} finally {
+			    viewPainter.setViewIsInAdditionalDataLoading(false);
 				TcpProxy.putTcpProxy(tcp);
 			}
 		}
