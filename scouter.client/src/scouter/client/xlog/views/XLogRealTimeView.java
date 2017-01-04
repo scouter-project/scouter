@@ -233,7 +233,7 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 		} catch (Throwable t) {
 			ConsoleProxy.errorSafe(t.toString());
 		} finally {
-			viewPainter.setViewIsInAdditionalDataLoading(true);
+			viewPainter.setViewIsInAdditionalDataLoading(false);
 			TcpProxy.putTcpProxy(tcp);
 		}
 	}
