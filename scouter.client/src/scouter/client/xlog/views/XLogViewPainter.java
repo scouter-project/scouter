@@ -62,6 +62,7 @@ public class XLogViewPainter {
 	public long originalRange = xTimeRange;
 	private double yValueMax;
 	private double yValueMin = 0;
+	private boolean viewIsInAdditionalDataLoading = false;
 
 	private XLogViewMouse mouse;
 	private PointMap pointMap = new PointMap();
@@ -106,7 +107,11 @@ public class XLogViewPainter {
 //		}
 		this.originalRange = this.xTimeRange = range;
 	}
-	
+
+	public void setViewIsInAdditionalDataLoading(boolean b) {
+		this.viewIsInAdditionalDataLoading = b;
+	}
+
 	public long getTimeRange() {
 		return this.xTimeRange;
 	}
@@ -400,9 +405,12 @@ public class XLogViewPainter {
 	private void drawXPerfData(GC gc, long time_start, long time_end, int chart_x,
 			int chart_y, int chart_w, int chart_h) {
 		count = 0;
-		if (xLogPerfData.size() == 0)
+		if (xLogPerfData.size() == 0) {
 			return;
-		removeOutsidePerfData(time_start, time_end);
+		}
+		if (viewIsInAdditionalDataLoading == false) {
+			removeOutsidePerfData(time_start - (DateUtil.MILLIS_PER_SECOND * 10), time_end);
+		}
 		Enumeration<XLogData> en = xLogPerfData.values();
 		while (en.hasMoreElements()) {
 			XLogData d = en.nextElement();
@@ -590,10 +598,11 @@ public class XLogViewPainter {
 		if (zoomMode) {
 			return;
 		}
-		long time_end = (this.endTime > 0 ? this.endTime : TimeUtil.getCurrentTime()) + moveWidth ;
+		long time_current = TimeUtil.getCurrentTime(serverId);
+		long time_end = (this.endTime > 0 ? this.endTime : time_current) + moveWidth ;
 		long time_start = time_end - xTimeRange;
 		
-		if (time_end > TimeUtil.getCurrentTime()) {
+		if (time_end > time_current) {
 			moveWidth -= DateUtil.MILLIS_PER_SECOND * 10;
 			return;
 		}

@@ -57,11 +57,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.PaletteData;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -365,34 +361,11 @@ public class TagCountView extends ViewPart {
 		
 		cntCanvas.addMouseListener(new MouseListener() {
 			
-			String selectedName;
 			
 			public void mouseUp(MouseEvent e) {
-				if (selectedName == null) {
-					return;
-				}
-				Trace trace = cntTraceMap.get(selectedName);
-				trace.setTraceColor(CounterColorManager.getInstance().assignColor(selectedName));
-				selectedName = null;
 			}
 			
 			public void mouseDown(MouseEvent e) {
-				Image image = new Image(e.display, 1, 1);
-				GC gc = new GC((FigureCanvas)e.widget);
-				gc.copyArea(image, e.x, e.y);
-				ImageData imageData = image.getImageData();
-				PaletteData palette = imageData.palette;
-				int pixelValue = imageData.getPixel(0, 0);
-				RGB rgb = palette.getRGB(pixelValue);
-				selectedName = CounterColorManager.getInstance().getName(rgb);
-				if (selectedName != null) {
-					Trace trace = cntTraceMap.get(selectedName);
-					if (trace != null) {
-						trace.setTraceColor(ColorUtil.getInstance().getColor("dark magenta"));
-					}
-				}
-				gc.dispose();
-				image.dispose();
 			}
 			
 			public void mouseDoubleClick(MouseEvent e) {

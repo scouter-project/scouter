@@ -360,11 +360,11 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 		} else {
 			long firstTime = first.p.endTime;
 			long lastTime = last.p.endTime;
-			if (firstTime > time_start && firstTime < time_end) {
+			if (firstTime >= time_start && firstTime <= time_end) {
 				// time_start----------firstTime------------time_end
 				loadAdditinalData(time_start, firstTime, true);
 			} 
-			if (lastTime > time_start && lastTime < time_end) {
+			if (lastTime >= time_start && lastTime <= time_end) {
 				// time_start---------lastTime---------time_end
 				loadAdditinalData(lastTime, time_end, false);
 			} 

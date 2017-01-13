@@ -17,13 +17,11 @@
  */
 package scouter.client.views;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
+import org.csstudio.swt.xygraph.dataprovider.ISample;
 import org.csstudio.swt.xygraph.dataprovider.Sample;
 import org.csstudio.swt.xygraph.figures.Trace;
 import org.csstudio.swt.xygraph.figures.Trace.PointStyle;
@@ -58,13 +56,19 @@ import scouter.client.model.ServiceGroupColorManager;
 import scouter.client.util.ChartUtil;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.ExUtil;
+import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
 import scouter.util.LinkedMap;
+
+import static java.util.Comparator.comparingDouble;
+import static java.util.stream.Collectors.toList;
+import static scouter.client.util.ScouterUtil.nearestPointYValueFunc;
 
 public abstract class AbstractServiceGroupTPSView extends ViewPart implements Refreshable {
 	
@@ -118,22 +122,53 @@ public abstract class AbstractServiceGroupTPSView extends ViewPart implements Re
 				selectedName = null;
 			}
 			public void mouseDown(MouseEvent e) {
-				Image image = new Image(e.display, 1, 1);
-				GC gc = new GC((FigureCanvas)e.widget);
-				gc.copyArea(image, e.x, e.y);
-				ImageData imageData = image.getImageData();
-				PaletteData palette = imageData.palette;
-				int pixelValue = imageData.getPixel(0, 0);
-				RGB rgb = palette.getRGB(pixelValue);
-				selectedName = ServiceGroupColorManager.getInstance().getServiceGroup(rgb);
-				if (selectedName != null) {
-					Trace trace = traces.get(selectedName);
-					trace.setTraceColor(ColorUtil.getInstance().getColor("dark magenta"));
-					toolTip.setText(selectedName);
-					toolTip.show(new Point(e.x, e.y));
+				double xValue = xyGraph.primaryXAxis.getPositionValue(e.x, false);
+				double yValue = xyGraph.primaryYAxis.getPositionValue(e.y, false);
+				if (xyGraph.primaryXAxis.getRange().getLower() > xValue || xyGraph.primaryXAxis.getRange().getUpper() < xValue) return;
+				if (xyGraph.primaryYAxis.getRange().getLower() > yValue || xyGraph.primaryYAxis.getRange().getUpper() < yValue) return;
+				
+				List<Trace> sortedTraces = traces.values()
+						.stream()
+						.sorted(comparingDouble(nearestPointYValueFunc(xValue)).reversed())
+						.collect(toList());
+				
+				ISample topSample = ScouterUtil.getNearestPoint(sortedTraces.get(0).getDataProvider(), xValue);
+				double valueTime = topSample.getXValue();
+				double total = topSample.getYValue();
+				if (yValue > total) return;
+				int i = 0;
+				Trace selectedTrace = null;
+				for (; i < sortedTraces.size(); i++) {
+					Trace t = sortedTraces.get(i);
+					double stackValue = ScouterUtil.getNearestValue(t.getDataProvider(), valueTime);
+					if (stackValue < yValue) {
+						i = i - 1;
+						selectedTrace = sortedTraces.get(i);
+						break;
+					}
 				}
-				gc.dispose();
-				image.dispose();
+				if (selectedTrace == null) {
+					selectedTrace = sortedTraces.get(i-1);
+				}
+				selectedName = selectedTrace.getName();
+				double value = ScouterUtil.getNearestValue(selectedTrace.getDataProvider(), valueTime);
+				if (i < sortedTraces.size() - 1) {
+					int j = i + 1;
+					double nextStackValue = value;
+					while (nextStackValue == value && j < sortedTraces.size()) {
+						nextStackValue = ScouterUtil.getNearestValue(sortedTraces.get(j).getDataProvider(), valueTime);
+						j++;
+					}
+					if (nextStackValue < value) {
+						value = value - nextStackValue; 
+					}
+				}
+				double percent = value * 100 / total;
+				selectedTrace.setTraceColor(ColorUtil.getInstance().getColor("dark magenta"));
+				toolTip.setText(DateUtil.format(CastUtil.clong(valueTime), "HH:mm:ss") 
+						+ "\n" + selectedName 
+						+ "\n" + FormatUtil.print(value, "#,###0.#") + "(" + FormatUtil.print(percent, "##0.0") + " %)");
+				toolTip.show(new Point(e.x, e.y));
 			}
 			public void mouseDoubleClick(MouseEvent e) {}
 		});

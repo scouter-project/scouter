@@ -17,12 +17,18 @@
  */
 package scouter.client.views;
 
+import static java.util.Comparator.comparingDouble;
+import static scouter.client.util.ScouterUtil.nearestPointYValueFunc;
+
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
+import org.csstudio.swt.xygraph.dataprovider.ISample;
 import org.csstudio.swt.xygraph.dataprovider.Sample;
 import org.csstudio.swt.xygraph.figures.Trace;
 import org.csstudio.swt.xygraph.figures.Trace.PointStyle;
@@ -37,12 +43,7 @@ import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.ViewPart;
@@ -54,12 +55,14 @@ import scouter.client.model.RefreshThread.Refreshable;
 import scouter.client.util.ChartUtil;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.ExUtil;
+import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.util.UIUtil;
 import scouter.client.views.AbstractServiceGroupTPSView.StackValue;
 import scouter.lang.value.MapValue;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
 import scouter.util.LinkedMap;
 
 public abstract class CounterStackCommonView extends ViewPart implements Refreshable {
@@ -110,22 +113,51 @@ public abstract class CounterStackCommonView extends ViewPart implements Refresh
 				selectedName = null;
 			}
 			public void mouseDown(MouseEvent e) {
-				Image image = new Image(e.display, 1, 1);
-				GC gc = new GC((FigureCanvas)e.widget);
-				gc.copyArea(image, e.x, e.y);
-				ImageData imageData = image.getImageData();
-				PaletteData palette = imageData.palette;
-				int pixelValue = imageData.getPixel(0, 0);
-				RGB rgb = palette.getRGB(pixelValue);
-				selectedName = CounterColorManager.getInstance().getName(rgb);
-				if (selectedName != null) {
-					Trace trace = traces.get(selectedName);
-					trace.setTraceColor(ColorUtil.getInstance().getColor("dark magenta"));
-					toolTip.setText(selectedName);
-					toolTip.show(new Point(e.x, e.y));
+				double xValue = xyGraph.primaryXAxis.getPositionValue(e.x, false);
+				double yValue = xyGraph.primaryYAxis.getPositionValue(e.y, false);
+				if (xyGraph.primaryXAxis.getRange().getLower() > xValue || xyGraph.primaryXAxis.getRange().getUpper() < xValue) return;
+				if (xyGraph.primaryYAxis.getRange().getLower() > yValue || xyGraph.primaryYAxis.getRange().getUpper() < yValue) return;
+				
+				List<Trace> sortedTraces = traces.values()
+						.stream()
+						.sorted(comparingDouble(nearestPointYValueFunc(xValue)).reversed())
+						.collect(Collectors.toList());
+				
+				ISample topSample = ScouterUtil.getNearestPoint(sortedTraces.get(0).getDataProvider(), xValue);
+				double valueTime = topSample.getXValue();
+				double total = topSample.getYValue();
+				if (yValue > total) return;
+				int i = 0;
+				Trace selectedTrace = null;
+				for (; i < sortedTraces.size(); i++) {
+					Trace t = sortedTraces.get(i);
+					double stackValue = ScouterUtil.getNearestValue(t.getDataProvider(), valueTime);
+					if (stackValue < yValue) {
+						i = i - 1;
+						selectedTrace = sortedTraces.get(i);
+						break;
+					}
 				}
-				gc.dispose();
-				image.dispose();
+				if (selectedTrace == null) {
+					selectedTrace = sortedTraces.get(i-1);
+				}
+				selectedName = selectedTrace.getName();
+				double value = ScouterUtil.getNearestValue(selectedTrace.getDataProvider(), valueTime);
+				if (i < sortedTraces.size() - 1) {
+					int j = i + 1;
+					double nextStackValue = value;
+					while (nextStackValue == value && j < sortedTraces.size()) {
+						nextStackValue = ScouterUtil.getNearestValue(sortedTraces.get(j).getDataProvider(), valueTime);
+						j++;
+					}
+					if (nextStackValue < value) {
+						value = value - nextStackValue; 
+					}
+				}
+				double percent = value * 100 / total;
+				selectedTrace.setTraceColor(ColorUtil.getInstance().getColor("dark magenta"));
+				toolTip.setText(DateUtil.format(CastUtil.clong(valueTime), "HH:mm:ss") + "\n" + selectedName + "\n" + FormatUtil.print(percent, "##0.0") + " %");
+				toolTip.show(new Point(e.x, e.y));
 			}
 			public void mouseDoubleClick(MouseEvent e) {}
 		});

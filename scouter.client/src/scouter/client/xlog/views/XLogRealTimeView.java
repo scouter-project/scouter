@@ -200,6 +200,7 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 	AgentDailyListProxy agnetProxy = new AgentDailyListProxy();
 	
 	public void loadAdditinalData(long stime, long etime, final boolean reverse) {
+		viewPainter.setViewIsInAdditionalDataLoading(true);
 		int max = getMaxCount();
 		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
 		try {
@@ -232,6 +233,7 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 		} catch (Throwable t) {
 			ConsoleProxy.errorSafe(t.toString());
 		} finally {
+			viewPainter.setViewIsInAdditionalDataLoading(false);
 			TcpProxy.putTcpProxy(tcp);
 		}
 	}

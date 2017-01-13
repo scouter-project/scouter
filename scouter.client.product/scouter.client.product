@@ -14,9 +14,6 @@
    </configIni>
 
    <launcherArgs>
-      <programArgsMac>-data
-/tmp/scouter
-      </programArgsMac>
       <vmArgs>-Xms128m
 -Xmx512m
 -XX:+UseG1GC
@@ -41,7 +38,6 @@
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>

@@ -112,7 +112,6 @@ public class UdpLocalServer extends Thread{
 			String key = new StringBuilder(50).append(mapPack.getText("batchJobId")).append('-').append(mapPack.getLong("pID")).append('-').append(mapPack.getLong("startTime")).toString();
 			checkDays();
 			if(!Main.batchMap.containsKey(key)){
-System.out.println("add " + key);				
 				startBatchs++;
 			}
 			Main.batchMap.put(key, mapPack);

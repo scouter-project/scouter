@@ -11,15 +11,15 @@
 		<module>../scouter.client.product</module>
 	</modules>
 	<properties>
-		<tycho-version>0.25.0</tycho-version>
-		<mars.repo-url>http://download.eclipse.org/releases/mars</mars.repo-url>
+		<tycho-version>0.26.0</tycho-version>
+		<neon.repo-url>http://download.eclipse.org/releases/neon</neon.repo-url>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<repositories>
 		<repository>
-			<id>eclipse-mars</id>
+			<id>eclipse-neon</id>
 			<layout>p2</layout>
-			<url>${mars.repo-url}</url>
+			<url>${neon.repo-url}</url>
 		</repository>
 	</repositories>
 	<build>
