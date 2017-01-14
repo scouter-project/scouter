@@ -5,43 +5,45 @@ Scouter do not require any installation except java.
 
 ***
 
+## 1. Collector Server Installation
 
-## Server
+### 1.1. Prerequisite
+* JDK 1.6+ (1.8+ recommended)
 
-### Prerequisite
-* JDK 1.6+
-
-### Start Server
-1. Download scouter-yyyyMMdd.tar.gz - [Release Page](https://github.com/scouter-project/scouter/releases)
-2. Extract /server directory and copy ${SCOUTER_SERVER_DIR}
-3. Execute `startup.sh`(You can modify JVM Options in this file)
-4. Done
-
+### 1.2. Collector Server Installation
+1. download lateset version of scouter-yyyyMMdd.tar.gz.
+ - [Release Page](https://github.com/scouter-project/scouter/releases)
+2. Extract the file.(You can see the dircetory ./scouter/server)
+3. execute start script.
+```bash
+cd ./scouter/server
+./startup.sh
+# Windows : use startup.bat file
 ```
+```bash
   ____                  _
  / ___|  ___ ___  _   _| |_ ___ _ __
  \___ \ / __/   \| | | | __/ _ \ '__|
   ___) | (_| (+) | |_| | ||  __/ |
  |____/ \___\___/ \__,_|\__\___|_|
- Scouter version 0.0.1 20150602
+ Scouter version 0.0.1 ${date}
  Open Source Performance Monitoring
-
-System JRE version : 1.7.0_51
+ System JRE version : 1.7.0_51
 ```
-### Network Port
-These ports can be changed in configuration file.
-* UDP Receive Port : 6100
-* TCP Service Port : 6100
 
-### Configuration
+### 1.3. Network ports used by Collector server
+* UDP Receive Port : 6100 (This port is used for gathering performance metrics.)
+* TCP Service Port : 6100 (This port is used for commuication with scouter client and agents.)
 
-#### Configuration file
-You can configure server options by Adding or modifying(if exist) `server/conf/scouter.conf`
->If no options, all default value will be applied.
+### 1.4. Configuration
 
-##### Example
-*conf/scouter.conf*
-```
+#### 1.4.1. Configuration file
+ * configuration file location.(default)
+   * `server/conf/scouter.conf`
+
+##### 1.4.2. Example
+
+```properties
 # Agent Control and Service Port(Default : TCP 6100)
 net_tcp_listen_port=6100
 
@@ -54,38 +56,53 @@ db_dir=./database
 # Log directory(Default : ./logs)
 log_dir=./logs
 ```
-For more options, refer Options page(Coming soon).
+All options and default values are available from the scouter client's **Collector >  Configure** menu.
+
 ***
 
-
-## Tomcat Agent
-### Prerequisite
+## 2. Host Agent
+### 2.1. Prerequisite
 * JDK 1.5+(Required), 1.6+(Recommended)
-* Tomcat 6 or 7
 
-### Start Tomcat with Scouter agent
-1. Download scouter-yyyyMMdd.tar.gz - [Release Page](https://github.com/scouter-project/scouter/releases)
-2. Extract /agent/scouter.agent.jar and copy this file to ${SCOUTER_AGENT_DIR}
-3. Append Tomcat java options. Refer [Java Options](#java-options)
+### 2.2. Download and start Host agent
+1. Download scouter-yyyyMMdd.tar.gz 
+ - [Release Page](https://github.com/scouter-project/scouter/releases)
+2. Extract the file.(you can see the directory ./scouter/agent.host for running host monitoring agent.)
+3. Run it.
 
-4. ${TOMCAT_DIR}/bin/startup.sh
-5. Done - You can see Scouter logo in catalina log.
-
-### Java Options
-Append below options in *${TOMCAT_DIR}/bin/catalina.sh or startup.sh*
+```bash
+cd ./scouter/agent.host
+./host.sh
 ```
+
+All options and default values are available from the scouter client's **Host >  Configure** menu.
+
+## 3. Tomcat Agent
+### 3.1. Prerequisite
+* JDK 1.5+(Required), 1.6+(Recommended)
+
+### 3.2. Start Tomcat with Scouter agent
+1. Download scouter-yyyyMMdd.tar.gz 
+ - [Release Page](https://github.com/scouter-project/scouter/releases)
+2. Extract the file.(you can see scouter.agent.jar file on the directory ./scouter/agent.java)
+3. Add -javaagent JVM options on your java application.
+  (Refer to java option example below.)
+
+#### 3.2.1 Java Option example
+Append below options in **${TOMCAT_DIR}/bin/catalina.sh or startup.sh**
+```bash
 JAVA_OPTS=" ${JAVA_OPTS} -javaagent:${SCOUTER_AGENT_DIR}/scouter.agent.jar"
-JAVA_OPTS=" ${JAVA_OPTS} -Dscouter.config=${SCOUTER_AGENT_DIR}/scouter.conf"
+JAVA_OPTS=" ${JAVA_OPTS} -Dscouter.config=${SCOUTER_AGENT_DIR}/conf/scouter1.conf"
+JAVA_OPTS=" ${JAVA_OPTS} -Dobj_name=myFirstTomcat1"
 ```
+* **${SCOUTER_AGENT_DIR}** means the directory that contains scouter.agent.jar file.
+* **If you are using multiple Tomcat instances in one VM, you must define their respective configuration files.**
+  * You can specify the conf file through the -Dscouter.config environment variable as in the example above.
+  * Also, in this case, you should specify the name through the obj_name option so that the name of the monitored object is not duplicated in one VM.
+  
+### 3.3. Configuration
 
-### Configuration
-
-#### Configuration file
-You can configure agent options by modifying `${SCOUTER_AGENT_DIR}/scouter.conf`
->If no options, all default value will be applied.
-
-##### Example
-*${appropriate_directory}/scouter.conf*
+#### 3.3.1. Configuration example
 ```
 # Scouter Server IP Address (Default : 127.0.0.1)
 net_collector_ip=127.0.0.1
@@ -95,26 +112,22 @@ net_collector_udp_port=6100
 net_collector_tcp_port=6100
 
 # Scouter Name(Default : tomcat1)
-obj_name=tomcat1
+obj_name=myFirstTomcat1
 ```
-For more options, refer Options page(Coming soon).
+All options and default values are available from the scuoter client's **Object >  Configure** menu.
+
 ***
 
-## Client
-### Prerequisite
-* JRE 1.6+
+## 4. Client
+### 4.1. Prerequisite
+* JRE 1.7+
 
 ### Start Client
-1. Download suitable one of `scouter.client.product` - [Release Page](https://github.com/scouter-project/scouter/releases)
+1. Download suitable one of `scouter.client.product-${os}[.tar.gz|.zip]` 
+ - [Release Page](https://github.com/scouter-project/scouter/releases)
 2. Extract all files to new directory
 3. Execute scouter.exe(windows), scouter.app(osx) or scouter(linux)
 4. You will see a dialog
-5. Fill the authentication info and press OK button(If server is running)
+5. Fill the authentication info(default : admin/admin) and press OK button
+  (First, the scouter server must be running.)
 6. The real-time chart will be shown.
-
-**Example authentication info**
-```
-Server Address : 127.0.0.1:6100
-ID : admin
-password : admin
-```

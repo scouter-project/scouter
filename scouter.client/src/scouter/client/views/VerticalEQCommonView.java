@@ -204,7 +204,6 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 				return;
 			}
 			datas = list.toArray(new EqData[size]);
-			
 			unitWidth = (width - AXIS_PADDING) / size;
 			
 			if (unitWidth < MINIMUM_UNIT_WIDTH) {
@@ -214,7 +213,6 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 			// draw horizontal line
 			gc.setForeground(XLogViewPainter.color_grid_narrow);
 			gc.setLineStyle(SWT.LINE_DOT);
-
 			for (int i = AXIS_PADDING + unitWidth; i <= width - unitWidth; i = i + unitWidth) {
 				gc.drawLine(i, 0, i, height);
 			}
@@ -237,8 +235,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 				String objName = datas[i].displayName;
 				gc.setForeground(dark_gary);
 				gc.setFont(verdana10Italic);
-				int strWidth = gc.stringExtent(objName).x;
-				
+				int strWidth = gc.stringExtent(objName).x;			
 				while (groundWidth <= (strWidth+5)) {
 					objName = objName.substring(1);
 					strWidth = gc.stringExtent(objName).x;
@@ -262,8 +259,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 				gc.setLineWidth(1);
 				ActiveSpeedData asd = datas[i].asd;
 				long total = asd.act1 + asd.act2 + asd.act3;
-				double reach = barSpace * (total / maxValue);
-				
+				double reach = barSpace * (total / maxValue);	
 				int barY = height - verticalLineY - 8;
 				if (total > 0) {
 					try {
@@ -397,7 +393,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 		}
 	}
 	
-	protected void drawNemo(GC gc, Color background, int x, int y, int width, int height) {
+	private void drawNemo(GC gc, Color background, int x, int y, int width, int height) {
 		gc.setBackground(background);
 		gc.fillRectangle(x, y, width, height);
 		gc.setForeground(black);
@@ -409,7 +405,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 	}
 	
 	
-	protected double calculateReach(int mod, double weight) {
+	private double calculateReach(int mod, double weight) {
 		return (Math.cos(mod * (Math.PI / (CYCLE_INTERVAL / 2.0)) + Math.PI) + 1) / 2 * weight;
 	}
 	

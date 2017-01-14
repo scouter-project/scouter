@@ -152,7 +152,7 @@ public class AgentTransformer implements ClassFileTransformer {
             ClassWriter cw = getClassWriter(classDesc);
             ClassVisitor cv = cw;
             List<IASM> workAsms = asms;
-            for (int i = 0, max = workAsms.size(); i < max; i++) {
+            for (int i = workAsms.size() - 1; i >= 0; i--) {
                 cv = workAsms.get(i).transform(cv, className, classDesc);
                 if (cv != cw) {
                     cr = new ClassReader(classfileBuffer);

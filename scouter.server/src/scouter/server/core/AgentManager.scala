@@ -145,6 +145,10 @@ object AgentManager {
         return objMap.getObject(objHash);
     }
 
+    def getAgent(objName: String): ObjectPack = {
+        return objMap.getObject(objName)
+    }
+
     def inactive(objHash: Int) {
         val objPack = objMap.getObject(objHash);
         if (objPack != null && objPack.alive) {

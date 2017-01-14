@@ -1,3 +1,19 @@
+/*
+ *  Copyright 2016 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License"); 
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License. 
+ */
 package scouter.client.stack.dialog;
 
 import java.io.IOException;
@@ -58,11 +74,16 @@ public class StackListDialog extends Dialog {
 	
 	protected Control createDialogArea(Composite parent) {
 		Composite container =  (Composite) super.createDialogArea(parent);
-		Label label = new Label(container, SWT.NONE);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		label.setAlignment(SWT.RIGHT);
-		label.setFont(new Font(null, "Airal", 10, SWT.BOLD));
-		label.setText("Select range to analyze (using shift key)");
+		Label label1 = new Label(container, SWT.NONE);
+		label1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		label1.setAlignment(SWT.RIGHT);
+		label1.setFont(new Font(null, "Airal", 10, SWT.BOLD));
+		label1.setText("Select range to analyze (using shift key) and click \"OK\".");
+		Label label2 = new Label(container, SWT.NONE);
+		label2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		label2.setAlignment(SWT.RIGHT);
+		label2.setFont(new Font(null, "Airal", 10, SWT.NONE));
+		label2.setText("Double click to view a single thread dump as raw text.");
 		Composite tableComposite = new Composite(container, SWT.NONE);
 		tableComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		table = new Table(tableComposite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION);
@@ -149,7 +170,7 @@ public class StackListDialog extends Dialog {
 	
 	@Override
 	protected Point getInitialSize() {
-		return new Point(400, 500);
+		return new Point(500, 500);
 	}
 
 	@Override

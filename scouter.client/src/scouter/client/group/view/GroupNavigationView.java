@@ -265,6 +265,11 @@ public class GroupNavigationView extends ViewPart implements RefreshThread.Refre
 	
 	private void createQuickMenus(){
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
+		man.add(new Action("Expand All", ImageUtil.getImageDescriptor(Images.expand)) {
+			public void run() {
+				viewer.expandAll();
+			}
+		});
 		man.add(new Action("Collapse All", ImageUtil.getImageDescriptor(Images.collapse)) {
 			public void run() {
 				viewer.collapseAll();

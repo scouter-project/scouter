@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
 import org.csstudio.swt.xygraph.dataprovider.IDataProvider;
+import org.csstudio.swt.xygraph.dataprovider.ISample;
 import org.csstudio.swt.xygraph.dataprovider.Sample;
 import org.csstudio.swt.xygraph.figures.Trace;
 import org.csstudio.swt.xygraph.figures.Trace.PointStyle;
@@ -184,38 +185,33 @@ public class CounterRealTimeGroupAllView extends ScouterViewPart implements Refr
 				if (x < 0 || y < 0) {
 					return;
 				}
-				Image image = new Image(e.display, 1, 10);
-				GC gc = new GC((FigureCanvas)e.widget);
-				gc.copyArea(image, e.x, e.y > 5 ? e.y - 5 : 0);
-				ImageData imageData = image.getImageData();
-				PaletteData palette = imageData.palette;
-				RGB white = new RGB(255, 255, 255);
-				int point = 5;
-				int offset = 0;
-				while (point >= 0 && point < 10) {
-					int pixelValue = imageData.getPixel(0, point);
-					RGB rgb = palette.getRGB(pixelValue);
-					if (white.equals(rgb) == false) {
-						int objHash = AgentColorManager.getInstance().getObjectHash(rgb);
-						if (objHash != 0) {
-							String objName = TextProxy.object.getText(objHash);
-							double time = xyGraph.primaryXAxis.getPositionValue(e.x, false);
-							double v = 0.0d;
-							Trace t = traces.get(objHash);
-							v = ScouterUtil.getNearestValue(t.getDataProvider(), time);
-							String value = FormatUtil.print(v, "#,###.##");
-							toolTip.setText(objName + "\nvalue : " + value);
-							toolTip.show(new Point(e.x, e.y));
-							onSelectObject(objHash, objName, objType);
-							break;
+				double minDistance = 30.0d;
+				long time = 0;
+				double value = 0;
+				Trace nearestTrace = null;
+				for (Trace t : traces.values()) {
+					ISample s = ScouterUtil.getNearestPoint(t.getDataProvider(), x);
+					if (s != null) {
+						int x2 = xyGraph.primaryXAxis.getValuePosition(s.getXValue(), false);
+						int y2 = xyGraph.primaryYAxis.getValuePosition(s.getYValue(), false);
+						double distance = ScouterUtil.getPointDistance(e.x, e.y, x2, y2);
+						if (minDistance > distance) {
+							minDistance = distance;
+							nearestTrace = t;
+							time = (long) s.getXValue();
+							value = s.getYValue();
 						}
 					}
-					offset = offset >= 0 ? offset + 1 : offset - 1;
-					offset *= -1;
-					point += offset; 
 				}
-				gc.dispose();
-				image.dispose();
+				if (nearestTrace != null) {
+					int width = PManager.getInstance().getInt(PreferenceConstants.P_CHART_LINE_WIDTH);
+					nearestTrace.setLineWidth(width + 2);
+					toolTip.setText(nearestTrace.getName()
+							+ "\nTime : " + DateUtil.format(time, "HH:mm:ss")
+							+ "\nValue : " +  FormatUtil.print(value, "#,###.##"));
+					toolTip.show(new Point(e.x, e.y));
+					onSelectObject(HashUtil.hash(nearestTrace.getName()), nearestTrace.getName(), objType);
+				}
 			}
 			public void mouseDoubleClick(MouseEvent e) {}
 		});

@@ -1,21 +1,18 @@
 # Quick Start
 [![Englsh](https://img.shields.io/badge/language-English-red.svg)](Quick-Start.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
-Scouter를 처음 시작한다면 이 페이지를 통해 간단히 설치하고 실행 해 볼 수 있다.
-
-여기서는 이미 만들어진 샘플 시스템을 통하여 Scouter의 기능을 확인 해 볼 수 있으며
-제공되는 데모 파일을 다운로드 받았다면 명령어 몇 개로 수분내에 설치하여 실행해 볼 수 있다.
+이 페이지를 통해 빠르게 Scouter 데모를 설치하고 실행 해 볼 수 있다.
 
 Quick Start는 아래와 같은 순서로 진행 된다.
 
-> 1. 통합 데모 환경 및 클라이언트 프로그램 **다운로드**
+> 1. 통합 데모 환경 및 클라이언트 프로그램 다운로드
 > 2. 압축 파일 해제 - **이것으로 설치 완료!**
 > 3. Scouter Server(Collector) 실행
 > 4. Client(Viewer) 실행
 > 5. Host Agent 실행
 > 6. 데모 시스템 실행(Tomcat with WAR)
-> 7. **브라우저를 통해 데모 시스템 접속**
-> 8. jmeter를 통한 가상의 부하 발생
+> 7. **브라우저를 통해 데모 시스템(JPetStore) 접속**
+> 8. jmeter를 통한 가상의 부하 발생하여 부하 테스트
 
 ## Requirement
 * JDK 7+ (& JAVA_HOME 환경변수 설정)
@@ -39,15 +36,15 @@ Client(Viewer)    | 수집된 성능 정보를 확인하기 위한 Client 프로
 
 #### (1) 통합 데모 환경 및 클라이언트 프로그램 다운로드
  - 통합 데모 환경 다운로드
-   - [demo-env1.tar.gz 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/0.0.5/demo-env1.tar.gz) (Collector Server, Host Agent, Java Agent, Tomcat, 샘플 시스템, 설정, 기동 스크립트가 포함됨)
-   - Windows의 경우 [demo-env1.zip 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/0.0.5/demo-env1.zip)
+   - [demo-env1.tar.gz 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v0.4.21/demo-env1.tar.gz) (Collector Server, Host Agent, Java Agent, Tomcat, 샘플 시스템, 설정, 기동 스크립트가 포함됨)
+   - Windows의 경우 [demo-env1.zip 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v0.4.21/demo-env1.zip)
 
  - Client 다운로드
    - 자신의 환경에 맞는 파일을 다운로드 받는다.
-    - [scouter.client.product-win32.win32.x86_64.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.10/scouter.client.product-win32.win32.x86_64.zip)
-    - [scouter.client.product-win32.win32.x86.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.10/scouter.client.product-win32.win32.x86.zip)
-    - [scouter.client.product-macosx.cocoa.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.10/scouter.client.product-macosx.cocoa.x86_64.tar.gz)
-    - [scouter.client.product-linux.gtk.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.10/scouter.client.product-linux.gtk.x86_64.tar.gz)
+    - [scouter.client.product-win32.win32.x86_64.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.21/scouter.client.product-win32.win32.x86_64.zip)
+    - [scouter.client.product-win32.win32.x86.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.21/scouter.client.product-win32.win32.x86.zip)
+    - [scouter.client.product-macosx.cocoa.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.21/scouter.client.product-macosx.cocoa.x86_64.tar.gz)
+    - [scouter.client.product-linux.gtk.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.21/scouter.client.product-linux.gtk.x86_64.tar.gz)
 
 #### (2) 압축 파일 해제
  압축 파일을 해제 함으로써 기본적인 설치가 완료 된다.
