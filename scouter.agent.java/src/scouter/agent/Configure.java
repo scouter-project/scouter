@@ -147,8 +147,8 @@ public class Configure extends Thread {
     public boolean profile_fullstack_stmt_leak_enabled = false;
 
     //Trace
-    @ConfigDesc("User ID based(0 : Remote Address, 1 : JSessionID, 2 : Scouter Cookie)")
-    public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:SetCookie
+    @ConfigDesc("User ID based(0 : Remote Address, 1 : Cookie, 2 : Scouter Cookie, 2 : Header) \n - able to set value for 1.Cookie and 3.Header \n - refer to 'trace_user_session_key'")
+    public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:Scouter Cookie, 3:Header
     @ConfigDesc("Tracing background thread socket")
     public boolean trace_background_socket_enabled = true;
     @ConfigDesc("Adding assigned header value to the service name")

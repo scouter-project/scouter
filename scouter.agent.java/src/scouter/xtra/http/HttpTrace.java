@@ -105,6 +105,12 @@ public class HttpTrace implements IHttpTrace {
 
         try {
             switch (conf.trace_user_mode) {
+                case 3:
+                    ctx.userid = UseridUtil.getUseridFromHeader(request, response, conf.trace_user_session_key);
+                    if (ctx.userid == 0 && ctx.remoteIp != null) {
+                        ctx.userid = HashUtil.hash(ctx.remoteIp);
+                    }
+                    break;
                 case 2:
                     ctx.userid = UseridUtil.getUserid(request, response);
                     break;
