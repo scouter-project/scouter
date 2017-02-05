@@ -147,8 +147,8 @@ public class Configure extends Thread {
     public boolean profile_fullstack_stmt_leak_enabled = false;
 
     //Trace
-    @ConfigDesc("User ID based(0 : Remote Address, 1 : JSessionID, 2 : Scouter Cookie)")
-    public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:SetCookie
+    @ConfigDesc("User ID based(0 : Remote Address, 1 : Cookie, 2 : Scouter Cookie, 2 : Header) \n - able to set value for 1.Cookie and 3.Header \n - refer to 'trace_user_session_key'")
+    public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:Scouter Cookie, 3:Header
     @ConfigDesc("Tracing background thread socket")
     public boolean trace_background_socket_enabled = true;
     @ConfigDesc("Adding assigned header value to the service name")
@@ -371,7 +371,7 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public String _hook_direct_patch_classes = "";
     @ConfigDesc("")
-    public boolean _hook_spring_rest_enabled = false;
+    public boolean _hook_spring_rest_enabled = true;
     @ConfigDesc("")
     public String _hook_boot_prefix = null;
     @ConfigDesc("for warning a big Map type object that have a lot of entities. It may increase system load. be careful to enable this option.")
@@ -726,7 +726,7 @@ public class Configure extends Thread {
         this.__ip_dummy_test = getBoolean("__ip_dummy_test", false);
 
         this.alert_perm_warning_pct = getInt("alert_perm_warning_pct", 90);
-        this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", false);
+        this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", true);
         this.alert_message_length = getInt("alert_message_length", 3000);
         this.alert_send_interval_ms = getInt("alert_send_interval_ms", 10000);
         this.xlog_error_jdbc_fetch_max = getInt("xlog_error_jdbc_fetch_max", 10000);

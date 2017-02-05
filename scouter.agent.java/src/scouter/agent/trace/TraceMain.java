@@ -16,6 +16,7 @@
  */
 package scouter.agent.trace;
 
+import scouter.agent.AgentCommonContant;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterService;
@@ -152,6 +153,7 @@ public class TraceMain {
 
     private static void addSeviceName(TraceContext ctx, Object req) {
         try {
+            ctx.serviceName = AgentCommonContant.removeSpringRequestMappingPostfixFlag(ctx.serviceName);
             Configure conf = Configure.getInstance();
 
             StringBuilder sb = new StringBuilder();
@@ -759,8 +761,10 @@ public class TraceMain {
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null || name == null)
             return;
-        ctx.serviceName = name;
-        ctx.serviceHash = HashUtil.hash(name);
+        if(!ctx.serviceName.contains(AgentCommonContant.SPRING_REQUEST_MAPPING_POSTFIX_FLAG)) {
+            ctx.serviceName = name;
+            ctx.serviceHash = HashUtil.hash(name);
+        }
     }
 
     public static void setStatus(int httpStatus) {

@@ -91,7 +91,8 @@ public class AbstractPlugin {
 		StringBuilder signature = new StringBuilder(o.getClass().getName()).append(":").append(fieldName).append(":");
 		Field f = (Field) reflCache.get(signature.toString());
 		if(f == null) {
-			f = o.getClass().getField(fieldName);
+			f = o.getClass().getDeclaredField(fieldName);
+			f.setAccessible(true);
 			reflCache.put(signature.toString(), f);
 		}
 		return f.get(o);
@@ -102,7 +103,7 @@ public class AbstractPlugin {
 		if (o == null)
 			return null;
 		try {
-			Field f = o.getClass().getField(field);
+			Field f = o.getClass().getDeclaredField(field);
 			f.setAccessible(true);
 			return f.get(o);
 		} catch (Throwable e) {
