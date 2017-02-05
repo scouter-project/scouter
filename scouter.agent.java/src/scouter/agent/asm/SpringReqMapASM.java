@@ -16,6 +16,7 @@
  */
 package scouter.agent.asm;
 
+import scouter.agent.AgentCommonContant;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -27,6 +28,9 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.StringUtil;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * extract spring REST annotation as the service name
  * @author Gun Lee (gunlee01@gmail.com)
@@ -35,7 +39,17 @@ public class SpringReqMapASM implements IASM, Opcodes {
 
     static String springControllerNames[] = {"Lorg/springframework/stereotype/Controller;",
                                              "Lorg/springframework/web/bind/annotation/RestController;"};
-    static String springRequestMappingAnnotation = "Lorg/springframework/web/bind/annotation/RequestMapping;";
+
+    static Set<String> springRequestMappingAnnotations = new HashSet<String>();
+    static {
+        springRequestMappingAnnotations.add("Lorg/springframework/web/bind/annotation/RequestMapping;");
+        springRequestMappingAnnotations.add("Lorg/springframework/web/bind/annotation/GetMapping;");
+        springRequestMappingAnnotations.add("Lorg/springframework/web/bind/annotation/PostMapping;");
+        springRequestMappingAnnotations.add("Lorg/springframework/web/bind/annotation/PutMapping;");
+        springRequestMappingAnnotations.add("Lorg/springframework/web/bind/annotation/DeleteMapping;");
+        springRequestMappingAnnotations.add("Lorg/springframework/web/bind/annotation/PatchMapping;");
+
+    }
 
     Configure conf = Configure.getInstance();
 
@@ -67,7 +81,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
         AnnotationVisitor av = super.visitAnnotation(desc, visible);
         if (av == null)
             return av;
-        if (SpringReqMapASM.springRequestMappingAnnotation.equals(desc)) {
+        if (SpringReqMapASM.springRequestMappingAnnotations.contains(desc)) {
             return new SpringReqMapCVAV(av);
         }
         return av;
@@ -129,7 +143,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
         @Override
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
             AnnotationVisitor av = super.visitAnnotation(desc, visible);
-            if (SpringReqMapASM.springRequestMappingAnnotation.equals(desc)) {
+            if (SpringReqMapASM.springRequestMappingAnnotations.contains(desc)) {
                 return new SpringReqMapMVAV(av);
             }
             return av;
@@ -145,6 +159,8 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
                 if (!StringUtil.isEmpty(methodType)) {
                     sb.append("<").append(methodType).append(">");
                 }
+
+                sb.append(AgentCommonContant.SPRING_REQUEST_MAPPING_POSTFIX_FLAG);
 
                 String serviceUrl = sb.toString();
                 Logger.println("[Apply Spring F/W REST URL] " + serviceUrl);
