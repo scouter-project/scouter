@@ -343,7 +343,7 @@ public class ProfileText {
                 case StepEnum.DUMP:
                     slen = sb.length();
                     toString(sb, (DumpStep) stepSingle, lineHead);
-                    sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
+                    sr.add(style(slen, sb.length() - slen, dgray, SWT.NORMAL));
                     break;
                 case StepEnum.APICALL:
                     ApiCallStep apicall = (ApiCallStep) stepSingle;
