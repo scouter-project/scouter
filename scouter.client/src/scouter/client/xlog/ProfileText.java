@@ -44,9 +44,14 @@ public class ProfileText {
              int serverId) {
 		 build(date, text, xperf, profiles, serverId, false);
 	}
-	 
+
     public static void build(final String date, StyledText text, XLogData xperf, Step[] profiles,
                              int serverId, boolean bindSqlParam) {
+        build(date, text, xperf, profiles, serverId, bindSqlParam, false);
+    }
+	 
+    public static void build(final String date, StyledText text, XLogData xperf, Step[] profiles,
+                             int serverId, boolean bindSqlParam, boolean isSimplified) {
 
         boolean truncated = false;
 
@@ -63,6 +68,11 @@ public class ProfileText {
 
         Color dred = text.getDisplay().getSystemColor(SWT.COLOR_DARK_RED);
         Color dgreen = text.getDisplay().getSystemColor(SWT.COLOR_DARK_GREEN);
+
+        Color dblue = text.getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE);
+        Color dcyan = text.getDisplay().getSystemColor(SWT.COLOR_DARK_CYAN);
+        Color dyellow = text.getDisplay().getSystemColor(SWT.COLOR_DARK_YELLOW);
+        Color dgray = text.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
 
         java.util.List<StyleRange> sr = new ArrayList<StyleRange>();
 
@@ -292,10 +302,14 @@ public class ProfileText {
 
             switch (stepSingle.getStepType()) {
                 case StepEnum.METHOD:
-                    toString(sb, (MethodStep) stepSingle);
+                    slen = sb.length();
+                    toString(sb, (MethodStep) stepSingle, isSimplified);
+                    sr.add(style(slen, 1, dyellow, SWT.BOLD));
                     break;
                 case StepEnum.METHOD2:
-                    toString(sb, (MethodStep) stepSingle);
+                    slen = sb.length();
+                    toString(sb, (MethodStep) stepSingle, isSimplified);
+                    sr.add(style(slen, 1, dyellow, SWT.BOLD));
                     MethodStep2 m2 = (MethodStep2) stepSingle;
                     if (m2.error != 0) {
                         slen = sb.length();
@@ -528,10 +542,10 @@ public class ProfileText {
 
             switch (stepSingle.getStepType()) {
                 case StepEnum.METHOD:
-                    toString(sb, (MethodStep) stepSingle);
+                    toString(sb, (MethodStep) stepSingle, false);
                     break;
                 case StepEnum.METHOD2:
-                    toString(sb, (MethodStep) stepSingle);
+                    toString(sb, (MethodStep) stepSingle, false);
                     MethodStep2 m2 = (MethodStep2) stepSingle;
                     if (m2.error != 0) {
                         slen = sb.length();
@@ -774,12 +788,30 @@ public class ProfileText {
         sb.append(p.message);
     }
 
-    public static void toString(StringBuffer sb, MethodStep p) {
+    public static void toString(StringBuffer sb, MethodStep p, boolean isSimplified) {
         String m = TextProxy.method.getText(p.hash);
         if (m == null) {
             m = Hexa32.toString32(p.hash);
         }
-        sb.append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
+
+        if(isSimplified) {
+            String simple = simplifyMethod(m);
+            sb.append(simple).append(" [").append(FormatUtil.print(p.elapsed, "#,##0")).append("ms]").append("  --- [Full Name] ").append(m);
+        } else {
+            sb.append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
+        }
+    }
+
+    public static String simplifyMethod(String method) {
+        String[] parts = StringUtil.split(method, '.');
+        if(parts.length >= 2) {
+            String methodName = parts[parts.length - 1];
+            int bracePos = methodName.indexOf('(');
+
+            return parts[parts.length - 2] + "." + methodName.substring(0, bracePos) + "";
+        } else {
+            return method;
+        }
     }
 
     public static StyleRange style(int start, int length, Color c, int f) {
@@ -787,6 +819,14 @@ public class ProfileText {
         t.start = start;
         t.length = length;
         t.foreground = c;
+        t.fontStyle = f;
+        return t;
+    }
+
+    public static StyleRange style(int start, int length, int f) {
+        StyleRange t = new StyleRange();
+        t.start = start;
+        t.length = length;
         t.fontStyle = f;
         return t;
     }
