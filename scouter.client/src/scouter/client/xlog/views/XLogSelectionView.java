@@ -21,7 +21,14 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnPixelData;
+import org.eclipse.jface.viewers.IColorProvider;
+import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -31,7 +38,12 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
@@ -91,6 +103,43 @@ public class XLogSelectionView extends ViewPart {
 	        }
 	    });
 	    clipboard = new Clipboard(null);
+
+		getSite().getPage().addPartListener(new org.eclipse.ui.IPartListener2()
+		{
+			@Override
+			public void partActivated(IWorkbenchPartReference partRef) {
+				System.out.println("#### partActivated");
+			}
+			@Override
+			public void partBroughtToTop(IWorkbenchPartReference partRef) {
+				System.out.println("#### partBroughtToTop");
+			}
+			@Override
+			public void partClosed(IWorkbenchPartReference partRef) {
+				System.out.println("#### partBroughtToTop");
+			}
+			@Override
+			public void partDeactivated(IWorkbenchPartReference partRef) {
+				System.out.println("#### partDeactivated");
+
+			}
+			@Override
+			public void partOpened(IWorkbenchPartReference partRef) {
+				System.out.println("#### partOpened");
+			}
+			@Override
+			public void partHidden(IWorkbenchPartReference partRef) {
+				System.out.println("#### partHidden");
+			}
+			@Override
+			public void partVisible(IWorkbenchPartReference partRef) {
+				System.out.println("#### partVisible");
+			}
+			@Override
+			public void partInputChanged(IWorkbenchPartReference partRef) {
+				System.out.println("#### partInputChanged");
+			}
+		});
 	}
 	
 	public void setInput(final ArrayList<XLogData> xperfData, String objType, final String yyyymmdd) {

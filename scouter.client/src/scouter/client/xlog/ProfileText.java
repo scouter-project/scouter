@@ -300,16 +300,27 @@ public class ProfileText {
                 space--;
             }
 
+            int dotPos;
             switch (stepSingle.getStepType()) {
                 case StepEnum.METHOD:
                     slen = sb.length();
-                    toString(sb, (MethodStep) stepSingle, isSimplified);
+                    dotPos = toString(sb, (MethodStep) stepSingle, isSimplified);
+
                     sr.add(style(slen, 1, dyellow, SWT.BOLD));
+                    if(isSimplified && dotPos > 0) {
+                        sr.add(style(slen+1, dotPos, dyellow, SWT.NORMAL));
+                        sr.add(style(slen+dotPos+1, 1, dyellow, SWT.BOLD));
+                        sr.add(style(slen+dotPos+2, sb.length() - (slen+dotPos+2), dyellow, SWT.NORMAL));
+                    } else {
+                        sr.add(style(slen+1, sb.length() - slen+1, dyellow, SWT.NORMAL));
+                    }
                     break;
                 case StepEnum.METHOD2:
                     slen = sb.length();
-                    toString(sb, (MethodStep) stepSingle, isSimplified);
+                    dotPos = toString(sb, (MethodStep) stepSingle, isSimplified);
                     sr.add(style(slen, 1, dyellow, SWT.BOLD));
+                    sr.add(style(slen+1, sb.length() - slen+1, dyellow, SWT.NORMAL));
+                    //sr.add(style(slen+dotPos, 1, dyellow, SWT.BOLD));
                     MethodStep2 m2 = (MethodStep2) stepSingle;
                     if (m2.error != 0) {
                         slen = sb.length();
@@ -788,7 +799,10 @@ public class ProfileText {
         sb.append(p.message);
     }
 
-    public static void toString(StringBuffer sb, MethodStep p, boolean isSimplified) {
+    /**
+     * @return class and method deliminator position ( Class.method -> return 5)
+     */
+    public static int toString(StringBuffer sb, MethodStep p, boolean isSimplified) {
         String m = TextProxy.method.getText(p.hash);
         if (m == null) {
             m = Hexa32.toString32(p.hash);
@@ -796,9 +810,11 @@ public class ProfileText {
 
         if(isSimplified) {
             String simple = simplifyMethod(m);
-            sb.append(simple).append(" [").append(FormatUtil.print(p.elapsed, "#,##0")).append("ms]").append("  --- [Full Name] ").append(m);
+            sb.append(simple).append(" [").append(FormatUtil.print(p.elapsed, "#,##0")).append("ms]").append(" -- ").append(m);
+            return simple.indexOf('.');
         } else {
             sb.append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
+            return m.indexOf('.');
         }
     }
 
