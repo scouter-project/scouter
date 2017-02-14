@@ -332,6 +332,8 @@ public class Configure extends Thread {
     public boolean hook_method_access_protected_enabled = false;
     @ConfigDesc("Activating none Method hooking")
     public boolean hook_method_access_none_enabled = false;
+    @ConfigDesc("Activating lambda Method hooking")
+    public boolean hook_method_lambda_enable = true;
     @ConfigDesc("Method set for service hooking")
     public String hook_service_patterns = "";
     @ConfigDesc("Method set for apicall hooking")
@@ -606,6 +608,8 @@ public class Configure extends Thread {
         this.hook_method_access_protected_enabled = getBoolean("hook_method_access_protected_enabled", false);
         this.hook_method_access_private_enabled = getBoolean("hook_method_access_private_enabled", false);
         this.hook_method_access_none_enabled = getBoolean("hook_method_access_none_enabled", false);
+        this.hook_method_lambda_enable = getBoolean("hook_method_lambda_enable", true);
+
         this.hook_method_ignore_prefixes = StringUtil.removeWhitespace(getValue("hook_method_ignore_prefixes", "get,set"));
         this._hook_method_ignore_prefix = StringUtil.split(this.hook_method_ignore_prefixes, ",");
         this._hook_method_ignore_prefix_len = this._hook_method_ignore_prefix == null ? 0
