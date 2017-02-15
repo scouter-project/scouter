@@ -17,6 +17,21 @@
  */
 package scouter.client.group;
 
+import scouter.client.util.ClientFileUtil;
+import scouter.client.util.ConsoleProxy;
+import scouter.client.util.ExUtil;
+import scouter.client.util.RCPUtil;
+import scouter.io.DataInputX;
+import scouter.io.DataOutputX;
+import scouter.lang.pack.MapPack;
+import scouter.lang.value.ListValue;
+import scouter.lang.value.MapValue;
+import scouter.lang.value.TextValue;
+import scouter.lang.value.Value;
+import scouter.util.CacheTable;
+import scouter.util.FileUtil;
+import scouter.util.StringUtil;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -26,22 +41,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import scouter.client.util.ConsoleProxy;
-import scouter.client.util.ExUtil;
-import scouter.client.util.RCPUtil;
-import scouter.util.StringUtil;
-import scouter.lang.pack.MapPack;
-import scouter.lang.value.ListValue;
-import scouter.lang.value.MapValue;
-import scouter.lang.value.TextValue;
-import scouter.lang.value.Value;
-import scouter.io.DataInputX;
-import scouter.io.DataOutputX;
-import scouter.util.CacheTable;
-import scouter.util.FileUtil;
-
 public class GroupManager {
-	private File groupFile = new File(RCPUtil.getWorkingDirectory(), "groupfile");
+	private File groupFile = new File(RCPUtil.getWorkingDirectory(), ClientFileUtil.GROUP_FILE);
 	private static volatile GroupManager instance;
 	private Set<String> reserved = new HashSet<String>();
 	
