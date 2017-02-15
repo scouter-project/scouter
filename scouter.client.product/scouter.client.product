@@ -17,6 +17,7 @@
       <vmArgs>-Xms128m
 -Xmx512m
 -XX:+UseG1GC
+-Dosgi.requiredJavaVersion=1.8
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
