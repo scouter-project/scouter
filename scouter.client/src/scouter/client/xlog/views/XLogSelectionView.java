@@ -183,7 +183,7 @@ public class XLogSelectionView extends ViewPart {
 			t.printStackTrace();
 		}
 		//validation
-		if(store.getColumns().size() == 0) { store = null; }
+		if(store != null && store.getColumns().size() == 0) { store = null; }
 		
 		return store;
 	}
