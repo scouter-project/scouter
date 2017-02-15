@@ -120,7 +120,7 @@ All options and default values are available from the scuoter client's **Object 
 
 ## 4. Client
 ### 4.1. Prerequisite
-* JRE 1.7+
+* JRE 1.8+
 
 ### Start Client
 1. Download suitable one of `scouter.client.product-${os}[.tar.gz|.zip]` 
