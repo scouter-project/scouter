@@ -72,16 +72,22 @@ public class UdpAgent {
 			long pkid = KeyGen.next();
 			
 			int availPacketSize = packetSize - 23; // Packet header size is 23
+			int totalPacketCnt;
 			int total = data.length / availPacketSize;
 			int remainder = data.length % availPacketSize;
 			int num = 0;
 			boolean isSuccess = true;
 			
+			totalPacketCnt = total;
+			if(remainder > 0){
+				totalPacketCnt++;
+			}
+			
 			for (num = 0; (isSuccess && num < total); num++) {
-				isSuccess = SendMTU(IPAddress, port, pkid, total, num, availPacketSize, DataInputX.get(data, num * availPacketSize, availPacketSize));
+				isSuccess = SendMTU(IPAddress, port, pkid, totalPacketCnt, num, availPacketSize, DataInputX.get(data, num * availPacketSize, availPacketSize));
 			}
 			if (isSuccess && remainder > 0) {
-				isSuccess = SendMTU(IPAddress, port, pkid, total, num, remainder, DataInputX.get(data, data.length - remainder, remainder));
+				isSuccess = SendMTU(IPAddress, port, pkid, totalPacketCnt, num, remainder, DataInputX.get(data, data.length - remainder, remainder));
 			}
 			return isSuccess;
 		} catch (IOException e) {

@@ -93,7 +93,6 @@ public class BatchMonitor extends Thread {
 			}
 		}catch(Throwable ex){
 			Logger.println("ERROR: " + ex.getMessage());
-			ex.printStackTrace();
 		}finally{
 			if(stackWriter != null){
 				try{ stackWriter.close(); }catch(Exception ex){}	
