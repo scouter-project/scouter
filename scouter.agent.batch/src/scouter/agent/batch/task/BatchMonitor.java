@@ -51,7 +51,9 @@ public class BatchMonitor extends Thread {
 			config = Configure.getInstance();			
 			TraceContext traceContext = TraceContext.getInstance();
 			
-			UdpLocalAgent.sendUdpPackToServer(Main.getObjectPack());
+			if(!config.scouter_standalone){
+				UdpLocalAgent.sendUdpPackToServer(Main.getObjectPack());
+			}
 			if(config.sfa_dump_enabled){
 				stackFile = new File(traceContext.getLogFullFilename() + ".log");
 				if(stackFile.exists()){
@@ -74,23 +76,24 @@ public class BatchMonitor extends Thread {
 				currentTime = System.currentTimeMillis();
 				if(stackWriter != null){
 					if((currentTime - lastStackDumpTime) >= config.sfa_dump_interval_ms){
+						lastStackDumpTime = currentTime;
 						ThreadDumpHandler.processDump(stackFile, stackWriter, indexWriter, config.sfa_dump_filter, config.sfa_dump_header_exists);
 						UdpLocalAgent.sendRunningInfo(traceContext);
-						lastStackDumpTime = currentTime;
 					}
 				}
 				if((currentTime - lastCheckGCTime) >= 5000L){
-					traceContext.caculateResource();
 					lastCheckGCTime = currentTime;
+					traceContext.caculateResource();
 				}
 				if((currentTime - lastCheckThreadTime) >= config.thread_check_interval_ms){
-					traceContext.checkThread();
 					lastCheckThreadTime = currentTime;
+					traceContext.checkThread();
 				}
 				Thread.sleep(100L);
 			}
 		}catch(Throwable ex){
 			Logger.println("ERROR: " + ex.getMessage());
+			ex.printStackTrace();
 		}finally{
 			if(stackWriter != null){
 				try{ stackWriter.close(); }catch(Exception ex){}	
