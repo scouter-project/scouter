@@ -107,7 +107,9 @@ public class AgentTransformer implements ClassFileTransformer {
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
             hookingCtx.set(loader);
-            //System.out.println("loading ... className=" + className);
+            if(className != null && (className.indexOf("java/lang/invoke") >= 0 || className.indexOf("gunlee") >= 0)) {
+                System.out.println("[!!!!!!!!] loading ... className=" + className);
+            }
             if (className == null)
                 return null;
             if (classBeingRedefined == null) {

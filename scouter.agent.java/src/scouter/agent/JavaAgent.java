@@ -18,19 +18,39 @@ package scouter.agent;
 
 import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.util.AsyncRunner;
+import scouter.bytebuddy.agent.builder.AgentBuilder;
+import scouter.bytebuddy.description.type.TypeDescription;
+import scouter.bytebuddy.dynamic.DynamicType;
+import scouter.bytebuddy.implementation.FixedValue;
+import scouter.bytebuddy.matcher.ElementMatchers;
 import scouter.util.StringSet;
 import scouter.util.logo.Logo;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 
+import static scouter.bytebuddy.matcher.ElementMatchers.named;
 import static scouter.agent.Logger.conf;
 
 public class JavaAgent {
 	private static Instrumentation instrumentation;
 
 	public static void premain(String options, Instrumentation instrum) {
-		preStart(options, instrum, new AgentTransformer());
+		new AgentBuilder.Default()
+				.with(AgentBuilder.LambdaInstrumentationStrategy.ENABLED)
+				.type(ElementMatchers.named("ffsdfksasadfasd"))
+				.transform(new AgentBuilder.Transformer() {
+					@Override
+					public DynamicType.Builder transform(DynamicType.Builder builder,
+					                                     TypeDescription typeDescription,
+					                                     ClassLoader classloader) {
+						return builder.method(named("toString"))
+								.intercept(FixedValue.value("transformed"));
+					}
+				})
+				.installOn(instrum);
+
+		//preStart(options, instrum, new AgentTransformer());
 	}
 
 	public static void preStart(String options, Instrumentation instrum, ClassFileTransformer transformer) {
@@ -38,10 +58,12 @@ public class JavaAgent {
 			return;
 		}
 		intro();
+
 		Configure.getInstance();
 		BackJobs.getInstance().put(Logger.class.getName(), 3000, Logger.initializer);
 		JavaAgent.instrumentation = instrum;
 		JavaAgent.instrumentation.addTransformer(transformer);
+
 		// RequestAgent.getInstance();
 
 		addAsyncRedefineClasses();
@@ -52,15 +74,29 @@ public class JavaAgent {
 
 	private static void addAsyncRedefineClasses() {
 		//preloaded map impl classes before arriving trnasform method.
+		StringSet redefineClasses = new StringSet();
 		if(conf._hook_map_impl_enabled) {
-			StringSet redefineClasses = new StringSet();
 			redefineClasses.put("java.util.HashMap");
 			redefineClasses.put("java.util.LinkedHashMap");
 			redefineClasses.put("java.util.concurrent.ConcurrentHashMap");
 			redefineClasses.put("java.util.HashTable");
-
-			AsyncRunner.getInstance().add(redefineClasses);
 		}
+
+		//java.lang.invoke.LambdaMetafactory.*,java.lang.invoke.CallSite.*,
+		//java.lang.invoke.ConstantCallSite.*,
+		//java.lang.invoke.MutableCallSite.*,
+		//java.lang.invoke.VolatileCallSite.*
+
+		redefineClasses.put("java.lang.invoke.CallSite");
+		redefineClasses.put("java.lang.invoke.ConstantCallSite");
+		redefineClasses.put("java.lang.invoke.MutableCallSite");
+		redefineClasses.put("java.lang.invoke.VolatileCallSite");
+		redefineClasses.put("java.lang.invoke.LambdaForm");
+		redefineClasses.put("java.lang.invoke.DirectMethodHandle");
+
+		AsyncRunner.getInstance().add(redefineClasses);
+
+
 	}
 
 	private static void intro() {
