@@ -21,7 +21,14 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnPixelData;
+import org.eclipse.jface.viewers.IColorProvider;
+import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -31,7 +38,13 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
@@ -39,7 +52,9 @@ import scouter.client.model.XLogData;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.sorter.TableLabelSorter;
+import scouter.client.util.ClientFileUtil;
 import scouter.client.util.ColorUtil;
+import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.xlog.actions.OpenXLogProfileJob;
 import scouter.util.FormatUtil;
@@ -47,8 +62,11 @@ import scouter.util.Hexa32;
 import scouter.util.IPUtil;
 import scouter.util.StringUtil;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.IntStream;
 
 
 public class XLogSelectionView extends ViewPart {
@@ -58,7 +76,8 @@ public class XLogSelectionView extends ViewPart {
 	private TableColumnLayout tableColumnLayout;
 	private String yyyymmdd;
 	private Clipboard clipboard;
-	
+
+	@Override
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
 		Composite comp = new Composite(parent, SWT.NONE);
@@ -91,6 +110,20 @@ public class XLogSelectionView extends ViewPart {
 	        }
 	    });
 	    clipboard = new Clipboard(null);
+
+		getSite().getPage().addPartListener(new IPartListener2() {
+			@Override public void partActivated(IWorkbenchPartReference iWorkbenchPartReference) {}
+			@Override public void partBroughtToTop(IWorkbenchPartReference iWorkbenchPartReference) {}
+			@Override public void partClosed(IWorkbenchPartReference iWorkbenchPartReference) {}
+			@Override public void partOpened(IWorkbenchPartReference iWorkbenchPartReference) {}
+			@Override public void partHidden(IWorkbenchPartReference iWorkbenchPartReference) {}
+			@Override public void partVisible(IWorkbenchPartReference iWorkbenchPartReference) {}
+			@Override public void partInputChanged(IWorkbenchPartReference iWorkbenchPartReference) {}
+
+			@Override public void partDeactivated(IWorkbenchPartReference iWorkbenchPartReference) {
+				saveColumnsInfo();
+			}
+		});
 	}
 	
 	public void setInput(final ArrayList<XLogData> xperfData, String objType, final String yyyymmdd) {
@@ -104,19 +137,57 @@ public class XLogSelectionView extends ViewPart {
 		viewer.setInput(xperfData);
 	}
 	
-	public void setFocus() {
-	}
-	
 	ArrayList<XLogColumnEnum> columnList = new ArrayList<XLogColumnEnum>();
 
 	private void createColumns() {
-		for (XLogColumnEnum column : XLogColumnEnum.values()) {
-			createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
-			columnList.add(column);
+		XLogColumnStore columnStore = loadColumnInfo();
+		if (columnStore != null) {
+			columnStore.getColumns().stream().forEach((column) -> {
+				createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
+				columnList.add(column);
+			});
+		} else {
+			for (XLogColumnEnum column : XLogColumnEnum.values()) {
+				createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
+				columnList.add(column);
+			}
 		}
 		viewer.setLabelProvider(new TableItemProvider());
 	}
+
+	private void saveColumnsInfo() {
+		XLogColumnStore columnStore = new XLogColumnStore();
+		
+		try {
+			final Table table = viewer.getTable();
+			int[] columnOrders = table.getColumnOrder();
+			TableColumn[] columns = table.getColumns();
 	
+			for (int i = 0; i < columnOrders.length; i++) {
+				TableColumn column = columns[columnOrders[i]];
+				XLogColumnEnum columnEnum = XLogColumnEnum.findByTitle(column.getText());
+				columnEnum.setWidth(column.getWidth());
+				columnStore.addColumn(columnEnum);
+			}
+		} catch(Throwable t) {}
+		if(columnStore.getColumns().size() > 0) {
+			ExUtil.asyncRun(()->ClientFileUtil.saveObjectFile(columnStore, ClientFileUtil.XLOG_COLUMN_FILE));
+		}
+	}
+
+	private XLogColumnStore loadColumnInfo() {
+		XLogColumnStore store = null;
+		try {
+			store = ClientFileUtil.readObjectFile(ClientFileUtil.XLOG_COLUMN_FILE, XLogColumnStore.class);
+		}catch(Throwable t) {
+			t.printStackTrace();
+		}
+		//validation
+		if(store != null && store.getColumns().size() == 0) { store = null; }
+		
+		return store;
+	}
+
 	class TableItemProvider implements ITableLabelProvider, IColorProvider {
 
 		public Color getForeground(Object element) {
@@ -242,7 +313,7 @@ public class XLogSelectionView extends ViewPart {
 		}
 	}
 	
-	enum XLogColumnEnum {
+	enum XLogColumnEnum implements Serializable {
 	    OBJECT("Object", 80, SWT.LEFT, true, true, false),
 	    ELAPSED("Elapsed", 50, SWT.RIGHT, true, true, true),
 	    SERVICE("Service", 100, SWT.LEFT, true, true, false),
@@ -261,15 +332,17 @@ public class XLogSelectionView extends ViewPart {
 		START_TIME("StartTime", 70, SWT.CENTER, true, true, true);
 
 	    private final String title;
-	    private final int weight;
+	    private int width;
 	    private final int alignment;
 	    private final boolean resizable;
 	    private final boolean moveable;
 	    private final boolean isNumber;
-
+	    
+	    private static final long serialVersionUID = -1477341833201236951L;
+	    
 	    private XLogColumnEnum(String text, int width, int alignment, boolean resizable, boolean moveable, boolean isNumber) {
 	        this.title = text;
-	        this.weight = width;
+	        this.width = width;
 	        this.alignment = alignment;
 	        this.resizable = resizable;
 	        this.moveable = moveable;
@@ -293,16 +366,59 @@ public class XLogSelectionView extends ViewPart {
 	    }
 
 		public int getWidth() {
-			return weight;
+			return width;
 		}
 		
 		public boolean isNumber() {
 			return this.isNumber;
+		}
+
+		public void setWidth(int width) {
+	    	this.width = width;
+		}
+
+		public static XLogColumnEnum findByTitle(String title) {
+			for (XLogColumnEnum columnEnum : XLogColumnEnum.values()) {
+				if (columnEnum.getTitle().equals(title)) {
+					return columnEnum;
+				}
+			}
+			throw new RuntimeException(String.format("[FATAL] Invalid XLogColumn title : <%s>", title));
 		}
 	}
 
 	public void dispose() {
 		clipboard.dispose();
 		super.dispose();
+	}
+
+	@Override
+	public void setFocus() {
+
+	}
+
+	public static class XLogColumnStore implements Serializable {
+		private static final long serialVersionUID = -1477341833801636951L;
+		private List<XLogColumnEnum> columns = new ArrayList<>();
+		private List<Integer> widthsForSerialization = new ArrayList<>();
+
+		public void addColumn(XLogColumnEnum xLogColumnEnum) {
+			columns.add(xLogColumnEnum);
+			widthsForSerialization.add(xLogColumnEnum.getWidth());
+		}
+
+		public void setColumns(ArrayList<XLogColumnEnum> xLogColumnEnums) {
+			columns = xLogColumnEnums;
+		}
+
+		public List<XLogColumnEnum> getColumns() {
+			try {
+				IntStream.range(0, columns.size()).forEach(index -> columns.get(index).setWidth(widthsForSerialization.get(index)));
+
+			} catch(Throwable t) {
+				return new ArrayList<>();
+			}
+			return columns;
+		}
 	}
 }

@@ -160,10 +160,9 @@ public class AsmUtil implements Opcodes {
         }
         return -1;
     }
-	
-	
+
 	public static boolean isSpecial(String name) {
-		return name.indexOf("$") >= 0 || name.startsWith("<");
+		return (name.indexOf("$") >= 0 && name.indexOf("lambda$") != 0) || name.startsWith("<");
 	}
 
 	public static boolean isInterface(int access) {

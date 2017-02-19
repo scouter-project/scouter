@@ -225,6 +225,7 @@ public class Configure {
 		apply();
 		
 		Logger.println(CONFIG_SCOUTER_ENABLED + "=" + this.scouter_enabled);
+		Logger.println("scouter_standalone=" + this.scouter_standalone);
 		Logger.println("sql_enabled=" + this.sql_enabled);
 		Logger.println("sfa_dump_enabled=" + this.sql_enabled);
 		if(sfa_dump_enabled){

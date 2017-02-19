@@ -17,12 +17,6 @@
  */
 package scouter.client.xlog.views;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -43,12 +37,8 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Monitor;
-import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.zest.core.viewers.EntityConnectionData;
 import org.eclipse.zest.core.viewers.GraphViewer;
@@ -58,9 +48,7 @@ import org.eclipse.zest.core.viewers.IGraphEntityContentProvider;
 import org.eclipse.zest.core.widgets.ZestStyles;
 import org.eclipse.zest.layouts.LayoutStyles;
 import org.eclipse.zest.layouts.algorithms.HorizontalTreeLayoutAlgorithm;
-
 import scouter.client.Images;
-import scouter.client.model.DetachedManager;
 import scouter.client.model.TextProxy;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
@@ -71,7 +59,6 @@ import scouter.client.util.ColorUtil;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
-import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.xlog.actions.OpenXLogProfileJob;
 import scouter.io.DataInputX;
@@ -96,6 +83,12 @@ import scouter.util.LinkedMap;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
 import scouter.util.StringUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
 
 
 public class XLogFlowView extends ViewPart {
@@ -347,7 +340,7 @@ public class XLogFlowView extends ViewPart {
 				String table = TextProxy.sql_tables.getLoadText(date, sqlstep.hash, serverId);
 				String sql = TextProxy.sql.getLoadText(date, sqlstep.hash, serverId).trim();
 				sqlElement.name =  StringUtil.isNotEmpty(table) ? table : StringUtil.truncate(sql, 20) + "...";
-				sqlElement.name =  table;
+				//sqlElement.name =  table;
 				sqlElement.error = sqlstep.error;
 				sqlElement.tags.put("serverId", serverId);
 				sqlElement.tags.put("sql", sql);

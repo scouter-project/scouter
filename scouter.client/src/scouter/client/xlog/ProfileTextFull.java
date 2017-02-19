@@ -270,14 +270,14 @@ public class ProfileTextFull {
 			switch (stepSingle.getStepType()) {
 			case StepEnum.METHOD:
 				slen = sb.length();
-				ProfileText.toString(sb, (MethodStep) stepSingle);
+				ProfileText.toString(sb, (MethodStep) stepSingle, false);
 				if(searchLineIndex == stepSingle.index){
 					sr.add(ProfileText.style(slen, sb.length() - slen, red, SWT.BOLD, yellow));
 				}
 				break;
 			case StepEnum.METHOD2:
 				slen = sb.length();
-				ProfileText.toString(sb, (MethodStep) stepSingle);
+				ProfileText.toString(sb, (MethodStep) stepSingle, false);
 				if(searchLineIndex == stepSingle.index){
 					sr.add(ProfileText.style(slen, sb.length() - slen, red, SWT.BOLD, yellow));
 				}

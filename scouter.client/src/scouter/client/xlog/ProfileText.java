@@ -44,9 +44,14 @@ public class ProfileText {
              int serverId) {
 		 build(date, text, xperf, profiles, serverId, false);
 	}
-	 
+
     public static void build(final String date, StyledText text, XLogData xperf, Step[] profiles,
                              int serverId, boolean bindSqlParam) {
+        build(date, text, xperf, profiles, serverId, bindSqlParam, false);
+    }
+	 
+    public static void build(final String date, StyledText text, XLogData xperf, Step[] profiles,
+                             int serverId, boolean bindSqlParam, boolean isSimplified) {
 
         boolean truncated = false;
 
@@ -63,6 +68,11 @@ public class ProfileText {
 
         Color dred = text.getDisplay().getSystemColor(SWT.COLOR_DARK_RED);
         Color dgreen = text.getDisplay().getSystemColor(SWT.COLOR_DARK_GREEN);
+
+        Color dblue = text.getDisplay().getSystemColor(SWT.COLOR_DARK_BLUE);
+        Color dcyan = text.getDisplay().getSystemColor(SWT.COLOR_DARK_CYAN);
+        Color dyellow = text.getDisplay().getSystemColor(SWT.COLOR_DARK_YELLOW);
+        Color dgray = text.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
 
         java.util.List<StyleRange> sr = new ArrayList<StyleRange>();
 
@@ -290,12 +300,27 @@ public class ProfileText {
                 space--;
             }
 
+            int dotPos;
             switch (stepSingle.getStepType()) {
                 case StepEnum.METHOD:
-                    toString(sb, (MethodStep) stepSingle);
+                    slen = sb.length();
+                    dotPos = toString(sb, (MethodStep) stepSingle, isSimplified);
+
+                    sr.add(style(slen, 1, dyellow, SWT.BOLD));
+                    if(isSimplified && dotPos > 0) {
+                        sr.add(style(slen+1, dotPos, dyellow, SWT.NORMAL));
+                        sr.add(style(slen+dotPos+1, 1, dyellow, SWT.BOLD));
+                        sr.add(style(slen+dotPos+2, sb.length() - (slen+dotPos+2), dyellow, SWT.NORMAL));
+                    } else {
+                        sr.add(style(slen+1, sb.length() - slen+1, dyellow, SWT.NORMAL));
+                    }
                     break;
                 case StepEnum.METHOD2:
-                    toString(sb, (MethodStep) stepSingle);
+                    slen = sb.length();
+                    dotPos = toString(sb, (MethodStep) stepSingle, isSimplified);
+                    sr.add(style(slen, 1, dyellow, SWT.BOLD));
+                    sr.add(style(slen+1, sb.length() - slen+1, dyellow, SWT.NORMAL));
+                    //sr.add(style(slen+dotPos, 1, dyellow, SWT.BOLD));
                     MethodStep2 m2 = (MethodStep2) stepSingle;
                     if (m2.error != 0) {
                         slen = sb.length();
@@ -329,7 +354,7 @@ public class ProfileText {
                 case StepEnum.DUMP:
                     slen = sb.length();
                     toString(sb, (DumpStep) stepSingle, lineHead);
-                    sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
+                    sr.add(style(slen, sb.length() - slen, dgray, SWT.NORMAL));
                     break;
                 case StepEnum.APICALL:
                     ApiCallStep apicall = (ApiCallStep) stepSingle;
@@ -528,10 +553,10 @@ public class ProfileText {
 
             switch (stepSingle.getStepType()) {
                 case StepEnum.METHOD:
-                    toString(sb, (MethodStep) stepSingle);
+                    toString(sb, (MethodStep) stepSingle, false);
                     break;
                 case StepEnum.METHOD2:
-                    toString(sb, (MethodStep) stepSingle);
+                    toString(sb, (MethodStep) stepSingle, false);
                     MethodStep2 m2 = (MethodStep2) stepSingle;
                     if (m2.error != 0) {
                         slen = sb.length();
@@ -774,12 +799,35 @@ public class ProfileText {
         sb.append(p.message);
     }
 
-    public static void toString(StringBuffer sb, MethodStep p) {
+    /**
+     * @return class and method deliminator position ( Class.method -> return 5)
+     */
+    public static int toString(StringBuffer sb, MethodStep p, boolean isSimplified) {
         String m = TextProxy.method.getText(p.hash);
         if (m == null) {
             m = Hexa32.toString32(p.hash);
         }
-        sb.append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
+
+        if(isSimplified) {
+            String simple = simplifyMethod(m);
+            sb.append(simple).append(" [").append(FormatUtil.print(p.elapsed, "#,##0")).append("ms]").append(" -- ").append(m);
+            return simple.indexOf('.');
+        } else {
+            sb.append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
+            return m.indexOf('.');
+        }
+    }
+
+    public static String simplifyMethod(String method) {
+        String[] parts = StringUtil.split(method, '.');
+        if(parts.length >= 2) {
+            String methodName = parts[parts.length - 1];
+            int bracePos = methodName.indexOf('(');
+
+            return parts[parts.length - 2] + "." + methodName.substring(0, bracePos) + "";
+        } else {
+            return method;
+        }
     }
 
     public static StyleRange style(int start, int length, Color c, int f) {
@@ -787,6 +835,14 @@ public class ProfileText {
         t.start = start;
         t.length = length;
         t.foreground = c;
+        t.fontStyle = f;
+        return t;
+    }
+
+    public static StyleRange style(int start, int length, int f) {
+        StyleRange t = new StyleRange();
+        t.start = start;
+        t.length = length;
         t.fontStyle = f;
         return t;
     }
