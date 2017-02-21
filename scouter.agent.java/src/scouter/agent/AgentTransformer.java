@@ -59,6 +59,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new HttpServiceASM());
         temp.add(new ServiceASM());
 
+        temp.add(new AsyncServletASM());
         temp.add(new JDBCPreparedStatementASM());
         temp.add(new JDBCResultSetASM());
         temp.add(new JDBCStatementASM());

@@ -32,6 +32,9 @@ import scouter.lang.conf.ConfObserver;
 import scouter.lang.step.MessageStep;
 import scouter.util.*;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.AsyncEvent;
+import javax.servlet.AsyncListener;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -350,6 +353,34 @@ public class HttpTrace implements IHttpTrace {
         }
     }
 
+    public void addAsyncContextListener(Object ac) {
+        AsyncContext actx = (AsyncContext)ac;
+        actx.addListener(new AsyncListener() {
+            @Override
+            public void onComplete(AsyncEvent asyncEvent) throws IOException {
+                //TODO
+                System.out.println("[scouter][asynccontext]onComplete");
+            }
+
+            @Override
+            public void onTimeout(AsyncEvent asyncEvent) throws IOException {
+                //TODO
+                System.out.println("[scouter][asynccontext]onTimeout");
+            }
+
+            @Override
+            public void onError(AsyncEvent asyncEvent) throws IOException {
+                //TODO
+                System.out.println("[scouter][asynccontext]onError");
+            }
+
+            @Override
+            public void onStartAsync(AsyncEvent asyncEvent) throws IOException {
+                //TODO
+                System.out.println("[scouter][asynccontext]onStartAsync");
+            }
+        });
+    }
 
     public static void main(String[] args) {
         System.out.println("http trace".indexOf(null));

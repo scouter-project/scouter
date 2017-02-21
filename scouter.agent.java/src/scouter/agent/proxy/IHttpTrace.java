@@ -20,16 +20,18 @@ package scouter.agent.proxy;
 import scouter.agent.trace.TraceContext;
 
 public interface IHttpTrace {
-	public String getParameter(Object req, String key);
+	String getParameter(Object req, String key);
 
-	public void start(TraceContext ctx, Object req, Object res);
+	void start(TraceContext ctx, Object req, Object res);
 
-	public void end(TraceContext ctx, Object req, Object res);
+	void end(TraceContext ctx, Object req, Object res);
 
-	public void rejectText(Object res, String text);
+	void rejectText(Object res, String text);
 
-	public void rejectUrl(Object res, String url);
+	void rejectUrl(Object res, String url);
 
-	public String getHeader(Object req, String key);
+	String getHeader(Object req, String key);
+
+	void addAsyncContextListener(Object ac);
 
 }

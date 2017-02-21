@@ -43,6 +43,9 @@ public class HttpTraceFactory {
 		public void rejectUrl(Object res, String url) {
 		}
 
+		public void addAsyncContextListener(Object ac) {
+
+		}
 	};
 
 	public static IHttpTrace create(ClassLoader parent) {

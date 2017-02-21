@@ -850,4 +850,9 @@ public class TraceMain {
         }
         return isXLogDisard;
     }
+
+    public static void endRequestAsyncStart(Object asyncContext) {
+        if(http == null) return;
+        http.addAsyncContextListener(asyncContext);
+    }
 }
