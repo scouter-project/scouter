@@ -27,10 +27,16 @@ import scouter.agent.summary.EndUserNavigationData;
 import scouter.agent.summary.EndUserSummary;
 import scouter.agent.trace.IProfileCollector;
 import scouter.agent.trace.TraceContext;
+import scouter.agent.trace.TraceContextManager;
 import scouter.agent.trace.TraceMain;
+import scouter.agent.trace.TransferMap;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.step.MessageStep;
-import scouter.util.*;
+import scouter.util.CastUtil;
+import scouter.util.CompareUtil;
+import scouter.util.HashUtil;
+import scouter.util.Hexa32;
+import scouter.util.StringUtil;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
@@ -41,6 +47,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
+
+import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_ASYNC_DISPATCH;
+import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP;
+import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_INITIAL_TRACE_CONTEXT;
+import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_TRACE_CONTEXT;
 
 public class HttpTrace implements IHttpTrace {
     private boolean remote_by_header;
@@ -106,6 +117,17 @@ public class HttpTrace implements IHttpTrace {
 
         ctx.remoteIp = getRemoteAddr(request);
 
+        TransferMap.ID transferId = (TransferMap.ID)request.getAttribute(REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP);
+        request.setAttribute(REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP, null);
+        System.out.println("[scouter][start]transferId:thread: " + transferId + " ::: " + Thread.currentThread().getName());
+        System.out.println("[scouter][start]url: " + ctx.serviceName);
+        if(transferId != null) {
+            if(transferId.gxid !=0) ctx.gxid = transferId.gxid;
+            if(transferId.callee !=0) ctx.txid = transferId.callee;
+            if(transferId.caller !=0) ctx.caller = transferId.caller;
+            ctx.xType = transferId.xType;
+        }
+
         try {
             switch (conf.trace_user_mode) {
                 case 3:
@@ -143,7 +165,7 @@ public class HttpTrace implements IHttpTrace {
             ctx.userAgentString = userAgent;
         }
         dump(ctx.profile, request, ctx);
-        if (conf.trace_interservice_enabled) {
+        if (conf.trace_interservice_enabled && transferId == null) {
             try {
                 String gxid = request.getHeader(conf._trace_interservice_gxid_header_key);
                 if (gxid != null) {
@@ -354,32 +376,66 @@ public class HttpTrace implements IHttpTrace {
     }
 
     public void addAsyncContextListener(Object ac) {
+        TraceContext traceContext = TraceContextManager.getContext();
+        if(traceContext == null) return;
+
         AsyncContext actx = (AsyncContext)ac;
+        if(actx.getRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) == null) {
+            actx.getRequest().setAttribute(REQUEST_ATTRIBUTE_INITIAL_TRACE_CONTEXT, traceContext);
+            actx.getRequest().setAttribute(REQUEST_ATTRIBUTE_TRACE_CONTEXT, traceContext);
+            actx.getRequest().setAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH, 1);
+        } else {
+            int dispatchCount = (Integer) actx.getRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH);
+            actx.getRequest().setAttribute(REQUEST_ATTRIBUTE_TRACE_CONTEXT, traceContext);
+            actx.getRequest().setAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH, ++dispatchCount);
+        }
+
         actx.addListener(new AsyncListener() {
             @Override
             public void onComplete(AsyncEvent asyncEvent) throws IOException {
                 //TODO
-                System.out.println("[scouter][asynccontext]onComplete");
+                System.out.println("[scouter][asynccontext]onComplete:count: " + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
+                System.out.println("[scouter][asynccontext]onComplete:thread: " + Thread.currentThread().getName());
+                //end
+
             }
 
             @Override
             public void onTimeout(AsyncEvent asyncEvent) throws IOException {
                 //TODO
-                System.out.println("[scouter][asynccontext]onTimeout");
+                System.out.println("[scouter][asynccontext]onTimeout:count:" + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
+                System.out.println("[scouter][asynccontext]onTimeout:thread: " + Thread.currentThread().getName());
             }
 
             @Override
             public void onError(AsyncEvent asyncEvent) throws IOException {
                 //TODO
-                System.out.println("[scouter][asynccontext]onError");
+                System.out.println("[scouter][asynccontext]onError:count:" + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
+                System.out.println("[scouter][asynccontext]onError:thread: " + Thread.currentThread().getName());
             }
 
             @Override
             public void onStartAsync(AsyncEvent asyncEvent) throws IOException {
                 //TODO
-                System.out.println("[scouter][asynccontext]onStartAsync");
+                System.out.println("[scouter][asynccontext]onStartAsync:count:" + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
+                System.out.println("[scouter][asynccontext]onStartAsync:thread: " + Thread.currentThread().getName());
+            }
+
+            private void finish(AsyncEvent asyncEvent) {
+
             }
         });
+    }
+
+    public TraceContext getTraceContextFromAsyncContext(Object oAsyncContext) {
+        AsyncContext asyncContext = (AsyncContext) oAsyncContext;
+        TraceContext currentTraceContext = (TraceContext)asyncContext.getRequest().getAttribute(REQUEST_ATTRIBUTE_TRACE_CONTEXT);
+        return currentTraceContext;
+    }
+
+    public void setDispatchTransferMap(Object oAsyncContext, long gxid, long caller, long callee, byte xType) {
+        AsyncContext asyncContext = (AsyncContext) oAsyncContext;
+        asyncContext.getRequest().setAttribute(REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP, new TransferMap.ID(gxid, caller, callee, xType));
     }
 
     public static void main(String[] args) {

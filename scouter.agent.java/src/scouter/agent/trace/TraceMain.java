@@ -41,8 +41,16 @@ import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.MethodStep2;
+import scouter.lang.step.ThreadSubmitStep;
 import scouter.lang.value.MapValue;
-import scouter.util.*;
+import scouter.util.ArrayUtil;
+import scouter.util.HashUtil;
+import scouter.util.IPUtil;
+import scouter.util.KeyGen;
+import scouter.util.ObjectUtil;
+import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.ThreadUtil;
 
 import javax.sql.DataSource;
 
@@ -204,7 +212,7 @@ public class TraceMain {
         if (http == null) {
             initHttp(req);
         }
-        
+
         Configure conf = Configure.getInstance();
         TraceContext ctx = new TraceContext(conf.profile_summary_mode_enabled);
         ctx.thread = Thread.currentThread();
@@ -347,7 +355,7 @@ public class TraceMain {
             pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
             ctx.serviceHash = DataProxy.sendServiceName(ctx.serviceName);
             pack.service = ctx.serviceHash;
-            pack.xType = XLogTypes.WEB_SERVICE;
+            pack.xType = ctx.xType; //default 0 : XLogType.WEB_SERVICE
             pack.txid = ctx.txid;
             pack.gxid = ctx.gxid;
             pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
@@ -854,5 +862,31 @@ public class TraceMain {
     public static void endRequestAsyncStart(Object asyncContext) {
         if(http == null) return;
         http.addAsyncContextListener(asyncContext);
+    }
+
+    public static void dispatchAsyncServlet(Object asyncContext, String url) {
+        if(http == null) return;
+        TraceContext ctx = http.getTraceContextFromAsyncContext(asyncContext);
+
+        if(ctx == null) return;
+
+        if (ctx.gxid == 0) {
+            ctx.gxid = ctx.txid;
+        }
+        long callee = KeyGen.next();
+        http.setDispatchTransferMap(asyncContext, ctx.gxid, ctx.txid, callee, XLogTypes.BACK_THREAD);
+
+        ThreadSubmitStep step = new ThreadSubmitStep();
+        step.txid = callee;
+        step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        if (ctx.profile_thread_cputime) {
+            step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+        }
+        step.hash = DataProxy.sendApicall(
+                new StringBuilder("async-dispatch:")
+                        .append(url)
+                        .append("[").append(Thread.currentThread().getName()).append("]")
+                        .toString());
+        ctx.profile.add(step);
     }
 }

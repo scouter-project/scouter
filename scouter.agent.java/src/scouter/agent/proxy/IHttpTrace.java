@@ -34,4 +34,8 @@ public interface IHttpTrace {
 
 	void addAsyncContextListener(Object ac);
 
+	TraceContext getTraceContextFromAsyncContext(Object oAsyncContext);
+
+	void setDispatchTransferMap(Object oAsyncContext, long gxid, long caller, long callee, byte xType);
+
 }

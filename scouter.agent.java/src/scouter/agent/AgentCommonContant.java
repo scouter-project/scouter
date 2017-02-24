@@ -7,6 +7,10 @@ package scouter.agent;
  */
 public class AgentCommonContant {
     public static final String SPRING_REQUEST_MAPPING_POSTFIX_FLAG = " [:SRM]";
+    public static final String REQUEST_ATTRIBUTE_INITIAL_TRACE_CONTEXT = "__scouter__itc__";
+    public static final String REQUEST_ATTRIBUTE_TRACE_CONTEXT = "__scouter__tc__";
+    public static final String REQUEST_ATTRIBUTE_ASYNC_DISPATCH = "__scouter__ad__";
+    public static final String REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP = "__scouter__ctm__";
 
     /**
      * remove " [:SRM]" from service name
