@@ -17,12 +17,12 @@
  */
 package scouter.client.util;
 
-import java.util.HashMap;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
+
+import java.util.HashMap;
 
 public class ColorUtil {
 	
@@ -66,10 +66,14 @@ public class ColorUtil {
 		rgb.put("ivory",  new Color(null, 255, 255, 240));
 
 		rgb.put("white", new Color(null, 255, 255, 255));
-		rgb.put("blue",  new Color(null, 0, 0, 255 ));
-		rgb.put("red",  new Color(null, 255, 0, 0 ));
+		rgb.put("blue",  new Color(null, 0, 0, 255));
+		rgb.put("red",  new Color(null, 255, 0, 0));
+		rgb.put("light red",  new Color(null, 255, 135, 135));
+		rgb.put("light2 red",  new Color(null, 255, 180, 180));
 		rgb.put("green",  new Color(null, 0, 255, 0));
 		rgb.put("gray", new Color(null, 100, 100, 100));
+		rgb.put("light gray", new Color(null, 160, 160, 160));
+		rgb.put("light2 gray", new Color(null, 190, 190, 190));
 		rgb.put("blue gray",  new Color(null, 102, 153, 204));
 
 		rgb.put("dark green", new Color(null, 00, 0x64, 00));

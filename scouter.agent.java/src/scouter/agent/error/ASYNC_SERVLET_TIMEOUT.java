@@ -14,28 +14,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
+package scouter.agent.error;
 
-package scouter.agent.proxy;
+@SuppressWarnings("serial")
+public class ASYNC_SERVLET_TIMEOUT extends RuntimeException {
 
-import scouter.agent.trace.TraceContext;
+	public ASYNC_SERVLET_TIMEOUT() {
+	}
 
-public interface IHttpTrace {
-	String getParameter(Object req, String key);
+	public ASYNC_SERVLET_TIMEOUT(String message) {
+		super(message);
+	}
 
-	void start(TraceContext ctx, Object req, Object res);
+	public ASYNC_SERVLET_TIMEOUT(Throwable cause) {
+		super(cause);
+	}
 
-	void end(TraceContext ctx, Object req, Object res);
-
-	void rejectText(Object res, String text);
-
-	void rejectUrl(Object res, String url);
-
-	String getHeader(Object req, String key);
-
-	void addAsyncContextListener(Object ac);
-
-	TraceContext getTraceContextFromAsyncContext(Object oAsyncContext);
-
-	void setDispatchTransferMap(Object oAsyncContext, long gxid, long caller, long callee, byte xType);
+	public ASYNC_SERVLET_TIMEOUT(String message, Throwable cause) {
+		super(message, cause);
+	}
 
 }

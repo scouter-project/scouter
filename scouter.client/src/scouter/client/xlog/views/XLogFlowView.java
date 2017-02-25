@@ -65,6 +65,7 @@ import scouter.io.DataInputX;
 import scouter.lang.CountryCode;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.XLogPack;
+import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ApiCallSum;
 import scouter.lang.step.SqlStep;
@@ -227,6 +228,7 @@ public class XLogFlowView extends ViewPart {
 							serviceElement.elapsed = xlog.elapsed;
 							serviceElement.name = serviceName + "\n(" + objName + ")";
 							serviceElement.error = xlog.error;
+							serviceElement.xtype = xlog.xType;
 							serviceElement.tags.put("caller", xlog.caller);
 							serviceElement.tags.put("ip", IPUtil.toString(xlog.ipaddr));
 							serviceElement.tags.put("serverId", serverId);
@@ -422,6 +424,7 @@ public class XLogFlowView extends ViewPart {
 		public String name;
 		public int elapsed;
 		public int error;
+		public byte xtype;
 		
 		MapValue tags = new MapValue();
 		
@@ -569,7 +572,11 @@ public class XLogFlowView extends ViewPart {
 			if (entity instanceof DependencyElement) {
 				DependencyElement de = (DependencyElement) entity;
 				if (de.type == ElementType.SERVICE) {
-					return ColorUtil.getInstance().getColor(SWT.COLOR_DARK_BLUE);
+					if(de.xtype == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+						return ColorUtil.getInstance().getColor(SWT.COLOR_GRAY);
+					} else {
+						return ColorUtil.getInstance().getColor(SWT.COLOR_DARK_BLUE);
+					}
 				} else {
 					return ColorUtil.getInstance().getColor(SWT.COLOR_WHITE);
 				}
@@ -599,6 +606,12 @@ public class XLogFlowView extends ViewPart {
 		}
 
 		public Color getForegroundColour(Object entity) {
+			if (entity instanceof DependencyElement) {
+				DependencyElement de = (DependencyElement) entity;
+				if (de.xtype == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+					return ColorUtil.getInstance().getColor(SWT.COLOR_DARK_GRAY);
+				}
+			}
 			return null;
 		}
 

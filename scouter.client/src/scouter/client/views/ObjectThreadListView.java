@@ -106,7 +106,7 @@ public class ObjectThreadListView extends ViewPart implements Refreshable, ViewW
 				try {
 					IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 					ObjectThreadDetailView view = (ObjectThreadDetailView) win.getActivePage().showView(ObjectThreadDetailView.ID, serverId + "&" +  objHash, IWorkbenchPage.VIEW_ACTIVATE);
-					view.setInput(threadId);
+					view.setInput(threadId, 0L);
 				} catch (Exception d) {
 				}
 			}
