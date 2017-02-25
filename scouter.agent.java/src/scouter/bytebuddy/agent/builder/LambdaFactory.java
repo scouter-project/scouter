@@ -3,11 +3,7 @@ package scouter.bytebuddy.agent.builder;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 /**
@@ -187,18 +183,10 @@ public class LambdaFactory {
                               List<Class<?>> markerInterfaces,
                               List<?> additionalBridges) {
 
-        Set keySet = CLASS_FILE_TRANSFORMERS.keySet();
-        Object o = null;
-        if(keySet.size() >= 1) {
-            o = CLASS_FILE_TRANSFORMERS.get(keySet.toArray()[0]);
-        }
-
+        Collection<LambdaFactory> collection = CLASS_FILE_TRANSFORMERS.values();
+        Iterator<LambdaFactory> iter = collection.iterator();
+        Object o = iter.next();
         LambdaFactory lf = (LambdaFactory)o;
-
-//        Collection<LambdaFactory> collection = CLASS_FILE_TRANSFORMERS.values();
-//        Iterator<LambdaFactory> iter = collection.iterator();
-//        Object o = iter.next();
-//        LambdaFactory lf = (LambdaFactory)o;
 
         byte[] barr = lf.invoke(caller, invokedName, invokedType, samMethodType, implMethod, instantiatedMethodType, serializable, markerInterfaces, additionalBridges, CLASS_FILE_TRANSFORMERS.keySet());
 

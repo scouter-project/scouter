@@ -19,17 +19,12 @@ package scouter.agent;
 import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.util.AsyncRunner;
 import scouter.bytebuddy.agent.builder.AgentBuilder;
-import scouter.bytebuddy.description.type.TypeDescription;
-import scouter.bytebuddy.dynamic.DynamicType;
-import scouter.bytebuddy.implementation.FixedValue;
-import scouter.bytebuddy.matcher.ElementMatchers;
 import scouter.util.StringSet;
 import scouter.util.logo.Logo;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 
-import static scouter.bytebuddy.matcher.ElementMatchers.named;
 import static scouter.agent.Logger.conf;
 
 public class JavaAgent {
@@ -38,16 +33,6 @@ public class JavaAgent {
 	public static void premain(String options, Instrumentation instrum) {
 		new AgentBuilder.Default()
 				.with(AgentBuilder.LambdaInstrumentationStrategy.ENABLED)
-				.type(ElementMatchers.named("ffsdfksasadfasd"))
-				.transform(new AgentBuilder.Transformer() {
-					@Override
-					public DynamicType.Builder transform(DynamicType.Builder builder,
-					                                     TypeDescription typeDescription,
-					                                     ClassLoader classloader) {
-						return builder.method(named("toString"))
-								.intercept(FixedValue.value("transformed"));
-					}
-				})
 				.installOn(instrum);
 
 		//preStart(options, instrum, new AgentTransformer());
