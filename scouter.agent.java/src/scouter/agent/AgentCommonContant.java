@@ -11,6 +11,9 @@ public class AgentCommonContant {
     public static final String REQUEST_ATTRIBUTE_TRACE_CONTEXT = "__scouter__tc__";
     public static final String REQUEST_ATTRIBUTE_ASYNC_DISPATCH = "__scouter__ad__";
     public static final String REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP = "__scouter__ctm__";
+    public static final String REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT = "__scouter__adtc__";
+
+    public static final String ASYNC_SERVLET_DISPATCHED_PREFIX = "f>";
 
     /**
      * remove " [:SRM]" from service name

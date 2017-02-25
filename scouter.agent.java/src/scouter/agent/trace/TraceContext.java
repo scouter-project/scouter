@@ -79,6 +79,7 @@ public class TraceContext {
 	public int apicall_count;
 	public int apicall_time;
 	public String apicall_target;
+
 	// rs
 	public long rs_start;
 	public int rs_count;
@@ -111,6 +112,10 @@ public class TraceContext {
 	public SqlStep lastSqlStep;
     public Queue<DumpStep> temporaryDumpSteps = new LinkedBlockingQueue<DumpStep>(5);
 	public boolean hasDumpStack;
+
+	public boolean asyncServletStarted = false;
+	public boolean endHttpProcessingStarted = false;
+	public Throwable asyncThrowable;
 
 	public ArrayList<String> plcGroupList = new ArrayList<String>();
 	public TraceContext createChild() {

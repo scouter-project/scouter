@@ -19,24 +19,18 @@ package scouter.xtra.http;
 
 import scouter.agent.Configure;
 import scouter.agent.counter.meter.MeterUsers;
+import scouter.agent.error.ASYNC_SERVLET_TIMEOUT;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.EndUserAjaxData;
 import scouter.agent.summary.EndUserErrorData;
 import scouter.agent.summary.EndUserNavigationData;
 import scouter.agent.summary.EndUserSummary;
-import scouter.agent.trace.IProfileCollector;
-import scouter.agent.trace.TraceContext;
-import scouter.agent.trace.TraceContextManager;
-import scouter.agent.trace.TraceMain;
-import scouter.agent.trace.TransferMap;
+import scouter.agent.trace.*;
 import scouter.lang.conf.ConfObserver;
+import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.MessageStep;
-import scouter.util.CastUtil;
-import scouter.util.CompareUtil;
-import scouter.util.HashUtil;
-import scouter.util.Hexa32;
-import scouter.util.StringUtil;
+import scouter.util.*;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
@@ -46,12 +40,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
 
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_ASYNC_DISPATCH;
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP;
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_INITIAL_TRACE_CONTEXT;
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_TRACE_CONTEXT;
+import static scouter.agent.AgentCommonContant.*;
 
 public class HttpTrace implements IHttpTrace {
     private boolean remote_by_header;
@@ -119,13 +113,23 @@ public class HttpTrace implements IHttpTrace {
 
         TransferMap.ID transferId = (TransferMap.ID)request.getAttribute(REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP);
         request.setAttribute(REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP, null);
-        System.out.println("[scouter][start]transferId:thread: " + transferId + " ::: " + Thread.currentThread().getName());
-        System.out.println("[scouter][start]url: " + ctx.serviceName);
+//        System.out.println("[scouter][http-start]transferId:thread: " + transferId + " ::: " + Thread.currentThread().getName());
+//        System.out.println("[scouter][http-start]url: " + ctx.serviceName);
+
         if(transferId != null) {
             if(transferId.gxid !=0) ctx.gxid = transferId.gxid;
             if(transferId.callee !=0) ctx.txid = transferId.callee;
             if(transferId.caller !=0) ctx.caller = transferId.caller;
             ctx.xType = transferId.xType;
+            if(ctx.xType == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+                TraceContext callerCtx = TraceContextManager.getDeferredContext(ctx.caller);
+                StringBuilder sb = new StringBuilder(ctx.serviceName.length()*3);
+                sb.append(ASYNC_SERVLET_DISPATCHED_PREFIX);
+                if (callerCtx != null) {
+                    sb.append(callerCtx.serviceName).append(":/");
+                }
+                ctx.serviceName = sb.append(ctx.serviceName).toString();
+            }
         }
 
         try {
@@ -300,7 +304,6 @@ public class HttpTrace implements IHttpTrace {
     public void end(TraceContext ctx, Object req, Object res) {
         // HttpServletRequest request = (HttpServletRequest)req;
         // HttpServletResponse response = (HttpServletResponse)res;
-        //
     }
 
     private static void dump(IProfileCollector p, HttpServletRequest request, TraceContext ctx) {
@@ -390,39 +393,61 @@ public class HttpTrace implements IHttpTrace {
             actx.getRequest().setAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH, ++dispatchCount);
         }
 
+        List<TraceContext> dispatchedContexts = (List<TraceContext>)actx.getRequest().getAttribute(REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT);
+        if(dispatchedContexts == null) {
+            dispatchedContexts = new ArrayList<TraceContext>();
+            actx.getRequest().setAttribute(REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT, dispatchedContexts);
+        }
+        if(!dispatchedContexts.contains(traceContext)) {
+            dispatchedContexts.add(traceContext);
+        }
+
         actx.addListener(new AsyncListener() {
             @Override
             public void onComplete(AsyncEvent asyncEvent) throws IOException {
-                //TODO
-                System.out.println("[scouter][asynccontext]onComplete:count: " + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
-                System.out.println("[scouter][asynccontext]onComplete:thread: " + Thread.currentThread().getName());
-                //end
+//                System.out.println("[scouter][asynccontext]onComplete:count: " + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
+//                System.out.println("[scouter][asynccontext]onComplete:thread: " + Thread.currentThread().getName());
 
+                List<TraceContext> traceContextList = (List<TraceContext>) asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT);
+                Iterator<TraceContext> iter = traceContextList.iterator();
+                while(iter.hasNext()) {
+                    TraceContext ctx = iter.next();
+                    TraceMain.endHttpServiceFinal(ctx, asyncEvent.getSuppliedRequest(), asyncEvent.getSuppliedResponse(), ctx.asyncThrowable);
+                    TraceContextManager.completeDeferred(ctx);
+                }
             }
 
             @Override
             public void onTimeout(AsyncEvent asyncEvent) throws IOException {
-                //TODO
-                System.out.println("[scouter][asynccontext]onTimeout:count:" + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
-                System.out.println("[scouter][asynccontext]onTimeout:thread: " + Thread.currentThread().getName());
+//                System.out.println("[scouter][asynccontext]onTimeout:count:" + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
+//                System.out.println("[scouter][asynccontext]onTimeout:thread: " + Thread.currentThread().getName());
+
+                List<TraceContext> traceContextList = (List<TraceContext>) asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT);
+                Iterator<TraceContext> iter = traceContextList.iterator();
+                while(iter.hasNext()) {
+                    TraceContext ctx = iter.next();
+                    ctx.asyncThrowable = new ASYNC_SERVLET_TIMEOUT("exceed async servlet timeout! : " + asyncEvent.getAsyncContext().getTimeout() + "ms");
+                }
             }
 
             @Override
             public void onError(AsyncEvent asyncEvent) throws IOException {
-                //TODO
-                System.out.println("[scouter][asynccontext]onError:count:" + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
-                System.out.println("[scouter][asynccontext]onError:thread: " + Thread.currentThread().getName());
+//                System.out.println("[scouter][asynccontext]onError:count:" + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
+//                System.out.println("[scouter][asynccontext]onError:thread: " + Thread.currentThread().getName());
+
+                List<TraceContext> traceContextList = (List<TraceContext>) asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT);
+                Iterator<TraceContext> iter = traceContextList.iterator();
+                while(iter.hasNext()) {
+                    TraceContext ctx = iter.next();
+                    ctx.asyncThrowable = asyncEvent.getThrowable();
+                }
+
             }
 
             @Override
             public void onStartAsync(AsyncEvent asyncEvent) throws IOException {
-                //TODO
-                System.out.println("[scouter][asynccontext]onStartAsync:count:" + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
-                System.out.println("[scouter][asynccontext]onStartAsync:thread: " + Thread.currentThread().getName());
-            }
-
-            private void finish(AsyncEvent asyncEvent) {
-
+//                System.out.println("[scouter][asynccontext]onStartAsync:count:" + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
+//                System.out.println("[scouter][asynccontext]onStartAsync:thread: " + Thread.currentThread().getName());
             }
         });
     }
