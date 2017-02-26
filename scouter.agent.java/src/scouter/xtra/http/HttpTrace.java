@@ -125,10 +125,14 @@ public class HttpTrace implements IHttpTrace {
                 TraceContext callerCtx = TraceContextManager.getDeferredContext(ctx.caller);
                 StringBuilder sb = new StringBuilder(ctx.serviceName.length()*3);
                 sb.append(ASYNC_SERVLET_DISPATCHED_PREFIX);
-                if (callerCtx != null) {
-                    sb.append(callerCtx.serviceName).append(":/");
+                if (Boolean.TRUE.equals(request.getAttribute(REQUEST_ATTRIBUTE_SELF_DISPATCHED))) {
+                    sb.append("[self]");
+                    if (callerCtx != null) sb.append(callerCtx.serviceName);
+                    ctx.serviceName = sb.toString();
+                } else {
+                    if (callerCtx != null) sb.append(callerCtx.serviceName).append(":/");
+                    ctx.serviceName = sb.append(ctx.serviceName).toString();
                 }
-                ctx.serviceName = sb.append(ctx.serviceName).toString();
             }
         }
 
@@ -463,8 +467,13 @@ public class HttpTrace implements IHttpTrace {
         asyncContext.getRequest().setAttribute(REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP, new TransferMap.ID(gxid, caller, callee, xType));
     }
 
-    public static void main(String[] args) {
-        System.out.println("http trace".indexOf(null));
+    public void setSelfDispatch(Object oAsyncContext, boolean self) {
+        AsyncContext asyncContext = (AsyncContext) oAsyncContext;
+        asyncContext.getRequest().setAttribute(REQUEST_ATTRIBUTE_SELF_DISPATCHED, self);
     }
 
+    public boolean isSelfDispatch(Object oAsyncContext) {
+        AsyncContext asyncContext = (AsyncContext) oAsyncContext;
+        return Boolean.TRUE.equals(asyncContext.getRequest().getAttribute(REQUEST_ATTRIBUTE_SELF_DISPATCHED));
+    }
 }

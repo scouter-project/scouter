@@ -273,6 +273,8 @@ public class ProfileText {
             StepSingle stepSingle = (StepSingle) profiles[i];
             tm = stepSingle.start_time + stime;
             cpu = stepSingle.start_cpu;
+            boolean ignoreCpu = false;
+            if(cpu < 0) ignoreCpu = true;
 
             // sr.add(style(sb.length(), 6, blue, SWT.NORMAL));
             int p1 = sb.length();
@@ -285,7 +287,11 @@ public class ProfileText {
             sb.append("   ");
             sb.append(String.format("%6s", FormatUtil.print(tm - prev_tm, "#,##0")));
             sb.append(" ");
-            sb.append(String.format("%6s", FormatUtil.print(XLogUtil.getCpuTime(stepSingle), "#,##0")));
+            if(ignoreCpu) {
+            	sb.append(String.format("%6s", FormatUtil.print(0, "#,##0")));
+            } else {
+            	sb.append(String.format("%6s", FormatUtil.print(XLogUtil.getCpuTime(stepSingle), "#,##0")));
+            }
             sb.append("  ");
             int lineHead = sb.length() - p1;
 
@@ -391,7 +397,9 @@ public class ProfileText {
                     break;
             }
             sb.append("\n");
-            prev_cpu = cpu;
+            if(!ignoreCpu) {
+            	prev_cpu = cpu;
+            }
             prev_tm = tm;
         }
 
