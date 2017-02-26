@@ -37,12 +37,16 @@ import scouter.lang.TextTypes;
 import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
-import scouter.lang.step.HashedMessageStep;
-import scouter.lang.step.MessageStep;
-import scouter.lang.step.MethodStep;
-import scouter.lang.step.MethodStep2;
+import scouter.lang.step.*;
 import scouter.lang.value.MapValue;
-import scouter.util.*;
+import scouter.util.ArrayUtil;
+import scouter.util.HashUtil;
+import scouter.util.IPUtil;
+import scouter.util.KeyGen;
+import scouter.util.ObjectUtil;
+import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.ThreadUtil;
 
 import javax.sql.DataSource;
 
@@ -204,7 +208,7 @@ public class TraceMain {
         if (http == null) {
             initHttp(req);
         }
-        
+
         Configure conf = Configure.getInstance();
         TraceContext ctx = new TraceContext(conf.profile_summary_mode_enabled);
         ctx.thread = Thread.currentThread();
@@ -214,6 +218,10 @@ public class TraceMain {
         ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
         ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
         ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
+
+        HashedMessageStep step = new HashedMessageStep();
+        step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.thread.getName());
+        ctx.profile.add(step);
 
         http.start(ctx, req, res);
         if (ctx.serviceName == null)
@@ -243,62 +251,64 @@ public class TraceMain {
             TraceContextManager.clearForceDiscard();
             return;
         }
-
         try {
             Stat stat0 = (Stat) stat;
-            if (stat0 == null) {
-                if (thr == null) {
-                    TraceContextManager.clearForceDiscard();
-                    return;
-                }
-                try {
-                    TraceContext ctx = TraceContextManager.getContext();
-                    if (ctx != null && ctx.error == 0) {
-                        Configure conf = Configure.getInstance();
-                        String emsg = thr.toString();
-                        if (conf.profile_fullstack_service_error_enabled) {
-                            StringBuffer sb = new StringBuffer();
-                            sb.append(thr.getClass().getName()).append("\n");
-                            ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                            Throwable thrCause = thr.getCause();
-                            if(thrCause != null) {
-                                thr = thrCause;
-                                while (thr != null) {
-                                    sb.append("\nCause...\n");
-                                    ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                                    thr = thr.getCause();
-                                }
-                            }
-                            emsg = sb.toString();
-                        }
-                        ctx.error = DataProxy.sendError(emsg);
-                        ServiceSummary.getInstance().process(thr, ctx.error, ctx.serviceHash, ctx.txid, 0, 0);
-                    }
-                } catch (Throwable t) {
-                }
-
-                TraceContextManager.clearForceDiscard();
+            if (stat0 == null) { // means already started on another previous method, so should do end job there.
+                endHttpProcessingIfStatNull(thr);
                 return;
             }
             TraceContext ctx = stat0.ctx;
 
+            //wait on async servlet completion
+            if(!ctx.asyncServletStarted) {
+                endHttpServiceFinal(ctx, stat0.req, stat0.res, thr);
+            } else {
+                HashedMessageStep step = new HashedMessageStep();
+                step.hash = DataProxy.sendHashedMessage("end servlet and wait async complete");
+                step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+                ctx.profile.add(step);
+
+                TraceContextManager.end(ctx.threadId);
+                TraceContextManager.toDeferred(ctx);
+            }
+        } catch (Throwable throwable) {
+            Logger.println("A180", throwable.getMessage(), throwable);
+        }
+    }
+
+    public static void endHttpServiceFinal(TraceContext ctx, Object request, Object response, Throwable thr) {
+        if(TraceContextManager.isForceDiscarded()) {
+            TraceContextManager.clearForceDiscard();
+            return;
+        }
+
+        //prevent duplication invoke
+        synchronized (ctx) {
+            if (ctx.endHttpProcessingStarted) {
+                Logger.println("[warn] duplicated endHttpServiceFinal() called !!! : " + ctx.serviceName);
+                return;
+            }
+            ctx.endHttpProcessingStarted = true;
+        }
+
+        try {
             if (conf.getEndUserPerfEndpointHash() == ctx.serviceHash) {
                 TraceContextManager.end(ctx.threadId);
                 return;
             }
             //additional service name
-            addSeviceName(ctx, stat0.req);
+            addSeviceName(ctx, request);
             // HTTP END
-            http.end(ctx, stat0.req, stat0.res);
+            http.end(ctx, request, response);
             // static-contents -> stop processing
-            if (stat0.isStaticContents) {
+            if (ctx.isStaticContents) {
                 TraceContextManager.end(ctx.threadId);
                 return;
             }
             // Plug-in end
-            PluginHttpServiceTrace.end(ctx, stat0.req, stat0.res);
+            PluginHttpServiceTrace.end(ctx, request, response);
             if(plController != null) {
-            	plController.end(ctx, stat0.req, stat0.res);
+            	plController.end(ctx, request, response);
             }
             //profile rs
             if(conf.trace_rs_leak_enabled && ctx.unclosedRsMap.size() > 0) {
@@ -347,7 +357,7 @@ public class TraceMain {
             pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
             ctx.serviceHash = DataProxy.sendServiceName(ctx.serviceName);
             pack.service = ctx.serviceHash;
-            pack.xType = XLogTypes.WEB_SERVICE;
+            pack.xType = ctx.xType; //default 0 : XLogType.WEB_SERVICE
             pack.txid = ctx.txid;
             pack.gxid = ctx.gxid;
             pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
@@ -433,6 +443,43 @@ public class TraceMain {
         }
     }
 
+    private static void endHttpProcessingIfStatNull(Throwable thr) {
+        // FIXME do nothing, isn't it right??
+
+//        if (thr == null) {
+//            TraceContextManager.clearForceDiscard();
+//            return;
+//        }
+//        try {
+//            TraceContext ctx = TraceContextManager.getContext();
+//            if (ctx != null && ctx.error == 0) {
+//                Configure conf = Configure.getInstance();
+//                String emsg = thr.toString();
+//                if (conf.profile_fullstack_service_error_enabled) {
+//                    StringBuffer sb = new StringBuffer();
+//                    sb.append(thr.getClass().getName()).append("\n");
+//                    ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+//                    Throwable thrCause = thr.getCause();
+//                    if (thrCause != null) {
+//                        thr = thrCause;
+//                        while (thr != null) {
+//                            sb.append("\nCause...\n");
+//                            ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+//                            thr = thr.getCause();
+//                        }
+//                    }
+//                    emsg = sb.toString();
+//                }
+//                ctx.error = DataProxy.sendError(emsg);
+//                ServiceSummary.getInstance().process(thr, ctx.error, ctx.serviceHash, ctx.txid, 0, 0);
+//            }
+//        } catch (Throwable t) {
+//        }
+//
+//        TraceContextManager.clearForceDiscard();
+//        return;
+    }
+
     public static void metering(XLogPack pack) {
         switch (pack.xType) {
             case XLogTypes.WEB_SERVICE:
@@ -441,6 +488,7 @@ public class TraceMain {
                 ServiceSummary.getInstance().process(pack);
                 break;
             case XLogTypes.BACK_THREAD:
+            case XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE:
         }
     }
 
@@ -849,5 +897,40 @@ public class TraceMain {
             }
         }
         return isXLogDisard;
+    }
+
+    public static void endRequestAsyncStart(Object asyncContext) {
+        if(http == null) return;
+        TraceContext traceContext = TraceContextManager.getContext();
+        if(traceContext == null) return;
+        http.addAsyncContextListener(asyncContext);
+        traceContext.asyncServletStarted = true;
+    }
+
+    public static void dispatchAsyncServlet(Object asyncContext, String url) {
+        if(http == null) return;
+        TraceContext ctx = http.getTraceContextFromAsyncContext(asyncContext);
+
+        if(ctx == null) return;
+
+        if (ctx.gxid == 0) {
+            ctx.gxid = ctx.txid;
+        }
+        long callee = KeyGen.next();
+        http.setDispatchTransferMap(asyncContext, ctx.gxid, ctx.txid, callee, XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE);
+
+        //TODO consider adding dedicated step for async servlet dispatch
+        //FIXME consider adding dedicated step for async servlet dispatch
+        ApiCallStep apiCallStep = new ApiCallStep();
+        apiCallStep.txid = callee;
+
+        apiCallStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        if (ctx.profile_thread_cputime) {
+            apiCallStep.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+        }
+
+        apiCallStep.address = "local-dispatch";
+        apiCallStep.hash = DataProxy.sendApicall(apiCallStep.address + "://" + url);
+        ctx.profile.add(apiCallStep);
     }
 }

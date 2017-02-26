@@ -43,6 +43,18 @@ public class HttpTraceFactory {
 		public void rejectUrl(Object res, String url) {
 		}
 
+		public void addAsyncContextListener(Object ac) {
+
+		}
+
+		public TraceContext getTraceContextFromAsyncContext(Object oAsyncContext) {
+			return null;
+		}
+
+		@Override
+		public void setDispatchTransferMap(Object oAsyncContext, long gxid, long caller, long callee, byte xType) {
+
+		}
 	};
 
 	public static IHttpTrace create(ClassLoader parent) {

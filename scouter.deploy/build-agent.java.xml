@@ -44,7 +44,7 @@
 			includeantruntime="false"
 			>
 			<classpath>
-				<pathelement location="./lib/servlet-api.jar"/>
+				<pathelement location="./lib/javax.servlet-api-3.1.0.jar"/>
 				<pathelement location="./lib/httpclient-4.3.6.jar"/>
 				<pathelement location="./lib/httpcore-4.3.3.jar"/>
 				<pathelement location="./lib/ribbon-loadbalancer-2.0.0.jar"/>

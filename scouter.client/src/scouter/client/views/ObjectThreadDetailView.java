@@ -17,55 +17,35 @@
  */
 package scouter.client.views;
 
-import java.util.ArrayList;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
-
 import scouter.client.Images;
 import scouter.client.model.AgentDataProxy;
 import scouter.client.net.TcpProxy;
 import scouter.client.popup.EditableMessageDialog;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.ServerManager;
-import scouter.client.util.ColorUtil;
-import scouter.client.util.ColoringWord;
-import scouter.client.util.CustomLineStyleListener;
-import scouter.client.util.ExUtil;
-import scouter.client.util.ImageUtil;
-import scouter.client.util.SortUtil;
-import scouter.client.util.UIUtil;
+import scouter.client.util.*;
 import scouter.client.util.UIUtil.ViewWithTable;
 import scouter.lang.pack.MapPack;
-import scouter.lang.value.DecimalValue;
-import scouter.lang.value.DoubleValue;
-import scouter.lang.value.FloatValue;
-import scouter.lang.value.TextValue;
-import scouter.lang.value.Value;
+import scouter.lang.value.*;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.FormatUtil;
+
+import java.util.ArrayList;
 
 
 public class ObjectThreadDetailView extends ViewPart implements ViewWithTable{
@@ -73,6 +53,7 @@ public class ObjectThreadDetailView extends ViewPart implements ViewWithTable{
 
 	private int objHash;
 	private long threadid;
+	private long txid;
 	private int serverId;
 	
 	private ArrayList<ColoringWord> defaultHighlightings;
@@ -197,9 +178,14 @@ public class ObjectThreadDetailView extends ViewPart implements ViewWithTable{
 		});
 	}
 	
-	public void setInput(long threadId) {
+	public void setInput(long threadId, long txid) {
 		this.threadid = threadId;
-		this.setPartName("Thread Detail[" + threadid + "]");
+		this.txid = txid;
+		if(threadId != 0L) {
+			this.setPartName("Thread Detail[" + threadid + "]");
+		} else {
+			this.setPartName("Deferred Tx Detail[" + txid + "]");
+		}
 		table.removeAll();
 		stacktrace.setText("");
 		reload();
@@ -224,7 +210,7 @@ public class ObjectThreadDetailView extends ViewPart implements ViewWithTable{
 	protected void reload() {
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
-				final MapPack mp = AgentDataProxy.getThreadDetail(objHash, threadid, serverId);
+				final MapPack mp = AgentDataProxy.getThreadDetail(objHash, threadid, txid, serverId);
 				setThreadDetailContens(mp);
 			}
 		});

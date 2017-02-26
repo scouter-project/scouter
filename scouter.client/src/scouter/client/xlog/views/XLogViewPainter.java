@@ -17,9 +17,6 @@
  */
 package scouter.client.xlog.views;
 
-import java.util.Date;
-import java.util.Enumeration;
-
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -27,7 +24,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
-
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
@@ -42,12 +38,10 @@ import scouter.client.xlog.ImageCache;
 import scouter.client.xlog.XLogFilterStatus;
 import scouter.client.xlog.XLogYAxisEnum;
 import scouter.lang.pack.XLogPack;
-import scouter.util.DateUtil;
-import scouter.util.FormatUtil;
-import scouter.util.IPUtil;
-import scouter.util.LongKeyLinkedMap;
-import scouter.util.StrMatch;
-import scouter.util.StringUtil;
+import scouter.util.*;
+
+import java.util.Date;
+import java.util.Enumeration;
 
 public class XLogViewPainter {
 	public static Color color_black = new Color(null, 0, 0, 0);
@@ -506,11 +500,11 @@ public class XLogViewPainter {
 						if (d.p.error != 0) { 
 //							gc.setForeground(ColorUtil.getInstance().getColor("red"));
 //							gc.drawString(MARK, d.x, d.y, true);
-							gc.drawImage(dotImage.getXPErrorImage(), d.x, d.y);
+							gc.drawImage(dotImage.getXPErrorImage(d.p.xType), d.x, d.y);
 						} else {
 //							gc.setForeground(AgentColorManager.getInstance().getColor(d.p.objHash));
 //							gc.drawString(MARK, d.x, d.y, true);
-							gc.drawImage(dotImage.getXPImage(d.p.objHash), d.x, d.y);
+							gc.drawImage(dotImage.getXPImage(d.p.objHash, d.p.xType), d.x, d.y);
 						}
 					} catch (Throwable t) {
 					}

@@ -57,6 +57,7 @@ import scouter.client.util.ColorUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.xlog.actions.OpenXLogProfileJob;
+import scouter.lang.pack.XLogTypes;
 import scouter.util.FormatUtil;
 import scouter.util.Hexa32;
 import scouter.util.IPUtil;
@@ -194,7 +195,15 @@ public class XLogSelectionView extends ViewPart {
 			if (element instanceof XLogData) {
 				XLogData d = (XLogData) element;
 				if (d.p.error != 0) {
-					return ColorUtil.getInstance().getColor("red");
+					if(d.p.xType == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+						return ColorUtil.getInstance().getColor("light red");
+					} else {
+						return ColorUtil.getInstance().getColor("red");
+					}
+				} else {
+					if(d.p.xType == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+						return ColorUtil.getInstance().getColor("light gray");
+					}
 				}
 			}
 			return null;
