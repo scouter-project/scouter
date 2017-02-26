@@ -148,7 +148,17 @@ public class LambdaFactory {
      * @return A binary representation of the transformed class file.
      */
     public static byte[] make(Object caller, String invokedName, Object invokedType, Object samMethodType, Object implMethod, Object instantiatedMethodType, boolean serializable, List<Class<?>> markerInterfaces, List<?> additionalBridges) {
-        return CLASS_FILE_TRANSFORMERS.values().iterator().next().invoke(caller, invokedName, invokedType, samMethodType, implMethod, instantiatedMethodType, serializable, markerInterfaces, additionalBridges, CLASS_FILE_TRANSFORMERS.keySet());
+        return CLASS_FILE_TRANSFORMERS.values().iterator().next()
+                .invoke(caller,
+                        invokedName,
+                        invokedType,
+                        samMethodType,
+                        implMethod,
+                        instantiatedMethodType,
+                        serializable,
+                        markerInterfaces,
+                        additionalBridges,
+                        CLASS_FILE_TRANSFORMERS.keySet());
     }
 
     @java.lang.Override

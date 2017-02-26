@@ -158,6 +158,7 @@ class MethodCV extends ClassVisitor implements Opcodes {
 		String fullname = AsmUtil.makeMethodFullName(className, name, desc);
 		int fullname_hash = DataProxy.sendMethodName(fullname);
 
+		System.out.println("[scouter][method hook]" + fullname);
 		return new MethodMV(access, desc, mv, fullname, fullname_hash);
 	}
 }

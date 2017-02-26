@@ -31,11 +31,7 @@ public class JavaAgent {
 	private static Instrumentation instrumentation;
 
 	public static void premain(String options, Instrumentation instrum) {
-		new AgentBuilder.Default()
-				.with(AgentBuilder.LambdaInstrumentationStrategy.ENABLED)
-				.installOn(instrum);
-
-		//preStart(options, instrum, new AgentTransformer());
+		preStart(options, instrum, new AgentTransformer());
 	}
 
 	public static void preStart(String options, Instrumentation instrum, ClassFileTransformer transformer) {
@@ -43,6 +39,10 @@ public class JavaAgent {
 			return;
 		}
 		intro();
+
+		new AgentBuilder.Default()
+				.with(AgentBuilder.LambdaInstrumentationStrategy.ENABLED)
+				.installOn(instrum);
 
 		Configure.getInstance();
 		BackJobs.getInstance().put(Logger.class.getName(), 3000, Logger.initializer);

@@ -6738,7 +6738,13 @@ public interface AgentBuilder {
                             fieldAssignments.add(MethodVariableAccess.load(parameterDescription));
                             fieldAssignments.add(FieldAccess.forField(declaredFields.get(parameterDescription.getIndex())).write());
                         }
-                        return new Size(new StackManipulation.Compound(MethodVariableAccess.loadThis(), MethodInvocation.invoke(INSTANCE.objectConstructor), new StackManipulation.Compound(fieldAssignments), MethodReturn.VOID).apply(methodVisitor, implementationContext).getMaximalSize(), instrumentedMethod.getStackSize());
+                        return new Size(new StackManipulation.Compound(
+                                            MethodVariableAccess.loadThis(),
+                                            MethodInvocation.invoke(INSTANCE.objectConstructor),
+                                            new StackManipulation.Compound(fieldAssignments),
+                                            MethodReturn.VOID)
+                                        .apply(methodVisitor, implementationContext).getMaximalSize(),
+                                instrumentedMethod.getStackSize());
                     }
 
                     @java.lang.Override
@@ -7192,7 +7198,19 @@ public interface AgentBuilder {
 
                     @Override
                     public Size apply(MethodVisitor methodVisitor, Context implementationContext, MethodDescription instrumentedMethod) {
-                        return new Compound(new Simple(MethodVariableAccess.allArgumentsOf(instrumentedMethod).asBridgeOf(bridgeTargetInvocation.getMethodDescription()).prependThisReference(), bridgeTargetInvocation, bridgeTargetInvocation.getMethodDescription().getReturnType().asErasure().isAssignableTo(instrumentedMethod.getReturnType().asErasure()) ? StackManipulation.Trivial.INSTANCE : TypeCasting.to(instrumentedMethod.getReceiverType()), MethodReturn.of(instrumentedMethod.getReturnType()))).apply(methodVisitor, implementationContext, instrumentedMethod);
+                        return new Compound(
+                                new Simple(MethodVariableAccess
+                                            .allArgumentsOf(instrumentedMethod)
+                                            .asBridgeOf(bridgeTargetInvocation.getMethodDescription())
+                                            .prependThisReference()
+                                        , bridgeTargetInvocation
+                                        , bridgeTargetInvocation
+                                            .getMethodDescription()
+                                            .getReturnType()
+                                            .asErasure()
+                                            .isAssignableTo(instrumentedMethod.getReturnType().asErasure()) ?
+                                                StackManipulation.Trivial.INSTANCE : TypeCasting.to(instrumentedMethod.getReceiverType())
+                                        , MethodReturn.of(instrumentedMethod.getReturnType()))).apply(methodVisitor, implementationContext, instrumentedMethod);
                     }
 
                     @java.lang.Override

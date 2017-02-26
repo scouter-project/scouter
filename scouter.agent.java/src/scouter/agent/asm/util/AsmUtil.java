@@ -18,11 +18,11 @@
 package scouter.agent.asm.util;
 
 
-import java.util.Map;
-
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
+
+import java.util.Map;
 
 /**
  * BCI for a constructor of PreparedStatement
@@ -89,10 +89,8 @@ public class AsmUtil implements Opcodes {
 	}
 
 	/**
-	 * @param cp
-	 *            Constant pool
+	 * @param mv
 	 * @param value
-	 *            to be pushed
 	 */
 	public static void PUSH(MethodVisitor mv, double value) {
 		if (value == 0)
@@ -162,7 +160,9 @@ public class AsmUtil implements Opcodes {
     }
 
 	public static boolean isSpecial(String name) {
-		return (name.indexOf("$") >= 0 && name.indexOf("lambda$") != 0) || name.startsWith("<");
+		//return (name.indexOf("$") >= 0 && name.indexOf("lambda$") != 0) || name.startsWith("<");
+		//FIXME for testing
+		return name.startsWith("<");
 	}
 
 	public static boolean isInterface(int access) {
