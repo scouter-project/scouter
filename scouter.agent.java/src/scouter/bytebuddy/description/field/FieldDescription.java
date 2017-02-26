@@ -516,16 +516,6 @@ public interface FieldDescription extends ByteCodeElement,
             result = 31 * result + annotations.hashCode();
             return result;
         }
-
-        @Override
-        public String toString() {
-            return "FieldDescription.Token{" +
-                    "name='" + name + '\'' +
-                    ", modifiers=" + modifiers +
-                    ", type=" + type +
-                    ", annotations=" + annotations +
-                    '}';
-        }
     }
 
     /**
@@ -575,7 +565,7 @@ public interface FieldDescription extends ByteCodeElement,
         @Override
         public boolean equals(Object other) {
             if (this == other) return true;
-            if (other == null || getClass() != other.getClass()) return false;
+            if (!(other instanceof SignatureToken)) return false;
             SignatureToken that = (SignatureToken) other;
             return name.equals(that.name) && type.equals(that.type);
         }
@@ -589,10 +579,7 @@ public interface FieldDescription extends ByteCodeElement,
 
         @Override
         public String toString() {
-            return "FieldDescription.SignatureToken{" +
-                    "name='" + name + '\'' +
-                    ", type=" + type +
-                    '}';
+            return type + " " + name;
         }
     }
 }

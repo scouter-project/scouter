@@ -4,12 +4,12 @@ import scouter.bytebuddy.description.type.TypeDescription;
 
 /**
  * This type is used as a place holder for creating methods or fields that refer to the type that currently subject
- * of creation within a {@link scouter.bytebuddy.dynamic.DynamicType.Builder}.
+ * of creation within a {@link DynamicType.Builder}.
  */
 public final class TargetType {
 
     /**
-     * A description of the {@link scouter.bytebuddy.dynamic.TargetType}.
+     * A description of the {@link TargetType}.
      */
     public static final TypeDescription DESCRIPTION = new TypeDescription.ForLoadedType(TargetType.class);
 

@@ -2,6 +2,7 @@ package scouter.bytebuddy.description.field;
 
 import scouter.bytebuddy.description.ByteCodeElement;
 import scouter.bytebuddy.description.type.TypeDescription;
+import scouter.bytebuddy.dynamic.TargetType;
 import scouter.bytebuddy.matcher.ElementMatcher;
 import scouter.bytebuddy.matcher.FilterableList;
 
@@ -19,7 +20,7 @@ public interface FieldList<T extends FieldDescription> extends FilterableList<T,
 
     /**
      * Transforms the list of field descriptions into a list of detached tokens. All types that are matched by the provided
-     * target type matcher are substituted by {@link scouter.bytebuddy.dynamic.TargetType}.
+     * target type matcher are substituted by {@link TargetType}.
      *
      * @param matcher A matcher that indicates type substitution.
      * @return The transformed token list.
@@ -193,7 +194,7 @@ public interface FieldList<T extends FieldDescription> extends FilterableList<T,
     }
 
     /**
-     * A list of field descriptions that yields {@link scouter.bytebuddy.description.field.FieldDescription.TypeSubstituting}.
+     * A list of field descriptions that yields {@link FieldDescription.TypeSubstituting}.
      */
     class TypeSubstituting extends AbstractBase<FieldDescription.InGenericShape> {
 

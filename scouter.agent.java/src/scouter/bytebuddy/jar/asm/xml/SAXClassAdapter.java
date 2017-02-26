@@ -39,13 +39,13 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**
- * A {@link scouter.bytebuddy.jar.asm.ClassVisitor ClassVisitor} that generates SAX 2.0
+ * A {@link ClassVisitor ClassVisitor} that generates SAX 2.0
  * events from the visited class. It can feed any kind of
  * {@link org.xml.sax.ContentHandler ContentHandler}, e.g. XML serializer, XSLT
  * or XQuery engines.
  * 
- * @see scouter.bytebuddy.jar.asm.xml.Processor
- * @see scouter.bytebuddy.jar.asm.xml.ASMContentHandler
+ * @see Processor
+ * @see ASMContentHandler
  * 
  * @author Eugene Kuleshov
  */
@@ -126,7 +126,7 @@ public final class SAXClassAdapter extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+                                                 TypePath typePath, String desc, boolean visible) {
         return new SAXAnnotationAdapter(sa, "typeAnnotation", visible ? 1 : -1,
                 null, desc, typeRef, typePath);
     }
@@ -190,7 +190,7 @@ public final class SAXClassAdapter extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(final int access, final String name,
-            final String desc, final String signature, final String[] exceptions) {
+                                     final String desc, final String signature, final String[] exceptions) {
         StringBuilder sb = new StringBuilder();
         appendAccess(access, sb);
 

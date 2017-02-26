@@ -5,6 +5,7 @@ import scouter.bytebuddy.description.NamedElement;
 import scouter.bytebuddy.description.field.FieldList;
 import scouter.bytebuddy.description.method.MethodList;
 import scouter.bytebuddy.implementation.bytecode.StackSize;
+import scouter.bytebuddy.description.TypeVariableSource;
 
 import java.lang.reflect.*;
 import java.util.Iterator;
@@ -152,12 +153,12 @@ public interface TypeDefinition extends NamedElement, ModifierReviewable.ForType
         WILDCARD,
 
         /**
-         * Represents a type variable that is attached to a {@link scouter.bytebuddy.description.TypeVariableSource}.
+         * Represents a type variable that is attached to a {@link TypeVariableSource}.
          */
         VARIABLE,
 
         /**
-         * Represents a type variable that is merely symbolic and is not attached to a {@link scouter.bytebuddy.description.TypeVariableSource}
+         * Represents a type variable that is merely symbolic and is not attached to a {@link TypeVariableSource}
          * and does not defined bounds.
          */
         VARIABLE_SYMBOLIC;
@@ -240,11 +241,6 @@ public interface TypeDefinition extends NamedElement, ModifierReviewable.ForType
         public boolean isTypeVariable() {
             return this == VARIABLE || this == VARIABLE_SYMBOLIC;
         }
-
-        @Override
-        public String toString() {
-            return "TypeDefinition.Sort." + name();
-        }
     }
 
     /**
@@ -286,13 +282,6 @@ public interface TypeDefinition extends NamedElement, ModifierReviewable.ForType
         @Override
         public void remove() {
             throw new UnsupportedOperationException("remove");
-        }
-
-        @Override
-        public String toString() {
-            return "TypeDefinition.SuperClassIterator{" +
-                    "nextClass=" + nextClass +
-                    '}';
         }
     }
 }

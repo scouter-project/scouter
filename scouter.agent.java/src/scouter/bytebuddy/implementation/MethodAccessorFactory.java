@@ -24,7 +24,7 @@ public interface MethodAccessorFactory {
     MethodDescription.InDefinedShape registerAccessorFor(Implementation.SpecialMethodInvocation specialMethodInvocation, AccessType accessType);
 
     /**
-     * Registers a getter for the given {@link scouter.bytebuddy.description.field.FieldDescription} which might
+     * Registers a getter for the given {@link FieldDescription} which might
      * itself not be accessible from outside the class. The returned getter method defines the field type as
      * its return type, does not take any arguments and is of package-private visibility, similarly to the Java
      * compiler's accessor methods. If the field is {@code static}, this accessor method is also {@code static}.
@@ -84,11 +84,6 @@ public interface MethodAccessorFactory {
         public Visibility getVisibility() {
             return visibility;
         }
-
-        @Override
-        public String toString() {
-            return "MethodAccessorFactory.AccessType." + name();
-        }
     }
 
     /**
@@ -114,11 +109,6 @@ public interface MethodAccessorFactory {
         @Override
         public MethodDescription.InDefinedShape registerSetterFor(FieldDescription fieldDescription, AccessType accessType) {
             throw new IllegalStateException("It is illegal to register a field setter for this type");
-        }
-
-        @Override
-        public String toString() {
-            return "MethodAccessorFactory.Illegal." + name();
         }
     }
 }

@@ -7,9 +7,9 @@ import scouter.bytebuddy.dynamic.ClassFileLocator;
 import scouter.bytebuddy.dynamic.DynamicType;
 import scouter.bytebuddy.dynamic.scaffold.inline.MethodNameTransformer;
 import scouter.bytebuddy.implementation.Implementation;
+import scouter.bytebuddy.matcher.ElementMatchers;
 
 import static scouter.bytebuddy.matcher.ElementMatchers.isDeclaredBy;
-import static scouter.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * An entry point for a build tool which is responsible for the transformation's configuration.
@@ -79,7 +79,7 @@ public interface EntryPoint {
                                                     ByteBuddy byteBuddy,
                                                     ClassFileLocator classFileLocator,
                                                     MethodNameTransformer methodNameTransformer) {
-                return byteBuddy.redefine(typeDescription, classFileLocator).ignoreAlso(not(isDeclaredBy(typeDescription)));
+                return byteBuddy.redefine(typeDescription, classFileLocator).ignoreAlso(ElementMatchers.not(ElementMatchers.isDeclaredBy(typeDescription)));
             }
         };
 
@@ -100,11 +100,6 @@ public interface EntryPoint {
         @Override
         public ByteBuddy getByteBuddy() {
             return byteBuddy;
-        }
-
-        @Override
-        public String toString() {
-            return "EntryPoint.Default." + name();
         }
     }
 }

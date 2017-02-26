@@ -210,7 +210,7 @@ public interface TypeList extends FilterableList<TypeDescription, TypeList> {
 
         /**
          * Transforms a list of attached type variables into their tokenized form. Calling this method throws an {@link IllegalStateException}
-         * if any type in this list does not represent a type variable ({@link scouter.bytebuddy.description.type.TypeDefinition.Sort#VARIABLE}).
+         * if any type in this list does not represent a type variable ({@link TypeDefinition.Sort#VARIABLE}).
          *
          * @param visitor The visitor to use for detaching the type variable's bounds.
          * @return A list of tokens representing the type variables contained in this list.
@@ -444,17 +444,6 @@ public interface TypeList extends FilterableList<TypeDescription, TypeList> {
             }
 
             /**
-             * Creates a list of types that are attached to the provided type.
-             *
-             * @param typeDescription The type to which the detached variables are attached to.
-             * @param detachedTypes   The detached types.
-             * @return A type list representing the detached types being attached to the provided type description.
-             */
-            public static Generic attach(TypeDescription typeDescription, List<? extends TypeDescription.Generic> detachedTypes) {
-                return new ForDetachedTypes(detachedTypes, TypeDescription.Generic.Visitor.Substitutor.ForAttachment.of(typeDescription));
-            }
-
-            /**
              * Creates a list of type variables that are attached to the provided type.
              *
              * @param typeDescription       The type to which the type variables are to be attached to.
@@ -520,6 +509,45 @@ public interface TypeList extends FilterableList<TypeDescription, TypeList> {
             }
 
             /**
+             * A list of detached types that are attached on reception but not when computing an erasure.
+             */
+            public static class WithResolvedErasure extends Generic.AbstractBase {
+
+                /**
+                 * The detached types this list represents.
+                 */
+                private final List<? extends TypeDescription.Generic> detachedTypes;
+
+                /**
+                 * The visitor to use for attaching the detached types.
+                 */
+                private final TypeDescription.Generic.Visitor<? extends TypeDescription.Generic> visitor;
+
+                /**
+                 * Creates a list of generic type descriptions that are resolved lazily, i.e. type variables are not resolved
+                 * when computing an erausre.
+                 *
+                 * @param detachedTypes The detached types this list represents.
+                 * @param visitor       The visitor to use for attaching the detached types.
+                 */
+                public WithResolvedErasure(List<? extends TypeDescription.Generic> detachedTypes,
+                                          TypeDescription.Generic.Visitor<? extends TypeDescription.Generic> visitor) {
+                    this.detachedTypes = detachedTypes;
+                    this.visitor = visitor;
+                }
+
+                @Override
+                public TypeDescription.Generic get(int index) {
+                    return new TypeDescription.Generic.LazyProjection.WithResolvedErasure(detachedTypes.get(index), visitor);
+                }
+
+                @Override
+                public int size() {
+                    return detachedTypes.size();
+                }
+            }
+
+            /**
              * A list of attached type variables represented by a list of type variable tokens.
              */
             public static class OfTypeVariables extends Generic.AbstractBase {
@@ -547,8 +575,8 @@ public interface TypeList extends FilterableList<TypeDescription, TypeList> {
                  * @param visitor               A visitor for attaching the type variable's bounds.
                  */
                 public OfTypeVariables(TypeVariableSource typeVariableSource,
-                                          List<? extends TypeVariableToken> detachedTypeVariables,
-                                          TypeDescription.Generic.Visitor<? extends TypeDescription.Generic> visitor) {
+                                       List<? extends TypeVariableToken> detachedTypeVariables,
+                                       TypeDescription.Generic.Visitor<? extends TypeDescription.Generic> visitor) {
                     this.typeVariableSource = typeVariableSource;
                     this.detachedTypeVariables = detachedTypeVariables;
                     this.visitor = visitor;

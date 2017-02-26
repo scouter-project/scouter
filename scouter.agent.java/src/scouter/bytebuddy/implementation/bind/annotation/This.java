@@ -9,6 +9,7 @@ import scouter.bytebuddy.implementation.bytecode.StackManipulation;
 import scouter.bytebuddy.implementation.bytecode.assign.Assigner;
 import scouter.bytebuddy.implementation.bytecode.constant.NullConstant;
 import scouter.bytebuddy.implementation.bytecode.member.MethodVariableAccess;
+import scouter.bytebuddy.implementation.MethodDelegation;
 
 import java.lang.annotation.*;
 
@@ -17,8 +18,8 @@ import java.lang.annotation.*;
  * the instrumented method is not static. Otherwise, the method with this parameter annotation will be excluded from
  * the list of possible binding candidates of the static source method.
  *
- * @see scouter.bytebuddy.implementation.MethodDelegation
- * @see scouter.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
+ * @see MethodDelegation
+ * @see TargetMethodAnnotationDrivenBinder
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -34,7 +35,7 @@ public @interface This {
 
     /**
      * A binder for handling the
-     * {@link scouter.bytebuddy.implementation.bind.annotation.This}
+     * {@link This}
      * annotation.
      *
      * @see TargetMethodAnnotationDrivenBinder
@@ -69,11 +70,6 @@ public @interface This {
                     ? NullConstant.INSTANCE
                     : new StackManipulation.Compound(MethodVariableAccess.loadThis(),
                     assigner.assign(implementationTarget.getInstrumentedType().asGenericType(), target.getType(), typing)));
-        }
-
-        @Override
-        public String toString() {
-            return "This.Binder." + name();
         }
     }
 }

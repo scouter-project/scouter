@@ -15,6 +15,7 @@ import scouter.bytebuddy.description.type.TypeDescription;
 import scouter.bytebuddy.description.type.TypeList;
 import scouter.bytebuddy.description.type.TypeVariableToken;
 import scouter.bytebuddy.matcher.ElementMatcher;
+import scouter.bytebuddy.matcher.ElementMatchers;
 import scouter.bytebuddy.utility.JavaConstant;
 import scouter.bytebuddy.utility.JavaType;
 import scouter.bytebuddy.jar.asm.Opcodes;
@@ -31,7 +32,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import static scouter.bytebuddy.matcher.ElementMatchers.not;
 import static scouter.bytebuddy.matcher.ElementMatchers.ofSort;
 
 /**
@@ -98,21 +98,21 @@ public interface MethodDescription extends TypeVariableSource,
      * Returns this method's actual modifiers as it is present in a class file, i.e. includes a flag if this method
      * is marked {@link Deprecated} and adjusts the modifiers for being abstract or not.
      *
-     * @param nonAbstract {@code true} if the method should be treated as non-abstract.
+     * @param manifest {@code true} if the method should be treated as non-abstract.
      * @return The method's actual modifiers.
      */
-    int getActualModifiers(boolean nonAbstract);
+    int getActualModifiers(boolean manifest);
 
     /**
      * Returns this method's actual modifiers as it is present in a class file, i.e. includes a flag if this method
      * is marked {@link Deprecated} and adjusts the modifiers for being abstract or not. Additionally, this method
      * resolves a required minimal visibility.
      *
-     * @param nonAbstract {@code true} if the method should be treated as non-abstract.
+     * @param manifest {@code true} if the method should be treated as non-abstract.
      * @param visibility  The minimal visibility to enforce for this method.
      * @return The method's actual modifiers.
      */
-    int getActualModifiers(boolean nonAbstract, Visibility visibility);
+    int getActualModifiers(boolean manifest, Visibility visibility);
 
     /**
      * Checks if this method description represents a constructor.
@@ -421,7 +421,7 @@ public interface MethodDescription extends TypeVariableSource,
                 returnType.accept(new TypeDescription.Generic.Visitor.ForSignatureVisitor(signatureWriter.visitReturnType()));
                 generic = generic || !returnType.getSort().isNonGeneric();
                 TypeList.Generic exceptionTypes = getExceptionTypes();
-                if (!exceptionTypes.filter(not(ofSort(TypeDefinition.Sort.NON_GENERIC))).isEmpty()) {
+                if (!exceptionTypes.filter(ElementMatchers.not(ofSort(TypeDefinition.Sort.NON_GENERIC))).isEmpty()) {
                     for (TypeDescription.Generic exceptionType : exceptionTypes) {
                         exceptionType.accept(new TypeDescription.Generic.Visitor.ForSignatureVisitor(signatureWriter.visitExceptionType()));
                         generic = generic || !exceptionType.getSort().isNonGeneric();
@@ -437,22 +437,21 @@ public interface MethodDescription extends TypeVariableSource,
 
         @Override
         public int getActualModifiers() {
-            return getActualModifiers(!isAbstract());
-        }
-
-        @Override
-        public int getActualModifiers(boolean nonAbstract) {
-            int actualModifiers = getModifiers() | (getDeclaredAnnotations().isAnnotationPresent(Deprecated.class)
+            return getModifiers() | (getDeclaredAnnotations().isAnnotationPresent(Deprecated.class)
                     ? Opcodes.ACC_DEPRECATED
                     : EMPTY_MASK);
-            return nonAbstract
-                    ? actualModifiers & ~(Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)
-                    : actualModifiers & ~Opcodes.ACC_NATIVE | Opcodes.ACC_ABSTRACT;
         }
 
         @Override
-        public int getActualModifiers(boolean nonAbstract, Visibility visibility) {
-            return ModifierContributor.Resolver.of(Collections.singleton(getVisibility().expandTo(visibility))).resolve(getActualModifiers(nonAbstract));
+        public int getActualModifiers(boolean manifest) {
+            return manifest
+                    ? getActualModifiers() & ~(Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)
+                    : getActualModifiers() & ~Opcodes.ACC_NATIVE | Opcodes.ACC_ABSTRACT;
+        }
+
+        @Override
+        public int getActualModifiers(boolean manifest, Visibility visibility) {
+            return ModifierContributor.Resolver.of(Collections.singleton(getVisibility().expandTo(visibility))).resolve(getActualModifiers(manifest));
         }
 
         @Override
@@ -679,7 +678,7 @@ public interface MethodDescription extends TypeVariableSource,
         }
 
         @Override
-        public boolean isGenericDeclaration() {
+        public boolean isGenerified() {
             return !getTypeVariables().isEmpty();
         }
 
@@ -726,11 +725,11 @@ public interface MethodDescription extends TypeVariableSource,
 
         @Override
         public boolean equals(Object other) {
-            return other == this || other instanceof MethodDescription
+            return other == this || (other instanceof MethodDescription
                     && getInternalName().equals(((MethodDescription) other).getInternalName())
                     && getDeclaringType().equals(((MethodDescription) other).getDeclaringType())
                     && getReturnType().asErasure().equals(((MethodDescription) other).getReturnType().asErasure())
-                    && getParameters().asTypeList().asErasures().equals(((MethodDescription) other).getParameters().asTypeList().asErasures());
+                    && getParameters().asTypeList().asErasures().equals(((MethodDescription) other).getParameters().asTypeList().asErasures()));
         }
 
         @Override
@@ -1316,13 +1315,13 @@ public interface MethodDescription extends TypeVariableSource,
         }
 
         @Override
-        public TypeList.Generic getTypeVariables() {
-            return new TypeList.Generic.ForDetachedTypes(methodDescription.getTypeVariables(), visitor);
+        public TypeDescription.Generic getReturnType() {
+            return methodDescription.getReturnType().accept(visitor);
         }
 
         @Override
-        public TypeDescription.Generic getReturnType() {
-            return methodDescription.getReturnType().accept(visitor);
+        public TypeList.Generic getTypeVariables() {
+            return methodDescription.getTypeVariables().accept(visitor).filter(ElementMatchers.ofSort(TypeDefinition.Sort.VARIABLE));
         }
 
         @Override
@@ -1728,7 +1727,7 @@ public interface MethodDescription extends TypeVariableSource,
         @Override
         public boolean equals(Object other) {
             if (this == other) return true;
-            if (other == null || getClass() != other.getClass()) return false;
+            if (!(other instanceof SignatureToken)) return false;
             SignatureToken signatureToken = (SignatureToken) other;
             return name.equals(signatureToken.name)
                     && returnType.equals(signatureToken.returnType)
@@ -1745,11 +1744,17 @@ public interface MethodDescription extends TypeVariableSource,
 
         @Override
         public String toString() {
-            return "MethodDescription.SignatureToken{" +
-                    "name='" + name + "'" +
-                    ", returnType=" + returnType +
-                    ", parameterTypes=" + parameterTypes +
-                    '}';
+            StringBuilder stringBuilder = new StringBuilder().append(returnType).append(' ').append(name).append('(');
+            boolean first = true;
+            for (TypeDescription parameterType : parameterTypes) {
+                if (first) {
+                    first = false;
+                } else {
+                    stringBuilder.append(",");
+                }
+                stringBuilder.append(parameterType);
+            }
+            return stringBuilder.append(')').toString();
         }
     }
 
@@ -1800,10 +1805,9 @@ public interface MethodDescription extends TypeVariableSource,
         @Override
         public boolean equals(Object other) {
             if (this == other) return true;
-            if (other == null || getClass() != other.getClass()) return false;
+            if (!(other instanceof TypeToken)) return false;
             TypeToken typeToken = (TypeToken) other;
-            return returnType.equals(typeToken.returnType)
-                    && parameterTypes.equals(typeToken.parameterTypes);
+            return returnType.equals(typeToken.returnType) && parameterTypes.equals(typeToken.parameterTypes);
         }
 
         @Override
@@ -1815,10 +1819,11 @@ public interface MethodDescription extends TypeVariableSource,
 
         @Override
         public String toString() {
-            return "MethodDescription.TypeToken{" +
-                    "returnType=" + returnType +
-                    ", parameterTypes=" + parameterTypes +
-                    '}';
+            StringBuilder stringBuilder = new StringBuilder().append('(');
+            for (TypeDescription parameterType : parameterTypes) {
+                stringBuilder.append(parameterType.getDescriptor());
+            }
+            return stringBuilder.append(')').append(returnType.getDescriptor()).toString();
         }
     }
 }

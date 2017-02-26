@@ -34,6 +34,7 @@ import java.util.List;
 
 import scouter.bytebuddy.jar.asm.AnnotationVisitor;
 import scouter.bytebuddy.jar.asm.Opcodes;
+import scouter.bytebuddy.jar.asm.Type;
 
 /**
  * A node that represents an annotation.
@@ -52,7 +53,7 @@ public class AnnotationNode extends AnnotationVisitor {
      * as two consecutive elements in the list. The name is a {@link String},
      * and the value may be a {@link Byte}, {@link Boolean}, {@link Character},
      * {@link Short}, {@link Integer}, {@link Long}, {@link Float},
-     * {@link Double}, {@link String} or {@link scouter.bytebuddy.jar.asm.Type}, or a
+     * {@link Double}, {@link String} or {@link Type}, or a
      * two elements String array (for enumeration values), an
      * {@link AnnotationNode}, or a {@link List} of values of one of the
      * preceding types. The list may be <tt>null</tt> if there is no name value

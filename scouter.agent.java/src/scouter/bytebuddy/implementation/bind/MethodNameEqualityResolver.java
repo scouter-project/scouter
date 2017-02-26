@@ -4,7 +4,7 @@ import scouter.bytebuddy.description.method.MethodDescription;
 
 /**
  * Implementation of an
- * {@link scouter.bytebuddy.implementation.bind.MethodDelegationBinder.AmbiguityResolver}
+ * {@link MethodDelegationBinder.AmbiguityResolver}
  * that resolves conflicting bindings by considering equality of a target method's internalName as an indicator for a dominant
  * binding.
  * <p>&nbsp;</p>
@@ -29,10 +29,5 @@ public enum MethodNameEqualityResolver implements MethodDelegationBinder.Ambigui
         } else {
             return Resolution.AMBIGUOUS;
         }
-    }
-
-    @Override
-    public String toString() {
-        return "MethodNameEqualityResolver." + name();
     }
 }

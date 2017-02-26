@@ -79,7 +79,7 @@ public interface InstrumentedType extends TypeDescription {
     InstrumentedType withAnnotations(List<? extends AnnotationDescription> annotationDescriptions);
 
     /**
-     * Creates a new instrumented type that includes the given {@link scouter.bytebuddy.implementation.LoadedTypeInitializer}.
+     * Creates a new instrumented type that includes the given {@link LoadedTypeInitializer}.
      *
      * @param loadedTypeInitializer The type initializer to include.
      * @return A new instrumented type that is equal to this instrumented type but with the additional type initializer.
@@ -97,7 +97,7 @@ public interface InstrumentedType extends TypeDescription {
     InstrumentedType withInitializer(ByteCodeAppender byteCodeAppender);
 
     /**
-     * Returns the {@link scouter.bytebuddy.implementation.LoadedTypeInitializer}s that were registered
+     * Returns the {@link LoadedTypeInitializer}s that were registered
      * for this instrumented type.
      *
      * @return The registered loaded type initializers for this instrumented type.
@@ -178,6 +178,93 @@ public interface InstrumentedType extends TypeDescription {
          * @return The prepared instrumented type.
          */
         InstrumentedType prepare(InstrumentedType instrumentedType);
+    }
+
+    /**
+     * A factory for creating an {@link InstrumentedType}.
+     */
+    interface Factory {
+
+        /**
+         * Creates an instrumented type that represents the provided type.
+         *
+         * @param typeDescription The type to represent.
+         * @return An appropriate instrumented type.
+         */
+        InstrumentedType.WithFlexibleName represent(TypeDescription typeDescription);
+
+        /**
+         * Creates a new instrumented type as a subclass.
+         *
+         * @param name       The type's name.
+         * @param modifiers  The type's modifiers.
+         * @param superClass The type's super class.
+         * @return A new instrumented type representing a subclass of the given parameters.
+         */
+        InstrumentedType.WithFlexibleName subclass(String name, int modifiers, TypeDescription.Generic superClass);
+
+        /**
+         * Default implementations of instrumented type factories.
+         */
+        enum Default implements Factory {
+
+            /**
+             * A factory for an instrumented type that allows to modify represented types.
+             */
+            MODIFIABLE {
+                @Override
+                public InstrumentedType.WithFlexibleName represent(TypeDescription typeDescription) {
+                    return new InstrumentedType.Default(typeDescription.getName(),
+                            typeDescription.getModifiers(),
+                            typeDescription.getSuperClass(),
+                            typeDescription.getTypeVariables().asTokenList(is(typeDescription)),
+                            typeDescription.getInterfaces().accept(Generic.Visitor.Substitutor.ForDetachment.of(typeDescription)),
+                            typeDescription.getDeclaredFields().asTokenList(is(typeDescription)),
+                            typeDescription.getDeclaredMethods().asTokenList(is(typeDescription)),
+                            typeDescription.getDeclaredAnnotations(),
+                            TypeInitializer.None.INSTANCE,
+                            LoadedTypeInitializer.NoOp.INSTANCE,
+                            typeDescription.getDeclaringType(),
+                            typeDescription.getEnclosingMethod(),
+                            typeDescription.getEnclosingType(),
+                            typeDescription.getDeclaredTypes(),
+                            typeDescription.isMemberClass(),
+                            typeDescription.isAnonymousClass(),
+                            typeDescription.isLocalClass());
+                }
+            },
+
+            /**
+             * A factory for an instrumented type that does not allow to modify represented types.
+             */
+            FROZEN {
+                @Override
+                public InstrumentedType.WithFlexibleName represent(TypeDescription typeDescription) {
+                    return new Frozen(typeDescription, LoadedTypeInitializer.NoOp.INSTANCE);
+                }
+            };
+
+            @Override
+            public InstrumentedType.WithFlexibleName subclass(String name, int modifiers, TypeDescription.Generic superClass) {
+                return new InstrumentedType.Default(name,
+                        modifiers,
+                        superClass,
+                        Collections.<TypeVariableToken>emptyList(),
+                        Collections.<Generic>emptyList(),
+                        Collections.<FieldDescription.Token>emptyList(),
+                        Collections.<MethodDescription.Token>emptyList(),
+                        Collections.<AnnotationDescription>emptyList(),
+                        TypeInitializer.None.INSTANCE,
+                        LoadedTypeInitializer.NoOp.INSTANCE,
+                        TypeDescription.UNDEFINED,
+                        MethodDescription.UNDEFINED,
+                        TypeDescription.UNDEFINED,
+                        Collections.<TypeDescription>emptyList(),
+                        false,
+                        false,
+                        false);
+            }
+        }
     }
 
     /**
@@ -336,60 +423,6 @@ public interface InstrumentedType extends TypeDescription {
             this.memberClass = memberClass;
             this.anonymousClass = anonymousClass;
             this.localClass = localClass;
-        }
-
-        /**
-         * Creates an instrumented type that is a subclass of the given super type named as given and with the modifiers.
-         *
-         * @param name       The name of the instrumented type.
-         * @param modifiers  The modifiers of the instrumented type.
-         * @param superClass The super type of the instrumented type.
-         * @return An instrumented type as a subclass of the given type with the given name and modifiers.
-         */
-        public static InstrumentedType.WithFlexibleName subclass(String name, int modifiers, Generic superClass) {
-            return new Default(name,
-                    modifiers,
-                    superClass,
-                    Collections.<TypeVariableToken>emptyList(),
-                    Collections.<Generic>emptyList(),
-                    Collections.<FieldDescription.Token>emptyList(),
-                    Collections.<MethodDescription.Token>emptyList(),
-                    Collections.<AnnotationDescription>emptyList(),
-                    TypeInitializer.None.INSTANCE,
-                    LoadedTypeInitializer.NoOp.INSTANCE,
-                    TypeDescription.UNDEFINED,
-                    MethodDescription.UNDEFINED,
-                    TypeDescription.UNDEFINED,
-                    Collections.<TypeDescription>emptyList(),
-                    false,
-                    false,
-                    false);
-        }
-
-        /**
-         * Creates an instrumented type that represents the given type description.
-         *
-         * @param typeDescription A description of the type to represent.
-         * @return An instrumented type of the given type.
-         */
-        public static InstrumentedType.WithFlexibleName of(TypeDescription typeDescription) {
-            return new Default(typeDescription.getName(),
-                    typeDescription.getModifiers(),
-                    typeDescription.getSuperClass(),
-                    typeDescription.getTypeVariables().asTokenList(is(typeDescription)),
-                    typeDescription.getInterfaces().accept(Generic.Visitor.Substitutor.ForDetachment.of(typeDescription)),
-                    typeDescription.getDeclaredFields().asTokenList(is(typeDescription)),
-                    typeDescription.getDeclaredMethods().asTokenList(is(typeDescription)),
-                    typeDescription.getDeclaredAnnotations(),
-                    TypeInitializer.None.INSTANCE,
-                    LoadedTypeInitializer.NoOp.INSTANCE,
-                    typeDescription.getDeclaringType(),
-                    typeDescription.getEnclosingMethod(),
-                    typeDescription.getEnclosingType(),
-                    typeDescription.getDeclaredTypes(),
-                    typeDescription.isMemberClass(),
-                    typeDescription.isAnonymousClass(),
-                    typeDescription.isLocalClass());
         }
 
         @Override
@@ -671,12 +704,12 @@ public interface InstrumentedType extends TypeDescription {
         public Generic getSuperClass() {
             return superClass == null
                     ? Generic.UNDEFINED
-                    : superClass.accept(Generic.Visitor.Substitutor.ForAttachment.of(this));
+                    : new Generic.LazyProjection.WithResolvedErasure(superClass, Generic.Visitor.Substitutor.ForAttachment.of(this));
         }
 
         @Override
         public TypeList.Generic getInterfaces() {
-            return TypeList.Generic.ForDetachedTypes.attach(this, interfaceTypes);
+            return new TypeList.Generic.ForDetachedTypes.WithResolvedErasure(interfaceTypes, TypeDescription.Generic.Visitor.Substitutor.ForAttachment.of(this));
         }
 
         @Override
@@ -966,6 +999,190 @@ public interface InstrumentedType extends TypeDescription {
                 }
             }
             return true;
+        }
+    }
+
+    /**
+     * A frozen representation of an instrumented type of which the structure must not be modified.
+     */
+    class Frozen extends AbstractBase.OfSimpleType implements InstrumentedType.WithFlexibleName {
+
+        /**
+         * The represented type description.
+         */
+        private final TypeDescription typeDescription;
+
+        /**
+         * The type's loaded type initializer.
+         */
+        private final LoadedTypeInitializer loadedTypeInitializer;
+
+        /**
+         * Creates a new frozen representation of an instrumented type.
+         *
+         * @param typeDescription       The represented type description.
+         * @param loadedTypeInitializer The type's loaded type initializer.
+         */
+        protected Frozen(TypeDescription typeDescription, LoadedTypeInitializer loadedTypeInitializer) {
+            this.typeDescription = typeDescription;
+            this.loadedTypeInitializer = loadedTypeInitializer;
+        }
+
+        @Override
+        public AnnotationList getDeclaredAnnotations() {
+            return typeDescription.getDeclaredAnnotations();
+        }
+
+        @Override
+        public int getModifiers() {
+            return typeDescription.getModifiers();
+        }
+
+        @Override
+        public TypeList.Generic getTypeVariables() {
+            return typeDescription.getTypeVariables();
+        }
+
+        @Override
+        public String getName() {
+            return typeDescription.getName();
+        }
+
+        @Override
+        public Generic getSuperClass() {
+            return typeDescription.getSuperClass();
+        }
+
+        @Override
+        public TypeList.Generic getInterfaces() {
+            return typeDescription.getInterfaces();
+        }
+
+        @Override
+        public FieldList<FieldDescription.InDefinedShape> getDeclaredFields() {
+            return typeDescription.getDeclaredFields();
+        }
+
+        @Override
+        public MethodList<MethodDescription.InDefinedShape> getDeclaredMethods() {
+            return typeDescription.getDeclaredMethods();
+        }
+
+        @Override
+        public boolean isAnonymousClass() {
+            return typeDescription.isAnonymousClass();
+        }
+
+        @Override
+        public boolean isLocalClass() {
+            return typeDescription.isLocalClass();
+        }
+
+        @Override
+        public boolean isMemberClass() {
+            return typeDescription.isMemberClass();
+        }
+
+        @Override
+        public PackageDescription getPackage() {
+            return typeDescription.getPackage();
+        }
+
+        @Override
+        public TypeDescription getEnclosingType() {
+            return typeDescription.getEnclosingType();
+        }
+
+        @Override
+        public TypeDescription getDeclaringType() {
+            return typeDescription.getDeclaringType();
+        }
+
+        @Override
+        public TypeList getDeclaredTypes() {
+            return typeDescription.getDeclaredTypes();
+        }
+
+        @Override
+        public MethodDescription getEnclosingMethod() {
+            return typeDescription.getEnclosingMethod();
+        }
+
+        @Override
+        public String getGenericSignature() {
+            // Embrace use of native generic signature by direct delegation.
+            return typeDescription.getGenericSignature();
+        }
+
+        @Override
+        public int getActualModifiers(boolean superFlag) {
+            // Embrace use of native actual modifiers by direct delegation.
+            return typeDescription.getActualModifiers(superFlag);
+        }
+
+        @Override
+        public WithFlexibleName withField(FieldDescription.Token token) {
+            throw new IllegalStateException("Cannot define field for frozen type: " + typeDescription);
+        }
+
+        @Override
+        public WithFlexibleName withMethod(MethodDescription.Token token) {
+            throw new IllegalStateException("Cannot define method for frozen type: " + typeDescription);
+        }
+
+        @Override
+        public WithFlexibleName withModifiers(int modifiers) {
+            throw new IllegalStateException("Cannot change modifiers for frozen type: " + typeDescription);
+        }
+
+        @Override
+        public WithFlexibleName withInterfaces(TypeList.Generic interfaceTypes) {
+            throw new IllegalStateException("Cannot add interfaces for frozen type: " + typeDescription);
+        }
+
+        @Override
+        public WithFlexibleName withTypeVariable(TypeVariableToken typeVariable) {
+            throw new IllegalStateException("Cannot define type variable for frozen type: " + typeDescription);
+        }
+
+        @Override
+        public WithFlexibleName withAnnotations(List<? extends AnnotationDescription> annotationDescriptions) {
+            throw new IllegalStateException("Cannot add annotation to frozen type: " + typeDescription);
+        }
+
+        @Override
+        public WithFlexibleName withInitializer(LoadedTypeInitializer loadedTypeInitializer) {
+            return new Frozen(typeDescription, new LoadedTypeInitializer.Compound(this.loadedTypeInitializer, loadedTypeInitializer));
+        }
+
+        @Override
+        public WithFlexibleName withInitializer(ByteCodeAppender byteCodeAppender) {
+            throw new IllegalStateException("Cannot add initializer to frozen type: " + typeDescription);
+        }
+
+        @Override
+        public WithFlexibleName withName(String name) {
+            throw new IllegalStateException("Cannot change name of frozen type: " + typeDescription);
+        }
+
+        @Override
+        public WithFlexibleName withTypeVariables(ElementMatcher<? super Generic> matcher, Transformer<TypeVariableToken> transformer) {
+            throw new IllegalStateException("Cannot add type variables of frozen type: " + typeDescription);
+        }
+
+        @Override
+        public LoadedTypeInitializer getLoadedTypeInitializer() {
+            return loadedTypeInitializer;
+        }
+
+        @Override
+        public TypeInitializer getTypeInitializer() {
+            return TypeInitializer.None.INSTANCE;
+        }
+
+        @Override
+        public TypeDescription validated() {
+            return typeDescription;
         }
     }
 }

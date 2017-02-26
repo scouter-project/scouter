@@ -41,7 +41,7 @@ import scouter.bytebuddy.jar.asm.Opcodes;
 import scouter.bytebuddy.jar.asm.Type;
 
 /**
- * A {@link scouter.bytebuddy.jar.asm.MethodVisitor} with convenient methods to generate
+ * A {@link MethodVisitor} with convenient methods to generate
  * code. For example, using this adapter, the class below
  * 
  * <pre>

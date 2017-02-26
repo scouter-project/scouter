@@ -32,9 +32,10 @@ package scouter.bytebuddy.jar.asm.util;
 import java.util.Map;
 
 import scouter.bytebuddy.jar.asm.Label;
+import scouter.bytebuddy.jar.asm.Attribute;
 
 /**
- * An {@link scouter.bytebuddy.jar.asm.Attribute Attribute} that can print the ASM code
+ * An {@link Attribute Attribute} that can print the ASM code
  * to create an equivalent attribute.
  * 
  * @author Eugene Kuleshov

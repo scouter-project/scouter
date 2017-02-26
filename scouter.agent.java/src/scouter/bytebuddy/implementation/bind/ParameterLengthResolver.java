@@ -3,7 +3,7 @@ package scouter.bytebuddy.implementation.bind;
 import scouter.bytebuddy.description.method.MethodDescription;
 
 /**
- * This {@link scouter.bytebuddy.implementation.bind.MethodDelegationBinder.AmbiguityResolver} selects
+ * This {@link MethodDelegationBinder.AmbiguityResolver} selects
  * the method with more arguments. If two methods have equally many arguments, the resolution is ambiguous.
  */
 public enum ParameterLengthResolver implements MethodDelegationBinder.AmbiguityResolver {
@@ -26,10 +26,5 @@ public enum ParameterLengthResolver implements MethodDelegationBinder.AmbiguityR
         } else {
             return Resolution.LEFT;
         }
-    }
-
-    @Override
-    public String toString() {
-        return "ParameterLengthResolver." + name();
     }
 }

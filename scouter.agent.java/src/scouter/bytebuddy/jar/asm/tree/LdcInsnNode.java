@@ -33,6 +33,7 @@ import java.util.Map;
 
 import scouter.bytebuddy.jar.asm.MethodVisitor;
 import scouter.bytebuddy.jar.asm.Opcodes;
+import scouter.bytebuddy.jar.asm.Type;
 
 /**
  * A node that represents an LDC instruction.
@@ -44,7 +45,7 @@ public class LdcInsnNode extends AbstractInsnNode {
     /**
      * The constant to be loaded on the stack. This parameter must be a non null
      * {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double}, a
-     * {@link String} or a {@link scouter.bytebuddy.jar.asm.Type}.
+     * {@link String} or a {@link Type}.
      */
     public Object cst;
 

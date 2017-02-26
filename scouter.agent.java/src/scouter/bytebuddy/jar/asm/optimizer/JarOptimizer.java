@@ -161,7 +161,7 @@ public class JarOptimizer {
 
         @Override
         public FieldVisitor visitField(final int access, final String name,
-                final String desc, final String signature, final Object value) {
+                                       final String desc, final String signature, final Object value) {
             if (owner.startsWith("java/")) {
                 System.out.println(owner + ' ' + name);
             }
@@ -170,8 +170,8 @@ public class JarOptimizer {
 
         @Override
         public MethodVisitor visitMethod(final int access, final String name,
-                final String desc, final String signature,
-                final String[] exceptions) {
+                                         final String desc, final String signature,
+                                         final String[] exceptions) {
             if (owner.startsWith("java/")) {
                 System.out.println(owner + ' ' + name + desc);
             }

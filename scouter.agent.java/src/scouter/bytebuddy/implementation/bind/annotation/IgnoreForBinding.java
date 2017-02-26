@@ -1,14 +1,15 @@
 package scouter.bytebuddy.implementation.bind.annotation;
 
 import scouter.bytebuddy.description.method.MethodDescription;
+import scouter.bytebuddy.implementation.MethodDelegation;
 
 import java.lang.annotation.*;
 
 /**
  * Indicates that a given target method should never be considered for binding to a source method.
  *
- * @see scouter.bytebuddy.implementation.MethodDelegation
- * @see scouter.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
+ * @see MethodDelegation
+ * @see TargetMethodAnnotationDrivenBinder
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

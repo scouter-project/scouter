@@ -7,6 +7,7 @@ import scouter.bytebuddy.implementation.Implementation;
 import scouter.bytebuddy.implementation.bind.MethodDelegationBinder;
 import scouter.bytebuddy.implementation.bytecode.assign.Assigner;
 import scouter.bytebuddy.implementation.bytecode.constant.DefaultValue;
+import scouter.bytebuddy.implementation.MethodDelegation;
 
 import java.lang.annotation.*;
 
@@ -14,8 +15,8 @@ import java.lang.annotation.*;
  * Binds the parameter type's default value to the annotated parameter, i.e. {@code null} or a numeric value
  * representing zero.
  *
- * @see scouter.bytebuddy.implementation.MethodDelegation
- * @see scouter.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
+ * @see MethodDelegation
+ * @see TargetMethodAnnotationDrivenBinder
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -23,7 +24,7 @@ import java.lang.annotation.*;
 public @interface Empty {
 
     /**
-     * A binder for the {@link scouter.bytebuddy.implementation.bind.annotation.Empty} annotation.
+     * A binder for the {@link Empty} annotation.
      */
     enum Binder implements TargetMethodAnnotationDrivenBinder.ParameterBinder<Empty> {
 
@@ -45,11 +46,6 @@ public @interface Empty {
                                                                Assigner assigner,
                                                                Assigner.Typing typing) {
             return new MethodDelegationBinder.ParameterBinding.Anonymous(DefaultValue.of(target.getType().asErasure()));
-        }
-
-        @Override
-        public String toString() {
-            return "Empty.Binder." + name();
         }
     }
 }

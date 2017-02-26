@@ -34,6 +34,7 @@ import java.util.Map;
 import scouter.bytebuddy.jar.asm.Handle;
 import scouter.bytebuddy.jar.asm.MethodVisitor;
 import scouter.bytebuddy.jar.asm.Opcodes;
+import scouter.bytebuddy.jar.asm.Type;
 
 /**
  * A node that represents an invokedynamic instruction.
@@ -68,7 +69,7 @@ public class InvokeDynamicInsnNode extends AbstractInsnNode {
      * @param name
      *            invokedynamic name.
      * @param desc
-     *            invokedynamic descriptor (see {@link scouter.bytebuddy.jar.asm.Type}).
+     *            invokedynamic descriptor (see {@link Type}).
      * @param bsm
      *            the bootstrap method.
      * @param bsmArgs

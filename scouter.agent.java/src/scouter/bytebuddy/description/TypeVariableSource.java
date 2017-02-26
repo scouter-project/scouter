@@ -3,8 +3,7 @@ package scouter.bytebuddy.description;
 import scouter.bytebuddy.description.method.MethodDescription;
 import scouter.bytebuddy.description.type.TypeDescription;
 import scouter.bytebuddy.description.type.TypeList;
-
-import static scouter.bytebuddy.matcher.ElementMatchers.named;
+import scouter.bytebuddy.matcher.ElementMatchers;
 
 /**
  * A type variable source represents a code element that can declare type variables.
@@ -56,7 +55,7 @@ public interface TypeVariableSource extends ModifierReviewable.OfAbstraction {
      *
      * @return {@code true} if this type code element has a generic declaration.
      */
-    boolean isGenericDeclaration();
+    boolean isGenerified();
 
     /**
      * A visitor that can be applied to a type variable source.
@@ -100,11 +99,6 @@ public interface TypeVariableSource extends ModifierReviewable.OfAbstraction {
             public TypeVariableSource onMethod(MethodDescription.InDefinedShape methodDescription) {
                 return methodDescription;
             }
-
-            @Override
-            public String toString() {
-                return "TypeVariableSource.Visitor.NoOp." + name();
-            }
         }
     }
 
@@ -115,7 +109,7 @@ public interface TypeVariableSource extends ModifierReviewable.OfAbstraction {
 
         @Override
         public TypeDescription.Generic findVariable(String symbol) {
-            TypeList.Generic typeVariables = getTypeVariables().filter(named(symbol));
+            TypeList.Generic typeVariables = getTypeVariables().filter(ElementMatchers.named(symbol));
             if (typeVariables.isEmpty()) {
                 TypeVariableSource enclosingSource = getEnclosingSource();
                 return enclosingSource == null

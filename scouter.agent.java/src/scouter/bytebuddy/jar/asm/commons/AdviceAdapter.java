@@ -41,7 +41,7 @@ import scouter.bytebuddy.jar.asm.Opcodes;
 import scouter.bytebuddy.jar.asm.Type;
 
 /**
- * A {@link scouter.bytebuddy.jar.asm.MethodVisitor} to insert before, after and around
+ * A {@link MethodVisitor} to insert before, after and around
  * advices in methods and constructors.
  * <p>
  * The behavior for constructors is like this:

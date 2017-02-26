@@ -4,6 +4,7 @@ package scouter.bytebuddy.utility.visitor;
 import scouter.bytebuddy.description.method.MethodDescription;
 import scouter.bytebuddy.implementation.bytecode.StackSize;
 import scouter.bytebuddy.utility.CompoundList;
+
 import scouter.bytebuddy.jar.asm.*;
 
 import java.util.*;
@@ -16,7 +17,7 @@ public class StackAwareMethodVisitor extends MethodVisitor {
 
     /**
      * An array mapping any opcode to its size impact onto the operand stack. This mapping is taken from
-     * {@link scouter.bytebuddy.jar.asm.Frame} with the difference that the {@link Opcodes#JSR} instruction is
+     * {@link Frame} with the difference that the {@link Opcodes#JSR} instruction is
      * mapped to a size of {@code 0} as it does not impact the stack after returning from the instruction.
      */
     private static final int[] SIZE_CHANGE;
@@ -358,15 +359,5 @@ public class StackAwareMethodVisitor extends MethodVisitor {
     public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
         sizes.put(handler, Collections.singletonList(StackSize.SINGLE));
         super.visitTryCatchBlock(start, end, handler, type);
-    }
-
-    @Override
-    public String toString() {
-        return "StackAwareMethodVisitor{" +
-                "methodVisitor=" + mv +
-                ", current=" + current +
-                ", sizes=" + sizes +
-                ", freeIndex=" + freeIndex +
-                '}';
     }
 }

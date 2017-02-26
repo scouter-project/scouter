@@ -7,6 +7,7 @@ import scouter.bytebuddy.description.type.TypeDescription;
 import scouter.bytebuddy.dynamic.ClassFileLocator;
 import scouter.bytebuddy.dynamic.DynamicType;
 import scouter.bytebuddy.dynamic.TypeResolutionStrategy;
+
 import scouter.bytebuddy.dynamic.scaffold.*;
 import scouter.bytebuddy.implementation.Implementation;
 import scouter.bytebuddy.implementation.attribute.AnnotationRetention;
@@ -169,26 +170,5 @@ public class RedefinitionDynamicTypeBuilder<T> extends AbstractInliningDynamicTy
                 typePool,
                 originalType,
                 classFileLocator).make(typeResolutionStrategy.resolve());
-    }
-
-    @Override
-    public String toString() {
-        return "RedefinitionDynamicTypeBuilder{" +
-                "instrumentedType=" + instrumentedType +
-                ", fieldRegistry=" + fieldRegistry +
-                ", methodRegistry=" + methodRegistry +
-                ", typeAttributeAppender=" + typeAttributeAppender +
-                ", asmVisitorWrapper=" + asmVisitorWrapper +
-                ", classFileVersion=" + classFileVersion +
-                ", annotationValueFilterFactory=" + annotationValueFilterFactory +
-                ", annotationRetention=" + annotationRetention +
-                ", auxiliaryTypeNamingStrategy=" + auxiliaryTypeNamingStrategy +
-                ", implementationContextFactory=" + implementationContextFactory +
-                ", methodGraphCompiler=" + methodGraphCompiler +
-                ", typeValidation=" + typeValidation +
-                ", ignoredMethods=" + ignoredMethods +
-                ", originalType=" + originalType +
-                ", classFileLocator=" + classFileLocator +
-                '}';
     }
 }

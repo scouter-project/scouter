@@ -33,6 +33,7 @@ import java.util.Map;
 
 import scouter.bytebuddy.jar.asm.MethodVisitor;
 import scouter.bytebuddy.jar.asm.Opcodes;
+import scouter.bytebuddy.jar.asm.Type;
 
 /**
  * A node that represents a method instruction. A method instruction is an
@@ -44,7 +45,7 @@ public class MethodInsnNode extends AbstractInsnNode {
 
     /**
      * The internal name of the method's owner class (see
-     * {@link scouter.bytebuddy.jar.asm.Type#getInternalName() getInternalName}).
+     * {@link Type#getInternalName() getInternalName}).
      */
     public String owner;
 
@@ -54,7 +55,7 @@ public class MethodInsnNode extends AbstractInsnNode {
     public String name;
 
     /**
-     * The method's descriptor (see {@link scouter.bytebuddy.jar.asm.Type}).
+     * The method's descriptor (see {@link Type}).
      */
     public String desc;
 
@@ -72,12 +73,12 @@ public class MethodInsnNode extends AbstractInsnNode {
      *            INVOKEINTERFACE.
      * @param owner
      *            the internal name of the method's owner class (see
-     *            {@link scouter.bytebuddy.jar.asm.Type#getInternalName()
+     *            {@link Type#getInternalName()
      *            getInternalName}).
      * @param name
      *            the method's name.
      * @param desc
-     *            the method's descriptor (see {@link scouter.bytebuddy.jar.asm.Type}).
+     *            the method's descriptor (see {@link Type}).
      */
     @Deprecated
     public MethodInsnNode(final int opcode, final String owner,
@@ -94,12 +95,12 @@ public class MethodInsnNode extends AbstractInsnNode {
      *            INVOKEINTERFACE.
      * @param owner
      *            the internal name of the method's owner class (see
-     *            {@link scouter.bytebuddy.jar.asm.Type#getInternalName()
+     *            {@link Type#getInternalName()
      *            getInternalName}).
      * @param name
      *            the method's name.
      * @param desc
-     *            the method's descriptor (see {@link scouter.bytebuddy.jar.asm.Type}).
+     *            the method's descriptor (see {@link Type}).
      * @param itf
      *            if the method's owner class is an interface.
      */

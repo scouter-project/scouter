@@ -168,7 +168,7 @@ public final class TraceClassVisitor extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+                                                 TypePath typePath, String desc, boolean visible) {
         Printer p = this.p.visitClassTypeAnnotation(typeRef, typePath, desc,
                 visible);
         AnnotationVisitor av = cv == null ? null : cv.visitTypeAnnotation(

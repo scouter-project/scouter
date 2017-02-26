@@ -11,6 +11,7 @@ import scouter.bytebuddy.implementation.bytecode.assign.Assigner;
 import scouter.bytebuddy.implementation.bytecode.collection.ArrayFactory;
 import scouter.bytebuddy.implementation.bytecode.member.MethodVariableAccess;
 import scouter.bytebuddy.utility.CompoundList;
+import scouter.bytebuddy.implementation.MethodDelegation;
 
 import java.lang.annotation.*;
 import java.util.ArrayList;
@@ -24,15 +25,15 @@ import java.util.List;
  * </ul>
  * <p>&nbsp;</p>
  * By default, this annotation applies a
- * {@link scouter.bytebuddy.implementation.bind.annotation.AllArguments.Assignment#STRICT}
+ * {@link AllArguments.Assignment#STRICT}
  * assignment of the source method's parameters to the array. This implies that parameters that are not assignable to
  * the annotated array's component type make the method with this parameter unbindable. To avoid this, you can
- * use a {@link scouter.bytebuddy.implementation.bind.annotation.AllArguments.Assignment#SLACK} assignment
+ * use a {@link AllArguments.Assignment#SLACK} assignment
  * which simply skips non-assignable values instead.
  *
- * @see scouter.bytebuddy.implementation.MethodDelegation
- * @see scouter.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
- * @see scouter.bytebuddy.implementation.bind.annotation.RuntimeType
+ * @see MethodDelegation
+ * @see TargetMethodAnnotationDrivenBinder
+ * @see RuntimeType
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -40,7 +41,7 @@ import java.util.List;
 public @interface AllArguments {
 
     /**
-     * Defines the type of {@link scouter.bytebuddy.implementation.bind.annotation.AllArguments.Assignment}
+     * Defines the type of {@link AllArguments.Assignment}
      * type that is applied for filling the annotated array with values.
      *
      * @return The assignment handling to be applied for the annotated parameter.
@@ -57,7 +58,7 @@ public @interface AllArguments {
     boolean includeSelf() default false;
 
     /**
-     * A directive for how an {@link scouter.bytebuddy.implementation.bind.annotation.AllArguments}
+     * A directive for how an {@link AllArguments}
      * annotation on an array is to be interpreted.
      */
     enum Assignment {
@@ -70,7 +71,7 @@ public @interface AllArguments {
         STRICT(true),
 
         /**
-         * Other than a {@link scouter.bytebuddy.implementation.bind.annotation.AllArguments.Assignment#STRICT}
+         * Other than a {@link AllArguments.Assignment#STRICT}
          * assignment, a slack assignment simply ignores non-bindable parameters and does not include them in the target
          * array. In the most extreme case where no source method parameter is assignable to the component type
          * of the annotated array, the array that is assigned to the target parameter is empty.
@@ -99,16 +100,11 @@ public @interface AllArguments {
         protected boolean isStrict() {
             return strict;
         }
-
-        @Override
-        public String toString() {
-            return "AllArguments.Assignment." + name();
-        }
     }
 
     /**
      * A binder for handling the
-     * {@link scouter.bytebuddy.implementation.bind.annotation.AllArguments}
+     * {@link AllArguments}
      * annotation.
      *
      * @see TargetMethodAnnotationDrivenBinder
@@ -152,11 +148,6 @@ public @interface AllArguments {
                 offset += sourceParameter.getStackSize().getSize();
             }
             return new MethodDelegationBinder.ParameterBinding.Anonymous(arrayFactory.withValues(stackManipulations));
-        }
-
-        @Override
-        public String toString() {
-            return "AllArguments.Binder." + name();
         }
     }
 }

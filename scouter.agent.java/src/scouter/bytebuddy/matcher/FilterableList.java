@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A filterable list allows to use an {@link scouter.bytebuddy.matcher.ElementMatcher} to reduce a lists to elements
+ * A filterable list allows to use an {@link ElementMatcher} to reduce a lists to elements
  * that are matched by this matcher in this list.
  *
  * @param <T> The type of the collection's elements.
@@ -34,7 +34,7 @@ public interface FilterableList<T, S extends FilterableList<T, S>> extends List<
     S subList(int fromIndex, int toIndex);
 
     /**
-     * An implementation of an empty {@link scouter.bytebuddy.matcher.FilterableList}.
+     * An implementation of an empty {@link FilterableList}.
      *
      * @param <T> The type of the collection's elements.
      * @param <S> The type of this list.
@@ -76,7 +76,7 @@ public interface FilterableList<T, S extends FilterableList<T, S>> extends List<
     }
 
     /**
-     * A base implementation of a {@link scouter.bytebuddy.matcher.FilterableList}.
+     * A base implementation of a {@link FilterableList}.
      *
      * @param <T> The type of the collection's elements.
      * @param <S> The type of this list.

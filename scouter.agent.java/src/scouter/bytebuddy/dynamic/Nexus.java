@@ -1,5 +1,7 @@
 package scouter.bytebuddy.dynamic;
 
+import scouter.bytebuddy.implementation.LoadedTypeInitializer;
+
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -10,7 +12,7 @@ import java.util.logging.Logger;
 /**
  * <p>
  * This nexus is a global dispatcher for initializing classes with
- * {@link scouter.bytebuddy.implementation.LoadedTypeInitializer}s. To do so, this class is to be loaded
+ * {@link LoadedTypeInitializer}s. To do so, this class is to be loaded
  * by the system class loader in an explicit manner. Any instrumented class is then injected a code
  * block into its static type initializer that makes a call to this very same nexus which had the
  * loaded type initializer registered before hand.
@@ -31,7 +33,7 @@ public class Nexus extends WeakReference<ClassLoader> {
 
     /**
      * A map of keys identifying a loaded type by its name and class loader mapping their
-     * potential {@link scouter.bytebuddy.implementation.LoadedTypeInitializer} where the class
+     * potential {@link LoadedTypeInitializer} where the class
      * loader of these initializers is however irrelevant.
      */
     private static final ConcurrentMap<Nexus, Object> TYPE_INITIALIZERS = new ConcurrentHashMap<Nexus, Object>();
@@ -132,7 +134,7 @@ public class Nexus extends WeakReference<ClassLoader> {
      *                        handed to {@link Nexus#clean(Reference)} or {@code null} if no reference queue should be notified.
      * @param identification  An identification for the initializer to run.
      * @param typeInitializer The type initializer to register. The initializer must be an instance
-     *                        of {@link scouter.bytebuddy.implementation.LoadedTypeInitializer} where
+     *                        of {@link LoadedTypeInitializer} where
      *                        it does however not matter which class loader loaded this latter type.
      */
     public static void register(String name, ClassLoader classLoader, ReferenceQueue<? super ClassLoader> referenceQueue, int identification, Object typeInitializer) {
@@ -165,15 +167,15 @@ public class Nexus extends WeakReference<ClassLoader> {
         Nexus nexus = (Nexus) object;
         return classLoaderHashCode == nexus.classLoaderHashCode
                 && identification == nexus.identification
-                && get() == nexus.get()
-                && name.equals(nexus.name);
+                && name.equals(nexus.name)
+                && get() == nexus.get();
     }
 
     @Override
     public int hashCode() {
         int result = name.hashCode();
-        result = 31 * result + identification;
         result = 31 * result + classLoaderHashCode;
+        result = 31 * result + identification;
         return result;
     }
 
@@ -181,9 +183,9 @@ public class Nexus extends WeakReference<ClassLoader> {
     public String toString() {
         return "Nexus{" +
                 "name='" + name + '\'' +
-                ", classLoaderReference=" + get() +
                 ", classLoaderHashCode=" + classLoaderHashCode +
                 ", identification=" + identification +
+                ", classLoader=" + get() +
                 '}';
     }
 }

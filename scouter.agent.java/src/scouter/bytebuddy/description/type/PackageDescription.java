@@ -1,14 +1,14 @@
 package scouter.bytebuddy.description.type;
 
 import scouter.bytebuddy.description.NamedElement;
-import scouter.bytebuddy.description.annotation.AnnotatedCodeElement;
+import scouter.bytebuddy.description.annotation.AnnotationSource;
 import scouter.bytebuddy.description.annotation.AnnotationList;
 import scouter.bytebuddy.jar.asm.Opcodes;
 
 /**
  * A package description represents a Java package.
  */
-public interface PackageDescription extends NamedElement.WithRuntimeName, AnnotatedCodeElement {
+public interface PackageDescription extends NamedElement.WithRuntimeName, AnnotationSource {
 
     /**
      * The name of a Java class representing a package description.

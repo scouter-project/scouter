@@ -1,7 +1,8 @@
 package scouter.bytebuddy.implementation.bind.annotation;
 
-import scouter.bytebuddy.description.annotation.AnnotatedCodeElement;
+import scouter.bytebuddy.description.annotation.AnnotationSource;
 import scouter.bytebuddy.implementation.bytecode.assign.Assigner;
+import scouter.bytebuddy.implementation.MethodDelegation;
 
 import java.lang.annotation.*;
 
@@ -16,8 +17,8 @@ import java.lang.annotation.*;
  * that returns a type {@code Object}, annotating the target method with {@code @RuntimeType} results in the
  * {@code foo} method casting the target's method return value to {@code String} before returning a value itself.
  *
- * @see scouter.bytebuddy.implementation.MethodDelegation
- * @see scouter.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
+ * @see MethodDelegation
+ * @see TargetMethodAnnotationDrivenBinder
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -39,11 +40,11 @@ public @interface RuntimeType {
         /**
          * Checks if an annotated element should be assigned a value by considering the runtime type.
          *
-         * @param annotatedCodeElement The annotated element of interest.
+         * @param annotationSource The annotated element of interest.
          * @return Indicates if dynamic type castings should be attempted for incompatible assignments.
          */
-        public static Assigner.Typing check(AnnotatedCodeElement annotatedCodeElement) {
-            return Assigner.Typing.of(annotatedCodeElement.getDeclaredAnnotations().isAnnotationPresent(RuntimeType.class));
+        public static Assigner.Typing check(AnnotationSource annotationSource) {
+            return Assigner.Typing.of(annotationSource.getDeclaredAnnotations().isAnnotationPresent(RuntimeType.class));
         }
     }
 }

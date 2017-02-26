@@ -29,6 +29,9 @@
  */
 package scouter.bytebuddy.jar.asm.signature;
 
+import scouter.bytebuddy.jar.asm.ClassVisitor;
+import scouter.bytebuddy.jar.asm.MethodVisitor;
+
 /**
  * A type signature parser to make a signature visitor visit an existing
  * signature.
@@ -60,10 +63,10 @@ public class SignatureReader {
      * constructor (see {@link #SignatureReader(String) SignatureReader}). This
      * method is intended to be called on a {@link SignatureReader} that was
      * created using a <i>ClassSignature</i> (such as the <code>signature</code>
-     * parameter of the {@link scouter.bytebuddy.jar.asm.ClassVisitor#visit
+     * parameter of the {@link ClassVisitor#visit
      * ClassVisitor.visit} method) or a <i>MethodTypeSignature</i> (such as the
      * <code>signature</code> parameter of the
-     * {@link scouter.bytebuddy.jar.asm.ClassVisitor#visitMethod
+     * {@link ClassVisitor#visitMethod
      * ClassVisitor.visitMethod} method).
      * 
      * @param v
@@ -119,8 +122,8 @@ public class SignatureReader {
      * method is intended to be called on a {@link SignatureReader} that was
      * created using a <i>FieldTypeSignature</i>, such as the
      * <code>signature</code> parameter of the
-     * {@link scouter.bytebuddy.jar.asm.ClassVisitor#visitField ClassVisitor.visitField}
-     * or {@link scouter.bytebuddy.jar.asm.MethodVisitor#visitLocalVariable
+     * {@link ClassVisitor#visitField ClassVisitor.visitField}
+     * or {@link MethodVisitor#visitLocalVariable
      * MethodVisitor.visitLocalVariable} methods.
      * 
      * @param v

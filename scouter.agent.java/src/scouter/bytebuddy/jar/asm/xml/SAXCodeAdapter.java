@@ -46,8 +46,8 @@ import org.xml.sax.helpers.AttributesImpl;
  * A {@link MethodVisitor} that generates SAX 2.0 events from the visited
  * method.
  * 
- * @see scouter.bytebuddy.jar.asm.xml.SAXClassAdapter
- * @see scouter.bytebuddy.jar.asm.xml.Processor
+ * @see SAXClassAdapter
+ * @see Processor
  * 
  * @author Eugene Kuleshov
  */

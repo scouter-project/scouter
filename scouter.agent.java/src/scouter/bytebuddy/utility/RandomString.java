@@ -53,7 +53,7 @@ public class RandomString {
 
     /**
      * Creates a random {@link java.lang.String} provider where each {@link java.lang.String} is of
-     * {@link scouter.bytebuddy.utility.RandomString#DEFAULT_LENGTH} length.
+     * {@link RandomString#DEFAULT_LENGTH} length.
      */
     public RandomString() {
         this(DEFAULT_LENGTH);
@@ -73,7 +73,7 @@ public class RandomString {
     }
 
     /**
-     * Creates a random {@link java.lang.String} of {@link scouter.bytebuddy.utility.RandomString#DEFAULT_LENGTH} length.
+     * Creates a random {@link java.lang.String} of {@link RandomString#DEFAULT_LENGTH} length.
      *
      * @return A random {@link java.lang.String}.
      */
@@ -117,13 +117,5 @@ public class RandomString {
             buffer[index] = SYMBOL[random.nextInt(SYMBOL.length)];
         }
         return new String(buffer);
-    }
-
-    @Override
-    public String toString() {
-        return "RandomString{" +
-                "random=" + random +
-                ", length=" + length +
-                '}';
     }
 }

@@ -1,6 +1,10 @@
 package scouter.bytebuddy.description;
 
+import scouter.bytebuddy.description.field.FieldDescription;
+import scouter.bytebuddy.description.method.MethodDescription;
+import scouter.bytebuddy.description.method.ParameterDescription;
 import scouter.bytebuddy.description.modifier.*;
+import scouter.bytebuddy.description.type.TypeDescription;
 import scouter.bytebuddy.jar.asm.Opcodes;
 
 /**
@@ -104,8 +108,8 @@ public interface ModifierReviewable {
     }
 
     /**
-     * A modifier reviewable for a byte code element that can be abstract, i.e. a {@link scouter.bytebuddy.description.type.TypeDescription}
-     * or a {@link scouter.bytebuddy.description.method.MethodDescription}.
+     * A modifier reviewable for a byte code element that can be abstract, i.e. a {@link TypeDescription}
+     * or a {@link MethodDescription}.
      */
     interface OfAbstraction extends OfByteCodeElement {
 
@@ -118,8 +122,8 @@ public interface ModifierReviewable {
     }
 
     /**
-     * A modifier reviewable for a byte code element that can represent an enumeration, i.e. a {@link scouter.bytebuddy.description.field.FieldDescription}
-     * that holds an enumeration value or a {@link scouter.bytebuddy.description.type.TypeDescription} that represents an enumeration.
+     * A modifier reviewable for a byte code element that can represent an enumeration, i.e. a {@link FieldDescription}
+     * that holds an enumeration value or a {@link TypeDescription} that represents an enumeration.
      */
     interface OfEnumeration extends OfByteCodeElement {
 
@@ -139,7 +143,7 @@ public interface ModifierReviewable {
     }
 
     /**
-     * A modifier reviewable for a {@link scouter.bytebuddy.description.type.TypeDescription}.
+     * A modifier reviewable for a {@link TypeDescription}.
      */
     interface ForTypeDefinition extends OfAbstraction, OfEnumeration {
 
@@ -166,7 +170,7 @@ public interface ModifierReviewable {
     }
 
     /**
-     * A modifier reviewable for a {@link scouter.bytebuddy.description.field.FieldDescription}.
+     * A modifier reviewable for a {@link FieldDescription}.
      */
     interface ForFieldDescription extends OfEnumeration {
 
@@ -193,7 +197,7 @@ public interface ModifierReviewable {
     }
 
     /**
-     * A modifier reviewable for a {@link scouter.bytebuddy.description.method.MethodDescription}.
+     * A modifier reviewable for a {@link MethodDescription}.
      */
     interface ForMethodDescription extends OfAbstraction {
 
@@ -255,7 +259,7 @@ public interface ModifierReviewable {
     }
 
     /**
-     * A modifier reviewable for a {@link scouter.bytebuddy.description.method.ParameterDescription}.
+     * A modifier reviewable for a {@link ParameterDescription}.
      */
     interface ForParameterDescription extends ModifierReviewable {
 

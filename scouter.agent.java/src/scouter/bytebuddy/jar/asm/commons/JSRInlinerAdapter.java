@@ -55,7 +55,7 @@ import scouter.bytebuddy.jar.asm.tree.TableSwitchInsnNode;
 import scouter.bytebuddy.jar.asm.tree.TryCatchBlockNode;
 
 /**
- * A {@link scouter.bytebuddy.jar.asm.MethodVisitor} that removes JSR instructions and
+ * A {@link MethodVisitor} that removes JSR instructions and
  * inlines the referenced subroutines.
  * 
  * <b>Explanation of how it works</b> TODO

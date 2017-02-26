@@ -76,7 +76,7 @@ public class ClassRemapper extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+                                                 TypePath typePath, String desc, boolean visible) {
         AnnotationVisitor av = super.visitTypeAnnotation(typeRef, typePath,
                 remapper.mapDesc(desc), visible);
         return av == null ? null : createAnnotationRemapper(av);
@@ -84,7 +84,7 @@ public class ClassRemapper extends ClassVisitor {
 
     @Override
     public FieldVisitor visitField(int access, String name, String desc,
-            String signature, Object value) {
+                                   String signature, Object value) {
         FieldVisitor fv = super.visitField(access,
                 remapper.mapFieldName(className, name, desc),
                 remapper.mapDesc(desc), remapper.mapSignature(signature, true),

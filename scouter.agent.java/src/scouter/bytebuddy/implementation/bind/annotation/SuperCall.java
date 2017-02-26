@@ -10,6 +10,7 @@ import scouter.bytebuddy.implementation.bind.MethodDelegationBinder;
 import scouter.bytebuddy.implementation.bytecode.StackManipulation;
 import scouter.bytebuddy.implementation.bytecode.assign.Assigner;
 import scouter.bytebuddy.implementation.bytecode.constant.NullConstant;
+import scouter.bytebuddy.implementation.MethodDelegation;
 
 import java.lang.annotation.*;
 import java.util.concurrent.Callable;
@@ -23,8 +24,8 @@ import java.util.concurrent.Callable;
  * such that the annotated parameter must be assignable to any of those interfaces or be of the {@link java.lang.Object}
  * type.
  *
- * @see scouter.bytebuddy.implementation.MethodDelegation
- * @see scouter.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
+ * @see MethodDelegation
+ * @see TargetMethodAnnotationDrivenBinder
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -55,7 +56,7 @@ public @interface SuperCall {
 
     /**
      * A binder for handling the
-     * {@link scouter.bytebuddy.implementation.bind.annotation.SuperCall}
+     * {@link SuperCall}
      * annotation.
      *
      * @see TargetMethodAnnotationDrivenBinder
@@ -99,11 +100,6 @@ public @interface SuperCall {
                 return MethodDelegationBinder.ParameterBinding.Illegal.INSTANCE;
             }
             return new MethodDelegationBinder.ParameterBinding.Anonymous(stackManipulation);
-        }
-
-        @Override
-        public String toString() {
-            return "SuperCall.Binder." + name();
         }
     }
 }

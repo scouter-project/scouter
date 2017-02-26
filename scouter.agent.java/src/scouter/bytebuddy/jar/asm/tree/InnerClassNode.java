@@ -30,6 +30,7 @@
 package scouter.bytebuddy.jar.asm.tree;
 
 import scouter.bytebuddy.jar.asm.ClassVisitor;
+import scouter.bytebuddy.jar.asm.Type;
 
 /**
  * A node that represents an inner class.
@@ -40,13 +41,13 @@ public class InnerClassNode {
 
     /**
      * The internal name of an inner class (see
-     * {@link scouter.bytebuddy.jar.asm.Type#getInternalName() getInternalName}).
+     * {@link Type#getInternalName() getInternalName}).
      */
     public String name;
 
     /**
      * The internal name of the class to which the inner class belongs (see
-     * {@link scouter.bytebuddy.jar.asm.Type#getInternalName() getInternalName}). May be
+     * {@link Type#getInternalName() getInternalName}). May be
      * <tt>null</tt>.
      */
     public String outerName;
@@ -68,11 +69,11 @@ public class InnerClassNode {
      * 
      * @param name
      *            the internal name of an inner class (see
-     *            {@link scouter.bytebuddy.jar.asm.Type#getInternalName()
+     *            {@link Type#getInternalName()
      *            getInternalName}).
      * @param outerName
      *            the internal name of the class to which the inner class
-     *            belongs (see {@link scouter.bytebuddy.jar.asm.Type#getInternalName()
+     *            belongs (see {@link Type#getInternalName()
      *            getInternalName}). May be <tt>null</tt>.
      * @param innerName
      *            the (simple) name of the inner class inside its enclosing

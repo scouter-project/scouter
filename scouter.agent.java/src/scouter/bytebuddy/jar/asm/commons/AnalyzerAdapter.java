@@ -39,12 +39,13 @@ import scouter.bytebuddy.jar.asm.Label;
 import scouter.bytebuddy.jar.asm.MethodVisitor;
 import scouter.bytebuddy.jar.asm.Opcodes;
 import scouter.bytebuddy.jar.asm.Type;
+import scouter.bytebuddy.jar.asm.*;
 
 /**
  * A {@link MethodVisitor} that keeps track of stack map frame changes between
  * {@link #visitFrame(int, int, Object[], int, Object[]) visitFrame} calls. This
  * adapter must be used with the
- * {@link scouter.bytebuddy.jar.asm.ClassReader#EXPAND_FRAMES} option. Each
+ * {@link ClassReader#EXPAND_FRAMES} option. Each
  * visit<i>X</i> instruction delegates to the next visitor in the chain, if any,
  * and then simulates the effect of this instruction on the stack map frame,
  * represented by {@link #locals} and {@link #stack}. The next visitor in the

@@ -33,6 +33,7 @@ import java.util.Map;
 
 import scouter.bytebuddy.jar.asm.MethodVisitor;
 import scouter.bytebuddy.jar.asm.Opcodes;
+import scouter.bytebuddy.jar.asm.Type;
 
 /**
  * A node that represents a MULTIANEWARRAY instruction.
@@ -42,7 +43,7 @@ import scouter.bytebuddy.jar.asm.Opcodes;
 public class MultiANewArrayInsnNode extends AbstractInsnNode {
 
     /**
-     * An array type descriptor (see {@link scouter.bytebuddy.jar.asm.Type}).
+     * An array type descriptor (see {@link Type}).
      */
     public String desc;
 
@@ -55,7 +56,7 @@ public class MultiANewArrayInsnNode extends AbstractInsnNode {
      * Constructs a new {@link MultiANewArrayInsnNode}.
      * 
      * @param desc
-     *            an array type descriptor (see {@link scouter.bytebuddy.jar.asm.Type}).
+     *            an array type descriptor (see {@link Type}).
      * @param dims
      *            number of dimensions of the array to allocate.
      */

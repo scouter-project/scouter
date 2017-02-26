@@ -863,7 +863,7 @@ public class Textifier extends Printer {
                 buf.append(tab3);
                 Object cst = bsmArgs[i];
                 if (cst instanceof String) {
-                    Printer.appendString(buf, (String) cst);
+                    appendString(buf, (String) cst);
                 } else if (cst instanceof Type) {
                     Type type = (Type) cst;
                     if(type.getSort() == Type.METHOD){
@@ -908,7 +908,7 @@ public class Textifier extends Printer {
         buf.setLength(0);
         buf.append(tab2).append("LDC ");
         if (cst instanceof String) {
-            Printer.appendString(buf, (String) cst);
+            appendString(buf, (String) cst);
         } else if (cst instanceof Type) {
             buf.append(((Type) cst).getDescriptor()).append(".class");
         } else {

@@ -4,6 +4,7 @@ import scouter.bytebuddy.description.ByteCodeElement;
 import scouter.bytebuddy.description.type.TypeDescription;
 import scouter.bytebuddy.matcher.ElementMatcher;
 import scouter.bytebuddy.matcher.FilterableList;
+import scouter.bytebuddy.dynamic.TargetType;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -20,7 +21,7 @@ public interface MethodList<T extends MethodDescription> extends FilterableList<
 
     /**
      * Transforms the list of method descriptions into a list of detached tokens. All types that are matched by the provided
-     * target type matcher are substituted by {@link scouter.bytebuddy.dynamic.TargetType}.
+     * target type matcher are substituted by {@link TargetType}.
      *
      * @param matcher A matcher that indicates type substitution.
      * @return The transformed token list.
@@ -217,24 +218,24 @@ public interface MethodList<T extends MethodDescription> extends FilterableList<
     }
 
     /**
-     * A list of method descriptions that yields {@link scouter.bytebuddy.description.method.MethodDescription.TypeSubstituting}.
+     * A list of method descriptions that yields {@link MethodDescription.TypeSubstituting}.
      */
     class TypeSubstituting extends AbstractBase<MethodDescription.InGenericShape> {
 
         /**
          * The methods' declaring type.
          */
-        private final TypeDescription.Generic declaringType;
+        protected final TypeDescription.Generic declaringType;
 
         /**
          * The list of method descriptions to represent.
          */
-        private final List<? extends MethodDescription> methodDescriptions;
+        protected final List<? extends MethodDescription> methodDescriptions;
 
         /**
          * The visitor to apply to each method description before returning it.
          */
-        private final TypeDescription.Generic.Visitor<? extends TypeDescription.Generic> visitor;
+        protected final TypeDescription.Generic.Visitor<? extends TypeDescription.Generic> visitor;
 
         /**
          * Creates a new type substituting method list.

@@ -29,6 +29,8 @@
  */
 package scouter.bytebuddy.jar.asm;
 
+import scouter.bytebuddy.jar.asm.tree.MethodNode;
+
 /**
  * A label represents a position in the bytecode of a method. Labels are used
  * for jump, goto, and switch instructions, and for try catch blocks. A label
@@ -111,7 +113,7 @@ public class Label {
      * Field used to associate user information to a label. Warning: this field
      * is used by the ASM tree package. In order to use it with the ASM tree
      * package you must override the
-     * {@link scouter.bytebuddy.jar.asm.tree.MethodNode#getLabelNode} method.
+     * {@link MethodNode#getLabelNode} method.
      */
     public Object info;
 

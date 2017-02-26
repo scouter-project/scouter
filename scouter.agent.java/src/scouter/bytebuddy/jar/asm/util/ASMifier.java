@@ -29,18 +29,12 @@
  */
 package scouter.bytebuddy.jar.asm.util;
 
+import scouter.bytebuddy.jar.asm.*;
+
 import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
-
-import scouter.bytebuddy.jar.asm.Attribute;
-import scouter.bytebuddy.jar.asm.ClassReader;
-import scouter.bytebuddy.jar.asm.Handle;
-import scouter.bytebuddy.jar.asm.Label;
-import scouter.bytebuddy.jar.asm.Opcodes;
-import scouter.bytebuddy.jar.asm.Type;
-import scouter.bytebuddy.jar.asm.TypePath;
 
 /**
  * A {@link Printer} that prints the ASM code to generate the classes if visits.
@@ -176,7 +170,7 @@ public class ASMifier extends Printer {
             simpleName = name.substring(n + 1);
         }
         text.add("import java.util.*;\n");
-        text.add("import net.bytebuddy.jar.asm.*;\n");
+        text.add("import scouter.bytebuddy.jar.asm.*;\n");
         text.add("public class " + simpleName + "Dump implements Opcodes {\n\n");
         text.add("public static byte[] dump () throws Exception {\n\n");
         text.add("ClassWriter cw = new ClassWriter(0);\n");

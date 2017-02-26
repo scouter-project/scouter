@@ -30,6 +30,7 @@
 package scouter.bytebuddy.jar.asm.tree;
 
 import scouter.bytebuddy.jar.asm.MethodVisitor;
+import scouter.bytebuddy.jar.asm.Opcodes;
 
 /**
  * A node that represents a parameter access and name.
@@ -43,7 +44,7 @@ public class ParameterNode {
     public String name;
 
     /**
-     * The parameter's access flags (see {@link scouter.bytebuddy.jar.asm.Opcodes}).
+     * The parameter's access flags (see {@link Opcodes}).
      * Valid values are <tt>ACC_FINAL</tt>, <tt>ACC_SYNTHETIC</tt> and
      * <tt>ACC_MANDATED</tt>.
      */
@@ -55,7 +56,7 @@ public class ParameterNode {
      * @param access
      *            The parameter's access flags. Valid values are
      *            <tt>ACC_FINAL</tt>, <tt>ACC_SYNTHETIC</tt> or/and
-     *            <tt>ACC_MANDATED</tt> (see {@link scouter.bytebuddy.jar.asm.Opcodes}).
+     *            <tt>ACC_MANDATED</tt> (see {@link Opcodes}).
      * @param name
      *            the parameter's name.
      */

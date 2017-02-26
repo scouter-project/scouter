@@ -135,7 +135,7 @@ public class ClassOptimizer extends ClassRemapper {
                     && (access & Opcodes.ACC_STATIC) != 0 && desc.length() == 1) {
                 return null;
             }
-            if ("net.bytebuddy.jar.asm".equals(pkgName) && s.equals(name)) {
+            if ("scouter.bytebuddy.jar.asm".equals(pkgName) && s.equals(name)) {
                 System.out.println("INFO: " + clsName + "." + s
                         + " could be renamed");
             }
@@ -172,7 +172,7 @@ public class ClassOptimizer extends ClassRemapper {
         }
 
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
-            if ("net.bytebuddy.jar.asm".equals(pkgName) && !name.startsWith("<")
+            if ("scouter.bytebuddy.jar.asm".equals(pkgName) && !name.startsWith("<")
                     && s.equals(name)) {
                 System.out.println("INFO: " + clsName + "." + s
                         + " could be renamed");

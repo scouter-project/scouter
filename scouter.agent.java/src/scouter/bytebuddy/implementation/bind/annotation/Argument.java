@@ -10,6 +10,7 @@ import scouter.bytebuddy.implementation.bind.MethodDelegationBinder;
 import scouter.bytebuddy.implementation.bytecode.StackManipulation;
 import scouter.bytebuddy.implementation.bytecode.assign.Assigner;
 import scouter.bytebuddy.implementation.bytecode.member.MethodVariableAccess;
+import scouter.bytebuddy.implementation.MethodDelegation;
 
 import java.lang.annotation.*;
 
@@ -23,9 +24,9 @@ import java.lang.annotation.*;
  * annotation is excluded from the list of possible binding candidates to this particular source method. The same happens,
  * if the source method parameter at the specified index is not assignable to the annotated parameter.
  *
- * @see scouter.bytebuddy.implementation.MethodDelegation
- * @see scouter.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
- * @see scouter.bytebuddy.implementation.bind.annotation.RuntimeType
+ * @see MethodDelegation
+ * @see TargetMethodAnnotationDrivenBinder
+ * @see RuntimeType
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -41,17 +42,17 @@ public @interface Argument {
 
     /**
      * Determines if the argument binding is to be considered by a
-     * {@link scouter.bytebuddy.implementation.bind.ArgumentTypeResolver}
+     * {@link ArgumentTypeResolver}
      * for resolving ambiguous bindings of two methods. If
-     * {@link scouter.bytebuddy.implementation.bind.annotation.Argument.BindingMechanic#UNIQUE},
+     * {@link Argument.BindingMechanic#UNIQUE},
      * of two bindable target methods such as for example {@code foo(String)} and {@code bar(Object)}, the {@code foo}
      * method would be considered as dominant over the {@code bar} method because of its more specific argument type. As
      * a side effect, only one parameter of any target method can be bound to a source method parameter with a given
-     * index unless the {@link scouter.bytebuddy.implementation.bind.annotation.Argument.BindingMechanic#ANONYMOUS}
+     * index unless the {@link Argument.BindingMechanic#ANONYMOUS}
      * option is used for any other binding.
      *
      * @return The binding type that should be applied to this parameter binding.
-     * @see scouter.bytebuddy.implementation.bind.ArgumentTypeResolver
+     * @see ArgumentTypeResolver
      */
     BindingMechanic bindingMechanic() default BindingMechanic.UNIQUE;
 
@@ -59,14 +60,14 @@ public @interface Argument {
      * Determines if a parameter binding should be considered for resolving ambiguous method bindings.
      *
      * @see Argument#bindingMechanic()
-     * @see scouter.bytebuddy.implementation.bind.ArgumentTypeResolver
+     * @see ArgumentTypeResolver
      */
     enum BindingMechanic {
 
         /**
          * The binding is unique, i.e. only one such binding must be present among all parameters of a method. As a
          * consequence, the binding can be latter identified by an
-         * {@link scouter.bytebuddy.implementation.bind.MethodDelegationBinder.AmbiguityResolver}.
+         * {@link MethodDelegationBinder.AmbiguityResolver}.
          */
         UNIQUE {
             @Override
@@ -119,16 +120,11 @@ public @interface Argument {
                                                                                   Assigner assigner,
                                                                                   Assigner.Typing typing,
                                                                                   int parameterOffset);
-
-        @Override
-        public String toString() {
-            return "Argument.BindingMechanic." + name();
-        }
     }
 
     /**
      * A binder for handling the
-     * {@link scouter.bytebuddy.implementation.bind.annotation.Argument}
+     * {@link Argument}
      * annotation.
      *
      * @see TargetMethodAnnotationDrivenBinder
@@ -164,11 +160,6 @@ public @interface Argument {
                     assigner,
                     typing,
                     source.getParameters().get(argument.value()).getOffset());
-        }
-
-        @Override
-        public String toString() {
-            return "Argument.Binder." + name();
         }
     }
 }

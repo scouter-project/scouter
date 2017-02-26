@@ -1,7 +1,8 @@
 package scouter.bytebuddy.description;
 
-import scouter.bytebuddy.description.annotation.AnnotatedCodeElement;
+import scouter.bytebuddy.description.annotation.AnnotationSource;
 import scouter.bytebuddy.description.type.TypeDescription;
+import scouter.bytebuddy.dynamic.TargetType;
 import scouter.bytebuddy.matcher.ElementMatcher;
 import scouter.bytebuddy.matcher.FilterableList;
 
@@ -12,7 +13,7 @@ import java.util.List;
 /**
  * Implementations describe an element represented in byte code, i.e. a type, a field or a method or a constructor.
  */
-public interface ByteCodeElement extends NamedElement.WithRuntimeName, ModifierReviewable, DeclaredByType, AnnotatedCodeElement {
+public interface ByteCodeElement extends NamedElement.WithRuntimeName, ModifierReviewable, DeclaredByType, AnnotationSource {
 
     /**
      * The generic type signature of a non-generic byte code element.
@@ -95,9 +96,9 @@ public interface ByteCodeElement extends NamedElement.WithRuntimeName, ModifierR
 
         /**
          * Returns a token representative of this type dependant. All types that are matched by the supplied matcher are replaced by
-         * {@link scouter.bytebuddy.dynamic.TargetType} descriptions.
+         * {@link TargetType} descriptions.
          *
-         * @param matcher A matcher to identify types to be replaced by {@link scouter.bytebuddy.dynamic.TargetType} descriptions.
+         * @param matcher A matcher to identify types to be replaced by {@link TargetType} descriptions.
          * @return A token representative of this type dependant.
          */
         S asToken(ElementMatcher<? super TypeDescription> matcher);

@@ -7,9 +7,14 @@ import scouter.bytebuddy.description.type.TypeDescription;
 import scouter.bytebuddy.implementation.Implementation;
 import scouter.bytebuddy.implementation.bind.MethodDelegationBinder;
 import scouter.bytebuddy.implementation.bytecode.assign.Assigner;
-import scouter.bytebuddy.implementation.bytecode.constant.*;
+
+import scouter.bytebuddy.implementation.bytecode.constant.MethodConstant;
+import scouter.bytebuddy.implementation.bytecode.constant.TextConstant;
 import scouter.bytebuddy.utility.JavaConstant;
 import scouter.bytebuddy.utility.JavaType;
+import scouter.bytebuddy.implementation.MethodDelegation;
+import scouter.bytebuddy.implementation.bytecode.constant.ClassConstant;
+import scouter.bytebuddy.implementation.bytecode.constant.IntegerConstant;
 
 import java.lang.annotation.*;
 import java.lang.reflect.Constructor;
@@ -46,8 +51,8 @@ import java.lang.reflect.Method;
  * to the instrumented type or an {@link IllegalAccessError} will be thrown at runtime.
  * </p>
  *
- * @see scouter.bytebuddy.implementation.MethodDelegation
- * @see scouter.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
+ * @see MethodDelegation
+ * @see TargetMethodAnnotationDrivenBinder
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -65,7 +70,7 @@ public @interface Origin {
 
     /**
      * A binder for binding parameters that are annotated with
-     * {@link scouter.bytebuddy.implementation.bind.annotation.Origin}.
+     * {@link Origin}.
      *
      * @see TargetMethodAnnotationDrivenBinder
      */
@@ -122,11 +127,6 @@ public @interface Origin {
                         " parameter is annotated with a Origin annotation with an argument not representing a Class," +
                         " Method, Constructor, String, int, MethodType or MethodHandle type");
             }
-        }
-
-        @Override
-        public String toString() {
-            return "Origin.Binder." + name();
         }
     }
 }

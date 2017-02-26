@@ -3,6 +3,7 @@ package scouter.bytebuddy.implementation.bind.annotation;
 import scouter.bytebuddy.description.annotation.AnnotationDescription;
 import scouter.bytebuddy.description.method.MethodDescription;
 import scouter.bytebuddy.implementation.bind.MethodDelegationBinder;
+import scouter.bytebuddy.implementation.MethodDelegation;
 
 import java.lang.annotation.*;
 
@@ -10,8 +11,8 @@ import java.lang.annotation.*;
  * Defines a binding priority for a target method. If two target methods can be bound to a source method,
  * the one with the higher priority will be selected.
  *
- * @see scouter.bytebuddy.implementation.MethodDelegation
- * @see scouter.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
+ * @see MethodDelegation
+ * @see TargetMethodAnnotationDrivenBinder
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -20,7 +21,7 @@ public @interface BindingPriority {
 
     /**
      * The default priority for methods not carrying the
-     * {@link scouter.bytebuddy.implementation.bind.annotation.BindingPriority}
+     * {@link BindingPriority}
      * annotation.
      */
     int DEFAULT = 1;
@@ -35,7 +36,7 @@ public @interface BindingPriority {
 
     /**
      * An ambiguity resolver that considers the priority of a method as defined by the
-     * {@link scouter.bytebuddy.implementation.bind.annotation.BindingPriority}
+     * {@link BindingPriority}
      * annotation.
      */
     enum Resolver implements MethodDelegationBinder.AmbiguityResolver {
@@ -71,11 +72,6 @@ public @interface BindingPriority {
             } else {
                 return Resolution.LEFT;
             }
-        }
-
-        @Override
-        public String toString() {
-            return "BindingPriority.Resolver." + name();
         }
     }
 }

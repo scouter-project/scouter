@@ -12,10 +12,10 @@ import scouter.bytebuddy.implementation.bytecode.StackManipulation;
 import scouter.bytebuddy.implementation.bytecode.assign.Assigner;
 import scouter.bytebuddy.implementation.bytecode.member.FieldAccess;
 import scouter.bytebuddy.implementation.bytecode.member.MethodVariableAccess;
+import scouter.bytebuddy.implementation.MethodDelegation;
+import scouter.bytebuddy.matcher.ElementMatchers;
 
 import java.lang.annotation.*;
-
-import static scouter.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * <p>
@@ -30,9 +30,9 @@ import static scouter.bytebuddy.matcher.ElementMatchers.named;
  * to be an illegal candidate for binding.
  * </p>
  *
- * @see scouter.bytebuddy.implementation.MethodDelegation
- * @see scouter.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
- * @see scouter.bytebuddy.implementation.bind.annotation.RuntimeType
+ * @see MethodDelegation
+ * @see TargetMethodAnnotationDrivenBinder
+ * @see RuntimeType
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -79,8 +79,8 @@ public @interface FieldValue {
          */
         static {
             MethodList<MethodDescription.InDefinedShape> methodList = new TypeDescription.ForLoadedType(FieldValue.class).getDeclaredMethods();
-            DECLARING_TYPE = methodList.filter(named("declaringType")).getOnly();
-            FIELD_NAME = methodList.filter(named("value")).getOnly();
+            DECLARING_TYPE = methodList.filter(ElementMatchers.named("declaringType")).getOnly();
+            FIELD_NAME = methodList.filter(ElementMatchers.named("value")).getOnly();
         }
 
         /**
@@ -110,11 +110,6 @@ public @interface FieldValue {
                                                                Assigner assigner,
                                                                Assigner.Typing typing) {
             return delegate.bind(annotation, source, target, implementationTarget, assigner, typing);
-        }
-
-        @Override
-        public String toString() {
-            return "FieldValue.Binder." + name();
         }
 
         /**
@@ -154,11 +149,6 @@ public @interface FieldValue {
             @Override
             protected TypeDescription declaringType(AnnotationDescription.Loadable<FieldValue> annotation) {
                 return annotation.getValue(DECLARING_TYPE).resolve(TypeDescription.class);
-            }
-
-            @Override
-            public String toString() {
-                return "FieldValue.Binder.Delegate{}";
             }
         }
     }

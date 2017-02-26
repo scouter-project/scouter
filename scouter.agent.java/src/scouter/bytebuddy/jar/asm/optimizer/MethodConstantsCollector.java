@@ -160,7 +160,7 @@ public class MethodConstantsCollector extends MethodVisitor {
 
     @Override
     public void visitTryCatchBlock(final Label start, final Label end,
-            final Label handler, final String type) {
+                                   final Label handler, final String type) {
         if (type != null) {
             cp.newClass(type);
         }

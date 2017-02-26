@@ -40,6 +40,7 @@ import scouter.bytebuddy.jar.asm.FieldVisitor;
 import scouter.bytebuddy.jar.asm.MethodVisitor;
 import scouter.bytebuddy.jar.asm.Opcodes;
 import scouter.bytebuddy.jar.asm.TypePath;
+import scouter.bytebuddy.jar.asm.Type;
 
 /**
  * A node that represents a class.
@@ -54,14 +55,14 @@ public class ClassNode extends ClassVisitor {
     public int version;
 
     /**
-     * The class's access flags (see {@link scouter.bytebuddy.jar.asm.Opcodes}). This
+     * The class's access flags (see {@link Opcodes}). This
      * field also indicates if the class is deprecated.
      */
     public int access;
 
     /**
      * The internal name of the class (see
-     * {@link scouter.bytebuddy.jar.asm.Type#getInternalName() getInternalName}).
+     * {@link Type#getInternalName() getInternalName}).
      */
     public String name;
 
@@ -72,7 +73,7 @@ public class ClassNode extends ClassVisitor {
 
     /**
      * The internal of name of the super class (see
-     * {@link scouter.bytebuddy.jar.asm.Type#getInternalName() getInternalName}). For
+     * {@link Type#getInternalName() getInternalName}). For
      * interfaces, the super class is {@link Object}. May be <tt>null</tt>, but
      * only for the {@link Object} class.
      */
@@ -80,7 +81,7 @@ public class ClassNode extends ClassVisitor {
 
     /**
      * The internal names of the class's interfaces (see
-     * {@link scouter.bytebuddy.jar.asm.Type#getInternalName() getInternalName}). This
+     * {@link Type#getInternalName() getInternalName}). This
      * list is a list of {@link String} objects.
      */
     public List<String> interfaces;
@@ -119,7 +120,7 @@ public class ClassNode extends ClassVisitor {
      * The runtime visible annotations of this class. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates net.bytebuddy.jar.asm.tree.AnnotationNode
+     * @associates AnnotationNode
      * @label visible
      */
     public List<AnnotationNode> visibleAnnotations;
@@ -128,7 +129,7 @@ public class ClassNode extends ClassVisitor {
      * The runtime invisible annotations of this class. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates net.bytebuddy.jar.asm.tree.AnnotationNode
+     * @associates AnnotationNode
      * @label invisible
      */
     public List<AnnotationNode> invisibleAnnotations;
@@ -137,7 +138,7 @@ public class ClassNode extends ClassVisitor {
      * The runtime visible type annotations of this class. This list is a list
      * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates net.bytebuddy.jar.asm.tree.TypeAnnotationNode
+     * @associates TypeAnnotationNode
      * @label visible
      */
     public List<TypeAnnotationNode> visibleTypeAnnotations;
@@ -146,7 +147,7 @@ public class ClassNode extends ClassVisitor {
      * The runtime invisible type annotations of this class. This list is a list
      * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates net.bytebuddy.jar.asm.tree.TypeAnnotationNode
+     * @associates TypeAnnotationNode
      * @label invisible
      */
     public List<TypeAnnotationNode> invisibleTypeAnnotations;
@@ -155,7 +156,7 @@ public class ClassNode extends ClassVisitor {
      * The non standard attributes of this class. This list is a list of
      * {@link Attribute} objects. May be <tt>null</tt>.
      * 
-     * @associates net.bytebuddy.jar.asm.Attribute
+     * @associates Attribute
      */
     public List<Attribute> attrs;
 
@@ -163,7 +164,7 @@ public class ClassNode extends ClassVisitor {
      * Informations about the inner classes of this class. This list is a list
      * of {@link InnerClassNode} objects.
      * 
-     * @associates net.bytebuddy.jar.asm.tree.InnerClassNode
+     * @associates InnerClassNode
      */
     public List<InnerClassNode> innerClasses;
 
@@ -171,7 +172,7 @@ public class ClassNode extends ClassVisitor {
      * The fields of this class. This list is a list of {@link FieldNode}
      * objects.
      * 
-     * @associates net.bytebuddy.jar.asm.tree.FieldNode
+     * @associates FieldNode
      */
     public List<FieldNode> fields;
 
@@ -179,7 +180,7 @@ public class ClassNode extends ClassVisitor {
      * The methods of this class. This list is a list of {@link MethodNode}
      * objects.
      * 
-     * @associates net.bytebuddy.jar.asm.tree.MethodNode
+     * @associates MethodNode
      */
     public List<MethodNode> methods;
 
