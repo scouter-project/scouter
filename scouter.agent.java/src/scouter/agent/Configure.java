@@ -164,7 +164,7 @@ public class Configure extends Thread {
     @ConfigDesc("Identifying header key of Remote IP")
     public String trace_http_client_ip_header_key = "";
     @ConfigDesc("Activating gxid connection in HttpTransfer")
-    public boolean trace_interservice_enabled = false;
+    public boolean trace_interservice_enabled = true;
     @ConfigDesc("")
     public String _trace_interservice_gxid_header_key = "X-Scouter-Gxid";
     @ConfigDesc("")
@@ -677,7 +677,7 @@ public class Configure extends Thread {
         this.profile_http_parameter_url_prefix = getValue("profile_http_parameter_url_prefix", "/");
         this.profile_http_header_url_prefix = getValue("profile_http_header_url_prefix", "/");
         this.trace_http_client_ip_header_key = getValue("trace_http_client_ip_header_key", "");
-        this.trace_interservice_enabled = getBoolean("trace_interservice_enabled", false);
+        this.trace_interservice_enabled = getBoolean("trace_interservice_enabled", true);
         this.trace_response_gxid_enabled = getBoolean("trace_response_gxid_enabled", false);
         this._trace_interservice_gxid_header_key = getValue("_trace_interservice_gxid_header_key", "X-Scouter-Gxid");
         this._trace_interservice_callee_header_key = getValue("_trace_interservice_callee_header_key", "X-Scouter-Callee");
