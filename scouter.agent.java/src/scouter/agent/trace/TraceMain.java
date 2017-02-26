@@ -269,6 +269,8 @@ public class TraceMain {
                 ctx.profile.add(step);
 
                 TraceContextManager.end(ctx.threadId);
+                ctx.latestCpu = SysJMX.getCurrentThreadCPU();
+                ctx.latestBytes = SysJMX.getCurrentThreadAllocBytes();
                 TraceContextManager.toDeferred(ctx);
             }
         } catch (Throwable throwable) {
@@ -360,8 +362,16 @@ public class TraceMain {
             pack.xType = ctx.xType; //default 0 : XLogType.WEB_SERVICE
             pack.txid = ctx.txid;
             pack.gxid = ctx.gxid;
-            pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-            pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
+            if(ctx.latestCpu > 0) {
+                pack.cpu = (int) (ctx.latestCpu - ctx.startCpu);
+            } else {
+                pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+            }
+            if(ctx.latestBytes > 0) {
+                pack.kbytes = (int) ((ctx.latestBytes - ctx.bytes) / 1024.0d);
+            } else {
+                pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
+            }
             pack.status = ctx.status;
             pack.sqlCount = ctx.sqlCount;
             pack.sqlTime = ctx.sqlTime;
@@ -911,8 +921,13 @@ public class TraceMain {
     public static void dispatchAsyncServlet(Object asyncContext, String url) {
         if(http == null) return;
         TraceContext ctx = http.getTraceContextFromAsyncContext(asyncContext);
-
         if(ctx == null) return;
+
+        boolean self = http.isSelfDispatch(asyncContext);
+        if(self) {
+            //http.setSelfDispatch(asyncContext, false);
+            //return;
+        }
 
         if (ctx.gxid == 0) {
             ctx.gxid = ctx.txid;
@@ -926,12 +941,21 @@ public class TraceMain {
         apiCallStep.txid = callee;
 
         apiCallStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+
+        // It maybe another thread
         if (ctx.profile_thread_cputime) {
-            apiCallStep.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+            apiCallStep.start_cpu = -1;
+            apiCallStep.cputime = -1;
         }
 
-        apiCallStep.address = "local-dispatch";
+        apiCallStep.address = "dispatch";
+        if(self) url = "[self]";
         apiCallStep.hash = DataProxy.sendApicall(apiCallStep.address + "://" + url);
         ctx.profile.add(apiCallStep);
+    }
+
+    public static void selfDispatchAsyncServlet(Object asyncContext) {
+        if(http == null) return;
+        http.setSelfDispatch(asyncContext, true);
     }
 }

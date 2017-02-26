@@ -51,9 +51,15 @@ public class HttpTraceFactory {
 			return null;
 		}
 
-		@Override
 		public void setDispatchTransferMap(Object oAsyncContext, long gxid, long caller, long callee, byte xType) {
+		}
 
+		public void setSelfDispatch(Object oAsyncContext, boolean self) {
+
+		}
+
+		public boolean isSelfDispatch(Object oAsyncContext) {
+			return false;
 		}
 	};
 

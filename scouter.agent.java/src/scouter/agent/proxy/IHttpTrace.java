@@ -38,4 +38,7 @@ public interface IHttpTrace {
 
 	void setDispatchTransferMap(Object oAsyncContext, long gxid, long caller, long callee, byte xType);
 
+	void setSelfDispatch(Object oAsyncContext, boolean self);
+
+	boolean isSelfDispatch(Object oAsyncContext);
 }

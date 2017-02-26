@@ -15,7 +15,7 @@
 
    <launcherArgs>
       <programArgsMac>-data
-/tmp/scouter
+@user.home/.scouter
       </programArgsMac>
       <vmArgs>-Xms128m
 -Xmx512m
