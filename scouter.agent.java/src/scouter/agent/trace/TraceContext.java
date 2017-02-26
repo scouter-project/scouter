@@ -52,8 +52,10 @@ public class TraceContext {
 	public IProfileCollector profile;
 	public long startTime;
 	public long startCpu;
+	public long latestCpu;
 
 	public long bytes;
+	public long latestBytes;
 	public int status;
 
 	// service

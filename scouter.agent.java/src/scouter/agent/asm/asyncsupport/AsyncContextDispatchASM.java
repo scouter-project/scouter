@@ -14,11 +14,14 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static scouter.agent.asm.asyncsupport.AsyncContextDispatchASM.ON_COMPLETE_SELF_DISPATCH_METHOD;
+
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 2. 24.
  */
 public class AsyncContextDispatchASM implements IASM, Opcodes {
 	private static List<String> preservedAsyncContextDispatchPatterns = new ArrayList<String>();
+	public final static String ON_COMPLETE_SELF_DISPATCH_METHOD = "dispatch()V";
 	static {
 		preservedAsyncContextDispatchPatterns.add("org.apache.catalina.core.AsyncContextImpl.dispatch(Ljavax/servlet/ServletContext;Ljava/lang/String;)V");
 	}
@@ -60,13 +63,15 @@ class AsyncContextCV extends ClassVisitor implements Opcodes {
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 		if (mv == null || mset.isA(name, desc) == false) {
-			return mv;
+			if(!ON_COMPLETE_SELF_DISPATCH_METHOD.equals(name + desc)) {
+				return mv;
+			}
 		}
 		if (AsmUtil.isSpecial(name)) {
 			return mv;
 		}
 
-		return new DispatchMV(access, desc, mv);
+		return new DispatchMV(access, name, desc, mv);
 	}
 }
 
@@ -76,14 +81,27 @@ class DispatchMV extends LocalVariablesSorter implements Opcodes {
 	private static final String START_METHOD = "dispatchAsyncServlet";
 	private static final String START_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/String;)V";
 
-	public DispatchMV(int access, String desc, MethodVisitor mv) {
+	private static final String SELF_DISPATCH_METHOD = "selfDispatchAsyncServlet";
+	private static final String SELF_DISPATCH_SIGNATURE = "(Ljava/lang/Object;)V";
+
+	String name;
+	String desc;
+
+	public DispatchMV(int access, String name, String desc, MethodVisitor mv) {
 		super(ASM4, access, desc, mv);
+		this.name = name;
+		this.desc = desc;
 	}
 
 	@Override
 	public void visitCode() {
-		mv.visitVarInsn(Opcodes.ALOAD, 0);
-		mv.visitVarInsn(Opcodes.ALOAD, 2);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);
+		if (ON_COMPLETE_SELF_DISPATCH_METHOD.equals(name+desc)) {
+			mv.visitVarInsn(Opcodes.ALOAD, 0);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, SELF_DISPATCH_METHOD, SELF_DISPATCH_SIGNATURE, false);
+		} else {
+			mv.visitVarInsn(Opcodes.ALOAD, 0);
+			mv.visitVarInsn(Opcodes.ALOAD, 2);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);
+		}
 	}
 }
