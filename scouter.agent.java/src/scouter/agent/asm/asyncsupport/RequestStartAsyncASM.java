@@ -1,4 +1,4 @@
-package scouter.agent.asm.asyncservlet;
+package scouter.agent.asm.asyncsupport;
 
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
@@ -26,7 +26,6 @@ public class RequestStartAsyncASM implements IASM, Opcodes {
 
 	private Configure conf = Configure.getInstance();
 	private List<HookingSet> startTarget;
-	private List<HookingSet> dispatchTarget;
 
 	public RequestStartAsyncASM() {
 		startTarget = HookingSet.getHookingMethodSet(HookingSet.buildPatterns(conf.hook_async_servlet_start_patterns, preservedAsyncServletStartPatterns));
