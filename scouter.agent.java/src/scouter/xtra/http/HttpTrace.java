@@ -126,6 +126,7 @@ public class HttpTrace implements IHttpTrace {
                 StringBuilder sb = new StringBuilder(ctx.serviceName.length()*3);
                 sb.append(ASYNC_SERVLET_DISPATCHED_PREFIX);
                 if (Boolean.TRUE.equals(request.getAttribute(REQUEST_ATTRIBUTE_SELF_DISPATCHED))) {
+                    request.setAttribute(REQUEST_ATTRIBUTE_SELF_DISPATCHED, false);
                     sb.append("[self]");
                     if (callerCtx != null) sb.append(callerCtx.serviceName);
                     ctx.serviceName = sb.toString();
