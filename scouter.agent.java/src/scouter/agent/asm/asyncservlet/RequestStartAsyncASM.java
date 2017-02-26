@@ -29,12 +29,11 @@ public class RequestStartAsyncASM implements IASM, Opcodes {
 	private List<HookingSet> dispatchTarget;
 
 	public RequestStartAsyncASM() {
-		//TODO add pattern configureation
-		startTarget = HookingSet.getHookingMethodSet(HookingSet.buildPatterns("zzz.zzz", preservedAsyncServletStartPatterns));
+		startTarget = HookingSet.getHookingMethodSet(HookingSet.buildPatterns(conf.hook_async_servlet_start_patterns, preservedAsyncServletStartPatterns));
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-		if (conf._hook_async_servlet_enabled == false) {
+		if (conf.hook_async_servlet_enabled == false) {
 			return cv;
 		}
 

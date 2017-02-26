@@ -350,8 +350,14 @@ public class Configure extends Thread {
     public String hook_jdbc_rs_classes = "";
     @ConfigDesc("Method set for dbconnection wrapping")
     public String hook_jdbc_wrapping_driver_patterns = "";
+
     @ConfigDesc("Hook for supporting async servlet")
-    public boolean _hook_async_servlet_enabled= true;
+    public boolean hook_async_servlet_enabled = true;
+    @ConfigDesc("startAsync impl. method patterns")
+    public String hook_async_servlet_start_patterns = "";
+    @ConfigDesc("asyncContext dispatch impl. method patterns")
+    public String hook_async_context_dispatch_patterns = "";
+
 
     @ConfigDesc("")
     public String hook_add_fields = "";
@@ -631,7 +637,10 @@ public class Configure extends Thread {
         this.hook_jdbc_stmt_classes = getValue("hook_jdbc_stmt_classes", "");
         this.hook_jdbc_rs_classes = getValue("hook_jdbc_rs_classes", "");
         this.hook_jdbc_wrapping_driver_patterns = getValue("hook_jdbc_wrapping_driver_patterns", "");
-        this._hook_async_servlet_enabled = getBoolean("_hook_async_servlet_enabled", true);
+        this.hook_async_servlet_enabled = getBoolean("_hook_async_servlet_enabled", true);
+
+        this.hook_async_context_dispatch_patterns = getValue("hook_async_context_dispatch_patterns", "");
+        this.hook_async_servlet_start_patterns = getValue("hook_async_servlet_start_patterns", "");
 
         this.hook_add_fields = getValue("hook_add_fields", "");
         this.hook_context_classes = getValue("hook_context_classes", "javax/naming/InitialContext");

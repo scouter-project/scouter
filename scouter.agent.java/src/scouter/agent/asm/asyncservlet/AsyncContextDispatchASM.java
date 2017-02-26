@@ -27,12 +27,11 @@ public class AsyncContextDispatchASM implements IASM, Opcodes {
 	private List<HookingSet> dispatchTarget;
 
 	public AsyncContextDispatchASM() {
-		//TODO add pattern configureation
-		dispatchTarget = HookingSet.getHookingMethodSet(HookingSet.buildPatterns("zzz.zzz", preservedAsyncContextDispatchPatterns));
+		dispatchTarget = HookingSet.getHookingMethodSet(HookingSet.buildPatterns(conf.hook_async_context_dispatch_patterns, preservedAsyncContextDispatchPatterns));
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-		if (conf._hook_async_servlet_enabled == false) {
+		if (conf.hook_async_servlet_enabled == false) {
 			return cv;
 		}
 
