@@ -223,6 +223,8 @@ public class AbstractPlugin {
 		TransferMap.ID id = TransferMap.get(uuid);
 		if (id == null)
 			return;
+
+		TransferMap.remove(uuid);
 		if (id.gxid != 0) {
 			ctx.inner().gxid = id.gxid;
 		}

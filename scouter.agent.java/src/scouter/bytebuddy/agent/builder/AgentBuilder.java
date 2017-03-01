@@ -2,6 +2,7 @@
 package scouter.bytebuddy.agent.builder;
 
 
+import scouter.agent.LambdaFormTransformer;
 import scouter.bytebuddy.ByteBuddy;
 import scouter.bytebuddy.ClassFileVersion;
 import scouter.bytebuddy.asm.Advice;
@@ -11,7 +12,6 @@ import scouter.bytebuddy.build.Plugin;
 import scouter.bytebuddy.description.field.FieldDescription;
 import scouter.bytebuddy.description.method.MethodDescription;
 import scouter.bytebuddy.description.method.ParameterDescription;
-
 import scouter.bytebuddy.description.modifier.*;
 import scouter.bytebuddy.description.type.TypeDescription;
 import scouter.bytebuddy.dynamic.ClassFileLocator;
@@ -29,7 +29,6 @@ import scouter.bytebuddy.implementation.Implementation;
 import scouter.bytebuddy.implementation.LoadedTypeInitializer;
 import scouter.bytebuddy.implementation.MethodCall;
 import scouter.bytebuddy.implementation.auxiliary.AuxiliaryType;
-
 import scouter.bytebuddy.implementation.bytecode.*;
 import scouter.bytebuddy.implementation.bytecode.assign.Assigner;
 import scouter.bytebuddy.implementation.bytecode.assign.TypeCasting;
@@ -41,18 +40,18 @@ import scouter.bytebuddy.implementation.bytecode.member.FieldAccess;
 import scouter.bytebuddy.implementation.bytecode.member.MethodInvocation;
 import scouter.bytebuddy.implementation.bytecode.member.MethodReturn;
 import scouter.bytebuddy.implementation.bytecode.member.MethodVariableAccess;
+import scouter.bytebuddy.jar.asm.Label;
+import scouter.bytebuddy.jar.asm.MethodVisitor;
+import scouter.bytebuddy.jar.asm.Opcodes;
+import scouter.bytebuddy.jar.asm.Type;
 import scouter.bytebuddy.matcher.ElementMatcher;
+import scouter.bytebuddy.matcher.ElementMatchers;
 import scouter.bytebuddy.matcher.LatentMatcher;
 import scouter.bytebuddy.pool.TypePool;
 import scouter.bytebuddy.utility.CompoundList;
 import scouter.bytebuddy.utility.JavaConstant;
 import scouter.bytebuddy.utility.JavaModule;
 import scouter.bytebuddy.utility.JavaType;
-import scouter.bytebuddy.jar.asm.Label;
-import scouter.bytebuddy.jar.asm.MethodVisitor;
-import scouter.bytebuddy.jar.asm.Opcodes;
-import scouter.bytebuddy.jar.asm.Type;
-import scouter.bytebuddy.matcher.ElementMatchers;
 
 import java.io.*;
 import java.lang.instrument.ClassDefinition;
@@ -70,7 +69,9 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import static scouter.bytebuddy.matcher.ElementMatchers.*;
+
+import static scouter.bytebuddy.matcher.ElementMatchers.returns;
+import static scouter.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
  * <p>
@@ -6676,6 +6677,23 @@ public interface AgentBuilder {
                     }
                     /* do nothing */
                 }
+
+                try {
+                    //Add Scouter hooking
+                    byte[] custom = new LambdaFormTransformer().transform(
+                            targetType.getClassLoader(),
+                            lambdaClassName.replace('.', '/'),
+                            NOT_PREVIOUSLY_DEFINED,
+                            targetType.getProtectionDomain(),
+                            classFile,
+                            lambdaMethodName,
+                            lambdaMethod.getDescriptor(),
+                            LAMBDA_FACTORY,
+                            factoryMethod.getDescriptor());
+                    classFile = custom == null ? classFile : custom;
+                } catch (Throwable ignored) {
+                }
+
                 return classFile;
             }
 

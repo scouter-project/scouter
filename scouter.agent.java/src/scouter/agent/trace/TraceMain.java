@@ -958,4 +958,54 @@ public class TraceMain {
         if(http == null) return;
         http.setSelfDispatch(asyncContext, true);
     }
+
+    public static void callAsyncPossiblyStep(Object keyObject) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if(ctx == null) return;
+        ThreadCallPossibleStep step = new ThreadCallPossibleStep();
+
+        long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+        long callee = KeyGen.next();
+
+        TransferMap.put(System.identityHashCode(keyObject), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId());
+    }
+
+    public static LocalContext startAsyncPossibleService(Object keyObject, String fullName,
+                                                   String className, String methodName, String methodDesc,
+                                                   Object _this, Object[] arg) {
+
+        TraceContext ctx = TraceContextManager.getContext();
+        int objKey = System.identityHashCode(keyObject);
+        TransferMap.ID id = TransferMap.get(objKey);
+        TransferMap.remove(objKey);
+
+        if (id == null) {
+            return null;
+        }
+
+        if(ctx != null) {
+            if(ctx.txid == id.caller) {
+                return null;
+            } else {
+                Logger.println("B110", "Abnormal - recevieAsyncPossibleStep -> caller txid : " + id.caller + " txid : " + ctx.txid);
+                return null;
+            }
+        }
+
+        String serviceName = fullName;
+        LocalContext localContext = (LocalContext)startService(fullName, className, methodName, methodDesc, _this, arg, XLogTypes.BACK_THREAD);
+        if (localContext == null) {
+            return null;
+        }
+        localContext.service = true;
+        if(id.gxid != 0) localContext.context.gxid = id.gxid;
+        if(id.callee != 0) localContext.context.txid = id.callee;
+        if(id.caller != 0) localContext.context.caller = id.caller;
+
+        return localContext;
+    }
+
+    public static void endAsyncPossibleService(Object oRtn, Object oLocalContext, Throwable t) {
+        //TODO complete
+    }
 }

@@ -168,4 +168,43 @@ public class AsmUtil implements Opcodes {
 	public static boolean isInterface(int access) {
 		return (access & ACC_INTERFACE) != 0;
 	}
+
+	public static void loadForArrayElement(MethodVisitor mv, Type tp, int sidx) {
+		switch (tp.getSort()) {
+			case Type.BOOLEAN:
+				mv.visitVarInsn(Opcodes.ILOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;",false);
+				break;
+			case Type.BYTE:
+				mv.visitVarInsn(Opcodes.ILOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;",false);
+				break;
+			case Type.CHAR:
+				mv.visitVarInsn(Opcodes.ILOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;",false);
+				break;
+			case Type.SHORT:
+				mv.visitVarInsn(Opcodes.ILOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;",false);
+				break;
+			case Type.INT:
+				mv.visitVarInsn(Opcodes.ILOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;",false);
+				break;
+			case Type.LONG:
+				mv.visitVarInsn(Opcodes.LLOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;",false);
+				break;
+			case Type.FLOAT:
+				mv.visitVarInsn(Opcodes.FLOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;",false);
+				break;
+			case Type.DOUBLE:
+				mv.visitVarInsn(Opcodes.DLOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;",false);
+				break;
+			default:
+				mv.visitVarInsn(Opcodes.ALOAD, sidx);
+		}
+	}
 }
