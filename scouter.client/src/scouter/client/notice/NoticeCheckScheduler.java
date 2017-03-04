@@ -19,11 +19,7 @@ public enum NoticeCheckScheduler {
     private final String NOTICE_URL = "http://notice.scouterapm.com:6181/latest-notice";
     String scch = UUID.randomUUID().toString();
 
-    private NoticeCheckScheduler() {
-        initialize();
-    }
-
-    private void initialize() {
+    public void initialize() {
         ExUtil.asyncRun(() -> {
             process();
             registerTimer();
@@ -59,6 +55,7 @@ public enum NoticeCheckScheduler {
             // TODO compare tag
             HttpEntity entity = response.getEntity();
             String html = EntityUtils.toString(entity, "UTF-8");
+            System.out.println(html);
             //
 
         } catch (IOException e) {
