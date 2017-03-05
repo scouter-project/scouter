@@ -17,7 +17,7 @@ public enum NoticeCheckScheduler {
     INSTANCE;
 
     private final String NOTICE_URL = "http://notice.scouterapm.com:6181/latest-notice";
-    String scch = UUID.randomUUID().toString();
+    String scch = Long.toHexString(Double.doubleToLongBits(Math.random()));
 
     public void initialize() {
         ExUtil.asyncRun(() -> {
