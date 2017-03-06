@@ -83,6 +83,7 @@ public class XLogUtil {
 				}
 				break;
 			case StepEnum.APICALL:
+			case StepEnum.DISPATCH:
 				if (TextProxy.apicall.getText(((ApiCallStep) p[i]).hash) == null) {
 					subcallSet.add(((ApiCallStep) p[i]).hash);
 				}

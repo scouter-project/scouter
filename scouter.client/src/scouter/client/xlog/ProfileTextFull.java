@@ -338,6 +338,21 @@ public class ProfileTextFull {
 					sr.add(ProfileText.style(slen, sb.length() - slen, red, SWT.NORMAL));
 				}
 				break;
+			case StepEnum.DISPATCH:
+				DispatchStep step = (DispatchStep) stepSingle;
+				slen = sb.length();
+				ProfileText.toString(sb, step);
+				if(searchLineIndex == stepSingle.index){
+					sr.add(ProfileText.style(slen, sb.length() - slen, red, SWT.BOLD, yellow));
+				}else{
+					sr.add(ProfileText.style(slen, sb.length() - slen, dmagenta, SWT.NORMAL));
+				}
+				if (step.error != 0) {
+					slen = sb.length();
+					sb.append("\n").append(TextProxy.error.getText(step.error));
+					sr.add(ProfileText.style(slen, sb.length() - slen, red, SWT.NORMAL));
+				}
+				break;
 			case StepEnum.SOCKET:
 				SocketStep socket = (SocketStep) stepSingle;
 				slen = sb.length();

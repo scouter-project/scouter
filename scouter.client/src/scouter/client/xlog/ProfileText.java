@@ -373,6 +373,17 @@ public class ProfileText {
                         sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
                     }
                     break;
+                case StepEnum.DISPATCH:
+                    DispatchStep dispatchStep = (DispatchStep) stepSingle;
+                    slen = sb.length();
+                    toString(sb, dispatchStep);
+                    sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
+                    if (dispatchStep.error != 0) {
+                        slen = sb.length();
+                        sb.append("\n").append(TextProxy.error.getText(dispatchStep.error));
+                        sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
+                    }
+                    break;
                 case StepEnum.THREAD_SUBMIT:
                     ThreadSubmitStep threadSubmit = (ThreadSubmitStep) stepSingle;
                     slen = sb.length();
@@ -611,6 +622,17 @@ public class ProfileText {
                         sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
                     }
                     break;
+                case StepEnum.DISPATCH:
+                    DispatchStep step = (DispatchStep) stepSingle;
+                    slen = sb.length();
+                    toString(sb, step);
+                    sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
+                    if (step.error != 0) {
+                        slen = sb.length();
+                        sb.append("\n").append(TextProxy.error.getText(step.error));
+                        sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
+                    }
+                    break;
                 case StepEnum.THREAD_SUBMIT:
                     ThreadSubmitStep threadSubmit = (ThreadSubmitStep) stepSingle;
                     slen = sb.length();
@@ -652,6 +674,16 @@ public class ProfileText {
         sb.append("call: ").append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
         if (p.txid != 0) {
             sb.append(" <" + Hexa32.toString32(p.txid) + ">");
+        }
+    }
+
+    public static void toString(StringBuffer sb, DispatchStep step) {
+        String m = TextProxy.apicall.getText(step.hash);
+        if (m == null)
+            m = Hexa32.toString32(step.hash);
+        sb.append("call: ").append(m).append(" ").append(FormatUtil.print(step.elapsed, "#,##0")).append(" ms");
+        if (step.txid != 0) {
+            sb.append(" <" + Hexa32.toString32(step.txid) + ">");
         }
     }
 
@@ -819,7 +851,7 @@ public class ProfileText {
         if(isSimplified) {
             String simple = simplifyMethod(m);
             sb.append(simple).append(" [").append(FormatUtil.print(p.elapsed, "#,##0")).append("ms]").append(" -- ").append(m);
-            return simple.indexOf('.');
+            return simple.indexOf('#');
         } else {
             sb.append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
             return m.indexOf('.');
@@ -832,7 +864,7 @@ public class ProfileText {
             String methodName = parts[parts.length - 1];
             int bracePos = methodName.indexOf('(');
 
-            return parts[parts.length - 2] + "." + methodName.substring(0, bracePos) + "";
+            return parts[parts.length - 2] + "#" + methodName.substring(0, bracePos) + "()";
         } else {
             return method;
         }
