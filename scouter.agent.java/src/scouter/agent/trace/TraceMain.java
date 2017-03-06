@@ -935,23 +935,21 @@ public class TraceMain {
         long callee = KeyGen.next();
         http.setDispatchTransferMap(asyncContext, ctx.gxid, ctx.txid, callee, XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE);
 
-        //TODO consider adding dedicated step for async servlet dispatch
-        //FIXME consider adding dedicated step for async servlet dispatch
-        ApiCallStep apiCallStep = new ApiCallStep();
-        apiCallStep.txid = callee;
+        DispatchStep step = new DispatchStep();
+        step.txid = callee;
 
-        apiCallStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 
         // It maybe another thread
         if (ctx.profile_thread_cputime) {
-            apiCallStep.start_cpu = -1;
-            apiCallStep.cputime = -1;
+            step.start_cpu = -1;
+            step.cputime = -1;
         }
 
-        apiCallStep.address = "dispatch";
+        step.address = "dispatch";
         if(self) url = "[self]";
-        apiCallStep.hash = DataProxy.sendApicall(apiCallStep.address + "://" + url);
-        ctx.profile.add(apiCallStep);
+        step.hash = DataProxy.sendApicall(step.address + "://" + url);
+        ctx.profile.add(step);
     }
 
     public static void selfDispatchAsyncServlet(Object asyncContext) {
@@ -967,10 +965,27 @@ public class TraceMain {
         long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
         long callee = KeyGen.next();
 
+        //TODO apply possible async step than api call step
+        ApiCallStep apiCallStep = new ApiCallStep();
+        apiCallStep.txid = callee;
+
+        apiCallStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+
+        // It maybe another thread
+        if (ctx.profile_thread_cputime) {
+            apiCallStep.start_cpu = -1;
+            apiCallStep.cputime = -1;
+        }
+
+        apiCallStep.address = "lambda";
+        //TODO sync url as the context service name in method startAsyncPossibleService
+        apiCallStep.hash = DataProxy.sendApicall(apiCallStep.address + "://" + keyObject.toString());
+        ctx.profile.add(apiCallStep);
+
         TransferMap.put(System.identityHashCode(keyObject), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId());
     }
 
-    public static LocalContext startAsyncPossibleService(Object keyObject, String fullName,
+    public static Object startAsyncPossibleService(Object keyObject, String fullName,
                                                    String className, String methodName, String methodDesc,
                                                    Object _this, Object[] arg) {
 
@@ -992,8 +1007,7 @@ public class TraceMain {
             }
         }
 
-        String serviceName = fullName;
-        LocalContext localContext = (LocalContext)startService(fullName, className, methodName, methodDesc, _this, arg, XLogTypes.BACK_THREAD);
+        LocalContext localContext = (LocalContext)startService(fullName, className, methodName, methodDesc, _this, arg, XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE);
         if (localContext == null) {
             return null;
         }
@@ -1001,11 +1015,23 @@ public class TraceMain {
         if(id.gxid != 0) localContext.context.gxid = id.gxid;
         if(id.callee != 0) localContext.context.txid = id.callee;
         if(id.caller != 0) localContext.context.caller = id.caller;
+        String serviceName = StringUtil.cutLastString(className, '/') + "#" + methodName + "() -- " + fullName;
+        serviceName = serviceName.replace("$ByteBuddy", "");
+        localContext.context.serviceHash = HashUtil.hash(serviceName);
+        localContext.context.serviceName = serviceName;
+
+        //TODO enable possible async step - ctx get from received thread id if null try get it from deferred ctx
 
         return localContext;
     }
 
-    public static void endAsyncPossibleService(Object oRtn, Object oLocalContext, Throwable t) {
-        //TODO complete
+    public static void endAsyncPossibleService(Object oRtn, Object oLocalContext, Throwable thr) {
+        if (oLocalContext == null)
+            return;
+        LocalContext lctx = (LocalContext) oLocalContext;
+        if (lctx.service) {
+            endService(lctx, oRtn, thr);
+            return;
+        }
     }
 }

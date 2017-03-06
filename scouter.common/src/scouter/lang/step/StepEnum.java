@@ -32,6 +32,8 @@ public class StepEnum {
 	public static final byte THREAD_SUBMIT = 7;
 	public final static byte HASHED_MESSAGE = 9;
 	public final static byte DUMP = 12;
+	public final static byte DISPATCH = 13;
+	public final static byte THREAD_CALL_POSSIBLE = 14;
 
 	public final static byte METHOD_SUM = 11;
 	public final static byte SQL_SUM = 21;
@@ -65,6 +67,10 @@ public class StepEnum {
 			return new HashedMessageStep();
 		case DUMP:
 			return new DumpStep();
+		case DISPATCH:
+			return new DispatchStep();
+		case THREAD_CALL_POSSIBLE:
+			return new ThreadCallPossibleStep();
 		case MESSAGE_SUM:
 			return new MessageSum();
 		case METHOD_SUM:

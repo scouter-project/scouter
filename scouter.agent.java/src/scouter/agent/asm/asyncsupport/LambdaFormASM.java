@@ -4,7 +4,6 @@ import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.ILASM;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.trace.LocalContext;
 import scouter.agent.trace.TraceMain;
 import scouter.org.objectweb.asm.*;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
@@ -70,12 +69,12 @@ class LambdaMV extends LocalVariablesSorter implements Opcodes {
 			"Ljava/lang/String;" +
 			"Ljava/lang/Object;" +
 			"[Ljava/lang/Object;" +
-			")" + Type.getInternalName(LocalContext.class);
+			")Ljava/lang/Object;";
 
 	private static final String END_METHOD = "endAsyncPossibleService";
 	private static final String END_METHOD_DESC = "(" +
 			"Ljava/lang/Object;" +
-			Type.getInternalName(LocalContext.class) +
+			"Ljava/lang/Object;" +
 			"Ljava/lang/Throwable;" +
 			")V";
 
@@ -191,26 +190,25 @@ class LambdaMV extends LocalVariablesSorter implements Opcodes {
 }
 
 class FacotoryMV extends LocalVariablesSorter implements Opcodes {
-	private static final String TRACEMAIN = TraceMain.class.getName().replace('.', '/');
-	private static final String START_METHOD = "dispatchAsyncServlet";
-	private static final String START_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/String;)V";
-
-	private static final String SELF_DISPATCH_METHOD = "selfDispatchAsyncServlet";
-	private static final String SELF_DISPATCH_SIGNATURE = "(Ljava/lang/Object;)V";
+	private static final String TARGET = TraceMain.class.getName().replace('.', '/');
+	private static final String END_METHOD = "callAsyncPossiblyStep";
+	private static final String END_METHOD_DESC = "(" +
+			"Ljava/lang/Object;" +
+			")V";
 
 	String name;
 	String desc;
+	private Type returnType;
 
 	public FacotoryMV(int access, String name, String desc, MethodVisitor mv) {
 		super(ASM4, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
+		this.returnType = Type.getReturnType(desc);
 	}
 
 	@Override
 	public void visitCode() {
-		//TODO factory method
-
 		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
 		mv.visitLdcInsn("[factory method called!]" + name + desc);
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
@@ -219,6 +217,22 @@ class FacotoryMV extends LocalVariablesSorter implements Opcodes {
 		mv.visitMethodInsn(INVOKESTATIC, "java/lang/Thread", "currentThread", "()Ljava/lang/Thread;", false);
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Thread", "getName", "()Ljava/lang/String;", false);
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+	}
+
+	@Override
+	public void visitInsn(int opcode) {
+		if ((opcode >= IRETURN && opcode <= RETURN)) {
+			mv.visitInsn(DUP);
+
+//			Type tp = returnType;
+//			int i = newLocal(tp);
+//			mv.visitVarInsn(Opcodes.ASTORE, i);
+//			mv.visitVarInsn(Opcodes.ALOAD, i);
+//			mv.visitVarInsn(Opcodes.ALOAD, i);
+
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TARGET, END_METHOD, END_METHOD_DESC, false);
+		}
+		mv.visitInsn(opcode);
 	}
 }
 
