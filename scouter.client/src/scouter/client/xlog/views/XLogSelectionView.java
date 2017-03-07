@@ -195,13 +195,13 @@ public class XLogSelectionView extends ViewPart {
 			if (element instanceof XLogData) {
 				XLogData d = (XLogData) element;
 				if (d.p.error != 0) {
-					if(d.p.xType == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+					if(d.p.xType == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE || d.p.xType == XLogTypes.BACK_THREAD2) {
 						return ColorUtil.getInstance().getColor("light red");
 					} else {
 						return ColorUtil.getInstance().getColor("red");
 					}
 				} else {
-					if(d.p.xType == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+					if(d.p.xType == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE || d.p.xType == XLogTypes.BACK_THREAD2) {
 						return ColorUtil.getInstance().getColor("light gray");
 					}
 				}

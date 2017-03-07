@@ -47,7 +47,7 @@ public class ImageCache {
 		if (agentColor == null) {
 			agentColor = ColorUtil.getInstance().getColor("blue");
 		}
-		if(xtype == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+		if(xtype == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE || xtype == XLogTypes.BACK_THREAD2) {
 			agentColor = ColorUtil.getInstance().getColor("light2 gray");
 		}
 
@@ -105,7 +105,7 @@ public class ImageCache {
 		if(errorXpDotLight == null) {
 			errorXpDotLight = createXPImage(ColorUtil.getInstance().getColor("light2 red").getRGB());
 		}
-		if(xtype == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+		if(xtype == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE || xtype == XLogTypes.BACK_THREAD2) {
 			return errorXpDotLight;
 		} else {
 			return errorXpDot;

@@ -26,12 +26,11 @@ public class ThreadCallPossibleStep extends StepSingle {
 	public long txid;
 	public int hash;
 	public int elapsed;
-	public String target;
 	//0 - none thread dispatching, 1 - thread dispatching
 	public byte threaded;
 
 	public byte getStepType() {
-		return StepEnum.THREAD_SUBMIT;
+		return StepEnum.THREAD_CALL_POSSIBLE;
 	}
 
 	public void write(DataOutputX out) throws IOException {
@@ -40,7 +39,6 @@ public class ThreadCallPossibleStep extends StepSingle {
 		out.writeDecimal(txid);
 		out.writeDecimal(hash);
 		out.writeDecimal(elapsed);
-		out.writeText(target);
 		out.writeByte(threaded);
 	}
 
@@ -50,7 +48,6 @@ public class ThreadCallPossibleStep extends StepSingle {
 		this.txid = in.readDecimal();
 		this.hash = (int) in.readDecimal();
 		this.elapsed = (int) in.readDecimal();
-		this.target = in.readText();
 		this.threaded= in.readByte();
 		return this;
 	}

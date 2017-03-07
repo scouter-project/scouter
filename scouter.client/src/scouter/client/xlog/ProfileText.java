@@ -271,6 +271,11 @@ public class ProfileText {
             }
 
             StepSingle stepSingle = (StepSingle) profiles[i];
+
+            if (stepSingle.getStepType() == StepEnum.THREAD_CALL_POSSIBLE) {
+                if(((ThreadCallPossibleStep)stepSingle).threaded == 0) continue;
+            }
+
             tm = stepSingle.start_time + stime;
             cpu = stepSingle.start_cpu;
             boolean ignoreCpu = false;
@@ -383,6 +388,12 @@ public class ProfileText {
                         sb.append("\n").append(TextProxy.error.getText(dispatchStep.error));
                         sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
                     }
+                    break;
+                case StepEnum.THREAD_CALL_POSSIBLE:
+                    ThreadCallPossibleStep tcSteap = (ThreadCallPossibleStep) stepSingle;
+                    slen = sb.length();
+                    toString(sb, tcSteap);
+                    sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
                     break;
                 case StepEnum.THREAD_SUBMIT:
                     ThreadSubmitStep threadSubmit = (ThreadSubmitStep) stepSingle;
@@ -536,6 +547,11 @@ public class ProfileText {
             }
 
             StepSingle stepSingle = (StepSingle) profiles[i];
+
+            if (stepSingle.getStepType() == StepEnum.THREAD_CALL_POSSIBLE) {
+                if(((ThreadCallPossibleStep)stepSingle).threaded == 0) continue;
+            }
+
             tm = stime + stepSingle.start_time;
             cpu = stepSingle.start_cpu;
 
@@ -633,6 +649,12 @@ public class ProfileText {
                         sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
                     }
                     break;
+                case StepEnum.THREAD_CALL_POSSIBLE:
+                    ThreadCallPossibleStep tcSteap = (ThreadCallPossibleStep) stepSingle;
+                    slen = sb.length();
+                    toString(sb, tcSteap);
+                    sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
+                    break;
                 case StepEnum.THREAD_SUBMIT:
                     ThreadSubmitStep threadSubmit = (ThreadSubmitStep) stepSingle;
                     slen = sb.length();
@@ -682,6 +704,16 @@ public class ProfileText {
         if (m == null)
             m = Hexa32.toString32(step.hash);
         sb.append("call: ").append(m).append(" ").append(FormatUtil.print(step.elapsed, "#,##0")).append(" ms");
+        if (step.txid != 0) {
+            sb.append(" <" + Hexa32.toString32(step.txid) + ">");
+        }
+    }
+
+    public static void toString(StringBuffer sb, ThreadCallPossibleStep step) {
+        String m = TextProxy.apicall.getText(step.hash);
+        if (m == null)
+            m = Hexa32.toString32(step.hash);
+        sb.append("call:thread: ").append(m).append(" ").append(FormatUtil.print(step.elapsed, "#,##0")).append(" ms");
         if (step.txid != 0) {
             sb.append(" <" + Hexa32.toString32(step.txid) + ">");
         }

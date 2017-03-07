@@ -499,6 +499,7 @@ public class TraceMain {
                 break;
             case XLogTypes.BACK_THREAD:
             case XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE:
+            case XLogTypes.BACK_THREAD2:
         }
     }
 
@@ -965,24 +966,14 @@ public class TraceMain {
         long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
         long callee = KeyGen.next();
 
-        //TODO apply possible async step than api call step
-        ApiCallStep apiCallStep = new ApiCallStep();
-        apiCallStep.txid = callee;
+        ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
+        threadCallPossibleStep.txid = callee;
 
-        apiCallStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        threadCallPossibleStep.hash = DataProxy.sendApicall(keyObject.toString());
+        ctx.profile.add(threadCallPossibleStep);
 
-        // It maybe another thread
-        if (ctx.profile_thread_cputime) {
-            apiCallStep.start_cpu = -1;
-            apiCallStep.cputime = -1;
-        }
-
-        apiCallStep.address = "lambda";
-        //TODO sync url as the context service name in method startAsyncPossibleService
-        apiCallStep.hash = DataProxy.sendApicall(apiCallStep.address + "://" + keyObject.toString());
-        ctx.profile.add(apiCallStep);
-
-        TransferMap.put(System.identityHashCode(keyObject), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId());
+        TransferMap.put(System.identityHashCode(keyObject), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
     }
 
     public static Object startAsyncPossibleService(Object keyObject, String fullName,
@@ -1007,7 +998,7 @@ public class TraceMain {
             }
         }
 
-        LocalContext localContext = (LocalContext)startService(fullName, className, methodName, methodDesc, _this, arg, XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE);
+        LocalContext localContext = (LocalContext)startService(fullName, className, methodName, methodDesc, _this, arg, XLogTypes.BACK_THREAD2);
         if (localContext == null) {
             return null;
         }
@@ -1020,7 +1011,10 @@ public class TraceMain {
         localContext.context.serviceHash = HashUtil.hash(serviceName);
         localContext.context.serviceName = serviceName;
 
-        //TODO enable possible async step - ctx get from received thread id if null try get it from deferred ctx
+        if(id.tcStep != null) {
+            id.tcStep.threaded = 1;
+            id.tcStep.hash = DataProxy.sendApicall(serviceName);
+        }
 
         return localContext;
     }

@@ -68,10 +68,12 @@ import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ApiCallSum;
+import scouter.lang.step.DispatchStep;
 import scouter.lang.step.SqlStep;
 import scouter.lang.step.SqlSum;
 import scouter.lang.step.Step;
 import scouter.lang.step.StepEnum;
+import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.lang.step.ThreadSubmitStep;
 import scouter.lang.value.DecimalValue;
 import scouter.lang.value.MapValue;
@@ -152,6 +154,25 @@ public class XLogFlowView extends ViewPart {
 							}
 							new EditableMessageDialog().show("API Call", sb.toString(), srList);
 							break;
+						case DISPATCH:
+						case THREAD:
+							new OpenXLogProfileJob(XLogFlowView.this.getViewSite().getShell().getDisplay(), date, de.id, de.tags.getInt("serverId")).schedule();
+							break;
+//						case DISPATCH:
+//							srList = new ArrayList<StyleRange>();
+//							sb = new StringBuffer();
+//							String dispatch = de.name;
+//							sb.append(dispatch);
+//							if (de.error != 0) {
+//								error = TextProxy.error.getLoadText(date, de.error, de.tags.getInt("serverId"));
+//								if (StringUtil.isNotEmpty(error)) {
+//									sb.append("\n");
+//									srList.add(new StyleRange(sb.length(), error.length(), ColorUtil.getInstance().getColor("red"), null, SWT.BOLD));
+//									sb.append(error);
+//								}
+//							}
+//							new EditableMessageDialog().show("Dispatch", sb.toString(), srList);
+//							break;
 					}
 				}
 			}
@@ -222,11 +243,28 @@ public class XLogFlowView extends ViewPart {
 					tcp.process(requestCmd, param, new INetReader() {
 						public void process(DataInputX in) throws IOException {
 							XLogPack xlog = (XLogPack) in.readPack();
-							DependencyElement serviceElement = new DependencyElement(ElementType.SERVICE, xlog.txid);
+							ElementType eType = ElementType.SERVICE;
+							boolean excludeObjName = false;
+							switch (xlog.xType) {
+								case XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE:
+									eType = ElementType.DISPATCH;
+									excludeObjName = true;
+									break;
+								case XLogTypes.BACK_THREAD2:
+									eType = ElementType.THREAD;
+									excludeObjName = true;
+									break;
+							}
+
+							DependencyElement serviceElement = new DependencyElement(eType, xlog.txid);
 							String objName = TextProxy.object.getLoadText(date, xlog.objHash, serverId);
 							String serviceName = TextProxy.service.getLoadText(date, xlog.service, serverId);
 							serviceElement.elapsed = xlog.elapsed;
-							serviceElement.name = serviceName + "\n(" + objName + ")";
+							if(excludeObjName) {
+								serviceElement.name = serviceName;
+							} else {
+								serviceElement.name = serviceName + "\n(" + objName + ")";
+							}
 							serviceElement.error = xlog.error;
 							serviceElement.xtype = xlog.xType;
 							serviceElement.tags.put("caller", xlog.caller);
@@ -323,6 +361,42 @@ public class XLogFlowView extends ViewPart {
 					serviceElement.addChild(apiElement);
 				}
 				break;
+			case StepEnum.DISPATCH:
+				DispatchStep dispatchStep = (DispatchStep) step;
+				DependencyElement dispatchElement = new DependencyElement(ElementType.DISPATCH, dispatchStep.txid + dispatchStep.hash);
+				dispatchElement.elapsed = dispatchStep.elapsed;
+				dispatchElement.error = dispatchStep.error;
+				dispatchElement.name = TextProxy.apicall.getLoadText(date, dispatchStep.hash, serverId);
+				dispatchElement.tags.put("serverId", serverId);
+				if (dispatchStep.txid != 0) {
+					DependencyElement calledService = serviceMap.get(dispatchStep.txid);
+					if (calledService != null) {
+						serviceElement.addChild(calledService);
+					} else {
+						serviceElement.addChild(dispatchElement);
+					}
+				} else {
+					serviceElement.addChild(dispatchElement);
+				}
+				break;
+			case StepEnum.THREAD_CALL_POSSIBLE:
+				ThreadCallPossibleStep tcStep = (ThreadCallPossibleStep) step;
+				if(tcStep.threaded == 0) break;
+				DependencyElement tcElement = new DependencyElement(ElementType.DISPATCH, tcStep.txid + tcStep.hash);
+				tcElement.elapsed = tcStep.elapsed;
+				tcElement.name = TextProxy.apicall.getLoadText(date, tcStep.hash, serverId);
+				tcElement.tags.put("serverId", serverId);
+				if (tcStep.txid != 0) {
+					DependencyElement calledService = serviceMap.get(tcStep.txid);
+					if (calledService != null) {
+						serviceElement.addChild(calledService);
+					} else {
+						serviceElement.addChild(tcElement);
+					}
+				} else {
+					serviceElement.addChild(tcElement);
+				}
+				break;
 			case StepEnum.APICALL_SUM:
 				ApiCallSum apicallsum = (ApiCallSum) step;
 				DependencyElement apiSumElement = new DependencyElement(ElementType.API_CALL, apicallsum.hash);
@@ -399,6 +473,7 @@ public class XLogFlowView extends ViewPart {
 					case SQL:
 						return showSql;
 					case API_CALL:
+					case DISPATCH:
 						return showApicall;
 				}
 			}
@@ -410,7 +485,9 @@ public class XLogFlowView extends ViewPart {
 		USER,
 		SERVICE,
 		API_CALL,
-		SQL
+		SQL,
+		DISPATCH,
+		THREAD
 	}
 	
 	public static class DependencyElement {
@@ -526,6 +603,8 @@ public class XLogFlowView extends ViewPart {
 				switch(de.type) {
 					case SQL:
 					case API_CALL:
+					case DISPATCH:
+					case THREAD:
 						String name = de.name.trim().replaceAll("[\r\n]+", " ").replaceAll("\\s+", " ");
 						if (name.length() > 50) {
 							return name.substring(0, 40) + "...";
@@ -559,6 +638,10 @@ public class XLogFlowView extends ViewPart {
 						return Images.link;
 					case SQL :
 						return Images.database;
+					case DISPATCH:
+						return Images.arrow_right;
+					case THREAD:
+						return Images.timer;
 				}
 			}
 			return null;
@@ -572,7 +655,7 @@ public class XLogFlowView extends ViewPart {
 			if (entity instanceof DependencyElement) {
 				DependencyElement de = (DependencyElement) entity;
 				if (de.type == ElementType.SERVICE) {
-					if(de.xtype == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+					if(de.xtype == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE || de.xtype == XLogTypes.BACK_THREAD2) {
 						return ColorUtil.getInstance().getColor(SWT.COLOR_GRAY);
 					} else {
 						return ColorUtil.getInstance().getColor(SWT.COLOR_DARK_BLUE);
@@ -608,7 +691,7 @@ public class XLogFlowView extends ViewPart {
 		public Color getForegroundColour(Object entity) {
 			if (entity instanceof DependencyElement) {
 				DependencyElement de = (DependencyElement) entity;
-				if (de.xtype == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+				if (de.xtype == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE || de.xtype == XLogTypes.BACK_THREAD2) {
 					return ColorUtil.getInstance().getColor(SWT.COLOR_DARK_GRAY);
 				}
 			}

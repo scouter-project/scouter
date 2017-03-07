@@ -83,12 +83,24 @@ public class XLogUtil {
 				}
 				break;
 			case StepEnum.APICALL:
-			case StepEnum.DISPATCH:
 				if (TextProxy.apicall.getText(((ApiCallStep) p[i]).hash) == null) {
 					subcallSet.add(((ApiCallStep) p[i]).hash);
 				}
 				if (((ApiCallStep) p[i]).error != 0 && TextProxy.error.getText(((ApiCallStep) p[i]).error) == null) {
 					errorSet.add(((ApiCallStep) p[i]).error);
+				}
+				break;
+			case StepEnum.DISPATCH:
+				if (TextProxy.apicall.getText(((DispatchStep) p[i]).hash) == null) {
+					subcallSet.add(((DispatchStep) p[i]).hash);
+				}
+				if (((DispatchStep) p[i]).error != 0 && TextProxy.error.getText(((DispatchStep) p[i]).error) == null) {
+					errorSet.add(((DispatchStep) p[i]).error);
+				}
+				break;
+			case StepEnum.THREAD_CALL_POSSIBLE:
+				if (TextProxy.apicall.getText(((ThreadCallPossibleStep) p[i]).hash) == null) {
+					subcallSet.add(((ThreadCallPossibleStep) p[i]).hash);
 				}
 				break;
 			case StepEnum.APICALL_SUM:
