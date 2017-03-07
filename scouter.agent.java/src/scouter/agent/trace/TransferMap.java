@@ -26,7 +26,7 @@ public class TransferMap {
 		}
 	}
 
-	private static IntKeyLinkedMap<ID> map = new IntKeyLinkedMap<ID>().setMax(10001);
+	private static IntKeyLinkedMap<ID> map = new IntKeyLinkedMap<ID>().setMax(2001);
 
 	public static void put(int hash, long gxid, long caller, long callee, byte xType) {
 		put(hash, gxid, caller, callee, xType, 0L, null);
