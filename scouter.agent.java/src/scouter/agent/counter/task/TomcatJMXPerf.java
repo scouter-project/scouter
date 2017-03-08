@@ -91,7 +91,7 @@ public class TomcatJMXPerf {
 	public long collectCnt = 0;
 	@Counter
 	public void process(CounterBasket pw) {
-		if (CounterConstants.TOMCAT.equals(ObjTypeDetector.objType) == false) {
+		if (CounterConstants.TOMCAT.equals(ObjTypeDetector.objType) == false || conf.jmx_counter_enabled == false) {
 			return;
 		}
 		getMBeanServer();
@@ -104,6 +104,7 @@ public class TomcatJMXPerf {
 		}
 		collectCnt++;
 		for (MBeanObj beanObj : beanList) {
+            if (errors.contains(beanObj.attrName)) continue;
 			if (beanObj.valueType == ValueEnum.DECIMAL) {
 				try {
 					MeterKey key = new MeterKey(beanObj.mbeanHash, beanObj.counter);

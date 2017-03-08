@@ -95,6 +95,8 @@ public class Configure extends Thread {
     public boolean obj_name_auto_pid_enabled = false;
     @ConfigDesc("Redefining DS, RP type according to main object")
     public boolean obj_type_inherit_to_child_enabled = false;
+    @ConfigDesc("Activating collect sub counters using JMX")
+    public boolean jmx_counter_enabled = true;
 
     //profile
     @ConfigDesc("Http Query String profile")
@@ -751,6 +753,7 @@ public class Configure extends Thread {
         this.xlog_error_sql_time_max_ms = getInt("xlog_error_sql_time_max_ms", 30000);
         this._log_asm_enabled = getBoolean("_log_asm_enabled", false);
         this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
+        this.jmx_counter_enabled = getBoolean("jmx_counter_enabled", true);
         this._profile_fullstack_sql_connection_enabled = getBoolean("_profile_fullstack_sql_connection_enabled", false);
         this._trace_fullstack_socket_open_port = getInt("_trace_fullstack_socket_open_port", 0);
         this._trace_sql_parameter_max_count = getInt("_trace_sql_parameter_max_count", 128);
