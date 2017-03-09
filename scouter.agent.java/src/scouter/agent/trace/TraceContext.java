@@ -17,6 +17,7 @@
 
 package scouter.agent.trace;
 
+import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.DumpStep;
 import scouter.lang.step.SqlStep;
 import scouter.util.IntKeyMap;
@@ -112,6 +113,7 @@ public class TraceContext {
 	public String group;
 
 	public SqlStep lastSqlStep;
+	public ApiCallStep lastApiCallStep;
     public Queue<DumpStep> temporaryDumpSteps = new LinkedBlockingQueue<DumpStep>(5);
 	public boolean hasDumpStack;
 

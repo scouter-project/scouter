@@ -62,6 +62,21 @@ public class ApicallASM implements IASM, Opcodes {
                 "Ljava/lang/String;Ljava/lang/String;I)V");
         AsmUtil.add(reserved, "io/reactivex/netty/protocol/http/client/HttpClientImpl", "submit");
 
+        AsmUtil.add(reserved, "org/springframework/web/client/RestTemplate",
+                "doExecute(" +
+                        "Ljava/net/URI;" +
+                        "Lorg/springframework/http/HttpMethod;" +
+                        "Lorg/springframework/web/client/RequestCallback;" +
+                        "Lorg/springframework/web/client/ResponseExtractor;" +
+                        ")Ljava/lang/Object;");
+        AsmUtil.add(reserved, "org/springframework/web/client/AsyncRestTemplate",
+                "doExecute(" +
+                        "Ljava/net/URI;" +
+                        "Lorg/springframework/http/HttpMethod;" +
+                        "Lorg/springframework/web/client/AsyncRequestCallback;" +
+                        "Lorg/springframework/web/client/ResponseExtractor;" +
+                        ")Lorg/springframework/util/concurrent/ListenableFuture;");
+
         for(int i = ApiCallTargetRegister.klassMethod.size() - 1; i >= 0; i--) {
             AsmUtil.add(reserved, ApiCallTargetRegister.klassMethod.get(i).getLeft(), ApiCallTargetRegister.klassMethod.get(i).getRight());
         }

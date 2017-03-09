@@ -29,6 +29,7 @@ public class StepEnum {
 	public final static byte MESSAGE = 3;
 	public final static byte SOCKET = 5;
 	public final static byte APICALL = 6;
+	public final static byte APICALL2 = 15;
 	public static final byte THREAD_SUBMIT = 7;
 	public final static byte HASHED_MESSAGE = 9;
 	public final static byte DUMP = 12;
@@ -61,6 +62,8 @@ public class StepEnum {
 			return new SocketStep();
 		case APICALL:
 			return new ApiCallStep();
+		case APICALL2:
+			return new ApiCallStep2();
 		case THREAD_SUBMIT:
 			return new ThreadSubmitStep();
 		case HASHED_MESSAGE:

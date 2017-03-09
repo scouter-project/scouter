@@ -19,6 +19,7 @@ package scouter.agent;
 import scouter.agent.asm.AddFieldASM;
 import scouter.agent.asm.ApicallASM;
 import scouter.agent.asm.ApicallInfoASM;
+import scouter.agent.asm.ApicallSpringHttpAccessorASM;
 import scouter.agent.asm.CapArgsASM;
 import scouter.agent.asm.CapReturnASM;
 import scouter.agent.asm.CapThisASM;
@@ -107,6 +108,8 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new MethodASM());
         temp.add(new ApicallASM());
         temp.add(new ApicallInfoASM());
+        temp.add(new ApicallSpringHttpAccessorASM());
+
         temp.add(new SpringReqMapASM());
 
         temp.add(new SocketASM());
@@ -128,6 +131,8 @@ public class AgentTransformer implements ClassFileTransformer {
         asynchook.add("sun/net/www/protocol/http/HttpURLConnection".hashCode());
         asynchook.add("sun/net/www/http/HttpClient".hashCode());
         asynchook.add("java/net/Socket".hashCode());
+        asynchook.add("java/nio/channels/SocketChannel".hashCode());
+        asynchook.add("sun/nio/ch/SocketChannelImpl".hashCode());
         asynchook.add("javax/naming/InitialContext".hashCode());
     }
 
@@ -138,9 +143,13 @@ public class AgentTransformer implements ClassFileTransformer {
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
             hookingCtx.set(loader);
-            if(className != null && (className.indexOf("java/lang/invoke") >= 0 || className.indexOf("gunlee") >= 0)) {
-                System.out.println("[!!!!!!!!] loading ... className=" + className);
-            }
+//            if(className != null && (className.indexOf("java/lang/invoke") >= 0 || className.indexOf("gunlee") >= 0)) {
+//                System.out.println("[!!!!!!!!] loading ... className=" + className);
+//            }
+//            if(className != null && (className.indexOf("http") >= 0 || className.indexOf("Http") >= 0)) {
+//                System.out.println("[!!!!!!!!] loading ...http className = " + className);
+//            }
+
             if (className == null)
                 return null;
             if (classBeingRedefined == null) {

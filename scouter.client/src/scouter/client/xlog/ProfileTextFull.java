@@ -329,6 +329,7 @@ public class ProfileTextFull {
 				}
 				break;
 			case StepEnum.APICALL:
+			case StepEnum.APICALL2:
 				ApiCallStep apicall = (ApiCallStep) stepSingle;
 				slen = sb.length();
 				ProfileText.toString(sb, apicall);

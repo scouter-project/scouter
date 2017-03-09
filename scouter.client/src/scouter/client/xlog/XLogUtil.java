@@ -83,6 +83,7 @@ public class XLogUtil {
 				}
 				break;
 			case StepEnum.APICALL:
+			case StepEnum.APICALL2:
 				if (TextProxy.apicall.getText(((ApiCallStep) p[i]).hash) == null) {
 					subcallSet.add(((ApiCallStep) p[i]).hash);
 				}
@@ -143,6 +144,7 @@ public class XLogUtil {
 			MethodStep ms = (MethodStep) p;
 			return ms.elapsed;
 		case StepEnum.APICALL:
+		case StepEnum.APICALL2:
 			ApiCallStep acs = (ApiCallStep) p;
 			return acs.elapsed;
 		case StepEnum.THREAD_SUBMIT:
@@ -164,6 +166,7 @@ public class XLogUtil {
 			MethodStep ms = (MethodStep) p;
 			return ms.cputime;
 		case StepEnum.APICALL:
+		case StepEnum.APICALL2:
 			ApiCallStep acs = (ApiCallStep) p;
 			return acs.cputime;
 		case StepEnum.THREAD_SUBMIT:
@@ -203,6 +206,7 @@ public class XLogUtil {
                 }
                 break;
 			case StepEnum.APICALL:
+			case StepEnum.APICALL2:
 				ApiCallStep acs = (ApiCallStep) p;
 				sb.append("call:").append(TextProxy.apicall.getText(acs.hash));
 				if (acs.txid != 0) {
@@ -235,7 +239,8 @@ public class XLogUtil {
              case StepEnum.SQL3:
             	 SqlStep ss = (SqlStep) p;
             	 return TextProxy.error.getText(ss.error);
-             case StepEnum.APICALL:
+            case StepEnum.APICALL:
+			case StepEnum.APICALL2:
             	 ApiCallStep acs = (ApiCallStep) p;
             	 return TextProxy.error.getText(acs.error);
              case StepEnum.SOCKET:
@@ -270,6 +275,8 @@ public class XLogUtil {
 			return "SCK";
 		case StepEnum.APICALL:
 			return "API";
+		case StepEnum.APICALL2:
+			return "API2";
 		case StepEnum.THREAD_SUBMIT:
 			return "THD";
 		}

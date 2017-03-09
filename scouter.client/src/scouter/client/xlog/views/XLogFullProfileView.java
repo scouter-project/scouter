@@ -582,6 +582,7 @@ public class XLogFullProfileView extends ViewPart implements XLogViewWithTable {
 						m = ((MessageStep) step).message;
 						break;
 					case StepEnum.APICALL:
+					case StepEnum.APICALL2:
 						ApiCallStep apicall = (ApiCallStep) step;
 						m = TextProxy.apicall.getText(apicall.hash);
 						if (m == null)
@@ -710,6 +711,7 @@ public class XLogFullProfileView extends ViewPart implements XLogViewWithTable {
 				putSummary(summary, (MessageStep)step);
 				break;
 			case StepEnum.APICALL:
+			case StepEnum.APICALL2:
 				putSummary(summary, (ApiCallStep)step);
 				break;
 			}

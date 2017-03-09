@@ -368,6 +368,7 @@ public class ProfileText {
                     sr.add(style(slen, sb.length() - slen, dgray, SWT.NORMAL));
                     break;
                 case StepEnum.APICALL:
+                case StepEnum.APICALL2:
                     ApiCallStep apicall = (ApiCallStep) stepSingle;
                     slen = sb.length();
                     toString(sb, apicall);
@@ -628,6 +629,7 @@ public class ProfileText {
                     sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
                     break;
                 case StepEnum.APICALL:
+                case StepEnum.APICALL2:
                     ApiCallStep apicall = (ApiCallStep) stepSingle;
                     slen = sb.length();
                     toString(sb, apicall);
@@ -694,6 +696,16 @@ public class ProfileText {
         if (m == null)
             m = Hexa32.toString32(p.hash);
         sb.append("call: ").append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
+        if (p.txid != 0) {
+            if(p instanceof ApiCallStep2) {
+                if(((ApiCallStep2)p).async == 1) {
+                    sb.append(" [async]");
+                }
+            }
+            if(p.address != null) {
+                sb.append(" [" + p.address + "]");
+            }
+        }
         if (p.txid != 0) {
             sb.append(" <" + Hexa32.toString32(p.txid) + ">");
         }
