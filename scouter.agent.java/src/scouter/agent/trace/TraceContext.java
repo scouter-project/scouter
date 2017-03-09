@@ -83,6 +83,9 @@ public class TraceContext {
 	public int apicall_time;
 	public String apicall_target;
 
+	//thread dispatch
+	public String lastThreadCallName;
+
 	// rs
 	public long rs_start;
 	public int rs_count;
@@ -114,6 +117,7 @@ public class TraceContext {
 
 	public SqlStep lastSqlStep;
 	public ApiCallStep lastApiCallStep;
+
     public Queue<DumpStep> temporaryDumpSteps = new LinkedBlockingQueue<DumpStep>(5);
 	public boolean hasDumpStack;
 

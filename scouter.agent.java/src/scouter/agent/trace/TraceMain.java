@@ -37,7 +37,12 @@ import scouter.lang.TextTypes;
 import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
-import scouter.lang.step.*;
+import scouter.lang.step.DispatchStep;
+import scouter.lang.step.HashedMessageStep;
+import scouter.lang.step.MessageStep;
+import scouter.lang.step.MethodStep;
+import scouter.lang.step.MethodStep2;
+import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.lang.value.MapValue;
 import scouter.util.ArrayUtil;
 import scouter.util.HashUtil;
@@ -49,6 +54,8 @@ import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
 
 public class TraceMain {
     public static class Stat {
@@ -231,7 +238,10 @@ public class TraceMain {
         stat.isStaticContents = ctx.isStaticContents;
 
         if (stat.isStaticContents == false) {
-            PluginHttpServiceTrace.start(ctx, req, res);
+            if (ctx.xType != XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+                PluginHttpServiceTrace.start(ctx, req, res);
+            }
+
             if(plController != null) {
             	plController.start(ctx, req, res);
             }
@@ -310,7 +320,9 @@ public class TraceMain {
                 return;
             }
             // Plug-in end
-            PluginHttpServiceTrace.end(ctx, request, response);
+            if (ctx.xType != XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+                PluginHttpServiceTrace.end(ctx, request, response);
+            }
             if(plController != null) {
             	plController.end(ctx, request, response);
             }
@@ -547,7 +559,10 @@ public class TraceMain {
             step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.thread.getName());
             ctx.profile.add(step);
 
-            PluginAppServiceTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
+            if (ctx.xType != XLogTypes.BACK_THREAD && ctx.xType != XLogTypes.BACK_THREAD2) {
+                PluginAppServiceTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
+            }
+
             if (ctx.xType == XLogTypes.BACK_THREAD) {
                 MethodStep2 ms = new MethodStep2();
                 ms.hash = DataProxy.sendMethodName(service_name);
@@ -587,12 +602,15 @@ public class TraceMain {
                 }
                 step.error = errorCheck(ctx, thr);
                 ctx.profile.pop(step);
-                PluginAppServiceTrace.end(ctx);
                 TraceContextManager.end(ctx.threadId);
                 ctx.profile.close(true);
                 return;
             }
-            PluginAppServiceTrace.end(ctx);
+
+            if (ctx.xType != XLogTypes.BACK_THREAD && ctx.xType != XLogTypes.BACK_THREAD2) {
+                PluginAppServiceTrace.end(ctx);
+            }
+
             TraceContextManager.end(ctx.threadId);
 
             XLogPack pack = new XLogPack();
@@ -1035,5 +1053,66 @@ public class TraceMain {
             endService(lctx, oRtn, thr);
             return;
         }
+    }
+
+    public static void springAsyncExecutionSubmit(Object _this, Callable callable) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if(ctx == null) return;
+        ThreadCallPossibleStep step = new ThreadCallPossibleStep();
+
+        long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+        long callee = KeyGen.next();
+
+        ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
+        threadCallPossibleStep.txid = callee;
+        threadCallPossibleStep.threaded = 1;
+
+        threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        String threadCallName = (ctx.lastThreadCallName != null) ? ctx.lastThreadCallName : callable.toString();
+        ctx.lastThreadCallName = null;
+
+        threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
+        threadCallPossibleStep.nameTemp = threadCallName;
+        ctx.profile.add(threadCallPossibleStep);
+
+        TransferMap.put(System.identityHashCode(callable), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
+    }
+
+    public static void springAsyncDetermineExecutor(Method m) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if(ctx == null) return;
+
+        ctx.lastThreadCallName = m.getDeclaringClass().getName() + "#" + m.getName() + "()";
+    }
+
+    public static Object callableCallInvoked(Callable callable) {
+        TraceContext ctx = TraceContextManager.getContext();
+        int objKey = System.identityHashCode(callable);
+        TransferMap.ID id = TransferMap.get(objKey);
+        TransferMap.remove(objKey);
+
+        if (id == null) {
+            return null;
+        }
+
+        if(ctx != null) {
+            if(ctx.txid == id.caller) {
+                return null;
+            } else {
+                Logger.println("B110", "Abnormal - recevie callableCallInvoked -> caller txid : " + id.caller + " txid : " + ctx.txid);
+                return null;
+            }
+        }
+
+        LocalContext localContext = (LocalContext)startService(id.tcStep.nameTemp, null, null, null, null, null, XLogTypes.BACK_THREAD2);
+        if (localContext == null) {
+            return null;
+        }
+        localContext.service = true;
+        if(id.gxid != 0) localContext.context.gxid = id.gxid;
+        if(id.callee != 0) localContext.context.txid = id.callee;
+        if(id.caller != 0) localContext.context.caller = id.caller;
+
+        return localContext;
     }
 }

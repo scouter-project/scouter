@@ -28,6 +28,7 @@ public class ThreadCallPossibleStep extends StepSingle {
 	public int elapsed;
 	//0 - none thread dispatching, 1 - thread dispatching
 	public byte threaded;
+	public String nameTemp;
 
 	public byte getStepType() {
 		return StepEnum.THREAD_CALL_POSSIBLE;

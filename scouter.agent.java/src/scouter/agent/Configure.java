@@ -358,6 +358,11 @@ public class Configure extends Thread {
     @ConfigDesc("asyncContext dispatch impl. method patterns")
     public String hook_async_context_dispatch_patterns = "";
 
+    @ConfigDesc("spring async execution submit patterns")
+    public String hook_spring_async_submit_patterns = "";
+    @ConfigDesc("spring async execution hook enabled")
+    public boolean hook_spring_async_enabled = true;
+
     @ConfigDesc("enable lambda expression hook for detecting async processing")
     public boolean hook_lambda_instrumentation_strategy_enabled = true;
 
@@ -643,6 +648,9 @@ public class Configure extends Thread {
 
         this.hook_async_context_dispatch_patterns = getValue("hook_async_context_dispatch_patterns", "");
         this.hook_async_servlet_start_patterns = getValue("hook_async_servlet_start_patterns", "");
+
+        this.hook_spring_async_submit_patterns = getValue("hook_spring_async_submit_patterns", "");
+        this.hook_spring_async_enabled = getBoolean("hook_spring_async_enabled", true);
 
         this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", true);
 

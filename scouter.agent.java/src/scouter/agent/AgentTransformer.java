@@ -41,7 +41,9 @@ import scouter.agent.asm.SpringReqMapASM;
 import scouter.agent.asm.SqlMapASM;
 import scouter.agent.asm.UserTxASM;
 import scouter.agent.asm.asyncsupport.AsyncContextDispatchASM;
+import scouter.agent.asm.asyncsupport.CallableASM;
 import scouter.agent.asm.asyncsupport.RequestStartAsyncASM;
+import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
@@ -109,6 +111,8 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new ApicallASM());
         temp.add(new ApicallInfoASM());
         temp.add(new ApicallSpringHttpAccessorASM());
+        temp.add(new SpringAsyncExecutionASM());
+        temp.add(new CallableASM());
 
         temp.add(new SpringReqMapASM());
 
@@ -143,9 +147,7 @@ public class AgentTransformer implements ClassFileTransformer {
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
             hookingCtx.set(loader);
-//            if(className != null && (className.indexOf("java/lang/invoke") >= 0 || className.indexOf("gunlee") >= 0)) {
-//                System.out.println("[!!!!!!!!] loading ... className=" + className);
-//            }
+
 //            if(className != null && (className.indexOf("http") >= 0 || className.indexOf("Http") >= 0)) {
 //                System.out.println("[!!!!!!!!] loading ...http className = " + className);
 //            }
