@@ -735,7 +735,12 @@ public class ProfileText {
         String m = TextProxy.hashMessage.getText(p.hash);
         if (m == null)
             m = Hexa32.toString32(p.hash);
-        sb.append(m).append(" #").append(FormatUtil.print(p.value, "#,##0")).append(" ").append(FormatUtil.print(p.time, "#,##0")).append(" ms");
+
+        if(p.time != -1) {
+            sb.append(m).append(" #").append(FormatUtil.print(p.value, "#,##0")).append(" ").append(FormatUtil.print(p.time, "#,##0")).append(" ms");
+        } else {
+            sb.append(m);
+        }
     }
 
     public static void toString(StringBuffer sb, DumpStep p, int lineHead) {

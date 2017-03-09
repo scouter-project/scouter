@@ -220,6 +220,7 @@ public class TraceMain {
         ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
 
         HashedMessageStep step = new HashedMessageStep();
+        step.time = -1;
         step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.thread.getName());
         ctx.profile.add(step);
 
@@ -264,6 +265,7 @@ public class TraceMain {
                 endHttpServiceFinal(ctx, stat0.req, stat0.res, thr);
             } else {
                 HashedMessageStep step = new HashedMessageStep();
+                step.time = -1;
                 step.hash = DataProxy.sendHashedMessage("end servlet and wait async complete");
                 step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
                 ctx.profile.add(step);
@@ -539,6 +541,12 @@ public class TraceMain {
             ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
             ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
             ctx.xType = xType;
+
+            HashedMessageStep step = new HashedMessageStep();
+            step.time = -1;
+            step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.thread.getName());
+            ctx.profile.add(step);
+
             PluginAppServiceTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
             if (ctx.xType == XLogTypes.BACK_THREAD) {
                 MethodStep2 ms = new MethodStep2();
