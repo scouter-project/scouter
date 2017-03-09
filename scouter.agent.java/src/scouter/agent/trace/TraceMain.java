@@ -768,7 +768,7 @@ public class TraceMain {
 
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null) {
-            System.out.println("[Scouter][HookMethodCtxNull]" + classMethod);
+            //System.out.println("[Scouter][HookMethodCtxNull]" + classMethod);
             if (conf._trace_auto_service_enabled) {
                 Object localContext = startService(classMethod, null, null, null, null, null, XLogTypes.APP_SERVICE);
 				if (localContext != null) {

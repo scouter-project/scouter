@@ -17,6 +17,7 @@
 package scouter.agent.asm;
 
 import scouter.agent.ClassDesc;
+import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceApiCall;
@@ -38,6 +39,10 @@ public class ApicallSpringHttpAccessorASM implements IASM, Opcodes {
 
 	@Override
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
+		if (Configure.getInstance()._hook_methods_enabled == false) {
+			return cv;
+		}
+
 		HookingSet mset = reserved.get(className);
 		if (mset != null)
 			return new HttpAccessorCV(cv, mset, className);

@@ -40,11 +40,13 @@ public class JavaAgent {
 		}
 		intro();
 
-		new AgentBuilder.Default()
-				.with(AgentBuilder.LambdaInstrumentationStrategy.ENABLED)
-				.installOn(instrum);
+		Configure conf = Configure.getInstance();
+		if(conf.hook_lambda_instrumentation_strategy_enabled) {
+			new AgentBuilder.Default()
+					.with(AgentBuilder.LambdaInstrumentationStrategy.ENABLED)
+					.installOn(instrum);
+		}
 
-		Configure.getInstance();
 		BackJobs.getInstance().put(Logger.class.getName(), 3000, Logger.initializer);
 		JavaAgent.instrumentation = instrum;
 		JavaAgent.instrumentation.addTransformer(transformer);

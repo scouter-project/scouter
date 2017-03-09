@@ -18,11 +18,14 @@ package scouter.agent.asm;
 
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
-import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceApiCall;
-import scouter.org.objectweb.asm.*;
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.Label;
+import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.Pair;
 
@@ -118,7 +121,7 @@ class ApicallExtCV extends ClassVisitor implements Opcodes {
         if (AsmUtil.isSpecial(methodName)) {
             return mv;
         }
-        Logger.println("apicall: " + className + "." + methodName + desc);
+        //Logger.println("apicall: " + className + "." + methodName + desc);
         return new ApicallExtMV(access, desc, mv, Type.getArgumentTypes(desc), (access & ACC_STATIC) != 0, className,
                 methodName, desc);
     }
