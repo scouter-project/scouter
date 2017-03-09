@@ -351,9 +351,12 @@ public class XLogFlowView extends ViewPart {
 				apiElement.error = apicallstep.error;
 				apiElement.name = TextProxy.apicall.getLoadText(date, apicallstep.hash, serverId);
 				apiElement.tags.put("serverId", serverId);
+				apiElement.address = apicallstep.address;
+
 				if (apicallstep.txid != 0) {
 					DependencyElement calledService = serviceMap.get(apicallstep.txid);
 					if (calledService != null) {
+						calledService.address = apicallstep.address;
 						serviceElement.addChild(calledService);
 					} else {
 						serviceElement.addChild(apiElement);
@@ -503,6 +506,7 @@ public class XLogFlowView extends ViewPart {
 		public int elapsed;
 		public int error;
 		public byte xtype;
+		public String address;
 		
 		MapValue tags = new MapValue();
 		
@@ -612,7 +616,14 @@ public class XLogFlowView extends ViewPart {
 						}
 						return name;
 				}
-				return de.name;
+				String elementText;
+				if(de.address != null) {
+					elementText = de.name + "\n : " + de.address;
+				} else {
+					elementText = de.name;
+				}
+				return elementText;
+
 			} else if (element instanceof EntityConnectionData) {
 				if (((EntityConnectionData) element).dest instanceof DependencyElement) {
 					DependencyElement de = (DependencyElement) ((EntityConnectionData) element).dest;
