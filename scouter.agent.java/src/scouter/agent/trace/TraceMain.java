@@ -987,6 +987,11 @@ public class TraceMain {
     public static void callAsyncPossiblyStep(Object keyObject) {
         TraceContext ctx = TraceContextManager.getContext();
         if(ctx == null) return;
+
+        if(TransferMap.get(System.identityHashCode(keyObject)) != null) {
+            return;
+        }
+
         ThreadCallPossibleStep step = new ThreadCallPossibleStep();
 
         long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
@@ -1058,6 +1063,11 @@ public class TraceMain {
     public static void springAsyncExecutionSubmit(Object _this, Callable callable) {
         TraceContext ctx = TraceContextManager.getContext();
         if(ctx == null) return;
+
+        if(TransferMap.get(System.identityHashCode(callable)) != null) {
+            return;
+        }
+
         ThreadCallPossibleStep step = new ThreadCallPossibleStep();
 
         long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
@@ -1114,5 +1124,33 @@ public class TraceMain {
         if(id.caller != 0) localContext.context.caller = id.caller;
 
         return localContext;
+    }
+
+    public static void callableInitInvoked(Callable callable) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if(ctx == null) return;
+
+        if(TransferMap.get(System.identityHashCode(callable)) != null) {
+            return;
+        }
+
+        ThreadCallPossibleStep step = new ThreadCallPossibleStep();
+
+        long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+        long callee = KeyGen.next();
+
+        ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
+        threadCallPossibleStep.txid = callee;
+        threadCallPossibleStep.threaded = 1;
+
+        threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        String threadCallName = (ctx.lastThreadCallName != null) ? ctx.lastThreadCallName : callable.toString();
+        ctx.lastThreadCallName = null;
+
+        threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
+        threadCallPossibleStep.nameTemp = threadCallName;
+        ctx.profile.add(threadCallPossibleStep);
+
+        TransferMap.put(System.identityHashCode(callable), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
     }
 }

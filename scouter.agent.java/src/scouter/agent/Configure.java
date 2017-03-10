@@ -365,6 +365,11 @@ public class Configure extends Thread {
     @ConfigDesc("spring async execution hook enabled")
     public boolean hook_spring_async_enabled = true;
 
+    @ConfigDesc("Hook callable and runnable for tracing async processing. \nIt hook only 'hook_async_callrunnable_scan_prefixes' option contains pacakage or classes")
+    public boolean hook_async_callrunnable_enable = true;
+    @ConfigDesc("scanning range prefixes for hooking callable and runnable implementations")
+    public String hook_async_callrunnable_scan_package_prefixes = "";
+
     @ConfigDesc("enable lambda expression hook for detecting async processing")
     public boolean hook_lambda_instrumentation_strategy_enabled = true;
 

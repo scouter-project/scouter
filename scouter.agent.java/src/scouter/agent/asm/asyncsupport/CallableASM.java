@@ -10,6 +10,7 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,12 @@ public class CallableASM implements IASM, Opcodes {
 	public CallableASM() {
 		if(conf.hook_spring_async_enabled) {
 			scanScopePrefix.add("org/springframework/aop/interceptor/AsyncExecutionInterceptor");
+		}
+		if(conf.hook_async_callrunnable_enable) {
+			String[] prefixes = StringUtil.split(conf.hook_async_callrunnable_scan_package_prefixes, ',');
+			for(int i=0; i<prefixes.length; i++) {
+				scanScopePrefix.add(prefixes[i].replace('.', '/'));
+			}
 		}
 	}
 
@@ -62,11 +69,19 @@ class CallableCV extends ClassVisitor implements Opcodes {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		if (mv == null || !name.equals("call")) {
+		if (mv == null) {
 			return mv;
 		}
 
-		return new CallMV(access, name, desc, mv);
+		if (name.equals("call")) {
+			return new CallMV(access, name, desc, mv);
+		}
+
+		if (name.equals("<init>")) {
+			return new InitMV(access, name, desc, mv);
+		}
+
+		return mv;
 	}
 }
 
@@ -158,5 +173,29 @@ class CallMV extends LocalVariablesSorter implements Opcodes {
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TARGET, END_METHOD, END_METHOD_DESC,false);
 		mv.visitInsn(ATHROW);
 		mv.visitMaxs(maxStack + 8, maxLocals + 2);
+	}
+}
+
+class InitMV extends LocalVariablesSorter implements Opcodes {
+	private static final String TARGET = TraceMain.class.getName().replace('.', '/');
+	private static final String START_METHOD = "callableInitInvoked";
+	private static final String START_SIGNATURE = "(Ljava/util/concurrent/Callable;)V";
+
+	String name;
+	String desc;
+
+	public InitMV(int access, String name, String desc, MethodVisitor mv) {
+		super(ASM4, access, desc, mv);
+		this.name = name;
+		this.desc = desc;
+	}
+
+	@Override
+	public void visitInsn(int opcode) {
+		if ((opcode >= IRETURN && opcode <= RETURN)) {
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TARGET, START_METHOD, START_SIGNATURE, false);
+		}
+		mv.visitInsn(opcode);
 	}
 }
