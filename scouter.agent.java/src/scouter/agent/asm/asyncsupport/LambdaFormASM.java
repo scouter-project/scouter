@@ -191,7 +191,7 @@ class LambdaMV extends LocalVariablesSorter implements Opcodes {
 
 class FacotoryMV extends LocalVariablesSorter implements Opcodes {
 	private static final String TARGET = TraceMain.class.getName().replace('.', '/');
-	private static final String END_METHOD = "callAsyncPossiblyStep";
+	private static final String END_METHOD = "asyncPossibleInstanceInitInvoked";
 	private static final String END_METHOD_DESC = "(" +
 			"Ljava/lang/Object;" +
 			")V";

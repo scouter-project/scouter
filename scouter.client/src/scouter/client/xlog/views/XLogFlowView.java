@@ -25,12 +25,7 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.events.ControlEvent;
@@ -40,52 +35,31 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.zest.core.viewers.EntityConnectionData;
-import org.eclipse.zest.core.viewers.GraphViewer;
-import org.eclipse.zest.core.viewers.IEntityConnectionStyleProvider;
-import org.eclipse.zest.core.viewers.IEntityStyleProvider;
-import org.eclipse.zest.core.viewers.IGraphEntityContentProvider;
+import org.eclipse.zest.core.viewers.*;
 import org.eclipse.zest.core.widgets.ZestStyles;
 import org.eclipse.zest.layouts.LayoutStyles;
 import org.eclipse.zest.layouts.algorithms.HorizontalTreeLayoutAlgorithm;
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
+import scouter.client.model.XLogData;
+import scouter.client.model.XLogProxy;
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.client.popup.EditableMessageDialog;
 import scouter.client.popup.SQLFormatDialog;
 import scouter.client.server.ServerManager;
-import scouter.client.util.ColorUtil;
-import scouter.client.util.ConsoleProxy;
-import scouter.client.util.ExUtil;
-import scouter.client.util.ImageUtil;
-import scouter.client.util.TimeUtil;
+import scouter.client.util.*;
 import scouter.client.xlog.actions.OpenXLogProfileJob;
 import scouter.io.DataInputX;
 import scouter.lang.CountryCode;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
-import scouter.lang.step.ApiCallStep;
-import scouter.lang.step.ApiCallSum;
-import scouter.lang.step.DispatchStep;
-import scouter.lang.step.SqlStep;
-import scouter.lang.step.SqlSum;
-import scouter.lang.step.Step;
-import scouter.lang.step.StepEnum;
-import scouter.lang.step.ThreadCallPossibleStep;
-import scouter.lang.step.ThreadSubmitStep;
+import scouter.lang.step.*;
 import scouter.lang.value.DecimalValue;
 import scouter.lang.value.MapValue;
 import scouter.net.RequestCmd;
-import scouter.util.FormatUtil;
-import scouter.util.HashUtil;
-import scouter.util.Hexa32;
-import scouter.util.IPUtil;
-import scouter.util.LinkedMap;
-import scouter.util.LongEnumer;
-import scouter.util.LongKeyLinkedMap;
-import scouter.util.StringUtil;
+import scouter.util.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -385,6 +359,16 @@ public class XLogFlowView extends ViewPart {
 				break;
 			case StepEnum.THREAD_CALL_POSSIBLE:
 				ThreadCallPossibleStep tcStep = (ThreadCallPossibleStep) step;
+
+				XLogData threadStepXlog = null;
+				if(tcStep.txid != 0L) {
+					threadStepXlog = XLogProxy.getXLogData(serverId, date, tcStep.txid);
+				}
+				if(threadStepXlog != null) {
+					tcStep.threaded = 1;
+					tcStep.elapsed = threadStepXlog.p.elapsed;
+				}
+
 				if(tcStep.threaded == 0) break;
 				DependencyElement tcElement = new DependencyElement(ElementType.DISPATCH, tcStep.txid + tcStep.hash);
 				tcElement.elapsed = tcStep.elapsed;

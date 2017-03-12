@@ -159,6 +159,7 @@ public class XLogProfileView extends ViewPart {
 		text.setText("");
 		
 		ProfileText.build(DateUtil.yyyymmdd(xLogData.p.endTime), text, this.xLogData, steps, serverId, bindSqlParam, isSimplified);
+
 		text.addListener(SWT.MouseUp, new Listener(){
 			public void handleEvent(Event event) {
 				try {

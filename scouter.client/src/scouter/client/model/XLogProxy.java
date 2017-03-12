@@ -17,24 +17,26 @@
  */
 package scouter.client.model;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.client.preferences.PManager;
 import scouter.client.preferences.PreferenceConstants;
 import scouter.client.util.ConsoleProxy;
+import scouter.client.xlog.XLogUtil;
+import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
+import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogProfilePack;
 import scouter.lang.step.Step;
 import scouter.lang.value.DecimalValue;
-import scouter.io.DataInputX;
 import scouter.net.RequestCmd;
 import scouter.util.FileUtil;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class XLogProxy {
 
@@ -146,5 +148,27 @@ public class XLogProxy {
 			TcpProxy.putTcpProxy(tcp);
 		}
 		return true;
+	}
+
+	public static XLogData getXLogData(int serverId, String date, long txid) {
+		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+		try {
+			MapPack param = new MapPack();
+			param.put("date", date);
+			param.put("txid", txid);
+			Pack p = tcp.getSingle(RequestCmd.XLOG_READ_BY_TXID, param);
+			if (p != null) {
+				XLogPack xp = XLogUtil.toXLogPack(p);
+				XLogData d = new XLogData(xp, serverId);
+				d.objName = TextProxy.object.getLoadText(date, xp.objHash, serverId);
+				d.serviceName = TextProxy.service.getLoadText(date, xp.service, serverId);
+				return d;
+			}
+		} catch (Throwable th) {
+			ConsoleProxy.errorSafe(th.toString());
+		} finally {
+			TcpProxy.putTcpProxy(tcp);
+		}
+		return null;
 	}
 }

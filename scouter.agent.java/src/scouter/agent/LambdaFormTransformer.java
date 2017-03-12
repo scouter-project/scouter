@@ -24,6 +24,7 @@ import scouter.org.objectweb.asm.ClassReader;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.ClassWriter;
 import scouter.org.objectweb.asm.Opcodes;
+import scouter.util.StringUtil;
 
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
@@ -32,9 +33,17 @@ import java.util.List;
 
 public class LambdaFormTransformer {
     protected static List<ILASM> asms = new ArrayList<ILASM>();
+    private static List<String> scanScopePrefix = new ArrayList<String>();
 
     static {
         Configure conf = Configure.getInstance();
+        if(conf.hook_async_callrunnable_enable) {
+            String[] prefixes = StringUtil.split(conf.hook_async_callrunnable_scan_package_prefixes, ',');
+            for(int i=0; i<prefixes.length; i++) {
+                scanScopePrefix.add(prefixes[i].replace('.', '/'));
+            }
+        }
+
         asms.add(new LambdaFormASM());
     }
 
@@ -47,7 +56,18 @@ public class LambdaFormTransformer {
         try {
             if (className == null) return null;
 
-            if(className.indexOf("gunlee") != 0) return null;
+            boolean scoped = false;
+
+            for(int i=0; i<scanScopePrefix.size(); i++) {
+                if(className.indexOf(scanScopePrefix.get(i)) == 0) {
+                    scoped = true;
+                    break;
+                }
+            }
+
+            if (!scoped) {
+                return null;
+            }
 
             final ClassDesc classDesc = new ClassDesc();
             ClassReader cr = new ClassReader(classfileBuffer);

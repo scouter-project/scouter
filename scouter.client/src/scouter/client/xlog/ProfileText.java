@@ -23,6 +23,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
+import scouter.client.model.XLogProxy;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
@@ -273,7 +274,19 @@ public class ProfileText {
             StepSingle stepSingle = (StepSingle) profiles[i];
 
             if (stepSingle.getStepType() == StepEnum.THREAD_CALL_POSSIBLE) {
-                if(((ThreadCallPossibleStep)stepSingle).threaded == 0) continue;
+                ThreadCallPossibleStep threadStep = (ThreadCallPossibleStep)stepSingle;
+                XLogData threadStepXlog = null;
+                if(threadStep.txid != 0L) {
+                    threadStepXlog = XLogProxy.getXLogData(xperf.serverId, DateUtil.yyyymmdd(xperf.p.endTime), threadStep.txid);
+                }
+                if(threadStepXlog != null) {
+                    threadStep.threaded = 1;
+                    threadStep.elapsed = threadStepXlog.p.elapsed;
+                }
+
+                if(threadStep.threaded == 0) {
+                    continue;
+                }
             }
 
             tm = stepSingle.start_time + stime;

@@ -984,7 +984,7 @@ public class TraceMain {
         http.setSelfDispatch(asyncContext, true);
     }
 
-    public static void callAsyncPossiblyStep(Object keyObject) {
+    public static void asyncPossibleInstanceInitInvoked(Object keyObject) {
         TraceContext ctx = TraceContextManager.getContext();
         if(ctx == null) return;
 
@@ -1001,7 +1001,7 @@ public class TraceMain {
         threadCallPossibleStep.txid = callee;
 
         threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-        threadCallPossibleStep.hash = DataProxy.sendApicall(keyObject.toString());
+        threadCallPossibleStep.hash = DataProxy.sendApicall(keyObject.toString().replace("$ByteBuddy", ""));
         ctx.profile.add(threadCallPossibleStep);
 
         TransferMap.put(System.identityHashCode(keyObject), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);

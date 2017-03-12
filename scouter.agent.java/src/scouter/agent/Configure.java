@@ -367,10 +367,10 @@ public class Configure extends Thread {
 
     @ConfigDesc("Hook callable and runnable for tracing async processing. \nIt hook only 'hook_async_callrunnable_scan_prefixes' option contains pacakage or classes")
     public boolean hook_async_callrunnable_enable = true;
-    @ConfigDesc("scanning range prefixes for hooking callable and runnable implementations")
+    @ConfigDesc("scanning range prefixes for hooking callable, runnable implementations and lambda expressions. usually your application package. 2 or more packages can be separated by commas.")
     public String hook_async_callrunnable_scan_package_prefixes = "";
 
-    @ConfigDesc("enable lambda expression hook for detecting async processing")
+    @ConfigDesc("enable lambda expressioned class hook for detecting asyncronous processing. Only classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
     public boolean hook_lambda_instrumentation_strategy_enabled = true;
 
     @ConfigDesc("")
