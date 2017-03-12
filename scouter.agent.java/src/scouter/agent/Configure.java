@@ -360,6 +360,18 @@ public class Configure extends Thread {
     @ConfigDesc("asyncContext dispatch impl. method patterns")
     public String hook_async_context_dispatch_patterns = "";
 
+    @ConfigDesc("spring async execution submit patterns")
+    public String hook_spring_async_submit_patterns = "";
+    @ConfigDesc("spring async execution hook enabled")
+    public boolean hook_spring_async_enabled = true;
+
+    @ConfigDesc("Hook callable and runnable for tracing async processing. \nIt hook only 'hook_async_callrunnable_scan_prefixes' option contains pacakage or classes")
+    public boolean hook_async_callrunnable_enable = true;
+    @ConfigDesc("scanning range prefixes for hooking callable and runnable implementations")
+    public String hook_async_callrunnable_scan_package_prefixes = "";
+
+    @ConfigDesc("enable lambda expression hook for detecting async processing")
+    public boolean hook_lambda_instrumentation_strategy_enabled = true;
 
     @ConfigDesc("")
     public String hook_add_fields = "";
@@ -643,6 +655,14 @@ public class Configure extends Thread {
 
         this.hook_async_context_dispatch_patterns = getValue("hook_async_context_dispatch_patterns", "");
         this.hook_async_servlet_start_patterns = getValue("hook_async_servlet_start_patterns", "");
+
+        this.hook_spring_async_submit_patterns = getValue("hook_spring_async_submit_patterns", "");
+        this.hook_spring_async_enabled = getBoolean("hook_spring_async_enabled", true);
+
+        this.hook_async_callrunnable_enable = getBoolean("hook_async_callrunnable_enable", true);
+        this.hook_async_callrunnable_scan_package_prefixes = getValue("hook_async_callrunnable_scan_package_prefixes", "");
+
+        this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", true);
 
         this.hook_add_fields = getValue("hook_add_fields", "");
         this.hook_context_classes = getValue("hook_context_classes", "javax/naming/InitialContext");

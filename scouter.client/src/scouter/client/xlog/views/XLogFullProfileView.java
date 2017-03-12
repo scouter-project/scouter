@@ -17,14 +17,6 @@
  */
 package scouter.client.xlog.views;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -58,7 +50,6 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
-
 import scouter.client.Activator;
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
@@ -73,6 +64,7 @@ import scouter.client.xlog.XLogUtil;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ApiCallSum;
+import scouter.lang.step.DispatchStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.MethodSum;
@@ -82,11 +74,20 @@ import scouter.lang.step.Step;
 import scouter.lang.step.StepEnum;
 import scouter.lang.step.StepSingle;
 import scouter.lang.step.StepSummary;
+import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 import scouter.util.StringUtil;
 import scouter.util.SystemUtil;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
 
 public class XLogFullProfileView extends ViewPart implements XLogViewWithTable {
@@ -581,6 +582,7 @@ public class XLogFullProfileView extends ViewPart implements XLogViewWithTable {
 						m = ((MessageStep) step).message;
 						break;
 					case StepEnum.APICALL:
+					case StepEnum.APICALL2:
 						ApiCallStep apicall = (ApiCallStep) step;
 						m = TextProxy.apicall.getText(apicall.hash);
 						if (m == null)
@@ -598,7 +600,23 @@ public class XLogFullProfileView extends ViewPart implements XLogViewWithTable {
 							m += TextProxy.error.getText(apicallsum.error);
 						}
 						break;
+					case StepEnum.DISPATCH:
+						DispatchStep dispatchStep = (DispatchStep) step;
+						m = TextProxy.apicall.getText(dispatchStep.hash);
+						if (m == null)
+							m = Hexa32.toString32(dispatchStep.hash);
+						if (dispatchStep.error != 0) {
+							m += TextProxy.error.getText(dispatchStep.error);
+						}
+						break;
+					case StepEnum.THREAD_CALL_POSSIBLE:
+						ThreadCallPossibleStep tcStep = (ThreadCallPossibleStep) step;
+						m = TextProxy.apicall.getText(tcStep.hash);
+						if (m == null)
+							m = Hexa32.toString32(tcStep.hash);
+						break;
 					}
+
 					if(m.indexOf(searchTxt) != -1){
 						searchResultTable.getDisplay().syncExec(new Runnable() {
 							public void run() {
@@ -693,6 +711,7 @@ public class XLogFullProfileView extends ViewPart implements XLogViewWithTable {
 				putSummary(summary, (MessageStep)step);
 				break;
 			case StepEnum.APICALL:
+			case StepEnum.APICALL2:
 				putSummary(summary, (ApiCallStep)step);
 				break;
 			}

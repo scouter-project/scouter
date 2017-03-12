@@ -2,6 +2,14 @@
   http://asm.ow2.org
   Copyright (c) 2000-2011 INRIA, France Telecom
 
+- Scouter includes Javassist library
+  http://jboss-javassist.github.io/javassist/
+  Copyright (C) 1999- by Shigeru Chiba, All rights reserved
+
+- Scouter includes Byte Buddy library
+  http://bytebuddy.net/
+  https://github.com/raphw/byte-buddy
+
 - Scouter includes libraries from Scala
   scala-compiler.jar
   scala-library.jar

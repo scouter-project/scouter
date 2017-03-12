@@ -16,39 +16,15 @@
  */
 package scouter.agent;
 
-import scouter.agent.asm.AddFieldASM;
-import scouter.agent.asm.ApicallASM;
-import scouter.agent.asm.ApicallInfoASM;
-import scouter.agent.asm.CapArgsASM;
-import scouter.agent.asm.CapReturnASM;
-import scouter.agent.asm.CapThisASM;
-import scouter.agent.asm.HttpServiceASM;
-import scouter.agent.asm.IASM;
-import scouter.agent.asm.InitialContextASM;
-import scouter.agent.asm.JDBCConnectionOpenASM;
-import scouter.agent.asm.JDBCDriverASM;
-import scouter.agent.asm.JDBCPreparedStatementASM;
-import scouter.agent.asm.JDBCResultSetASM;
-import scouter.agent.asm.JDBCStatementASM;
-import scouter.agent.asm.JspServletASM;
-import scouter.agent.asm.MapImplASM;
-import scouter.agent.asm.MethodASM;
-import scouter.agent.asm.ScouterClassWriter;
-import scouter.agent.asm.ServiceASM;
-import scouter.agent.asm.SocketASM;
-import scouter.agent.asm.SpringReqMapASM;
-import scouter.agent.asm.SqlMapASM;
-import scouter.agent.asm.UserTxASM;
+import scouter.agent.asm.*;
 import scouter.agent.asm.asyncsupport.AsyncContextDispatchASM;
+import scouter.agent.asm.asyncsupport.CallRunnableASM;
 import scouter.agent.asm.asyncsupport.RequestStartAsyncASM;
+import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
-import scouter.org.objectweb.asm.AnnotationVisitor;
-import scouter.org.objectweb.asm.ClassReader;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.ClassWriter;
-import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.*;
 import scouter.util.FileUtil;
 import scouter.util.IntSet;
 
@@ -107,6 +83,10 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new MethodASM());
         temp.add(new ApicallASM());
         temp.add(new ApicallInfoASM());
+        temp.add(new ApicallSpringHttpAccessorASM());
+        temp.add(new SpringAsyncExecutionASM());
+        temp.add(new CallRunnableASM());
+
         temp.add(new SpringReqMapASM());
 
         temp.add(new SocketASM());
@@ -128,6 +108,8 @@ public class AgentTransformer implements ClassFileTransformer {
         asynchook.add("sun/net/www/protocol/http/HttpURLConnection".hashCode());
         asynchook.add("sun/net/www/http/HttpClient".hashCode());
         asynchook.add("java/net/Socket".hashCode());
+        asynchook.add("java/nio/channels/SocketChannel".hashCode());
+        asynchook.add("sun/nio/ch/SocketChannelImpl".hashCode());
         asynchook.add("javax/naming/InitialContext".hashCode());
     }
 
@@ -138,7 +120,11 @@ public class AgentTransformer implements ClassFileTransformer {
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
             hookingCtx.set(loader);
-            //System.out.println("loading ... className=" + className);
+
+//            if(className != null && (className.indexOf("http") >= 0 || className.indexOf("Http") >= 0)) {
+//                System.out.println("[!!!!!!!!] loading ...http className = " + className);
+//            }
+
             if (className == null)
                 return null;
             if (classBeingRedefined == null) {

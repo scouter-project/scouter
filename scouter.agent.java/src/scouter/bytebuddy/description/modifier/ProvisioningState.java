@@ -1,0 +1,57 @@
+package scouter.bytebuddy.description.modifier;
+
+import scouter.bytebuddy.jar.asm.Opcodes;
+
+/**
+ * Describes if a method parameter is mandated, i.e. not explicitly specified in the source code.
+ */
+public enum ProvisioningState implements ModifierContributor.ForParameter {
+
+    /**
+     * Defines a parameter to not be mandated. (This is the default modifier.)
+     */
+    PLAIN(EMPTY_MASK),
+
+    /**
+     * Defines a parameter to be mandated.
+     */
+    MANDATED(Opcodes.ACC_MANDATED);
+
+    /**
+     * The mask of this provisioning state.
+     */
+    private final int mask;
+
+    /**
+     * Creates a new provisioning state.
+     *
+     * @param mask The mask of this provisioning state.
+     */
+    ProvisioningState(int mask) {
+        this.mask = mask;
+    }
+
+    @Override
+    public int getMask() {
+        return mask;
+    }
+
+    @Override
+    public int getRange() {
+        return Opcodes.ACC_MANDATED;
+    }
+
+    @Override
+    public boolean isDefault() {
+        return this == PLAIN;
+    }
+
+    /**
+     * Checks if this instance represents a mandated parameter or not.
+     *
+     * @return {@code true} if this instance represents a mandated parameter.
+     */
+    public boolean isMandated() {
+        return this == MANDATED;
+    }
+}
