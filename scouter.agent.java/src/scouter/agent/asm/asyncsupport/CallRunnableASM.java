@@ -2,13 +2,10 @@ package scouter.agent.asm.asyncsupport;
 
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.agent.asm.IASM;
 import scouter.agent.trace.TraceMain;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
+import scouter.org.objectweb.asm.*;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.StringUtil;
 
@@ -18,20 +15,22 @@ import java.util.List;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 2. 21.
  */
-public class CallableASM implements IASM, Opcodes {
+public class CallRunnableASM implements IASM, Opcodes {
 
 	private Configure conf = Configure.getInstance();
 	private static final String CALLABLE = "java/util/concurrent/Callable";
+	private static final String RUNNABLE = "java/lang/Runnable";
 	private static List<String> scanScopePrefix = new ArrayList<String>();
 
 
-	public CallableASM() {
+	public CallRunnableASM() {
 		if(conf.hook_spring_async_enabled) {
 			scanScopePrefix.add("org/springframework/aop/interceptor/AsyncExecutionInterceptor");
 		}
 		if(conf.hook_async_callrunnable_enable) {
 			String[] prefixes = StringUtil.split(conf.hook_async_callrunnable_scan_package_prefixes, ',');
 			for(int i=0; i<prefixes.length; i++) {
+				Logger.println("Callable Runnable scan scope : " + prefixes[i]);
 				scanScopePrefix.add(prefixes[i].replace('.', '/'));
 			}
 		}
@@ -45,10 +44,10 @@ public class CallableASM implements IASM, Opcodes {
 		String[] interfaces = classDesc.interfaces;
 
 		for (int inx = 0; inx < interfaces.length; inx++) {
-			if (CALLABLE.equals(interfaces[inx])) {
+			if (CALLABLE.equals(interfaces[inx]) || RUNNABLE.equals(interfaces[inx])) {
 				for (int jnx = 0; jnx < scanScopePrefix.size(); jnx++) {
 					if(className.indexOf(scanScopePrefix.get(jnx)) == 0) {
-						return new CallableCV(cv, className);
+						return new CallRunnableCV(cv, className);
 					}
 				}
 			}
@@ -58,10 +57,10 @@ public class CallableASM implements IASM, Opcodes {
 	}
 }
 
-class CallableCV extends ClassVisitor implements Opcodes {
+class CallRunnableCV extends ClassVisitor implements Opcodes {
 	String className;
 
-	public CallableCV(ClassVisitor cv, String className) {
+	public CallRunnableCV(ClassVisitor cv, String className) {
 		super(ASM4, cv);
 		this.className = className;
 	}
@@ -73,8 +72,8 @@ class CallableCV extends ClassVisitor implements Opcodes {
 			return mv;
 		}
 
-		if (name.equals("call")) {
-			return new CallMV(access, name, desc, mv);
+		if (name.equals("call") || name.equals("run")) {
+			return new CallOrRunMV(access, name, desc, mv);
 		}
 
 		if (name.equals("<init>")) {
@@ -85,12 +84,12 @@ class CallableCV extends ClassVisitor implements Opcodes {
 	}
 }
 
-class CallMV extends LocalVariablesSorter implements Opcodes {
+class CallOrRunMV extends LocalVariablesSorter implements Opcodes {
 	private static final String TARGET = TraceMain.class.getName().replace('.', '/');
-	private static final String START_METHOD = "callableCallInvoked";
-	private static final String START_SIGNATURE = "(Ljava/util/concurrent/Callable;)Ljava/lang/Object;";
+	private static final String START_METHOD = "callRunnableCallInvoked";
+	private static final String START_SIGNATURE = "(Ljava/lang/Object;)Ljava/lang/Object;";
 
-	private static final String END_METHOD = "endAsyncPossibleService";
+	private static final String END_METHOD = "callRunnableCallEnd";
 	private static final String END_METHOD_DESC = "(" +
 			"Ljava/lang/Object;" +
 			"Ljava/lang/Object;" +
@@ -103,7 +102,7 @@ class CallMV extends LocalVariablesSorter implements Opcodes {
 	String desc;
 	private int statIdx;
 
-	public CallMV(int access, String name, String desc, MethodVisitor mv) {
+	public CallOrRunMV(int access, String name, String desc, MethodVisitor mv) {
 		super(ASM4, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
@@ -178,8 +177,8 @@ class CallMV extends LocalVariablesSorter implements Opcodes {
 
 class InitMV extends LocalVariablesSorter implements Opcodes {
 	private static final String TARGET = TraceMain.class.getName().replace('.', '/');
-	private static final String START_METHOD = "callableInitInvoked";
-	private static final String START_SIGNATURE = "(Ljava/util/concurrent/Callable;)V";
+	private static final String START_METHOD = "callRunnableInitInvoked";
+	private static final String START_SIGNATURE = "(Ljava/lang/Object;)V";
 
 	String name;
 	String desc;

@@ -659,6 +659,9 @@ public class Configure extends Thread {
         this.hook_spring_async_submit_patterns = getValue("hook_spring_async_submit_patterns", "");
         this.hook_spring_async_enabled = getBoolean("hook_spring_async_enabled", true);
 
+        this.hook_async_callrunnable_enable = getBoolean("hook_async_callrunnable_enable", true);
+        this.hook_async_callrunnable_scan_package_prefixes = getValue("hook_async_callrunnable_scan_package_prefixes", "");
+
         this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", true);
 
         this.hook_add_fields = getValue("hook_add_fields", "");
