@@ -87,16 +87,20 @@ public class ProfileText {
         if (xperf.p.gxid != 0) {
             sb.append("► gxid    = ");
             slen = sb.length();
-            sb.append(Hexa32.toString32(xperf.p.gxid)).append("\n");
+            sb.append(Hexa32.toString32(xperf.p.gxid));
             sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
+            slen = sb.length();
+            sb.append(" <<- click to open XLog flow map").append("\n");
+            sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
         }
         if (xperf.p.caller != 0) {
-            sb.append("► caller    = ");
+            sb.append("► caller  = ");
             slen = sb.length();
             sb.append(Hexa32.toString32(xperf.p.caller)).append("\n");
             sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
         }
         sb.append("► objName = ").append(xperf.objName).append("\n");
+        sb.append("► thread  = ").append(TextProxy.hashMessage.getLoadText(date, xperf.p.threadNameHash, serverId)).append("\n");
         sb.append("► endtime = ").append(FormatUtil.print(new Date(xperf.p.endTime), "yyyyMMdd HH:mm:ss.SSS")).append("\n");
         sb.append("► elapsed = ").append(FormatUtil.print(xperf.p.elapsed, "#,##0")).append(" ms\n");
         sb.append("► service = ").append(TextProxy.service.getText(xperf.p.service)).append("\n");

@@ -228,7 +228,9 @@ public class TraceMain {
 
         HashedMessageStep step = new HashedMessageStep();
         step.time = -1;
-        step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.thread.getName());
+        ctx.threadName = ctx.thread.getName();
+        step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.threadName);
+
         ctx.profile.add(step);
 
         http.start(ctx, req, res);
@@ -373,6 +375,8 @@ public class TraceMain {
             pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
             ctx.serviceHash = DataProxy.sendServiceName(ctx.serviceName);
             pack.service = ctx.serviceHash;
+            pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
+
             pack.xType = ctx.xType; //default 0 : XLogType.WEB_SERVICE
             pack.txid = ctx.txid;
             pack.gxid = ctx.gxid;
@@ -556,7 +560,8 @@ public class TraceMain {
 
             HashedMessageStep step = new HashedMessageStep();
             step.time = -1;
-            step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.thread.getName());
+            ctx.threadName = ctx.thread.getName();
+            step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.threadName);
             ctx.profile.add(step);
 
             if (ctx.xType != XLogTypes.BACK_THREAD && ctx.xType != XLogTypes.BACK_THREAD2) {
@@ -623,6 +628,7 @@ public class TraceMain {
             ctx.profile.close(sendable);
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
+            pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
             pack.xType = ctx.xType;
             pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
             pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
