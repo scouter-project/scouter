@@ -1,6 +1,6 @@
 ﻿![scouter](./scouter.document/img/main/scouter-logo-w200.png)
 
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](README.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](README.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 ## 오픈소스 S/W 어플리케이션 성능 모니터링
 
