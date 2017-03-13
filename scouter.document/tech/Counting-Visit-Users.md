@@ -1,5 +1,5 @@
 # Getting unique visitors with HyperLogLog algorithm
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Counting-Visit-Users_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Counting-Visit-Users_kr.md)
 
 'Visitors' is important metric to understand relationship between business frequency and system performance. Just with performance, the highest concurrent users are in case. But with the perspective of business visitors are more important than concurrent user. 
 

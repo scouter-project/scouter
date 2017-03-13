@@ -1,5 +1,5 @@
 # TagCounting 분석기법
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](TagCounting-Analysis.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](TagCounting-Analysis.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 서비스 성능은 응답시간과 처리건수로 측정된다.  더 정확히 이야기하면
 단위 시간당 호출된 건수와 이것을 처리하기 위해 걸린시간을 기준으로 서비스의 성능을 관리한다.

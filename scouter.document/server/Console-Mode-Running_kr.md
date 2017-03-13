@@ -1,5 +1,5 @@
 # Console Mode로 시작하기
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Console-Mode-Running_kr.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Console-Mode-Running_kr.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 Scouter는 특별한 환경(클라이언트를 사용할 수 없는 환경)을 위해
 콘솔모드로 모니터링 할 수 있는 방법이 제공된다. 이렇게 모니터링하는 기능이 부족하기 때문에 

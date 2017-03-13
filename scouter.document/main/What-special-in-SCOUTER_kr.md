@@ -1,5 +1,5 @@
 # SCOUTER가 특별한 이유
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](What-special-in-SCOUTER.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](What-special-in-SCOUTER.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 Scouter 는 무엇인가?
 Scouter 는 애플리케이션의 성능을 모니터링하고 분석할 수 있다. 

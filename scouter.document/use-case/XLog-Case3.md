@@ -1,5 +1,5 @@
 # XLog Case 3 - Undestand about Horizontal Pattern
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](XLog-Case3_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](XLog-Case3_kr.md)
 
 One of the well known problem patterns on XLog is markers ditributed horizontally. This means some businesses or services have statical response time. Most of cases are waiting time for obtaining usage rights for some resources. For example, assume that waiting time for any resource is 3 seconds. Then the horizontal line will be displayed every 3 seconds (3 sec, 6 sec, 9 sec, ...).
 

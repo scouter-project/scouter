@@ -1,5 +1,5 @@
 # Scouter Plugin Guide
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Server-Plugin-Scripting_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Server-Plugin-Scripting_kr.md)
 
 ## Collector Plugin
  - Default File Location : ${COLLECTOR_DIR}/plugin

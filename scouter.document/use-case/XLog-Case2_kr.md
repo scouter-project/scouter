@@ -1,5 +1,5 @@
 # XLog Case2 - 폭포수 모양에 대한 이해
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](XLog-Case2.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](XLog-Case2.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 XLog(응답 분포 차트)에서 어떤 패턴이 나타나는 것을 좋지 않다. 
 그런데 그중에서도 가장 자주 나타나는 패턴이 세로 줄이 만들어지는 것이다. 

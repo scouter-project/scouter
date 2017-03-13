@@ -1,5 +1,5 @@
 # XLog 보는 방법
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Reading-XLog.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Reading-XLog.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 ![XLog](../img/client/xlog.png)
 

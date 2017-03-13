@@ -1,5 +1,5 @@
 # Build Scouter on Windows
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Build-Scouter-Windows_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Build-Scouter-Windows_kr.md)
 
 ## Download Scouter
   https://github.com/scouter-project/scouter/archive/master.zip
