@@ -246,6 +246,20 @@ public class TraceApiCall {
 		}
 	}
 
+	public static final IHttpClient dummyHttpClient = new IHttpClient() {
+		public String getURI(Object o) {
+			return null;
+		}
+		public String getHost(Object o) {
+			return null;
+		}
+		public String getHeader(Object o, String key) {
+			return null;
+		}
+		public void addHeader(Object o, String key, String value) {
+		}
+	};
+
 	public static void endCreateSpringRestTemplateRequest(Object _this, Object oRtn) {
 		TraceContext ctx = TraceContextManager.getContext();
 		if(ctx == null) return;
@@ -258,6 +272,14 @@ public class TraceApiCall {
 		if (httpclient == null) {
 			synchronized (lock) {
 				if (httpclient == null) {
+					//TODO for spring 3.0
+//					Class[] ifs = oRtn.getClass().getInterfaces();
+//					for(int i=0; i<ifs.length; i++) {
+//						if(ifs[i].getName().equals("org.springframework.http.HttpRequest")) {
+//
+//						}
+//					}
+
 					httpclient = SpringRestTemplateHttpRequestFactory.create(_this.getClass().getClassLoader());
 					restTemplateHttpRequests.put(key, httpclient);
 				}
