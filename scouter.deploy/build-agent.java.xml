@@ -39,7 +39,7 @@
 			
 		<javac srcdir="../scouter.agent.java/src"
 		       destdir="${class-agent-dir}"
-		       source="1.5"       target="1.5"
+		       source="1.6"       target="1.6"
 			   debug="true"	   encoding="UTF-8"
 			includeantruntime="false"
 			>
@@ -51,6 +51,7 @@
 				<pathelement location="./lib/rxnetty-0.4.6.jar"/>
 				<!--<pathelement location="./lib/byte-buddy-1.6.0.jar"/>-->
 				<pathelement location="./lib/spring-web-4.3.7.RELEASE.jar"/>
+				<pathelement location="./lib/spring-core-4.3.7.RELEASE.jar"/>
 			    <pathelement location="${java.home}/../lib/tools.jar"/>
 				<pathelement location="${class-agent-dir}"/>
 			</classpath>
