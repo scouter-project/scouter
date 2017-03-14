@@ -19,38 +19,41 @@ package scouter.xtra.http;
 
 import scouter.agent.Configure;
 import scouter.agent.counter.meter.MeterUsers;
-import scouter.agent.error.ASYNC_SERVLET_TIMEOUT;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.EndUserAjaxData;
 import scouter.agent.summary.EndUserErrorData;
 import scouter.agent.summary.EndUserNavigationData;
 import scouter.agent.summary.EndUserSummary;
-import scouter.agent.trace.*;
+import scouter.agent.trace.IProfileCollector;
+import scouter.agent.trace.TraceContext;
+import scouter.agent.trace.TraceContextManager;
+import scouter.agent.trace.TraceMain;
+import scouter.agent.trace.TransferMap;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.MessageStep;
-import scouter.util.*;
+import scouter.util.CastUtil;
+import scouter.util.CompareUtil;
+import scouter.util.HashUtil;
+import scouter.util.Hexa32;
+import scouter.util.StringUtil;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.AsyncEvent;
-import javax.servlet.AsyncListener;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
 
-import static scouter.agent.AgentCommonContant.*;
+import static scouter.agent.AgentCommonContant.ASYNC_SERVLET_DISPATCHED_PREFIX;
+import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP;
+import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_SELF_DISPATCHED;
 
 public class HttpTrace implements IHttpTrace {
-    private boolean remote_by_header;
-    private boolean __ip_dummy_test;
-    private String http_remote_ip_header_key;
+    boolean remote_by_header;
+    boolean __ip_dummy_test;
+    String http_remote_ip_header_key;
 
     public static String[] ipRandom = {"27.114.0.121", "58.3.128.121",
             "101.53.64.121", "125.7.128.121", "202.68.224.121", "62.241.64.121", "86.63.224.121", "78.110.176.121",
@@ -384,97 +387,22 @@ public class HttpTrace implements IHttpTrace {
     }
 
     public void addAsyncContextListener(Object ac) {
-        TraceContext traceContext = TraceContextManager.getContext();
-        if(traceContext == null) return;
-
-        AsyncContext actx = (AsyncContext)ac;
-        if(actx.getRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) == null) {
-            actx.getRequest().setAttribute(REQUEST_ATTRIBUTE_INITIAL_TRACE_CONTEXT, traceContext);
-            actx.getRequest().setAttribute(REQUEST_ATTRIBUTE_TRACE_CONTEXT, traceContext);
-            actx.getRequest().setAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH, 1);
-        } else {
-            int dispatchCount = (Integer) actx.getRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH);
-            actx.getRequest().setAttribute(REQUEST_ATTRIBUTE_TRACE_CONTEXT, traceContext);
-            actx.getRequest().setAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH, ++dispatchCount);
-        }
-
-        List<TraceContext> dispatchedContexts = (List<TraceContext>)actx.getRequest().getAttribute(REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT);
-        if(dispatchedContexts == null) {
-            dispatchedContexts = new ArrayList<TraceContext>();
-            actx.getRequest().setAttribute(REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT, dispatchedContexts);
-        }
-        if(!dispatchedContexts.contains(traceContext)) {
-            dispatchedContexts.add(traceContext);
-        }
-
-        actx.addListener(new AsyncListener() {
-            @Override
-            public void onComplete(AsyncEvent asyncEvent) throws IOException {
-//                System.out.println("[scouter][asynccontext]onComplete:count: " + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
-//                System.out.println("[scouter][asynccontext]onComplete:thread: " + Thread.currentThread().getName());
-
-                List<TraceContext> traceContextList = (List<TraceContext>) asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT);
-                Iterator<TraceContext> iter = traceContextList.iterator();
-                while(iter.hasNext()) {
-                    TraceContext ctx = iter.next();
-                    TraceMain.endHttpServiceFinal(ctx, asyncEvent.getSuppliedRequest(), asyncEvent.getSuppliedResponse(), ctx.asyncThrowable);
-                    TraceContextManager.completeDeferred(ctx);
-                }
-            }
-
-            @Override
-            public void onTimeout(AsyncEvent asyncEvent) throws IOException {
-//                System.out.println("[scouter][asynccontext]onTimeout:count:" + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
-//                System.out.println("[scouter][asynccontext]onTimeout:thread: " + Thread.currentThread().getName());
-
-                List<TraceContext> traceContextList = (List<TraceContext>) asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT);
-                Iterator<TraceContext> iter = traceContextList.iterator();
-                while(iter.hasNext()) {
-                    TraceContext ctx = iter.next();
-                    ctx.asyncThrowable = new ASYNC_SERVLET_TIMEOUT("exceed async servlet timeout! : " + asyncEvent.getAsyncContext().getTimeout() + "ms");
-                }
-            }
-
-            @Override
-            public void onError(AsyncEvent asyncEvent) throws IOException {
-//                System.out.println("[scouter][asynccontext]onError:count:" + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
-//                System.out.println("[scouter][asynccontext]onError:thread: " + Thread.currentThread().getName());
-
-                List<TraceContext> traceContextList = (List<TraceContext>) asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT);
-                Iterator<TraceContext> iter = traceContextList.iterator();
-                while(iter.hasNext()) {
-                    TraceContext ctx = iter.next();
-                    ctx.asyncThrowable = asyncEvent.getThrowable();
-                }
-
-            }
-
-            @Override
-            public void onStartAsync(AsyncEvent asyncEvent) throws IOException {
-//                System.out.println("[scouter][asynccontext]onStartAsync:count:" + asyncEvent.getSuppliedRequest().getAttribute(REQUEST_ATTRIBUTE_ASYNC_DISPATCH) + " => " + this.toString());
-//                System.out.println("[scouter][asynccontext]onStartAsync:thread: " + Thread.currentThread().getName());
-            }
-        });
+        return;
     }
 
     public TraceContext getTraceContextFromAsyncContext(Object oAsyncContext) {
-        AsyncContext asyncContext = (AsyncContext) oAsyncContext;
-        TraceContext currentTraceContext = (TraceContext)asyncContext.getRequest().getAttribute(REQUEST_ATTRIBUTE_TRACE_CONTEXT);
-        return currentTraceContext;
+        return null;
     }
 
     public void setDispatchTransferMap(Object oAsyncContext, long gxid, long caller, long callee, byte xType) {
-        AsyncContext asyncContext = (AsyncContext) oAsyncContext;
-        asyncContext.getRequest().setAttribute(REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP, new TransferMap.ID(gxid, caller, callee, xType));
+        return;
     }
 
     public void setSelfDispatch(Object oAsyncContext, boolean self) {
-        AsyncContext asyncContext = (AsyncContext) oAsyncContext;
-        asyncContext.getRequest().setAttribute(REQUEST_ATTRIBUTE_SELF_DISPATCHED, self);
+        return;
     }
 
     public boolean isSelfDispatch(Object oAsyncContext) {
-        AsyncContext asyncContext = (AsyncContext) oAsyncContext;
-        return Boolean.TRUE.equals(asyncContext.getRequest().getAttribute(REQUEST_ATTRIBUTE_SELF_DISPATCHED));
+        return false;
     }
 }
