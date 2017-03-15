@@ -176,7 +176,7 @@ public class XLogProfileView extends ViewPart {
 									preventDupleEventTable.put("gxid", new Boolean(true));
 								}
 								String[] tokens = StringUtil.tokenizer(fulltxt, " =\n");
-								String gxid = tokens[tokens.length - 1];
+								String gxid = tokens[2];
 								try {
 									XLogFlowView view = (XLogFlowView) window.getActivePage().showView(XLogFlowView.ID, gxid, IWorkbenchPage.VIEW_ACTIVATE);
 									if (view != null) {

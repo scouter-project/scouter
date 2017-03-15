@@ -44,14 +44,7 @@ import scouter.lang.step.MethodStep;
 import scouter.lang.step.MethodStep2;
 import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.lang.value.MapValue;
-import scouter.util.ArrayUtil;
-import scouter.util.HashUtil;
-import scouter.util.IPUtil;
-import scouter.util.KeyGen;
-import scouter.util.ObjectUtil;
-import scouter.util.StringUtil;
-import scouter.util.SysJMX;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
@@ -228,7 +221,9 @@ public class TraceMain {
 
         HashedMessageStep step = new HashedMessageStep();
         step.time = -1;
-        step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.thread.getName());
+        ctx.threadName = ctx.thread.getName();
+        step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.threadName);
+
         ctx.profile.add(step);
 
         http.start(ctx, req, res);
@@ -373,6 +368,8 @@ public class TraceMain {
             pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
             ctx.serviceHash = DataProxy.sendServiceName(ctx.serviceName);
             pack.service = ctx.serviceHash;
+            pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
+
             pack.xType = ctx.xType; //default 0 : XLogType.WEB_SERVICE
             pack.txid = ctx.txid;
             pack.gxid = ctx.gxid;
@@ -556,7 +553,8 @@ public class TraceMain {
 
             HashedMessageStep step = new HashedMessageStep();
             step.time = -1;
-            step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.thread.getName());
+            ctx.threadName = ctx.thread.getName();
+            step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.threadName);
             ctx.profile.add(step);
 
             if (ctx.xType != XLogTypes.BACK_THREAD && ctx.xType != XLogTypes.BACK_THREAD2) {
@@ -623,6 +621,7 @@ public class TraceMain {
             ctx.profile.close(sendable);
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
+            pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
             pack.xType = ctx.xType;
             pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
             pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
@@ -985,149 +984,183 @@ public class TraceMain {
     }
 
     public static void asyncPossibleInstanceInitInvoked(Object keyObject) {
-        TraceContext ctx = TraceContextManager.getContext();
-        if(ctx == null) return;
+        try {
+            TraceContext ctx = TraceContextManager.getContext();
+            if(ctx == null) return;
 
-        if(TransferMap.get(System.identityHashCode(keyObject)) != null) {
-            return;
+            if(TransferMap.get(System.identityHashCode(keyObject)) != null) {
+                return;
+            }
+
+            ThreadCallPossibleStep step = new ThreadCallPossibleStep();
+
+            long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+            long callee = KeyGen.next();
+
+            ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
+            threadCallPossibleStep.txid = callee;
+
+            threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+            threadCallPossibleStep.hash = DataProxy.sendApicall(keyObject.toString().replace("$ByteBuddy", "").replace("$$Lambda", "$$L"));
+            ctx.profile.add(threadCallPossibleStep);
+
+            TransferMap.put(System.identityHashCode(keyObject), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
+        } catch (Throwable t) {
+            Logger.println("B1204", "Exception: asyncPossibleInstanceInitInvoked", t);
         }
-
-        ThreadCallPossibleStep step = new ThreadCallPossibleStep();
-
-        long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
-        long callee = KeyGen.next();
-
-        ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
-        threadCallPossibleStep.txid = callee;
-
-        threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-        threadCallPossibleStep.hash = DataProxy.sendApicall(keyObject.toString().replace("$ByteBuddy", ""));
-        ctx.profile.add(threadCallPossibleStep);
-
-        TransferMap.put(System.identityHashCode(keyObject), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
     }
 
     public static Object startAsyncPossibleService(Object keyObject, String fullName,
                                                    String className, String methodName, String methodDesc,
                                                    Object _this, Object[] arg) {
 
-        TraceContext ctx = TraceContextManager.getContext();
-        int objKey = System.identityHashCode(keyObject);
-        TransferMap.ID id = TransferMap.get(objKey);
-        TransferMap.remove(objKey);
+        try {
+            TraceContext ctx = TraceContextManager.getContext();
+            int objKey = System.identityHashCode(keyObject);
+            TransferMap.ID id = TransferMap.get(objKey);
+            TransferMap.remove(objKey);
 
-        if (id == null) {
-            return null;
-        }
-
-        if(ctx != null) {
-            if(ctx.txid == id.caller) {
-                return null;
-            } else {
-                Logger.println("B110", "Abnormal - recevieAsyncPossibleStep -> caller txid : " + id.caller + " txid : " + ctx.txid);
+            if (id == null) {
                 return null;
             }
-        }
 
-        LocalContext localContext = (LocalContext)startService(fullName, className, methodName, methodDesc, _this, arg, XLogTypes.BACK_THREAD2);
-        if (localContext == null) {
+            if(ctx != null) {
+                if(ctx.txid == id.caller) {
+                    return null;
+                } else {
+                    Logger.trace("B109 - recevieAsyncPossibleStep -> caller txid : "
+                            + id.caller + "=" + Hexa32.toString32(id.caller)
+                            + " ctx.txid : " + ctx.txid  + "=" + Hexa32.toString32(ctx.txid)
+                            + " id.callee : " + id.callee  + "=" + Hexa32.toString32(id.callee)
+                            + " id.thread : " + id.callerThreadId
+                            + " current.thread : " + Thread.currentThread().getName() + "=" + Thread.currentThread().getId());
+                    return null;
+                }
+            }
+
+            LocalContext localContext = (LocalContext)startService(fullName, className, methodName, methodDesc, _this, arg, XLogTypes.BACK_THREAD2);
+            if (localContext == null) {
+                return null;
+            }
+            localContext.service = true;
+            if(id.gxid != 0) localContext.context.gxid = id.gxid;
+            if(id.callee != 0) localContext.context.txid = id.callee;
+            if(id.caller != 0) localContext.context.caller = id.caller;
+            String serviceName = StringUtil.cutLastString(className, '/') + "#" + methodName + "() -- " + fullName;
+            serviceName = serviceName.replace("$ByteBuddy", "");
+            serviceName = serviceName.replace("$$Lambda", "$$L");
+            localContext.context.serviceHash = HashUtil.hash(serviceName);
+            localContext.context.serviceName = serviceName;
+
+            if(id.tcStep != null) {
+                id.tcStep.threaded = 1;
+                id.tcStep.hash = DataProxy.sendApicall(serviceName);
+            }
+
+            return localContext;
+        } catch (Throwable t) {
+            Logger.println("B1091", "Exception: startAsyncPossibleService", t);
             return null;
         }
-        localContext.service = true;
-        if(id.gxid != 0) localContext.context.gxid = id.gxid;
-        if(id.callee != 0) localContext.context.txid = id.callee;
-        if(id.caller != 0) localContext.context.caller = id.caller;
-        String serviceName = StringUtil.cutLastString(className, '/') + "#" + methodName + "() -- " + fullName;
-        serviceName = serviceName.replace("$ByteBuddy", "");
-        localContext.context.serviceHash = HashUtil.hash(serviceName);
-        localContext.context.serviceName = serviceName;
-
-        if(id.tcStep != null) {
-            id.tcStep.threaded = 1;
-            id.tcStep.hash = DataProxy.sendApicall(serviceName);
-        }
-
-        return localContext;
     }
 
     public static void endAsyncPossibleService(Object oRtn, Object oLocalContext, Throwable thr) {
-        if (oLocalContext == null)
-            return;
-        LocalContext lctx = (LocalContext) oLocalContext;
-        if (lctx.service) {
-            endService(lctx, oRtn, thr);
-            return;
+        try {
+            if (oLocalContext == null)
+                return;
+            LocalContext lctx = (LocalContext) oLocalContext;
+            if (lctx.service) {
+                endService(lctx, oRtn, thr);
+                return;
+            }
+        } catch (Throwable t) {
+            Logger.println("B1201", "Exception: endAsyncPossibleService", t);
         }
     }
 
     public static void springAsyncExecutionSubmit(Object _this, Callable callable) {
-        TraceContext ctx = TraceContextManager.getContext();
-        if(ctx == null) return;
+        try {
+            TraceContext ctx = TraceContextManager.getContext();
+            if(ctx == null) return;
 
-        if(TransferMap.get(System.identityHashCode(callable)) != null) {
-            return;
+            if(TransferMap.get(System.identityHashCode(callable)) != null) {
+                return;
+            }
+
+            ThreadCallPossibleStep step = new ThreadCallPossibleStep();
+
+            long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+            long callee = KeyGen.next();
+
+            ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
+            threadCallPossibleStep.txid = callee;
+            threadCallPossibleStep.threaded = 1;
+
+            threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+            String threadCallName = (ctx.lastThreadCallName != null) ? ctx.lastThreadCallName : callable.toString();
+            ctx.lastThreadCallName = null;
+
+            threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
+            threadCallPossibleStep.nameTemp = threadCallName;
+            ctx.profile.add(threadCallPossibleStep);
+
+            TransferMap.put(System.identityHashCode(callable), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
+        } catch (Throwable t) {
+            Logger.println("B1202", "Exception: springAsyncExecutionSubmit", t);
         }
-
-        ThreadCallPossibleStep step = new ThreadCallPossibleStep();
-
-        long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
-        long callee = KeyGen.next();
-
-        ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
-        threadCallPossibleStep.txid = callee;
-        threadCallPossibleStep.threaded = 1;
-
-        threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-        String threadCallName = (ctx.lastThreadCallName != null) ? ctx.lastThreadCallName : callable.toString();
-        ctx.lastThreadCallName = null;
-
-        threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
-        threadCallPossibleStep.nameTemp = threadCallName;
-        ctx.profile.add(threadCallPossibleStep);
-
-        TransferMap.put(System.identityHashCode(callable), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
     }
 
     public static void springAsyncDetermineExecutor(Method m) {
         TraceContext ctx = TraceContextManager.getContext();
         if(ctx == null) return;
+        if(m == null) return;
 
         ctx.lastThreadCallName = m.getDeclaringClass().getName() + "#" + m.getName() + "()";
     }
 
     public static Object callRunnableCallInvoked(Object callRunnableObj) {
-        TraceContext ctx = TraceContextManager.getContext();
-        int objKey = System.identityHashCode(callRunnableObj);
-        TransferMap.ID id = TransferMap.get(objKey);
-        TransferMap.remove(objKey);
+        try {
+            TraceContext ctx = TraceContextManager.getContext();
+            int objKey = System.identityHashCode(callRunnableObj);
+            TransferMap.ID id = TransferMap.get(objKey);
+            TransferMap.remove(objKey);
 
-        if (id == null) {
-            return null;
-        }
-
-        if(ctx != null) {
-            if(ctx.txid == id.caller) {
-                return null;
-            } else {
-                Logger.println("B110", "Abnormal - recevie callRunnableCallInvoked -> caller txid : " + id.caller + " txid : " + ctx.txid);
+            if (id == null) {
                 return null;
             }
-        }
 
-        if(id.tcStep != null) {
-            id.tcStep.threaded = 1;
-        }
+            if(ctx != null) {
+                if(ctx.txid == id.caller) {
+                    return null;
+                } else {
+                    Logger.trace("B110 - recevieAsyncPossibleStep -> caller txid : "
+                            + id.caller + "=" + Hexa32.toString32(id.caller)
+                            + " ctx.txid : " + ctx.txid  + "=" + Hexa32.toString32(ctx.txid)
+                            + " id.callee : " + id.callee  + "=" + Hexa32.toString32(id.callee)
+                            + " id.thread : " + id.callerThreadId
+                            + " current.thread : " + Thread.currentThread().getName() + "=" + Thread.currentThread().getId());
+                    return null;
+                }
+            }
 
-        LocalContext localContext = (LocalContext)startService(id.tcStep.nameTemp, null, null, null, null, null, XLogTypes.BACK_THREAD2);
-        if (localContext == null) {
+            if(id.tcStep != null) {
+                id.tcStep.threaded = 1;
+            }
+
+            LocalContext localContext = (LocalContext)startService(id.tcStep.nameTemp, null, null, null, null, null, XLogTypes.BACK_THREAD2);
+            if (localContext == null) {
+                return null;
+            }
+            localContext.service = true;
+            if(id.gxid != 0) localContext.context.gxid = id.gxid;
+            if(id.callee != 0) localContext.context.txid = id.callee;
+            if(id.caller != 0) localContext.context.caller = id.caller;
+
+            return localContext;
+        } catch (Throwable t) {
+            Logger.println("B1111", "Exception: callRunnableCallInvoked", t);
             return null;
         }
-        localContext.service = true;
-        if(id.gxid != 0) localContext.context.gxid = id.gxid;
-        if(id.callee != 0) localContext.context.txid = id.callee;
-        if(id.caller != 0) localContext.context.caller = id.caller;
-
-        return localContext;
     }
 
     public static void callRunnableCallEnd(Object oRtn, Object oLocalContext, Throwable thr) {
@@ -1135,29 +1168,33 @@ public class TraceMain {
     }
 
     public static void callRunnableInitInvoked(Object callRunnableObj) {
-        TraceContext ctx = TraceContextManager.getContext();
-        if(ctx == null) return;
+        try {
+            TraceContext ctx = TraceContextManager.getContext();
+            if(ctx == null) return;
 
-        if(TransferMap.get(System.identityHashCode(callRunnableObj)) != null) {
-            return;
+            if(TransferMap.get(System.identityHashCode(callRunnableObj)) != null) {
+                return;
+            }
+
+            ThreadCallPossibleStep step = new ThreadCallPossibleStep();
+
+            long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+            long callee = KeyGen.next();
+
+            ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
+            threadCallPossibleStep.txid = callee;
+
+            threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+            String threadCallName = (ctx.lastThreadCallName != null) ? ctx.lastThreadCallName : callRunnableObj.toString();
+            ctx.lastThreadCallName = null;
+
+            threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
+            threadCallPossibleStep.nameTemp = threadCallName;
+            ctx.profile.add(threadCallPossibleStep);
+
+            TransferMap.put(System.identityHashCode(callRunnableObj), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
+        } catch (Throwable t) {
+            Logger.println("B1203", "Exception: callRunnableInitInvoked", t);
         }
-
-        ThreadCallPossibleStep step = new ThreadCallPossibleStep();
-
-        long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
-        long callee = KeyGen.next();
-
-        ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
-        threadCallPossibleStep.txid = callee;
-
-        threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-        String threadCallName = (ctx.lastThreadCallName != null) ? ctx.lastThreadCallName : callRunnableObj.toString();
-        ctx.lastThreadCallName = null;
-
-        threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
-        threadCallPossibleStep.nameTemp = threadCallName;
-        ctx.profile.add(threadCallPossibleStep);
-
-        TransferMap.put(System.identityHashCode(callRunnableObj), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
     }
 }

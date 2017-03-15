@@ -241,6 +241,7 @@ public class XLogFlowView extends ViewPart {
 							}
 							serviceElement.error = xlog.error;
 							serviceElement.xtype = xlog.xType;
+							serviceElement.threadName = TextProxy.hashMessage.getLoadText(date, xlog.threadNameHash, serverId);
 							serviceElement.tags.put("caller", xlog.caller);
 							serviceElement.tags.put("ip", IPUtil.toString(xlog.ipaddr));
 							serviceElement.tags.put("serverId", serverId);
@@ -491,6 +492,7 @@ public class XLogFlowView extends ViewPart {
 		public int error;
 		public byte xtype;
 		public String address;
+		public String threadName;
 		
 		MapValue tags = new MapValue();
 		
@@ -592,17 +594,29 @@ public class XLogFlowView extends ViewPart {
 				switch(de.type) {
 					case SQL:
 					case API_CALL:
+						String name1 = de.name.trim().replaceAll("[\r\n]+", " ").replaceAll("\\s+", " ");
+						if (name1.length() > 40 && name1.length() <= 65) {
+							name1 = name1.substring(0, 30) + "\n   " + name1.substring(30);
+						} else if(name1.length() > 65) {
+							name1 = name1.substring(0, 30) + "\n   " + name1.substring(30, 60) + "...";
+						}
+						return name1;
 					case DISPATCH:
 					case THREAD:
-						String name = de.name.trim().replaceAll("[\r\n]+", " ").replaceAll("\\s+", " ");
-						if (name.length() > 50) {
-							return name.substring(0, 40) + "...";
+						String name2 = de.name.trim().replaceAll("[\r\n]+", " ").replaceAll("\\s+", " ");
+						if (name2.length() > 40 && name2.length() <= 65) {
+							name2 = name2.substring(0, 30) + "\n   " + name2.substring(30);
+						} else if(name2.length() > 65) {
+							name2 = name2.substring(0, 30) + "\n   " + name2.substring(30, 60) + "...";
 						}
-						return name;
+						if(de.threadName != null) {
+							name2 = name2 + "\n  <" + de.threadName + ">";
+						}
+						return name2;
 				}
 				String elementText;
 				if(de.address != null) {
-					elementText = de.name + "\n : " + de.address;
+					elementText = de.name + "\n  : " + de.address;
 				} else {
 					elementText = de.name;
 				}

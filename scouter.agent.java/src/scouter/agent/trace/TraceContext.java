@@ -65,6 +65,7 @@ public class TraceContext {
 	public int serviceHash;
 	public String serviceName;
 	public String remoteIp;
+	public String threadName;
 	
 	public int error;
 	//public boolean done_http_service;
