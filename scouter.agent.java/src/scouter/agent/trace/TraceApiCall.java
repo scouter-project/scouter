@@ -30,16 +30,14 @@ import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ApiCallStep2;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.SocketStep;
-import scouter.util.Hexa32;
-import scouter.util.IntKeyLinkedMap;
-import scouter.util.KeyGen;
-import scouter.util.SysJMX;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
 
 import java.io.File;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.*;
+
 public class TraceApiCall {
 	private static Object lock = new Object();
 	private static IntKeyLinkedMap<IHttpClient> restTemplateHttpRequests = new IntKeyLinkedMap<IHttpClient>().setMax(5);
@@ -246,6 +244,20 @@ public class TraceApiCall {
 		}
 	}
 
+	public static final IHttpClient dummyHttpClient = new IHttpClient() {
+		public String getURI(Object o) {
+			return null;
+		}
+		public String getHost(Object o) {
+			return null;
+		}
+		public String getHeader(Object o, String key) {
+			return null;
+		}
+		public void addHeader(Object o, String key, String value) {
+		}
+	};
+
 	public static void endCreateSpringRestTemplateRequest(Object _this, Object oRtn) {
 		TraceContext ctx = TraceContextManager.getContext();
 		if(ctx == null) return;
@@ -258,7 +270,16 @@ public class TraceApiCall {
 		if (httpclient == null) {
 			synchronized (lock) {
 				if (httpclient == null) {
-					httpclient = SpringRestTemplateHttpRequestFactory.create(_this.getClass().getClassLoader());
+					if (_this.getClass().getClassLoader() == null) {
+						httpclient = dummyHttpClient;
+					} else {
+						Set<String> allSuperSet = getAllExtendedOrImplementedTypesRecursively(oRtn.getClass());
+						if (allSuperSet.contains("org.springframework.http.HttpRequest")) { //Spring 3.0 doesn't have the interface. HttpRequest is since 3.1
+							httpclient = SpringRestTemplateHttpRequestFactory.create(_this.getClass().getClassLoader());
+						} else {
+							httpclient = dummyHttpClient;
+						}
+					}
 					restTemplateHttpRequests.put(key, httpclient);
 				}
 			}
@@ -284,5 +305,38 @@ public class TraceApiCall {
 
 			}
 		}
+	}
+
+	public static Set<String> getAllExtendedOrImplementedTypesRecursively(Class clazz) {
+		List<String> res = new ArrayList<String>();
+
+		do {
+			res.add(clazz.getName());
+
+			// First, add all the interfaces implemented by this class
+			Class[] interfaces = clazz.getInterfaces();
+			if (interfaces.length > 0) {
+				for(int i=0; i<interfaces.length; i++) {
+					res.add(interfaces[i].getName());
+				}
+
+				for (Class interfaze : interfaces) {
+					res.addAll(getAllExtendedOrImplementedTypesRecursively(interfaze));
+				}
+			}
+
+			// Add the super class
+			Class superClass = clazz.getSuperclass();
+
+			// Interfaces does not have java,lang.Object as superclass, they have null, so break the cycle and return
+			if (superClass == null) {
+				break;
+			}
+
+			// Now inspect the superclass
+			clazz = superClass;
+		} while (!"java.lang.Object".equals(clazz.getCanonicalName()));
+
+		return new HashSet<String>(res);
 	}
 }

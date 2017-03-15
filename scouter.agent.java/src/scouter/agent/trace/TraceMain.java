@@ -247,7 +247,7 @@ public class TraceMain {
     private static void initHttp(Object req) {
         synchronized (lock) {
             if (http == null) {
-                http = HttpTraceFactory.create(req.getClass().getClassLoader());
+                http = HttpTraceFactory.create(req.getClass().getClassLoader(), req);
             }
         }
     }

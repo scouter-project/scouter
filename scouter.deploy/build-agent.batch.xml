@@ -36,11 +36,13 @@
 			includeantruntime="false"
 						>
 			<classpath>
-				<pathelement location="./lib/servlet-api.jar"/>
+				<pathelement location="./lib/javax.servlet-api-3.1.0.jar"/>
 				<pathelement location="./lib/httpclient-4.3.6.jar"/>
 				<pathelement location="./lib/httpcore-4.3.3.jar"/>
 				<pathelement location="./lib/ribbon-loadbalancer-2.0.0.jar"/>
 				<pathelement location="./lib/rxnetty-0.4.6.jar"/>
+				<pathelement location="./lib/spring-web-4.3.7.RELEASE.jar"/>
+				<pathelement location="./lib/spring-core-4.3.7.RELEASE.jar"/>
 			    <pathelement location="${java.home}/../lib/tools.jar"/>
 				<pathelement location="${class-agent-java-dir}"/>
 			</classpath>			
@@ -64,11 +66,13 @@
 			includeantruntime="false"	
 			>
 			<classpath>
-				<pathelement location="./lib/servlet-api.jar"/>
+				<pathelement location="./lib/javax.servlet-api-3.1.0.jar"/>
 				<pathelement location="./lib/httpclient-4.3.6.jar"/>
 				<pathelement location="./lib/httpcore-4.3.3.jar"/>
 				<pathelement location="./lib/ribbon-loadbalancer-2.0.0.jar"/>
 				<pathelement location="./lib/rxnetty-0.4.6.jar"/>
+				<pathelement location="./lib/spring-web-4.3.7.RELEASE.jar"/>
+				<pathelement location="./lib/spring-core-4.3.7.RELEASE.jar"/>
 			    <pathelement location="${java.home}/../lib/tools.jar"/>
 				<pathelement location="${class-agent-dir}"/>
 				<pathelement location="${class-agent-java-dir}"/>
