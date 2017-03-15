@@ -17,12 +17,12 @@
 
 package scouter.agent.trace.api;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ApiCallTraceHelper {
 	static interface IHelper {
@@ -49,6 +49,8 @@ public class ApiCallTraceHelper {
 		put("com/sap/mw/jco/JCO$Client", new ForJCOClient());
 		put("com/netflix/ribbon/transport/netty/http/LoadBalancingHttpClient", new ForRibbonLB());
 		put("io/reactivex/netty/protocol/http/client/HttpClientImpl", new ForNettyHttpRequest());
+		put("org/springframework/web/client/RestTemplate", new ForSpringRestTemplate());
+		put("org/springframework/web/client/AsyncRestTemplate", new ForSpringAsyncRestTemplate());
 	}
 
 	private static IHelper defaultObj = new ForDefault();

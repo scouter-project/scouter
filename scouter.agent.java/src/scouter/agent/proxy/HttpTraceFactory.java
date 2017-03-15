@@ -19,8 +19,11 @@ package scouter.agent.proxy;
 import scouter.agent.Logger;
 import scouter.agent.trace.TraceContext;
 
+import java.lang.reflect.Method;
+
 public class HttpTraceFactory {
 	private static final String HTTP_TRACE = "scouter.xtra.http.HttpTrace";
+	private static final String HTTP_TRACE3 = "scouter.xtra.http.HttpTrace3";
 
 	public static final IHttpTrace dummy = new IHttpTrace() {
 		public String getParameter(Object req, String key) {
@@ -43,15 +46,49 @@ public class HttpTraceFactory {
 		public void rejectUrl(Object res, String url) {
 		}
 
+		public void addAsyncContextListener(Object ac) {
+
+		}
+
+		public TraceContext getTraceContextFromAsyncContext(Object oAsyncContext) {
+			return null;
+		}
+
+		public void setDispatchTransferMap(Object oAsyncContext, long gxid, long caller, long callee, byte xType) {
+		}
+
+		public void setSelfDispatch(Object oAsyncContext, boolean self) {
+
+		}
+
+		public boolean isSelfDispatch(Object oAsyncContext) {
+			return false;
+		}
 	};
 
-	public static IHttpTrace create(ClassLoader parent) {
+	public static IHttpTrace create(ClassLoader parent, Object oReq) {
 		try {
 			ClassLoader loader = LoaderManager.getHttpLoader(parent);
 			if (loader == null) {
 				return dummy;
 			}
-			Class c = Class.forName(HTTP_TRACE, true, loader);
+
+			boolean servlet3 = true;
+
+			try {
+				Method m = oReq.getClass().getMethod("logout");
+			} catch (Exception e) {
+				servlet3 = false;
+			}
+
+			Class c = null;
+
+			if(servlet3) {
+				c = Class.forName(HTTP_TRACE3, true, loader);
+			} else {
+				c = Class.forName(HTTP_TRACE, true, loader);
+			}
+
 			return (IHttpTrace) c.newInstance();
 		} catch (Throwable e) {
 			Logger.println("A133", "fail to create", e);

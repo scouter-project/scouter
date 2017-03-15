@@ -1,5 +1,5 @@
 # NON-HTTP 서비스 추적하기
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](NON-HTTP-Service-Trace.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](NON-HTTP-Service-Trace.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 WAS(ex Tomcat)가 아닌 서버에서 서비스를 추적하는 방법을 설명한다. 
 

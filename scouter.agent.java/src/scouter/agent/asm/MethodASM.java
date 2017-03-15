@@ -23,7 +23,11 @@ import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceMain;
-import scouter.org.objectweb.asm.*;
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.Label;
+import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.StringUtil;
 
@@ -122,24 +126,31 @@ class MethodCV extends ClassVisitor implements Opcodes {
 		boolean isProtected = conf.hook_method_access_protected_enabled;
 		boolean isPrivate = conf.hook_method_access_private_enabled;
 		boolean isNone = conf.hook_method_access_none_enabled;
-		switch (access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED | Opcodes.ACC_PRIVATE)) {
-		case Opcodes.ACC_PUBLIC:
-			if (isPublic == false)
-				return mv;
-			break;
-		case Opcodes.ACC_PROTECTED:
-			if (isProtected == false)
-				return mv;
-			break;
-		case Opcodes.ACC_PRIVATE:
-			if (isPrivate == false)
-				return mv;
-			break;
-		default:
-			if (isNone == false)
-				return mv;
-			break;
+
+		//lambda method
+		if(conf.hook_method_lambda_enable && (access & Opcodes.ACC_SYNTHETIC) == Opcodes.ACC_SYNTHETIC && name.indexOf("lambda$") == 0) {
+			//if lambda method with hook_method_lambda_enabled then go on without method accessor check
+		} else { // non-lambda method
+			switch (access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED | Opcodes.ACC_PRIVATE)) {
+				case Opcodes.ACC_PUBLIC:
+					if (isPublic == false)
+						return mv;
+					break;
+				case Opcodes.ACC_PROTECTED:
+					if (isProtected == false)
+						return mv;
+					break;
+				case Opcodes.ACC_PRIVATE:
+					if (isPrivate == false)
+						return mv;
+					break;
+				default:
+					if (isNone == false)
+						return mv;
+					break;
+			}
 		}
+
 		// check prefix, to ignore simple method such as getter,setter
 		if (conf.isIgnoreMethodPrefix(name))
 			return mv;

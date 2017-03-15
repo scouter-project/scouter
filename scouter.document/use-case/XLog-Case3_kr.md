@@ -1,5 +1,5 @@
 # XLog Case3 - 수평 라인 형태의 이해
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](XLog-Case3.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](XLog-Case3.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 응답 분포 차트(XLog)에 나타나는 대표적인 패턴 중 하나는 가로 라인이 나타나는 것이다.  
 가로 라인은 트랜잭션의 처리 중 자원 획득 시 Wait 값과 같은 일정한 지연이 있을 때 발생한다.

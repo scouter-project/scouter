@@ -17,9 +17,6 @@
 
 package scouter.agent.asm;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
@@ -32,11 +29,16 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SocketASM implements IASM, Opcodes {
 	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
 
 	public SocketASM() {
 			AsmUtil.add(reserved,"java/net/Socket","connect(Ljava/net/SocketAddress;I)V");
+			//AsmUtil.add(reserved,"java/nio/channels/SocketChannel","connect(Ljava/net/SocketAddress;)Z");
+			AsmUtil.add(reserved,"sun/nio/ch/SocketChannelImpl","connect(Ljava/net/SocketAddress;)Z");
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
@@ -49,7 +51,6 @@ public class SocketASM implements IASM, Opcodes {
 		}
 		return cv;
 	}
-
 }
 
 class SocketCV extends ClassVisitor implements Opcodes {
@@ -81,7 +82,7 @@ class SocketCV extends ClassVisitor implements Opcodes {
 class SocketMV extends LocalVariablesSorter implements Opcodes {
 	private static final String TRACEAPICALL = TraceApiCall.class.getName().replace('.', '/');
 	private final static String START_METHOD = "startSocket";
-	private static final String START_SIGNATURE = "(Ljava/net/Socket;Ljava/net/SocketAddress;I)Ljava/lang/Object;";
+	private static final String START_SIGNATURE = "(Ljava/lang/Object;Ljava/net/SocketAddress;)Ljava/lang/Object;";
 	private final static String END_METHOD = "endSocket";
 	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;)V";
 
@@ -96,7 +97,6 @@ class SocketMV extends LocalVariablesSorter implements Opcodes {
 	public void visitCode() {
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		mv.visitVarInsn(Opcodes.ALOAD, 1);
-		mv.visitVarInsn(Opcodes.ILOAD, 2);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEAPICALL, START_METHOD, START_SIGNATURE, false);
 
 		statIdx = newLocal(Type.getType(Object.class));

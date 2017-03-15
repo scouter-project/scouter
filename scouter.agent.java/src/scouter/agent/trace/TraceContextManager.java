@@ -19,7 +19,6 @@ package scouter.agent.trace;
 
 import scouter.agent.Configure;
 import scouter.util.KeyGen;
-import scouter.util.LongEnumer;
 import scouter.util.LongKeyMap;
 
 import java.util.Enumeration;
@@ -29,13 +28,10 @@ public class TraceContextManager {
 
 	private static LongKeyMap<TraceContext> entry = new LongKeyMap<TraceContext>();
 	private static ThreadLocal<TraceContext> local = new ThreadLocal<TraceContext>();
+	private static LongKeyMap<TraceContext> deferredEntry = new LongKeyMap<TraceContext>();
 
 	//pass = 1, discard = 2, end-processing-with-path = -1, end-processing-with-path = -2
 	private static ThreadLocal<Integer> forceDiscard = new ThreadLocal<Integer>();
-
-	public static LongEnumer keys() {
-		return entry.keys();
-	}
 
 	public static int size() {
 		return entry.size();
@@ -57,6 +53,19 @@ public class TraceContextManager {
 					act[2]++;
 				}
 			}
+
+			Enumeration<TraceContext> enDeferred = deferredEntry.values();
+			while (enDeferred.hasMoreElements()) {
+				TraceContext ctx = enDeferred.nextElement();
+				long tm = now - ctx.startTime;
+				if (tm < conf.trace_activeserivce_yellow_time) {
+					act[0]++;
+				} else if (tm < conf.trace_activeservice_red_time) {
+					act[1]++;
+				} else {
+					act[2]++;
+				}
+			}
 		} catch (Throwable t) {
 		}
 		return act;
@@ -66,8 +75,16 @@ public class TraceContextManager {
 		return entry.values();
 	}
 
+	public static Enumeration<TraceContext> getDeferredContextEnumeration() {
+		return deferredEntry.values();
+	}
+
 	public static TraceContext getContext(long key) {
 		return entry.get(key);
+	}
+
+	public static TraceContext getDeferredContext(long key) {
+		return deferredEntry.get(key);
 	}
 
 	public static TraceContext getContext() {
@@ -140,5 +157,13 @@ public class TraceContextManager {
 		local.set(null);
 		entry.remove(key);
 		clearForceDiscard();
+	}
+
+	public static void toDeferred(TraceContext o) {
+		deferredEntry.put(o.txid, o);
+	}
+
+	public static void completeDeferred(TraceContext o) {
+		deferredEntry.remove(o.txid);
 	}
 }

@@ -1,5 +1,5 @@
 # JDBC Connection Leak Trace
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](JDBC-Connection-Leak-Trace.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](JDBC-Connection-Leak-Trace.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 JDBC Connection을 추적의 목적은 대표적인 Connection 관련 문제를 감지하기 위한 것이다. 
 

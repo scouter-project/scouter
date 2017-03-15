@@ -15,24 +15,40 @@
  *  limitations under the License. 
  */
 package scouter.agent.trace;
-import java.io.File;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterAPI;
 import scouter.agent.netio.data.DataProxy;
+import scouter.agent.plugin.PluginHttpCallTrace;
 import scouter.agent.plugin.PluginHttpServiceTrace;
+import scouter.agent.proxy.IHttpClient;
+import scouter.agent.proxy.SpringRestTemplateHttpRequestFactory;
 import scouter.agent.summary.ServiceSummary;
 import scouter.agent.trace.api.ApiCallTraceHelper;
 import scouter.lang.step.ApiCallStep;
+import scouter.lang.step.ApiCallStep2;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.SocketStep;
-import scouter.util.SysJMX;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
+
+import java.io.File;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.*;
+
 public class TraceApiCall {
+	private static Object lock = new Object();
+	private static IntKeyLinkedMap<IHttpClient> restTemplateHttpRequests = new IntKeyLinkedMap<IHttpClient>().setMax(5);
+
+	static {
+		try {
+			PluginHttpServiceTrace.class.getClass();
+		} catch (Throwable t) {
+		}
+	}
+
 	public static class Stat {
 		public TraceContext ctx;
 		public Object req;
@@ -46,12 +62,7 @@ public class TraceApiCall {
 			this.ctx = ctx;
 		}
 	}
-	static {
-		try {
-			PluginHttpServiceTrace.class.getClass();
-		} catch (Throwable t) {
-		}
-	}
+
 	public static void apiInfo(String className, String methodName, String methodDesc, Object _this, Object[] arg) {
 		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null && arg.length >= 2) {
@@ -78,12 +89,14 @@ public class TraceApiCall {
 				step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 			}
 			ctx.profile.push(step);
+
 			return new LocalContext(ctx, step, hookPoint);
 		} catch (Throwable sss) {
 			sss.printStackTrace();
 		}
 		return null;
 	}
+
 	public static Object startApicall(String name, long apiTxid) {
 		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx == null)
@@ -116,6 +129,8 @@ public class TraceApiCall {
 			step.hash = DataProxy.sendApicall(tctx.apicall_name);
 			tctx.apicall_name = null;
 			tctx.apicall_target = null;
+			tctx.lastApiCallStep = null;
+
 			step.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
 			if (tctx.profile_thread_cputime) {
 				step.cputime = (int) (SysJMX.getCurrentThreadCPU() - tctx.startCpu) - step.start_cpu;
@@ -146,14 +161,20 @@ public class TraceApiCall {
 				}
 				ServiceSummary.getInstance().process(thr, step.error, tctx.serviceHash, tctx.txid, 0, step.hash);
 			}
-			MeterAPI.getInstance().add(step.elapsed, step.error != 0);
+
+			if(step instanceof ApiCallStep2 && ((ApiCallStep2) step).async == 1) {
+				//skip api metering
+			} else {
+				MeterAPI.getInstance().add(step.elapsed, step.error != 0);
+			}
+
 			ServiceSummary.getInstance().process(step);
 			tctx.profile.pop(step);
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
 	}
-	public static Object startSocket(Socket socket, SocketAddress addr, int timeout) {
+	public static Object startSocket(Object socketOrSocketChannel, SocketAddress addr) {
 		if (!(addr instanceof InetSocketAddress))
 			return null;
 		TraceContext ctx = TraceContextManager.getContext();
@@ -178,7 +199,7 @@ public class TraceApiCall {
 			int port = inet.getPort();
 			step.ipaddr = host == null ? null : host.getAddress();
 			step.port = port;
-			return new LocalContext(ctx, step, socket);
+			return new LocalContext(ctx, step, socketOrSocketChannel);
 		} catch (Throwable t) {
 			Logger.println("A141", "socket trace error", t);
 			return null;
@@ -190,7 +211,7 @@ public class TraceApiCall {
 		}
 		try {
 			LocalContext lctx = (LocalContext) stat;
-			TraceContext tctx = (TraceContext) lctx.context;
+			TraceContext tctx = lctx.context;
 			SocketStep step = (SocketStep) lctx.stepSingle;
 			step.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
 			if (thr != null) {
@@ -221,5 +242,101 @@ public class TraceApiCall {
 			m.message = "FILE " + file.getName();
 			ctx.profile.add(m);
 		}
+	}
+
+	public static final IHttpClient dummyHttpClient = new IHttpClient() {
+		public String getURI(Object o) {
+			return null;
+		}
+		public String getHost(Object o) {
+			return null;
+		}
+		public String getHeader(Object o, String key) {
+			return null;
+		}
+		public void addHeader(Object o, String key, String value) {
+		}
+	};
+
+	public static void endCreateSpringRestTemplateRequest(Object _this, Object oRtn) {
+		TraceContext ctx = TraceContextManager.getContext();
+		if(ctx == null) return;
+		if(ctx.lastApiCallStep == null) return;
+
+		Configure conf = Configure.getInstance();
+
+		int key = System.identityHashCode(_this.getClass());
+		IHttpClient httpclient = restTemplateHttpRequests.get(key);
+		if (httpclient == null) {
+			synchronized (lock) {
+				if (httpclient == null) {
+					if (_this.getClass().getClassLoader() == null) {
+						httpclient = dummyHttpClient;
+					} else {
+						Set<String> allSuperSet = getAllExtendedOrImplementedTypesRecursively(oRtn.getClass());
+						if (allSuperSet.contains("org.springframework.http.HttpRequest")) { //Spring 3.0 doesn't have the interface. HttpRequest is since 3.1
+							httpclient = SpringRestTemplateHttpRequestFactory.create(_this.getClass().getClassLoader());
+						} else {
+							httpclient = dummyHttpClient;
+						}
+					}
+					restTemplateHttpRequests.put(key, httpclient);
+				}
+			}
+		}
+
+		if (conf.trace_interservice_enabled) {
+			try {
+				if (ctx.gxid == 0) {
+					ctx.gxid = ctx.txid;
+				}
+				ctx.lastApiCallStep.txid = KeyGen.next();
+
+				httpclient.addHeader(oRtn, conf._trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
+				httpclient.addHeader(oRtn, conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
+				httpclient.addHeader(oRtn, conf._trace_interservice_callee_header_key, Hexa32.toString32(ctx.lastApiCallStep.txid));
+				httpclient.addHeader(oRtn, "scouter_caller_url", ctx.serviceName);
+				httpclient.addHeader(oRtn, "scouter_caller_name", conf.getObjName());
+				httpclient.addHeader(oRtn, "scouter_thread_id", Long.toString(ctx.threadId));
+
+				PluginHttpCallTrace.call(ctx, httpclient, oRtn);
+
+			} catch (Exception e) {
+
+			}
+		}
+	}
+
+	public static Set<String> getAllExtendedOrImplementedTypesRecursively(Class clazz) {
+		List<String> res = new ArrayList<String>();
+
+		do {
+			res.add(clazz.getName());
+
+			// First, add all the interfaces implemented by this class
+			Class[] interfaces = clazz.getInterfaces();
+			if (interfaces.length > 0) {
+				for(int i=0; i<interfaces.length; i++) {
+					res.add(interfaces[i].getName());
+				}
+
+				for (Class interfaze : interfaces) {
+					res.addAll(getAllExtendedOrImplementedTypesRecursively(interfaze));
+				}
+			}
+
+			// Add the super class
+			Class superClass = clazz.getSuperclass();
+
+			// Interfaces does not have java,lang.Object as superclass, they have null, so break the cycle and return
+			if (superClass == null) {
+				break;
+			}
+
+			// Now inspect the superclass
+			clazz = superClass;
+		} while (!"java.lang.Object".equals(clazz.getCanonicalName()));
+
+		return new HashSet<String>(res);
 	}
 }

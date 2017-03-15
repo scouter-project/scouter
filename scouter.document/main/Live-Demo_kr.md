@@ -1,5 +1,5 @@
 # Quick Start
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Live-Demo.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Live-Demo.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 Scouter 를 바로 사용해 볼 수 있도록 Live 데모 시스템이 구성되어 있으며
 클라이언트만 다운로드 하여 접속해 볼 수 있다.

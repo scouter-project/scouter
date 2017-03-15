@@ -1,5 +1,5 @@
 #Editing Getting Start Profile SQL
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Getting-Start-Profile-SQL.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Getting-Start-Profile-SQL.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 > 본문서에서는 HSQL DB를 설치하고 간단한 샘플 애플리케이션을 실행하여
 > SQL이 어떤식으로 모니터링 되는지 설명한다.

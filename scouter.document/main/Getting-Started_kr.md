@@ -1,5 +1,5 @@
 # Getting Started
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Getting-Started.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Getting-Started.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 Scouter는 Tocmat, MariaDB, Linux등의 OSS에 대한 성능을 모니터링하는 툴이다.
 먼저 Scouter를 처음 사용하는 사람들을 위해 간단한 설치와 기본적인 사용법에대해서 설명한다.

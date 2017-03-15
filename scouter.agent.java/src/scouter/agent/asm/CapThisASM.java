@@ -17,8 +17,6 @@
 
 package scouter.agent.asm;
 
-import java.util.List;
-
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
@@ -27,6 +25,8 @@ import scouter.agent.trace.TraceMain;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
+
+import java.util.List;
 
 public class CapThisASM implements IASM, Opcodes {
 	private  List< HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_constructor_patterns);
@@ -92,5 +92,4 @@ class CapThisMV extends MethodVisitor implements Opcodes {
 		}
 		mv.visitInsn(opcode);
 	}
-
 }

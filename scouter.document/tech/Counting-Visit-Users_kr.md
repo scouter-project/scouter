@@ -1,5 +1,5 @@
 # HyperLogLog를 이용하여 방문자 계산하기
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Counting-Visit-Users.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Counting-Visit-Users.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 하룻동안 방문한 사용자는 시스템의 성능과 비즈니스 연관도를 설명하기 위한 중요한 지표이다. 
 성능적으로 보면 동시 사용자가 중요한 기준이 되지만 

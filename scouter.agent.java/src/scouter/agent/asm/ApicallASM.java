@@ -18,11 +18,14 @@ package scouter.agent.asm;
 
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
-import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceApiCall;
-import scouter.org.objectweb.asm.*;
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.Label;
+import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.Pair;
 
@@ -61,6 +64,21 @@ public class ApicallASM implements IASM, Opcodes {
                 "Lcom/sap/mw/jco/JCO$ParameterList;" + //
                 "Ljava/lang/String;Ljava/lang/String;I)V");
         AsmUtil.add(reserved, "io/reactivex/netty/protocol/http/client/HttpClientImpl", "submit");
+
+        AsmUtil.add(reserved, "org/springframework/web/client/RestTemplate",
+                "doExecute(" +
+                        "Ljava/net/URI;" +
+                        "Lorg/springframework/http/HttpMethod;" +
+                        "Lorg/springframework/web/client/RequestCallback;" +
+                        "Lorg/springframework/web/client/ResponseExtractor;" +
+                        ")Ljava/lang/Object;");
+        AsmUtil.add(reserved, "org/springframework/web/client/AsyncRestTemplate",
+                "doExecute(" +
+                        "Ljava/net/URI;" +
+                        "Lorg/springframework/http/HttpMethod;" +
+                        "Lorg/springframework/web/client/AsyncRequestCallback;" +
+                        "Lorg/springframework/web/client/ResponseExtractor;" +
+                        ")Lorg/springframework/util/concurrent/ListenableFuture;");
 
         for(int i = ApiCallTargetRegister.klassMethod.size() - 1; i >= 0; i--) {
             AsmUtil.add(reserved, ApiCallTargetRegister.klassMethod.get(i).getLeft(), ApiCallTargetRegister.klassMethod.get(i).getRight());
@@ -103,7 +121,7 @@ class ApicallExtCV extends ClassVisitor implements Opcodes {
         if (AsmUtil.isSpecial(methodName)) {
             return mv;
         }
-        Logger.println("apicall: " + className + "." + methodName + desc);
+        //Logger.println("apicall: " + className + "." + methodName + desc);
         return new ApicallExtMV(access, desc, mv, Type.getArgumentTypes(desc), (access & ACC_STATIC) != 0, className,
                 methodName, desc);
     }

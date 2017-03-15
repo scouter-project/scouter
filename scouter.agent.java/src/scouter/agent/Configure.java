@@ -95,6 +95,8 @@ public class Configure extends Thread {
     public boolean obj_name_auto_pid_enabled = false;
     @ConfigDesc("Redefining DS, RP type according to main object")
     public boolean obj_type_inherit_to_child_enabled = false;
+    @ConfigDesc("Activating collect sub counters using JMX")
+    public boolean jmx_counter_enabled = true;
 
     //profile
     @ConfigDesc("Http Query String profile")
@@ -164,7 +166,7 @@ public class Configure extends Thread {
     @ConfigDesc("Identifying header key of Remote IP")
     public String trace_http_client_ip_header_key = "";
     @ConfigDesc("Activating gxid connection in HttpTransfer")
-    public boolean trace_interservice_enabled = false;
+    public boolean trace_interservice_enabled = true;
     @ConfigDesc("")
     public String _trace_interservice_gxid_header_key = "X-Scouter-Gxid";
     @ConfigDesc("")
@@ -332,6 +334,8 @@ public class Configure extends Thread {
     public boolean hook_method_access_protected_enabled = false;
     @ConfigDesc("Activating none Method hooking")
     public boolean hook_method_access_none_enabled = false;
+    @ConfigDesc("Activating lambda Method hooking")
+    public boolean hook_method_lambda_enable = true;
     @ConfigDesc("Method set for service hooking")
     public String hook_service_patterns = "";
     @ConfigDesc("Method set for apicall hooking")
@@ -348,6 +352,27 @@ public class Configure extends Thread {
     public String hook_jdbc_rs_classes = "";
     @ConfigDesc("Method set for dbconnection wrapping")
     public String hook_jdbc_wrapping_driver_patterns = "";
+
+    @ConfigDesc("Hook for supporting async servlet")
+    public boolean hook_async_servlet_enabled = true;
+    @ConfigDesc("startAsync impl. method patterns")
+    public String hook_async_servlet_start_patterns = "";
+    @ConfigDesc("asyncContext dispatch impl. method patterns")
+    public String hook_async_context_dispatch_patterns = "";
+
+    @ConfigDesc("spring async execution submit patterns")
+    public String hook_spring_async_submit_patterns = "";
+    @ConfigDesc("spring async execution hook enabled")
+    public boolean hook_spring_async_enabled = true;
+
+    @ConfigDesc("Hook callable and runnable for tracing async processing. \nIt hook only 'hook_async_callrunnable_scan_prefixes' option contains pacakage or classes")
+    public boolean hook_async_callrunnable_enable = true;
+    @ConfigDesc("scanning range prefixes for hooking callable, runnable implementations and lambda expressions. usually your application package. 2 or more packages can be separated by commas.")
+    public String hook_async_callrunnable_scan_package_prefixes = "";
+
+    @ConfigDesc("enable lambda expressioned class hook for detecting asyncronous processing. Only classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
+    public boolean hook_lambda_instrumentation_strategy_enabled = true;
+
     @ConfigDesc("")
     public String hook_add_fields = "";
     @ConfigDesc("")
@@ -606,6 +631,8 @@ public class Configure extends Thread {
         this.hook_method_access_protected_enabled = getBoolean("hook_method_access_protected_enabled", false);
         this.hook_method_access_private_enabled = getBoolean("hook_method_access_private_enabled", false);
         this.hook_method_access_none_enabled = getBoolean("hook_method_access_none_enabled", false);
+        this.hook_method_lambda_enable = getBoolean("hook_method_lambda_enable", true);
+
         this.hook_method_ignore_prefixes = StringUtil.removeWhitespace(getValue("hook_method_ignore_prefixes", "get,set"));
         this._hook_method_ignore_prefix = StringUtil.split(this.hook_method_ignore_prefixes, ",");
         this._hook_method_ignore_prefix_len = this._hook_method_ignore_prefix == null ? 0
@@ -624,6 +651,19 @@ public class Configure extends Thread {
         this.hook_jdbc_stmt_classes = getValue("hook_jdbc_stmt_classes", "");
         this.hook_jdbc_rs_classes = getValue("hook_jdbc_rs_classes", "");
         this.hook_jdbc_wrapping_driver_patterns = getValue("hook_jdbc_wrapping_driver_patterns", "");
+        this.hook_async_servlet_enabled = getBoolean("_hook_async_servlet_enabled", true);
+
+        this.hook_async_context_dispatch_patterns = getValue("hook_async_context_dispatch_patterns", "");
+        this.hook_async_servlet_start_patterns = getValue("hook_async_servlet_start_patterns", "");
+
+        this.hook_spring_async_submit_patterns = getValue("hook_spring_async_submit_patterns", "");
+        this.hook_spring_async_enabled = getBoolean("hook_spring_async_enabled", true);
+
+        this.hook_async_callrunnable_enable = getBoolean("hook_async_callrunnable_enable", true);
+        this.hook_async_callrunnable_scan_package_prefixes = getValue("hook_async_callrunnable_scan_package_prefixes", "");
+
+        this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", true);
+
         this.hook_add_fields = getValue("hook_add_fields", "");
         this.hook_context_classes = getValue("hook_context_classes", "javax/naming/InitialContext");
 
@@ -659,7 +699,7 @@ public class Configure extends Thread {
         this.profile_http_parameter_url_prefix = getValue("profile_http_parameter_url_prefix", "/");
         this.profile_http_header_url_prefix = getValue("profile_http_header_url_prefix", "/");
         this.trace_http_client_ip_header_key = getValue("trace_http_client_ip_header_key", "");
-        this.trace_interservice_enabled = getBoolean("trace_interservice_enabled", false);
+        this.trace_interservice_enabled = getBoolean("trace_interservice_enabled", true);
         this.trace_response_gxid_enabled = getBoolean("trace_response_gxid_enabled", false);
         this._trace_interservice_gxid_header_key = getValue("_trace_interservice_gxid_header_key", "X-Scouter-Gxid");
         this._trace_interservice_callee_header_key = getValue("_trace_interservice_callee_header_key", "X-Scouter-Callee");
@@ -733,6 +773,7 @@ public class Configure extends Thread {
         this.xlog_error_sql_time_max_ms = getInt("xlog_error_sql_time_max_ms", 30000);
         this._log_asm_enabled = getBoolean("_log_asm_enabled", false);
         this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
+        this.jmx_counter_enabled = getBoolean("jmx_counter_enabled", true);
         this._profile_fullstack_sql_connection_enabled = getBoolean("_profile_fullstack_sql_connection_enabled", false);
         this._trace_fullstack_socket_open_port = getInt("_trace_fullstack_socket_open_port", 0);
         this._trace_sql_parameter_max_count = getInt("_trace_sql_parameter_max_count", 128);

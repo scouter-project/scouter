@@ -18,11 +18,11 @@
 package scouter.agent.asm.util;
 
 
-import java.util.Map;
-
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
+
+import java.util.Map;
 
 /**
  * BCI for a constructor of PreparedStatement
@@ -89,10 +89,8 @@ public class AsmUtil implements Opcodes {
 	}
 
 	/**
-	 * @param cp
-	 *            Constant pool
+	 * @param mv
 	 * @param value
-	 *            to be pushed
 	 */
 	public static void PUSH(MethodVisitor mv, double value) {
 		if (value == 0)
@@ -160,13 +158,53 @@ public class AsmUtil implements Opcodes {
         }
         return -1;
     }
-	
-	
+
 	public static boolean isSpecial(String name) {
-		return name.indexOf("$") >= 0 || name.startsWith("<");
+		//return (name.indexOf("$") >= 0 && name.indexOf("lambda$") != 0) || name.startsWith("<");
+		//FIXME for testing
+		return name.startsWith("<");
 	}
 
 	public static boolean isInterface(int access) {
 		return (access & ACC_INTERFACE) != 0;
+	}
+
+	public static void loadForArrayElement(MethodVisitor mv, Type tp, int sidx) {
+		switch (tp.getSort()) {
+			case Type.BOOLEAN:
+				mv.visitVarInsn(Opcodes.ILOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;",false);
+				break;
+			case Type.BYTE:
+				mv.visitVarInsn(Opcodes.ILOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;",false);
+				break;
+			case Type.CHAR:
+				mv.visitVarInsn(Opcodes.ILOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;",false);
+				break;
+			case Type.SHORT:
+				mv.visitVarInsn(Opcodes.ILOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;",false);
+				break;
+			case Type.INT:
+				mv.visitVarInsn(Opcodes.ILOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;",false);
+				break;
+			case Type.LONG:
+				mv.visitVarInsn(Opcodes.LLOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;",false);
+				break;
+			case Type.FLOAT:
+				mv.visitVarInsn(Opcodes.FLOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;",false);
+				break;
+			case Type.DOUBLE:
+				mv.visitVarInsn(Opcodes.DLOAD, sidx);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;",false);
+				break;
+			default:
+				mv.visitVarInsn(Opcodes.ALOAD, sidx);
+		}
 	}
 }

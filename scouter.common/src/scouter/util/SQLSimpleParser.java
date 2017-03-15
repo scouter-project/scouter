@@ -130,7 +130,7 @@ public class SQLSimpleParser {
 				crudInfo(tokens);
 			}*/
 			
-			String[] tokens = tokenize(value, true);
+			String[] tokens = tokenize(value, false);
 			crudInfo(tokens);
 		} catch (Exception ex) {
 			return "";
@@ -240,6 +240,7 @@ public class SQLSimpleParser {
 			if(depth == 0) {
 				return index;
 			}
+			
 			SQLNode node = findNode(depth);
 			if(node == null) {
 				throw new RuntimeException("Can't find node which has proper depth.");

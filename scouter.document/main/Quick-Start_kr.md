@@ -1,5 +1,5 @@
 # Quick Start
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Quick-Start.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Quick-Start.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 이 페이지를 통해 빠르게 Scouter 데모를 설치하고 실행 해 볼 수 있다.
 

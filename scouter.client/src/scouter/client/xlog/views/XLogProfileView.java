@@ -71,6 +71,7 @@ public class XLogProfileView extends ViewPart {
 	Menu contextMenu;
 	MenuItem sqlSummary;
 	MenuItem bindSqlParamMenu;
+	MenuItem simplifiedProfileViewMenu;
 	
 	IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 	
@@ -116,6 +117,16 @@ public class XLogProfileView extends ViewPart {
 				setInput(steps, xLogData, serverId);
 			}
 		});
+		simplifiedProfileViewMenu = new MenuItem(contextMenu, SWT.CHECK);
+        simplifiedProfileViewMenu.setSelection(true);
+		simplifiedProfileViewMenu.setText("Simplified Profile View");
+		simplifiedProfileViewMenu.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				isSimplified = simplifiedProfileViewMenu.getSelection();
+				setInput(steps, xLogData, serverId);
+			}
+		});
+
 		MenuItem saveProfile = new MenuItem(contextMenu, SWT.PUSH);
 		saveProfile.setText("Save Full Profile");
 		saveProfile.addSelectionListener(new SelectionAdapter() {
@@ -131,6 +142,7 @@ public class XLogProfileView extends ViewPart {
 	boolean truncated;
 	private int serverId;
 	boolean bindSqlParam;
+	boolean isSimplified = true;
 	
 	CacheTable<String, Boolean> preventDupleEventTable = new CacheTable<String, Boolean>().setDefaultKeepTime(700);
 	public void setInput(Step[] steps, final XLogData item, int serverId) {
@@ -146,7 +158,8 @@ public class XLogProfileView extends ViewPart {
 		setPartName(txid);
 		text.setText("");
 		
-		ProfileText.build(DateUtil.yyyymmdd(xLogData.p.endTime), text, this.xLogData, steps, serverId, bindSqlParam);
+		ProfileText.build(DateUtil.yyyymmdd(xLogData.p.endTime), text, this.xLogData, steps, serverId, bindSqlParam, isSimplified);
+
 		text.addListener(SWT.MouseUp, new Listener(){
 			public void handleEvent(Event event) {
 				try {
@@ -163,7 +176,7 @@ public class XLogProfileView extends ViewPart {
 									preventDupleEventTable.put("gxid", new Boolean(true));
 								}
 								String[] tokens = StringUtil.tokenizer(fulltxt, " =\n");
-								String gxid = tokens[tokens.length - 1];
+								String gxid = tokens[2];
 								try {
 									XLogFlowView view = (XLogFlowView) window.getActivePage().showView(XLogFlowView.ID, gxid, IWorkbenchPage.VIEW_ACTIVATE);
 									if (view != null) {

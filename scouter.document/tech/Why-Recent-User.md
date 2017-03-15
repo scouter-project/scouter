@@ -1,5 +1,5 @@
 # Why Recent User
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Why-Recent-User_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Why-Recent-User_kr.md)
 
 The concept of 'users' is seperated by Visitors, Concurrent Users, and Active Users. Each one has different purpose to tell about system. With the view of performance, concurrent users are most important. 
 

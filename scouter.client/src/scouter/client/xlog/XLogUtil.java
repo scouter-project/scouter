@@ -83,11 +83,25 @@ public class XLogUtil {
 				}
 				break;
 			case StepEnum.APICALL:
+			case StepEnum.APICALL2:
 				if (TextProxy.apicall.getText(((ApiCallStep) p[i]).hash) == null) {
 					subcallSet.add(((ApiCallStep) p[i]).hash);
 				}
 				if (((ApiCallStep) p[i]).error != 0 && TextProxy.error.getText(((ApiCallStep) p[i]).error) == null) {
 					errorSet.add(((ApiCallStep) p[i]).error);
+				}
+				break;
+			case StepEnum.DISPATCH:
+				if (TextProxy.apicall.getText(((DispatchStep) p[i]).hash) == null) {
+					subcallSet.add(((DispatchStep) p[i]).hash);
+				}
+				if (((DispatchStep) p[i]).error != 0 && TextProxy.error.getText(((DispatchStep) p[i]).error) == null) {
+					errorSet.add(((DispatchStep) p[i]).error);
+				}
+				break;
+			case StepEnum.THREAD_CALL_POSSIBLE:
+				if (TextProxy.apicall.getText(((ThreadCallPossibleStep) p[i]).hash) == null) {
+					subcallSet.add(((ThreadCallPossibleStep) p[i]).hash);
 				}
 				break;
 			case StepEnum.APICALL_SUM:
@@ -130,6 +144,7 @@ public class XLogUtil {
 			MethodStep ms = (MethodStep) p;
 			return ms.elapsed;
 		case StepEnum.APICALL:
+		case StepEnum.APICALL2:
 			ApiCallStep acs = (ApiCallStep) p;
 			return acs.elapsed;
 		case StepEnum.THREAD_SUBMIT:
@@ -151,6 +166,7 @@ public class XLogUtil {
 			MethodStep ms = (MethodStep) p;
 			return ms.cputime;
 		case StepEnum.APICALL:
+		case StepEnum.APICALL2:
 			ApiCallStep acs = (ApiCallStep) p;
 			return acs.cputime;
 		case StepEnum.THREAD_SUBMIT:
@@ -190,6 +206,7 @@ public class XLogUtil {
                 }
                 break;
 			case StepEnum.APICALL:
+			case StepEnum.APICALL2:
 				ApiCallStep acs = (ApiCallStep) p;
 				sb.append("call:").append(TextProxy.apicall.getText(acs.hash));
 				if (acs.txid != 0) {
@@ -222,7 +239,8 @@ public class XLogUtil {
              case StepEnum.SQL3:
             	 SqlStep ss = (SqlStep) p;
             	 return TextProxy.error.getText(ss.error);
-             case StepEnum.APICALL:
+            case StepEnum.APICALL:
+			case StepEnum.APICALL2:
             	 ApiCallStep acs = (ApiCallStep) p;
             	 return TextProxy.error.getText(acs.error);
              case StepEnum.SOCKET:
@@ -257,6 +275,8 @@ public class XLogUtil {
 			return "SCK";
 		case StepEnum.APICALL:
 			return "API";
+		case StepEnum.APICALL2:
+			return "API2";
 		case StepEnum.THREAD_SUBMIT:
 			return "THD";
 		}

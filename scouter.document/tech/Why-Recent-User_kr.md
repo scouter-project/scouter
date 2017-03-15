@@ -1,5 +1,5 @@
 # Scouter에서 Recent User 개념을 사용하는 이유(동시 사용자 대신)
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Why-Recent-User.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Why-Recent-User.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 사용자는 크게 방문자, 동시사용자, 액티브 사용자로 구분할 수 있다.  각 사용자 개념은 다른 목적을 가지고 활용된다. 
 그런데 시스템의 성능을 이야기 할 때는 가장 중요한 숫자가 동시 사용자이다. 

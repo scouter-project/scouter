@@ -1,5 +1,5 @@
 # Quick Start
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Method-Profiling.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Method-Profiling.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 Scouter를 설치하고 Java Agent에 아무런 설정을 하지 않았다면 Scouter는 HTTP 서비스의 시작점과 종료지점, 그리고 실행한 쿼리에 대한 프로파일만을 수행한다.
 

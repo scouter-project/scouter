@@ -1,5 +1,5 @@
 # Trace of JDBC Connection Leak
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](JDBC-Connection-Leak-Trace_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](JDBC-Connection-Leak-Trace_kr.md)
 
 The purpose of tracking JDBC connection is most common methodology to detect DB connection problem. 
 

@@ -1,5 +1,5 @@
 # Quick Start
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Live-Demo_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Live-Demo_kr.md)
 
 There is pre-built scouter live demo system that you can connect to.
 Try to do via scouter client v0.4.6 and you can download the client by the link below.
