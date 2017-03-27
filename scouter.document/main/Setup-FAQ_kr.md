@@ -1,5 +1,5 @@
 # Setup FAQ
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Setup-FAQ.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Setup-FAQ.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 설치과정에서 발생하는 빈번한 질문에 대해서 정리한다.
 

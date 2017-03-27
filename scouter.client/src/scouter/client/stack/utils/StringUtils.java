@@ -166,16 +166,16 @@ public class StringUtils {
         }
         
         if(eIndex > 0){
-        	return value.substring(sIndex + 3, eIndex);
+        	return value.substring(sIndex, eIndex);
         }else{
-        	return value.substring(sIndex + 3);                	
+        	return value.substring(sIndex);                	
         }		
 	}
 	
 	static int getStartIindex(String line){
 		int sIndex = line.indexOf(STARTSTACK);
        	if(sIndex >=0){
-       		return sIndex;
+       		return sIndex + 3;
        	}
        	
 		int length = line.length();

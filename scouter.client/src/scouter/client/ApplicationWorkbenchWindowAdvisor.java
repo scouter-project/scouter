@@ -29,6 +29,7 @@ import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
 import scouter.Version;
+import scouter.client.notice.NoticeCheckScheduler;
 import scouter.client.remote.CheckMyJob;
 import scouter.client.threads.AlertProxyThread;
 import scouter.client.threads.SessionObserver;
@@ -117,6 +118,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		CheckMyJob.getInstance();
 		SessionObserver.load();
 		AlertProxyThread.getInstance();
+		NoticeCheckScheduler.INSTANCE.initialize();
 	}
 
 }

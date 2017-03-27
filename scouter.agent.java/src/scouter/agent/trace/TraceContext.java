@@ -17,6 +17,7 @@
 
 package scouter.agent.trace;
 
+import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.DumpStep;
 import scouter.lang.step.SqlStep;
 import scouter.util.IntKeyMap;
@@ -52,8 +53,10 @@ public class TraceContext {
 	public IProfileCollector profile;
 	public long startTime;
 	public long startCpu;
+	public long latestCpu;
 
 	public long bytes;
+	public long latestBytes;
 	public int status;
 
 	// service
@@ -62,6 +65,7 @@ public class TraceContext {
 	public int serviceHash;
 	public String serviceName;
 	public String remoteIp;
+	public String threadName;
 	
 	public int error;
 	//public boolean done_http_service;
@@ -79,6 +83,10 @@ public class TraceContext {
 	public int apicall_count;
 	public int apicall_time;
 	public String apicall_target;
+
+	//thread dispatch
+	public String lastThreadCallName;
+
 	// rs
 	public long rs_start;
 	public int rs_count;
@@ -109,8 +117,14 @@ public class TraceContext {
 	public String group;
 
 	public SqlStep lastSqlStep;
+	public ApiCallStep lastApiCallStep;
+
     public Queue<DumpStep> temporaryDumpSteps = new LinkedBlockingQueue<DumpStep>(5);
 	public boolean hasDumpStack;
+
+	public boolean asyncServletStarted = false;
+	public boolean endHttpProcessingStarted = false;
+	public Throwable asyncThrowable;
 
 	public ArrayList<String> plcGroupList = new ArrayList<String>();
 	public TraceContext createChild() {

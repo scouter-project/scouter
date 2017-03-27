@@ -17,26 +17,12 @@
  */
 package scouter.client.views;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IColorProvider;
-import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ILabelProviderListener;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -48,13 +34,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.*;
 import org.eclipse.ui.part.ViewPart;
-
 import scouter.client.Images;
 import scouter.client.model.AgentDataProxy;
 import scouter.client.model.RefreshThread;
@@ -73,7 +54,13 @@ import scouter.lang.value.DecimalValue;
 import scouter.lang.value.ListValue;
 import scouter.util.CastUtil;
 import scouter.util.FormatUtil;
+import scouter.util.Hexa32;
 import scouter.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class ObjectActiveServiceListView extends ViewPart implements Refreshable {
 	
@@ -171,7 +158,7 @@ public class ObjectActiveServiceListView extends ViewPart implements Refreshable
 					try {
 						IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 						ObjectThreadDetailView view = (ObjectThreadDetailView) win.getActivePage().showView(ObjectThreadDetailView.ID, serverId + "&" + data.objHash, IWorkbenchPage.VIEW_ACTIVATE);
-						view.setInput(data.id);
+						view.setInput(data.id, Hexa32.toLong32(data.txid));
 					} catch (Exception d) {
 					}
 				}

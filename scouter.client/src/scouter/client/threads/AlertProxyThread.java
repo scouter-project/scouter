@@ -43,8 +43,6 @@ public class AlertProxyThread extends Thread {
 	
 	Map<Integer, MapPack> paramMap = new HashMap<Integer, MapPack>();
 	
-	//AlertNotifierDialog notifyDialog = new AlertNotifierDialog(Display.getDefault());
-	
 	public synchronized static AlertProxyThread getInstance() {
 		if (thread == null) {
 			thread = new AlertProxyThread();
@@ -81,10 +79,6 @@ public class AlertProxyThread extends Thread {
 						paramMap.put(serverId, param);
 						param.put("first", new BooleanValue(true));
 					}
-//					final boolean notifyFatal = PManager.getInstance().getBoolean(PreferenceConstants.NOTIFY_FATAL_ALERT);
-//					final boolean notifyWarn = PManager.getInstance().getBoolean(PreferenceConstants.NOTIFY_WARN_ALERT);
-//					final boolean notifyError = PManager.getInstance().getBoolean(PreferenceConstants.NOTIFY_ERROR_ALERT);
-//					final boolean notifyInfo = PManager.getInstance().getBoolean(PreferenceConstants.NOTIFY_INFO_ALERT);
 					tcp.process(RequestCmd.ALERT_REAL_TIME, param, new INetReader() {
 						public void process(DataInputX in) throws IOException {
 							Pack packet = in.readPack();
@@ -96,20 +90,6 @@ public class AlertProxyThread extends Thread {
 								for (IAlertListener listener : listeners) {
 									listener.ariseAlert(serverId, alert);
 								}
-//								if ((notifyFatal && alert.level == AlertLevel.FATAL)
-//										|| (notifyWarn && alert.level == AlertLevel.WARN)
-//										|| (notifyError && alert.level == AlertLevel.ERROR)
-//										|| (notifyInfo && alert.level == AlertLevel.INFO)) {
-//										final String objName = TextProxy.object.getLoadText(DateUtil.yyyymmdd(TimeUtil.getCurrentTime(serverId)), alert.objHash, serverId);
-//										ExUtil.exec(Display.getDefault(), new Runnable() {
-//											public void run() {
-//												if (notifyDialog.isOpen()) return;
-//												notifyDialog.setObjName(objName);
-//												notifyDialog.setPack(alert);
-//												notifyDialog.show(Display.getDefault().getBounds());
-//											}
-//										});
-//									}
 							}
 						}
 					});

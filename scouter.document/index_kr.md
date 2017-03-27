@@ -1,5 +1,5 @@
 # Document
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](index.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](index.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 ## Getting Started
 - [Quick Start 가이드 (Scouter Demo 설치)](./main/Quick-Start_kr.md)

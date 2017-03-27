@@ -46,6 +46,10 @@ public class XLogPack implements Pack {
 	 */
 	public long txid;
 	/**
+	 * thread name hash
+	 */
+	public int threadNameHash;
+	/**
 	 * Caller ID
 	 */
 	public long caller;
@@ -197,6 +201,8 @@ public class XLogPack implements Pack {
 
 		o.writeByte(hasDump);
 
+		o.writeDecimal(threadNameHash);
+
 		out.writeBlob(o.toByteArray());
 	}
 
@@ -241,6 +247,10 @@ public class XLogPack implements Pack {
 		}
 		if (d.available() >0) {
 			this.hasDump = d.readByte();
+		}
+
+		if (d.available() >0) {
+			this.threadNameHash = (int)d.readDecimal();
 		}
 	
 		return this;

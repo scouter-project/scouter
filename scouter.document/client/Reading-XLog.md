@@ -1,5 +1,5 @@
 # How to read XLog chart
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Reading-XLog_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Reading-XLog_kr.md)
 
 XLOG chart is for realtime transaction monitoring. Each marker represents individual transaction. X-axis is for the end time of transaction, and Y-axis is for the response time of it. The chart is reloaded every 2 seconds, pushing old things to left.
 

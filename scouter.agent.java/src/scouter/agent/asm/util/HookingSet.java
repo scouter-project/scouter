@@ -198,4 +198,15 @@ public class HookingSet {
 
 		return m;
 	}
+
+	public static String buildPatterns(String patterns, List<String> patternsList) {
+		for(int i=0; i<patternsList.size(); i++) {
+			if(StringUtil.isNotEmpty(StringUtil.trim(patterns))) {
+				patterns = patterns + "," + patternsList.get(i);
+			} else {
+				patterns = patternsList.get(i);
+			}
+		}
+		return patterns;
+	}
 }

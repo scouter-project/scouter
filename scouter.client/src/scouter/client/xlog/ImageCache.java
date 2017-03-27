@@ -17,22 +17,23 @@
  */
 package scouter.client.xlog;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
-
 import scouter.client.model.AgentColorManager;
 import scouter.client.util.ColorUtil;
+import scouter.lang.pack.XLogTypes;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ImageCache {
 
 	private static ImageCache instance;
 	private Map<RGB, Image> xLogDotMap = new HashMap<RGB, Image>();
 	private Image errorXpDot = null;
+	private Image errorXpDotLight = null;
 
 	public synchronized static ImageCache getInstance() {
 		if (instance == null) {
@@ -41,11 +42,15 @@ public class ImageCache {
 		return instance;
 	}
 
-	public synchronized Image getXPImage(int objHash) {
+	public synchronized Image getXPImage(int objHash, byte xtype) {
 		Color agentColor = AgentColorManager.getInstance().getColor(objHash);
 		if (agentColor == null) {
 			agentColor = ColorUtil.getInstance().getColor("blue");
 		}
+		if(xtype == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE || xtype == XLogTypes.BACK_THREAD2) {
+			agentColor = ColorUtil.getInstance().getColor("light2 gray");
+		}
+
 		RGB rgb = agentColor.getRGB();
 		Image xp = xLogDotMap.get(rgb);
 		if (xp == null) {
@@ -93,11 +98,18 @@ public class ImageCache {
 		return xp;
 	}
 
-	public synchronized Image getXPErrorImage() {
+	public synchronized Image getXPErrorImage(byte xtype) {
 		if (errorXpDot == null) {
 			errorXpDot = createXPImage(ColorUtil.getInstance().getColor("red").getRGB());
 		}
-		return errorXpDot;
+		if(errorXpDotLight == null) {
+			errorXpDotLight = createXPImage(ColorUtil.getInstance().getColor("light2 red").getRGB());
+		}
+		if(xtype == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE || xtype == XLogTypes.BACK_THREAD2) {
+			return errorXpDotLight;
+		} else {
+			return errorXpDot;
+		}
 	}
 
 	private Image createObjectImage(RGB rgb) {

@@ -1,6 +1,6 @@
 ![scouter](./scouter.document/img/main/scouter-logo-w200.png)
 
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](README_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](README_kr.md)
 
 ## Application Performance Monitoring for Open Source S/Ws.
 
@@ -28,8 +28,6 @@ SCOUTER can help you.
 
 ## At a glance(Click to watch the video)
 [![Demo gif](https://j.gifs.com/yDqbAa.gif)](https://youtu.be/iuArTzsD7Ws)
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/iuArTzsD7Ws" frameborder="0" allowfullscreen></iframe>
 
 ## Documents
  - [Document Home](./scouter.document/index.md)

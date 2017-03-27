@@ -29,6 +29,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.agent.ObjTypeDetector;
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
@@ -107,7 +108,7 @@ public class JBossJMXPerf {
 
 	@Counter
 	public void process(CounterBasket pw) {
-		if (CounterConstants.JBOSS.equals(ObjTypeDetector.objType) == false) {
+		if (CounterConstants.JBOSS.equals(ObjTypeDetector.objType) == false || conf.jmx_counter_enabled == false) {
 			return;
 		}
 
@@ -123,6 +124,7 @@ public class JBossJMXPerf {
 		collectCnt++;
 		MBeanServer server = servers.get(0);
 		for (MBeanObj beanObj : beanList) {
+            if (errors.contains(beanObj.attrName)) continue;
 			if (beanObj.valueType == ValueEnum.DECIMAL) {
 				try {
 					MeterKey key = new MeterKey(beanObj.mbeanHash, beanObj.counter);
@@ -147,7 +149,7 @@ public class JBossJMXPerf {
 				} catch (Exception e) {
 					errors.add(beanObj.attrName);
 					collectCnt = 0;
-					e.printStackTrace();
+                    Logger.println("A903", e);
 				}
 			}
 		}

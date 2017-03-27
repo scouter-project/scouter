@@ -18,11 +18,14 @@ package scouter.agent.batch.netio.data.net;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.Main;
+import scouter.agent.batch.netio.mtu.MultiPacketProcessor;
 import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
+import scouter.net.NetCafe;
 
 public class UdpLocalServer extends Thread{
 	private static UdpLocalServer instance;
@@ -44,31 +47,21 @@ public class UdpLocalServer extends Thread{
 	
 	public void run(){
 		Configure conf = Configure.getInstance();
-		byte[] receiveData = new byte[300000];
+		byte[] receiveData = new byte[conf.net_udp_packet_max_bytes];
 		DatagramSocket serverSocket = null;
+		int flag;
+		
 		try {
-	        int flag;
-	        int size;
 			serverSocket = new DatagramSocket(conf.net_local_udp_port);
 	        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 	        while(true){
 	        	serverSocket.receive(receivePacket);
-				size = receivePacket.getLength() - 4;
-	        	byte [] data = new byte[size];
-				System.arraycopy(receivePacket.getData(), 4, data, 0, size);
-				
-				flag = DataInputX.toInt(receiveData, 0);
-				switch(flag){
-				case BatchNetFlag.BATCH_END_DUMPFILE_INFO:
-		        	TcpAgentReqMgr.getInstance().addJob(data);
-		        	break;
-				case BatchNetFlag.BATCH_RUNNING_INFO:
-					processRunningInfo(data);
-					break;
-				case BatchNetFlag.BATCH_END_INFO:
-					processEndInfo(data);
-					break;
-				}
+	        	flag = DataInputX.toInt(receiveData, 0);
+	        	if(flag == NetCafe.UDP_CAFE_MTU){
+	        		processMTU(receiveData, receivePacket.getAddress());
+	        	}else{
+	        		process(flag, receiveData);
+	        	}
 	        }
 		}catch(Exception ex){
 			ex.printStackTrace();
@@ -77,6 +70,40 @@ public class UdpLocalServer extends Thread{
 				try {serverSocket.close();}catch(Exception ex){}
 			}
 		}
+	}
+	
+	private void processMTU(byte[] receiveData, InetAddress addr) throws Exception{
+		DataInputX in = new DataInputX(receiveData);
+		in.readInt();
+        int objHash = in.readInt();
+        long pkid = in.readLong();
+        short total = in.readShort();
+        short num = in.readShort();
+        byte [] data = in.readBlob();
+        		
+        data = MultiPacketProcessor.getInstance().add(pkid, total, num, data, objHash, addr);
+        if (data != null) {
+        	int flag = DataInputX.toInt(data, 0);
+        	process(flag, data);
+        }
+	}
+	
+	private void process(int flag, byte[] receiveData) throws Exception{
+		int size = receiveData.length - 4;
+    	byte [] data = new byte[size];
+		System.arraycopy(receiveData, 4, data, 0, size);
+		
+		switch(flag){
+		case BatchNetFlag.BATCH_END_DUMPFILE_INFO:
+        	TcpAgentReqMgr.getInstance().addJob(data);
+        	break;
+		case BatchNetFlag.BATCH_RUNNING_INFO:
+			processRunningInfo(data);
+			break;
+		case BatchNetFlag.BATCH_END_INFO:
+			processEndInfo(data);
+			break;
+		}		
 	}
 	
 	public int getStartBatchs(){

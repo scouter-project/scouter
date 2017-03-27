@@ -1,5 +1,5 @@
 # NON HTTP Server Trace
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](NON-HTTP-Service-Trace_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](NON-HTTP-Service-Trace_kr.md)
 
 This article explains non-hosted-by-WAS service. You should add entrypoint method of your service in hook_service_patterns configuration.
 

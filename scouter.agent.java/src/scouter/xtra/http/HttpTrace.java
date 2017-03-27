@@ -27,10 +27,17 @@ import scouter.agent.summary.EndUserNavigationData;
 import scouter.agent.summary.EndUserSummary;
 import scouter.agent.trace.IProfileCollector;
 import scouter.agent.trace.TraceContext;
+import scouter.agent.trace.TraceContextManager;
 import scouter.agent.trace.TraceMain;
+import scouter.agent.trace.TransferMap;
 import scouter.lang.conf.ConfObserver;
+import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.MessageStep;
-import scouter.util.*;
+import scouter.util.CastUtil;
+import scouter.util.CompareUtil;
+import scouter.util.HashUtil;
+import scouter.util.Hexa32;
+import scouter.util.StringUtil;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -39,10 +46,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 
+import static scouter.agent.AgentCommonContant.ASYNC_SERVLET_DISPATCHED_PREFIX;
+import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP;
+import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_SELF_DISPATCHED;
+
 public class HttpTrace implements IHttpTrace {
-    private boolean remote_by_header;
-    private boolean __ip_dummy_test;
-    private String http_remote_ip_header_key;
+    boolean remote_by_header;
+    boolean __ip_dummy_test;
+    String http_remote_ip_header_key;
 
     public static String[] ipRandom = {"27.114.0.121", "58.3.128.121",
             "101.53.64.121", "125.7.128.121", "202.68.224.121", "62.241.64.121", "86.63.224.121", "78.110.176.121",
@@ -103,8 +114,40 @@ public class HttpTrace implements IHttpTrace {
 
         ctx.remoteIp = getRemoteAddr(request);
 
+        TransferMap.ID transferId = (TransferMap.ID)request.getAttribute(REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP);
+        request.setAttribute(REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP, null);
+//        System.out.println("[scouter][http-start]transferId:thread: " + transferId + " ::: " + Thread.currentThread().getName());
+//        System.out.println("[scouter][http-start]url: " + ctx.serviceName);
+
+        if(transferId != null) {
+            if(transferId.gxid !=0) ctx.gxid = transferId.gxid;
+            if(transferId.callee !=0) ctx.txid = transferId.callee;
+            if(transferId.caller !=0) ctx.caller = transferId.caller;
+            ctx.xType = transferId.xType;
+            if(ctx.xType == XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+                TraceContext callerCtx = TraceContextManager.getDeferredContext(ctx.caller);
+                StringBuilder sb = new StringBuilder(ctx.serviceName.length()*3);
+                sb.append(ASYNC_SERVLET_DISPATCHED_PREFIX);
+                if (Boolean.TRUE.equals(request.getAttribute(REQUEST_ATTRIBUTE_SELF_DISPATCHED))) {
+                    request.setAttribute(REQUEST_ATTRIBUTE_SELF_DISPATCHED, false);
+                    sb.append("[self]");
+                    if (callerCtx != null) sb.append(callerCtx.serviceName);
+                    ctx.serviceName = sb.toString();
+                } else {
+                    if (callerCtx != null) sb.append(callerCtx.serviceName).append(":/");
+                    ctx.serviceName = sb.append(ctx.serviceName).toString();
+                }
+            }
+        }
+
         try {
             switch (conf.trace_user_mode) {
+                case 3:
+                    ctx.userid = UseridUtil.getUseridFromHeader(request, response, conf.trace_user_session_key);
+                    if (ctx.userid == 0 && ctx.remoteIp != null) {
+                        ctx.userid = HashUtil.hash(ctx.remoteIp);
+                    }
+                    break;
                 case 2:
                     ctx.userid = UseridUtil.getUserid(request, response);
                     break;
@@ -134,7 +177,7 @@ public class HttpTrace implements IHttpTrace {
             ctx.userAgentString = userAgent;
         }
         dump(ctx.profile, request, ctx);
-        if (conf.trace_interservice_enabled) {
+        if (conf.trace_interservice_enabled && transferId == null) {
             try {
                 String gxid = request.getHeader(conf._trace_interservice_gxid_header_key);
                 if (gxid != null) {
@@ -269,7 +312,6 @@ public class HttpTrace implements IHttpTrace {
     public void end(TraceContext ctx, Object req, Object res) {
         // HttpServletRequest request = (HttpServletRequest)req;
         // HttpServletResponse response = (HttpServletResponse)res;
-        //
     }
 
     private static void dump(IProfileCollector p, HttpServletRequest request, TraceContext ctx) {
@@ -344,9 +386,23 @@ public class HttpTrace implements IHttpTrace {
         }
     }
 
-
-    public static void main(String[] args) {
-        System.out.println("http trace".indexOf(null));
+    public void addAsyncContextListener(Object ac) {
+        return;
     }
 
+    public TraceContext getTraceContextFromAsyncContext(Object oAsyncContext) {
+        return null;
+    }
+
+    public void setDispatchTransferMap(Object oAsyncContext, long gxid, long caller, long callee, byte xType) {
+        return;
+    }
+
+    public void setSelfDispatch(Object oAsyncContext, boolean self) {
+        return;
+    }
+
+    public boolean isSelfDispatch(Object oAsyncContext) {
+        return false;
+    }
 }

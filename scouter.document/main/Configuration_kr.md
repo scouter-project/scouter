@@ -1,5 +1,5 @@
 # Configuration
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Configuration.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Configuration.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 ## Server options
  * **Useful options of collector server**

@@ -1,5 +1,5 @@
 # Getting Started
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Getting-Started_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Getting-Started_kr.md)
 
 Scouter is a tool to monitor the performance Tomcat, MariaDB, Linux of the OSS.
 First, a description will be given to simple installation and basic usage for those who are new to Scouter.

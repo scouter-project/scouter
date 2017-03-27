@@ -1,5 +1,5 @@
 # Console Mode Running
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Console-Mode-Running_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Console-Mode-Running_kr.md)
 
 It is also provided console-mode-monitoring. But remember this method is temporary for rarely special cases.
 

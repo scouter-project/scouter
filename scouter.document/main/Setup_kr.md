@@ -1,5 +1,5 @@
 # Setup
-[![Englsh](https://img.shields.io/badge/language-English-red.svg)](Setup.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Setup.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 ***
 
@@ -115,7 +115,7 @@ obj_name=myFirstTomcat1
 
 ## 4. Client
 ### 4.1. Prerequisite
-* JRE 1.7+
+* JRE 1.8+
 
 ### Start Client
 1. Download suitable one of `scouter.client.product-${os}[.tar.gz|.zip]` 

@@ -1,5 +1,5 @@
 # What special in SOUTER
-![Englsh](https://img.shields.io/badge/language-English-red.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](What-special-in-SCOUTER_kr.md)
+![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](What-special-in-SCOUTER_kr.md)
 
 What is special in SCOUTER? In fact, monitoring the performance of applications and analysis is no different look at the big picture. But you can see that with different points of view, if you want to use that tool in a more professional. SCOUTER also has his own unique and powerful features built in.
 

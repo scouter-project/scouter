@@ -16,6 +16,7 @@
  */
 package scouter.agent.trace;
 
+import scouter.agent.AgentCommonContant;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterService;
@@ -36,14 +37,18 @@ import scouter.lang.TextTypes;
 import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
+import scouter.lang.step.DispatchStep;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.MethodStep2;
+import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.lang.value.MapValue;
 import scouter.util.*;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
 
 public class TraceMain {
     public static class Stat {
@@ -152,6 +157,7 @@ public class TraceMain {
 
     private static void addSeviceName(TraceContext ctx, Object req) {
         try {
+            ctx.serviceName = AgentCommonContant.removeSpringRequestMappingPostfixFlag(ctx.serviceName);
             Configure conf = Configure.getInstance();
 
             StringBuilder sb = new StringBuilder();
@@ -202,7 +208,7 @@ public class TraceMain {
         if (http == null) {
             initHttp(req);
         }
-        
+
         Configure conf = Configure.getInstance();
         TraceContext ctx = new TraceContext(conf.profile_summary_mode_enabled);
         ctx.thread = Thread.currentThread();
@@ -213,6 +219,13 @@ public class TraceMain {
         ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
         ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
 
+        HashedMessageStep step = new HashedMessageStep();
+        step.time = -1;
+        ctx.threadName = ctx.thread.getName();
+        step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.threadName);
+
+        ctx.profile.add(step);
+
         http.start(ctx, req, res);
         if (ctx.serviceName == null)
             ctx.serviceName = "Non-URI";
@@ -220,7 +233,10 @@ public class TraceMain {
         stat.isStaticContents = ctx.isStaticContents;
 
         if (stat.isStaticContents == false) {
-            PluginHttpServiceTrace.start(ctx, req, res);
+            if (ctx.xType != XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+                PluginHttpServiceTrace.start(ctx, req, res);
+            }
+
             if(plController != null) {
             	plController.start(ctx, req, res);
             }
@@ -231,7 +247,7 @@ public class TraceMain {
     private static void initHttp(Object req) {
         synchronized (lock) {
             if (http == null) {
-                http = HttpTraceFactory.create(req.getClass().getClassLoader());
+                http = HttpTraceFactory.create(req.getClass().getClassLoader(), req);
             }
         }
     }
@@ -241,62 +257,69 @@ public class TraceMain {
             TraceContextManager.clearForceDiscard();
             return;
         }
-
         try {
             Stat stat0 = (Stat) stat;
-            if (stat0 == null) {
-                if (thr == null) {
-                    TraceContextManager.clearForceDiscard();
-                    return;
-                }
-                try {
-                    TraceContext ctx = TraceContextManager.getContext();
-                    if (ctx != null && ctx.error == 0) {
-                        Configure conf = Configure.getInstance();
-                        String emsg = thr.toString();
-                        if (conf.profile_fullstack_service_error_enabled) {
-                            StringBuffer sb = new StringBuffer();
-                            sb.append(thr.getClass().getName()).append("\n");
-                            ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                            Throwable thrCause = thr.getCause();
-                            if(thrCause != null) {
-                                thr = thrCause;
-                                while (thr != null) {
-                                    sb.append("\nCause...\n");
-                                    ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                                    thr = thr.getCause();
-                                }
-                            }
-                            emsg = sb.toString();
-                        }
-                        ctx.error = DataProxy.sendError(emsg);
-                        ServiceSummary.getInstance().process(thr, ctx.error, ctx.serviceHash, ctx.txid, 0, 0);
-                    }
-                } catch (Throwable t) {
-                }
-
-                TraceContextManager.clearForceDiscard();
+            if (stat0 == null) { // means already started on another previous method, so should do end job there.
+                endHttpProcessingIfStatNull(thr);
                 return;
             }
             TraceContext ctx = stat0.ctx;
 
+            //wait on async servlet completion
+            if(!ctx.asyncServletStarted) {
+                endHttpServiceFinal(ctx, stat0.req, stat0.res, thr);
+            } else {
+                HashedMessageStep step = new HashedMessageStep();
+                step.time = -1;
+                step.hash = DataProxy.sendHashedMessage("end servlet and wait async complete");
+                step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+                ctx.profile.add(step);
+
+                TraceContextManager.end(ctx.threadId);
+                ctx.latestCpu = SysJMX.getCurrentThreadCPU();
+                ctx.latestBytes = SysJMX.getCurrentThreadAllocBytes();
+                TraceContextManager.toDeferred(ctx);
+            }
+        } catch (Throwable throwable) {
+            Logger.println("A180", throwable.getMessage(), throwable);
+        }
+    }
+
+    public static void endHttpServiceFinal(TraceContext ctx, Object request, Object response, Throwable thr) {
+        if(TraceContextManager.isForceDiscarded()) {
+            TraceContextManager.clearForceDiscard();
+            return;
+        }
+
+        //prevent duplication invoke
+        synchronized (ctx) {
+            if (ctx.endHttpProcessingStarted) {
+                Logger.println("[warn] duplicated endHttpServiceFinal() called !!! : " + ctx.serviceName);
+                return;
+            }
+            ctx.endHttpProcessingStarted = true;
+        }
+
+        try {
             if (conf.getEndUserPerfEndpointHash() == ctx.serviceHash) {
                 TraceContextManager.end(ctx.threadId);
                 return;
             }
             //additional service name
-            addSeviceName(ctx, stat0.req);
+            addSeviceName(ctx, request);
             // HTTP END
-            http.end(ctx, stat0.req, stat0.res);
+            http.end(ctx, request, response);
             // static-contents -> stop processing
-            if (stat0.isStaticContents) {
+            if (ctx.isStaticContents) {
                 TraceContextManager.end(ctx.threadId);
                 return;
             }
             // Plug-in end
-            PluginHttpServiceTrace.end(ctx, stat0.req, stat0.res);
+            if (ctx.xType != XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
+                PluginHttpServiceTrace.end(ctx, request, response);
+            }
             if(plController != null) {
-            	plController.end(ctx, stat0.req, stat0.res);
+            	plController.end(ctx, request, response);
             }
             //profile rs
             if(conf.trace_rs_leak_enabled && ctx.unclosedRsMap.size() > 0) {
@@ -345,11 +368,21 @@ public class TraceMain {
             pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
             ctx.serviceHash = DataProxy.sendServiceName(ctx.serviceName);
             pack.service = ctx.serviceHash;
-            pack.xType = XLogTypes.WEB_SERVICE;
+            pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
+
+            pack.xType = ctx.xType; //default 0 : XLogType.WEB_SERVICE
             pack.txid = ctx.txid;
             pack.gxid = ctx.gxid;
-            pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-            pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
+            if(ctx.latestCpu > 0) {
+                pack.cpu = (int) (ctx.latestCpu - ctx.startCpu);
+            } else {
+                pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+            }
+            if(ctx.latestBytes > 0) {
+                pack.kbytes = (int) ((ctx.latestBytes - ctx.bytes) / 1024.0d);
+            } else {
+                pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
+            }
             pack.status = ctx.status;
             pack.sqlCount = ctx.sqlCount;
             pack.sqlTime = ctx.sqlTime;
@@ -431,6 +464,43 @@ public class TraceMain {
         }
     }
 
+    private static void endHttpProcessingIfStatNull(Throwable thr) {
+        // FIXME do nothing, isn't it right??
+
+//        if (thr == null) {
+//            TraceContextManager.clearForceDiscard();
+//            return;
+//        }
+//        try {
+//            TraceContext ctx = TraceContextManager.getContext();
+//            if (ctx != null && ctx.error == 0) {
+//                Configure conf = Configure.getInstance();
+//                String emsg = thr.toString();
+//                if (conf.profile_fullstack_service_error_enabled) {
+//                    StringBuffer sb = new StringBuffer();
+//                    sb.append(thr.getClass().getName()).append("\n");
+//                    ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+//                    Throwable thrCause = thr.getCause();
+//                    if (thrCause != null) {
+//                        thr = thrCause;
+//                        while (thr != null) {
+//                            sb.append("\nCause...\n");
+//                            ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+//                            thr = thr.getCause();
+//                        }
+//                    }
+//                    emsg = sb.toString();
+//                }
+//                ctx.error = DataProxy.sendError(emsg);
+//                ServiceSummary.getInstance().process(thr, ctx.error, ctx.serviceHash, ctx.txid, 0, 0);
+//            }
+//        } catch (Throwable t) {
+//        }
+//
+//        TraceContextManager.clearForceDiscard();
+//        return;
+    }
+
     public static void metering(XLogPack pack) {
         switch (pack.xType) {
             case XLogTypes.WEB_SERVICE:
@@ -439,6 +509,8 @@ public class TraceMain {
                 ServiceSummary.getInstance().process(pack);
                 break;
             case XLogTypes.BACK_THREAD:
+            case XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE:
+            case XLogTypes.BACK_THREAD2:
         }
     }
 
@@ -478,7 +550,17 @@ public class TraceMain {
             ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
             ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
             ctx.xType = xType;
-            PluginAppServiceTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
+
+            HashedMessageStep step = new HashedMessageStep();
+            step.time = -1;
+            ctx.threadName = ctx.thread.getName();
+            step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.threadName);
+            ctx.profile.add(step);
+
+            if (ctx.xType != XLogTypes.BACK_THREAD && ctx.xType != XLogTypes.BACK_THREAD2) {
+                PluginAppServiceTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
+            }
+
             if (ctx.xType == XLogTypes.BACK_THREAD) {
                 MethodStep2 ms = new MethodStep2();
                 ms.hash = DataProxy.sendMethodName(service_name);
@@ -518,12 +600,15 @@ public class TraceMain {
                 }
                 step.error = errorCheck(ctx, thr);
                 ctx.profile.pop(step);
-                PluginAppServiceTrace.end(ctx);
                 TraceContextManager.end(ctx.threadId);
                 ctx.profile.close(true);
                 return;
             }
-            PluginAppServiceTrace.end(ctx);
+
+            if (ctx.xType != XLogTypes.BACK_THREAD && ctx.xType != XLogTypes.BACK_THREAD2) {
+                PluginAppServiceTrace.end(ctx);
+            }
+
             TraceContextManager.end(ctx.threadId);
 
             XLogPack pack = new XLogPack();
@@ -536,6 +621,7 @@ public class TraceMain {
             ctx.profile.close(sendable);
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
+            pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
             pack.xType = ctx.xType;
             pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
             pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
@@ -707,6 +793,7 @@ public class TraceMain {
 
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null) {
+            //System.out.println("[Scouter][HookMethodCtxNull]" + classMethod);
             if (conf._trace_auto_service_enabled) {
                 Object localContext = startService(classMethod, null, null, null, null, null, XLogTypes.APP_SERVICE);
 				if (localContext != null) {
@@ -759,8 +846,10 @@ public class TraceMain {
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null || name == null)
             return;
-        ctx.serviceName = name;
-        ctx.serviceHash = HashUtil.hash(name);
+        if(!ctx.serviceName.contains(AgentCommonContant.SPRING_REQUEST_MAPPING_POSTFIX_FLAG)) {
+            ctx.serviceName = name;
+            ctx.serviceHash = HashUtil.hash(name);
+        }
     }
 
     public static void setStatus(int httpStatus) {
@@ -845,5 +934,267 @@ public class TraceMain {
             }
         }
         return isXLogDisard;
+    }
+
+    public static void endRequestAsyncStart(Object asyncContext) {
+        if(http == null) return;
+        TraceContext traceContext = TraceContextManager.getContext();
+        if(traceContext == null) return;
+        http.addAsyncContextListener(asyncContext);
+        traceContext.asyncServletStarted = true;
+    }
+
+    public static void dispatchAsyncServlet(Object asyncContext, String url) {
+        if(http == null) return;
+        TraceContext ctx = http.getTraceContextFromAsyncContext(asyncContext);
+        if(ctx == null) return;
+
+        boolean self = http.isSelfDispatch(asyncContext);
+        if(self) {
+            //http.setSelfDispatch(asyncContext, false);
+            //return;
+        }
+
+        if (ctx.gxid == 0) {
+            ctx.gxid = ctx.txid;
+        }
+        long callee = KeyGen.next();
+        http.setDispatchTransferMap(asyncContext, ctx.gxid, ctx.txid, callee, XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE);
+
+        DispatchStep step = new DispatchStep();
+        step.txid = callee;
+
+        step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+
+        // It maybe another thread
+        if (ctx.profile_thread_cputime) {
+            step.start_cpu = -1;
+            step.cputime = -1;
+        }
+
+        step.address = "dispatch";
+        if(self) url = "[self]";
+        step.hash = DataProxy.sendApicall(step.address + "://" + url);
+        ctx.profile.add(step);
+    }
+
+    public static void selfDispatchAsyncServlet(Object asyncContext) {
+        if(http == null) return;
+        http.setSelfDispatch(asyncContext, true);
+    }
+
+    public static void asyncPossibleInstanceInitInvoked(Object keyObject) {
+        try {
+            TraceContext ctx = TraceContextManager.getContext();
+            if(ctx == null) return;
+
+            if(TransferMap.get(System.identityHashCode(keyObject)) != null) {
+                return;
+            }
+
+            ThreadCallPossibleStep step = new ThreadCallPossibleStep();
+
+            long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+            long callee = KeyGen.next();
+
+            ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
+            threadCallPossibleStep.txid = callee;
+
+            threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+            threadCallPossibleStep.hash = DataProxy.sendApicall(keyObject.toString().replace("$ByteBuddy", "").replace("$$Lambda", "$$L"));
+            ctx.profile.add(threadCallPossibleStep);
+
+            TransferMap.put(System.identityHashCode(keyObject), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
+        } catch (Throwable t) {
+            Logger.println("B1204", "Exception: asyncPossibleInstanceInitInvoked", t);
+        }
+    }
+
+    public static Object startAsyncPossibleService(Object keyObject, String fullName,
+                                                   String className, String methodName, String methodDesc,
+                                                   Object _this, Object[] arg) {
+
+        try {
+            TraceContext ctx = TraceContextManager.getContext();
+            int objKey = System.identityHashCode(keyObject);
+            TransferMap.ID id = TransferMap.get(objKey);
+            TransferMap.remove(objKey);
+
+            if (id == null) {
+                return null;
+            }
+
+            if(ctx != null) {
+                if(ctx.txid == id.caller) {
+                    return null;
+                } else {
+                    Logger.trace("B109 - recevieAsyncPossibleStep -> caller txid : "
+                            + id.caller + "=" + Hexa32.toString32(id.caller)
+                            + " ctx.txid : " + ctx.txid  + "=" + Hexa32.toString32(ctx.txid)
+                            + " id.callee : " + id.callee  + "=" + Hexa32.toString32(id.callee)
+                            + " id.thread : " + id.callerThreadId
+                            + " current.thread : " + Thread.currentThread().getName() + "=" + Thread.currentThread().getId());
+                    return null;
+                }
+            }
+
+            LocalContext localContext = (LocalContext)startService(fullName, className, methodName, methodDesc, _this, arg, XLogTypes.BACK_THREAD2);
+            if (localContext == null) {
+                return null;
+            }
+            localContext.service = true;
+            if(id.gxid != 0) localContext.context.gxid = id.gxid;
+            if(id.callee != 0) localContext.context.txid = id.callee;
+            if(id.caller != 0) localContext.context.caller = id.caller;
+            String serviceName = StringUtil.cutLastString(className, '/') + "#" + methodName + "() -- " + fullName;
+            serviceName = serviceName.replace("$ByteBuddy", "");
+            serviceName = serviceName.replace("$$Lambda", "$$L");
+            localContext.context.serviceHash = HashUtil.hash(serviceName);
+            localContext.context.serviceName = serviceName;
+
+            if(id.tcStep != null) {
+                id.tcStep.threaded = 1;
+                id.tcStep.hash = DataProxy.sendApicall(serviceName);
+            }
+
+            return localContext;
+        } catch (Throwable t) {
+            Logger.println("B1091", "Exception: startAsyncPossibleService", t);
+            return null;
+        }
+    }
+
+    public static void endAsyncPossibleService(Object oRtn, Object oLocalContext, Throwable thr) {
+        try {
+            if (oLocalContext == null)
+                return;
+            LocalContext lctx = (LocalContext) oLocalContext;
+            if (lctx.service) {
+                endService(lctx, oRtn, thr);
+                return;
+            }
+        } catch (Throwable t) {
+            Logger.println("B1201", "Exception: endAsyncPossibleService", t);
+        }
+    }
+
+    public static void springAsyncExecutionSubmit(Object _this, Callable callable) {
+        try {
+            TraceContext ctx = TraceContextManager.getContext();
+            if(ctx == null) return;
+
+            if(TransferMap.get(System.identityHashCode(callable)) != null) {
+                return;
+            }
+
+            ThreadCallPossibleStep step = new ThreadCallPossibleStep();
+
+            long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+            long callee = KeyGen.next();
+
+            ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
+            threadCallPossibleStep.txid = callee;
+            threadCallPossibleStep.threaded = 1;
+
+            threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+            String threadCallName = (ctx.lastThreadCallName != null) ? ctx.lastThreadCallName : callable.toString();
+            ctx.lastThreadCallName = null;
+
+            threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
+            threadCallPossibleStep.nameTemp = threadCallName;
+            ctx.profile.add(threadCallPossibleStep);
+
+            TransferMap.put(System.identityHashCode(callable), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
+        } catch (Throwable t) {
+            Logger.println("B1202", "Exception: springAsyncExecutionSubmit", t);
+        }
+    }
+
+    public static void springAsyncDetermineExecutor(Method m) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if(ctx == null) return;
+        if(m == null) return;
+
+        ctx.lastThreadCallName = m.getDeclaringClass().getName() + "#" + m.getName() + "()";
+    }
+
+    public static Object callRunnableCallInvoked(Object callRunnableObj) {
+        try {
+            TraceContext ctx = TraceContextManager.getContext();
+            int objKey = System.identityHashCode(callRunnableObj);
+            TransferMap.ID id = TransferMap.get(objKey);
+            TransferMap.remove(objKey);
+
+            if (id == null) {
+                return null;
+            }
+
+            if(ctx != null) {
+                if(ctx.txid == id.caller) {
+                    return null;
+                } else {
+                    Logger.trace("B110 - recevieAsyncPossibleStep -> caller txid : "
+                            + id.caller + "=" + Hexa32.toString32(id.caller)
+                            + " ctx.txid : " + ctx.txid  + "=" + Hexa32.toString32(ctx.txid)
+                            + " id.callee : " + id.callee  + "=" + Hexa32.toString32(id.callee)
+                            + " id.thread : " + id.callerThreadId
+                            + " current.thread : " + Thread.currentThread().getName() + "=" + Thread.currentThread().getId());
+                    return null;
+                }
+            }
+
+            if(id.tcStep != null) {
+                id.tcStep.threaded = 1;
+            }
+
+            LocalContext localContext = (LocalContext)startService(id.tcStep.nameTemp, null, null, null, null, null, XLogTypes.BACK_THREAD2);
+            if (localContext == null) {
+                return null;
+            }
+            localContext.service = true;
+            if(id.gxid != 0) localContext.context.gxid = id.gxid;
+            if(id.callee != 0) localContext.context.txid = id.callee;
+            if(id.caller != 0) localContext.context.caller = id.caller;
+
+            return localContext;
+        } catch (Throwable t) {
+            Logger.println("B1111", "Exception: callRunnableCallInvoked", t);
+            return null;
+        }
+    }
+
+    public static void callRunnableCallEnd(Object oRtn, Object oLocalContext, Throwable thr) {
+        endAsyncPossibleService(oRtn, oLocalContext, thr);
+    }
+
+    public static void callRunnableInitInvoked(Object callRunnableObj) {
+        try {
+            TraceContext ctx = TraceContextManager.getContext();
+            if(ctx == null) return;
+
+            if(TransferMap.get(System.identityHashCode(callRunnableObj)) != null) {
+                return;
+            }
+
+            ThreadCallPossibleStep step = new ThreadCallPossibleStep();
+
+            long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+            long callee = KeyGen.next();
+
+            ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
+            threadCallPossibleStep.txid = callee;
+
+            threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+            String threadCallName = (ctx.lastThreadCallName != null) ? ctx.lastThreadCallName : callRunnableObj.toString();
+            ctx.lastThreadCallName = null;
+
+            threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
+            threadCallPossibleStep.nameTemp = threadCallName;
+            ctx.profile.add(threadCallPossibleStep);
+
+            TransferMap.put(System.identityHashCode(callRunnableObj), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
+        } catch (Throwable t) {
+            Logger.println("B1203", "Exception: callRunnableInitInvoked", t);
+        }
     }
 }
