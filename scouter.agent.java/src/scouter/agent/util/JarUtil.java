@@ -18,6 +18,8 @@
 package scouter.agent.util;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.security.CodeSource;
 
 import scouter.agent.JavaAgent;
 
@@ -42,4 +44,16 @@ public class JarUtil {
 			return null;
 		}
 	}
+
+    public static File getThisJarFile(Class clazz) {
+        try {
+            CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
+            File agentJarFile = new File(codeSource.getLocation().toURI());
+            if (agentJarFile.getName().endsWith(".jar")) {
+                return agentJarFile;
+            }
+        } catch (Throwable e) {
+        }
+        return null;
+    }
 }

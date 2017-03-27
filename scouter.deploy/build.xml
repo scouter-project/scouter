@@ -4,7 +4,7 @@
 	<property name="deploy-dir" value="./out/package"/>
 	<property name="outpack-dir" value="./out"/>
 	
-	<property name="VERSION" value="0.4.22"/>
+	<property name="VERSION" value="0.5.0"/>
 		
 	
     <target name="packing">
