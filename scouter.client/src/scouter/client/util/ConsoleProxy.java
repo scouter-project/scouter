@@ -22,11 +22,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.IConsoleConstants;
-import org.eclipse.ui.console.MessageConsole;
-import org.eclipse.ui.console.MessageConsoleStream;
+import org.eclipse.ui.console.*;
+
+import java.io.PrintStream;
 
 
 public class ConsoleProxy {
@@ -148,6 +146,10 @@ public class ConsoleProxy {
 		}
 
 		MessageConsoleStream msgConsoleStream = getMessageConsole().newMessageStream();
+		PrintStream myS = new PrintStream(msgConsoleStream);
+		System.setOut(myS);
+		System.setErr(myS);
+
 		try {
 			Color c = ColorUtil.getInstance().getColor(swtColorId);
 			msgConsoleStream.setColor(c);

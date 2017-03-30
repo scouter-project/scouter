@@ -930,6 +930,8 @@ public class ProfileText {
             String methodName = parts[parts.length - 1];
             int bracePos = methodName.indexOf('(');
 
+            if(bracePos <= 0) return method;
+
             return parts[parts.length - 2] + "#" + methodName.substring(0, bracePos) + "()";
         } else {
             return method;
