@@ -371,7 +371,7 @@ public class Configure extends Thread {
     public String hook_async_callrunnable_scan_package_prefixes = "";
 
     @ConfigDesc("enable lambda expressioned class hook for detecting asyncronous processing. Only classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
-    public boolean hook_lambda_instrumentation_strategy_enabled = true;
+    public boolean hook_lambda_instrumentation_strategy_enabled = false;
 
     @ConfigDesc("")
     public String hook_add_fields = "";
@@ -662,7 +662,7 @@ public class Configure extends Thread {
         this.hook_async_callrunnable_enable = getBoolean("hook_async_callrunnable_enable", true);
         this.hook_async_callrunnable_scan_package_prefixes = getValue("hook_async_callrunnable_scan_package_prefixes", "");
 
-        this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", true);
+        this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", false);
 
         this.hook_add_fields = getValue("hook_add_fields", "");
         this.hook_context_classes = getValue("hook_context_classes", "javax/naming/InitialContext");

@@ -84,6 +84,8 @@ import java.util.*;
  * @see AgentBuilder
  */
 public class ByteBuddy {
+    private static final String BYTE_BUDDY_VERSION = "1.6.9";
+
     /**
      * The default prefix for the default {@link NamingStrategy}.
      */
@@ -254,8 +256,8 @@ public class ByteBuddy {
      * </p>
      *
      * @param superType The super class or interface type to extend. The type must be a raw type or parameterized type. All type
-     * variables that are referenced by the generic type must be declared by the generated subclass before creating
-     * the type.
+     *                  variables that are referenced by the generic type must be declared by the generated subclass before creating
+     *                  the type.
      * @return A type builder for creating a new class extending the provided class or interface.
      */
     public DynamicType.Builder<?> subclass(Type superType) {
@@ -277,8 +279,8 @@ public class ByteBuddy {
      * </p>
      *
      * @param superType           The super class or interface type to extend. The type must be a raw type or parameterized
-     * type. All type variables that are referenced by the generic type must be declared by the
-     * generated subclass before creating the type.
+     *                            type. All type variables that are referenced by the generic type must be declared by the
+     *                            generated subclass before creating the type.
      * @param constructorStrategy A constructor strategy that determines the
      * @return A type builder for creating a new class extending the provided class or interface.
      */
@@ -306,8 +308,8 @@ public class ByteBuddy {
      * </p>
      *
      * @param superType The super class or interface type to extend. The type must be a raw type or parameterized type. All type
-     * variables that are referenced by the generic type must be declared by the generated subclass before creating
-     * the type.
+     *                  variables that are referenced by the generic type must be declared by the generated subclass before creating
+     *                  the type.
      * @return A type builder for creating a new class extending the provided class or interface.
      */
     public DynamicType.Builder<?> subclass(TypeDefinition superType) {
@@ -329,8 +331,8 @@ public class ByteBuddy {
      * </p>
      *
      * @param superType           The super class or interface type to extend. The type must be a raw type or parameterized
-     * type. All type variables that are referenced by the generic type must be declared by the
-     * generated subclass before creating the type.
+     *                            type. All type variables that are referenced by the generic type must be declared by the
+     *                            generated subclass before creating the type.
      * @param constructorStrategy A constructor strategy that determines the
      * @return A type builder for creating a new class extending the provided class or interface.
      */
@@ -399,8 +401,8 @@ public class ByteBuddy {
      * </p>
      *
      * @param interfaceType The interface types to implement. The types must be raw or parameterized types. All type
-     * variables that are referenced by a parameterized type must be declared by the generated
-     * subclass before creating the type.
+     *                      variables that are referenced by a parameterized type must be declared by the generated
+     *                      subclass before creating the type.
      * @return A type builder that creates a new interface type.
      */
     public DynamicType.Builder<?> makeInterface(Type... interfaceType) {
@@ -421,8 +423,8 @@ public class ByteBuddy {
      * </p>
      *
      * @param interfaceTypes The interface types to implement. The types must be raw or parameterized types. All
-     * type variables that are referenced by a parameterized type must be declared by the
-     * generated subclass before creating the type.
+     *                       type variables that are referenced by a parameterized type must be declared by the
+     *                       generated subclass before creating the type.
      * @return A type builder that creates a new interface type.
      */
     public DynamicType.Builder<?> makeInterface(List<? extends Type> interfaceTypes) {
@@ -443,8 +445,8 @@ public class ByteBuddy {
      * </p>
      *
      * @param interfaceType The interface types to implement. The types must be raw or parameterized types. All
-     * type variables that are referenced by a parameterized type must be declared by the
-     * generated subclass before creating the type.
+     *                      type variables that are referenced by a parameterized type must be declared by the
+     *                      generated subclass before creating the type.
      * @return A type builder that creates a new interface type.
      */
     public DynamicType.Builder<?> makeInterface(TypeDefinition... interfaceType) {
@@ -465,8 +467,8 @@ public class ByteBuddy {
      * </p>
      *
      * @param interfaceTypes The interface types to implement. The types must be raw or parameterized types. All
-     * type variables that are referenced by a parameterized type must be declared by the
-     * generated subclass before creating the type.
+     *                       type variables that are referenced by a parameterized type must be declared by the
+     *                       generated subclass before creating the type.
      * @return A type builder that creates a new interface type.
      */
     public DynamicType.Builder<?> makeInterface(Collection<? extends TypeDefinition> interfaceTypes) {
@@ -968,7 +970,8 @@ public class ByteBuddy {
                 if (!other.canEqual((java.lang.Object) this)) return false;
                 final java.lang.Object this$instrumentedType = this.instrumentedType;
                 final java.lang.Object other$instrumentedType = other.instrumentedType;
-                if (this$instrumentedType == null ? other$instrumentedType != null : !this$instrumentedType.equals(other$instrumentedType)) return false;
+                if (this$instrumentedType == null ? other$instrumentedType != null : !this$instrumentedType.equals(other$instrumentedType))
+                    return false;
                 return true;
             }
 
@@ -1102,34 +1105,44 @@ public class ByteBuddy {
         if (!other.canEqual((java.lang.Object) this)) return false;
         final java.lang.Object this$classFileVersion = this.classFileVersion;
         final java.lang.Object other$classFileVersion = other.classFileVersion;
-        if (this$classFileVersion == null ? other$classFileVersion != null : !this$classFileVersion.equals(other$classFileVersion)) return false;
+        if (this$classFileVersion == null ? other$classFileVersion != null : !this$classFileVersion.equals(other$classFileVersion))
+            return false;
         final java.lang.Object this$namingStrategy = this.namingStrategy;
         final java.lang.Object other$namingStrategy = other.namingStrategy;
-        if (this$namingStrategy == null ? other$namingStrategy != null : !this$namingStrategy.equals(other$namingStrategy)) return false;
+        if (this$namingStrategy == null ? other$namingStrategy != null : !this$namingStrategy.equals(other$namingStrategy))
+            return false;
         final java.lang.Object this$auxiliaryTypeNamingStrategy = this.auxiliaryTypeNamingStrategy;
         final java.lang.Object other$auxiliaryTypeNamingStrategy = other.auxiliaryTypeNamingStrategy;
-        if (this$auxiliaryTypeNamingStrategy == null ? other$auxiliaryTypeNamingStrategy != null : !this$auxiliaryTypeNamingStrategy.equals(other$auxiliaryTypeNamingStrategy)) return false;
+        if (this$auxiliaryTypeNamingStrategy == null ? other$auxiliaryTypeNamingStrategy != null : !this$auxiliaryTypeNamingStrategy.equals(other$auxiliaryTypeNamingStrategy))
+            return false;
         final java.lang.Object this$annotationValueFilterFactory = this.annotationValueFilterFactory;
         final java.lang.Object other$annotationValueFilterFactory = other.annotationValueFilterFactory;
-        if (this$annotationValueFilterFactory == null ? other$annotationValueFilterFactory != null : !this$annotationValueFilterFactory.equals(other$annotationValueFilterFactory)) return false;
+        if (this$annotationValueFilterFactory == null ? other$annotationValueFilterFactory != null : !this$annotationValueFilterFactory.equals(other$annotationValueFilterFactory))
+            return false;
         final java.lang.Object this$annotationRetention = this.annotationRetention;
         final java.lang.Object other$annotationRetention = other.annotationRetention;
-        if (this$annotationRetention == null ? other$annotationRetention != null : !this$annotationRetention.equals(other$annotationRetention)) return false;
+        if (this$annotationRetention == null ? other$annotationRetention != null : !this$annotationRetention.equals(other$annotationRetention))
+            return false;
         final java.lang.Object this$implementationContextFactory = this.implementationContextFactory;
         final java.lang.Object other$implementationContextFactory = other.implementationContextFactory;
-        if (this$implementationContextFactory == null ? other$implementationContextFactory != null : !this$implementationContextFactory.equals(other$implementationContextFactory)) return false;
+        if (this$implementationContextFactory == null ? other$implementationContextFactory != null : !this$implementationContextFactory.equals(other$implementationContextFactory))
+            return false;
         final java.lang.Object this$methodGraphCompiler = this.methodGraphCompiler;
         final java.lang.Object other$methodGraphCompiler = other.methodGraphCompiler;
-        if (this$methodGraphCompiler == null ? other$methodGraphCompiler != null : !this$methodGraphCompiler.equals(other$methodGraphCompiler)) return false;
+        if (this$methodGraphCompiler == null ? other$methodGraphCompiler != null : !this$methodGraphCompiler.equals(other$methodGraphCompiler))
+            return false;
         final java.lang.Object this$instrumentedTypeFactory = this.instrumentedTypeFactory;
         final java.lang.Object other$instrumentedTypeFactory = other.instrumentedTypeFactory;
-        if (this$instrumentedTypeFactory == null ? other$instrumentedTypeFactory != null : !this$instrumentedTypeFactory.equals(other$instrumentedTypeFactory)) return false;
+        if (this$instrumentedTypeFactory == null ? other$instrumentedTypeFactory != null : !this$instrumentedTypeFactory.equals(other$instrumentedTypeFactory))
+            return false;
         final java.lang.Object this$ignoredMethods = this.ignoredMethods;
         final java.lang.Object other$ignoredMethods = other.ignoredMethods;
-        if (this$ignoredMethods == null ? other$ignoredMethods != null : !this$ignoredMethods.equals(other$ignoredMethods)) return false;
+        if (this$ignoredMethods == null ? other$ignoredMethods != null : !this$ignoredMethods.equals(other$ignoredMethods))
+            return false;
         final java.lang.Object this$typeValidation = this.typeValidation;
         final java.lang.Object other$typeValidation = other.typeValidation;
-        if (this$typeValidation == null ? other$typeValidation != null : !this$typeValidation.equals(other$typeValidation)) return false;
+        if (this$typeValidation == null ? other$typeValidation != null : !this$typeValidation.equals(other$typeValidation))
+            return false;
         return true;
     }
 
