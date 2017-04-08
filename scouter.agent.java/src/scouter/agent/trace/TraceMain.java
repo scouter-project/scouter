@@ -1229,4 +1229,33 @@ public class TraceMain {
             Logger.println("B1203", "Exception: callRunnableInitInvoked", t);
         }
     }
+
+    public static void endExceptionConstructor(String className, String methodDesc, Object this0) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null)
+            return;
+
+        Throwable t = (Throwable)this0;
+
+        String msg = t.getMessage();
+
+        if (conf.profile_fullstack_hooked_exception_enabled) {
+            StringBuffer sb = new StringBuffer();
+            sb.append(msg).append("\n");
+            ThreadUtil.getStackTrace(sb, t, conf.profile_fullstack_max_lines);
+            t = t.getCause();
+            while (t != null) {
+                sb.append("\nCause...\n");
+                ThreadUtil.getStackTrace(sb, t, conf.profile_fullstack_max_lines);
+                t = t.getCause();
+            }
+            msg = sb.toString();
+        }
+
+        int hash = DataProxy.sendError(msg);
+        if (ctx.error == 0) {
+            ctx.error = hash;
+        }
+        ServiceSummary.getInstance().process(t, hash, ctx.serviceHash, ctx.txid, 0, 0);
+    }
 }
