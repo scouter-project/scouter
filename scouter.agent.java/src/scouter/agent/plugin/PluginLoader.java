@@ -82,6 +82,14 @@ public class PluginLoader extends Thread {
 				PluginCaptureTrace.plugIn = createICaptureTrace(script);
 			}
 		}
+		script = new File(root, "springControllerCapture.plug");
+		if (script.canRead() == false) {
+			PluginSpringControllerCaptureTrace.plugIn = null;
+		} else {
+			if (PluginSpringControllerCaptureTrace.plugIn == null || PluginSpringControllerCaptureTrace.plugIn.lastModified != script.lastModified()) {
+				PluginSpringControllerCaptureTrace.plugIn = createICaptureTrace(script);
+			}
+		}
 		script = new File(root, "jdbcpool.plug");
 		if (script.canRead() == false) {
 			PluginJdbcPoolTrace.plugIn = null;
@@ -401,7 +409,7 @@ public class PluginLoader extends Thread {
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractCapture plugin = (AbstractCapture) c.newInstance();
 			plugin.lastModified = script.lastModified();
-			Logger.println("PLUG-IN : " + AbstractCapture.class.getName() + " loaded #"
+			Logger.println("PLUG-IN : " + AbstractCapture.class.getName() + " " + script.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (scouter.javassist.CannotCompileException ee) {

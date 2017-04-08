@@ -29,6 +29,7 @@ import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.PluginAppServiceTrace;
 import scouter.agent.plugin.PluginCaptureTrace;
 import scouter.agent.plugin.PluginHttpServiceTrace;
+import scouter.agent.plugin.PluginSpringControllerCaptureTrace;
 import scouter.agent.proxy.HttpTraceFactory;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
@@ -44,7 +45,15 @@ import scouter.lang.step.MethodStep;
 import scouter.lang.step.MethodStep2;
 import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.lang.value.MapValue;
-import scouter.util.*;
+import scouter.util.ArrayUtil;
+import scouter.util.HashUtil;
+import scouter.util.Hexa32;
+import scouter.util.IPUtil;
+import scouter.util.KeyGen;
+import scouter.util.ObjectUtil;
+import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.ThreadUtil;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
@@ -852,6 +861,26 @@ public class TraceMain {
         }
     }
 
+    public static void startSpringControllerMethod(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null)
+            return;
+        if(conf.profile_spring_controller_method_parameter_enabled) {
+            if (arg == null) {
+                return;
+            }
+            int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+            for(int i=0; i<arg.length; i++) {
+                String value = new StringBuilder().append("param: ").append(StringUtil.limiting(arg[i].toString(), 1024)).toString();
+
+                MessageStep step = new MessageStep(value);
+                step.start_time = start_time;
+                ctx.profile.add(step);
+            }
+        }
+        PluginSpringControllerCaptureTrace.capArgs(ctx, new HookArgs(className, methodName, methodDesc, this1, arg));
+    }
+
     public static void setStatus(int httpStatus) {
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null)
@@ -995,6 +1024,7 @@ public class TraceMain {
             ThreadCallPossibleStep step = new ThreadCallPossibleStep();
 
             long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+            ctx.gxid = gxid;
             long callee = KeyGen.next();
 
             ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
@@ -1090,6 +1120,7 @@ public class TraceMain {
             ThreadCallPossibleStep step = new ThreadCallPossibleStep();
 
             long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+            ctx.gxid = gxid;
             long callee = KeyGen.next();
 
             ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
@@ -1179,6 +1210,7 @@ public class TraceMain {
             ThreadCallPossibleStep step = new ThreadCallPossibleStep();
 
             long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+            ctx.gxid = gxid;
             long callee = KeyGen.next();
 
             ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();

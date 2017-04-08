@@ -109,6 +109,8 @@ public class Configure extends Thread {
     public boolean profile_http_parameter_enabled;
     @ConfigDesc("Service URL prefix for Http parameter profile")
     public String profile_http_parameter_url_prefix = "/";
+    @ConfigDesc("spring controller method parameter profile")
+    public boolean profile_spring_controller_method_parameter_enabled = false;
     @ConfigDesc("Activating profile summary function")
     public boolean profile_summary_mode_enabled = false;
     @ConfigDesc("Calculating CPU time by profile")
@@ -556,6 +558,7 @@ public class Configure extends Thread {
         this.profile_http_querystring_enabled = getBoolean("profile_http_querystring_enabled", false);
         this.profile_http_header_enabled = getBoolean("profile_http_header_enabled", false);
         this.profile_http_parameter_enabled = getBoolean("profile_http_parameter_enabled", false);
+        this.profile_spring_controller_method_parameter_enabled = getBoolean("profile_spring_controller_method_parameter_enabled", false);
         this.profile_summary_mode_enabled = getBoolean("profile_summary_mode_enabled", false);
         this.xlog_lower_bound_time_ms = getInt("xlog_lower_bound_time_ms", 0);
         this.trace_service_name_header_key = getValue("trace_service_name_header_key", null);
