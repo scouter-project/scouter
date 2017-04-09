@@ -1234,7 +1234,9 @@ public class TraceMain {
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null)
             return;
-
+        if(!(this0 instanceof Throwable)) {
+            return;
+        }
         Throwable t = (Throwable)this0;
 
         String msg = t.getMessage();
@@ -1243,11 +1245,11 @@ public class TraceMain {
             StringBuffer sb = new StringBuffer();
             sb.append(msg).append("\n");
             ThreadUtil.getStackTrace(sb, t, conf.profile_fullstack_max_lines);
-            t = t.getCause();
-            while (t != null) {
+            Throwable cause = t.getCause();
+            while (cause != null) {
                 sb.append("\nCause...\n");
                 ThreadUtil.getStackTrace(sb, t, conf.profile_fullstack_max_lines);
-                t = t.getCause();
+                cause = cause.getCause();
             }
             msg = sb.toString();
         }

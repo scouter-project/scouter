@@ -30,7 +30,10 @@ import java.util.List;
 
 public class UserExceptionASM implements IASM, Opcodes {
 	String exceptionPatterns = HookingSet.classPattrensToMethodPatterns(Configure.getInstance().hook_exception_class_patterns, "<init>");
-	private  List< HookingSet> target = HookingSet.getHookingMethodSet(exceptionPatterns);
+	String exceptionExcludePatterns = HookingSet.classPattrensToMethodPatterns(Configure.getInstance().hook_exception_exlude_class_patterns, "<init>");
+
+	private  List<HookingSet> target = HookingSet.getHookingMethodSet(exceptionPatterns);
+	private  List<HookingSet> excludeTarget = HookingSet.getHookingMethodSet(exceptionExcludePatterns);
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		if (Configure.getInstance()._hook_cap_enabled == false) {
@@ -39,6 +42,12 @@ public class UserExceptionASM implements IASM, Opcodes {
 		for (int i = 0; i < target.size(); i++) {
 			HookingSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {
+				for (int j = 0; j < excludeTarget.size(); j++) {
+					HookingSet excludeHookinSet = excludeTarget.get(j);
+					if (excludeHookinSet.classMatch.include(className)) {
+						return cv;
+					}
+				}
 				return new UserExceptionCV(cv, mset, className);
 			}
 		}

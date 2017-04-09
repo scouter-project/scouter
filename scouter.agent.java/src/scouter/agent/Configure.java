@@ -358,6 +358,8 @@ public class Configure extends Thread {
     public String hook_jdbc_wrapping_driver_patterns = "";
     @ConfigDesc("Exception class patterns - These will seem as error on xlog view. (ex) my.app.BizException,my.app.exception.*Exception")
     public String hook_exception_class_patterns = "";
+    @ConfigDesc("Exception class exlude patterns")
+    public String hook_exception_exlude_class_patterns = "";
 
     @ConfigDesc("Hook for supporting async servlet")
     public boolean hook_async_servlet_enabled = true;
@@ -659,6 +661,8 @@ public class Configure extends Thread {
         this.hook_jdbc_rs_classes = getValue("hook_jdbc_rs_classes", "");
         this.hook_jdbc_wrapping_driver_patterns = getValue("hook_jdbc_wrapping_driver_patterns", "");
         this.hook_exception_class_patterns = getValue("hook_exception_class_patterns", "");
+        this.hook_exception_exlude_class_patterns = getValue("hook_exception_exlude_class_patterns", "");
+
         this.hook_async_servlet_enabled = getBoolean("_hook_async_servlet_enabled", true);
 
         this.hook_async_context_dispatch_patterns = getValue("hook_async_context_dispatch_patterns", "");
