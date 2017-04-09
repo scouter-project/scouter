@@ -36,9 +36,6 @@ public class UserExceptionASM implements IASM, Opcodes {
 	private  List<HookingSet> excludeTarget = HookingSet.getHookingMethodSet(exceptionExcludePatterns);
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-		if (Configure.getInstance()._hook_cap_enabled == false) {
-			return cv;
-		}
 		for (int i = 0; i < target.size(); i++) {
 			HookingSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {

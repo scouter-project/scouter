@@ -92,6 +92,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new JspServletASM());
         temp.add(new MapImplASM());
         temp.add(new UserExceptionASM());
+        temp.add(new UserExceptionHandlerASM());
 
         temp.add(new AddFieldASM());
 

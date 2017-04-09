@@ -1237,6 +1237,9 @@ public class TraceMain {
         if(!(this0 instanceof Throwable)) {
             return;
         }
+        if (ctx.error != 0) {
+            return;
+        }
         Throwable t = (Throwable)this0;
 
         String msg = t.getMessage();
@@ -1255,9 +1258,44 @@ public class TraceMain {
         }
 
         int hash = DataProxy.sendError(msg);
-        if (ctx.error == 0) {
-            ctx.error = hash;
+        ctx.error = hash;
+        ServiceSummary.getInstance().process(t, hash, ctx.serviceHash, ctx.txid, 0, 0);
+    }
+
+    public static void startExceptionHandler(String className, String methodName, String methodDesc, Object this1, Object[] args) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null) return;
+        if (ctx.error != 0) return;
+        if (args == null || args.length == 0) return;
+
+        Throwable t = null;
+        for(int i=0; i<args.length; i++) {
+            if (args[i] instanceof Throwable) {
+                t = (Throwable)args[i];
+                break;
+            }
         }
+
+        if (t == null) {
+            return;
+        }
+
+        StringBuffer sb = new StringBuffer(64);
+        sb.append(className).append("#").append(methodName).append(" handled exception: ").append(t.getMessage());
+
+        if (conf.profile_fullstack_hooked_exception_enabled) {
+            sb.append("\n");
+            ThreadUtil.getStackTrace(sb, t, conf.profile_fullstack_max_lines);
+            Throwable cause = t.getCause();
+            while (cause != null) {
+                sb.append("\nCause...\n");
+                ThreadUtil.getStackTrace(sb, t, conf.profile_fullstack_max_lines);
+                cause = cause.getCause();
+            }
+        }
+
+        int hash = DataProxy.sendError(sb.toString());
+        ctx.error = hash;
         ServiceSummary.getInstance().process(t, hash, ctx.serviceHash, ctx.txid, 0, 0);
     }
 }
