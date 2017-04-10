@@ -1252,7 +1252,7 @@ public class TraceMain {
             Throwable cause = t.getCause();
             while (cause != null) {
                 sb.append("\nCause...\n");
-                ThreadUtil.getStackTrace(sb, t, conf.profile_fullstack_max_lines);
+                ThreadUtil.getStackTrace(sb, cause, conf.profile_fullstack_max_lines);
                 cause = cause.getCause();
             }
             msg = sb.toString();
@@ -1290,7 +1290,7 @@ public class TraceMain {
             Throwable cause = t.getCause();
             while (cause != null) {
                 sb.append("\nCause...\n");
-                ThreadUtil.getStackTrace(sb, t, conf.profile_fullstack_max_lines);
+                ThreadUtil.getStackTrace(sb, cause, conf.profile_fullstack_max_lines);
                 cause = cause.getCause();
             }
         }
