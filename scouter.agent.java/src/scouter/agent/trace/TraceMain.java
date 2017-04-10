@@ -871,6 +871,7 @@ public class TraceMain {
             }
             int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
             for(int i=0; i<arg.length; i++) {
+                if(arg[i] == null) continue;
                 String value = new StringBuilder().append("param: ").append(StringUtil.limiting(arg[i].toString(), 1024)).toString();
 
                 MessageStep step = new MessageStep(value);
