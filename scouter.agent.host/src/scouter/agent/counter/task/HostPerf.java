@@ -278,7 +278,11 @@ public class HostPerf {
 				if (conf.disk_ignore_names.hasKey(dir))
 					continue;
 
-				usage = sigar.getFileSystemUsage(dir);
+				try {
+					usage = sigar.getFileSystemUsage(dir);
+				} catch (SigarException e) {
+					continue;
+				}
 
 				float pct = (float) (usage.getUsePercent() * 100);
 				if (pct >= conf.disk_fatal_pct && fatal.length() < 32756) {
