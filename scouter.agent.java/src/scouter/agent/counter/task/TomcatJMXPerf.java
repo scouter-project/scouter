@@ -15,16 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.agent.counter.task;
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.ObjTypeDetector;
@@ -40,6 +30,11 @@ import scouter.lang.value.ValueEnum;
 import scouter.util.CastUtil;
 import scouter.util.HashUtil;
 import scouter.util.StringUtil;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import java.lang.management.ManagementFactory;
+import java.util.*;
 public class TomcatJMXPerf {
 	HashMap<MeterKey, MeterResource> meters = new HashMap<MeterKey, MeterResource>();
 	HashMap<MeterKey, Long> lastValues = new HashMap<MeterKey, Long>();
@@ -186,6 +181,10 @@ public class TomcatJMXPerf {
 						add(objName, mbean, objType, ValueEnum.DECIMAL, "numIdle",
 								CounterConstants.DATASOURCE_CONN_IDLE);
 						add(objName, mbean, objType, ValueEnum.DECIMAL, "maxActive",
+								CounterConstants.DATASOURCE_CONN_MAX);
+						// for tomcat 5.5 +
+						// attribute name is changed from maxActive to maxTotal. (reported from zeroty : https://github.com/zeroty)
+						add(objName, mbean, objType, ValueEnum.DECIMAL, "maxTotal",
 								CounterConstants.DATASOURCE_CONN_MAX);
 					} catch (Exception e) {
 					}
