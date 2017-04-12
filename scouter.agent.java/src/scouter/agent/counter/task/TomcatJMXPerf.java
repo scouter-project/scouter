@@ -15,16 +15,6 @@
  *  limitations under the License. 
  */
 package scouter.agent.counter.task;
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.ObjTypeDetector;
@@ -40,6 +30,11 @@ import scouter.lang.value.ValueEnum;
 import scouter.util.CastUtil;
 import scouter.util.HashUtil;
 import scouter.util.StringUtil;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import java.lang.management.ManagementFactory;
+import java.util.*;
 public class TomcatJMXPerf {
 	HashMap<MeterKey, MeterResource> meters = new HashMap<MeterKey, MeterResource>();
 	HashMap<MeterKey, Long> lastValues = new HashMap<MeterKey, Long>();
@@ -146,6 +141,7 @@ public class TomcatJMXPerf {
 		Set<ObjectName> mbeans = server.queryNames(null, null);
 		for (final ObjectName mbean : mbeans) {
 			String type = mbean.getKeyProperty("type");
+			String connectionpool = mbean.getKeyProperty("connectionpool");
 			if (type == null) {
 				continue;
 			}
@@ -167,7 +163,7 @@ public class TomcatJMXPerf {
 							CounterConstants.REQUESTPROCESS_REQUEST_COUNT);
 				} catch (Exception e) {
 				}
-			} else if ("DataSource".equals(type)) { // datasource
+			} else if ("DataSource".equals(type) && connectionpool == null) { // datasource
 				String name = mbean.getKeyProperty("name");
 				if (StringUtil.isNotEmpty(name)) {
 					try {
@@ -186,6 +182,10 @@ public class TomcatJMXPerf {
 						add(objName, mbean, objType, ValueEnum.DECIMAL, "numIdle",
 								CounterConstants.DATASOURCE_CONN_IDLE);
 						add(objName, mbean, objType, ValueEnum.DECIMAL, "maxActive",
+								CounterConstants.DATASOURCE_CONN_MAX);
+						// for tomcat 5.5 +
+						// attribute name is changed from maxActive to maxTotal. (reported from zeroty : https://github.com/zeroty)
+						add(objName, mbean, objType, ValueEnum.DECIMAL, "maxTotal",
 								CounterConstants.DATASOURCE_CONN_MAX);
 					} catch (Exception e) {
 					}
