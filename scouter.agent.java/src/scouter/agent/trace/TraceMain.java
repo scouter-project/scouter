@@ -29,6 +29,7 @@ import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.PluginAppServiceTrace;
 import scouter.agent.plugin.PluginCaptureTrace;
 import scouter.agent.plugin.PluginHttpServiceTrace;
+import scouter.agent.plugin.PluginSpringControllerCaptureTrace;
 import scouter.agent.proxy.HttpTraceFactory;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
@@ -44,7 +45,15 @@ import scouter.lang.step.MethodStep;
 import scouter.lang.step.MethodStep2;
 import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.lang.value.MapValue;
-import scouter.util.*;
+import scouter.util.ArrayUtil;
+import scouter.util.HashUtil;
+import scouter.util.Hexa32;
+import scouter.util.IPUtil;
+import scouter.util.KeyGen;
+import scouter.util.ObjectUtil;
+import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.ThreadUtil;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
@@ -852,6 +861,27 @@ public class TraceMain {
         }
     }
 
+    public static void startSpringControllerMethod(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null)
+            return;
+        if(conf.profile_spring_controller_method_parameter_enabled) {
+            if (arg == null) {
+                return;
+            }
+            int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+            for(int i=0; i<arg.length; i++) {
+                if(arg[i] == null) continue;
+                String value = new StringBuilder().append("param: ").append(StringUtil.limiting(arg[i].toString(), 1024)).toString();
+
+                MessageStep step = new MessageStep(value);
+                step.start_time = start_time;
+                ctx.profile.add(step);
+            }
+        }
+        PluginSpringControllerCaptureTrace.capArgs(ctx, new HookArgs(className, methodName, methodDesc, this1, arg));
+    }
+
     public static void setStatus(int httpStatus) {
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null)
@@ -995,6 +1025,7 @@ public class TraceMain {
             ThreadCallPossibleStep step = new ThreadCallPossibleStep();
 
             long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+            ctx.gxid = gxid;
             long callee = KeyGen.next();
 
             ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
@@ -1090,6 +1121,7 @@ public class TraceMain {
             ThreadCallPossibleStep step = new ThreadCallPossibleStep();
 
             long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+            ctx.gxid = gxid;
             long callee = KeyGen.next();
 
             ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
@@ -1179,6 +1211,7 @@ public class TraceMain {
             ThreadCallPossibleStep step = new ThreadCallPossibleStep();
 
             long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+            ctx.gxid = gxid;
             long callee = KeyGen.next();
 
             ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
@@ -1196,5 +1229,74 @@ public class TraceMain {
         } catch (Throwable t) {
             Logger.println("B1203", "Exception: callRunnableInitInvoked", t);
         }
+    }
+
+    public static void endExceptionConstructor(String className, String methodDesc, Object this0) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null)
+            return;
+        if(!(this0 instanceof Throwable)) {
+            return;
+        }
+        if (ctx.error != 0) {
+            return;
+        }
+        Throwable t = (Throwable)this0;
+
+        String msg = t.getMessage();
+
+        if (conf.profile_fullstack_hooked_exception_enabled) {
+            StringBuffer sb = new StringBuffer();
+            sb.append(msg).append("\n");
+            ThreadUtil.getStackTrace(sb, t, conf.profile_fullstack_max_lines);
+            Throwable cause = t.getCause();
+            while (cause != null) {
+                sb.append("\nCause...\n");
+                ThreadUtil.getStackTrace(sb, cause, conf.profile_fullstack_max_lines);
+                cause = cause.getCause();
+            }
+            msg = sb.toString();
+        }
+
+        int hash = DataProxy.sendError(msg);
+        ctx.error = hash;
+        ServiceSummary.getInstance().process(t, hash, ctx.serviceHash, ctx.txid, 0, 0);
+    }
+
+    public static void startExceptionHandler(String className, String methodName, String methodDesc, Object this1, Object[] args) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null) return;
+        if (ctx.error != 0) return;
+        if (args == null || args.length == 0) return;
+
+        Throwable t = null;
+        for(int i=0; i<args.length; i++) {
+            if (args[i] instanceof Throwable) {
+                t = (Throwable)args[i];
+                break;
+            }
+        }
+
+        if (t == null) {
+            return;
+        }
+
+        StringBuffer sb = new StringBuffer(64);
+        sb.append(className).append("#").append(methodName).append(" handled exception: ").append(t.getMessage());
+
+        if (conf.profile_fullstack_hooked_exception_enabled) {
+            sb.append("\n");
+            ThreadUtil.getStackTrace(sb, t, conf.profile_fullstack_max_lines);
+            Throwable cause = t.getCause();
+            while (cause != null) {
+                sb.append("\nCause...\n");
+                ThreadUtil.getStackTrace(sb, cause, conf.profile_fullstack_max_lines);
+                cause = cause.getCause();
+            }
+        }
+
+        int hash = DataProxy.sendError(sb.toString());
+        ctx.error = hash;
+        ServiceSummary.getInstance().process(t, hash, ctx.serviceHash, ctx.txid, 0, 0);
     }
 }
