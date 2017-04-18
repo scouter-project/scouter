@@ -26,10 +26,27 @@ import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.*;
+import scouter.util.DateUtil;
+import scouter.util.FileUtil;
+import scouter.util.HashUtil;
+import scouter.util.StringEnumer;
+import scouter.util.StringKeyLinkedMap;
+import scouter.util.StringSet;
+import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.SystemUtil;
+import scouter.util.ThreadUtil;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 public class Configure extends Thread {
     public static boolean JDBC_REDEFINED = false;
@@ -362,6 +379,8 @@ public class Configure extends Thread {
     public String hook_exception_exlude_class_patterns = "";
     @ConfigDesc("Exception handler patterns - exceptions passed to these methods are treated as error on xlog view. (ex) my.app.myHandler.handleException")
     public String hook_exception_handler_method_patterns = "";
+    @ConfigDesc("Exception handler exclude class name patterns(can not include star-* in patterns)\n - (ex) my.app.MyManagedException,MyBizException")
+    public String hook_exception_hanlder_exclude_class_patterns = "";
 
     @ConfigDesc("Hook for supporting async servlet")
     public boolean hook_async_servlet_enabled = true;
@@ -665,6 +684,7 @@ public class Configure extends Thread {
         this.hook_exception_class_patterns = getValue("hook_exception_class_patterns", "");
         this.hook_exception_exlude_class_patterns = getValue("hook_exception_exlude_class_patterns", "");
         this.hook_exception_handler_method_patterns = getValue("hook_exception_handler_method_patterns", "");
+        this.hook_exception_hanlder_exclude_class_patterns = getValue("hook_exception_hanlder_exclude_class_patterns", "");
 
         this.hook_async_servlet_enabled = getBoolean("_hook_async_servlet_enabled", true);
 

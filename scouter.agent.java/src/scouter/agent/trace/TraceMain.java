@@ -19,6 +19,7 @@ package scouter.agent.trace;
 import scouter.agent.AgentCommonContant;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
+import scouter.agent.asm.UserExceptionHandlerASM;
 import scouter.agent.counter.meter.MeterService;
 import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.error.REQUEST_REJECT;
@@ -1263,6 +1264,23 @@ public class TraceMain {
         ServiceSummary.getInstance().process(t, hash, ctx.serviceHash, ctx.txid, 0, 0);
     }
 
+    public static StringBuilder appendParentClassName(Class clazz, StringBuilder sb) {
+        Class superClazz = clazz.getSuperclass();
+        if(superClazz != null) {
+            sb.append(",").append(superClazz.getName());
+            return appendParentClassName(superClazz, sb);
+        } else {
+            return sb;
+        }
+    }
+
+    public static String buildClassHierarchyConcatString(Class clazz) {
+        if(clazz == null) return null;
+        StringBuilder sb = new StringBuilder(clazz.getName());
+        appendParentClassName(clazz, sb);
+        return sb.toString();
+    }
+
     public static void startExceptionHandler(String className, String methodName, String methodDesc, Object this1, Object[] args) {
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null) return;
@@ -1279,6 +1297,15 @@ public class TraceMain {
 
         if (t == null) {
             return;
+        }
+
+        //skip exclude patterns
+        String classHierarchyConcatString = buildClassHierarchyConcatString(t.getClass());
+        String[] excludes = UserExceptionHandlerASM.exceptionExcludeClasseNames;
+        for (int i = 0; i < excludes.length; i++) {
+            if (classHierarchyConcatString.indexOf(excludes[i]) >= 0) {
+                return;
+            }
         }
 
         StringBuffer sb = new StringBuffer(64);

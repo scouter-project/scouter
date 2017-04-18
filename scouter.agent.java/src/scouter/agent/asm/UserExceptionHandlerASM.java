@@ -27,11 +27,14 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.util.StringUtil;
 
 import java.util.List;
 
 public class UserExceptionHandlerASM implements IASM, Opcodes {
-	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_exception_handler_method_patterns);
+	List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_exception_handler_method_patterns);
+	public static String[] exceptionExcludeClasseNames = StringUtil.split(Configure.getInstance().hook_exception_hanlder_exclude_class_patterns, ',');
+
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
 		for (int i = 0; i < target.size(); i++) {
