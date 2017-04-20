@@ -36,7 +36,8 @@ public class EscapeLiteralSQL {
 	private int length;
 	
 	private int count;
-
+	private int comment_su;
+	
 	final StringBuffer parsedSql;
 	final StringBuffer param;
 	private STAT status;
@@ -194,7 +195,9 @@ public class EscapeLiteralSQL {
 			if (getNext(pos) == '/') {
 				parsedSql.append('/');
 				pos++;
-				status = STAT.NORMAL;
+				if(--comment_su == 0){
+					status = STAT.NORMAL;
+				}
 			}
 			break;
 		case QUTATION:
@@ -217,6 +220,7 @@ public class EscapeLiteralSQL {
 		default:
 			if (getNext(pos) == '*') {
 				pos++;
+				comment_su++;
 				parsedSql.append("/*");
 				status = STAT.COMMENT;
 			}
