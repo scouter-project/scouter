@@ -80,6 +80,11 @@ public class ColorUtil {
 		rgb.put("dark magenta", new Color(null, 0x8B, 00, 0x8B));
 		rgb.put("dark blue", new Color(null, 0, 0, 0x8B));
 		rgb.put("dark red",  new Color(null, 139, 0, 0));
+		rgb.put("dark gray", new Color(null, 70, 70, 70));
+
+		rgb.put("dark gray", new Color(null, 70, 70, 70));
+		rgb.put("light violet",  new Color(null, 238, 111, 0));
+		rgb.put("dark orange",  new Color(null, 238, 111, 0));
 	}
 
 	public Color getColor(String name) {

@@ -19,6 +19,7 @@ package scouter.lang.step;
 
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+import scouter.lang.enumeration.ParameterizedMessageLevel;
 import scouter.util.StringUtil;
 
 import java.io.IOException;
@@ -31,8 +32,9 @@ import java.io.IOException;
 public class ParameterizedMessageStep extends StepSingle {
 	private static char delimETX = 3;
 
-	public int hash;
-	public int elapsed = -1;
+	private int hash;
+	private int elapsed = -1;
+	private byte level = 0; //0:debug, 1:info, 2:warn, 3:error
 	private String paramString;
 
 	public byte getStepType() {
@@ -59,6 +61,30 @@ public class ParameterizedMessageStep extends StepSingle {
 		return this;
 	}
 
+	public int getHash() {
+		return hash;
+	}
+
+	public void setHash(int hash) {
+		this.hash = hash;
+	}
+
+	public int getElapsed() {
+		return elapsed;
+	}
+
+	public void setElapsed(int elapsed) {
+		this.elapsed = elapsed;
+	}
+
+	public void setLevel(ParameterizedMessageLevel level) {
+		this.level = level.getLevel();
+	}
+
+	public ParameterizedMessageLevel getLevel() {
+		return ParameterizedMessageLevel.of(this.level);
+	}
+
 	public void setMessage(int hash, String... params) {
 		this.hash = hash;
 		StringBuilder sb = new StringBuilder();
@@ -69,22 +95,22 @@ public class ParameterizedMessageStep extends StepSingle {
 		this.paramString = sb.toString();
 	}
 
-	public String buildMessasge(String message, String paramString) {
+	public String buildMessasge(String messageFormat) {
 		String[] params = null;
 
 		try {
-			if (paramString != null) {
-				params = StringUtil.split(paramString, delimETX);
+			if (this.paramString != null) {
+				params = StringUtil.split(this.paramString, delimETX);
 			} else {
-				return message;
+				return messageFormat;
 			}
 			if(params.length == 0) {
-				return message;
+				return messageFormat;
 			}
 
-			return String.format(message, paramString);
+			return String.format(messageFormat, this.paramString);
 		} catch (Exception e) {
-			return message;
+			return messageFormat;
 		}
 	}
 }

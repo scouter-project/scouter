@@ -328,6 +328,16 @@ public class ProfileTextFull {
 					sr.add(ProfileText.style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
 				}
 				break;
+			case StepEnum.PARAMETERIZED_MESSAGE:
+				slen = sb.length();
+				ParameterizedMessageStep pmStep = (ParameterizedMessageStep) stepSingle;
+				ProfileText.toString(sb, pmStep);
+				if(searchLineIndex == stepSingle.index) {
+					sr.add(ProfileText.style(slen, sb.length() - slen, red, SWT.BOLD, yellow));
+				} else {
+					sr.add(ProfileText.style(slen, sb.length() - slen, ProfileText.getColor(pmStep.getLevel()), SWT.NORMAL));
+				}
+				break;
 			case StepEnum.APICALL:
 			case StepEnum.APICALL2:
 				ApiCallStep apicall = (ApiCallStep) stepSingle;
