@@ -129,7 +129,7 @@ public class WrContext {
 	public void parameterizedProfile(String msg, int elapsed, String... params) {
 		ParameterizedMessageStep step = new ParameterizedMessageStep();
 		step.setMessage(DataProxy.sendHashedMessage(msg), params);
-		step.elapsed = elapsed;
+		step.setElapsed(elapsed);
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 
 		if (ctx.profile_thread_cputime) {
