@@ -640,6 +640,13 @@ public class XLogUtil {
 		sb.append("<font color=green>").append(m.replaceAll("\n", BR)).append("</font>");
 	}
 
+	private static void toString(StringBuffer sb, ParameterizedMessageStep p) {
+		String m = TextProxy.hashMessage.getText(p.hash);
+		if (m == null)
+			m = Hexa32.toString32(p.hash);
+		sb.append("<font color=green>").append(m.replaceAll("\n", BR)).append("</font>");
+	}
+
     private static void toString(StringBuffer sb, DumpStep p) {
         sb.append("<font color=green>").append("<Thread dump>").append("</font>");
     }
