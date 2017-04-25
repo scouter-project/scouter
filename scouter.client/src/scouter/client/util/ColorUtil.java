@@ -70,6 +70,7 @@ public class ColorUtil {
 		rgb.put("red",  new Color(null, 255, 0, 0));
 		rgb.put("light red",  new Color(null, 255, 135, 135));
 		rgb.put("light2 red",  new Color(null, 255, 180, 180));
+		rgb.put("light red2",  new Color(null, 255, 100, 100));
 		rgb.put("green",  new Color(null, 0, 255, 0));
 		rgb.put("gray", new Color(null, 100, 100, 100));
 		rgb.put("light gray", new Color(null, 160, 160, 160));
@@ -82,9 +83,9 @@ public class ColorUtil {
 		rgb.put("dark red",  new Color(null, 139, 0, 0));
 		rgb.put("dark gray", new Color(null, 70, 70, 70));
 
-		rgb.put("dark gray", new Color(null, 70, 70, 70));
-		rgb.put("light violet",  new Color(null, 238, 111, 0));
-		rgb.put("dark orange",  new Color(null, 238, 111, 0));
+		rgb.put("gray2", new Color(null, 150, 150, 180));
+		rgb.put("gray3",  new Color(null, 120, 120, 180));
+		rgb.put("dark orange",  new Color(null, 238, 140, 20));
 	}
 
 	public Color getColor(String name) {

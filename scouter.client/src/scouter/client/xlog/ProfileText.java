@@ -56,13 +56,13 @@ public class ProfileText {
     public static Color getColor(ParameterizedMessageLevel level) {
         switch (level) {
             case DEBUG:
-                return ColorUtil.getInstance().getColor("dark gray");
+                return ColorUtil.getInstance().getColor("gray2");
             case INFO:
-                return ColorUtil.getInstance().getColor("light violet");
+                return ColorUtil.getInstance().getColor("gray3");
             case WARN:
                 return ColorUtil.getInstance().getColor("dark orange");
             case ERROR:
-                return ColorUtil.getInstance().getColor("light red");
+                return ColorUtil.getInstance().getColor("light red2");
             case FATAL:
                 return ColorUtil.getInstance().getColor("red");
         }

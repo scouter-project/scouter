@@ -2,6 +2,7 @@ package scouter.agent.plugin;
 
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceContext;
+import scouter.lang.enumeration.ParameterizedMessageLevel;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.ParameterizedMessageStep;
@@ -126,10 +127,11 @@ public class WrContext {
 	 * @param elapsed any value to display on a profile.
 	 * @param params message format parameters.
 	 */
-	public void parameterizedProfile(String msg, int elapsed, String... params) {
+	public void parameterizedProfile(int level, String msg, int elapsed, String... params) {
 		ParameterizedMessageStep step = new ParameterizedMessageStep();
 		step.setMessage(DataProxy.sendHashedMessage(msg), params);
 		step.setElapsed(elapsed);
+		step.setLevel(ParameterizedMessageLevel.of(level));
 		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
 
 		if (ctx.profile_thread_cputime) {
@@ -139,7 +141,11 @@ public class WrContext {
 	}
 
 	public void parameterizedProfile(String msg, String... params) {
-		parameterizedProfile(msg, -1, params);
+		parameterizedProfile(0, msg, -1, params);
+	}
+
+	public void parameterizedProfile(int level, String msg, String... params) {
+		parameterizedProfile(level, msg, -1, params);
 	}
 
 	public long txid() {

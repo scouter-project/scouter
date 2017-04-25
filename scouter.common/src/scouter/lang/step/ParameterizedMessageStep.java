@@ -49,6 +49,7 @@ public class ParameterizedMessageStep extends StepSingle {
 		super.write(out);
 		out.writeDecimal(hash);
 		out.writeDecimal(elapsed);
+		out.writeDecimal(level);
 		out.writeText(paramString);
 	}
 
@@ -56,6 +57,7 @@ public class ParameterizedMessageStep extends StepSingle {
 		super.read(in);
 		this.hash = (int) in.readDecimal();
 		this.elapsed = (int) in.readDecimal();
+		this.level = (byte) in.readDecimal();
 		this.paramString = in.readText();
 
 		return this;
@@ -108,7 +110,7 @@ public class ParameterizedMessageStep extends StepSingle {
 				return messageFormat;
 			}
 
-			return String.format(messageFormat, this.paramString);
+			return String.format(messageFormat, params);
 		} catch (Exception e) {
 			return messageFormat;
 		}
