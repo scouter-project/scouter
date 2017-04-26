@@ -329,14 +329,16 @@ public class HttpTrace implements IHttpTrace {
                     int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
                     while (en.hasMoreElements()) {
                         String key = (String) en.nextElement();
+                        if (conf._profile_http_header_keys != null
+                                && conf._profile_http_header_keys.size() > 0
+                                && !conf._profile_http_header_keys.contains(key.toUpperCase())) {
+                            continue;
+                        }
                         String value = new StringBuilder().append("header: ").append(key).append("=")
                                 .append(StringUtil.limiting(request.getHeader(key), 1024)).toString();
 
                         MessageStep step = new MessageStep(value);
                         step.start_time = start_time;
-                        // step.start_cpu = (int) (SysJMX.getCurrentThreadCPU()
-                        // -
-                        // ctx.startCpu);
 
                         p.add(step);
                     }

@@ -122,6 +122,8 @@ public class Configure extends Thread {
     public boolean profile_http_header_enabled;
     @ConfigDesc("Service URL prefix for Http header profile")
     public String profile_http_header_url_prefix = "/";
+    @ConfigDesc("http header names for profiling with comma separator")
+    public String profile_http_header_keys = "";
     @ConfigDesc("Http Parameter profile")
     public boolean profile_http_parameter_enabled;
     @ConfigDesc("Service URL prefix for Http parameter profile")
@@ -498,6 +500,8 @@ public class Configure extends Thread {
     public boolean __control_connection_leak_autoclose_enabled = false;
     public boolean __ip_dummy_test = false;
 
+    public Set<String> _profile_http_header_keys = null;
+
     //internal variables
     private String objExtType = "";
     private int objHash;
@@ -587,7 +591,14 @@ public class Configure extends Thread {
         this.profile_http_parameter_enabled = getBoolean("profile_http_parameter_enabled", false);
         this.profile_spring_controller_method_parameter_enabled = getBoolean("profile_spring_controller_method_parameter_enabled", false);
         this.profile_summary_mode_enabled = getBoolean("profile_summary_mode_enabled", false);
+
+        this.profile_http_parameter_url_prefix = getValue("profile_http_parameter_url_prefix", "/");
+        this.profile_http_header_url_prefix = getValue("profile_http_header_url_prefix", "/");
+        this.profile_http_header_keys = getValue("profile_http_header_keys", "");
+        this._profile_http_header_keys = StringUtil.splitAndTrimToSet(this.profile_http_header_keys, ',', true);
+
         this.xlog_lower_bound_time_ms = getInt("xlog_lower_bound_time_ms", 0);
+
         this.trace_service_name_header_key = getValue("trace_service_name_header_key", null);
         this.trace_service_name_get_key = getValue("trace_service_name_get_key");
         this.trace_service_name_post_key = getValue("trace_service_name_post_key");
@@ -733,8 +744,7 @@ public class Configure extends Thread {
         this.profile_fullstack_stmt_leak_enabled = getBoolean("profile_fullstack_stmt_leak_enabled", false);
 
         this.net_udp_collection_interval_ms = getInt("net_udp_collection_interval_ms", 100);
-        this.profile_http_parameter_url_prefix = getValue("profile_http_parameter_url_prefix", "/");
-        this.profile_http_header_url_prefix = getValue("profile_http_header_url_prefix", "/");
+
         this.trace_http_client_ip_header_key = getValue("trace_http_client_ip_header_key", "");
         this.trace_interservice_enabled = getBoolean("trace_interservice_enabled", true);
         this.trace_response_gxid_enabled = getBoolean("trace_response_gxid_enabled", false);
@@ -1041,6 +1051,7 @@ public class Configure extends Thread {
     static {
         ignoreSet.add("property");
         ignoreSet.add("__experimental");
+        ignoreSet.add("_profile_http_header_keys");
     }
 
     public MapValue getKeyValueInfo() {
