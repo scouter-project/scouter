@@ -24,7 +24,6 @@ import scouter.lang.TimeTypeEnum;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.pack.PerfCounterPack;
 import scouter.lang.value.FloatValue;
-import scouter.lang.value.ListValue;
 
 public class HeapUsage {
 
@@ -39,12 +38,12 @@ public class HeapUsage {
 		heapmin.add(total - free);
 		float usedmin = (float) (heapmin.getAvg(300) / 1024. / 1024.);
 
-		ListValue heapValues = new ListValue();
-		heapValues.add((float) (total / 1024. / 1024.));
-		heapValues.add(used);
+		//ListValue heapValues = new ListValue();
+		//heapValues.add((float) (total / 1024. / 1024.));
+		//heapValues.add(used);
 		
 		PerfCounterPack p = pw.getPack(TimeTypeEnum.REALTIME);
-		p.put(CounterConstants.JAVA_HEAP_TOT_USAGE, heapValues);
+		p.put(CounterConstants.JAVA_HEAP_TOT_USAGE, new FloatValue((float) (total / 1024. / 1024.)));
 		p.put(CounterConstants.JAVA_HEAP_USED, new FloatValue(used));
 
 		p = pw.getPack(TimeTypeEnum.FIVE_MIN);
