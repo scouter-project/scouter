@@ -326,7 +326,22 @@ public class ProfileText {
             sb.append(" ");
             sb.append(FormatUtil.print(new Date(tm), "HH:mm:ss.SSS"));
             sb.append("   ");
+
+            slen = sb.length();
             sb.append(String.format("%6s", FormatUtil.print(tm - prev_tm, "#,##0")));
+
+            int gapTime = CastUtil.cint(tm - prev_tm);
+            int elapsedRate = xperf.p.elapsed == 0 ? 0 : CastUtil.cint((gapTime / (double)xperf.p.elapsed)*100);
+
+
+            if (elapsedRate > 50) {
+                sr.add(style(slen, 6, dred, SWT.BOLD));
+            } else if (elapsedRate > 20) {
+                sr.add(style(slen, 6, dblue, SWT.BOLD));
+            } else if (elapsedRate > 10) {
+                sr.add(style(slen, 6, dgreen, SWT.BOLD));
+            }
+
             sb.append(" ");
             if(ignoreCpu) {
             	sb.append(String.format("%6s", FormatUtil.print(0, "#,##0")));
