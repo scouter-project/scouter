@@ -17,15 +17,6 @@
 
 package scouter.server;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
 import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.value.ListValue;
@@ -41,6 +32,15 @@ import scouter.util.StringUtil;
 import scouter.util.SysJMX;
 import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 public class Configure extends Thread {
 
@@ -169,12 +169,15 @@ public class Configure extends Thread {
 	//Manager
 	@ConfigDesc("Activating automatic deletion function in the database")
 	public boolean mgr_purge_enabled = true;
-	@ConfigDesc("Automatic deletion only for XLog data")
+	@Deprecated
+	@ConfigDesc("Deprecated. Use option mgr_purge_non_xlog_keep_days")
 	public boolean mgr_purge_only_xlog_enabled = false;
 	@ConfigDesc("Condition of disc usage for automatic deletion")
 	public int mgr_purge_disk_usage_pct = 80;
 	@ConfigDesc("Retaining date for automatic deletion")
 	public int mgr_purge_keep_days = 0;
+	@ConfigDesc("Retaining date for automatic deletion")
+	public int mgr_purge_non_xlog_keep_days = 0;
 	@ConfigDesc("Ignored log ID set")
 	public StringSet mgr_log_ignore_ids = new StringSet();
 
@@ -345,6 +348,8 @@ public class Configure extends Thread {
 		this.mgr_purge_only_xlog_enabled = getBoolean("mgr_purge_only_xlog_enabled", false);
 		this.mgr_purge_disk_usage_pct = getInt("mgr_purge_disk_usage_pct", 80);
 		this.mgr_purge_keep_days = getInt("mgr_purge_keep_days", 0);
+		this.mgr_purge_non_xlog_keep_days = getInt("mgr_purge_non_xlog_keep_days", mgr_purge_keep_days*5);
+
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
 		this.geoip_data_city_file = getValue("geoip_data_city_file", CONF_DIR + "GeoLiteCity.dat");
 		this.geoip_enabled = getBoolean("geoip_enabled", true);

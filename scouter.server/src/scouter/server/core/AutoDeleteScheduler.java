@@ -1,12 +1,5 @@
 package scouter.server.core;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import scouter.server.ConfObserver;
 import scouter.server.Configure;
 import scouter.server.Logger;
@@ -17,6 +10,13 @@ import scouter.util.DateUtil;
 import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 public class AutoDeleteScheduler extends Thread {
 
 	private static AutoDeleteScheduler instance = null;
@@ -25,8 +25,10 @@ public class AutoDeleteScheduler extends Thread {
 	boolean brun;
 	int maxPercent;
 	int retainDays;
+	int retainNonXLogDays;
 	boolean delOnlyXLog;
 	String lastCheckDate;
+	Set<String> deletedXLogDays = new HashSet<String>();
 	Set<String> deletedDays = new HashSet<String>();
 	
 	public final static synchronized AutoDeleteScheduler getInstance() {
@@ -49,10 +51,11 @@ public class AutoDeleteScheduler extends Thread {
 				if (conf.mgr_purge_enabled != brun
 					|| conf.mgr_purge_disk_usage_pct != maxPercent
 					|| conf.mgr_purge_keep_days != retainDays
+					|| conf.mgr_purge_non_xlog_keep_days != retainNonXLogDays
 					|| conf.mgr_purge_only_xlog_enabled != delOnlyXLog) {
 					applyConf();
 					lastCheckDate = null;
-					deletedDays.clear();
+					deletedXLogDays.clear();
 				}
 			}
 		});
@@ -62,6 +65,7 @@ public class AutoDeleteScheduler extends Thread {
 		brun = conf.mgr_purge_enabled;
 		maxPercent = conf.mgr_purge_disk_usage_pct;
 		retainDays = conf.mgr_purge_keep_days;
+		retainNonXLogDays = conf.mgr_purge_non_xlog_keep_days;
 		delOnlyXLog = conf.mgr_purge_only_xlog_enabled;
 	}
 
@@ -76,14 +80,14 @@ public class AutoDeleteScheduler extends Thread {
 						long usuableSpace = dbDir.getUsableSpace();
 						double percent = (usuableSpace * 100.0d) / totalSpace;
 						while ((100 - percent) > maxPercent) {
-							String yyyymmdd = getLongAgoDate(deletedDays);
+							String yyyymmdd = getLongAgoDate(deletedXLogDays);
 							if (yyyymmdd == null || today.equals(yyyymmdd)) {
 								break;
 							}
-							deleteData(yyyymmdd);
+							deleteData(yyyymmdd, false);
 							usuableSpace = dbDir.getUsableSpace();
 							percent = (usuableSpace * 100.0d) / totalSpace;
-							deletedDays.add(yyyymmdd);
+							deletedXLogDays.add(yyyymmdd);
 						}
 					}
 				}
@@ -93,6 +97,25 @@ public class AutoDeleteScheduler extends Thread {
 						lastCheckDate = today;
 						int lastDeleteDate = CastUtil.cint(DateUtil.yyyymmdd(System.currentTimeMillis() - (DateUtil.MILLIS_PER_DAY * retainDays)));
 						while (true) {
+							String yyyymmdd = getLongAgoDate(deletedXLogDays);
+							if (yyyymmdd == null) {
+								break;
+							}
+							if (CastUtil.cint(yyyymmdd) > lastDeleteDate) {
+								break;
+							}
+							deleteData(yyyymmdd, false);
+							deletedXLogDays.add(yyyymmdd);
+						}
+					}
+				}
+
+				int retainNonXLogDays = conf.mgr_purge_non_xlog_keep_days;
+				if (retainNonXLogDays > 0) {
+					if (today.equals(lastCheckDate) == false) {
+						lastCheckDate = today;
+						int lastDeleteDate = CastUtil.cint(DateUtil.yyyymmdd(System.currentTimeMillis() - (DateUtil.MILLIS_PER_DAY * retainNonXLogDays)));
+						while (true) {
 							String yyyymmdd = getLongAgoDate(deletedDays);
 							if (yyyymmdd == null) {
 								break;
@@ -100,7 +123,7 @@ public class AutoDeleteScheduler extends Thread {
 							if (CastUtil.cint(yyyymmdd) > lastDeleteDate) {
 								break;
 							}
-							deleteData(yyyymmdd);
+							deleteData(yyyymmdd, true);
 							deletedDays.add(yyyymmdd);
 						}
 					}
@@ -110,13 +133,13 @@ public class AutoDeleteScheduler extends Thread {
 		}
 	}
 	
-	private void deleteData(String yyyymmdd) {
+	private void deleteData(String yyyymmdd, boolean all) {
 		try {
 			File f = null;
-			if (conf.mgr_purge_only_xlog_enabled) {
-				f = new File(dbDir, yyyymmdd + XLogWR.dir());
-			} else {
+			if (all) {
 				f = new File(dbDir, yyyymmdd);
+			} else {
+				f = new File(dbDir, yyyymmdd + XLogWR.dir());
 			}
 			deleteFiles(f);
 			Logger.println("S206", "Auto deletion... " + yyyymmdd);
