@@ -74,6 +74,8 @@ public class XLogViewPainter {
 	public StrMatch objNameMat;
 	public StrMatch serviceMat;
 	public StrMatch ipMat;
+	public StrMatch loginMat;
+	public StrMatch descMat;
 	public StrMatch userAgentMat;
 	
 	public String yyyymmdd;
@@ -607,6 +609,8 @@ public class XLogViewPainter {
 		return isObjNameFilterOk(d)
 				&& isServiceFilterOk(d)
 				&& isIpFilterOk(d.p)
+				&& isLoginFilterOk(d)
+				&& isDescFilterOk(d)
 				&& isUserAgentFilterOk(d)
 				&& isErrorFilterOk(d.p)
 				&& isApicallFilterOk(d.p)
@@ -635,6 +639,22 @@ public class XLogViewPainter {
 		}
 		String value = IPUtil.toString(p.ipaddr);
 		return ipMat.include(value);
+	}
+
+	public boolean isLoginFilterOk(XLogData d) {
+		if (StringUtil.isEmpty(filterStatus.login)) {
+			return true;
+		}
+		String login = TextProxy.login.getLoadText(yyyymmdd, d.p.login, d.serverId);
+		return loginMat.include(login);
+	}
+
+	public boolean isDescFilterOk(XLogData d) {
+		if (StringUtil.isEmpty(filterStatus.desc)) {
+			return true;
+		}
+		String desc = TextProxy.desc.getLoadText(yyyymmdd, d.p.desc, d.serverId);
+		return descMat.include(desc);
 	}
 	
 	public boolean isUserAgentFilterOk(XLogData d) {
@@ -682,6 +702,8 @@ public class XLogViewPainter {
 		objNameMat = new StrMatch(status.objName);
 		serviceMat = new StrMatch(status.service);
 		ipMat = new StrMatch(status.ip);
+		loginMat = new StrMatch(status.login);
+		descMat = new StrMatch(status.desc);
 		userAgentMat = new StrMatch(status.userAgent);
 	}
 }

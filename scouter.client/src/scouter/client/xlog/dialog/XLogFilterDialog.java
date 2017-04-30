@@ -44,7 +44,7 @@ import scouter.client.xlog.views.XLogViewCommon;
 public class XLogFilterDialog extends Dialog {
 	
 	Combo objCombo;
-	Text serviceTxt, ipTxt, userAgentTxt;
+	Text serviceTxt, ipTxt, userAgentTxt, loginText, descText;
 	Button onlySqlBtn, onlyApiBtn, onlyErrorBtn;
 	Button clearBtn, applyBtn;
 	
@@ -109,6 +109,32 @@ public class XLogFilterDialog extends Dialog {
 		ipTxt.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
 				newStatus.ip = ipTxt.getText();
+				compareHash();
+			}
+		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("LOGIN");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		loginText = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		loginText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		loginText.setText(status.login);
+		loginText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.login = loginText.getText();
+				compareHash();
+			}
+		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("DESC");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		descText = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		descText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		descText.setText(status.desc);
+		descText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.desc = descText.getText();
 				compareHash();
 			}
 		});

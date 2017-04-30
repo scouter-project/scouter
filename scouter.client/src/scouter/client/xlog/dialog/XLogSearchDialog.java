@@ -17,11 +17,6 @@
  */
 package scouter.client.xlog.dialog;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -46,7 +41,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.Images;
 import scouter.client.model.XLogData;
 import scouter.client.net.TcpProxy;
@@ -70,6 +64,11 @@ import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 import scouter.util.StringUtil;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 	 
 	Shell dialog;
@@ -83,6 +82,8 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 	Text ragneText;
 	ImageCombo objectCombo;
 	Text ipText;
+	Text loginText;
+	Text descText;
 	Text serviceText;
 	
 	Text dateText;
@@ -116,6 +117,8 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 				ragneText.setEnabled(true);
 				objectCombo.setEnabled(true);
 				ipText.setEnabled(true);
+				loginText.setEnabled(true);
+				descText.setEnabled(true);
 				serviceText.setEnabled(true);
 				
 				quickSearchGrp.setEnabled(false);
@@ -198,6 +201,26 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 		ipText = new Text(normalSearchGrp, SWT.BORDER);
 		gr = new GridData(SWT.FILL, SWT.FILL, true, false, 2 ,1);
 		ipText.setLayoutData(gr);
+
+		label = new Label(normalSearchGrp, SWT.NONE);
+		gr = new GridData(SWT.FILL, SWT.FILL, false, false);
+		gr.widthHint = 70;
+		label.setLayoutData(gr);
+		label.setText("LOGIN");
+
+		loginText = new Text(normalSearchGrp, SWT.BORDER);
+		gr = new GridData(SWT.FILL, SWT.FILL, true, false, 2 ,1);
+		loginText.setLayoutData(gr);
+
+		label = new Label(normalSearchGrp, SWT.NONE);
+		gr = new GridData(SWT.FILL, SWT.FILL, false, false);
+		gr.widthHint = 70;
+		label.setLayoutData(gr);
+		label.setText("DESC");
+
+		descText = new Text(normalSearchGrp, SWT.BORDER);
+		gr = new GridData(SWT.FILL, SWT.FILL, true, false, 2 ,1);
+		descText.setLayoutData(gr);
 		
 		Button quickRadio = new Button(dialog, SWT.RADIO);
 		quickRadio.setText("Quick Search");
@@ -216,6 +239,8 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 				ragneText.setEnabled(false);
 				objectCombo.setEnabled(false);
 				ipText.setEnabled(false);
+				loginText.setEnabled(false);
+				descText.setEnabled(false);
 				serviceText.setEnabled(false);
 			}
 		});
@@ -359,6 +384,12 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 		String ip = ipText.getText();
 		if (StringUtil.isNotEmpty(ip)) {
 			param.put("ip", ip);
+		}
+		if (StringUtil.isNotEmpty(loginText.getText())) {
+			param.put("login", loginText.getText());
+		}
+		if (StringUtil.isNotEmpty(descText.getText())) {
+			param.put("desc", descText.getText());
 		}
 		new SearchXLogJob(param).schedule();
 		dialog.close();
