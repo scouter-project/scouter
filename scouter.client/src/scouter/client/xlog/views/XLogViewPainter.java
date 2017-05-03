@@ -629,7 +629,6 @@ public class XLogViewPainter {
 		}
 	}
 	
-	static long mytestcounter; 
 	public boolean isServiceFilterOk(XLogData d) {
 		if (StringUtil.isEmpty(filterStatus.service)) {
 			return true;
@@ -638,7 +637,6 @@ public class XLogViewPainter {
 		if (serviceMat.getComp() == StrMatch.COMP.EQU) {
 			return d.p.service == HashUtil.hash(serviceMat.getPattern());
 		} else {
-			System.out.println(System.currentTimeMillis() + " " + mytestcounter++);
 			String serviceName = TextProxy.service.getLoadText(yyyymmdd, d.p.service, d.serverId);
 			return serviceMat.include(serviceName);
 		}
