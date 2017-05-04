@@ -20,6 +20,7 @@ package scouter.server.plugin.alert;
 
 public class AlertConf {
 	public long lastModified;
-	   public int history_size;
-	   public int silent_time;
+	public int history_size;
+	public int silent_time;
+	public int check_term;
 }
