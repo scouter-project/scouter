@@ -37,11 +37,15 @@ object TextRD {
       val table = TextWR.open(date)
       val b = table.get(divs, hash);
 
-      if (b == null)
-        return null;
+      if (b == null) {
+        return TextPermRD.getString(divs, hash)
+        //return null;
+      }
+
       val text = new String(b, "UTF-8");
       TextCache.put(divs, hash, text);
       return text;
+
     } catch {
       case e: Exception => e.printStackTrace()
     }

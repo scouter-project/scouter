@@ -181,6 +181,12 @@ public class Configure extends Thread {
 	@ConfigDesc("Ignored log ID set")
 	public StringSet mgr_log_ignore_ids = new StringSet();
 
+	//db
+	@ConfigDesc("true for daily dictionary mode about service name. default value is false that means it's permanent.")
+	public boolean mgr_text_db_daily_service_enabled = false;
+	@ConfigDesc("true for daily dictionary mode about api name. default value is false that means it's permanent.")
+	public boolean mgr_text_db_daily_api_enabled = false;
+
 	//XLog
 	@ConfigDesc("XLog Writer Queue Size")
 	public int xlog_queue_size = 10000;
@@ -349,6 +355,9 @@ public class Configure extends Thread {
 		this.mgr_purge_disk_usage_pct = getInt("mgr_purge_disk_usage_pct", 80);
 		this.mgr_purge_keep_days = getInt("mgr_purge_keep_days", 0);
 		this.mgr_purge_non_xlog_keep_days = getInt("mgr_purge_non_xlog_keep_days", mgr_purge_keep_days*5);
+
+		this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false);
+		this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false);
 
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
 		this.geoip_data_city_file = getValue("geoip_data_city_file", CONF_DIR + "GeoLiteCity.dat");

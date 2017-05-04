@@ -146,6 +146,12 @@ public class XLogPack implements Pack {
 	 * has Thread Dump ? No:0, Yes:1
 	 */
 	public byte hasDump;
+
+	/**
+	 * any text (not use dic)
+	 */
+	public String text1;
+	public String text2;
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -202,6 +208,8 @@ public class XLogPack implements Pack {
 		o.writeByte(hasDump);
 
 		o.writeDecimal(threadNameHash);
+		o.writeText(text1);
+		o.writeText(text2);
 
 		out.writeBlob(o.toByteArray());
 	}
@@ -251,6 +259,11 @@ public class XLogPack implements Pack {
 
 		if (d.available() >0) {
 			this.threadNameHash = (int)d.readDecimal();
+		}
+
+		if (d.available() >0) {
+			this.text1 = d.readText();
+			this.text2 = d.readText();
 		}
 	
 		return this;
