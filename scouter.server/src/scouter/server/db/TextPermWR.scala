@@ -45,9 +45,6 @@ object TextPermWR {
     }
   }
 
-  this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false)
-  this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false)
-
   ThreadScala.start("scouter.server.db.TextPermWR") {
     while (DBCtr.running) {
       val data = queue.get();
