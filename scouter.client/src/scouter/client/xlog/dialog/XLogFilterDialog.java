@@ -42,7 +42,7 @@ import scouter.client.xlog.views.XLogViewCommon;
 public class XLogFilterDialog extends Dialog {
 	
 	Combo objCombo;
-	Text serviceTxt, ipTxt, userAgentTxt, loginText, descText;
+	Text serviceTxt, ipTxt, userAgentTxt, loginText, descText, text1Text, text2Text;
 	Button onlySqlBtn, onlyApiBtn, onlyErrorBtn;
 	Button clearBtn, applyBtn;
 	
@@ -149,6 +149,32 @@ public class XLogFilterDialog extends Dialog {
 				compareHash();
 			}
 		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("TEXT1");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		text1Text = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		text1Text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		text1Text.setText(status.text1);
+		text1Text.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.text1 = text1Text.getText();
+				compareHash();
+			}
+		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("TEXT2");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		text2Text = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		text2Text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		text2Text.setText(status.text2);
+		text2Text.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.text2 = text2Text.getText();
+				compareHash();
+			}
+		});
 		
 		Group checkGroup = new Group(filterGrp, SWT.NONE);
 		checkGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1));
@@ -203,6 +229,8 @@ public class XLogFilterDialog extends Dialog {
 				ipTxt.setText("");
 				loginText.setText("");
 				descText.setText("");
+				text1Text.setText("");
+				text2Text.setText("");
 				userAgentTxt.setText("");
 				onlySqlBtn.setSelection(false);
 				onlyApiBtn.setSelection(false);

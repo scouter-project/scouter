@@ -81,32 +81,32 @@ object SqlTables {
         try {
             //debug code
             val trace = Configure.getInstance()._trace;
-            if(trace) Logger.println("#################!@#$%^&*()", "1. Trace - sql table test");
+            //if(trace) Logger.println("#################!@#$%^&*()", "1. Trace - sql table test");
             var sqlHashSet: IntLinkedSet = parsed.get(data.date);
             if (sqlHashSet == null) {
                 sqlHashSet = new IntLinkedSet().setMax(10000);
                 parsed.put(data.date, sqlHashSet);
             }
-            if(trace) Logger.println("#################!@#$%^&*()", "2. Trace - sql table test");
+            //if(trace) Logger.println("#################!@#$%^&*()", "2. Trace - sql table test");
             if (sqlHashSet.contains(data.sqlHash)) {
                 return
             }
-            if(trace) Logger.println("#################!@#$%^&*()", "3. Trace - sql table test");
+            //if(trace) Logger.println("#################!@#$%^&*()", "3. Trace - sql table test");
             if (failSet.contains(data.sqlHash)) {
                 return
             }
-            if(trace) Logger.println("#################!@#$%^&*()", "4. Trace - sql table test");
+            //if(trace) Logger.println("#################!@#$%^&*()", "4. Trace - sql table test");
             if (data.sqlText == null) {
                 data.sqlText = TextRD.getString(data.date, TextTypes.SQL, data.sqlHash);
             }
-            if(trace) Logger.println("#################!@#$%^&*()", "5. Trace - sql table test");
+            //if(trace) Logger.println("#################!@#$%^&*()", "5. Trace - sql table test");
             if (data.sqlText == null) {
                 return
             }
-            if(trace) Logger.println("#################!@#$%^&*()", "6. Trace - sql table test");
+            //if(trace) Logger.println("#################!@#$%^&*()", "6. Trace - sql table test");
             val sbTables = parseTable(data.sqlText);
-            if(trace) Logger.println("#################!@#$%^&*()", "7. Trace - sqlText : " + data.sqlText);
-            if(trace) Logger.println("#################!@#$%^&*()", "7. Trace - table : " + sbTables);
+            //if(trace) Logger.println("#################!@#$%^&*()", "7. Trace - sqlText : " + data.sqlText);
+            //if(trace) Logger.println("#################!@#$%^&*()", "7. Trace - table : " + sbTables);
             sqlHashSet.put(data.sqlHash);
             TextWR.add(data.date, TextTypes.SQL_TABLES, data.sqlHash, sbTables.toString());
         } catch {
