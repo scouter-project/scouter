@@ -172,12 +172,14 @@ public class Configure extends Thread {
 	@Deprecated
 	@ConfigDesc("Deprecated. Use option mgr_purge_non_xlog_keep_days")
 	public boolean mgr_purge_only_xlog_enabled = false;
-	@ConfigDesc("Condition of disc usage for automatic deletion")
+	@ConfigDesc("Condition of disk usage for automatic deletion. if lack, delete profile data first exclude today data.")
 	public int mgr_purge_disk_usage_pct = 80;
+	@ConfigDesc("Retaining date for automatic deletion. delete profile data first.")
+	public int mgr_purge_keep_days = 10;
+	@ConfigDesc("Retaining date for automatic deletion.")
+	public int mgr_purge_xlog_without_profile_keep_days = 30;
 	@ConfigDesc("Retaining date for automatic deletion")
-	public int mgr_purge_keep_days = 0;
-	@ConfigDesc("Retaining date for automatic deletion")
-	public int mgr_purge_non_xlog_keep_days = 0;
+	public int mgr_purge_counter_keep_days = 70;
 	@ConfigDesc("Ignored log ID set")
 	public StringSet mgr_log_ignore_ids = new StringSet();
 
@@ -353,8 +355,9 @@ public class Configure extends Thread {
 		this.mgr_purge_enabled = getBoolean("mgr_purge_enabled", true);
 		this.mgr_purge_only_xlog_enabled = getBoolean("mgr_purge_only_xlog_enabled", false);
 		this.mgr_purge_disk_usage_pct = getInt("mgr_purge_disk_usage_pct", 80);
-		this.mgr_purge_keep_days = getInt("mgr_purge_keep_days", 0);
-		this.mgr_purge_non_xlog_keep_days = getInt("mgr_purge_non_xlog_keep_days", mgr_purge_keep_days*5);
+		this.mgr_purge_keep_days = getInt("mgr_purge_keep_days", 10);
+		this.mgr_purge_xlog_without_profile_keep_days = getInt("mgr_purge_xlog_keep_days", mgr_purge_keep_days*3);
+		this.mgr_purge_counter_keep_days = getInt("mgr_purge_non_xlog_keep_days", mgr_purge_keep_days*7);
 
 		this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false);
 		this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false);
