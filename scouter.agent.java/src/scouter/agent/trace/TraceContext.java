@@ -106,6 +106,9 @@ public class TraceContext {
 	public String login;
 	public String desc;
 
+	public String text1;
+	public String text2;
+
 	public String web_name;
 	public int web_time;
 

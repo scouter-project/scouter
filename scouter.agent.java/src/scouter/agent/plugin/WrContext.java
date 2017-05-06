@@ -75,6 +75,22 @@ public class WrContext {
 		return ctx.desc;
 	}
 
+	public void text1(String text) {
+		ctx.text1 = text;
+	}
+
+	public String text1() {
+		return ctx.text1;
+	}
+
+	public void text2(String text) {
+		ctx.text2 = text;
+	}
+
+	public String text2() {
+		return ctx.text2;
+	}
+
 	public String httpMethod() {
 		return ctx.http_method;
 	}

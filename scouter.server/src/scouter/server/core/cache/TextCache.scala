@@ -44,7 +44,7 @@ object TextCache {
     private def getMap(div: String): IntKeyLinkedMap[String] = {
         var map = cache.get(div);
         if (map == null) {
-            if (TextTypes.SERVICE.equals(div)) {
+            if (TextTypes.SERVICE.equals(div) || TextTypes.APICALL.equals(div) || TextTypes.SQL.equals(div)) {
                 map = new IntKeyLinkedMap().setMax(10000);
             } else {
                 map = new IntKeyLinkedMap().setMax(1000);

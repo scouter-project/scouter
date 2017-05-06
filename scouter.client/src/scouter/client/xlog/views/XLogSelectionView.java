@@ -65,6 +65,7 @@ import scouter.util.StringUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -142,11 +143,15 @@ public class XLogSelectionView extends ViewPart {
 
 	private void createColumns() {
 		XLogColumnStore columnStore = loadColumnInfo();
-		if (columnStore != null) {
+		if (columnStore != null 
+				&& columnStore.getColumns() != null 
+				&& isTheSameXLogColumnEnum(columnStore.getColumns())) {
+
 			columnStore.getColumns().stream().forEach((column) -> {
 				createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
 				columnList.add(column);
 			});
+
 		} else {
 			for (XLogColumnEnum column : XLogColumnEnum.values()) {
 				createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
@@ -154,6 +159,17 @@ public class XLogSelectionView extends ViewPart {
 			}
 		}
 		viewer.setLabelProvider(new TableItemProvider());
+	}
+	
+	private boolean isTheSameXLogColumnEnum(List<XLogColumnEnum> loadedColummEnumList) {
+		if(loadedColummEnumList.size() != XLogColumnEnum.values().length) {
+			return false;
+		}
+		if (loadedColummEnumList.containsAll(new ArrayList<>(Arrays.asList(XLogColumnEnum.values())))) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private void saveColumnsInfo() {
@@ -275,6 +291,10 @@ public class XLogSelectionView extends ViewPart {
 				return d.p.login != 0 ? TextProxy.login.getLoadText(yyyymmdd, d.p.login, d.serverId) : null;
 			case DESC :
 				return d.p.desc != 0 ? TextProxy.desc.getLoadText(yyyymmdd, d.p.desc, d.serverId) : null;
+			case TEXT1 :
+				return d.p.text1;
+			case TEXT2 :
+				return d.p.text2;
 			case DUMP :
 				return d.p.hasDump == 1 ? "Y" : null;
 			}
@@ -338,7 +358,10 @@ public class XLogSelectionView extends ViewPart {
 		TX_ID("Txid", 30, SWT.LEFT, true, true, false),
 		GX_ID("Gxid", 30, SWT.LEFT, true, true, false),
 		DESC("Desc", 50, SWT.LEFT, true, true, false),
-		START_TIME("StartTime", 70, SWT.CENTER, true, true, true);
+		TEXT1("Text1", 50, SWT.LEFT, true, true, false),
+		TEXT2("Text2", 50, SWT.LEFT, true, true, false),
+		START_TIME("StartTime", 70, SWT.CENTER, true, true, true),
+		;
 
 	    private final String title;
 	    private int width;

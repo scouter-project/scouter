@@ -84,6 +84,8 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 	Text ipText;
 	Text loginText;
 	Text descText;
+	Text text1Text;
+	Text text2Text;
 	Text serviceText;
 	
 	Text dateText;
@@ -119,6 +121,8 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 				ipText.setEnabled(true);
 				loginText.setEnabled(true);
 				descText.setEnabled(true);
+				text1Text.setEnabled(true);
+				text2Text.setEnabled(true);
 				serviceText.setEnabled(true);
 				
 				quickSearchGrp.setEnabled(false);
@@ -221,6 +225,26 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 		descText = new Text(normalSearchGrp, SWT.BORDER);
 		gr = new GridData(SWT.FILL, SWT.FILL, true, false, 2 ,1);
 		descText.setLayoutData(gr);
+
+		label = new Label(normalSearchGrp, SWT.NONE);
+		gr = new GridData(SWT.FILL, SWT.FILL, false, false);
+		gr.widthHint = 70;
+		label.setLayoutData(gr);
+		label.setText("TEXT1");
+
+		text1Text = new Text(normalSearchGrp, SWT.BORDER);
+		gr = new GridData(SWT.FILL, SWT.FILL, true, false, 2 ,1);
+		text1Text.setLayoutData(gr);
+
+		label = new Label(normalSearchGrp, SWT.NONE);
+		gr = new GridData(SWT.FILL, SWT.FILL, false, false);
+		gr.widthHint = 70;
+		label.setLayoutData(gr);
+		label.setText("TEXT2");
+
+		text2Text = new Text(normalSearchGrp, SWT.BORDER);
+		gr = new GridData(SWT.FILL, SWT.FILL, true, false, 2 ,1);
+		text2Text.setLayoutData(gr);
 		
 		Button quickRadio = new Button(dialog, SWT.RADIO);
 		quickRadio.setText("Quick Search");
@@ -241,6 +265,8 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 				ipText.setEnabled(false);
 				loginText.setEnabled(false);
 				descText.setEnabled(false);
+				text1Text.setEnabled(false);
+				text2Text.setEnabled(false);
 				serviceText.setEnabled(false);
 			}
 		});
@@ -390,6 +416,12 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 		}
 		if (StringUtil.isNotEmpty(descText.getText())) {
 			param.put("desc", descText.getText());
+		}
+		if (StringUtil.isNotEmpty(text1Text.getText())) {
+			param.put("text1", text1Text.getText());
+		}
+		if (StringUtil.isNotEmpty(text2Text.getText())) {
+			param.put("text2", text2Text.getText());
 		}
 		new SearchXLogJob(param).schedule();
 		dialog.close();

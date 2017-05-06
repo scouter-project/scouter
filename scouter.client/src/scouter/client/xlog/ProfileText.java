@@ -178,6 +178,12 @@ public class ProfileText {
         if (StringUtil.isNotEmpty(t)) {
             sb.append("\n► desc=" + t);
         }
+        if (StringUtil.isNotEmpty(xperf.p.text1)) {
+            sb.append("\n► text1=" + xperf.p.text1);
+        }
+        if (StringUtil.isNotEmpty(xperf.p.text2)) {
+            sb.append("\n► text1=" + xperf.p.text2);
+        }
         if (xperf.p.hasDump == 1) {
             sb.append("\n► dump=Y");
         }

@@ -464,6 +464,9 @@ public class TraceMain {
                 pack.webHash = DataProxy.sendWebName(ctx.web_name);
                 pack.webTime = ctx.web_time;
             }
+            pack.text1 = ctx.text1;
+            pack.text2 = ctx.text2;
+
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
             if (sendable) {
