@@ -46,9 +46,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 
-import static scouter.agent.AgentCommonContant.ASYNC_SERVLET_DISPATCHED_PREFIX;
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP;
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_SELF_DISPATCHED;
+import static scouter.agent.AgentCommonConstant.ASYNC_SERVLET_DISPATCHED_PREFIX;
+import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP;
+import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_SELF_DISPATCHED;
 
 public class HttpTrace implements IHttpTrace {
     boolean remote_by_header;

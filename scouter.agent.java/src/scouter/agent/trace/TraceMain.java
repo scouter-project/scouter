@@ -16,7 +16,7 @@
  */
 package scouter.agent.trace;
 
-import scouter.agent.AgentCommonContant;
+import scouter.agent.AgentCommonConstant;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.UserExceptionHandlerASM;
@@ -167,7 +167,8 @@ public class TraceMain {
 
     private static void addSeviceName(TraceContext ctx, Object req) {
         try {
-            ctx.serviceName = AgentCommonContant.removeSpringRequestMappingPostfixFlag(ctx.serviceName);
+            ctx.serviceName = AgentCommonConstant.removeSpringRequestMappingPostfixFlag(ctx.serviceName);
+            ctx.serviceName = AgentCommonConstant.normalizeHashCode(ctx.serviceName);
             Configure conf = Configure.getInstance();
 
             StringBuilder sb = new StringBuilder();
@@ -552,7 +553,7 @@ public class TraceMain {
 
             Configure conf = Configure.getInstance();
             ctx = new TraceContext(conf.profile_summary_mode_enabled);
-            String service_name = name;
+            String service_name = AgentCommonConstant.normalizeHashCode(name);
             ctx.thread = Thread.currentThread();
             ctx.serviceHash = HashUtil.hash(service_name);
             ctx.serviceName = service_name;
@@ -859,7 +860,7 @@ public class TraceMain {
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null || name == null)
             return;
-        if(!ctx.serviceName.contains(AgentCommonContant.SPRING_REQUEST_MAPPING_POSTFIX_FLAG)) {
+        if(!ctx.serviceName.contains(AgentCommonConstant.SPRING_REQUEST_MAPPING_POSTFIX_FLAG)) {
             ctx.serviceName = name;
             ctx.serviceHash = HashUtil.hash(name);
         }
@@ -1036,7 +1037,10 @@ public class TraceMain {
             threadCallPossibleStep.txid = callee;
 
             threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-            threadCallPossibleStep.hash = DataProxy.sendApicall(keyObject.toString().replace("$ByteBuddy", "").replace("$$Lambda", "$$L"));
+            String initObjName = keyObject.toString().replace("$ByteBuddy", "").replace("$$Lambda", "$$L");
+            initObjName = AgentCommonConstant.normalizeHashCode(initObjName);
+
+            threadCallPossibleStep.hash = DataProxy.sendApicall(initObjName);
             ctx.profile.add(threadCallPossibleStep);
 
             TransferMap.put(System.identityHashCode(keyObject), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
@@ -1084,6 +1088,7 @@ public class TraceMain {
             String serviceName = StringUtil.cutLastString(className, '/') + "#" + methodName + "() -- " + fullName;
             serviceName = serviceName.replace("$ByteBuddy", "");
             serviceName = serviceName.replace("$$Lambda", "$$L");
+            serviceName = AgentCommonConstant.normalizeHashCode(serviceName);
             localContext.context.serviceHash = HashUtil.hash(serviceName);
             localContext.context.serviceName = serviceName;
 
@@ -1134,6 +1139,7 @@ public class TraceMain {
 
             threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
             String threadCallName = (ctx.lastThreadCallName != null) ? ctx.lastThreadCallName : callable.toString();
+            threadCallName = AgentCommonConstant.normalizeHashCode(threadCallName);
             ctx.lastThreadCallName = null;
 
             threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
@@ -1223,6 +1229,8 @@ public class TraceMain {
 
             threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
             String threadCallName = (ctx.lastThreadCallName != null) ? ctx.lastThreadCallName : callRunnableObj.toString();
+            threadCallName = AgentCommonConstant.normalizeHashCode(threadCallName);
+
             ctx.lastThreadCallName = null;
 
             threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);

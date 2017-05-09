@@ -16,7 +16,7 @@
  */
 package scouter.agent.asm;
 
-import scouter.agent.AgentCommonContant;
+import scouter.agent.AgentCommonConstant;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -174,7 +174,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
                     sb.append("<").append(methodType).append(">");
                 }
 
-                sb.append(AgentCommonContant.SPRING_REQUEST_MAPPING_POSTFIX_FLAG);
+                sb.append(AgentCommonConstant.SPRING_REQUEST_MAPPING_POSTFIX_FLAG);
 
                 String serviceUrl = sb.toString();
                 Logger.println("[Apply Spring F/W REST URL] " + serviceUrl);
