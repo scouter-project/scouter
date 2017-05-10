@@ -209,4 +209,16 @@ public class HookingSet {
 		}
 		return patterns;
 	}
+
+	public static String classPattrensToMethodPatterns(String classPatterns, String method) {
+		String[] classes = StringUtil.split(classPatterns, ',');
+
+		List<String> classMethodPatterns = new ArrayList<String>();
+		for (int i = 0; i < classes.length; i++) {
+			String s = classes[i];
+			classMethodPatterns.add(s + "." + method);
+		}
+
+		return buildPatterns("", classMethodPatterns);
+	}
 }

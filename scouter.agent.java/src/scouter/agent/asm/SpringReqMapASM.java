@@ -16,7 +16,7 @@
  */
 package scouter.agent.asm;
 
-import scouter.agent.AgentCommonContant;
+import scouter.agent.AgentCommonConstant;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -25,6 +25,7 @@ import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.StringUtil;
 
@@ -132,12 +133,25 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
         private static final String TRACEMAIN = "scouter/agent/trace/TraceMain";
         private final static String SET_METHOD = "setServiceName";
         private static final String SET_METHOD_SIGNATURE = "(Ljava/lang/String;)V";
+
+        private final static String CONTROLLER_START_METHOD = "startSpringControllerMethod";
+        private static final String CONTROLLER_START_METHOD_SIGNATURE = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V";
+
         private String methodRequestMappingUrl;
         private String methodType;
         private boolean isRequestHandler = false;
 
+        private String className;
+        private int access;
+        private String methodName;
+        private String desc;
+
         public SpringReqMapMV(String className, int access, String methodName, String desc, MethodVisitor mv) {
             super(ASM4, access, desc, mv);
+            this.className = className;
+            this.access = access;
+            this.methodName = methodName;
+            this.desc = desc;
         }
 
         @Override
@@ -160,12 +174,83 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
                     sb.append("<").append(methodType).append(">");
                 }
 
-                sb.append(AgentCommonContant.SPRING_REQUEST_MAPPING_POSTFIX_FLAG);
+                sb.append(AgentCommonConstant.SPRING_REQUEST_MAPPING_POSTFIX_FLAG);
 
                 String serviceUrl = sb.toString();
                 Logger.println("[Apply Spring F/W REST URL] " + serviceUrl);
                 AsmUtil.PUSH(mv, serviceUrl);
                 mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, SET_METHOD, SET_METHOD_SIGNATURE, false);
+
+                //=========== call for spring request mapping method capture plugin ============
+                Type[] types = Type.getArgumentTypes(desc);
+                boolean isStatic = (access & ACC_STATIC) != 0;
+
+                int sidx = isStatic ? 0 : 1;
+
+                int arrVarIdx = newLocal(Type.getType("[Ljava/lang/Object;"));
+                AsmUtil.PUSH(mv, types.length);
+                mv.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
+                mv.visitVarInsn(Opcodes.ASTORE, arrVarIdx);
+
+                for (int i = 0; i < types.length; i++) {
+                    Type type = types[i];
+                    mv.visitVarInsn(Opcodes.ALOAD, arrVarIdx);
+                    AsmUtil.PUSH(mv, i);
+
+                    switch (type.getSort()) {
+                        case Type.BOOLEAN:
+                            mv.visitVarInsn(Opcodes.ILOAD, sidx);
+                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;",
+                                    false);
+                            break;
+                        case Type.BYTE:
+                            mv.visitVarInsn(Opcodes.ILOAD, sidx);
+                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;", false);
+                            break;
+                        case Type.CHAR:
+                            mv.visitVarInsn(Opcodes.ILOAD, sidx);
+                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;",
+                                    false);
+                            break;
+                        case Type.SHORT:
+                            mv.visitVarInsn(Opcodes.ILOAD, sidx);
+                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;", false);
+                            break;
+                        case Type.INT:
+                            mv.visitVarInsn(Opcodes.ILOAD, sidx);
+                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;",
+                                    false);
+                            break;
+                        case Type.LONG:
+                            mv.visitVarInsn(Opcodes.LLOAD, sidx);
+                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+                            break;
+                        case Type.FLOAT:
+                            mv.visitVarInsn(Opcodes.FLOAD, sidx);
+                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
+                            break;
+                        case Type.DOUBLE:
+                            mv.visitVarInsn(Opcodes.DLOAD, sidx);
+                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+                            break;
+                        default:
+                            mv.visitVarInsn(Opcodes.ALOAD, sidx);
+                    }
+                    mv.visitInsn(Opcodes.AASTORE);
+                    sidx += type.getSize();
+                }
+                AsmUtil.PUSH(mv, className);
+                AsmUtil.PUSH(mv, methodName);
+                AsmUtil.PUSH(mv, desc);
+                if (isStatic) {
+                    AsmUtil.PUSHNULL(mv);
+                } else {
+                    mv.visitVarInsn(Opcodes.ALOAD, 0);
+                }
+                mv.visitVarInsn(Opcodes.ALOAD, arrVarIdx);
+
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, CONTROLLER_START_METHOD, CONTROLLER_START_METHOD_SIGNATURE, false);
+
             }
             mv.visitCode();
         }

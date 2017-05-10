@@ -16,17 +16,11 @@
  *
  */
 package scouter.server.plugin.alert;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Properties;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
+import javassist.NotFoundException;
 import scouter.server.Configure;
 import scouter.server.Logger;
 import scouter.util.BitUtil;
@@ -38,6 +32,13 @@ import scouter.util.StringEnumer;
 import scouter.util.StringKeyLinkedMap;
 import scouter.util.StringUtil;
 import scouter.util.ThreadUtil;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Properties;
 public class AlertRuleLoader extends Thread {
 	private static AlertRuleLoader instance;
 	public synchronized static AlertRuleLoader getInstance() {
@@ -78,7 +79,7 @@ public class AlertRuleLoader extends Thread {
 			AlertRule rule = createRule(name, ruleFiles[i]);
 			if (rule == null)
 				continue;
-			AlertConf conf = createConf(name, getConfFile(ruleFiles[i].getName()));
+			AlertConf conf = createConf(name, getConfFile(ruleFiles[i]));
 			alertRuleTable.put(name, rule);
 			alertConfTable.put(name, conf);
 		}
@@ -117,10 +118,10 @@ public class AlertRuleLoader extends Thread {
 		name = name.substring(0, name.lastIndexOf('.'));
 		return name;
 	}
-	private File getConfFile(String f) {
-		if (f == null)
+	private File getConfFile(File ruleFile) {
+		if (ruleFile == null)
 			return null;
-		File conf = new File(f.substring(0, f.lastIndexOf('.')) + ".conf");
+		File conf = new File(ruleFile.getPath().substring(0, ruleFile.getPath().lastIndexOf('.')) + ".conf");
 		if (conf.canRead())
 			return conf;
 		else
@@ -141,6 +142,7 @@ public class AlertRuleLoader extends Thread {
 				}
 				conf.history_size = getInt(p, "history_size", 0);
 				conf.silent_time = getInt(p, "silent_time", 0);
+				conf.check_term = getInt(p, "check_term", 0);
 			}
 		}
 		return conf;
@@ -162,7 +164,12 @@ public class AlertRuleLoader extends Thread {
 				URLClassLoader u = (URLClassLoader)this.getClass().getClassLoader();
 				URL[] urls = u.getURLs();
 				for(int i = 0; urls!=null && i<urls.length ; i++){
-					cp.appendClassPath(urls[i].getFile());
+					//Logger.println("[Alert rule load classpath urls]" + urls[i].toString());
+					try {
+						cp.appendClassPath(urls[i].getFile());
+					} catch (NotFoundException e) {
+						Logger.println("S219", "[Error]" + e.getMessage());
+					}
 				}	
 			}
 			name = "scouter.server.alert.impl." + name;

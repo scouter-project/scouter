@@ -27,9 +27,11 @@ import scouter.client.model.XLogProxy;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
+import scouter.client.util.ColorUtil;
 import scouter.client.util.SqlMakerUtil;
 import scouter.client.xlog.views.XLogProfileView;
 import scouter.lang.CountryCode;
+import scouter.lang.enumeration.ParameterizedMessageLevel;
 import scouter.lang.step.*;
 import scouter.util.*;
 
@@ -50,7 +52,23 @@ public class ProfileText {
                              int serverId, boolean bindSqlParam) {
         build(date, text, xperf, profiles, serverId, bindSqlParam, false);
     }
-	 
+
+    public static Color getColor(ParameterizedMessageLevel level) {
+        switch (level) {
+            case DEBUG:
+                return ColorUtil.getInstance().getColor("gray2");
+            case INFO:
+                return ColorUtil.getInstance().getColor("gray3");
+            case WARN:
+                return ColorUtil.getInstance().getColor("dark orange");
+            case ERROR:
+                return ColorUtil.getInstance().getColor("light red2");
+            case FATAL:
+                return ColorUtil.getInstance().getColor("red");
+        }
+        return ColorUtil.getInstance().getColor("dark gray");
+    };
+
     public static void build(final String date, StyledText text, XLogData xperf, Step[] profiles,
                              int serverId, boolean bindSqlParam, boolean isSimplified) {
 
@@ -63,6 +81,7 @@ public class ProfileText {
         XLogUtil.loadStepText(serverId, date, profiles);
 
         String error = TextProxy.error.getLoadText(date, xperf.p.error, serverId);
+
         Color blue = text.getDisplay().getSystemColor(SWT.COLOR_BLUE);
         Color dmagenta = text.getDisplay().getSystemColor(SWT.COLOR_DARK_MAGENTA);
         Color red = text.getDisplay().getSystemColor(SWT.COLOR_RED);
@@ -158,6 +177,12 @@ public class ProfileText {
         t = TextProxy.desc.getLoadText(date, xperf.p.desc, serverId);
         if (StringUtil.isNotEmpty(t)) {
             sb.append("\n► desc=" + t);
+        }
+        if (StringUtil.isNotEmpty(xperf.p.text1)) {
+            sb.append("\n► text1=" + xperf.p.text1);
+        }
+        if (StringUtil.isNotEmpty(xperf.p.text2)) {
+            sb.append("\n► text1=" + xperf.p.text2);
         }
         if (xperf.p.hasDump == 1) {
             sb.append("\n► dump=Y");
@@ -307,7 +332,22 @@ public class ProfileText {
             sb.append(" ");
             sb.append(FormatUtil.print(new Date(tm), "HH:mm:ss.SSS"));
             sb.append("   ");
+
+            slen = sb.length();
             sb.append(String.format("%6s", FormatUtil.print(tm - prev_tm, "#,##0")));
+
+            int gapTime = CastUtil.cint(tm - prev_tm);
+            int elapsedRate = xperf.p.elapsed == 0 ? 0 : CastUtil.cint((gapTime / (double)xperf.p.elapsed)*100);
+
+
+            if (elapsedRate > 50) {
+                sr.add(style(slen, 6, dred, SWT.BOLD));
+            } else if (elapsedRate > 20) {
+                sr.add(style(slen, 6, dblue, SWT.BOLD));
+            } else if (elapsedRate > 10) {
+                sr.add(style(slen, 6, dgreen, SWT.BOLD));
+            }
+
             sb.append(" ");
             if(ignoreCpu) {
             	sb.append(String.format("%6s", FormatUtil.print(0, "#,##0")));
@@ -378,6 +418,12 @@ public class ProfileText {
                     slen = sb.length();
                     toString(sb, (HashedMessageStep) stepSingle);
                     sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
+                    break;
+                case StepEnum.PARAMETERIZED_MESSAGE:
+                    slen = sb.length();
+                    ParameterizedMessageStep pmStep = (ParameterizedMessageStep) stepSingle;
+                    toString(sb, pmStep);
+                    sr.add(style(slen, sb.length() - slen, getColor(pmStep.getLevel()), SWT.NORMAL));
                     break;
                 case StepEnum.DUMP:
                     slen = sb.length();
@@ -640,6 +686,12 @@ public class ProfileText {
                     toString(sb, (HashedMessageStep) stepSingle);
                     sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
                     break;
+                case StepEnum.PARAMETERIZED_MESSAGE:
+                    slen = sb.length();
+                    ParameterizedMessageStep pmStep = (ParameterizedMessageStep) stepSingle;
+                    toString(sb, pmStep);
+                    sr.add(style(slen, sb.length() - slen, getColor(pmStep.getLevel()), SWT.NORMAL));
+                    break;
                 case StepEnum.DUMP:
                     slen = sb.length();
                     toString(sb, (DumpStep) stepSingle, lineHead);
@@ -758,6 +810,21 @@ public class ProfileText {
         } else {
             sb.append(m);
         }
+    }
+
+    public static void toString(StringBuffer sb, ParameterizedMessageStep pmStep) {
+        String messageFormat = TextProxy.hashMessage.getText(pmStep.getHash());
+        String message;
+        if (messageFormat == null) {
+            message = Hexa32.toString32(pmStep.getHash());
+        } else {
+            message = pmStep.buildMessasge(messageFormat);
+        }
+
+        if(pmStep.getElapsed() != -1) {
+            sb.append("[").append(FormatUtil.print(pmStep.getElapsed(), "#,##0")).append(" ms] ");
+        }
+        sb.append(message);
     }
 
     public static void toString(StringBuffer sb, DumpStep p, int lineHead) {

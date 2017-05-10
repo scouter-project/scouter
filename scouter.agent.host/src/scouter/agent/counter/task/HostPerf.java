@@ -50,7 +50,9 @@ public class HostPerf {
 	@Counter
 	public void process(CounterBasket pw) {
 		try {
-			netstat();
+			if (Configure.getInstance().counter_netstat_enabled) {
+				netstat();
+			}
 			domain(pw);
 		} catch (Exception e) {
 			Logger.println("A140", 10, "HostPerf", e);
@@ -278,7 +280,11 @@ public class HostPerf {
 				if (conf.disk_ignore_names.hasKey(dir))
 					continue;
 
-				usage = sigar.getFileSystemUsage(dir);
+				try {
+					usage = sigar.getFileSystemUsage(dir);
+				} catch (SigarException e) {
+					continue;
+				}
 
 				float pct = (float) (usage.getUsePercent() * 100);
 				if (pct >= conf.disk_fatal_pct && fatal.length() < 32756) {

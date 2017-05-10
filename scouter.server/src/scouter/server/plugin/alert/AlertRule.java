@@ -27,4 +27,6 @@ public class AlertRule {
 	public void println(Object c) {
 		System.out.println(c);
 	}
+
+
 }

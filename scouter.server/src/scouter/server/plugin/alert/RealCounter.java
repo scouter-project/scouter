@@ -18,8 +18,6 @@
 
 package scouter.server.plugin.alert;
 
-import java.util.Map;
-
 import scouter.lang.AlertLevel;
 import scouter.lang.CounterKey;
 import scouter.lang.TimeTypeEnum;
@@ -31,7 +29,10 @@ import scouter.util.IntLongLinkedMap;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
 
+import java.util.Map;
+
 public class RealCounter {
+	public long lastCheckTime;
 
 	private Value _value;
 	private long _time;
@@ -41,6 +42,7 @@ public class RealCounter {
 	private String _objType;
 	private String _objName;
 	private int _silentTime;
+	private int _checkTerm;
 
 	private int _objHash;
 	private String _counter;
@@ -125,6 +127,44 @@ public class RealCounter {
 		return cnt;
 	}
 
+	public int getAvgtoInt(int fromAgoSec, int durationSec) {
+		return (int)getAvg(fromAgoSec, durationSec);
+	}
+
+	public float getLatestAvg(int durationSec) {
+		return getAvg(durationSec, durationSec);
+	}
+
+	public int getLatestAvgtoInt(int durationSec) {
+		return (int)getLatestAvg(durationSec);
+	}
+
+	public float getAvg(int fromAgoSec, int durationSec) {
+		if (historySize() == 0)
+			return 0;
+		long from = System.currentTimeMillis() - fromAgoSec * 1000L;
+		long to = from + durationSec * 1000L;
+
+		int cnt = 0;
+		float sum = 0;
+		LongEnumer en = _history.keys();
+		while (en.hasMoreElements()) {
+			long tm = en.nextLong();
+			if (tm < from)
+				break;
+			if (tm >= to)
+				continue;
+
+			Number val = _history.get(tm);
+			sum += val.floatValue();
+			cnt++;
+		}
+		if (cnt == 0) {
+			return 0;
+		}
+		return sum/cnt;
+	}
+
 	public long historyOldestTime() {
 		if (historySize() == 0)
 			return 0;
@@ -187,6 +227,14 @@ public class RealCounter {
 		return this._silentTime;
 	}
 
+	public void checkTerm(int sec) {
+		this._checkTerm = sec;
+	}
+
+	public int checkTerm() {
+		return this._checkTerm;
+	}
+
 	public long lastAlertTime(int level) {
 		if (this._lastAlertTime == null)
 			return 0;
@@ -197,7 +245,12 @@ public class RealCounter {
 		AlertUtil.alert(AlertLevel.INFO, this, title, message);
 	}
 
+	@Deprecated
 	public void warning(String title, String message) {
+		AlertUtil.alert(AlertLevel.WARN, this, title, message);
+	}
+
+	public void warn(String title, String message) {
 		AlertUtil.alert(AlertLevel.WARN, this, title, message);
 	}
 

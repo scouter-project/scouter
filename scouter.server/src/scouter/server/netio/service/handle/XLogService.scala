@@ -324,8 +324,17 @@ class XLogService {
         val service = param.getText("service");
         val objHash = param.getInt("objHash");
         val ip = param.getText("ip");
-        val serverMatch = if (service == null) null else new StrMatch(service);
+        val login = param.getText("login");
+        val desc = param.getText("desc");
+        val text1 = param.getText("text1");
+        val text2 = param.getText("text2");
+
+        val serviceMatch = if (service == null) null else new StrMatch(service);
         val ipMatch = if (ip == null) null else new StrMatch(ip);
+        val loginMatch = if (login == null) null else new StrMatch(login);
+        val descMatch = if (desc == null) null else new StrMatch(desc);
+        val text1Match = if (text1 == null) null else new StrMatch(text1);
+        val text2Match = if (text2 == null) null else new StrMatch(text2);
 
         val date = DateUtil.yyyymmdd(stime);
         val date2 = DateUtil.yyyymmdd(etime);
@@ -354,12 +363,39 @@ class XLogService {
             if (objHash != 0 && x.objHash != objHash) {
                 ok = false;
             }
-            if (serverMatch != null) {
+            if (serviceMatch != null) {
                 var serviceName = TextRD.getString(DateUtil.yyyymmdd(time), TextTypes.SERVICE, x.service);
-                if (serverMatch.include(serviceName) == false) {
+                if (serviceMatch.include(serviceName) == false) {
                     ok = false;
                 }
             }
+            if (loginMatch != null) {
+                var loginName = TextRD.getString(DateUtil.yyyymmdd(time), TextTypes.LOGIN, x.login);
+                if (loginMatch.include(loginName) == false) {
+                    ok = false;
+                }
+            }
+            if (descMatch != null) {
+                var descName = TextRD.getString(DateUtil.yyyymmdd(time), TextTypes.DESC, x.desc);
+                if (descMatch.include(descName) == false) {
+                    ok = false;
+                }
+            }
+
+            if (text1Match != null) {
+                var text1Name = x.text1;
+                if (text1Match.include(text1Name) == false) {
+                    ok = false;
+                }
+            }
+
+            if (text2Match != null) {
+                var text2Name = x.text2;
+                if (text2Match.include(text2Name) == false) {
+                    ok = false;
+                }
+            }
+
             if (ok) {
                 dout.writeByte(TcpFlag.HasNEXT);
                 dout.write(data);

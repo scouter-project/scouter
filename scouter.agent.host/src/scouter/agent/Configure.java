@@ -85,6 +85,9 @@ public class Configure extends Thread {
 	@ConfigDesc("Path to file reading directory of java process ID file")
 	public String counter_object_registry_path = "/tmp/scouter";
 
+	@ConfigDesc("Activating netstat counter - too many sockets(ESTABLISHED, TIME_WAIT...) may cause heavy cpu load.")
+	public boolean counter_netstat_enabled = true;
+
 	//Log
 	@ConfigDesc("")
 	public boolean log_udp_object = false;
@@ -216,6 +219,7 @@ public class Configure extends Thread {
 
 		this.counter_enabled = getBoolean("counter_enabled", true);
 		this.log_udp_object = getBoolean("log_udp_object", false);
+		this.counter_netstat_enabled = getBoolean("counter_netstat_enabled", true);
 
 		this.log_dir = getValue("log_dir", "./logs");
 		this.log_rotation_enalbed = getBoolean("log_rotation_enalbed", true);

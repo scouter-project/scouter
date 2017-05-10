@@ -19,12 +19,11 @@
 package scouter.server.db;
 
 import java.io.File
+
 import scouter.lang.TextTypes
-import scouter.server.Logger
+import scouter.server.{Configure, Logger}
 import scouter.server.core.cache.TextCache
 import scouter.server.util.ThreadScala
-import scouter.util.HashUtil
-import scouter.util.Hexa32
 import scouter.util.RequestQueue
 import scouter.util.StringUtil
 import scouter.server.db.text.TextPermIndex
@@ -36,7 +35,14 @@ object TextPermWR {
 
   //에러만 날짜별로 저장한다.-20151110
   def isA(divs: String): Boolean = {
-    return divs != TextTypes.ERROR;
+    val conf = Configure.getInstance();
+
+    divs match {
+      case TextTypes.ERROR => false
+      case TextTypes.SERVICE => !conf.mgr_text_db_daily_service_enabled
+      case TextTypes.APICALL => !conf.mgr_text_db_daily_api_enabled
+      case _ => true
+    }
   }
 
   ThreadScala.start("scouter.server.db.TextPermWR") {

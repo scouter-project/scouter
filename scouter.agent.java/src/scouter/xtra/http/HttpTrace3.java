@@ -32,12 +32,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT;
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_ASYNC_DISPATCH;
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP;
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_INITIAL_TRACE_CONTEXT;
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_SELF_DISPATCHED;
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_TRACE_CONTEXT;
+import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT;
+import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_ASYNC_DISPATCH;
+import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP;
+import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_INITIAL_TRACE_CONTEXT;
+import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_SELF_DISPATCHED;
+import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_TRACE_CONTEXT;
 
 public class HttpTrace3 extends HttpTrace implements IHttpTrace {
 

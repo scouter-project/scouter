@@ -46,9 +46,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 
-import static scouter.agent.AgentCommonContant.ASYNC_SERVLET_DISPATCHED_PREFIX;
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP;
-import static scouter.agent.AgentCommonContant.REQUEST_ATTRIBUTE_SELF_DISPATCHED;
+import static scouter.agent.AgentCommonConstant.ASYNC_SERVLET_DISPATCHED_PREFIX;
+import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP;
+import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_SELF_DISPATCHED;
 
 public class HttpTrace implements IHttpTrace {
     boolean remote_by_header;
@@ -329,14 +329,16 @@ public class HttpTrace implements IHttpTrace {
                     int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
                     while (en.hasMoreElements()) {
                         String key = (String) en.nextElement();
+                        if (conf._profile_http_header_keys != null
+                                && conf._profile_http_header_keys.size() > 0
+                                && !conf._profile_http_header_keys.contains(key.toUpperCase())) {
+                            continue;
+                        }
                         String value = new StringBuilder().append("header: ").append(key).append("=")
                                 .append(StringUtil.limiting(request.getHeader(key), 1024)).toString();
 
                         MessageStep step = new MessageStep(value);
                         step.start_time = start_time;
-                        // step.start_cpu = (int) (SysJMX.getCurrentThreadCPU()
-                        // -
-                        // ctx.startCpu);
 
                         p.add(step);
                     }
