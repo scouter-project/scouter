@@ -20,7 +20,7 @@ package scouter.util;
 
 public class StrMatch {
 
-	protected static enum COMP {
+	public enum COMP {
 		EQU, STR, STR_MID, STR_END, MID, MID_MID, MID_END, END, ANY
 	}
 
@@ -133,6 +133,14 @@ public class StrMatch {
 
 	public String toString() {
 		return pattern;
+	}
+
+	public String getPattern() {
+		return pattern;
+	}
+
+	public COMP getComp() {
+		return comp;
 	}
 
 	public static void main(String[] args) {

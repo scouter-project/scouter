@@ -210,27 +210,33 @@ public class TraceSQL {
     private static String escapeLiteral(String sql, SqlStep3 step) {
 		if (conf.profile_sql_escape_enabled == false)
 			return sql;
-		int sqlHash = sql.hashCode();
-		if (noLiteralSql.contains(sqlHash)) {
+	    try {
+		    int sqlHash = sql.hashCode();
+		    if (noLiteralSql.contains(sqlHash)) {
+			    return sql;
+		    }
+		    ParsedSql psql = checkedSql.get(sqlHash);
+		    if (psql != null) {
+			    step.param = psql.param;
+			    return psql.sql;
+		    }
+		    EscapeLiteralSQL els = new EscapeLiteralSQL(sql);
+		    els.process();
+		    String parsed = els.getParsedSql();
+		    if (parsed.hashCode() == sqlHash) {
+			    noLiteralSql.put(sqlHash);
+		    } else {
+			    psql = new ParsedSql(parsed, els.getParameter());
+			    checkedSql.put(sqlHash, psql);
+			    step.param = psql.param;
+		    }
+		    return parsed;
+	    } catch (Throwable t) {
+		    Logger.println("B102", "fail to escape literal", t);
+	    } finally {
 			return sql;
-		}
-		ParsedSql psql = checkedSql.get(sqlHash);
-		if (psql != null) {
-			step.param = psql.param;
-			return psql.sql;
-		}
-		EscapeLiteralSQL els = new EscapeLiteralSQL(sql);
-		els.process();
-		String parsed = els.getParsedSql();
-		if (parsed.hashCode() == sqlHash) {
-			noLiteralSql.put(sqlHash);
-		} else {
-			psql = new ParsedSql(parsed, els.getParameter());
-			checkedSql.put(sqlHash, psql);
-			step.param = psql.param;
-		}
-		return parsed;
-	}
+	    }
+    }
 
     public static void end(Object stat, Throwable thr, int updatedCount) {
 		if (stat == null) {

@@ -5,7 +5,7 @@ package scouter.agent;
  * Common constants for scouter agent.
  *
  */
-public class AgentCommonContant {
+public class AgentCommonConstant {
     public static final String SPRING_REQUEST_MAPPING_POSTFIX_FLAG = " [:SRM]";
     public static final String REQUEST_ATTRIBUTE_INITIAL_TRACE_CONTEXT = "__scouter__itc__";
     public static final String REQUEST_ATTRIBUTE_TRACE_CONTEXT = "__scouter__tc__";
@@ -15,6 +15,8 @@ public class AgentCommonContant {
     public static final String REQUEST_ATTRIBUTE_SELF_DISPATCHED = "__scouter__sd__";
 
     public static final String ASYNC_SERVLET_DISPATCHED_PREFIX = "f>";
+
+    private static final char at = '@';
 
     /**
      * remove " [:SRM]" from service name
@@ -28,5 +30,29 @@ public class AgentCommonContant {
         } else {
             return pre;
         }
+    }
+
+    public static String normalizeHashCode(String text) {
+        if(text == null) return text;
+        int atPos = text.lastIndexOf(at);
+        if(atPos > 0 && text.length() >= atPos + 8 + 1) {
+            String hexa = text.substring(atPos+1, atPos+1+8);
+            try {
+                Long.parseLong(hexa, 16);
+            } catch (NumberFormatException e) {
+                return text;
+            }
+            if (text.length() > atPos + 8 + 1) {
+                return text.substring(0, atPos+1) + text.substring(atPos+1+8);
+            } else {
+                return text.substring(0, atPos+1);
+            }
+        }
+        return text;
+    }
+
+    public static void main(String[] args) {
+        String serviceName = "xxxiej.s@dfljoeif@0000000f";
+        System.out.println(normalizeHashCode(serviceName));
     }
 }

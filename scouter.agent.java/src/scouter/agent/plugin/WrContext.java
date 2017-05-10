@@ -2,8 +2,10 @@ package scouter.agent.plugin;
 
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceContext;
+import scouter.lang.enumeration.ParameterizedMessageLevel;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
+import scouter.lang.step.ParameterizedMessageStep;
 import scouter.util.HashUtil;
 import scouter.util.SysJMX;
 
@@ -73,6 +75,22 @@ public class WrContext {
 		return ctx.desc;
 	}
 
+	public void text1(String text) {
+		ctx.text1 = text;
+	}
+
+	public String text1() {
+		return ctx.text1;
+	}
+
+	public void text2(String text) {
+		ctx.text2 = text;
+	}
+
+	public String text2() {
+		return ctx.text2;
+	}
+
 	public String httpMethod() {
 		return ctx.http_method;
 	}
@@ -116,6 +134,34 @@ public class WrContext {
 			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
 		ctx.profile.add(step);
+	}
+
+	/**
+	 * add xlog profile
+	 * profile display like --> #elasped(if the value is not -1) formatted message
+	 * @param msg message format (ex- "Hello, my name is %s and my age is %s)"
+	 * @param elapsed any value to display on a profile.
+	 * @param params message format parameters.
+	 */
+	public void parameterizedProfile(int level, String msg, int elapsed, String... params) {
+		ParameterizedMessageStep step = new ParameterizedMessageStep();
+		step.setMessage(DataProxy.sendHashedMessage(msg), params);
+		step.setElapsed(elapsed);
+		step.setLevel(ParameterizedMessageLevel.of(level));
+		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+
+		if (ctx.profile_thread_cputime) {
+			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+		}
+		ctx.profile.add(step);
+	}
+
+	public void parameterizedProfile(String msg, String... params) {
+		parameterizedProfile(0, msg, -1, params);
+	}
+
+	public void parameterizedProfile(int level, String msg, String... params) {
+		parameterizedProfile(level, msg, -1, params);
 	}
 
 	public long txid() {

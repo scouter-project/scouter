@@ -16,9 +16,10 @@
  */
 package scouter.agent.trace;
 
-import scouter.agent.AgentCommonContant;
+import scouter.agent.AgentCommonConstant;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
+import scouter.agent.asm.UserExceptionHandlerASM;
 import scouter.agent.counter.meter.MeterService;
 import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.error.REQUEST_REJECT;
@@ -166,7 +167,8 @@ public class TraceMain {
 
     private static void addSeviceName(TraceContext ctx, Object req) {
         try {
-            ctx.serviceName = AgentCommonContant.removeSpringRequestMappingPostfixFlag(ctx.serviceName);
+            ctx.serviceName = AgentCommonConstant.removeSpringRequestMappingPostfixFlag(ctx.serviceName);
+            ctx.serviceName = AgentCommonConstant.normalizeHashCode(ctx.serviceName);
             Configure conf = Configure.getInstance();
 
             StringBuilder sb = new StringBuilder();
@@ -463,6 +465,9 @@ public class TraceMain {
                 pack.webHash = DataProxy.sendWebName(ctx.web_name);
                 pack.webTime = ctx.web_time;
             }
+            pack.text1 = ctx.text1;
+            pack.text2 = ctx.text2;
+
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
             if (sendable) {
@@ -548,7 +553,7 @@ public class TraceMain {
 
             Configure conf = Configure.getInstance();
             ctx = new TraceContext(conf.profile_summary_mode_enabled);
-            String service_name = name;
+            String service_name = AgentCommonConstant.normalizeHashCode(name);
             ctx.thread = Thread.currentThread();
             ctx.serviceHash = HashUtil.hash(service_name);
             ctx.serviceName = service_name;
@@ -855,7 +860,7 @@ public class TraceMain {
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null || name == null)
             return;
-        if(!ctx.serviceName.contains(AgentCommonContant.SPRING_REQUEST_MAPPING_POSTFIX_FLAG)) {
+        if(!ctx.serviceName.contains(AgentCommonConstant.SPRING_REQUEST_MAPPING_POSTFIX_FLAG)) {
             ctx.serviceName = name;
             ctx.serviceHash = HashUtil.hash(name);
         }
@@ -1032,7 +1037,10 @@ public class TraceMain {
             threadCallPossibleStep.txid = callee;
 
             threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-            threadCallPossibleStep.hash = DataProxy.sendApicall(keyObject.toString().replace("$ByteBuddy", "").replace("$$Lambda", "$$L"));
+            String initObjName = keyObject.toString().replace("$ByteBuddy", "").replace("$$Lambda", "$$L");
+            initObjName = AgentCommonConstant.normalizeHashCode(initObjName);
+
+            threadCallPossibleStep.hash = DataProxy.sendApicall(initObjName);
             ctx.profile.add(threadCallPossibleStep);
 
             TransferMap.put(System.identityHashCode(keyObject), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
@@ -1080,6 +1088,7 @@ public class TraceMain {
             String serviceName = StringUtil.cutLastString(className, '/') + "#" + methodName + "() -- " + fullName;
             serviceName = serviceName.replace("$ByteBuddy", "");
             serviceName = serviceName.replace("$$Lambda", "$$L");
+            serviceName = AgentCommonConstant.normalizeHashCode(serviceName);
             localContext.context.serviceHash = HashUtil.hash(serviceName);
             localContext.context.serviceName = serviceName;
 
@@ -1130,6 +1139,7 @@ public class TraceMain {
 
             threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
             String threadCallName = (ctx.lastThreadCallName != null) ? ctx.lastThreadCallName : callable.toString();
+            threadCallName = AgentCommonConstant.normalizeHashCode(threadCallName);
             ctx.lastThreadCallName = null;
 
             threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
@@ -1219,6 +1229,8 @@ public class TraceMain {
 
             threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
             String threadCallName = (ctx.lastThreadCallName != null) ? ctx.lastThreadCallName : callRunnableObj.toString();
+            threadCallName = AgentCommonConstant.normalizeHashCode(threadCallName);
+
             ctx.lastThreadCallName = null;
 
             threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
@@ -1263,6 +1275,23 @@ public class TraceMain {
         ServiceSummary.getInstance().process(t, hash, ctx.serviceHash, ctx.txid, 0, 0);
     }
 
+    public static StringBuilder appendParentClassName(Class clazz, StringBuilder sb) {
+        Class superClazz = clazz.getSuperclass();
+        if(superClazz != null) {
+            sb.append(",").append(superClazz.getName());
+            return appendParentClassName(superClazz, sb);
+        } else {
+            return sb;
+        }
+    }
+
+    public static String buildClassHierarchyConcatString(Class clazz) {
+        if(clazz == null) return null;
+        StringBuilder sb = new StringBuilder(clazz.getName());
+        appendParentClassName(clazz, sb);
+        return sb.toString();
+    }
+
     public static void startExceptionHandler(String className, String methodName, String methodDesc, Object this1, Object[] args) {
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null) return;
@@ -1279,6 +1308,15 @@ public class TraceMain {
 
         if (t == null) {
             return;
+        }
+
+        //skip exclude patterns
+        String classHierarchyConcatString = buildClassHierarchyConcatString(t.getClass());
+        String[] excludes = UserExceptionHandlerASM.exceptionExcludeClasseNames;
+        for (int i = 0; i < excludes.length; i++) {
+            if (classHierarchyConcatString.indexOf(excludes[i]) >= 0) {
+                return;
+            }
         }
 
         StringBuffer sb = new StringBuffer(64);

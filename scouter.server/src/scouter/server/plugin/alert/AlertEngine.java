@@ -41,10 +41,21 @@ public class AlertEngine {
 			}
 			counter.historySize(conf.history_size);
 			counter.silentTime(conf.silent_time);
+			counter.checkTerm(conf.check_term);
 			realTimeMap.put(key, counter);
 		}
 		counter.value(value);
-		rule.process(counter);
+
+		if (counter.checkTerm() > 0) {
+			long now = System.currentTimeMillis();
+			if (now - counter.checkTerm()*1000 > counter.lastCheckTime) {
+				counter.lastCheckTime = now;
+				rule.process(counter);
+			}
+		} else {
+			rule.process(counter);
+		}
+
 		counter.addValueHistory((Number) value);
 	}
 

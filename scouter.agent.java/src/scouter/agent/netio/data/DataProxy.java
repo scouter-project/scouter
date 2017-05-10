@@ -270,7 +270,7 @@ public class DataProxy {
 		udpCollect.add(new TextPack(TextTypes.GROUP, hash, text));
 		return hash;
 	}
-	private static IntLinkedSet hashMessage = new IntLinkedSet().setMax(500);
+	private static IntLinkedSet hashMessage = new IntLinkedSet().setMax(10000);
 	public static int sendHashedMessage(String text) {
 		int hash = HashUtil.hash(text);
 		if (hashMessage.contains(hash)) {

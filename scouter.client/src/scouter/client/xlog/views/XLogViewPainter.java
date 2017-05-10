@@ -74,6 +74,10 @@ public class XLogViewPainter {
 	public StrMatch objNameMat;
 	public StrMatch serviceMat;
 	public StrMatch ipMat;
+	public StrMatch loginMat;
+	public StrMatch descMat;
+	public StrMatch text1Mat;
+	public StrMatch text2Mat;
 	public StrMatch userAgentMat;
 	
 	public String yyyymmdd;
@@ -607,6 +611,10 @@ public class XLogViewPainter {
 		return isObjNameFilterOk(d)
 				&& isServiceFilterOk(d)
 				&& isIpFilterOk(d.p)
+				&& isLoginFilterOk(d)
+				&& isDescFilterOk(d)
+				&& isText1FilterOk(d)
+				&& isText2FilterOk(d)
 				&& isUserAgentFilterOk(d)
 				&& isErrorFilterOk(d.p)
 				&& isApicallFilterOk(d.p)
@@ -617,16 +625,25 @@ public class XLogViewPainter {
 		if (StringUtil.isEmpty(filterStatus.objName)) {
 			return true;
 		}
-		String objName = TextProxy.object.getLoadText(yyyymmdd, d.p.objHash, d.serverId);
-		return objNameMat.include(objName);
+		if (objNameMat.getComp() == StrMatch.COMP.EQU) {
+			return d.p.objHash == HashUtil.hash(objNameMat.getPattern());
+		} else {
+			String objName = TextProxy.object.getLoadText(yyyymmdd, d.p.objHash, d.serverId);
+			return objNameMat.include(objName);
+		}
 	}
 	
 	public boolean isServiceFilterOk(XLogData d) {
 		if (StringUtil.isEmpty(filterStatus.service)) {
 			return true;
 		}
-		String serviceName = TextProxy.service.getLoadText(yyyymmdd, d.p.service, d.serverId);
-		return serviceMat.include(serviceName);
+
+		if (serviceMat.getComp() == StrMatch.COMP.EQU) {
+			return d.p.service == HashUtil.hash(serviceMat.getPattern());
+		} else {
+			String serviceName = TextProxy.service.getLoadText(yyyymmdd, d.p.service, d.serverId);
+			return serviceMat.include(serviceName);
+		}
 	}
 	
 	public boolean isIpFilterOk(XLogPack p) {
@@ -636,13 +653,55 @@ public class XLogViewPainter {
 		String value = IPUtil.toString(p.ipaddr);
 		return ipMat.include(value);
 	}
+
+	public boolean isLoginFilterOk(XLogData d) {
+		if (StringUtil.isEmpty(filterStatus.login)) {
+			return true;
+		}
+		if (loginMat.getComp() == StrMatch.COMP.EQU) {
+			return d.p.login == HashUtil.hash(loginMat.getPattern());
+		} else {
+			String login = TextProxy.login.getLoadText(yyyymmdd, d.p.login, d.serverId);
+			return loginMat.include(login);
+		}
+	}
+
+	public boolean isDescFilterOk(XLogData d) {
+		if (StringUtil.isEmpty(filterStatus.desc)) {
+			return true;
+		}
+		if (descMat.getComp() == StrMatch.COMP.EQU) {
+			return d.p.desc == HashUtil.hash(descMat.getPattern());
+		} else {
+			String desc = TextProxy.desc.getLoadText(yyyymmdd, d.p.desc, d.serverId);
+			return descMat.include(desc);
+		}
+	}
+
+	public boolean isText1FilterOk(XLogData d) {
+		if (StringUtil.isEmpty(filterStatus.text1)) {
+			return true;
+		}
+		return text1Mat.include(d.p.text1);
+	}
+
+	public boolean isText2FilterOk(XLogData d) {
+		if (StringUtil.isEmpty(filterStatus.text2)) {
+			return true;
+		}
+		return text2Mat.include(d.p.text2);
+	}
 	
 	public boolean isUserAgentFilterOk(XLogData d) {
 		if (StringUtil.isEmpty(filterStatus.userAgent)) {
 			return true;
 		}
-		String userAgent = TextProxy.userAgent.getLoadText(yyyymmdd, d.p.userAgent, d.serverId);
-		return userAgentMat.include(userAgent);
+		if (userAgentMat.getComp() == StrMatch.COMP.EQU) {
+			return d.p.userAgent == HashUtil.hash(userAgentMat.getPattern());
+		} else {
+			String userAgent = TextProxy.userAgent.getLoadText(yyyymmdd, d.p.userAgent, d.serverId);
+			return userAgentMat.include(userAgent);
+		}
 	}
 	
 	public boolean isErrorFilterOk(XLogPack p) {
@@ -682,6 +741,10 @@ public class XLogViewPainter {
 		objNameMat = new StrMatch(status.objName);
 		serviceMat = new StrMatch(status.service);
 		ipMat = new StrMatch(status.ip);
+		loginMat = new StrMatch(status.login);
+		text1Mat = new StrMatch(status.text1);
+		text2Mat = new StrMatch(status.text2);
+		descMat = new StrMatch(status.desc);
 		userAgentMat = new StrMatch(status.userAgent);
 	}
 }

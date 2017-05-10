@@ -23,6 +23,7 @@
 package scouter.util;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.StringTokenizer;
 
 public class StringUtil {
@@ -145,6 +146,26 @@ public class StringUtil {
 			sb = new StringBuilder();
 		}
 		return arr.toArray(new String[arr.size()]);
+	}
+
+	public static HashSet<String> splitAndTrimToSet(String s, char c, boolean toUpper) {
+		HashSet<String> set = new HashSet<String>();
+
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			if (s.charAt(i) == c) {
+				if (sb.length() > 0) {
+					set.add(toUpper ? sb.toString().toUpperCase().trim() : sb.toString().trim());
+					sb = new StringBuilder();
+				}
+			} else {
+				sb.append(s.charAt(i));
+			}
+		}
+		if (sb.length() > 0) {
+			set.add(toUpper ? sb.toString().toUpperCase().trim() : sb.toString().trim());
+		}
+		return set;
 	}
 
 	public static String[] split(String s, String delim) {

@@ -32,19 +32,17 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
 import scouter.client.xlog.XLogFilterStatus;
 import scouter.client.xlog.views.XLogViewCommon;
 
 public class XLogFilterDialog extends Dialog {
 	
 	Combo objCombo;
-	Text serviceTxt, ipTxt, userAgentTxt;
+	Text serviceTxt, ipTxt, userAgentTxt, loginText, descText, text1Text, text2Text;
 	Button onlySqlBtn, onlyApiBtn, onlyErrorBtn;
 	Button clearBtn, applyBtn;
 	
@@ -112,6 +110,32 @@ public class XLogFilterDialog extends Dialog {
 				compareHash();
 			}
 		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("LOGIN");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		loginText = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		loginText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		loginText.setText(status.login);
+		loginText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.login = loginText.getText();
+				compareHash();
+			}
+		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("DESC");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		descText = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		descText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		descText.setText(status.desc);
+		descText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.desc = descText.getText();
+				compareHash();
+			}
+		});
 		
 		label = new Label(filterGrp, SWT.NONE);
 		label.setText("User-Agent");
@@ -122,6 +146,32 @@ public class XLogFilterDialog extends Dialog {
 		userAgentTxt.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
 				newStatus.userAgent = userAgentTxt.getText();
+				compareHash();
+			}
+		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("TEXT1");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		text1Text = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		text1Text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		text1Text.setText(status.text1);
+		text1Text.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.text1 = text1Text.getText();
+				compareHash();
+			}
+		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("TEXT2");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		text2Text = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		text2Text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		text2Text.setText(status.text2);
+		text2Text.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.text2 = text2Text.getText();
 				compareHash();
 			}
 		});
@@ -177,6 +227,10 @@ public class XLogFilterDialog extends Dialog {
 				objCombo.setText("");
 				serviceTxt.setText("");
 				ipTxt.setText("");
+				loginText.setText("");
+				descText.setText("");
+				text1Text.setText("");
+				text2Text.setText("");
 				userAgentTxt.setText("");
 				onlySqlBtn.setSelection(false);
 				onlyApiBtn.setSelection(false);
@@ -214,7 +268,6 @@ public class XLogFilterDialog extends Dialog {
 	@Override
 	protected void okPressed() {
 		if (newStatus.hashCode() != filterHash) {
-			applyBtn.notifyListeners(SWT.Selection, new Event());
 		}
 		super.okPressed();
 	}

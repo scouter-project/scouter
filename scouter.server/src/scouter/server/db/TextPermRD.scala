@@ -32,7 +32,7 @@ object TextPermRD {
       if (index == null)
         return null;
       val pos = index.get(hash);
-      if (pos <= 0)
+      if (pos < 0)
         return null;
       val bytes = data.read(pos);
       val text = new String(bytes, "UTF-8");

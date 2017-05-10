@@ -26,10 +26,27 @@ import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.*;
+import scouter.util.DateUtil;
+import scouter.util.FileUtil;
+import scouter.util.HashUtil;
+import scouter.util.StringEnumer;
+import scouter.util.StringKeyLinkedMap;
+import scouter.util.StringSet;
+import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.SystemUtil;
+import scouter.util.ThreadUtil;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 public class Configure extends Thread {
     public static boolean JDBC_REDEFINED = false;
@@ -105,6 +122,8 @@ public class Configure extends Thread {
     public boolean profile_http_header_enabled;
     @ConfigDesc("Service URL prefix for Http header profile")
     public String profile_http_header_url_prefix = "/";
+    @ConfigDesc("http header names for profiling with comma separator")
+    public String profile_http_header_keys = "";
     @ConfigDesc("Http Parameter profile")
     public boolean profile_http_parameter_enabled;
     @ConfigDesc("Service URL prefix for Http parameter profile")
@@ -362,6 +381,8 @@ public class Configure extends Thread {
     public String hook_exception_exlude_class_patterns = "";
     @ConfigDesc("Exception handler patterns - exceptions passed to these methods are treated as error on xlog view. (ex) my.app.myHandler.handleException")
     public String hook_exception_handler_method_patterns = "";
+    @ConfigDesc("Exception handler exclude class name patterns(can not include star-* in patterns)\n - (ex) my.app.MyManagedException,MyBizException")
+    public String hook_exception_hanlder_exclude_class_patterns = "";
 
     @ConfigDesc("Hook for supporting async servlet")
     public boolean hook_async_servlet_enabled = true;
@@ -479,6 +500,8 @@ public class Configure extends Thread {
     public boolean __control_connection_leak_autoclose_enabled = false;
     public boolean __ip_dummy_test = false;
 
+    public Set<String> _profile_http_header_keys = null;
+
     //internal variables
     private String objExtType = "";
     private int objHash;
@@ -568,7 +591,14 @@ public class Configure extends Thread {
         this.profile_http_parameter_enabled = getBoolean("profile_http_parameter_enabled", false);
         this.profile_spring_controller_method_parameter_enabled = getBoolean("profile_spring_controller_method_parameter_enabled", false);
         this.profile_summary_mode_enabled = getBoolean("profile_summary_mode_enabled", false);
+
+        this.profile_http_parameter_url_prefix = getValue("profile_http_parameter_url_prefix", "/");
+        this.profile_http_header_url_prefix = getValue("profile_http_header_url_prefix", "/");
+        this.profile_http_header_keys = getValue("profile_http_header_keys", "");
+        this._profile_http_header_keys = StringUtil.splitAndTrimToSet(this.profile_http_header_keys, ',', true);
+
         this.xlog_lower_bound_time_ms = getInt("xlog_lower_bound_time_ms", 0);
+
         this.trace_service_name_header_key = getValue("trace_service_name_header_key", null);
         this.trace_service_name_get_key = getValue("trace_service_name_get_key");
         this.trace_service_name_post_key = getValue("trace_service_name_post_key");
@@ -665,6 +695,7 @@ public class Configure extends Thread {
         this.hook_exception_class_patterns = getValue("hook_exception_class_patterns", "");
         this.hook_exception_exlude_class_patterns = getValue("hook_exception_exlude_class_patterns", "");
         this.hook_exception_handler_method_patterns = getValue("hook_exception_handler_method_patterns", "");
+        this.hook_exception_hanlder_exclude_class_patterns = getValue("hook_exception_hanlder_exclude_class_patterns", "");
 
         this.hook_async_servlet_enabled = getBoolean("_hook_async_servlet_enabled", true);
 
@@ -713,8 +744,7 @@ public class Configure extends Thread {
         this.profile_fullstack_stmt_leak_enabled = getBoolean("profile_fullstack_stmt_leak_enabled", false);
 
         this.net_udp_collection_interval_ms = getInt("net_udp_collection_interval_ms", 100);
-        this.profile_http_parameter_url_prefix = getValue("profile_http_parameter_url_prefix", "/");
-        this.profile_http_header_url_prefix = getValue("profile_http_header_url_prefix", "/");
+
         this.trace_http_client_ip_header_key = getValue("trace_http_client_ip_header_key", "");
         this.trace_interservice_enabled = getBoolean("trace_interservice_enabled", true);
         this.trace_response_gxid_enabled = getBoolean("trace_response_gxid_enabled", false);
@@ -1021,6 +1051,7 @@ public class Configure extends Thread {
     static {
         ignoreSet.add("property");
         ignoreSet.add("__experimental");
+        ignoreSet.add("_profile_http_header_keys");
     }
 
     public MapValue getKeyValueInfo() {

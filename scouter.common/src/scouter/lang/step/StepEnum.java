@@ -32,6 +32,7 @@ public class StepEnum {
 	public final static byte APICALL2 = 15;
 	public static final byte THREAD_SUBMIT = 7;
 	public final static byte HASHED_MESSAGE = 9;
+	public final static byte PARAMETERIZED_MESSAGE = 17;
 	public final static byte DUMP = 12;
 	public final static byte DISPATCH = 13;
 	public final static byte THREAD_CALL_POSSIBLE = 14;
@@ -68,6 +69,8 @@ public class StepEnum {
 			return new ThreadSubmitStep();
 		case HASHED_MESSAGE:
 			return new HashedMessageStep();
+		case PARAMETERIZED_MESSAGE:
+			return new ParameterizedMessageStep();
 		case DUMP:
 			return new DumpStep();
 		case DISPATCH:

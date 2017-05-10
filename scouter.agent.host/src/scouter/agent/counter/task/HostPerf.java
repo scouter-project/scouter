@@ -50,7 +50,9 @@ public class HostPerf {
 	@Counter
 	public void process(CounterBasket pw) {
 		try {
-			netstat();
+			if (Configure.getInstance().counter_netstat_enabled) {
+				netstat();
+			}
 			domain(pw);
 		} catch (Exception e) {
 			Logger.println("A140", 10, "HostPerf", e);

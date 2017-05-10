@@ -15,7 +15,7 @@
  *  limitations under the License. 
  */
 package scouter.agent.netio.request.handle;
-import scouter.agent.AgentCommonContant;
+import scouter.agent.AgentCommonConstant;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.task.MakeStack;
@@ -62,7 +62,7 @@ public class AgentThread {
 			p.put("State", new TextValue("n/a"));
 
 			p.put("Service Txid", new TextValue(Hexa32.toString32(ctx.txid)));
-			p.put("Service Name", new TextValue(AgentCommonContant.removeSpringRequestMappingPostfixFlag(ctx.serviceName)));
+			p.put("Service Name", new TextValue(AgentCommonConstant.removeSpringRequestMappingPostfixFlag(ctx.serviceName)));
 			long etime = System.currentTimeMillis() - ctx.startTime;
 			p.put("Service Elapsed", new DecimalValue(etime));
 		}
@@ -91,7 +91,7 @@ public class AgentThread {
 		MapPack p = ThreadUtil.getThreadDetail(thread);
 		if (ctx != null) {
 			p.put("Service Txid", new TextValue(Hexa32.toString32(ctx.txid)));
-			p.put("Service Name", new TextValue(AgentCommonContant.removeSpringRequestMappingPostfixFlag(ctx.serviceName)));
+			p.put("Service Name", new TextValue(AgentCommonConstant.removeSpringRequestMappingPostfixFlag(ctx.serviceName)));
 			long etime = System.currentTimeMillis() - ctx.startTime;
 			p.put("Service Elapsed", new DecimalValue(etime));
 			String sql = ctx.sqltext;
@@ -117,7 +117,7 @@ public class AgentThread {
 			TraceContext ctx = TraceContextManager.getContext(tid);
 			if (ctx != null) {
 				txid.add(new TextValue(Hexa32.toString32(ctx.txid)));
-				service.add(new TextValue(AgentCommonContant.removeSpringRequestMappingPostfixFlag(ctx.serviceName)));
+				service.add(new TextValue(AgentCommonConstant.removeSpringRequestMappingPostfixFlag(ctx.serviceName)));
 				long etime = System.currentTimeMillis() - ctx.startTime;
 				elapsed.add(new DecimalValue(etime));
 			} else {
@@ -154,7 +154,7 @@ public class AgentThread {
 			name.add(ctx.thread.getName());
 			stat.add(ctx.thread.getState().name());
 			txid.add(new TextValue(Hexa32.toString32(ctx.txid)));
-			service.add(new TextValue(AgentCommonContant.removeSpringRequestMappingPostfixFlag(ctx.serviceName)));
+			service.add(new TextValue(AgentCommonConstant.removeSpringRequestMappingPostfixFlag(ctx.serviceName)));
 			ip.add(ctx.remoteIp);
 			long etime = System.currentTimeMillis() - ctx.startTime;
 			elapsed.add(new DecimalValue(etime));
@@ -180,7 +180,7 @@ public class AgentThread {
 			name.add("[No Thread] wait on deferred queue");
 			stat.add("n/a");
 			txid.add(new TextValue(Hexa32.toString32(ctx.txid)));
-			service.add(new TextValue(AgentCommonContant.removeSpringRequestMappingPostfixFlag(ctx.serviceName)));
+			service.add(new TextValue(AgentCommonConstant.removeSpringRequestMappingPostfixFlag(ctx.serviceName)));
 			ip.add(ctx.remoteIp);
 			long etime = System.currentTimeMillis() - ctx.startTime;
 			elapsed.add(new DecimalValue(etime));
