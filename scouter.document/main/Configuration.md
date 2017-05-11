@@ -43,12 +43,17 @@ public int net_http_port = 6180;
 //Manager
 @ConfigDesc("Activating automatic deletion function in the database")
 public boolean mgr_purge_enabled = true;
-@ConfigDesc("Automatic deletion only for XLog data")
+@Deprecated
+@ConfigDesc("Deprecated. Use option mgr_purge_non_xlog_keep_days")
 public boolean mgr_purge_only_xlog_enabled = false;
-@ConfigDesc("Condition of disc usage for automatic deletion")
+@ConfigDesc("Condition of disk usage for automatic deletion. if lack, delete profile data first exclude today data.")
 public int mgr_purge_disk_usage_pct = 80;
+@ConfigDesc("Retaining date for automatic deletion. delete profile data first.")
+public int mgr_purge_keep_days = 10;
+@ConfigDesc("Retaining date for automatic deletion.")
+public int mgr_purge_xlog_without_profile_keep_days = 30;
 @ConfigDesc("Retaining date for automatic deletion")
-public int mgr_purge_keep_days = 0;
+public int mgr_purge_counter_keep_days = 70;
 
 //GeoIP
 @ConfigDesc("Activating IP-based city/country extraction")
@@ -91,10 +96,21 @@ public boolean profile_http_querystring_enabled;
 public boolean profile_http_header_enabled;
 @ConfigDesc("Service URL prefix for Http header profile")
 public String profile_http_header_url_prefix = "/";
+@ConfigDesc("http header names for profiling with comma separator")
+public String profile_http_header_keys = "";
+@ConfigDesc("Http Parameter profile")
+public boolean profile_http_parameter_enabled;
+@ConfigDesc("Service URL prefix for Http parameter profile")
+public String profile_http_parameter_url_prefix = "/";
+@ConfigDesc("spring controller method parameter profile")
+public boolean profile_spring_controller_method_parameter_enabled = false;
 @ConfigDesc("Calculating CPU time by profile")
 public boolean profile_thread_cputime_enabled = false;
 
 //Trace
+@ConfigDesc("User ID based(0 : Remote Address, 1 : Cookie, 2 : Scouter Cookie, 2 : Header) \n - able to set value for 1.Cookie and 3.Header \n - refer to 'trace_user_session_key'")
+public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:Scouter Cookie, 3:Header
+
 @ConfigDesc("Adding assigned header value to the service name")
 public String trace_service_name_header_key;
 @ConfigDesc("Adding assigned get parameter to the service name")
@@ -102,19 +118,28 @@ public String trace_service_name_get_key;
 @ConfigDesc("Adding assigned post parameter to the service name")
 public String trace_service_name_post_key;
 
-@ConfigDesc("warning color marking threshold duration(ms) on active service view")
+@ConfigDesc("Active Thread Warning Time(ms)")
 public long trace_activeserivce_yellow_time = 3000;
-@ConfigDesc("fatal color marking threshold duration(ms) on active service view")
+@ConfigDesc("Active Thread Fatal Time(ms)")
 public long trace_activeservice_red_time = 8000;
 
 @ConfigDesc("Identifying header key of Remote IP")
 public String trace_http_client_ip_header_key = "";
 
 @ConfigDesc("Activating gxid connection in HttpTransfer")
-public boolean trace_interservice_enabled = false;
+public boolean trace_interservice_enabled = true;
 
-@ConfigDesc("Session key for user counting")
+@ConfigDesc("JSession key for user ID")
 public String trace_user_session_key = "JSESSIONID";
+
+@ConfigDesc("")
+public boolean _trace_auto_service_enabled = false;
+
+@ConfigDesc("")
+public boolean _trace_auto_service_backstack_enabled = true;
+
+@ConfigDesc("")
+public int _trace_sql_parameter_max_count = 128;
 
 @ConfigDesc("")
 public String trace_delayed_service_mgr_filename = "setting_delayed_service.properties";
@@ -162,41 +187,68 @@ public boolean log_rotation_enabled = true;
 @ConfigDesc("Keeping period of log")
 public int log_keep_days = 7;
 
-//Detect spring Rest url
-@ConfigDesc("use @RequestMapping value as service name on a spring REST web appplicaiton.")
-public boolean _hook_spring_rest_enabled = false;
-
-//Hook method
-@ConfigDesc("Method set for method hooking")
-public String hook_method_patterns = "";
-
-@ConfigDesc("Prefix ignrore Method hooking")
-public String hook_method_ignore_prefixes = "get,set";
-@ConfigDesc("Class set without Method hookingt")
-public String hook_method_ignore_classes = "";
-@ConfigDesc("")
-public String hook_method_exclude_patterns = "";
-@ConfigDesc("Activating public Method hooking")
-public boolean hook_method_access_public_enabled = true;
-@ConfigDesc("Activating private Method hooking")
-public boolean hook_method_access_private_enabled = false;
-@ConfigDesc("Activating protected Method hooking")
-public boolean hook_method_access_protected_enabled = false;
-@ConfigDesc("Activating default Method hooking")
-public boolean hook_method_access_none_enabled = false;
-
-//this option should be used only if the apllication is non-servlet.
-//In case of servlet web application, detect HttpServlet.service() method as hook-service-patterns automatically.
-@ConfigDesc("Method set for service hooking")
-public String hook_service_patterns = "";
-
-//Hook options for pulgin
+//Hook for scripting plugin
 @ConfigDesc("Method set for argument hooking")
 public String hook_args_patterns = "";
 @ConfigDesc("Method set for return hooking")
 public String hook_return_patterns = "";
 @ConfigDesc("Method set for constructor hooking")
 public String hook_constructor_patterns = "";
+@ConfigDesc("Method set for dbconnection hooking")
+public String hook_connection_open_patterns = "";
+@ConfigDesc("IntialContext Class Set")
+public String hook_context_classes = "javax/naming/InitialContext";
+
+//Hook
+@ConfigDesc("Method set for method hooking")
+public String hook_method_patterns = "";
+@ConfigDesc("Prefix without Method hooking")
+public String hook_method_ignore_prefixes = "get,set";
+@ConfigDesc("Class set without Method hookingt")
+public String hook_method_ignore_classes = "";
+@ConfigDesc("")
+public String hook_method_exclude_patterns = "";
+
+@ConfigDesc("Activating public Method hooking")
+public boolean hook_method_access_public_enabled = true;
+@ConfigDesc("Activating private Method hooking")
+public boolean hook_method_access_private_enabled = false;
+@ConfigDesc("Activating protected Method hooking")
+public boolean hook_method_access_protected_enabled = false;
+@ConfigDesc("Activating none Method hooking")
+public boolean hook_method_access_none_enabled = false;
+
+@ConfigDesc("Activating lambda Method hooking")
+public boolean hook_method_lambda_enable = true;
+
+@ConfigDesc("Method set for service hooking")
+public String hook_service_patterns = "";
+
+@ConfigDesc("Exception class patterns - These will seem as error on xlog view. (ex) my.app.BizException,my.app.exception.*Exception")
+public String hook_exception_class_patterns = "";
+@ConfigDesc("Exception class exlude patterns")
+public String hook_exception_exlude_class_patterns = "";
+@ConfigDesc("Exception handler patterns - exceptions passed to these methods are treated as error on xlog view. (ex) my.app.myHandler.handleException")
+public String hook_exception_handler_method_patterns = "";
+@ConfigDesc("Exception handler exclude class name patterns(can not include star-* in patterns)\n - (ex) my.app.MyManagedException,MyBizException")
+public String hook_exception_hanlder_exclude_class_patterns = "";
+
+@ConfigDesc("Hook for supporting async servlet")
+public boolean hook_async_servlet_enabled = true;
+
+@ConfigDesc("spring async execution hook enabled")
+public boolean hook_spring_async_enabled = true;
+
+@ConfigDesc("Hook callable and runnable for tracing async processing. \nIt hook only 'hook_async_callrunnable_scan_prefixes' option contains pacakage or classes")
+public boolean hook_async_callrunnable_enable = true;
+
+@ConfigDesc("scanning range prefixes for hooking callable, runnable implementations and lambda expressions. usually your application package. 2 or more packages can be separated by commas.")
+public String hook_async_callrunnable_scan_package_prefixes = "";
+
+@ConfigDesc("for warning a big Map type object that have a lot of entities. It may increase system load. be careful to enable this option.")
+public boolean _hook_map_impl_enabled = false;
+@ConfigDesc("")
+public int _hook_map_impl_warning_size = 50000;
 
 //XLog
 @ConfigDesc("XLog Ignore Time - (deprecated) for backward compatibility. Use xlog_sampling_xxx options instead")
@@ -251,9 +303,6 @@ public boolean sfa_dump_enabled = false;
 public int sfa_dump_interval_ms = 10000;
 
 //miscellaneous
-@ConfigDesc("User ID based(0 : Remote Address, 1 : JSessionID, 2 : Scouter Cookie)")
-public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:SetCookie
-
 @ConfigDesc("Path to file creation directory of process ID file")
 public String counter_object_registry_path = "/tmp/scouter";
 
