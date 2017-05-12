@@ -341,11 +341,11 @@ public class ProfileText {
 
 
             if (elapsedRate > 50) {
-                sr.add(style(slen, 6, dred, SWT.BOLD));
+                sr.add(style(slen, sb.length() - slen, dred, SWT.BOLD));
             } else if (elapsedRate > 20) {
-                sr.add(style(slen, 6, dblue, SWT.BOLD));
+                sr.add(style(slen, sb.length() - slen, dblue, SWT.BOLD));
             } else if (elapsedRate > 10) {
-                sr.add(style(slen, 6, dgreen, SWT.BOLD));
+                sr.add(style(slen, sb.length() - slen, dgreen, SWT.BOLD));
             }
 
             sb.append(" ");
