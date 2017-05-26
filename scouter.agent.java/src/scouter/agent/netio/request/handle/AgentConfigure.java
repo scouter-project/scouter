@@ -26,6 +26,7 @@ import scouter.lang.value.BooleanValue;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.RequestCmd;
+import scouter.util.ClassUtil;
 import scouter.util.StringKeyLinkedMap;
 import scouter.util.StringKeyLinkedMap.StringKeyLinkedEntry;
 
@@ -87,15 +88,17 @@ public class AgentConfigure {
 		}
 		Class[] classes = JavaAgent.getInstrumentation().getAllLoadedClasses();
 
-		ArrayList<Class> redefineClassList = new ArrayList<Class>();
-
 		ArrayList<ClassDefinition> definitionList = new ArrayList<ClassDefinition>();
 
 		boolean allSuccess = true;
 		for (int i = 0; paramSet.size() > 0 && i < classes.length; i++) {
 			if (paramSet.contains(classes[i].getName())) {
 				try {
-					redefineClassList.add(classes[i]);
+					byte[] buff = ClassUtil.getByteCode(classes[i]);
+					if (buff == null) {
+						continue;
+					}
+					definitionList.add(new ClassDefinition(classes[i], buff));
 					paramSet.remove(classes[i].getName());
 				} catch (Exception e) {
 					p.put("success", new BooleanValue(false));
@@ -105,25 +108,39 @@ public class AgentConfigure {
 				}
 			}
 		}
-		if (redefineClassList.size() > 0 && allSuccess) {
+		if (definitionList.size() > 0 && allSuccess) {
 			try {
-				JavaAgent.getInstrumentation().retransformClasses(redefineClassList.toArray(new Class[redefineClassList.size()]));
+				JavaAgent.getInstrumentation().redefineClasses(definitionList.toArray(new ClassDefinition[definitionList.size()]));
 				p.put("success", new BooleanValue(true));
 			} catch (Throwable th) {
 				p.put("success", new BooleanValue(false));
 				p.put("error", th.toString());
 			}
 		}
+		return p;
+	}
 
+	//Since JDK 1.6+
+	public Pack retransformClass(Pack param) {
+		return null;
+//		final MapPack p = new MapPack();
+//		ListValue classLv = ((MapPack) param).getList("class");
+//		HashSet<String> paramSet = new HashSet<String>();
+//		for (int i = 0; i < classLv.size(); i++) {
+//			String className = classLv.getString(i);
+//			paramSet.add(className);
+//		}
+//		Class[] classes = JavaAgent.getInstrumentation().getAllLoadedClasses();
+//
+//		ArrayList<Class> redefineClassList = new ArrayList<Class>();
+//
+//		ArrayList<ClassDefinition> definitionList = new ArrayList<ClassDefinition>();
+//
 //		boolean allSuccess = true;
 //		for (int i = 0; paramSet.size() > 0 && i < classes.length; i++) {
 //			if (paramSet.contains(classes[i].getName())) {
 //				try {
-//					byte[] buff = ClassUtil.getByteCode(classes[i]);
-//					if (buff == null) {
-//						continue;
-//					}
-//					definitionList.add(new ClassDefinition(classes[i], buff));
+//					redefineClassList.add(classes[i]);
 //					paramSet.remove(classes[i].getName());
 //				} catch (Exception e) {
 //					p.put("success", new BooleanValue(false));
@@ -133,16 +150,17 @@ public class AgentConfigure {
 //				}
 //			}
 //		}
-//		if (definitionList.size() > 0 && allSuccess) {
+//		if (redefineClassList.size() > 0 && allSuccess) {
 //			try {
-//				JavaAgent.getInstrumentation().redefineClasses(definitionList.toArray(new ClassDefinition[definitionList.size()]));
+//				JavaAgent.getInstrumentation().retransformClasses(redefineClassList.toArray(new Class[redefineClassList.size()]));
 //				p.put("success", new BooleanValue(true));
 //			} catch (Throwable th) {
 //				p.put("success", new BooleanValue(false));
 //				p.put("error", th.toString());
 //			}
 //		}
-		return p;
+//
+//		return p;
 	}
 	
 	@RequestHandler(RequestCmd.CONFIGURE_DESC)
