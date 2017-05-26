@@ -15,6 +15,7 @@
  *  limitations under the License. 
  */
 package scouter.agent.asm;
+
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -47,6 +48,7 @@ public class JDBCStatementASM implements IASM, Opcodes {
 		target.add("com/tmax/tibero/jdbc/TbStatement");
 		target.add("org/hsqldb/jdbc/JDBCStatement");
 		target.add("cubrid/jdbc/driver/CUBRIDStatement");
+		target.add("Altibase/jdbc/driver/AltibaseStatement");
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

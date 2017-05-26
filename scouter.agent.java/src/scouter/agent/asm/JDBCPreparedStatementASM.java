@@ -58,6 +58,7 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		target.add("com/mysql/jdbc/ServerPreparedStatement");
 		target.add("com/mysql/jdbc/PreparedStatement");
         target.add("cubrid/jdbc/driver/CUBRIDPreparedStatement");
+		target.add("Altibase/jdbc/driver/AltibasePreparedStatement");
 
         // @skyworker - MySQL ServerPreparedStatement는 특별히 필드를 추가하지 않음
         noField.add("com/mysql/jdbc/ServerPreparedStatement");
