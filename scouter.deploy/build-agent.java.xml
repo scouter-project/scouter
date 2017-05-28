@@ -7,11 +7,14 @@
 	<property name="http-jar-file" value="./out/bin/agent.java/scouter.http.jar"/>
 	<property name="httpclient-jar-file" value="./out/bin/agent.java/scouter.httpclient.jar"/>
 
-	  <property name="jar-agent-file" value="./out/jar/scouter.agent.jar"/>
-		<property name="deploy-jar-file" value="./out/package/scouter/agent.java/scouter.agent.jar"/>
+	<property name="jar-agent-file" value="./out/jar/scouter.agent.jar"/>
+	<property name="deploy-jar-file" value="./out/package/scouter/agent.java/scouter.agent.jar"/>
+
+	<property name="bytebuddy-jar-file-name" value="byte-buddy-scouter-repack-1.7.1-SNAPSHOT.jar"/>
+	<property name="bytebuddy-jar-file" value="./lib/${bytebuddy-jar-file-name}"/>
 
 	<tstamp>
-		            <format property="today" pattern="yyyyMMdd" offset="-5" unit="hour"/>
+		<format property="today" pattern="yyyyMMdd" offset="-5" unit="hour"/>
 	</tstamp>
 	
 	<target name="init">
@@ -44,6 +47,7 @@
 			includeantruntime="false"
 			>
 			<classpath>
+				<pathelement location="${bytebuddy-jar-file}"/>
 				<pathelement location="./lib/javax.servlet-api-3.1.0.jar"/>
 				<pathelement location="./lib/httpclient-4.3.6.jar"/>
 				<pathelement location="./lib/httpcore-4.3.3.jar"/>
@@ -60,22 +64,24 @@
 
 	<target name="packing">
 		<jar destfile="${tools-jar-file}">
-				<fileset dir="${class-agent-dir}">
-					<include name="**/scouter/xtra/tools/*.class"/>
-				</fileset>
+			<fileset dir="${class-agent-dir}">
+				<include name="**/scouter/xtra/tools/*.class"/>
+			</fileset>
 		</jar>
 		
 		<jar destfile="${http-jar-file}">
-				<fileset dir="${class-agent-dir}">
-					<include name="**/scouter/xtra/http/*.class"/>
-				</fileset>
+			<fileset dir="${class-agent-dir}">
+				<include name="**/scouter/xtra/http/*.class"/>
+			</fileset>
 		</jar>
 		
 		<jar destfile="${httpclient-jar-file}">
-						<fileset dir="${class-agent-dir}">
-							<include name="**/scouter/xtra/httpclient/*.class"/>
-						</fileset>
+			<fileset dir="${class-agent-dir}">
+				<include name="**/scouter/xtra/httpclient/*.class"/>
+			</fileset>
 		</jar>
+
+		<unjar src="${bytebuddy-jar-file}" dest="${class-agent-dir}" />
 
 		<jar destfile="${jar-agent-file}" manifest="scouter.mf">
 			<fileset dir="${class-agent-dir}">

@@ -2,127 +2,133 @@
 
 <project name="Scouter Agent Batch" default="default">
 
-	<property name="class-agent-dir" value="./out/bin/agent.batch"/>
-	<property name="class-agent-java-dir" value="./out/bin/agent.java"/>
-	<property name="tools-jar-file" value="./out/bin/agent.java/scouter.tools.jar"/>
-	<property name="http-jar-file" value="./out/bin/agent.java/scouter.http.jar"/>
-	<property name="httpclient-jar-file" value="./out/bin/agent.java/scouter.httpclient.jar"/>
+    <property name="class-agent-dir" value="./out/bin/agent.batch"/>
+    <property name="class-agent-java-dir" value="./out/bin/agent.java"/>
+    <property name="tools-jar-file" value="./out/bin/agent.java/scouter.tools.jar"/>
+    <property name="http-jar-file" value="./out/bin/agent.java/scouter.http.jar"/>
+    <property name="httpclient-jar-file" value="./out/bin/agent.java/scouter.httpclient.jar"/>
 
-	  <property name="jar-agent-file" value="./out/jar/scouter.agent.batch.jar"/>
-		<property name="deploy-jar-file" value="./out/package/scouter/agent.batch/scouter.agent.batch.jar"/>
+    <property name="jar-agent-file" value="./out/jar/scouter.agent.batch.jar"/>
+    <property name="deploy-jar-file" value="./out/package/scouter/agent.batch/scouter.agent.batch.jar"/>
 
-	<tstamp>
-		            <format property="today" pattern="yyyyMMdd" offset="-5" unit="hour"/>
-	</tstamp>
-	
-	<target name="init">
-		<delete dir="${class-agent-dir}"/>
-		<delete file="${jar-agent-file}"/>
-		<mkdir dir="${class-agent-dir}"/>
-	</target>
+    <property name="bytebuddy-jar-file-name" value="byte-buddy-scouter-repack-1.7.1-SNAPSHOT.jar"/>
+    <property name="bytebuddy-jar-file" value="./lib/${bytebuddy-jar-file-name}"/>
 
-	<target name="compile">
-		<javac srcdir="../scouter.common/src"
-			       destdir="${class-agent-dir}"
-			       source="1.5"  target="1.5"
-				   debug="true"  encoding="UTF-8"
-			includeantruntime="false"
-						>
-		</javac>
-		<javac srcdir="../scouter.agent.java/src"
-			       destdir="${class-agent-dir}"
-			       source="1.5"  target="1.5"
-				   debug="true"  encoding="UTF-8"
-			includeantruntime="false"
-						>
-			<classpath>
-				<pathelement location="./lib/javax.servlet-api-3.1.0.jar"/>
-				<pathelement location="./lib/httpclient-4.3.6.jar"/>
-				<pathelement location="./lib/httpcore-4.3.3.jar"/>
-				<pathelement location="./lib/ribbon-loadbalancer-2.0.0.jar"/>
-				<pathelement location="./lib/rxnetty-0.4.6.jar"/>
-				<pathelement location="./lib/spring-web-4.3.7.RELEASE.jar"/>
-				<pathelement location="./lib/spring-core-4.3.7.RELEASE.jar"/>
-			    <pathelement location="${java.home}/../lib/tools.jar"/>
-				<pathelement location="${class-agent-java-dir}"/>
-			</classpath>			
-		</javac>
-		
-		<copy file="../scouter.common/src/scouter/util/logo/scouter.logo"
-			  tofile="${class-agent-dir}/scouter/util/logo/scouter.logo" verbose="true"/>
-		<copy file="../scouter.common/src/scouter/lang/countrycode.txt"
-			  tofile="${class-agent-dir}/scouter/lang/countrycode.txt" verbose="true"/>
-		
-		<propertyfile	    file="${class-agent-dir}/scouter/v.properties"	comment="Scouter Version" >
-		  <entry  key="VERSION" value="${VERSION}" />
-		  <entry  key="BUILD" value="${today}"/>
-		</propertyfile>
+    <tstamp>
+        <format property="today" pattern="yyyyMMdd" offset="-5" unit="hour"/>
+    </tstamp>
 
-			
-		<javac srcdir="../scouter.agent.batch/src"
-		       destdir="${class-agent-dir}"
-		       source="1.5"       target="1.5"
-			   debug="true"	   encoding="UTF-8"
-			includeantruntime="false"	
-			>
-			<classpath>
-				<pathelement location="./lib/javax.servlet-api-3.1.0.jar"/>
-				<pathelement location="./lib/httpclient-4.3.6.jar"/>
-				<pathelement location="./lib/httpcore-4.3.3.jar"/>
-				<pathelement location="./lib/ribbon-loadbalancer-2.0.0.jar"/>
-				<pathelement location="./lib/rxnetty-0.4.6.jar"/>
-				<pathelement location="./lib/spring-web-4.3.7.RELEASE.jar"/>
-				<pathelement location="./lib/spring-core-4.3.7.RELEASE.jar"/>
-			    <pathelement location="${java.home}/../lib/tools.jar"/>
-				<pathelement location="${class-agent-dir}"/>
-				<pathelement location="${class-agent-java-dir}"/>
-			</classpath>
-		</javac>
+    <target name="init">
+        <delete dir="${class-agent-dir}"/>
+        <delete file="${jar-agent-file}"/>
+        <mkdir dir="${class-agent-dir}"/>
+    </target>
+
+    <target name="compile">
+        <javac srcdir="../scouter.common/src"
+               destdir="${class-agent-dir}"
+               source="1.5" target="1.5"
+               debug="true" encoding="UTF-8"
+               includeantruntime="false"
+        >
+        </javac>
+        <javac srcdir="../scouter.agent.java/src"
+               destdir="${class-agent-dir}"
+               source="1.5" target="1.5"
+               debug="true" encoding="UTF-8"
+               includeantruntime="false"
+        >
+            <classpath>
+                <pathelement location="./lib/byte-buddy-scouter-repack-1.7.1-SNAPSHOT.jar"/>
+                <pathelement location="./lib/javax.servlet-api-3.1.0.jar"/>
+                <pathelement location="./lib/httpclient-4.3.6.jar"/>
+                <pathelement location="./lib/httpcore-4.3.3.jar"/>
+                <pathelement location="./lib/ribbon-loadbalancer-2.0.0.jar"/>
+                <pathelement location="./lib/rxnetty-0.4.6.jar"/>
+                <pathelement location="./lib/spring-web-4.3.7.RELEASE.jar"/>
+                <pathelement location="./lib/spring-core-4.3.7.RELEASE.jar"/>
+                <pathelement location="${java.home}/../lib/tools.jar"/>
+                <pathelement location="${class-agent-java-dir}"/>
+            </classpath>
+        </javac>
+
+        <copy file="../scouter.common/src/scouter/util/logo/scouter.logo"
+              tofile="${class-agent-dir}/scouter/util/logo/scouter.logo" verbose="true"/>
+        <copy file="../scouter.common/src/scouter/lang/countrycode.txt"
+              tofile="${class-agent-dir}/scouter/lang/countrycode.txt" verbose="true"/>
+
+        <propertyfile file="${class-agent-dir}/scouter/v.properties" comment="Scouter Version">
+            <entry key="VERSION" value="${VERSION}"/>
+            <entry key="BUILD" value="${today}"/>
+        </propertyfile>
+
+
+        <javac srcdir="../scouter.agent.batch/src"
+               destdir="${class-agent-dir}"
+               source="1.5" target="1.5"
+               debug="true" encoding="UTF-8"
+               includeantruntime="false"
+        >
+            <classpath>
+                <pathelement location="./lib/javax.servlet-api-3.1.0.jar"/>
+                <pathelement location="./lib/httpclient-4.3.6.jar"/>
+                <pathelement location="./lib/httpcore-4.3.3.jar"/>
+                <pathelement location="./lib/ribbon-loadbalancer-2.0.0.jar"/>
+                <pathelement location="./lib/rxnetty-0.4.6.jar"/>
+                <pathelement location="./lib/spring-web-4.3.7.RELEASE.jar"/>
+                <pathelement location="./lib/spring-core-4.3.7.RELEASE.jar"/>
+                <pathelement location="${java.home}/../lib/tools.jar"/>
+                <pathelement location="${class-agent-dir}"/>
+                <pathelement location="${class-agent-java-dir}"/>
+            </classpath>
+        </javac>
 
         <copy todir="./out/package/scouter/agent.batch">
             <fileset dir="../scouter.agent.batch/scripts"/>
         </copy>
         <copy todir="./out/package/scouter/agent.batch/conf">
             <fileset dir="../scouter.agent.batch/conf"/>
-        </copy>		
-	</target>
+        </copy>
+    </target>
 
-	<target name="packing">
-		<jar destfile="${tools-jar-file}">
-				<fileset dir="${class-agent-dir}">
-					<include name="**/scouter/xtra/tools/*.class"/>
-				</fileset>
-		</jar>
-		
-		<jar destfile="${http-jar-file}">
-				<fileset dir="${class-agent-dir}">
-					<include name="**/scouter/xtra/http/*.class"/>
-				</fileset>
-		</jar>
-		
-		<jar destfile="${httpclient-jar-file}">
-						<fileset dir="${class-agent-dir}">
-							<include name="**/scouter/xtra/httpclient/*.class"/>
-						</fileset>
-		</jar>
+    <target name="packing">
+        <jar destfile="${tools-jar-file}">
+            <fileset dir="${class-agent-dir}">
+                <include name="**/scouter/xtra/tools/*.class"/>
+            </fileset>
+        </jar>
 
-		<jar destfile="${jar-agent-file}" manifest="scouter-batch.mf">
-			<fileset dir="${class-agent-dir}">
-				<exclude name="**/scouter/xtra/**"/>
-			</fileset>
-		</jar>
-	</target>
+        <jar destfile="${http-jar-file}">
+            <fileset dir="${class-agent-dir}">
+                <include name="**/scouter/xtra/http/*.class"/>
+            </fileset>
+        </jar>
 
-	<target name="deploy">
-		<copy file="${jar-agent-file}" tofile="${deploy-jar-file}" verbose="true"/>
-	</target>
+        <jar destfile="${httpclient-jar-file}">
+            <fileset dir="${class-agent-dir}">
+                <include name="**/scouter/xtra/httpclient/*.class"/>
+            </fileset>
+        </jar>
 
-	<target name="default">
-		<echo>Agent Java Batch</echo>
-    	<antcall target="init"/>
-		<antcall target="compile"/>
-    	<antcall target="packing"/>
-		<antcall target="deploy"/>
+        <unjar src="${bytebuddy-jar-file}" dest="${class-agent-dir}" />
+
+        <jar destfile="${jar-agent-file}" manifest="scouter-batch.mf">
+            <fileset dir="${class-agent-dir}">
+                <exclude name="**/scouter/xtra/**"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <target name="deploy">
+        <copy file="${jar-agent-file}" tofile="${deploy-jar-file}" verbose="true"/>
+    </target>
+
+    <target name="default">
+        <echo>Agent Java Batch</echo>
+        <antcall target="init"/>
+        <antcall target="compile"/>
+        <antcall target="packing"/>
+        <antcall target="deploy"/>
     </target>
 
 </project>
