@@ -182,7 +182,7 @@ public class ProfileText {
             sb.append("\n► text1=" + xperf.p.text1);
         }
         if (StringUtil.isNotEmpty(xperf.p.text2)) {
-            sb.append("\n► text1=" + xperf.p.text2);
+            sb.append("\n► text2=" + xperf.p.text2);
         }
         if (xperf.p.hasDump == 1) {
             sb.append("\n► dump=Y");
@@ -341,11 +341,11 @@ public class ProfileText {
 
 
             if (elapsedRate > 50) {
-                sr.add(style(slen, 6, dred, SWT.BOLD));
+                sr.add(style(slen, sb.length() - slen, dred, SWT.BOLD));
             } else if (elapsedRate > 20) {
-                sr.add(style(slen, 6, dblue, SWT.BOLD));
+                sr.add(style(slen, sb.length() - slen, dblue, SWT.BOLD));
             } else if (elapsedRate > 10) {
-                sr.add(style(slen, 6, dgreen, SWT.BOLD));
+                sr.add(style(slen, sb.length() - slen, dgreen, SWT.BOLD));
             }
 
             sb.append(" ");

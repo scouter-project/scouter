@@ -55,4 +55,7 @@ public class Hexa32 {
 		}
 	}
 
+	public static void main(String[] args) {
+		System.out.println(Hexa32.toString32(100000001L));
+	}
 }

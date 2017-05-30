@@ -18,7 +18,7 @@ package scouter.agent;
 
 import scouter.agent.netio.data.net.TcpRequestMgr;
 import scouter.agent.util.AsyncRunner;
-import scouter.bytebuddy.agent.builder.AgentBuilder;
+import scouter.repack.net.bytebuddy.agent.builder.AgentBuilder;
 import scouter.util.StringSet;
 import scouter.util.logo.Logo;
 
@@ -51,6 +51,9 @@ public class JavaAgent {
 		JavaAgent.instrumentation = instrum;
 		JavaAgent.instrumentation.addTransformer(transformer);
 
+		//TODO suuport 1.5 ?
+		//JavaAgent.instrumentation.addTransformer(transformer, true);
+
 		// RequestAgent.getInstance();
 
 		addAsyncRedefineClasses();
@@ -74,12 +77,12 @@ public class JavaAgent {
 		//java.lang.invoke.MutableCallSite.*,
 		//java.lang.invoke.VolatileCallSite.*
 
-		redefineClasses.put("java.lang.invoke.CallSite");
-		redefineClasses.put("java.lang.invoke.ConstantCallSite");
-		redefineClasses.put("java.lang.invoke.MutableCallSite");
-		redefineClasses.put("java.lang.invoke.VolatileCallSite");
-		redefineClasses.put("java.lang.invoke.LambdaForm");
-		redefineClasses.put("java.lang.invoke.DirectMethodHandle");
+//		redefineClasses.put("java.lang.invoke.CallSite");
+//		redefineClasses.put("java.lang.invoke.ConstantCallSite");
+//		redefineClasses.put("java.lang.invoke.MutableCallSite");
+//		redefineClasses.put("java.lang.invoke.VolatileCallSite");
+//		redefineClasses.put("java.lang.invoke.LambdaForm");
+//		redefineClasses.put("java.lang.invoke.DirectMethodHandle");
 
 		AsyncRunner.getInstance().add(redefineClasses);
 

@@ -1,4 +1,0 @@
-/**
- * Contains an API for matching Java byte code entities.
- */
-package scouter.bytebuddy.matcher;
