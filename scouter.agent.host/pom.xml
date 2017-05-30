@@ -8,20 +8,18 @@
         <version>1.6.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>scouter-agent-java</artifactId>
+    <artifactId>scouter-agent-host</artifactId>
     <packaging>jar</packaging>
-    <name>scouter.agent.java</name>
+    <name>scouter.agent.host</name>
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <build.datetime>${maven.build.timestamp}</build.datetime>
+        <scouter.host.boot.jar>scouter.host.jar</scouter.host.boot.jar>
+        <scouter.host.assembly.name>${project.artifactId}-assembly</scouter.host.assembly.name>
+        <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <scouter.http.jar>scouter.http.jar</scouter.http.jar>
-        <provided.tools.jar>${project.basedir}/lib/provided/tools.jar</provided.tools.jar>
-        <final.jar.name>${project.build.directory}/${project.build.finalName}.jar</final.jar.name>
-        <final.jar.name.xtra>${project.build.directory}/xtra-${project.build.finalName}.jar</final.jar.name.xtra>
-        <final.jar.name.shade>${project.build.directory}/shade-${project.build.finalName}.jar</final.jar.name.shade>
     </properties>
 
     <dependencies>
@@ -31,76 +29,16 @@
             <!--<version>${project.version}</version>-->
             <version>1.1.3-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.scouter-project</groupId>
-            <artifactId>byte-buddy-nodep-scouter-repack</artifactId>
-            <version>1.7.1.RC1</version>
-        </dependency>
 
         <!-- provided -->
         <dependency>
-            <groupId>jdk.tools</groupId>
-            <artifactId>jdk.tools</artifactId>
-            <version>tools-0.0.0</version>
+            <groupId>scouter.dependency</groupId>
+            <artifactId>sigar</artifactId>
+            <version>0.0.0</version>
             <scope>system</scope>
-            <systemPath>${provided.tools.jar}</systemPath>
+            <systemPath>${project.basedir}/lib/sigar.jar</systemPath>
         </dependency>
 
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.3.6</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.3.3</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.ribbon</groupId>
-            <artifactId>ribbon-loadbalancer</artifactId>
-            <version>2.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.reactivex</groupId>
-            <artifactId>rxnetty</artifactId>
-            <version>0.4.6</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>4.3.7.RELEASE</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <version>4.3.7.RELEASE</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- test -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>2.3.0</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -139,16 +77,8 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.0.2</version>
                 <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Premain-Class>scouter.agent.JavaAgent</Premain-Class>
-                            <Agent-Class>scouter.agent.JavaAgent</Agent-Class>
-                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
-                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
-                        </manifestEntries>
-                    </archive>
                     <excludes>
-                        <exclude>**/scouter/xtra/**</exclude>
+                        <exclude name="**/scouter/boot/**"/>
                     </excludes>
                 </configuration>
             </plugin>
@@ -185,13 +115,19 @@
                 <version>1.8</version>
                 <executions>
                     <execution>
-                        <id>make-ext-jar</id>
+                        <id>make-boot-jar</id>
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <jar destfile="${project.build.directory}/${scouter.http.jar}">
+                                <jar destfile="${project.build.directory}/${scouter.host.boot.jar}">
                                     <fileset dir="${project.build.outputDirectory}">
-                                        <include name="scouter/xtra/http/*.class"/>
+                                        <include name="scouter/boot/**"/>
+                                    </fileset>
+                                    <fileset dir="${project.basedir}/lib" >
+                                        <include name="*"/>
+                                    </fileset>
+                                    <fileset dir="${project.build.directory}" >
+                                        <include name="${project.build.finalName}.jar"/>
                                     </fileset>
                                 </jar>
                             </target>
@@ -201,30 +137,33 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>add-to-uber-jar</id>
+                        <id>make-assembly</id>
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <echo message="final.jar.name = ${final.jar.name}" />
-                                <echo message="final.jar.name.xtra = ${final.jar.name.xtra}" />
-
-                                <jar destfile="${final.jar.name.xtra}">
-                                    <fileset dir="${project.build.directory}">
-                                        <include name="${scouter.http.jar}"/>
+                                <mkdir dir="${scouter.assembly.working.dir}" />
+                                <copy todir="${scouter.assembly.working.dir}">
+                                    <fileset dir="${project.basedir}/scripts">
+                                        <include name="**/*" />
                                     </fileset>
-                                    <zipfileset src="${final.jar.name}" />
-
-                                    <manifest>
-                                        <attribute name="Premain-Class" value="scouter.agent.JavaAgent"/>
-                                        <attribute name="Agent-Class" value="scouter.agent.JavaAgent"/>
-                                        <attribute name="Can-Redefine-Classes" value="true"/>
-                                        <attribute name="Can-Retransform-Classes" value="true"/>
-                                    </manifest>
-                                </jar>
-
-                                <copy file="${final.jar.name}" tofile="${final.jar.name.shade}" overwrite="true" verbose="true" />
-                                <copy file="${final.jar.name.xtra}" tofile="${final.jar.name}" overwrite="true" verbose="true" />
-                                <delete file="${project.build.directory}/${scouter.http.jar}" />
+                                </copy>
+                                <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh"
+                                         eol="lf"
+                                         eof="remove" />
+                                <tar destfile="${project.build.directory}/${scouter.host.assembly.name}.tar">
+                                    <tarfileset dir="${scouter.assembly.working.dir}" mode="755" >
+                                        <include name="**/*.sh"/>
+                                    </tarfileset>
+                                    <tarfileset dir="${scouter.assembly.working.dir}" >
+                                        <exclude name="**/*.sh"/>
+                                    </tarfileset>
+                                    <tarfileset dir="${project.build.directory}">
+                                        <include name="${scouter.host.boot.jar}"/>
+                                    </tarfileset>
+                                    <tarfileset dir="${project.basedir}">
+                                        <include name="conf/**/*"/>
+                                    </tarfileset>
+                                </tar>
                             </target>
                         </configuration>
                         <goals>

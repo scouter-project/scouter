@@ -15,12 +15,12 @@
  *  limitations under the License. 
  */
 
-package scouter.agent.netio.request.anotation;
+package scouter.agent.counter.anotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RequestHandler {
-	String value() default "";
+public @interface Counter {
+  int interval() default 2000; //default interval 2000 ms
 }

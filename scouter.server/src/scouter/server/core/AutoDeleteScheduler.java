@@ -207,7 +207,7 @@ public class AutoDeleteScheduler extends Thread {
 			Logger.println("S207", "Failed auto deletion... " + yyyymmdd + "  " + th.toString());
 		}
 	}
-	
+
 	void deleteFiles(File file) throws IOException {
 		if (file.exists() == false) {
 			return;
