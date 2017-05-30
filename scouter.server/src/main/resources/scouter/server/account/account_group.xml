@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Groups>
+	<Group name="admin">
+		<Policy>
+			<AllowEditGroupPolicy>true</AllowEditGroupPolicy>
+			<AllowHeapDump>true</AllowHeapDump>
+			<AllowFileDump>true</AllowFileDump>
+			<AllowHeapHistogram>true</AllowHeapHistogram>
+			<AllowThreadDump>true</AllowThreadDump>
+			<AllowSystemGC>true</AllowSystemGC>
+			<AllowConfigure>true</AllowConfigure>
+			<AllowExportCounter>true</AllowExportCounter>
+			<AllowExportAppSum>true</AllowExportAppSum>
+			<AllowLoginList>true</AllowLoginList>
+			<AllowDBManager>true</AllowDBManager>
+			<AllowAddAccount>true</AllowAddAccount>
+			<AllowEditAccount>true</AllowEditAccount>
+			<AllowSqlParameter>true</AllowSqlParameter>
+			<AllowKillTransaction>true</AllowKillTransaction>
+			<AllowExportClass>true</AllowExportClass>
+			<AllowRedefineClass>true</AllowRedefineClass>
+			<AllowDefineObjectType>true</AllowDefineObjectType>
+		</Policy>
+	</Group>
+	
+	<Group name="guest">
+		<Policy>
+			<AllowEditGroupPolicy>false</AllowEditGroupPolicy>
+			<AllowHeapDump>false</AllowHeapDump>
+			<AllowFileDump>false</AllowFileDump>
+			<AllowHeapHistogram>false</AllowHeapHistogram>
+			<AllowThreadDump>true</AllowThreadDump>
+			<AllowSystemGC>true</AllowSystemGC>
+			<AllowConfigure>false</AllowConfigure>
+			<AllowExportCounter>false</AllowExportCounter>
+			<AllowExportAppSum>false</AllowExportAppSum>
+			<AllowLoginList>false</AllowLoginList>
+			<AllowDBManager>false</AllowDBManager>
+			<AllowAddAccount>false</AllowAddAccount>
+			<AllowEditAccount>false</AllowEditAccount>
+			<AllowSqlParameter>false</AllowSqlParameter>
+			<AllowKillTransaction>false</AllowKillTransaction>
+			<AllowExportClass>false</AllowExportClass>
+			<AllowRedefineClass>false</AllowRedefineClass>
+			<AllowDefineObjectType>false</AllowDefineObjectType>
+		</Policy>
+	</Group>
+</Groups>

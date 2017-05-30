@@ -2,42 +2,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.scouter-project</groupId>
+    <parent>
+        <groupId>com.github.scouter-project</groupId>
+        <artifactId>scouter-parent</artifactId>
+        <version>1.6.0-SNAPSHOT</version>
+    </parent>
+
     <artifactId>scouter-server</artifactId>
-    <version>1.1.3-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>scouter.server</name>
 
     <properties>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <build.datetime>${maven.build.timestamp} GMT</build.datetime>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>scouter apm releases</name>
-            <url>http://repository.scouterapm.com/artifactory/libs-release-local</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>snapshots</id>
-            <name>scouter apm snapshots</name>
-            <url>http://repository.scouterapm.com/artifactory/libs-snapshot-local</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>scouter-repo</id>
-            <name>scouter apm repository</name>
-            <url>http://repository.scouterapm.com/artifactory/repository</url>
-        </repository>
-        <repository>
-            <id>scala-tools.org</id>
-            <name>Scala-tools Maven2 Repository</name>
-            <url>http://scala-tools.org/repo-releases</url>
-        </repository>
-    </repositories>
 
     <pluginRepositories>
         <pluginRepository>
@@ -56,7 +36,7 @@
         <dependency>
             <groupId>com.github.scouter-project</groupId>
             <artifactId>scouter-common</artifactId>
-            <version>1.1.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.jsqlparser</groupId>
@@ -84,11 +64,9 @@
             <version>1.1.1</version>
         </dependency>
         <dependency>
-            <groupId>jline</groupId>
+            <groupId>org.scala-lang</groupId>
             <artifactId>jline</artifactId>
-            <version>0.0.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/../scouter.deploy/lib/scala/jline.jar</systemPath>
+            <version>2.10.6</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -105,6 +83,12 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -135,9 +119,6 @@
                             <goal>add-source</goal>
                             <goal>compile</goal>
                         </goals>
-                        <configuration>
-                            <sourceDir>${basedir}/src</sourceDir>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>scala-test-compile</id>
@@ -145,9 +126,6 @@
                         <goals>
                             <goal>testCompile</goal>
                         </goals>
-                        <configuration>
-                            <testSourceDir>${basedir}/test</testSourceDir>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -175,22 +153,60 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <createSourcesJar>true</createSourcesJar>
+                            <shadeSourcesContent>true</shadeSourcesContent>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.github.scouter-project:scouter-common</include>
+                                </includes>
+                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>com.github.scouter-project:scouter-common</artifact>
+                                    <excludes>
+                                        <exclude>scouter/v.properties</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <includeScope>runtime</includeScope>
+                            <excludeGroupIds>com.github.scouter-project</excludeGroupIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
-
-        <directory>${basedir}/target</directory>
-        <sourceDirectory>${basedir}/src</sourceDirectory>
-        <outputDirectory>${basedir}/target/classes</outputDirectory>
-        <resources>
-            <resource>
-                <directory>${basedir}/src</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                    <exclude>**/*.scala</exclude>
-                </excludes>
-            </resource>
-        </resources>
-        <testSourceDirectory>${basedir}/test</testSourceDirectory>
-        <testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>
     </build>
 
 </project>
