@@ -14,7 +14,9 @@
     <url>https://github.com/scouter-project/scouter</url>
 
     <modules>
+        <module>scouter.common</module>
         <module>scouter.agent.java</module>
+        <module>scouter.agent.host</module>
     </modules>
 
     <properties>

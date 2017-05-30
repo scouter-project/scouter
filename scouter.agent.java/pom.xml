@@ -14,7 +14,7 @@
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
-        <build.datetime>${maven.build.timestamp}</build.datetime>
+        <build.datetime>${maven.build.timestamp} GMT</build.datetime>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scouter.http.jar>scouter.http.jar</scouter.http.jar>

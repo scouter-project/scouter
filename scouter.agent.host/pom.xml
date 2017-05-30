@@ -14,7 +14,7 @@
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
-        <build.datetime>${maven.build.timestamp}</build.datetime>
+        <build.datetime>${maven.build.timestamp} GMT</build.datetime>
         <scouter.host.boot.jar>scouter.host.jar</scouter.host.boot.jar>
         <scouter.host.assembly.name>${project.artifactId}-assembly</scouter.host.assembly.name>
         <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
