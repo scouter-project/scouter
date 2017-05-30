@@ -4,10 +4,10 @@
 
     <groupId>com.github.scouter-project</groupId>
     <artifactId>scouter-parent</artifactId>
-    <version>1.6.0-SNAPSHOT</version>
+    <version>1.6.1</version>
     <packaging>pom</packaging>
 
-    <name>Scouter APM (parent)</name>
+    <name>SCOUTER APM (parent)</name>
     <description>
         SCOUTER is an open source APM like new relic and appdynamics.
     </description>
@@ -15,13 +15,11 @@
 
     <modules>
         <module>scouter.common</module>
+        <module>scouter.server.boot</module>
         <module>scouter.server</module>
         <module>scouter.agent.java</module>
         <module>scouter.agent.host</module>
     </modules>
-
-    <properties>
-    </properties>
 
     <distributionManagement>
         <repository>

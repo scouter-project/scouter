@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>1.6.1</version>
     </parent>
 
     <artifactId>scouter-server</artifactId>
@@ -15,6 +15,10 @@
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <build.datetime>${maven.build.timestamp} GMT</build.datetime>
+        <scouter.server.boot.library.name>scouter-server-boot</scouter.server.boot.library.name>
+        <scouter.server.boot.jar>boot.jar</scouter.server.boot.jar>
+        <scouter.server.assembly.name>${project.artifactId}-assembly</scouter.server.assembly.name>
+        <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -34,8 +38,18 @@
             <version>2.11.7</version>
         </dependency>
         <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-reflect</artifactId>
+            <version>2.11.7</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.scouter-project</groupId>
             <artifactId>scouter-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.scouter-project</groupId>
+            <artifactId>scouter-server-boot</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -201,8 +215,60 @@
                             <overWriteSnapshots>false</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
                             <includeScope>runtime</includeScope>
-                            <excludeGroupIds>com.github.scouter-project</excludeGroupIds>
+                            <excludeArtifactIds>scouter-common</excludeArtifactIds>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${scouter.assembly.working.dir}" />
+                                <copy todir="${scouter.assembly.working.dir}">
+                                    <fileset dir="${project.basedir}/scripts">
+                                        <include name="**/*" />
+                                    </fileset>
+                                </copy>
+                                <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh"
+                                         eol="lf"
+                                         eof="remove" />
+
+                                <copy todir="${project.build.directory}/lib">
+                                    <fileset dir="${project.build.directory}">
+                                        <include name="${project.build.finalName}.jar" />
+                                    </fileset>
+                                </copy>
+                                <move file="${project.build.directory}/lib/${scouter.server.boot.library.name}-${project.version}.jar"
+                                      tofile="${project.build.directory}/${scouter.server.boot.jar}" />
+
+                                <tar destfile="${project.build.directory}/${scouter.server.assembly.name}.tar">
+                                    <tarfileset dir="${scouter.assembly.working.dir}" mode="755" >
+                                        <include name="**/*.sh"/>
+                                    </tarfileset>
+                                    <tarfileset dir="${scouter.assembly.working.dir}" >
+                                        <exclude name="**/*.sh"/>
+                                    </tarfileset>
+                                    <tarfileset dir="${project.build.directory}">
+                                        <include name="${scouter.server.boot.jar}"/>
+                                        <include name="lib/*"/>
+                                    </tarfileset>
+                                    <tarfileset dir="${project.basedir}">
+                                        <include name="conf/**/*"/>
+                                        <include name="plugin/**/*"/>
+                                    </tarfileset>
+                                </tar>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
