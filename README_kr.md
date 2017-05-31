@@ -70,7 +70,7 @@ SCOUTER는 오픈소스 APM 도구로서 Java, WAS에 대한 모니터링 모니
  - [Scouter APM 사용자 모임 - Facebook 그룹](https://www.facebook.com/groups/scouterapm/)
 
 ## Scouter에 기여하기
- - **Pull request**는 반드시 **dev branch**로 요청하여야 합니다.
+ - **Pull request**는 반드시 **develop branch**로 요청하여야 합니다.
  - 상세한 내용은 개발자 가이드를 참조하시기 바랍니다.
    - [Scouter 개발자 가이드](./scouter.document/tech/Developer-Guide_kr.md)
  - 최초 Pull-Request시 다음 [CLA](http://goo.gl/forms/xSmYs8qM9J)(Contributor License Agreement)에 서명하여 제출하여야 합니다.
