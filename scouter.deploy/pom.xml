@@ -8,9 +8,9 @@
         <version>100.0.0</version>
     </parent>
 
-    <artifactId>scouter-agent-deploy</artifactId>
+    <artifactId>scouter-deploy</artifactId>
     <packaging>jar</packaging>
-    <name>scouter.agent.deploy</name>
+    <name>scouter.deploy</name>
     <version>${scouter.version}</version>
 
     <properties>
@@ -86,6 +86,36 @@
                         <goals>
                             <goal>run</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-install</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-site</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-deploy</id>
+                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>
