@@ -356,8 +356,8 @@ public class Configure extends Thread {
 		this.mgr_purge_only_xlog_enabled = getBoolean("mgr_purge_only_xlog_enabled", false);
 		this.mgr_purge_disk_usage_pct = getInt("mgr_purge_disk_usage_pct", 80);
 		this.mgr_purge_keep_days = getInt("mgr_purge_keep_days", 10);
-		this.mgr_purge_xlog_without_profile_keep_days = getInt("mgr_purge_xlog_keep_days", mgr_purge_keep_days*3);
-		this.mgr_purge_counter_keep_days = getInt("mgr_purge_non_xlog_keep_days", mgr_purge_keep_days*7);
+		this.mgr_purge_xlog_without_profile_keep_days = getInt("mgr_purge_xlog_without_profile_keep_days", mgr_purge_keep_days*3);
+		this.mgr_purge_counter_keep_days = getInt("mgr_purge_counter_keep_days", mgr_purge_keep_days*7);
 
 		this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false);
 		this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false);
