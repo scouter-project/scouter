@@ -1,6 +1,8 @@
 # Scouter Developer Guide
 [![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Developer-Guide.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Developer-Guide_kr.md)
 
+* This document is deprecated. You can import scouter project as maven project.
+ 
 본 문서에서는 Eclipse 기반의 Scouter 개발 및 빌드환경 구성을 가이드한다. 
 
 ## Git Fork

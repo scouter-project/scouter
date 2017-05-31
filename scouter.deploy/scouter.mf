@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Premain-Class: scouter.agent.JavaAgent
-Agent-Class: scouter.agent.JavaAgent
-Boot-Class-Path: scouter.agent.jar
-Can-Redefine-Classes: true
-Can-Retransform-Classes: true

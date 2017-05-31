@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Premain-Class: scouter.agent.batch.JavaAgent
-Agent-Class: scouter.agent.batch.JavaAgent
-Boot-Class-Path: scouter.agent.batch.jar
-Can-Redefine-Classes: true
-Can-Retransform-Classes: true

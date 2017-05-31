@@ -10,20 +10,9 @@
 ### 1. Setup JDK1.7
    http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html
 
-### 2. Setup  Ant
-1. download ant package
-
-   http://ant.apache.org
-
-2. extract the file to
-   
-  c:\scouter\apache-ant-1.9.5
-
-### 3.Package Build
-cd c:\scouter\scouter-master\.
-
-..\apache-ant-1.9.6\bin\ant -buildfile ./scouter.deploy/build.xml
-
+### 2.Package Build
+mvn clean package
+ - output : ./scouter-deploy/target/scouter-{version}.tar.gz
 
 ## Client Compile & Execute
 

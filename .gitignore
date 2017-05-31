@@ -30,8 +30,6 @@ scouter.server/*.scouter
 scouter.server/conf/account.xml
 scouter.server/conf/account_group.xml
 scouter.server/database/
-scouter.client.product/plugin_customization.ini
-scouter.client/plugin_customization.ini
 scouter.client/scouter.client.jar
 
 */*.scouter
@@ -103,7 +101,6 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 
-scouter.client.build/.settings/org.eclipse.core.resources.prefs
 scouter.common/.settings/org.eclipse.core.resources.prefs
 scouter.agent.host/.settings/org.eclipse.core.resources.prefs
 scouter.agent.batch/.settings/org.eclipse.core.resources.prefs
