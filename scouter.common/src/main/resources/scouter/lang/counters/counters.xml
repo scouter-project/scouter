@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Counters>
+	<Familys>
+		<Family name="host" master="Cpu">
+			<Counter name="Cpu" disp="CPU" unit="%" icon="cpu.png" total="false" />
+			<Counter name="SysCpu" disp="CPU | Sys" unit="%" icon="cpu.png" all="false" total="false" />
+			<Counter name="UserCpu" disp="CPU | User" unit="%" icon="cpu.png" all="false" total="false" />
+
+			<Counter name="Mem" disp="Memory" unit="%" icon="memory.png" total="false"/>
+			<Counter name="MemA" disp="Memory | Avaliable" unit="MB" icon="memory.png" total="false"/>
+			<Counter name="MemU" disp="Memory | ActualUsed" unit="MB" icon="memory.png" total="false"/>
+			<Counter name="MemT" disp="Memory | Total" unit="MB" icon="memory.png" total="false"/>
+
+			<Counter name="PageIn" disp="Swap | PageIn" unit="page" icon="swap.png" total="false"/>
+			<Counter name="PageOut" disp="Swap | PageOut" unit="page" icon="swap.png" total="false"/>
+			<Counter name="Swap" disp="Swap" unit="%" icon="swap.png" total="false"/>
+			<Counter name="SwapT" disp="Swap | Total" unit="MB" icon="swap.png" total="false"/>
+			<Counter name="SwapU" disp="Swap | Used" unit="MB" icon="swap.png" total="false"/>
+
+			<Counter name="NetInBound" disp="Net | InBound" unit="cnt" icon="bytes_recv.png" total="false"/>
+			<Counter name="NetOutBound" disp="Net | OutBound" unit="cnt" icon="bytes_recv.png" total="false"/>
+			<Counter name="TcpStatCLS" disp="Net | CLOSE_WAIT" unit="cnt" icon="drop.png" total="false"/>
+			<Counter name="TcpStatTIM" disp="Net | TIME_WAIT" unit="cnt" icon="time_read.png" total="false"/>
+			<Counter name="TcpStatFIN" disp="Net | FIN_WAIT" unit="cnt" icon="time_read.png" total="false"/>
+			<Counter name="TcpStatEST" disp="Net | ESTABLISHED" unit="cnt" icon="time_read.png" total="false"/>
+			<Counter name="NetRxBytes" disp="Net | RX Bytes" unit="bytes/sec" icon="packet_recv.png" total="false"/>
+			<Counter name="NetTxBytes" disp="Net | TX Bytes" unit="bytes/sec" icon="packet_sent.png" total="false"/>
+			<Counter name="DiskReadBytes" disp="Disk | ReadBytes" unit="bytes/sec" icon="disk_read.png" total="false"/>
+			<Counter name="DiskWriteBytes" disp="Disk | WriteBytes" unit="bytes/sec" icon="disk_write.png" total="false"/>
+
+		</Family>
+		<Family name="javaee" master="ActiveService">
+			<Counter name="RecentUser" disp="Recent User" unit="cnt" icon="visitor.png" />
+			<Counter name="HeapTotUsage" disp="Heap Total Usage" unit="MB" icon="memory.png" all="false" total="false"  />
+			<Counter name="GcCount" disp="GC Count" unit="cnt" icon="gc.png" />
+			<Counter name="ServiceCount" disp="Service Count" unit="cnt/min" icon="service_count.png" />
+			<Counter name="ErrorRate" disp="Error Rate" unit="%" icon="rate.png" />
+			<Counter name="HeapUsed" disp="Heap Used" unit="MB" icon="memory.png" total="false"/>
+			<Counter name="ElapsedTime" disp="Elapsed Time" unit="ms" icon="time.png" total="false"/>
+			<Counter name="Elapsed90%" disp="Elapsed 90%" unit="ms" icon="time.png" total="false" />
+			<Counter name="ActiveService" disp="Active Service" unit="cnt" icon="act_service.png" />
+			<Counter name="GcTime" disp="GC Time" unit="ms" icon="gc.png" total="false"/>
+			<Counter name="TPS" disp="TPS" unit="tps" 	icon="transaction.png" />
+			<Counter name="ProcCpu" disp="ProcessCpu" unit="%" icon="cpu.png" total="false"/>
+			<Counter name="PermUsed" disp="Perm Used" unit="MB" icon="memory.png" total="false"/>
+			<Counter name="PermPercent" disp="Perm %" unit="%" icon="memory.png" total="false"/>
+			<Counter name="FdUsage" disp="File Descriptor" unit="cnt" icon="memory.png" all="false" total="false"/>
+		</Family>
+		<Family name="datasource" master="ConnActive">
+			<Counter name="ConnIdle" disp="Conn Idle" unit="cnt" icon="conn_idle.png" />
+			<Counter name="ConnActive" disp="Conn Active" unit="cnt" icon="conn_act.png" />
+			<Counter name="ConnMax" disp="Conn Max" unit="cnt" icon="database_go.png" />
+		</Family>
+		<Family name="reqproc" master="BytesSent">
+			<Counter name="ErrorCount" disp="Error Count" unit="cnt" icon="error_count.png" />
+			<Counter name="BytesSent" disp="Bytes Sent" unit="bytes" icon="bytes_sent.png" />
+			<Counter name="RequestCount" disp="Request Count" unit="cnt" icon="req_count.gif" />
+			<Counter name="ProcessingTime" disp="Processing Time" unit="sec" icon="proc_time.png" />
+			<Counter name="BytesReceived" disp="Bytes Received" unit="bytes" icon="bytes_recv.png" />
+		</Family>
+		<Family name="batch" master="RunCount">
+			<Counter name="BatchService" disp="Batch Service" unit="cnt" icon="service_count.png" />
+			<Counter name="BatchStart" disp="Batch Accumulate Start" unit="cnt" icon="service_count.png" />
+			<Counter name="BatchEnd" disp="Batch Accumulate End" unit="cnt" icon="service_count.png" />
+			<Counter name="BatchEndNoSignal" disp="Batch Accumulate End(No Signal)" unit="cnt" icon="service_count.png" />
+		</Family>
+	</Familys>
+	<Types>
+		<ObjectType name="linux" family="host" disp="Linux" />
+		<ObjectType name="windows" family="host" disp="Windows"  />
+		<ObjectType name="osx" family="host" disp="OSX" />
+		<ObjectType name="host" family="host" disp="Host" />
+		<ObjectType name="tomcat" family="javaee" disp="Tomcat" />
+		<ObjectType name="java" family="javaee" disp="Java" />
+		<ObjectType name="jboss" family="javaee" disp="JBoss" />
+		<ObjectType name="jetty" family="javaee" disp="Jetty" />
+		<ObjectType name="resin" family="javaee" disp="Resin" />
+		<ObjectType name="batch" family="batch" disp="Batch" />
+		<ObjectType name="datasource" family="datasource" disp="DataSource" sub-object="true" />
+		<ObjectType name="reqproc" family="reqproc" disp="RequestProc" sub-object="true"/>
+	</Types>
+</Counters>

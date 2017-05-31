@@ -2,39 +2,30 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.scouter-project</groupId>
+    <parent>
+        <groupId>com.github.scouter-project</groupId>
+        <artifactId>scouter-parent</artifactId>
+        <version>100.0.0</version>
+    </parent>
+
     <artifactId>scouter-common</artifactId>
-    <version>1.1.3-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>scouter.common</name>
+    <version>${scouter.version}</version>
 
     <properties>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <build.datetime>${maven.build.timestamp} GMT</build.datetime>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>scouter-repo</id>
-            <name>scouter apm repository</name>
-            <url>http://repository.scouterapm.com/artifactory/repository</url>
-        </repository>
-    </repositories>
-
-    <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>scouter apm releases</name>
-            <url>http://repository.scouterapm.com/artifactory/libs-release-local</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>snapshots</id>
-            <name>scouter apm snapshots</name>
-            <url>http://repository.scouterapm.com/artifactory/libs-snapshot-local</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -58,20 +49,6 @@
                 </executions>
             </plugin>
         </plugins>
-
-        <directory>${basedir}/target</directory>
-        <sourceDirectory>${basedir}/src</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>${basedir}/src</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </resource>
-        </resources>
-        <outputDirectory>${basedir}/target/classes</outputDirectory>
-        <testSourceDirectory>${basedir}/test</testSourceDirectory>
-        <testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>
     </build>
 
     <dependencies>

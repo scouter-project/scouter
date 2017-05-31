@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.github.scouter-project</groupId>
+    <artifactId>scouter-parent</artifactId>
+    <version>100.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>SCOUTER APM (parent)</name>
+    <description>
+        SCOUTER is an open source APM like new relic and appdynamics.
+    </description>
+    <url>https://github.com/scouter-project/scouter</url>
+
+    <modules>
+        <module>scouter.common</module>
+        <module>scouter.server.boot</module>
+        <module>scouter.server</module>
+        <module>scouter.agent.host</module>
+        <module>scouter.agent.java</module>
+        <module>scouter.agent.batch</module>
+        <module>scouter.deploy</module>
+    </modules>
+
+    <properties>
+        <scouter.version>1.6.3</scouter.version>
+
+        <scouter.agent.host.assembly.name>scouter-host-agent-assembly</scouter.agent.host.assembly.name>
+        <scouter.agent.java.assembly.name>scouter-java-agent-assembly</scouter.agent.java.assembly.name>
+        <scouter.agent.batch.assembly.name>scouter-batch-agent-assembly</scouter.agent.batch.assembly.name>
+        <scouter.server.assembly.name>scouter-server-assembly</scouter.server.assembly.name>
+
+        <scouter.whole.packaging.prepare.dir>${project.basedir}/../target/whole-pack-working</scouter.whole.packaging.prepare.dir>
+        <scouter.product.name>scouter-all-${scouter.version}</scouter.product.name>
+
+    </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>central</id>
+            <name>scouter apm releases</name>
+            <url>http://repository.scouterapm.com/artifactory/libs-release-local</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>scouter apm snapshots</name>
+            <url>http://repository.scouterapm.com/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>scouter-repo</id>
+            <name>scouter apm repository</name>
+            <url>http://repository.scouterapm.com/artifactory/repository</url>
+        </repository>
+        <repository>
+            <id>scala-tools.org</id>
+            <name>Scala-tools Maven2 Repository</name>
+            <url>http://scala-tools.org/repo-releases</url>
+        </repository>
+        <repository>
+            <id>redhat.com</id>
+            <name>redhat maven Repository</name>
+            <url>https://maven.repository.redhat.com/ga</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>scala-tools.org</id>
+            <name>Scala-tools Maven2 Repository</name>
+            <url>http://scala-tools.org/repo-releases</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>gunlee01</id>
+            <name>Gunhee Lee</name>
+            <email>gunlee01@gmail.com</email>
+            <url>https://github.com/gunlee01</url>
+            <roles>
+                <role>PMC</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>github.com</system>
+        <url>https://github.com/scouter-project/scouter/issues</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:git:git@github.com:scouter-project/scouter.git</connection>
+        <developerConnection>scm:git:git@github.com:scouter-project/scouter.git</developerConnection>
+        <url>git@github.com:scouter-project/scouter.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
+</project>

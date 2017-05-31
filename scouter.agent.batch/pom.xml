@@ -1,0 +1,159 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.github.scouter-project</groupId>
+        <artifactId>scouter-parent</artifactId>
+        <version>100.0.0</version>
+    </parent>
+
+    <artifactId>scouter-agent-batch</artifactId>
+    <packaging>jar</packaging>
+    <name>scouter.agent.batch</name>
+    <version>${scouter.version}</version>
+
+    <properties>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <build.datetime>${maven.build.timestamp} GMT</build.datetime>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.scouter-project</groupId>
+            <artifactId>scouter-agent-java</artifactId>
+            <version>${scouter.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>2.3.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <compilerVersion>1.6</compilerVersion>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Premain-Class>scouter.agent.batch.JavaAgent</Premain-Class>
+                            <Agent-Class>scouter.agent.batch.JavaAgent</Agent-Class>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                        </manifestEntries>
+                    </archive>
+                    <excludes>
+                        <exclude>**/scouter/xtra/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <createSourcesJar>true</createSourcesJar>
+                            <shadeSourcesContent>true</shadeSourcesContent>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.github.scouter-project:scouter-agent-jave</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${scouter.assembly.working.dir}" />
+                                <copy todir="${scouter.assembly.working.dir}">
+                                    <fileset dir="${project.basedir}/scripts">
+                                        <include name="**/*" />
+                                    </fileset>
+                                </copy>
+                                <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh"
+                                         eol="lf"
+                                         eof="remove" />
+
+                                <tar destfile="${project.build.directory}/${scouter.agent.batch.assembly.name}.tar">
+                                    <tarfileset dir="${scouter.assembly.working.dir}" mode="755" >
+                                        <include name="**/*.sh"/>
+                                    </tarfileset>
+                                    <tarfileset dir="${scouter.assembly.working.dir}" >
+                                        <exclude name="**/*.sh"/>
+                                    </tarfileset>
+                                    <tarfileset dir="${project.basedir}">
+                                        <include name="conf/**/*"/>
+                                    </tarfileset>
+                                    <tarfileset dir="${project.build.directory}">
+                                        <include name="${project.build.finalName}.jar"/>
+                                    </tarfileset>
+                                </tar>
+                                <!-- copy for preparing whole packaging -->
+                                <mkdir dir="${scouter.whole.packaging.prepare.dir}" />
+                                <copy file="${project.build.directory}/${scouter.agent.batch.assembly.name}.tar" todir="${scouter.whole.packaging.prepare.dir}" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
