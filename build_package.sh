@@ -4,15 +4,15 @@
 # download ant from :
 #   https://ant.apache.org
 
-ANT="`which ant`"
-
-if [ ! -z "${ANT_HOME}" ]; then
-    ANT="${ANT_HOME}/bin/ant"
+MVN="`which mvn`"
+if [ ! -z "${MAVEN_HOME}" ]; then
+	echo MAVEN_HOME: ${MAVEN_HOME}
+	MVN="${MAVEN_HOME}/bin/mvn"
 fi
 
-if [ -z "$ANT" ]; then
-	echo ant not found.
+if [ -z "$MVN" ]; then
+    echo maven not found.
 	exit 1
 else
-    $ANT -buildfile ./scouter.deploy/build.xml
+    $MVN clean package
 fi

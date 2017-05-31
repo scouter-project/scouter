@@ -78,6 +78,9 @@
                                         <exclude name="**/*.sh"/>
                                     </tarfileset>
                                 </tar>
+                                <gzip src="${project.build.directory}/${scouter.product.name}.tar" destfile="${project.build.directory}/${scouter.product.name}.tar.gz"/>
+                                <delete file="${project.build.directory}/${scouter.product.name}.tar"/>
+                                <delete file="${project.build.directory}/${project.build.finalName}.jar"/>
                             </target>
                         </configuration>
                         <goals>
