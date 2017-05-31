@@ -17,11 +17,11 @@
 
 package scouter;
 
+import scouter.util.FileUtil;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-
-import scouter.util.FileUtil;
 
 public class Version {
 
@@ -74,7 +74,7 @@ public class Version {
 		InputStream is = null;
 		try {
 			is = Version.class
-					.getResourceAsStream("/src/main/resources/scouter/v.properties");
+					.getResourceAsStream("/scouter/v.properties");
 			properties.load(is);
 		} catch (IOException e) {
 			return null;

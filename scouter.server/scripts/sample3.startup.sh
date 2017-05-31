@@ -6,7 +6,7 @@ JAVA=java
 
 JAVA_OPTS=""
 JAVA_OPTS="$JAVA_OPTS -server"
-JAVA_OPTS="$JAVA_OPTS -Xms2g -Xmx2g"
+JAVA_OPTS="$JAVA_OPTS -Xms1g -Xmx1g"
 JAVA_OPTS="$JAVA_OPTS -XX:+UseG1GC -XX:MaxGCPauseMillis=200
 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
 JAVA_OPTS="$JAVA_OPTS -XX:+UseTLAB -XX:+ResizeTLAB"
@@ -36,8 +36,7 @@ JAVA_OPTS="$JAVA_OPTS -Dsun.net.inetaddr.ttl=0"
 JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true"
 JAVA_OPTS="$JAVA_OPTS -Djava.security.egd=file:/dev/./urandom"
 
-nohup java $JAVA_OPTS -classpath ./boot.jar scouter.boot.Boot ./lib > nohup.out
-&
+nohup java $JAVA_OPTS -classpath ./scouter-server-boot.jar scouter.boot.Boot ./lib > nohup.out &
 sleep 1
 tail -100 nohup.out
 

@@ -5,12 +5,13 @@
     <parent>
         <groupId>com.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>1.6.1</version>
+        <version>100.0.0</version>
     </parent>
 
     <artifactId>scouter-common</artifactId>
     <packaging>jar</packaging>
     <name>scouter.common</name>
+    <version>${scouter.version}</version>
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>

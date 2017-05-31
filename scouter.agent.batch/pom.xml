@@ -8,44 +8,40 @@
         <version>100.0.0</version>
     </parent>
 
-    <artifactId>scouter-agent-host</artifactId>
+    <artifactId>scouter-agent-batch</artifactId>
     <packaging>jar</packaging>
-    <name>scouter.agent.host</name>
+    <name>scouter.agent.batch</name>
     <version>${scouter.version}</version>
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <build.datetime>${maven.build.timestamp} GMT</build.datetime>
-        <scouter.host.boot.jar>scouter.host.jar</scouter.host.boot.jar>
-        <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.scouter-project</groupId>
-            <artifactId>scouter-common</artifactId>
+            <artifactId>scouter-agent-java</artifactId>
             <version>${scouter.version}</version>
         </dependency>
 
-        <!-- provided -->
         <dependency>
-            <groupId>scouter.dependency</groupId>
-            <artifactId>sigar</artifactId>
-            <version>0.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/sigar.jar</systemPath>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>2.3.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -75,8 +71,16 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.0.2</version>
                 <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Premain-Class>scouter.agent.batch.JavaAgent</Premain-Class>
+                            <Agent-Class>scouter.agent.batch.JavaAgent</Agent-Class>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                        </manifestEntries>
+                    </archive>
                     <excludes>
-                        <exclude name="**/scouter/boot/**"/>
+                        <exclude>**/scouter/xtra/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -95,14 +99,11 @@
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <createSourcesJar>true</createSourcesJar>
                             <shadeSourcesContent>true</shadeSourcesContent>
-                            <filters>
-                                <filter>
-                                    <artifact>com.github.scouter-project:scouter-common</artifact>
-                                    <excludes>
-                                        <exclude>scouter/v.properties</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.github.scouter-project:scouter-agent-jave</include>
+                                </includes>
+                            </artifactSet>
                         </configuration>
                     </execution>
                 </executions>
@@ -112,28 +113,6 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
                 <executions>
-                    <execution>
-                        <id>make-boot-jar</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <target>
-                                <jar destfile="${project.build.directory}/${scouter.host.boot.jar}">
-                                    <fileset dir="${project.build.outputDirectory}">
-                                        <include name="scouter/boot/**"/>
-                                    </fileset>
-                                    <fileset dir="${project.basedir}/lib" >
-                                        <include name="*"/>
-                                    </fileset>
-                                    <fileset dir="${project.build.directory}" >
-                                        <include name="${project.build.finalName}.jar"/>
-                                    </fileset>
-                                </jar>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
                     <execution>
                         <id>make-assembly</id>
                         <phase>package</phase>
@@ -148,24 +127,24 @@
                                 <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh"
                                          eol="lf"
                                          eof="remove" />
-                                <tar destfile="${project.build.directory}/${scouter.agent.host.assembly.name}.tar">
+
+                                <tar destfile="${project.build.directory}/${scouter.agent.batch.assembly.name}.tar">
                                     <tarfileset dir="${scouter.assembly.working.dir}" mode="755" >
                                         <include name="**/*.sh"/>
                                     </tarfileset>
                                     <tarfileset dir="${scouter.assembly.working.dir}" >
                                         <exclude name="**/*.sh"/>
                                     </tarfileset>
-                                    <tarfileset dir="${project.build.directory}">
-                                        <include name="${scouter.host.boot.jar}"/>
-                                    </tarfileset>
                                     <tarfileset dir="${project.basedir}">
                                         <include name="conf/**/*"/>
                                     </tarfileset>
+                                    <tarfileset dir="${project.build.directory}">
+                                        <include name="${project.build.finalName}.jar"/>
+                                    </tarfileset>
                                 </tar>
-
                                 <!-- copy for preparing whole packaging -->
                                 <mkdir dir="${scouter.whole.packaging.prepare.dir}" />
-                                <copy file="${project.build.directory}/${scouter.agent.host.assembly.name}.tar" todir="${scouter.whole.packaging.prepare.dir}" />
+                                <copy file="${project.build.directory}/${scouter.agent.batch.assembly.name}.tar" todir="${scouter.whole.packaging.prepare.dir}" />
                             </target>
                         </configuration>
                         <goals>

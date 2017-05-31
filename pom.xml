@@ -4,7 +4,7 @@
 
     <groupId>com.github.scouter-project</groupId>
     <artifactId>scouter-parent</artifactId>
-    <version>1.6.1</version>
+    <version>100.0.0</version>
     <packaging>pom</packaging>
 
     <name>SCOUTER APM (parent)</name>
@@ -17,9 +17,24 @@
         <module>scouter.common</module>
         <module>scouter.server.boot</module>
         <module>scouter.server</module>
-        <module>scouter.agent.java</module>
         <module>scouter.agent.host</module>
+        <module>scouter.agent.java</module>
+        <module>scouter.agent.batch</module>
+        <module>scouter.deploy</module>
     </modules>
+
+    <properties>
+        <scouter.version>1.6.3</scouter.version>
+
+        <scouter.agent.host.assembly.name>scouter-host-agent-assembly</scouter.agent.host.assembly.name>
+        <scouter.agent.java.assembly.name>scouter-java-agent-assembly</scouter.agent.java.assembly.name>
+        <scouter.agent.batch.assembly.name>scouter-batch-agent-assembly</scouter.agent.batch.assembly.name>
+        <scouter.server.assembly.name>scouter-server-assembly</scouter.server.assembly.name>
+
+        <scouter.whole.packaging.prepare.dir>${project.basedir}/../target/whole-pack-working</scouter.whole.packaging.prepare.dir>
+        <scouter.product.name>scouter-all-${scouter.version}</scouter.product.name>
+
+    </properties>
 
     <distributionManagement>
         <repository>

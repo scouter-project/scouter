@@ -5,12 +5,13 @@
     <parent>
         <groupId>com.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>1.6.1</version>
+        <version>100.0.0</version>
     </parent>
 
     <artifactId>scouter-server-boot</artifactId>
     <packaging>jar</packaging>
     <name>scouter.server.boot</name>
+    <version>${scouter.version}</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

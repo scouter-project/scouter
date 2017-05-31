@@ -5,19 +5,19 @@
     <parent>
         <groupId>com.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>1.6.1</version>
+        <version>100.0.0</version>
     </parent>
 
     <artifactId>scouter-server</artifactId>
     <packaging>jar</packaging>
     <name>scouter.server</name>
+    <version>${scouter.version}</version>
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <build.datetime>${maven.build.timestamp} GMT</build.datetime>
         <scouter.server.boot.library.name>scouter-server-boot</scouter.server.boot.library.name>
-        <scouter.server.boot.jar>boot.jar</scouter.server.boot.jar>
-        <scouter.server.assembly.name>${project.artifactId}-assembly</scouter.server.assembly.name>
+        <scouter.server.boot.jar>scouter-server-boot.jar</scouter.server.boot.jar>
         <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -45,12 +45,12 @@
         <dependency>
             <groupId>com.github.scouter-project</groupId>
             <artifactId>scouter-common</artifactId>
-            <version>${project.version}</version>
+            <version>${scouter.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.scouter-project</groupId>
             <artifactId>scouter-server-boot</artifactId>
-            <version>${project.version}</version>
+            <version>${scouter.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.jsqlparser</groupId>
@@ -264,6 +264,10 @@
                                         <include name="plugin/**/*"/>
                                     </tarfileset>
                                 </tar>
+
+                                <!-- copy for preparing whole packaging -->
+                                <mkdir dir="${scouter.whole.packaging.prepare.dir}" />
+                                <copy file="${project.build.directory}/${scouter.server.assembly.name}.tar" todir="${scouter.whole.packaging.prepare.dir}" />
                             </target>
                         </configuration>
                         <goals>
