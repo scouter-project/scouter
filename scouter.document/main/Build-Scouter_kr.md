@@ -9,37 +9,10 @@
 ### Setup JDK1.7
    http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html
 
-### Setup  Ant
-1. download ant package
-
-   http://ant.apache.org
-
-2. extract the file to any directory
-
-3. set env
-
-   export ANT_HOME=/app/scouter-master/apache-ant-1.9.5
-
 ### Setup Maven
-1. download maven package
-
-   https://maven.apache.org
-    
-2. extract the file to any directory
-
-3. set env
-
-   export MAVEN_HOME=/app/scouter-master/apache-maven-3.3.3 
-
-### Make executable
-cd /app/scouter-master/.
-
-chmod +x build_package.sh
-
-chmod +x build_client.sh
-
 
 ### Build
 ./build_package.sh
-
+ - output : ./scouter-deploy/target/scouter-{version}.tar.gz
+ 
 ./build_client.sh
