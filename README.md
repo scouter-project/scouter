@@ -4,7 +4,7 @@
 
 ## Application Performance Monitoring for Open Source S/Ws.
 
-SCOUTER is an open source APM line new relic and appdynamics.
+SCOUTER is an open source APM like new relic and appdynamics.
 (APM means application performance monitoring or application performance management.)
 
  - Monitoring target (currently)
