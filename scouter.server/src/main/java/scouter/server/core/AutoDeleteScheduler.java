@@ -202,9 +202,9 @@ public class AutoDeleteScheduler extends Thread {
 				throw new IllegalArgumentException("Not expected Mode : " + mode);
 			}
 
-			Logger.println("S206", "Auto deletion... " + yyyymmdd);
+			Logger.println("S206", "Auto deletion... " + yyyymmdd + " mode : " + mode.name());
 		} catch (Throwable th) {
-			Logger.println("S207", "Failed auto deletion... " + yyyymmdd + "  " + th.toString());
+			Logger.println("S207", "Failed auto deletion... " + yyyymmdd + " mode : " + mode.name() + "  " + th.toString());
 		}
 	}
 
