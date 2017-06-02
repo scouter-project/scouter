@@ -347,7 +347,7 @@ class XLogService {
         }
 
         val handler = (time: Long, data: Array[Byte]) => {
-            if (loadCount >= 500) {
+            if (loadCount >= Configure.getInstance().req_search_xlog_max_count) {
                 return ;
             }
             val x = new DataInputX(data).readPack().asInstanceOf[XLogPack];

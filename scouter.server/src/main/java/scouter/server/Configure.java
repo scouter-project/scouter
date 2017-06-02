@@ -223,7 +223,11 @@ public class Configure extends Thread {
 	//TagCount
 	@ConfigDesc("Activating TagCount function")
 	public boolean tagcnt_enabled = false;
-	
+
+	//Service request options from client
+	@ConfigDesc("search xlog service option - max xlog count to search per request")
+	public int req_search_xlog_max_count = 500;
+
 	//Visitor Hourly
 	public boolean visitor_hourly_count_enabled = true;
 
@@ -389,6 +393,8 @@ public class Configure extends Thread {
 		this.visitor_hourly_count_enabled = getBoolean("visitor_hourly_count_enabled", true);
 		
 		this.net_tcp_service_pool_size = getInt("net_tcp_service_pool_size", 100);
+
+		this.req_search_xlog_max_count = getInt("req_search_xlog_max_count", 500);
 		
 		ConfObserver.exec();
 	}
