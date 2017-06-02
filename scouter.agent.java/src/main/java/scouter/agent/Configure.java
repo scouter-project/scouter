@@ -267,12 +267,18 @@ public class Configure extends Thread {
     //XLog
     @ConfigDesc("XLog Ignore Time - (deprecated) for backward compatibility. Use xlog_sampling_xxx options instead")
     public int xlog_lower_bound_time_ms = 0;
+
+    //XLog error marking
     @ConfigDesc("Leave an error message at XLog in case of over fetching. (fetch count)")
     public int xlog_error_jdbc_fetch_max = 10000;
     @ConfigDesc("Leave an error message at XLog in case of over timing query. (ms)")
     public int xlog_error_sql_time_max_ms = 30000;
     @ConfigDesc("Leave an error message at XLog when UserTransaction's begin/end unpaired")
     public boolean xlog_error_check_user_transaction_enabled = true;
+    @ConfigDesc("mark as error on xlog flag if SqlException is occured.")
+    public boolean xlog_error_on_sqlexception_enabled = true;
+    @ConfigDesc("mark as error on xlog flag if Api call errors are occured.")
+    public boolean xlog_error_on_apicall_exception_enabled = true;
 
     //XLog hard sampling options
     @ConfigDesc("XLog hard sampling mode enabled - for the best performance but it affects all statistics data")
@@ -816,8 +822,12 @@ public class Configure extends Thread {
         this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", true);
         this.alert_message_length = getInt("alert_message_length", 3000);
         this.alert_send_interval_ms = getInt("alert_send_interval_ms", 10000);
+
         this.xlog_error_jdbc_fetch_max = getInt("xlog_error_jdbc_fetch_max", 10000);
         this.xlog_error_sql_time_max_ms = getInt("xlog_error_sql_time_max_ms", 30000);
+        this.xlog_error_on_sqlexception_enabled = getBoolean("xlog_error_on_sqlexception_enabled", true);
+        this.xlog_error_on_apicall_exception_enabled = getBoolean("xlog_error_on_apicall_exception_enabled", true);
+
         this._log_asm_enabled = getBoolean("_log_asm_enabled", false);
         this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
         this.jmx_counter_enabled = getBoolean("jmx_counter_enabled", true);

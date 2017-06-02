@@ -156,7 +156,7 @@ public class TraceApiCall {
 					msg = sb.toString();
 				}
 				step.error = DataProxy.sendError(msg);
-				if (tctx.error == 0) {
+				if (tctx.error == 0 && conf.xlog_error_on_apicall_exception_enabled) {
 					tctx.error = step.error;
 				}
 				ServiceSummary.getInstance().process(thr, step.error, tctx.serviceHash, tctx.txid, 0, step.hash);

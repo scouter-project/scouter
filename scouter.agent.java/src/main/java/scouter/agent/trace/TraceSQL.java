@@ -274,11 +274,12 @@ public class TraceSQL {
 				msg = sb.toString();
 			}
 			int hash = DataProxy.sendError(msg);
-			if (tCtx.error == 0) {
+			if (tCtx.error == 0 && conf.xlog_error_on_sqlexception_enabled) {
 				tCtx.error = hash;
 			}
 			step.error = hash;
 			ServiceSummary.getInstance().process(thr, hash, tCtx.serviceHash, tCtx.txid, step.hash, 0);
+
 		} else if (step.elapsed > conf.xlog_error_sql_time_max_ms) {
 			String msg = "warning slow sql, over " + conf.xlog_error_sql_time_max_ms + " ms";
 			int hash = DataProxy.sendError(msg);
