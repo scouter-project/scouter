@@ -33,6 +33,12 @@ object Logger {
 
     private val lastLog = new StringLongLinkedMap().setMax(1000);
 
+    def trace(message: Any) {
+        if(conf._trace) {
+            printlnInternal(DateUtil.datetime(System.currentTimeMillis()) + " [TRACE] " + message);
+        }
+    }
+
     def println(message: Any) {
         Logger.printlnInternal(DateUtil.datetime(System.currentTimeMillis()) + " " + message);
     }

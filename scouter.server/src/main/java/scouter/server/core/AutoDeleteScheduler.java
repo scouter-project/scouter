@@ -30,7 +30,6 @@ public class AutoDeleteScheduler extends Thread {
 	int retainDays;
 	int retainXlogDays;
 	int retainCounterDays;
-	boolean delOnlyXLog;
 	String lastCheckDate;
 	Set<String> deletedProfileDays = new HashSet<String>();
 	Set<String> deletedXLogDays = new HashSet<String>();
@@ -95,6 +94,8 @@ public class AutoDeleteScheduler extends Thread {
 							freeSpace = dbDir.getUsableSpace();
 							freePercent = (freeSpace * 100.0d) / totalSpace;
 							deletedProfileDays.add(yyyymmdd);
+							Logger.println("S206-1", "[purge profile by][capacity]" + yyyymmdd);
+							Logger.println("S206-1", "* option : conf.mgr_purge_disk_usage_pct : " + conf.mgr_purge_disk_usage_pct);
 						}
 						while ((100 - freePercent) > maxPercent - (100-maxPercent)*0.2) {
 							String yyyymmdd = getLongAgoDate(deletedXLogDays);
@@ -105,6 +106,8 @@ public class AutoDeleteScheduler extends Thread {
 							freeSpace = dbDir.getUsableSpace();
 							freePercent = (freeSpace * 100.0d) / totalSpace;
 							deletedXLogDays.add(yyyymmdd);
+							Logger.println("S206-2", "[purge xlog by][capacity]" + yyyymmdd);
+							Logger.println("S206-2", "* option : conf.mgr_purge_disk_usage_pct : " + conf.mgr_purge_disk_usage_pct);
 						}
 						while ((100 - freePercent) > maxPercent) {
 							String yyyymmdd = getLongAgoDate(deletedDays);
@@ -115,12 +118,15 @@ public class AutoDeleteScheduler extends Thread {
 							freeSpace = dbDir.getUsableSpace();
 							freePercent = (freeSpace * 100.0d) / totalSpace;
 							deletedDays.add(yyyymmdd);
+							Logger.println("S206-3", "[purge counters by][capacity]" + yyyymmdd);
+							Logger.println("S206-3", "* option : conf.mgr_purge_disk_usage_pct : " + conf.mgr_purge_disk_usage_pct);
 						}
 					}
 				}
 
 				int retainProfileDays = conf.mgr_purge_profile_keep_days;
 				if (retainProfileDays > 0) {
+					lastCheckDate = "";
 					if (today.equals(lastCheckDate) == false) {
 						lastCheckDate = today;
 						int lastDeleteDate = CastUtil.cint(DateUtil.yyyymmdd(System.currentTimeMillis() - (DateUtil.MILLIS_PER_DAY * retainProfileDays)));
@@ -134,12 +140,15 @@ public class AutoDeleteScheduler extends Thread {
 							}
 							deleteData(yyyymmdd, Mode.PROFILE);
 							deletedProfileDays.add(yyyymmdd);
+							Logger.println("S206-4", "[purge profile by][day limit]" + yyyymmdd);
+							Logger.println("S206-4", "* option : conf.mgr_purge_profile_keep_days : " + conf.mgr_purge_profile_keep_days);
 						}
 					}
 				}
 
 				int retainXLogDays = conf.mgr_purge_xlog_keep_days;
 				if (retainXLogDays > 0) {
+					lastCheckDate = "";
 					if (today.equals(lastCheckDate) == false) {
 						lastCheckDate = today;
 						int lastDeleteDate = CastUtil.cint(DateUtil.yyyymmdd(System.currentTimeMillis() - (DateUtil.MILLIS_PER_DAY * retainXLogDays)));
@@ -153,12 +162,15 @@ public class AutoDeleteScheduler extends Thread {
 							}
 							deleteData(yyyymmdd, Mode.XLOG);
 							deletedXLogDays.add(yyyymmdd);
+							Logger.println("S206-5", "[purge xlog by][day limit]" + yyyymmdd);
+							Logger.println("S206-5", "* option : conf.mgr_purge_xlog_keep_days : " + conf.mgr_purge_xlog_keep_days);
 						}
 					}
 				}
 
 				int retainCounterDays = conf.mgr_purge_counter_keep_days;
 				if (retainCounterDays > 0) {
+					lastCheckDate = "";
 					if (today.equals(lastCheckDate) == false) {
 						lastCheckDate = today;
 						int lastDeleteDate = CastUtil.cint(DateUtil.yyyymmdd(System.currentTimeMillis() - (DateUtil.MILLIS_PER_DAY * retainCounterDays)));
@@ -172,6 +184,8 @@ public class AutoDeleteScheduler extends Thread {
 							}
 							deleteData(yyyymmdd, Mode.ALL);
 							deletedDays.add(yyyymmdd);
+							Logger.println("S206-6", "[purge counters by][day limit]" + yyyymmdd);
+							Logger.println("S206-6", "* option : conf.mgr_purge_counter_keep_days : " + conf.mgr_purge_counter_keep_days);
 						}
 					}
 				}
@@ -201,10 +215,6 @@ public class AutoDeleteScheduler extends Thread {
 			}
 
 			Logger.println("S206", "* Auto deletion... " + yyyymmdd + " mode : " + mode.name());
-			Logger.println("S206", "* option : conf.mgr_purge_disk_usage_pct : " + conf.mgr_purge_disk_usage_pct);
-			Logger.println("S206", "* option : conf.mgr_purge_profile_keep_days : " + conf.mgr_purge_profile_keep_days);
-			Logger.println("S206", "* option : conf.mgr_purge_xlog_keep_days : " + conf.mgr_purge_xlog_keep_days);
-			Logger.println("S206", "* option : conf.mgr_purge_counter_keep_days : " + conf.mgr_purge_counter_keep_days);
 
 		} catch (Throwable th) {
 			Logger.println("S207", "Failed auto deletion... " + yyyymmdd + " mode : " + mode.name() + "  " + th.toString());
