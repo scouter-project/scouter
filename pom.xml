@@ -7,7 +7,7 @@
     <version>100.0.0</version>
     <packaging>pom</packaging>
 
-    <name>SCOUTER APM (parent)</name>
+    <name>SCOUTER APM</name>
     <description>
         SCOUTER is an open source APM like new relic and appdynamics.
     </description>
@@ -24,7 +24,7 @@
     </modules>
 
     <properties>
-        <scouter.version>1.6.3</scouter.version>
+        <scouter.version>1.6.4.SNAPSHOT</scouter.version>
 
         <scouter.agent.host.assembly.name>scouter-host-agent-assembly</scouter.agent.host.assembly.name>
         <scouter.agent.java.assembly.name>scouter-java-agent-assembly</scouter.agent.java.assembly.name>
