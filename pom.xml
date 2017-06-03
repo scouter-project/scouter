@@ -20,7 +20,6 @@
         <module>scouter.agent.host</module>
         <module>scouter.agent.java</module>
         <module>scouter.agent.batch</module>
-        <!--<module>scouter.deploy</module>-->
     </modules>
 
     <properties>

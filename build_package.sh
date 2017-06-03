@@ -15,4 +15,5 @@ if [ -z "$MVN" ]; then
 	exit 1
 else
     $MVN clean package
+    $MVN -f ./scouter.deploy/pom.xml clean package
 fi
