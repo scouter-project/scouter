@@ -56,11 +56,11 @@ Scouter used logical names and hierarchy for its monitoring targets.
 If you want to watch multiple Tomcat instances, you should give unique name of each on the same hierachy. 
 Names can be given by java options like, 
 ```
--Dscouter_name=MyTomcatInstName 
+-Dobj_name=MyTomcatInstName 
 ```
 or on scouter.config file,
 ```
-scouter_name=MyTomcatInstName
+obj_name=MyTomcatInstName
 ```
 
 ## How to monitor Tomcat host CPU and Memory simutaneously
