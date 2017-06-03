@@ -4,7 +4,7 @@
 
     <groupId>io.github.scouter-project</groupId>
     <artifactId>scouter-parent</artifactId>
-    <version>1.6.5-SNAPSHOT</version>
+    <version>1.6.5</version>
     <packaging>pom</packaging>
 
     <name>SCOUTER APM</name>
@@ -20,7 +20,7 @@
         <module>scouter.agent.host</module>
         <module>scouter.agent.java</module>
         <module>scouter.agent.batch</module>
-        <module>scouter.deploy</module>
+        <!--<module>scouter.deploy</module>-->
     </modules>
 
     <properties>
@@ -92,7 +92,7 @@
         <connection>scm:git:git@github.com:scouter-project/scouter.git</connection>
         <developerConnection>scm:git:git@github.com:scouter-project/scouter.git</developerConnection>
         <url>git@github.com:scouter-project/scouter.git</url>
-        <tag>HEAD</tag>
+        <tag>scouter-parent-1.6.5</tag>
     </scm>
 
     <distributionManagement>
