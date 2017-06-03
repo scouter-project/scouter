@@ -62,6 +62,7 @@ public class CounterConstants {
 	public final static String WAS_RECENT_USER = "RecentUser";
 	public final static String WAS_SQL_ELAPSED_TIME_BY_SERVICE = "SqlTimeByService";
 	public final static String WAS_APICALL_ELAPSED_TIME_BY_SERVICE	 = "ApiTimeByService";
+	public final static String WAS_QUEUING_TIME = "QueuingTime";
 
 	public final static String JAVA_GC_COUNT = "GcCount";
 	public final static String JAVA_GC_TIME = "GcTime";

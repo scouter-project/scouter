@@ -212,6 +212,7 @@ public class HttpTrace implements IHttpTrace {
             }
         }
 
+        //deprecated !
         if (conf.trace_webserver_enabled) {
             try {
                 ctx.web_name = request.getHeader(conf.trace_webserver_name_header_key);
@@ -225,6 +226,40 @@ public class HttpTrace implements IHttpTrace {
                             web_time = web_time.substring(0, x);
                         }
                         ctx.web_time = (int) (System.currentTimeMillis() - (Long.parseLong(web_time) / 1000));
+                    }
+                }
+            } catch (Throwable t) {
+            }
+        }
+
+        //check queuing from front proxy
+        if (conf.trace_request_queuing_enabled) {
+            try {
+                ctx.queuingHost = request.getHeader(conf.trace_request_queuing_start_host_header);
+                String startTime = request.getHeader(conf.trace_request_queuing_start_time_header);
+                if (startTime != null) {
+                    int x = startTime.indexOf("t=");
+                    if (x >= 0) {
+                        startTime = startTime.substring(x + 2);
+                        x = startTime.indexOf(' ');
+                        if (x > 0) {
+                            startTime = startTime.substring(0, x);
+                        }
+                        ctx.queuingTime = (int) (System.currentTimeMillis() - (Long.parseLong(startTime) / 1000));
+                    }
+                }
+
+                ctx.queuingHost2nd = request.getHeader(conf.trace_request_queuing_start_2nd_host_header);
+                startTime = request.getHeader(conf.trace_request_queuing_start_2nd_time_header);
+                if (startTime != null) {
+                    int x = startTime.indexOf("t=");
+                    if (x >= 0) {
+                        startTime = startTime.substring(x + 2);
+                        x = startTime.indexOf(' ');
+                        if (x > 0) {
+                            startTime = startTime.substring(0, x);
+                        }
+                        ctx.queuingTime2nd = (int) (System.currentTimeMillis() - (Long.parseLong(startTime) / 1000));
                     }
                 }
             } catch (Throwable t) {

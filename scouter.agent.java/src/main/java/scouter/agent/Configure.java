@@ -206,12 +206,26 @@ public class Configure extends Thread {
     public boolean _trace_auto_service_backstack_enabled = true;
     @ConfigDesc("Activating trace DB2")
     public boolean trace_db2_enabled = true;
-    @ConfigDesc("")
+
+    @Deprecated
     public boolean trace_webserver_enabled = false;
-    @ConfigDesc("Webserver name header key")
+    @Deprecated
     public String trace_webserver_name_header_key = "X-Forwarded-Host";
-    @ConfigDesc("Webserver time header key")
+    @Deprecated
     public String trace_webserver_time_header_key = "X-Forwarded-Time";
+
+    @ConfigDesc("measure queuing time from load balancer, reverse proxy, web server...")
+    public boolean trace_request_queuing_enabled = false;
+    @ConfigDesc("the name of server that set request start time")
+    public String trace_request_queuing_start_host_header = "X-Request-Start-Host";
+    @ConfigDesc("set request start time")
+    public String trace_request_queuing_start_time_header = "X-Request-Start-Time";
+
+    @ConfigDesc("the name of server that set the trace_request_queuing_start_2nd_time_header")
+    public String trace_request_queuing_start_2nd_host_header = "X-Request-Start-2nd-Host";
+    @ConfigDesc("set request passing time measured by 2nd layered server")
+    public String trace_request_queuing_start_2nd_time_header = "X-Request-Start-2nd-Time";
+
     @ConfigDesc("")
     public int _trace_fullstack_socket_open_port = 0;
     @ConfigDesc("")
