@@ -3,15 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.github.scouter-project</groupId>
+        <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>100.0.0</version>
+        <version>1.6.4.SNAPSHOT</version>
     </parent>
 
     <artifactId>scouter-agent-batch</artifactId>
     <packaging>jar</packaging>
     <name>scouter.agent.batch</name>
-    <version>${scouter.version}</version>
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
@@ -22,9 +21,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.scouter-project</groupId>
+            <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-agent-java</artifactId>
-            <version>${scouter.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -88,7 +87,7 @@
                             <shadeSourcesContent>true</shadeSourcesContent>
                             <artifactSet>
                                 <includes>
-                                    <include>com.github.scouter-project:scouter-agent-jave</include>
+                                    <include>io.github.scouter-project:scouter-agent-jave</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

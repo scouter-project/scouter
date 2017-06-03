@@ -3,15 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.github.scouter-project</groupId>
+        <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>100.0.0</version>
+        <version>1.6.4.SNAPSHOT</version>
     </parent>
 
     <artifactId>scouter-deploy</artifactId>
     <packaging>jar</packaging>
     <name>scouter.deploy</name>
-    <version>${scouter.version}</version>
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
@@ -27,24 +26,24 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.scouter-project</groupId>
+            <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-agent-java</artifactId>
-            <version>${scouter.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.scouter-project</groupId>
+            <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-agent-batch</artifactId>
-            <version>${scouter.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.scouter-project</groupId>
+            <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-agent-host</artifactId>
-            <version>${scouter.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.scouter-project</groupId>
+            <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-server</artifactId>
-            <version>${scouter.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

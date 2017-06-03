@@ -3,15 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.github.scouter-project</groupId>
+        <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>100.0.0</version>
+        <version>1.6.4.SNAPSHOT</version>
     </parent>
 
     <artifactId>scouter-agent-java</artifactId>
     <packaging>jar</packaging>
     <name>scouter.agent.java</name>
-    <version>${scouter.version}</version>
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
@@ -32,9 +31,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.scouter-project</groupId>
+            <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-common</artifactId>
-            <version>${scouter.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.scouter-project</groupId>
@@ -162,7 +161,7 @@
                             <shadeSourcesContent>true</shadeSourcesContent>
                             <filters>
                                 <filter>
-                                    <artifact>com.github.scouter-project:scouter-common</artifact>
+                                    <artifact>io.github.scouter-project:scouter-common</artifact>
                                     <excludes>
                                         <exclude>scouter/v.properties</exclude>
                                     </excludes>
