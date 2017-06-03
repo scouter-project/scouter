@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>1.6.4.SNAPSHOT</version>
+        <version>1.6.4</version>
     </parent>
 
     <artifactId>scouter-agent-host</artifactId>
@@ -62,7 +61,7 @@
                 <version>3.0.2</version>
                 <configuration>
                     <excludes>
-                        <exclude name="**/scouter/boot/**"/>
+                        <exclude name="**/scouter/boot/**" />
                     </excludes>
                 </configuration>
             </plugin>
@@ -105,13 +104,13 @@
                             <target>
                                 <jar destfile="${project.build.directory}/${scouter.host.boot.jar}">
                                     <fileset dir="${project.build.outputDirectory}">
-                                        <include name="scouter/boot/**"/>
+                                        <include name="scouter/boot/**" />
                                     </fileset>
-                                    <fileset dir="${project.basedir}/lib" >
-                                        <include name="*"/>
+                                    <fileset dir="${project.basedir}/lib">
+                                        <include name="*" />
                                     </fileset>
-                                    <fileset dir="${project.build.directory}" >
-                                        <include name="${project.build.finalName}.jar"/>
+                                    <fileset dir="${project.build.directory}">
+                                        <include name="${project.build.finalName}.jar" />
                                     </fileset>
                                 </jar>
                             </target>
@@ -131,21 +130,19 @@
                                         <include name="**/*" />
                                     </fileset>
                                 </copy>
-                                <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh"
-                                         eol="lf"
-                                         eof="remove" />
+                                <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh" eol="lf" eof="remove" />
                                 <tar destfile="${project.build.directory}/${scouter.agent.host.assembly.name}.tar">
-                                    <tarfileset dir="${scouter.assembly.working.dir}" mode="755" >
-                                        <include name="**/*.sh"/>
+                                    <tarfileset dir="${scouter.assembly.working.dir}" mode="755">
+                                        <include name="**/*.sh" />
                                     </tarfileset>
-                                    <tarfileset dir="${scouter.assembly.working.dir}" >
-                                        <exclude name="**/*.sh"/>
+                                    <tarfileset dir="${scouter.assembly.working.dir}">
+                                        <exclude name="**/*.sh" />
                                     </tarfileset>
                                     <tarfileset dir="${project.build.directory}">
-                                        <include name="${scouter.host.boot.jar}"/>
+                                        <include name="${scouter.host.boot.jar}" />
                                     </tarfileset>
                                     <tarfileset dir="${project.basedir}">
-                                        <include name="conf/**/*"/>
+                                        <include name="conf/**/*" />
                                     </tarfileset>
                                 </tar>
 

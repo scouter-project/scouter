@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>1.6.4.SNAPSHOT</version>
+        <version>1.6.4</version>
     </parent>
 
     <artifactId>scouter-common</artifactId>
@@ -46,8 +45,7 @@
                         <configuration>
                             <target>
                                 <mkdir dir="${project.basedir}/../scouter.client/lib" />
-                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                      tofile="${project.basedir}/../scouter.client/lib/scouter.common.jar" />
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar" tofile="${project.basedir}/../scouter.client/lib/scouter.common.jar" />
                             </target>
                         </configuration>
                         <goals>

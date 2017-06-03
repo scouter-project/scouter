@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>1.6.4.SNAPSHOT</version>
+        <version>1.6.4</version>
     </parent>
 
     <artifactId>scouter-agent-java</artifactId>
@@ -183,17 +182,17 @@
                             <target>
                                 <jar destfile="${project.build.directory}/${scouter.http.jar}">
                                     <fileset dir="${project.build.outputDirectory}">
-                                        <include name="scouter/xtra/http/*.class"/>
+                                        <include name="scouter/xtra/http/*.class" />
                                     </fileset>
                                 </jar>
                                 <jar destfile="${project.build.directory}/${scouter.httpclient.jar}">
                                     <fileset dir="${project.build.outputDirectory}">
-                                        <include name="scouter/xtra/httpclient/*.class"/>
+                                        <include name="scouter/xtra/httpclient/*.class" />
                                     </fileset>
                                 </jar>
                                 <jar destfile="${project.build.directory}/${scouter.tools.jar}">
                                     <fileset dir="${project.build.outputDirectory}">
-                                        <include name="scouter/xtra/tools/*.class"/>
+                                        <include name="scouter/xtra/tools/*.class" />
                                     </fileset>
                                 </jar>
                             </target>
@@ -212,17 +211,17 @@
 
                                 <jar destfile="${final.jar.name.xtra}">
                                     <fileset dir="${project.build.directory}">
-                                        <include name="${scouter.http.jar}"/>
-                                        <include name="${scouter.httpclient.jar}"/>
-                                        <include name="${scouter.tools.jar}"/>
+                                        <include name="${scouter.http.jar}" />
+                                        <include name="${scouter.httpclient.jar}" />
+                                        <include name="${scouter.tools.jar}" />
                                     </fileset>
                                     <zipfileset src="${final.jar.name}" />
 
                                     <manifest>
-                                        <attribute name="Premain-Class" value="scouter.agent.JavaAgent"/>
-                                        <attribute name="Agent-Class" value="scouter.agent.JavaAgent"/>
-                                        <attribute name="Can-Redefine-Classes" value="true"/>
-                                        <attribute name="Can-Retransform-Classes" value="true"/>
+                                        <attribute name="Premain-Class" value="scouter.agent.JavaAgent" />
+                                        <attribute name="Agent-Class" value="scouter.agent.JavaAgent" />
+                                        <attribute name="Can-Redefine-Classes" value="true" />
+                                        <attribute name="Can-Retransform-Classes" value="true" />
                                         <attribute name="Boot-Class-Path" value="${project.build.finalName}.jar" />
                                     </manifest>
                                 </jar>
@@ -237,10 +236,10 @@
                                 <jar destfile="${project.build.directory}/${scouter.agent.file.name}">
                                     <zipfileset src="${final.jar.name}" />
                                     <manifest>
-                                        <attribute name="Premain-Class" value="scouter.agent.JavaAgent"/>
-                                        <attribute name="Agent-Class" value="scouter.agent.JavaAgent"/>
-                                        <attribute name="Can-Redefine-Classes" value="true"/>
-                                        <attribute name="Can-Retransform-Classes" value="true"/>
+                                        <attribute name="Premain-Class" value="scouter.agent.JavaAgent" />
+                                        <attribute name="Agent-Class" value="scouter.agent.JavaAgent" />
+                                        <attribute name="Can-Redefine-Classes" value="true" />
+                                        <attribute name="Can-Retransform-Classes" value="true" />
                                         <attribute name="Boot-Class-Path" value="${scouter.agent.file.name}" />
                                     </manifest>
                                 </jar>
@@ -258,14 +257,14 @@
                             <target>
                                 <tar destfile="${project.build.directory}/${scouter.agent.java.assembly.name}.tar">
                                     <tarfileset dir="${project.basedir}">
-                                        <include name="conf/**/*"/>
+                                        <include name="conf/**/*" />
                                     </tarfileset>
                                     <tarfileset dir="${project.basedir}">
-                                        <include name="plugin/**/*"/>
+                                        <include name="plugin/**/*" />
                                     </tarfileset>
                                     <tarfileset dir="${project.build.directory}">
-                                        <include name="${project.build.finalName}.jar"/>
-                                        <include name="${project.build.directory}/${scouter.agent.file.name}"/>
+                                        <include name="${project.build.finalName}.jar" />
+                                        <include name="${project.build.directory}/${scouter.agent.file.name}" />
                                     </tarfileset>
                                 </tar>
                                 <!-- copy for preparing whole packaging -->

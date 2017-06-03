@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>1.6.4.SNAPSHOT</version>
+        <version>1.6.4</version>
     </parent>
 
     <artifactId>scouter-server-boot</artifactId>
@@ -76,9 +75,7 @@
                                         <include name="**/*" />
                                     </fileset>
                                 </copy>
-                                <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh"
-                                         eol="lf"
-                                         eof="remove" />
+                                <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh" eol="lf" eof="remove" />
 
                                 <!--<copy todir="${project.build.directory}/lib">-->
                                     <!--<fileset dir="${project.build.directory}">-->
@@ -87,23 +84,22 @@
                                 <!--</copy>-->
                                 <!--<move file="${project.build.directory}/lib/${scouter.server.boot.library.name}-${project.version}.jar"-->
                                       <!--tofile="${project.build.directory}/${scouter.server.boot.jar}" />-->
-                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                      tofile="${project.build.directory}/${project.artifactId}.jar" />
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar" tofile="${project.build.directory}/${project.artifactId}.jar" />
 
                                 <tar destfile="${project.build.directory}/${scouter.server.assembly.name}.tar">
-                                    <tarfileset dir="${scouter.assembly.working.dir}" mode="755" >
-                                        <include name="**/*.sh"/>
+                                    <tarfileset dir="${scouter.assembly.working.dir}" mode="755">
+                                        <include name="**/*.sh" />
                                     </tarfileset>
-                                    <tarfileset dir="${scouter.assembly.working.dir}" >
-                                        <exclude name="**/*.sh"/>
+                                    <tarfileset dir="${scouter.assembly.working.dir}">
+                                        <exclude name="**/*.sh" />
                                     </tarfileset>
                                     <tarfileset dir="${project.build.directory}">
-                                        <include name="${project.artifactId}.jar"/>
-                                        <include name="lib/*"/>
+                                        <include name="${project.artifactId}.jar" />
+                                        <include name="lib/*" />
                                     </tarfileset>
                                     <tarfileset dir="${project.basedir.assembly.dir}">
-                                        <include name="conf/**/*"/>
-                                        <include name="plugin/**/*"/>
+                                        <include name="conf/**/*" />
+                                        <include name="plugin/**/*" />
                                     </tarfileset>
                                 </tar>
 
