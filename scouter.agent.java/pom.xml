@@ -264,7 +264,7 @@
                                     </tarfileset>
                                     <tarfileset dir="${project.build.directory}">
                                         <include name="${project.build.finalName}.jar" />
-                                        <include name="${project.build.directory}/${scouter.agent.file.name}" />
+                                        <include name="${scouter.agent.file.name}" />
                                     </tarfileset>
                                 </tar>
                                 <!-- copy for preparing whole packaging -->
