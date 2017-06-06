@@ -218,12 +218,12 @@ public class Configure extends Thread {
     public boolean trace_request_queuing_enabled = false;
     @ConfigDesc("the name of server that set request start time")
     public String trace_request_queuing_start_host_header = "X-Request-Start-Host";
-    @ConfigDesc("set request start time")
+    @ConfigDesc("set request start time.\n time format : t=microsecond (or) ts=second.milli")
     public String trace_request_queuing_start_time_header = "X-Request-Start-Time";
 
     @ConfigDesc("the name of server that set the trace_request_queuing_start_2nd_time_header")
     public String trace_request_queuing_start_2nd_host_header = "X-Request-Start-2nd-Host";
-    @ConfigDesc("set request passing time measured by 2nd layered server")
+    @ConfigDesc("set request passing time measured by 2nd layered server.\n time format : t=microsecond (or) ts=second.milli")
     public String trace_request_queuing_start_2nd_time_header = "X-Request-Start-2nd-Time";
 
     @ConfigDesc("")
@@ -806,6 +806,12 @@ public class Configure extends Thread {
         this.trace_webserver_enabled = getBoolean("trace_webserver_enabled", false);
         this.trace_webserver_name_header_key = getValue("trace_webserver_name_header_key", "X-Forwarded-Host");
         this.trace_webserver_time_header_key = getValue("trace_webserver_time_header_key", "X-Forwarded-Time");
+
+        this.trace_request_queuing_enabled = getBoolean("trace_request_queuing_enabled", false);
+        this.trace_request_queuing_start_host_header = getValue("trace_request_queuing_start_host_header", "X-Request-Start-Host");
+        this.trace_request_queuing_start_time_header = getValue("trace_request_queuing_start_time_header", "X-Request-Start-Time");
+        this.trace_request_queuing_start_2nd_host_header = getValue("trace_request_queuing_start_2nd_host_header", "X-Request-Start-2nd-Host");
+        this.trace_request_queuing_start_2nd_time_header = getValue("trace_request_queuing_start_2nd_time_header", "X-Request-Start-2nd-Time");
 
         this.trace_rs_leak_enabled = getBoolean("trace_rs_leak_enabled", false);
         this.trace_stmt_leak_enabled = getBoolean("trace_stmt_leak_enabled", false);

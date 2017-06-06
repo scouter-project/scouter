@@ -117,8 +117,8 @@ public class TraceContext {
 	public String queuingHost;
 	public int queuingTime;
 
-	public String queuingHost2nd;
-	public int queuingTime2nd;
+	public String queuing2ndHost;
+	public int queuing2ndTime;
 
 	public int userTransaction;
 	public IntKeyMap<String> unclosedRsMap = new IntKeyMap<String>();
