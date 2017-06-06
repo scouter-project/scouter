@@ -397,12 +397,12 @@ public class Configure extends Thread {
     public String hook_jdbc_wrapping_driver_patterns = "";
     @ConfigDesc("Exception class patterns - These will seem as error on xlog view. (ex) my.app.BizException,my.app.exception.*Exception")
     public String hook_exception_class_patterns = "";
-    @ConfigDesc("Exception class exlude patterns")
-    public String hook_exception_exlude_class_patterns = "";
+    @ConfigDesc("Exception class exclude patterns")
+    public String hook_exception_exclude_class_patterns = "";
     @ConfigDesc("Exception handler patterns - exceptions passed to these methods are treated as error on xlog view. (ex) my.app.myHandler.handleException")
     public String hook_exception_handler_method_patterns = "";
     @ConfigDesc("Exception handler exclude class name patterns(can not include star-* in patterns)\n - (ex) my.app.MyManagedException,MyBizException")
-    public String hook_exception_hanlder_exclude_class_patterns = "";
+    public String hook_exception_handler_exclude_class_patterns = "";
 
     @ConfigDesc("Hook for supporting async servlet")
     public boolean hook_async_servlet_enabled = true;
@@ -421,7 +421,7 @@ public class Configure extends Thread {
     @ConfigDesc("scanning range prefixes for hooking callable, runnable implementations and lambda expressions. usually your application package. 2 or more packages can be separated by commas.")
     public String hook_async_callrunnable_scan_package_prefixes = "";
 
-    @ConfigDesc("enable lambda expressioned class hook for detecting asyncronous processing. Only classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
+    @ConfigDesc("Experimental! test it on staging environment of your system before enable this option. \nenable lambda expressioned class hook for detecting asyncronous processing. \nOnly classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
     public boolean hook_lambda_instrumentation_strategy_enabled = false;
 
     @ConfigDesc("")
@@ -713,9 +713,17 @@ public class Configure extends Thread {
         this.hook_jdbc_rs_classes = getValue("hook_jdbc_rs_classes", "");
         this.hook_jdbc_wrapping_driver_patterns = getValue("hook_jdbc_wrapping_driver_patterns", "");
         this.hook_exception_class_patterns = getValue("hook_exception_class_patterns", "");
-        this.hook_exception_exlude_class_patterns = getValue("hook_exception_exlude_class_patterns", "");
+        this.hook_exception_exclude_class_patterns = getValue("hook_exception_exclude_class_patterns", "");
+        if(StringUtil.isEmpty(this.hook_exception_exclude_class_patterns)) {
+            //recover of previous version typo
+            this.hook_exception_exclude_class_patterns = getValue("hook_exception_exlude_class_patterns", "");
+        }
         this.hook_exception_handler_method_patterns = getValue("hook_exception_handler_method_patterns", "");
-        this.hook_exception_hanlder_exclude_class_patterns = getValue("hook_exception_hanlder_exclude_class_patterns", "");
+        this.hook_exception_handler_exclude_class_patterns = getValue("hook_exception_handler_exclude_class_patterns", "");
+        if(StringUtil.isEmpty(this.hook_exception_handler_exclude_class_patterns)) {
+            //recover of previous version typo
+            this.hook_exception_handler_exclude_class_patterns = getValue("hook_exception_hanlder_exclude_class_patterns", "");
+        }
 
         this.hook_async_servlet_enabled = getBoolean("_hook_async_servlet_enabled", true);
 
