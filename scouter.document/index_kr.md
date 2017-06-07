@@ -43,5 +43,5 @@
 - [SCOUTER includes](./main/SCOUTER-includes.md)
 
 ## Page Helps
-- [XLog View](./views/XLog-View.md)
-- [XLog Profile View](./views/XLog-Profile-View.md)
+- [XLog View](./views/XLog-View_kr.md)
+- [XLog Profile View](./views/XLog-Profile-View_kr.md)
