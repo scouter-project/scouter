@@ -22,6 +22,6 @@ Search       | search XLog data by xlog-id(txid), url pattern, ip ...
 
 Help          |        Description
 ------------ | --------------
-[XLog Profile View](../XLog-Profile-View_kr.md) | about XLog profile view
+[XLog Profile View](./XLog-Profile-View_kr.md) | about XLog profile view
 [Reading XLog Chart](../client/Reading-XLog_kr.md) | How to read XLog chart
  

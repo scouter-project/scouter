@@ -12,5 +12,5 @@ Save full profile           | save full profile to the workspace and you can reo
 
 Help          |        Description
 ------------ | --------------
-[XLog View](../XLog-View.md) | about XLog view
+[XLog View](./XLog-View.md) | about XLog view
 [Reading XLog Chart](../client/Reading-XLog_kr.md) | How to read XLog chart

@@ -41,3 +41,7 @@
 
 ## MISC
 - [SCOUTER includes](./main/SCOUTER-includes.md)
+
+## Page Helps
+- [XLog View](./views/XLog-View.md)
+- [XLog Profile View](./views/XLog-Profile-View.md)
