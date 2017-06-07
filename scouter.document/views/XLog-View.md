@@ -24,4 +24,4 @@ Help          |        Description
 ------------ | --------------
 [XLog Profile View](./XLog-Profile-View.md) | about XLog profile view
 [Reading XLog Chart](../client/Reading-XLog.md) | How to read XLog chart
- 
+[How to use Client](../client/How-To-Use-Client.md) | Scouter client basic

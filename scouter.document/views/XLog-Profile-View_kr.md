@@ -12,3 +12,4 @@ Help          |        Description
 ------------ | --------------
 [XLog View](./XLog-View_kr.md) | about XLog view
 [Reading XLog Chart](../client/Reading-XLog_kr.md) | How to read XLog chart
+[How to use Client](../client/How-To-Use-Client_kr.md) | Scouter client basic
