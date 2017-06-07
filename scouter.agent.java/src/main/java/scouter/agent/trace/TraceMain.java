@@ -399,6 +399,7 @@ public class TraceMain {
             pack.sqlTime = ctx.sqlTime;
             pack.ipaddr = IPUtil.toBytes(ctx.remoteIp);
             pack.userid = ctx.userid;
+
             if(ctx.hasDumpStack) {
                 pack.hasDump = 1;
             } else {
@@ -464,6 +465,14 @@ public class TraceMain {
             if (ctx.web_name != null) {
                 pack.webHash = DataProxy.sendWebName(ctx.web_name);
                 pack.webTime = ctx.web_time;
+            }
+            if (ctx.queuingHost != null) {
+                pack.queuingHostHash = DataProxy.sendWebName(ctx.queuingHost);
+                pack.queuingTime = ctx.queuingTime;
+            }
+            if (ctx.queuing2ndHost != null) {
+                pack.queuing2ndHostHash = DataProxy.sendWebName(ctx.queuing2ndHost);
+                pack.queuing2ndTime = ctx.queuing2ndTime;
             }
             pack.text1 = ctx.text1;
             pack.text2 = ctx.text2;
