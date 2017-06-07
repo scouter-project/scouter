@@ -17,17 +17,6 @@
 
 package scouter.agent.counter.task;
 
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.ObjTypeDetector;
@@ -43,6 +32,11 @@ import scouter.lang.value.ValueEnum;
 import scouter.util.CastUtil;
 import scouter.util.HashUtil;
 import scouter.util.StringUtil;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import java.lang.management.ManagementFactory;
+import java.util.*;
 
 public class JBossJMXPerf {
 
@@ -101,14 +95,14 @@ public class JBossJMXPerf {
 	}
 
 	private List<MBeanServer> servers;
-
 	List<MBeanObj> beanList = new ArrayList<MBeanObj>();
-
 	public long collectCnt = 0;
 
 	@Counter
 	public void process(CounterBasket pw) {
-		if (CounterConstants.JBOSS.equals(ObjTypeDetector.objType) == false || conf.jmx_counter_enabled == false) {
+		if (conf.jmx_counter_enabled == false ||
+				(CounterConstants.JBOSS.equals(ObjTypeDetector.objType) == false
+						&& CounterConstants.JBOSS.equals(ObjTypeDetector.drivedType) == false)) {
 			return;
 		}
 

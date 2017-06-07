@@ -81,14 +81,19 @@ public class TomcatJMXPerf {
 			return false;
 		}
 	}
+
 	private MBeanServer server;
 	List<MBeanObj> beanList = new ArrayList<MBeanObj>();
 	public long collectCnt = 0;
+
 	@Counter
 	public void process(CounterBasket pw) {
-		if (CounterConstants.TOMCAT.equals(ObjTypeDetector.objType) == false || conf.jmx_counter_enabled == false) {
+		if (conf.jmx_counter_enabled == false ||
+				(CounterConstants.TOMCAT.equals(ObjTypeDetector.objType) == false
+						&& CounterConstants.TOMCAT.equals(ObjTypeDetector.drivedType) == false)) {
 			return;
 		}
+
 		getMBeanServer();
 		if ((collectCnt <= 40 && collectCnt % 5 == 0) || ObjTypeDetector.dirtyConfig) {
 			if (ObjTypeDetector.dirtyConfig) {
