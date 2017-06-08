@@ -33,7 +33,6 @@ SCOUTER는 오픈소스 APM 도구로서 Java, WAS에 대한 모니터링 모니
 ## Documents
  - [Document Home](./scouter.document/index_kr.md)
  - [Quick Start(Scouter Demo 설치)](./scouter.document/main/Quick-Start_kr.md)
- - [Live Demo(제공되는 Demo 시스템 바로 접속해 보기)](./scouter.document/main/Live-Demo_kr.md)
  - [Client 화면 설명](./scouter.document/client/How-To-Use-Client_kr.md)
 
 ## Download

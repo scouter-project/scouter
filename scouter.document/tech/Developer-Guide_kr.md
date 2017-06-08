@@ -1,7 +1,24 @@
 # Scouter Developer Guide
 [![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Developer-Guide.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Developer-Guide_kr.md)
 
-* This document is deprecated. You can import scouter project as maven project.
+## You can import scouter project as maven project.
+
+* build
+  - server & agent : ```mvn clean package```
+  - client : ```mvn -f ./scouter.client.build/pom.xml clean package ```
+
+* import project to the IDE
+  - Scouter project : import maven project using the parent pom.
+  - Scouter client project (for Eclipse Neon+)
+    - build server & agent first then it makes scouter.common.jar and register it for client project library.
+    - use "import existing maven project"
+       - select the directory, ./scouter.client.build/pom.xml (It's parent pom)
+    - If your eclipse doesn't have ZEST plugin, you should install it.
+       - Help > Install New Software : Work with : http://download.eclipse.org/tools/gef/updates/releases/
+         - And then install GEF(Graphical Editing Framework)
+
+
+**contents below are deprecated.**
  
 본 문서에서는 Eclipse 기반의 Scouter 개발 및 빌드환경 구성을 가이드한다. 
 
