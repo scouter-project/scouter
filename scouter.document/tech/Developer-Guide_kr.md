@@ -18,7 +18,7 @@
          - And then install GEF(Graphical Editing Framework)
 
 
-**contents below are deprecated.**
+# contents below are deprecated.
  
 본 문서에서는 Eclipse 기반의 Scouter 개발 및 빌드환경 구성을 가이드한다. 
 

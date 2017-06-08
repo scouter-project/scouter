@@ -18,7 +18,7 @@
          - And then install GEF(Graphical Editing Framework)
 
 
-**contents below are deprecated.**
+# contents below are deprecated.
 
 ## Git Fork
 * browse https://github.com/scouter-project/scouter and fork it.
