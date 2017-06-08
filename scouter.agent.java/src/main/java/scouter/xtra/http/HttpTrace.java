@@ -212,6 +212,7 @@ public class HttpTrace implements IHttpTrace {
             }
         }
 
+        //deprecated !
         if (conf.trace_webserver_enabled) {
             try {
                 ctx.web_name = request.getHeader(conf.trace_webserver_name_header_key);
@@ -225,6 +226,46 @@ public class HttpTrace implements IHttpTrace {
                             web_time = web_time.substring(0, x);
                         }
                         ctx.web_time = (int) (System.currentTimeMillis() - (Long.parseLong(web_time) / 1000));
+                    }
+                }
+            } catch (Throwable t) {
+            }
+        }
+
+        //check queuing from front proxy
+        if (conf.trace_request_queuing_enabled) {
+            try {
+                ctx.queuingHost = request.getHeader(conf.trace_request_queuing_start_host_header);
+                String startTime = request.getHeader(conf.trace_request_queuing_start_time_header);
+                if (startTime != null) {
+                    int t = startTime.indexOf("t=");
+                    int ts = startTime.indexOf("ts=");
+                    long startMillis = 0l;
+                    if (t >= 0) {
+                        startMillis = Long.parseLong(startTime.substring(t + 2).trim())/1000;
+                    } else if (ts >= 0) {
+                        startMillis = Long.parseLong(startTime.substring(ts + 3).replace(".", ""));
+                    }
+
+                    if (startMillis > 0) {
+                        ctx.queuingTime = (int) (System.currentTimeMillis() - startMillis);
+                    }
+                }
+
+                ctx.queuing2ndHost = request.getHeader(conf.trace_request_queuing_start_2nd_host_header);
+                startTime = request.getHeader(conf.trace_request_queuing_start_2nd_time_header);
+                if (startTime != null) {
+                    int t = startTime.indexOf("t=");
+                    int ts = startTime.indexOf("ts=");
+                    long startMillis = 0l;
+                    if (t >= 0) {
+                        startMillis = Long.parseLong(startTime.substring(t + 2).trim())/1000;
+                    } else if (ts >= 0) {
+                        startMillis = Long.parseLong(startTime.substring(ts + 3).replace(".", ""));
+                    }
+
+                    if (startMillis > 0) {
+                        ctx.queuing2ndTime = (int) (System.currentTimeMillis() - startMillis);
                     }
                 }
             } catch (Throwable t) {

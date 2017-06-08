@@ -100,6 +100,8 @@ public class Images {
 	public static final Image scouter_48 = Activator.getImage("icons/h48.png");
 	
 	public static final Image CONFIG_USER  = Activator.getImage("icons/user.png");
+
+	public static final Image help  = Activator.getImage("icons/help.png");
 	
 	// icons for actions
 	public static final Image thread         = Activator.getImage("icons/thread.png");

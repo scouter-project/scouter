@@ -137,10 +137,12 @@ public class XLogPack implements Pack {
 	/**
 	 * WebServer object ID
 	 */
+	@Deprecated
 	public int webHash; // WEB서버의 ObjectHash
 	/**
 	 * WebServer -> WAS time(ms)
 	 */
+	@Deprecated
 	public int webTime; // WEB서버 --> WAS 시작 시점까지의 시간
 	/**
 	 * has Thread Dump ? No:0, Yes:1
@@ -152,6 +154,14 @@ public class XLogPack implements Pack {
 	 */
 	public String text1;
 	public String text2;
+
+	/**
+	 * queuing host and time
+	 */
+	public int queuingHostHash;
+	public int queuingTime;
+	public int queuing2ndHostHash;
+	public int queuing2ndTime;
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -211,6 +221,11 @@ public class XLogPack implements Pack {
 		o.writeText(text1);
 		o.writeText(text2);
 
+		o.writeDecimal(queuingHostHash);
+		o.writeDecimal(queuingTime);
+		o.writeDecimal(queuing2ndHostHash);
+		o.writeDecimal(queuing2ndTime);
+
 		out.writeBlob(o.toByteArray());
 	}
 
@@ -258,14 +273,21 @@ public class XLogPack implements Pack {
 		}
 
 		if (d.available() >0) {
-			this.threadNameHash = (int)d.readDecimal();
+			this.threadNameHash = (int) d.readDecimal();
 		}
 
 		if (d.available() >0) {
 			this.text1 = d.readText();
 			this.text2 = d.readText();
 		}
-	
+
+		if (d.available() >0) {
+			this.queuingHostHash = (int) d.readDecimal();
+			this.queuingTime = (int) d.readDecimal();
+			this.queuing2ndHostHash = (int) d.readDecimal();
+			this.queuing2ndTime = (int) d.readDecimal();
+		}
+
 		return this;
 	}
 

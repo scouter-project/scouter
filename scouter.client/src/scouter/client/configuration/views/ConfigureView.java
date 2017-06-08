@@ -17,26 +17,12 @@
  */
 package scouter.client.configuration.views;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -44,46 +30,32 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.sorter.ColumnLabelSorter;
-import scouter.client.util.ColoringWord;
-import scouter.client.util.ConsoleProxy;
-import scouter.client.util.CustomLineStyleListener;
-import scouter.client.util.ExUtil;
-import scouter.client.util.ImageUtil;
+import scouter.client.util.*;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 public class ConfigureView extends ViewPart {
 	public final static String ID = ConfigureView.class.getName();
@@ -103,7 +75,7 @@ public class ConfigureView extends ViewPart {
 	TableColumnLayout tableColumnLayout;
 	
 	private Clipboard clipboard = new Clipboard(null);
-	
+
 	CustomLineStyleListener listener;
 	
 	boolean devMode;
@@ -117,7 +89,17 @@ public class ConfigureView extends ViewPart {
 		initialStyledText(sashForm);
 		listComp = new Composite(sashForm, SWT.NONE);
 		listComp.setLayout(new GridLayout(1, true));
-		searchTxt = new Text(listComp, SWT.BORDER);
+		
+		Composite searchComp = new Composite(listComp, SWT.NONE);
+		searchComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		
+		searchComp.setLayout(new GridLayout(2, false));
+		
+		Label searchLabel = new Label(searchComp, SWT.BORDER);
+		searchLabel.setText("Filter : ");
+		searchTxt = new Text(searchComp, SWT.BORDER);
+		
+//		searchTxt = new Text(listComp, SWT.BORDER);
 		searchTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		searchTxt.setToolTipText("Search Key/Value");
 		searchTxt.addMouseListener(new MouseListener() {
@@ -153,6 +135,7 @@ public class ConfigureView extends ViewPart {
 				}
 			}
 		});
+
 		Composite tableComp = new Composite(listComp, SWT.NONE);
 		tableComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tableColumnLayout = new TableColumnLayout();
@@ -166,7 +149,8 @@ public class ConfigureView extends ViewPart {
 	    viewer.setComparator(new ColumnLabelSorter(viewer));
 	    viewer.addFilter(filter);
 	    final DefaultToolTip toolTip = new DefaultToolTip(table, DefaultToolTip.RECREATE, true);
-		toolTip.setFont(new Font(null, "Arial", 10, SWT.BOLD));
+		toolTip.setFont(new Font(null, "Arial", 11, SWT.BOLD));
+		//toolTip.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		toolTip.setBackgroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 	    table.addMouseListener(new MouseListener() {
 			public void mouseUp(MouseEvent e) {
@@ -195,7 +179,12 @@ public class ConfigureView extends ViewPart {
 					if(configText == null || configText.indexOf(confObject.key) >=0 ){
 						return;
 					}
-					text.setText(configText + "\n" + confObject.key + "=");
+					String desc = descMap.get(confObject.key);
+					if(StringUtil.isNotEmpty(desc)) {
+						desc = desc.replace("\n", "\n#");
+						text.setText(configText + "\n\n" + "#" + desc);
+					}
+					text.setText(text.getText() + "\n" + confObject.key + "=" + confObject.value);
 				}				
 			}
 		});
@@ -210,6 +199,10 @@ public class ConfigureView extends ViewPart {
 						}
 						StringBuffer sb = new StringBuffer();
 						for (TableItem item : items) {
+							String desc = descMap.get(item.getText(0));
+							if(StringUtil.isNotEmpty(desc)) {
+								sb.append("#").append(desc.replace("\n", "\n#")).append("\n");
+							}
 							sb.append(item.getText(0));
 							sb.append("=");
 							sb.append(item.getText(1));
@@ -220,6 +213,16 @@ public class ConfigureView extends ViewPart {
 				}
 			}
 		});
+
+		Label bottomLabel = new Label(listComp, SWT.BORDER);
+		bottomLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		bottomLabel.setFont(new Font(null, "Arial", 10, SWT.BOLD));
+		
+		bottomLabel.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+		bottomLabel.setText(new StringBuilder("Why not do click or double-click?\n")
+				.append(" - click for tooltip\n")
+				.append(" - dbl-click for copy && paste (or ctl+C)")
+				.toString());
 				
 		sashForm.setWeights(new int[] {1, 1});
 		sashForm.setMaximizedControl(null);

@@ -35,7 +35,7 @@ public class AbstractPlugin {
 		return invokeMethod(o, methodName, objs);
 	}
 
-	public static Object invokeMethod(Object o, String methodName, Object... args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+	public static Object invokeMethod(Object o, String methodName, Object[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		int argsSize = args.length;
 		StringBuilder signature = new StringBuilder(o.getClass().getName()).append(":").append(methodName).append("():");
 
@@ -43,11 +43,21 @@ public class AbstractPlugin {
 
 		for(int i=0; i<argsSize; i++) {
 			argClazzes[i] = args[i].getClass();
-			signature.append(argClazzes[i].getName()).append("+");
+		}
+
+		return invokeMethod(o, methodName, argClazzes, args);
+	}
+
+	public static Object invokeMethod(Object o, String methodName, Class[] argTypes, Object[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+		int argsSize = args.length;
+		StringBuilder signature = new StringBuilder(o.getClass().getName()).append(":").append(methodName).append("():");
+
+		for(int i=0; i<argsSize; i++) {
+			signature.append(argTypes[i].getName()).append("+");
 		}
 		Method m = (Method) reflCache.get(signature.toString());
 		if(m == null) {
-			m = o.getClass().getMethod(methodName, argClazzes);
+			m = o.getClass().getMethod(methodName, argTypes);
 			reflCache.put(signature.toString(), m);
 		}
 		return m.invoke(o, args);
@@ -62,25 +72,35 @@ public class AbstractPlugin {
 		return newInstance(className, loader, objs);
 	}
 
-	public static Object newInstance(String className, Object... args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+	public static Object newInstance(String className, Object[] args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 		return newInstance(className, Thread.currentThread().getContextClassLoader(), args);
 	}
 
-	public static Object newInstance(String className, ClassLoader loader, Object... args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+	public static Object newInstance(String className, ClassLoader loader, Object[] args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 		int argsSize = args.length;
 		Class[] argClazzes = new Class[argsSize];
-		StringBuilder signature = new StringBuilder(className).append(":<init>:");
 
 		for(int i=0; i<argsSize; i++) {
 			argClazzes[i] = args[i].getClass();
-			signature.append(argClazzes[i].getName()).append("+");
+		}
+
+		return newInstance(className, loader, argClazzes, args);
+	}
+
+	public static Object newInstance(String className, ClassLoader loader, Class[] argTypes, Object[] args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+		int argsSize = args.length;
+
+		StringBuilder signature = new StringBuilder(className).append(":<init>:");
+
+		for(int i=0; i<argsSize; i++) {
+			signature.append(argTypes[i].getName()).append("+");
 		}
 
 		Class clazz = Class.forName(className, true, loader);
 		Constructor constructor = (Constructor)reflCache.get(signature.toString());
 
 		if(constructor == null) {
-			constructor = clazz.getConstructor(argClazzes);
+			constructor = clazz.getConstructor(argTypes);
 			reflCache.put(signature.toString(), constructor);
 		}
 
@@ -235,5 +255,157 @@ public class AbstractPlugin {
 			ctx.inner().caller = id.caller;
 		}
 		ctx.inner().xType = id.xType;
+	}
+
+	public static Class[] makeArgTypes(Class class0) {
+		Class[] classes = new Class[1];
+		classes[0] = class0;
+		return classes;
+	}
+
+	public static Class[] makeArgTypes(Class class0, Class class1) {
+		Class[] classes = new Class[2];
+		classes[0] = class0;
+		classes[1] = class1;
+		return classes;
+	}
+
+	public static Class[] makeArgTypes(Class class0, Class class1, Class class2) {
+		Class[] classes = new Class[3];
+		classes[0] = class0;
+		classes[1] = class1;
+		classes[2] = class2;
+		return classes;
+	}
+
+	public static Class[] makeArgTypes(Class class0, Class class1, Class class2, Class class3) {
+		Class[] classes = new Class[4];
+		classes[0] = class0;
+		classes[1] = class1;
+		classes[2] = class2;
+		classes[3] = class3;
+		return classes;
+	}
+
+	public static Class[] makeArgTypes(Class class0, Class class1, Class class2, Class class3, Class class4) {
+		Class[] classes = new Class[5];
+		classes[0] = class0;
+		classes[1] = class1;
+		classes[2] = class2;
+		classes[3] = class3;
+		classes[4] = class4;
+		return classes;
+	}
+
+	public static Class[] makeArgTypes(Class class0, Class class1, Class class2, Class class3, Class class4, Class class5) {
+		Class[] classes = new Class[6];
+		classes[0] = class0;
+		classes[1] = class1;
+		classes[2] = class2;
+		classes[3] = class3;
+		classes[4] = class4;
+		classes[5] = class5;
+		return classes;
+	}
+
+	public static Class[] makeArgTypes(Class class0, Class class1, Class class2, Class class3, Class class4, Class class5, Class class6) {
+		Class[] classes = new Class[7];
+		classes[0] = class0;
+		classes[1] = class1;
+		classes[2] = class2;
+		classes[3] = class3;
+		classes[4] = class4;
+		classes[5] = class5;
+		classes[6] = class6;
+		return classes;
+	}
+
+	public static Class[] makeArgTypes(Class class0, Class class1, Class class2, Class class3, Class class4, Class class5, Class class6, Class class7) {
+		Class[] classes = new Class[8];
+		classes[0] = class0;
+		classes[1] = class1;
+		classes[2] = class2;
+		classes[3] = class3;
+		classes[4] = class4;
+		classes[5] = class5;
+		classes[6] = class6;
+		classes[7] = class7;
+		return classes;
+	}
+
+	public static Object[] makeArgs(Object object0) {
+		Object[] objects = new Object[1];
+		objects[0] = object0;
+		return objects;
+	}
+
+	public static Object[] makeArgs(Object object0, Object object1) {
+		Object[] objects = new Object[2];
+		objects[0] = object0;
+		objects[1] = object1;
+		return objects;
+	}
+
+	public static Object[] makeArgs(Object object0, Object object1, Object object2) {
+		Object[] objects = new Object[3];
+		objects[0] = object0;
+		objects[1] = object1;
+		objects[2] = object2;
+		return objects;
+	}
+
+	public static Object[] makeArgs(Object object0, Object object1, Object object2, Object object3) {
+		Object[] objects = new Object[4];
+		objects[0] = object0;
+		objects[1] = object1;
+		objects[2] = object2;
+		objects[3] = object3;
+		return objects;
+	}
+
+	public static Object[] makeArgs(Object object0, Object object1, Object object2, Object object3, Object object4) {
+		Object[] objects = new Object[5];
+		objects[0] = object0;
+		objects[1] = object1;
+		objects[2] = object2;
+		objects[3] = object3;
+		objects[4] = object4;
+		return objects;
+	}
+
+	public static Object[] makeArgs(Object object0, Object object1, Object object2, Object object3, Object object4, Object object5) {
+		Object[] objects = new Object[6];
+		objects[0] = object0;
+		objects[1] = object1;
+		objects[2] = object2;
+		objects[3] = object3;
+		objects[4] = object4;
+		objects[5] = object5;
+		return objects;
+	}
+
+	public static Object[] makeArgs(Object object0, Object object1, Object object2, Object object3, Object object4, Object object5, Object object6) {
+		Object[] objects = new Object[7];
+		objects[0] = object0;
+		objects[1] = object1;
+		objects[2] = object2;
+		objects[3] = object3;
+		objects[4] = object4;
+		objects[5] = object5;
+		objects[6] = object6;
+		return objects;
+	}
+
+	public static Object[] makeArgs(Object object0, Object object1, Object object2, Object object3, Object object4, Object object5, Object object6, Object object7) {
+		Object[] objects = new Object[8];
+		objects[0] = object0;
+		objects[1] = object1;
+		objects[2] = object2;
+		objects[3] = object3;
+		objects[4] = object4;
+		objects[5] = object5;
+		objects[6] = object6;
+		objects[7] = object7;
+		return objects;
 	}
 }

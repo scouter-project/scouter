@@ -1,17 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.github.scouter-project</groupId>
+        <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>100.0.0</version>
+        <version>1.7.0</version>
     </parent>
 
     <artifactId>scouter-deploy</artifactId>
     <packaging>jar</packaging>
     <name>scouter.deploy</name>
-    <version>${scouter.version}</version>
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
@@ -27,24 +25,24 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.scouter-project</groupId>
+            <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-agent-java</artifactId>
-            <version>${scouter.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.scouter-project</groupId>
+            <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-agent-batch</artifactId>
-            <version>${scouter.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.scouter-project</groupId>
+            <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-agent-host</artifactId>
-            <version>${scouter.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.scouter-project</groupId>
+            <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-server</artifactId>
-            <version>${scouter.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
@@ -61,26 +59,22 @@
                         <configuration>
                             <target>
                                 <mkdir dir="${scouter.assembly.dir}" />
-                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.host.assembly.name}.tar"
-                                       dest="${scouter.assembly.agent.host.dir}"/>
-                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.java.assembly.name}.tar"
-                                       dest="${scouter.assembly.agent.java.dir}"/>
-                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.batch.assembly.name}.tar"
-                                       dest="${scouter.assembly.agent.batch.dir}"/>
-                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.server.assembly.name}.tar"
-                                       dest="${scouter.assembly.server.dir}"/>
+                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.host.assembly.name}.tar" dest="${scouter.assembly.agent.host.dir}" />
+                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.java.assembly.name}.tar" dest="${scouter.assembly.agent.java.dir}" />
+                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.batch.assembly.name}.tar" dest="${scouter.assembly.agent.batch.dir}" />
+                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.server.assembly.name}.tar" dest="${scouter.assembly.server.dir}" />
 
                                 <tar destfile="${project.build.directory}/${scouter.product.name}.tar">
-                                    <tarfileset dir="${scouter.assembly.dir}" mode="755" >
-                                        <include name="**/*.sh"/>
+                                    <tarfileset dir="${scouter.assembly.dir}" mode="755">
+                                        <include name="**/*.sh" />
                                     </tarfileset>
                                     <tarfileset dir="${scouter.assembly.dir}">
-                                        <exclude name="**/*.sh"/>
+                                        <exclude name="**/*.sh" />
                                     </tarfileset>
                                 </tar>
-                                <gzip src="${project.build.directory}/${scouter.product.name}.tar" destfile="${project.build.directory}/${scouter.product.name}.tar.gz"/>
-                                <delete file="${project.build.directory}/${scouter.product.name}.tar"/>
-                                <delete file="${project.build.directory}/${project.build.finalName}.jar"/>
+                                <gzip src="${project.build.directory}/${scouter.product.name}.tar" destfile="${project.build.directory}/${scouter.product.name}.tar.gz" />
+                                <delete file="${project.build.directory}/${scouter.product.name}.tar" />
+                                <delete file="${project.build.directory}/${project.build.finalName}.jar" />
                             </target>
                         </configuration>
                         <goals>

@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Scouter version class
+ */
 public class Version {
 
 	/*
@@ -30,7 +33,10 @@ public class Version {
 	 * SERVER_BUILD = 1.0.0 CLIENT_VERSION = 20140523 CLIENT_BUILD = 1.0.0
 	 */
 
-	// -- AGENT --
+	/**
+	 * AGENT
+	 * @return
+	 */
 	public static String getVersion() {
 		Properties properties = getProperties();
 		if (properties != null) {

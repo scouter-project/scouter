@@ -109,8 +109,16 @@ public class TraceContext {
 	public String text1;
 	public String text2;
 
+	@Deprecated
 	public String web_name;
+	@Deprecated
 	public int web_time;
+
+	public String queuingHost;
+	public int queuingTime;
+
+	public String queuing2ndHost;
+	public int queuing2ndTime;
 
 	public int userTransaction;
 	public IntKeyMap<String> unclosedRsMap = new IntKeyMap<String>();

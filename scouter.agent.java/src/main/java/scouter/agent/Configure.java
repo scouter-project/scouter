@@ -206,12 +206,29 @@ public class Configure extends Thread {
     public boolean _trace_auto_service_backstack_enabled = true;
     @ConfigDesc("Activating trace DB2")
     public boolean trace_db2_enabled = true;
-    @ConfigDesc("")
+
+    @Deprecated
+    @ConfigDesc("Deprecated!")
     public boolean trace_webserver_enabled = false;
-    @ConfigDesc("Webserver name header key")
+    @Deprecated
+    @ConfigDesc("Deprecated!")
     public String trace_webserver_name_header_key = "X-Forwarded-Host";
-    @ConfigDesc("Webserver time header key")
+    @Deprecated
+    @ConfigDesc("Deprecated!")
     public String trace_webserver_time_header_key = "X-Forwarded-Time";
+
+    @ConfigDesc("measure queuing time from load balancer, reverse proxy, web server...\n if set, you can open Queuing Time view.")
+    public boolean trace_request_queuing_enabled = false;
+    @ConfigDesc("the name of server that set request start time")
+    public String trace_request_queuing_start_host_header = "X-Request-Start-Host";
+    @ConfigDesc("set request start time.\n - time format : t=microsecond (or) ts=second.milli")
+    public String trace_request_queuing_start_time_header = "X-Request-Start-Time";
+
+    @ConfigDesc("the name of server that set the trace_request_queuing_start_2nd_time_header")
+    public String trace_request_queuing_start_2nd_host_header = "X-Request-Start-2nd-Host";
+    @ConfigDesc("set request passing time measured by 2nd layered server.\n - time format : t=microsecond (or) ts=second.milli")
+    public String trace_request_queuing_start_2nd_time_header = "X-Request-Start-2nd-Time";
+
     @ConfigDesc("")
     public int _trace_fullstack_socket_open_port = 0;
     @ConfigDesc("")
@@ -265,17 +282,24 @@ public class Configure extends Thread {
     public int autodump_cpu_exceeded_dump_cnt = 3;
 
     //XLog
-    @ConfigDesc("XLog Ignore Time - (deprecated) for backward compatibility. Use xlog_sampling_xxx options instead")
+    @Deprecated
+    @ConfigDesc("(deprecated) XLog Ignore Time\n - for backward compatibility. Use xlog_sampling_xxx options instead")
     public int xlog_lower_bound_time_ms = 0;
+
+    //XLog error marking
     @ConfigDesc("Leave an error message at XLog in case of over fetching. (fetch count)")
     public int xlog_error_jdbc_fetch_max = 10000;
     @ConfigDesc("Leave an error message at XLog in case of over timing query. (ms)")
     public int xlog_error_sql_time_max_ms = 30000;
     @ConfigDesc("Leave an error message at XLog when UserTransaction's begin/end unpaired")
     public boolean xlog_error_check_user_transaction_enabled = true;
+    @ConfigDesc("mark as error on xlog flag if SqlException is occured.")
+    public boolean xlog_error_on_sqlexception_enabled = true;
+    @ConfigDesc("mark as error on xlog flag if Api call errors are occured.")
+    public boolean xlog_error_on_apicall_exception_enabled = true;
 
     //XLog hard sampling options
-    @ConfigDesc("XLog hard sampling mode enabled - for the best performance but it affects all statistics data")
+    @ConfigDesc("XLog hard sampling mode enabled\n - for the best performance but it affects all statistics data")
     public boolean _xlog_hard_sampling_enabled = false;
     @ConfigDesc("XLog hard sampling rate(%) - discard data over the percentage")
     public int _xlog_hard_sampling_rate_pct = 10;
@@ -375,14 +399,14 @@ public class Configure extends Thread {
     public String hook_jdbc_rs_classes = "";
     @ConfigDesc("Method set for dbconnection wrapping")
     public String hook_jdbc_wrapping_driver_patterns = "";
-    @ConfigDesc("Exception class patterns - These will seem as error on xlog view. (ex) my.app.BizException,my.app.exception.*Exception")
+    @ConfigDesc("Exception class patterns - These will seem as error on xlog view.\n (ex) my.app.BizException,my.app.exception.*Exception")
     public String hook_exception_class_patterns = "";
-    @ConfigDesc("Exception class exlude patterns")
-    public String hook_exception_exlude_class_patterns = "";
-    @ConfigDesc("Exception handler patterns - exceptions passed to these methods are treated as error on xlog view. (ex) my.app.myHandler.handleException")
+    @ConfigDesc("Exception class exclude patterns")
+    public String hook_exception_exclude_class_patterns = "";
+    @ConfigDesc("Exception handler patterns\n - exceptions passed to these methods are treated as error on xlog view.\n   (ex) my.app.myHandler.handleException")
     public String hook_exception_handler_method_patterns = "";
     @ConfigDesc("Exception handler exclude class name patterns(can not include star-* in patterns)\n - (ex) my.app.MyManagedException,MyBizException")
-    public String hook_exception_hanlder_exclude_class_patterns = "";
+    public String hook_exception_handler_exclude_class_patterns = "";
 
     @ConfigDesc("Hook for supporting async servlet")
     public boolean hook_async_servlet_enabled = true;
@@ -396,12 +420,12 @@ public class Configure extends Thread {
     @ConfigDesc("spring async execution hook enabled")
     public boolean hook_spring_async_enabled = true;
 
-    @ConfigDesc("Hook callable and runnable for tracing async processing. \nIt hook only 'hook_async_callrunnable_scan_prefixes' option contains pacakage or classes")
+    @ConfigDesc("Hook callable and runnable for tracing async processing.\n It hook only 'hook_async_callrunnable_scan_prefixes' option contains pacakage or classes")
     public boolean hook_async_callrunnable_enable = true;
-    @ConfigDesc("scanning range prefixes for hooking callable, runnable implementations and lambda expressions. usually your application package. 2 or more packages can be separated by commas.")
+    @ConfigDesc("scanning range prefixes for hooking callable, runnable implementations and lambda expressions.\n usually your application package.\n 2 or more packages can be separated by commas.")
     public String hook_async_callrunnable_scan_package_prefixes = "";
 
-    @ConfigDesc("enable lambda expressioned class hook for detecting asyncronous processing. Only classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
+    @ConfigDesc("Experimental! test it on staging environment of your system before enable this option.\n enable lambda expressioned class hook for detecting asyncronous processing. \nOnly classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
     public boolean hook_lambda_instrumentation_strategy_enabled = false;
 
     @ConfigDesc("")
@@ -430,7 +454,7 @@ public class Configure extends Thread {
     public boolean _hook_spring_rest_enabled = true;
     @ConfigDesc("")
     public String _hook_boot_prefix = null;
-    @ConfigDesc("for warning a big Map type object that have a lot of entities. It may increase system load. be careful to enable this option.")
+    @ConfigDesc("for warning a big Map type object that have a lot of entities.\n It may increase system load. be careful to enable this option.")
     public boolean _hook_map_impl_enabled = false;
     @ConfigDesc("")
     public int _hook_map_impl_warning_size = 50000;
@@ -693,9 +717,17 @@ public class Configure extends Thread {
         this.hook_jdbc_rs_classes = getValue("hook_jdbc_rs_classes", "");
         this.hook_jdbc_wrapping_driver_patterns = getValue("hook_jdbc_wrapping_driver_patterns", "");
         this.hook_exception_class_patterns = getValue("hook_exception_class_patterns", "");
-        this.hook_exception_exlude_class_patterns = getValue("hook_exception_exlude_class_patterns", "");
+        this.hook_exception_exclude_class_patterns = getValue("hook_exception_exclude_class_patterns", "");
+        if(StringUtil.isEmpty(this.hook_exception_exclude_class_patterns)) {
+            //recover of previous version typo
+            this.hook_exception_exclude_class_patterns = getValue("hook_exception_exlude_class_patterns", "");
+        }
         this.hook_exception_handler_method_patterns = getValue("hook_exception_handler_method_patterns", "");
-        this.hook_exception_hanlder_exclude_class_patterns = getValue("hook_exception_hanlder_exclude_class_patterns", "");
+        this.hook_exception_handler_exclude_class_patterns = getValue("hook_exception_handler_exclude_class_patterns", "");
+        if(StringUtil.isEmpty(this.hook_exception_handler_exclude_class_patterns)) {
+            //recover of previous version typo
+            this.hook_exception_handler_exclude_class_patterns = getValue("hook_exception_hanlder_exclude_class_patterns", "");
+        }
 
         this.hook_async_servlet_enabled = getBoolean("_hook_async_servlet_enabled", true);
 
@@ -787,6 +819,12 @@ public class Configure extends Thread {
         this.trace_webserver_name_header_key = getValue("trace_webserver_name_header_key", "X-Forwarded-Host");
         this.trace_webserver_time_header_key = getValue("trace_webserver_time_header_key", "X-Forwarded-Time");
 
+        this.trace_request_queuing_enabled = getBoolean("trace_request_queuing_enabled", false);
+        this.trace_request_queuing_start_host_header = getValue("trace_request_queuing_start_host_header", "X-Request-Start-Host");
+        this.trace_request_queuing_start_time_header = getValue("trace_request_queuing_start_time_header", "X-Request-Start-Time");
+        this.trace_request_queuing_start_2nd_host_header = getValue("trace_request_queuing_start_2nd_host_header", "X-Request-Start-2nd-Host");
+        this.trace_request_queuing_start_2nd_time_header = getValue("trace_request_queuing_start_2nd_time_header", "X-Request-Start-2nd-Time");
+
         this.trace_rs_leak_enabled = getBoolean("trace_rs_leak_enabled", false);
         this.trace_stmt_leak_enabled = getBoolean("trace_stmt_leak_enabled", false);
 
@@ -816,8 +854,12 @@ public class Configure extends Thread {
         this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", true);
         this.alert_message_length = getInt("alert_message_length", 3000);
         this.alert_send_interval_ms = getInt("alert_send_interval_ms", 10000);
+
         this.xlog_error_jdbc_fetch_max = getInt("xlog_error_jdbc_fetch_max", 10000);
         this.xlog_error_sql_time_max_ms = getInt("xlog_error_sql_time_max_ms", 30000);
+        this.xlog_error_on_sqlexception_enabled = getBoolean("xlog_error_on_sqlexception_enabled", true);
+        this.xlog_error_on_apicall_exception_enabled = getBoolean("xlog_error_on_apicall_exception_enabled", true);
+
         this._log_asm_enabled = getBoolean("_log_asm_enabled", false);
         this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
         this.jmx_counter_enabled = getBoolean("jmx_counter_enabled", true);

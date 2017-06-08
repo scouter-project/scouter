@@ -33,7 +33,7 @@ import java.util.List;
 
 public class UserExceptionHandlerASM implements IASM, Opcodes {
 	List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_exception_handler_method_patterns);
-	public static String[] exceptionExcludeClasseNames = StringUtil.split(Configure.getInstance().hook_exception_hanlder_exclude_class_patterns, ',');
+	public static String[] exceptionExcludeClasseNames = StringUtil.split(Configure.getInstance().hook_exception_handler_exclude_class_patterns, ',');
 
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

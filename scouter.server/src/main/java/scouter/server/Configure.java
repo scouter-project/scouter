@@ -169,17 +169,24 @@ public class Configure extends Thread {
 	//Manager
 	@ConfigDesc("Activating automatic deletion function in the database")
 	public boolean mgr_purge_enabled = true;
-	@Deprecated
-	@ConfigDesc("Deprecated. Use option mgr_purge_non_xlog_keep_days")
-	public boolean mgr_purge_only_xlog_enabled = false;
 	@ConfigDesc("Condition of disk usage for automatic deletion. if lack, delete profile data first exclude today data.")
 	public int mgr_purge_disk_usage_pct = 80;
+
 	@ConfigDesc("Retaining date for automatic deletion. delete profile data first.")
-	public int mgr_purge_keep_days = 10;
+	public int mgr_purge_profile_keep_days = 10;
+	@Deprecated
+	@ConfigDesc("Deprecated : use mgr_purge_profile_keep_days")
+	public int mgr_purge_keep_days = mgr_purge_profile_keep_days;
+
 	@ConfigDesc("Retaining date for automatic deletion.")
-	public int mgr_purge_xlog_without_profile_keep_days = 30;
+	public int mgr_purge_xlog_keep_days = 30;
+	@Deprecated
+	@ConfigDesc("Deprecated : use mgr_purge_xlog_keep_days")
+	public int mgr_purge_xlog_without_profile_keep_days = mgr_purge_xlog_keep_days;
+
 	@ConfigDesc("Retaining date for automatic deletion")
 	public int mgr_purge_counter_keep_days = 70;
+
 	@ConfigDesc("Ignored log ID set")
 	public StringSet mgr_log_ignore_ids = new StringSet();
 
@@ -216,7 +223,11 @@ public class Configure extends Thread {
 	//TagCount
 	@ConfigDesc("Activating TagCount function")
 	public boolean tagcnt_enabled = false;
-	
+
+	//Service request options from client
+	@ConfigDesc("search xlog service option - max xlog count to search per request")
+	public int req_search_xlog_max_count = 500;
+
 	//Visitor Hourly
 	public boolean visitor_hourly_count_enabled = true;
 
@@ -353,10 +364,16 @@ public class Configure extends Thread {
 		this.xlog_realtime_lower_bound_ms = getInt("xlog_realtime_lower_bound_ms", 0);
 		this.xlog_pasttime_lower_bound_ms = getInt("xlog_pasttime_lower_bound_ms", 0);
 		this.mgr_purge_enabled = getBoolean("mgr_purge_enabled", true);
-		this.mgr_purge_only_xlog_enabled = getBoolean("mgr_purge_only_xlog_enabled", false);
 		this.mgr_purge_disk_usage_pct = getInt("mgr_purge_disk_usage_pct", 80);
+
 		this.mgr_purge_keep_days = getInt("mgr_purge_keep_days", 10);
-		this.mgr_purge_xlog_without_profile_keep_days = getInt("mgr_purge_xlog_without_profile_keep_days", mgr_purge_keep_days*3);
+		this.mgr_purge_profile_keep_days = getInt("mgr_purge_keep_days", 10);
+		if(mgr_purge_profile_keep_days == 0) mgr_purge_profile_keep_days = this.mgr_purge_keep_days;
+
+		this.mgr_purge_xlog_without_profile_keep_days = getInt("mgr_purge_xlog_without_profile_keep_days", mgr_purge_profile_keep_days*3);
+		this.mgr_purge_xlog_keep_days = getInt("mgr_purge_xlog_keep_days", mgr_purge_profile_keep_days*3);
+		if(mgr_purge_xlog_keep_days == 0) mgr_purge_xlog_keep_days = this.mgr_purge_xlog_without_profile_keep_days;
+
 		this.mgr_purge_counter_keep_days = getInt("mgr_purge_counter_keep_days", mgr_purge_keep_days*7);
 
 		this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false);
@@ -376,6 +393,8 @@ public class Configure extends Thread {
 		this.visitor_hourly_count_enabled = getBoolean("visitor_hourly_count_enabled", true);
 		
 		this.net_tcp_service_pool_size = getInt("net_tcp_service_pool_size", 100);
+
+		this.req_search_xlog_max_count = getInt("req_search_xlog_max_count", 500);
 		
 		ConfObserver.exec();
 	}

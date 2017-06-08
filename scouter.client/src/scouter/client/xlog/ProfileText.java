@@ -170,6 +170,14 @@ public class ProfileText {
         if (StringUtil.isNotEmpty(t)) {
             sb.append("\n► webName=" + t).append("  webTime=" + xperf.p.webTime + " ms");
         }
+        t = TextProxy.web.getLoadText(date, xperf.p.queuingHostHash, serverId);
+        if (StringUtil.isNotEmpty(t)) {
+            sb.append("\n► queuing=" + t).append("  time=" + xperf.p.queuingTime + " ms");
+        }
+        t = TextProxy.web.getLoadText(date, xperf.p.queuing2ndHostHash, serverId);
+        if (StringUtil.isNotEmpty(t)) {
+            sb.append("\n► 2nd-queuing=" + t).append("  time=" + xperf.p.queuing2ndTime + " ms");
+        }
         t = TextProxy.login.getLoadText(date, xperf.p.login, serverId);
         if (StringUtil.isNotEmpty(t)) {
             sb.append("\n► login=" + t);

@@ -39,6 +39,7 @@ public class MeterService {
 		long elapsedTime;
         long sqlTimeByService;
         long apiTmeByService;
+        long queuingTime;
 
 		int error;
 	}
@@ -54,13 +55,14 @@ public class MeterService {
 			o.elapsedTime = 0L;
             o.sqlTimeByService = 0L;
             o.apiTmeByService = 0L;
+            o.queuingTime = 0L;
 			for (int i = 0; i < PCT_BUCKET; i++) {
 				o.pct90[i] = 0;
 			}
 		}
 	};
 
-	public synchronized void add(long elapsed, int sqlTime, int apiTime, boolean err) {
+	public synchronized void add(long elapsed, int sqlTime, int apiTime, int queuingTime, boolean err) {
 		if(elapsed < 0)
 			elapsed = 0;
 
@@ -69,6 +71,7 @@ public class MeterService {
 		b.elapsedTime += elapsed;
         b.sqlTimeByService += sqlTime;
         b.apiTmeByService += apiTime;
+        b.queuingTime += queuingTime;
 
 		if (err) {
 			b.error++;
@@ -155,6 +158,19 @@ public class MeterService {
         });
         return (int) ((cnt.value == 0) ? 0 : sum.value / cnt.value);
     }
+
+	public int getQueuingTime(int period) {
+		final LONG sum = new LONG();
+		final INT cnt = new INT();
+		meter.search(period, new Handler<MeterService.Bucket>() {
+			public void process(Bucket b) {
+				sum.value += b.queuingTime;
+				cnt.value += b.count;
+
+			}
+		});
+		return (int) ((cnt.value == 0) ? 0 : sum.value / cnt.value);
+	}
 
 	public float getErrorRate(int period) {
 

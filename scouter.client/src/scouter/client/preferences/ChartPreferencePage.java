@@ -41,9 +41,11 @@ public class ChartPreferencePage extends FieldEditorPreferencePage implements IW
 	Text lineWidthTxt;
 	Text xlogIgnoreTxt;
 	Text xlogMxCntTxt;
+	Text xlogMxDragCntTxt;
 	
 	int xLogIgnoreTime;
 	int xLogMaxCount;
+	int xLogDragMaxCount;
 	
 	private int lineWidth;
 	
@@ -97,6 +99,15 @@ public class ChartPreferencePage extends FieldEditorPreferencePage implements IW
 		xlogMxCntTxt.setLayoutData(UIUtil.formData(ignoreLbl, 10, xlogIgnoreTxt, 8, 100, -5, null, -1, 150));
 		xlogMxCntTxt.addVerifyListener(verifyListener);
 
+		Label maxDragCntLbl = new Label(layoutGroup, SWT.RIGHT);
+		maxDragCntLbl.setText(M.PREFERENCE_CHARTXLOG_MAX_DRAG_COUNT);
+		maxDragCntLbl.setLayoutData(UIUtil.formData(null, -1, xlogMxCntTxt, 10, null, -1, null, -1, 160));
+
+		xlogMxDragCntTxt = new Text(layoutGroup, SWT.BORDER);
+		xlogMxDragCntTxt.setText(Integer.toString(xLogDragMaxCount));
+		xlogMxDragCntTxt.setLayoutData(UIUtil.formData(ignoreLbl, 10, xlogMxCntTxt, 8, 100, -5, null, -1, 150));
+		xlogMxDragCntTxt.addVerifyListener(verifyListener);
+
 		return super.createContents(parent);
 	}
 	
@@ -104,12 +115,14 @@ public class ChartPreferencePage extends FieldEditorPreferencePage implements IW
 		lineWidth = PManager.getInstance().getInt(PreferenceConstants.P_CHART_LINE_WIDTH); 
 		xLogIgnoreTime = PManager.getInstance().getInt(PreferenceConstants.P_XLOG_IGNORE_TIME);
 		xLogMaxCount = PManager.getInstance().getInt(PreferenceConstants.P_XLOG_MAX_COUNT);
+		xLogDragMaxCount = PManager.getInstance().getInt(PreferenceConstants.P_XLOG_DRAG_MAX_COUNT);
 	}
 	
 	public boolean performOk() {
 		PManager.getInstance().setValue(PreferenceConstants.P_CHART_LINE_WIDTH, CastUtil.cint(lineWidthTxt.getText()));
 		PManager.getInstance().setValue(PreferenceConstants.P_XLOG_IGNORE_TIME, CastUtil.cint(xlogIgnoreTxt.getText()));
 		PManager.getInstance().setValue(PreferenceConstants.P_XLOG_MAX_COUNT, CastUtil.cint(xlogMxCntTxt.getText()));
+		PManager.getInstance().setValue(PreferenceConstants.P_XLOG_DRAG_MAX_COUNT, CastUtil.cint(xlogMxDragCntTxt.getText()));
 		return true;
 	}
 

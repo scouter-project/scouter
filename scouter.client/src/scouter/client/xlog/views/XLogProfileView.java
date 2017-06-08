@@ -29,21 +29,15 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-
 import scouter.client.Activator;
 import scouter.client.Images;
+import scouter.client.constants.HelpConstants;
 import scouter.client.model.XLogData;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
@@ -56,11 +50,7 @@ import scouter.client.xlog.actions.OpenXLogProfileJob;
 import scouter.client.xlog.actions.OpenXLogThreadProfileJob;
 import scouter.client.xlog.dialog.XlogSummarySQLDialog;
 import scouter.lang.step.Step;
-import scouter.util.CacheTable;
-import scouter.util.DateUtil;
-import scouter.util.Hexa32;
-import scouter.util.StringUtil;
-import scouter.util.SystemUtil;
+import scouter.util.*;
 
 
 public class XLogProfileView extends ViewPart {
@@ -93,6 +83,7 @@ public class XLogProfileView extends ViewPart {
 		
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
 		man.add(openSqlSummaryDialog);
+		man.add(helpAction);
 		
 	    IMenuManager menuManager = getViewSite().getActionBars().getMenuManager();
 	    menuManager.add(saveFullProfile);
@@ -263,4 +254,10 @@ public class XLogProfileView extends ViewPart {
 			job.schedule();
 		}
     };
+
+	Action helpAction = new Action("help", ImageUtil.getImageDescriptor(Images.help)) {
+		public void run() {
+			org.eclipse.swt.program.Program.launch(HelpConstants.HELP_URL_XLOG_PROFILE_VIEW);
+		}
+	};
 }

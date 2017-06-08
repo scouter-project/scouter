@@ -399,6 +399,7 @@ public class TraceMain {
             pack.sqlTime = ctx.sqlTime;
             pack.ipaddr = IPUtil.toBytes(ctx.remoteIp);
             pack.userid = ctx.userid;
+
             if(ctx.hasDumpStack) {
                 pack.hasDump = 1;
             } else {
@@ -465,6 +466,14 @@ public class TraceMain {
                 pack.webHash = DataProxy.sendWebName(ctx.web_name);
                 pack.webTime = ctx.web_time;
             }
+            if (ctx.queuingHost != null) {
+                pack.queuingHostHash = DataProxy.sendWebName(ctx.queuingHost);
+                pack.queuingTime = ctx.queuingTime;
+            }
+            if (ctx.queuing2ndHost != null) {
+                pack.queuing2ndHostHash = DataProxy.sendWebName(ctx.queuing2ndHost);
+                pack.queuing2ndTime = ctx.queuing2ndTime;
+            }
             pack.text1 = ctx.text1;
             pack.text2 = ctx.text2;
 
@@ -519,7 +528,7 @@ public class TraceMain {
         switch (pack.xType) {
             case XLogTypes.WEB_SERVICE:
             case XLogTypes.APP_SERVICE:
-                MeterService.getInstance().add(pack.elapsed, pack.sqlTime, pack.apicallTime, pack.error != 0);
+                MeterService.getInstance().add(pack.elapsed, pack.sqlTime, pack.apicallTime, pack.queuingTime, pack.error != 0);
                 ServiceSummary.getInstance().process(pack);
                 break;
             case XLogTypes.BACK_THREAD:
@@ -912,7 +921,7 @@ public class TraceMain {
         if (error != null) {
             pack.error = DataProxy.sendError(error);
         }
-        MeterService.getInstance().add(pack.elapsed, pack.sqlTime, pack.apicallTime, error != null);
+        MeterService.getInstance().add(pack.elapsed, pack.sqlTime, pack.apicallTime, pack.queuingTime, error != null);
         DataProxy.sendXLog(pack);
         MeterUsers.add(pack.userid);
         return pack;

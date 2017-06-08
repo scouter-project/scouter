@@ -53,6 +53,7 @@ public class ServicePerf {
 		int resp90pct = service.getElapsed90Pct(30);
 		int sqlTimeByService = service.getSqlTime(30);
 		int apiTimeByService = service.getApiTime(30);
+		int queuingTime = service.getQueuingTime(30);
 
 		int[] act = TraceContextManager.getActiveCount();
 		int active = act[0] + act[1] + act[2];
@@ -73,6 +74,7 @@ public class ServicePerf {
 		p.put(CounterConstants.WAS_ELAPSED_90PCT, new DecimalValue(resp90pct));
 		p.put(CounterConstants.WAS_APICALL_ELAPSED_TIME_BY_SERVICE, new DecimalValue(apiTimeByService));
 		p.put(CounterConstants.WAS_SQL_ELAPSED_TIME_BY_SERVICE, new DecimalValue(sqlTimeByService));
+		p.put(CounterConstants.WAS_QUEUING_TIME, new DecimalValue(queuingTime));
 
 		ListValue activeSpeed = new ListValue();
 		activeSpeed.add(act[0]);
@@ -101,6 +103,7 @@ public class ServicePerf {
 		p.put(CounterConstants.WAS_ELAPSED_90PCT, new DecimalValue(resp90pct));
         p.put(CounterConstants.WAS_APICALL_ELAPSED_TIME_BY_SERVICE, new DecimalValue(apiTimeByService));
         p.put(CounterConstants.WAS_SQL_ELAPSED_TIME_BY_SERVICE, new DecimalValue(sqlTimeByService));
+		p.put(CounterConstants.WAS_QUEUING_TIME, new DecimalValue(queuingTime));
 	}
 
 	private long last_sent = DateUtil.getMinUnit(System.currentTimeMillis()) / 5;

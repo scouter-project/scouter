@@ -1,17 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.github.scouter-project</groupId>
+        <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>100.0.0</version>
+        <version>1.7.0</version>
     </parent>
 
     <artifactId>scouter-agent-batch</artifactId>
     <packaging>jar</packaging>
     <name>scouter.agent.batch</name>
-    <version>${scouter.version}</version>
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
@@ -22,9 +20,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.scouter-project</groupId>
+            <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-agent-java</artifactId>
-            <version>${scouter.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -52,19 +50,6 @@
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -101,7 +86,7 @@
                             <shadeSourcesContent>true</shadeSourcesContent>
                             <artifactSet>
                                 <includes>
-                                    <include>com.github.scouter-project:scouter-agent-jave</include>
+                                    <include>io.github.scouter-project:scouter-agent-jave</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
@@ -124,22 +109,20 @@
                                         <include name="**/*" />
                                     </fileset>
                                 </copy>
-                                <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh"
-                                         eol="lf"
-                                         eof="remove" />
+                                <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh" eol="lf" eof="remove" />
 
                                 <tar destfile="${project.build.directory}/${scouter.agent.batch.assembly.name}.tar">
-                                    <tarfileset dir="${scouter.assembly.working.dir}" mode="755" >
-                                        <include name="**/*.sh"/>
+                                    <tarfileset dir="${scouter.assembly.working.dir}" mode="755">
+                                        <include name="**/*.sh" />
                                     </tarfileset>
-                                    <tarfileset dir="${scouter.assembly.working.dir}" >
-                                        <exclude name="**/*.sh"/>
+                                    <tarfileset dir="${scouter.assembly.working.dir}">
+                                        <exclude name="**/*.sh" />
                                     </tarfileset>
                                     <tarfileset dir="${project.basedir}">
-                                        <include name="conf/**/*"/>
+                                        <include name="conf/**/*" />
                                     </tarfileset>
                                     <tarfileset dir="${project.build.directory}">
-                                        <include name="${project.build.finalName}.jar"/>
+                                        <include name="${project.build.finalName}.jar" />
                                     </tarfileset>
                                 </tar>
                                 <!-- copy for preparing whole packaging -->
