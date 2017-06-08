@@ -32,7 +32,6 @@ SCOUTER can help you.
 ## Documents
  - [Document Home](./scouter.document/index.md)
  - [Quick Start Guide (Quick Installation and Demo)](./scouter.document/main/Quick-Start.md)
- - [Live Demo(Try to use scouter by connecting on live demo system)](./scouter.document/main/Live-Demo.md)
  - [Client Screen Help](./scouter.document/client/How-To-Use-Client.md)
 
 ## Download
