@@ -1,6 +1,6 @@
 ## Java Stand-alone Batch Agent
 The Scouter Java Stand-alone Batch Agent is monitoring stand-alone batch's performance.
-If you install Scouner Agent in the java batch process, you will understand what happens inside it.
+If you install Scouter Agent in the java batch process, you will understand what happens inside it.
 
 Scouter show you that which SQL is slow, how many records are processed 
 how many batch processes are running
