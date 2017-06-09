@@ -16,6 +16,8 @@
         <build.datetime>${maven.build.timestamp} GMT</build.datetime>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
+        <final.jar.name>${project.build.directory}/${project.build.finalName}.jar</final.jar.name>
+        <scouter.agent.file.name>scouter.agent.batch.jar</scouter.agent.file.name>
     </properties>
 
     <dependencies>
@@ -62,6 +64,7 @@
                             <Agent-Class>scouter.agent.batch.JavaAgent</Agent-Class>
                             <Can-Redefine-Classes>true</Can-Redefine-Classes>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                            <Boot-Class-Path>${project.build.finalName}.jar</Boot-Class-Path>
                         </manifestEntries>
                     </archive>
                     <excludes>
@@ -84,11 +87,12 @@
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <createSourcesJar>true</createSourcesJar>
                             <shadeSourcesContent>true</shadeSourcesContent>
-                            <artifactSet>
-                                <includes>
-                                    <include>io.github.scouter-project:scouter-agent-jave</include>
-                                </includes>
-                            </artifactSet>
+                            <!--<artifactSet>-->
+                                <!--<includes>-->
+                                    <!--<include>io.github.scouter-project:scouter-agent-jave</include>-->
+                                    <!--<include>io.github.scouter-project:scouter-agent-jave</include>-->
+                                <!--</includes>-->
+                            <!--</artifactSet>-->
                         </configuration>
                     </execution>
                 </executions>
@@ -103,6 +107,18 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
+                                <!-- for constant name file -->
+                                <jar destfile="${project.build.directory}/${scouter.agent.file.name}">
+                                    <zipfileset src="${final.jar.name}" />
+                                    <manifest>
+                                        <attribute name="Premain-Class" value="scouter.agent.batch.JavaAgent" />
+                                        <attribute name="Agent-Class" value="scouter.agent.batch.JavaAgent" />
+                                        <attribute name="Can-Redefine-Classes" value="true" />
+                                        <attribute name="Can-Retransform-Classes" value="true" />
+                                        <attribute name="Boot-Class-Path" value="${scouter.agent.file.name}" />
+                                    </manifest>
+                                </jar>
+
                                 <mkdir dir="${scouter.assembly.working.dir}" />
                                 <copy todir="${scouter.assembly.working.dir}">
                                     <fileset dir="${project.basedir}/scripts">
@@ -123,6 +139,7 @@
                                     </tarfileset>
                                     <tarfileset dir="${project.build.directory}">
                                         <include name="${project.build.finalName}.jar" />
+                                        <include name="${scouter.agent.file.name}" />
                                     </tarfileset>
                                 </tar>
                                 <!-- copy for preparing whole packaging -->
