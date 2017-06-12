@@ -69,6 +69,7 @@ public abstract class AbstractSummaryComposite extends Composite {
 	private Clipboard clipboard;
 	
 	String date = DateUtil.yyyymmdd();
+    String endDate = DateUtil.yyyymmdd();
 
 	public AbstractSummaryComposite(Composite parent, int style) {
 		super(parent, style);
