@@ -23,4 +23,5 @@ public class AlertConf {
 	public int history_size;
 	public int silent_time;
 	public int check_term;
+	public boolean changed;
 }
