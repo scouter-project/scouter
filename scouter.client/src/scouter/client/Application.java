@@ -17,17 +17,12 @@
  */
 package scouter.client;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.net.LoginMgr;
 import scouter.client.net.LoginResult;
 import scouter.client.popup.LoginDialog2;
@@ -37,12 +32,17 @@ import scouter.client.preferences.ServerPrefUtil;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * This class controls all aspects of the application's execution
  */
 public class Application implements IApplication {
 
 	public Object start(IApplicationContext context) throws Exception {
+		//System.out.println(Platform.getLocation());
 		Display display = PlatformUI.createDisplay();
 		Object exitStrategy = IApplication.EXIT_OK;
 		try {

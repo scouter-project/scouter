@@ -211,14 +211,14 @@
           id="scouter.client.views.ObjectEnvView"
           name="Agent Env"
           restorable="false">
-      </view>      
+      </view>
       <view
           allowMultiple="true"
           class="scouter.client.views.AlertView"
           icon="icons/alert.png"
           id="scouter.client.views.AlertView"
           name="%View_alert">
-      </view>      
+      </view>
       <view
           allowMultiple="true"
           class="scouter.client.xlog.views.XLogSelectionView"
@@ -226,7 +226,7 @@
           id="scouter.client.xlog.views.XLogSelectionView"
           name="XLog List"
           restorable="false">
-      </view>      
+      </view>
       <view
           allowMultiple="true"
           class="scouter.client.xlog.views.XLogProfileView"
@@ -234,7 +234,7 @@
           id="scouter.client.xlog.views.XLogProfileView"
           name="XLog Profile"
           restorable="false">
-      </view>      
+      </view>
 	  <view
 	      allowMultiple="true"
 	      class="scouter.client.views.ObjectDailyListView"
@@ -242,14 +242,14 @@
 	      id="scouter.client.views.ObjectDailyListView"
 	      name="Object Daily List"
 	      restorable="false">
-      </view>      
+      </view>
       <view
             allowMultiple="true"
             class="scouter.client.views.ActiveSpeedView"
             icon="icons/lorry.png"
             id="scouter.client.views.ActiveSpeedView"
             name="ActiveSpeed">
-      </view>      
+      </view>
       <view
             allowMultiple="true"
             class="scouter.client.counter.views.CounterTodayAllView"
@@ -335,7 +335,7 @@
             id="scouter.client.views.ObjectClassListView"
             name="Object Loaded Class List"
             restorable="false">
-      </view>   
+      </view>
       <view
             allowMultiple="true"
             class="scouter.client.views.HeapHistoView"
@@ -398,7 +398,7 @@
             id="scouter.client.counter.views.CounterPastCountView"
             name="Counter Daliy Count View"
             restorable="false">
-      </view>   
+      </view>
       <view
             allowMultiple="true"
             class="scouter.client.heapdump.views.HeapDumpListView"
@@ -414,7 +414,7 @@
             id="scouter.client.views.ObjectFileSocketView"
             name="SocketView"
             restorable="false">
-      </view>  
+      </view>
       <view
             allowMultiple="true"
             class="scouter.client.views.GeneralTableView"
@@ -891,7 +891,7 @@
             allowMultiple="true"
             class="scouter.client.stack.views.StackAnalyzerView"
             id="scouter.client.stack.views.StackAnalyzerView"
-            icon="icons/page_white_stack.png"           
+            icon="icons/page_white_stack.png"
             name="StackAnalyzer">
       </view>
       <view
@@ -1005,7 +1005,7 @@
             id="scouter.client.batch.views.ObjectBatchHistoryView"
             name="Batch Execution History List"
             restorable="true">
-      </view>      
+      </view>
       <view
             allowMultiple="true"
             class="scouter.client.batch.views.BatchDetailView"
@@ -1013,7 +1013,7 @@
             id="scouter.client.batch.views.BatchDetailView"
             name="Batch Execution History Detail"
             restorable="false">
-      </view>      
+      </view>
       <view
             allowMultiple="true"
             class="scouter.client.batch.views.ObjectBatchActiveListView"
@@ -1021,30 +1021,25 @@
             id="scouter.client.batch.views.ObjectBatchActiveListView"
             name="Batch Active List"
             restorable="false">
-      </view> 
+      </view>
   </extension>
- <extension
-         point="org.eclipse.ui.commands">
-         <category id="scouter.client.category" name="Scouter" />
-         
+ <extension point="org.eclipse.ui.commands">
+     <category id="scouter.client.category" name="Scouter" />
 
-      
-           <command
+     <command
             name="ClientThreadList"
             description="ClientThreadList"
             categoryId="scouter.client.category"
             id="scouter.client.actions.OpenClientThreadListAction">
       </command>
-  
-      
-      
+
        <command
             name="Alert"
             description="Alert"
             categoryId="scouter.client.category"
             id="scouter.client.actions.OpenAlertRealTimeAction">
       </command>
- 
+
        <command
              description="Restart Action"
              id="scouter.client.actions.RestartAction"
@@ -1062,10 +1057,10 @@
              id="scouter.client.actions.AddServerAction"
              name="AddServerAction">
        </command>
-       
+
        <!-- OBJECT NAVIGATION -->
        <!-- END -->
-       
+
        <command
              categoryId="scouter.client.category"
              description="Open Group Navigation"
@@ -1128,6 +1123,11 @@
                 style="push">
           </command>
           <separator name="file.separator2" visible="true" />
+           <command
+                   commandId="scouter.client.actions.ExportWorkspaceAction"
+                   label="Export a workspace"
+                   style="push">
+           </command>
           <command
                 commandId="scouter.client.actions.RestartAction"
                 label="Restart"
