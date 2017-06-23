@@ -1,7 +1,9 @@
 package scouter.client.summary.modules;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -40,6 +42,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import scouter.client.Images;
+import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
 import scouter.client.popup.CalendarDialog;
 import scouter.client.popup.CalendarDialog.ILoadCalendarDialog;
@@ -51,6 +54,7 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
+import scouter.util.BitUtil;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 
@@ -197,14 +201,81 @@ public class AlertSummaryComposite extends AbstractSummaryComposite {
 		}
 	}
 	
+	class LoadLongdayAlertSummaryJob extends Job {
+
+        MapPack param;
+        long stime;
+        long etime;
+
+        public LoadLongdayAlertSummaryJob(MapPack param, long stime, long etime) {
+            super("Loading...");
+            this.param = param;
+            this.stime = stime;
+            this.etime = etime;
+        }
+
+        protected IStatus run(IProgressMonitor monitor) {
+            TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+            List<Pack> packList = new ArrayList<>();
+            try {
+                while (stime <= etime) {
+                    String date = DateUtil.yyyymmdd(stime);
+                    long lastTimestampOfDay = DateUtil.getTime(date, "yyyyMMdd") + DateUtil.MILLIS_PER_DAY - 1;
+                    param.put("date", date);
+                    param.put("stime", stime);
+                    param.put("etime", lastTimestampOfDay <= etime ? lastTimestampOfDay : etime);
+                    packList.add(tcp.getSingle(RequestCmd.LOAD_ALERT_SUMMARY, param));
+                    stime += DateUtil.MILLIS_PER_DAY;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return Status.CANCEL_STATUS;
+            } finally {
+                TcpProxy.putTcpProxy(tcp);
+            }
+
+            if (packList.size() > 0) {
+                Map<String, AlertData> alertDataMap = new HashMap<>();
+                for (Pack p : packList) {
+                    MapPack m = (MapPack) p;
+                    
+                    ListValue titleLv = m.getList("title");
+    					ListValue levelLv = m.getList("level");
+    					ListValue countLv = m.getList("count");
+    					for (int i = 0; i < titleLv.size(); i++) {
+    						AlertData data = new AlertData();
+    						data.title = titleLv.getString(i);
+    						data.level = (byte) levelLv.getInt(i);
+    						data.count = countLv.getInt(i);
+    						if (alertDataMap.containsKey(data.title)) {
+    							alertDataMap.get(data.title).addData(data);
+    						} else {
+    							alertDataMap.put(data.title, data);
+    						}
+    					}                    
+                }
+                ExUtil.exec(viewer.getTable(), new Runnable() {
+                    public void run() {
+                        viewer.setInput(alertDataMap.values());
+                    }
+                });
+            }
+            return Status.OK_STATUS;
+        }
+    }
+	
 	private static class AlertData {
 		public String title;
 		public byte level;
 		public int count;
+		
+		public void addData(AlertData another) {
+			this.count += another.count;
+		}
 	}
 
 	protected void getSummaryData() {
-		new LoadAlertSummaryJob(param).schedule();
+		new LoadLongdayAlertSummaryJob(param, param.getLong("stime"), param.getLong("etime")).schedule();
 	}
 
 	protected String getTitle() {

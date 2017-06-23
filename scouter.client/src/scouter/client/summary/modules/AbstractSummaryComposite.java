@@ -58,9 +58,10 @@ public abstract class AbstractSummaryComposite extends Composite {
 	int serverId;
 	MapPack param;
 	
-	Label dateLbl;
+	Label startDateLbl;
 	Combo startHHCmb;
 	Combo startMMCmb;
+	Label endDateLbl;
 	Combo endHHCmb;
 	Combo endMMCmb;
 	
@@ -87,21 +88,20 @@ public abstract class AbstractSummaryComposite extends Composite {
 		this.setLayout(new GridLayout(1, true));
 		Composite upperComp = new Composite(this, SWT.NONE);
 		upperComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		upperComp.setLayout(new GridLayout(7, false));
+		upperComp.setLayout(new GridLayout(8, false));
 		
 		long now = TimeUtil.getCurrentTime(serverId);
 		
-		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		dateLbl = new Label(upperComp, SWT.CENTER | SWT.BORDER);
-		dateLbl.setLayoutData(gd);
-		dateLbl.addMouseListener(new MouseAdapter() {
+		startDateLbl = new Label(upperComp, SWT.CENTER | SWT.BORDER);
+		startDateLbl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		startDateLbl.addMouseListener(new MouseAdapter() {
 			public void mouseDown(MouseEvent e) {
 				CalendarDialog dialog = new CalendarDialog(parent.getDisplay(), new ILoadCalendarDialog(){
 					public void onPressedOk(long startTime, long endTime) {}
 					public void onPressedCancel() {}
 					public void onPressedOk(String date) {
 						setDate(date);
-						dateLbl.setText(DateUtil.format(DateUtil.yyyymmdd(date), "yyyy-MM-dd"));
+						startDateLbl.setText(DateUtil.format(DateUtil.yyyymmdd(date), "yyyy-MM-dd"));
 						
 					}
 				});
@@ -109,12 +109,11 @@ public abstract class AbstractSummaryComposite extends Composite {
 			}
 			
 		});
-		dateLbl.setText(DateUtil.format(now, "yyyy-MM-dd"));
+		startDateLbl.setText(DateUtil.format(now, "yyyy-MM-dd"));
 		
 		Composite startCmbComp = new Composite(upperComp, SWT.NONE);
 		startCmbComp.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true, false));
 		startCmbComp.setLayout(new RowLayout());
-		
 		
 		long start = now - DateUtil.MILLIS_PER_FIVE_MINUTE;
 		
@@ -132,6 +131,25 @@ public abstract class AbstractSummaryComposite extends Composite {
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		label.setAlignment(SWT.CENTER);
 		label.setText("to");
+
+		endDateLbl = new Label(upperComp, SWT.CENTER | SWT.BORDER);
+		endDateLbl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		endDateLbl.addMouseListener(new MouseAdapter() {
+			public void mouseDown(MouseEvent e) {
+				CalendarDialog dialog = new CalendarDialog(parent.getDisplay(), new ILoadCalendarDialog(){
+					public void onPressedOk(long startTime, long endTime) {}
+					public void onPressedCancel() {}
+					public void onPressedOk(String date) {
+						setEndDate(date);
+						endDateLbl.setText(DateUtil.format(DateUtil.yyyymmdd(date), "yyyy-MM-dd"));
+						
+					}
+				});
+				dialog.show(-1, -1, DateUtil.yyyymmdd(endDate));
+			}
+			
+		});
+		endDateLbl.setText(DateUtil.format(now, "yyyy-MM-dd"));
 		
 		Composite endCmbComp = new Composite(upperComp, SWT.NONE);
 		endCmbComp.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true, false));
@@ -148,13 +166,13 @@ public abstract class AbstractSummaryComposite extends Composite {
 		endMMCmb.setText(DateUtil.format(now / DateUtil.MILLIS_PER_FIVE_MINUTE * DateUtil.MILLIS_PER_FIVE_MINUTE, "mm"));
 		
 		final Button getBtn = new Button(upperComp, SWT.PUSH);
-		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		getBtn.setLayoutData(gd);
 		getBtn.setText("&GET");
 		getBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				long stime = DateUtil.getTime(date + startHHCmb.getText() + startMMCmb.getText(), "yyyyMMddHHmm");
-				long etime = DateUtil.getTime(date + endHHCmb.getText() + endMMCmb.getText(), "yyyyMMddHHmm") - 1;
+				long etime = DateUtil.getTime(endDate + endHHCmb.getText() + endMMCmb.getText(), "yyyyMMddHHmm") - 1;
 				if (stime >= etime) {
 					MessageDialog.openWarning(parent.getShell(), "Warning", "Wrong range");
 					return;
@@ -184,8 +202,8 @@ public abstract class AbstractSummaryComposite extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dialog = new FileDialog(parent.getShell(), SWT.SAVE);
 				dialog.setOverwrite(true);
-				String filename = "[" + getTarget() + "][" +startHHCmb.getText() + startMMCmb.getText() + "-" 
-				+ endHHCmb.getText() + endMMCmb.getText() + "]" + getTitle() + ".csv";
+				String filename = "[" + getTarget() + "][" + date + startHHCmb.getText() + startMMCmb.getText() + "-" 
+				+ endDate + endHHCmb.getText() + endMMCmb.getText() + "]" + getTitle() + ".csv";
 				dialog.setFileName(filename);
 				dialog.setFilterExtensions(new String[] { "*.csv", "*.*" });
 				dialog.setFilterNames(new String[] { "CSV File(*.csv)", "All Files" });
@@ -236,6 +254,10 @@ public abstract class AbstractSummaryComposite extends Composite {
 	
 	private void setDate(String date) {
 		this.date = date;
+	}
+	
+	private void setEndDate(String date) {
+		this.endDate = date;
 	}
 	
 	protected abstract void getSummaryData();

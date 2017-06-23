@@ -268,7 +268,7 @@ public class ServiceSummaryComposite extends AbstractSummaryComposite {
             try {
                 while (stime <= etime) {
                     String date = DateUtil.yyyymmdd(stime);
-                    long lastTimestampOfDay = DateUtil.getDateUnit(stime) + DateUtil.MILLIS_PER_DAY - 1;
+                    long lastTimestampOfDay = DateUtil.getTime(date, "yyyyMMdd") + DateUtil.MILLIS_PER_DAY - 1;
                     param.put("date", date);
                     param.put("stime", stime);
                     param.put("etime", lastTimestampOfDay <= etime ? lastTimestampOfDay : etime);
@@ -319,7 +319,7 @@ public class ServiceSummaryComposite extends AbstractSummaryComposite {
     }
 
 	protected void getSummaryData() {
-		new LoadServiceSummaryJob(param).schedule();
+		new LoadLongdayServiceSummaryJob(param, param.getLong("stime"), param.getLong("etime")).schedule();
 	}
 
 	protected String getTitle() {
