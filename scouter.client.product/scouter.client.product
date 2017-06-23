@@ -18,7 +18,7 @@
 @user.home/.scouter
       </programArgsMac>
       <vmArgs>-Xms128m
--Xmx512m
+-Xmx768m
 -XX:+UseG1GC
 -Dosgi.requiredJavaVersion=1.8
       </vmArgs>

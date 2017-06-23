@@ -185,7 +185,7 @@ public class AgentTransformer implements ClassFileTransformer {
             }
             return classfileBuffer;
         } catch (Throwable t) {
-            Logger.println("A101", "Transformer Error", t);
+            Logger.println("A101", "Transformer Error : " + className, t);
             t.printStackTrace();
         } finally {
             hookingCtx.set(null);

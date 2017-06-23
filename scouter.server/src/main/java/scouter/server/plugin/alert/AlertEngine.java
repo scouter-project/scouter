@@ -31,32 +31,40 @@ public class AlertEngine {
 		if (rule == null)
 			return;
 
-		RealCounter counter = realTimeMap.get(key);
-		if (counter == null) {
-			counter = new RealCounter(key);
-			AlertConf conf = loader.alertConfTable.get(key.counter);
-			//defensive code for abnormal deletion
-			if (conf == null) {
-				conf = new AlertConf();
-			}
-			counter.historySize(conf.history_size);
-			counter.silentTime(conf.silent_time);
-			counter.checkTerm(conf.check_term);
-			realTimeMap.put(key, counter);
-		}
-		counter.value(value);
+		RealCounter realCounter = realTimeMap.get(key);
+		AlertConf alertConf = loader.alertConfTable.get(key.counter);
 
-		if (counter.checkTerm() > 0) {
+		if (alertConf == null) {
+			alertConf = new AlertConf();
+		}
+
+		if (realCounter == null) {
+			realCounter = new RealCounter(key);
+			realTimeMap.put(key, realCounter);
+			realCounter.historySize(alertConf.history_size);
+			realCounter.silentTime(alertConf.silent_time);
+			realCounter.checkTerm(alertConf.check_term);
+		}
+
+		if(alertConf.changed) {
+			alertConf.changed = false;
+			realCounter.historySize(alertConf.history_size);
+			realCounter.silentTime(alertConf.silent_time);
+			realCounter.checkTerm(alertConf.check_term);
+		}
+		realCounter.value(value);
+
+		if (realCounter.checkTerm() > 0) {
 			long now = System.currentTimeMillis();
-			if (now - counter.checkTerm()*1000 > counter.lastCheckTime) {
-				counter.lastCheckTime = now;
-				rule.process(counter);
+			if (now - realCounter.checkTerm()*1000 > realCounter.lastCheckTime) {
+				realCounter.lastCheckTime = now;
+				rule.process(realCounter);
 			}
 		} else {
-			rule.process(counter);
+			rule.process(realCounter);
 		}
 
-		counter.addValueHistory((Number) value);
+		realCounter.addValueHistory((Number) value);
 	}
 
 	public static void load() {

@@ -1036,8 +1036,6 @@ public class TraceMain {
                 return;
             }
 
-            ThreadCallPossibleStep step = new ThreadCallPossibleStep();
-
             long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
             ctx.gxid = gxid;
             long callee = KeyGen.next();
@@ -1136,8 +1134,6 @@ public class TraceMain {
                 return;
             }
 
-            ThreadCallPossibleStep step = new ThreadCallPossibleStep();
-
             long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
             ctx.gxid = gxid;
             long callee = KeyGen.next();
@@ -1226,8 +1222,6 @@ public class TraceMain {
             if(TransferMap.get(System.identityHashCode(callRunnableObj)) != null) {
                 return;
             }
-
-            ThreadCallPossibleStep step = new ThreadCallPossibleStep();
 
             long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
             ctx.gxid = gxid;
