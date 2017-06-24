@@ -40,24 +40,11 @@
             <url>http://repository.scouterapm.com/artifactory/repository</url>
         </repository>
         <repository>
-            <id>scala-tools.org</id>
-            <name>Scala-tools Maven2 Repository</name>
-            <url>http://scala-tools.org/repo-releases</url>
-        </repository>
-        <repository>
             <id>redhat.com</id>
             <name>redhat maven Repository</name>
             <url>https://maven.repository.redhat.com/ga</url>
         </repository>
     </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>scala-tools.org</id>
-            <name>Scala-tools Maven2 Repository</name>
-            <url>http://scala-tools.org/repo-releases</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <licenses>
         <license>
