@@ -1,7 +1,9 @@
 package scouter.client.summary.modules;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -183,6 +185,67 @@ public class UserAgentSummaryComposite extends AbstractSummaryComposite {
 			return Status.OK_STATUS;
 		}
 	}
+	
+	class LoadLongdayUserAgentSummaryJob extends Job {
+
+        MapPack param;
+        long stime;
+        long etime;
+
+        public LoadLongdayUserAgentSummaryJob(MapPack param, long stime, long etime) {
+            super("Loading...");
+            this.param = param;
+            this.stime = stime;
+            this.etime = etime;
+        }
+
+        protected IStatus run(IProgressMonitor monitor) {
+            TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+            List<Pack> packList = new ArrayList<>();
+            try {
+                while (stime <= etime) {
+                    String date = DateUtil.yyyymmdd(stime);
+                    long lastTimestampOfDay = DateUtil.getTime(date, "yyyyMMdd") + DateUtil.MILLIS_PER_DAY - 1;
+                    param.put("date", date);
+                    param.put("stime", stime);
+                    param.put("etime", lastTimestampOfDay <= etime ? lastTimestampOfDay : etime);
+                    packList.add(tcp.getSingle(RequestCmd.LOAD_UA_SUMMARY, param));
+                    stime += DateUtil.MILLIS_PER_DAY;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return Status.CANCEL_STATUS;
+            } finally {
+                TcpProxy.putTcpProxy(tcp);
+            }
+
+            if (packList.size() > 0) {
+                Map<Integer, SummaryData> summaryDataMap = new HashMap<>();
+                for (Pack p : packList) {
+                    MapPack m = (MapPack) p;
+                    ListValue idLv = m.getList("id");
+                    ListValue countLv = m.getList("count");
+                    for (int i = 0; i < idLv.size(); i++) {
+                        SummaryData data = new SummaryData();
+                        data.hash = idLv.getInt(i);
+                        data.count = countLv.getInt(i);
+                        if (summaryDataMap.containsKey(data.hash)) {
+                            summaryDataMap.get(data.hash).addData(data);
+                        } else {
+                            summaryDataMap.put(data.hash, data);
+                        }
+                    }
+                    TextProxy.userAgent.load(date, idLv, serverId);
+                }
+                ExUtil.exec(viewer.getTable(), new Runnable() {
+                    public void run() {
+                        viewer.setInput(summaryDataMap.values());
+                    }
+                });
+            }
+            return Status.OK_STATUS;
+        }
+    }
 
 	protected void getSummaryData() {
 		new LoadUserAgentSummaryJob(param).schedule();

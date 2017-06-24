@@ -219,9 +219,9 @@ public class ConfigureView extends ViewPart {
 		bottomLabel.setFont(new Font(null, "Arial", 10, SWT.BOLD));
 		
 		bottomLabel.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
-		bottomLabel.setText(new StringBuilder("Why not do click or double-click?\n")
-				.append(" - click for tooltip\n")
-				.append(" - dbl-click for copy && paste (or ctl+C)")
+		bottomLabel.setText(new StringBuilder()
+				.append("- click for tooltip\n")
+				.append("- dbl-click for copy && paste (or ctl+C)")
 				.toString());
 				
 		sashForm.setWeights(new int[] {1, 1});

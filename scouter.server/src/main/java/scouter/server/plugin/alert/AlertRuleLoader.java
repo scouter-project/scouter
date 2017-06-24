@@ -133,6 +133,7 @@ public class AlertRuleLoader extends Thread {
 		AlertConf conf = new AlertConf();
 		if (confFile != null && confFile.canRead()) {
 			conf.lastModified = confFile.lastModified();
+			conf.changed = true;
 			byte[] body = FileUtil.readAll(confFile);
 			if (body != null) {
 				Properties p = new Properties();
