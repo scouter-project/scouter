@@ -20,10 +20,13 @@ package scouter.client.actions;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.mihalis.opal.utils.StringUtil;
+
 import scouter.client.util.ClientFileUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.ZipUtil;
@@ -47,20 +50,33 @@ public class ExportWorkspaceAction extends Action {
 	
 	public void run() {
 		if (window != null) {
+			String message = "It may be lost that you make change in this session.\n"
+					+ "If you want to export all settings made in this session,\n"
+					+ "please restart and try again.\n"
+					+ "Or if you didn't make any change in this session, just try it";
+			if(!MessageDialog.openConfirm(window.getShell(), "Confirm", message)) {
+				return;
+			}
+
 			FileDialog dialog = new FileDialog(window.getShell(), SWT.SAVE);
 
-			dialog.setFilterNames(new String[] { "scouter export files", "sce Files (*.sce)" });
-			dialog.setFilterExtensions(new String[] { "*.sce", "*.*" });
+			dialog.setFilterNames(new String[] { "scouter export zip files", "zip Files (*.zip)" });
+			dialog.setFilterExtensions(new String[] { "*.zip", "*.*" });
 			//dialog.setFilterPath("c:\\");
-			dialog.setFileName("scouter-client-export-workspace.sce");
+			dialog.setFileName("scouter-client-export-workspace.zip");
 			dialog.setOverwrite(true);
 			
 			String exportFileName = dialog.open();
+			
+			if(StringUtil.isEmpty(exportFileName)) {
+				return;
+			}
 			
 			String workspaceRootName = Platform.getInstanceLocation().getURL().getFile();
 			String exportWorkingDirName = workspaceRootName + "/export-working";
 
 			new Thread(() -> {
+				ClientFileUtil.deleteDirectory(new File(exportWorkingDirName));
 				FileUtil.mkdirs(exportWorkingDirName);
 
 				try {
@@ -77,6 +93,7 @@ public class ExportWorkspaceAction extends Action {
 
 				try {
 					ZipUtil.compress(exportWorkingDirName, exportFileName);
+					ClientFileUtil.deleteDirectory(new File(exportWorkingDirName));
 				} catch (Throwable throwable) {
 					throwable.printStackTrace();
 				}

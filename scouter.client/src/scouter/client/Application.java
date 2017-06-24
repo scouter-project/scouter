@@ -17,6 +17,7 @@
  */
 package scouter.client;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.jface.window.Window;
@@ -31,7 +32,10 @@ import scouter.client.preferences.PreferenceConstants;
 import scouter.client.preferences.ServerPrefUtil;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
+import scouter.client.util.ClientFileUtil;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,7 +46,22 @@ import java.util.Set;
 public class Application implements IApplication {
 
 	public Object start(IApplicationContext context) throws Exception {
-		//System.out.println(Platform.getLocation());
+		String workspaceRootName = Platform.getInstanceLocation().getURL().getFile();
+		String importWorkingDirName = workspaceRootName + "/import-working";
+
+		try {
+			ClientFileUtil.copy(new File(importWorkingDirName + "/" + ClientFileUtil.XLOG_COLUMN_FILE),
+					new File(workspaceRootName + "/" + ClientFileUtil.XLOG_COLUMN_FILE));
+			ClientFileUtil.copy(new File(importWorkingDirName + "/" + ClientFileUtil.GROUP_FILE),
+					new File(workspaceRootName + "/" + ClientFileUtil.GROUP_FILE));
+			ClientFileUtil.copy(new File(importWorkingDirName + "/" + ClientFileUtil.WORKSPACE_METADATA_DIR),
+					new File(workspaceRootName + "/" + ClientFileUtil.WORKSPACE_METADATA_DIR));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		ClientFileUtil.deleteDirectory(new File(importWorkingDirName));
+
 		Display display = PlatformUI.createDisplay();
 		Object exitStrategy = IApplication.EXIT_OK;
 		try {

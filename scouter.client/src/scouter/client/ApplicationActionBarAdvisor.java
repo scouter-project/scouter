@@ -46,7 +46,8 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		register(new OpenClientThreadListAction(window, "Client Thread List", Images.thread));
 		register(new OpenClientEnvViewAction(window));
 		register(new OpenWorkspaceExplorerAction(window, "Workspace Explorer", Images.explorer, serverId));
-		register(new ExportWorkspaceAction(window, "Export a workspace", Images.explorer));
+		register(new ExportWorkspaceAction(window, "Export perspective settings", Images.explorer));
+		register(new ImportWorkspaceAction(window, "Import perspective settings", Images.explorer));
 		register(new RestartAction(window, "Restart"));
 		
 		// Management
