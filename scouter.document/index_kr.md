@@ -17,13 +17,6 @@
 - [Installation FAQ](./main/Setup-FAQ.md)
 - [Configuration - options](./main/Configuration_kr.md)
 
-## Build Scouter
-- [Build on Linux & OSX](./main/Build-Scouter.md)
-- [Build on Window](./main/Build-Scouter-Windows.md)
-
-## For developers and contibutors
-- [Scouter 개발자 가이드](./tech/Developer-Guide_kr.md)
-
 ## How to use
 - [응답시간 분포도(XLog) 보는 방법](../client/Reading-XLog_kr.md)
 - [Console Mode로 시작하기](./server/Console-Mode-Running.md)
@@ -33,6 +26,13 @@
 - [method 상세 프로파일](./use-case/Method-Profiling_kr.md)
 - [Scouter 확장 - Plugin guide](./main/Plugin-Guide_kr.md)
 - [사용자 정의 알람 설정 - Alert plugins guide](./main/Alert-Plugin-Guide_kr.md)
+
+## Build Scouter
+- [Build on Linux & OSX](./main/Build-Scouter.md)
+- [Build on Window](./main/Build-Scouter-Windows.md)
+
+## For developers and contibutors
+- [Scouter 개발자 가이드](./tech/Developer-Guide_kr.md)
 
 ## Tech note
 - [Recent User를 사용하는 이유](./tech/Why-Recent-User.md)
