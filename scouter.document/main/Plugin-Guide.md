@@ -1,17 +1,17 @@
 ﻿# Scouter Plugin Guide
 ![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Plugin-Guide_kr.md)
 
-This article explains plugin funtion which enables scouter's extensibility. 
+This article explains plugin functions which enable scouter's extensibility. 
 
-With the plugin fuction of Scouter collector sever, data collected by scouter can be pre-handled and can be shared to other softwares.  
+With the plugin function of Scouter collector sever, data collected by scouter can be pre-handled and can be shared to other softwares.  
 With agent plugin, certain types of data can be modified and other business-meaningful data can be added data to XLog or profile. 
 
-> With Scouter plugin, configuration and extension can be done to enable collaboration with other open source.
+> Scouter plugins enable Scouter to collaborate with other open sources.
 
 Scouter has 2 type of plugins - server plugin and an agent plugin.  
 **server plug-in** is for to collector server  
 and **agent Plugin** is for to Java agent.  
-Server plugin has 2 type plugins including **scripting plugin**, **built-in-type plugin**.
+Server plugin has 2 type plugins including **script-type plugin**, **built-in-type plugin**.
 
 ## List of available plugins
 Below are the list of official plugins from scouter project and from contributors.
@@ -28,9 +28,9 @@ Below are the list of official plugins from scouter project and from contributor
 
 ## Server Plugin - How to
 
-### 1. Scripting Plugin
+### 1. Script (type) Plugin
 A scripting plugin is called right before xlog data is stored in a repository.
-You can add simple script for manipulate some data on the plugin files which are located in the directory **[server_runnig_dir]/plugin** by default.
+You can add simple script for manipulate some data on the plugin files which are located in the directory **[server_running_dir]/plugin** by default.
  
 Scouter distribution has the samples and the file name can not be modified.  
 Currently 6 types of scripting plugins are supported.
@@ -44,12 +44,12 @@ Currently 6 types of scripting plugins are supported.
 refer to the link for details. 
 **[Scripting plugin Server API](Server-Plugin-Scripting.md)**를 참고한다.
 
-### 2. Built-in Plugin
+### 2. Built-in (type) Plugin
 Builing scripting plugin is very simple and can be dynamically loaded on runtime environment.  
 On the other hand if you need the function permanently, it's too easy to fragile.
 So scouter provides another plugin type which allow you can attach pre-built compiled plugin and it's called as **Built-in Plugin**.
 
-Scouter load the plugins on startup, if the plugins are located in scouter server's library directory.(default:**[server_runnig_dir]/lib**)
+Scouter load the plugins on startup, if the plugins are located in scouter server's library directory.(default:**[server_running_dir]/lib**)
 
 #### 2.1 Server Built-in Plugin development guide
 ##### 1. dependecny
@@ -87,8 +87,8 @@ public class NullPlugin {
 ```
 
 * Check it.
-> 1. The file is located sub package of **scouter.plugin.server** because annotation scan scope is from scouter.plugin.server package.  
-> 2. The plugin can use scouter server's configuration and the option name must start with **ext_plugin_xxx**. 
+> 1. The file is located sub package of **scouter.plugin.server** because annotation scan scope is from scouter.plugin.server package.    
+> 2. The plugin can use scouter server's configuration and the option name must start with **ext_plugin_xxx**.  
 
 * ```ServerPlugin``` annotations
 
@@ -104,14 +104,17 @@ Provided sample plugin that just prints the data collected.
  * Sample plugin : [https://github.com/scouter-project/scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)
  * Download : [scouter-plugin-server-null.jar](https://github.com/scouter-project/scouter-plugin-server-null/releases/download/v1.0/scouter-plugin-server-null.jar)
 
+### 3. Alert scripting (type) plugin
+We can build our own alarm rules by handling alert scripting plugins which are able to compose various performance metrics.
+  * [Alert Plugin Guide](./Alert-Plugin-Guide.md)
 
 ## Agent Plugin - Scripting Plugin
 
 #### Java agent plugin
-**Scripting plugin can be loaded dynamically on runtime so it is used for debugging also** 
-It's very useful to print some method's parameters or stacktrace on specific point and also can add additional (user-defined) profile information to the xlog or xlog profile.   
-The scripting plugin is invoked at some important points and the default location of the plugin file is **./plugin**.
-Scouter distribution includes sample plugin files and the file name can not be modified.
+**Scripting plugin can be loaded dynamically on runtime so it is used for debugging also**    
+It's very useful to print some method's parameters or stacktrace on specific point and also can add additional (user-defined) profile information to the xlog or xlog profile.     
+The scripting plugin is invoked at some important points and the default location of the plugin file is **./plugin**.  
+Scouter distribution includes sample plugin files and the file name can not be modified.  
  
 |filename               |    desc                  |
 |-------------------|-------------------------|
@@ -121,4 +124,4 @@ Scouter distribution includes sample plugin files and the file name can not be m
 |**capture.plug**        | Invoked at init, start, end of methods that are set by options ```hook_method_patterns``` or ```hook_constructor_patterns```  |
 |**jdbcpoolplug**        | Invoked at calling DB connection URL |
 
-Refer to the link for details **[Scripting plugin java agent API](JavaAgent-Plugin-Scripting.md)**를 참고한다.
+Refer to the link for details **[Scripting plugin java agent API](JavaAgent-Plugin-Scripting.md)**
