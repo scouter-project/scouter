@@ -106,7 +106,7 @@ Provided sample plugin that just prints the data collected.
 
 ### 3. Alert scripting (type) plugin
 We can build our own alarm rules by handling alert scripting plugins which are able to compose various performance metrics.
-* [Alert Plugin Guide](./Alert-Plugin-Guide.md)
+  * [Alert Plugin Guide](./Alert-Plugin-Guide.md)
 
 ## Agent Plugin - Scripting Plugin
 
@@ -124,4 +124,4 @@ Scouter distribution includes sample plugin files and the file name can not be m
 |**capture.plug**        | Invoked at init, start, end of methods that are set by options ```hook_method_patterns``` or ```hook_constructor_patterns```  |
 |**jdbcpoolplug**        | Invoked at calling DB connection URL |
 
-Refer to the link for details **[Scripting plugin java agent API](JavaAgent-Plugin-Scripting.md)**를 참고한다.
+Refer to the link for details **[Scripting plugin java agent API](JavaAgent-Plugin-Scripting.md)**

@@ -88,7 +88,9 @@ Plugin 개발시 아래 두가지 사항을 준수하여야 한다.
  * Download : [scouter-plugin-server-null.jar](https://github.com/scouter-project/scouter-plugin-server-null/releases/download/v1.0/scouter-plugin-server-null.jar)
 
 ### 3. Alert scripting (type) plugin
-
+Alert scripting plugin 을 통해 기본으로 제공하는 알람 조건외에  
+사용자가 다양한 성능 counter의 값들을 자유롭게 조합하여 알람을 설정할 수 있는 기능을 제공한다. 
+  * [Alert Plugin Guide](./Alert-Plugin-Guide_kr.md)
 
 ## Agent Plugin 설명 - Scripting Plugin
 
