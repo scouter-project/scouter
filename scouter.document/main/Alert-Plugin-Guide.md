@@ -129,5 +129,5 @@ We can build our own alarm rules by handling alert scripting plugins which are a
 | intValue(String anotherCounterName)        | get another counter's current value by the name   |
 
 ### Counter names
-![counters.xml](https://github.com/scouter-project/scouter/blob/fe74bdb73a34be2f390f8476991d59a5de6ea204/scouter.common/src/main/resources/scouter/lang/counters/counters.xml)
+[counters.xml](https://github.com/scouter-project/scouter/blob/fe74bdb73a34be2f390f8476991d59a5de6ea204/scouter.common/src/main/resources/scouter/lang/counters/counters.xml)
 

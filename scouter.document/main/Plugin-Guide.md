@@ -106,6 +106,7 @@ Provided sample plugin that just prints the data collected.
 
 ### 3. Alert scripting (type) plugin
 We can build our own alarm rules by handling alert scripting plugins which are able to compose various performance metrics.
+* [Alert Plugin Guide](./Alert-Plugin-Guide.md)
 
 ## Agent Plugin - Scripting Plugin
 
