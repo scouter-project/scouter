@@ -28,7 +28,7 @@
 			<Counter name="DiskReadBytes" disp="Disk | ReadBytes" unit="bytes/sec" icon="disk_read.png" total="false"/>
 			<Counter name="DiskWriteBytes" disp="Disk | WriteBytes" unit="bytes/sec" icon="disk_write.png" total="false"/>
 
-		</Family>
+		<`/Family>
 		<Family name="javaee" master="ActiveService">
 			<Counter name="RecentUser" disp="Recent User" unit="cnt" icon="visitor.png" />
 			<Counter name="HeapTotUsage" disp="Heap Total Usage" unit="MB" icon="memory.png" all="false" total="false"  />
