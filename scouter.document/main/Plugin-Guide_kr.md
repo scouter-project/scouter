@@ -4,7 +4,7 @@
 이 글에서는 Scouter를 확장 가능하게 만들어 주는 Plugin 기능에 대해 설명한다. 
 Scouter collector sever의 Plugin 기능을 통하여 scouter의 수집 데이터를 선처리 하거나 타 소프트웨어로 전송할 수 있으며 agent plugin을 통하여 특정 데이터를 선처리하거나 업무적으로 의미있는 데이터를 XLog나 프로파일에 추가할 수 있다. 
 
-> Scouter plugin을 통해 다른 open source들과 조합을 통한 구성 및 확장이 가능하다. 
+> Scouter plugin을 통해 다른 open source들과 쉽게 통합이 가능한다. 
 
 Scouter의 프로파일은 collector server에 적용 가능한 **server plugin**, 그리고 Java agent에 적용할 수 있는 **agent Plugin**으로 구분이 되며 server plugin은 **scripting plugin**과 **built-in plugin**으로 나누어 진다. 
 현재 agent plugin은 java agent용의 scripting plugin만 제공된다. 
@@ -21,6 +21,7 @@ Scouter의 프로파일은 collector server에 적용 가능한 **server plugin*
 
 #### 2. agent plugins
 * TBD
+
 
 ## Server Plugin 설명
 **Scripting plugin은 코드 변경이 동적으로 load 및 compile되어 runtime에 즉시 반영되므로 debugging등에도 활용될 수 있다.**
@@ -85,6 +86,8 @@ Plugin 개발시 아래 두가지 사항을 준수하여야 한다.
 단순히 수집된 데이터를 출력하는 간단한 plugin 샘플을 제공한다. 
  * Sample plugin : [https://github.com/scouter-project/scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)
  * Download : [scouter-plugin-server-null.jar](https://github.com/scouter-project/scouter-plugin-server-null/releases/download/v1.0/scouter-plugin-server-null.jar)
+
+### 3. Alert scripting (type) plugin
 
 
 ## Agent Plugin 설명 - Scripting Plugin
