@@ -12,6 +12,21 @@
 - [What’s special in SCOUTER?](./main/What-special-in-SCOUTER.md)
 - [Stand-alone Java Batch Agent](./main/Stand-alone-Java-Batch-Agent.md)
 
+## How to use
+- [How to analyze XLog View](./client/Reading-XLog.md) 
+- [Console Mode Running](./server/Console-Mode-Running.md)
+- [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
+- [How to trace NON-HTTP service](./use-case/NON-HTTP-Service-Trace.md) 
+- [method level profiling](./use-case/Method-Profiling.md)
+- [Scouter plugins guide](./main/Plugin-Guide.md)
+- [Customizable alarm - Alert plugins guide](./main/Alert-Plugin-Guide.md)
+
+## Tech note
+- [Why Recent User](./tech/Why-Recent-User.md)
+- [Counting Visit Users](./tech/Counting-Visit-Users.md)
+- [JDBC Connection Leak Trace](./tech/JDBC-Connection-Leak-Trace.md)
+- [Service Performance 101](./tech/Service-Performance-101.md)
+
 ## Install
 - [Installation](./main/Setup.md)
 - [Installation FAQ](./main/Setup-FAQ.md)
@@ -24,23 +39,9 @@
 ## For developers and contibutors
 - [Scouter developer guide](./tech/Developer-Guide.md)
 
-## How to use
-- [How to analyze XLog View](./client/Reading-XLog.md) 
-- [Console Mode Running](./server/Console-Mode-Running.md)
-- [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
-- [How to trace NON-HTTP service](./use-case/NON-HTTP-Service-Trace.md) 
-- [method level profiling](./use-case/Method-Profiling.md)
-- [beyond Scouter - Plugin guide](./main/Plugin-Guide.md)
-
-## Tech note
-- [Why Recent User](./tech/Why-Recent-User.md)
-- [Counting Visit Users](./tech/Counting-Visit-Users.md)
-- [JDBC Connection Leak Trace](./tech/JDBC-Connection-Leak-Trace.md)
-- [Service Performance 101](./tech/Service-Performance-101.md)
-
 ## MISC
 - [SCOUTER includes](./main/SCOUTER-includes.md)
 
-## Page Helps
+## Client page Helps
 - [XLog View](./views/XLog-View.md)
 - [XLog Profile View](./views/XLog-Profile-View.md)
