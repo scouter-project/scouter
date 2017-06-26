@@ -78,6 +78,10 @@ public class AgentHeartBeat {
 		if(StringUtil.isNotEmpty(conf.getObjExtType())){
 			p.tags.put(TAG_OBJ_EXT_TYPE, conf.getObjExtType());
 		}
+		if(StringUtil.isNotEmpty(conf.getObjDetectedType())){
+			p.tags.put(TAG_OBJ_DETECTED_TYPE, conf.getObjDetectedType());
+		}
+
 		if (ToolsMainFactory.activeStack) {
 			p.tags.put(TAG_ACTIVE_STACK, new BooleanValue(true));
 		}

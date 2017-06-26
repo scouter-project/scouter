@@ -11,4 +11,7 @@ public class ScouterConstants {
     public static final String TAG_OBJ_EXT_TYPE = "objExtType";
     public static final String TAG_ACTIVE_STACK= "ActiveStack";
 
+    public static final String TAG_OBJ_DETECTED_TYPE = "detected";
+
+
 }

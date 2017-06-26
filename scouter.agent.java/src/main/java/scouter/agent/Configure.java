@@ -100,8 +100,10 @@ public class Configure extends Thread {
     public long net_udp_collection_interval_ms = 100;
 
     //Object
-    @ConfigDesc("Object Type")
+    @ConfigDesc("Deprecated. It's just an alias of system_group_id which overrides this value.")
     public String obj_type = "";
+    @ConfigDesc("system id which identifies the system.(grouping unit of monitoring) eg) Order ")
+    public String system_group_id = "";
     @ConfigDesc("Object Name")
     public String obj_name = "";
     @ConfigDesc("Host Type")
@@ -528,6 +530,7 @@ public class Configure extends Thread {
 
     //internal variables
     private String objExtType = "";
+    private String objDetectedType = "";
     private int objHash;
     private String objName;
     private int objHostHash;
@@ -901,6 +904,14 @@ public class Configure extends Thread {
         this.objExtType = objExtType;
     }
 
+    public String getObjDetectedType() {
+        return this.objDetectedType;
+    }
+
+    public void setObjDetectedType(String objDetectedType) {
+        this.objDetectedType = objDetectedType;
+    }
+
     public int getObjHash() {
         return this.objHash;
     }
@@ -970,7 +981,10 @@ public class Configure extends Thread {
     public synchronized void resetObjInfo() {
         String detected = ObjTypeDetector.drivedType != null ? ObjTypeDetector.drivedType
                 : ObjTypeDetector.objType != null ? ObjTypeDetector.objType : CounterConstants.JAVA;
-        this.obj_type = getValue("obj_type", detected);
+
+        this.objDetectedType = detected;
+        this.system_group_id = getValue("system_group_id");
+        this.obj_type = StringUtil.isEmpty(this.system_group_id) ? getValue("obj_type", detected) : this.system_group_id;
         this.objExtType = ObjTypeDetector.objExtType;
 
         detected = CounterConstants.HOST;
@@ -1094,6 +1108,7 @@ public class Configure extends Thread {
         ignoreSet.add("property");
         ignoreSet.add("__experimental");
         ignoreSet.add("_profile_http_header_keys");
+        //ignoreSet.add("obj_type");
     }
 
     public MapValue getKeyValueInfo() {

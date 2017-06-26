@@ -20,7 +20,7 @@ import java.util.{ArrayList, Enumeration, HashSet, List}
 
 import scouter.lang.{AlertLevel, TextTypes}
 import scouter.lang.pack.{AlertPack, MapPack, ObjectPack, TextPack}
-import scouter.server.{Configure, Logger}
+import scouter.server.{Configure, CounterManager, Logger}
 import scouter.server.core.cache.{AlertCache, CommonCache}
 import scouter.server.db.{AlertWR, ObjectRD, ObjectWR}
 import scouter.server.plugin.PlugInManager
@@ -65,6 +65,9 @@ object AgentManager {
         if (p.objHash == 0) {
             p.objHash = HashUtil.hash(p.objName);
         }
+
+        CounterManager.getInstance().addObjectTypeIfNotExist(p);
+
         PlugInManager.active(p);
         var objPack = objMap.getObject(p.objHash);
         if (objPack == null) {
