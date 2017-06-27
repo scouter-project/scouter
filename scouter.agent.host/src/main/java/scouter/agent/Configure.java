@@ -70,8 +70,10 @@ public class Configure extends Thread {
 	public int net_udp_packet_max_bytes = 60000;
 
 	//Object
-	@ConfigDesc("Object Type")
+	@ConfigDesc("Deprecated. It's just an alias of system_group_id which overrides this value.")
 	public String obj_type = "";
+	@ConfigDesc("monitoring group type, commonly named as system name and a monitoring type.\neg) ORDER-JVM, WAREHOUSE-LINUX ...")
+	public String monitoring_group_type = "";
 	@ConfigDesc("Object Name")
 	public String obj_name = "";
 
@@ -123,6 +125,7 @@ public class Configure extends Thread {
 	//internal variables
 	private int objHash;
 	private String objName;
+	private String objDetectedType = "";
 
 	private Configure() {
 		Properties p = new Properties();
@@ -277,12 +280,24 @@ public class Configure extends Thread {
 		} else if (SystemUtil.IS_HP_UX) {
 			detected = CounterConstants.HPUX;
 		}
-		this.obj_type = getValue("obj_type", detected);
+
+		this.objDetectedType = detected;
+		this.monitoring_group_type = getValue("monitoring_group_type");
+		this.obj_type = StringUtil.isEmpty(this.monitoring_group_type) ? getValue("obj_type", detected) : this.monitoring_group_type;
+
 		this.obj_name = getValue("obj_name", SysJMX.getHostName());
 
 		this.objName = "/" + this.obj_name;
 		this.objHash = HashUtil.hash(objName);
 
+	}
+
+	public String getObjDetectedType() {
+		return this.objDetectedType;
+	}
+
+	public void setObjDetectedType(String objDetectedType) {
+		this.objDetectedType = objDetectedType;
 	}
 
 	public String getValue(String key) {
