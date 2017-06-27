@@ -102,8 +102,8 @@ public class Configure extends Thread {
     //Object
     @ConfigDesc("Deprecated. It's just an alias of system_group_id which overrides this value.")
     public String obj_type = "";
-    @ConfigDesc("system id which identifies the system.(grouping unit of monitoring) eg) Order ")
-    public String system_group_id = "";
+    @ConfigDesc("monitoring group type, commonly named as system name and a monitoring type.\neg) ORDER-JVM, WAREHOUSE-LINUX ...")
+    public String monitoring_group_type = "";
     @ConfigDesc("Object Name")
     public String obj_name = "";
     @ConfigDesc("Host Type")
@@ -983,8 +983,8 @@ public class Configure extends Thread {
                 : ObjTypeDetector.objType != null ? ObjTypeDetector.objType : CounterConstants.JAVA;
 
         this.objDetectedType = detected;
-        this.system_group_id = getValue("system_group_id");
-        this.obj_type = StringUtil.isEmpty(this.system_group_id) ? getValue("obj_type", detected) : this.system_group_id;
+        this.monitoring_group_type = getValue("monitoring_group_type");
+        this.obj_type = StringUtil.isEmpty(this.monitoring_group_type) ? getValue("obj_type", detected) : this.monitoring_group_type;
         this.objExtType = ObjTypeDetector.objExtType;
 
         detected = CounterConstants.HOST;
