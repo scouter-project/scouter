@@ -81,7 +81,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 	private Image ibuffer;
 	
 	private ScrolledComposite scroll;
-	int winYSize;
+	int winXSize;
 	Rectangle area;
 	public void createPartControl(final Composite parent) {
 		parent.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
@@ -98,7 +98,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 			public void paintControl(PaintEvent e) {
 				try {
 					area = canvas.getClientArea();
-					winYSize = parent.getSize().y;
+					winXSize = parent.getSize().x;
 					drawEQImage(e.gc);
 				} catch (Throwable t) {}
 			}
@@ -146,10 +146,10 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 	
 	private void drawEQImage(GC gc) {
 		if (ibuffer != null) {
-			if (AXIS_PADDING + (MINIMUM_UNIT_WIDTH * size) > winYSize) {
-				scroll.setMinSize(canvas.computeSize(SWT.DEFAULT, AXIS_PADDING + (MINIMUM_UNIT_WIDTH * size)));	
+			if (AXIS_PADDING + (MINIMUM_UNIT_WIDTH * size) > winXSize) {
+				scroll.setMinSize(canvas.computeSize(AXIS_PADDING + (MINIMUM_UNIT_WIDTH * size), SWT.DEFAULT));	
 			} else {
-				scroll.setMinSize(canvas.computeSize(SWT.DEFAULT, winYSize));	
+				scroll.setMinSize(canvas.computeSize(winXSize, SWT.DEFAULT));	
 			}
 			if (ibuffer.isDisposed() == false) {
 				gc.drawImage(ibuffer, 0, 0);
