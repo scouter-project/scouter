@@ -16,14 +16,14 @@
  */
 package scouter.agent.asm;
 
-import scouter.agent.ClassDesc;
-import scouter.agent.Configure;
-import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.agent.ClassDesc;
+import scouter.agent.Configure;
+import scouter.agent.asm.util.AsmUtil;
+import scouter.agent.trace.TraceSQL;
 
 public class UserTxASM implements IASM, Opcodes {
 
@@ -48,7 +48,7 @@ public class UserTxASM implements IASM, Opcodes {
 class UserTxCV extends ClassVisitor implements Opcodes {
 
 	public UserTxCV(ClassVisitor cv) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 	}
 	@Override
 	public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
@@ -72,7 +72,7 @@ class UTXOpenMV extends LocalVariablesSorter implements Opcodes {
 	private static final String SIGNATURE = "()V";
 
 	public UTXOpenMV(int access, String desc, MethodVisitor mv) {
-		super(ASM4, access, desc, mv);
+		super(ASM5, access, desc, mv);
 	}
 
 	@Override
@@ -91,7 +91,7 @@ class UTXCloseMV extends LocalVariablesSorter implements Opcodes {
 	private String method;
 
 	public UTXCloseMV(int access, String desc, MethodVisitor mv, String method) {
-		super(ASM4, access, desc, mv);
+		super(ASM5, access, desc, mv);
 		this.method = method;
 	}
 

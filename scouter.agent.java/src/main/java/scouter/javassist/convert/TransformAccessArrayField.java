@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,18 +14,13 @@
  */
 package scouter.javassist.convert;
 
+import scouter.javassist.bytecode.*;
+import scouter.javassist.bytecode.analysis.Frame;
 import scouter.javassist.CannotCompileException;
 import scouter.javassist.CtClass;
 import scouter.javassist.NotFoundException;
-import scouter.javassist.CodeConverter.ArrayAccessReplacementMethodNames;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.CodeIterator;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.Descriptor;
-import scouter.javassist.bytecode.MethodInfo;
 import scouter.javassist.bytecode.analysis.Analyzer;
-import scouter.javassist.bytecode.analysis.Frame;
-import scouter.javassist.convert.Transformer;
+import scouter.javassist.CodeConverter;
 
 /**
  * A transformer which replaces array access with static method invocations.
@@ -37,12 +31,12 @@ import scouter.javassist.convert.Transformer;
  */
 public final class TransformAccessArrayField extends Transformer {
     private final String methodClassname;
-    private final ArrayAccessReplacementMethodNames names;
+    private final CodeConverter.ArrayAccessReplacementMethodNames names;
     private Frame[] frames;
     private int offset;
 
     public TransformAccessArrayField(Transformer next, String methodClassname,
-            ArrayAccessReplacementMethodNames names) throws NotFoundException {
+                                     CodeConverter.ArrayAccessReplacementMethodNames names) throws NotFoundException {
         super(next);
         this.methodClassname = methodClassname;
         this.names = names;
@@ -66,16 +60,16 @@ public final class TransformAccessArrayField extends Transformer {
                 int pos = iterator.next();
                 int c = iterator.byteAt(pos);
 
-                if (c == AALOAD)
+                if (c == Opcode.AALOAD)
                     initFrames(clazz, minfo);
 
-                if (c == AALOAD || c == BALOAD || c == CALOAD || c == DALOAD
-                        || c == FALOAD || c == IALOAD || c == LALOAD
-                        || c == SALOAD) {
+                if (c == Opcode.AALOAD || c == Opcode.BALOAD || c == Opcode.CALOAD || c == Opcode.DALOAD
+                        || c == Opcode.FALOAD || c == Opcode.IALOAD || c == Opcode.LALOAD
+                        || c == Opcode.SALOAD) {
                     pos = replace(cp, iterator, pos, c, getLoadReplacementSignature(c));
-                } else if (c == AASTORE || c == BASTORE || c == CASTORE
-                        || c == DASTORE || c == FASTORE || c == IASTORE
-                        || c == LASTORE || c == SASTORE) {
+                } else if (c == Opcode.AASTORE || c == Opcode.BASTORE || c == Opcode.CASTORE
+                        || c == Opcode.DASTORE || c == Opcode.FASTORE || c == Opcode.IASTORE
+                        || c == Opcode.LASTORE || c == Opcode.SASTORE) {
                     pos = replace(cp, iterator, pos, c, getStoreReplacementSignature(c));
                 }
 
@@ -124,12 +118,12 @@ public final class TransformAccessArrayField extends Transformer {
     }
 
     private int replace(ConstPool cp, CodeIterator iterator, int pos,
-            int opcode, String signature) throws BadBytecode {
+                        int opcode, String signature) throws BadBytecode {
         String castType = null;
         String methodName = getMethodName(opcode);
         if (methodName != null) {
             // See if the object must be cast
-            if (opcode == AALOAD) {
+            if (opcode == Opcode.AALOAD) {
                 castType = getTopType(iterator.lookAhead());
                 // Do not replace an AALOAD instruction that we do not have a type for
                 // This happens when the state is guaranteed to be null (Type.UNINIT)
@@ -142,18 +136,18 @@ public final class TransformAccessArrayField extends Transformer {
 
             // The gap may include extra padding
             // Write a nop in case the padding pushes the instruction forward
-            iterator.writeByte(NOP, pos);
+            iterator.writeByte(Opcode.NOP, pos);
             CodeIterator.Gap gap
                 = iterator.insertGapAt(pos, castType != null ? 5 : 2, false);
             pos = gap.position;
             int mi = cp.addClassInfo(methodClassname);
             int methodref = cp.addMethodrefInfo(mi, methodName, signature);
-            iterator.writeByte(INVOKESTATIC, pos);
+            iterator.writeByte(Opcode.INVOKESTATIC, pos);
             iterator.write16bit(methodref, pos + 1);
 
             if (castType != null) {
                 int index = cp.addClassInfo(castType);
-                iterator.writeByte(CHECKCAST, pos + 3);
+                iterator.writeByte(Opcode.CHECKCAST, pos + 3);
                 iterator.write16bit(index, pos + 4);
             }
 
@@ -166,52 +160,52 @@ public final class TransformAccessArrayField extends Transformer {
     private String getMethodName(int opcode) {
         String methodName = null;
         switch (opcode) {
-        case AALOAD:
+        case Opcode.AALOAD:
             methodName = names.objectRead();
             break;
-        case BALOAD:
+        case Opcode.BALOAD:
             methodName = names.byteOrBooleanRead();
             break;
-        case CALOAD:
+        case Opcode.CALOAD:
             methodName = names.charRead();
             break;
-        case DALOAD:
+        case Opcode.DALOAD:
             methodName = names.doubleRead();
             break;
-        case FALOAD:
+        case Opcode.FALOAD:
             methodName = names.floatRead();
             break;
-        case IALOAD:
+        case Opcode.IALOAD:
             methodName = names.intRead();
             break;
-        case SALOAD:
+        case Opcode.SALOAD:
             methodName = names.shortRead();
             break;
-        case LALOAD:
+        case Opcode.LALOAD:
             methodName = names.longRead();
             break;
-        case AASTORE:
+        case Opcode.AASTORE:
             methodName = names.objectWrite();
             break;
-        case BASTORE:
+        case Opcode.BASTORE:
             methodName = names.byteOrBooleanWrite();
             break;
-        case CASTORE:
+        case Opcode.CASTORE:
             methodName = names.charWrite();
             break;
-        case DASTORE:
+        case Opcode.DASTORE:
             methodName = names.doubleWrite();
             break;
-        case FASTORE:
+        case Opcode.FASTORE:
             methodName = names.floatWrite();
             break;
-        case IASTORE:
+        case Opcode.IASTORE:
             methodName = names.intWrite();
             break;
-        case SASTORE:
+        case Opcode.SASTORE:
             methodName = names.shortWrite();
             break;
-        case LASTORE:
+        case Opcode.LASTORE:
             methodName = names.longWrite();
             break;
         }
@@ -224,21 +218,21 @@ public final class TransformAccessArrayField extends Transformer {
 
     private String getLoadReplacementSignature(int opcode) throws BadBytecode {
         switch (opcode) {
-        case AALOAD:
+        case Opcode.AALOAD:
             return "(Ljava/lang/Object;I)Ljava/lang/Object;";
-        case BALOAD:
+        case Opcode.BALOAD:
             return "(Ljava/lang/Object;I)B";
-        case CALOAD:
+        case Opcode.CALOAD:
             return "(Ljava/lang/Object;I)C";
-        case DALOAD:
+        case Opcode.DALOAD:
             return "(Ljava/lang/Object;I)D";
-        case FALOAD:
+        case Opcode.FALOAD:
             return "(Ljava/lang/Object;I)F";
-        case IALOAD:
+        case Opcode.IALOAD:
             return "(Ljava/lang/Object;I)I";
-        case SALOAD:
+        case Opcode.SALOAD:
             return "(Ljava/lang/Object;I)S";
-        case LALOAD:
+        case Opcode.LALOAD:
             return "(Ljava/lang/Object;I)J";
         }
 
@@ -247,21 +241,21 @@ public final class TransformAccessArrayField extends Transformer {
 
     private String getStoreReplacementSignature(int opcode) throws BadBytecode {
         switch (opcode) {
-        case AASTORE:
+        case Opcode.AASTORE:
             return "(Ljava/lang/Object;ILjava/lang/Object;)V";
-        case BASTORE:
+        case Opcode.BASTORE:
             return "(Ljava/lang/Object;IB)V";
-        case CASTORE:
+        case Opcode.CASTORE:
             return "(Ljava/lang/Object;IC)V";
-        case DASTORE:
+        case Opcode.DASTORE:
             return "(Ljava/lang/Object;ID)V";
-        case FASTORE:
+        case Opcode.FASTORE:
             return "(Ljava/lang/Object;IF)V";
-        case IASTORE:
+        case Opcode.IASTORE:
             return "(Ljava/lang/Object;II)V";
-        case SASTORE:
+        case Opcode.SASTORE:
             return "(Ljava/lang/Object;IS)V";
-        case LASTORE:
+        case Opcode.LASTORE:
             return "(Ljava/lang/Object;IJ)V";
         }
 

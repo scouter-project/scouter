@@ -740,7 +740,7 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
         // AbstractMap implementation
 
         @Override
-        public Set<Map.Entry<LabelNode, LabelNode>> entrySet() {
+        public Set<Entry<LabelNode, LabelNode>> entrySet() {
             return null;
         }
 

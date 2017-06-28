@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,35 +15,7 @@
 
 package scouter.javassist.compiler;
 
-import scouter.javassist.compiler.CodeGen;
-import scouter.javassist.compiler.CompileError;
-import scouter.javassist.compiler.Lex;
-import scouter.javassist.compiler.SymbolTable;
-import scouter.javassist.compiler.SyntaxError;
-import scouter.javassist.compiler.TokenId;
-import scouter.javassist.compiler.ast.ASTList;
-import scouter.javassist.compiler.ast.ASTree;
-import scouter.javassist.compiler.ast.ArrayInit;
-import scouter.javassist.compiler.ast.AssignExpr;
-import scouter.javassist.compiler.ast.BinExpr;
-import scouter.javassist.compiler.ast.CallExpr;
-import scouter.javassist.compiler.ast.CastExpr;
-import scouter.javassist.compiler.ast.CondExpr;
-import scouter.javassist.compiler.ast.Declarator;
-import scouter.javassist.compiler.ast.DoubleConst;
-import scouter.javassist.compiler.ast.Expr;
-import scouter.javassist.compiler.ast.FieldDecl;
-import scouter.javassist.compiler.ast.InstanceOfExpr;
-import scouter.javassist.compiler.ast.IntConst;
-import scouter.javassist.compiler.ast.Keyword;
-import scouter.javassist.compiler.ast.Member;
-import scouter.javassist.compiler.ast.MethodDecl;
-import scouter.javassist.compiler.ast.NewExpr;
-import scouter.javassist.compiler.ast.Pair;
-import scouter.javassist.compiler.ast.Stmnt;
-import scouter.javassist.compiler.ast.StringL;
-import scouter.javassist.compiler.ast.Symbol;
-import scouter.javassist.compiler.ast.Variable;
+import scouter.javassist.compiler.ast.*;
 
 public final class Parser implements TokenId {
     private Lex lex;
@@ -101,7 +72,7 @@ public final class Parser implements TokenId {
      *    [ "=" expression ] ";"
      */
     private FieldDecl parseField(SymbolTable tbl, ASTList mods,
-                                Declarator d) throws CompileError
+                                 Declarator d) throws CompileError
     {
         ASTree expr = null;
         if (lex.lookAhead() == '=') {
@@ -316,7 +287,7 @@ public final class Parser implements TokenId {
         while (lex.lookAhead() != '}') {
             Stmnt s = parseStatement(tbl2);
             if (s != null)
-                body = (Stmnt)ASTList.concat(body, new Stmnt(BLOCK, s));
+                body = (Stmnt) ASTList.concat(body, new Stmnt(BLOCK, s));
         }
 
         lex.get();      // '}'
@@ -445,11 +416,11 @@ public final class Parser implements TokenId {
             if (s2 != null) {
                 int op2 = s2.getOperator();
                 if (op2 == CASE || op2 == DEFAULT) {
-                    body = (Stmnt)ASTList.concat(body, new Stmnt(BLOCK, s2));
+                    body = (Stmnt) ASTList.concat(body, new Stmnt(BLOCK, s2));
                     s = s2;
                 }
                 else
-                    s = (Stmnt)ASTList.concat(s, new Stmnt(BLOCK, s2));
+                    s = (Stmnt) ASTList.concat(s, new Stmnt(BLOCK, s2));
             }
         }
 
@@ -630,7 +601,7 @@ public final class Parser implements TokenId {
         Stmnt expr = null;
         for (;;) {
             Stmnt e = new Stmnt(EXPR, parseExpression(tbl));
-            expr = (Stmnt)ASTList.concat(expr, new Stmnt(BLOCK, e));
+            expr = (Stmnt) ASTList.concat(expr, new Stmnt(BLOCK, e));
             if (lex.lookAhead() == ',')
                 lex.get();
             else
@@ -645,7 +616,7 @@ public final class Parser implements TokenId {
     {
         Stmnt decl = null;
         for (;;) {
-            decl = (Stmnt)ASTList.concat(decl,
+            decl = (Stmnt) ASTList.concat(decl,
                                 new Stmnt(DECL, parseDeclarator(tbl, d)));
             int t = lex.get();
             if (t == ';')
@@ -920,7 +891,7 @@ public final class Parser implements TokenId {
     /* cast.expr : "(" builtin.type ("[" "]")* ")" unary.expr
                  | "(" class.type ("[" "]")* ")" unary.expr2
 
-       unary.expr2 is a unary.expr beginning with "(", NULL, StringL,
+       unary.expr2 is a unary.expr begining with "(", NULL, StringL,
        Identifier, THIS, SUPER, or NEW.
 
        Either "(int.class)" or "(String[].class)" is a not cast expression.
@@ -1029,7 +1000,6 @@ public final class Parser implements TokenId {
      *              | postfix.expr "." Identifier
      *              | postfix.expr ( "[" "]" )* "." CLASS
      *              | postfix.expr "#" Identifier
-     *              | postfix.expr "." SUPER
      *
      * "#" is not an operator of regular Java.  It separates
      * a class name and a member name in an expression for static member
@@ -1087,10 +1057,9 @@ public final class Parser implements TokenId {
             case '.' :
                 lex.get();
                 t = lex.get();
-                if (t == CLASS)
+                if (t == CLASS) {
                     expr = parseDotClass(expr, 0);
-                else if (t == SUPER)
-                    expr = Expr.make('.', new Symbol(toClassName(expr)), new Keyword(t));
+                }
                 else if (t == Identifier) {
                     str = lex.getString();
                     expr = Expr.make('.', expr, new Member(str));

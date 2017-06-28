@@ -16,9 +16,9 @@
 package scouter.agent.asm.jdbc;
 
 
-import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
+import scouter.agent.trace.TraceSQL;
 
 public class PsCloseMV extends MethodVisitor implements Opcodes {
 	private static final String TRACESQL = TraceSQL.class.getName().replace('.', '/');
@@ -26,7 +26,7 @@ public class PsCloseMV extends MethodVisitor implements Opcodes {
 	private static final String SIGNATURE = "(Ljava/lang/Object;)V";
 
 	public PsCloseMV(MethodVisitor mv) {
-		super(ASM4, mv);
+		super(ASM5, mv);
 	}
 
 	@Override

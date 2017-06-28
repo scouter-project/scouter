@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -19,32 +18,11 @@ package scouter.javassist.bytecode;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-
-import scouter.javassist.bytecode.AnnotationDefaultAttribute;
-import scouter.javassist.bytecode.AnnotationsAttribute;
-import scouter.javassist.bytecode.BootstrapMethodsAttribute;
-import scouter.javassist.bytecode.CodeAttribute;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.ConstantAttribute;
-import scouter.javassist.bytecode.DeprecatedAttribute;
-import scouter.javassist.bytecode.EnclosingMethodAttribute;
-import scouter.javassist.bytecode.ExceptionsAttribute;
-import scouter.javassist.bytecode.InnerClassesAttribute;
-import scouter.javassist.bytecode.LineNumberAttribute;
-import scouter.javassist.bytecode.LocalVariableAttribute;
-import scouter.javassist.bytecode.LocalVariableTypeAttribute;
-import scouter.javassist.bytecode.ParameterAnnotationsAttribute;
-import scouter.javassist.bytecode.SignatureAttribute;
-import scouter.javassist.bytecode.SourceFileAttribute;
-import scouter.javassist.bytecode.StackMap;
-import scouter.javassist.bytecode.StackMapTable;
-import scouter.javassist.bytecode.SyntheticAttribute;
-
+import java.util.ArrayList;
+import java.util.ListIterator;
+import java.util.List;
+import java.util.Iterator;
 
 // Note: if you define a new subclass of AttributeInfo, then
 //       update AttributeInfo.read(), .copy(), and (maybe) write().
@@ -95,65 +73,49 @@ public class AttributeInfo {
     {
         int name = in.readUnsignedShort();
         String nameStr = cp.getUtf8Info(name);
-        char first = nameStr.charAt(0);
-        if (first < 'M') {
-            if (first < 'E') {
-                if (nameStr.equals(AnnotationDefaultAttribute.tag))
-                    return new AnnotationDefaultAttribute(cp, name, in);
-                else if (nameStr.equals(BootstrapMethodsAttribute.tag))
-                    return new BootstrapMethodsAttribute(cp, name, in);
-                else if (nameStr.equals(CodeAttribute.tag))
-                    return new CodeAttribute(cp, name, in);
-                else if (nameStr.equals(ConstantAttribute.tag))
-                    return new ConstantAttribute(cp, name, in);
-                else if (nameStr.equals(DeprecatedAttribute.tag))
-                    return new DeprecatedAttribute(cp, name, in);
-            }
-            else {
-                if (nameStr.equals(EnclosingMethodAttribute.tag))
-                    return new EnclosingMethodAttribute(cp, name, in);
-                else if (nameStr.equals(ExceptionsAttribute.tag))
-                    return new ExceptionsAttribute(cp, name, in);
-                else if (nameStr.equals(InnerClassesAttribute.tag))
-                    return new InnerClassesAttribute(cp, name, in);
-                else if (nameStr.equals(LineNumberAttribute.tag))
-                    return new LineNumberAttribute(cp, name, in);
-                else if (nameStr.equals(LocalVariableAttribute.tag))
-                    return new LocalVariableAttribute(cp, name, in);
-                else if (nameStr.equals(LocalVariableTypeAttribute.tag))
-                    return new LocalVariableTypeAttribute(cp, name, in);
-            }
+        if (nameStr.charAt(0) < 'L') {
+            if (nameStr.equals(AnnotationDefaultAttribute.tag))
+                return new AnnotationDefaultAttribute(cp, name, in);
+            else if (nameStr.equals(CodeAttribute.tag))
+                return new CodeAttribute(cp, name, in);
+            else if (nameStr.equals(ConstantAttribute.tag))
+                return new ConstantAttribute(cp, name, in);
+            else if (nameStr.equals(DeprecatedAttribute.tag))
+                return new DeprecatedAttribute(cp, name, in);
+            else if (nameStr.equals(EnclosingMethodAttribute.tag))
+                return new EnclosingMethodAttribute(cp, name, in);
+            else if (nameStr.equals(ExceptionsAttribute.tag))
+                return new ExceptionsAttribute(cp, name, in);
+            else if (nameStr.equals(InnerClassesAttribute.tag))
+                return new InnerClassesAttribute(cp, name, in);
         }
         else {
-            if (first < 'S') {
-                /* Note that the names of Annotations attributes begin with 'R'. 
-                 */
-                if (nameStr.equals(MethodParametersAttribute.tag))
-                    return new MethodParametersAttribute(cp, name, in);
-                else if (nameStr.equals(AnnotationsAttribute.visibleTag)
-                         || nameStr.equals(AnnotationsAttribute.invisibleTag)) {
-                    // RuntimeVisibleAnnotations or RuntimeInvisibleAnnotations
-                    return new AnnotationsAttribute(cp, name, in);
-                }
-                else if (nameStr.equals(ParameterAnnotationsAttribute.visibleTag)
-                         || nameStr.equals(ParameterAnnotationsAttribute.invisibleTag))
-                    return new ParameterAnnotationsAttribute(cp, name, in);
-                else if (nameStr.equals(TypeAnnotationsAttribute.visibleTag)
-                         || nameStr.equals(TypeAnnotationsAttribute.invisibleTag))
-                    return new TypeAnnotationsAttribute(cp, name, in);
+            /* Note that the names of Annotations attributes begin with 'R'. 
+             */
+            if (nameStr.equals(LineNumberAttribute.tag))
+                return new LineNumberAttribute(cp, name, in);
+            else if (nameStr.equals(LocalVariableAttribute.tag))
+                return new LocalVariableAttribute(cp, name, in);
+            else if (nameStr.equals(LocalVariableTypeAttribute.tag))
+                return new LocalVariableTypeAttribute(cp, name, in);
+            else if (nameStr.equals(AnnotationsAttribute.visibleTag)
+                     || nameStr.equals(AnnotationsAttribute.invisibleTag)) {
+                // RuntimeVisibleAnnotations or RuntimeInvisibleAnnotations
+                return new AnnotationsAttribute(cp, name, in);
             }
-            else {
-                if (nameStr.equals(SignatureAttribute.tag))
-                    return new SignatureAttribute(cp, name, in);
-                else if (nameStr.equals(SourceFileAttribute.tag))
-                    return new SourceFileAttribute(cp, name, in);
-                else if (nameStr.equals(SyntheticAttribute.tag))
-                    return new SyntheticAttribute(cp, name, in);
-                else if (nameStr.equals(StackMap.tag))
-                    return new StackMap(cp, name, in);
-                else if (nameStr.equals(StackMapTable.tag))
-                    return new StackMapTable(cp, name, in);
-            }
+            else if (nameStr.equals(ParameterAnnotationsAttribute.visibleTag)
+                || nameStr.equals(ParameterAnnotationsAttribute.invisibleTag))
+                return new ParameterAnnotationsAttribute(cp, name, in);
+            else if (nameStr.equals(SignatureAttribute.tag))
+                return new SignatureAttribute(cp, name, in);
+            else if (nameStr.equals(SourceFileAttribute.tag))
+                return new SourceFileAttribute(cp, name, in);
+            else if (nameStr.equals(SyntheticAttribute.tag))
+                return new SyntheticAttribute(cp, name, in);
+            else if (nameStr.equals(StackMap.tag))
+                return new StackMap(cp, name, in);
+            else if (nameStr.equals(StackMapTable.tag))
+                return new StackMapTable(cp, name, in);
         }
 
         return new AttributeInfo(cp, name, in);
@@ -289,9 +251,8 @@ public class AttributeInfo {
 
     /* The following two methods are used to implement
      * ClassFile.renameClass().
-     * Only CodeAttribute, LocalVariableAttribute,
-     * AnnotationsAttribute, and SignatureAttribute
-     * override these methods.
+     * Only CodeAttribute and LocalVariableAttribute override
+     * this method.
      */
     void renameClass(String oldname, String newname) {}
     void renameClass(Map classnames) {}
@@ -309,16 +270,6 @@ public class AttributeInfo {
         while (iterator.hasNext()) {
             AttributeInfo ai = (AttributeInfo)iterator.next();
             ai.renameClass(classnames);
-        }
-    }
-
-    void getRefClasses(Map classnames) {}
-
-    static void getRefClasses(List attributes, Map classnames) {
-        Iterator iterator = attributes.iterator();
-        while (iterator.hasNext()) {
-            AttributeInfo ai = (AttributeInfo)iterator.next();
-            ai.getRefClasses(classnames);
         }
     }
 }

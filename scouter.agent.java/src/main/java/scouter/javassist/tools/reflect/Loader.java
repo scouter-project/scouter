@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -19,7 +18,6 @@ package scouter.javassist.tools.reflect;
 import scouter.javassist.CannotCompileException;
 import scouter.javassist.ClassPool;
 import scouter.javassist.NotFoundException;
-import scouter.javassist.tools.reflect.Reflection;
 
 /**
  * A class loader for reflection.
@@ -28,7 +26,7 @@ import scouter.javassist.tools.reflect.Reflection;
  * including a reflective class,
  * you must write a start-up program as follows:
  *
- * <pre>
+ * <ul><pre>
  * public class Main {
  *   public static void main(String[] args) throws Throwable {
  *     javassist.tools.reflect.Loader cl
@@ -38,11 +36,11 @@ import scouter.javassist.tools.reflect.Reflection;
  *     cl.run("MyApp", args);
  *   }
  * }
- * </pre>
+ * </pre></ul>
  *
  * <p>Then run this program as follows:
  *
- * <pre>% java javassist.tools.reflect.Loader Main arg1, ...</pre>
+ * <ul><pre>% java javassist.tools.reflect.Loader Main arg1, ...</pre></ul>
  *
  * <p>This command runs <code>Main.main()</code> with <code>arg1</code>, ...
  * and <code>Main.main()</code> runs <code>MyApp.main()</code> with
@@ -53,7 +51,7 @@ import scouter.javassist.tools.reflect.Reflection;
  *
  * <p>Also, you can run <code>MyApp</code> in a slightly different way:
  *
- * <pre>
+ * <ul><pre>
  * public class Main2 {
  *   public static void main(String[] args) throws Throwable {
  *     javassist.tools.reflect.Loader cl = new javassist.tools.reflect.Loader();
@@ -62,11 +60,11 @@ import scouter.javassist.tools.reflect.Reflection;
  *     cl.run("MyApp", args);
  *   }
  * }
- * </pre>
+ * </pre></ul>
  *
  * <p>This program is run as follows:
  *
- * <pre>% java Main2 arg1, ...</pre>
+ * <ul><pre>% java Main2 arg1, ...</pre></ul>
  *
  * <p>The difference from the former one is that the class <code>Main</code>
  * is loaded by <code>javassist.tools.reflect.Loader</code> whereas the class
@@ -79,7 +77,7 @@ import scouter.javassist.tools.reflect.Reflection;
  *
  * <p>The class <code>Main2</code> is equivalent to this class:
  *
- * <pre>
+ * <ul><pre>
  * public class Main3 {
  *   public static void main(String[] args) throws Throwable {
  *     Reflection reflection = new Reflection();
@@ -90,7 +88,7 @@ import scouter.javassist.tools.reflect.Reflection;
  *     cl.run("MyApp", args);
  *   }
  * }
- * </pre>
+ * </pre></ul>
  *
  * <p><b>Note:</b>
  *
@@ -104,8 +102,8 @@ import scouter.javassist.tools.reflect.Reflection;
  * modified with <code>javassist.tools.reflect.Compiler</code> and the original
  * class files should be replaced.
  *
- * @see scouter.javassist.tools.reflect.Reflection
- * @see scouter.javassist.tools.reflect.Compiler
+ * @see Reflection
+ * @see Compiler
  * @see scouter.javassist.Loader
  */
 public class Loader extends scouter.javassist.Loader {
@@ -116,9 +114,11 @@ public class Loader extends scouter.javassist.Loader {
      * and calls <code>main()</code> in that class.
      *
      * @param args              command line parameters.
-     * <br>&nbsp;&nbsp;<code>args[0]</code> is the class name to be loaded.
-     * <br>&nbsp;&nbsp;<code>args[1..n]</code> are parameters passed
+     * <ul>
+     * <code>args[0]</code> is the class name to be loaded.
+     * <br><code>args[1..n]</code> are parameters passed
      *                      to the target <code>main()</code>.
+     * </ul>
      */
     public static void main(String[] args) throws Throwable {
         Loader cl = new Loader();
@@ -151,8 +151,8 @@ public class Loader extends scouter.javassist.Loader {
      *                          <code>ClassMetaobject</code>.
      * @return <code>false</code>       if the class is already reflective.
      *
-     * @see scouter.javassist.tools.reflect.Metaobject
-     * @see scouter.javassist.tools.reflect.ClassMetaobject
+     * @see Metaobject
+     * @see ClassMetaobject
      */
     public boolean makeReflective(String clazz,
                                   String metaobject, String metaclass)

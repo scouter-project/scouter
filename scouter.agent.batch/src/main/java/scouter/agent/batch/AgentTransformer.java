@@ -17,16 +17,15 @@
 
 package scouter.agent.batch;
 
-import scouter.agent.batch.asm.JDBCPreparedStatementASM;
-import scouter.agent.batch.asm.JDBCStatementASM;
-import scouter.agent.batch.asm.JDBCResultSetASM;
-
-import scouter.agent.asm.ScouterClassWriter;
-import scouter.agent.asm.IASM;
+import scouter.org.objectweb.asm.*;
 import scouter.agent.ClassDesc;
 import scouter.agent.ObjTypeDetector;
+import scouter.agent.asm.IASM;
+import scouter.agent.asm.ScouterClassWriter;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.org.objectweb.asm.*;
+import scouter.agent.batch.asm.JDBCPreparedStatementASM;
+import scouter.agent.batch.asm.JDBCResultSetASM;
+import scouter.agent.batch.asm.JDBCStatementASM;
 import scouter.util.FileUtil;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -67,7 +66,7 @@ public class AgentTransformer implements ClassFileTransformer {
             ObjTypeDetector.check(className);
             final ClassDesc classDesc = new ClassDesc();
             ClassReader cr = new ClassReader(classfileBuffer);
-            cr.accept(new ClassVisitor(Opcodes.ASM4) {
+            cr.accept(new ClassVisitor(Opcodes.ASM5) {
                 public void visit(int version, int access, String name, String signature, String superName,
                                   String[] interfaces) {
                     classDesc.set(version, access, name, signature, superName, interfaces);

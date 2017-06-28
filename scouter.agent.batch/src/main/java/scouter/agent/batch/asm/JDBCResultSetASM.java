@@ -16,19 +16,18 @@
  */
 package scouter.agent.batch.asm;
 
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
+import scouter.agent.ClassDesc;
+import scouter.agent.asm.IASM;
+import scouter.agent.asm.util.HookingSet;
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
 import scouter.agent.batch.asm.jdbc.RsInitMV;
 import scouter.agent.batch.asm.jdbc.RsNextMV;
 import scouter.agent.batch.trace.TraceSQL;
-
-import scouter.agent.ClassDesc;
-import scouter.agent.asm.IASM;
-import scouter.agent.asm.util.HookingSet;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
 
 import java.util.HashSet;
 public class JDBCResultSetASM implements IASM, Opcodes {
@@ -64,7 +63,7 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 class ResultSetCV extends ClassVisitor implements Opcodes {
 	private String owner;
 	public ResultSetCV(ClassVisitor cv) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 	}
 	
 	@Override

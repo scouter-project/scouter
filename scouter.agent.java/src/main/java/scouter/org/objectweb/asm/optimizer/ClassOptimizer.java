@@ -41,7 +41,7 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.TypePath;
 import scouter.org.objectweb.asm.commons.Remapper;
-import scouter.org.objectweb.asm.commons.RemappingClassAdapter;
+import scouter.org.objectweb.asm.commons.ClassRemapper;
 
 /**
  * A {@link ClassVisitor} that renames fields and methods, and removes debug
@@ -50,7 +50,7 @@ import scouter.org.objectweb.asm.commons.RemappingClassAdapter;
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
-public class ClassOptimizer extends RemappingClassAdapter {
+public class ClassOptimizer extends ClassRemapper {
 
     private String pkgName;
     String clsName;
@@ -135,7 +135,7 @@ public class ClassOptimizer extends RemappingClassAdapter {
                     && (access & Opcodes.ACC_STATIC) != 0 && desc.length() == 1) {
                 return null;
             }
-            if ("org/objectweb/asm".equals(pkgName) && s.equals(name)) {
+            if ("scouter/org/objectweb/asm".equals(pkgName) && s.equals(name)) {
                 System.out.println("INFO: " + clsName + "." + s
                         + " could be renamed");
             }
@@ -172,7 +172,7 @@ public class ClassOptimizer extends RemappingClassAdapter {
         }
 
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
-            if ("org/objectweb/asm".equals(pkgName) && !name.startsWith("<")
+            if ("scouter/org/objectweb/asm".equals(pkgName) && !name.startsWith("<")
                     && s.equals(name)) {
                 System.out.println("INFO: " + clsName + "." + s
                         + " could be renamed");
@@ -189,9 +189,8 @@ public class ClassOptimizer extends RemappingClassAdapter {
     }
 
     @Override
-    protected MethodVisitor createRemappingMethodAdapter(int access,
-            String newDesc, MethodVisitor mv) {
-        return new MethodOptimizer(this, access, newDesc, mv, remapper);
+    protected MethodVisitor createMethodRemapper(MethodVisitor mv) {
+        return new MethodOptimizer(this, mv, remapper);
     }
 
     @Override

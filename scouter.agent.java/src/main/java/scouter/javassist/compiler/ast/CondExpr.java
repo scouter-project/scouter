@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -17,9 +16,6 @@
 package scouter.javassist.compiler.ast;
 
 import scouter.javassist.compiler.CompileError;
-import scouter.javassist.compiler.ast.ASTList;
-import scouter.javassist.compiler.ast.ASTree;
-import scouter.javassist.compiler.ast.Visitor;
 
 /**
  * Conditional expression.
@@ -35,11 +31,11 @@ public class CondExpr extends ASTList {
 
     public ASTree thenExpr() { return tail().head(); }
 
-    public void setThen(ASTree t) { tail().setHead(t); } 
+    public void setThen(ASTree t) { tail().setHead(t); }
 
     public ASTree elseExpr() { return tail().tail().head(); }
 
-    public void setElse(ASTree t) { tail().tail().setHead(t); } 
+    public void setElse(ASTree t) { tail().tail().setHead(t); }
 
     public String getTag() { return "?:"; }
 

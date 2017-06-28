@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,14 +15,9 @@
 
 package scouter.javassist;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.net.MalformedURLException;
+import java.io.*;
 import java.net.URL;
-
-import scouter.javassist.ClassPath;
-import scouter.javassist.ClassPool;
-
+import java.net.MalformedURLException;
 
 /**
  * A <code>ByteArrayClassPath</code> contains bytes that is served as
@@ -34,11 +28,11 @@ import scouter.javassist.ClassPool;
  * into a <code>CtClass</code> object representing the class with a name
  * <code>classname</code>, then do as following:
  *
- * <pre>
+ * <ul><pre>
  * ClassPool cp = ClassPool.getDefault();
  * cp.insertClassPath(new ByteArrayClassPath(classname, b));
  * CtClass cc = cp.get(classname);
- * </pre>
+ * </pre></ul>
  *
  * <p>The <code>ClassPool</code> object <code>cp</code> uses the created
  * <code>ByteArrayClassPath</code> object as the source of the class file.
@@ -46,7 +40,7 @@ import scouter.javassist.ClassPool;
  * <p>A <code>ByteArrayClassPath</code> must be instantiated for every
  * class.  It contains only a single class file.
  *
- * @see scouter.javassist.ClassPath
+ * @see ClassPath
  * @see ClassPool#insertClassPath(ClassPath)
  * @see ClassPool#appendClassPath(ClassPath)
  * @see ClassPool#makeClass(InputStream)

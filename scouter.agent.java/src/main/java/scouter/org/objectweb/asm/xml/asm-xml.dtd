@@ -29,8 +29,7 @@
 -->
 
 <!--
-  This DTD must be used to create XML documents to be processed by
-  org.objectweb.asm.xml.ASMContentHandler
+  This DTD must be used to create XML documents to be processed bscouter.org.objectweb.asm.asm.xml.ASMContentHandler
 -->
 
 <!--

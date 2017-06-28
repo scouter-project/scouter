@@ -29,12 +29,11 @@
  */
 package scouter.org.objectweb.asm.xml;
 
-import org.xml.sax.Attributes;
-
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.FieldVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.TypePath;
+import org.xml.sax.Attributes;
 
 /**
  * SAXFieldAdapter

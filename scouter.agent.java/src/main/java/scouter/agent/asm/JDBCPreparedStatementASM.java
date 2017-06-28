@@ -15,6 +15,11 @@
  *  limitations under the License. 
  */
 package scouter.agent.asm;
+
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -22,10 +27,6 @@ import scouter.agent.asm.jdbc.*;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.SqlParameter;
 import scouter.agent.trace.TraceSQL;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
 
 import java.util.HashSet;
 
@@ -84,7 +85,7 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
     private String owner;
 
     public PreparedStatementCV(ClassVisitor cv, HashSet<String> noField) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 		this.noField = noField;
 	}
 

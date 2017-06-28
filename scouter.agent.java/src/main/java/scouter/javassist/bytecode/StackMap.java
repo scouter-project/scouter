@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -21,15 +20,9 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Map;
 
+import scouter.javassist.CtBehavior;
 import scouter.javassist.CannotCompileException;
-import scouter.javassist.bytecode.AttributeInfo;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.ByteArray;
-import scouter.javassist.bytecode.CodeIterator;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.MethodInfo;
-import scouter.javassist.bytecode.StackMapTable;
-
+import scouter.javassist.CtClass;
 
 /**
  * Another <code>stack_map</code> attribute defined in CLDC 1.1 for J2ME.
@@ -286,7 +279,7 @@ public class StackMap extends AttributeInfo {
      *                       in a constant pool table.  This should be zero unless the tag
      *                       is <code>ITEM_Object</code>.
      *
-     * @see scouter.javassist.CtBehavior#addParameter(scouter.javassist.CtClass)
+     * @see CtBehavior#addParameter(CtClass)
      * @see StackMapTable#typeTagOf(char)
      * @see ConstPool
      */
@@ -397,37 +390,6 @@ public class StackMap extends AttributeInfo {
 
         public int locals(int pos, int offset, int num) {
             if (exclusive ? where <= offset : where < offset)
-                ByteArray.write16bit(offset + gap, info, pos - 4);
-
-            return super.locals(pos, offset, num);
-        }
-
-        public void uninitialized(int pos, int offset) {
-            if (where <= offset)
-                ByteArray.write16bit(offset + gap, info, pos + 1);
-        }
-    }
-
-    /**
-     * @see CodeIterator.Switcher#adjustOffsets(int, int)
-     */
-    void shiftForSwitch(int where, int gapSize) throws BadBytecode {
-        new SwitchShifter(this, where, gapSize).visit();
-    }
-
-    static class SwitchShifter extends Walker {
-        private int where, gap;
-
-        public SwitchShifter(StackMap smt, int where, int gap) {
-            super(smt);
-            this.where = where;
-            this.gap = gap;
-        }
-
-        public int locals(int pos, int offset, int num) {
-            if (where == pos + offset)
-                ByteArray.write16bit(offset - gap, info, pos - 4);
-            else if (where == pos)
                 ByteArray.write16bit(offset + gap, info, pos - 4);
 
             return super.locals(pos, offset, num);

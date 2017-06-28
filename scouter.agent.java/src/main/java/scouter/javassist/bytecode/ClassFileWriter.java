@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2010 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,18 +15,9 @@
 
 package scouter.javassist.bytecode;
 
+import java.io.OutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-
-import scouter.javassist.bytecode.AccessFlag;
-import scouter.javassist.bytecode.ClassFile;
-import scouter.javassist.bytecode.CodeAttribute;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.ExceptionsAttribute;
-import scouter.javassist.bytecode.Opcode;
-import scouter.javassist.bytecode.StackMapTable;
-
 
 /**
  * A quick class-file writer.  This is useful when a generated
@@ -153,7 +143,7 @@ public class ClassFileWriter {
             output.writeShort(fields.size());
             fields.write(output);
 
-            output.writeShort(methods.numOfMethods());
+            output.writeShort(methods.size());
             methods.write(output);
         }
         catch (IOException e) {}
@@ -198,7 +188,7 @@ public class ClassFileWriter {
         out.writeShort(fields.size());
         fields.write(out);
 
-        out.writeShort(methods.numOfMethods());
+        out.writeShort(methods.size());
         methods.write(out);
         if (aw == null)
             out.writeShort(0);
@@ -511,15 +501,7 @@ public class ClassFileWriter {
             output.writeInt(startPos + 2, output.getPos() - startPos - 6);
         }
 
-        /**
-         * Returns the length of the bytecode that has been added so far.
-         *
-         * @return      the length in bytes.
-         * @since 3.19
-         */
-        public int size() { return output.getPos() - startPos - 14; } 
-
-        int numOfMethods() { return methodCount; }
+        int size() { return methodCount; }
 
         int dataSize() { return output.size(); }
 
@@ -659,57 +641,6 @@ public class ClassFileWriter {
         }
 
         /**
-         * Adds a new <code>CONSTANT_MethodHandle_info</code>
-         * structure.
-         *
-         * @param kind      <code>reference_kind</code>
-         *                  such as {@link ConstPool#REF_invokeStatic <code>REF_invokeStatic</code>}.
-         * @param index     <code>reference_index</code>.
-         * @return          the index of the added entry.
-         *
-         * @since 3.17.1
-         */
-        public int addMethodHandleInfo(int kind, int index) {
-            output.write(MethodHandleInfo.tag);
-            output.write(kind);
-            output.writeShort(index);
-            return num++;
-        }
-
-        /**
-         * Adds a new <code>CONSTANT_MethodType_info</code>
-         * structure.
-         *
-         * @param desc      <code>descriptor_index</code>.
-         * @return          the index of the added entry.
-         *
-         * @since 3.17.1
-         */
-        public int addMethodTypeInfo(int desc) {
-            output.write(MethodTypeInfo.tag);
-            output.writeShort(desc);
-            return num++;
-        }
-
-        /**
-         * Adds a new <code>CONSTANT_InvokeDynamic_info</code>
-         * structure.
-         *
-         * @param bootstrap         <code>bootstrap_method_attr_index</code>.
-         * @param nameAndTypeInfo   <code>name_and_type_index</code>.
-         * @return                  the index of the added entry.
-         *
-         * @since 3.17.1
-         */
-        public int addInvokeDynamicInfo(int bootstrap,
-                                        int nameAndTypeInfo) {
-            output.write(InvokeDynamicInfo.tag);
-            output.writeShort(bootstrap);
-            output.writeShort(nameAndTypeInfo);
-            return num++;
-        }
-
-        /**
          * Adds a new <code>CONSTANT_String_info</code>
          * structure.
          *
@@ -719,9 +650,8 @@ public class ClassFileWriter {
          * @return          the index of the added entry.
          */
         public int addStringInfo(String str) {
-            int utf8 = addUtf8Info(str);
             output.write(StringInfo.tag);
-            output.writeShort(utf8);
+            output.writeShort(addUtf8Info(str));
             return num++;
         }
 

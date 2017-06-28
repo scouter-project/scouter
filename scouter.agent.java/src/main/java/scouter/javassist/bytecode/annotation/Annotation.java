@@ -5,8 +5,7 @@
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,36 +15,20 @@
 
 package scouter.javassist.bytecode.annotation;
 
+import scouter.javassist.ClassPool;
+import scouter.javassist.CtMethod;
+import scouter.javassist.bytecode.AnnotationsAttribute;
+import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.ParameterAnnotationsAttribute;
+import scouter.javassist.bytecode.Descriptor;
+import scouter.javassist.CtClass;
+import scouter.javassist.NotFoundException;
+import scouter.javassist.bytecode.AnnotationDefaultAttribute;
+
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
-
-import scouter.javassist.ClassPool;
-import scouter.javassist.CtClass;
-import scouter.javassist.CtMethod;
-import scouter.javassist.NotFoundException;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.Descriptor;
-import scouter.javassist.bytecode.annotation.AnnotationImpl;
-import scouter.javassist.bytecode.annotation.AnnotationMemberValue;
-import scouter.javassist.bytecode.annotation.AnnotationsWriter;
-import scouter.javassist.bytecode.annotation.ArrayMemberValue;
-import scouter.javassist.bytecode.annotation.BooleanMemberValue;
-import scouter.javassist.bytecode.annotation.ByteMemberValue;
-import scouter.javassist.bytecode.annotation.CharMemberValue;
-import scouter.javassist.bytecode.annotation.ClassMemberValue;
-import scouter.javassist.bytecode.annotation.DoubleMemberValue;
-import scouter.javassist.bytecode.annotation.EnumMemberValue;
-import scouter.javassist.bytecode.annotation.FloatMemberValue;
-import scouter.javassist.bytecode.annotation.IntegerMemberValue;
-import scouter.javassist.bytecode.annotation.LongMemberValue;
-import scouter.javassist.bytecode.annotation.MemberValue;
-import scouter.javassist.bytecode.annotation.MemberValueVisitor;
-import scouter.javassist.bytecode.annotation.NoSuchClassError;
-import scouter.javassist.bytecode.annotation.ShortMemberValue;
-import scouter.javassist.bytecode.annotation.StringMemberValue;
-
+import java.util.Iterator;
 
 /**
  * The <code>annotation</code> structure.
@@ -54,8 +37,8 @@ import scouter.javassist.bytecode.annotation.StringMemberValue;
  * <code>getAnnotations()</code> in <code>AnnotationsAttribute</code>
  * or in <code>ParameterAnnotationsAttribute</code>.
  *
- * @see scouter.javassist.bytecode.AnnotationsAttribute#getAnnotations()
- * @see scouter.javassist.bytecode.ParameterAnnotationsAttribute#getAnnotations()
+ * @see AnnotationsAttribute#getAnnotations()
+ * @see ParameterAnnotationsAttribute#getAnnotations()
  * @see MemberValue
  * @see MemberValueVisitor
  * @see AnnotationsWriter
@@ -283,7 +266,7 @@ public class Annotation {
      * @return null if the member cannot be found or if the value is
      * the default value.
      *
-     * @see scouter.javassist.bytecode.AnnotationDefaultAttribute
+     * @see AnnotationDefaultAttribute
      */
     public MemberValue getMemberValue(String name) {
         if (members == null)

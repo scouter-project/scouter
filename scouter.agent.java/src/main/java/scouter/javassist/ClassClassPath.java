@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -19,11 +18,6 @@ package scouter.javassist;
 import java.io.InputStream;
 import java.net.URL;
 
-import scouter.javassist.ClassPath;
-import scouter.javassist.ClassPool;
-import scouter.javassist.LoaderClassPath;
-
-
 /**
  * A search-path for obtaining a class file
  * by <code>getResourceAsStream()</code> in <code>java.lang.Class</code>.
@@ -32,10 +26,10 @@ import scouter.javassist.LoaderClassPath;
  * with a user-defined class loader and any class files are not found with
  * the default <code>ClassPool</code>.  For example,
  *
- * <pre>
+ * <ul><pre>
  * ClassPool cp = ClassPool.getDefault();
  * cp.insertClassPath(new ClassClassPath(this.getClass()));
- * </pre>
+ * </pre></ul>
  *
  * This code snippet permanently adds a <code>ClassClassPath</code>
  * to the default <code>ClassPool</code>.  Note that the default
@@ -69,7 +63,7 @@ public class ClassClassPath implements ClassPath {
          * class paths if javassist.jar is put in jre/lib/ext/
          * (with JDK1.4).
          */
-        this(java.lang.Object.class);
+        this(Object.class);
     }
 
     /**

@@ -16,20 +16,19 @@
  */
 package scouter.agent.batch.asm;
 
-import scouter.agent.batch.Configure;
-import scouter.agent.batch.Logger;
-import scouter.agent.batch.trace.TraceSQL;
-import scouter.agent.batch.asm.jdbc.PsInitMV;
-import scouter.agent.batch.asm.jdbc.PsExecuteMV;
-import scouter.agent.batch.asm.jdbc.StExecuteMV;
-
-import scouter.agent.asm.IASM;
-import scouter.agent.ClassDesc;
-import scouter.agent.asm.util.HookingSet;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
+import scouter.agent.ClassDesc;
+import scouter.agent.asm.IASM;
+import scouter.agent.asm.util.HookingSet;
+import scouter.agent.batch.Configure;
+import scouter.agent.batch.Logger;
+import scouter.agent.batch.asm.jdbc.PsExecuteMV;
+import scouter.agent.batch.asm.jdbc.PsInitMV;
+import scouter.agent.batch.asm.jdbc.StExecuteMV;
+import scouter.agent.batch.trace.TraceSQL;
 
 import java.util.HashSet;
 
@@ -86,7 +85,7 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
     private String owner;
 
     public PreparedStatementCV(ClassVisitor cv, HashSet<String> noField) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 		this.noField = noField;
 	}
 

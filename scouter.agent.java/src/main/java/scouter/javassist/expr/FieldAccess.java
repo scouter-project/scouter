@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,30 +15,10 @@
 
 package scouter.javassist.expr;
 
-import static scouter.javassist.expr.Expr.checkResultValue;
-import static scouter.javassist.expr.Expr.storeStack;
-import scouter.javassist.CannotCompileException;
-import scouter.javassist.ClassPool;
-import scouter.javassist.CtBehavior;
-import scouter.javassist.CtClass;
-import scouter.javassist.CtField;
-import scouter.javassist.CtPrimitiveType;
-import scouter.javassist.NotFoundException;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.Bytecode;
-import scouter.javassist.bytecode.CodeAttribute;
-import scouter.javassist.bytecode.CodeIterator;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.Descriptor;
-import scouter.javassist.bytecode.MethodInfo;
-import scouter.javassist.bytecode.Opcode;
-import scouter.javassist.compiler.CompileError;
-import scouter.javassist.compiler.Javac;
-import scouter.javassist.compiler.JvstCodeGen;
-import scouter.javassist.compiler.JvstTypeChecker;
-import scouter.javassist.compiler.ProceedHandler;
+import scouter.javassist.*;
+import scouter.javassist.bytecode.*;
+import scouter.javassist.compiler.*;
 import scouter.javassist.compiler.ast.ASTList;
-import scouter.javassist.expr.Expr;
 
 /**
  * Expression for accessing a field.
@@ -131,9 +110,7 @@ public class FieldAccess extends Expr {
      */
     public CtField getField() throws NotFoundException {
         CtClass cc = getCtClass();
-        int index = iterator.u16bitAt(currentPos + 1);
-        ConstPool cp = getConstPool();
-        return cc.getField(cp.getFieldrefName(index), cp.getFieldrefType(index));
+        return cc.getField(getFieldName());
     }
 
     /**
@@ -151,7 +128,7 @@ public class FieldAccess extends Expr {
      * The signature is represented by a character string
      * called field descriptor, which is defined in the JVM specification.
      *
-     * @see scouter.javassist.bytecode.Descriptor#toCtClass(String, ClassPool)
+     * @see Descriptor#toCtClass(String, ClassPool)
      * @since 3.1
      */
     public String getSignature() {
@@ -167,7 +144,7 @@ public class FieldAccess extends Expr {
      * If the field access is writing, $_ is available but the value
      * of $_ is ignored.
      *
-     * @param statement         a Java statement except try-catch.
+     * @param statement         a Java statement.
      */
     public void replace(String statement) throws CannotCompileException {
         thisClass.getClassFile();   // to call checkModify().
@@ -221,7 +198,7 @@ public class FieldAccess extends Expr {
 
             if (included)
                 if (retType == CtClass.voidType) {
-                    bytecode.addOpcode(ACONST_NULL);
+                    bytecode.addOpcode(Opcode.ACONST_NULL);
                     bytecode.addAstore(retVar);
                 }
                 else {

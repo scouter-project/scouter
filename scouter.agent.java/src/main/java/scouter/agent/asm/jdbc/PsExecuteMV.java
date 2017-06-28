@@ -16,13 +16,13 @@
 
 package scouter.agent.asm.jdbc;
 
-import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.agent.asm.util.AsmUtil;
+import scouter.agent.trace.TraceSQL;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -50,7 +50,7 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;I)V";
 
 	public PsExecuteMV(int access, String desc, MethodVisitor mv, String owner,String name) {
-		super(ASM4,access, desc, mv);
+		super(ASM5,access, desc, mv);
 		this.owner = owner;
 		this.returnType = Type.getReturnType(desc);
         this.desc = desc;

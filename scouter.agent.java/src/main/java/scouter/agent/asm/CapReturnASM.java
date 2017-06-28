@@ -17,18 +17,18 @@
 
 package scouter.agent.asm;
 
-import java.util.List;
-
-import scouter.agent.ClassDesc;
-import scouter.agent.Configure;
-import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.asm.util.HookingSet;
-import scouter.agent.trace.TraceMain;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.agent.ClassDesc;
+import scouter.agent.Configure;
+import scouter.agent.asm.util.AsmUtil;
+import scouter.agent.asm.util.HookingSet;
+import scouter.agent.trace.TraceMain;
+
+import java.util.List;
 
 
 public class CapReturnASM implements IASM, Opcodes {
@@ -56,7 +56,7 @@ class CapReturnCV extends ClassVisitor implements Opcodes {
 	private HookingSet mset;
 
 	public CapReturnCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -91,7 +91,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			String classname,
 			String methodname,
 			String methoddesc, boolean isStatic) {
-		super(ASM4, access, desc, mv);
+		super(ASM5, access, desc, mv);
 		this.returnType = Type.getReturnType(desc);
 		this.className = classname;
 		this.methodName = methodname;

@@ -17,18 +17,14 @@
 
 package scouter.agent.asm;
 
+import scouter.org.objectweb.asm.*;
+import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceMain;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.StringUtil;
 
 import java.util.ArrayList;
@@ -95,7 +91,7 @@ class MethodCV extends ClassVisitor implements Opcodes {
 	private List<HookingSet> excludeTarget;
 
 	public MethodCV(ClassVisitor cv, HookingSet mset, List<HookingSet> excludeTarget, String className) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 		this.mset = mset;
 		this.excludeTarget = excludeTarget;
 		this.className = className;
@@ -172,7 +168,7 @@ class MethodMV extends LocalVariablesSorter implements Opcodes {
 	private Label startFinally = new Label();
 
 	public MethodMV(int access, String desc, MethodVisitor mv, String fullname, int fullname_hash) {
-		super(ASM4, access, desc, mv);
+		super(ASM5, access, desc, mv);
 		this.fullname = fullname;
 		this.fullname_hash = fullname_hash;
 	}

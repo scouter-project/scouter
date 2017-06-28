@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -19,26 +18,14 @@ package scouter.javassist.tools.rmi;
 import java.lang.reflect.Method;
 import java.util.Hashtable;
 
-import scouter.javassist.CannotCompileException;
-import scouter.javassist.ClassPool;
-import scouter.javassist.CtClass;
-import scouter.javassist.CtConstructor;
-import scouter.javassist.CtField;
-import scouter.javassist.CtMethod;
-import scouter.javassist.CtNewConstructor;
-import scouter.javassist.CtNewMethod;
-import scouter.javassist.Modifier;
-import scouter.javassist.NotFoundException;
-import scouter.javassist.Translator;
-import scouter.javassist.CtMethod.ConstParameter;
-
+import scouter.javassist.*;
 
 /**
  * A stub-code generator.  It is used for producing a proxy class.
  *
  * <p>The proxy class for class A is as follows:
  *
- * <pre>public class A implements Proxy, Serializable {
+ * <ul><pre>public class A implements Proxy, Serializable {
  *   private ObjectImporter importer;
  *   private int objectId;
  *   public int _getObjectId() { return objectId; }
@@ -47,7 +34,7 @@ import scouter.javassist.CtMethod.ConstParameter;
  *   }
  *
  *   ... the same methods that the original class A declares ...
- * }</pre>
+ * }</pre></ul>
  *
  * <p>Instances of the proxy class is created by an
  * <code>ObjectImporter</code> object.
@@ -78,7 +65,7 @@ public class StubGenerator implements Translator {
      * Initializes the object.
      * This is a method declared in javassist.Translator.
      *
-     * @see scouter.javassist.Translator#start(ClassPool)
+     * @see Translator#start(ClassPool)
      */
     public void start(ClassPool pool) throws NotFoundException {
         classPool = pool;
@@ -99,7 +86,7 @@ public class StubGenerator implements Translator {
     /**
      * Does nothing.
      * This is a method declared in javassist.Translator.
-     * @see scouter.javassist.Translator#onLoad(ClassPool,String)
+     * @see Translator#onLoad(ClassPool,String)
      */
     public void onLoad(ClassPool pool, String classname) {}
 
@@ -159,7 +146,7 @@ public class StubGenerator implements Translator {
 
         f = new CtField(CtClass.intType, fieldObjectId, proxy);
         f.setModifiers(Modifier.PRIVATE);
-        proxy.addField(f, CtField.Initializer.byParameter(1)); 
+        proxy.addField(f, CtField.Initializer.byParameter(1));
 
         proxy.addMethod(CtNewMethod.getter(accessorObjectId, f));
 
@@ -229,7 +216,7 @@ public class StubGenerator implements Translator {
                                               toCtClass(m.getParameterTypes()),
                                               exceptionForProxy,
                                               body,
-                                              ConstParameter.integer(i),
+                                              CtMethod.ConstParameter.integer(i),
                                               proxy);
                     wmethod.setModifiers(mod);
                     proxy.addMethod(wmethod);

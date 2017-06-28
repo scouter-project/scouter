@@ -36,8 +36,10 @@ import scouter.org.objectweb.asm.signature.SignatureVisitor;
 /**
  * A {@link SignatureVisitor} adapter for type mapping.
  * 
+ * @deprecated use {@link SignatureRemapper} instead.
  * @author Eugene Kuleshov
  */
+@Deprecated
 public class RemappingSignatureAdapter extends SignatureVisitor {
 
     private final SignatureVisitor v;

@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,26 +15,17 @@
 
 package scouter.javassist.tools.rmi;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InvalidClassException;
-import java.io.NotSerializableException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.io.*;
 
 import scouter.javassist.CannotCompileException;
 import scouter.javassist.ClassPool;
 import scouter.javassist.NotFoundException;
-import scouter.javassist.tools.rmi.RemoteRef;
-import scouter.javassist.tools.rmi.StubGenerator;
 import scouter.javassist.tools.web.BadHttpRequest;
 import scouter.javassist.tools.web.Webserver;
 
+import java.lang.reflect.Method;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * An AppletServer object is a web server that an ObjectImporter
@@ -44,7 +34,7 @@ import scouter.javassist.tools.web.Webserver;
  * If the classes of the exported objects are requested by the client-side
  * JVM, this web server sends proxy classes for the requested classes.
  *
- * @see scouter.javassist.tools.rmi.ObjectImporter
+ * @see ObjectImporter
  */
 public class AppletServer extends Webserver {
     private StubGenerator stubGen;
@@ -115,7 +105,7 @@ public class AppletServer extends Webserver {
      * @param obj       the exported object.
      * @return          the object identifier
      *
-     * @see scouter.javassist.tools.rmi.ObjectImporter#lookupObject(String)
+     * @see ObjectImporter#lookupObject(String)
      */
     public synchronized int exportObject(String name, Object obj)
         throws CannotCompileException

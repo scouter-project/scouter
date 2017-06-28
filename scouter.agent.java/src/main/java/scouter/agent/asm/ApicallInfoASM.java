@@ -15,20 +15,22 @@
  *  limitations under the License. 
  */
 package scouter.agent.asm;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
+import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceApiCall;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 public class ApicallInfoASM implements IASM, Opcodes {
 	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_apicall_info_patterns);
 	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
@@ -57,7 +59,7 @@ class ApicallInfoCV extends ClassVisitor implements Opcodes {
 	public String className;
 	private HookingSet mset;
 	public ApicallInfoCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -82,7 +84,7 @@ class ApicallInfoMV extends LocalVariablesSorter implements Opcodes {
 	private static final String START_SIGNATURE = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V";
 	public ApicallInfoMV(int access, String desc, MethodVisitor mv, Type[] paramTypes, boolean isStatic,
 			String classname, String methodname, String methoddesc) {
-		super(ASM4, access, desc, mv);
+		super(ASM5, access, desc, mv);
 		this.paramTypes = paramTypes;
 		this.isStatic = isStatic;
 		this.className = classname;

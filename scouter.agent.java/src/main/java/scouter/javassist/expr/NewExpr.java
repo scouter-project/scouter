@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,29 +15,10 @@
 
 package scouter.javassist.expr;
 
-import static scouter.javassist.expr.Expr.checkResultValue;
-import static scouter.javassist.expr.Expr.storeStack;
-import scouter.javassist.CannotCompileException;
-import scouter.javassist.ClassPool;
-import scouter.javassist.CtBehavior;
-import scouter.javassist.CtClass;
-import scouter.javassist.CtConstructor;
-import scouter.javassist.NotFoundException;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.Bytecode;
-import scouter.javassist.bytecode.CodeAttribute;
-import scouter.javassist.bytecode.CodeIterator;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.Descriptor;
-import scouter.javassist.bytecode.MethodInfo;
-import scouter.javassist.bytecode.Opcode;
-import scouter.javassist.compiler.CompileError;
-import scouter.javassist.compiler.Javac;
-import scouter.javassist.compiler.JvstCodeGen;
-import scouter.javassist.compiler.JvstTypeChecker;
-import scouter.javassist.compiler.ProceedHandler;
+import scouter.javassist.*;
+import scouter.javassist.bytecode.*;
+import scouter.javassist.compiler.*;
 import scouter.javassist.compiler.ast.ASTList;
-import scouter.javassist.expr.Expr;
 
 /**
  * Object creation (<tt>new</tt> expression).
@@ -116,8 +96,8 @@ public class NewExpr extends Expr {
      * The signature is represented by a character string
      * called method descriptor, which is defined in the JVM specification.
      *
-     * @see scouter.javassist.CtBehavior#getSignature()
-     * @see scouter.javassist.bytecode.Descriptor
+     * @see CtBehavior#getSignature()
+     * @see Descriptor
      * @return the signature
      */
     public String getSignature() {
@@ -159,9 +139,8 @@ public class NewExpr extends Expr {
 
     private int canReplace() throws CannotCompileException {
         int op = iterator.byteAt(newPos + 3);
-        if (op == Opcode.DUP)     // Typical single DUP or Javaflow DUP DUP2_X2 POP2
-            return ((iterator.byteAt(newPos + 4) == Opcode.DUP2_X2
-                 && iterator.byteAt(newPos + 5) == Opcode.POP2)) ? 6 : 4;
+        if (op == Opcode.DUP)
+            return 4;
         else if (op == Opcode.DUP_X1
                  && iterator.byteAt(newPos + 4) == Opcode.SWAP)
             return 5;
@@ -177,7 +156,7 @@ public class NewExpr extends Expr {
      *
      * <p>$0 is available but the value is null.
      *
-     * @param statement         a Java statement except try-catch.
+     * @param statement         a Java statement.
      */
     public void replace(String statement) throws CannotCompileException {
         thisClass.getClassFile();   // to call checkModify().
@@ -192,7 +171,7 @@ public class NewExpr extends Expr {
         int codeSize = canReplace();
         int end = pos + codeSize;
         for (int i = pos; i < end; ++i)
-            iterator.writeByte(NOP, i);
+            iterator.writeByte(Opcode.NOP, i);
 
         ConstPool constPool = getConstPool();
         pos = currentPos;
@@ -250,9 +229,9 @@ public class NewExpr extends Expr {
         public void doit(JvstCodeGen gen, Bytecode bytecode, ASTList args)
             throws CompileError
         {
-            bytecode.addOpcode(NEW);
+            bytecode.addOpcode(Opcode.NEW);
             bytecode.addIndex(newIndex);
-            bytecode.addOpcode(DUP);
+            bytecode.addOpcode(Opcode.DUP);
             gen.atMethodCallCore(newType, MethodInfo.nameInit, args,
                                  false, true, -1, null);
             gen.setType(newType);

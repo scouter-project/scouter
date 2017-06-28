@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,10 +15,8 @@
 
 package scouter.javassist.tools.web;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.*;
+import java.net.*;
 
 /**
  * A sample applet viewer.
@@ -30,7 +27,7 @@ import java.net.URLConnection;
  *
  * <p>To run, you should type:
  *
- * <pre>% java javassist.tools.web.Viewer <i>host port</i> Main arg1, ...</pre>
+ * <ul><code>% java javassist.tools.web.Viewer <i>host port</i> Main arg1, ...</code></ul>
  *
  * <p>This command calls <code>Main.main()</code> with <code>arg1,...</code>
  * All classes including <code>Main</code> are fetched from
@@ -44,10 +41,10 @@ import java.net.URLConnection;
  * a program loaded by this object can call a method in <code>Viewer</code>.
  * For example, you can write something like this:
  *
- * <pre>
+ * <ul><pre>
  * Viewer v = (Viewer)this.getClass().getClassLoader();
  * String port = v.getPort();
- * </pre>
+ * </pre></ul>
  *
  */
 public class Viewer extends ClassLoader {

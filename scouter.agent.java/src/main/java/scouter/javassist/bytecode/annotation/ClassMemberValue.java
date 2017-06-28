@@ -5,8 +5,7 @@
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,20 +15,12 @@
 
 package scouter.javassist.bytecode.annotation;
 
-import static scouter.javassist.bytecode.annotation.MemberValue.loadClass;
+import scouter.javassist.ClassPool;
+import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.Descriptor;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-
-import scouter.javassist.ClassPool;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.Descriptor;
-import scouter.javassist.bytecode.SignatureAttribute;
-import scouter.javassist.bytecode.annotation.AnnotationsWriter;
-import scouter.javassist.bytecode.annotation.MemberValue;
-import scouter.javassist.bytecode.annotation.MemberValueVisitor;
-
 
 /**
  * Class value.
@@ -106,11 +97,7 @@ public class ClassMemberValue extends MemberValue {
      */
     public String getValue() {
         String v = cp.getUtf8Info(valueIndex);
-        try {
-            return SignatureAttribute.toTypeSignature(v).jvmTypeName();
-        } catch (BadBytecode e) {
-            throw new RuntimeException(e);
-        }
+        return Descriptor.toClassName(v);
     }
 
     /**
@@ -127,7 +114,7 @@ public class ClassMemberValue extends MemberValue {
      * Obtains the string representation of this object.
      */
     public String toString() {
-        return getValue().replace('$', '.') + ".class";
+        return "<" + getValue() + " class>";
     }
 
     /**

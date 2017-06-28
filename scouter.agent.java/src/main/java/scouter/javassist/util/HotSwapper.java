@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -14,7 +13,7 @@
  * License.
  */
 
-package javassist.util;
+package scouter.javassist.util;
 
 import com.sun.jdi.*;
 import com.sun.jdi.connect.*;
@@ -29,7 +28,7 @@ class Trigger {
 
 /**
  * A utility class for dynamically reloading a class by
- * the Java Platform Debugger Architecture (JPDA), or <i>HotSwap</i>.
+ * the Java Platform Debugger Architecture (JPDA), or <it>HotSwap</code>.
  * It works only with JDK 1.4 and later.
  *
  * <p><b>Note:</b> The new definition of the reloaded class must declare
@@ -40,10 +39,12 @@ class Trigger {
  * <p>To use this class, the JVM must be launched with the following
  * command line options:
  *
+ * <ul>
  * <p>For Java 1.4,<br>
  * <pre>java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000</pre>
  * <p>For Java 5,<br>
  * <pre>java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000</pre>
+ * </ul>
  *
  * <p>Note that 8000 is the port number used by <code>HotSwapper</code>.
  * Any port number can be specified.  Since <code>HotSwapper</code> does not
@@ -55,12 +56,12 @@ class Trigger {
  *
  * <p>Using <code>HotSwapper</code> is easy.  See the following example:
  *
- * <pre>
+ * <ul><pre>
  * CtClass clazz = ...
  * byte[] classFile = clazz.toBytecode();
  * HotSwapper hs = new HostSwapper(8000);  // 8000 is a port number.
  * hs.reload("Test", classFile);
- * </pre>
+ * </pre></ul>
  *
  * <p><code>reload()</code>
  * first unload the <code>Test</code> class and load a new version of
@@ -184,7 +185,7 @@ public class HotSwapper {
     private ReferenceType toRefType(String className) {
         List list = jvm.classesByName(className);
         if (list == null || list.isEmpty())
-            throw new RuntimeException("no such class: " + className);
+            throw new RuntimeException("no such a class: " + className);
         else
             return (ReferenceType)list.get(0);
     }

@@ -40,8 +40,10 @@ import scouter.org.objectweb.asm.TypePath;
 /**
  * A {@link ClassVisitor} for type remapping.
  * 
+ * @deprecated use {@link ClassRemapper} instead.
  * @author Eugene Kuleshov
  */
+@Deprecated
 public class RemappingClassAdapter extends ClassVisitor {
 
     protected final Remapper remapper;

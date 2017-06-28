@@ -139,17 +139,19 @@ public abstract class Remapper {
             Handle h = (Handle) value;
             return new Handle(h.getTag(), mapType(h.getOwner()), mapMethodName(
                     h.getOwner(), h.getName(), h.getDesc()),
-                    mapMethodDesc(h.getDesc()));
+                    mapMethodDesc(h.getDesc()), h.isInterface());
         }
         return value;
     }
 
     /**
-     * 
+     * @param signature
+     *            signature for mapper
      * @param typeSignature
      *            true if signature is a FieldTypeSignature, such as the
      *            signature parameter of the ClassVisitor.visitField or
      *            MethodVisitor.visitLocalVariable methods
+     * @return signature rewritten as a string
      */
     public String mapSignature(String signature, boolean typeSignature) {
         if (signature == null) {
@@ -157,7 +159,7 @@ public abstract class Remapper {
         }
         SignatureReader r = new SignatureReader(signature);
         SignatureWriter w = new SignatureWriter();
-        SignatureVisitor a = createRemappingSignatureAdapter(w);
+        SignatureVisitor a = createSignatureRemapper(w);
         if (typeSignature) {
             r.acceptType(a);
         } else {
@@ -166,9 +168,18 @@ public abstract class Remapper {
         return w.toString();
     }
 
+    /**
+     * @deprecated use {@link #createSignatureRemapper} instead.
+     */
+    @Deprecated
     protected SignatureVisitor createRemappingSignatureAdapter(
             SignatureVisitor v) {
-        return new RemappingSignatureAdapter(v, this);
+        return new SignatureRemapper(v, this);
+    }
+
+    protected SignatureVisitor createSignatureRemapper(
+            SignatureVisitor v) {
+        return createRemappingSignatureAdapter(v);
     }
 
     /**
@@ -216,6 +227,10 @@ public abstract class Remapper {
 
     /**
      * Map type name to the new name. Subclasses can override.
+     * 
+     * @param typeName
+     *            the type name
+     * @return new name, default implementation is the identity.
      */
     public String map(String typeName) {
         return typeName;

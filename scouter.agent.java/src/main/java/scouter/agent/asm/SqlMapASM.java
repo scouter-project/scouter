@@ -17,18 +17,18 @@
 
 package scouter.agent.asm;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import scouter.agent.ClassDesc;
-import scouter.agent.Configure;
-import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.agent.ClassDesc;
+import scouter.agent.Configure;
+import scouter.agent.asm.util.AsmUtil;
+import scouter.agent.trace.TraceSQL;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class SqlMapASM implements IASM, Opcodes {
 	public final HashSet<String> target = new HashSet<String>();
@@ -74,7 +74,7 @@ class SqlMapCV extends ClassVisitor implements Opcodes {
 	public String className;
 
 	public SqlMapCV(ClassVisitor cv, String className) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 		this.className = className;
 	}
 
@@ -106,7 +106,7 @@ class SqlMapMV extends LocalVariablesSorter implements Opcodes {
 
 	public SqlMapMV(int access, String desc, MethodVisitor mv, Type[] paramTypes, boolean isStatic, String classname,
 			String methodname, String methoddesc) {
-		super(ASM4, access, desc, mv);
+		super(ASM5, access, desc, mv);
 		this.paramTypes = paramTypes;
 		this.isStatic = isStatic;
 		this.methodName = methodname;

@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,25 +15,7 @@
 
 package scouter.javassist.tools.reflect;
 
-import java.util.Iterator;
-
-import scouter.javassist.CannotCompileException;
-import scouter.javassist.ClassPool;
-import scouter.javassist.CodeConverter;
-import scouter.javassist.CtClass;
-import scouter.javassist.CtField;
-import scouter.javassist.CtMethod;
-import scouter.javassist.CtNewMethod;
-import scouter.javassist.Modifier;
-import scouter.javassist.NotFoundException;
-import scouter.javassist.Translator;
-import scouter.javassist.CtMethod.ConstParameter;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.ClassFile;
-import scouter.javassist.bytecode.MethodInfo;
-import scouter.javassist.tools.reflect.CannotReflectException;
-import scouter.javassist.tools.reflect.ClassMetaobject;
-
+import scouter.javassist.*;
 
 /**
  * The class implementing the behavioral reflection mechanism.
@@ -48,16 +29,16 @@ import scouter.javassist.tools.reflect.ClassMetaobject;
  *
  * <p>To do this, the original class file representing a reflective class:
  *
- * <pre>
+ * <ul><pre>
  * class Person {
  *   public int f(int i) { return i + 1; }
  *   public int value;
  * }
- * </pre>
+ * </pre></ul>
  *
  * <p>is modified so that it represents a class:
  *
- * <pre>
+ * <ul><pre>
  * class Person implements Metalevel {
  *   public int _original_f(int i) { return i + 1; }
  *   public int f(int i) { <i>delegate to the metaobject</i> }
@@ -70,12 +51,12 @@ import scouter.javassist.tools.reflect.ClassMetaobject;
  *   public Metaobject _getMetaobject() { <i>return a metaobject</i> }
  *   public void _setMetaobject(Metaobject m) { <i>change a metaobject</i> }
  * }
- * </pre>
+ * </pre></ul>
  *
- * @see scouter.javassist.tools.reflect.ClassMetaobject
- * @see scouter.javassist.tools.reflect.Metaobject
- * @see scouter.javassist.tools.reflect.Loader
- * @see scouter.javassist.tools.reflect.Compiler
+ * @see ClassMetaobject
+ * @see Metaobject
+ * @see Loader
+ * @see Compiler
  */
 public class Reflection implements Translator {
 
@@ -124,7 +105,6 @@ public class Reflection implements Translator {
             = "javassist.tools.reflect.Sample is not found or broken.";
         try {
             CtClass c = classPool.get("javassist.tools.reflect.Sample");
-            rebuildClassFile(c.getClassFile());
             trapMethod = c.getDeclaredMethod("trap");
             trapStaticMethod = c.getDeclaredMethod("trapStatic");
             trapRead = c.getDeclaredMethod("trapRead");
@@ -133,8 +113,6 @@ public class Reflection implements Translator {
                 = new CtClass[] { classPool.get("java.lang.Object") };
         }
         catch (NotFoundException e) {
-            throw new RuntimeException(msg);
-        } catch (BadBytecode e) {
             throw new RuntimeException(msg);
         }
     }
@@ -160,8 +138,8 @@ public class Reflection implements Translator {
      * @param metaclass         the class name of the class metaobject.
      * @return <code>false</code>       if the class is already reflective.
      *
-     * @see scouter.javassist.tools.reflect.Metaobject
-     * @see scouter.javassist.tools.reflect.ClassMetaobject
+     * @see Metaobject
+     * @see ClassMetaobject
      */
     public boolean makeReflective(String classname,
                                   String metaobject, String metaclass)
@@ -186,8 +164,8 @@ public class Reflection implements Translator {
      *                          <code>ClassMetaobject</code>.
      * @return <code>false</code>       if the class is already reflective.
      *
-     * @see scouter.javassist.tools.reflect.Metaobject
-     * @see scouter.javassist.tools.reflect.ClassMetaobject
+     * @see Metaobject
+     * @see ClassMetaobject
      */
     public boolean makeReflective(Class clazz,
                                   Class metaobject, Class metaclass)
@@ -212,13 +190,13 @@ public class Reflection implements Translator {
      *                          <code>ClassMetaobject</code>.
      * @return <code>false</code>       if the class is already reflective.
      *
-     * @see scouter.javassist.tools.reflect.Metaobject
-     * @see scouter.javassist.tools.reflect.ClassMetaobject
+     * @see Metaobject
+     * @see ClassMetaobject
      */
     public boolean makeReflective(CtClass clazz,
                                   CtClass metaobject, CtClass metaclass)
         throws CannotCompileException, CannotReflectException,
-               NotFoundException
+            NotFoundException
     {
         if (clazz.isInterface())
             throw new CannotReflectException(
@@ -306,7 +284,7 @@ public class Reflection implements Translator {
     }
 
     private void processMethods0(int mod, CtClass clazz,
-                        CtMethod m, int identifier, boolean dontSearch)
+                                 CtMethod m, int identifier, boolean dontSearch)
         throws CannotCompileException, NotFoundException
     {
         CtMethod body;
@@ -347,7 +325,7 @@ public class Reflection implements Translator {
         CtMethod wmethod
             = CtNewMethod.wrapped(m.getReturnType(), name,
                                   m.getParameterTypes(), m.getExceptionTypes(),
-                                  body, ConstParameter.integer(identifier),
+                                  body, CtMethod.ConstParameter.integer(identifier),
                                   clazz);
         wmethod.setModifiers(mod);
         clazz.addMethod(wmethod);
@@ -386,7 +364,7 @@ public class Reflection implements Translator {
                 CtMethod wmethod
                     = CtNewMethod.wrapped(ftype, readPrefix + name,
                                           readParam, null, trapRead,
-                                          ConstParameter.string(name),
+                                          CtMethod.ConstParameter.string(name),
                                           clazz);
                 wmethod.setModifiers(mod);
                 clazz.addMethod(wmethod);
@@ -396,21 +374,10 @@ public class Reflection implements Translator {
                 wmethod = CtNewMethod.wrapped(CtClass.voidType,
                                 writePrefix + name,
                                 writeParam, null, trapWrite,
-                                ConstParameter.string(name), clazz);
+                                CtMethod.ConstParameter.string(name), clazz);
                 wmethod.setModifiers(mod);
                 clazz.addMethod(wmethod);
             }
-        }
-    }
-
-    public void rebuildClassFile(ClassFile cf) throws BadBytecode {
-        if (ClassFile.MAJOR_VERSION < ClassFile.JAVA_6)
-            return;
-
-        Iterator methods = cf.getMethods().iterator();
-        while (methods.hasNext()) {
-            MethodInfo mi = (MethodInfo)methods.next();
-            mi.rebuildStackMap(classPool);
         }
     }
 }

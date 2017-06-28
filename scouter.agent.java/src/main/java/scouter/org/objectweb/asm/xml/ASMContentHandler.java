@@ -34,10 +34,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.FieldVisitor;
@@ -47,14 +43,17 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.TypePath;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * A {@link org.xml.sax.ContentHandler ContentHandler} that transforms XML
  * document into Java class file. This class can be feeded by any kind of SAX
  * 2.0 event producers, e.g. XML parser, XSLT or XPath engines, or custom code.
  * 
- * @see scouter.org.objectweb.asm.xml.SAXClassAdapter
- * @see scouter.org.objectweb.asm.xml.Processor
+ * @see SAXClassAdapter
+ * @see Processor
  * 
  * @author Eugene Kuleshov
  */
@@ -321,7 +320,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     static {
         String[] types = SAXCodeAdapter.TYPES;
         for (int i = 0; i < types.length; i++) {
-            TYPES.put(types[i], new Integer(i));
+            TYPES.put(types[i], i);
         }
     }
 
@@ -363,7 +362,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         String name = lName == null || lName.length() == 0 ? qName : lName;
 
         // Compute the current matching rule
-        StringBuffer sb = new StringBuffer(match);
+        StringBuilder sb = new StringBuilder(match);
         if (match.length() > 0) {
             sb.append('/');
         }
@@ -555,13 +554,16 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
                 int dotIndex = val.indexOf('.');
                 int descIndex = val.indexOf('(', dotIndex + 1);
                 int tagIndex = val.lastIndexOf('(');
-
-                int tag = Integer.parseInt(val.substring(tagIndex + 1,
-                        val.length() - 1));
+                int itfIndex = val.indexOf(' ', tagIndex + 1);
+                
+                boolean itf = itfIndex != -1;
+                int tag = Integer.parseInt(
+                              val.substring(tagIndex + 1,
+                                    itf? val.length() - 1: itfIndex));
                 String owner = val.substring(0, dotIndex);
                 String name = val.substring(dotIndex + 1, descIndex);
                 String desc = val.substring(descIndex, tagIndex - 1);
-                return new Handle(tag, owner, name, desc);
+                return new Handle(tag, owner, name, desc, itf);
 
             } catch (RuntimeException e) {
                 throw new SAXException("Malformed handle " + val, e);
@@ -569,7 +571,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         }
 
         private final String decode(final String val) throws SAXException {
-            StringBuffer sb = new StringBuffer(val.length());
+            StringBuilder sb = new StringBuilder(val.length());
             try {
                 int n = 0;
                 while (n < val.length()) {
@@ -687,7 +689,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             int major = Integer.parseInt(attrs.getValue("major"));
             int minor = Integer.parseInt(attrs.getValue("minor"));
             HashMap<String, Object> vals = new HashMap<String, Object>();
-            vals.put("version", new Integer(minor << 16 | major));
+            vals.put("version", minor << 16 | major);
             vals.put("access", attrs.getValue("access"));
             vals.put("name", attrs.getValue("name"));
             vals.put("parent", attrs.getValue("parent"));
@@ -715,6 +717,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     final class InterfaceRule extends Rule {
 
         @Override
+        @SuppressWarnings("unchecked")
         public final void begin(final String name, final Attributes attrs) {
             ((ArrayList<String>) ((HashMap<?, ?>) peek()).get("interfaces"))
                     .add(attrs.getValue("name"));
@@ -823,6 +826,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     final class ExceptionRule extends Rule {
 
         @Override
+        @SuppressWarnings("unchecked")
         public final void begin(final String name, final Attributes attrs) {
             ((ArrayList<String>) ((HashMap<?, ?>) peek()).get("exceptions"))
                     .add(attrs.getValue("name"));
@@ -893,6 +897,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     final class TableSwitchLabelRule extends Rule {
 
         @Override
+        @SuppressWarnings("unchecked")
         public final void begin(final String name, final Attributes attrs) {
             ((ArrayList<Label>) ((HashMap<?, ?>) peek()).get("labels"))
                     .add(getLabel(attrs.getValue("name")));
@@ -917,6 +922,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         public final void end(final String name) {
             HashMap<?, ?> vals = (HashMap<?, ?>) pop();
             Label dflt = getLabel(vals.get("dflt"));
+            @SuppressWarnings("unchecked")
             ArrayList<String> keyList = (ArrayList<String>) vals.get("keys");
             ArrayList<?> lbls = (ArrayList<?>) vals.get("labels");
             Label[] labels = lbls.toArray(new Label[lbls.size()]);
@@ -934,6 +940,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     final class LookupSwitchLabelRule extends Rule {
 
         @Override
+        @SuppressWarnings("unchecked")
         public final void begin(final String name, final Attributes attrs) {
             HashMap<?, ?> vals = (HashMap<?, ?>) peek();
             ((ArrayList<Label>) vals.get("labels")).add(getLabel(attrs
@@ -992,6 +999,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
         @Override
         public void begin(final String name, final Attributes attrs) {
+            @SuppressWarnings("unchecked")
             ArrayList<Object> types = (ArrayList<Object>) ((HashMap<?, ?>) peek())
                     .get(name);
             String type = attrs.getValue("type");
@@ -1096,6 +1104,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         @Override
         public final void begin(final String element, final Attributes attrs)
                 throws SAXException {
+            @SuppressWarnings("unchecked")
             ArrayList<Object> bsmArgs = (ArrayList<Object>) peek();
             bsmArgs.add(getValue(attrs.getValue("desc"), attrs.getValue("cst")));
         }

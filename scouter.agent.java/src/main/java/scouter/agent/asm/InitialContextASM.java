@@ -18,17 +18,17 @@
 package scouter.agent.asm;
 
 
-import java.util.Set;
-
-import scouter.agent.ClassDesc;
-import scouter.agent.Configure;
-import scouter.agent.asm.util.HookingSet;
-import scouter.agent.trace.TraceMain;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.agent.ClassDesc;
+import scouter.agent.Configure;
+import scouter.agent.asm.util.HookingSet;
+import scouter.agent.trace.TraceMain;
+
+import java.util.Set;
 
 public class InitialContextASM implements IASM, Opcodes {
 	private Set<String> target = HookingSet.getClassSet(Configure.getInstance().hook_context_classes);
@@ -50,7 +50,7 @@ class InitialContextCV extends ClassVisitor implements Opcodes {
 
 	public String className;
 	public InitialContextCV(ClassVisitor cv, String className) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 		this.className = className;
 	}
 
@@ -78,7 +78,7 @@ class InitialContextMV extends LocalVariablesSorter implements Opcodes {
 
 	public InitialContextMV(int access, String desc, MethodVisitor mv, String classname, String methodname,
 			String methoddesc) {
-		super(ASM4, access, desc, mv);
+		super(ASM5, access, desc, mv);
 		this.returnType = Type.getReturnType(desc);
 	}
 

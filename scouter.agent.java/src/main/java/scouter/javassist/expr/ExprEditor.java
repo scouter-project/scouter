@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,23 +15,12 @@
 
 package scouter.javassist.expr;
 
-import scouter.javassist.CannotCompileException;
+import scouter.javassist.bytecode.*;
 import scouter.javassist.CtClass;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.CodeAttribute;
-import scouter.javassist.bytecode.CodeIterator;
-import scouter.javassist.bytecode.ExceptionTable;
-import scouter.javassist.bytecode.MethodInfo;
-import scouter.javassist.bytecode.Opcode;
-import scouter.javassist.expr.Cast;
-import scouter.javassist.expr.ConstructorCall;
-import scouter.javassist.expr.Expr;
-import scouter.javassist.expr.FieldAccess;
-import scouter.javassist.expr.Handler;
-import scouter.javassist.expr.Instanceof;
-import scouter.javassist.expr.MethodCall;
-import scouter.javassist.expr.NewArray;
-import scouter.javassist.expr.NewExpr;
+import scouter.javassist.CannotCompileException;
+import scouter.javassist.CodeConverter;
+import scouter.javassist.CtConstructor;
+import scouter.javassist.CtMethod;
 
 /**
  * A translator of method bodies.
@@ -54,7 +42,7 @@ import scouter.javassist.expr.NewExpr;
  *
  * <p>The following code is an example:
  *
- * <pre>
+ * <ul><pre>
  * CtMethod cm = ...;
  * cm.instrument(new ExprEditor() {
  *     public void edit(MethodCall m) throws CannotCompileException {
@@ -63,7 +51,7 @@ import scouter.javassist.expr.NewExpr;
  *                                + m.getLineNumber());
  *     }
  * });
- * </pre>
+ * </pre></ul>
  *
  * <p>This code inspects all method calls appearing in the method represented
  * by <code>cm</code> and it prints the names and the line numbers of the
@@ -72,14 +60,14 @@ import scouter.javassist.expr.NewExpr;
  * body must be modified, call <code>replace()</code>
  * in <code>MethodCall</code>.
  *
- * @see scouter.javassist.CtClass#instrument(ExprEditor)
- * @see scouter.javassist.CtMethod#instrument(ExprEditor)
- * @see scouter.javassist.CtConstructor#instrument(ExprEditor)
+ * @see CtClass#instrument(ExprEditor)
+ * @see CtMethod#instrument(ExprEditor)
+ * @see CtConstructor#instrument(ExprEditor)
  * @see MethodCall
  * @see NewExpr
  * @see FieldAccess
  *
- * @see scouter.javassist.CodeConverter
+ * @see CodeConverter
  */
 public class ExprEditor {
     /**
