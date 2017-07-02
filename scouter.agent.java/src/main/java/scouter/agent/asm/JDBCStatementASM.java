@@ -45,7 +45,10 @@ public class JDBCStatementASM implements IASM, Opcodes {
 		target.add("jdbc/FakeStatement");
 		target.add("net/sourceforge/jtds/jdbc/JtdsStatement");
 		target.add("com/microsoft/sqlserver/jdbc/SQLServerStatement");
-		target.add("com/tmax/tibero/jdbc/TbStatement");
+
+		target.add("com/tmax/tibero/jdbc/TbStatement"); //tibero5
+		target.add("com/tmax/tibero/jdbc/driver/TbStatement"); //tibero6
+
 		target.add("org/hsqldb/jdbc/JDBCStatement");
 		target.add("cubrid/jdbc/driver/CUBRIDStatement");
 		target.add("Altibase/jdbc/driver/AltibaseStatement");

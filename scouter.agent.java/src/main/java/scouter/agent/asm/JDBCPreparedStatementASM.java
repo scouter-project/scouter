@@ -16,10 +16,6 @@
  */
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -27,6 +23,10 @@ import scouter.agent.asm.jdbc.*;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.SqlParameter;
 import scouter.agent.trace.TraceSQL;
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
 
 import java.util.HashSet;
 
@@ -54,7 +54,10 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		target.add("jdbc/FakePreparedStatement");
 		target.add("jdbc/FakePreparedStatement2");
 		target.add("com/microsoft/sqlserver/jdbc/SQLServerPreparedStatement");
-		target.add("com/tmax/tibero/jdbc/TbPreparedStatement");
+
+		target.add("com/tmax/tibero/jdbc/TbPreparedStatement"); //tibero5
+		target.add("com/tmax/tibero/jdbc/driver/TbPreparedStatement"); //tibero6
+
 		target.add("org/hsqldb/jdbc/JDBCPreparedStatement");
 		target.add("com/mysql/jdbc/ServerPreparedStatement");
 		target.add("com/mysql/jdbc/PreparedStatement");
