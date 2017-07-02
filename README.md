@@ -1,3 +1,5 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent)  
+
 ![scouter](./scouter.document/img/main/scouter-logo-w200.png)
 
 ![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](README_kr.md)
