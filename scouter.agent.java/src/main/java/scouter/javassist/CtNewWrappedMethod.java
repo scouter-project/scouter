@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,25 +15,10 @@
 
 package scouter.javassist;
 
-import java.util.Hashtable;
-
-import scouter.javassist.CannotCompileException;
-import scouter.javassist.ClassMap;
-import scouter.javassist.CtClass;
-import scouter.javassist.CtMember;
-import scouter.javassist.CtMethod;
-import scouter.javassist.CtPrimitiveType;
-import scouter.javassist.Modifier;
-import scouter.javassist.NotFoundException;
-import scouter.javassist.CtMethod.ConstParameter;
-import scouter.javassist.bytecode.AccessFlag;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.Bytecode;
-import scouter.javassist.bytecode.ClassFile;
-import scouter.javassist.bytecode.MethodInfo;
-import scouter.javassist.bytecode.SyntheticAttribute;
+import scouter.javassist.bytecode.*;
 import scouter.javassist.compiler.JvstCodeGen;
 
+import java.util.Hashtable;
 
 class CtNewWrappedMethod {
 
@@ -43,7 +27,7 @@ class CtNewWrappedMethod {
     public static CtMethod wrapped(CtClass returnType, String mname,
                                    CtClass[] parameterTypes,
                                    CtClass[] exceptionTypes,
-                                   CtMethod body, ConstParameter constParam,
+                                   CtMethod body, CtMethod.ConstParameter constParam,
                                    CtClass declaring)
         throws CannotCompileException
     {
@@ -59,9 +43,7 @@ class CtNewWrappedMethod {
 
         Bytecode code = makeBody(declaring, declaring.getClassFile2(), body,
                                  parameterTypes, returnType, constParam);
-        MethodInfo minfo = mt.getMethodInfo2();
-        minfo.setCodeAttribute(code.toCodeAttribute());
-        // a stack map has been already created. 
+        mt.getMethodInfo2().setCodeAttribute(code.toCodeAttribute());
         return mt;
     }
 
@@ -69,7 +51,7 @@ class CtNewWrappedMethod {
                              CtMethod wrappedBody,
                              CtClass[] parameters,
                              CtClass returnType,
-                             ConstParameter cparam)
+                             CtMethod.ConstParameter cparam)
         throws CannotCompileException
     {
         boolean isStatic = Modifier.isStatic(wrappedBody.getModifiers());
@@ -87,7 +69,7 @@ class CtNewWrappedMethod {
     protected static int makeBody0(CtClass clazz, ClassFile classfile,
                                    CtMethod wrappedBody,
                                    boolean isStatic, CtClass[] parameters,
-                                   CtClass returnType, ConstParameter cparam,
+                                   CtClass returnType, CtMethod.ConstParameter cparam,
                                    Bytecode code)
         throws CannotCompileException
     {
@@ -104,7 +86,7 @@ class CtNewWrappedMethod {
         String desc;
         if (cparam == null) {
             stacksize2 = 0;
-            desc = ConstParameter.defaultDescriptor();
+            desc = CtMethod.ConstParameter.defaultDescriptor();
         }
         else {
             stacksize2 = cparam.compile(code);
@@ -168,7 +150,7 @@ class CtNewWrappedMethod {
             int acc = body.getAccessFlags();
             body.setAccessFlags(AccessFlag.setPrivate(acc));
             body.addAttribute(new SyntheticAttribute(classfile.getConstPool()));
-            // a stack map is copied.  rebuilding it is not needed.
+            // a stack map is copied.  rebuilding it is not needed. 
             classfile.addMethod(body);
             bodies.put(src, bodyname);
             CtMember.Cache cache = clazz.hasMemberCache();

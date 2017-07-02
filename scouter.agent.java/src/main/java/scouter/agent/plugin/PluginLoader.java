@@ -16,6 +16,7 @@
  *
  */
 package scouter.agent.plugin;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.trace.HookArgs;
@@ -154,7 +155,7 @@ public class PluginLoader extends Thread {
 				method_end = impl.getMethod(METHOD_END, "(" + SIGNATURE + ")V");
 				// REJECT METHOD
 				method_reject = impl.getMethod(METHOD_REJECT, "(" + SIGNATURE + ")Z");
-			} catch (scouter.javassist.NotFoundException e) {
+			} catch (NotFoundException e) {
 				impl = cp.makeClass(className, cc);
 				StringBuffer sb1 = new StringBuffer();
 				sb1.append(METHOD_P1).append(" p1").append(",");
@@ -193,7 +194,7 @@ public class PluginLoader extends Thread {
 			Logger.println("PLUG-IN : " + AbstractHttpService.class.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
-		} catch (scouter.javassist.CannotCompileException ee) {
+		} catch (CannotCompileException ee) {
 			Logger.println(ee.getMessage());
 		} catch (Throwable e) {
 			Logger.println("A161", e);
@@ -262,7 +263,7 @@ public class PluginLoader extends Thread {
 				method_start = impl.getMethod(START, START_SIG);
 				// END METHOD
 				method_end = impl.getMethod(END, END_SIG);
-			} catch (scouter.javassist.NotFoundException e) {
+			} catch (NotFoundException e) {
 				impl = cp.makeClass(className, cc);
 				// START METHOD
 				sb = new StringBuffer();
@@ -299,7 +300,7 @@ public class PluginLoader extends Thread {
 			Logger.println("PLUG-IN : " + AbstractAppService.class.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
-		} catch (scouter.javassist.CannotCompileException ee) {
+		} catch (CannotCompileException ee) {
 			Logger.println("PLUG-IN : " + ee.getMessage());
 		} catch (Exception e) {
 			Logger.println("A162", e);
@@ -354,7 +355,7 @@ public class PluginLoader extends Thread {
 				method_return = impl.getMethod(RTN, RTN_SIG);
 				// THIS METHOD
 				method_this = impl.getMethod(THIS, THIS_SIG);
-			} catch (scouter.javassist.NotFoundException e) {
+			} catch (NotFoundException e) {
 				impl = cp.makeClass(className, cc);
 				// ARG METHOD
 				sb = new StringBuffer();
@@ -412,7 +413,7 @@ public class PluginLoader extends Thread {
 			Logger.println("PLUG-IN : " + AbstractCapture.class.getName() + " " + script.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
-		} catch (scouter.javassist.CannotCompileException ee) {
+		} catch (CannotCompileException ee) {
 			Logger.println("PLUG-IN : " + ee.getMessage());
 		} catch (Exception e) {
 			Logger.println("A905", e);
@@ -448,7 +449,7 @@ public class PluginLoader extends Thread {
 				impl = cp.get(className);
 				impl.defrost();
 				method = impl.getMethod(URL, URL_SIG);
-			} catch (scouter.javassist.NotFoundException e) {
+			} catch (NotFoundException e) {
 				impl = cp.makeClass(className, cc);
 				StringBuffer sb = new StringBuffer();
 				sb.append("public String ").append(URL).append("(");
@@ -473,7 +474,7 @@ public class PluginLoader extends Thread {
 			Logger.println("PLUG-IN : " + AbstractJdbcPool.class.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
-		} catch (scouter.javassist.CannotCompileException ee) {
+		} catch (CannotCompileException ee) {
 			Logger.println("PLUG-IN : " + ee.getMessage());
 		} catch (Exception e) {
 			Logger.println("A906", e);
@@ -510,7 +511,7 @@ public class PluginLoader extends Thread {
 				impl = cp.get(className);
 				impl.defrost();
 				method = impl.getMethod(CALL, CALL_SIG);
-			} catch (scouter.javassist.NotFoundException e) {
+			} catch (NotFoundException e) {
 				impl = cp.makeClass(className, cc);
 				sb = new StringBuffer();
 				sb.append("public void ").append(CALL).append("(");
@@ -533,7 +534,7 @@ public class PluginLoader extends Thread {
 			Logger.println("PLUG-IN : " + AbstractHttpCall.class.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
-		} catch (scouter.javassist.CannotCompileException ee) {
+		} catch (CannotCompileException ee) {
 			Logger.println("PLUG-IN : " + ee.getMessage());
 		} catch (Exception e) {
 			Logger.println("A907", e);

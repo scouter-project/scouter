@@ -17,14 +17,14 @@
 
 package scouter.agent.asm;
 
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.Opcodes;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceMain;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
 
 import java.util.List;
 
@@ -52,7 +52,7 @@ class CapThisCV extends ClassVisitor implements Opcodes {
 	private String className;
 
 	public CapThisCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -77,7 +77,7 @@ class CapThisMV extends MethodVisitor implements Opcodes {
 	private String methodDesc;
 
 	public CapThisMV(String classname, String methoddesc, MethodVisitor mv) {
-		super(ASM4, mv);
+		super(ASM5, mv);
 		this.className = classname;
 		this.methodDesc = methoddesc;
 	}

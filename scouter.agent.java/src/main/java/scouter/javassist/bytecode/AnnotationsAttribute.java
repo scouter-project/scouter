@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,34 +15,12 @@
 
 package scouter.javassist.bytecode;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.HashMap;
+import scouter.javassist.bytecode.annotation.*;
+
 import java.util.Map;
-
-import scouter.javassist.bytecode.AnnotationDefaultAttribute;
-import scouter.javassist.bytecode.AttributeInfo;
-import scouter.javassist.bytecode.ByteArray;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.Descriptor;
-import scouter.javassist.bytecode.annotation.Annotation;
-import scouter.javassist.bytecode.annotation.AnnotationMemberValue;
-import scouter.javassist.bytecode.annotation.AnnotationsWriter;
-import scouter.javassist.bytecode.annotation.ArrayMemberValue;
-import scouter.javassist.bytecode.annotation.BooleanMemberValue;
-import scouter.javassist.bytecode.annotation.ByteMemberValue;
-import scouter.javassist.bytecode.annotation.CharMemberValue;
-import scouter.javassist.bytecode.annotation.ClassMemberValue;
-import scouter.javassist.bytecode.annotation.DoubleMemberValue;
-import scouter.javassist.bytecode.annotation.EnumMemberValue;
-import scouter.javassist.bytecode.annotation.FloatMemberValue;
-import scouter.javassist.bytecode.annotation.IntegerMemberValue;
-import scouter.javassist.bytecode.annotation.LongMemberValue;
-import scouter.javassist.bytecode.annotation.MemberValue;
-import scouter.javassist.bytecode.annotation.ShortMemberValue;
-import scouter.javassist.bytecode.annotation.StringMemberValue;
-
+import java.io.IOException;
+import java.io.DataInputStream;
+import java.io.ByteArrayOutputStream;
 
 /**
  * A class representing
@@ -61,7 +38,7 @@ import scouter.javassist.bytecode.annotation.StringMemberValue;
  *
  * <p>For example,
  *
- * <pre>
+ * <ul><pre>
  * import javassist.bytecode.annotation.Annotation;
  *    :
  * CtMethod m = ... ;
@@ -71,7 +48,7 @@ import scouter.javassist.bytecode.annotation.StringMemberValue;
  * Annotation an = attr.getAnnotation("Author");
  * String s = ((StringMemberValue)an.getMemberValue("name")).getValue();
  * System.out.println("@Author(name=" + s + ")");
- * </pre>
+ * </pre></ul>
  *
  * <p>This code snippet retrieves an annotation of the type <code>Author</code>
  * from the <code>MethodInfo</code> object specified by <code>minfo</code>.
@@ -79,17 +56,17 @@ import scouter.javassist.bytecode.annotation.StringMemberValue;
  *
  * <p>If the annotation type <code>Author</code> is annotated by a meta annotation:
  *
- * <pre>
+ * <ul><pre>
  * &#64;Retention(RetentionPolicy.RUNTIME)
- * </pre>
+ * </pre></ul>
  *
  * <p>Then <code>Author</code> is visible at runtime.  Therefore, the third
  * statement of the code snippet above must be changed into:
  *
- * <pre>
+ * <ul><pre>
  * AnnotationsAttribute attr = (AnnotationsAttribute)
  *         minfo.getAttribute(AnnotationsAttribute.visibleTag);
- * </pre>
+ * </pre></ul>
  *
  * <p>The attribute tag must be <code>visibleTag</code> instead of
  * <code>invisibleTag</code>.
@@ -105,7 +82,7 @@ import scouter.javassist.bytecode.annotation.StringMemberValue;
  * <p>If you want to record a new AnnotationAttribute object, execute the
  * following snippet:
  *
- * <pre>
+ * <ul><pre>
  * ClassFile cf = ... ;
  * ConstPool cp = cf.getConstPool();
  * AnnotationsAttribute attr
@@ -115,13 +92,13 @@ import scouter.javassist.bytecode.annotation.StringMemberValue;
  * attr.setAnnotation(a);
  * cf.addAttribute(attr);
  * cf.setVersionToJava5();
- * </pre>
+ * </pre></ul>
  *
  * <p>The last statement is necessary if the class file was produced by
- * <code>javac</code> of JDK 1.4 or earlier.  Otherwise, it is not necessary.
+ * Javassist or JDK 1.4.  Otherwise, it is not necessary.
  *
  * @see AnnotationDefaultAttribute
- * @see scouter.javassist.bytecode.annotation.Annotation
+ * @see Annotation
  */
 public class AnnotationsAttribute extends AttributeInfo {
     /**
@@ -189,7 +166,7 @@ public class AnnotationsAttribute extends AttributeInfo {
             return new AnnotationsAttribute(newCp, getName(), copier.close());
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.toString());
         }
     }
 
@@ -249,7 +226,7 @@ public class AnnotationsAttribute extends AttributeInfo {
             return new Parser(info, constPool).parseAnnotations();
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.toString());
         }
     }
 
@@ -280,7 +257,7 @@ public class AnnotationsAttribute extends AttributeInfo {
 
     /**
      * Changes the annotations.  A call to this method is equivalent to:
-     * <pre>setAnnotations(new Annotation[] { annotation })</pre>
+     * <ul><pre>setAnnotations(new Annotation[] { annotation })</pre></ul>
      *
      * @param annotation    the data structure representing
      *                      the new annotation.
@@ -290,32 +267,11 @@ public class AnnotationsAttribute extends AttributeInfo {
     }
 
     /**
-     * @param oldname       a JVM class name.
-     * @param newname       a JVM class name.
-     */
-    void renameClass(String oldname, String newname) {
-        HashMap map = new HashMap();
-        map.put(oldname, newname);
-        renameClass(map);
-    }
-
-    void renameClass(Map classnames) {
-        Renamer renamer = new Renamer(info, getConstPool(), classnames);
-        try {
-            renamer.annotationArray();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    void getRefClasses(Map classnames) { renameClass(classnames); }
-
-    /**
      * Returns a string representation of this object.
      */
     public String toString() {
         Annotation[] a = getAnnotations();
-        StringBuilder sbuf = new StringBuilder();
+        StringBuffer sbuf = new StringBuffer();
         int i = 0;
         while (i < a.length) {
             sbuf.append(a[i++].toString());
@@ -372,35 +328,26 @@ public class AnnotationsAttribute extends AttributeInfo {
             return pos;
         }
 
-        /**
-         * {@code element_value_paris}
-         */
         final int memberValuePair(int pos) throws Exception {
             int nameIndex = ByteArray.readU16bit(info, pos);
             return memberValuePair(pos + 2, nameIndex);
         }
 
-        /**
-         * {@code element_value_paris[]}
-         */
         int memberValuePair(int pos, int nameIndex) throws Exception {
             return memberValue(pos);
         }
 
-        /**
-         * {@code element_value}
-         */
         final int memberValue(int pos) throws Exception {
             int tag = info[pos] & 0xff;
             if (tag == 'e') {
                 int typeNameIndex = ByteArray.readU16bit(info, pos + 1);
                 int constNameIndex = ByteArray.readU16bit(info, pos + 3);
-                enumMemberValue(pos, typeNameIndex, constNameIndex);
+                enumMemberValue(typeNameIndex, constNameIndex);
                 return pos + 5;
             }
             else if (tag == 'c') {
                 int index = ByteArray.readU16bit(info, pos + 1);
-                classMemberValue(pos, index);
+                classMemberValue(index);
                 return pos + 3;
             }
             else if (tag == '@')
@@ -416,85 +363,24 @@ public class AnnotationsAttribute extends AttributeInfo {
             }
         }
 
-        /**
-         * {@code const_value_index}
-         */
         void constValueMember(int tag, int index) throws Exception {}
 
-        /**
-         * {@code enum_const_value}
-         */
-        void enumMemberValue(int pos, int typeNameIndex, int constNameIndex)
+        void enumMemberValue(int typeNameIndex, int constNameIndex)
             throws Exception {
         }
 
-        /**
-         * {@code class_info_index}
-         */
-        void classMemberValue(int pos, int index) throws Exception {}
+        void classMemberValue(int index) throws Exception {}
 
-        /**
-         * {@code annotation_value}
-         */
         int annotationMemberValue(int pos) throws Exception {
             return annotation(pos);
         }
 
-        /**
-         * {@code array_value}
-         */
         int arrayMemberValue(int pos, int num) throws Exception {
             for (int i = 0; i < num; ++i) {
                 pos = memberValue(pos);
             }
 
             return pos;
-        }
-    }
-
-    static class Renamer extends Walker {
-        ConstPool cpool;
-        Map classnames;
-
-        /**
-         * Constructs a renamer.  It renames some class names
-         * into the new names specified by <code>map</code>.
-         *
-         * @param info      the annotations attribute.
-         * @param cp        the constant pool.
-         * @param map       pairs of replaced and substituted class names.
-         *                  It can be null.
-         */
-        Renamer(byte[] info, ConstPool cp, Map map) {
-            super(info);
-            cpool = cp;
-            classnames = map;
-        }
-
-        int annotation(int pos, int type, int numPairs) throws Exception {
-            renameType(pos - 4, type);
-            return super.annotation(pos, type, numPairs);
-        }
-
-        void enumMemberValue(int pos, int typeNameIndex, int constNameIndex)
-            throws Exception
-        {
-            renameType(pos + 1, typeNameIndex);
-            super.enumMemberValue(pos, typeNameIndex, constNameIndex);
-        }
-
-        void classMemberValue(int pos, int index) throws Exception {
-            renameType(pos + 1, index);
-            super.classMemberValue(pos, index);
-        }
-
-        private void renameType(int pos, int index) {
-            String name = cpool.getUtf8Info(index);
-            String newName = Descriptor.rename(name, classnames);
-            if (!name.equals(newName)) {
-                int index2 = cpool.addUtf8Info(newName);
-                ByteArray.write16bit(index2, info, pos);
-            }
         }
     }
 
@@ -516,15 +402,9 @@ public class AnnotationsAttribute extends AttributeInfo {
          *                  It can be null.
          */
         Copier(byte[] info, ConstPool src, ConstPool dest, Map map) {
-            this(info, src, dest, map, true); 
-        }
-
-        Copier(byte[] info, ConstPool src, ConstPool dest, Map map, boolean makeWriter) {
             super(info);
             output = new ByteArrayOutputStream();
-            if (makeWriter)
-                writer = new AnnotationsWriter(output, dest);
-
+            writer = new AnnotationsWriter(output, dest);
             srcPool = src;
             destPool = dest;
             classnames = map;
@@ -546,7 +426,7 @@ public class AnnotationsAttribute extends AttributeInfo {
         }
 
         int annotation(int pos, int type, int numPairs) throws Exception {
-            writer.annotation(copyType(type), numPairs);
+            writer.annotation(copy(type), numPairs);
             return super.annotation(pos, type, numPairs);
         }
 
@@ -560,16 +440,16 @@ public class AnnotationsAttribute extends AttributeInfo {
             super.constValueMember(tag, index);
         }
 
-        void enumMemberValue(int pos, int typeNameIndex, int constNameIndex)
+        void enumMemberValue(int typeNameIndex, int constNameIndex)
             throws Exception
         {
-            writer.enumConstValue(copyType(typeNameIndex), copy(constNameIndex));
-            super.enumMemberValue(pos, typeNameIndex, constNameIndex);
+            writer.enumConstValue(copy(typeNameIndex), copy(constNameIndex));
+            super.enumMemberValue(typeNameIndex, constNameIndex);
         }
 
-        void classMemberValue(int pos, int index) throws Exception {
-            writer.classInfoIndex(copyType(index));
-            super.classMemberValue(pos, index);
+        void classMemberValue(int index) throws Exception {
+            writer.classInfoIndex(copy(index));
+            super.classMemberValue(index);
         }
 
         int annotationMemberValue(int pos) throws Exception {
@@ -593,22 +473,6 @@ public class AnnotationsAttribute extends AttributeInfo {
          */
         int copy(int srcIndex) {
             return srcPool.copy(srcIndex, destPool, classnames);
-        }
-
-        /**
-         * Copies a constant pool entry into the destination constant pool
-         * and returns the index of the copied entry.  That entry must be
-         * a Utf8Info representing a class name in the L<class name>; form.
-         *
-         * @param srcIndex  the index of the copied entry into the source
-         *                  constant pool.
-         * @return          the index of the copied item into the destination
-         *                  constant pool.
-         */
-        int copyType(int srcIndex) {
-            String name = srcPool.getUtf8Info(srcIndex);
-            String newName = Descriptor.rename(name, classnames);
-            return destPool.addUtf8Info(newName);
         }
     }
 
@@ -717,17 +581,17 @@ public class AnnotationsAttribute extends AttributeInfo {
             super.constValueMember(tag, index);
         }
 
-        void enumMemberValue(int pos, int typeNameIndex, int constNameIndex)
+        void enumMemberValue(int typeNameIndex, int constNameIndex)
             throws Exception
         {
             currentMember = new EnumMemberValue(typeNameIndex,
                                               constNameIndex, pool);
-            super.enumMemberValue(pos, typeNameIndex, constNameIndex);
+            super.enumMemberValue(typeNameIndex, constNameIndex);
         }
 
-        void classMemberValue(int pos, int index) throws Exception {
+        void classMemberValue(int index) throws Exception {
             currentMember = new ClassMemberValue(index, pool);
-            super.classMemberValue(pos, index);
+            super.classMemberValue(index);
         }
 
         int annotationMemberValue(int pos) throws Exception {

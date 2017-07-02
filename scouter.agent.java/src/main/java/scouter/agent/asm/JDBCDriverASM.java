@@ -15,14 +15,15 @@
  *  limitations under the License. 
  */
 package scouter.agent.asm;
+
+import scouter.org.objectweb.asm.*;
+import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceSQL;
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 import java.util.Map;
 public class JDBCDriverASM implements IASM, Opcodes {
@@ -48,7 +49,7 @@ class JDBCDriverCV extends ClassVisitor implements Opcodes {
 	public String className;
 	private HookingSet mset;
 	public JDBCDriverCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -76,7 +77,7 @@ class JDBCDriverMV extends LocalVariablesSorter implements Opcodes {
 	
 	private Label startFinally = new Label();
 	public JDBCDriverMV(int access, String desc, MethodVisitor mv, String fullname) {
-		super(ASM4,access, desc, mv);
+		super(ASM5,access, desc, mv);
 		this.strArgIdx = AsmUtil.getStringIdx(access, desc);
 	}
 	private int strArgIdx;

@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba, and others. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -20,24 +19,8 @@ import java.util.Iterator;
 import scouter.javassist.ClassPool;
 import scouter.javassist.CtClass;
 import scouter.javassist.CtMethod;
+import scouter.javassist.bytecode.*;
 import scouter.javassist.NotFoundException;
-import scouter.javassist.bytecode.AccessFlag;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.CodeAttribute;
-import scouter.javassist.bytecode.CodeIterator;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.Descriptor;
-import scouter.javassist.bytecode.ExceptionTable;
-import scouter.javassist.bytecode.MethodInfo;
-import scouter.javassist.bytecode.Opcode;
-import scouter.javassist.bytecode.analysis.Executor;
-import scouter.javassist.bytecode.analysis.Frame;
-import scouter.javassist.bytecode.analysis.FramePrinter;
-import scouter.javassist.bytecode.analysis.Subroutine;
-import scouter.javassist.bytecode.analysis.SubroutineScanner;
-import scouter.javassist.bytecode.analysis.Type;
-import scouter.javassist.bytecode.analysis.Util;
-
 
 /**
  * A data-flow analyzer that determines the type state of the stack and local
@@ -51,7 +34,7 @@ import scouter.javassist.bytecode.analysis.Util;
  * // Method to analyze
  * public Object doSomething(int x) {
  *     Number n;
- *     if (x &lt; 5) {
+ *     if (x < 5) {
  *        n = new Double(0);
  *     } else {
  *        n = new Long(0);
@@ -67,13 +50,13 @@ import scouter.javassist.bytecode.analysis.Util;
  * // 5:   new #18; //class java/lang/Double
  * // 8:   dup
  * // 9:   dconst_0
- * // 10:  invokespecial   #44; //Method java/lang/Double."&lt;init&gt;":(D)V
+ * // 10:  invokespecial   #44; //Method java/lang/Double."<init>":(D)V
  * // 13:  astore_2
  * // 14:  goto    26
  * // 17:  new #16; //class java/lang/Long
  * // 20:  dup
  * // 21:  lconst_1
- * // 22:  invokespecial   #47; //Method java/lang/Long."&lt;init&gt;":(J)V
+ * // 22:  invokespecial   #47; //Method java/lang/Long."<init>":(J)V
  * // 25:  astore_2
  * // 26:  aload_2
  * // 27:  areturn
@@ -174,7 +157,7 @@ public class Analyzer implements Opcode {
     }
 
     private void analyzeNextEntry(MethodInfo method, CodeIterator iter,
-            IntQueue queue, Executor executor) throws BadBytecode {
+                                  IntQueue queue, Executor executor) throws BadBytecode {
         int pos = queue.take();
         iter.move(pos);
         iter.next();

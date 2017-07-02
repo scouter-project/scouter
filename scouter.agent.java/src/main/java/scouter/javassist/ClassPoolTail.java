@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,23 +15,11 @@
 
 package scouter.javassist;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.util.jar.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
-import scouter.javassist.CannotCompileException;
-import scouter.javassist.ClassClassPath;
-import scouter.javassist.ClassPath;
-import scouter.javassist.NotFoundException;
-
+import java.util.Hashtable;
 
 final class ClassPathList {
     ClassPathList next;
@@ -190,9 +177,11 @@ final class JarClassPath implements ClassPath {
 
 final class ClassPoolTail {
     protected ClassPathList pathList;
+    private Hashtable packages;         // should be synchronized.
 
     public ClassPoolTail() {
         pathList = null;
+        packages = new Hashtable();
     }
 
     public String toString() {
@@ -280,6 +269,14 @@ final class ClassPoolTail {
     }
 
     /**
+     * You can record "System" so that java.lang.System can be quickly
+     * found although "System" is not a package name.
+     */
+    public void recordInvalidClassName(String name) {
+        packages.put(name, name);
+    }
+
+    /**
      * This method does not close the output stream.
      */
     void writeClassfile(String classname, OutputStream out)
@@ -327,6 +324,9 @@ final class ClassPoolTail {
     InputStream openClassfile(String classname)
         throws NotFoundException
     {
+        if (packages.get(classname) != null)
+            return null;    // not found
+
         ClassPathList list = pathList;
         InputStream ins = null;
         NotFoundException error = null;
@@ -360,6 +360,9 @@ final class ClassPoolTail {
      * @return null if the class file could not be found.
      */
     public URL find(String classname) {
+        if (packages.get(classname) != null)
+            return null;
+
         ClassPathList list = pathList;
         URL url = null;
         while (list != null) {
@@ -417,12 +420,8 @@ final class ClassPoolTail {
         throws IOException
     {
         int bufsize = 4096;
-        byte[] buf = null;
-        for (int i = 0; i < 64; ++i) {
-            if (i < 8) {
-                bufsize *= 2;
-                buf = new byte[bufsize];
-            }
+        for (int i = 0; i < 8; ++i) {
+            byte[] buf = new byte[bufsize];
             int size = 0;
             int len = 0;
             do {
@@ -435,6 +434,7 @@ final class ClassPoolTail {
                 }
             } while (size < bufsize);
             fout.write(buf);
+            bufsize *= 2;
         }
 
         throw new IOException("too much data");

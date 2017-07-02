@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba, and others. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,12 +14,9 @@
  */
 package scouter.javassist.bytecode.analysis;
 
-import static scouter.javassist.bytecode.analysis.Type.eq;
 import scouter.javassist.ClassPool;
 import scouter.javassist.CtClass;
 import scouter.javassist.NotFoundException;
-import scouter.javassist.bytecode.analysis.MultiType;
-import scouter.javassist.bytecode.analysis.Type;
 
 /**
  * Represents an array of {@link MultiType} instances.
@@ -84,13 +80,13 @@ public class MultiArrayType extends Type {
     }
 
     public boolean isAssignableTo(Type type) {
-        if (eq(type.getCtClass(), Type.OBJECT.getCtClass()))
+        if (eq(type.getCtClass(), OBJECT.getCtClass()))
             return true;
 
-        if (eq(type.getCtClass(), Type.CLONEABLE.getCtClass()))
+        if (eq(type.getCtClass(), CLONEABLE.getCtClass()))
             return true;
 
-        if (eq(type.getCtClass(), Type.SERIALIZABLE.getCtClass()))
+        if (eq(type.getCtClass(), SERIALIZABLE.getCtClass()))
             return true;
 
         if (! type.isArray())
@@ -103,13 +99,13 @@ public class MultiArrayType extends Type {
             return false;
 
         if (typeDims < dims) {
-            if (eq(typeRoot.getCtClass(), Type.OBJECT.getCtClass()))
+            if (eq(typeRoot.getCtClass(), OBJECT.getCtClass()))
                 return true;
 
-            if (eq(typeRoot.getCtClass(), Type.CLONEABLE.getCtClass()))
+            if (eq(typeRoot.getCtClass(), CLONEABLE.getCtClass()))
                 return true;
 
-            if (eq(typeRoot.getCtClass(), Type.SERIALIZABLE.getCtClass()))
+            if (eq(typeRoot.getCtClass(), SERIALIZABLE.getCtClass()))
                 return true;
 
             return false;

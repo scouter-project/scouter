@@ -17,8 +17,6 @@
 
 package scouter.agent.counter.task;
 
-import java.util.Enumeration;
-
 import scouter.Version;
 import scouter.agent.Configure;
 import scouter.agent.counter.CounterBasket;
@@ -27,6 +25,11 @@ import scouter.agent.netio.data.DataProxy;
 import scouter.agent.netio.data.net.TcpWorker;
 import scouter.lang.pack.ObjectPack;
 import scouter.util.StringKeyLinkedMap;
+import scouter.util.StringUtil;
+
+import java.util.Enumeration;
+
+import static scouter.lang.constants.ScouterConstants.TAG_OBJ_DETECTED_TYPE;
 
 public class AgentHeartBeat {
 	public AgentHeartBeat() {
@@ -66,6 +69,11 @@ public class AgentHeartBeat {
 
 		p.version = Version.getAgentFullVersion();
 		p.address = TcpWorker.localAddr;
+
+		if(StringUtil.isNotEmpty(conf.getObjDetectedType())){
+			p.tags.put(TAG_OBJ_DETECTED_TYPE, conf.getObjDetectedType());
+		}
+
 		return p;
 	}
 

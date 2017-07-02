@@ -17,14 +17,14 @@
 
 package scouter.agent.asm;
 
+import scouter.org.objectweb.asm.*;
+import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceSQL;
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.Pair;
 import scouter.util.StringUtil;
 
@@ -78,7 +78,7 @@ class DbcOpenCV extends ClassVisitor implements Opcodes {
 	private HookingSet mset;
 
 	public DbcOpenCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -112,7 +112,7 @@ class DbcOpenMV extends LocalVariablesSorter implements Opcodes {
 	private Label startFinally = new Label();
 
 	public DbcOpenMV(int access, String desc, MethodVisitor mv, String fullname, int fullname_hash) {
-		super(Opcodes.ASM4, access, desc, mv);
+		super(Opcodes.ASM5, access, desc, mv);
 		this.fullname = fullname;
 		this.fullname_hash = fullname_hash;
 		this.isStatic = (access & ACC_STATIC) != 0;

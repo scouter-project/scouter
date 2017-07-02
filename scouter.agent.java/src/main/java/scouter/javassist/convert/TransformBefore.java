@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -18,15 +17,9 @@ package scouter.javassist.convert;
 
 import scouter.javassist.CtClass;
 import scouter.javassist.CtMethod;
+import scouter.javassist.bytecode.*;
 import scouter.javassist.NotFoundException;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.Bytecode;
-import scouter.javassist.bytecode.CodeAttribute;
-import scouter.javassist.bytecode.CodeIterator;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.Descriptor;
-import scouter.javassist.convert.TransformCall;
-import scouter.javassist.convert.Transformer;
+import scouter.javassist.bytecode.Opcode;
 
 public class TransformBefore extends TransformCall {
     protected CtClass[] parameterTypes;
@@ -79,7 +72,7 @@ public class TransformBefore extends TransformCall {
         iterator.insert(saveCode);
         iterator.insert(loadCode);
         int p = iterator.insertGap(3);
-        iterator.writeByte(INVOKESTATIC, p);
+        iterator.writeByte(Opcode.INVOKESTATIC, p);
         iterator.write16bit(newIndex, p + 1);
         iterator.insert(loadCode);
         return iterator.next();

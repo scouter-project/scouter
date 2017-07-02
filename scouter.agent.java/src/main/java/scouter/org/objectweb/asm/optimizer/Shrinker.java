@@ -106,7 +106,8 @@ public class Shrinker {
         } else if (f.getName().endsWith(".class")) {
             ConstantPool cp = new ConstantPool();
             ClassReader cr = new ClassReader(new FileInputStream(f));
-            ClassWriter cw = new ClassWriter(0);
+            // auto-boxing removal requires to recompute the maxs 
+            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
             ClassConstantsCollector ccc = new ClassConstantsCollector(cw, cp);
             ClassOptimizer co = new ClassOptimizer(ccc, remapper);
             cr.accept(co, ClassReader.SKIP_DEBUG);
@@ -151,16 +152,13 @@ public class Shrinker {
             if (d == 0) {
                 switch (c1.type) {
                 case 'I':
-                    return new Integer(c1.intVal).compareTo(new Integer(
-                            c2.intVal));
+                    return ((Integer)c1.intVal).compareTo(c2.intVal);
                 case 'J':
-                    return new Long(c1.longVal).compareTo(new Long(c2.longVal));
+                    return ((Long)c1.longVal).compareTo(c2.longVal);
                 case 'F':
-                    return new Float(c1.floatVal).compareTo(new Float(
-                            c2.floatVal));
+                    return ((Float)c1.floatVal).compareTo(c2.floatVal);
                 case 'D':
-                    return new Double(c1.doubleVal).compareTo(new Double(
-                            c2.doubleVal));
+                    return ((Double)c1.doubleVal).compareTo(c2.doubleVal);
                 case 's':
                 case 'S':
                 case 'C':
@@ -219,6 +217,7 @@ public class Shrinker {
             return mtype1.getDescriptor().compareTo(mtype2.getDescriptor());
         }
 
+        @SuppressWarnings("unchecked")
         private static int compareObjects(Object[] objVals1, Object[] objVals2) {
             int length = objVals1.length;
             int d = length - objVals2.length;
@@ -235,7 +234,7 @@ public class Shrinker {
                             d = compareHandle((Handle) objVal1,
                                     (Handle) objVal2);
                         } else {
-                            d = ((Comparable) objVal1).compareTo(objVal2);
+                            d = ((Comparable<Object>) objVal1).compareTo(objVal2);
                         }
                     }
 

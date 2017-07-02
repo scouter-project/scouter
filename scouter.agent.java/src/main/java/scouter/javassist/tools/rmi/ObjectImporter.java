@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,23 +15,12 @@
 
 package scouter.javassist.tools.rmi;
 
+import scouter.javassist.tools.web.Viewer;
+
+import java.io.*;
+import java.net.*;
 import java.applet.Applet;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Constructor;
-import java.net.Socket;
-import java.net.URL;
-
-import scouter.javassist.tools.rmi.ObjectNotFoundException;
-import scouter.javassist.tools.rmi.Proxy;
-import scouter.javassist.tools.rmi.RemoteException;
-import scouter.javassist.tools.rmi.RemoteRef;
-
+import java.lang.reflect.*;
 
 /**
  * The object importer enables applets to call a method on a remote
@@ -81,11 +69,11 @@ import scouter.javassist.tools.rmi.RemoteRef;
  * to catch the exception.  However, good programs should catch
  * the <code>RuntimeException</code>.
  *
- * @see scouter.javassist.tools.rmi.AppletServer
- * @see scouter.javassist.tools.rmi.RemoteException
- * @see scouter.javassist.tools.web.Viewer
+ * @see AppletServer
+ * @see RemoteException
+ * @see Viewer
  */
-public class ObjectImporter implements java.io.Serializable {
+public class ObjectImporter implements Serializable {
     private final byte[] endofline = { 0x0d, 0x0a };
     private String servername, orgServername;
     private int port, orgPort;
@@ -113,12 +101,12 @@ public class ObjectImporter implements java.io.Serializable {
      * <p>If you run a program with <code>javassist.tools.web.Viewer</code>,
      * you can construct an object importer as follows:
      *
-     * <pre>
+     * <ul><pre>
      * Viewer v = (Viewer)this.getClass().getClassLoader();
      * ObjectImporter oi = new ObjectImporter(v.getServer(), v.getPort());
-     * </pre>
+     * </pre></ul>
      *
-     * @see scouter.javassist.tools.web.Viewer
+     * @see Viewer
      */
     public ObjectImporter(String servername, int port) {
         this.orgServername = this.servername = servername;

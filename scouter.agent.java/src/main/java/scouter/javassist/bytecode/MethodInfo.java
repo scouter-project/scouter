@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -22,55 +21,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import scouter.javassist.ClassPool;
-import scouter.javassist.bytecode.AccessFlag;
-import scouter.javassist.bytecode.AnnotationDefaultAttribute;
-import scouter.javassist.bytecode.AnnotationsAttribute;
-import scouter.javassist.bytecode.AttributeInfo;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.ByteArray;
-import scouter.javassist.bytecode.Bytecode;
-import scouter.javassist.bytecode.ClassFile;
-import scouter.javassist.bytecode.CodeAttribute;
-import scouter.javassist.bytecode.CodeIterator;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.Descriptor;
-import scouter.javassist.bytecode.ExceptionsAttribute;
-import scouter.javassist.bytecode.LineNumberAttribute;
-import scouter.javassist.bytecode.ParameterAnnotationsAttribute;
-import scouter.javassist.bytecode.SignatureAttribute;
-import scouter.javassist.bytecode.StackMap;
-import scouter.javassist.bytecode.StackMapTable;
+import scouter.javassist.CtConstructor;
+import scouter.javassist.CtMethod;
 import scouter.javassist.bytecode.stackmap.MapMaker;
-
 
 /**
  * <code>method_info</code> structure.
- *
- * <p>The bytecode sequence of the method is represented
- * by a <code>CodeAttribute</code> object.
- *
- * <p>The following code adds the default constructor to a class:
- * of <code>int</code> type:
- * <blockquote><pre>
- * ClassFile cf = ...
- * Bytecode code = new Bytecode(cf.getConstPool());
- * code.addAload(0);
- * code.addInvokespecial("java/lang/Object", MethodInfo.nameInit, "()V");
- * code.addReturn(null);
- * code.setMaxLocals(1);
- *
- * MethodInfo minfo = new MethodInfo(cf.getConstPool(), MethodInfo.nameInit, "()V");
- * minfo.setCodeAttribute(code.toCodeAttribute());
- * cf.addMethod(minfo);
- * </pre></blockquote>
  * 
- * @see #getCodeAttribute()
- * @see CodeAttribute
- * @see Bytecode
- * @see scouter.javassist.CtMethod#getMethodInfo()
- * @see scouter.javassist.CtConstructor#getMethodInfo()
+ * @see CtMethod#getMethodInfo()
+ * @see CtConstructor#getMethodInfo()
  */
 public class MethodInfo {
     ConstPool constPool;
@@ -88,13 +48,13 @@ public class MethodInfo {
     public static boolean doPreverify = false;
 
     /**
-     * The name of constructors: <code>&lt;init&gt;</code>.
+     * The name of constructors: <code>&lt;init&gt</code>.
      */
     public static final String nameInit = "<init>";
 
     /**
      * The name of class initializer (static initializer):
-     * <code>&lt;clinit&gt;</code>.
+     * <code>&lt;clinit&gt</code>.
      */
     public static final String nameClinit = "<clinit>";
 
@@ -431,7 +391,6 @@ public class MethodInfo {
      * @param cf            rebuild if this class file is for Java 6 or later.
      * @see #rebuildStackMap(ClassPool)
      * @see #rebuildStackMapForME(ClassPool)
-     * @see #doPreverify
      * @since 3.6
      */
     public void rebuildStackMapIf6(ClassPool pool, ClassFile cf)
@@ -467,7 +426,7 @@ public class MethodInfo {
      * include a code attribute, nothing happens.
      *
      * @param pool          used for making type hierarchy.
-     * @see StackMap
+     * @see StackMapTable
      * @since 3.12
      */
     public void rebuildStackMapForME(ClassPool pool) throws BadBytecode {

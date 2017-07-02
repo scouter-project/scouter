@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,19 +15,12 @@
 
 package scouter.javassist.tools.reflect;
 
+import java.lang.reflect.*;
+import java.util.Arrays;
+import java.io.Serializable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-
-import scouter.javassist.tools.reflect.CannotCreateException;
-import scouter.javassist.tools.reflect.CannotInvokeException;
-import scouter.javassist.tools.reflect.Metaobject;
-
 
 /**
  * A runtime class metaobject.
@@ -40,11 +32,11 @@ import scouter.javassist.tools.reflect.Metaobject;
  * <p>To obtain a class metaobject, calls <code>_getClass()</code>
  * on a reflective object.  For example,
  *
- * <pre>ClassMetaobject cm = ((Metalevel)reflectiveObject)._getClass();
- * </pre>
+ * <ul><pre>ClassMetaobject cm = ((Metalevel)reflectiveObject)._getClass();
+ * </pre></ul>
  *
- * @see scouter.javassist.tools.reflect.Metaobject
- * @see scouter.javassist.tools.reflect.Metalevel
+ * @see Metaobject
+ * @see Metalevel
  */
 public class ClassMetaobject implements Serializable {
     /**
@@ -63,7 +55,7 @@ public class ClassMetaobject implements Serializable {
      * Specifies how a <code>java.lang.Class</code> object is loaded.
      *
      * <p>If true, it is loaded by:
-     * <pre>Thread.currentThread().getContextClassLoader().loadClass()</pre>
+     * <ul><pre>Thread.currentThread().getContextClassLoader().loadClass()</pre></ul>
      * <p>If false, it is loaded by <code>Class.forName()</code>.
      * The default value is false.
      */
@@ -217,9 +209,9 @@ public class ClassMetaobject implements Serializable {
             if (allmethods[i].getName().startsWith(head)) {
                 try {
                     return allmethods[i].invoke(target, args);
-                } catch (java.lang.reflect.InvocationTargetException e) {
+                } catch (InvocationTargetException e) {
                     throw e.getTargetException();
-                } catch (java.lang.IllegalAccessException e) {
+                } catch (IllegalAccessException e) {
                     throw new CannotInvokeException(e);
                 }
             }
@@ -242,10 +234,10 @@ public class ClassMetaobject implements Serializable {
             Method[] m = getReflectiveMethods();
             return m[identifier].invoke(null, args);
         }
-        catch (java.lang.reflect.InvocationTargetException e) {
+        catch (InvocationTargetException e) {
             throw e.getTargetException();
         }
-        catch (java.lang.IllegalAccessException e) {
+        catch (IllegalAccessException e) {
             throw new CannotInvokeException(e);
         }
     }
@@ -344,7 +336,7 @@ public class ClassMetaobject implements Serializable {
      * original name.
      *
      * <p>This method is useful, in conjuction with
-     * {@link ClassMetaobject#getMethod(int)}, to obtain a quick reference
+     * <link>ClassMetaobject#getMethod()</link>, to obtain a quick reference
      * to the original method in the reflected class (i.e. not the proxy
      * method), using the original name of the method.
      *

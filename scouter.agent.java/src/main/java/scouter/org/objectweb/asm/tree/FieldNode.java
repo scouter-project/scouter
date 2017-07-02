@@ -78,7 +78,7 @@ public class FieldNode extends FieldVisitor {
      * The runtime visible annotations of this field. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates org.objectweb.asm.tree.AnnotationNode
+     * @associates scouter.org.objectweb.asm.tree.AnnotationNode
      * @label visible
      */
     public List<AnnotationNode> visibleAnnotations;
@@ -87,7 +87,7 @@ public class FieldNode extends FieldVisitor {
      * The runtime invisible annotations of this field. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates org.objectweb.asm.tree.AnnotationNode
+     * @associates scouter.org.objectweb.asm.tree.AnnotationNode
      * @label invisible
      */
     public List<AnnotationNode> invisibleAnnotations;
@@ -96,7 +96,7 @@ public class FieldNode extends FieldVisitor {
      * The runtime visible type annotations of this field. This list is a list
      * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates org.objectweb.asm.tree.TypeAnnotationNode
+     * @associates scouter.org.objectweb.asm.tree.TypeAnnotationNode
      * @label visible
      */
     public List<TypeAnnotationNode> visibleTypeAnnotations;
@@ -105,7 +105,7 @@ public class FieldNode extends FieldVisitor {
      * The runtime invisible type annotations of this field. This list is a list
      * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates org.objectweb.asm.tree.TypeAnnotationNode
+     * @associates scouter.org.objectweb.asm.tree.TypeAnnotationNode
      * @label invisible
      */
     public List<TypeAnnotationNode> invisibleTypeAnnotations;
@@ -114,7 +114,7 @@ public class FieldNode extends FieldVisitor {
      * The non standard attributes of this field. This list is a list of
      * {@link Attribute} objects. May be <tt>null</tt>.
      * 
-     * @associates org.objectweb.asm.Attribute
+     * @associates scouter.org.objectweb.asm.Attribute
      */
     public List<Attribute> attrs;
 

@@ -16,17 +16,13 @@
  */
 package scouter.agent.asm;
 
+import scouter.org.objectweb.asm.*;
+import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.AgentCommonConstant;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.org.objectweb.asm.AnnotationVisitor;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.StringUtil;
 
 import java.util.HashSet;
@@ -73,7 +69,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
     public String classRequestMappingUrl;
 
     public SpringReqMapCV(ClassVisitor cv, String className) {
-        super(ASM4, cv);
+        super(ASM5, cv);
         this.className = className;
     }
 
@@ -102,7 +98,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 
     class SpringReqMapCVAV extends AnnotationVisitor implements Opcodes {
         public SpringReqMapCVAV(AnnotationVisitor av) {
-            super(ASM4, av);
+            super(ASM5, av);
         }
 
         @Override
@@ -119,7 +115,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 
     class SpringReqMapCVAVAV extends AnnotationVisitor implements Opcodes {
         public SpringReqMapCVAVAV(AnnotationVisitor av) {
-            super(ASM4, av);
+            super(ASM5, av);
         }
 
         @Override
@@ -147,7 +143,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
         private String desc;
 
         public SpringReqMapMV(String className, int access, String methodName, String desc, MethodVisitor mv) {
-            super(ASM4, access, desc, mv);
+            super(ASM5, access, desc, mv);
             this.className = className;
             this.access = access;
             this.methodName = methodName;
@@ -257,7 +253,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 
         class SpringReqMapMVAV extends AnnotationVisitor implements Opcodes {
             public SpringReqMapMVAV(AnnotationVisitor av) {
-                super(ASM4, av);
+                super(ASM5, av);
             }
 
             @Override
@@ -276,7 +272,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
             String paramName;
 
             public SpringReqMapMVAVAV(AnnotationVisitor av, String paramName) {
-                super(ASM4, av);
+                super(ASM5, av);
                 this.paramName = paramName;
             }
 

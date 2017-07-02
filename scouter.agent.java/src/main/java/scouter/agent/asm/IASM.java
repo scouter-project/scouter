@@ -18,8 +18,8 @@
 package scouter.agent.asm;
 
 
-import scouter.agent.ClassDesc;
 import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.agent.ClassDesc;
 
 public interface IASM {
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc);

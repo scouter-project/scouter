@@ -16,14 +16,14 @@
 
 package scouter.agent.batch.asm.jdbc;
 
-import scouter.agent.batch.trace.TraceContextManager;
-import scouter.agent.batch.trace.TraceSQL;
-import scouter.lang.step.SqlXType;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.agent.batch.trace.TraceContextManager;
+import scouter.agent.batch.trace.TraceSQL;
+import scouter.lang.step.SqlXType;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -56,7 +56,7 @@ public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 	private static final String ADDS_SIGNATURE = "([I)V";
 
 	public StExecuteMV(int access, String desc, MethodVisitor mv, String owner, String name) {
-		super(ASM4, access, desc, mv);
+		super(ASM5, access, desc, mv);
 		this.returnType = Type.getReturnType(desc);
         this.owner = owner;
 	}

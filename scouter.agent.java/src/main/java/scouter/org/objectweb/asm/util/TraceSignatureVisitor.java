@@ -41,7 +41,7 @@ import scouter.org.objectweb.asm.signature.SignatureVisitor;
  */
 public final class TraceSignatureVisitor extends SignatureVisitor {
 
-    private final StringBuffer declaration;
+    private final StringBuilder declaration;
 
     private boolean isInterface;
 
@@ -53,9 +53,9 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
 
     private boolean seenInterface;
 
-    private StringBuffer returnType;
+    private StringBuilder returnType;
 
-    private StringBuffer exceptions;
+    private StringBuilder exceptions;
 
     /**
      * Stack used to keep track of class types that have arguments. Each element
@@ -77,10 +77,10 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
     public TraceSignatureVisitor(final int access) {
         super(Opcodes.ASM5);
         isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
-        this.declaration = new StringBuffer();
+        this.declaration = new StringBuilder();
     }
 
-    private TraceSignatureVisitor(final StringBuffer buf) {
+    private TraceSignatureVisitor(final StringBuilder buf) {
         super(Opcodes.ASM5);
         this.declaration = buf;
     }
@@ -146,14 +146,14 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
             declaration.append('(');
         }
         declaration.append(')');
-        returnType = new StringBuffer();
+        returnType = new StringBuilder();
         return new TraceSignatureVisitor(returnType);
     }
 
     @Override
     public SignatureVisitor visitExceptionType() {
         if (exceptions == null) {
-            exceptions = new StringBuffer();
+            exceptions = new StringBuilder();
         } else {
             exceptions.append(", ");
         }

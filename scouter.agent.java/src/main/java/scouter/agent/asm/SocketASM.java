@@ -17,17 +17,13 @@
 
 package scouter.agent.asm;
 
+import scouter.org.objectweb.asm.*;
+import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceApiCall;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,7 +55,7 @@ class SocketCV extends ClassVisitor implements Opcodes {
 	private HookingSet mset;
 
 	public SocketCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -88,7 +84,7 @@ class SocketMV extends LocalVariablesSorter implements Opcodes {
 
 	private Label startFinally = new Label();
 	public SocketMV(int access, String desc, MethodVisitor mv) {
-		super(ASM4,access, desc, mv);
+		super(ASM5,access, desc, mv);
 	}
 
 	

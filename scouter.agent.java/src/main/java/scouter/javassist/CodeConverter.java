@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,27 +15,9 @@
 
 package scouter.javassist;
 
-import scouter.javassist.CannotCompileException;
-import scouter.javassist.CtClass;
-import scouter.javassist.CtField;
-import scouter.javassist.CtMethod;
-import scouter.javassist.Modifier;
-import scouter.javassist.NotFoundException;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.CodeAttribute;
-import scouter.javassist.bytecode.CodeIterator;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.MethodInfo;
-import scouter.javassist.convert.TransformAccessArrayField;
-import scouter.javassist.convert.TransformAfter;
-import scouter.javassist.convert.TransformBefore;
-import scouter.javassist.convert.TransformCall;
-import scouter.javassist.convert.TransformFieldAccess;
-import scouter.javassist.convert.TransformNew;
-import scouter.javassist.convert.TransformNewClass;
-import scouter.javassist.convert.TransformReadField;
-import scouter.javassist.convert.TransformWriteField;
-import scouter.javassist.convert.Transformer;
+import scouter.javassist.bytecode.*;
+import scouter.javassist.convert.*;
+import scouter.javassist.expr.ExprEditor;
 
 /**
  * Simple translator of method bodies
@@ -48,7 +29,7 @@ import scouter.javassist.convert.Transformer;
  * <code>CtMethod.instrument()</code> as a parameter.
  *
  * <p>Example:
- * <pre>
+ * <ul><pre>
  * ClassPool cp = ClassPool.getDefault();
  * CtClass point = cp.get("Point");
  * CtClass singleton = cp.get("Singleton");
@@ -56,15 +37,15 @@ import scouter.javassist.convert.Transformer;
  * CodeConverter conv = new CodeConverter();
  * conv.replaceNew(point, singleton, "makePoint");
  * client.instrument(conv);
- * </pre>
+ * </pre></ul>
  *
  * <p>This program substitutes "<code>Singleton.makePoint()</code>"
  * for all occurrences of "<code>new Point()</code>"
  * appearing in methods declared in a <code>Client</code> class.
  *
- * @see scouter.javassist.CtClass#instrument(CodeConverter)
- * @see scouter.javassist.CtMethod#instrument(CodeConverter)
- * @see scouter.javassist.expr.ExprEditor
+ * @see CtClass#instrument(CodeConverter)
+ * @see CtMethod#instrument(CodeConverter)
+ * @see ExprEditor
  */
 public class CodeConverter {
     protected Transformer transformers = null;
@@ -78,22 +59,22 @@ public class CodeConverter {
      * <code>Singleton</code>, respectively)
      * replaces all occurrences of:
      *
-     * <pre>new Point(x, y)</pre>
+     * <ul><code>new Point(x, y)</code></ul>
      *
      * in the method body with:
      *
-     * <pre>Singleton.createPoint(x, y)</pre>
+     * <ul><code>Singleton.createPoint(x, y)</code></ul>
      *
      * <p>This enables to intercept instantiation of <code>Point</code>
      * and change the samentics.  For example, the following
      * <code>createPoint()</code> implements the singleton pattern:
      *
-     * <pre>public static Point createPoint(int x, int y) {
+     * <ul><pre>public static Point createPoint(int x, int y) {
      *     if (aPoint == null)
      *         aPoint = new Point(x, y);
      *     return aPoint;
      * }
-     * </pre>
+     * </pre></ul>
      *
      * <p>The static method call substituted for the original <code>new</code>
      * expression must be
@@ -128,11 +109,11 @@ public class CodeConverter {
      * <code>Point2</code>, respectively)
      * replaces all occurrences of:
      *
-     * <pre>new Point(x, y)</pre>
+     * <ul><code>new Point(x, y)</code></ul>
      *
      * in the method body with:
      *
-     * <pre>new Point2(x, y)</pre>
+     * <ul><code>new Point2(x, y)</code></ul>
      *
      * <p>Note that <code>Point2</code> must be type-compatible with <code>Point</code>.
      * It must have the same set of methods, fields, and constructors as the
@@ -176,19 +157,19 @@ public class CodeConverter {
      *
      * <p>For example, the program below
      *
-     * <pre>Point p = new Point();
-     * int newX = p.x + 3;</pre>
+     * <ul><pre>Point p = new Point();
+     * int newX = p.x + 3;</pre></ul>
      *
      * <p>can be translated into:
      *
-     * <pre>Point p = new Point();
-     * int newX = Accessor.readX(p) + 3;</pre>
+     * <ul><pre>Point p = new Point();
+     * int newX = Accessor.readX(p) + 3;</pre></ul>
      *
      * <p>where
      *
-     * <pre>public class Accessor {
+     * <ul><pre>public class Accessor {
      *     public static int readX(Object target) { ... }
-     * }</pre>
+     * }</pre></ul>
      *
      * <p>The type of the parameter of <code>readX()</code> must
      * be <code>java.lang.Object</code> independently of the actual
@@ -217,19 +198,19 @@ public class CodeConverter {
      *
      * <p>For example, the program below
      *
-     * <pre>Point p = new Point();
-     * p.x = 3;</pre>
+     * <ul><pre>Point p = new Point();
+     * p.x = 3;</pre></ul>
      *
      * <p>can be translated into:
      *
-     * <pre>Point p = new Point();
-     * Accessor.writeX(3);</pre>
+     * <ul><pre>Point p = new Point();
+     * Accessor.writeX(3);</pre></ul>
      *
      * <p>where
      *
-     * <pre>public class Accessor {
+     * <ul><pre>public class Accessor {
      *     public static void writeX(Object target, int value) { ... }
-     * }</pre>
+     * }</pre></ul>
      *
      * <p>The type of the first parameter of <code>writeX()</code> must
      * be <code>java.lang.Object</code> independently of the actual
@@ -402,7 +383,7 @@ public class CodeConverter {
      *
      * @param oldMethodName        the old name of the method.
      * @param newMethod            the method with the new name.
-     * @see scouter.javassist.CtMethod#setName(String)
+     * @see CtMethod#setName(String)
      */
     public void redirectMethodCall(String oldMethodName,
                                    CtMethod newMethod)
@@ -420,27 +401,27 @@ public class CodeConverter {
      * method.  For example, if the originally invoked method is
      * <code>move()</code>:
      *
-     * <pre>class Point {
+     * <ul><pre>class Point {
      *     Point move(int x, int y) { ... }
-     * }</pre>
+     * }</pre></ul>
      *
      * <p>Then the before method must be something like this:
      *
-     * <pre>class Verbose {
+     * <ul><pre>class Verbose {
      *     static void print(Point target, int x, int y) { ... }
-     * }</pre>
+     * }</pre></ul>
      *
      * <p>The <code>CodeConverter</code> would translate bytecode
      * equivalent to:
      *
-     * <pre>Point p2 = p.move(x + y, 0);</pre>
+     * <ul><pre>Point p2 = p.move(x + y, 0);</pre></ul>
      *
      * <p>into the bytecode equivalent to:
      *
-     * <pre>int tmp1 = x + y;
+     * <ul><pre>int tmp1 = x + y;
      * int tmp2 = 0;
      * Verbose.print(p, tmp1, tmp2);
-     * Point p2 = p.move(tmp1, tmp2);</pre>
+     * Point p2 = p.move(tmp1, tmp2);</pre></ul>
      *
      * @param origMethod        the method originally invoked.
      * @param beforeMethod      the method invoked before
@@ -467,28 +448,27 @@ public class CodeConverter {
      * method.  For example, if the originally invoked method is
      * <code>move()</code>:
      *
-     * <pre>class Point {
+     * <ul><pre>class Point {
      *     Point move(int x, int y) { ... }
-     * }</pre>
+     * }</pre></ul>
      *
      * <p>Then the after method must be something like this:
      *
-     * <pre>class Verbose {
+     * <ul><pre>class Verbose {
      *     static void print(Point target, int x, int y) { ... }
-     * }</pre>
+     * }</pre></ul>
      *
      * <p>The <code>CodeConverter</code> would translate bytecode
      * equivalent to:
      *
-     * <pre>Point p2 = p.move(x + y, 0);</pre>
+     * <ul><pre>Point p2 = p.move(x + y, 0);</pre></ul>
      *
      * <p>into the bytecode equivalent to:
      *
-     * <pre>
-     * int tmp1 = x + y;
+     * <ul><pre>int tmp1 = x + y;
      * int tmp2 = 0;
      * Point p2 = p.move(tmp1, tmp2);
-     * Verbose.print(p, tmp1, tmp2);</pre>
+     * Verbose.print(p, tmp1, tmp2);</pre></ul>
      *
      * @param origMethod        the method originally invoked.
      * @param afterMethod       the method invoked after
@@ -552,14 +532,6 @@ public class CodeConverter {
 
         if (stack > 0)
             codeAttr.setMaxStack(codeAttr.getMaxStack() + stack);
-
-        try {
-        	minfo.rebuildStackMapIf6(clazz.getClassPool(),
-                                     clazz.getClassFile2());
-        }
-        catch (BadBytecode b) {
-            throw new CannotCompileException(b.getMessage(), b);
-        }
     }
 
     /**

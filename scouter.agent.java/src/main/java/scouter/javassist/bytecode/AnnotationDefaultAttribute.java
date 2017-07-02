@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,36 +15,33 @@
 
 package scouter.javassist.bytecode;
 
+import scouter.javassist.CtClass;
+import scouter.javassist.bytecode.annotation.Annotation;
+import scouter.javassist.bytecode.annotation.AnnotationsWriter;
+import scouter.javassist.bytecode.annotation.MemberValue;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Map;
-
-import scouter.javassist.CtClass;
-import scouter.javassist.bytecode.AnnotationsAttribute;
-import scouter.javassist.bytecode.AttributeInfo;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.annotation.AnnotationsWriter;
-import scouter.javassist.bytecode.annotation.MemberValue;
-
 
 /**
  * A class representing <code>AnnotationDefault_attribute</code>.
  *
  * <p>For example, if you declare the following annotation type:
  *
- * <pre>
+ * <ul><pre>
  * &#64;interface Author {
  *   String name() default "Shakespeare";
  *   int age() default 99;
  * }
- * </pre>
+ * </pre></ul>
  *
  * <p>The defautl values of <code>name</code> and <code>age</code>
  * are stored as annotation default attributes in <code>Author.class</code>.
  * The following code snippet obtains the default value of <code>name</code>:
  * 
- * <pre>
+ * <ul><pre>
  * ClassPool pool = ...
  * CtClass cc = pool.get("Author");
  * CtMethod cm = cc.getDeclaredMethod("age");
@@ -54,17 +50,17 @@ import scouter.javassist.bytecode.annotation.MemberValue;
  *         = (AnnotationDefaultAttribute)
  *           minfo.getAttribute(AnnotationDefaultAttribute.tag);
  * MemberValue value = ada.getDefaultValue());    // default value of age
- * </pre>
+ * </pre></ul>
  *
  * <p>If the following statement is executed after the code above,
  * the default value of age is set to 80:
  *
- * <pre>
+ * <ul><pre>
  * ada.setDefaultValue(new IntegerMemberValue(minfo.getConstPool(), 80));
- * </pre>
+ * </pre></ul>
  *
  * @see AnnotationsAttribute
- * @see scouter.javassist.bytecode.annotation.MemberValue
+ * @see MemberValue
  */
 
 public class AnnotationDefaultAttribute extends AttributeInfo {
@@ -90,7 +86,7 @@ public class AnnotationDefaultAttribute extends AttributeInfo {
      * The default value can be set by <code>setDefaultValue()</code>.
      *
      * @param cp            constant pool
-     * @see #setDefaultValue(scouter.javassist.bytecode.annotation.MemberValue)
+     * @see #setDefaultValue(MemberValue)
      */
     public AnnotationDefaultAttribute(ConstPool cp) {
         this(cp, new byte[] { 0, 0 });
@@ -138,7 +134,7 @@ public class AnnotationDefaultAttribute extends AttributeInfo {
      * Changes the default value represented by this attribute.
      *
      * @param value         the new value.
-     * @see scouter.javassist.bytecode.annotation.Annotation#createMemberValue(ConstPool, CtClass)
+     * @see Annotation#createMemberValue(ConstPool, CtClass)
      */
     public void setDefaultValue(MemberValue value) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();

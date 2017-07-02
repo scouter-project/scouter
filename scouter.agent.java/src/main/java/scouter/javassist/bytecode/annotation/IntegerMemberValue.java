@@ -5,8 +5,7 @@
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,15 +15,11 @@
 
 package scouter.javassist.bytecode.annotation;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-
 import scouter.javassist.ClassPool;
 import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.annotation.AnnotationsWriter;
-import scouter.javassist.bytecode.annotation.MemberValue;
-import scouter.javassist.bytecode.annotation.MemberValueVisitor;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
 
 /**
  * Integer constant value.

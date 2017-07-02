@@ -703,7 +703,7 @@ public class Textifier extends Printer {
         Textifier t = createTextifier();
         text.add(t.getText());
         text.add(visible ? ") // parameter " : ") // invisible, parameter ");
-        text.add(new Integer(parameter));
+        text.add(parameter);
         text.add("\n");
         return t;
     }

@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,16 +15,10 @@
 
 package scouter.javassist;
 
-import java.io.InputStream;
-import java.security.ProtectionDomain;
+import java.io.*;
 import java.util.Hashtable;
 import java.util.Vector;
-
-import scouter.javassist.CannotCompileException;
-import scouter.javassist.ClassPool;
-import scouter.javassist.NotFoundException;
-import scouter.javassist.Translator;
-
+import java.security.ProtectionDomain;
 
 /**
  * The class loader for Javassist.
@@ -46,7 +39,7 @@ import scouter.javassist.Translator;
  * The startup program of an application using <code>MyTranslator</code>
  * should be something like this:
  *
- * <pre>
+ * <ul><pre>
  * import javassist.*;
  *
  * public class Main {
@@ -58,15 +51,15 @@ import scouter.javassist.Translator;
  *     cl.run("MyApp", args);
  *   }
  * }
- * </pre>
+ * </pre></ul>
  *
  * <p>Class <code>MyApp</code> is the main program of the application.
  *
  * <p>This program should be executed as follows:
  *
- * <pre>
+ * <ul><pre>
  * % java Main <i>arg1</i> <i>arg2</i>...
- * </pre>
+ * </pre></ul>
  *
  * <p>It modifies the class <code>MyApp</code> with a <code>MyTranslator</code>
  * object before the JVM loads it.
@@ -75,9 +68,9 @@ import scouter.javassist.Translator;
  *
  * <p>This program execution is equivalent to:
  *
- * <pre>
+ * <ul><pre>
  * % java MyApp <i>arg1</i> <i>arg2</i>...
- * </pre>
+ * </pre></ul>
  *
  * <p>except that classes are translated by <code>MyTranslator</code>
  * at load time.
@@ -87,12 +80,12 @@ import scouter.javassist.Translator;
  * unnecessary.  For example, if only a class <code>test.Rectangle</code>
  * is modified, the <code>main()</code> method above will be the following:
  *
- * <pre>
+ * <ul><pre>
  * ClassPool cp = ClassPool.getDefault();
  * Loader cl = new Loader(cp);
  * CtClass ct = cp.get("test.Rectangle");
  * ct.setSuperclass(cp.get("test.Point"));
- * cl.run("MyApp", args);</pre>
+ * cl.run("MyApp", args);</pre></ul>
  *
  * <p>This program changes the super class of the <code>test.Rectangle</code>
  * class.
@@ -136,8 +129,8 @@ import scouter.javassist.Translator;
  * an exception since it accepts an instance of only the
  * <code>java.lang.String</code> loaded by the parent class loader.
  *
- * @see scouter.javassist.ClassPool
- * @see scouter.javassist.Translator
+ * @see ClassPool
+ * @see Translator
  */
 public class Loader extends ClassLoader {
     private Hashtable notDefinedHere; // must be atomic.
@@ -251,11 +244,13 @@ public class Loader extends ClassLoader {
      * <p>This method calls <code>run()</code>.
      *
      * @param args              command line parameters.
-     * <br>&nbsp;&nbsp;{@code args[0]} is the class name to be loaded.
-     * <br>&nbsp;&nbsp;{@code args[1..n]} are parameters passed
-     *                      to the target {@code main()}.
+     * <ul>
+     * <code>args[0]</code> is the class name to be loaded.
+     * <br><code>args[1..n]</code> are parameters passed
+     *                      to the target <code>main()</code>.
+     * </ul>
      *
-     * @see scouter.javassist.Loader#run(String[])
+     * @see Loader#run(String[])
      */
     public static void main(String[] args) throws Throwable {
         Loader cl = new Loader();
@@ -266,10 +261,11 @@ public class Loader extends ClassLoader {
      * Loads a class and calls <code>main()</code> in that class.
      *
      * @param args              command line parameters.
-     *
-     * <br>&nbsp;&nbsp;{@code args[0]} is the class name to be loaded.
-     * <br>&nbsp;&nbsp;{@code args[1..n]} are parameters passed
-     *                      to the target {@code main()}.
+     * <ul>
+     * <code>args[0]</code> is the class name to be loaded.
+     * <br><code>args[1..n]</code> are parameters passed
+     *                      to the target <code>main()</code>.
+     * </ul>
      */
     public void run(String[] args) throws Throwable {
         int n = args.length - 1;
@@ -433,4 +429,18 @@ public class Loader extends ClassLoader {
         else
             return findSystemClass(classname);
     }
+
+    protected Package getPackage(String name) {
+        return super.getPackage(name);
+    }
+    /*
+        // Package p = super.getPackage(name);
+        Package p = null;
+        if (p == null)
+            return definePackage(name, null, null, null,
+                                 null, null, null, null);
+        else
+            return p;
+    }
+    */
 }

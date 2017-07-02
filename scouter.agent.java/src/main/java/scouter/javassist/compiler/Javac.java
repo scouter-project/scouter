@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,40 +15,14 @@
 
 package scouter.javassist.compiler;
 
-import scouter.javassist.CannotCompileException;
-import scouter.javassist.CtBehavior;
-import scouter.javassist.CtClass;
-import scouter.javassist.CtConstructor;
-import scouter.javassist.CtField;
-import scouter.javassist.CtMember;
-import scouter.javassist.CtMethod;
-import scouter.javassist.CtPrimitiveType;
-import scouter.javassist.Modifier;
-import scouter.javassist.NotFoundException;
+import scouter.javassist.*;
 import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.Bytecode;
 import scouter.javassist.bytecode.CodeAttribute;
 import scouter.javassist.bytecode.LocalVariableAttribute;
 import scouter.javassist.bytecode.Opcode;
-import scouter.javassist.compiler.CompileError;
-import scouter.javassist.compiler.JvstCodeGen;
-import scouter.javassist.compiler.JvstTypeChecker;
-import scouter.javassist.compiler.Lex;
-import scouter.javassist.compiler.MemberResolver;
-import scouter.javassist.compiler.Parser;
-import scouter.javassist.compiler.ProceedHandler;
-import scouter.javassist.compiler.SymbolTable;
-import scouter.javassist.compiler.TokenId;
-import scouter.javassist.compiler.ast.ASTList;
-import scouter.javassist.compiler.ast.ASTree;
-import scouter.javassist.compiler.ast.CallExpr;
-import scouter.javassist.compiler.ast.Declarator;
-import scouter.javassist.compiler.ast.Expr;
-import scouter.javassist.compiler.ast.FieldDecl;
-import scouter.javassist.compiler.ast.Member;
-import scouter.javassist.compiler.ast.MethodDecl;
-import scouter.javassist.compiler.ast.Stmnt;
-import scouter.javassist.compiler.ast.Symbol;
+import scouter.javassist.compiler.ast.*;
+import scouter.javassist.bytecode.Bytecode;
+import scouter.javassist.NotFoundException;
 
 public class Javac {
     JvstCodeGen gen;
@@ -202,8 +175,8 @@ public class Javac {
     /**
      * Compiles a method (or constructor) body.
      *
-     * @param src	a single statement or a block.
-     *              If null, this method produces a body returning zero or null.
+     * @src	a single statement or a block.
+     *          If null, this method produces a body returning zero or null.
      */
     public Bytecode compileBody(CtBehavior method, String src)
         throws CompileError
@@ -363,7 +336,7 @@ public class Javac {
      * <code>isStatic</code> must be recorded before compilation.
      * <code>maxLocals</code> is updated to include $0,...
      *
-     * @param use0     true if $0 is used.
+     * @paaram use0     true if $0 is used.
      * @param varNo     the register number of $0 (use0 is true)
      *                          or $1 (otherwise).
      * @param target    the type of $0 (it can be null if use0 is false).

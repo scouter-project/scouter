@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,29 +15,15 @@
 
 package scouter.javassist.compiler;
 
-import static scouter.javassist.compiler.CodeGen.javaLangObject;
-import static scouter.javassist.compiler.CodeGen.jvmJavaLangObject;
+import scouter.javassist.compiler.CodeGen;
 import scouter.javassist.ClassPool;
 import scouter.javassist.CtClass;
 import scouter.javassist.CtPrimitiveType;
 import scouter.javassist.NotFoundException;
 import scouter.javassist.bytecode.Bytecode;
 import scouter.javassist.bytecode.Descriptor;
-import scouter.javassist.compiler.CompileError;
-import scouter.javassist.compiler.JvstTypeChecker;
-import scouter.javassist.compiler.MemberCodeGen;
-import scouter.javassist.compiler.MemberResolver;
-import scouter.javassist.compiler.ProceedHandler;
-import scouter.javassist.compiler.SymbolTable;
-import scouter.javassist.compiler.ast.ASTList;
-import scouter.javassist.compiler.ast.ASTree;
-import scouter.javassist.compiler.ast.CallExpr;
-import scouter.javassist.compiler.ast.CastExpr;
-import scouter.javassist.compiler.ast.Declarator;
-import scouter.javassist.compiler.ast.Expr;
-import scouter.javassist.compiler.ast.Member;
-import scouter.javassist.compiler.ast.Stmnt;
-import scouter.javassist.compiler.ast.Symbol;
+import scouter.javassist.compiler.ast.*;
+import scouter.javassist.bytecode.Opcode;
 
 /* Code generator accepting extended Java syntax for Javassist.
  */
@@ -88,10 +73,10 @@ public class JvstCodeGen extends MemberCodeGen {
      */
     public void addNullIfVoid() {
         if (exprType == VOID) {
-            bytecode.addOpcode(ACONST_NULL);
+            bytecode.addOpcode(Opcode.ACONST_NULL);
             exprType = CLASS;
             arrayDim = 0;
-            className = jvmJavaLangObject;
+            className = CodeGen.jvmJavaLangObject;
         }
     }
 
@@ -104,7 +89,7 @@ public class JvstCodeGen extends MemberCodeGen {
             compileParameterList(bytecode, paramTypeList, indexOfParam1());
             exprType = CLASS;
             arrayDim = 1;
-            className = jvmJavaLangObject;
+            className = CodeGen.jvmJavaLangObject;
         }
         else if (name.equals(sigName)) {
             bytecode.addLdc(Descriptor.ofMethod(returnType, paramTypeList));
@@ -141,7 +126,7 @@ public class JvstCodeGen extends MemberCodeGen {
     }
 
     protected void atFieldAssign(Expr expr, int op, ASTree left,
-                        ASTree right, boolean doDup) throws CompileError
+                                 ASTree right, boolean doDup) throws CompileError
     {
         if (left instanceof Member
             && ((Member)left).get().equals(paramArrayName)) {
@@ -154,7 +139,7 @@ public class JvstCodeGen extends MemberCodeGen {
 
             atAssignParamList(paramTypeList, bytecode);
             if (!doDup)
-                bytecode.addOpcode(POP);
+                bytecode.addOpcode(Opcode.POP);
         }
         else
             super.atFieldAssign(expr, op, left, right, doDup);
@@ -169,12 +154,12 @@ public class JvstCodeGen extends MemberCodeGen {
         int varNo = indexOfParam1();
         int n = params.length;
         for (int i = 0; i < n; ++i) {
-            code.addOpcode(DUP);
+            code.addOpcode(Opcode.DUP);
             code.addIconst(i);
-            code.addOpcode(AALOAD);
+            code.addOpcode(Opcode.AALOAD);
             compileUnwrapValue(params[i], code);
             code.addStore(varNo, params[i]);
-            varNo += is2word(exprType, arrayDim) ? 2 : 1;
+            varNo += CodeGen.is2word(exprType, arrayDim) ? 2 : 1;
         }
     }
 
@@ -204,7 +189,7 @@ public class JvstCodeGen extends MemberCodeGen {
      */
     protected void atCastToRtype(CastExpr expr) throws CompileError {
         expr.getOprand().accept(this);
-        if (exprType == VOID || isRefType(exprType) || arrayDim > 0)
+        if (exprType == VOID || CodeGen.isRefType(exprType) || arrayDim > 0)
             compileUnwrapValue(returnType, bytecode);
         else if (returnType instanceof CtPrimitiveType) {
             CtPrimitiveType pt = (CtPrimitiveType)returnType;
@@ -220,7 +205,7 @@ public class JvstCodeGen extends MemberCodeGen {
 
     protected void atCastToWrapper(CastExpr expr) throws CompileError {
         expr.getOprand().accept(this);
-        if (isRefType(exprType) || arrayDim > 0)
+        if (CodeGen.isRefType(exprType) || arrayDim > 0)
             return;     // Object type.  do nothing.
 
         CtClass clazz = resolver.lookupClass(exprType, arrayDim, className);
@@ -228,19 +213,19 @@ public class JvstCodeGen extends MemberCodeGen {
             CtPrimitiveType pt = (CtPrimitiveType)clazz;
             String wrapper = pt.getWrapperName();
             bytecode.addNew(wrapper);           // new <wrapper>
-            bytecode.addOpcode(DUP);            // dup
+            bytecode.addOpcode(Opcode.DUP);            // dup
             if (pt.getDataSize() > 1)
-                bytecode.addOpcode(DUP2_X2);    // dup2_x2
+                bytecode.addOpcode(Opcode.DUP2_X2);    // dup2_x2
             else
-                bytecode.addOpcode(DUP2_X1);    // dup2_x1
+                bytecode.addOpcode(Opcode.DUP2_X1);    // dup2_x1
 
-            bytecode.addOpcode(POP2);           // pop2
+            bytecode.addOpcode(Opcode.POP2);           // pop2
             bytecode.addInvokespecial(wrapper, "<init>",
                                       "(" + pt.getDescriptor() + ")V");
                                                 // invokespecial
             exprType = CLASS;
             arrayDim = 0;
-            className = jvmJavaLangObject;
+            className = CodeGen.jvmJavaLangObject;
         }
     }
 
@@ -275,7 +260,7 @@ public class JvstCodeGen extends MemberCodeGen {
         String name = sbuf.toString();
         Object[] names = resolver.getClassPool().lookupCflow(name);
         if (names == null)
-            throw new CompileError("no such " + cflowName + ": " + name);
+            throw new CompileError("no such a " + cflowName + ": " + name);
 
         bytecode.addGetstatic((String)names[0], (String)names[1],
                               "Ljavassist/runtime/Cflow;");
@@ -353,7 +338,7 @@ public class JvstCodeGen extends MemberCodeGen {
     }
 
     public void atMethodArgs(ASTList args, int[] types, int[] dims,
-                                String[] cnames) throws CompileError {
+                             String[] cnames) throws CompileError {
         CtClass[] params = paramTypeList;
         String pname = paramListName;
         int i = 0;
@@ -434,10 +419,10 @@ public class JvstCodeGen extends MemberCodeGen {
         ASTree result = st.getLeft();
         if (result != null && returnType == CtClass.voidType) {
             compileExpr(result);
-            if (is2word(exprType, arrayDim))
-                bytecode.addOpcode(POP2);
+            if (CodeGen.is2word(exprType, arrayDim))
+                bytecode.addOpcode(Opcode.POP2);
             else if (exprType != VOID)
-                bytecode.addOpcode(POP);
+                bytecode.addOpcode(Opcode.POP);
 
             result = null;
         }
@@ -456,7 +441,7 @@ public class JvstCodeGen extends MemberCodeGen {
      * @return          -1 or the variable index assigned to $_.
      */
     public int recordReturnType(CtClass type, String castName,
-                 String resultName, SymbolTable tbl) throws CompileError
+                                String resultName, SymbolTable tbl) throws CompileError
     {
         returnType = type;
         returnCastName = castName;
@@ -484,8 +469,8 @@ public class JvstCodeGen extends MemberCodeGen {
      * if the method is static, then $0 is not available.
      */
     public int recordParams(CtClass[] params, boolean isStatic,
-                             String prefix, String paramVarName,
-                             String paramsName, SymbolTable tbl)
+                            String prefix, String paramVarName,
+                            String paramsName, SymbolTable tbl)
         throws CompileError
     {
         return recordParams(params, isStatic, prefix, paramVarName,
@@ -572,7 +557,7 @@ public class JvstCodeGen extends MemberCodeGen {
         if (cc == CtClass.voidType) {
             exprType = CLASS;
             arrayDim = 0;
-            className = jvmJavaLangObject;
+            className = CodeGen.jvmJavaLangObject;
         }
         else
             setType(cc);
@@ -581,7 +566,7 @@ public class JvstCodeGen extends MemberCodeGen {
             = new Declarator(exprType, className, arrayDim,
                              varNo, new Symbol(varName));
         tbl.append(varName, decl);
-        return is2word(exprType, arrayDim) ? 2 : 1;
+        return CodeGen.is2word(exprType, arrayDim) ? 2 : 1;
     }
 
     /**
@@ -623,17 +608,17 @@ public class JvstCodeGen extends MemberCodeGen {
      *                  (0: static method, 1: regular method.)
      */
     public static int compileParameterList(Bytecode code,
-                                CtClass[] params, int regno) {
+                                           CtClass[] params, int regno) {
         if (params == null) {
             code.addIconst(0);                          // iconst_0
-            code.addAnewarray(javaLangObject);          // anewarray Object
+            code.addAnewarray(CodeGen.javaLangObject);          // anewarray Object
             return 1;
         }
         else {
             CtClass[] args = new CtClass[1];
             int n = params.length;
             code.addIconst(n);                          // iconst_<n>
-            code.addAnewarray(javaLangObject);          // anewarray Object
+            code.addAnewarray(CodeGen.javaLangObject);          // anewarray Object
             for (int i = 0; i < n; ++i) {
                 code.addOpcode(Bytecode.DUP);           // dup
                 code.addIconst(i);                      // iconst_<i>
@@ -718,7 +703,7 @@ public class JvstCodeGen extends MemberCodeGen {
     /* Performs implicit coercion from exprType to type.
      */
     public void doNumCast(CtClass type) throws CompileError {
-        if (arrayDim == 0 && !isRefType(exprType))
+        if (arrayDim == 0 && !CodeGen.isRefType(exprType))
             if (type instanceof CtPrimitiveType) {
                 CtPrimitiveType pt = (CtPrimitiveType)type;
                 atNumCastExpr(exprType,

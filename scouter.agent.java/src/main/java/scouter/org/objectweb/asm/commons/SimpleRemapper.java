@@ -35,7 +35,7 @@ import java.util.Map;
 
 /**
  * A {@link Remapper} using a {@link Map} to define its mapping.
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class SimpleRemapper extends Remapper {
@@ -53,6 +53,12 @@ public class SimpleRemapper extends Remapper {
     @Override
     public String mapMethodName(String owner, String name, String desc) {
         String s = map(owner + '.' + name + desc);
+        return s == null ? name : s;
+    }
+
+    @Override
+    public String mapInvokeDynamicMethodName(String name, String desc) {
+        String s = map('.' + name + desc);
         return s == null ? name : s;
     }
 

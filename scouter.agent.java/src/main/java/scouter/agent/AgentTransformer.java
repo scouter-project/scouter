@@ -16,6 +16,7 @@
  */
 package scouter.agent;
 
+import scouter.org.objectweb.asm.*;
 import scouter.agent.asm.*;
 import scouter.agent.asm.asyncsupport.AsyncContextDispatchASM;
 import scouter.agent.asm.asyncsupport.CallRunnableASM;
@@ -24,7 +25,6 @@ import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
-import scouter.org.objectweb.asm.*;
 import scouter.util.FileUtil;
 import scouter.util.IntSet;
 
@@ -145,7 +145,7 @@ public class AgentTransformer implements ClassFileTransformer {
             ObjTypeDetector.check(className);
             final ClassDesc classDesc = new ClassDesc();
             ClassReader cr = new ClassReader(classfileBuffer);
-            cr.accept(new ClassVisitor(Opcodes.ASM4) {
+            cr.accept(new ClassVisitor(Opcodes.ASM5) {
                 public void visit(int version, int access, String name, String signature, String superName,
                                   String[] interfaces) {
                     classDesc.set(version, access, name, signature, superName, interfaces);

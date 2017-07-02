@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,8 +14,6 @@
  */
 
 package scouter.javassist.bytecode;
-
-import scouter.javassist.bytecode.Opcode;
 
 /**
  * JVM Instruction Names.
@@ -33,6 +30,9 @@ public interface Mnemonic {
     /**
      * The instruction names (mnemonics) sorted by the opcode.
      * The length of this array is 202 (jsr_w=201).
+     *
+     * <p>The value at index 186 is null since no instruction is
+     * assigned to 186.
      */
     String[] OPCODE = {
         "nop",  /* 0*/
@@ -221,7 +221,7 @@ public interface Mnemonic {
         "invokespecial",        /* 183*/
         "invokestatic", /* 184*/
         "invokeinterface",      /* 185*/
-        "invokedynamic",        /* 186 */
+        null,
         "new",  /* 187*/
         "newarray",     /* 188*/
         "anewarray",    /* 189*/

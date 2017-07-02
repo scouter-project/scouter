@@ -36,7 +36,7 @@ import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 
 /**
- * A node that represents an annotationn.
+ * A node that represents an annotation.
  * 
  * @author Eric Bruneton
  */
@@ -52,8 +52,8 @@ public class AnnotationNode extends AnnotationVisitor {
      * as two consecutive elements in the list. The name is a {@link String},
      * and the value may be a {@link Byte}, {@link Boolean}, {@link Character},
      * {@link Short}, {@link Integer}, {@link Long}, {@link Float},
-     * {@link Double}, {@link String} or {@link scouter.org.objectweb.asm.Type}, or an
-     * two elements String array (for enumeration values), a
+     * {@link Double}, {@link String} or {@link scouter.org.objectweb.asm.Type}, or a
+     * two elements String array (for enumeration values), an
      * {@link AnnotationNode}, or a {@link List} of values of one of the
      * preceding types. The list may be <tt>null</tt> if there is no name value
      * pair.
@@ -114,7 +114,65 @@ public class AnnotationNode extends AnnotationVisitor {
         if (this.desc != null) {
             values.add(name);
         }
-        values.add(value);
+        if (value instanceof byte[]) {
+            byte[] v = (byte[]) value;
+            ArrayList<Byte> l = new ArrayList<Byte>(v.length);
+            for (byte b : v) {
+                l.add(b);
+            }
+            values.add(l);
+        } else if (value instanceof boolean[]) {
+            boolean[] v = (boolean[]) value;
+            ArrayList<Boolean> l = new ArrayList<Boolean>(v.length);
+            for (boolean b : v) {
+                l.add(b);
+            }
+            values.add(l);
+        } else if (value instanceof short[]) {
+            short[] v = (short[]) value;
+            ArrayList<Short> l = new ArrayList<Short>(v.length);
+            for (short s : v) {
+                l.add(s);
+            }
+            values.add(l);
+        } else if (value instanceof char[]) {
+            char[] v = (char[]) value;
+            ArrayList<Character> l = new ArrayList<Character>(v.length);
+            for (char c : v) {
+                l.add(c);
+            }
+            values.add(l);
+        } else if (value instanceof int[]) {
+            int[] v = (int[]) value;
+            ArrayList<Integer> l = new ArrayList<Integer>(v.length);
+            for (int i : v) {
+                l.add(i);
+            }
+            values.add(l);
+        } else if (value instanceof long[]) {
+            long[] v = (long[]) value;
+            ArrayList<Long> l = new ArrayList<Long>(v.length);
+            for (long lng : v) {
+                l.add(lng);
+            }
+            values.add(l);
+        } else if (value instanceof float[]) {
+            float[] v = (float[]) value;
+            ArrayList<Float> l = new ArrayList<Float>(v.length);
+            for (float f : v) {
+                l.add(f);
+            }
+            values.add(l);
+        } else if (value instanceof double[]) {
+            double[] v = (double[]) value;
+            ArrayList<Double> l = new ArrayList<Double>(v.length);
+            for (double d : v) {
+                l.add(d);
+            }
+            values.add(l);
+        } else {
+            values.add(value);
+        }
     }
 
     @Override
@@ -218,11 +276,13 @@ public class AnnotationNode extends AnnotationVisitor {
                 an.accept(av.visitAnnotation(name, an.desc));
             } else if (value instanceof List) {
                 AnnotationVisitor v = av.visitArray(name);
-                List<?> array = (List<?>) value;
-                for (int j = 0; j < array.size(); ++j) {
-                    accept(v, null, array.get(j));
+                if (v != null) {
+                    List<?> array = (List<?>) value;
+                    for (int j = 0; j < array.size(); ++j) {
+                        accept(v, null, array.get(j));
+                    }
+                    v.visitEnd();
                 }
-                v.visitEnd();
             } else {
                 av.visit(name, value);
             }

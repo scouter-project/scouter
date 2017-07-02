@@ -16,14 +16,14 @@
 
 package scouter.agent.batch.asm.jdbc;
 
-import scouter.agent.Logger;
-import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.batch.trace.TraceContextManager;
-import scouter.agent.batch.trace.TraceSQL;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.agent.Logger;
+import scouter.agent.asm.util.AsmUtil;
+import scouter.agent.batch.trace.TraceContextManager;
+import scouter.agent.batch.trace.TraceSQL;
 
 /**
  * BCI for a constructor of PreparedStatement
@@ -40,7 +40,7 @@ public class PsInitMV extends LocalVariablesSorter implements Opcodes {
     private boolean isUstatement = false;
 
 	public PsInitMV(int access, String desc, MethodVisitor mv, String owner) {
-		super(ASM4, access, desc, mv);
+		super(ASM5, access, desc, mv);
 		this.owner = owner;
 		this.sqlIdx = AsmUtil.getStringIdx(access, desc);
 

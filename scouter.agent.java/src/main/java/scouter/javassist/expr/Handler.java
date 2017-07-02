@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -20,16 +19,9 @@ import scouter.javassist.CannotCompileException;
 import scouter.javassist.CtBehavior;
 import scouter.javassist.CtClass;
 import scouter.javassist.NotFoundException;
-import scouter.javassist.bytecode.Bytecode;
-import scouter.javassist.bytecode.CodeAttribute;
-import scouter.javassist.bytecode.CodeIterator;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.ExceptionTable;
-import scouter.javassist.bytecode.MethodInfo;
-import scouter.javassist.bytecode.Opcode;
+import scouter.javassist.bytecode.*;
 import scouter.javassist.compiler.CompileError;
 import scouter.javassist.compiler.Javac;
-import scouter.javassist.expr.Expr;
 
 /**
  * A <code>catch</code> clause or a <code>finally</code> block.
@@ -104,7 +96,7 @@ public class Handler extends Expr {
     /**
      * This method has not been implemented yet.
      *
-     * @param statement         a Java statement except try-catch.
+     * @param statement         a Java statement.
      */
     public void replace(String statement) throws CannotCompileException {
         throw new RuntimeException("not implemented yet");

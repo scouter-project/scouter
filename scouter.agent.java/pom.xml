@@ -24,8 +24,9 @@
         <final.jar.name>${project.build.directory}/${project.build.finalName}.jar</final.jar.name>
         <final.jar.name.xtra>${project.build.directory}/xtra-${project.build.finalName}.jar</final.jar.name.xtra>
         <final.jar.name.shade>${project.build.directory}/shade-${project.build.finalName}.jar</final.jar.name.shade>
-
         <scouter.agent.file.name>scouter.agent.jar</scouter.agent.file.name>
+
+        <provided.tools.jar>${project.basedir}/lib/provided/tools.jar</provided.tools.jar>
     </properties>
 
     <dependencies>
@@ -280,5 +281,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,24 +15,7 @@
 
 package scouter.javassist;
 
-import static scouter.javassist.CtBehavior.setBody0;
-import scouter.javassist.CannotCompileException;
-import scouter.javassist.ClassMap;
-import scouter.javassist.CtBehavior;
-import scouter.javassist.CtClass;
-import scouter.javassist.CtNewConstructor;
-import scouter.javassist.CtNewMethod;
-import scouter.javassist.Modifier;
-import scouter.javassist.NotFoundException;
-import scouter.javassist.bytecode.AccessFlag;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.Bytecode;
-import scouter.javassist.bytecode.CodeAttribute;
-import scouter.javassist.bytecode.CodeIterator;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.Descriptor;
-import scouter.javassist.bytecode.MethodInfo;
-import scouter.javassist.bytecode.Opcode;
+import scouter.javassist.bytecode.*;
 
 /**
  * An instance of <code>CtMethod</code> represents a method.
@@ -88,18 +70,16 @@ public final class CtMethod extends CtBehavior {
      * <p>For example, suppose that a method <code>at()</code> is as
      * follows:
      *
-     * <pre>
-     * public X at(int i) {
+     * <ul><pre>public X at(int i) {
      *     return (X)super.elementAt(i);
-     * }</pre>
+     * }</pre></ul>
      *
      * <p>(<code>X</code> is a class name.)  If <code>map</code> substitutes
      * <code>String</code> for <code>X</code>, then the created method is:
      *
-     * <pre>
-     * public String at(int i) {
+     * <ul><pre>public String at(int i) {
      *     return (String)super.elementAt(i);
-     * }</pre>
+     * }</pre></ul>
      *
      * <p>By default, all the occurrences of the names of the class
      * declaring <code>at()</code> and the superclass are replaced
@@ -284,7 +264,7 @@ public final class CtMethod extends CtBehavior {
      *                          the wrapped method
      *                          (maybe <code>null</code>).
      *
-     * @see CtNewMethod#wrapped(CtClass,String,CtClass[],CtClass[],CtMethod,CtMethod.ConstParameter,CtClass)
+     * @see CtNewMethod#wrapped(CtClass,String, CtClass[], CtClass[],CtMethod,ConstParameter, CtClass)
      */
     public void setWrappedBody(CtMethod mbody, ConstParameter constParam)
         throws CannotCompileException
@@ -321,9 +301,9 @@ public final class CtMethod extends CtBehavior {
      * They are used to specify the parameter given to the methods
      * created by <code>CtNewMethod.wrapped()</code>.
      *
-     * @see CtMethod#setWrappedBody(CtMethod,CtMethod.ConstParameter)
-     * @see CtNewMethod#wrapped(CtClass,String,CtClass[],CtClass[],CtMethod,CtMethod.ConstParameter,CtClass)
-     * @see CtNewConstructor#make(CtClass[],CtClass[],int,CtMethod,CtMethod.ConstParameter,CtClass)
+     * @see CtMethod#setWrappedBody(CtMethod,ConstParameter)
+     * @see CtNewMethod#wrapped(CtClass,String, CtClass[], CtClass[],CtMethod,ConstParameter, CtClass)
+     * @see CtNewConstructor#make(CtClass[], CtClass[],int,CtMethod,ConstParameter, CtClass)
      */
     public static class ConstParameter {
         /**

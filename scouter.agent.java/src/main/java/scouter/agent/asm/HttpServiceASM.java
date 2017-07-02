@@ -15,17 +15,15 @@
  *  limitations under the License. 
  */
 package scouter.agent.asm;
-import java.util.HashSet;
+
+import scouter.org.objectweb.asm.*;
+import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.trace.TraceMain;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+
+import java.util.HashSet;
 public class HttpServiceASM implements IASM, Opcodes {
 	public HashSet<String> servlets = new HashSet<String>();
 	public HttpServiceASM() {
@@ -54,7 +52,7 @@ class HttpServiceCV extends ClassVisitor implements Opcodes {
 	private static String TARGET_SIGNATURE = "(Ljavax/servlet/ServletRequest;Ljavax/servlet/ServletResponse;";
 	private String className;
 	public HttpServiceCV(ClassVisitor cv, String className) {
-		super(ASM4, cv);
+		super(ASM5, cv);
 		this.className = className;
 	}
 	@Override
@@ -88,7 +86,7 @@ class HttpServiceMV extends LocalVariablesSorter implements Opcodes {
 	private Label startFinally = new Label();
 	private boolean httpservlet;
 	public HttpServiceMV(int access, String desc, MethodVisitor mv, boolean httpservlet) {
-		super(ASM4, access, desc, mv);
+		super(ASM5, access, desc, mv);
 		this.httpservlet = httpservlet;
 	}
 	private int statIdx;

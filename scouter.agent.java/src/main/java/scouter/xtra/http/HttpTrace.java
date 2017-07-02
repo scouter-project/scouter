@@ -25,19 +25,12 @@ import scouter.agent.summary.EndUserAjaxData;
 import scouter.agent.summary.EndUserErrorData;
 import scouter.agent.summary.EndUserNavigationData;
 import scouter.agent.summary.EndUserSummary;
-import scouter.agent.trace.IProfileCollector;
-import scouter.agent.trace.TraceContext;
-import scouter.agent.trace.TraceContextManager;
-import scouter.agent.trace.TraceMain;
-import scouter.agent.trace.TransferMap;
+import scouter.agent.trace.*;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.pack.XLogTypes;
+import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
-import scouter.util.CastUtil;
-import scouter.util.CompareUtil;
-import scouter.util.HashUtil;
-import scouter.util.Hexa32;
-import scouter.util.StringUtil;
+import scouter.util.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -46,9 +39,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 
-import static scouter.agent.AgentCommonConstant.ASYNC_SERVLET_DISPATCHED_PREFIX;
-import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP;
-import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_SELF_DISPATCHED;
+import static scouter.agent.AgentCommonConstant.*;
 
 public class HttpTrace implements IHttpTrace {
     boolean remote_by_header;
@@ -351,6 +342,33 @@ public class HttpTrace implements IHttpTrace {
     }
 
     public void end(TraceContext ctx, Object req, Object res) {
+        Configure conf = Configure.getInstance();
+
+        HttpServletRequest request = (HttpServletRequest) req;
+        if (conf.profile_http_parameter_enabled) {
+            if (conf.profile_http_parameter_url_prefix == null || ctx.serviceName.indexOf(conf.profile_http_parameter_url_prefix) >= 0) {
+                String ctype = request.getContentType();
+                if (ctype != null && ctype.indexOf("multipart") >= 0)
+                    return;
+
+                Enumeration en = request.getParameterNames();
+                if (en != null) {
+                    int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+                    while (en.hasMoreElements()) {
+                        String key = (String) en.nextElement();
+                        String value = new StringBuilder().append("parameter: ").append(key).append("=")
+                                .append(StringUtil.limiting(request.getParameter(key), 1024)).toString();
+
+                        MessageStep step = new MessageStep(value);
+                        step.start_time = start_time;
+                        // step.start_cpu = (int) (SysJMX.getCurrentThreadCPU()
+                        // - ctx.startCpu);
+
+                        ctx.profile.add(step);
+                    }
+                }
+            }
+        }
         // HttpServletRequest request = (HttpServletRequest)req;
         // HttpServletResponse response = (HttpServletResponse)res;
     }
@@ -386,29 +404,13 @@ public class HttpTrace implements IHttpTrace {
                 }
             }
         }
+
         if (conf.profile_http_parameter_enabled) {
-            if (conf.profile_http_parameter_url_prefix == null || ctx.serviceName.indexOf(conf.profile_http_parameter_url_prefix) >= 0) {
-                String ctype = request.getContentType();
-                if (ctype != null && ctype.indexOf("multipart") >= 0)
-                    return;
-
-                Enumeration en = request.getParameterNames();
-                if (en != null) {
-                    int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-                    while (en.hasMoreElements()) {
-                        String key = (String) en.nextElement();
-                        String value = new StringBuilder().append("parameter: ").append(key).append("=")
-                                .append(StringUtil.limiting(request.getParameter(key), 1024)).toString();
-
-                        MessageStep step = new MessageStep(value);
-                        step.start_time = start_time;
-                        // step.start_cpu = (int) (SysJMX.getCurrentThreadCPU()
-                        // - ctx.startCpu);
-
-                        p.add(step);
-                    }
-                }
-            }
+            HashedMessageStep step = new HashedMessageStep();
+            step.hash = DataProxy.sendHashedMessage("[HTTP parameters] will be shown in the last of this profile if available.(profile_http_parameter_enabled : true)");
+            step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+            step.time = -1;
+            ctx.profile.add(step);
         }
     }
 

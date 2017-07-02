@@ -32,8 +32,6 @@ package scouter.org.objectweb.asm.xml;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.xml.sax.helpers.AttributesImpl;
-
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.Handle;
 import scouter.org.objectweb.asm.Label;
@@ -42,13 +40,14 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.TypePath;
 import scouter.org.objectweb.asm.util.Printer;
+import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * A {@link MethodVisitor} that generates SAX 2.0 events from the visited
  * method.
  * 
  * @see scouter.org.objectweb.asm.xml.SAXClassAdapter
- * @see scouter.org.objectweb.asm.xml.Processor
+ * @see Processor
  * 
  * @author Eugene Kuleshov
  */
@@ -82,7 +81,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
         if (name != null) {
             attrs.addAttribute("", "name", "name", "", name);
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         SAXClassAdapter.appendAccess(access, sb);
         attrs.addAttribute("", "access", "access", "", sb.toString());
         sa.addElement("parameter", attrs);

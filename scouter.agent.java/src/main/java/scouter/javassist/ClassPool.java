@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -27,22 +26,13 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Enumeration;
 
-import scouter.javassist.CannotCompileException;
-import scouter.javassist.ClassClassPath;
-import scouter.javassist.ClassPath;
-import scouter.javassist.CtClass;
-import scouter.javassist.CtMethod;
-import scouter.javassist.LoaderClassPath;
-import scouter.javassist.Modifier;
-import scouter.javassist.NotFoundException;
-import scouter.javassist.bytecode.ClassFile;
 import scouter.javassist.bytecode.Descriptor;
-
+import scouter.javassist.bytecode.ConstPool;
 
 /**
  * A container of <code>CtClass</code> objects.
@@ -75,13 +65,12 @@ import scouter.javassist.bytecode.Descriptor;
  * the child <code>ClassPool</code>.  This search order is reversed if
  * <code>ClassPath.childFirstLookup</code> is <code>true</code>.
  *
- * @see scouter.javassist.CtClass
- * @see scouter.javassist.ClassPath
+ * @see CtClass
+ * @see ClassPath
  */
 public class ClassPool {
     // used by toClass().
-    private static java.lang.reflect.Method defineClass1, defineClass2;
-    private static java.lang.reflect.Method definePackage;
+    private static Method defineClass1, defineClass2;
 
     static {
         try {
@@ -95,11 +84,6 @@ public class ClassPool {
                     defineClass2 = cl.getDeclaredMethod("defineClass",
                            new Class[] { String.class, byte[].class,
                                  int.class, int.class, ProtectionDomain.class });
-
-                    definePackage = cl.getDeclaredMethod("definePackage",
-                            new Class[] { String.class, String.class, String.class,
-                                          String.class, String.class, String.class,
-                                          String.class, java.net.URL.class });
                     return null;
                 }
             });
@@ -193,7 +177,7 @@ public class ClassPool {
      *
      * @param parent    the parent of this class pool.  If this is a root
      *                  class pool, this parameter must be <code>null</code>.
-     * @see scouter.javassist.ClassPool#getDefault()
+     * @see ClassPool#getDefault()
      */
     public ClassPool(ClassPool parent) {
         this.classes = new Hashtable(INIT_HASH_SIZE);
@@ -224,9 +208,9 @@ public class ClassPool {
      * <p>When this method is called for the first time, the default
      * class pool is created with the following code snippet:
      *
-     * <pre>ClassPool cp = new ClassPool();
+     * <ul><code>ClassPool cp = new ClassPool();
      * cp.appendSystemPath();
-     * </pre>
+     * </code></ul>
      *
      * <p>If the default class pool cannot find any class files,
      * try <code>ClassClassPath</code> and <code>LoaderClassPath</code>.
@@ -249,7 +233,7 @@ public class ClassPool {
      * Provide a hook so that subclasses can do their own
      * caching of classes.
      *
-     * @see #cacheCtClass(String,CtClass,boolean)
+     * @see #cacheCtClass(String, CtClass,boolean)
      * @see #removeCached(String)
      */
     protected CtClass getCached(String classname) {
@@ -261,7 +245,7 @@ public class ClassPool {
      * caching of classes.
      *
      * @see #getCached(String)
-     * @see #removeCached(String)
+     * @see #removeCached(String, CtClass)
      */
     protected void cacheCtClass(String classname, CtClass c, boolean dynamic) {
         classes.put(classname, c);
@@ -272,7 +256,7 @@ public class ClassPool {
      * caching of classes.
      *
      * @see #getCached(String)
-     * @see #cacheCtClass(String,CtClass,boolean)
+     * @see #cacheCtClass(String, CtClass,boolean)
      */
     protected CtClass removeCached(String classname) {
         return (CtClass)classes.remove(classname);
@@ -303,9 +287,6 @@ public class ClassPool {
      * the package to resolve a class name.
      * Don't record the <code>java.lang</code> package, which has
      * been implicitly recorded by default.
-     *
-     * <p>Since version 3.14, <code>packageName</code> can be a
-     * fully-qualified class name.
      *
      * <p>Note that <code>get()</code> in <code>ClassPool</code> does
      * not search the recorded package.  Only the compiler searches it.
@@ -342,21 +323,17 @@ public class ClassPool {
     }
 
     /**
-     * Records a class name that never exists.
+     * Records a name that never exists.
      * For example, a package name can be recorded by this method.
      * This would improve execution performance
-     * since <code>get()</code> quickly throw an exception
-     * without searching the class path at all
+     * since <code>get()</code> does not search the class path at all
      * if the given name is an invalid name recorded by this method.
      * Note that searching the class path takes relatively long time.
      *
-     * <p>The current implementation of this method performs nothing.
-     *
-     * @param name          an invalid class name (separeted by dots).
-     * @deprecated
+     * @param name          a class name (separeted by dot).
      */
     public void recordInvalidClassName(String name) {
-        // source.recordInvalidClassName(name);
+        source.recordInvalidClassName(name);
     }
 
     /**
@@ -392,9 +369,9 @@ public class ClassPool {
      * This method is useful if you want to generate a new class as a copy
      * of another class (except the class name).  For example,
      *
-     * <pre>
+     * <ul><pre>
      * getAndRename("Point", "Pair")
-     * </pre>
+     * </pre></ul>
      *
      * returns a <code>CtClass</code> object representing <code>Pair</code>
      * class.  The definition of <code>Pair</code> is the same as that of
@@ -515,8 +492,8 @@ public class ClassPool {
      * @param classname         a fully-qualified class name or a descriptor
      *                          representing an array type.
      * @see #get(String)
-     * @see scouter.javassist.bytecode.ConstPool#getClassInfo(int)
-     * @see scouter.javassist.bytecode.Descriptor#toCtClass(String, ClassPool)
+     * @see ConstPool#getClassInfo(int)
+     * @see Descriptor#toCtClass(String, ClassPool)
      * @since 3.8.1
      */
     public CtClass getCtClass(String classname) throws NotFoundException {
@@ -528,6 +505,7 @@ public class ClassPool {
 
     /**
      * @param useCache      false if the cached CtClass must be ignored.
+     * @param searchParent  false if the parent class pool is not searched.
      * @return null     if the class could not be found.
      */
     protected synchronized CtClass get0(String classname, boolean useCache)
@@ -708,7 +686,7 @@ public class ClassPool {
      * @throws RuntimeException if there is a frozen class with the
      *                          the same name.
      * @see #makeClassIfNew(InputStream)
-     * @see scouter.javassist.ByteArrayClassPath
+     * @see ByteArrayClassPath
      */
     public CtClass makeClass(InputStream classfile)
         throws IOException, RuntimeException
@@ -728,61 +706,13 @@ public class ClassPool {
      * @param classfile class file.
      * @param ifNotFrozen       throws a RuntimeException if this parameter is true
      *                          and there is a frozen class with the same name.
-     * @see scouter.javassist.ByteArrayClassPath
+     * @see ByteArrayClassPath
      */
     public CtClass makeClass(InputStream classfile, boolean ifNotFrozen)
         throws IOException, RuntimeException
     {
         compress();
         classfile = new BufferedInputStream(classfile);
-        CtClass clazz = new CtClassType(classfile, this);
-        clazz.checkModify();
-        String classname = clazz.getName();
-        if (ifNotFrozen)
-            checkNotFrozen(classname);
-
-        cacheCtClass(classname, clazz, true);
-        return clazz;
-    }
-
-    /**
-     * Creates a new class (or interface) from the given class file.
-     * If there already exists a class with the same name, the new class
-     * overwrites that previous class.
-     *
-     * <p>This method is used for creating a <code>CtClass</code> object
-     * directly from a class file.  The qualified class name is obtained
-     * from the class file; you do not have to explicitly give the name.
-     *
-     * @param classfile         class file.
-     * @throws RuntimeException if there is a frozen class with the
-     *                          the same name.
-     * @since 3.20
-     */
-    public CtClass makeClass(ClassFile classfile)
-        throws RuntimeException
-    {
-        return makeClass(classfile, true);
-    }
-
-    /**
-     * Creates a new class (or interface) from the given class file.
-     * If there already exists a class with the same name, the new class
-     * overwrites that previous class.
-     *
-     * <p>This method is used for creating a <code>CtClass</code> object
-     * directly from a class file.  The qualified class name is obtained
-     * from the class file; you do not have to explicitly give the name.
-     *
-     * @param classfile     class file.
-     * @param ifNotFrozen       throws a RuntimeException if this parameter is true
-     *                          and there is a frozen class with the same name.
-     * @since 3.20
-     */
-    public CtClass makeClass(ClassFile classfile, boolean ifNotFrozen)
-        throws RuntimeException
-    {
-        compress();
         CtClass clazz = new CtClassType(classfile, this);
         clazz.checkModify();
         String classname = clazz.getName();
@@ -805,7 +735,7 @@ public class ClassPool {
      *
      * @param classfile             the class file.
      * @see #makeClass(InputStream)
-     * @see scouter.javassist.ByteArrayClassPath
+     * @see ByteArrayClassPath
      * @since 3.9
      */
     public CtClass makeClassIfNew(InputStream classfile)
@@ -873,7 +803,7 @@ public class ClassPool {
 
     /**
      * Creates a new public nested class.
-     * This method is called by {@link CtClassType#makeNestedClass()}.
+     * This method is called by CtClassType.makeNestedClass().
      *
      * @param classname     a fully-qualified class name.
      * @return      the nested class.
@@ -916,28 +846,6 @@ public class ClassPool {
     }
 
     /**
-     * Creates a new annotation.
-     * If there already exists a class/interface with the same name,
-     * the new interface overwrites that previous one.
-     *
-     * @param name      a fully-qualified interface name.
-     *                  Or null if the annotation has no super interface. 
-     * @throws RuntimeException if the existing interface is frozen.
-     * @since 3.19
-     */
-    public CtClass makeAnnotation(String name) throws RuntimeException {
-        try {
-            CtClass cc = makeInterface(name, get("java.lang.annotation.Annotation"));
-            cc.setModifiers(cc.getModifiers() | Modifier.ANNOTATION);
-            return cc;
-        }
-        catch (NotFoundException e) {
-            // should never happen.
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    /**
      * Appends the system search path to the end of the
      * search path.  The system search path
      * usually includes the platform library, extension
@@ -956,9 +864,9 @@ public class ClassPool {
      * search path.
      *
      * @return the inserted class path.
-     * @see scouter.javassist.ClassPath
-     * @see scouter.javassist.URLClassPath
-     * @see scouter.javassist.ByteArrayClassPath
+     * @see ClassPath
+     * @see URLClassPath
+     * @see ByteArrayClassPath
      */
     public ClassPath insertClassPath(ClassPath cp) {
         return source.insertClassPath(cp);
@@ -969,9 +877,9 @@ public class ClassPool {
      * search path.
      *
      * @return the appended class path.
-     * @see scouter.javassist.ClassPath
-     * @see scouter.javassist.URLClassPath
-     * @see scouter.javassist.ByteArrayClassPath
+     * @see ClassPath
+     * @see URLClassPath
+     * @see ByteArrayClassPath
      */
     public ClassPath appendClassPath(ClassPath cp) {
         return source.appendClassPath(cp);
@@ -1016,7 +924,7 @@ public class ClassPool {
     /**
      * Detatches the <code>ClassPath</code> object from the search path.
      * The detached <code>ClassPath</code> object cannot be added
-     * to the path again.
+     * to the pathagain.
      */
     public void removeClassPath(ClassPath cp) {
         source.removeClassPath(cp);
@@ -1071,7 +979,7 @@ public class ClassPool {
      * work with a security manager or a signed jar file because a
      * protection domain is not specified.
      *
-     * @see #toClass(CtClass, java.lang.ClassLoader, ProtectionDomain)
+     * @see #toClass(CtClass, ClassLoader, ProtectionDomain)
      * @see #getClassLoader()
      */
     public Class toClass(CtClass clazz) throws CannotCompileException {
@@ -1157,7 +1065,7 @@ public class ClassPool {
     {
         try {
             byte[] b = ct.toBytecode();
-            java.lang.reflect.Method method;
+            Method method;
             Object[] args;
             if (domain == null) {
                 method = defineClass1;
@@ -1170,7 +1078,7 @@ public class ClassPool {
                     new Integer(b.length), domain};
             }
 
-            return (Class)toClass2(method, loader, args);
+            return toClass2(method, loader, args);
         }
         catch (RuntimeException e) {
             throw e;
@@ -1183,60 +1091,16 @@ public class ClassPool {
         }
     }
 
-    private static synchronized Object toClass2(Method method,
+    private static synchronized Class toClass2(Method method,
             ClassLoader loader, Object[] args)
         throws Exception
     {
         method.setAccessible(true);
         try {
-            return method.invoke(loader, args);
+            return (Class)method.invoke(loader, args);
         }
         finally {
             method.setAccessible(false);
         }
-    }
-
-    /**
-     * Defines a new package.  If the package is already defined, this method
-     * performs nothing.
-     *
-     * <p>You do not necessarily need to
-     * call this method.  If this method is called, then  
-     * <code>getPackage()</code> on the <code>Class</code> object returned 
-     * by <code>toClass()</code> will return a non-null object.
-     *
-     * @param loader        the class loader passed to <code>toClass()</code> or
-     *                      the default one obtained by <code>getClassLoader()</code>.
-     * @param name          the package name.
-     * @see #getClassLoader()
-     * @see #toClass(CtClass)
-     * @see CtClass#toClass()
-     * @since 3.16
-     */
-    public void makePackage(ClassLoader loader, String name)
-        throws CannotCompileException
-    {
-        Object[] args = new Object[] {
-                name, null, null, null, null, null, null, null };
-        Throwable t;
-        try {
-            toClass2(definePackage, loader, args);
-            return;
-        }
-        catch (java.lang.reflect.InvocationTargetException e) {
-            t = e.getTargetException();
-            if (t == null)
-                t = e;
-            else if (t instanceof IllegalArgumentException) {
-                // if the package is already defined, an IllegalArgumentException
-                // is thrown.
-                return;
-            }
-        }
-        catch (Exception e) {
-            t = e;
-        }
-
-        throw new CannotCompileException(t);
     }
 }

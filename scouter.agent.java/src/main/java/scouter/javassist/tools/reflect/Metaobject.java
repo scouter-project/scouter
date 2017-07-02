@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,16 +15,11 @@
 
 package scouter.javassist.tools.reflect;
 
+import java.lang.reflect.Method;
+import java.io.Serializable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.lang.reflect.Method;
-
-import scouter.javassist.tools.reflect.CannotInvokeException;
-import scouter.javassist.tools.reflect.ClassMetaobject;
-import scouter.javassist.tools.reflect.Metalevel;
-
 
 /**
  * A runtime metaobject.
@@ -42,12 +36,11 @@ import scouter.javassist.tools.reflect.Metalevel;
  * <p>To obtain a metaobject, calls <code>_getMetaobject()</code>
  * on a reflective object.  For example,
  *
- * <pre>
- * Metaobject m = ((Metalevel)reflectiveObject)._getMetaobject();
- * </pre>
+ * <ul><pre>Metaobject m = ((Metalevel)reflectiveObject)._getMetaobject();
+ * </pre></ul>
  *
- * @see scouter.javassist.tools.reflect.ClassMetaobject
- * @see scouter.javassist.tools.reflect.Metalevel
+ * @see ClassMetaobject
+ * @see Metalevel
  */
 public class Metaobject implements Serializable {
     protected ClassMetaobject classmetaobject;
@@ -95,7 +88,7 @@ public class Metaobject implements Serializable {
     /**
      * Obtains the class metaobject associated with this metaobject.
      *
-     * @see scouter.javassist.tools.reflect.ClassMetaobject
+     * @see ClassMetaobject
      */
     public final ClassMetaobject getClassMetaobject() {
         return classmetaobject;
@@ -205,8 +198,7 @@ public class Metaobject implements Serializable {
      * <p>Note: this method is not invoked if the base-level method
      * is invoked by a constructor in the super class.  For example,
      *
-     * <pre>
-     * abstract class A {
+     * <ul><pre>abstract class A {
      *   abstract void initialize();
      *   A() {
      *       initialize();    // not intercepted
@@ -219,7 +211,7 @@ public class Metaobject implements Serializable {
      *       super();
      *       initialize();    // intercepted
      *   }
-     * }</pre>
+     * }</pre></ul>
      *
      * <p>if an instance of B is created,
      * the invocation of initialize() in B is intercepted only once.
@@ -237,7 +229,7 @@ public class Metaobject implements Serializable {
         catch (java.lang.reflect.InvocationTargetException e) {
             throw e.getTargetException();
         }
-        catch (java.lang.IllegalAccessException e) {
+        catch (IllegalAccessException e) {
             throw new CannotInvokeException(e);
         }
     }

@@ -60,7 +60,7 @@ import scouter.org.objectweb.asm.tree.analysis.BasicVerifier;
  * arguments - such as the fact that the given opcode is correct for a given
  * visit method. This adapter can also perform some basic data flow checks (more
  * precisely those that can be performed without the full class hierarchy - see
- * {@link scouter.org.objectweb.asm.tree.analysis.BasicVerifier}). For instance in a
+ * {@link BasicVerifier}). For instance in a
  * method whose signature is <tt>void m ()</tt>, the invalid instruction
  * IRETURN, or the invalid sequence IADD L2I will be detected if the data flow
  * checks are enabled. These checks are enabled by using the
@@ -408,6 +408,9 @@ public class CheckMethodAdapter extends MethodVisitor {
      * will not perform any data flow check (see
      * {@link #CheckMethodAdapter(int,String,String,MethodVisitor,Map)}).
      * 
+     * @param api
+     *            the ASM API version implemented by this CheckMethodAdapter.
+     *            Must be one of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      * @param mv
      *            the method visitor to which this adapter must delegate calls.
      * @param labels
@@ -724,6 +727,12 @@ public class CheckMethodAdapter extends MethodVisitor {
             throw new IllegalArgumentException(
                     "INVOKEINTERFACE can't be used with classes");
         }
+        if (opcode == Opcodes.INVOKESPECIAL && itf
+                && (version & 0xFFFF) < Opcodes.V1_8) {
+            throw new IllegalArgumentException(
+                    "INVOKESPECIAL can't be used with interfaces prior to Java 8");
+        }
+
         // Calling super.visitMethodInsn requires to call the correct version
         // depending on this.api (otherwise infinite loops can occur). To
         // simplify and to make it easier to automatically remove the backward
@@ -773,7 +782,7 @@ public class CheckMethodAdapter extends MethodVisitor {
         if (labels.get(label) != null) {
             throw new IllegalArgumentException("Already visited label");
         }
-        labels.put(label, new Integer(insnCount));
+        labels.put(label, insnCount);
         super.visitLabel(label);
     }
 

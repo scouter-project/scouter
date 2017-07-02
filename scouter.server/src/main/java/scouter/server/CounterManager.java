@@ -16,24 +16,25 @@
  */
 package scouter.server;
 
-import java.io.File;
-import java.io.InputStream;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import scouter.lang.Counter;
 import scouter.lang.Family;
 import scouter.lang.ObjectType;
 import scouter.lang.counters.CounterEngine;
 import scouter.lang.pack.MapPack;
+import scouter.lang.pack.ObjectPack;
 import scouter.server.util.XmlUtil;
 import scouter.util.FileUtil;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.io.InputStream;
+
+import static scouter.lang.constants.ScouterConstants.TAG_OBJ_DETECTED_TYPE;
 
 
 public class CounterManager {
@@ -138,7 +139,26 @@ public class CounterManager {
 		objType.setSubObject(subobject);
 		return addObjectType(objType);
 	}
-	
+
+	public boolean addObjectTypeIfNotExist(ObjectPack objectPack) {
+		if (engine.getObjectType(objectPack.objType) != null) {
+			return false;
+		}
+		String detected = objectPack.tags.getText(TAG_OBJ_DETECTED_TYPE);
+		ObjectType detectedType = engine.getObjectType(detected);
+		if (detectedType == null) {
+			return false;
+		}
+
+		ObjectType objType = new ObjectType();
+		objType.setName(objectPack.objType);
+		objType.setDisplayName(objectPack.objType);
+		objType.setIcon(detectedType.getName());
+		objType.setFamily(detectedType.getFamily());
+		objType.setSubObject(detectedType.isSubObject());
+		return addObjectType(objType);
+	}
+
 	public synchronized boolean addObjectType(ObjectType objType) {
 		Document doc = appendObjectType(objType, getCustomDocument());
 		if (doc != null) {

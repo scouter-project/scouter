@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -17,22 +16,10 @@
 package scouter.javassist.bytecode;
 
 import java.io.PrintWriter;
-import java.util.List;
 
 import scouter.javassist.Modifier;
-import scouter.javassist.bytecode.AccessFlag;
-import scouter.javassist.bytecode.AnnotationsAttribute;
-import scouter.javassist.bytecode.AttributeInfo;
-import scouter.javassist.bytecode.BadBytecode;
-import scouter.javassist.bytecode.ClassFile;
-import scouter.javassist.bytecode.CodeAttribute;
-import scouter.javassist.bytecode.FieldInfo;
-import scouter.javassist.bytecode.MethodInfo;
-import scouter.javassist.bytecode.ParameterAnnotationsAttribute;
-import scouter.javassist.bytecode.SignatureAttribute;
-import scouter.javassist.bytecode.StackMap;
-import scouter.javassist.bytecode.StackMapTable;
 
+import java.util.List;
 
 /**
  * A utility class for priting the contents of a class file.
@@ -122,12 +109,6 @@ public class ClassFilePrinter {
                 out.println("<code attribute begin>");
                 printAttributes(ca.getAttributes(), out, kind);
                 out.println("<code attribute end>");
-            }
-            else if (ai instanceof AnnotationsAttribute) {
-                out.println("annnotation: " + ai.toString());
-            }
-            else if (ai instanceof ParameterAnnotationsAttribute) {
-                out.println("parameter annnotations: " + ai.toString());
             }
             else if (ai instanceof StackMapTable) {
                 out.println("<stack map table begin>");

@@ -1,12 +1,11 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999-2010 Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -20,12 +19,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.io.OutputStream;
-
-import scouter.javassist.util.proxy.Proxy;
-import scouter.javassist.util.proxy.ProxyFactory;
-import scouter.javassist.util.proxy.ProxyObject;
-import scouter.javassist.util.proxy.ProxyObjectInputStream;
-
 
 /**
  * An input stream class which knows how to serialize proxies created via {@link ProxyFactory}. It must
@@ -63,7 +56,7 @@ public class ProxyObjectOutputStream extends ObjectOutputStream
             writeInt(interfaces.length - 1);
             for (int i = 0; i < interfaces.length; i++) {
                 Class interfaze = interfaces[i];
-                if (interfaze != ProxyObject.class && interfaze != Proxy.class) {
+                if (interfaze != ProxyObject.class) {
                     name = interfaces[i].getName();
                     writeObject(name);
                 }
