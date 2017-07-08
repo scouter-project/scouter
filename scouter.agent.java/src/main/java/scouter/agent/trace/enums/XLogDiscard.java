@@ -6,5 +6,5 @@ package scouter.agent.trace.enums;
 public enum XLogDiscard {
 	DISCARD_ALL,
 	DISCARD_PROFILE,
-	DISCARD_NONE
+    NONE
 }

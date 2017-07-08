@@ -447,9 +447,9 @@ public class TraceMain {
             }
 
             //check xlog sampling
-            XLogDiscard discardMode = pack.error != 0 ? XLogDiscard.DISCARD_NONE : XLogSampler.evaluateXLogDiscard(pack.elapsed, ctx.serviceName);
+            XLogDiscard discardMode = pack.error != 0 ? XLogDiscard.NONE : XLogSampler.getInstance().evaluateXLogDiscard(pack.elapsed, ctx.serviceName);
 
-            ctx.profile.close(discardMode==XLogDiscard.DISCARD_NONE ? false : true);
+            ctx.profile.close(discardMode==XLogDiscard.NONE ? true : false);
             if (ctx.group != null) {
                 pack.group = DataProxy.sendGroup(ctx.group);
             }
@@ -644,9 +644,9 @@ public class TraceMain {
             pack.error = errorCheck(ctx, thr);
 
             //check xlog sampling
-            XLogDiscard discardMode = pack.error != 0 ? XLogDiscard.DISCARD_NONE : XLogSampler.evaluateXLogDiscard(pack.elapsed, ctx.serviceName);
+            XLogDiscard discardMode = pack.error != 0 ? XLogDiscard.NONE : XLogSampler.getInstance().evaluateXLogDiscard(pack.elapsed, ctx.serviceName);
 
-            ctx.profile.close(discardMode==XLogDiscard.DISCARD_NONE ? false : true);
+            ctx.profile.close(discardMode==XLogDiscard.NONE ? false : true);
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
             pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
