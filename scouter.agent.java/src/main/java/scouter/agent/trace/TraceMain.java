@@ -651,7 +651,7 @@ public class TraceMain {
             //check xlog sampling
             XLogDiscard discardMode = pack.error != 0 ? XLogDiscard.NONE : XLogSampler.getInstance().evaluateXLogDiscard(pack.elapsed, ctx.serviceName);
 
-            ctx.profile.close(discardMode==XLogDiscard.NONE ? false : true);
+            ctx.profile.close(discardMode==XLogDiscard.NONE ? true : false);
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
             pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
