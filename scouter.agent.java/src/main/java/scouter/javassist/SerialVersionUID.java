@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -18,11 +19,14 @@ package scouter.javassist;
 import scouter.javassist.bytecode.ClassFile;
 import scouter.javassist.bytecode.Descriptor;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Modifier;
-
-import java.util.*;
-import java.security.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Utility for calculating serialVersionUIDs for Serializable classes.
@@ -61,7 +65,7 @@ public class SerialVersionUID {
     /**
      * Does the class implement Serializable?
      */
-    private static boolean isSerializable(CtClass clazz)
+    private static boolean isSerializable(CtClass clazz) 
         throws NotFoundException
     {
         ClassPool pool = clazz.getClassPool();
@@ -71,8 +75,10 @@ public class SerialVersionUID {
     /**
      * Calculate default value. See Java Serialization Specification, Stream
      * Unique Identifiers.
+     *
+     * @since 3.20
      */
-    static long calculateDefault(CtClass clazz)
+    public static long calculateDefault(CtClass clazz)
         throws CannotCompileException
     {
         try {
@@ -116,7 +122,7 @@ public class SerialVersionUID {
             });
 
             for (int i = 0; i < fields.length; i++) {
-                CtField field = (CtField) fields[i];
+                CtField field = (CtField) fields[i]; 
                 int mods = field.getModifiers();
                 if (((mods & Modifier.PRIVATE) == 0) ||
                     ((mods & (Modifier.STATIC | Modifier.TRANSIENT)) == 0)) {

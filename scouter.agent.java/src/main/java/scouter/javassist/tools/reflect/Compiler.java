@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,8 +16,8 @@
 
 package scouter.javassist.tools.reflect;
 
-import scouter.javassist.ClassPool;
 import scouter.javassist.CtClass;
+import scouter.javassist.ClassPool;
 
 import java.io.PrintStream;
 
@@ -32,7 +33,7 @@ class CompiledClass {
  * <p>This translator directly modifies class files on a local disk so that
  * the classes represented by those class files are reflective.
  * After the modification, the class files can be run with the standard JVM
- * without <code>javassist.tools.reflect.Loader</code>
+ * without <code>Loader</code>
  * or any other user-defined class loader.
  *
  * <p>The modified class files are given as the command-line parameters,
@@ -50,8 +51,8 @@ class CompiledClass {
  * by that class name is not reflective.
  * 
  * <p>For example,
- * <ul><pre>% java Compiler Dog -m MetaDog -c CMetaDog Cat -m MetaCat Cow
- * </pre></ul>
+ * <pre>% java Compiler Dog -m MetaDog -c CMetaDog Cat -m MetaCat Cow
+ * </pre>
  *
  * <p>modifies class files <code>Dog.class</code>, <code>Cat.class</code>,
  * and <code>Cow.class</code>.
@@ -101,12 +102,12 @@ public class Compiler {
                 String metaobj, classobj;
 
                 if (entries[i].metaobject == null)
-                    metaobj = "javassist.tools.reflect.Metaobject";
+                    metaobj = "Metaobject";
                 else
                     metaobj = entries[i].metaobject;
 
                 if (entries[i].classobject == null)
-                    classobj = "javassist.tools.reflect.ClassMetaobject";
+                    classobj = "ClassMetaobject";
                 else
                     classobj = entries[i].classobject;
 
@@ -157,7 +158,7 @@ public class Compiler {
     }
 
     private static void help(PrintStream out) {
-        out.println("Usage: java javassist.tools.reflect.Compiler");
+        out.println("Usage: java Compiler");
         out.println("            (<class> [-m <metaobject>] [-c <class metaobject>])+");
     }
 }

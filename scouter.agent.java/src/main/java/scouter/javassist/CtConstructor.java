@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,9 +16,17 @@
 
 package scouter.javassist;
 
-import scouter.javassist.bytecode.*;
-import scouter.javassist.compiler.Javac;
+import scouter.javassist.bytecode.BadBytecode;
+import scouter.javassist.bytecode.Bytecode;
+import scouter.javassist.bytecode.ClassFile;
+import scouter.javassist.bytecode.CodeAttribute;
+import scouter.javassist.bytecode.CodeIterator;
+import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.Descriptor;
+import scouter.javassist.bytecode.MethodInfo;
+import scouter.javassist.bytecode.Opcode;
 import scouter.javassist.compiler.CompileError;
+import scouter.javassist.compiler.Javac;
 
 /**
  * An instance of CtConstructor represents a constructor.
@@ -50,7 +59,7 @@ public final class CtConstructor extends CtBehavior {
      *
      * @see CtClass#addConstructor(CtConstructor)
      * @see CtConstructor#setBody(String)
-     * @see CtConstructor#setBody(CtConstructor, ClassMap)
+     * @see CtConstructor#setBody(CtConstructor,ClassMap)
      */
     public CtConstructor(CtClass[] parameters, CtClass declaring) {
         this((MethodInfo)null, declaring);
@@ -117,7 +126,7 @@ public final class CtConstructor extends CtBehavior {
 
     /**
      * Returns the constructor name followed by parameter types
-     * such as <code>javassist.CtConstructor(CtClass[],CtClass)</code>.
+     * such as <code>CtConstructor(CtClass[],CtClass)</code>.
      *
      * @since 3.5
      */

@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -21,7 +22,7 @@ import java.lang.reflect.Method;
  * The interface implemented by the invocation handler of a proxy
  * instance.
  *
- * @see ProxyFactory#setHandler(MethodHandler)
+ * @see Proxy#setHandler(MethodHandler)
  */
 public interface MethodHandler {
     /**
@@ -32,7 +33,7 @@ public interface MethodHandler {
      * @param thisMethod    the overridden method declared in the super
      *                      class or interface.
      * @param proceed       the forwarder method for invoking the overridden 
-     *                      method.  It is null if the overridden mehtod is
+     *                      method.  It is null if the overridden method is
      *                      abstract or declared in the interface.
      * @param args          an array of objects containing the values of
      *                      the arguments passed in the method invocation

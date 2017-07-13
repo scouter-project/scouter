@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,9 +16,33 @@
 
 package scouter.javassist.compiler;
 
-import scouter.javassist.*;
-import scouter.javassist.bytecode.*;
-import scouter.javassist.compiler.ast.*;
+import scouter.javassist.ClassPool;
+import scouter.javassist.CtClass;
+import scouter.javassist.CtField;
+import scouter.javassist.CtMethod;
+import scouter.javassist.Modifier;
+import scouter.javassist.NotFoundException;
+import scouter.javassist.bytecode.AccessFlag;
+import scouter.javassist.bytecode.Bytecode;
+import scouter.javassist.bytecode.ClassFile;
+import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.Descriptor;
+import scouter.javassist.bytecode.FieldInfo;
+import scouter.javassist.bytecode.MethodInfo;
+import scouter.javassist.bytecode.Opcode;
+import scouter.javassist.compiler.ast.ASTList;
+import scouter.javassist.compiler.ast.ASTree;
+import scouter.javassist.compiler.ast.ArrayInit;
+import scouter.javassist.compiler.ast.CallExpr;
+import scouter.javassist.compiler.ast.Declarator;
+import scouter.javassist.compiler.ast.Expr;
+import scouter.javassist.compiler.ast.Keyword;
+import scouter.javassist.compiler.ast.Member;
+import scouter.javassist.compiler.ast.MethodDecl;
+import scouter.javassist.compiler.ast.NewExpr;
+import scouter.javassist.compiler.ast.Pair;
+import scouter.javassist.compiler.ast.Stmnt;
+import scouter.javassist.compiler.ast.Symbol;
 
 import java.util.ArrayList;
 
@@ -113,27 +138,27 @@ public class MemberCodeGen extends CodeGen {
             case Opcode.RETURN :
                 jsrJmp(b);
                 break;
-            case Opcode.ARETURN :
+            case ARETURN :
                 b.addAstore(getVar(1));
                 jsrJmp(b);
                 b.addAload(var);
                 break;
-            case Opcode.IRETURN :
+            case IRETURN :
                 b.addIstore(getVar(1));
                 jsrJmp(b);
                 b.addIload(var);
                 break;
-            case Opcode.LRETURN :
+            case LRETURN :
                 b.addLstore(getVar(2));
                 jsrJmp(b);
                 b.addLload(var);
                 break;
-            case Opcode.DRETURN :
+            case DRETURN :
                 b.addDstore(getVar(2));
                 jsrJmp(b);
                 b.addDload(var);
                 break;
-            case Opcode.FRETURN :
+            case FRETURN :
                 b.addFstore(getVar(1));
                 jsrJmp(b);
                 b.addFload(var);
@@ -160,19 +185,19 @@ public class MemberCodeGen extends CodeGen {
             switch (opcode) {
             case Opcode.RETURN :
                 break;
-            case Opcode.ARETURN :
+            case ARETURN :
                 b.addAstore(var);
                 break;
-            case Opcode.IRETURN :
+            case IRETURN :
                 b.addIstore(var);
                 break;
-            case Opcode.LRETURN :
+            case LRETURN :
                 b.addLstore(var);
                 break;
-            case Opcode.DRETURN :
+            case DRETURN :
                 b.addDstore(var);
                 break;
-            case Opcode.FRETURN :
+            case FRETURN :
                 b.addFstore(var);
                 break;
             default :
@@ -251,7 +276,7 @@ public class MemberCodeGen extends CodeGen {
             finallyBlock.accept(this);
             if (!hasReturned) {
                 bc.addAload(var);
-                bc.addOpcode(Opcode.ATHROW);
+                bc.addOpcode(ATHROW);
             }
 
             addFinally(jsrHook.jsrList, finallyBlock);
@@ -296,12 +321,12 @@ public class MemberCodeGen extends CodeGen {
             String cname = clazz.getName();
             ASTList args = expr.getArguments();
             bytecode.addNew(cname);
-            bytecode.addOpcode(Opcode.DUP);
+            bytecode.addOpcode(DUP);
 
             atMethodCallCore(clazz, MethodInfo.nameInit, args,
                              false, true, -1, null);
 
-            exprType = TokenId.CLASS;
+            exprType = CLASS;
             arrayDim = 0;
             className = MemberResolver.javaToJvmName(cname);
         }
@@ -342,7 +367,7 @@ public class MemberCodeGen extends CodeGen {
                 throw new CompileError("unnecessary array size specified for new");
 
         String elementClass;
-        if (type == TokenId.CLASS) {
+        if (type == CLASS) {
             elementClass = resolveClassName(jvmClassname);
             bytecode.addAnewarray(MemberResolver.jvmToJavaName(elementClass));
         }
@@ -350,36 +375,36 @@ public class MemberCodeGen extends CodeGen {
             elementClass = null;
             int atype = 0;
             switch (type) {
-            case TokenId.BOOLEAN :
-                atype = Opcode.T_BOOLEAN;
+            case BOOLEAN :
+                atype = T_BOOLEAN;
                 break;
-            case TokenId.CHAR :
-                atype = Opcode.T_CHAR;
+            case CHAR :
+                atype = T_CHAR;
                 break;
-            case TokenId.FLOAT :
-                atype = Opcode.T_FLOAT;
+            case FLOAT :
+                atype = T_FLOAT;
                 break;
-            case TokenId.DOUBLE :
-                atype = Opcode.T_DOUBLE;
+            case DOUBLE :
+                atype = T_DOUBLE;
                 break;
-            case TokenId.BYTE :
-                atype = Opcode.T_BYTE;
+            case BYTE :
+                atype = T_BYTE;
                 break;
-            case TokenId.SHORT :
-                atype = Opcode.T_SHORT;
+            case SHORT :
+                atype = T_SHORT;
                 break;
-            case TokenId.INT :
-                atype = Opcode.T_INT;
+            case INT :
+                atype = T_INT;
                 break;
-            case TokenId.LONG :
-                atype = Opcode.T_LONG;
+            case LONG :
+                atype = T_LONG;
                 break;
             default :
                 badNewExpr();
                 break;
             }
 
-            bytecode.addOpcode(Opcode.NEWARRAY);
+            bytecode.addOpcode(NEWARRAY);
             bytecode.add(atype);
         }
 
@@ -387,7 +412,7 @@ public class MemberCodeGen extends CodeGen {
             int s = init.length();
             ASTList list = init;
             for (int i = 0; i < s; i++) {
-                bytecode.addOpcode(Opcode.DUP);
+                bytecode.addOpcode(DUP);
                 bytecode.addIconst(i);
                 list.head().accept(this);
                 if (!isRefType(type))
@@ -428,14 +453,14 @@ public class MemberCodeGen extends CodeGen {
 
             ++count;
             s.accept(this);
-            if (exprType != TokenId.INT)
+            if (exprType != INT)
                 throw new CompileError("bad type for array size");
         }
 
         String desc;
         exprType = type;
         arrayDim = dim;
-        if (type == TokenId.CLASS) {
+        if (type == CLASS) {
             className = resolveClassName(classname);
             desc = toJvmArrayName(className, dim);
         }
@@ -474,45 +499,58 @@ public class MemberCodeGen extends CodeGen {
             else
                 bytecode.addAload(0);   // this
 
-            if (((Keyword)method).get() == TokenId.SUPER)
+            if (((Keyword)method).get() == SUPER)
                 targetClass = MemberResolver.getSuperclass(targetClass);
         }
         else if (method instanceof Expr) {
             Expr e = (Expr)method;
             mname = ((Symbol)e.oprand2()).get();
             int op = e.getOperator();
-            if (op == TokenId.MEMBER) {                 // static method
+            if (op == MEMBER) {                 // static method
                 targetClass
                     = resolver.lookupClass(((Symbol)e.oprand1()).get(), false);
                 isStatic = true;
             }
             else if (op == '.') {
                 ASTree target = e.oprand1();
-                if (target instanceof Keyword)
-                    if (((Keyword)target).get() == TokenId.SUPER)
-                        isSpecial = true;
-
-                try {
-                    target.accept(this);
+                String classFollowedByDotSuper = TypeChecker.isDotSuper(target);
+                if (classFollowedByDotSuper != null) {
+                    isSpecial = true;
+                    targetClass = MemberResolver.getSuperInterface(thisClass,
+                                                        classFollowedByDotSuper);
+                    if (inStaticMethod || (cached != null && cached.isStatic()))
+                        isStatic = true;            // should be static
+                    else {
+                        aload0pos = bytecode.currentPc();
+                        bytecode.addAload(0);       // this
+                    }
                 }
-                catch (NoFieldException nfe) {
-                    if (nfe.getExpr() != target)
-                        throw nfe;
+                else {
+                    if (target instanceof Keyword)
+                        if (((Keyword)target).get() == SUPER)
+                            isSpecial = true;
 
-                    // it should be a static method.
-                    exprType = TokenId.CLASS;
-                    arrayDim = 0;
-                    className = nfe.getField(); // JVM-internal
-                    resolver.recordPackage(className);
-                    isStatic = true;
+                    try {
+                        target.accept(this);
+                    }
+                    catch (NoFieldException nfe) {
+                        if (nfe.getExpr() != target)
+                            throw nfe;
+
+                        // it should be a static method.
+                        exprType = CLASS;
+                        arrayDim = 0;
+                        className = nfe.getField(); // JVM-internal
+                        isStatic = true;
+                    }
+
+                    if (arrayDim > 0)
+                        targetClass = resolver.lookupClass(javaLangObject, true);
+                    else if (exprType == CLASS /* && arrayDim == 0 */)
+                        targetClass = resolver.lookupClassByJvmName(className);
+                    else
+                        badMethod();
                 }
-
-                if (arrayDim > 0)
-                    targetClass = resolver.lookupClass(javaLangObject, true);
-                else if (exprType == TokenId.CLASS /* && arrayDim == 0 */)
-                    targetClass = resolver.lookupClassByJvmName(className);
-                else
-                    badMethod();
             }
             else
                 badMethod();
@@ -535,8 +573,8 @@ public class MemberCodeGen extends CodeGen {
      * @param found         not null if the method look has been already done.
      */
     public void atMethodCallCore(CtClass targetClass, String mname,
-                                 ASTList args, boolean isStatic, boolean isSpecial,
-                                 int aload0pos, MemberResolver.Method found)
+                        ASTList args, boolean isStatic, boolean isSpecial,
+                        int aload0pos, MemberResolver.Method found)
         throws CompileError
     {
         int nargs = getMethodArgsLength(args);
@@ -545,7 +583,7 @@ public class MemberCodeGen extends CodeGen {
         String[] cnames = new String[nargs];
 
         if (!isStatic && found != null && found.isStatic()) {
-            bytecode.addOpcode(Opcode.POP);
+            bytecode.addOpcode(POP);
             isStatic = true;
         }
 
@@ -553,9 +591,6 @@ public class MemberCodeGen extends CodeGen {
 
         // generate code for evaluating arguments.
         atMethodArgs(args, types, dims, cnames);
-
-        // used by invokeinterface
-        int count = bytecode.getStackDepth() - stack + 1;
 
         if (found == null)
             found = resolver.lookupMethod(targetClass, thisClass, thisMethod,
@@ -573,12 +608,12 @@ public class MemberCodeGen extends CodeGen {
         }
 
         atMethodCallCore2(targetClass, mname, isStatic, isSpecial,
-                          aload0pos, count, found);
+                          aload0pos, found);
     }
 
     private void atMethodCallCore2(CtClass targetClass, String mname,
                                    boolean isStatic, boolean isSpecial,
-                                   int aload0pos, int count,
+                                   int aload0pos,
                                    MemberResolver.Method found)
         throws CompileError
     {
@@ -590,7 +625,7 @@ public class MemberCodeGen extends CodeGen {
         if (mname.equals(MethodInfo.nameInit)) {
             isSpecial = true;
             if (declClass != targetClass)
-                throw new CompileError("no such a constructor");
+                throw new CompileError("no such constructor: " + targetClass.getName());
 
             if (declClass != thisClass && AccessFlag.isPrivate(acc)) {
                 desc = getAccessibleConstructor(desc, declClass, minfo);
@@ -623,7 +658,7 @@ public class MemberCodeGen extends CodeGen {
                 */
                 isStatic = true;
                 if (aload0pos >= 0)
-                    bytecode.write(aload0pos, Opcode.NOP);
+                    bytecode.write(aload0pos, NOP);
                 else
                     popTarget = true;
             }
@@ -631,14 +666,16 @@ public class MemberCodeGen extends CodeGen {
             bytecode.addInvokestatic(declClass, mname, desc);
         }
         else if (isSpecial)    // if (isSpecial && notStatic(acc))
-            bytecode.addInvokespecial(declClass, mname, desc);
+            bytecode.addInvokespecial(targetClass, mname, desc);
         else {
             if (!Modifier.isPublic(declClass.getModifiers())
                 || declClass.isInterface() != targetClass.isInterface())
                 declClass = targetClass;
 
-            if (declClass.isInterface())
-                bytecode.addInvokeinterface(declClass, mname, desc, count);
+            if (declClass.isInterface()) {
+                int nargs = Descriptor.paramSize(desc) + 1;
+                bytecode.addInvokeinterface(declClass, mname, desc, nargs);
+            }
             else
                 if (isStatic)
                     throw new CompileError(mname + " is not static");
@@ -745,7 +782,7 @@ public class MemberCodeGen extends CodeGen {
             if (j < 0)
                 badMethod();
 
-            exprType = TokenId.CLASS;
+            exprType = CLASS;
             className = desc.substring(i + 1, j);
         }
         else {
@@ -757,27 +794,27 @@ public class MemberCodeGen extends CodeGen {
         if (isStatic) {
             if (popTarget) {
                 if (is2word(etype, dim)) {
-                    bytecode.addOpcode(Opcode.DUP2_X1);
-                    bytecode.addOpcode(Opcode.POP2);
-                    bytecode.addOpcode(Opcode.POP);
+                    bytecode.addOpcode(DUP2_X1);
+                    bytecode.addOpcode(POP2);
+                    bytecode.addOpcode(POP);
                 }
-                else if (etype == TokenId.VOID)
-                    bytecode.addOpcode(Opcode.POP);
+                else if (etype == VOID)
+                    bytecode.addOpcode(POP);
                 else {
-                    bytecode.addOpcode(Opcode.SWAP);
-                    bytecode.addOpcode(Opcode.POP);
+                    bytecode.addOpcode(SWAP);
+                    bytecode.addOpcode(POP);
                 }
             }
         }
     }
 
     protected void atFieldAssign(Expr expr, int op, ASTree left,
-                                 ASTree right, boolean doDup) throws CompileError
+                        ASTree right, boolean doDup) throws CompileError
     {
         CtField f = fieldAccess(left, false);
         boolean is_static = resultStatic;
         if (op != '=' && !is_static)
-            bytecode.addOpcode(Opcode.DUP);
+            bytecode.addOpcode(DUP);
 
         int fi;
         if (op == '=') {
@@ -802,9 +839,9 @@ public class MemberCodeGen extends CodeGen {
         if (doDup) {
             int dup_code;
             if (is_static)
-                dup_code = (is2w ? Opcode.DUP2 : Opcode.DUP);
+                dup_code = (is2w ? DUP2 : DUP);
             else
-                dup_code = (is2w ? Opcode.DUP2_X1 : Opcode.DUP_X1);
+                dup_code = (is2w ? DUP2_X1 : DUP_X1);
 
             bytecode.addOpcode(dup_code);
         }
@@ -822,11 +859,11 @@ public class MemberCodeGen extends CodeGen {
                                    boolean is2byte) throws CompileError {
         if (fi != 0) {
             if (is_static) {
-               bytecode.add(Opcode.PUTSTATIC);
+               bytecode.add(PUTSTATIC);
                bytecode.growStack(is2byte ? -2 : -1);
             }
             else {
-                bytecode.add(Opcode.PUTFIELD);
+                bytecode.add(PUTFIELD);
                 bytecode.growStack(is2byte ? -3 : -2);
             }
         
@@ -871,8 +908,8 @@ public class MemberCodeGen extends CodeGen {
         if (arrayDim == 0)
             throw new CompileError(".length applied to a non array");
 
-        bytecode.addOpcode(Opcode.ARRAYLENGTH);
-        exprType = TokenId.INT;
+        bytecode.addOpcode(ARRAYLENGTH);
+        exprType = INT;
         arrayDim = 0;
     }
 
@@ -894,11 +931,11 @@ public class MemberCodeGen extends CodeGen {
         else {
             int fi = addFieldrefInfo(f, finfo);
             if (isStatic) {
-                bytecode.add(Opcode.GETSTATIC);
+                bytecode.add(GETSTATIC);
                 bytecode.growStack(is2byte ? 2 : 1);
             }
             else {
-                bytecode.add(Opcode.GETFIELD);
+                bytecode.add(GETFIELD);
                 bytecode.growStack(is2byte ? 1 : 0);
             }
 
@@ -917,7 +954,7 @@ public class MemberCodeGen extends CodeGen {
     {
         if (AccessFlag.isPrivate(finfo.getAccessFlags())
             && f.getDeclaringClass() != thisClass) {
-            CtClass declClass = f.getDeclaringClass();
+            CtClass declClass = f.getDeclaringClass(); 
             if (isEnclosing(declClass, thisClass)) {
                 AccessorMaker maker = declClass.getAccessorMaker();
                 if (maker != null)
@@ -957,7 +994,7 @@ public class MemberCodeGen extends CodeGen {
         else
             className = null;
 
-        boolean is2byte = (c == 'J' || c == 'D');
+        boolean is2byte = dim == 0 && (c == 'J' || c == 'D');
         return is2byte;
     }
 
@@ -984,7 +1021,7 @@ public class MemberCodeGen extends CodeGen {
         CtField f = fieldAccess(oprand, false);
         boolean is_static = resultStatic;
         if (!is_static)
-            bytecode.addOpcode(Opcode.DUP);
+            bytecode.addOpcode(DUP);
 
         int fi = atFieldRead(f, is_static);
         int t = exprType;
@@ -992,9 +1029,9 @@ public class MemberCodeGen extends CodeGen {
 
         int dup_code;
         if (is_static)
-            dup_code = (is2w ? Opcode.DUP2 : Opcode.DUP);
+            dup_code = (is2w ? DUP2 : DUP);
         else
-            dup_code = (is2w ? Opcode.DUP2_X1 : Opcode.DUP_X1);
+            dup_code = (is2w ? DUP2_X1 : DUP_X1);
 
         atPlusPlusCore(dup_code, doDup, token, isPost, expr);
         atFieldAssignCore(f, is_static, fi, is2w);
@@ -1032,7 +1069,7 @@ public class MemberCodeGen extends CodeGen {
         else if (expr instanceof Expr) {
             Expr e = (Expr)expr;
             int op = e.getOperator();
-            if (op == TokenId.MEMBER) {
+            if (op == MEMBER) {
                 /* static member by # (extension by Javassist)
                  * For example, if int.class is parsed, the resulting tree
                  * is (# "java.lang.Integer" "TYPE"). 
@@ -1050,7 +1087,7 @@ public class MemberCodeGen extends CodeGen {
                      * The left operand of . is not a class name but
                      * a normal expression.
                      */
-                    if (exprType == TokenId.CLASS && arrayDim == 0)
+                    if (exprType == CLASS && arrayDim == 0)
                         f = resolver.lookupFieldByJvmName(className,
                                                     (Symbol)e.oprand2());
                     else if (acceptLength && arrayDim > 0
@@ -1061,7 +1098,7 @@ public class MemberCodeGen extends CodeGen {
 
                     boolean is_static = Modifier.isStatic(f.getModifiers());
                     if (is_static)
-                        bytecode.addOpcode(Opcode.POP);
+                        bytecode.addOpcode(POP);
 
                     resultStatic = is_static;
                     return f;
@@ -1077,7 +1114,6 @@ public class MemberCodeGen extends CodeGen {
                     Symbol fname = (Symbol)e.oprand2();
                     String cname = nfe.getField();
                     f = resolver.lookupFieldByJvmName2(cname, fname, expr);
-                    resolver.recordPackage(cname);
                     resultStatic = true;
                     return f;
                 }

@@ -5,7 +5,8 @@
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,15 +16,15 @@
 
 package scouter.javassist.bytecode.annotation;
 
-import scouter.javassist.ClassPool;
-import scouter.javassist.CtMethod;
-import scouter.javassist.bytecode.AnnotationsAttribute;
-import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.ParameterAnnotationsAttribute;
-import scouter.javassist.bytecode.Descriptor;
-import scouter.javassist.CtClass;
-import scouter.javassist.NotFoundException;
 import scouter.javassist.bytecode.AnnotationDefaultAttribute;
+import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.AnnotationsAttribute;
+import scouter.javassist.bytecode.Descriptor;
+import scouter.javassist.ClassPool;
+import scouter.javassist.CtClass;
+import scouter.javassist.CtMethod;
+import scouter.javassist.NotFoundException;
+import scouter.javassist.bytecode.ParameterAnnotationsAttribute;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -80,7 +81,7 @@ public class Annotation {
      * Constructs an annotation including no members.  A member can be
      * later added to the created annotation by <code>addMemberValue()</code>. 
      *
-     * @param typeName  the name of the annotation interface type.
+     * @param typeName  the fully-qualified name of the annotation interface type.
      * @param cp        the constant pool table.
      *
      * @see #addMemberValue(String, MemberValue)

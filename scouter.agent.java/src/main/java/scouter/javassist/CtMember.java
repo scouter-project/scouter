@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,6 +17,7 @@
 package scouter.javassist;
 
 import scouter.javassist.bytecode.AttributeInfo;
+import scouter.javassist.bytecode.SignatureAttribute;
 
 /**
  * An instance of <code>CtMember</code> represents a field, a constructor,
@@ -31,7 +33,7 @@ public abstract class CtMember {
      */
     static class Cache extends CtMember {
         protected void extendToString(StringBuffer buffer) {}
-        public boolean hasAnnotation(Class clz) { return false; }
+        public boolean hasAnnotation(String clz) { return false; }
         public Object getAnnotation(Class clz)
             throws ClassNotFoundException { return null; }
         public Object[] getAnnotations()
@@ -43,6 +45,8 @@ public abstract class CtMember {
         public String getSignature() { return null; }
         public void setAttribute(String name, byte[] data) {}
         public void setModifiers(int mod) {}
+        public String getGenericSignature() { return null; }
+        public void setGenericSignature(String sig) {}
 
         private CtMember methodTail;
         private CtMember consTail;     // constructor tail
@@ -194,7 +198,7 @@ public abstract class CtMember {
      * Obtains the modifiers of the member.
      *
      * @return          modifiers encoded with
-     *                  <code>javassist.Modifier</code>.
+     *                  <code>Modifier</code>.
      * @see Modifier
      */
     public abstract int getModifiers();
@@ -207,26 +211,37 @@ public abstract class CtMember {
     public abstract void setModifiers(int mod);
 
     /**
-     * Returns true if the class has the specified annotation class.
+     * Returns true if the class has the specified annotation type.
      *
-     * @param clz the annotation class.
+     * @param clz the annotation type.
      * @return <code>true</code> if the annotation is found, otherwise <code>false</code>.
      * @since 3.11
      */
-    public abstract boolean hasAnnotation(Class clz);
+    public boolean hasAnnotation(Class clz) {
+        return hasAnnotation(clz.getName());
+    }
 
     /**
-     * Returns the annotation if the class has the specified annotation class.
+     * Returns true if the class has the specified annotation type.
+     *
+     * @param annotationTypeName the name of annotation type.
+     * @return <code>true</code> if the annotation is found, otherwise <code>false</code>.
+     * @since 3.21
+     */
+    public abstract boolean hasAnnotation(String annotationTypeName);
+
+    /**
+     * Returns the annotation if the class has the specified annotation type.
      * For example, if an annotation <code>@Author</code> is associated
      * with this member, an <code>Author</code> object is returned.
      * The member values can be obtained by calling methods on
      * the <code>Author</code> object.
      *
-     * @param clz the annotation class.
+     * @param annotationType    the annotation type.
      * @return the annotation if found, otherwise <code>null</code>.
      * @since 3.11
      */
-    public abstract Object getAnnotation(Class clz) throws ClassNotFoundException;
+    public abstract Object getAnnotation(Class annotationType) throws ClassNotFoundException;
 
     /**
      * Returns the annotations associated with this member.
@@ -269,6 +284,27 @@ public abstract class CtMember {
      * <code>getSignature()</code> returns the same string.
      */
     public abstract String getSignature();
+
+    /**
+     * Returns the generic signature of the member.
+     *
+     * @see SignatureAttribute#toFieldSignature(String)
+     * @see SignatureAttribute#toMethodSignature(String)
+     * @see CtClass#getGenericSignature()
+     * @since 3.17
+     */
+    public abstract String getGenericSignature();
+
+    /**
+     * Sets the generic signature of the member.
+     *
+     * @param sig   a new generic signature.
+     * @see SignatureAttribute.ObjectType#encode()
+     * @see SignatureAttribute.MethodSignature#encode()
+     * @see CtClass#setGenericSignature(String)
+     * @since 3.17
+     */
+    public abstract void setGenericSignature(String sig);
 
     /**
      * Obtains a user-defined attribute with the given name.

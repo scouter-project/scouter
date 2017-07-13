@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba, and others. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,14 +17,17 @@ package scouter.javassist.bytecode.analysis;
 
 import java.io.PrintStream;
 
+import scouter.javassist.CtClass;
 import scouter.javassist.CtMethod;
 import scouter.javassist.Modifier;
-import scouter.javassist.bytecode.*;
-import scouter.javassist.CtClass;
 import scouter.javassist.NotFoundException;
 import scouter.javassist.bytecode.BadBytecode;
 import scouter.javassist.bytecode.CodeAttribute;
+import scouter.javassist.bytecode.CodeIterator;
+import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.Descriptor;
 import scouter.javassist.bytecode.InstructionPrinter;
+import scouter.javassist.bytecode.MethodInfo;
 
 /**
  * A utility class for printing a merged view of the frame state and the

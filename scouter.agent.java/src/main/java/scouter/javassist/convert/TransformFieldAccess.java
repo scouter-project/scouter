@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -21,7 +22,6 @@ import scouter.javassist.Modifier;
 import scouter.javassist.bytecode.CodeAttribute;
 import scouter.javassist.bytecode.CodeIterator;
 import scouter.javassist.bytecode.ConstPool;
-import scouter.javassist.bytecode.Opcode;
 
 final public class TransformFieldAccess extends Transformer {
     private String newClassname, newFieldname;
@@ -60,8 +60,8 @@ final public class TransformFieldAccess extends Transformer {
                          CodeIterator iterator, ConstPool cp)
     {
         int c = iterator.byteAt(pos);
-        if (c == Opcode.GETFIELD || c == Opcode.GETSTATIC
-                                || c == Opcode.PUTFIELD || c == Opcode.PUTSTATIC) {
+        if (c == GETFIELD || c == GETSTATIC
+                                || c == PUTFIELD || c == PUTSTATIC) {
             int index = iterator.u16bitAt(pos + 1);
             String typedesc
                 = TransformReadField.isField(clazz.getClassPool(), cp,
