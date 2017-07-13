@@ -28,6 +28,7 @@ import scouter.agent.error.STATEMENT_LEAK_SUSPECT;
 import scouter.agent.error.USERTX_NOT_CLOSE;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.PluginAppServiceTrace;
+import scouter.agent.plugin.PluginBackThreadTrace;
 import scouter.agent.plugin.PluginCaptureTrace;
 import scouter.agent.plugin.PluginHttpServiceTrace;
 import scouter.agent.plugin.PluginSpringControllerCaptureTrace;
@@ -585,6 +586,8 @@ public class TraceMain {
 
             if (ctx.xType != XLogTypes.BACK_THREAD && ctx.xType != XLogTypes.BACK_THREAD2) {
                 PluginAppServiceTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
+            } else {
+                PluginBackThreadTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
             }
 
             if (ctx.xType == XLogTypes.BACK_THREAD) {
@@ -633,6 +636,8 @@ public class TraceMain {
 
             if (ctx.xType != XLogTypes.BACK_THREAD && ctx.xType != XLogTypes.BACK_THREAD2) {
                 PluginAppServiceTrace.end(ctx);
+            } else {
+                PluginBackThreadTrace.end(ctx);
             }
 
             TraceContextManager.end(ctx.threadId);
