@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,14 +16,20 @@
 
 package scouter.javassist.compiler;
 
-/* Type checker accepting extended Java syntax for Javassist.
- */
-
 import scouter.javassist.ClassPool;
 import scouter.javassist.CtClass;
 import scouter.javassist.CtPrimitiveType;
 import scouter.javassist.NotFoundException;
-import scouter.javassist.compiler.ast.*;
+import scouter.javassist.compiler.ast.ASTList;
+import scouter.javassist.compiler.ast.ASTree;
+import scouter.javassist.compiler.ast.CallExpr;
+import scouter.javassist.compiler.ast.CastExpr;
+import scouter.javassist.compiler.ast.Expr;
+import scouter.javassist.compiler.ast.Member;
+import scouter.javassist.compiler.ast.Symbol;
+
+/* Type checker accepting extended Java syntax for Javassist.
+ */
 
 public class JvstTypeChecker extends TypeChecker {
     private JvstCodeGen codeGen;
@@ -36,8 +43,8 @@ public class JvstTypeChecker extends TypeChecker {
      * add ACONST_NULL and change exprType, arrayDim, className.
      */
     public void addNullIfVoid() {
-        if (exprType == TokenId.VOID) {
-            exprType = TokenId.CLASS;
+        if (exprType == VOID) {
+            exprType = CLASS;
             arrayDim = 0;
             className = jvmJavaLangObject;
         }
@@ -49,18 +56,18 @@ public class JvstTypeChecker extends TypeChecker {
     public void atMember(Member mem) throws CompileError {
         String name = mem.get();
         if (name.equals(codeGen.paramArrayName)) {
-            exprType = TokenId.CLASS;
+            exprType = CLASS;
             arrayDim = 1;
             className = jvmJavaLangObject;
         }
         else if (name.equals(JvstCodeGen.sigName)) {
-            exprType = TokenId.CLASS;
+            exprType = CLASS;
             arrayDim = 1;
             className = "java/lang/Class";
         }
         else if (name.equals(JvstCodeGen.dollarTypeName)
                  || name.equals(JvstCodeGen.clazzName)) {
-            exprType = TokenId.CLASS;
+            exprType = CLASS;
             arrayDim = 0;
             className = "java/lang/Class";
         }
@@ -113,7 +120,7 @@ public class JvstTypeChecker extends TypeChecker {
     protected void atCastToRtype(CastExpr expr) throws CompileError {
         CtClass returnType = codeGen.returnType;
         expr.getOprand().accept(this);
-        if (exprType == TokenId.VOID || CodeGen.isRefType(exprType) || arrayDim > 0)
+        if (exprType == VOID || CodeGen.isRefType(exprType) || arrayDim > 0)
             compileUnwrapValue(returnType);
         else if (returnType instanceof CtPrimitiveType) {
             CtPrimitiveType pt = (CtPrimitiveType)returnType;
@@ -131,7 +138,7 @@ public class JvstTypeChecker extends TypeChecker {
 
         CtClass clazz = resolver.lookupClass(exprType, arrayDim, className);
         if (clazz instanceof CtPrimitiveType) {
-            exprType = TokenId.CLASS;
+            exprType = CLASS;
             arrayDim = 0;
             className = jvmJavaLangObject;
         }
@@ -162,7 +169,7 @@ public class JvstTypeChecker extends TypeChecker {
     /* To support $cflow().
      */
     protected void atCflow(ASTList cname) throws CompileError {
-        exprType = TokenId.INT;
+        exprType = INT;
         arrayDim = 0;
         className = null;
     }
@@ -200,7 +207,7 @@ public class JvstTypeChecker extends TypeChecker {
     }
 
     public void atMethodArgs(ASTList args, int[] types, int[] dims,
-                             String[] cnames) throws CompileError {
+                                String[] cnames) throws CompileError {
         CtClass[] params = codeGen.paramTypeList;
         String pname = codeGen.paramListName;
         int i = 0;
@@ -276,7 +283,7 @@ public class JvstTypeChecker extends TypeChecker {
                 throw new CompileError("undefined type: " + type.getName());
             }
         else {
-            exprType = TokenId.CLASS;
+            exprType = CLASS;
             arrayDim = dim;
             className = MemberResolver.javaToJvmName(type.getName());
         }

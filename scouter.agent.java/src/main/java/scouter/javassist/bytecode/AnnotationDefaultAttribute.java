@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -16,9 +17,9 @@
 package scouter.javassist.bytecode;
 
 import scouter.javassist.CtClass;
-import scouter.javassist.bytecode.annotation.Annotation;
 import scouter.javassist.bytecode.annotation.AnnotationsWriter;
 import scouter.javassist.bytecode.annotation.MemberValue;
+import scouter.javassist.bytecode.annotation.Annotation;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -30,18 +31,18 @@ import java.util.Map;
  *
  * <p>For example, if you declare the following annotation type:
  *
- * <ul><pre>
+ * <pre>
  * &#64;interface Author {
  *   String name() default "Shakespeare";
  *   int age() default 99;
  * }
- * </pre></ul>
+ * </pre>
  *
  * <p>The defautl values of <code>name</code> and <code>age</code>
  * are stored as annotation default attributes in <code>Author.class</code>.
  * The following code snippet obtains the default value of <code>name</code>:
  * 
- * <ul><pre>
+ * <pre>
  * ClassPool pool = ...
  * CtClass cc = pool.get("Author");
  * CtMethod cm = cc.getDeclaredMethod("age");
@@ -50,14 +51,14 @@ import java.util.Map;
  *         = (AnnotationDefaultAttribute)
  *           minfo.getAttribute(AnnotationDefaultAttribute.tag);
  * MemberValue value = ada.getDefaultValue());    // default value of age
- * </pre></ul>
+ * </pre>
  *
  * <p>If the following statement is executed after the code above,
  * the default value of age is set to 80:
  *
- * <ul><pre>
+ * <pre>
  * ada.setDefaultValue(new IntegerMemberValue(minfo.getConstPool(), 80));
- * </pre></ul>
+ * </pre>
  *
  * @see AnnotationsAttribute
  * @see MemberValue

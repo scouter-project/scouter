@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -45,17 +46,49 @@ public class RuntimeSupport {
      * @throws RuntimeException     if the methods are not found.
      * @see ProxyFactory
      */
+    public static void find2Methods(Class clazz, String superMethod,
+                                    String thisMethod, int index,
+                                    String desc, java.lang.reflect.Method[] methods)
+    {
+        methods[index + 1] = thisMethod == null ? null
+                                                : findMethod(clazz, thisMethod, desc);
+        methods[index] = findSuperClassMethod(clazz, superMethod, desc);
+    }
+
+    /**
+     * Finds two methods specified by the parameters and stores them
+     * into the given array.
+     *
+     * <p>Added back for JBoss Seam.  See JASSIST-206.</p>
+     *
+     * @throws RuntimeException     if the methods are not found.
+     * @see ProxyFactory
+     * @deprecated replaced by {@link #find2Methods(Class, String, String, int, String, Method[])}
+     */
     public static void find2Methods(Object self, String superMethod,
                                     String thisMethod, int index,
-                                    String desc, Method[] methods)
+                                    String desc, java.lang.reflect.Method[] methods)
     {
-        synchronized (methods) {
-            if (methods[index] == null) {
-                methods[index + 1] = thisMethod == null ? null
-                                     : findMethod(self, thisMethod, desc);
-                methods[index] = findSuperMethod(self, superMethod, desc);
-            }
-        }
+        methods[index + 1] = thisMethod == null ? null
+                                                : findMethod(self, thisMethod, desc);
+        methods[index] = findSuperMethod(self, superMethod, desc);
+    }
+
+    /**
+     * Finds a method with the given name and descriptor.
+     * It searches only the class of self.
+     *
+     * <p>Added back for JBoss Seam.  See JASSIST-206.</p>
+     *
+     * @throws RuntimeException     if the method is not found.
+     * @deprecated replaced by {@link #findMethod(Class, String, String)}
+     */
+    public static Method findMethod(Object self, String name, String desc) {
+        Method m = findMethod2(self.getClass(), name, desc);
+        if (m == null)
+            error(self.getClass(), name, desc);
+
+        return m;
     }
 
     /**
@@ -64,10 +97,10 @@ public class RuntimeSupport {
      *
      * @throws RuntimeException     if the method is not found.
      */
-    public static Method findMethod(Object self, String name, String desc) {
-        Method m = findMethod2(self.getClass(), name, desc);
+    public static Method findMethod(Class clazz, String name, String desc) {
+        Method m = findMethod2(clazz, name, desc);
         if (m == null)
-            error(self, name, desc);
+            error(clazz, name, desc);
 
         return m;
     }
@@ -79,20 +112,31 @@ public class RuntimeSupport {
      * @throws RuntimeException     if the method is not found.
      */
     public static Method findSuperMethod(Object self, String name, String desc) {
+    	// for JBoss Seam.  See JASSIST-183.
         Class clazz = self.getClass();
+        return findSuperClassMethod(clazz, name, desc);
+    }
+
+    /**
+     * Finds a method that has the given name and descriptor and is declared
+     * in the super class.
+     *
+     * @throws RuntimeException     if the method is not found.
+     */
+    public static Method findSuperClassMethod(Class clazz, String name, String desc) {
         Method m = findSuperMethod2(clazz.getSuperclass(), name, desc);
         if (m == null)
             m = searchInterfaces(clazz, name, desc);
 
         if (m == null)
-            error(self, name, desc);
+            error(clazz, name, desc);
 
         return m;
     }
 
-    private static void error(Object self, String name, String desc) {
+    private static void error(Class clazz, String name, String desc) {
         throw new RuntimeException("not found " + name + ":" + desc
-                + " in " + self.getClass().getName());
+                + " in " + clazz.getName());
     }
 
     private static Method findSuperMethod2(Class clazz, String name, String desc) {
@@ -154,6 +198,20 @@ public class RuntimeSupport {
             makeDesc(sbuf, params[i]);
 
         sbuf.append(')');
+        if (retType != null)
+            makeDesc(sbuf, retType);
+
+        return sbuf.toString();
+    }
+
+    /**
+     * Makes a descriptor for a given method.
+     *
+     * @param params    the descriptor of parameter types.
+     * @param retType   return type.
+     */
+    public static String makeDescriptor(String params, Class retType) {
+        StringBuffer sbuf = new StringBuffer(params);
         makeDesc(sbuf, retType);
         return sbuf.toString();
     }
@@ -205,6 +263,8 @@ public class RuntimeSupport {
         MethodHandler methodHandler = null;
         if (proxy instanceof ProxyObject)
             methodHandler = ((ProxyObject)proxy).getHandler();
+        else if (proxy instanceof Proxy)
+            methodHandler = ProxyFactory.getHandler((Proxy)proxy);
 
         return new SerializedProxy(clazz, ProxyFactory.getFilterSignature(clazz), methodHandler);
     }

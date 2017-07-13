@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -21,14 +22,36 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import scouter.javassist.ClassPool;
+import scouter.javassist.bytecode.stackmap.MapMaker;
 import scouter.javassist.CtConstructor;
 import scouter.javassist.CtMethod;
-import scouter.javassist.bytecode.stackmap.MapMaker;
 
 /**
  * <code>method_info</code> structure.
+ *
+ * <p>The bytecode sequence of the method is represented
+ * by a <code>CodeAttribute</code> object.
+ *
+ * <p>The following code adds the default constructor to a class:
+ * of <code>int</code> type:
+ * <blockquote><pre>
+ * ClassFile cf = ...
+ * Bytecode code = new Bytecode(cf.getConstPool());
+ * code.addAload(0);
+ * code.addInvokespecial("java/lang/Object", MethodInfo.nameInit, "()V");
+ * code.addReturn(null);
+ * code.setMaxLocals(1);
+ *
+ * MethodInfo minfo = new MethodInfo(cf.getConstPool(), MethodInfo.nameInit, "()V");
+ * minfo.setCodeAttribute(code.toCodeAttribute());
+ * cf.addMethod(minfo);
+ * </pre></blockquote>
  * 
+ * @see #getCodeAttribute()
+ * @see CodeAttribute
+ * @see Bytecode
  * @see CtMethod#getMethodInfo()
  * @see CtConstructor#getMethodInfo()
  */
@@ -48,13 +71,13 @@ public class MethodInfo {
     public static boolean doPreverify = false;
 
     /**
-     * The name of constructors: <code>&lt;init&gt</code>.
+     * The name of constructors: <code>&lt;init&gt;</code>.
      */
     public static final String nameInit = "<init>";
 
     /**
      * The name of class initializer (static initializer):
-     * <code>&lt;clinit&gt</code>.
+     * <code>&lt;clinit&gt;</code>.
      */
     public static final String nameClinit = "<clinit>";
 
@@ -294,12 +317,28 @@ public class MethodInfo {
      * Returns the attribute with the specified name. If it is not found, this
      * method returns null.
      * 
+     * <p>An attribute name can be obtained by, for example,
+     * {@link AnnotationsAttribute#visibleTag} or
+     * {@link AnnotationsAttribute#invisibleTag}.
+     * </p>
+     * 
      * @param name attribute name
      * @return an <code>AttributeInfo</code> object or null.
      * @see #getAttributes()
      */
     public AttributeInfo getAttribute(String name) {
         return AttributeInfo.lookup(attribute, name);
+    }
+
+    /**
+     * Removes an attribute with the specified name.
+     *
+     * @param name      attribute name.
+     * @return          the removed attribute or null.
+     * @since 3.21
+     */
+    public AttributeInfo removeAttribute(String name) {
+        return AttributeInfo.remove(attribute, name);
     }
 
     /**
@@ -391,6 +430,7 @@ public class MethodInfo {
      * @param cf            rebuild if this class file is for Java 6 or later.
      * @see #rebuildStackMap(ClassPool)
      * @see #rebuildStackMapForME(ClassPool)
+     * @see #doPreverify
      * @since 3.6
      */
     public void rebuildStackMapIf6(ClassPool pool, ClassFile cf)
@@ -426,7 +466,7 @@ public class MethodInfo {
      * include a code attribute, nothing happens.
      *
      * @param pool          used for making type hierarchy.
-     * @see StackMapTable
+     * @see StackMap
      * @since 3.12
      */
     public void rebuildStackMapForME(ClassPool pool) throws BadBytecode {

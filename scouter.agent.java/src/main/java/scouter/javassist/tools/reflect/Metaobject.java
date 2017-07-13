@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -36,8 +37,9 @@ import java.io.ObjectOutputStream;
  * <p>To obtain a metaobject, calls <code>_getMetaobject()</code>
  * on a reflective object.  For example,
  *
- * <ul><pre>Metaobject m = ((Metalevel)reflectiveObject)._getMetaobject();
- * </pre></ul>
+ * <pre>
+ * Metaobject m = ((Metalevel)reflectiveObject)._getMetaobject();
+ * </pre>
  *
  * @see ClassMetaobject
  * @see Metalevel
@@ -198,7 +200,8 @@ public class Metaobject implements Serializable {
      * <p>Note: this method is not invoked if the base-level method
      * is invoked by a constructor in the super class.  For example,
      *
-     * <ul><pre>abstract class A {
+     * <pre>
+     * abstract class A {
      *   abstract void initialize();
      *   A() {
      *       initialize();    // not intercepted
@@ -211,7 +214,7 @@ public class Metaobject implements Serializable {
      *       super();
      *       initialize();    // intercepted
      *   }
-     * }</pre></ul>
+     * }</pre>
      *
      * <p>if an instance of B is created,
      * the invocation of initialize() in B is intercepted only once.
@@ -229,7 +232,7 @@ public class Metaobject implements Serializable {
         catch (java.lang.reflect.InvocationTargetException e) {
             throw e.getTargetException();
         }
-        catch (IllegalAccessException e) {
+        catch (java.lang.IllegalAccessException e) {
             throw new CannotInvokeException(e);
         }
     }

@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,7 +16,13 @@
 
 package scouter.javassist;
 
-import scouter.javassist.bytecode.*;
+import scouter.javassist.CtMethod.ConstParameter;
+import scouter.javassist.bytecode.AccessFlag;
+import scouter.javassist.bytecode.Bytecode;
+import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.ExceptionsAttribute;
+import scouter.javassist.bytecode.FieldInfo;
+import scouter.javassist.bytecode.MethodInfo;
 import scouter.javassist.compiler.CompileError;
 import scouter.javassist.compiler.Javac;
 
@@ -32,7 +39,7 @@ public class CtNewMethod {
      * The source code must include not only the method body
      * but the whole declaration, for example,
      *
-     * <ul><pre>"public Object id(Object obj) { return obj; }"</pre></ul>
+     * <pre>"public Object id(Object obj) { return obj; }"</pre>
      *
      * @param src               the source text. 
      * @param declaring    the class to which the created method is added.
@@ -48,7 +55,7 @@ public class CtNewMethod {
      * The source code must include not only the method body
      * but the whole declaration, for example,
      *
-     * <ul><pre>"public Object id(Object obj) { return obj; }"</pre></ul>
+     * <pre>"public Object id(Object obj) { return obj; }"</pre>
      *
      * <p>If the source code includes <code>$proceed()</code>, then
      * it is compiled into a method call on the specified object.
@@ -154,7 +161,7 @@ public class CtNewMethod {
      *                  with substituted names.
      *                  It can be <code>null</code>.
      *
-     * @see CtMethod#CtMethod(CtMethod, CtClass,ClassMap)
+     * @see CtMethod#CtMethod(CtMethod,CtClass,ClassMap)
      */
     public static CtMethod copy(CtMethod src, CtClass declaring,
                                 ClassMap map) throws CannotCompileException {
@@ -176,7 +183,7 @@ public class CtNewMethod {
      *                  with substituted names.
      *                  It can be <code>null</code>.
      *
-     * @see CtMethod#CtMethod(CtMethod, CtClass,ClassMap)
+     * @see CtMethod#CtMethod(CtMethod,CtClass,ClassMap)
      */
     public static CtMethod copy(CtMethod src, String name, CtClass declaring,
                                 ClassMap map) throws CannotCompileException {
@@ -194,7 +201,7 @@ public class CtNewMethod {
      * @param exceptions        a list of the exception types
      * @param declaring    the class to which the created method is added.
      *
-     * @see CtMethod#CtMethod(CtClass,String, CtClass[], CtClass)
+     * @see CtMethod#CtMethod(CtClass,String,CtClass[],CtClass)
      */
     public static CtMethod abstractMethod(CtClass returnType,
                                           String mname,
@@ -244,7 +251,9 @@ public class CtNewMethod {
         }
 
         minfo.setCodeAttribute(code.toCodeAttribute());
-        return new CtMethod(minfo, field.getDeclaringClass());
+        CtClass cc = field.getDeclaringClass();
+        // a stack map is not needed.
+        return new CtMethod(minfo, cc);
     }
 
     /**
@@ -288,7 +297,9 @@ public class CtNewMethod {
         }
 
         minfo.setCodeAttribute(code.toCodeAttribute());
-        return new CtMethod(minfo, field.getDeclaringClass());
+        CtClass cc = field.getDeclaringClass();
+        // a stack map is not needed.
+        return new CtMethod(minfo, cc);
     }
 
     /**
@@ -301,9 +312,10 @@ public class CtNewMethod {
      *
      * <p>The following method is an example of the created method.
      *
-     * <ul><pre>int f(int p, int q) {
+     * <pre>
+     * int f(int p, int q) {
      *     return super.f(p, q);
-     * }</pre></ul>
+     * }</pre>
      *
      * <p>The name of the created method can be changed by
      * <code>setName()</code>.
@@ -357,6 +369,7 @@ public class CtNewMethod {
         code.setMaxLocals(++s);
         code.setMaxStack(s < 2 ? 2 : s); // for a 2-word return value
         minfo.setCodeAttribute(code.toCodeAttribute());
+        // a stack map is not needed. 
         return new CtMethod(minfo, declaring);
     }
 
@@ -370,15 +383,14 @@ public class CtNewMethod {
      *
      * <p>The method specified by <code>body</code> must have this singature:
      *
-     * <ul><code>Object method(Object[] params, &lt;type&gt; cvalue)
-     * </code></ul>
+     * <pre>Object method(Object[] params, &lt;type&gt; cvalue)</pre>
      *
      * <p>The type of the <code>cvalue</code> depends on
      * <code>constParam</code>.
      * If <code>constParam</code> is <code>null</code>, the signature
      * must be:
      *
-     * <ul><code>Object method(Object[] params)</code></ul>
+     * <pre>Object method(Object[] params)</pre>
      *
      * <p>The method body copied from <code>body</code> is wrapped in
      * parameter-conversion code, which converts parameters specified by
@@ -387,12 +399,13 @@ public class CtNewMethod {
      * type to the type specified by <code>returnType</code>.  Thus,
      * the resulting method body is as follows:
      *
-     * <ul><pre>Object[] params = new Object[] { p0, p1, ... };
+     * <pre>
+     * Object[] params = new Object[] { p0, p1, ... };
      * &lt;<i>type</i>&gt; cvalue = &lt;<i>constant-value</i>&gt;;
      *  <i>... copied method body ...</i>
      * Object result = &lt;<i>returned value</i>&gt;
      * return (<i>&lt;returnType&gt;</i>)result;
-     * </pre></ul>
+     * </pre>
      *
      * <p>The variables <code>p0</code>, <code>p2</code>, ... represent
      * formal parameters of the created method.
@@ -406,7 +419,8 @@ public class CtNewMethod {
      *
      * <p><i>Example:</i>
      *
-     * <ul><pre>ClassPool pool = ... ;
+     * <pre>
+     * ClassPool pool = ... ;
      * CtClass vec = pool.makeClass("intVector");
      * vec.setSuperclass(pool.get("java.util.Vector"));
      * CtMethod addMethod = pool.getMethod("Sample", "add0");
@@ -414,20 +428,20 @@ public class CtNewMethod {
      * CtClass[] argTypes = { CtClass.intType };
      * CtMethod m = CtNewMethod.wrapped(CtClass.voidType, "add", argTypes,
      *                                  null, addMethod, null, vec);
-     * vec.addMethod(m);</pre></ul>
+     * vec.addMethod(m);</pre>
      *
      * <p>where the class <code>Sample</code> is as follows:
      *
-     * <ul><pre>public class Sample extends java.util.Vector {
+     * <pre>public class Sample extends java.util.Vector {
      *     public Object add0(Object[] args) {
      *         super.addElement(args[0]);
      *         return null;
      *     }
-     * }</pre></ul>
+     * }</pre>
      *
      * <p>This program produces a class <code>intVector</code>:
      *
-     * <ul><pre>public class intVector extends java.util.Vector {
+     * <pre>public class intVector extends java.util.Vector {
      *     public void add(int p0) {
      *         Object[] args = new Object[] { p0 };
      *         // begin of the copied body
@@ -435,7 +449,7 @@ public class CtNewMethod {
      *         Object result = null;
      *         // end
      *     }
-     * }</pre></ul>
+     * }</pre>
      *
      * <p>Note that the type of the parameter to <code>add()</code> depends
      * only on the value of <code>argTypes</code> passed to
@@ -459,7 +473,7 @@ public class CtNewMethod {
                                    String mname,
                                    CtClass[] parameterTypes,
                                    CtClass[] exceptionTypes,
-                                   CtMethod body, CtMethod.ConstParameter constParam,
+                                   CtMethod body, ConstParameter constParam,
                                    CtClass declaring)
         throws CannotCompileException
     {

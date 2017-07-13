@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -22,14 +23,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+
 import scouter.javassist.CannotCompileException;
+import scouter.javassist.ClassPool;
 import scouter.javassist.CtClass;
 
 /**
  * <code>ClassFile</code> represents a Java <code>.class</code> file, which
  * consists of a constant pool, methods, fields, and attributes.
- * 
+ *
+ * <p>For example,</p>
+ * <blockquote><pre>
+ * ClassFile cf = new ClassFile(false, "test.Foo", null);
+ * cf.setInterfaces(new String[] { "java.lang.Cloneable" });
+ *
+ * FieldInfo f = new FieldInfo(cf.getConstPool(), "width", "I");
+ * f.setAccessFlags(AccessFlag.PUBLIC);
+ * cf.addField(f);
+ *
+ * cf.write(new DataOutputStream(new FileOutputStream("Foo.class")));
+ * </pre></blockquote>
+ * <p>This code generates a class file <code>Foo.class</code> for the following class:</p>
+ * <blockquote><pre>
+ * package test;
+ * class Foo implements Cloneable {
+ *     public int width;
+ * }
+ * </pre></blockquote>
+ *
+ * @see FieldInfo
+ * @see MethodInfo
+ * @see ClassFileWriter
  * @see CtClass#getClassFile()
+ * @see ClassPool#makeClass(ClassFile)
  */
 public final class ClassFile {
     int major, minor; // version number
@@ -88,18 +114,39 @@ public final class ClassFile {
     public static final int JAVA_7 = 51;
 
     /**
-     * The major version number of class files created
-     * from scratch.  The default value is 47 (JDK 1.3)
-     * or 49 (JDK 1.5) if the JVM supports <code>java.lang.StringBuilder</code>.
+     * The major version number of class files
+     * for JDK 1.8.
      */
-    public static int MAJOR_VERSION = JAVA_3;
+    public static final int JAVA_8 = 52;
+
+    /**
+     * The major version number of class files created
+     * from scratch.  The default value is 47 (JDK 1.3).
+     * It is 49 (JDK 1.5)
+     * if the JVM supports <code>java.lang.StringBuilder</code>.
+     * It is 50 (JDK 1.6)
+     * if the JVM supports <code>java.util.zip.DeflaterInputStream</code>.
+     * It is 51 (JDK 1.7)
+     * if the JVM supports <code>java.lang.invoke.CallSite</code>.
+     * It is 52 (JDK 1.8)
+     * if the JVM supports <code>java.util.function.Function</code>.
+     */
+    public static final int MAJOR_VERSION;
 
     static {
+        int ver = JAVA_3;
         try {
             Class.forName("java.lang.StringBuilder");
-            MAJOR_VERSION = JAVA_5;
+            ver = JAVA_5;
+            Class.forName("java.util.zip.DeflaterInputStream");
+            ver = JAVA_6;
+            Class.forName("java.lang.invoke.CallSite");
+            ver = JAVA_7;
+            Class.forName("java.util.function.Function");
+            ver = JAVA_8;
         }
         catch (Throwable t) {}
+        MAJOR_VERSION = ver;
     }
 
     /**
@@ -117,7 +164,7 @@ public final class ClassFile {
      * @param classname
      *            a fully-qualified class name
      * @param superclass
-     *            a fully-qualified super class name
+     *            a fully-qualified super class name or null.
      */
     public ClassFile(boolean isInterface, String classname, String superclass) {
         major = MAJOR_VERSION;
@@ -224,7 +271,7 @@ public final class ClassFile {
             newAttributes.add(visibleAnnotations);
         }
 
-        AttributeInfo signature
+        AttributeInfo signature 
             = getAttribute(SignatureAttribute.tag);
         if (signature != null) {
             signature = signature.copy(cp, null);
@@ -304,7 +351,7 @@ public final class ClassFile {
      *
      * <p>The returned value is obtained from <code>inner_class_access_flags</code>
      * of the entry representing this nested class itself
-     * in <code>InnerClasses_attribute</code>>. 
+     * in <code>InnerClasses_attribute</code>. 
      */
     public int getInnerAccessFlags() {
         InnerClassesAttribute ica
@@ -467,6 +514,33 @@ public final class ClassFile {
     }
 
     /**
+     * Internal-use only.
+     * <code>CtClass.getRefClasses()</code> calls this method. 
+     */
+    public final void getRefClasses(Map classnames) {
+        constPool.renameClass(classnames);
+
+        AttributeInfo.getRefClasses(attributes, classnames);
+        ArrayList list = methods;
+        int n = list.size();
+        for (int i = 0; i < n; ++i) {
+            MethodInfo minfo = (MethodInfo)list.get(i);
+            String desc = minfo.getDescriptor();
+            Descriptor.rename(desc, classnames);
+            AttributeInfo.getRefClasses(minfo.getAttributes(), classnames);
+        }
+
+        list = fields;
+        n = list.size();
+        for (int i = 0; i < n; ++i) {
+            FieldInfo finfo = (FieldInfo)list.get(i);
+            String desc = finfo.getDescriptor();
+            Descriptor.rename(desc, classnames);
+            AttributeInfo.getRefClasses(finfo.getAttributes(), classnames);
+        }
+    }
+
+    /**
      * Returns the names of the interfaces implemented by the class.
      * The returned array is read only.
      */
@@ -581,7 +655,7 @@ public final class ClassFile {
      * Returns the method with the specified name. If there are multiple methods
      * with that name, this method returns one of them.
      * 
-     * @return null if no such a method is found.
+     * @return null if no such method is found.
      */
     public MethodInfo getMethod(String name) {
         ArrayList list = methods;
@@ -654,12 +728,15 @@ public final class ClassFile {
             if (notBridgeMethod(minfo))
                 return true;
             else {
+            	// if the bridge method with the same signature
+            	// already exists, replace it.
                 it.remove();
                 return false;
             }
         }
         else
-           return notBridgeMethod(minfo) && notBridgeMethod(newMethod);
+        	return false;
+           // return notBridgeMethod(minfo) && notBridgeMethod(newMethod);
     }
 
     /* For a bridge method, see Sec. 15.12.4.5 of JLS 3rd Ed.
@@ -686,6 +763,11 @@ public final class ClassFile {
      * Returns the attribute with the specified name.  If there are multiple
      * attributes with that name, this method returns either of them.   It
      * returns null if the specified attributed is not found.
+     *
+     * <p>An attribute name can be obtained by, for example,
+     * {@link AnnotationsAttribute#visibleTag} or
+     * {@link AnnotationsAttribute#invisibleTag}. 
+     * </p>
      * 
      * @param name          attribute name
      * @see #getAttributes()
@@ -700,6 +782,17 @@ public final class ClassFile {
         }
 
         return null;
+    }
+
+    /**
+     * Removes an attribute with the specified name.
+     *
+     * @param name      attribute name.
+     * @return          the removed attribute or null.
+     * @since 3.21
+     */
+    public AttributeInfo removeAttribute(String name) {
+        return AttributeInfo.remove(attributes, name);
     }
 
     /**
@@ -769,7 +862,7 @@ public final class ClassFile {
     }
 
     /**
-     * Writes a class file represened by this object into an output stream.
+     * Writes a class file represented by this object into an output stream.
      */
     public void write(DataOutputStream out) throws IOException {
         int i, n;

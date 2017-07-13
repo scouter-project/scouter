@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,9 +16,19 @@
 
 package scouter.javassist.expr;
 
-import scouter.javassist.*;
-import scouter.javassist.bytecode.*;
-import scouter.javassist.bytecode.Opcode;
+import scouter.javassist.CannotCompileException;
+import scouter.javassist.ClassPool;
+import scouter.javassist.CtBehavior;
+import scouter.javassist.CtClass;
+import scouter.javassist.CtMethod;
+import scouter.javassist.NotFoundException;
+import scouter.javassist.bytecode.BadBytecode;
+import scouter.javassist.bytecode.Bytecode;
+import scouter.javassist.bytecode.CodeAttribute;
+import scouter.javassist.bytecode.CodeIterator;
+import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.Descriptor;
+import scouter.javassist.bytecode.MethodInfo;
 import scouter.javassist.compiler.CompileError;
 import scouter.javassist.compiler.Javac;
 
@@ -38,7 +49,7 @@ public class MethodCall extends Expr {
         int c = iterator.byteAt(pos);
         int index = iterator.u16bitAt(pos + 1);
 
-        if (c == Opcode.INVOKEINTERFACE)
+        if (c == INVOKEINTERFACE)
             return cp.getInterfaceMethodrefNameAndType(index);
         else
             return cp.getMethodrefNameAndType(index);
@@ -89,7 +100,7 @@ public class MethodCall extends Expr {
         int c = iterator.byteAt(pos);
         int index = iterator.u16bitAt(pos + 1);
 
-        if (c == Opcode.INVOKEINTERFACE)
+        if (c == INVOKEINTERFACE)
             cname = cp.getInterfaceMethodrefClassName(index);
         else
             cname = cp.getMethodrefClassName(index);
@@ -147,7 +158,7 @@ public class MethodCall extends Expr {
      * class.
      */
     public boolean isSuper() {
-        return iterator.byteAt(currentPos) == Opcode.INVOKESPECIAL
+        return iterator.byteAt(currentPos) == INVOKESPECIAL
             && !where().getDeclaringClass().getName().equals(getClassName());
     }
 
@@ -175,7 +186,7 @@ public class MethodCall extends Expr {
      *
      * <p>$0 is available even if the called method is static.
      *
-     * @param statement         a Java statement.
+     * @param statement         a Java statement except try-catch.
      */
     public void replace(String statement) throws CannotCompileException {
         thisClass.getClassFile();   // to call checkModify().
@@ -186,14 +197,14 @@ public class MethodCall extends Expr {
         String classname, methodname, signature;
         int opcodeSize;
         int c = iterator.byteAt(pos);
-        if (c == Opcode.INVOKEINTERFACE) {
+        if (c == INVOKEINTERFACE) {
             opcodeSize = 5;
             classname = constPool.getInterfaceMethodrefClassName(index);
             methodname = constPool.getInterfaceMethodrefName(index);
             signature = constPool.getInterfaceMethodrefType(index);
         }
-        else if (c == Opcode.INVOKESTATIC
-                 || c == Opcode.INVOKESPECIAL || c == Opcode.INVOKEVIRTUAL) {
+        else if (c == INVOKESTATIC
+                 || c == INVOKESPECIAL || c == INVOKEVIRTUAL) {
             opcodeSize = 3;
             classname = constPool.getMethodrefClassName(index);
             methodname = constPool.getMethodrefName(index);
@@ -212,11 +223,11 @@ public class MethodCall extends Expr {
             jc.recordParams(classname, params,
                             true, paramVar, withinStatic());
             int retVar = jc.recordReturnType(retType, true);
-            if (c == Opcode.INVOKESTATIC)
+            if (c == INVOKESTATIC)
                 jc.recordStaticProceed(classname, methodname);
-            else if (c == Opcode.INVOKESPECIAL)
+            else if (c == INVOKESPECIAL)
                 jc.recordSpecialProceed(Javac.param0Name, classname,
-                                        methodname, signature);
+                                        methodname, signature, index);
             else
                 jc.recordProceed(Javac.param0Name, methodname);
 
@@ -225,7 +236,7 @@ public class MethodCall extends Expr {
             checkResultValue(retType, statement);
 
             Bytecode bytecode = jc.getBytecode();
-            storeStack(params, c == Opcode.INVOKESTATIC, paramVar, bytecode);
+            storeStack(params, c == INVOKESTATIC, paramVar, bytecode);
             jc.recordLocalVariables(ca, pos);
 
             if (retType != CtClass.voidType) {

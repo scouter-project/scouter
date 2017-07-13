@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba, and others. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -17,7 +18,12 @@ package scouter.javassist.bytecode.analysis;
 import scouter.javassist.ClassPool;
 import scouter.javassist.CtClass;
 import scouter.javassist.NotFoundException;
-import scouter.javassist.bytecode.*;
+import scouter.javassist.bytecode.BadBytecode;
+import scouter.javassist.bytecode.CodeIterator;
+import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.Descriptor;
+import scouter.javassist.bytecode.MethodInfo;
+import scouter.javassist.bytecode.Opcode;
 
 /**
  * Executor is responsible for modeling the effects of a JVM instruction on a frame.
@@ -567,8 +573,9 @@ public class Executor implements Opcode {
             case INVOKEINTERFACE:
                 evalInvokeIntfMethod(opcode, iter.u16bitAt(pos + 1), frame);
                 break;
-            case 186:
-                throw new RuntimeException("Bad opcode 186");
+            case INVOKEDYNAMIC:
+                evalInvokeDynamic(opcode, iter.u16bitAt(pos + 1), frame);
+                break;
             case NEW:
                 frame.push(resolveClassInfo(constPool.getClassInfo(iter.u16bitAt(pos + 1))));
                 break;
@@ -590,7 +597,7 @@ public class Executor implements Opcode {
                 break;
             case CHECKCAST:
                 verifyAssignable(Type.OBJECT, simplePop(frame));
-                frame.push(typeFromDesc(constPool.getClassInfo(iter.u16bitAt(pos + 1))));
+                frame.push(typeFromDesc(constPool.getClassInfoByDescriptor(iter.u16bitAt(pos + 1))));
                 break;
             case INSTANCEOF:
                 verifyAssignable(Type.OBJECT, simplePop(frame));
@@ -742,6 +749,20 @@ public class Executor implements Opcode {
             simplePush(zeroExtend(returnType), frame);
     }
 
+    private void evalInvokeDynamic(int opcode, int index, Frame frame) throws BadBytecode {
+        String desc = constPool.getInvokeDynamicType(index);
+        Type[] types = paramTypesFromDesc(desc);
+        int i = types.length;
+
+        while (i > 0)
+            verifyAssignable(zeroExtend(types[--i]), simplePop(frame));
+
+        // simplePop(frame);    // assume CosntPool#REF_invokeStatic
+
+        Type returnType = returnTypeFromDesc(desc);
+        if (returnType != Type.VOID)
+            simplePush(zeroExtend(returnType), frame);
+    }
 
     private void evalLDC(int index, Frame frame) throws BadBytecode {
         int tag = constPool.getTag(index);

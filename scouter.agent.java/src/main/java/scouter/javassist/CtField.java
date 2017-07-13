@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,14 +16,23 @@
 
 package scouter.javassist;
 
-import scouter.javassist.bytecode.*;
+import scouter.javassist.bytecode.AccessFlag;
+import scouter.javassist.bytecode.AnnotationsAttribute;
+import scouter.javassist.bytecode.AttributeInfo;
+import scouter.javassist.bytecode.Bytecode;
+import scouter.javassist.bytecode.ClassFile;
+import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.Descriptor;
+import scouter.javassist.bytecode.FieldInfo;
+import scouter.javassist.bytecode.SignatureAttribute;
+import scouter.javassist.compiler.CompileError;
+import scouter.javassist.compiler.Javac;
+import scouter.javassist.compiler.SymbolTable;
+import scouter.javassist.compiler.ast.ASTree;
 import scouter.javassist.compiler.ast.DoubleConst;
 import scouter.javassist.compiler.ast.IntConst;
 import scouter.javassist.compiler.ast.StringL;
-import scouter.javassist.compiler.Javac;
-import scouter.javassist.compiler.SymbolTable;
-import scouter.javassist.compiler.CompileError;
-import scouter.javassist.compiler.ast.ASTree;
+import scouter.javassist.expr.ExprEditor;
 
 /**
  * An instance of CtField represents a field.
@@ -52,7 +62,7 @@ public class CtField extends CtMember {
      * @see CtClass#addField(CtField)
      * @see CtNewMethod#getter(String,CtField)
      * @see CtNewMethod#setter(String,CtField)
-     * @see Initializer
+     * @see CtField.Initializer
      */
     public CtField(CtClass type, String name, CtClass declaring)
         throws CannotCompileException
@@ -75,7 +85,7 @@ public class CtField extends CtMember {
      * @param declaring         the class to which the field will be added.
      * @see CtNewMethod#getter(String,CtField)
      * @see CtNewMethod#setter(String,CtField)
-     * @see Initializer
+     * @see CtField.Initializer
      */
     public CtField(CtField src, CtClass declaring)
         throws CannotCompileException
@@ -143,9 +153,9 @@ public class CtField extends CtMember {
      * Compiles the given source code and creates a field.
      * Examples of the source code are:
      *
-     * <ul><pre>
+     * <pre>
      * "public String name;"
-     * "public int k = 3;"</pre></ul>
+     * "public int k = 3;"</pre>
      *
      * <p>Note that the source code ends with <code>';'</code>
      * (semicolon).
@@ -241,19 +251,19 @@ public class CtField extends CtMember {
     }
 
     /**
-     * Returns true if the class has the specified annotation class.
+     * Returns true if the class has the specified annotation type.
      *
-     * @param clz the annotation class.
+     * @param typeName      the name of annotation type.
      * @return <code>true</code> if the annotation is found, otherwise <code>false</code>.
-     * @since 3.11
+     * @since 3.21
      */
-    public boolean hasAnnotation(Class clz) {
+    public boolean hasAnnotation(String typeName) {
         FieldInfo fi = getFieldInfo2();
         AnnotationsAttribute ainfo = (AnnotationsAttribute)
-                    fi.getAttribute(AnnotationsAttribute.invisibleTag);
+                    fi.getAttribute(AnnotationsAttribute.invisibleTag);  
         AnnotationsAttribute ainfo2 = (AnnotationsAttribute)
-                    fi.getAttribute(AnnotationsAttribute.visibleTag);
-        return CtClassType.hasAnnotationType(clz, getDeclaringClass().getClassPool(),
+                    fi.getAttribute(AnnotationsAttribute.visibleTag);  
+        return CtClassType.hasAnnotationType(typeName, getDeclaringClass().getClassPool(),
                                              ainfo, ainfo2);
     }
 
@@ -271,9 +281,9 @@ public class CtField extends CtMember {
     public Object getAnnotation(Class clz) throws ClassNotFoundException {
         FieldInfo fi = getFieldInfo2();
         AnnotationsAttribute ainfo = (AnnotationsAttribute)
-                    fi.getAttribute(AnnotationsAttribute.invisibleTag);
+                    fi.getAttribute(AnnotationsAttribute.invisibleTag);  
         AnnotationsAttribute ainfo2 = (AnnotationsAttribute)
-                    fi.getAttribute(AnnotationsAttribute.visibleTag);
+                    fi.getAttribute(AnnotationsAttribute.visibleTag);  
         return CtClassType.getAnnotationType(clz, getDeclaringClass().getClassPool(),
                                              ainfo, ainfo2);
     }
@@ -310,31 +320,57 @@ public class CtField extends CtMember {
     private Object[] getAnnotations(boolean ignoreNotFound) throws ClassNotFoundException {
         FieldInfo fi = getFieldInfo2();
         AnnotationsAttribute ainfo = (AnnotationsAttribute)
-                    fi.getAttribute(AnnotationsAttribute.invisibleTag);
+                    fi.getAttribute(AnnotationsAttribute.invisibleTag);  
         AnnotationsAttribute ainfo2 = (AnnotationsAttribute)
-                    fi.getAttribute(AnnotationsAttribute.visibleTag);
+                    fi.getAttribute(AnnotationsAttribute.visibleTag);  
         return CtClassType.toAnnotationType(ignoreNotFound, getDeclaringClass().getClassPool(),
                                             ainfo, ainfo2);
     }
 
     /**
      * Returns the character string representing the type of the field.
+     * The field signature is represented by a character string
+     * called a field descriptor, which is defined in the JVM specification.
      * If two fields have the same type,
      * <code>getSignature()</code> returns the same string.
      *
      * <p>Note that the returned string is not the type signature
      * contained in the <code>SignatureAttirbute</code>.  It is
-     * a descriptor.  To obtain a type signature, call the following
-     * methods:
-     * 
-     * <ul><pre>getFieldInfo().getAttribute(SignatureAttribute.tag)
-     * </pre></ul>
+     * a descriptor.
      *
      * @see Descriptor
-     * @see SignatureAttribute
+     * @see #getGenericSignature()
      */
     public String getSignature() {
         return fieldInfo.getDescriptor();
+    }
+
+    /**
+     * Returns the generic signature of the field.
+     * It represents a type including type variables.
+     *
+     * @see SignatureAttribute#toFieldSignature(String)
+     * @since 3.17
+     */
+    public String getGenericSignature() {
+        SignatureAttribute sa
+            = (SignatureAttribute)fieldInfo.getAttribute(SignatureAttribute.tag);
+        return sa == null ? null : sa.getSignature();
+    }
+
+    /**
+     * Set the generic signature of the field.
+     * It represents a type including type variables.
+     * See {@link CtClass#setGenericSignature(String)}
+     * for a code sample.
+     *
+     * @param sig       a new generic signature.
+     * @see SignatureAttribute.ObjectType#encode()
+     * @since 3.17
+     */
+    public void setGenericSignature(String sig) {
+        declaringClass.checkModify();
+        fieldInfo.addAttribute(new SignatureAttribute(fieldInfo.getConstPool(), sig));
     }
 
     /**
@@ -347,6 +383,17 @@ public class CtField extends CtMember {
 
     /**
      * Sets the type of the field.
+     *
+     * <p>This method does not automatically update method bodies that access
+     * this field.  They have to be explicitly updated.  For example,
+     * if some method contains an expression {@code t.value} and the type
+     * of the variable {@code t} is changed by {@link #setType(CtClass)}
+     * from {@code int} to {@code double}, then {@code t.value} has to be modified
+     * as well since the bytecode of {@code t.value} contains the type information.
+     * </p>
+     *
+     * @see CodeConverter
+     * @see ExprEditor
      */
     public void setType(CtClass clazz) {
         declaringClass.checkModify();
@@ -446,7 +493,7 @@ public class CtField extends CtMember {
      * must be used for the instantiation.  They create a new instance with
      * the given parameters and return it.
      *
-     * @see CtClass#addField(CtField,Initializer)
+     * @see CtClass#addField(CtField,CtField.Initializer)
      */
     public static abstract class Initializer {
         /**
@@ -524,8 +571,7 @@ public class CtField extends CtMember {
          * value of the field.  The constructor of the created object receives
          * the parameter:
          *
-         * <ul><code>Object obj</code> - the object including the field.<br>
-         * </ul>
+         * <p><code>Object obj</code> - the object including the field.
          *
          * <p>If the initialized field is static, then the constructor does
          * not receive any parameters.
@@ -547,10 +593,9 @@ public class CtField extends CtMember {
          * value of the field.  The constructor of the created object receives
          * the parameters:
          *
-         * <ul><code>Object obj</code> - the object including the field.<br>
+         * <p><code>Object obj</code> - the object including the field.<br>
          *     <code>String[] strs</code> - the character strings specified
          *                              by <code>stringParams</code><br>
-         * </ul>
          *
          * <p>If the initialized field is static, then the constructor
          * receives only <code>strs</code>.
@@ -560,7 +605,7 @@ public class CtField extends CtMember {
          *                      constructor.
          */
         public static Initializer byNew(CtClass objectType,
-                                        String[] stringParams) {
+                                             String[] stringParams) {
             NewInitializer i = new NewInitializer();
             i.objectType = objectType;
             i.stringParams = stringParams;
@@ -575,19 +620,18 @@ public class CtField extends CtMember {
          * value of the field.  The constructor of the created object receives
          * the parameters:
          *
-         * <ul><code>Object obj</code> - the object including the field.<br>
+         * <p><code>Object obj</code> - the object including the field.<br>
          *     <code>Object[] args</code> - the parameters passed to the
          *                      constructor of the object including the
          *                      filed.
-         * </ul>
          *
          * <p>If the initialized field is static, then the constructor does
          * not receive any parameters.
          *
          * @param objectType    the class instantiated for the initial value.
          *
-         * @see Initializer#byNewArray(CtClass,int)
-         * @see Initializer#byNewArray(CtClass,int[])
+         * @see CtField.Initializer#byNewArray(CtClass,int)
+         * @see CtField.Initializer#byNewArray(CtClass,int[])
          */
         public static Initializer byNewWithParams(CtClass objectType) {
             NewInitializer i = new NewInitializer();
@@ -604,13 +648,12 @@ public class CtField extends CtMember {
          * value of the field.  The constructor of the created object receives
          * the parameters:
          *
-         * <ul><code>Object obj</code> - the object including the field.<br>
+         * <p><code>Object obj</code> - the object including the field.<br>
          *     <code>String[] strs</code> - the character strings specified
          *                              by <code>stringParams</code><br>
          *     <code>Object[] args</code> - the parameters passed to the
          *                      constructor of the object including the
          *                      filed.
-         * </ul>
          *
          * <p>If the initialized field is static, then the constructor receives
          * only <code>strs</code>.
@@ -620,7 +663,7 @@ public class CtField extends CtMember {
          *                              constructor.
          */
         public static Initializer byNewWithParams(CtClass objectType,
-                                                  String[] stringParams) {
+                                               String[] stringParams) {
             NewInitializer i = new NewInitializer();
             i.objectType = objectType;
             i.stringParams = stringParams;
@@ -635,8 +678,7 @@ public class CtField extends CtMember {
          * value as the initial value of the field.
          * The called method receives the parameters:
          *
-         * <ul><code>Object obj</code> - the object including the field.<br>
-         * </ul>
+         * <p><code>Object obj</code> - the object including the field.
          *
          * <p>If the initialized field is static, then the method does
          * not receive any parameters.
@@ -649,7 +691,7 @@ public class CtField extends CtMember {
          * @param methodName    the name of the satic method.
          */
         public static Initializer byCall(CtClass methodClass,
-                                         String methodName) {
+                                              String methodName) {
             MethodInitializer i = new MethodInitializer();
             i.objectType = methodClass;
             i.methodName = methodName;
@@ -665,10 +707,9 @@ public class CtField extends CtMember {
          * value as the initial value of the field.  The called method
          * receives the parameters:
          *
-         * <ul><code>Object obj</code> - the object including the field.<br>
+         * <p><code>Object obj</code> - the object including the field.<br>
          *     <code>String[] strs</code> - the character strings specified
          *                              by <code>stringParams</code><br>
-         * </ul>
          *
          * <p>If the initialized field is static, then the method
          * receive only <code>strs</code>.
@@ -683,8 +724,8 @@ public class CtField extends CtMember {
          *                              static method.
          */
         public static Initializer byCall(CtClass methodClass,
-                                         String methodName,
-                                         String[] stringParams) {
+                                              String methodName,
+                                              String[] stringParams) {
             MethodInitializer i = new MethodInitializer();
             i.objectType = methodClass;
             i.methodName = methodName;
@@ -700,11 +741,10 @@ public class CtField extends CtMember {
          * value as the initial value of the field.  The called method
          * receives the parameters:
          *
-         * <ul><code>Object obj</code> - the object including the field.<br>
+         * <p><code>Object obj</code> - the object including the field.<br>
          *     <code>Object[] args</code> - the parameters passed to the
          *                      constructor of the object including the
          *                      filed.
-         * </ul>
          *
          * <p>If the initialized field is static, then the method does
          * not receive any parameters.
@@ -717,7 +757,7 @@ public class CtField extends CtMember {
          * @param methodName    the name of the satic method.
          */
         public static Initializer byCallWithParams(CtClass methodClass,
-                                                   String methodName) {
+                                                        String methodName) {
             MethodInitializer i = new MethodInitializer();
             i.objectType = methodClass;
             i.methodName = methodName;
@@ -733,13 +773,12 @@ public class CtField extends CtMember {
          * value as the initial value of the field.  The called method
          * receives the parameters:
          *
-         * <ul><code>Object obj</code> - the object including the field.<br>
+         * <p><code>Object obj</code> - the object including the field.<br>
          *     <code>String[] strs</code> - the character strings specified
          *                              by <code>stringParams</code><br>
          *     <code>Object[] args</code> - the parameters passed to the
          *                      constructor of the object including the
          *                      filed.
-         * </ul>
          *
          * <p>If the initialized field is static, then the method
          * receive only <code>strs</code>.
@@ -754,7 +793,7 @@ public class CtField extends CtMember {
          *                              static method.
          */
         public static Initializer byCallWithParams(CtClass methodClass,
-                                                   String methodName, String[] stringParams) {
+                                String methodName, String[] stringParams) {
             MethodInitializer i = new MethodInitializer();
             i.objectType = methodClass;
             i.methodName = methodName;
@@ -771,7 +810,7 @@ public class CtField extends CtMember {
          * @throws NotFoundException    if the type of the array components
          *                              is not found.
          */
-        public static Initializer byNewArray(CtClass type, int size)
+        public static Initializer byNewArray(CtClass type, int size) 
             throws NotFoundException
         {
             return new ArrayInitializer(type.getComponentType(), size);
@@ -814,7 +853,7 @@ public class CtField extends CtMember {
 
         // produce codes for initialization
         abstract int compileIfStatic(CtClass type, String name,
-                                     Bytecode code, Javac drv) throws CannotCompileException;
+                Bytecode code, Javac drv) throws CannotCompileException;
 
         // returns the index of CONSTANT_Integer_info etc
         // if the value is constant.  Otherwise, 0.

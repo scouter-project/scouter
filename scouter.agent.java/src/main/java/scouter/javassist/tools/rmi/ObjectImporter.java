@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -73,7 +74,7 @@ import java.lang.reflect.*;
  * @see RemoteException
  * @see Viewer
  */
-public class ObjectImporter implements Serializable {
+public class ObjectImporter implements java.io.Serializable {
     private final byte[] endofline = { 0x0d, 0x0a };
     private String servername, orgServername;
     private int port, orgPort;
@@ -98,13 +99,13 @@ public class ObjectImporter implements Serializable {
     /**
      * Constructs an object importer.
      *
-     * <p>If you run a program with <code>javassist.tools.web.Viewer</code>,
+     * <p>If you run a program with <code>Viewer</code>,
      * you can construct an object importer as follows:
      *
-     * <ul><pre>
+     * <pre>
      * Viewer v = (Viewer)this.getClass().getClassLoader();
      * ObjectImporter oi = new ObjectImporter(v.getServer(), v.getPort());
-     * </pre></ul>
+     * </pre>
      *
      * @see Viewer
      */

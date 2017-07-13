@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -18,10 +19,11 @@ package scouter.javassist.bytecode;
 import scouter.javassist.bytecode.annotation.Annotation;
 import scouter.javassist.bytecode.annotation.AnnotationsWriter;
 
-import java.util.Map;
-import java.io.IOException;
-import java.io.DataInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A class representing <code>RuntimeVisibleAnnotations_attribute</code> and
@@ -162,5 +164,50 @@ public class ParameterAnnotationsAttribute extends AttributeInfo {
         }
 
         set(output.toByteArray());
+    }
+
+    /**
+     * @param oldname       a JVM class name.
+     * @param newname       a JVM class name.
+     */
+    void renameClass(String oldname, String newname) {
+        HashMap map = new HashMap();
+        map.put(oldname, newname);
+        renameClass(map);
+    }
+
+    void renameClass(Map classnames) {
+        AnnotationsAttribute.Renamer renamer = new AnnotationsAttribute.Renamer(info, getConstPool(), classnames);
+        try {
+            renamer.parameters();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    void getRefClasses(Map classnames) { renameClass(classnames); }
+
+    /**
+     * Returns a string representation of this object.
+     */
+    public String toString() {
+        Annotation[][] aa = getAnnotations();
+        StringBuilder sbuf = new StringBuilder();
+        int k = 0;
+        while (k < aa.length) {
+            Annotation[] a = aa[k++]; 
+            int i = 0;
+            while (i < a.length) {
+                sbuf.append(a[i++].toString());
+                if (i != a.length)
+                    sbuf.append(" ");
+            }
+
+            if (k != aa.length)
+                sbuf.append(", ");
+        }
+
+        return sbuf.toString();
+
     }
 }

@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,9 +16,23 @@
 
 package scouter.javassist.expr;
 
-import scouter.javassist.*;
-import scouter.javassist.bytecode.*;
-import scouter.javassist.compiler.*;
+import scouter.javassist.CannotCompileException;
+import scouter.javassist.ClassPool;
+import scouter.javassist.CtBehavior;
+import scouter.javassist.CtClass;
+import scouter.javassist.NotFoundException;
+import scouter.javassist.bytecode.BadBytecode;
+import scouter.javassist.bytecode.Bytecode;
+import scouter.javassist.bytecode.CodeAttribute;
+import scouter.javassist.bytecode.CodeIterator;
+import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.MethodInfo;
+import scouter.javassist.bytecode.Opcode;
+import scouter.javassist.compiler.CompileError;
+import scouter.javassist.compiler.Javac;
+import scouter.javassist.compiler.JvstCodeGen;
+import scouter.javassist.compiler.JvstTypeChecker;
+import scouter.javassist.compiler.ProceedHandler;
 import scouter.javassist.compiler.ast.ASTList;
 
 /**
@@ -84,7 +99,7 @@ public class Cast extends Expr {
      *
      * <p>$0 is available but the value is <code>null</code>.
      *
-     * @param statement         a Java statement.
+     * @param statement         a Java statement except try-catch.
      */
     public void replace(String statement) throws CannotCompileException {
         thisClass.getClassFile();   // to call checkModify().
