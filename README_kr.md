@@ -10,11 +10,9 @@
 
 오픈소스 APM인 Scouter는 JVM(WAS, Standalone application)을 사용하는 어플리케이션 및 OS 자원에 대한 모니터링 모니터링 기능을 제공한다.
  - **APM** : Application performance montoring / application performance management
-
  - 모니터링 대상 (현재)
    - Java application - Web application (on Tomcat, JBoss, Resin ...), Standalone java application
    - OS - LInux, Windows, Unix
-
  - 모니터링 대상 (TOBE)
    - Redis, Apach HTTPD, nginX, Nodejs...
 
@@ -41,21 +39,14 @@
  - [최신 Release](https://github.com/scouter-project/scouter/releases/)
 
 ## 모듈
-스카우터는 세가지 주요 모듈로 구성된다 :
-
+### 스카우터는 세가지 주요 모듈로 구성된다 :
 - **Agent** : 성능 데이터를 수집하여 수집 서버로 전송
   - **Tomcat Agent (Java Agent)** : JVM 과 Tomcat WAS 성능 수집
-
   - **Host Agent (OS Agent)** : Linux, Windows 및 OSX 성능
-
   -  **MariaDB Agent** : [to be announced]
-<br>
-
 - **Server (Collector)** : Agent가 전송한 데이터를 저장하고 Client 요청시 Client에게 적절한 데이터를 전송
-<br>
-
 - **Client (Viewer)** : 수집된 데이터를 보기 위한 RCP 기반 Client 프로그램
-<br>
+
 
 ## Facebook
  - [Scouter APM 사용자 모임 - Facebook 그룹](https://www.facebook.com/groups/scouterapm/)
@@ -77,7 +68,4 @@
 ## License
 Licensed under the Apache License, Version 2.0
 <br>
-<br>
-<br>
-
 
