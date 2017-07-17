@@ -127,7 +127,12 @@ public class RealCounter {
 		return cnt;
 	}
 
+	@Deprecated
 	public int getAvgtoInt(int fromAgoSec, int durationSec) {
+		return (int)getAvg(fromAgoSec, durationSec);
+	}
+
+	public int getAvgToInt(int fromAgoSec, int durationSec) {
 		return (int)getAvg(fromAgoSec, durationSec);
 	}
 
@@ -135,7 +140,12 @@ public class RealCounter {
 		return getAvg(durationSec, durationSec);
 	}
 
+	@Deprecated
 	public int getLatestAvgtoInt(int durationSec) {
+		return (int)getLatestAvg(durationSec);
+	}
+
+	public int getLatestAvgToInt(int durationSec) {
 		return (int)getLatestAvg(durationSec);
 	}
 
