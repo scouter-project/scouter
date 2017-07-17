@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,12 +16,34 @@
 
 package scouter.javassist.compiler;
 
-import scouter.javassist.*;
+import scouter.javassist.ClassPool;
+import scouter.javassist.CtClass;
+import scouter.javassist.CtField;
+import scouter.javassist.Modifier;
+import scouter.javassist.NotFoundException;
 import scouter.javassist.bytecode.FieldInfo;
 import scouter.javassist.bytecode.MethodInfo;
 import scouter.javassist.bytecode.Opcode;
-import scouter.javassist.compiler.ast.*;
-import scouter.javassist.CtField;
+import scouter.javassist.compiler.ast.ASTList;
+import scouter.javassist.compiler.ast.ASTree;
+import scouter.javassist.compiler.ast.ArrayInit;
+import scouter.javassist.compiler.ast.AssignExpr;
+import scouter.javassist.compiler.ast.BinExpr;
+import scouter.javassist.compiler.ast.CallExpr;
+import scouter.javassist.compiler.ast.CastExpr;
+import scouter.javassist.compiler.ast.CondExpr;
+import scouter.javassist.compiler.ast.Declarator;
+import scouter.javassist.compiler.ast.DoubleConst;
+import scouter.javassist.compiler.ast.Expr;
+import scouter.javassist.compiler.ast.InstanceOfExpr;
+import scouter.javassist.compiler.ast.IntConst;
+import scouter.javassist.compiler.ast.Keyword;
+import scouter.javassist.compiler.ast.Member;
+import scouter.javassist.compiler.ast.NewExpr;
+import scouter.javassist.compiler.ast.StringL;
+import scouter.javassist.compiler.ast.Symbol;
+import scouter.javassist.compiler.ast.Variable;
+import scouter.javassist.compiler.ast.Visitor;
 
 public class TypeChecker extends Visitor implements Opcode, TokenId {
     static final String javaLangObject = "java.lang.Object";
@@ -251,7 +274,7 @@ public class TypeChecker extends Visitor implements Opcode, TokenId {
     }
 
     private void atArrayAssign(Expr expr, int op, Expr array,
-                               ASTree right) throws CompileError
+                        ASTree right) throws CompileError
     {
         atArrayRead(array.oprand1(), array.oprand2());
         int aType = exprType;
@@ -394,9 +417,9 @@ public class TypeChecker extends Visitor implements Opcode, TokenId {
         left = stripPlusExpr(left);
         right = stripPlusExpr(right);
         ASTree newExpr = null;
-        if (left instanceof scouter.javassist.compiler.ast.StringL && right instanceof scouter.javassist.compiler.ast.StringL && op == '+')
-            newExpr = new StringL(((scouter.javassist.compiler.ast.StringL)left).get()
-                                  + ((scouter.javassist.compiler.ast.StringL)right).get());
+        if (left instanceof scouter.javassist.compiler.ast.StringL && right instanceof StringL && op == '+')
+            newExpr = new StringL(((StringL)left).get()
+                                  + ((StringL)right).get());
         else if (left instanceof IntConst)
             newExpr = ((IntConst)left).compute(op, right);
         else if (left instanceof DoubleConst)
@@ -470,7 +493,7 @@ public class TypeChecker extends Visitor implements Opcode, TokenId {
         }
         else if (value instanceof Boolean)
             return new Keyword(((Boolean)value).booleanValue()
-                               ? TokenId.TRUE : TokenId.FALSE);
+                               ? TRUE : FALSE);
         else
             return null;
     }
@@ -500,7 +523,7 @@ public class TypeChecker extends Visitor implements Opcode, TokenId {
         else
             insertCast(expr, type1, type2);
 
-        if (CodeGen.isP_INT(exprType))
+        if (CodeGen.isP_INT(exprType) && exprType != BOOLEAN)
             exprType = INT;         // type1 may be BYTE, ...
     }
 
@@ -563,7 +586,13 @@ public class TypeChecker extends Visitor implements Opcode, TokenId {
         if (token == '.') {
             String member = ((Symbol)expr.oprand2()).get();
             if (member.equals("length"))
-                atArrayLength(expr);
+                try {
+                    atArrayLength(expr);
+                }
+                catch (NoFieldException nfe) {
+                    // length might be a class or package name.
+                    atFieldRead(expr);
+                }
             else if (member.equals("class"))                
                 atClassObject(expr);  // .class
             else
@@ -648,28 +677,34 @@ public class TypeChecker extends Visitor implements Opcode, TokenId {
                                                false);
             else if (op == '.') {
                 ASTree target = e.oprand1();
-                try {
-                    target.accept(this);
-                }
-                catch (NoFieldException nfe) {
-                    if (nfe.getExpr() != target)
-                        throw nfe;
+                String classFollowedByDotSuper = isDotSuper(target);
+                if (classFollowedByDotSuper != null)
+                    targetClass = MemberResolver.getSuperInterface(thisClass,
+                                                        classFollowedByDotSuper);
+                else {
+                    try {
+                        target.accept(this);
+                    }
+                    catch (NoFieldException nfe) {
+                        if (nfe.getExpr() != target)
+                            throw nfe;
 
-                    // it should be a static method.
-                    exprType = CLASS;
-                    arrayDim = 0;
-                    className = nfe.getField(); // JVM-internal
-                    e.setOperator(MEMBER);
-                    e.setOprand1(new Symbol(MemberResolver.jvmToJavaName(
-                                                            className)));
-                }
+                        // it should be a static method.
+                        exprType = CLASS;
+                        arrayDim = 0;
+                        className = nfe.getField(); // JVM-internal
+                        e.setOperator(MEMBER);
+                        e.setOprand1(new Symbol(MemberResolver.jvmToJavaName(
+                                                                className)));
+                    }
 
-                if (arrayDim > 0)
-                    targetClass = resolver.lookupClass(javaLangObject, true);
-                else if (exprType == CLASS /* && arrayDim == 0 */)
-                    targetClass = resolver.lookupClassByJvmName(className);
-                else
-                    badMethod();
+                    if (arrayDim > 0)
+                        targetClass = resolver.lookupClass(javaLangObject, true);
+                    else if (exprType == CLASS /* && arrayDim == 0 */)
+                        targetClass = resolver.lookupClassByJvmName(className);
+                    else
+                        badMethod();
+                }
             }
             else
                 badMethod();
@@ -684,6 +719,26 @@ public class TypeChecker extends Visitor implements Opcode, TokenId {
 
     private static void badMethod() throws CompileError {
         throw new CompileError("bad method");
+    }
+
+    /**
+     * Returns non-null if target is something like Foo.super
+     * for accessing the default method in an interface.
+     * Otherwise, null.
+     *
+     * @return the class name followed by {@code .super} or null.
+     */
+    static String isDotSuper(ASTree target) {
+        if (target instanceof Expr) {
+            Expr e = (Expr)target;
+            if (e.getOperator() == '.') {
+                ASTree right = e.oprand2();
+                if (right instanceof Keyword && ((Keyword)right).get() == SUPER)
+                    return ((Symbol)e.oprand1()).get();
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -856,13 +911,13 @@ public class TypeChecker extends Visitor implements Opcode, TokenId {
                  *
                  * It is impossible to add the following method:
                  *
-                 * String m() { return javassist.CtClass.intType.toString(); }
+                 * String m() { return CtClass.intType.toString(); }
                  *
                  * because javassist is a field name.  However, this is
                  * often inconvenient, this compiler allows it.  The following
                  * code is for that.
                  */
-                ASTree oprnd1 = e.oprand1();
+                ASTree oprnd1 = e.oprand1(); 
                 if (oprnd1 instanceof Symbol)
                     return fieldAccess2(e, ((Symbol)oprnd1).get());
 
@@ -891,6 +946,9 @@ public class TypeChecker extends Visitor implements Opcode, TokenId {
 
     public void atArrayLength(Expr expr) throws CompileError {
         expr.oprand1().accept(this);
+        if (arrayDim == 0)
+            throw new NoFieldException("length", expr);
+
         exprType = INT;
         arrayDim = 0;
     }
@@ -982,7 +1040,7 @@ public class TypeChecker extends Visitor implements Opcode, TokenId {
         }
     }
 
-    public void atStringL(scouter.javassist.compiler.ast.StringL s) throws CompileError {
+    public void atStringL(StringL s) throws CompileError {
         exprType = CLASS;
         arrayDim = 0;
         className = jvmJavaLangString;

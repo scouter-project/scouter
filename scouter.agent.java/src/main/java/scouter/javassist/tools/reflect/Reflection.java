@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -15,7 +16,21 @@
 
 package scouter.javassist.tools.reflect;
 
-import scouter.javassist.*;
+import scouter.javassist.CannotCompileException;
+import scouter.javassist.ClassPool;
+import scouter.javassist.CodeConverter;
+import scouter.javassist.CtClass;
+import scouter.javassist.CtField;
+import scouter.javassist.CtMethod;
+import scouter.javassist.CtNewMethod;
+import scouter.javassist.Modifier;
+import scouter.javassist.NotFoundException;
+import scouter.javassist.Translator;
+import scouter.javassist.bytecode.BadBytecode;
+import scouter.javassist.bytecode.ClassFile;
+import scouter.javassist.bytecode.MethodInfo;
+
+import java.util.Iterator;
 
 /**
  * The class implementing the behavioral reflection mechanism.
@@ -29,16 +44,16 @@ import scouter.javassist.*;
  *
  * <p>To do this, the original class file representing a reflective class:
  *
- * <ul><pre>
+ * <pre>
  * class Person {
  *   public int f(int i) { return i + 1; }
  *   public int value;
  * }
- * </pre></ul>
+ * </pre>
  *
  * <p>is modified so that it represents a class:
  *
- * <ul><pre>
+ * <pre>
  * class Person implements Metalevel {
  *   public int _original_f(int i) { return i + 1; }
  *   public int f(int i) { <i>delegate to the metaobject</i> }
@@ -51,7 +66,7 @@ import scouter.javassist.*;
  *   public Metaobject _getMetaobject() { <i>return a metaobject</i> }
  *   public void _setMetaobject(Metaobject m) { <i>change a metaobject</i> }
  * }
- * </pre></ul>
+ * </pre>
  *
  * @see ClassMetaobject
  * @see Metaobject
@@ -68,9 +83,9 @@ public class Reflection implements Translator {
     static final String readPrefix = "_r_";
     static final String writePrefix = "_w_";
 
-    static final String metaobjectClassName = "javassist.tools.reflect.Metaobject";
+    static final String metaobjectClassName = "Metaobject";
     static final String classMetaobjectClassName
-        = "javassist.tools.reflect.ClassMetaobject";
+        = "ClassMetaobject";
 
     protected CtMethod trapMethod, trapStaticMethod;
     protected CtMethod trapRead, trapWrite;
@@ -102,9 +117,10 @@ public class Reflection implements Translator {
     public void start(ClassPool pool) throws NotFoundException {
         classPool = pool;
         final String msg
-            = "javassist.tools.reflect.Sample is not found or broken.";
+            = "Sample is not found or broken.";
         try {
-            CtClass c = classPool.get("javassist.tools.reflect.Sample");
+            CtClass c = classPool.get("Sample");
+            rebuildClassFile(c.getClassFile());
             trapMethod = c.getDeclaredMethod("trap");
             trapStaticMethod = c.getDeclaredMethod("trapStatic");
             trapRead = c.getDeclaredMethod("trapRead");
@@ -113,6 +129,8 @@ public class Reflection implements Translator {
                 = new CtClass[] { classPool.get("java.lang.Object") };
         }
         catch (NotFoundException e) {
+            throw new RuntimeException(msg);
+        } catch (BadBytecode e) {
             throw new RuntimeException(msg);
         }
     }
@@ -196,7 +214,7 @@ public class Reflection implements Translator {
     public boolean makeReflective(CtClass clazz,
                                   CtClass metaobject, CtClass metaclass)
         throws CannotCompileException, CannotReflectException,
-            NotFoundException
+               NotFoundException
     {
         if (clazz.isInterface())
             throw new CannotReflectException(
@@ -242,7 +260,7 @@ public class Reflection implements Translator {
         else
             clazz.setAttribute("Reflective", new byte[0]);
 
-        CtClass mlevel = classPool.get("javassist.tools.reflect.Metalevel");
+        CtClass mlevel = classPool.get("Metalevel");
         boolean addMeta = !clazz.subtypeOf(mlevel);
         if (addMeta)
             clazz.addInterface(mlevel);
@@ -252,7 +270,7 @@ public class Reflection implements Translator {
 
         CtField f;
         if (addMeta) {
-            f = new CtField(classPool.get("javassist.tools.reflect.Metaobject"),
+            f = new CtField(classPool.get("Metaobject"),
                             metaobjectField, clazz);
             f.setModifiers(Modifier.PROTECTED);
             clazz.addField(f, CtField.Initializer.byNewWithParams(metaobject));
@@ -261,7 +279,7 @@ public class Reflection implements Translator {
             clazz.addMethod(CtNewMethod.setter(metaobjectSetter, f));
         }
 
-        f = new CtField(classPool.get("javassist.tools.reflect.ClassMetaobject"),
+        f = new CtField(classPool.get("ClassMetaobject"),
                         classobjectField, clazz);
         f.setModifiers(Modifier.PRIVATE | Modifier.STATIC);
         clazz.addField(f, CtField.Initializer.byNew(metaclass,
@@ -284,7 +302,7 @@ public class Reflection implements Translator {
     }
 
     private void processMethods0(int mod, CtClass clazz,
-                                 CtMethod m, int identifier, boolean dontSearch)
+                        CtMethod m, int identifier, boolean dontSearch)
         throws CannotCompileException, NotFoundException
     {
         CtMethod body;
@@ -378,6 +396,17 @@ public class Reflection implements Translator {
                 wmethod.setModifiers(mod);
                 clazz.addMethod(wmethod);
             }
+        }
+    }
+
+    public void rebuildClassFile(ClassFile cf) throws BadBytecode {
+        if (ClassFile.MAJOR_VERSION < ClassFile.JAVA_6)
+            return;
+
+        Iterator methods = cf.getMethods().iterator();
+        while (methods.hasNext()) {
+            MethodInfo mi = (MethodInfo)methods.next();
+            mi.rebuildStackMap(classPool);
         }
     }
 }

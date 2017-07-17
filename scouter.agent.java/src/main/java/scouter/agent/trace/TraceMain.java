@@ -28,12 +28,14 @@ import scouter.agent.error.STATEMENT_LEAK_SUSPECT;
 import scouter.agent.error.USERTX_NOT_CLOSE;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.PluginAppServiceTrace;
+import scouter.agent.plugin.PluginBackThreadTrace;
 import scouter.agent.plugin.PluginCaptureTrace;
 import scouter.agent.plugin.PluginHttpServiceTrace;
 import scouter.agent.plugin.PluginSpringControllerCaptureTrace;
 import scouter.agent.proxy.HttpTraceFactory;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
+import scouter.agent.trace.enums.XLogDiscard;
 import scouter.lang.AlertLevel;
 import scouter.lang.TextTypes;
 import scouter.lang.pack.AlertPack;
@@ -445,8 +447,10 @@ public class TraceMain {
                 ServiceSummary.getInstance().process(statementLeakSuspect, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
             }
 
-            boolean sendable = (!TraceMain.evaluateXLogDiscard(pack.elapsed) || pack.error != 0);
-            ctx.profile.close(sendable);
+            //check xlog sampling
+            XLogDiscard discardMode = pack.error != 0 ? XLogDiscard.NONE : XLogSampler.getInstance().evaluateXLogDiscard(pack.elapsed, ctx.serviceName);
+
+            ctx.profile.close(discardMode==XLogDiscard.NONE ? true : false);
             if (ctx.group != null) {
                 pack.group = DataProxy.sendGroup(ctx.group);
             }
@@ -479,7 +483,7 @@ public class TraceMain {
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
-            if (sendable) {
+            if (discardMode != XLogDiscard.DISCARD_ALL) {
                 DataProxy.sendXLog(pack);
             }
         } catch (Throwable e) {
@@ -582,6 +586,8 @@ public class TraceMain {
 
             if (ctx.xType != XLogTypes.BACK_THREAD && ctx.xType != XLogTypes.BACK_THREAD2) {
                 PluginAppServiceTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
+            } else {
+                PluginBackThreadTrace.start(ctx, new HookArgs(className, methodName, methodDesc, _this, arg));
             }
 
             if (ctx.xType == XLogTypes.BACK_THREAD) {
@@ -630,6 +636,8 @@ public class TraceMain {
 
             if (ctx.xType != XLogTypes.BACK_THREAD && ctx.xType != XLogTypes.BACK_THREAD2) {
                 PluginAppServiceTrace.end(ctx);
+            } else {
+                PluginBackThreadTrace.end(ctx);
             }
 
             TraceContextManager.end(ctx.threadId);
@@ -640,8 +648,10 @@ public class TraceMain {
             pack.elapsed = (int) (System.currentTimeMillis() - ctx.startTime);
             pack.error = errorCheck(ctx, thr);
 
-            boolean sendable = (!TraceMain.evaluateXLogDiscard(pack.elapsed) || pack.error != 0);
-            ctx.profile.close(sendable);
+            //check xlog sampling
+            XLogDiscard discardMode = pack.error != 0 ? XLogDiscard.NONE : XLogSampler.getInstance().evaluateXLogDiscard(pack.elapsed, ctx.serviceName);
+
+            ctx.profile.close(discardMode==XLogDiscard.NONE ? true : false);
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
             pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
@@ -672,7 +682,7 @@ public class TraceMain {
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
 
-            if (sendable) {
+            if (discardMode != XLogDiscard.DISCARD_ALL) {
                 DataProxy.sendXLog(pack);
             }
         } catch (Throwable t) {
@@ -948,36 +958,6 @@ public class TraceMain {
         if (ctx instanceof DataSource) {
             LoadedContext.put((DataSource) ctx);
         }
-    }
-
-    private static boolean evaluateXLogDiscard(int elapsed) {
-        boolean isXLogDisard = false;
-
-        if( elapsed < conf.xlog_lower_bound_time_ms) {
-            isXLogDisard = true;
-            return isXLogDisard;
-        }
-
-        if(conf.xlog_sampling_enabled) {
-            if(elapsed < conf.xlog_sampling_step1_ms) {
-                if(Math.abs(KeyGen.next()%100) >= conf.xlog_sampling_step1_rate_pct) {
-                    isXLogDisard = true;
-                }
-            } else if(elapsed < conf.xlog_sampling_step2_ms) {
-                if(Math.abs(KeyGen.next()%100) >= conf.xlog_sampling_step2_rate_pct) {
-                    isXLogDisard = true;
-                }
-            } else if(elapsed < conf.xlog_sampling_step3_ms) {
-                if(Math.abs(KeyGen.next()%100) >= conf.xlog_sampling_step3_rate_pct) {
-                    isXLogDisard = true;
-                }
-            } else {
-                if(Math.abs(KeyGen.next()%100) >= conf.xlog_sampling_over_rate_pct) {
-                    isXLogDisard = true;
-                }
-            }
-        }
-        return isXLogDisard;
     }
 
     public static void endRequestAsyncStart(Object asyncContext) {

@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba, and others. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -80,13 +81,13 @@ public class MultiArrayType extends Type {
     }
 
     public boolean isAssignableTo(Type type) {
-        if (eq(type.getCtClass(), OBJECT.getCtClass()))
+        if (eq(type.getCtClass(), Type.OBJECT.getCtClass()))
             return true;
 
-        if (eq(type.getCtClass(), CLONEABLE.getCtClass()))
+        if (eq(type.getCtClass(), Type.CLONEABLE.getCtClass()))
             return true;
 
-        if (eq(type.getCtClass(), SERIALIZABLE.getCtClass()))
+        if (eq(type.getCtClass(), Type.SERIALIZABLE.getCtClass()))
             return true;
 
         if (! type.isArray())
@@ -99,13 +100,13 @@ public class MultiArrayType extends Type {
             return false;
 
         if (typeDims < dims) {
-            if (eq(typeRoot.getCtClass(), OBJECT.getCtClass()))
+            if (eq(typeRoot.getCtClass(), Type.OBJECT.getCtClass()))
                 return true;
 
-            if (eq(typeRoot.getCtClass(), CLONEABLE.getCtClass()))
+            if (eq(typeRoot.getCtClass(), Type.CLONEABLE.getCtClass()))
                 return true;
 
-            if (eq(typeRoot.getCtClass(), SERIALIZABLE.getCtClass()))
+            if (eq(typeRoot.getCtClass(), Type.SERIALIZABLE.getCtClass()))
                 return true;
 
             return false;

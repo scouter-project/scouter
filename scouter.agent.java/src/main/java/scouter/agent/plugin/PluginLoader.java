@@ -75,6 +75,15 @@ public class PluginLoader extends Thread {
 				PluginHttpServiceTrace.plugIn = createHttpService(script);
 			}
 		}
+		script = new File(root, "backthread.plug");
+		if (script.canRead() == false) {
+			PluginBackThreadTrace.plugIn = null;
+		} else {
+			if (PluginBackThreadTrace.plugIn == null
+					|| PluginBackThreadTrace.plugIn.lastModified != script.lastModified()) {
+				PluginBackThreadTrace.plugIn = createAppService(script);
+			}
+		}
 		script = new File(root, "capture.plug");
 		if (script.canRead() == false) {
 			PluginCaptureTrace.plugIn = null;
@@ -191,11 +200,11 @@ public class PluginLoader extends Thread {
 			Class c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractHttpService plugin = (AbstractHttpService) c.newInstance();
 			plugin.lastModified = script.lastModified();
-			Logger.println("PLUG-IN : " + AbstractHttpService.class.getName() + " loaded #"
+			Logger.println("PLUG-IN : " + AbstractHttpService.class.getName() + " " + script.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (CannotCompileException ee) {
-			Logger.println(ee.getMessage());
+			Logger.println("PLUG-IN : " + ee.getMessage());
 		} catch (Throwable e) {
 			Logger.println("A161", e);
 		}
@@ -297,7 +306,7 @@ public class PluginLoader extends Thread {
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractAppService plugin = (AbstractAppService) c.newInstance();
 			plugin.lastModified = script.lastModified();
-			Logger.println("PLUG-IN : " + AbstractAppService.class.getName() + " loaded #"
+			Logger.println("PLUG-IN : " + AbstractAppService.class.getName() + " " + script.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (CannotCompileException ee) {
@@ -471,7 +480,7 @@ public class PluginLoader extends Thread {
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractJdbcPool plugin = (AbstractJdbcPool) c.newInstance();
 			plugin.lastModified = script.lastModified();
-			Logger.println("PLUG-IN : " + AbstractJdbcPool.class.getName() + " loaded #"
+			Logger.println("PLUG-IN : " + AbstractJdbcPool.class.getName() + " " + script.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (CannotCompileException ee) {
@@ -531,7 +540,7 @@ public class PluginLoader extends Thread {
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AbstractHttpCall plugin = (AbstractHttpCall) c.newInstance();
 			plugin.lastModified = script.lastModified();
-			Logger.println("PLUG-IN : " + AbstractHttpCall.class.getName() + " loaded #"
+			Logger.println("PLUG-IN : " + AbstractHttpCall.class.getName() + " " + script.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
 		} catch (CannotCompileException ee) {

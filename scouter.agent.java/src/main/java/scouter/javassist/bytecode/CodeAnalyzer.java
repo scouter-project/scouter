@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -74,6 +75,8 @@ class CodeAnalyzer implements Opcode {
         int codeLength = stack.length;
         ci.move(index);
         int stackDepth = -stack[index];
+        int[] jsrDepth = new int[1];
+        jsrDepth[0] = -1;
         while (ci.hasNext()) {
             index = ci.next();
             stack[index] = stackDepth;
@@ -82,7 +85,7 @@ class CodeAnalyzer implements Opcode {
             if (stackDepth < 1)
                 throw new BadBytecode("stack underflow at " + index);
 
-            if (processBranch(op, ci, index, codeLength, stack, stackDepth))
+            if (processBranch(op, ci, index, codeLength, stack, stackDepth, jsrDepth))
                 break;
 
             if (isEnd(op))     // return, ireturn, athrow, ...
@@ -94,7 +97,7 @@ class CodeAnalyzer implements Opcode {
     }
 
     private boolean processBranch(int opcode, CodeIterator ci, int index,
-                                  int codeLength, int[] stack, int stackDepth)
+                                  int codeLength, int[] stack, int stackDepth, int[] jsrDepth)
         throws BadBytecode
     {
         if ((IFEQ <= opcode && opcode <= IF_ACMPNE)
@@ -121,17 +124,34 @@ class CodeAnalyzer implements Opcode {
                     target = index + ci.s32bitAt(index + 1);
 
                 checkTarget(index, target, codeLength, stack, stackDepth);
-                if (stackDepth == 2)    // stackDepth is 1 if empty
+                /*
+                 * It is unknown which RET comes back to this JSR.
+                 * So we assume that if the stack depth at one JSR instruction
+                 * is N, then it is also N at other JSRs and N - 1 at all RET
+                 * instructions.  Note that STACK_GROW[JSR] is 1 since it pushes
+                 * a return address on the operand stack.
+                 */
+                if (jsrDepth[0] < 0) {
+                    jsrDepth[0] = stackDepth;
+                    return false;
+                }
+                else if (stackDepth == jsrDepth[0])
                     return false;
                 else
                     throw new BadBytecode(
-                        "sorry, cannot compute this data flow due to JSR");
+                        "sorry, cannot compute this data flow due to JSR: "
+                            + stackDepth + "," + jsrDepth[0]);
             case RET :
-                if (stackDepth == 1)    // stackDepth is 1 if empty
+                if (jsrDepth[0] < 0) {
+                    jsrDepth[0] = stackDepth + 1;
+                    return false;
+                }
+                else if (stackDepth + 1 == jsrDepth[0])
                     return true;
                 else
                     throw new BadBytecode(
-                        "sorry, cannot compute this data flow due to RET");
+                        "sorry, cannot compute this data flow due to RET: "
+                            + stackDepth + "," + jsrDepth[0]);
             case LOOKUPSWITCH :
             case TABLESWITCH :
                 index2 = (index & ~3) + 4;
@@ -219,6 +239,10 @@ class CodeAnalyzer implements Opcode {
             desc = constPool.getInterfaceMethodrefType(
                                             ci.u16bitAt(index + 1));
             stack += Descriptor.dataSize(desc) - 1;
+            break;
+        case INVOKEDYNAMIC :
+            desc = constPool.getInvokeDynamicType(ci.u16bitAt(index + 1));
+            stack += Descriptor.dataSize(desc);     // assume CosntPool#REF_invokeStatic
             break;
         case ATHROW :
             stack = 1;      // the stack becomes empty (1 means no values).

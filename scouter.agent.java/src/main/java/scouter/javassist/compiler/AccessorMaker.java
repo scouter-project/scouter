@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -19,7 +20,15 @@ import scouter.javassist.CannotCompileException;
 import scouter.javassist.ClassPool;
 import scouter.javassist.CtClass;
 import scouter.javassist.NotFoundException;
-import scouter.javassist.bytecode.*;
+import scouter.javassist.bytecode.AccessFlag;
+import scouter.javassist.bytecode.Bytecode;
+import scouter.javassist.bytecode.ClassFile;
+import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.Descriptor;
+import scouter.javassist.bytecode.ExceptionsAttribute;
+import scouter.javassist.bytecode.FieldInfo;
+import scouter.javassist.bytecode.MethodInfo;
+import scouter.javassist.bytecode.SyntheticAttribute;
 
 import java.util.HashMap;
 
@@ -32,7 +41,7 @@ public class AccessorMaker {
     private int uniqueNumber;
     private HashMap accessors;
 
-    static final String lastParamType = "javassist.runtime.Inner";
+    static final String lastParamType = "Inner";
 
     public AccessorMaker(CtClass c) {
         clazz = c;
@@ -93,7 +102,7 @@ public class AccessorMaker {
      * @param accDesc   the descriptor of the accessor method.  The first
      *                  parameter type is <code>clazz</code>.
      *                  If the private method is static,
-     *              <code>accDesc<code> must be identical to <code>desc</code>. 
+     *              <code>accDesc</code> must be identical to <code>desc</code>. 
      *                  
      * @param orig      the method info of the private method.
      * @return
@@ -107,7 +116,7 @@ public class AccessorMaker {
         if (accName != null)
             return accName;     // already exists.
 
-        ClassFile cf = clazz.getClassFile();    // turn on the modified flag.
+        ClassFile cf = clazz.getClassFile();    // turn on the modified flag. 
         accName = findAccessorName(cf);
         try {
             ConstPool cp = cf.getConstPool();
@@ -159,7 +168,7 @@ public class AccessorMaker {
         if (res != null)
             return (MethodInfo)res;     // already exists.
 
-        ClassFile cf = clazz.getClassFile();    // turn on the modified flag.
+        ClassFile cf = clazz.getClassFile();    // turn on the modified flag. 
         String accName = findAccessorName(cf);
         try {
             ConstPool cp = cf.getConstPool();
@@ -210,7 +219,7 @@ public class AccessorMaker {
         if (res != null)
             return (MethodInfo)res;     // already exists.
 
-        ClassFile cf = clazz.getClassFile();    // turn on the modified flag.
+        ClassFile cf = clazz.getClassFile();    // turn on the modified flag. 
         String accName = findAccessorName(cf);
         try {
             ConstPool cp = cf.getConstPool();

@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -17,9 +18,9 @@ package scouter.javassist.bytecode.annotation;
 
 import java.io.*;
 
-import scouter.javassist.bytecode.AnnotationsAttribute;
 import scouter.javassist.bytecode.ByteArray;
 import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.AnnotationsAttribute;
 import scouter.javassist.bytecode.ParameterAnnotationsAttribute;
 
 /**
@@ -29,16 +30,16 @@ import scouter.javassist.bytecode.ParameterAnnotationsAttribute;
  *
  * <p>The following code snippet is an example of use of this class:
  *
- * <ul><pre>
+ * <pre>
  * ConstPool pool = ...;
  * output = new ByteArrayOutputStream();
  * writer = new AnnotationsWriter(output, pool);
  *
  * writer.numAnnotations(1);
  * writer.annotation("Author", 2);
- * writer.memberValuePair("name");
+ * writer.memberValuePair("name");      // element_value_pair
  * writer.constValueIndex("chiba");
- * writer.memberValuePair("address");
+ * writer.memberValuePair("address");   // element_value_pair
  * writer.constValueIndex("tokyo");
  *
  * writer.close();
@@ -46,20 +47,20 @@ import scouter.javassist.bytecode.ParameterAnnotationsAttribute;
  * AnnotationsAttribute anno
  *     = new AnnotationsAttribute(pool, AnnotationsAttribute.visibleTag,
  *                                attribute_info);
- * </pre></ul>
+ * </pre>
  *
  * <p>The code snippet above generates the annotation attribute
  * corresponding to this annotation:
  *
- * <ul><pre>
+ * <pre>
  * &nbsp;@Author(name = "chiba", address = "tokyo")
- * </pre></ul>
+ * </pre>
  *
  * @see AnnotationsAttribute
  * @see ParameterAnnotationsAttribute
  */
 public class AnnotationsWriter {
-    private OutputStream output;
+    protected OutputStream output;
     private ConstPool pool;
 
     /**
@@ -114,7 +115,7 @@ public class AnnotationsWriter {
      * calls to <code>memberValuePair()</code>.
      *
      * @param type                  the annotation interface name.
-     * @param numMemberValuePairs   <code>num_member_value_pairs</code>
+     * @param numMemberValuePairs   <code>num_element_value_pairs</code>
      *                              in <code>annotation</code>.
      */
     public void annotation(String type, int numMemberValuePairs)
@@ -129,7 +130,7 @@ public class AnnotationsWriter {
      * calls to <code>memberValuePair()</code>.
      *
      * @param typeIndex  <code>type_index</code> in <code>annotation</code>.
-     * @param numMemberValuePairs   <code>num_member_value_pairs</code>
+     * @param numMemberValuePairs   <code>num_element_value_pairs</code>
      *                              in <code>annotation</code>.
      */
     public void annotation(int typeIndex, int numMemberValuePairs)
@@ -140,27 +141,27 @@ public class AnnotationsWriter {
     }
 
     /**
-     * Writes an element of a <code>member_value_pairs</code> array
+     * Writes an element of a <code>element_value_pairs</code> array
      * in <code>annotation</code>.
      * This method must be followed by a
      * call to <code>constValueIndex()</code>, <code>enumConstValue()</code>,
      * etc.
      *
-     * @param memberName        the name of the annotation type member.
+     * @param memberName        the element name.
      */
     public void memberValuePair(String memberName) throws IOException {
         memberValuePair(pool.addUtf8Info(memberName));
     }
 
     /**
-     * Writes an element of a <code>member_value_pairs</code> array
+     * Writes an element of a <code>element_value_pairs</code> array
      * in <code>annotation</code>.
      * This method must be followed by a
      * call to <code>constValueIndex()</code>, <code>enumConstValue()</code>,
      * etc.
      *
-     * @param memberNameIndex   <code>member_name_index</code>
-     *                          in <code>member_value_pairs</code> array.
+     * @param memberNameIndex   <code>element_name_index</code>
+     *                          in <code>element_value_pairs</code> array.
      */
     public void memberValuePair(int memberNameIndex) throws IOException {
         write16bit(memberNameIndex);
@@ -168,7 +169,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>const_value_index</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
      * @param value     the constant value.
      */
@@ -178,7 +179,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>const_value_index</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
      * @param value     the constant value.
      */
@@ -188,7 +189,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>const_value_index</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
      * @param value     the constant value.
      */
@@ -198,7 +199,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>const_value_index</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
      * @param value     the constant value.
      */
@@ -208,7 +209,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>const_value_index</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
      * @param value     the constant value.
      */
@@ -218,7 +219,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>const_value_index</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
      * @param value     the constant value.
      */
@@ -228,7 +229,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>const_value_index</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
      * @param value     the constant value.
      */
@@ -238,7 +239,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>const_value_index</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
      * @param value     the constant value.
      */
@@ -248,7 +249,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>const_value_index</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
      * @param value     the constant value.
      */
@@ -258,11 +259,11 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>const_value_index</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
-     * @param tag       <code>tag</code> in <code>member_value</code>.
+     * @param tag       <code>tag</code> in <code>element_value</code>.
      * @param index     <code>const_value_index</code>
-     *                              in <code>member_value</code>.
+     *                              in <code>element_value</code>.
      */
     public void constValueIndex(int tag, int index)
         throws IOException
@@ -273,7 +274,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>enum_const_value</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
      * @param typeName      the type name of the enum constant.
      * @param constName     the simple name of the enum constant.
@@ -287,12 +288,12 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>enum_const_value</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
      * @param typeNameIndex       <code>type_name_index</code>
-     *                              in <code>member_value</code>.
+     *                              in <code>element_value</code>.
      * @param constNameIndex     <code>const_name_index</code>
-     *                              in <code>member_value</code>.
+     *                              in <code>element_value</code>.
      */
     public void enumConstValue(int typeNameIndex, int constNameIndex)
         throws IOException
@@ -304,7 +305,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>class_info_index</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
      * @param name      the class name.
      */
@@ -314,7 +315,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>class_info_index</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      *
      * @param index       <code>class_info_index</code>
      */
@@ -325,7 +326,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>annotation_value</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      * This method must be followed by a call to <code>annotation()</code>.
      */
     public void annotationValue() throws IOException {
@@ -334,7 +335,7 @@ public class AnnotationsWriter {
 
     /**
      * Writes <code>tag</code> and <code>array_value</code> 
-     * in <code>member_value</code>.
+     * in <code>element_value</code>.
      * This method must be followed by <code>numValues</code> calls
      * to <code>constValueIndex()</code>, <code>enumConstValue()</code>,
      * etc.
@@ -347,7 +348,7 @@ public class AnnotationsWriter {
         write16bit(numValues);
     }
 
-    private void write16bit(int value) throws IOException {
+    protected void write16bit(int value) throws IOException {
         byte[] buf = new byte[2];
         ByteArray.write16bit(value, buf, 0);
         output.write(buf);

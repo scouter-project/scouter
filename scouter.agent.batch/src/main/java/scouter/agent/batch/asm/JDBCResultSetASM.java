@@ -41,12 +41,14 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 		target.add("jdbc/FakeResultSet");
 		target.add("net/sourceforge/jtds/jdbc/JtdsResultSet");
 		target.add("com/microsoft/sqlserver/jdbc/SQLServerResultSet");
-		target.add("com/tmax/tibero/jdbc/TbResultSet");
 		target.add("oracle/jdbc/driver/InsensitiveScrollableResultSet");
 		target.add("oracle/jdbc/driver/SensitiveScrollableResultSet");
 		target.add("org/hsqldb/jdbc/JDBCResultSet");
 		target.add("cubrid/jdbc/driver/CUBRIDResultSet");
 		target.add("org/mariadb/jdbc/MariaDbResultSet");
+
+		target.add("com/tmax/tibero/jdbc/TbResultSetBase"); //tibero5
+		target.add("com/tmax/tibero/jdbc/driver/TbResultSetBase"); //tibero6
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

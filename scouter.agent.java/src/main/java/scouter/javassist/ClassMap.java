@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -24,7 +25,7 @@ import scouter.javassist.bytecode.Descriptor;
  * definition or a method body.  Define a subclass of this class
  * if a more complex mapping algorithm is needed.  For example,
  *
- * <ul><pre>class MyClassMap extends ClassMap {
+ * <pre>class MyClassMap extends ClassMap {
  *   public Object get(Object jvmClassName) {
  *     String name = toJavaName((String)jvmClassName);
  *     if (name.startsWith("java."))
@@ -32,7 +33,7 @@ import scouter.javassist.bytecode.Descriptor;
  *     else
  *         return super.get(jvmClassName);
  *   }
- * }</pre></ul>
+ * }</pre>
  *
  * <p>This subclass maps <code>java.lang.String</code> to
  * <code>java2.lang.String</code>.  Note that <code>get()</code>
@@ -40,9 +41,11 @@ import scouter.javassist.bytecode.Descriptor;
  * For example, the internal representation of <code>java.lang.String</code>
  * is <code>java/lang/String</code>.
  *
+ * <p>Note that this is a map from <code>String</code> to <code>String</code>.
+ *
  * @see #get(Object)
  * @see CtClass#replaceClassName(ClassMap)
- * @see CtNewMethod#copy(CtMethod,String, CtClass,ClassMap)
+ * @see CtNewMethod#copy(CtMethod,String,CtClass,ClassMap)
  */
 public class ClassMap extends java.util.HashMap {
     private ClassMap parent;

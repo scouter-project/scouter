@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -41,9 +42,10 @@ class SerializedProxy implements Serializable {
         int n = infs.length;
         interfaces = new String[n - 1];
         String setterInf = ProxyObject.class.getName();
+        String setterInf2 = Proxy.class.getName();
         for (int i = 0; i < n; i++) {
             String name = infs[i].getName();
-            if (!name.equals(setterInf))
+            if (!name.equals(setterInf) && !name.equals(setterInf2))
                 interfaces[i] = name;
         }
     }
@@ -79,7 +81,7 @@ class SerializedProxy implements Serializable {
             ProxyFactory f = new ProxyFactory();
             f.setSuperclass(loadClass(superClass));
             f.setInterfaces(infs);
-            ProxyObject proxy = (ProxyObject)f.createClass(filterSignature).newInstance();
+            Proxy proxy = (Proxy)f.createClass(filterSignature).newInstance();
             proxy.setHandler(handler);
             return proxy;
         }

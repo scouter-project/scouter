@@ -1,0 +1,11 @@
+[args]
+// void capArgs(WrContext $ctx, HookArgs $hook)
+
+
+
+[return]
+// unused
+
+
+[this]
+// unused

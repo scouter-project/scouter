@@ -54,11 +54,13 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		target.add("jdbc/FakePreparedStatement");
 		target.add("jdbc/FakePreparedStatement2");
 		target.add("com/microsoft/sqlserver/jdbc/SQLServerPreparedStatement");
-		target.add("com/tmax/tibero/jdbc/TbPreparedStatement");
 		target.add("org/hsqldb/jdbc/JDBCPreparedStatement");
 		target.add("com/mysql/jdbc/ServerPreparedStatement");
 		target.add("com/mysql/jdbc/PreparedStatement");
         target.add("cubrid/jdbc/driver/CUBRIDPreparedStatement");
+
+		target.add("com/tmax/tibero/jdbc/TbPreparedStatement"); //tibero5
+		target.add("com/tmax/tibero/jdbc/driver/TbPreparedStatement"); //tibero6
 
         // @skyworker - MySQL ServerPreparedStatement는 특별히 필드를 추가하지 않음
         noField.add("com/mysql/jdbc/ServerPreparedStatement");

@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -30,14 +31,29 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
-import scouter.javassist.bytecode.*;
+import scouter.javassist.bytecode.AccessFlag;
+import scouter.javassist.bytecode.AttributeInfo;
+import scouter.javassist.bytecode.AnnotationsAttribute;
+import scouter.javassist.bytecode.BadBytecode;
+import scouter.javassist.bytecode.Bytecode;
+import scouter.javassist.bytecode.ClassFile;
+import scouter.javassist.bytecode.CodeAttribute;
+import scouter.javassist.bytecode.ConstantAttribute;
+import scouter.javassist.bytecode.CodeIterator;
+import scouter.javassist.bytecode.ConstPool;
+import scouter.javassist.bytecode.Descriptor;
+import scouter.javassist.bytecode.EnclosingMethodAttribute;
+import scouter.javassist.bytecode.FieldInfo;
+import scouter.javassist.bytecode.InnerClassesAttribute;
+import scouter.javassist.bytecode.MethodInfo;
+import scouter.javassist.bytecode.ParameterAnnotationsAttribute;
+import scouter.javassist.bytecode.SignatureAttribute;
 import scouter.javassist.bytecode.annotation.Annotation;
 import scouter.javassist.compiler.AccessorMaker;
 import scouter.javassist.compiler.CompileError;
 import scouter.javassist.compiler.Javac;
-import scouter.javassist.bytecode.Bytecode;
-import scouter.javassist.bytecode.ParameterAnnotationsAttribute;
 import scouter.javassist.expr.ExprEditor;
+import scouter.javassist.bytecode.annotation.AnnotationImpl;
 
 /**
  * Class types.
@@ -79,6 +95,12 @@ class CtClassType extends CtClass {
     CtClassType(InputStream ins, ClassPool cp) throws IOException {
         this((String)null, cp);
         classfile = new ClassFile(new DataInputStream(ins));
+        qualifiedName = classfile.getName();
+    }
+
+    CtClassType(ClassFile cf, ClassPool cp) {
+        this((String)null, cp);
+        classfile = cf;
         qualifiedName = classfile.getName();
     }
 
@@ -149,18 +171,24 @@ class CtClassType extends CtClass {
     }
 
     public ClassFile getClassFile2() {
+        return getClassFile3(true);
+    }
+
+    public ClassFile getClassFile3(boolean doCompress) {
         ClassFile cfile = classfile;
         if (cfile != null)
             return cfile;
 
-        classPool.compress();
+        if (doCompress)
+            classPool.compress();
+
         if (rawClassfile != null) {
             try {
-                classfile = new ClassFile(new DataInputStream(
-                                            new ByteArrayInputStream(rawClassfile)));
+                ClassFile cf = new ClassFile(new DataInputStream(
+                                             new ByteArrayInputStream(rawClassfile)));
                 rawClassfile = null;
                 getCount = GET_THRESHOLD;
-                return classfile;
+                return setClassFile(cf);
             }
             catch (IOException e) {
                 throw new RuntimeException(e.toString(), e);
@@ -180,8 +208,7 @@ class CtClassType extends CtClass {
                         + cf.getName() + " found in "
                         + qualifiedName.replace('.', '/') + ".class");
 
-            classfile = cf;
-            return cf;
+            return setClassFile(cf);
         }
         catch (NotFoundException e) {
             throw new RuntimeException(e.toString(), e);
@@ -200,7 +227,7 @@ class CtClassType extends CtClass {
 
    /* Inherited from CtClass.  Called by get() in ClassPool.
     *
-    * @see javassist.CtClass#incGetCounter()
+    * @see CtClass#incGetCounter()
     * @see #toBytecode(DataOutputStream)
     */
    final void incGetCounter() { ++getCount; }
@@ -225,7 +252,7 @@ class CtClassType extends CtClass {
      * for saving memory space.
      */
     private synchronized void saveClassFile() {
-        /* getMembers() and releaseClassFile() are also synchronized.
+        /* getMembers() and removeClassFile() are also synchronized.
          */
         if (classfile == null || hasMemberCache() != null)
             return;
@@ -244,6 +271,16 @@ class CtClassType extends CtClass {
     private synchronized void removeClassFile() {
         if (classfile != null && !isModified() && hasMemberCache() == null)
             classfile = null;
+    }
+
+    /**
+     * Updates {@code classfile} if it is null.
+     */
+    private synchronized ClassFile setClassFile(ClassFile cf) {
+        if (classfile == null)
+            classfile = cf;
+
+        return classfile;
     }
 
     public ClassPool getClassPool() { return classPool; }
@@ -322,6 +359,18 @@ class CtClassType extends CtClass {
         classPool.classNameChanged(oldname, this);
     }
 
+    public String getGenericSignature() {
+        SignatureAttribute sa
+            = (SignatureAttribute)getClassFile2().getAttribute(SignatureAttribute.tag);
+        return sa == null ? null : sa.getSignature();
+    }
+
+    public void setGenericSignature(String sig) {
+        ClassFile cf = getClassFile();
+        SignatureAttribute sa = new SignatureAttribute(cf.getConstPool(), sig);
+        cf.addAttribute(sa);
+    }
+
     public void replaceClassName(ClassMap classnames)
         throws RuntimeException
     {
@@ -388,20 +437,17 @@ class CtClassType extends CtClass {
         if (ica == null)
             return new CtClass[0];
 
-        String thisName = cf.getName();
+        String thisName = cf.getName() + "$";
         int n = ica.tableLength();
         ArrayList list = new ArrayList(n);
         for (int i = 0; i < n; i++) {
-            String outer = ica.outerClass(i);
-            /*
-             * If a nested class is local or anonymous,
-             * the outer_class_info_index is 0.
-             */
-            if (outer == null || outer.equals(thisName)) {
-                String inner = ica.innerClass(i);
-                if (inner != null)
-                    list.add(classPool.get(inner));
-            }
+            String name = ica.innerClass(i);
+            if (name != null)
+                if (name.startsWith(thisName)) {
+                    // if it is an immediate nested class
+                    if (name.lastIndexOf('$') < thisName.length())
+                        list.add(classPool.get(name));
+                }
         }
 
         return (CtClass[])list.toArray(new CtClass[list.size()]);
@@ -421,17 +467,29 @@ class CtClassType extends CtClass {
         cf.setAccessFlags(AccessFlag.of(mod));
     }
 
-    public boolean hasAnnotation(Class clz) {
+    //@Override
+    public boolean hasAnnotation(String annotationName) {
         ClassFile cf = getClassFile2();
         AnnotationsAttribute ainfo = (AnnotationsAttribute)
                 cf.getAttribute(AnnotationsAttribute.invisibleTag);
         AnnotationsAttribute ainfo2 = (AnnotationsAttribute)
                 cf.getAttribute(AnnotationsAttribute.visibleTag);
-        return hasAnnotationType(clz, getClassPool(), ainfo, ainfo2);
+        return hasAnnotationType(annotationName, getClassPool(), ainfo, ainfo2);
     }
 
+    /**
+     * @deprecated
+     */
     static boolean hasAnnotationType(Class clz, ClassPool cp,
-                                     AnnotationsAttribute a1, AnnotationsAttribute a2)
+                                     AnnotationsAttribute a1,
+                                     AnnotationsAttribute a2)
+    {
+        return hasAnnotationType(clz.getName(), cp, a1, a2);
+    }
+
+    static boolean hasAnnotationType(String annotationTypeName, ClassPool cp,
+                                     AnnotationsAttribute a1,
+                                     AnnotationsAttribute a2)
     {
         Annotation[] anno1, anno2;
 
@@ -445,16 +503,15 @@ class CtClassType extends CtClass {
         else
             anno2 = a2.getAnnotations();
 
-        String typeName = clz.getName();
         if (anno1 != null)
-           for (int i = 0; i < anno1.length; i++)
-              if (anno1[i].getTypeName().equals(typeName))
-                  return true;
+            for (int i = 0; i < anno1.length; i++)
+                if (anno1[i].getTypeName().equals(annotationTypeName))
+                    return true;
 
         if (anno2 != null)
-           for (int i = 0; i < anno2.length; i++)
-              if (anno2[i].getTypeName().equals(typeName))
-                  return true;
+            for (int i = 0; i < anno2.length; i++)
+                if (anno2[i].getTypeName().equals(annotationTypeName))
+                    return true;
 
         return false;
     }
@@ -462,9 +519,9 @@ class CtClassType extends CtClass {
     public Object getAnnotation(Class clz) throws ClassNotFoundException {
         ClassFile cf = getClassFile2();
         AnnotationsAttribute ainfo = (AnnotationsAttribute)
-                cf.getAttribute(AnnotationsAttribute.invisibleTag);
+                cf.getAttribute(AnnotationsAttribute.invisibleTag);  
         AnnotationsAttribute ainfo2 = (AnnotationsAttribute)
-                cf.getAttribute(AnnotationsAttribute.visibleTag);
+                cf.getAttribute(AnnotationsAttribute.visibleTag);  
         return getAnnotationType(clz, getClassPool(), ainfo, ainfo2);
     }
 
@@ -516,14 +573,14 @@ class CtClassType extends CtClass {
     {
         ClassFile cf = getClassFile2();
         AnnotationsAttribute ainfo = (AnnotationsAttribute)
-                cf.getAttribute(AnnotationsAttribute.invisibleTag);
+                cf.getAttribute(AnnotationsAttribute.invisibleTag);  
         AnnotationsAttribute ainfo2 = (AnnotationsAttribute)
-                cf.getAttribute(AnnotationsAttribute.visibleTag);
+                cf.getAttribute(AnnotationsAttribute.visibleTag);  
         return toAnnotationType(ignoreNotFound, getClassPool(), ainfo, ainfo2);
     }
 
     static Object[] toAnnotationType(boolean ignoreNotFound, ClassPool cp,
-                                     AnnotationsAttribute a1, AnnotationsAttribute a2)
+                             AnnotationsAttribute a1, AnnotationsAttribute a2)
         throws ClassNotFoundException
     {
         Annotation[] anno1, anno2;
@@ -652,7 +709,20 @@ class CtClassType extends CtClass {
         }
         catch (ClassNotFoundException e) {
             ClassLoader cl2 = cp.getClass().getClassLoader();
-            return anno.toAnnotationType(cl2, cp);
+            try {
+                return anno.toAnnotationType(cl2, cp);
+            }
+            catch (ClassNotFoundException e2){
+                try {
+                    Class clazz = cp.get(anno.getTypeName()).toClass();
+                    return AnnotationImpl.make(
+                                            clazz.getClassLoader(),
+                                            clazz, cp, anno);
+                }
+                catch (Throwable e3) {
+                    throw new ClassNotFoundException(anno.getTypeName());
+                }
+            }
         }
     }
 
@@ -748,17 +818,23 @@ class CtClassType extends CtClass {
         return null;
     }
 
-    public CtMethod getEnclosingMethod() throws NotFoundException {
+    public CtBehavior getEnclosingBehavior() throws NotFoundException {
         ClassFile cf = getClassFile2();
         EnclosingMethodAttribute ema
                 = (EnclosingMethodAttribute)cf.getAttribute(
                                                 EnclosingMethodAttribute.tag);
-        if (ema != null) {
+        if (ema == null)
+            return null;
+        else {
             CtClass enc = classPool.get(ema.className());
-            return enc.getMethod(ema.methodName(), ema.methodDescriptor());
+            String name = ema.methodName();
+            if (MethodInfo.nameInit.equals(name))
+                return enc.getConstructor(ema.methodDescriptor());
+            else if(MethodInfo.nameClinit.equals(name))
+                return enc.getClassInitializer();
+            else
+                return enc.getMethod(name, ema.methodDescriptor());
         }
-
-        return null;
     }
 
     public CtClass makeNestedClass(String name, boolean isStatic) {
@@ -801,8 +877,9 @@ class CtClassType extends CtClass {
      * Returns null if members are not cached.
      */
     protected CtMember.Cache hasMemberCache() {
-        if (memberCache != null)
-            return (CtMember.Cache)memberCache.get();
+        WeakReference cache = memberCache;
+        if (cache != null)
+            return (CtMember.Cache)cache.get();
         else
             return null;
     }
@@ -821,7 +898,7 @@ class CtClassType extends CtClass {
     }
 
     private void makeFieldCache(CtMember.Cache cache) {
-        List list = getClassFile2().getFields();
+        List list = getClassFile3(false).getFields();
         int n = list.size();
         for (int i = 0; i < n; ++i) {
             FieldInfo finfo = (FieldInfo)list.get(i);
@@ -831,7 +908,7 @@ class CtClassType extends CtClass {
     }
 
     private void makeBehaviorCache(CtMember.Cache cache) {
-        List list = getClassFile2().getMethods();
+        List list = getClassFile3(false).getMethods();
         int n = list.size();
         for (int i = 0; i < n; ++i) {
             MethodInfo minfo = (MethodInfo)list.get(i);
@@ -880,16 +957,27 @@ class CtClassType extends CtClass {
         }
     }
 
-    public CtField getField(String name) throws NotFoundException {
-        CtField f = getField2(name);
-        if (f == null)
-            throw new NotFoundException("field: " + name + " in " + getName());
+    public CtField getField(String name, String desc) throws NotFoundException {
+        CtField f = getField2(name, desc);
+        return checkGetField(f, name, desc);
+    }
+
+    private CtField checkGetField(CtField f, String name, String desc)
+        throws NotFoundException
+    {
+        if (f == null) {
+            String msg = "field: " + name;
+            if (desc != null)
+                msg += " type " + desc;
+
+            throw new NotFoundException(msg + " in " + getName());
+        }
         else
             return f;
     }
 
-    CtField getField2(String name) {
-        CtField df = getDeclaredField2(name);
+    CtField getField2(String name, String desc) {
+        CtField df = getDeclaredField2(name, desc);
         if (df != null)
             return df;
 
@@ -897,14 +985,14 @@ class CtClassType extends CtClass {
             CtClass[] ifs = getInterfaces();
             int num = ifs.length;
             for (int i = 0; i < num; ++i) {
-                CtField f = ifs[i].getField2(name);
+                CtField f = ifs[i].getField2(name, desc);
                 if (f != null)
                     return f;
             }
 
             CtClass s = getSuperclass();
             if (s != null)
-                return s.getField2(name);
+                return s.getField2(name, desc);
         }
         catch (NotFoundException e) {}
         return null;
@@ -926,20 +1014,22 @@ class CtClassType extends CtClass {
     }
 
     public CtField getDeclaredField(String name) throws NotFoundException {
-        CtField f = getDeclaredField2(name);
-        if (f == null)
-            throw new NotFoundException("field: " + name + " in " + getName());
-        else
-            return f;
+        return getDeclaredField(name, null);
     }
 
-    private CtField getDeclaredField2(String name) {
+    public CtField getDeclaredField(String name, String desc) throws NotFoundException {
+        CtField f = getDeclaredField2(name, desc);
+        return checkGetField(f, name, desc);
+    }
+
+    private CtField getDeclaredField2(String name, String desc) {
         CtMember.Cache memCache = getMembers();
         CtMember field = memCache.fieldHead();
         CtMember tail = memCache.lastField();
         while (field != tail) {
             field = field.next();
-            if (field.getName().equals(name))
+            if (field.getName().equals(name)
+                && (desc == null || desc.equals(field.getSignature())))
                 return (CtField)field;
         }
 
@@ -1160,6 +1250,20 @@ class CtClassType extends CtClass {
         return cms;
     }
 
+    public CtMethod[] getDeclaredMethods(String name) throws NotFoundException {
+        CtMember.Cache memCache = getMembers();
+        CtMember mth = memCache.methodHead();
+        CtMember mthTail = memCache.lastMethod();
+        ArrayList methods = new ArrayList();
+        while (mth != mthTail) {
+            mth = mth.next();
+            if (mth.getName().equals(name))
+                methods.add((CtMethod)mth);
+        }
+
+        return (CtMethod[]) methods.toArray(new CtMethod[methods.size()]);
+    }
+
     public CtMethod getDeclaredMethod(String name) throws NotFoundException {
         CtMember.Cache memCache = getMembers();
         CtMember mth = memCache.methodHead();
@@ -1297,10 +1401,11 @@ class CtClassType extends CtClass {
 
         int mod = m.getModifiers();
         if ((getModifiers() & Modifier.INTERFACE) != 0) {
-            m.setModifiers(mod | Modifier.PUBLIC);
-            if ((mod & Modifier.ABSTRACT) == 0)
+            if (Modifier.isProtected(mod) || Modifier.isPrivate(mod))
                 throw new CannotCompileException(
-                        "an interface method must be abstract: " + m.toString());
+                        "an interface method must be public: " + m.toString());
+
+            m.setModifiers(mod | Modifier.PUBLIC);
         }
 
         getMembers().addMethod(m);
@@ -1390,6 +1495,9 @@ class CtClassType extends CtClass {
 
                 modifyClassConstructor(cf);
                 modifyConstructors(cf);
+                if (debugDump != null)
+                    dumpClassFile(cf);
+
                 cf.write(out);
                 out.flush();
                 fieldInitializers = null;
@@ -1413,6 +1521,16 @@ class CtClassType extends CtClass {
         }
         catch (IOException e) {
             throw new CannotCompileException(e);
+        }
+    }
+
+    private void dumpClassFile(ClassFile cf) throws IOException {
+        DataOutputStream dump = makeFileOutput(debugDump);
+        try {
+            cf.write(dump);
+        }
+        finally {
+            dump.close();
         }
     }
 

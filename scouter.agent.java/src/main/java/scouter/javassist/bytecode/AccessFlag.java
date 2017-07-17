@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -17,7 +18,7 @@ package scouter.javassist.bytecode;
 
 /**
  * A support class providing static methods and constants
- * for access modifiers such as public, rivate, ...
+ * for access modifiers such as public, private, ...
  */
 public class AccessFlag {
     public static final int PUBLIC    = 0x0001;
@@ -37,6 +38,7 @@ public class AccessFlag {
     public static final int SYNTHETIC = 0x1000;
     public static final int ANNOTATION = 0x2000;
     public static final int ENUM      = 0x4000;
+    public static final int MANDATED  = 0x8000;
 
     public static final int SUPER     = 0x0020;
 
@@ -111,18 +113,18 @@ public class AccessFlag {
     }
 
     /**
-     * Converts a javassist.Modifier into
-     * a javassist.bytecode.AccessFlag.
+     * Converts a Modifier into
+     * a AccessFlag.
      *
-     * @param modifier          javassist.Modifier
+     * @param modifier          Modifier
      */
     public static int of(int modifier) {
         return modifier;
     }
 
     /**
-     * Converts a javassist.bytecode.AccessFlag
-     * into a javassist.Modifier.
+     * Converts a AccessFlag
+     * into a Modifier.
      *
      * @param accflags          javassist.bytecode.Accessflag
      */

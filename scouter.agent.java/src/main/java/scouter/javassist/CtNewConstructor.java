@@ -1,11 +1,12 @@
 /*
  * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999-2007 Shigeru Chiba. All Rights Reserved.
+ * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later.
+ * the terms of the GNU Lesser General Public License Version 2.1 or later,
+ * or the Apache License Version 2.0.
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -119,7 +120,7 @@ public class CtNewConstructor {
      *                  with substituted names.
      *                  It can be <code>null</code>.
      *
-     * @see CtConstructor#CtConstructor(CtConstructor, CtClass,ClassMap)
+     * @see CtConstructor#CtConstructor(CtConstructor,CtClass,ClassMap)
      */
     public static CtConstructor copy(CtConstructor c, CtClass declaring,
                                 ClassMap map) throws CannotCompileException {
@@ -174,7 +175,7 @@ public class CtNewConstructor {
      * @see CtField.Initializer#byParameter(int)
      */
     public static CtConstructor skeleton(CtClass[] parameters,
-                                         CtClass[] exceptions, CtClass declaring)
+                        CtClass[] exceptions, CtClass declaring)
         throws CannotCompileException
     {
         return make(parameters, exceptions, PASS_NONE,
@@ -218,8 +219,8 @@ public class CtNewConstructor {
      * <code>Object</code>.  The signature of the super's constructor
      * must be:
      *
-     * <ul><code>constructor(Object[] params, &lt;type&gt; cvalue)
-     * </code></ul>
+     * <pre>constructor(Object[] params, &lt;type&gt; cvalue)
+     * </pre>
      *
      * <p>Here, <code>cvalue</code> is the constant value specified
      * by <code>cparam</code>.
@@ -227,7 +228,7 @@ public class CtNewConstructor {
      * <p>If <code>cparam</code> is <code>null</code>, the signature
      * must be:
      *
-     * <ul><code>constructor(Object[] params)</code></ul>
+     * <pre>constructor(Object[] params)</pre>
      *
      * <p>If <code>body</code> is not null, a copy of that method is
      * embedded in the body of the created constructor.
@@ -244,20 +245,20 @@ public class CtNewConstructor {
      * The method specified by <code>body</code> must have the
      * signature shown below:
      *
-     * <ul><code>Object method(Object[] params, &lt;type&gt; cvalue)
-     * </code></ul>
+     * <pre>Object method(Object[] params, &lt;type&gt; cvalue)</pre>
      *
      * <p>If <code>cparam</code> is <code>null</code>, the signature
      * must be:
      *
-     * <ul><code>Object method(Object[] params)</code></ul>
+     * <pre>Object method(Object[] params)</pre>
      *
      * <p>Although the type of the returned value is <code>Object</code>,
      * the value must be always <code>null</code>.
      *
      * <p><i>Example:</i>
      *
-     * <ul><pre>ClassPool pool = ... ;
+     * <pre>
+     * ClassPool pool = ... ;
      * CtClass xclass = pool.makeClass("X");
      * CtMethod method = pool.getMethod("Sample", "m");
      * xclass.setSuperclass(pool.get("Y"));
@@ -265,20 +266,22 @@ public class CtNewConstructor {
      * ConstParameter cparam = ConstParameter.string("test");
      * CtConstructor c = CtNewConstructor.make(argTypes, null,
      *                                  PASS_PARAMS, method, cparam, xclass);
-     * xclass.addConstructor(c);</pre></ul>
+     * xclass.addConstructor(c);</pre>
      *
      * <p>where the class <code>Sample</code> is as follows:
      *
-     * <ul><pre>public class Sample {
+     * <pre>
+     * public class Sample {
      *     public Object m(Object[] args, String msg) {
      *         System.out.println(msg);
      *         return null;
      *     }
-     * }</pre></ul>
+     * }</pre>
      *
      * <p>This program produces the following class:
      *
-     * <ul><pre>public class X extends Y {
+     * <pre>
+     * public class X extends Y {
      *     public X(int p0) {
      *         super(p0);
      *         String msg = "test";
@@ -288,7 +291,7 @@ public class CtNewConstructor {
      *         Object result = null;
      *         // end
      *     }
-     * }</pre></ul>
+     * }</pre>
      *
      * @param parameters        a list of the parameter types
      * @param exceptions        a list of the exceptions
@@ -302,7 +305,7 @@ public class CtNewConstructor {
      * @param declaring         the class to which the created constructor
      *                          is added.
      *
-     * @see CtNewMethod#wrapped(CtClass,String, CtClass[], CtClass[],CtMethod, CtMethod.ConstParameter, CtClass)
+     * @see CtNewMethod#wrapped(CtClass,String,CtClass[],CtClass[],CtMethod,CtMethod.ConstParameter,CtClass)
      */
     public static CtConstructor make(CtClass[] parameters,
                                      CtClass[] exceptions, int howto,
