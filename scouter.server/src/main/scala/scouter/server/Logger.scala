@@ -30,6 +30,9 @@ import scouter.util.FileUtil
 import scouter.util.CompareUtil
 
 object Logger {
+    private val serverLogPrefix = "server";
+    private val serverLogPrefixWithHyphen = serverLogPrefix + "-";
+    private val requestLogPrefixWithHyphen = "request-";
 
     private val lastLog = new StringLongLinkedMap().setMax(1000);
 
@@ -169,10 +172,10 @@ object Logger {
 
                 new File(lastDir).mkdirs();
                 if (conf.log_rotation_enabled) {
-                    val fw = new FileWriter(new File(conf.log_dir, "server-" + DateUtil.yyyymmdd() + ".log"), true);
+                    val fw = new FileWriter(new File(conf.log_dir, serverLogPrefixWithHyphen + DateUtil.yyyymmdd() + ".log"), true);
                     pw = new PrintWriter(fw);
                 } else {
-                    pw = new PrintWriter(new File(conf.log_dir, "server.log"));
+                    pw = new PrintWriter(new File(conf.log_dir, serverLogPrefix + ".log"));
                 }
                 lastDataUnit = DateUtil.getDateUnit();
             }
@@ -195,14 +198,21 @@ object Logger {
                 }
 
                 val name = files(i).getName();
-                if (name.startsWith("server-") == false) {
+                var prefix = null;
+
+                if(name.startsWith(serverLogPrefixWithHyphen)) {
+                    prefix = serverLogPrefixWithHyphen;
+                } else if(name.startsWith(requestLogPrefixWithHyphen)) {
+                    prefix = requestLogPrefixWithHyphen;
+                } else {
                     break
                 }
+
                 val x = name.lastIndexOf('.');
                 if (x < 0) {
                     break
                 }
-                val date = name.substring("server-".length(), x);
+                val date = name.substring(prefix.length(), x);
                 if (date.length() != 8) {
                     break
                 }
