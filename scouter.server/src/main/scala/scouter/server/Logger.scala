@@ -184,12 +184,12 @@ object Logger {
 
     protected def clearOldLog() {
         if (conf.log_rotation_enabled == false)
-            return ;
+            return
         if (conf.log_keep_days <= 0)
-            return ;
-        val nowUnit = DateUtil.getDateUnit();
-        val dir = new File(conf.log_dir);
-        val files = dir.listFiles();
+            return
+        val nowUnit = DateUtil.getDateUnit()
+        val dir = new File(conf.log_dir)
+        val files = dir.listFiles()
 
         for (i <- 0 to files.length - 1) {
             breakable {
@@ -197,8 +197,8 @@ object Logger {
                     break
                 }
 
-                val name = files(i).getName();
-                var prefix = null;
+                val name = files(i).getName()
+                var prefix : String = null
 
                 if(name.startsWith(serverLogPrefixWithHyphen)) {
                     prefix = serverLogPrefixWithHyphen;
@@ -208,19 +208,19 @@ object Logger {
                     break
                 }
 
-                val x = name.lastIndexOf('.');
+                val x = name.lastIndexOf('.')
                 if (x < 0) {
                     break
                 }
-                val date = name.substring(prefix.length(), x);
+                val date = name.substring(prefix.length(), x)
                 if (date.length() != 8) {
                     break
                 }
                 try {
-                    val d = DateUtil.yyyymmdd(date);
-                    val fileUnit = DateUtil.getDateUnit(d);
+                    val d = DateUtil.yyyymmdd(date)
+                    val fileUnit = DateUtil.getDateUnit(d)
                     if (nowUnit - fileUnit > DateUtil.MILLIS_PER_DAY * conf.log_keep_days) {
-                        files(i).delete();
+                        files(i).delete()
                     }
                 } catch {
                     case e: Exception =>
