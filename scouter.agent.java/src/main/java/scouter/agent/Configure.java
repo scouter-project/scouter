@@ -100,7 +100,7 @@ public class Configure extends Thread {
     public long net_udp_collection_interval_ms = 100;
 
     //Object
-    @ConfigDesc("Deprecated. It's just an alias of system_group_id which overrides this value.")
+    @ConfigDesc("Deprecated. It's just an alias of monitoring_group_type which overrides this value.")
     public String obj_type = "";
     @ConfigDesc("monitoring group type, commonly named as system name and a monitoring type.\neg) ORDER-JVM, WAREHOUSE-LINUX ...")
     public String monitoring_group_type = "";
