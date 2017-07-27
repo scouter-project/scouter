@@ -65,6 +65,11 @@
 			<Counter name="BatchEnd" disp="Batch Accumulate End" unit="cnt" icon="service_count.png" />
 			<Counter name="BatchEndNoSignal" disp="Batch Accumulate End(No Signal)" unit="cnt" icon="service_count.png" />
 		</Family>
+        <Family name="aws" master="Cpu">
+            <Counter name="Cpu" disp="CPU" unit="%" icon="cpu.png" total="false" />
+            <Counter name="Mem" disp="Memory" unit="%" icon="memory.png" total="false"/>
+            <Counter name="RequestCount" disp="Request Count" unit="cnt" icon="req_count.gif" />
+        </Family>
 	</Familys>
 	<Types>
 		<ObjectType name="linux" family="host" disp="Linux" />
@@ -77,6 +82,7 @@
 		<ObjectType name="jetty" family="javaee" disp="Jetty" />
 		<ObjectType name="resin" family="javaee" disp="Resin" />
 		<ObjectType name="batch" family="batch" disp="Batch" />
+        <ObjectType name="aws" family="aws" disp="AWS" />
 		<ObjectType name="datasource" family="datasource" disp="DataSource" sub-object="true" />
 		<ObjectType name="reqproc" family="reqproc" disp="RequestProc" sub-object="true"/>
 	</Types>
