@@ -54,18 +54,22 @@ public class AgentThread {
 		} else {
 			p = new MapPack();
 			ctx = TraceContextManager.getDeferredContext(txid);
-		}
-
-		if (ctx != null) {
 			p.put("Thread Id", new DecimalValue(0L));
-			p.put("Thread Name", new TextValue("[No Thread] wait on deferred queue"));
-			p.put("State", new TextValue("n/a"));
 
-			p.put("Service Txid", new TextValue(Hexa32.toString32(ctx.txid)));
-			p.put("Service Name", new TextValue(AgentCommonConstant.removeSpringRequestMappingPostfixFlag(ctx.serviceName)));
-			long etime = System.currentTimeMillis() - ctx.startTime;
-			p.put("Service Elapsed", new DecimalValue(etime));
+			if (ctx != null) {
+				p.put("Thread Name", new TextValue("[No Thread] wait on deferred queue"));
+				p.put("State", new TextValue("n/a"));
+
+				p.put("Service Txid", new TextValue(Hexa32.toString32(ctx.txid)));
+				p.put("Service Name", new TextValue(AgentCommonConstant.removeSpringRequestMappingPostfixFlag(ctx.serviceName)));
+				long etime = System.currentTimeMillis() - ctx.startTime;
+				p.put("Service Elapsed", new DecimalValue(etime));
+			} else {
+				p.put("Thread Name", new TextValue("[No Thread] End"));
+				p.put("State", new TextValue("end"));
+			}
 		}
+
 		return p;
 	}
 	@RequestHandler(OBJECT_THREAD_CONTROL)
