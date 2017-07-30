@@ -90,11 +90,9 @@ SCOUTER can help you.
  - [Scouter series #1 - Installation](http://gunsdevlog.blogspot.kr/2017/07/scouter-apm-1.html)
  - [Scouter series #2 - basic monitoring(1/2)](http://gunsdevlog.blogspot.kr/2017/07/scouter-apm-2-12.html)
  - [Scouter series #3 - basic monitoring(2/2)](http://gunsdevlog.blogspot.kr/2017/07/scouter-apm-basic-monitoring-2.html)
- 
  - [Applying Scouter APM to my service : by Kingbbode](http://kingbbode.tistory.com/12)
  - [Effective monitoring by Scouter : by TMON](http://blog.naver.com/PostView.nhn?blogId=tmondev&logNo=220870505665)
  - [Opensource performance monitoring, Scouter configurations : by SUN](http://www.popit.kr/scouter-open-source-apm-config/)
- 
  - [Scouter, InfluxDB, Grafana](https://gunleeblog.wordpress.com/2016/04/01/open-source-apm-scouter-influxdb-grafana-%EC%97%B0%EB%8F%99-step-by-step/)
  - [Build my own agents by scouter pulse](https://gunleeblog.wordpress.com/2016/09/07/scouter-pulse%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%98%EC%97%AC-%EB%82%98%EB%A7%8C%EC%9D%98-agent-%EB%A7%8C%EB%93%A4%EA%B8%B0/)
  
