@@ -249,6 +249,13 @@ public class StringUtil {
 		return className;
 	}
 
+	public static String removeLastString(String className, char delim) {
+		int x = className.lastIndexOf(delim);
+		if (x > 0)
+			return className.substring(0, x);
+		return className;
+	}
+
 	public static String[] divKeyValue(String line, String delim) {
 		int x = line.indexOf(delim);
 		if (x < 0)
