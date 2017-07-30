@@ -98,6 +98,7 @@ class SubmitMV extends LocalVariablesSorter implements Opcodes {
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
 		mv.visitVarInsn(Opcodes.ALOAD, 1);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);
+		mv.visitCode();
 	}
 }
 
@@ -119,5 +120,6 @@ class DetermineMV extends LocalVariablesSorter implements Opcodes {
 	public void visitCode() {
 		mv.visitVarInsn(Opcodes.ALOAD, 1);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);
+		mv.visitCode();
 	}
 }

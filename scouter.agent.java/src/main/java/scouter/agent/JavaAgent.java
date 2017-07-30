@@ -42,6 +42,7 @@ public class JavaAgent {
 
 		Configure conf = Configure.getInstance();
 		if(conf.hook_lambda_instrumentation_strategy_enabled) {
+			Logger.println("hook_lambda_instrumentation_strategy_enabled = true!");
 			new AgentBuilder.Default()
 					.with(AgentBuilder.LambdaInstrumentationStrategy.ENABLED)
 					.installOn(instrum);
