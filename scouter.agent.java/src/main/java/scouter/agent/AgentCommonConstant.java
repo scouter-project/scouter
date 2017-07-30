@@ -35,24 +35,42 @@ public class AgentCommonConstant {
     public static String normalizeHashCode(String text) {
         if(text == null) return text;
         int atPos = text.lastIndexOf(at);
-        if(atPos > 0 && text.length() >= atPos + 8 + 1) {
-            String hexa = text.substring(atPos+1, atPos+1+8);
+        if(atPos<=0) {
+            return text;
+        }
+
+        if(text.length() >= atPos + 8 + 1) {
             try {
-                Long.parseLong(hexa, 16);
+                text = normalizeHashCode(text, atPos, 8);
+            } catch (NumberFormatException e) {
+                try {
+                    text = normalizeHashCode(text, atPos, 7);
+                } catch (NumberFormatException e1) {
+                    return text;
+                }
+            }
+        } else if(text.length() >= atPos + 7 + 1) {
+            try {
+                text = normalizeHashCode(text, atPos, 7);
             } catch (NumberFormatException e) {
                 return text;
-            }
-            if (text.length() > atPos + 8 + 1) {
-                return text.substring(0, atPos+1) + text.substring(atPos+1+8);
-            } else {
-                return text.substring(0, atPos+1);
             }
         }
         return text;
     }
 
+    private static String normalizeHashCode(String text, int atPos, int length) {
+        String hexa = text.substring(atPos+1, atPos+1+length);
+        Long.parseLong(hexa, 16);
+        if (text.length() > atPos + length + 1) {
+            return text.substring(0, atPos+1) + text.substring(atPos+1+length);
+        } else {
+            return text.substring(0, atPos+1);
+        }
+    }
+
     public static void main(String[] args) {
-        String serviceName = "xxxiej.s@dfljoeif@0000000f";
+        String serviceName = "xxxiej.s@dfljoeif@1c2ba103";
         System.out.println(normalizeHashCode(serviceName));
     }
 }

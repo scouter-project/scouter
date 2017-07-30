@@ -1,3 +1,19 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package scouter.agent.asm.asyncsupport;
 
 import scouter.org.objectweb.asm.*;
@@ -27,7 +43,7 @@ public class CallRunnableASM implements IASM, Opcodes {
 		if(conf.hook_spring_async_enabled) {
 			scanScopePrefix.add("org/springframework/aop/interceptor/AsyncExecutionInterceptor");
 		}
-		if(conf.hook_async_callrunnable_enable) {
+		if(conf.hook_async_callrunnable_enabled) {
 			String[] prefixes = StringUtil.split(conf.hook_async_callrunnable_scan_package_prefixes, ',');
 			for(int i=0; i<prefixes.length; i++) {
 				Logger.println("Callable Runnable scan scope : " + prefixes[i]);
@@ -37,10 +53,6 @@ public class CallRunnableASM implements IASM, Opcodes {
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-//		if (conf.hook_async_servlet_enabled == false) {
-//			return cv;
-//		}
-
 		String[] interfaces = classDesc.interfaces;
 
 		for (int inx = 0; inx < interfaces.length; inx++) {

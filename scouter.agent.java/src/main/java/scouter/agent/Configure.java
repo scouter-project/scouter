@@ -100,7 +100,7 @@ public class Configure extends Thread {
     public long net_udp_collection_interval_ms = 100;
 
     //Object
-    @ConfigDesc("Deprecated. It's just an alias of system_group_id which overrides this value.")
+    @ConfigDesc("Deprecated. It's just an alias of monitoring_group_type which overrides this value.")
     public String obj_type = "";
     @ConfigDesc("monitoring group type, commonly named as system name and a monitoring type.\neg) ORDER-JVM, WAREHOUSE-LINUX ...")
     public String monitoring_group_type = "";
@@ -450,10 +450,17 @@ public class Configure extends Thread {
     @ConfigDesc("spring async execution hook enabled")
     public boolean hook_spring_async_enabled = true;
 
-    @ConfigDesc("Hook callable and runnable for tracing async processing.\n It hook only 'hook_async_callrunnable_scan_prefixes' option contains pacakage or classes")
+    @Deprecated
+    @ConfigDesc("Deprecated. use hook_async_callrunnable_enabled")
     public boolean hook_async_callrunnable_enable = true;
+    @ConfigDesc("Hook callable and runnable for tracing async processing.\n It hook only 'hook_async_callrunnable_scan_prefixes' option contains pacakage or classes")
+    public boolean hook_async_callrunnable_enabled = true;
+
     @ConfigDesc("scanning range prefixes for hooking callable, runnable implementations and lambda expressions.\n usually your application package.\n 2 or more packages can be separated by commas.")
     public String hook_async_callrunnable_scan_package_prefixes = "";
+
+    @ConfigDesc("PRE-released option before stable release!\nhook threadpool executor for tracing async processing.")
+    public boolean hook_async_thread_pool_executor_enabled = false;
 
     @ConfigDesc("Experimental! test it on staging environment of your system before enable this option.\n enable lambda expressioned class hook for detecting asyncronous processing. \nOnly classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
     public boolean hook_lambda_instrumentation_strategy_enabled = false;
@@ -769,7 +776,14 @@ public class Configure extends Thread {
         this.hook_spring_async_enabled = getBoolean("hook_spring_async_enabled", true);
 
         this.hook_async_callrunnable_enable = getBoolean("hook_async_callrunnable_enable", true);
+        this.hook_async_callrunnable_enabled =
+                StringUtil.isEmpty(getValue("hook_async_callrunnable_enabled", ""))
+                ? hook_async_callrunnable_enable
+                : getBoolean("hook_async_callrunnable_enabled", true);
+
         this.hook_async_callrunnable_scan_package_prefixes = getValue("hook_async_callrunnable_scan_package_prefixes", "");
+
+        this.hook_async_thread_pool_executor_enabled = getBoolean("hook_async_thread_pool_executor_enabled", false);
 
         this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", false);
 

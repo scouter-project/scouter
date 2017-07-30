@@ -16,15 +16,16 @@
  */
 package scouter.agent;
 
-import scouter.org.objectweb.asm.*;
 import scouter.agent.asm.*;
 import scouter.agent.asm.asyncsupport.AsyncContextDispatchASM;
 import scouter.agent.asm.asyncsupport.CallRunnableASM;
 import scouter.agent.asm.asyncsupport.RequestStartAsyncASM;
+import scouter.agent.asm.asyncsupport.executor.ExecutorServiceASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
+import scouter.org.objectweb.asm.*;
 import scouter.util.FileUtil;
 import scouter.util.IntSet;
 
@@ -86,6 +87,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new ApicallSpringHttpAccessorASM());
         temp.add(new SpringAsyncExecutionASM());
         temp.add(new CallRunnableASM());
+        temp.add(new ExecutorServiceASM());
 
         temp.add(new SpringReqMapASM());
         temp.add(new SocketASM());
@@ -110,6 +112,10 @@ public class AgentTransformer implements ClassFileTransformer {
         asynchook.add("java/nio/channels/SocketChannel".hashCode());
         asynchook.add("sun/nio/ch/SocketChannelImpl".hashCode());
         asynchook.add("javax/naming/InitialContext".hashCode());
+        asynchook.add("javax/naming/InitialContext".hashCode());
+        asynchook.add("javax/naming/InitialContext".hashCode());
+        asynchook.add("java/util/concurrent/AbstractExecutorService".hashCode());
+        asynchook.add("java/util/concurrent/ThreadPoolExecutor".hashCode());
     }
 
     private Configure conf = Configure.getInstance();

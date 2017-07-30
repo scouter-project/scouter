@@ -84,6 +84,18 @@ public int net_collector_tcp_port = 6100;
 @ConfigDesc("Activating SQL literals")
 public boolean profile_sql_escape_enabled = true;
 
+//Naming / grouping
+@ConfigDesc("Deprecated. It's just an alias of system_group_id which overrides this value.")
+public String obj_type = "";
+@ConfigDesc("monitoring group type, commonly named as system name and a monitoring type.\neg) ORDER-JVM, WAREHOUSE-LINUX ...")
+public String monitoring_group_type = "";
+public String obj_name = "";
+@ConfigDesc("Host Type")
+public String obj_host_type = "";
+@ConfigDesc("Host Name")
+public String obj_host_name = "";
+@ConfigDesc("Activating for using object name as PID")
+
 //profile
 @ConfigDesc("Http Query String profile")
 public boolean profile_http_querystring_enabled;
@@ -91,6 +103,10 @@ public boolean profile_http_querystring_enabled;
 public boolean profile_http_header_enabled;
 @ConfigDesc("Service URL prefix for Http header profile")
 public String profile_http_header_url_prefix = "/";
+@ConfigDesc("spring controller method parameter profile")
+public boolean profile_spring_controller_method_parameter_enabled = false;
+@ConfigDesc("http header names for profiling with comma separator")
+public String profile_http_header_keys = "";
 @ConfigDesc("Calculating CPU time by profile")
 public boolean profile_thread_cputime_enabled = false;
 
@@ -119,6 +135,19 @@ public String trace_user_session_key = "JSESSIONID";
 @ConfigDesc("")
 public String trace_delayed_service_mgr_filename = "setting_delayed_service.properties";
 
+//trace request queuing
+@ConfigDesc("measure queuing time from load balancer, reverse proxy, web server...\n if set, you can open Queuing Time view.")
+public boolean trace_request_queuing_enabled = false;
+@ConfigDesc("the name of server that set request start time")
+public String trace_request_queuing_start_host_header = "X-Request-Start-Host";
+@ConfigDesc("set request start time.\n - time format : t=microsecond (or) ts=second.milli")
+public String trace_request_queuing_start_time_header = "X-Request-Start-Time";
+
+@ConfigDesc("the name of server that set the trace_request_queuing_start_2nd_time_header")
+public String trace_request_queuing_start_2nd_host_header = "X-Request-Start-2nd-Host";
+@ConfigDesc("set request passing time measured by 2nd layered server.\n - time format : t=microsecond (or) ts=second.milli")
+public String trace_request_queuing_start_2nd_time_header = "X-Request-Start-2nd-Time";
+    
 //Dir
 @ConfigDesc("Plugin directory")
 public File plugin_dir = new File(agent_dir_path + "/plugin");
@@ -198,18 +227,28 @@ public String hook_return_patterns = "";
 @ConfigDesc("Method set for constructor hooking")
 public String hook_constructor_patterns = "";
 
+//hook for exception handling
+public String hook_exception_class_patterns = "";
+@ConfigDesc("Exception class exlude patterns")
+public String hook_exception_exlude_class_patterns = "";
+@ConfigDesc("Exception handler patterns - exceptions passed to these methods are treated as error on xlog view. (ex) my.app.myHandler.handleException")
+public String hook_exception_handler_method_patterns = "";
+
 //XLog
-@ConfigDesc("XLog Ignore Time - (deprecated) for backward compatibility. Use xlog_sampling_xxx options instead")
-public int xlog_lower_bound_time_ms = 0;
+//XLog error marking
 @ConfigDesc("Leave an error message at XLog in case of over fetching. (fetch count)")
 public int xlog_error_jdbc_fetch_max = 10000;
 @ConfigDesc("Leave an error message at XLog in case of over timing query. (ms)")
 public int xlog_error_sql_time_max_ms = 30000;
 @ConfigDesc("Leave an error message at XLog when UserTransaction's begin/end unpaired")
 public boolean xlog_error_check_user_transaction_enabled = true;
+@ConfigDesc("mark as error on xlog flag if SqlException is occured.")
+public boolean xlog_error_on_sqlexception_enabled = true;
+@ConfigDesc("mark as error on xlog flag if Api call errors are occured.")
+public boolean xlog_error_on_apicall_exception_enabled = true;
 
 //XLog hard sampling options
-@ConfigDesc("XLog hard sampling mode enabled - for the best performance but it affects all statistics data")
+@ConfigDesc("XLog hard sampling mode enabled\n - for the best performance but it affects all statistics data")
 public boolean _xlog_hard_sampling_enabled = false;
 @ConfigDesc("XLog hard sampling rate(%) - discard data over the percentage")
 public int _xlog_hard_sampling_rate_pct = 10;
@@ -217,6 +256,8 @@ public int _xlog_hard_sampling_rate_pct = 10;
 //XLog soft sampling options
 @ConfigDesc("XLog sampling mode enabled")
 public boolean xlog_sampling_enabled = false;
+@ConfigDesc("XLog sampling but discard profile only not XLog.")
+public boolean xlog_sampling_only_profile = false;
 @ConfigDesc("XLog sampling bound millisecond - step1(lowest : range - from 0 to here)")
 public int xlog_sampling_step1_ms = 100;
 @ConfigDesc("XLog sampling step1 percentage(%)")
@@ -232,6 +273,53 @@ public int xlog_sampling_step3_rate_pct = 30;
 @ConfigDesc("XLog sampling over step3 percentage(%)")
 public int xlog_sampling_over_rate_pct = 100;
 
+//XLog sampling for service patterns options
+@ConfigDesc("XLog patterned sampling mode enabled")
+public boolean xlog_patterned_sampling_enabled = false;
+@ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
+public String xlog_patterned_sampling_service_patterns = "";
+@ConfigDesc("XLog patterned sampling but discard profile only not XLog.")
+public boolean xlog_patterned_sampling_only_profile = false;
+@ConfigDesc("XLog patterned sampling bound millisecond - step1(lowest : range - from 0 to here)")
+public int xlog_patterned_sampling_step1_ms = 100;
+@ConfigDesc("XLog patterned sampling step1 percentage(%)")
+public int xlog_patterned_sampling_step1_rate_pct = 3;
+@ConfigDesc("XLog patterned sampling bound millisecond - step2(range - from step1 to here)")
+public int xlog_patterned_sampling_step2_ms = 1000;
+@ConfigDesc("XLog patterned sampling step2 percentage(%)")
+public int xlog_patterned_sampling_step2_rate_pct = 10;
+@ConfigDesc("XLog patterned sampling bound millisecond - step3(highest : range - from step2 to here)")
+public int xlog_patterned_sampling_step3_ms = 3000;
+@ConfigDesc("XLog patterned sampling step3 percentage(%)")
+public int xlog_patterned_sampling_step3_rate_pct = 30;
+@ConfigDesc("XLog patterned sampling over step3 percentage(%)")
+public int xlog_patterned_sampling_over_rate_pct = 100;
+
+
+//Async processing support
+@ConfigDesc("Hook for supporting async servlet")
+public boolean hook_async_servlet_enabled = true;
+@ConfigDesc("startAsync impl. method patterns")
+public String hook_async_servlet_start_patterns = "";
+@ConfigDesc("asyncContext dispatch impl. method patterns")
+public String hook_async_context_dispatch_patterns = "";
+
+@ConfigDesc("spring async execution submit patterns")
+public String hook_spring_async_submit_patterns = "";
+@ConfigDesc("spring async execution hook enabled")
+public boolean hook_spring_async_enabled = true;
+
+@ConfigDesc("PRE-released option before stable release!\nhook threadpool executor for tracing async processing.")
+public boolean hook_async_thread_pool_executor_enabled = false;
+
+@ConfigDesc("Hook callable and runnable for tracing async processing.\n It hook only 'hook_async_callrunnable_scan_prefixes' option contains pacakage or classes")
+public boolean hook_async_callrunnable_enabled = true;
+@ConfigDesc("scanning range prefixes for hooking callable, runnable implementations and lambda expressions.\n usually your application package.\n 2 or more packages can be separated by commas.")
+public String hook_async_callrunnable_scan_package_prefixes = "";
+
+@ConfigDesc("Experimental! test it on staging environment of your system before enable this option.\n enable lambda expressioned class hook for detecting asyncronous processing. \nOnly classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
+public boolean hook_lambda_instrumentation_strategy_enabled = false;
+    
 //Control
 @ConfigDesc("Activating Reject service")
 public boolean control_reject_service_enabled = false;

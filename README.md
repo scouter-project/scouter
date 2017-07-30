@@ -40,7 +40,7 @@ SCOUTER can help you.
  - [Latest Release](https://github.com/scouter-project/scouter/releases/)
 
 ## Modules
-### Scouter has three modules:
+### Official modules:
 
 - **Agent** : gather performance information and send to the server
   - **Java Agent (JVM Agent)** : gathering profiles and performance metrics of JVM & Web application server(eg. Tomcat)...
@@ -50,6 +50,28 @@ SCOUTER can help you.
 - **Server (Collector)** : save the performance metrics from agents. The data is streamed to clients.
 
 - **Client (Viewer)** : client program based on RCP.
+
+### 3rd-party Agent
+- **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-project/scouter-pulse)
+  - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : gathering performance metrics of EC2, RDS, ELB from cloudwatch in AWS.
+
+### Plugins
+- **Server plugin**
+  - **Sample**
+    - **[scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)** : sample plugin prints out data collected
+  
+  - **Alert**
+    - **[scouter-plugin-server-email](https://github.com/scouter-project/scouter-plugin-server-alert-email)** : emails alters from Scouter
+    - **[scouter-plugin-server-telegram](https://github.com/scouter-project/scouter-plugin-server-alert-telegram)** : transfer altert from Scouter to telegram
+    - **[scouter-plugin-server-slack](https://github.com/scouter-project/scouter-plugin-server-alert-slack)** : transfer altert from Scouter to slack
+    - **[scouter-plugin-server-line](https://github.com/scouter-project/scouter-plugin-server-alert-line)** : transfer altert from Scouter to line
+    - **[scouter-plugin-server-dingtalk](https://github.com/scouter-project/scouter-plugin-server-alert-dingtalk)** : transfer altert from Scouter to dingtalk
+    
+  - **Counter** 
+    - **[scouter-plugin-server-influxdb](https://github.com/scouter-project/scouter-plugin-server-influxdb)** : transfer performance data from Scouter to influxDB(time series DB)  
+
+- **Agent plugin**
+  - TBD
 <br>
 
 ## Facebook
@@ -65,10 +87,17 @@ SCOUTER can help you.
  - [Google Groups](https://groups.google.com/forum/#!forum/scouter-project)
 
 ## Blogging & Posts
- - [Applying Scouter APM to my service : by Kingbbode](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fkingbbode.tistory.com%2F12)
- - [Effective monitoring by Scouter : by TMON](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fblog.naver.com%2FPostView.nhn%3FblogId%3Dtmondev%26logNo%3D220870505665)
- - [Opensource performance monitoring, Scouter configurations : by SUN](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fwww.popit.kr%2Fscouter-open-source-apm-config%2F)
-
+ - [Scouter series #1 - Installation](http://gunsdevlog.blogspot.kr/2017/07/scouter-apm-1.html)
+ - [Scouter series #2 - basic monitoring(1/2)](http://gunsdevlog.blogspot.kr/2017/07/scouter-apm-2-12.html)
+ - [Scouter series #3 - basic monitoring(2/2)](http://gunsdevlog.blogspot.kr/2017/07/scouter-apm-basic-monitoring-2.html)
+ - [Applying Scouter APM to my service : by Kingbbode](http://kingbbode.tistory.com/12)
+ - [Effective monitoring by Scouter : by TMON](http://blog.naver.com/PostView.nhn?blogId=tmondev&logNo=220870505665)
+ - [Opensource performance monitoring, Scouter configurations : by SUN](http://www.popit.kr/scouter-open-source-apm-config/)
+ - [Scouter, InfluxDB, Grafana](https://gunleeblog.wordpress.com/2016/04/01/open-source-apm-scouter-influxdb-grafana-%EC%97%B0%EB%8F%99-step-by-step/)
+ - [Build my own agents by scouter pulse](https://gunleeblog.wordpress.com/2016/09/07/scouter-pulse%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%98%EC%97%AC-%EB%82%98%EB%A7%8C%EC%9D%98-agent-%EB%A7%8C%EB%93%A4%EA%B8%B0/)
+ 
+<br>
+ 
 ## License
 Licensed under the Apache License, Version 2.0
 <br>

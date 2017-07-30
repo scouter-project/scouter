@@ -37,7 +37,7 @@ public class LambdaFormTransformer {
 
     static {
         Configure conf = Configure.getInstance();
-        if(conf.hook_async_callrunnable_enable) {
+        if(conf.hook_async_callrunnable_enabled) {
             String[] prefixes = StringUtil.split(conf.hook_async_callrunnable_scan_package_prefixes, ',');
             for(int i=0; i<prefixes.length; i++) {
                 scanScopePrefix.add(prefixes[i].replace('.', '/'));

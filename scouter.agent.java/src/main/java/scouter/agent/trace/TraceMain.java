@@ -36,6 +36,7 @@ import scouter.agent.proxy.HttpTraceFactory;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
 import scouter.agent.trace.enums.XLogDiscard;
+import scouter.agent.wrapper.async.WrTask;
 import scouter.lang.AlertLevel;
 import scouter.lang.TextTypes;
 import scouter.lang.pack.AlertPack;
@@ -1072,7 +1073,8 @@ public class TraceMain {
             if(id.gxid != 0) localContext.context.gxid = id.gxid;
             if(id.callee != 0) localContext.context.txid = id.callee;
             if(id.caller != 0) localContext.context.caller = id.caller;
-            String serviceName = StringUtil.cutLastString(className, '/') + "#" + methodName + "() -- " + fullName;
+
+            String serviceName = StringUtil.removeLastString(className, '/') + "#" + methodName + "() -- " + fullName;
             serviceName = serviceName.replace("$ByteBuddy", "");
             serviceName = serviceName.replace("$$Lambda", "$$L");
             serviceName = AgentCommonConstant.normalizeHashCode(serviceName);
@@ -1143,6 +1145,57 @@ public class TraceMain {
         if(m == null) return;
 
         ctx.lastThreadCallName = m.getDeclaringClass().getName() + "#" + m.getName() + "()";
+    }
+
+    public static void executorServiceSubmitted(Object callRunnable) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if(ctx == null) return;
+        if(callRunnable == null) return;
+
+        ctx.lastThreadCallName = callRunnable.getClass().getName();
+    }
+
+    public static void executorServiceExecuted(Object callRunnable) {
+        try {
+            TraceContext ctx = TraceContextManager.getContext();
+            if(ctx == null) return;
+            if(callRunnable == null) return;
+
+            if(TransferMap.get(System.identityHashCode(callRunnable)) != null) {
+                return;
+            }
+
+            long gxid = ctx.gxid == 0 ? ctx.txid : ctx.gxid;
+            ctx.gxid = gxid;
+            long callee = KeyGen.next();
+
+            ThreadCallPossibleStep threadCallPossibleStep = new ThreadCallPossibleStep();
+            threadCallPossibleStep.txid = callee;
+            threadCallPossibleStep.threaded = 1;
+
+            threadCallPossibleStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+            String threadCallName = (ctx.lastThreadCallName != null) ? ctx.lastThreadCallName : callRunnable.getClass().getName();
+            threadCallName = StringUtil.removeLastString(threadCallName, '/');
+            threadCallName = threadCallName.replace("$$Lambda", "$$L");
+            threadCallName = AgentCommonConstant.normalizeHashCode(threadCallName);
+
+            ctx.lastThreadCallName = null;
+
+            threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
+            threadCallPossibleStep.nameTemp = threadCallName;
+            ctx.profile.add(threadCallPossibleStep);
+
+            TransferMap.put(System.identityHashCode(callRunnable), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
+        } catch (Throwable t) {
+            Logger.println("B1204", "Exception: executorServiceExecuted", t);
+        }
+    }
+
+    public static Runnable executorServiceGetTaskEnd(Runnable task) {
+        if (task == null) {
+            return null;
+        }
+        return new WrTask(task);
     }
 
     public static Object callRunnableCallInvoked(Object callRunnableObj) {
