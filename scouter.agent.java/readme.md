@@ -3,7 +3,7 @@ Tomcat is an web application server that executes Java servlets and Java Server 
 Described as a "reference implementation" of the Java Servlet and the Java Server Page specifications, 
 
 The Scouter Java Agent is monitoring Tomcat's performance.
-If you install Scouner Agent in the Tomcat, you will understand what happens inside it.
+If you install Scouter Agent in the Tomcat, you will understand what happens inside it.
 
 Scouter show you that which SQL is slow, how many transactions(http request) are concurrently running 
 how many transactions per second(TPS) etc
