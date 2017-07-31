@@ -112,8 +112,6 @@ public class AgentTransformer implements ClassFileTransformer {
         asynchook.add("java/nio/channels/SocketChannel".hashCode());
         asynchook.add("sun/nio/ch/SocketChannelImpl".hashCode());
         asynchook.add("javax/naming/InitialContext".hashCode());
-        asynchook.add("javax/naming/InitialContext".hashCode());
-        asynchook.add("javax/naming/InitialContext".hashCode());
         asynchook.add("java/util/concurrent/AbstractExecutorService".hashCode());
         asynchook.add("java/util/concurrent/ThreadPoolExecutor".hashCode());
     }
