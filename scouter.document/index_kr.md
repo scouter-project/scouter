@@ -3,11 +3,8 @@
 
 ## Getting Started
 - [Quick Start 가이드 (Scouter Demo 설치)](./main/Quick-Start_kr.md)
-- [Service Monitoring CASE#1 Logging 영향 사례](./use-case/XLog-Case1_kr.md)
-- [Service Monitoring CASE#2 폭포수 양상의 이해](./use-case/XLog-Case2_kr.md)
-- [Service Monitoring CASE#3 수평선 양상의 이해](./use-case/XLog-Case3_kr.md)
-- [DB Lock 상황 시뮬레이션](./use-case/Simulate-DB-Lock.md) 
-- [클라이언트 사용법](./client/How-To-Use-Client.md)  
+- [Live demo](./main/Live-Demo.md)
+- [클라이언트 사용법](./client/How-To-Use-Client.md)
 - [SCOUTER가 특별한 이유](./main/What-special-in-SCOUTER.md)
 
 ## Install
@@ -25,6 +22,10 @@
 - [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
 
 ## Tech note
+- [Service Monitoring CASE#1 Logging 영향 사례](./use-case/XLog-Case1_kr.md)
+- [Service Monitoring CASE#2 폭포수 양상의 이해](./use-case/XLog-Case2_kr.md)
+- [Service Monitoring CASE#3 수평선 양상의 이해](./use-case/XLog-Case3_kr.md)
+- [DB Lock 상황 시뮬레이션](./use-case/Simulate-DB-Lock.md)
 - [Recent User를 사용하는 이유](./tech/Why-Recent-User.md)
 - [방문사용자 계산하기](./tech/Counting-Visit-Users)
 - [JDBC Connection Leak Trace](./tech/JDBC-Connection-Leak-Trace.md)

@@ -2,12 +2,9 @@
 ![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](index_kr.md)
 
 ## Getting Started
-- [Quick Start Guide (Quick Installation and Demo)](./main/Quick-Start.md)
-- [Service Monitoring CASE#1 Log On/Off](./use-case/XLog-Case1.md)
-- [Service Monitoring CASE#2 Understand Waterfall](./use-case/XLog-Case2.md)
-- [Service Monitoring CASE#3 Understand Horizontal Line](./use-case/XLog-Case3.md)
-- [Simulate DB Lock](./use-case/Simulate-DB-Lock.md) 
-- [How to use a client program](./client/How-To-Use-Client.md)  
+- [Quick Start Guide (Quick Installation of demo system)](./main/Quick-Start.md)
+- [Live demo](./main/Live-Demo.md)
+- [How to use a client program](./client/How-To-Use-Client.md)
 - [What’s special in SCOUTER?](./main/What-special-in-SCOUTER.md)
 
 ## Install
@@ -25,6 +22,10 @@
 - [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
 
 ## Tech note
+- [Service Monitoring CASE#1 Log On/Off](./use-case/XLog-Case1.md)
+- [Service Monitoring CASE#2 Understand Waterfall](./use-case/XLog-Case2.md)
+- [Service Monitoring CASE#3 Understand Horizontal Line](./use-case/XLog-Case3.md)
+- [Simulate DB Lock](./use-case/Simulate-DB-Lock.md)
 - [Why Recent User](./tech/Why-Recent-User.md)
 - [Counting Visit Users](./tech/Counting-Visit-Users.md)
 - [JDBC Connection Leak Trace](./tech/JDBC-Connection-Leak-Trace.md)
