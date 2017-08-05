@@ -32,9 +32,10 @@ SCOUTER can help you.
 [![Demo gif](https://j.gifs.com/yDqbAa.gif)](https://youtu.be/iuArTzsD7Ws)
 
 ## Documents
- - [Document Home](./scouter.document/index.md)
- - [Quick Start Guide (Quick Installation and Demo)](./scouter.document/main/Quick-Start.md)
- - [Client Screen Help](./scouter.document/client/How-To-Use-Client.md)
+ - [Document home](./scouter.document/index.md)
+ - [Quick start guide (Quick Installation of demo system)](./scouter.document/main/Quick-Start.md)
+ - [Live demo](./scouter.document/main/Live-Demo.md)
+ - [Client screen help](./scouter.document/client/How-To-Use-Client.md)
 
 ## Download
  - [Latest Release](https://github.com/scouter-project/scouter/releases/)
