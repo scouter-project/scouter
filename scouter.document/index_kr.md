@@ -3,7 +3,7 @@
 
 ## Getting Started
 - [Quick Start 가이드 (Scouter Demo 설치)](./main/Quick-Start_kr.md)
-- [Live demo](./main/Live-Demo.md)
+- [Live demo](./main/Live-Demo_kr.md)
 - [클라이언트 사용법](./client/How-To-Use-Client.md)
 - [SCOUTER가 특별한 이유](./main/What-special-in-SCOUTER.md)
 
