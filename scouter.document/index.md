@@ -1,5 +1,5 @@
 # Document
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](index_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](index_kr.md)
 
 ## Getting Started
 - [Quick Start Guide (Quick Installation of demo system)](./main/Quick-Start.md)
@@ -35,7 +35,7 @@
 - [Build on Linux & OSX](./main/Build-Scouter.md)
 - [Build on Window](./main/Build-Scouter-Windows.md)
 
-## For developers and contibutors
+## For developers and contributors
 - [Scouter developer guide](./tech/Developer-Guide.md)
 
 ## MISC

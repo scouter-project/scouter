@@ -1,5 +1,5 @@
 ﻿# Scouter Plugin Guide
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Plugin-Guide_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Plugin-Guide_kr.md)
 
 This article explains plugin functions which enable scouter's extensibility. 
 
@@ -43,7 +43,7 @@ Scouter distribution has the samples and the file name can not be modified.
 Currently 6 types of scripting plugins are supported.
 * **alert.plug** - for pre-handling alert
 * **counter.plug** - for pre-handling performance metrics(counters)
-* **object.plug** - for pre-handling moitoring objects(instnats)
+* **object.plug** - for pre-handling monitoring objects(instnats)
 * **summary.plug** - for pre-handling performance summary data
 * **xlog.plug** - for pre-handling xlog data
 * **xlogprofile.plug** - for pre-handling xlog profile
@@ -59,7 +59,7 @@ So scouter provides another plugin type which allow you can attach pre-built com
 Scouter load the plugins on startup, if the plugins are located in scouter server's library directory.(default:**[server_running_dir]/lib**)
 
 #### 2.1 Server Built-in Plugin development guide
-##### 1. dependecny
+##### 1. dependency
  * scouter.common
     ```xml
     <dependency>

@@ -1,15 +1,15 @@
 # Getting unique visitors with HyperLogLog algorithm
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Counting-Visit-Users_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Counting-Visit-Users_kr.md)
 
 'Visitors' is important metric to understand relationship between business frequency and system performance. Just with performance, the highest concurrent users are in case. But with the perspective of business visitors are more important than concurrent user. 
 
 ## How to count unique visitors?
 
-When it count the unique vistors, each user's request should be distinguishable. There are serveral ways to give uniqueness to each request like using login ID, IP address, checking special cookie (like JSESSIONID), or other methodologies giving unique ID.
+When it count the unique visitors, each user's request should be distinguishable. There are several ways to give uniqueness to each request like using login ID, IP address, checking special cookie (like JSESSIONID), or other methodologies giving unique ID.
  
 Each way has pros also cons,
 * Login ID - It will not be counted until user logged in the system.
-* IP Address - In some environments getting client's IP adress is not possible.
+* IP Address - In some environments getting client's IP address is not possible.
 * JSESSIONID - Multiple accessing of system within counting period will be counted redundantly.
 * COOKIE - Adopting new cookie can make system more complexed.
 
@@ -21,7 +21,7 @@ The HyperLogLog is proper algorithm not consuming so much memory to estimate or 
 
 ## Example
 
-TestHLL example had simulated the situation of 10 million users accessing the system, and caculated result with HyperLogLog.
+TestHLL example had simulated the situation of 10 million users accessing the system, and calculated result with HyperLogLog.
 
 * realSet : Calculate real visitor
 * all : means total users 
@@ -133,7 +133,7 @@ public class TestHLL {
 9000000 => all=8986135 even=4495527 odd=4506118  sum=8986135
 10000000 => all=9984382 even=4992773 odd=5001554  sum=9984382
 ```
-Each row represents the simulation result to 10 million users. As HyperLogLog algorithm is using statistical approach, the counring number is not absolutly exact number, provides margin of error. But the margin rate is low and acceptable. 
+Each row represents the simulation result to 10 million users. As HyperLogLog algorithm is using statistical approach, the countering number is not absolutely exact number, provides margin of error. But the margin rate is low and acceptable. 
 
 And with the number of part user, we can get all user value. You can find that 'sum' variable is equivalent to 'all' variable.
 ```

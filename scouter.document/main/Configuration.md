@@ -1,5 +1,5 @@
 # Configuration
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Configuration_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Configuration_kr.md)
 
 ## Server options
  * **Useful options of collector server**
@@ -192,7 +192,7 @@ public boolean log_rotation_enabled = true;
 public int log_keep_days = 7;
 
 //Detect spring Rest url
-@ConfigDesc("use @RequestMapping value as service name on a spring REST web appplicaiton.")
+@ConfigDesc("use @RequestMapping value as service name on a spring REST web application.")
 public boolean _hook_spring_rest_enabled = false;
 
 //Hook method
@@ -214,7 +214,7 @@ public boolean hook_method_access_protected_enabled = false;
 @ConfigDesc("Activating default Method hooking")
 public boolean hook_method_access_none_enabled = false;
 
-//this option should be used only if the apllication is non-servlet.
+//this option should be used only if the application is non-servlet.
 //In case of servlet web application, detect HttpServlet.service() method as hook-service-patterns automatically.
 @ConfigDesc("Method set for service hooking")
 public String hook_service_patterns = "";

@@ -1,5 +1,5 @@
 # Quick Start
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Quick-Start_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Quick-Start_kr.md)
 
 This page provides a demo system where you can install the Scouter at once and try it out easily.
 
@@ -116,7 +116,7 @@ And also you can see the web service request you triggered on the scouter client
 ![jpetstore main](../img/quickstart/client-jpet-demo1.png)
 
 #### (8) Do a load test by apache jmeter
-You can make virtual load for verifying scouter's funtionality.
+You can make virtual load for verifying scouter's functionality.
 run the command below, will load by jmeter in 5 minutes.
 If you want to stop jmeter load, please press CTRL+C.
 
@@ -171,7 +171,7 @@ Please read the detail manual pages for advanced features.
 
 function     |    description
 ------------ | --------------
-SFA (Stack Frequency Analyzer)  | the SFA gather thread stacks for a while, then analyze and make statistics for finding out unefficient codes that make system run slow.
+SFA (Stack Frequency Analyzer)  | the SFA gather thread stacks for a while, then analyze and make statistics for finding out inefficient codes that make system run slow.
 [Trace connection Leak](../tech/JDBC-Connection-Leak-Trace.md)           | Trace Database Connection Leak
 Add user id on a profile        | profile customizing with a plugin scripting feature.
 [method level profiling](../use-case/Method-Profiling.md)          | how to profile deeper - method level profiling
