@@ -1,5 +1,5 @@
 # How to use client
-[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](How-To-Use-Client.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](How-To-Use-Client.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 ![Screen](../img/client/client-view.png)
 
@@ -13,7 +13,7 @@
  * 모니터링 그룹 관점에서 그룹 내 하위 서버의 상태나 오브젝트들을 조회할 수 있는 메뉴들이 링크되어 있다.
  * 메뉴는 오른쪽 마우스를 통해 선택할 수 있다. 오른쪽 마우스를 클릭하면 시스템에 대한 성능들을 조회할 수 있다. 
  * Scouter 서버 아래의 sjhost는 서버 Host 를 의미한다. 그리고 tomcat1/tomcat2는 JAVA EE 타입의 오브젝트이다. JAVA 나 WAS 관련 성능 정보를 조회할 수 있으며 화면의 XLog 또한 Tomcat 타입이 디플트이다. 
- * 임의의 오브젝트를 **Doublic click**하면 선택한 오브젝트로 필터링 된다.
+ * 임의의 오브젝트를 **Double click**하면 선택한 오브젝트로 필터링 된다.
 * **(8)** Scouter Client 의 힙메모리 사용량이다. 이것을 보고 클라이언트 프로그램의 메모리 부족을 판단할 수 있다. 
 * **(9)** XLog 를 제어하기 위한 툴바, 에러 보기, 혹은 상세 필터링을 위한 화면을 열수 있다.
 * **(10)** 오브젝트별 대표 성능지표를 조회 할 수 있다. 예를 들어 host 타입(sjhost)은 CPU 가, Tomcat 타입(tomcat1)은 Active Service Count 가 출력된다. 
