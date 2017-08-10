@@ -1,5 +1,5 @@
 # Scouter Plugin Guide
-[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](JavaAgent-Plugin-Scripting.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](JavaAgent-Plugin-Scripting.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 ## Javaagent Plugin
  - Default File Location : ${directory of scouter.agent.jar}/plugin 

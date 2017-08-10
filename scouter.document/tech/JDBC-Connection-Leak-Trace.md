@@ -1,10 +1,10 @@
 # Trace of JDBC Connection Leak
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](JDBC-Connection-Leak-Trace_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](JDBC-Connection-Leak-Trace_kr.md)
 
 The purpose of tracking JDBC connection is most common methodology to detect DB connection problem. 
 
 ## Connection Leak 
-It is the problem not to return the leased connection to the connection pool. Not closing Statement or ResultSet is not so siginificant in most of cases;JDBC driver is handling this. But not returning problem must be analyzed and solved.
+It is the problem not to return the leased connection to the connection pool. Not closing Statement or ResultSet is not so significant in most of cases;JDBC driver is handling this. But not returning problem must be analyzed and solved.
 
 ## getConnection Delay
 It tends to occur under the condition of low number of connection pool, and also making new connection.
@@ -13,7 +13,7 @@ It tends to occur under the condition of low number of connection pool, and also
 Enabling setAutoCommit to true, each SQL execution of statement is firing commit signal to DB automatically. This can be performance problem.
 
 ## Too many commits
-The explicit calling of commit() function on source code can drop down system performance, though setAutoCommit is false. (Nomally framework cut off this explicit commits in the middle)
+The explicit calling of commit() function on source code can drop down system performance, though setAutoCommit is false. (Normally framework cut off this explicit commits in the middle)
 
 ## Commit Delay
 Commit delay is occurring due to the massive data insertion. This should be digging down on DB side.
@@ -49,7 +49,7 @@ public class SimpleDriverDataSource extends AbstractDriverBasedDataSource
 {
  …
 ```
-Let's check AbstractDriverBasedDataSource. It has getConnection() function. This is the case application is reponsible for creating and managing connection pool inside of it. JDBC tracking option is needed.
+Let's check AbstractDriverBasedDataSource. It has getConnection() function. This is the case application is responsible for creating and managing connection pool inside of it. JDBC tracking option is needed.
 ```
 hook_connection_open_patterns=org.springframework.jdbc.datasource.AbstractDriverBasedDataSource.getConnection
 ```
