@@ -52,11 +52,13 @@ import scouter.client.model.XLogData;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.sorter.TableLabelSorter;
+import scouter.client.stack.utils.StringUtils;
 import scouter.client.util.ClientFileUtil;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.xlog.actions.OpenXLogProfileJob;
+import scouter.lang.CountryCode;
 import scouter.lang.pack.XLogTypes;
 import scouter.util.FormatUtil;
 import scouter.util.Hexa32;
@@ -297,6 +299,14 @@ public class XLogSelectionView extends ViewPart {
 				return d.p.text2;
 			case DUMP :
 				return d.p.hasDump == 1 ? "Y" : null;
+			case UA :
+				return d.p.userAgent != 0 ? TextProxy.userAgent.getLoadText(yyyymmdd, d.p.userAgent, d.serverId) : null;
+			case COUNTRY :
+				return StringUtil.isNotEmpty(d.p.countryCode) ? CountryCode.getCountryName(d.p.countryCode) : null;
+			case CITY :
+				return d.p.city != 0 ? TextProxy.city.getLoadText(yyyymmdd, d.p.city, d.serverId) : null;
+			case GROUP :
+				return d.p.group != 0 ? TextProxy.group.getLoadText(yyyymmdd, d.p.group, d.serverId) : null;
 			}
 			return null;
 		}
@@ -328,7 +338,10 @@ public class XLogSelectionView extends ViewPart {
 				StringBuffer sb = new StringBuffer();
 				for (TableItem item : items) {
 					for (int i = 0; i < colCnt; i++) {
-						sb.append(item.getText(i));
+						String value = item.getText(i);
+						value = value.replace("\n", "[\\n]");
+						value = value.replace("\t", "    ");
+						sb.append(value);
 						if (i == colCnt - 1) {
 							sb.append("\n");
 						} else {
@@ -361,6 +374,10 @@ public class XLogSelectionView extends ViewPart {
 		TEXT1("Text1", 50, SWT.LEFT, true, true, false),
 		TEXT2("Text2", 50, SWT.LEFT, true, true, false),
 		START_TIME("StartTime", 70, SWT.CENTER, true, true, true),
+		UA("UA", 70, SWT.LEFT, true, true, false),
+		COUNTRY("Country", 40, SWT.LEFT, true, true, false),
+		CITY("City", 40, SWT.LEFT, true, true, false),
+		GROUP("Group", 40, SWT.LEFT, true, true, false),
 		;
 
 	    private final String title;
