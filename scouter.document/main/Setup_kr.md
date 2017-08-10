@@ -1,5 +1,5 @@
 # Setup
-[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Setup.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Setup.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 ***
 

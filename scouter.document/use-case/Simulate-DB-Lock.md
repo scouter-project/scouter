@@ -1,5 +1,5 @@
 # Simulate DB Lock
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Simulate-DB-Lock_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Simulate-DB-Lock_kr.md)
 
 This article describes how to simulate and monitor DB update lock with Scouter environment. Installation and configuration guide is [here](../main/Getting-Start-Profile-SQL.md).
 
@@ -43,7 +43,7 @@ Do load test about sql.jsp via JMeter.
 
 ![HTTP Request](../img/client/jmeter/http_request.png)
 
-Input these paramters,
+Input these parameters,
 
 * server ip : 127.0.0.1
 * port : 8080
@@ -55,7 +55,7 @@ You can see the screen like below after clicking run button on JMeter.
 > JMeter plugins : http://jmeter-plugins.org
 
 ### Simulate DB Update Lock
-DB update lock will occur on lock.jsp page. Call this page with paramter 't' value to determine locking time.
+DB update lock will occur on lock.jsp page. Call this page with parameter 't' value to determine locking time.
 
 ![lock.jsp](../img/client/jmeter/lock.png)
 

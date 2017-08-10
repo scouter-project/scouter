@@ -1,5 +1,5 @@
 # Getting Started
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Getting-Started_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Getting-Started_kr.md)
 
 Scouter is a tool to monitor the performance Tomcat, MariaDB, Linux of the OSS.
 First, a description will be given to simple installation and basic usage for those who are new to Scouter.
@@ -46,7 +46,7 @@ At least one of these environment variable is needed to run this program
 ```
 c:\Tomcat7\bin>set JAVA_HOME=c:\java7
 
-If you run: successfully installed and then "\ Tomca7 \ bin \ startup.bat c"
+If you run: successfully installed and then "\ Tomcat7 \ bin \ startup.bat c"
 
 ```
 6월 22, 2015 2:11:27 오후 org.apache.catalina.startup.HostConfig deployDirectory

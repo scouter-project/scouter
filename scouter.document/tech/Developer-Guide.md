@@ -1,5 +1,5 @@
 # Scouter Developer Guide
-[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Developer-Guide.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Developer-Guide_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Developer-Guide.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Developer-Guide_kr.md)
 
 ## You can import scouter project as maven project.
 
@@ -70,7 +70,7 @@
 ><img src="../img/tech/developer/guide_11.png" width="700">
 
 ##### 13. add "TOOLS_JAR" Classpath Variable #####
-* Eclipse Prefrences : Java -> Build Path -> Classpath Variables
+* Eclipse Preferences : Java -> Build Path -> Classpath Variables
 
 ><img src="../img/tech/developer/guide_12.png" width="700">
 

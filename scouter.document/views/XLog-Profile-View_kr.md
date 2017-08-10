@@ -1,5 +1,5 @@
 # XLog View
-[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](XLog-Profile-View.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](XLog-Profile-View.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 ## Context Menu (right-click on XLog view.)
 Menu1       |  Description
