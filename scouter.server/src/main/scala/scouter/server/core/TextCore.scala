@@ -22,6 +22,7 @@ import scouter.lang.pack.TextPack
 import scouter.server.Logger
 import scouter.server.core.cache.TextCache
 import scouter.server.db.TextWR
+import scouter.server.plugin.PlugInManager
 import scouter.server.util.ThreadScala
 import scouter.util.{DateUtil, RequestQueue}
 
@@ -39,6 +40,7 @@ object TextCore {
             SqlTables.add(yyyymmdd, pack.hash, pack.text);
         }
         TextWR.add(yyyymmdd, pack.xtype, pack.hash, pack.text);
+        PlugInManager.text(pack);
     }
 
     def add(p: TextPack) {
