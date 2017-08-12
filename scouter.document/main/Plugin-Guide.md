@@ -48,8 +48,8 @@ Currently 6 types of scripting plugins are supported.
 * **xlog.plug** - for pre-handling xlog data
 * **xlogprofile.plug** - for pre-handling xlog profile
 
-refer to the link for details. 
-**[Scripting plugin Server API](Server-Plugin-Scripting.md)**를 참고한다.
+refer to the link for details.  
+**[Scripting plugin Server API](Server-Plugin-Scripting.md)**
 
 ### 2. Built-in (type) Plugin
 Builing scripting plugin is very simple and can be dynamically loaded on runtime environment.  
