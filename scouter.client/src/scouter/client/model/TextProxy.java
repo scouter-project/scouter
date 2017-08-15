@@ -38,7 +38,7 @@ public class TextProxy {
 	final public static TextModel userAgent = new TextModel(TextTypes.USER_AGENT, 1024*20);
 	final public static TextModel group = new TextModel(TextTypes.GROUP, 1024);
 	final public static TextModel sql_tables = new TextModel(TextTypes.SQL_TABLES, 1024);
-	final public static TextModel city = new TextModel(TextTypes.CITY, 1024);
+	final public static TextModel city = new TextModel(TextTypes.CITY, 8192);
 	final public static TextModel maria = new TextModel(TextTypes.MARIA, 1024);
 	final public static TextModel web = new TextModel(TextTypes.WEB, 500);
 	final public static TextModel login = new TextModel(TextTypes.LOGIN, 1024*10);

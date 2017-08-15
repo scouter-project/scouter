@@ -17,10 +17,7 @@
  */
 package scouter.server.plugin;
 
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.CtNewMethod;
+import javassist.*;
 import scouter.lang.pack.*;
 import scouter.server.Configure;
 import scouter.server.Logger;
@@ -136,7 +133,11 @@ public class PlugInLoader extends Thread {
 				URLClassLoader u = (URLClassLoader)this.getClass().getClassLoader();
 				URL[] urls = u.getURLs();
 				for(int i = 0; urls!=null && i<urls.length ; i++){
-					cp.appendClassPath(urls[i].getFile());
+					try {
+						cp.appendClassPath(urls[i].getFile());
+					} catch (NotFoundException e) {
+						Logger.println("S229", "[Error]" + e.getMessage());
+					}
 				}	
 			}
 			className = "scouter.server.plugin.impl." + className;

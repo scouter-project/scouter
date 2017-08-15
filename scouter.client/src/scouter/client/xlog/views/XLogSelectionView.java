@@ -21,14 +21,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ColumnPixelData;
-import org.eclipse.jface.viewers.IColorProvider;
-import org.eclipse.jface.viewers.ILabelProviderListener;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -38,21 +31,17 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
+import scouter.client.preferences.PManager;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.sorter.TableLabelSorter;
-import scouter.client.stack.utils.StringUtils;
 import scouter.client.util.ClientFileUtil;
 import scouter.client.util.ColorUtil;
 import scouter.client.util.ExUtil;
@@ -67,7 +56,6 @@ import scouter.util.StringUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -150,28 +138,30 @@ public class XLogSelectionView extends ViewPart {
 				&& isTheSameXLogColumnEnum(columnStore.getColumns())) {
 
 			columnStore.getColumns().stream().forEach((column) -> {
-				createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
-				columnList.add(column);
+				if (PManager.getInstance().getBoolean(column.getInternalID())) {
+					createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
+					columnList.add(column);
+				}
 			});
-
 		} else {
 			for (XLogColumnEnum column : XLogColumnEnum.values()) {
-				createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
-				columnList.add(column);
+				if (PManager.getInstance().getBoolean(column.getInternalID())) {
+					createTableViewerColumn(column.getTitle(), column.getWidth(), column.getAlignment(), column.isResizable(), column.isMoveable(), column.isNumber());
+					columnList.add(column);
+				}
 			}
 		}
 		viewer.setLabelProvider(new TableItemProvider());
 	}
 	
 	private boolean isTheSameXLogColumnEnum(List<XLogColumnEnum> loadedColummEnumList) {
-		if(loadedColummEnumList.size() != XLogColumnEnum.values().length) {
-			return false;
+		for (XLogColumnEnum xLogColumn : XLogColumnEnum.values()) {
+			boolean visible = PManager.getInstance().getBoolean(xLogColumn.getInternalID());
+			if (visible && loadedColummEnumList.contains(xLogColumn) == false) {
+				return false;
+			}
 		}
-		if (loadedColummEnumList.containsAll(new ArrayList<>(Arrays.asList(XLogColumnEnum.values())))) {
-			return true;
-		} else {
-			return false;
-		}
+		return true;
 	}
 
 	private void saveColumnsInfo() {
@@ -352,87 +342,6 @@ public class XLogSelectionView extends ViewPart {
 				clipboard.setContents(new Object[] {sb.toString()}, new Transfer[] {TextTransfer.getInstance()});
 				MessageDialog.openInformation(getSite().getShell(), "Copy", "Copied to clipboard");
 			}
-		}
-	}
-	
-	enum XLogColumnEnum implements Serializable {
-	    OBJECT("Object", 80, SWT.LEFT, true, true, false),
-	    ELAPSED("Elapsed", 50, SWT.RIGHT, true, true, true),
-	    SERVICE("Service", 100, SWT.LEFT, true, true, false),
-	    END_TIME("EndTime", 70, SWT.CENTER, true, true, true),
-		CPU("Cpu", 40, SWT.RIGHT, true, true, true),
-		SQL_COUNT("SQL Count", 50, SWT.RIGHT, true, true, true),
-		SQL_TIME("SQL Time", 50, SWT.RIGHT, true, true, true),
-		KBYTES("KBytes", 60, SWT.RIGHT, true, true, true),
-		IP("IP", 90, SWT.LEFT, true, true, false),
-		LOGIN("Login", 50, SWT.LEFT, true, true, false),
-		DUMP("Dump", 40, SWT.CENTER, true, true, false),
-		ERROR("Error", 50, SWT.LEFT, true, true, false),
-		TX_ID("Txid", 30, SWT.LEFT, true, true, false),
-		GX_ID("Gxid", 30, SWT.LEFT, true, true, false),
-		DESC("Desc", 50, SWT.LEFT, true, true, false),
-		TEXT1("Text1", 50, SWT.LEFT, true, true, false),
-		TEXT2("Text2", 50, SWT.LEFT, true, true, false),
-		START_TIME("StartTime", 70, SWT.CENTER, true, true, true),
-		UA("UA", 70, SWT.LEFT, true, true, false),
-		COUNTRY("Country", 40, SWT.LEFT, true, true, false),
-		CITY("City", 40, SWT.LEFT, true, true, false),
-		GROUP("Group", 40, SWT.LEFT, true, true, false),
-		;
-
-	    private final String title;
-	    private int width;
-	    private final int alignment;
-	    private final boolean resizable;
-	    private final boolean moveable;
-	    private final boolean isNumber;
-	    
-	    private static final long serialVersionUID = -1477341833201236951L;
-	    
-	    private XLogColumnEnum(String text, int width, int alignment, boolean resizable, boolean moveable, boolean isNumber) {
-	        this.title = text;
-	        this.width = width;
-	        this.alignment = alignment;
-	        this.resizable = resizable;
-	        this.moveable = moveable;
-	        this.isNumber = isNumber;
-	    }
-	    
-	    public String getTitle(){
-	        return title;
-	    }
-
-	    public int getAlignment(){
-	        return alignment;
-	    }
-
-	    public boolean isResizable(){
-	        return resizable;
-	    }
-
-	    public boolean isMoveable(){
-	        return moveable;
-	    }
-
-		public int getWidth() {
-			return width;
-		}
-		
-		public boolean isNumber() {
-			return this.isNumber;
-		}
-
-		public void setWidth(int width) {
-	    	this.width = width;
-		}
-
-		public static XLogColumnEnum findByTitle(String title) {
-			for (XLogColumnEnum columnEnum : XLogColumnEnum.values()) {
-				if (columnEnum.getTitle().equals(title)) {
-					return columnEnum;
-				}
-			}
-			throw new RuntimeException(String.format("[FATAL] Invalid XLogColumn title : <%s>", title));
 		}
 	}
 
