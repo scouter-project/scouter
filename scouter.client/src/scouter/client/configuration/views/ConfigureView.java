@@ -52,20 +52,24 @@ import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.StringUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
 
 public class ConfigureView extends ViewPart {
 	public final static String ID = ConfigureView.class.getName();
 	
 	private ArrayList<ColoringWord> defaultHighlightings;
+	private HashSet<String> configKeyNames = new HashSet<>();
 	
 	private StyledText text;
 	private String content;
 	private int serverId;
 	private int objHash;
+
+	private volatile String selectedText = "";
+	private volatile long selectedTime = 0L;
+	private volatile int selectedX = 0;
+	private volatile int selectedY = 0;
 	
 	Composite listComp;
 	TableViewer viewer;
@@ -99,7 +103,6 @@ public class ConfigureView extends ViewPart {
 		searchLabel.setText("Filter : ");
 		searchTxt = new Text(searchComp, SWT.BORDER);
 		
-//		searchTxt = new Text(listComp, SWT.BORDER);
 		searchTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		searchTxt.setToolTipText("Search Key/Value");
 		searchTxt.addMouseListener(new MouseListener() {
@@ -271,6 +274,27 @@ public class ConfigureView extends ViewPart {
 				}
 			}
 		});
+		text.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				if (selectedTime > System.currentTimeMillis() - 1500) {
+					if (configKeyNames.contains(selectedText)) {
+						System.out.println("click-selected-config : " + selectedText);
+						new ConfigureItemDialog(parent.getShell(), selectedText).open();
+					}
+				}
+			}
+		});
+		text.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(e.x == e.y) return;
+				selectedText = text.getText(e.x, e.y-1);
+				selectedTime = System.currentTimeMillis();
+				selectedX = e.x;
+				selectedY = e.y;
+			}
+		});
 	}
 
 	private void saveConfigurations(){
@@ -339,6 +363,7 @@ public class ConfigureView extends ViewPart {
 					defaultHighlightings = new ArrayList<ColoringWord>();
 					for(int inx = 0 ; configKey != null && inx < configKey.size(); inx++){
 						defaultHighlightings.add(new ColoringWord(configKey.getString(inx), SWT.COLOR_BLUE, true));
+						configKeyNames.add(configKey.getString(inx));
 					}
 					defaultHighlightings.add(new ColoringWord(";", SWT.COLOR_RED, true));
 					
