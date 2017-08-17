@@ -165,6 +165,7 @@ public class RequestCmd {
 	public static final String LIST_CONFIGURE_WAS = "LIST_CONFIGURE_WAS";
 	public static final String REDEFINE_CLASSES = "REDEFINE_CLASSES";
 	public static final String CONFIGURE_DESC = "CONFIGURE_DESC";
+	public static final String CONFIGURE_VALUE_TYPE = "CONFIGURE_VALUE_TYPE";
 
 	public static final String GET_XML_COUNTER = "GET_XML_COUNTER";
 

@@ -16,20 +16,10 @@
  */
 package scouter.agent.batch;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-
 import scouter.agent.util.JarUtil;
 import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueUtil;
+import scouter.lang.conf.ValueType;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
@@ -42,6 +32,17 @@ import scouter.util.StringSet;
 import scouter.util.StringUtil;
 import scouter.util.SysJMX;
 import scouter.util.SystemUtil;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
 
 public class Configure {
 	public static final String CONFIG_SCOUTER_ENABLED = "scouter_enabled";
@@ -506,7 +507,11 @@ public class Configure {
 	
 	public StringKeyLinkedMap<String> getConfigureDesc() {
 		return ConfigValueUtil.getConfigDescMap(this);
-	}	
+	}
+
+	public StringKeyLinkedMap<ValueType> getConfigureValueType() {
+		return ConfigValueUtil.getConfigValueTypeMap(this);
+	}
 
 	private static HashSet<String> ignoreSet = new HashSet<String>();
 	static {

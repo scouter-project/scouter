@@ -22,21 +22,45 @@ import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.window.DefaultToolTip;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
@@ -45,14 +69,22 @@ import scouter.client.net.TcpProxy;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.sorter.ColumnLabelSorter;
-import scouter.client.util.*;
+import scouter.client.util.ColoringWord;
+import scouter.client.util.ConsoleProxy;
+import scouter.client.util.CustomLineStyleListener;
+import scouter.client.util.ExUtil;
+import scouter.client.util.ImageUtil;
+import scouter.lang.conf.ValueType;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.StringUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 public class ConfigureView extends ViewPart {
@@ -65,6 +97,7 @@ public class ConfigureView extends ViewPart {
 	private String content;
 	private int serverId;
 	private int objHash;
+	private String displayName;
 
 	private volatile String selectedText = "";
 	private volatile long selectedTime = 0L;
@@ -85,6 +118,7 @@ public class ConfigureView extends ViewPart {
 	boolean devMode;
 	
 	HashMap<String, String> descMap = new HashMap<String, String>();
+	HashMap<String, ValueType> valueTypeMap = new HashMap<String, ValueType>();
 	
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
@@ -236,10 +270,12 @@ public class ConfigureView extends ViewPart {
 		this.serverId = serverId;
 		Server server = ServerManager.getInstance().getServer(serverId);
 		if (server != null) {
+			this.displayName = server.getName();
 			setPartName("Config Server[" + server.getName() + "]");
 			loadConfig(RequestCmd.GET_CONFIGURE_SERVER, null);
 			loadConfigList(RequestCmd.LIST_CONFIGURE_SERVER, null);
 			loadConfigDesc(new MapPack());
+			loadConfigValueType(new MapPack());
 		}
 	}
 	
@@ -248,12 +284,14 @@ public class ConfigureView extends ViewPart {
 		this.objHash = objHash;
 		Server server = ServerManager.getInstance().getServer(serverId);
 		if (server != null) {
+			this.displayName = TextProxy.object.getText(objHash);
 			setPartName("Config Agent[" + TextProxy.object.getText(objHash) + "]");
 			MapPack param = new MapPack();
 			param.put("objHash", objHash);
 			loadConfig(RequestCmd.GET_CONFIGURE_WAS, param);
 			loadConfigList(RequestCmd.LIST_CONFIGURE_WAS, param);
 			loadConfigDesc(param);
+			loadConfigValueType(param);
 		}
 	}
 	
@@ -280,7 +318,10 @@ public class ConfigureView extends ViewPart {
 				if (selectedTime > System.currentTimeMillis() - 1500) {
 					if (configKeyNames.contains(selectedText)) {
 						System.out.println("click-selected-config : " + selectedText);
-						new ConfigureItemDialog(parent.getShell(), selectedText).open();
+						ConfigureItemDialog dialog = new ConfigureItemDialog(parent.getShell(), selectedText, displayName);
+						if (dialog.open() == Window.OK) {
+							setTheConfig(selectedText, dialog.getValue());
+						}
 					}
 				}
 			}
@@ -295,6 +336,18 @@ public class ConfigureView extends ViewPart {
 				selectedY = e.y;
 			}
 		});
+	}
+
+	private void setTheConfig(String confKey, String confValue) {
+		if ("null".equals(confValue)) {
+			confValue = "";
+		}
+
+		String content = text.getText();
+		String expression = "(?m)^" + confKey + "\\s*=.*\\n?";
+		String replacement =  confKey + "=" + confValue + "\n";
+		content = content.replaceAll(expression, replacement);
+		System.out.println(content);
 	}
 
 	private void saveConfigurations(){
@@ -439,6 +492,29 @@ public class ConfigureView extends ViewPart {
 					while (keys.hasNext()) {
 						String key = keys.next();
 						descMap.put(key, pack.getText(key));
+					}
+				}
+			}
+		});
+	}
+
+	private void loadConfigValueType(final MapPack param) {
+		ExUtil.asyncRun(new Runnable() {
+			public void run() {
+				MapPack pack = null;
+				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+				try {
+					pack = (MapPack) tcp.getSingle(RequestCmd.CONFIGURE_VALUE_TYPE, param);
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					TcpProxy.putTcpProxy(tcp);
+				}
+				if (pack != null) {
+					Iterator<String> keys = pack.keys();
+					while (keys.hasNext()) {
+						String key = keys.next();
+						valueTypeMap.put(key, ValueType.of(pack.getInt(key)));
 					}
 				}
 			}

@@ -20,6 +20,7 @@ package scouter.server.netio.service.handle;
 
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
+import scouter.lang.conf.ValueType
 import scouter.lang.pack.MapPack
 import scouter.lang.pack.ObjectPack
 import scouter.lang.pack.Pack
@@ -171,6 +172,28 @@ class ConfigureService {
     } else {
       val o = AgentManager.getAgent(objHash);
       val p = AgentCall.call(o, RequestCmd.CONFIGURE_DESC, param);
+      if (p != null) {
+        dout.writeByte(TcpFlag.HasNEXT);
+        dout.writePack(p);
+      }
+    }
+  }
+
+  @ServiceHandler(RequestCmd.CONFIGURE_VALUE_TYPE)
+  def getConfigureValueType(din: DataInputX, dout: DataOutputX, login: Boolean) {
+    val param = din.readPack().asInstanceOf[MapPack];
+    val objHash = param.getInt("objHash");
+    if (objHash == 0) {
+      val p = new MapPack()
+      val valueTypeMap = Configure.getInstance.getConfigureValueType();
+      EnumerScala.foreach(valueTypeMap.entries(), (entry: StringKeyLinkedEntry[ValueType]) => {
+        p.put(entry.getKey(), entry.getValue().getType())
+      })
+      dout.writeByte(TcpFlag.HasNEXT);
+      dout.writePack(p);
+    } else {
+      val o = AgentManager.getAgent(objHash);
+      val p = AgentCall.call(o, RequestCmd.CONFIGURE_VALUE_TYPE, param);
       if (p != null) {
         dout.writeByte(TcpFlag.HasNEXT);
         dout.writePack(p);

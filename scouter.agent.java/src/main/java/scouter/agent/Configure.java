@@ -22,6 +22,7 @@ import scouter.agent.util.JarUtil;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueUtil;
+import scouter.lang.conf.ValueType;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
@@ -1188,6 +1189,10 @@ public class Configure extends Thread {
 
     public StringKeyLinkedMap<String> getConfigureDesc() {
         return ConfigValueUtil.getConfigDescMap(this);
+    }
+
+    public StringKeyLinkedMap<ValueType> getConfigureValueType() {
+        return ConfigValueUtil.getConfigValueTypeMap(this);
     }
 
     public int getHookSignature() {

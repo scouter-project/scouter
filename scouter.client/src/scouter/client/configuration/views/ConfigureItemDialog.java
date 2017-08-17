@@ -17,23 +17,40 @@
  */
 package scouter.client.configuration.views;
 
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
-public class ConfigureItemDialog extends Dialog {
+public class ConfigureItemDialog extends TitleAreaDialog {
 	String confKey;
 	String value;
+	String objName;
 
-	public ConfigureItemDialog(Shell parentShell, String confKey) {
+	public ConfigureItemDialog(Shell parentShell, String confKey, String objName) {
 		super(parentShell);
+		this.confKey = confKey;
+		this.objName = objName;
 	}
-	
+
+	@Override
+	public void create() {
+		super.create();
+		setTitle("\"" + confKey + "\" (" + objName + ")");
+		setMessage("Set the key : " + confKey, IMessageProvider.INFORMATION);
+	}
+
+	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite container =  (Composite) super.createDialogArea(parent);
 		setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE);
@@ -61,13 +78,12 @@ public class ConfigureItemDialog extends Dialog {
 
 	@Override
 	protected void okPressed() {
-		System.out.println(value);
 		super.okPressed();
 	}
 
 	@Override
 	protected Point getInitialSize() {
-		return getShell().computeSize(300, SWT.DEFAULT);
+		return getShell().computeSize(600, SWT.DEFAULT);
 	}
 
 	@Override
@@ -79,5 +95,9 @@ public class ConfigureItemDialog extends Dialog {
 	@Override
 	protected boolean isResizable() {
 		return true;
+	}
+
+	public String getValue() {
+		return value;
 	}
 }
