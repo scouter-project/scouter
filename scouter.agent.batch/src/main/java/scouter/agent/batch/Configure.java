@@ -18,6 +18,7 @@ package scouter.agent.batch;
 
 import scouter.agent.util.JarUtil;
 import scouter.lang.conf.ConfigDesc;
+import scouter.lang.conf.ConfigValueType;
 import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.conf.ValueType;
 import scouter.lang.counters.CounterConstants;
@@ -90,10 +91,13 @@ public class Configure {
     @ConfigDesc("SQL max count")
     public int sql_max_count = 100;
     @ConfigDesc("Method set for preparestatement hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_jdbc_pstmt_classes = "";
-    @ConfigDesc("Method set for statement hooking")    
+    @ConfigDesc("Method set for statement hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String hook_jdbc_stmt_classes = "";
-    @ConfigDesc("Method set for resultset hooking")    
+    @ConfigDesc("Method set for resultset hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String hook_jdbc_rs_classes = "";    
     
     // SFA(Stack Frequency Analyzer) Thread Dump

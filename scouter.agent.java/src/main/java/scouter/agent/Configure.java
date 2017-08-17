@@ -21,6 +21,7 @@ import scouter.agent.netio.data.DataProxy;
 import scouter.agent.util.JarUtil;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.conf.ConfigDesc;
+import scouter.lang.conf.ConfigValueType;
 import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.conf.ValueType;
 import scouter.lang.counters.CounterConstants;
@@ -125,8 +126,11 @@ public class Configure extends Thread {
     public boolean profile_http_header_enabled;
     @ConfigDesc("Service URL prefix for Http header profile")
     public String profile_http_header_url_prefix = "/";
+
     @ConfigDesc("http header names for profiling with comma separator")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String profile_http_header_keys = "";
+
     @ConfigDesc("Http Parameter profile")
     public boolean profile_http_parameter_enabled;
     @ConfigDesc("Service URL prefix for Http parameter profile")
@@ -252,8 +256,10 @@ public class Configure extends Thread {
 
     //Manager
     @ConfigDesc("")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String mgr_static_content_extensions = "js, htm, html, gif, png, jpg, css";
     @ConfigDesc("")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String mgr_log_ignore_ids = "";
 
     //Auto dump options when active service is exceed the set threshold count.
@@ -330,8 +336,11 @@ public class Configure extends Thread {
     //XLog sampling for service patterns options
     @ConfigDesc("XLog patterned sampling mode enabled")
     public boolean xlog_patterned_sampling_enabled = false;
+
     @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String xlog_patterned_sampling_service_patterns = "";
+
     @ConfigDesc("XLog patterned sampling but discard profile only not XLog.")
     public boolean xlog_patterned_sampling_only_profile = false;
     @ConfigDesc("XLog patterned sampling bound millisecond - step1(lowest : range - from 0 to here)")
@@ -351,6 +360,7 @@ public class Configure extends Thread {
 
     //XLog discard options
     @ConfigDesc("XLog discard service patterns\nNo XLog data, but apply to TPS and summary.\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String xlog_discard_service_patterns = "";
 
     //Alert
@@ -387,23 +397,41 @@ public class Configure extends Thread {
 
     //Hook
     @ConfigDesc("Method set for argument hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_args_patterns = "";
+
     @ConfigDesc("Method set for return hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_return_patterns = "";
+
     @ConfigDesc("Method set for constructor hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_constructor_patterns = "";
+
     @ConfigDesc("Method set for dbconnection hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_connection_open_patterns = "";
+
     @ConfigDesc("IntialContext Class Set")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_context_classes = "javax/naming/InitialContext";
+
     @ConfigDesc("Method set for method hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_method_patterns = "";
+
     @ConfigDesc("Prefix without Method hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_method_ignore_prefixes = "get,set";
+
     @ConfigDesc("Class set without Method hookingt")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_method_ignore_classes = "";
+
     @ConfigDesc("")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_method_exclude_patterns = "";
+
     @ConfigDesc("Activating public Method hooking")
     public boolean hook_method_access_public_enabled = true;
     @ConfigDesc("Activating private Method hooking")
@@ -414,50 +442,82 @@ public class Configure extends Thread {
     public boolean hook_method_access_none_enabled = false;
     @ConfigDesc("Activating lambda Method hooking")
     public boolean hook_method_lambda_enable = true;
+
     @ConfigDesc("Method set for service hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_service_patterns = "";
+
     @ConfigDesc("Method set for apicall hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_apicall_patterns = "";
+
     @ConfigDesc("Method set for apicallinfo hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_apicall_info_patterns = "";
+
     @ConfigDesc("Method set for jsp hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_jsp_patterns = "";
+
     @ConfigDesc("Method set for preparestatement hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_jdbc_pstmt_classes = "";
+
     @ConfigDesc("Method set for statement hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_jdbc_stmt_classes = "";
+
     @ConfigDesc("Method set for resultset hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_jdbc_rs_classes = "";
+
     @ConfigDesc("Method set for dbconnection wrapping")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_jdbc_wrapping_driver_patterns = "";
+
     @ConfigDesc("Exception class patterns - These will seem as error on xlog view.\n (ex) my.app.BizException,my.app.exception.*Exception")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_exception_class_patterns = "";
+
     @ConfigDesc("Exception class exclude patterns")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_exception_exclude_class_patterns = "";
+
     @ConfigDesc("Exception handler patterns\n - exceptions passed to these methods are treated as error on xlog view.\n   (ex) my.app.myHandler.handleException")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_exception_handler_method_patterns = "";
+
     @ConfigDesc("Exception handler exclude class name patterns(can not include star-* in patterns)\n - (ex) my.app.MyManagedException,MyBizException")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_exception_handler_exclude_class_patterns = "";
 
     @ConfigDesc("Hook for supporting async servlet")
     public boolean hook_async_servlet_enabled = true;
+
     @ConfigDesc("startAsync impl. method patterns")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_async_servlet_start_patterns = "";
+
     @ConfigDesc("asyncContext dispatch impl. method patterns")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_async_context_dispatch_patterns = "";
 
     @ConfigDesc("spring async execution submit patterns")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_spring_async_submit_patterns = "";
+
     @ConfigDesc("spring async execution hook enabled")
     public boolean hook_spring_async_enabled = true;
 
     @Deprecated
     @ConfigDesc("Deprecated. use hook_async_callrunnable_enabled")
     public boolean hook_async_callrunnable_enable = true;
+
     @ConfigDesc("Hook callable and runnable for tracing async processing.\n It hook only 'hook_async_callrunnable_scan_prefixes' option contains pacakage or classes")
     public boolean hook_async_callrunnable_enabled = true;
 
     @ConfigDesc("scanning range prefixes for hooking callable, runnable implementations and lambda expressions.\n usually your application package.\n 2 or more packages can be separated by commas.")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_async_callrunnable_scan_package_prefixes = "";
 
     @ConfigDesc("PRE-released option before stable release!\nhook threadpool executor for tracing async processing.")

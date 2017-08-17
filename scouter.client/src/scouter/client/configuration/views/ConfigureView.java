@@ -317,8 +317,26 @@ public class ConfigureView extends ViewPart {
 			public void mouseDoubleClick(MouseEvent e) {
 				if (selectedTime > System.currentTimeMillis() - 1500) {
 					if (configKeyNames.contains(selectedText)) {
-						System.out.println("click-selected-config : " + selectedText);
-						ConfigureItemDialog dialog = new ConfigureItemDialog(parent.getShell(), selectedText, displayName);
+						String fullText = text.getText();
+						String textToIt = fullText.substring(0, selectedX);
+						int lastIndexOfLineBreakToIt = textToIt.lastIndexOf('\n');
+						if (lastIndexOfLineBreakToIt >= 0 && fullText.charAt(lastIndexOfLineBreakToIt+1) == '#') {
+							return;
+						} else if (textToIt.charAt(0) == '#') {
+							return;
+						}
+
+						String value = fullText.substring(selectedY);
+						int startPos = value.indexOf('=')+1;
+						int lineEndPos = value.indexOf('\n');
+						if (lineEndPos >= 0) {
+							value = value.substring(startPos, lineEndPos);
+						} else {
+							value = value.substring(startPos);
+						}
+						
+						ConfigureItemDialog dialog = new ConfigureItemDialog(parent.getShell(), selectedText, value, displayName,
+								descMap.get(selectedText), valueTypeMap.get(selectedText));
 						if (dialog.open() == Window.OK) {
 							setTheConfig(selectedText, dialog.getValue());
 						}

@@ -31,23 +31,38 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import scouter.lang.conf.ValueType;
+import scouter.util.StringUtil;
 
 public class ConfigureItemDialog extends TitleAreaDialog {
 	String confKey;
-	String value;
+	String valueOrg;
 	String objName;
+	String desc;
+	ValueType valueType;
 
-	public ConfigureItemDialog(Shell parentShell, String confKey, String objName) {
+	String value;
+
+	public ConfigureItemDialog(Shell parentShell, String confKey, String valueOrg, String objName, String desc, ValueType valueType) {
 		super(parentShell);
 		this.confKey = confKey;
+		this.valueOrg = valueOrg;
+		this.value = valueOrg;
 		this.objName = objName;
+		this.desc = desc;
+		this.valueType = (valueType == null) ? ValueType.VALUE : valueType;
 	}
 
 	@Override
 	public void create() {
 		super.create();
 		setTitle("\"" + confKey + "\" (" + objName + ")");
-		setMessage("Set the key : " + confKey, IMessageProvider.INFORMATION);
+
+		if (StringUtil.isNotEmpty(desc)) {
+			setMessage(desc, IMessageProvider.INFORMATION);
+		} else {
+			setMessage("Set the value of : " + confKey, IMessageProvider.INFORMATION);
+		}
 	}
 
 	@Override
@@ -66,7 +81,7 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
 		Text serviceTxt = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
 		serviceTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		serviceTxt.setText("asdfasfd");
+		serviceTxt.setText(valueOrg);
 		serviceTxt.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
 				value = ((Text)arg0.getSource()).getText();

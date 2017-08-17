@@ -21,15 +21,29 @@ import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.conf.ConfigDesc;
+import scouter.lang.conf.ConfigValueType;
 import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.conf.ValueType;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
-import scouter.util.*;
+import scouter.util.DateUtil;
+import scouter.util.FileUtil;
+import scouter.util.HashUtil;
+import scouter.util.StringEnumer;
+import scouter.util.StringKeyLinkedMap;
+import scouter.util.StringSet;
+import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.SystemUtil;
+import scouter.util.ThreadUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -80,6 +94,7 @@ public class Configure extends Thread {
 
 	//Manager
 	@ConfigDesc("")
+	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public StringSet mgr_log_ignore_ids = new StringSet();
 
 	//Counter
