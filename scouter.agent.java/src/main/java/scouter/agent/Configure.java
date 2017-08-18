@@ -169,7 +169,8 @@ public class Configure extends Thread {
     public boolean profile_fullstack_hooked_exception_enabled = false;
     @ConfigDesc("Number of stack profile lines in occurrence of error")
     public int profile_fullstack_max_lines = 0;
-    @ConfigDesc("Activating SQL literal task")
+
+    @ConfigDesc("Escaping literal parameters for normalizing the query")
     public boolean profile_sql_escape_enabled = true;
     @ConfigDesc("")
     public boolean _profile_fullstack_sql_connection_enabled = false;
