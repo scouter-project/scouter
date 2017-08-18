@@ -253,12 +253,12 @@ public class ConfigureView extends ViewPart {
 
 		Label bottomLabel = new Label(listComp, SWT.BORDER);
 		bottomLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		bottomLabel.setFont(new Font(null, "Arial", 10, SWT.BOLD));
+		bottomLabel.setFont(new Font(null, "Arial", 11, SWT.BOLD | SWT.ITALIC));
 		
 		bottomLabel.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		bottomLabel.setText(new StringBuilder()
-				.append("- click for tooltip\n")
-				.append("- dbl-click for copy && paste (or ctl+C)")
+				.append("  [Click] for tooltip\n")
+				.append("  [Double-Click] for copy && paste (or ctl+C)")
 				.toString());
 				
 		sashForm.setWeights(new int[] {1, 1});
@@ -296,7 +296,12 @@ public class ConfigureView extends ViewPart {
 	}
 	
 	private void initialStyledText(Composite parent) {
-		text = new StyledText(parent, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		Composite comp = new Composite(parent, SWT.NONE);
+		comp.setLayout(new GridLayout(1, true));
+
+		text = new StyledText(comp, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
 		listener = new CustomLineStyleListener(true, defaultHighlightings, false);
 		text.addLineStyleListener(listener);
 		text.addKeyListener(new KeyListener() {
@@ -320,10 +325,14 @@ public class ConfigureView extends ViewPart {
 						String fullText = text.getText();
 						String textToIt = fullText.substring(0, selectedX);
 						int lastIndexOfLineBreakToIt = textToIt.lastIndexOf('\n');
-						if (lastIndexOfLineBreakToIt >= 0 && fullText.charAt(lastIndexOfLineBreakToIt+1) == '#') {
-							return;
-						} else if (textToIt.charAt(0) == '#') {
-							return;
+						if (lastIndexOfLineBreakToIt >= 0) {
+							if(fullText.charAt(lastIndexOfLineBreakToIt+1) == '#') {
+								return;
+							}
+						} else {
+							if (textToIt.length() > 0 && textToIt.charAt(0) == '#') {
+								return;
+							}
 						}
 
 						String value = fullText.substring(selectedY);
@@ -354,6 +363,16 @@ public class ConfigureView extends ViewPart {
 				selectedY = e.y;
 			}
 		});
+
+		Label bottomLabel = new Label(comp, SWT.BORDER);
+		bottomLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		bottomLabel.setFont(new Font(null, "Arial", 11, SWT.BOLD | SWT.ITALIC));
+
+		bottomLabel.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+		bottomLabel.setText(new StringBuilder()
+				.append("  [Double-Click] the config KEY for popup editor\n")
+				.append(" ")
+				.toString());
 	}
 
 	private void setTheConfig(String confKey, String confValue) {
@@ -365,7 +384,7 @@ public class ConfigureView extends ViewPart {
 		String expression = "(?m)^" + confKey + "\\s*=.*\\n?";
 		String replacement =  confKey + "=" + confValue + "\n";
 		content = content.replaceAll(expression, replacement);
-		System.out.println(content);
+		text.setText(content);
 	}
 
 	private void saveConfigurations(){

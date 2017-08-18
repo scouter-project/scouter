@@ -20,10 +20,17 @@ package scouter.client.configuration.views;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import scouter.lang.conf.ValueType;
 import scouter.util.StringUtil;
 
@@ -85,9 +92,46 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 			serviceTxt.setLayoutData(gridData);
 			serviceTxt.setText(value);
 			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
+		} else if (valueType == ValueType.NUM) {
+			Text serviceTxt = new Text(group, SWT.BORDER | SWT.SINGLE);
+			serviceTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+			serviceTxt.addVerifyListener(e -> e.doit = isNumber(e.text));
+			serviceTxt.setText(value);
+			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
+		} else if (valueType == ValueType.BOOL) {
+			Button button = new Button(group, SWT.CHECK);
+			button.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+			button.setText(confKey);
+			button.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (((Button) e.widget).getSelection()) {
+						value = "true";
+					} else {
+						value = "false";
+					}
+				}
+			});
+			button.setSelection("true".equals(value));
+		} else {
+			Text serviceTxt = new Text(group, SWT.BORDER | SWT.SINGLE);
+			serviceTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+			serviceTxt.setText(value);
+			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
 		}
 
 		return container;
+	}
+
+	private boolean isNumber(String v) {
+		char[] chars = new char[v.length()];
+		v.getChars(0, chars.length, chars, 0);
+		for (int i = 0; i < chars.length; i++) {
+			if (!('0' <= chars[i] && chars[i] <= '9')) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
