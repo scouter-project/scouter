@@ -20,17 +20,10 @@ package scouter.client.configuration.views;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 import scouter.lang.conf.ValueType;
 import scouter.util.StringUtil;
 
@@ -46,11 +39,11 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 	public ConfigureItemDialog(Shell parentShell, String confKey, String valueOrg, String objName, String desc, ValueType valueType) {
 		super(parentShell);
 		this.confKey = confKey;
-		this.valueOrg = valueOrg;
-		this.value = valueOrg;
 		this.objName = objName;
 		this.desc = desc;
 		this.valueType = (valueType == null) ? ValueType.VALUE : valueType;
+		this.valueOrg = valueOrg;
+		this.value = shape(valueOrg);
 	}
 
 	@Override
@@ -70,23 +63,29 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 		Composite container =  (Composite) super.createDialogArea(parent);
 		setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE);
 		setBlockOnOpen(true);
-
 		container.setLayout(new GridLayout(1, true));
-		Group filterGrp = new Group(container, SWT.NONE);
-		filterGrp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		filterGrp.setLayout(new GridLayout(2, false));
 
-		Label label = new Label(filterGrp, SWT.NONE);
-		label.setText("Service");
-		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
-		Text serviceTxt = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
-		serviceTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		serviceTxt.setText(valueOrg);
-		serviceTxt.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent arg0) {
-				value = ((Text)arg0.getSource()).getText();
-			}
-		});
+		Group group = new Group(container, SWT.NONE);
+		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		group.setLayout(new GridLayout(1, false));
+
+//		Label label = new Label(filterGrp, SWT.NONE);
+//		label.setText("Service");
+//		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+
+		if (valueType == ValueType.VALUE) {
+			Text serviceTxt = new Text(group, SWT.BORDER | SWT.SINGLE);
+			serviceTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+			serviceTxt.setText(value);
+			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
+		} else if (valueType == ValueType.COMMA_SEPARATED_VALUE) {
+			Text serviceTxt = new Text(group, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
+			GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+			gridData.heightHint = 100;
+			serviceTxt.setLayoutData(gridData);
+			serviceTxt.setText(value);
+			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
+		}
 
 		return container;
 	}
@@ -112,7 +111,21 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 		return true;
 	}
 
+	private String unShape(String value0) {
+		if(valueType == ValueType.COMMA_SEPARATED_VALUE) {
+			return value0.replaceAll("\\s+", ",");
+		}
+		return value0;
+	}
+	
+	private String shape(String value0) {
+		if(valueType == ValueType.COMMA_SEPARATED_VALUE) {
+			return value0.replace(',', '\n');
+		}
+		return value0;
+	}
+
 	public String getValue() {
-		return value;
+		return unShape(value);
 	}
 }
