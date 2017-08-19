@@ -32,3 +32,17 @@
 | ```String getLoginString(int hash)```                                       |    |
 | ```String getDescString(int hash)```                                        |    |
 | ```String getHashMsgString(int hash)```                                     |    |
+| ```Object getFieldValue(Object o, String fieldName)```         | get field value as object of 'o'    |
+| ```Object invokeMethod(Object o, String methodName)```         | invoke the method    |
+| ```Object invokeMethod(Object o, String methodName, Object[] args)```         | invoke the method with args    |
+| ```Object invokeMethod(Object o, String methodName, Class[] argTypes, Object[] args)```         | invoke the method with args    |
+| ```Object newInstance(String className)```         | new instance of the class    |
+| ```Object newInstance(String className, ClassLoader loader)```         | new instance of the class from the classloader    |
+| ```Object newInstance(String className, Object[] args)```         | new instance of the class with arguments    |
+| ```Object newInstance(String className, ClassLoader loader, Object[] args)```         | new instance of the class with arguments from the classloader    |
+| ```Object newInstance(String className, ClassLoader loader, Class[] argTypes, Object[] args)```         | new instance of the class with arguments from the classloader    |
+| ```String toString(Object o)```         | invoke toString() of the object    |
+| ```String toString(Object o, String def)```         | invoke toString() of the object, if null, return def.    |
+| ```void alert(char level, String title, String message)```         | invoke alert (level : i\|w\|e\|f as info, warn, error, fatal).    |
+| ```Class[] makeArgTypes(Class class0, Class class1, ..., classN)```         | assemble argument types array to call the reflection method ```invokeMethod()```    |
+| ```Object[] makeArgs(Object obj0, Object obj1, ..., objN)```         | assemble arguments array to call the reflection method ```invokeMethod()```     |

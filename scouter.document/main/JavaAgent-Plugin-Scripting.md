@@ -57,6 +57,8 @@
  - ```String toString(Object o)``` : invoke toString() of the object
  - ```String toString(Object o, String def)``` : invoke toString() of the object, if null, return def.
  - ```void alert(char level, String title, String message)``` : invoke alert (level : i\|w\|e\|f as info, warn, error, fatal).
+ - ```Class[] makeArgTypes(Class class0, Class class1, ..., classN)``` : assemble argument types array to call the reflection method ```invokeMethod()```
+ - ```Object[] makeArgs(Object obj0, Object obj1, ..., objN)``` : assemble arguments array to call the reflection method ```invokeMethod()```
 
 ### WrContext class API
  - ```String service()``` : get a service name of XLog from the trace context

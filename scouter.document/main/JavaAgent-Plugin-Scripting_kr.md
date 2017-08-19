@@ -58,6 +58,8 @@
  - ```String toString(Object o)``` : Object 를 toString 하여 반환
  - ```String toString(Object o, String def)``` : Object 를 toString 하여 반환, null 이면 default string 반환
  - ```void alert(char level, String title, String message)``` : Alert 을 보냄 (level : i\|w\|e\|f as info, warn, error, fatal).
+ - ```Class[] makeArgTypes(Class class0, Class class1, ..., classN)``` : assemble argument types array to call the reflection method ```invokeMethod()```
+ - ```Object[] makeArgs(Object obj0, Object obj1, ..., objN)``` : assemble arguments array to call the reflection method ```invokeMethod()```
 
 
 ### WrContext class API
