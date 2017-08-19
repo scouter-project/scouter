@@ -55,11 +55,9 @@
  - ```Object newInstance(String className, Object[] args)``` : new instance of the class with arguments
  - ```Object newInstance(String className, ClassLoader loader, Object[] args)``` : new instance of the class with arguments from the classloader
  - ```Object newInstance(String className, ClassLoader loader, Class[] argTypes, Object[] args)``` : new instance of the class with arguments from the classloader
-
  - ```String toString(Object o)``` : Object 를 toString 하여 반환
  - ```String toString(Object o, String def)``` : Object 를 toString 하여 반환, null 이면 default string 반환
-
- - ```void alert(char level, String title, String message)``` : Alert 을 보냄
+ - ```void alert(char level, String title, String message)``` : Alert 을 보냄 (level : i\|w\|e\|f as info, warn, error, fatal).
 
 
 ### WrContext class API

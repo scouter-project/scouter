@@ -43,8 +43,8 @@
 ## API
 
 ### Common API
- - ```void log(Object c)``` :
- - ```void println(Object c)``` : System.out.println
+ - ```void log(Object c)``` : logging
+ - ```void println(Object c)``` : System.out.println()
  - ```Object getFieldValue(Object o, String fieldName)``` : get field value as object of 'o'
  - ```Object invokeMethod(Object o, String methodName)``` : invoke the method
  - ```Object invokeMethod(Object o, String methodName, Object[] args)``` : invoke the method with args
@@ -54,12 +54,9 @@
  - ```Object newInstance(String className, Object[] args)``` : new instance of the class with arguments
  - ```Object newInstance(String className, ClassLoader loader, Object[] args)``` : new instance of the class with arguments from the classloader
  - ```Object newInstance(String className, ClassLoader loader, Class[] argTypes, Object[] args)``` : new instance of the class with arguments from the classloader
- 
  - ```String toString(Object o)``` : invoke toString() of the object
  - ```String toString(Object o, String def)``` : invoke toString() of the object, if null, return def.
- 
- - ```void alert(char level, String title, String message)``` : invoke alert (level : i\|w\|e\|f)
-
+ - ```void alert(char level, String title, String message)``` : invoke alert (level : i\|w\|e\|f as info, warn, error, fatal).
 
 ### WrContext class API
  - ```String service()``` : get a service name of XLog from the trace context
