@@ -43,13 +43,13 @@ Scouter distribution has the samples and the file name can not be modified.
 Currently 6 types of scripting plugins are supported.
 * **alert.plug** - for pre-handling alert
 * **counter.plug** - for pre-handling performance metrics(counters)
-* **object.plug** - for pre-handling monitoring objects(instnats)
+* **object.plug** - for pre-handling monitoring objects(instances)
 * **summary.plug** - for pre-handling performance summary data
 * **xlog.plug** - for pre-handling xlog data
 * **xlogprofile.plug** - for pre-handling xlog profile
 
-refer to the link for details.  
-**[Scripting plugin Server API](Server-Plugin-Scripting.md)**
+refer to the link for details. 
+refer to **[Scripting plugin Server API](Server-Plugin-Scripting.md)**.
 
 ### 2. Built-in (type) Plugin
 Builing scripting plugin is very simple and can be dynamically loaded on runtime environment.  
@@ -106,7 +106,7 @@ public class NullPlugin {
     * **```PLUGIN_SERVER_XLOG```**
     * **```PLUGIN_SERVER_PROFILE```**
 
-#### 3. Sample plugin
+#### 2.3. plugin sample
 Provided sample plugin that just prints the data collected. 
  * Sample plugin : [https://github.com/scouter-project/scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)
  * Download : [scouter-plugin-server-null.jar](https://github.com/scouter-project/scouter-plugin-server-null/releases/download/v1.0/scouter-plugin-server-null.jar)
@@ -114,6 +114,8 @@ Provided sample plugin that just prints the data collected.
 ### 3. Alert scripting (type) plugin
 We can build our own alarm rules by handling alert scripting plugins which are able to compose various performance metrics.
   * [Alert Plugin Guide](./Alert-Plugin-Guide.md)
+<br>
+
 
 ## Agent Plugin - Scripting Plugin
 

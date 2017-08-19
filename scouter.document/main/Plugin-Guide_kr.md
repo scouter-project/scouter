@@ -89,7 +89,7 @@ Plugin 개발시 아래 두가지 사항을 준수하여야 한다.
 * **```PLUGIN_SERVER_XLOG```**
 * **```PLUGIN_SERVER_PROFILE```**
 
-#### 3. Sample plugin
+#### 2.3. plugin sample
 단순히 수집된 데이터를 출력하는 간단한 plugin 샘플을 제공한다. 
  * Sample plugin : [https://github.com/scouter-project/scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)
  * Download : [scouter-plugin-server-null.jar](https://github.com/scouter-project/scouter-plugin-server-null/releases/download/v1.0/scouter-plugin-server-null.jar)

@@ -110,7 +110,7 @@ public class ParameterizedMessageStep extends StepSingle {
 				return messageFormat;
 			}
 
-			return String.format(messageFormat, params);
+			return String.format(messageFormat, (Object[])params);
 		} catch (Exception e) {
 			return messageFormat;
 		}

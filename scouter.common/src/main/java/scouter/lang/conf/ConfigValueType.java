@@ -14,32 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License. 
  */
-package scouter.server.plugin;
-import scouter.server.Logger;
-import scouter.util.FileUtil;
 
-import java.io.FileWriter;
-import java.io.PrintWriter;
-public class IPlugIn {
-	public long __lastModified;
-	public String __pluginName;
-	public void log(Object c) {
-		Logger.println(c);
-	}
-	public void println(Object c) {
-		System.out.println(c);
-	}
-	public void logTo(String file, String msg) {
-		PrintWriter pw = null;
-		try {
-			pw = new PrintWriter(new FileWriter(file, true));
-			pw.write(msg);
-		} catch (Exception e) {
-			Logger.println("S214", e.toString());
-		} finally {
-			FileUtil.close(pw);
-		}
-	}
+package scouter.lang.conf;
 
-	public PluginHelper $$ = PluginHelper.getInstance();
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ConfigValueType {
+  ValueType value() default ValueType.VALUE;
 }

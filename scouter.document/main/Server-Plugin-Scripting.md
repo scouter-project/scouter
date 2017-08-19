@@ -3,12 +3,11 @@
 
 ## Collector Plugin
  - Default File Location : ${COLLECTOR_DIR}/plugin
- - Dynamic application
- - By java code
+ - Dynamic application By java code
  - Plugin Type
    - Pack Plugin
    - AlertRule Plugin
-   
+
 ### Pack Plugin
   - Adding layer before store incoming data
   - Type
@@ -18,86 +17,92 @@
     - SummaryPack Plugin
     - XLogPack Plugin
     - ProfilePack Plugin
-  
+
 #### AlertPack Plugin(alert.plug)
 
-> public void process(AlertPack $pack)
+> public void process(AlertPack $pack, PluginHelper $$)
 > {
 
 >  // your code...
 >  ref.) scouter.lang.pack.AlertPack
->  
+>
 > }
 
 #### CounterPack Plugin(counter.plug)
 
-> public void process(PerfCounterPack $pack)
+> public void process(PerfCounterPack $pack, PluginHelper $$)
 > {
 
 >  // your code...
 >  ref.) scouter.lang.pack.PerfCounterPack
->  
+>
 > }
 
 #### ObjectPack Plugin(object.plug)
 
-> public void process(ObjectPack $pack)
+> public void process(ObjectPack $pack, PluginHelper $$)
 > {
 
 >  // your code...
 >  ref.) scouter.lang.pack.ObjectPack
->  
-> }  
-  
+>
+> }
+
 #### SummaryPack Plugin(summary.plug)
 
-> public void process(SummaryPack $pack)
+> public void process(SummaryPack $pack, PluginHelper $$)
 > {
 
 >  // your code...
 >  ref.) scouter.lang.pack.SummaryPack
->  
-> }  
-  
+>
+> }
+
 #### XLogPack Plugin(xlog.plug or xlogdb.plug)
 
-> public void process(XLogPack $pack)
+> public void process(XLogPack $pack, PluginHelper $$)
 > {
 
 >  // your code...
 >  ref.) scouter.lang.pack.XLogPack
->  
+>
 > }
-  
+
 #### ProfilePack Plugin(xlogprofile.plug)
 
-> public void process(XLogProfilePack $pack)
+> public void process(XLogProfilePack $pack, PluginHelper $$)
 > {
 
 >  // your code...
 >  ref.) scouter.lang.pack.XLogProfilePack
->  
+>
 > }
-  
-  
+
+
 ### API
 
 #### Common API
- - void log(Object c) : Logger를 통한 log
- - void println(Object c) : System.out를 통한 log
- - void logTo(String file, String msg) : 특정 file에 msg를 logging
- 
+ - void log(Object c) : logging
+ - void println(Object c) : standard out
+ - void logTo(String file, String msg) : logging to a specific file
+
 #### XLog or XLogDB Plugin API
- - String objName(XLogPack p) : XLog의 Object Name을 반환
- - String objType(XLogPack p) : XLog의 Object Type을 반환
- - String service(XLogPack p) : XLog의 service를 반환
- - String error(XLogPack p) : XLog의 error를 반환
- - String userAgent(XLogPack p) : XLog의 user-agent를 반환
- - String referer(XLogPack p) : XLog의 referer를 반환
- - String login(XLogPack p) : XLog의 login 값을 반환
- - String desc(XLogPack p) : XLog의 desc 값을 반환
- - String group(XLogPack p) : XLog의 group 값을 반환
- 
+ - String objName(XLogPack p) : get object name
+ - String objType(XLogPack p) : get object type
+ - String service(XLogPack p) : get service name
+ - String error(XLogPack p) : get error name
+ - String userAgent(XLogPack p) : get user agent
+ - String referer(XLogPack p) : get referrer
+ - String login(XLogPack p) : get login value
+ - String desc(XLogPack p) : get desc value
+ - String group(XLogPack p) : get group value
+
+#### $$ (PluginHelper) API (Since v1.7.3)
+ - Refer to **[PluginHelper API](./PluginHelper-API.md)**
+
+
 ### AlertRule Plugin
-  **TBD**
+  - Refer to **[Alert Plugin Guide](./Alert-Plugin-Guide.md)**
+
+
   
