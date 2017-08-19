@@ -18,7 +18,9 @@
 package scouter.server;
 
 import scouter.lang.conf.ConfigDesc;
+import scouter.lang.conf.ConfigValueType;
 import scouter.lang.conf.ConfigValueUtil;
+import scouter.lang.conf.ValueType;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
@@ -188,6 +190,7 @@ public class Configure extends Thread {
 	public int mgr_purge_counter_keep_days = 70;
 
 	@ConfigDesc("Ignored log ID set")
+	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public StringSet mgr_log_ignore_ids = new StringSet();
 
 	//db
@@ -483,19 +486,6 @@ public class Configure extends Thread {
 		return false;
 	}
 
-	public static void main(String[] args) {
-		Configure o = new Configure(true);
-		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(o);
-		StringKeyLinkedMap<String> descMap = ConfigValueUtil.getConfigDescMap(o);
-		StringEnumer enu = defMap.keys();
-		while (enu.hasMoreElements()) {
-			String key = enu.nextString();
-			if (ignoreSet.contains(key))
-				continue;
-			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key) + (descMap.containsKey(key) ? " (" + descMap.get(key) + ")" : "")));
-		}
-	}
-
 	private static HashSet<String> ignoreSet = new HashSet<String>();
 
 	static {
@@ -527,6 +517,10 @@ public class Configure extends Thread {
 		return ConfigValueUtil.getConfigDescMap(this);
 	}
 
+	public StringKeyLinkedMap<ValueType> getConfigureValueType() {
+		return ConfigValueUtil.getConfigValueTypeMap(this);
+	}
+
 	public static StringLinkedSet toOrderSet(String values, String deli) {
 		StringLinkedSet set = new StringLinkedSet();
 		StringTokenizer nizer = new StringTokenizer(values, deli);
@@ -538,5 +532,22 @@ public class Configure extends Thread {
 		}
 		return set;
 	}
+
+	public static void main(String[] args) {
+		StringKeyLinkedMap<ValueType> map = new Configure().getConfigureValueType();
+		System.out.println(map);
+
+//		Configure o = new Configure(true);
+//		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(o);
+//		StringKeyLinkedMap<String> descMap = ConfigValueUtil.getConfigDescMap(o);
+//		StringEnumer enu = defMap.keys();
+//		while (enu.hasMoreElements()) {
+//			String key = enu.nextString();
+//			if (ignoreSet.contains(key))
+//				continue;
+//			System.out.println(key + " : " + ConfigValueUtil.toValue(defMap.get(key) + (descMap.containsKey(key) ? " (" + descMap.get(key) + ")" : "")));
+//		}
+	}
+
 
 }

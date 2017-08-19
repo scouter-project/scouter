@@ -1,5 +1,5 @@
 # Scouter Plugin Guide
-[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Plugin-Guide.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Plugin-Guide.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 이 글에서는 Scouter를 확장 가능하게 만들어 주는 Plugin 기능에 대해 설명한다. 
 Scouter collector sever의 Plugin 기능을 통하여 scouter의 수집 데이터를 선처리 하거나 타 소프트웨어로 전송할 수 있으며 agent plugin을 통하여 특정 데이터를 선처리하거나 업무적으로 의미있는 데이터를 XLog나 프로파일에 추가할 수 있다. 
@@ -55,7 +55,7 @@ Scouter에서 미리 제공하는 **annotation**을 사용하여 개발한 후 �
 (기본 설정으로는 **./lib** 디렉토리이며 동적로딩이 되지 않으므로 library 변경시 재시작이 필요하다.) 
 
 #### 2.1 Server Built-in Plugin 개발 가이드
-##### 1. dependecny
+##### 1. dependency
  * scouter.common
  * scouter.server
 
@@ -89,7 +89,7 @@ Plugin 개발시 아래 두가지 사항을 준수하여야 한다.
 * **```PLUGIN_SERVER_XLOG```**
 * **```PLUGIN_SERVER_PROFILE```**
 
-#### 3. Sample plugin
+#### 2.3. plugin sample
 단순히 수집된 데이터를 출력하는 간단한 plugin 샘플을 제공한다. 
  * Sample plugin : [https://github.com/scouter-project/scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)
  * Download : [scouter-plugin-server-null.jar](https://github.com/scouter-project/scouter-plugin-server-null/releases/download/v1.0/scouter-plugin-server-null.jar)

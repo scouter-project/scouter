@@ -16,8 +16,15 @@
  */
 package scouter.server.plugin;
 
-import scouter.lang.pack.*;
+import scouter.lang.pack.AlertPack;
+import scouter.lang.pack.ObjectPack;
+import scouter.lang.pack.PerfCounterPack;
+import scouter.lang.pack.SummaryPack;
+import scouter.lang.pack.TextPack;
+import scouter.lang.pack.XLogPack;
+import scouter.lang.pack.XLogProfilePack;
 import scouter.lang.plugin.PluginConstants;
+import scouter.server.Logger;
 import scouter.server.plugin.builtin.BuiltInPluginManager;
 
 public class PlugInManager {
@@ -29,6 +36,7 @@ public class PlugInManager {
 	static IAlert alerts;
 	static ICounter counters;
 	static ISummary summary;
+	static IText text;
 
 	public static void xlog(XLogPack m) {
         BuiltInPluginManager.invokeAllPlugins(PluginConstants.PLUGIN_SERVER_XLOG, m);
@@ -37,6 +45,7 @@ public class PlugInManager {
 			try {
 				xlog.process(m);
 			} catch (Throwable t) {
+				Logger.printStackTrace("PL001", t);
 			}
 		}
 	}
@@ -46,6 +55,7 @@ public class PlugInManager {
 			try {
 				xlogdb.process(m);
 			} catch (Throwable t) {
+				Logger.printStackTrace("PL002", t);
 			}
 		}
 	}
@@ -57,6 +67,7 @@ public class PlugInManager {
 			try {
 				xlogProfiles.process(m);
 			} catch (Throwable t) {
+				Logger.printStackTrace("PL003", t);
 			}
 		}
 
@@ -69,6 +80,7 @@ public class PlugInManager {
 			try {
 				objects.process(p);
 			} catch (Throwable t) {
+				Logger.printStackTrace("PL004", t);
 			}
 		}
 
@@ -81,6 +93,7 @@ public class PlugInManager {
 			try {
 				alerts.process(p);
 			} catch (Throwable t) {
+				Logger.printStackTrace("PL005", t);
 			}
 		}
 	}
@@ -92,6 +105,7 @@ public class PlugInManager {
 			try {
 				counters.process(p);
 			} catch (Throwable t) {
+				Logger.printStackTrace("PL006", t);
 			}
 		}
 	}
@@ -103,6 +117,19 @@ public class PlugInManager {
 			try {
 				summary.process(p);
 			} catch (Throwable t) {
+				Logger.printStackTrace("PL007", t);
+			}
+		}
+	}
+
+	public static void text(TextPack p) {
+		BuiltInPluginManager.invokeAllPlugins(PluginConstants.PLUGIN_SERVER_TEXT, p);
+
+		if (text != null) {
+			try {
+				text.process(p);
+			} catch (Throwable t) {
+				Logger.printStackTrace("PL008", t);
 			}
 		}
 	}

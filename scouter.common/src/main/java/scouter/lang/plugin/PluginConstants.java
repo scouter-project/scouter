@@ -10,4 +10,5 @@ public class PluginConstants {
     public static final String PLUGIN_SERVER_SUMMARY = "pluginServerSummary";
     public static final String PLUGIN_SERVER_XLOG = "pluginServerXLog";
     public static final String PLUGIN_SERVER_PROFILE = "pluginServerProfile";
+    public static final String PLUGIN_SERVER_TEXT = "pluginServerText";
 }

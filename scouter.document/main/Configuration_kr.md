@@ -1,5 +1,5 @@
 # Configuration
-[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Configuration.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Configuration.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 ## Server options
  * **Useful options of collector server**
@@ -40,15 +40,19 @@ public int net_tcp_listen_port = 6100;
 @ConfigDesc("Http Port for scouter-pulse")
 public int net_http_port = 6180;
 
-//Manager
+//Management
 @ConfigDesc("Activating automatic deletion function in the database")
 public boolean mgr_purge_enabled = true;
-@ConfigDesc("Automatic deletion only for XLog data")
-public boolean mgr_purge_only_xlog_enabled = false;
-@ConfigDesc("Condition of disc usage for automatic deletion")
+
+@ConfigDesc("Condition of disk usage for automatic deletion. if lack, delete profile data first exclude today data.")
 public int mgr_purge_disk_usage_pct = 80;
+
+@ConfigDesc("Retaining date for automatic deletion. delete profile data first.")
+public int mgr_purge_profile_keep_days = 10;
+@ConfigDesc("Retaining date for automatic deletion.")
+public int mgr_purge_xlog_keep_days = 30;
 @ConfigDesc("Retaining date for automatic deletion")
-public int mgr_purge_keep_days = 0;
+public int mgr_purge_counter_keep_days = 70;
 
 //GeoIP
 @ConfigDesc("Activating IP-based city/country extraction")
@@ -81,7 +85,7 @@ public int net_collector_udp_port = 6100;
 @ConfigDesc("Collector TCP Port")
 public int net_collector_tcp_port = 6100;
 
-@ConfigDesc("Activating SQL literals")
+@ConfigDesc("Escaping literal parameters for normalizing the query")
 public boolean profile_sql_escape_enabled = true;
 
 //Naming / grouping

@@ -102,7 +102,7 @@ public class AlertRuleLoader extends Thread {
 				clear(name);
 				continue;
 			}
-			if (ruleFile.lastModified() != rule.lastModified) {
+			if (ruleFile.lastModified() != rule.__lastModified) {
 				rule = createRule(name, ruleFile);
 				alertRuleTable.put(name, rule);
 			}
@@ -190,7 +190,7 @@ public class AlertRuleLoader extends Thread {
 			method.setBody("{" + RealCounter.class.getName() + " $counter=$1;" + body + "\n}");
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AlertRule rule = (AlertRule) c.newInstance();
-			rule.lastModified = ruleFile.lastModified();
+			rule.__lastModified = ruleFile.lastModified();
 			Logger.println("S215", "Detected new alert rule : " + ruleFile.getName());
 			return rule;
 		} catch (javassist.CannotCompileException ee) {

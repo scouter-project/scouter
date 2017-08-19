@@ -1,5 +1,5 @@
 ﻿# Scouter Plugin Guide
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Plugin-Guide_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Plugin-Guide_kr.md)
 
 This article explains plugin functions which enable scouter's extensibility. 
 
@@ -43,13 +43,13 @@ Scouter distribution has the samples and the file name can not be modified.
 Currently 6 types of scripting plugins are supported.
 * **alert.plug** - for pre-handling alert
 * **counter.plug** - for pre-handling performance metrics(counters)
-* **object.plug** - for pre-handling moitoring objects(instnats)
+* **object.plug** - for pre-handling monitoring objects(instances)
 * **summary.plug** - for pre-handling performance summary data
 * **xlog.plug** - for pre-handling xlog data
 * **xlogprofile.plug** - for pre-handling xlog profile
 
 refer to the link for details. 
-**[Scripting plugin Server API](Server-Plugin-Scripting.md)**를 참고한다.
+refer to **[Scripting plugin Server API](Server-Plugin-Scripting.md)**.
 
 ### 2. Built-in (type) Plugin
 Builing scripting plugin is very simple and can be dynamically loaded on runtime environment.  
@@ -59,7 +59,7 @@ So scouter provides another plugin type which allow you can attach pre-built com
 Scouter load the plugins on startup, if the plugins are located in scouter server's library directory.(default:**[server_running_dir]/lib**)
 
 #### 2.1 Server Built-in Plugin development guide
-##### 1. dependecny
+##### 1. dependency
  * scouter.common
     ```xml
     <dependency>
@@ -106,7 +106,7 @@ public class NullPlugin {
     * **```PLUGIN_SERVER_XLOG```**
     * **```PLUGIN_SERVER_PROFILE```**
 
-#### 3. Sample plugin
+#### 2.3. plugin sample
 Provided sample plugin that just prints the data collected. 
  * Sample plugin : [https://github.com/scouter-project/scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)
  * Download : [scouter-plugin-server-null.jar](https://github.com/scouter-project/scouter-plugin-server-null/releases/download/v1.0/scouter-plugin-server-null.jar)
@@ -114,6 +114,8 @@ Provided sample plugin that just prints the data collected.
 ### 3. Alert scripting (type) plugin
 We can build our own alarm rules by handling alert scripting plugins which are able to compose various performance metrics.
   * [Alert Plugin Guide](./Alert-Plugin-Guide.md)
+<br>
+
 
 ## Agent Plugin - Scripting Plugin
 

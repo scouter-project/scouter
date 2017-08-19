@@ -15,13 +15,14 @@
  *  limitations under the License. 
  */
 package scouter.server.plugin;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import scouter.server.Logger;
 import scouter.util.FileUtil;
+
+import java.io.FileWriter;
+import java.io.PrintWriter;
 public class IPlugIn {
-	public long lastModified;
-	public String pluginName;
+	public long __lastModified;
+	public String __pluginName;
 	public void log(Object c) {
 		Logger.println(c);
 	}
@@ -39,4 +40,6 @@ public class IPlugIn {
 			FileUtil.close(pw);
 		}
 	}
+
+	public PluginHelper $$ = PluginHelper.getInstance();
 }

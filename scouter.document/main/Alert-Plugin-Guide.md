@@ -1,5 +1,5 @@
 ﻿# Alert Plugin Guide
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Alert-Plugin-Guide_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Alert-Plugin-Guide_kr.md)
 
 We can build our own alarm rules by handling alert scripting plugins which are able to compose various performance metrics.   
 
@@ -25,94 +25,89 @@ We can build our own alarm rules by handling alert scripting plugins which are a
    * sample1 (**GcTime.alert**)
      * alert when ```GcTime``` is over than 2 sec
       ```java
-      // void process(RealCounter $counter)
+      // void process(RealCounter $counter, PluginHelper $$)
       int gcTime = $counter.intValue();
       if(gcTime > 2000) {
          $counter.fatal("gc time fatal", "gc time:" + respTime + "ms");
       }
       ```
-   
+
    * sample2 (**Elasped90%.alert**)
      * alert when ```Elasped90%``` is over than 1.5 sec (ignore when TPS is lower than 3 sec.)
       ```java
-      // void process(RealCounter $counter)
+      // void process(RealCounter $counter, PluginHelper $$)
       int warn = 1500;
       int fatal = 2000;
-      
+
       int tps = $counter.intValue("TPS");
       int respTime = $counter.intValue();
-      
+
       String objType = $counter.objType();
       String objName = $counter.objName();
-      
-      java.text.NumberFormat f = java.text.NumberFormat.getInstance();
-      f.setMaximumFractionDigits(2);
-      
+
       if(tps < 3) return;
       if(respTime > fatal) {
-              $counter.fatal("resp time fatal high", "90% resp time:" + f.format((long)respTime) + "ms, tps:" + tps);
+              $counter.fatal("resp time fatal high", "90% resp time:" + $$.formatNumber(respTime) + "ms, tps:" + tps);
       } else if(respTime > warn) {
-              $counter.warn("resp time warn high", "90% resp time:" + f.format((long)respTime) + "ms, tps:" + tps);
+              $counter.warn("resp time warn high", "90% resp time:" + $$.formatNumber(respTime) + "ms, tps:" + tps);
       }
       ```
-      
+
    * sample3 (**TPS.alert**)
-     * alert when ```TPS``` increase or decrease sharply. 
+     * alert when ```TPS``` increase or decrease sharply.
       ```java
-      // void process(RealCounter $counter)
-      
-      //increase 
+      // void process(RealCounter $counter, PluginHelper $$)
+
+      //increase
       float initTps = 20.0;
       float warnIncreaseRate = 1.2;
       float fatalIncreaseRate = 1.5;
       int compareBeforeSec = 180;
-      
+
       //decrease
-      float fatal1DecreaseRate = 0.7; //30% 
-      float fatal2DecreaseRate = 0.5; //50% 
+      float fatal1DecreaseRate = 0.7; //30%
+      float fatal2DecreaseRate = 0.5; //50%
       int compareBeforeDecreaseSec = 120; //last 2 minute
-      
+
       float tps = $counter.floatValue();
       String objType = $counter.objType();
       String objName = $counter.objName();
       float errorRate = $counter.floatValue();
-      java.text.NumberFormat f = java.text.NumberFormat.getInstance();
-      f.setMaximumFractionDigits(1);
-      
+
       if(tps > initTps) {
           float preValue = $counter.getAvg(compareBeforeSec, 4);
           if(preValue > 0.0f) {
               if(tps > preValue * fatalIncreaseRate) {
                   $counter.fatal("TPS increase fatal"
-                      , "TPS is " + f.format((double)tps/preValue*100) + "% higher than " + compareBeforeSec + "sec ago"
+                      , "TPS is " + $$.formatNumber((double)tps/preValue*100) + "% higher than " + compareBeforeSec + "sec ago"
                           + ", TPS: " + tps);
-      
+
               } else if(tps > preValue * warnIncreaseRate) {
                   $counter.warn("TPS increase warning"
-                      , "TPS is " + f.format((double)tps/preValue*100) + "% higher than " + compareBeforeSec + "sec ago"
+                      , "TPS is " + $$.formatNumber((double)tps/preValue*100) + "% higher than " + compareBeforeSec + "sec ago"
                           + ", TPS: " + tps);
               }
           }
       }
-      
+
       float preValue = $counter.getAvg(compareBeforeDecreaseSec, 4);
       if(preValue > 5.0f) {
           if(tps < preValue * fatal2DecreaseRate) {
               $counter.fatal("TPS decrease fatal"
-                      , "TPS is " + f.format(((double)1-tps/preValue)*100) + "% lower than " + compareBeforeDecreaseSec + "sec ago"
+                      , "TPS is " + $$.formatNumber(((double)1-tps/preValue)*100) + "% lower than " + compareBeforeDecreaseSec + "sec ago"
                           + ", TPS: " + tps);
           } else if(tps < preValue * fatal1DecreaseRate) {
               $counter.error("TPS decrease warn"
-                      , "TPS is " + f.format((double)(1-tps/preValue)*100) + "% lower than " + compareBeforeDecreaseSec + "sec ago"
+                      , "TPS is " + $$.formatNumber((double)(1-tps/preValue)*100) + "% lower than " + compareBeforeDecreaseSec + "sec ago"
                           + ", TPS: " + tps);
           }
       }
-      ```      
-      
-### RealCounter API 
+      ```
+
+### RealCounter API
 | method | desc |
 | ------------ | ---------- |
-| objName()                                  | get object's name that produced the counter value   | 
+| objName()                                  | get object's name that produced the counter value   |
 | objType()                                  | get object's type that produced the counter value   |
 | intValue()                                 | get counter value as integer   |
 | floatValue()                               | get counter value as float   |
@@ -131,3 +126,5 @@ We can build our own alarm rules by handling alert scripting plugins which are a
 ### Counter names
  * [counters.xml](https://github.com/scouter-project/scouter/blob/fe74bdb73a34be2f390f8476991d59a5de6ea204/scouter.common/src/main/resources/scouter/lang/counters/counters.xml)
 
+### $$ (PluginHelper) API
+ - Refer to **[PluginHelper API](./PluginHelper-API.md)**
