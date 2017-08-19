@@ -3,7 +3,7 @@
 
 > 본문서에서는 HSQL DB를 설치하고 간단한 샘플 애플리케이션을 실행하여
 > SQL이 어떤식으로 모니터링 되는지 설명한다.
-> 본문서는 이미 [Getting Started](./Getting-Started_kr.md)를 이해한다는 전제로 설명한다.
+> 본문서는 이미 [Getting Started](./Getting-Stzarted_kr.md)를 이해한다는 전제로 설명한다.
 
 ## HSQL설치하기
 

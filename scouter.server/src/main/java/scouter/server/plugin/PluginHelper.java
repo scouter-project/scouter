@@ -1,13 +1,34 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package scouter.server.plugin;
 
 import scouter.lang.AlertLevel;
 import scouter.lang.TextTypes;
 import scouter.lang.pack.AlertPack;
+import scouter.server.Logger;
 import scouter.server.core.AlertCore;
 import scouter.server.db.TextRD;
 
+import java.text.NumberFormat;
+
 /**
+ * Utility class for script plugin
  * Created by gunlee on 2017. 8. 18.
+ * @since v1.7.3
  */
 public class PluginHelper {
 	private static final String NO_DATE = "00000000";
@@ -17,6 +38,56 @@ public class PluginHelper {
 
 	public static PluginHelper getInstance() {
 		return instance;
+	}
+
+	public void log(Object c) {
+		Logger.println(c);
+	}
+
+	public void println(Object c) {
+		System.out.println(c);
+	}
+
+	public NumberFormat getNumberFormatter() {
+		return getNumberFormatter(1);
+	}
+
+	public NumberFormat getNumberFormatter(int fractionDigits) {
+		NumberFormat f = NumberFormat.getInstance();
+		f.setMaximumFractionDigits(fractionDigits);
+		return f;
+	}
+
+	public String formatNumber(float f) {
+		return formatNumber(f, 1);
+	}
+
+	public String formatNumber(float f, int fractionDigits) {
+		return getNumberFormatter(fractionDigits).format(f);
+	}
+
+	public String formatNumber(double v) {
+		return formatNumber(v, 1);
+	}
+
+	public String formatNumber(double v, int fractionDigits) {
+		return getNumberFormatter(fractionDigits).format(v);
+	}
+
+	public String formatNumber(int v) {
+		return formatNumber(v, 1);
+	}
+
+	public String formatNumber(int v, int fractionDigits) {
+		return getNumberFormatter(fractionDigits).format(v);
+	}
+
+	public String formatNumber(long v) {
+		return formatNumber(v, 1);
+	}
+
+	public String formatNumber(long v, int fractionDigits) {
+		return getNumberFormatter(fractionDigits).format(v);
 	}
 
 	public void alertInfo(int objHash, String objType, String title, String message) {

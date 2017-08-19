@@ -55,7 +55,7 @@ public class PlugInLoader extends Thread {
 		if (scriptFile.canRead() == false) {
 			PlugInManager.alerts = null;
 		} else {
-			if (PlugInManager.alerts == null || PlugInManager.alerts.lastModified != scriptFile.lastModified()) {
+			if (PlugInManager.alerts == null || PlugInManager.alerts.__lastModified != scriptFile.lastModified()) {
 				PlugInManager.alerts = (IAlert) create(scriptFile, "AlertImpl", IAlert.class, AlertPack.class);
 			}
 		}
@@ -63,7 +63,7 @@ public class PlugInLoader extends Thread {
 		if (scriptFile.canRead() == false) {
 			PlugInManager.counters = null;
 		} else {
-			if (PlugInManager.counters == null || PlugInManager.counters.lastModified != scriptFile.lastModified()) {
+			if (PlugInManager.counters == null || PlugInManager.counters.__lastModified != scriptFile.lastModified()) {
 				PlugInManager.counters = (ICounter) create(scriptFile, "CounterImpl", ICounter.class, PerfCounterPack.class);
 			}
 		}
@@ -71,7 +71,7 @@ public class PlugInLoader extends Thread {
 		if (scriptFile.canRead() == false) {
 			PlugInManager.objects = null;
 		} else {
-			if (PlugInManager.objects == null || PlugInManager.objects.lastModified != scriptFile.lastModified()) {
+			if (PlugInManager.objects == null || PlugInManager.objects.__lastModified != scriptFile.lastModified()) {
 				PlugInManager.objects = (IObject) create(scriptFile, "ObjectImpl", IObject.class, ObjectPack.class);
 			}
 		}
@@ -79,7 +79,7 @@ public class PlugInLoader extends Thread {
 		if (scriptFile.canRead() == false) {
 			PlugInManager.xlog = null;
 		} else {
-			if (PlugInManager.xlog == null || PlugInManager.xlog.lastModified != scriptFile.lastModified()) {
+			if (PlugInManager.xlog == null || PlugInManager.xlog.__lastModified != scriptFile.lastModified()) {
 				PlugInManager.xlog = (IXLog) create(scriptFile, "XLogImpl", IXLog.class, XLogPack.class);
 			}
 		}
@@ -87,7 +87,7 @@ public class PlugInLoader extends Thread {
 		if (scriptFile.canRead() == false) {
 			PlugInManager.xlogdb = null;
 		} else {
-			if (PlugInManager.xlogdb == null || PlugInManager.xlogdb.lastModified != scriptFile.lastModified()) {
+			if (PlugInManager.xlogdb == null || PlugInManager.xlogdb.__lastModified != scriptFile.lastModified()) {
 				PlugInManager.xlogdb = (IXLog) create(scriptFile, "XLogDBImpl", IXLog.class, XLogPack.class);
 			}
 		}
@@ -95,7 +95,7 @@ public class PlugInLoader extends Thread {
 		if (scriptFile.canRead() == false) {
 			PlugInManager.xlogProfiles = null;
 		} else {
-			if (PlugInManager.xlogProfiles == null || PlugInManager.xlogProfiles.lastModified != scriptFile.lastModified()) {
+			if (PlugInManager.xlogProfiles == null || PlugInManager.xlogProfiles.__lastModified != scriptFile.lastModified()) {
 				PlugInManager.xlogProfiles = (IXLogProfile) create(scriptFile, "XLogProfileImpl", IXLogProfile.class,
 						XLogProfilePack.class);
 			}
@@ -104,7 +104,7 @@ public class PlugInLoader extends Thread {
 		if (scriptFile.canRead() == false) {
 			PlugInManager.summary = null;
 		} else {
-			if (PlugInManager.summary == null || PlugInManager.summary.lastModified != scriptFile.lastModified()) {
+			if (PlugInManager.summary == null || PlugInManager.summary.__lastModified != scriptFile.lastModified()) {
 				PlugInManager.summary = (ISummary) create(scriptFile, "SummaryImpl", ISummary.class,
 						SummaryPack.class);
 			}
@@ -158,7 +158,7 @@ public class PlugInLoader extends Thread {
 			method.setBody("{" + parameter + " $pack=$1;" + body + "\n}");
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			IPlugIn plugin = (IPlugIn) c.newInstance();
-			plugin.lastModified = file.lastModified();
+			plugin.__lastModified = file.lastModified();
 			Logger.println("PLUG-IN : " + superClass.getName() + " loaded #"
 					+ Hexa32.toString32(plugin.hashCode()));
 			return plugin;
