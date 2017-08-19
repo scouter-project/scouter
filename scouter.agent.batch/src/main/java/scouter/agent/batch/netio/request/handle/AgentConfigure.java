@@ -17,14 +17,10 @@
 
 package scouter.agent.batch.netio.request.handle;
 
-import java.lang.instrument.ClassDefinition;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashSet;
-
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.JavaAgent;
 import scouter.agent.netio.request.anotation.RequestHandler;
+import scouter.lang.conf.ValueType;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.BooleanValue;
@@ -34,6 +30,11 @@ import scouter.net.RequestCmd;
 import scouter.util.ClassUtil;
 import scouter.util.StringKeyLinkedMap;
 import scouter.util.StringKeyLinkedMap.StringKeyLinkedEntry;
+
+import java.lang.instrument.ClassDefinition;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashSet;
 
 public class AgentConfigure {
 	
@@ -126,6 +127,18 @@ public class AgentConfigure {
 		while (entries.hasMoreElements()) {
 			StringKeyLinkedEntry<String> entry = entries.nextElement();
 			pack.put(entry.getKey(), entry.getValue());
+		}
+		return pack;
+	}
+
+	@RequestHandler(RequestCmd.CONFIGURE_VALUE_TYPE)
+	public Pack getConfigureValueType(Pack param) {
+		StringKeyLinkedMap<ValueType> valueTypeMap = Configure.getInstance().getConfigureValueType();
+		MapPack pack = new MapPack();
+		Enumeration<StringKeyLinkedEntry<ValueType>> entries = valueTypeMap.entries();
+		while (entries.hasMoreElements()) {
+			StringKeyLinkedEntry<ValueType> entry = entries.nextElement();
+			pack.put(entry.getKey(), entry.getValue().getType());
 		}
 		return pack;
 	}
