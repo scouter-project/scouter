@@ -19,7 +19,7 @@
 3. boolean reject(WrContext $ctx, WrRequest $req, WrResponse $res) : Http Service 시작 시점에 reject 조건 (default : false)
  
 ### Service Plugin(service.plug)
- **추가적인 hooking 설정을 통해서만 동작**
+  **```hook_service_patterns``` 에 정의된 method 에서 호출됨**
  
 1. void start(WrContext $ctx, HookArgs $hook) : Service 시작 시점
 2. void end(WrContext $ctx) : Service 종료 시점
@@ -29,7 +29,7 @@
 1. void call(WrContext $ctx, WrHttpCallRequest $req) : Http Call 요청 시점
  
 ### Capture Plugin(capture.plug)
- **추가적인 hooking 설정을 통해서만 동작**
+ **```hook_args_patterns```, ```hook_return_patterns```, ```hook_constructor_patterns``` 에 정의된 method 에서 호출됨**
  
 1. void capArgs(WrContext $ctx, HookArgs $hook) : Method 시작 시점
 2. void capReturn(WrContext $ctx, HookReturn $hook) : Method Return 시점
@@ -46,20 +46,21 @@
 ### Common API
  - void log(Object c) : Logger를 통한 log
  - void println(Object c) : System.out를 통한 log
- - Object field(Object o, String field) : Object의 filed 값을 가져옴
- - Object method(Object o, String method) : Object의 method를 강제invoke 함
- - Object method1(Object o, String method) : Object의 method를 invoke 함
- - Object method(Object o, String method, String param) : Object의 method를 String 파라미터와 함께 invoke 함
+ - Object getFieldValue(Object o, String fieldName) : get field value as object of 'o'
+ - Object invokeMethod(Object o, String methodName) : invoke the method
+ - Object invokeMethod(Object o, String methodName, Object[] args) : invoke the method with args
+ - Object invokeMethod(Object o, String methodName, Class[] argTypes, Object[] args) : invoke the method with args
+ - Object newInstance(String className) : new instance of the class
+ - Object newInstance(String className, ClassLoader loader) : new instance of the class from the classloader
+ - Object newInstance(String className, Object[] args) : new instance of the class with arguments
+ - Object newInstance(String className, ClassLoader loader, Object[] args) : new instance of the class with arguments from the classloader
+ - Object newInstance(String className, ClassLoader loader, Class[] argTypes, Object[] args) : new instance of the class with arguments from the classloader
+
  - String toString(Object o) : Object 를 toString 하여 반환
  - String toString(Object o, String def) : Object 를 toString 하여 반환, null 이면 default string 반환
+
  - void alert(char level, String title, String message) : Alert 을 보냄
- - int syshash(Object o) : Object 의 identityHash 값 반환
- - int syshash(HookArgs hook, int x) : Arguments의 i 인덱스의 identyHash 값 반환
- - int syshash(HookArgs hook) : This 의 identyHash 값 반환
- - void forward(WrContext wctx, int uuid) : Async Thread 를 App service로 연결
- - void forwardThread(WrContext wctx, int uuid) : Async Thread 를 Background service로 연결
- - void receive(WrContext ctx, int uuid) : 앞서 등록된 Service가 있으면 연결
- 
+
 
 ### WrContext class API
  - String service() : Service Name 을 반환
@@ -80,6 +81,10 @@
  - String httpContentType() : Http Content-type을 반환
  - String userAgent() : User-Agent를 반환
  - void profile(String msg) : Msg 를 profile에 기록
+ - void hashProfile(String msg, int value, int elapsed) : profile a message as hash value to the XLog profile
+ - parameterizedProfile(int level, String msgFormat, int elapsed, String[] params) : profile a message format with parameters.
+      - message example : "Hello, my name is %s and my age is %s"
+      - level : 0-debug, 1-info, 2-warn, 3-error, 4-fatal
  - long txid() : txid 를 반환
  - long gxid() : gxid 를 반환
  - TraceContext inner() : context를 반환
