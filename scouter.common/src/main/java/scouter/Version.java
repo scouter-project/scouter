@@ -68,7 +68,7 @@ public class Version {
 	public static String getServerRecommendedClientVersion() {
 		Properties properties = getProperties();
 		if (properties != null) {
-			return properties.get("CLIENT_VERSION").toString();
+			return properties.getProperty("CLIENT_VERSION", "");
 		} else {
 			return "";
 		}
