@@ -14,9 +14,15 @@
    </configIni>
 
    <launcherArgs>
+      <programArgsLin>-data
+@user.home/.scouter
+      </programArgsLin>
       <programArgsMac>-data
 @user.home/.scouter
       </programArgsMac>
+      <programArgsWin>-data
+@user.home/scouter
+      </programArgsWin>
       <vmArgs>-Xms128m
 -Xmx768m
 -XX:+UseG1GC
