@@ -64,6 +64,16 @@ public class Version {
 		return getVersion()+" " +getBuildVer() ;
 	}
 
+	// -- SERVER --
+	public static String getServerRecommendedClientVersion() {
+		Properties properties = getProperties();
+		if (properties != null) {
+			return properties.get("CLIENT_VERSION").toString();
+		} else {
+			return "";
+		}
+	}
+
 	// -- CLIENT --
 	public static String getClientFullVersion() {
 		return  getVersion()+" " +getBuildVer() ;
