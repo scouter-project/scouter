@@ -17,8 +17,6 @@
  */
 package scouter.client;
 
-import java.util.TimeZone;
-
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
@@ -27,12 +25,14 @@ import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
-
 import scouter.Version;
+import scouter.client.misc.UpdateCheckScheduler;
 import scouter.client.notice.NoticeCheckScheduler;
 import scouter.client.remote.CheckMyJob;
 import scouter.client.threads.AlertProxyThread;
 import scouter.client.threads.SessionObserver;
+
+import java.util.TimeZone;
 
 /*
  * ApplicationWorkbenchWindowAdvisor.preWindowOpen()
@@ -113,12 +113,13 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 			startBackgroundJob();
 		}
 	}
-	
+
 	private void startBackgroundJob() {
 		CheckMyJob.getInstance();
 		SessionObserver.load();
 		AlertProxyThread.getInstance();
 		NoticeCheckScheduler.INSTANCE.initialize();
+		UpdateCheckScheduler.INSTANCE.initialize();
 	}
 
 }

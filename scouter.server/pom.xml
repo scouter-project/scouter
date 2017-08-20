@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>1.7.3.SNAPSHOT</version>
+        <version>1.7.4.SNAPSHOT</version>
     </parent>
 
     <artifactId>scouter-server</artifactId>
@@ -15,6 +15,7 @@
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <build.datetime>${maven.build.timestamp} GMT</build.datetime>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <client.version>${project.version}</client.version>
     </properties>
 
     <dependencies>

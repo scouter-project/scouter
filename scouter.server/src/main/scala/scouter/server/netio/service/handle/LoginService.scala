@@ -59,6 +59,8 @@ class LoginService {
       m.put("server_id", getServerId());
       m.put("type", user.group);
       m.put("version", Version.getServerFullVersion());
+      m.put("client_version", Version.getServerRecommendedClientVersion());
+
       val acc = AccountManager.getAccount(id);
       if (acc != null) {
         m.put("email", acc.email);
