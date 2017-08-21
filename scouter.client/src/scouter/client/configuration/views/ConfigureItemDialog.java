@@ -25,6 +25,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -42,6 +43,7 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 	ValueType valueType;
 
 	String value;
+	ConfApplyScopeEnum applyScope = ConfApplyScopeEnum.THIS;
 
 	public ConfigureItemDialog(Shell parentShell, String confKey, String valueOrg, String objName, String desc, ValueType valueType) {
 		super(parentShell);
@@ -120,6 +122,38 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
 		}
 
+		//TODO if collector server cant select type
+		Group applyTypeGroup = new Group(group, SWT.NONE);
+		applyTypeGroup.setLayout(new RowLayout(SWT.VERTICAL));
+		//applyTypeGroup.setLayout(new GridLayout(1, false));
+		applyTypeGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		applyTypeGroup.setText("Select title");
+		
+		Button rdOnlyThis = new Button(applyTypeGroup, SWT.RADIO);
+		rdOnlyThis.setText("to this object (you should save it manually after done)");
+		rdOnlyThis.setSelection(true);
+
+		Button rdForAll = new Button(applyTypeGroup, SWT.RADIO);
+		rdForAll.setText("to all same type objects (the configuration will be saved automatically)");
+
+		rdOnlyThis.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (((Button) e.widget).getSelection()) {
+					applyScope = ConfApplyScopeEnum.THIS;
+				}
+			}
+		});
+
+		rdForAll.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (((Button) e.widget).getSelection()) {
+					applyScope = ConfApplyScopeEnum.TYPE;
+				}
+			}
+		});
+
 		return container;
 	}
 
@@ -171,5 +205,9 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 
 	public String getValue() {
 		return unShape(value);
+	}
+
+	public ConfApplyScopeEnum getApplyScope() {
+		return applyScope;
 	}
 }
