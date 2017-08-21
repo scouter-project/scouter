@@ -17,13 +17,6 @@
 
 package scouter.lang.conf;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-
 import scouter.lang.value.BooleanValue;
 import scouter.lang.value.DecimalValue;
 import scouter.lang.value.DoubleValue;
@@ -32,9 +25,15 @@ import scouter.lang.value.NullValue;
 import scouter.lang.value.TextValue;
 import scouter.lang.value.Value;
 import scouter.util.ArrayUtil;
-import scouter.util.ParamText;
 import scouter.util.StringKeyLinkedMap;
 import scouter.util.StringUtil;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 
 public class ConfigValueUtil {
 	public static Properties replaceSysProp(Properties temp) {
@@ -90,6 +89,37 @@ public class ConfigValueUtil {
 			}
 		}
 		return descMap;
+	}
+
+	public static StringKeyLinkedMap<ValueType> getConfigValueTypeMap(Object o) {
+		StringKeyLinkedMap<ValueType> valueTypeMap = new StringKeyLinkedMap<ValueType>();
+		Field[] fields = o.getClass().getFields();
+		for (int i = 0; i < fields.length; i++) {
+			int mod = fields[i].getModifiers();
+			if (Modifier.isStatic(mod) == false && Modifier.isPublic(mod)) {
+				try {
+					ValueType valueType;
+					Class type = fields[i].getType();
+					if (type == Integer.TYPE || type == Long.TYPE
+							|| type.isAssignableFrom(Integer.class) || type.isAssignableFrom(Long.class)) {
+						valueType = ValueType.NUM;
+					} else if (type == Boolean.TYPE || type == Boolean.class) {
+						valueType = ValueType.BOOL;
+					} else {
+						valueType = ValueType.VALUE;
+					}
+
+					ConfigValueType annotation = fields[i].getAnnotation(ConfigValueType.class);
+					if (annotation != null) {
+						valueType = annotation.value();
+					}
+					String name = fields[i].getName();
+					valueTypeMap.put(name, valueType);
+				} catch (Exception e) {
+				}
+			}
+		}
+		return valueTypeMap;
 	}
 
 	public static Value toValue(Object o) {

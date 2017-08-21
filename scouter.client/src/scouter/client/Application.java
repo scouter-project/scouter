@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.jface.window.Window;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
@@ -46,7 +47,12 @@ import java.util.Set;
 public class Application implements IApplication {
 
 	public Object start(IApplicationContext context) throws Exception {
-		String workspaceRootName = Platform.getInstanceLocation().getURL().getFile();
+		Location instanceLocation = Platform.getInstanceLocation();
+//		if(instanceLocation.isSet())
+//			instanceLocation.release();
+//		instanceLocation.set(new URL("file", null, System.getProperty("user.home") + "/scouter-workspace-test"), false);
+		
+		String workspaceRootName = instanceLocation.getURL().getFile();
 		String importWorkingDirName = workspaceRootName + "/import-working";
 
 		try {

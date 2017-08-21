@@ -17,8 +17,12 @@
  */
 package scouter.server.plugin.alert;
 import scouter.server.Logger;
+import scouter.server.plugin.PluginHelper;
+
 public class AlertRule {
-	public long lastModified;
+	public long __lastModified;
+	public PluginHelper $$ = PluginHelper.getInstance();
+
 	public void process(RealCounter c) {
 	}
 	public void log(Object c) {
