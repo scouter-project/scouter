@@ -38,6 +38,7 @@ public class Server {
 	private String encryptedPass;
 	private String group;
 	private String version;
+	private String recommendedClientVersion;
 	private String email;
 	private boolean secureMode = true;
 	
@@ -159,6 +160,13 @@ public class Server {
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public String getRecommendedClientVersion() {
+		return this.recommendedClientVersion;
+	}
+	public void setRecommendedClientVersion(String recommendedClientVersion) {
+		this.recommendedClientVersion = recommendedClientVersion;
 	}
 	
 	public void setGroupPolicy(MapValue mv) {
