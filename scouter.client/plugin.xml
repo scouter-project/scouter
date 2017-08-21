@@ -24,8 +24,8 @@
                     value="5,253,460,10">
             </property>
             <property
-                    name="preferenceCustomization"
-                    value="plugin_customization.ini">
+                  name="preferenceCustomization"
+                  value="plugin_customization.ini">
             </property>
             <!--
                     <property name="startupForegroundColor" value="0080FF"/>
