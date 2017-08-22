@@ -90,19 +90,22 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 			serviceTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			serviceTxt.setText(value);
 			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
+
 		} else if (valueType == ValueType.COMMA_SEPARATED_VALUE) {
-			Text serviceTxt = new Text(group, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
+			Text serviceTxt = new Text(group, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 			GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 			gridData.heightHint = 100;
 			serviceTxt.setLayoutData(gridData);
 			serviceTxt.setText(value);
 			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
+
 		} else if (valueType == ValueType.NUM) {
 			Text serviceTxt = new Text(group, SWT.BORDER | SWT.SINGLE);
 			serviceTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			serviceTxt.addVerifyListener(e -> e.doit = isNumber(e.text));
 			serviceTxt.setText(value);
 			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
+
 		} else if (valueType == ValueType.BOOL) {
 			Button button = new Button(group, SWT.CHECK);
 			button.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
