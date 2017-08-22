@@ -8,8 +8,8 @@
   - client : ```mvn -f ./scouter.client.build/pom.xml clean package ```
 
 * import project to the IDE
-  - Scouter project : import maven project using the parent pom.
-  - Scouter client project (for Eclipse Neon+)
+  - Scouter project : import maven project using the parent pom. & install Scala IDE for Eclipse
+  - Scouter client project (for Eclipse Neon+ & java8)
     - build server & agent first then it makes scouter.common.jar and register it for client project library.
     - use "import existing maven project"
        - select the directory, ./scouter.client.build/pom.xml (It's parent pom)
