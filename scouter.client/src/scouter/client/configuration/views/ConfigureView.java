@@ -317,9 +317,9 @@ public class ConfigureView extends ViewPart {
 						} else {
 							value = value.substring(startPos);
 						}
-						
+
 						ConfigureItemDialog dialog = new ConfigureItemDialog(parent.getShell(), selectedText, value, displayName,
-								descMap.get(selectedText), valueTypeMap.get(selectedText), objHash == 0 ? true : false);
+								descMap.get(selectedText), valueTypeMap.get(selectedText), objHash == 0 ? true : false, objHash);
 						if (dialog.open() == Window.OK) {
 							setTheConfig(selectedText, dialog.getValue(), dialog.getApplyScope());
 						}

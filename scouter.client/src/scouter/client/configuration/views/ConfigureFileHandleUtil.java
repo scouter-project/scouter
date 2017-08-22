@@ -48,7 +48,7 @@ public class ConfigureFileHandleUtil {
         
         AgentModelThread.getInstance().getAgentObjectMap().values().stream()
                 .filter(object -> objType.equals(object.getObjType()))
-                .filter(object -> object.getServerId() == serverId || object.getServerId() == 0)
+                .filter(object -> serverId == 0 || object.getServerId() == serverId)
                 .forEach(object -> {
                     try {
                         if (!object.isAlive()) {

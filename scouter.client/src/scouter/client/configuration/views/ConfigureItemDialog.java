@@ -26,12 +26,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
+import scouter.client.model.AgentModelThread;
 import scouter.lang.conf.ValueType;
 import scouter.util.StringUtil;
 
@@ -42,11 +38,14 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 	String desc;
 	ValueType valueType;
 	boolean isServer;
+	int objHash;
+	String objType;
 
 	String value;
 	ConfApplyScopeEnum applyScope = ConfApplyScopeEnum.THIS;
 
-	public ConfigureItemDialog(Shell parentShell, String confKey, String valueOrg, String objName, String desc, ValueType valueType, boolean isServer) {
+	public ConfigureItemDialog(Shell parentShell, String confKey, String valueOrg, String objName, String desc,
+							   ValueType valueType, boolean isServer, int objHash) {
 		super(parentShell);
 		this.confKey = confKey;
 		this.objName = objName;
@@ -55,6 +54,8 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 		this.valueOrg = valueOrg;
 		this.value = shape(valueOrg);
 		this.isServer = isServer;
+		this.objHash = objHash;
+		this.objType = AgentModelThread.getInstance().getAgentObject(objHash).getObjType();
 	}
 
 	@Override
@@ -136,10 +137,10 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 			rdOnlyThis.setSelection(true);
 
 			Button rdForType = new Button(applyTypeGroup, SWT.RADIO);
-			rdForType.setText("to all same type objects in this collector.(the configuration will be saved automatically)");
+			rdForType.setText("to all same type objects(" + objType + ") in this collector.(the configuration will be saved automatically)");
 
 			Button rdForTypeAll = new Button(applyTypeGroup, SWT.RADIO);
-			rdForTypeAll.setText("to all same type objects for all collectors.(the configuration will be saved automatically)");
+			rdForTypeAll.setText("to all same type objects(" + objType + ") for all collectors.(the configuration will be saved automatically)");
 
 			rdOnlyThis.addSelectionListener(new SelectionAdapter() {
 				@Override
