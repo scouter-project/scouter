@@ -45,6 +45,7 @@ import scouter.client.model.AgentModelThread;
 import scouter.client.model.AgentObject;
 import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
+import scouter.client.popup.EditableMessageDialog;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.sorter.ColumnLabelSorter;
@@ -58,8 +59,7 @@ import scouter.util.StringUtil;
 
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 public class ConfigureView extends ViewPart {
 	public final static String ID = ConfigureView.class.getName();
@@ -319,7 +319,7 @@ public class ConfigureView extends ViewPart {
 						}
 						
 						ConfigureItemDialog dialog = new ConfigureItemDialog(parent.getShell(), selectedText, value, displayName,
-								descMap.get(selectedText), valueTypeMap.get(selectedText));
+								descMap.get(selectedText), valueTypeMap.get(selectedText), objHash == 0 ? true : false);
 						if (dialog.open() == Window.OK) {
 							setTheConfig(selectedText, dialog.getValue(), dialog.getApplyScope());
 						}
@@ -361,33 +361,30 @@ public class ConfigureView extends ViewPart {
 		content = content.replaceAll(expression, replacement);
 		text.setText(content);
 
-		if(applyScope == ConfApplyScopeEnum.TYPE) {
-			Future<Map<AgentObject, Boolean>> future = Executors.newSingleThreadExecutor().submit(() -> {
-				String objType = AgentModelThread.getInstance().getAgentObject(objHash).getObjType();
-				return ConfigureFileHandleUtil.applyConfigToAllSameTypeObjects(confKey, confValue, objType);
-			});
+		ExUtil.exec(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay(), () -> {
+			String objType = AgentModelThread.getInstance().getAgentObject(objHash).getObjType();
+			Map<AgentObject, Boolean> resultMap = ConfigureFileHandleUtil.applyConfig(applyScope, confKey, confValue, objType, serverId);
 
-			//TODO message box with area
-			Map<AgentObject, Boolean> resultMap = null;
-			try {
-				resultMap = future.get();
-				if (resultMap.values().contains(Boolean.FALSE)) {
-					MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
-							, "Warn"
-							, "Configuration saving is partially success.\n" + resultMap);
-				} else {
-					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
-							, "Success"
-							, "Configuration saving is done.\n" + resultMap);
-				}
-			} catch (Exception e) {
-				ConsoleProxy.errorSafe(e.getMessage());
-				MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
-						,"Error"
-						, "Configuration saving is failed.");
+			if(resultMap == null) {
+				return;
 			}
+			if (resultMap.values().contains(Boolean.FALSE)) {
+				new EditableMessageDialog().show("Saved with Warning!"
+						, "Configuration saving is partially success.\n\n"
+								+ resultMap.entrySet().stream()
+								.map(e -> " - " + e.getKey() + " : " + (e.getValue() ? "success" : "fail"))
+								.collect(Collectors.joining("\n"))
 
-		}
+				);
+			} else {
+				new EditableMessageDialog().show("Saved all successfully."
+						, "Configuration saving is done.\n\n"
+								+ resultMap.entrySet().stream()
+								.map(e -> " - " + e.getKey() + " : " + (e.getValue() ? "success" : "fail"))
+								.collect(Collectors.joining("\n"))
+				);
+			}
+		});
 	}
 
 	private void saveConfigurations(){

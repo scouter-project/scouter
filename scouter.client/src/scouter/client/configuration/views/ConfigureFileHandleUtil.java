@@ -18,11 +18,37 @@ import java.util.regex.Pattern;
  */
 public class ConfigureFileHandleUtil {
 
-    public static Map<AgentObject, Boolean> applyConfigToAllSameTypeObjects(String confKey, String confValue, String objType) {
+    public static Map<AgentObject, Boolean> applyConfig(ConfApplyScopeEnum scope, String confKey, String confValue, String objType, int serverId) {
+        Map<AgentObject, Boolean> resultMap = null;
+        
+        switch (scope) {
+            case TYPE_IN_SERVER:
+                resultMap = applyConfigToTypeInServer(confKey, confValue, objType, serverId);
+                break;
+            case TYPE_ALL:
+                resultMap = applyConfigToTypeAllServer(confKey, confValue, objType);
+                break;
+            case FAMILY_IN_SERVER:
+                break;
+            case FAMILY_ALL:
+                break;
+            case THIS:
+            default:
+        }
+
+        return resultMap;
+    }
+
+    private static Map<AgentObject, Boolean> applyConfigToTypeAllServer(String confKey, String confValue, String objType) {
+        return applyConfigToTypeInServer(confKey, confValue, objType, 0);
+    }
+
+    private static Map<AgentObject, Boolean> applyConfigToTypeInServer(String confKey, String confValue, String objType, int serverId) {
     	Map<AgentObject, Boolean> resultMap = new HashMap<>();
         
         AgentModelThread.getInstance().getAgentObjectMap().values().stream()
                 .filter(object -> objType.equals(object.getObjType()))
+                .filter(object -> object.getServerId() == serverId || object.getServerId() == 0)
                 .forEach(object -> {
                     try {
                         if (!object.isAlive()) {

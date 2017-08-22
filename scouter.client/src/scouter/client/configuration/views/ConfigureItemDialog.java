@@ -41,11 +41,12 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 	String objName;
 	String desc;
 	ValueType valueType;
+	boolean isServer;
 
 	String value;
 	ConfApplyScopeEnum applyScope = ConfApplyScopeEnum.THIS;
 
-	public ConfigureItemDialog(Shell parentShell, String confKey, String valueOrg, String objName, String desc, ValueType valueType) {
+	public ConfigureItemDialog(Shell parentShell, String confKey, String valueOrg, String objName, String desc, ValueType valueType, boolean isServer) {
 		super(parentShell);
 		this.confKey = confKey;
 		this.objName = objName;
@@ -53,6 +54,7 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 		this.valueType = (valueType == null) ? ValueType.VALUE : valueType;
 		this.valueOrg = valueOrg;
 		this.value = shape(valueOrg);
+		this.isServer = isServer;
 	}
 
 	@Override
@@ -122,37 +124,50 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
 		}
 
-		//TODO if collector server cant select type
-		Group applyTypeGroup = new Group(group, SWT.NONE);
-		applyTypeGroup.setLayout(new RowLayout(SWT.VERTICAL));
-		//applyTypeGroup.setLayout(new GridLayout(1, false));
-		applyTypeGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		applyTypeGroup.setText("Select title");
-		
-		Button rdOnlyThis = new Button(applyTypeGroup, SWT.RADIO);
-		rdOnlyThis.setText("to this object (you should save it manually after done)");
-		rdOnlyThis.setSelection(true);
+		if (!isServer) {
+			Group applyTypeGroup = new Group(group, SWT.NONE);
+			applyTypeGroup.setLayout(new RowLayout(SWT.VERTICAL));
+			//applyTypeGroup.setLayout(new GridLayout(1, false));
+			applyTypeGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			applyTypeGroup.setText("Select title");
 
-		Button rdForAll = new Button(applyTypeGroup, SWT.RADIO);
-		rdForAll.setText("to all same type objects (the configuration will be saved automatically)");
+			Button rdOnlyThis = new Button(applyTypeGroup, SWT.RADIO);
+			rdOnlyThis.setText("to this object (you should save it manually after done)");
+			rdOnlyThis.setSelection(true);
 
-		rdOnlyThis.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (((Button) e.widget).getSelection()) {
-					applyScope = ConfApplyScopeEnum.THIS;
+			Button rdForType = new Button(applyTypeGroup, SWT.RADIO);
+			rdForType.setText("to all same type objects in this collector.(the configuration will be saved automatically)");
+
+			Button rdForTypeAll = new Button(applyTypeGroup, SWT.RADIO);
+			rdForTypeAll.setText("to all same type objects for all collectors.(the configuration will be saved automatically)");
+
+			rdOnlyThis.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (((Button) e.widget).getSelection()) {
+						applyScope = ConfApplyScopeEnum.THIS;
+					}
 				}
-			}
-		});
+			});
 
-		rdForAll.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (((Button) e.widget).getSelection()) {
-					applyScope = ConfApplyScopeEnum.TYPE;
+			rdForType.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (((Button) e.widget).getSelection()) {
+						applyScope = ConfApplyScopeEnum.TYPE_IN_SERVER;
+					}
 				}
-			}
-		});
+			});
+
+			rdForTypeAll.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (((Button) e.widget).getSelection()) {
+						applyScope = ConfApplyScopeEnum.TYPE_ALL;
+					}
+				}
+			});
+		}
 
 		return container;
 	}
