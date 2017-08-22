@@ -6,9 +6,6 @@
 
   Extract the zip file to any directory(ex /app/scouter-master)
 
-### Setup JDK1.7
-   http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html
-
 ### Setup Maven
 
 ### Build
