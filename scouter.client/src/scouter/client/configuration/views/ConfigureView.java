@@ -324,7 +324,8 @@ public class ConfigureView extends ViewPart {
 					if (configKeyNames.contains(selectedText)) {
 						String fullText = text.getText();
 						String textToIt = fullText.substring(0, selectedX);
-						int lastIndexOfLineBreakToIt = textToIt.lastIndexOf('\n');
+						int lastIndexOfLineBreakToIt = Math.max(textToIt.lastIndexOf('\n'), textToIt.lastIndexOf('\r'));
+						
 						if (lastIndexOfLineBreakToIt >= 0) {
 							if(fullText.charAt(lastIndexOfLineBreakToIt+1) == '#') {
 								return;
@@ -337,7 +338,10 @@ public class ConfigureView extends ViewPart {
 
 						String value = fullText.substring(selectedY);
 						int startPos = value.indexOf('=')+1;
-						int lineEndPos = value.indexOf('\n');
+						int npos = value.indexOf('\n');
+						int rpos = value.indexOf('\r');
+						int lineEndPos = (npos >= 0 && rpos >= 0) ? Math.min(npos,  rpos) : Math.max(npos, rpos);
+						
 						if (lineEndPos >= 0) {
 							value = value.substring(startPos, lineEndPos);
 						} else {
