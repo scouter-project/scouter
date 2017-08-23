@@ -26,7 +26,12 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import scouter.client.model.AgentModelThread;
 import scouter.lang.conf.ValueType;
 import scouter.util.StringUtil;
@@ -55,7 +60,9 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 		this.value = shape(valueOrg);
 		this.isServer = isServer;
 		this.objHash = objHash;
-		this.objType = AgentModelThread.getInstance().getAgentObject(objHash).getObjType();
+		if (!isServer) {
+			this.objType = AgentModelThread.getInstance().getAgentObject(objHash).getObjType();
+		}
 	}
 
 	@Override

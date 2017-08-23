@@ -295,6 +295,32 @@ public class ConfigureView extends ViewPart {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 				if (selectedTime > System.currentTimeMillis() - 1500) {
+					String contents = text.getText();
+					int start = selectedX;
+					int end = selectedY;
+					while(start > 0) {
+						char c = contents.charAt(--start);
+						if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_') {
+							//expand backward
+						} else {
+							start++;
+							break;
+						}
+					}
+					while(end < contents.length()) {
+						char c = contents.charAt(end++);
+						if ((c > '0' && c < '9') || (c > 'A' && c < 'Z') || (c > 'a' && c < 'z') || c == '_') {
+							//expand ahead
+						} else {
+							end--;
+							break;
+						}
+					}
+					selectedX = start;
+					selectedY = end;
+					selectedText = contents.substring(start, end);
+					text.setSelection(start, end);
+
 					if (configKeyNames.contains(selectedText)) {
 						String fullText = text.getText();
 						String textToIt = fullText.substring(0, selectedX);
@@ -360,6 +386,10 @@ public class ConfigureView extends ViewPart {
 		String replacement =  confKey + "=" + _confValue + "\n";
 		content = content.replaceAll(expression, replacement);
 		text.setText(content);
+
+		if (objHash == 0) { //server
+			return;
+		}
 
 		ExUtil.exec(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay(), () -> {
 			String objType = AgentModelThread.getInstance().getAgentObject(objHash).getObjType();
