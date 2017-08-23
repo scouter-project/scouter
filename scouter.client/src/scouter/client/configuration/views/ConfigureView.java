@@ -309,7 +309,7 @@ public class ConfigureView extends ViewPart {
 					}
 					while(end < contents.length()) {
 						char c = contents.charAt(end++);
-						if ((c > '0' && c < '9') || (c > 'A' && c < 'Z') || (c > 'a' && c < 'z') || c == '_') {
+						if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_') {
 							//expand ahead
 						} else {
 							end--;
@@ -319,7 +319,6 @@ public class ConfigureView extends ViewPart {
 					selectedX = start;
 					selectedY = end;
 					selectedText = contents.substring(start, end);
-					text.setSelection(start, end);
 
 					if (configKeyNames.contains(selectedText)) {
 						String fullText = text.getText();
