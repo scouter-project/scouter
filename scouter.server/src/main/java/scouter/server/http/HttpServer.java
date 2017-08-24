@@ -20,7 +20,7 @@ package scouter.server.http;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-
+import org.glassfish.jersey.servlet.ServletContainer;
 import scouter.server.Configure;
 import scouter.server.http.servlet.CounterServlet;
 import scouter.server.http.servlet.RegisterServlet;
@@ -53,8 +53,15 @@ public class HttpServer extends Thread {
 			ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 			context.setContextPath("/");
 	        server.setHandler(context);
-	        context.addServlet(new ServletHolder(CounterServlet.class), "/counter/*");
+
+			context.addServlet(new ServletHolder(CounterServlet.class), "/counter/*");
 	        context.addServlet(new ServletHolder(RegisterServlet.class), "/register/*");
+
+	        ServletHolder jerseyHolder = new ServletHolder(ServletContainer.class);
+			jerseyHolder.setInitParameter("jersey.config.server.provider.packages", "scouter.server.http.api");
+			context.addServlet(jerseyHolder, "/rest/*");
+
+
 	        try {
 		        server.start();
 		        server.join();
