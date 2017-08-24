@@ -295,10 +295,37 @@ public class ConfigureView extends ViewPart {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 				if (selectedTime > System.currentTimeMillis() - 1500) {
+					String contents = text.getText();
+					int start = selectedX;
+					int end = selectedY;
+					while(start > 0) {
+						char c = contents.charAt(--start);
+						if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' || c == '-') {
+							//expand backward
+						} else {
+							start++;
+							break;
+						}
+					}
+					while(end < contents.length()) {
+						char c = contents.charAt(end++);
+						if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' || c == '-') {
+							//expand ahead
+						} else {
+							end--;
+							break;
+						}
+					}
+					selectedX = start;
+					selectedY = end;
+					selectedText = contents.substring(start, end);
+					text.setSelection(start, end);
+
 					if (configKeyNames.contains(selectedText)) {
 						String fullText = text.getText();
 						String textToIt = fullText.substring(0, selectedX);
-						int lastIndexOfLineBreakToIt = textToIt.lastIndexOf('\n');
+						int lastIndexOfLineBreakToIt = Math.max(textToIt.lastIndexOf('\n'), textToIt.lastIndexOf('\r'));
+						
 						if (lastIndexOfLineBreakToIt >= 0) {
 							if(fullText.charAt(lastIndexOfLineBreakToIt+1) == '#') {
 								return;
@@ -311,18 +338,24 @@ public class ConfigureView extends ViewPart {
 
 						String value = fullText.substring(selectedY);
 						int startPos = value.indexOf('=')+1;
-						int lineEndPos = value.indexOf('\n');
+						int npos = value.indexOf('\n');
+						int rpos = value.indexOf('\r');
+						int lineEndPos = (npos >= 0 && rpos >= 0) ? Math.min(npos,  rpos) : Math.max(npos, rpos);
+						
 						if (lineEndPos >= 0) {
 							value = value.substring(startPos, lineEndPos);
 						} else {
 							value = value.substring(startPos);
 						}
 
-						ConfigureItemDialog dialog = new ConfigureItemDialog(parent.getShell(), selectedText, value, displayName,
-								descMap.get(selectedText), valueTypeMap.get(selectedText), objHash == 0 ? true : false, objHash);
-						if (dialog.open() == Window.OK) {
-							setTheConfig(selectedText, dialog.getValue(), dialog.getApplyScope());
-						}
+						final String valuef = value;
+						ExUtil.exec(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay(), () -> {
+							ConfigureItemDialog dialog = new ConfigureItemDialog(parent.getShell(), selectedText, valuef, displayName,
+									descMap.get(selectedText), valueTypeMap.get(selectedText), objHash == 0 ? true : false, objHash);
+							if (dialog.open() == Window.OK) {
+								setTheConfig(selectedText, dialog.getValue(), dialog.getApplyScope());
+							}
+						});
 					}
 				}
 			}
@@ -360,6 +393,10 @@ public class ConfigureView extends ViewPart {
 		String replacement =  confKey + "=" + _confValue + "\n";
 		content = content.replaceAll(expression, replacement);
 		text.setText(content);
+
+		if (objHash == 0) { //server
+			return;
+		}
 
 		ExUtil.exec(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay(), () -> {
 			String objType = AgentModelThread.getInstance().getAgentObject(objHash).getObjType();
