@@ -133,6 +133,11 @@ public class Configure extends Thread {
 	public boolean net_http_server_enabled = false;
 	@ConfigDesc("Http Port")
 	public int net_http_port = 6180;
+	@ConfigDesc("Activating Scouter API")
+	public boolean net_http_api_enabled = false;
+	@ConfigDesc("api access allow ip addresses")
+	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+	public String net_http_api_allow_ips = "localhost";
 
 	//Dir
 	@ConfigDesc("Store directory of database")
@@ -319,6 +324,8 @@ public class Configure extends Thread {
 		this.net_tcp_get_agent_connection_wait_ms = getInt("net_tcp_get_agent_connection_wait_ms", 1000);
 		this.net_http_server_enabled = getBoolean("net_http_server_enabled", false);
 		this.net_http_port = getInt("net_http_port", 6180);
+		this.net_http_api_enabled = getBoolean("net_http_api_enabled", false);
+		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost");
 
 		this.server_id = getValue("server_id", SysJMX.getHostName());
 		this.db_dir = getValue("db_dir", "./database");

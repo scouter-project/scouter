@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>1.7.3.2</version>
+        <version>1.7.4.SNAPSHOT</version>
     </parent>
 
     <artifactId>scouter-server</artifactId>
@@ -52,7 +52,7 @@
         <dependency>
             <groupId>org.eclipse.jetty.aggregate</groupId>
             <artifactId>jetty-all</artifactId>
-            <version>9.4.6.v20170531</version>
+            <version>8.1.22.v20160922</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>

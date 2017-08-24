@@ -45,6 +45,12 @@ class CounterService {
         }
     }
 
+    /**
+      * get a latest counter value for specific object type
+      * @param din MapPack{counter, objType}
+      * @param dout MapPack{objHash[], value[]}
+      * @param login
+      */
     @ServiceHandler(RequestCmd.COUNTER_REAL_TIME_ALL)
     def getRealTimeAll(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readPack().asInstanceOf[MapPack];

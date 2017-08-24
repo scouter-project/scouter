@@ -129,6 +129,12 @@ class XLogService {
 
     }
 
+    /**
+      * get latest XLog data
+      * @param din MapPack{index, loop, count, objHash[]}
+      * @param dout [MapPack{loop, index}, byte[]} : byte array is XLog Pack
+      * @param login
+      */
     @ServiceHandler(RequestCmd.TRANX_REAL_TIME_GROUP_LATEST)
     def getRealtimePerfGroupLatestCount(din: DataInputX, dout: DataOutputX, login: Boolean) {
 
