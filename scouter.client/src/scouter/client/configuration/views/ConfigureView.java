@@ -364,7 +364,6 @@ public class ConfigureView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(e.x == e.y) return;
-				System.out.println("selected : " + e.x + ", " + e.y);
 				selectedText = text.getText(e.x, e.y-1);
 				selectedTime = System.currentTimeMillis();
 				selectedX = e.x;
