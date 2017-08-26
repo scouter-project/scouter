@@ -23,8 +23,8 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.glassfish.jersey.servlet.ServletContainer;
 import scouter.server.Configure;
+import scouter.server.Logger;
 import scouter.server.http.servlet.CounterServlet;
 import scouter.server.http.servlet.RegisterServlet;
 import scouter.util.ThreadUtil;
@@ -79,9 +79,15 @@ public class HttpServer extends Thread {
             server.setHandler(handlers);
 
             if (conf.net_http_api_enabled) {
-                ServletHolder jerseyHolder = new ServletHolder(ServletContainer.class);
-                jerseyHolder.setInitParameter("jersey.config.server.provider.packages", "scouter.server.http.api");
-                context.addServlet(jerseyHolder, "/rest/*");
+                try {
+                    Class c = Class.forName("scouterx.webapp.main.WebAppMain");
+                    c.getMethod("setWebAppContext", Server.class).invoke(null, server);
+                } catch (Throwable e) {
+                    Logger.println("Error while loading webapp api context!");
+                    System.out.println("Error while loading webapp api context!");
+                    Logger.printStackTrace(e);
+                    e.printStackTrace();
+                }
             }
 
             try {

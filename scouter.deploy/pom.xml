@@ -21,6 +21,7 @@
         <scouter.assembly.agent.host.dir>${scouter.assembly.dir}/scouter/agent.host</scouter.assembly.agent.host.dir>
         <scouter.assembly.agent.batch.dir>${scouter.assembly.dir}/scouter/agent.batch</scouter.assembly.agent.batch.dir>
         <scouter.assembly.server.dir>${scouter.assembly.dir}/scouter/server</scouter.assembly.server.dir>
+        <scouter.assembly.webapp.dir>${scouter.assembly.dir}/scouter/webapp</scouter.assembly.webapp.dir>
     </properties>
 
     <dependencies>
@@ -44,6 +45,11 @@
             <artifactId>scouter-server</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.scouter-project</groupId>
+            <artifactId>scouter-webapp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -63,7 +69,16 @@
                                 <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.java.assembly.name}.tar" dest="${scouter.assembly.agent.java.dir}" />
                                 <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.batch.assembly.name}.tar" dest="${scouter.assembly.agent.batch.dir}" />
                                 <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.server.assembly.name}.tar" dest="${scouter.assembly.server.dir}" />
+                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.webapp.assembly.name}.tar" dest="${scouter.assembly.webapp.dir}" />
 
+                                <!-- copy webapp jar for scouter server embedded mode -->
+                                <copy todir="${scouter.assembly.server.dir}/lib">
+                                    <fileset dir="${scouter.assembly.webapp.dir}">
+                                        <include name="scouter-webapp-*.jar" />
+                                    </fileset>
+                                </copy>
+
+                                <!-- make tar ball -->
                                 <tar destfile="${project.build.directory}/${scouter.product.name}.tar">
                                     <tarfileset dir="${scouter.assembly.dir}" mode="755">
                                         <include name="**/*.sh" />

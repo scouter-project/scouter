@@ -1,0 +1,1 @@
+java -classpath ./scouter.webapp.jar scouterx.webapp.main.WebAppMain

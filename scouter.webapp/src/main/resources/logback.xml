@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%X{traceId} %d{HH:mm:ss.SSS} [%thread] %X{req.ip} %-5level %logger{36}[%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="DEFAULT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <prudent>true</prudent>
+        <file>${scouter_webapp_log_dir}/webapp.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${scouter_webapp_log_dir}/webapp-%d{yyyy_MM_dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>%X{traceId} %d{HH:mm:ss.SSS} [%thread] %X{req.ip} %-5level %logger{36}[%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="DEFAULT" />
+    </root>
+</configuration>

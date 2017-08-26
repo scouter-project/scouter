@@ -25,6 +25,11 @@
             <artifactId>scouter-server</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.scouter-project</groupId>
+            <artifactId>scouter-webapp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -35,7 +40,7 @@
                 <version>3.1</version>
                 <configuration>
                     <source>1.6</source>
-                    <target>1.6</target>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
