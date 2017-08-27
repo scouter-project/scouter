@@ -18,17 +18,19 @@
 
 package scouterx.webapp.configure;
 
-import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 26.
  */
-public interface ConfigureAdaptor {
-    String getLogDir();
-    int getLogKeepDays();
-    int getNetHttpPort();
-    boolean isNetHttpApiAuthIpEnabled();
-    boolean isNetHttpApiAuthSessionEnabled();
-    Set<String> getNetHttpApiAllowIps();
-    String getNetHttpApiAuthIpHeaderKey();
+@Getter
+@Setter
+@AllArgsConstructor
+public class ServerConfig {
+    String ip;
+    String port;
+    String id;
+    String password;
 }

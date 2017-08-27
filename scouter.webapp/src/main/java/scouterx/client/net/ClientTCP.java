@@ -1,0 +1,94 @@
+/*
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License. 
+ *
+ */
+package scouterx.client.net;
+
+import scouter.io.DataInputX;
+import scouter.io.DataOutputX;
+import scouter.net.NetCafe;
+import scouter.util.FileUtil;
+import scouterx.client.server.Server;
+import scouterx.client.server.ServerManager;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+
+
+public class ClientTCP{
+	Socket socket;
+	DataInputX in;
+	DataOutputX out;
+
+	public void open(int serverId) {
+		close();
+		Server server = ServerManager.getInstance().getServer(serverId);
+		if (server == null) {
+			return;
+		}
+		try {
+			socket = new Socket();
+			///
+			socket.setKeepAlive(true); 
+			socket.setTcpNoDelay(true);
+			//socket.setSoLinger(true, 0); 
+			///
+			socket.connect(new InetSocketAddress(server.getIp(), server.getPort()),3000);
+			socket.setTcpNoDelay(true);
+			socket.setSoTimeout(server.getSoTimeOut());
+			in = new DataInputX(new BufferedInputStream(socket.getInputStream()));
+			out = new DataOutputX(new BufferedOutputStream(socket.getOutputStream()));
+			
+			//*************//
+			out.writeInt(NetCafe.TCP_CLIENT);
+			out.flush();
+			//*************//
+			if (server.isConnected() == false) {
+				System.out.println("Success to connect " + server.getIp() + ":" + server.getPort());
+			}
+			server.setConnected(true);
+		} catch (Throwable t) {
+			System.out.println(t.getMessage());
+			close();
+			if (server.getConnectionPool().size() < 1) {
+				server.setConnected(false);
+			}
+		}
+	}
+	
+	public DataOutputX getOutput() {
+		return out;
+	}
+
+	public DataInputX getInput() {
+		return in;
+	}
+
+	public boolean isSessionOk() {
+		return socket != null && socket.isClosed() == false;
+	}
+
+	public void close() {
+		FileUtil.close(socket);
+		FileUtil.close(in);
+		FileUtil.close(out);
+		socket = null;
+		in = null;
+		out = null;
+	}
+}

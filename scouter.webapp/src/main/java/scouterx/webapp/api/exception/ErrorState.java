@@ -16,13 +16,17 @@ package scouterx.webapp.api.exception;
  *  limitations under the License. 
  */
 
+import lombok.Getter;
+
 import javax.ws.rs.core.Response;
 
 /**
  * Created by Gun Lee(gunlee01@gmail.com) on 2017. 8. 25.
  */
+@Getter
 public enum ErrorState {
-	INTERNAL_SERVER_ERRROR(Response.Status.INTERNAL_SERVER_ERROR, 500, "internal server error"),
+	INTERNAL_SERVER_ERRROR(Response.Status.INTERNAL_SERVER_ERROR, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), "internal server error"),
+	LOGIN_REQUIRED(Response.Status.FORBIDDEN, Response.Status.FORBIDDEN.getStatusCode(), "login required."),
 	;
 
 	private Response.Status status;

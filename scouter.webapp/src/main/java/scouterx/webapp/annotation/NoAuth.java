@@ -16,19 +16,17 @@
  *
  */
 
-package scouterx.webapp.configure;
+package scouterx.webapp.annotation;
 
-import java.util.Set;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 26.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public interface ConfigureAdaptor {
-    String getLogDir();
-    int getLogKeepDays();
-    int getNetHttpPort();
-    boolean isNetHttpApiAuthIpEnabled();
-    boolean isNetHttpApiAuthSessionEnabled();
-    Set<String> getNetHttpApiAllowIps();
-    String getNetHttpApiAuthIpHeaderKey();
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface NoAuth {
 }

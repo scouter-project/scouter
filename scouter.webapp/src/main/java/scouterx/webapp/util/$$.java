@@ -16,19 +16,25 @@
  *
  */
 
-package scouterx.webapp.configure;
+package scouterx.webapp.util;
 
-import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
+import scouterx.webapp.configure.ConfigureAdaptor;
+import scouterx.webapp.configure.ConfigureManager;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 26.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public interface ConfigureAdaptor {
-    String getLogDir();
-    int getLogKeepDays();
-    int getNetHttpPort();
-    boolean isNetHttpApiAuthIpEnabled();
-    boolean isNetHttpApiAuthSessionEnabled();
-    Set<String> getNetHttpApiAllowIps();
-    String getNetHttpApiAuthIpHeaderKey();
+public class $$ {
+    private static final ConfigureAdaptor conf = ConfigureManager.getConfigure();
+
+    public static String getRequestIp(HttpServletRequest request) {
+        if (StringUtils.isNotBlank(conf.getNetHttpApiAuthIpHeaderKey())) {
+            return request.getHeader(conf.getNetHttpApiAuthIpHeaderKey());
+        } else {
+            return request.getRemoteAddr();
+        }
+    }
 }

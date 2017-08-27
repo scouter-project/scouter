@@ -20,6 +20,10 @@ package scouterx.webapp.configure;
 
 import scouter.server.Configure;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 26.
  */
@@ -46,5 +50,25 @@ public class EmbeddedConfigureAdaptor implements ConfigureAdaptor {
     @Override
     public int getNetHttpPort() {
         return conf.net_http_port;
+    }
+
+    @Override
+    public boolean isNetHttpApiAuthIpEnabled() {
+        return conf.net_http_api_auth_ip_enabled;
+    }
+
+    @Override
+    public boolean isNetHttpApiAuthSessionEnabled() {
+        return conf.net_http_api_auth_session_enabled;
+    }
+
+    @Override
+    public Set<String> getNetHttpApiAllowIps() {
+        return Stream.of(conf.net_http_api_allow_ips.split(",")).collect(Collectors.toSet());
+    }
+
+    @Override
+    public String getNetHttpApiAuthIpHeaderKey() {
+        return conf.net_http_api_auth_ip_header_key;
     }
 }

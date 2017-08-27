@@ -16,19 +16,20 @@
  *
  */
 
-package scouterx.webapp.configure;
+package scouterx.client.net;
 
-import java.util.Set;
+import scouter.util.StringUtil;
 
-/**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 26.
- */
-public interface ConfigureAdaptor {
-    String getLogDir();
-    int getLogKeepDays();
-    int getNetHttpPort();
-    boolean isNetHttpApiAuthIpEnabled();
-    boolean isNetHttpApiAuthSessionEnabled();
-    Set<String> getNetHttpApiAllowIps();
-    String getNetHttpApiAuthIpHeaderKey();
+public class LoginResult {
+	
+	public boolean success;
+	public String errorMessage;
+	
+	public String getErrorMessage() {
+		if (!success && StringUtil.isEmpty(errorMessage)) {
+			return "Failure to unknown causes";
+		}
+		return errorMessage;
+	}
+
 }

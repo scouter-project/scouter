@@ -32,10 +32,16 @@ import org.slf4j.LoggerFactory;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 import scouter.util.logo.Logo;
+import scouterx.client.net.LoginMgr;
+import scouterx.client.net.LoginResult;
+import scouterx.client.server.ServerManager;
+import scouterx.client.thread.ServerSessionObserver;
 import scouterx.webapp.configure.ConfigureAdaptor;
 import scouterx.webapp.configure.ConfigureManager;
+import scouterx.webapp.configure.ServerConfig;
 
 import java.io.File;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -46,7 +52,12 @@ public class WebAppMain {
 		Logo.print(true);
         initializeLogDir();
 
-        Server server = new Server(ConfigureManager.getConfigure().getNetHttpPort());
+        ConfigureAdaptor conf = ConfigureManager.getConfigure();
+        if (ConfigureManager.isStandAlone()) {
+            connectScouterCollector();
+        }
+
+        org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(conf.getNetHttpPort());
 		setWebAppContext(server);
 
 		try {
@@ -56,6 +67,29 @@ public class WebAppMain {
 			e.printStackTrace();
 		}
 	}
+
+    private static void connectScouterCollector() {
+        Logger log = LoggerFactory.getLogger(WebAppMain.class);
+
+        List<ServerConfig> serverConfigList = ConfigureManager.getStandAloneConfigure().getServerConfigs();
+        ServerManager srvMgr = ServerManager.getInstance();
+        for (ServerConfig serverConfig : serverConfigList) {
+            scouterx.client.server.Server server = new scouterx.client.server.Server(serverConfig.getIp(), serverConfig.getPort());
+            if (srvMgr.getServer(server.getId()) == null) {
+                srvMgr.addServer(server);
+            } else {
+                server = srvMgr.getServer(server.getId());
+            }
+
+            LoginResult result = LoginMgr.login(server.getId(), serverConfig.getId(), serverConfig.getPassword(), true);
+            if (result.success) {
+                log.info("Successfully log in to {}:{}", server.getIp(), server.getPort());
+            } else {
+                log.error("Fail to log in to {}:{}", server.getIp(), server.getPort());
+            }
+        }
+        ServerSessionObserver.load();
+    }
 
     private static void waitOnExit(Server server) throws Exception {
         File exit = new File(SysJMX.getProcessPID() + ".scouter");
@@ -120,7 +154,7 @@ public class WebAppMain {
 		server.setHandler(handlers);
 
 		ServletHolder jerseyHolder = new ServletHolder(ServletContainer.class);
-		jerseyHolder.setInitParameter("jersey.config.server.provider.packages", "scouterx.webapp.api");
+		jerseyHolder.setInitParameter("jersey.config.server.provider.packages", "scouterx.webapp");
 		context.addServlet(jerseyHolder, "/rest/*");
 
 		ServletHolder defaultHolder = new ServletHolder("default", DefaultServlet.class);

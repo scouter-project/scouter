@@ -18,28 +18,26 @@
 
 package scouterx.webapp.configure;
 
-import scouter.Version;
-import scouter.lang.conf.ConfObserver;
-import scouter.lang.conf.ConfigDesc;
-import scouter.lang.conf.ConfigValueUtil;
-import scouter.lang.conf.ValueType;
+import scouter.lang.conf.*;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
-import scouter.net.NetConstants;
 import scouter.util.*;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class Configure extends Thread {
-	private static Configure instance = null;
+public class StandAloneConfigure extends Thread {
+	private static StandAloneConfigure instance = null;
 	public final static String CONF_DIR = "./conf/";
 
-	protected final static synchronized Configure getInstance() {
+	protected final static synchronized StandAloneConfigure getInstance() {
 		if (instance == null) {
-			instance = new Configure();
+			instance = new StandAloneConfigure();
 			instance.setDaemon(true);
 			instance.setName(ThreadUtil.getName(instance));
 			instance.start();
@@ -48,25 +46,27 @@ public class Configure extends Thread {
 	}
 
 	//Network
-	@ConfigDesc("UDP local IP")
-	public String net_local_udp_ip = null;
-	@ConfigDesc("UDP local Port")
-	public int net_local_udp_port;
-	@ConfigDesc("Collector IP")
-	public String net_collector_ip = "127.0.0.1";
-	@ConfigDesc("Collector UDP Port")
-	public int net_collector_udp_port = NetConstants.SERVER_UDP_PORT;
-	@ConfigDesc("Collector TCP Port")
-	public int net_collector_tcp_port = NetConstants.SERVER_TCP_PORT;
+	@ConfigDesc("Collector connection infos - eg) host:6100:id:pw,host2:6100:id2:pw2")
+	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+	public String net_collector_ip_port_id_pws = "127.0.0.1:6100:admin:admin";
 
 	@ConfigDesc("Collector TCP Session Count")
-	public int net_collector_tcp_session_count = 1;
+	public int net_collector_tcp_session_count = 5;
 	@ConfigDesc("Collector TCP Socket Timeout(ms)")
 	public int net_collector_tcp_so_timeout_ms = 60000;
 	@ConfigDesc("Collector TCP Connection Timeout(ms)")
 	public int net_collector_tcp_connection_timeout_ms = 3000;
-	@ConfigDesc("UDP Buffer Size")
-	public int net_udp_packet_max_bytes = 60000;
+
+	@ConfigDesc("Enable api access control by client ip")
+	public boolean net_http_api_auth_ip_enabled = true;
+	@ConfigDesc("Enable api access control by JSESSIONID of Cookie")
+	public boolean net_http_api_auth_session_enabled = true;
+	@ConfigDesc("If get api caller's ip from http header.")
+	public String net_http_api_auth_ip_header_key;
+
+	@ConfigDesc("api access allow ip addresses")
+	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+	public String net_http_api_allow_ips = "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1";
 
 	@ConfigDesc("HTTP service port")
 	public int net_http_port = 6188;
@@ -76,7 +76,7 @@ public class Configure extends Thread {
 	@ConfigDesc("Keeping period of log")
 	public int log_keep_days = 30;
 
-	private Configure() {
+	private StandAloneConfigure() {
 		Properties p = new Properties();
 		Map args = new HashMap();
 		args.putAll(System.getenv());
@@ -86,7 +86,7 @@ public class Configure extends Thread {
 		reload(false);
 	}
 
-	private Configure(boolean b) {
+	private StandAloneConfigure(boolean b) {
 	}
 
 	private long last_load_time = -1;
@@ -147,23 +147,32 @@ public class Configure extends Thread {
 	}
 
 	private void apply() {
+		this.net_collector_ip_port_id_pws = getValue("net_collector_ip_port_id_pws", "127.0.0.1:6100:admin:admin");
 
-		this.net_udp_packet_max_bytes = getInt("net_udp_packet_max_bytes", getInt("udp.packet.max", 60000));
-
-		this.net_local_udp_ip = getValue("net_local_udp_ip");
-		this.net_local_udp_port = getInt("net_local_udp_port", 0);
-
-		this.net_collector_ip = getValue("net_collector_ip", getValue("server.addr", "127.0.0.1"));
-		this.net_collector_udp_port = getInt("net_collector_udp_port", getInt("server.port", NetConstants.SERVER_UDP_PORT));
-		this.net_collector_tcp_port = getInt("net_collector_tcp_port", getInt("server.port", NetConstants.SERVER_TCP_PORT));
-		this.net_collector_tcp_session_count = getInt("net_collector_tcp_session_count", 1, 1);
+		this.net_collector_tcp_session_count = getInt("net_collector_tcp_session_count", 5, 1);
 		this.net_collector_tcp_connection_timeout_ms = getInt("net_collector_tcp_connection_timeout_ms", 3000);
 		this.net_collector_tcp_so_timeout_ms = getInt("net_collector_tcp_so_timeout_ms", 60000);
+
+		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", true);
+		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", true);
+		this.net_http_api_auth_ip_header_key = getValue("net_http_api_auth_ip_header_key", "");
+
+		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1");
 
 		this.net_http_port = getInt("net_http_port", 6188);
 
 		this.log_dir = getValue("log_dir", "./logs");
 		this.log_keep_days = getInt("log_keep_days", 30);
+	}
+
+	public List<ServerConfig> getServerConfigs() {
+		List<ServerConfig> list = Stream.of(this.net_collector_ip_port_id_pws.split(","))
+				.map(s -> {
+					String val[] = s.split(":");
+					return new ServerConfig(val[0], val[1], val[2], val[3]);
+				}).collect(Collectors.toList());
+
+		return list;
 	}
 
 	private StringSet getStringSet(String key, String deli) {
@@ -265,7 +274,7 @@ public class Configure extends Thread {
 	}
 
 	public MapValue getKeyValueInfo() {
-		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new Configure(true));
+		StringKeyLinkedMap<Object> defMap = ConfigValueUtil.getConfigDefault(new StandAloneConfigure(true));
 		StringKeyLinkedMap<Object> curMap = ConfigValueUtil.getConfigDefault(this);
 		MapValue m = new MapValue();
 		ListValue nameList = m.newList("key");

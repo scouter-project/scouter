@@ -16,9 +16,12 @@ package scouterx.webapp.api.exception;
  *  limitations under the License. 
  */
 
+import lombok.Getter;
+
 /**
  * Created by Gun Lee(gunlee01@gmail.com) on 2017. 8. 25.
  */
+@Getter
 public class ErrorStateBizException extends ErrorStateException {
 	public ErrorStateBizException(ErrorState errorState) {
 		super(errorState);

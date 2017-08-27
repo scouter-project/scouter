@@ -24,7 +24,7 @@ package scouterx.webapp.configure;
 public class ConfigureManager {
     private static final String SERVER_CONFIGURE_CLASS_NAME = "scouter.server.Configure";
     private static boolean isStandAlone = false;
-    private static Configure conf = Configure.getInstance();
+    private static StandAloneConfigure conf = StandAloneConfigure.getInstance();
 
     static {
         try {
@@ -37,6 +37,10 @@ public class ConfigureManager {
 
     public static ConfigureAdaptor getConfigure() {
         return isStandAlone ? StandAloneConfigureAdaptor.getInstance() : EmbeddedConfigureAdaptor.getInstance();
+    }
+
+    public static StandAloneConfigure getStandAloneConfigure() {
+        return conf;
     }
 
     private ConfigureManager() {
@@ -62,5 +66,9 @@ public class ConfigureManager {
         } else {
             return scouter.server.Configure.getInstance().log_keep_days;
         }
+    }
+
+    public static boolean isStandAlone() {
+        return isStandAlone;
     }
 }
