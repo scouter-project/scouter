@@ -16,20 +16,23 @@
  *
  */
 
-package scouterx.client.net;
+package scouterx.webapp.api.service;
 
-import scouter.util.StringUtil;
+import scouterx.client.server.Server;
+import scouterx.webapp.api.consumer.AccountConsumer;
+import scouterx.webapp.api.exception.ErrorState;
+import scouterx.webapp.api.model.User;
 
-public class LoginResult {
-	
-	public boolean success;
-	public String errorMessage;
-	
-	public String getErrorMessage() {
-		if (!success && StringUtil.isEmpty(errorMessage)) {
-			return "Failure to unknown causes";
-		}
-		return errorMessage;
-	}
+/**
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ */
+public class UserService {
+    final AccountConsumer accountConsumer = new AccountConsumer();
 
+    public void login(final Server server, final User user) {
+        boolean result = accountConsumer.login(server, user);
+        if (!result) {
+            throw ErrorState.LOGIN_FAIL.newBizException();
+        }
+    }
 }

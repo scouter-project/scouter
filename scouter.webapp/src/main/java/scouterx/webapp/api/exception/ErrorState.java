@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response;
 public enum ErrorState {
 	INTERNAL_SERVER_ERRROR(Response.Status.INTERNAL_SERVER_ERROR, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), "internal server error"),
 	LOGIN_REQUIRED(Response.Status.FORBIDDEN, Response.Status.FORBIDDEN.getStatusCode(), "login required."),
+	LOGIN_FAIL(Response.Status.UNAUTHORIZED, Response.Status.UNAUTHORIZED.getStatusCode(), "id or password is incorrect."),
 	;
 
 	private Response.Status status;

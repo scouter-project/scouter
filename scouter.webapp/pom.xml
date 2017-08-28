@@ -32,7 +32,6 @@
             <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-server</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -52,6 +51,12 @@
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
+            <version>${jersey.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.ext</groupId>
+            <artifactId>jersey-bean-validation</artifactId>
             <version>${jersey.version}</version>
             <scope>runtime</scope>
         </dependency>
@@ -139,6 +144,12 @@
                                     <artifact>io.github.scouter-project:scouter-common</artifact>
                                     <excludes>
                                         <exclude>scouter/v.properties</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>io.github.scouter-project:scouter-server</artifact>
+                                    <excludes>
+                                        <exclude>**/*</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

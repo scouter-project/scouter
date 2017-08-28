@@ -14,16 +14,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Setter
 public class CommonResultView<T> {
 	private static final int SUCCESS = 0;
-	private static final String BLANK = "";
 
 	private int status = HttpStatus.OK_200;
 	private int resultCode;
 	private String message;
 	private T result;
-
-	public CommonResultView(T result) {
-		this.result = result;
-	}
 
 	public CommonResultView(int resultCode, String message, T result) {
 		this.resultCode = resultCode;
@@ -38,8 +33,12 @@ public class CommonResultView<T> {
 		this.result = result;
 	}
 
+	public static CommonResultView success() {
+		return new CommonResultView(SUCCESS, "success", true);
+	}
+
 	public static CommonResultView success(Object result) {
-		return new CommonResultView(SUCCESS, BLANK, result);
+		return new CommonResultView(SUCCESS, "success", result);
 	}
 
 	public static CommonResultView fail(int resultCode, String message, Object result) {

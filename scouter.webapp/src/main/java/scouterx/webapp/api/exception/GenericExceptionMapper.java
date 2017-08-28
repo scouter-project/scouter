@@ -56,49 +56,57 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 	}
 
     private Response handleThrowable(Throwable throwable) {
-        CommonResultView<?> commonResultView = CommonResultView.fail(500, 500, throwable.getMessage(), null);
+        CommonResultView<?> resultView = CommonResultView.fail(500, 500, throwable.getMessage(), null);
 
-        log.error("[WebApplicationException] {} - {}, [uri]{}", commonResultView.getStatus()
-                , commonResultView.getMessage(), uriInfo.getPath(), throwable);
+        log.error("[WebApplicationException] {} - {}, [uri]{}", resultView.getStatus()
+                , resultView.getMessage(), uriInfo.getPath(), throwable);
 
-        return Response.status(commonResultView.getStatus()).entity(commonResultView).type(MediaType.APPLICATION_JSON).build();
+        return Response.status(resultView.getStatus())
+                .entity(resultView)
+                .type(MediaType.APPLICATION_JSON).build();
     }
 
     private Response handlerWebApplicationException(WebApplicationException throwable) {
         WebApplicationException ex = throwable;
-        CommonResultView<?> commonResultView = CommonResultView.fail(ex.getResponse().getStatus()
+        CommonResultView<?> resultView = CommonResultView.fail(ex.getResponse().getStatus()
                 , ex.getResponse().getStatus(), ex.getMessage(), null);
 
 
-        log.error("[WebApplicationException] {} - {}, [uri]{}", commonResultView.getStatus()
-                , commonResultView.getMessage(), uriInfo.getPath());
+        log.error("[WebApplicationException] {} - {}, [uri]{}", resultView.getStatus()
+                , resultView.getMessage(), uriInfo.getPath());
 
-        return Response.status(commonResultView.getStatus()).entity(commonResultView).type(MediaType.APPLICATION_JSON).build();
+        return Response.status(resultView.getStatus())
+                .entity(resultView)
+                .type(MediaType.APPLICATION_JSON).build();
     }
 
     private Response handlerErrorStateException(ErrorStateException throwable) {
         ErrorStateException ex = throwable;
         ErrorState errorState = ex.getErrorState();
-        CommonResultView<?> commonResultView = CommonResultView.fail(errorState.getStatus().getStatusCode()
+        CommonResultView<?> resultView = CommonResultView.fail(errorState.getStatus().getStatusCode()
                 , errorState.getErrorCode(), errorState.getErrorMessage(), null);
 
         StackTraceElement lastStack = Arrays.stream(ex.getStackTrace()).findFirst().orElse(null);
-        log.error("[ErrorStateException] {} - {} - {}, [uri]{} at {}", commonResultView.getStatus(),
-                commonResultView.getMessage(), ex.getMessage(), uriInfo.getPath(), lastStack, ex);
+        log.error("[ErrorStateException] {} - {} - {}, [uri]{} at {}", resultView.getStatus(),
+                resultView.getMessage(), ex.getMessage(), uriInfo.getPath(), lastStack, ex);
 
-        return Response.status(commonResultView.getStatus()).entity(commonResultView).type(MediaType.APPLICATION_JSON).build();
+        return Response.status(resultView.getStatus())
+                .entity(resultView)
+                .type(MediaType.APPLICATION_JSON).build();
     }
 
     private Response handleErrorStateBizException(ErrorStateBizException throwable) {
         ErrorStateBizException ex = throwable;
         ErrorState errorState = ex.getErrorState();
-        CommonResultView<?> commonResultView = CommonResultView.fail(errorState.getStatus().getStatusCode()
+        CommonResultView<?> resultView = CommonResultView.fail(errorState.getStatus().getStatusCode()
                 , errorState.getErrorCode(), errorState.getErrorMessage(), null);
 
         StackTraceElement lastStack = Arrays.stream(ex.getStackTrace()).findFirst().orElse(null);
-        log.error("[ErrorStateBizException] {} - {} - {}, [uri]{} at {}", commonResultView.getStatus()
-                , commonResultView.getMessage(), ex.getMessage(), uriInfo.getPath(), lastStack);
+        log.error("[ErrorStateBizException] {} - {} - {}, [uri]{} at {}", resultView.getStatus()
+                , resultView.getMessage(), ex.getMessage(), uriInfo.getPath(), lastStack);
 
-        return Response.status(commonResultView.getStatus()).entity(commonResultView).type(MediaType.APPLICATION_JSON).build();
+        return Response.status(resultView.getStatus())
+                .entity(resultView)
+                .type(MediaType.APPLICATION_JSON).build();
     }
 }

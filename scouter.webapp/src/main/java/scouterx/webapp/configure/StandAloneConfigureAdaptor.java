@@ -18,6 +18,7 @@
 
 package scouterx.webapp.configure;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -69,5 +70,15 @@ public class StandAloneConfigureAdaptor implements ConfigureAdaptor {
     @Override
     public String getNetHttpApiAuthIpHeaderKey() {
         return conf.net_http_api_auth_ip_header_key;
+    }
+
+    @Override
+    public int getNetHttpApiSessionTimeout() {
+        return conf.net_http_api_session_timeout;
+    }
+
+    @Override
+    public List<ServerConfig> getServerConfigs() {
+        return conf.getServerConfigs();
     }
 }

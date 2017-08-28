@@ -16,28 +16,21 @@
  *
  */
 
-package scouterx.webapp.api.model;
+package scouterx.webapp.api.controller.view;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-
-import javax.validation.constraints.NotNull;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 28.
  */
 @Getter
 @Setter
-@ToString
 @AllArgsConstructor
-public class User {
-    @NotNull
-    String id;
-    String password;
-
-    public User(String id) {
-        this.id = id;
-    }
+public class ServerView {
+    final private int id;
+    final private String name;
+    final private boolean connected;
+    final private long serverTime;
 }

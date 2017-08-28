@@ -32,6 +32,13 @@ public class ConfigureManager {
         } catch (ClassNotFoundException e) {
             isStandAlone = true;
         }
+        //For standAlone mode testing on IDE.
+        if ("true".equals(System.getProperty("scouterWebAppStandAlone"))) {
+            isStandAlone = true;
+        } else if ("false".equals(System.getProperty("scouterWebAppStandAlone"))) {
+            isStandAlone = false;
+        }
+
         System.out.println("[scouter web api embedded mode] " + !isStandAlone);
     }
 

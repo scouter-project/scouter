@@ -17,25 +17,14 @@
  */
 package scouterx.client.server;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import scouter.lang.pack.MapPack;
 import scouter.net.RequestCmd;
 import scouter.util.HashUtil;
 import scouter.util.LinkedMap;
 import scouter.util.ThreadUtil;
-import scouterx.client.net.LoginMgr;
-import scouterx.client.net.LoginResult;
 import scouterx.client.net.TcpProxy;
-import scouterx.client.thread.ServerSessionObserver;
-import scouterx.webapp.configure.ConfigureManager;
-import scouterx.webapp.configure.ServerConfig;
-import scouterx.webapp.main.WebAppMain;
 
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ServerManager extends Thread {
 	
@@ -127,20 +116,42 @@ public class ServerManager extends Thread {
 		}
 	}
 	
-	public Set<Integer> getOpenServerList() {
-		Set<Integer> keySet = new HashSet<Integer>();
+	public Set<Integer> getOpenServerIdList() {
+		Set<Integer> serverSet = new HashSet<Integer>();
 		Enumeration<Server> servers = serverMap.values();
 		while (servers.hasMoreElements()) {
 			Server server = servers.nextElement();
 			if (server.isOpen()) {
-				keySet.add(server.getId());
+				serverSet.add(server.getId());
 			}
 		}
-		return keySet;
+		return serverSet;
 	}
-	
-	public Enumeration<Integer> getAllServerList() {
-		return serverMap.keys();
+
+	public List<Server> getAllServerList() {
+		List<Server> serverSet = new ArrayList<>();
+		Enumeration<Server> servers = serverMap.values();
+		while (servers.hasMoreElements()) {
+			Server server = servers.nextElement();
+			serverSet.add(server);
+		}
+		return serverSet;
+	}
+
+	public Set<Integer> getClosedServerIdList() {
+		Set<Integer> serverSet = new HashSet<Integer>();
+		Enumeration<Server> servers = serverMap.values();
+		while (servers.hasMoreElements()) {
+			Server server = servers.nextElement();
+			if (!server.isOpen()) {
+				serverSet.add(server.getId());
+			}
+		}
+		return serverSet;
+	}
+
+	public int getServerCount() {
+		return serverMap.size();
 	}
 	
 	public boolean isRunningServer(String ip, String port) {

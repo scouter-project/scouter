@@ -23,6 +23,7 @@ import java.util.Set;
 public class RequestCmd {
 	public static final String CLOSE = "CLOSE";
 	public static final String LOGIN = "LOGIN";
+	public static final String CHECK_LOGIN = "CHECK_LOGIN";
 	public static final String CHECK_SESSION = "CHECK_SESSION";
 	public static final String GET_LOGIN_LIST = "GET_LOGIN_LIST";
 	//

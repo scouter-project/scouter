@@ -18,6 +18,7 @@
 
 package scouterx.webapp.configure;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,4 +32,6 @@ public interface ConfigureAdaptor {
     boolean isNetHttpApiAuthSessionEnabled();
     Set<String> getNetHttpApiAllowIps();
     String getNetHttpApiAuthIpHeaderKey();
+    int getNetHttpApiSessionTimeout();
+    List<ServerConfig> getServerConfigs();
 }

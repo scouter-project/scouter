@@ -21,7 +21,7 @@ package scouterx.client.thread;
 import lombok.extern.slf4j.Slf4j;
 import scouter.util.ThreadUtil;
 import scouterx.client.net.LoginMgr;
-import scouterx.client.net.LoginResult;
+import scouterx.client.net.LoginRequest;
 import scouterx.client.server.Server;
 import scouterx.client.server.ServerManager;
 
@@ -49,7 +49,7 @@ public class ServerSessionObserver extends Thread {
         ThreadUtil.sleep(CHECK_INTERVAL);
         while (true) {
             try {
-                Set<Integer> idSet = ServerManager.getInstance().getOpenServerList();
+                Set<Integer> idSet = ServerManager.getInstance().getOpenServerIdList();
                 for (int serverId : idSet) {
                     Server server = ServerManager.getInstance().getServer(serverId);
                     if (server == null) {
@@ -59,12 +59,26 @@ public class ServerSessionObserver extends Thread {
                         server.setSession(0); // reset session
                     }
                     if (server.getSession() == 0) {
-                        LoginResult result = LoginMgr.silentLogin(server, server.getUserId(), server.getPassword());
+                        LoginRequest result = LoginMgr.silentLogin(server, server.getUserId(), server.getPassword());
                         if (result.success) {
                             log.info("Success re-login to {}", server.getName());
                         } else {
                             log.error("Failed re-login to {} : {}", server.getName(), result.getErrorMessage());
                         }
+                    }
+                }
+
+                Set<Integer> closedSet = ServerManager.getInstance().getClosedServerIdList();
+                for (int serverId : closedSet) {
+                    Server server = ServerManager.getInstance().getServer(serverId);
+                    if (server == null) {
+                        continue;
+                    }
+                    LoginRequest result = LoginMgr.silentLogin(server, server.getUserId(), server.getPassword());
+                    if (result.success) {
+                        log.info("Success re-login to {}", server.getName());
+                    } else {
+                        log.error("Failed re-login to {} : {}", server.getName(), result.getErrorMessage());
                     }
                 }
             } catch (Throwable t) {

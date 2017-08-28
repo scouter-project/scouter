@@ -16,12 +16,12 @@
  *
  */
 
-package scouterx.webapp.api.model;
+package scouterx.webapp.api.controller.request;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import scouterx.webapp.api.model.User;
 
 import javax.validation.constraints.NotNull;
 
@@ -31,13 +31,8 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
-public class User {
+public class LoginRequest {
+    int serverId;
     @NotNull
-    String id;
-    String password;
-
-    public User(String id) {
-        this.id = id;
-    }
+    User user;
 }

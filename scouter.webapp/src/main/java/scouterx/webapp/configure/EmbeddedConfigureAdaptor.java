@@ -18,8 +18,11 @@
 
 package scouterx.webapp.configure;
 
+import scouter.net.NetConstants;
 import scouter.server.Configure;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -70,5 +73,16 @@ public class EmbeddedConfigureAdaptor implements ConfigureAdaptor {
     @Override
     public String getNetHttpApiAuthIpHeaderKey() {
         return conf.net_http_api_auth_ip_header_key;
+    }
+
+    @Override
+    public int getNetHttpApiSessionTimeout() {
+        return conf.net_http_api_session_timeout;
+    }
+
+    @Override
+    public List<ServerConfig> getServerConfigs() {
+        ServerConfig serverConfig = new ServerConfig("127.0.0.1", String.valueOf(conf.net_tcp_listen_port), NetConstants.LOCAL_ID, NetConstants.LOCAL_ID);
+        return Arrays.asList(serverConfig);
     }
 }

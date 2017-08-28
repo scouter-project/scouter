@@ -16,28 +16,20 @@
  *
  */
 
-package scouterx.webapp.api.model;
+package scouterx.client.net;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import scouter.util.StringUtil;
 
-import javax.validation.constraints.NotNull;
+public class LoginRequest {
+	
+	public boolean success;
+	public String errorMessage;
+	
+	public String getErrorMessage() {
+		if (!success && StringUtil.isEmpty(errorMessage)) {
+			return "Failure to unknown causes";
+		}
+		return errorMessage;
+	}
 
-/**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
- */
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
-public class User {
-    @NotNull
-    String id;
-    String password;
-
-    public User(String id) {
-        this.id = id;
-    }
 }

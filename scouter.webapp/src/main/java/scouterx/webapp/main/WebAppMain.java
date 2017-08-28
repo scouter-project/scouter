@@ -33,7 +33,7 @@ import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 import scouter.util.logo.Logo;
 import scouterx.client.net.LoginMgr;
-import scouterx.client.net.LoginResult;
+import scouterx.client.net.LoginRequest;
 import scouterx.client.server.ServerManager;
 import scouterx.client.thread.ServerSessionObserver;
 import scouterx.webapp.configure.ConfigureAdaptor;
@@ -53,9 +53,7 @@ public class WebAppMain {
         initializeLogDir();
 
         ConfigureAdaptor conf = ConfigureManager.getConfigure();
-        if (ConfigureManager.isStandAlone()) {
-            connectScouterCollector();
-        }
+        connectScouterCollector();
 
         org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(conf.getNetHttpPort());
 		setWebAppContext(server);
@@ -71,7 +69,7 @@ public class WebAppMain {
     private static void connectScouterCollector() {
         Logger log = LoggerFactory.getLogger(WebAppMain.class);
 
-        List<ServerConfig> serverConfigList = ConfigureManager.getStandAloneConfigure().getServerConfigs();
+        List<ServerConfig> serverConfigList = ConfigureManager.getConfigure().getServerConfigs();
         ServerManager srvMgr = ServerManager.getInstance();
         for (ServerConfig serverConfig : serverConfigList) {
             scouterx.client.server.Server server = new scouterx.client.server.Server(serverConfig.getIp(), serverConfig.getPort());
@@ -81,10 +79,12 @@ public class WebAppMain {
                 server = srvMgr.getServer(server.getId());
             }
 
-            LoginResult result = LoginMgr.login(server.getId(), serverConfig.getId(), serverConfig.getPassword(), true);
+            LoginRequest result = LoginMgr.login(server.getId(), serverConfig.getId(), serverConfig.getPassword(), true);
             if (result.success) {
                 log.info("Successfully log in to {}:{}", server.getIp(), server.getPort());
             } else {
+                server.setUserId(serverConfig.getId());
+                server.setPassword(serverConfig.getPassword());
                 log.error("Fail to log in to {}:{}", server.getIp(), server.getPort());
             }
         }
@@ -145,7 +145,9 @@ public class WebAppMain {
 		requestLogHandler.setRequestLog(requestLog);
 
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		context.setBaseResource(Resource.newClassPathResource("/webroot"));
+        context.getSessionHandler().setMaxInactiveInterval(conf.getNetHttpApiSessionTimeout());
+
+        context.setBaseResource(Resource.newClassPathResource("/webroot"));
 
 		context.setContextPath("/");
 		handlers.addHandler(requestLogHandler);
@@ -155,7 +157,7 @@ public class WebAppMain {
 
 		ServletHolder jerseyHolder = new ServletHolder(ServletContainer.class);
 		jerseyHolder.setInitParameter("jersey.config.server.provider.packages", "scouterx.webapp");
-		context.addServlet(jerseyHolder, "/rest/*");
+		context.addServlet(jerseyHolder, "/scouter/*");
 
 		ServletHolder defaultHolder = new ServletHolder("default", DefaultServlet.class);
 		defaultHolder.setInitParameter("dirAllowed","false");

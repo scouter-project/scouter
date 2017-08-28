@@ -31,13 +31,13 @@ import scouterx.client.server.Server;
 import scouterx.client.server.ServerManager;
 
 public class LoginMgr{
-	public static LoginResult login(int serverId, String user, String password){
+	public static LoginRequest login(int serverId, String user, String password){
 		Server server = ServerManager.getInstance().getServer(serverId);
 		String encrypted = CipherUtil.sha256(password);
 		return silentLogin(server, user, encrypted);
 	}
 	
-	public static LoginResult login(int serverId, String user, String password, boolean secureLogin){
+	public static LoginRequest login(int serverId, String user, String password, boolean secureLogin){
 		Server server = ServerManager.getInstance().getServer(serverId);
 		if(secureLogin) {
 			password = CipherUtil.sha256(password);
@@ -46,8 +46,8 @@ public class LoginMgr{
 		return silentLogin(server, user, password);
 	}
 	
-	public static LoginResult silentLogin(Server server, String user, String password){
-		LoginResult result = new LoginResult();
+	public static LoginRequest silentLogin(Server server, String user, String password){
+		LoginRequest result = new LoginRequest();
 		try {
 			MapPack param = new MapPack();
 			param.put("id", user);

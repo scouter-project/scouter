@@ -21,6 +21,7 @@ package scouterx.webapp.configure;
 import scouter.lang.conf.*;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
+import scouter.net.NetConstants;
 import scouter.util.*;
 
 import java.io.*;
@@ -59,17 +60,20 @@ public class StandAloneConfigure extends Thread {
 
 	@ConfigDesc("Enable api access control by client ip")
 	public boolean net_http_api_auth_ip_enabled = true;
-	@ConfigDesc("Enable api access control by JSESSIONID of Cookie")
-	public boolean net_http_api_auth_session_enabled = true;
 	@ConfigDesc("If get api caller's ip from http header.")
 	public String net_http_api_auth_ip_header_key;
+
+	@ConfigDesc("Enable api access control by JSESSIONID of Cookie")
+	public boolean net_http_api_auth_session_enabled = true;
+	@ConfigDesc("api http session timeout")
+	public int net_http_api_session_timeout = 3600*24;
 
 	@ConfigDesc("api access allow ip addresses")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String net_http_api_allow_ips = "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1";
 
 	@ConfigDesc("HTTP service port")
-	public int net_http_port = 6188;
+	public int net_http_port = NetConstants.WEBAPP_HTTP_PORT;
 
 	@ConfigDesc("Log directory")
 	public String log_dir = "./logs";
@@ -154,12 +158,14 @@ public class StandAloneConfigure extends Thread {
 		this.net_collector_tcp_so_timeout_ms = getInt("net_collector_tcp_so_timeout_ms", 60000);
 
 		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", true);
-		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", true);
 		this.net_http_api_auth_ip_header_key = getValue("net_http_api_auth_ip_header_key", "");
+
+		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", true);
+		this.net_http_api_session_timeout = getInt("net_http_api_session_timeout", 3600*24);
 
 		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1");
 
-		this.net_http_port = getInt("net_http_port", 6188);
+		this.net_http_port = getInt("net_http_port", NetConstants.WEBAPP_HTTP_PORT);
 
 		this.log_dir = getValue("log_dir", "./logs");
 		this.log_keep_days = getInt("log_keep_days", 30);
