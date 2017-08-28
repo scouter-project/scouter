@@ -19,41 +19,43 @@
 package scouterx.webapp.api.controller;
 
 import scouterx.client.server.ServerManager;
-import scouterx.webapp.annotation.NoAuth;
-import scouterx.webapp.api.controller.request.LoginRequest;
 import scouterx.webapp.api.fw.controller.ro.CommonResultView;
-import scouterx.webapp.api.model.SUser;
-import scouterx.webapp.api.service.UserService;
+import scouterx.webapp.api.model.SObject;
+import scouterx.webapp.api.service.AgentService;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-@Path("/v1/user")
+@Path("/v1/agent")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
-public class UserController {
+public class AgentController {
     @Context
     HttpServletRequest servletRequest;
 
-    final UserService userService = new UserService();
+    private final AgentService agentService;
 
-    @NoAuth
-    @POST @Path("/login")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Boolean> login(@Valid final LoginRequest loginRequest) {
-        userService.login(ServerManager.getInstance().getServer(loginRequest.getServerId()), loginRequest.getUser());
-        servletRequest.getSession(true).setAttribute("user", new SUser(loginRequest.getUser().getId()));
-
-        return CommonResultView.success();
+    public AgentController() {
+        this.agentService = new AgentService();
     }
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<SObject> retrieveAgentList(@QueryParam("serverId") int serverId) {
+        List<SObject> agentList = agentService.retrieveAgentList(ServerManager.getInstance().getServer(serverId));
+        return CommonResultView.success(agentList);
+    }
+
+    //TODO why can not handle exception when return type is wrong.
 }

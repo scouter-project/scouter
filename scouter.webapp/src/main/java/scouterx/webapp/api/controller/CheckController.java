@@ -20,7 +20,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * Created by gunlee on 2017. 8. 24.
  */
-@Path("/check")
+@Path("/v0/check")
 @Produces(MediaType.APPLICATION_JSON)
 public class CheckController {
 

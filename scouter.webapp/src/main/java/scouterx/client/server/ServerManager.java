@@ -24,7 +24,12 @@ import scouter.util.LinkedMap;
 import scouter.util.ThreadUtil;
 import scouterx.client.net.TcpProxy;
 
-import java.util.*;
+import javax.validation.ValidationException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ServerManager extends Thread {
 	
@@ -73,7 +78,7 @@ public class ServerManager extends Thread {
 		while (servers.hasMoreElements()) {
 			Server server = servers.nextElement();
 			if (server.isConnected() && server.isOpen()) {
-				TcpProxy tcp = TcpProxy.getTcpProxy(server.getId());
+				TcpProxy tcp = TcpProxy.getTcpProxy(server);
 				try {
 					MapPack p = (MapPack) tcp.getSingle(RequestCmd.SERVER_STATUS, null);
 					if (p != null) {
@@ -188,5 +193,28 @@ public class ServerManager extends Thread {
 			server.close();
 		}
 		serverMap.clear();
+	}
+
+	/**
+	 * Get a server, if over one server, throw exception.
+	 * @return Server
+	 */
+	public Server getServerIfNullDefault(Server server) {
+		if (server == null) {
+			if (getServerCount() != 1) {
+				throw new ValidationException("Multiple server connected web-app requires the server to request for.");
+			}
+			return getDefaultServer();
+		} else {
+			return server;
+		}
+	}
+
+	/**
+	 * Get a server, if over one server, throw exception.
+	 * @return Server
+	 */
+	public Server getServerIfNullDefault(int serverId) {
+		return getServerIfNullDefault(getServer(serverId));
 	}
 }

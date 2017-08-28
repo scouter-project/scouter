@@ -16,27 +16,28 @@
  *
  */
 
-package scouterx.webapp.api.service;
+package scouterx.webapp.api.model;
 
-import scouterx.client.server.Server;
-import scouterx.webapp.api.consumer.AccountConsumer;
-import scouterx.webapp.api.exception.ErrorState;
-import scouterx.webapp.api.model.SUser;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public class UserService {
-    private final AccountConsumer accountConsumer;
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
+public class SUser {
+    @NotNull
+    String id;
+    String password;
 
-    public UserService() {
-        this.accountConsumer = new AccountConsumer();
-    }
-
-    public void login(final Server server, final SUser user) {
-        boolean result = accountConsumer.login(server, user);
-        if (!result) {
-            throw ErrorState.LOGIN_FAIL.newBizException();
-        }
+    public SUser(String id) {
+        this.id = id;
     }
 }

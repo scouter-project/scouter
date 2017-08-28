@@ -41,17 +41,21 @@ public class TcpProxy {
 	protected TcpProxy(int serverId) {
 		this.server = ServerManager.getInstance().getServer(serverId);
 	}
-	
-	public static synchronized TcpProxy getTcpProxy(int serverId) {
-		Server server = ServerManager.getInstance().getServer(serverId);
-		if (server == null || server.isOpen() == false || server.isConnected() == false) {
+
+	public static synchronized TcpProxy getTcpProxy(final Server server) {
+		Server _server = ServerManager.getInstance().getServerIfNullDefault(server);
+		if (_server == null || _server.isOpen() == false || _server.isConnected() == false) {
 			return new DummyTcpProxy();
 		}
-		ConnectionPool pool = server.getConnectionPool();
+		ConnectionPool pool = _server.getConnectionPool();
 		if (pool.size() == 0)
-			return new TcpProxy(serverId);
+			return new TcpProxy(_server.getId());
 		else
 			return pool.removeFirst();
+	}
+
+	public static synchronized TcpProxy getTcpProxy(int serverId) {
+		return getTcpProxy(ServerManager.getInstance().getServer(serverId));
 	}
 
 	public static synchronized void putTcpProxy(TcpProxy t) {

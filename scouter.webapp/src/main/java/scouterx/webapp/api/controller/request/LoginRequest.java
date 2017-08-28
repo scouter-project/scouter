@@ -21,7 +21,7 @@ package scouterx.webapp.api.controller.request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import scouterx.webapp.api.model.User;
+import scouterx.webapp.api.model.SUser;
 
 import javax.validation.constraints.NotNull;
 
@@ -34,5 +34,5 @@ import javax.validation.constraints.NotNull;
 public class LoginRequest {
     int serverId;
     @NotNull
-    User user;
+    SUser user;
 }

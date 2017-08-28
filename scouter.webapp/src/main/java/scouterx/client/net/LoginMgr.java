@@ -99,7 +99,7 @@ public class LoginMgr{
 					server.setMenuEnableMap(mv);
 				}
 				CounterEngine counterEngine = server.getCounterEngine();
-				MapPack m = getCounterXmlServer(server.getId());
+				MapPack m = getCounterXmlServer(server);
 				if (m != null) {
 					counterEngine.clear();
 					Value v1 = m.get("default");
@@ -119,8 +119,8 @@ public class LoginMgr{
 		return result;
 	}
 	
-	public static MapPack getCounterXmlServer(int serverId) {
-		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+	public static MapPack getCounterXmlServer(Server server) {
+		TcpProxy tcp = TcpProxy.getTcpProxy(server);
 		Pack p = null;
 		try {
 			p = tcp.getSingle(RequestCmd.GET_XML_COUNTER, null);

@@ -56,7 +56,8 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 	}
 
     private Response handleThrowable(Throwable throwable) {
-        CommonResultView<?> resultView = CommonResultView.fail(500, 500, throwable.getMessage(), null);
+	    String errorMessage = getMessageWithCause(throwable);
+	    CommonResultView<?> resultView = CommonResultView.fail(500, 500, errorMessage, null);
 
         log.error("[WebApplicationException] {} - {}, [uri]{}", resultView.getStatus()
                 , resultView.getMessage(), uriInfo.getPath(), throwable);
@@ -66,7 +67,7 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
                 .type(MediaType.APPLICATION_JSON).build();
     }
 
-    private Response handlerWebApplicationException(WebApplicationException throwable) {
+	private Response handlerWebApplicationException(WebApplicationException throwable) {
         WebApplicationException ex = throwable;
         CommonResultView<?> resultView = CommonResultView.fail(ex.getResponse().getStatus()
                 , ex.getResponse().getStatus(), ex.getMessage(), null);
@@ -109,4 +110,12 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
                 .entity(resultView)
                 .type(MediaType.APPLICATION_JSON).build();
     }
+
+	private String getMessageWithCause(Throwable throwable) {
+		StringBuilder sb = new StringBuilder(throwable.getMessage());
+		if (throwable.getCause() != null) {
+			sb.append(" [caused by] ").append(throwable.getCause().getMessage());
+		}
+		return sb.toString();
+	}
 }

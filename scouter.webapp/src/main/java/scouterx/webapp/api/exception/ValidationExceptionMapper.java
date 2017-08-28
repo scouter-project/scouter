@@ -51,6 +51,4 @@ public class ValidationExceptionMapper implements ExceptionMapper<javax.validati
                 .type(MediaType.APPLICATION_JSON)
                 .entity(resultView).build();
     }
-
-
 }

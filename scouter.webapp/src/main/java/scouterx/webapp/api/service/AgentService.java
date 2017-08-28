@@ -16,28 +16,28 @@
  *
  */
 
-package scouterx.webapp.api.model;
+package scouterx.webapp.api.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import scouterx.client.server.Server;
+import scouterx.webapp.api.consumer.AgentConsumer;
+import scouterx.webapp.api.model.SObject;
 
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
-public class User {
-    @NotNull
-    String id;
-    String password;
+public class AgentService {
+    private final AgentConsumer agentConsumer;
 
-    public User(String id) {
-        this.id = id;
+    public AgentService() {
+        this.agentConsumer = new AgentConsumer();
+    }
+
+    /**
+     * retrieve object(agent) list from collector server
+     */
+    public List<SObject> retrieveAgentList(final Server server) {
+        return agentConsumer.retrieveAgentList(server);
     }
 }

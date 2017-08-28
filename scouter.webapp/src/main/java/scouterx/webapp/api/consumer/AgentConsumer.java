@@ -16,27 +16,32 @@
  *
  */
 
-package scouterx.webapp.api.service;
+package scouterx.webapp.api.consumer;
 
+import scouter.lang.pack.ObjectPack;
+import scouter.net.RequestCmd;
+import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
-import scouterx.webapp.api.consumer.AccountConsumer;
-import scouterx.webapp.api.exception.ErrorState;
-import scouterx.webapp.api.model.SUser;
+import scouterx.webapp.api.model.SObject;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public class UserService {
-    private final AccountConsumer accountConsumer;
+public class AgentConsumer {
 
-    public UserService() {
-        this.accountConsumer = new AccountConsumer();
-    }
+    /**
+     * retrieve object(agent) list from collector server
+     */
+    public List<SObject> retrieveAgentList(final Server server) {
+        List<SObject> objectList = TcpProxy.getTcpProxy(server)
+                .process(RequestCmd.OBJECT_LIST_REAL_TIME, null)
+                .stream()
+                .map(p -> SObject.of((ObjectPack)p))
+                .collect(Collectors.toList());
 
-    public void login(final Server server, final SUser user) {
-        boolean result = accountConsumer.login(server, user);
-        if (!result) {
-            throw ErrorState.LOGIN_FAIL.newBizException();
-        }
+        return objectList;
     }
 }

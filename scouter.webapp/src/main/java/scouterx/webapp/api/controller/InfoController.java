@@ -20,12 +20,10 @@ package scouterx.webapp.api.controller;
 
 import scouterx.client.server.ServerManager;
 import scouterx.webapp.annotation.NoAuth;
-import scouterx.webapp.api.controller.request.LoginRequest;
 import scouterx.webapp.api.controller.view.ServerView;
 import scouterx.webapp.api.fw.controller.ro.CommonResultView;
 
 import javax.inject.Singleton;
-import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -45,7 +43,7 @@ public class InfoController {
     @GET
     @Path("/servers")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<ServerView> retrieveServers(@Valid final LoginRequest loginRequest) {
+    public CommonResultView<ServerView> retrieveServers() {
         List<ServerView> serverList = ServerManager.getInstance().getAllServerList().stream()
                 .map(s -> new ServerView(s.getId(), s.getName(), s.isConnected(), System.currentTimeMillis()-s.getDelta()))
                 .collect(Collectors.toList());

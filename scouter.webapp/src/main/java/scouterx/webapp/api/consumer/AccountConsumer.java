@@ -25,30 +25,22 @@ import scouter.net.RequestCmd;
 import scouter.util.CipherUtil;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
-import scouterx.client.server.ServerManager;
-import scouterx.webapp.api.model.User;
-
-import javax.validation.ValidationException;
+import scouterx.webapp.api.model.SUser;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
 public class AccountConsumer {
-    public boolean login(final Server server, final User user) {
-        Server _server = server;
 
-        if (_server == null) {
-            if (ServerManager.getInstance().getServerCount() != 1) {
-                throw new ValidationException("parameter:server should be not null!");
-            }
-            _server = ServerManager.getInstance().getDefaultServer();
-        }
-
+    /**
+     * id & password check from scouter collector server
+     */
+    public boolean login(final Server server, final SUser user) {
         MapPack param = new MapPack();
         param.put("id", user.getId());
         param.put("pass", CipherUtil.sha256(user.getPassword()));
 
-        Value value = TcpProxy.getTcpProxy(_server.getId()).getSingleValue(RequestCmd.CHECK_LOGIN, param);
+        Value value = TcpProxy.getTcpProxy(server).getSingleValue(RequestCmd.CHECK_LOGIN, param);
         return ((BooleanValue) value).value;
     }
 }
