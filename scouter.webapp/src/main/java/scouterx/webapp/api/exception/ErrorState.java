@@ -28,6 +28,7 @@ public enum ErrorState {
 	INTERNAL_SERVER_ERRROR(Response.Status.INTERNAL_SERVER_ERROR, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), "internal server error"),
 	LOGIN_REQUIRED(Response.Status.FORBIDDEN, Response.Status.FORBIDDEN.getStatusCode(), "login required."),
 	LOGIN_FAIL(Response.Status.UNAUTHORIZED, Response.Status.UNAUTHORIZED.getStatusCode(), "id or password is incorrect."),
+	NOT_IMPLEMENTED(Response.Status.NOT_IMPLEMENTED, Response.Status.NOT_IMPLEMENTED.getStatusCode(), "This API is not yet implemented."),
 	;
 
 	private Response.Status status;
@@ -62,6 +63,10 @@ public enum ErrorState {
 
 	public ErrorStateBizException newBizException(String message, Throwable t) {
 		return new ErrorStateBizException(this, message, t);
+	}
+
+	public static void throwNotImplementedException() {
+		throw NOT_IMPLEMENTED.newBizException();
 	}
 }
 

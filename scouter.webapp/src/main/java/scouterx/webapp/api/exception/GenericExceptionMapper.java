@@ -112,7 +112,7 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
     }
 
 	private String getMessageWithCause(Throwable throwable) {
-		StringBuilder sb = new StringBuilder(throwable.getMessage());
+		StringBuilder sb = new StringBuilder().append(throwable.getMessage());
 		if (throwable.getCause() != null) {
 			sb.append(" [caused by] ").append(throwable.getCause().getMessage());
 		}

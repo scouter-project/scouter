@@ -141,7 +141,13 @@ class CounterService {
         dout.writeByte(TcpFlag.HasNEXT);
         dout.writePack(mpack);
     }
-    
+
+    /**
+      * get latest several counter's values for specific object type
+      * @param din MapPack{counter[], objType}
+      * @param dout MapPack{objHash[], counter[], value[]}
+      * @param login
+      */
     @ServiceHandler(RequestCmd.COUNTER_REAL_TIME_ALL_MULTI) 
     def getRealTimeAllMulti(din: DataInputX, dout: DataOutputX, login: Boolean) {
       val param = din.readPack().asInstanceOf[MapPack];

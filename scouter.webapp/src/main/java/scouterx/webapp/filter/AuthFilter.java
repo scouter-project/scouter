@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import scouterx.webapp.api.exception.ErrorState;
 import scouterx.webapp.configure.ConfigureAdaptor;
 import scouterx.webapp.configure.ConfigureManager;
-import scouterx.webapp.util.$$;
+import scouterx.webapp.util.ZZ;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -45,7 +45,7 @@ public class AuthFilter implements ContainerRequestFilter {
 
         //Check IP
         if (conf.isNetHttpApiAuthIpEnabled()) {
-            if (conf.getNetHttpApiAllowIps().stream().anyMatch(ip -> $$.getRequestIp(servletRequest).equals(ip))) {
+            if (conf.getNetHttpApiAllowIps().stream().anyMatch(ip -> ZZ.getRequestIp(servletRequest).equals(ip))) {
                 return;
             }
         }

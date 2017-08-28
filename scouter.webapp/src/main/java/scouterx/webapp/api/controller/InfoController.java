@@ -40,8 +40,7 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 public class InfoController {
     @NoAuth
-    @GET
-    @Path("/servers")
+    @GET @Path("/server")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<ServerView> retrieveServers() {
         List<ServerView> serverList = ServerManager.getInstance().getAllServerList().stream()

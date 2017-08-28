@@ -23,12 +23,16 @@ import scouterx.webapp.configure.ConfigureAdaptor;
 import scouterx.webapp.configure.ConfigureManager;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public class $$ {
+public class ZZ {
     private static final ConfigureAdaptor conf = ConfigureManager.getConfigure();
+    private static final char BRACKET = '[';
+    private static final char COMMA = ',';
 
     public static String getRequestIp(HttpServletRequest request) {
         if (StringUtils.isNotBlank(conf.getNetHttpApiAuthIpHeaderKey())) {
@@ -36,5 +40,25 @@ public class $$ {
         } else {
             return request.getRemoteAddr();
         }
+    }
+
+    public static String stripFirstLastBracket(String org) {
+        if (org.charAt(0) == BRACKET) {
+            return org.substring(1, org.length() - 1);
+        } else {
+            return org;
+        }
+    }
+
+    /**
+     * split string by comma and strip array bracket if exists
+     * eg) String : "[aaa, bbb]" -> List["aaa", "bbb"]
+     * eg) String : "aaa, bbb" -> List["aaa", "bbb"]
+     * @param org
+     * @return
+     */
+    public static List<String> splitParam(String org) {
+        org = stripFirstLastBracket(org);
+        return Arrays.asList(StringUtils.split(org, COMMA));
     }
 }
