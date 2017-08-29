@@ -41,7 +41,7 @@ public class ValidationExceptionMapper implements ExceptionMapper<javax.validati
 
 	@Override
 	public Response toResponse(javax.validation.ValidationException e) {
-        final StringBuilder strBuilder = new StringBuilder(e.getMessage()).append(" - ");
+        final StringBuilder strBuilder = new StringBuilder("[ValidationException] ");
         for (ConstraintViolation<?> cv : ((ConstraintViolationException) e).getConstraintViolations()) {
             strBuilder.append(cv.getPropertyPath().toString() + " " + cv.getMessage());
         }
