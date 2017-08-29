@@ -16,7 +16,7 @@
  *
  */
 
-package scouterx.webapp.api.controller.view;
+package scouterx.webapp.api.viewmodel;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

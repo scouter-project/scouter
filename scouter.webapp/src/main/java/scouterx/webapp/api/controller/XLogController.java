@@ -18,35 +18,42 @@
 
 package scouterx.webapp.api.controller;
 
-import scouterx.client.server.ServerManager;
-import scouterx.webapp.annotation.NoAuth;
-import scouterx.webapp.api.viewmodel.ServerView;
 import scouterx.webapp.api.fw.controller.ro.CommonResultView;
+import scouterx.webapp.api.model.counter.SCounter;
 
 import javax.inject.Singleton;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 28.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 29.
  */
-@Path("/v1/info")
+@Path("/v1/xlog")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
-public class InfoController {
-    @NoAuth
-    @GET @Path("/server")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<ServerView> retrieveServers() {
-        List<ServerView> serverList = ServerManager.getInstance().getAllServerList().stream()
-                .map(s -> new ServerView(s.getId(), s.getName(), s.isConnected(), System.currentTimeMillis()-s.getDelta()))
-                .collect(Collectors.toList());
+public class XLogController {
+    @Context
+    HttpServletRequest servletRequest;
 
-        return CommonResultView.success(serverList);
+//    private final CounterService counterService;
+//
+//    public CounterController() {
+//        this.counterService = new CounterService();
+//    }
+
+    @GET
+    @Path("/realTime/{objType}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<SCounter>> retrieveRealTimeXLog(
+            @PathParam("objType")  @Valid @NotNull final String objType,
+            @QueryParam("counters") @Valid @NotNull final String counterNameByCommaSeparator,
+            @QueryParam("serverId") final int serverId) {
+
+        return null;
     }
 }

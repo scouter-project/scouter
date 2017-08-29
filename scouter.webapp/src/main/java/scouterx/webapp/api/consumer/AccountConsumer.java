@@ -38,8 +38,8 @@ public class AccountConsumer {
      */
     public boolean login(final Server server, final SUser user) {
         MapPack param = new MapPack();
-        param.put(ParamConstant.ID, user.getId());
-        param.put(ParamConstant.PASS, CipherUtil.sha256(user.getPassword()));
+        param.put(ParamConstant.USER_ID, user.getId());
+        param.put(ParamConstant.USER_PASSWROD, CipherUtil.sha256(user.getPassword()));
 
         Value value = TcpProxy.getTcpProxy(server).getSingleValue(RequestCmd.CHECK_LOGIN, param);
         return ((BooleanValue) value).value;

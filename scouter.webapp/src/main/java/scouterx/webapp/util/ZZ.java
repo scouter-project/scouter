@@ -42,6 +42,24 @@ public class ZZ {
         }
     }
 
+    public static String ipByteToString(byte[] ip) {
+        if (ip == null)
+            return "0.0.0.0";
+        try {
+            StringBuffer sb = new StringBuffer();
+            sb.append(ip[0] & 0xff);
+            sb.append(".");
+            sb.append(ip[1] & 0xff);
+            sb.append(".");
+            sb.append(ip[2] & 0xff);
+            sb.append(".");
+            sb.append(ip[3] & 0xff);
+            return sb.toString();
+        } catch (Throwable e) {
+            return "0.0.0.0";
+        }
+    }
+
     public static String stripFirstLastBracket(String org) {
         if (org.charAt(0) == BRACKET) {
             return org.substring(1, org.length() - 1);

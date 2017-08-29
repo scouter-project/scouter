@@ -16,22 +16,22 @@
  *
  */
 
-package scouterx.client;
+package scouterx.webapp.api.viewmodel;
+
+import lombok.Getter;
+import lombok.Setter;
+import scouterx.webapp.api.model.SXLog;
+
+import java.util.List;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 28.
  */
-public class ParamConstant {
-    public static final String USER_ID = "id";
-    public static final String USER_PASSWROD = "pass";
-
-    public static final String OBJ_TYPE = "objType";
-    public static final String OBJ_HASH = "objHash";
-    public static final String COUNTER = "counter";
-    public static final String VALUE = "value";
-
-    public static final String XLOG_INDEX = "index";
-    public static final String XLOG_LOOP = "loop";
-    public static final String XLOG_LIMIT = "limit";
-
+@Getter
+@Setter
+public class RealTimeXLogView {
+    int serverId;
+    int xLogIndex;
+    long xLogLoop;
+    List<SXLog> xLogs;
 }
