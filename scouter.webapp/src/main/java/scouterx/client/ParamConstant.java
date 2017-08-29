@@ -32,6 +32,6 @@ public class ParamConstant {
 
     public static final String XLOG_INDEX = "index";
     public static final String XLOG_LOOP = "loop";
-    public static final String XLOG_LIMIT = "limit";
+    public static final String XLOG_LIMIT = "count";
 
 }

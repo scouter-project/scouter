@@ -18,17 +18,15 @@
 
 package scouterx.webapp.api.controller;
 
+import scouterx.client.server.ServerManager;
 import scouterx.webapp.api.fw.controller.ro.CommonResultView;
-import scouterx.webapp.api.model.counter.SCounter;
+import scouterx.webapp.api.service.XLogService;
+import scouterx.webapp.api.viewmodel.RealTimeXLogView;
+import scouterx.webapp.util.ZZ;
 
 import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 29.
@@ -37,23 +35,34 @@ import java.util.List;
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class XLogController {
-    @Context
-    HttpServletRequest servletRequest;
+    private final XLogService xLogService;
 
-//    private final CounterService counterService;
-//
-//    public CounterController() {
-//        this.counterService = new CounterService();
-//    }
+    public XLogController() {
+        this.xLogService = new XLogService();
+    }
 
-    @GET
-    @Path("/realTime/{objType}")
+    /**
+     * get values of several counters for given an object
+     * uri : /xlog/realTime/0/100?objHashes=10001,10002 or ?objHashes=[10001,100002]
+     * @param objHashByCommaSeparator
+     * @param serverId
+     */
+    @GET @Path("/realTime/{xLogLoop}/{xLogIndex}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<SCounter>> retrieveRealTimeXLog(
-            @PathParam("objType")  @Valid @NotNull final String objType,
-            @QueryParam("counters") @Valid @NotNull final String counterNameByCommaSeparator,
+    public CommonResultView<RealTimeXLogView> retrieveRealTimeXLog(
+            @QueryParam("objHashes") final String objHashByCommaSeparator,
+            @PathParam("xLogLoop") final int xLogLoop,
+            @PathParam("xLogIndex") final int xLogIndex,
             @QueryParam("serverId") final int serverId) {
 
-        return null;
+        Object o = ZZ.<Integer>splitParam(objHashByCommaSeparator);
+
+        RealTimeXLogView xLogView = xLogService.retrieveRealTimeXLog(
+                ServerManager.getInstance().getServer(serverId),
+                ZZ.splitParamAsInteger(objHashByCommaSeparator),
+                xLogIndex,
+                xLogLoop);
+
+        return CommonResultView.success(xLogView);
     }
 }

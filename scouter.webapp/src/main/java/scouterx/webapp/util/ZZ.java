@@ -25,6 +25,7 @@ import scouterx.webapp.configure.ConfigureManager;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -78,5 +79,11 @@ public class ZZ {
     public static List<String> splitParam(String org) {
         org = stripFirstLastBracket(org);
         return Arrays.asList(StringUtils.split(org, COMMA));
+    }
+
+    public static List<Integer> splitParamAsInteger(String org) {
+        org = stripFirstLastBracket(org);
+        String[] items = StringUtils.split(org, COMMA);
+        return Arrays.stream(items).map(Integer::parseInt).collect(Collectors.toList());
     }
 }

@@ -52,7 +52,7 @@ public class CounterController {
 
     /**
      * get values of several counters for objects given types
-     * uri : /realTime/each/counters/{objType}/byType?serverId=1001010&counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
+     * uri : /counter/realTime/each/counters/{objType}/byType?serverId=1001010&counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
      * @see scouter.lang.counters.CounterConstants
      * @param objType
      * @param counterNameByCommaSeparator
@@ -73,7 +73,7 @@ public class CounterController {
 
     /**
      * get values of several counters for given an object
-     * uri : /realTime/each/counters/{objHash}?counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
+     * uri : /counter/realTime/each/counters/{objHash}?counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
      * @see scouter.lang.counters.CounterConstants
      * @param objHash
      * @param counterNameByCommaSeparator

@@ -18,19 +18,20 @@
 
 package scouterx.webapp.api.consumer;
 
-import scouter.lang.pack.*;
+import scouter.lang.pack.MapPack;
+import scouter.lang.pack.Pack;
+import scouter.lang.pack.PackEnum;
+import scouter.lang.pack.XLogPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouterx.client.ParamConstant;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
-import scouterx.webapp.api.model.SObject;
 import scouterx.webapp.api.model.SXLog;
 import scouterx.webapp.api.viewmodel.RealTimeXLogView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -77,4 +78,5 @@ public class XLogConsumer {
         });
 
         return xLogView;
+    }
 }
