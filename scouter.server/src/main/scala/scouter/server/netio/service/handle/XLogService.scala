@@ -92,6 +92,12 @@ class XLogService {
         })
     }
 
+    /**
+      * get latest XLog data
+      * @param din MapPack{index, loop, objHash[]}
+      * @param dout {MapPack{loop, index}, XLogPack[]}
+      * @param login
+      */
     @ServiceHandler(RequestCmd.TRANX_REAL_TIME_GROUP)
     def getRealtimePerfGroup(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readMapPack();
@@ -132,7 +138,7 @@ class XLogService {
     /**
       * get latest XLog data
       * @param din MapPack{index, loop, count, objHash[]}
-      * @param dout [MapPack{loop, index}, byte[]} : byte array is XLog Pack
+      * @param dout {MapPack{loop, index}, XLogPack[]}
       * @param login
       */
     @ServiceHandler(RequestCmd.TRANX_REAL_TIME_GROUP_LATEST)
@@ -174,6 +180,12 @@ class XLogService {
 
     }
 
+    /**
+      * get past XLog data
+      * @param din MapPack{date, stime, etime, max, reverse, objHash[]}
+      * @param dout XLogPack[]
+      * @param login
+      */
     @ServiceHandler(RequestCmd.TRANX_LOAD_TIME_GROUP)
     def getHistoryPerfGroup(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readMapPack();
