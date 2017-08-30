@@ -159,6 +159,8 @@ public class Configure extends Thread {
 	public String plugin_dir = "./plugin";
 	@ConfigDesc("Path to client related directory")
 	public String client_dir = "./client";
+	@ConfigDesc("temp dir")
+	public String temp_dir = "./tempdata";
 
 	//Object
 	@ConfigDesc("Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
@@ -349,6 +351,7 @@ public class Configure extends Thread {
 		this.log_dir = getValue("log_dir", "./logs");
 		this.plugin_dir = getValue("plugin_dir", "./plugin");
 		this.client_dir = getValue("client_dir", "./client");
+		this.temp_dir = getValue("temp_dir", "./tempdata");
 
 		this.object_deadtime_ms = getInt("object_deadtime_ms", 8000);
 

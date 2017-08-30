@@ -80,6 +80,9 @@ public class StandAloneConfigure extends Thread {
 	@ConfigDesc("Keeping period of log")
 	public int log_keep_days = 30;
 
+	@ConfigDesc("temp dir")
+	public String temp_dir = "./tempdata";
+
 	private StandAloneConfigure() {
 		Properties p = new Properties();
 		Map args = new HashMap();
@@ -169,6 +172,8 @@ public class StandAloneConfigure extends Thread {
 
 		this.log_dir = getValue("log_dir", "./logs");
 		this.log_keep_days = getInt("log_keep_days", 30);
+
+		this.temp_dir = getValue("temp_dir", "./tempdata");
 	}
 
 	public List<ServerConfig> getServerConfigs() {

@@ -29,6 +29,29 @@ import scouter.server.db.io.IndexTimeFile
 
 object XLogRD {
 
+    /**
+      * TODO
+      */
+    def readByTxidToTime(date: String, fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any) {
+        val path = XLogWR.getDBPath(date);
+        if (new File(path).canRead()) {
+            val file = path + "/" + XLogWR.prefix;
+            var reader: XLogDataReader = null;
+            var table: IndexTimeFile = null;
+            try {
+                reader = XLogDataReader.open(date, file);
+                table = new IndexTimeFile(file + XLogIndex.POSTFIX_TIME);
+                table.read(fromTime, toTime, handler, reader.read)
+            } catch {
+                case e: Exception => e.printStackTrace()
+                case _ :Throwable=>
+            } finally {
+                FileUtil.close(table);
+                FileUtil.close(reader);
+            }
+        }
+    }
+
     def readByTime(date: String, fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any) {
         val path = XLogWR.getDBPath(date);
         if (new File(path).canRead()) {

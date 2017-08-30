@@ -19,13 +19,23 @@
 package scouterx.webapp.api.controller;
 
 import scouterx.client.server.ServerManager;
+import scouterx.webapp.api.exception.ErrorState;
 import scouterx.webapp.api.fw.controller.ro.CommonResultView;
+import scouterx.webapp.api.requestmodel.XLogByTokenRequest;
+import scouterx.webapp.api.requestmodel.XLogTokenRequest;
 import scouterx.webapp.api.service.XLogService;
 import scouterx.webapp.api.viewmodel.RealTimeXLogView;
 import scouterx.webapp.util.ZZ;
 
 import javax.inject.Singleton;
-import javax.ws.rs.*;
+import javax.validation.Valid;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -35,34 +45,70 @@ import javax.ws.rs.core.MediaType;
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class XLogController {
-    private final XLogService xLogService;
+	private final XLogService xLogService;
 
-    public XLogController() {
-        this.xLogService = new XLogService();
-    }
+	public XLogController() {
+		this.xLogService = new XLogService();
+	}
 
-    /**
-     * get values of several counters for given an object
-     * uri : /xlog/realTime/0/100?objHashes=10001,10002 or ?objHashes=[10001,100002]
-     * @param objHashByCommaSeparator
-     * @param serverId
-     */
-    @GET @Path("/realTime/{xLogLoop}/{xLogIndex}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<RealTimeXLogView> retrieveRealTimeXLog(
-            @QueryParam("objHashes") final String objHashByCommaSeparator,
-            @PathParam("xLogLoop") final int xLogLoop,
-            @PathParam("xLogIndex") final int xLogIndex,
-            @QueryParam("serverId") final int serverId) {
+	/**
+	 * get values of several counters for given an object
+	 * uri : /xlog/realTime/0/100?objHashes=10001,10002 or ?objHashes=[10001,100002]
+	 *
+	 * @param objHashByCommaSeparator
+	 * @param serverId
+	 */
+	@GET
+	@Path("/realTime/{xLogLoop}/{xLogIndex}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public CommonResultView<RealTimeXLogView> retrieveRealTimeXLog(
+			@QueryParam("objHashes") final String objHashByCommaSeparator,
+			@PathParam("xLogLoop") final int xLogLoop,
+			@PathParam("xLogIndex") final int xLogIndex,
+			@QueryParam("serverId") final int serverId) {
 
-        Object o = ZZ.<Integer>splitParam(objHashByCommaSeparator);
+		Object o = ZZ.<Integer>splitParam(objHashByCommaSeparator);
 
-        RealTimeXLogView xLogView = xLogService.retrieveRealTimeXLog(
-                ServerManager.getInstance().getServer(serverId),
-                ZZ.splitParamAsInteger(objHashByCommaSeparator),
-                xLogIndex,
-                xLogLoop);
+		RealTimeXLogView xLogView = xLogService.retrieveRealTimeXLog(
+				ServerManager.getInstance().getServer(serverId),
+				ZZ.splitParamAsInteger(objHashByCommaSeparator),
+				xLogIndex,
+				xLogLoop);
 
-        return CommonResultView.success(xLogView);
-    }
+		return CommonResultView.success(xLogView);
+	}
+
+	/**
+	 * request xlog token for range request.
+	 * uri : /xlog/{date}?date=20001010...
+	 * @param xLogRequest
+	 * @return requestToken
+	 * @see XLogTokenRequest
+	 */
+	@GET
+	@Path("/{date}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public CommonResultView<String> requestXLogToken(@Valid @BeanParam XLogTokenRequest xLogRequest) {
+		String requestToken = xLogService.requestXLogToken(xLogRequest);
+		return CommonResultView.success(requestToken);
+	}
+
+	/**
+	 * request xlog by token
+	 * uri : /xlog/token/{requestToken}?pageCount=3000
+	 * @param xLogByTokenRequest
+	 * @return ?
+	 * @see XLogByTokenRequest
+	 */
+	@GET
+	@Path("/token/{requestToken}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public CommonResultView<String> requestXLogsByToken(@Valid @BeanParam XLogByTokenRequest xLogByTokenRequest) {
+		//hasnext
+//		String requestToken = xLogService.requestXLogToken(xLogRequest)
+//		return CommonResultView.success(requestToken);
+		ErrorState.throwNotImplementedException();
+		return null;
+	}
+
 }

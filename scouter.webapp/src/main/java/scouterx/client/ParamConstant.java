@@ -29,9 +29,13 @@ public class ParamConstant {
     public static final String OBJ_HASH = "objHash";
     public static final String COUNTER = "counter";
     public static final String VALUE = "value";
+    public static final String DATE = "date";
 
     public static final String XLOG_INDEX = "index";
     public static final String XLOG_LOOP = "loop";
-    public static final String XLOG_LIMIT = "count";
+    public static final String XLOG_MAX_COUN = "count";
+    public static final String XLOG_START_TIME = "stime";
+    public static final String XLOG_END_TIME = "etime";
+    public static final String XLOG_MAX_COUNT = "max";
 
 }

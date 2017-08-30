@@ -16,23 +16,23 @@
  *
  */
 
-package scouterx.webapp.configure;
+package scouterx.webapp.api.requestmodel;
 
-import java.util.List;
-import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import scouterx.webapp.api.model.SUser;
+
+import javax.validation.constraints.NotNull;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 26.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public interface ConfigureAdaptor {
-    String getLogDir();
-    int getLogKeepDays();
-    int getNetHttpPort();
-    boolean isNetHttpApiAuthIpEnabled();
-    boolean isNetHttpApiAuthSessionEnabled();
-    Set<String> getNetHttpApiAllowIps();
-    String getNetHttpApiAuthIpHeaderKey();
-    int getNetHttpApiSessionTimeout();
-    List<ServerConfig> getServerConfigs();
-    String getTempDir();
+@Getter
+@Setter
+@ToString
+public class LoginRequest {
+    int serverId;
+    @NotNull
+    SUser user;
 }

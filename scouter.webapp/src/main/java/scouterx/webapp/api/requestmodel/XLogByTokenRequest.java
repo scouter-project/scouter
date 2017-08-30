@@ -16,23 +16,33 @@
  *
  */
 
-package scouterx.webapp.api.controller.request;
+package scouterx.webapp.api.requestmodel;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import scouterx.webapp.api.model.SUser;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 30.
  */
 @Getter
 @Setter
 @ToString
-public class LoginRequest {
-    int serverId;
+public class XLogByTokenRequest {
+    public static final int MAX_PAGE = 10_000;
+    public static final int DEFAULT_PAGE_COUNT = 3_000;
+
     @NotNull
-    SUser user;
+    @PathParam("requestToken")
+    String requestToken;
+
+    @Max(MAX_PAGE)
+    @QueryParam("pageCount")
+    int pageCount = DEFAULT_PAGE_COUNT;
+
 }

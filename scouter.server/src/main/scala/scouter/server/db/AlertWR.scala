@@ -43,7 +43,7 @@ object AlertWR {
         while (DBCtr.running) {
             val p = queue.get()
             try {
-           
+
                 if (currentDateUnit != DateUtil.getDateUnit(p.time)) {
                     currentDateUnit = DateUtil.getDateUnit(p.time)
                     close()

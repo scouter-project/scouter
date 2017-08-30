@@ -85,4 +85,9 @@ public class EmbeddedConfigureAdaptor implements ConfigureAdaptor {
         ServerConfig serverConfig = new ServerConfig("127.0.0.1", String.valueOf(conf.net_tcp_listen_port), NetConstants.LOCAL_ID, NetConstants.LOCAL_ID);
         return Arrays.asList(serverConfig);
     }
+
+    @Override
+    public String getTempDir() {
+        return conf.temp_dir;
+    }
 }

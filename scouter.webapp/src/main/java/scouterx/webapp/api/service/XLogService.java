@@ -20,8 +20,11 @@ package scouterx.webapp.api.service;
 
 import scouterx.client.server.Server;
 import scouterx.webapp.api.consumer.XLogConsumer;
+import scouterx.webapp.api.requestmodel.XLogTokenRequest;
 import scouterx.webapp.api.viewmodel.RealTimeXLogView;
 
+import javax.validation.Valid;
+import javax.ws.rs.BeanParam;
 import java.util.List;
 
 /**
@@ -39,5 +42,12 @@ public class XLogService {
      */
     public RealTimeXLogView retrieveRealTimeXLog(final Server server, List<Integer> objHashes, int xLogIndex, long xLogLoop) {
         return xLogConsumer.retrieveRealTimeXLog(server, objHashes, xLogIndex, xLogLoop);
+    }
+
+    /**
+     * request xlog request token for range request
+     */
+    public String requestXLogToken(@Valid @BeanParam XLogTokenRequest xLogRequest) {
+        return xLogConsumer.requestXLogToken(xLogRequest);
     }
 }

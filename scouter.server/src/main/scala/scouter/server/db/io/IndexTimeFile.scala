@@ -213,6 +213,40 @@ class IndexTimeFile(_path: String) extends IClose {
         }
     }
 
+    /**
+      * TODO do it !!!!!!!!!!!!
+      * @param _stime
+      * @param etime
+      * @param limitCount
+      * @param handler
+      * @param reader
+      * @return time last searched
+      */
+    def readByLimit(_stime: Long, etime: Long, limitCount: Int, handler: (Long, Array[Byte]) => Any, reader: (Long) => Array[Byte]): Long = {
+        if (this.keyFile == null)
+            return 0
+
+        var i = 0
+        var stime = _stime
+        var counted = 0
+
+        while (i < DateUtil.SECONDS_PER_DAY * 2 && stime <= etime) {
+            val data = getSecAll(stime);
+
+            EnumerScala.forward(data, (tv: TimeToData) => {
+                if (tv.time >= _stime && tv.time <= etime) {
+                    counted += 1
+                    handler(tv.time, reader(DataInputX.toLong5(tv.dataPos, 0)))
+                }
+            })
+
+            i += 1
+            stime += 500L
+        }
+
+        return stime
+    }
+
     def readFromEnd(stime: Long, _etime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long) => Array[Byte]) {
         if (this.keyFile == null)
             return

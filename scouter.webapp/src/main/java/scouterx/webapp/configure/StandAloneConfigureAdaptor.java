@@ -81,4 +81,9 @@ public class StandAloneConfigureAdaptor implements ConfigureAdaptor {
     public List<ServerConfig> getServerConfigs() {
         return conf.getServerConfigs();
     }
+
+    @Override
+    public String getTempDir() {
+        return conf.temp_dir;
+    }
 }
