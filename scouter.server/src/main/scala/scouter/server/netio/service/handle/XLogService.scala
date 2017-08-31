@@ -25,8 +25,7 @@ import scouter.lang.pack.Pack
 import scouter.lang.pack.PackEnum
 import scouter.lang.pack.XLogPack
 import scouter.lang.pack.XLogProfilePack
-import scouter.lang.value.DecimalValue
-import scouter.lang.value.ListValue
+import scouter.lang.value.{BlobValue, DecimalValue, ListValue, Value}
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.net.RequestCmd
@@ -44,10 +43,10 @@ import scouter.util.IPUtil
 import scouter.util.IntSet
 import scouter.util.StrMatch
 import java.io.IOException
+
 import scouter.server.db.TextRD
 import scouter.server.util.EnumerScala
 import sun.security.provider.certpath.ForwardBuilder
-import scouter.lang.value.Value
 import scouter.util.CastUtil
 
 class XLogService {
@@ -208,7 +207,6 @@ class XLogService {
 
         var cnt = 0;
         val handler = (time: Long, data: Array[Byte]) => {
-
             val x = new DataInputX(data).readPack().asInstanceOf[XLogPack];
             if (objHashSet.contains(x.objHash) && x.elapsed > limit) {
                 dout.writeByte(TcpFlag.HasNEXT);
@@ -225,6 +223,54 @@ class XLogService {
             XLogRD.readFromEndTime(date, stime, etime, handler)
         } else {
             XLogRD.readByTime(date, stime, etime, handler);
+        }
+    }
+
+    /**
+      * get past XLog data
+      * @param din MapPack{date, stime, etime, max, objHash[]}
+      * @param dout XLogPack[]
+      * @param login
+      */
+    @ServiceHandler(RequestCmd.TRANX_LOAD_TIME_GROUP_V2)
+    def getHistoryPerfGroupV2(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack()
+        val date = param.getText("date")
+        val stime = param.getLong("stime")
+        val etime = param.getLong("etime")
+        val limitCount = param.getInt("max")
+        val objHashLv = param.getList("objHash")
+        if (objHashLv == null || objHashLv.size() < 1) {
+            return
+        }
+
+        val objHashSet = new IntSet()
+        EnumerScala.foreach(objHashLv, (obj: DecimalValue) => {
+            objHashSet.add(obj.intValue())
+        })
+
+        var lastTime = 0L
+        var lastData: Array[Byte] = null
+
+        val handler = (time: Long, data: Array[Byte]) => {
+            val x = new DataInputX(data).readPack().asInstanceOf[XLogPack];
+            if (objHashSet.contains(x.objHash)) {
+                dout.writeByte(TcpFlag.HasNEXT)
+                dout.write(data)
+                dout.flush()
+                lastTime = time
+                lastData = data
+            }
+        }
+        XLogRD.readByTimeLimitCount(date, stime, etime, limitCount, handler)
+
+        if(lastTime > 0L) {
+            val outPack = new MapPack();
+            outPack.put("lastTime", new DecimalValue(lastTime))
+            outPack.put("lastData", new BlobValue(lastData))
+
+            dout.writeByte(TcpFlag.HasNEXT)
+            dout.writePack(outPack)
         }
     }
 

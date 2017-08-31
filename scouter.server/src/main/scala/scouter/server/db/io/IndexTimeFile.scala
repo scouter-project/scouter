@@ -23,6 +23,7 @@ package scouter.server.db.io
 import java.io.IOException
 import java.util.ArrayList
 import java.util.TreeSet
+
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.server.Logger
@@ -31,6 +32,8 @@ import scouter.util.BytesUtil
 import scouter.util.CompareUtil
 import scouter.util.DateUtil
 import scouter.util.IClose
+
+import scala.collection.mutable.ListBuffer
 
 /**
   * timestamp(long) based index file
@@ -67,6 +70,23 @@ class IndexTimeFile(_path: String) extends IClose {
             pos = this.keyFile.getPrevPos(pos);
         }
         return new ArrayList[TimeToData](set);
+    }
+
+    private def getSecAllV2(time: Long): List[TimeToData] = {
+        if (time <= 0) {
+            throw new IOException("invalid key")
+        }
+        var buffer = new ListBuffer[TimeToData]()
+        var pos = timeBlockHash.get(time)
+        while (pos > 0) {
+            if (this.keyFile.isDeleted(pos) == false) {
+                val record = this.keyFile.getRecord(pos)
+                buffer += new TimeToData(DataInputX.toLong(record.timeKey, 0), record.dataPos)
+            }
+            pos = this.keyFile.getPrevPos(pos)
+        }
+
+        return buffer.toList
     }
 
     private def getDataPosFirst(_stime: Long, _etime: Long): Array[Byte] = {
@@ -214,7 +234,7 @@ class IndexTimeFile(_path: String) extends IClose {
     }
 
     /**
-      * TODO do it !!!!!!!!!!!!
+      * read xlog index and invoke a data handler received.
       * @param _stime
       * @param etime
       * @param limitCount
@@ -222,29 +242,31 @@ class IndexTimeFile(_path: String) extends IClose {
       * @param reader
       * @return time last searched
       */
-    def readByLimit(_stime: Long, etime: Long, limitCount: Int, handler: (Long, Array[Byte]) => Any, reader: (Long) => Array[Byte]): Long = {
+    def readByLimitCount(_stime: Long, etime: Long, limitCount: Int, handler: (Long, Array[Byte]) => Any, reader: (Long) => Array[Byte]): Long = {
         if (this.keyFile == null)
             return 0
-
-        var i = 0
-        var stime = _stime
+        var timeBucketTime = _stime
         var counted = 0
 
-        while (i < DateUtil.SECONDS_PER_DAY * 2 && stime <= etime) {
-            val data = getSecAll(stime);
+        //TODO gogogo
+        while (i < DateUtil.SECONDS_PER_DAY * 2 && timeBucketTime <= etime) {
+            val timeToData = getSecAllV2(timeBucketTime)
+            timeToData.filter()
 
             EnumerScala.forward(data, (tv: TimeToData) => {
                 if (tv.time >= _stime && tv.time <= etime) {
                     counted += 1
+                    if(counted > limitCount) {
+                        return
+                    }
                     handler(tv.time, reader(DataInputX.toLong5(tv.dataPos, 0)))
                 }
             })
 
-            i += 1
-            stime += 500L
+            timeBucketTime += 500L
         }
 
-        return stime
+        return timeBucketTime
     }
 
     def readFromEnd(stime: Long, _etime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long) => Array[Byte]) {
