@@ -16,24 +16,18 @@
  *
  */
 
-package scouterx.webapp.api.requestmodel;
+package scouterx.webapp.api.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import scouterx.webapp.api.model.SUser;
-
-import javax.validation.constraints.NotNull;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 1.
  */
 @Getter
-@Setter
-@ToString
-public class LoginRequest {
-    private int serverId;
-
-    @NotNull
-    private SUser user;
+@AllArgsConstructor
+public class SDictionaryText {
+    String textType;
+    int hash;
+    String text;
 }
