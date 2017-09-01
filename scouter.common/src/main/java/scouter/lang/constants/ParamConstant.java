@@ -16,7 +16,7 @@
  *
  */
 
-package scouterx.client;
+package scouter.lang.constants;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 28.
@@ -33,9 +33,17 @@ public class ParamConstant {
 
     public static final String XLOG_INDEX = "index";
     public static final String XLOG_LOOP = "loop";
-    public static final String XLOG_MAX_COUN = "count";
+    public static final String XLOG_COUNT = "count";
+    public static final String XLOG_MAX_COUNT = "max";
     public static final String XLOG_START_TIME = "stime";
     public static final String XLOG_END_TIME = "etime";
-    public static final String XLOG_MAX_COUNT = "max";
+    public static final String XLOG_LAST_BUCKET_TIME = "lastBucketTime";
+    public static final String XLOG_PAGE_COUNT = "pageCount";
+
+    public static final String XLOG_TXID = "txid";
+
+    public static final String XLOG_RESULT_LAST_TIME = "lastXLogTime";
+    public static final String XLOG_RESULT_LAST_TXID = "lastTxid";
+    public static final String XLOG_RESULT_HAS_MORE = "hasMore";
 
 }

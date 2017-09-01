@@ -30,9 +30,9 @@ import scouter.server.db.io.IndexTimeFile
 object XLogRD {
 
     /**
-      * read xlog in limited count
+      * read xlog in limited count in time
       */
-    def readByTimeLimitCount(date: String, fromTime: Long, toTime: Long, limitCount: Int, handler: (Long, Array[Byte]) => Any) {
+    def readByTimeLimitCount(date: String, fromTime: Long, toTime: Long, lastBucketTime: Long, limitCount: Int, handler: (Long, Array[Byte]) => Int) {
         val path = XLogWR.getDBPath(date);
         if (new File(path).canRead()) {
             val file = path + "/" + XLogWR.prefix;
@@ -41,7 +41,7 @@ object XLogRD {
             try {
                 reader = XLogDataReader.open(date, file);
                 table = new IndexTimeFile(file + XLogIndex.POSTFIX_TIME);
-                table.readByLimitCount(fromTime, toTime, limitCount, handler, reader.read)
+                table.readByLimitCount(fromTime, toTime, lastBucketTime, limitCount, handler, reader.read)
             } catch {
                 case e: Exception => e.printStackTrace()
                 case _ :Throwable=>

@@ -21,9 +21,10 @@ package scouterx.webapp.api.controller;
 import scouterx.client.server.ServerManager;
 import scouterx.webapp.api.exception.ErrorState;
 import scouterx.webapp.api.fw.controller.ro.CommonResultView;
+import scouterx.webapp.api.requestmodel.PageableXLogRequest;
 import scouterx.webapp.api.requestmodel.XLogByTokenRequest;
-import scouterx.webapp.api.requestmodel.XLogTokenRequest;
 import scouterx.webapp.api.service.XLogService;
+import scouterx.webapp.api.viewmodel.PageableXLogView;
 import scouterx.webapp.api.viewmodel.RealTimeXLogView;
 import scouterx.webapp.util.ZZ;
 
@@ -80,17 +81,18 @@ public class XLogController {
 
 	/**
 	 * request xlog token for range request.
-	 * uri : /xlog/{date}?date=20001010...
+	 * uri : /xlog/{date}?startTime=... @see {@link PageableXLogRequest}
+	 *
 	 * @param xLogRequest
-	 * @return requestToken
-	 * @see XLogTokenRequest
+	 * @return PageableXLogView @see {@link PageableXLogView}
 	 */
 	@GET
 	@Path("/{date}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public CommonResultView<String> requestXLogToken(@Valid @BeanParam XLogTokenRequest xLogRequest) {
-		String requestToken = xLogService.requestXLogToken(xLogRequest);
-		return CommonResultView.success(requestToken);
+	public CommonResultView<PageableXLogView> retrievePageableXLog(@Valid @BeanParam PageableXLogRequest xLogRequest) {
+
+		PageableXLogView view = xLogService.retrievePageableXLog(xLogRequest);
+		return CommonResultView.success(view);
 	}
 
 	/**

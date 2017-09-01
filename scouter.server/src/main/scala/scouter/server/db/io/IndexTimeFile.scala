@@ -235,38 +235,32 @@ class IndexTimeFile(_path: String) extends IClose {
 
     /**
       * read xlog index and invoke a data handler received.
-      * @param _stime
+      * @param stime
       * @param etime
       * @param limitCount
       * @param handler
       * @param reader
       * @return time last searched
       */
-    def readByLimitCount(_stime: Long, etime: Long, limitCount: Int, handler: (Long, Array[Byte]) => Any, reader: (Long) => Array[Byte]): Long = {
+    def readByLimitCount(stime: Long, etime: Long, lastBucketTime: Long, limitCount: Int, handler: (Long, Array[Byte]) => Int, reader: (Long) => Array[Byte]) {
         if (this.keyFile == null)
-            return 0
-        var timeBucketTime = _stime
+            return
+
+        var timeBucketTime = if(lastBucketTime != 0) lastBucketTime else stime
         var counted = 0
+        var timeBucketCount = 0
 
-        //TODO gogogo
-        while (i < DateUtil.SECONDS_PER_DAY * 2 && timeBucketTime <= etime) {
-            val timeToData = getSecAllV2(timeBucketTime)
-            timeToData.filter()
-
-            EnumerScala.forward(data, (tv: TimeToData) => {
-                if (tv.time >= _stime && tv.time <= etime) {
-                    counted += 1
-                    if(counted > limitCount) {
-                        return
-                    }
-                    handler(tv.time, reader(DataInputX.toLong5(tv.dataPos, 0)))
+        while (timeBucketCount < DateUtil.SECONDS_PER_DAY * 2 && timeBucketTime <= etime) {
+            getSecAllV2(timeBucketTime).filter(tv => tv.time >= stime && tv.time <= etime).foreach(tv => {
+                if(counted > limitCount) {
+                    return
                 }
+                counted = handler(timeBucketTime, reader(DataInputX.toLong5(tv.dataPos, 0)))
             })
 
+            timeBucketCount += 1
             timeBucketTime += 500L
         }
-
-        return timeBucketTime
     }
 
     def readFromEnd(stime: Long, _etime: Long, handler: (Long, Array[Byte]) => Any, reader: (Long) => Array[Byte]) {

@@ -20,11 +20,10 @@ package scouterx.webapp.api.service;
 
 import scouterx.client.server.Server;
 import scouterx.webapp.api.consumer.XLogConsumer;
-import scouterx.webapp.api.requestmodel.XLogTokenRequest;
+import scouterx.webapp.api.requestmodel.PageableXLogRequest;
+import scouterx.webapp.api.viewmodel.PageableXLogView;
 import scouterx.webapp.api.viewmodel.RealTimeXLogView;
 
-import javax.validation.Valid;
-import javax.ws.rs.BeanParam;
 import java.util.List;
 
 /**
@@ -45,9 +44,9 @@ public class XLogService {
     }
 
     /**
-     * request xlog request token for range request
+     * retrieve XLog List for paging access
      */
-    public String requestXLogToken(@Valid @BeanParam XLogTokenRequest xLogRequest) {
-        return xLogConsumer.requestXLogToken(xLogRequest);
+    public PageableXLogView retrievePageableXLog(PageableXLogRequest xLogRequest) {
+        return xLogConsumer.retrievePageableXLog(xLogRequest);
     }
 }

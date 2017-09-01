@@ -18,12 +18,12 @@
 
 package scouterx.webapp.api.consumer;
 
+import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.BooleanValue;
 import scouter.lang.value.Value;
 import scouter.net.RequestCmd;
 import scouter.util.CipherUtil;
-import scouterx.client.ParamConstant;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
 import scouterx.webapp.api.model.SUser;

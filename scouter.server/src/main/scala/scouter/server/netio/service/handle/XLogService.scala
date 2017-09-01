@@ -25,7 +25,7 @@ import scouter.lang.pack.Pack
 import scouter.lang.pack.PackEnum
 import scouter.lang.pack.XLogPack
 import scouter.lang.pack.XLogProfilePack
-import scouter.lang.value.{BlobValue, DecimalValue, ListValue, Value}
+import scouter.lang.value._
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.net.RequestCmd
@@ -44,6 +44,7 @@ import scouter.util.IntSet
 import scouter.util.StrMatch
 import java.io.IOException
 
+import scouter.lang.constants.ParamConstant
 import scouter.server.db.TextRD
 import scouter.server.util.EnumerScala
 import sun.security.provider.certpath.ForwardBuilder
@@ -227,20 +228,37 @@ class XLogService {
     }
 
     /**
-      * get past XLog data
-      * @param din MapPack{date, stime, etime, max, objHash[]}
+      * get past XLog data by time & object
+      *
+      * date - String: yyyymmdd
+      * stime - long: scan start time (ms)
+      * etime - long: scan end time (ms)
+      * pageCount - xlog count to get a time
+      * lastBucketTime - from previous paging result
+      * txid - (last xlog txid) from previous paging result
+      * objHash[] - object hashes to retrieve xlog
+      * @param din MapPack{date, stime, etime, pageCount, lastBucketTime, txid, objHash[]}
       * @param dout XLogPack[]
       * @param login
       */
     @ServiceHandler(RequestCmd.TRANX_LOAD_TIME_GROUP_V2)
     def getHistoryPerfGroupV2(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readMapPack()
-        val date = param.getText("date")
-        val stime = param.getLong("stime")
-        val etime = param.getLong("etime")
-        val limitCount = param.getInt("max")
-        val objHashLv = param.getList("objHash")
+        val date = param.getText(ParamConstant.DATE)
+        val stime = param.getLong(ParamConstant.XLOG_START_TIME)
+        val etime = param.getLong(ParamConstant.XLOG_END_TIME)
+        val lastBucketTime = param.getLong(ParamConstant.XLOG_LAST_BUCKET_TIME)
+        val txid = param.getLong(ParamConstant.XLOG_TXID)
+        val limitCount = param.getInt(ParamConstant.XLOG_PAGE_COUNT)
+        val objHashLv = param.getList(ParamConstant.OBJ_HASH)
+
         if (objHashLv == null || objHashLv.size() < 1) {
+            return
+        }
+        if((txid == 0 && lastBucketTime != 0) || (txid != 0 && lastBucketTime == 0)) {
+            return
+        }
+        if(limitCount == 0) {
             return
         }
 
@@ -250,27 +268,48 @@ class XLogService {
         })
 
         var lastTime = 0L
-        var lastData: Array[Byte] = null
+        var lastData: XLogPack = null
+        var count: Int = 0;
 
-        val handler = (time: Long, data: Array[Byte]) => {
-            val x = new DataInputX(data).readPack().asInstanceOf[XLogPack];
-            if (objHashSet.contains(x.objHash)) {
-                dout.writeByte(TcpFlag.HasNEXT)
-                dout.write(data)
-                dout.flush()
-                lastTime = time
-                lastData = data
-            }
+        var start = true
+        if(txid != 0L) {
+            start = false
         }
-        XLogRD.readByTimeLimitCount(date, stime, etime, limitCount, handler)
+
+        var hasMore = false
+
+        val handler = (time: Long, data: Array[Byte]) =>  {
+            val xLog = new DataInputX(data).readPack().asInstanceOf[XLogPack]
+            if(!start) {
+                if(xLog.txid == txid) {
+                    start = true
+                }
+            } else {
+                if (objHashSet.contains(xLog.objHash)) {
+                    if(count < limitCount) {
+                        dout.writeByte(TcpFlag.HasNEXT)
+                        dout.write(data)
+                        dout.flush()
+                        lastTime = time
+                        lastData = xLog
+                    } else {
+                        hasMore = true
+                    }
+                    count += 1
+                }
+            }
+            count
+        }
+        XLogRD.readByTimeLimitCount(date, stime, etime, lastBucketTime, limitCount, handler)
 
         if(lastTime > 0L) {
-            val outPack = new MapPack();
-            outPack.put("lastTime", new DecimalValue(lastTime))
-            outPack.put("lastData", new BlobValue(lastData))
+            val metaPack = new MapPack();
+            metaPack.put(ParamConstant.XLOG_RESULT_HAS_MORE, new BooleanValue(hasMore))
+            metaPack.put(ParamConstant.XLOG_RESULT_LAST_TIME, new DecimalValue(lastTime))
+            metaPack.put(ParamConstant.XLOG_RESULT_LAST_TXID, new DecimalValue(lastData.txid))
 
             dout.writeByte(TcpFlag.HasNEXT)
-            dout.writePack(outPack)
+            dout.writePack(metaPack)
         }
     }
 

@@ -18,11 +18,11 @@
 
 package scouterx.webapp.api.consumer;
 
+import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
-import scouterx.client.ParamConstant;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
 import scouterx.webapp.api.model.counter.SCounter;
