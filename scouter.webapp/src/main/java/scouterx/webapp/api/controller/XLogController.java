@@ -19,10 +19,8 @@
 package scouterx.webapp.api.controller;
 
 import scouterx.client.server.ServerManager;
-import scouterx.webapp.api.exception.ErrorState;
 import scouterx.webapp.api.fw.controller.ro.CommonResultView;
 import scouterx.webapp.api.requestmodel.PageableXLogRequest;
-import scouterx.webapp.api.requestmodel.XLogByTokenRequest;
 import scouterx.webapp.api.service.XLogService;
 import scouterx.webapp.api.viewmodel.PageableXLogView;
 import scouterx.webapp.api.viewmodel.RealTimeXLogView;
@@ -94,23 +92,4 @@ public class XLogController {
 		PageableXLogView view = xLogService.retrievePageableXLog(xLogRequest);
 		return CommonResultView.success(view);
 	}
-
-	/**
-	 * request xlog by token
-	 * uri : /xlog/token/{requestToken}?pageCount=3000
-	 * @param xLogByTokenRequest
-	 * @return ?
-	 * @see XLogByTokenRequest
-	 */
-	@GET
-	@Path("/token/{requestToken}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public CommonResultView<String> requestXLogsByToken(@Valid @BeanParam XLogByTokenRequest xLogByTokenRequest) {
-		//hasnext
-//		String requestToken = xLogService.requestXLogToken(xLogRequest)
-//		return CommonResultView.success(requestToken);
-		ErrorState.throwNotImplementedException();
-		return null;
-	}
-
 }
