@@ -26,9 +26,10 @@ import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
+import scouterx.client.net.INetReader;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
-import scouterx.webapp.api.model.SXLog;
+import scouterx.webapp.api.model.SXlog;
 import scouterx.webapp.api.requestmodel.PageableXLogRequest;
 import scouterx.webapp.api.viewmodel.PageableXLogView;
 import scouterx.webapp.api.viewmodel.RealTimeXLogView;
@@ -41,6 +42,35 @@ import java.util.List;
  */
 @Slf4j
 public class XLogConsumer {
+
+    /**
+     * handle realtime xlog
+     */
+    public void handleRealTimeXLog(final Server server, List<Integer> objHashes, int xLogIndex, long xLogLoop, INetReader reader) {
+        boolean isFirst = false;
+        int firstRetrieveLimit = 5000;
+
+        if (xLogIndex == 0 && xLogLoop == 0) {
+            isFirst = true;
+        }
+        String cmd = isFirst ? RequestCmd.TRANX_REAL_TIME_GROUP_LATEST : RequestCmd.TRANX_REAL_TIME_GROUP;
+
+        MapPack paramPack = new MapPack();
+        paramPack.put(ParamConstant.XLOG_INDEX, xLogIndex);
+        paramPack.put(ParamConstant.XLOG_LOOP, xLogLoop);
+        paramPack.put(ParamConstant.XLOG_COUNT, firstRetrieveLimit);
+
+        ListValue objHashLv = paramPack.newList(ParamConstant.OBJ_HASH);
+        for (Integer hash : objHashes) {
+            objHashLv.add(hash);
+        }
+
+        RealTimeXLogView xLogView = new RealTimeXLogView();
+        List<SXlog> xLogList = new ArrayList<>();
+        xLogView.setxLogs(xLogList);
+
+        TcpProxy.getTcpProxy(server).process(cmd, paramPack, reader);
+    }
 
     /**
      * retrieve realtime xlog
@@ -65,19 +95,19 @@ public class XLogConsumer {
         }
 
         RealTimeXLogView xLogView = new RealTimeXLogView();
-        List<SXLog> xLogList = new ArrayList<>();
-        xLogView.setXLogs(xLogList);
+        List<SXlog> xLogList = new ArrayList<>();
+        xLogView.setxLogs(xLogList);
 
         TcpProxy.getTcpProxy(server).process(cmd, paramPack, in -> {
             Pack p = in.readPack();
             if (p.getPackType() == PackEnum.MAP) {
                 MapPack metaPack = (MapPack) p;
-                xLogView.setXLogIndex(metaPack.getInt(ParamConstant.XLOG_INDEX));
-                xLogView.setXLogLoop(metaPack.getInt(ParamConstant.XLOG_LOOP));
+                xLogView.setxLogIndex(metaPack.getInt(ParamConstant.XLOG_INDEX));
+                xLogView.setxLogLoop(metaPack.getInt(ParamConstant.XLOG_LOOP));
 
             } else {
                 XLogPack xLogPack = (XLogPack) p;
-                xLogList.add(SXLog.of(xLogPack));
+                xLogList.add(SXlog.of(xLogPack));
             }
         });
 
@@ -103,8 +133,8 @@ public class XLogConsumer {
         }
 
         PageableXLogView view = new PageableXLogView();
-        List<SXLog> xLogList = new ArrayList<>();
-        view.setXLogs(xLogList);
+        List<SXlog> xLogList = new ArrayList<>();
+        view.setxLogs(xLogList);
 
         TcpProxy.getTcpProxy(pageableXLogRequest.getServerId()).process(RequestCmd.TRANX_LOAD_TIME_GROUP_V2, paramPack, in -> {
             Pack p = in.readPack();
@@ -114,7 +144,7 @@ public class XLogConsumer {
                 view.setLastTxid(metaPack.getLong(ParamConstant.XLOG_RESULT_LAST_TXID));
                 view.setLastXLogTime(metaPack.getLong(ParamConstant.XLOG_RESULT_LAST_TIME));
             } else {
-                xLogList.add(SXLog.of((XLogPack) p));
+                xLogList.add(SXlog.of((XLogPack) p));
             }
         });
 

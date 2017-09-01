@@ -18,6 +18,7 @@
 
 package scouterx.webapp.api.service;
 
+import scouterx.client.net.INetReader;
 import scouterx.client.server.Server;
 import scouterx.webapp.api.consumer.XLogConsumer;
 import scouterx.webapp.api.requestmodel.PageableXLogRequest;
@@ -34,6 +35,10 @@ public class XLogService {
 
     public XLogService() {
         this.xLogConsumer = new XLogConsumer();
+    }
+
+    public void handleRealTimeXLog(final Server server, List<Integer> objHashes, int xLogIndex, long xLogLoop, INetReader reader) {
+        xLogConsumer.handleRealTimeXLog(server, objHashes, xLogIndex, xLogLoop, reader);
     }
 
     /**

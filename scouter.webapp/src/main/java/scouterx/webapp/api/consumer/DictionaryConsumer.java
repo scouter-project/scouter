@@ -18,33 +18,36 @@
 
 package scouterx.webapp.api.consumer;
 
+import scouter.lang.constants.ParamConstant;
+import scouter.lang.pack.MapPack;
+import scouter.lang.value.ListValue;
+import scouter.net.RequestCmd;
+import scouterx.client.net.INetReader;
+import scouterx.client.net.TcpProxy;
+import scouterx.webapp.api.model.SDictionaryText;
+import scouterx.webapp.api.requestmodel.DictionaryRequest;
+
+import java.util.Map;
+import java.util.Set;
+
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
 public class DictionaryConsumer {
 
-//    public List<SCounter> retrieveText(String objType, List<String> counterNames, final Server server) {
-//        MapPack paramPack = new MapPack();
-//        paramPack.put(ParamConstant.OBJ_TYPE, objType);
-//        ListValue counterNameLv = paramPack.newList(ParamConstant.COUNTER);
-//        for (String name : counterNames) {
-//            counterNameLv.add(name);
-//        }
-//
-//        MapPack outMapPack = (MapPack)TcpProxy.getTcpProxy(server).getSingle(RequestCmd.COUNTER_REAL_TIME_ALL_MULTI, paramPack);
-//        ListValue rObjHashLv = (ListValue) outMapPack.get(ParamConstant.OBJ_HASH);
-//        ListValue rCounterNameLv = (ListValue) outMapPack.get(ParamConstant.COUNTER);
-//        ListValue rCounterValueLv = (ListValue) outMapPack.get(ParamConstant.VALUE);
-//
-//        List<SCounter> resultList = new ArrayList<>();
-//        for(int i = 0; i < rObjHashLv.size(); i++) {
-//            int objHash = CastUtil.cint(rObjHashLv.get(i));
-//            String counterName = rCounterNameLv.getString(i);
-//            Object counterValue = rCounterValueLv.get(i).toJavaObject();
-//
-//            resultList.add(new SCounter(objHash, counterName, counterValue));
-//        }
-//
-//        return resultList;
-//    }
+	public void retrieveText(DictionaryRequest dictionaryRequest, INetReader reader) {
+
+		for (Map.Entry<String, Set<SDictionaryText>> textSetEntry : dictionaryRequest.getDictSets().entrySet()) {
+			MapPack paramPack = new MapPack();
+			paramPack.put(ParamConstant.DATE, dictionaryRequest.getDate());
+			paramPack.put(ParamConstant.TEXT_TYPE, textSetEntry.getKey());
+
+			ListValue dictKeyLV = paramPack.newList(ParamConstant.TEXT_DICTKEY);
+			for (SDictionaryText dictionaryText : textSetEntry.getValue()) {
+				dictKeyLV.add(dictionaryText.getDictKey());
+			}
+
+			TcpProxy.getTcpProxy(dictionaryRequest.getServerId()).process(RequestCmd.GET_TEXT_PACK, paramPack, reader);
+		}
+	}
 }

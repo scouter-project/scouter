@@ -28,6 +28,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class SDictionaryText {
     String textType;
-    int hash;
+    int dictKey;
     String text;
 }

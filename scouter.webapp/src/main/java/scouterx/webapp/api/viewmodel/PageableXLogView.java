@@ -20,7 +20,7 @@ package scouterx.webapp.api.viewmodel;
 
 import lombok.Getter;
 import lombok.Setter;
-import scouterx.webapp.api.model.SXLog;
+import scouterx.webapp.api.model.SXlog;
 
 import java.util.List;
 
@@ -41,5 +41,5 @@ public class PageableXLogView {
     long lastXLogTime;
     long lastTxid;
     boolean hasMore;
-    List<SXLog> xLogs;
+    List<SXlog> xLogs;
 }

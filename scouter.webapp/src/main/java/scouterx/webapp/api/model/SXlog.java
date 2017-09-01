@@ -30,7 +30,7 @@ import scouterx.webapp.util.ZZ;
 @Getter
 @Setter
 @Builder
-public class SXLog {
+public class SXlog {
     /**
      * Transaction endtime
      */
@@ -151,8 +151,8 @@ public class SXLog {
     private int queuing2ndHostHash;
     private int queuing2ndTime;
 
-    public static SXLog of(XLogPack p) {
-        return SXLog.builder()
+    public static SXlog of(XLogPack p) {
+        return SXlog.builder()
                 .endTime(p.endTime)
                 .objHash(p.objHash)
                 .service(p.service)

@@ -26,6 +26,7 @@ import scouterx.webapp.api.model.SDictionaryText;
 import scouterx.webapp.util.ZZ;
 
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import java.util.List;
 import java.util.Map;
@@ -39,27 +40,35 @@ import java.util.stream.Collectors;
 @Setter
 @ToString
 public class DictionaryRequest {
-    private final char COLON = ':';
+	private static final char COLON = ':';
 
-    private Map<String, Set<SDictionaryText>> dictSets;
+	@NotNull
+	private Map<String, Set<SDictionaryText>> dictSets;
 
-    private int serverId;
+	private int serverId;
 
-    /**
-     * hash list to find text from dictionary
-     * @param texts - format : [service:10001,service:10002,obj:20001,sql:55555] (bracket is optional)
-     */
-    @NotNull
-    @QueryParam("texts")
-    public void setObjHashes(String texts) {
-        List<String> textList = ZZ.splitParam(texts);
+	/**
+	 * some sorts of dictionary are created every day. so date is needed to find exact text.
+	 * format : yyyymmdd
+	 */
+	@NotNull
+	@PathParam("date")
+	String date;
 
-        this.dictSets = textList.stream()
-                .map(s -> {
-                    String[] parts = StringUtils.split(s, COLON);
-                    return new SDictionaryText(parts[0], Integer.valueOf(parts[1]), null);
-                })
-                .collect(Collectors.groupingBy(SDictionaryText::getTextType, Collectors.toSet()));
+	/**
+	 * dictionary key list to find text from dictionary
+	 *
+	 * @param dictKeys - format : [service:10001,service:10002,obj:20001,sql:55555] (bracket is optional)
+	 */
+	@QueryParam("dictKeys")
+	public void setDictSets(String dictKeys) {
+		List<String> textList = ZZ.splitParam(dictKeys);
+		dictSets = textList.stream()
+				.map(s -> {
+					String[] parts = StringUtils.split(s, COLON);
+					return new SDictionaryText(parts[0], Integer.valueOf(parts[1]), null);
+				})
+				.collect(Collectors.groupingBy(SDictionaryText::getTextType, Collectors.toSet()));
 
-    }
+	}
 }

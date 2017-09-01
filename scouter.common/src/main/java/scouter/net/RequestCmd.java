@@ -158,6 +158,7 @@ public class RequestCmd {
 
 	public static final String GET_TEXT = "GET_TEXT";
 	public static final String GET_TEXT_100 = "GET_TEXT_100";
+	public static final String GET_TEXT_PACK = "GET_TEXT_PACK";
 
 	public static final String GET_CONFIGURE_SERVER = "GET_CONFIGURE_SERVER";
 	public static final String SET_CONFIGURE_SERVER = "SET_CONFIGURE_SERVER";

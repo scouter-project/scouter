@@ -18,12 +18,18 @@
 
 package scouterx.webapp.api.controller;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import scouter.lang.constants.ParamConstant;
+import scouter.lang.pack.MapPack;
+import scouter.lang.pack.Pack;
+import scouter.lang.pack.PackEnum;
+import scouter.lang.pack.XLogPack;
 import scouterx.client.server.ServerManager;
 import scouterx.webapp.api.fw.controller.ro.CommonResultView;
+import scouterx.webapp.api.model.SXlog;
 import scouterx.webapp.api.requestmodel.PageableXLogRequest;
 import scouterx.webapp.api.service.XLogService;
 import scouterx.webapp.api.viewmodel.PageableXLogView;
-import scouterx.webapp.api.viewmodel.RealTimeXLogView;
 import scouterx.webapp.util.ZZ;
 
 import javax.inject.Singleton;
@@ -36,6 +42,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.util.function.Consumer;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 29.
@@ -59,8 +69,7 @@ public class XLogController {
 	 */
 	@GET
 	@Path("/realTime/{xLogLoop}/{xLogIndex}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public CommonResultView<RealTimeXLogView> retrieveRealTimeXLog(
+	public Response streamRealTimeXLog(
 			@QueryParam("objHashes") final String objHashByCommaSeparator,
 			@PathParam("xLogLoop") final int xLogLoop,
 			@PathParam("xLogIndex") final int xLogIndex,
@@ -68,14 +77,41 @@ public class XLogController {
 
 		Object o = ZZ.<Integer>splitParam(objHashByCommaSeparator);
 
-		RealTimeXLogView xLogView = xLogService.retrieveRealTimeXLog(
-				ServerManager.getInstance().getServer(serverId),
-				ZZ.splitParamAsInteger(objHashByCommaSeparator),
-				xLogIndex,
-				xLogLoop);
+		Consumer<JsonGenerator> itemGenerator = jsonGenerator -> {
+			xLogService.handleRealTimeXLog(
+					ServerManager.getInstance().getServer(serverId),
+					ZZ.splitParamAsInteger(objHashByCommaSeparator),
+					xLogIndex,
+					xLogLoop,
+					in -> {
+						Pack p = in.readPack();
+						if (p.getPackType() == PackEnum.MAP) {
+							MapPack metaPack = (MapPack) p;
+							jsonGenerator.writeNumberField("serverId", serverId);
+							jsonGenerator.writeNumberField("xlogIndex", metaPack.getInt(ParamConstant.XLOG_INDEX));
+							jsonGenerator.writeNumberField("xlogLoop", metaPack.getInt(ParamConstant.XLOG_LOOP));
+							jsonGenerator.writeArrayFieldStart("xlogs");
+						} else {
+							XLogPack xLogPack = (XLogPack) p;
+							jsonGenerator.writeObject(SXlog.of(xLogPack));
+						}
+					});
+			try {
+				jsonGenerator.writeEndArray();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		};
 
-		return CommonResultView.success(xLogView);
+		StreamingOutput stream = os -> {
+			CommonResultView.jsonStream(os, itemGenerator);
+		};
+
+		return Response.ok().entity(stream).type(MediaType.APPLICATION_JSON).build();
 	}
+
+
+
 
 	/**
 	 * request xlog token for range request.

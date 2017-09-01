@@ -18,7 +18,7 @@
 
 package scouter.server.netio.service.handle;
 
-import scouter.lang.pack.MapPack
+import scouter.lang.pack.{MapPack, TextPack}
 import scouter.lang.value.DecimalValue
 import scouter.lang.value.ListValue
 import scouter.io.DataInputX
@@ -88,5 +88,28 @@ class HashText {
       dout.writeByte(TcpFlag.HasNEXT);
       dout.writePack(result);
     }
+  }
+
+  @ServiceHandler(RequestCmd.GET_TEXT_PACK)
+  def getTextPack(din: DataInputX, dout: DataOutputX, login: Boolean) {
+    val param = din.readMapPack()
+    var date = param.getText("date")
+    val xtype = param.getText("type")
+    val hash = param.getList("hash")
+    if (hash == null)
+      return
+
+    if (date == null)
+      date = DateUtil.yyyymmdd()
+
+    for (i <- 0 to ArrayUtil.len(hash) - 1) {
+      val h = hash.getInt(i);
+      val v = TextRD.getString(date, xtype, h)
+      if (v != null) {
+        dout.writeByte(TcpFlag.HasNEXT);
+        dout.writePack(new TextPack(xtype, h, v))
+      }
+    }
+    dout.flush()
   }
 }
