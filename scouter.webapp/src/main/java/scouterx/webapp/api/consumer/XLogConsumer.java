@@ -67,9 +67,34 @@ public class XLogConsumer {
 
         RealTimeXLogView xLogView = new RealTimeXLogView();
         List<SXlog> xLogList = new ArrayList<>();
-        xLogView.setxLogs(xLogList);
+        xLogView.setXLogs(xLogList);
 
         TcpProxy.getTcpProxy(server).process(cmd, paramPack, reader);
+    }
+
+    /**
+     * retrieve XLog List for paging access
+     * @param pageableXLogRequest
+     */
+    public void handlePageableXLog(final PageableXLogRequest pageableXLogRequest, INetReader reader) {
+        MapPack paramPack = new MapPack();
+        paramPack.put(ParamConstant.DATE, pageableXLogRequest.getDate());
+        paramPack.put(ParamConstant.XLOG_START_TIME, pageableXLogRequest.getStartTime());
+        paramPack.put(ParamConstant.XLOG_TXID, pageableXLogRequest.getLastTxid());
+        paramPack.put(ParamConstant.XLOG_END_TIME, pageableXLogRequest.getEndTime());
+        paramPack.put(ParamConstant.XLOG_LAST_BUCKET_TIME, pageableXLogRequest.getLastXLogTime());
+        paramPack.put(ParamConstant.XLOG_PAGE_COUNT, pageableXLogRequest.getPageCount());
+
+        ListValue objHashLv = paramPack.newList(ParamConstant.OBJ_HASH);
+        for (Integer hash : pageableXLogRequest.getObjHashes()) {
+            objHashLv.add(hash);
+        }
+
+        PageableXLogView view = new PageableXLogView();
+        List<SXlog> xLogList = new ArrayList<>();
+        view.setXLogs(xLogList);
+
+        TcpProxy.getTcpProxy(pageableXLogRequest.getServerId()).process(RequestCmd.TRANX_LOAD_TIME_GROUP_V2, paramPack, reader);
     }
 
     /**
@@ -96,14 +121,14 @@ public class XLogConsumer {
 
         RealTimeXLogView xLogView = new RealTimeXLogView();
         List<SXlog> xLogList = new ArrayList<>();
-        xLogView.setxLogs(xLogList);
+        xLogView.setXLogs(xLogList);
 
         TcpProxy.getTcpProxy(server).process(cmd, paramPack, in -> {
             Pack p = in.readPack();
             if (p.getPackType() == PackEnum.MAP) {
                 MapPack metaPack = (MapPack) p;
-                xLogView.setxLogIndex(metaPack.getInt(ParamConstant.XLOG_INDEX));
-                xLogView.setxLogLoop(metaPack.getInt(ParamConstant.XLOG_LOOP));
+                xLogView.setXLogIndex(metaPack.getInt(ParamConstant.XLOG_INDEX));
+                xLogView.setXLogLoop(metaPack.getInt(ParamConstant.XLOG_LOOP));
 
             } else {
                 XLogPack xLogPack = (XLogPack) p;
@@ -113,6 +138,7 @@ public class XLogConsumer {
 
         return xLogView;
     }
+
 
     /**
      * retrieve XLog List for paging access
@@ -134,7 +160,7 @@ public class XLogConsumer {
 
         PageableXLogView view = new PageableXLogView();
         List<SXlog> xLogList = new ArrayList<>();
-        view.setxLogs(xLogList);
+        view.setXLogs(xLogList);
 
         TcpProxy.getTcpProxy(pageableXLogRequest.getServerId()).process(RequestCmd.TRANX_LOAD_TIME_GROUP_V2, paramPack, in -> {
             Pack p = in.readPack();

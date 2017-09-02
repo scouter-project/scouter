@@ -30,7 +30,6 @@ import java.util.List;
 @Getter
 @Setter
 public class RealTimeXLogView {
-    int serverId;
     int xLogIndex;
     long xLogLoop;
     List<SXlog> xLogs;

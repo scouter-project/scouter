@@ -37,8 +37,19 @@ public class XLogService {
         this.xLogConsumer = new XLogConsumer();
     }
 
+    /**
+     * retrieve realtime xlog
+     */
     public void handleRealTimeXLog(final Server server, List<Integer> objHashes, int xLogIndex, long xLogLoop, INetReader reader) {
         xLogConsumer.handleRealTimeXLog(server, objHashes, xLogIndex, xLogLoop, reader);
+    }
+
+    /**
+     * retrieve XLog List for paging access
+     */
+    public void handlePageableXLog(PageableXLogRequest xLogRequest, INetReader reader) {
+
+        xLogConsumer.handlePageableXLog(xLogRequest, reader);
     }
 
     /**

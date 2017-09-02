@@ -37,7 +37,6 @@ import java.util.List;
 @Getter
 @Setter
 public class PageableXLogView {
-    int serverId;
     long lastXLogTime;
     long lastTxid;
     boolean hasMore;
