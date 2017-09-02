@@ -19,13 +19,9 @@
 package scouterx.webapp.api.service;
 
 import scouterx.client.net.INetReader;
-import scouterx.client.server.Server;
 import scouterx.webapp.api.consumer.XLogConsumer;
 import scouterx.webapp.api.requestmodel.PageableXLogRequest;
-import scouterx.webapp.api.viewmodel.PageableXLogView;
-import scouterx.webapp.api.viewmodel.RealTimeXLogView;
-
-import java.util.List;
+import scouterx.webapp.api.requestmodel.RealTimeXLogRequest;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -40,8 +36,8 @@ public class XLogService {
     /**
      * retrieve realtime xlog
      */
-    public void handleRealTimeXLog(final Server server, List<Integer> objHashes, int xLogIndex, long xLogLoop, INetReader reader) {
-        xLogConsumer.handleRealTimeXLog(server, objHashes, xLogIndex, xLogLoop, reader);
+    public void handleRealTimeXLog(final RealTimeXLogRequest xLogRequest, final INetReader reader) {
+        xLogConsumer.handleRealTimeXLog(xLogRequest, reader);
     }
 
     /**
@@ -52,17 +48,4 @@ public class XLogService {
         xLogConsumer.handlePageableXLog(xLogRequest, reader);
     }
 
-    /**
-     * retrieve realtime xlog
-     */
-    public RealTimeXLogView retrieveRealTimeXLog(final Server server, List<Integer> objHashes, int xLogIndex, long xLogLoop) {
-        return xLogConsumer.retrieveRealTimeXLog(server, objHashes, xLogIndex, xLogLoop);
-    }
-
-    /**
-     * retrieve XLog List for paging access
-     */
-    public PageableXLogView retrievePageableXLog(PageableXLogRequest xLogRequest) {
-        return xLogConsumer.retrievePageableXLog(xLogRequest);
-    }
 }

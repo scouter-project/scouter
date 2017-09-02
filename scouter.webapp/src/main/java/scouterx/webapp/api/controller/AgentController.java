@@ -25,14 +25,9 @@ import scouterx.webapp.api.service.AgentService;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 /**
@@ -58,24 +53,4 @@ public class AgentController {
 
         return CommonResultView.success(agentList);
     }
-
-    @GET
-    @Path("/test")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response retrieveAgentListTest(@QueryParam("serverId") int serverId) {
-        List<SObject> agentList = agentService.retrieveAgentList(ServerManager.getInstance().getServer(serverId));
-
-        return Response.ok().entity(agentList).type(MediaType.APPLICATION_JSON).build();
-    }
-
-    @GET
-    @Path("/error")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response retrieveAgentListTestError(@QueryParam("serverId") int serverId) {
-        List<SObject> agentList = agentService.retrieveAgentList(ServerManager.getInstance().getServer(serverId));
-
-        return Response.serverError().entity(agentList).type(MediaType.APPLICATION_JSON).build();
-    }
-
-    //TODO why can not handle exception when return type is wrong.
 }

@@ -99,8 +99,11 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
     private Response handleErrorStateBizException(ErrorStateBizException throwable) {
         ErrorStateBizException ex = throwable;
         ErrorState errorState = ex.getErrorState();
+        String errorMessage = (errorState == ErrorState.VALIDATE_ERROR) ?
+                errorState.getErrorMessage() + ex.getMessage() : errorState.getErrorMessage();
+
         CommonResultView<?> resultView = CommonResultView.fail(errorState.getStatus().getStatusCode()
-                , errorState.getErrorCode(), errorState.getErrorMessage(), null);
+                , errorState.getErrorCode(), errorMessage, null);
 
         StackTraceElement lastStack = Arrays.stream(ex.getStackTrace()).findFirst().orElse(null);
         log.error("[ErrorStateBizException] {} - {} - {}, [uri]{} at {}", resultView.getStatus()

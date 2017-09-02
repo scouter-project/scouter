@@ -21,11 +21,8 @@ package scouterx.webapp.api.requestmodel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import scouterx.webapp.api.exception.ErrorState;
 import scouterx.webapp.util.ZZ;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -42,31 +39,22 @@ import java.util.List;
 * - lastTxid : available from previous response for paging support. (long)
 * - lastXLogTime : available from previous response for paging support. (long)
 *
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 30.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 2.
  */
 @Getter
 @Setter
 @ToString
-public class PageableXLogRequest {
-    public static final int MAX_PAGE_COUNT = 10_000;
-    public static final int DEFAULT_PAGE_COUNT = 3_000;
+public class RealTimeXLogRequest {
+    @NotNull
+    @PathParam("xlogLoop")
+    long xLogLoop;
 
     @NotNull
-    @PathParam("date")
-    String date;
+    @PathParam("xlogIndex")
+    int xLogIndex;
 
     @QueryParam("serverId")
     int serverId;
-
-    @NotNull
-    @Min(1)
-    @QueryParam("startTime")
-    long startTime;
-
-    @NotNull
-    @Min(1)
-    @QueryParam("endTime")
-    long endTime;
 
     @NotNull
     List<Integer> objHashes;
@@ -76,27 +64,4 @@ public class PageableXLogRequest {
         this.objHashes = ZZ.splitParamAsInteger(objHashes);
     }
 
-    @Max(MAX_PAGE_COUNT)
-    int pageCount;
-
-    @QueryParam("pageCount")
-    public void setPageCount(int pageCount) {
-        if(pageCount > 0) {
-            this.pageCount = pageCount;
-        } else {
-            this.pageCount = DEFAULT_PAGE_COUNT;
-        }
-    }
-
-    @QueryParam("lastTxid")
-    long lastTxid;
-
-    @QueryParam("lastXLogTime")
-    long lastXLogTime;
-
-    public void validate() {
-        if((lastTxid != 0 && lastXLogTime == 0) || (lastTxid == 0 && lastXLogTime != 0)) {
-            throw ErrorState.VALIDATE_ERROR.newBizException("lastTxid and lastXlogTime must coexist!");
-        }
-    }
 }

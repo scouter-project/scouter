@@ -29,6 +29,7 @@ public enum ErrorState {
 	LOGIN_REQUIRED(Response.Status.FORBIDDEN, Response.Status.FORBIDDEN.getStatusCode(), "login required."),
 	LOGIN_FAIL(Response.Status.UNAUTHORIZED, Response.Status.UNAUTHORIZED.getStatusCode(), "id or password is incorrect."),
 	NOT_IMPLEMENTED(Response.Status.NOT_IMPLEMENTED, Response.Status.NOT_IMPLEMENTED.getStatusCode(), "This API is not yet implemented."),
+	VALIDATE_ERROR(Response.Status.BAD_REQUEST, Response.Status.BAD_REQUEST.getStatusCode(), "fail to validate input parameters. : "),
 	;
 
 	private Response.Status status;
@@ -46,7 +47,7 @@ public enum ErrorState {
 	}
 
 	public ErrorStateException newException(String message) {
-		return new ErrorStateException(this);
+		return new ErrorStateException(this, message);
 	}
 
 	public ErrorStateException newException(String message, Throwable t) {
@@ -58,7 +59,7 @@ public enum ErrorState {
 	}
 
 	public ErrorStateBizException newBizException(String message) {
-		return new ErrorStateBizException(this);
+		return new ErrorStateBizException(this, message);
 	}
 
 	public ErrorStateBizException newBizException(String message, Throwable t) {

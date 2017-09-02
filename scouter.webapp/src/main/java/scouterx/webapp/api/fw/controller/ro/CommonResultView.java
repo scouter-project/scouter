@@ -79,7 +79,7 @@ public class CommonResultView<T> {
 		jg.close();
 	}
 
-	public static void jsonStream(OutputStream os, Consumer<JsonGenerator> itemGenerator) throws IOException {
+	public static void jsonStream(OutputStream os, Consumer<JsonGenerator> jsonItemgenerator) throws IOException {
 		JsonGenerator jg = objectMapper.getFactory().createGenerator(os);
 
 		jg.writeStartObject();
@@ -92,7 +92,7 @@ public class CommonResultView<T> {
 			jg.writeObjectFieldStart("result");
 
 			{
-				itemGenerator.accept(jg);
+				jsonItemgenerator.accept(jg);
 			}
 
 			jg.writeEndObject();

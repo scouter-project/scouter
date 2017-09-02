@@ -18,11 +18,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 /**
+ * This class is for testing
  * Created by gunlee on 2017. 8. 24.
  */
-@Path("/v0/check")
+@Path("/v0/temp/test")
 @Produces(MediaType.APPLICATION_JSON)
-public class CheckController {
+public class TempTestController {
 
 	@GET
 	public String check(@Context HttpServletRequest request) {
