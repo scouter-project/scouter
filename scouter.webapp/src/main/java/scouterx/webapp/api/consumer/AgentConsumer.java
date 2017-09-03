@@ -38,7 +38,7 @@ public class AgentConsumer {
     public List<SObject> retrieveAgentList(final Server server) {
         List<SObject> objectList = TcpProxy.getTcpProxy(server)
                 .process(RequestCmd.OBJECT_LIST_REAL_TIME, null).stream()
-                .map(p -> SObject.of((ObjectPack)p))
+                .map(p -> SObject.of((ObjectPack)p, server))
                 .collect(Collectors.toList());
 
         return objectList;

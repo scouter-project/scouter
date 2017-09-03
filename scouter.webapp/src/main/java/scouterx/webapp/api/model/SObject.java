@@ -23,6 +23,8 @@ import lombok.Getter;
 import lombok.ToString;
 import scouter.lang.pack.ObjectPack;
 import scouter.lang.value.Value;
+import scouterx.client.server.Server;
+import scouterx.client.server.ServerManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +37,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class SObject {
     private String objType;
+    private String objFamily;
     private int objHash;
     private String objName;
     private String address;
@@ -43,8 +46,9 @@ public class SObject {
     public long lastWakeUpTime;
     public HashMap<String, Object> tags = new HashMap<>();
 
-    private SObject(ObjectPack p) {
+    private SObject(ObjectPack p, Server server) {
         this.objType = p.objType;
+        this.objFamily = server.getCounterEngine().getFamilyNameFromObjType(p.objType);
         this.objHash = p.objHash;
         this.objName = p.objName;
         this.address = p.address;
@@ -56,7 +60,7 @@ public class SObject {
         }
     }
 
-    public static SObject of(ObjectPack p) {
-        return new SObject(p);
+    public static SObject of(ObjectPack p, Server server) {
+        return new SObject(p, ServerManager.getInstance().getServerIfNullDefault(server));
     }
 }
