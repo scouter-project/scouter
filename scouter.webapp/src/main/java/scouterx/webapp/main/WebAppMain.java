@@ -56,7 +56,7 @@ public class WebAppMain {
         connectScouterCollector();
 
         org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(conf.getNetHttpPort());
-		setWebAppContext(server);
+		setWebAppContext(server, true);
 
 		try {
 			server.start();
@@ -123,14 +123,22 @@ public class WebAppMain {
         if (!logDir.exists()) {
             logDir.mkdirs();
         }
+
+        System.setProperty("scouter_webapp_log_dir", conf.getLogDir());
+        Logger firstLogger = LoggerFactory.getLogger(WebAppMain.class);
+        firstLogger.info("scouter webapp starting!");
     }
 
     public static void setWebAppContext(Server server) {
+        setWebAppContext(server, false);
+    }
+
+    private static void setWebAppContext(Server server, boolean isStandAlone) {
         ConfigureAdaptor conf = ConfigureManager.getConfigure();
 
-		System.setProperty("scouter_webapp_log_dir", conf.getLogDir());
-		Logger firstLogger = LoggerFactory.getLogger(WebAppMain.class);
-		firstLogger.info("starting!");
+        if (!isStandAlone) {
+            initializeLogDir();
+        }
 
 		HandlerCollection handlers = new HandlerCollection();
 		NCSARequestLog requestLog = new NCSARequestLog();
