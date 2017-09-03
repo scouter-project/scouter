@@ -89,13 +89,13 @@ public class XLogController {
 
     /**
      * request xlog token for range request.
-     * uri : /xlog/{date}?startTime=... @see {@link PageableXLogRequest}
+     * uri : /xlog/{yyyymmdd}?startTime=... @see {@link PageableXLogRequest}
      *
      * @param xLogRequest
      * @return PageableXLogView @see {@link PageableXLogView}
      */
     @GET
-    @Path("/{date}")
+    @Path("/{yyyymmdd}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response streamPageableXLog(@Valid @BeanParam PageableXLogRequest xLogRequest) {
         xLogRequest.validate();

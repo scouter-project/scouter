@@ -55,7 +55,7 @@ public class DictionaryController {
 	 * @return
 	 */
 	@GET
-	@Path("/{date}/allType")
+	@Path("/{yyyymmdd}/allType")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response retrieveTextFromDictionary(@Valid @BeanParam DictionaryRequest dictionaryRequest) {
 		StreamingOutput stream = os -> {

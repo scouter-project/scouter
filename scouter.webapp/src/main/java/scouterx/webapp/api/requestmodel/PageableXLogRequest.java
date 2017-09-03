@@ -52,8 +52,8 @@ public class PageableXLogRequest {
     public static final int DEFAULT_PAGE_COUNT = 3_000;
 
     @NotNull
-    @PathParam("date")
-    String date;
+    @PathParam("yyyymmdd")
+    String yyyymmdd;
 
     @QueryParam("serverId")
     int serverId;

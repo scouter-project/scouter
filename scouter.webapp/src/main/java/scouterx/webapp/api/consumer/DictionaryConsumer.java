@@ -39,7 +39,7 @@ public class DictionaryConsumer {
 
 		for (Map.Entry<String, Set<SDictionaryText>> textSetEntry : dictionaryRequest.getDictSets().entrySet()) {
 			MapPack paramPack = new MapPack();
-			paramPack.put(ParamConstant.DATE, dictionaryRequest.getDate());
+			paramPack.put(ParamConstant.DATE, dictionaryRequest.getYyyymmdd());
 			paramPack.put(ParamConstant.TEXT_TYPE, textSetEntry.getKey());
 
 			ListValue dictKeyLV = paramPack.newList(ParamConstant.TEXT_DICTKEY);

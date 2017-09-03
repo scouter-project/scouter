@@ -52,8 +52,8 @@ public class DictionaryRequest {
 	 * format : yyyymmdd
 	 */
 	@NotNull
-	@PathParam("date")
-	String date;
+	@PathParam("yyyymmdd")
+	String yyyymmdd;
 
 	/**
 	 * dictionary key list to find text from dictionary
