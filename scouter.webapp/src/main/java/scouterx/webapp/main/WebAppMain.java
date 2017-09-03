@@ -56,7 +56,7 @@ public class WebAppMain {
         connectScouterCollector();
 
         org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(conf.getNetHttpPort());
-		setWebAppContext(server, true);
+		setWebAppContext(server, false);
 
 		try {
 			server.start();
@@ -129,14 +129,17 @@ public class WebAppMain {
         firstLogger.info("scouter webapp starting!");
     }
 
+    /**
+     * This method id referenced from scouter server when the option net_http_api_enabled is true
+     */
     public static void setWebAppContext(Server server) {
-        setWebAppContext(server, false);
+        setWebAppContext(server, true);
     }
 
     private static void setWebAppContext(Server server, boolean isStandAlone) {
         ConfigureAdaptor conf = ConfigureManager.getConfigure();
 
-        if (!isStandAlone) {
+        if (isStandAlone) {
             initializeLogDir();
         }
 
