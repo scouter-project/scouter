@@ -17,15 +17,16 @@
 
 package scouter.lang.step;
 
+import scouter.io.DataInputX;
+import scouter.io.DataOutputX;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import scouter.io.DataInputX;
-import scouter.io.DataOutputX;
-
 abstract public class Step implements Comparable<Step> {
 
+	@Override
 	public int compareTo(Step o) {
 		return this.getOrder() - o.getOrder();
 	}
@@ -33,6 +34,13 @@ abstract public class Step implements Comparable<Step> {
 	abstract public int getOrder();
 
 	abstract public byte getStepType();
+
+	/**
+	 * for web app client (json parsing)
+	 */
+	public String getStepTypeName() {
+		return StepEnum.Type.of(getStepType()).name();
+	}
 
 	abstract public void write(DataOutputX out) throws IOException;
 
@@ -76,6 +84,20 @@ abstract public class Step implements Comparable<Step> {
 			arr.add(din.readStep());
 		}
 		return (Step[]) arr.toArray(new Step[arr.size()]);
+	}
 
+	public static List<Step> toObjectList(byte[] buff) {
+		if (buff == null)
+			return null;
+		ArrayList<Step> arr = new ArrayList<Step>();
+		DataInputX din = new DataInputX(buff);
+		try {
+			while (din.available() > 0) {
+                arr.add(din.readStep());
+            }
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return arr;
 	}
 }

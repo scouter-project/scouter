@@ -43,7 +43,7 @@ public class XLogService {
     /**
      * retrieve XLog List for paging access
      */
-    public void handlePageableXLog(PageableXLogRequest xLogRequest, INetReader reader) {
+    public void handlePageableXLog(final PageableXLogRequest xLogRequest, final INetReader reader) {
 
         xLogConsumer.handlePageableXLog(xLogRequest, reader);
     }

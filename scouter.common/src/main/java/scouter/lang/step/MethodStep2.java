@@ -17,10 +17,10 @@
 
 package scouter.lang.step;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+
+import java.io.IOException;
 
 public class MethodStep2 extends MethodStep {
 
@@ -28,6 +28,10 @@ public class MethodStep2 extends MethodStep {
 
 	public byte getStepType() {
 		return StepEnum.METHOD2;
+	}
+
+	public int getError() {
+		return error;
 	}
 
 	public void write(DataOutputX out) throws IOException {

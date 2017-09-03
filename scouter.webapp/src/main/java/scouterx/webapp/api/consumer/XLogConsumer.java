@@ -73,7 +73,7 @@ public class XLogConsumer {
      * retrieve XLog List for paging access
      * @param pageableXLogRequest
      */
-    public void handlePageableXLog(final PageableXLogRequest pageableXLogRequest, INetReader reader) {
+    public void handlePageableXLog(final PageableXLogRequest pageableXLogRequest, final INetReader reader) {
         MapPack paramPack = new MapPack();
         paramPack.put(ParamConstant.DATE, pageableXLogRequest.getDate());
         paramPack.put(ParamConstant.XLOG_START_TIME, pageableXLogRequest.getStartTime());

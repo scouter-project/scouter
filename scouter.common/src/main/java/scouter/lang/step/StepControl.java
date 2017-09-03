@@ -17,10 +17,10 @@
 
 package scouter.lang.step;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+
+import java.io.IOException;
 
 public class StepControl extends StepSummary {
 
@@ -32,6 +32,14 @@ public class StepControl extends StepSummary {
 
 	public StepControl(String message) {
 		this.message = message;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public int getCode() {
+		return code;
 	}
 
 	public byte getStepType() {

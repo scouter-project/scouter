@@ -45,6 +45,10 @@ public class SqlStep3 extends SqlStep2 {
 		return StepEnum.SQL3;
 	}
 
+	public int getUpdated() {
+		return updated;
+	}
+
 	public void write(DataOutputX out) throws IOException {
 		super.write(out);
 		out.writeDecimal(updated);

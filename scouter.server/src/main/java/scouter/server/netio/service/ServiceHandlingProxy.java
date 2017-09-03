@@ -97,10 +97,10 @@ public class ServiceHandlingProxy {
 	public static void process(String cmd, DataInputX in, DataOutputX out, boolean login) {
 		Invocation handler = handlers.get(cmd);
 		if (handler != null) {
-			//Logger.trace("[ScouterRequestHandler] " + cmd);
+			Logger.trace("[ScouterRequestHandler] " + cmd);
 			handler.exec(in, out, login);
 		} else {
-			// Logger.println("no handler  " + cmd);
+			Logger.println("no handler  " + cmd);
 			throw new RuntimeException("no handler  cmd=" + cmd);
 		}
 	}

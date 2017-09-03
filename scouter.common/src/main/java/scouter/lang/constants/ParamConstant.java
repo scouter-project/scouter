@@ -41,6 +41,7 @@ public class ParamConstant {
     public static final String XLOG_PAGE_COUNT = "pageCount";
 
     public static final String XLOG_TXID = "txid";
+    public static final String PROFILE_MAX = "max";
 
     public static final String XLOG_RESULT_LAST_TIME = "lastXLogTime";
     public static final String XLOG_RESULT_LAST_TXID = "lastTxid";

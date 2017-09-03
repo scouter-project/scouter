@@ -17,15 +17,12 @@
 
 package scouter.lang.step;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 
+import java.io.IOException;
 
-
-
-abstract public class StepSingle extends Step{
+abstract public class StepSingle extends Step {
 
 	public int parent;
 	public int index;
@@ -33,8 +30,25 @@ abstract public class StepSingle extends Step{
 	public int start_time;
 	public int start_cpu;
 
+	@Override
 	public int getOrder() {
 		return index;
+	}
+
+	public int getParent() {
+		return parent;
+	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	public int getStart_time() {
+		return start_time;
+	}
+
+	public int getStart_cpu() {
+		return start_cpu;
 	}
 
 	public void write(DataOutputX out) throws IOException {

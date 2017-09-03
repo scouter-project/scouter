@@ -17,10 +17,10 @@
 
 package scouter.lang.step;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+
+import java.io.IOException;
 
 public class MethodSum extends StepSummary {
 
@@ -31,6 +31,22 @@ public class MethodSum extends StepSummary {
 
 	public byte getStepType() {
 		return StepEnum.METHOD_SUM;
+	}
+
+	public int getHash() {
+		return hash;
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public long getElapsed() {
+		return elapsed;
+	}
+
+	public long getCputime() {
+		return cputime;
 	}
 
 	public void add(int elapsed, int cputime) {

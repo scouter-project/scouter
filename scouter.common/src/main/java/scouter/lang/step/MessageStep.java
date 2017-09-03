@@ -18,10 +18,10 @@
 package scouter.lang.step;
 
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+
+import java.io.IOException;
 
 
 public class MessageStep extends StepSingle {
@@ -40,6 +40,11 @@ public class MessageStep extends StepSingle {
 	public byte getStepType() {
 		return StepEnum.MESSAGE;
 	}
+
+	public String getMessage() {
+		return message;
+	}
+
 	public String toString() {
 		return "MessageStep " +message;
 	}

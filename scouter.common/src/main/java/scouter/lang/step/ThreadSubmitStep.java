@@ -17,11 +17,10 @@
 
 package scouter.lang.step;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
-import scouter.lang.value.Value;
+
+import java.io.IOException;
 
 public class ThreadSubmitStep extends StepSingle {
 
@@ -34,6 +33,26 @@ public class ThreadSubmitStep extends StepSingle {
 
 	public byte getStepType() {
 		return StepEnum.THREAD_SUBMIT;
+	}
+
+	public long getTxid() {
+		return txid;
+	}
+
+	public int getHash() {
+		return hash;
+	}
+
+	public int getElapsed() {
+		return elapsed;
+	}
+
+	public int getCputime() {
+		return cputime;
+	}
+
+	public int getError() {
+		return error;
 	}
 
 	public void write(DataOutputX out) throws IOException {
