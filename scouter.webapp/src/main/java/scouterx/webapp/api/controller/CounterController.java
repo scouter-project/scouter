@@ -66,7 +66,7 @@ public class CounterController {
             @QueryParam("serverId") final int serverId) {
 
         List<SCounter> sCounterList = counterService.retrieveCountersByObjType(
-                objType, ZZ.splitParam(counterNameByCommaSeparator), ServerManager.getInstance().getServer(serverId));
+                objType, ZZ.splitParam(counterNameByCommaSeparator), ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(sCounterList);
     }

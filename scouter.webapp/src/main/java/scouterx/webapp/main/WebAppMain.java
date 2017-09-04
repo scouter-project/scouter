@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 import scouter.util.logo.Logo;
+import scouterx.client.model.AgentModelThread;
 import scouterx.client.net.LoginMgr;
 import scouterx.client.net.LoginRequest;
 import scouterx.client.server.ServerManager;
@@ -82,6 +83,7 @@ public class WebAppMain {
             LoginRequest result = LoginMgr.login(server.getId(), serverConfig.getId(), serverConfig.getPassword(), true);
             if (result.success) {
                 log.info("Successfully log in to {}:{}", server.getIp(), server.getPort());
+                AgentModelThread.getInstance(); //preloading
             } else {
                 server.setUserId(serverConfig.getId());
                 server.setPassword(serverConfig.getPassword());

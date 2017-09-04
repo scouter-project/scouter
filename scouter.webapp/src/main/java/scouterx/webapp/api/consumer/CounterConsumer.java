@@ -25,6 +25,7 @@ import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
+import scouterx.client.server.ServerManager;
 import scouterx.webapp.api.model.counter.SCounter;
 
 import java.util.ArrayList;
