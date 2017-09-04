@@ -49,7 +49,14 @@ import java.util.TimeZone;
  * Created by gunlee on 2017. 8. 25.
  */
 public class WebAppMain {
+    private static boolean standAloneMode = false;
+
+    public static boolean isStandAloneMode() {
+        return standAloneMode;
+    }
+
 	public static void main(String[] args) {
+        WebAppMain.standAloneMode = true;
 		Logo.print(true);
         initializeLogDir();
 
@@ -57,7 +64,7 @@ public class WebAppMain {
         connectScouterCollector();
 
         org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(conf.getNetHttpPort());
-		setWebAppContext(server, false);
+		setWebAppContext(server);
 
 		try {
 			server.start();
@@ -128,20 +135,14 @@ public class WebAppMain {
 
         System.setProperty("scouter_webapp_log_dir", conf.getLogDir());
         Logger firstLogger = LoggerFactory.getLogger(WebAppMain.class);
-        firstLogger.info("scouter webapp starting!");
+        firstLogger.info("scouter webapp starting! Run-Mode:" + (WebAppMain.standAloneMode ? "StandAlone" : "Embedded"));
     }
 
-    /**
-     * This method id referenced from scouter server when the option net_http_api_enabled is true
-     */
-    public static void setWebAppContext(Server server) {
-        setWebAppContext(server, true);
-    }
-
-    private static void setWebAppContext(Server server, boolean isStandAlone) {
+    private static void setWebAppContext(Server server) {
         ConfigureAdaptor conf = ConfigureManager.getConfigure();
 
-        if (isStandAlone) {
+        //The case - embedded mode (run in-process of scouter server)
+        if (WebAppMain.standAloneMode == false) {
             initializeLogDir();
         }
 
