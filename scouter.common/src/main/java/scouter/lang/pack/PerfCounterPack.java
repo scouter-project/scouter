@@ -22,6 +22,7 @@ import java.io.IOException;
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.lang.TimeTypeEnum;
+import scouter.lang.value.FloatValue;
 import scouter.lang.value.MapValue;
 import scouter.lang.value.NumberValue;
 import scouter.lang.value.Value;
@@ -76,6 +77,12 @@ public class PerfCounterPack implements Pack {
 		this.data = (MapValue) din.readValue();
 		return this;
 	}
+
+    public void put(String key, Object o) {
+	    if (o instanceof Number) {
+            this.data.put(key, new FloatValue(((Number) o).floatValue()));
+        }
+    }
 
 	public void put(String key, Value value) {
 		this.data.put(key, value);
