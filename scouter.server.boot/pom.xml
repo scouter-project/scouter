@@ -82,13 +82,6 @@
                                 </copy>
                                 <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh" eol="lf" eof="remove" />
 
-                                <!--<copy todir="${project.build.directory}/lib">-->
-                                    <!--<fileset dir="${project.build.directory}">-->
-                                        <!--<include name="${project.build.finalName}.jar" />-->
-                                    <!--</fileset>-->
-                                <!--</copy>-->
-                                <!--<move file="${project.build.directory}/lib/${scouter.server.boot.library.name}-${project.version}.jar"-->
-                                      <!--tofile="${project.build.directory}/${scouter.server.boot.jar}" />-->
                                 <copy file="${project.build.directory}/${project.build.finalName}.jar" tofile="${project.build.directory}/${project.artifactId}.jar" />
 
                                 <tar destfile="${project.build.directory}/${scouter.server.assembly.name}.tar">

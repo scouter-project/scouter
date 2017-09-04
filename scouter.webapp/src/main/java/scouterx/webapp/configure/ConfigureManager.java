@@ -24,36 +24,12 @@ import scouterx.webapp.main.WebAppMain;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 25.
  */
 public class ConfigureManager {
-    private static final String SERVER_CONFIGURE_CLASS_NAME = "scouter.server.Configure";
     private static StandAloneConfigure conf = StandAloneConfigure.getInstance();
 
     public static ConfigureAdaptor getConfigure() {
         return WebAppMain.isStandAloneMode() ? StandAloneConfigureAdaptor.getInstance() : EmbeddedConfigureAdaptor.getInstance();
     }
 
-    public static StandAloneConfigure getStandAloneConfigure() {
-        return conf;
-    }
+    private ConfigureManager() {}
 
-    private ConfigureManager() { }
-
-    public String getLogDir() {
-        if (WebAppMain.isStandAloneMode()) {
-            return conf.log_dir;
-        } else {
-            return scouter.server.Configure.getInstance().log_dir;
-        }
-    }
-
-    public int getLogKeepDays() {
-        if (WebAppMain.isStandAloneMode()) {
-            return conf.log_keep_days;
-        } else {
-            return scouter.server.Configure.getInstance().log_keep_days;
-        }
-    }
-
-    public static boolean isStandAlone() {
-        return WebAppMain.isStandAloneMode();
-    }
 }

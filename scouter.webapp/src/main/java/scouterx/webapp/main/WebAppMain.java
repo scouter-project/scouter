@@ -134,6 +134,10 @@ public class WebAppMain {
         }
 
         System.setProperty("scouter_webapp_log_dir", conf.getLogDir());
+
+        //TODO for debugging
+        System.out.println("$$$$$$$$$$$$ webapp log dir is " + conf.getLogDir());
+
         Logger firstLogger = LoggerFactory.getLogger(WebAppMain.class);
         firstLogger.info("scouter webapp starting! Run-Mode:" + (WebAppMain.standAloneMode ? "StandAlone" : "Embedded"));
     }
@@ -144,6 +148,7 @@ public class WebAppMain {
         //The case - embedded mode (run in-process of scouter server)
         if (WebAppMain.standAloneMode == false) {
             initializeLogDir();
+            connectScouterCollector();
         }
 
 		HandlerCollection handlers = new HandlerCollection();

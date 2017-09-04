@@ -24,33 +24,33 @@
         <scouter.assembly.webapp.dir>${scouter.assembly.dir}/scouter/webapp</scouter.assembly.webapp.dir>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>io.github.scouter-project</groupId>
-            <artifactId>scouter-agent-java</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.scouter-project</groupId>
-            <artifactId>scouter-agent-batch</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.scouter-project</groupId>
-            <artifactId>scouter-agent-host</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.scouter-project</groupId>
-            <artifactId>scouter-server</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.scouter-project</groupId>
-            <artifactId>scouter-webapp</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+    <!--<dependencies>-->
+        <!--<dependency>-->
+            <!--<groupId>io.github.scouter-project</groupId>-->
+            <!--<artifactId>scouter-agent-java</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>io.github.scouter-project</groupId>-->
+            <!--<artifactId>scouter-agent-batch</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>io.github.scouter-project</groupId>-->
+            <!--<artifactId>scouter-agent-host</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>io.github.scouter-project</groupId>-->
+            <!--<artifactId>scouter-server</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>io.github.scouter-project</groupId>-->
+            <!--<artifactId>scouter-webapp</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+    <!--</dependencies>-->
 
     <build>
         <plugins>
