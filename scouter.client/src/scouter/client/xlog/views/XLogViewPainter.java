@@ -78,6 +78,9 @@ public class XLogViewPainter {
 	public StrMatch descMat;
 	public StrMatch text1Mat;
 	public StrMatch text2Mat;
+	public StrMatch text3Mat;
+	public StrMatch text4Mat;
+	public StrMatch text5Mat;
 	public StrMatch userAgentMat;
 	
 	public String yyyymmdd;
@@ -615,6 +618,9 @@ public class XLogViewPainter {
 				&& isDescFilterOk(d)
 				&& isText1FilterOk(d)
 				&& isText2FilterOk(d)
+				&& isText3FilterOk(d)
+				&& isText4FilterOk(d)
+				&& isText5FilterOk(d)
 				&& isUserAgentFilterOk(d)
 				&& isErrorFilterOk(d.p)
 				&& isApicallFilterOk(d.p)
@@ -691,6 +697,27 @@ public class XLogViewPainter {
 		}
 		return text2Mat.include(d.p.text2);
 	}
+
+	public boolean isText3FilterOk(XLogData d) {
+		if (StringUtil.isEmpty(filterStatus.text3)) {
+			return true;
+		}
+		return text3Mat.include(d.p.text3);
+	}
+
+	public boolean isText4FilterOk(XLogData d) {
+		if (StringUtil.isEmpty(filterStatus.text4)) {
+			return true;
+		}
+		return text4Mat.include(d.p.text4);
+	}
+
+	public boolean isText5FilterOk(XLogData d) {
+		if (StringUtil.isEmpty(filterStatus.text5)) {
+			return true;
+		}
+		return text5Mat.include(d.p.text5);
+	}
 	
 	public boolean isUserAgentFilterOk(XLogData d) {
 		if (StringUtil.isEmpty(filterStatus.userAgent)) {
@@ -744,6 +771,9 @@ public class XLogViewPainter {
 		loginMat = new StrMatch(status.login);
 		text1Mat = new StrMatch(status.text1);
 		text2Mat = new StrMatch(status.text2);
+		text3Mat = new StrMatch(status.text3);
+		text4Mat = new StrMatch(status.text4);
+		text5Mat = new StrMatch(status.text5);
 		descMat = new StrMatch(status.desc);
 		userAgentMat = new StrMatch(status.userAgent);
 	}

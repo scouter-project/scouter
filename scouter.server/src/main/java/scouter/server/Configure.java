@@ -95,6 +95,10 @@ public class Configure extends Thread {
 	public boolean log_udp_batch = false;	
 	@ConfigDesc("Logging all request handlers in starting")	
 	public boolean log_service_handler_list = false;
+
+	@ConfigDesc("Logging when index traversal is too heavy.")
+	public int log_index_traversal_warning_count = 100;
+
 	@ConfigDesc("Retaining log according to date")
 	public boolean log_rotation_enabled = true;
 	@ConfigDesc("Keeping period of log")
@@ -216,6 +220,8 @@ public class Configure extends Thread {
 	public boolean mgr_text_db_daily_service_enabled = false;
 	@ConfigDesc("true for daily dictionary mode about api name. default value is false that means it's permanent.")
 	public boolean mgr_text_db_daily_api_enabled = false;
+	@ConfigDesc("true for daily dictionary mode about user agent. default value is false that means it's permanent.")
+	public boolean mgr_text_db_daily_ua_enabled = false;
 
 	//XLog
 	@ConfigDesc("XLog Writer Queue Size")
@@ -384,6 +390,9 @@ public class Configure extends Thread {
 		this.log_udp_summary = getBoolean("log_udp_summary", false);
 		this.log_udp_batch = getBoolean("log_udp_batch", false);
 		this.log_service_handler_list = getBoolean("log_service_handler_list", false);
+
+		this.log_index_traversal_warning_count = getInt("log_index_traversal_warning_count", 100);
+
 		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
 		this.log_keep_days = getInt("log_keep_days", 31);
 		this.log_sql_parsing_fail_enabled = getBoolean("log_sql_parsing_fail_enabled", false);
@@ -408,6 +417,7 @@ public class Configure extends Thread {
 
 		this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false);
 		this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false);
+		this.mgr_text_db_daily_ua_enabled = getBoolean("mgr_text_db_daily_ua_enabled", false);
 
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
 		this.geoip_data_city_file = getValue("geoip_data_city_file", CONF_DIR + "GeoLiteCity.dat");

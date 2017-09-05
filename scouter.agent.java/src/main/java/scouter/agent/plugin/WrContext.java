@@ -91,6 +91,30 @@ public class WrContext {
 		return ctx.text2;
 	}
 
+	public void text3(String text) {
+		ctx.text3 = text;
+	}
+
+	public String text3() {
+		return ctx.text3;
+	}
+
+	public void text4(String text) {
+		ctx.text4 = text;
+	}
+
+	public String text4() {
+		return ctx.text4;
+	}
+
+	public void text5(String text) {
+		ctx.text5 = text;
+	}
+
+	public String text5() {
+		return ctx.text5;
+	}
+
 	public String httpMethod() {
 		return ctx.http_method;
 	}

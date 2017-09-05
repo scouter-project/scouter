@@ -1,5 +1,6 @@
 package scouter.agent.plugin;
 
+import scouter.agent.JavaAgent;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.AlertProxy;
@@ -15,6 +16,7 @@ import scouter.util.SysJMX;
 
 import java.lang.reflect.*;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -62,6 +64,34 @@ public class AbstractPlugin {
 		}
 		return m.invoke(o, args);
 	}
+
+	static Map<String, Integer> tryCountMap = Collections.synchronizedMap(new HashMap<String, Integer>(10));
+
+	public static void clearTryCountMap() {
+        tryCountMap.clear();
+    }
+
+	public static Object invokeStaticMethod(String className, String methodName) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Integer tryCount = tryCountMap.get(className);
+        if (tryCount != null && tryCount.intValue() > 20) return null;
+        Method m = (Method) reflCache.get(className);
+        if (m == null) {
+            Class[] loadedClasses = JavaAgent.getInstrumentation().getAllLoadedClasses();
+            for (Class c : loadedClasses) {
+                if (c.getName().equals(className)) {
+                    m = c.getMethod(methodName);
+                    reflCache.put(className, m);
+                    tryCountMap.remove(className);
+                    break;
+                }
+            }
+        }
+        if (m == null) {
+            tryCountMap.put(className, new Integer(tryCount.intValue() + 1));
+            return null;
+        }
+        return m.invoke(null, new Object[]{});
+    }
 
 	public static Object newInstance(String className) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 		return newInstance(className, Thread.currentThread().getContextClassLoader());

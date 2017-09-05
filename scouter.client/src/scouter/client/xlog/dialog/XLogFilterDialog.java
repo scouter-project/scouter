@@ -42,7 +42,7 @@ import scouter.client.xlog.views.XLogViewCommon;
 public class XLogFilterDialog extends Dialog {
 	
 	Combo objCombo;
-	Text serviceTxt, ipTxt, userAgentTxt, loginText, descText, text1Text, text2Text;
+	Text serviceTxt, ipTxt, userAgentTxt, loginText, descText, text1Text, text2Text, text3Text, text4Text, text5Text;
 	Button onlySqlBtn, onlyApiBtn, onlyErrorBtn;
 	Button clearBtn, applyBtn;
 	
@@ -175,6 +175,45 @@ public class XLogFilterDialog extends Dialog {
 				compareHash();
 			}
 		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("TEXT3");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		text3Text = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		text3Text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		text3Text.setText(status.text3);
+		text3Text.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.text3 = text3Text.getText();
+				compareHash();
+			}
+		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("TEXT4");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		text4Text = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		text4Text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		text4Text.setText(status.text4);
+		text4Text.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.text4 = text4Text.getText();
+				compareHash();
+			}
+		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("TEXT5");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		text5Text = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		text5Text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		text5Text.setText(status.text5);
+		text5Text.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.text5 = text5Text.getText();
+				compareHash();
+			}
+		});
 		
 		Group checkGroup = new Group(filterGrp, SWT.NONE);
 		checkGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1));
@@ -231,6 +270,9 @@ public class XLogFilterDialog extends Dialog {
 				descText.setText("");
 				text1Text.setText("");
 				text2Text.setText("");
+				text3Text.setText("");
+				text4Text.setText("");
+				text5Text.setText("");
 				userAgentTxt.setText("");
 				onlySqlBtn.setSelection(false);
 				onlyApiBtn.setSelection(false);

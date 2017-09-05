@@ -18,20 +18,20 @@
 
 package scouter.server.db.io;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException
+import java.util.ArrayList
+import java.util.HashMap
+import java.util.List
+import java.util.Map
 
-import scouter.server.Logger;
-import scouter.io.DataInputX;
-import scouter.util.CompareUtil;
-import scouter.util.HashUtil;
+import scouter.server.{Configure, Logger}
+import scouter.io.DataInputX
+import scouter.util.CompareUtil
+import scouter.util.HashUtil
 import scouter.util.IClose;
 
 class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
-
+    val conf = Configure.getInstance();
     val MB = 1024 * 1024;
 
     val path = _path
@@ -81,6 +81,7 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
         var realKeyPos = hashBlock.get(keyHash);
 
         try {
+            var looping = 0;
             while (realKeyPos > 0) {
                 if (this.keyFile.isDeleted(realKeyPos) == false) {
                     val oKey = this.keyFile.getTimeKey(realKeyPos);
@@ -89,6 +90,10 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
                     }
                 }
                 realKeyPos = this.keyFile.getPrevPos(realKeyPos);
+                looping += 1;
+            }
+            if(looping > conf.log_index_traversal_warning_count) {
+                Logger.println("S152", 10, "[warn] Too many index deep searching. " + DataInputX.toLong(key, 0));
             }
         } catch {
             case e: IOException =>

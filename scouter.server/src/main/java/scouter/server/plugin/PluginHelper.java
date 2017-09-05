@@ -23,7 +23,11 @@ import scouter.server.Logger;
 import scouter.server.core.AlertCore;
 import scouter.server.db.TextRD;
 
-import java.lang.reflect.*;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -127,91 +131,91 @@ public class PluginHelper {
 	}
 
 	public String getApicallString(int hash) {
-		return getErrorString(NO_DATE, hash);
+		return getApicallString(NO_DATE, hash);
 	}
 	public String getApicallString(String yyyymmdd, int hash) {
 		return TextRD.getString(yyyymmdd, TextTypes.APICALL, hash);
 	}
 
 	public String getMethodString(int hash) {
-		return getErrorString(NO_DATE, hash);
+		return getMethodString(NO_DATE, hash);
 	}
 	public String getMethodString(String yyyymmdd, int hash) {
 		return TextRD.getString(yyyymmdd, TextTypes.METHOD, hash);
 	}
 
 	public String getServiceString(int hash) {
-		return getErrorString(NO_DATE, hash);
+		return getServiceString(NO_DATE, hash);
 	}
 	public String getServiceString(String yyyymmdd, int hash) {
 		return TextRD.getString(yyyymmdd, TextTypes.SERVICE, hash);
 	}
 
 	public String getSqlString(int hash) {
-		return getErrorString(NO_DATE, hash);
+		return getSqlString(NO_DATE, hash);
 	}
 	public String getSqlString(String yyyymmdd, int hash) {
 		return TextRD.getString(yyyymmdd, TextTypes.SQL, hash);
 	}
 
 	public String getObjectString(int hash) {
-		return getErrorString(NO_DATE, hash);
+		return getObjectString(NO_DATE, hash);
 	}
 	public String getObjectString(String yyyymmdd, int hash) {
 		return TextRD.getString(yyyymmdd, TextTypes.OBJECT, hash);
 	}
 
 	public String getRefererString(int hash) {
-		return getErrorString(NO_DATE, hash);
+		return getRefererString(NO_DATE, hash);
 	}
 	public String getRefererString(String yyyymmdd, int hash) {
 		return TextRD.getString(yyyymmdd, TextTypes.REFERER, hash);
 	}
 
 	public String getUserAgentString(int hash) {
-		return getErrorString(NO_DATE, hash);
+		return getUserAgentString(NO_DATE, hash);
 	}
 	public String getUserAgentString(String yyyymmdd, int hash) {
 		return TextRD.getString(yyyymmdd, TextTypes.USER_AGENT, hash);
 	}
 
 	public String getUserGroupString(int hash) {
-		return getErrorString(NO_DATE, hash);
+		return getUserGroupString(NO_DATE, hash);
 	}
 	public String getUserGroupString(String yyyymmdd, int hash) {
 		return TextRD.getString(yyyymmdd, TextTypes.GROUP, hash);
 	}
 
 	public String getCityString(int hash) {
-		return getErrorString(NO_DATE, hash);
+		return getCityString(NO_DATE, hash);
 	}
 	public String getCityString(String yyyymmdd, int hash) {
 		return TextRD.getString(yyyymmdd, TextTypes.CITY, hash);
 	}
 
 	public String getLoginString(int hash) {
-		return getErrorString(NO_DATE, hash);
+		return getLoginString(NO_DATE, hash);
 	}
 	public String getLoginString(String yyyymmdd, int hash) {
 		return TextRD.getString(yyyymmdd, TextTypes.LOGIN, hash);
 	}
 
 	public String getDescString(int hash) {
-		return getErrorString(NO_DATE, hash);
+		return getDescString(NO_DATE, hash);
 	}
 	public String getDescString(String yyyymmdd, int hash) {
 		return TextRD.getString(yyyymmdd, TextTypes.DESC, hash);
 	}
 
 	public String getWebString(int hash) {
-		return getErrorString(NO_DATE, hash);
+		return getWebString(NO_DATE, hash);
 	}
 	public String getWebString(String yyyymmdd, int hash) {
 		return TextRD.getString(yyyymmdd, TextTypes.WEB, hash);
 	}
 
 	public String getHashMsgString(int hash) {
-		return getErrorString(NO_DATE, hash);
+		return getHashMsgString(NO_DATE, hash);
 	}
 	public String getHashMsgString(String yyyymmdd, int hash) {
 		return TextRD.getString(yyyymmdd, TextTypes.HASH_MSG, hash);
