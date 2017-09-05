@@ -253,12 +253,15 @@ class XLogService {
         val objHashLv = param.getList(ParamConstant.OBJ_HASH)
 
         if (objHashLv == null || objHashLv.size() < 1) {
+            writeHistoryPerfGroupV2MetaPack(dout, false, 0, 0)
             return
         }
         if((txid == 0 && lastBucketTime != 0) || (txid != 0 && lastBucketTime == 0)) {
+            writeHistoryPerfGroupV2MetaPack(dout, false, 0, 0)
             return
         }
         if(limitCount == 0) {
+            writeHistoryPerfGroupV2MetaPack(dout, false, 0, 0)
             return
         }
 
@@ -303,14 +306,20 @@ class XLogService {
         XLogRD.readByTimeLimitCount(date, stime, etime, lastBucketTime, limitCount, handler)
 
         if(lastTime > 0L) {
-            val metaPack = new MapPack();
-            metaPack.put(ParamConstant.XLOG_RESULT_HAS_MORE, new BooleanValue(hasMore))
-            metaPack.put(ParamConstant.XLOG_RESULT_LAST_TIME, new DecimalValue(lastTime))
-            metaPack.put(ParamConstant.XLOG_RESULT_LAST_TXID, new DecimalValue(lastData.txid))
-
-            dout.writeByte(TcpFlag.HasNEXT)
-            dout.writePack(metaPack)
+            writeHistoryPerfGroupV2MetaPack(dout, hasMore, lastTime, lastData.txid)
+        } else {
+            writeHistoryPerfGroupV2MetaPack(dout, false, 0, 0)
         }
+    }
+
+    def writeHistoryPerfGroupV2MetaPack(dout: DataOutputX, hasMore: Boolean, lastTime: Long, lastTxid: Long): Unit = {
+        val metaPack = new MapPack();
+        metaPack.put(ParamConstant.XLOG_RESULT_HAS_MORE, new BooleanValue(hasMore))
+        metaPack.put(ParamConstant.XLOG_RESULT_LAST_TIME, new DecimalValue(lastTime))
+        metaPack.put(ParamConstant.XLOG_RESULT_LAST_TXID, new DecimalValue(lastTxid))
+
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writePack(metaPack)
     }
 
     @ServiceHandler(RequestCmd.XLOG_READ_BY_GXID)

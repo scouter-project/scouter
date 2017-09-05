@@ -72,11 +72,11 @@
                                 <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.webapp.assembly.name}.tar" dest="${scouter.assembly.webapp.dir}" />
 
                                 <!-- copy webapp jar for scouter server embedded mode -->
-                                <copy todir="${scouter.assembly.server.dir}/lib">
-                                    <fileset dir="${scouter.assembly.webapp.dir}">
-                                        <include name="scouter-webapp-*.jar" />
-                                    </fileset>
-                                </copy>
+                                <!--<copy todir="${scouter.assembly.server.dir}/lib">-->
+                                    <!--<fileset dir="${scouter.assembly.webapp.dir}">-->
+                                        <!--<include name="scouter-webapp-*.jar" />-->
+                                    <!--</fileset>-->
+                                <!--</copy>-->
 
                                 <!-- make tar ball -->
                                 <tar destfile="${project.build.directory}/${scouter.product.name}.tar">

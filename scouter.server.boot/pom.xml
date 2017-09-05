@@ -93,7 +93,7 @@
                                     </tarfileset>
                                     <tarfileset dir="${project.build.directory}">
                                         <include name="${project.artifactId}.jar" />
-                                        <include name="lib/*" />
+                                        <include name="lib/**/*" />
                                     </tarfileset>
                                     <tarfileset dir="${project.basedir.assembly.dir}">
                                         <include name="conf/**/*" />

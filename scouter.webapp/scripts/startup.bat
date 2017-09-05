@@ -1,1 +1,1 @@
-java -classpath ./scouter.webapp.jar scouterx.webapp.main.WebAppMain
+java -cp scouter.webapp.jar;lib/* scouterx.webapp.main.WebAppMain

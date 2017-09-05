@@ -53,6 +53,8 @@ public class HttpServer extends Thread {
     @Override
     public void run() {
         Configure conf = Configure.getInstance();
+        System.setProperty("scouter_webapp_log_dir", conf.log_dir); //set slf4j logging dir
+
         if (conf.net_http_server_enabled) {
             Server server = new Server(conf.net_http_port);
 

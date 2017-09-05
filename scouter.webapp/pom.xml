@@ -209,10 +209,10 @@
                                     <tarfileset dir="${project.build.directory}">
                                         <include name="${project.build.finalName}.jar" />
                                         <include name="${scouter.webapp.jarName}.jar" />
+                                        <include name="lib/**/*" />
                                     </tarfileset>
                                     <tarfileset dir="${project.basedir}">
                                         <include name="conf/**/*" />
-                                        <include name="lib/**/*" />
                                     </tarfileset>
                                 </tar>
 
