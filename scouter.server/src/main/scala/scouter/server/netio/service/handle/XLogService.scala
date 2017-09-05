@@ -328,6 +328,9 @@ class XLogService {
         val desc = param.getText("desc");
         val text1 = param.getText("text1");
         val text2 = param.getText("text2");
+        val text3 = param.getText("text3");
+        val text4 = param.getText("text4");
+        val text5 = param.getText("text5");
 
         val serviceMatch = if (service == null) null else new StrMatch(service);
         val ipMatch = if (ip == null) null else new StrMatch(ip);
@@ -335,6 +338,9 @@ class XLogService {
         val descMatch = if (desc == null) null else new StrMatch(desc);
         val text1Match = if (text1 == null) null else new StrMatch(text1);
         val text2Match = if (text2 == null) null else new StrMatch(text2);
+        val text3Match = if (text3 == null) null else new StrMatch(text3);
+        val text4Match = if (text4 == null) null else new StrMatch(text4);
+        val text5Match = if (text5 == null) null else new StrMatch(text5);
 
         val date = DateUtil.yyyymmdd(stime);
         val date2 = DateUtil.yyyymmdd(etime);
@@ -392,6 +398,27 @@ class XLogService {
             if (text2Match != null) {
                 var text2Name = x.text2;
                 if (text2Match.include(text2Name) == false) {
+                    ok = false;
+                }
+            }
+
+            if (text3Match != null) {
+                var text3Name = x.text3;
+                if (text3Match.include(text3Name) == false) {
+                    ok = false;
+                }
+            }
+
+            if (text4Match != null) {
+                var text4Name = x.text4;
+                if (text4Match.include(text4Name) == false) {
+                    ok = false;
+                }
+            }
+
+            if (text5Match != null) {
+                var text5Name = x.text5;
+                if (text5Match.include(text5Name) == false) {
                     ok = false;
                 }
             }

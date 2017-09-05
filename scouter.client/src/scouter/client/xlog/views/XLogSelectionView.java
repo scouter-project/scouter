@@ -287,6 +287,12 @@ public class XLogSelectionView extends ViewPart {
 				return d.p.text1;
 			case TEXT2 :
 				return d.p.text2;
+			case TEXT3 :
+				return d.p.text3;
+			case TEXT4 :
+				return d.p.text4;
+			case TEXT5 :
+				return d.p.text5;
 			case DUMP :
 				return d.p.hasDump == 1 ? "Y" : null;
 			case UA :

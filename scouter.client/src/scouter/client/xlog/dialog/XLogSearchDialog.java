@@ -86,6 +86,9 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 	Text descText;
 	Text text1Text;
 	Text text2Text;
+	Text text3Text;
+	Text text4Text;
+	Text text5Text;
 	Text serviceText;
 	
 	Text dateText;
@@ -123,6 +126,9 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 				descText.setEnabled(true);
 				text1Text.setEnabled(true);
 				text2Text.setEnabled(true);
+				text3Text.setEnabled(true);
+				text4Text.setEnabled(true);
+				text5Text.setEnabled(true);
 				serviceText.setEnabled(true);
 				
 				quickSearchGrp.setEnabled(false);
@@ -245,6 +251,36 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 		text2Text = new Text(normalSearchGrp, SWT.BORDER);
 		gr = new GridData(SWT.FILL, SWT.FILL, true, false, 2 ,1);
 		text2Text.setLayoutData(gr);
+
+		label = new Label(normalSearchGrp, SWT.NONE);
+		gr = new GridData(SWT.FILL, SWT.FILL, false, false);
+		gr.widthHint = 70;
+		label.setLayoutData(gr);
+		label.setText("TEXT3");
+
+		text3Text = new Text(normalSearchGrp, SWT.BORDER);
+		gr = new GridData(SWT.FILL, SWT.FILL, true, false, 2 ,1);
+		text3Text.setLayoutData(gr);
+
+		label = new Label(normalSearchGrp, SWT.NONE);
+		gr = new GridData(SWT.FILL, SWT.FILL, false, false);
+		gr.widthHint = 70;
+		label.setLayoutData(gr);
+		label.setText("TEXT4");
+
+		text4Text = new Text(normalSearchGrp, SWT.BORDER);
+		gr = new GridData(SWT.FILL, SWT.FILL, true, false, 2 ,1);
+		text4Text.setLayoutData(gr);
+
+		label = new Label(normalSearchGrp, SWT.NONE);
+		gr = new GridData(SWT.FILL, SWT.FILL, false, false);
+		gr.widthHint = 70;
+		label.setLayoutData(gr);
+		label.setText("TEXT5");
+
+		text5Text = new Text(normalSearchGrp, SWT.BORDER);
+		gr = new GridData(SWT.FILL, SWT.FILL, true, false, 2 ,1);
+		text5Text.setLayoutData(gr);
 		
 		Button quickRadio = new Button(dialog, SWT.RADIO);
 		quickRadio.setText("Quick Search");
@@ -267,6 +303,9 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 				descText.setEnabled(false);
 				text1Text.setEnabled(false);
 				text2Text.setEnabled(false);
+				text3Text.setEnabled(false);
+				text4Text.setEnabled(false);
+				text5Text.setEnabled(false);
 				serviceText.setEnabled(false);
 			}
 		});
@@ -422,6 +461,15 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 		}
 		if (StringUtil.isNotEmpty(text2Text.getText())) {
 			param.put("text2", text2Text.getText());
+		}
+		if (StringUtil.isNotEmpty(text3Text.getText())) {
+			param.put("text3", text3Text.getText());
+		}
+		if (StringUtil.isNotEmpty(text4Text.getText())) {
+			param.put("text4", text4Text.getText());
+		}
+		if (StringUtil.isNotEmpty(text5Text.getText())) {
+			param.put("text5", text5Text.getText());
 		}
 		new SearchXLogJob(param).schedule();
 		dialog.close();
