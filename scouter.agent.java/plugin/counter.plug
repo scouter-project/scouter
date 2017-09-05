@@ -1,2 +1,2 @@
 [counter]
-//public void counter(scouter.lang.pack.PerfCounterPack pack)
+//public void counter(scouter.lang.pack.PerfCounterPack $pack)
