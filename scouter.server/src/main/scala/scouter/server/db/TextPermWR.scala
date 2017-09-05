@@ -41,6 +41,7 @@ object TextPermWR {
       case TextTypes.ERROR => false
       case TextTypes.SERVICE => !conf.mgr_text_db_daily_service_enabled
       case TextTypes.APICALL => !conf.mgr_text_db_daily_api_enabled
+      case TextTypes.USER_AGENT => !conf.mgr_text_db_daily_ua_enabled
       case _ => true
     }
   }

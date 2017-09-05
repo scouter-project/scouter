@@ -198,6 +198,8 @@ public class Configure extends Thread {
 	public boolean mgr_text_db_daily_service_enabled = false;
 	@ConfigDesc("true for daily dictionary mode about api name. default value is false that means it's permanent.")
 	public boolean mgr_text_db_daily_api_enabled = false;
+	@ConfigDesc("true for daily dictionary mode about user agent. default value is false that means it's permanent.")
+	public boolean mgr_text_db_daily_ua_enabled = false;
 
 	//XLog
 	@ConfigDesc("XLog Writer Queue Size")
@@ -381,6 +383,7 @@ public class Configure extends Thread {
 
 		this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false);
 		this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false);
+		this.mgr_text_db_daily_ua_enabled = getBoolean("mgr_text_db_daily_ua_enabled", false);
 
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
 		this.geoip_data_city_file = getValue("geoip_data_city_file", CONF_DIR + "GeoLiteCity.dat");
