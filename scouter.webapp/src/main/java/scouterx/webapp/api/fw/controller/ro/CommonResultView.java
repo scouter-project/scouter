@@ -5,11 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.jetty.http.HttpStatus;
+import org.slf4j.MDC;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.function.Consumer;
+
+import static scouterx.webapp.filter.LoggingInitServletFilter.LOG_TRACE_ID;
 
 /**
  * Created by gunlee on 2017. 8. 25.
@@ -22,6 +25,7 @@ public class CommonResultView<T> {
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	private int status = HttpStatus.OK_200;
+	private String requestId;
 	private int resultCode;
 	private String message;
 	private T result;
@@ -30,6 +34,7 @@ public class CommonResultView<T> {
 		this.resultCode = resultCode;
 		this.message = message;
 		this.result = result;
+		this.requestId = MDC.get(LOG_TRACE_ID);
 	}
 
 	public CommonResultView(int status, int resultCode, String message, T result) {
@@ -37,6 +42,7 @@ public class CommonResultView<T> {
 		this.resultCode = resultCode;
 		this.message = message;
 		this.result = result;
+		this.requestId = MDC.get(LOG_TRACE_ID);
 	}
 
 	public static CommonResultView success() {

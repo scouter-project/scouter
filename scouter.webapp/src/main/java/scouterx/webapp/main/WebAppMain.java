@@ -40,8 +40,11 @@ import scouterx.client.thread.ServerSessionObserver;
 import scouterx.webapp.configure.ConfigureAdaptor;
 import scouterx.webapp.configure.ConfigureManager;
 import scouterx.webapp.configure.ServerConfig;
+import scouterx.webapp.filter.LoggingInitServletFilter;
 
+import javax.servlet.DispatcherType;
 import java.io.File;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -174,6 +177,7 @@ public class WebAppMain {
 		ServletHolder jerseyHolder = new ServletHolder(ServletContainer.class);
 		jerseyHolder.setInitParameter("jersey.config.server.provider.packages", "scouterx.webapp");
 		context.addServlet(jerseyHolder, "/scouter/*");
+        context.addFilter(LoggingInitServletFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
 
 		ServletHolder defaultHolder = new ServletHolder("default", DefaultServlet.class);
 		defaultHolder.setInitParameter("dirAllowed","false");
