@@ -47,6 +47,10 @@ public class ParamConstant {
     public static final String XLOG_RESULT_LAST_TXID = "lastTxid";
     public static final String XLOG_RESULT_HAS_MORE = "hasMore";
 
+    public static final String ACTIVE_SERVICE_STEP1 = "act1";
+    public static final String ACTIVE_SERVICE_STEP2 = "act1";
+    public static final String ACTIVE_SERVICE_STEP3 = "act1";
+
     public static final String TEXT_TYPE = "type";
     public static final String TEXT_DICTKEY = "hash";
 

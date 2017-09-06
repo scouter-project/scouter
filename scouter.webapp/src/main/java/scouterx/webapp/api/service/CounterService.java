@@ -20,6 +20,7 @@ package scouterx.webapp.api.service;
 
 import scouterx.client.server.Server;
 import scouterx.webapp.api.consumer.CounterConsumer;
+import scouterx.webapp.api.model.SActiveService;
 import scouterx.webapp.api.model.counter.SCounter;
 
 import java.util.List;
@@ -34,7 +35,11 @@ public class CounterService {
         this.counterConsumer = new CounterConsumer();
     }
 
-    public List<SCounter> retrieveCountersByObjType(String objType, List<String> counterNames, final Server server) {
-        return counterConsumer.retrieveCountersByObjType(objType, counterNames, server);
+    public List<SCounter> retrieveRealTimeCountersByObjType(String objType, List<String> counterNames, final Server server) {
+        return counterConsumer.retrieveRealTimeCountersByObjType(objType, counterNames, server);
+    }
+
+    public List<SActiveService> retrieveRealTimeActiveServiceByObjType(final String objType, final Server server) {
+        return counterConsumer.retrieveRealTimeActiveServiceByObjType(objType, server);
     }
 }

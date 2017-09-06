@@ -50,6 +50,9 @@ class SpecialCounterService {
         var tps: Float = 0;
     }
 
+    /**
+      * search realtime running time-stepped active service count by objType
+      */
     @ServiceHandler(RequestCmd.ACTIVESPEED_REAL_TIME)
     def getActiveSpeedAll(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readMapPack();

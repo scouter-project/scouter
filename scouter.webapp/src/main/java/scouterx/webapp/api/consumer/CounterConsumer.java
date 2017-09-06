@@ -20,23 +20,32 @@ package scouterx.webapp.api.consumer;
 
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
+import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
-import scouterx.client.server.ServerManager;
+import scouterx.webapp.api.model.SActiveService;
 import scouterx.webapp.api.model.counter.SCounter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
 public class CounterConsumer {
 
-    public List<SCounter> retrieveCountersByObjType(String objType, List<String> counterNames, final Server server) {
+    /**
+     * get realtime counters's values by type
+     * @param objType
+     * @param counterNames
+     * @param server
+     * @return
+     */
+    public List<SCounter> retrieveRealTimeCountersByObjType(final String objType, List<String> counterNames, final Server server) {
         MapPack paramPack = new MapPack();
         paramPack.put(ParamConstant.OBJ_TYPE, objType);
         ListValue counterNameLv = paramPack.newList(ParamConstant.COUNTER);
@@ -59,5 +68,21 @@ public class CounterConsumer {
         }
 
         return resultList;
+    }
+
+    /**
+     * get realtime active service by type
+     * @param objType
+     * @param server
+     */
+    public List<SActiveService> retrieveRealTimeActiveServiceByObjType(final String objType, final Server server) {
+        MapPack paramPack = new MapPack();
+        paramPack.put(ParamConstant.OBJ_TYPE, objType);
+
+        List<Pack> results = TcpProxy.getTcpProxy(server).process(RequestCmd.ACTIVESPEED_REAL_TIME, paramPack);
+        return results.stream()
+                .map(pack -> (MapPack) pack)
+                .map(SActiveService::of)
+                .collect(Collectors.toList());
     }
 }
