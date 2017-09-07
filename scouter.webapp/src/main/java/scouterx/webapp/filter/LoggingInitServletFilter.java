@@ -39,7 +39,7 @@ public class LoggingInitServletFilter implements Filter {
     private static final String INSTANCE_ID = System.getProperty(INSTANCE_ID_KEY, "#");
     private static final String LOG_TRACE_HEADER = INSTANCE_ID + RID;
 
-    public static final String LOG_TRACE_ID = "logTraceId";
+    public static final String requestId = "requestId";
 
     private static AtomicInteger counter = new AtomicInteger();
 
@@ -56,11 +56,11 @@ public class LoggingInitServletFilter implements Filter {
     void initLogging(ServletRequest request) {
         int requestId = counter.getAndIncrement();
         String logTraceId = LOG_TRACE_HEADER + requestId;
-        MDC.put(LOG_TRACE_ID, logTraceId);
+        MDC.put(LoggingInitServletFilter.requestId, logTraceId);
     }
 
     void clear() {
-        MDC.remove(LOG_TRACE_ID);
+        MDC.remove(requestId);
     }
 
     @Override

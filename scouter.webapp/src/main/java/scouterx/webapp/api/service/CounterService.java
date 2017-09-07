@@ -22,6 +22,8 @@ import scouterx.client.server.Server;
 import scouterx.webapp.api.consumer.CounterConsumer;
 import scouterx.webapp.api.model.SActiveService;
 import scouterx.webapp.api.model.counter.SCounter;
+import scouterx.webapp.api.requestmodel.CounterRequestByType;
+import scouterx.webapp.api.viewmodel.CounterView;
 
 import java.util.List;
 
@@ -41,5 +43,9 @@ public class CounterService {
 
     public List<SActiveService> retrieveRealTimeActiveServiceByObjType(final String objType, final Server server) {
         return counterConsumer.retrieveRealTimeActiveServiceByObjType(objType, server);
+    }
+
+    public List<CounterView> retrieveCounterByObjType(CounterRequestByType request) {
+        return counterConsumer.retrieveCounterByObjType(request);
     }
 }

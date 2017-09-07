@@ -23,13 +23,16 @@ import scouterx.webapp.api.exception.ErrorState;
 import scouterx.webapp.api.fw.controller.ro.CommonResultView;
 import scouterx.webapp.api.model.SActiveService;
 import scouterx.webapp.api.model.counter.SCounter;
+import scouterx.webapp.api.requestmodel.CounterRequestByType;
 import scouterx.webapp.api.service.CounterService;
+import scouterx.webapp.api.viewmodel.CounterView;
 import scouterx.webapp.util.ZZ;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -57,7 +60,7 @@ public class CounterController {
     }
 
     /**
-     * get values of several counters for objects given types
+     * get current values of several counters for objects given types
      * uri : /counter/realTime/each/counters/{objType}/byType?serverId=1001010&counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
      *
      * @param objType
@@ -93,7 +96,7 @@ public class CounterController {
     }
 
     /**
-     * get values of several counters for given an object
+     * get current values of several counters for given an object
      * uri : /counter/realTime/each/counters/{objHash}?counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
      *
      * @param objHash
@@ -138,5 +141,20 @@ public class CounterController {
         //TODO
         ErrorState.throwNotImplementedException();
         return null;
+    }
+
+    /**
+     * get values of several counters for objects given types
+     * uri : /counter/each/{counter}/{objType}/byType?serverId=1001010&fromYmd=20170809&toYmd=20170810
+     *
+     * @param request @see {@link CounterRequestByType}
+     */
+    @GET
+    @Path("/each/{counter}/{objType}/byType")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<SCounter>> retrieveRealTimeCountersByObjType(@BeanParam @Valid CounterRequestByType request) {
+        List<CounterView> counterViewList = counterService.retrieveCounterByObjType(request);
+        return CommonResultView.success(counterViewList);
+
     }
 }

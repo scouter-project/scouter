@@ -30,6 +30,9 @@ public class ParamConstant {
     public static final String COUNTER = "counter";
     public static final String VALUE = "value";
     public static final String DATE = "date";
+    public static final String TIME = "time";
+    public static final String SDATE = "sDate";
+    public static final String EDATE = "eDate";
 
     public static final String XLOG_INDEX = "index";
     public static final String XLOG_LOOP = "loop";
@@ -48,8 +51,8 @@ public class ParamConstant {
     public static final String XLOG_RESULT_HAS_MORE = "hasMore";
 
     public static final String ACTIVE_SERVICE_STEP1 = "act1";
-    public static final String ACTIVE_SERVICE_STEP2 = "act1";
-    public static final String ACTIVE_SERVICE_STEP3 = "act1";
+    public static final String ACTIVE_SERVICE_STEP2 = "act2";
+    public static final String ACTIVE_SERVICE_STEP3 = "act3";
 
     public static final String TEXT_TYPE = "type";
     public static final String TEXT_DICTKEY = "hash";

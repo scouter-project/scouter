@@ -6,13 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.MDC;
+import scouterx.webapp.filter.LoggingInitServletFilter;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.function.Consumer;
-
-import static scouterx.webapp.filter.LoggingInitServletFilter.LOG_TRACE_ID;
 
 /**
  * Created by gunlee on 2017. 8. 25.
@@ -34,7 +33,7 @@ public class CommonResultView<T> {
 		this.resultCode = resultCode;
 		this.message = message;
 		this.result = result;
-		this.requestId = MDC.get(LOG_TRACE_ID);
+		this.requestId = MDC.get(LoggingInitServletFilter.requestId);
 	}
 
 	public CommonResultView(int status, int resultCode, String message, T result) {
@@ -42,7 +41,7 @@ public class CommonResultView<T> {
 		this.resultCode = resultCode;
 		this.message = message;
 		this.result = result;
-		this.requestId = MDC.get(LOG_TRACE_ID);
+		this.requestId = MDC.get(LoggingInitServletFilter.requestId);
 	}
 
 	public static CommonResultView success() {

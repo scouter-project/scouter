@@ -168,6 +168,7 @@ public class TcpProxy {
 				}
 			} catch (Throwable e) {
 				tcp.close();
+				throw new RuntimeException(e);
 			}
 		}
 	}
