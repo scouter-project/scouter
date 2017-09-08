@@ -27,14 +27,13 @@ public class TextProxy {
 	public TextProxy() {
 	}
 
-	
 	final public static TextModel service = new TextModel(TextTypes.SERVICE, 20_000);
 	final public static TextModel sql = new TextModel(TextTypes.SQL, 20_000);
 	final public static TextModel method = new TextModel(TextTypes.METHOD, 20_000);
 	final public static TextModel error = new TextModel(TextTypes.ERROR, 20_000);
 	final public static TextModel apicall = new TextModel(TextTypes.APICALL, 20_000);
 	final public static TextModel object = new TextModel(TextTypes.OBJECT, 2_000);
-	final public static TextModel referer = new TextModel(TextTypes.REFERER, 20_000);
+	final public static TextModel referrer = new TextModel(TextTypes.REFERER, 20_000);
 	final public static TextModel userAgent = new TextModel(TextTypes.USER_AGENT, 20_000);
 	final public static TextModel group = new TextModel(TextTypes.GROUP, 2_000);
 	final public static TextModel sql_tables = new TextModel(TextTypes.SQL_TABLES, 2_000);
@@ -55,7 +54,7 @@ public class TextProxy {
 		textModelMap.put(TextTypes.ERROR, error);
 		textModelMap.put(TextTypes.APICALL, apicall);
 		textModelMap.put(TextTypes.OBJECT, object);
-		textModelMap.put(TextTypes.REFERER, referer);
+		textModelMap.put(TextTypes.REFERER, referrer);
 		textModelMap.put(TextTypes.USER_AGENT, userAgent);
 		textModelMap.put(TextTypes.GROUP, group);
 		textModelMap.put(TextTypes.SQL_TABLES, sql_tables);

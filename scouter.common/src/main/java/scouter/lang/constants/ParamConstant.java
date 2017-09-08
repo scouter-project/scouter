@@ -33,6 +33,8 @@ public class ParamConstant {
     public static final String TIME = "time";
     public static final String SDATE = "sDate";
     public static final String EDATE = "eDate";
+    public static final String HASH = "hash";
+    public static final String TYPE = "type";
 
     public static final String XLOG_INDEX = "index";
     public static final String XLOG_LOOP = "loop";

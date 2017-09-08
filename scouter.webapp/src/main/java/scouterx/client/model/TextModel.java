@@ -19,6 +19,7 @@ package scouterx.client.model;
 
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
+import scouter.lang.pack.TextPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.Hexa32;
@@ -34,7 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class TextModel {
-
+	private LinkedMap<Integer, String> entries = new LinkedMap<Integer, String>();
 	final private String cmd = RequestCmd.GET_TEXT_100;
 	final private String type;
 	private int limit;
@@ -56,14 +57,31 @@ public class TextModel {
 		return limit;
 	}
 
-	private LinkedMap<Integer, String> entries = new LinkedMap<Integer, String>();
-
-	public void putText(int id, String name) {
-		entries.put(id, name);
+	public String getText(String date, int hash, int serverId) {
+		if (hash == 0)
+			return null;
+		String value = getCachedText(hash);
+		if (value != null)
+			return value;
+		ArrayList a = new ArrayList();
+		a.add(hash);
+		load(date, a, serverId);
+		return getCachedText(hash);
 	}
 
-	public String getText(int id) {
+	public String getCachedText(int id) {
 		return entries.get(id);
+	}
+
+	public String getCachedTextIfNullDefault(int id) {
+		if (id == 0) {
+			return "";
+		}
+		String s = entries.get(id);
+		if(s == null) {
+			s = new StringBuilder("*fail*").append(":").append(TextTypeEnum.of(this).getTypeName()).append(":").append(id).toString();
+		}
+		return s;
 	}
 
 	public boolean load(String date, Collection<Integer> hashes, int serverId) {
@@ -100,38 +118,21 @@ public class TextModel {
 				String key = en.next();
 				String value = re.getText(key);
 				if (StringUtil.isNotEmpty(value)) {
-					entries.put((int) Hexa32.toLong32(key), value);
-					if (entries.size() > limit){
-						entries.removeFirst();
-					}
+					cache((int) Hexa32.toLong32(key), value);
 				}
 			}
 		}
-
 		return true;
 	}
 
-	public String getLoadText(String date, int hash, int serverId) {
-		if (hash == 0)
-			return null;
-		String value = getText(hash);
-		if (value != null)
-			return value;
-		ArrayList a = new ArrayList();
-		a.add(hash);
-		load(date, a, serverId);
-		return getText(hash);
+	public void cache(TextPack pack) {
+		cache(pack.hash, pack.text);
 	}
 
-	public void load(String date, ListValue hashList, int serverId) {
-		ArrayList<Integer> arrList = new ArrayList<Integer>();
-		for (int i = 0; i < hashList.size(); i++) {
-			int hash = (int) hashList.getLong(i);
-			if (hash != 0) {
-				arrList.add(hash);
-			}
+	public synchronized void cache(int hash, String value) {
+		entries.put(hash, value);
+		if (entries.size() > limit){
+			entries.removeFirst();
 		}
-		load(date, arrList, serverId);
-
 	}
 }

@@ -19,11 +19,11 @@ package scouter.lang.pack;
 
 
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.util.Hexa32;
+
+import java.io.IOException;
 
 
 
@@ -57,6 +57,13 @@ public class TextPack implements Pack {
 		dout.writeText(xtype);
 		dout.writeInt(hash);
 		dout.writeText(text);
+	}
+
+	public static void writeDirect(DataOutputX dout, byte packType, String _xtype, int _hash, String _text) throws IOException {
+		dout.writeByte(packType);
+		dout.writeText(_xtype);
+		dout.writeInt(_hash);
+		dout.writeText(_text);
 	}
 
 	public Pack read(DataInputX din) throws IOException {

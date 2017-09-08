@@ -22,6 +22,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import scouter.lang.pack.XLogPack;
+import scouter.lang.pack.XLogTypes;
+import scouterx.client.model.TextLoader;
+import scouterx.client.model.TextProxy;
+import scouterx.client.model.TextTypeEnum;
 import scouterx.webapp.util.ZZ;
 
 /**
@@ -30,7 +34,7 @@ import scouterx.webapp.util.ZZ;
 @Getter
 @Setter
 @Builder
-public class SXlog {
+public class XLogData {
     /**
      * Transaction endtime
      */
@@ -40,17 +44,17 @@ public class SXlog {
      */
     private int objHash;
     /**
-     * Transaction name Hash
+     * Transaction name
      */
-    private int service;
+    private String service;
     /**
      * Transaction ID
      */
     private long txid;
     /**
-     * thread name hash
+     * thread name
      */
-    private int threadNameHash;
+    private String threadName;
     /**
      * Caller ID
      */
@@ -64,9 +68,9 @@ public class SXlog {
      */
     private int elapsed;
     /**
-     * Error hash
+     * Error
      */
-    private int error;
+    private String error;
     /**
      * Cpu time(ms)
      */
@@ -82,28 +86,28 @@ public class SXlog {
     /**
      * Remote ip address
      */
-    private String ipaddr;
+    private String ipAddr;
     /**
      * Allocated memory(kilo byte)
      */
-    private int kbytes;
+    private int allocatedMemory;
 
     /**
      * xlog generated random string to indicate unique user
      */
-    private long userid;
+    private long internalId;
     /**
      * User-agent hash
      */
-    private int userAgent;
+    private String userAgent;
     /**
-     * Referrer hash
+     * Referer
      */
-    private int referrer;
+    private String referrer;
     /**
-     * Group hash
+     * Group
      */
-    private int group;
+    private String group;
     /**
      * ApiCall count
      */
@@ -119,19 +123,19 @@ public class SXlog {
     /**
      * City hash
      */
-    private int city;
+    private String city;
     /**
      * XLog type. WebService:0, AppService:1, BackgroundThread:2
      */
-    private int xType; // see XLogTypes
+    private String xLogType; // see XLogTypes
     /**
-     * Login hash
+     * Login value set from java agent plugin scripting
      */
-    private int login;
+    private String login;
     /**
-     * Description hash
+     * Description value set from java agent plugin scripting
      */
-    private int desc;
+    private String desc;
     /**
      * has Thread Dump ? No:0, Yes:1
      */
@@ -149,48 +153,68 @@ public class SXlog {
     /**
      * queuing host and time
      */
-    private int queuingHostHash;
+    private String queuingHost;
     private int queuingTime;
-    private int queuing2ndHostHash;
+    private String queuing2ndHost;
     private int queuing2ndTime;
 
-    public static SXlog of(XLogPack p) {
-        return SXlog.builder()
+    public static XLogData of(XLogPack p, int serverId) {
+        preLoadDictionary(p, serverId);
+
+        return XLogData.builder()
                 .endTime(p.endTime)
                 .objHash(p.objHash)
-                .service(p.service)
+                .service(TextProxy.service.getCachedTextIfNullDefault(p.service))
                 .txid(p.txid)
-                .threadNameHash(p.threadNameHash)
+                .threadName(TextProxy.hashMessage.getCachedTextIfNullDefault(p.threadNameHash))
                 .caller(p.caller)
                 .gxid(p.gxid)
                 .elapsed(p.elapsed)
-                .error(p.error)
+                .error(TextProxy.error.getCachedTextIfNullDefault(p.error))
                 .cpu(p.cpu)
                 .sqlCount(p.sqlCount)
                 .sqlTime(p.sqlTime)
-                .ipaddr(ZZ.ipByteToString(p.ipaddr))
-                .kbytes(p.kbytes)
-                .userid(p.userid)
-                .userAgent(p.userAgent)
-                .referrer(p.referer)
-                .group(p.group)
+                .ipAddr(ZZ.ipByteToString(p.ipaddr))
+                .allocatedMemory(p.kbytes)
+                .internalId(p.userid)
+                .userAgent(TextProxy.userAgent.getCachedTextIfNullDefault(p.userAgent))
+                .referrer(TextProxy.referrer.getCachedTextIfNullDefault(p.referer))
+                .group(TextProxy.group.getCachedTextIfNullDefault(p.group))
                 .apicallCount(p.apicallCount)
                 .apicallTime(p.apicallTime)
                 .countryCode(p.countryCode)
-                .city(p.city)
-                .xType(p.xType)
-                .login(p.login)
-                .desc(p.desc)
+                .city(TextProxy.city.getCachedTextIfNullDefault(p.city))
+                .xLogType(XLogTypes.Type.of(p.xType).name())
+                .login(TextProxy.login.getCachedTextIfNullDefault(p.login))
+                .desc(TextProxy.desc.getCachedTextIfNullDefault(p.desc))
                 .hasDump(p.hasDump)
                 .text1(p.text1)
                 .text2(p.text2)
                 .text3(p.text3)
                 .text4(p.text4)
                 .text5(p.text5)
-                .queuingHostHash(p.queuingHostHash)
+                .queuingHost(TextProxy.hashMessage.getCachedTextIfNullDefault(p.queuingHostHash))
                 .queuingTime(p.queuingTime)
-                .queuing2ndHostHash(p.queuing2ndHostHash)
+                .queuing2ndHost(TextProxy.hashMessage.getCachedTextIfNullDefault(p.queuing2ndHostHash))
                 .queuing2ndTime(p.queuing2ndTime)
                 .build();
+    }
+
+    private static void preLoadDictionary(XLogPack pack, int serverId) {
+        TextLoader loader = new TextLoader(serverId);
+
+        loader.addTextHash(TextTypeEnum.SERVICE, pack.service);
+        loader.addTextHash(TextTypeEnum.HASH_MSG, pack.threadNameHash);
+        loader.addTextHash(TextTypeEnum.ERROR, pack.error);
+        loader.addTextHash(TextTypeEnum.USER_AGENT, pack.userAgent);
+        loader.addTextHash(TextTypeEnum.REFERRER, pack.referer);
+        loader.addTextHash(TextTypeEnum.GROUP, pack.group);
+        loader.addTextHash(TextTypeEnum.CITY, pack.city);
+        loader.addTextHash(TextTypeEnum.LOGIN, pack.login);
+        loader.addTextHash(TextTypeEnum.DESC, pack.desc);
+        loader.addTextHash(TextTypeEnum.HASH_MSG, pack.queuingHostHash);
+        loader.addTextHash(TextTypeEnum.HASH_MSG, pack.queuing2ndHostHash);
+
+        loader.loadAll();
     }
 }
