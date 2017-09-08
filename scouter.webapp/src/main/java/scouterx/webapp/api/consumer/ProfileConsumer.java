@@ -25,8 +25,10 @@ import scouter.lang.pack.XLogProfilePack;
 import scouter.lang.step.Step;
 import scouter.net.RequestCmd;
 import scouterx.client.net.TcpProxy;
+import scouterx.webapp.api.exception.ErrorState;
 import scouterx.webapp.api.requestmodel.ProfileRequest;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -42,8 +44,13 @@ public class ProfileConsumer {
         param.put(ParamConstant.XLOG_TXID, profileRequest.getTxid());
         param.put(ParamConstant.PROFILE_MAX, MAX_PROFILE_BLOCK);
 
-        XLogProfilePack pack = (XLogProfilePack)
-                TcpProxy.getTcpProxy(profileRequest.getServerId()).getSingle(RequestCmd.TRANX_PROFILE, param);
+        XLogProfilePack pack;
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(profileRequest.getServerId())) {
+            pack = (XLogProfilePack)
+                    tcpProxy.getSingle(RequestCmd.TRANX_PROFILE, param);
+        } catch (IOException e) {
+            throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+        }
 
         return Step.toObjectList(pack.profile);
     }

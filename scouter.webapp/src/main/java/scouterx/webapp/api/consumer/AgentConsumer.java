@@ -22,8 +22,10 @@ import scouter.lang.pack.ObjectPack;
 import scouter.net.RequestCmd;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
+import scouterx.webapp.api.exception.ErrorState;
 import scouterx.webapp.api.model.SObject;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,10 +38,16 @@ public class AgentConsumer {
      * retrieve object(agent) list from collector server
      */
     public List<SObject> retrieveAgentList(final Server server) {
-        List<SObject> objectList = TcpProxy.getTcpProxy(server)
-                .process(RequestCmd.OBJECT_LIST_REAL_TIME, null).stream()
-                .map(p -> SObject.of((ObjectPack)p, server))
-                .collect(Collectors.toList());
+        List<SObject> objectList = null;
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+            objectList = tcpProxy
+                    .process(RequestCmd.OBJECT_LIST_REAL_TIME, null).stream()
+                    .map(p -> SObject.of((ObjectPack) p, server))
+                    .collect(Collectors.toList());
+
+        } catch (IOException e) {
+            throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+        }
 
         return objectList;
     }

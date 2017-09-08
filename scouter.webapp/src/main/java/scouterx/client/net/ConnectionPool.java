@@ -35,14 +35,14 @@ public class ConnectionPool {
 	
 	void put(TcpProxy t) {
 		while (pool.size() >= POOL_SIZE) {
-			pool.removeFirst().close();
+			pool.removeFirst().realClose();
 		}
 		pool.add(t);
 	}
 	
 	public void closeAll() {
 		while (pool.size() > 0) {
-			pool.removeFirst().close();
+			pool.removeFirst().realClose();
 		}
 	}
 }

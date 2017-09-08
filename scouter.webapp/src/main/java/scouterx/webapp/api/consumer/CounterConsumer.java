@@ -27,11 +27,13 @@ import scouter.util.CastUtil;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
 import scouterx.client.server.ServerManager;
+import scouterx.webapp.api.exception.ErrorState;
 import scouterx.webapp.api.model.SActiveService;
 import scouterx.webapp.api.model.counter.SCounter;
 import scouterx.webapp.api.requestmodel.CounterRequestByType;
 import scouterx.webapp.api.viewmodel.CounterView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +59,14 @@ public class CounterConsumer {
             counterNameLv.add(name);
         }
 
-        MapPack outMapPack = (MapPack)TcpProxy.getTcpProxy(server).getSingle(RequestCmd.COUNTER_REAL_TIME_ALL_MULTI, paramPack);
+        MapPack outMapPack;
+        try(TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+            outMapPack = (MapPack) tcpProxy.getSingle(RequestCmd.COUNTER_REAL_TIME_ALL_MULTI, paramPack);
+
+        } catch (IOException e) {
+            throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+        }
+
         ListValue rObjHashLv = (ListValue) outMapPack.get(ParamConstant.OBJ_HASH);
         ListValue rCounterNameLv = (ListValue) outMapPack.get(ParamConstant.COUNTER);
         ListValue rCounterValueLv = (ListValue) outMapPack.get(ParamConstant.VALUE);
@@ -70,7 +79,6 @@ public class CounterConsumer {
 
             resultList.add(new SCounter(objHash, counterName, counterValue));
         }
-
         return resultList;
     }
 
@@ -83,7 +91,14 @@ public class CounterConsumer {
         MapPack paramPack = new MapPack();
         paramPack.put(ParamConstant.OBJ_TYPE, objType);
 
-        List<Pack> results = TcpProxy.getTcpProxy(server).process(RequestCmd.ACTIVESPEED_REAL_TIME, paramPack);
+        List<Pack> results;
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+            results = tcpProxy.process(RequestCmd.ACTIVESPEED_REAL_TIME, paramPack);
+
+        } catch (IOException e) {
+            throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+        }
+
         return results.stream()
                 .map(pack -> (MapPack) pack)
                 .map(SActiveService::of)
@@ -103,30 +118,34 @@ public class CounterConsumer {
         List<CounterView> counterViewList = new ArrayList<>();
         Server server = ServerManager.getInstance().getServerIfNullDefault(request.getServerId());
 
-        TcpProxy.getTcpProxy(server).process(RequestCmd.COUNTER_PAST_LONGDATE_ALL, paramPack, in -> {
-            MapPack mapPack = (MapPack) in.readPack();
-            int objHash = mapPack.getInt(ParamConstant.OBJ_HASH);
-            ListValue timeList = mapPack.getList(ParamConstant.TIME);
-            ListValue valueList = mapPack.getList(ParamConstant.VALUE);
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+            tcpProxy.process(RequestCmd.COUNTER_PAST_LONGDATE_ALL, paramPack, in -> {
+                MapPack mapPack = (MapPack) in.readPack();
+                int objHash = mapPack.getInt(ParamConstant.OBJ_HASH);
+                ListValue timeList = mapPack.getList(ParamConstant.TIME);
+                ListValue valueList = mapPack.getList(ParamConstant.VALUE);
 
-            List<Double> valueToDoubleList = new ArrayList<>();
-            for (int i = 0; i < timeList.size(); i++) {
-                valueToDoubleList.add(valueList.getDouble(i));
-            }
+                List<Double> valueToDoubleList = new ArrayList<>();
+                for (int i = 0; i < timeList.size(); i++) {
+                    valueToDoubleList.add(valueList.getDouble(i));
+                }
 
-            CounterView counterView = CounterView.builder()
-                    .objHash(objHash)
-                    .name(request.getCounter())
-                    .displayName(server.getCounterEngine().getCounterDisplayName(request.getObjType(), request.getCounter()))
-                    .unit(server.getCounterEngine().getCounterUnit(request.getObjType(), request.getCounter()))
-                    .fromYmd(request.getFromYmd())
-                    .toYmd(request.getToYmd())
-                    .timeList(Arrays.stream(timeList.toObjectArray()).map(Long.class::cast).collect(Collectors.toList()))
-                    .valueList(valueToDoubleList)
-                    .build();
+                CounterView counterView = CounterView.builder()
+                        .objHash(objHash)
+                        .name(request.getCounter())
+                        .displayName(server.getCounterEngine().getCounterDisplayName(request.getObjType(), request.getCounter()))
+                        .unit(server.getCounterEngine().getCounterUnit(request.getObjType(), request.getCounter()))
+                        .fromYmd(request.getFromYmd())
+                        .toYmd(request.getToYmd())
+                        .timeList(Arrays.stream(timeList.toObjectArray()).map(Long.class::cast).collect(Collectors.toList()))
+                        .valueList(valueToDoubleList)
+                        .build();
 
-            counterViewList.add(counterView);
-        });
+                counterViewList.add(counterView);
+            });
+        } catch (IOException e) {
+            throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+        }
 
         return counterViewList;
     }

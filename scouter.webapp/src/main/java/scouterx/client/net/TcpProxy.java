@@ -27,12 +27,13 @@ import scouter.net.TcpFlag;
 import scouterx.client.server.Server;
 import scouterx.client.server.ServerManager;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TcpProxy {
+public class TcpProxy implements Closeable {
 	private final ClientTCP tcp = new ClientTCP();
 	private Server server;
 	
@@ -61,12 +62,9 @@ public class TcpProxy {
 	public static synchronized void putTcpProxy(TcpProxy t) {
 		if (t == null)
 			return;
-		if (t.isValid() && t.getServer().isConnected()) {
-			ConnectionPool pool = t.getServer().getConnectionPool();
-			pool.put(t);
-		} else {
+		try {
 			t.close();
-		}
+		} catch (Throwable throwable) {}
 	}
 	
 	protected ClientTCP getClientTcp() {
@@ -83,7 +81,7 @@ public class TcpProxy {
 		}
 	}
 	
-	public synchronized void close() {
+	public synchronized void realClose() {
 		sendClose();
 		tcp.close();
 	}
@@ -205,11 +203,21 @@ public class TcpProxy {
 			}
 			return pack;
 		} finally {
-			proxy.close();
+			proxy.realClose();
 		}
 	}
 	
 	public InetAddress getLocalInetAddress() {
 		return tcp.socket.getLocalAddress();
+	}
+
+	@Override
+	public void close() throws IOException {
+		if (this.isValid() && this.getServer().isConnected()) {
+			ConnectionPool pool = this.getServer().getConnectionPool();
+			pool.put(this);
+		} else {
+			this.realClose();
+		}
 	}
 }

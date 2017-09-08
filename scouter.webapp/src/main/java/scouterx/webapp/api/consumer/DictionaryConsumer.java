@@ -24,9 +24,11 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouterx.client.net.INetReader;
 import scouterx.client.net.TcpProxy;
+import scouterx.webapp.api.exception.ErrorState;
 import scouterx.webapp.api.model.SDictionaryText;
 import scouterx.webapp.api.requestmodel.DictionaryRequest;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,17 +39,21 @@ public class DictionaryConsumer {
 
 	public void retrieveText(DictionaryRequest dictionaryRequest, INetReader reader) {
 
-		for (Map.Entry<String, Set<SDictionaryText>> textSetEntry : dictionaryRequest.getDictSets().entrySet()) {
-			MapPack paramPack = new MapPack();
-			paramPack.put(ParamConstant.DATE, dictionaryRequest.getYyyymmdd());
-			paramPack.put(ParamConstant.TEXT_TYPE, textSetEntry.getKey());
+		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(dictionaryRequest.getServerId())) {
+			for (Map.Entry<String, Set<SDictionaryText>> textSetEntry : dictionaryRequest.getDictSets().entrySet()) {
+				MapPack paramPack = new MapPack();
+				paramPack.put(ParamConstant.DATE, dictionaryRequest.getYyyymmdd());
+				paramPack.put(ParamConstant.TEXT_TYPE, textSetEntry.getKey());
 
-			ListValue dictKeyLV = paramPack.newList(ParamConstant.TEXT_DICTKEY);
-			for (SDictionaryText dictionaryText : textSetEntry.getValue()) {
-				dictKeyLV.add(dictionaryText.getDictKey());
+				ListValue dictKeyLV = paramPack.newList(ParamConstant.TEXT_DICTKEY);
+				for (SDictionaryText dictionaryText : textSetEntry.getValue()) {
+					dictKeyLV.add(dictionaryText.getDictKey());
+				}
+				tcpProxy.process(RequestCmd.GET_TEXT_PACK, paramPack, reader);
 			}
 
-			TcpProxy.getTcpProxy(dictionaryRequest.getServerId()).process(RequestCmd.GET_TEXT_PACK, paramPack, reader);
+		} catch (IOException e) {
+			throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
 		}
 	}
 }
