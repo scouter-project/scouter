@@ -20,9 +20,9 @@ package scouterx.webapp.api.controller;
 
 import scouterx.client.server.ServerManager;
 import scouterx.webapp.annotation.NoAuth;
-import scouterx.webapp.api.fw.controller.ro.CommonResultView;
-import scouterx.webapp.api.model.SUser;
-import scouterx.webapp.api.requestmodel.LoginRequest;
+import scouterx.webapp.api.view.CommonResultView;
+import scouterx.model.scouter.SUser;
+import scouterx.webapp.api.request.LoginRequest;
 import scouterx.webapp.api.service.UserService;
 
 import javax.inject.Singleton;

@@ -16,26 +16,32 @@
  *
  */
 
-package scouterx.webapp.api.service;
+package scouterx.webapp.api.request;
 
-import scouterx.client.net.INetReader;
-import scouterx.webapp.api.consumer.DictionaryConsumer;
-import scouterx.webapp.api.request.DictionaryRequest;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-import javax.validation.Valid;
-import javax.ws.rs.BeanParam;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public class DictionaryService {
-    private final DictionaryConsumer dictionaryConsumer;
+@Getter
+@Setter
+@ToString
+public class ProfileRequest {
 
-    public DictionaryService() {
-        this.dictionaryConsumer = new DictionaryConsumer();
-    }
+    @QueryParam("serverId")
+    private int serverId;
 
-    public void retrieveTextFromDictionary(@Valid @BeanParam DictionaryRequest dictionaryRequest, INetReader reader) {
-        dictionaryConsumer.retrieveText(dictionaryRequest, reader);
-    }
+    @NotNull
+    @PathParam("txid")
+    private long txid;
+
+    @NotNull
+    @PathParam("yyyymmdd")
+    private String yyyymmdd;
 }

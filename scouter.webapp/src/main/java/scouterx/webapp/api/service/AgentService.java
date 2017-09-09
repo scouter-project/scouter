@@ -20,7 +20,7 @@ package scouterx.webapp.api.service;
 
 import scouterx.client.server.Server;
 import scouterx.webapp.api.consumer.AgentConsumer;
-import scouterx.webapp.api.model.SObject;
+import scouterx.model.scouter.SObject;
 
 import java.util.List;
 

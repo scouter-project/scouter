@@ -16,26 +16,34 @@
  *
  */
 
-package scouterx.webapp.api.service;
+package scouterx.framework.cache;
 
-import scouterx.client.net.INetReader;
-import scouterx.webapp.api.consumer.DictionaryConsumer;
-import scouterx.webapp.api.request.DictionaryRequest;
-
-import javax.validation.Valid;
-import javax.ws.rs.BeanParam;
+import scouter.lang.pack.XLogPack;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 9.
  */
-public class DictionaryService {
-    private final DictionaryConsumer dictionaryConsumer;
+public class XLogLoopCache {
+    private int serverId = 0;
+    private long loop = 0;
+    private int index = 0;
+    private XLogPack[] queue;
 
-    public DictionaryService() {
-        this.dictionaryConsumer = new DictionaryConsumer();
+    public XLogLoopCache(int serverId, int capacity) {
+        this.serverId = serverId;
+        queue = new XLogPack[capacity];
     }
 
-    public void retrieveTextFromDictionary(@Valid @BeanParam DictionaryRequest dictionaryRequest, INetReader reader) {
-        dictionaryConsumer.retrieveText(dictionaryRequest, reader);
+    public void add(XLogPack pack) {
+        synchronized (queue) {
+            queue[index] = pack;
+            index += 1;
+            if (index >= queue.length) {
+                loop += 1;
+                index = 0;
+            }
+        }
     }
+
+
 }

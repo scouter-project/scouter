@@ -26,7 +26,7 @@ import scouter.util.Hexa32;
 import scouter.util.LinkedMap;
 import scouter.util.StringUtil;
 import scouterx.client.net.TcpProxy;
-import scouterx.webapp.api.exception.ErrorState;
+import scouterx.framework.exception.ErrorState;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -79,7 +79,7 @@ public class TextModel {
 		}
 		String s = entries.get(id);
 		if(s == null) {
-			s = new StringBuilder("*fail*").append(":").append(TextTypeEnum.of(this).getTypeName()).append(":").append(id).toString();
+			s = new StringBuilder("**unlabeled**:").append(TextTypeEnum.of(this).getTypeName()).append(":").append(id).toString();
 		}
 		return s;
 	}

@@ -16,27 +16,10 @@
  *
  */
 
-package scouterx.webapp.api.service;
-
-import scouterx.client.server.Server;
-import scouterx.webapp.api.consumer.AccountConsumer;
-import scouterx.framework.exception.ErrorState;
-import scouterx.model.scouter.SUser;
+package scouterx.model.scouter;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 3.
  */
-public class UserService {
-    private final AccountConsumer accountConsumer;
-
-    public UserService() {
-        this.accountConsumer = new AccountConsumer();
-    }
-
-    public void login(final Server server, final SUser user) {
-        boolean result = accountConsumer.login(server, user);
-        if (!result) {
-            throw ErrorState.LOGIN_FAIL.newBizException();
-        }
-    }
+public class SStep {
 }

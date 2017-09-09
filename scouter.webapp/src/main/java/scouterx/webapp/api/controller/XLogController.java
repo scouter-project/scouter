@@ -26,12 +26,12 @@ import scouter.lang.pack.Pack;
 import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
 import scouterx.client.net.INetReader;
-import scouterx.webapp.api.fw.controller.ro.CommonResultView;
-import scouterx.webapp.api.model.SXlog;
-import scouterx.webapp.api.requestmodel.PageableXLogRequest;
-import scouterx.webapp.api.requestmodel.RealTimeXLogRequest;
+import scouterx.webapp.api.view.CommonResultView;
+import scouterx.model.scouter.SXlog;
+import scouterx.webapp.api.request.PageableXLogRequest;
+import scouterx.webapp.api.request.RealTimeXLogRequest;
 import scouterx.webapp.api.service.XLogService;
-import scouterx.webapp.api.viewmodel.PageableXLogView;
+import scouterx.webapp.api.view.PageableXLogView;
 
 import javax.inject.Singleton;
 import javax.validation.Valid;

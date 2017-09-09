@@ -16,27 +16,29 @@
  *
  */
 
-package scouterx.webapp.api.service;
+package scouterx.webapp.api.view;
 
-import scouterx.client.server.Server;
-import scouterx.webapp.api.consumer.AccountConsumer;
-import scouterx.framework.exception.ErrorState;
-import scouterx.model.scouter.SUser;
+import lombok.Getter;
+import lombok.Setter;
+import scouterx.model.scouter.SXlog;
+
+import java.util.List;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ * response object about pageable XLog request.
+ * - serverId : serverId if available (int)
+ * - lastXLogTime : It's for next paging request (long)
+ * - lastTxid : It's for next paging request (long)
+ * - hasMore : more data to retrieve (boolean)
+ * - xLogs : SXlog object array
+ *
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 30.
  */
-public class UserService {
-    private final AccountConsumer accountConsumer;
-
-    public UserService() {
-        this.accountConsumer = new AccountConsumer();
-    }
-
-    public void login(final Server server, final SUser user) {
-        boolean result = accountConsumer.login(server, user);
-        if (!result) {
-            throw ErrorState.LOGIN_FAIL.newBizException();
-        }
-    }
+@Getter
+@Setter
+public class PageableXLogView {
+    long lastXLogTime;
+    long lastTxid;
+    boolean hasMore;
+    List<SXlog> xLogs;
 }

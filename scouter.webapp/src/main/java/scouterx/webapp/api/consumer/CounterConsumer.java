@@ -27,11 +27,11 @@ import scouter.util.CastUtil;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
 import scouterx.client.server.ServerManager;
-import scouterx.webapp.api.exception.ErrorState;
-import scouterx.webapp.api.model.SActiveService;
-import scouterx.webapp.api.model.counter.SCounter;
-import scouterx.webapp.api.requestmodel.CounterRequestByType;
-import scouterx.webapp.api.viewmodel.CounterView;
+import scouterx.framework.exception.ErrorState;
+import scouterx.model.scouter.SActiveService;
+import scouterx.model.scouter.SCounter;
+import scouterx.webapp.api.request.CounterRequestByType;
+import scouterx.webapp.api.view.CounterView;
 
 import java.io.IOException;
 import java.util.ArrayList;

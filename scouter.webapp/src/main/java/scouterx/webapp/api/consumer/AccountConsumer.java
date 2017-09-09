@@ -26,8 +26,8 @@ import scouter.net.RequestCmd;
 import scouter.util.CipherUtil;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
-import scouterx.webapp.api.exception.ErrorState;
-import scouterx.webapp.api.model.SUser;
+import scouterx.framework.exception.ErrorState;
+import scouterx.model.scouter.SUser;
 
 import java.io.IOException;
 

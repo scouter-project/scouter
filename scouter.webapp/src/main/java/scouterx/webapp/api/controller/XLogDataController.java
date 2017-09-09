@@ -28,13 +28,12 @@ import scouter.lang.pack.XLogPack;
 import scouterx.client.net.INetReader;
 import scouterx.client.server.Server;
 import scouterx.client.server.ServerManager;
-import scouterx.webapp.api.fw.controller.ro.CommonResultView;
-import scouterx.webapp.api.model.SXlog;
+import scouterx.webapp.api.view.CommonResultView;
 import scouterx.webapp.api.model.XLogData;
-import scouterx.webapp.api.requestmodel.PageableXLogRequest;
-import scouterx.webapp.api.requestmodel.RealTimeXLogRequest;
+import scouterx.webapp.api.request.PageableXLogRequest;
+import scouterx.webapp.api.request.RealTimeXLogRequest;
 import scouterx.webapp.api.service.XLogService;
-import scouterx.webapp.api.viewmodel.PageableXLogView;
+import scouterx.webapp.api.view.PageableXLogView;
 
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -50,6 +49,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 /**
+ * This controller provides apis for end users who want to get XLog data using http call.
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 29.
  */
 @Path("/v1/xlog-data")
@@ -57,6 +57,7 @@ import java.util.function.Consumer;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class XLogDataController {
+    private final static long WAITING_DELAY_FOR_DICTIONARY_COMPLETE = 2000L;
     private final XLogService xLogService;
 
     public XLogDataController() {
@@ -77,7 +78,7 @@ public class XLogDataController {
         Consumer<JsonGenerator> realTimeXLogHandlerConsumer = jsonGenerator -> {
             try {
                 int[] countable = {0};
-                INetReader xLogReader = getRealTimeXLogReader(jsonGenerator, countable, server.getId());
+                INetReader xLogReader = getRealTimeXLogReader(jsonGenerator, countable, server);
 
                 xLogService.handleRealTimeXLog(xLogRequest, xLogReader);
                 jsonGenerator.writeEndArray();
@@ -107,11 +108,11 @@ public class XLogDataController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response streamPageableXLog(@Valid @BeanParam PageableXLogRequest xLogRequest) {
         xLogRequest.validate();
-
+        Server server = ServerManager.getInstance().getServerIfNullDefault(xLogRequest.getServerId());
         Consumer<JsonGenerator> pageableXLogHandlerConsumer = jsonGenerator -> {
             try {
                 jsonGenerator.writeArrayFieldStart("xlogs");
-                xLogService.handlePageableXLog(xLogRequest, getPageableXLogReader(jsonGenerator));
+                xLogService.handlePageableXLog(xLogRequest, getPageableXLogReader(jsonGenerator, server.getId()));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -128,10 +129,11 @@ public class XLogDataController {
      *
      * @param jsonGenerator - low-level streaming json generator
      * @param countable - to keep xlog count
-     * @param serverId - serverId (needs for retrieving dictionary text)
+     * @param server - server (needs for retrieving dictionary text)
      * @return INetReader
      */
-    private INetReader getRealTimeXLogReader(JsonGenerator jsonGenerator, int[] countable, int serverId) {
+    private INetReader getRealTimeXLogReader(JsonGenerator jsonGenerator, int[] countable, Server server) {
+        long serverTime = server.getCurrentTime();
         return in -> {
             Pack p = in.readPack();
             if (p.getPackType() == PackEnum.MAP) { //meta data arrive ahead of xlog pack
@@ -141,8 +143,12 @@ public class XLogDataController {
                 jsonGenerator.writeArrayFieldStart("xlogs");
             } else {
                 XLogPack xLogPack = (XLogPack) p;
-                jsonGenerator.writeObject(XLogData.of(xLogPack, serverId));
+                jsonGenerator.writeObject(XLogData.of(xLogPack, server.getId()));
                 countable[0]++;
+                //TODO how ??? xlogIndex & xlogLoop
+//                if (xLogPack.endTime < serverTime - WAITING_DELAY_FOR_DICTIONARY_COMPLETE) {
+//
+//                }
             }
         };
     }
@@ -151,16 +157,17 @@ public class XLogDataController {
      * get INetReader to make streaming output from xlogs.
      *
      * @param jsonGenerator - low-level streaming json generator
+     * @param serverId - serverId (needs for retrieving dictionary text)
      * @return INetReader
      */
-    private INetReader getPageableXLogReader(JsonGenerator jsonGenerator) {
+    private INetReader getPageableXLogReader(JsonGenerator jsonGenerator, int serverId) {
         int[] countable = {0};
 
         return in -> {
             Pack p = in.readPack();
             if (p.getPackType() != PackEnum.MAP) { // XLogPack case
                 XLogPack xLogPack = (XLogPack) p;
-                jsonGenerator.writeObject(SXlog.of(xLogPack));
+                jsonGenerator.writeObject(XLogData.of(xLogPack, serverId));
                 countable[0]++;
             } else { // MapPack case (//meta data arrive followed by xlog pack)
                 jsonGenerator.writeEndArray();

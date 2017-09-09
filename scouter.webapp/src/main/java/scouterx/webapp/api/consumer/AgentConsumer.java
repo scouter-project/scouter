@@ -22,8 +22,8 @@ import scouter.lang.pack.ObjectPack;
 import scouter.net.RequestCmd;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
-import scouterx.webapp.api.exception.ErrorState;
-import scouterx.webapp.api.model.SObject;
+import scouterx.framework.exception.ErrorState;
+import scouterx.model.scouter.SObject;
 
 import java.io.IOException;
 import java.util.List;

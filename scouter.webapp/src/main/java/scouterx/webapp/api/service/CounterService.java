@@ -20,10 +20,10 @@ package scouterx.webapp.api.service;
 
 import scouterx.client.server.Server;
 import scouterx.webapp.api.consumer.CounterConsumer;
-import scouterx.webapp.api.model.SActiveService;
-import scouterx.webapp.api.model.counter.SCounter;
-import scouterx.webapp.api.requestmodel.CounterRequestByType;
-import scouterx.webapp.api.viewmodel.CounterView;
+import scouterx.model.scouter.SActiveService;
+import scouterx.model.scouter.SCounter;
+import scouterx.webapp.api.request.CounterRequestByType;
+import scouterx.webapp.api.view.CounterView;
 
 import java.util.List;
 

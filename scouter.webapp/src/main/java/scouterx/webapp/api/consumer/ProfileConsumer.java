@@ -25,8 +25,8 @@ import scouter.lang.pack.XLogProfilePack;
 import scouter.lang.step.Step;
 import scouter.net.RequestCmd;
 import scouterx.client.net.TcpProxy;
-import scouterx.webapp.api.exception.ErrorState;
-import scouterx.webapp.api.requestmodel.ProfileRequest;
+import scouterx.framework.exception.ErrorState;
+import scouterx.webapp.api.request.ProfileRequest;
 
 import java.io.IOException;
 import java.util.List;

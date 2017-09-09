@@ -16,26 +16,31 @@
  *
  */
 
-package scouterx.webapp.api.service;
+package scouterx.model.scouter;
 
-import scouterx.client.net.INetReader;
-import scouterx.webapp.api.consumer.DictionaryConsumer;
-import scouterx.webapp.api.request.DictionaryRequest;
-
-import javax.validation.Valid;
-import javax.ws.rs.BeanParam;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
+import scouter.lang.constants.ParamConstant;
+import scouter.lang.pack.MapPack;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public class DictionaryService {
-    private final DictionaryConsumer dictionaryConsumer;
+@Getter
+@ToString
+@AllArgsConstructor
+public class SActiveService {
+    private int objHash;
+    private int step1Count;
+    private int step2Count;
+    private int step3Count;
 
-    public DictionaryService() {
-        this.dictionaryConsumer = new DictionaryConsumer();
-    }
-
-    public void retrieveTextFromDictionary(@Valid @BeanParam DictionaryRequest dictionaryRequest, INetReader reader) {
-        dictionaryConsumer.retrieveText(dictionaryRequest, reader);
+    public static SActiveService of(MapPack mapPack) {
+        return new SActiveService(
+                mapPack.getInt(ParamConstant.OBJ_HASH),
+                mapPack.getInt(ParamConstant.ACTIVE_SERVICE_STEP1),
+                mapPack.getInt(ParamConstant.ACTIVE_SERVICE_STEP2),
+                mapPack.getInt(ParamConstant.ACTIVE_SERVICE_STEP3));
     }
 }

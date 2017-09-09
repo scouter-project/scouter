@@ -19,8 +19,8 @@
 package scouterx.webapp.api.controller;
 
 import scouter.lang.pack.TextPack;
-import scouterx.webapp.api.fw.controller.ro.CommonResultView;
-import scouterx.webapp.api.requestmodel.DictionaryRequest;
+import scouterx.webapp.api.view.CommonResultView;
+import scouterx.webapp.api.request.DictionaryRequest;
 import scouterx.webapp.api.service.DictionaryService;
 
 import javax.inject.Singleton;

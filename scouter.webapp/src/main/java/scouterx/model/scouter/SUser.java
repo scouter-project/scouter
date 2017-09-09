@@ -16,26 +16,28 @@
  *
  */
 
-package scouterx.webapp.api.service;
+package scouterx.model.scouter;
 
-import scouterx.client.net.INetReader;
-import scouterx.webapp.api.consumer.DictionaryConsumer;
-import scouterx.webapp.api.request.DictionaryRequest;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-import javax.validation.Valid;
-import javax.ws.rs.BeanParam;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public class DictionaryService {
-    private final DictionaryConsumer dictionaryConsumer;
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
+public class SUser {
+    @NotNull
+    String id;
+    String password;
 
-    public DictionaryService() {
-        this.dictionaryConsumer = new DictionaryConsumer();
-    }
-
-    public void retrieveTextFromDictionary(@Valid @BeanParam DictionaryRequest dictionaryRequest, INetReader reader) {
-        dictionaryConsumer.retrieveText(dictionaryRequest, reader);
+    public SUser(String id) {
+        this.id = id;
     }
 }

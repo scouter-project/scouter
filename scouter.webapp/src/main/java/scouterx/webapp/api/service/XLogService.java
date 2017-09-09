@@ -20,8 +20,8 @@ package scouterx.webapp.api.service;
 
 import scouterx.client.net.INetReader;
 import scouterx.webapp.api.consumer.XLogConsumer;
-import scouterx.webapp.api.requestmodel.PageableXLogRequest;
-import scouterx.webapp.api.requestmodel.RealTimeXLogRequest;
+import scouterx.webapp.api.request.PageableXLogRequest;
+import scouterx.webapp.api.request.RealTimeXLogRequest;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.

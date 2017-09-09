@@ -20,7 +20,7 @@ package scouterx.webapp.api.service;
 
 import scouter.lang.step.Step;
 import scouterx.webapp.api.consumer.ProfileConsumer;
-import scouterx.webapp.api.requestmodel.ProfileRequest;
+import scouterx.webapp.api.request.ProfileRequest;
 
 import java.util.List;
 

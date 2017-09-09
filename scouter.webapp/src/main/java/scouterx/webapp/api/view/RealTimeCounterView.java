@@ -16,27 +16,20 @@
  *
  */
 
-package scouterx.webapp.api.service;
+package scouterx.webapp.api.view;
 
-import scouterx.client.server.Server;
-import scouterx.webapp.api.consumer.AccountConsumer;
-import scouterx.framework.exception.ErrorState;
-import scouterx.model.scouter.SUser;
+import lombok.Getter;
+import lombok.Setter;
+import scouterx.model.scouter.SCounter;
+
+import java.util.List;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 28.
  */
-public class UserService {
-    private final AccountConsumer accountConsumer;
-
-    public UserService() {
-        this.accountConsumer = new AccountConsumer();
-    }
-
-    public void login(final Server server, final SUser user) {
-        boolean result = accountConsumer.login(server, user);
-        if (!result) {
-            throw ErrorState.LOGIN_FAIL.newBizException();
-        }
-    }
+@Getter
+@Setter
+public class RealTimeCounterView {
+    int objHash;
+    List<SCounter> counter;
 }

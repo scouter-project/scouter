@@ -20,8 +20,8 @@ package scouterx.webapp.api.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import scouter.lang.step.Step;
-import scouterx.webapp.api.fw.controller.ro.CommonResultView;
-import scouterx.webapp.api.requestmodel.ProfileRequest;
+import scouterx.webapp.api.view.CommonResultView;
+import scouterx.webapp.api.request.ProfileRequest;
 import scouterx.webapp.api.service.ProfileService;
 
 import javax.inject.Singleton;

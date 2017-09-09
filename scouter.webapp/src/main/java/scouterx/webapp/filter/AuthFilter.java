@@ -19,10 +19,10 @@
 package scouterx.webapp.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import scouterx.webapp.api.exception.ErrorState;
+import scouterx.framework.exception.ErrorState;
 import scouterx.webapp.configure.ConfigureAdaptor;
 import scouterx.webapp.configure.ConfigureManager;
-import scouterx.webapp.util.ZZ;
+import scouterx.framework.util.ZZ;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;

@@ -25,12 +25,12 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouterx.client.net.INetReader;
 import scouterx.client.net.TcpProxy;
-import scouterx.webapp.api.exception.ErrorState;
-import scouterx.webapp.api.model.SXlog;
-import scouterx.webapp.api.requestmodel.PageableXLogRequest;
-import scouterx.webapp.api.requestmodel.RealTimeXLogRequest;
-import scouterx.webapp.api.viewmodel.PageableXLogView;
-import scouterx.webapp.api.viewmodel.RealTimeXLogView;
+import scouterx.framework.exception.ErrorState;
+import scouterx.model.scouter.SXlog;
+import scouterx.webapp.api.request.PageableXLogRequest;
+import scouterx.webapp.api.request.RealTimeXLogRequest;
+import scouterx.webapp.api.view.PageableXLogView;
+import scouterx.webapp.api.view.RealTimeXLogView;
 
 import java.io.IOException;
 import java.util.ArrayList;
