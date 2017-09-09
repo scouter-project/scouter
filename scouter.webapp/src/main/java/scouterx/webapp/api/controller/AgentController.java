@@ -21,7 +21,7 @@ package scouterx.webapp.api.controller;
 import scouterx.client.server.ServerManager;
 import scouterx.webapp.api.view.CommonResultView;
 import scouterx.model.scouter.SObject;
-import scouterx.webapp.api.service.AgentService;
+import scouterx.webapp.service.AgentService;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;

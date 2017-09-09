@@ -19,7 +19,7 @@
 package scouterx.webapp.api.controller;
 
 import scouterx.client.server.ServerManager;
-import scouterx.webapp.annotation.NoAuth;
+import scouterx.webapp.framework.annotation.NoAuth;
 import scouterx.webapp.api.view.ServerView;
 import scouterx.webapp.api.view.CommonResultView;
 

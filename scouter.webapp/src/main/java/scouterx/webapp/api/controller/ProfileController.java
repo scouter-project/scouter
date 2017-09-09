@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import scouter.lang.step.Step;
 import scouterx.webapp.api.view.CommonResultView;
 import scouterx.webapp.api.request.ProfileRequest;
-import scouterx.webapp.api.service.ProfileService;
+import scouterx.webapp.service.ProfileService;
 
 import javax.inject.Singleton;
 import javax.validation.Valid;

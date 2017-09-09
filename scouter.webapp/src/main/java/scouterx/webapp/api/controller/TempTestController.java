@@ -3,7 +3,7 @@ package scouterx.webapp.api.controller;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import scouterx.webapp.annotation.NoAuth;
+import scouterx.webapp.framework.annotation.NoAuth;
 import scouterx.framework.exception.ErrorState;
 import scouterx.framework.exception.ErrorStateBizException;
 import scouterx.framework.exception.ErrorStateException;

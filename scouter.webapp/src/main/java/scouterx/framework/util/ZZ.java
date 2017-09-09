@@ -19,8 +19,8 @@
 package scouterx.framework.util;
 
 import org.apache.commons.lang3.StringUtils;
-import scouterx.webapp.configure.ConfigureAdaptor;
-import scouterx.webapp.configure.ConfigureManager;
+import scouterx.webapp.framework.configure.ConfigureAdaptor;
+import scouterx.webapp.framework.configure.ConfigureManager;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;

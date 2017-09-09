@@ -24,7 +24,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.MDC;
-import scouterx.webapp.filter.LoggingInitServletFilter;
+import scouterx.webapp.framework.filter.LoggingInitServletFilter;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;

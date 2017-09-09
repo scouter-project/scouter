@@ -30,7 +30,7 @@ import scouterx.webapp.api.view.CommonResultView;
 import scouterx.model.scouter.SXlog;
 import scouterx.webapp.api.request.PageableXLogRequest;
 import scouterx.webapp.api.request.RealTimeXLogRequest;
-import scouterx.webapp.api.service.XLogService;
+import scouterx.webapp.service.XLogService;
 import scouterx.webapp.api.view.PageableXLogView;
 
 import javax.inject.Singleton;

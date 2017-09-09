@@ -24,7 +24,7 @@ import scouterx.webapp.api.view.CommonResultView;
 import scouterx.model.scouter.SActiveService;
 import scouterx.model.scouter.SCounter;
 import scouterx.webapp.api.request.CounterRequestByType;
-import scouterx.webapp.api.service.CounterService;
+import scouterx.webapp.service.CounterService;
 import scouterx.webapp.api.view.CounterView;
 import scouterx.framework.util.ZZ;
 

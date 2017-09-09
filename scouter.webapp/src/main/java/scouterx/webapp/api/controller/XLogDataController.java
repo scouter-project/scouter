@@ -29,10 +29,10 @@ import scouterx.client.net.INetReader;
 import scouterx.client.server.Server;
 import scouterx.client.server.ServerManager;
 import scouterx.webapp.api.view.CommonResultView;
-import scouterx.webapp.api.model.XLogData;
+import scouterx.webapp.model.XLogData;
 import scouterx.webapp.api.request.PageableXLogRequest;
 import scouterx.webapp.api.request.RealTimeXLogRequest;
-import scouterx.webapp.api.service.XLogService;
+import scouterx.webapp.service.XLogService;
 import scouterx.webapp.api.view.PageableXLogView;
 
 import javax.inject.Singleton;

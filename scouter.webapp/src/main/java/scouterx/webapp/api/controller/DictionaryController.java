@@ -21,7 +21,7 @@ package scouterx.webapp.api.controller;
 import scouter.lang.pack.TextPack;
 import scouterx.webapp.api.view.CommonResultView;
 import scouterx.webapp.api.request.DictionaryRequest;
-import scouterx.webapp.api.service.DictionaryService;
+import scouterx.webapp.service.DictionaryService;
 
 import javax.inject.Singleton;
 import javax.validation.Valid;
