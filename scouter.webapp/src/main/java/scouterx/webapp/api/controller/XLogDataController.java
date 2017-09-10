@@ -68,9 +68,16 @@ public class XLogDataController {
         this.xLogService = new XLogService();
     }
 
+    @Data
+    private class XLogCountBucket {
+        int count;
+        long loop;
+        int index;
+    }
+
     /**
      * get values of several counters for given an object
-     * uri : /xlog/realTime/0/100?objHashes=10001,10002 or ?objHashes=[10001,100002]
+     * uri : /xlog-data/realTime/0/100?objHashes=10001,10002 or ?objHashes=[10001,100002]
      *
      * @return
      */
@@ -85,7 +92,7 @@ public class XLogDataController {
 
         Consumer<JsonGenerator> realTimeXLogHandlerConsumer = jsonGenerator -> {
             try {
-                XlogCountBucket countBucket = new XlogCountBucket();
+                XLogCountBucket countBucket = new XLogCountBucket();
                 jsonGenerator.writeArrayFieldStart("xlogs");
 
                 XLogLoopCache.getOf(server.getId()).getAndHandleRealTimeXLog(
@@ -108,17 +115,9 @@ public class XLogDataController {
         return Response.ok().entity(streamingOutput).type(MediaType.APPLICATION_JSON).build();
     }
 
-    @Data
-    private class XlogCountBucket {
-        int count;
-        long loop;
-        int index;
-    }
-
-
     /**
      * request xlog token for range request.
-     * uri : /xlog/{yyyymmdd}?startTime=... @see {@link PageableXLogRequest}
+     * uri : /xlog-data/{yyyymmdd}?startTime=... @see {@link PageableXLogRequest}
      *
      * @param xLogRequest
      * @return PageableXLogView @see {@link PageableXLogView}
@@ -152,7 +151,7 @@ public class XLogDataController {
      * @param server - server (needs for retrieving dictionary text)
      * @return INetReader
      */
-    private Consumer<XLogPackWrapper> getRealTimeXLogReader(JsonGenerator jsonGenerator, XlogCountBucket countBucket, Server server) {
+    private Consumer<XLogPackWrapper> getRealTimeXLogReader(JsonGenerator jsonGenerator, XLogCountBucket countBucket, Server server) {
         return xLogPackWrapper -> {
             try {
                 jsonGenerator.writeObject(XLogData.of(xLogPackWrapper.getPack(), server.getId()));
