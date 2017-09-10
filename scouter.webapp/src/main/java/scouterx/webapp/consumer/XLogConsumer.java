@@ -71,7 +71,7 @@ public class XLogConsumer {
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(xLogRequest.getServerId())) {
             tcpProxy.process(cmd, paramPack, reader);
         } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
     }
 
@@ -100,7 +100,7 @@ public class XLogConsumer {
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(pageableXLogRequest.getServerId())) {
             tcpProxy.process(RequestCmd.TRANX_LOAD_TIME_GROUP_V2, paramPack, reader);
         } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
     }
 }

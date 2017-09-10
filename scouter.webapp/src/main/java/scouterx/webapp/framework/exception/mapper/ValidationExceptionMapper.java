@@ -16,7 +16,7 @@
  *
  */
 
-package scouterx.framework.exception;
+package scouterx.webapp.framework.exception.mapper;
 
 import lombok.extern.slf4j.Slf4j;
 import scouterx.webapp.api.view.CommonResultView;

@@ -44,7 +44,7 @@ public class InfoController {
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<ServerView> retrieveServers() {
         List<ServerView> serverList = ServerManager.getInstance().getAllServerList().stream()
-                .map(s -> new ServerView(s.getId(), s.getName(), s.isConnected(), System.currentTimeMillis()-s.getDelta()))
+                .map(s -> new ServerView(s.getId(), s.getName(), s.getSession() != 0, System.currentTimeMillis()-s.getDelta()))
                 .collect(Collectors.toList());
 
         return CommonResultView.success(serverList);

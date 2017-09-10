@@ -16,26 +16,19 @@
  *
  */
 
-package scouterx.webapp.framework.configure;
+package scouterx.model;
 
-import java.util.List;
-import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import scouter.lang.pack.XLogPack;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 26.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 9.
  */
-public interface ConfigureAdaptor {
-    String getLogDir();
-    int getLogKeepDays();
-    int getNetHttpPort();
-    boolean isNetHttpApiAuthIpEnabled();
-    boolean isNetHttpApiAuthSessionEnabled();
-    Set<String> getNetHttpApiAllowIps();
-    String getNetHttpApiAuthIpHeaderKey();
-    int getNetHttpApiSessionTimeout();
-    List<ServerConfig> getServerConfigs();
-    String getTempDir();
-    boolean isTrace();
-    int getNetWebappTcpClientPoolSize();
-    int getNetWebappTcpClientPoolTimeout();
+@AllArgsConstructor
+@Data
+public class XLogPackWrapper {
+    private final XLogPack pack;
+    private final long loop;
+    private final int index;
 }

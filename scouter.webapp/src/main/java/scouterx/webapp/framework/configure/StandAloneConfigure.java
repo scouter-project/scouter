@@ -46,17 +46,17 @@ public class StandAloneConfigure extends Thread {
 		return instance;
 	}
 
+	public boolean _trace = false;
+
 	//Network
 	@ConfigDesc("Collector connection infos - eg) host:6100:id:pw,host2:6100:id2:pw2")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String net_collector_ip_port_id_pws = "127.0.0.1:6100:admin:admin";
 
-	@ConfigDesc("Collector TCP Session Count")
-	public int net_collector_tcp_session_count = 5;
-	@ConfigDesc("Collector TCP Socket Timeout(ms)")
-	public int net_collector_tcp_so_timeout_ms = 60000;
-	@ConfigDesc("Collector TCP Connection Timeout(ms)")
-	public int net_collector_tcp_connection_timeout_ms = 3000;
+	@ConfigDesc("size of webapp connection pool to collector")
+	public int net_webapp_tcp_client_pool_size = 12;
+	@ConfigDesc("timeout of web app connection pool to collector(It depends on net_tcp_client_so_timeout_ms)")
+	public int net_webapp_tcp_client_pool_timeout = 8000;
 
 	@ConfigDesc("Enable api access control by client ip")
 	public boolean net_http_api_auth_ip_enabled = true;
@@ -154,11 +154,12 @@ public class StandAloneConfigure extends Thread {
 	}
 
 	private void apply() {
+		this._trace = getBoolean("_trace", false);
+
 		this.net_collector_ip_port_id_pws = getValue("net_collector_ip_port_id_pws", "127.0.0.1:6100:admin:admin");
 
-		this.net_collector_tcp_session_count = getInt("net_collector_tcp_session_count", 5, 1);
-		this.net_collector_tcp_connection_timeout_ms = getInt("net_collector_tcp_connection_timeout_ms", 3000);
-		this.net_collector_tcp_so_timeout_ms = getInt("net_collector_tcp_so_timeout_ms", 60000);
+		this.net_webapp_tcp_client_pool_size = getInt("net_webapp_tcp_client_pool_size", 12);
+		this.net_webapp_tcp_client_pool_timeout = getInt("net_webapp_tcp_client_pool_timeout", 8000);
 
 		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", true);
 		this.net_http_api_auth_ip_header_key = getValue("net_http_api_auth_ip_header_key", "");

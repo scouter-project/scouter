@@ -61,7 +61,7 @@ public class TempTestController {
 	@GET @Path("/exception/state")
 	public CommonResultView<ToDo> exceptionState() {
 		if (true) {
-			throw new ErrorStateException(ErrorState.INTERNAL_SERVER_ERRROR, "test error state exception", new RuntimeException("my runtime ex!!!!!"));
+			throw new ErrorStateException(ErrorState.INTERNAL_SERVER_ERROR, "test error state exception", new RuntimeException("my runtime ex!!!!!"));
 		}
 		return null;
 	}
@@ -69,7 +69,7 @@ public class TempTestController {
 	@GET @Path("/exception/biz")
 	public CommonResultView<ToDo> exceptionBizState() {
 		if (true) {
-			throw new ErrorStateBizException(ErrorState.INTERNAL_SERVER_ERRROR, "test error state BIZ !! exception");
+			throw new ErrorStateBizException(ErrorState.INTERNAL_SERVER_ERROR, "test error state BIZ !! exception");
 		}
 		return null;
 	}

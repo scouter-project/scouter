@@ -105,7 +105,7 @@ public class TextModel {
 		try (TcpProxy tcp = TcpProxy.getTcpProxy(serverId)) {
 			packList = tcp.process(cmd, param);
 		} catch (IOException e) {
-			throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+			throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
 		}
 
 		if (packList == null)

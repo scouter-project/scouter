@@ -51,6 +51,9 @@ public class TextLoader {
 	 * @param hash
 	 */
 	public void addTextHash(TextTypeEnum textType, int hash) {
+		if (hash == 0) {
+			return;
+		}
 		Set<Integer> hashSet = typedHashes.get(textType);
 		if (hashSet == null) {
 			hashSet = new HashSet<>();
@@ -72,21 +75,27 @@ public class TextLoader {
 			String type = e.getKey().getTypeName();
 			Iterator<Integer> iter = e.getValue().iterator();
 			while (iter.hasNext()) {
-				typeList.add(type);
-				hashList.add(iter.next());
+				int hash = iter.next();
+				if(TextTypeEnum.of(type).getTextModel().getCachedText(hash) == null) {
+					typeList.add(type);
+					hashList.add(hash);
+				}
 			}
 		}
 
-		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(serverId)) {
-			List<Pack> valueList = tcpProxy.process(RequestCmd.GET_TEXT_ANY_TYPE, param);
-			for (Pack pack : valueList) {
-				TextPack textPack = (TextPack) pack;
-				TextTypeEnum.of(textPack.xtype).getTextModel().cache(textPack);
+		if(hashList.size() > 0) {
+			try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(serverId)) {
+				List<Pack> valueList = tcpProxy.process(RequestCmd.GET_TEXT_ANY_TYPE, param);
+				for (Pack pack : valueList) {
+					TextPack textPack = (TextPack) pack;
+					TextTypeEnum.of(textPack.xtype).getTextModel().cache(textPack);
+				}
+			} catch (IOException e) {
+				log.error(e.getMessage());
+				return false;
 			}
-		} catch (IOException e) {
-			log.error(e.getMessage());
-			return false;
 		}
+
 		return true;
 	}
 }

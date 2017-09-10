@@ -17,6 +17,8 @@
  */
 package scouterx.client.net;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.net.NetCafe;
@@ -29,11 +31,12 @@ import java.io.BufferedOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-
-public class ClientTCP{
-	Socket socket;
-	DataInputX in;
-	DataOutputX out;
+@Slf4j
+@Getter
+public class ClientTCP {
+	private Socket socket;
+	private DataInputX in;
+	private DataOutputX out;
 
 	public void open(int serverId) {
 		close();
@@ -43,31 +46,22 @@ public class ClientTCP{
 		}
 		try {
 			socket = new Socket();
-			///
-			socket.setKeepAlive(true); 
+			socket.setKeepAlive(true);
 			socket.setTcpNoDelay(true);
 			//socket.setSoLinger(true, 0); 
-			///
 			socket.connect(new InetSocketAddress(server.getIp(), server.getPort()),3000);
-			socket.setTcpNoDelay(true);
 			socket.setSoTimeout(server.getSoTimeOut());
 			in = new DataInputX(new BufferedInputStream(socket.getInputStream()));
 			out = new DataOutputX(new BufferedOutputStream(socket.getOutputStream()));
 			
-			//*************//
 			out.writeInt(NetCafe.TCP_CLIENT);
 			out.flush();
-			//*************//
-			if (server.isConnected() == false) {
-				System.out.println("Success to connect " + server.getIp() + ":" + server.getPort());
-			}
-			server.setConnected(true);
+
+			log.info("Connected {} to {}:{}", this, server.getIp(), server.getPort());
+
 		} catch (Throwable t) {
-			System.out.println(t.getMessage());
+			log.error(t.getMessage());
 			close();
-			if (server.getConnectionPool().size() < 1) {
-				server.setConnected(false);
-			}
 		}
 	}
 	
@@ -79,7 +73,7 @@ public class ClientTCP{
 		return in;
 	}
 
-	public boolean isSessionOk() {
+	public boolean connected() {
 		return socket != null && socket.isClosed() == false;
 	}
 

@@ -18,6 +18,7 @@
 
 package scouterx.webapp.api.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -44,6 +45,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
 public class RealTimeXLogRequest {
     @NotNull
     @PathParam("xlogLoop")
@@ -64,4 +66,5 @@ public class RealTimeXLogRequest {
         this.objHashes = ZZ.splitParamAsInteger(objHashes);
     }
 
+    public RealTimeXLogRequest() { }
 }

@@ -48,6 +48,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.TimeZone;
 
+//TODO shutdown hook, shutdown serverManager
+
 /**
  * Created by gunlee on 2017. 8. 25.
  */
@@ -90,7 +92,10 @@ public class WebAppMain {
                 server = srvMgr.getServer(server.getId());
             }
 
-            LoginRequest result = LoginMgr.login(server.getId(), serverConfig.getId(), serverConfig.getPassword(), true);
+            server.setUserId(serverConfig.getId());
+            server.setPassword(serverConfig.getPassword());
+
+            LoginRequest result = LoginMgr.login(server);
             if (result.success) {
                 log.info("Successfully log in to {}:{}", server.getIp(), server.getPort());
                 AgentModelThread.getInstance(); //preloading

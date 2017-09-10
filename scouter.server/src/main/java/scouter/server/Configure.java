@@ -140,6 +140,11 @@ public class Configure extends Thread {
 	@ConfigDesc("Activating Scouter API")
 	public boolean net_http_api_enabled = false;
 
+	@ConfigDesc("size of webapp connection pool to collector")
+	public int net_webapp_tcp_client_pool_size = 12;
+	@ConfigDesc("timeout of web app connection pool to collector(It depends on net_tcp_client_so_timeout_ms)")
+	public int net_webapp_tcp_client_pool_timeout = net_tcp_client_so_timeout_ms;
+
 	@ConfigDesc("Enable api access control by client ip")
 	public boolean net_http_api_auth_ip_enabled = true;
 	@ConfigDesc("If get api caller's ip from http header.")
@@ -344,6 +349,9 @@ public class Configure extends Thread {
 		this.net_http_server_enabled = getBoolean("net_http_server_enabled", false);
 		this.net_http_port = getInt("net_http_port", NetConstants.SERVER_HTTP_PORT);
 		this.net_http_api_enabled = getBoolean("net_http_api_enabled", false);
+
+		this.net_webapp_tcp_client_pool_size = getInt("net_webapp_tcp_client_pool_size", 12);
+		this.net_webapp_tcp_client_pool_timeout = getInt("net_webapp_tcp_client_pool_timeout", net_tcp_client_so_timeout_ms);
 
 		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", true);
 		this.net_http_api_auth_ip_header_key = getValue("net_http_api_auth_ip_header_key", "");

@@ -28,34 +28,24 @@ import scouter.net.RequestCmd;
 import scouter.util.CipherUtil;
 import scouter.util.SysJMX;
 import scouterx.client.server.Server;
-import scouterx.client.server.ServerManager;
 
 public class LoginMgr{
-	public static LoginRequest login(int serverId, String user, String password){
-		Server server = ServerManager.getInstance().getServer(serverId);
-		String encrypted = CipherUtil.sha256(password);
-		return silentLogin(server, user, encrypted);
+	public static LoginRequest login(Server server) {
+		String encPassword = CipherUtil.sha256(server.getPassword());
+		server.setSecureMode(true);
+		return loginInternal(server, server.getUserId(), encPassword);
 	}
 	
-	public static LoginRequest login(int serverId, String user, String password, boolean secureLogin){
-		Server server = ServerManager.getInstance().getServer(serverId);
-		if(secureLogin) {
-			password = CipherUtil.sha256(password);
-		}
-		server.setSecureMode(secureLogin);
-		return silentLogin(server, user, password);
-	}
-	
-	public static LoginRequest silentLogin(Server server, String user, String password){
+	public static LoginRequest loginInternal(Server server, String user, String encPassword){
 		LoginRequest result = new LoginRequest();
 		try {
 			MapPack param = new MapPack();
 			param.put("id", user);
-			param.put("pass", password);
+			param.put("pass", encPassword);
 			param.put("version", Version.getClientFullVersion());
 			param.put("hostname", SysJMX.getHostName());
 			
-			MapPack out = TcpProxy.loginProxy(server.getId(), param);
+			MapPack out = TcpProxy.loginByCleanConnection(server.getId(), param);
 			if (out == null) {
 				result.success = false;
 				result.errorMessage = "Network connection failed";
@@ -67,7 +57,6 @@ public class LoginMgr{
 					result.errorMessage = "Authentication failed";
 					return result;
 				}
-				server.setOpen(true);
 				long time = out.getLong("time");
 				String serverName = out.getText("server_id");
 				String type = out.getText("type");
@@ -80,8 +69,6 @@ public class LoginMgr{
 				server.setSession(session);
 				server.setName(serverName);
 				server.setDelta(time);
-				server.setUserId(user);
-				server.setPassword(password);
 				server.setGroup(type);
 				server.setVersion(version);
 				server.setRecommendedClientVersion(recommendedClientVersion);
@@ -98,6 +85,9 @@ public class LoginMgr{
 					MapValue mv = (MapValue) menuV;
 					server.setMenuEnableMap(mv);
 				}
+				server.getConnectionPool().initPool(server.getId());
+				server.setOpen(true);
+
 				CounterEngine counterEngine = server.getCounterEngine();
 				MapPack m = getCounterXmlServer(server);
 				if (m != null) {
@@ -128,7 +118,7 @@ public class LoginMgr{
 			e.printStackTrace();
 			return null;
 		} finally {
-			TcpProxy.putTcpProxy(tcp);
+			TcpProxy.close(tcp);
 		}
 		return (MapPack) p;
 	}

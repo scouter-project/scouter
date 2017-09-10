@@ -17,21 +17,29 @@
  */
 package scouterx.client.server;
 
+import lombok.extern.slf4j.Slf4j;
 import scouter.lang.counters.CounterEngine;
 import scouter.lang.value.MapValue;
 import scouter.util.HashUtil;
 import scouterx.client.net.ConnectionPool;
+import scouterx.client.thread.XLogRetrieveThread;
+import scouterx.webapp.framework.configure.ConfigureAdaptor;
+import scouterx.webapp.framework.configure.ConfigureManager;
 
+@Slf4j
 public class Server {
+	ConfigureAdaptor conf = ConfigureManager.getConfigure();
+
 	final private int id;
 	private String name;
 	private String ip;
 	private int port;
-	private ConnectionPool connPool = new ConnectionPool();
-	private boolean connected = false;
+	private ConnectionPool connPool;
 	private long session;
 	private long delta;
-	private CounterEngine counterEngine = new CounterEngine();
+	private CounterEngine counterEngine;
+
+	private XLogRetrieveThread xLogRetrieveThread;
 	
 	private String timezone;
 	private String userId;
@@ -62,6 +70,10 @@ public class Server {
 		this.ip = ip;
 		this.port = Integer.valueOf(port);
 		this.name = name;
+		this.connPool = new ConnectionPool(conf.getNetWebappTcpClientPoolSize());
+		this.counterEngine = new CounterEngine();
+		this.xLogRetrieveThread = new XLogRetrieveThread(this);
+		xLogRetrieveThread.start();
 	}
 	
 	public int getId() {
@@ -102,14 +114,6 @@ public class Server {
 		} else {
 			this.delta = serverTime - System.currentTimeMillis();
 		}
-	}
-	
-	public boolean isConnected() {
-		return connected;
-	}
-	
-	public void setConnected(boolean isConnected) {
-		this.connected = isConnected;
 	}
 	
 	public String getTimezone() {
@@ -251,7 +255,7 @@ public class Server {
 
 	public String toString() {
 		return "Server [id=" + id + ", name=" + name + ", ip=" + ip + ", port="
-				+ port + ", connected=" + connected + ", delta=" + delta
+				+ port + ", delta=" + delta
 				+ ", userId=" + userId + ", group=" + group + ", version="
 				+ version + "]";
 	}

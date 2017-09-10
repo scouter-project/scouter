@@ -25,6 +25,7 @@ import scouter.net.RequestCmd;
 import scouter.util.ThreadUtil;
 import scouterx.client.net.INetReader;
 import scouterx.client.net.TcpProxy;
+import scouterx.client.server.Server;
 import scouterx.client.server.ServerManager;
 
 import java.io.IOException;
@@ -78,7 +79,11 @@ public class AgentModelThread extends Thread {
 		if (serverIdSet.size() > 0) {
 			Integer[] serverIds = serverIdSet.toArray(new Integer[serverIdSet.size()]);
 			for (int serverId : serverIds) {
-				CounterEngine counterEngine = ServerManager.getInstance().getServer(serverId).getCounterEngine();
+				Server server = ServerManager.getInstance().getServer(serverId);
+				if (server.isOpen() == false || server.getSession() == 0) {
+					continue;
+				}
+				CounterEngine counterEngine = server.getCounterEngine();
 				TcpProxy proxy = TcpProxy.getTcpProxy(serverId);
 				try {
 					final ArrayList<ObjectPack> agentList = new ArrayList<ObjectPack>();
@@ -113,7 +118,7 @@ public class AgentModelThread extends Thread {
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
-					TcpProxy.putTcpProxy(proxy);
+					TcpProxy.close(proxy);
 				}
 			}
 		}
@@ -146,7 +151,7 @@ public class AgentModelThread extends Thread {
 				try {
 					proxy.process(RequestCmd.OBJECT_REMOVE_INACTIVE, null);
 				} finally {
-					TcpProxy.putTcpProxy(proxy);
+					TcpProxy.close(proxy);
 				}
 			}
 		}

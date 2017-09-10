@@ -24,6 +24,8 @@ import scouterx.client.net.LoginMgr;
 import scouterx.client.net.LoginRequest;
 import scouterx.client.server.Server;
 import scouterx.client.server.ServerManager;
+import scouterx.webapp.framework.configure.ConfigureAdaptor;
+import scouterx.webapp.framework.configure.ConfigureManager;
 
 import java.util.Set;
 
@@ -32,6 +34,7 @@ import java.util.Set;
  */
 @Slf4j
 public class ServerSessionObserver extends Thread {
+    public static final ConfigureAdaptor conf = ConfigureManager.getConfigure();
     private static ServerSessionObserver observer;
 
     public synchronized static void load() {
@@ -55,11 +58,8 @@ public class ServerSessionObserver extends Thread {
                     if (server == null) {
                         continue;
                     }
-                    if (server.isConnected() == false && server.getConnectionPool().size() < 1) {
-                        server.setSession(0); // reset session
-                    }
                     if (server.getSession() == 0) {
-                        LoginRequest result = LoginMgr.silentLogin(server, server.getUserId(), server.getPassword());
+                        LoginRequest result = LoginMgr.login(server);
                         if (result.success) {
                             log.info("Success re-login to {}", server.getName());
                         } else {
@@ -74,7 +74,7 @@ public class ServerSessionObserver extends Thread {
                     if (server == null) {
                         continue;
                     }
-                    LoginRequest result = LoginMgr.silentLogin(server, server.getUserId(), server.getPassword());
+                    LoginRequest result = LoginMgr.login(server);
                     if (result.success) {
                         log.info("Success re-login to {}", server.getName());
                     } else {

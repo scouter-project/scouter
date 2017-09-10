@@ -53,7 +53,7 @@ public class DictionaryConsumer {
 			}
 
 		} catch (IOException e) {
-			throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+			throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
 		}
 	}
 }

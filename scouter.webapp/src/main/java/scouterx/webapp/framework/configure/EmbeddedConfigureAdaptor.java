@@ -90,4 +90,19 @@ public class EmbeddedConfigureAdaptor implements ConfigureAdaptor {
     public String getTempDir() {
         return conf.temp_dir;
     }
+
+    @Override
+    public boolean isTrace() {
+        return conf._trace;
+    }
+
+    @Override
+    public int getNetWebappTcpClientPoolSize() {
+        return conf.net_webapp_tcp_client_pool_size;
+    }
+
+    @Override
+    public int getNetWebappTcpClientPoolTimeout() {
+        return conf.net_webapp_tcp_client_pool_timeout;
+    }
 }

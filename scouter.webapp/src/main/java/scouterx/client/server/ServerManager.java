@@ -77,7 +77,7 @@ public class ServerManager extends Thread {
 		Enumeration<Server> servers = serverMap.values();
 		while (servers.hasMoreElements()) {
 			Server server = servers.nextElement();
-			if (server.isConnected() && server.isOpen()) {
+			if (server.isOpen() && server.getSession() != 0) {
 				TcpProxy tcp = TcpProxy.getTcpProxy(server);
 				try {
 					MapPack p = (MapPack) tcp.getSingle(RequestCmd.SERVER_STATUS, null);
@@ -94,7 +94,7 @@ public class ServerManager extends Thread {
 				} catch (Throwable th) {
 					th.printStackTrace();
 				} finally {
-					TcpProxy.putTcpProxy(tcp);
+					TcpProxy.close(tcp);
 				}
 			}
 		}
@@ -180,7 +180,6 @@ public class ServerManager extends Thread {
 			System.out.println("ID : " + key);
 			System.out.println("IP : " + server.getIp());
 			System.out.println("Port : " + server.getPort());
-			System.out.println("Connected : " + server.isConnected());
 			System.out.println("Session : " + server.getSession());
 			System.out.println("------------------------------------------");
 		}

@@ -16,9 +16,12 @@
  *
  */
 
-package scouterx.framework.exception;
+package scouterx.webapp.framework.exception.mapper;
 
 import lombok.extern.slf4j.Slf4j;
+import scouterx.framework.exception.ErrorState;
+import scouterx.framework.exception.ErrorStateBizException;
+import scouterx.framework.exception.ErrorStateException;
 import scouterx.webapp.api.view.CommonResultView;
 
 import javax.ws.rs.WebApplicationException;
@@ -29,6 +32,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Created by Gun Lee(gunlee01@gmail.com) on 2017. 8. 25.
@@ -105,7 +109,8 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
         CommonResultView<?> resultView = CommonResultView.fail(errorState.getStatus().getStatusCode()
                 , errorState.getErrorCode(), errorMessage, null);
 
-        StackTraceElement lastStack = Arrays.stream(ex.getStackTrace()).findFirst().orElse(null);
+        String lastStack = Arrays.stream(ex.getStackTrace()).limit(3).map(StackTraceElement::toString).collect(Collectors.joining("\\n "));
+
         log.error("[ErrorStateBizException] {} - {} - {}, [uri]{} at {}", resultView.getStatus()
                 , resultView.getMessage(), ex.getMessage(), uriInfo.getPath(), lastStack);
 

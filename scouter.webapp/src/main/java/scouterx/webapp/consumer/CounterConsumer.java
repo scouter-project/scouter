@@ -64,7 +64,7 @@ public class CounterConsumer {
             outMapPack = (MapPack) tcpProxy.getSingle(RequestCmd.COUNTER_REAL_TIME_ALL_MULTI, paramPack);
 
         } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
 
         ListValue rObjHashLv = (ListValue) outMapPack.get(ParamConstant.OBJ_HASH);
@@ -96,7 +96,7 @@ public class CounterConsumer {
             results = tcpProxy.process(RequestCmd.ACTIVESPEED_REAL_TIME, paramPack);
 
         } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
 
         return results.stream()
@@ -144,7 +144,7 @@ public class CounterConsumer {
                 counterViewList.add(counterView);
             });
         } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
 
         return counterViewList;

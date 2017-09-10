@@ -49,7 +49,7 @@ public class ProfileConsumer {
             pack = (XLogProfilePack)
                     tcpProxy.getSingle(RequestCmd.TRANX_PROFILE, param);
         } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
 
         return Step.toObjectList(pack.profile);

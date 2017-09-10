@@ -49,7 +49,7 @@ public class AccountConsumer {
             value = tcpProxy.getSingleValue(RequestCmd.CHECK_LOGIN, param);
 
         } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERRROR.newException(e.getMessage(), e);
+            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
 
         return ((BooleanValue) value).value;
