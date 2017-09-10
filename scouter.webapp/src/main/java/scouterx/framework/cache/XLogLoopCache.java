@@ -20,12 +20,14 @@ package scouterx.framework.cache;
 
 import lombok.extern.slf4j.Slf4j;
 import scouter.lang.pack.XLogPack;
+import scouter.util.IntSet;
 import scouterx.client.server.Server;
 import scouterx.model.XLogPackWrapper;
 import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -35,6 +37,8 @@ import java.util.function.Consumer;
  */
 @Slf4j
 public class XLogLoopCache {
+    private static final Map<Integer, XLogLoopCache> loopCacheMap = new HashMap<>();
+
     private static ConfigureAdaptor conf = ConfigureManager.getConfigure();
     private final int MAX_RETRIEVE_COUNT;
     private final Server server;
@@ -49,12 +53,18 @@ public class XLogLoopCache {
             throw new RuntimeException("Not yet initialized!");
         }
         queue = new XLogPackWrapper[capacity];
+        loopCacheMap.put(server.getId(), this);
+    }
+
+    public static XLogLoopCache getOf(int serverId) {
+        return loopCacheMap.get(serverId);
     }
 
     public void add(XLogPack pack) {
-        if (conf.isTrace() && index % 100 == 0) {
+        if (conf.isTrace() && index % 10000 == 0) {
             log.info("XLog added - {} {} {}", loop, index, pack);
         }
+
         synchronized (queue) {
             queue[index] = new XLogPackWrapper(pack, this.loop, this.index);
             index += 1;
@@ -65,16 +75,27 @@ public class XLogLoopCache {
         }
     }
 
+    public void getAndHandleRealTimeXLog(long aLoop, int aIndex, int aMaxCount, long bufferTime, Consumer<XLogPackWrapper> handlerConsumer) {
+        getAndHandleRealTimeXLog(null, aLoop, aIndex, aMaxCount, bufferTime, handlerConsumer);
+    }
+
     /**
      * get new xlog data revealed after the previous check point, and invoke the handler consumer
      *
-     * @param aLoop
-     * @param aIndex
+     * @param aLoop - last loop retrieved
+     * @param aIndex - last index retrieved
      * @param bufferTime - buffer time(milliseconds) for to prevent fetching data before dictionary data generation.
      */
-    public void getAndHandleRealTimeXLog(List<Integer> objHashList, long aLoop, int aIndex, int aMaxCount, int bufferTime,
+    public void getAndHandleRealTimeXLog(IntSet objHashIntSet, long aLoop, int aIndex, int aMaxCount, long bufferTime,
                                          Consumer<XLogPackWrapper> handlerConsumer) {
         int maxCount = aMaxCount;
+
+        //Initial call
+        if(aLoop == 0 && aIndex == 0) {
+        } else if(++aIndex >= queue.length) {
+            aIndex = 0;
+            aLoop++;
+        }
 
         long currentLoop;
         int currentIndex;
@@ -85,11 +106,13 @@ public class XLogLoopCache {
 
         int loopStatus = (int) (currentLoop - aLoop);
 
-        switch(loopStatus) {
+        switch (loopStatus) {
             case 0:
                 int countToGet = currentIndex - aIndex;
                 if (aIndex < currentIndex) {
                     maxCount = Math.min(aMaxCount, countToGet);
+                } else {
+                    return;
                 }
                 break;
             case 1:
@@ -102,11 +125,11 @@ public class XLogLoopCache {
             maxCount = MAX_RETRIEVE_COUNT;
         }
 
-        if(maxCount > currentIndex) {
-            handleInternal(queue.length - (maxCount - currentIndex), queue.length, bufferTime, handlerConsumer);
-            handleInternal(0, currentIndex, bufferTime, handlerConsumer);
+        if (maxCount > currentIndex) {
+            handleInternal(objHashIntSet, queue.length - (maxCount - currentIndex), queue.length, bufferTime, handlerConsumer);
+            handleInternal(objHashIntSet, 0, currentIndex, bufferTime, handlerConsumer);
         } else {
-            handleInternal(currentIndex - maxCount, currentIndex, bufferTime, handlerConsumer);
+            handleInternal(objHashIntSet, currentIndex - maxCount, currentIndex, bufferTime, handlerConsumer);
         }
     }
 
@@ -118,16 +141,21 @@ public class XLogLoopCache {
      * @param bufferTime
      * @param handlerConsumer
      */
-    private void handleInternal(int from, int to, int bufferTime, Consumer<XLogPackWrapper> handlerConsumer) {
+    private void handleInternal(IntSet objHashIntSet, int from, int to, long bufferTime, Consumer<XLogPackWrapper> handlerConsumer) {
         long now = server.getCurrentTime();
-        for(int i = from; i < from + to; i++) {
+        for (int i = from; i < to; i++) {
             XLogPackWrapper packWrapper = queue[i];
 
-            if (now - bufferTime > packWrapper.getPack().endTime) {
-                handlerConsumer.accept(packWrapper);
-            } else {
+            //keep bufferTime to consider dictionary info delaying
+            if (now - bufferTime < packWrapper.getPack().endTime) {
                 break;
             }
+
+            //filter objHash
+            if (objHashIntSet != null && objHashIntSet.size() > 0 && !objHashIntSet.contains(packWrapper.getPack().objHash)) {
+                continue;
+            }
+            handlerConsumer.accept(packWrapper);
         }
     }
 }

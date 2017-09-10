@@ -19,21 +19,25 @@
 package scouterx.webapp.api.controller;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
+import scouter.util.IntSet;
 import scouterx.client.net.INetReader;
 import scouterx.client.server.Server;
 import scouterx.client.server.ServerManager;
-import scouterx.webapp.api.view.CommonResultView;
-import scouterx.webapp.model.XLogData;
+import scouterx.framework.cache.XLogLoopCache;
+import scouterx.model.XLogPackWrapper;
 import scouterx.webapp.api.request.PageableXLogRequest;
 import scouterx.webapp.api.request.RealTimeXLogRequest;
-import scouterx.webapp.service.XLogService;
+import scouterx.webapp.api.view.CommonResultView;
 import scouterx.webapp.api.view.PageableXLogView;
+import scouterx.webapp.model.XLogData;
+import scouterx.webapp.service.XLogService;
 
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -74,15 +78,24 @@ public class XLogDataController {
     @Path("/realTime/{xlogLoop}/{xlogIndex}")
     public Response streamRealTimeXLog(@BeanParam @Valid final RealTimeXLogRequest xLogRequest) {
         Server server = ServerManager.getInstance().getServerIfNullDefault(xLogRequest.getServerId());
+        IntSet objHashSet = new IntSet();
+        for (Integer objHash : xLogRequest.getObjHashes()) {
+            objHashSet.add(objHash);
+        }
 
         Consumer<JsonGenerator> realTimeXLogHandlerConsumer = jsonGenerator -> {
             try {
-                int[] countable = {0};
-                INetReader xLogReader = getRealTimeXLogReader(jsonGenerator, countable, server);
+                XlogCountBucket countBucket = new XlogCountBucket();
+                jsonGenerator.writeArrayFieldStart("xlogs");
 
-                xLogService.handleRealTimeXLog(xLogRequest, xLogReader);
+                XLogLoopCache.getOf(server.getId()).getAndHandleRealTimeXLog(
+                        objHashSet, xLogRequest.getXLogLoop(), xLogRequest.getXLogIndex(), 10000,
+                        WAITING_DELAY_FOR_DICTIONARY_COMPLETE, getRealTimeXLogReader(jsonGenerator, countBucket, server));
+
                 jsonGenerator.writeEndArray();
-                jsonGenerator.writeNumberField("count", countable[0]);
+                jsonGenerator.writeNumberField("xlogLoop", countBucket.getLoop());
+                jsonGenerator.writeNumberField("xlogIndex", countBucket.getIndex());
+                jsonGenerator.writeNumberField("count", countBucket.getCount());
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -93,6 +106,13 @@ public class XLogDataController {
                 CommonResultView.jsonStream(outputStream, realTimeXLogHandlerConsumer);
 
         return Response.ok().entity(streamingOutput).type(MediaType.APPLICATION_JSON).build();
+    }
+
+    @Data
+    private class XlogCountBucket {
+        int count;
+        long loop;
+        int index;
     }
 
 
@@ -128,27 +148,20 @@ public class XLogDataController {
      * get INetReader to make streaming output from realtime xlogs.
      *
      * @param jsonGenerator - low-level streaming json generator
-     * @param countable - to keep xlog count
+     * @param countBucket - to keep xlog count and last index
      * @param server - server (needs for retrieving dictionary text)
      * @return INetReader
      */
-    private INetReader getRealTimeXLogReader(JsonGenerator jsonGenerator, int[] countable, Server server) {
-        long serverTime = server.getCurrentTime();
-        return in -> {
-            Pack p = in.readPack();
-            if (p.getPackType() == PackEnum.MAP) { //meta data arrive ahead of xlog pack
-                MapPack metaPack = (MapPack) p;
-                jsonGenerator.writeNumberField("xlogIndex", metaPack.getInt(ParamConstant.XLOG_INDEX));
-                jsonGenerator.writeNumberField("xlogLoop", metaPack.getInt(ParamConstant.XLOG_LOOP));
-                jsonGenerator.writeArrayFieldStart("xlogs");
-            } else {
-                XLogPack xLogPack = (XLogPack) p;
-                jsonGenerator.writeObject(XLogData.of(xLogPack, server.getId()));
-                countable[0]++;
-                //TODO how ??? xlogIndex & xlogLoop
-//                if (xLogPack.endTime < serverTime - WAITING_DELAY_FOR_DICTIONARY_COMPLETE) {
-//
-//                }
+    private Consumer<XLogPackWrapper> getRealTimeXLogReader(JsonGenerator jsonGenerator, XlogCountBucket countBucket, Server server) {
+        return xLogPackWrapper -> {
+            try {
+                jsonGenerator.writeObject(XLogData.of(xLogPackWrapper.getPack(), server.getId()));
+                countBucket.setCount(countBucket.getCount() + 1);
+                countBucket.setLoop(xLogPackWrapper.getLoop());
+                countBucket.setIndex(xLogPackWrapper.getIndex());
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         };
     }

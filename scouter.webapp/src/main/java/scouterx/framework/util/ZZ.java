@@ -19,6 +19,7 @@
 package scouterx.framework.util;
 
 import org.apache.commons.lang3.StringUtils;
+import scouter.util.IntSet;
 import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
 
@@ -85,5 +86,15 @@ public class ZZ {
         org = stripFirstLastBracket(org);
         String[] items = StringUtils.split(org, COMMA);
         return Arrays.stream(items).map(Integer::parseInt).collect(Collectors.toList());
+    }
+
+    public static IntSet splitParamAsIntSet(String org) {
+        IntSet intSet = new IntSet();
+        org = stripFirstLastBracket(org);
+        String[] items = StringUtils.split(org, COMMA);
+        for (String item : items) {
+            intSet.add(Integer.parseInt(item));
+        }
+        return intSet;
     }
 }

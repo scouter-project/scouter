@@ -48,7 +48,7 @@ public class XLogRetrieveThread extends Thread {
     private long loop = 0;
     private int index = 0;
     private final XLogConsumer xLogConsumer;
-    XLogLoopCache xLogLoopCache;
+    private XLogLoopCache xLogLoopCache;
 
     public XLogRetrieveThread(Server server) {
         this.server = server;

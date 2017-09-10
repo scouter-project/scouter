@@ -75,7 +75,7 @@ public class Server {
 		this.xLogRetrieveThread = new XLogRetrieveThread(this);
 		xLogRetrieveThread.start();
 	}
-	
+
 	public int getId() {
 		return id;
 	}
