@@ -32,8 +32,8 @@ import java.util.Set;
 
 /**
 * DTO for pageable XLog request.
-* - xlogLoop : (required) xlog loop offset given from previous response. use 0 at first time
-* - xLogIndex : (required) xlog offset given from previous response. use 0 at first time
+* - offset1 : (required) xlog offset1 given from previous response. use 0 at first time
+* - offset2 : (required) xlog offset2 given from previous response. use 0 at first time
 * - serverId : serverId if available (mandatory if it's multi-server connected scouter webapp)
 * - objHashes : (required) object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
 *
@@ -43,14 +43,14 @@ import java.util.Set;
 @Setter
 @ToString
 @AllArgsConstructor
-public class RealTimeXLogRequest {
+public class RealTimeXLogDataRequest {
     @NotNull
-    @PathParam("xlogLoop")
-    long xLogLoop;
+    @PathParam("offset1")
+    long offset1;
 
     @NotNull
-    @PathParam("xlogIndex")
-    int xLogIndex;
+    @PathParam("offset2")
+    int offset2;
 
     int serverId;
 
@@ -62,7 +62,7 @@ public class RealTimeXLogRequest {
         this.objHashes = ZZ.splitParamAsIntegerSet(objHashes);
     }
 
-    public RealTimeXLogRequest() { }
+    public RealTimeXLogDataRequest() { }
 
     @QueryParam("serverId")
     public void setServerId(int serverId) {

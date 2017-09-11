@@ -31,12 +31,12 @@ import scouterx.client.net.INetReader;
 import scouterx.client.server.Server;
 import scouterx.client.server.ServerManager;
 import scouterx.framework.cache.XLogLoopCache;
+import scouterx.model.XLogData;
 import scouterx.model.XLogPackWrapper;
 import scouterx.webapp.api.request.PageableXLogRequest;
-import scouterx.webapp.api.request.RealTimeXLogRequest;
+import scouterx.webapp.api.request.RealTimeXLogDataRequest;
 import scouterx.webapp.api.view.CommonResultView;
 import scouterx.webapp.api.view.PageableXLogView;
-import scouterx.model.XLogData;
 import scouterx.webapp.service.XLogService;
 
 import javax.inject.Singleton;
@@ -82,8 +82,8 @@ public class XLogDataController {
      * @return
      */
     @GET
-    @Path("/realTime/{xlogLoop}/{xlogIndex}")
-    public Response streamRealTimeXLog(@BeanParam @Valid final RealTimeXLogRequest xLogRequest) {
+    @Path("/realTime/{offset1}/{offset2}")
+    public Response streamRealTimeXLog(@BeanParam @Valid final RealTimeXLogDataRequest xLogRequest) {
         Server server = ServerManager.getInstance().getServerIfNullDefault(xLogRequest.getServerId());
         IntSet objHashSet = new IntSet();
         for (Integer objHash : xLogRequest.getObjHashes()) {
@@ -96,12 +96,12 @@ public class XLogDataController {
                 jsonGenerator.writeArrayFieldStart("xlogs");
 
                 XLogLoopCache.getOf(server.getId()).getAndHandleRealTimeXLog(
-                        objHashSet, xLogRequest.getXLogLoop(), xLogRequest.getXLogIndex(), 10000,
+                        objHashSet, xLogRequest.getOffset1(), xLogRequest.getOffset2(), 10000,
                         WAITING_DELAY_FOR_DICTIONARY_COMPLETE, getRealTimeXLogReader(jsonGenerator, countBucket, server));
 
                 jsonGenerator.writeEndArray();
-                jsonGenerator.writeNumberField("xlogLoop", countBucket.getLoop());
-                jsonGenerator.writeNumberField("xlogIndex", countBucket.getIndex());
+                jsonGenerator.writeNumberField("offset1", countBucket.getLoop());
+                jsonGenerator.writeNumberField("offset2", countBucket.getIndex());
                 jsonGenerator.writeNumberField("count", countBucket.getCount());
 
             } catch (IOException e) {
