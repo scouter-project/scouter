@@ -19,8 +19,9 @@
 package scouterx.webapp.service;
 
 import scouter.lang.step.Step;
-import scouterx.webapp.consumer.ProfileConsumer;
+import scouterx.model.ProfileStepData;
 import scouterx.webapp.api.request.ProfileRequest;
+import scouterx.webapp.consumer.ProfileConsumer;
 
 import java.util.List;
 
@@ -37,8 +38,11 @@ public class ProfileService {
     /**
      * retrieve profile
      */
-    public List<Step> retrieveProfile(final ProfileRequest request) {
-        return profileConsumer.retrieveProfile(request);
+    public List<Step> retrieveProfile(final ProfileRequest profileRequest) {
+        return profileConsumer.retrieveProfile(profileRequest);
     }
 
+    public List<ProfileStepData> retrieveProfileData(final ProfileRequest profileRequest) {
+        return profileConsumer.retrieveProfileData(profileRequest);
+    }
 }

@@ -16,7 +16,7 @@
  *
  */
 
-package scouterx.webapp.model;
+package scouterx.model;
 
 import lombok.Builder;
 import lombok.Getter;

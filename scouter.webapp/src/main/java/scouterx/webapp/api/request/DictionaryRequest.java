@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
+import scouterx.client.server.ServerManager;
 import scouterx.framework.util.ZZ;
 import scouterx.model.scouter.SDictionaryText;
 
@@ -69,5 +70,10 @@ public class DictionaryRequest {
 				})
 				.collect(Collectors.groupingBy(SDictionaryText::getTextType, Collectors.toSet()));
 
+	}
+
+	@QueryParam("serverId")
+	public void setServerId(int serverId) {
+		this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
 	}
 }

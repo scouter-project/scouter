@@ -26,6 +26,7 @@ import scouter.lang.step.Step;
 import scouter.net.RequestCmd;
 import scouterx.client.net.TcpProxy;
 import scouterx.framework.exception.ErrorState;
+import scouterx.model.ProfileStepData;
 import scouterx.webapp.api.request.ProfileRequest;
 
 import java.io.IOException;
@@ -38,7 +39,25 @@ import java.util.List;
 public class ProfileConsumer {
     private final int MAX_PROFILE_BLOCK = 10;
 
+    /**
+     * retrieve profile steps by txid
+     * @param profileRequest
+     * @return
+     */
     public List<Step> retrieveProfile(final ProfileRequest profileRequest) {
+        return Step.toObjectList(retrieveProfilePack(profileRequest).profile);
+    }
+
+    /**
+     * retrieve dictionary decoded profile steps by txid
+     * @param profileRequest
+     * @return
+     */
+    public List<ProfileStepData> retrieveProfileData(final ProfileRequest profileRequest) {
+        return ProfileStepData.toList(retrieveProfilePack(profileRequest).profile, profileRequest.getServerId());
+    }
+
+    public XLogProfilePack retrieveProfilePack(final ProfileRequest profileRequest) {
         MapPack param = new MapPack();
         param.put(ParamConstant.DATE, profileRequest.getYyyymmdd());
         param.put(ParamConstant.XLOG_TXID, profileRequest.getTxid());
@@ -52,6 +71,6 @@ public class ProfileConsumer {
             throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
 
-        return Step.toObjectList(pack.profile);
+        return pack;
     }
 }

@@ -17,6 +17,8 @@
 
 package scouter.lang.step;
 
+import scouter.lang.TextTypes;
+
 public class StepEnum {
 	public final static byte METHOD = 1;
 	public final static byte METHOD2 = 10;
@@ -42,34 +44,37 @@ public class StepEnum {
 	public final static byte CONTROL = 99;
 
 	public enum Type {
-		METHOD(StepEnum.METHOD, MethodStep.class),
-		METHOD2(StepEnum.METHOD, MethodStep2.class),
-		SQL(StepEnum.SQL, SqlStep.class),
-		SQL2(StepEnum.SQL2, SqlStep2.class),
-		SQL3(StepEnum.SQL3, SqlStep3.class),
-		MESSAGE(StepEnum.MESSAGE, MessageStep.class),
-		SOCKET(StepEnum.SOCKET, SocketStep.class),
-		APICALL(StepEnum.APICALL, ApiCallStep.class),
-		APICALL2(StepEnum.APICALL2, ApiCallStep2.class),
-		THREAD_SUBMIT(StepEnum.THREAD_SUBMIT, ThreadSubmitStep.class),
-		HASHED_MESSAGE(StepEnum.HASHED_MESSAGE, HashedMessageStep.class),
-		PARAMETERIZED_MESSAGE(StepEnum.PARAMETERIZED_MESSAGE, ParameterizedMessageStep.class),
-		DUMP(StepEnum.DUMP, DumpStep.class),
-		DISPATCH(StepEnum.DISPATCH, DispatchStep.class),
-		THREAD_CALL_POSSIBLE(StepEnum.THREAD_CALL_POSSIBLE, ThreadCallPossibleStep.class),
-		METHOD_SUM(StepEnum.METHOD_SUM, MethodSum.class),
-		SQL_SUM(StepEnum.SQL_SUM, SqlSum.class),
-		MESSAGE_SUM(StepEnum.MESSAGE_SUM, MessageSum.class),
-		SOCKET_SUM(StepEnum.SOCKET_SUM, SocketSum.class),
-		APICALL_SUM(StepEnum.APICALL_SUM, ApiCallSum.class),
-		CONTROL(StepEnum.CONTROL, StepControl.class),
+		METHOD(StepEnum.METHOD, MethodStep.class, TextTypes.METHOD),
+		METHOD2(StepEnum.METHOD2, MethodStep2.class, TextTypes.METHOD),
+		SQL(StepEnum.SQL, SqlStep.class, TextTypes.SQL),
+		SQL2(StepEnum.SQL2, SqlStep2.class, TextTypes.SQL),
+		SQL3(StepEnum.SQL3, SqlStep3.class, TextTypes.SQL),
+		MESSAGE(StepEnum.MESSAGE, MessageStep.class, null),
+		SOCKET(StepEnum.SOCKET, SocketStep.class, null),
+		APICALL(StepEnum.APICALL, ApiCallStep.class, TextTypes.APICALL),
+		APICALL2(StepEnum.APICALL2, ApiCallStep2.class, TextTypes.APICALL),
+		THREAD_SUBMIT(StepEnum.THREAD_SUBMIT, ThreadSubmitStep.class, TextTypes.APICALL),
+		HASHED_MESSAGE(StepEnum.HASHED_MESSAGE, HashedMessageStep.class, TextTypes.HASH_MSG),
+		PARAMETERIZED_MESSAGE(StepEnum.PARAMETERIZED_MESSAGE, ParameterizedMessageStep.class, TextTypes.HASH_MSG),
+		DUMP(StepEnum.DUMP, DumpStep.class, null),
+		DISPATCH(StepEnum.DISPATCH, DispatchStep.class, TextTypes.APICALL),
+		THREAD_CALL_POSSIBLE(StepEnum.THREAD_CALL_POSSIBLE, ThreadCallPossibleStep.class, TextTypes.APICALL),
+		METHOD_SUM(StepEnum.METHOD_SUM, MethodSum.class, TextTypes.METHOD),
+		SQL_SUM(StepEnum.SQL_SUM, SqlSum.class, TextTypes.SQL),
+		MESSAGE_SUM(StepEnum.MESSAGE_SUM, MessageSum.class, null),
+		SOCKET_SUM(StepEnum.SOCKET_SUM, SocketSum.class, null),
+		APICALL_SUM(StepEnum.APICALL_SUM, ApiCallSum.class, TextTypes.APICALL),
+		CONTROL(StepEnum.CONTROL, StepControl.class, null),
 		;
 
 		byte code;
 		Class<? extends Step> clazz;
-		Type(byte code, Class<? extends Step> clazz) {
+		String associatedMainTextTypeName;
+
+		Type(byte code, Class<? extends Step> clazz, String textType) {
 			this.code = code;
 			this.clazz = clazz;
+			this.associatedMainTextTypeName = textType;
 		}
 
 		public static Type of(String name) {
@@ -100,6 +105,10 @@ public class StepEnum {
 
 		public Class<? extends Step> getClazz() {
 			return this.clazz;
+		}
+
+		public String getAssociatedMainTextTypeName() {
+			return associatedMainTextTypeName;
 		}
 	}
 

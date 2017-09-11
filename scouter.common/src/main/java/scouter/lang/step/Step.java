@@ -100,4 +100,19 @@ abstract public class Step implements Comparable<Step> {
 		}
 		return arr;
 	}
+
+	public static List<Step> toDecodedObjectList(byte[] buff) {
+		if (buff == null)
+			return null;
+		ArrayList<Step> arr = new ArrayList<Step>();
+		DataInputX din = new DataInputX(buff);
+		try {
+			while (din.available() > 0) {
+				arr.add(din.readStep());
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return arr;
+	}
 }

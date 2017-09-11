@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import scouterx.client.server.ServerManager;
 import scouterx.framework.util.ZZ;
 
 import javax.validation.constraints.NotNull;
@@ -55,7 +56,6 @@ public class RealTimeXLogRequest {
     @PathParam("xlogIndex")
     int xLogIndex;
 
-    @QueryParam("serverId")
     int serverId;
 
     @NotNull
@@ -67,4 +67,9 @@ public class RealTimeXLogRequest {
     }
 
     public RealTimeXLogRequest() { }
+
+    @QueryParam("serverId")
+    public void setServerId(int serverId) {
+        this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
+    }
 }

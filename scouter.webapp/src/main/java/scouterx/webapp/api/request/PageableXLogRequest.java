@@ -21,6 +21,7 @@ package scouterx.webapp.api.request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import scouterx.client.server.ServerManager;
 import scouterx.framework.exception.ErrorState;
 import scouterx.framework.util.ZZ;
 
@@ -55,7 +56,6 @@ public class PageableXLogRequest {
     @PathParam("yyyymmdd")
     String yyyymmdd;
 
-    @QueryParam("serverId")
     int serverId;
 
     @NotNull
@@ -93,6 +93,11 @@ public class PageableXLogRequest {
 
     @QueryParam("lastXLogTime")
     long lastXLogTime;
+
+    @QueryParam("serverId")
+    public void setServerId(int serverId) {
+        this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
+    }
 
     public void validate() {
         if((lastTxid != 0 && lastXLogTime == 0) || (lastTxid == 0 && lastXLogTime != 0)) {

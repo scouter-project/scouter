@@ -21,9 +21,11 @@ package scouterx.webapp.api.request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import scouterx.client.server.ServerManager;
 import scouterx.model.scouter.SUser;
 
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.QueryParam;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -36,4 +38,9 @@ public class LoginRequest {
 
     @NotNull
     private SUser user;
+
+    @QueryParam("serverId")
+    public void setServerId(int serverId) {
+        this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
+    }
 }
