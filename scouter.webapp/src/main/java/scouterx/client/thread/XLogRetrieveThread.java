@@ -66,7 +66,7 @@ public class XLogRetrieveThread extends Thread {
             }
 
             try {
-                RealTimeXLogRequest realTimeXLogRequest = new RealTimeXLogRequest(loop, index, server.getId(), Collections.emptyList());
+                RealTimeXLogRequest realTimeXLogRequest = new RealTimeXLogRequest(loop, index, server.getId(), Collections.emptySet());
                 xLogConsumer.handleRealTimeXLog(realTimeXLogRequest, in -> {
                     Pack p = in.readPack();
                     if (p.getPackType() == PackEnum.MAP) { //meta data arrive ahead of xlog pack

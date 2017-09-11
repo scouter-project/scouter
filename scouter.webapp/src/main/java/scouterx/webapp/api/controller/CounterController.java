@@ -20,13 +20,12 @@ package scouterx.webapp.api.controller;
 
 import scouterx.client.server.ServerManager;
 import scouterx.framework.exception.ErrorState;
-import scouterx.webapp.api.view.CommonResultView;
-import scouterx.model.scouter.SActiveService;
+import scouterx.framework.util.ZZ;
 import scouterx.model.scouter.SCounter;
 import scouterx.webapp.api.request.CounterRequestByType;
-import scouterx.webapp.service.CounterService;
+import scouterx.webapp.api.view.CommonResultView;
 import scouterx.webapp.api.view.CounterView;
-import scouterx.framework.util.ZZ;
+import scouterx.webapp.service.CounterService;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
@@ -77,22 +76,9 @@ public class CounterController {
             @QueryParam("serverId") final int serverId) {
 
         List<SCounter> counterList = counterService.retrieveRealTimeCountersByObjType(
-                objType, ZZ.splitParam(counterNameByCommaSeparator), ServerManager.getInstance().getServerIfNullDefault(serverId));
+                objType, ZZ.splitParamStringSet(counterNameByCommaSeparator), ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(counterList);
-    }
-
-    @GET
-    @Path("/realTime/activeService/{objType}/byType")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<SActiveService>> retrieveRealTimeActiveServiceByObjType(
-            @PathParam("objType") @Valid @NotNull final String objType,
-            @QueryParam("serverId") final int serverId) {
-
-        List<SActiveService> activeServiceList = counterService.retrieveRealTimeActiveServiceByObjType(
-                objType, ServerManager.getInstance().getServerIfNullDefault(serverId));
-
-        return CommonResultView.success(activeServiceList);
     }
 
     /**

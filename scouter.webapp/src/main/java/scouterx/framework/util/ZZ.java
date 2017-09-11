@@ -19,13 +19,13 @@
 package scouterx.framework.util;
 
 import org.apache.commons.lang3.StringUtils;
-import scouter.util.IntSet;
 import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -82,19 +82,21 @@ public class ZZ {
         return Arrays.asList(StringUtils.split(org, COMMA));
     }
 
+    public static Set<String> splitParamStringSet(String org) {
+        org = stripFirstLastBracket(org);
+        String[] items = StringUtils.split(org, COMMA);
+        return Arrays.stream(items).collect(Collectors.toSet());
+    }
+
     public static List<Integer> splitParamAsInteger(String org) {
         org = stripFirstLastBracket(org);
         String[] items = StringUtils.split(org, COMMA);
         return Arrays.stream(items).map(Integer::parseInt).collect(Collectors.toList());
     }
 
-    public static IntSet splitParamAsIntSet(String org) {
-        IntSet intSet = new IntSet();
+    public static Set<Integer> splitParamAsIntegerSet(String org) {
         org = stripFirstLastBracket(org);
         String[] items = StringUtils.split(org, COMMA);
-        for (String item : items) {
-            intSet.add(Integer.parseInt(item));
-        }
-        return intSet;
+        return Arrays.stream(items).map(Integer::parseInt).collect(Collectors.toSet());
     }
 }

@@ -20,7 +20,6 @@ package scouterx.webapp.consumer;
 
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
-import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
@@ -28,7 +27,6 @@ import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
 import scouterx.client.server.ServerManager;
 import scouterx.framework.exception.ErrorState;
-import scouterx.model.scouter.SActiveService;
 import scouterx.model.scouter.SCounter;
 import scouterx.webapp.api.request.CounterRequestByType;
 import scouterx.webapp.api.view.CounterView;
@@ -37,6 +35,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -51,7 +50,7 @@ public class CounterConsumer {
      * @param server
      * @return
      */
-    public List<SCounter> retrieveRealTimeCountersByObjType(final String objType, List<String> counterNames, final Server server) {
+    public List<SCounter> retrieveRealTimeCountersByObjType(final String objType, Set<String> counterNames, final Server server) {
         MapPack paramPack = new MapPack();
         paramPack.put(ParamConstant.OBJ_TYPE, objType);
         ListValue counterNameLv = paramPack.newList(ParamConstant.COUNTER);
@@ -80,29 +79,6 @@ public class CounterConsumer {
             resultList.add(new SCounter(objHash, counterName, counterValue));
         }
         return resultList;
-    }
-
-    /**
-     * get realtime active service by type
-     * @param objType
-     * @param server
-     */
-    public List<SActiveService> retrieveRealTimeActiveServiceByObjType(final String objType, final Server server) {
-        MapPack paramPack = new MapPack();
-        paramPack.put(ParamConstant.OBJ_TYPE, objType);
-
-        List<Pack> results;
-        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
-            results = tcpProxy.process(RequestCmd.ACTIVESPEED_REAL_TIME, paramPack);
-
-        } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
-        }
-
-        return results.stream()
-                .map(pack -> (MapPack) pack)
-                .map(SActiveService::of)
-                .collect(Collectors.toList());
     }
 
     /**

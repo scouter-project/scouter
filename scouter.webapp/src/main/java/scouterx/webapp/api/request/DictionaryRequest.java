@@ -22,13 +22,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
-import scouterx.model.scouter.SDictionaryText;
 import scouterx.framework.util.ZZ;
+import scouterx.model.scouter.SDictionaryText;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -62,7 +61,7 @@ public class DictionaryRequest {
 	 */
 	@QueryParam("dictKeys")
 	public void setDictSets(String dictKeys) {
-		List<String> textList = ZZ.splitParam(dictKeys);
+		Set<String> textList = ZZ.splitParamStringSet(dictKeys);
 		dictSets = textList.stream()
 				.map(s -> {
 					String[] parts = StringUtils.split(s, COLON);

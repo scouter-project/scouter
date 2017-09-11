@@ -3,11 +3,11 @@ package scouterx.webapp.api.controller;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import scouterx.webapp.framework.annotation.NoAuth;
 import scouterx.framework.exception.ErrorState;
 import scouterx.framework.exception.ErrorStateBizException;
 import scouterx.framework.exception.ErrorStateException;
 import scouterx.webapp.api.view.CommonResultView;
+import scouterx.webapp.framework.annotation.NoAuth;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -16,6 +16,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class is for testing
@@ -72,6 +74,16 @@ public class TempTestController {
 			throw new ErrorStateBizException(ErrorState.INTERNAL_SERVER_ERROR, "test error state BIZ !! exception");
 		}
 		return null;
+	}
+
+	@GET @Path("/map")
+	public CommonResultView<Map<String, Object>> map() {
+		Map<String, Object> map = new HashMap<>();
+		map.put("1111", "asdf");
+		map.put("2222", new Integer(22233));
+		map.put("3333", 3333);
+
+		return CommonResultView.success(map);
 	}
 
 	@Setter

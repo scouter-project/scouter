@@ -19,13 +19,13 @@
 package scouterx.webapp.service;
 
 import scouterx.client.server.Server;
-import scouterx.webapp.consumer.CounterConsumer;
-import scouterx.model.scouter.SActiveService;
 import scouterx.model.scouter.SCounter;
 import scouterx.webapp.api.request.CounterRequestByType;
 import scouterx.webapp.api.view.CounterView;
+import scouterx.webapp.consumer.CounterConsumer;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -37,12 +37,8 @@ public class CounterService {
         this.counterConsumer = new CounterConsumer();
     }
 
-    public List<SCounter> retrieveRealTimeCountersByObjType(String objType, List<String> counterNames, final Server server) {
+    public List<SCounter> retrieveRealTimeCountersByObjType(String objType, Set<String> counterNames, final Server server) {
         return counterConsumer.retrieveRealTimeCountersByObjType(objType, counterNames, server);
-    }
-
-    public List<SActiveService> retrieveRealTimeActiveServiceByObjType(final String objType, final Server server) {
-        return counterConsumer.retrieveRealTimeActiveServiceByObjType(objType, server);
     }
 
     public List<CounterView> retrieveCounterByObjType(CounterRequestByType request) {

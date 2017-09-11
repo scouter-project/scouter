@@ -27,7 +27,7 @@ import scouterx.framework.util.ZZ;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import java.util.List;
+import java.util.Set;
 
 /**
 * DTO for pageable XLog request.
@@ -59,11 +59,11 @@ public class RealTimeXLogRequest {
     int serverId;
 
     @NotNull
-    List<Integer> objHashes;
+    Set<Integer> objHashes;
 
     @QueryParam("objHashes")
     public void setObjHashes(String objHashes) {
-        this.objHashes = ZZ.splitParamAsInteger(objHashes);
+        this.objHashes = ZZ.splitParamAsIntegerSet(objHashes);
     }
 
     public RealTimeXLogRequest() { }

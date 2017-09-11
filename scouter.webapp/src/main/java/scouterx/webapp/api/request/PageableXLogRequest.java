@@ -29,7 +29,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import java.util.List;
+import java.util.Set;
 
 /**
 * DTO for pageable XLog request.
@@ -69,11 +69,11 @@ public class PageableXLogRequest {
     long endTime;
 
     @NotNull
-    List<Integer> objHashes;
+    Set<Integer> objHashes;
 
     @QueryParam("objHashes")
     public void setObjHashes(String objHashes) {
-        this.objHashes = ZZ.splitParamAsInteger(objHashes);
+        this.objHashes = ZZ.splitParamAsIntegerSet(objHashes);
     }
 
     @Max(MAX_PAGE_COUNT)
