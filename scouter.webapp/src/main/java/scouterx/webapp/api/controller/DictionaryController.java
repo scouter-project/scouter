@@ -49,13 +49,13 @@ public class DictionaryController {
 
 	/**
 	 * get text values from dictionary keys requested
-	 * uri : /dictionary/type/any?texts=[service:10001,service:10002,obj:20001,sql:55555] (bracket is optional)
+	 * uri : /dictionary/{yyyymmdd}?texts=[service:10001,service:10002,obj:20001,sql:55555] (bracket is optional)
 	 *
 	 * @param dictionaryRequest @see {@link DictionaryRequest}
 	 * @return
 	 */
 	@GET
-	@Path("/{yyyymmdd}/allType")
+	@Path("/{yyyymmdd}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response retrieveTextFromDictionary(@Valid @BeanParam DictionaryRequest dictionaryRequest) {
 		StreamingOutput stream = os -> {

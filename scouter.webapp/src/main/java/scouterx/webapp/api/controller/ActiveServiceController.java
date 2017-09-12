@@ -58,7 +58,7 @@ public class ActiveServiceController {
     }
 
     @GET
-    @Path("/stepCount/{objType}/byType")
+    @Path("/stepCount/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List<SActiveServiceStepCount>> retrieveRealTimeActiveServiceByObjType(
             @PathParam("objType") @Valid @NotNull final String objType,
@@ -71,7 +71,7 @@ public class ActiveServiceController {
     }
 
     @GET
-    @Path("/{objType}/byType")
+    @Path("/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List<SActiveService>> retrieveRealTimeActiveServiceListByObjType(
             @PathParam("objType") @Valid @NotNull final String objType,
@@ -84,7 +84,7 @@ public class ActiveServiceController {
     }
 
     @GET
-    @Path("/{objHash}")
+    @Path("/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List<SActiveService>> retrieveRealTimeActiveServiceListByObjHashes(
             @PathParam("objHash") @Valid @NotNull final int objHash,
@@ -97,7 +97,7 @@ public class ActiveServiceController {
     }
 
     @GET
-    @Path("/{objHash}/thread/{threadId}")
+    @Path("/thread/{threadId}/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<ActiveThread> retrieveActiveThread(
             @PathParam("objHash") @Valid @NotNull final int objHash,

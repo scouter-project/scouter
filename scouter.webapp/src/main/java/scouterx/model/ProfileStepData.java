@@ -102,31 +102,31 @@ public class ProfileStepData {
         switch (stepType) {
             case METHOD:
             case METHOD2:
-                mainValue = textTypeEnum.getTextModel().getCachedText(((MethodStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((MethodStep) step).getHash());
                 break;
             case SQL:
             case SQL2:
             case SQL3:
-                mainValue = textTypeEnum.getTextModel().getCachedText(((SqlStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((SqlStep) step).getHash());
                 break;
             case APICALL:
             case APICALL2:
-                mainValue = textTypeEnum.getTextModel().getCachedText(((ApiCallStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((ApiCallStep) step).getHash());
                 break;
             case THREAD_SUBMIT:
-                mainValue = textTypeEnum.getTextModel().getCachedText(((ThreadSubmitStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((ThreadSubmitStep) step).getHash());
                 break;
             case HASHED_MESSAGE:
-                mainValue = textTypeEnum.getTextModel().getCachedText(((HashedMessageStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((HashedMessageStep) step).getHash());
                 break;
             case PARAMETERIZED_MESSAGE:
-                mainValue = textTypeEnum.getTextModel().getCachedText(((ParameterizedMessageStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((ParameterizedMessageStep) step).getHash());
                 break;
             case DISPATCH:
-                mainValue = textTypeEnum.getTextModel().getCachedText(((DispatchStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((DispatchStep) step).getHash());
                 break;
             case THREAD_CALL_POSSIBLE:
-                mainValue = textTypeEnum.getTextModel().getCachedText(((ThreadCallPossibleStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((ThreadCallPossibleStep) step).getHash());
                 break;
             case DUMP:
                 break;
@@ -147,7 +147,7 @@ public class ProfileStepData {
             case DUMP:
                 DumpStep dumpStep = (DumpStep) step;
                 for (int stackHash : dumpStep.stacks) {
-                    valueList.add(textTypeEnum.getTextModel().getCachedText(stackHash));
+                    valueList.add(textTypeEnum.getTextModel().getCachedTextIfNullDefault(stackHash));
                 }
                 break;
 

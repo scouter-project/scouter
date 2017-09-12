@@ -59,8 +59,8 @@ public class CounterController {
     }
 
     /**
-     * get current values of several counters for objects given types
-     * uri : /counter/realTime/each/counters/{objType}/byType?serverId=1001010&counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
+     * get current values of several counters from objects given types
+     * uri : /counter/realTime/{counters}/ofType/{objType}?serverId=1001010&counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
      *
      * @param objType
      * @param counterNameByCommaSeparator
@@ -68,11 +68,11 @@ public class CounterController {
      * @see scouter.lang.counters.CounterConstants
      */
     @GET
-    @Path("/realTime/each/counters/{objType}/byType")
+    @Path("/realTime/{counters}/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List<SCounter>> retrieveRealTimeCountersByObjType(
             @PathParam("objType") @Valid @NotNull final String objType,
-            @QueryParam("counters") @Valid @NotNull final String counterNameByCommaSeparator,
+            @PathParam("counters") @Valid @NotNull final String counterNameByCommaSeparator,
             @QueryParam("serverId") final int serverId) {
 
         List<SCounter> counterList = counterService.retrieveRealTimeCountersByObjType(
@@ -82,8 +82,8 @@ public class CounterController {
     }
 
     /**
-     * get current values of several counters for given an object
-     * uri : /counter/realTime/each/counters/{objHash}?counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
+     * get current values of several counters from given an object
+     * uri : /counter/realTime/{counters}/ofObject/{objHash}?counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
      *
      * @param objHash
      * @param counterNameByCommaSeparator
@@ -91,37 +91,11 @@ public class CounterController {
      * @see scouter.lang.counters.CounterConstants
      */
     @GET
-    @Path("/realTime/each/counters/{objHash}")
+    @Path("/realTime/{counters}/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<Boolean> retrieveRealTimeCountersByObjId(
             @PathParam("objHash") final int objHash,
-            @QueryParam("counters") final String counterNameByCommaSeparator,
-            @QueryParam("serverId") final int serverId) {
-
-        //TODO
-        ErrorState.throwNotImplementedException();
-        return null;
-    }
-
-    @GET
-    @Path("/realTime/each/{counter}/{objType}/byType")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Boolean> retrieveRealTimeCounterByObjType(
-            @PathParam("counter") final String counterName,
-            @PathParam("objType") final String objType,
-            @QueryParam("serverId") final int serverId) {
-
-        //TODO
-        ErrorState.throwNotImplementedException();
-        return null;
-    }
-
-    @GET
-    @Path("/realTime/each/{counter}/{objHash}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Boolean> retrieveRealTimeCounterByObjId(
-            @PathParam("counter") final String counterName,
-            @PathParam("objHash") final int objHash,
+            @PathParam("counters") final String counterNameByCommaSeparator,
             @QueryParam("serverId") final int serverId) {
 
         //TODO
@@ -130,15 +104,15 @@ public class CounterController {
     }
 
     /**
-     * get values of several counters for objects given types
-     * uri : /counter/each/{counter}/{objType}/byType?serverId=1001010&fromYmd=20170809&toYmd=20170810
+     * get values of the counter from objects given types
+     * uri : /counter/stat/{counter}/ofType/{objType}?serverId=1001010&fromYmd=20170809&toYmd=20170810
      *
      * @param request @see {@link CounterRequestByType}
      */
     @GET
-    @Path("/each/{counter}/{objType}/byType")
+    @Path("/stat/{counter}/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<SCounter>> retrieveRealTimeCountersByObjType(@BeanParam @Valid CounterRequestByType request) {
+    public CommonResultView<List<SCounter>> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
         List<CounterView> counterViewList = counterService.retrieveCounterByObjType(request);
         return CommonResultView.success(counterViewList);
 
