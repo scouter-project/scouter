@@ -33,7 +33,6 @@ import scouterx.framework.exception.ErrorState;
 import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class TcpProxy implements Closeable {
+public class TcpProxy implements AutoCloseable {
     private static final ConfigureAdaptor conf = ConfigureManager.getConfigure();
     private final ClientTCP tcp = new ClientTCP();
     private Server server;
@@ -237,7 +236,7 @@ public class TcpProxy implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         ConnectionPool pool = this.getServer().getConnectionPool();
         if (this.isValid()) {
             pool.put(this);

@@ -41,6 +41,7 @@ import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
 import scouterx.webapp.framework.configure.ServerConfig;
 import scouterx.webapp.framework.filter.LoggingInitServletFilter;
+import scouterx.webapp.framework.filter.ReleaseResourceFilter;
 
 import javax.servlet.DispatcherType;
 import java.io.File;
@@ -183,6 +184,7 @@ public class WebAppMain {
 		jerseyHolder.setInitParameter("jersey.config.server.provider.packages", "scouterx.webapp");
 		context.addServlet(jerseyHolder, "/scouter/*");
         context.addFilter(LoggingInitServletFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
+        context.addFilter(ReleaseResourceFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
 
 		ServletHolder defaultHolder = new ServletHolder("default", DefaultServlet.class);
 		defaultHolder.setInitParameter("dirAllowed","false");

@@ -22,10 +22,8 @@ import scouter.lang.pack.ObjectPack;
 import scouter.net.RequestCmd;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
-import scouterx.framework.exception.ErrorState;
 import scouterx.model.scouter.SObject;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,9 +42,6 @@ public class AgentConsumer {
                     .process(RequestCmd.OBJECT_LIST_REAL_TIME, null).stream()
                     .map(p -> SObject.of((ObjectPack) p, server))
                     .collect(Collectors.toList());
-
-        } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
 
         return objectList;

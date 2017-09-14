@@ -17,25 +17,52 @@
  */
 package scouterx.client.model;
 
+import org.apache.commons.lang3.StringUtils;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.TextPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
+import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 import scouter.util.LinkedMap;
 import scouter.util.StringUtil;
 import scouterx.client.net.TcpProxy;
-import scouterx.framework.exception.ErrorState;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class TextModel {
-	private LinkedMap<Integer, String> entries = new LinkedMap<Integer, String>();
+	public static ThreadLocal<Set<Integer>> failedHashesInScope = new ThreadLocal<>();
+	public static ThreadLocal<Boolean> scopeStarted = new ThreadLocal<>();
+
+	static {
+		failedHashesInScope.set(new HashSet<>());
+		scopeStarted.set(false);
+	}
+
+	/**
+	 * start boundary of thread-scope cache of failed id to obtain word from dictionary
+	 */
+	public static void startScope() {
+		failedHashesInScope.get().clear();
+		scopeStarted.set(true);
+	}
+
+	/**
+	 * end boundary of thread-scope cache of failed id to obtain word from dictionary
+	 */
+	public static void endScope() {
+		failedHashesInScope.get().clear();
+		scopeStarted.set(false);
+	}
+
+	private LinkedMap<Integer, String> entries = new LinkedMap<>();
+
 	final private String cmd = RequestCmd.GET_TEXT_100;
 	final private String type;
 	private int limit;
@@ -57,29 +84,53 @@ public class TextModel {
 		return limit;
 	}
 
-	public String getText(String date, int hash, int serverId) {
-		if (hash == 0)
+	public String getTextIfNullDefault(long date, int hash, int serverId) {
+		String text = getText(date, hash, serverId);
+		if(StringUtils.isBlank(text)) {
+			text = new StringBuilder("**unlabeled**:").append(TextTypeEnum.of(this).getTypeName()).append(":").append(hash).toString();
+		}
+		return text;
+	}
+
+	public String getText(long date, int hash, int serverId) {
+		if (hash == 0) {
 			return null;
+		}
+
 		String value = getCachedText(hash);
-		if (value != null)
+		if (value != null) {
 			return value;
-		ArrayList a = new ArrayList();
-		a.add(hash);
-		load(date, a, serverId);
-		return getCachedText(hash);
+		}
+
+		if (scopeStarted.get() == true && failedHashesInScope.get().contains(hash)) {
+			return null;
+		}
+
+		ArrayList list = new ArrayList();
+		list.add(hash);
+		String yyyymmdd = DateUtil.yyyymmdd(date);
+		load(yyyymmdd, list, serverId);
+
+		String text = getCachedText(hash);
+
+		if (text == null && scopeStarted.get() == true) {
+			failedHashesInScope.get().add(hash);
+		}
+
+		return text;
 	}
 
-	public String getCachedText(int id) {
-		return entries.get(id);
+	public String getCachedText(int hash) {
+		return entries.get(hash);
 	}
 
-	public String getCachedTextIfNullDefault(int id) {
-		if (id == 0) {
+	public String getCachedTextIfNullDefault(int hash) {
+		if (hash == 0) {
 			return "";
 		}
-		String s = entries.get(id);
+		String s = entries.get(hash);
 		if(s == null) {
-			s = new StringBuilder("**unlabeled**:").append(TextTypeEnum.of(this).getTypeName()).append(":").append(id).toString();
+			s = new StringBuilder("**unlabeled**:").append(TextTypeEnum.of(this).getTypeName()).append(":").append(hash).toString();
 		}
 		return s;
 	}
@@ -104,8 +155,6 @@ public class TextModel {
 		List<Pack> packList;
 		try (TcpProxy tcp = TcpProxy.getTcpProxy(serverId)) {
 			packList = tcp.process(cmd, param);
-		} catch (IOException e) {
-			throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
 		}
 
 		if (packList == null)

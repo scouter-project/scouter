@@ -24,12 +24,10 @@ import scouter.lang.pack.Pack;
 import scouter.net.RequestCmd;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
-import scouterx.framework.exception.ErrorState;
 import scouterx.model.ActiveThread;
 import scouterx.model.scouter.SActiveService;
 import scouterx.model.scouter.SActiveServiceStepCount;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,9 +48,6 @@ public class ActiveServiceConsumer {
         List<Pack> results;
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             results = tcpProxy.process(RequestCmd.ACTIVESPEED_REAL_TIME, paramPack);
-
-        } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
 
         return results.stream()
@@ -92,9 +87,6 @@ public class ActiveServiceConsumer {
     public List<Pack> retrieveActiveService(final MapPack paramPack, final Server server) {
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             return tcpProxy.process(RequestCmd.OBJECT_ACTIVE_SERVICE_LIST, paramPack);
-
-        } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
     }
 
@@ -107,9 +99,6 @@ public class ActiveServiceConsumer {
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             MapPack resultPack = (MapPack) tcpProxy.getSingle(RequestCmd.OBJECT_THREAD_DETAIL, paramPack);
             return ActiveThread.of(resultPack);
-
-        } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
     }
 

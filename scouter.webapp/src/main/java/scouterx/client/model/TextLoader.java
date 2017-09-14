@@ -25,7 +25,6 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouterx.client.net.TcpProxy;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -90,7 +89,7 @@ public class TextLoader {
 					TextPack textPack = (TextPack) pack;
 					TextTypeEnum.of(textPack.xtype).getTextModel().cache(textPack);
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				log.error(e.getMessage());
 				return false;
 			}

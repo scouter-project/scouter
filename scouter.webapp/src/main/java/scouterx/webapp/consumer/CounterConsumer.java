@@ -31,7 +31,6 @@ import scouterx.model.scouter.SCounter;
 import scouterx.webapp.api.request.CounterRequestByType;
 import scouterx.webapp.api.view.CounterView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -61,9 +60,6 @@ public class CounterConsumer {
         MapPack outMapPack;
         try(TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             outMapPack = (MapPack) tcpProxy.getSingle(RequestCmd.COUNTER_REAL_TIME_ALL_MULTI, paramPack);
-
-        } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
 
         ListValue rObjHashLv = (ListValue) outMapPack.get(ParamConstant.OBJ_HASH);
@@ -119,8 +115,6 @@ public class CounterConsumer {
 
                 counterViewList.add(counterView);
             });
-        } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
 
         return counterViewList;

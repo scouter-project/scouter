@@ -25,14 +25,12 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouterx.client.net.INetReader;
 import scouterx.client.net.TcpProxy;
-import scouterx.framework.exception.ErrorState;
 import scouterx.model.scouter.SXlog;
 import scouterx.webapp.api.request.PageableXLogRequest;
 import scouterx.webapp.api.request.RealTimeXLogRequest;
 import scouterx.webapp.api.view.PageableXLogView;
 import scouterx.webapp.api.view.RealTimeXLogView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,8 +68,6 @@ public class XLogConsumer {
 
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(xLogRequest.getServerId())) {
             tcpProxy.process(cmd, paramPack, reader);
-        } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
     }
 
@@ -99,8 +95,6 @@ public class XLogConsumer {
 
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(pageableXLogRequest.getServerId())) {
             tcpProxy.process(RequestCmd.TRANX_LOAD_TIME_GROUP_V2, paramPack, reader);
-        } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
     }
 }

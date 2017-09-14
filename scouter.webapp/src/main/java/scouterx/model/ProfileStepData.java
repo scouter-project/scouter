@@ -33,6 +33,7 @@ import scouter.lang.step.StepEnum;
 import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.lang.step.ThreadSubmitStep;
 import scouterx.client.model.TextLoader;
+import scouterx.client.model.TextModel;
 import scouterx.client.model.TextTypeEnum;
 
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class ProfileStepData {
     private List<String> additionalValueList;
     private Step step;
 
-    public static List<ProfileStepData> toList(byte[] buff, int serverId) {
+    public static List<ProfileStepData> toList(byte[] buff, long date, int serverId) {
         if (buff == null) {
             return null;
         }
@@ -73,16 +74,18 @@ public class ProfileStepData {
 
         List<ProfileStepData> profileStepDataList = new ArrayList<>();
 
+        TextModel.startScope();
         for (Step step : stepList) {
-            profileStepDataList.add(ProfileStepData.of(step));
+            profileStepDataList.add(ProfileStepData.of(step, date, serverId));
         }
+        TextModel.endScope();
 
         return profileStepDataList;
     }
 
-    public static ProfileStepData of(Step step) {
-        String mainValue = getStepMainValue(step);
-        List<String> additionalValueList = getStepAdditionalValue(step);
+    public static ProfileStepData of(Step step, long date, int serverId) {
+        String mainValue = getStepMainValue(step, date, serverId);
+        List<String> additionalValueList = getStepAdditionalValue(step, date, serverId);
 
         ProfileStepData profileStepData = ProfileStepData.builder()
                 .mainValue(mainValue)
@@ -93,7 +96,7 @@ public class ProfileStepData {
         return profileStepData;
     }
 
-    private static String getStepMainValue(Step step) {
+    private static String getStepMainValue(Step step, long date, int serverId) {
         String mainValue = "";
 
         StepEnum.Type stepType = StepEnum.Type.of(step.getStepType());
@@ -102,31 +105,31 @@ public class ProfileStepData {
         switch (stepType) {
             case METHOD:
             case METHOD2:
-                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((MethodStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getTextIfNullDefault(date, ((MethodStep) step).getHash(), serverId);
                 break;
             case SQL:
             case SQL2:
             case SQL3:
-                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((SqlStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getTextIfNullDefault(date, ((SqlStep) step).getHash(), serverId);
                 break;
             case APICALL:
             case APICALL2:
-                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((ApiCallStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getTextIfNullDefault(date, ((ApiCallStep) step).getHash(), serverId);
                 break;
             case THREAD_SUBMIT:
-                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((ThreadSubmitStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getTextIfNullDefault(date, ((ThreadSubmitStep) step).getHash(), serverId);
                 break;
             case HASHED_MESSAGE:
-                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((HashedMessageStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getTextIfNullDefault(date, ((HashedMessageStep) step).getHash(), serverId);
                 break;
             case PARAMETERIZED_MESSAGE:
-                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((ParameterizedMessageStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getTextIfNullDefault(date, ((ParameterizedMessageStep) step).getHash(), serverId);
                 break;
             case DISPATCH:
-                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((DispatchStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getTextIfNullDefault(date, ((DispatchStep) step).getHash(), serverId);
                 break;
             case THREAD_CALL_POSSIBLE:
-                mainValue = textTypeEnum.getTextModel().getCachedTextIfNullDefault(((ThreadCallPossibleStep) step).getHash());
+                mainValue = textTypeEnum.getTextModel().getTextIfNullDefault(date, ((ThreadCallPossibleStep) step).getHash(), serverId);
                 break;
             case DUMP:
                 break;
@@ -138,7 +141,7 @@ public class ProfileStepData {
         return mainValue;
     }
 
-    private static List<String> getStepAdditionalValue(Step step) {
+    private static List<String> getStepAdditionalValue(Step step, long date, int serverId) {
         StepEnum.Type stepType = StepEnum.Type.of(step.getStepType());
         TextTypeEnum textTypeEnum = TextTypeEnum.of(stepType.getAssociatedMainTextTypeName());
         List<String> valueList = new ArrayList<>();
@@ -147,7 +150,7 @@ public class ProfileStepData {
             case DUMP:
                 DumpStep dumpStep = (DumpStep) step;
                 for (int stackHash : dumpStep.stacks) {
-                    valueList.add(textTypeEnum.getTextModel().getCachedTextIfNullDefault(stackHash));
+                    valueList.add(textTypeEnum.getTextModel().getTextIfNullDefault(date, stackHash, serverId));
                 }
                 break;
 

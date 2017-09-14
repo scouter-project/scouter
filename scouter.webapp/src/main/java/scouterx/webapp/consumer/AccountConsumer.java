@@ -26,10 +26,7 @@ import scouter.net.RequestCmd;
 import scouter.util.CipherUtil;
 import scouterx.client.net.TcpProxy;
 import scouterx.client.server.Server;
-import scouterx.framework.exception.ErrorState;
 import scouterx.model.scouter.SUser;
-
-import java.io.IOException;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -47,9 +44,6 @@ public class AccountConsumer {
         Value value;
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             value = tcpProxy.getSingleValue(RequestCmd.CHECK_LOGIN, param);
-
-        } catch (IOException e) {
-            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
         }
 
         return ((BooleanValue) value).value;

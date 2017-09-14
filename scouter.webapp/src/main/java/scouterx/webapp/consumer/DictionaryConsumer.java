@@ -24,11 +24,9 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouterx.client.net.INetReader;
 import scouterx.client.net.TcpProxy;
-import scouterx.framework.exception.ErrorState;
 import scouterx.model.scouter.SDictionaryText;
 import scouterx.webapp.api.request.DictionaryRequest;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,9 +49,6 @@ public class DictionaryConsumer {
 				}
 				tcpProxy.process(RequestCmd.GET_TEXT_PACK, paramPack, reader);
 			}
-
-		} catch (IOException e) {
-			throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
 		}
 	}
 }
