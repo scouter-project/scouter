@@ -46,6 +46,12 @@ public class AgentController {
         this.agentService = new AgentService();
     }
 
+    /**
+     * get agent list that is monitored by scouter
+     *
+     * @param serverId optional if web instance just connected one collector server.
+     * @return
+     */
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<SObject> retrieveAgentList(@QueryParam("serverId") int serverId) {

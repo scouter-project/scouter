@@ -47,6 +47,11 @@ public class UserController {
 
     final UserService userService = new UserService();
 
+    /**
+     * traditional webapplication login for web client application ( success will response "set cookie JSESSIONID" )
+     *
+     * @param loginRequest @see {@link LoginRequest}
+     */
     @NoAuth
     @POST @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)

@@ -18,46 +18,42 @@
 
 package scouterx.webapp.api.controller;
 
-import lombok.extern.slf4j.Slf4j;
-import scouter.lang.step.Step;
+import scouterx.webapp.api.request.RealTimeAlertRequest;
 import scouterx.webapp.api.view.CommonResultView;
-import scouterx.webapp.api.request.ProfileRequest;
-import scouterx.webapp.service.ProfileService;
+import scouterx.webapp.api.view.RealTimeAlertView;
+import scouterx.webapp.service.AlertService;
 
 import javax.inject.Singleton;
 import javax.validation.Valid;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 3.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-@Path("/v1/profile")
+@Path("/v1/alert")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
-@Slf4j
-public class ProfileController {
-    private final ProfileService profileService;
+public class AlertController {
 
-    public ProfileController() {
-        this.profileService = new ProfileService();
-    }
+    private final AlertService alertService = new AlertService();
 
     /**
-     * get profile from txid
-     * uri : /profile/{yyyymmdd}/{txid}?serverId=12345 (serverId is optional)
+     * retrieve current alerts unread that is produced newly after the last offsets.
+     * uri pattern : /alert/realTime/{offset1}/{offset2}?objType={objType}&serverId={serverId}
      *
-     * @param profileRequest @see {@link ProfileRequest}
+     * @param request @see {@link RealTimeAlertRequest}
+     * @return
      */
     @GET
-    @Path("/{yyyymmdd}/{txid}")
-    public CommonResultView<List<Step>> retrieveProfile(@BeanParam @Valid final ProfileRequest profileRequest) {
-        List<Step> steps = profileService.retrieveProfile(profileRequest);
+    @Path("/realTime/{offset1}/{offset2}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<RealTimeAlertView> retrieveRealTimeAlert(@BeanParam @Valid RealTimeAlertRequest request) {
 
-        return CommonResultView.success(steps);
+        return CommonResultView.success(alertService.retrieveRealTimeAlert(request));
     }
 }

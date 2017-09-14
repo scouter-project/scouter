@@ -36,8 +36,9 @@ public class ParamConstant {
     public static final String HASH = "hash";
     public static final String TYPE = "type";
 
-    public static final String XLOG_INDEX = "index";
-    public static final String XLOG_LOOP = "loop";
+    public static final String OFFSET_LOOP = "loop";
+    public static final String OFFSET_INDEX = "index";
+
     public static final String XLOG_COUNT = "count";
     public static final String XLOG_MAX_COUNT = "max";
     public static final String XLOG_START_TIME = "stime";

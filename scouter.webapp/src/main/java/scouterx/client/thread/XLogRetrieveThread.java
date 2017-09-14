@@ -71,8 +71,8 @@ public class XLogRetrieveThread extends Thread {
                     Pack p = in.readPack();
                     if (p.getPackType() == PackEnum.MAP) { //meta data arrive ahead of xlog pack
                         MapPack metaPack = (MapPack) p;
-                        index = metaPack.getInt(ParamConstant.XLOG_INDEX);
-                        loop = metaPack.getInt(ParamConstant.XLOG_LOOP);
+                        index = metaPack.getInt(ParamConstant.OFFSET_INDEX);
+                        loop = metaPack.getInt(ParamConstant.OFFSET_LOOP);
                     } else {
                         xLogLoopCache.add((XLogPack) p);
                     }

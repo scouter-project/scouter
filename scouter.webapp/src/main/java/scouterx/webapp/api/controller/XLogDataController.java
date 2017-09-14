@@ -96,7 +96,7 @@ public class XLogDataController {
                 jsonGenerator.writeArrayFieldStart("xlogs");
 
                 XLogLoopCache.getOf(server.getId()).getAndHandleRealTimeXLog(
-                        objHashSet, xLogRequest.getOffset1(), xLogRequest.getOffset2(), 10000,
+                        objHashSet, xLogRequest.getXLogLoop(), xLogRequest.getXLogIndex(), 10000,
                         WAITING_DELAY_FOR_DICTIONARY_COMPLETE, getRealTimeXLogReader(jsonGenerator, countBucket, server));
 
                 jsonGenerator.writeEndArray();

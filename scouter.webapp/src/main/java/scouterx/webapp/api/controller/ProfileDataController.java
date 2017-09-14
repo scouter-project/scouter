@@ -48,8 +48,10 @@ public class ProfileDataController {
     }
 
     /**
-     * get profile from txid
+     * get profile data(decoded) from txid
      * uri : /profile-data/{yyyymmdd}/{txid}?serverId=12345 (serverId is optional)
+     *
+     * @param profileRequest @see {@link ProfileRequest}
      */
     @GET
     @Path("/{yyyymmdd}/{txid}")

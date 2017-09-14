@@ -39,6 +39,11 @@ import java.util.stream.Collectors;
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class InfoController {
+
+    /**
+     * get server information of scouter collector server that is connected from this webapp
+     *
+     */
     @NoAuth
     @GET @Path("/server")
     @Consumes(MediaType.APPLICATION_JSON)

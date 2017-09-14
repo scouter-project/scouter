@@ -19,6 +19,7 @@
 package scouter.server.netio.service.handle;
 
 import java.util.HashMap
+
 import scala.collection.JavaConversions._
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
@@ -37,7 +38,7 @@ import scouter.server.util.EnumerScala
 import scouter.net.RequestCmd
 import scouter.lang.value.MapValue
 import scouter.server.db.SummaryRD
-import scouter.util.DateUtil
+import scouter.util.{DateUtil, StringUtil}
 import scouter.lang.pack.SummaryPack
 import scouter.lang.SummaryEnum
 
@@ -48,7 +49,7 @@ class AlertService {
         val param = din.readPack().asInstanceOf[MapPack];
         val index = param.getInt("index");
         val loop = param.getLong("loop");
-        val objType = param.getText("objType");
+        val objType = if(StringUtil.isEmpty(param.getText("objType"))) null else param.getText("objType");
         val first = param.getBoolean("first");
 
         val d = AlertCache.get(objType, loop, index);

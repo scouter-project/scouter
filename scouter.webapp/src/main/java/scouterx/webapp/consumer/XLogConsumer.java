@@ -55,8 +55,8 @@ public class XLogConsumer {
         String cmd = isFirst ? RequestCmd.TRANX_REAL_TIME_GROUP_LATEST : RequestCmd.TRANX_REAL_TIME_GROUP;
 
         MapPack paramPack = new MapPack();
-        paramPack.put(ParamConstant.XLOG_INDEX, xLogRequest.getXLogIndex());
-        paramPack.put(ParamConstant.XLOG_LOOP, xLogRequest.getXLogLoop());
+        paramPack.put(ParamConstant.OFFSET_INDEX, xLogRequest.getXLogIndex());
+        paramPack.put(ParamConstant.OFFSET_LOOP, xLogRequest.getXLogLoop());
         paramPack.put(ParamConstant.XLOG_COUNT, firstRetrieveLimit);
 
         ListValue objHashLv = paramPack.newList(ParamConstant.OBJ_HASH);

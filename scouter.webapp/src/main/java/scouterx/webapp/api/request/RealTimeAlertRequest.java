@@ -18,51 +18,36 @@
 
 package scouterx.webapp.api.request;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import scouterx.client.server.ServerManager;
-import scouterx.framework.util.ZZ;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Min;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import java.util.Set;
 
 /**
-* DTO for pageable XLog request.
-* - offset1 : (required) xlog offset1 given from previous response. use 0 at first time
-* - offset2 : (required) xlog offset2 given from previous response. use 0 at first time
-* - serverId : serverId if available (mandatory if it's multi-server connected scouter webapp)
-* - objHashes : (required) object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
+* Request DTO for realtime alert
 *
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 2.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 13.
  */
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
-public class RealTimeXLogDataRequest {
-    @NotNull
-    @PathParam("offset1")
-    long xLogLoop;
-
-    @NotNull
-    @PathParam("offset2")
-    int xLogIndex;
-
+public class RealTimeAlertRequest {
     int serverId;
 
-    @NotNull
-    Set<Integer> objHashes;
+    @Min(0)
+    @PathParam("offset1")
+    long loop;
 
-    @QueryParam("objHashes")
-    public void setObjHashes(String objHashes) {
-        this.objHashes = ZZ.splitParamAsIntegerSet(objHashes);
-    }
+    @Min(0)
+    @PathParam("offset2")
+    int index;
 
-    public RealTimeXLogDataRequest() { }
+    @QueryParam("objType")
+    String objType;
 
     @QueryParam("serverId")
     public void setServerId(int serverId) {

@@ -57,6 +57,13 @@ public class ActiveServiceController {
         this.activeServiceService = new ActiveServiceService();
     }
 
+    /**
+     * current active service count 3-stepped by response time.
+     *
+     * @param objType
+     * @param serverId optional if web instance just connected one collector server.
+     * @return
+     */
     @GET
     @Path("/stepCount/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -70,6 +77,13 @@ public class ActiveServiceController {
         return CommonResultView.success(activeServiceList);
     }
 
+    /**
+     * get active service list of given objType
+     *
+     * @param objType
+     * @param serverId optional if web instance just connected one collector server.
+     * @return
+     */
     @GET
     @Path("/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -83,6 +97,13 @@ public class ActiveServiceController {
         return CommonResultView.success(activeServiceList);
     }
 
+    /**
+     * get active service list of given objHash
+     *
+     * @param objHash
+     * @param serverId optional if web instance just connected one collector server.
+     * @return
+     */
     @GET
     @Path("/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -96,6 +117,15 @@ public class ActiveServiceController {
         return CommonResultView.success(activeServiceList);
     }
 
+    /**
+     * get thread detail of the object's threadId
+     *
+     * @param objHash
+     * @param threadId
+     * @param txidName This value is for valuable service related information. (like service name & a sql that currently running)
+     * @param serverId optional if web instance just connected one collector server.
+     * @return
+     */
     @GET
     @Path("/thread/{threadId}/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)

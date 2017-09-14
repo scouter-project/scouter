@@ -25,6 +25,7 @@ import lombok.ToString;
 import scouterx.client.server.ServerManager;
 import scouterx.framework.util.ZZ;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -45,11 +46,13 @@ import java.util.Set;
 @AllArgsConstructor
 public class RealTimeXLogRequest {
     @NotNull
-    @PathParam("xlogLoop")
+    @Min(0)
+    @PathParam("offset1")
     long xLogLoop;
 
     @NotNull
-    @PathParam("xlogIndex")
+
+    @PathParam("offset2")
     int xLogIndex;
 
     int serverId;
