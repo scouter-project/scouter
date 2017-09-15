@@ -22,7 +22,6 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
-import scouter.agent.asm.jdbc.PsInitMV;
 import scouter.agent.asm.jdbc.PsUpdateCountMV;
 import scouter.agent.asm.jdbc.StExecuteMV;
 import scouter.agent.asm.jdbc.StInitMV;
