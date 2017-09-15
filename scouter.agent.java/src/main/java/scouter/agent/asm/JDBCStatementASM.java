@@ -22,8 +22,10 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
+import scouter.agent.asm.jdbc.PsInitMV;
 import scouter.agent.asm.jdbc.PsUpdateCountMV;
 import scouter.agent.asm.jdbc.StExecuteMV;
+import scouter.agent.asm.jdbc.StInitMV;
 import scouter.agent.asm.util.HookingSet;
 
 import java.util.HashSet;
@@ -78,7 +80,9 @@ class StatementCV extends ClassVisitor implements Opcodes {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		if (StExecuteMV.isTarget(name)) {
+		if ("<init>".equals(name)) {
+			return new StInitMV(access, desc, mv);
+		}else if (StExecuteMV.isTarget(name)) {
 			if (desc.startsWith("(Ljava/lang/String;)")) {
 				return new StExecuteMV(access, desc, mv, owner, name);
 			}
