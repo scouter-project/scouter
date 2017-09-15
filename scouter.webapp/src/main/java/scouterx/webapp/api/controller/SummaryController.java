@@ -18,10 +18,12 @@
 
 package scouterx.webapp.api.controller;
 
+import scouterx.model.summary.ServiceSummaryItem;
+import scouterx.model.summary.Summary;
 import scouterx.webapp.api.request.RealTimeAlertRequest;
+import scouterx.webapp.api.request.SummaryRequest;
 import scouterx.webapp.api.view.CommonResultView;
-import scouterx.webapp.api.view.RealTimeAlertView;
-import scouterx.webapp.service.AlertService;
+import scouterx.webapp.service.SummaryService;
 
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -35,25 +37,35 @@ import javax.ws.rs.core.MediaType;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-@Path("/v1/alert")
+@Path("/v1/summary")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
-public class AlertController {
+public class SummaryController {
 
-    private final AlertService alertService = new AlertService();
+    private final SummaryService summaryService = new SummaryService();
 
     /**
-     * retrieve current alerts unread that is produced newly after the last offsets.
-     * uri pattern : /alert/realTime/{offset1}/{offset2}?objType={objType}&serverId={serverId}
+     * retrieve service summary data within given date range.
+     * uri pattern : /summary/ofType/{objType}?start={start}&end={end}&serverId={serverId}
      *
      * @param request @see {@link RealTimeAlertRequest}
      * @return
      */
     @GET
-    @Path("/realTime/{offset1}/{offset2}")
+    @Path("/service/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<RealTimeAlertView> retrieveRealTimeAlert(@BeanParam @Valid RealTimeAlertRequest request) {
+    public CommonResultView<Summary<ServiceSummaryItem>> retrieveServiceSummaryByType(@BeanParam @Valid SummaryRequest request) {
+        return retrieveSummary(request);
+    }
 
-        return CommonResultView.success(alertService.retrieveRealTimeAlert(request));
+    @GET
+    @Path("/service/ofObject/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Summary<ServiceSummaryItem>> retrieveServiceSummaryByObj(@BeanParam @Valid SummaryRequest request) {
+        return retrieveSummary(request);
+    }
+
+    private CommonResultView<Summary<ServiceSummaryItem>> retrieveSummary(SummaryRequest request) {
+        return CommonResultView.success(summaryService.retrieveServiceSummary(request));
     }
 }

@@ -21,9 +21,10 @@ package scouterx.webapp.api.request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import scouterx.client.server.Server;
 import scouterx.client.server.ServerManager;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Min;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
@@ -33,20 +34,25 @@ import javax.ws.rs.QueryParam;
 @Getter
 @Setter
 @ToString
-public class ProfileRequest {
+public class SummaryRequest {
+    private Server server;
 
-    private int serverId;
+    @Min(0)
+    @QueryParam("start")
+    private long start;
 
-    @NotNull
-    @PathParam("txid")
-    private long txid;
+    @Min(0)
+    @QueryParam("end")
+    private long end;
 
-    @NotNull
-    @PathParam("yyyymmdd")
-    private String yyyymmdd;
+    @PathParam("objType")
+    private String objType;
+
+    @PathParam("objHash")
+    private int objHash;
 
     @QueryParam("serverId")
     public void setServerId(int serverId) {
-        this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
+        this.server = ServerManager.getInstance().getServerIfNullDefault(serverId);
     }
 }

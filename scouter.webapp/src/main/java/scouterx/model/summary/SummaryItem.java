@@ -24,7 +24,10 @@ import lombok.Data;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 14.
  */
 @Data
-public class Summary {
+public abstract class SummaryItem<T extends SummaryItem> {
     int summaryKey;
+    String summaryKeyName;
     int count;
+
+    abstract void merge(T newItem);
 }

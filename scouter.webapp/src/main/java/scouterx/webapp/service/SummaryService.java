@@ -18,22 +18,18 @@
 
 package scouterx.webapp.service;
 
-import scouterx.webapp.api.request.RealTimeAlertRequest;
-import scouterx.webapp.api.view.RealTimeAlertView;
-import scouterx.webapp.consumer.AlertConsumer;
+import scouterx.model.summary.ServiceSummaryItem;
+import scouterx.model.summary.Summary;
+import scouterx.webapp.api.request.SummaryRequest;
+import scouterx.webapp.consumer.SummaryConsumer;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 14.
  */
-public class AlertService {
-    private final AlertConsumer alertConsumer;
+public class SummaryService {
+    private final SummaryConsumer summaryConsumer = new SummaryConsumer();
 
-    public AlertService() {
-        this.alertConsumer = new AlertConsumer();
+    public Summary<ServiceSummaryItem> retrieveServiceSummary(SummaryRequest request) {
+        return summaryConsumer.retrieveServiceSummary(request);
     }
-
-    public RealTimeAlertView retrieveRealTimeAlert(final RealTimeAlertRequest request) {
-        return alertConsumer.retrieveRealTimeAlert(request);
-    }
-
 }

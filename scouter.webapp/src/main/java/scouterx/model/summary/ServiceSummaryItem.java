@@ -18,14 +18,36 @@
 
 package scouterx.model.summary;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 14.
  */
 @Data
-public class SummaryItem {
-    private int summaryKey;
-    private String summaryKeyName;
-    private int count;
+public class ServiceSummaryItem extends SummaryItem<ServiceSummaryItem> {
+    private int errorCount;
+    private long elapsedSum;
+    private long cpuSum;
+    private long memorySum;
+
+    @Builder
+    public ServiceSummaryItem(int summaryKey, String summaryKeyName, int count, int errorCount, long elapsedSum, long cpuSum, long memorySum) {
+        this.summaryKey = summaryKey;
+        this.summaryKeyName = summaryKeyName;
+        this.count = count;
+        this.errorCount = errorCount;
+        this.elapsedSum = elapsedSum;
+        this.cpuSum = cpuSum;
+        this.memorySum = memorySum;
+    }
+
+    @Override
+    public void merge(ServiceSummaryItem newItem) {
+        this.setCount(this.getCount() + newItem.getCount());
+        this.setErrorCount(this.getErrorCount() + newItem.getErrorCount());
+        this.setElapsedSum(this.getElapsedSum() + newItem.getElapsedSum());
+        this.setCpuSum(this.getCpuSum() + newItem.getCpuSum());
+        this.setMemorySum(this.getMemorySum() + newItem.getMemorySum());
+    }
 }

@@ -18,14 +18,32 @@
 
 package scouterx.model.summary;
 
+import lombok.Data;
+
+import java.util.Map;
+
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 14.
  */
-public class ServiceSummary {
-    int serviceHash;
-    int count;
-    int errorCount;
-    long elapsedSum;
-    long cpuSum;
-    long memSum;
+@Data
+public class Summary<T extends SummaryItem> {
+    private int summaryKey;
+    private Map<Integer, T> itemMap;
+
+    public void merge(T newItem) {
+        T reservedItem = itemMap.get(newItem.getSummaryKey());
+        if(reservedItem == null) {
+            addItem(newItem);
+        } else {
+            mergeItem(newItem, reservedItem);
+        }
+    }
+
+    private void mergeItem(T newItem, T reservedItem) {
+        reservedItem.merge(newItem);
+    }
+
+    private void addItem(T newItem) {
+        itemMap.put(newItem.getSummaryKey(), newItem);
+    }
 }

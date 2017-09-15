@@ -24,12 +24,10 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.net.RequestCmd;
 import scouterx.client.net.TcpProxy;
-import scouterx.framework.exception.ErrorState;
 import scouterx.model.scouter.SAlert;
 import scouterx.webapp.api.request.RealTimeAlertRequest;
 import scouterx.webapp.api.view.RealTimeAlertView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,9 +59,6 @@ public class AlertConsumer {
 					alertList.add(SAlert.of(alertPack));
 				}
 			});
-
-		} catch (IOException e) {
-			throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
 		}
 
 		return alertView;
