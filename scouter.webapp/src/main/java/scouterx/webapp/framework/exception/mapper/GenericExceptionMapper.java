@@ -19,10 +19,10 @@
 package scouterx.webapp.framework.exception.mapper;
 
 import lombok.extern.slf4j.Slf4j;
-import scouterx.framework.exception.ErrorState;
-import scouterx.framework.exception.ErrorStateBizException;
-import scouterx.framework.exception.ErrorStateException;
-import scouterx.webapp.api.view.CommonResultView;
+import scouterx.webapp.framework.exception.ErrorState;
+import scouterx.webapp.framework.exception.ErrorStateBizException;
+import scouterx.webapp.framework.exception.ErrorStateException;
+import scouterx.webapp.view.CommonResultView;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;

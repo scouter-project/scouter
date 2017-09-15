@@ -32,11 +32,11 @@ import org.slf4j.LoggerFactory;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 import scouter.util.logo.Logo;
-import scouterx.client.model.AgentModelThread;
-import scouterx.client.net.LoginMgr;
-import scouterx.client.net.LoginRequest;
-import scouterx.client.server.ServerManager;
-import scouterx.client.thread.ServerSessionObserver;
+import scouterx.webapp.framework.client.model.AgentModelThread;
+import scouterx.webapp.framework.client.net.LoginMgr;
+import scouterx.webapp.framework.client.net.LoginRequest;
+import scouterx.webapp.framework.client.server.ServerManager;
+import scouterx.webapp.framework.client.thread.ServerSessionObserver;
 import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
 import scouterx.webapp.framework.configure.ServerConfig;
@@ -86,7 +86,7 @@ public class WebAppMain {
         List<ServerConfig> serverConfigList = ConfigureManager.getConfigure().getServerConfigs();
         ServerManager srvMgr = ServerManager.getInstance();
         for (ServerConfig serverConfig : serverConfigList) {
-            scouterx.client.server.Server server = new scouterx.client.server.Server(serverConfig.getIp(), serverConfig.getPort());
+            scouterx.webapp.framework.client.server.Server server = new scouterx.webapp.framework.client.server.Server(serverConfig.getIp(), serverConfig.getPort());
             if (srvMgr.getServer(server.getId()) == null) {
                 srvMgr.addServer(server);
             } else {

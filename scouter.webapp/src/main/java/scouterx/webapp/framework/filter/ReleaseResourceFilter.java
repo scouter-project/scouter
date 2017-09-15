@@ -19,7 +19,7 @@
 package scouterx.webapp.framework.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import scouterx.client.model.TextModel;
+import scouterx.webapp.framework.client.model.TextModel;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -39,6 +39,7 @@ public class ReleaseResourceFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        init();
         try {
             chain.doFilter(request, response);
         } finally {
@@ -46,7 +47,12 @@ public class ReleaseResourceFilter implements Filter {
         }
     }
 
+    private void init() {
+        TextModel.scopeStarted.set(false);
+    }
+
     private void release() {
+        TextModel.scopeStarted.set(false);
         TextModel.endScope();
     }
 
