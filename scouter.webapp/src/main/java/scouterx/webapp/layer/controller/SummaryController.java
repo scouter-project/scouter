@@ -50,8 +50,9 @@ public class SummaryController {
     private final SummaryService summaryService = new SummaryService();
 
     /**
-     * retrieve service summary data of specific object type within given duration.
-     * uri pattern : /summary/service/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     * retrieve service summary data (5min precision) of specific object type within given duration.
+     * uri pattern : /summary/service/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/service/ofType/{objType}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -64,8 +65,9 @@ public class SummaryController {
     }
 
     /**
-     * retrieve service summary data of specific object within given date duration.
-     * uri pattern : /summary/service/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
+     * retrieve service summary data (5min precision) of specific object within given date duration.
+     * uri pattern : /summary/service/ofObject/{objHash}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/service/ofObject/{objHash}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -78,13 +80,15 @@ public class SummaryController {
     }
 
     private CommonResultView<Summary<ServiceSummaryItem>> retrieveServiceSummary(SummaryRequest request) {
+        request.validate();
         return CommonResultView.success(summaryService.retrieveServiceSummary(request));
     }
 
 
     /**
-     * retrieve sql summary data of specific object type within given duration.
-     * uri pattern : /summary/sql/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     * retrieve sql summary data (5min precision) of specific object type within given duration.
+     * uri pattern : /summary/sql/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/sql/ofType/{objType}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -97,8 +101,9 @@ public class SummaryController {
     }
 
     /**
-     * retrieve sql summary data of specific object within given date duration.
-     * uri pattern : /summary/sql/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
+     * retrieve sql summary data (5min precision) of specific object within given date duration.
+     * uri pattern : /summary/sql/ofObject/{objHash}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/sql/ofObject/{objHash}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -111,12 +116,14 @@ public class SummaryController {
     }
 
     private CommonResultView<Summary<SqlSummaryItem>> retrieveSqlSummary(SummaryRequest request) {
+        request.validate();
         return CommonResultView.success(summaryService.retrieveSqlSummary(request));
     }
 
     /**
-     * retrieve apiCall summary data of specific object type within given duration.
-     * uri pattern : /summary/sql/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     * retrieve apiCall summary data (5min precision) of specific object type within given duration.
+     * uri pattern : /summary/sql/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/sql/ofType/{objType}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -129,8 +136,9 @@ public class SummaryController {
     }
 
     /**
-     * retrieve apiCall summary data of specific object within given date duration.
-     * uri pattern : /summary/sql/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
+     * retrieve apiCall summary data (5min precision) of specific object within given date duration.
+     * uri pattern : /summary/sql/ofObject/{objHash}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/sql/ofObject/{objHash}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -144,12 +152,14 @@ public class SummaryController {
 
 
     private CommonResultView<Summary<ApiCallSummaryItem>> retrieveApiCallSummary(SummaryRequest request) {
+        request.validate();
         return CommonResultView.success(summaryService.retrieveApiCallSummary(request));
     }
 
     /**
-     * retrieve ip summary data of specific object type within given duration.
-     * uri pattern : /summary/ip/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     * retrieve ip summary data (5min precision) of specific object type within given duration.
+     * uri pattern : /summary/ip/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/ip/ofType/{objType}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -162,8 +172,9 @@ public class SummaryController {
     }
 
     /**
-     * retrieve ip summary data of specific object within given date duration.
-     * uri pattern : /summary/ip/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
+     * retrieve ip summary data (5min precision) of specific object within given date duration.
+     * uri pattern : /summary/ip/ofObject/{objHash}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/ip/ofObject/{objHash}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -177,12 +188,14 @@ public class SummaryController {
 
 
     private CommonResultView<Summary<IpSummaryItem>> retrieveIpSummary(SummaryRequest request) {
+        request.validate();
         return CommonResultView.success(summaryService.retrieveIpSummary(request));
     }
 
     /**
-     * retrieve ip summary data of specific object type within given duration.
-     * uri pattern : /summary/ip/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     * retrieve ip summary data (5min precision) of specific object type within given duration.
+     * uri pattern : /summary/ip/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/ip/ofType/{objType}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -195,8 +208,9 @@ public class SummaryController {
     }
 
     /**
-     * retrieve ip summary data of specific object within given date duration.
-     * uri pattern : /summary/ip/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
+     * retrieve ip summary data (5min precision) of specific object within given date duration.
+     * uri pattern : /summary/ip/ofObject/{objHash}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/ip/ofObject/{objHash}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -210,12 +224,14 @@ public class SummaryController {
 
 
     private CommonResultView<Summary<UserAgentSummaryItem>> retrieveUserAgentSummary(SummaryRequest request) {
+        request.validate();
         return CommonResultView.success(summaryService.retrieveUserAgentSummary(request));
     }
 
     /**
-     * retrieve error summary data of specific object type within given duration.
-     * uri pattern : /summary/error/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     * retrieve error summary data (5min precision) of specific object type within given duration.
+     * uri pattern : /summary/error/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/error/ofType/{objType}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -228,8 +244,9 @@ public class SummaryController {
     }
 
     /**
-     * retrieve error summary data of specific object within given date duration.
-     * uri pattern : /summary/error/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
+     * retrieve error summary data (5min precision) of specific object within given date duration.
+     * uri pattern : /summary/error/ofObject/{objHash}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/error/ofObject/{objHash}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -243,12 +260,14 @@ public class SummaryController {
 
 
     private CommonResultView<Summary<ErrorSummaryItem>> retrieveErrorSummary(SummaryRequest request) {
+        request.validate();
         return CommonResultView.success(summaryService.retrieveErrorSummary(request));
     }
 
     /**
-     * retrieve alert summary data of specific object type within given duration.
-     * uri pattern : /summary/alert/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     * retrieve alert summary data (5min precision) of specific object type within given duration.
+     * uri pattern : /summary/alert/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/alert/ofType/{objType}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -261,8 +280,9 @@ public class SummaryController {
     }
 
     /**
-     * retrieve alert summary data of specific object within given date duration.
-     * uri pattern : /summary/alert/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
+     * retrieve alert summary data (5min precision) of specific object within given date duration.
+     * uri pattern : /summary/alert/ofObject/{objHash}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/alert/ofObject/{objHash}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -276,6 +296,7 @@ public class SummaryController {
 
 
     private CommonResultView<Summary<AlertSummaryItem>> retrieveAlertSummary(SummaryRequest request) {
+        request.validate();
         return CommonResultView.success(summaryService.retrieveAlertSummary(request));
     }
 }

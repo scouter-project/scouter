@@ -62,7 +62,7 @@ public class SummaryConsumer {
      */
     public Summary<ServiceSummaryItem> retrieveServiceSummary(SummaryRequest request) {
         String cmd = RequestCmd.LOAD_SERVICE_SUMMARY;
-        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(),
+        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStartTimeMillis(), request.getEndTimeMillis(), request.getObjType(),
                 request.getObjHash(), request.getServer());
 
         Summary<ServiceSummaryItem> summary = Summary.of(ServiceSummaryItem.class, resultPackList, request.getServer().getId());
@@ -78,7 +78,7 @@ public class SummaryConsumer {
      */
     public Summary<SqlSummaryItem> retrieveSqlSummary(SummaryRequest request) {
         String cmd = RequestCmd.LOAD_SQL_SUMMARY;
-        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(),
+        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStartTimeMillis(), request.getEndTimeMillis(), request.getObjType(),
                 request.getObjHash(), request.getServer());
 
         Summary<SqlSummaryItem> summary = Summary.of(SqlSummaryItem.class, resultPackList, request.getServer().getId());
@@ -94,7 +94,7 @@ public class SummaryConsumer {
      */
     public Summary<ApiCallSummaryItem> retrieveApiCallSummary(SummaryRequest request) {
         String cmd = RequestCmd.LOAD_APICALL_SUMMARY;
-        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(),
+        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStartTimeMillis(), request.getEndTimeMillis(), request.getObjType(),
                 request.getObjHash(), request.getServer());
 
         Summary<ApiCallSummaryItem> summary = Summary.of(ApiCallSummaryItem.class, resultPackList, request.getServer().getId());
@@ -110,7 +110,7 @@ public class SummaryConsumer {
      */
     public Summary<IpSummaryItem> retrieveIpSummary(SummaryRequest request) {
         String cmd = RequestCmd.LOAD_IP_SUMMARY;
-        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(),
+        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStartTimeMillis(), request.getEndTimeMillis(), request.getObjType(),
                 request.getObjHash(), request.getServer());
 
         Summary<IpSummaryItem> summary = Summary.of(IpSummaryItem.class, resultPackList, request.getServer().getId());
@@ -126,7 +126,7 @@ public class SummaryConsumer {
      */
     public Summary<UserAgentSummaryItem> retrieveUserAgentSummary(SummaryRequest request) {
         String cmd = RequestCmd.LOAD_UA_SUMMARY;
-        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(),
+        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStartTimeMillis(), request.getEndTimeMillis(), request.getObjType(),
                 request.getObjHash(), request.getServer());
 
         Summary<UserAgentSummaryItem> summary = Summary.of(UserAgentSummaryItem.class, resultPackList, request.getServer().getId());
@@ -142,7 +142,7 @@ public class SummaryConsumer {
      */
     public Summary<ErrorSummaryItem> retrieveErrorSummary(SummaryRequest request) {
         String cmd = RequestCmd.LOAD_SERVICE_ERROR_SUMMARY;
-        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(),
+        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStartTimeMillis(), request.getEndTimeMillis(), request.getObjType(),
                 request.getObjHash(), request.getServer());
 
         Summary<ErrorSummaryItem> summary = Summary.of(ErrorSummaryItem.class, resultPackList, request.getServer().getId());
@@ -158,7 +158,7 @@ public class SummaryConsumer {
      */
     public Summary<AlertSummaryItem> retrieveAlertSummary(SummaryRequest request) {
         String cmd = RequestCmd.LOAD_ALERT_SUMMARY;
-        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(),
+        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStartTimeMillis(), request.getEndTimeMillis(), request.getObjType(),
                 request.getObjHash(), request.getServer());
 
         Summary<AlertSummaryItem> summary = Summary.of(AlertSummaryItem.class, resultPackList, request.getServer().getId());

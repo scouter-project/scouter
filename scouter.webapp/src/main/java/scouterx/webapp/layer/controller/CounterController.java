@@ -59,7 +59,7 @@ public class CounterController {
     }
 
     /**
-     * get current values of several counters from objects given types
+     * get current value of several counters about a type
      * uri : /counter/realTime/{counters}/ofType/{objType}?serverId=1001010&counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
      *
      * @param objType
@@ -82,7 +82,7 @@ public class CounterController {
     }
 
     /**
-     * get current values of several counters from given an object
+     * get current value of several counters about an object
      * uri : /counter/realTime/{counters}/ofObject/{objHash}?counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
      *
      * @param objHash
@@ -104,7 +104,7 @@ public class CounterController {
     }
 
     /**
-     * get values of the counter from objects given types
+     * get the specific counter's values about a type within given duration
      * uri : /counter/stat/{counter}/ofType/{objType}?serverId=1001010&fromYmd=20170809&toYmd=20170810
      *
      * @param request @see {@link CounterRequestByType}
