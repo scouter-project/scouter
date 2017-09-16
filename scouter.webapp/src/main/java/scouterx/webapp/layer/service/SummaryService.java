@@ -19,6 +19,7 @@
 package scouterx.webapp.layer.service;
 
 import scouterx.webapp.layer.consumer.SummaryConsumer;
+import scouterx.webapp.model.summary.AlertSummaryItem;
 import scouterx.webapp.model.summary.ApiCallSummaryItem;
 import scouterx.webapp.model.summary.ErrorSummaryItem;
 import scouterx.webapp.model.summary.IpSummaryItem;
@@ -56,5 +57,9 @@ public class SummaryService {
 
     public Summary<ErrorSummaryItem> retrieveErrorSummary(SummaryRequest request) {
         return summaryConsumer.retrieveErrorSummary(request);
+    }
+
+    public Summary<AlertSummaryItem> retrieveAlertSummary(SummaryRequest request) {
+        return summaryConsumer.retrieveAlertSummary(request);
     }
 }

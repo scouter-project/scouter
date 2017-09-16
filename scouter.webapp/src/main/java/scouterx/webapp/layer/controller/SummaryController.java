@@ -19,6 +19,7 @@
 package scouterx.webapp.layer.controller;
 
 import scouterx.webapp.layer.service.SummaryService;
+import scouterx.webapp.model.summary.AlertSummaryItem;
 import scouterx.webapp.model.summary.ApiCallSummaryItem;
 import scouterx.webapp.model.summary.ErrorSummaryItem;
 import scouterx.webapp.model.summary.IpSummaryItem;
@@ -243,5 +244,38 @@ public class SummaryController {
 
     private CommonResultView<Summary<ErrorSummaryItem>> retrieveErrorSummary(SummaryRequest request) {
         return CommonResultView.success(summaryService.retrieveErrorSummary(request));
+    }
+
+    /**
+     * retrieve alert summary data of specific object type within given duration.
+     * uri pattern : /summary/alert/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     *
+     * @param request @see {@link SummaryRequest}
+     * @return
+     */
+    @GET
+    @Path("/alert/ofType/{objType}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Summary<AlertSummaryItem>> retrieveAlertSummaryByType(@BeanParam @Valid SummaryRequest request) {
+        return retrieveAlertSummary(request);
+    }
+
+    /**
+     * retrieve alert summary data of specific object within given date duration.
+     * uri pattern : /summary/alert/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
+     *
+     * @param request @see {@link SummaryRequest}
+     * @return
+     */
+    @GET
+    @Path("/alert/ofObject/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Summary<AlertSummaryItem>> retrieveAlertSummaryByObj(@BeanParam @Valid SummaryRequest request) {
+        return retrieveAlertSummary(request);
+    }
+
+
+    private CommonResultView<Summary<AlertSummaryItem>> retrieveAlertSummary(SummaryRequest request) {
+        return CommonResultView.success(summaryService.retrieveAlertSummary(request));
     }
 }
