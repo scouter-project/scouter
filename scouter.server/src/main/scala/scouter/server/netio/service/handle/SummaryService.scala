@@ -25,9 +25,7 @@ import scouter.lang.value.ListValue
 import scouter.net.TcpFlag
 import scouter.server.db.SummaryRD
 import scouter.server.netio.service.anotation.ServiceHandler
-import scouter.util.IntKeyLinkedMap
-import scouter.util.LongKeyLinkedMap
-import scouter.util.StringKeyLinkedMap
+import scouter.util.{HashUtil, IntKeyLinkedMap, LongKeyLinkedMap, StringKeyLinkedMap}
 import scouter.net.RequestCmd
 
 class SummaryService {
@@ -42,6 +40,7 @@ class SummaryService {
     }
 
     class TempError() {
+        var hash: Int = 0;
         var error: Int = 0;
         var service: Int = 0;
         var message: Int = 0;
@@ -53,6 +52,7 @@ class SummaryService {
     }
 
     class TempAlert() {
+        var hash: Int = 0;
         var title: String = "";
         var count: Int = 0;
         var level: Byte = 0;
@@ -205,6 +205,7 @@ class SummaryService {
                     var tempObj = tempMap.get(id.getInt(i));
                     if (tempObj == null) {
                         tempObj = new TempError();
+                        tempObj.hash = id.getInt(i);
                         tempMap.put(id.getInt(i), tempObj);
                         tempObj.error = error.getInt(i);
                         tempObj.service = service.getInt(i);
@@ -233,8 +234,9 @@ class SummaryService {
 
         SummaryRD.readByTime(stype, date, stime, etime, handler)
 
-        //summary의 id는 error+service이다. id는 전송하지 않는다.
+        //summary의 id는 error+service이다.
         val map = new MapPack();
+        val newIdList = map.newList("id");
         val newErrorList = map.newList("error");
         val newServiceList = map.newList("service");
         val newMessageList = map.newList("message");
@@ -248,6 +250,8 @@ class SummaryService {
         while (itr.hasMoreElements()) {
             val id = itr.nextLong();
             val obj = tempMap.get(id);
+
+            newIdList.add(obj.hash);
             newErrorList.add(obj.error);
             newServiceList.add(obj.service);
             newMessageList.add(obj.message);
@@ -285,6 +289,7 @@ class SummaryService {
                     var tempObj = tempMap.get(title.getString(i));
                     if (tempObj == null) {
                         tempObj = new TempAlert();
+                        tempObj.hash = HashUtil.hash(title.getString(i))
                         tempObj.title = title.getString(i);
                         tempObj.level = level.getInt(i).toByte;
                         tempMap.put(title.getString(i), tempObj);
@@ -297,6 +302,7 @@ class SummaryService {
         SummaryRD.readByTime(stype, date, stime, etime, handler)
 
         val map = new MapPack();
+        val newIdList = map.newList("id");
         val newTitleList = map.newList("title");
         val newCountList = map.newList("count");
         val newLevelList = map.newList("level");
@@ -305,6 +311,7 @@ class SummaryService {
         while (itr.hasMoreElements()) {
             val title = itr.nextString();
             val obj = tempMap.get(title);
+            newIdList.add(obj.hash);
             newTitleList.add(obj.title);
             newCountList.add(obj.count);
             newLevelList.add(obj.level);

@@ -20,6 +20,7 @@ package scouterx.webapp.layer.controller;
 
 import scouterx.webapp.layer.service.SummaryService;
 import scouterx.webapp.model.summary.ApiCallSummaryItem;
+import scouterx.webapp.model.summary.ErrorSummaryItem;
 import scouterx.webapp.model.summary.IpSummaryItem;
 import scouterx.webapp.model.summary.ServiceSummaryItem;
 import scouterx.webapp.model.summary.SqlSummaryItem;
@@ -188,7 +189,7 @@ public class SummaryController {
     @GET
     @Path("/userAgent/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Summary<UserAgentSummaryItem>> retrieveUserAgentSummaryyByType(@BeanParam @Valid SummaryRequest request) {
+    public CommonResultView<Summary<UserAgentSummaryItem>> retrieveUserAgentSummaryByType(@BeanParam @Valid SummaryRequest request) {
         return retrieveUserAgentSummary(request);
     }
 
@@ -209,5 +210,38 @@ public class SummaryController {
 
     private CommonResultView<Summary<UserAgentSummaryItem>> retrieveUserAgentSummary(SummaryRequest request) {
         return CommonResultView.success(summaryService.retrieveUserAgentSummary(request));
+    }
+
+    /**
+     * retrieve error summary data of specific object type within given duration.
+     * uri pattern : /summary/error/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     *
+     * @param request @see {@link SummaryRequest}
+     * @return
+     */
+    @GET
+    @Path("/error/ofType/{objType}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Summary<ErrorSummaryItem>> retrieveErrorSummaryByType(@BeanParam @Valid SummaryRequest request) {
+        return retrieveErrorSummary(request);
+    }
+
+    /**
+     * retrieve error summary data of specific object within given date duration.
+     * uri pattern : /summary/error/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
+     *
+     * @param request @see {@link SummaryRequest}
+     * @return
+     */
+    @GET
+    @Path("/error/ofObject/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Summary<ErrorSummaryItem>> retrieveErrorSummaryByObj(@BeanParam @Valid SummaryRequest request) {
+        return retrieveErrorSummary(request);
+    }
+
+
+    private CommonResultView<Summary<ErrorSummaryItem>> retrieveErrorSummary(SummaryRequest request) {
+        return CommonResultView.success(summaryService.retrieveErrorSummary(request));
     }
 }

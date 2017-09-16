@@ -28,6 +28,7 @@ import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.dto.DateAndMapPack;
 import scouterx.webapp.model.summary.ApiCallSummaryItem;
+import scouterx.webapp.model.summary.ErrorSummaryItem;
 import scouterx.webapp.model.summary.IpSummaryItem;
 import scouterx.webapp.model.summary.ServiceSummaryItem;
 import scouterx.webapp.model.summary.SqlSummaryItem;
@@ -128,6 +129,22 @@ public class SummaryConsumer {
                 request.getObjHash(), request.getServer());
 
         Summary<UserAgentSummaryItem> summary = Summary.of(UserAgentSummaryItem.class, resultPackList, request.getServer().getId());
+
+        return summary;
+    }
+
+    /**
+     * retrieve error agent summary
+     *
+     * @param request {@link SummaryRequest}
+     * @return
+     */
+    public Summary<ErrorSummaryItem> retrieveErrorSummary(SummaryRequest request) {
+        String cmd = RequestCmd.LOAD_SERVICE_ERROR_SUMMARY;
+        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(),
+                request.getObjHash(), request.getServer());
+
+        Summary<ErrorSummaryItem> summary = Summary.of(ErrorSummaryItem.class, resultPackList, request.getServer().getId());
 
         return summary;
     }

@@ -80,6 +80,10 @@ public class TextModel {
 	}
 
 	public String getTextIfNullDefault(long date, int hash, int serverId) {
+		if(hash == 0) {
+			return "";
+		}
+
 		String text = getText(date, hash, serverId);
 		if(StringUtils.isBlank(text)) {
 			text = new StringBuilder("**unlabeled**:").append(TextTypeEnum.of(this).getTypeName()).append(":").append(hash).toString();
