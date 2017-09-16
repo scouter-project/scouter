@@ -27,6 +27,7 @@ import scouter.util.DateTimeHelper;
 import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.dto.DateAndMapPack;
+import scouterx.webapp.model.summary.ApiCallSummaryItem;
 import scouterx.webapp.model.summary.ServiceSummaryItem;
 import scouterx.webapp.model.summary.SqlSummaryItem;
 import scouterx.webapp.model.summary.Summary;
@@ -80,6 +81,23 @@ public class SummaryConsumer {
 
         return summary;
     }
+
+    /**
+     * retrieve apicall summary
+     *
+     * @param request {@link SummaryRequest}
+     * @return
+     */
+    public Summary<ApiCallSummaryItem> retrieveApiCallSummary(SummaryRequest request) {
+        String cmd = RequestCmd.LOAD_APICALL_SUMMARY;
+        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(),
+                request.getObjHash(), request.getServer());
+
+        Summary<ApiCallSummaryItem> summary = Summary.of(ApiCallSummaryItem.class, resultPackList, request.getServer().getId());
+
+        return summary;
+    }
+
 
     /**
      * get summary result pack list

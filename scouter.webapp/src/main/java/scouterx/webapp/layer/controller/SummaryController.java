@@ -19,6 +19,7 @@
 package scouterx.webapp.layer.controller;
 
 import scouterx.webapp.layer.service.SummaryService;
+import scouterx.webapp.model.summary.ApiCallSummaryItem;
 import scouterx.webapp.model.summary.ServiceSummaryItem;
 import scouterx.webapp.model.summary.SqlSummaryItem;
 import scouterx.webapp.model.summary.Summary;
@@ -60,7 +61,7 @@ public class SummaryController {
 
     /**
      * retrieve service summary data of specific object within given date duration.
-     * uri pattern : /summary/service/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     * uri pattern : /summary/service/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -93,7 +94,7 @@ public class SummaryController {
 
     /**
      * retrieve sql summary data of specific object within given date duration.
-     * uri pattern : /summary/sql/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     * uri pattern : /summary/sql/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -107,5 +108,38 @@ public class SummaryController {
 
     private CommonResultView<Summary<SqlSummaryItem>> retrieveSqlSummary(SummaryRequest request) {
         return CommonResultView.success(summaryService.retrieveSqlSummary(request));
+    }
+
+    /**
+     * retrieve apiCall summary data of specific object type within given duration.
+     * uri pattern : /summary/sql/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     *
+     * @param request @see {@link SummaryRequest}
+     * @return
+     */
+    @GET
+    @Path("/apiCall/ofType/{objType}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Summary<ApiCallSummaryItem>> retrieveApiCallSummaryByType(@BeanParam @Valid SummaryRequest request) {
+        return retrieveApiCallSummary(request);
+    }
+
+    /**
+     * retrieve apiCall summary data of specific object within given date duration.
+     * uri pattern : /summary/sql/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
+     *
+     * @param request @see {@link SummaryRequest}
+     * @return
+     */
+    @GET
+    @Path("/apiCall/ofObject/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Summary<ApiCallSummaryItem>> retrieveApiCallSummaryByObj(@BeanParam @Valid SummaryRequest request) {
+        return retrieveApiCallSummary(request);
+    }
+
+
+    private CommonResultView<Summary<ApiCallSummaryItem>> retrieveApiCallSummary(SummaryRequest request) {
+        return CommonResultView.success(summaryService.retrieveApiCallSummary(request));
     }
 }
