@@ -19,8 +19,11 @@
 package scouterx.webapp.model.summary;
 
 import lombok.Data;
+import scouterx.webapp.framework.dto.DateAndMapPack;
+import scouterx.webapp.framework.exception.ErrorState;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,5 +48,14 @@ public class Summary<T extends SummaryItem> {
 
     private void addItem(T newItem) {
         itemMap.put(newItem.getSummaryKey(), newItem);
+    }
+
+    public static <T1 extends SummaryItem, T2 extends Class<T1>> Summary<T1> of(T2 clazz, List<DateAndMapPack> dnmPack, int serverId) {
+        try {
+            SummaryItem instance = clazz.newInstance();
+            return instance.toSummary(dnmPack, serverId);
+        } catch (Exception e) {
+            throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);
+        }
     }
 }

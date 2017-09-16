@@ -18,10 +18,11 @@
 
 package scouterx.webapp.layer.service;
 
+import scouterx.webapp.layer.consumer.SummaryConsumer;
 import scouterx.webapp.model.summary.ServiceSummaryItem;
+import scouterx.webapp.model.summary.SqlSummaryItem;
 import scouterx.webapp.model.summary.Summary;
 import scouterx.webapp.request.SummaryRequest;
-import scouterx.webapp.layer.consumer.SummaryConsumer;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 14.
@@ -31,5 +32,9 @@ public class SummaryService {
 
     public Summary<ServiceSummaryItem> retrieveServiceSummary(SummaryRequest request) {
         return summaryConsumer.retrieveServiceSummary(request);
+    }
+
+    public Summary<SqlSummaryItem> retrieveSqlSummary(SummaryRequest request) {
+        return summaryConsumer.retrieveSqlSummary(request);
     }
 }

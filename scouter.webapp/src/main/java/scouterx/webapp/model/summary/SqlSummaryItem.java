@@ -33,35 +33,29 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class ServiceSummaryItem extends SummaryItem<ServiceSummaryItem> {
+public class SqlSummaryItem extends SummaryItem<SqlSummaryItem> {
     private int errorCount;
     private long elapsedSum;
-    private long cpuSum;
-    private long memorySum;
 
     @Builder
-    public ServiceSummaryItem(int summaryKey, String summaryKeyName, int count, int errorCount, long elapsedSum, long cpuSum, long memorySum) {
+    public SqlSummaryItem(int summaryKey, String summaryKeyName, int count, int errorCount, long elapsedSum) {
         this.summaryKey = summaryKey;
         this.summaryKeyName = summaryKeyName;
         this.count = count;
         this.errorCount = errorCount;
         this.elapsedSum = elapsedSum;
-        this.cpuSum = cpuSum;
-        this.memorySum = memorySum;
     }
 
     @Override
-    public void merge(ServiceSummaryItem newItem) {
+    public void merge(SqlSummaryItem newItem) {
         this.setCount(this.getCount() + newItem.getCount());
         this.setErrorCount(this.getErrorCount() + newItem.getErrorCount());
         this.setElapsedSum(this.getElapsedSum() + newItem.getElapsedSum());
-        this.setCpuSum(this.getCpuSum() + newItem.getCpuSum());
-        this.setMemorySum(this.getMemorySum() + newItem.getMemorySum());
     }
 
     @Override
-    public Summary<ServiceSummaryItem> toSummary(List<DateAndMapPack> dnmPackList, int serverId) {
-        Summary<ServiceSummaryItem> summary = new Summary<>();
+    public Summary<SqlSummaryItem> toSummary(List<DateAndMapPack> dnmPackList, int serverId) {
+        Summary<SqlSummaryItem> summary = new Summary<>();
 
         for (DateAndMapPack dnmPack : dnmPackList) {
             long date = DateTimeHelper.getDefault().yyyymmdd(dnmPack.getYyyymmdd());
@@ -69,18 +63,14 @@ public class ServiceSummaryItem extends SummaryItem<ServiceSummaryItem> {
             ListValue countList = dnmPack.getMapPack().getList("count");
             ListValue errorCntList = dnmPack.getMapPack().getList("error");
             ListValue elapsedSumList = dnmPack.getMapPack().getList("elapsed");
-            ListValue cpuSumList = dnmPack.getMapPack().getList("cpu");
-            ListValue memSumList = dnmPack.getMapPack().getList("mem");
 
             for(int i = 0; i < idList.size(); i++) {
-                ServiceSummaryItem item = ServiceSummaryItem.builder()
+                SqlSummaryItem item = SqlSummaryItem.builder()
                         .summaryKey(idList.getInt(i))
-                        .summaryKeyName(TextProxy.service.getTextIfNullDefault(date, idList.getInt(i), serverId))
+                        .summaryKeyName(TextProxy.sql.getTextIfNullDefault(date, idList.getInt(i), serverId))
                         .count(countList.getInt(i))
                         .errorCount(errorCntList.getInt(i))
-                        .elapsedSum(elapsedSumList.getLong(i))
-                        .cpuSum(cpuSumList.getLong(i))
-                        .memorySum(memSumList.getLong(i)).build();
+                        .elapsedSum(elapsedSumList.getLong(i)).build();
 
                 summary.merge(item);
             }

@@ -16,37 +16,18 @@
  *
  */
 
-package scouterx.webapp.model.summary;
+package scouterx.webapp.framework.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import scouterx.webapp.framework.dto.DateAndMapPack;
-
-import java.util.List;
+import scouter.lang.pack.MapPack;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 14.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 16.
  */
 @Data
-public abstract class SummaryItem<T extends SummaryItem> {
-    int summaryKey;
-    String summaryKeyName;
-    int count;
-
-    /**
-     * accumulate item values
-     *
-     * @param newItem
-     */
-    abstract void merge(T newItem);
-
-    /**
-     * utility method
-     * to make summary data from results that was retrieved from scouter collector server.
-     *
-     * @param dnmPackList
-     * @param serverId
-     * @return
-     */
-    abstract Summary<T> toSummary(List<DateAndMapPack> dnmPackList, int serverId);
-
+@AllArgsConstructor
+public class DateAndMapPack {
+    private String yyyymmdd;
+    private MapPack mapPack;
 }

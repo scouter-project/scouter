@@ -18,18 +18,17 @@
 
 package scouterx.webapp.layer.consumer;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
-import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.DateTimeHelper;
-import scouterx.webapp.framework.client.model.TextProxy;
 import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
+import scouterx.webapp.framework.dto.DateAndMapPack;
 import scouterx.webapp.model.summary.ServiceSummaryItem;
+import scouterx.webapp.model.summary.SqlSummaryItem;
 import scouterx.webapp.model.summary.Summary;
 import scouterx.webapp.request.SummaryRequest;
 
@@ -50,13 +49,6 @@ public class SummaryConsumer {
         private long end;
     }
 
-    @Data
-    @AllArgsConstructor
-    private class DateAndMapPack {
-        private String yyyymmdd;
-        private MapPack mapPack;
-    }
-
     /**
      * retrieve service summary
      *
@@ -65,32 +57,26 @@ public class SummaryConsumer {
      */
     public Summary<ServiceSummaryItem> retrieveServiceSummary(SummaryRequest request) {
         String cmd = RequestCmd.LOAD_SERVICE_SUMMARY;
-        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(), request.getObjHash(), request.getServer());
+        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(),
+                request.getObjHash(), request.getServer());
 
-        Summary<ServiceSummaryItem> summary = new Summary<>();
+        Summary<ServiceSummaryItem> summary = Summary.of(ServiceSummaryItem.class, resultPackList, request.getServer().getId());
 
-        for (DateAndMapPack dnmPack : resultPackList) {
-            long date = DateTimeHelper.getDefault().yyyymmdd(dnmPack.getYyyymmdd());
-            ListValue idList = dnmPack.getMapPack().getList("id");
-            ListValue countList = dnmPack.getMapPack().getList("count");
-            ListValue errorCntList = dnmPack.getMapPack().getList("error");
-            ListValue elapsedSumList = dnmPack.getMapPack().getList("elapsed");
-            ListValue cpuSumList = dnmPack.getMapPack().getList("cpu");
-            ListValue memSumList = dnmPack.getMapPack().getList("mem");
+        return summary;
+    }
 
-            for(int i = 0; i < idList.size(); i++) {
-                ServiceSummaryItem item = ServiceSummaryItem.builder()
-                        .summaryKey(idList.getInt(i))
-                        .summaryKeyName(TextProxy.service.getTextIfNullDefault(date, idList.getInt(i), request.getServer().getId()))
-                        .count(countList.getInt(i))
-                        .errorCount(errorCntList.getInt(i))
-                        .elapsedSum(elapsedSumList.getLong(i))
-                        .cpuSum(cpuSumList.getLong(i))
-                        .memorySum(memSumList.getLong(i)).build();
+    /**
+     * retrieve sql summary
+     *
+     * @param request {@link SummaryRequest}
+     * @return
+     */
+    public Summary<SqlSummaryItem> retrieveSqlSummary(SummaryRequest request) {
+        String cmd = RequestCmd.LOAD_SQL_SUMMARY;
+        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(),
+                request.getObjHash(), request.getServer());
 
-                summary.merge(item);
-            }
-        }
+        Summary<SqlSummaryItem> summary = Summary.of(SqlSummaryItem.class, resultPackList, request.getServer().getId());
 
         return summary;
     }

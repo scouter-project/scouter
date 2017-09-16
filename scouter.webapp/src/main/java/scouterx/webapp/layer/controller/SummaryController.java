@@ -18,12 +18,12 @@
 
 package scouterx.webapp.layer.controller;
 
+import scouterx.webapp.layer.service.SummaryService;
 import scouterx.webapp.model.summary.ServiceSummaryItem;
+import scouterx.webapp.model.summary.SqlSummaryItem;
 import scouterx.webapp.model.summary.Summary;
-import scouterx.webapp.request.RealTimeAlertRequest;
 import scouterx.webapp.request.SummaryRequest;
 import scouterx.webapp.view.CommonResultView;
-import scouterx.webapp.layer.service.SummaryService;
 
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -45,27 +45,67 @@ public class SummaryController {
     private final SummaryService summaryService = new SummaryService();
 
     /**
-     * retrieve service summary data within given date range.
-     * uri pattern : /summary/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     * retrieve service summary data of specific object type within given duration.
+     * uri pattern : /summary/service/ofType/{objType}?start={start}&end={end}&serverId={serverId}
      *
-     * @param request @see {@link RealTimeAlertRequest}
+     * @param request @see {@link SummaryRequest}
      * @return
      */
     @GET
     @Path("/service/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<Summary<ServiceSummaryItem>> retrieveServiceSummaryByType(@BeanParam @Valid SummaryRequest request) {
-        return retrieveSummary(request);
+        return retrieveServiceSummary(request);
     }
 
+    /**
+     * retrieve service summary data of specific object within given date duration.
+     * uri pattern : /summary/service/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     *
+     * @param request @see {@link SummaryRequest}
+     * @return
+     */
     @GET
     @Path("/service/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<Summary<ServiceSummaryItem>> retrieveServiceSummaryByObj(@BeanParam @Valid SummaryRequest request) {
-        return retrieveSummary(request);
+        return retrieveServiceSummary(request);
     }
 
-    private CommonResultView<Summary<ServiceSummaryItem>> retrieveSummary(SummaryRequest request) {
+    private CommonResultView<Summary<ServiceSummaryItem>> retrieveServiceSummary(SummaryRequest request) {
         return CommonResultView.success(summaryService.retrieveServiceSummary(request));
+    }
+
+
+    /**
+     * retrieve sql summary data of specific object type within given duration.
+     * uri pattern : /summary/sql/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     *
+     * @param request @see {@link SummaryRequest}
+     * @return
+     */
+    @GET
+    @Path("/sql/ofType/{objType}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Summary<SqlSummaryItem>> retrieveSqlSummaryByType(@BeanParam @Valid SummaryRequest request) {
+        return retrieveSqlSummary(request);
+    }
+
+    /**
+     * retrieve sql summary data of specific object within given date duration.
+     * uri pattern : /summary/sql/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     *
+     * @param request @see {@link SummaryRequest}
+     * @return
+     */
+    @GET
+    @Path("/sql/ofObject/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Summary<SqlSummaryItem>> retrieveSqlSummaryByObj(@BeanParam @Valid SummaryRequest request) {
+        return retrieveSqlSummary(request);
+    }
+
+    private CommonResultView<Summary<SqlSummaryItem>> retrieveSqlSummary(SummaryRequest request) {
+        return CommonResultView.success(summaryService.retrieveSqlSummary(request));
     }
 }
