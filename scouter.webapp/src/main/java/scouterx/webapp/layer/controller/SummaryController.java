@@ -20,9 +20,11 @@ package scouterx.webapp.layer.controller;
 
 import scouterx.webapp.layer.service.SummaryService;
 import scouterx.webapp.model.summary.ApiCallSummaryItem;
+import scouterx.webapp.model.summary.IpSummaryItem;
 import scouterx.webapp.model.summary.ServiceSummaryItem;
 import scouterx.webapp.model.summary.SqlSummaryItem;
 import scouterx.webapp.model.summary.Summary;
+import scouterx.webapp.model.summary.UserAgentSummaryItem;
 import scouterx.webapp.request.SummaryRequest;
 import scouterx.webapp.view.CommonResultView;
 
@@ -141,5 +143,71 @@ public class SummaryController {
 
     private CommonResultView<Summary<ApiCallSummaryItem>> retrieveApiCallSummary(SummaryRequest request) {
         return CommonResultView.success(summaryService.retrieveApiCallSummary(request));
+    }
+
+    /**
+     * retrieve ip summary data of specific object type within given duration.
+     * uri pattern : /summary/ip/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     *
+     * @param request @see {@link SummaryRequest}
+     * @return
+     */
+    @GET
+    @Path("/ip/ofType/{objType}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Summary<IpSummaryItem>> retrieveIpSummaryByType(@BeanParam @Valid SummaryRequest request) {
+        return retrieveIpSummary(request);
+    }
+
+    /**
+     * retrieve ip summary data of specific object within given date duration.
+     * uri pattern : /summary/ip/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
+     *
+     * @param request @see {@link SummaryRequest}
+     * @return
+     */
+    @GET
+    @Path("/ip/ofObject/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Summary<IpSummaryItem>> retrieveIpSummaryByObj(@BeanParam @Valid SummaryRequest request) {
+        return retrieveIpSummary(request);
+    }
+
+
+    private CommonResultView<Summary<IpSummaryItem>> retrieveIpSummary(SummaryRequest request) {
+        return CommonResultView.success(summaryService.retrieveIpSummary(request));
+    }
+
+    /**
+     * retrieve ip summary data of specific object type within given duration.
+     * uri pattern : /summary/ip/ofType/{objType}?start={start}&end={end}&serverId={serverId}
+     *
+     * @param request @see {@link SummaryRequest}
+     * @return
+     */
+    @GET
+    @Path("/userAgent/ofType/{objType}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Summary<UserAgentSummaryItem>> retrieveUserAgentSummaryyByType(@BeanParam @Valid SummaryRequest request) {
+        return retrieveUserAgentSummary(request);
+    }
+
+    /**
+     * retrieve ip summary data of specific object within given date duration.
+     * uri pattern : /summary/ip/ofObject/{objHash}?start={start}&end={end}&serverId={serverId}
+     *
+     * @param request @see {@link SummaryRequest}
+     * @return
+     */
+    @GET
+    @Path("/userAgent/ofObject/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Summary<UserAgentSummaryItem>> retrieveUserAgentSummaryByObj(@BeanParam @Valid SummaryRequest request) {
+        return retrieveUserAgentSummary(request);
+    }
+
+
+    private CommonResultView<Summary<UserAgentSummaryItem>> retrieveUserAgentSummary(SummaryRequest request) {
+        return CommonResultView.success(summaryService.retrieveUserAgentSummary(request));
     }
 }

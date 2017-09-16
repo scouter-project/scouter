@@ -20,9 +20,11 @@ package scouterx.webapp.layer.service;
 
 import scouterx.webapp.layer.consumer.SummaryConsumer;
 import scouterx.webapp.model.summary.ApiCallSummaryItem;
+import scouterx.webapp.model.summary.IpSummaryItem;
 import scouterx.webapp.model.summary.ServiceSummaryItem;
 import scouterx.webapp.model.summary.SqlSummaryItem;
 import scouterx.webapp.model.summary.Summary;
+import scouterx.webapp.model.summary.UserAgentSummaryItem;
 import scouterx.webapp.request.SummaryRequest;
 
 /**
@@ -41,5 +43,13 @@ public class SummaryService {
 
     public Summary<ApiCallSummaryItem> retrieveApiCallSummary(SummaryRequest request) {
         return summaryConsumer.retrieveApiCallSummary(request);
+    }
+
+    public Summary<IpSummaryItem> retrieveIpSummary(SummaryRequest request) {
+        return summaryConsumer.retrieveIpSummary(request);
+    }
+
+    public Summary<UserAgentSummaryItem> retrieveUserAgentSummary(SummaryRequest request) {
+        return summaryConsumer.retrieveUserAgentSummary(request);
     }
 }

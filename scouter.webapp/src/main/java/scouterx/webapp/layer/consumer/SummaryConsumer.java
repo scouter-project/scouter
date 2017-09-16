@@ -28,9 +28,11 @@ import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.dto.DateAndMapPack;
 import scouterx.webapp.model.summary.ApiCallSummaryItem;
+import scouterx.webapp.model.summary.IpSummaryItem;
 import scouterx.webapp.model.summary.ServiceSummaryItem;
 import scouterx.webapp.model.summary.SqlSummaryItem;
 import scouterx.webapp.model.summary.Summary;
+import scouterx.webapp.model.summary.UserAgentSummaryItem;
 import scouterx.webapp.request.SummaryRequest;
 
 import java.util.ArrayList;
@@ -94,6 +96,38 @@ public class SummaryConsumer {
                 request.getObjHash(), request.getServer());
 
         Summary<ApiCallSummaryItem> summary = Summary.of(ApiCallSummaryItem.class, resultPackList, request.getServer().getId());
+
+        return summary;
+    }
+
+    /**
+     * retrieve ip summary
+     *
+     * @param request {@link SummaryRequest}
+     * @return
+     */
+    public Summary<IpSummaryItem> retrieveIpSummary(SummaryRequest request) {
+        String cmd = RequestCmd.LOAD_IP_SUMMARY;
+        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(),
+                request.getObjHash(), request.getServer());
+
+        Summary<IpSummaryItem> summary = Summary.of(IpSummaryItem.class, resultPackList, request.getServer().getId());
+
+        return summary;
+    }
+
+    /**
+     * retrieve user agent summary
+     *
+     * @param request {@link SummaryRequest}
+     * @return
+     */
+    public Summary<UserAgentSummaryItem> retrieveUserAgentSummary(SummaryRequest request) {
+        String cmd = RequestCmd.LOAD_UA_SUMMARY;
+        List<DateAndMapPack> resultPackList = retrieveSummary(cmd, request.getStart(), request.getEnd(), request.getObjType(),
+                request.getObjHash(), request.getServer());
+
+        Summary<UserAgentSummaryItem> summary = Summary.of(UserAgentSummaryItem.class, resultPackList, request.getServer().getId());
 
         return summary;
     }
