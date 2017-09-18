@@ -35,7 +35,7 @@ import java.util.List;
  */
 @Slf4j
 public class ProfileConsumer {
-    private final int MAX_PROFILE_BLOCK = 10;
+    private static final int MAX_PROFILE_BLOCK = 10;
 
     /**
      * retrieve profile steps by txid

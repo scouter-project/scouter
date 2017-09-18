@@ -48,6 +48,7 @@ public class ServerSessionObserver extends Thread {
 
     private static final long CHECK_INTERVAL = 5000;
 
+    @Override
     public void run() {
         ThreadUtil.sleep(CHECK_INTERVAL);
         while (true) {

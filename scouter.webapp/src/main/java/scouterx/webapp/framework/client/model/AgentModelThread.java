@@ -17,18 +17,15 @@
  */
 package scouterx.webapp.framework.client.model;
 
-import scouter.io.DataInputX;
 import scouter.lang.counters.CounterEngine;
 import scouter.lang.pack.ObjectPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.ThreadUtil;
-import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,7 +57,8 @@ public class AgentModelThread extends Thread {
 	public ArrayList<ObjectPack> getAgentPackList(){
 		return allAgentList;
 	}
-	
+
+	@Override
 	public void run() {
 		while (brun) {
 			fetchObjectList();
@@ -87,15 +85,13 @@ public class AgentModelThread extends Thread {
 				TcpProxy proxy = TcpProxy.getTcpProxy(serverId);
 				try {
 					final ArrayList<ObjectPack> agentList = new ArrayList<ObjectPack>();
-					proxy.process(RequestCmd.OBJECT_LIST_REAL_TIME, null, new INetReader() {
-						public void process(DataInputX in) throws IOException {
-							ObjectPack o = (ObjectPack) in.readPack();
-							agentList.add(o);
-						}
+					proxy.process(RequestCmd.OBJECT_LIST_REAL_TIME, null, in -> {
+						ObjectPack o = (ObjectPack) in.readPack();
+						agentList.add(o);
 					});
 					objectPackList.addAll(agentList);
 					for (int i = 0; agentList != null && i < agentList.size(); i++) {
-						ObjectPack m = (ObjectPack) agentList.get(i);
+						ObjectPack m = agentList.get(i);
 						String objType = m.objType;
 						int objHash = m.objHash;
 						String objName = m.objName;

@@ -101,6 +101,7 @@ public class StandAloneConfigure extends Thread {
 
 	private boolean running = true;
 
+	@Override
 	public void run() {
 		while (running) {
 			reload(false);

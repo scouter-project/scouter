@@ -44,8 +44,8 @@ public enum TextTypeEnum {
 	STACK_ELEMENT(TextTypes.STACK_ELEMENT, TextProxy.stackElement),
 	;
 
-	private static Map<TextModel, TextTypeEnum> modelMap = new HashMap<>();
-	private static Map<String, TextTypeEnum> nameMap = new HashMap<>();
+	private final static Map<TextModel, TextTypeEnum> modelMap = new HashMap<>();
+	private final static Map<String, TextTypeEnum> nameMap = new HashMap<>();
 
 	static {
 		for (TextTypeEnum textTypeEnum : TextTypeEnum.values()) {
@@ -54,8 +54,8 @@ public enum TextTypeEnum {
 		}
 	}
 
-	private String typeName;
-	private TextModel textModel;
+	private final String typeName;
+	private final TextModel textModel;
 
 	TextTypeEnum(String typeName, TextModel textModel) {
 		this.typeName = typeName;

@@ -58,6 +58,7 @@ public class XLogRetrieveThread extends Thread {
         this.setName("XLogThread-" + server.getName() + "-" + threadNumber.getAndIncrement());
     }
 
+    @Override
     public void run() {
         while (true) {
             ThreadUtil.sleep(CHECK_INTERVAL);

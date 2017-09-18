@@ -61,7 +61,7 @@ public class TcpProxy implements AutoCloseable {
     public static synchronized TcpProxy getTcpProxy(final Server server) {
         Server _server = ServerManager.getInstance().getServerIfNullDefault(server);
         if (_server == null || _server.isOpen() == false) {
-            ErrorState.COLLECTOR_NOT_CONNECTED.newBizException("server is not exist or before initializing! - "
+            throw ErrorState.COLLECTOR_NOT_CONNECTED.newBizException("server is not exist or before initializing! - "
                     + ((server == null) ? "null" : String.valueOf(server.getId())));
         }
 
@@ -112,11 +112,10 @@ public class TcpProxy implements AutoCloseable {
         tcp.close();
     }
 
+    @Override
     protected void finalize() throws Throwable {
         tcp.close();
     }
-
-    ;
 
     public Pack getSingle(String cmd, Pack param) {
         List<Pack> values = process(cmd, param);
@@ -129,11 +128,9 @@ public class TcpProxy implements AutoCloseable {
     public List<Pack> process(String cmd, Pack param) {
 
         final List<Pack> list = new ArrayList<Pack>();
-        process(cmd, param, new INetReader() {
-            public void process(DataInputX in) throws IOException {
-                Pack p = in.readPack();
-                list.add(p);
-            }
+        process(cmd, param, in -> {
+            Pack p = in.readPack();
+            list.add(p);
         });
         return list;
     }
@@ -148,11 +145,9 @@ public class TcpProxy implements AutoCloseable {
 
     public List<Value> processValues(String cmd, Pack param) {
         final List<Value> list = new ArrayList<Value>();
-        process(cmd, param, new INetReader() {
-            public void process(DataInputX in) throws IOException {
-                Value v = in.readValue();
-                list.add(v);
-            }
+        process(cmd, param, in -> {
+            Value v = in.readValue();
+            list.add(v);
         });
         return list;
     }

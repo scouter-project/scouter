@@ -25,7 +25,7 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouterx.webapp.framework.client.net.TcpProxy;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.Set;
  */
 @Slf4j
 public class TextLoader {
-	private Map<TextTypeEnum, Set<Integer>> typedHashes = new HashMap<>();
+	private EnumMap<TextTypeEnum, Set<Integer>> typedHashes = new EnumMap<>(TextTypeEnum.class);
 
 	private int serverId;
 	public TextLoader(int serverId) {
@@ -53,11 +53,7 @@ public class TextLoader {
 		if (hash == 0) {
 			return;
 		}
-		Set<Integer> hashSet = typedHashes.get(textType);
-		if (hashSet == null) {
-			hashSet = new HashSet<>();
-			typedHashes.put(textType, hashSet);
-		}
+		Set<Integer> hashSet = typedHashes.computeIfAbsent(textType, k -> new HashSet<>());
 		hashSet.add(hash);
 	}
 

@@ -44,7 +44,7 @@ public class XLogLoopCache {
     private final Server server;
     private long loop = 0;
     private int index = 0;
-    private XLogPackWrapper[] queue;
+    private final XLogPackWrapper[] queue;
 
     public XLogLoopCache(Server server, int capacity) {
         this.MAX_RETRIEVE_COUNT = capacity / 2;

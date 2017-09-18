@@ -24,9 +24,6 @@ import java.util.Map;
 
 public class TextProxy {
 
-	public TextProxy() {
-	}
-
 	final public static TextModel service = new TextModel(TextTypes.SERVICE, 20_000);
 	final public static TextModel sql = new TextModel(TextTypes.SQL, 20_000);
 	final public static TextModel method = new TextModel(TextTypes.METHOD, 40_000);
@@ -45,7 +42,7 @@ public class TextProxy {
 	final public static TextModel hashMessage = new TextModel(TextTypes.HASH_MSG, 20_000);
     final public static TextModel stackElement = new TextModel(TextTypes.STACK_ELEMENT, 20_000);
 
-	private static Map<String, TextModel> textModelMap = new HashMap<String, TextModel>();
+	private final static Map<String, TextModel> textModelMap = new HashMap<>();
 
 	static {
 		textModelMap.put(TextTypes.SERVICE, service);

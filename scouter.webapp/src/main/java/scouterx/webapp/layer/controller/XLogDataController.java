@@ -69,7 +69,7 @@ public class XLogDataController {
     }
 
     @Data
-    private class XLogCountBucket {
+    private static class XLogCountBucket {
         int count;
         long loop;
         int index;

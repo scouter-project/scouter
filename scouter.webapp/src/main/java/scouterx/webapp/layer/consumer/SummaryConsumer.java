@@ -48,7 +48,7 @@ import java.util.List;
 public class SummaryConsumer {
 
     @Data
-    private class SearchCondition {
+    private static class SearchCondition {
         private String yyyymmdd;
         private long start;
         private long end;
@@ -202,7 +202,7 @@ public class SummaryConsumer {
             } else {
                 _start = helper.dateUnitToTimeMillis(dateUnit);
             }
-            _end = helper.dateUnitToTimeMillis(dateUnit) + helper.MILLIS_PER_DAY - 1000;
+            _end = helper.dateUnitToTimeMillis(dateUnit) + DateTimeHelper.MILLIS_PER_DAY - 1000;
 
         } else { // dateUnit == endDateUnit
             if (dateUnit == startDateUnit) {

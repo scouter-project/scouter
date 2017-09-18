@@ -42,9 +42,9 @@ public enum ErrorState {
 	VALIDATE_ERROR(Response.Status.BAD_REQUEST, Response.Status.BAD_REQUEST.getStatusCode(), "fail to validate input parameters. : "),
 	;
 
-	private Response.Status status;
-	private int errorCode;
-	private String errorMessage;
+	private final Response.Status status;
+	private final int errorCode;
+	private final String errorMessage;
 
 	ErrorState(Response.Status status, int errorCode, String errorMessage) {
 		this.status = status;

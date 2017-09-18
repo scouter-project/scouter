@@ -27,7 +27,7 @@ import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
 
 @Slf4j
-public class Server {
+public final class Server {
 	ConfigureAdaptor conf = ConfigureManager.getConfigure();
 
 	final private int id;
@@ -253,6 +253,7 @@ public class Server {
 		this.secureMode = secureMode;
 	}
 
+	@Override
 	public String toString() {
 		return "Server [id=" + id + ", name=" + name + ", ip=" + ip + ", port="
 				+ port + ", delta=" + delta

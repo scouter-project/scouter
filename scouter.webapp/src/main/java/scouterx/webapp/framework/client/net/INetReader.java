@@ -21,7 +21,7 @@ import scouter.io.DataInputX;
 
 import java.io.IOException;
 
-
+@FunctionalInterface
 public interface INetReader {
-	public void process(DataInputX in) throws IOException;
+	void process(DataInputX in) throws IOException;
 }

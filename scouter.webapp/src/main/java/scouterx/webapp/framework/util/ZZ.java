@@ -48,7 +48,7 @@ public class ZZ {
         if (ip == null)
             return "0.0.0.0";
         try {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             sb.append(ip[0] & 0xff);
             sb.append(".");
             sb.append(ip[1] & 0xff);
