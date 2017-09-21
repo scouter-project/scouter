@@ -69,7 +69,7 @@ public class WebAppMain {
         ConfigureAdaptor conf = ConfigureManager.getConfigure();
         connectScouterCollector();
 
-        org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(conf.getNetHttpPort());
+        Server server = new Server(conf.getNetHttpPort());
 		setWebAppContext(server);
 
 		try {

@@ -20,6 +20,7 @@ package scouterx.webapp.model.summary;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import scouter.lang.value.ListValue;
 import scouter.util.DateTimeHelper;
@@ -31,6 +32,7 @@ import java.util.List;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 14.
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 public class ServiceSummaryItem extends SummaryItem<ServiceSummaryItem> {

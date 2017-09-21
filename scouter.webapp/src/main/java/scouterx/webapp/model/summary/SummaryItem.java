@@ -27,7 +27,7 @@ import java.util.List;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 14.
  */
 @Data
-public abstract class SummaryItem<T extends SummaryItem> {
+public abstract class SummaryItem<T extends SummaryItem<T>> {
     int summaryKey;
     String summaryKeyName;
     int count;

@@ -66,15 +66,15 @@ public class CommonResultView<T> {
 		return new CommonResultView(SUCCESS, "success", true);
 	}
 
-	public static CommonResultView success(Object result) {
+	public static <T> CommonResultView success(T result) {
 		return new CommonResultView(SUCCESS, "success", result);
 	}
 
-	public static CommonResultView fail(int resultCode, String message, Object result) {
+	public static <T> CommonResultView fail(int resultCode, String message, T result) {
 		return new CommonResultView(HttpStatus.INTERNAL_SERVER_ERROR_500, resultCode, message, result);
 	}
 
-	public static CommonResultView fail(int status, int resultCode, String message, Object result) {
+	public static <T> CommonResultView fail(int status, int resultCode, String message, T result) {
 		return new CommonResultView(status, resultCode, message, result);
 	}
 

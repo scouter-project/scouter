@@ -30,7 +30,7 @@ import java.util.Map;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 14.
  */
 @Data
-public class Summary<T extends SummaryItem> {
+public class Summary<T extends SummaryItem<T>> {
     private Map<Integer, T> itemMap = new HashMap<>();
 
     public void merge(T newItem) {
@@ -50,9 +50,9 @@ public class Summary<T extends SummaryItem> {
         itemMap.put(newItem.getSummaryKey(), newItem);
     }
 
-    public static <T1 extends SummaryItem, T2 extends Class<T1>> Summary<T1> of(T2 clazz, List<DateAndMapPack> dnmPack, int serverId) {
+    public static <T1 extends SummaryItem<T1>> Summary<T1> of(Class<T1> clazz, List<DateAndMapPack> dnmPack, int serverId) {
         try {
-            SummaryItem instance = clazz.newInstance();
+            SummaryItem<T1> instance = clazz.newInstance();
             return instance.toSummary(dnmPack, serverId);
         } catch (Exception e) {
             throw ErrorState.INTERNAL_SERVER_ERROR.newException(e.getMessage(), e);

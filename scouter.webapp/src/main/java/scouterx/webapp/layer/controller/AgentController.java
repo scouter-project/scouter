@@ -54,7 +54,7 @@ public class AgentController {
      */
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<SObject> retrieveAgentList(@QueryParam("serverId") int serverId) {
+    public CommonResultView<List<SObject>> retrieveAgentList(@QueryParam("serverId") int serverId) {
         List<SObject> agentList = agentService.retrieveAgentList(ServerManager.getInstance().getServer(serverId));
 
         return CommonResultView.success(agentList);
