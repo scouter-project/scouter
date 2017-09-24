@@ -16,6 +16,7 @@
  *
  */
 package scouter.server.plugin.alert;
+
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -40,6 +41,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
 public class AlertRuleLoader extends Thread {
+	public static final String ALERT_FILE_SUFFIX = ".alert";
+	public static final String CONF_FILE_SUFFIX = ".conf";
 	private static AlertRuleLoader instance;
 	public synchronized static AlertRuleLoader getInstance() {
 		if (instance == null) {
@@ -66,10 +69,63 @@ public class AlertRuleLoader extends Thread {
 			}
 		}
 	}
+
+	/**
+	 * get rule file contents as string by counter name
+	 * @param counterName
+	 * @return
+	 */
+	public String getRuleContents(String counterName) {
+		return getContentsOfFile(counterName, ALERT_FILE_SUFFIX);
+	}
+
+	/**
+	 * get rule configuration file contents as string by counter name
+	 * @param counterName
+	 * @return
+	 */
+	public String getRuleConfigContents(String counterName) {
+		return getContentsOfFile(counterName, CONF_FILE_SUFFIX);
+	}
+
+	private String getContentsOfFile(String counterName, String fileSuffix) {
+		String contents = "";
+		try {
+			File ruleFile = new File(Configure.getInstance().plugin_dir + "/" + counterName + fileSuffix);
+			if (ruleFile.canRead()) {
+				contents = new String(FileUtil.readAll(ruleFile));
+			}
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+		return contents;
+	}
+
+	/**
+	 * save rule file
+	 * @param counterName
+	 * @return
+	 */
+	public boolean saveRuleContents(String counterName, String contents) {
+		File ruleFile = new File(Configure.getInstance().plugin_dir + "/" + counterName + ALERT_FILE_SUFFIX);
+		return FileUtil.saveText(ruleFile, contents);
+	}
+
+	/**
+	 * save config file
+	 * @param counterName
+	 * @return
+	 */
+	public boolean saveConfigContents(String counterName, String contents) {
+		File confFile = new File(Configure.getInstance().plugin_dir + "/" + counterName + CONF_FILE_SUFFIX);
+		return FileUtil.saveText(confFile, contents);
+	}
+
+
 	private void checkNewRule(File root) {
 		File[] ruleFiles = root.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
-				return name.endsWith(".alert");
+				return name.endsWith(ALERT_FILE_SUFFIX);
 			}
 		});
 		for (int i = 0; i < ruleFiles.length; i++) {
@@ -97,7 +153,7 @@ public class AlertRuleLoader extends Thread {
 			/*
 			 * if the Rule file is not existed, then also clear the conf-info
 			 */
-			File ruleFile = new File(root, name + ".alert");
+			File ruleFile = new File(root, name + ALERT_FILE_SUFFIX);
 			if (ruleFile.canRead() == false || rule == null) {
 				clear(name);
 				continue;
@@ -106,7 +162,7 @@ public class AlertRuleLoader extends Thread {
 				rule = createRule(name, ruleFile);
 				alertRuleTable.put(name, rule);
 			}
-			File ruleConf = new File(root, name + ".conf");
+			File ruleConf = new File(root, name + CONF_FILE_SUFFIX);
 			AlertConf conf = alertConfTable.get(name);
 			if (conf.lastModified != ruleConf.lastModified()) {
 				conf = createConf(name, ruleConf);
@@ -121,7 +177,7 @@ public class AlertRuleLoader extends Thread {
 	private File getConfFile(File ruleFile) {
 		if (ruleFile == null)
 			return null;
-		File conf = new File(ruleFile.getPath().substring(0, ruleFile.getPath().lastIndexOf('.')) + ".conf");
+		File conf = new File(ruleFile.getPath().substring(0, ruleFile.getPath().lastIndexOf('.')) + CONF_FILE_SUFFIX);
 		if (conf.canRead())
 			return conf;
 		else

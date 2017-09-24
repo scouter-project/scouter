@@ -171,6 +171,11 @@ public class RequestCmd {
 	public static final String CONFIGURE_DESC = "CONFIGURE_DESC";
 	public static final String CONFIGURE_VALUE_TYPE = "CONFIGURE_VALUE_TYPE";
 
+	public static final String GET_ALERT_SCRIPTING_CONTETNS = "GET_ALERT_SCRIPTING_CONTETNS";
+	public static final String GET_ALERT_SCRIPTING_CONFIG_CONTETNS = "GET_ALERT_SCRIPTING_CONFIG_CONTETNS";
+	public static final String SAVE_ALERT_SCRIPTING_CONTETNS = "SAVE_ALERT_SCRIPTING_CONTETNS";
+	public static final String SAVE_ALERT_SCRIPTING_CONFIG_CONTETNS = "SAVE_ALERT_SCRIPTING_CONFIG_CONTETNS";
+
 	public static final String GET_XML_COUNTER = "GET_XML_COUNTER";
 
 	public static final String CLUSTER_TEST1 = "CLUSTER_TEST1";

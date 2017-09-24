@@ -309,6 +309,14 @@
         </view>
         <view
                 allowMultiple="true"
+                class="scouter.client.configuration.views.AlertScriptingView"
+                id="scouter.client.configuration.views.AlertScriptingView"
+                icon="icons/config.png"
+                name="Alert Scripting View"
+                restorable="false">
+        </view>
+        <view
+                allowMultiple="true"
                 class="scouter.client.counter.views.CounterLoadCountView"
                 id="scouter.client.counter.views.CounterLoadCountView"
                 name="Load Count"

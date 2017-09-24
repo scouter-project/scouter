@@ -362,4 +362,12 @@ public class StringUtil {
 		}
 		return str;
 	}
+
+	public static String emptyToDefault(String text, String defaultText) {
+		if (StringUtil.isEmpty(StringUtil.trimToEmpty(text))) {
+			return defaultText;
+		} else {
+			return text;
+		}
+	}
 }

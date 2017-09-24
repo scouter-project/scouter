@@ -270,7 +270,7 @@ public class CounterEngine {
 			return obj.getDisplayName();
 		}
 	}
-	
+
 	public ArrayList<String> getAllCounterList() {
 		ArrayList<String> list = new ArrayList<String>();
 		Enumeration<ObjectType> types = objTypeMap.values();
@@ -526,7 +526,8 @@ public class CounterEngine {
 	}
 	
 	public static void main(String[] args) {
-		File f = new File("/d:/counters.xml");
+
+		File f = new File("/Users/gunlee/Documents/workspace/scouter/scouter/scouter.common/src/main/resources/scouter/lang/counters/counters.xml");
 		System.out.println(f.canRead());
 		byte[] content = FileUtil.readAll(f);
 		CounterEngine ce = new CounterEngine();
