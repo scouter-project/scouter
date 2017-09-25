@@ -106,7 +106,7 @@ public class ServicePerf {
 	private long last_sent = DateUtil.getMinUnit(System.currentTimeMillis()) / 5;
 
 	@Counter(interval = 500)
-	public void summay(CounterBasket pw) {
+	public void summary(CounterBasket pw) {
 		long time = System.currentTimeMillis();
 		long now = DateUtil.getMinUnit(time) / 5;
 
