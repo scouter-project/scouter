@@ -589,7 +589,7 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 					mgr.add(new OpenServerConfigureAction(win, MenuStr.CONFIGURE, Images.config, serverId));
 
 
-				MenuManager alertMenuManager = new MenuManager(MenuStr.ALERT_SCRIPTING, ImageUtil.getImageDescriptor(Images.config), MenuStr.ALERT_SCRIPTING_ID);
+				MenuManager alertMenuManager = new MenuManager(MenuStr.ALERT_SCRIPTING, ImageUtil.getImageDescriptor(Images.alert), MenuStr.ALERT_SCRIPTING_ID);
 				mgr.add(alertMenuManager);
 				Map<String, Map<String, String>> alertMenuMap = new TreeMap<>();
 				for (AgentObject agentObject : AgentModelThread.getInstance().getObjectList()) {
@@ -610,7 +610,7 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 				}
 				for (Map.Entry<String, Map<String, String>> entry : alertMenuMap.entrySet()) {
 					Map<String, String> entryValue = entry.getValue();
-					alertMenuManager.add(new OpenAlertScriptingAction(win, entry.getKey(), Images.config, serverId,
+					alertMenuManager.add(new OpenAlertScriptingAction(win, entry.getKey(), Images.alert, serverId,
 							entryValue.get("familyName"), entryValue.get("counterName"), entryValue.get("counterDisplayName")));
 				}
 

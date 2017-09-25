@@ -20,26 +20,31 @@ package scouter.client.configuration.views;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
 import scouter.client.net.TcpProxy;
-import scouter.client.server.Server;
-import scouter.client.server.ServerManager;
+import scouter.client.util.ColorUtil;
 import scouter.client.util.ColoringWord;
 import scouter.client.util.CustomLineStyleListener;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.JavaLineStyler;
+import scouter.client.util.UndoRedoImpl;
 import scouter.lang.pack.MapPack;
 import scouter.net.RequestCmd;
 import scouter.util.HashUtil;
@@ -48,6 +53,7 @@ import scouter.util.StringUtil;
 import java.util.ArrayList;
 
 public class AlertScriptingView extends ViewPart {
+	private static final Font TERMINAL_FONT = JFaceResources.getFont(JFaceResources.TEXT_FONT);
 	private enum SaveResult {
 		NA, SUCCESS, FAIL
 	}
@@ -68,12 +74,19 @@ public class AlertScriptingView extends ViewPart {
 
 	private StyledText ruleText;
 	private StyledText configText;
+	private Text consoleText;
+
+	private Label ruleTextLabel;
+	private Label configTextLabel;
+	private Label consoleTextLable;
+
+	private UndoRedoImpl ruleTextUndo;
+	private UndoRedoImpl configTextUndo;
 
 	private int serverId;
 	private String familyName;
 	private String counterName;
 	private String counterDisplayName;
-	private String displayName;
 
 	SashForm mainSashForm;
 	SashForm bottomSashForm;
@@ -117,15 +130,12 @@ public class AlertScriptingView extends ViewPart {
 		this.serverId = serverId;
 		this.familyName = familyName;
 		this.counterName = counterName;
-		this.counterDisplayName = counterDisplayName;
+		this.counterDisplayName = StringUtil.isEmpty(counterDisplayName) ? counterName : counterDisplayName;
 
-		Server server = ServerManager.getInstance().getServer(serverId);
-		if (server != null) {
-			this.displayName = server.getName();
-			setPartName("Alert Scripting [" + this.familyName + " : " + this.counterDisplayName + "]");
-			loadAlertScriptingContents();
-			loadAlertScriptingConfigContents();
-		}
+		setPartName("Alert Scripting [" + this.familyName + " : " + this.counterDisplayName + "]");
+		loadAlertScriptingContents();
+		loadAlertScriptingConfigContents();
+		consoleText.setText("asdfasfas\nbbbb\n\nccccc sadlf jaslflj asl");
 	}
 
 	public void initializeColoring(){
@@ -216,29 +226,84 @@ public class AlertScriptingView extends ViewPart {
 		Composite comp = new Composite(parent, SWT.NONE);
 		comp.setLayout(new GridLayout(1, true));
 
+		ruleTextLabel = new Label(comp, SWT.BORDER);
+		ruleTextLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		ruleTextLabel.setFont(new Font(null, "Arial", 11, SWT.BOLD));
+
+		ruleTextLabel.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+		ruleTextLabel.setText(" [ Alert Script ] ");
+
 		ruleText = new StyledText(comp, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		ruleText.setTabs(4);
+		ruleText.setFont(TERMINAL_FONT);
+
 		ruleText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		ruleText.addLineStyleListener(new JavaLineStyler());
-
+		
 		ruleText.addKeyListener(new SaveKeyListener());
+		ruleTextUndo = new UndoRedoImpl(ruleText);
+
+		ruleText.addListener(SWT.KeyUp, e -> {
+			if (e.keyCode == 13) {
+				String textAtPrevLine = ruleText.getLine(ruleText.getLineAtOffset(ruleText.getCaretOffset()-1));
+				String textAtCurrentLine = ruleText.getLine(ruleText.getLineAtOffset(ruleText.getCaretOffset()));
+				String spaces = getLeadingSpaces(textAtPrevLine);
+				if (getLastChar(textAtPrevLine) == '{') {
+					if (textAtCurrentLine.length() > 0 && textAtCurrentLine.charAt(0) == '}') {
+					} else {
+						spaces += "\t";
+					}
+				}
+
+				int spaceLength = spaces.length();
+				
+				ruleText.insert(spaces);
+				ruleText.setCaretOffset(ruleText.getCaretOffset() + spaceLength);
+			}
+		});
+
 	}
 
 	private void createConfigContentsForm(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
 		comp.setLayout(new GridLayout(1, true));
 
+		configTextLabel = new Label(comp, SWT.BORDER);
+		configTextLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		configTextLabel.setFont(new Font(null, "Arial", 11, SWT.BOLD));
+
+		configTextLabel.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+		configTextLabel.setText(" [ Alert Configuration ] ");
+
 		configText = new StyledText(comp, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		configText.setTabs(4);
+		configText.setFont(TERMINAL_FONT);
+
 		configText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		configText.addLineStyleListener(new CustomLineStyleListener(true, configKeyword, true));
 		configText.addKeyListener(new SaveKeyListener());
+		configTextUndo = new UndoRedoImpl(configText);
 	}
 
 	private void createConsoleForm(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
 		comp.setLayout(new GridLayout(1, true));
 
-		StyledText contentsText = new StyledText(comp, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-		contentsText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		consoleTextLable = new Label(comp, SWT.BORDER);
+		consoleTextLable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		consoleTextLable.setFont(new Font(null, "Arial", 11, SWT.BOLD));
+
+		consoleTextLable.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+		consoleTextLable.setText(" [ Console Output ] ");
+
+		consoleText = new Text(comp, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		consoleText.setTabs(4);
+		consoleText.setFont(TERMINAL_FONT);
+		consoleText.setEditable(false);
+		consoleText.setForeground(ColorUtil.getInstance().getColor("blue gray"));
+
+		consoleText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		consoleText.addKeyListener(new SaveKeyListener());
 	}
 
 	private void initialToolBar() {
@@ -267,8 +332,11 @@ public class AlertScriptingView extends ViewPart {
 			MapPack resultMapPack = getResultMapPack(RequestCmd.GET_ALERT_SCRIPTING_CONTETNS, param);
 			if (resultMapPack != null) {
 				String contents = StringUtil.emptyToDefault(resultMapPack.getText("contents"), DEFAULT_RULE_CONTENTS);
-				ExUtil.exec(ruleText, () -> ruleText.setText(contents));
-				ruleContentsHash = HashUtil.hash(contents);
+				ruleText.getDisplay().asyncExec(() -> {
+					ruleText.setText(contents);
+					ruleContentsHash = HashUtil.hash(contents);
+					ruleTextUndo.clear();
+				});
 			}
 		});
 	}
@@ -280,9 +348,38 @@ public class AlertScriptingView extends ViewPart {
 			MapPack resultMapPack = getResultMapPack(RequestCmd.GET_ALERT_SCRIPTING_CONFIG_CONTETNS, param);
 			if (resultMapPack != null) {
 				String contents = StringUtil.emptyToDefault(resultMapPack.getText("contents"), DEFAULT_CONFIG_CONTENTS);
-				ExUtil.exec(configText, () -> configText.setText(contents));
-				configContentsHash = HashUtil.hash(contents);
+				configText.getDisplay().asyncExec(() -> {
+					configText.setText(contents);
+					configContentsHash = HashUtil.hash(contents);
+					configTextUndo.clear();
+				});
 			}
 		});
+	}
+
+	private char getLastChar(String line) {
+		char c = 0;
+		char[] chars = line.toCharArray();
+		for(int i = chars.length - 1; i >= 0; i++) {
+			if (chars[i] == ' ' || chars[i] == '\t') {
+			} else {
+				c = chars[i];
+				break;
+			}
+		}
+		return c;
+	}
+
+	private String getLeadingSpaces(String line) {
+		char[] resultChar = new char[line.length()];
+		int pos = 0;
+		char[] chars = line.toCharArray();
+		for (char c : chars) {
+			if (c == '\t' || c == ' ')
+				resultChar[pos++] = c;
+			else
+				break;
+		}
+		return new String(resultChar, 0, pos);
 	}
 }
