@@ -24,6 +24,7 @@ import javassist.CtNewMethod;
 import javassist.NotFoundException;
 import scouter.server.Configure;
 import scouter.server.Logger;
+import scouter.server.core.cache.AlertScriptLoadMessageCache;
 import scouter.util.BitUtil;
 import scouter.util.CastUtil;
 import scouter.util.FileUtil;
@@ -144,6 +145,7 @@ public class AlertRuleLoader extends Thread {
 		alertRuleTable.remove(name);
 		alertConfTable.remove(name);
 		Logger.println("S217", "Clear alert rule : " + name);
+		AlertScriptLoadMessageCache.put("Alert rule cleared : " + name);
 	}
 	private void checkModified(File root) {
 		StringEnumer en = alertRuleTable.keys();
@@ -247,13 +249,16 @@ public class AlertRuleLoader extends Thread {
 			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
 			AlertRule rule = (AlertRule) c.newInstance();
 			rule.__lastModified = ruleFile.lastModified();
-			Logger.println("S215", "Detected new alert rule : " + ruleFile.getName());
+			Logger.println("S215", "Alert rule detected : " + ruleFile.getName());
+			AlertScriptLoadMessageCache.put("Alert rule detected : " + ruleFile.getName());
 			return rule;
 		} catch (javassist.CannotCompileException ee) {
 			compileErrorFiles.add(fileSignature);
 			Logger.println("S212", ee.getMessage());
+			AlertScriptLoadMessageCache.put("Alert rule compile error : " + ee.getMessage());
 		} catch (Exception e) {
 			Logger.println("S213", e);
+			AlertScriptLoadMessageCache.put("error : " + e.getMessage());
 		}
 		return null;
 	}

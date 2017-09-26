@@ -20,9 +20,14 @@ package scouter.server.netio.service.handle
 
 import scouter.io.{DataInputX, DataOutputX}
 import scouter.lang.pack.MapPack
+import scouter.lang.value.{DecimalValue, ListValue}
 import scouter.net.{RequestCmd, TcpFlag}
+import scouter.server.Configure
+import scouter.server.core.cache.{AlertScriptLoadMessageCache, XLogCache}
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.server.plugin.alert.AlertRuleLoader
+import scouter.server.util.EnumerScala
+import scouter.util.IntSet
 
 /**
   * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 24.
@@ -72,5 +77,28 @@ class AlertScriptingService {
         result.put("success", success)
         dout.writeByte(TcpFlag.HasNEXT)
         dout.writePack(result)
+    }
+
+    @ServiceHandler(RequestCmd.GET_ALERT_SCRIPT_LOAD_MESSAGE)
+    def getAlertScriptLoadMessage(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack()
+        val index = param.getInt("index")
+        val loop = param.getLong("loop")
+
+        val cacheOut = AlertScriptLoadMessageCache.get(loop, index)
+        if (cacheOut != null) {
+            val metaPack = new MapPack()
+            metaPack.put("loop", new DecimalValue(cacheOut.loop))
+            metaPack.put("index", new DecimalValue(cacheOut.index))
+            val messageLv = new ListValue()
+            metaPack.put("messages", messageLv)
+
+            EnumerScala.forward(cacheOut.data, (message: String) => {
+                messageLv.add(message)
+            })
+
+            dout.writeByte(TcpFlag.HasNEXT)
+            dout.writePack(metaPack)
+        }
     }
 }

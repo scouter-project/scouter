@@ -46,14 +46,17 @@ import scouter.client.util.ImageUtil;
 import scouter.client.util.JavaLineStyler;
 import scouter.client.util.UndoRedoImpl;
 import scouter.lang.pack.MapPack;
+import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.HashUtil;
 import scouter.util.StringUtil;
+import scouter.util.ThreadUtil;
 
 import java.util.ArrayList;
 
 public class AlertScriptingView extends ViewPart {
 	private static final Font TERMINAL_FONT = JFaceResources.getFont(JFaceResources.TEXT_FONT);
+
 	private enum SaveResult {
 		NA, SUCCESS, FAIL
 	}
@@ -61,16 +64,16 @@ public class AlertScriptingView extends ViewPart {
 	public static final String ID = AlertScriptingView.class.getName();
 
 	private static final String DEFAULT_RULE_CONTENTS =
-			"// void process(RealCounter $counter, PluginHelper $$) {\n"+
-			"// create your java code below..\n"+
-			"\n"+
-			"\n"+
-			"// }";
+			"// void process(RealCounter $counter, PluginHelper $$) {\n" +
+					"// create your java code below..\n" +
+					"\n" +
+					"\n" +
+					"// }";
 
 	private static final String DEFAULT_CONFIG_CONTENTS =
 			"#history_size=150\n" +
-			"#silent_time=300\n" +
-			"#check_term=20";
+					"#silent_time=300\n" +
+					"#check_term=20";
 
 	private StyledText ruleText;
 	private StyledText configText;
@@ -93,6 +96,9 @@ public class AlertScriptingView extends ViewPart {
 
 	int ruleContentsHash = 0;
 	int configContentsHash = 0;
+
+	private long consoleLoop = 0L;
+	private int consoleIndex = 0;
 
 	private ArrayList<ColoringWord> configKeyword;
 
@@ -117,16 +123,16 @@ public class AlertScriptingView extends ViewPart {
 		createConfigContentsForm(bottomSashForm);
 		createConsoleForm(bottomSashForm);
 
-		bottomSashForm.setWeights(new int[] {1, 3});
+		bottomSashForm.setWeights(new int[]{1, 3});
 		bottomSashForm.setMaximizedControl(null);
 
-		mainSashForm.setWeights(new int[] {2, 1});
+		mainSashForm.setWeights(new int[]{2, 1});
 		mainSashForm.setMaximizedControl(null);
 
 		initialToolBar();
 	}
 
-	public void setInput(int serverId, String familyName, String counterName, String counterDisplayName){
+	public void setInput(int serverId, String familyName, String counterName, String counterDisplayName) {
 		this.serverId = serverId;
 		this.familyName = familyName;
 		this.counterName = counterName;
@@ -135,10 +141,10 @@ public class AlertScriptingView extends ViewPart {
 		setPartName("Alert Scripting [" + this.familyName + " : " + this.counterDisplayName + "]");
 		loadAlertScriptingContents();
 		loadAlertScriptingConfigContents();
-		consoleText.setText("asdfasfas\nbbbb\n\nccccc sadlf jaslflj asl");
+		consoleText.setText("console outputs below...\n");
 	}
 
-	public void initializeColoring(){
+	public void initializeColoring() {
 		configKeyword = new ArrayList<>();
 		configKeyword.add(new ColoringWord("history_size", SWT.COLOR_BLUE, true));
 		configKeyword.add(new ColoringWord("silent_time", SWT.COLOR_BLUE, true));
@@ -148,26 +154,31 @@ public class AlertScriptingView extends ViewPart {
 	private class SaveKeyListener implements KeyListener {
 		@Override
 		public void keyPressed(KeyEvent keyEvent) {
-			if(keyEvent.stateMask == SWT.CTRL || keyEvent.stateMask == SWT.COMMAND){
-				if(keyEvent.keyCode == 's' || keyEvent.keyCode == 'S') {
+			if (keyEvent.stateMask == SWT.CTRL || keyEvent.stateMask == SWT.COMMAND) {
+				if (keyEvent.keyCode == 's' || keyEvent.keyCode == 'S') {
 					saveContents();
 				}
 			}
 		}
+
 		@Override
-		public void keyReleased(KeyEvent keyEvent) {}
+		public void keyReleased(KeyEvent keyEvent) {
+		}
 	}
 
 	private void saveContents() {
+		readConsoleMessage(consoleLoop, consoleIndex, true);
 		SaveResult configResult = saveConfigContents();
 		if (configResult == SaveResult.SUCCESS || configResult == SaveResult.NA) {
 			SaveResult ruleResult = saveRuleContents();
 			if (ruleResult == SaveResult.FAIL) {
 				openSaveFailDialog();
 			} else if (ruleResult == SaveResult.SUCCESS || configResult == SaveResult.SUCCESS) {
+				readConsoleMessageAsync4times(consoleLoop, consoleIndex);
 				openSaveSuccessDialog();
 			}
 		} else {
+			readConsoleMessageAsync4times(consoleLoop, consoleIndex);
 			openSaveFailDialog();
 		}
 	}
@@ -239,14 +250,18 @@ public class AlertScriptingView extends ViewPart {
 
 		ruleText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		ruleText.addLineStyleListener(new JavaLineStyler());
-		
+
 		ruleText.addKeyListener(new SaveKeyListener());
 		ruleTextUndo = new UndoRedoImpl(ruleText);
 
 		ruleText.addListener(SWT.KeyUp, e -> {
 			if (e.keyCode == 13) {
-				String textAtPrevLine = ruleText.getLine(ruleText.getLineAtOffset(ruleText.getCaretOffset()-1));
+				String textAtPrevLine = ruleText.getLine(ruleText.getLineAtOffset(ruleText.getCaretOffset() - 1));
 				String textAtCurrentLine = ruleText.getLine(ruleText.getLineAtOffset(ruleText.getCaretOffset()));
+				if (textAtCurrentLine != null && textAtCurrentLine.equals(textAtPrevLine)) {
+					return;
+				}
+
 				String spaces = getLeadingSpaces(textAtPrevLine);
 				if (getLastChar(textAtPrevLine) == '{') {
 					if (textAtCurrentLine.length() > 0 && textAtCurrentLine.charAt(0) == '}') {
@@ -256,7 +271,7 @@ public class AlertScriptingView extends ViewPart {
 				}
 
 				int spaceLength = spaces.length();
-				
+
 				ruleText.insert(spaces);
 				ruleText.setCaretOffset(ruleText.getCaretOffset() + spaceLength);
 			}
@@ -357,10 +372,48 @@ public class AlertScriptingView extends ViewPart {
 		});
 	}
 
+	/**
+	 * read alert script load console message twice asynchronously
+	 * @param loop
+	 * @param index
+	 */
+	private void readConsoleMessageAsync4times(long loop, long index) {
+		ExUtil.asyncRun(() -> {
+			ThreadUtil.sleep(1000);
+			readConsoleMessage(consoleLoop, consoleIndex, false);
+			ThreadUtil.sleep(2000);
+			readConsoleMessage(consoleLoop, consoleIndex, false);
+			ThreadUtil.sleep(2000);
+			readConsoleMessage(consoleLoop, consoleIndex, false);
+			ThreadUtil.sleep(2000);
+			readConsoleMessage(consoleLoop, consoleIndex, false);
+		});
+	}
+
+	private void readConsoleMessage(long loop, long index, boolean first) {
+		MapPack param = new MapPack();
+		param.put("loop", loop);
+		param.put("index", index);
+		ExUtil.asyncRun(() -> {
+			MapPack resultMapPack = getResultMapPack(RequestCmd.GET_ALERT_SCRIPT_LOAD_MESSAGE, param);
+			if (resultMapPack != null) {
+				consoleLoop = resultMapPack.getLong("loop");
+				consoleIndex = resultMapPack.getInt("index");
+				if (first) {
+					return;
+				}
+				ListValue messageLv = resultMapPack.getList("messages");
+				for (String message : messageLv.toStringArray()) {
+					consoleText.getDisplay().asyncExec(() -> consoleText.append(message + "\n"));
+				}
+			}
+		});
+	}
+
 	private char getLastChar(String line) {
 		char c = 0;
 		char[] chars = line.toCharArray();
-		for(int i = chars.length - 1; i >= 0; i++) {
+		for (int i = chars.length - 1; i >= 0; i++) {
 			if (chars[i] == ' ' || chars[i] == '\t') {
 			} else {
 				c = chars[i];
