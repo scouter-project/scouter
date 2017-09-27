@@ -70,6 +70,7 @@ import scouter.client.actions.OpenServerThreadListAction;
 import scouter.client.configuration.actions.AddAccountAction;
 import scouter.client.configuration.actions.EditAccountAction;
 import scouter.client.configuration.actions.ListAccountAction;
+import scouter.client.configuration.actions.OpenAlertScriptingAction;
 import scouter.client.configuration.actions.OpenGroupPolicyAction;
 import scouter.client.configuration.actions.OpenServerConfigureAction;
 import scouter.client.constants.MenuStr;
@@ -102,6 +103,8 @@ import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.MenuUtil;
 import scouter.client.util.ScouterUtil;
+import scouter.lang.Counter;
+import scouter.lang.Family;
 import scouter.lang.ObjectType;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.counters.CounterEngine;
@@ -117,6 +120,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -579,9 +583,37 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 				mgr.add(new Separator());
 				mgr.add(new OpenTotalSummaryAction(win, serverId));
 				mgr.add(new OpenAlertDetailListAction(win, serverId));
+
 				mgr.add(new Separator());
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
 					mgr.add(new OpenServerConfigureAction(win, MenuStr.CONFIGURE, Images.config, serverId));
+
+
+				MenuManager alertMenuManager = new MenuManager(MenuStr.ALERT_SCRIPTING, ImageUtil.getImageDescriptor(Images.alert), MenuStr.ALERT_SCRIPTING_ID);
+				mgr.add(alertMenuManager);
+				Map<String, Map<String, String>> alertMenuMap = new TreeMap<>();
+				for (AgentObject agentObject : AgentModelThread.getInstance().getObjectList()) {
+					ObjectType objectType = counterEngine.getObjectType(agentObject.getObjType());
+					if (objectType.isSubObject()) {
+						continue;
+					}
+					Family family = objectType.getFamily();
+					List<Counter> counterList = family.listCounters();
+					for (Counter counter : counterList) {
+						if(!counter.isAll()) continue;
+						Map<String, String> itemMap = new HashMap<>();
+						itemMap.put("familyName", family.getName());
+						itemMap.put("counterName", counter.getName());
+						itemMap.put("counterDisplayName", counter.getDisplayName());
+						alertMenuMap.put(family.getName() + ":" + counter.getName(), itemMap);
+					}
+				}
+				for (Map.Entry<String, Map<String, String>> entry : alertMenuMap.entrySet()) {
+					Map<String, String> entryValue = entry.getValue();
+					alertMenuManager.add(new OpenAlertScriptingAction(win, entry.getKey(), Images.alert, serverId,
+							entryValue.get("familyName"), entryValue.get("counterName"), entryValue.get("counterDisplayName")));
+				}
+
 				mgr.add(new OpenObjectDailyListAction(win, "Object Daily List", Images.GO_PAST, serverId));
 				mgr.add(new Separator());
 				MenuManager management = new MenuManager(MenuStr.MANAGEMENT, MenuStr.MANAGEMENT_ID);

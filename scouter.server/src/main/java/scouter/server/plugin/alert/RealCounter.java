@@ -21,6 +21,9 @@ package scouter.server.plugin.alert;
 import scouter.lang.AlertLevel;
 import scouter.lang.CounterKey;
 import scouter.lang.TimeTypeEnum;
+import scouter.lang.conf.ConfigDesc;
+import scouter.lang.conf.Internal;
+import scouter.lang.conf.ParamDesc;
 import scouter.lang.pack.ObjectPack;
 import scouter.lang.value.Value;
 import scouter.server.core.AgentManager;
@@ -29,9 +32,15 @@ import scouter.util.IntLongLinkedMap;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class RealCounter {
+	private static List<Desc> realCounterDesc;
+
 	public long lastCheckTime;
 
 	private Value _value;
@@ -54,15 +63,28 @@ public class RealCounter {
 		this._timetype = key.timetype;
 	}
 
+	@ConfigDesc("get current counter name.")
+	public String getCounter() {
+		return this._counter;
+	}
+
+	@Deprecated
 	public String counter() {
 		return this._counter;
 	}
 
+	@ConfigDesc("get current object hash value.")
+	public int getObjHash() {
+		return this._objHash;
+	}
+
+	@Deprecated
 	public int objHash() {
 		return this._objHash;
 	}
 
-	public String objName() {
+	@ConfigDesc("get current object name.")
+	public String getObjName() {
 		if (_objName != null)
 			return _objName;
 		ObjectPack a = AgentManager.getAgent(_objHash);
@@ -72,7 +94,13 @@ public class RealCounter {
 		return _objName;
 	}
 
-	public String objType() {
+	@Deprecated
+	public String objName() {
+		return getObjName();
+	}
+
+	@ConfigDesc("get current object type name.")
+	public String getObjType() {
 		ObjectPack a = AgentManager.getAgent(_objHash);
 		if (a == null)
 			return _objType;
@@ -82,35 +110,73 @@ public class RealCounter {
 		return _objType;
 	}
 
-	public void value(Value v) {
+	@Deprecated
+	public String objType() {
+		return getObjType();
+	}
+
+	@Internal
+	public void setValue(Value v) {
 		this._value = v;
 		this._time = System.currentTimeMillis();
 	}
 
-	public int intValue() {
+	@Deprecated
+	public void value(Value v) {
+		setValue(v);
+	}
+
+	@ConfigDesc("get value of current counter as int.")
+	public int getIntValue() {
 		if (_value instanceof Number)
 			return ((Number) _value).intValue();
 		else
 			return 0;
 	}
 
-	public float floatValue() {
+	@Deprecated
+	public int intValue() {
+		return getIntValue();
+	}
+
+	@ConfigDesc("get value of current counter as float.")
+	public float getFloatValue() {
 		if (_value instanceof Number)
 			return ((Number) _value).floatValue();
 		else
 			return 0;
 	}
 
-	public int historySize() {
+	@Deprecated
+	public float floatValue() {
+		return getFloatValue();
+	}
+
+	@ConfigDesc("get the history size of the counter.")
+	public int getHistorySize() {
 		return _history == null ? 0 : _history.size();
 	}
 
-	public int overCount(int value, int sec) {
-		return overCount((float) value, sec);
+	@Deprecated
+	public int historySize() {
+		return getHistorySize();
 	}
 
-	public int overCount(float value, int sec) {
-		if (historySize() == 0)
+	@ConfigDesc("get how many times exceed the given value of the counter.")
+	@ParamDesc("int value, int sec")
+	public int getOverCount(int value, int sec) {
+		return getOverCount((float) value, sec);
+	}
+
+	@Deprecated
+	public int overCount(int value, int sec) {
+		return getOverCount(value, sec);
+	}
+
+	@ConfigDesc("get how many times exceed the given value of the counter.")
+	@ParamDesc("float value, int sec")
+	public int getOverCount(float value, int sec) {
+		if (getHistorySize() == 0)
 			return 0;
 		long from = System.currentTimeMillis() - sec * 1000L;
 		int cnt = 0;
@@ -128,29 +194,42 @@ public class RealCounter {
 	}
 
 	@Deprecated
-	public int getAvgtoInt(int fromAgoSec, int durationSec) {
-		return (int)getAvg(fromAgoSec, durationSec);
+	public int overCount(float value, int sec) {
+		return getOverCount(value, sec);
 	}
 
+	@ConfigDesc("get average value of the counter in the given duration as int.")
+	@ParamDesc("int fromAgoSec, int durationSec")
 	public int getAvgToInt(int fromAgoSec, int durationSec) {
 		return (int)getAvg(fromAgoSec, durationSec);
 	}
 
+	@Deprecated
+	public int getAvgtoInt(int fromAgoSec, int durationSec) {
+		return getAvgToInt(fromAgoSec, durationSec);
+	}
+
+	@ConfigDesc("get latest average value of the counter in the given duration.")
+	@ParamDesc("int durationSec")
 	public float getLatestAvg(int durationSec) {
 		return getAvg(durationSec, durationSec);
 	}
 
-	@Deprecated
-	public int getLatestAvgtoInt(int durationSec) {
-		return (int)getLatestAvg(durationSec);
-	}
-
+	@ConfigDesc("get latest average value of the counter in the given duration as int.")
+	@ParamDesc("int durationSec")
 	public int getLatestAvgToInt(int durationSec) {
 		return (int)getLatestAvg(durationSec);
 	}
 
+	@Deprecated
+	public int getLatestAvgtoInt(int durationSec) {
+		return getLatestAvgToInt(durationSec);
+	}
+
+	@ConfigDesc("get average value of the counter in the given duration.")
+	@ParamDesc("int fromAgoSec, int durationSec")
 	public float getAvg(int fromAgoSec, int durationSec) {
-		if (historySize() == 0)
+		if (getHistorySize() == 0)
 			return 0;
 		long from = System.currentTimeMillis() - fromAgoSec * 1000L;
 		long to = from + durationSec * 1000L;
@@ -175,16 +254,23 @@ public class RealCounter {
 		return sum/cnt;
 	}
 
-	public long historyOldestTime() {
-		if (historySize() == 0)
+	@ConfigDesc("get oldest time of the counter's history.")
+	public long getHistoryOldestTime() {
+		if (getHistorySize() == 0)
 			return 0;
 		long tm = _history.getLastKey();
 		long now = System.currentTimeMillis();
 		return (now - tm) / 1000;
 	}
 
-	public int historyCount(int sec) {
-		if (historySize() == 0)
+	@Deprecated
+	public long historyOldestTime() {
+		return getHistoryOldestTime();
+	}
+
+	@ConfigDesc("get how many values (of the current counter) exist in the seconds.")
+	public int getHistoryCountInSec(int sec) {
+		if (getHistorySize() == 0)
 			return 0;
 		long from = System.currentTimeMillis() - sec * 1000L;
 		int cnt = 0;
@@ -198,12 +284,72 @@ public class RealCounter {
 		return cnt;
 	}
 
-	public static void main(String[] args) {
-		LongKeyLinkedMap<String> m = new LongKeyLinkedMap<String>();
-		m.putLast(10, "10");
-		m.putLast(20, "20");
+	@Deprecated
+	public int historyCount(int sec) {
+		return getHistoryCountInSec(sec);
 	}
 
+	@ConfigDesc("get the counter's value as float.")
+	@ParamDesc("String counter")
+	public float getFloatValue(String counter) {
+		Value v = CounterCache.get(new CounterKey(_objHash, counter, _timetype));
+		if (v instanceof Number)
+			return ((Number) v).floatValue();
+		else
+			return 0;
+	}
+
+	@Deprecated
+	public float floatValue(String counter) {
+		return getFloatValue(counter);
+	}
+
+	@ConfigDesc("get the counter's value as int.")
+	@ParamDesc("String counter")
+	public int getIntValue(String counter) {
+		Value v = CounterCache.get(new CounterKey(_objHash, counter, _timetype));
+		if (v instanceof Number)
+			return ((Number) v).intValue();
+		else
+			return 0;
+	}
+
+	@Deprecated
+	public int intValue(String counter) {
+		return getIntValue(counter);
+	}
+
+	@ConfigDesc("alert on info level.")
+	@ParamDesc("String title, String message")
+	public void info(String title, String message) {
+		AlertUtil.alert(AlertLevel.INFO, this, title, message);
+	}
+
+	@Deprecated
+	public void warning(String title, String message) {
+		AlertUtil.alert(AlertLevel.WARN, this, title, message);
+	}
+
+	@ConfigDesc("alert on warn level.")
+	@ParamDesc("String title, String message")
+	public void warn(String title, String message) {
+		AlertUtil.alert(AlertLevel.WARN, this, title, message);
+	}
+
+	@ConfigDesc("alert on error level.")
+	@ParamDesc("String title, String message")
+	public void error(String title, String message) {
+		AlertUtil.alert(AlertLevel.ERROR, this, title, message);
+	}
+
+	@ConfigDesc("alert on fatal level.")
+	@ParamDesc("String title, String message")
+	public void fatal(String title, String message) {
+		AlertUtil.alert(AlertLevel.FATAL, this, title, message);
+	}
+
+
+	@Internal
 	public void setAlertTime(byte level, long time) {
 		if (this._lastAlertTime == null) {
 			this._lastAlertTime = new IntLongLinkedMap().setMax(10);
@@ -211,6 +357,7 @@ public class RealCounter {
 		this._lastAlertTime.put(level, time);
 	}
 
+	@Internal
 	public void historySize(int size) {
 		if (size <= 0) {
 			this._history = null;
@@ -222,6 +369,7 @@ public class RealCounter {
 		}
 	}
 
+	@Internal
 	public void addValueHistory(Number value) {
 		if (this._history == null)
 			return;
@@ -229,49 +377,34 @@ public class RealCounter {
 		this._history.putFirst(time, value);
 	}
 
+	@Internal
 	public void silentTime(int sec) {
 		this._silentTime = sec;
 	}
 
+	@Internal
 	public int silentTime() {
 		return this._silentTime;
 	}
 
+	@Internal
 	public void checkTerm(int sec) {
 		this._checkTerm = sec;
 	}
 
+	@Internal
 	public int checkTerm() {
 		return this._checkTerm;
 	}
 
+	@Internal
 	public long lastAlertTime(int level) {
 		if (this._lastAlertTime == null)
 			return 0;
 		return this._lastAlertTime.get(level);
 	}
 
-	public void info(String title, String message) {
-		AlertUtil.alert(AlertLevel.INFO, this, title, message);
-	}
-
-	@Deprecated
-	public void warning(String title, String message) {
-		AlertUtil.alert(AlertLevel.WARN, this, title, message);
-	}
-
-	public void warn(String title, String message) {
-		AlertUtil.alert(AlertLevel.WARN, this, title, message);
-	}
-
-	public void error(String title, String message) {
-		AlertUtil.alert(AlertLevel.ERROR, this, title, message);
-	}
-
-	public void fatal(String title, String message) {
-		AlertUtil.alert(AlertLevel.FATAL, this, title, message);
-	}
-
+	@Internal
 	public String counterNames() {
 		Map m = CounterCache.getObjectCounters(_objHash, TimeTypeEnum.REALTIME);
 		if (m == null)
@@ -279,19 +412,52 @@ public class RealCounter {
 		return m.keySet().toString();
 	}
 
-	public float floatValue(String counter) {
-		Value v = CounterCache.get(new CounterKey(_objHash, counter, _timetype));
-		if (v instanceof Number)
-			return ((Number) v).floatValue();
-		else
-			return 0;
+	public static class Desc {
+		public String desc;
+		public String methodName;
+		public List<String> parameterTypeNames;
+		public String returnTypeName;
 	}
 
-	public int intValue(String counter) {
-		Value v = CounterCache.get(new CounterKey(_objHash, counter, _timetype));
-		if (v instanceof Number)
-			return ((Number) v).intValue();
-		else
-			return 0;
+	public static synchronized List<Desc> getRealCounterDescription() {
+		if (realCounterDesc != null) {
+			return realCounterDesc;
+		}
+		List<Desc> descList = new ArrayList<Desc>();
+		Method[] methods = RealCounter.class.getDeclaredMethods();
+		for (Method method : methods) {
+			int mod = method.getModifiers();
+			if (Modifier.isStatic(mod) == false && Modifier.isPublic(mod)) {
+				Deprecated deprecated = method.getAnnotation(Deprecated.class);
+				Internal internal = method.getAnnotation(Internal.class);
+				if (deprecated != null || internal != null) {
+					continue;
+				}
+
+				List<String> typeClassNameList = new ArrayList<String>();
+
+				Class<?>[] clazzes = method.getParameterTypes();
+				ParamDesc paramDesc = method.getAnnotation(ParamDesc.class);
+				if (paramDesc != null) {
+					typeClassNameList.add(paramDesc.value());
+				} else {
+					for (Class<?> clazz : clazzes) {
+						typeClassNameList.add(clazz.getName());
+					}
+				}
+				ConfigDesc configDesc = method.getAnnotation(ConfigDesc.class);
+
+				Desc desc = new Desc();
+				desc.methodName = method.getName();
+				desc.returnTypeName = method.getReturnType().getName();
+				if (configDesc != null) {
+					desc.desc = configDesc.value();
+				}
+				desc.parameterTypeNames = typeClassNameList;
+				descList.add(desc);
+			}
+		}
+		realCounterDesc = descList;
+		return realCounterDesc;
 	}
 }
