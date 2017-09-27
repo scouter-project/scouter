@@ -6,4 +6,5 @@ package scouter.client.constants;
 public class HelpConstants {
     public static final String HELP_URL_XLOG_VIEW = "https://github.com/scouter-project/scouter/blob/develop/scouter.document/views/XLog-View.md";
     public static final String HELP_URL_XLOG_PROFILE_VIEW = "https://github.com/scouter-project/scouter/blob/develop/scouter.document/views/XLog-Profile-View.md";
+    public static final String HELP_ALERT_SCRIPT = "https://github.com/scouter-project/scouter/blob/develop/scouter.document/main/Alert-Plugin-Guide.md";
 }

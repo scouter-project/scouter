@@ -35,6 +35,8 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
@@ -46,6 +48,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -55,6 +58,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
+import scouter.client.constants.HelpConstants;
 import scouter.client.net.TcpProxy;
 import scouter.client.sorter.ColumnLabelSorter;
 import scouter.client.util.ColorUtil;
@@ -79,6 +83,14 @@ import java.util.stream.Collectors;
 
 public class AlertScriptingView extends ViewPart {
 	private static final Font TERMINAL_FONT = JFaceResources.getFont(JFaceResources.TEXT_FONT);
+	private DefaultToolTip toolTip;
+
+	private static class ApiDesc {
+		String desc;
+		String methodName;
+		String returnTypeName;
+		String fullSignature;
+	}
 
 	private enum SaveResult {
 		NA, SUCCESS, FAIL
@@ -119,6 +131,11 @@ public class AlertScriptingView extends ViewPart {
 
 	private long consoleLoop = 0L;
 	private int consoleIndex = 0;
+
+	private TableColumnLayout tableColumnLayout;
+	private TableViewer viewer;
+	private Table table;
+	private Clipboard clipboard = new Clipboard(null);
 
 	private ArrayList<ColoringWord> configKeyword;
 
@@ -302,11 +319,6 @@ public class AlertScriptingView extends ViewPart {
 
 	}
 
-	private TableColumnLayout tableColumnLayout;
-	private TableViewer viewer;
-	private Table table;
-	private Clipboard clipboard = new Clipboard(null);
-
 	private void createApiDescForm(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
 		comp.setLayout(new GridLayout(1, true));
@@ -329,10 +341,47 @@ public class AlertScriptingView extends ViewPart {
 		table.setLinesVisible(true);
 		viewer.setContentProvider(new ArrayContentProvider());
 		viewer.setComparator(new ColumnLabelSorter(viewer));
-		final DefaultToolTip toolTip = new DefaultToolTip(table, DefaultToolTip.RECREATE, true);
+		toolTip = new DefaultToolTip(table, DefaultToolTip.RECREATE, true);
 		toolTip.setFont(new Font(null, "Arial", 11, SWT.BOLD));
 		toolTip.setBackgroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 
+		addApiDescTableListener();
+	}
+
+	private void addApiDescTableListener() {
+		addApiDescTableMouseListener();
+		addApiDescTableFocusListener();
+		addApiDescTableKeyListener();
+	}
+
+	private void addApiDescTableKeyListener() {
+		table.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				if(e.stateMask == SWT.CTRL || e.stateMask == SWT.COMMAND){
+					if (e.keyCode == 'c' || e.keyCode == 'C') {
+						StructuredSelection selection = (StructuredSelection)viewer.getSelection();
+						if(selection == null)
+							return;
+						ApiDesc apiObject = (ApiDesc)selection.getFirstElement();
+						if(apiObject != null){
+							clipboard.setContents(new Object[] {apiObject.fullSignature}, new Transfer[] {TextTransfer.getInstance()});
+						}
+					}
+				}
+			}
+		});
+	}
+
+	private void addApiDescTableFocusListener() {
+		table.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				toolTip.hide();
+			}
+		});
+	}
+
+	private void addApiDescTableMouseListener() {
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseDown(MouseEvent e) {
 				toolTip.hide();
@@ -354,22 +403,6 @@ public class AlertScriptingView extends ViewPart {
 				ApiDesc apiObject = (ApiDesc)selection.getFirstElement();
 				if(apiObject != null){
 					ruleText.insert(apiObject.fullSignature);
-				}
-			}
-		});
-
-		table.addKeyListener(new KeyAdapter() {
-			public void keyPressed(KeyEvent e) {
-				if(e.stateMask == SWT.CTRL || e.stateMask == SWT.COMMAND){
-					if (e.keyCode == 'c' || e.keyCode == 'C') {
-						StructuredSelection selection = (StructuredSelection)viewer.getSelection();
-						if(selection == null)
-							return;
-						ApiDesc apiObject = (ApiDesc)selection.getFirstElement();
-						if(apiObject != null){
-							clipboard.setContents(new Object[] {apiObject.fullSignature}, new Transfer[] {TextTransfer.getInstance()});
-						}
-					}
 				}
 			}
 		});
@@ -484,6 +517,13 @@ public class AlertScriptingView extends ViewPart {
 				saveContents();
 			}
 		});
+
+		toolBarManager.add(new Action("help", ImageUtil.getImageDescriptor(Images.help)) {
+			@Override
+			public void run() {
+				Program.launch(HelpConstants.HELP_ALERT_SCRIPT);
+			}
+		});
 	}
 
 	private MapPack getResultMapPack(final String requestCmd, final MapPack param) {
@@ -525,13 +565,6 @@ public class AlertScriptingView extends ViewPart {
 				});
 			}
 		});
-	}
-
-	private static class ApiDesc {
-		String desc;
-		String methodName;
-		String returnTypeName;
-		String fullSignature;
 	}
 
 	private void loadApiDesc() {
