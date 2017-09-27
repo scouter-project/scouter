@@ -23,6 +23,7 @@ import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.jdbc.PsUpdateCountMV;
+import scouter.agent.asm.jdbc.PsCloseMV;
 import scouter.agent.asm.jdbc.StExecuteMV;
 import scouter.agent.asm.jdbc.StInitMV;
 import scouter.agent.asm.util.HookingSet;
@@ -87,6 +88,8 @@ class StatementCV extends ClassVisitor implements Opcodes {
 			}
 		} else if ("getUpdateCount".equals(name) && "()I".equals(desc)) {
 			return new PsUpdateCountMV(mv);
+		}else if ("close".equals(name) && "()V".equals(desc)) {
+			return new PsCloseMV(mv);
 		}
 		return mv;
 	}
