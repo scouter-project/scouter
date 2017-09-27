@@ -25,8 +25,7 @@ import scouter.lang.pack.Pack
 import scouter.lang.pack.PackEnum
 import scouter.lang.pack.XLogPack
 import scouter.lang.pack.XLogProfilePack
-import scouter.lang.value.DecimalValue
-import scouter.lang.value.ListValue
+import scouter.lang.value._
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.net.RequestCmd
@@ -44,10 +43,11 @@ import scouter.util.IPUtil
 import scouter.util.IntSet
 import scouter.util.StrMatch
 import java.io.IOException
+
+import scouter.lang.constants.ParamConstant
 import scouter.server.db.TextRD
 import scouter.server.util.EnumerScala
 import sun.security.provider.certpath.ForwardBuilder
-import scouter.lang.value.Value
 import scouter.util.CastUtil
 
 class XLogService {
@@ -92,6 +92,12 @@ class XLogService {
         })
     }
 
+    /**
+      * get latest XLog data
+      * @param din MapPack{index, loop, objHash[]}
+      * @param dout {MapPack{loop, index}, XLogPack[]}
+      * @param login
+      */
     @ServiceHandler(RequestCmd.TRANX_REAL_TIME_GROUP)
     def getRealtimePerfGroup(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readMapPack();
@@ -129,6 +135,12 @@ class XLogService {
 
     }
 
+    /**
+      * get latest XLog data
+      * @param din MapPack{index, loop, count, objHash[]}
+      * @param dout {MapPack{loop, index}, XLogPack[]}
+      * @param login
+      */
     @ServiceHandler(RequestCmd.TRANX_REAL_TIME_GROUP_LATEST)
     def getRealtimePerfGroupLatestCount(din: DataInputX, dout: DataOutputX, login: Boolean) {
 
@@ -168,6 +180,12 @@ class XLogService {
 
     }
 
+    /**
+      * get past XLog data
+      * @param din MapPack{date, stime, etime, max, reverse, objHash[]}
+      * @param dout XLogPack[]
+      * @param login
+      */
     @ServiceHandler(RequestCmd.TRANX_LOAD_TIME_GROUP)
     def getHistoryPerfGroup(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readMapPack();
@@ -190,7 +208,6 @@ class XLogService {
 
         var cnt = 0;
         val handler = (time: Long, data: Array[Byte]) => {
-
             val x = new DataInputX(data).readPack().asInstanceOf[XLogPack];
             if (objHashSet.contains(x.objHash) && x.elapsed > limit) {
                 dout.writeByte(TcpFlag.HasNEXT);
@@ -208,6 +225,101 @@ class XLogService {
         } else {
             XLogRD.readByTime(date, stime, etime, handler);
         }
+    }
+
+    /**
+      * get past XLog data by time & object
+      *
+      * date - String: yyyymmdd
+      * stime - long: scan start time (ms)
+      * etime - long: scan end time (ms)
+      * pageCount - xlog count to get a time
+      * lastBucketTime - from previous paging result
+      * txid - (last xlog txid) from previous paging result
+      * objHash[] - object hashes to retrieve xlog
+      * @param din MapPack{date, stime, etime, pageCount, lastBucketTime, txid, objHash[]}
+      * @param dout XLogPack[]
+      * @param login
+      */
+    @ServiceHandler(RequestCmd.TRANX_LOAD_TIME_GROUP_V2)
+    def getHistoryPerfGroupV2(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack()
+        val date = param.getText(ParamConstant.DATE)
+        val stime = param.getLong(ParamConstant.XLOG_START_TIME)
+        val etime = param.getLong(ParamConstant.XLOG_END_TIME)
+        val lastBucketTime = param.getLong(ParamConstant.XLOG_LAST_BUCKET_TIME)
+        val txid = param.getLong(ParamConstant.XLOG_TXID)
+        val limitCount = param.getInt(ParamConstant.XLOG_PAGE_COUNT)
+        val objHashLv = param.getList(ParamConstant.OBJ_HASH)
+
+        if (objHashLv == null || objHashLv.size() < 1) {
+            writeHistoryPerfGroupV2MetaPack(dout, false, 0, 0)
+            return
+        }
+        if((txid == 0 && lastBucketTime != 0) || (txid != 0 && lastBucketTime == 0)) {
+            writeHistoryPerfGroupV2MetaPack(dout, false, 0, 0)
+            return
+        }
+        if(limitCount == 0) {
+            writeHistoryPerfGroupV2MetaPack(dout, false, 0, 0)
+            return
+        }
+
+        val objHashSet = new IntSet()
+        EnumerScala.foreach(objHashLv, (obj: DecimalValue) => {
+            objHashSet.add(obj.intValue())
+        })
+
+        var lastTime = 0L
+        var lastData: XLogPack = null
+        var count: Int = 0;
+
+        var start = true
+        if(txid != 0L) {
+            start = false
+        }
+
+        var hasMore = false
+
+        val handler = (time: Long, data: Array[Byte]) =>  {
+            val xLog = new DataInputX(data).readPack().asInstanceOf[XLogPack]
+            if(!start) {
+                if(xLog.txid == txid) {
+                    start = true
+                }
+            } else {
+                if (objHashSet.contains(xLog.objHash)) {
+                    if(count < limitCount) {
+                        dout.writeByte(TcpFlag.HasNEXT)
+                        dout.write(data)
+                        dout.flush()
+                        lastTime = time
+                        lastData = xLog
+                    } else {
+                        hasMore = true
+                    }
+                    count += 1
+                }
+            }
+            count
+        }
+        XLogRD.readByTimeLimitCount(date, stime, etime, lastBucketTime, limitCount, handler)
+
+        if(lastTime > 0L) {
+            writeHistoryPerfGroupV2MetaPack(dout, hasMore, lastTime, lastData.txid)
+        } else {
+            writeHistoryPerfGroupV2MetaPack(dout, false, 0, 0)
+        }
+    }
+
+    def writeHistoryPerfGroupV2MetaPack(dout: DataOutputX, hasMore: Boolean, lastTime: Long, lastTxid: Long): Unit = {
+        val metaPack = new MapPack();
+        metaPack.put(ParamConstant.XLOG_RESULT_HAS_MORE, new BooleanValue(hasMore))
+        metaPack.put(ParamConstant.XLOG_RESULT_LAST_TIME, new DecimalValue(lastTime))
+        metaPack.put(ParamConstant.XLOG_RESULT_LAST_TXID, new DecimalValue(lastTxid))
+
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writePack(metaPack)
     }
 
     @ServiceHandler(RequestCmd.XLOG_READ_BY_GXID)
@@ -328,6 +440,9 @@ class XLogService {
         val desc = param.getText("desc");
         val text1 = param.getText("text1");
         val text2 = param.getText("text2");
+        val text3 = param.getText("text3");
+        val text4 = param.getText("text4");
+        val text5 = param.getText("text5");
 
         val serviceMatch = if (service == null) null else new StrMatch(service);
         val ipMatch = if (ip == null) null else new StrMatch(ip);
@@ -335,6 +450,9 @@ class XLogService {
         val descMatch = if (desc == null) null else new StrMatch(desc);
         val text1Match = if (text1 == null) null else new StrMatch(text1);
         val text2Match = if (text2 == null) null else new StrMatch(text2);
+        val text3Match = if (text3 == null) null else new StrMatch(text3);
+        val text4Match = if (text4 == null) null else new StrMatch(text4);
+        val text5Match = if (text5 == null) null else new StrMatch(text5);
 
         val date = DateUtil.yyyymmdd(stime);
         val date2 = DateUtil.yyyymmdd(etime);
@@ -392,6 +510,27 @@ class XLogService {
             if (text2Match != null) {
                 var text2Name = x.text2;
                 if (text2Match.include(text2Name) == false) {
+                    ok = false;
+                }
+            }
+
+            if (text3Match != null) {
+                var text3Name = x.text3;
+                if (text3Match.include(text3Name) == false) {
+                    ok = false;
+                }
+            }
+
+            if (text4Match != null) {
+                var text4Name = x.text4;
+                if (text4Match.include(text4Name) == false) {
+                    ok = false;
+                }
+            }
+
+            if (text5Match != null) {
+                var text5Name = x.text5;
+                if (text5Match.include(text5Name) == false) {
                     ok = false;
                 }
             }

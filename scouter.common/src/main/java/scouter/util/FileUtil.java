@@ -146,6 +146,23 @@ public class FileUtil {
 		close(out);
 	}
 
+	public static boolean saveText(File file, String contents) {
+		OutputStream out = null;
+		try {
+			if (file.getParentFile().exists() == false) {
+				file.getParentFile().mkdirs();
+			}
+			out = new FileOutputStream(file);
+			out.write(contents.getBytes());
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			FileUtil.close(out);
+		}
+		return false;
+	}
+
 	public static byte[] readAll(File file) {
 		FileInputStream in = null;
 		try {

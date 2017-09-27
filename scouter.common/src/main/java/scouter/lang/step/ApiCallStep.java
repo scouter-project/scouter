@@ -17,11 +17,10 @@
 
 package scouter.lang.step;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
-import scouter.lang.value.Value;
+
+import java.io.IOException;
 
 public class ApiCallStep extends StepSingle {
 
@@ -34,8 +33,37 @@ public class ApiCallStep extends StepSingle {
 	transient public byte opt;
 	public String address;
 
+	@Override
 	public byte getStepType() {
 		return StepEnum.APICALL;
+	}
+
+	public long getTxid() {
+		return txid;
+	}
+
+	public int getHash() {
+		return hash;
+	}
+
+	public int getElapsed() {
+		return elapsed;
+	}
+
+	public int getCputime() {
+		return cputime;
+	}
+
+	public int getError() {
+		return error;
+	}
+
+	public byte getOpt() {
+		return opt;
+	}
+
+	public String getAddress() {
+		return address;
 	}
 
 	public void write(DataOutputX out) throws IOException {

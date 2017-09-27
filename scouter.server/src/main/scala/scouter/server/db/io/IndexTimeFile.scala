@@ -23,6 +23,7 @@ package scouter.server.db.io
 import java.io.IOException
 import java.util.ArrayList
 import java.util.TreeSet
+
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.server.Logger
@@ -31,6 +32,8 @@ import scouter.util.BytesUtil
 import scouter.util.CompareUtil
 import scouter.util.DateUtil
 import scouter.util.IClose
+
+import scala.collection.mutable.ListBuffer
 
 /**
   * timestamp(long) based index file
@@ -67,6 +70,23 @@ class IndexTimeFile(_path: String) extends IClose {
             pos = this.keyFile.getPrevPos(pos);
         }
         return new ArrayList[TimeToData](set);
+    }
+
+    private def getSecAllV2(time: Long): List[TimeToData] = {
+        if (time <= 0) {
+            throw new IOException("invalid key")
+        }
+        var buffer = new ListBuffer[TimeToData]()
+        var pos = timeBlockHash.get(time)
+        while (pos > 0) {
+            if (this.keyFile.isDeleted(pos) == false) {
+                val record = this.keyFile.getRecord(pos)
+                buffer += new TimeToData(DataInputX.toLong(record.timeKey, 0), record.dataPos)
+            }
+            pos = this.keyFile.getPrevPos(pos)
+        }
+
+        return buffer.toList
     }
 
     private def getDataPosFirst(_stime: Long, _etime: Long): Array[Byte] = {
@@ -210,6 +230,36 @@ class IndexTimeFile(_path: String) extends IClose {
 
             i += 1
             stime += 500L
+        }
+    }
+
+    /**
+      * read xlog index and invoke a data handler received.
+      * @param stime
+      * @param etime
+      * @param limitCount
+      * @param handler
+      * @param reader
+      * @return time last searched
+      */
+    def readByLimitCount(stime: Long, etime: Long, lastBucketTime: Long, limitCount: Int, handler: (Long, Array[Byte]) => Int, reader: (Long) => Array[Byte]) {
+        if (this.keyFile == null)
+            return
+
+        var timeBucketTime = if(lastBucketTime != 0) lastBucketTime else stime
+        var counted = 0
+        var timeBucketCount = 0
+
+        while (timeBucketCount < DateUtil.SECONDS_PER_DAY * 2 && timeBucketTime <= etime) {
+            getSecAllV2(timeBucketTime).filter(tv => tv.time >= stime && tv.time <= etime).foreach(tv => {
+                if(counted > limitCount) {
+                    return
+                }
+                counted = handler(timeBucketTime, reader(DataInputX.toLong5(tv.dataPos, 0)))
+            })
+
+            timeBucketCount += 1
+            timeBucketTime += 500L
         }
     }
 

@@ -37,6 +37,34 @@ public class DispatchStep extends StepSingle {
 		return StepEnum.DISPATCH;
 	}
 
+	public long getTxid() {
+		return txid;
+	}
+
+	public int getHash() {
+		return hash;
+	}
+
+	public int getElapsed() {
+		return elapsed;
+	}
+
+	public int getCputime() {
+		return cputime;
+	}
+
+	public int getError() {
+		return error;
+	}
+
+	public byte getOpt() {
+		return opt;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
 	public void write(DataOutputX out) throws IOException {
 		super.write(out);
 

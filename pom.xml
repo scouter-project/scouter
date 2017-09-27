@@ -4,7 +4,7 @@
 
     <groupId>io.github.scouter-project</groupId>
     <artifactId>scouter-parent</artifactId>
-    <version>1.7.3.2</version>
+    <version>1.7.4.SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>SCOUTER APM</name>
@@ -15,6 +15,7 @@
 
     <modules>
         <module>scouter.common</module>
+        <module>scouter.webapp</module>
         <module>scouter.server.boot</module>
         <module>scouter.server</module>
         <module>scouter.agent.host</module>
@@ -27,10 +28,15 @@
         <scouter.agent.java.assembly.name>scouter-java-agent-assembly</scouter.agent.java.assembly.name>
         <scouter.agent.batch.assembly.name>scouter-batch-agent-assembly</scouter.agent.batch.assembly.name>
         <scouter.server.assembly.name>scouter-server-assembly</scouter.server.assembly.name>
+        <scouter.webapp.assembly.name>scouter-webapp-assembly</scouter.webapp.assembly.name>
 
         <scouter.whole.packaging.prepare.dir>${project.basedir}/../target/whole-pack-working</scouter.whole.packaging.prepare.dir>
         <scouter.product.name>scouter-all-${project.version}</scouter.product.name>
 
+        <jetty.version>9.4.6.v20170531</jetty.version>
+        <jersey.version>2.25.1</jersey.version>
+        <slf4j.version>1.7.25</slf4j.version>
+        <logback.version>1.2.3</logback.version>
     </properties>
 
     <repositories>

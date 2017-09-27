@@ -44,10 +44,11 @@ object TextCache {
     private def getMap(div: String): IntKeyLinkedMap[String] = {
         var map = cache.get(div);
         if (map == null) {
-            if (TextTypes.SERVICE.equals(div) || TextTypes.APICALL.equals(div) || TextTypes.SQL.equals(div)) {
-                map = new IntKeyLinkedMap().setMax(10000);
+            if (TextTypes.SERVICE.equals(div) || TextTypes.APICALL.equals(div)
+                    || TextTypes.SQL.equals(div) || TextTypes.USER_AGENT.equals(div)) {
+                map = new IntKeyLinkedMap().setMax(20000);
             } else {
-                map = new IntKeyLinkedMap().setMax(1000);
+                map = new IntKeyLinkedMap().setMax(2000);
             }
             cache.put(div, map);
         }

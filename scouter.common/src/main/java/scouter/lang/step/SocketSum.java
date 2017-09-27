@@ -17,10 +17,10 @@
 
 package scouter.lang.step;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+
+import java.io.IOException;
 
 public class SocketSum extends StepSummary {
 
@@ -47,6 +47,26 @@ public class SocketSum extends StepSummary {
 
 	public byte getStepType() {
 		return StepEnum.SOCKET_SUM;
+	}
+
+	public byte[] getIpaddr() {
+		return ipaddr;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public long getElapsed() {
+		return elapsed;
+	}
+
+	public int getError() {
+		return error;
 	}
 
 	public void write(DataOutputX out) throws IOException {

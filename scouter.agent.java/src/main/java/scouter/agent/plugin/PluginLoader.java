@@ -23,6 +23,7 @@ import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.HookReturn;
 import scouter.agent.trace.TraceSQL;
 import scouter.javassist.*;
+import scouter.lang.pack.PerfCounterPack;
 import scouter.util.FileUtil;
 import scouter.util.Hexa32;
 import scouter.util.StringUtil;
@@ -121,6 +122,15 @@ public class PluginLoader extends Thread {
 				PluginHttpCallTrace.plugIn = createIHttpCall(script);
 			}
 		}
+        script = new File(root, "counter.plug");
+        if (script.canRead() == false) {
+            PluginCounter.plugIn = null;
+        } else {
+            if (PluginCounter.plugIn == null
+                    || PluginCounter.plugIn.lastModified != script.lastModified()) {
+                PluginCounter.plugIn = createCounter(script);
+            }
+        }
 	}
 	private long IHttpServiceCompile;
 	private AbstractHttpService createHttpService(File script) {
@@ -130,7 +140,7 @@ public class PluginLoader extends Thread {
 		try {
 			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
 			String superName = AbstractHttpService.class.getName();
-			String className = "scouter.agent.plugin.impl.HttpServiceImpl";
+			String className = "scouter.agent.plugIn.impl.HttpServiceImpl";
 			String METHOD_START = "start";
 			String METHOD_END = "end";
 			String METHOD_REJECT = "reject";
@@ -240,7 +250,7 @@ public class PluginLoader extends Thread {
 		try {
 			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
 			String superName = AbstractAppService.class.getName();
-			String className = "scouter.agent.plugin.impl.ServiceTraceImpl";
+			String className = "scouter.agent.plugIn.impl.ServiceTraceImpl";
 			String START = "start";
 			String START_SIG = "(" + nativeName(WrContext.class) + nativeName(HookArgs.class) + ")V";
 			String START_P1 = WrContext.class.getName();
@@ -324,7 +334,7 @@ public class PluginLoader extends Thread {
 		try {
 			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
 			String superName = AbstractCapture.class.getName();
-			String className = "scouter.agent.plugin.impl.CaptureImpl";
+			String className = "scouter.agent.plugIn.impl.CaptureImpl";
 			String ARG = "capArgs";
 			String ARG_SIG = "(" + nativeName(WrContext.class) + nativeName(HookArgs.class) + ")V";
 			String ARG_P1 = WrContext.class.getName();
@@ -437,7 +447,7 @@ public class PluginLoader extends Thread {
 		try {
 			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
 			String superName = AbstractJdbcPool.class.getName();
-			String className = "scouter.agent.plugin.impl.JdbcPoolImpl";
+			String className = "scouter.agent.plugIn.impl.JdbcPoolImpl";
 			String URL = "url";
 			String URL_SIG = "(" + nativeName(WrContext.class) + nativeName(String.class) + nativeName(Object.class)
 					+ ")" + nativeName(String.class);
@@ -498,7 +508,7 @@ public class PluginLoader extends Thread {
 		try {
 			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
 			String superName = AbstractHttpCall.class.getName();
-			String className = "scouter.agent.plugin.impl.IHttCallTraceImpl";
+			String className = "scouter.agent.plugIn.impl.IHttCallTraceImpl";
 			String CALL = "call";
 			String CALL_SIG = "(" + nativeName(WrContext.class) + nativeName(WrHttpCallRequest.class) + ")V";
 			String CALL_P1 = WrContext.class.getName();
@@ -550,6 +560,58 @@ public class PluginLoader extends Thread {
 		}
 		return null;
 	}
+    private long ICounterCompile;
+    private AbstractCounter createCounter(File script) {
+        if (ICounterCompile == script.lastModified())
+            return null;
+        ICounterCompile = script.lastModified();
+        try {
+            HashMap<String, StringBuffer> bodyTable = loadFileText(script);
+            String superName = AbstractCounter.class.getName();
+            String className = "scouter.agent.plugIn.impl.CounterImpl";
+            String METHOD_COUNTER = "counter";
+            String METHOD_SIGNATURE = "(" + nativeName(PerfCounterPack.class) +")V";
+            String METHOD_P1 = PerfCounterPack.class.getName();
+            if (bodyTable.containsKey(METHOD_COUNTER) == false)
+                throw new CannotCompileException("no method body: " + METHOD_COUNTER);
+            ClassPool cp = ClassPool.getDefault();
+            String jar = FileUtil.getJarFileName(PluginLoader.class);
+            if (jar != null) {
+                cp.appendClassPath(jar);
+            }
+            CtClass cc = cp.get(superName);
+            CtClass impl = null;
+            CtMethod method_counter = null;
+            try {
+                impl = cp.get(className);
+                impl.defrost();
+                method_counter = impl.getMethod(METHOD_COUNTER, METHOD_SIGNATURE);
+            } catch (NotFoundException e) {
+                impl = cp.makeClass(className, cc);
+                StringBuffer sb = new StringBuffer();
+                sb.append("public void ").append(METHOD_COUNTER).append("(").append(METHOD_P1).append(" p1){}");
+                method_counter = CtNewMethod.make(sb.toString(), impl);
+                impl.addMethod(method_counter);
+            }
+            StringBuffer body = new StringBuffer();
+            body.append("{");
+            body.append(METHOD_P1).append(" $pack=$1;");
+            body.append(bodyTable.get(METHOD_COUNTER));
+            body.append("\n}");
+            method_counter.setBody(body.toString());
+            Class c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+            AbstractCounter plugin = (AbstractCounter) c.newInstance();
+            plugin.lastModified = script.lastModified();
+            Logger.println("PLUG-IN : " + AbstractCounter.class.getName() + " " + script.getName() + " loaded #"
+                    + Hexa32.toString32(plugin.hashCode()));
+            return plugin;
+        } catch (CannotCompileException ee) {
+            Logger.println("PLUG-IN : " + ee.getMessage());
+        } catch (Throwable e) {
+            Logger.println("A161", e);
+        }
+        return null;
+    }
 	private String nativeName(Class class1) {
 		return "L" + class1.getName().replace('.', '/') + ";";
 	}

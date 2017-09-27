@@ -74,6 +74,12 @@ class AgentInfo {
         dout.writePack(mpack);
     }
 
+    /**
+      * OBJECT_LIST_REAL_TIME
+      * @param din none
+      * @param dout ObjectPack[]
+      * @param login
+      */
     @ServiceHandler(RequestCmd.OBJECT_LIST_REAL_TIME)
     def agentList(din: DataInputX, dout: DataOutputX, login: Boolean) {
 

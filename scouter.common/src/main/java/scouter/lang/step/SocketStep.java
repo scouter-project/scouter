@@ -18,13 +18,13 @@
 package scouter.lang.step;
 
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.util.BitUtil;
 import scouter.util.HashUtil;
 import scouter.util.IPUtil;
+
+import java.io.IOException;
 
 
 public class SocketStep extends StepSingle {
@@ -43,6 +43,23 @@ public class SocketStep extends StepSingle {
 	public byte getStepType() {
 		return StepEnum.SOCKET;
 	}
+
+	public byte[] getIpaddr() {
+		return ipaddr;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public int getElapsed() {
+		return elapsed;
+	}
+
+	public int getError() {
+		return error;
+	}
+
 	public String toString() {
 		return IPUtil.toString(ipaddr) +":" +port;
 	}

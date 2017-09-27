@@ -16,10 +16,10 @@
 
 package scouter.lang.step;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+
+import java.io.IOException;
 
 public class SqlStep2 extends SqlStep {
 
@@ -27,6 +27,17 @@ public class SqlStep2 extends SqlStep {
 
 	public byte getStepType() {
 		return StepEnum.SQL2;
+	}
+
+	public byte getXtype() {
+		return xtype;
+	}
+
+	/**
+	 * for web app client (json parsing)
+	 */
+	public String getXtypePrefix() {
+		return SqlXType.toString(xtype);
 	}
 
 	public void write(DataOutputX out) throws IOException {

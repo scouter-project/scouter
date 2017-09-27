@@ -17,8 +17,7 @@
 
 package scouter.lang.step;
 
-import java.io.IOException;
-
+import scouter.lang.TextTypes;
 
 public class StepEnum {
 	public final static byte METHOD = 1;
@@ -30,7 +29,7 @@ public class StepEnum {
 	public final static byte SOCKET = 5;
 	public final static byte APICALL = 6;
 	public final static byte APICALL2 = 15;
-	public static final byte THREAD_SUBMIT = 7;
+	public final static byte THREAD_SUBMIT = 7;
 	public final static byte HASHED_MESSAGE = 9;
 	public final static byte PARAMETERIZED_MESSAGE = 17;
 	public final static byte DUMP = 12;
@@ -40,62 +39,86 @@ public class StepEnum {
 	public final static byte METHOD_SUM = 11;
 	public final static byte SQL_SUM = 21;
 	public final static byte MESSAGE_SUM = 31;
-	public static final byte SOCKET_SUM = 42;
-	public static final byte APICALL_SUM = 43;
+	public final static byte SOCKET_SUM = 42;
+	public final static byte APICALL_SUM = 43;
 	public final static byte CONTROL = 99;
 
+	public enum Type {
+		METHOD(StepEnum.METHOD, MethodStep.class, TextTypes.METHOD),
+		METHOD2(StepEnum.METHOD2, MethodStep2.class, TextTypes.METHOD),
+		SQL(StepEnum.SQL, SqlStep.class, TextTypes.SQL),
+		SQL2(StepEnum.SQL2, SqlStep2.class, TextTypes.SQL),
+		SQL3(StepEnum.SQL3, SqlStep3.class, TextTypes.SQL),
+		MESSAGE(StepEnum.MESSAGE, MessageStep.class, null),
+		SOCKET(StepEnum.SOCKET, SocketStep.class, null),
+		APICALL(StepEnum.APICALL, ApiCallStep.class, TextTypes.APICALL),
+		APICALL2(StepEnum.APICALL2, ApiCallStep2.class, TextTypes.APICALL),
+		THREAD_SUBMIT(StepEnum.THREAD_SUBMIT, ThreadSubmitStep.class, TextTypes.APICALL),
+		HASHED_MESSAGE(StepEnum.HASHED_MESSAGE, HashedMessageStep.class, TextTypes.HASH_MSG),
+		PARAMETERIZED_MESSAGE(StepEnum.PARAMETERIZED_MESSAGE, ParameterizedMessageStep.class, TextTypes.HASH_MSG),
+		DUMP(StepEnum.DUMP, DumpStep.class, null),
+		DISPATCH(StepEnum.DISPATCH, DispatchStep.class, TextTypes.APICALL),
+		THREAD_CALL_POSSIBLE(StepEnum.THREAD_CALL_POSSIBLE, ThreadCallPossibleStep.class, TextTypes.APICALL),
+		METHOD_SUM(StepEnum.METHOD_SUM, MethodSum.class, TextTypes.METHOD),
+		SQL_SUM(StepEnum.SQL_SUM, SqlSum.class, TextTypes.SQL),
+		MESSAGE_SUM(StepEnum.MESSAGE_SUM, MessageSum.class, null),
+		SOCKET_SUM(StepEnum.SOCKET_SUM, SocketSum.class, null),
+		APICALL_SUM(StepEnum.APICALL_SUM, ApiCallSum.class, TextTypes.APICALL),
+		CONTROL(StepEnum.CONTROL, StepControl.class, null),
+		;
 
-	public static Step create(byte type) throws IOException {
-		switch (type) {
-		case MESSAGE:
-			return new MessageStep();
-		case METHOD:
-			return new MethodStep();
-		case METHOD2:
-			return new MethodStep2();
-		case SQL:
-			return new SqlStep();
-		case SQL2:
-			return new SqlStep2();
-		case SQL3:
-			return new SqlStep3();
-		case SOCKET:
-			return new SocketStep();
-		case APICALL:
-			return new ApiCallStep();
-		case APICALL2:
-			return new ApiCallStep2();
-		case THREAD_SUBMIT:
-			return new ThreadSubmitStep();
-		case HASHED_MESSAGE:
-			return new HashedMessageStep();
-		case PARAMETERIZED_MESSAGE:
-			return new ParameterizedMessageStep();
-		case DUMP:
-			return new DumpStep();
-		case DISPATCH:
-			return new DispatchStep();
-		case THREAD_CALL_POSSIBLE:
-			return new ThreadCallPossibleStep();
-		case MESSAGE_SUM:
-			return new MessageSum();
-		case METHOD_SUM:
-			return new MethodSum();
-		case SQL_SUM:
-			return new SqlSum();
-		case SOCKET_SUM:
-			return new SocketSum();	
-		case APICALL_SUM:
-			return new ApiCallSum();	
+		byte code;
+		Class<? extends Step> clazz;
+		String associatedMainTextTypeName;
 
-		case CONTROL:
-			return new StepControl();	
-		default:
-			throw new RuntimeException("unknown profile type=" + type);
+		Type(byte code, Class<? extends Step> clazz, String textType) {
+			this.code = code;
+			this.clazz = clazz;
+			this.associatedMainTextTypeName = textType;
+		}
+
+		public static Type of(String name) {
+			for(Type t : Type.values()) {
+				if (t.name().equals(name)) {
+					return t;
+				}
+			}
+			throw new RuntimeException("unknown profile type=" + name);
+		}
+
+		public static Type of(byte code) {
+			for(Type t : Type.values()) {
+				if (t.code == code) {
+					return t;
+				}
+			}
+			throw new RuntimeException("unknown profile type=" + code);
+		}
+
+		public Step create() throws IllegalAccessException, InstantiationException {
+			return this.clazz.newInstance();
+		}
+
+		public byte getCode() {
+			return this.code;
+		}
+
+		public Class<? extends Step> getClazz() {
+			return this.clazz;
+		}
+
+		public String getAssociatedMainTextTypeName() {
+			return associatedMainTextTypeName;
 		}
 	}
 
-	public static void main(String[] args) {
-	    System.out.println(SQL);
-    }
+	public static Step create(byte type) {
+		try {
+			return Type.of(type).create();
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
 }

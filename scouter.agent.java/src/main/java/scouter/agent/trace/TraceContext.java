@@ -108,6 +108,9 @@ public class TraceContext {
 
 	public String text1;
 	public String text2;
+	public String text3;
+	public String text4;
+	public String text5;
 
 	@Deprecated
 	public String web_name;
