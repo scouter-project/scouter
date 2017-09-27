@@ -20,14 +20,14 @@ package scouter.server.netio.service.handle
 
 import scouter.io.{DataInputX, DataOutputX}
 import scouter.lang.pack.MapPack
-import scouter.lang.value.{DecimalValue, ListValue}
+import scouter.lang.value.{DecimalValue, ListValue, MapValue}
 import scouter.net.{RequestCmd, TcpFlag}
-import scouter.server.Configure
 import scouter.server.core.cache.{AlertScriptLoadMessageCache, XLogCache}
 import scouter.server.netio.service.anotation.ServiceHandler
-import scouter.server.plugin.alert.AlertRuleLoader
+import scouter.server.plugin.PluginHelper
+import scouter.server.plugin.alert.RealCounter.Desc
+import scouter.server.plugin.alert.{AlertRuleLoader, RealCounter}
 import scouter.server.util.EnumerScala
-import scouter.util.IntSet
 
 /**
   * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 24.
@@ -101,4 +101,43 @@ class AlertScriptingService {
             dout.writePack(metaPack)
         }
     }
+
+    @ServiceHandler(RequestCmd.GET_ALERT_REAL_COUNTER_DESC)
+    def getRealCounterDesc(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val descList = RealCounter.getRealCounterDescription
+
+        EnumerScala.forward(descList, (desc: RealCounter.Desc) => {
+            val mapPack = new MapPack()
+            mapPack.put("desc", desc.desc)
+            mapPack.put("methodName", desc.methodName)
+            mapPack.put("returnTypeName", desc.returnTypeName)
+            val listValue = new ListValue()
+            EnumerScala.forward(desc.parameterTypeNames, (name: String) => {
+                listValue.add(name);
+            })
+            mapPack.put("parameterTypeNames", listValue)
+            dout.writeByte(TcpFlag.HasNEXT)
+            dout.writePack(mapPack)
+        })
+    }
+
+    @ServiceHandler(RequestCmd.GET_PLUGIN_HELPER_DESC)
+    def getPluginHelperDesc(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val descList = PluginHelper.getPluginHelperDesc
+
+        EnumerScala.forward(descList, (desc: PluginHelper.Desc) => {
+            val mapPack = new MapPack()
+            mapPack.put("desc", desc.desc)
+            mapPack.put("methodName", desc.methodName)
+            mapPack.put("returnTypeName", desc.returnTypeName)
+            val listValue = new ListValue()
+            EnumerScala.forward(desc.parameterTypeNames, (name: String) => {
+                listValue.add(name);
+            })
+            mapPack.put("parameterTypeNames", listValue)
+            dout.writeByte(TcpFlag.HasNEXT)
+            dout.writePack(mapPack)
+        })
+    }
+
 }

@@ -176,6 +176,9 @@ public class RequestCmd {
 	public static final String SAVE_ALERT_SCRIPTING_CONTETNS = "SAVE_ALERT_SCRIPTING_CONTETNS";
 	public static final String SAVE_ALERT_SCRIPTING_CONFIG_CONTETNS = "SAVE_ALERT_SCRIPTING_CONFIG_CONTETNS";
 	public static final String GET_ALERT_SCRIPT_LOAD_MESSAGE = "GET_ALERT_SCRIPT_LOAD_MESSAGE";
+	public static final String GET_ALERT_REAL_COUNTER_DESC = "GET_ALERT_REAL_COUNTER_DESC";
+
+	public static final String GET_PLUGIN_HELPER_DESC = "GET_PLUGIN_HELPER_DESC";
 
 	public static final String GET_XML_COUNTER = "GET_XML_COUNTER";
 
