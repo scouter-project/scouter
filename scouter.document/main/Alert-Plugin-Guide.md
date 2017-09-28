@@ -4,7 +4,7 @@
 We can build our own alarm rules by handling alert scripting plugins which are able to compose various performance metrics.
 
 ## How to
-Alert script file is can be edited from scouter client ui or directly in scouter server.
+Alert script file can be edited from scouter client ui or directly in scouter server.
 
 ### A. scripting in scouter client UI.
  1. open the alert scripting view in the context menu of a server in the object view.
