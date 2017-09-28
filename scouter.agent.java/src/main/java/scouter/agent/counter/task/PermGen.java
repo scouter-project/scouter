@@ -47,13 +47,17 @@ public class PermGen {
 					if (bean.getName().toUpperCase().contains("PERM GEN")) {
 						permGenBean = bean;
 						break;
+					} else if(bean.getName().toUpperCase().contains("METASPACE")) {
+						permGenBean = bean;
+						break;
 					}
 				}
 			} catch (Throwable th) {
 			}
 		}
-		if (permGenBean == null)
+		if (permGenBean == null) {
 			return;
+		}
 		MemoryUsage usage = permGenBean.getUsage();
 		long used = usage.getUsed();
 		meter.add(used);
@@ -62,16 +66,20 @@ public class PermGen {
 
 		PerfCounterPack p = pw.getPack(TimeTypeEnum.REALTIME);
 		p.put(CounterConstants.JAVA_PERM_USED, new FloatValue(usedM));
-		p.put(CounterConstants.JAVA_PERM_PERCENT, new FloatValue(usedM * 100 / max));
-
-		Configure conf = Configure.getInstance();
-		float rate = used * 100 / usage.getMax();
-
-		// /////////////////////////////////////////////////
-		// PermGen Warning 
-		if (rate >= conf.alert_perm_warning_pct) {
-			AlertProxy.sendAlert(AlertLevel.WARN, "WARNING_MEMORY_HIGH", "warning perm usage used="
-					+ (used / 1024 / 1024) + "MB rate=" + rate + "%");
+		
+		//metaspace의 경우 설정값을 지정했을 경우에만 사용률(%) 수집 및 경고 발생
+		if(usage.getMax() != -1) { 
+			p.put(CounterConstants.JAVA_PERM_PERCENT, new FloatValue(usedM * 100 / max));
+	
+			Configure conf = Configure.getInstance();
+			float rate = used * 100 / usage.getMax();
+	
+			// /////////////////////////////////////////////////
+			// PermGen Warning 
+			if (rate >= conf.alert_perm_warning_pct) {
+				AlertProxy.sendAlert(AlertLevel.WARN, "WARNING_MEMORY_HIGH", "warning perm usage used="
+						+ (used / 1024 / 1024) + "MB rate=" + rate + "%");
+			}
 		}
 		// /////////////////////////////////////////////////
 
