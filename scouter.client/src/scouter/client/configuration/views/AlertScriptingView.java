@@ -238,7 +238,10 @@ public class AlertScriptingView extends ViewPart {
 		MessageDialog.open(MessageDialog.ERROR
 				, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
 				, "Fail"
-				, "Save failed!"
+				, "Save failed!\n" +
+						"(Server problem or alert editing unsupported version)\n" +
+						"Alert script editor in client UI supported\n" +
+						"@Since : v1.8.0"
 				, SWT.NONE);
 	}
 
@@ -251,6 +254,9 @@ public class AlertScriptingView extends ViewPart {
 		paramPack.put("counterName", this.counterName);
 		paramPack.put("contents", contents);
 		MapPack resultPack = getResultMapPack(RequestCmd.SAVE_ALERT_SCRIPTING_CONTETNS, paramPack);
+		if (resultPack == null) {
+			return SaveResult.FAIL;
+		}
 		if (resultPack.getBoolean("success")) {
 			ruleContentsHash = HashUtil.hash(contents);
 			return SaveResult.SUCCESS;
@@ -268,6 +274,10 @@ public class AlertScriptingView extends ViewPart {
 		paramPack.put("counterName", this.counterName);
 		paramPack.put("contents", contents);
 		MapPack resultPack = getResultMapPack(RequestCmd.SAVE_ALERT_SCRIPTING_CONFIG_CONTETNS, paramPack);
+		if (resultPack == null) {
+			return SaveResult.FAIL;
+		}
+
 		if (resultPack.getBoolean("success")) {
 			ruleContentsHash = HashUtil.hash(contents);
 			return SaveResult.SUCCESS;

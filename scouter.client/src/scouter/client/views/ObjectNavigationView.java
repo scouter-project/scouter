@@ -593,7 +593,13 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 				mgr.add(alertMenuManager);
 				Map<String, Map<String, String>> alertMenuMap = new TreeMap<>();
 				for (AgentObject agentObject : AgentModelThread.getInstance().getObjectList()) {
+					if (agentObject.getServerId() != serverId) {
+						continue;
+					}
 					ObjectType objectType = counterEngine.getObjectType(agentObject.getObjType());
+					if(objectType == null) {
+						System.out.println("[Null Object Type]" + agentObject.getObjType());
+					}
 					if (objectType.isSubObject()) {
 						continue;
 					}
