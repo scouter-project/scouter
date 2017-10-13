@@ -130,7 +130,7 @@ public class XLogController {
 
         singleXlogRequest.validate();
 
-        XLogData xLogData = xLogService.retrieveTxIdXLog(singleXlogRequest);
+        XLogData xLogData = xLogService.retrieveSingle(singleXlogRequest);
 
         return Response.ok().entity(xLogData).type(MediaType.APPLICATION_JSON).build();
 

@@ -5,6 +5,7 @@ import lombok.Setter;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.framework.exception.ErrorState;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
@@ -17,9 +18,11 @@ public class SingleXlogRequest {
 
     int serverId;
 
+    @NotNull
     @PathParam("txid")
     long txid;
 
+    @NotNull
     @PathParam("yyyymmdd")
     String yyyymmdd;
 

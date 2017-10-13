@@ -51,7 +51,10 @@ public class XLogService {
         xLogConsumer.handlePageableXLog(xLogRequest, reader);
     }
 
-    public XLogData retrieveTxIdXLog(final SingleXlogRequest singleXlogRequest) {
+    /**
+     * retrieve single xLog
+     */
+    public XLogData retrieveSingle(final SingleXlogRequest singleXlogRequest) {
 
         XLogPack xLogPack = xLogConsumer.retrieveByTxIdAndDate(singleXlogRequest);
         return XLogData.of(xLogPack, singleXlogRequest.getServerId());
