@@ -119,14 +119,14 @@ public class XLogController {
 
     /**
      * request xlog by txid
-     * uri : /xlog/{yyyymmdd}/{txid} @see {@link SingleXlogRequest}
+     * uri : /xlog/single/{yyyymmdd}/{txid} @see {@link SingleXlogRequest}
      *
      * @param singleXlogRequest
      */
     @GET
-    @Path("/{yyyymmdd}/{txid}")
+    @Path("/single/{yyyymmdd}/{txid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response streamTxIdXLog(@Valid @BeanParam SingleXlogRequest singleXlogRequest) {
+    public Response singleXLog(@Valid @BeanParam SingleXlogRequest singleXlogRequest) {
 
         singleXlogRequest.validate();
 
