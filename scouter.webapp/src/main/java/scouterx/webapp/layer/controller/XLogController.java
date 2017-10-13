@@ -122,19 +122,9 @@ public class XLogController {
     public Response streamTxIdXLog(@Valid @BeanParam PageableXLogRequest xLogRequest) {
 
         xLogRequest.validate();
-        XLogData xLogData = null;
-        Consumer<JsonGenerator> pageableXLogHandlerConsumer = jsonGenerator -> {
-            try {
-                jsonGenerator.writeArrayFieldStart("xlogs");
-                XLogPack xLogPack = xLogService.retrieveTxIdXLog(xLogRequest);
-                xLogData = XLogData.of(xLogPack, xLogRequest.getServerId());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        };
 
-        StreamingOutput streamingOutput = outputStream ->
-                CommonResultView.jsonStream(outputStream, pageableXLogHandlerConsumer);
+        XLogPack xLogPack = xLogService.retrieveTxIdXLog(xLogRequest);
+        XLogData xLogData = XLogData.of(xLogPack, xLogRequest.getServerId());
 
         return Response.ok().entity(xLogData).type(MediaType.APPLICATION_JSON).build();
 
