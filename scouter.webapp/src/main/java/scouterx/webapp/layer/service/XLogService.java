@@ -23,6 +23,7 @@ import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.consumer.XLogConsumer;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
+import scouterx.webapp.request.TxIdXlogRequest;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -49,9 +50,9 @@ public class XLogService {
         xLogConsumer.handlePageableXLog(xLogRequest, reader);
     }
 
-    public XLogPack retrieveTxIdXLog(final PageableXLogRequest pageableXLogRequest) {
+    public XLogPack retrieveTxIdXLog(final TxIdXlogRequest txIdXlogRequest) {
 
-        return xLogConsumer.retrieveTxId(pageableXLogRequest);
+        return xLogConsumer.retrieveTxId(txIdXlogRequest);
 
     }
 

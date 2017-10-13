@@ -27,6 +27,7 @@ import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.model.XLogData;
+import scouterx.webapp.request.TxIdXlogRequest;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.model.scouter.SXlog;
 import scouterx.webapp.request.PageableXLogRequest;
@@ -119,7 +120,7 @@ public class XLogController {
     @GET
     @Path("/{lastTxid}/{lastXLogTime}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response streamTxIdXLog(@Valid @BeanParam PageableXLogRequest xLogRequest) {
+    public Response streamTxIdXLog(@Valid @BeanParam TxIdXlogRequest xLogRequest) {
 
         xLogRequest.validate();
 
