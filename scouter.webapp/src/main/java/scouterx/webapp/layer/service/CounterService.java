@@ -19,10 +19,10 @@
 package scouterx.webapp.layer.service;
 
 import scouterx.webapp.framework.client.server.Server;
+import scouterx.webapp.layer.consumer.CounterConsumer;
 import scouterx.webapp.model.scouter.SCounter;
 import scouterx.webapp.request.CounterRequestByType;
 import scouterx.webapp.view.CounterView;
-import scouterx.webapp.layer.consumer.CounterConsumer;
 
 import java.util.List;
 import java.util.Set;
