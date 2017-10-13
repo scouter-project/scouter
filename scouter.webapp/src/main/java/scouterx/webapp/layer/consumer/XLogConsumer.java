@@ -29,7 +29,7 @@ import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.model.scouter.SXlog;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
-import scouterx.webapp.request.TxIdXlogRequest;
+import scouterx.webapp.request.SingleXlogRequest;
 import scouterx.webapp.view.PageableXLogView;
 import scouterx.webapp.view.RealTimeXLogView;
 
@@ -100,14 +100,18 @@ public class XLogConsumer {
         }
     }
 
-    public XLogPack retrieveTxId(final TxIdXlogRequest txIdXlogRequest) {
+    /**
+     * retrieve XLog
+     * @param singleXlogRequest
+     */
+    public XLogPack retrieveByTxIdAndDate(final SingleXlogRequest singleXlogRequest) {
 
         MapPack param = new MapPack();
-        param.put(ParamConstant.DATE, txIdXlogRequest.getYyyymmdd());
-        param.put(ParamConstant.XLOG_TXID, txIdXlogRequest.getTxid());
+        param.put(ParamConstant.DATE, singleXlogRequest.getYyyymmdd());
+        param.put(ParamConstant.XLOG_TXID, singleXlogRequest.getTxid());
 
         XLogPack pack;
-        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(txIdXlogRequest.getServerId())) {
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(singleXlogRequest.getServerId())) {
             pack = (XLogPack) tcpProxy.getSingle(RequestCmd.XLOG_READ_BY_TXID, param);
         }
 

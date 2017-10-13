@@ -13,7 +13,7 @@ import javax.ws.rs.QueryParam;
  */
 @Getter
 @Setter
-public class TxIdXlogRequest {
+public class SingleXlogRequest {
 
     int serverId;
 
