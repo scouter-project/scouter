@@ -18,6 +18,7 @@
 
 package scouterx.webapp.layer.service;
 
+import scouter.lang.pack.XLogPack;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.consumer.XLogConsumer;
 import scouterx.webapp.request.PageableXLogRequest;
@@ -46,6 +47,12 @@ public class XLogService {
     public void handlePageableXLog(final PageableXLogRequest xLogRequest, final INetReader reader) {
 
         xLogConsumer.handlePageableXLog(xLogRequest, reader);
+    }
+
+    public XLogPack retrieveTxIdXLog(final PageableXLogRequest pageableXLogRequest) {
+
+        return xLogConsumer.retrieveTxId(pageableXLogRequest);
+
     }
 
 }

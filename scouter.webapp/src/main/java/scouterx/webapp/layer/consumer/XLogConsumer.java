@@ -21,6 +21,7 @@ package scouterx.webapp.layer.consumer;
 import lombok.extern.slf4j.Slf4j;
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
+import scouter.lang.pack.XLogPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouterx.webapp.framework.client.net.INetReader;
@@ -97,4 +98,20 @@ public class XLogConsumer {
             tcpProxy.process(RequestCmd.TRANX_LOAD_TIME_GROUP_V2, paramPack, reader);
         }
     }
+
+    public XLogPack retrieveTxId(final PageableXLogRequest pageableXLogRequest) {
+
+        MapPack param = new MapPack();
+        param.put(ParamConstant.DATE, pageableXLogRequest.getYyyymmdd());
+        param.put(ParamConstant.XLOG_TXID, pageableXLogRequest.getLastTxid());
+
+        XLogPack pack;
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(pageableXLogRequest.getServerId())) {
+            pack = (XLogPack)
+                    tcpProxy.getSingle(RequestCmd.XLOG_READ_BY_TXID, param);
+        }
+
+        return pack;
+    }
+
 }
