@@ -21,7 +21,7 @@ public class ProcessObject {
     private long time;
     private String name;
 
-    public ProcessObject (final Map<String,ListValue> hostTopMap, int index) {
+    public ProcessObject (final Map<String,ListValue> hostTopMap, final int index) {
         this.pid = hostTopMap.get("PID").getInt(index);
         this.user = hostTopMap.get("USER").getString(index);
         this.cpu = hostTopMap.get("CPU").getFloat(index);
