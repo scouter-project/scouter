@@ -5,6 +5,7 @@ import lombok.Setter;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.framework.exception.ErrorState;
 
+import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
 /**
@@ -16,11 +17,11 @@ public class TxIdXlogRequest {
 
     int serverId;
 
-    @QueryParam("lastTxid")
-    long lastTxid;
+    @PathParam("txid")
+    long txid;
 
-    @QueryParam("lastXLogTime")
-    long lastXLogTime;
+    @PathParam("yyyymmdd")
+    String yyyymmdd;
 
     @QueryParam("serverId")
     public void setServerId(int serverId) {
@@ -28,8 +29,8 @@ public class TxIdXlogRequest {
     }
 
     public void validate() {
-        if((lastTxid != 0 && lastXLogTime == 0) || (lastTxid == 0 && lastXLogTime != 0)) {
-            throw ErrorState.VALIDATE_ERROR.newBizException("lastTxid and lastXlogTime must coexist!");
+        if(0 == txid || "".equals(yyyymmdd)) {
+            throw ErrorState.VALIDATE_ERROR.newBizException("txid and yyyymmdd must coexist!");
         }
     }
 }

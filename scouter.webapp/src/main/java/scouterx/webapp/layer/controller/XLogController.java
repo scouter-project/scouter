@@ -118,7 +118,7 @@ public class XLogController {
     }
 
     @GET
-    @Path("/{lastTxid}/{lastXLogTime}")
+    @Path("/{yyyymmdd}/{txid}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response streamTxIdXLog(@Valid @BeanParam TxIdXlogRequest xLogRequest) {
 

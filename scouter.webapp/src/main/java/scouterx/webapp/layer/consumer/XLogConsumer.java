@@ -103,8 +103,8 @@ public class XLogConsumer {
     public XLogPack retrieveTxId(final TxIdXlogRequest txIdXlogRequest) {
 
         MapPack param = new MapPack();
-        param.put(ParamConstant.DATE, txIdXlogRequest.getLastXLogTime());
-        param.put(ParamConstant.XLOG_TXID, txIdXlogRequest.getLastTxid());
+        param.put(ParamConstant.DATE, txIdXlogRequest.getYyyymmdd());
+        param.put(ParamConstant.XLOG_TXID, txIdXlogRequest.getTxid());
 
         XLogPack pack;
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(txIdXlogRequest.getServerId())) {
