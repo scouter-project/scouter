@@ -44,6 +44,11 @@ public class ObjectRequestController {
             @QueryParam("serverId") final int serverId) {
         final Server server = ServerManager.getInstance().getServerIfNullDefault(serverId);
         final int objHash = agentService.getObjHashFromAgentInfoByObjType(objType, server);
+
+        if (objHash == 0) {
+            return CommonResultView.fail(500, "Failed to get the 'ObjHash', Check your the 'ObjType'", null);
+        }
+
         final List<ProcessObject> processObjects = this.objectService.retrieveRealTimeTopByObjType(objHash, server);
 
         return (CollectionUtils.isNotEmpty(processObjects))
