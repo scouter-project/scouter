@@ -54,7 +54,7 @@ public class XLogService {
     /**
      * retrieve single xLog
      */
-    public XLogData retrieveSingle(final SingleXlogRequest singleXlogRequest) {
+    public XLogData retrieveSingleXLog(final SingleXlogRequest singleXlogRequest) {
 
         XLogPack xLogPack = xLogConsumer.retrieveByTxIdAndDate(singleXlogRequest);
         return XLogData.of(xLogPack, singleXlogRequest.getServerId());

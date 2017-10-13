@@ -126,11 +126,11 @@ public class XLogController {
     @GET
     @Path("/single/{yyyymmdd}/{txid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response singleXLog(@Valid @BeanParam SingleXlogRequest singleXlogRequest) {
+    public Response getSingleXLog(@Valid @BeanParam SingleXlogRequest singleXlogRequest) {
 
         singleXlogRequest.validate();
 
-        XLogData xLogData = xLogService.retrieveSingle(singleXlogRequest);
+        XLogData xLogData = xLogService.retrieveSingleXLog(singleXlogRequest);
 
         return Response.ok().entity(xLogData).type(MediaType.APPLICATION_JSON).build();
 
