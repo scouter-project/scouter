@@ -38,7 +38,7 @@ public class VisitorController {
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<Long> retrieveVisitorRealTimeByObj(@PathParam("objHash") final int objHash,
                                                                @QueryParam("serverId") final int serverId) {
-        Long visitorRealTime = visitorService.retrieveRealTimeVisitorByObj(objHash,
+        Long visitorRealTime = visitorService.retrieveVisitorRealTimeByObj(objHash,
                 ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(visitorRealTime);
@@ -50,7 +50,7 @@ public class VisitorController {
     public CommonResultView<Long> retrieveVisitorRealTimeByObjType(@NotNull @PathParam("objType") final String objType,
                                                                    @QueryParam("serverId") final int serverId) {
 
-        Long visitorTotalRealTime = visitorService.retrieveRealTimeVisitorByObjType(objType,
+        Long visitorTotalRealTime = visitorService.retrieveVisitorRealTimeByObjType(objType,
                 ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(visitorTotalRealTime);
@@ -67,7 +67,7 @@ public class VisitorController {
             throw ErrorState.VALIDATE_ERROR.newBizException("Query parameter 'objHashes' is required!");
         }
 
-        Long visitorGroupRealTime = visitorService.retrieveRealTimeVisitorByObjHashes(objList,
+        Long visitorGroupRealTime = visitorService.retrieveVisitorRealTimeByObjHashes(objList,
                 ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(visitorGroupRealTime);
