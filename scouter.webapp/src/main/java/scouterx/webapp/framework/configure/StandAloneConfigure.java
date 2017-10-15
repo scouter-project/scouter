@@ -56,7 +56,7 @@ public class StandAloneConfigure extends Thread {
 	@ConfigDesc("size of webapp connection pool to collector")
 	public int net_webapp_tcp_client_pool_size = 12;
 	@ConfigDesc("timeout of web app connection pool to collector(It depends on net_tcp_client_so_timeout_ms)")
-	public int net_webapp_tcp_client_pool_timeout = 8000;
+	public int net_webapp_tcp_client_pool_timeout = 15000;
 
 	@ConfigDesc("Enable api access control by client ip")
 	public boolean net_http_api_auth_ip_enabled = true;
@@ -160,7 +160,7 @@ public class StandAloneConfigure extends Thread {
 		this.net_collector_ip_port_id_pws = getValue("net_collector_ip_port_id_pws", "127.0.0.1:6100:admin:admin");
 
 		this.net_webapp_tcp_client_pool_size = getInt("net_webapp_tcp_client_pool_size", 12);
-		this.net_webapp_tcp_client_pool_timeout = getInt("net_webapp_tcp_client_pool_timeout", 10000);
+		this.net_webapp_tcp_client_pool_timeout = getInt("net_webapp_tcp_client_pool_timeout", 15000);
 
 		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", true);
 		this.net_http_api_auth_ip_header_key = getValue("net_http_api_auth_ip_header_key", "");

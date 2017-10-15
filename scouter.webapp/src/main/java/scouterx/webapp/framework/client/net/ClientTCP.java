@@ -48,7 +48,7 @@ public class ClientTCP {
 			socket = new Socket();
 			socket.setKeepAlive(false);
 			socket.setTcpNoDelay(true);
-			socket.setPerformancePreferences(2, 0, 1);
+			socket.setPerformancePreferences(0, 2, 1);
 			socket.setReuseAddress(true);
 			socket.setSoLinger(true, 1000);
 			socket.connect(new InetSocketAddress(server.getIp(), server.getPort()),3000);
