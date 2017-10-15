@@ -24,5 +24,5 @@
 
 ## Long version
 
-  - [setting IDE for Scouter APM development](https://gunsdevlog.blogspot.kr/2017/10/scouter-apm-developer-environment.html)
+  - [setting IDE for Scouter APM development](https://translate.google.co.kr/translate?sl=ko&tl=en&js=y&prev=_t&hl=ko&ie=UTF-8&u=https%3A%2F%2Fgunsdevlog.blogspot.kr%2F2017%2F10%2Fscouter-apm-developer-environment.html&edit-text=&act=url)
 
