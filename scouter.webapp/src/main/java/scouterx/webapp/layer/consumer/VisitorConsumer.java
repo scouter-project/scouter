@@ -2,6 +2,7 @@ package scouterx.webapp.layer.consumer;
 
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
+import scouter.lang.pack.Pack;
 import scouter.lang.value.DecimalValue;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.Value;
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public class VisitorConsumer {
 
-    public long retrieveRealTimeVisitorByObj(int objType, final Server server){
+    public long retrieveVisitorRealTimeByObj(int objType, final Server server){
         MapPack param = new MapPack();
         param.put(ParamConstant.OBJ_HASH, objType);
 
@@ -28,7 +29,7 @@ public class VisitorConsumer {
         return ((DecimalValue) value).value;
     }
 
-    public long retrieveRealTimeVisitorByObjType(String objType, final Server server){
+    public long retrieveVisitorRealTimeByObjType(String objType, final Server server){
         MapPack param = new MapPack();
         param.put(ParamConstant.OBJ_TYPE, objType);
 
@@ -40,7 +41,7 @@ public class VisitorConsumer {
         return ((DecimalValue) value).value;
     }
 
-    public long retrieveRealTimeVisitorByObjHashes(List<Integer> objHashes, final Server server){
+    public long retrieveVisitorRealTimeByObjHashes(List<Integer> objHashes, final Server server){
         MapPack param = new MapPack();
         ListValue listValue = new ListValue();
 
@@ -56,5 +57,71 @@ public class VisitorConsumer {
         }
 
         return ((DecimalValue) value).value;
+    }
+
+    public long retrieveVisitorLoaddateByObjAndDate(int objType, String date, final Server server){
+        MapPack param = new MapPack();
+        param.put(ParamConstant.OBJ_HASH, objType);
+        param.put(ParamConstant.DATE, date);
+
+        Value value;
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+            value = tcpProxy.getSingleValue(RequestCmd.VISITOR_LOADDATE, param);
+        }
+
+        return ((DecimalValue) value).value;
+    }
+
+    public long retrieveVisitorLoaddateTotalByObjAndDate(int objType, String date, final Server server){
+        MapPack param = new MapPack();
+        param.put(ParamConstant.OBJ_HASH, objType);
+        param.put(ParamConstant.DATE, date);
+
+        Value value;
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+            value = tcpProxy.getSingleValue(RequestCmd.VISITOR_LOADDATE_TOTAL, param);
+        }
+
+        return ((DecimalValue) value).value;
+    }
+
+    public MapPack retrieveVisitorLoaddateGroupByObjHashesAndDate(List<Integer> objHashes, String sdate, String edate, final Server server){
+        MapPack param = new MapPack();
+        ListValue listValue = new ListValue();
+
+        for (Integer obj : objHashes){
+            listValue.add(obj);
+        }
+
+        param.put(ParamConstant.OBJ_HASH, listValue);
+        param.put(ParamConstant.SDATE, sdate);
+        param.put(ParamConstant.EDATE, edate);
+
+        Pack pack;
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+            pack = tcpProxy.getSingle(RequestCmd.VISITOR_LOADDATE_GROUP, param);
+        }
+
+        return ((MapPack) pack);
+    }
+
+    public MapPack retrieveVisitorLoadhourGroupByObjHashesAndDate(List<Integer> objHashes, String sdate, String edate, final Server server){
+        MapPack param = new MapPack();
+        ListValue listValue = new ListValue();
+
+        for (Integer obj : objHashes){
+            listValue.add(obj);
+        }
+
+        param.put(ParamConstant.OBJ_HASH, listValue);
+        param.put(ParamConstant.SDATE, sdate);
+        param.put(ParamConstant.EDATE, edate);
+
+        Pack pack;
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+            pack = tcpProxy.getSingle(RequestCmd.VISITOR_LOADHOUR_GROUP, param);
+        }
+
+        return ((MapPack) pack);
     }
 }
