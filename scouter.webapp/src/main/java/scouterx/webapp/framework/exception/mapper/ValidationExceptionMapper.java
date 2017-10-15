@@ -45,7 +45,7 @@ public class ValidationExceptionMapper implements ExceptionMapper<javax.validati
         for (ConstraintViolation<?> cv : ((ConstraintViolationException) e).getConstraintViolations()) {
             strBuilder.append(cv.getPropertyPath().toString() + " " + cv.getMessage());
         }
-        CommonResultView<String> resultView = CommonResultView.fail(400, 400, strBuilder.toString(), null);
+        CommonResultView resultView = CommonResultView.fail(400, 400, strBuilder.toString(), null);
 
         return Response.status(resultView.getStatus())
                 .type(MediaType.APPLICATION_JSON)

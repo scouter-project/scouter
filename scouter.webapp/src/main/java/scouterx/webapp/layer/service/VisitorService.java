@@ -16,15 +16,15 @@ public class VisitorService {
         this.visitorConsumer = new VisitorConsumer();
     }
 
-    public long retrieveVisitorRealTimeCountersByObjId(int objHash, Server server){
-        return visitorConsumer.getVisitorRealTime(objHash,server);
+    public long retrieveRealTimeVisitorByObj(int objHash, Server server){
+        return visitorConsumer.retrieveRealTimeVisitorByObj(objHash, server);
     }
 
-    public long retrieveVisitorTotalRealTimeCounterByObjType(String objHash, Server server){
-        return visitorConsumer.getVisitorRealTimeTotal(objHash,server);
+    public long retrieveRealTimeVisitorByObjType(String objHash, Server server){
+        return visitorConsumer.retrieveRealTimeVisitorByObjType(objHash, server);
     }
 
-    public long retrieveVisitorGroupRealTimeCounterByObjId(List<Integer> objHashes, Server server){
-        return visitorConsumer.getVisitorRealTimeGroup(objHashes,server);
+    public long retrieveRealTimeVisitorByObjHashes(List<Integer> objHashes, Server server){
+        return visitorConsumer.retrieveRealTimeVisitorByObjHashes(objHashes, server);
     }
 }

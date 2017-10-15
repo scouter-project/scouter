@@ -44,8 +44,8 @@ public class ActiveServiceService {
         return activeServiceConsumer.retrieveActiveServiceListByType(objType, server);
     }
 
-    public List<SActiveService> retrieveActiveServiceListByObjHashes(final int objHash, final Server server) {
-        return activeServiceConsumer.retrieveActiveServiceListByObjHashes(objHash, server);
+    public List<SActiveService> retrieveActiveServiceListByObjHash(final int objHash, final Server server) {
+        return activeServiceConsumer.retrieveActiveServiceListByObjHash(objHash, server);
     }
 
     public ActiveThread retrieveActiveThread(final int objHash, final long threadId, final long txid, final Server server) {

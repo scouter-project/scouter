@@ -87,7 +87,7 @@ public class CounterController {
     @GET
     @Path("/realTime/{counters}/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Boolean> retrieveRealTimeCountersByObjId(
+    public CommonResultView<Boolean> retrieveRealTimeCountersByObj(
             @PathParam("objHash") final int objHash,
             @PathParam("counters") final String counterNameByCommaSeparator,
             @QueryParam("serverId") final int serverId) {

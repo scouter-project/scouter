@@ -1,13 +1,21 @@
 package scouterx.webapp.layer.controller;
 
+import org.apache.commons.collections.CollectionUtils;
 import scouterx.webapp.framework.client.server.ServerManager;
+import scouterx.webapp.framework.exception.ErrorState;
 import scouterx.webapp.framework.util.ZZ;
 import scouterx.webapp.layer.service.VisitorService;
 import scouterx.webapp.view.CommonResultView;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -26,36 +34,41 @@ public class VisitorController {
     final VisitorService visitorService = new VisitorService();
 
     @GET
-    @Path("/realTime/{objHash}")
+    @Path("/realTime/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Long> retrieveVisitorRealTimeCountersByObjId(
-            @PathParam("objHash") final int objHash,
-            @QueryParam("serverId") final int serverId){
+    public CommonResultView<Long> retrieveRealTimeVisitorByObj(@PathParam("objHash") final int objHash,
+                                                               @QueryParam("serverId") final int serverId) {
+        Long visitorRealTime = visitorService.retrieveRealTimeVisitorByObj(objHash,
+                ServerManager.getInstance().getServerIfNullDefault(serverId));
 
-        Long visitorRealTime = visitorService.retrieveVisitorRealTimeCountersByObjId(objHash, ServerManager.getInstance().getServerIfNullDefault(serverId));
         return CommonResultView.success(visitorRealTime);
     }
 
     @GET
-    @Path("/realTime/total/{objType}")
+    @Path("/realTime/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Long> retrieveVisitorTotalRealTimeCounterByObjType(
-            @PathParam("objType") final String objType,
-            @QueryParam("serverId") final int serverId){
-        Long visitorTotalRealTime = visitorService.retrieveVisitorTotalRealTimeCounterByObjType(objType, ServerManager.getInstance().getServerIfNullDefault(serverId));
+    public CommonResultView<Long> retrieveRealTimeVisitorByObjType(@NotNull @PathParam("objType") final String objType,
+                                                                   @QueryParam("serverId") final int serverId) {
+
+        Long visitorTotalRealTime = visitorService.retrieveRealTimeVisitorByObjType(objType,
+                ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(visitorTotalRealTime);
     }
 
     @GET
-    @Path("/realTime/group")
+    @Path("/realTime")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Long> retrieveVisitorGroupRealTimeCounterByObjId(
-            @QueryParam("objHashes") String objHashes,
-            @QueryParam("serverId") final int serverId){
-        List<Integer> objList = ZZ.splitParamAsInteger(objHashes);
+    public CommonResultView<Long> retrieveRelTimeVisitorByObjHashed(@QueryParam("objHashes") String objHashes,
+                                                                    @QueryParam("serverId") final int serverId) {
 
-        Long visitorGroupRealTime = visitorService.retrieveVisitorGroupRealTimeCounterByObjId(objList,ServerManager.getInstance().getServerIfNullDefault(serverId));
+        List<Integer> objList = ZZ.splitParamAsInteger(objHashes);
+        if (CollectionUtils.isEmpty(objList)) {
+            throw ErrorState.VALIDATE_ERROR.newBizException("Query parameter 'objHashes' is required!");
+        }
+
+        Long visitorGroupRealTime = visitorService.retrieveRealTimeVisitorByObjHashes(objList,
+                ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(visitorGroupRealTime);
     }
