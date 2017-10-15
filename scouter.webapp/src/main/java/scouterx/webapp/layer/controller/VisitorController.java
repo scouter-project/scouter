@@ -36,7 +36,7 @@ public class VisitorController {
     @GET
     @Path("/realTime/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Long> retrieveRealTimeVisitorByObj(@PathParam("objHash") final int objHash,
+    public CommonResultView<Long> retrieveVisitorRealTimeByObj(@PathParam("objHash") final int objHash,
                                                                @QueryParam("serverId") final int serverId) {
         Long visitorRealTime = visitorService.retrieveRealTimeVisitorByObj(objHash,
                 ServerManager.getInstance().getServerIfNullDefault(serverId));
@@ -47,7 +47,7 @@ public class VisitorController {
     @GET
     @Path("/realTime/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Long> retrieveRealTimeVisitorByObjType(@NotNull @PathParam("objType") final String objType,
+    public CommonResultView<Long> retrieveVisitorRealTimeByObjType(@NotNull @PathParam("objType") final String objType,
                                                                    @QueryParam("serverId") final int serverId) {
 
         Long visitorTotalRealTime = visitorService.retrieveRealTimeVisitorByObjType(objType,
@@ -59,8 +59,8 @@ public class VisitorController {
     @GET
     @Path("/realTime")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Long> retrieveRelTimeVisitorByObjHashes(@QueryParam("objHashes") String objHashes,
-                                                                    @QueryParam("serverId") final int serverId) {
+    public CommonResultView<Long> retrieveVisitorRealtimeByObjHashes(@QueryParam("objHashes") String objHashes,
+                                                                     @QueryParam("serverId") final int serverId) {
 
         List<Integer> objList = ZZ.splitParamAsInteger(objHashes);
         if (CollectionUtils.isEmpty(objList)) {

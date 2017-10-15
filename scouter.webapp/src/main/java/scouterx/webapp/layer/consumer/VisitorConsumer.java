@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class VisitorConsumer {
 
-    public long retrieveRealTimeVisitorByObj(int objType, final Server server){
+    public long retrieveVisitorRealTimeByObj(int objType, final Server server){
         MapPack param = new MapPack();
         param.put(ParamConstant.OBJ_HASH, objType);
 
@@ -28,7 +28,7 @@ public class VisitorConsumer {
         return ((DecimalValue) value).value;
     }
 
-    public long retrieveRealTimeVisitorByObjType(String objType, final Server server){
+    public long retrieveVisitorRealTimeByObjType(String objType, final Server server){
         MapPack param = new MapPack();
         param.put(ParamConstant.OBJ_TYPE, objType);
 
@@ -40,7 +40,7 @@ public class VisitorConsumer {
         return ((DecimalValue) value).value;
     }
 
-    public long retrieveRealTimeVisitorByObjHashes(List<Integer> objHashes, final Server server){
+    public long retrieveVisitorRealTimeByObjHashes(List<Integer> objHashes, final Server server){
         MapPack param = new MapPack();
         ListValue listValue = new ListValue();
 

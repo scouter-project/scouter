@@ -17,14 +17,14 @@ public class VisitorService {
     }
 
     public long retrieveRealTimeVisitorByObj(int objHash, Server server){
-        return visitorConsumer.retrieveRealTimeVisitorByObj(objHash, server);
+        return visitorConsumer.retrieveVisitorRealTimeByObj(objHash, server);
     }
 
     public long retrieveRealTimeVisitorByObjType(String objHash, Server server){
-        return visitorConsumer.retrieveRealTimeVisitorByObjType(objHash, server);
+        return visitorConsumer.retrieveVisitorRealTimeByObjType(objHash, server);
     }
 
     public long retrieveRealTimeVisitorByObjHashes(List<Integer> objHashes, Server server){
-        return visitorConsumer.retrieveRealTimeVisitorByObjHashes(objHashes, server);
+        return visitorConsumer.retrieveVisitorRealTimeByObjHashes(objHashes, server);
     }
 }
