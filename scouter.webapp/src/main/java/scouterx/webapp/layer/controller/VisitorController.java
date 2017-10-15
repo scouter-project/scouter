@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Created by geonheelee on 2017. 10. 13..
  */
-@Path("/vi/visitor")
+@Path("/v1/visitor")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class VisitorController {
@@ -31,7 +31,7 @@ public class VisitorController {
     @Context
     HttpServletRequest servletRequest;
 
-    final VisitorService visitorService = new VisitorService();
+    private final VisitorService visitorService = new VisitorService();
 
     @GET
     @Path("/realTime/ofObject/{objHash}")
@@ -59,7 +59,7 @@ public class VisitorController {
     @GET
     @Path("/realTime")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Long> retrieveRelTimeVisitorByObjHashed(@QueryParam("objHashes") String objHashes,
+    public CommonResultView<Long> retrieveRelTimeVisitorByObjHashes(@QueryParam("objHashes") String objHashes,
                                                                     @QueryParam("serverId") final int serverId) {
 
         List<Integer> objList = ZZ.splitParamAsInteger(objHashes);
