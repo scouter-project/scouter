@@ -36,9 +36,9 @@ public class VisitorController {
     @GET
     @Path("/realTime/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Long> retrieveRealTimeVisitorByObj(@PathParam("objHash") final int objHash,
+    public CommonResultView<Long> retrieveVisitorRealTimeByObj(@PathParam("objHash") final int objHash,
                                                                @QueryParam("serverId") final int serverId) {
-        Long visitorRealTime = visitorService.retrieveRealTimeVisitorByObj(objHash,
+        Long visitorRealTime = visitorService.retrieveVisitorRealTimeByObj(objHash,
                 ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(visitorRealTime);
@@ -47,10 +47,10 @@ public class VisitorController {
     @GET
     @Path("/realTime/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Long> retrieveRealTimeVisitorByObjType(@NotNull @PathParam("objType") final String objType,
+    public CommonResultView<Long> retrieveVisitorRealTimeByObjType(@NotNull @PathParam("objType") final String objType,
                                                                    @QueryParam("serverId") final int serverId) {
 
-        Long visitorTotalRealTime = visitorService.retrieveRealTimeVisitorByObjType(objType,
+        Long visitorTotalRealTime = visitorService.retrieveVisitorRealTimeByObjType(objType,
                 ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(visitorTotalRealTime);
@@ -59,15 +59,15 @@ public class VisitorController {
     @GET
     @Path("/realTime")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Long> retrieveRelTimeVisitorByObjHashes(@QueryParam("objHashes") String objHashes,
-                                                                    @QueryParam("serverId") final int serverId) {
+    public CommonResultView<Long> retrieveVisitorRealtimeByObjHashes(@QueryParam("objHashes") String objHashes,
+                                                                     @QueryParam("serverId") final int serverId) {
 
         List<Integer> objList = ZZ.splitParamAsInteger(objHashes);
         if (CollectionUtils.isEmpty(objList)) {
             throw ErrorState.VALIDATE_ERROR.newBizException("Query parameter 'objHashes' is required!");
         }
 
-        Long visitorGroupRealTime = visitorService.retrieveRealTimeVisitorByObjHashes(objList,
+        Long visitorGroupRealTime = visitorService.retrieveVisitorRealTimeByObjHashes(objList,
                 ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(visitorGroupRealTime);
