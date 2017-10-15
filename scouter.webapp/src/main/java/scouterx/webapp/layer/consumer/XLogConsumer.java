@@ -26,10 +26,11 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.framework.client.net.TcpProxy;
+import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.scouter.SXlog;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
-import scouterx.webapp.request.SingleXlogRequest;
+import scouterx.webapp.request.SingleXLogRequest;
 import scouterx.webapp.view.PageableXLogView;
 import scouterx.webapp.view.RealTimeXLogView;
 
@@ -75,6 +76,7 @@ public class XLogConsumer {
 
     /**
      * retrieve XLog List for paging access
+     *
      * @param pageableXLogRequest
      */
     public void handlePageableXLog(final PageableXLogRequest pageableXLogRequest, final INetReader reader) {
@@ -102,16 +104,37 @@ public class XLogConsumer {
 
     /**
      * retrieve XLog
-     * @param singleXlogRequest
+     *
+     * @param singleXLogRequest
      */
-    public XLogPack retrieveByTxIdAndDate(final SingleXlogRequest singleXlogRequest) {
+    public XLogData retrieveByTxidAsXLogData(final SingleXLogRequest singleXLogRequest) {
+        XLogPack pack = retrieveByTxid(singleXLogRequest);
+        return pack == null ? null : XLogData.of(pack, singleXLogRequest.getServerId());
+    }
+
+    /**
+     * retrieve XLog
+     *
+     * @param singleXLogRequest
+     */
+    public SXlog retrieveByTxidAsXLog(final SingleXLogRequest singleXLogRequest) {
+        XLogPack pack = retrieveByTxid(singleXLogRequest);
+        return pack == null ? null : SXlog.of(pack);
+    }
+
+    /**
+     * retrieve XLog
+     *
+     * @param singleXLogRequest
+     */
+    private XLogPack retrieveByTxid(final SingleXLogRequest singleXLogRequest) {
 
         MapPack param = new MapPack();
-        param.put(ParamConstant.DATE, singleXlogRequest.getYyyymmdd());
-        param.put(ParamConstant.XLOG_TXID, singleXlogRequest.getTxid());
+        param.put(ParamConstant.DATE, singleXLogRequest.getYyyymmdd());
+        param.put(ParamConstant.XLOG_TXID, singleXLogRequest.getTxid());
 
         XLogPack pack;
-        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(singleXlogRequest.getServerId())) {
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(singleXLogRequest.getServerId())) {
             pack = (XLogPack) tcpProxy.getSingle(RequestCmd.XLOG_READ_BY_TXID, param);
         }
 

@@ -18,13 +18,13 @@
 
 package scouterx.webapp.layer.service;
 
-import scouter.lang.pack.XLogPack;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.consumer.XLogConsumer;
 import scouterx.webapp.model.XLogData;
+import scouterx.webapp.model.scouter.SXlog;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
-import scouterx.webapp.request.SingleXlogRequest;
+import scouterx.webapp.request.SingleXLogRequest;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -54,10 +54,16 @@ public class XLogService {
     /**
      * retrieve single xLog
      */
-    public XLogData retrieveSingleXLog(final SingleXlogRequest singleXlogRequest) {
+    public XLogData retrieveSingleXLogAsXLogData(final SingleXLogRequest singleXlogRequest) {
+        return xLogConsumer.retrieveByTxidAsXLogData(singleXlogRequest);
 
-        XLogPack xLogPack = xLogConsumer.retrieveByTxIdAndDate(singleXlogRequest);
-        return XLogData.of(xLogPack, singleXlogRequest.getServerId());
+    }
+
+    /**
+     * retrieve single xLog
+     */
+    public SXlog retrieveSingleXLogAsXLog(final SingleXLogRequest singleXlogRequest) {
+        return xLogConsumer.retrieveByTxidAsXLog(singleXlogRequest);
 
     }
 

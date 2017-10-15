@@ -27,17 +27,20 @@ import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.service.XLogService;
-import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.scouter.SXlog;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
-import scouterx.webapp.request.SingleXlogRequest;
+import scouterx.webapp.request.SingleXLogRequest;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.PageableXLogView;
 
 import javax.inject.Singleton;
 import javax.validation.Valid;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -119,20 +122,18 @@ public class XLogController {
 
     /**
      * request xlog by txid
-     * uri : /xlog/single/{yyyymmdd}/{txid} @see {@link SingleXlogRequest}
+     * uri : /xlog/{yyyymmdd}/{txid} @see {@link SingleXLogRequest}
      *
      * @param singleXlogRequest
      */
     @GET
-    @Path("/single/{yyyymmdd}/{txid}")
+    @Path("/{yyyymmdd}/{txid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getSingleXLog(@Valid @BeanParam SingleXlogRequest singleXlogRequest) {
-
+    public CommonResultView<SXlog> getSingleXLog(@Valid @BeanParam SingleXLogRequest singleXlogRequest) {
         singleXlogRequest.validate();
+        SXlog xLog = xLogService.retrieveSingleXLogAsXLog(singleXlogRequest);
 
-        XLogData xLogData = xLogService.retrieveSingleXLog(singleXlogRequest);
-
-        return Response.ok().entity(xLogData).type(MediaType.APPLICATION_JSON).build();
+        return CommonResultView.success(xLog);
 
     }
 
