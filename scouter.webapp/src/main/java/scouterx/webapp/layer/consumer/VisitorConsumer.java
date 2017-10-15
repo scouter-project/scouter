@@ -9,8 +9,11 @@ import scouter.lang.value.Value;
 import scouter.net.RequestCmd;
 import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
+import scouterx.webapp.model.VisitorGroup;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by geonheelee on 2017. 10. 13..
@@ -59,9 +62,9 @@ public class VisitorConsumer {
         return ((DecimalValue) value).value;
     }
 
-    public long retrieveVisitorLoaddateByObjAndDate(int objType, String date, final Server server){
+    public long retrieveVisitorLoaddateByObjAndDate(int objHash, String date, final Server server){
         MapPack param = new MapPack();
-        param.put(ParamConstant.OBJ_HASH, objType);
+        param.put(ParamConstant.OBJ_HASH, objHash);
         param.put(ParamConstant.DATE, date);
 
         Value value;
@@ -72,9 +75,9 @@ public class VisitorConsumer {
         return ((DecimalValue) value).value;
     }
 
-    public long retrieveVisitorLoaddateTotalByObjAndDate(int objType, String date, final Server server){
+    public long retrieveVisitorLoaddateTotalByObjAndDate(String objType, String date, final Server server){
         MapPack param = new MapPack();
-        param.put(ParamConstant.OBJ_HASH, objType);
+        param.put(ParamConstant.OBJ_TYPE, objType);
         param.put(ParamConstant.DATE, date);
 
         Value value;
@@ -85,7 +88,7 @@ public class VisitorConsumer {
         return ((DecimalValue) value).value;
     }
 
-    public MapPack retrieveVisitorLoaddateGroupByObjHashesAndDate(List<Integer> objHashes, String sdate, String edate, final Server server){
+    public VisitorGroup retrieveVisitorLoaddateGroupByObjHashesAndDate(List<Integer> objHashes, String sdate, String edate, final Server server){
         MapPack param = new MapPack();
         ListValue listValue = new ListValue();
 
@@ -102,10 +105,10 @@ public class VisitorConsumer {
             pack = tcpProxy.getSingle(RequestCmd.VISITOR_LOADDATE_GROUP, param);
         }
 
-        return ((MapPack) pack);
+        return VisitorGroup.of((MapPack) pack);
     }
 
-    public MapPack retrieveVisitorLoadhourGroupByObjHashesAndDate(List<Integer> objHashes, String sdate, String edate, final Server server){
+    public List<VisitorGroup> retrieveVisitorLoadhourGroupByObjHashesAndDate(List<Integer> objHashes, String sdate, String edate, final Server server){
         MapPack param = new MapPack();
         ListValue listValue = new ListValue();
 
@@ -117,11 +120,14 @@ public class VisitorConsumer {
         param.put(ParamConstant.SDATE, sdate);
         param.put(ParamConstant.EDATE, edate);
 
-        Pack pack;
+        List<Pack> results;
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
-            pack = tcpProxy.getSingle(RequestCmd.VISITOR_LOADHOUR_GROUP, param);
+            results = tcpProxy.process(RequestCmd.VISITOR_LOADHOUR_GROUP, param);
         }
 
-        return ((MapPack) pack);
+        return  results.stream()
+                .map(pack -> (MapPack)pack)
+                .map(VisitorGroup::of)
+                .collect(Collectors.toList());
     }
 }
