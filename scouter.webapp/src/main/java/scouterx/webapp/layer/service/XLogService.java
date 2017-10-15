@@ -18,10 +18,13 @@
 
 package scouterx.webapp.layer.service;
 
+import scouter.lang.pack.XLogPack;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.consumer.XLogConsumer;
+import scouterx.webapp.model.XLogData;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
+import scouterx.webapp.request.SingleXlogRequest;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -46,6 +49,16 @@ public class XLogService {
     public void handlePageableXLog(final PageableXLogRequest xLogRequest, final INetReader reader) {
 
         xLogConsumer.handlePageableXLog(xLogRequest, reader);
+    }
+
+    /**
+     * retrieve single xLog
+     */
+    public XLogData retrieveSingleXLog(final SingleXlogRequest singleXlogRequest) {
+
+        XLogPack xLogPack = xLogConsumer.retrieveByTxIdAndDate(singleXlogRequest);
+        return XLogData.of(xLogPack, singleXlogRequest.getServerId());
+
     }
 
 }
