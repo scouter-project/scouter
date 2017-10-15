@@ -62,20 +62,20 @@ public class CommonResultView<T> {
 		this.requestId = MDC.get(LoggingInitServletFilter.requestId);
 	}
 
-	public static CommonResultView success() {
-		return new CommonResultView(SUCCESS, "success", true);
+	public static CommonResultView<Boolean> success() {
+		return new CommonResultView<>(SUCCESS, "success", true);
 	}
 
-	public static <T> CommonResultView success(T result) {
-		return new CommonResultView(SUCCESS, "success", result);
+	public static <T> CommonResultView<T> success(T result) {
+		return new CommonResultView<>(SUCCESS, "success", result);
 	}
 
 	public static <T> CommonResultView fail(int resultCode, String message, T result) {
-		return new CommonResultView(HttpStatus.INTERNAL_SERVER_ERROR_500, resultCode, message, result);
+		return new CommonResultView<>(HttpStatus.INTERNAL_SERVER_ERROR_500, resultCode, message, result);
 	}
 
 	public static <T> CommonResultView fail(int status, int resultCode, String message, T result) {
-		return new CommonResultView(status, resultCode, message, result);
+		return new CommonResultView<>(status, resultCode, message, result);
 	}
 
 	public static void jsonArrayStream(OutputStream os, Consumer<JsonGenerator> itemGenerator) throws IOException {

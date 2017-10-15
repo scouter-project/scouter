@@ -47,7 +47,7 @@ public class InfoController {
     @NoAuth
     @GET @Path("/server")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<ServerView> retrieveServers() {
+    public CommonResultView<List<ServerView>> retrieveServers() {
         List<ServerView> serverList = ServerManager.getInstance().getAllServerList().stream()
                 .map(s -> new ServerView(s.getId(), s.getName(), s.getSession() != 0, System.currentTimeMillis()-s.getDelta()))
                 .collect(Collectors.toList());

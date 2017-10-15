@@ -106,7 +106,7 @@ public class CounterController {
     @GET
     @Path("/stat/{counter}/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<SCounter>> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
+    public CommonResultView<List<CounterView>> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
         List<CounterView> counterViewList = counterService.retrieveCounterByObjType(request);
         return CommonResultView.success(counterViewList);
 
