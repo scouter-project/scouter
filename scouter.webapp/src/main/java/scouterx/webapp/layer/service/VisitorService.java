@@ -16,15 +16,15 @@ public class VisitorService {
         this.visitorConsumer = new VisitorConsumer();
     }
 
-    public long retrieveRealTimeVisitorByObj(int objHash, Server server){
-        return visitorConsumer.retrieveRealTimeVisitorByObj(objHash, server);
+    public long retrieveVisitorRealTimeByObj(int objHash, Server server){
+        return visitorConsumer.retrieveVisitorRealTimeByObj(objHash, server);
     }
 
-    public long retrieveRealTimeVisitorByObjType(String objHash, Server server){
-        return visitorConsumer.retrieveRealTimeVisitorByObjType(objHash, server);
+    public long retrieveVisitorRealTimeByObjType(String objHash, Server server){
+        return visitorConsumer.retrieveVisitorRealTimeByObjType(objHash, server);
     }
 
-    public long retrieveRealTimeVisitorByObjHashes(List<Integer> objHashes, Server server){
-        return visitorConsumer.retrieveRealTimeVisitorByObjHashes(objHashes, server);
+    public long retrieveVisitorRealTimeByObjHashes(List<Integer> objHashes, Server server){
+        return visitorConsumer.retrieveVisitorRealTimeByObjHashes(objHashes, server);
     }
 }
