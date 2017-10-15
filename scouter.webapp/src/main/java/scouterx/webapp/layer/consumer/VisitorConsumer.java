@@ -18,7 +18,7 @@ public class VisitorConsumer {
 
     public long retrieveRealTimeVisitorByObj(int objType, final Server server){
         MapPack param = new MapPack();
-        param.put(ParamConstant.OBJ_TYPE, objType);
+        param.put(ParamConstant.OBJ_HASH, objType);
 
         Value value;
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
