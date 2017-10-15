@@ -107,11 +107,11 @@ public class ActiveServiceController {
     @GET
     @Path("/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<SActiveService>> retrieveRealTimeActiveServiceListByObjHashes(
+    public CommonResultView<List<SActiveService>> retrieveRealTimeActiveServiceListByObjHash(
             @PathParam("objHash") @Valid @NotNull final int objHash,
             @QueryParam("serverId") final int serverId) {
 
-        List<SActiveService> activeServiceList = activeServiceService.retrieveActiveServiceListByObjHashes(
+        List<SActiveService> activeServiceList = activeServiceService.retrieveActiveServiceListByObjHash(
                 objHash, ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(activeServiceList);

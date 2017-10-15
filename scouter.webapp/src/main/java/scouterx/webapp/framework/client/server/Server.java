@@ -56,7 +56,7 @@ public final class Server {
 	private long totalMemory;
 	private boolean dirty = false;
 	
-	private int soTimeOut = 8000;
+	private int soTimeOut = 15000;
 	
 	private MapValue groupPolicyMap = new MapValue();
 	private MapValue menuEnableMap = new MapValue();

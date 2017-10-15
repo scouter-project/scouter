@@ -21,13 +21,16 @@ package scouterx.webapp.layer.consumer;
 import lombok.extern.slf4j.Slf4j;
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
+import scouter.lang.pack.XLogPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.framework.client.net.TcpProxy;
+import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.scouter.SXlog;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
+import scouterx.webapp.request.SingleXLogRequest;
 import scouterx.webapp.view.PageableXLogView;
 import scouterx.webapp.view.RealTimeXLogView;
 
@@ -73,6 +76,7 @@ public class XLogConsumer {
 
     /**
      * retrieve XLog List for paging access
+     *
      * @param pageableXLogRequest
      */
     public void handlePageableXLog(final PageableXLogRequest pageableXLogRequest, final INetReader reader) {
@@ -97,4 +101,44 @@ public class XLogConsumer {
             tcpProxy.process(RequestCmd.TRANX_LOAD_TIME_GROUP_V2, paramPack, reader);
         }
     }
+
+    /**
+     * retrieve XLog
+     *
+     * @param singleXLogRequest
+     */
+    public XLogData retrieveByTxidAsXLogData(final SingleXLogRequest singleXLogRequest) {
+        XLogPack pack = retrieveByTxid(singleXLogRequest);
+        return pack == null ? null : XLogData.of(pack, singleXLogRequest.getServerId());
+    }
+
+    /**
+     * retrieve XLog
+     *
+     * @param singleXLogRequest
+     */
+    public SXlog retrieveByTxidAsXLog(final SingleXLogRequest singleXLogRequest) {
+        XLogPack pack = retrieveByTxid(singleXLogRequest);
+        return pack == null ? null : SXlog.of(pack);
+    }
+
+    /**
+     * retrieve XLog
+     *
+     * @param singleXLogRequest
+     */
+    private XLogPack retrieveByTxid(final SingleXLogRequest singleXLogRequest) {
+
+        MapPack param = new MapPack();
+        param.put(ParamConstant.DATE, singleXLogRequest.getYyyymmdd());
+        param.put(ParamConstant.XLOG_TXID, singleXLogRequest.getTxid());
+
+        XLogPack pack;
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(singleXLogRequest.getServerId())) {
+            pack = (XLogPack) tcpProxy.getSingle(RequestCmd.XLOG_READ_BY_TXID, param);
+        }
+
+        return pack;
+    }
+
 }

@@ -76,7 +76,7 @@ public class ActiveServiceConsumer {
      * @param objHash
      * @param server
      */
-    public List<SActiveService> retrieveActiveServiceListByObjHashes(final int objHash, final Server server) {
+    public List<SActiveService> retrieveActiveServiceListByObjHash(final int objHash, final Server server) {
         MapPack paramPack = new MapPack();
         paramPack.put(ParamConstant.OBJ_HASH, objHash);
         List<Pack> packList = retrieveActiveService(paramPack, server);

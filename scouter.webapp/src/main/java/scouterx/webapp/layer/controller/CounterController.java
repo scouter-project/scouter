@@ -21,23 +21,17 @@ package scouterx.webapp.layer.controller;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.framework.exception.ErrorState;
 import scouterx.webapp.framework.util.ZZ;
+import scouterx.webapp.layer.service.CounterService;
 import scouterx.webapp.model.scouter.SCounter;
 import scouterx.webapp.request.CounterRequestByType;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.CounterView;
-import scouterx.webapp.layer.service.CounterService;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -93,7 +87,7 @@ public class CounterController {
     @GET
     @Path("/realTime/{counters}/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Boolean> retrieveRealTimeCountersByObjId(
+    public CommonResultView<Boolean> retrieveRealTimeCountersByObj(
             @PathParam("objHash") final int objHash,
             @PathParam("counters") final String counterNameByCommaSeparator,
             @QueryParam("serverId") final int serverId) {
@@ -112,7 +106,7 @@ public class CounterController {
     @GET
     @Path("/stat/{counter}/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<SCounter>> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
+    public CommonResultView<List<CounterView>> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
         List<CounterView> counterViewList = counterService.retrieveCounterByObjType(request);
         return CommonResultView.success(counterViewList);
 
