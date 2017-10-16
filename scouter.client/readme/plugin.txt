@@ -1,3 +1,2 @@
 ### GEF Zest ###
-Indigo : http://download.eclipse.org/tools/gef/updates-pre-3_8/releases/
-4.x : http://download.eclipse.org/tools/gef/updates/releases/
+http://download.eclipse.org/tools/gef/updates/legacy/releases

@@ -17,83 +17,66 @@
  */
 package scouter.client.configuration.views;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.DefaultToolTip;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-
 import scouter.client.Images;
+import scouter.client.model.AgentModelThread;
+import scouter.client.model.AgentObject;
 import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
+import scouter.client.popup.EditableMessageDialog;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.sorter.ColumnLabelSorter;
-import scouter.client.util.ColoringWord;
-import scouter.client.util.ConsoleProxy;
-import scouter.client.util.CustomLineStyleListener;
-import scouter.client.util.ExUtil;
-import scouter.client.util.ImageUtil;
+import scouter.client.util.*;
+import scouter.lang.conf.ValueType;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.StringUtil;
 
+import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class ConfigureView extends ViewPart {
 	public final static String ID = ConfigureView.class.getName();
 	
 	private ArrayList<ColoringWord> defaultHighlightings;
+	private HashSet<String> configKeyNames = new HashSet<>();
 	
 	private StyledText text;
 	private String content;
 	private int serverId;
 	private int objHash;
+	private String displayName;
+
+	private volatile String selectedText = "";
+	private volatile long selectedTime = 0L;
+	private volatile int selectedX = 0;
+	private volatile int selectedY = 0;
 	
 	Composite listComp;
 	TableViewer viewer;
@@ -103,12 +86,13 @@ public class ConfigureView extends ViewPart {
 	TableColumnLayout tableColumnLayout;
 	
 	private Clipboard clipboard = new Clipboard(null);
-	
+
 	CustomLineStyleListener listener;
 	
 	boolean devMode;
 	
 	HashMap<String, String> descMap = new HashMap<String, String>();
+	HashMap<String, ValueType> valueTypeMap = new HashMap<String, ValueType>();
 	
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
@@ -117,7 +101,16 @@ public class ConfigureView extends ViewPart {
 		initialStyledText(sashForm);
 		listComp = new Composite(sashForm, SWT.NONE);
 		listComp.setLayout(new GridLayout(1, true));
-		searchTxt = new Text(listComp, SWT.BORDER);
+		
+		Composite searchComp = new Composite(listComp, SWT.NONE);
+		searchComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		
+		searchComp.setLayout(new GridLayout(2, false));
+		
+		Label searchLabel = new Label(searchComp, SWT.BORDER);
+		searchLabel.setText("Filter : ");
+		searchTxt = new Text(searchComp, SWT.BORDER);
+		
 		searchTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		searchTxt.setToolTipText("Search Key/Value");
 		searchTxt.addMouseListener(new MouseListener() {
@@ -153,6 +146,7 @@ public class ConfigureView extends ViewPart {
 				}
 			}
 		});
+
 		Composite tableComp = new Composite(listComp, SWT.NONE);
 		tableComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tableColumnLayout = new TableColumnLayout();
@@ -166,7 +160,8 @@ public class ConfigureView extends ViewPart {
 	    viewer.setComparator(new ColumnLabelSorter(viewer));
 	    viewer.addFilter(filter);
 	    final DefaultToolTip toolTip = new DefaultToolTip(table, DefaultToolTip.RECREATE, true);
-		toolTip.setFont(new Font(null, "Arial", 10, SWT.BOLD));
+		toolTip.setFont(new Font(null, "Arial", 11, SWT.BOLD));
+		//toolTip.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 		toolTip.setBackgroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
 	    table.addMouseListener(new MouseListener() {
 			public void mouseUp(MouseEvent e) {
@@ -195,7 +190,12 @@ public class ConfigureView extends ViewPart {
 					if(configText == null || configText.indexOf(confObject.key) >=0 ){
 						return;
 					}
-					text.setText(configText + "\n" + confObject.key + "=");
+					String desc = descMap.get(confObject.key);
+					if(StringUtil.isNotEmpty(desc)) {
+						desc = desc.replace("\n", "\n#");
+						text.setText(configText + "\n\n" + "#" + desc);
+					}
+					text.setText(text.getText() + "\n" + confObject.key + "=" + confObject.value);
 				}				
 			}
 		});
@@ -210,6 +210,10 @@ public class ConfigureView extends ViewPart {
 						}
 						StringBuffer sb = new StringBuffer();
 						for (TableItem item : items) {
+							String desc = descMap.get(item.getText(0));
+							if(StringUtil.isNotEmpty(desc)) {
+								sb.append("#").append(desc.replace("\n", "\n#")).append("\n");
+							}
 							sb.append(item.getText(0));
 							sb.append("=");
 							sb.append(item.getText(1));
@@ -220,6 +224,16 @@ public class ConfigureView extends ViewPart {
 				}
 			}
 		});
+
+		Label bottomLabel = new Label(listComp, SWT.BORDER);
+		bottomLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		bottomLabel.setFont(new Font(null, "Arial", 11, SWT.BOLD | SWT.ITALIC));
+		
+		bottomLabel.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+		bottomLabel.setText(new StringBuilder()
+				.append("  [Click] for tooltip\n")
+				.append("  [Double-Click] for copy && paste (or ctl+C)")
+				.toString());
 				
 		sashForm.setWeights(new int[] {1, 1});
 		sashForm.setMaximizedControl(null);
@@ -230,10 +244,12 @@ public class ConfigureView extends ViewPart {
 		this.serverId = serverId;
 		Server server = ServerManager.getInstance().getServer(serverId);
 		if (server != null) {
+			this.displayName = server.getName();
 			setPartName("Config Server[" + server.getName() + "]");
 			loadConfig(RequestCmd.GET_CONFIGURE_SERVER, null);
 			loadConfigList(RequestCmd.LIST_CONFIGURE_SERVER, null);
 			loadConfigDesc(new MapPack());
+			loadConfigValueType(new MapPack());
 		}
 	}
 	
@@ -242,17 +258,24 @@ public class ConfigureView extends ViewPart {
 		this.objHash = objHash;
 		Server server = ServerManager.getInstance().getServer(serverId);
 		if (server != null) {
+			this.displayName = TextProxy.object.getText(objHash);
 			setPartName("Config Agent[" + TextProxy.object.getText(objHash) + "]");
 			MapPack param = new MapPack();
 			param.put("objHash", objHash);
 			loadConfig(RequestCmd.GET_CONFIGURE_WAS, param);
 			loadConfigList(RequestCmd.LIST_CONFIGURE_WAS, param);
 			loadConfigDesc(param);
+			loadConfigValueType(param);
 		}
 	}
 	
 	private void initialStyledText(Composite parent) {
-		text = new StyledText(parent, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		Composite comp = new Composite(parent, SWT.NONE);
+		comp.setLayout(new GridLayout(1, true));
+
+		text = new StyledText(comp, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
 		listener = new CustomLineStyleListener(true, defaultHighlightings, false);
 		text.addLineStyleListener(listener);
 		text.addKeyListener(new KeyListener() {
@@ -266,6 +289,137 @@ public class ConfigureView extends ViewPart {
 						text.selectAll();
 					}
 				}
+			}
+		});
+		text.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				if (selectedTime > System.currentTimeMillis() - 1500) {
+					String contents = text.getText();
+					int start = selectedX;
+					int end = selectedY;
+					while(start > 0) {
+						char c = contents.charAt(--start);
+						if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' || c == '-') {
+							//expand backward
+						} else {
+							start++;
+							break;
+						}
+					}
+					while(end < contents.length()) {
+						char c = contents.charAt(end++);
+						if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' || c == '-') {
+							//expand ahead
+						} else {
+							end--;
+							break;
+						}
+					}
+					selectedX = start;
+					selectedY = end;
+					selectedText = contents.substring(start, end);
+					text.setSelection(start, end);
+
+					if (configKeyNames.contains(selectedText)) {
+						String fullText = text.getText();
+						String textToIt = fullText.substring(0, selectedX);
+						int lastIndexOfLineBreakToIt = Math.max(textToIt.lastIndexOf('\n'), textToIt.lastIndexOf('\r'));
+						
+						if (lastIndexOfLineBreakToIt >= 0) {
+							if(fullText.charAt(lastIndexOfLineBreakToIt+1) == '#') {
+								return;
+							}
+						} else {
+							if (textToIt.length() > 0 && textToIt.charAt(0) == '#') {
+								return;
+							}
+						}
+
+						String value = fullText.substring(selectedY);
+						int startPos = value.indexOf('=')+1;
+						int npos = value.indexOf('\n');
+						int rpos = value.indexOf('\r');
+						int lineEndPos = (npos >= 0 && rpos >= 0) ? Math.min(npos,  rpos) : Math.max(npos, rpos);
+						
+						if (lineEndPos >= 0) {
+							value = value.substring(startPos, lineEndPos);
+						} else {
+							value = value.substring(startPos);
+						}
+
+						final String valuef = value;
+						ExUtil.exec(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay(), () -> {
+							ConfigureItemDialog dialog = new ConfigureItemDialog(parent.getShell(), selectedText, valuef, displayName,
+									descMap.get(selectedText), valueTypeMap.get(selectedText), objHash == 0 ? true : false, objHash);
+							if (dialog.open() == Window.OK) {
+								setTheConfig(selectedText, dialog.getValue(), dialog.getApplyScope());
+							}
+						});
+					}
+				}
+			}
+		});
+		text.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(e.x == e.y) return;
+				selectedText = text.getText(e.x, e.y-1);
+				selectedTime = System.currentTimeMillis();
+				selectedX = e.x;
+				selectedY = e.y;
+			}
+		});
+
+		Label bottomLabel = new Label(comp, SWT.BORDER);
+		bottomLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		bottomLabel.setFont(new Font(null, "Arial", 11, SWT.BOLD | SWT.ITALIC));
+
+		bottomLabel.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+		bottomLabel.setText(new StringBuilder()
+				.append("  [Double-Click] the config KEY for popup editor\n")
+				.append(" ")
+				.toString());
+	}
+
+	private void setTheConfig(String confKey, String confValue, ConfApplyScopeEnum applyScope) {
+		String _confValue = confValue;
+		if ("null".equals(_confValue)) {
+			_confValue = "";
+		}
+
+		String content = text.getText();
+		String expression = "(?m)^" + confKey + "\\s*=.*\\n?";
+		String replacement =  confKey + "=" + _confValue + "\n";
+		content = content.replaceAll(expression, replacement);
+		text.setText(content);
+
+		if (objHash == 0) { //server
+			return;
+		}
+
+		ExUtil.exec(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay(), () -> {
+			String objType = AgentModelThread.getInstance().getAgentObject(objHash).getObjType();
+			Map<AgentObject, Boolean> resultMap = ConfigureFileHandleUtil.applyConfig(applyScope, confKey, confValue, objType, serverId);
+
+			if(resultMap == null) {
+				return;
+			}
+			if (resultMap.values().contains(Boolean.FALSE)) {
+				new EditableMessageDialog().show("Saved with Warning!"
+						, "Configuration saving is partially success.\n\n"
+								+ resultMap.entrySet().stream()
+								.map(e -> " - " + e.getKey() + " : " + (e.getValue() ? "success" : "fail"))
+								.collect(Collectors.joining("\n"))
+
+				);
+			} else {
+				new EditableMessageDialog().show("Saved all successfully."
+						, "Configuration saving is done.\n\n"
+								+ resultMap.entrySet().stream()
+								.map(e -> " - " + e.getKey() + " : " + (e.getValue() ? "success" : "fail"))
+								.collect(Collectors.joining("\n"))
+				);
 			}
 		});
 	}
@@ -336,6 +490,7 @@ public class ConfigureView extends ViewPart {
 					defaultHighlightings = new ArrayList<ColoringWord>();
 					for(int inx = 0 ; configKey != null && inx < configKey.size(); inx++){
 						defaultHighlightings.add(new ColoringWord(configKey.getString(inx), SWT.COLOR_BLUE, true));
+						configKeyNames.add(configKey.getString(inx));
 					}
 					defaultHighlightings.add(new ColoringWord(";", SWT.COLOR_RED, true));
 					
@@ -411,6 +566,29 @@ public class ConfigureView extends ViewPart {
 					while (keys.hasNext()) {
 						String key = keys.next();
 						descMap.put(key, pack.getText(key));
+					}
+				}
+			}
+		});
+	}
+
+	private void loadConfigValueType(final MapPack param) {
+		ExUtil.asyncRun(new Runnable() {
+			public void run() {
+				MapPack pack = null;
+				TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+				try {
+					pack = (MapPack) tcp.getSingle(RequestCmd.CONFIGURE_VALUE_TYPE, param);
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					TcpProxy.putTcpProxy(tcp);
+				}
+				if (pack != null) {
+					Iterator<String> keys = pack.keys();
+					while (keys.hasNext()) {
+						String key = keys.next();
+						valueTypeMap.put(key, ValueType.of(pack.getInt(key)));
 					}
 				}
 			}

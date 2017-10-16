@@ -17,35 +17,17 @@
  */
 package scouter.client.xlog.views;
 
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolTip;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.part.ViewPart;
-
 import scouter.client.Images;
+import scouter.client.constants.HelpConstants;
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
 import scouter.client.preferences.PManager;
@@ -56,14 +38,14 @@ import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.xlog.XLogFilterStatus;
 import scouter.client.xlog.XLogYAxisEnum;
-import scouter.client.xlog.dialog.XLogFilterDialog;
-import scouter.client.xlog.dialog.XLogSummaryIPDialog;
-import scouter.client.xlog.dialog.XLogSummaryRefererDialog;
-import scouter.client.xlog.dialog.XLogSummaryServiceDialog;
-import scouter.client.xlog.dialog.XLogSummaryUserAgentDialog;
-import scouter.client.xlog.dialog.XLogSummaryUserDialog;
+import scouter.client.xlog.dialog.*;
 import scouter.client.xlog.views.XLogViewPainter.ITimeChange;
 import scouter.util.LongKeyLinkedMap;
+
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 
 
 abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IObjectCheckListener {
@@ -93,7 +75,7 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 	protected Shell shell;
 	protected ToolTip toolTip;
 	
-	Action onlySqlAction, onlyApicallAction, onlyErrorAction;
+	Action onlySqlAction, onlyApicallAction, onlyErrorAction, helpAction;
 	
 	
 	public void create(Composite parent, IToolBarManager man) {
@@ -106,6 +88,7 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 		};
 		onlySqlAction.setImageDescriptor(ImageUtil.getImageDescriptor(Images.database_go));
 		man.add(onlySqlAction);
+
 		onlyApicallAction = new Action("Only ApiCall", IAction.AS_CHECK_BOX) {
 			public void run() {
 				filterStatus.onlyApicall = isChecked();
@@ -115,6 +98,7 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 		};
 		onlyApicallAction.setImageDescriptor(ImageUtil.getImageDescriptor(Images.link));
 		man.add(onlyApicallAction);
+
 		onlyErrorAction = new Action("Only Error", IAction.AS_CHECK_BOX) {
 			public void run() {
 				filterStatus.onlyError = isChecked();
@@ -124,6 +108,14 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 		};
 		onlyErrorAction.setImageDescriptor(ImageUtil.getImageDescriptor(Images.error));
 		man.add(onlyErrorAction);
+
+		helpAction = new Action("help", ImageUtil.getImageDescriptor(Images.help)) {
+			public void run() {
+				org.eclipse.swt.program.Program.launch(HelpConstants.HELP_URL_XLOG_VIEW);
+			}
+		};
+		man.add(helpAction);
+
 		man.add(new Separator());
 		
 		canvas = new Canvas(parent, SWT.DOUBLE_BUFFERED);

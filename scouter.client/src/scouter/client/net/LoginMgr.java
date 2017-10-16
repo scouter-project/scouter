@@ -72,6 +72,7 @@ public class LoginMgr{
 				String serverName = out.getText("server_id");
 				String type = out.getText("type");
 				String version = out.getText("version");
+				String recommendedClientVersion = out.getText("client_version");
 				String email = out.getText("email");
 				String timezone = out.getText("timezone");
 				int soTimeOut = out.getInt("so_time_out");
@@ -83,6 +84,7 @@ public class LoginMgr{
 				server.setPassword(password);
 				server.setGroup(type);
 				server.setVersion(version);
+				server.setRecommendedClientVersion(recommendedClientVersion);
 				server.setEmail(email);
 				server.setTimezone(timezone);
 				server.setSoTimeOut(soTimeOut);

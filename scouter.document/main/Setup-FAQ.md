@@ -1,5 +1,5 @@
 # Setup FAQ
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Setup-FAQ_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Setup-FAQ_kr.md)
 
 This is FAQ about installation step.
 
@@ -53,17 +53,17 @@ Scouter used logical names and hierarchy for its monitoring targets.
 
 /host/tomcat/context 
 
-If you want to watch multiple Tomcat instances, you should give unique name of each on the same hierachy. 
+If you want to watch multiple Tomcat instances, you should give unique name of each on the same hierarchy. 
 Names can be given by java options like, 
 ```
--Dscouter_name=MyTomcatInstName 
+-Dobj_name=MyTomcatInstName 
 ```
 or on scouter.config file,
 ```
-scouter_name=MyTomcatInstName
+obj_name=MyTomcatInstName
 ```
 
-## How to monitor Tomcat host CPU and Memory simutaneously
+## How to monitor Tomcat host CPU and Memory simultaneously
 TBD
 
 

@@ -37,6 +37,7 @@ public class PreferenceConstants {
 	public static final String P_CHART_LINE_WIDTH  = "lineWidth";
 	public static final String P_XLOG_IGNORE_TIME  = "xlog_ignore_time";
 	public static final String P_XLOG_MAX_COUNT  = "xlog_max_count";
+	public static final String P_XLOG_DRAG_MAX_COUNT = "xlog_drag_max_count";
 	
 	public static final String P_ALERT_DIALOG_TIMEOUT = "alert_dialog_timeout";
 	

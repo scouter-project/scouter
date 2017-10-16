@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Accounts>
+	<xs:attribute name="id" type="xs:ID"/>
+	<Account id="admin" pass="ae3cf413ccbc56ce97c4dd88d14296c31d6ffc81eabbb04437434cc3221ec47c" group="admin">
+		<Email>admin@scouter.com</Email>
+	</Account>
+	<Account id="guest" pass="d4c2def30936f6daaa86b3faacdbfe2639781c0a81457317e844d274a6eb219c" group="guest">
+		<Email>guest@scouter.com</Email>
+	</Account>
+</Accounts>

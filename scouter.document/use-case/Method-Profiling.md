@@ -1,10 +1,10 @@
 # Quick Start
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Method-Profiling_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Method-Profiling_kr.md)
 
 Scouter defaults to profile http service start/end event and sqls only if you don't set any other profile options. 
 
-But sometimes you need method level profiliing, and you can set a few options for it. 
-(The application shoud be strated.) 
+But sometimes you need method level profiling, and you can set a few options for it. 
+(The application should be started.) 
 
 The demo system below shows a basic level profile information the case of no method profile option set. 
 > Refer to [Quick Start Guide](../main/Quick-Start.md) for install the demo system. 

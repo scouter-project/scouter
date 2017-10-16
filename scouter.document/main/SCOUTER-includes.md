@@ -51,3 +51,8 @@ Scouter includes :
 
 ### famfamfam icons 
    http://www.famfamfam.com/lab/icons/silk/
+
+### Byte Buddy
+   https://github.com/raphw/byte-buddy
+
+   Runtime code generation for the Java virtual machine. http://bytebuddy.net

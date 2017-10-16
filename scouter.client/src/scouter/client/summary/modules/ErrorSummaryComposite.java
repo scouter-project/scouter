@@ -1,7 +1,9 @@
 package scouter.client.summary.modules;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -19,6 +21,8 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
+import scouter.util.BitUtil;
+import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 import scouter.util.Hexa32;
 
@@ -243,6 +247,87 @@ public class ErrorSummaryComposite extends AbstractSummaryComposite {
 		}
 	}
 	
+	class LoadLongdayErrorSummaryJob extends Job {
+
+        MapPack param;
+        long stime;
+        long etime;
+
+        public LoadLongdayErrorSummaryJob(MapPack param, long stime, long etime) {
+            super("Loading...");
+            this.param = param;
+            this.stime = stime;
+            this.etime = etime;
+        }
+
+        protected IStatus run(IProgressMonitor monitor) {
+            TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+            List<Pack> packList = new ArrayList<>();
+            try {
+                while (stime <= etime) {
+                    String date = DateUtil.yyyymmdd(stime);
+                    long lastTimestampOfDay = DateUtil.getTime(date, "yyyyMMdd") + DateUtil.MILLIS_PER_DAY - 1;
+                    param.put("date", date);
+                    param.put("stime", stime);
+                    param.put("etime", lastTimestampOfDay <= etime ? lastTimestampOfDay : etime);
+                    packList.add(tcp.getSingle(RequestCmd.LOAD_SERVICE_ERROR_SUMMARY, param));
+                    stime += DateUtil.MILLIS_PER_DAY;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return Status.CANCEL_STATUS;
+            } finally {
+                TcpProxy.putTcpProxy(tcp);
+            }
+
+            if (packList.size() > 0) {
+                Map<Long, ErrorData> errorDataMap = new HashMap<>();
+                for (Pack p : packList) {
+                    MapPack m = (MapPack) p;
+                    
+                    ListValue errorLv = m.getList("error");
+                    ListValue serviceLv = m.getList("service");
+                    ListValue messageLv = m.getList("message");
+                    ListValue countLv = m.getList("count");
+                    ListValue txidLv = m.getList("txid");
+                    ListValue sqlLv = m.getList("sql");
+                    ListValue apiLv = m.getList("apicall");
+                    ListValue stackLv = m.getList("fullstack");
+                    for (int i = 0; i < errorLv.size(); i++) {
+                    		ErrorData data = new ErrorData();
+                    		data.error = errorLv.getInt(i);
+                    		data.service = serviceLv.getInt(i);
+                    		data.message = messageLv.getInt(i);
+                    		data.count = countLv.getInt(i);
+                    		data.txid = txidLv.getLong(i);
+                    		data.sql = sqlLv.getInt(i);
+                    		data.apicall = apiLv.getInt(i);
+                    		data.fullstack = stackLv.getInt(i);
+                    		long key = BitUtil.composite(data.error, data.service);
+                    		if (errorDataMap.containsKey(key)) {
+                    			errorDataMap.get(key).addData(data);
+                    		} else {
+                    			errorDataMap.put(key, data);
+                    		}
+                    }
+                    
+                    TextProxy.error.load(date, errorLv, serverId);
+    					TextProxy.service.load(date, serviceLv, serverId);
+    					TextProxy.error.load(date, messageLv, serverId);
+    					TextProxy.sql.load(date, sqlLv, serverId);
+    					TextProxy.apicall.load(date, apiLv, serverId);
+    					TextProxy.error.load(date, stackLv, serverId);
+                }
+                ExUtil.exec(viewer.getTable(), new Runnable() {
+                    public void run() {
+                        viewer.setInput(errorDataMap.values());
+                    }
+                });
+            }
+            return Status.OK_STATUS;
+        }
+    }
+	
 	private static class ErrorData {
 		public int error;
 		public int service;
@@ -252,10 +337,14 @@ public class ErrorSummaryComposite extends AbstractSummaryComposite {
 		public int sql;
 		public int apicall;
 		public int fullstack;
+		
+		public void addData(ErrorData another) {
+	        this.count += another.count;
+	    }
 	}
 
 	protected void getSummaryData() {
-		new LoadErrorSummaryJob(param).schedule();
+		new LoadLongdayErrorSummaryJob(param, param.getLong("stime"), param.getLong("etime")).schedule();
 	}
 
 	protected String getTitle() {

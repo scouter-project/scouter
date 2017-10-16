@@ -17,15 +17,6 @@
  */
 package scouter.client.views;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
@@ -65,7 +56,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchWindow;
 import org.eclipse.ui.part.ViewPart;
-
 import scouter.client.Images;
 import scouter.client.actions.AddServerAction;
 import scouter.client.actions.ClearObjectFilterAction;
@@ -80,6 +70,7 @@ import scouter.client.actions.OpenServerThreadListAction;
 import scouter.client.configuration.actions.AddAccountAction;
 import scouter.client.configuration.actions.EditAccountAction;
 import scouter.client.configuration.actions.ListAccountAction;
+import scouter.client.configuration.actions.OpenAlertScriptingAction;
 import scouter.client.configuration.actions.OpenGroupPolicyAction;
 import scouter.client.configuration.actions.OpenServerConfigureAction;
 import scouter.client.constants.MenuStr;
@@ -98,6 +89,7 @@ import scouter.client.model.GroupObject;
 import scouter.client.model.HierarchyObject;
 import scouter.client.model.RefreshThread;
 import scouter.client.model.ServerObject;
+import scouter.client.net.LoginMgr;
 import scouter.client.popup.ObjectSelectionDialog;
 import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
@@ -111,13 +103,27 @@ import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.util.MenuUtil;
 import scouter.client.util.ScouterUtil;
+import scouter.lang.Counter;
+import scouter.lang.Family;
 import scouter.lang.ObjectType;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.counters.CounterEngine;
+import scouter.lang.pack.MapPack;
+import scouter.lang.value.BlobValue;
 import scouter.lang.value.Value;
 import scouter.util.CastUtil;
 import scouter.util.FormatUtil;
 import scouter.util.HashUtil;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class ObjectNavigationView extends ViewPart implements RefreshThread.Refreshable {
 	public static final String ID = ObjectNavigationView.class.getName();
@@ -174,7 +180,7 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 					if (existUnknown) {
 						griddata.exclude = false;
 						noticeLabel.setImage(Images.exclamation);
-						noticeLabel.setText("Define unknown object type.");
+						noticeLabel.setText("Unknown monitoring group id(object type) detected.\nClick for Re-Check.");
 						noticeComposite.setVisible(true);
 						parent.layout(false);
 					} else {
@@ -190,7 +196,27 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 	
 	private void forceRefresh() {
 		agentThread.fetchObjectList();
+		refreshCounterEngine();
 		refresh();
+	}
+
+	private void refreshCounterEngine() {
+		Set<Integer> serverIdSet = ServerManager.getInstance().getOpenServerList();
+		if (serverIdSet.size() > 0) {
+			for (int serverId : serverIdSet) {
+				CounterEngine counterEngine = ServerManager.getInstance().getServer(serverId).getCounterEngine();
+				MapPack m = LoginMgr.getCounterXmlServer(serverId);
+				if (m != null) {
+					counterEngine.clear();
+					Value v1 = m.get("default");
+					counterEngine.parse(((BlobValue)v1).value);
+					v1 = m.get("custom");
+					if (v1 != null) {
+						counterEngine.parse(((BlobValue)v1).value);
+					}
+				}
+			}
+		}
 	}
 	
 	public void refreshViewer() {
@@ -237,7 +263,14 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 		objTreeViewer.setContentProvider(new ViewContentProvider());
 		objTreeViewer.setLabelProvider(new TableLabelProvider());
 		objTreeViewer.setInput(root);
-		
+
+		noticeLabel.addListener(SWT.MouseUp, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				refreshCounterEngine();
+			}
+		});
+
 		createContextMenu(objTreeViewer, new IMenuListener() {
             public void menuAboutToShow(IMenuManager manager){
             	if(selectedItem){
@@ -550,9 +583,43 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 				mgr.add(new Separator());
 				mgr.add(new OpenTotalSummaryAction(win, serverId));
 				mgr.add(new OpenAlertDetailListAction(win, serverId));
+
 				mgr.add(new Separator());
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
 					mgr.add(new OpenServerConfigureAction(win, MenuStr.CONFIGURE, Images.config, serverId));
+
+
+				MenuManager alertMenuManager = new MenuManager(MenuStr.ALERT_SCRIPTING, ImageUtil.getImageDescriptor(Images.alert), MenuStr.ALERT_SCRIPTING_ID);
+				mgr.add(alertMenuManager);
+				Map<String, Map<String, String>> alertMenuMap = new TreeMap<>();
+				for (AgentObject agentObject : AgentModelThread.getInstance().getObjectList()) {
+					if (agentObject.getServerId() != serverId) {
+						continue;
+					}
+					ObjectType objectType = counterEngine.getObjectType(agentObject.getObjType());
+					if(objectType == null) {
+						System.out.println("[Null Object Type]" + agentObject.getObjType());
+					}
+					if (objectType.isSubObject()) {
+						continue;
+					}
+					Family family = objectType.getFamily();
+					List<Counter> counterList = family.listCounters();
+					for (Counter counter : counterList) {
+						if(!counter.isAll()) continue;
+						Map<String, String> itemMap = new HashMap<>();
+						itemMap.put("familyName", family.getName());
+						itemMap.put("counterName", counter.getName());
+						itemMap.put("counterDisplayName", counter.getDisplayName());
+						alertMenuMap.put(family.getName() + ":" + counter.getName(), itemMap);
+					}
+				}
+				for (Map.Entry<String, Map<String, String>> entry : alertMenuMap.entrySet()) {
+					Map<String, String> entryValue = entry.getValue();
+					alertMenuManager.add(new OpenAlertScriptingAction(win, entry.getKey(), Images.alert, serverId,
+							entryValue.get("familyName"), entryValue.get("counterName"), entryValue.get("counterDisplayName")));
+				}
+
 				mgr.add(new OpenObjectDailyListAction(win, "Object Daily List", Images.GO_PAST, serverId));
 				mgr.add(new Separator());
 				MenuManager management = new MenuManager(MenuStr.MANAGEMENT, MenuStr.MANAGEMENT_ID);

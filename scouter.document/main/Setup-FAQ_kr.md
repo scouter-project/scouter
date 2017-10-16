@@ -1,5 +1,5 @@
 # Setup FAQ
-[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](Setup-FAQ.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Setup-FAQ.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 설치과정에서 발생하는 빈번한 질문에 대해서 정리한다.
 
@@ -62,12 +62,12 @@ Scouter는 모니터링 대상에게 계층형 이름을 부여하여 논리적�
 
 Agent가 설치된 Tomcat의 java 옵션에서 다음과 같이 설정할 수 있다. 
 ```
--Dscouter_name=MyTomcatInstName 
+-Dobj_name=MyTomcatInstName 
 ```
 혹은 scouter.config에 
 
 ```
-scouter_name=MyTomcatInstName
+obj_name=MyTomcatInstName
 ```
 라고 설정할 수 있다. 위 방법 중에 한가지를 사용하면 된다.
 그러면 클라이언트 화면에서 여러 개의 톰켓 인스턴스를 확인할 수있다.
