@@ -41,6 +41,7 @@ import java.util.Map;
 public class RealCounter {
 	private static List<Desc> realCounterDesc;
 
+	public long confLastModified;
 	public long lastCheckTime;
 
 	private Value _value;
