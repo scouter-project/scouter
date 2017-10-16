@@ -26,8 +26,10 @@ import scouter.net.RequestCmd;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.model.scouter.SXlog;
+import scouterx.webapp.request.CondSearchXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
+import scouterx.webapp.view.CondSearchXLogView;
 import scouterx.webapp.view.PageableXLogView;
 import scouterx.webapp.view.RealTimeXLogView;
 
@@ -95,6 +97,35 @@ public class XLogConsumer {
 
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(pageableXLogRequest.getServerId())) {
             tcpProxy.process(RequestCmd.TRANX_LOAD_TIME_GROUP_V2, paramPack, reader);
+        }
+    }
+    
+    /**
+     * retrieve XLog List for searching with condition
+     * @param pageableXLogRequest
+     */
+
+    public void handleConditionSearchXLog(final CondSearchXLogRequest condXLogRequest, final INetReader reader) {
+        MapPack paramPack = new MapPack();
+        paramPack.put(ParamConstant.XLOG_START_TIME, condXLogRequest.getStartTime());
+        paramPack.put(ParamConstant.XLOG_END_TIME, condXLogRequest.getEndTime());
+        paramPack.put(ParamConstant.OBJ_HASH, condXLogRequest.getObjHash());
+        paramPack.put(ParamConstant.XLOG_SERVICE, condXLogRequest.getService());
+        paramPack.put(ParamConstant.XLOG_IP, condXLogRequest.getIp());
+        paramPack.put(ParamConstant.XLOG_LOGIN, condXLogRequest.getLogin());
+        paramPack.put(ParamConstant.XLOG_DESC, condXLogRequest.getDesc());
+        paramPack.put(ParamConstant.XLOG_TEXT_1, condXLogRequest.getText1());
+        paramPack.put(ParamConstant.XLOG_TEXT_2, condXLogRequest.getText2());
+        paramPack.put(ParamConstant.XLOG_TEXT_3, condXLogRequest.getText3());
+        paramPack.put(ParamConstant.XLOG_TEXT_4, condXLogRequest.getText4());
+        paramPack.put(ParamConstant.XLOG_TEXT_5, condXLogRequest.getText5());
+        
+        CondSearchXLogView view = new CondSearchXLogView();
+        List<SXlog> xLogList = new ArrayList<>();
+        view.setXLogs(xLogList);
+
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(condXLogRequest.getServerId())) {
+            tcpProxy.process(RequestCmd.SEARCH_XLOG_LIST, paramPack, reader);
         }
     }
 }
