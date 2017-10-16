@@ -16,41 +16,34 @@
  *
  */
 
-package scouterx.webapp.layer.service;
+package scouterx.webapp.layer.consumer;
 
-import org.apache.commons.collections.CollectionUtils;
+import scouter.lang.pack.ObjectPack;
+import scouter.net.RequestCmd;
+import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
-import scouterx.webapp.layer.consumer.AgentConsumer;
 import scouterx.webapp.model.scouter.SObject;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public class AgentService {
-    private final AgentConsumer agentConsumer;
-
-    public AgentService() {
-        this.agentConsumer = new AgentConsumer();
-    }
+public class ObjectConsumer {
 
     /**
      * retrieve object(agent) list from collector server
      */
-    public List<SObject> retrieveAgentList(final Server server) {
-        return agentConsumer.retrieveAgentList(server);
-    }
-
-    public int getObjHashFromAgentInfoByObjType (final String objType, final Server server) {
-        List<SObject> agentList = this.retrieveAgentList(server);
-
-        if (CollectionUtils.isNotEmpty(agentList)) {
-            Optional<SObject> sObject = agentList.stream().filter(sObj -> objType.equalsIgnoreCase(sObj.getObjType())).findFirst();
-            return sObject.get().getObjHash();
+    public List<SObject> retrieveObjectList(final Server server) {
+        List<SObject> objectList = null;
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+            objectList = tcpProxy
+                    .process(RequestCmd.OBJECT_LIST_REAL_TIME, null).stream()
+                    .map(p -> SObject.of((ObjectPack) p, server))
+                    .collect(Collectors.toList());
         }
 
-        return 0;
+        return objectList;
     }
 }
