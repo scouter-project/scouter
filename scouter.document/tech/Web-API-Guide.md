@@ -82,57 +82,57 @@ public int log_keep_days = 30;
 - **Context root : /scouter**
   - if the api url is ```/v1/info/server``` then ```/scouter/v1/info/server```
 
-#### - GET /v1/info/server
+#### - `GET /v1/info/server`
  - get connected collector server info.
- - **Auth** : None
+ - Auth : None
 
-#### - GET /v1/object
+#### - `GET /v1/object`
  - get monitoring object list
  - **Auth** : required - register api client's ip to ```net_http_api_allow_ips``` configuration.
  - **Query params**
-    - **serverId** : If the webapp connect to single collector then it's optional.(optional if single server)
+    - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
 
-#### - GET /v1/counter/realTime/{counters}/ofType/{objType}
+#### - `GET /v1/counter/realTime/{counters}/ofType/{objType}`
  - get real time counter value by object type
  - **Auth** : required
  - **Path params**
-   - **counters** : counter names comma separated (required)
+   - `counters` : counter names comma separated (required)
      - refer to [counter names](https://github.com/scouter-project/scouter/blob/master/scouter.common/src/main/resources/scouter/lang/counters/counters.xml)
      - eg) Cpu,Mem,PageIn
-   - **objType** : object type (required)
+   - `objType` : object type (required)
  - **Query params**
-   - **serverId** : If the webapp connect to single collector then it's optional.(optional if single server)
+   - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
 
-#### - GET /v1/counter/realTime/{counters}/ofObject/{objHash}
+#### - `GET /v1/counter/realTime/{counters}/ofObject/{objHash}`
  - get real time counter value by object
  - **Auth** : required
  - **Path params**
-   - **counters** : (required)
-   - **objHash** : object id (required)
+   - `counters` : (required)
+   - `objHash` : object id (required)
  - **Query params**
-   - **serverId** : (optional if single server)
+   - `serverId` : (optional if single server)
 
-#### - GET /v1/counter/stat/{counters}/ofType/{objType}
+#### - `GET /v1/counter/stat/{counters}/ofType/{objType}`
  - get 5min counter statistics by object type
  - **Auth** : required
  - **Path params**
-   - **counters** : (required)
-   - **objType** : (required)
+   - `counters` : (required)
+   - `objType` : (required)
  - **Query params**
-   - **fromYmd** : yyyymmdd (required)
-   - **toYmd** : yyyymmdd (required)
-   - **serverId** : (optional if single server)
+   - `fromYmd` : yyyymmdd (required)
+   - `toYmd` : yyyymmdd (required)
+   - `serverId` : (optional if single server)
 
 #### - `GET /v1/summary/service/ofType/{objType}`
  - get service summary
- - Auth : required
- - Path params
-   - **objType** : (required)
- - Query params
-   - **startYmdHm** : yyyymmddhhmi (exclusive required with startTimeMillis)
-   - **endYmdHm** : yyyymmddhhmi (exclusive required with endTimeMillis)
-   - **startTimeMillis** : timestamp(long) - yyyymmddhhmi (exclusive required with startYmdHm)
-   - **endTimeMillis** : timestamp(long) - yyyymmddhhmi (exclusive required with endYmdHm)
-   - **serverId** : (optional if single server)
+ - **Auth** : required
+ - **Path params**
+   - `objType` : (required)
+ - **Query params**
+   - `startYmdHm` : yyyymmddhhmi (exclusive required with startTimeMillis)
+   - `endYmdHm` : yyyymmddhhmi (exclusive required with endTimeMillis)
+   - `startTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with startYmdHm)
+   - `endTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with endYmdHm)
+   - `serverId` : (optional if single server)
 
 
