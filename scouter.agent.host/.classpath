@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/log4j.jar"/>
-	<classpathentry kind="lib" path="lib/sigar.jar" sourcepath="/Users/sjokim/.m2/repository/org/fusesource/sigar/1.6.4/sigar-1.6.4-sources.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/scouter.common"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>

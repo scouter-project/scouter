@@ -23,17 +23,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
-
-import scouter.client.actions.AddServerAction;
-import scouter.client.actions.OpenAlertRealTimeAction;
-import scouter.client.actions.OpenClientEnvViewAction;
-import scouter.client.actions.OpenClientThreadListAction;
-import scouter.client.actions.OpenConsoleAction;
-import scouter.client.actions.OpenGroupNavigationAction;
-import scouter.client.actions.OpenObjectDashboardAction;
-import scouter.client.actions.OpenServerManagerAction;
-import scouter.client.actions.OpenWorkspaceExplorerAction;
-import scouter.client.actions.RestartAction;
+import scouter.client.actions.*;
 import scouter.client.constants.MenuStr;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
@@ -51,11 +41,13 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		if(server != null){
 			serverId = server.getId();
 		}
-		
+
 		// File
 		register(new OpenClientThreadListAction(window, "Client Thread List", Images.thread));
 		register(new OpenClientEnvViewAction(window));
 		register(new OpenWorkspaceExplorerAction(window, "Workspace Explorer", Images.explorer, serverId));
+		register(new ExportWorkspaceAction(window, "Export perspective settings", Images.explorer));
+		register(new ImportWorkspaceAction(window, "Import perspective settings", Images.explorer));
 		register(new RestartAction(window, "Restart"));
 		
 		// Management

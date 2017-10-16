@@ -17,9 +17,6 @@
  */
 package scouter.client.xlog.views;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -29,13 +26,16 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.model.XLogData;
+import scouter.client.preferences.PManager;
+import scouter.client.preferences.PreferenceConstants;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
-import scouter.client.util.TimeUtil;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
+
+import java.util.ArrayList;
+import java.util.Enumeration;
 
 public class XLogViewMouse implements MouseListener, MouseMoveListener {
 	
@@ -146,7 +146,7 @@ public class XLogViewMouse implements MouseListener, MouseMoveListener {
 			if (inRect(x1, y1, x2, y2, item.x, item.y) 
 					&& (item.filter_ok)) {
 				txCnt++;
-				if (selectedData.size() < 200) {
+				if (selectedData.size() < PManager.getInstance().getInt(PreferenceConstants.P_XLOG_DRAG_MAX_COUNT)) {
 					selectedData.add(item);
 				}
 			}

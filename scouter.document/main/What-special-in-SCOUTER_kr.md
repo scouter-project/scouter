@@ -1,5 +1,5 @@
 # SCOUTER가 특별한 이유
-[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](What-special-in-SCOUTER.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](What-special-in-SCOUTER.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 Scouter 는 무엇인가?
 Scouter 는 애플리케이션의 성능을 모니터링하고 분석할 수 있다. 
@@ -24,5 +24,5 @@ Scouter는 빅 데이터 를 수집하고 각 서비스의 트랜잭션(요청)�
 ## Scouter 진행중인 스택덤프를 분석한다.
 때로는 다른 스레드 정보에서 성능 문제를 이해하는 것은 분명 아닙니다.
 그 때는 다른 방법을 생각해야 합니다. 여러 번 전체 스레드 스택을 수집하고 함께 스택을 분석 할 경우,
-우리는 성능 문제를 해결 하기위한 또 다른 기회를 얻을 수 있습니다.(출시 예정)
+우리는 성능 문제를 해결 하기위한 또 다른 기회를 얻을 수 있습니다.(SFA)
 

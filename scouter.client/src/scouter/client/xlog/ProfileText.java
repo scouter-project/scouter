@@ -170,6 +170,14 @@ public class ProfileText {
         if (StringUtil.isNotEmpty(t)) {
             sb.append("\n► webName=" + t).append("  webTime=" + xperf.p.webTime + " ms");
         }
+        t = TextProxy.web.getLoadText(date, xperf.p.queuingHostHash, serverId);
+        if (StringUtil.isNotEmpty(t)) {
+            sb.append("\n► queuing=" + t).append("  time=" + xperf.p.queuingTime + " ms");
+        }
+        t = TextProxy.web.getLoadText(date, xperf.p.queuing2ndHostHash, serverId);
+        if (StringUtil.isNotEmpty(t)) {
+            sb.append("\n► 2nd-queuing=" + t).append("  time=" + xperf.p.queuing2ndTime + " ms");
+        }
         t = TextProxy.login.getLoadText(date, xperf.p.login, serverId);
         if (StringUtil.isNotEmpty(t)) {
             sb.append("\n► login=" + t);
@@ -183,6 +191,15 @@ public class ProfileText {
         }
         if (StringUtil.isNotEmpty(xperf.p.text2)) {
             sb.append("\n► text2=" + xperf.p.text2);
+        }
+        if (StringUtil.isNotEmpty(xperf.p.text3)) {
+            sb.append("\n► text3=" + xperf.p.text3);
+        }
+        if (StringUtil.isNotEmpty(xperf.p.text4)) {
+            sb.append("\n► text4=" + xperf.p.text4);
+        }
+        if (StringUtil.isNotEmpty(xperf.p.text5)) {
+            sb.append("\n► text5=" + xperf.p.text5);
         }
         if (xperf.p.hasDump == 1) {
             sb.append("\n► dump=Y");

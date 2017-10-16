@@ -25,6 +25,7 @@ public class M extends NLS {
 	public static String PREFERENCE_CHARTSETTING;
 	public static String PREFERENCE_CHARTXLOG_IGNORE_TIME;
 	public static String PREFERENCE_CHARTXLOG_MAX_COUNT;
+	public static String PREFERENCE_CHARTXLOG_MAX_DRAG_COUNT;
 	public static String PREFERENCE_EXPAND;
     public static String PREFERENCE_EXPAND_TEXTCACHE;
     public static String PREFERENCE_EXPAND_CHART;

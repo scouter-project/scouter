@@ -1,0 +1,134 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.scouter-project</groupId>
+        <artifactId>scouter-parent</artifactId>
+        <version>1.8.0.SNAPSHOT</version>
+    </parent>
+
+    <artifactId>scouter-deploy</artifactId>
+    <packaging>jar</packaging>
+    <name>scouter.deploy</name>
+
+    <properties>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <build.datetime>${maven.build.timestamp} GMT</build.datetime>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <scouter.assembly.dir>${project.build.directory}/assembly-working</scouter.assembly.dir>
+        <scouter.assembly.agent.java.dir>${scouter.assembly.dir}/scouter/agent.java</scouter.assembly.agent.java.dir>
+        <scouter.assembly.agent.host.dir>${scouter.assembly.dir}/scouter/agent.host</scouter.assembly.agent.host.dir>
+        <scouter.assembly.agent.batch.dir>${scouter.assembly.dir}/scouter/agent.batch</scouter.assembly.agent.batch.dir>
+        <scouter.assembly.server.dir>${scouter.assembly.dir}/scouter/server</scouter.assembly.server.dir>
+        <scouter.assembly.webapp.dir>${scouter.assembly.dir}/scouter/webapp</scouter.assembly.webapp.dir>
+    </properties>
+
+    <!--<dependencies>-->
+        <!--<dependency>-->
+            <!--<groupId>io.github.scouter-project</groupId>-->
+            <!--<artifactId>scouter-agent-java</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>io.github.scouter-project</groupId>-->
+            <!--<artifactId>scouter-agent-batch</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>io.github.scouter-project</groupId>-->
+            <!--<artifactId>scouter-agent-host</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>io.github.scouter-project</groupId>-->
+            <!--<artifactId>scouter-server</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>io.github.scouter-project</groupId>-->
+            <!--<artifactId>scouter-webapp</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
+    <!--</dependencies>-->
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${scouter.assembly.dir}" />
+                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.host.assembly.name}.tar" dest="${scouter.assembly.agent.host.dir}" />
+                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.java.assembly.name}.tar" dest="${scouter.assembly.agent.java.dir}" />
+                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.batch.assembly.name}.tar" dest="${scouter.assembly.agent.batch.dir}" />
+                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.server.assembly.name}.tar" dest="${scouter.assembly.server.dir}" />
+                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.webapp.assembly.name}.tar" dest="${scouter.assembly.webapp.dir}" />
+
+                                <!-- copy webapp jar for scouter server embedded mode -->
+                                <!--<copy todir="${scouter.assembly.server.dir}/lib">-->
+                                    <!--<fileset dir="${scouter.assembly.webapp.dir}">-->
+                                        <!--<include name="scouter-webapp-*.jar" />-->
+                                    <!--</fileset>-->
+                                <!--</copy>-->
+
+                                <!-- make tar ball -->
+                                <tar destfile="${project.build.directory}/${scouter.product.name}.tar">
+                                    <tarfileset dir="${scouter.assembly.dir}" mode="755">
+                                        <include name="**/*.sh" />
+                                    </tarfileset>
+                                    <tarfileset dir="${scouter.assembly.dir}">
+                                        <exclude name="**/*.sh" />
+                                    </tarfileset>
+                                </tar>
+                                <gzip src="${project.build.directory}/${scouter.product.name}.tar" destfile="${project.build.directory}/${scouter.product.name}.tar.gz" />
+                                <delete file="${project.build.directory}/${scouter.product.name}.tar" />
+                                <delete file="${project.build.directory}/${project.build.finalName}.jar" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-install</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-site</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-deploy</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -1,7 +1,7 @@
 # XLog Case2 - Understanding Waterfalls
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](XLog-Case2_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](XLog-Case2_kr.md)
 
-It is no good sign to make some patterns on XLog(reponse scatter chart). The most common case is Vertical line occuring.
+It is no good sign to make some patterns on XLog(response scatter chart). The most common case is Vertical line occurring.
 
 The vertical line shows some transactions start in different times bue ends together. This means that these transactions hang in some resources and the hanging is ends all together. If these situation went seriously, the transaction spots make a waterfall pattern like this:
 

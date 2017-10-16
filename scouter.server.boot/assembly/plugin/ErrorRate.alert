@@ -1,0 +1,14 @@
+// void process(RealCounter $counter, PluginHelper $$) {}
+// ################################ example below ############################################################
+// $$.println("This is alert plugin for the metric 'Error Rate');
+// float errorRateCurrent = $counter.floatValue();
+// float errorRateLatestAvg = $counter.floatValue(30); //average in latest 30 sec
+// int tpsCurrent = $counter.intValue("TPS"); // current TPS (get another counter value by name)
+// float errorRate180secBefore = $counter.getAvg(180, 30); // avg of before 180s ~ 150s (duration 30s)
+// String alertMessage = $counter.objName() + " : errorRate is " + errorRateCurrent + " in TPS " + tpsCurrent;
+
+// //fire alert message
+// if(errorRateCurrent > errorRate120secBefore * 1.3f) $counter.fatal("Error rate fatal!", alertMessage);
+// ###########################################################################################################
+// TODO your java code here..
+

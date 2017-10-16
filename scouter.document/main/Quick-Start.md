@@ -1,5 +1,5 @@
 # Quick Start
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Quick-Start_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Quick-Start_kr.md)
 
 This page provides a demo system where you can install the Scouter at once and try it out easily.
 
@@ -35,15 +35,15 @@ Client(Viewer)    | Client program to check the collected performance informatio
 
 #### (1) **Download** integrated demonstration environment and a client program
  - Download integrated demonstration environment
-   - [Download demo-env1.tar.gz](https://github.com/scouter-project/scouter-demo/releases/download/v0.4.21/demo-env1.tar.gz) (It includes collector server, host agent, java agent, tomcat for demo system and start scripts...)
-   - Windows Case : [Download demo-env1.zip](https://github.com/scouter-project/scouter-demo/releases/download/v0.4.21/demo-env1.zip)
+   - [Download demo-env1.tar.gz](https://github.com/scouter-project/scouter-demo/releases/download/v1.8.0.RC1/demo-env1.tar.gz) (It includes collector server, host agent, java agent, tomcat for demo system and start scripts...)
+   - Windows Case : [Download demo-env1.zip](https://github.com/scouter-project/scouter-demo/releases/download/v1.8.0.RC1/demo-env1.zip)
 
  - Download a client program
    - download a client for your environment.
-    - [scouter.client.product-win32.win32.x86_64.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.21/scouter.client.product-win32.win32.x86_64.zip)
-    - [scouter.client.product-win32.win32.x86.zip](https://github.com/scouter-project/scouter/releases/download/v0.4.21/scouter.client.product-win32.win32.x86.zip)
-    - [scouter.client.product-macosx.cocoa.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.21/scouter.client.product-macosx.cocoa.x86_64.tar.gz)
-    - [scouter.client.product-linux.gtk.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v0.4.21/scouter.client.product-linux.gtk.x86_64.tar.gz)
+    - [scouter.client.product-win32.win32.x86_64.zip](https://github.com/scouter-project/scouter/releases/download/v1.8.0.RC1/scouter.client.product-win32.win32.x86_64.zip)
+    - [scouter.client.product-win32.win32.x86.zip](https://github.com/scouter-project/scouter/releases/download/v1.8.0.RC1/scouter.client.product-win32.win32.x86.zip)
+    - [scouter.client.product-macosx.cocoa.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v1.8.0.RC1/scouter.client.product-macosx.cocoa.x86_64.tar.gz)
+    - [scouter.client.product-linux.gtk.x86_64.tar.gz](https://github.com/scouter-project/scouter/releases/download/v1.8.0.RC1/scouter.client.product-linux.gtk.x86_64.tar.gz)
 
 #### (2) Decompress the downloaded file.
  decompress file and all installation is done.
@@ -116,7 +116,7 @@ And also you can see the web service request you triggered on the scouter client
 ![jpetstore main](../img/quickstart/client-jpet-demo1.png)
 
 #### (8) Do a load test by apache jmeter
-You can make virtual load for verifying scouter's funtionality.
+You can make virtual load for verifying scouter's functionality.
 run the command below, will load by jmeter in 5 minutes.
 If you want to stop jmeter load, please press CTRL+C.
 
@@ -171,7 +171,7 @@ Please read the detail manual pages for advanced features.
 
 function     |    description
 ------------ | --------------
-SFA (Stack Frequency Analyzer)  | the SFA gather thread stacks for a while, then analyze and make statistics for finding out unefficient codes that make system run slow.
+SFA (Stack Frequency Analyzer)  | the SFA gather thread stacks for a while, then analyze and make statistics for finding out inefficient codes that make system run slow.
 [Trace connection Leak](../tech/JDBC-Connection-Leak-Trace.md)           | Trace Database Connection Leak
 Add user id on a profile        | profile customizing with a plugin scripting feature.
 [method level profiling](../use-case/Method-Profiling.md)          | how to profile deeper - method level profiling

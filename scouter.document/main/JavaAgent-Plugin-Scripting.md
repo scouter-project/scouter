@@ -1,141 +1,144 @@
 # Scouter Plugin Guide
-![Englsh](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](JavaAgent-Plugin-Scripting_kr.md)
+![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](JavaAgent-Plugin-Scripting_kr.md)
 
 ## Javaagent Plugin
- - Default File Location : ${directory of scouter.agent.jar}/plugin 
- - or able to configure it for example - plugin_dir=/aaa/bbb/ccc/plugin
+ - Default File Location : ```${directory of scouter.agent.jar}/plugin```
+ - or able to configure it for example - ```plugin_dir=/aaa/bbb/ccc/plugin```
  - Write java code on the specific text file then the code is dynamically loaded on runtime.
- - Plugin 종류
-   - Http-service
-   - Service
-   - HttpCall
-   - Capture
-   - JDBC-Pool
+ - plugin types
+   - Http-service plugin
+   - Service plugin
+   - HttpCall plugin
+   - Capture plugin
+   - JDBC-Pool plugin
  
 ### Http-service Plugin(httpservice.plug)
 
-1. void start(WrContext $ctx, WrRequest $req, WrResponse $res) : Http Service 시작 시점
-2. void end(WrContext $ctx, WrRequest $req, WrResponse $res) : Http Service 종료 시점
-3. boolean reject(WrContext $ctx, WrRequest $req, WrResponse $res) : Http Service 시작 시점에 reject 조건 (default : false)
+1. ```void start(WrContext $ctx, WrRequest $req, WrResponse $res)``` : invoked at the start of HttpServlet service() method
+2. ```void end(WrContext $ctx, WrRequest $req, WrResponse $res)``` : invoked at the end of HttpServlet service() method
+3. ```boolean reject(WrContext $ctx, WrRequest $req, WrResponse $res)``` : invoked at the start of HttpServlet service() method. If return true then the request is rejected
  
 ### Service Plugin(service.plug)
- **추가적인 hooking 설정을 통해서만 동작**
+ **invoked when arrived the methods defined in the option ```hook_service_patterns```**
  
-1. void start(WrContext $ctx, HookArgs $hook) : Service 시작 시점
-2. void end(WrContext $ctx) : Service 종료 시점
+1. ```void start(WrContext $ctx, HookArgs $hook)``` : invoked when a service starts
+2. ```void end(WrContext $ctx)``` : invoked when a service ends
  
 ### HttpCall Plugin(httpcall.plug)
 
-1. void call(WrContext $ctx, WrHttpCallRequest $req) : Http Call 요청 시점
+1. ```void call(WrContext $ctx, WrHttpCallRequest $req)``` : invoked when an external call is invoked by httpClient and http client libraries.
  
 ### Capture Plugin(capture.plug)
- **추가적인 hooking 설정을 통해서만 동작**
+ **invoked when arrived the methods defined in the options ```hook_args_patterns```, ```hook_return_patterns``` and ```hook_constructor_patterns```**
  
-1. void capArgs(WrContext $ctx, HookArgs $hook) : Method 시작 시점
-2. void capReturn(WrContext $ctx, HookReturn $hook) : Method Return 시점
-3. void capThis(WrContext $ctx, String $class, String $desc, Object $this) : Constructor 생성 시점
+1. ```void capArgs(WrContext $ctx, HookArgs $hook)``` : invoked at the start of the method
+2. ```void capReturn(WrContext $ctx, HookReturn $hook)``` : invoked at the end of the method
+3. ```void capThis(WrContext $ctx, String $class, String $desc, Object $this)``` : invoked at a constructor
  
 ### JDBC-Pool Plugin(jdbcpool.plug)
-
-1. String url(WrContext $ctx, String $msg, Object $pool)
- : DB Connection URL 요청 시점
+1. ```String url(WrContext $ctx, String $msg, Object $pool)```
+ : invoked when retrieve DB Connection URL
  
  
 ## API
 
 ### Common API
- - void log(Object c) : Logger를 통한 log
- - void println(Object c) : System.out를 통한 log
- - Object field(Object o, String field) : Object의 filed 값을 가져옴
- - Object method(Object o, String method) : Object의 method를 강제invoke 함
- - Object method1(Object o, String method) : Object의 method를 invoke 함
- - Object method(Object o, String method, String param) : Object의 method를 String 파라미터와 함께 invoke 함
- - String toString(Object o) : Object 를 toString 하여 반환
- - String toString(Object o, String def) : Object 를 toString 하여 반환, null 이면 default string 반환
- - void alert(char level, String title, String message) : Alert 을 보냄
- - int syshash(Object o) : Object 의 identityHash 값 반환
- - int syshash(HookArgs hook, int x) : Arguments의 i 인덱스의 identyHash 값 반환
- - int syshash(HookArgs hook) : This 의 identyHash 값 반환
- - void forward(WrContext wctx, int uuid) : Async Thread 를 App service로 연결
- - void forwardThread(WrContext wctx, int uuid) : Async Thread 를 Background service로 연결
- - void receive(WrContext ctx, int uuid) : 앞서 등록된 Service가 있으면 연결
- 
+ - ```void log(Object c)``` : logging
+ - ```void println(Object c)``` : System.out.println()
+ - ```Object getFieldValue(Object o, String fieldName)``` : get field value as object of 'o'
+ - ```Object invokeMethod(Object o, String methodName)``` : invoke the method
+ - ```Object invokeMethod(Object o, String methodName, Object[] args)``` : invoke the method with args
+ - ```Object invokeMethod(Object o, String methodName, Class[] argTypes, Object[] args)``` : invoke the method with args
+ - ```Object newInstance(String className)``` : new instance of the class
+ - ```Object newInstance(String className, ClassLoader loader)``` : new instance of the class from the classloader
+ - ```Object newInstance(String className, Object[] args)``` : new instance of the class with arguments
+ - ```Object newInstance(String className, ClassLoader loader, Object[] args)``` : new instance of the class with arguments from the classloader
+ - ```Object newInstance(String className, ClassLoader loader, Class[] argTypes, Object[] args)``` : new instance of the class with arguments from the classloader
+ - ```String toString(Object o)``` : invoke toString() of the object
+ - ```String toString(Object o, String def)``` : invoke toString() of the object, if null, return def.
+ - ```void alert(char level, String title, String message)``` : invoke alert (level : i\|w\|e\|f as info, warn, error, fatal).
+ - ```Class[] makeArgTypes(Class class0, Class class1, ..., classN)``` : assemble argument types array to call the reflection method ```invokeMethod()```
+ - ```Object[] makeArgs(Object obj0, Object obj1, ..., objN)``` : assemble arguments array to call the reflection method ```invokeMethod()```
 
 ### WrContext class API
- - String service() : Service Name 을 반환
- - void service(String name) : Service Name 을 set
- - int serviceHash() : Service Hash 값을 반환
- - void remoteIp(String ip) : Remote IP 을 set
- - String remoteIp() : Remote IP를 반환
- - void error(String err) : 임의의 error 를 주입
- - boolean isError() : 에러 체크
- - void group(String group) : 임의의 group을 set
- - String group() : Group을 반환
- - void login(String id) : 임의의 사용자 ID 를 set
- - String login() : 사용자 ID를 반환
- - void desc(String desc) : 임의의 Desc를 set
- - String desc() : Desc를 반환
- - String httpMethod() : Http Method를 반환
- - String httpQuery() : Http Query를 반환
- - String httpContentType() : Http Content-type을 반환
- - String userAgent() : User-Agent를 반환
- - void profile(String msg) : Msg 를 profile에 기록
- - long txid() : txid 를 반환
- - long gxid() : gxid 를 반환
- - TraceContext inner() : context를 반환
+ - ```String service()``` : get a service name of XLog from the trace context
+ - ```void service(String name)``` : set a service Name of XLog  to the trace context
+ - ```int serviceHash()``` : get a service hash value of XLog from the trace context
+ - ```void remoteIp(String ip)``` : set a remote ip of XLog to the trace context
+ - ```String remoteIp()``` : get a remote ip of XLog from the trace context
+ - ```void error(String err)``` : set a error message of XLog to the trace context
+ - ```boolean isError()``` : if error occurred in the trace context
+ - ```void group(String group)``` : set a group name of XLog to the trace context
+ - ```String group()``` : get a group name of XLog from the trace context
+ - ```void login(String id)``` : set a login value of XLog to the trace context
+ - ```String login()``` : get a login value of XLog from the trace context
+ - ```void desc(String desc)``` : set a desc value of XLog to the trace context
+ - ```String desc()``` : get a desc value of XLog from the trace context
+ - ```String httpMethod()``` : get a http method
+ - ```String httpQuery()``` : get a http query string
+ - ```String httpContentType()``` : get a http content type
+ - ```String userAgent()``` : get a user agent value
+ - ```void profile(String msg)``` : profile a message to the XLog profile
+ - ```void hashProfile(String msg, int value, int elapsed)``` : profile a message as hash value to the XLog profile
+ - ```parameterizedProfile(int level, String msgFormat, int elapsed, String[] params)``` : profile a message format with parameters.
+     - message example : "Hello, my name is %s and my age is %s"
+     - level : 0-debug, 1-info, 2-warn, 3-error, 4-fatal
+ - ```long txid()``` : get a txid of XLog
+ - ```long gxid()``` : get a gxid of XLog
+ - ```TraceContext inner()``` : get raw TraceContext를 반환
  
 ### WrRequest class API
- - String getCookie(String key) : Cookie 값을 반환
- - String getRequestURI() : Request URI를 반환
- - String getRemoteAddr() : Remote Address를 반환
- - String getMethod() : Method 를 반환
- - String getQueryString() : Query String을 반환
- - String getParameter(String key) : Parameter를 반환
- - Object getAttribute(String key) : Attribute를 반환
- - String getHeader(String key) : Header값을 반환
- - Enumeration getParameterNames() : Parameter 값들을 반환
- - Enumeration getHeaderNames() : HeaderName들을 반환
- - WrSession getSession() : WrSession객체를 반환
- - Set getSessionNames() : Session Name들을 반환
- - Object getSessionAttribute(String key) : Session 값을 반환
- - Object inner() : Request Object를 반환
- - boolean isOk() : Plugin 상태 확인
- - Throwable error() : Error 확인
+ - ```String getCookie(String key)``` : get a cookie of the key from the HttpRequest
+ - ```String getRequestURI()``` : get a request uri from the HttpRequest
+ - ```String getRemoteAddr()``` : get a remote address from the HttpRequest
+ - ```String getMethod()``` : get a http method from the HttpRequest
+ - ```String getQueryString()``` : get a query string from the HttpRequest
+ - ```String getParameter(String key)``` : get a http parameter of the key from the HttpRequest
+ - ```Object getAttribute(String key)``` : get a http request attribute of the key from the HttpRequest
+ - ```String getHeader(String key)``` : get a http header of the key from the HttpRequest
+ - ```Enumeration getParameterNames()``` :
+ - ```Enumeration getHeaderNames()``` :
+ - ```WrSession getSession()``` : get the WrSession instance
+ - ```Set getSessionNames()``` : get session attribute names from the HttpRequest
+ - ```Object getSessionAttribute(String key)``` : get a session value of the key
+ - ```Object inner()``` : get the raw HttpRequest object
+ - ```boolean isOk()``` : check the plugin status
+ - ```Throwable error()``` : get the error that occurred when the WrRequest method called.
  
 ### WrResponse class API
- - PrintWriter getWriter() : Writer를 반환
- - String getContentType() : Content-type을 반환
- - String getCharacterEncoding() : Character-encoding을 반환
- - Object inner() : Response Object를 반환
- - boolean isOk() : Plugin 상태 확인
- - Throwable error() : Error 확인
+ - ```PrintWriter getWriter()``` : get the response writer
+ - ```String getContentType()``` : get a content type of the response
+ - ```String getCharacterEncoding()``` : get a encoding of the response
+ - ```Object inner()``` : get the raw Response object
+ - ```boolean isOk()``` : check the plugin status
+ - ```Throwable error()``` : get the error that occurred when the WrResponse method called.
  
 ### WrSession class API
- - getAttribute(String key) : Attribute를 반환
- - Enumeration getAttributeNames() : Attribute Names를 반환
- - Object inner() : Session Object를 반환
- - boolean isOk() : Plugin 상태 확인
- - Throwable error() : Error 확인
+ - ```Object getAttribute(String key)``` :
+ - ```Enumeration getAttributeNames()``` :
+ - ```Object inner()``` : get the raw HttpSession object
+ - ```boolean isOk()``` : check the plugin status
+ - ```Throwable error()``` : get the error that occurred when the WrResponse method called.
  
 ### WrHttpCallRequest class API
- - void header(Object key, Object value) : Header값 추가
- - Object inner() : Request Object를 반환
- - boolean isOk() : Plugin 상태 확인
- - Throwable error() : Error 확인
+ - ```void header(Object key, Object value)``` : add http header before the call invoked
+ - ```Object inner()``` : get the http call object
+ - ```boolean isOk()``` : check the plugin status
+ - ```Throwable error()``` : get the error that occurred when the WrResponse method called.
  
 ### HookArgs class API
- - String getClassName() : Class 이름 반환
- - String getMethodName() : Method 이름 반환
- - String getMethodDesc() : Method 의 Desc 반환
- - Object getThis() : this object 반환
- - Object[] getArgs() : Arguments 반환
- - int getArgCount() : Argument 갯수 반환
+ - ```String getClassName()``` : get the class name of the invoked method
+ - ```String getMethodName()``` : get the method name invoked
+ - ```String getMethodDesc()``` : get the method description
+ - ```Object getThis()``` : get this
+ - ```Object[] getArgs()``` : get the method arguments
+ - ```int getArgCount()``` : get the argument count
 
 ### HookReturn class API
- - String getClassName() : Class 이름 반환
- - String getMethodName() : Method 이름 반환
- - String getMethodDesc() : Method 의 Desc 반환
- - Object getThis() : this object 반환
- - Object getReturn() : Return 값 반환
+ - ```String getClassName()``` : get the class name of the invoked method
+ - ```String getMethodName()``` : get the method name invoked
+ - ```String getMethodDesc()``` : get the method description
+ - ```Object getThis()``` : get this
+ - ```Object getReturn()``` : get a return value
 
  
