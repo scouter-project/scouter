@@ -123,12 +123,12 @@ public int log_keep_days = 30;
    - **toYmd** : yyyymmdd (required)
    - **serverId** : (optional if single server)
 
-#### - GET /v1/summary/service/ofType/{objType}
+#### - `GET /v1/summary/service/ofType/{objType}`
  - get service summary
- - **Auth** : required
- - **Path params**
+ - Auth : required
+ - Path params
    - **objType** : (required)
- - **Query params**
+ - Query params
    - **startYmdHm** : yyyymmddhhmi (exclusive required with startTimeMillis)
    - **endYmdHm** : yyyymmddhhmi (exclusive required with endTimeMillis)
    - **startTimeMillis** : timestamp(long) - yyyymmddhhmi (exclusive required with startYmdHm)
