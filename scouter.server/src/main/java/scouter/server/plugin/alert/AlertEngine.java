@@ -46,13 +46,13 @@ public class AlertEngine {
 			realCounter.checkTerm(alertConf.check_term);
 		}
 
-		if(alertConf.changed) {
-			alertConf.changed = false;
+		if(alertConf.lastModified > realCounter.confLastModified) {
+			realCounter.confLastModified = alertConf.lastModified;
 			realCounter.historySize(alertConf.history_size);
 			realCounter.silentTime(alertConf.silent_time);
 			realCounter.checkTerm(alertConf.check_term);
 		}
-		realCounter.value(value);
+		realCounter.setValue(value);
 
 		if (realCounter.checkTerm() > 0) {
 			long now = System.currentTimeMillis();
