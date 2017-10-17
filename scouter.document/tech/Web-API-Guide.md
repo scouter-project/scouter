@@ -119,14 +119,15 @@ public int log_keep_days = 30;
    - `counters` : (required)
    - `objType` : (required)
  - **Query params**
-   - `fromYmd` : yyyymmdd (required)
-   - `toYmd` : yyyymmdd (required)
+   - `startYmd` : yyyymmdd (required)
+   - `endYmd` : yyyymmdd (required)
    - `serverId` : (optional if single server)
 
-#### - `GET /v1/summary/service/ofType/{objType}`
- - get service summary
+#### - `GET /v1/summary/{summaryCategory}/ofType/{objType}`
+ - get summary of given category
  - **Auth** : required
  - **Path params**
+   - `summaryCategory` : service, sql, apiCall, ip, userAgent, error, alert (required)
    - `objType` : (required)
  - **Query params**
    - `startYmdHm` : yyyymmddhhmi (exclusive required with startTimeMillis)
@@ -134,5 +135,139 @@ public int log_keep_days = 30;
    - `startTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with startYmdHm)
    - `endTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with endYmdHm)
    - `serverId` : (optional if single server)
+
+#### - `GET /v1/summary/{summaryCategory}/ofObject/{objHash}`
+ - get summary of given category
+ - **Auth** : required
+ - **Path params**
+   - `summaryCategory` : service, sql, apiCall, ip, userAgent, error, alert (required)
+   - `objHash` : object id (required)
+ - **Query params**
+   - `startYmdHm` : yyyymmddhhmi (exclusive required with startTimeMillis)
+   - `endYmdHm` : yyyymmddhhmi (exclusive required with endTimeMillis)
+   - `startTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with startYmdHm)
+   - `endTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with endYmdHm)
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/xlog-data/{yyyymmdd}`
+ - get xlog data within the time range
+ - **Auth** : required
+ - **Path params**
+   - `yyyymmdd` : date to search xlogs
+ - **Query params**
+   - `startTimeMillis` : start time as milliseconds(long) (required)
+   - `endTimeMillis` : end time as milliseconds(long) (required)
+   - `objHashes` : object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
+   - `pageCount` : count to retrieve in one time. (max limit is 30,000, default 10,000)
+   - `lastTxid` : available from previous response for paging support.
+   - `lastXLogTime` : available from previous response for paging support.
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/xlog-data/{yyyymmdd}/{txid}`
+ - get xlog data within the time range
+ - **Auth** : required
+ - **Path params**
+   - `yyyymmdd` : date to search xlogs
+   - `txid` : XLog's txid (long)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/realTime/{offset1}/{offset2}`
+ - get current xlog data created after the last searched.
+ - **Auth** : required
+ - **Path params**
+   - `offset1` : the last xlog (loop) offset previously retrieved (initial value is 0)
+   - `offset2` : the last xlog offset previously retrieved (initial value is 0)
+ - **Query params**
+   - `objHashes` : object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/profile-data/{yyyymmdd}/{txid}`
+ - get profile data(decoded) from txid
+ - **Auth** : required
+ - **Path params**
+   - `yyyymmdd` : date to search xlogs
+   - `txid` : XLog's txid (long)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/activeService/stepCount/ofType/{objType}`
+ - current active service count 3-stepped by response time.
+ - **Auth** : required
+ - **Path params**
+   - `objType` : (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/activeService/ofType/{objType}`
+ - get active service list of given objType
+ - **Auth** : required
+ - **Path params**
+   - `objType` : (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/activeService/ofObject/{objHash}`
+ - get active service list of given objHash
+ - **Auth** : required
+ - **Path params**
+   - `objHash` : (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/activeService/thread/{threadId}/ofObject/{objHash}`
+ - get thread detail of the object's threadId
+ - **Auth** : required
+ - **Path params**
+   - `objHash` : (required)
+   - `threadId` : thread id gotten from active service list (required)
+ - **Query params**
+   - `txidName` : This value is for valuable service related information. (like service name & a sql that currently running)
+   - `txid` : This value has higher priority than txidName.(txidName is String type from Hexa32.toString32(txid) / txid is long type)
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/alert/realTime/{offset1}/{offset2}`
+ - retrieve current alerts unread that is produced newly after the last offsets.
+ - **Auth** : required
+ - **Path params**
+   - `offset1` : (required)
+   - `offset2` : (required)
+ - **Query params**
+   - `objType` : (required)
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/dictionary/{yyyymmdd}`
+ - get text values from dictionary keys requested
+ - **Auth** : required
+  - **Path params**
+    - `yyyymmdd` : (required)
+  - **Query params**
+    - `texts` : group of text types & text hashes (required)
+      - eg) texts=[service:10001,service:10002,obj:20001,sql:55555] (bracket is optional)
+
+#### - `GET /v1/visitor/realTime/ofType/{objType}`
+ - retrieve today visitor count by objType
+ - **Auth** : required
+ - **Path params**
+   - `objType` : (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/visitor/realTime`
+ - retrieve today visitor count by objects
+ - **Auth** : required
+ - **Query params**
+   - `objHashes` : object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/object/host/realTime/top/ofObject/{objHash}`
+ - retrieve all OS processes cpu, memory usage of the given object
+ - **Auth** : required
+ - **Path params**
+   - `objHash` : (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+
 
 
