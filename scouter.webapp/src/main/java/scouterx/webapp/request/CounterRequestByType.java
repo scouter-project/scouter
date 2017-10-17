@@ -42,12 +42,12 @@ public class CounterRequestByType {
     private String counter;
 
     @NotNull
-    @QueryParam("fromYmd")
-    private String fromYmd;
+    @QueryParam("startYmd")
+    private String startYmd;
 
     @NotNull
-    @QueryParam("toYmd")
-    private String toYmd;
+    @QueryParam("endYmd")
+    private String endYmd;
 
     @NotNull
     @PathParam("objType")

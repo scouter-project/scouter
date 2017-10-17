@@ -193,9 +193,9 @@ public class SummaryController {
     }
 
     /**
-     * retrieve ip summary data (5min precision) of specific object type within given duration.
-     * uri pattern : /summary/ip/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
-     * uri pattern : /summary/ip/ofType/{objType}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
+     * retrieve userAgent summary data (5min precision) of specific object type within given duration.
+     * uri pattern : /summary/userAgent/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/userAgent/ofType/{objType}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return
@@ -208,9 +208,9 @@ public class SummaryController {
     }
 
     /**
-     * retrieve ip summary data (5min precision) of specific object within given date duration.
-     * uri pattern : /summary/ip/ofObject/{objHash}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
-     * uri pattern : /summary/ip/ofObject/{objHash}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
+     * retrieve userAgent summary data (5min precision) of specific object within given date duration.
+     * uri pattern : /summary/userAgent/ofObject/{objHash}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /summary/userAgent/ofObject/{objHash}?startYmdHm={startYmdHm}&endYmdHm={endYmdHm}&serverId={serverId}
      *
      * @param request @see {@link SummaryRequest}
      * @return

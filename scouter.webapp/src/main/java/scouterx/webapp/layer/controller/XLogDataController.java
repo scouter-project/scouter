@@ -77,7 +77,7 @@ public class XLogDataController {
     }
 
     /**
-     * get values of several counters for given an object
+     * get current xlog data created after the last searched.
      * uri : /xlog-data/realTime/0/100?objHashes=10001,10002 or ?objHashes=[10001,100002]
      *
      * @return
@@ -117,7 +117,7 @@ public class XLogDataController {
     }
 
     /**
-     * request xlog token for range request.
+     * request xlog data within given time range
      * uri : /xlog-data/{yyyymmdd}?startTime=... @see {@link PageableXLogRequest}
      *
      * @param xLogRequest

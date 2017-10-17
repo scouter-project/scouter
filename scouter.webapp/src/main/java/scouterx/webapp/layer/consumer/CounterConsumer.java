@@ -82,8 +82,8 @@ public class CounterConsumer {
     public List<CounterView> retrieveCounterByObjType(CounterRequestByType request) {
         MapPack paramPack = new MapPack();
         paramPack.put(ParamConstant.OBJ_TYPE, request.getObjType());
-        paramPack.put(ParamConstant.SDATE, request.getFromYmd());
-        paramPack.put(ParamConstant.EDATE, request.getToYmd());
+        paramPack.put(ParamConstant.SDATE, request.getStartYmd());
+        paramPack.put(ParamConstant.EDATE, request.getEndYmd());
         paramPack.put(ParamConstant.COUNTER, request.getCounter());
 
         List<CounterView> counterViewList = new ArrayList<>();
@@ -106,8 +106,8 @@ public class CounterConsumer {
                         .name(request.getCounter())
                         .displayName(server.getCounterEngine().getCounterDisplayName(request.getObjType(), request.getCounter()))
                         .unit(server.getCounterEngine().getCounterUnit(request.getObjType(), request.getCounter()))
-                        .fromYmd(request.getFromYmd())
-                        .toYmd(request.getToYmd())
+                        .fromYmd(request.getStartYmd())
+                        .toYmd(request.getEndYmd())
                         .timeList(Arrays.stream(timeList.toObjectArray()).map(Long.class::cast).collect(Collectors.toList()))
                         .valueList(valueToDoubleList)
                         .build();

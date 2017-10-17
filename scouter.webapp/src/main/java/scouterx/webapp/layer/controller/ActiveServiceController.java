@@ -18,6 +18,7 @@
 
 package scouterx.webapp.layer.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import scouter.util.Hexa32;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
@@ -123,6 +124,7 @@ public class ActiveServiceController {
      * @param objHash
      * @param threadId
      * @param txidName This value is for valuable service related information. (like service name & a sql that currently running)
+     * @param txid This value has higher priority than txidName.(txidName is String type from Hexa32.toString32(txid) / txid is long type)
      * @param serverId optional if web instance just connected one collector server.
      * @return
      */
@@ -133,9 +135,12 @@ public class ActiveServiceController {
             @PathParam("objHash") @Valid @NotNull final int objHash,
             @PathParam("threadId") @Valid @NotNull final long threadId,
             @QueryParam("txidName") final String txidName,
+            @QueryParam("txid") long txid,
             @QueryParam("serverId") final int serverId) {
 
-        long txid = Hexa32.toLong32(txidName);
+        if (txid == 0L && StringUtils.isNotBlank(txidName)) {
+            txid = Hexa32.toLong32(txidName);
+        }
         Server server = ServerManager.getInstance().getServerIfNullDefault(serverId);
         ActiveThread activeThread = activeServiceService.retrieveActiveThread(objHash, threadId, txid, server);
 
