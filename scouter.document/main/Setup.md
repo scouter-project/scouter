@@ -9,6 +9,7 @@ Scouter do not require any installation except java.
 
 ### 1.1. Prerequisite
 * JDK 1.6+ (1.8+ recommended)
+* JDK 1.8+ (scouter web api)
 
 ### 1.2. Collector Server Installation
 1. download lateset version of scouter-yyyyMMdd.tar.gz.

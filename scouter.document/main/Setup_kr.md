@@ -7,6 +7,7 @@
 
 ### 1.1. Prerequisite
 * JDK 1.6+ (1.8+ 권장)
+* JDK 1.8+ (scouter web api 사용시)
 
 ### 1.2. Collector Server 설치 및 기동
 1. 최신버전의 scouter-yyyyMMdd.tar.gz 다운로드 받는다.
