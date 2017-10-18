@@ -8,8 +8,8 @@
 - [SCOUTER가 특별한 이유](./main/What-special-in-SCOUTER.md)
 
 ## Install
-- [Installation](./main/Setup.md)
-- [Installation FAQ](./main/Setup-FAQ.md)
+- [Installation](./main/Setup_kr.md)
+- [Installation FAQ](./main/Setup-FAQ_kr.md)
 - [Configuration - options](./main/Configuration_kr.md)
 
 ## How to use
