@@ -1,5 +1,6 @@
 package scouterx.webapp.layer.consumer;
 
+import org.apache.commons.collections.CollectionUtils;
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
@@ -9,14 +10,17 @@ import scouter.lang.value.Value;
 import scouter.net.RequestCmd;
 import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
+import scouterx.webapp.framework.client.server.ServerManager;
+import scouterx.webapp.framework.exception.ErrorState;
+import scouterx.webapp.framework.util.ZZ;
 import scouterx.webapp.model.VisitorGroup;
+import scouterx.webapp.request.VisitorGroupRequest;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by geonheelee on 2017. 10. 13..
+ * Created by csk746(csk746@naver.com) on 2017. 10. 13..
  */
 public class VisitorConsumer {
 
@@ -88,18 +92,11 @@ public class VisitorConsumer {
         return ((DecimalValue) value).value;
     }
 
-    public VisitorGroup retrieveVisitorLoaddateGroupByObjHashesAndDate(List<Integer> objHashes, String sdate, String edate, final Server server){
-        MapPack param = new MapPack();
-        ListValue listValue = new ListValue();
+    public VisitorGroup retrieveVisitorLoaddateGroupByObjHashesAndDate(VisitorGroupRequest visitorGroupRequest){
 
-        for (Integer obj : objHashes){
-            listValue.add(obj);
-        }
+        MapPack param = getVisitorGroupPack(visitorGroupRequest);
 
-        param.put(ParamConstant.OBJ_HASH, listValue);
-        param.put(ParamConstant.SDATE, sdate);
-        param.put(ParamConstant.EDATE, edate);
-
+        Server server = ServerManager.getInstance().getServerIfNullDefault(visitorGroupRequest.getServerId());
         Pack pack;
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             pack = tcpProxy.getSingle(RequestCmd.VISITOR_LOADDATE_GROUP, param);
@@ -108,18 +105,11 @@ public class VisitorConsumer {
         return VisitorGroup.of((MapPack) pack);
     }
 
-    public List<VisitorGroup> retrieveVisitorLoadhourGroupByObjHashesAndDate(List<Integer> objHashes, String sdate, String edate, final Server server){
-        MapPack param = new MapPack();
-        ListValue listValue = new ListValue();
+    public List<VisitorGroup> retrieveVisitorLoadhourGroupByObjHashesAndDate(VisitorGroupRequest visitorGroupRequest){
 
-        for (Integer obj : objHashes){
-            listValue.add(obj);
-        }
+        MapPack param = getVisitorGroupPack(visitorGroupRequest);
 
-        param.put(ParamConstant.OBJ_HASH, listValue);
-        param.put(ParamConstant.SDATE, sdate);
-        param.put(ParamConstant.EDATE, edate);
-
+        Server server = ServerManager.getInstance().getServerIfNullDefault(visitorGroupRequest.getServerId());
         List<Pack> results;
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             results = tcpProxy.process(RequestCmd.VISITOR_LOADHOUR_GROUP, param);
@@ -129,5 +119,28 @@ public class VisitorConsumer {
                 .map(pack -> (MapPack)pack)
                 .map(VisitorGroup::of)
                 .collect(Collectors.toList());
+    }
+
+    private MapPack getVisitorGroupPack(VisitorGroupRequest visitorGroupRequest){
+        MapPack param = new MapPack();
+        ListValue listValue = new ListValue();
+
+        String objHashes = visitorGroupRequest.getObjHashes();
+        String sdate = visitorGroupRequest.getSdate();
+        String edate = visitorGroupRequest.getEdate();
+
+        List<Integer> objList = ZZ.splitParamAsInteger(objHashes);
+        if (CollectionUtils.isEmpty(objList)) {
+            throw ErrorState.VALIDATE_ERROR.newBizException("Query parameter 'objHashes' is required!");
+        }
+
+        for (Integer obj : objList){
+            listValue.add(obj);
+        }
+
+        param.put(ParamConstant.OBJ_HASH, listValue);
+        param.put(ParamConstant.SDATE, sdate);
+        param.put(ParamConstant.EDATE, edate);
+        return param;
     }
 }

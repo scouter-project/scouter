@@ -6,23 +6,20 @@ import scouterx.webapp.framework.exception.ErrorState;
 import scouterx.webapp.framework.util.ZZ;
 import scouterx.webapp.layer.service.VisitorService;
 import scouterx.webapp.model.VisitorGroup;
+import scouterx.webapp.request.VisitorGroupRequest;
 import scouterx.webapp.view.CommonResultView;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 /**
- * Created by geonheelee on 2017. 10. 13..
+ * Created by csk746(csk746@naver.com) on 2017. 10. 13..
  */
 @Path("/v1/visitor")
 @Singleton
@@ -101,18 +98,9 @@ public class VisitorController {
     @GET
     @Path("/loadedDate/group/{sdate}/{edate}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<VisitorGroup> retrieveVisitorLoaddateGroupByObjHashesAndDate(@PathParam("sdate") final String sdate,
-                                                                                         @PathParam("edate") final String edate,
-                                                                                         @QueryParam("objHashes") String objHashes,
-                                                                                         @QueryParam("serverId") final int serverId) {
+    public CommonResultView<VisitorGroup> retrieveVisitorLoaddateGroupByObjHashesAndDate(@BeanParam @Valid final VisitorGroupRequest visitorGroupRequest) {
 
-        List<Integer> objList = ZZ.splitParamAsInteger(objHashes);
-        if (CollectionUtils.isEmpty(objList)) {
-            throw ErrorState.VALIDATE_ERROR.newBizException("Query parameter 'objHashes' is required!");
-        }
-
-        VisitorGroup visitorGroupLoaded = visitorService.retrieveVisitorLoaddateGroupByObjHashesAndDate(objList, sdate, edate,
-                ServerManager.getInstance().getServerIfNullDefault(serverId));
+        VisitorGroup visitorGroupLoaded = visitorService.retrieveVisitorLoaddateGroupByObjHashesAndDate(visitorGroupRequest);
 
         return CommonResultView.success(visitorGroupLoaded);
     }
@@ -120,18 +108,9 @@ public class VisitorController {
     @GET
     @Path("/loadedHour/group/{sdate}/{edate}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<VisitorGroup>> retrieveVisitorLoadhourGroupByObjHashesAndDate(@PathParam("sdate") final String sdate,
-                                                                                               @PathParam("edate") final String edate,
-                                                                                               @QueryParam("objHashes") String objHashes,
-                                                                                               @QueryParam("serverId") final int serverId) {
+    public CommonResultView<List<VisitorGroup>> retrieveVisitorLoadhourGroupByObjHashesAndDate(@BeanParam @Valid final VisitorGroupRequest visitorGroupRequest) {
 
-        List<Integer> objList = ZZ.splitParamAsInteger(objHashes);
-        if (CollectionUtils.isEmpty(objList)) {
-            throw ErrorState.VALIDATE_ERROR.newBizException("Query parameter 'objHashes' is required!");
-        }
-
-        List<VisitorGroup> visitorGroupLoadedList = visitorService.retrieveVisitorLoadhourGroupByObjHashesAndDate(objList, sdate, edate,
-                ServerManager.getInstance().getServerIfNullDefault(serverId));
+        List<VisitorGroup> visitorGroupLoadedList = visitorService.retrieveVisitorLoadhourGroupByObjHashesAndDate(visitorGroupRequest);
 
         return CommonResultView.success(visitorGroupLoadedList);
     }

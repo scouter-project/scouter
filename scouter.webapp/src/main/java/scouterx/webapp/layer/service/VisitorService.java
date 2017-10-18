@@ -3,11 +3,12 @@ package scouterx.webapp.layer.service;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.layer.consumer.VisitorConsumer;
 import scouterx.webapp.model.VisitorGroup;
+import scouterx.webapp.request.VisitorGroupRequest;
 
 import java.util.List;
 
 /**
- * Created by geonheelee on 2017. 10. 13..
+ * Created by csk746(csk746@naver.com) on 2017. 10. 13..
  */
 public class VisitorService {
 
@@ -37,12 +38,13 @@ public class VisitorService {
         return visitorConsumer.retrieveVisitorLoaddateTotalByObjAndDate(objType, date, server);
     }
 
-    public VisitorGroup retrieveVisitorLoaddateGroupByObjHashesAndDate(List<Integer> ohjHashes, String sdate, String edate, final Server server){
-        return visitorConsumer.retrieveVisitorLoaddateGroupByObjHashesAndDate(ohjHashes, sdate, edate, server);
+    public VisitorGroup retrieveVisitorLoaddateGroupByObjHashesAndDate(VisitorGroupRequest visitorGroupRequest){
+
+        return visitorConsumer.retrieveVisitorLoaddateGroupByObjHashesAndDate(visitorGroupRequest);
     }
 
-    public List<VisitorGroup> retrieveVisitorLoadhourGroupByObjHashesAndDate(List<Integer> objHashes, String sdate, String edate, final Server server){
-        return visitorConsumer.retrieveVisitorLoadhourGroupByObjHashesAndDate(objHashes, sdate, edate, server);
+    public List<VisitorGroup> retrieveVisitorLoadhourGroupByObjHashesAndDate(VisitorGroupRequest visitorGroupRequest){
+        return visitorConsumer.retrieveVisitorLoadhourGroupByObjHashesAndDate(visitorGroupRequest);
     }
 
 }
