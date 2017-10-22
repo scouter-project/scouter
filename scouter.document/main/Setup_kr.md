@@ -1,6 +1,10 @@
 # Setup
 [![English](https://img.shields.io/badge/language-English-orange.svg)](Setup.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
+- 외부 링크
+ - 블로그
+   - [Scouter 소소한 시리즈 #1 - 설치](http://gunsdevlog.blogspot.kr/2017/07/scouter-apm-1.html)
+
 ***
 
 ## 1. Collector Server 설치
@@ -74,6 +78,8 @@ cd ./scouter/agent.host
 ```
 전체 옵션 및 default 값은 scouter client의 Host > Configure 메뉴에서 확인이 가능하다.
 
+***
+
 ## 3. Tomcat Agent
 ### 3.1. Prerequisite
 * JDK 1.5+(Required), 1.6+(Recommended)
@@ -127,3 +133,9 @@ obj_name=myFirstTomcat1
 5. Fill the authentication info(default : admin/admin) and press OK button
   (먼저 scouter server가 실행되어 있어야 함.)
 6. The real-time chart will be shown.
+
+***
+
+## 5. Web API (Installation and usage)
+
+* [Web API Guide](../tech/Web-API-Guide_kr.md)

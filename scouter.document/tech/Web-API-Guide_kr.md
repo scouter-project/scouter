@@ -1,24 +1,24 @@
 # Scouter Web API Guide
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Web-API-Guide_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Web-API-Guide.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Web-API-Guide_kr.md)
 
-## Run Scouter API server
+## Scouter API Server 실행
 
-### Embedded Mode Run - Run with scouter collector server
- - set configurations below (Collector configuration - need to restart collector server)
+### Embedded Mode로 실행 - 수집서버(Collector)에서 실행
+ - 수집서버에 아래 옵션을 설정하면 수집서버와 같이 실행된다.(재기동 필요)
     - `net_http_server_enabled` : set `true`
     - `net_http_api_enabled` : set `true`
     - `net_http_port` : default value `6180`
     - `net_http_api_allow_ips` : default value `localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1`;
 
-### StandAlone Mode Run
- - Web api needs much more memory and cpu usage than scouter collector server because of servlet processing, JSON parsing and another workings.
-   So It needs to be separate this web api server from the collector server if your collector server has performance issue.
- - Run standAlone webapp (Scouter full packaging version includes scouter.webapp)
+### StandAlone Mode로 실행
+ - Web API는 Servlet을 통해 서비스 되면 HTTP 프로토콜이나 JSON 파싱 등 부가적인 작업이 필요하기 때문에 기본 수집서버에 비해 자원 사용량이 높다.
+   따라서 모니터링하는 시스템의 규모가 크다면 API 서버를 분리하여 실행할 필요가 있다.
+ - standAlone webapp 실행 (Scouter Full 패키지에 포함되어 있음)
    ```bash
    cd scouter.webapp
    ./startup.sh
    ```
- - configure before run scouter webapp
+ - scouter web app 설정 (실행전에 설정 필요)
    - ```net_collector_ip_port_id_pws``` : default value `127.0.0.1:6100:admin:admin`
      - format : `{host}:{port}:{id}:{pw},{host}:{port}:{id}:{pw}`
    - ```net_http_port``` : default value `6188`
