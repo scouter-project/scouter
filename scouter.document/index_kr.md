@@ -17,6 +17,7 @@
 - [NON-HTTP 서비스 추적하기](./use-case/NON-HTTP-Service-Trace.md)
 - [method 상세 프로파일](./use-case/Method-Profiling_kr.md)
 - [Scouter 확장 - Plugin guide](./main/Plugin-Guide_kr.md)
+- [Web api 가이드](./tech/Web-API-Guide_kr.md)
 - [사용자 정의 알람 설정 - Alert plugins guide](./main/Alert-Plugin-Guide_kr.md)
 - [단독 실행형 자바 배치 모니터링 에이전트](./main/Stand-alone-Java-Batch-Agent_kr.md)
 - [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
@@ -30,10 +31,6 @@
 - [방문사용자 계산하기](./tech/Counting-Visit-Users)
 - [JDBC Connection Leak Trace](./tech/JDBC-Connection-Leak-Trace.md)
 - [Service Performance 101](./tech/Service-Performance-101.md)
-
-## Build Scouter
-- [Build on Linux & OSX](./main/Build-Scouter.md)
-- [Build on Window](./main/Build-Scouter-Windows.md)
 
 ## For developers and contibutors
 - [Scouter 개발자 가이드](./tech/Developer-Guide_kr.md)

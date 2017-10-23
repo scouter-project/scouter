@@ -34,6 +34,7 @@ SCOUTER can help you.
 ## Documents
  - [Document home](./scouter.document/index.md)
  - [Quick start guide (Quick Installation of demo system)](./scouter.document/main/Quick-Start.md)
+ - [Installation](./scouter.document/main/Setup.md)
  - [Live demo](./scouter.document/main/Live-Demo.md)
  - [Client screen help](./scouter.document/client/How-To-Use-Client.md)
 
