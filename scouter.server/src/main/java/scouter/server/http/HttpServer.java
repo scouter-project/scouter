@@ -70,20 +70,14 @@ public class HttpServer extends Thread {
             RequestLogHandler requestLogHandler = new RequestLogHandler();
             requestLogHandler.setRequestLog(requestLog);
 
-            ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-            context.setContextPath("/");
-            context.addServlet(new ServletHolder(CounterServlet.class), "/counter/*");
-            context.addServlet(new ServletHolder(RegisterServlet.class), "/register/*");
-
+            ServletContextHandler context = null;
             handlers.addHandler(requestLogHandler);
-            handlers.addHandler(context);
-
-            server.setHandler(handlers);
 
             if (conf.net_http_api_enabled) {
                 try {
                     Class c = Class.forName("scouterx.webapp.main.WebAppMain");
-                    c.getMethod("setWebAppContext", Server.class).invoke(null, server);
+                    Object result = c.getMethod("setWebAppContext").invoke(null);
+                    context = (ServletContextHandler) result;
                 } catch (Throwable e) {
                     Logger.println("Error while loading webapp api context!");
                     System.out.println("Error while loading webapp api context!");
@@ -91,6 +85,16 @@ public class HttpServer extends Thread {
                     e.printStackTrace();
                 }
             }
+
+            if (context == null) {
+                context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+                context.setContextPath("/");
+            }
+            context.addServlet(new ServletHolder(CounterServlet.class), "/counter/*");
+            context.addServlet(new ServletHolder(RegisterServlet.class), "/register/*");
+
+            handlers.addHandler(context);
+            server.setHandler(handlers);
 
             try {
                 server.start();

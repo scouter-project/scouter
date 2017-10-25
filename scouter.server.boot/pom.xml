@@ -62,6 +62,22 @@
                             <excludeArtifactIds>scouter-common</excludeArtifactIds>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>copy-dependencies-min</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib-min</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <includeScope>runtime</includeScope>
+                            <excludeTransitive>true</excludeTransitive>
+                            <excludeArtifactIds>scouter-common,scouter-webapp</excludeArtifactIds>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -74,6 +90,13 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
+                                <!-- copy min libs -->
+                                <copy todir="${project.build.directory}/lib-min">
+                                    <fileset dir="../scouter.server/target/lib">
+                                        <include name="**/*" />
+                                    </fileset>
+                                </copy>
+
                                 <mkdir dir="${scouter.assembly.working.dir}" />
                                 <copy todir="${scouter.assembly.working.dir}">
                                     <fileset dir="${project.basedir.assembly.dir}/scripts">
@@ -94,6 +117,7 @@
                                     <tarfileset dir="${project.build.directory}">
                                         <include name="${project.artifactId}.jar" />
                                         <include name="lib/**/*" />
+                                        <include name="lib-min/**/*" />
                                     </tarfileset>
                                     <tarfileset dir="${project.basedir.assembly.dir}">
                                         <include name="conf/**/*" />

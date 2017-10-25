@@ -172,7 +172,7 @@ public int log_keep_days = 30;
  - **Query params**
    - `serverId` : (optional if single server)
 
-#### - `GET /v1/realTime/{offset1}/{offset2}`
+#### - `GET /v1/xlog-data/realTime/{offset1}/{offset2}`
  - get current xlog data created after the last searched.
  - **Auth** : required
  - **Path params**

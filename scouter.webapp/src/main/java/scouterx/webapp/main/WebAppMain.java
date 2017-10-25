@@ -83,6 +83,7 @@ public class WebAppMain extends Application {
     public static void main(String[] args) throws Exception {
         WebAppMain.standAloneMode = true;
         Logo.print(true);
+
         initializeLogDir();
 
         final ConfigureAdaptor conf = ConfigureManager.getConfigure();
@@ -167,6 +168,23 @@ public class WebAppMain extends Application {
         return holderHome;
     }
 
+	private static RequestLogHandler setRequestLogHandler() {
+		ConfigureAdaptor conf = ConfigureManager.getConfigure();
+
+		NCSARequestLog requestLog = new NCSARequestLog();
+		requestLog.setFilename("./logs/http-request-yyyy_mm_dd.log");
+		requestLog.setFilenameDateFormat("yyyy_MM_dd");
+		requestLog.setRetainDays(conf.getLogKeepDays());
+		requestLog.setAppend(true);
+		requestLog.setExtended(true);
+		requestLog.setLogCookies(false);
+		requestLog.setLogTimeZone(TimeZone.getDefault().getID());
+		RequestLogHandler requestLogHandler = new RequestLogHandler();
+		requestLogHandler.setRequestLog(requestLog);
+
+		return requestLogHandler;
+	}
+
     private static void connectScouterCollector() {
         Logger log = LoggerFactory.getLogger(WebAppMain.class);
 
@@ -235,7 +253,6 @@ public class WebAppMain extends Application {
         firstLogger.info("scouter webapp starting! Run-Mode:" + (WebAppMain.standAloneMode ? "StandAlone" : "Embedded"));
     }
 
-
     /**
      * Initialize context needed by scouter web http api application.
      * @param server
@@ -244,7 +261,7 @@ public class WebAppMain extends Application {
         ConfigureAdaptor conf = ConfigureManager.getConfigure();
 
         //The case - embedded mode (run in-process of scouter server)
-        if (WebAppMain.standAloneMode == false) {
+        if (!standAloneMode) {
             initializeLogDir();
             connectScouterCollector();
         }
@@ -257,5 +274,4 @@ public class WebAppMain extends Application {
 
         server.setHandler(webHttpApiHandler);
     }
-
 }

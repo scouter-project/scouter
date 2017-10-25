@@ -42,10 +42,18 @@ public class JavaAgent {
 
 		Configure conf = Configure.getInstance();
 		if(conf.hook_lambda_instrumentation_strategy_enabled) {
-			Logger.println("hook_lambda_instrumentation_strategy_enabled = true!");
-			new AgentBuilder.Default()
-					.with(AgentBuilder.LambdaInstrumentationStrategy.ENABLED)
-					.installOn(instrum);
+			Logger.println("LD001", "hook_lambda_instrumentation_strategy_enabled = true!");
+			Logger.println("LD001", "This feature is very experimental !!\n test it in your test environment first !!");
+
+			try {
+				new AgentBuilder.Default()
+						.with(AgentBuilder.LambdaInstrumentationStrategy.ENABLED)
+						.installOn(instrum);
+			} catch (Throwable t) {
+				Logger.println("LD002", "scouter min version doesn't support this feature !!!");
+				Logger.println("LD002", "Fail to hook_lambda_instrumentation_strategy_enabled !");
+				Logger.println("LD003", "Fatal on load bytebuddy AgentBuilder", t);
+			}
 		}
 
 		BackJobs.getInstance().put(Logger.class.getName(), 3000, Logger.initializer);
