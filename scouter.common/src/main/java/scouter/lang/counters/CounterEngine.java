@@ -277,7 +277,7 @@ public class CounterEngine {
 		while (types.hasMoreElements()) {
 			ObjectType obj = types.nextElement();
 			scouter.lang.Counter[] counters = obj.listCounters();
-			if(counters == null) return null;
+			if(counters == null || counters.length == 0) continue;
 			for (scouter.lang.Counter counter : counters) {
 				if (counter.isAll()) {
 					list.add(obj.getName() + ":" + counter.getDisplayName() + ":" + counter.getName());
