@@ -54,7 +54,7 @@ public class CounterController {
 
     /**
      * get current value of several counters about a type
-     * uri : /counter/realTime/{counters}/ofType/{objType}?serverId=1001010&counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
+     * uri : /counter/realTime/{counters}/ofType/{objType}?serverId=1001010
      *
      * @param objType
      * @param counterNameByCommaSeparator

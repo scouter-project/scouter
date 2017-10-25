@@ -63,7 +63,7 @@ public class WebAppMain {
     }
 
 	public static void main(String[] args) {
-        WebAppMain.standAloneMode = true;
+        standAloneMode = true;
 		Logo.print(true);
         initializeLogDir();
 
@@ -71,7 +71,15 @@ public class WebAppMain {
         connectScouterCollector();
 
         Server server = new Server(conf.getNetHttpPort());
-		setWebAppContext(server);
+		HandlerCollection handlers = new HandlerCollection();
+
+		RequestLogHandler requestLogHandler = setRequestLogHandler();
+		handlers.addHandler(requestLogHandler);
+
+		ServletContextHandler context = setWebAppContext();
+		handlers.addHandler(context);
+
+		server.setHandler(handlers);
 
 		try {
 			server.start();
@@ -79,6 +87,23 @@ public class WebAppMain {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static RequestLogHandler setRequestLogHandler() {
+		ConfigureAdaptor conf = ConfigureManager.getConfigure();
+
+		NCSARequestLog requestLog = new NCSARequestLog();
+		requestLog.setFilename("./logs/http-request-yyyy_mm_dd.log");
+		requestLog.setFilenameDateFormat("yyyy_MM_dd");
+		requestLog.setRetainDays(conf.getLogKeepDays());
+		requestLog.setAppend(true);
+		requestLog.setExtended(true);
+		requestLog.setLogCookies(false);
+		requestLog.setLogTimeZone(TimeZone.getDefault().getID());
+		RequestLogHandler requestLogHandler = new RequestLogHandler();
+		requestLogHandler.setRequestLog(requestLog);
+
+		return requestLogHandler;
 	}
 
     private static void connectScouterCollector() {
@@ -149,37 +174,20 @@ public class WebAppMain {
         firstLogger.info("scouter webapp starting! Run-Mode:" + (WebAppMain.standAloneMode ? "StandAlone" : "Embedded"));
     }
 
-    public static void setWebAppContext(Server server) {
+    public static ServletContextHandler setWebAppContext() {
         ConfigureAdaptor conf = ConfigureManager.getConfigure();
 
         //The case - embedded mode (run in-process of scouter server)
-        if (WebAppMain.standAloneMode == false) {
+        if (!standAloneMode) {
             initializeLogDir();
             connectScouterCollector();
         }
-
-		HandlerCollection handlers = new HandlerCollection();
-		NCSARequestLog requestLog = new NCSARequestLog();
-		requestLog.setFilename("./logs/http-request-yyyy_mm_dd.log");
-		requestLog.setFilenameDateFormat("yyyy_MM_dd");
-		requestLog.setRetainDays(conf.getLogKeepDays());
-		requestLog.setAppend(true);
-		requestLog.setExtended(true);
-		requestLog.setLogCookies(false);
-		requestLog.setLogTimeZone(TimeZone.getDefault().getID());
-		RequestLogHandler requestLogHandler = new RequestLogHandler();
-		requestLogHandler.setRequestLog(requestLog);
 
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.getSessionHandler().setMaxInactiveInterval(conf.getNetHttpApiSessionTimeout());
 
         context.setBaseResource(Resource.newClassPathResource("/webroot"));
-
 		context.setContextPath("/");
-		handlers.addHandler(requestLogHandler);
-		handlers.addHandler(context);
-
-		server.setHandler(handlers);
 
 		ServletHolder jerseyHolder = new ServletHolder(ServletContainer.class);
 		jerseyHolder.setInitParameter("jersey.config.server.provider.packages", "scouterx.webapp");
@@ -191,5 +199,7 @@ public class WebAppMain {
 		ServletHolder defaultHolder = new ServletHolder("default", DefaultServlet.class);
 		defaultHolder.setInitParameter("dirAllowed","false");
 		context.addServlet(defaultHolder,"/");
+
+		return context;
 	}
 }
