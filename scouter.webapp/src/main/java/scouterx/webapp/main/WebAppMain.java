@@ -18,16 +18,15 @@
 
 package scouterx.webapp.main;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.*;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
-import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.Resource;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +44,8 @@ import scouterx.webapp.framework.configure.ServerConfig;
 import scouterx.webapp.framework.filter.LoggingInitServletFilter;
 import scouterx.webapp.framework.filter.NoCacheFilter;
 import scouterx.webapp.framework.filter.ReleaseResourceFilter;
-import scouterx.webapp.swagger.util.ApiOriginFilter;
-import scouterx.webapp.swagger.util.Bootstrap;
+import scouterx.webapp.swagger.ApiOriginFilter;
+import scouterx.webapp.swagger.Bootstrap;
 
 import javax.servlet.DispatcherType;
 import javax.ws.rs.core.Application;
@@ -63,6 +62,20 @@ import java.util.TimeZone;
 public class WebAppMain extends Application {
     private static boolean standAloneMode = false;
 
+    /**
+     * if you want use the Swagger.
+     * add "-DisUseSwagger=true" your VM options When bootrun.
+     * Not recommend using on **Production** environment.
+     */
+    public static boolean IS_USE_SWAGGER = false;
+
+    static {
+        String isUseSwaggerProperty = System.getProperty("isUseSwagger");
+        if (StringUtils.isNoneEmpty(isUseSwaggerProperty) && "true".equalsIgnoreCase(isUseSwaggerProperty)) {
+            IS_USE_SWAGGER = true;
+        }
+    }
+
     public static boolean isStandAloneMode() {
         return standAloneMode;
     }
@@ -72,10 +85,10 @@ public class WebAppMain extends Application {
         Logo.print(true);
         initializeLogDir();
 
-        ConfigureAdaptor conf = ConfigureManager.getConfigure();
+        final ConfigureAdaptor conf = ConfigureManager.getConfigure();
         connectScouterCollector();
 
-        Server server = new Server(conf.getNetHttpPort());
+        final Server server = new Server(conf.getNetHttpPort());
         setWebAppContext(server);
 
         try {
@@ -103,9 +116,14 @@ public class WebAppMain extends Application {
     }
 
     private static ServletContextHandler setWebHttpApiHandler (ConfigureAdaptor conf) {
+        String providerPackages = "scouterx.webapp";
+        if (IS_USE_SWAGGER) {
+            providerPackages += ",io.swagger.jaxrs.listing";
+        }
+
         final ServletHolder jerseyHolder = new ServletHolder(ServletContainer.class);
         jerseyHolder.setInitParameter("javax.ws.rs.Application", "scouterx.webapp.main.WebAppMain");
-        jerseyHolder.setInitParameter("jersey.config.server.provider.packages", "scouterx.webapp.layer.controller,io.swagger.jaxrs.listing");
+        jerseyHolder.setInitParameter("jersey.config.server.provider.packages", providerPackages);
         jerseyHolder.setInitOrder(1);
 
         final ServletContextHandler servletContextHandler = new ServletContextHandler();
@@ -113,7 +131,8 @@ public class WebAppMain extends Application {
         servletContextHandler.getSessionHandler().setMaxInactiveInterval(conf.getNetHttpApiSessionTimeout());
         servletContextHandler.setContextPath("/");
         servletContextHandler.addServlet(jerseyHolder, "/scouter/*");
-        servletContextHandler.addServlet(setStaticContentHandler(), "/static/*");
+        servletContextHandler.addServlet(setStaticContentHandler(), "/*");
+        servletContextHandler.addServlet(setSwaggerBootstrapHandler(), "/swagger/*");
 
         addFilter(servletContextHandler);
 
@@ -121,11 +140,20 @@ public class WebAppMain extends Application {
     }
 
     private static void addFilter (ServletContextHandler servletContextHandler) {
-        servletContextHandler.addFilter(ApiOriginFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
+        if (IS_USE_SWAGGER) {
+            servletContextHandler.addFilter(ApiOriginFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
+        }
+
         servletContextHandler.addFilter(LoggingInitServletFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
         servletContextHandler.addFilter(NoCacheFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
         servletContextHandler.addFilter(ReleaseResourceFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
+    }
 
+    private static ServletHolder setSwaggerBootstrapHandler () {
+        ServletHolder swaggerBootstrap = new ServletHolder(Bootstrap.class);
+        swaggerBootstrap.setInitOrder(2);
+
+        return swaggerBootstrap;
     }
 
     private static ServletHolder setStaticContentHandler () {
@@ -208,7 +236,10 @@ public class WebAppMain extends Application {
     }
 
 
-
+    /**
+     * Initialize context needed by scouter web http api application.
+     * @param server
+     */
     public static void setWebAppContext(Server server) {
         ConfigureAdaptor conf = ConfigureManager.getConfigure();
 

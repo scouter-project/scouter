@@ -40,13 +40,11 @@ public class HostObjectRequestController {
     }
 
     @GET
-    @ApiOperation(value = "/realTime/top/ofObject/{objHash}", notes = "Hello world example - java code.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK - java code"),
-            @ApiResponse(code = 400, message = "Bad Request examp - java code.") })
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "xyz", dataType = "string", paramType = "path"),
-            @ApiImplicitParam(name = "abc", dataType = "string", paramType = "query"),
-            @ApiImplicitParam(name = "my-header", dataType = "string", paramType = "header") })
+    @ApiOperation(value = "/realTime/top/ofObject/{objHash}", notes = "Get system process information by TOP command.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK - Json Data"),
+            @ApiResponse(code = 500, message = "Server error")
+    })
     @Path("/realTime/top/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List<ProcessObject>> retrieveRealTimeTopByObjType(
