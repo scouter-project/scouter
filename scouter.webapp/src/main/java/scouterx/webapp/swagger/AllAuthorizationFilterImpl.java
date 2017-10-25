@@ -10,6 +10,9 @@ import io.swagger.models.properties.Property;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author leekyoungil (leekyoungil@gmail.com) on 2017. 10. 24.
+ */
 public class AllAuthorizationFilterImpl extends AbstractSpecFilter {
 
         public boolean isOperationAllowed(Operation operation,

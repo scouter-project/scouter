@@ -12,6 +12,9 @@ import java.net.UnknownHostException;
 
 import static scouterx.webapp.main.WebAppMain.IS_USE_SWAGGER;
 
+/**
+ * @author leekyoungil (leekyoungil@gmail.com) on 2017. 10. 24.
+ */
 public class Bootstrap extends HttpServlet {
 
     private final String apiVersion = "1.0.0";
@@ -27,11 +30,13 @@ public class Bootstrap extends HttpServlet {
 
         String serverIp = null;
 
-        try {
-            serverIp = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
+        // @TODO : help @gunlee
+        // if serverIp is not '127.0.0.1' always return 'login required'.
+//        try {
+//            serverIp = InetAddress.getLocalHost().getHostAddress();
+//        } catch (UnknownHostException e) {
             serverIp = "127.0.0.1";
-        }
+//        }
 
         ConfigureAdaptor conf = ConfigureManager.getConfigure();
 

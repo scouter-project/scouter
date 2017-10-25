@@ -132,7 +132,7 @@ public class WebAppMain extends Application {
         servletContextHandler.setContextPath("/");
         servletContextHandler.addServlet(jerseyHolder, "/scouter/*");
         servletContextHandler.addServlet(setStaticContentHandler(), "/*");
-        servletContextHandler.addServlet(setSwaggerBootstrapHandler(), "/swagger/*");
+        servletContextHandler.addServlet(setSwaggerBootstrapHandler(), "/swagger");
 
         addFilter(servletContextHandler);
 
