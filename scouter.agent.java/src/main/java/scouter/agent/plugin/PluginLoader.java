@@ -250,7 +250,7 @@ public class PluginLoader extends Thread {
 		try {
 			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
 			String superName = AbstractAppService.class.getName();
-			String className = "scouter.agent.plugIn.impl.ServiceTraceImpl";
+			String className = "scouter.agent.plugin.impl.ServiceTraceImpl";
 			String START = "start";
 			String START_SIG = "(" + nativeName(WrContext.class) + nativeName(HookArgs.class) + ")V";
 			String START_P1 = WrContext.class.getName();
@@ -334,7 +334,7 @@ public class PluginLoader extends Thread {
 		try {
 			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
 			String superName = AbstractCapture.class.getName();
-			String className = "scouter.agent.plugIn.impl.CaptureImpl";
+			String className = "scouter.agent.plugin.impl.CaptureImpl";
 			String ARG = "capArgs";
 			String ARG_SIG = "(" + nativeName(WrContext.class) + nativeName(HookArgs.class) + ")V";
 			String ARG_P1 = WrContext.class.getName();
@@ -447,7 +447,7 @@ public class PluginLoader extends Thread {
 		try {
 			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
 			String superName = AbstractJdbcPool.class.getName();
-			String className = "scouter.agent.plugIn.impl.JdbcPoolImpl";
+			String className = "scouter.agent.plugin.impl.JdbcPoolImpl";
 			String URL = "url";
 			String URL_SIG = "(" + nativeName(WrContext.class) + nativeName(String.class) + nativeName(Object.class)
 					+ ")" + nativeName(String.class);
@@ -508,7 +508,7 @@ public class PluginLoader extends Thread {
 		try {
 			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
 			String superName = AbstractHttpCall.class.getName();
-			String className = "scouter.agent.plugIn.impl.IHttCallTraceImpl";
+			String className = "scouter.agent.plugin.impl.IHttCallTraceImpl";
 			String CALL = "call";
 			String CALL_SIG = "(" + nativeName(WrContext.class) + nativeName(WrHttpCallRequest.class) + ")V";
 			String CALL_P1 = WrContext.class.getName();
@@ -568,7 +568,7 @@ public class PluginLoader extends Thread {
         try {
             HashMap<String, StringBuffer> bodyTable = loadFileText(script);
             String superName = AbstractCounter.class.getName();
-            String className = "scouter.agent.plugIn.impl.CounterImpl";
+            String className = "scouter.agent.plugin.impl.CounterImpl";
             String METHOD_COUNTER = "counter";
             String METHOD_SIGNATURE = "(" + nativeName(PerfCounterPack.class) +")V";
             String METHOD_P1 = PerfCounterPack.class.getName();
