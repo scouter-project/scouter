@@ -1,5 +1,6 @@
 package scouterx.webapp.layer.controller;
 
+import io.swagger.annotations.Api;
 import org.apache.commons.collections.CollectionUtils;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.framework.exception.ErrorState;
@@ -24,6 +25,7 @@ import java.util.List;
  * Created by geonheelee on 2017. 10. 13..
  */
 @Path("/v1/visitor")
+@Api("Visitor")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class VisitorController {

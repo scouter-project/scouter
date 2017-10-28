@@ -75,6 +75,9 @@ public class StandAloneConfigure extends Thread {
 	@ConfigDesc("HTTP service port")
 	public int net_http_port = NetConstants.WEBAPP_HTTP_PORT;
 
+	@ConfigDesc("HTTP API swagger enable option")
+	public boolean net_http_api_swagger_enabled = false;
+
 	@ConfigDesc("Log directory")
 	public String log_dir = "./logs";
 	@ConfigDesc("Keeping period of log")
@@ -171,6 +174,7 @@ public class StandAloneConfigure extends Thread {
 		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1");
 
 		this.net_http_port = getInt("net_http_port", NetConstants.WEBAPP_HTTP_PORT);
+		this.net_http_api_swagger_enabled = getBoolean("net_http_api_enabled", false);
 
 		this.log_dir = getValue("log_dir", "./logs");
 		this.log_keep_days = getInt("log_keep_days", 30);

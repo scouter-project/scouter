@@ -18,6 +18,7 @@
 
 package scouterx.webapp.layer.controller;
 
+import io.swagger.annotations.Api;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.framework.exception.ErrorState;
 import scouterx.webapp.framework.util.ZZ;
@@ -31,7 +32,13 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -40,6 +47,7 @@ import java.util.List;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
 @Path("/v1/counter")
+@Api("Counter")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class CounterController {

@@ -18,11 +18,10 @@
 
 package scouterx.webapp.main;
 
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.*;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -67,15 +66,6 @@ public class WebAppMain extends Application {
      * add "-DisUseSwagger=true" your VM options When bootrun.
      * Not recommend using on **Production** environment.
      */
-    public static boolean IS_USE_SWAGGER = false;
-
-    static {
-        String isUseSwaggerProperty = System.getProperty("isUseSwagger");
-        if (StringUtils.isNoneEmpty(isUseSwaggerProperty) && "true".equalsIgnoreCase(isUseSwaggerProperty)) {
-            IS_USE_SWAGGER = true;
-        }
-    }
-
     public static boolean isStandAloneMode() {
         return standAloneMode;
     }
@@ -90,7 +80,16 @@ public class WebAppMain extends Application {
         connectScouterCollector();
 
         final Server server = new Server(conf.getNetHttpPort());
-        setWebAppContext(server);
+
+        HandlerCollection handlers = new HandlerCollection();
+
+        RequestLogHandler requestLogHandler = setRequestLogHandler();
+        handlers.addHandler(requestLogHandler);
+
+        ServletContextHandler servletContextHandler = setWebAppContext();
+        handlers.addHandler(servletContextHandler);
+
+        server.setHandler(handlers);
 
         try {
             server.start();
@@ -100,25 +99,11 @@ public class WebAppMain extends Application {
         }
     }
 
-    private static RequestLogHandler setRequestLogHandler (ConfigureAdaptor conf) {
-        NCSARequestLog requestLog = new NCSARequestLog();
-        requestLog.setFilename("./logs/http-request-yyyy_mm_dd.log");
-        requestLog.setFilenameDateFormat("yyyy_MM_dd");
-        requestLog.setRetainDays(conf.getLogKeepDays());
-        requestLog.setAppend(true);
-        requestLog.setExtended(true);
-        requestLog.setLogCookies(false);
-        requestLog.setLogTimeZone(TimeZone.getDefault().getID());
+    private static ServletContextHandler setWebHttpApiHandler () {
+        ConfigureAdaptor conf = ConfigureManager.getConfigure();
 
-        RequestLogHandler requestLogHandler = new RequestLogHandler();
-        requestLogHandler.setRequestLog(requestLog);
-
-        return requestLogHandler;
-    }
-
-    private static ServletContextHandler setWebHttpApiHandler (ConfigureAdaptor conf) {
         String providerPackages = "scouterx.webapp";
-        if (IS_USE_SWAGGER) {
+        if (conf.isNetHttpApiSwaggerEnabled()) {
             providerPackages += ",io.swagger.jaxrs.listing";
         }
 
@@ -131,6 +116,7 @@ public class WebAppMain extends Application {
         servletContextHandler.setSessionHandler(new SessionHandler());
         servletContextHandler.getSessionHandler().setMaxInactiveInterval(conf.getNetHttpApiSessionTimeout());
         servletContextHandler.setContextPath("/");
+
         servletContextHandler.addServlet(jerseyHolder, "/scouter/*");
         servletContextHandler.addServlet(setStaticContentHandler(), "/*");
         servletContextHandler.addServlet(setSwaggerBootstrapHandler(), "/swagger");
@@ -141,7 +127,8 @@ public class WebAppMain extends Application {
     }
 
     private static void addFilter (ServletContextHandler servletContextHandler) {
-        if (IS_USE_SWAGGER) {
+        ConfigureAdaptor conf = ConfigureManager.getConfigure();
+        if (conf.isNetHttpApiSwaggerEnabled()) {
             servletContextHandler.addFilter(ApiOriginFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
         }
 
@@ -255,23 +242,15 @@ public class WebAppMain extends Application {
 
     /**
      * Initialize context needed by scouter web http api application.
-     * @param server
+     * (This method also can be invoked from scouter.server's Http Server when this webapp runs as an embedded mode.)
+     *
      */
-    public static void setWebAppContext(Server server) {
-        ConfigureAdaptor conf = ConfigureManager.getConfigure();
-
+    public static ServletContextHandler setWebAppContext() {
         //The case - embedded mode (run in-process of scouter server)
         if (!standAloneMode) {
             initializeLogDir();
             connectScouterCollector();
         }
-
-        final ServletContextHandler webHttpApiHandler = setWebHttpApiHandler(conf);
-        final RequestLogHandler requestLogHandler = setRequestLogHandler(conf);
-
-        ContextHandlerCollection contexts = new ContextHandlerCollection();
-        contexts.setHandlers(new Handler[]{webHttpApiHandler, requestLogHandler});
-
-        server.setHandler(webHttpApiHandler);
+        return setWebHttpApiHandler();
     }
 }

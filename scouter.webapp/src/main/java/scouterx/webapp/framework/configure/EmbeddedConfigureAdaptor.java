@@ -105,4 +105,9 @@ public class EmbeddedConfigureAdaptor implements ConfigureAdaptor {
     public int getNetWebappTcpClientPoolTimeout() {
         return conf.net_webapp_tcp_client_pool_timeout;
     }
+
+    @Override
+    public boolean isNetHttpApiSwaggerEnabled() {
+        return conf.net_http_api_swagger_enabled;
+    }
 }

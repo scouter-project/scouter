@@ -139,6 +139,8 @@ public class Configure extends Thread {
 	public int net_http_port = NetConstants.SERVER_HTTP_PORT;
 	@ConfigDesc("Activating Scouter API")
 	public boolean net_http_api_enabled = false;
+	@ConfigDesc("HTTP API swagger enable option")
+	public boolean net_http_api_swagger_enabled = false;
 
 	@ConfigDesc("size of webapp connection pool to collector")
 	public int net_webapp_tcp_client_pool_size = 12;
@@ -349,6 +351,7 @@ public class Configure extends Thread {
 		this.net_http_server_enabled = getBoolean("net_http_server_enabled", false);
 		this.net_http_port = getInt("net_http_port", NetConstants.SERVER_HTTP_PORT);
 		this.net_http_api_enabled = getBoolean("net_http_api_enabled", false);
+		this.net_http_api_swagger_enabled = getBoolean("net_http_api_swagger_enabled", false);
 
 		this.net_webapp_tcp_client_pool_size = getInt("net_webapp_tcp_client_pool_size", 12);
 		this.net_webapp_tcp_client_pool_timeout = getInt("net_webapp_tcp_client_pool_timeout", net_tcp_client_so_timeout_ms);

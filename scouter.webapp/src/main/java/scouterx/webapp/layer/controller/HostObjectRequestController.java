@@ -25,7 +25,7 @@ import java.util.List;
  * @author leekyoungil (leekyoungil@gmail.com) on 2017. 10. 14.
  */
 @Path("/v1/object/host")
-@Api(value = "/v1/object/host")
+@Api("Host object request")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class HostObjectRequestController {

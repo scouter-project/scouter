@@ -38,4 +38,5 @@ public interface ConfigureAdaptor {
     boolean isTrace();
     int getNetWebappTcpClientPoolSize();
     int getNetWebappTcpClientPoolTimeout();
+    boolean isNetHttpApiSwaggerEnabled();
 }

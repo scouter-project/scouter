@@ -18,7 +18,6 @@
 
 package scouterx.webapp.request;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -42,17 +41,14 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
 public class RealTimeXLogDataRequest {
-    @NotNull
+    int serverId;
+
     @PathParam("offset1")
     long xLogLoop;
 
-    @NotNull
     @PathParam("offset2")
     int xLogIndex;
-
-    int serverId;
 
     @NotNull
     Set<Integer> objHashes;
@@ -61,8 +57,6 @@ public class RealTimeXLogDataRequest {
     public void setObjHashes(String objHashes) {
         this.objHashes = ZZ.splitParamAsIntegerSet(objHashes);
     }
-
-    public RealTimeXLogDataRequest() { }
 
     @QueryParam("serverId")
     public void setServerId(int serverId) {
