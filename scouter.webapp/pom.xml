@@ -20,6 +20,7 @@
         <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scouter.webapp.jarName>scouter.webapp</scouter.webapp.jarName>
+        <swagger.version>1.5.16</swagger.version>
     </properties>
 
     <dependencies>
@@ -96,6 +97,12 @@
             <version>3.2.2</version>
         </dependency>
 
+        <!-- Swagger -->
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-jersey2-jaxrs</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>

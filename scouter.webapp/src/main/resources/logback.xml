@@ -8,7 +8,7 @@
 
     <appender name="DEFAULT" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <prudent>true</prudent>
-        <file>${scouter_webapp_log_dir}/webapp.log</file>
+        <file>${scouter_webapp_log_dir}/webroot.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${scouter_webapp_log_dir}/webapp-%d{yyyy_MM_dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>

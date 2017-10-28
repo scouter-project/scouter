@@ -1,5 +1,6 @@
 package scouterx.webapp.layer.controller;
 
+import io.swagger.annotations.*;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.layer.service.HostObjectRequestService;
@@ -24,6 +25,7 @@ import java.util.List;
  * @author leekyoungil (leekyoungil@gmail.com) on 2017. 10. 14.
  */
 @Path("/v1/object/host")
+@Api(value = "/v1/object/host")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class HostObjectRequestController {
@@ -38,6 +40,11 @@ public class HostObjectRequestController {
     }
 
     @GET
+    @ApiOperation(value = "/realTime/top/ofObject/{objHash}", notes = "Get system process information by TOP command.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK - Json Data"),
+            @ApiResponse(code = 500, message = "Server error")
+    })
     @Path("/realTime/top/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List<ProcessObject>> retrieveRealTimeTopByObjType(
