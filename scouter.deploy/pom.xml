@@ -76,7 +76,7 @@
                                 <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.java.assembly.name}.tar" dest="${scouter.assembly.agent.java.dir}" />
                                 <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.batch.assembly.name}.tar" dest="${scouter.assembly.agent.batch.dir}" />
                                 <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.server.assembly.name}.tar" dest="${scouter.assembly.server.dir}" />
-                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.webroot.assembly.name}.tar" dest="${scouter.assembly.webroot.dir}" />
+                                <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.webapp.assembly.name}.tar" dest="${scouter.assembly.webapp.dir}" />
 
                                 <!-- make tar ball -->
                                 <delete>
