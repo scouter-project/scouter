@@ -1,6 +1,8 @@
 package scouterx.webapp.swagger;
 
 import io.swagger.jaxrs.config.BeanConfig;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
 
@@ -11,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 /**
  * @author leekyoungil (leekyoungil@gmail.com) on 2017. 10. 24.
  */
+@Slf4j
 public class Bootstrap extends HttpServlet {
 
     private final String apiVersion = "1.0.0";
@@ -25,22 +28,17 @@ public class Bootstrap extends HttpServlet {
             return;
         }
 
-        String serverIp = null;
-
-        // @TODO : help @gunlee
-        // if serverIp is not '127.0.0.1' always return 'login required'.
-//        try {
-//            serverIp = InetAddress.getLocalHost().getHostAddress();
-//        } catch (UnknownHostException e) {
-            serverIp = "127.0.0.1";
-//        }
-
         BeanConfig beanConfig = new BeanConfig();
+
+        String serverIp = scouterConf.getNetHttpApiSwaggerHostIp();
+        if (StringUtils.isNotBlank(serverIp)) {
+            beanConfig.setHost(serverIp + ":" + String.valueOf(scouterConf.getNetHttpPort()));
+        }
+
         beanConfig.setVersion(this.apiVersion);
         beanConfig.setSchemes(new String[]{"http", "https"});
         beanConfig.setDescription("Scouter WEB HTTP API Document");
         beanConfig.setTitle("HTTP API Howto");
-        beanConfig.setHost(serverIp + ":" + String.valueOf(scouterConf.getNetHttpPort()));
         beanConfig.setBasePath("/scouter");
         beanConfig.setResourcePackage("scouterx.webapp");
         beanConfig.setFilterClass(this.filterClass);

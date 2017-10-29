@@ -40,10 +40,10 @@ import scouterx.webapp.framework.client.thread.ServerSessionObserver;
 import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
 import scouterx.webapp.framework.configure.ServerConfig;
+import scouterx.webapp.framework.filter.CorsFilter;
 import scouterx.webapp.framework.filter.LoggingInitServletFilter;
 import scouterx.webapp.framework.filter.NoCacheFilter;
 import scouterx.webapp.framework.filter.ReleaseResourceFilter;
-import scouterx.webapp.swagger.ApiOriginFilter;
 import scouterx.webapp.swagger.Bootstrap;
 
 import javax.servlet.DispatcherType;
@@ -127,12 +127,8 @@ public class WebAppMain extends Application {
     }
 
     private static void addFilter (ServletContextHandler servletContextHandler) {
-        ConfigureAdaptor conf = ConfigureManager.getConfigure();
-        if (conf.isNetHttpApiSwaggerEnabled()) {
-            servletContextHandler.addFilter(ApiOriginFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
-        }
-
         servletContextHandler.addFilter(LoggingInitServletFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
+        servletContextHandler.addFilter(CorsFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
         servletContextHandler.addFilter(NoCacheFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
         servletContextHandler.addFilter(ReleaseResourceFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
     }

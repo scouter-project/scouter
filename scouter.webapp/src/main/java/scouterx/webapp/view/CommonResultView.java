@@ -47,6 +47,8 @@ public class CommonResultView<T> {
 	private String message;
 	private T result;
 
+	public CommonResultView() {}
+
 	public CommonResultView(int resultCode, String message, T result) {
 		this.resultCode = resultCode;
 		this.message = message;

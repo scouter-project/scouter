@@ -39,4 +39,7 @@ public interface ConfigureAdaptor {
     int getNetWebappTcpClientPoolSize();
     int getNetWebappTcpClientPoolTimeout();
     boolean isNetHttpApiSwaggerEnabled();
+    String getNetHttpApiSwaggerHostIp();
+    String getNetHttpApiCorsAllowOrigin();
+    String getNetHttpApiCorsAllowCredentials();
 }
