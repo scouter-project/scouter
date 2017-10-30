@@ -48,7 +48,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-public class PageableXLogRequest {
+public class PageableXLogDataRequest {
     public static final int MAX_PAGE_COUNT = 30_000;
     public static final int DEFAULT_PAGE_COUNT = 10_000;
 
@@ -59,14 +59,13 @@ public class PageableXLogRequest {
     int serverId;
 
     @NotNull
-    @Min(1)
-    @QueryParam("startTimeMillis")
-    long startTimeMillis;
+    @QueryParam("startHms")
+    String startHms;
 
     @NotNull
     @Min(1)
-    @QueryParam("endTimeMillis")
-    long endTimeMillis;
+    @QueryParam("endHms")
+    String endHms;
 
     @NotNull
     Set<Integer> objHashes;

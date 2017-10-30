@@ -30,6 +30,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Set;
 
 /**
@@ -93,6 +95,22 @@ public class PageableXLogRequest {
 
     @QueryParam("lastXLogTime")
     long lastXLogTime;
+
+    public PageableXLogRequest() {}
+
+    public PageableXLogRequest(PageableXLogDataRequest dataRequest) throws ParseException {
+        this.yyyymmdd = dataRequest.getYyyymmdd();
+        this.serverId = dataRequest.getServerId();
+        this.objHashes = dataRequest.getObjHashes();
+        this.pageCount = dataRequest.getPageCount();
+        this.lastTxid = dataRequest.getLastTxid();
+        this.lastXLogTime = dataRequest.getLastXLogTime();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+
+        this.startTimeMillis = sdf.parse(this.yyyymmdd + dataRequest.startHms).getTime();
+        this.endTimeMillis = sdf.parse(this.yyyymmdd + dataRequest.endHms).getTime();
+    }
 
     @QueryParam("serverId")
     public void setServerId(int serverId) {
