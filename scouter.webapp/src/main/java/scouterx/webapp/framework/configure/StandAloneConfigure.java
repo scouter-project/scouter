@@ -182,7 +182,7 @@ public class StandAloneConfigure extends Thread {
 
 		this.net_http_port = getInt("net_http_port", NetConstants.WEBAPP_HTTP_PORT);
 
-		this.net_http_api_swagger_enabled = getBoolean("net_http_api_enabled", false);
+		this.net_http_api_swagger_enabled = getBoolean("net_http_api_swagger_enabled", false);
 		this.net_http_api_swagger_host_ip = getValue("net_http_api_swagger_host_ip", "");
 		this.net_http_api_cors_allow_origin = getValue("net_http_api_cors_allow_origin", "");
 		this.net_http_api_cors_allow_credentials = getValue("net_http_api_cors_allow_credentials", "false");

@@ -37,8 +37,8 @@ public class Bootstrap extends HttpServlet {
 
         beanConfig.setVersion(this.apiVersion);
         beanConfig.setSchemes(new String[]{"http", "https"});
-        beanConfig.setDescription("Scouter WEB HTTP API Document");
-        beanConfig.setTitle("HTTP API Howto");
+        beanConfig.setDescription("<a href='https://github.com/scouter-project/scouter/blob/master/scouter.document/tech/Web-API-Guide.md' target='_blank'> [Scouter document page] Scouter Web API Guide</a>");
+        beanConfig.setTitle("Scouter HTTP APIs");
         beanConfig.setBasePath("/scouter");
         beanConfig.setResourcePackage("scouterx.webapp");
         beanConfig.setFilterClass(this.filterClass);
