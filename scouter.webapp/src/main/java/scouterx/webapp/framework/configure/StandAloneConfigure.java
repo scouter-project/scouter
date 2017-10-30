@@ -78,7 +78,7 @@ public class StandAloneConfigure extends Thread {
 	@ConfigDesc("HTTP API swagger enable option")
 	public boolean net_http_api_swagger_enabled = false;
 
-	@ConfigDesc("Swagger option of host's ip or domain to call APIs. if not specified, get the value from InetAddress.getLocalHost().getHostAddress()")
+	@ConfigDesc("Swagger option of host's ip or domain to call APIs.")
 	public String net_http_api_swagger_host_ip = "";
 	@ConfigDesc("API CORS support for Access-Control-Allow-Origin")
 	public String net_http_api_cors_allow_origin = "";

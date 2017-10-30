@@ -38,7 +38,9 @@
       if (url && url.length > 1) {
         url = decodeURIComponent(url[1]);
       } else {
-        url = "http://127.0.0.1:6188/scouter/swagger.json";
+        var href = window.location.href;
+        var arr = href.split("/");
+        url = arr[0] + "//" + arr[2] + "/scouter/swagger.json";
       }
 
       hljs.configure({
