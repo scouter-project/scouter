@@ -53,6 +53,9 @@ SCOUTER can help you.
 
 - **Client (Viewer)** : client program based on RCP.
 
+- **Web API (Since @1.8.0)** : scouter web apis to get counters, XLogs, profiles and another performance metrics via HTTP protocol.
+  - [Web API Guide](./scouter.document/tech/Web-API-Guide.md)
+
 ### 3rd-party Agent
 - **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-project/scouter-pulse)
   - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : gathering performance metrics of EC2, RDS, ELB from cloudwatch in AWS.
@@ -63,11 +66,11 @@ SCOUTER can help you.
     - **[scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)** : sample plugin prints out data collected
   
   - **Alert**
-    - **[scouter-plugin-server-email](https://github.com/scouter-project/scouter-plugin-server-alert-email)** : emails alters from Scouter
-    - **[scouter-plugin-server-telegram](https://github.com/scouter-project/scouter-plugin-server-alert-telegram)** : transfer altert from Scouter to telegram
-    - **[scouter-plugin-server-slack](https://github.com/scouter-project/scouter-plugin-server-alert-slack)** : transfer altert from Scouter to slack
-    - **[scouter-plugin-server-line](https://github.com/scouter-project/scouter-plugin-server-alert-line)** : transfer altert from Scouter to line
-    - **[scouter-plugin-server-dingtalk](https://github.com/scouter-project/scouter-plugin-server-alert-dingtalk)** : transfer altert from Scouter to dingtalk
+    - **[scouter-plugin-server-email](https://github.com/scouter-project/scouter-plugin-server-alert-email)** : emails alerts from Scouter
+    - **[scouter-plugin-server-telegram](https://github.com/scouter-project/scouter-plugin-server-alert-telegram)** : transfer alerts from Scouter to telegram
+    - **[scouter-plugin-server-slack](https://github.com/scouter-project/scouter-plugin-server-alert-slack)** : transfer alerts from Scouter to slack
+    - **[scouter-plugin-server-line](https://github.com/scouter-project/scouter-plugin-server-alert-line)** : transfer alerts from Scouter to line
+    - **[scouter-plugin-server-dingtalk](https://github.com/scouter-project/scouter-plugin-server-alert-dingtalk)** : transfer alerts from Scouter to dingtalk
     
   - **Counter** 
     - **[scouter-plugin-server-influxdb](https://github.com/scouter-project/scouter-plugin-server-influxdb)** : transfer performance data from Scouter to influxDB(time series DB)  

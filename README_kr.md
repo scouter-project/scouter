@@ -41,13 +41,20 @@
  - [최신 Release](https://github.com/scouter-project/scouter/releases/)
 
 ## 모듈
-### 스카우터는 세가지 주요 모듈로 구성된다 :
+### 스카우터는 4가지 주요 모듈로 구성된다 :
+
 - **Agent** : 성능 데이터를 수집하여 수집 서버로 전송
   - **Tomcat Agent (Java Agent)** : JVM 과 Tomcat WAS 성능 수집
   - **Host Agent (OS Agent)** : Linux, Windows 및 OSX 성능
   -  **MariaDB Agent** : [to be announced]
+
 - **Server (Collector)** : Agent가 전송한 데이터를 저장하고 Client 요청시 Client에게 적절한 데이터를 전송
+
 - **Client (Viewer)** : 수집된 데이터를 보기 위한 RCP 기반 Client 프로그램
+
+- **Web API (Since @1.8.0)** : 성능 카운터, XLog, 프로파일등의 정보를 HTTP 프로토콜을 통해 제공
+  - [Web API Guide](./scouter.document/tech/Web-API-Guide_kr.md)
+
 
 ### 3rd-party Agent
 - **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-project/scouter-pulse)

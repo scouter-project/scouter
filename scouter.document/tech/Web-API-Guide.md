@@ -44,8 +44,15 @@
    }
    ```
 
+### Swagger
+ - **SWAGGER uri : /swagger/index.html**
+    - if set the option `net_http_api_swagger_enabled` true
+ - **demo**
+    - [http://demo.scouterapm.com:6180/swagger/index.html](http://demo.scouterapm.com:6180/swagger/index.html)
+
 ## Configuration
 ```java
+
 @ConfigDesc("Collector connection infos - eg) host:6100:id:pw,host2:6100:id2:pw2")
 @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 public String net_collector_ip_port_id_pws = "127.0.0.1:6100:admin:admin";
@@ -72,6 +79,15 @@ public String net_http_api_allow_ips = "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1"
 @ConfigDesc("HTTP service port")
 public int net_http_port = NetConstants.WEBAPP_HTTP_PORT;
 
+@ConfigDesc("HTTP API swagger enable option")
+public boolean net_http_api_swagger_enabled = false;
+@ConfigDesc("Swagger option of host's ip or domain to call APIs.")
+public String net_http_api_swagger_host_ip = "";
+@ConfigDesc("API CORS support for Access-Control-Allow-Origin")
+public String net_http_api_cors_allow_origin = "";
+@ConfigDesc("Access-Control-Allow-Credentials")
+public String net_http_api_cors_allow_credentials = "false";
+
 @ConfigDesc("Log directory")
 public String log_dir = "./logs";
 @ConfigDesc("Keeping period of log")
@@ -80,7 +96,10 @@ public int log_keep_days = 30;
 
 ## APIs
 - **Context root : /scouter**
-  - if the api url is ```/v1/info/server``` then ```/scouter/v1/info/server```
+  - if the api url is `/v1/info/server` then `/scouter/v1/info/server`
+
+- **SWAGGER uri : /swagger/index.html**
+  - if set the option `net_http_api_swagger_enabled` true
 
 #### - `GET /v1/info/server`
  - get connected collector server info.
@@ -88,7 +107,7 @@ public int log_keep_days = 30;
 
 #### - `GET /v1/object`
  - get monitoring object list
- - **Auth** : required - register api client's ip to ```net_http_api_allow_ips``` configuration.
+ - **Auth** : required - register api client's ip to `net_http_api_allow_ips` configuration.
  - **Query params**
     - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
 

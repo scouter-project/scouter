@@ -43,6 +43,11 @@
    	]
    }
    ```
+### Swagger
+ - **SWAGGER uri : /swagger/index.html**
+    - `net_http_api_swagger_enabled` 옵션을 true로 지정시 사용 가능
+ - **demo**
+    - [http://demo.scouterapm.com:6180/swagger/index.html](http://demo.scouterapm.com:6180/swagger/index.html)
 
 ## Configuration
 ```java
@@ -72,6 +77,15 @@ public String net_http_api_allow_ips = "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1"
 @ConfigDesc("HTTP service port")
 public int net_http_port = NetConstants.WEBAPP_HTTP_PORT;
 
+@ConfigDesc("HTTP API swagger enable option")
+public boolean net_http_api_swagger_enabled = false;
+@ConfigDesc("Swagger option of host's ip or domain to call APIs.")
+public String net_http_api_swagger_host_ip = "";
+@ConfigDesc("API CORS support for Access-Control-Allow-Origin")
+public String net_http_api_cors_allow_origin = "";
+@ConfigDesc("Access-Control-Allow-Credentials")
+public String net_http_api_cors_allow_credentials = "false";
+
 @ConfigDesc("Log directory")
 public String log_dir = "./logs";
 @ConfigDesc("Keeping period of log")
@@ -81,6 +95,10 @@ public int log_keep_days = 30;
 ## APIs
 - **Context root : /scouter**
   - if the api url is ```/v1/info/server``` then ```/scouter/v1/info/server```
+
+- **SWAGGER uri : /swagger/index.html**
+  - `net_http_api_swagger_enabled` 를 true 로 설정시 활성화 됨
+
 
 #### - `GET /v1/info/server`
  - get connected collector server info.
