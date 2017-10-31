@@ -121,6 +121,21 @@ public int log_keep_days = 30;
  - **Query params**
    - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
 
+#### - `GET /v1/counter/{counter}/ofType/{objType}`
+ - get counter values of specific time range
+   - uri pattern : /counter/{counter}/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+   - uri pattern : /counter/{counter}/ofType/{objType}?startYmdHms={startYmdHms}&endYmdHms={endYmdHms}&serverId={serverId}
+ - **Auth** : required
+ - **Path params**
+   - `counter` : (required)
+   - `objType` : object type (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+   - `startYmdHms` : yyyymmddhhmiss (exclusive required with startTimeMillis)
+   - `endYmdHms` : yyyymmddhhmiss (exclusive required with endTimeMillis)
+   - `startTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with startYmdHms)
+   - `endTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with endYmdHms)
+
 #### - `GET /v1/counter/realTime/{counters}/ofObject/{objHash}`
  - get real time counter value by object
  - **Auth** : required

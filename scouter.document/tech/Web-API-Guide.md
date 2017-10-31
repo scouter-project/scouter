@@ -131,6 +131,21 @@ public int log_keep_days = 30;
  - **Query params**
    - `serverId` : (optional if single server)
 
+#### - `GET /v1/counter/{counter}/ofType/{objType}`
+ - get counter values of specific time range
+   - uri pattern : /counter/{counter}/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+   - uri pattern : /counter/{counter}/ofType/{objType}?startYmdHms={startYmdHms}&endYmdHms={endYmdHms}&serverId={serverId}
+ - **Auth** : required
+ - **Path params**
+   - `counter` : (required)
+   - `objType` : object type (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+   - `startYmdHms` : yyyymmddhhmiss (exclusive required with startTimeMillis)
+   - `endYmdHms` : yyyymmddhhmiss (exclusive required with endTimeMillis)
+   - `startTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with startYmdHms)
+   - `endTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with endYmdHms)
+
 #### - `GET /v1/counter/stat/{counters}/ofType/{objType}`
  - get 5min counter statistics by object type
  - **Auth** : required
