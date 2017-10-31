@@ -23,7 +23,8 @@
       <programArgsWin>-data
 @user.home/scouter
       </programArgsWin>
-      <vmArgs>-Xms128m
+      <vmArgs>--add-modules=java.se.ee
+-Xms128m
 -Xmx768m
 -XX:+UseG1GC
 -Dosgi.requiredJavaVersion=1.8
