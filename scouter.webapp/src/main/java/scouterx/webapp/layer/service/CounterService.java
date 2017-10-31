@@ -21,7 +21,9 @@ package scouterx.webapp.layer.service;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.layer.consumer.CounterConsumer;
 import scouterx.webapp.model.scouter.SCounter;
+import scouterx.webapp.request.CounterAvgRequestByType;
 import scouterx.webapp.request.CounterRequestByType;
+import scouterx.webapp.view.AvgCounterView;
 import scouterx.webapp.view.CounterView;
 
 import java.util.List;
@@ -41,7 +43,11 @@ public class CounterService {
         return counterConsumer.retrieveRealTimeCountersByObjType(objType, counterNames, server);
     }
 
-    public List<CounterView> retrieveCounterByObjType(CounterRequestByType request) {
-        return counterConsumer.retrieveCounterByObjType(request);
+    public List<CounterView> retrieveCountersByObjType(CounterRequestByType request) {
+        return counterConsumer.retrieveCountersByObjType(request);
+    }
+
+    public List<AvgCounterView> retrieveAvgCounterByObjType(CounterAvgRequestByType request) {
+        return counterConsumer.retrieveAvgCounterByObjType(request);
     }
 }

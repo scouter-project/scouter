@@ -30,21 +30,21 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class CounterView {
+public class AvgCounterView {
     private final int objHash;
-    private final long startTimeMillis;
-    private final long endTimeMillis;
+    private final String fromYmd;
+    private final String toYmd;
     private final String name;
     private final String displayName;
     private final String unit;
     final private List<Long> timeList;
     final private List<Double> valueList;
 
-    public CounterView(int objHash, long startTimeMillis, long endTimeMillis, String name, String displayName, String unit,
-                       List<Long> timeList, List<Double> valueList) {
+    public AvgCounterView(int objHash, String fromYmd, String toYmd, String name, String displayName, String unit,
+                          List<Long> timeList, List<Double> valueList) {
         this.objHash = objHash;
-        this.startTimeMillis = startTimeMillis;
-        this.endTimeMillis = endTimeMillis;
+        this.fromYmd = fromYmd;
+        this.toYmd = toYmd;
         this.name = name;
         this.displayName = displayName;
         this.unit = unit;
