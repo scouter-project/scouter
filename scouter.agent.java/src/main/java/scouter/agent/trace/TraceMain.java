@@ -1295,6 +1295,9 @@ public class TraceMain {
         Throwable t = (Throwable)this0;
 
         String msg = t.getMessage();
+        if (msg == null) {
+            msg = "";
+        }
 
         if (conf.profile_fullstack_hooked_exception_enabled) {
             StringBuffer sb = new StringBuffer();
