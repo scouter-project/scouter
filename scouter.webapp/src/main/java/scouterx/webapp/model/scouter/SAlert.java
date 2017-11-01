@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import scouter.lang.pack.AlertLevelEnum;
 import scouter.lang.pack.AlertPack;
+import scouterx.webapp.framework.client.model.AgentModelThread;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +48,8 @@ public class SAlert {
      * Object ID
      */
     public int objHash;
+    public String objName;
+
     /**
      * Alert level. 0:Info, 1:Warn, 2:Error, 3:Fatal
      */
@@ -72,6 +75,7 @@ public class SAlert {
                 .time(p.time)
                 .objType(p.objType)
                 .objHash(p.objHash)
+                .objName(AgentModelThread.getInstance().getAgentObject(p.objHash).getObjName())
                 .level(AlertLevelEnum.of(p.level))
                 .title(p.title)
                 .message(p.message)

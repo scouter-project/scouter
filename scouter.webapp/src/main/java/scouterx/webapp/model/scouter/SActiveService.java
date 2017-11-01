@@ -21,6 +21,7 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
 import scouter.util.StringUtil;
+import scouterx.webapp.framework.client.model.AgentModelThread;
 import scouterx.webapp.model.enums.ActiveServiceMode;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.List;
 @Data
 public class SActiveService {
 	int objHash;
+	String objName;
 	long threadId;
 	String threadName;
 	String threadStatus;
@@ -49,6 +51,7 @@ public class SActiveService {
 		for (Pack pack : activeServicePackList) {
 			MapPack mapPack = (MapPack) pack;
 			int objHash = mapPack.getInt("objHash");
+			String objName = AgentModelThread.getInstance().getAgentObject(objHash).getObjName();
 
 			ListValue idLv = mapPack.getList("id");
 			ListValue nameLv = mapPack.getList("name");
@@ -67,6 +70,7 @@ public class SActiveService {
 				for (int i = 0; i < size; i++) {
 					SActiveService activeService = new SActiveService();
 					activeService.objHash = objHash;
+					activeService.objName = objName;
 					activeService.threadId = idLv.getLong(i);
 					activeService.threadName = nameLv.getString(i);
 					activeService.threadStatus = statLv.getString(i);

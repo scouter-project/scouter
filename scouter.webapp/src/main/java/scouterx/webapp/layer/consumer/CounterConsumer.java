@@ -23,6 +23,7 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
+import scouterx.webapp.framework.client.model.AgentModelThread;
 import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
@@ -108,6 +109,7 @@ public class CounterConsumer {
 
                 CounterView counterView = CounterView.builder()
                         .objHash(objHash)
+                        .objName(AgentModelThread.getInstance().getAgentObject(objHash).getObjName())
                         .name(request.getCounter())
                         .displayName(server.getCounterEngine().getCounterDisplayName(request.getObjType(), request.getCounter()))
                         .unit(server.getCounterEngine().getCounterUnit(request.getObjType(), request.getCounter()))
@@ -150,6 +152,7 @@ public class CounterConsumer {
 
                 AvgCounterView counterView = AvgCounterView.builder()
                         .objHash(objHash)
+                        .objName(AgentModelThread.getInstance().getAgentObject(objHash).getObjName())
                         .name(request.getCounter())
                         .displayName(server.getCounterEngine().getCounterDisplayName(request.getObjType(), request.getCounter()))
                         .unit(server.getCounterEngine().getCounterUnit(request.getObjType(), request.getCounter()))
