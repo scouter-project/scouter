@@ -27,6 +27,7 @@
 -Xms128m
 -Xmx768m
 -XX:+UseG1GC
+--add-modules=java.se.ee
 -Dosgi.requiredJavaVersion=1.8
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
