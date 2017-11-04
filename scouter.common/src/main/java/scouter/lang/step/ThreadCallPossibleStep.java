@@ -34,6 +34,26 @@ public class ThreadCallPossibleStep extends StepSingle {
 		return StepEnum.THREAD_CALL_POSSIBLE;
 	}
 
+	public long getTxid() {
+		return txid;
+	}
+
+	public int getHash() {
+		return hash;
+	}
+
+	public int getElapsed() {
+		return elapsed;
+	}
+
+	public byte getThreaded() {
+		return threaded;
+	}
+
+	public String getNameTemp() {
+		return nameTemp;
+	}
+
 	public void write(DataOutputX out) throws IOException {
 		super.write(out);
 

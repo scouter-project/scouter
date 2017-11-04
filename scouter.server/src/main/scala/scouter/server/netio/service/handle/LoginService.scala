@@ -59,6 +59,8 @@ class LoginService {
       m.put("server_id", getServerId());
       m.put("type", user.group);
       m.put("version", Version.getServerFullVersion());
+      m.put("client_version", Version.getServerRecommendedClientVersion());
+
       val acc = AccountManager.getAccount(id);
       if (acc != null) {
         m.put("email", acc.email);
@@ -118,4 +120,20 @@ class LoginService {
   def getServerId(): String = {
     Configure.getInstance().server_id;
   }
+
+  @ServiceHandler(RequestCmd.CHECK_LOGIN)
+  def checkLogin(din: DataInputX, dout: DataOutputX, login: Boolean) {
+    val mapPack = din.readMapPack()
+    val id = mapPack.getText("id")
+    val password = mapPack.getText("pass")
+
+    val account = AccountManager.authorizeAccount(id, password);
+    var booleanValue =
+      if (account == null) new BooleanValue(false)
+      else new BooleanValue(true)
+
+    dout.writeByte(TcpFlag.HasNEXT)
+    dout.writeValue(booleanValue)
+  }
+
 }

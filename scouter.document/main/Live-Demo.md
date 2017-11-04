@@ -12,3 +12,5 @@ Try to do via scouter client v1.7.1 and you can download the client by the link 
   
 ![login](../img/main/live-demo-client-login.png)
 
+## scouter WEB API swagger
+ - [http://demo.scouterapm.com:6180/swagger/index.html](http://demo.scouterapm.com:6180/swagger/index.html)

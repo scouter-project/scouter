@@ -36,6 +36,7 @@ import scouter.util.FileUtil
 import scouter.util.Hexa32
 
 object ServiceWorker {
+    val remoteIpByWorker = new ThreadLocal[String];
     var workers = 0;
 
     def inc() {
@@ -54,6 +55,7 @@ object ServiceWorker {
         workers;
     }
 }
+
 class ServiceWorker(_socket: Socket) extends Runnable {
     var socket = _socket;
 
@@ -62,10 +64,10 @@ class ServiceWorker(_socket: Socket) extends Runnable {
     val conf = Configure.getInstance()
 
     override def run() {
-
         var remoteAddr = ""
         try {
             remoteAddr = "" + socket.getRemoteSocketAddress()
+            ServiceWorker.remoteIpByWorker.set(socket.getInetAddress.toString.split("/").last)
 
             val cafe = in.readInt();
             cafe match {

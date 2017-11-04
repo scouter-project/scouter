@@ -18,14 +18,13 @@
 package scouter.lang.step;
 
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 
+import java.io.IOException;
+
 
 public class SqlStep extends StepSingle {
-
 
 	public int hash;
 	public int elapsed;
@@ -36,6 +35,26 @@ public class SqlStep extends StepSingle {
 
 	public byte getStepType() {
 		return StepEnum.SQL;
+	}
+
+	public int getHash() {
+		return hash;
+	}
+
+	public int getElapsed() {
+		return elapsed;
+	}
+
+	public int getCputime() {
+		return cputime;
+	}
+
+	public String getParam() {
+		return param;
+	}
+
+	public int getError() {
+		return error;
 	}
 
 	public void write(DataOutputX out) throws IOException {

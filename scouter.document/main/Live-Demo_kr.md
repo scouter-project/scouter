@@ -14,3 +14,5 @@ Scouter 를 바로 사용해 볼 수 있도록 Live 데모 시스템이 구성�
   
 ![login](../img/main/live-demo-client-login.png)
 
+## scouter WEB API swagger
+ - [http://demo.scouterapm.com:6180/swagger/index.html](http://demo.scouterapm.com:6180/swagger/index.html)

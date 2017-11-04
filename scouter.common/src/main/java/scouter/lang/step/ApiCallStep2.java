@@ -29,6 +29,10 @@ public class ApiCallStep2 extends ApiCallStep {
 		return StepEnum.APICALL2;
 	}
 
+	public byte getAsync() {
+		return async;
+	}
+
 	public void write(DataOutputX out) throws IOException {
 		super.write(out);
 		out.writeByte(async);

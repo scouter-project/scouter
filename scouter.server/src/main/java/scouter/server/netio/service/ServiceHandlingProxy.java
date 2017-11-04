@@ -15,18 +15,19 @@
  *  limitations under the License. 
  */
 package scouter.server.netio.service;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.server.Configure;
 import scouter.server.Logger;
 import scouter.server.netio.service.anotation.ServiceHandler;
 import scouter.util.scan.Scanner;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 public class ServiceHandlingProxy {
 	protected static HashMap<String, Invocation> handlers = new HashMap<String, Invocation>();
 	protected static class Invocation {
@@ -96,9 +97,10 @@ public class ServiceHandlingProxy {
 	public static void process(String cmd, DataInputX in, DataOutputX out, boolean login) {
 		Invocation handler = handlers.get(cmd);
 		if (handler != null) {
+//			Logger.trace("[ScouterRequestHandler] " + cmd);
 			handler.exec(in, out, login);
 		} else {
-			// Logger.println("no handler  " + cmd);
+//			Logger.println("no handler  " + cmd);
 			throw new RuntimeException("no handler  cmd=" + cmd);
 		}
 	}

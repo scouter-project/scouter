@@ -38,6 +38,34 @@ public class DumpStep extends StepSingle {
 		return StepEnum.DUMP;
 	}
 
+    public int[] getStacks() {
+        return stacks;
+    }
+
+    public long getThreadId() {
+        return threadId;
+    }
+
+    public String getThreadName() {
+        return threadName;
+    }
+
+    public String getThreadState() {
+        return threadState;
+    }
+
+    public long getLockOwnerId() {
+        return lockOwnerId;
+    }
+
+    public String getLockName() {
+        return lockName;
+    }
+
+    public String getLockOwnerName() {
+        return lockOwnerName;
+    }
+
     @Override
     public String toString() {
         return "DumpStep{" +

@@ -41,7 +41,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		if(server != null){
 			serverId = server.getId();
 		}
-		
+
 		// File
 		register(new OpenClientThreadListAction(window, "Client Thread List", Images.thread));
 		register(new OpenClientEnvViewAction(window));

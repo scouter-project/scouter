@@ -9,6 +9,8 @@ scouter.deploy/out
 scouter.server.boot/testlib
 */.cache
 */.svn
+*/.classpath
+*/.project
 scouter.client/lib/scouter.common.jar
 *.pyc
 Thumbs.db

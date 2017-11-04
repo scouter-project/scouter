@@ -14,12 +14,19 @@
    </configIni>
 
    <launcherArgs>
+      <programArgsLin>-data
+@user.home/.scouter
+      </programArgsLin>
       <programArgsMac>-data
 @user.home/.scouter
       </programArgsMac>
-      <vmArgs>-Xms128m
+      <programArgsWin>-data
+@user.home/scouter
+      </programArgsWin>
+      <vmArgs>--add-modules=java.se.ee
+-Xms128m
 -Xmx768m
--XX:+UseG1GC
+-XX:+UseG1G
 -Dosgi.requiredJavaVersion=1.8
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts

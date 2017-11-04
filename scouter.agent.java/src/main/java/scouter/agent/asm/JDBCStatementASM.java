@@ -23,7 +23,9 @@ import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.jdbc.PsUpdateCountMV;
+import scouter.agent.asm.jdbc.PsCloseMV;
 import scouter.agent.asm.jdbc.StExecuteMV;
+import scouter.agent.asm.jdbc.StInitMV;
 import scouter.agent.asm.util.HookingSet;
 
 import java.util.HashSet;
@@ -40,6 +42,10 @@ public class JDBCStatementASM implements IASM, Opcodes {
 		target.add("org/mariadb/jdbc/MariaDbStatement");
 		target.add("org/mariadb/jdbc/MySQLStatement");
 		target.add("oracle/jdbc/driver/OracleStatement");
+
+		//pg driver 42+
+		target.add("org/postgresql/jdbc/PgStatement");
+
 		target.add("com/mysql/jdbc/StatementImpl");
 		target.add("org/apache/derby/client/am/Statement");
 		target.add("jdbc/FakeStatement");
@@ -78,12 +84,18 @@ class StatementCV extends ClassVisitor implements Opcodes {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+		if ("<init>".equals(name)) {
+			return new StInitMV(access, desc, mv);
+		}
+
 		if (StExecuteMV.isTarget(name)) {
 			if (desc.startsWith("(Ljava/lang/String;)")) {
 				return new StExecuteMV(access, desc, mv, owner, name);
 			}
 		} else if ("getUpdateCount".equals(name) && "()I".equals(desc)) {
 			return new PsUpdateCountMV(mv);
+		} else if ("close".equals(name) && "()V".equals(desc)) {
+			return new PsCloseMV(mv);
 		}
 		return mv;
 	}

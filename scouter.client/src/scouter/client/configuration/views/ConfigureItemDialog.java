@@ -25,12 +25,14 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import scouter.client.model.AgentModelThread;
 import scouter.lang.conf.ValueType;
 import scouter.util.StringUtil;
 
@@ -40,10 +42,15 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 	String objName;
 	String desc;
 	ValueType valueType;
+	boolean isServer;
+	int objHash;
+	String objType;
 
 	String value;
+	ConfApplyScopeEnum applyScope = ConfApplyScopeEnum.THIS;
 
-	public ConfigureItemDialog(Shell parentShell, String confKey, String valueOrg, String objName, String desc, ValueType valueType) {
+	public ConfigureItemDialog(Shell parentShell, String confKey, String valueOrg, String objName, String desc,
+							   ValueType valueType, boolean isServer, int objHash) {
 		super(parentShell);
 		this.confKey = confKey;
 		this.objName = objName;
@@ -51,6 +58,11 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 		this.valueType = (valueType == null) ? ValueType.VALUE : valueType;
 		this.valueOrg = valueOrg;
 		this.value = shape(valueOrg);
+		this.isServer = isServer;
+		this.objHash = objHash;
+		if (!isServer) {
+			this.objType = AgentModelThread.getInstance().getAgentObject(objHash).getObjType();
+		}
 	}
 
 	@Override
@@ -85,19 +97,22 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 			serviceTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			serviceTxt.setText(value);
 			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
+
 		} else if (valueType == ValueType.COMMA_SEPARATED_VALUE) {
-			Text serviceTxt = new Text(group, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
+			Text serviceTxt = new Text(group, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 			GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 			gridData.heightHint = 100;
 			serviceTxt.setLayoutData(gridData);
 			serviceTxt.setText(value);
 			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
+
 		} else if (valueType == ValueType.NUM) {
 			Text serviceTxt = new Text(group, SWT.BORDER | SWT.SINGLE);
 			serviceTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			serviceTxt.addVerifyListener(e -> e.doit = isNumber(e.text));
 			serviceTxt.setText(value);
 			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
+
 		} else if (valueType == ValueType.BOOL) {
 			Button button = new Button(group, SWT.CHECK);
 			button.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -118,6 +133,51 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 			serviceTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			serviceTxt.setText(value);
 			serviceTxt.addModifyListener(e -> value = ((Text) e.getSource()).getText());
+		}
+
+		if (!isServer) {
+			Group applyTypeGroup = new Group(group, SWT.NONE);
+			applyTypeGroup.setLayout(new RowLayout(SWT.VERTICAL));
+			//applyTypeGroup.setLayout(new GridLayout(1, false));
+			applyTypeGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			applyTypeGroup.setText("Select title");
+
+			Button rdOnlyThis = new Button(applyTypeGroup, SWT.RADIO);
+			rdOnlyThis.setText("to this object (you should save it manually after done)");
+			rdOnlyThis.setSelection(true);
+
+			Button rdForType = new Button(applyTypeGroup, SWT.RADIO);
+			rdForType.setText("to all same type objects(" + objType + ") in this collector.(the configuration will be saved automatically)");
+
+			Button rdForTypeAll = new Button(applyTypeGroup, SWT.RADIO);
+			rdForTypeAll.setText("to all same type objects(" + objType + ") for all collectors.(the configuration will be saved automatically)");
+
+			rdOnlyThis.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (((Button) e.widget).getSelection()) {
+						applyScope = ConfApplyScopeEnum.THIS;
+					}
+				}
+			});
+
+			rdForType.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (((Button) e.widget).getSelection()) {
+						applyScope = ConfApplyScopeEnum.TYPE_IN_SERVER;
+					}
+				}
+			});
+
+			rdForTypeAll.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (((Button) e.widget).getSelection()) {
+						applyScope = ConfApplyScopeEnum.TYPE_ALL;
+					}
+				}
+			});
 		}
 
 		return container;
@@ -171,5 +231,9 @@ public class ConfigureItemDialog extends TitleAreaDialog {
 
 	public String getValue() {
 		return unShape(value);
+	}
+
+	public ConfApplyScopeEnum getApplyScope() {
+		return applyScope;
 	}
 }

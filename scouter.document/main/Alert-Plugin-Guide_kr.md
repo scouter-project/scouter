@@ -4,6 +4,21 @@
 We can build our own alarm rules by handling alert scripting plugins which are able to compose various performance metrics.   
 
 ## How to
+Alert script file is can be edited from scouter client ui or directly in scouter server.
+
+### A. scripting in scouter client UI.
+ 1. open the alert scripting view in the context menu of a server in the object view.
+
+![Scouter](../img/main/alert_script_menu.png)
+
+ 2. edit script & save it.
+
+![Scouter](../img/main/alert_script_view.png)
+
+
+
+### B. scripting in scouter server.
+
  1. create 2 files in the server plugin directory (**[server_running_dir]/plugin** by default)
     * [PERFORMANCE_COUNTER_NAME].alert : script for alarm
     * [PERFORMANCE_COUNTER_NAME].conf : configuration for this alarm
@@ -18,7 +33,7 @@ We can build our own alarm rules by handling alert scripting plugins which are a
      * if it is set as 150ea, the oldest data may be 300 seconds before data because Scouter counter data is sent every 2 seconds.
    * ```silent_time``` : alarm sleep time - If the alarm is occurred in past [x] seconds, the same alarm is ignored.
    * ```check_time``` : script([PERFORMANCE_COUNTER_NAME].alert) invoking interval.
-   
+
  3. [PERFORMANCE_COUNTER_NAME].alert
    * script file for alert rule (java)
    
@@ -104,7 +119,7 @@ We can build our own alarm rules by handling alert scripting plugins which are a
       }
       ```      
       
-### RealCounter API 
+## RealCounter API
 | method | desc |
 | ------------ | ---------- |
 | objName()                                  | get object's name that produced the counter value   | 
@@ -123,8 +138,8 @@ We can build our own alarm rules by handling alert scripting plugins which are a
 | floatValue(String anotherCounterName)      | get another counter's current value by the name   |
 | intValue(String anotherCounterName)        | get another counter's current value by the name   |
 
-### Counter names
+## Counter names
  * [counters.xml](https://github.com/scouter-project/scouter/blob/fe74bdb73a34be2f390f8476991d59a5de6ea204/scouter.common/src/main/resources/scouter/lang/counters/counters.xml)
 
-### $$ (PluginHelper) API
+## $$ (PluginHelper) API
  - Refer to **[PluginHelper API](./PluginHelper-API.md)**

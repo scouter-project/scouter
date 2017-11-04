@@ -192,6 +192,15 @@ public class ProfileText {
         if (StringUtil.isNotEmpty(xperf.p.text2)) {
             sb.append("\n► text2=" + xperf.p.text2);
         }
+        if (StringUtil.isNotEmpty(xperf.p.text3)) {
+            sb.append("\n► text3=" + xperf.p.text3);
+        }
+        if (StringUtil.isNotEmpty(xperf.p.text4)) {
+            sb.append("\n► text4=" + xperf.p.text4);
+        }
+        if (StringUtil.isNotEmpty(xperf.p.text5)) {
+            sb.append("\n► text5=" + xperf.p.text5);
+        }
         if (xperf.p.hasDump == 1) {
             sb.append("\n► dump=Y");
         }

@@ -481,6 +481,9 @@ public class TraceMain {
             }
             pack.text1 = ctx.text1;
             pack.text2 = ctx.text2;
+            pack.text3 = ctx.text3;
+            pack.text4 = ctx.text4;
+            pack.text5 = ctx.text5;
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
@@ -1292,6 +1295,9 @@ public class TraceMain {
         Throwable t = (Throwable)this0;
 
         String msg = t.getMessage();
+        if (msg == null) {
+            msg = "";
+        }
 
         if (conf.profile_fullstack_hooked_exception_enabled) {
             StringBuffer sb = new StringBuffer();

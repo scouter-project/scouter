@@ -11,6 +11,9 @@ public class XLogFilterStatus {
 	public String desc = "";
 	public String text1 = "";
 	public String text2 = "";
+	public String text3 = "";
+	public String text4 = "";
+	public String text5 = "";
 	public String userAgent = "";
 	public boolean onlySql;
 	public boolean onlyApicall;
@@ -25,6 +28,9 @@ public class XLogFilterStatus {
 		filter_hash ^= HashUtil.hash(desc);
 		filter_hash ^= HashUtil.hash(text1);
 		filter_hash ^= HashUtil.hash(text2);
+		filter_hash ^= HashUtil.hash(text3);
+		filter_hash ^= HashUtil.hash(text4);
+		filter_hash ^= HashUtil.hash(text5);
 		filter_hash ^= HashUtil.hash(userAgent);
 		filter_hash ^= HashUtil.hash(onlyError ? "onlyError" : "");
 		filter_hash ^= HashUtil.hash(onlySql ? "onlySql" : "");
@@ -41,6 +47,9 @@ public class XLogFilterStatus {
 		status.desc = desc;
 		status.text1 = text1;
 		status.text2 = text2;
+		status.text3 = text3;
+		status.text4 = text4;
+		status.text5 = text5;
 		status.userAgent = userAgent;
 		status.onlySql = onlySql;
 		status.onlyApicall = onlyApicall;

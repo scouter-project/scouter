@@ -191,7 +191,7 @@ public class SysJMX {
 
 				return hostname;
 			} catch (Throwable th) {
-				th.printStackTrace();
+				//th.printStackTrace();
 			} finally {
 				FileUtil.close(is);
 				FileUtil.close(os);

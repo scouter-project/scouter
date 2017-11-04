@@ -16,6 +16,21 @@
  */
 package scouter.lang.counters;
 
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import scouter.lang.Counter;
+import scouter.lang.Family;
+import scouter.lang.ObjectType;
+import scouter.util.FileUtil;
+import scouter.util.StringKeyLinkedMap;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
@@ -24,23 +39,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
-import scouter.lang.Counter;
-import scouter.lang.Family;
-import scouter.lang.ObjectType;
-import scouter.util.FileUtil;
-import scouter.util.StringKeyLinkedMap;
 
 
 public class CounterEngine {
@@ -272,13 +270,14 @@ public class CounterEngine {
 			return obj.getDisplayName();
 		}
 	}
-	
+
 	public ArrayList<String> getAllCounterList() {
 		ArrayList<String> list = new ArrayList<String>();
 		Enumeration<ObjectType> types = objTypeMap.values();
 		while (types.hasMoreElements()) {
 			ObjectType obj = types.nextElement();
 			scouter.lang.Counter[] counters = obj.listCounters();
+			if(counters == null || counters.length == 0) continue;
 			for (scouter.lang.Counter counter : counters) {
 				if (counter.isAll()) {
 					list.add(obj.getName() + ":" + counter.getDisplayName() + ":" + counter.getName());
@@ -491,6 +490,10 @@ public class CounterEngine {
 	public ObjectType getObjectType(String objType) {
 		return objTypeMap.get(objType);
 	}
+
+	public String getFamilyNameFromObjType(String objType) {
+		return objTypeMap.get(objType).getFamily().getName();
+	}
 	
 	public boolean isUnknownObjectType(String objType) {
 		ObjectType obj = objTypeMap.get(objType);
@@ -524,7 +527,8 @@ public class CounterEngine {
 	}
 	
 	public static void main(String[] args) {
-		File f = new File("/d:/counters.xml");
+
+		File f = new File("/Users/gunlee/Documents/workspace/scouter/scouter/scouter.common/src/main/resources/scouter/lang/counters/counters.xml");
 		System.out.println(f.canRead());
 		byte[] content = FileUtil.readAll(f);
 		CounterEngine ce = new CounterEngine();

@@ -162,6 +162,13 @@ public class XLogPack implements Pack {
 	public int queuingTime;
 	public int queuing2ndHostHash;
 	public int queuing2ndTime;
+
+	/**
+	 * any text (not use dic)
+	 */
+	public String text3;
+	public String text4;
+	public String text5;
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -226,6 +233,11 @@ public class XLogPack implements Pack {
 		o.writeDecimal(queuing2ndHostHash);
 		o.writeDecimal(queuing2ndTime);
 
+		o.writeText(text3);
+		o.writeText(text4);
+		o.writeText(text5);
+
+
 		out.writeBlob(o.toByteArray());
 	}
 
@@ -286,6 +298,12 @@ public class XLogPack implements Pack {
 			this.queuingTime = (int) d.readDecimal();
 			this.queuing2ndHostHash = (int) d.readDecimal();
 			this.queuing2ndTime = (int) d.readDecimal();
+		}
+
+		if (d.available() >0) {
+			this.text3 = d.readText();
+			this.text4 = d.readText();
+			this.text5 = d.readText();
 		}
 
 		return this;

@@ -233,8 +233,7 @@ public class TraceSQL {
 		    return parsed;
 	    } catch (Throwable t) {
 		    Logger.println("B102", "fail to escape literal", t);
-	    } finally {
-			return sql;
+		    return sql;
 	    }
     }
 

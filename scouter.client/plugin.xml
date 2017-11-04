@@ -24,8 +24,8 @@
                     value="5,253,460,10">
             </property>
             <property
-                    name="preferenceCustomization"
-                    value="plugin_customization.ini">
+                  name="preferenceCustomization"
+                  value="plugin_customization.ini">
             </property>
             <!--
                     <property name="startupForegroundColor" value="0080FF"/>
@@ -305,6 +305,14 @@
                 id="scouter.client.configuration.views.ConfigureView"
                 icon="icons/config.png"
                 name="Configure View"
+                restorable="false">
+        </view>
+        <view
+                allowMultiple="true"
+                class="scouter.client.configuration.views.AlertScriptingView"
+                id="scouter.client.configuration.views.AlertScriptingView"
+                icon="icons/config.png"
+                name="Alert Scripting View"
                 restorable="false">
         </view>
         <view

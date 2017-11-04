@@ -57,7 +57,16 @@ object ObjectCpuChecker {
         val objType = agent.objType
         if(objType == null) return
 
-        val objFamily = counterManager.getCounterEngine.getObjectType(objType).getFamily().getName()
+        val _objectType = counterManager.getCounterEngine.getObjectType(objType);
+        if(_objectType == null) {
+            return
+        }
+        val _objFamily = _objectType.getFamily()
+        if(_objFamily == null) {
+            return
+        }
+
+        val objFamily = _objFamily.getName()
 
         //javaee family type
         if(CounterConstants.FAMILY_JAVAEE.equals(objFamily)) {

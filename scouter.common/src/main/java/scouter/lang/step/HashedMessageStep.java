@@ -17,10 +17,10 @@
 
 package scouter.lang.step;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+
+import java.io.IOException;
 
 public class HashedMessageStep extends StepSingle {
 
@@ -37,6 +37,18 @@ public class HashedMessageStep extends StepSingle {
 
 	public byte getStepType() {
 		return StepEnum.HASHED_MESSAGE;
+	}
+
+	public int getHash() {
+		return hash;
+	}
+
+	public int getTime() {
+		return time;
+	}
+
+	public int getValue() {
+		return value;
 	}
 
 	public String toString() {

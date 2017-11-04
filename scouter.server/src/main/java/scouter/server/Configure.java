@@ -95,6 +95,10 @@ public class Configure extends Thread {
 	public boolean log_udp_batch = false;	
 	@ConfigDesc("Logging all request handlers in starting")	
 	public boolean log_service_handler_list = false;
+
+	@ConfigDesc("Logging when index traversal is too heavy.")
+	public int log_index_traversal_warning_count = 100;
+
 	@ConfigDesc("Retaining log according to date")
 	public boolean log_rotation_enabled = true;
 	@ConfigDesc("Keeping period of log")
@@ -132,7 +136,36 @@ public class Configure extends Thread {
 	@ConfigDesc("Activating Http Server")
 	public boolean net_http_server_enabled = false;
 	@ConfigDesc("Http Port")
-	public int net_http_port = 6180;
+	public int net_http_port = NetConstants.SERVER_HTTP_PORT;
+	@ConfigDesc("Activating Scouter API")
+	public boolean net_http_api_enabled = false;
+	@ConfigDesc("Enable a swagger for HTTP API.")
+	public boolean net_http_api_swagger_enabled = false;
+	@ConfigDesc("Swagger option of host's ip or domain to call APIs.")
+	public String net_http_api_swagger_host_ip = "";
+	@ConfigDesc("API CORS support for Access-Control-Allow-Origin")
+	public String net_http_api_cors_allow_origin = "";
+	@ConfigDesc("Access-Control-Allow-Credentials")
+	public String net_http_api_cors_allow_credentials = "false";
+
+	@ConfigDesc("size of webapp connection pool to collector")
+	public int net_webapp_tcp_client_pool_size = 12;
+	@ConfigDesc("timeout of web app connection pool to collector(It depends on net_tcp_client_so_timeout_ms)")
+	public int net_webapp_tcp_client_pool_timeout = net_tcp_client_so_timeout_ms;
+
+	@ConfigDesc("Enable api access control by client ip")
+	public boolean net_http_api_auth_ip_enabled = true;
+	@ConfigDesc("If get api caller's ip from http header.")
+	public String net_http_api_auth_ip_header_key;
+
+	@ConfigDesc("Enable api access control by JSESSIONID of Cookie")
+	public boolean net_http_api_auth_session_enabled = true;
+	@ConfigDesc("api http session timeout")
+	public int net_http_api_session_timeout = 3600*24;
+
+	@ConfigDesc("api access allow ip addresses")
+	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+	public String net_http_api_allow_ips = "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1";
 
 	//Dir
 	@ConfigDesc("Store directory of database")
@@ -143,6 +176,8 @@ public class Configure extends Thread {
 	public String plugin_dir = "./plugin";
 	@ConfigDesc("Path to client related directory")
 	public String client_dir = "./client";
+	@ConfigDesc("temp dir")
+	public String temp_dir = "./tempdata";
 
 	//Object
 	@ConfigDesc("Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
@@ -198,6 +233,8 @@ public class Configure extends Thread {
 	public boolean mgr_text_db_daily_service_enabled = false;
 	@ConfigDesc("true for daily dictionary mode about api name. default value is false that means it's permanent.")
 	public boolean mgr_text_db_daily_api_enabled = false;
+	@ConfigDesc("true for daily dictionary mode about user agent. default value is false that means it's permanent.")
+	public boolean mgr_text_db_daily_ua_enabled = false;
 
 	//XLog
 	@ConfigDesc("XLog Writer Queue Size")
@@ -318,13 +355,29 @@ public class Configure extends Thread {
 		this.net_tcp_agent_keepalive_interval_ms = getInt("net_tcp_agent_keepalive_interval_ms", 5000);
 		this.net_tcp_get_agent_connection_wait_ms = getInt("net_tcp_get_agent_connection_wait_ms", 1000);
 		this.net_http_server_enabled = getBoolean("net_http_server_enabled", false);
-		this.net_http_port = getInt("net_http_port", 6180);
+		this.net_http_port = getInt("net_http_port", NetConstants.SERVER_HTTP_PORT);
+		this.net_http_api_enabled = getBoolean("net_http_api_enabled", false);
+		this.net_http_api_swagger_enabled = getBoolean("net_http_api_swagger_enabled", false);
+		this.net_http_api_swagger_host_ip = getValue("net_http_api_swagger_host_ip", "");
+		this.net_http_api_cors_allow_origin = getValue("net_http_api_cors_allow_origin", "");
+		this.net_http_api_cors_allow_credentials = getValue("net_http_api_cors_allow_credentials", "false");
+
+		this.net_webapp_tcp_client_pool_size = getInt("net_webapp_tcp_client_pool_size", 12);
+		this.net_webapp_tcp_client_pool_timeout = getInt("net_webapp_tcp_client_pool_timeout", net_tcp_client_so_timeout_ms);
+
+		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", true);
+		this.net_http_api_auth_ip_header_key = getValue("net_http_api_auth_ip_header_key", "");
+		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", true);
+		this.net_http_api_session_timeout = getInt("net_http_api_session_timeout", 3600*24);
+
+		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1");
 
 		this.server_id = getValue("server_id", SysJMX.getHostName());
 		this.db_dir = getValue("db_dir", "./database");
 		this.log_dir = getValue("log_dir", "./logs");
 		this.plugin_dir = getValue("plugin_dir", "./plugin");
 		this.client_dir = getValue("client_dir", "./client");
+		this.temp_dir = getValue("temp_dir", "./tempdata");
 
 		this.object_deadtime_ms = getInt("object_deadtime_ms", 8000);
 
@@ -357,6 +410,9 @@ public class Configure extends Thread {
 		this.log_udp_summary = getBoolean("log_udp_summary", false);
 		this.log_udp_batch = getBoolean("log_udp_batch", false);
 		this.log_service_handler_list = getBoolean("log_service_handler_list", false);
+
+		this.log_index_traversal_warning_count = getInt("log_index_traversal_warning_count", 100);
+
 		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
 		this.log_keep_days = getInt("log_keep_days", 31);
 		this.log_sql_parsing_fail_enabled = getBoolean("log_sql_parsing_fail_enabled", false);
@@ -381,6 +437,7 @@ public class Configure extends Thread {
 
 		this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false);
 		this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false);
+		this.mgr_text_db_daily_ua_enabled = getBoolean("mgr_text_db_daily_ua_enabled", false);
 
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
 		this.geoip_data_city_file = getValue("geoip_data_city_file", CONF_DIR + "GeoLiteCity.dat");

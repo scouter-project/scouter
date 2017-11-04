@@ -356,10 +356,18 @@ public class DateTimeHelper {
 		return -10956L * MILLIS_PER_DAY + BASE_TIME;
 	}
 
+	public long dateUnitToTimeMillis(long dateUnit) {
+		return dateUnit * MILLIS_PER_DAY + BASE_TIME;
+	}
+
 	public static void main(String[] args) throws Exception {
 
 		System.out.println(new Timestamp(DateTimeHelper.getDefault().xxx()));
 		System.out.println(DateTimeHelper.getDefault().yyyymmdd(0));
+		long m = System.currentTimeMillis();
+		long yesterday = System.currentTimeMillis() - 24*60*60*1000L;
+		System.out.println(DateTimeHelper.getDefault().getDateUnit(m));
+		System.out.println(DateTimeHelper.getDefault().getDateUnit(yesterday));
 	}
 
 	private static void c1(DateTimeHelper dh) throws ParseException {

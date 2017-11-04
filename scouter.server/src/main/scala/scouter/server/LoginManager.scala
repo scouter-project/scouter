@@ -15,7 +15,11 @@
  *  limitations under the License. 
  */
 package scouter.server;
+import scouter.lang.Account
+import scouter.net.NetConstants
 import scouter.server.account.AccountManager
+import scouter.server.account.AccountManager.conf
+import scouter.server.netio.service.net.ServiceWorker
 import scouter.server.util.{EnumerScala, ThreadScala}
 import scouter.util.{CacheTable, DateUtil, KeyGen, ThreadUtil}
 object LoginManager {
@@ -27,10 +31,22 @@ object LoginManager {
         }
     }
     def login(id: String, pwd: String, ip: String): Long = {
-        val account = AccountManager.authorizeAccount(id, pwd);
-        if (account == null) {
-            return 0;
+        var account : Account = null
+
+        if(NetConstants.LOCAL_ID.equals(id)) {
+            val remoteIp = ServiceWorker.remoteIpByWorker.get();
+            if ("localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1".split(",").contains(remoteIp)) {
+                account = new Account()
+                account.id = id
+            }
+        } else {
+            account = AccountManager.authorizeAccount(id, pwd);
         }
+
+        if (account == null) {
+            return 0
+        }
+
         val u = new LoginUser();
         u.id = id;
         u.ip = ip;

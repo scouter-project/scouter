@@ -23,6 +23,7 @@ import java.util.Set;
 public class RequestCmd {
 	public static final String CLOSE = "CLOSE";
 	public static final String LOGIN = "LOGIN";
+	public static final String CHECK_LOGIN = "CHECK_LOGIN";
 	public static final String CHECK_SESSION = "CHECK_SESSION";
 	public static final String GET_LOGIN_LIST = "GET_LOGIN_LIST";
 	//
@@ -109,6 +110,7 @@ public class RequestCmd {
 	public static final String TRANX_REAL_TIME_GROUP = "TRANX_REAL_TIME_GROUP";
 	public static final String TRANX_REAL_TIME_GROUP_LATEST = "TRANX_REAL_TIME_GROUP_LATEST";
 	public static final String TRANX_LOAD_TIME_GROUP = "TRANX_LOAD_TIME_GROUP";
+	public static final String TRANX_LOAD_TIME_GROUP_V2 = "TRANX_LOAD_TIME_GROUP_V2";
 	public static final String QUICKSEARCH_XLOG_LIST = "QUICKSEARCH_XLOG_LIST";
 	public static final String SEARCH_XLOG_LIST = "SEARCH_XLOG_LIST";
 
@@ -156,6 +158,8 @@ public class RequestCmd {
 
 	public static final String GET_TEXT = "GET_TEXT";
 	public static final String GET_TEXT_100 = "GET_TEXT_100";
+	public static final String GET_TEXT_PACK = "GET_TEXT_PACK";
+	public static final String GET_TEXT_ANY_TYPE= "GET_TEXT_ANY_TYPE";
 
 	public static final String GET_CONFIGURE_SERVER = "GET_CONFIGURE_SERVER";
 	public static final String SET_CONFIGURE_SERVER = "SET_CONFIGURE_SERVER";
@@ -166,6 +170,15 @@ public class RequestCmd {
 	public static final String REDEFINE_CLASSES = "REDEFINE_CLASSES";
 	public static final String CONFIGURE_DESC = "CONFIGURE_DESC";
 	public static final String CONFIGURE_VALUE_TYPE = "CONFIGURE_VALUE_TYPE";
+
+	public static final String GET_ALERT_SCRIPTING_CONTETNS = "GET_ALERT_SCRIPTING_CONTETNS";
+	public static final String GET_ALERT_SCRIPTING_CONFIG_CONTETNS = "GET_ALERT_SCRIPTING_CONFIG_CONTETNS";
+	public static final String SAVE_ALERT_SCRIPTING_CONTETNS = "SAVE_ALERT_SCRIPTING_CONTETNS";
+	public static final String SAVE_ALERT_SCRIPTING_CONFIG_CONTETNS = "SAVE_ALERT_SCRIPTING_CONFIG_CONTETNS";
+	public static final String GET_ALERT_SCRIPT_LOAD_MESSAGE = "GET_ALERT_SCRIPT_LOAD_MESSAGE";
+	public static final String GET_ALERT_REAL_COUNTER_DESC = "GET_ALERT_REAL_COUNTER_DESC";
+
+	public static final String GET_PLUGIN_HELPER_DESC = "GET_PLUGIN_HELPER_DESC";
 
 	public static final String GET_XML_COUNTER = "GET_XML_COUNTER";
 
