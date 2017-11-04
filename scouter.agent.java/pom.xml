@@ -36,13 +36,13 @@
             <artifactId>scouter-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- local lib -->
         <dependency>
             <groupId>com.github.scouter-project</groupId>
             <artifactId>byte-buddy-nodep-scouter-repack</artifactId>
             <version>1.7.1.RC1</version>
         </dependency>
-
-        <!-- provided -->
         <dependency>
             <groupId>jdk.tools</groupId>
             <artifactId>jdk.tools</artifactId>
@@ -51,6 +51,7 @@
             <systemPath>${provided.tools.jar}</systemPath>
         </dependency>
 
+        <!-- provided -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
