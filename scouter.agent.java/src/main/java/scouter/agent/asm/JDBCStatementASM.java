@@ -42,6 +42,10 @@ public class JDBCStatementASM implements IASM, Opcodes {
 		target.add("org/mariadb/jdbc/MariaDbStatement");
 		target.add("org/mariadb/jdbc/MySQLStatement");
 		target.add("oracle/jdbc/driver/OracleStatement");
+
+		//pg driver 42+
+		target.add("org/postgresql/jdbc/PgStatement");
+
 		target.add("com/mysql/jdbc/StatementImpl");
 		target.add("org/apache/derby/client/am/Statement");
 		target.add("jdbc/FakeStatement");

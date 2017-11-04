@@ -139,6 +139,14 @@ public class Configure extends Thread {
 	public int net_http_port = NetConstants.SERVER_HTTP_PORT;
 	@ConfigDesc("Activating Scouter API")
 	public boolean net_http_api_enabled = false;
+	@ConfigDesc("Enable a swagger for HTTP API.")
+	public boolean net_http_api_swagger_enabled = false;
+	@ConfigDesc("Swagger option of host's ip or domain to call APIs.")
+	public String net_http_api_swagger_host_ip = "";
+	@ConfigDesc("API CORS support for Access-Control-Allow-Origin")
+	public String net_http_api_cors_allow_origin = "";
+	@ConfigDesc("Access-Control-Allow-Credentials")
+	public String net_http_api_cors_allow_credentials = "false";
 
 	@ConfigDesc("size of webapp connection pool to collector")
 	public int net_webapp_tcp_client_pool_size = 12;
@@ -349,6 +357,10 @@ public class Configure extends Thread {
 		this.net_http_server_enabled = getBoolean("net_http_server_enabled", false);
 		this.net_http_port = getInt("net_http_port", NetConstants.SERVER_HTTP_PORT);
 		this.net_http_api_enabled = getBoolean("net_http_api_enabled", false);
+		this.net_http_api_swagger_enabled = getBoolean("net_http_api_swagger_enabled", false);
+		this.net_http_api_swagger_host_ip = getValue("net_http_api_swagger_host_ip", "");
+		this.net_http_api_cors_allow_origin = getValue("net_http_api_cors_allow_origin", "");
+		this.net_http_api_cors_allow_credentials = getValue("net_http_api_cors_allow_credentials", "false");
 
 		this.net_webapp_tcp_client_pool_size = getInt("net_webapp_tcp_client_pool_size", 12);
 		this.net_webapp_tcp_client_pool_timeout = getInt("net_webapp_tcp_client_pool_timeout", net_tcp_client_so_timeout_ms);

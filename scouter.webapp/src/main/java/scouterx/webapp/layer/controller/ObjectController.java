@@ -18,14 +18,19 @@
 
 package scouterx.webapp.layer.controller;
 
+import io.swagger.annotations.Api;
 import scouterx.webapp.framework.client.server.ServerManager;
-import scouterx.webapp.view.CommonResultView;
+import scouterx.webapp.layer.service.ObjectService;
 import scouterx.webapp.model.scouter.SObject;
-import scouterx.webapp.layer.service.AgentService;
+import scouterx.webapp.view.CommonResultView;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -33,17 +38,18 @@ import java.util.List;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-@Path("/v1/agent")
+@Path("/v1/object")
+@Api("Object")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
-public class AgentController {
+public class ObjectController {
     @Context
     HttpServletRequest servletRequest;
 
-    private final AgentService agentService;
+    private final ObjectService agentService;
 
-    public AgentController() {
-        this.agentService = new AgentService();
+    public ObjectController() {
+        this.agentService = new ObjectService();
     }
 
     /**
@@ -54,8 +60,8 @@ public class AgentController {
      */
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<SObject>> retrieveAgentList(@QueryParam("serverId") int serverId) {
-        List<SObject> agentList = agentService.retrieveAgentList(ServerManager.getInstance().getServer(serverId));
+    public CommonResultView<List<SObject>> retrieveObjectList(@QueryParam("serverId") int serverId) {
+        List<SObject> agentList = agentService.retrieveObjectList(ServerManager.getInstance().getServer(serverId));
 
         return CommonResultView.success(agentList);
     }

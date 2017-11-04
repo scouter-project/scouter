@@ -21,11 +21,16 @@ package scouterx.webapp.request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 import scouterx.webapp.framework.client.server.ServerManager;
+import scouterx.webapp.framework.exception.ErrorState;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -34,6 +39,7 @@ import javax.ws.rs.QueryParam;
 @Setter
 @ToString
 public class CounterRequestByType {
+    private final long limitRangeSec = 60 * 60; //1 hour
 
     private int serverId;
 
@@ -41,13 +47,19 @@ public class CounterRequestByType {
     @PathParam("counter")
     private String counter;
 
-    @NotNull
-    @QueryParam("fromYmd")
-    private String fromYmd;
+    //exclusive with startTimeMillis
+    @QueryParam("startYmdHms")
+    private String startYmdHms;
 
-    @NotNull
-    @QueryParam("toYmd")
-    private String toYmd;
+    //exclusive with endTimeMillis
+    @QueryParam("endYmdHms")
+    private String endYmdHms;
+
+    @QueryParam("startTimeMillis")
+    private long startTimeMillis;
+
+    @QueryParam("endTimeMillis")
+    private long endTimeMillis;
 
     @NotNull
     @PathParam("objType")
@@ -56,5 +68,36 @@ public class CounterRequestByType {
     @QueryParam("serverId")
     public void setServerId(int serverId) {
         this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
+    }
+
+    public void validate() {
+        if (StringUtils.isNotBlank(startYmdHms) || StringUtils.isNotBlank(endYmdHms)) {
+            if (StringUtils.isBlank(startYmdHms) || StringUtils.isBlank(endYmdHms)) {
+                throw ErrorState.VALIDATE_ERROR.newBizException("startYmdHms and endYmdHms should be not null !");
+            }
+            if (startTimeMillis > 0 || endTimeMillis > 0) {
+                throw ErrorState.VALIDATE_ERROR.newBizException("startYmdHms, endYmdHms and startTimeMillis, endTimeMills must not coexist!");
+            }
+
+            setTimeAsYmd();
+        } else {
+            if (startTimeMillis <= 0 || endTimeMillis <= 0) {
+                throw ErrorState.VALIDATE_ERROR.newBizException("startTimeMillis and endTimeMillis must have value!");
+            }
+        }
+
+        if (endTimeMillis - startTimeMillis > limitRangeSec * 1000L) {
+            throw ErrorState.VALIDATE_ERROR.newBizException("query range should be lower than " + limitRangeSec + " seconds!");
+        }
+    }
+
+    private void setTimeAsYmd() {
+        ZoneId zoneId = ZoneId.systemDefault();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        LocalDateTime startDateTime = LocalDateTime.parse(startYmdHms, formatter);
+        LocalDateTime endDateTime = LocalDateTime.parse(endYmdHms, formatter);
+
+        startTimeMillis = startDateTime.atZone(zoneId).toEpochSecond() * 1000L;
+        endTimeMillis = endDateTime.atZone(zoneId).toEpochSecond() * 1000L;
     }
 }

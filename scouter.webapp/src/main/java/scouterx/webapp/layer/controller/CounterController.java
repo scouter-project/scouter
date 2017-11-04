@@ -18,20 +18,29 @@
 
 package scouterx.webapp.layer.controller;
 
+import io.swagger.annotations.Api;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.framework.exception.ErrorState;
 import scouterx.webapp.framework.util.ZZ;
 import scouterx.webapp.layer.service.CounterService;
 import scouterx.webapp.model.scouter.SCounter;
+import scouterx.webapp.request.CounterAvgRequestByType;
 import scouterx.webapp.request.CounterRequestByType;
 import scouterx.webapp.view.CommonResultView;
+import scouterx.webapp.view.AvgCounterView;
 import scouterx.webapp.view.CounterView;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -40,6 +49,7 @@ import java.util.List;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
 @Path("/v1/counter")
+@Api("Counter")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class CounterController {
@@ -54,7 +64,7 @@ public class CounterController {
 
     /**
      * get current value of several counters about a type
-     * uri : /counter/realTime/{counters}/ofType/{objType}?serverId=1001010&counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
+     * uri : /counter/realTime/{counters}/ofType/{objType}?serverId=1001010
      *
      * @param objType
      * @param counterNameByCommaSeparator
@@ -72,6 +82,23 @@ public class CounterController {
         List<SCounter> counterList = counterService.retrieveRealTimeCountersByObjType(
                 objType, ZZ.splitParamStringSet(counterNameByCommaSeparator), ServerManager.getInstance().getServerIfNullDefault(serverId));
 
+        return CommonResultView.success(counterList);
+    }
+
+    /**
+     * get counter values of specific time range
+     * uri pattern : /counter/{counter}/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /counter/{counter}/ofType/{objType}?startYmdHms={startYmdHms}&endYmdHms={endYmdHms}&serverId={serverId}
+     *
+     * @param request
+     * @see scouter.lang.counters.CounterConstants
+     */
+    @GET
+    @Path("/{counter}/ofType/{objType}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<CounterView>> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
+        request.validate();
+        List<CounterView> counterList = counterService.retrieveCountersByObjType(request);
         return CommonResultView.success(counterList);
     }
 
@@ -101,13 +128,13 @@ public class CounterController {
      * get the specific counter's values about a type within given duration
      * uri : /counter/stat/{counter}/ofType/{objType}?serverId=1001010&fromYmd=20170809&toYmd=20170810
      *
-     * @param request @see {@link CounterRequestByType}
+     * @param request @see {@link CounterAvgRequestByType}
      */
     @GET
     @Path("/stat/{counter}/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<CounterView>> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
-        List<CounterView> counterViewList = counterService.retrieveCounterByObjType(request);
+    public CommonResultView<List<AvgCounterView>> retrieveAvgCounterByObjType(@BeanParam @Valid CounterAvgRequestByType request) {
+        List<AvgCounterView> counterViewList = counterService.retrieveAvgCounterByObjType(request);
         return CommonResultView.success(counterViewList);
 
     }

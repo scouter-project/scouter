@@ -18,10 +18,11 @@
 
 package scouterx.webapp.layer.controller;
 
+import io.swagger.annotations.Api;
+import scouterx.webapp.layer.service.AlertService;
 import scouterx.webapp.request.RealTimeAlertRequest;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.RealTimeAlertView;
-import scouterx.webapp.layer.service.AlertService;
 
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -36,6 +37,7 @@ import javax.ws.rs.core.MediaType;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
 @Path("/v1/alert")
+@Api("Alert")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class AlertController {

@@ -48,7 +48,11 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		target.add("org/mariadb/jdbc/MariaDbServerPreparedStatement");
 		target.add("org/mariadb/jdbc/MySQLPreparedStatement");
 		target.add("oracle/jdbc/driver/OraclePreparedStatement");
+
 		target.add("org/postgresql/jdbc2/AbstractJdbc2Statement");
+		//pg driver 42+
+		target.add("org/postgresql/jdbc/PgPreparedStatement");
+
 		target.add("org/apache/derby/client/am/PreparedStatement");
 		target.add("net/sourceforge/jtds/jdbc/JtdsPreparedStatement");
 		target.add("jdbc/FakePreparedStatement");

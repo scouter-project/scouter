@@ -599,11 +599,16 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 					ObjectType objectType = counterEngine.getObjectType(agentObject.getObjType());
 					if(objectType == null) {
 						System.out.println("[Null Object Type]" + agentObject.getObjType());
+						continue;
 					}
 					if (objectType.isSubObject()) {
 						continue;
 					}
 					Family family = objectType.getFamily();
+					if(family == null) {
+						System.out.println("[Null family Type]" + agentObject.getObjType());
+						continue;
+					}
 					List<Counter> counterList = family.listCounters();
 					for (Counter counter : counterList) {
 						if(!counter.isAll()) continue;

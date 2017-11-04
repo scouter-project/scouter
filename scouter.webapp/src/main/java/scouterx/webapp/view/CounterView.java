@@ -32,23 +32,25 @@ import java.util.List;
 @Builder
 public class CounterView {
     private final int objHash;
-    private final String fromYmd;
-    private final String toYmd;
+    private final String objName;
+    private final long startTimeMillis;
+    private final long endTimeMillis;
     private final String name;
     private final String displayName;
     private final String unit;
     final private List<Long> timeList;
     final private List<Double> valueList;
 
-    public CounterView(int objHash, String fromYmd, String toYmd, String name, String displayName, String unit,
-                       List<Long> timeList, List<Double> valueList) {
-        this.objHash = objHash;
-        this.fromYmd = fromYmd;
-        this.toYmd = toYmd;
-        this.name = name;
-        this.displayName = displayName;
-        this.unit = unit;
-        this.timeList = timeList;
-        this.valueList = valueList;
-    }
+//    public CounterView(int objHash, long startTimeMillis, long endTimeMillis, String name, String displayName, String unit,
+//                       List<Long> timeList, List<Double> valueList) {
+//        this.objHash = objHash;
+//        this.objName = AgentModelThread.getInstance().getAgentObject(objHash).getObjName();
+//        this.startTimeMillis = startTimeMillis;
+//        this.endTimeMillis = endTimeMillis;
+//        this.name = name;
+//        this.displayName = displayName;
+//        this.unit = unit;
+//        this.timeList = timeList;
+//        this.valueList = valueList;
+//    }
 }

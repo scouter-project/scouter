@@ -65,7 +65,9 @@ public class JavaLineStyler implements LineStyleListener {
     public static final int OTHER = 6;
     public static final int NUMBER = 7;
 
-    public static final int MAXIMUM_TOKEN = 8;
+    public static final int CUSTOM_KEY = 8;
+
+    public static final int MAXIMUM_TOKEN = 9;
 
     public JavaLineStyler() {
         initializeColors();
@@ -103,11 +105,13 @@ public class JavaLineStyler implements LineStyleListener {
                 ColorUtil.getInstance().getColor("light gray"), //6
                 ColorUtil.getInstance().getColor("dark green"), //7
                 ColorUtil.getInstance().getColor("dark magenta"), //8
+                ColorUtil.getInstance().getColor("dark red"), //9
         };
         tokenColors = new int[MAXIMUM_TOKEN];
         tokenColors[WORD] = 0;
-        tokenColors[WHITE] = 4;
+        tokenColors[WHITE] = 9;
         tokenColors[KEY] = 3;
+        tokenColors[CUSTOM_KEY] = 9;
         tokenColors[COMMENT] = 6;
         tokenColors[STRING] = 7;
         tokenColors[OTHER] = 5;
@@ -245,6 +249,8 @@ public class JavaLineStyler implements LineStyleListener {
     public class JavaScanner {
 
         protected Map<String, Integer> fgKeys = null;
+        protected Map<String, Integer> customKeys = null;
+
         protected StringBuffer fBuffer = new StringBuffer();
         protected String fDoc;
         protected int fPos;
@@ -270,6 +276,11 @@ public class JavaLineStyler implements LineStyleListener {
                 "while"
         };
 
+        private String[] customKeywords = {
+                "String",
+                "$ctx", "$$"
+        };
+
         public JavaScanner() {
             initialize();
         }
@@ -286,9 +297,12 @@ public class JavaLineStyler implements LineStyleListener {
          */
         void initialize() {
             fgKeys = new HashMap<>();
-            Integer k = Integer.valueOf(KEY);
             for (String word : fgKeywords)
-                fgKeys.put(word, k);
+                fgKeys.put(word, KEY);
+            
+            customKeys = new HashMap<>();
+            for (String word : customKeywords)
+                customKeys.put(word, CUSTOM_KEY);
         }
 
         /**
@@ -382,8 +396,14 @@ public class JavaLineStyler implements LineStyleListener {
                             } while (Character.isJavaIdentifierPart((char) c));
                             unread(c);
                             Integer i = fgKeys.get(fBuffer.toString());
+
                             if (i != null)
                                 return i.intValue();
+
+                            i = customKeys.get(fBuffer.toString());
+                            if (i != null)
+                                return i.intValue();
+
                             return WORD;
                         }
                         return OTHER;

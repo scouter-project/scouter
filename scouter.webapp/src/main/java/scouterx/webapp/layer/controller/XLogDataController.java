@@ -19,6 +19,7 @@
 package scouterx.webapp.layer.controller;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import io.swagger.annotations.Api;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import scouter.lang.constants.ParamConstant;
@@ -34,6 +35,7 @@ import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.layer.service.XLogService;
 import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.XLogPackWrapper;
+import scouterx.webapp.request.PageableXLogDataRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogDataRequest;
 import scouterx.webapp.request.SingleXLogRequest;
@@ -51,6 +53,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.function.Consumer;
 
 /**
@@ -58,6 +61,7 @@ import java.util.function.Consumer;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 29.
  */
 @Path("/v1/xlog-data")
+@Api("XLog data")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
@@ -77,7 +81,7 @@ public class XLogDataController {
     }
 
     /**
-     * get values of several counters for given an object
+     * get current xlog data created after the last searched.
      * uri : /xlog-data/realTime/0/100?objHashes=10001,10002 or ?objHashes=[10001,100002]
      *
      * @return
@@ -117,17 +121,18 @@ public class XLogDataController {
     }
 
     /**
-     * request xlog token for range request.
+     * request xlog data within given time range
      * uri : /xlog-data/{yyyymmdd}?startTime=... @see {@link PageableXLogRequest}
      *
-     * @param xLogRequest
+     * @param xLogDataRequest
      * @return PageableXLogView @see {@link PageableXLogView}
      */
     @GET
     @Path("/{yyyymmdd}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response streamPageableXLog(@Valid @BeanParam PageableXLogRequest xLogRequest) {
-        xLogRequest.validate();
+    public Response streamPageableXLog(@Valid @BeanParam PageableXLogDataRequest xLogDataRequest) throws ParseException {
+        xLogDataRequest.validate();
+        PageableXLogRequest xLogRequest = new PageableXLogRequest(xLogDataRequest);
         Server server = ServerManager.getInstance().getServerIfNullDefault(xLogRequest.getServerId());
         Consumer<JsonGenerator> pageableXLogHandlerConsumer = jsonGenerator -> {
             try {

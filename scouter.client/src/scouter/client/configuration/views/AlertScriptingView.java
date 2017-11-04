@@ -99,14 +99,14 @@ public class AlertScriptingView extends ViewPart {
 	public static final String ID = AlertScriptingView.class.getName();
 
 	private static final String DEFAULT_RULE_CONTENTS =
-			"// void process(RealCounter $counter, PluginHelper $$) {\n" +
+					"// void process(RealCounter $counter, PluginHelper $$) {\n" +
 					"// create your java code below..\n" +
 					"\n" +
 					"\n" +
 					"// }";
 
 	private static final String DEFAULT_CONFIG_CONTENTS =
-			"#history_size=150\n" +
+					"#history_size=150\n" +
 					"#silent_time=300\n" +
 					"#check_term=20";
 
