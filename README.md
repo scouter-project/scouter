@@ -36,6 +36,8 @@ SCOUTER can help you.
  - [Quick start guide (Quick Installation of demo system)](./scouter.document/main/Quick-Start.md)
  - [Installation](./scouter.document/main/Setup.md)
  - [Live demo](./scouter.document/main/Live-Demo.md)
+ - [How to analyze XLog View](./scouter.document/client/Reading-XLog.md)
+ - [Customizable alarm - Alert plugins guide](./scouter.document/main/Alert-Plugin-Guide.md)
  - [Client screen help](./scouter.document/client/How-To-Use-Client.md)
 
 ## Download

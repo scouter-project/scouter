@@ -10,8 +10,9 @@
 ## 1. Collector Server Installation
 
 ### 1.1. Prerequisite
-* JDK 1.6+ (1.8+ recommended)
-* JDK 1.8+ (scouter web api)
+* JDK 1.6+ : scouter java agent, host agent (1.8 recommended)
+* JDK 1.6+ : scouter server (will support only 1.8+ on next version)
+* JDK 1.8+ : scouter web api
 
 ### 1.2. Collector Server Installation
 1. download the latest version of scouter-yyyyMMdd.tar.gz.
