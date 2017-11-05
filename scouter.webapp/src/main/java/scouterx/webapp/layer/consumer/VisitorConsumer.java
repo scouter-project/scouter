@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public class VisitorConsumer {
 
-    public long retrieveVisitorRealTimeByObj(int objType, final Server server){
+    public long retrieveVisitorRealTimeByObj(int objType, final Server server) {
         MapPack param = new MapPack();
         param.put(ParamConstant.OBJ_HASH, objType);
 
@@ -36,7 +36,7 @@ public class VisitorConsumer {
         return ((DecimalValue) value).value;
     }
 
-    public long retrieveVisitorRealTimeByObjType(String objType, final Server server){
+    public long retrieveVisitorRealTimeByObjType(String objType, final Server server) {
         MapPack param = new MapPack();
         param.put(ParamConstant.OBJ_TYPE, objType);
 
@@ -48,11 +48,11 @@ public class VisitorConsumer {
         return ((DecimalValue) value).value;
     }
 
-    public long retrieveVisitorRealTimeByObjHashes(List<Integer> objHashes, final Server server){
+    public long retrieveVisitorRealTimeByObjHashes(List<Integer> objHashes, final Server server) {
         MapPack param = new MapPack();
         ListValue listValue = new ListValue();
 
-        for (Integer obj : objHashes){
+        for (Integer obj : objHashes) {
             listValue.add(obj);
         }
 
@@ -66,7 +66,7 @@ public class VisitorConsumer {
         return ((DecimalValue) value).value;
     }
 
-    public long retrieveVisitorLoaddateByObjAndDate(int objHash, String date, final Server server){
+    public long retrieveVisitorByObj(int objHash, String date, final Server server) {
         MapPack param = new MapPack();
         param.put(ParamConstant.OBJ_HASH, objHash);
         param.put(ParamConstant.DATE, date);
@@ -79,8 +79,10 @@ public class VisitorConsumer {
         return ((DecimalValue) value).value;
     }
 
-    public long retrieveVisitorLoaddateTotalByObjAndDate(String objType, String date, final Server server){
+    public long retrieveVisitorTotalByObj(String objType, String date, final Server server) {
+
         MapPack param = new MapPack();
+
         param.put(ParamConstant.OBJ_TYPE, objType);
         param.put(ParamConstant.DATE, date);
 
@@ -92,11 +94,11 @@ public class VisitorConsumer {
         return ((DecimalValue) value).value;
     }
 
-    public VisitorGroup retrieveVisitorLoaddateGroupByObjHashesAndDate(VisitorGroupRequest visitorGroupRequest){
+    public VisitorGroup retrieveVisitorGroupByObjHashes(VisitorGroupRequest visitorGroupRequest) {
 
         MapPack param = getVisitorGroupPack(visitorGroupRequest);
-
         Server server = ServerManager.getInstance().getServerIfNullDefault(visitorGroupRequest.getServerId());
+
         Pack pack;
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             pack = tcpProxy.getSingle(RequestCmd.VISITOR_LOADDATE_GROUP, param);
@@ -105,42 +107,71 @@ public class VisitorConsumer {
         return VisitorGroup.of((MapPack) pack);
     }
 
-    public List<VisitorGroup> retrieveVisitorLoadhourGroupByObjHashesAndDate(VisitorGroupRequest visitorGroupRequest){
+    public List<VisitorGroup> retrieveVisitorHourlyGroupByObjHashes(VisitorGroupRequest visitorGroupRequest) {
 
-        MapPack param = getVisitorGroupPack(visitorGroupRequest);
-
+        MapPack param = getVisitorHourlyGroupPack(visitorGroupRequest);
         Server server = ServerManager.getInstance().getServerIfNullDefault(visitorGroupRequest.getServerId());
+
         List<Pack> results;
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             results = tcpProxy.process(RequestCmd.VISITOR_LOADHOUR_GROUP, param);
         }
 
-        return  results.stream()
-                .map(pack -> (MapPack)pack)
+        return results.stream()
+                .map(pack -> (MapPack) pack)
                 .map(VisitorGroup::of)
                 .collect(Collectors.toList());
     }
 
-    private MapPack getVisitorGroupPack(VisitorGroupRequest visitorGroupRequest){
+    private MapPack getVisitorGroupPack(VisitorGroupRequest visitorGroupRequest) {
+
         MapPack param = new MapPack();
         ListValue listValue = new ListValue();
 
         String objHashes = visitorGroupRequest.getObjHashes();
-        String sdate = visitorGroupRequest.getSdate();
-        String edate = visitorGroupRequest.getEdate();
+        String sdate = visitorGroupRequest.getStartYmd();
+        String edate = visitorGroupRequest.getEndYmd();
 
         List<Integer> objList = ZZ.splitParamAsInteger(objHashes);
+
         if (CollectionUtils.isEmpty(objList)) {
             throw ErrorState.VALIDATE_ERROR.newBizException("Query parameter 'objHashes' is required!");
         }
 
-        for (Integer obj : objList){
+        for (Integer obj : objList) {
             listValue.add(obj);
         }
 
         param.put(ParamConstant.OBJ_HASH, listValue);
         param.put(ParamConstant.SDATE, sdate);
         param.put(ParamConstant.EDATE, edate);
+
+        return param;
+    }
+
+    private MapPack getVisitorHourlyGroupPack(VisitorGroupRequest visitorGroupRequest) {
+
+        MapPack param = new MapPack();
+        ListValue listValue = new ListValue();
+
+        String objHashes = visitorGroupRequest.getObjHashes();
+        long stime = visitorGroupRequest.getStartYmdH();
+        long etime = visitorGroupRequest.getEndYmdH();
+
+        List<Integer> objList = ZZ.splitParamAsInteger(objHashes);
+
+        if (CollectionUtils.isEmpty(objList)) {
+            throw ErrorState.VALIDATE_ERROR.newBizException("Query parameter 'objHashes' is required!");
+        }
+
+        for (Integer obj : objList) {
+            listValue.add(obj);
+        }
+
+        param.put(ParamConstant.OBJ_HASH, listValue);
+        param.put(ParamConstant.STIME, stime);
+        param.put(ParamConstant.ETIME, etime);
+
         return param;
     }
 }

@@ -57,7 +57,7 @@ public class VisitorController {
     @GET
     @Path("/realTime")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Long> retrieveVisitorRealtimeByObjHashes(@QueryParam("objHashes") String objHashes,
+    public CommonResultView<Long> retrieveVisitorRealtimeByObjHashes(@QueryParam("objHashes") final String objHashes,
                                                                      @QueryParam("serverId") final int serverId) {
 
         List<Integer> objList = ZZ.splitParamAsInteger(objHashes);
@@ -72,48 +72,59 @@ public class VisitorController {
     }
 
     @GET
-    @Path("/loadedDate/{date}/ofObject/{objHash}")
+    @Path("/{yyyymmdd}/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Long> retrieveVisitorLoaddateByObjAndDate(@PathParam("date") final String date,
-                                                                      @PathParam("objHash") final int objHash,
-                                                                      @QueryParam("serverId") final int serverId) {
-        Long visitorLoadeddate = visitorService.retrieveVisitorLoaddateByObjAndDate(objHash, date,
+    public CommonResultView<Long> retrieveVisitorByObj(@PathParam("yyyymmdd") final String yyyymmdd,
+                                                       @PathParam("objHash") final int objHash,
+                                                       @QueryParam("serverId") final int serverId) {
+        Long visitorLoadeddate = visitorService.retrieveVisitorByObj(objHash, yyyymmdd,
                 ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(visitorLoadeddate);
     }
 
     @GET
-    @Path("/loadeDate/total/{date}/ofType/{objType}")
+    @Path("{yyyymmdd}/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Long> retrieveVisitorLoaddateTotalByObjAndDate(@PathParam("date") final String date,
-                                                                           @PathParam("objType") final String objType,
-                                                                           @QueryParam("serverId") final int serverId) {
-        Long visitorLoadeddate = visitorService.retrieveVisitorLoaddateTotalByObjAndDate(objType, date,
+    public CommonResultView<Long> retrieveVisitorTotalByObj(@PathParam("yyyymmdd") final String yyyymmdd,
+                                                            @PathParam("objType") final String objType,
+                                                            @QueryParam("serverId") final int serverId) {
+        Long visitorLoadeddate = visitorService.retrieveVisitorTotalByObj(objType, yyyymmdd,
                 ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(visitorLoadeddate);
     }
 
     @GET
-    @Path("/loadedDate/group/{sdate}/{edate}")
+    @Path("/ofObject/{objHashes}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<VisitorGroup> retrieveVisitorLoaddateGroupByObjHashesAndDate(@BeanParam @Valid final VisitorGroupRequest visitorGroupRequest) {
+    public CommonResultView<VisitorGroup> retrieveVisitorGroupByObjHashes(@BeanParam @Valid final VisitorGroupRequest visitorGroupRequest) {
 
-        VisitorGroup visitorGroupLoaded = visitorService.retrieveVisitorLoaddateGroupByObjHashesAndDate(visitorGroupRequest);
+        return retrieveVisitorGroup(visitorGroupRequest);
+    }
+
+    private CommonResultView<VisitorGroup> retrieveVisitorGroup(VisitorGroupRequest visitorGroupRequest) {
+
+        visitorGroupRequest.validate();
+        VisitorGroup visitorGroupLoaded = visitorService.retrieveVisitorGroupByObjHashes(visitorGroupRequest);
 
         return CommonResultView.success(visitorGroupLoaded);
     }
 
     @GET
-    @Path("/loadedHour/group/{sdate}/{edate}")
+    @Path("/hourly/ofObject/{objHashes}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<VisitorGroup>> retrieveVisitorLoadhourGroupByObjHashesAndDate(@BeanParam @Valid final VisitorGroupRequest visitorGroupRequest) {
+    public CommonResultView<List<VisitorGroup>> retrieveVisitorHourlyGroupByObjHashes(@BeanParam @Valid final VisitorGroupRequest visitorGroupRequest) {
 
-        List<VisitorGroup> visitorGroupLoadedList = visitorService.retrieveVisitorLoadhourGroupByObjHashesAndDate(visitorGroupRequest);
+        return retrieveVisitorHourlyGroup(visitorGroupRequest);
+    }
+
+    private CommonResultView<List<VisitorGroup>> retrieveVisitorHourlyGroup(VisitorGroupRequest visitorGroupRequest) {
+
+        visitorGroupRequest.validate();
+        List<VisitorGroup> visitorGroupLoadedList = visitorService.retrieveVisitorHourlyGroupByObjHashes(visitorGroupRequest);
 
         return CommonResultView.success(visitorGroupLoadedList);
     }
-
 
 }

@@ -30,21 +30,21 @@ public class VisitorService {
         return visitorConsumer.retrieveVisitorRealTimeByObjHashes(objHashes, server);
     }
 
-    public long retrieveVisitorLoaddateByObjAndDate(int objHash, String date, Server server){
-        return visitorConsumer.retrieveVisitorLoaddateByObjAndDate(objHash,date,server);
+    public long retrieveVisitorByObj(int objHash, String date, Server server){
+        return visitorConsumer.retrieveVisitorByObj(objHash,date,server);
     }
 
-    public long retrieveVisitorLoaddateTotalByObjAndDate(String objType, String date, Server server){
-        return visitorConsumer.retrieveVisitorLoaddateTotalByObjAndDate(objType, date, server);
+    public long retrieveVisitorTotalByObj(String objType, String date, Server server){
+        return visitorConsumer.retrieveVisitorTotalByObj(objType, date, server);
     }
 
-    public VisitorGroup retrieveVisitorLoaddateGroupByObjHashesAndDate(VisitorGroupRequest visitorGroupRequest){
+    public VisitorGroup retrieveVisitorGroupByObjHashes(VisitorGroupRequest visitorGroupRequest){
 
-        return visitorConsumer.retrieveVisitorLoaddateGroupByObjHashesAndDate(visitorGroupRequest);
+        return visitorConsumer.retrieveVisitorGroupByObjHashes(visitorGroupRequest);
     }
 
-    public List<VisitorGroup> retrieveVisitorLoadhourGroupByObjHashesAndDate(VisitorGroupRequest visitorGroupRequest){
-        return visitorConsumer.retrieveVisitorLoadhourGroupByObjHashesAndDate(visitorGroupRequest);
+    public List<VisitorGroup> retrieveVisitorHourlyGroupByObjHashes(VisitorGroupRequest visitorGroupRequest){
+        return visitorConsumer.retrieveVisitorHourlyGroupByObjHashes(visitorGroupRequest);
     }
 
 }
