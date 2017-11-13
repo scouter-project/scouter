@@ -28,6 +28,7 @@ import scouter.lang.pack.ObjectPack;
 import scouter.lang.value.Value;
 import scouter.server.core.AgentManager;
 import scouter.server.core.cache.CounterCache;
+import scouter.util.HashUtil;
 import scouter.util.IntLongLinkedMap;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
@@ -41,6 +42,7 @@ import java.util.Map;
 public class RealCounter {
 	private static List<Desc> realCounterDesc;
 
+	public long confLastModified;
 	public long lastCheckTime;
 
 	private Value _value;
@@ -299,6 +301,17 @@ public class RealCounter {
 			return 0;
 	}
 
+	@ConfigDesc("get the another objects counter's value as float.")
+	@ParamDesc("String objectFullName, String counter")
+	public float getFloatValue(String objectFullName, String counter) {
+		int anotherObjHash = HashUtil.hash(objectFullName);
+		Value v = CounterCache.get(new CounterKey(anotherObjHash, counter, _timetype));
+		if (v instanceof Number)
+			return ((Number) v).floatValue();
+		else
+			return 0;
+	}
+
 	@Deprecated
 	public float floatValue(String counter) {
 		return getFloatValue(counter);
@@ -308,6 +321,17 @@ public class RealCounter {
 	@ParamDesc("String counter")
 	public int getIntValue(String counter) {
 		Value v = CounterCache.get(new CounterKey(_objHash, counter, _timetype));
+		if (v instanceof Number)
+			return ((Number) v).intValue();
+		else
+			return 0;
+	}
+
+	@ConfigDesc("get the another objects counter's value as int.")
+	@ParamDesc("String objectFullName, String counter")
+	public int getIntValue(String objectFullName, String counter) {
+		int anotherObjHash = HashUtil.hash(objectFullName);
+		Value v = CounterCache.get(new CounterKey(anotherObjHash, counter, _timetype));
 		if (v instanceof Number)
 			return ((Number) v).intValue();
 		else

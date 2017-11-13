@@ -39,13 +39,15 @@ import java.util.function.Consumer;
 @Setter
 public class CommonResultView<T> {
 	private static final int SUCCESS = 0;
-	private static final ObjectMapper objectMapper = new ObjectMapper();
-
+	private static final ObjectMapper objectMapper = new ObjectMapper().configure(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS, true);
+	
 	private int status = HttpStatus.OK_200;
 	private String requestId;
 	private int resultCode;
 	private String message;
 	private T result;
+
+	public CommonResultView() {}
 
 	public CommonResultView(int resultCode, String message, T result) {
 		this.resultCode = resultCode;
@@ -62,20 +64,20 @@ public class CommonResultView<T> {
 		this.requestId = MDC.get(LoggingInitServletFilter.requestId);
 	}
 
-	public static CommonResultView success() {
-		return new CommonResultView(SUCCESS, "success", true);
+	public static CommonResultView<Boolean> success() {
+		return new CommonResultView<>(SUCCESS, "success", true);
 	}
 
-	public static <T> CommonResultView success(T result) {
-		return new CommonResultView(SUCCESS, "success", result);
+	public static <T> CommonResultView<T> success(T result) {
+		return new CommonResultView<>(SUCCESS, "success", result);
 	}
 
 	public static <T> CommonResultView fail(int resultCode, String message, T result) {
-		return new CommonResultView(HttpStatus.INTERNAL_SERVER_ERROR_500, resultCode, message, result);
+		return new CommonResultView<>(HttpStatus.INTERNAL_SERVER_ERROR_500, resultCode, message, result);
 	}
 
 	public static <T> CommonResultView fail(int status, int resultCode, String message, T result) {
-		return new CommonResultView(status, resultCode, message, result);
+		return new CommonResultView<>(status, resultCode, message, result);
 	}
 
 	public static void jsonArrayStream(OutputStream os, Consumer<JsonGenerator> itemGenerator) throws IOException {

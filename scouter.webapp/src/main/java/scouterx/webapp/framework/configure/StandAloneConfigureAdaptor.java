@@ -101,4 +101,24 @@ public class StandAloneConfigureAdaptor implements ConfigureAdaptor {
     public int getNetWebappTcpClientPoolTimeout() {
         return conf.net_webapp_tcp_client_pool_timeout;
     }
+
+    @Override
+    public boolean isNetHttpApiSwaggerEnabled() {
+        return conf.net_http_api_swagger_enabled;
+    }
+
+    @Override
+    public String getNetHttpApiSwaggerHostIp() {
+        return conf.net_http_api_swagger_host_ip;
+    }
+
+    @Override
+    public String getNetHttpApiCorsAllowOrigin() {
+        return conf.net_http_api_cors_allow_origin;
+    }
+
+    @Override
+    public String getNetHttpApiCorsAllowCredentials() {
+        return conf.net_http_api_cors_allow_credentials;
+    }
 }

@@ -17,9 +17,6 @@
  */
 package scouter.client.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IMenuListener;
@@ -36,7 +33,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.Images;
 import scouter.client.actions.OpenActiveServiceListAction;
 import scouter.client.actions.OpenActiveSpeedAction;
@@ -120,6 +116,9 @@ import scouter.lang.ObjectType;
 import scouter.lang.counters.CounterConstants;
 import scouter.lang.counters.CounterEngine;
 import scouter.util.DateUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MenuUtil implements IMenuCreator{
 
@@ -215,6 +214,9 @@ public class MenuUtil implements IMenuCreator{
 	public static HashMap<String, Action> getCounterActionList(IWorkbenchWindow window, CounterEngine counterEngine, int serverId){
 		HashMap<String, Action> actions = new HashMap<String, Action>();
 		ArrayList<String> objTypeAndCounter = counterEngine.getAllCounterList();
+		if (objTypeAndCounter == null || objTypeAndCounter.isEmpty()) {
+			return actions;
+		}
 		for (int inx = 0; inx < objTypeAndCounter.size(); inx++) {
 			String[] splitedKey = objTypeAndCounter.get(inx).split(":");
 			String objType = splitedKey[0];

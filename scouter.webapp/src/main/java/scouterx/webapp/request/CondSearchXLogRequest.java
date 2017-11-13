@@ -1,19 +1,20 @@
 package scouterx.webapp.request;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
-import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import scouterx.webapp.framework.exception.ErrorState;
+import scouterx.webapp.main.WebAppMain;
 
 @Getter
 @Setter
@@ -22,20 +23,19 @@ public class CondSearchXLogRequest {
 
     int serverId;
     
-    @QueryParam("startYmdHm")
-    String startYmdHm;
-
     @NotNull
-    @QueryParam("endYmdHm")
-    String endYmdHm;
-
+    @PathParam("yyyymmdd")
+    String yyyymmdd;
     
-    @QueryParam("startTime")
-    long startTime;
+    @NotNull
+    @Min(1)
+    @QueryParam("startTimeMillis")
+    long startTimeMillis;
 
     @NotNull
-    @QueryParam("endTime")
-    long endTime;
+    @Min(1)
+    @QueryParam("endTimeMillis")
+    long endTimeMillis;
     
     @QueryParam("objHash")
     long objHash;    
@@ -67,29 +67,35 @@ public class CondSearchXLogRequest {
     @QueryParam("text5")
     String text5;
     
-    public void validate() {
-        if (StringUtils.isNotBlank(startYmdHm) || StringUtils.isNotBlank(endYmdHm)) {
-            if (StringUtils.isBlank(startYmdHm) || StringUtils.isBlank(endYmdHm)) {
-                throw ErrorState.VALIDATE_ERROR.newBizException("startYmdHms and endYmdHms should be not null !");
-            }
-            if (startTime > 0 || endTime > 0) {
-                throw ErrorState.VALIDATE_ERROR.newBizException("startYmdHms, endYmdHms and startTime, endTime must not coexist!");
-            }
-
-            setTimeAsYmd();
-        } else {
-            throw ErrorState.VALIDATE_ERROR.newBizException("startYmdHms and endYmdHms should be not null !");
-        }
+    
+    public CondSearchXLogRequest(){
+    	
     }
     
-    private void setTimeAsYmd() {
-        ZoneId zoneId = ZoneId.systemDefault();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-        LocalDateTime startDateTime = LocalDateTime.parse(startYmdHm, formatter);
-        LocalDateTime endDateTime = LocalDateTime.parse(endYmdHm, formatter);
+    public CondSearchXLogRequest(CondSearchXLogDataRequest dataRequest) throws ParseException {
+    	this.serverId = dataRequest.getServerId();
+        this.yyyymmdd = dataRequest.getYyyymmdd();
+     
+        this.service = dataRequest.getService();
+        this.objHash = dataRequest.getObjHash();
+        this.ip = dataRequest.getIp();
+        this.login = dataRequest.getLogin();
+        this.desc = dataRequest.getDesc();
+        this.text1 = dataRequest.getText1();
+        this.text2 = dataRequest.getText2();
+        this.text3 = dataRequest.getText3();
+        this.text4 = dataRequest.getText4();
+        this.text5 = dataRequest.getText5();
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
-        startTime = startDateTime.atZone(zoneId).toEpochSecond() * 1000L;
-        endTime = endDateTime.atZone(zoneId).toEpochSecond() * 1000L;
+        this.startTimeMillis = sdf.parse(this.yyyymmdd + dataRequest.startHms).getTime();
+        this.endTimeMillis = sdf.parse(this.yyyymmdd + dataRequest.endHms).getTime();
     }
+    
+    public void validate() {
+    	
+    }
+    
     
 }

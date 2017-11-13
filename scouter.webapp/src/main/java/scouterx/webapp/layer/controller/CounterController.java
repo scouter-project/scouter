@@ -18,14 +18,17 @@
 
 package scouterx.webapp.layer.controller;
 
+import io.swagger.annotations.Api;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.framework.exception.ErrorState;
 import scouterx.webapp.framework.util.ZZ;
+import scouterx.webapp.layer.service.CounterService;
 import scouterx.webapp.model.scouter.SCounter;
+import scouterx.webapp.request.CounterAvgRequestByType;
 import scouterx.webapp.request.CounterRequestByType;
 import scouterx.webapp.view.CommonResultView;
+import scouterx.webapp.view.AvgCounterView;
 import scouterx.webapp.view.CounterView;
-import scouterx.webapp.layer.service.CounterService;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +49,7 @@ import java.util.List;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
 @Path("/v1/counter")
+@Api("Counter")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class CounterController {
@@ -60,7 +64,7 @@ public class CounterController {
 
     /**
      * get current value of several counters about a type
-     * uri : /counter/realTime/{counters}/ofType/{objType}?serverId=1001010&counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
+     * uri : /counter/realTime/{counters}/ofType/{objType}?serverId=1001010
      *
      * @param objType
      * @param counterNameByCommaSeparator
@@ -82,6 +86,23 @@ public class CounterController {
     }
 
     /**
+     * get counter values of specific time range
+     * uri pattern : /counter/{counter}/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /counter/{counter}/ofType/{objType}?startYmdHms={startYmdHms}&endYmdHms={endYmdHms}&serverId={serverId}
+     *
+     * @param request
+     * @see scouter.lang.counters.CounterConstants
+     */
+    @GET
+    @Path("/{counter}/ofType/{objType}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<CounterView>> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
+        request.validate();
+        List<CounterView> counterList = counterService.retrieveCountersByObjType(request);
+        return CommonResultView.success(counterList);
+    }
+
+    /**
      * get current value of several counters about an object
      * uri : /counter/realTime/{counters}/ofObject/{objHash}?counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
      *
@@ -93,7 +114,7 @@ public class CounterController {
     @GET
     @Path("/realTime/{counters}/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Boolean> retrieveRealTimeCountersByObjId(
+    public CommonResultView<Boolean> retrieveRealTimeCountersByObj(
             @PathParam("objHash") final int objHash,
             @PathParam("counters") final String counterNameByCommaSeparator,
             @QueryParam("serverId") final int serverId) {
@@ -107,13 +128,13 @@ public class CounterController {
      * get the specific counter's values about a type within given duration
      * uri : /counter/stat/{counter}/ofType/{objType}?serverId=1001010&fromYmd=20170809&toYmd=20170810
      *
-     * @param request @see {@link CounterRequestByType}
+     * @param request @see {@link CounterAvgRequestByType}
      */
     @GET
     @Path("/stat/{counter}/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<SCounter>> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
-        List<CounterView> counterViewList = counterService.retrieveCounterByObjType(request);
+    public CommonResultView<List<AvgCounterView>> retrieveAvgCounterByObjType(@BeanParam @Valid CounterAvgRequestByType request) {
+        List<AvgCounterView> counterViewList = counterService.retrieveAvgCounterByObjType(request);
         return CommonResultView.success(counterViewList);
 
     }

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>scouter-parent</artifactId>
         <groupId>io.github.scouter-project</groupId>
-        <version>1.8.0.SNAPSHOT</version>
+        <version>1.8.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -20,6 +20,7 @@
         <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scouter.webapp.jarName>scouter.webapp</scouter.webapp.jarName>
+        <swagger.version>1.5.16</swagger.version>
     </properties>
 
     <dependencies>
@@ -89,6 +90,18 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.6</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.2</version>
+        </dependency>
+
+        <!-- Swagger -->
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-jersey2-jaxrs</artifactId>
+            <version>${swagger.version}</version>
         </dependency>
 
         <dependency>

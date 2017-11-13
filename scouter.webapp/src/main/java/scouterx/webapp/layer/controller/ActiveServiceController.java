@@ -18,14 +18,16 @@
 
 package scouterx.webapp.layer.controller;
 
+import io.swagger.annotations.Api;
+import org.apache.commons.lang3.StringUtils;
 import scouter.util.Hexa32;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
+import scouterx.webapp.layer.service.ActiveServiceService;
 import scouterx.webapp.model.ActiveThread;
 import scouterx.webapp.model.scouter.SActiveService;
 import scouterx.webapp.model.scouter.SActiveServiceStepCount;
 import scouterx.webapp.view.CommonResultView;
-import scouterx.webapp.layer.service.ActiveServiceService;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +47,7 @@ import java.util.List;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
 @Path("/v1/activeService")
+@Api("Active service")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class ActiveServiceController {
@@ -107,11 +110,11 @@ public class ActiveServiceController {
     @GET
     @Path("/ofObject/{objHash}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<SActiveService>> retrieveRealTimeActiveServiceListByObjHashes(
+    public CommonResultView<List<SActiveService>> retrieveRealTimeActiveServiceListByObjHash(
             @PathParam("objHash") @Valid @NotNull final int objHash,
             @QueryParam("serverId") final int serverId) {
 
-        List<SActiveService> activeServiceList = activeServiceService.retrieveActiveServiceListByObjHashes(
+        List<SActiveService> activeServiceList = activeServiceService.retrieveActiveServiceListByObjHash(
                 objHash, ServerManager.getInstance().getServerIfNullDefault(serverId));
 
         return CommonResultView.success(activeServiceList);
@@ -123,6 +126,7 @@ public class ActiveServiceController {
      * @param objHash
      * @param threadId
      * @param txidName This value is for valuable service related information. (like service name & a sql that currently running)
+     * @param txid This value has higher priority than txidName.(txidName is String type from Hexa32.toString32(txid) / txid is long type)
      * @param serverId optional if web instance just connected one collector server.
      * @return
      */
@@ -133,9 +137,12 @@ public class ActiveServiceController {
             @PathParam("objHash") @Valid @NotNull final int objHash,
             @PathParam("threadId") @Valid @NotNull final long threadId,
             @QueryParam("txidName") final String txidName,
+            @QueryParam("txid") long txid,
             @QueryParam("serverId") final int serverId) {
 
-        long txid = Hexa32.toLong32(txidName);
+        if (txid == 0L && StringUtils.isNotBlank(txidName)) {
+            txid = Hexa32.toLong32(txidName);
+        }
         Server server = ServerManager.getInstance().getServerIfNullDefault(serverId);
         ActiveThread activeThread = activeServiceService.retrieveActiveThread(objHash, threadId, txid, server);
 

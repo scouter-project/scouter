@@ -46,9 +46,11 @@ public class ClientTCP {
 		}
 		try {
 			socket = new Socket();
-			socket.setKeepAlive(true);
+			socket.setKeepAlive(false);
 			socket.setTcpNoDelay(true);
-			//socket.setSoLinger(true, 0); 
+			socket.setPerformancePreferences(0, 2, 1);
+			socket.setReuseAddress(true);
+			socket.setSoLinger(true, 1000);
 			socket.connect(new InetSocketAddress(server.getIp(), server.getPort()),3000);
 			socket.setSoTimeout(server.getSoTimeOut());
 			in = new DataInputX(new BufferedInputStream(socket.getInputStream()));

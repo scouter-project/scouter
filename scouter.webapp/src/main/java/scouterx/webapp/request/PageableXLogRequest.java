@@ -30,14 +30,16 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Set;
 
 /**
 * DTO for pageable XLog request.
 * - date : (required) date to retrieve as String format YYYYMMDD
 * - serverId : serverId if available (mandatory if it's multi-server connected scouter webapp)
-* - startTime : (required) start time as milliseconds(long)
-* - endTime : (required) end time as milliseconds(long)
+* - startTimeMillis : (required) start time as milliseconds(long)
+* - endTimeMillis : (required) end time as milliseconds(long)
 * - objHashes : (required) object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
 * - pageCount : count to retrieve in one time. (max limit is 30,000, default 10,000)
 * - lastTxid : available from previous response for paging support. (long)
@@ -60,13 +62,13 @@ public class PageableXLogRequest {
 
     @NotNull
     @Min(1)
-    @QueryParam("startTime")
-    long startTime;
+    @QueryParam("startTimeMillis")
+    long startTimeMillis;
 
     @NotNull
     @Min(1)
-    @QueryParam("endTime")
-    long endTime;
+    @QueryParam("endTimeMillis")
+    long endTimeMillis;
 
     @NotNull
     Set<Integer> objHashes;
@@ -93,6 +95,22 @@ public class PageableXLogRequest {
 
     @QueryParam("lastXLogTime")
     long lastXLogTime;
+
+    public PageableXLogRequest() {}
+
+    public PageableXLogRequest(PageableXLogDataRequest dataRequest) throws ParseException {
+        this.yyyymmdd = dataRequest.getYyyymmdd();
+        this.serverId = dataRequest.getServerId();
+        this.objHashes = dataRequest.getObjHashes();
+        this.pageCount = dataRequest.getPageCount();
+        this.lastTxid = dataRequest.getLastTxid();
+        this.lastXLogTime = dataRequest.getLastXLogTime();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+
+        this.startTimeMillis = sdf.parse(this.yyyymmdd + dataRequest.startHms).getTime();
+        this.endTimeMillis = sdf.parse(this.yyyymmdd + dataRequest.endHms).getTime();
+    }
 
     @QueryParam("serverId")
     public void setServerId(int serverId) {

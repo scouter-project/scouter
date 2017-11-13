@@ -16,28 +16,21 @@
  *
  */
 
-package scouterx.webapp.layer.service;
+package scouterx.webapp.request;
 
-import scouterx.webapp.framework.client.server.Server;
-import scouterx.webapp.layer.consumer.AgentConsumer;
-import scouterx.webapp.model.scouter.SObject;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-import java.util.List;
+import javax.ws.rs.PathParam;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public class AgentService {
-    private final AgentConsumer agentConsumer;
-
-    public AgentService() {
-        this.agentConsumer = new AgentConsumer();
-    }
-
-    /**
-     * retrieve object(agent) list from collector server
-     */
-    public List<SObject> retrieveAgentList(final Server server) {
-        return agentConsumer.retrieveAgentList(server);
-    }
+@Getter
+@Setter
+@ToString
+public class SummaryOfObjTypeRequest extends SummaryRequest {
+    @PathParam("objType")
+    private String objType;
 }

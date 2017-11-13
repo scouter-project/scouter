@@ -18,26 +18,10 @@
 
 package scouterx.webapp.layer.controller;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import scouter.lang.constants.ParamConstant;
-import scouter.lang.pack.MapPack;
-import scouter.lang.pack.Pack;
-import scouter.lang.pack.PackEnum;
-import scouter.lang.pack.XLogPack;
-import scouter.util.IntSet;
-import scouterx.webapp.framework.client.net.INetReader;
-import scouterx.webapp.framework.client.server.Server;
-import scouterx.webapp.framework.client.server.ServerManager;
-import scouterx.webapp.framework.cache.XLogLoopCache;
-import scouterx.webapp.model.XLogData;
-import scouterx.webapp.model.XLogPackWrapper;
-import scouterx.webapp.request.PageableXLogRequest;
-import scouterx.webapp.request.RealTimeXLogDataRequest;
-import scouterx.webapp.view.CommonResultView;
-import scouterx.webapp.view.PageableXLogView;
-import scouterx.webapp.layer.service.XLogService;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
+import java.util.function.Consumer;
 
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -49,14 +33,41 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.util.function.Consumer;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+
+import io.swagger.annotations.Api;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import scouter.lang.constants.ParamConstant;
+import scouter.lang.pack.MapPack;
+import scouter.lang.pack.Pack;
+import scouter.lang.pack.PackEnum;
+import scouter.lang.pack.XLogPack;
+import scouter.util.IntSet;
+import scouterx.webapp.framework.cache.XLogLoopCache;
+import scouterx.webapp.framework.client.net.INetReader;
+import scouterx.webapp.framework.client.server.Server;
+import scouterx.webapp.framework.client.server.ServerManager;
+import scouterx.webapp.layer.service.XLogService;
+import scouterx.webapp.model.XLogData;
+import scouterx.webapp.model.XLogPackWrapper;
+import scouterx.webapp.model.scouter.SXlog;
+import scouterx.webapp.request.CondSearchXLogDataRequest;
+import scouterx.webapp.request.CondSearchXLogRequest;
+import scouterx.webapp.request.PageableXLogDataRequest;
+import scouterx.webapp.request.PageableXLogRequest;
+import scouterx.webapp.request.RealTimeXLogDataRequest;
+import scouterx.webapp.request.SingleXLogRequest;
+import scouterx.webapp.view.CommonResultView;
+import scouterx.webapp.view.PageableXLogView;
 
 /**
  * This controller provides apis for end users who want to get XLog data using http call.
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 29.
  */
 @Path("/v1/xlog-data")
+@Api("XLog data")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
@@ -76,7 +87,7 @@ public class XLogDataController {
     }
 
     /**
-     * get values of several counters for given an object
+     * get current xlog data created after the last searched.
      * uri : /xlog-data/realTime/0/100?objHashes=10001,10002 or ?objHashes=[10001,100002]
      *
      * @return
@@ -116,17 +127,18 @@ public class XLogDataController {
     }
 
     /**
-     * request xlog token for range request.
+     * request xlog data within given time range
      * uri : /xlog-data/{yyyymmdd}?startTime=... @see {@link PageableXLogRequest}
      *
-     * @param xLogRequest
+     * @param xLogDataRequest
      * @return PageableXLogView @see {@link PageableXLogView}
      */
     @GET
     @Path("/{yyyymmdd}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response streamPageableXLog(@Valid @BeanParam PageableXLogRequest xLogRequest) {
-        xLogRequest.validate();
+    public Response streamPageableXLog(@Valid @BeanParam PageableXLogDataRequest xLogDataRequest) throws ParseException {
+        xLogDataRequest.validate();
+        PageableXLogRequest xLogRequest = new PageableXLogRequest(xLogDataRequest);
         Server server = ServerManager.getInstance().getServerIfNullDefault(xLogRequest.getServerId());
         Consumer<JsonGenerator> pageableXLogHandlerConsumer = jsonGenerator -> {
             try {
@@ -142,6 +154,45 @@ public class XLogDataController {
 
         return Response.ok().entity(streamingOutput).type(MediaType.APPLICATION_JSON).build();
     }
+
+    /**
+     * request xlog by txid
+     * uri : /xlog-data/{yyyymmdd}/{txid} @see {@link SingleXLogRequest}
+     *
+     * @param singleXlogRequest
+     */
+    @GET
+    @Path("/{yyyymmdd}/{txid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<XLogData> getSingleXLog(@Valid @BeanParam SingleXLogRequest singleXlogRequest) {
+        singleXlogRequest.validate();
+        XLogData xLogData = xLogService.retrieveSingleXLogAsXLogData(singleXlogRequest);
+
+        return CommonResultView.success(xLogData);
+    }
+    
+        
+    /**
+     * request xlog data within variable multiple condition 
+     * uri : /xlog-data/search/{yyyymmdd}?startHms=... @see {@link CondSearchXLogRequest}
+     *
+     * @param  xLogDataRequest
+     * @return 
+     */
+    @GET
+    @Path("/search/{yyyymmdd}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<XLogData>> searchConditionXLog(@Valid @BeanParam CondSearchXLogDataRequest xLogDataRequest) throws ParseException {
+        xLogDataRequest.validate();
+        
+        CondSearchXLogRequest xLogRequest = new CondSearchXLogRequest(xLogDataRequest);
+        Server server = ServerManager.getInstance().getServerIfNullDefault(xLogRequest.getServerId());
+        
+         List<XLogData> list = xLogService.handleCondtionSearchXLog(xLogRequest);
+
+        return CommonResultView.success(list);
+    }
+    
 
     /**
      * get INetReader to make streaming output from realtime xlogs.
@@ -192,4 +243,5 @@ public class XLogDataController {
             }
         };
     }
+    
 }

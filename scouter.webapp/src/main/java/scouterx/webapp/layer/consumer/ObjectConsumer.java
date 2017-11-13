@@ -30,12 +30,12 @@ import java.util.stream.Collectors;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public class AgentConsumer {
+public class ObjectConsumer {
 
     /**
      * retrieve object(agent) list from collector server
      */
-    public List<SObject> retrieveAgentList(final Server server) {
+    public List<SObject> retrieveObjectList(final Server server) {
         List<SObject> objectList = null;
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             objectList = tcpProxy

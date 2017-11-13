@@ -25,7 +25,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import scouter.client.configuration.views.AlertScriptingView;
-import scouter.client.configuration.views.ConfigureView;
 import scouter.client.util.ImageUtil;
 
 public class OpenAlertScriptingAction extends Action {
@@ -51,7 +50,7 @@ public class OpenAlertScriptingAction extends Action {
 	public void run() {
 		if (window != null) {
 			try {
-				AlertScriptingView v = (AlertScriptingView) window.getActivePage().showView(AlertScriptingView.ID, "" + serverId, IWorkbenchPage.VIEW_ACTIVATE);
+				AlertScriptingView v = (AlertScriptingView) window.getActivePage().showView(AlertScriptingView.ID, serverId + "-c-" + counterName, IWorkbenchPage.VIEW_ACTIVATE);
 				if(v!= null) {
 					v.setInput(serverId, familyName, counterName, counterDisplayName);
 				}

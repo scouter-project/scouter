@@ -37,7 +37,11 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 		target.add("org/mariadb/jdbc/MySQLResultSet");
 		target.add("oracle/jdbc/driver/OracleResultSetImpl");
 		target.add("com/mysql/jdbc/ResultSetImpl");
+
 		target.add("org/postgresql/jdbc2/AbstractJdbc2ResultSet");
+		//pg driver 42+
+		target.add("org/postgresql/jdbc/PgResultSet");
+
 		target.add("org/apache/derby/client/am/ResultSet");
 		target.add("jdbc/FakeResultSet");
 		target.add("net/sourceforge/jtds/jdbc/JtdsResultSet");

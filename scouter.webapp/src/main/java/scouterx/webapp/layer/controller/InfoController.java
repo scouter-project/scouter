@@ -18,10 +18,11 @@
 
 package scouterx.webapp.layer.controller;
 
-import scouterx.webapp.framework.client.server.ServerManager;
+import io.swagger.annotations.Api;
 import scouterx.webapp.framework.annotation.NoAuth;
-import scouterx.webapp.view.ServerView;
+import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.view.CommonResultView;
+import scouterx.webapp.view.ServerView;
 
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 28.
  */
 @Path("/v1/info")
+@Api("Info")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class InfoController {
@@ -47,7 +49,7 @@ public class InfoController {
     @NoAuth
     @GET @Path("/server")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<ServerView> retrieveServers() {
+    public CommonResultView<List<ServerView>> retrieveServers() {
         List<ServerView> serverList = ServerManager.getInstance().getAllServerList().stream()
                 .map(s -> new ServerView(s.getId(), s.getName(), s.getSession() != 0, System.currentTimeMillis()-s.getDelta()))
                 .collect(Collectors.toList());
