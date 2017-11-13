@@ -59,8 +59,8 @@ public class XLogService {
     /**
      * retrieve variable condition search
      */
-    public List<XLogData>  handleCondtionSearchXLog(final CondSearchXLogRequest condSearchXlogRequest) {
-        return xLogConsumer.handleConditionSearchXLog(condSearchXlogRequest);
+    public List<SXlog>  handleCondtionSearchXLog(final CondSearchXLogRequest condSearchXlogRequest, final INetReader reader) {
+        return xLogConsumer.handleConditionSearchXLog(condSearchXlogRequest,reader);
     }
     
     /**
