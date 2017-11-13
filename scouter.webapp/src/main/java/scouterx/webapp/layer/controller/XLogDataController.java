@@ -18,24 +18,7 @@
 
 package scouterx.webapp.layer.controller;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.List;
-import java.util.function.Consumer;
-
-import javax.inject.Singleton;
-import javax.validation.Valid;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import io.swagger.annotations.Api;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -53,14 +36,29 @@ import scouterx.webapp.layer.service.XLogService;
 import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.XLogPackWrapper;
 import scouterx.webapp.model.scouter.SXlog;
-import scouterx.webapp.request.CondSearchXLogDataRequest;
 import scouterx.webapp.request.CondSearchXLogRequest;
+import scouterx.webapp.request.CondSearchXLogDataRequest;
 import scouterx.webapp.request.PageableXLogDataRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogDataRequest;
 import scouterx.webapp.request.SingleXLogRequest;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.PageableXLogView;
+
+import javax.inject.Singleton;
+import javax.validation.Valid;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.function.Consumer;
 
 /**
  * This controller provides apis for end users who want to get XLog data using http call.
@@ -171,24 +169,57 @@ public class XLogDataController {
         return CommonResultView.success(xLogData);
     }
     
-        
     /**
      * request xlog data within variable multiple condition 
      * uri : /xlog-data/search/{yyyymmdd}?startHms=... @see {@link CondSearchXLogRequest}
      *
-     * @param  xLogDataRequest
-     * @return 
+     * @param xLogDataRequest
+     * @return PageableXLogView @see {@link PageableXLogView}
      */
+    /*
     @GET
     @Path("/search/{yyyymmdd}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<XLogData>> searchConditionXLog(@Valid @BeanParam CondSearchXLogDataRequest xLogDataRequest) throws ParseException {
+    public Response streamCondSearchXLog(@Valid @BeanParam CondSearchXLogDataRequest xLogDataRequest) throws ParseException {
         xLogDataRequest.validate();
         
         CondSearchXLogRequest xLogRequest = new CondSearchXLogRequest(xLogDataRequest);
         Server server = ServerManager.getInstance().getServerIfNullDefault(xLogRequest.getServerId());
         
-         List<XLogData> list = xLogService.handleCondtionSearchXLog(xLogRequest);
+        Consumer<JsonGenerator> condSearchXLogHandlerConsumer = jsonGenerator -> {
+            try {
+                jsonGenerator.writeArrayFieldStart("xlogs");
+                xLogService.handleCondtionSearchXLog(xLogRequest, getCondSearchXLogReader(jsonGenerator, server.getId()));
+                
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        };
+
+        StreamingOutput streamingOutput = outputStream ->
+                CommonResultView.jsonStream(outputStream, condSearchXLogHandlerConsumer);     
+
+        return Response.ok().entity(streamingOutput).type(MediaType.APPLICATION_JSON).build();
+    }
+    */
+        
+    /**
+     * request xlog data within variable multiple condition 
+     * uri : /xlog-data/search/{yyyymmdd}?startHms=... @see {@link CondSearchXLogRequest}
+     *
+     * @param xLogDataRequest
+     * @return PageableXLogView @see {@link PageableXLogView}
+     */
+    @GET
+    @Path("/search/{yyyymmdd}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<SXlog>> streamCondSearchXLog(@Valid @BeanParam CondSearchXLogDataRequest xLogDataRequest) throws ParseException {
+        xLogDataRequest.validate();
+        
+        CondSearchXLogRequest xLogRequest = new CondSearchXLogRequest(xLogDataRequest);
+        Server server = ServerManager.getInstance().getServerIfNullDefault(xLogRequest.getServerId());
+        
+         List<SXlog> list = xLogService.handleCondtionSearchXLog(xLogRequest, null);
 
         return CommonResultView.success(list);
     }
@@ -244,4 +275,27 @@ public class XLogDataController {
         };
     }
     
+    /**
+     * get INetReader to make streaming output from xlogs.
+     *
+     * @param jsonGenerator - low-level streaming json generator
+     * @param serverId - serverId (needs for retrieving dictionary text)
+     * @return INetReader
+     */
+    private INetReader getCondSearchXLogReader(JsonGenerator jsonGenerator, int serverId) {
+        int[] countable = {0};
+
+        return in -> {
+            Pack p = in.readPack();
+            if (p.getPackType() != PackEnum.MAP) { // XLogPack case
+                XLogPack xLogPack = (XLogPack) p;
+                jsonGenerator.writeObject(XLogData.of(xLogPack, serverId));
+                //countable[0]++;
+            } else { // MapPack case (//meta data arrive followed by xlog pack)
+                jsonGenerator.writeEndArray();
+
+                // jsonGenerator.writeNumberField("count", countable[0]);
+            }
+        };
+    }
 }
