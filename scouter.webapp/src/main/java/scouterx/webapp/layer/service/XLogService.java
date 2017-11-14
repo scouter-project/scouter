@@ -54,7 +54,7 @@ public class XLogService {
     }
 
     /**
-     * retrieve variable condition search
+     * retrieve various condition search
      */
     public List<XLogData> retrieveConditionSearchXLog(final CondSearchXLogRequest condSearchXlogRequest) {
         return xLogConsumer.retrieveConditionSearchXLog(condSearchXlogRequest);

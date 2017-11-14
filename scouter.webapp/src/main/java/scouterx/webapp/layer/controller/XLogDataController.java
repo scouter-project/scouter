@@ -169,7 +169,7 @@ public class XLogDataController {
     }
     
     /**
-     * request xlog data list with variable multiple condition 
+     * request xlog data list with various condition 
      * uri : /xlog-data/search/{yyyymmdd}?startHms=... @see {@link CondSearchXLogRequest}
      *
      * @param xLogDataRequest -

@@ -104,7 +104,7 @@ public class XLogConsumer {
     }
     
     /**
-     * retrieve XLog List for searching with condition
+     * retrieve XLog List for searching with various condition
      * @param CondSearchXLogRequest
      */   
     public List<XLogData> retrieveConditionSearchXLog(final CondSearchXLogRequest condXLogRequest) {
