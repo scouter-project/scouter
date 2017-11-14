@@ -464,7 +464,7 @@ class XLogService {
             twoDays = true;
         }
 
-        val handler = (time: Long, data: Array[Byte]) => {         
+        val handler = (time: Long, data: Array[Byte]) => {
             if (loadCount >= Configure.getInstance().req_search_xlog_max_count) {
                 return ;
             }
