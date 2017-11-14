@@ -443,9 +443,9 @@ class XLogService {
         val text3 = param.getText("text3");
         val text4 = param.getText("text4");
         val text5 = param.getText("text5");
-        
+
         val serviceMatch = if (service == null) null else new StrMatch(service);
-        val ipMatch = if (ip == null ) null else new StrMatch(ip);
+        val ipMatch = if (ip == null) null else new StrMatch(ip);
         val loginMatch = if (login == null) null else new StrMatch(login);
         val descMatch = if (desc == null) null else new StrMatch(desc);
         val text1Match = if (text1 == null) null else new StrMatch(text1);
@@ -463,15 +463,14 @@ class XLogService {
             mtime = DateUtil.yyyymmdd(date2);
             twoDays = true;
         }
-        
-        val handler = (time: Long, data: Array[Byte]) => {
-          
+
+        val handler = (time: Long, data: Array[Byte]) => {         
             if (loadCount >= Configure.getInstance().req_search_xlog_max_count) {
                 return ;
             }
             val x = new DataInputX(data).readPack().asInstanceOf[XLogPack];
             var ok = true
-            if (ipMatch != null ) {         
+            if (ipMatch != null) {
                 if (x.ipaddr == null) {
                     ok = false;
                 }
@@ -483,7 +482,6 @@ class XLogService {
                 ok = false;
             }
             if (serviceMatch != null) {
-                            
                 var serviceName = TextRD.getString(DateUtil.yyyymmdd(time), TextTypes.SERVICE, x.service);
                 if (serviceMatch.include(serviceName) == false) {
                     ok = false;
@@ -496,7 +494,6 @@ class XLogService {
                 }
             }
             if (descMatch != null) {
-                Logger.println("searchXlogList14","ok=" + ok);
                 var descName = TextRD.getString(DateUtil.yyyymmdd(time), TextTypes.DESC, x.desc);
                 if (descMatch.include(descName) == false) {
                     ok = false;
@@ -538,16 +535,14 @@ class XLogService {
                 }
             }
 
-
             if (ok) {
                 dout.writeByte(TcpFlag.HasNEXT);
                 dout.write(data);
                 dout.flush();
                 loadCount += 1;
-                
             }
         }
-         
+
         if (twoDays) {
             XLogRD.readByTime(date, stime, mtime - 1, handler);
             XLogRD.readByTime(date2, mtime, etime, handler);

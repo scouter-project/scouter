@@ -18,8 +18,6 @@
 
 package scouterx.webapp.layer.service;
 
-import java.util.List;
-
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.consumer.XLogConsumer;
 import scouterx.webapp.model.XLogData;
@@ -29,6 +27,7 @@ import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
 
+import java.util.List;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
@@ -54,14 +53,12 @@ public class XLogService {
         xLogConsumer.handlePageableXLog(xLogRequest, reader);
     }
 
-    
     /**
      * retrieve variable condition search
      */
     public List<XLogData> retrieveConditionSearchXLog(final CondSearchXLogRequest condSearchXlogRequest) {
         return xLogConsumer.retrieveConditionSearchXLog(condSearchXlogRequest);
     }
-   
     
     /**
      * retrieve single xLog
@@ -78,7 +75,5 @@ public class XLogService {
         return xLogConsumer.retrieveByTxidAsXLog(singleXlogRequest);
 
     }
-    
-
 
 }

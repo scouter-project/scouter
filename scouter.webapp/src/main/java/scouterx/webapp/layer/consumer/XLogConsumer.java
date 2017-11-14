@@ -18,9 +18,6 @@
 
 package scouterx.webapp.layer.consumer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
@@ -37,6 +34,9 @@ import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
 import scouterx.webapp.view.PageableXLogView;
 import scouterx.webapp.view.RealTimeXLogView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -212,6 +212,5 @@ public class XLogConsumer {
 
         return pack;
     }
-    
 
 }

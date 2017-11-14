@@ -18,24 +18,7 @@
 
 package scouterx.webapp.layer.controller;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.List;
-import java.util.function.Consumer;
-
-import javax.inject.Singleton;
-import javax.validation.Valid;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import io.swagger.annotations.Api;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +43,21 @@ import scouterx.webapp.request.RealTimeXLogDataRequest;
 import scouterx.webapp.request.SingleXLogRequest;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.PageableXLogView;
+
+import javax.inject.Singleton;
+import javax.validation.Valid;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * This controller provides apis for end users who want to get XLog data using http call.
@@ -169,7 +167,7 @@ public class XLogDataController {
 
         return CommonResultView.success(xLogData);
     }
- 
+    
     /**
      * request xlog data list with variable multiple condition 
      * uri : /xlog-data/search/{yyyymmdd}?startHms=... @see {@link CondSearchXLogRequest}
@@ -190,8 +188,7 @@ public class XLogDataController {
         
         return CommonResultView.success(list);
     }
-    
-    
+
     /**
      * get INetReader to make streaming output from realtime xlogs.
      *
@@ -241,5 +238,4 @@ public class XLogDataController {
             }
         };
     }
-    
 }
