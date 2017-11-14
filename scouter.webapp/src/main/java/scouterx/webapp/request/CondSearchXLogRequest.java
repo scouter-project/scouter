@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import scouterx.webapp.framework.exception.ErrorState;
 import scouterx.webapp.main.WebAppMain;
 
 @Getter
@@ -92,10 +93,5 @@ public class CondSearchXLogRequest {
         this.startTimeMillis = sdf.parse(this.yyyymmdd + dataRequest.startHms).getTime();
         this.endTimeMillis = sdf.parse(this.yyyymmdd + dataRequest.endHms).getTime();
     }
-    
-    public void validate() {
-    	
-    }
-    
-    
+        
 }

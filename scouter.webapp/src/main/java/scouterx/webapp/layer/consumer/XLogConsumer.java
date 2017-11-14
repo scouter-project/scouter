@@ -106,10 +106,8 @@ public class XLogConsumer {
     /**
      * retrieve XLog List for searching with condition
      * @param CondSearchXLogRequest
-     */
-
-    
-    public List<XLogData> handleConditionSearchXLog(final CondSearchXLogRequest condXLogRequest) {
+     */   
+    public List<XLogData> retrieveConditionSearchXLog(final CondSearchXLogRequest condXLogRequest) {
         MapPack paramPack = new MapPack();
         paramPack.put(ParamConstant.DATE,condXLogRequest.getYyyymmdd());
         paramPack.put(ParamConstant.XLOG_START_TIME, condXLogRequest.getStartTimeMillis());
@@ -161,17 +159,21 @@ public class XLogConsumer {
         	paramPack.put(ParamConstant.XLOG_TEXT_5, textTemp);
         }
         
-   
-        List<XLogData> xLogList= null;
+        List<XLogPack> resp = null;
         
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(condXLogRequest.getServerId())) {
-          xLogList = (ArrayList) tcpProxy.process(RequestCmd.SEARCH_XLOG_LIST, paramPack);
+        	resp = (List)tcpProxy.process(RequestCmd.SEARCH_XLOG_LIST, paramPack);
         }
-
-        return xLogList;
-   
+        
+        List<XLogData> result = new ArrayList<XLogData>();
+        for(XLogPack pack : resp){
+        	result.add(XLogData.of(pack,condXLogRequest.getServerId()));
+        }
+        
+        return result;
+        
     }
-
+    
     /**
      * retrieve XLog
      *

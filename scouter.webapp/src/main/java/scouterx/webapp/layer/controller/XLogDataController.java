@@ -58,6 +58,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -168,63 +169,29 @@ public class XLogDataController {
 
         return CommonResultView.success(xLogData);
     }
+ 
+    /**
+     * request xlog data within variable multiple condition 
+     * uri : /xlog-data/search/{yyyymmdd}?startHms=... @see {@link CondSearchXLogRequest}
+     *
+     * @param xLogDataRequest
+     * @return CommonResultView @see {@link CommonResultView}
+     */
     
-    /**
-     * request xlog data within variable multiple condition 
-     * uri : /xlog-data/search/{yyyymmdd}?startHms=... @see {@link CondSearchXLogRequest}
-     *
-     * @param xLogDataRequest
-     * @return PageableXLogView @see {@link PageableXLogView}
-     */
-    /*
     @GET
     @Path("/search/{yyyymmdd}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response streamCondSearchXLog(@Valid @BeanParam CondSearchXLogDataRequest xLogDataRequest) throws ParseException {
+    public CommonResultView<List> getCondSearchXLog(@Valid @BeanParam CondSearchXLogDataRequest xLogDataRequest) throws ParseException {
         xLogDataRequest.validate();
         
         CondSearchXLogRequest xLogRequest = new CondSearchXLogRequest(xLogDataRequest);
-        Server server = ServerManager.getInstance().getServerIfNullDefault(xLogRequest.getServerId());
         
-        Consumer<JsonGenerator> condSearchXLogHandlerConsumer = jsonGenerator -> {
-            try {
-                jsonGenerator.writeArrayFieldStart("xlogs");
-                xLogService.handleCondtionSearchXLog(xLogRequest, getCondSearchXLogReader(jsonGenerator, server.getId()));
-                
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        };
-
-        StreamingOutput streamingOutput = outputStream ->
-                CommonResultView.jsonStream(outputStream, condSearchXLogHandlerConsumer);     
-
-        return Response.ok().entity(streamingOutput).type(MediaType.APPLICATION_JSON).build();
-    }
-    */
+        List<XLogData> list = xLogService.retrieveConditionSearchXLog(xLogRequest);
         
-    /**
-     * request xlog data within variable multiple condition 
-     * uri : /xlog-data/search/{yyyymmdd}?startHms=... @see {@link CondSearchXLogRequest}
-     *
-     * @param xLogDataRequest
-     * @return PageableXLogView @see {@link PageableXLogView}
-     */
-    @GET
-    @Path("/search/{yyyymmdd}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<SXlog>> streamCondSearchXLog(@Valid @BeanParam CondSearchXLogDataRequest xLogDataRequest) throws ParseException {
-        xLogDataRequest.validate();
-        
-        CondSearchXLogRequest xLogRequest = new CondSearchXLogRequest(xLogDataRequest);
-        Server server = ServerManager.getInstance().getServerIfNullDefault(xLogRequest.getServerId());
-        
-         List<SXlog> list = xLogService.handleCondtionSearchXLog(xLogRequest, null);
-
         return CommonResultView.success(list);
     }
     
-
+    
     /**
      * get INetReader to make streaming output from realtime xlogs.
      *
@@ -275,27 +242,4 @@ public class XLogDataController {
         };
     }
     
-    /**
-     * get INetReader to make streaming output from xlogs.
-     *
-     * @param jsonGenerator - low-level streaming json generator
-     * @param serverId - serverId (needs for retrieving dictionary text)
-     * @return INetReader
-     */
-    private INetReader getCondSearchXLogReader(JsonGenerator jsonGenerator, int serverId) {
-        int[] countable = {0};
-
-        return in -> {
-            Pack p = in.readPack();
-            if (p.getPackType() != PackEnum.MAP) { // XLogPack case
-                XLogPack xLogPack = (XLogPack) p;
-                jsonGenerator.writeObject(XLogData.of(xLogPack, serverId));
-                //countable[0]++;
-            } else { // MapPack case (//meta data arrive followed by xlog pack)
-                jsonGenerator.writeEndArray();
-
-                // jsonGenerator.writeNumberField("count", countable[0]);
-            }
-        };
-    }
 }
