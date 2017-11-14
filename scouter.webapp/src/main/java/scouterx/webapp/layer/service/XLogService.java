@@ -55,17 +55,6 @@ public class XLogService {
     }
 
     
-    
-    /**
-     * retrieve variable condition search
-     */
-    /*
-    public void handleCondtionSearchXLog(final CondSearchXLogRequest condSearchXlogRequest, final INetReader reader) {
-        xLogConsumer.handleConditionSearchXLog(condSearchXlogRequest,reader);
-    }
-    */
-    
-    
     /**
      * retrieve variable condition search
      */

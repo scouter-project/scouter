@@ -12,6 +12,10 @@ import lombok.ToString;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.framework.exception.ErrorState;
 
+/**
+ * @author Hyanghee Jeon (gaiajeon@gmail.com) on 2017. 8. 27.
+ */
+
 @Getter
 @Setter
 @ToString

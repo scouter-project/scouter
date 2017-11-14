@@ -8,14 +8,13 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import scouterx.webapp.framework.exception.ErrorState;
-import scouterx.webapp.main.WebAppMain;
+
+/**
+ * @author Hyanghee Jeon (gaiajeon@gmail.com) on 2017. 8. 27.
+ */
 
 @Getter
 @Setter
