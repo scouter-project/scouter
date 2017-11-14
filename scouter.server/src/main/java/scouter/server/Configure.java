@@ -182,6 +182,8 @@ public class Configure extends Thread {
 	//Object
 	@ConfigDesc("Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
 	public int object_deadtime_ms = 8000;
+	@ConfigDesc("inactive object warning level. default 0.(0:info, 1:warn, 2:error, 3:fatal)")
+	public int object_inactive_alert_level = 0;
 
 	//Compress
 	@ConfigDesc("Activating XLog data in zip file")
@@ -380,6 +382,7 @@ public class Configure extends Thread {
 		this.temp_dir = getValue("temp_dir", "./tempdata");
 
 		this.object_deadtime_ms = getInt("object_deadtime_ms", 8000);
+		this.object_inactive_alert_level = getInt("object_inactive_alert_level", 0);
 
 		this.compress_xlog_enabled = getBoolean("compress_xlog_enabled", false);
 		this.compress_profile_enabled = getBoolean("compress_profile_enabled", false);
