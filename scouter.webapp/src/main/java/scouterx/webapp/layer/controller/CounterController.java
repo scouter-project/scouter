@@ -96,10 +96,10 @@ public class CounterController {
     @GET
     @Path("/{counter}/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<CounterView>> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
+    public CommonResultView<CounterView> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
         request.validate();
-        List<CounterView> counterList = counterService.retrieveCountersByObjType(request);
-        return CommonResultView.success(counterList);
+        CounterView counterView = counterService.retrieveCounterByObjType(request);
+        return CommonResultView.success(counterView);
     }
 
     /**

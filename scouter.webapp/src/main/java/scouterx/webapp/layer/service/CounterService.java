@@ -43,8 +43,8 @@ public class CounterService {
         return counterConsumer.retrieveRealTimeCountersByObjType(objType, counterNames, server);
     }
 
-    public List<CounterView> retrieveCountersByObjType(CounterRequestByType request) {
-        return counterConsumer.retrieveCountersByObjType(request);
+    public CounterView retrieveCounterByObjType(CounterRequestByType request) {
+        return counterConsumer.retrieveCounterByObjType(request);
     }
 
     public List<AvgCounterView> retrieveAvgCounterByObjType(CounterAvgRequestByType request) {

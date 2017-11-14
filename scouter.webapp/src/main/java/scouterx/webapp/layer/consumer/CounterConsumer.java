@@ -83,7 +83,7 @@ public class CounterConsumer {
      * get counters's values by type in specific time range
      * @param request
      */
-    public List<CounterView> retrieveCountersByObjType(CounterRequestByType request) {
+    public CounterView retrieveCounterByObjType(CounterRequestByType request) {
         Server server = ServerManager.getInstance().getServerIfNullDefault(request.getServerId());
 
         MapPack paramPack = new MapPack();
@@ -92,7 +92,7 @@ public class CounterConsumer {
         paramPack.put(ParamConstant.STIME, request.getStartTimeMillis());
         paramPack.put(ParamConstant.ETIME, request.getEndTimeMillis());
 
-        List<CounterView> counterViewList = new ArrayList<>();
+        final CounterView[] counterViewContainer = {null};
 
         try(TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             tcpProxy.process(RequestCmd.COUNTER_PAST_TIME_ALL, paramPack, in -> {
@@ -107,7 +107,7 @@ public class CounterConsumer {
                     valueToDoubleList.add(valueList.getDouble(i));
                 }
 
-                CounterView counterView = CounterView.builder()
+                counterViewContainer[0] = CounterView.builder()
                         .objHash(objHash)
                         .objName(AgentModelThread.getInstance().getAgentObject(objHash).getObjName())
                         .name(request.getCounter())
@@ -119,10 +119,9 @@ public class CounterConsumer {
                         .valueList(valueToDoubleList)
                         .build();
 
-                counterViewList.add(counterView);
             });
         }
-        return counterViewList;
+        return counterViewContainer[0];
     }
 
     /**
