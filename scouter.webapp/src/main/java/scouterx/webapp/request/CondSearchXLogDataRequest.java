@@ -4,13 +4,10 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
-import org.apache.commons.lang3.StringUtils;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import scouterx.webapp.framework.client.server.ServerManager;
-import scouterx.webapp.framework.exception.ErrorState;
 
 /**
  * @author Hyanghee Jeon (gaiajeon@gmail.com) on 2017. 8. 27.
@@ -25,6 +22,7 @@ public class CondSearchXLogDataRequest {
     @PathParam("yyyymmdd")
     String yyyymmdd;
 	
+	@QueryParam("serverId")
     int serverId;
 
     @NotNull
@@ -74,17 +72,5 @@ public class CondSearchXLogDataRequest {
         this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
     }
 
-    public void validate() {
-    	
-    	if (StringUtils.isBlank(yyyymmdd)){
-    		throw ErrorState.VALIDATE_ERROR.newBizException("yyyymmdd should be not null !");
-    	}
-    	
-        if (StringUtils.isNotBlank(startHms) || StringUtils.isNotBlank(endHms)) {
-            if (StringUtils.isBlank(startHms) || StringUtils.isBlank(endHms)) {
-                throw ErrorState.VALIDATE_ERROR.newBizException("startHms and endHms should be not null !");
-            }
-        }
-    }
     
 }

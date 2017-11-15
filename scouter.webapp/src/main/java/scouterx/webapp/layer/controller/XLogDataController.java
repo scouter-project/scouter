@@ -180,7 +180,6 @@ public class XLogDataController {
     @Path("/search/{yyyymmdd}")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List> getCondSearchXLog(@Valid @BeanParam CondSearchXLogDataRequest xLogDataRequest) throws ParseException {
-        xLogDataRequest.validate();
         
         CondSearchXLogRequest xLogRequest = new CondSearchXLogRequest(xLogDataRequest);
         
