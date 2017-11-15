@@ -35,8 +35,8 @@ Client(Viewer)    | Client program to check the collected performance informatio
 
 #### (1) **Download** integrated demonstration environment and a client program
  - Download integrated demonstration environment
-   - [Download demo-env1.tar.gz](https://github.com/scouter-project/scouter-demo/releases/download/v1.8.0.RC1/demo-env1.tar.gz) (It includes collector server, host agent, java agent, tomcat for demo system and start scripts...)
-   - Windows Case : [Download demo-env1.zip](https://github.com/scouter-project/scouter-demo/releases/download/v1.8.0.RC1/demo-env1.zip)
+   - [Download demo-env1.tar.gz](https://github.com/scouter-project/scouter-demo/releases/download/v1.8.0.RC/demo-env1.tar.gz) (It includes collector server, host agent, java agent, tomcat for demo system and start scripts...)
+   - Windows Case : [Download demo-env1.zip](https://github.com/scouter-project/scouter-demo/releases/download/v1.8.0.RC/demo-env1.zip)
 
  - Download a client program
    - download a client for your environment.
