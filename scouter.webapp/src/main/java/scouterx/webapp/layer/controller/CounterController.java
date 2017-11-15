@@ -24,10 +24,14 @@ import scouterx.webapp.framework.exception.ErrorState;
 import scouterx.webapp.framework.util.ZZ;
 import scouterx.webapp.layer.service.CounterService;
 import scouterx.webapp.model.scouter.SCounter;
+import scouterx.webapp.request.CounterAvgRequestByObj;
 import scouterx.webapp.request.CounterAvgRequestByType;
+import scouterx.webapp.request.CounterRequestByObj;
 import scouterx.webapp.request.CounterRequestByType;
-import scouterx.webapp.view.CommonResultView;
+import scouterx.webapp.request.LatestCounterRequestByObj;
+import scouterx.webapp.request.LatestCounterRequestByType;
 import scouterx.webapp.view.AvgCounterView;
+import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.CounterView;
 
 import javax.inject.Singleton;
@@ -86,23 +90,6 @@ public class CounterController {
     }
 
     /**
-     * get counter values of specific time range
-     * uri pattern : /counter/{counter}/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
-     * uri pattern : /counter/{counter}/ofType/{objType}?startYmdHms={startYmdHms}&endYmdHms={endYmdHms}&serverId={serverId}
-     *
-     * @param request
-     * @see scouter.lang.counters.CounterConstants
-     */
-    @GET
-    @Path("/{counter}/ofType/{objType}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<CounterView> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
-        request.validate();
-        CounterView counterView = counterService.retrieveCounterByObjType(request);
-        return CommonResultView.success(counterView);
-    }
-
-    /**
      * get current value of several counters about an object
      * uri : /counter/realTime/{counters}/ofObject/{objHash}?counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
      *
@@ -125,6 +112,41 @@ public class CounterController {
     }
 
     /**
+     * get counter values of specific time range by object type
+     * uri pattern : /counter/{counter}/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /counter/{counter}/ofType/{objType}?startYmdHms={startYmdHms}&endYmdHms={endYmdHms}&serverId={serverId}
+     *
+     * @param request
+     * @see scouter.lang.counters.CounterConstants
+     */
+    @GET
+    @Path("/{counter}/ofType/{objType}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<CounterView> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
+        request.validate();
+        CounterView counterView = counterService.retrieveCounterByObjType(request);
+        return CommonResultView.success(counterView);
+    }
+
+    /**
+     * get counter values of specific time range by object hash
+     * uri pattern : /counter/{counter}/ofObject/{objHash}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
+     * uri pattern : /counter/{counter}/ofObject/{objHash}?startYmdHms={startYmdHms}&endYmdHms={endYmdHms}&serverId={serverId}
+     *
+     * @param request
+     * @see scouter.lang.counters.CounterConstants
+     */
+    @GET
+    @Path("/{counter}/ofObject/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<CounterView> retrieveCounterByObjHash(@BeanParam @Valid CounterRequestByObj request) {
+        request.validate();
+        //TODO
+        ErrorState.throwNotImplementedException();
+        return null;
+    }
+
+    /**
      * get the specific counter's values about a type within given duration
      * uri : /counter/stat/{counter}/ofType/{objType}?serverId=1001010&fromYmd=20170809&toYmd=20170810
      *
@@ -137,5 +159,54 @@ public class CounterController {
         List<AvgCounterView> counterViewList = counterService.retrieveAvgCounterByObjType(request);
         return CommonResultView.success(counterViewList);
 
+    }
+
+    /**
+     * get the specific counter's values about an object within given duration
+     * uri : /counter/stat/{counter}/ofObject/{objHash}?serverId=1001010&fromYmd=20170809&toYmd=20170810
+     *
+     * @param request @see {@link CounterAvgRequestByType}
+     */
+    @GET
+    @Path("/stat/{counter}/ofObject/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<AvgCounterView>> retrieveAvgCounterByObjHash(@BeanParam @Valid CounterAvgRequestByObj request) {
+        //TODO
+        ErrorState.throwNotImplementedException();
+        return null;
+    }
+
+    /**
+     * get counter values in latest x seconds by object type
+     * uri pattern : /counter/{counter}/latest/{latestSec}/ofType/{objType}?serverId={serverId}
+     *
+     * @param request
+     * @see scouter.lang.counters.CounterConstants
+     */
+    @GET
+    @Path("/{counter}/latest/{latestSec}/ofType/{objType}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<CounterView> retrieveLatestCounterByObjType(@BeanParam @Valid LatestCounterRequestByType request) {
+        request.validate();
+        //TODO
+        ErrorState.throwNotImplementedException();
+        return null;
+    }
+
+    /**
+     * get counter values in latest x seconds by object hash
+     * uri pattern : /counter/{counter}/latest/{latestSec}/ofObject/{objHash}?serverId={serverId}
+     *
+     * @param request
+     * @see scouter.lang.counters.CounterConstants
+     */
+    @GET
+    @Path("/{counter}/latest/{latestSec}/ofObject/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<CounterView> retrieveLatestCounterByObjHash(@BeanParam @Valid LatestCounterRequestByObj request) {
+        request.validate();
+        //TODO
+        ErrorState.throwNotImplementedException();
+        return null;
     }
 }
