@@ -41,15 +41,4 @@ public class AvgCounterView {
     final private List<Long> timeList;
     final private List<Double> valueList;
 
-//    public AvgCounterView(int objHash, String fromYmd, String toYmd, String name, String displayName, String unit,
-//                          List<Long> timeList, List<Double> valueList) {
-//        this.objHash = objHash;
-//        this.fromYmd = fromYmd;
-//        this.toYmd = toYmd;
-//        this.name = name;
-//        this.displayName = displayName;
-//        this.unit = unit;
-//        this.timeList = timeList;
-//        this.valueList = valueList;
-//    }
 }
