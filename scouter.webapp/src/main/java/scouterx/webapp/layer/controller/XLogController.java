@@ -30,6 +30,7 @@ import scouterx.webapp.layer.service.XLogService;
 import scouterx.webapp.model.scouter.SXlog;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
+import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.PageableXLogView;
@@ -45,6 +46,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -135,6 +138,22 @@ public class XLogController {
 
         return CommonResultView.success(xLog);
 
+    }
+
+    /**
+     * request xlog list with various condition
+     * uri : /xlog/search/{yyyymmdd}?startTimeMillis=... @see {@link SearchXLogRequest}
+     *
+     * @param xLogRequest
+     */
+    @GET
+    @Path("/search/{yyyymmdd}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<SXlog>> searchXLog(@Valid @BeanParam SearchXLogRequest xLogRequest) throws ParseException {
+        xLogRequest.validate();
+        List<SXlog> list = xLogService.searchXLogList(xLogRequest);
+
+        return CommonResultView.success(list);
     }
 
     /**

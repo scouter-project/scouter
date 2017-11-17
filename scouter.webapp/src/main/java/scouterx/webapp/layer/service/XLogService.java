@@ -22,7 +22,7 @@ import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.consumer.XLogConsumer;
 import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.scouter.SXlog;
-import scouterx.webapp.request.CondSearchXLogRequest;
+import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
@@ -56,8 +56,15 @@ public class XLogService {
     /**
      * retrieve various condition search
      */
-    public List<XLogData> retrieveConditionSearchXLog(final CondSearchXLogRequest condSearchXlogRequest) {
-        return xLogConsumer.retrieveConditionSearchXLog(condSearchXlogRequest);
+    public List<SXlog> searchXLogList(final SearchXLogRequest searchXLogRequest) {
+        return xLogConsumer.searchXLogList(searchXLogRequest);
+    }
+
+    /**
+     * retrieve various condition search
+     */
+    public List<XLogData> searchXLogDataList(final SearchXLogRequest searchXLogRequest) {
+        return xLogConsumer.searchXLogDataList(searchXLogRequest);
     }
     
     /**

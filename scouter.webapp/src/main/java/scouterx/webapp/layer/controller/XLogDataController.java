@@ -35,9 +35,7 @@ import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.layer.service.XLogService;
 import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.XLogPackWrapper;
-import scouterx.webapp.request.CondSearchXLogDataRequest;
-import scouterx.webapp.request.CondSearchXLogRequest;
-import scouterx.webapp.request.PageableXLogDataRequest;
+import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogDataRequest;
 import scouterx.webapp.request.SingleXLogRequest;
@@ -127,15 +125,14 @@ public class XLogDataController {
      * request xlog data within given time range
      * uri : /xlog-data/{yyyymmdd}?startTime=... @see {@link PageableXLogRequest}
      *
-     * @param xLogDataRequest
+     * @param xLogRequest
      * @return PageableXLogView @see {@link PageableXLogView}
      */
     @GET
     @Path("/{yyyymmdd}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response streamPageableXLog(@Valid @BeanParam PageableXLogDataRequest xLogDataRequest) throws ParseException {
-        xLogDataRequest.validate();
-        PageableXLogRequest xLogRequest = new PageableXLogRequest(xLogDataRequest);
+    public Response streamPageableXLog(@Valid @BeanParam PageableXLogRequest xLogRequest) throws ParseException {
+        xLogRequest.validate();
         Server server = ServerManager.getInstance().getServerIfNullDefault(xLogRequest.getServerId());
         Consumer<JsonGenerator> pageableXLogHandlerConsumer = jsonGenerator -> {
             try {
@@ -170,20 +167,16 @@ public class XLogDataController {
     
     /**
      * request xlog data list with various condition 
-     * uri : /xlog-data/search/{yyyymmdd}?startHms=... @see {@link CondSearchXLogRequest}
+     * uri : /xlog-data/search/{yyyymmdd}?startHms=... @see {@link SearchXLogRequest}
      *
-     * @param xLogDataRequest -
-     * @return CommonResultView @see {@link CommonResultView}
+     * @param xLogRequest
      */
-    
     @GET
     @Path("/search/{yyyymmdd}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List> getCondSearchXLog(@Valid @BeanParam CondSearchXLogDataRequest xLogDataRequest) throws ParseException {
-        
-        CondSearchXLogRequest xLogRequest = new CondSearchXLogRequest(xLogDataRequest);
-        
-        List<XLogData> list = xLogService.retrieveConditionSearchXLog(xLogRequest);
+    public CommonResultView<List> searchXLog(@Valid @BeanParam SearchXLogRequest xLogRequest) throws ParseException {
+        xLogRequest.validate();
+        List<XLogData> list = xLogService.searchXLogDataList(xLogRequest);
         
         return CommonResultView.success(list);
     }
