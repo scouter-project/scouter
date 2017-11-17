@@ -35,6 +35,8 @@ import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.layer.service.XLogService;
 import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.XLogPackWrapper;
+import scouterx.webapp.request.CondSearchXLogDataRequest;
+import scouterx.webapp.request.CondSearchXLogRequest;
 import scouterx.webapp.request.PageableXLogDataRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogDataRequest;
@@ -54,6 +56,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -163,6 +166,26 @@ public class XLogDataController {
         XLogData xLogData = xLogService.retrieveSingleXLogAsXLogData(singleXlogRequest);
 
         return CommonResultView.success(xLogData);
+    }
+    
+    /**
+     * request xlog data list with various condition 
+     * uri : /xlog-data/search/{yyyymmdd}?startHms=... @see {@link CondSearchXLogRequest}
+     *
+     * @param xLogDataRequest -
+     * @return CommonResultView @see {@link CommonResultView}
+     */
+    
+    @GET
+    @Path("/search/{yyyymmdd}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List> getCondSearchXLog(@Valid @BeanParam CondSearchXLogDataRequest xLogDataRequest) throws ParseException {
+        
+        CondSearchXLogRequest xLogRequest = new CondSearchXLogRequest(xLogDataRequest);
+        
+        List<XLogData> list = xLogService.retrieveConditionSearchXLog(xLogRequest);
+        
+        return CommonResultView.success(list);
     }
 
     /**

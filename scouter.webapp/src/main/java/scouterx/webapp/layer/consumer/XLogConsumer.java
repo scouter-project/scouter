@@ -28,6 +28,7 @@ import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.scouter.SXlog;
+import scouterx.webapp.request.CondSearchXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
@@ -101,7 +102,78 @@ public class XLogConsumer {
             tcpProxy.process(RequestCmd.TRANX_LOAD_TIME_GROUP_V2, paramPack, reader);
         }
     }
-
+    
+    /**
+     * retrieve XLog List for searching with various condition
+     * @param CondSearchXLogRequest
+     */   
+    public List<XLogData> retrieveConditionSearchXLog(final CondSearchXLogRequest condXLogRequest) {
+        MapPack paramPack = new MapPack();
+        paramPack.put(ParamConstant.DATE,condXLogRequest.getYyyymmdd());
+        paramPack.put(ParamConstant.XLOG_START_TIME, condXLogRequest.getStartTimeMillis());
+        paramPack.put(ParamConstant.XLOG_END_TIME, condXLogRequest.getEndTimeMillis());
+        
+        String service = condXLogRequest.getService();
+        if ( service != null ){
+            paramPack.put(ParamConstant.XLOG_SERVICE, service);
+        }
+        
+        long objHash = condXLogRequest.getObjHash();
+        if ( objHash != 0 ){
+        	paramPack.put(ParamConstant.OBJ_HASH, objHash);
+        }
+        
+        String ipAddr = condXLogRequest.getIp();
+        if ( ipAddr != null ){
+        	paramPack.put(ParamConstant.XLOG_IP, ipAddr);
+        }
+        
+        String login = condXLogRequest.getLogin();
+        if (login != null){
+            paramPack.put(ParamConstant.XLOG_LOGIN, login);
+        }
+        
+        String desc = condXLogRequest.getDesc();
+        if ( desc != null ){
+        	 paramPack.put(ParamConstant.XLOG_DESC, desc);
+        }
+       
+        String textTemp = condXLogRequest.getText1();
+        if ( textTemp != null){
+        	paramPack.put(ParamConstant.XLOG_TEXT_1, textTemp);
+        }
+        textTemp = condXLogRequest.getText2();
+        if ( textTemp != null){
+        	paramPack.put(ParamConstant.XLOG_TEXT_2, textTemp);
+        }
+        textTemp = condXLogRequest.getText3();
+        if ( textTemp != null){
+        	paramPack.put(ParamConstant.XLOG_TEXT_3, textTemp);
+        }        
+        textTemp = condXLogRequest.getText4();
+        if ( textTemp != null){
+        	paramPack.put(ParamConstant.XLOG_TEXT_4, textTemp);
+        }
+        textTemp = condXLogRequest.getText5();
+        if ( textTemp != null){
+        	paramPack.put(ParamConstant.XLOG_TEXT_5, textTemp);
+        }
+        
+        List<XLogPack> resp = null;
+        
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(condXLogRequest.getServerId())) {
+        	resp = (List)tcpProxy.process(RequestCmd.SEARCH_XLOG_LIST, paramPack);
+        }
+        
+        List<XLogData> result = new ArrayList<XLogData>();
+        for(XLogPack pack : resp){
+        	result.add(XLogData.of(pack,condXLogRequest.getServerId()));
+        }
+        
+        return result;
+        
+    }
+    
     /**
      * retrieve XLog
      *
