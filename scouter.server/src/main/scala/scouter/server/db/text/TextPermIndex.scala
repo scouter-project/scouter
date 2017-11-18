@@ -18,17 +18,22 @@
 
 package scouter.server.db.text;
 
-import java.io.IOException
-import java.util.Hashtable
 import scouter.server.db.io.IndexKeyFile
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
+import scouter.lang.TextTypes
+import scouter.server.Configure
 import scouter.util.FileUtil
 import scouter.util.IClose
-import scouter.util.IntKeyLinkedMap
 import scouter.util.StringKeyLinkedMap
 
 object TextPermIndex {
+  private val conf = Configure.getInstance()
+  private val DEFAULT_MB = conf._mgr_text_db_index_default_mb
+  private val SERVICE_MB = conf._mgr_text_db_index_service_mb
+  private val APICALL_MB = conf._mgr_text_db_index_api_mb
+  private val USERAGENT_MB = conf._mgr_text_db_index_ua_mb
+
   val table = new StringKeyLinkedMap[TextPermIndex]();
 
   def get(div: String): TextPermIndex = {
@@ -66,29 +71,38 @@ class TextPermIndex(div: String, file: String) extends IClose {
 
   def set(key: Int, dataPos: Long) {
     if (this.index == null) {
-      this.index = new IndexKeyFile(file);
+      this.index = newIndexKeyFileByType()
     }
-    this.index.put(DataOutputX.toBytes(key), DataOutputX.toBytes5(dataPos));
+    this.index.put(DataOutputX.toBytes(key), DataOutputX.toBytes5(dataPos))
   }
 
   def get(key: Int): Long = {
     if (this.index == null) {
-      this.index = new IndexKeyFile(file);
+      this.index = newIndexKeyFileByType()
     }
-    val buf = this.index.get(DataOutputX.toBytes(key));
+    val buf = this.index.get(DataOutputX.toBytes(key))
     if (buf == null) -1 else DataInputX.toLong5(buf, 0)
   }
   def hasKey(key: Int): Boolean = {
     if (this.index == null) {
-      this.index = new IndexKeyFile(file);
+      this.index = newIndexKeyFileByType()
     }
-    return this.index.hasKey(DataOutputX.toBytes(key));
+    return this.index.hasKey(DataOutputX.toBytes(key))
   }
   def read(handler: (Array[Byte], Array[Byte]) => Any, reader: (Long) => Array[Byte]) {
     if (this.index == null) {
-      this.index = new IndexKeyFile(file);
+      this.index = newIndexKeyFileByType()
     }
-    this.index.read(handler, reader);
+    this.index.read(handler, reader)
+  }
+
+  def newIndexKeyFileByType(): IndexKeyFile = {
+    div match {
+      case TextTypes.SERVICE => new IndexKeyFile(file, TextPermIndex.SERVICE_MB)
+      case TextTypes.APICALL => new IndexKeyFile(file, TextPermIndex.APICALL_MB)
+      case TextTypes.USER_AGENT => new IndexKeyFile(file, TextPermIndex.USERAGENT_MB)
+      case _ => new IndexKeyFile(file, TextPermIndex.DEFAULT_MB)
+    }
   }
 
   override def close() {

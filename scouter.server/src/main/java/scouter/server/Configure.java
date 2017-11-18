@@ -238,6 +238,22 @@ public class Configure extends Thread {
 	@ConfigDesc("true for daily dictionary mode about user agent. default value is false that means it's permanent.")
 	public boolean mgr_text_db_daily_ua_enabled = false;
 
+	@ConfigDesc("change default memory size of hash index.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_default_mb = 1;
+	@ConfigDesc("change memory size of hash index for service text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_service_mb = 1;
+	@ConfigDesc("change memory size of hash index for apicall text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_api_mb = 1;
+	@ConfigDesc("change memory size of hash index for user agent text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_ua_mb = 1;
+	@ConfigDesc("change memory size of hash index for daily text db.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_daily_index_mb = 1;
+
 	//XLog
 	@ConfigDesc("XLog Writer Queue Size")
 	public int xlog_queue_size = 10000;
@@ -441,6 +457,12 @@ public class Configure extends Thread {
 		this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false);
 		this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false);
 		this.mgr_text_db_daily_ua_enabled = getBoolean("mgr_text_db_daily_ua_enabled", false);
+
+		this._mgr_text_db_index_default_mb = getInt("_mgr_text_db_index_default_mb", 1);
+		this._mgr_text_db_index_service_mb = getInt("_mgr_text_db_index_service_mb", 1);
+		this._mgr_text_db_index_api_mb = getInt("_mgr_text_db_index_api_mb", 1);
+		this._mgr_text_db_index_ua_mb = getInt("_mgr_text_db_index_ua_mb", 1);
+		this._mgr_text_db_daily_index_mb = getInt("_mgr_text_db_daily_index_mb", 1);
 
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
 		this.geoip_data_city_file = getValue("geoip_data_city_file", CONF_DIR + "GeoLiteCity.dat");
