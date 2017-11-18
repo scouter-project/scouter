@@ -22,7 +22,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import scouterx.webapp.framework.client.server.ServerManager;
-import scouterx.webapp.framework.exception.ErrorState;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
@@ -34,9 +33,7 @@ import javax.ws.rs.QueryParam;
 @Getter
 @Setter
 @ToString
-public class LatestCounterRequestByObj {
-    private final int limitRangeSec = 60 * 60; //1 hour
-
+public class CounterAvgRequest {
     private int serverId;
 
     @NotNull
@@ -44,21 +41,15 @@ public class LatestCounterRequestByObj {
     private String counter;
 
     @NotNull
-    @PathParam("latestSec")
-    private int latestSec;
+    @QueryParam("startYmd")
+    private String startYmd;
 
     @NotNull
-    @PathParam("objHash")
-    private int objHash;
+    @QueryParam("endYmd")
+    private String endYmd;
 
     @QueryParam("serverId")
     public void setServerId(int serverId) {
         this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
-    }
-
-    public void validate() {
-        if (latestSec > limitRangeSec) {
-            throw ErrorState.VALIDATE_ERROR.newBizException("query range should be lower than " + limitRangeSec + " seconds!");
-        }
     }
 }

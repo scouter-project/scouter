@@ -271,10 +271,9 @@ class CounterService {
             return ;
         }
         val date = DateUtil.yyyymmdd(stime);
-        val agentGrp = AgentManager.getDailyObjects(date, objType);
 
         var objHashLv = if(objHashParamLv != null && objHashParamLv.size() > 0)
-                objHashParamLv else agentGrp.getList("objHash")
+                objHashParamLv else AgentManager.getDailyObjects(date, objType).getList("objHash")
 
         val mapPackMap = new IntKeyMap[MapPack]();
 

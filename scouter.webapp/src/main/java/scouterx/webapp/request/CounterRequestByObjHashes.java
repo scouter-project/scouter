@@ -41,4 +41,8 @@ public class CounterRequestByObjHashes extends CounterRequest {
     public void setObjHashes(String objHashes) {
         this.objHashes = ZZ.splitParamAsIntegerSet(objHashes);
     }
+
+    public void setObjHashes(Set<Integer> objHashes) {
+        this.objHashes = objHashes;
+    }
 }

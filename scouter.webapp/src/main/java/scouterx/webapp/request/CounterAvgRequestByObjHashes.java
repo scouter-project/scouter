@@ -21,11 +21,11 @@ package scouterx.webapp.request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import scouterx.webapp.framework.client.server.ServerManager;
+import scouterx.webapp.framework.util.ZZ;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import java.util.Set;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -33,28 +33,12 @@ import javax.ws.rs.QueryParam;
 @Getter
 @Setter
 @ToString
-public class CounterAvgRequestByObj {
-
-    private int serverId;
-
+public class CounterAvgRequestByObjHashes extends CounterAvgRequest {
     @NotNull
-    @PathParam("counter")
-    private String counter;
+    Set<Integer> objHashes;
 
-    @NotNull
-    @QueryParam("startYmd")
-    private String startYmd;
-
-    @NotNull
-    @QueryParam("endYmd")
-    private String endYmd;
-
-    @NotNull
-    @PathParam("objHash")
-    private int objHash;
-
-    @QueryParam("serverId")
-    public void setServerId(int serverId) {
-        this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
+    @QueryParam("objHashes")
+    public void setObjHashes(String objHashes) {
+        this.objHashes = ZZ.splitParamAsIntegerSet(objHashes);
     }
 }

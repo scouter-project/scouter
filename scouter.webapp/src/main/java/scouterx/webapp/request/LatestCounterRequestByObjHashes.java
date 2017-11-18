@@ -23,9 +23,11 @@ import lombok.Setter;
 import lombok.ToString;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
+import scouterx.webapp.framework.util.ZZ;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import java.util.Set;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -33,14 +35,18 @@ import javax.ws.rs.PathParam;
 @Getter
 @Setter
 @ToString
-public class LatestCounterRequestByType extends LatestCounterRequest {
+public class LatestCounterRequestByObjHashes extends LatestCounterRequest {
     @NotNull
-    @PathParam("objType")
-    private String objType;
+    Set<Integer> objHashes;
 
-    public CounterRequestByType toCounterRequestByType() {
-        CounterRequestByType toType = new CounterRequestByType();
-        toType.setObjType(objType);
+    @QueryParam("objHashes")
+    public void setObjHashes(String objHashes) {
+        this.objHashes = ZZ.splitParamAsIntegerSet(objHashes);
+    }
+
+    public CounterRequestByObjHashes toCounterRequestByObjHashes() {
+        CounterRequestByObjHashes toType = new CounterRequestByObjHashes();
+        toType.setObjHashes(objHashes);
         toType.setServerId(getServerId());
         toType.setCounter(getCounter());
 

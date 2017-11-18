@@ -29,6 +29,8 @@ import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.model.scouter.SCounter;
+import scouterx.webapp.request.CounterAvgRequest;
+import scouterx.webapp.request.CounterAvgRequestByObjHashes;
 import scouterx.webapp.request.CounterAvgRequestByType;
 import scouterx.webapp.request.CounterRequest;
 import scouterx.webapp.request.CounterRequestByObjHashes;
@@ -144,10 +146,34 @@ public class CounterConsumer {
 
     /**
      * get daily counter (precision : 5 min avg) values by objType
+     *
      */
     public List<AvgCounterView> retrieveAvgCounterByObjType(CounterAvgRequestByType request) {
+        return retrieveAvgCounterByObjTypeOrHashes(request);
+    }
+
+    /**
+     * get daily counter (precision : 5 min avg) values by objHashes
+     *
+     */
+    public List<AvgCounterView> retrieveAvgCounterByObjHashes(CounterAvgRequestByObjHashes request) {
+        return retrieveAvgCounterByObjTypeOrHashes(request);
+    }
+
+    /**
+     * get daily counter (precision : 5 min avg) values by objType or hashes
+     *
+     */
+    public List<AvgCounterView> retrieveAvgCounterByObjTypeOrHashes(CounterAvgRequest request) {
         MapPack paramPack = new MapPack();
-        paramPack.put(ParamConstant.OBJ_TYPE, request.getObjType());
+        if (request instanceof CounterAvgRequestByType) {
+            paramPack.put(ParamConstant.OBJ_TYPE, ((CounterAvgRequestByType) request).getObjType());
+        } else if (request instanceof CounterAvgRequestByObjHashes) {
+            ListValue objHashLv = paramPack.newList(ParamConstant.OBJ_HASH);
+            for (Integer objHash : ((CounterAvgRequestByObjHashes) request).getObjHashes()) {
+                objHashLv.add(objHash);
+            }
+        }
         paramPack.put(ParamConstant.SDATE, request.getStartYmd());
         paramPack.put(ParamConstant.EDATE, request.getEndYmd());
         paramPack.put(ParamConstant.COUNTER, request.getCounter());
@@ -167,12 +193,15 @@ public class CounterConsumer {
                     valueToDoubleList.add(valueList.getDouble(i));
                 }
 
+                AgentObject agentObject = AgentModelThread.getInstance().getAgentObject(objHash);
+                String objType = agentObject.getObjType();
+
                 AvgCounterView counterView = AvgCounterView.builder()
                         .objHash(objHash)
-                        .objName(AgentModelThread.getInstance().getAgentObject(objHash).getObjName())
+                        .objName(agentObject.getObjName())
                         .name(request.getCounter())
-                        .displayName(server.getCounterEngine().getCounterDisplayName(request.getObjType(), request.getCounter()))
-                        .unit(server.getCounterEngine().getCounterUnit(request.getObjType(), request.getCounter()))
+                        .displayName(server.getCounterEngine().getCounterDisplayName(objType, request.getCounter()))
+                        .unit(server.getCounterEngine().getCounterUnit(objType, request.getCounter()))
                         .fromYmd(request.getStartYmd())
                         .toYmd(request.getEndYmd())
                         .timeList(Arrays.stream(timeList.toObjectArray()).map(Long.class::cast).collect(Collectors.toList()))

@@ -273,11 +273,15 @@ class DailyCounterService {
         val sDate = param.getText("sDate");
         val eDate = param.getText("eDate");
         val objType = param.getText("objType");
-        if (StringUtil.isEmpty(objType)) {
-            System.out.println("please check.. COUNTER_PAST_LONGDATE_ALL objType is null");
+        val objHashParamLv = param.getList("objHash");
+
+        if (StringUtil.isEmpty(objType) && (objHashParamLv == null || objHashParamLv.size() == 0)) {
+            System.out.println("please check.. COUNTER_LOAD_TIME_ALL objType is null");
             return ;
         }
-        val agentGrp = AgentManager.getPeriodicObjects(sDate, eDate, objType);
+
+        var objHashLv = if(objHashParamLv != null && objHashParamLv.size() > 0)
+            objHashParamLv else AgentManager.getPeriodicObjects(sDate, eDate, objType).getList("objHash")
 
         var stime = DateUtil.yyyymmdd(sDate);
         var etime = DateUtil.yyyymmdd(eDate) + DateUtil.MILLIS_PER_DAY;
@@ -285,7 +289,6 @@ class DailyCounterService {
         var date = stime;
         while (date <= (etime - DateUtil.MILLIS_PER_DAY)) {
             val d = DateUtil.yyyymmdd(date);
-            val objHashLv = agentGrp.getList("objHash");
             for (i <- 0 to ArrayUtil.len(objHashLv) - 1) {
                 val objHash = objHashLv.getInt(i);
                 try {
