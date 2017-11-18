@@ -38,7 +38,7 @@ import java.time.format.DateTimeFormatter;
 @Getter
 @Setter
 @ToString
-public class CounterRequestByObj {
+public class CounterRequest {
     private final long limitRangeSec = 60 * 60; //1 hour
 
     private int serverId;
@@ -60,10 +60,6 @@ public class CounterRequestByObj {
 
     @QueryParam("endTimeMillis")
     private long endTimeMillis;
-
-    @NotNull
-    @PathParam("objHash")
-    private int objHash;
 
     @QueryParam("serverId")
     public void setServerId(int serverId) {

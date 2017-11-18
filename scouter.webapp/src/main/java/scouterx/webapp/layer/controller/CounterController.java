@@ -26,7 +26,7 @@ import scouterx.webapp.layer.service.CounterService;
 import scouterx.webapp.model.scouter.SCounter;
 import scouterx.webapp.request.CounterAvgRequestByObj;
 import scouterx.webapp.request.CounterAvgRequestByType;
-import scouterx.webapp.request.CounterRequestByObj;
+import scouterx.webapp.request.CounterRequestByObjHashes;
 import scouterx.webapp.request.CounterRequestByType;
 import scouterx.webapp.request.LatestCounterRequestByObj;
 import scouterx.webapp.request.LatestCounterRequestByType;
@@ -90,25 +90,25 @@ public class CounterController {
     }
 
     /**
-     * get current value of several counters about an object
-     * uri : /counter/realTime/{counters}/ofObject/{objHash}?counters=GcCount,GcTime or ?counters=[GcCount,GcTime]
+     * get current value of several counters of objects
+     * uri : /counter/realTime/{counters}?serverId=1001010&objHashes=100,200,300
      *
-     * @param objHash
-     * @param counterNameByCommaSeparator
-     * @param serverId
      * @see scouter.lang.counters.CounterConstants
      */
     @GET
-    @Path("/realTime/{counters}/ofObject/{objHash}")
+    @Path("/realTime/{counters}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Boolean> retrieveRealTimeCountersByObj(
-            @PathParam("objHash") final int objHash,
-            @PathParam("counters") final String counterNameByCommaSeparator,
+    public CommonResultView<List<SCounter>> retrieveRealTimeCountersByObjHashes(
+            @QueryParam("objHashes") @Valid @NotNull final String objHashes,
+            @PathParam("counters") @Valid @NotNull final String counterNameByCommaSeparator,
             @QueryParam("serverId") final int serverId) {
 
-        //TODO
-        ErrorState.throwNotImplementedException();
-        return null;
+        List<SCounter> counterList = counterService.retrieveRealTimeCountersByObjHashes(
+                ZZ.splitParamAsIntegerSet(objHashes),
+                ZZ.splitParamStringSet(counterNameByCommaSeparator),
+                ServerManager.getInstance().getServerIfNullDefault(serverId));
+
+        return CommonResultView.success(counterList);
     }
 
     /**
@@ -122,28 +122,27 @@ public class CounterController {
     @GET
     @Path("/{counter}/ofType/{objType}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<CounterView> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
+    public CommonResultView<List<CounterView>> retrieveCounterByObjType(@BeanParam @Valid CounterRequestByType request) {
         request.validate();
-        CounterView counterView = counterService.retrieveCounterByObjType(request);
+        List<CounterView> counterView = counterService.retrieveCounterByObjType(request);
         return CommonResultView.success(counterView);
     }
 
     /**
-     * get counter values of specific time range by object hash
-     * uri pattern : /counter/{counter}/ofObject/{objHash}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
-     * uri pattern : /counter/{counter}/ofObject/{objHash}?startYmdHms={startYmdHms}&endYmdHms={endYmdHms}&serverId={serverId}
+     * get counter values of specific time range by object hashes
+     * uri pattern : /counter/{counter}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&objHashes=100,200&serverId={serverId}
+     * uri pattern : /counter/{counter}?startYmdHms={startYmdHms}&endYmdHms={endYmdHms}&objHashes=100,200&serverId={serverId}
      *
      * @param request
      * @see scouter.lang.counters.CounterConstants
      */
     @GET
-    @Path("/{counter}/ofObject/{objHash}")
+    @Path("/{counter}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<CounterView> retrieveCounterByObjHash(@BeanParam @Valid CounterRequestByObj request) {
+    public CommonResultView<List<CounterView>> retrieveCounterByObjHashes(@BeanParam @Valid CounterRequestByObjHashes request) {
         request.validate();
-        //TODO
-        ErrorState.throwNotImplementedException();
-        return null;
+        List<CounterView> counterView = counterService.retrieveCounterByObjHashes(request);
+        return CommonResultView.success(counterView);
     }
 
     /**
