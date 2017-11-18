@@ -250,6 +250,15 @@ public class Configure extends Thread {
 	@ConfigDesc("change memory size of hash index for user agent text.(MB)" +
 			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
 	public int _mgr_text_db_index_ua_mb = 1;
+	@ConfigDesc("change memory size of hash index for login text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_login_mb = 1;
+	@ConfigDesc("change memory size of hash index for desc text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_desc_mb = 1;
+	@ConfigDesc("change memory size of hash index for hashed message text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_hmsg_mb = 1;
 	@ConfigDesc("change memory size of hash index for daily text db.(MB)" +
 			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
 	public int _mgr_text_db_daily_index_mb = 1;
@@ -462,6 +471,9 @@ public class Configure extends Thread {
 		this._mgr_text_db_index_service_mb = getInt("_mgr_text_db_index_service_mb", 1);
 		this._mgr_text_db_index_api_mb = getInt("_mgr_text_db_index_api_mb", 1);
 		this._mgr_text_db_index_ua_mb = getInt("_mgr_text_db_index_ua_mb", 1);
+		this._mgr_text_db_index_login_mb = getInt("_mgr_text_db_index_login_mb", 1);
+		this._mgr_text_db_index_desc_mb = getInt("_mgr_text_db_index_desc_mb", 1);
+		this._mgr_text_db_index_hmsg_mb = getInt("_mgr_text_db_index_hmsg_mb", 1);
 		this._mgr_text_db_daily_index_mb = getInt("_mgr_text_db_daily_index_mb", 1);
 
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);

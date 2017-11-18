@@ -33,6 +33,9 @@ object TextPermIndex {
   private val SERVICE_MB = conf._mgr_text_db_index_service_mb
   private val APICALL_MB = conf._mgr_text_db_index_api_mb
   private val USERAGENT_MB = conf._mgr_text_db_index_ua_mb
+  private val LOGIN_MB = conf._mgr_text_db_index_login_mb
+  private val DESC_MB = conf._mgr_text_db_index_desc_mb
+  private val HMSG_MB = conf._mgr_text_db_index_hmsg_mb
 
   val table = new StringKeyLinkedMap[TextPermIndex]();
 
@@ -101,6 +104,9 @@ class TextPermIndex(div: String, file: String) extends IClose {
       case TextTypes.SERVICE => new IndexKeyFile(file, TextPermIndex.SERVICE_MB)
       case TextTypes.APICALL => new IndexKeyFile(file, TextPermIndex.APICALL_MB)
       case TextTypes.USER_AGENT => new IndexKeyFile(file, TextPermIndex.USERAGENT_MB)
+      case TextTypes.LOGIN => new IndexKeyFile(file, TextPermIndex.LOGIN_MB)
+      case TextTypes.DESC => new IndexKeyFile(file, TextPermIndex.DESC_MB)
+      case TextTypes.HASH_MSG => new IndexKeyFile(file, TextPermIndex.HMSG_MB)
       case _ => new IndexKeyFile(file, TextPermIndex.DEFAULT_MB)
     }
   }
