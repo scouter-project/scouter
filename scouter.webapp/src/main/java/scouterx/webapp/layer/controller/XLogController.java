@@ -25,6 +25,7 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
+import scouterx.webapp.framework.client.model.TextModel;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.service.XLogService;
 import scouterx.webapp.model.scouter.SXlog;
@@ -78,7 +79,6 @@ public class XLogController {
             try {
                 int[] countable = {0};
                 INetReader xLogReader = getRealTimeXLogReader(jsonGenerator, countable);
-
                 xLogService.handleRealTimeXLog(xLogRequest, xLogReader);
                 jsonGenerator.writeEndArray();
                 jsonGenerator.writeNumberField("count", countable[0]);

@@ -48,11 +48,10 @@ public class ReleaseResourceFilter implements Filter {
     }
 
     private void init() {
-        TextModel.scopeStarted.set(false);
+        TextModel.endScope();
     }
 
     private void release() {
-        TextModel.scopeStarted.set(false);
         TextModel.endScope();
     }
 

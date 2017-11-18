@@ -29,15 +29,16 @@ import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
 import scouter.util.IntSet;
 import scouterx.webapp.framework.cache.XLogLoopCache;
+import scouterx.webapp.framework.client.model.TextModel;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.layer.service.XLogService;
 import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.XLogPackWrapper;
-import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogDataRequest;
+import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.PageableXLogView;
@@ -79,6 +80,25 @@ public class XLogDataController {
         int count;
         long loop;
         int index;
+
+        private int getCount() {
+            return count;
+        }
+        private void setCount(int count) {
+            this.count = count;
+        }
+        private long getLoop() {
+            return loop;
+        }
+        private void setLoop(long loop) {
+            this.loop = loop;
+        }
+        private int getIndex() {
+            return index;
+        }
+        private void setIndex(int index) {
+            this.index = index;
+        }
     }
 
     /**
@@ -115,6 +135,7 @@ public class XLogDataController {
             }
         };
 
+        TextModel.startScope();
         StreamingOutput streamingOutput = outputStream ->
                 CommonResultView.jsonStream(outputStream, realTimeXLogHandlerConsumer);
 
@@ -143,6 +164,7 @@ public class XLogDataController {
             }
         };
 
+        TextModel.startScope();
         StreamingOutput streamingOutput = outputStream ->
                 CommonResultView.jsonStream(outputStream, pageableXLogHandlerConsumer);
 
@@ -176,7 +198,10 @@ public class XLogDataController {
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List> searchXLog(@Valid @BeanParam SearchXLogRequest xLogRequest) throws ParseException {
         xLogRequest.validate();
+
+        TextModel.startScope();
         List<XLogData> list = xLogService.searchXLogDataList(xLogRequest);
+        TextModel.endScope();
         
         return CommonResultView.success(list);
     }
