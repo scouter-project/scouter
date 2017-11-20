@@ -31,6 +31,7 @@ import scouterx.webapp.model.scouter.SXlog;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
+import scouterx.webapp.request.XlogRequest;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.PageableXLogView;
 
@@ -45,6 +46,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -134,6 +136,23 @@ public class XLogController {
         SXlog xLog = xLogService.retrieveSingleXLogAsXLog(singleXlogRequest);
 
         return CommonResultView.success(xLog);
+
+    }
+
+    /**
+     * request xlogs by gxid
+     * uri : /xlog/{gxid}?startYmd={startYmd}&endYmd={endYmd} @see {@link XlogRequest}
+     *
+     * @param xlogRequest
+     */
+    @GET
+    @Path("/{yyyymmdd}/{gxid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<SXlog>> getXlog(@Valid @BeanParam XlogRequest xlogRequest) {
+        xlogRequest.validate();
+        List<SXlog> xLogs = xLogService.retrieveXLog(xlogRequest);
+
+        return CommonResultView.success(xLogs);
 
     }
 
