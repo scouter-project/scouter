@@ -33,6 +33,7 @@ import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.scouter.SXlog;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
+import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
 import scouterx.webapp.request.XlogRequest;
 import scouterx.webapp.view.PageableXLogView;
@@ -107,6 +108,102 @@ public class XLogConsumer {
         }
     }
 
+    /**
+     * retrieve XLog List for searching with various condition
+     *
+     */
+    public List<SXlog> searchXLogList(final SearchXLogRequest searchXLogRequest) {
+        List<Pack> searchXLogPackList = searchXLogPackList(searchXLogRequest);
+
+        List<SXlog> result = new ArrayList<>();
+        for(Pack pack : searchXLogPackList){
+            result.add(SXlog.of((XLogPack) pack));
+        }
+
+        return result;
+    }
+
+
+    /**
+     * retrieve XLog List for searching with various condition
+     *
+     */
+    public List<XLogData> searchXLogDataList(final SearchXLogRequest searchXLogRequest) {
+        List<Pack> searchXLogPackList = searchXLogPackList(searchXLogRequest);
+
+        List<XLogData> result = new ArrayList<>();
+        for(Pack pack : searchXLogPackList){
+            result.add(XLogData.of((XLogPack) pack, searchXLogRequest.getServerId()));
+        }
+
+        return result;
+    }
+
+    /**
+     * retrieve XLog List for searching with various condition
+     *
+     */
+    private List<Pack> searchXLogPackList(final SearchXLogRequest searchXLogRequest) {
+        MapPack paramPack = new MapPack();
+        paramPack.put(ParamConstant.DATE,searchXLogRequest.getYyyymmdd());
+        paramPack.put(ParamConstant.XLOG_START_TIME, searchXLogRequest.getStartTimeMillis());
+        paramPack.put(ParamConstant.XLOG_END_TIME, searchXLogRequest.getEndTimeMillis());
+        
+        String service = searchXLogRequest.getService();
+        if ( service != null ){
+            paramPack.put(ParamConstant.XLOG_SERVICE, service);
+        }
+        
+        long objHash = searchXLogRequest.getObjHash();
+        if ( objHash != 0 ){
+        	paramPack.put(ParamConstant.OBJ_HASH, objHash);
+        }
+        
+        String ipAddr = searchXLogRequest.getIp();
+        if ( ipAddr != null ){
+        	paramPack.put(ParamConstant.XLOG_IP, ipAddr);
+        }
+        
+        String login = searchXLogRequest.getLogin();
+        if (login != null){
+            paramPack.put(ParamConstant.XLOG_LOGIN, login);
+        }
+        
+        String desc = searchXLogRequest.getDesc();
+        if ( desc != null ){
+        	 paramPack.put(ParamConstant.XLOG_DESC, desc);
+        }
+       
+        String textTemp = searchXLogRequest.getText1();
+        if ( textTemp != null){
+        	paramPack.put(ParamConstant.XLOG_TEXT_1, textTemp);
+        }
+        textTemp = searchXLogRequest.getText2();
+        if ( textTemp != null){
+        	paramPack.put(ParamConstant.XLOG_TEXT_2, textTemp);
+        }
+        textTemp = searchXLogRequest.getText3();
+        if ( textTemp != null){
+        	paramPack.put(ParamConstant.XLOG_TEXT_3, textTemp);
+        }        
+        textTemp = searchXLogRequest.getText4();
+        if ( textTemp != null){
+        	paramPack.put(ParamConstant.XLOG_TEXT_4, textTemp);
+        }
+        textTemp = searchXLogRequest.getText5();
+        if ( textTemp != null){
+        	paramPack.put(ParamConstant.XLOG_TEXT_5, textTemp);
+        }
+        
+        List<Pack> resp = null;
+        
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(searchXLogRequest.getServerId())) {
+        	resp = tcpProxy.process(RequestCmd.SEARCH_XLOG_LIST, paramPack);
+        }
+
+        return resp;
+    }
+    
     /**
      * retrieve XLog
      *

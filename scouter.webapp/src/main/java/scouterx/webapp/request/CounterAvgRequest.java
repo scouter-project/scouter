@@ -16,29 +16,40 @@
  *
  */
 
-package scouterx.webapp.view;
+package scouterx.webapp.request;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import scouterx.webapp.framework.client.server.ServerManager;
 
-import java.util.List;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 28.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
 @Getter
 @Setter
-@Builder
-public class CounterView {
-    private final int objHash;
-    private final String objName;
-    private final long startTimeMillis;
-    private final long endTimeMillis;
-    private final String name;
-    private final String displayName;
-    private final String unit;
-    final private List<Long> timeList;
-    final private List<Double> valueList;
+@ToString
+public class CounterAvgRequest {
+    private int serverId;
 
+    @NotNull
+    @PathParam("counter")
+    private String counter;
+
+    @NotNull
+    @QueryParam("startYmd")
+    private String startYmd;
+
+    @NotNull
+    @QueryParam("endYmd")
+    private String endYmd;
+
+    @QueryParam("serverId")
+    public void setServerId(int serverId) {
+        this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
+    }
 }

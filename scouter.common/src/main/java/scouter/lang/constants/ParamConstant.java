@@ -47,8 +47,18 @@ public class ParamConstant {
     public static final String XLOG_END_TIME = "etime";
     public static final String XLOG_LAST_BUCKET_TIME = "lastBucketTime";
     public static final String XLOG_PAGE_COUNT = "pageCount";
-
+    public static final String XLOG_SERVICE="service";
+    public static final String XLOG_LOGIN="login";
+    public static final String XLOG_IP="ip";
+    public static final String XLOG_DESC="desc";
+    public static final String XLOG_TEXT_1="text1";
+    public static final String XLOG_TEXT_2="text2";
+    public static final String XLOG_TEXT_3="text3";
+    public static final String XLOG_TEXT_4="text4";
+    public static final String XLOG_TEXT_5="text5";
+    
     public static final String XLOG_TXID = "txid";
+    public static final String XLOG_GXID = "gxid";
     public static final String PROFILE_MAX = "max";
 
     public static final String XLOG_RESULT_LAST_TIME = "lastXLogTime";

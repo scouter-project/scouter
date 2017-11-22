@@ -231,7 +231,9 @@ public class SummaryConsumer {
         paramPack.put(ParamConstant.DATE, yyyymmdd);
         paramPack.put(ParamConstant.STIME, start);
         paramPack.put(ParamConstant.ETIME, end);
-        paramPack.put(ParamConstant.OBJ_TYPE, objType);
+        if (objType != null) {
+            paramPack.put(ParamConstant.OBJ_TYPE, objType);
+        }
         paramPack.put(ParamConstant.OBJ_HASH, objHash);
 
         Pack resultPack;

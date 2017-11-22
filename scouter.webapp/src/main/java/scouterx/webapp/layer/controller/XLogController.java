@@ -25,11 +25,13 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
+import scouterx.webapp.framework.client.model.TextModel;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.service.XLogService;
 import scouterx.webapp.model.scouter.SXlog;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
+import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
 import scouterx.webapp.request.XlogRequest;
 import scouterx.webapp.view.CommonResultView;
@@ -46,6 +48,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
+
+import java.text.ParseException;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -77,7 +81,6 @@ public class XLogController {
             try {
                 int[] countable = {0};
                 INetReader xLogReader = getRealTimeXLogReader(jsonGenerator, countable);
-
                 xLogService.handleRealTimeXLog(xLogRequest, xLogReader);
                 jsonGenerator.writeEndArray();
                 jsonGenerator.writeNumberField("count", countable[0]);
@@ -141,18 +144,33 @@ public class XLogController {
 
     /**
      * request xlogs by gxid
-     * uri : /xlog/{gxid}?startYmd={startYmd}&endYmd={endYmd} @see {@link XlogRequest}
+     * uri : /{yyyymmdd}/gxid/{gxid} @see {@link XlogRequest}
      *
      * @param xlogRequest
      */
     @GET
-    @Path("/{yyyymmdd}/{gxid}")
+    @Path("/{yyyymmdd}/gxid/{gxid}")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List<SXlog>> getXlog(@Valid @BeanParam XlogRequest xlogRequest) {
         xlogRequest.validate();
         List<SXlog> xLogs = xLogService.retrieveXLog(xlogRequest);
 
         return CommonResultView.success(xLogs);
+    }
+    /**
+     * request xlog list with various condition
+     * uri : /xlog/search/{yyyymmdd}?startTimeMillis=... @see {@link SearchXLogRequest}
+     *
+     * @param xLogRequest
+     */
+    @GET
+    @Path("/search/{yyyymmdd}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<SXlog>> searchXLog(@Valid @BeanParam SearchXLogRequest xLogRequest) throws ParseException {
+        xLogRequest.validate();
+        List<SXlog> list = xLogService.searchXLogList(xLogRequest);
+
+        return CommonResultView.success(list);
 
     }
 
