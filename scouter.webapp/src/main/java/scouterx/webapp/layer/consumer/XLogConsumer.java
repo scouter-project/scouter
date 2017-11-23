@@ -25,19 +25,23 @@ import scouter.lang.pack.Pack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
+import scouter.server.term.handler.XLOG;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.framework.client.net.TcpProxy;
+import scouterx.webapp.model.VisitorGroup;
 import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.scouter.SXlog;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
+import scouterx.webapp.request.XlogRequest;
 import scouterx.webapp.view.PageableXLogView;
 import scouterx.webapp.view.RealTimeXLogView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -237,6 +241,27 @@ public class XLogConsumer {
         }
 
         return pack;
+    }
+    /**
+     * retrieve XLogList
+     *
+     * @param xlogRequest
+     */
+    public List<SXlog> retrieveByGxid(final XlogRequest xlogRequest) {
+
+        MapPack param = new MapPack();
+        param.put(ParamConstant.DATE, xlogRequest.getYyyymmdd());
+        param.put(ParamConstant.XLOG_GXID, xlogRequest.getGxid());
+
+        List<Pack> results;
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(xlogRequest.getServerId())) {
+            results = tcpProxy.process(RequestCmd.XLOG_READ_BY_GXID, param);
+        }
+
+        return results.stream()
+                .map(pack -> (XLogPack) pack)
+                .map(SXlog::of)
+                .collect(Collectors.toList());
     }
 
 }

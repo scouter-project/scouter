@@ -58,6 +58,7 @@ public class ParamConstant {
     public static final String XLOG_TEXT_5="text5";
     
     public static final String XLOG_TXID = "txid";
+    public static final String XLOG_GXID = "gxid";
     public static final String PROFILE_MAX = "max";
 
     public static final String XLOG_RESULT_LAST_TIME = "lastXLogTime";

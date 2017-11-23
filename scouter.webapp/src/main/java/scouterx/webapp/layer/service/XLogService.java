@@ -18,6 +18,7 @@
 
 package scouterx.webapp.layer.service;
 
+import scouter.server.term.handler.XLOG;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.consumer.XLogConsumer;
 import scouterx.webapp.model.XLogData;
@@ -26,6 +27,9 @@ import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
+import scouterx.webapp.request.XlogRequest;
+
+import java.util.List;
 
 import java.util.List;
 /**
@@ -80,6 +84,14 @@ public class XLogService {
      */
     public SXlog retrieveSingleXLogAsXLog(final SingleXLogRequest singleXlogRequest) {
         return xLogConsumer.retrieveByTxidAsXLog(singleXlogRequest);
+
+    }
+
+    /**
+     * retrieve Xlog List
+     */
+    public List<SXlog> retrieveXLog(final XlogRequest xlogRequest) {
+        return xLogConsumer.retrieveByGxid(xlogRequest);
 
     }
 

@@ -33,6 +33,7 @@ import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
+import scouterx.webapp.request.XlogRequest;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.PageableXLogView;
 
@@ -47,6 +48,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
+
 import java.text.ParseException;
 import java.util.List;
 import java.util.function.Consumer;
@@ -141,6 +143,21 @@ public class XLogController {
     }
 
     /**
+     * request xlogs by gxid
+     * uri : /{yyyymmdd}/gxid/{gxid} @see {@link XlogRequest}
+     *
+     * @param xlogRequest
+     */
+    @GET
+    @Path("/{yyyymmdd}/gxid/{gxid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<SXlog>> getXlog(@Valid @BeanParam XlogRequest xlogRequest) {
+        xlogRequest.validate();
+        List<SXlog> xLogs = xLogService.retrieveXLog(xlogRequest);
+
+        return CommonResultView.success(xLogs);
+    }
+    /**
      * request xlog list with various condition
      * uri : /xlog/search/{yyyymmdd}?startTimeMillis=... @see {@link SearchXLogRequest}
      *
@@ -154,6 +171,7 @@ public class XLogController {
         List<SXlog> list = xLogService.searchXLogList(xLogRequest);
 
         return CommonResultView.success(list);
+
     }
 
     /**
