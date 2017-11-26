@@ -1,7 +1,7 @@
 # Simulate DB Lock
 [![English](https://img.shields.io/badge/language-English-orange.svg)](Simulate-DB-Lock.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
-본 문서는 간단하게 DB에 update lock이 걸렸을때 어떻게 모니터링 되는지를 시뮬레이션한다.
+본 문서는 간단하게 DB에 update lock이 걸렸을 때 어떻게 모니터링 되는지를 시뮬레이션한다.
 기본적인 환경구성은 [Getting Start Profile SQL](../main/Getting-Start-Profile-SQL_kr.md)을 참조한다.
 
 ### 환경구성하기
@@ -64,8 +64,8 @@ lock.jsp를 호출하여 락을 유발시킬수 있다. 파라미터 "t"값을 �
 
 ![Scouter](../img/client/jmeter/scouter_lock.png)
 
-위 화면에서 어느 구간에서 지연이 발생하고 있는지 분석하기위해서는 
-두가지 방법을 활용한다. 왼쪽 하단의 액티브서비스 리스트를 더블클릭해서 조회하면 진행중인 서비스 리스트를 볼수 있고 상세 정보를 조회할수 있다. 아래화면에서 두데이터 모두 많은 서비스들이 update SQL을 수행하고 있음을 알 수 있다.
+위 화면에서 어느 구간에서 지연이 발생하고 있는지 분석하기 위해서는 
+두 가지 방법을 활용한다. 왼쪽 하단의 액티브서비스 리스트를 더블클릭해서 조회하면 진행중인 서비스 리스트를 볼 수 있고 상세 정보를 조회할수 있다. 아래 화면에서 두데이터 모두 많은 서비스들이 update SQL을 수행하고 있음을 알 수 있다.
 
 ![active list](../img/client/jmeter/analyze_active_list.png) 
 
