@@ -75,32 +75,36 @@ public class Win32Service extends SigarCommandBase {
         
         try {
             service = new Service(name);
-        
-            if ((cmd == null) || cmd.equals("state")) {
+            if (cmd == null) {
                 service.list(this.out);
-            }
-            else if (cmd.equals("start")) {
-                service.start();
-            }
-            else if (cmd.equals("stop")) {
-                service.stop();
-            }
-            else if (cmd.equals("pause")) {
-                service.pause();
-            }
-            else if (cmd.equals("resume")) {
-                service.resume();
-            }
-            else if (cmd.equals("delete")) {
-                service.delete();
-            }
-            else if (cmd.equals("restart")) {
-                service.stop(0);
-                service.start();
-            }
-            else {
-                println("Unsupported service command: " + args[1]);
-                println("Valid commands: " + COMMANDS);
+            } else {
+                switch (cmd) {
+                    case "state":
+                        service.list(this.out);
+                        break;
+                    case "start":
+                        service.start();
+                        break;
+                    case "stop":
+                        service.stop();
+                        break;
+                    case "pause":
+                        service.pause();
+                        break;
+                    case "resume":
+                        service.resume();
+                        break;
+                    case "delete":
+                        service.delete();
+                        break;
+                    case "restart":
+                        service.stop(0);
+                        service.start();
+                        break;
+                    default:
+                        println("Unsupported service command: " + args[1]);
+                        println("Valid commands: " + COMMANDS);
+                }
             }
         } finally {
             if (service != null) {

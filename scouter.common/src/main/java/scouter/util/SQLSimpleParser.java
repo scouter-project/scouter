@@ -174,55 +174,66 @@ public class SQLSimpleParser {
 		try {
 			for (int i = 0; i < tokens.length; i++) {
 				String token = tokens[i].toUpperCase();
-				if(token.equals("(")){
-					parenthesisCount++;
-					inParenthesis = true;
-				} else if(token.equals(")")) {
-					parenthesisCount--;
-					if (parenthesisCount == 0) {
-						inParenthesis = false;
-					}
-				} else if(token.equals("SELECT")) {
-					if (inParenthesis) {
-						for (int j = i + 1; j < tokens.length; j++) {
-							if (tokens[j].toLowerCase().equals("from")) {
-								createOrAppendNode(SQLTypeEnum.SELECT);
-								j = applyNode(j, tokens);
-							}
-							if (tokens[j].equals("(")) {
-								parenthesisCount++;
-								inParenthesis = true;
-							}
-							if (tokens[j].equals(")")) {
-								parenthesisCount--;
-								if (parenthesisCount == 0) {
-									inParenthesis = false;
-									i = j;
-									break;
+
+				switch (token) {
+					case "(":
+						parenthesisCount++;
+						inParenthesis = true;
+						break;
+					case ")":
+						parenthesisCount--;
+						if (parenthesisCount == 0) {
+							inParenthesis = false;
+						}
+						break;
+					case "SELECT":
+						if (inParenthesis) {
+							for (int j = i + 1; j < tokens.length; j++) {
+								if (tokens[j].toLowerCase().equals("from")) {
+									createOrAppendNode(SQLTypeEnum.SELECT);
+									j = applyNode(j, tokens);
+								}
+								if (tokens[j].equals("(")) {
+									parenthesisCount++;
+									inParenthesis = true;
+								}
+								if (tokens[j].equals(")")) {
+									parenthesisCount--;
+									if (parenthesisCount == 0) {
+										inParenthesis = false;
+										i = j;
+										break;
+									}
 								}
 							}
+						} else {
+							createOrAppendNode(SQLTypeEnum.SELECT);
 						}
-					} else {
+						break;
+					case "DELETE":
+						createOrAppendNode(SQLTypeEnum.DELETE);
+						break;
+					case "INSERT":
+						createOrAppendNode(SQLTypeEnum.INSERT);
+						break;
+					case "UPDATE":
+						createOrAppendNode(SQLTypeEnum.UPDATE);
+						i = applyNode(i, tokens);
+						break;
+					case "MERGE":
+						if (tokens[i + 1].toUpperCase().equals("INTO")) {
+							createOrAppendNode(SQLTypeEnum.MERGE);
+						}
+						break;
+					case "FROM":
+						i = applyNode(i, tokens);
+						break;
+					case "INTO":
+						i = applyNode(i, tokens);
+						break;
+					case "JOIN":
 						createOrAppendNode(SQLTypeEnum.SELECT);
-					}
-				} else if(token.equals("DELETE")) {
-					createOrAppendNode(SQLTypeEnum.DELETE);
-				} else if(token.equals("INSERT")) {
-					createOrAppendNode(SQLTypeEnum.INSERT);
-				} else if(token.equals("UPDATE")) {
-					createOrAppendNode(SQLTypeEnum.UPDATE);
-					i = applyNode(i, tokens);
-				} else if(token.equals("MERGE")) {
-					if (tokens[i + 1].toUpperCase().equals("INTO")) {
-						createOrAppendNode(SQLTypeEnum.MERGE);
-					}
-				} else if(token.equals("FROM")) {
-					i = applyNode(i, tokens);
-				} else if(token.equals("INTO")) {
-					i = applyNode(i, tokens);
-				} else if(token.equals("JOIN")) {
-					createOrAppendNode(SQLTypeEnum.SELECT);
-					i = applyNode(i, tokens);
+						i = applyNode(i, tokens);
 				}
 			}
 		} catch (Exception e) {
