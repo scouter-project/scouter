@@ -138,71 +138,6 @@ public class XLogConsumer {
     }
 
     /**
-     * retrieve XLog List for searching with various condition
-     *
-     */
-    private List<Pack> searchXLogPackList(final SearchXLogRequest searchXLogRequest) {
-        MapPack paramPack = new MapPack();
-        paramPack.put(ParamConstant.DATE,searchXLogRequest.getYyyymmdd());
-        paramPack.put(ParamConstant.XLOG_START_TIME, searchXLogRequest.getStartTimeMillis());
-        paramPack.put(ParamConstant.XLOG_END_TIME, searchXLogRequest.getEndTimeMillis());
-        
-        String service = searchXLogRequest.getService();
-        if ( service != null ){
-            paramPack.put(ParamConstant.XLOG_SERVICE, service);
-        }
-        
-        long objHash = searchXLogRequest.getObjHash();
-        if ( objHash != 0 ){
-        	paramPack.put(ParamConstant.OBJ_HASH, objHash);
-        }
-        
-        String ipAddr = searchXLogRequest.getIp();
-        if ( ipAddr != null ){
-        	paramPack.put(ParamConstant.XLOG_IP, ipAddr);
-        }
-        
-        String login = searchXLogRequest.getLogin();
-        if (login != null){
-            paramPack.put(ParamConstant.XLOG_LOGIN, login);
-        }
-        
-        String desc = searchXLogRequest.getDesc();
-        if ( desc != null ){
-        	 paramPack.put(ParamConstant.XLOG_DESC, desc);
-        }
-       
-        String textTemp = searchXLogRequest.getText1();
-        if ( textTemp != null){
-        	paramPack.put(ParamConstant.XLOG_TEXT_1, textTemp);
-        }
-        textTemp = searchXLogRequest.getText2();
-        if ( textTemp != null){
-        	paramPack.put(ParamConstant.XLOG_TEXT_2, textTemp);
-        }
-        textTemp = searchXLogRequest.getText3();
-        if ( textTemp != null){
-        	paramPack.put(ParamConstant.XLOG_TEXT_3, textTemp);
-        }        
-        textTemp = searchXLogRequest.getText4();
-        if ( textTemp != null){
-        	paramPack.put(ParamConstant.XLOG_TEXT_4, textTemp);
-        }
-        textTemp = searchXLogRequest.getText5();
-        if ( textTemp != null){
-        	paramPack.put(ParamConstant.XLOG_TEXT_5, textTemp);
-        }
-        
-        List<Pack> resp = null;
-        
-        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(searchXLogRequest.getServerId())) {
-        	resp = tcpProxy.process(RequestCmd.SEARCH_XLOG_LIST, paramPack);
-        }
-
-        return resp;
-    }
-    
-    /**
      * retrieve XLog
      *
      * @param singleXLogRequest
@@ -223,12 +158,32 @@ public class XLogConsumer {
     }
 
     /**
-     * retrieve XLog
+     * retrieve XLogList by gxid
      *
-     * @param singleXLogRequest
+     * @param xlogRequest
      */
-    private XLogPack retrieveByTxid(final SingleXLogRequest singleXLogRequest) {
+    public List<SXLog> retrieveXLogsByGxid(final GxidXLogRequest xlogRequest) {
+        return retrieveXLogPacksByGxid(xlogRequest).stream()
+                .map(pack -> (XLogPack) pack)
+                .map(SXLog::of)
+                .collect(Collectors.toList());
+    }
 
+
+    /**
+     * retrieve XLog Data List by gxid
+     *
+     * @param xLogRequest
+     */
+    public List<XLogData> retrieveXLogDatasByGxid(final GxidXLogRequest xLogRequest) {
+        return retrieveXLogPacksByGxid(xLogRequest).stream()
+                .map(pack -> (XLogPack) pack)
+                .map(pack -> XLogData.of(pack, xLogRequest.getServerId()))
+                .collect(Collectors.toList());
+    }
+
+
+    private XLogPack retrieveByTxid(final SingleXLogRequest singleXLogRequest) {
         MapPack param = new MapPack();
         param.put(ParamConstant.DATE, singleXLogRequest.getYyyymmdd());
         param.put(ParamConstant.XLOG_TXID, singleXLogRequest.getTxid());
@@ -240,13 +195,8 @@ public class XLogConsumer {
 
         return pack;
     }
-    /**
-     * retrieve XLogList
-     *
-     * @param xlogRequest
-     */
-    public List<SXLog> retrieveByGxid(final GxidXLogRequest xlogRequest) {
 
+    private List<Pack> retrieveXLogPacksByGxid(GxidXLogRequest xlogRequest) {
         MapPack param = new MapPack();
         param.put(ParamConstant.DATE, xlogRequest.getYyyymmdd());
         param.put(ParamConstant.XLOG_GXID, xlogRequest.getGxid());
@@ -255,11 +205,67 @@ public class XLogConsumer {
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(xlogRequest.getServerId())) {
             results = tcpProxy.process(RequestCmd.XLOG_READ_BY_GXID, param);
         }
-
-        return results.stream()
-                .map(pack -> (XLogPack) pack)
-                .map(SXLog::of)
-                .collect(Collectors.toList());
+        return results;
     }
 
+    private List<Pack> searchXLogPackList(final SearchXLogRequest searchXLogRequest) {
+        MapPack paramPack = new MapPack();
+        paramPack.put(ParamConstant.DATE,searchXLogRequest.getYyyymmdd());
+        paramPack.put(ParamConstant.XLOG_START_TIME, searchXLogRequest.getStartTimeMillis());
+        paramPack.put(ParamConstant.XLOG_END_TIME, searchXLogRequest.getEndTimeMillis());
+
+        String service = searchXLogRequest.getService();
+        if ( service != null ){
+            paramPack.put(ParamConstant.XLOG_SERVICE, service);
+        }
+
+        long objHash = searchXLogRequest.getObjHash();
+        if ( objHash != 0 ){
+            paramPack.put(ParamConstant.OBJ_HASH, objHash);
+        }
+
+        String ipAddr = searchXLogRequest.getIp();
+        if ( ipAddr != null ){
+            paramPack.put(ParamConstant.XLOG_IP, ipAddr);
+        }
+
+        String login = searchXLogRequest.getLogin();
+        if (login != null){
+            paramPack.put(ParamConstant.XLOG_LOGIN, login);
+        }
+
+        String desc = searchXLogRequest.getDesc();
+        if ( desc != null ){
+            paramPack.put(ParamConstant.XLOG_DESC, desc);
+        }
+
+        String textTemp = searchXLogRequest.getText1();
+        if ( textTemp != null){
+            paramPack.put(ParamConstant.XLOG_TEXT_1, textTemp);
+        }
+        textTemp = searchXLogRequest.getText2();
+        if ( textTemp != null){
+            paramPack.put(ParamConstant.XLOG_TEXT_2, textTemp);
+        }
+        textTemp = searchXLogRequest.getText3();
+        if ( textTemp != null){
+            paramPack.put(ParamConstant.XLOG_TEXT_3, textTemp);
+        }
+        textTemp = searchXLogRequest.getText4();
+        if ( textTemp != null){
+            paramPack.put(ParamConstant.XLOG_TEXT_4, textTemp);
+        }
+        textTemp = searchXLogRequest.getText5();
+        if ( textTemp != null){
+            paramPack.put(ParamConstant.XLOG_TEXT_5, textTemp);
+        }
+
+        List<Pack> resp = null;
+
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(searchXLogRequest.getServerId())) {
+            resp = tcpProxy.process(RequestCmd.SEARCH_XLOG_LIST, paramPack);
+        }
+
+        return resp;
+    }
 }

@@ -36,6 +36,7 @@ import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.layer.service.XLogService;
 import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.XLogPackWrapper;
+import scouterx.webapp.request.GxidXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogDataRequest;
 import scouterx.webapp.request.SearchXLogRequest;
@@ -180,13 +181,30 @@ public class XLogDataController {
     @GET
     @Path("/{yyyymmdd}/{txid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<XLogData> getSingleXLog(@Valid @BeanParam SingleXLogRequest singleXlogRequest) {
+    public CommonResultView<XLogData> retrieveSingleXLog(@Valid @BeanParam SingleXLogRequest singleXlogRequest) {
         singleXlogRequest.validate();
-        XLogData xLogData = xLogService.retrieveSingleXLogAsXLogData(singleXlogRequest);
+        XLogData xLogData = xLogService.retrieveSingleXLogData(singleXlogRequest);
 
         return CommonResultView.success(xLogData);
     }
-    
+
+    /**
+     * request xlogs by gxid
+     * uri : /{yyyymmdd}/gxid/{gxid} @see {@link GxidXLogRequest}
+     *
+     * @param gxidRequest
+     */
+    @GET
+    @Path("/{yyyymmdd}/gxid/{gxid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<XLogData>> retrieveXLogDatasByGxid(@Valid @BeanParam GxidXLogRequest gxidRequest) {
+        gxidRequest.validate();
+        List<XLogData> xLogs = xLogService.retrieveXLogDatasByGxid(gxidRequest);
+
+        return CommonResultView.success(xLogs);
+    }
+
+
     /**
      * request xlog data list with various condition 
      * uri : /xlog-data/search/{yyyymmdd}?startHms=... @see {@link SearchXLogRequest}

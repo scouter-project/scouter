@@ -28,11 +28,11 @@ import scouter.lang.pack.XLogPack;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.service.XLogService;
 import scouterx.webapp.model.scouter.SXLog;
+import scouterx.webapp.request.GxidXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
-import scouterx.webapp.request.GxidXLogRequest;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.PageableXLogView;
 
@@ -47,7 +47,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
-
 import java.text.ParseException;
 import java.util.List;
 import java.util.function.Consumer;
@@ -133,9 +132,9 @@ public class XLogController {
     @GET
     @Path("/{yyyymmdd}/{txid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<SXLog> getSingleXLog(@Valid @BeanParam SingleXLogRequest singleXlogRequest) {
+    public CommonResultView<SXLog> retrieveSingleXLog(@Valid @BeanParam SingleXLogRequest singleXlogRequest) {
         singleXlogRequest.validate();
-        SXLog xLog = xLogService.retrieveSingleXLogAsXLog(singleXlogRequest);
+        SXLog xLog = xLogService.retrieveSingleXLog(singleXlogRequest);
 
         return CommonResultView.success(xLog);
 
@@ -150,9 +149,9 @@ public class XLogController {
     @GET
     @Path("/{yyyymmdd}/gxid/{gxid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<SXLog>> getXlog(@Valid @BeanParam GxidXLogRequest gxidRequest) {
+    public CommonResultView<List<SXLog>> retrieveXLogsByGxid(@Valid @BeanParam GxidXLogRequest gxidRequest) {
         gxidRequest.validate();
-        List<SXLog> xLogs = xLogService.retrieveXLog(gxidRequest);
+        List<SXLog> xLogs = xLogService.retrieveXLogsByGxid(gxidRequest);
 
         return CommonResultView.success(xLogs);
     }

@@ -72,7 +72,7 @@ public class XLogService {
     /**
      * retrieve single xLog
      */
-    public XLogData retrieveSingleXLogAsXLogData(final SingleXLogRequest singleXlogRequest) {
+    public XLogData retrieveSingleXLogData(final SingleXLogRequest singleXlogRequest) {
         return xLogConsumer.retrieveByTxidAsXLogData(singleXlogRequest);
 
     }
@@ -80,17 +80,24 @@ public class XLogService {
     /**
      * retrieve single xLog
      */
-    public SXLog retrieveSingleXLogAsXLog(final SingleXLogRequest singleXlogRequest) {
+    public SXLog retrieveSingleXLog(final SingleXLogRequest singleXlogRequest) {
         return xLogConsumer.retrieveByTxidAsXLog(singleXlogRequest);
 
     }
 
     /**
-     * retrieve Xlog List
+     * retrieve Xlog List by gxid
      */
-    public List<SXLog> retrieveXLog(final GxidXLogRequest xlogRequest) {
-        return xLogConsumer.retrieveByGxid(xlogRequest);
-
+    public List<SXLog> retrieveXLogsByGxid(final GxidXLogRequest xlogRequest) {
+        return xLogConsumer.retrieveXLogsByGxid(xlogRequest);
     }
+
+    /**
+     * retrieve Xlog data List by gxid
+     */
+    public List<XLogData> retrieveXLogDatasByGxid(final GxidXLogRequest xlogRequest) {
+        return xLogConsumer.retrieveXLogDatasByGxid(xlogRequest);
+    }
+
 
 }
