@@ -2,16 +2,16 @@
 [![English](https://img.shields.io/badge/language-English-orange.svg)](Simulate-DB-Lock.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
 
 본 문서는 간단하게 DB에 update lock이 걸렸을때 어떻게 모니터링 되는지를 시뮬레이션한다.
-기본적인 환경구성은 [Getting Start Profile SQL](../main/Getting-Start-Profile-SQL.md)을 참조한다.
+기본적인 환경구성은 [Getting Start Profile SQL](../main/Getting-Start-Profile-SQL_kr.md)을 참조한다.
 
 ### 환경구성하기
-1. JDK7설치 ( [Getting Started](../main/Getting-Started.md) 참고 )
-2. HSQLDB설치 ( [Getting Start Profile SQL](../main/Getting-Start-Profile-SQL.md) 참고 )
-3. Tomcat설치 ( [Getting Started](../main/Getting-Started.md) 참고 )
-4. JMeter설치 ( [Getting Start Profile SQL](../main/Getting-Start-Profile-SQL.md) 참고 )
-5. Scouter설치 ( [Getting Started](../main/Getting-Started.md) 참고 )
+1. JDK7설치 ( [Getting Started](../main/Getting-Started_kr.md) 참고 )
+2. HSQLDB설치 ( [Getting Start Profile SQL](../main/Getting-Start-Profile-SQL_kr.md) 참고 )
+3. Tomcat설치 ( [Getting Started](../main/Getting-Started_kr.md) 참고 )
+4. JMeter설치 ( [Getting Start Profile SQL](../main/Getting-Start-Profile-SQL_kr.md) 참고 )
+5. Scouter설치 ( [Getting Started](../main/Getting-Started_kr.md) 참고 )
 6. Tomcat환경구성
-   - DataSource설정 ([Getting Start Profile SQL](../main/Getting-Start-Profile-SQL.md) 참고)
+   - DataSource설정 ([Getting Start Profile SQL](../main/Getting-Start-Profile-SQL_kr.md) 참고)
    - Sample jsp설치
    [create.jsp](https://github.com/scouter-project/scouter-help/blob/master/misc/test-jsp/create.jsp), [sql.jsp](https://github.com/scouter-project/scouter-help/blob/master/misc/test-jsp/sql.jsp), [lock.jsp](https://github.com/scouter-project/scouter-help/blob/master/misc/test-jsp/lock.jsp) 3개의 파일을  ${TOMCAT_HOME}/webapps/ROOT/.로 복사한다.
 
