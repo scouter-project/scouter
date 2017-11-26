@@ -15,7 +15,7 @@
    - Sample jsp설치
    [create.jsp](https://github.com/scouter-project/scouter-help/blob/master/misc/test-jsp/create.jsp), [sql.jsp](https://github.com/scouter-project/scouter-help/blob/master/misc/test-jsp/sql.jsp), [lock.jsp](https://github.com/scouter-project/scouter-help/blob/master/misc/test-jsp/lock.jsp) 3개의 파일을  ${TOMCAT_HOME}/webapps/ROOT/.로 복사한다.
 
-   - Scouter Agent설정 ( [Getting Started](./Getting-Started) 참고 )
+   - Scouter Agent설정 ( [Getting Started](../main/Getting-Started_kr.md) 참고 )
 
 7. 모두 기동
    - HSQLDB
