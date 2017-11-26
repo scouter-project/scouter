@@ -44,11 +44,21 @@ import java.util.Set;
 public class RealTimeXLogDataRequest {
     int serverId;
 
-    @PathParam("offset1")
     long xLogLoop;
 
-    @PathParam("offset2")
     int xLogIndex;
+
+    //due to swagger bug, define setter.
+    @PathParam("offset1")
+    public void setXLogLoop(long xLogLoop) {
+        this.xLogLoop = xLogLoop;
+    }
+
+    //due to swagger bug, define setter.
+    @PathParam("offset2")
+    public void setXLogIndex(int xLogIndex) {
+        this.xLogIndex = xLogIndex;
+    }
 
     @NotNull
     Set<Integer> objHashes;

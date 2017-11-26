@@ -72,7 +72,7 @@ public class XLogController {
      * @return
      */
     @GET
-    @Path("/realTime/{offset1}/{offset2}")
+    @Path("/realTime/{xlogLoop}/{xlogIndex}")
     public Response streamRealTimeXLog(@BeanParam @Valid final RealTimeXLogRequest xLogRequest) {
 
         Consumer<JsonGenerator> realTimeXLogHandlerConsumer = jsonGenerator -> {
@@ -185,8 +185,8 @@ public class XLogController {
             Pack p = in.readPack();
             if (p.getPackType() == PackEnum.MAP) { //meta data arrive ahead of xlog pack
                 MapPack metaPack = (MapPack) p;
-                jsonGenerator.writeNumberField("offset1", metaPack.getInt(ParamConstant.OFFSET_LOOP));
-                jsonGenerator.writeNumberField("offset2", metaPack.getInt(ParamConstant.OFFSET_INDEX));
+                jsonGenerator.writeNumberField("xlogLoop", metaPack.getInt(ParamConstant.OFFSET_LOOP));
+                jsonGenerator.writeNumberField("xlogIndex", metaPack.getInt(ParamConstant.OFFSET_INDEX));
                 jsonGenerator.writeArrayFieldStart("xlogs");
             } else {
                 XLogPack xLogPack = (XLogPack) p;
