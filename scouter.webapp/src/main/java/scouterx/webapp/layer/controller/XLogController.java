@@ -25,15 +25,14 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
-import scouterx.webapp.framework.client.model.TextModel;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.service.XLogService;
-import scouterx.webapp.model.scouter.SXlog;
+import scouterx.webapp.model.scouter.SXLog;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
-import scouterx.webapp.request.XlogRequest;
+import scouterx.webapp.request.GxidXLogRequest;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.PageableXLogView;
 
@@ -134,9 +133,9 @@ public class XLogController {
     @GET
     @Path("/{yyyymmdd}/{txid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<SXlog> getSingleXLog(@Valid @BeanParam SingleXLogRequest singleXlogRequest) {
+    public CommonResultView<SXLog> getSingleXLog(@Valid @BeanParam SingleXLogRequest singleXlogRequest) {
         singleXlogRequest.validate();
-        SXlog xLog = xLogService.retrieveSingleXLogAsXLog(singleXlogRequest);
+        SXLog xLog = xLogService.retrieveSingleXLogAsXLog(singleXlogRequest);
 
         return CommonResultView.success(xLog);
 
@@ -144,19 +143,20 @@ public class XLogController {
 
     /**
      * request xlogs by gxid
-     * uri : /{yyyymmdd}/gxid/{gxid} @see {@link XlogRequest}
+     * uri : /{yyyymmdd}/gxid/{gxid} @see {@link GxidXLogRequest}
      *
-     * @param xlogRequest
+     * @param gxidRequest
      */
     @GET
     @Path("/{yyyymmdd}/gxid/{gxid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<SXlog>> getXlog(@Valid @BeanParam XlogRequest xlogRequest) {
-        xlogRequest.validate();
-        List<SXlog> xLogs = xLogService.retrieveXLog(xlogRequest);
+    public CommonResultView<List<SXLog>> getXlog(@Valid @BeanParam GxidXLogRequest gxidRequest) {
+        gxidRequest.validate();
+        List<SXLog> xLogs = xLogService.retrieveXLog(gxidRequest);
 
         return CommonResultView.success(xLogs);
     }
+
     /**
      * request xlog list with various condition
      * uri : /xlog/search/{yyyymmdd}?startTimeMillis=... @see {@link SearchXLogRequest}
@@ -166,9 +166,9 @@ public class XLogController {
     @GET
     @Path("/search/{yyyymmdd}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<SXlog>> searchXLog(@Valid @BeanParam SearchXLogRequest xLogRequest) throws ParseException {
+    public CommonResultView<List<SXLog>> searchXLog(@Valid @BeanParam SearchXLogRequest xLogRequest) throws ParseException {
         xLogRequest.validate();
-        List<SXlog> list = xLogService.searchXLogList(xLogRequest);
+        List<SXLog> list = xLogService.searchXLogList(xLogRequest);
 
         return CommonResultView.success(list);
 
@@ -191,7 +191,7 @@ public class XLogController {
                 jsonGenerator.writeArrayFieldStart("xlogs");
             } else {
                 XLogPack xLogPack = (XLogPack) p;
-                jsonGenerator.writeObject(SXlog.of(xLogPack));
+                jsonGenerator.writeObject(SXLog.of(xLogPack));
                 countable[0]++;
             }
         };
@@ -210,7 +210,7 @@ public class XLogController {
             Pack p = in.readPack();
             if (p.getPackType() != PackEnum.MAP) { // XLogPack case
                 XLogPack xLogPack = (XLogPack) p;
-                jsonGenerator.writeObject(SXlog.of(xLogPack));
+                jsonGenerator.writeObject(SXLog.of(xLogPack));
                 countable[0]++;
             } else { // MapPack case (//meta data arrive followed by xlog pack)
                 jsonGenerator.writeEndArray();

@@ -25,17 +25,15 @@ import scouter.lang.pack.Pack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
-import scouter.server.term.handler.XLOG;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.framework.client.net.TcpProxy;
-import scouterx.webapp.model.VisitorGroup;
 import scouterx.webapp.model.XLogData;
-import scouterx.webapp.model.scouter.SXlog;
+import scouterx.webapp.model.scouter.SXLog;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
-import scouterx.webapp.request.XlogRequest;
+import scouterx.webapp.request.GxidXLogRequest;
 import scouterx.webapp.view.PageableXLogView;
 import scouterx.webapp.view.RealTimeXLogView;
 
@@ -72,7 +70,7 @@ public class XLogConsumer {
         }
 
         RealTimeXLogView xLogView = new RealTimeXLogView();
-        List<SXlog> xLogList = new ArrayList<>();
+        List<SXLog> xLogList = new ArrayList<>();
         xLogView.setXLogs(xLogList);
 
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(xLogRequest.getServerId())) {
@@ -100,7 +98,7 @@ public class XLogConsumer {
         }
 
         PageableXLogView view = new PageableXLogView();
-        List<SXlog> xLogList = new ArrayList<>();
+        List<SXLog> xLogList = new ArrayList<>();
         view.setXLogs(xLogList);
 
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(pageableXLogRequest.getServerId())) {
@@ -112,12 +110,12 @@ public class XLogConsumer {
      * retrieve XLog List for searching with various condition
      *
      */
-    public List<SXlog> searchXLogList(final SearchXLogRequest searchXLogRequest) {
+    public List<SXLog> searchXLogList(final SearchXLogRequest searchXLogRequest) {
         List<Pack> searchXLogPackList = searchXLogPackList(searchXLogRequest);
 
-        List<SXlog> result = new ArrayList<>();
+        List<SXLog> result = new ArrayList<>();
         for(Pack pack : searchXLogPackList){
-            result.add(SXlog.of((XLogPack) pack));
+            result.add(SXLog.of((XLogPack) pack));
         }
 
         return result;
@@ -219,9 +217,9 @@ public class XLogConsumer {
      *
      * @param singleXLogRequest
      */
-    public SXlog retrieveByTxidAsXLog(final SingleXLogRequest singleXLogRequest) {
+    public SXLog retrieveByTxidAsXLog(final SingleXLogRequest singleXLogRequest) {
         XLogPack pack = retrieveByTxid(singleXLogRequest);
-        return pack == null ? null : SXlog.of(pack);
+        return pack == null ? null : SXLog.of(pack);
     }
 
     /**
@@ -247,7 +245,7 @@ public class XLogConsumer {
      *
      * @param xlogRequest
      */
-    public List<SXlog> retrieveByGxid(final XlogRequest xlogRequest) {
+    public List<SXLog> retrieveByGxid(final GxidXLogRequest xlogRequest) {
 
         MapPack param = new MapPack();
         param.put(ParamConstant.DATE, xlogRequest.getYyyymmdd());
@@ -260,7 +258,7 @@ public class XLogConsumer {
 
         return results.stream()
                 .map(pack -> (XLogPack) pack)
-                .map(SXlog::of)
+                .map(SXLog::of)
                 .collect(Collectors.toList());
     }
 

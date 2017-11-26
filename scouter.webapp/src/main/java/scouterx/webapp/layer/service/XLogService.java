@@ -18,20 +18,18 @@
 
 package scouterx.webapp.layer.service;
 
-import scouter.server.term.handler.XLOG;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.consumer.XLogConsumer;
 import scouterx.webapp.model.XLogData;
-import scouterx.webapp.model.scouter.SXlog;
+import scouterx.webapp.model.scouter.SXLog;
 import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
-import scouterx.webapp.request.XlogRequest;
+import scouterx.webapp.request.GxidXLogRequest;
 
 import java.util.List;
 
-import java.util.List;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
@@ -60,7 +58,7 @@ public class XLogService {
     /**
      * retrieve various condition search
      */
-    public List<SXlog> searchXLogList(final SearchXLogRequest searchXLogRequest) {
+    public List<SXLog> searchXLogList(final SearchXLogRequest searchXLogRequest) {
         return xLogConsumer.searchXLogList(searchXLogRequest);
     }
 
@@ -82,7 +80,7 @@ public class XLogService {
     /**
      * retrieve single xLog
      */
-    public SXlog retrieveSingleXLogAsXLog(final SingleXLogRequest singleXlogRequest) {
+    public SXLog retrieveSingleXLogAsXLog(final SingleXLogRequest singleXlogRequest) {
         return xLogConsumer.retrieveByTxidAsXLog(singleXlogRequest);
 
     }
@@ -90,7 +88,7 @@ public class XLogService {
     /**
      * retrieve Xlog List
      */
-    public List<SXlog> retrieveXLog(final XlogRequest xlogRequest) {
+    public List<SXLog> retrieveXLog(final GxidXLogRequest xlogRequest) {
         return xLogConsumer.retrieveByGxid(xlogRequest);
 
     }

@@ -14,7 +14,7 @@ import javax.ws.rs.QueryParam;
  */
 @Getter
 @Setter
-public class XlogRequest {
+public class GxidXLogRequest {
 
     int serverId;
 
