@@ -81,8 +81,6 @@
 - **Agent plugin**
   - TBD
 
-<br>s
-
 ## Facebook
  - [Scouter APM 사용자 모임 - Facebook 그룹](https://www.facebook.com/groups/scouterapm/)
 
