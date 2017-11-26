@@ -10,8 +10,7 @@
 ## 1. Collector Server 설치
 
 ### 1.1. Prerequisite
-* JDK 1.6+ (1.8+ 권장)
-* JDK 1.8+ (scouter web api 사용시)
+* JDK 1.8+
 
 ### 1.2. Collector Server 설치 및 기동
 1. 최신버전의 scouter-yyyyMMdd.tar.gz 다운로드 받는다.
@@ -64,7 +63,7 @@ log_dir=./logs
 
 ## 2. Host Agent
 ### 2.1. Prerequisite
-* JDK 1.5+(Required), 1.6+(Recommended)
+* JDK 1.6+
 
 ### 2.2. Download and start Host agent
 1. Download scouter-yyyyMMdd.tar.gz 
@@ -82,7 +81,7 @@ cd ./scouter/agent.host
 
 ## 3. Tomcat Agent
 ### 3.1. Prerequisite
-* JDK 1.5+(Required), 1.6+(Recommended)
+* JDK 1.6+
 
 ### 3.2. Start Tomcat with Scouter agent
 1. Download scouter-yyyyMMdd.tar.gz 

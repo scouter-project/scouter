@@ -182,6 +182,8 @@ public class Configure extends Thread {
 	//Object
 	@ConfigDesc("Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
 	public int object_deadtime_ms = 8000;
+	@ConfigDesc("inactive object warning level. default 0.(0:info, 1:warn, 2:error, 3:fatal)")
+	public int object_inactive_alert_level = 0;
 
 	//Compress
 	@ConfigDesc("Activating XLog data in zip file")
@@ -235,6 +237,31 @@ public class Configure extends Thread {
 	public boolean mgr_text_db_daily_api_enabled = false;
 	@ConfigDesc("true for daily dictionary mode about user agent. default value is false that means it's permanent.")
 	public boolean mgr_text_db_daily_ua_enabled = false;
+
+	@ConfigDesc("change default memory size of hash index.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_default_mb = 1;
+	@ConfigDesc("change memory size of hash index for service text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_service_mb = 1;
+	@ConfigDesc("change memory size of hash index for apicall text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_api_mb = 1;
+	@ConfigDesc("change memory size of hash index for user agent text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_ua_mb = 1;
+	@ConfigDesc("change memory size of hash index for login text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_login_mb = 1;
+	@ConfigDesc("change memory size of hash index for desc text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_desc_mb = 1;
+	@ConfigDesc("change memory size of hash index for hashed message text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_hmsg_mb = 1;
+	@ConfigDesc("change memory size of hash index for daily text db.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_daily_index_mb = 1;
 
 	//XLog
 	@ConfigDesc("XLog Writer Queue Size")
@@ -380,6 +407,7 @@ public class Configure extends Thread {
 		this.temp_dir = getValue("temp_dir", "./tempdata");
 
 		this.object_deadtime_ms = getInt("object_deadtime_ms", 8000);
+		this.object_inactive_alert_level = getInt("object_inactive_alert_level", 0);
 
 		this.compress_xlog_enabled = getBoolean("compress_xlog_enabled", false);
 		this.compress_profile_enabled = getBoolean("compress_profile_enabled", false);
@@ -438,6 +466,15 @@ public class Configure extends Thread {
 		this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false);
 		this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false);
 		this.mgr_text_db_daily_ua_enabled = getBoolean("mgr_text_db_daily_ua_enabled", false);
+
+		this._mgr_text_db_index_default_mb = getInt("_mgr_text_db_index_default_mb", 1);
+		this._mgr_text_db_index_service_mb = getInt("_mgr_text_db_index_service_mb", 1);
+		this._mgr_text_db_index_api_mb = getInt("_mgr_text_db_index_api_mb", 1);
+		this._mgr_text_db_index_ua_mb = getInt("_mgr_text_db_index_ua_mb", 1);
+		this._mgr_text_db_index_login_mb = getInt("_mgr_text_db_index_login_mb", 1);
+		this._mgr_text_db_index_desc_mb = getInt("_mgr_text_db_index_desc_mb", 1);
+		this._mgr_text_db_index_hmsg_mb = getInt("_mgr_text_db_index_hmsg_mb", 1);
+		this._mgr_text_db_daily_index_mb = getInt("_mgr_text_db_daily_index_mb", 1);
 
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
 		this.geoip_data_city_file = getValue("geoip_data_city_file", CONF_DIR + "GeoLiteCity.dat");

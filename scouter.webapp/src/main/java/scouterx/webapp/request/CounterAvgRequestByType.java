@@ -21,11 +21,9 @@ package scouterx.webapp.request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import scouterx.webapp.framework.client.server.ServerManager;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -33,28 +31,8 @@ import javax.ws.rs.QueryParam;
 @Getter
 @Setter
 @ToString
-public class CounterAvgRequestByType {
-
-    private int serverId;
-
-    @NotNull
-    @PathParam("counter")
-    private String counter;
-
-    @NotNull
-    @QueryParam("startYmd")
-    private String startYmd;
-
-    @NotNull
-    @QueryParam("endYmd")
-    private String endYmd;
-
+public class CounterAvgRequestByType extends CounterAvgRequest {
     @NotNull
     @PathParam("objType")
     private String objType;
-
-    @QueryParam("serverId")
-    public void setServerId(int serverId) {
-        this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
-    }
 }

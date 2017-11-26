@@ -18,10 +18,11 @@
 
 package scouterx.webapp.request;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import scouterx.webapp.framework.client.server.Server;
+import scouterx.webapp.framework.client.server.ServerManager;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
@@ -32,8 +33,23 @@ import javax.ws.rs.PathParam;
 @Getter
 @Setter
 @ToString
-public class CounterRequestByType extends CounterRequest {
+public class LatestCounterRequestByType extends LatestCounterRequest {
     @NotNull
     @PathParam("objType")
     private String objType;
+
+    public CounterRequestByType toCounterRequestByType() {
+        CounterRequestByType toType = new CounterRequestByType();
+        toType.setObjType(objType);
+        toType.setServerId(getServerId());
+        toType.setCounter(getCounter());
+
+        Server server = ServerManager.getInstance().getServerIfNullDefault(getServerId());
+        long end = server.getCurrentTime();
+        long start = end - getLatestSec() * 1000;
+        toType.setStartTimeMillis(start);
+        toType.setEndTimeMillis(end);
+
+        return toType;
+    }
 }

@@ -18,56 +18,27 @@
 
 package scouterx.webapp.request;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.framework.util.ZZ;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import java.util.Set;
 
 /**
-* DTO for pageable XLog request.
-* - xlogLoop : (required) xlog loop offset given from previous response. use 0 at first time
-* - xLogIndex : (required) xlog offset given from previous response. use 0 at first time
-* - serverId : serverId if available (mandatory if it's multi-server connected scouter webapp)
-* - objHashes : (required) object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
-*
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 2.
+ * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
-public class RealTimeXLogRequest {
-    @Min(0)
-    @PathParam("xlogLoop")
-    long xLogLoop;
-
-    @Min(0)
-    @PathParam("xlogIndex")
-    int xLogIndex;
-
-    int serverId;
-
+public class CounterAvgRequestByObjHashes extends CounterAvgRequest {
     @NotNull
     Set<Integer> objHashes;
-
-    //with AllArgsConstructor
-    public RealTimeXLogRequest() {}
 
     @QueryParam("objHashes")
     public void setObjHashes(String objHashes) {
         this.objHashes = ZZ.splitParamAsIntegerSet(objHashes);
-    }
-
-    @QueryParam("serverId")
-    public void setServerId(int serverId) {
-        this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
     }
 }
