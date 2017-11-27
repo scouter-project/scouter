@@ -4,7 +4,7 @@
  
 ![scouter](./scouter.document/img/main/scouter-logo-w200.png)
 
-[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](README.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](README.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](README_kr.md)
 
 ## 어플리케이션 성능 모니터링
 
@@ -80,8 +80,6 @@
 
 - **Agent plugin**
   - TBD
-
-<br>s
 
 ## Facebook
  - [Scouter APM 사용자 모임 - Facebook 그룹](https://www.facebook.com/groups/scouterapm/)

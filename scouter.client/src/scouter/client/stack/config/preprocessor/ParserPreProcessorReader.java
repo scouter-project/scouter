@@ -108,16 +108,17 @@ public class ParserPreProcessorReader extends XMLReader{
 		if(type == null || type.length() == 0)
 			throw new IOException("processor type attribute of preprocessor is not exist!");
 
-		if(type.equals("add")){
-			return TYPE.ADD;
-		}else if(type.equals("replace")){
-			return TYPE.REPLACE;
-		}else if(type.equals("remove")){
-			return TYPE.REMOVE;
-		}else if(type.equals("removeline")){
-			return TYPE.REMOVELINE;
-		}else{
-			throw new IOException("processor type (add/replace/remove) of preprocessor is wrong(" + type + ")!");
-		} 
+		switch (type) {
+			case "add":
+				return TYPE.ADD;
+			case "replace":
+				return TYPE.REPLACE;
+			case "remove":
+				return TYPE.REMOVE;
+			case "removeline":
+				return TYPE.REMOVELINE;
+			default:
+				throw new IOException("processor type (add/replace/remove) of preprocessor is wrong(" + type + ")!");
+		}
     }
 }
