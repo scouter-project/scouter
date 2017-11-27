@@ -1,5 +1,5 @@
 # Build Scouter
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Build-Scouter_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Build-Scouter.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Build-Scouter_kr.md)
 
 ### Download Scouter
   https://github.com/scouter-project/scouter/archive/master.zip
