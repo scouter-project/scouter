@@ -1,5 +1,5 @@
 #Editing Getting Start Profile SQL
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Getting-Start-Profile-SQL_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Getting-Start-Profile-SQL.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Getting-Start-Profile-SQL_kr.md)
 
 > We will discuss the way of monitoring SQL with installing the HSQL DB and executing some sample applications. It is premised that you done with the [Getting Started](./Getting-Started.md).
 

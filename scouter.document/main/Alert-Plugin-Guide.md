@@ -1,5 +1,5 @@
 ﻿# Alert Plugin Guide
-[![English](https://img.shields.io/badge/language-English-orange.svg)](Alert-Plugin-Guide.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Alert-Plugin-Guide.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Alert-Plugin-Guide_kr.md)
 
 We can build our own alarm rules by handling alert scripting plugins which are able to compose various performance metrics.
 

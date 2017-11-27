@@ -1,5 +1,5 @@
 # XLog 사례1 - Logging에 의한 부하 사례
-[![English](https://img.shields.io/badge/language-English-orange.svg)](XLog-Case1.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](XLog-Case1.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](XLog-Case1_kr.md)
 
 웹 프로그램의 성능을 테스트 하다보면 비정상적인 상황이 발생할 수있는데
 응답시간 분포를 통해 이들을 빠르게 판단함으로써 문제 해결 시간을 줄일 수 있다.

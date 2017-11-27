@@ -1,5 +1,5 @@
 # Quick Start
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Method-Profiling_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Method-Profiling.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Method-Profiling_kr.md)
 
 Scouter defaults to profile http service start/end event and sqls only if you don't set any other profile options. 
 

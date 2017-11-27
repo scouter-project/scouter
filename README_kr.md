@@ -33,10 +33,10 @@
 ## Documents
  - [Document Home](./scouter.document/index_kr.md)
  - [Quick Start(Scouter Demo 설치)](./scouter.document/main/Quick-Start_kr.md)
- - [Scouter 설치](./scouter.document/main/Setup.md)
+ - [Scouter 설치](./scouter.document/main/Setup_kr.md)
  - [Live demo 접속](./scouter.document/main/Live-Demo_kr.md)
- - [XLog 로 분석하기](./scouter.document/client/Reading-XLog.md)
- - [사용자 정의 알람 스크립팅 - Alert plugins guide](./scouter.document/main/Alert-Plugin-Guide.md)
+ - [XLog 로 분석하기](./scouter.document/client/Reading-XLog_kr.md)
+ - [사용자 정의 알람 스크립팅 - Alert plugins guide](./scouter.document/main/Alert-Plugin-Guide_kr.md)
  - [Client 화면 설명](./scouter.document/client/How-To-Use-Client_kr.md)
 
 ## Download

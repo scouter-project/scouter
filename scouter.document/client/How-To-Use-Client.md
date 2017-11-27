@@ -1,5 +1,5 @@
 # How to use client
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](How-To-Use-Client_kr.md)
+[[English](https://img.shields.io/badge/language-English-orange.svg)](How-To-Use-Client.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](How-To-Use-Client_kr.md)
 
 ![Screen](../img/client/client-view.png)
 

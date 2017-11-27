@@ -1,5 +1,5 @@
 # Scouter Web API Guide
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Web-API-Guide_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Web-API-Guide.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Web-API-Guide_kr.md)
 
 ## Run Scouter API server
 

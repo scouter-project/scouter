@@ -1,5 +1,5 @@
 # Document
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](index_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](index.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](index_kr.md)
 
 ## Getting Started
 - [Quick Start Guide (Quick Installation of demo system)](./main/Quick-Start.md)
