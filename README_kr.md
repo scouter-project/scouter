@@ -4,7 +4,7 @@
  
 ![scouter](./scouter.document/img/main/scouter-logo-w200.png)
 
-[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](README.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](README.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](README_kr.md)
 
 ## 어플리케이션 성능 모니터링
 
@@ -33,10 +33,10 @@
 ## Documents
  - [Document Home](./scouter.document/index_kr.md)
  - [Quick Start(Scouter Demo 설치)](./scouter.document/main/Quick-Start_kr.md)
- - [Scouter 설치](./scouter.document/main/Setup.md)
+ - [Scouter 설치](./scouter.document/main/Setup_kr.md)
  - [Live demo 접속](./scouter.document/main/Live-Demo_kr.md)
- - [XLog 로 분석하기](./scouter.document/client/Reading-XLog.md)
- - [사용자 정의 알람 스크립팅 - Alert plugins guide](./scouter.document/main/Alert-Plugin-Guide.md)
+ - [XLog 로 분석하기](./scouter.document/client/Reading-XLog_kr.md)
+ - [사용자 정의 알람 스크립팅 - Alert plugins guide](./scouter.document/main/Alert-Plugin-Guide_kr.md)
  - [Client 화면 설명](./scouter.document/client/How-To-Use-Client_kr.md)
 
 ## Download
@@ -80,8 +80,6 @@
 
 - **Agent plugin**
   - TBD
-
-<br>s
 
 ## Facebook
  - [Scouter APM 사용자 모임 - Facebook 그룹](https://www.facebook.com/groups/scouterapm/)

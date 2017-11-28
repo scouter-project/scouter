@@ -1,5 +1,5 @@
 ﻿# Scouter Plugin Guide
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Plugin-Guide_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Plugin-Guide.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Plugin-Guide_kr.md)
 
 This article explains plugin functions which enable scouter's extensibility. 
 
