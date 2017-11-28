@@ -1,5 +1,5 @@
 # Simulate DB Lock
-[![English](https://img.shields.io/badge/language-English-orange.svg)](Simulate-DB-Lock.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Simulate-DB-Lock.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Simulate-DB-Lock_kr.md)
 
 본 문서는 간단하게 DB에 update lock이 걸렸을 때 어떻게 모니터링 되는지를 시뮬레이션한다.
 기본적인 환경구성은 [Getting Start Profile SQL](../main/Getting-Start-Profile-SQL_kr.md)을 참조한다.

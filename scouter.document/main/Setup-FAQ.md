@@ -1,5 +1,5 @@
 # Setup FAQ
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Setup-FAQ_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Setup-FAQ.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Setup-FAQ_kr.md)
 
 This is FAQ about installation step.
 
