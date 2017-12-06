@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
@@ -29,10 +47,6 @@
  */
 package scouter.org.objectweb.asm.tree;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.Attribute;
 import scouter.org.objectweb.asm.ClassVisitor;
@@ -42,6 +56,10 @@ import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.TypePath;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A node that represents a method.
@@ -87,7 +105,7 @@ public class MethodNode extends MethodVisitor {
      * The runtime visible annotations of this method. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates scouter.org.objectweb.asm.tree.AnnotationNode
+     * @associates AnnotationNode
      * @label visible
      */
     public List<AnnotationNode> visibleAnnotations;
@@ -96,7 +114,7 @@ public class MethodNode extends MethodVisitor {
      * The runtime invisible annotations of this method. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates scouter.org.objectweb.asm.tree.AnnotationNode
+     * @associates AnnotationNode
      * @label invisible
      */
     public List<AnnotationNode> invisibleAnnotations;
@@ -105,7 +123,7 @@ public class MethodNode extends MethodVisitor {
      * The runtime visible type annotations of this method. This list is a list
      * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates scouter.org.objectweb.asm.tree.TypeAnnotationNode
+     * @associates TypeAnnotationNode
      * @label visible
      */
     public List<TypeAnnotationNode> visibleTypeAnnotations;
@@ -114,7 +132,7 @@ public class MethodNode extends MethodVisitor {
      * The runtime invisible type annotations of this method. This list is a
      * list of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates scouter.org.objectweb.asm.tree.TypeAnnotationNode
+     * @associates TypeAnnotationNode
      * @label invisible
      */
     public List<TypeAnnotationNode> invisibleTypeAnnotations;
@@ -123,7 +141,7 @@ public class MethodNode extends MethodVisitor {
      * The non standard attributes of this method. This list is a list of
      * {@link Attribute} objects. May be <tt>null</tt>.
      * 
-     * @associates scouter.org.objectweb.asm.Attribute
+     * @associates Attribute
      */
     public List<Attribute> attrs;
 
@@ -141,7 +159,7 @@ public class MethodNode extends MethodVisitor {
      * The runtime visible parameter annotations of this method. These lists are
      * lists of {@link AnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates scouter.org.objectweb.asm.tree.AnnotationNode
+     * @associates AnnotationNode
      * @label invisible parameters
      */
     public List<AnnotationNode>[] visibleParameterAnnotations;
@@ -150,7 +168,7 @@ public class MethodNode extends MethodVisitor {
      * The runtime invisible parameter annotations of this method. These lists
      * are lists of {@link AnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates scouter.org.objectweb.asm.tree.AnnotationNode
+     * @associates AnnotationNode
      * @label visible parameters
      */
     public List<AnnotationNode>[] invisibleParameterAnnotations;
@@ -159,7 +177,7 @@ public class MethodNode extends MethodVisitor {
      * The instructions of this method. This list is a list of
      * {@link AbstractInsnNode} objects.
      * 
-     * @associates scouter.org.objectweb.asm.tree.AbstractInsnNode
+     * @associates AbstractInsnNode
      * @label instructions
      */
     public InsnList instructions;
@@ -168,7 +186,7 @@ public class MethodNode extends MethodVisitor {
      * The try catch blocks of this method. This list is a list of
      * {@link TryCatchBlockNode} objects.
      * 
-     * @associates scouter.org.objectweb.asm.tree.TryCatchBlockNode
+     * @associates TryCatchBlockNode
      */
     public List<TryCatchBlockNode> tryCatchBlocks;
 
@@ -186,7 +204,7 @@ public class MethodNode extends MethodVisitor {
      * The local variables of this method. This list is a list of
      * {@link LocalVariableNode} objects. May be <tt>null</tt>
      * 
-     * @associates scouter.org.objectweb.asm.tree.LocalVariableNode
+     * @associates LocalVariableNode
      */
     public List<LocalVariableNode> localVariables;
 
@@ -194,7 +212,7 @@ public class MethodNode extends MethodVisitor {
      * The visible local variable annotations of this method. This list is a
      * list of {@link LocalVariableAnnotationNode} objects. May be <tt>null</tt>
      * 
-     * @associates scouter.org.objectweb.asm.tree.LocalVariableAnnotationNode
+     * @associates LocalVariableAnnotationNode
      */
     public List<LocalVariableAnnotationNode> visibleLocalVariableAnnotations;
 
@@ -202,7 +220,7 @@ public class MethodNode extends MethodVisitor {
      * The invisible local variable annotations of this method. This list is a
      * list of {@link LocalVariableAnnotationNode} objects. May be <tt>null</tt>
      * 
-     * @associates scouter.org.objectweb.asm.tree.LocalVariableAnnotationNode
+     * @associates LocalVariableAnnotationNode
      */
     public List<LocalVariableAnnotationNode> invisibleLocalVariableAnnotations;
 
@@ -220,7 +238,7 @@ public class MethodNode extends MethodVisitor {
      *             If a subclass calls this constructor.
      */
     public MethodNode() {
-        this(Opcodes.ASM5);
+        this(Opcodes.ASM6);
         if (getClass() != MethodNode.class) {
             throw new IllegalStateException();
         }
@@ -231,7 +249,7 @@ public class MethodNode extends MethodVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *            of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      */
     public MethodNode(final int api) {
         super(api);
@@ -262,7 +280,7 @@ public class MethodNode extends MethodVisitor {
      */
     public MethodNode(final int access, final String name, final String desc,
             final String signature, final String[] exceptions) {
-        this(Opcodes.ASM5, access, name, desc, signature, exceptions);
+        this(Opcodes.ASM6, access, name, desc, signature, exceptions);
         if (getClass() != MethodNode.class) {
             throw new IllegalStateException();
         }
@@ -273,7 +291,7 @@ public class MethodNode extends MethodVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *            of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      * @param access
      *            the method's access flags (see {@link Opcodes}). This
      *            parameter also indicates if the method is synthetic and/or
@@ -353,7 +371,7 @@ public class MethodNode extends MethodVisitor {
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+                                                 TypePath typePath, String desc, boolean visible) {
         TypeAnnotationNode an = new TypeAnnotationNode(typeRef, typePath, desc);
         if (visible) {
             if (visibleTypeAnnotations == null) {
@@ -659,8 +677,8 @@ public class MethodNode extends MethodVisitor {
      * versions of the ASM API than the given version.
      * 
      * @param api
-     *            an ASM API version. Must be one of {@link Opcodes#ASM4} or
-     *            {@link Opcodes#ASM5}.
+     *            an ASM API version. Must be one of {@link Opcodes#ASM4},
+     *            {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      */
     public void check(final int api) {
         if (api == Opcodes.ASM4) {

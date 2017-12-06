@@ -29,7 +29,8 @@
 -->
 
 <!--
-  This DTD must be used to create XML documents to be processed bscouter.org.objectweb.asm.asm.xml.ASMContentHandler
+  This DTD must be used to create XML documents to be processed by
+  ASMContentHandler
 -->
 
 <!--
@@ -40,7 +41,7 @@
 <!--
   Root element for a single class.
 -->
-<!ELEMENT class ( interfaces, ( field | innerclass | method )*)>
+<!ELEMENT class ( interfaces, module?, ( field | innerclass | method )*)>
 <!ATTLIST class access CDATA #REQUIRED>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ATTLIST class parent CDATA #REQUIRED>
@@ -51,6 +52,20 @@
 <!ELEMENT interfaces ( interface* )>
 <!ELEMENT interface EMPTY>
 <!ATTLIST interface name CDATA #REQUIRED>
+
+<!ELEMENT module ( requires*, exports*, uses*, provides* )>
+<!ELEMENT requires EMPTY>
+<!ATTLIST requires module CDATA #REQUIRED>
+<!ATTLIST requires access CDATA #REQUIRED>
+<!ELEMENT exports ( to* )>
+<!ATTLIST exports name CDATA #REQUIRED>
+<!ELEMENT to EMPTY>
+<!ATTLIST to module CDATA #REQUIRED>
+<!ELEMENT uses EMPTY>
+<!ATTLIST uses service CDATA #REQUIRED>
+<!ELEMENT provides EMPTY>
+<!ATTLIST provides service CDATA #REQUIRED>
+<!ATTLIST provides impl CDATA #REQUIRED>
 
 <!ELEMENT field EMPTY>
 <!ATTLIST field access CDATA #REQUIRED>

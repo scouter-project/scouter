@@ -29,6 +29,8 @@
  */
 package scouter.org.objectweb.asm;
 
+import scouter.org.objectweb.asm.tree.MethodNode;
+
 /**
  * A label represents a position in the bytecode of a method. Labels are used
  * for jump, goto, and switch instructions, and for try catch blocks. A label
@@ -111,7 +113,7 @@ public class Label {
      * Field used to associate user information to a label. Warning: this field
      * is used by the ASM tree package. In order to use it with the ASM tree
      * package you must override the
-     * {@link scouter.org.objectweb.asm.tree.MethodNode#getLabelNode} method.
+     * {@link MethodNode#getLabelNode} method.
      */
     public Object info;
 
@@ -360,7 +362,7 @@ public class Label {
      *            the position of this label in the bytecode.
      * @param data
      *            the bytecode of the method.
-     * @return <tt>true</tt> if a blank that was left for this label was to
+     * @return <tt>true</tt> if a blank that was left for this label was too
      *         small to store the offset. In such a case the corresponding jump
      *         instruction is replaced with a pseudo instruction (using unused
      *         opcodes) using an unsigned two bytes offset. These pseudo
@@ -424,7 +426,7 @@ public class Label {
      * @return the first label of the series to which this label belongs.
      */
     Label getFirst() {
-        return !ClassReader.FRAMES || frame == null ? this : frame.owner;
+        return frame == null ? this : frame.owner;
     }
 
     // ------------------------------------------------------------------------

@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
@@ -30,13 +48,13 @@
 
 package scouter.org.objectweb.asm.commons;
 
-import java.util.Collections;
-import java.util.Comparator;
-
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.tree.MethodNode;
 import scouter.org.objectweb.asm.tree.TryCatchBlockNode;
+
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * A {@link MethodVisitor} adapter to sort the exception handlers. The handlers
@@ -57,7 +75,7 @@ public class TryCatchBlockSorter extends MethodNode {
     public TryCatchBlockSorter(final MethodVisitor mv, final int access,
             final String name, final String desc, final String signature,
             final String[] exceptions) {
-        this(Opcodes.ASM5, mv, access, name, desc, signature, exceptions);
+        this(Opcodes.ASM6, mv, access, name, desc, signature, exceptions);
     }
 
     protected TryCatchBlockSorter(final int api, final MethodVisitor mv,

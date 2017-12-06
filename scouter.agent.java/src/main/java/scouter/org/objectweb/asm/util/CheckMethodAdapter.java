@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
@@ -29,16 +47,6 @@
  */
 package scouter.org.objectweb.asm.util;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.Attribute;
 import scouter.org.objectweb.asm.Handle;
@@ -52,6 +60,16 @@ import scouter.org.objectweb.asm.tree.MethodNode;
 import scouter.org.objectweb.asm.tree.analysis.Analyzer;
 import scouter.org.objectweb.asm.tree.analysis.BasicValue;
 import scouter.org.objectweb.asm.tree.analysis.BasicVerifier;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A {@link MethodVisitor} that checks that its methods are properly used. More
@@ -397,7 +415,7 @@ public class CheckMethodAdapter extends MethodVisitor {
      */
     public CheckMethodAdapter(final MethodVisitor mv,
             final Map<Label, Integer> labels) {
-        this(Opcodes.ASM5, mv, labels);
+        this(Opcodes.ASM6, mv, labels);
         if (getClass() != CheckMethodAdapter.class) {
             throw new IllegalStateException();
         }
@@ -410,7 +428,8 @@ public class CheckMethodAdapter extends MethodVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this CheckMethodAdapter.
-     *            Must be one of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *            Must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5}
+     *            or {@link Opcodes#ASM6}.
      * @param mv
      *            the method visitor to which this adapter must delegate calls.
      * @param labels
@@ -483,7 +502,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
+                                             final boolean visible) {
         checkEndMethod();
         checkDesc(desc, false);
         return new CheckAnnotationAdapter(super.visitAnnotation(desc, visible));
@@ -491,7 +510,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(final int typeRef,
-            final TypePath typePath, final String desc, final boolean visible) {
+                                                 final TypePath typePath, final String desc, final boolean visible) {
         checkEndMethod();
         int sort = typeRef >>> 24;
         if (sort != TypeReference.METHOD_TYPE_PARAMETER

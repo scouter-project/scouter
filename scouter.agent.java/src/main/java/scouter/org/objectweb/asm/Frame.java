@@ -725,7 +725,7 @@ class Frame {
      *            a type descriptor.
      * @return the int encoding of the given type.
      */
-    private static int type(final ClassWriter cw, final String desc) {
+    static int type(final ClassWriter cw, final String desc) {
         String t;
         int index = desc.charAt(0) == '(' ? desc.indexOf(')') + 1 : 0;
         switch (desc.charAt(index)) {
@@ -1056,7 +1056,7 @@ class Frame {
         case Opcodes.AALOAD:
             pop(1);
             t1 = pop();
-            push(ELEMENT_OF + t1);
+            push(t1 == NULL ? t1 : ELEMENT_OF + t1);
             break;
         case Opcodes.ISTORE:
         case Opcodes.FSTORE:

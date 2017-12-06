@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
@@ -29,15 +47,23 @@
  */
 package scouter.org.objectweb.asm.util;
 
+import scouter.org.objectweb.asm.AnnotationVisitor;
+import scouter.org.objectweb.asm.Attribute;
+import scouter.org.objectweb.asm.ClassReader;
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.FieldVisitor;
+import scouter.org.objectweb.asm.Handle;
+import scouter.org.objectweb.asm.Label;
+import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.ModuleVisitor;
+import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
+import scouter.org.objectweb.asm.TypePath;
+import scouter.org.objectweb.asm.TypeReference;
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-
-import scouter.org.objectweb.asm.Attribute;
-import scouter.org.objectweb.asm.Handle;
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.TypePath;
 
 /**
  * An abstract converter from visit events to text.
@@ -53,14 +79,14 @@ public abstract class Printer {
 
     /**
      * The names of the for <code>operand</code> parameter values of the
-     * {@link scouter.org.objectweb.asm.MethodVisitor#visitIntInsn} method when
+     * {@link MethodVisitor#visitIntInsn} method when
      * <code>opcode</code> is <code>NEWARRAY</code>.
      */
     public static final String[] TYPES;
 
     /**
      * The names of the <code>tag</code> field values for
-     * {@link scouter.org.objectweb.asm.Handle}.
+     * {@link Handle}.
      */
     public static final String[] HANDLE_TAG;
 
@@ -117,7 +143,7 @@ public abstract class Printer {
 
     /**
      * The ASM API version implemented by this class. The value of this field
-     * must be one of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     * must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      */
     protected final int api;
 
@@ -145,7 +171,7 @@ public abstract class Printer {
      *
      * @param api
      *            the ASM API version implemented by this printer. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *            of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      */
     protected Printer(final int api) {
         this.api = api;
@@ -155,7 +181,7 @@ public abstract class Printer {
 
     /**
      * Class header.
-     * See {@link scouter.org.objectweb.asm.ClassVisitor#visit}.
+     * See {@link ClassVisitor#visit}.
      *
      * @param version
      *            the class version.
@@ -164,19 +190,19 @@ public abstract class Printer {
      *            also indicates if the class is deprecated.
      * @param name
      *            the internal name of the class (see
-     *            {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}).
+     *            {@link Type#getInternalName() getInternalName}).
      * @param signature
      *            the signature of this class. May be <tt>null</tt> if the class
      *            is not a generic one, and does not extend or implement generic
      *            classes or interfaces.
      * @param superName
      *            the internal of name of the super class (see
-     *            {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}).
+     *            {@link Type#getInternalName() getInternalName}).
      *            For interfaces, the super class is {@link Object}. May be
      *            <tt>null</tt>, but only for the {@link Object} class.
      * @param interfaces
      *            the internal names of the class's interfaces (see
-     *            {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}).
+     *            {@link Type#getInternalName() getInternalName}).
      *            May be <tt>null</tt>.
      */
     public abstract void visit(final int version, final int access,
@@ -185,7 +211,7 @@ public abstract class Printer {
 
     /**
      * Class source.
-     * See {@link scouter.org.objectweb.asm.ClassVisitor#visitSource}.
+     * See {@link ClassVisitor#visitSource}.
      *
      * @param source
      *            the name of the source file from which the class was compiled.
@@ -197,9 +223,27 @@ public abstract class Printer {
      */
     public abstract void visitSource(final String source, final String debug);
 
+    
+    /**
+     * Module.
+     * See {@link ClassVisitor#visitModule(String, int)}.
+     * 
+     * @param name 
+     *            module name.
+     * @param access
+     *            module flags, among {@code ACC_OPEN}, {@code ACC_SYNTHETIC}
+     *            and {@code ACC_MANDATED}.
+     * @param version
+     *            module version or null.
+     * @return
+     */
+    public Printer visitModule(String name, int access, String version) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
     /**
      * Class outer class.
-     * See {@link scouter.org.objectweb.asm.ClassVisitor#visitOuterClass}.
+     * See {@link ClassVisitor#visitOuterClass}.
      *
      * Visits the enclosing class of the class. This method must be called only
      * if the class has an enclosing class.
@@ -220,7 +264,7 @@ public abstract class Printer {
 
     /**
      * Class annotation.
-     * See {@link scouter.org.objectweb.asm.ClassVisitor#visitAnnotation}.
+     * See {@link ClassVisitor#visitAnnotation}.
      *
      * @param desc
      *            the class descriptor of the annotation class.
@@ -233,15 +277,15 @@ public abstract class Printer {
 
     /**
      * Class type annotation.
-     * See {@link scouter.org.objectweb.asm.ClassVisitor#visitTypeAnnotation}.
+     * See {@link ClassVisitor#visitTypeAnnotation}.
      *
      * @param typeRef
      *            a reference to the annotated type. The sort of this type
      *            reference must be
-     *            {@link scouter.org.objectweb.asm.TypeReference#CLASS_TYPE_PARAMETER CLASS_TYPE_PARAMETER},
-     *            {@link scouter.org.objectweb.asm.TypeReference#CLASS_TYPE_PARAMETER_BOUND CLASS_TYPE_PARAMETER_BOUND}
-     *            or {@link scouter.org.objectweb.asm.TypeReference#CLASS_EXTENDS CLASS_EXTENDS}.
-     *            See {@link scouter.org.objectweb.asm.TypeReference}.
+     *            {@link TypeReference#CLASS_TYPE_PARAMETER CLASS_TYPE_PARAMETER},
+     *            {@link TypeReference#CLASS_TYPE_PARAMETER_BOUND CLASS_TYPE_PARAMETER_BOUND}
+     *            or {@link TypeReference#CLASS_EXTENDS CLASS_EXTENDS}.
+     *            See {@link TypeReference}.
      * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
      *            element type, or static inner type within 'typeRef'. May be
@@ -253,13 +297,13 @@ public abstract class Printer {
      * @return the printer
      */
     public Printer visitClassTypeAnnotation(final int typeRef,
-            final TypePath typePath, final String desc, final boolean visible) {
+                                            final TypePath typePath, final String desc, final boolean visible) {
         throw new RuntimeException("Must be overriden");
     }
 
     /**
      * Class attribute.
-     * See {@link scouter.org.objectweb.asm.ClassVisitor#visitAttribute}.
+     * See {@link ClassVisitor#visitAttribute}.
      *
      * @param attr
      *            an attribute.
@@ -268,14 +312,14 @@ public abstract class Printer {
 
     /**
      * Class inner name.
-     * See {@link scouter.org.objectweb.asm.ClassVisitor#visitInnerClass}.
+     * See {@link ClassVisitor#visitInnerClass}.
      *
      * @param name
      *            the internal name of an inner class (see
-     *            {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}).
+     *            {@link Type#getInternalName() getInternalName}).
      * @param outerName
      *            the internal name of the class to which the inner class
-     *            belongs (see {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}).
+     *            belongs (see {@link Type#getInternalName() getInternalName}).
      *            May be <tt>null</tt> for not member classes.
      * @param innerName
      *            the (simple) name of the inner class inside its enclosing
@@ -289,7 +333,7 @@ public abstract class Printer {
 
     /**
      * Class field.
-     * See {@link scouter.org.objectweb.asm.ClassVisitor#visitField}.
+     * See {@link ClassVisitor#visitField}.
      *
      * @param access
      *            the field's access flags (see {@link Opcodes}). This parameter
@@ -297,7 +341,7 @@ public abstract class Printer {
      * @param name
      *            the field's name.
      * @param desc
-     *            the field's descriptor (see {@link scouter.org.objectweb.asm.Type Type}).
+     *            the field's descriptor (see {@link Type Type}).
      * @param signature
      *            the field's signature. May be <tt>null</tt> if the field's
      *            type does not use generic types.
@@ -318,7 +362,7 @@ public abstract class Printer {
 
     /**
      * Class method.
-     * See {@link scouter.org.objectweb.asm.ClassVisitor#visitMethod}.
+     * See {@link ClassVisitor#visitMethod}.
      *
      * @param access
      *            the method's access flags (see {@link Opcodes}). This
@@ -327,14 +371,14 @@ public abstract class Printer {
      * @param name
      *            the method's name.
      * @param desc
-     *            the method's descriptor (see {@link scouter.org.objectweb.asm.Type Type}).
+     *            the method's descriptor (see {@link Type Type}).
      * @param signature
      *            the method's signature. May be <tt>null</tt> if the method
      *            parameters, return type and exceptions do not use generic
      *            types.
      * @param exceptions
      *            the internal names of the method's exception classes (see
-     *            {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}). May be
+     *            {@link Type#getInternalName() getInternalName}). May be
      *            <tt>null</tt>.
      * @return the printer
      */
@@ -342,17 +386,56 @@ public abstract class Printer {
             final String desc, final String signature, final String[] exceptions);
 
     /**
-     * Class end. See {@link scouter.org.objectweb.asm.ClassVisitor#visitEnd}.
+     * Class end. See {@link ClassVisitor#visitEnd}.
      */
     public abstract void visitClassEnd();
 
+    // ------------------------------------------------------------------------
+    // Module
+    // ------------------------------------------------------------------------
+    
+    public void visitMainClass(String mainClass) {
+        throw new RuntimeException("Must be overriden");
+    }
+
+    public void visitPackage(String packaze) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    public void visitRequire(String module, int access, String version) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    public void visitExport(String packaze, int access, String... modules) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    public void visitOpen(String packaze, int access, String... modules) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    public void visitUse(String service) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    public void visitProvide(String service, String... providers) {
+        throw new RuntimeException("Must be overriden");
+    }
+    
+    /**
+     * Module end. See {@link ModuleVisitor#visitEnd}.
+     */
+    public void visitModuleEnd() {
+        throw new RuntimeException("Must be overriden");
+    }
+    
     // ------------------------------------------------------------------------
     // Annotations
     // ------------------------------------------------------------------------
 
     /**
      * Annotation value.
-     * See {@link scouter.org.objectweb.asm.AnnotationVisitor#visit}.
+     * See {@link AnnotationVisitor#visit}.
      *
      * @param name
      *            the value name.
@@ -360,7 +443,7 @@ public abstract class Printer {
      *            the actual value, whose type must be {@link Byte},
      *            {@link Boolean}, {@link Character}, {@link Short},
      *            {@link Integer} , {@link Long}, {@link Float}, {@link Double},
-     *            {@link String} or {@link scouter.org.objectweb.asm.Type}
+     *            {@link String} or {@link Type}
      *            or OBJECT or ARRAY sort.
      *            This value can also be an array of byte, boolean, short, char, int,
      *            long, float or double values (this is equivalent to using
@@ -371,7 +454,7 @@ public abstract class Printer {
 
     /**
      * Annotation enum value.
-     * See {@link scouter.org.objectweb.asm.AnnotationVisitor#visitEnum}.
+     * See {@link AnnotationVisitor#visitEnum}.
      *
      * Visits an enumeration value of the annotation.
      *
@@ -387,7 +470,7 @@ public abstract class Printer {
 
     /**
      * Nested annotation value.
-     * See {@link scouter.org.objectweb.asm.AnnotationVisitor#visitAnnotation}.
+     * See {@link AnnotationVisitor#visitAnnotation}.
      *
      * @param name
      *            the value name.
@@ -399,12 +482,12 @@ public abstract class Printer {
 
     /**
      * Annotation array value.
-     * See {@link scouter.org.objectweb.asm.AnnotationVisitor#visitArray}.
+     * See {@link AnnotationVisitor#visitArray}.
      *
      * Visits an array value of the annotation. Note that arrays of primitive
      * types (such as byte, boolean, short, char, int, long, float or double)
      * can be passed as value to {@link #visit visit}. This is what
-     * {@link scouter.org.objectweb.asm.ClassReader} does.
+     * {@link ClassReader} does.
      *
      * @param name
      *            the value name.
@@ -413,7 +496,7 @@ public abstract class Printer {
     public abstract Printer visitArray(final String name);
 
     /**
-     * Annotation end. See {@link scouter.org.objectweb.asm.AnnotationVisitor#visitEnd}.
+     * Annotation end. See {@link AnnotationVisitor#visitEnd}.
      */
     public abstract void visitAnnotationEnd();
 
@@ -423,7 +506,7 @@ public abstract class Printer {
 
     /**
      * Field annotation.
-     * See {@link scouter.org.objectweb.asm.FieldVisitor#visitAnnotation}.
+     * See {@link FieldVisitor#visitAnnotation}.
      *
      * @param desc
      *            the class descriptor of the annotation class.
@@ -436,12 +519,12 @@ public abstract class Printer {
 
     /**
      * Field type annotation.
-     * See {@link scouter.org.objectweb.asm.FieldVisitor#visitTypeAnnotation}.
+     * See {@link FieldVisitor#visitTypeAnnotation}.
      *
      * @param typeRef
      *            a reference to the annotated type. The sort of this type
-     *            reference must be {@link scouter.org.objectweb.asm.TypeReference#FIELD FIELD}.
-     *            See {@link scouter.org.objectweb.asm.TypeReference}.
+     *            reference must be {@link TypeReference#FIELD FIELD}.
+     *            See {@link TypeReference}.
      * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
      *            element type, or static inner type within 'typeRef'. May be
@@ -459,7 +542,7 @@ public abstract class Printer {
 
     /**
      * Field attribute.
-     * See {@link scouter.org.objectweb.asm.FieldVisitor#visitAttribute}.
+     * See {@link FieldVisitor#visitAttribute}.
      *
      * @param attr
      *            an attribute.
@@ -468,7 +551,7 @@ public abstract class Printer {
 
     /**
      * Field end.
-     * See {@link scouter.org.objectweb.asm.FieldVisitor#visitEnd}.
+     * See {@link FieldVisitor#visitEnd}.
      */
     public abstract void visitFieldEnd();
 
@@ -478,7 +561,7 @@ public abstract class Printer {
 
     /**
      * Method parameter.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitParameter(String, int)}.
+     * See {@link MethodVisitor#visitParameter(String, int)}.
      *
      * @param name
      *            parameter name or null if none is provided.
@@ -493,7 +576,7 @@ public abstract class Printer {
 
     /**
      * Method default annotation.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitAnnotationDefault}.
+     * See {@link MethodVisitor#visitAnnotationDefault}.
      *
      * @return the printer
      */
@@ -501,7 +584,7 @@ public abstract class Printer {
 
     /**
      * Method annotation.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitAnnotation}.
+     * See {@link MethodVisitor#visitAnnotation}.
      *
      * @param desc
      *            the class descriptor of the annotation class.
@@ -514,12 +597,12 @@ public abstract class Printer {
 
     /**
      * Method type annotation.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitTypeAnnotation}.
+     * See {@link MethodVisitor#visitTypeAnnotation}.
      *
      * @param typeRef
      *            a reference to the annotated type. The sort of this type
-     *            reference must be {@link scouter.org.objectweb.asm.TypeReference#FIELD FIELD}.
-     *            See {@link scouter.org.objectweb.asm.TypeReference}.
+     *            reference must be {@link TypeReference#FIELD FIELD}.
+     *            See {@link TypeReference}.
      * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
      *            element type, or static inner type within 'typeRef'. May be
@@ -537,7 +620,7 @@ public abstract class Printer {
 
     /**
      * Method parameter annotation.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitParameterAnnotation}.
+     * See {@link MethodVisitor#visitParameterAnnotation}.
      *
      * @param parameter
      *            the parameter index.
@@ -552,7 +635,7 @@ public abstract class Printer {
 
     /**
      * Method attribute.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitAttribute}.
+     * See {@link MethodVisitor#visitAttribute}.
      *
      * @param attr
      *            an attribute.
@@ -561,13 +644,13 @@ public abstract class Printer {
 
     /**
      * Method start.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitCode}.
+     * See {@link MethodVisitor#visitCode}.
      */
     public abstract void visitCode();
 
     /**
      * Method stack frame.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitFrame}.
+     * See {@link MethodVisitor#visitFrame}.
      *
      * Visits the current state of the local variables and operand stack
      * elements. This method must(*) be called <i>just before</i> any
@@ -648,7 +731,7 @@ public abstract class Printer {
 
     /**
      * Method instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitInsn}
+     * See {@link MethodVisitor#visitInsn}
      *
      * @param opcode
      *            the opcode of the instruction to be visited. This opcode is
@@ -671,7 +754,7 @@ public abstract class Printer {
 
     /**
      * Method instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitIntInsn}.
+     * See {@link MethodVisitor#visitIntInsn}.
      *
      * @param opcode
      *            the opcode of the instruction to be visited. This opcode is
@@ -692,7 +775,7 @@ public abstract class Printer {
 
     /**
      * Method instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitVarInsn}.
+     * See {@link MethodVisitor#visitVarInsn}.
      *
      * @param opcode
      *            the opcode of the local variable instruction to be visited.
@@ -706,7 +789,7 @@ public abstract class Printer {
 
     /**
      * Method instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitTypeInsn}.
+     * See {@link MethodVisitor#visitTypeInsn}.
      *
     /**
      * Visits a type instruction. A type instruction is an instruction that
@@ -718,31 +801,31 @@ public abstract class Printer {
      * @param type
      *            the operand of the instruction to be visited. This operand
      *            must be the internal name of an object or array class (see
-     *            {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}).
+     *            {@link Type#getInternalName() getInternalName}).
      */
     public abstract void visitTypeInsn(final int opcode, final String type);
 
     /**
      * Method instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitFieldInsn}.
+     * See {@link MethodVisitor#visitFieldInsn}.
      *
      * @param opcode
      *            the opcode of the type instruction to be visited. This opcode
      *            is either GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
      * @param owner
      *            the internal name of the field's owner class (see
-     *            {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}).
+     *            {@link Type#getInternalName() getInternalName}).
      * @param name
      *            the field's name.
      * @param desc
-     *            the field's descriptor (see {@link scouter.org.objectweb.asm.Type Type}).
+     *            the field's descriptor (see {@link Type Type}).
      */
     public abstract void visitFieldInsn(final int opcode, final String owner,
             final String name, final String desc);
 
     /**
      * Method instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitMethodInsn}.
+     * See {@link MethodVisitor#visitMethodInsn}.
      *
      * @param opcode
      *            the opcode of the type instruction to be visited. This opcode
@@ -750,11 +833,11 @@ public abstract class Printer {
      *            INVOKEINTERFACE.
      * @param owner
      *            the internal name of the method's owner class (see
-     *            {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}).
+     *            {@link Type#getInternalName() getInternalName}).
      * @param name
      *            the method's name.
      * @param desc
-     *            the method's descriptor (see {@link scouter.org.objectweb.asm.Type Type}).
+     *            the method's descriptor (see {@link Type Type}).
      */
     @Deprecated
     public void visitMethodInsn(final int opcode, final String owner,
@@ -769,7 +852,7 @@ public abstract class Printer {
 
     /**
      * Method instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitMethodInsn}.
+     * See {@link MethodVisitor#visitMethodInsn}.
      *
      * @param opcode
      *            the opcode of the type instruction to be visited. This opcode
@@ -777,11 +860,11 @@ public abstract class Printer {
      *            INVOKEINTERFACE.
      * @param owner
      *            the internal name of the method's owner class (see
-     *            {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}).
+     *            {@link Type#getInternalName() getInternalName}).
      * @param name
      *            the method's name.
      * @param desc
-     *            the method's descriptor (see {@link scouter.org.objectweb.asm.Type Type}).
+     *            the method's descriptor (see {@link Type Type}).
      * @param itf
      *            if the method's owner class is an interface.
      */
@@ -800,20 +883,20 @@ public abstract class Printer {
 
     /**
      * Method instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitInvokeDynamicInsn}.
+     * See {@link MethodVisitor#visitInvokeDynamicInsn}.
      *
      * Visits an invokedynamic instruction.
      *
      * @param name
      *            the method's name.
      * @param desc
-     *            the method's descriptor (see {@link scouter.org.objectweb.asm.Type Type}).
+     *            the method's descriptor (see {@link Type Type}).
      * @param bsm
      *            the bootstrap method.
      * @param bsmArgs
      *            the bootstrap method constant arguments. Each argument must be
      *            an {@link Integer}, {@link Float}, {@link Long},
-     *            {@link Double}, {@link String}, {@link scouter.org.objectweb.asm.Type} or {@link Handle}
+     *            {@link Double}, {@link String}, {@link Type} or {@link Handle}
      *            value. This method is allowed to modify the content of the
      *            array so a caller should expect that this array may change.
      */
@@ -822,7 +905,7 @@ public abstract class Printer {
 
     /**
      * Method jump instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitJumpInsn}.
+     * See {@link MethodVisitor#visitJumpInsn}.
      *
      * @param opcode
      *            the opcode of the type instruction to be visited. This opcode
@@ -838,7 +921,7 @@ public abstract class Printer {
 
     /**
      * Method label.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitLabel}.
+     * See {@link MethodVisitor#visitLabel}.
      *
      * @param label
      *            a {@link Label Label} object.
@@ -847,7 +930,7 @@ public abstract class Printer {
 
     /**
      * Method instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitLdcInsn}.
+     * See {@link MethodVisitor#visitLdcInsn}.
      *
      * Visits a LDC instruction. Note that new constant types may be added in
      * future versions of the Java Virtual Machine. To easily detect new
@@ -886,9 +969,9 @@ public abstract class Printer {
      * @param cst
      *            the constant to be loaded on the stack. This parameter must be
      *            a non null {@link Integer}, a {@link Float}, a {@link Long}, a
-     *            {@link Double}, a {@link String}, a {@link scouter.org.objectweb.asm.Type}
+     *            {@link Double}, a {@link String}, a {@link Type}
      *            of OBJECT or ARRAY sort for <tt>.class</tt> constants, for classes whose
-     *            version is 49.0, a {@link scouter.org.objectweb.asm.Type} of METHOD sort or a
+     *            version is 49.0, a {@link Type} of METHOD sort or a
      *            {@link Handle} for MethodType and MethodHandle constants, for
      *            classes whose version is 51.0.
      */
@@ -896,7 +979,7 @@ public abstract class Printer {
 
     /**
      * Method instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitIincInsn}.
+     * See {@link MethodVisitor#visitIincInsn}.
      *
      * @param var
      *            index of the local variable to be incremented.
@@ -907,7 +990,7 @@ public abstract class Printer {
 
     /**
      * Method instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitTableSwitchInsn}.
+     * See {@link MethodVisitor#visitTableSwitchInsn}.
      *
      * @param min
      *            the minimum key value.
@@ -924,7 +1007,7 @@ public abstract class Printer {
 
     /**
      * Method instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitLookupSwitchInsn}.
+     * See {@link MethodVisitor#visitLookupSwitchInsn}.
      *
      * @param dflt
      *            beginning of the default handler block.
@@ -939,10 +1022,10 @@ public abstract class Printer {
 
     /**
      * Method instruction.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitMultiANewArrayInsn}.
+     * See {@link MethodVisitor#visitMultiANewArrayInsn}.
      *
      * @param desc
-     *            an array type descriptor (see {@link scouter.org.objectweb.asm.Type Type}).
+     *            an array type descriptor (see {@link Type Type}).
      * @param dims
      *            number of dimensions of the array to allocate.
      */
@@ -951,20 +1034,20 @@ public abstract class Printer {
 
     /**
      * Instruction type annotation.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitInsnAnnotation}.
+     * See {@link MethodVisitor#visitInsnAnnotation}.
      *
      * @param typeRef
      *            a reference to the annotated type. The sort of this type
-     *            reference must be {@link scouter.org.objectweb.asm.TypeReference#INSTANCEOF INSTANCEOF},
-     *            {@link scouter.org.objectweb.asm.TypeReference#NEW NEW},
-     *            {@link scouter.org.objectweb.asm.TypeReference#CONSTRUCTOR_REFERENCE CONSTRUCTOR_REFERENCE},
-     *            {@link scouter.org.objectweb.asm.TypeReference#METHOD_REFERENCE METHOD_REFERENCE},
-     *            {@link scouter.org.objectweb.asm.TypeReference#CAST CAST},
-     *            {@link scouter.org.objectweb.asm.TypeReference#CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT},
-     *            {@link scouter.org.objectweb.asm.TypeReference#METHOD_INVOCATION_TYPE_ARGUMENT METHOD_INVOCATION_TYPE_ARGUMENT},
-     *            {@link scouter.org.objectweb.asm.TypeReference#CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT},
-     *            or {@link scouter.org.objectweb.asm.TypeReference#METHOD_REFERENCE_TYPE_ARGUMENT METHOD_REFERENCE_TYPE_ARGUMENT}.
-     *            See {@link scouter.org.objectweb.asm.TypeReference}.
+     *            reference must be {@link TypeReference#INSTANCEOF INSTANCEOF},
+     *            {@link TypeReference#NEW NEW},
+     *            {@link TypeReference#CONSTRUCTOR_REFERENCE CONSTRUCTOR_REFERENCE},
+     *            {@link TypeReference#METHOD_REFERENCE METHOD_REFERENCE},
+     *            {@link TypeReference#CAST CAST},
+     *            {@link TypeReference#CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT},
+     *            {@link TypeReference#METHOD_INVOCATION_TYPE_ARGUMENT METHOD_INVOCATION_TYPE_ARGUMENT},
+     *            {@link TypeReference#CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT},
+     *            or {@link TypeReference#METHOD_REFERENCE_TYPE_ARGUMENT METHOD_REFERENCE_TYPE_ARGUMENT}.
+     *            See {@link TypeReference}.
      * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
      *            element type, or static inner type within 'typeRef'. May be
@@ -982,7 +1065,7 @@ public abstract class Printer {
 
     /**
      * Method exception handler.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitTryCatchBlock}.
+     * See {@link MethodVisitor#visitTryCatchBlock}.
      *
      * @param start
      *            beginning of the exception handler's scope (inclusive).
@@ -1003,13 +1086,13 @@ public abstract class Printer {
 
     /**
      * Try catch block type annotation.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitTryCatchAnnotation}.
+     * See {@link MethodVisitor#visitTryCatchAnnotation}.
      *
      * @param typeRef
      *            a reference to the annotated type. The sort of this type
-     *            reference must be {@link scouter.org.objectweb.asm.TypeReference#EXCEPTION_PARAMETER
+     *            reference must be {@link TypeReference#EXCEPTION_PARAMETER
      *            EXCEPTION_PARAMETER}.
-     *            See {@link scouter.org.objectweb.asm.TypeReference}.
+     *            See {@link TypeReference}.
      * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
      *            element type, or static inner type within 'typeRef'. May be
@@ -1027,7 +1110,7 @@ public abstract class Printer {
 
     /**
      * Method debug info.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitLocalVariable}.
+     * See {@link MethodVisitor#visitLocalVariable}.
      *
      * @param name
      *            the name of a local variable.
@@ -1055,14 +1138,14 @@ public abstract class Printer {
 
     /**
      * Local variable type annotation.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitTryCatchAnnotation}.
+     * See {@link MethodVisitor#visitTryCatchAnnotation}.
      *
      * @param typeRef
      *            a reference to the annotated type. The sort of this type
-     *            reference must be {@link scouter.org.objectweb.asm.TypeReference#LOCAL_VARIABLE
-     *            LOCAL_VARIABLE} or {@link scouter.org.objectweb.asm.TypeReference#RESOURCE_VARIABLE
+     *            reference must be {@link TypeReference#LOCAL_VARIABLE
+     *            LOCAL_VARIABLE} or {@link TypeReference#RESOURCE_VARIABLE
      *            RESOURCE_VARIABLE}.
-     *            See {@link scouter.org.objectweb.asm.TypeReference}.
+     *            See {@link TypeReference}.
      * @param typePath
      *            the path to the annotated type argument, wildcard bound, array
      *            element type, or static inner type within 'typeRef'. May be
@@ -1091,7 +1174,7 @@ public abstract class Printer {
 
     /**
      * Method debug info.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitLineNumber}.
+     * See {@link MethodVisitor#visitLineNumber}.
      *
      * @param line
      *            a line number. This number refers to the source file from
@@ -1106,7 +1189,7 @@ public abstract class Printer {
 
     /**
      * Method max stack and max locals.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitMaxs}.
+     * See {@link MethodVisitor#visitMaxs}.
      *
      * @param maxStack
      *            maximum stack size of the method.
@@ -1117,7 +1200,7 @@ public abstract class Printer {
 
     /**
      * Method end.
-     * See {@link scouter.org.objectweb.asm.MethodVisitor#visitEnd}.
+     * See {@link MethodVisitor#visitEnd}.
      */
     public abstract void visitMethodEnd();
 

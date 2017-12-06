@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM XML Adapter
  * Copyright (c) 2004-2011, Eugene Kuleshov
@@ -29,23 +47,24 @@
  */
 package scouter.org.objectweb.asm.xml;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.FieldVisitor;
 import scouter.org.objectweb.asm.Handle;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.ModuleVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.TypePath;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * A {@link org.xml.sax.ContentHandler ContentHandler} that transforms XML
@@ -90,6 +109,18 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         RULES.add(BASE + "/outerclass", new OuterClassRule());
         RULES.add(BASE + "/innerclass", new InnerClassRule());
         RULES.add(BASE + "/source", new SourceRule());
+        
+        ModuleRule moduleRule = new ModuleRule();
+        RULES.add(BASE + "/module", moduleRule);
+        RULES.add(BASE + "/module/main-class", moduleRule);
+        RULES.add(BASE + "/module/target", moduleRule);
+        RULES.add(BASE + "/module/packages", moduleRule);
+        RULES.add(BASE + "/module/requires", moduleRule);
+        RULES.add(BASE + "/module/exports", moduleRule);
+        RULES.add(BASE + "/module/exports/to", moduleRule);
+        RULES.add(BASE + "/module/uses", moduleRule);
+        RULES.add(BASE + "/module/provides", moduleRule);
+        
         RULES.add(BASE + "/field", new FieldRule());
 
         RULES.add(BASE + "/method", new MethodRule());
@@ -675,6 +706,15 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             if (s.indexOf("mandated") != -1) {
                 access |= ACC_MANDATED;
             }
+            if (s.indexOf("module") != -1) {
+                access |= ACC_MODULE;
+            }
+            if (s.indexOf("open") != -1) {
+                access |= ACC_OPEN;
+            }
+            if (s.indexOf("transitive") != -1) {
+                access |= ACC_TRANSITIVE;
+            }
             return access;
         }
     }
@@ -743,7 +783,91 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             push(cv);
         }
     }
+    
+    /**
+     * ModuleRule: module, requires, exports, opens, uses and provides 
+     */
+    final class ModuleRule extends Rule {
+        @Override
+        public final void begin(final String element, final Attributes attrs)
+                throws SAXException {
+            if ("module".equals(element)) {
+                push(cv.visitModule(attrs.getValue("name"),
+                        getAccess(attrs.getValue("access")),
+                        attrs.getValue("version")));
+            } else if ("main-class".equals(element)) {
+                ModuleVisitor mv = (ModuleVisitor) peek();
+                mv.visitMainClass(attrs.getValue("name"));
+            } else if ("packages".equals(element)) {
+                ModuleVisitor mv = (ModuleVisitor) peek();
+                mv.visitPackage(attrs.getValue("name"));
+            } else if ("requires".equals(element)) {
+                ModuleVisitor mv = (ModuleVisitor) peek();
+                int access = getAccess(attrs.getValue("access"));
+                if ((access & Opcodes.ACC_STATIC) != 0) {
+                    access = access & ~Opcodes.ACC_STATIC | Opcodes.ACC_STATIC_PHASE;
+                }
+                mv.visitRequire(attrs.getValue("module"),
+                        access, attrs.getValue("version"));
+            } else if ("exports".equals(element)) {
+                push(attrs.getValue("name"));
+                push(getAccess(attrs.getValue("access")));
+                ArrayList<String> list = new ArrayList<String>();
+                push(list);
+            } else if ("opens".equals(element)) {
+                push(attrs.getValue("name"));
+                push(getAccess(attrs.getValue("access")));
+                ArrayList<String> list = new ArrayList<String>();
+                push(list);
+            } else if ("to".equals(element)) {
+                @SuppressWarnings("unchecked")
+                ArrayList<String> list = (ArrayList<String>) peek();
+                list.add(attrs.getValue("module"));
+            }  else if ("uses".equals(element)) {
+                ModuleVisitor mv = (ModuleVisitor) peek();
+                mv.visitUse(attrs.getValue("service"));
+            }  else if ("provides".equals(element)) {
+                push(attrs.getValue("service"));
+                push(0);  // see end() below
+                ArrayList<String> list = new ArrayList<String>();
+                push(list);
+            }  else if ("with".equals(element)) {
+                @SuppressWarnings("unchecked")
+                ArrayList<String> list = (ArrayList<String>) peek();
+                list.add(attrs.getValue("provider"));
+            }  
+        }
 
+        @Override
+        public void end(final String element) {
+            boolean exports = "exports".equals(element);
+            boolean opens = "opens".equals(element);
+            boolean provides = "provides".equals(element);
+            if (exports | opens | provides) {
+                @SuppressWarnings("unchecked")
+                ArrayList<String> list = (ArrayList<String>) pop();
+                int access = (Integer) pop();
+                String name = (String) pop();
+                String[] tos = null;
+                if (!list.isEmpty()) {
+                    tos = list.toArray(new String[list.size()]);
+                }
+                ModuleVisitor mv = (ModuleVisitor) peek();
+                if (exports) {
+                    mv.visitExport(name, access, tos);
+                } else {
+                    if (opens) {
+                        mv.visitOpen(name, access, tos);
+                    } else {
+                        mv.visitProvide(name, tos);
+                    }
+                }
+            } else if ("module".equals(element)) {
+                ((ModuleVisitor) pop()).visitEnd();
+            }
+        }
+    }
+    
     /**
      * OuterClassRule
      */

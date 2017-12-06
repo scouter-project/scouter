@@ -52,7 +52,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
     }
 
     public TraceMethodVisitor(final MethodVisitor mv, final Printer p) {
-        super(Opcodes.ASM5, mv);
+        super(Opcodes.ASM6, mv);
         this.p = p;
     }
 
@@ -73,7 +73,7 @@ public final class TraceMethodVisitor extends MethodVisitor {
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+                                                 TypePath typePath, String desc, boolean visible) {
         Printer p = this.p.visitMethodTypeAnnotation(typeRef, typePath, desc,
                 visible);
         AnnotationVisitor av = mv == null ? null : mv.visitTypeAnnotation(

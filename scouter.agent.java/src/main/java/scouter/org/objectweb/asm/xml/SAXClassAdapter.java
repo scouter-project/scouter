@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM XML Adapter
  * Copyright (c) 2004-2011, Eugene Kuleshov
@@ -29,23 +47,24 @@
  */
 package scouter.org.objectweb.asm.xml;
 
+import org.xml.sax.ContentHandler;
+import org.xml.sax.helpers.AttributesImpl;
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.FieldVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.ModuleVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.TypePath;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.helpers.AttributesImpl;
 
 /**
- * A {@link scouter.org.objectweb.asm.ClassVisitor ClassVisitor} that generates SAX 2.0
+ * A {@link ClassVisitor ClassVisitor} that generates SAX 2.0
  * events from the visited class. It can feed any kind of
  * {@link ContentHandler ContentHandler}, e.g. XML serializer, XSLT
  * or XQuery engines.
  * 
  * @see Processor
- * @see scouter.org.objectweb.asm.xml.ASMContentHandler
+ * @see ASMContentHandler
  * 
  * @author Eugene Kuleshov
  */
@@ -69,6 +88,16 @@ public final class SAXClassAdapter extends ClassVisitor {
      * Pseudo access flag used to distinguish inner class flags.
      */
     private static final int ACCESS_INNER = 1048576;
+    
+    /**
+     * Pseudo access flag used to distinguish module flags.
+     */
+    static final int ACCESS_MODULE = 2097152;
+    
+    /**
+     * Pseudo access flag used to distinguish module requires flags.
+     */
+    static final int ACCESS_MODULE_REQUIRES = 4194304;
 
     /**
      * Constructs a new {@link SAXClassAdapter SAXClassAdapter} object.
@@ -81,7 +110,7 @@ public final class SAXClassAdapter extends ClassVisitor {
      *            {@link ContentHandler#endDocument() endDocument()} events.
      */
     public SAXClassAdapter(final ContentHandler h, boolean singleDocument) {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM6);
         this.sa = new SAXAdapter(h);
         this.singleDocument = singleDocument;
         if (!singleDocument) {
@@ -100,6 +129,21 @@ public final class SAXClassAdapter extends ClassVisitor {
         }
 
         sa.addElement("source", att);
+    }
+    
+    @Override
+    public ModuleVisitor visitModule(final String name, final int access,
+                                     final String version) {
+        AttributesImpl att = new AttributesImpl();
+        att.addAttribute("", "name", "name", "", name);
+        StringBuilder sb = new StringBuilder();
+        appendAccess(access | ACCESS_MODULE, sb);
+        att.addAttribute("", "access", "access", "", sb.toString());
+        if (version != null) {
+          att.addAttribute("", "version", "version", "", encode(version));
+        }
+        sa.addStart("module", att);
+        return new SAXModuleAdapter(sa);
     }
 
     @Override
@@ -126,7 +170,7 @@ public final class SAXClassAdapter extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+                                                 TypePath typePath, String desc, boolean visible) {
         return new SAXAnnotationAdapter(sa, "typeAnnotation", visible ? 1 : -1,
                 null, desc, typeRef, typePath);
     }
@@ -169,7 +213,7 @@ public final class SAXClassAdapter extends ClassVisitor {
 
     @Override
     public FieldVisitor visitField(final int access, final String name,
-            final String desc, final String signature, final Object value) {
+                                   final String desc, final String signature, final Object value) {
         StringBuilder sb = new StringBuilder();
         appendAccess(access | ACCESS_FIELD, sb);
 
@@ -278,14 +322,26 @@ public final class SAXClassAdapter extends ClassVisitor {
             sb.append("protected ");
         }
         if ((access & Opcodes.ACC_FINAL) != 0) {
-            sb.append("final ");
+            if ((access & ACCESS_MODULE) == 0) {
+                sb.append("final ");
+            } else {
+                sb.append("transitive ");
+            }
         }
         if ((access & Opcodes.ACC_STATIC) != 0) {
             sb.append("static ");
         }
         if ((access & Opcodes.ACC_SUPER) != 0) {
             if ((access & ACCESS_CLASS) == 0) {
-                sb.append("synchronized ");
+                if ((access & ACCESS_MODULE_REQUIRES) != 0) {
+                    sb.append("transitive ");
+                } else {
+                    if ((access & ACCESS_MODULE) == 0) {
+                        sb.append("synchronized ");
+                    } else {
+                        sb.append("open ");
+                    }
+                }
             } else {
                 sb.append("super ");
             }
@@ -294,7 +350,11 @@ public final class SAXClassAdapter extends ClassVisitor {
             if ((access & ACCESS_FIELD) == 0) {
                 sb.append("bridge ");
             } else {
-                sb.append("volatile ");
+                if ((access & ACCESS_MODULE_REQUIRES) == 0) {
+                    sb.append("volatile ");
+                } else {
+                    sb.append("static ");
+                }
             }
         }
         if ((access & Opcodes.ACC_TRANSIENT) != 0) {
@@ -329,7 +389,11 @@ public final class SAXClassAdapter extends ClassVisitor {
             sb.append("deprecated ");
         }
         if ((access & Opcodes.ACC_MANDATED) != 0) {
-            sb.append("mandated ");
+            if ((access & ACCESS_CLASS) == 0) {
+                sb.append("module ");
+            } else {
+                sb.append("mandated ");
+            }
         }
     }
 }

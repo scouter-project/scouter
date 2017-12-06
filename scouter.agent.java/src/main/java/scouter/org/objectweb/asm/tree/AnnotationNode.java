@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
@@ -29,11 +47,12 @@
  */
 package scouter.org.objectweb.asm.tree;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A node that represents an annotation.
@@ -52,7 +71,7 @@ public class AnnotationNode extends AnnotationVisitor {
      * as two consecutive elements in the list. The name is a {@link String},
      * and the value may be a {@link Byte}, {@link Boolean}, {@link Character},
      * {@link Short}, {@link Integer}, {@link Long}, {@link Float},
-     * {@link Double}, {@link String} or {@link scouter.org.objectweb.asm.Type}, or a
+     * {@link Double}, {@link String} or {@link Type}, or a
      * two elements String array (for enumeration values), an
      * {@link AnnotationNode}, or a {@link List} of values of one of the
      * preceding types. The list may be <tt>null</tt> if there is no name value
@@ -71,7 +90,7 @@ public class AnnotationNode extends AnnotationVisitor {
      *             If a subclass calls this constructor.
      */
     public AnnotationNode(final String desc) {
-        this(Opcodes.ASM5, desc);
+        this(Opcodes.ASM6, desc);
         if (getClass() != AnnotationNode.class) {
             throw new IllegalStateException();
         }
@@ -82,7 +101,7 @@ public class AnnotationNode extends AnnotationVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *            of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      * @param desc
      *            the class descriptor of the annotation class.
      */
@@ -98,7 +117,7 @@ public class AnnotationNode extends AnnotationVisitor {
      *            where the visited values must be stored.
      */
     AnnotationNode(final List<Object> values) {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM6);
         this.values = values;
     }
 
@@ -229,8 +248,8 @@ public class AnnotationNode extends AnnotationVisitor {
      * versions of the ASM API than the given version.
      * 
      * @param api
-     *            an ASM API version. Must be one of {@link Opcodes#ASM4} or
-     *            {@link Opcodes#ASM5}.
+     *            an ASM API version. Must be one of {@link Opcodes#ASM4},
+     *            {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      */
     public void check(final int api) {
         // nothing to do

@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
@@ -30,15 +48,15 @@
 
 package scouter.org.objectweb.asm.tree;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.TypePath;
 import scouter.org.objectweb.asm.TypeReference;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A node that represents a type annotation on a local or resource variable.
@@ -93,7 +111,7 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
      */
     public LocalVariableAnnotationNode(int typeRef, TypePath typePath,
             LabelNode[] start, LabelNode[] end, int[] index, String desc) {
-        this(Opcodes.ASM5, typeRef, typePath, start, end, index, desc);
+        this(Opcodes.ASM6, typeRef, typePath, start, end, index, desc);
     }
 
     /**
@@ -101,7 +119,7 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *            of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      * @param typeRef
      *            a reference to the annotated type. See {@link TypeReference}.
      * @param start
@@ -152,6 +170,6 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
             index[i] = this.index.get(i);
         }
         accept(mv.visitLocalVariableAnnotation(typeRef, typePath, start, end,
-                index, desc, true));
+                index, desc, visible));
     }
 }

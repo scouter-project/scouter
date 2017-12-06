@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
@@ -29,14 +47,6 @@
  */
 package scouter.org.objectweb.asm.util;
 
-import java.io.FileInputStream;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.Attribute;
 import scouter.org.objectweb.asm.ClassReader;
@@ -44,6 +54,7 @@ import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.FieldVisitor;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.ModuleVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.TypePath;
@@ -54,6 +65,14 @@ import scouter.org.objectweb.asm.tree.analysis.Analyzer;
 import scouter.org.objectweb.asm.tree.analysis.BasicValue;
 import scouter.org.objectweb.asm.tree.analysis.Frame;
 import scouter.org.objectweb.asm.tree.analysis.SimpleVerifier;
+
+import java.io.FileInputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link ClassVisitor} that checks that its methods are properly used. More
@@ -93,9 +112,9 @@ import scouter.org.objectweb.asm.tree.analysis.SimpleVerifier;
  * insnNumber locals : stack):
  * 
  * <pre>
- * scouter.org.objectweb.asm.tree.analysis.AnalyzerException: Error at instruction 71: Expected I, but found .
- *   at scouter.org.objectweb.asm.tree.analysis.Analyzer.analyze(Analyzer.java:289)
- *   at scouter.org.objectweb.asm.util.CheckClassAdapter.verify(CheckClassAdapter.java:135)
+ * AnalyzerException: Error at instruction 71: Expected I, but found .
+ *   at Analyzer.analyze(Analyzer.java:289)
+ *   at CheckClassAdapter.verify(CheckClassAdapter.java:135)
  * ...
  * remove()V
  * 00000 LinkedBlockingQueue$Itr . . . . . . . .  :
@@ -150,6 +169,11 @@ public class CheckClassAdapter extends ClassVisitor {
      * <tt>true</tt> if the visitEnd method has been called.
      */
     private boolean end;
+    
+    /**
+     * <tt>true</tt> if the visitModule method has been called.
+     */
+    private boolean module;
 
     /**
      * The already visited labels. This map associate Integer values to Label
@@ -334,7 +358,7 @@ public class CheckClassAdapter extends ClassVisitor {
      *             If a subclass calls this constructor.
      */
     public CheckClassAdapter(final ClassVisitor cv, final boolean checkDataFlow) {
-        this(Opcodes.ASM5, cv, checkDataFlow);
+        this(Opcodes.ASM6, cv, checkDataFlow);
         if (getClass() != CheckClassAdapter.class) {
             throw new IllegalStateException();
         }
@@ -345,7 +369,7 @@ public class CheckClassAdapter extends ClassVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *            of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      * @param cv
      *            the class visitor to which this adapter must delegate calls.
      * @param checkDataFlow
@@ -378,8 +402,12 @@ public class CheckClassAdapter extends ClassVisitor {
                 + Opcodes.ACC_SUPER + Opcodes.ACC_INTERFACE
                 + Opcodes.ACC_ABSTRACT + Opcodes.ACC_SYNTHETIC
                 + Opcodes.ACC_ANNOTATION + Opcodes.ACC_ENUM
-                + Opcodes.ACC_DEPRECATED + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
-        if (name == null || !name.endsWith("package-info")) {
+                + Opcodes.ACC_DEPRECATED + Opcodes.ACC_MODULE
+                + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
+        if (name == null) {
+            throw new IllegalArgumentException("Illegal class name (null)");
+        }
+        if (!name.endsWith("package-info")) {
             CheckMethodAdapter.checkInternalName(name, "class name");
         }
         if ("java/lang/Object".equals(name)) {
@@ -420,6 +448,22 @@ public class CheckClassAdapter extends ClassVisitor {
         super.visitSource(file, debug);
     }
 
+    @Override
+    public ModuleVisitor visitModule(String name, int access, String version) {
+        checkState();
+        if (module) {
+            throw new IllegalStateException(
+                    "visitModule can be called only once.");
+        }
+        module = true;
+        if (name == null) {
+            throw new IllegalArgumentException("Illegal module name (null)");
+        }
+        checkAccess(access, Opcodes.ACC_OPEN | Opcodes.ACC_SYNTHETIC);
+        return new CheckModuleAdapter(super.visitModule(name, access, version), 
+            (access & Opcodes.ACC_OPEN) != 0);
+    }
+    
     @Override
     public void visitOuterClass(final String owner, final String name,
             final String desc) {

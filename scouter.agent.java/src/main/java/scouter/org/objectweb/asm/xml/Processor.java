@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM XML Adapter
  * Copyright (c) 2004-2011, Eugene Kuleshov
@@ -29,6 +47,28 @@
  */
 package scouter.org.objectweb.asm.xml;
 
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.ext.LexicalHandler;
+import org.xml.sax.helpers.AttributesImpl;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLReaderFactory;
+import scouter.org.objectweb.asm.ClassReader;
+import scouter.org.objectweb.asm.ClassWriter;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamSource;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,29 +82,6 @@ import java.io.Writer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamSource;
-
-import scouter.org.objectweb.asm.ClassReader;
-import scouter.org.objectweb.asm.ClassWriter;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.ext.LexicalHandler;
-import org.xml.sax.helpers.AttributesImpl;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  * Processor is a command line tool that can be used for bytecode waving
@@ -484,7 +501,7 @@ public class Processor {
 
         /**
          * Creates an instance of the content handler.
-         * 
+         *
          * @return content handler
          */
         ContentHandler createContentHandler();
@@ -589,7 +606,7 @@ public class Processor {
      * A {@link ContentHandler ContentHandler} and
      * {@link LexicalHandler LexicalHandler} that serializes XML
      * from SAX 2.0 events into {@link Writer Writer}.
-     * 
+     *
      * <i><blockquote> This implementation does not support namespaces, entity
      * definitions (uncluding DTD), CDATA and text elements. </blockquote></i>
      */
@@ -608,7 +625,7 @@ public class Processor {
 
         /**
          * Creates <code>SAXWriter</code>.
-         * 
+         *
          * @param w
          *            writer
          * @param optimizeEmptyElements
@@ -723,7 +740,7 @@ public class Processor {
 
         /**
          * Encode string with escaping.
-         * 
+         *
          * @param str
          *            string to encode.
          * @return encoded string
@@ -808,7 +825,7 @@ public class Processor {
         /**
          * Constructs a new {@link InputSlicingHandler SubdocumentHandler}
          * object.
-         * 
+         *
          * @param subdocumentRoot
          *            name/path to the root element of the subdocument
          * @param rootHandler

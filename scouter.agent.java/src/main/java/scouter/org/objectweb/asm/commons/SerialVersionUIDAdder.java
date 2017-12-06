@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
@@ -29,6 +47,11 @@
  */
 package scouter.org.objectweb.asm.commons;
 
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.FieldVisitor;
+import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.Opcodes;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
@@ -37,11 +60,6 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.FieldVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
 
 /**
  * A {@link ClassVisitor} that adds a serial version unique identifier to a
@@ -170,7 +188,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
      *             If a subclass calls this constructor.
      */
     public SerialVersionUIDAdder(final ClassVisitor cv) {
-        this(Opcodes.ASM5, cv);
+        this(Opcodes.ASM6, cv);
         if (getClass() != SerialVersionUIDAdder.class) {
             throw new IllegalStateException();
         }
@@ -181,7 +199,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *            of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      * @param cv
      *            a {@link ClassVisitor} to which this visitor will delegate
      *            calls.
@@ -261,7 +279,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
      */
     @Override
     public FieldVisitor visitField(final int access, final String name,
-            final String desc, final String signature, final Object value) {
+                                   final String desc, final String signature, final Object value) {
         if (computeSVUID) {
             if ("serialVersionUID".equals(name)) {
                 // since the class already has SVUID, we won't be computing it.

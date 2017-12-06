@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
@@ -29,17 +47,19 @@
  */
 package scouter.org.objectweb.asm.tree;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.Attribute;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.FieldVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.ModuleVisitor;
 import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.TypePath;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A node that represents a class.
@@ -54,14 +74,14 @@ public class ClassNode extends ClassVisitor {
     public int version;
 
     /**
-     * The class's access flags (see {@link scouter.org.objectweb.asm.Opcodes}). This
+     * The class's access flags (see {@link Opcodes}). This
      * field also indicates if the class is deprecated.
      */
     public int access;
 
     /**
      * The internal name of the class (see
-     * {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}).
+     * {@link Type#getInternalName() getInternalName}).
      */
     public String name;
 
@@ -72,7 +92,7 @@ public class ClassNode extends ClassVisitor {
 
     /**
      * The internal of name of the super class (see
-     * {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}). For
+     * {@link Type#getInternalName() getInternalName}). For
      * interfaces, the super class is {@link Object}. May be <tt>null</tt>, but
      * only for the {@link Object} class.
      */
@@ -80,7 +100,7 @@ public class ClassNode extends ClassVisitor {
 
     /**
      * The internal names of the class's interfaces (see
-     * {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}). This
+     * {@link Type#getInternalName() getInternalName}). This
      * list is a list of {@link String} objects.
      */
     public List<String> interfaces;
@@ -97,6 +117,11 @@ public class ClassNode extends ClassVisitor {
      */
     public String sourceDebug;
 
+    /**
+     * Module information. May be <tt>null</tt>.
+     */
+    public ModuleNode module;
+    
     /**
      * The internal name of the enclosing class of the class. May be
      * <tt>null</tt>.
@@ -119,7 +144,7 @@ public class ClassNode extends ClassVisitor {
      * The runtime visible annotations of this class. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates scouter.org.objectweb.asm.tree.AnnotationNode
+     * @associates AnnotationNode
      * @label visible
      */
     public List<AnnotationNode> visibleAnnotations;
@@ -128,7 +153,7 @@ public class ClassNode extends ClassVisitor {
      * The runtime invisible annotations of this class. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates scouter.org.objectweb.asm.tree.AnnotationNode
+     * @associates AnnotationNode
      * @label invisible
      */
     public List<AnnotationNode> invisibleAnnotations;
@@ -137,7 +162,7 @@ public class ClassNode extends ClassVisitor {
      * The runtime visible type annotations of this class. This list is a list
      * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates scouter.org.objectweb.asm.tree.TypeAnnotationNode
+     * @associates TypeAnnotationNode
      * @label visible
      */
     public List<TypeAnnotationNode> visibleTypeAnnotations;
@@ -146,7 +171,7 @@ public class ClassNode extends ClassVisitor {
      * The runtime invisible type annotations of this class. This list is a list
      * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
      * 
-     * @associates scouter.org.objectweb.asm.tree.TypeAnnotationNode
+     * @associates TypeAnnotationNode
      * @label invisible
      */
     public List<TypeAnnotationNode> invisibleTypeAnnotations;
@@ -155,7 +180,7 @@ public class ClassNode extends ClassVisitor {
      * The non standard attributes of this class. This list is a list of
      * {@link Attribute} objects. May be <tt>null</tt>.
      * 
-     * @associates scouter.org.objectweb.asm.Attribute
+     * @associates Attribute
      */
     public List<Attribute> attrs;
 
@@ -163,7 +188,7 @@ public class ClassNode extends ClassVisitor {
      * Informations about the inner classes of this class. This list is a list
      * of {@link InnerClassNode} objects.
      * 
-     * @associates scouter.org.objectweb.asm.tree.InnerClassNode
+     * @associates InnerClassNode
      */
     public List<InnerClassNode> innerClasses;
 
@@ -171,7 +196,7 @@ public class ClassNode extends ClassVisitor {
      * The fields of this class. This list is a list of {@link FieldNode}
      * objects.
      * 
-     * @associates scouter.org.objectweb.asm.tree.FieldNode
+     * @associates FieldNode
      */
     public List<FieldNode> fields;
 
@@ -179,7 +204,7 @@ public class ClassNode extends ClassVisitor {
      * The methods of this class. This list is a list of {@link MethodNode}
      * objects.
      * 
-     * @associates scouter.org.objectweb.asm.tree.MethodNode
+     * @associates MethodNode
      */
     public List<MethodNode> methods;
 
@@ -192,7 +217,7 @@ public class ClassNode extends ClassVisitor {
      *             If a subclass calls this constructor.
      */
     public ClassNode() {
-        this(Opcodes.ASM5);
+        this(Opcodes.ASM6);
         if (getClass() != ClassNode.class) {
             throw new IllegalStateException();
         }
@@ -203,7 +228,7 @@ public class ClassNode extends ClassVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *            of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      */
     public ClassNode(final int api) {
         super(api);
@@ -236,6 +261,12 @@ public class ClassNode extends ClassVisitor {
         sourceFile = file;
         sourceDebug = debug;
     }
+    
+    @Override
+    public ModuleVisitor visitModule(final String name, final int access,
+                                     final String version) {
+        return module = new ModuleNode(name, access, version); 
+    }
 
     @Override
     public void visitOuterClass(final String owner, final String name,
@@ -265,7 +296,7 @@ public class ClassNode extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+                                                 TypePath typePath, String desc, boolean visible) {
         TypeAnnotationNode an = new TypeAnnotationNode(typeRef, typePath, desc);
         if (visible) {
             if (visibleTypeAnnotations == null) {
@@ -299,7 +330,7 @@ public class ClassNode extends ClassVisitor {
 
     @Override
     public FieldVisitor visitField(final int access, final String name,
-            final String desc, final String signature, final Object value) {
+                                   final String desc, final String signature, final Object value) {
         FieldNode fn = new FieldNode(access, name, desc, signature, value);
         fields.add(fn);
         return fn;
@@ -329,11 +360,16 @@ public class ClassNode extends ClassVisitor {
      * API than the given version.
      * 
      * @param api
-     *            an ASM API version. Must be one of {@link Opcodes#ASM4} or
-     *            {@link Opcodes#ASM5}.
+     *            an ASM API version. Must be one of {@link Opcodes#ASM4},
+     *            {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      */
     public void check(final int api) {
-        if (api == Opcodes.ASM4) {
+        if (api < Opcodes.ASM6) {
+            if (module != null) {
+                throw new RuntimeException();
+            }
+        }
+        if (api < Opcodes.ASM5) {
             if (visibleTypeAnnotations != null
                     && visibleTypeAnnotations.size() > 0) {
                 throw new RuntimeException();
@@ -342,12 +378,31 @@ public class ClassNode extends ClassVisitor {
                     && invisibleTypeAnnotations.size() > 0) {
                 throw new RuntimeException();
             }
-            for (FieldNode f : fields) {
-                f.check(api);
-            }
-            for (MethodNode m : methods) {
-                m.check(api);
-            }
+        }
+        // checks attributes
+        int i, n;
+        n = visibleAnnotations == null ? 0 : visibleAnnotations.size();
+        for (i = 0; i < n; ++i) {
+            visibleAnnotations.get(i).check(api);
+        }
+        n = invisibleAnnotations == null ? 0 : invisibleAnnotations.size();
+        for (i = 0; i < n; ++i) {
+            invisibleAnnotations.get(i).check(api);
+        }
+        n = visibleTypeAnnotations == null ? 0 : visibleTypeAnnotations.size();
+        for (i = 0; i < n; ++i) {
+            visibleTypeAnnotations.get(i).check(api);
+        }
+        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations
+                .size();
+        for (i = 0; i < n; ++i) {
+            invisibleTypeAnnotations.get(i).check(api);
+        }
+        for (FieldNode f : fields) {
+            f.check(api);
+        }
+        for (MethodNode m : methods) {
+            m.check(api);
         }
     }
 
@@ -365,6 +420,10 @@ public class ClassNode extends ClassVisitor {
         // visits source
         if (sourceFile != null || sourceDebug != null) {
             cv.visitSource(sourceFile, sourceDebug);
+        }
+        // visits module
+        if (module != null) {
+            module.accept(cv);
         }
         // visits outer class
         if (outerClass != null) {

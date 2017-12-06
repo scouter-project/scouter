@@ -66,7 +66,7 @@ public class SignatureWriter extends SignatureVisitor {
      * Constructs a new {@link SignatureWriter} object.
      */
     public SignatureWriter() {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM6);
     }
 
     // ------------------------------------------------------------------------

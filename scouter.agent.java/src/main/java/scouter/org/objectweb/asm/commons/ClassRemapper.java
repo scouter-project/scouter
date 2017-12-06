@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
@@ -31,11 +49,15 @@
 package scouter.org.objectweb.asm.commons;
 
 import scouter.org.objectweb.asm.AnnotationVisitor;
+import scouter.org.objectweb.asm.Attribute;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.FieldVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.ModuleVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.TypePath;
+
+import java.util.List;
 
 /**
  * A {@link ClassVisitor} for type remapping.
@@ -49,7 +71,7 @@ public class ClassRemapper extends ClassVisitor {
     protected String className;
 
     public ClassRemapper(final ClassVisitor cv, final Remapper remapper) {
-        this(Opcodes.ASM5, cv, remapper);
+        this(Opcodes.ASM6, cv, remapper);
     }
 
     protected ClassRemapper(final int api, final ClassVisitor cv,
@@ -68,6 +90,12 @@ public class ClassRemapper extends ClassVisitor {
     }
 
     @Override
+    public ModuleVisitor visitModule(String name, int flags, String version) {
+        ModuleVisitor mv = super.visitModule(remapper.mapModuleName(name), flags, version);
+        return mv == null ? null : createModuleRemapper(mv); 
+    }
+    
+    @Override
     public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         AnnotationVisitor av = super.visitAnnotation(remapper.mapDesc(desc),
                 visible);
@@ -82,6 +110,18 @@ public class ClassRemapper extends ClassVisitor {
         return av == null ? null : createAnnotationRemapper(av);
     }
 
+    @Override
+    public void visitAttribute(Attribute attr) {
+        if (attr instanceof ModuleHashesAttribute) {
+            ModuleHashesAttribute hashesAttr = new ModuleHashesAttribute();
+            List<String> modules = hashesAttr.modules;
+            for(int i = 0; i < modules.size(); i++) {
+                modules.set(i, remapper.mapModuleName(modules.get(i)));
+            }
+        }
+        super.visitAttribute(attr);
+    }
+    
     @Override
     public FieldVisitor visitField(int access, String name, String desc,
             String signature, Object value) {
@@ -128,5 +168,9 @@ public class ClassRemapper extends ClassVisitor {
 
     protected AnnotationVisitor createAnnotationRemapper(AnnotationVisitor av) {
         return new AnnotationRemapper(av, remapper);
+    }
+    
+    protected ModuleVisitor createModuleRemapper(ModuleVisitor mv) {
+        return new ModuleRemapper(mv, remapper);
     }
 }

@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM XML Adapter
  * Copyright (c) 2004-2011, Eugene Kuleshov
@@ -29,9 +47,7 @@
  */
 package scouter.org.objectweb.asm.xml;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import org.xml.sax.helpers.AttributesImpl;
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.Handle;
 import scouter.org.objectweb.asm.Label;
@@ -40,13 +56,15 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.TypePath;
 import scouter.org.objectweb.asm.util.Printer;
-import org.xml.sax.helpers.AttributesImpl;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A {@link MethodVisitor} that generates SAX 2.0 events from the visited
  * method.
  * 
- * @see scouter.org.objectweb.asm.xml.SAXClassAdapter
+ * @see SAXClassAdapter
  * @see Processor
  * 
  * @author Eugene Kuleshov
@@ -69,7 +87,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
      *            content handler that will be used to send SAX 2.0 events.
      */
     public SAXCodeAdapter(final SAXAdapter sa, final int access) {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM6);
         this.sa = sa;
         this.access = access;
         this.labelNames = new HashMap<Label, String>();

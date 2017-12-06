@@ -33,10 +33,10 @@ Provides a small and fast bytecode manipulation framework.
 
 <p>
 The <a href="http://www.objectweb.org/asm">ASM</a> framework is organized
-around the {@link scouter.org.objectweb.asm.ClassVisitor ClassVisitor},
-{@link scouter.org.objectweb.asm.FieldVisitor FieldVisitor},
-{@link scouter.org.objectweb.asm.MethodVisitor MethodVisitor} and
-{@link scouter.org.objectweb.asm.AnnotationVisitor AnnotationVisitor} abstract classes,
+around the {@link ClassVisitor ClassVisitor},
+{@link FieldVisitor FieldVisitor},
+{@link MethodVisitor MethodVisitor} and
+{@link AnnotationVisitor AnnotationVisitor} abstract classes,
 which allow one to visit the fields, methods and annotations of a class,
 including the bytecode instructions of each method.
 
@@ -49,7 +49,7 @@ including the bytecode instructions of each method.
 
 <p>
 In order to generate a class from scratch, only the {@link
-scouter.org.objectweb.asm.ClassWriter ClassWriter} class is necessary. Indeed,
+ClassWriter ClassWriter} class is necessary. Indeed,
 in order to generate a class, one must just call its visit<i>Xxx</i>
 methods with the appropriate arguments to generate the desired fields
 and methods. See the "helloworld" example in the ASM distribution for

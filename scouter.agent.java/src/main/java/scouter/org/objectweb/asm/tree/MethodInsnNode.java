@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
@@ -29,10 +47,11 @@
  */
 package scouter.org.objectweb.asm.tree;
 
-import java.util.Map;
-
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
+
+import java.util.Map;
 
 /**
  * A node that represents a method instruction. A method instruction is an
@@ -44,7 +63,7 @@ public class MethodInsnNode extends AbstractInsnNode {
 
     /**
      * The internal name of the method's owner class (see
-     * {@link scouter.org.objectweb.asm.Type#getInternalName() getInternalName}).
+     * {@link Type#getInternalName() getInternalName}).
      */
     public String owner;
 
@@ -54,7 +73,7 @@ public class MethodInsnNode extends AbstractInsnNode {
     public String name;
 
     /**
-     * The method's descriptor (see {@link scouter.org.objectweb.asm.Type}).
+     * The method's descriptor (see {@link Type}).
      */
     public String desc;
 
@@ -72,12 +91,12 @@ public class MethodInsnNode extends AbstractInsnNode {
      *            INVOKEINTERFACE.
      * @param owner
      *            the internal name of the method's owner class (see
-     *            {@link scouter.org.objectweb.asm.Type#getInternalName()
+     *            {@link Type#getInternalName()
      *            getInternalName}).
      * @param name
      *            the method's name.
      * @param desc
-     *            the method's descriptor (see {@link scouter.org.objectweb.asm.Type}).
+     *            the method's descriptor (see {@link Type}).
      */
     @Deprecated
     public MethodInsnNode(final int opcode, final String owner,
@@ -94,12 +113,12 @@ public class MethodInsnNode extends AbstractInsnNode {
      *            INVOKEINTERFACE.
      * @param owner
      *            the internal name of the method's owner class (see
-     *            {@link scouter.org.objectweb.asm.Type#getInternalName()
+     *            {@link Type#getInternalName()
      *            getInternalName}).
      * @param name
      *            the method's name.
      * @param desc
-     *            the method's descriptor (see {@link scouter.org.objectweb.asm.Type}).
+     *            the method's descriptor (see {@link Type}).
      * @param itf
      *            if the method's owner class is an interface.
      */

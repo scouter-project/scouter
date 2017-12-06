@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
@@ -29,22 +47,23 @@
  */
 package scouter.org.objectweb.asm.commons;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import scouter.org.objectweb.asm.ClassReader;
 import scouter.org.objectweb.asm.Handle;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * A {@link MethodVisitor} that keeps track of stack map frame changes between
  * {@link #visitFrame(int, int, Object[], int, Object[]) visitFrame} calls. This
  * adapter must be used with the
- * {@link scouter.org.objectweb.asm.ClassReader#EXPAND_FRAMES} option. Each
+ * {@link ClassReader#EXPAND_FRAMES} option. Each
  * visit<i>X</i> instruction delegates to the next visitor in the chain, if any,
  * and then simulates the effect of this instruction on the stack map frame,
  * represented by {@link #locals} and {@link #stack}. The next visitor in the
@@ -141,7 +160,7 @@ public class AnalyzerAdapter extends MethodVisitor {
      */
     public AnalyzerAdapter(final String owner, final int access,
             final String name, final String desc, final MethodVisitor mv) {
-        this(Opcodes.ASM5, owner, access, name, desc, mv);
+        this(Opcodes.ASM6, owner, access, name, desc, mv);
         if (getClass() != AnalyzerAdapter.class) {
             throw new IllegalStateException();
         }
@@ -152,7 +171,7 @@ public class AnalyzerAdapter extends MethodVisitor {
      * 
      * @param api
      *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     *            of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
      * @param owner
      *            the owner's class name.
      * @param access
@@ -661,6 +680,8 @@ public class AnalyzerAdapter extends MethodVisitor {
             t1 = pop();
             if (t1 instanceof String) {
                 pushDesc(((String) t1).substring(1));
+            } else if (t1 == Opcodes.NULL) {
+                push(t1);
             } else {
                 push("java/lang/Object");
             }

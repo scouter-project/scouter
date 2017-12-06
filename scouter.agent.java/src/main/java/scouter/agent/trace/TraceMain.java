@@ -959,8 +959,12 @@ public class TraceMain {
             return;
         }
 
-        if (ctx instanceof DataSource) {
-            LoadedContext.put((DataSource) ctx);
+        try {
+            if (ctx instanceof DataSource) {
+                LoadedContext.put((DataSource) ctx);
+            }
+        } catch (Throwable t) {
+            System.out.println("[SCOUTER][DEBUG]" + t.getMessage());
         }
     }
 

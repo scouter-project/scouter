@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM XML Adapter
  * Copyright (c) 2004-2011, Eugene Kuleshov
@@ -29,11 +47,11 @@
  */
 package scouter.org.objectweb.asm.xml;
 
+import org.xml.sax.helpers.AttributesImpl;
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.TypePath;
-import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * SAXAnnotationAdapter
@@ -48,20 +66,20 @@ public final class SAXAnnotationAdapter extends AnnotationVisitor {
 
     public SAXAnnotationAdapter(final SAXAdapter sa, final String elementName,
             final int visible, final String name, final String desc) {
-        this(Opcodes.ASM5, sa, elementName, visible, desc, name, -1, -1, null,
+        this(Opcodes.ASM6, sa, elementName, visible, desc, name, -1, -1, null,
                 null, null, null);
     }
 
     public SAXAnnotationAdapter(final SAXAdapter sa, final String elementName,
             final int visible, final int parameter, final String desc) {
-        this(Opcodes.ASM5, sa, elementName, visible, desc, null, parameter, -1,
+        this(Opcodes.ASM6, sa, elementName, visible, desc, null, parameter, -1,
                 null, null, null, null);
     }
 
     public SAXAnnotationAdapter(final SAXAdapter sa, final String elementName,
             final int visible, final String name, final String desc,
             final int typeRef, final TypePath typePath) {
-        this(Opcodes.ASM5, sa, elementName, visible, desc, name, -1, typeRef,
+        this(Opcodes.ASM6, sa, elementName, visible, desc, name, -1, typeRef,
                 typePath, null, null, null);
     }
 
@@ -69,7 +87,7 @@ public final class SAXAnnotationAdapter extends AnnotationVisitor {
             final int visible, final String name, final String desc,
             int typeRef, TypePath typePath, final String[] start,
             final String[] end, final int[] index) {
-        this(Opcodes.ASM5, sa, elementName, visible, desc, name, -1, typeRef,
+        this(Opcodes.ASM6, sa, elementName, visible, desc, name, -1, typeRef,
                 typePath, start, end, index);
     }
 

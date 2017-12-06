@@ -27,63 +27,62 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package scouter.org.objectweb.asm.optimizer;
+package scouter.org.objectweb.asm.tree;
 
-import scouter.org.objectweb.asm.AnnotationVisitor;
-import scouter.org.objectweb.asm.Attribute;
-import scouter.org.objectweb.asm.FieldVisitor;
+import scouter.org.objectweb.asm.ModuleVisitor;
 import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.TypePath;
 
 /**
- * A {@link FieldVisitor} that collects the {@link Constant}s of the fields it
- * visits.
+ * A node that represents a required module with its name and access of a module descriptor.
  * 
- * @author Eric Bruneton
+ * @author Remi Forax
  */
-public class FieldConstantsCollector extends FieldVisitor {
+public class ModuleRequireNode {
+    /**
+     * The name of the required module.
+     */
+    public String module;
 
-    private final ConstantPool cp;
+    /**
+     * The access flags (see {@link Opcodes}).
+     * Valid values are <tt>ACC_TRANSITIVE</tt>, <tt>ACC_STATIC_PHASE</tt>,
+     *        <tt>ACC_SYNTHETIC</tt> and <tt>ACC_MANDATED</tt>.
+     */
+    public int access;
+    
+    /**
+     * Version at compile time of the required module or null.
+     */
+    public String version;
 
-    public FieldConstantsCollector(final FieldVisitor fv, final ConstantPool cp) {
-        super(Opcodes.ASM5, fv);
-        this.cp = cp;
+    /**
+     * Constructs a new {@link ModuleRequireNode}.
+     * 
+     * @param module
+     *            the name of the required module.
+     * @param access
+     *            The access flags. Valid values are
+     *            <tt>ACC_TRANSITIVE</tt>, <tt>ACC_STATIC_PHASE</tt>,
+     *            <tt>ACC_SYNTHETIC</tt> and <tt>ACC_MANDATED</tt>
+     *            (see {@link Opcodes}).
+     * @param version
+     *            Version of the required module at compile time,
+     *            null if not defined.
+     */
+    public ModuleRequireNode(final String module, final int access,
+            final String version) {
+        this.module = module;
+        this.access = access;
+        this.version = version;
     }
 
-    @Override
-    public AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
-        cp.newUTF8(desc);
-        if (visible) {
-            cp.newUTF8("RuntimeVisibleAnnotations");
-        } else {
-            cp.newUTF8("RuntimeInvisibleAnnotations");
-        }
-        return new AnnotationConstantsCollector(fv.visitAnnotation(desc,
-                visible), cp);
-    }
-
-    @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
-        cp.newUTF8(desc);
-        if (visible) {
-            cp.newUTF8("RuntimeVisibleTypeAnnotations");
-        } else {
-            cp.newUTF8("RuntimeInvisibleTypeAnnotations");
-        }
-        return new AnnotationConstantsCollector(fv.visitAnnotation(desc,
-                visible), cp);
-    }
-
-    @Override
-    public void visitAttribute(final Attribute attr) {
-        // can do nothing
-        fv.visitAttribute(attr);
-    }
-
-    @Override
-    public void visitEnd() {
-        fv.visitEnd();
+    /**
+     * Makes the given module visitor visit this require directive.
+     * 
+     * @param mv
+     *            a module visitor.
+     */
+    public void accept(final ModuleVisitor mv) {
+        mv.visitRequire(module, access, version);
     }
 }

@@ -1,3 +1,21 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 /***
  * ASM: a very small and fast Java bytecode manipulation framework
  * Copyright (c) 2000-2011 INRIA, France Telecom
@@ -29,15 +47,16 @@
  */
 package scouter.org.objectweb.asm.util;
 
-import java.io.PrintWriter;
-
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.Attribute;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.FieldVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.ModuleVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.TypePath;
+
+import java.io.PrintWriter;
 
 /**
  * A {@link ClassVisitor} that prints the classes it visits with a
@@ -131,7 +150,7 @@ public final class TraceClassVisitor extends ClassVisitor {
      */
     public TraceClassVisitor(final ClassVisitor cv, final Printer p,
             final PrintWriter pw) {
-        super(Opcodes.ASM5, cv);
+        super(Opcodes.ASM6, cv);
         this.pw = pw;
         this.p = p;
     }
@@ -148,6 +167,14 @@ public final class TraceClassVisitor extends ClassVisitor {
     public void visitSource(final String file, final String debug) {
         p.visitSource(file, debug);
         super.visitSource(file, debug);
+    }
+    
+    @Override
+    public ModuleVisitor visitModule(String name, int flags,
+                                     String version) {
+        Printer p = this.p.visitModule(name, flags, version);
+        ModuleVisitor mv = super.visitModule(name, flags, version);
+        return new TraceModuleVisitor(mv, p);
     }
 
     @Override
@@ -168,7 +195,7 @@ public final class TraceClassVisitor extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+                                                 TypePath typePath, String desc, boolean visible) {
         Printer p = this.p.visitClassTypeAnnotation(typeRef, typePath, desc,
                 visible);
         AnnotationVisitor av = cv == null ? null : cv.visitTypeAnnotation(
@@ -191,7 +218,7 @@ public final class TraceClassVisitor extends ClassVisitor {
 
     @Override
     public FieldVisitor visitField(final int access, final String name,
-            final String desc, final String signature, final Object value) {
+                                   final String desc, final String signature, final Object value) {
         Printer p = this.p.visitField(access, name, desc, signature, value);
         FieldVisitor fv = cv == null ? null : cv.visitField(access, name, desc,
                 signature, value);
