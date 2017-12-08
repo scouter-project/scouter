@@ -2,6 +2,7 @@ package scouter.agent.counter.jmx;
 
 import scouter.agent.Logger;
 import scouter.agent.ObjTypeDetector;
+import scouter.util.StringIntMap;
 import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
 
@@ -30,6 +31,7 @@ public class LazyPlatformMBeanServer {
 
     Map<String, ObjectName> objectNameMap = new HashMap<String, ObjectName>();
     Set<String> ignoreSet = new HashSet<String>();
+    StringIntMap tryCountMap = new StringIntMap();
 
     public synchronized static LazyPlatformMBeanServer create() {
         if (instance == null) {
@@ -75,7 +77,8 @@ public class LazyPlatformMBeanServer {
     public float getValue(String mbean, String attribute) throws Exception {
         if (!checkInit()) return -1;
         if (ignoreSet.contains(mbean)) return -1;
-        if (ignoreSet.contains(mbean + attribute)) return -1;
+        String key = mbean + attribute;
+        if (ignoreSet.contains(key)) return -1;
         ObjectName objectName = objectNameMap.get(mbean);
         if (objectName == null) {
             objectName = ObjectName.getInstance(mbean);
@@ -92,14 +95,22 @@ public class LazyPlatformMBeanServer {
                 return ((Number) value).floatValue();
             } else {
                 Logger.trace(mbean + " " + attribute + " is not a number : " + value);
-                ignoreSet.add(mbean + attribute);
+                ignoreSet.add(key);
             }
         } catch (InstanceNotFoundException e) {
-            // try again next time
+            // try again next time until 30 times
+            int count = tryCountMap.get(key);
+            count++;
+            if (count > 30) {
+                ignoreSet.add(key);
+                tryCountMap.remove(key);
+            } else {
+                tryCountMap.put(key, count);
+            }
         } catch (Exception e) {
             Logger.trace(e.getClass().getName() + " : " + mbean + " " + attribute);
             Logger.trace(ThreadUtil.getStackTrace(e));
-            ignoreSet.add(mbean + attribute);
+            ignoreSet.add(key);
         }
         return -1;
     }
