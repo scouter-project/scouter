@@ -577,6 +577,8 @@ public class Configure extends Thread {
     public long counter_recentuser_valid_ms = DateUtil.MILLIS_PER_FIVE_MINUTE;
     @ConfigDesc("Path to file creation directory of process ID file")
     public String counter_object_registry_path = "/tmp/scouter";
+    @ConfigDesc("Activating custom jmx")
+    public boolean counter_custom_jmx_enabled = false;
 
     // SFA(Stack Frequency Analyzer)
     @ConfigDesc("Activating period threaddump function")
@@ -639,6 +641,7 @@ public class Configure extends Thread {
     private int hook_signature;
     private StringSet _hook_method_ignore_classes = new StringSet();
     private int enduser_perf_endpoint_hash = HashUtil.hash(enduser_trace_endpoint_url);
+    private StringSet custom_jmx_set = new StringSet();
 
     /**
      * sometimes call by sample application, at that time normally set some
@@ -914,6 +917,8 @@ public class Configure extends Thread {
 
         this.counter_recentuser_valid_ms = getLong("counter_recentuser_valid_ms", DateUtil.MILLIS_PER_FIVE_MINUTE);
         this.counter_object_registry_path = getValue("counter_object_registry_path", "/tmp/scouter");
+        this.counter_custom_jmx_enabled = getBoolean("counter_custom_jmx_enabled", false);
+        this.custom_jmx_set = getStringSet("custom_jmx_set", "||");
         this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);
         this.sfa_dump_interval_ms = getInt("sfa_dump_interval_ms", 10000);
 
@@ -1090,6 +1095,10 @@ public class Configure extends Thread {
                 return true;
         }
         return false;
+    }
+
+    public StringSet getCustomJmxSet() {
+        return this.custom_jmx_set;
     }
 
     public boolean isIgnoreMethodClass(String classname) {

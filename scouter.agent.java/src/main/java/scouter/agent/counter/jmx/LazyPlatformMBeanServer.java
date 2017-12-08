@@ -28,7 +28,7 @@ public class LazyPlatformMBeanServer {
     Map<String, ObjectName> objectNameMap = new HashMap<String, ObjectName>();
     Set<String> ignoreSet = new HashSet<String>();
 
-    public synchronized static LazyPlatformMBeanServer getInstance() {
+    public synchronized static LazyPlatformMBeanServer create() {
         if (instance == null) {
             instance = new LazyPlatformMBeanServer();
         }
