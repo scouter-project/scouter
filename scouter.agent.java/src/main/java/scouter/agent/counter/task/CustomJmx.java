@@ -39,7 +39,9 @@ public class CustomJmx {
                     String[] mbeanAndAttribute = StringUtil.split(next, "|");
                     if (mbeanAndAttribute.length != 3) continue;
                     float value = mBeanServer.getValue(mbeanAndAttribute[1], mbeanAndAttribute[2]);
-                    pack.put(mbeanAndAttribute[0], new FloatValue(value));
+                    if (value >= 0) {
+                        pack.put(mbeanAndAttribute[0], new FloatValue(value));
+                    }
                 }
             }
         } catch (Exception e) {

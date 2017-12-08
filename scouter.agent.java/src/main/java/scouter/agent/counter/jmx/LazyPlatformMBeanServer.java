@@ -1,8 +1,11 @@
 package scouter.agent.counter.jmx;
 
+import scouter.agent.Logger;
 import scouter.agent.ObjTypeDetector;
 import scouter.util.SystemUtil;
+import scouter.util.ThreadUtil;
 
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
@@ -77,6 +80,7 @@ public class LazyPlatformMBeanServer {
         if (objectName == null) {
             objectName = ObjectName.getInstance(mbean);
             if (objectName.isPattern()) {
+                Logger.trace(mbean + "is pattern object name");
                 ignoreSet.add(mbean);
                 return -1;
             }
@@ -87,9 +91,14 @@ public class LazyPlatformMBeanServer {
             if (value instanceof Number) {
                 return ((Number) value).floatValue();
             } else {
+                Logger.trace(mbean + " " + attribute + " is not a number : " + value);
                 ignoreSet.add(mbean + attribute);
             }
+        } catch (InstanceNotFoundException e) {
+            // try again next time
         } catch (Exception e) {
+            Logger.trace(e.getClass().getName() + " : " + mbean + " " + attribute);
+            Logger.trace(ThreadUtil.getStackTrace(e));
             ignoreSet.add(mbean + attribute);
         }
         return -1;
