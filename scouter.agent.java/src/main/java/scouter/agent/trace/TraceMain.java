@@ -59,7 +59,6 @@ import scouter.util.StringUtil;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
@@ -960,11 +959,12 @@ public class TraceMain {
         }
 
         try {
-            if (ctx instanceof DataSource) {
-                LoadedContext.put((DataSource) ctx);
+            Class<?> clazzDs = Class.forName("javax.sql.DataSource", false, Thread.currentThread().getContextClassLoader());
+            if (clazzDs.isAssignableFrom(ctx.getClass())) {
+                LoadedContext.put(ctx);
             }
-        } catch (Throwable t) {
-            System.out.println("[SCOUTER][DEBUG]" + t.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.out.println("[SCOUTER][DEBUG]DsLookup" + e.getMessage());
         }
     }
 
