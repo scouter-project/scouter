@@ -699,6 +699,7 @@ public class TraceSQL {
 			return;
 		HashedMessageStep p = new HashedMessageStep();
 		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+		p.time = -1;
 		if (ctx.profile_thread_cputime) {
             p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
         }
