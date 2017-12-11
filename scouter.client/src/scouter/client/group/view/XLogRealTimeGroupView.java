@@ -177,23 +177,27 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 					param = new MapPack();
 					paramMap.put(serverId, param);
 				}
-				param.put("objHash", serverObjMap.get(serverId));
-				param.put("limit", limit);
-				tcp.process(RequestCmd.TRANX_REAL_TIME_GROUP, param, new INetReader() {
-					public void process(DataInputX in) throws IOException {
-						Pack p = in.readPack();
-						if (p instanceof MapPack) {
-							MapPack param = (MapPack) p;
-							paramMap.put(serverId, param);
-						} else {
-							XLogPack x = XLogUtil.toXLogPack(p);
-							tempSet.add(new XLogData(x, serverId));
-							while (tempSet.size() >= max) {
-								tempSet.pollFirst();
+				ListValue objHashLv = serverObjMap.get(serverId);
+				if (objHashLv.size() > 0) {
+					param.put("objHash", objHashLv);
+					param.put("limit", limit);
+					tcp.process(RequestCmd.TRANX_REAL_TIME_GROUP, param, new INetReader() {
+						public void process(DataInputX in) throws IOException {
+							Pack p = in.readPack();
+							if (p instanceof MapPack) {
+								MapPack param = (MapPack) p;
+								paramMap.put(serverId, param);
+							} else {
+								XLogPack x = XLogUtil.toXLogPack(p);
+								tempSet.add(new XLogData(x, serverId));
+								while (tempSet.size() >= max) {
+									tempSet.pollFirst();
+								}
 							}
 						}
 					}
-				});
+				);
+				}
 			} catch(Exception e){
 				ConsoleProxy.errorSafe(e.toString());
 			} finally {
