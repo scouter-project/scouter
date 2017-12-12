@@ -227,7 +227,7 @@ public class DataProxy {
 			List<byte[]> buff = new ArrayList<byte[]>();
 			int bytes = 0;
 			for (int k = 0; k < p.length; k++) {
-				if (conf._log_udp_object_enabled) {
+				if (conf._log_udp_counter_enabled) {
 					Logger.println(p[k].toString());
 				}
 				byte[] b = new DataOutputX().writePack(p[k]).toByteArray();
