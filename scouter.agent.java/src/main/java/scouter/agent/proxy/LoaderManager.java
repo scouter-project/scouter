@@ -16,11 +16,6 @@
  */
 package scouter.agent.proxy;
 
-import java.io.File;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
-
 import scouter.agent.JavaAgent;
 import scouter.agent.Logger;
 import scouter.agent.util.ManifestUtil;
@@ -29,6 +24,11 @@ import scouter.util.BytesClassLoader;
 import scouter.util.FileUtil;
 import scouter.util.HashUtil;
 import scouter.util.IntKeyLinkedMap;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 /**
  * @author Paul S.J. Kim(sjkim@whatap.io)
  */
@@ -44,6 +44,8 @@ public class LoaderManager {
 				toolsLoader = new URLClassLoader(new URL[] { tools.toURI().toURL() });
 			} catch (Throwable e) {
 				Logger.println("A134", e);
+				//TODO test for java 9 (should be removed)
+				toolsLoader = ClassLoader.getSystemClassLoader();
 			}
 		}
 
