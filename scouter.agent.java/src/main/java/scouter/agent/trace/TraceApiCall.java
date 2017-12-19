@@ -295,10 +295,7 @@ public class TraceApiCall {
 				httpclient.addHeader(oRtn, conf._trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
 				httpclient.addHeader(oRtn, conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
 				httpclient.addHeader(oRtn, conf._trace_interservice_callee_header_key, Hexa32.toString32(ctx.lastApiCallStep.txid));
-				httpclient.addHeader(oRtn, "scouter_caller_url", ctx.serviceName);
-				httpclient.addHeader(oRtn, "scouter_caller_name", conf.getObjName());
-				httpclient.addHeader(oRtn, "scouter_thread_id", Long.toString(ctx.threadId));
-
+				
 				PluginHttpCallTrace.call(ctx, httpclient, oRtn);
 
 			} catch (Exception e) {
