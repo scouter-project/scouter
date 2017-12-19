@@ -110,7 +110,7 @@ cd /D %originDir%
 ```
 
 #### (7) 브라우저를 통해 데모 시스템 접속
-브라우저를 실행하여 http://127.0.0.1:8080/jpetstore에 접속하면 데모시스템이 실행되는 것을 볼수 있다.
+브라우저를 실행하여 http://127.0.0.1:8080/jpetstore 에 접속하면 데모시스템이 실행되는 것을 볼수 있다.
 또한 브라우저에서 요청을 발생시키면 Scouter Client에서 실시간으로(2초이내) 이를 확인할 수 있다.
 ![jpetstore main](../img/quickstart/jpet-main.png)
 ![jpetstore main](../img/quickstart/client-jpet-demo1.png)
