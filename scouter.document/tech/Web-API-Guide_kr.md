@@ -53,16 +53,16 @@
 Provides a widget that simply charts the performance counter API's response.
 Passing the (url encoded) url of the counter api to be looked up in this widget, the result is charted.
 If you include this widget path when setting up a custom alarm, you can use it more easily.
- - [alarm sample](../main/Alert-Plugin-Guide.md)
+ - [alarm sample](../main/Alert-Plugin-Guide_kr.md)
 
  - **URL : `/widget/simple/counter.html`**
-   - parameters
+   - **parameters**
      - **source** : url encoded counter(or counter stat) api
-       - if the source value doesn't start with `slash(/)`, then append `/scouter/v1/counter/` ahead of it.
+       - if the source value doesn't start with `slash(/)`, then append `/scouter/v1/counter/` ahead of it by defaults.
  - **usage example**
-   belows are equivalent. (**counter api** : `/scouter/v1/counter/HeapUsed/latest/300/ofType/tomcat`)
-   - `http://127.0.0.1:6180/widget/simple/counter.html?source=%2Fscouter%2Fv1%2Fcounter%2FHeapUsed%2Flatest%2F300%2FofType%2Ftomcat`
-   - `http://127.0.0.1:6180/widget/simple/counter.html?source=HeapUsed%2Flatest%2F300%2FofType%2Ftomcat`
+   - belows are equivalent. (**counter api** : `/scouter/v1/counter/HeapUsed/latest/300/ofType/tomcat`)
+     - `http://127.0.0.1:6180/widget/simple/counter.html?source=%2Fscouter%2Fv1%2Fcounter%2FHeapUsed%2Flatest%2F300%2FofType%2Ftomcat`
+     - `http://127.0.0.1:6180/widget/simple/counter.html?source=HeapUsed%2Flatest%2F300%2FofType%2Ftomcat`
 
 ## Configuration
 ```java
