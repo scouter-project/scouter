@@ -47,6 +47,34 @@ Alert script file can be edited from scouter client ui or directly in scouter se
       }
       ```
 
+   * sample1-1 (**GcTime.alert & latest counter's chart link**)
+     * alert when ```GcTime``` is over than 2 sec
+      ```java
+      // void process(RealCounter $counter, PluginHelper $$)
+      String objType = $counter.objType();
+      String objName = $counter.objName();
+
+      String widgetUrl = "http://127.0.0.1:6180/widget/simple/counter.html?source="
+
+      String counterApi5Min = "TPS/ofType/" + objType;
+      counterApi5Min += "?startTimeMillis=" + (System.currentTimeMillis()-300*1000);
+      counterApi5Min += "?endTimeMillis=" + System.currentTimeMillis();
+
+      String counterApiLatest5Min = "TPS/latest/300/ofType" + objType;
+
+      int gcTime = $counter.intValue();
+      if(gcTime > 2000) {
+         String message = "gc time:" + respTime + "ms";
+
+         message = "\n[Check TPS]\n";
+         message += widgetUrl + java.net.UrlEncoder.encode(counterApi5Min) + "\n";
+
+         message += "[Current 5 min TPS]\n";
+         message += widgetUrl + java.net.UrlEncoder.encode(counterApiLatest5Min) + "\n";
+
+         $counter.fatal("gc time fatal", message);
+      }
+      ```
    * sample2 (**Elasped90%.alert**)
      * alert when ```Elasped90%``` is over than 1.5 sec (ignore when TPS is lower than 3 sec.)
       ```java
