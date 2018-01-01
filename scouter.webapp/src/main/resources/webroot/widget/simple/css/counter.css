@@ -26,6 +26,18 @@ body {
 canvas {
 }
 
+div {
+    margin: 2px 2px;
+}
+.counter-title {
+    font-weight: bold;
+    margin: 15px 0px 2px 10px;
+}
+
+.data-range {
+    padding: 0px 0px 10px 30px;
+    font-size: small;
+}
 .chart-container {
     position: relative;
     margin: auto;
