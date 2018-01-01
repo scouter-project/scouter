@@ -21,7 +21,7 @@
 $(document).ready(function () {
   var urlVars = getUrlVars();
   var source = decodeURIComponent(urlVars['source']);
-  if(source.charAt(0) != '/') {
+  if(source.charAt(0) != '/' && !(source.startsWith('http://') || source.startsWith('https://'))) {
     source = '/scouter/v1/counter/' + source;
   }
 
@@ -97,11 +97,17 @@ $(document).ready(function () {
     $('#counterName').text(sourceData.result[0].displayName);
     $('#unit').text(sourceData.result[0].unit);
 
-    // "startTimeMillis": "1510991960921", "endTimeMillis": "1510991970921",
-    var from = moment(Number(sourceData.result[0].startTimeMillis)).format('MMM Do HH:mm');
-    var to = moment(Number(sourceData.result[0].endTimeMillis)).format('HH:mm Z');
+    var from;
+    var to;
+    if(sourceData.result[0].startTimeMillis) {
+      from = moment(Number(sourceData.result[0].startTimeMillis)).format('MMM Do HH:mm');
+      to = moment(Number(sourceData.result[0].endTimeMillis)).format('HH:mm Z');
+    } else {
+      from = moment(sourceData.result[0].fromYmd).format('MMM Do');
+      to = moment(sourceData.result[0].toYmd).format('MMM Do (Z)');
+    }
 
-    $('#dataRange').text(from + "~" + to);
+    $('#dataRange').text(from + " ~ " + to);
 
     var datasets = [];
 
