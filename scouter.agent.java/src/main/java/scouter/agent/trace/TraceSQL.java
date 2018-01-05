@@ -277,15 +277,14 @@ public class TraceSQL {
 				tCtx.error = hash;
 			}
 			step.error = hash;
-			ServiceSummary.getInstance().process(thr, hash, tCtx.serviceHash, tCtx.txid, step.hash, 0);
-
+			tCtx.offerErrorEntity(ErrorEntity.of(thr, hash, step.hash, 0));
 		} else if (step.elapsed > conf.xlog_error_sql_time_max_ms) {
 			String msg = "warning slow sql, over " + conf.xlog_error_sql_time_max_ms + " ms";
 			int hash = DataProxy.sendError(msg);
 			if (tCtx.error == 0) {
 				tCtx.error = hash;
 			}
-			ServiceSummary.getInstance().process(slowSqlException, hash, tCtx.serviceHash, tCtx.txid, step.hash, 0);
+			tCtx.offerErrorEntity(ErrorEntity.of(slowSqlException, hash, step.hash, 0));
 		}
 		tCtx.sqltext = null;
 		tCtx.sqlActiveArgs = null;
@@ -335,7 +334,7 @@ public class TraceSQL {
 			if (c.error == 0) {
 				c.error = hash;
 			}
-			ServiceSummary.getInstance().process(tooManyRecordException, hash, c.serviceHash, c.txid, 0, 0);
+			c.offerErrorEntity(ErrorEntity.of(tooManyRecordException, hash, 0,0));
 		}
 	}
 
@@ -527,7 +526,7 @@ public class TraceSQL {
 		AlertProxy.sendAlert(AlertLevel.ERROR, "CONNECT", url + " " + thr);
 		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
-			ServiceSummary.getInstance().process(connectionOpenFailException, 0, ctx.serviceHash, ctx.txid, 0, 0);
+		    ctx.offerErrorEntity(ErrorEntity.of(connectionOpenFailException, 0, 0, 0));
 		}
 	}
 
@@ -678,7 +677,7 @@ public class TraceSQL {
 			if (tctx.error == 0) {
 				tctx.error = hash;
 			}
-			ServiceSummary.getInstance().process(connectionOpenFailException, hash, tctx.serviceHash, tctx.txid, 0, 0);
+			tctx.offerErrorEntity(ErrorEntity.of(connectionOpenFailException, hash, 0, 0));
 		}
 		tctx.profile.pop(step);
 	}

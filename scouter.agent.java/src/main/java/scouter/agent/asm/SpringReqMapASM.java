@@ -16,13 +16,12 @@
  */
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
-import scouter.agent.AgentCommonConstant;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
+import scouter.org.objectweb.asm.*;
+import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.StringUtil;
 
 import java.util.HashSet;
@@ -127,7 +126,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 
     class SpringReqMapMV extends LocalVariablesSorter implements Opcodes {
         private static final String TRACEMAIN = "scouter/agent/trace/TraceMain";
-        private final static String SET_METHOD = "setServiceName";
+        private final static String SET_METHOD = "setSpringControllerName";
         private static final String SET_METHOD_SIGNATURE = "(Ljava/lang/String;)V";
 
         private final static String CONTROLLER_START_METHOD = "startSpringControllerMethod";
@@ -169,8 +168,6 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
                 if (!StringUtil.isEmpty(methodType)) {
                     sb.append("<").append(methodType).append(">");
                 }
-
-                sb.append(AgentCommonConstant.SPRING_REQUEST_MAPPING_POSTFIX_FLAG);
 
                 String serviceUrl = sb.toString();
                 Logger.println("[Apply Spring F/W REST URL] " + serviceUrl);

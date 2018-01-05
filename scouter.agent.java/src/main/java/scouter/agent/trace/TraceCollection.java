@@ -44,8 +44,7 @@ public class TraceCollection {
             if (ctx.error == 0) {
                 ctx.error = errorMessageHash;
             }
-
-            ServiceSummary.getInstance().process(tooManyCollectionMemebers, errorMessageHash, ctx.serviceHash, ctx.txid, 0, 0);
+            ctx.offerErrorEntity(ErrorEntity.of(tooManyCollectionMemebers, errorMessageHash, 0, 0));
         }
     }
 }
