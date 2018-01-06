@@ -38,4 +38,8 @@ public interface ConfigureAdaptor {
     boolean isTrace();
     int getNetWebappTcpClientPoolSize();
     int getNetWebappTcpClientPoolTimeout();
+    boolean isNetHttpApiSwaggerEnabled();
+    String getNetHttpApiSwaggerHostIp();
+    String getNetHttpApiCorsAllowOrigin();
+    String getNetHttpApiCorsAllowCredentials();
 }

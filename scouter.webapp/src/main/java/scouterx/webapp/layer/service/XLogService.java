@@ -21,10 +21,14 @@ package scouterx.webapp.layer.service;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.consumer.XLogConsumer;
 import scouterx.webapp.model.XLogData;
-import scouterx.webapp.model.scouter.SXlog;
+import scouterx.webapp.model.scouter.SXLog;
+import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
+import scouterx.webapp.request.GxidXLogRequest;
+
+import java.util.List;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -52,9 +56,23 @@ public class XLogService {
     }
 
     /**
+     * retrieve various condition search
+     */
+    public List<SXLog> searchXLogList(final SearchXLogRequest searchXLogRequest) {
+        return xLogConsumer.searchXLogList(searchXLogRequest);
+    }
+
+    /**
+     * retrieve various condition search
+     */
+    public List<XLogData> searchXLogDataList(final SearchXLogRequest searchXLogRequest) {
+        return xLogConsumer.searchXLogDataList(searchXLogRequest);
+    }
+    
+    /**
      * retrieve single xLog
      */
-    public XLogData retrieveSingleXLogAsXLogData(final SingleXLogRequest singleXlogRequest) {
+    public XLogData retrieveSingleXLogData(final SingleXLogRequest singleXlogRequest) {
         return xLogConsumer.retrieveByTxidAsXLogData(singleXlogRequest);
 
     }
@@ -62,9 +80,24 @@ public class XLogService {
     /**
      * retrieve single xLog
      */
-    public SXlog retrieveSingleXLogAsXLog(final SingleXLogRequest singleXlogRequest) {
+    public SXLog retrieveSingleXLog(final SingleXLogRequest singleXlogRequest) {
         return xLogConsumer.retrieveByTxidAsXLog(singleXlogRequest);
 
     }
+
+    /**
+     * retrieve Xlog List by gxid
+     */
+    public List<SXLog> retrieveXLogsByGxid(final GxidXLogRequest xlogRequest) {
+        return xLogConsumer.retrieveXLogsByGxid(xlogRequest);
+    }
+
+    /**
+     * retrieve Xlog data List by gxid
+     */
+    public List<XLogData> retrieveXLogDatasByGxid(final GxidXLogRequest xlogRequest) {
+        return xLogConsumer.retrieveXLogDatasByGxid(xlogRequest);
+    }
+
 
 }

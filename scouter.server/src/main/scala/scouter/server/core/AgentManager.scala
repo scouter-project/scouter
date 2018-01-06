@@ -69,6 +69,7 @@ object AgentManager {
         CounterManager.getInstance().addObjectTypeIfNotExist(p);
 
         PlugInManager.active(p);
+
         var objPack = objMap.getObject(p.objHash);
         if (objPack == null) {
             objPack = p;
@@ -79,6 +80,10 @@ object AgentManager {
             ObjectWR.add(objPack);
             Logger.println("S104", "New " + objPack);
         } else {
+            if(!objPack.alive) {
+                alertReactiveObject(objPack);
+            }
+
             var save = false;
             if (DateUtil.getDateUnit(objPack.wakeup) != DateUtil.getDateUnit(System.currentTimeMillis())) {
                 objPack.updated = 0;
@@ -122,10 +127,21 @@ object AgentManager {
 
     private def alertInactiveObject(objPack: ObjectPack) {
         val p = new AlertPack();
-        p.level = AlertLevel.WARN;
+        p.level = Configure.getInstance().object_inactive_alert_level.asInstanceOf[Byte];
         p.objHash = objPack.objHash;
         p.title = "INACTIVE_OBJECT";
         p.message = objPack.objName + " is not running. " + objPack;
+        p.time = System.currentTimeMillis();
+        p.objType = "scouter";
+        AlertCore.add(p);
+    }
+
+    private def alertReactiveObject(objPack: ObjectPack) {
+        val p = new AlertPack();
+        p.level = Configure.getInstance().object_inactive_alert_level.asInstanceOf[Byte];
+        p.objHash = objPack.objHash;
+        p.title = "ACTIVATED_OBJECT";
+        p.message = objPack.objName + " is running now. " + objPack;
         p.time = System.currentTimeMillis();
         p.objType = "scouter";
         AlertCore.add(p);

@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Mon May 29 22:11:56 KST 2017
+byte-buddy-nodep-scouter-repack-1.7.1.RC1.pom>=
+byte-buddy-nodep-scouter-repack-1.7.1.RC1-sources.jar>=
+byte-buddy-nodep-scouter-repack-1.7.1.RC1.jar>=

@@ -45,7 +45,7 @@ public class AuthFilter implements ContainerRequestFilter {
 
         //Check IP
         if (conf.isNetHttpApiAuthIpEnabled()) {
-            if (conf.getNetHttpApiAllowIps().stream().anyMatch(ip -> ZZ.getRequestIp(servletRequest).equals(ip))) {
+            if (conf.getNetHttpApiAllowIps().stream().anyMatch(ip -> ZZ.getRequestIp(servletRequest).contains(ip))) {
                 return;
             }
         }

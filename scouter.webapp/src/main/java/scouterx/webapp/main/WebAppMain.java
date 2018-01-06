@@ -22,10 +22,10 @@ import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.Resource;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +40,14 @@ import scouterx.webapp.framework.client.thread.ServerSessionObserver;
 import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
 import scouterx.webapp.framework.configure.ServerConfig;
+import scouterx.webapp.framework.filter.CorsFilter;
 import scouterx.webapp.framework.filter.LoggingInitServletFilter;
+import scouterx.webapp.framework.filter.NoCacheFilter;
 import scouterx.webapp.framework.filter.ReleaseResourceFilter;
+import scouterx.webapp.swagger.Bootstrap;
 
 import javax.servlet.DispatcherType;
+import javax.ws.rs.core.Application;
 import java.io.File;
 import java.util.EnumSet;
 import java.util.List;
@@ -54,30 +58,114 @@ import java.util.TimeZone;
 /**
  * Created by gunlee on 2017. 8. 25.
  */
-public class WebAppMain {
+public class WebAppMain extends Application {
     private static boolean standAloneMode = false;
 
+    /**
+     * if you want use the Swagger.
+     * add "-DisUseSwagger=true" your VM options When bootrun.
+     * Not recommend using on **Production** environment.
+     */
     public static boolean isStandAloneMode() {
         return standAloneMode;
     }
 
-	public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         WebAppMain.standAloneMode = true;
-		Logo.print(true);
+        Logo.print(true);
+
         initializeLogDir();
 
-        ConfigureAdaptor conf = ConfigureManager.getConfigure();
+        final ConfigureAdaptor conf = ConfigureManager.getConfigure();
         connectScouterCollector();
 
-        Server server = new Server(conf.getNetHttpPort());
-		setWebAppContext(server);
+        final Server server = new Server(conf.getNetHttpPort());
 
-		try {
-			server.start();
+        HandlerCollection handlers = new HandlerCollection();
+
+        RequestLogHandler requestLogHandler = setRequestLogHandler();
+        handlers.addHandler(requestLogHandler);
+
+        ServletContextHandler servletContextHandler = setWebAppContext();
+        handlers.addHandler(servletContextHandler);
+
+        server.setHandler(handlers);
+
+        try {
+            server.start();
             waitOnExit(server);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static ServletContextHandler setWebHttpApiHandler () {
+        ConfigureAdaptor conf = ConfigureManager.getConfigure();
+
+        String providerPackages = "scouterx.webapp";
+        if (conf.isNetHttpApiSwaggerEnabled()) {
+            providerPackages += ",io.swagger.jaxrs.listing";
+        }
+
+        final ServletHolder jerseyHolder = new ServletHolder(ServletContainer.class);
+        jerseyHolder.setInitParameter("javax.ws.rs.Application", "scouterx.webapp.main.WebAppMain");
+        jerseyHolder.setInitParameter("jersey.config.server.provider.packages", providerPackages);
+        jerseyHolder.setInitOrder(1);
+
+        final ServletContextHandler servletContextHandler = new ServletContextHandler();
+        servletContextHandler.setSessionHandler(new SessionHandler());
+        servletContextHandler.getSessionHandler().setMaxInactiveInterval(conf.getNetHttpApiSessionTimeout());
+        servletContextHandler.setContextPath("/");
+
+        servletContextHandler.addServlet(jerseyHolder, "/scouter/*");
+        servletContextHandler.addServlet(setStaticContentHandler(), "/*");
+        servletContextHandler.addServlet(setSwaggerBootstrapHandler(), "/swagger");
+
+        addFilter(servletContextHandler);
+
+        return servletContextHandler;
+    }
+
+    private static void addFilter (ServletContextHandler servletContextHandler) {
+        servletContextHandler.addFilter(LoggingInitServletFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
+        servletContextHandler.addFilter(CorsFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
+        servletContextHandler.addFilter(NoCacheFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
+        servletContextHandler.addFilter(ReleaseResourceFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
+    }
+
+    private static ServletHolder setSwaggerBootstrapHandler () {
+        ServletHolder swaggerBootstrap = new ServletHolder(Bootstrap.class);
+        swaggerBootstrap.setInitOrder(2);
+
+        return swaggerBootstrap;
+    }
+
+    private static ServletHolder setStaticContentHandler () {
+        String resourceBase = WebAppMain.class.getClassLoader().getResource("webroot/").toExternalForm();
+
+        ServletHolder holderHome = new ServletHolder(DefaultServlet.class);
+        holderHome.setInitParameter("resourceBase", resourceBase);
+        holderHome.setInitParameter("dirAllowed","false");
+        holderHome.setInitParameter("pathInfoOnly","true");
+
+        return holderHome;
+    }
+
+	private static RequestLogHandler setRequestLogHandler() {
+		ConfigureAdaptor conf = ConfigureManager.getConfigure();
+
+		NCSARequestLog requestLog = new NCSARequestLog();
+		requestLog.setFilename("./logs/http-request-yyyy_mm_dd.log");
+		requestLog.setFilenameDateFormat("yyyy_MM_dd");
+		requestLog.setRetainDays(conf.getLogKeepDays());
+		requestLog.setAppend(true);
+		requestLog.setExtended(true);
+		requestLog.setLogCookies(false);
+		requestLog.setLogTimeZone(TimeZone.getDefault().getID());
+		RequestLogHandler requestLogHandler = new RequestLogHandler();
+		requestLogHandler.setRequestLog(requestLog);
+
+		return requestLogHandler;
 	}
 
     private static void connectScouterCollector() {
@@ -148,46 +236,17 @@ public class WebAppMain {
         firstLogger.info("scouter webapp starting! Run-Mode:" + (WebAppMain.standAloneMode ? "StandAlone" : "Embedded"));
     }
 
-    public static void setWebAppContext(Server server) {
-        ConfigureAdaptor conf = ConfigureManager.getConfigure();
-
+    /**
+     * Initialize context needed by scouter web http api application.
+     * (This method also can be invoked from scouter.server's Http Server when this webapp runs as an embedded mode.)
+     *
+     */
+    public static ServletContextHandler setWebAppContext() {
         //The case - embedded mode (run in-process of scouter server)
-        if (WebAppMain.standAloneMode == false) {
+        if (!standAloneMode) {
             initializeLogDir();
             connectScouterCollector();
         }
-
-		HandlerCollection handlers = new HandlerCollection();
-		NCSARequestLog requestLog = new NCSARequestLog();
-		requestLog.setFilename("./logs/http-request-yyyy_mm_dd.log");
-		requestLog.setFilenameDateFormat("yyyy_MM_dd");
-		requestLog.setRetainDays(conf.getLogKeepDays());
-		requestLog.setAppend(true);
-		requestLog.setExtended(true);
-		requestLog.setLogCookies(false);
-		requestLog.setLogTimeZone(TimeZone.getDefault().getID());
-		RequestLogHandler requestLogHandler = new RequestLogHandler();
-		requestLogHandler.setRequestLog(requestLog);
-
-		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.getSessionHandler().setMaxInactiveInterval(conf.getNetHttpApiSessionTimeout());
-
-        context.setBaseResource(Resource.newClassPathResource("/webroot"));
-
-		context.setContextPath("/");
-		handlers.addHandler(requestLogHandler);
-		handlers.addHandler(context);
-
-		server.setHandler(handlers);
-
-		ServletHolder jerseyHolder = new ServletHolder(ServletContainer.class);
-		jerseyHolder.setInitParameter("jersey.config.server.provider.packages", "scouterx.webapp");
-		context.addServlet(jerseyHolder, "/scouter/*");
-        context.addFilter(LoggingInitServletFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
-        context.addFilter(ReleaseResourceFilter.class, "/scouter/*", EnumSet.of(DispatcherType.REQUEST));
-
-		ServletHolder defaultHolder = new ServletHolder("default", DefaultServlet.class);
-		defaultHolder.setInitParameter("dirAllowed","false");
-		context.addServlet(defaultHolder,"/");
-	}
+        return setWebHttpApiHandler();
+    }
 }

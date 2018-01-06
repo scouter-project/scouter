@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.ToString;
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
+import scouterx.webapp.framework.client.model.AgentModelThread;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -32,6 +33,7 @@ import scouter.lang.pack.MapPack;
 @AllArgsConstructor
 public class SActiveServiceStepCount {
     private int objHash;
+    private String objName;
     private int step1Count;
     private int step2Count;
     private int step3Count;
@@ -39,6 +41,7 @@ public class SActiveServiceStepCount {
     public static SActiveServiceStepCount of(MapPack mapPack) {
         return new SActiveServiceStepCount(
                 mapPack.getInt(ParamConstant.OBJ_HASH),
+                AgentModelThread.getInstance().getAgentObject(mapPack.getInt(ParamConstant.OBJ_HASH)).getObjName(),
                 mapPack.getInt(ParamConstant.ACTIVE_SERVICE_STEP1),
                 mapPack.getInt(ParamConstant.ACTIVE_SERVICE_STEP2),
                 mapPack.getInt(ParamConstant.ACTIVE_SERVICE_STEP3));

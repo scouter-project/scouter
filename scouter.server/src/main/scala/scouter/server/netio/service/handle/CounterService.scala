@@ -16,13 +16,16 @@
  */
 package scouter.server.netio.service.handle;
 
+import java.util.ArrayList
+
 import scouter.io.{DataInputX, DataOutputX}
 import scouter.lang.{CounterKey, TimeTypeEnum}
 import scouter.lang.counters.CounterConstants
 import scouter.lang.pack.MapPack
-import scouter.lang.value.{DoubleValue, MapValue}
+import scouter.lang.value.{DoubleValue, MapValue, Value}
 import scouter.net.{RequestCmd, TcpFlag}
 import scouter.server.core.AgentManager
+import scouter.server.core.AgentManager.objMap
 import scouter.server.core.cache.CounterCache
 import scouter.server.db.{ObjectRD, RealtimeCounterRD}
 import scouter.server.netio.service.anotation.ServiceHandler
@@ -144,7 +147,7 @@ class CounterService {
 
     /**
       * get latest several counter's values for specific object type
-      * @param din MapPack{counter[], objType}
+      * @param din MapPack{counter[], (objType or objHashLv)}
       * @param dout MapPack{objHash[], counter[], value[]}
       * @param login
       */
@@ -153,11 +156,19 @@ class CounterService {
       val param = din.readPack().asInstanceOf[MapPack];
       val counters = param.getList("counter");
       val objType = param.getText("objType");
-      if (StringUtil.isEmpty(objType)) {
+      val objHashLv = param.getList("objHash");
+
+      if (StringUtil.isEmpty(objType) && (objHashLv == null || objHashLv.size() == 0)) {
           System.out.println("please check.. COUNTER_REAL_TIME_ALL objType is null");
           return ;
       }
-      val insts = AgentManager.getLiveObjHashList(objType);
+      var insts = AgentManager.getLiveObjHashList(objType);
+      if(objHashLv != null && objHashLv.size() > 0) {
+        insts.clear()
+        for( i <- 0 to objHashLv.size() - 1) {
+          insts.add(objHashLv.getInt(i))
+        }
+      }
 
       val mpack = new MapPack();
       val instList = mpack.newList("objHash");
@@ -239,6 +250,13 @@ class CounterService {
         dout.writePack(mpack);
     }
 
+    /**
+      * get a counter's values for specific object type or hashes
+      *
+      * @param din MapPack{stime, etime, counter, (objType or objHashLv)}
+      * @param dout MapPack{objHash[], time[], value[]}
+      * @param login
+      */
     @ServiceHandler(RequestCmd.COUNTER_PAST_TIME_ALL)
     def getPastTimeAll(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readPack().asInstanceOf[MapPack];
@@ -246,14 +264,17 @@ class CounterService {
         val etime = param.getLong("etime");
         val counter = param.getText("counter");
         val objType = param.getText("objType");
-        if (StringUtil.isEmpty(objType)) {
+        val objHashParamLv = param.getList("objHash");
+
+        if (StringUtil.isEmpty(objType) && (objHashParamLv == null || objHashParamLv.size() == 0)) {
             System.out.println("please check.. COUNTER_LOAD_TIME_ALL objType is null");
             return ;
         }
         val date = DateUtil.yyyymmdd(stime);
-        val agentGrp = AgentManager.getDailyObjects(date, objType);
 
-        val objHashLv = agentGrp.getList("objHash");
+        var objHashLv = if(objHashParamLv != null && objHashParamLv.size() > 0)
+                objHashParamLv else AgentManager.getDailyObjects(date, objType).getList("objHash")
+
         val mapPackMap = new IntKeyMap[MapPack]();
 
         for (i <- 0 to objHashLv.size() - 1) {

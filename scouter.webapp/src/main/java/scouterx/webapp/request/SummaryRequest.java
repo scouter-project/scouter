@@ -26,7 +26,6 @@ import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.framework.exception.ErrorState;
 
-import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -53,10 +52,10 @@ public class SummaryRequest {
     @QueryParam("endYmdHm")
     private String endYmdHm;
 
-    @PathParam("objType")
+    //@PathParam("objType")
     private String objType;
 
-    @PathParam("objHash")
+    //@PathParam("objHash")
     private int objHash;
 
     @QueryParam("serverId")

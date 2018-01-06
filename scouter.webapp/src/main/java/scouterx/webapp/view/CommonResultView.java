@@ -39,13 +39,15 @@ import java.util.function.Consumer;
 @Setter
 public class CommonResultView<T> {
 	private static final int SUCCESS = 0;
-	private static final ObjectMapper objectMapper = new ObjectMapper();
-
+	private static final ObjectMapper objectMapper = new ObjectMapper().configure(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS, true);
+	
 	private int status = HttpStatus.OK_200;
 	private String requestId;
 	private int resultCode;
 	private String message;
 	private T result;
+
+	public CommonResultView() {}
 
 	public CommonResultView(int resultCode, String message, T result) {
 		this.resultCode = resultCode;

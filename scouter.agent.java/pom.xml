@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>1.8.0.SNAPSHOT</version>
+        <version>1.8.0</version>
     </parent>
 
     <artifactId>scouter-agent-java</artifactId>
@@ -25,6 +25,7 @@
         <final.jar.name.xtra>${project.build.directory}/xtra-${project.build.finalName}.jar</final.jar.name.xtra>
         <final.jar.name.shade>${project.build.directory}/shade-${project.build.finalName}.jar</final.jar.name.shade>
         <scouter.agent.file.name>scouter.agent.jar</scouter.agent.file.name>
+        <scouter.agent.min.file.name>scouter.agent.min.jar</scouter.agent.min.file.name>
 
         <provided.tools.jar>${project.basedir}/lib/provided/tools.jar</provided.tools.jar>
     </properties>
@@ -35,13 +36,13 @@
             <artifactId>scouter-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- local lib -->
         <dependency>
             <groupId>com.github.scouter-project</groupId>
             <artifactId>byte-buddy-nodep-scouter-repack</artifactId>
             <version>1.7.1.RC1</version>
         </dependency>
-
-        <!-- provided -->
         <dependency>
             <groupId>jdk.tools</groupId>
             <artifactId>jdk.tools</artifactId>
@@ -50,6 +51,7 @@
             <systemPath>${provided.tools.jar}</systemPath>
         </dependency>
 
+        <!-- provided -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -245,6 +247,18 @@
                                     </manifest>
                                 </jar>
 
+                                <!-- for min file -->
+                                <jar destfile="${project.build.directory}/${scouter.agent.min.file.name}">
+                                    <zipfileset src="${final.jar.name}" excludes="scouter/repack/net/bytebuddy/**/*" />
+                                    <manifest>
+                                        <attribute name="Premain-Class" value="scouter.agent.JavaAgent" />
+                                        <attribute name="Agent-Class" value="scouter.agent.JavaAgent" />
+                                        <attribute name="Can-Redefine-Classes" value="true" />
+                                        <attribute name="Can-Retransform-Classes" value="true" />
+                                        <attribute name="Boot-Class-Path" value="${scouter.agent.file.name}" />
+                                    </manifest>
+                                </jar>
+
                             </target>
                         </configuration>
                         <goals>
@@ -266,6 +280,7 @@
                                     <tarfileset dir="${project.build.directory}">
                                         <include name="${project.build.finalName}.jar" />
                                         <include name="${scouter.agent.file.name}" />
+                                        <include name="${scouter.agent.min.file.name}" />
                                     </tarfileset>
                                 </tar>
                                 <!-- copy for preparing whole packaging -->

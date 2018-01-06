@@ -32,6 +32,7 @@ import scouterx.webapp.framework.client.server.ServerManager;
 @ToString
 public class SCounter {
     private int objHash;
+    private String objName;
     private String name;
     private String displayName;
     private String unit;
@@ -47,5 +48,6 @@ public class SCounter {
 
         this.displayName = counterEngine.getCounterDisplayName(agentObject.getObjType(), name);
         this.unit = counterEngine.getCounterUnit(agentObject.getObjType(), name);
+        this.objName = agentObject.getObjName();
     }
 }

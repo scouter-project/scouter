@@ -17,10 +17,10 @@
 
 package scouter.lang;
 
+import scouter.util.StringKeyLinkedMap;
+
 import java.util.Enumeration;
 import java.util.List;
-
-import scouter.util.StringKeyLinkedMap;
 
 public class ObjectType {
 	private String name;
@@ -80,6 +80,7 @@ public class ObjectType {
 	}
 	
 	public Counter[] listCounters() {
+		if(family == null) return null;
 		List<Counter> list = family.listCounters();
 		Enumeration<Counter> en = counterMap.values();
 		while (en.hasMoreElements()) {

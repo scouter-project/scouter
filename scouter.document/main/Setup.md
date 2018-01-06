@@ -1,17 +1,19 @@
 # Setup
 ![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Setup_kr.md)
 
-Scouter do not require any installation except java.
+- Outgoing Links
+  - Blogging
+    - [Scouter series #1 - Installation](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=https%3A%2F%2Fgunsdevlog.blogspot.kr%2F2017%2F07%2Fscouter-apm-1.html)
 
 ***
 
 ## 1. Collector Server Installation
 
 ### 1.1. Prerequisite
-* JDK 1.6+ (1.8+ recommended)
+* JDK 1.8+ : scouter server
 
 ### 1.2. Collector Server Installation
-1. download lateset version of scouter-yyyyMMdd.tar.gz.
+1. download the latest version of scouter-yyyyMMdd.tar.gz.
  - [Release Page](https://github.com/scouter-project/scouter/releases)
 2. Extract the file.(You can see the dircetory ./scouter/server)
 3. execute start script.
@@ -62,7 +64,7 @@ All options and default values are available from the scouter client's **Collect
 
 ## 2. Host Agent
 ### 2.1. Prerequisite
-* JDK 1.5+(Required), 1.6+(Recommended)
+* JDK 1.6+
 
 ### 2.2. Download and start Host agent
 1. Download scouter-yyyyMMdd.tar.gz 
@@ -77,9 +79,11 @@ cd ./scouter/agent.host
 
 All options and default values are available from the scouter client's **Host >  Configure** menu.
 
+***
+
 ## 3. Tomcat Agent
 ### 3.1. Prerequisite
-* JDK 1.5+(Required), 1.6+(Recommended)
+* JDK 1.6+
 
 ### 3.2. Start Tomcat with Scouter agent
 1. Download scouter-yyyyMMdd.tar.gz 
@@ -114,7 +118,7 @@ net_collector_tcp_port=6100
 # Scouter Name(Default : tomcat1)
 obj_name=myFirstTomcat1
 ```
-All options and default values are available from the scuoter client's **Object >  Configure** menu.
+All options and default values are available from the scouter client's **Object >  Configure** menu.
 
 ***
 
@@ -131,3 +135,9 @@ All options and default values are available from the scuoter client's **Object 
 5. Fill the authentication info(default : admin/admin) and press OK button
   (First, the scouter server must be running.)
 6. The real-time chart will be shown.
+
+***
+
+## 5. Web API (설치 및 설정)
+
+* [Web API Guide](../tech/Web-API-Guide.md)
