@@ -29,7 +29,6 @@ public class AuthFilterTest {
 
     @Test
     @Ignore
-    //TODO
     public void filter_test() throws Exception {
 //        ConfigureAdaptor mockConfigureAdaptor = mock(ConfigureAdaptor.class);
 //        when(mockConfigureAdaptor.isNetHttpApiAuthSessionEnabled()).thenReturn(true);

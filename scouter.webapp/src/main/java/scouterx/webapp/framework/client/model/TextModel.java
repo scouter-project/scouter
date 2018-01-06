@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.Set;
 
 public class TextModel {
-	public static ThreadLocal<Set<Integer>> failedHashesInScope = new ThreadLocal<>();
-	public static ThreadLocal<Boolean> scopeStarted = new ThreadLocal<>();
+	private static ThreadLocal<Set<Integer>> failedHashesInScope = new ThreadLocal<>();
+	private static ThreadLocal<Boolean> scopeStarted = new ThreadLocal<>();
 
 	/**
 	 * start boundary of thread-scope cache of failed id to obtain word from dictionary
@@ -54,6 +54,18 @@ public class TextModel {
 	public static void endScope() {
 		failedHashesInScope.set(null);
 		scopeStarted.set(false);
+	}
+
+	public static boolean isScopeStarted() {
+		return scopeStarted.get();
+	}
+
+	public static void addFailedList(int hash) {
+		failedHashesInScope.get().add(hash);
+	}
+
+	public static boolean isFailedInScope(int hash) {
+		return failedHashesInScope.get().contains(hash);
 	}
 
 	private LinkedMap<Integer, String> entries = new LinkedMap<>();
@@ -101,22 +113,12 @@ public class TextModel {
 			return value;
 		}
 
-		if (scopeStarted.get() == true && failedHashesInScope.get().contains(hash)) {
-			return null;
-		}
-
 		ArrayList list = new ArrayList();
 		list.add(hash);
 		String yyyymmdd = DateUtil.yyyymmdd(date);
 		load(yyyymmdd, list, serverId);
 
-		String text = getCachedText(hash);
-
-		if (text == null && scopeStarted.get() == true) {
-			failedHashesInScope.get().add(hash);
-		}
-
-		return text;
+		return getCachedText(hash);
 	}
 
 	public String getCachedText(int hash) {
@@ -142,15 +144,22 @@ public class TextModel {
 		param.put("type", type);
 		ListValue hashLv = param.newList("hash");
 		Iterator<Integer> itr = hashes.iterator();
+
+		Set<Integer> failedSet = failedHashesInScope.get();
 		while (itr.hasNext()) {
 			int key = itr.next();
 			if (entries.containsKey(key) == false) {
-				hashLv.add(key);
+				if (scopeStarted.get() == true && failedSet.contains(key)) {
+					//skip
+				} else {
+					hashLv.add(key);
+				}
 			}
 		}
 		
 		if (hashLv.size() == 0)
 			return false;
+
 		List<Pack> packList;
 		try (TcpProxy tcp = TcpProxy.getTcpProxy(serverId)) {
 			packList = tcp.process(cmd, param);
@@ -166,10 +175,20 @@ public class TextModel {
 				String key = en.next();
 				String value = re.getText(key);
 				if (StringUtil.isNotEmpty(value)) {
-					cache((int) Hexa32.toLong32(key), value);
+					int resultKey = (int) Hexa32.toLong32(key);
+					cache(resultKey, value);
 				}
 			}
 		}
+
+		if (scopeStarted.get() == true) {
+			for(int i=0; i<hashLv.size(); i++) {
+				if (entries.containsKey(hashLv.getInt(i)) == false) {
+					failedSet.add(hashLv.getInt(i));
+				}
+			}
+		}
+
 		return true;
 	}
 

@@ -40,6 +40,12 @@ public int net_tcp_listen_port = 6100;
 @ConfigDesc("Http Port for scouter-pulse")
 public int net_http_port = 6180;
 
+//Object
+@ConfigDesc("Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
+public int object_deadtime_ms = 8000;
+@ConfigDesc("inactive object warning level. default 0.(0:info, 1:warn, 2:error, 3:fatal)")
+public int object_inactive_alert_level = 0;
+
 //Management
 @ConfigDesc("Activating automatic deletion function in the database")
 public boolean mgr_purge_enabled = true;

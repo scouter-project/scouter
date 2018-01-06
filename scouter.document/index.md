@@ -17,6 +17,7 @@
 - [method level profiling](./use-case/Method-Profiling.md)
 - [Scouter plugins guide](./main/Plugin-Guide.md)
 - [Customizable alarm - Alert plugins guide](./main/Alert-Plugin-Guide.md)
+- [Web api guide](./tech/Web-API-Guide.md)
 - [How to trace NON-HTTP service](./use-case/NON-HTTP-Service-Trace.md)
 - [Stand-alone Java Batch Agent](./main/Stand-alone-Java-Batch-Agent.md)
 - [TagCounting Analysis](./use-case/TagCounting-Analysis.md)
@@ -30,10 +31,6 @@
 - [Counting Visit Users](./tech/Counting-Visit-Users.md)
 - [JDBC Connection Leak Trace](./tech/JDBC-Connection-Leak-Trace.md)
 - [Service Performance 101](./tech/Service-Performance-101.md)
-
-## Build Scouter
-- [Build on Linux & OSX](./main/Build-Scouter.md)
-- [Build on Window](./main/Build-Scouter-Windows.md)
 
 ## For developers and contributors
 - [Scouter developer guide](./tech/Developer-Guide.md)

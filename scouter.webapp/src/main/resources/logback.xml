@@ -6,9 +6,22 @@
         </encoder>
     </appender>
 
-    <appender name="DEFAULT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--<appender name="DEFAULT" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+        <!--<prudent>true</prudent>-->
+        <!--<file>${scouter_webapp_log_dir}/webapp.log</file>-->
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+            <!--<fileNamePattern>${scouter_webapp_log_dir}/webapp-%d{yyyy_MM_dd}.log</fileNamePattern>-->
+            <!--<maxHistory>30</maxHistory>-->
+        <!--</rollingPolicy>-->
+        <!--<encoder>-->
+            <!--<pattern>%X{requestId} %d{HH:mm:ss.SSS} [%thread] %X{req.ip} %-5level %logger{36}[%line] - %msg%n</pattern>-->
+        <!--</encoder>-->
+    <!--</appender>-->
+
+    <!-- 날짜별 파일 -->
+    <appender name="FILE_DAILY" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <prudent>true</prudent>
-        <file>${scouter_webapp_log_dir}/webapp.log</file>
+        <!--<file>${scouter_webapp_log_dir}/webapp.log</file>-->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${scouter_webapp_log_dir}/webapp-%d{yyyy_MM_dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
@@ -18,8 +31,42 @@
         </encoder>
     </appender>
 
+    <!-- 파일 사이즈별 파일 -->
+    <appender name="FILE_SIZE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${scouter_webapp_log_dir}/webapp.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${scouter_webapp_log_dir}/webapp-%d{yyyy_MM_dd}-%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>10</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>200MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>%X{requestId} %d{HH:mm:ss.SSS} [%thread] %X{req.ip} %-5level %logger{36}[%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 날짜별 & 사이즈별 파일 -->
+    <appender name="FILE_SIZE_DAILY" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <prudent>true</prudent>
+        <!--<file>${scouter_webapp_log_dir}/webapp.log</file>-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>${scouter_webapp_log_dir}/webapp-%d{yyyy_MM_dd}-%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- or whenever the file size reaches 200MB -->
+                <maxFileSize>200MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%X{requestId} %d{HH:mm:ss.SSS} [%thread] %X{req.ip} %-5level %logger{36}[%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <root level="INFO">
         <appender-ref ref="STDOUT" />
-        <appender-ref ref="DEFAULT" />
+        <appender-ref ref="FILE_DAILY" />
     </root>
 </configuration>

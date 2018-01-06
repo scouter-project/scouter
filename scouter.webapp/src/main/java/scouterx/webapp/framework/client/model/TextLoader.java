@@ -72,8 +72,12 @@ public class TextLoader {
 			while (iter.hasNext()) {
 				int hash = iter.next();
 				if(TextTypeEnum.of(type).getTextModel().getCachedText(hash) == null) {
-					typeList.add(type);
-					hashList.add(hash);
+					if (TextModel.isScopeStarted() && TextModel.isFailedInScope(hash)) {
+						//skip
+					} else {
+						typeList.add(type);
+						hashList.add(hash);
+					}
 				}
 			}
 		}
@@ -88,6 +92,16 @@ public class TextLoader {
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				return false;
+			}
+
+			if (TextModel.isScopeStarted()) {
+				for(int i = 0; i < hashList.size(); i++) {
+					int hash = hashList.getInt(i);
+					TextModel textModel = TextTypeEnum.of(typeList.getString(i)).getTextModel();
+					if (textModel.getCachedText(hash) == null) {
+						TextModel.addFailedList(hashList.getInt(i));
+					}
+				}
 			}
 		}
 

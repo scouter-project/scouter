@@ -45,14 +45,12 @@ import java.util.Set;
 @ToString
 @AllArgsConstructor
 public class RealTimeXLogRequest {
-    @NotNull
     @Min(0)
-    @PathParam("offset1")
+    @PathParam("xlogLoop")
     long xLogLoop;
 
-    @NotNull
-
-    @PathParam("offset2")
+    @Min(0)
+    @PathParam("xlogIndex")
     int xLogIndex;
 
     int serverId;
@@ -60,12 +58,13 @@ public class RealTimeXLogRequest {
     @NotNull
     Set<Integer> objHashes;
 
+    //with AllArgsConstructor
+    public RealTimeXLogRequest() {}
+
     @QueryParam("objHashes")
     public void setObjHashes(String objHashes) {
         this.objHashes = ZZ.splitParamAsIntegerSet(objHashes);
     }
-
-    public RealTimeXLogRequest() { }
 
     @QueryParam("serverId")
     public void setServerId(int serverId) {

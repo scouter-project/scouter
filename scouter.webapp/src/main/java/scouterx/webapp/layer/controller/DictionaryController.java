@@ -18,10 +18,11 @@
 
 package scouterx.webapp.layer.controller;
 
+import io.swagger.annotations.Api;
 import scouter.lang.pack.TextPack;
-import scouterx.webapp.view.CommonResultView;
-import scouterx.webapp.request.DictionaryRequest;
 import scouterx.webapp.layer.service.DictionaryService;
+import scouterx.webapp.request.DictionaryRequest;
+import scouterx.webapp.view.CommonResultView;
 
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -38,6 +39,7 @@ import javax.ws.rs.core.StreamingOutput;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 29.
  */
 @Path("/v1/dictionary")
+@Api("Dictionary")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class DictionaryController {

@@ -69,15 +69,17 @@ public class ProfileStepData {
             throw new RuntimeException(e);
         }
 
+        TextModel.startScope();
+
         //load all text from dictionary
         textLoader.loadAll();
 
         List<ProfileStepData> profileStepDataList = new ArrayList<>();
 
-        TextModel.startScope();
         for (Step step : stepList) {
             profileStepDataList.add(ProfileStepData.of(step, date, serverId));
         }
+
         TextModel.endScope();
 
         return profileStepDataList;

@@ -72,7 +72,7 @@ class SummaryService {
             val p = new DataInputX(data).readPack().asInstanceOf[SummaryPack];
             if (p.stype == stype
                 && (objHash == 0 || objHash == p.objHash)
-                && (objType == null || objType == p.objType)) {
+                && (objType == null || objType == "" || objType == p.objType)) {
                 val id = p.table.getList("id")
                 val count = p.table.getList("count")
                 val error = p.table.getList("error")
