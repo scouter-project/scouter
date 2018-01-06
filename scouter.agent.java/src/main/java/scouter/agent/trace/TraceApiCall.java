@@ -159,7 +159,7 @@ public class TraceApiCall {
 				if (tctx.error == 0 && conf.xlog_error_on_apicall_exception_enabled) {
 					tctx.error = step.error;
 				}
-				ServiceSummary.getInstance().process(thr, step.error, tctx.serviceHash, tctx.txid, 0, step.hash);
+				tctx.offerErrorEntity(ErrorEntity.of(thr, step.error, 0, step.hash));
 			}
 
 			if(step instanceof ApiCallStep2 && ((ApiCallStep2) step).async == 1) {
@@ -220,7 +220,7 @@ public class TraceApiCall {
 				if (tctx.error == 0) {
 					tctx.error = step.error;
 				}
-				ServiceSummary.getInstance().process(thr, step.error, tctx.serviceHash, tctx.txid, 0, 0);
+				tctx.offerErrorEntity(ErrorEntity.of(thr, step.error, 0, 0));
 			}
 			tctx.profile.add(step);
 			SocketTable.add(step.ipaddr, step.port, tctx.serviceHash, tctx.txid);
@@ -295,10 +295,7 @@ public class TraceApiCall {
 				httpclient.addHeader(oRtn, conf._trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
 				httpclient.addHeader(oRtn, conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
 				httpclient.addHeader(oRtn, conf._trace_interservice_callee_header_key, Hexa32.toString32(ctx.lastApiCallStep.txid));
-				httpclient.addHeader(oRtn, "scouter_caller_url", ctx.serviceName);
-				httpclient.addHeader(oRtn, "scouter_caller_name", conf.getObjName());
-				httpclient.addHeader(oRtn, "scouter_thread_id", Long.toString(ctx.threadId));
-
+				
 				PluginHttpCallTrace.call(ctx, httpclient, oRtn);
 
 			} catch (Exception e) {

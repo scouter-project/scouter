@@ -1,5 +1,5 @@
 # Service Performance 101
-[![English](https://img.shields.io/badge/language-English-orange.svg)](Service-Performance-101.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Service-Performance-101.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Service-Performance-101_kr.md)
 
 In the beginning the performance management is to understand performance graphs.
 If you do not understand the meaning of the graph even though no matter how much data to collect you can not solve the problem.

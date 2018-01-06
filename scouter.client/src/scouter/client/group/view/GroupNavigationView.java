@@ -17,6 +17,7 @@
  */
 package scouter.client.group.view;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
@@ -552,6 +553,7 @@ public class GroupNavigationView extends ViewPart implements RefreshThread.Refre
 	private void organizeGroup() {
 		GroupManager manager = GroupManager.getInstance();
 		List<String> userGroupList = manager.listGroup();
+		Collections.sort(userGroupList);
 		groupMap.clear();
 		// 1. Make Groups
 		for (int i = 0; i < userGroupList.size(); i++) {
