@@ -40,15 +40,20 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 	public final HashSet<String> noField = new HashSet<String>();
 
 	public JDBCPreparedStatementASM() {
+		
+		target.add("oracle/jdbc/driver/OraclePreparedStatement");
+		
+		//mariadb older
+		target.add("org/mariadb/jdbc/MySQLPreparedStatement");
 		//mariadb 1.5.9
 		target.add("org/mariadb/jdbc/AbstractPrepareStatement");
-
 		target.add("org/mariadb/jdbc/AbstractMariaDbPrepareStatement");
 		target.add("org/mariadb/jdbc/MariaDbClientPreparedStatement");
 		target.add("org/mariadb/jdbc/MariaDbServerPreparedStatement");
-		target.add("org/mariadb/jdbc/MySQLPreparedStatement");
-		target.add("oracle/jdbc/driver/OraclePreparedStatement");
-
+		//mariadb 1.6.4, 1.7.1
+		target.add("org/mariadb/jdbc/MariaDbPreparedStatementClient");
+		target.add("org/mariadb/jdbc/MariaDbPreparedStatementServer");
+		
 		target.add("org/postgresql/jdbc2/AbstractJdbc2Statement");
 		//pg driver 42+
 		target.add("org/postgresql/jdbc/PgPreparedStatement");

@@ -42,6 +42,9 @@ public class CounterConstants {
 	public final static String JBOSS = "jboss";
 	public final static String JETTY = "jetty";
 	public final static String RESIN = "resin";
+    public final static String WEBSPHERE = "websphere";
+    public final static String WEBLOGIC = "weblogic";
+    public final static String GLASSFISH = "glassfish";
 	
 	public final static String BATCH = "batch";
 

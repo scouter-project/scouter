@@ -36,6 +36,9 @@ public class ObjTypeDetector {
         bootClass.put("org/apache/catalina/startup/Bootstrap", CounterConstants.TOMCAT);
         bootClass.put("org/apache/catalina/startup/Tomcat", CounterConstants.TOMCAT);
         bootClass.put("com/caucho/server/resin/Resin", CounterConstants.RESIN); // resin 4.x
+        bootClass.put("com/sun/enterprise/glassfish/bootstrap/ASMain", CounterConstants.GLASSFISH);
+        bootClass.put("weblogic/Server", CounterConstants.WEBLOGIC);
+        bootClass.put("com/ibm/wsspi/bootstrap/WSPreLauncher", CounterConstants.WEBSPHERE);
     }
 
     public static String objType = null;

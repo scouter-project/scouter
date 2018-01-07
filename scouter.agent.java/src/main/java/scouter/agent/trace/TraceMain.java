@@ -27,11 +27,7 @@ import scouter.agent.error.RESULTSET_LEAK_SUSPECT;
 import scouter.agent.error.STATEMENT_LEAK_SUSPECT;
 import scouter.agent.error.USERTX_NOT_CLOSE;
 import scouter.agent.netio.data.DataProxy;
-import scouter.agent.plugin.PluginAppServiceTrace;
-import scouter.agent.plugin.PluginBackThreadTrace;
-import scouter.agent.plugin.PluginCaptureTrace;
-import scouter.agent.plugin.PluginHttpServiceTrace;
-import scouter.agent.plugin.PluginSpringControllerCaptureTrace;
+import scouter.agent.plugin.*;
 import scouter.agent.proxy.HttpTraceFactory;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
@@ -42,22 +38,9 @@ import scouter.lang.TextTypes;
 import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
-import scouter.lang.step.DispatchStep;
-import scouter.lang.step.HashedMessageStep;
-import scouter.lang.step.MessageStep;
-import scouter.lang.step.MethodStep;
-import scouter.lang.step.MethodStep2;
-import scouter.lang.step.ThreadCallPossibleStep;
+import scouter.lang.step.*;
 import scouter.lang.value.MapValue;
-import scouter.util.ArrayUtil;
-import scouter.util.HashUtil;
-import scouter.util.Hexa32;
-import scouter.util.IPUtil;
-import scouter.util.KeyGen;
-import scouter.util.ObjectUtil;
-import scouter.util.StringUtil;
-import scouter.util.SysJMX;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
@@ -168,10 +151,8 @@ public class TraceMain {
         return null;
     }
 
-    private static void addSeviceName(TraceContext ctx, Object req) {
+    private static void addHttpServiceName(TraceContext ctx, Object req) {
         try {
-            ctx.serviceName = AgentCommonConstant.removeSpringRequestMappingPostfixFlag(ctx.serviceName);
-            ctx.serviceName = AgentCommonConstant.normalizeHashCode(ctx.serviceName);
             Configure conf = Configure.getInstance();
 
             StringBuilder sb = new StringBuilder();
@@ -288,7 +269,7 @@ public class TraceMain {
                 step.hash = DataProxy.sendHashedMessage("end servlet and wait async complete");
                 step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
                 ctx.profile.add(step);
-
+                flushErrorSummary(ctx);
                 TraceContextManager.end(ctx.threadId);
                 ctx.latestCpu = SysJMX.getCurrentThreadCPU();
                 ctx.latestBytes = SysJMX.getCurrentThreadAllocBytes();
@@ -320,7 +301,9 @@ public class TraceMain {
                 return;
             }
             //additional service name
-            addSeviceName(ctx, request);
+            addHttpServiceName(ctx, request);
+            // add error summary
+            flushErrorSummary(ctx);
             // HTTP END
             http.end(ctx, request, response);
             // static-contents -> stop processing
@@ -495,6 +478,13 @@ public class TraceMain {
         }
     }
 
+    private static void flushErrorSummary(TraceContext ctx) {
+        ErrorEntity errorEntity = null;
+        while ((errorEntity = ctx.pollErrorEntity()) != null) {
+            ServiceSummary.getInstance().process(errorEntity.getThrowable(), errorEntity.getMessage(), ctx.serviceHash, ctx.txid, errorEntity.getSql(), errorEntity.getApi());
+        }
+    }
+
     private static void endHttpProcessingIfStatNull(Throwable thr) {
         // FIXME do nothing, isn't it right??
 
@@ -625,6 +615,8 @@ public class TraceMain {
                 TraceContextManager.clearForceDiscard();
                 return;
             }
+            // add error summary
+            flushErrorSummary(ctx);
             if (ctx.xType == XLogTypes.BACK_THREAD) {
                 MethodStep2 step = (MethodStep2) localCtx.stepSingle;
                 step.elapsed = (int) (System.currentTimeMillis() - ctx.startTime) - step.start_time;
@@ -879,11 +871,12 @@ public class TraceMain {
         tctx.profile.pop(step);
     }
 
-    public static void setServiceName(String name) {
+    public static void setSpringControllerName(String name) {
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null || name == null)
             return;
-        if(!ctx.serviceName.contains(AgentCommonConstant.SPRING_REQUEST_MAPPING_POSTFIX_FLAG)) {
+        if(!ctx.alreadySetControllerName) {
+            ctx.alreadySetControllerName = true;
             ctx.serviceName = name;
             ctx.serviceHash = HashUtil.hash(name);
         }
@@ -1314,7 +1307,7 @@ public class TraceMain {
 
         int hash = DataProxy.sendError(msg);
         ctx.error = hash;
-        ServiceSummary.getInstance().process(t, hash, ctx.serviceHash, ctx.txid, 0, 0);
+        ctx.offerErrorEntity(ErrorEntity.of(t, hash, 0, 0));
     }
 
     public static StringBuilder appendParentClassName(Class clazz, StringBuilder sb) {
@@ -1377,6 +1370,6 @@ public class TraceMain {
 
         int hash = DataProxy.sendError(sb.toString());
         ctx.error = hash;
-        ServiceSummary.getInstance().process(t, hash, ctx.serviceHash, ctx.txid, 0, 0);
+        ctx.offerErrorEntity(ErrorEntity.of(t, hash, 0, 0));
     }
 }

@@ -60,6 +60,7 @@ import scouter.lang.pack.Pack;
 import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.value.BooleanValue;
+import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
@@ -162,27 +163,30 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 	public void refresh() {
 		setDate(DateUtil.yyyymmdd(TimeUtil.getCurrentTime(serverId)));
 		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
-		try {
-			param.put("objHash", agentThread.getLiveObjHashLV(serverId, objType));
-			int limit = PManager.getInstance().getInt(PreferenceConstants.P_XLOG_IGNORE_TIME);
-			param.put("limit", limit);
-		
-			twdata.setMax(getMaxCount());
-			tcp.process(RequestCmd.TRANX_REAL_TIME_GROUP, param, new INetReader() {
-				public void process(DataInputX in) throws IOException {
-					Pack p = in.readPack();
-					if (p.getPackType() == PackEnum.MAP) {
-						 param = (MapPack) p;
-					} else {
-						XLogPack x = XLogUtil.toXLogPack(p);
-						twdata.putLast(x.txid, new XLogData(x, serverId));
+		ListValue objHashLv = agentThread.getLiveObjHashLV(serverId, objType);
+		if (objHashLv.size() > 0) {
+			try {
+				param.put("objHash", objHashLv);
+				int limit = PManager.getInstance().getInt(PreferenceConstants.P_XLOG_IGNORE_TIME);
+				param.put("limit", limit);
+			
+				twdata.setMax(getMaxCount());
+				tcp.process(RequestCmd.TRANX_REAL_TIME_GROUP, param, new INetReader() {
+					public void process(DataInputX in) throws IOException {
+						Pack p = in.readPack();
+						if (p.getPackType() == PackEnum.MAP) {
+							 param = (MapPack) p;
+						} else {
+							XLogPack x = XLogUtil.toXLogPack(p);
+							twdata.putLast(x.txid, new XLogData(x, serverId));
+						}
 					}
-				}
-			});
-		} catch(Exception e){
-			ConsoleProxy.errorSafe(e.toString());
-		} finally {
-			TcpProxy.putTcpProxy(tcp);
+				});
+			} catch(Exception e){
+				ConsoleProxy.errorSafe(e.toString());
+			} finally {
+				TcpProxy.putTcpProxy(tcp);
+			}
 		}
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {
