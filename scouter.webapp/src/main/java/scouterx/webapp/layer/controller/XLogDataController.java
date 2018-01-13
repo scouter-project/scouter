@@ -29,15 +29,17 @@ import scouter.lang.pack.PackEnum;
 import scouter.lang.pack.XLogPack;
 import scouter.util.IntSet;
 import scouterx.webapp.framework.cache.XLogLoopCache;
+import scouterx.webapp.framework.client.model.TextModel;
 import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.layer.service.XLogService;
 import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.XLogPackWrapper;
-import scouterx.webapp.request.PageableXLogDataRequest;
+import scouterx.webapp.request.GxidXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogDataRequest;
+import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.PageableXLogView;
@@ -54,6 +56,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -78,6 +81,25 @@ public class XLogDataController {
         int count;
         long loop;
         int index;
+
+        private int getCount() {
+            return count;
+        }
+        private void setCount(int count) {
+            this.count = count;
+        }
+        private long getLoop() {
+            return loop;
+        }
+        private void setLoop(long loop) {
+            this.loop = loop;
+        }
+        private int getIndex() {
+            return index;
+        }
+        private void setIndex(int index) {
+            this.index = index;
+        }
     }
 
     /**
@@ -114,6 +136,7 @@ public class XLogDataController {
             }
         };
 
+        TextModel.startScope();
         StreamingOutput streamingOutput = outputStream ->
                 CommonResultView.jsonStream(outputStream, realTimeXLogHandlerConsumer);
 
@@ -124,15 +147,14 @@ public class XLogDataController {
      * request xlog data within given time range
      * uri : /xlog-data/{yyyymmdd}?startTime=... @see {@link PageableXLogRequest}
      *
-     * @param xLogDataRequest
+     * @param xLogRequest
      * @return PageableXLogView @see {@link PageableXLogView}
      */
     @GET
     @Path("/{yyyymmdd}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response streamPageableXLog(@Valid @BeanParam PageableXLogDataRequest xLogDataRequest) throws ParseException {
-        xLogDataRequest.validate();
-        PageableXLogRequest xLogRequest = new PageableXLogRequest(xLogDataRequest);
+    public Response streamPageableXLog(@Valid @BeanParam PageableXLogRequest xLogRequest) throws ParseException {
+        xLogRequest.validate();
         Server server = ServerManager.getInstance().getServerIfNullDefault(xLogRequest.getServerId());
         Consumer<JsonGenerator> pageableXLogHandlerConsumer = jsonGenerator -> {
             try {
@@ -143,6 +165,7 @@ public class XLogDataController {
             }
         };
 
+        TextModel.startScope();
         StreamingOutput streamingOutput = outputStream ->
                 CommonResultView.jsonStream(outputStream, pageableXLogHandlerConsumer);
 
@@ -158,11 +181,47 @@ public class XLogDataController {
     @GET
     @Path("/{yyyymmdd}/{txid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<XLogData> getSingleXLog(@Valid @BeanParam SingleXLogRequest singleXlogRequest) {
+    public CommonResultView<XLogData> retrieveSingleXLog(@Valid @BeanParam SingleXLogRequest singleXlogRequest) {
         singleXlogRequest.validate();
-        XLogData xLogData = xLogService.retrieveSingleXLogAsXLogData(singleXlogRequest);
+        XLogData xLogData = xLogService.retrieveSingleXLogData(singleXlogRequest);
 
         return CommonResultView.success(xLogData);
+    }
+
+    /**
+     * request xlogs by gxid
+     * uri : /{yyyymmdd}/gxid/{gxid} @see {@link GxidXLogRequest}
+     *
+     * @param gxidRequest
+     */
+    @GET
+    @Path("/{yyyymmdd}/gxid/{gxid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<XLogData>> retrieveXLogDatasByGxid(@Valid @BeanParam GxidXLogRequest gxidRequest) {
+        gxidRequest.validate();
+        List<XLogData> xLogs = xLogService.retrieveXLogDatasByGxid(gxidRequest);
+
+        return CommonResultView.success(xLogs);
+    }
+
+
+    /**
+     * request xlog data list with various condition 
+     * uri : /xlog-data/search/{yyyymmdd}?startHms=... @see {@link SearchXLogRequest}
+     *
+     * @param xLogRequest
+     */
+    @GET
+    @Path("/search/{yyyymmdd}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List> searchXLog(@Valid @BeanParam SearchXLogRequest xLogRequest) throws ParseException {
+        xLogRequest.validate();
+
+        TextModel.startScope();
+        List<XLogData> list = xLogService.searchXLogDataList(xLogRequest);
+        TextModel.endScope();
+        
+        return CommonResultView.success(list);
     }
 
     /**

@@ -1,5 +1,5 @@
 # TagCounting Analysis
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](TagCounting-Analysis_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](TagCounting-Analysis.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](TagCounting-Analysis_kr.md)
 
 Performance of service is measured by response time and the number of transactions. Speaking more accurately, by processed transactions per specified time unit and its processing time.
 

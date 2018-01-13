@@ -49,6 +49,21 @@
  - **demo**
     - [http://demo.scouterapm.com:6180/swagger/index.html](http://demo.scouterapm.com:6180/swagger/index.html)
 
+## Counter widget
+Provides a widget that simply charts the performance counter API's response.
+Passing the (url encoded) url of the counter api to be looked up in this widget, the result is charted.
+If you include this widget path when setting up a custom alarm, you can use it more easily.
+ - [alarm sample](../main/Alert-Plugin-Guide_kr.md)
+
+ - **URL : `/widget/simple/counter.html`**
+   - **parameters**
+     - **source** : url encoded counter(or counter stat) api
+       - if the source value doesn't start with `slash(/)`, then append `/scouter/v1/counter/` ahead of it by defaults.
+ - **usage example**
+   - belows are equivalent. (**counter api** : `/scouter/v1/counter/HeapUsed/latest/300/ofType/tomcat`)
+     - `http://127.0.0.1:6180/widget/simple/counter.html?source=%2Fscouter%2Fv1%2Fcounter%2FHeapUsed%2Flatest%2F300%2FofType%2Ftomcat`
+     - `http://127.0.0.1:6180/widget/simple/counter.html?source=HeapUsed%2Flatest%2F300%2FofType%2Ftomcat`
+
 ## Configuration
 ```java
 @ConfigDesc("Collector connection infos - eg) host:6100:id:pw,host2:6100:id2:pw2")
@@ -94,11 +109,10 @@ public int log_keep_days = 30;
 
 ## APIs
 - **Context root : /scouter**
-  - if the api url is ```/v1/info/server``` then ```/scouter/v1/info/server```
+  - if the api url is `/v1/info/server` then `/scouter/v1/info/server`
 
 - **SWAGGER uri : /swagger/index.html**
-  - `net_http_api_swagger_enabled` 를 true 로 설정시 활성화 됨
-
+  - if set the option `net_http_api_swagger_enabled` true
 
 #### - `GET /v1/info/server`
  - get connected collector server info.
@@ -106,7 +120,7 @@ public int log_keep_days = 30;
 
 #### - `GET /v1/object`
  - get monitoring object list
- - **Auth** : required - register api client's ip to ```net_http_api_allow_ips``` configuration.
+ - **Auth** : required - register api client's ip to `net_http_api_allow_ips` configuration.
  - **Query params**
     - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
 
@@ -121,8 +135,26 @@ public int log_keep_days = 30;
  - **Query params**
    - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
 
+#### - `GET /v1/counter/realTime/{counters}/ofObject/{objHash}`
+ - get real time counter value by object
+ - **Auth** : required
+ - **Path params**
+   - `counters` : (required)
+   - `objHash` : object id (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/counter/realTime/{counters}`
+ - get real time counter value by objects
+ - **Auth** : required
+ - **Path params**
+   - `counters` : counter names comma separated (required)
+ - **Query params**
+   - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
+   - `objHashes` : object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
+
 #### - `GET /v1/counter/{counter}/ofType/{objType}`
- - get counter values of specific time range
+ - get counter values of specific time range by object type
    - uri pattern : /counter/{counter}/ofType/{objType}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&serverId={serverId}
    - uri pattern : /counter/{counter}/ofType/{objType}?startYmdHms={startYmdHms}&endYmdHms={endYmdHms}&serverId={serverId}
  - **Auth** : required
@@ -136,14 +168,42 @@ public int log_keep_days = 30;
    - `startTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with startYmdHms)
    - `endTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with endYmdHms)
 
-#### - `GET /v1/counter/realTime/{counters}/ofObject/{objHash}`
- - get real time counter value by object
+#### - `GET /v1/counter/{counter}`
+ - get counter values of specific time range by objects
+   - uri pattern : /counter/{counter}?startTimeMillis={startTimeMillis}&endTimeMillis={endTimeMillis}&objHashes=100,200&serverId={serverId}
+   - uri pattern : /counter/{counter}?startYmdHms={startYmdHms}&endYmdHms={endYmdHms}&objHashes=100,200&serverId={serverId}
  - **Auth** : required
  - **Path params**
-   - `counters` : (required)
-   - `objHash` : object id (required)
+   - `counter` : (required)
  - **Query params**
    - `serverId` : (optional if single server)
+   - `objHashes` : object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
+   - `startYmdHms` : yyyymmddhhmiss (exclusive required with startTimeMillis)
+   - `endYmdHms` : yyyymmddhhmiss (exclusive required with endTimeMillis)
+   - `startTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with startYmdHms)
+   - `endTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with endYmdHms)
+
+#### - `GET /v1/counter/{counter}/latest/{latestSec}/ofType/{objType}`
+ - get latest counter values by object type
+   - uri pattern : /counter/{counter}/latest/{latestSec}/ofType/{objType}?serverId={serverId}
+ - **Auth** : required
+ - **Path params**
+   - `counter` : (required)
+   - `latestSec` : (required) seconds to retrieve counter values from now.
+   - `objType` : (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/counter/{counter}/latest/{latestSec}`
+ - get latest counter values by objects
+   - uri pattern : /counter/{counter}/latest/{latestSec}?serverId={serverId}&objHashes=100,200
+ - **Auth** : required
+ - **Path params**
+   - `counter` : (required)
+   - `latestSec` : (required) seconds to retrieve counter values from now.
+ - **Query params**
+   - `serverId` : (optional if single server)
+   - `objHashes` : object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
 
 #### - `GET /v1/counter/stat/{counters}/ofType/{objType}`
  - get 5min counter statistics by object type
@@ -154,6 +214,17 @@ public int log_keep_days = 30;
  - **Query params**
    - `startYmd` : yyyymmdd (required)
    - `endYmd` : yyyymmdd (required)
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/counter/stat/{counters}`
+ - get 5min counter statistics by object type
+ - **Auth** : required
+ - **Path params**
+   - `counters` : (required)
+ - **Query params**
+   - `startYmd` : yyyymmdd (required)
+   - `endYmd` : yyyymmdd (required)
+   - `objHashes` : object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
    - `serverId` : (optional if single server)
 
 #### - `GET /v1/summary/{summaryCategory}/ofType/{objType}`
@@ -182,14 +253,15 @@ public int log_keep_days = 30;
    - `endTimeMillis` : timestamp(long) - yyyymmddhhmi (exclusive required with endYmdHm)
    - `serverId` : (optional if single server)
 
-#### - `GET /v1/xlog-data/{yyyymmdd}`
- - get xlog data within the time range
+- get xlog data within the time range
  - **Auth** : required
  - **Path params**
    - `yyyymmdd` : date to search xlogs
  - **Query params**
-   - `startTimeMillis` : start time as milliseconds(long) (required)
-   - `endTimeMillis` : end time as milliseconds(long) (required)
+   - `startTimeMillis` : (required) start time as milliseconds(long)
+   - `endTimeMillis` : (required) end time as milliseconds(long)
+   - `startHms` : (required-exclusive with starTimeMillis) start time as hhmmss
+   - `endHms` : (required-exclusive with endTimeMillis) end time as hhmmss
    - `objHashes` : object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
    - `pageCount` : count to retrieve in one time. (max limit is 30,000, default 10,000)
    - `lastTxid` : available from previous response for paging support.
@@ -197,13 +269,44 @@ public int log_keep_days = 30;
    - `serverId` : (optional if single server)
 
 #### - `GET /v1/xlog-data/{yyyymmdd}/{txid}`
- - get xlog data within the time range
+ - get xlog data by txid
  - **Auth** : required
  - **Path params**
    - `yyyymmdd` : date to search xlogs
    - `txid` : XLog's txid (long)
  - **Query params**
    - `serverId` : (optional if single server)
+
+#### - `GET /v1/xlog-data/{yyyymmdd}/gxid/{gxid}`
+ - get xlog datas by gxid
+ - **Auth** : required
+ - **Path params**
+   - `yyyymmdd` : date to search xlogs
+   - `gxid` : XLog's gxid (long)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/xlog-data/search/{yyyymmdd}`
+ - search xlog data list with various conditions
+ - **Auth** : required
+ - **Path params**
+   - `yyyymmdd` : date to search xlogs
+ - **Query params**
+   - `serverId` : (optional if single server)
+   - `startTimeMillis` : (required) start time as milliseconds(long)
+   - `endTimeMillis` : (required) end time as milliseconds(long)
+   - `startHms` : (required-exclusive with starTimeMillis) start time as hhmmss
+   - `endHms` : (required-exclusive with endTimeMillis) end time as hhmmss
+   - `objHash` : object hash
+   - `service` : service(pattern)
+   - `ip` : ip(pattern)
+   - `login` : login(pattern)
+   - `desc` : desc(pattern)
+   - `text1` : text1(pattern)
+   - `text2` : text2(pattern)
+   - `text3` : text3(pattern)
+   - `text4` : text4(pattern)
+   - `text5` : text5(pattern)
 
 #### - `GET /v1/xlog-data/realTime/{offset1}/{offset2}`
  - get current xlog data created after the last searched.

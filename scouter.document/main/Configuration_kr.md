@@ -1,5 +1,5 @@
 # Configuration
-[![English](https://img.shields.io/badge/language-English-orange.svg)](Configuration.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Configuration.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Configuration_kr.md)
 
 ## Server options
  * **Useful options of collector server**
@@ -39,6 +39,12 @@ public int net_udp_listen_port = 6100;
 public int net_tcp_listen_port = 6100;
 @ConfigDesc("Http Port for scouter-pulse")
 public int net_http_port = 6180;
+
+//Object
+@ConfigDesc("Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
+public int object_deadtime_ms = 8000;
+@ConfigDesc("inactive object warning level. default 0.(0:info, 1:warn, 2:error, 3:fatal)")
+public int object_inactive_alert_level = 0;
 
 //Management
 @ConfigDesc("Activating automatic deletion function in the database")

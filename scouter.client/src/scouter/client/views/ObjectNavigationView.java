@@ -117,6 +117,8 @@ import scouter.util.HashUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -687,13 +689,24 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 	
 	private void addExistObjectTypeMenus(IWorkbenchWindow win, IMenuManager mgr, CounterEngine counterEngine, Map<String, Action> actionMap, int serverId) {
 		Set<String> agentTypeList = agentThread.getCurrentObjectTypeList(serverId);
+		List<ObjectType> objTypeList = new ArrayList<>(); 
 		for(String objType : agentTypeList){
 			ObjectType type = counterEngine.getObjectType(objType);
-			/*if (type.isSubObject()) {
-				// DataSource, RequestProcessor.....etc.
-				continue;
-			}*/
-			if (type == null) return;
+			if (type != null) {
+				objTypeList.add(type);
+			}
+		}
+		Collections.sort(objTypeList, new Comparator<ObjectType>() {
+
+			@Override
+			public int compare(ObjectType o1, ObjectType o2) {
+				return o1.getDisplayName().compareTo(o2.getDisplayName());
+			}
+			
+		});
+
+		for(ObjectType type : objTypeList){
+			String objType = type.getName();
 			String displayName = type.getDisplayName();
 			ImageDescriptor objImage = Images.getObjectImageDescriptor(objType, true, serverId);
 			MenuManager objTitle = new MenuManager(displayName, objImage, "scouter.menu.id."+displayName);

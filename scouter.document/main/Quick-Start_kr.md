@@ -1,5 +1,5 @@
 # Quick Start
-[![English](https://img.shields.io/badge/language-English-orange.svg)](Quick-Start.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Quick-Start.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Quick-Start_kr.md)
 
 이 페이지를 통해 빠르게 Scouter 데모를 설치하고 실행 해 볼 수 있다.
 
@@ -36,8 +36,8 @@ Client(Viewer)    | 수집된 성능 정보를 확인하기 위한 Client 프로
 
 #### (1) 통합 데모 환경 및 클라이언트 프로그램 다운로드
  - 통합 데모 환경 다운로드
-   - [demo-env1.tar.gz 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v1.8.0.RC1/demo-env1.tar.gz) (Collector Server, Host Agent, Java Agent, Tomcat, 샘플 시스템, 설정, 기동 스크립트가 포함됨)
-   - Windows의 경우 [demo-env1.zip 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v1.8.0.RC1/demo-env1.zip)
+   - [demo-env1.tar.gz 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v1.8.0.RC/demo-env1.tar.gz) (Collector Server, Host Agent, Java Agent, Tomcat, 샘플 시스템, 설정, 기동 스크립트가 포함됨)
+   - Windows의 경우 [demo-env1.zip 다운로드](https://github.com/scouter-project/scouter-demo/releases/download/v1.8.0.RC/demo-env1.zip)
 
  - Client 다운로드
    - 자신의 환경에 맞는 파일을 다운로드 받는다.
@@ -110,7 +110,7 @@ cd /D %originDir%
 ```
 
 #### (7) 브라우저를 통해 데모 시스템 접속
-브라우저를 실행하여 http://127.0.0.1:8080/jpetstore에 접속하면 데모시스템이 실행되는 것을 볼수 있다.
+브라우저를 실행하여 http://127.0.0.1:8080/jpetstore 에 접속하면 데모시스템이 실행되는 것을 볼수 있다.
 또한 브라우저에서 요청을 발생시키면 Scouter Client에서 실시간으로(2초이내) 이를 확인할 수 있다.
 ![jpetstore main](../img/quickstart/jpet-main.png)
 ![jpetstore main](../img/quickstart/client-jpet-demo1.png)

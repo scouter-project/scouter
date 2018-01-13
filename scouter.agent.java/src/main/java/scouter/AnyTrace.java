@@ -36,7 +36,7 @@ public class AnyTrace {
 	}
 
 	public static void setServiceName(String name) {
-		TraceMain.setServiceName(name);
+		TraceMain.setSpringControllerName(name);
 	}
 
 	public static void serviceError(String emsg) {

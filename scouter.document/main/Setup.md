@@ -1,5 +1,5 @@
 # Setup
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Setup_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Setup.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Setup_kr.md)
 
 - Outgoing Links
   - Blogging
@@ -10,9 +10,7 @@
 ## 1. Collector Server Installation
 
 ### 1.1. Prerequisite
-* JDK 1.6+ : scouter java agent, host agent (1.8 recommended)
-* JDK 1.6+ : scouter server (will support only 1.8+ on next version)
-* JDK 1.8+ : scouter web api
+* JDK 1.8+ : scouter server
 
 ### 1.2. Collector Server Installation
 1. download the latest version of scouter-yyyyMMdd.tar.gz.
@@ -66,7 +64,7 @@ All options and default values are available from the scouter client's **Collect
 
 ## 2. Host Agent
 ### 2.1. Prerequisite
-* JDK 1.5+(Required), 1.6+(Recommended)
+* JDK 1.6+
 
 ### 2.2. Download and start Host agent
 1. Download scouter-yyyyMMdd.tar.gz 
@@ -85,7 +83,7 @@ All options and default values are available from the scouter client's **Host > 
 
 ## 3. Tomcat Agent
 ### 3.1. Prerequisite
-* JDK 1.5+(Required), 1.6+(Recommended)
+* JDK 1.6+
 
 ### 3.2. Start Tomcat with Scouter agent
 1. Download scouter-yyyyMMdd.tar.gz 

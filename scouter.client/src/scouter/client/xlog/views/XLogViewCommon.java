@@ -309,6 +309,7 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 		if (this.viewPainter != null) {
 			viewPainter.dispose();
 		}
+		twdata.clear();
 	}
 	
 	public String[] getExistObjNames() {

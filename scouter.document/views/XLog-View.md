@@ -1,5 +1,5 @@
 # XLog View
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](XLog-View_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](XLog-View.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](XLog-View_kr.md)
 
 ## Keys
 keys              | Description
