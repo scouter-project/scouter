@@ -26,6 +26,7 @@ import scouter.lang.value.TextValue;
 import scouter.lang.value.Value;
 import scouter.lang.value.ValueEnum;
 import scouter.util.CastUtil;
+import scouter.util.HashUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -147,8 +148,6 @@ public class TagCountUtil {
 				|| tagName.equals(TagConstants.NAME_REFERER)
 				|| tagName.equals(TagConstants.NAME_CITY)
 				|| tagName.equals(TagConstants.NAME_ERROR)
-				|| tagName.equals(TagConstants.NAME_LOGIN)
-				|| tagName.equals(TagConstants.NAME_DESC)
 				|| TagConstants.serviceHashGroup.hasKey(tagName)
 				) {
 			return new TextHashValue(tagValue);
@@ -159,8 +158,8 @@ public class TagCountUtil {
 //			return new DecimalValue(Long.valueOf(tagValue));
 		} else if (tagName.equals(TagConstants.NAME_LEVEL)) {
 			return new DecimalValue(AlertLevel.getValue(tagValue));
-//		} else if (tagName.equals(TagConstants.NAME_IP)) {
-//			return new IP4Value(tagValue);
+		} else if (tagName.equals(TagConstants.NAME_LOGIN) || tagName.equals(TagConstants.NAME_DESC)) {
+			return new DecimalValue(HashUtil.hash(tagValue));
 		}
 		return new TextValue(tagValue);
 	}
