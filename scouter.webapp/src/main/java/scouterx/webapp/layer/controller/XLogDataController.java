@@ -120,6 +120,9 @@ public class XLogDataController {
         Consumer<JsonGenerator> realTimeXLogHandlerConsumer = jsonGenerator -> {
             try {
                 XLogCountBucket countBucket = new XLogCountBucket();
+                countBucket.setLoop(xLogRequest.getXLogLoop());
+                countBucket.setIndex(xLogRequest.getXLogIndex());
+
                 jsonGenerator.writeArrayFieldStart("xlogs");
 
                 XLogLoopCache.getOf(server.getId()).getAndHandleRealTimeXLog(
