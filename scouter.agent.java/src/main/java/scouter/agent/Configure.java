@@ -182,6 +182,9 @@ public class Configure extends Thread {
     //Trace
     @ConfigDesc("User ID based(0 : Remote Address, 1 : Cookie, 2 : Scouter Cookie, 2 : Header) \n - able to set value for 1.Cookie and 3.Header \n - refer to 'trace_user_session_key'")
     public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:Scouter Cookie, 3:Header
+    @ConfigDesc("Setting a cookie path for SCOUTER cookie when trace_user_mode is 2")
+    public String trace_user_cookie_path = "";
+
     @ConfigDesc("Tracing background thread socket")
     public boolean trace_background_socket_enabled = true;
     @ConfigDesc("Adding assigned header value to the service name")
@@ -896,6 +899,7 @@ public class Configure extends Thread {
         this.profile_connection_open_fullstack_enabled = getBoolean("profile_connection_open_fullstack_enabled", false);
         this.profile_connection_autocommit_status_enabled = getBoolean("profile_connection_autocommit_status_enabled", false);
         this.trace_user_mode = getInt("trace_user_mode", 2);
+        this.trace_user_cookie_path = getValue("trace_user_cookie_path", "");
         this.trace_user_session_key = getValue("trace_user_session_key", "JSESSIONID");
         this._trace_auto_service_enabled = getBoolean("_trace_auto_service_enabled", false);
         this._trace_auto_service_backstack_enabled = getBoolean("_trace_auto_service_backstack_enabled", true);
