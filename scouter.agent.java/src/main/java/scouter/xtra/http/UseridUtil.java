@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 public class UseridUtil {
 	private static final String SCOUTE_R = "SCOUTER";
-	public static long getUserid(HttpServletRequest req, HttpServletResponse res) {
+	public static long getUserid(HttpServletRequest req, HttpServletResponse res, String cookiePath) {
 		try {
 			String cookie = req.getHeader("Cookie");
 			if (cookie != null) {
@@ -45,6 +45,9 @@ public class UseridUtil {
 				}
 			}
 			Cookie c = new Cookie(SCOUTE_R, Hexa32.toString32(KeyGen.next()));
+			if ( cookiePath != null && cookiePath.trim().length() > 0 ) {
+				c.setPath(cookiePath);
+			}
 			c.setMaxAge(Integer.MAX_VALUE);
 			res.addCookie(c);
 		} catch (Throwable t) {
