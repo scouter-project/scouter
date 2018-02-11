@@ -20,35 +20,34 @@ package scouterx.webapp.layer.consumer;
 
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
-import scouter.lang.value.ListValue;
+import scouter.lang.value.TextValue;
+import scouter.lang.value.Value;
 import scouter.net.RequestCmd;
-import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.framework.client.net.TcpProxy;
-import scouterx.webapp.model.scouter.SDictionaryText;
-import scouterx.webapp.request.DictionaryRequest;
-
-import java.util.Map;
-import java.util.Set;
+import scouterx.webapp.framework.client.server.Server;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public class DictionaryConsumer {
+public class KvStoreConsumer {
 
-	public void retrieveText(DictionaryRequest dictionaryRequest, INetReader reader) {
-
-		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(dictionaryRequest.getServerId())) {
-			for (Map.Entry<String, Set<SDictionaryText>> textSetEntry : dictionaryRequest.getDictSets().entrySet()) {
-				MapPack paramPack = new MapPack();
-				paramPack.put(ParamConstant.DATE, dictionaryRequest.getYyyymmdd());
-				paramPack.put(ParamConstant.TEXT_TYPE, textSetEntry.getKey());
-
-				ListValue dictKeyLV = paramPack.newList(ParamConstant.TEXT_DICTKEY);
-				for (SDictionaryText dictionaryText : textSetEntry.getValue()) {
-					dictKeyLV.add(dictionaryText.getDictKey());
-				}
-				tcpProxy.process(RequestCmd.GET_TEXT_PACK, paramPack, reader);
-			}
+	public String get(final String key, final Server server) {
+		Value value = null;
+		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+			value = tcpProxy.getSingleValue(RequestCmd.GET_GLOBAL_KV, new TextValue(key));
 		}
+		return value.toString();
+	}
+
+	public boolean set(final String key, final String value, final Server server) {
+		Value returnValue = null;
+		MapPack mapPack = new MapPack();
+		mapPack.put(ParamConstant.KEY, key);
+		mapPack.put(ParamConstant.VALUE, value);
+
+		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+			returnValue = tcpProxy.getSingleValue(RequestCmd.SET_GLOBAL_KV, mapPack);
+		}
+		return (Boolean) returnValue.toJavaObject();
 	}
 }

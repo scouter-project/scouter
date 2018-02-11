@@ -28,6 +28,7 @@ public class ParamConstant {
     public static final String OBJ_TYPE = "objType";
     public static final String OBJ_HASH = "objHash";
     public static final String COUNTER = "counter";
+    public static final String KEY = "key";
     public static final String VALUE = "value";
     public static final String DATE = "date";
     public static final String TIME = "time";
