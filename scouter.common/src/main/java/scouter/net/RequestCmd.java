@@ -161,6 +161,9 @@ public class RequestCmd {
 	public static final String GET_TEXT_PACK = "GET_TEXT_PACK";
 	public static final String GET_TEXT_ANY_TYPE= "GET_TEXT_ANY_TYPE";
 
+	public static final String GET_GLOBAL_KV = "GET_GLOBAL_KV";
+	public static final String SET_GLOBAL_KV = "SET_GLOBAL_KV";
+
 	public static final String GET_CONFIGURE_SERVER = "GET_CONFIGURE_SERVER";
 	public static final String SET_CONFIGURE_SERVER = "SET_CONFIGURE_SERVER";
 	public static final String LIST_CONFIGURE_SERVER = "LIST_CONFIGURE_SERVER";
