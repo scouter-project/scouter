@@ -366,6 +366,8 @@ public class Configure extends Thread {
     @ConfigDesc("XLog discard service patterns\nNo XLog data, but apply to TPS and summary.\neg) /user/{userId}<GET>,/device/*")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String xlog_discard_service_patterns = "";
+    @ConfigDesc("Do not discard error even if it's discard pattern.")
+    public boolean xlog_discard_service_show_error = true;
 
     //Alert
     @ConfigDesc("Limited length of alert message")
@@ -1018,6 +1020,7 @@ public class Configure extends Thread {
         this.xlog_patterned_sampling_over_rate_pct = getInt("xlog_patterned_sampling_over_rate_pct", 100);
 
         this.xlog_discard_service_patterns = getValue("xlog_discard_service_patterns", "");
+        this.xlog_discard_service_show_error = getBoolean("xlog_discard_service_show_error", true);
 
         resetObjInfo();
         setStaticContents();

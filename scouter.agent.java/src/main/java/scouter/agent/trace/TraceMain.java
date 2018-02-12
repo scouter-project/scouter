@@ -433,6 +433,13 @@ public class TraceMain {
 
             //check xlog sampling
             XLogDiscard discardMode = pack.error != 0 ? XLogDiscard.NONE : XLogSampler.getInstance().evaluateXLogDiscard(pack.elapsed, ctx.serviceName);
+            //check xlog discard pattern
+            if(XLogSampler.getInstance().isDiscardServicePattern(ctx.serviceName)) {
+                discardMode = XLogDiscard.DISCARD_ALL;
+                if (pack.error != 0 && conf.xlog_discard_service_show_error) {
+                    discardMode = XLogDiscard.NONE;
+                }
+            }
 
             ctx.profile.close(discardMode==XLogDiscard.NONE ? true : false);
             if (ctx.group != null) {
