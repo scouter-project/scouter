@@ -39,7 +39,7 @@ object KeyValueStoreRW {
     } else {
       val dataPos = indexDb.get(key.getBytes("UTF-8"))
       val bytes = dataReader.read(dataPos)
-      return new String(bytes, "UTF=8")
+      return new String(bytes, "UTF-8")
     }
   }
 

@@ -37,11 +37,11 @@ class KeyValueStoreService {
       */
     @ServiceHandler(RequestCmd.GET_GLOBAL_KV)
     def getText(din: DataInputX, dout: DataOutputX, login: Boolean) {
-        val param = din.readText();
+        val param = din.readValue();
         if (param == null)
             return;
 
-        val value = KeyValueStoreRW.get(GLOBAL, param)
+        val value = KeyValueStoreRW.get(GLOBAL, param.toString())
         dout.writeByte(TcpFlag.HasNEXT);
         dout.writeValue(new TextValue(value))
     }
