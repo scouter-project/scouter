@@ -263,6 +263,10 @@ public class Configure extends Thread {
 			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
 	public int _mgr_text_db_daily_index_mb = 1;
 
+	@ConfigDesc("change default memory size of key value store index.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_kv_store_index_default_mb = 4;
+
 	//XLog
 	@ConfigDesc("XLog Writer Queue Size")
 	public int xlog_queue_size = 10000;
@@ -475,6 +479,8 @@ public class Configure extends Thread {
 		this._mgr_text_db_index_desc_mb = getInt("_mgr_text_db_index_desc_mb", 1);
 		this._mgr_text_db_index_hmsg_mb = getInt("_mgr_text_db_index_hmsg_mb", 1);
 		this._mgr_text_db_daily_index_mb = getInt("_mgr_text_db_daily_index_mb", 1);
+
+		this._mgr_kv_store_index_default_mb = getInt("_mgr_kv_store_index_default_mb", 4);
 
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
 		this.geoip_data_city_file = getValue("geoip_data_city_file", CONF_DIR + "GeoLiteCity.dat");
