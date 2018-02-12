@@ -675,6 +675,12 @@ public class TraceMain {
             if (ctx.desc != null) {
                 pack.desc = DataProxy.sendDesc(ctx.desc);
             }
+            pack.text1 = ctx.text1;
+            pack.text2 = ctx.text2;
+            pack.text3 = ctx.text3;
+            pack.text4 = ctx.text4;
+            pack.text5 = ctx.text5;
+
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
 
