@@ -46,9 +46,8 @@ public class KvStoreController {
     private final KvStoreService kvStoreService = new KvStoreService();
 
     /**
-     * get value
+     * get value by key from scouter key-value store
      *
-     * @return
      */
     @GET
     @Path("/{key}")
@@ -58,6 +57,10 @@ public class KvStoreController {
         return CommonResultView.success(result);
     }
 
+    /**
+     * set key & value on scouter key-value store
+     *
+     */
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<Boolean> set(SetKvRequest request) {
