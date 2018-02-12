@@ -21,9 +21,10 @@ package scouter.server.netio.service.handle
 ;
 
 import scouter.io.{DataInputX, DataOutputX}
-import scouter.lang.pack.{MapPack}
+import scouter.lang.pack.MapPack
+import scouter.lang.value.{BooleanValue, TextValue}
 import scouter.net.{RequestCmd, TcpFlag}
-import scouter.server.db.{KeyValueStoreRW}
+import scouter.server.db.KeyValueStoreRW
 import scouter.server.netio.service.anotation.ServiceHandler
 
 class KeyValueStoreService {
@@ -42,7 +43,7 @@ class KeyValueStoreService {
 
         val value = KeyValueStoreRW.get(GLOBAL, param)
         dout.writeByte(TcpFlag.HasNEXT);
-        dout.writeText(value);
+        dout.writeValue(new TextValue(value))
     }
 
     /**
@@ -61,7 +62,7 @@ class KeyValueStoreService {
         val result = new MapPack();
         val success = KeyValueStoreRW.set(GLOBAL, key, value)
         dout.writeByte(TcpFlag.HasNEXT);
-        dout.writeBoolean(success);
+        dout.writeValue(new BooleanValue(success))
     }
 
 }
