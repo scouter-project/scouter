@@ -17,13 +17,6 @@
 
 package scouter.lang.pack;
 
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.lang.value.BooleanValue;
@@ -32,6 +25,13 @@ import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.lang.value.TextValue;
 import scouter.lang.value.Value;
+
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class MapPack implements Pack {
 
@@ -194,6 +194,14 @@ public class MapPack implements Pack {
 			}
 		}
 		return true;
+	}
+
+	public Object toJavaObject() {
+		return this.table;
+	}
+
+	public Map<String, Value> toMap() {
+		return this.table;
 	}
 
 	public MapValue toMapValue() {
