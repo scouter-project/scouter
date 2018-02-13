@@ -293,7 +293,7 @@ public class Configure extends Thread {
 
 	//TagCount
 	@ConfigDesc("Activating TagCount function")
-	public boolean tagcnt_enabled = false;
+	public boolean tagcnt_enabled = true;
 
 	//Service request options from client
 	@ConfigDesc("search xlog service option - max xlog count to search per request")
@@ -491,7 +491,7 @@ public class Configure extends Thread {
 
 		this.mgr_log_ignore_ids = getStringSet("mgr_log_ignore_ids", ",");
 
-		this.tagcnt_enabled = getBoolean("tagcnt_enabled", false);
+		this.tagcnt_enabled = getBoolean("tagcnt_enabled", true);
 		
 		this.visitor_hourly_count_enabled = getBoolean("visitor_hourly_count_enabled", true);
 		
