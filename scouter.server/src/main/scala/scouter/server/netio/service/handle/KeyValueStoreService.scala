@@ -51,12 +51,13 @@ class KeyValueStoreService {
 
     /**
       * get value from global kv store
-      * @param din - keys: ListValue{text}
+      * @param din - keys: MapPack{ListValue{text}}
       * @param dout - values: MapPack{key, value}
       */
     @ServiceHandler(RequestCmd.GET_GLOBAL_KV_BULK)
     def getTextBulk(din: DataInputX, dout: DataOutputX, login: Boolean) {
-        val paramLv = din.readValue().asInstanceOf[ListValue]
+        val param = din.readMapPack()
+        val paramLv = param.getList("key")
         if (paramLv == null || paramLv.size() == 0)
             return
 

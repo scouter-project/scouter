@@ -19,16 +19,20 @@
 package scouterx.webapp.layer.service;
 
 import scouterx.webapp.framework.client.server.Server;
-import scouterx.webapp.layer.consumer.KvStoreConsumer;
+import scouterx.webapp.layer.consumer.GlobalKvStoreConsumer;
+import scouterx.webapp.model.KeyValueData;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public class KvStoreService {
-    private final KvStoreConsumer kvStoreConsumer;
+public class GlobalKvStoreService {
+    private final GlobalKvStoreConsumer kvStoreConsumer;
 
-    public KvStoreService() {
-        this.kvStoreConsumer = new KvStoreConsumer();
+    public GlobalKvStoreService() {
+        this.kvStoreConsumer = new GlobalKvStoreConsumer();
     }
 
     public String get(String key, Server server) {
@@ -41,5 +45,13 @@ public class KvStoreService {
             throw new RuntimeException("Error on setting value to kvstore!");
         }
         return kvStoreConsumer.set(key, value, server);
+    }
+
+    public List<KeyValueData> getBulk(List<String> paramList, final Server server) {
+        return kvStoreConsumer.getBulk(paramList, server);
+    }
+
+    public List<KeyValueData> setBulk(Map<String, String> paramMap, final Server server) {
+        return kvStoreConsumer.setBulk(paramMap, server);
     }
 }
