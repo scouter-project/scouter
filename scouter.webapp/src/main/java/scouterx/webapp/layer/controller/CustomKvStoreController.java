@@ -21,15 +21,13 @@ package scouterx.webapp.layer.controller;
 import io.swagger.annotations.Api;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.framework.util.ZZ;
-import scouterx.webapp.layer.service.GlobalKvStoreService;
+import scouterx.webapp.layer.service.CustomKvStoreService;
 import scouterx.webapp.model.KeyValueData;
 import scouterx.webapp.request.SetKvBulkRequest;
 import scouterx.webapp.request.SetKvRequest;
 import scouterx.webapp.view.CommonResultView;
 
 import javax.inject.Singleton;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -43,57 +41,68 @@ import java.util.List;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-@Path("/v1/kv")
-@Api("GlobalKeyValueStore")
+@Path("/v1/kv/space")
+@Api("CustomKeyValueStore")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
-public class GlobalKvStoreController {
+public class CustomKvStoreController {
 
-    private final GlobalKvStoreService kvStoreService = new GlobalKvStoreService();
+    private final CustomKvStoreService kvStoreService = new CustomKvStoreService();
 
     /**
-     * get value by key from scouter key-value store
+     * get value by key from scouter key-value store's specific keyspace
      */
     @GET
-    @Path("/{key}")
+    @Path("/{keySpace}/{key}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<String> get(@PathParam("key") String key, @QueryParam("serverId") int serverId) {
-        String result = kvStoreService.get(key, ServerManager.getInstance().getServerIfNullDefault(serverId));
+    public CommonResultView<String> get(@PathParam("keySpace") String keySpace,
+                                        @PathParam("key") String key,
+                                        @QueryParam("serverId") int serverId) {
+
+        String result = kvStoreService.get(keySpace, key, ServerManager.getInstance().getServerIfNullDefault(serverId));
         return CommonResultView.success(result);
     }
 
     /**
-     * store key & value onto scouter key-value store
+     * store key & value onto scouter key-value store's specific keyspace
      */
     @PUT
+    @Path("/{keySpace}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Boolean> set(SetKvRequest request) {
-        kvStoreService.set(request.getKey(), request.getValue(),
+    public CommonResultView<Boolean> set(@PathParam("keySpace") String keySpace, SetKvRequest request) {
+
+        kvStoreService.set(keySpace, request.getKey(), request.getValue(),
                 ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
+
         return CommonResultView.success(true);
     }
 
     /**
-     * get values by keys from scouter key-value store
+     * get values by keys from scouter key-value store's specific keyspace
      */
     @GET
-    @Path("/{keys}/:bulk")
+    @Path("/{keySpace}/{keys}/:bulk")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<KeyValueData>> getBulk(@PathParam("keys") final String keyBySeparator,
+    public CommonResultView<List<KeyValueData>> getBulk(@PathParam("keySpace") String keySpace,
+                                                        @PathParam("keys") final String keyBySeparator,
                                                         @QueryParam("serverId") final int serverId) {
-        List<KeyValueData> resultList = kvStoreService.getBulk(ZZ.splitParam(keyBySeparator),
-                                                               ServerManager.getInstance().getServerIfNullDefault(serverId));
+
+        List<KeyValueData> resultList = kvStoreService.getBulk(keySpace, ZZ.splitParam(keyBySeparator),
+                ServerManager.getInstance().getServerIfNullDefault(serverId));
+
         return CommonResultView.success(resultList);
     }
 
     /**
-     * store key-values on scouter key-value store
+     * store key-values on scouter key-value store's specific keyspace
      */
     @PUT
-    @Path("/:bulk")
+    @Path("/{keySpace}/:bulk")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<KeyValueData>> setBulk(SetKvBulkRequest request) {
-        List<KeyValueData> resultList = kvStoreService.setBulk(request.toMap(), ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
+    public CommonResultView<List<KeyValueData>> setBulk(@PathParam("keySpace") String keySpace,
+                                                        SetKvBulkRequest request) {
+
+        List<KeyValueData> resultList = kvStoreService.setBulk(keySpace, request.toMap(), ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
         return CommonResultView.success(resultList);
     }
 }

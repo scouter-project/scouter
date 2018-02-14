@@ -30,6 +30,8 @@ public class ParamConstant {
     public static final String COUNTER = "counter";
     public static final String KEY = "key";
     public static final String VALUE = "value";
+    public static final String KEY_SPACE = "keySpace";
+    public static final String KEY_VALUE = "kv";
     public static final String DATE = "date";
     public static final String TIME = "time";
     public static final String SDATE = "sDate";

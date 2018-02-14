@@ -21,11 +21,9 @@ package scouter.server.netio.service.handle
 ;
 
 import scouter.io.{DataInputX, DataOutputX}
-import scouter.lang.{CounterKey, TimeTypeEnum}
 import scouter.lang.pack.MapPack
-import scouter.lang.value.{BooleanValue, DecimalValue, ListValue, TextValue}
+import scouter.lang.value.{BooleanValue, MapValue, TextValue}
 import scouter.net.{RequestCmd, TcpFlag}
-import scouter.server.core.cache.CounterCache
 import scouter.server.db.KeyValueStoreRW
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.server.util.EnumerScala
@@ -35,8 +33,8 @@ class KeyValueStoreService {
 
     /**
       * get value from global kv store
-      * @param din - key: Text
-      * @param dout - value: Text
+      * @param din - TextValue:key
+      * @param dout - TextValue
       */
     @ServiceHandler(RequestCmd.GET_GLOBAL_KV)
     def getText(din: DataInputX, dout: DataOutputX, login: Boolean) {
@@ -51,8 +49,8 @@ class KeyValueStoreService {
 
     /**
       * get value from global kv store
-      * @param din - keys: MapPack{ListValue{text}}
-      * @param dout - values: MapPack{key, value}
+      * @param din - MapPack{ ListValue<TextValue>:key }
+      * @param dout - MapPack<TextValue,TextValue>
       */
     @ServiceHandler(RequestCmd.GET_GLOBAL_KV_BULK)
     def getTextBulk(din: DataInputX, dout: DataOutputX, login: Boolean) {
@@ -71,18 +69,17 @@ class KeyValueStoreService {
 
     /**
       * set value to global kv store
-      * @param din - MapPack{ key: Text, value: Text }
-      * @param dout - success: Boolean
+      * @param din - MapPack{ TextValue:key, TextValue:value }
+      * @param dout - BooleanValue
       */
     @ServiceHandler(RequestCmd.SET_GLOBAL_KV)
     def setText(din: DataInputX, dout: DataOutputX, login: Boolean) {
-        val param = din.readMapPack();
-        var key = param.getText("key");
-        var value = param.getText("value");
+        val param = din.readMapPack()
+        var key = param.getText("key")
+        var value = param.getText("value")
         if (key == null)
-            return;
+            return
 
-        val result = new MapPack();
         val success = KeyValueStoreRW.set(GLOBAL, key, value)
         dout.writeByte(TcpFlag.HasNEXT);
         dout.writeValue(new BooleanValue(success))
@@ -90,13 +87,13 @@ class KeyValueStoreService {
 
     /**
       * set value to global kv store
-      * @param din - MapPack{ [your-key]: Text, [your-value]: Text } - key,value & key, value & key, value ...
-      * @param dout - success: MapPack{key, success}
+      * @param din - MapPack<TextValue,TextValue>
+      * @param dout - MapPack<TextValue,TextValue>
       */
     @ServiceHandler(RequestCmd.SET_GLOBAL_KV_BULK)
     def setTextBulk(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val paramMapPack = din.readMapPack();
-        if(paramMapPack.size() == null || paramMapPack.size() == 0)
+        if(paramMapPack == null || paramMapPack.size() == 0)
             return
 
         val resultMapPack = new MapPack();
@@ -111,40 +108,83 @@ class KeyValueStoreService {
 
     /**
       * get value from specific key space
-      * @param din - key: Text
-      * @param dout - value: Text
+      * @param din - MapPack{ TextValue:keySpace, TextValue:key }
+      * @param dout - TextValue
       */
     @ServiceHandler(RequestCmd.GET_CUSTOM_KV)
     def getTextFromCustomStore(din: DataInputX, dout: DataOutputX, login: Boolean) {
-        val param = din.readMapPack();
-        var keySpace = param.getText("keySpace");
-        var key = param.getText("key");
+        val param = din.readMapPack()
+        var keySpace = param.getText("keySpace")
+        var key = param.getText("key")
         if (key == null)
-            return;
+            return
 
-        val value = KeyValueStoreRW.get(keySpace, param.toString())
-        dout.writeByte(TcpFlag.HasNEXT);
+        val value = KeyValueStoreRW.get(keySpace, key)
+        dout.writeByte(TcpFlag.HasNEXT)
         dout.writeValue(new TextValue(value))
     }
 
     /**
       * set value from specific key space
-      * @param din - MapPack{ key: Text, value: Text }
-      * @param dout - success: Boolean
+      * @param din - MapPack{ TextValue:keySpace, TextValue:key, TextValue:value }
+      * @param dout - BooleanValue
       */
     @ServiceHandler(RequestCmd.SET_CUSTOM_KV)
     def setTextToCustomStore(din: DataInputX, dout: DataOutputX, login: Boolean) {
-        val param = din.readMapPack();
-        var keySpace = param.getText("keySpace");
-        var key = param.getText("key");
-        var value = param.getText("value");
+        val param = din.readMapPack()
+        var keySpace = param.getText("keySpace")
+        var key = param.getText("key")
+        var value = param.getText("value")
         if (key == null)
-            return;
+            return
 
-        val result = new MapPack();
         val success = KeyValueStoreRW.set(keySpace, key, value)
-        dout.writeByte(TcpFlag.HasNEXT);
+        dout.writeByte(TcpFlag.HasNEXT)
         dout.writeValue(new BooleanValue(success))
     }
 
+    /**
+      * get value from specific key space
+      * @param din - MapPack{ TextValue:keySpace, ListValue<TextValue>:key }
+      * @param dout - values: MapPack<TextValue,TextValue>
+      */
+    @ServiceHandler(RequestCmd.GET_CUSTOM_KV_BULK)
+    def getTextBulkFromCustomStore(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack()
+        val keySpace = param.getText("keySpace")
+        val paramLv = param.getList("key")
+        if (paramLv == null || paramLv.size() == 0)
+            return
+
+        val mapPack = new MapPack()
+        for (i <- 0 until paramLv.size()) {
+            mapPack.put(paramLv.getString(i), KeyValueStoreRW.get(keySpace, paramLv.getString(i)))
+        }
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writePack(mapPack)
+    }
+
+    /**
+      * set value to specific key space
+      * @param din - MapPack{ TextValue:keySpace MapValue<TextValue,TextValue>:kv }
+      * @param dout - success: MapPack{key, success}
+      */
+    @ServiceHandler(RequestCmd.SET_CUSTOM_KV_BULK)
+    def setTextBulkToCustomStore(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        if(param == null || param.size() == 0)
+            return
+
+        val keySpace = param.getText("keySpace")
+        val kv = param.get("kv").asInstanceOf[MapValue]
+
+        val resultMapPack = new MapPack()
+        EnumerScala.foreach(kv.keys(), (key: String) => {
+            val success = KeyValueStoreRW.set(keySpace, key, kv.getText(key))
+            resultMapPack.put(key, success)
+        })
+
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writePack(resultMapPack)
+    }
 }

@@ -19,7 +19,7 @@
 package scouterx.webapp.layer.service;
 
 import scouterx.webapp.framework.client.server.Server;
-import scouterx.webapp.layer.consumer.GlobalKvStoreConsumer;
+import scouterx.webapp.layer.consumer.CustomKvStoreConsumer;
 import scouterx.webapp.model.KeyValueData;
 
 import java.util.List;
@@ -28,30 +28,30 @@ import java.util.Map;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
-public class GlobalKvStoreService {
-    private final GlobalKvStoreConsumer kvStoreConsumer;
+public class CustomKvStoreService {
+    private final CustomKvStoreConsumer kvStoreConsumer;
 
-    public GlobalKvStoreService() {
-        this.kvStoreConsumer = new GlobalKvStoreConsumer();
+    public CustomKvStoreService() {
+        this.kvStoreConsumer = new CustomKvStoreConsumer();
     }
 
-    public String get(String key, Server server) {
-        return kvStoreConsumer.get(key, server);
+    public String get(String keySpace, String key, Server server) {
+        return kvStoreConsumer.get(keySpace, key, server);
     }
 
-    public boolean set(String key, String value, Server server) {
-        boolean result = kvStoreConsumer.set(key, value, server);
+    public boolean set(String keySpace, String key, String value, Server server) {
+        boolean result = kvStoreConsumer.set(keySpace, key, value, server);
         if (!result) {
             throw new RuntimeException("Error on setting value to kvstore!");
         }
-        return result;
+        return true;
     }
 
-    public List<KeyValueData> getBulk(List<String> paramList, final Server server) {
-        return kvStoreConsumer.getBulk(paramList, server);
+    public List<KeyValueData> getBulk(String keySpace, List<String> paramList, final Server server) {
+        return kvStoreConsumer.getBulk(keySpace, paramList, server);
     }
 
-    public List<KeyValueData> setBulk(Map<String, String> paramMap, final Server server) {
-        return kvStoreConsumer.setBulk(paramMap, server);
+    public List<KeyValueData> setBulk(String keySpace, Map<String, String> paramMap, final Server server) {
+        return kvStoreConsumer.setBulk(keySpace, paramMap, server);
     }
 }

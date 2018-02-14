@@ -18,15 +18,15 @@
 package scouter.lang.value;
 
 
+import scouter.io.DataInputX;
+import scouter.io.DataOutputX;
+
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import scouter.io.DataInputX;
-import scouter.io.DataOutputX;
 
 
 public class MapValue implements Value {
