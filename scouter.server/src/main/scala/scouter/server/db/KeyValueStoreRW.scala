@@ -38,6 +38,10 @@ object KeyValueStoreRW {
       return null
     } else {
       val dataPos = indexDb.get(key.getBytes("UTF-8"))
+      if(dataPos == -1) {
+        return null
+      }
+
       val bytes = dataReader.read(dataPos)
       return new String(bytes, "UTF-8")
     }

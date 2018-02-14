@@ -61,7 +61,10 @@ class KeyValueStoreService {
 
         val mapPack = new MapPack();
         for (i <- 0 until paramLv.size()) {
-            mapPack.put(paramLv.getString(i), KeyValueStoreRW.get(GLOBAL, paramLv.getString(i)));
+            val v = KeyValueStoreRW.get(GLOBAL, paramLv.getString(i))
+            if(v != null) {
+                mapPack.put(paramLv.getString(i), v)
+            }
         }
         dout.writeByte(TcpFlag.HasNEXT);
         dout.writePack(mapPack)
@@ -158,7 +161,10 @@ class KeyValueStoreService {
 
         val mapPack = new MapPack()
         for (i <- 0 until paramLv.size()) {
-            mapPack.put(paramLv.getString(i), KeyValueStoreRW.get(keySpace, paramLv.getString(i)))
+            val v = KeyValueStoreRW.get(keySpace, paramLv.getString(i))
+            if(v != null) {
+                mapPack.put(paramLv.getString(i), v)
+            }
         }
         dout.writeByte(TcpFlag.HasNEXT)
         dout.writePack(mapPack)
