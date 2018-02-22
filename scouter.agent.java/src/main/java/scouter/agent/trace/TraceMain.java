@@ -27,7 +27,11 @@ import scouter.agent.error.RESULTSET_LEAK_SUSPECT;
 import scouter.agent.error.STATEMENT_LEAK_SUSPECT;
 import scouter.agent.error.USERTX_NOT_CLOSE;
 import scouter.agent.netio.data.DataProxy;
-import scouter.agent.plugin.*;
+import scouter.agent.plugin.PluginAppServiceTrace;
+import scouter.agent.plugin.PluginBackThreadTrace;
+import scouter.agent.plugin.PluginCaptureTrace;
+import scouter.agent.plugin.PluginHttpServiceTrace;
+import scouter.agent.plugin.PluginSpringControllerCaptureTrace;
 import scouter.agent.proxy.HttpTraceFactory;
 import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
@@ -38,13 +42,29 @@ import scouter.lang.TextTypes;
 import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
-import scouter.lang.step.*;
+import scouter.lang.step.DispatchStep;
+import scouter.lang.step.HashedMessageStep;
+import scouter.lang.step.MessageStep;
+import scouter.lang.step.MethodStep;
+import scouter.lang.step.MethodStep2;
+import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.lang.value.MapValue;
-import scouter.util.*;
+import scouter.util.ArrayUtil;
+import scouter.util.HashUtil;
+import scouter.util.Hexa32;
+import scouter.util.IPUtil;
+import scouter.util.KeyGen;
+import scouter.util.ObjectUtil;
+import scouter.util.StringUtil;
+import scouter.util.SysJMX;
+import scouter.util.ThreadUtil;
 
 import javax.sql.DataSource;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class TraceMain {
     public static class Stat {
@@ -1254,6 +1274,45 @@ public class TraceMain {
 
     public static void callRunnableCallEnd(Object oRtn, Object oLocalContext, Throwable thr) {
         endAsyncPossibleService(oRtn, oLocalContext, thr);
+    }
+
+    private static final ConcurrentMap<String, Method> REFLECT_METHODS = new ConcurrentHashMap<String, Method>();
+
+    public static void hystrixPrepareInvoked(Object hystrixCommand) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if(ctx == null) return;
+
+        if(TransferMap.get(System.identityHashCode(hystrixCommand)) != null) {
+            return;
+        }
+        Class<?> clazz = hystrixCommand.getClass();
+        String getCommandGroupHashKey = clazz.getName() + "#getCommandKey";
+        String getCommandKeyHashKey = clazz.getName() + "#getCommandKey";
+
+        Method getCommandGroup = REFLECT_METHODS.get(getCommandGroupHashKey);
+        Method getCommandKey = REFLECT_METHODS.get(getCommandKeyHashKey);
+
+        try {
+            if (getCommandGroup == null) {
+                getCommandGroup = clazz.getMethod("getCommandGroup", null);
+                REFLECT_METHODS.putIfAbsent(getCommandGroupHashKey, getCommandGroup);
+            }
+            if (getCommandKey == null) {
+                getCommandKey = clazz.getMethod("getCommandKey", null);
+                REFLECT_METHODS.putIfAbsent(getCommandKeyHashKey, getCommandKey);
+            }
+
+            ctx.lastThreadCallName = "[hystrix]" + getCommandGroup.invoke(hystrixCommand) + "#" + getCommandKey.invoke(hystrixCommand);
+
+        } catch (NoSuchMethodException e) {
+            Logger.println("S267", "Hystrix hooking failed. check scouter supporting hystrix version.", e);
+        } catch (IllegalAccessException e) {
+            Logger.println("S268", "Hystrix hooking failed. check scouter supporting hystrix version.", e);
+        } catch (InvocationTargetException e) {
+            Logger.println("S269", "Hystrix hooking failed. check scouter supporting hystrix version.", e);
+        }
+
+        callRunnableInitInvoked(hystrixCommand);
     }
 
     public static void callRunnableInitInvoked(Object callRunnableObj) {
