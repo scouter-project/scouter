@@ -16,33 +16,28 @@
  *
  */
 
-package scouterx.webapp.request;
+package scouterx.webapp.framework.session;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import scouterx.webapp.framework.client.server.ServerManager;
-import scouterx.webapp.model.scouter.SUser;
-
-import javax.validation.constraints.NotNull;
+import scouter.util.StringKeyLinkedMap;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ * @author Gun Lee (gunlee01@gmail.com) on 2018. 2. 24.
  */
-@Getter
-@Setter
-@ToString
-public class LoginRequest {
-    private int serverId;
+public class UserTokenCache {
+    private static StringKeyLinkedMap<UserToken> cache = new StringKeyLinkedMap<UserToken>().setMax(10000);
+    private static UserTokenCache instance = new UserTokenCache();
 
-    @NotNull
-    private SUser user;
+    private UserTokenCache() {}
 
-    public LoginRequest() {
-        this.serverId = ServerManager.getInstance().getDefaultServer().getId();
+    public static UserTokenCache getInstance() {
+        return instance;
     }
 
-    public void setServerId(int serverId) {
-        this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
+    public void put(String userId, UserToken token) {
+        cache.put(userId, token);
+    }
+
+    public UserToken get(String userId) {
+        return cache.get(userId);
     }
 }

@@ -22,9 +22,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import scouterx.webapp.framework.client.server.ServerManager;
-import scouterx.webapp.model.scouter.SUser;
+import scouterx.webapp.model.KeyValueData;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -32,17 +35,21 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ToString
-public class LoginRequest {
+public class SetKvBulkRequest {
     private int serverId;
 
     @NotNull
-    private SUser user;
-
-    public LoginRequest() {
-        this.serverId = ServerManager.getInstance().getDefaultServer().getId();
-    }
+    private List<KeyValueData> kvList;
 
     public void setServerId(int serverId) {
         this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
+    }
+
+    public Map<String, String> toMap() {
+        Map<String, String> map = new HashMap<>();
+        for (KeyValueData data : kvList) {
+            map.put(data.getKey(), data.getValue().toString());
+        }
+        return map;
     }
 }

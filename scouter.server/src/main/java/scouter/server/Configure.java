@@ -154,14 +154,16 @@ public class Configure extends Thread {
 	public int net_webapp_tcp_client_pool_timeout = net_tcp_client_so_timeout_ms;
 
 	@ConfigDesc("Enable api access control by client ip")
-	public boolean net_http_api_auth_ip_enabled = true;
+	public boolean net_http_api_auth_ip_enabled = false;
 	@ConfigDesc("If get api caller's ip from http header.")
 	public String net_http_api_auth_ip_header_key;
 
 	@ConfigDesc("Enable api access control by JSESSIONID of Cookie")
-	public boolean net_http_api_auth_session_enabled = true;
+	public boolean net_http_api_auth_session_enabled = false;
 	@ConfigDesc("api http session timeout")
 	public int net_http_api_session_timeout = 3600*24;
+	@ConfigDesc("Enable api access control by Bearer token(of Authorization http header) - get access token from /user/loginGetToken.")
+	public boolean net_http_api_auth_bearer_token_enabled = false;
 
 	@ConfigDesc("api access allow ip addresses")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
@@ -263,6 +265,10 @@ public class Configure extends Thread {
 			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
 	public int _mgr_text_db_daily_index_mb = 1;
 
+	@ConfigDesc("change default memory size of key value store index.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_kv_store_index_default_mb = 8;
+
 	//XLog
 	@ConfigDesc("XLog Writer Queue Size")
 	public int xlog_queue_size = 10000;
@@ -289,7 +295,7 @@ public class Configure extends Thread {
 
 	//TagCount
 	@ConfigDesc("Activating TagCount function")
-	public boolean tagcnt_enabled = false;
+	public boolean tagcnt_enabled = true;
 
 	//Service request options from client
 	@ConfigDesc("search xlog service option - max xlog count to search per request")
@@ -392,10 +398,11 @@ public class Configure extends Thread {
 		this.net_webapp_tcp_client_pool_size = getInt("net_webapp_tcp_client_pool_size", 12);
 		this.net_webapp_tcp_client_pool_timeout = getInt("net_webapp_tcp_client_pool_timeout", net_tcp_client_so_timeout_ms);
 
-		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", true);
+		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", false);
 		this.net_http_api_auth_ip_header_key = getValue("net_http_api_auth_ip_header_key", "");
-		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", true);
+		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", false);
 		this.net_http_api_session_timeout = getInt("net_http_api_session_timeout", 3600*24);
+		this.net_http_api_auth_bearer_token_enabled = getBoolean("net_http_api_auth_bearer_token_enabled", false);
 
 		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1");
 
@@ -476,6 +483,8 @@ public class Configure extends Thread {
 		this._mgr_text_db_index_hmsg_mb = getInt("_mgr_text_db_index_hmsg_mb", 1);
 		this._mgr_text_db_daily_index_mb = getInt("_mgr_text_db_daily_index_mb", 1);
 
+		this._mgr_kv_store_index_default_mb = getInt("_mgr_kv_store_index_default_mb", 8);
+
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
 		this.geoip_data_city_file = getValue("geoip_data_city_file", CONF_DIR + "GeoLiteCity.dat");
 		this.geoip_enabled = getBoolean("geoip_enabled", true);
@@ -485,7 +494,7 @@ public class Configure extends Thread {
 
 		this.mgr_log_ignore_ids = getStringSet("mgr_log_ignore_ids", ",");
 
-		this.tagcnt_enabled = getBoolean("tagcnt_enabled", false);
+		this.tagcnt_enabled = getBoolean("tagcnt_enabled", true);
 		
 		this.visitor_hourly_count_enabled = getBoolean("visitor_hourly_count_enabled", true);
 		

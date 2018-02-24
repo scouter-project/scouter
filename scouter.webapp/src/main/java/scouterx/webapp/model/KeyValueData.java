@@ -16,33 +16,22 @@
  *
  */
 
-package scouterx.webapp.request;
+package scouterx.webapp.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-import scouterx.webapp.framework.client.server.ServerManager;
-import scouterx.webapp.model.scouter.SUser;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ * @author Gun Lee (gunlee01@gmail.com) on 2018. 2. 13.
  */
 @Getter
 @Setter
-@ToString
-public class LoginRequest {
-    private int serverId;
-
+@AllArgsConstructor
+public class KeyValueData {
     @NotNull
-    private SUser user;
-
-    public LoginRequest() {
-        this.serverId = ServerManager.getInstance().getDefaultServer().getId();
-    }
-
-    public void setServerId(int serverId) {
-        this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
-    }
+    private final String key;
+    private final Object value;
 }

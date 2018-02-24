@@ -22,7 +22,7 @@ $(document).ready(function () {
   var urlVars = getUrlVars();
   var source = decodeURIComponent(urlVars['source']);
   if(source.charAt(0) != '/' && !(source.startsWith('http://') || source.startsWith('https://'))) {
-    source = '/scouter/v1/counter/' + source;
+    source = encodeURI('/scouter/v1/counter/' + source);
   }
 
   $.get(source, function (data) {

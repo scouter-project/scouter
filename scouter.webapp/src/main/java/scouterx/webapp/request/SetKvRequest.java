@@ -22,7 +22,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import scouterx.webapp.framework.client.server.ServerManager;
-import scouterx.webapp.model.scouter.SUser;
 
 import javax.validation.constraints.NotNull;
 
@@ -32,15 +31,14 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ToString
-public class LoginRequest {
+public class SetKvRequest {
     private int serverId;
 
     @NotNull
-    private SUser user;
+    private String key;
 
-    public LoginRequest() {
-        this.serverId = ServerManager.getInstance().getDefaultServer().getId();
-    }
+    @NotNull
+    private String value;
 
     public void setServerId(int serverId) {
         this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();

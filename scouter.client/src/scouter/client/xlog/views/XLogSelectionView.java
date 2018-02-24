@@ -271,6 +271,10 @@ public class XLogSelectionView extends ViewPart {
 				return FormatUtil.print(d.p.sqlCount, "#,##0");
 			case SQL_TIME :
 					return FormatUtil.print(d.p.sqlTime, "#,##0");
+			case API_COUNT :
+				return FormatUtil.print(d.p.apicallCount, "#,##0");
+			case API_TIME :
+				return FormatUtil.print(d.p.apicallTime, "#,##0");
 			case KBYTES :
 					return FormatUtil.print(d.p.kbytes, "#,##0");
 			case IP :

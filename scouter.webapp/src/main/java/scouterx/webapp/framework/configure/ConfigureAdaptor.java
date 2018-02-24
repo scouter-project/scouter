@@ -30,6 +30,8 @@ public interface ConfigureAdaptor {
     int getNetHttpPort();
     boolean isNetHttpApiAuthIpEnabled();
     boolean isNetHttpApiAuthSessionEnabled();
+    boolean isNetHttpApiAuthBearerTokenEnabled();
+
     Set<String> getNetHttpApiAllowIps();
     String getNetHttpApiAuthIpHeaderKey();
     int getNetHttpApiSessionTimeout();

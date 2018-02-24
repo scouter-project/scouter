@@ -15,6 +15,8 @@ public enum XLogColumnEnum implements Serializable {
     CPU("Cpu", 40, SWT.RIGHT, true, true, true, true, "XLOG_COL_CPU"),
     SQL_COUNT("SQL Count", 50, SWT.RIGHT, true, true, true, true, "XLOG_COL_SQL_COUNT"),
     SQL_TIME("SQL Time", 50, SWT.RIGHT, true, true, true, true, "XLOG_COL_SQL_TIME"),
+    API_COUNT("API Count", 50, SWT.RIGHT, true, true, true, true, "XLOG_COL_SQL_COUNT"),
+    API_TIME("API Time", 50, SWT.RIGHT, true, true, true, true, "XLOG_COL_SQL_TIME"),
     KBYTES("KBytes", 60, SWT.RIGHT, true, true, true, true, "XLOG_COL_KBYTES"),
     IP("IP", 90, SWT.LEFT, true, true, false, true, "XLOG_COL_IP"),
     LOGIN("Login", 50, SWT.LEFT, true, true, false, true, "XLOG_COL_LOGIN"),
