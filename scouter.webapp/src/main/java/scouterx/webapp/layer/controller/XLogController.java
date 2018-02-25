@@ -19,6 +19,7 @@
 package scouterx.webapp.layer.controller;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
@@ -55,6 +56,7 @@ import java.util.function.Consumer;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 29.
  */
 @Path("/v1/xlog")
+@Api("Raw xlog")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j

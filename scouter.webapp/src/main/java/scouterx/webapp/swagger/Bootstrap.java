@@ -1,6 +1,10 @@
 package scouterx.webapp.swagger;
 
 import io.swagger.jaxrs.config.BeanConfig;
+import io.swagger.jaxrs.config.SwaggerContextService;
+import io.swagger.models.Swagger;
+import io.swagger.models.auth.ApiKeyAuthDefinition;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import scouterx.webapp.framework.configure.ConfigureAdaptor;
@@ -43,5 +47,10 @@ public class Bootstrap extends HttpServlet {
         beanConfig.setResourcePackage("scouterx.webapp");
         beanConfig.setFilterClass(this.filterClass);
         beanConfig.setScan(true);
+
+        Swagger swagger = new Swagger();
+        swagger.securityDefinition("Scouter auth token", new ApiKeyAuthDefinition("Authorization", In.HEADER));
+        new SwaggerContextService().withServletConfig(config).updateSwagger(swagger);
+
     }
 }
