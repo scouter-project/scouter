@@ -38,6 +38,7 @@ public enum ErrorState {
 
 	LOGIN_REQUIRED(Response.Status.FORBIDDEN, Response.Status.FORBIDDEN.getStatusCode(), "login required."),
 	LOGIN_FAIL(Response.Status.UNAUTHORIZED, Response.Status.UNAUTHORIZED.getStatusCode(), "id or password is incorrect."),
+	SESSION_EXPIRED(Response.Status.UNAUTHORIZED, Response.Status.UNAUTHORIZED.getStatusCode(), "authorization token or session is expired."),
 	NOT_IMPLEMENTED(Response.Status.NOT_IMPLEMENTED, Response.Status.NOT_IMPLEMENTED.getStatusCode(), "This API is not yet implemented."),
 	VALIDATE_ERROR(Response.Status.BAD_REQUEST, Response.Status.BAD_REQUEST.getStatusCode(), "fail to validate input parameters. : "),
 	;

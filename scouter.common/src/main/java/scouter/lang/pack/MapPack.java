@@ -17,13 +17,6 @@
 
 package scouter.lang.pack;
 
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.lang.value.BooleanValue;
@@ -33,9 +26,32 @@ import scouter.lang.value.MapValue;
 import scouter.lang.value.TextValue;
 import scouter.lang.value.Value;
 
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 public class MapPack implements Pack {
 
-	protected Map<String, Value> table = new LinkedHashMap<String, Value>();
+	protected Map<String, Value> table;
+
+	public MapPack() {
+		this.table = new LinkedHashMap<String, Value>();
+	}
+
+	public MapPack(Map<String, ? extends Value> table) {
+		this.table = new LinkedHashMap<String, Value>(table);
+	}
+
+	public static MapPack ofStringValueMap(Map<String, String> map) {
+		LinkedHashMap<String, Value> tempTable = new LinkedHashMap<String, Value>();
+		for (Map.Entry<String, String> e : map.entrySet()) {
+			tempTable.put(e.getKey(), new TextValue(e.getValue()));
+		}
+		return new MapPack(tempTable);
+	}
 
 	public int size() {
 		return table.size();
@@ -194,6 +210,14 @@ public class MapPack implements Pack {
 			}
 		}
 		return true;
+	}
+
+	public Object toJavaObject() {
+		return this.table;
+	}
+
+	public Map<String, Value> toMap() {
+		return this.table;
 	}
 
 	public MapValue toMapValue() {

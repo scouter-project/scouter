@@ -59,14 +59,16 @@ public class StandAloneConfigure extends Thread {
 	public int net_webapp_tcp_client_pool_timeout = 15000;
 
 	@ConfigDesc("Enable api access control by client ip")
-	public boolean net_http_api_auth_ip_enabled = true;
+	public boolean net_http_api_auth_ip_enabled = false;
 	@ConfigDesc("If get api caller's ip from http header.")
 	public String net_http_api_auth_ip_header_key;
 
-	@ConfigDesc("Enable api access control by JSESSIONID of Cookie")
-	public boolean net_http_api_auth_session_enabled = true;
-	@ConfigDesc("api http session timeout")
-	public int net_http_api_session_timeout = 3600*24;
+	@ConfigDesc("Enable api access control by JSESSIONID of Cookie - get session from /user/login.")
+	public boolean net_http_api_auth_session_enabled = false;
+	@ConfigDesc("api http session timeout(sec)")
+	public int net_http_api_session_timeout = 1*3600*24;
+	@ConfigDesc("Enable api access control by Bearer token(of Authorization http header) - get access token from /user/loginGetToken.")
+	public boolean net_http_api_auth_bearer_token_enabled = false;
 
 	@ConfigDesc("api access allow ip addresses")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
@@ -172,11 +174,12 @@ public class StandAloneConfigure extends Thread {
 		this.net_webapp_tcp_client_pool_size = getInt("net_webapp_tcp_client_pool_size", 12);
 		this.net_webapp_tcp_client_pool_timeout = getInt("net_webapp_tcp_client_pool_timeout", 15000);
 
-		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", true);
+		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", false);
 		this.net_http_api_auth_ip_header_key = getValue("net_http_api_auth_ip_header_key", "");
 
-		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", true);
+		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", false);
 		this.net_http_api_session_timeout = getInt("net_http_api_session_timeout", 3600*24);
+		this.net_http_api_auth_bearer_token_enabled = getBoolean("net_http_api_auth_bearer_token_enabled", false);
 
 		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1");
 

@@ -396,6 +396,22 @@ public int log_keep_days = 30;
    - `objHashes` : object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
    - `serverId` : (optional if single server)
 
+#### - `GET /v1/kv/{key}`
+ - get value of given key from scouter server's key-value store
+ - **Auth** : required
+ - **Path params**
+   - `key` : (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `PUT /v1/kv`
+ - set key and value and store it to scouter server's key-value store
+ - **Auth** : required
+ - **Request body (type : application/json)**
+   - `key` : (required)
+   - `value` : (required)
+   - `serverId` : (required)
+
 #### - `GET /v1/object/host/realTime/top/ofObject/{objHash}`
  - retrieve all OS processes cpu, memory usage of the given object
  - **Auth** : required
