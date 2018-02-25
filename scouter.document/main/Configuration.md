@@ -351,6 +351,8 @@ public int sfa_dump_interval_ms = 10000;
 //miscellaneous
 @ConfigDesc("User ID based(0 : Remote Address, 1 : JSessionID, 2 : Scouter Cookie)")
 public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:SetCookie
+@ConfigDesc("Setting a cookie path for SCOUTER cookie when trace_user_mode is 2")
+public String trace_user_cookie_path = "/";
 
 @ConfigDesc("Path to file creation directory of process ID file")
 public String counter_object_registry_path = "/tmp/scouter";
