@@ -20,7 +20,7 @@ package scouter.server.db.kv
 
 import scouter.io.{DataInputX, DataOutputX}
 import scouter.server.{Configure, ShutdownManager}
-import scouter.server.db.io.IndexKeyFile
+import scouter.server.db.io.IndexKeyFile2
 import scouter.util.{FileUtil, IClose, IShutdown, StringKeyLinkedMap}
 
 object KeyValueStoreIndex {
@@ -63,10 +63,18 @@ object KeyValueStoreIndex {
 }
 
 class KeyValueStoreIndex(div: String, file: String) extends IClose {
-  var index: IndexKeyFile = newIndexKeyFileByType()
+  var index: IndexKeyFile2 = newIndexKeyFileByType()
 
   def set(key: Array[Byte], dataPos: Long) {
-    this.index.put(key, DataOutputX.toBytes5(dataPos))
+    this.index.updateOrPut(key, DataOutputX.toBytes5(dataPos))
+  }
+
+  def set(key: Array[Byte], dataPos: Long, ttl: Long) {
+    this.index.updateOrPut(key, DataOutputX.toBytes5(dataPos), ttl)
+  }
+
+  def setTTL(key: Array[Byte], ttl: Long) {
+    this.index.setTTL(key, ttl)
   }
 
   def get(key: Array[Byte]): Long = {
@@ -78,8 +86,8 @@ class KeyValueStoreIndex(div: String, file: String) extends IClose {
     return this.index.hasKey(key)
   }
 
-  def newIndexKeyFileByType(): IndexKeyFile = {
-    new IndexKeyFile(file, KeyValueStoreIndex.DEFAULT_MB)
+  def newIndexKeyFileByType(): IndexKeyFile2 = {
+    new IndexKeyFile2(file, KeyValueStoreIndex.DEFAULT_MB)
   }
 
   override def close() {

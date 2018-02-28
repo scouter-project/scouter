@@ -102,7 +102,7 @@ object KeyValueStoreRW {
   def getDBPath(): String = {
     val sb = new StringBuffer();
     sb.append(DBCtr.getRootPath());
-    sb.append("/00000000/kv");
+    sb.append("/00000000/kv2");
     return sb.toString();
   }
 }

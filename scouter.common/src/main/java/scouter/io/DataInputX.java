@@ -17,6 +17,14 @@
 
 package scouter.io;
 
+import scouter.lang.pack.MapPack;
+import scouter.lang.pack.Pack;
+import scouter.lang.pack.PackEnum;
+import scouter.lang.step.Step;
+import scouter.lang.step.StepEnum;
+import scouter.lang.value.Value;
+import scouter.lang.value.ValueEnum;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
@@ -27,15 +35,9 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import scouter.lang.pack.MapPack;
-import scouter.lang.pack.Pack;
-import scouter.lang.pack.PackEnum;
-import scouter.lang.step.Step;
-import scouter.lang.step.StepEnum;
-import scouter.lang.value.Value;
-import scouter.lang.value.ValueEnum;
-
 public class DataInputX {
+	public static Long LONG5_MAX_VALUE = Integer.MAX_VALUE * 256L;
+
 	private int offset;
 	private DataInput inner;
 	private DataInputStream din;
