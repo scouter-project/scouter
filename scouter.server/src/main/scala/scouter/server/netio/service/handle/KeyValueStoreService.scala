@@ -21,6 +21,7 @@ package scouter.server.netio.service.handle
 ;
 
 import scouter.io.{DataInputX, DataOutputX}
+import scouter.lang.constants.ParamConstant
 import scouter.lang.pack.MapPack
 import scouter.lang.value.{BooleanValue, MapValue, TextValue}
 import scouter.net.{RequestCmd, TcpFlag}
@@ -55,7 +56,7 @@ class KeyValueStoreService {
     @ServiceHandler(RequestCmd.GET_GLOBAL_KV_BULK)
     def getTextBulk(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readMapPack()
-        val paramLv = param.getList("key")
+        val paramLv = param.getList(ParamConstant.KEY)
         if (paramLv == null || paramLv.size() == 0)
             return
 
@@ -78,12 +79,13 @@ class KeyValueStoreService {
     @ServiceHandler(RequestCmd.SET_GLOBAL_KV)
     def setText(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readMapPack()
-        var key = param.getText("key")
-        var value = param.getText("value")
+        val key = param.getText(ParamConstant.KEY)
+        val value = param.getText(ParamConstant.VALUE)
+        val ttl = param.getLongDefault(ParamConstant.TTL, ParamConstant.TTL_PERMANENT)
         if (key == null)
             return
 
-        val success = KeyValueStoreRW.set(GLOBAL, key, value)
+        val success = KeyValueStoreRW.set(GLOBAL, key, value, ttl)
         dout.writeByte(TcpFlag.HasNEXT);
         dout.writeValue(new BooleanValue(success))
     }
@@ -95,13 +97,15 @@ class KeyValueStoreService {
       */
     @ServiceHandler(RequestCmd.SET_GLOBAL_KV_BULK)
     def setTextBulk(din: DataInputX, dout: DataOutputX, login: Boolean) {
-        val paramMapPack = din.readMapPack();
+        val paramMapPack0 = din.readMapPack();
+        val ttl = paramMapPack0.getLongDefault(ParamConstant.TTL, ParamConstant.TTL_PERMANENT)
+        val paramMapPack = paramMapPack0.get(ParamConstant.KEY_VALUE).asInstanceOf[MapValue]
         if(paramMapPack == null || paramMapPack.size() == 0)
             return
 
         val resultMapPack = new MapPack();
         EnumerScala.foreach(paramMapPack.keys(), (key: String) => {
-            val success = KeyValueStoreRW.set(GLOBAL, key, paramMapPack.getText(key))
+            val success = KeyValueStoreRW.set(GLOBAL, key, paramMapPack.getText(key), ttl)
             resultMapPack.put(key, success);
         })
 
@@ -117,8 +121,8 @@ class KeyValueStoreService {
     @ServiceHandler(RequestCmd.GET_CUSTOM_KV)
     def getTextFromCustomStore(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readMapPack()
-        var keySpace = param.getText("keySpace")
-        var key = param.getText("key")
+        var keySpace = param.getText(ParamConstant.KEY_SPACE)
+        var key = param.getText(ParamConstant.KEY)
         if (key == null)
             return
 
@@ -135,13 +139,14 @@ class KeyValueStoreService {
     @ServiceHandler(RequestCmd.SET_CUSTOM_KV)
     def setTextToCustomStore(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readMapPack()
-        var keySpace = param.getText("keySpace")
-        var key = param.getText("key")
-        var value = param.getText("value")
+        var keySpace = param.getText(ParamConstant.KEY_SPACE)
+        var key = param.getText(ParamConstant.KEY)
+        var value = param.getText(ParamConstant.VALUE)
+        val ttl = param.getLongDefault(ParamConstant.TTL, ParamConstant.TTL_PERMANENT)
         if (key == null)
             return
 
-        val success = KeyValueStoreRW.set(keySpace, key, value)
+        val success = KeyValueStoreRW.set(keySpace, key, value, ttl)
         dout.writeByte(TcpFlag.HasNEXT)
         dout.writeValue(new BooleanValue(success))
     }
@@ -154,8 +159,8 @@ class KeyValueStoreService {
     @ServiceHandler(RequestCmd.GET_CUSTOM_KV_BULK)
     def getTextBulkFromCustomStore(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readMapPack()
-        val keySpace = param.getText("keySpace")
-        val paramLv = param.getList("key")
+        val keySpace = param.getText(ParamConstant.KEY_SPACE)
+        val paramLv = param.getList(ParamConstant.KEY)
         if (paramLv == null || paramLv.size() == 0)
             return
 
@@ -181,12 +186,13 @@ class KeyValueStoreService {
         if(param == null || param.size() == 0)
             return
 
-        val keySpace = param.getText("keySpace")
-        val kv = param.get("kv").asInstanceOf[MapValue]
+        val keySpace = param.getText(ParamConstant.KEY_SPACE)
+        val kv = param.get(ParamConstant.KEY_VALUE).asInstanceOf[MapValue]
+        val ttl = param.getLongDefault(ParamConstant.TTL, ParamConstant.TTL_PERMANENT)
 
         val resultMapPack = new MapPack()
         EnumerScala.foreach(kv.keys(), (key: String) => {
-            val success = KeyValueStoreRW.set(keySpace, key, kv.getText(key))
+            val success = KeyValueStoreRW.set(keySpace, key, kv.getText(key), ttl)
             resultMapPack.put(key, success)
         })
 

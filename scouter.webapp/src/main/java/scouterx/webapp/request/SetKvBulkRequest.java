@@ -21,6 +21,7 @@ package scouterx.webapp.request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import scouter.lang.constants.ParamConstant;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.model.KeyValueData;
 
@@ -40,6 +41,8 @@ public class SetKvBulkRequest {
 
     @NotNull
     private List<KeyValueData> kvList;
+
+    private long ttl = ParamConstant.TTL_PERMANENT;
 
     public void setServerId(int serverId) {
         this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();

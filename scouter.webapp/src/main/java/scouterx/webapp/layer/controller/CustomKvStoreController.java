@@ -71,7 +71,7 @@ public class CustomKvStoreController {
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<Boolean> set(@PathParam("keySpace") String keySpace, SetKvRequest request) {
 
-        kvStoreService.set(keySpace, request.getKey(), request.getValue(),
+        kvStoreService.set(keySpace, request.getKey(), request.getValue(), request.getTtl(),
                 ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
 
         return CommonResultView.success(true);
@@ -102,7 +102,9 @@ public class CustomKvStoreController {
     public CommonResultView<List<KeyValueData>> setBulk(@PathParam("keySpace") String keySpace,
                                                         SetKvBulkRequest request) {
 
-        List<KeyValueData> resultList = kvStoreService.setBulk(keySpace, request.toMap(), ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
+        List<KeyValueData> resultList = kvStoreService.setBulk(keySpace, request.toMap(), request.getTtl(),
+                ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
+
         return CommonResultView.success(resultList);
     }
 }

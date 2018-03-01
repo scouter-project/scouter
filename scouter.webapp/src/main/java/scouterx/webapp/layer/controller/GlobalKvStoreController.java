@@ -28,8 +28,6 @@ import scouterx.webapp.request.SetKvRequest;
 import scouterx.webapp.view.CommonResultView;
 
 import javax.inject.Singleton;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -68,7 +66,7 @@ public class GlobalKvStoreController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<Boolean> set(SetKvRequest request) {
-        kvStoreService.set(request.getKey(), request.getValue(),
+        kvStoreService.set(request.getKey(), request.getValue(), request.getTtl(),
                 ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
         return CommonResultView.success(true);
     }
@@ -93,7 +91,7 @@ public class GlobalKvStoreController {
     @Path("/:bulk")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List<KeyValueData>> setBulk(SetKvBulkRequest request) {
-        List<KeyValueData> resultList = kvStoreService.setBulk(request.toMap(), ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
+        List<KeyValueData> resultList = kvStoreService.setBulk(request.toMap(), request.getTtl(), ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
         return CommonResultView.success(resultList);
     }
 }

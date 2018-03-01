@@ -71,7 +71,15 @@ class RealKeyFile2(_path: String) extends IClose {
     }
 
     def isDeletedOrExpired(pos: Long): Boolean = {
-        return isDeleted(pos) || isExpired(pos)
+        this.synchronized {
+            this.raf.seek(pos)
+            val in = new DataInputX(this.raf)
+
+            val isDeleted = in.readBoolean()
+            val expire = in.readLong5()
+
+            return isDeleted || expire < System.currentTimeMillis() / 1000
+        }
     }
 
     def getExpire(pos: Long): Long = {
@@ -122,7 +130,7 @@ class RealKeyFile2(_path: String) extends IClose {
     def setTTL(pos: Long, ttlSec: Long) = {
         this.synchronized {
             this.raf.seek(pos + 1);
-            val expire = if(ttlSec < 0) System.currentTimeMillis()/1000L + DataInputX.LONG5_MAX_VALUE
+            val expire = if(ttlSec < 0) DataInputX.LONG5_MAX_VALUE * 1L
                 else System.currentTimeMillis()/1000L + ttlSec
 
             new DataOutputX(this.raf).writeLong5(expire)
@@ -154,7 +162,7 @@ class RealKeyFile2(_path: String) extends IClose {
             val out = new DataOutputX();
             out.writeBoolean(false);
 
-            val expire = if(ttl < 0) System.currentTimeMillis()/1000L + DataInputX.LONG5_MAX_VALUE
+            val expire = if(ttl < 0) DataInputX.LONG5_MAX_VALUE * 1L
                 else System.currentTimeMillis()/1000L + ttl;
 
             out.writeLong5(expire);

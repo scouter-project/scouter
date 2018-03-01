@@ -18,6 +18,7 @@
 
 package scouterx.webapp.layer.service;
 
+import scouter.lang.constants.ParamConstant;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.layer.consumer.CustomKvStoreConsumer;
 import scouterx.webapp.model.KeyValueData;
@@ -40,7 +41,11 @@ public class CustomKvStoreService {
     }
 
     public boolean set(String keySpace, String key, String value, Server server) {
-        boolean result = kvStoreConsumer.set(keySpace, key, value, server);
+        return set(keySpace, key, value, ParamConstant.TTL_PERMANENT, server);
+    }
+
+    public boolean set(String keySpace, String key, String value, long ttl, Server server) {
+        boolean result = kvStoreConsumer.set(keySpace, key, value, ttl, server);
         if (!result) {
             throw new RuntimeException("Error on setting value to kvstore!");
         }
@@ -51,7 +56,7 @@ public class CustomKvStoreService {
         return kvStoreConsumer.getBulk(keySpace, paramList, server);
     }
 
-    public List<KeyValueData> setBulk(String keySpace, Map<String, String> paramMap, final Server server) {
-        return kvStoreConsumer.setBulk(keySpace, paramMap, server);
+    public List<KeyValueData> setBulk(String keySpace, Map<String, String> paramMap, long ttl, final Server server) {
+        return kvStoreConsumer.setBulk(keySpace, paramMap, ttl, server);
     }
 }

@@ -39,8 +39,8 @@ public class GlobalKvStoreService {
         return kvStoreConsumer.get(key, server);
     }
 
-    public boolean set(String key, String value, Server server) {
-        boolean result = kvStoreConsumer.set(key, value, server);
+    public boolean set(String key, String value, long ttl, Server server) {
+        boolean result = kvStoreConsumer.set(key, value, ttl, server);
         if (!result) {
             throw new RuntimeException("Error on setting value to kvstore!");
         }
@@ -51,7 +51,7 @@ public class GlobalKvStoreService {
         return kvStoreConsumer.getBulk(paramList, server);
     }
 
-    public List<KeyValueData> setBulk(Map<String, String> paramMap, final Server server) {
-        return kvStoreConsumer.setBulk(paramMap, server);
+    public List<KeyValueData> setBulk(Map<String, String> paramMap, long ttl, final Server server) {
+        return kvStoreConsumer.setBulk(paramMap, ttl, server);
     }
 }

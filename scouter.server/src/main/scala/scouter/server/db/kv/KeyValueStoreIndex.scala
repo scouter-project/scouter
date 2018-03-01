@@ -77,6 +77,10 @@ class KeyValueStoreIndex(div: String, file: String) extends IClose {
     this.index.setTTL(key, ttl)
   }
 
+  def delete(key: Array[Byte]): Int = {
+    return this.index.delete(key)
+  }
+
   def get(key: Array[Byte]): Long = {
     val buf = this.index.get(key)
     if (buf == null) -1 else DataInputX.toLong5(buf, 0)

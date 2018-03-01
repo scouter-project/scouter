@@ -32,6 +32,10 @@ public class ParamConstant {
     public static final String VALUE = "value";
     public static final String KEY_SPACE = "keySpace";
     public static final String KEY_VALUE = "kv";
+
+    public static final String TTL = "ttl";
+    public static final Long TTL_PERMANENT = -1L;
+
     public static final String DATE = "date";
     public static final String TIME = "time";
     public static final String SDATE = "sDate";
