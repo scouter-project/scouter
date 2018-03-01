@@ -22,6 +22,7 @@ import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.framework.exception.ErrorState;
+import scouterx.webapp.framework.session.UserToken;
 import scouterx.webapp.framework.session.WebRequestContext;
 import scouterx.webapp.framework.util.ZZ;
 import scouterx.webapp.layer.service.CustomKvStoreService;
@@ -128,7 +129,11 @@ public class PrivateKvStoreController {
     }
 
     private String getPrivateKeyPrefix() {
-        return "]" + WebRequestContext.getUserToken().getId() + ":";
+        UserToken userToken = WebRequestContext.getUserToken();
+        if (userToken == null) {
+            ErrorState.LOGIN_REQUIRED.newBizException();
+        }
+        return "]" + userToken.getId() + ":";
     }
 
     private String toPrivateKey(String key) {
