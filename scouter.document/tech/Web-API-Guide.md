@@ -537,7 +537,7 @@ public int log_keep_days = 30;
       - `value` : (required)
    - `serverId` : (required)
 
-#### - `PUT /v1/user/loginGetToken`
+#### - `POST /v1/user/loginGetToken`
  - login with id & password, and get bearer token.
    - this token required on Authorization header for authorized request.
      - auth header example : `Authorization: Bearer V1.B3R4FSGEF3POJ.me`
@@ -548,7 +548,7 @@ public int log_keep_days = 30;
      - `password` : (required)
    - `serverId` : (required)
 
-#### - `PUT /v1/user/login`
+#### - `POST /v1/user/login`
  - login with id & password for traditional web application.
    - this api is answered including with SET-COOKIE response header.
  - **Auth** : none
