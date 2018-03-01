@@ -21,6 +21,7 @@ package scouterx.webapp.layer.consumer;
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
+import scouter.lang.value.MapValue;
 import scouter.lang.value.TextValue;
 import scouter.lang.value.Value;
 import scouter.net.RequestCmd;
@@ -38,13 +39,30 @@ import java.util.Map;
 public class GlobalKvStoreConsumer {
 
 	public boolean set(final String key, final String value, final Server server) {
+		return set(key, value, ParamConstant.TTL_PERMANENT, server);
+	}
+
+	public boolean set(final String key, final String value, final long ttl, final Server server) {
 		Value returnValue = null;
 		MapPack mapPack = new MapPack();
 		mapPack.put(ParamConstant.KEY, key);
 		mapPack.put(ParamConstant.VALUE, value);
+		mapPack.put(ParamConstant.TTL, ttl);
 
 		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
 			returnValue = tcpProxy.getSingleValue(RequestCmd.SET_GLOBAL_KV, mapPack);
+		}
+		return returnValue != null ? (Boolean) returnValue.toJavaObject() : false;
+	}
+
+	public boolean setTTL(final String key, final long ttl, final Server server) {
+		Value returnValue = null;
+		MapPack mapPack = new MapPack();
+		mapPack.put(ParamConstant.KEY, key);
+		mapPack.put(ParamConstant.TTL, ttl);
+
+		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+			returnValue = tcpProxy.getSingleValue(RequestCmd.SET_GLOBAL_TTL, mapPack);
 		}
 		return returnValue != null ? (Boolean) returnValue.toJavaObject() : false;
 	}
@@ -58,9 +76,17 @@ public class GlobalKvStoreConsumer {
 	}
 
 	public List<KeyValueData> setBulk(Map<String, String> paramMap, final Server server) {
+		return setBulk(paramMap, ParamConstant.TTL_PERMANENT, server);
+	}
+
+	public List<KeyValueData> setBulk(Map<String, String> paramMap, Long ttl, final Server server) {
+		MapPack input = new MapPack();
+		input.put(ParamConstant.KEY_VALUE, MapValue.ofStringValueMap(paramMap));
+		input.put(ParamConstant.TTL, ttl);
+
 		MapPack resultPack ;
 		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
-			resultPack = (MapPack) tcpProxy.getSingle(RequestCmd.SET_GLOBAL_KV_BULK, MapPack.ofStringValueMap(paramMap));
+			resultPack = (MapPack) tcpProxy.getSingle(RequestCmd.SET_GLOBAL_KV_BULK, input);
 		}
 
 		List<KeyValueData> resultList = new ArrayList<>();

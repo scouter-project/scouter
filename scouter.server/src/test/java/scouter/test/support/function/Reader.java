@@ -16,34 +16,17 @@
  *
  */
 
-package scouterx.webapp.request;
+package scouter.test.support.function;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import scouter.lang.constants.ParamConstant;
-import scouterx.webapp.framework.client.server.ServerManager;
+import scouter.io.DataInputX;
 
-import javax.validation.constraints.NotNull;
+import java.io.IOException;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ * @author Gun Lee (gunlee01@gmail.com) on 2018. 3. 1.
  */
-@Getter
-@Setter
-@ToString
-public class SetKvRequest {
-    private int serverId;
+@FunctionalInterface
+public interface Reader {
+    void read(DataInputX t) throws IOException;
 
-    @NotNull
-    private String key;
-
-    @NotNull
-    private String value;
-
-    private long ttl = ParamConstant.TTL_PERMANENT;
-
-    public void setServerId(int serverId) {
-        this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
-    }
 }

@@ -18,11 +18,12 @@
 
 package scouterx.webapp.layer.controller;
 
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import scouter.lang.step.Step;
-import scouterx.webapp.view.CommonResultView;
-import scouterx.webapp.request.ProfileRequest;
 import scouterx.webapp.layer.service.ProfileService;
+import scouterx.webapp.request.ProfileRequest;
+import scouterx.webapp.view.CommonResultView;
 
 import javax.inject.Singleton;
 import javax.validation.Valid;
@@ -37,6 +38,7 @@ import java.util.List;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 9. 3.
  */
 @Path("/v1/profile")
+@Api("Raw profile")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j

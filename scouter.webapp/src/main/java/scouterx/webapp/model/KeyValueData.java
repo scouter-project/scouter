@@ -32,6 +32,6 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class KeyValueData {
     @NotNull
-    private final String key;
-    private final Object value;
+    private String key;
+    private Object value;
 }

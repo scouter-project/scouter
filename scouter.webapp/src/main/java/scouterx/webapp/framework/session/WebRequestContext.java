@@ -16,34 +16,32 @@
  *
  */
 
-package scouterx.webapp.request;
+package scouterx.webapp.framework.session;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-import scouter.lang.constants.ParamConstant;
-import scouterx.webapp.framework.client.server.ServerManager;
-
-import javax.validation.constraints.NotNull;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ * @author Gun Lee (gunlee01@gmail.com) on 2018. 2. 24.
  */
 @Getter
 @Setter
-@ToString
-public class SetKvRequest {
-    private int serverId;
+public class WebRequestContext {
+    private static ThreadLocal<UserToken> _userToken = new ThreadLocal<>();
 
-    @NotNull
-    private String key;
+    public static void setUserToken(UserToken userToken) {
+        _userToken.set(userToken);
+    }
 
-    @NotNull
-    private String value;
+    public static UserToken getUserToken() {
+        return _userToken.get();
+    }
 
-    private long ttl = ParamConstant.TTL_PERMANENT;
+    public static void clearUserToken() {
+        _userToken.set(null);
+    }
 
-    public void setServerId(int serverId) {
-        this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
+    public static void clearAll() {
+        _userToken.set(null);
     }
 }

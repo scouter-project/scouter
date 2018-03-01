@@ -18,12 +18,12 @@
 
 package scouterx.webapp.layer.controller;
 
+import io.swagger.annotations.Api;
 import scouterx.webapp.framework.annotation.NoAuth;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.layer.service.UserService;
 import scouterx.webapp.layer.service.UserTokenService;
-import scouterx.webapp.model.scouter.SUser;
 import scouterx.webapp.request.LoginRequest;
 import scouterx.webapp.view.BearerTokenView;
 import scouterx.webapp.view.CommonResultView;
@@ -32,7 +32,6 @@ import javax.crypto.KeyGenerator;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -47,6 +46,7 @@ import java.security.SecureRandom;
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
 @Path("/v1/user")
+@Api("User")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class UserController {
@@ -64,9 +64,9 @@ public class UserController {
     @NoAuth
     @POST @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<Boolean> login(@BeanParam @Valid final LoginRequest loginRequest) {
+    public CommonResultView<Boolean> login(@Valid final LoginRequest loginRequest) {
         userService.login(ServerManager.getInstance().getServer(loginRequest.getServerId()), loginRequest.getUser());
-        servletRequest.getSession(true).setAttribute("user", new SUser(loginRequest.getUser().getId()));
+        servletRequest.getSession(true).setAttribute("userId", loginRequest.getUser().getId());
 
         return CommonResultView.success();
     }

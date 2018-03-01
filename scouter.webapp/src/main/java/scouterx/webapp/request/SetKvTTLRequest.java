@@ -32,15 +32,10 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ToString
-public class SetKvRequest {
+public class SetKvTTLRequest {
     private int serverId;
 
     @NotNull
-    private String key;
-
-    @NotNull
-    private String value;
-
     private long ttl = ParamConstant.TTL_PERMANENT;
 
     public void setServerId(int serverId) {

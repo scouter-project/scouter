@@ -21,6 +21,7 @@ package scouterx.webapp.layer.consumer;
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
+import scouter.lang.value.MapValue;
 import scouter.lang.value.Value;
 import scouter.net.RequestCmd;
 import scouterx.webapp.framework.client.net.TcpProxy;
@@ -37,14 +38,32 @@ import java.util.Map;
 public class CustomKvStoreConsumer {
 
 	public boolean set(final String keySpace, final String key, final String value, final Server server) {
+		return set(keySpace, key, value, ParamConstant.TTL_PERMANENT, server);
+	}
+
+	public boolean set(final String keySpace, final String key, final String value, long ttl, final Server server) {
 		Value returnValue = null;
 		MapPack mapPack = new MapPack();
 		mapPack.put(ParamConstant.KEY_SPACE, keySpace);
 		mapPack.put(ParamConstant.KEY, key);
 		mapPack.put(ParamConstant.VALUE, value);
+		mapPack.put(ParamConstant.TTL, ttl);
 
 		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
 			returnValue = tcpProxy.getSingleValue(RequestCmd.SET_CUSTOM_KV, mapPack);
+		}
+		return returnValue != null ? (Boolean) returnValue.toJavaObject() : false;
+	}
+
+	public boolean setTTL(final String keySpace, final String key, final long ttl, final Server server) {
+		Value returnValue = null;
+		MapPack mapPack = new MapPack();
+		mapPack.put(ParamConstant.KEY_SPACE, keySpace);
+		mapPack.put(ParamConstant.KEY, key);
+		mapPack.put(ParamConstant.TTL, ttl);
+
+		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+			returnValue = tcpProxy.getSingleValue(RequestCmd.SET_CUSTOM_TTL, mapPack);
 		}
 		return returnValue != null ? (Boolean) returnValue.toJavaObject() : false;
 	}
@@ -62,9 +81,14 @@ public class CustomKvStoreConsumer {
 	}
 
 	public List<KeyValueData> setBulk(final String keySpace, final Map<String, String> paramMap, final Server server) {
+		return setBulk(keySpace, paramMap, ParamConstant.TTL_PERMANENT, server);
+	}
+
+	public List<KeyValueData> setBulk(final String keySpace, final Map<String, String> paramMap, long ttl, final Server server) {
 		MapPack mapPack = new MapPack();
 		mapPack.put(ParamConstant.KEY_SPACE, keySpace);
-		mapPack.put(ParamConstant.KEY_VALUE, MapPack.ofStringValueMap(paramMap).toMapValue());
+		mapPack.put(ParamConstant.KEY_VALUE, MapValue.ofStringValueMap(paramMap));
+		mapPack.put(ParamConstant.TTL, ttl);
 
 		MapPack resultPack ;
 		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
