@@ -25,6 +25,7 @@ import scouterx.webapp.layer.service.CustomKvStoreService;
 import scouterx.webapp.model.KeyValueData;
 import scouterx.webapp.request.SetKvBulkRequest;
 import scouterx.webapp.request.SetKvRequest;
+import scouterx.webapp.request.SetKvTTLRequest;
 import scouterx.webapp.view.CommonResultView;
 
 import javax.inject.Singleton;
@@ -72,6 +73,21 @@ public class CustomKvStoreController {
     public CommonResultView<Boolean> set(@PathParam("keySpace") String keySpace, SetKvRequest request) {
 
         kvStoreService.set(keySpace, request.getKey(), request.getValue(), request.getTtl(),
+                ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
+
+        return CommonResultView.success(true);
+    }
+
+    /**
+     * set ttl onto scouter key-value store's specific keyspace
+     */
+    @PUT
+    @Path("/{keySpace}/{key}/:ttl")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Boolean> set(@PathParam("keySpace") String keySpace, @PathParam("key") String key,
+                                         SetKvTTLRequest request) {
+
+        kvStoreService.setTTL(keySpace, key, request.getTtl(),
                 ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
 
         return CommonResultView.success(true);

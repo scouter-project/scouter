@@ -52,6 +52,14 @@ public class CustomKvStoreService {
         return true;
     }
 
+    public boolean setTTL(String keySpace, String key, long ttl, Server server) {
+        boolean result = kvStoreConsumer.setTTL(keySpace, key, ttl, server);
+        if (!result) {
+            throw new RuntimeException("Error on setting value to kvstore!");
+        }
+        return true;
+    }
+
     public List<KeyValueData> getBulk(String keySpace, List<String> paramList, final Server server) {
         return kvStoreConsumer.getBulk(keySpace, paramList, server);
     }

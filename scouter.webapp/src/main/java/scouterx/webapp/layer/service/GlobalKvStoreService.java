@@ -47,6 +47,14 @@ public class GlobalKvStoreService {
         return result;
     }
 
+    public boolean setTTL(String key, long ttl, Server server) {
+        boolean result = kvStoreConsumer.setTTL(key, ttl, server);
+        if (!result) {
+            throw new RuntimeException("Error on setting value to kvstore!");
+        }
+        return true;
+    }
+
     public List<KeyValueData> getBulk(List<String> paramList, final Server server) {
         return kvStoreConsumer.getBulk(paramList, server);
     }

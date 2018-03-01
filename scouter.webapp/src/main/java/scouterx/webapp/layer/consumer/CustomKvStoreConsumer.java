@@ -55,6 +55,19 @@ public class CustomKvStoreConsumer {
 		return returnValue != null ? (Boolean) returnValue.toJavaObject() : false;
 	}
 
+	public boolean setTTL(final String keySpace, final String key, final long ttl, final Server server) {
+		Value returnValue = null;
+		MapPack mapPack = new MapPack();
+		mapPack.put(ParamConstant.KEY_SPACE, keySpace);
+		mapPack.put(ParamConstant.KEY, key);
+		mapPack.put(ParamConstant.TTL, ttl);
+
+		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+			returnValue = tcpProxy.getSingleValue(RequestCmd.SET_CUSTOM_TTL, mapPack);
+		}
+		return returnValue != null ? (Boolean) returnValue.toJavaObject() : false;
+	}
+
 	public String get(final String keySpace, final String key, final Server server) {
 		MapPack mapPack = new MapPack();
 		mapPack.put(ParamConstant.KEY_SPACE, keySpace);

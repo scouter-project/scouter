@@ -73,7 +73,7 @@ class KeyValueStoreService {
 
     /**
       * set value to global kv store
-      * @param din - MapPack{ TextValue:key, TextValue:value }
+      * @param din - MapPack{ TextValue:key, TextValue:value, LongValue:ttl }
       * @param dout - BooleanValue
       */
     @ServiceHandler(RequestCmd.SET_GLOBAL_KV)
@@ -91,8 +91,26 @@ class KeyValueStoreService {
     }
 
     /**
+      * set ttl to global kv store
+      * @param din - MapPack{ TextValue:key, LongValue:ttl }
+      * @param dout - BooleanValue
+      */
+    @ServiceHandler(RequestCmd.SET_GLOBAL_TTL)
+    def setTTL(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack()
+        val key = param.getText(ParamConstant.KEY)
+        val ttl = param.getLongDefault(ParamConstant.TTL, ParamConstant.TTL_PERMANENT)
+        if (key == null)
+            return
+
+        val success = KeyValueStoreRW.setTTL(GLOBAL, key, ttl)
+        dout.writeByte(TcpFlag.HasNEXT);
+        dout.writeValue(new BooleanValue(success))
+    }
+
+    /**
       * set value to global kv store
-      * @param din - MapPack<TextValue,TextValue>
+      * @param din - MapPack{ LongValue:ttl, MapValue<TextValue:key,TextValue:value>:kv }
       * @param dout - MapPack<TextValue,TextValue>
       */
     @ServiceHandler(RequestCmd.SET_GLOBAL_KV_BULK)
@@ -132,7 +150,7 @@ class KeyValueStoreService {
     }
 
     /**
-      * set value from specific key space
+      * set value to specific key space
       * @param din - MapPack{ TextValue:keySpace, TextValue:key, TextValue:value }
       * @param dout - BooleanValue
       */
@@ -147,6 +165,25 @@ class KeyValueStoreService {
             return
 
         val success = KeyValueStoreRW.set(keySpace, key, value, ttl)
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writeValue(new BooleanValue(success))
+    }
+
+    /**
+      * set ttl to specific key space
+      * @param din - MapPack{ TextValue:keySpace, TextValue:key, TextValue:value }
+      * @param dout - BooleanValue
+      */
+    @ServiceHandler(RequestCmd.SET_CUSTOM_TTL)
+    def setTtlToCustomStore(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack()
+        var keySpace = param.getText(ParamConstant.KEY_SPACE)
+        var key = param.getText(ParamConstant.KEY)
+        val ttl = param.getLongDefault(ParamConstant.TTL, ParamConstant.TTL_PERMANENT)
+        if (key == null)
+            return
+
+        val success = KeyValueStoreRW.setTTL(keySpace, key, ttl)
         dout.writeByte(TcpFlag.HasNEXT)
         dout.writeValue(new BooleanValue(success))
     }
@@ -177,7 +214,7 @@ class KeyValueStoreService {
 
     /**
       * set value to specific key space
-      * @param din - MapPack{ TextValue:keySpace MapValue<TextValue,TextValue>:kv }
+      * @param din - MapPack{ TextValue:keyspace, LongValue:ttl, MapValue<TextValue:key,TextValue:value>:kv }
       * @param dout - success: MapPack{key, success}
       */
     @ServiceHandler(RequestCmd.SET_CUSTOM_KV_BULK)

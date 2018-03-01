@@ -55,6 +55,18 @@ public class GlobalKvStoreConsumer {
 		return returnValue != null ? (Boolean) returnValue.toJavaObject() : false;
 	}
 
+	public boolean setTTL(final String key, final long ttl, final Server server) {
+		Value returnValue = null;
+		MapPack mapPack = new MapPack();
+		mapPack.put(ParamConstant.KEY, key);
+		mapPack.put(ParamConstant.TTL, ttl);
+
+		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+			returnValue = tcpProxy.getSingleValue(RequestCmd.SET_GLOBAL_TTL, mapPack);
+		}
+		return returnValue != null ? (Boolean) returnValue.toJavaObject() : false;
+	}
+
 	public String get(final String key, final Server server) {
 		Value value = null;
 		try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
