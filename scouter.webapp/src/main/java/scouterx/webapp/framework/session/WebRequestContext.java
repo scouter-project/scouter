@@ -16,22 +16,32 @@
  *
  */
 
-package scouterx.webapp.model;
+package scouterx.webapp.framework.session;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotNull;
-
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2018. 2. 13.
+ * @author Gun Lee (gunlee01@gmail.com) on 2018. 2. 24.
  */
 @Getter
 @Setter
-@AllArgsConstructor
-public class KeyValueData {
-    @NotNull
-    private String key;
-    private Object value;
+public class WebRequestContext {
+    private static ThreadLocal<UserToken> _userToken = new ThreadLocal<>();
+
+    public static void setUserToken(UserToken userToken) {
+        _userToken.set(userToken);
+    }
+
+    public static UserToken getUserToken() {
+        return _userToken.get();
+    }
+
+    public static void clearUserToken() {
+        _userToken.set(null);
+    }
+
+    public static void clearAll() {
+        _userToken.set(null);
+    }
 }

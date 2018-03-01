@@ -55,4 +55,12 @@ public class SetKvBulkRequest {
         }
         return map;
     }
+
+    public Map<String, String> toMapPadKeyPrefix(String keyPrefix) {
+        Map<String, String> map = new HashMap<>();
+        for (KeyValueData data : kvList) {
+            map.put(keyPrefix + data.getKey(), data.getValue().toString());
+        }
+        return map;
+    }
 }

@@ -33,6 +33,7 @@ public class UserToken {
     String token;
     long footprintSec; //unix timestamp
     int serverId;
+    boolean fromSession;
 
     private UserToken(String id, String token, int serverId) {
         this.id = id;
@@ -79,6 +80,13 @@ public class UserToken {
 
     public static UserToken newToken(String id, String token, int serverId) {
         UserToken newToken = new UserToken(id, token, serverId);
+        newToken.setFootprintSec(System.currentTimeMillis() / 1000L);
+        return newToken;
+    }
+
+    public static UserToken fromSessionId(String sessionId) {
+        UserToken newToken = new UserToken(sessionId, null, 0);
+        newToken.fromSession = true;
         newToken.setFootprintSec(System.currentTimeMillis() / 1000L);
         return newToken;
     }
