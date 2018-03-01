@@ -24,7 +24,6 @@ import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.layer.service.UserService;
 import scouterx.webapp.layer.service.UserTokenService;
-import scouterx.webapp.model.scouter.SUser;
 import scouterx.webapp.request.LoginRequest;
 import scouterx.webapp.view.BearerTokenView;
 import scouterx.webapp.view.CommonResultView;
@@ -67,7 +66,7 @@ public class UserController {
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<Boolean> login(@Valid final LoginRequest loginRequest) {
         userService.login(ServerManager.getInstance().getServer(loginRequest.getServerId()), loginRequest.getUser());
-        servletRequest.getSession(true).setAttribute("user", new SUser(loginRequest.getUser().getId()));
+        servletRequest.getSession(true).setAttribute("userId", loginRequest.getUser().getId());
 
         return CommonResultView.success();
     }

@@ -52,7 +52,7 @@ public class UserTokenService {
     public String publishToken(final Server server, final SUser user) {
         UserToken userToken = UserToken.newToken(user.getId(), sessionIdGenerator.generateSessionId(), server.getId());
         UserTokenCache.getInstance().put(user.getId(), userToken);
-        customKvStoreService.set(SESSION_STORE, userToken.getStoreKey(), userToken.toStoreValue(), server);
+        customKvStoreService.set(SESSION_STORE, userToken.getStoreKey(), userToken.toStoreValue(), sessionExpireSec, server);
         return userToken.toBearerToken();
     }
 
@@ -84,7 +84,7 @@ public class UserTokenService {
     private void touchToken(UserToken token) {
         UserToken userToken = token.renew();
         UserTokenCache.getInstance().put(userToken.getId(), userToken);
-        customKvStoreService.set(SESSION_STORE, userToken.getStoreKey(), userToken.toStoreValue(),
+        customKvStoreService.set(SESSION_STORE, userToken.getStoreKey(), userToken.toStoreValue(), sessionExpireSec,
                 ServerManager.getInstance().getServer(token.getServerId()));
     }
 }

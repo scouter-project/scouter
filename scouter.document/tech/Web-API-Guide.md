@@ -400,6 +400,58 @@ public int log_keep_days = 30;
    - `objHashes` : object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
    - `serverId` : (optional if single server)
 
+#### - `GET /v1/object/host/realTime/top/ofObject/{objHash}`
+ - retrieve all OS processes cpu, memory usage of the given object
+ - **Auth** : required
+ - **Path params**
+   - `objHash` : (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `GET /v1/kv-private/{key}`
+ - get value of given key from the scouter server's key-value store. (in user-scope private key space for logon user)
+ - **Auth** : required
+ - **Path params**
+   - `key` : (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `PUT /v1/kv-private`
+ - store it to the scouter server's key-value store. (in user-scope private key space for logon user)
+ - **Auth** : required
+ - **Request body (type : application/json)**
+   - `key` : (required)
+   - `value` : (required)
+   - `ttl` : (optional) time to live as seconds
+   - `serverId` : (required)
+
+#### - `PUT /v1/kv-private/{key}/:ttl`
+ - store it to the scouter server's key-value store. (in user-scope private key space for logon user)
+ - **Auth** : required
+ - **Path params**
+    - `key` : (required)
+ - **Request body (type : application/json)**
+   - `ttl` : (required) time to live as seconds
+   - `serverId` : (required)
+
+#### - `GET /v1/kv-private/{keys}/:bulk`
+ - get values of given keys from the scouter server's key-value store. (in user-scope private key space for logon user)
+ - **Auth** : required
+ - **Path params**
+   - `keys` : (required) keys by comma separator. also allowed with bracket. eg) mykey-1,mykey2 or [mykey-1,mykey2]
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `PUT /v1/kv-private/:bulk`
+ - store key&values to the scouter server's key-value store. (in user-scope private key space for logon user)
+ - **Auth** : required
+ - **Request body (type : application/json)**
+   - `ttl` : (optional) time to live as seconds
+   - `kvList` : (required) array of key & value
+      - `key` : (required)
+      - `value` : (required)
+   - `serverId` : (required)
+
 #### - `GET /v1/kv/{key}`
  - get value of given key from the scouter server's key-value store. (in the global key space)
  - **Auth** : required
@@ -414,6 +466,16 @@ public int log_keep_days = 30;
  - **Request body (type : application/json)**
    - `key` : (required)
    - `value` : (required)
+   - `ttl` : (optional) time to live as seconds
+   - `serverId` : (required)
+
+#### - `PUT /v1/kv/{key}/:ttl`
+ - store it to the scouter server's key-value store. (in the global key space)
+ - **Auth** : required
+ - **Path params**
+    - `key` : (required)
+ - **Request body (type : application/json)**
+   - `ttl` : (required) time to live as seconds
    - `serverId` : (required)
 
 #### - `GET /v1/kv/{keys}/:bulk`
@@ -428,6 +490,7 @@ public int log_keep_days = 30;
  - store key&values to the scouter server's key-value store. (in the global key space)
  - **Auth** : required
  - **Request body (type : application/json)**
+   - `ttl` : (optional) time to live as seconds
    - `kvList` : (required) array of key & value
       - `key` : (required)
       - `value` : (required)
@@ -450,6 +513,7 @@ public int log_keep_days = 30;
  - **Request body (type : application/json)**
    - `key` : (required)
    - `value` : (required)
+   - `ttl` : (optional) time to live as seconds
    - `serverId` : (required)
 
 #### - `GET /v1/kv/space/{keySpace}/{keys}/:bulk`
@@ -467,20 +531,13 @@ public int log_keep_days = 30;
  - **Path params**
     - `keySpace` : (required)
  - **Request body (type : application/json)**
+   - `ttl` : (optional) time to live as seconds
    - `kvList` : (required) array of key & value
       - `key` : (required)
       - `value` : (required)
    - `serverId` : (required)
 
-#### - `GET /v1/object/host/realTime/top/ofObject/{objHash}`
- - retrieve all OS processes cpu, memory usage of the given object
- - **Auth** : required
- - **Path params**
-   - `objHash` : (required)
- - **Query params**
-   - `serverId` : (optional if single server)
-
-#### - `PUT /v1/user/loginGetToken`
+#### - `POST /v1/user/loginGetToken`
  - login with id & password, and get bearer token.
    - this token required on Authorization header for authorized request.
      - auth header example : `Authorization: Bearer V1.B3R4FSGEF3POJ.me`
@@ -491,7 +548,7 @@ public int log_keep_days = 30;
      - `password` : (required)
    - `serverId` : (required)
 
-#### - `PUT /v1/user/login`
+#### - `POST /v1/user/login`
  - login with id & password for traditional web application.
    - this api is answered including with SET-COOKIE response header.
  - **Auth** : none

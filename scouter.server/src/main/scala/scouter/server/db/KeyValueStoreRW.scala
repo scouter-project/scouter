@@ -48,6 +48,10 @@ object KeyValueStoreRW {
   }
 
   def set(div: String, key: String, text: String) : Boolean = {
+    return set(div, key, text, -1L);
+  }
+
+  def set(div: String, key: String, text: String, ttl: Long) : Boolean = {
     if (StringUtil.isEmpty(text) || StringUtil.isEmpty(key) || StringUtil.isEmpty(div)) {
       Logger.println("S222", 10, "illegal argument")
       return false
@@ -59,8 +63,39 @@ object KeyValueStoreRW {
       return false
     } else {
       val dataPos = dataWriter.write(text.getBytes("UTF8"))
-      indexDb.set(key.getBytes("UTF8"), dataPos)
+      indexDb.set(key.getBytes("UTF8"), dataPos, ttl)
       return true
+    }
+  }
+
+  def setTTL(div: String, key: String, ttl: Long): Boolean = {
+    if (StringUtil.isEmpty(key) || StringUtil.isEmpty(div)) {
+      Logger.println("S223", 10, "illegal argument")
+      return false
+    }
+
+    val (indexDb, dataWriter, dataReader) = open(div)
+    if (indexDb == null) {
+      Logger.println("S221", 10, "can't open kv db")
+      return false
+    } else {
+      indexDb.setTTL(key.getBytes("UTF8"), ttl)
+      return true
+    }
+  }
+
+  def delete(div: String, key: String): Int = {
+    if (StringUtil.isEmpty(key) || StringUtil.isEmpty(div)) {
+      Logger.println("S225", 10, "illegal argument")
+      return -1
+    }
+
+    val (indexDb, dataWriter, dataReader) = open(div)
+    if (indexDb == null) {
+      Logger.println("S226", 10, "can't open kv db")
+      return -1
+    } else {
+      return indexDb.delete(key.getBytes("UTF8"))
     }
   }
 
@@ -102,7 +137,7 @@ object KeyValueStoreRW {
   def getDBPath(): String = {
     val sb = new StringBuffer();
     sb.append(DBCtr.getRootPath());
-    sb.append("/00000000/kv");
+    sb.append("/00000000/kv2");
     return sb.toString();
   }
 }

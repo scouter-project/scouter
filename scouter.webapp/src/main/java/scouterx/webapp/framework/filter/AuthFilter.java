@@ -24,6 +24,7 @@ import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
 import scouterx.webapp.framework.exception.ErrorState;
 import scouterx.webapp.framework.session.UserToken;
+import scouterx.webapp.framework.session.WebRequestContext;
 import scouterx.webapp.framework.util.ZZ;
 import scouterx.webapp.layer.service.UserTokenService;
 
@@ -45,12 +46,9 @@ public class AuthFilter implements ContainerRequestFilter {
 
     UserTokenService userTokenService = new UserTokenService();
 
-    public static void main(String[] args) {
-        System.out.println(new AuthFilter().trimToken("aaa"));
-    }
-
     @Override
     public void filter(ContainerRequestContext requestContext) {
+        WebRequestContext.clearUserToken();
         ConfigureAdaptor conf = ConfigureManager.getConfigure();
 
         //Check IP
@@ -66,6 +64,7 @@ public class AuthFilter implements ContainerRequestFilter {
             if (StringUtil.isNotEmpty(authHeader)) {
                 UserToken token = UserToken.fromBearerToken(trimToken(authHeader));
                 userTokenService.validateToken(token);
+                WebRequestContext.setUserToken(token);
                 return;
             } else {
                 if (!conf.isNetHttpApiAuthSessionEnabled()) {
@@ -77,9 +76,11 @@ public class AuthFilter implements ContainerRequestFilter {
         //Check session
         if (conf.isNetHttpApiAuthSessionEnabled()) {
             HttpSession session = servletRequest.getSession();
-            if(session == null || session.getAttribute("user") == null) {
+            if(session == null || session.getAttribute("userId") == null) {
                 throw ErrorState.LOGIN_REQUIRED.newBizException();
             }
+            UserToken userToken = UserToken.fromSessionId((String) session.getAttribute("userId"));
+            WebRequestContext.setUserToken(userToken);
         }
     }
 

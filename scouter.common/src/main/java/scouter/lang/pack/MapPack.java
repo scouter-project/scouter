@@ -101,6 +101,14 @@ public class MapPack implements Pack {
 		return 0;
 	}
 
+	public long getLongDefault(String key, long d) {
+		Value v = get(key);
+		if (v instanceof Number) {
+			return ((Number) v).longValue();
+		}
+		return d;
+	}
+
 	public float getFloat(String key) {
 		Value v = get(key);
 		if (v instanceof Number) {

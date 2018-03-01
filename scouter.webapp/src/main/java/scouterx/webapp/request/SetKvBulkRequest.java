@@ -21,6 +21,7 @@ package scouterx.webapp.request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import scouter.lang.constants.ParamConstant;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.model.KeyValueData;
 
@@ -41,6 +42,8 @@ public class SetKvBulkRequest {
     @NotNull
     private List<KeyValueData> kvList;
 
+    private long ttl = ParamConstant.TTL_PERMANENT;
+
     public void setServerId(int serverId) {
         this.serverId = ServerManager.getInstance().getServerIfNullDefault(serverId).getId();
     }
@@ -49,6 +52,14 @@ public class SetKvBulkRequest {
         Map<String, String> map = new HashMap<>();
         for (KeyValueData data : kvList) {
             map.put(data.getKey(), data.getValue().toString());
+        }
+        return map;
+    }
+
+    public Map<String, String> toMapPadKeyPrefix(String keyPrefix) {
+        Map<String, String> map = new HashMap<>();
+        for (KeyValueData data : kvList) {
+            map.put(keyPrefix + data.getKey(), data.getValue().toString());
         }
         return map;
     }

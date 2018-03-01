@@ -36,6 +36,8 @@ public enum ErrorState {
 	COLLECTOR_NOT_CONNECTED(Response.Status.INTERNAL_SERVER_ERROR, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), "scouter collector not connected"),
 	COLLECTOR_INVALID_SESSION(Response.Status.INTERNAL_SERVER_ERROR, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), "internal server error"),
 
+	ILLEGAL_KEY_ACCESS(Response.Status.BAD_REQUEST, Response.Status.BAD_REQUEST.getStatusCode(), "illegal key access error"),
+
 	LOGIN_REQUIRED(Response.Status.FORBIDDEN, Response.Status.FORBIDDEN.getStatusCode(), "login required."),
 	LOGIN_FAIL(Response.Status.UNAUTHORIZED, Response.Status.UNAUTHORIZED.getStatusCode(), "id or password is incorrect."),
 	SESSION_EXPIRED(Response.Status.UNAUTHORIZED, Response.Status.UNAUTHORIZED.getStatusCode(), "authorization token or session is expired."),

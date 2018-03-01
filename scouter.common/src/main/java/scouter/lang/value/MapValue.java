@@ -25,11 +25,22 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 
 public class MapValue implements Value {
+
+	public static MapValue ofStringValueMap(Map<String, String> map) {
+		LinkedHashMap<String, Value> tempTable = new LinkedHashMap<String, Value>();
+		for (Map.Entry<String, String> e : map.entrySet()) {
+			tempTable.put(e.getKey(), new TextValue(e.getValue()));
+		}
+		MapValue newMapValue = new MapValue();
+		newMapValue.putAll(tempTable);
+		return newMapValue;
+	}
 
 	protected Hashtable<String, Value> table = new Hashtable<String, Value>();
 

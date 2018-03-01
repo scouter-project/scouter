@@ -25,11 +25,10 @@ import scouterx.webapp.layer.service.GlobalKvStoreService;
 import scouterx.webapp.model.KeyValueData;
 import scouterx.webapp.request.SetKvBulkRequest;
 import scouterx.webapp.request.SetKvRequest;
+import scouterx.webapp.request.SetKvTTLRequest;
 import scouterx.webapp.view.CommonResultView;
 
 import javax.inject.Singleton;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -68,8 +67,22 @@ public class GlobalKvStoreController {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<Boolean> set(SetKvRequest request) {
-        kvStoreService.set(request.getKey(), request.getValue(),
+        kvStoreService.set(request.getKey(), request.getValue(), request.getTtl(),
                 ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
+        return CommonResultView.success(true);
+    }
+
+    /**
+     * set ttl onto scouter key-value store
+     */
+    @PUT
+    @Path("/{key}/:ttl")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<Boolean> set(@PathParam("key") String key, SetKvTTLRequest request) {
+
+        kvStoreService.setTTL(key, request.getTtl(),
+                ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
+
         return CommonResultView.success(true);
     }
 
@@ -93,7 +106,7 @@ public class GlobalKvStoreController {
     @Path("/:bulk")
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List<KeyValueData>> setBulk(SetKvBulkRequest request) {
-        List<KeyValueData> resultList = kvStoreService.setBulk(request.toMap(), ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
+        List<KeyValueData> resultList = kvStoreService.setBulk(request.toMap(), request.getTtl(), ServerManager.getInstance().getServerIfNullDefault(request.getServerId()));
         return CommonResultView.success(resultList);
     }
 }
