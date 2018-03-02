@@ -27,7 +27,9 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.HttpMethod;
 import java.io.IOException;
 
 public class CorsFilter implements Filter {
@@ -35,24 +37,31 @@ public class CorsFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        //TODO why not added header?
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        if (StringUtils.isNotBlank(conf.getNetHttpApiCorsAllowOrigin())) {
-            httpServletResponse.addHeader("Access-Control-Allow-Origin", conf.getNetHttpApiCorsAllowOrigin());
+
+        String allowOrigin = conf.getNetHttpApiCorsAllowOrigin();
+        String allowCredentials = conf.getNetHttpApiCorsAllowCredentials();
+
+        if (StringUtils.isNotBlank(allowOrigin)) {
+            if ("true".equals(allowCredentials) && "*".equals(allowOrigin)) {
+                String hostHeader = httpServletRequest.getHeader("origin");
+                if (StringUtils.isNotBlank(hostHeader)) {
+                    allowOrigin = hostHeader;
+                }
+            }
+            httpServletResponse.addHeader("Access-Control-Allow-Origin", allowOrigin);
+            httpServletResponse.addHeader("Access-Control-Allow-Credentials", allowCredentials);
+
             httpServletResponse.addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-            httpServletResponse.addHeader("Access-Control-Allow-Credentials", conf.getNetHttpApiCorsAllowCredentials());
+            httpServletResponse.addHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, PATCH");
+
+            if (httpServletRequest.getMethod().equals(HttpMethod.OPTIONS)) {
+                return;
+            }
         }
 
         chain.doFilter(request, response);
-
-//        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-//        if (StringUtils.isNotBlank(conf.getNetHttpApiCorsAllowOrigin())) {
-//            if (StringUtils.isBlank(httpServletResponse.getHeader("Access-Control-Allow-Origin"))) {
-//                httpServletResponse.addHeader("Access-Control-Allow-Origin", conf.getNetHttpApiCorsAllowOrigin());
-//                httpServletResponse.addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-//                httpServletResponse.addHeader("Access-Control-Allow-Credentials", conf.getNetHttpApiCorsAllowCredentials());
-//            }
-//        }
     }
 
     @Override
