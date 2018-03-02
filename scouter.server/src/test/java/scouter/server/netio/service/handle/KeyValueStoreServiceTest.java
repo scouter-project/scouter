@@ -94,12 +94,20 @@ public class KeyValueStoreServiceTest {
         //when
         DataOutputX out = new DataOutputX();
         sut.setText(toDataInputXFromPack(mapPack), out, false);
-        read(out, in -> assertTrue((Boolean) in.readValue().toJavaObject()));
+        read(out, new Reader() {
+            @Override public void read(DataInputX in) throws IOException {
+                assertTrue((Boolean) in.readValue().toJavaObject());
+            }
+        });
 
         //then
         DataOutputX out2 = new DataOutputX();
         sut.getText(toDataInputXFromValue(new TextValue(vutKey1)), out2, false);
-        read(out2, in -> assertEquals(vutValue1, in.readValue().toString()));
+        read(out2, new Reader() {
+            @Override public void read(DataInputX in) throws IOException {
+                assertEquals(vutValue1, in.readValue().toString());
+            }
+        });
     }
 
     @Test
@@ -113,12 +121,20 @@ public class KeyValueStoreServiceTest {
         //when
         DataOutputX out = new DataOutputX();
         sut.setText(toDataInputXFromPack(mapPack), out, false);
-        read(out, in -> assertTrue((Boolean) in.readValue().toJavaObject()));
+        read(out, new Reader() {
+            @Override public void read(DataInputX in) throws IOException {
+                assertTrue((Boolean) in.readValue().toJavaObject());
+            }
+        });
 
         //then
         DataOutputX out2 = new DataOutputX();
         sut.getText(toDataInputXFromValue(new TextValue(vutKey1)), out2, false);
-        read(out2, in -> assertEquals(vutValue1, in.readValue().toString()));
+        read(out2, new Reader() {
+            @Override public void read(DataInputX in) throws IOException {
+                assertEquals(vutValue1, in.readValue().toString());
+            }
+        });
     }
 
     @Test
@@ -132,13 +148,21 @@ public class KeyValueStoreServiceTest {
         //when - set and wait
         DataOutputX out = new DataOutputX();
         sut.setText(toDataInputXFromPack(mapPack), out, false);
-        read(out, in -> assertTrue((Boolean) in.readValue().toJavaObject()));
+        read(out, new Reader() {
+            @Override public void read(DataInputX in) throws IOException {
+                assertTrue((Boolean) in.readValue().toJavaObject());
+            }
+        });
 
         sleep(3000);
 
         //then - expired
         DataOutputX out2 = new DataOutputX();
         sut.getText(toDataInputXFromValue(new TextValue(vutKey1)), out2, false);
-        read(out2, in -> assertEquals("", in.readValue().toString()));
+        read(out2, new Reader() {
+            @Override public void read(DataInputX in) throws IOException {
+                assertEquals("", in.readValue().toString());
+            }
+        });
     }
 }
