@@ -153,7 +153,7 @@ public class XLogController {
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List<SXLog>> retrieveXLogsByGxid(@Valid @BeanParam GxidXLogRequest gxidRequest) {
         gxidRequest.validate();
-        List<SXLog> xLogs = xLogService.retrieveXLogsByGxid(gxidRequest);
+        List<SXLog> xLogs = xLogService.retrieveXLogListByGxid(gxidRequest);
 
         return CommonResultView.success(xLogs);
     }

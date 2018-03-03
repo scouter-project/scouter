@@ -29,17 +29,20 @@ import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.scouter.SXLog;
+import scouterx.webapp.request.GxidXLogRequest;
+import scouterx.webapp.request.MultiXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
 import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.SingleXLogRequest;
-import scouterx.webapp.request.GxidXLogRequest;
 import scouterx.webapp.view.PageableXLogView;
 import scouterx.webapp.view.RealTimeXLogView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static scouter.lang.constants.ParamConstant.XLOG_TXID;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -87,7 +90,7 @@ public class XLogConsumer {
         MapPack paramPack = new MapPack();
         paramPack.put(ParamConstant.DATE, pageableXLogRequest.getYyyymmdd());
         paramPack.put(ParamConstant.XLOG_START_TIME, pageableXLogRequest.getStartTimeMillis());
-        paramPack.put(ParamConstant.XLOG_TXID, pageableXLogRequest.getLastTxid());
+        paramPack.put(XLOG_TXID, pageableXLogRequest.getLastTxid());
         paramPack.put(ParamConstant.XLOG_END_TIME, pageableXLogRequest.getEndTimeMillis());
         paramPack.put(ParamConstant.XLOG_LAST_BUCKET_TIME, pageableXLogRequest.getLastXLogTime());
         paramPack.put(ParamConstant.XLOG_PAGE_COUNT, pageableXLogRequest.getPageCount());
@@ -162,7 +165,7 @@ public class XLogConsumer {
      *
      * @param xlogRequest
      */
-    public List<SXLog> retrieveXLogsByGxid(final GxidXLogRequest xlogRequest) {
+    public List<SXLog> retrieveXLogListByGxid(final GxidXLogRequest xlogRequest) {
         return retrieveXLogPacksByGxid(xlogRequest).stream()
                 .map(pack -> (XLogPack) pack)
                 .map(SXLog::of)
@@ -175,10 +178,22 @@ public class XLogConsumer {
      *
      * @param xLogRequest
      */
-    public List<XLogData> retrieveXLogDatasByGxid(final GxidXLogRequest xLogRequest) {
+    public List<XLogData> retrieveXLogDataListByGxid(final GxidXLogRequest xLogRequest) {
         return retrieveXLogPacksByGxid(xLogRequest).stream()
                 .map(pack -> (XLogPack) pack)
                 .map(pack -> XLogData.of(pack, xLogRequest.getServerId()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * retrieve XLog Data List by txids
+     *
+     * @param multiXLogRequest
+     */
+    public List<XLogData> retrieveXLogDataListByTxids(final MultiXLogRequest multiXLogRequest) {
+        return retrieveXLogPacksByTxids(multiXLogRequest).stream()
+                .map(pack -> (XLogPack) pack)
+                .map(pack -> XLogData.of(pack, multiXLogRequest.getServerId()))
                 .collect(Collectors.toList());
     }
 
@@ -186,7 +201,7 @@ public class XLogConsumer {
     private XLogPack retrieveByTxid(final SingleXLogRequest singleXLogRequest) {
         MapPack param = new MapPack();
         param.put(ParamConstant.DATE, singleXLogRequest.getYyyymmdd());
-        param.put(ParamConstant.XLOG_TXID, singleXLogRequest.getTxid());
+        param.put(XLOG_TXID, singleXLogRequest.getTxid());
 
         XLogPack pack;
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(singleXLogRequest.getServerId())) {
@@ -204,6 +219,19 @@ public class XLogConsumer {
         List<Pack> results;
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(xlogRequest.getServerId())) {
             results = tcpProxy.process(RequestCmd.XLOG_READ_BY_GXID, param);
+        }
+        return results;
+    }
+
+    private List<Pack> retrieveXLogPacksByTxids(MultiXLogRequest xlogRequest) {
+        MapPack param = new MapPack();
+        param.put(ParamConstant.DATE, xlogRequest.getYyyymmdd());
+        ListValue xlogLv = param.newList(XLOG_TXID);
+        xlogRequest.getTxidList().forEach(xlogLv::add);
+
+        List<Pack> results;
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(xlogRequest.getServerId())) {
+            results = tcpProxy.process(RequestCmd.XLOG_LOAD_BY_TXIDS, param);
         }
         return results;
     }
