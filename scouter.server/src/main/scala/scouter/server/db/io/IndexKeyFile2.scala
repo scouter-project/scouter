@@ -73,7 +73,10 @@ class IndexKeyFile2(_path: String, hashSize: Int = 1) extends IClose {
             while (realKeyPos > 0) {
                 val oKey = this.keyFile.getKey(realKeyPos);
                 if (CompareUtil.equals(oKey, key)) {
-                    return this.keyFile.update(realKeyPos, ttl, key, value);
+                    val result = this.keyFile.update(realKeyPos, ttl, key, value);
+                    if(!result) {
+                        return put(key, value, ttl);
+                    }
                 }
 
                 realKeyPos = this.keyFile.getPrevPos(realKeyPos);

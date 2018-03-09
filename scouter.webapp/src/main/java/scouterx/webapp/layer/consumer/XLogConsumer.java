@@ -55,7 +55,7 @@ public class XLogConsumer {
      */
     public void handleRealTimeXLog(final RealTimeXLogRequest xLogRequest, final INetReader reader) {
         boolean isFirst = false;
-        int firstRetrieveLimit = 5000;
+        int firstRetrieveLimit = 10000;
 
         if (xLogRequest.getXLogLoop() == 0 && xLogRequest.getXLogIndex() == 0) {
             isFirst = true;
