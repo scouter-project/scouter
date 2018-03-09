@@ -96,6 +96,18 @@ public class HttpServer extends Thread {
             handlers.addHandler(context);
             server.setHandler(handlers);
 
+            if (conf.net_http_api_enabled) {
+                try {
+                    Class c = Class.forName("scouterx.webapp.main.WebAppMain");
+                    c.getMethod("setWebSocketServer", ServletContextHandler.class).invoke(null, context);
+                } catch (Throwable e) {
+                    Logger.println("Error while setWebSocketServer!");
+                    System.out.println("Error while setWebSocketServer!");
+                    Logger.printStackTrace(e);
+                    e.printStackTrace();
+                }
+            }
+
             try {
                 server.start();
                 server.join();
