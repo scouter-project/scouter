@@ -33,11 +33,23 @@ public class UserTokenCache {
         return instance;
     }
 
-    public void put(String userId, UserToken token) {
-        cache.put(userId, token);
+    public UserToken get(UserToken condition) {
+        return get(condition.getToken());
     }
 
-    public UserToken get(String userId) {
-        return cache.get(userId);
+    public void put(UserToken token) {
+        put(token.getToken(), token);
+    }
+
+    public void putAsRecent(UserToken token) {
+        cache.putLast(token.getToken(), token);
+    }
+
+    private void put(String key, UserToken token) {
+        cache.put(key, token);
+    }
+
+    private UserToken get(String key) {
+        return cache.get(key);
     }
 }

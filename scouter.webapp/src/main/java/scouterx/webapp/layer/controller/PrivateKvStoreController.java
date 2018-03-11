@@ -133,7 +133,7 @@ public class PrivateKvStoreController {
         if (userToken == null) {
             ErrorState.LOGIN_REQUIRED.newBizException();
         }
-        return "]" + userToken.getId() + ":";
+        return "]" + userToken.getUserId() + ":";
     }
 
     private String toPrivateKey(String key) {

@@ -33,7 +33,7 @@ public class UserTokenTest {
         UserToken unmarshalled = UserToken.fromStoreValue(toStoreValue, token.getServerId());
 
         assertEquals(unmarshalled.getFootprintSec(), token.getFootprintSec());
-        assertEquals(unmarshalled.getId(), token.getId());
+        assertEquals(unmarshalled.getUserId(), token.getUserId());
         assertEquals(unmarshalled.getToken(), token.getToken());
     }
 
@@ -45,7 +45,7 @@ public class UserTokenTest {
 
         assertTrue(token.getFootprintSec() > 0);
         assertTrue(unmarshalled.getFootprintSec() == 0);
-        assertEquals(unmarshalled.getId(), token.getId());
+        assertEquals(unmarshalled.getUserId(), token.getUserId());
         assertEquals(unmarshalled.getToken(), token.getToken());
     }
 
