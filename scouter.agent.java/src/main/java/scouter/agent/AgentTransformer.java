@@ -48,6 +48,7 @@ import scouter.agent.asm.asyncsupport.HystrixCommandASM;
 import scouter.agent.asm.asyncsupport.RequestStartAsyncASM;
 import scouter.agent.asm.asyncsupport.executor.ExecutorServiceASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM;
+import scouter.agent.asm.redis.RedisKeyASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
@@ -118,6 +119,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new SpringAsyncExecutionASM());
         temp.add(new CallRunnableASM());
         temp.add(new ExecutorServiceASM());
+        temp.add(new RedisKeyASM());
 
         temp.add(new SpringReqMapASM());
         temp.add(new HystrixCommandASM());

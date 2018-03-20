@@ -526,6 +526,10 @@ public class Configure extends Thread {
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_async_callrunnable_scan_package_prefixes = "";
 
+    @ConfigDesc("redis key setting patterns.\n refer to org.springframework.data.redis.core.AbstractOperations#rawKey")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String _hook_redis_set_key_patterns = "";
+
     @ConfigDesc("PRE-released option before stable release!\nhook threadpool executor for tracing async processing.")
     public boolean hook_async_thread_pool_executor_enabled = false;
 
@@ -556,6 +560,8 @@ public class Configure extends Thread {
     public String _hook_direct_patch_classes = "";
     @ConfigDesc("")
     public boolean _hook_spring_rest_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_redis_enabled = true;
     @ConfigDesc("")
     public String _hook_boot_prefix = null;
     @ConfigDesc("for warning a big Map type object that have a lot of entities.\n It may increase system load. be careful to enable this option.")
@@ -853,6 +859,8 @@ public class Configure extends Thread {
 
         this.hook_async_callrunnable_scan_package_prefixes = getValue("hook_async_callrunnable_scan_package_prefixes", "");
 
+        this._hook_redis_set_key_patterns = getValue("_hook_redis_set_key_patterns", "");
+
         this.hook_async_thread_pool_executor_enabled = getBoolean("hook_async_thread_pool_executor_enabled", false);
 
         this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", false);
@@ -970,6 +978,7 @@ public class Configure extends Thread {
 
         this.alert_perm_warning_pct = getInt("alert_perm_warning_pct", 90);
         this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", true);
+        this._hook_redis_enabled = getBoolean("_hook_redis_enabled", true);
         this.alert_message_length = getInt("alert_message_length", 3000);
         this.alert_send_interval_ms = getInt("alert_send_interval_ms", 10000);
 
