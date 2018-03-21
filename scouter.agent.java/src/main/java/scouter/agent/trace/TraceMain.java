@@ -1449,7 +1449,8 @@ public class TraceMain {
     }
 
     private static ByteArrayKeyLinkedMap<String> redisKeyMap =new ByteArrayKeyLinkedMap<String>().setMax(100);
-    private static String JEDIS_COMMAND_MSG = "[REDIS]%s : %s";
+    private static String JEDIS_COMMAND_MSG = "[REDIS]%s: %s";
+    private static String JEDIS_COMMAND_ERROR_MSG = "[REDIS][ERROR]%s: %s [Exception:%s] %s";
 
     public static void setRedisKey(byte[] barr, Object key) {
         redisKeyMap.put(barr, key.toString());
@@ -1489,15 +1490,48 @@ public class TraceMain {
             key = redisKeyMap.get(args[0]);
         }
         if (key == null) {
-            key = "-";
+            if (conf.profile_redis_key_forcibly_stringify_enabled) {
+                if (args.length > 0) {
+                    key = new String(args[0]);
+                } else {
+                    key = "EMPTY";
+                }
+            } else {
+                key = "-";
+            }
         }
         String command = new String(cmd);
 
 
         step.setElapsed((int) (System.currentTimeMillis() - tctx.startTime) - step.start_time);
-        step.setMessage(DataProxy.sendHashedMessage(JEDIS_COMMAND_MSG), command, key);
-        step.setLevel(ParameterizedMessageLevel.INFO);
-        tctx.profile.pop(step);
+        if (thr == null) {
+            step.setMessage(DataProxy.sendHashedMessage(JEDIS_COMMAND_MSG), command, key);
+            step.setLevel(ParameterizedMessageLevel.INFO);
+            tctx.profile.pop(step);
+        } else {
+            String msg = thr.toString();
+            step.setMessage(DataProxy.sendHashedMessage(JEDIS_COMMAND_ERROR_MSG), command, key, thr.getClass().getName(), msg);
+            step.setLevel(ParameterizedMessageLevel.ERROR);
+            tctx.profile.pop(step);
+
+            if (tctx.error == 0 && conf.xlog_error_on_redis_exception_enabled) {
+                if (conf.profile_fullstack_redis_error_enabled) {
+                    StringBuffer sb = new StringBuffer();
+                    sb.append(msg).append("\n");
+                    ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+                    thr = thr.getCause();
+                    while (thr != null) {
+                        sb.append("\nCause...\n");
+                        ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+                        thr = thr.getCause();
+                    }
+                    msg = sb.toString();
+                }
+
+                int hash = DataProxy.sendError(msg);
+                tctx.error = hash;
+            }
+        }
     }
 
     public static void endSendRedisCommand(Object localContext, Throwable thr) {
