@@ -20,12 +20,13 @@ package scouter.agent.asm.redis;
 
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.agent.asm.IASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceMain;
 import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.Label;
+import scouter.org.objectweb.asm.FieldVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
@@ -34,20 +35,26 @@ import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static scouter.agent.asm.redis.RedisCacheKeyASM.KEY_ELEMENT_FIELD;
+import static scouter.agent.asm.redis.RedisCacheKeyASM.KEY_ELEMENT_FIELD_DESC;
+
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2018. 3. 20.
  */
-public class JedisConnectionASM implements IASM, Opcodes {
+public class RedisCacheKeyASM implements IASM, Opcodes {
+    public static final String KEY_ELEMENT_FIELD = "keyElement";
+    public static final String KEY_ELEMENT_FIELD_DESC = "Ljava/lang/Object;";
+
     private Configure conf = Configure.getInstance();
 
-    private static List<String> hookingPattern = new ArrayList<String>();
+    private static List<String> pattern = new ArrayList<String>();
     static {
-        hookingPattern.add("redis.clients.jedis.Protocol.sendCommand(Lredis/clients/util/RedisOutputStream;[B[[B)V");
+        pattern.add("org.springframework.data.redis.cache.RedisCacheKey.getKeyBytes()[B");
     }
     private List<HookingSet> targetList;
 
-    public JedisConnectionASM() {
-        targetList = HookingSet.getHookingMethodSet(HookingSet.buildPatterns("", hookingPattern));
+    public RedisCacheKeyASM() {
+        targetList = HookingSet.getHookingMethodSet(HookingSet.buildPatterns("", pattern));
     }
 
     public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
@@ -57,7 +64,7 @@ public class JedisConnectionASM implements IASM, Opcodes {
         for (int i = 0; i < targetList.size(); i++) {
             HookingSet mset = targetList.get(i);
             if (mset.classMatch.include(className)) {
-                return new JedisConnectionCV(cv, mset, className);
+                return new RedisCacheKeyCV(cv, mset, className);
             }
         }
 
@@ -65,87 +72,74 @@ public class JedisConnectionASM implements IASM, Opcodes {
     }
 }
 
-class JedisConnectionCV extends ClassVisitor implements Opcodes {
+class RedisCacheKeyCV extends ClassVisitor implements Opcodes {
     String className;
     HookingSet mset;
+    boolean existKeyElementField;
 
-    public JedisConnectionCV(ClassVisitor cv, HookingSet mset, String className) {
+    public RedisCacheKeyCV(ClassVisitor cv, HookingSet mset, String className) {
         super(ASM5, cv);
         this.mset = mset;
         this.className = className;
     }
 
     @Override
+    public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
+        if (name.equals(KEY_ELEMENT_FIELD) && desc.equals(KEY_ELEMENT_FIELD_DESC)) {
+            existKeyElementField = true;
+        }
+        return super.visitField(access, name, desc, signature, value);
+    }
+
+    @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+        if (!existKeyElementField) {
+            Logger.println("A902", "Ignore hooking - No Field " + KEY_ELEMENT_FIELD + " on " + className);
+            return mv;
+        }
+
         if (mv == null || mset.isA(name, desc) == false) {
             return mv;
         }
+
         if (AsmUtil.isSpecial(name)) {
             return mv;
         }
 
-        return new SendCommandMV(access, name, desc, mv);
+        return new GetKeyBytesMV(access, this.className, name, desc, mv);
     }
 }
 
-class SendCommandMV extends LocalVariablesSorter implements Opcodes {
-    private static final String TRACEMAIN = TraceMain.class.getName().replace('.', '/');
-    private static final String START_METHOD = "startSendRedisCommand";
-    private static final String START_SIGNATURE = "()Ljava/lang/Object;";
-    private static final String END_METHOD = "endSendRedisCommand";
-    private static final String END_SIGNATURE = "([B[[BLjava/lang/Object;Ljava/lang/Throwable;)V";
-    //private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;)V";
+class GetKeyBytesMV extends LocalVariablesSorter implements Opcodes {
 
+    private static final String TRACEMAIN = TraceMain.class.getName().replace('.', '/');
+    private static final String START_METHOD = "setRedisKey";
+    private static final String START_SIGNATURE = "([BLjava/lang/Object;)V";
+
+    private String className;
     private String name;
     private String desc;
     private Type returnType;
-    private int statIdx;
-    private Label startFinally = new Label();
 
-    public SendCommandMV(int access, String name, String desc, MethodVisitor mv) {
+    public GetKeyBytesMV(int access, String className, String name, String desc, MethodVisitor mv) {
         super(ASM5, access, desc, mv);
+        this.className = className;
         this.name = name;
         this.desc = desc;
         this.returnType = Type.getReturnType(desc);
     }
 
-    @Override
-    public void visitCode() {
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);
-        statIdx = newLocal(Type.getType(Object.class));
-        mv.visitVarInsn(Opcodes.ASTORE, statIdx);
-        mv.visitLabel(startFinally);
-        mv.visitCode();
-    }
-
-    @Override
     public void visitInsn(int opcode) {
         if ((opcode >= IRETURN && opcode <= RETURN)) {
-            mv.visitVarInsn(Opcodes.ALOAD, 1);
-            mv.visitVarInsn(Opcodes.ALOAD, 2);
-            mv.visitVarInsn(Opcodes.ALOAD, statIdx);
-            mv.visitInsn(Opcodes.ACONST_NULL);
-            mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, END_METHOD, END_SIGNATURE, false);
+            Type tp = returnType;
+            if (tp.getSort() == Type.ARRAY && tp.getElementType().getSort() == Type.BYTE) {
+                mv.visitInsn(Opcodes.DUP);
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitFieldInsn(GETFIELD, this.className, KEY_ELEMENT_FIELD, "Ljava/lang/Object;");
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);
+            }
         }
         mv.visitInsn(opcode);
-    }
-
-    @Override
-    public void visitMaxs(int maxStack, int maxLocals) {
-        Label endFinally = new Label();
-        mv.visitTryCatchBlock(startFinally, endFinally, endFinally, null);
-        mv.visitLabel(endFinally);
-        mv.visitInsn(DUP);
-        int errIdx = newLocal(Type.getType(Throwable.class));
-        mv.visitVarInsn(Opcodes.ASTORE, errIdx);
-
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
-        mv.visitVarInsn(Opcodes.ALOAD, 2);
-        mv.visitVarInsn(Opcodes.ALOAD, statIdx);
-        mv.visitVarInsn(Opcodes.ALOAD, errIdx);
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, END_METHOD, END_SIGNATURE, false);
-        mv.visitInsn(ATHROW);
-        mv.visitMaxs(maxStack + 8, maxLocals + 2);
     }
 }

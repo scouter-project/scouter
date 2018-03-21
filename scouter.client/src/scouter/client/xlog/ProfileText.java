@@ -838,10 +838,10 @@ public class ProfileText {
             message = pmStep.buildMessasge(messageFormat);
         }
 
-        if(pmStep.getElapsed() != -1) {
-            sb.append("[").append(FormatUtil.print(pmStep.getElapsed(), "#,##0")).append(" ms] ");
-        }
         sb.append(message);
+        if(pmStep.getElapsed() != -1) {
+            sb.append(" [").append(FormatUtil.print(pmStep.getElapsed(), "#,##0")).append(" ms]");
+        }
     }
 
     public static void toString(StringBuffer sb, DumpStep p, int lineHead) {

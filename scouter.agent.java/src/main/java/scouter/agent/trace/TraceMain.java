@@ -1449,7 +1449,7 @@ public class TraceMain {
     }
 
     private static ByteArrayKeyLinkedMap<String> redisKeyMap =new ByteArrayKeyLinkedMap<String>().setMax(100);
-    private static String JEDIS_COMMAND_MSG = "[Redis][%s] KEY: %s";
+    private static String JEDIS_COMMAND_MSG = "[REDIS]%s : %s";
 
     public static void setRedisKey(byte[] barr, Object key) {
         redisKeyMap.put(barr, key.toString());
@@ -1484,9 +1484,12 @@ public class TraceMain {
         TraceContext tctx = lctx.context;
         if (tctx == null) return;
 
-        String key = redisKeyMap.get(args[0]);
+        String key = null;
+        if (args.length > 0) {
+            key = redisKeyMap.get(args[0]);
+        }
         if (key == null) {
-            key = "unknown";
+            key = "-";
         }
         String command = new String(cmd);
 
@@ -1495,5 +1498,9 @@ public class TraceMain {
         step.setMessage(DataProxy.sendHashedMessage(JEDIS_COMMAND_MSG), command, key);
         step.setLevel(ParameterizedMessageLevel.INFO);
         tctx.profile.pop(step);
+    }
+
+    public static void endSendRedisCommand(Object localContext, Throwable thr) {
+        System.out.println(localContext);
     }
 }

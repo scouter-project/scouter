@@ -104,7 +104,6 @@ class KeySetMV extends LocalVariablesSorter implements Opcodes {
         this.returnType = Type.getReturnType(desc);
     }
 
-    @Override
     public void visitInsn(int opcode) {
         if ((opcode >= IRETURN && opcode <= RETURN)) {
             Type tp = returnType;
