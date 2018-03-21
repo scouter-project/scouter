@@ -39,6 +39,7 @@ import scouter.agent.trace.enums.XLogDiscard;
 import scouter.agent.wrapper.async.WrTask;
 import scouter.lang.AlertLevel;
 import scouter.lang.TextTypes;
+import scouter.lang.enumeration.ParameterizedMessageLevel;
 import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
@@ -47,6 +48,7 @@ import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.MethodStep2;
+import scouter.lang.step.ParameterizedMessageStep;
 import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.lang.value.MapValue;
 import scouter.util.ArrayUtil;
@@ -1447,7 +1449,51 @@ public class TraceMain {
     }
 
     private static ByteArrayKeyLinkedMap<String> redisKeyMap =new ByteArrayKeyLinkedMap<String>().setMax(100);
+    private static String JEDIS_COMMAND_MSG = "[Redis][%s] KEY: %s";
+
     public static void setRedisKey(byte[] barr, Object key) {
         redisKeyMap.put(barr, key.toString());
+    }
+
+    public static Object startSendRedisCommand() {
+        if (TraceContextManager.isForceDiscarded()) {
+            return null;
+        }
+
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null) {
+            return null;
+        }
+
+        ParameterizedMessageStep step = new ParameterizedMessageStep();
+        step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        ctx.profile.push(step);
+
+        return new LocalContext(ctx, step);
+    }
+
+    public static void endSendRedisCommand(byte[] cmd, byte[][] args, Object localContext, Throwable thr) {
+        if (localContext == null)
+            return;
+
+        LocalContext lctx = (LocalContext) localContext;
+
+        ParameterizedMessageStep step = (ParameterizedMessageStep) lctx.stepSingle;
+        if (step == null) return;
+
+        TraceContext tctx = lctx.context;
+        if (tctx == null) return;
+
+        String key = redisKeyMap.get(args[0]);
+        if (key == null) {
+            key = "unknown";
+        }
+        String command = new String(cmd);
+
+
+        step.setElapsed((int) (System.currentTimeMillis() - tctx.startTime) - step.start_time);
+        step.setMessage(DataProxy.sendHashedMessage(JEDIS_COMMAND_MSG), command, key);
+        step.setLevel(ParameterizedMessageLevel.INFO);
+        tctx.profile.pop(step);
     }
 }

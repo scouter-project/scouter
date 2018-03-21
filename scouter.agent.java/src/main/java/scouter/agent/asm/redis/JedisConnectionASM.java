@@ -36,17 +36,17 @@ import java.util.List;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2018. 3. 20.
  */
-public class RedisKeyASM implements IASM, Opcodes {
+public class JedisConnectionASM implements IASM, Opcodes {
     private Configure conf = Configure.getInstance();
 
-    private static List<String> setKeyPattern = new ArrayList<String>();
+    private static List<String> hookingPattern = new ArrayList<String>();
     static {
-        setKeyPattern.add("org.springframework.data.redis.core.AbstractOperations.rawKey(Ljava/lang/Object;)[B");
+        hookingPattern.add("redis.clients.jedis.Protocol.sendCommand(Lredis/clients/util/RedisOutputStream;[B[[B)V");
     }
     private List<HookingSet> targetList;
 
-    public RedisKeyASM() {
-        targetList = HookingSet.getHookingMethodSet(HookingSet.buildPatterns(conf._hook_redis_set_key_patterns, setKeyPattern));
+    public JedisConnectionASM() {
+        targetList = HookingSet.getHookingMethodSet(HookingSet.buildPatterns("", hookingPattern));
     }
 
     public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
@@ -56,7 +56,7 @@ public class RedisKeyASM implements IASM, Opcodes {
         for (int i = 0; i < targetList.size(); i++) {
             HookingSet mset = targetList.get(i);
             if (mset.classMatch.include(className)) {
-                return new RedisKeySetCV(cv, mset, className);
+                return new JedisConnectionCV(cv, mset, className);
             }
         }
 
@@ -64,11 +64,11 @@ public class RedisKeyASM implements IASM, Opcodes {
     }
 }
 
-class RedisKeySetCV extends ClassVisitor implements Opcodes {
+class JedisConnectionCV extends ClassVisitor implements Opcodes {
     String className;
     HookingSet mset;
 
-    public RedisKeySetCV(ClassVisitor cv, HookingSet mset, String className) {
+    public JedisConnectionCV(ClassVisitor cv, HookingSet mset, String className) {
         super(ASM5, cv);
         this.mset = mset;
         this.className = className;
@@ -84,20 +84,22 @@ class RedisKeySetCV extends ClassVisitor implements Opcodes {
             return mv;
         }
 
-        return new KeySetMV(access, name, desc, mv);
+        return new SendCommandMV(access, name, desc, mv);
     }
 }
 
-class KeySetMV extends LocalVariablesSorter implements Opcodes {
+class SendCommandMV extends LocalVariablesSorter implements Opcodes {
     private static final String TRACEMAIN = TraceMain.class.getName().replace('.', '/');
-    private static final String START_METHOD = "setRedisKey";
-    private static final String START_SIGNATURE = "([BLjava/lang/Object;)V";
+    private static final String START_METHOD = "startSendRedisCommand";
+    private static final String START_SIGNATURE = "()Ljava/lang/Object;";
+    private static final String END_METHOD = "endSendRedisCommand";
+    private static final String END_SIGNATURE = "([B[[BLjava/lang/Object;Ljava/lang/Throwable;)V";
 
     private String name;
     private String desc;
     private Type returnType;
 
-    public KeySetMV(int access, String name, String desc, MethodVisitor mv) {
+    public SendCommandMV(int access, String name, String desc, MethodVisitor mv) {
         super(ASM5, access, desc, mv);
         this.name = name;
         this.desc = desc;
@@ -105,15 +107,10 @@ class KeySetMV extends LocalVariablesSorter implements Opcodes {
     }
 
     @Override
-    public void visitInsn(int opcode) {
-        if ((opcode >= IRETURN && opcode <= RETURN)) {
-            Type tp = returnType;
-            if (tp.getSort() == Type.ARRAY && tp.getElementType().getSort() == Type.BYTE) {
-                mv.visitInsn(Opcodes.DUP);
-                mv.visitVarInsn(Opcodes.ALOAD, 1);// stat
-                mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);
-            }
-        }
-        mv.visitInsn(opcode);
+    public void visitCode() {
+        mv.visitVarInsn(Opcodes.ALOAD, 2);
+        mv.visitVarInsn(Opcodes.ALOAD, 3);
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);
+        mv.visitCode();
     }
 }
