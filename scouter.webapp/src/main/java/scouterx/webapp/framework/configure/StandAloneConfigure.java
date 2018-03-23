@@ -83,9 +83,9 @@ public class StandAloneConfigure extends Thread {
 	@ConfigDesc("Swagger option of host's ip or domain to call APIs.")
 	public String net_http_api_swagger_host_ip = "";
 	@ConfigDesc("API CORS support for Access-Control-Allow-Origin")
-	public String net_http_api_cors_allow_origin = "";
+	public String net_http_api_cors_allow_origin = "*";
 	@ConfigDesc("Access-Control-Allow-Credentials")
-	public String net_http_api_cors_allow_credentials = "false";
+	public String net_http_api_cors_allow_credentials = "true";
 
 	@ConfigDesc("Log directory")
 	public String log_dir = "./logs";
@@ -187,8 +187,8 @@ public class StandAloneConfigure extends Thread {
 
 		this.net_http_api_swagger_enabled = getBoolean("net_http_api_swagger_enabled", false);
 		this.net_http_api_swagger_host_ip = getValue("net_http_api_swagger_host_ip", "");
-		this.net_http_api_cors_allow_origin = getValue("net_http_api_cors_allow_origin", "");
-		this.net_http_api_cors_allow_credentials = getValue("net_http_api_cors_allow_credentials", "false");
+		this.net_http_api_cors_allow_origin = getValue("net_http_api_cors_allow_origin", "*");
+		this.net_http_api_cors_allow_credentials = getValue("net_http_api_cors_allow_credentials", "true");
 
 
 		this.log_dir = getValue("log_dir", "./logs");
