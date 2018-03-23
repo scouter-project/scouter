@@ -27,6 +27,7 @@ import scouter.agent.asm.HttpServiceASM;
 import scouter.agent.asm.IASM;
 import scouter.agent.asm.InitialContextASM;
 import scouter.agent.asm.JDBCConnectionOpenASM;
+import scouter.agent.asm.JDBCGetConnectionASM;
 import scouter.agent.asm.JDBCDriverASM;
 import scouter.agent.asm.JDBCPreparedStatementASM;
 import scouter.agent.asm.JDBCResultSetASM;
@@ -105,7 +106,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new JDBCStatementASM());
         temp.add(new SqlMapASM());
         temp.add(new UserTxASM());
-
+        temp.add(new JDBCGetConnectionASM());
         temp.add(new JDBCConnectionOpenASM());
         temp.add(new JDBCDriverASM());
         temp.add(new InitialContextASM());

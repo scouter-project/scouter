@@ -426,6 +426,11 @@ public class Configure extends Thread {
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_connection_open_patterns = "";
 
+    @ConfigDesc("Method set for getconnection hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String hook_get_connection_patterns = "";
+
+    
     @ConfigDesc("IntialContext Class Set")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_context_classes = "javax/naming/InitialContext";
@@ -810,7 +815,8 @@ public class Configure extends Thread {
         this.hook_return_patterns = getValue("hook_return_patterns", "");
         this.hook_constructor_patterns = getValue("hook_constructor_patterns", "");
         this.hook_connection_open_patterns = getValue("hook_connection_open_patterns", "");
-
+        this.hook_get_connection_patterns = getValue("hook_get_connection_patterns","");
+        
         this._log_datasource_lookup_enabled = getBoolean("_log_datasource_lookup_enabled", true);
         this.profile_connection_open_enabled = getBoolean("profile_connection_open_enabled", true);
         this._summary_connection_leak_fullstack_enabled = getBoolean("_summary_connection_leak_fullstack_enabled", false);
