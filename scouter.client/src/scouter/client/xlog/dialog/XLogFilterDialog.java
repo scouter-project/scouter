@@ -305,11 +305,12 @@ public class XLogFilterDialog extends Dialog {
 		}
 	}
 	
-	
-	
 	@Override
 	protected void okPressed() {
 		if (newStatus.hashCode() != filterHash) {
+			view.setFilter(newStatus);
+			filterHash = newStatus.hashCode();
+			compareHash();
 		}
 		super.okPressed();
 	}
