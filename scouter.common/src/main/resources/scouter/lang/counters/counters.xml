@@ -38,6 +38,9 @@
 			<Counter name="HeapUsed" disp="Heap Used" unit="MB" icon="memory.png" total="false"/>
 			<Counter name="HeapTotal" disp="Heap Total" unit="MB" icon="memory.png" total="false"/>
 			<Counter name="ElapsedTime" disp="Elapsed Time" unit="ms" icon="time.png" total="false"/>
+			<Counter name="SqlTimeByService" disp="SQL Time by service" unit="ms" icon="time.png" total="false"/>
+			<Counter name="ApiTimeByService" disp="API Time by service" unit="ms" icon="time.png" total="false"/>
+
 			<Counter name="Elapsed90%" disp="Elapsed 90%" unit="ms" icon="time.png" total="false" />
 			<Counter name="QueuingTime" disp="Queuing Time" unit="ms" icon="time.png" total="false"/>
 			<Counter name="ActiveService" disp="Active Service" unit="cnt" icon="act_service.png" />
