@@ -42,7 +42,7 @@ import scouter.client.xlog.views.XLogViewCommon;
 public class XLogFilterDialog extends Dialog {
 	
 	Combo objCombo;
-	Text serviceTxt, ipTxt, userAgentTxt, loginText, descText, text1Text, text2Text, text3Text, text4Text, text5Text;
+	Text serviceTxt, ipTxt, startHmsFromTxt, startHmsToTxt, userAgentTxt, loginText, descText, text1Text, text2Text, text3Text, text4Text, text5Text;
 	Button onlySqlBtn, onlyApiBtn, onlyErrorBtn;
 	Button clearBtn, applyBtn;
 	
@@ -107,6 +107,34 @@ public class XLogFilterDialog extends Dialog {
 		ipTxt.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
 				newStatus.ip = ipTxt.getText();
+				compareHash();
+			}
+		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("Start(hhmmss)");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+
+		Group startTimeGroup = new Group(container, SWT.NONE);
+		startTimeGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		startTimeGroup.setLayout(new GridLayout(2, false));
+
+		startHmsFromTxt = new Text(startTimeGroup, SWT.BORDER | SWT.SINGLE);
+		startHmsFromTxt.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, false));
+		startHmsFromTxt.setText(status.startHmsFrom);
+		startHmsFromTxt.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.startHmsFrom = startHmsFromTxt.getText();
+				compareHash();
+			}
+		});
+
+		startHmsToTxt = new Text(startTimeGroup, SWT.BORDER | SWT.SINGLE);
+		startHmsToTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		startHmsToTxt.setText(status.startHmsTo);
+		startHmsToTxt.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.startHmsTo = startHmsToTxt.getText();
 				compareHash();
 			}
 		});
@@ -266,6 +294,8 @@ public class XLogFilterDialog extends Dialog {
 				objCombo.setText("");
 				serviceTxt.setText("");
 				ipTxt.setText("");
+				startHmsFromTxt.setText("");
+				startHmsToTxt.setText("");
 				loginText.setText("");
 				descText.setText("");
 				text1Text.setText("");
