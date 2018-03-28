@@ -23,7 +23,9 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
@@ -38,6 +40,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import scouter.client.xlog.XLogFilterStatus;
 import scouter.client.xlog.views.XLogViewCommon;
+import scouter.util.StringUtil;
+
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class XLogFilterDialog extends Dialog {
 	
@@ -112,31 +119,47 @@ public class XLogFilterDialog extends Dialog {
 		});
 
 		label = new Label(filterGrp, SWT.NONE);
-		label.setText("Start(hhmmss)");
+		label.setText("StartHMS");
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
 
-		Group startTimeGroup = new Group(container, SWT.NONE);
-		startTimeGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		startTimeGroup.setLayout(new GridLayout(2, false));
+//		Group startTimeGroup = new Group(filterGrp, SWT.NONE);
+//		startTimeGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+//		startTimeGroup.setLayout(new GridLayout(2, false));
 
-		startHmsFromTxt = new Text(startTimeGroup, SWT.BORDER | SWT.SINGLE);
-		startHmsFromTxt.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, false));
+		Composite startTimeComposite = new Composite(filterGrp, SWT.NONE);
+		startTimeComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+
+//		startTimeComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+//		startTimeComposite.setLayout(new GridLayout(2, false));
+
+		FillLayout filllayout = new FillLayout();
+		filllayout.marginWidth = 0;
+		filllayout.marginHeight = 0;
+		startTimeComposite.setLayout(filllayout);
+
+
+		startHmsFromTxt = new Text(startTimeComposite, SWT.BORDER | SWT.SINGLE);
+		startHmsFromTxt.setTextLimit(6);
+//		startHmsFromTxt.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, false));
 		startHmsFromTxt.setText(status.startHmsFrom);
-		startHmsFromTxt.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent arg0) {
-				newStatus.startHmsFrom = startHmsFromTxt.getText();
-				compareHash();
-			}
+		startHmsFromTxt.addVerifyListener(hhmmssListener);
+		startHmsFromTxt.addModifyListener(arg0 -> {
+			newStatus.startHmsFrom = startHmsFromTxt.getText();
+			compareHash();
 		});
 
-		startHmsToTxt = new Text(startTimeGroup, SWT.BORDER | SWT.SINGLE);
-		startHmsToTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+
+		label = new Label(startTimeComposite, SWT.CENTER);
+		label.setText(" ~ ");
+
+		startHmsToTxt = new Text(startTimeComposite, SWT.BORDER | SWT.SINGLE);
+		startHmsToTxt.setTextLimit(6);
+//		startHmsToTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		startHmsToTxt.setText(status.startHmsTo);
-		startHmsToTxt.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent arg0) {
-				newStatus.startHmsTo = startHmsToTxt.getText();
-				compareHash();
-			}
+		startHmsToTxt.addVerifyListener(hhmmssListener);
+		startHmsToTxt.addModifyListener(arg0 -> {
+			newStatus.startHmsTo = startHmsToTxt.getText();
+			compareHash();
 		});
 
 		label = new Label(filterGrp, SWT.NONE);
@@ -356,8 +379,26 @@ public class XLogFilterDialog extends Dialog {
 		newShell.setText("XLog Filter");
 	}
 
-	@Override
-	protected boolean isResizable() {
-		return true;
-	}
+	VerifyListener hhmmssListener = e -> {
+		if (!StringUtil.isInteger(e.text)) {
+			e.doit = false;
+			return;
+		}
+
+		Text text = (Text) e.getSource();
+		final String prev = text.getText();
+		String after = prev.substring(0, e.start) + e.text + prev.substring(e.end);
+
+		for(int i = after.length(); i < 8; i++) {
+			after += '0';
+		}
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
+		try {
+			LocalTime.parse(after, formatter);
+		} catch (DateTimeParseException ignore) {
+			e.doit = false;
+		}
+
+	};
 }
