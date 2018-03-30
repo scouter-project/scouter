@@ -38,8 +38,18 @@ import scouter.client.xlog.ImageCache;
 import scouter.client.xlog.XLogFilterStatus;
 import scouter.client.xlog.XLogYAxisEnum;
 import scouter.lang.pack.XLogPack;
-import scouter.util.*;
+import scouter.util.DateTimeHelper;
+import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
+import scouter.util.HashUtil;
+import scouter.util.IPUtil;
+import scouter.util.LongKeyLinkedMap;
+import scouter.util.Pair;
+import scouter.util.StrMatch;
+import scouter.util.StringUtil;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -74,6 +84,7 @@ public class XLogViewPainter {
 	public StrMatch objNameMat;
 	public StrMatch serviceMat;
 	public StrMatch ipMat;
+	public Pair<Long, Long> startFromToMat;
 	public StrMatch loginMat;
 	public StrMatch descMat;
 	public StrMatch text1Mat;
@@ -163,10 +174,21 @@ public class XLogViewPainter {
 			onGoing = false;
 		}
 	}
-	
+
+	public static void main(String[] args) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
+		LocalTime localTime = LocalTime.parse("000001", formatter);
+		int sec = localTime.toSecondOfDay();
+		//DateUtil.yyyymmdd(paintedEndTime);
+		long paintedEndTime = 0;
+		DateTimeHelper helper = DateTimeHelper.getDefault();
+		long dateMillis = helper.dateUnitToTimeMillis(helper.getDateUnit(paintedEndTime));
+		long start = dateMillis + sec;
+	}
+
 	int chart_x;
 	long paintedEndTime;
-	
+
 	public long getLastTime() {
 		return paintedEndTime;
 	}

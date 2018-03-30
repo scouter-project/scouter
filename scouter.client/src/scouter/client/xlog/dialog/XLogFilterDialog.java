@@ -122,15 +122,8 @@ public class XLogFilterDialog extends Dialog {
 		label.setText("StartHMS");
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
 
-//		Group startTimeGroup = new Group(filterGrp, SWT.NONE);
-//		startTimeGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-//		startTimeGroup.setLayout(new GridLayout(2, false));
-
 		Composite startTimeComposite = new Composite(filterGrp, SWT.NONE);
 		startTimeComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-
-//		startTimeComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-//		startTimeComposite.setLayout(new GridLayout(2, false));
 
 		FillLayout filllayout = new FillLayout();
 		filllayout.marginWidth = 0;
@@ -140,7 +133,6 @@ public class XLogFilterDialog extends Dialog {
 
 		startHmsFromTxt = new Text(startTimeComposite, SWT.BORDER | SWT.SINGLE);
 		startHmsFromTxt.setTextLimit(6);
-//		startHmsFromTxt.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, false));
 		startHmsFromTxt.setText(status.startHmsFrom);
 		startHmsFromTxt.addVerifyListener(hhmmssListener);
 		startHmsFromTxt.addModifyListener(arg0 -> {
@@ -154,7 +146,6 @@ public class XLogFilterDialog extends Dialog {
 
 		startHmsToTxt = new Text(startTimeComposite, SWT.BORDER | SWT.SINGLE);
 		startHmsToTxt.setTextLimit(6);
-//		startHmsToTxt.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		startHmsToTxt.setText(status.startHmsTo);
 		startHmsToTxt.addVerifyListener(hhmmssListener);
 		startHmsToTxt.addModifyListener(arg0 -> {
@@ -380,7 +371,7 @@ public class XLogFilterDialog extends Dialog {
 	}
 
 	VerifyListener hhmmssListener = e -> {
-		if (!StringUtil.isInteger(e.text)) {
+		if (!StringUtil.isInteger(e.text) && !StringUtil.isEmpty(e.text)) {
 			e.doit = false;
 			return;
 		}
@@ -389,7 +380,7 @@ public class XLogFilterDialog extends Dialog {
 		final String prev = text.getText();
 		String after = prev.substring(0, e.start) + e.text + prev.substring(e.end);
 
-		for(int i = after.length(); i < 8; i++) {
+		for(int i = after.length(); i < 6; i++) {
 			after += '0';
 		}
 
