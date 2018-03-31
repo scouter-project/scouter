@@ -38,7 +38,6 @@ import scouter.client.xlog.ImageCache;
 import scouter.client.xlog.XLogFilterStatus;
 import scouter.client.xlog.XLogYAxisEnum;
 import scouter.lang.pack.XLogPack;
-import scouter.util.DateTimeHelper;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 import scouter.util.HashUtil;
@@ -173,17 +172,6 @@ public class XLogViewPainter {
 		synchronized (lock) {
 			onGoing = false;
 		}
-	}
-
-	public static void main(String[] args) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
-		LocalTime localTime = LocalTime.parse("000001", formatter);
-		int sec = localTime.toSecondOfDay();
-		//DateUtil.yyyymmdd(paintedEndTime);
-		long paintedEndTime = 0;
-		DateTimeHelper helper = DateTimeHelper.getDefault();
-		long dateMillis = helper.dateUnitToTimeMillis(helper.getDateUnit(paintedEndTime));
-		long start = dateMillis + sec;
 	}
 
 	int chart_x;
@@ -636,6 +624,7 @@ public class XLogViewPainter {
 		return isObjNameFilterOk(d)
 				&& isServiceFilterOk(d)
 				&& isIpFilterOk(d.p)
+				&& isStartTimeFilterOk(d.p)
 				&& isLoginFilterOk(d)
 				&& isDescFilterOk(d)
 				&& isText1FilterOk(d)
@@ -680,6 +669,14 @@ public class XLogViewPainter {
 		}
 		String value = IPUtil.toString(p.ipaddr);
 		return ipMat.include(value);
+	}
+
+	public boolean isStartTimeFilterOk(XLogPack p) {
+		if (StringUtil.isEmpty(filterStatus.startHmsFrom) || StringUtil.isEmpty(filterStatus.startHmsTo)) {
+			return true;
+		}
+		long start = p.endTime - p.elapsed;
+		return startFromToMat.getLeft() <= start && start <= startFromToMat.getRight();
 	}
 
 	public boolean isLoginFilterOk(XLogData d) {
@@ -783,13 +780,15 @@ public class XLogViewPainter {
 		this.yValueMax = yAxis.getDefaultMax();
 		this.yValueMin = 0;
 	}
-	
+
+	private DateTimeFormatter hmsFormatter = DateTimeFormatter.ofPattern("HHmmss");
 	public void setFilterStatus(XLogFilterStatus status) {
 		this.filterStatus = status;
 		filter_hash = filterStatus.hashCode();
 		objNameMat = new StrMatch(status.objName);
 		serviceMat = new StrMatch(status.service);
 		ipMat = new StrMatch(status.ip);
+
 		loginMat = new StrMatch(status.login);
 		text1Mat = new StrMatch(status.text1);
 		text2Mat = new StrMatch(status.text2);
@@ -798,5 +797,11 @@ public class XLogViewPainter {
 		text5Mat = new StrMatch(status.text5);
 		descMat = new StrMatch(status.desc);
 		userAgentMat = new StrMatch(status.userAgent);
+
+		long dateMillis = DateUtil.dateUnitToTimeMillis(DateUtil.getDateUnit(paintedEndTime));
+		long startFrom = dateMillis + LocalTime.parse(status.startHmsFrom, hmsFormatter).toSecondOfDay() * 1000;
+		long startTo = dateMillis + LocalTime.parse(status.startHmsTo, hmsFormatter).toSecondOfDay() * 1000;
+
+		startFromToMat = new Pair<>(startFrom, startTo);
 	}
 }
