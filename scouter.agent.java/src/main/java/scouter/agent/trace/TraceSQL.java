@@ -530,6 +530,14 @@ public class TraceSQL {
 		}
 	}
 
+	public static Connection getConnection(Connection conn) {
+		if (conn == null)
+			return conn;
+		if (conn instanceof WrConnection) 
+			return conn;
+		return new WrConnection(conn);
+	}
+	
 	public static void userTxOpen() {
 		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx == null)

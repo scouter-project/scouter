@@ -144,9 +144,9 @@ public class Configure extends Thread {
 	@ConfigDesc("Swagger option of host's ip or domain to call APIs.")
 	public String net_http_api_swagger_host_ip = "";
 	@ConfigDesc("API CORS support for Access-Control-Allow-Origin")
-	public String net_http_api_cors_allow_origin = "";
+	public String net_http_api_cors_allow_origin = "*";
 	@ConfigDesc("Access-Control-Allow-Credentials")
-	public String net_http_api_cors_allow_credentials = "false";
+	public String net_http_api_cors_allow_credentials = "true";
 
 	@ConfigDesc("size of webapp connection pool to collector")
 	public int net_webapp_tcp_client_pool_size = 12;
@@ -392,8 +392,8 @@ public class Configure extends Thread {
 		this.net_http_api_enabled = getBoolean("net_http_api_enabled", false);
 		this.net_http_api_swagger_enabled = getBoolean("net_http_api_swagger_enabled", false);
 		this.net_http_api_swagger_host_ip = getValue("net_http_api_swagger_host_ip", "");
-		this.net_http_api_cors_allow_origin = getValue("net_http_api_cors_allow_origin", "");
-		this.net_http_api_cors_allow_credentials = getValue("net_http_api_cors_allow_credentials", "false");
+		this.net_http_api_cors_allow_origin = getValue("net_http_api_cors_allow_origin", "*");
+		this.net_http_api_cors_allow_credentials = getValue("net_http_api_cors_allow_credentials", "true");
 
 		this.net_webapp_tcp_client_pool_size = getInt("net_webapp_tcp_client_pool_size", 12);
 		this.net_webapp_tcp_client_pool_timeout = getInt("net_webapp_tcp_client_pool_timeout", net_tcp_client_so_timeout_ms);

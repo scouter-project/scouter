@@ -104,6 +104,7 @@ public class RequestCmd {
 	public static final String TRANX_LOAD_TIME = "TRANX_LOAD_TIME";
 	public static final String XLOG_READ_BY_TXID = "XLOG_READ_BY_TXID";
 	public static final String XLOG_READ_BY_GXID = "XLOG_READ_BY_GXID";
+	public static final String XLOG_LOAD_BY_TXIDS = "XLOG_LOAD_BY_TXIDS";
 	public static final String XLOG_LOAD_BY_GXID = "XLOG_LOAD_BY_GXID";
 	public static final String TRANX_PROFILE = "TRANX_PROFILE";
 	public static final String TRANX_PROFILE_FULL = "TRANX_PROFILE_FULL";

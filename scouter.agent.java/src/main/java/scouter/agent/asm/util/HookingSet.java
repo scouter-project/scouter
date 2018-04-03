@@ -218,7 +218,6 @@ public class HookingSet {
 			String s = classes[i];
 			classMethodPatterns.add(s + "." + method);
 		}
-
 		return buildPatterns("", classMethodPatterns);
 	}
 }

@@ -73,14 +73,17 @@ class IndexKeyFile2(_path: String, hashSize: Int = 1) extends IClose {
             while (realKeyPos > 0) {
                 val oKey = this.keyFile.getKey(realKeyPos);
                 if (CompareUtil.equals(oKey, key)) {
-                    return this.keyFile.update(realKeyPos, ttl, key, value);
+                    val result = this.keyFile.update(realKeyPos, ttl, key, value);
+                    if(!result) {
+                        return put(key, value, ttl);
+                    }
                 }
 
                 realKeyPos = this.keyFile.getPrevPos(realKeyPos);
                 looping += 1;
             }
             if(looping > conf.log_index_traversal_warning_count) {
-                Logger.println("S161", 10, "[warn] Too many index deep searching. " + DataInputX.toLong(key, 0));
+                Logger.println("S161", 10, "[warn] Too many index deep searching. " + new String(key, "UTF8"));
             }
         } catch {
             case e: IOException =>
@@ -116,7 +119,7 @@ class IndexKeyFile2(_path: String, hashSize: Int = 1) extends IClose {
                 looping += 1;
             }
             if(looping > conf.log_index_traversal_warning_count) {
-                Logger.println("S161", 10, "[warn] Too many index deep searching. " + DataInputX.toLong(key, 0));
+                Logger.println("S161", 10, "[warn] Too many index deep searching. " + new String(key, "UTF8"));
             }
         } catch {
             case e: IOException =>
@@ -150,7 +153,7 @@ class IndexKeyFile2(_path: String, hashSize: Int = 1) extends IClose {
                 looping += 1;
             }
             if(looping > conf.log_index_traversal_warning_count) {
-                Logger.println("S152", 10, "[warn] Too many index deep searching. " + DataInputX.toLong(key, 0));
+                Logger.println("S152", 10, "[warn] Too many index deep searching. " + new String(key, "UTF8"));
             }
         } catch {
             case e: IOException =>
@@ -223,6 +226,7 @@ class IndexKeyFile2(_path: String, hashSize: Int = 1) extends IClose {
         return 0;
     }
 
+    //TODO not yet implemented
     def read(handler: (Array[Byte], Array[Byte]) => Any) {
         if (this.keyFile == null)
             return
@@ -244,6 +248,7 @@ class IndexKeyFile2(_path: String, hashSize: Int = 1) extends IClose {
         }
     }
 
+    //TODO not yet implemented
     def read(handler: (Array[Byte], Array[Byte]) => Any, reader: (Long)=>Array[Byte]) {
         if (this.keyFile == null)
             return ;

@@ -7,6 +7,8 @@ public class XLogFilterStatus {
 	public String objName = "";
 	public String service = "";
 	public String ip = "";
+	public String startHmsFrom = "";
+	public String startHmsTo = "";
 	public String login = "";
 	public String desc = "";
 	public String text1 = "";
@@ -24,6 +26,8 @@ public class XLogFilterStatus {
 		int filter_hash = HashUtil.hash(objName);
 		filter_hash ^= HashUtil.hash(service);
 		filter_hash ^= HashUtil.hash(ip);
+		filter_hash ^= HashUtil.hash(startHmsFrom);
+		filter_hash ^= HashUtil.hash(startHmsTo);
 		filter_hash ^= HashUtil.hash(login);
 		filter_hash ^= HashUtil.hash(desc);
 		filter_hash ^= HashUtil.hash(text1);
@@ -43,6 +47,8 @@ public class XLogFilterStatus {
 		status.objName = objName;
 		status.service = service;
 		status.ip = ip;
+		status.startHmsFrom = startHmsFrom;
+		status.startHmsTo = startHmsTo;
 		status.login = login;
 		status.desc = desc;
 		status.text1 = text1;

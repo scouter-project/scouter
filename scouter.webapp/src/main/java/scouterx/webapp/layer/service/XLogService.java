@@ -22,6 +22,7 @@ import scouterx.webapp.framework.client.net.INetReader;
 import scouterx.webapp.layer.consumer.XLogConsumer;
 import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.scouter.SXLog;
+import scouterx.webapp.request.MultiXLogRequest;
 import scouterx.webapp.request.SearchXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogRequest;
@@ -88,16 +89,24 @@ public class XLogService {
     /**
      * retrieve Xlog List by gxid
      */
-    public List<SXLog> retrieveXLogsByGxid(final GxidXLogRequest xlogRequest) {
-        return xLogConsumer.retrieveXLogsByGxid(xlogRequest);
+    public List<SXLog> retrieveXLogListByGxid(final GxidXLogRequest xlogRequest) {
+        return xLogConsumer.retrieveXLogListByGxid(xlogRequest);
     }
 
     /**
      * retrieve Xlog data List by gxid
      */
-    public List<XLogData> retrieveXLogDatasByGxid(final GxidXLogRequest xlogRequest) {
-        return xLogConsumer.retrieveXLogDatasByGxid(xlogRequest);
+    public List<XLogData> retrieveXLogDataListByGxid(final GxidXLogRequest xlogRequest) {
+        return xLogConsumer.retrieveXLogDataListByGxid(xlogRequest);
     }
+
+    /**
+     * retrieve Xlog data List by txids
+     */
+    public List<XLogData> retrieveXLogDataListByTxids(final MultiXLogRequest multiXLogRequest) {
+        return xLogConsumer.retrieveXLogDataListByTxids(multiXLogRequest);
+    }
+
 
 
 }
