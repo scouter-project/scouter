@@ -23,7 +23,9 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
@@ -38,11 +40,16 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import scouter.client.xlog.XLogFilterStatus;
 import scouter.client.xlog.views.XLogViewCommon;
+import scouter.util.StringUtil;
+
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class XLogFilterDialog extends Dialog {
 	
 	Combo objCombo;
-	Text serviceTxt, ipTxt, userAgentTxt, loginText, descText, text1Text, text2Text, text3Text, text4Text, text5Text;
+	Text serviceTxt, ipTxt, startHmsFromTxt, startHmsToTxt, userAgentTxt, loginText, descText, text1Text, text2Text, text3Text, text4Text, text5Text;
 	Button onlySqlBtn, onlyApiBtn, onlyErrorBtn;
 	Button clearBtn, applyBtn;
 	
@@ -109,6 +116,41 @@ public class XLogFilterDialog extends Dialog {
 				newStatus.ip = ipTxt.getText();
 				compareHash();
 			}
+		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("StartHMS");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+
+		Composite startTimeComposite = new Composite(filterGrp, SWT.NONE);
+		startTimeComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+
+		FillLayout filllayout = new FillLayout();
+		filllayout.marginWidth = 0;
+		filllayout.marginHeight = 0;
+		startTimeComposite.setLayout(filllayout);
+
+
+		startHmsFromTxt = new Text(startTimeComposite, SWT.BORDER | SWT.SINGLE);
+		startHmsFromTxt.setTextLimit(6);
+		startHmsFromTxt.setText(status.startHmsFrom);
+		startHmsFromTxt.addVerifyListener(hhmmssListener);
+		startHmsFromTxt.addModifyListener(arg0 -> {
+			newStatus.startHmsFrom = startHmsFromTxt.getText();
+			compareHash();
+		});
+
+
+		label = new Label(startTimeComposite, SWT.CENTER);
+		label.setText(" ~ ");
+
+		startHmsToTxt = new Text(startTimeComposite, SWT.BORDER | SWT.SINGLE);
+		startHmsToTxt.setTextLimit(6);
+		startHmsToTxt.setText(status.startHmsTo);
+		startHmsToTxt.addVerifyListener(hhmmssListener);
+		startHmsToTxt.addModifyListener(arg0 -> {
+			newStatus.startHmsTo = startHmsToTxt.getText();
+			compareHash();
 		});
 
 		label = new Label(filterGrp, SWT.NONE);
@@ -266,6 +308,8 @@ public class XLogFilterDialog extends Dialog {
 				objCombo.setText("");
 				serviceTxt.setText("");
 				ipTxt.setText("");
+				startHmsFromTxt.setText("");
+				startHmsToTxt.setText("");
 				loginText.setText("");
 				descText.setText("");
 				text1Text.setText("");
@@ -305,11 +349,12 @@ public class XLogFilterDialog extends Dialog {
 		}
 	}
 	
-	
-	
 	@Override
 	protected void okPressed() {
 		if (newStatus.hashCode() != filterHash) {
+			view.setFilter(newStatus);
+			filterHash = newStatus.hashCode();
+			compareHash();
 		}
 		super.okPressed();
 	}
@@ -325,8 +370,26 @@ public class XLogFilterDialog extends Dialog {
 		newShell.setText("XLog Filter");
 	}
 
-	@Override
-	protected boolean isResizable() {
-		return true;
-	}
+	VerifyListener hhmmssListener = e -> {
+		if (!StringUtil.isInteger(e.text) && !StringUtil.isEmpty(e.text)) {
+			e.doit = false;
+			return;
+		}
+
+		Text text = (Text) e.getSource();
+		final String prev = text.getText();
+		String after = prev.substring(0, e.start) + e.text + prev.substring(e.end);
+
+		for(int i = after.length(); i < 6; i++) {
+			after += '0';
+		}
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
+		try {
+			LocalTime.parse(after, formatter);
+		} catch (DateTimeParseException ignore) {
+			e.doit = false;
+		}
+
+	};
 }

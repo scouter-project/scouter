@@ -94,6 +94,12 @@ public class ZZ {
         return Arrays.stream(items).map(Integer::parseInt).collect(Collectors.toList());
     }
 
+    public static List<Long> splitParamAsLong(String org) {
+        org = stripFirstLastBracket(org);
+        String[] items = StringUtils.split(org, COMMA);
+        return Arrays.stream(items).map(Long::parseLong).collect(Collectors.toList());
+    }
+
     public static Set<Integer> splitParamAsIntegerSet(String org) {
         org = stripFirstLastBracket(org);
         String[] items = StringUtils.split(org, COMMA);

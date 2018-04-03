@@ -50,6 +50,10 @@ public class DateUtil {
 		return helper.getDateUnit();
 	}
 
+	public static long dateUnitToTimeMillis(long dateUnit) {
+		return helper.dateUnitToTimeMillis(dateUnit);
+	}
+
 	public static long getDateUnit(long time) {
 		return helper.getDateUnit(time);
 	}

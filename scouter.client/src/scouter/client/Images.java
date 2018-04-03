@@ -63,6 +63,7 @@ public class Images {
     public static final Image add = Activator.getImage("icons/add.gif");
 
     public static final Image filter = Activator.getImage("icons/filter.png");
+	public static final Image search = Activator.getImage("icons/search.png");
 
 	public static final Image monitor  = Activator.getImage("icons/monitor.png");
 	

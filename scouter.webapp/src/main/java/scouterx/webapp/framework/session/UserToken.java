@@ -29,33 +29,37 @@ import scouter.util.Hexa32;
 @Getter
 @Setter
 public class UserToken {
-    String id;
+    String userId;
     String token;
     long footprintSec; //unix timestamp
     int serverId;
     boolean fromSession;
 
     private UserToken(String id, String token, int serverId) {
-        this.id = id;
+        this.userId = id;
         this.token = token;
         this.footprintSec = 0;
         this.serverId = serverId;
     }
 
     public String getStoreKey() {
-        return id;
+        return userId;
     }
 
     public String toStoreValue() {
-        return "V1." + footprintSec + "." + token + "." + id;
+        return "V1." + footprintSec + "." + token + "." + userId;
     }
 
     public String toBearerToken() {
-        return "V1." + token + "." + Hexa32.toString32(serverId) + "." + id;
+        return "V1." + token + "." + Hexa32.toString32(serverId) + "." + userId;
     }
 
     public boolean isExpired(int timeoutSec) {
         return footprintSec + timeoutSec < System.currentTimeMillis() / 1000;
+    }
+
+    public boolean isNotExpired(int timeoutSec) {
+        return !isExpired(timeoutSec);
     }
 
     public boolean needToBeRenewed(int touchThresholdSec) {
@@ -63,7 +67,7 @@ public class UserToken {
     }
 
     public UserToken renew() {
-        return UserToken.newToken(id, token, serverId);
+        return UserToken.newToken(userId, token, serverId);
     }
 
     public static UserToken fromBearerToken(String token) {

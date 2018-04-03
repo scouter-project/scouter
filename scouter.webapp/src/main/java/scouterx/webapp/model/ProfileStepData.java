@@ -25,13 +25,16 @@ import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.DispatchStep;
 import scouter.lang.step.DumpStep;
 import scouter.lang.step.HashedMessageStep;
+import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.ParameterizedMessageStep;
+import scouter.lang.step.SocketStep;
 import scouter.lang.step.SqlStep;
 import scouter.lang.step.Step;
 import scouter.lang.step.StepEnum;
 import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.lang.step.ThreadSubmitStep;
+import scouter.util.IPUtil;
 import scouterx.webapp.framework.client.model.TextLoader;
 import scouterx.webapp.framework.client.model.TextModel;
 import scouterx.webapp.framework.client.model.TextTypeEnum;
@@ -125,7 +128,8 @@ public class ProfileStepData {
                 mainValue = textTypeEnum.getTextModel().getTextIfNullDefault(date, ((HashedMessageStep) step).getHash(), serverId);
                 break;
             case PARAMETERIZED_MESSAGE:
-                mainValue = textTypeEnum.getTextModel().getTextIfNullDefault(date, ((ParameterizedMessageStep) step).getHash(), serverId);
+                ParameterizedMessageStep pmStep = (ParameterizedMessageStep) step;
+                mainValue = pmStep.buildMessasge(textTypeEnum.getTextModel().getTextIfNullDefault(date, pmStep.getHash(), serverId));
                 break;
             case DISPATCH:
                 mainValue = textTypeEnum.getTextModel().getTextIfNullDefault(date, ((DispatchStep) step).getHash(), serverId);
@@ -136,7 +140,10 @@ public class ProfileStepData {
             case DUMP:
                 break;
             case MESSAGE:
+                mainValue = ((MessageStep) step).getMessage();
+                break;
             case SOCKET:
+                mainValue = IPUtil.toString(((SocketStep) step).getIpaddr());
             default:
                 break;
         }
@@ -152,7 +159,7 @@ public class ProfileStepData {
             case DUMP:
                 DumpStep dumpStep = (DumpStep) step;
                 for (int stackHash : dumpStep.stacks) {
-                    valueList.add(textTypeEnum.getTextModel().getTextIfNullDefault(date, stackHash, serverId));
+                    valueList.add(TextTypeEnum.STACK_ELEMENT.getTextModel().getTextIfNullDefault(date, stackHash, serverId));
                 }
                 break;
 
@@ -220,7 +227,7 @@ public class ProfileStepData {
             case DUMP:
                 DumpStep dumpStep = (DumpStep) step;
                 for (int stackHash : dumpStep.stacks) {
-                    textLoader.addTextHash(textTypeEnum, stackHash);
+                    textLoader.addTextHash(TextTypeEnum.STACK_ELEMENT, stackHash);
                 }
                 break;
 

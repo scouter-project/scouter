@@ -29,9 +29,14 @@ import scouterx.webapp.framework.session.UserToken;
 import scouterx.webapp.framework.session.UserTokenCache;
 import scouterx.webapp.model.scouter.SUser;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
- *
+ * <p>
  * It use scouter kv store in which data only can be added not delete or modify.
  * (We will make it better in a latter version.)
  */
@@ -40,8 +45,8 @@ public class UserTokenService {
 
     private ConfigureAdaptor conf = ConfigureManager.getConfigure();
     private final static float TOUCH_RATE = 0.1f;
-    private int sessionExpireSec = (int) (conf.getNetHttpApiSessionTimeout() * (1.0f + TOUCH_RATE));
-    private int SessionTouchThresholdSec = (int) (conf.getNetHttpApiSessionTimeout() * TOUCH_RATE);
+    public int sessionExpireSec = (int) (conf.getNetHttpApiSessionTimeout() * (1.0f + TOUCH_RATE));
+    public int SessionTouchThresholdSec = (int) (conf.getNetHttpApiSessionTimeout() * TOUCH_RATE);
 
     private SessionIdGenerator sessionIdGenerator = new SessionIdGenerator();
     private CustomKvStoreService customKvStoreService = new CustomKvStoreService();
@@ -51,8 +56,11 @@ public class UserTokenService {
      */
     public String publishToken(final Server server, final SUser user) {
         UserToken userToken = UserToken.newToken(user.getId(), sessionIdGenerator.generateSessionId(), server.getId());
-        UserTokenCache.getInstance().put(user.getId(), userToken);
-        customKvStoreService.set(SESSION_STORE, userToken.getStoreKey(), userToken.toStoreValue(), sessionExpireSec, server);
+        UserTokenCache.getInstance().put(userToken);
+
+        String mergedStoreValue = getAndMergeToStoredValue(userToken);
+        customKvStoreService.set(SESSION_STORE, userToken.getUserId(), mergedStoreValue, sessionExpireSec, server);
+
         return userToken.toBearerToken();
     }
 
@@ -60,17 +68,14 @@ public class UserTokenService {
      * check user session & renew token's footprint if valid
      */
     public void validateToken(UserToken token) {
-        UserToken tokenTrusted = UserTokenCache.getInstance().get(token.getId());
+        UserToken tokenTrusted = UserTokenCache.getInstance().get(token);
         if (tokenTrusted == null) {
-            String stored = customKvStoreService.get(SESSION_STORE, token.getStoreKey(), ServerManager.getInstance().getServerIfNullDefault(token.getServerId()));
-            if (StringUtils.isNotBlank(stored)) {
-                tokenTrusted = UserToken.fromStoreValue(stored, token.getServerId());
-                if (tokenTrusted != null) {
-                    UserTokenCache.getInstance().put(tokenTrusted.getId(), tokenTrusted);
-                }
+            tokenTrusted = getStoredMatchedToken(token);
+            if (tokenTrusted != null) {
+                UserTokenCache.getInstance().put(tokenTrusted);
             }
         }
-        if (tokenTrusted == null || !tokenTrusted.getToken().equals(token.getToken()) || tokenTrusted.isExpired(sessionExpireSec)) {
+        if (tokenTrusted == null || tokenTrusted.isExpired(sessionExpireSec)) {
             throw ErrorState.SESSION_EXPIRED.newBizException();
         }
         if (tokenTrusted.needToBeRenewed(SessionTouchThresholdSec)) {
@@ -82,9 +87,40 @@ public class UserTokenService {
      * renew token's footprint
      */
     private void touchToken(UserToken token) {
-        UserToken userToken = token.renew();
-        UserTokenCache.getInstance().put(userToken.getId(), userToken);
-        customKvStoreService.set(SESSION_STORE, userToken.getStoreKey(), userToken.toStoreValue(), sessionExpireSec,
-                ServerManager.getInstance().getServer(token.getServerId()));
+        UserToken renewedToken = token.renew();
+
+        UserTokenCache.getInstance().putAsRecent(renewedToken);
+        String mergedStoreValue = getAndMergeToStoredValue(renewedToken);
+
+        customKvStoreService.set(SESSION_STORE, renewedToken.getUserId(), mergedStoreValue, sessionExpireSec, ServerManager.getInstance().getServer(renewedToken.getServerId()));
+    }
+
+    private UserToken getStoredMatchedToken(UserToken userToken) {
+        String tokens = customKvStoreService.get(SESSION_STORE, userToken.getUserId(), ServerManager.getInstance().getServerIfNullDefault(userToken.getServerId()));
+        Map<String, UserToken> userTokenMap = Arrays.stream(tokens.split(":"))
+                .map(v -> UserToken.fromStoreValue(v, 0))
+                .collect(Collectors.toMap(UserToken::getToken, Function.identity()));
+
+        return userTokenMap.get(userToken.getToken());
+    }
+
+    String getAndMergeToStoredValue(UserToken userToken) {
+        String tokens = customKvStoreService.get(SESSION_STORE, userToken.getUserId(), ServerManager.getInstance().getServerIfNullDefault(userToken.getServerId()));
+        return mergeStoredTokensWith(tokens, userToken);
+    }
+
+    String mergeStoredTokensWith(String tokens, UserToken userToken) {
+        if (StringUtils.isBlank(tokens)) {
+            return userToken.toStoreValue();
+        }
+        Map<String, UserToken> userTokenMap = Arrays.stream(tokens.split(":"))
+                .map(v -> UserToken.fromStoreValue(v, 0))
+                .filter(v -> v.isNotExpired(sessionExpireSec))
+                .collect(Collectors.toMap(UserToken::getToken, Function.identity()));
+
+        userTokenMap.put(userToken.getToken(), userToken);
+        return userTokenMap.values().stream()
+                .map(UserToken::toStoreValue)
+                .collect(Collectors.joining(":"));
     }
 }

@@ -27,6 +27,7 @@ import scouter.agent.asm.HttpServiceASM;
 import scouter.agent.asm.IASM;
 import scouter.agent.asm.InitialContextASM;
 import scouter.agent.asm.JDBCConnectionOpenASM;
+import scouter.agent.asm.JDBCGetConnectionASM;
 import scouter.agent.asm.JDBCDriverASM;
 import scouter.agent.asm.JDBCPreparedStatementASM;
 import scouter.agent.asm.JDBCResultSetASM;
@@ -48,6 +49,9 @@ import scouter.agent.asm.asyncsupport.HystrixCommandASM;
 import scouter.agent.asm.asyncsupport.RequestStartAsyncASM;
 import scouter.agent.asm.asyncsupport.executor.ExecutorServiceASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM;
+import scouter.agent.asm.redis.JedisConnectionASM;
+import scouter.agent.asm.redis.RedisCacheKeyASM;
+import scouter.agent.asm.redis.RedisKeyASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
@@ -102,7 +106,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new JDBCStatementASM());
         temp.add(new SqlMapASM());
         temp.add(new UserTxASM());
-
+        temp.add(new JDBCGetConnectionASM());
         temp.add(new JDBCConnectionOpenASM());
         temp.add(new JDBCDriverASM());
         temp.add(new InitialContextASM());
@@ -118,6 +122,9 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new SpringAsyncExecutionASM());
         temp.add(new CallRunnableASM());
         temp.add(new ExecutorServiceASM());
+        temp.add(new RedisKeyASM());
+        temp.add(new RedisCacheKeyASM());
+        temp.add(new JedisConnectionASM());
 
         temp.add(new SpringReqMapASM());
         temp.add(new HystrixCommandASM());
