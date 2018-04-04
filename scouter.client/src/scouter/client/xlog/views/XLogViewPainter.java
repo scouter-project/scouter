@@ -798,10 +798,14 @@ public class XLogViewPainter {
 		descMat = new StrMatch(status.desc);
 		userAgentMat = new StrMatch(status.userAgent);
 
-		long dateMillis = DateUtil.dateUnitToTimeMillis(DateUtil.getDateUnit(paintedEndTime));
-		long startFrom = dateMillis + LocalTime.parse(status.startHmsFrom, hmsFormatter).toSecondOfDay() * 1000;
-		long startTo = dateMillis + LocalTime.parse(status.startHmsTo, hmsFormatter).toSecondOfDay() * 1000;
+		if (status.startHmsFrom.length() == 6 && status.startHmsTo.length() == 6) {
+			long dateMillis = DateUtil.dateUnitToTimeMillis(DateUtil.getDateUnit(paintedEndTime));
+			long startFrom = dateMillis + LocalTime.parse(status.startHmsFrom, hmsFormatter).toSecondOfDay() * 1000;
+			long startTo = dateMillis + LocalTime.parse(status.startHmsTo, hmsFormatter).toSecondOfDay() * 1000;
 
-		startFromToMat = new Pair<>(startFrom, startTo);
+			startFromToMat = new Pair<>(startFrom, startTo);
+		} else {
+			startFromToMat = new Pair<>(0L, 0L);
+		}
 	}
 }
