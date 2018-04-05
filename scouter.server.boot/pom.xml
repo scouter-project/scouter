@@ -122,6 +122,7 @@
                                     <tarfileset dir="${project.basedir.assembly.dir}">
                                         <include name="conf/**/*" />
                                         <include name="plugin/**/*" />
+                                        <include name="extweb/**/*" />
                                     </tarfileset>
                                 </tar>
 
