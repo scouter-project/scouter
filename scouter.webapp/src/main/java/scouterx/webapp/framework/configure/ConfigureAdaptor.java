@@ -28,6 +28,7 @@ public interface ConfigureAdaptor {
     String getLogDir();
     int getLogKeepDays();
     int getNetHttpPort();
+    String getNetHttpExtWebDir();
     boolean isNetHttpApiAuthIpEnabled();
     boolean isNetHttpApiAuthSessionEnabled();
     boolean isNetHttpApiAuthBearerTokenEnabled();

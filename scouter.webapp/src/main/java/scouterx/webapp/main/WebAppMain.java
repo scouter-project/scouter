@@ -134,6 +134,7 @@ public class WebAppMain extends Application {
 
         servletContextHandler.addServlet(jerseyHolder, "/scouter/*");
         servletContextHandler.addServlet(setStaticContentHandler(), "/*");
+        servletContextHandler.addServlet(setExtWebStaticContentHandler(), "/extweb/*");
         servletContextHandler.addServlet(setSwaggerBootstrapHandler(), "/swagger");
 
         addFilter(servletContextHandler);
@@ -157,10 +158,19 @@ public class WebAppMain extends Application {
 
     private static ServletHolder setStaticContentHandler () {
         String resourceBase = WebAppMain.class.getClassLoader().getResource("webroot/").toExternalForm();
-
         ServletHolder holderHome = new ServletHolder(DefaultServlet.class);
         holderHome.setInitParameter("resourceBase", resourceBase);
         holderHome.setInitParameter("dirAllowed","false");
+        holderHome.setInitParameter("pathInfoOnly","true");
+
+        return holderHome;
+    }
+
+    private static ServletHolder setExtWebStaticContentHandler () {
+        String resourceBase = ConfigureManager.getConfigure().getNetHttpExtWebDir();
+        ServletHolder holderHome = new ServletHolder(DefaultServlet.class);
+        holderHome.setInitParameter("resourceBase", resourceBase);
+        holderHome.setInitParameter("dirAllowed","true");
         holderHome.setInitParameter("pathInfoOnly","true");
 
         return holderHome;

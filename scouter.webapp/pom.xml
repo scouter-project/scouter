@@ -255,6 +255,7 @@
                                     </tarfileset>
                                     <tarfileset dir="${project.basedir}">
                                         <include name="conf/**/*" />
+                                        <include name="extweb/**/*" />
                                     </tarfileset>
                                 </tar>
 

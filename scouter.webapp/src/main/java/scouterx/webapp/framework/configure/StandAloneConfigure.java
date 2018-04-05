@@ -77,6 +77,9 @@ public class StandAloneConfigure extends Thread {
 	@ConfigDesc("HTTP service port")
 	public int net_http_port = NetConstants.WEBAPP_HTTP_PORT;
 
+	@ConfigDesc("user extension web root")
+	public String net_http_extweb_dir = "./extweb";
+
 	@ConfigDesc("HTTP API swagger enable option")
 	public boolean net_http_api_swagger_enabled = false;
 
@@ -184,6 +187,7 @@ public class StandAloneConfigure extends Thread {
 		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1");
 
 		this.net_http_port = getInt("net_http_port", NetConstants.WEBAPP_HTTP_PORT);
+		this.net_http_extweb_dir = getValue("net_http_extweb_dir", "./extweb");
 
 		this.net_http_api_swagger_enabled = getBoolean("net_http_api_swagger_enabled", false);
 		this.net_http_api_swagger_host_ip = getValue("net_http_api_swagger_host_ip", "");

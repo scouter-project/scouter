@@ -53,6 +53,11 @@ public class StandAloneConfigureAdaptor implements ConfigureAdaptor {
     }
 
     @Override
+    public String getNetHttpExtWebDir() {
+        return conf.net_http_extweb_dir;
+    }
+
+    @Override
     public boolean isNetHttpApiAuthIpEnabled() {
         return conf.net_http_api_auth_ip_enabled;
     }
