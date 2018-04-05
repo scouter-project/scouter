@@ -51,10 +51,13 @@ public class AuthFilter implements ContainerRequestFilter {
         WebRequestContext.clearUserToken();
         ConfigureAdaptor conf = ConfigureManager.getConfigure();
 
+        boolean violation = false;
         //Check IP
         if (conf.isNetHttpApiAuthIpEnabled()) {
             if (conf.getNetHttpApiAllowIps().stream().anyMatch(ip -> ZZ.getRequestIp(servletRequest).contains(ip))) {
                 return;
+            } else {
+                violation = true;
             }
         }
 
@@ -81,6 +84,10 @@ public class AuthFilter implements ContainerRequestFilter {
             }
             UserToken userToken = UserToken.fromSessionId((String) session.getAttribute("userId"));
             WebRequestContext.setUserToken(userToken);
+        }
+
+        if (violation) {
+            throw ErrorState.SESSION_EXPIRED.newBizException();
         }
     }
 
