@@ -5,7 +5,7 @@
     <parent>
         <artifactId>scouter-parent</artifactId>
         <groupId>io.github.scouter-project</groupId>
-        <version>1.8.0</version>
+        <version>1.8.5.SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -43,6 +43,23 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <!-- dependencies for native jetty websocket -->
+        <!--<dependency>-->
+            <!--<groupId>org.eclipse.jetty.websocket</groupId>-->
+            <!--<artifactId>websocket-server</artifactId>-->
+            <!--<version>${jetty.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.eclipse.jetty.websocket</groupId>-->
+            <!--<artifactId>websocket-servlet</artifactId>-->
+            <!--<version>${jetty.version}</version>-->
+        <!--</dependency>-->
+        <!-- dependencies for javax.websocket (JSR-356) websocket -->
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>javax-websocket-server-impl</artifactId>
             <version>${jetty.version}</version>
         </dependency>
         <dependency>
@@ -120,6 +137,18 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>1.10.19</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>1.7.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>1.7.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -226,6 +255,7 @@
                                     </tarfileset>
                                     <tarfileset dir="${project.basedir}">
                                         <include name="conf/**/*" />
+                                        <include name="extweb/**/*" />
                                     </tarfileset>
                                 </tar>
 

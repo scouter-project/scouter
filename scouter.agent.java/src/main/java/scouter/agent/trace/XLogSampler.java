@@ -53,10 +53,6 @@ public class XLogSampler {
             return XLogDiscard.DISCARD_ALL;
         }
 
-        if (isDiscardServicePattern(serviceName)) {
-            return XLogDiscard.DISCARD_ALL;
-        }
-
         boolean isSamplingServicePattern = false;
         if (conf.xlog_patterned_sampling_enabled && (isSamplingServicePattern = isSamplingServicePattern(serviceName))) {
             if (elapsed < conf.xlog_patterned_sampling_step1_ms) {
@@ -100,7 +96,7 @@ public class XLogSampler {
         return discardMode;
     }
 
-    private boolean isDiscardServicePattern(String serviceName) {
+    public boolean isDiscardServicePattern(String serviceName) {
         if (StringUtil.isEmpty(conf.xlog_discard_service_patterns)) {
             return false;
         }

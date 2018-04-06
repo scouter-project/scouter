@@ -20,7 +20,7 @@ package scouterx.webapp.view;
 
 import lombok.Getter;
 import lombok.Setter;
-import scouterx.webapp.model.scouter.SXlog;
+import scouterx.webapp.model.scouter.SXLog;
 
 import java.util.List;
 
@@ -32,5 +32,5 @@ import java.util.List;
 public class RealTimeXLogView {
     int xLogIndex;
     long xLogLoop;
-    List<SXlog> xLogs;
+    List<SXLog> xLogs;
 }

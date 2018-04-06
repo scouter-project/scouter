@@ -219,8 +219,9 @@ object Logger {
                 try {
                     val d = DateUtil.yyyymmdd(date)
                     val fileUnit = DateUtil.getDateUnit(d)
-                    if (nowUnit - fileUnit > DateUtil.MILLIS_PER_DAY * conf.log_keep_days) {
+                    if (nowUnit - fileUnit > conf.log_keep_days) {
                         files(i).delete()
+                        Logger.println("[scouter] delete log file : " + files(i).getAbsolutePath)
                     }
                 } catch {
                     case e: Exception =>

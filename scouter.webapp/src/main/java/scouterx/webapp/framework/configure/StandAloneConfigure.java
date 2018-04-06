@@ -59,14 +59,16 @@ public class StandAloneConfigure extends Thread {
 	public int net_webapp_tcp_client_pool_timeout = 15000;
 
 	@ConfigDesc("Enable api access control by client ip")
-	public boolean net_http_api_auth_ip_enabled = true;
+	public boolean net_http_api_auth_ip_enabled = false;
 	@ConfigDesc("If get api caller's ip from http header.")
 	public String net_http_api_auth_ip_header_key;
 
-	@ConfigDesc("Enable api access control by JSESSIONID of Cookie")
-	public boolean net_http_api_auth_session_enabled = true;
-	@ConfigDesc("api http session timeout")
-	public int net_http_api_session_timeout = 3600*24;
+	@ConfigDesc("Enable api access control by JSESSIONID of Cookie - get session from /user/login.")
+	public boolean net_http_api_auth_session_enabled = false;
+	@ConfigDesc("api http session timeout(sec)")
+	public int net_http_api_session_timeout = 1*3600*24;
+	@ConfigDesc("Enable api access control by Bearer token(of Authorization http header) - get access token from /user/loginGetToken.")
+	public boolean net_http_api_auth_bearer_token_enabled = false;
 
 	@ConfigDesc("api access allow ip addresses")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
@@ -75,15 +77,18 @@ public class StandAloneConfigure extends Thread {
 	@ConfigDesc("HTTP service port")
 	public int net_http_port = NetConstants.WEBAPP_HTTP_PORT;
 
+	@ConfigDesc("user extension web root")
+	public String net_http_extweb_dir = "./extweb";
+
 	@ConfigDesc("HTTP API swagger enable option")
 	public boolean net_http_api_swagger_enabled = false;
 
 	@ConfigDesc("Swagger option of host's ip or domain to call APIs.")
 	public String net_http_api_swagger_host_ip = "";
 	@ConfigDesc("API CORS support for Access-Control-Allow-Origin")
-	public String net_http_api_cors_allow_origin = "";
+	public String net_http_api_cors_allow_origin = "*";
 	@ConfigDesc("Access-Control-Allow-Credentials")
-	public String net_http_api_cors_allow_credentials = "false";
+	public String net_http_api_cors_allow_credentials = "true";
 
 	@ConfigDesc("Log directory")
 	public String log_dir = "./logs";
@@ -172,20 +177,22 @@ public class StandAloneConfigure extends Thread {
 		this.net_webapp_tcp_client_pool_size = getInt("net_webapp_tcp_client_pool_size", 12);
 		this.net_webapp_tcp_client_pool_timeout = getInt("net_webapp_tcp_client_pool_timeout", 15000);
 
-		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", true);
+		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", false);
 		this.net_http_api_auth_ip_header_key = getValue("net_http_api_auth_ip_header_key", "");
 
-		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", true);
+		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", false);
 		this.net_http_api_session_timeout = getInt("net_http_api_session_timeout", 3600*24);
+		this.net_http_api_auth_bearer_token_enabled = getBoolean("net_http_api_auth_bearer_token_enabled", false);
 
 		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1");
 
 		this.net_http_port = getInt("net_http_port", NetConstants.WEBAPP_HTTP_PORT);
+		this.net_http_extweb_dir = getValue("net_http_extweb_dir", "./extweb");
 
 		this.net_http_api_swagger_enabled = getBoolean("net_http_api_swagger_enabled", false);
 		this.net_http_api_swagger_host_ip = getValue("net_http_api_swagger_host_ip", "");
-		this.net_http_api_cors_allow_origin = getValue("net_http_api_cors_allow_origin", "");
-		this.net_http_api_cors_allow_credentials = getValue("net_http_api_cors_allow_credentials", "false");
+		this.net_http_api_cors_allow_origin = getValue("net_http_api_cors_allow_origin", "*");
+		this.net_http_api_cors_allow_credentials = getValue("net_http_api_cors_allow_credentials", "true");
 
 
 		this.log_dir = getValue("log_dir", "./logs");

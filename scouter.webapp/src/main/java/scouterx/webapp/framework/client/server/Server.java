@@ -27,7 +27,7 @@ import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
 
 @Slf4j
-public final class Server {
+public class Server {
 	ConfigureAdaptor conf = ConfigureManager.getConfigure();
 
 	final private int id;

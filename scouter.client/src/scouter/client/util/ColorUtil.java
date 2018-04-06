@@ -17,7 +17,6 @@
  */
 package scouter.client.util;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
@@ -106,7 +105,7 @@ public class ColorUtil {
 	public Color act2_light = new Color(null, 255, 255, 169);
 	public Color act3_light = new Color(null, 255, 214, 255);
 	
-	public Color TOTAL_CHART_COLOR = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
+	public Color TOTAL_CHART_COLOR = new Color(null, 0, 0, 139);
 
 	public Color getColor(int id) {
 		Display display = Display.getCurrent();

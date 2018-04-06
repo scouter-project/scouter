@@ -1,5 +1,5 @@
 # Scouter Plugin Guide
-[![English](https://img.shields.io/badge/language-English-orange.svg)](Plugin-Guide.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Plugin-Guide.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Plugin-Guide_kr.md)
 
 이 글에서는 Scouter를 확장 가능하게 만들어 주는 Plugin 기능에 대해 설명한다. 
 Scouter collector sever의 Plugin 기능을 통하여 scouter의 수집 데이터를 선처리 하거나 타 소프트웨어로 전송할 수 있으며 agent plugin을 통하여 특정 데이터를 선처리하거나 업무적으로 의미있는 데이터를 XLog나 프로파일에 추가할 수 있다. 
@@ -46,7 +46,7 @@ Scouter의 설치본에는 이에 대한 샘플이 포함되어 있으며 해당
 * **xlogdb.plug** - xlog를 db에 저장히기 직전 상태에 호출되는 plugin
 * **xlogprofile.plug** - 상세 profile 정보에 대한 전처리 plugin
 
-이에 대한 상세 내용은 **[Scripting plugin Server API 설명 페이지](Server-Plugin-Scripting.md)**를 참고한다.
+이에 대한 상세 내용은 **[Scripting plugin Server API 설명 페이지](Server-Plugin-Scripting_kr.md)**를 참고한다.
 
 ### 2. Built-in Plugin
 Scripting plugin은 간편하게 작성하고 바로 반영해 볼 수 있다는 장점이 있는 반면 영구적으로 사용해야 하는 Plugin이 필요한 경우는 오히려 쉽게 수정 가능한 text 파일 형태로 유지하는 것이 불편할 수 도 있다. 
@@ -118,4 +118,4 @@ Scouter의 설치본에는 이에 대한 샘플이 포함되어 있으며 해당
 |**capture.plug**        | ```hook_method_patterns```나 ```hook_constructor_patterns```등을 통해 설정됨 method에 대해 해당 method의 시작 시점, 종료시점, Constructor 생성 시점에 호출됨 |
 |**jdbcpoolplug**        | DB connection URL 요청 시점에 호출됨 |
 
-이에 대한 상세 내용은 **[Scripting plugin java agent API 설명 페이지](JavaAgent-Plugin-Scripting.md)**를 참고한다.
+이에 대한 상세 내용은 **[Scripting plugin java agent API 설명 페이지](JavaAgent-Plugin-Scripting_kr.md)**를 참고한다.

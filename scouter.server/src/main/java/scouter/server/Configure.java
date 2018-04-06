@@ -137,6 +137,8 @@ public class Configure extends Thread {
 	public boolean net_http_server_enabled = false;
 	@ConfigDesc("Http Port")
 	public int net_http_port = NetConstants.SERVER_HTTP_PORT;
+	@ConfigDesc("user extension web root")
+	public String net_http_extweb_dir = "./extweb";
 	@ConfigDesc("Activating Scouter API")
 	public boolean net_http_api_enabled = false;
 	@ConfigDesc("Enable a swagger for HTTP API.")
@@ -144,9 +146,9 @@ public class Configure extends Thread {
 	@ConfigDesc("Swagger option of host's ip or domain to call APIs.")
 	public String net_http_api_swagger_host_ip = "";
 	@ConfigDesc("API CORS support for Access-Control-Allow-Origin")
-	public String net_http_api_cors_allow_origin = "";
+	public String net_http_api_cors_allow_origin = "*";
 	@ConfigDesc("Access-Control-Allow-Credentials")
-	public String net_http_api_cors_allow_credentials = "false";
+	public String net_http_api_cors_allow_credentials = "true";
 
 	@ConfigDesc("size of webapp connection pool to collector")
 	public int net_webapp_tcp_client_pool_size = 12;
@@ -154,14 +156,16 @@ public class Configure extends Thread {
 	public int net_webapp_tcp_client_pool_timeout = net_tcp_client_so_timeout_ms;
 
 	@ConfigDesc("Enable api access control by client ip")
-	public boolean net_http_api_auth_ip_enabled = true;
+	public boolean net_http_api_auth_ip_enabled = false;
 	@ConfigDesc("If get api caller's ip from http header.")
 	public String net_http_api_auth_ip_header_key;
 
 	@ConfigDesc("Enable api access control by JSESSIONID of Cookie")
-	public boolean net_http_api_auth_session_enabled = true;
+	public boolean net_http_api_auth_session_enabled = false;
 	@ConfigDesc("api http session timeout")
 	public int net_http_api_session_timeout = 3600*24;
+	@ConfigDesc("Enable api access control by Bearer token(of Authorization http header) - get access token from /user/loginGetToken.")
+	public boolean net_http_api_auth_bearer_token_enabled = false;
 
 	@ConfigDesc("api access allow ip addresses")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
@@ -182,6 +186,8 @@ public class Configure extends Thread {
 	//Object
 	@ConfigDesc("Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
 	public int object_deadtime_ms = 8000;
+	@ConfigDesc("inactive object warning level. default 0.(0:info, 1:warn, 2:error, 3:fatal)")
+	public int object_inactive_alert_level = 0;
 
 	//Compress
 	@ConfigDesc("Activating XLog data in zip file")
@@ -236,6 +242,35 @@ public class Configure extends Thread {
 	@ConfigDesc("true for daily dictionary mode about user agent. default value is false that means it's permanent.")
 	public boolean mgr_text_db_daily_ua_enabled = false;
 
+	@ConfigDesc("change default memory size of hash index.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_default_mb = 1;
+	@ConfigDesc("change memory size of hash index for service text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_service_mb = 1;
+	@ConfigDesc("change memory size of hash index for apicall text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_api_mb = 1;
+	@ConfigDesc("change memory size of hash index for user agent text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_ua_mb = 1;
+	@ConfigDesc("change memory size of hash index for login text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_login_mb = 1;
+	@ConfigDesc("change memory size of hash index for desc text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_desc_mb = 1;
+	@ConfigDesc("change memory size of hash index for hashed message text.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_index_hmsg_mb = 1;
+	@ConfigDesc("change memory size of hash index for daily text db.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_text_db_daily_index_mb = 1;
+
+	@ConfigDesc("change default memory size of key value store index.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_kv_store_index_default_mb = 8;
+
 	//XLog
 	@ConfigDesc("XLog Writer Queue Size")
 	public int xlog_queue_size = 10000;
@@ -262,7 +297,7 @@ public class Configure extends Thread {
 
 	//TagCount
 	@ConfigDesc("Activating TagCount function")
-	public boolean tagcnt_enabled = false;
+	public boolean tagcnt_enabled = true;
 
 	//Service request options from client
 	@ConfigDesc("search xlog service option - max xlog count to search per request")
@@ -356,19 +391,21 @@ public class Configure extends Thread {
 		this.net_tcp_get_agent_connection_wait_ms = getInt("net_tcp_get_agent_connection_wait_ms", 1000);
 		this.net_http_server_enabled = getBoolean("net_http_server_enabled", false);
 		this.net_http_port = getInt("net_http_port", NetConstants.SERVER_HTTP_PORT);
+		this.net_http_extweb_dir = getValue("net_http_extweb_dir", "./extweb");
 		this.net_http_api_enabled = getBoolean("net_http_api_enabled", false);
 		this.net_http_api_swagger_enabled = getBoolean("net_http_api_swagger_enabled", false);
 		this.net_http_api_swagger_host_ip = getValue("net_http_api_swagger_host_ip", "");
-		this.net_http_api_cors_allow_origin = getValue("net_http_api_cors_allow_origin", "");
-		this.net_http_api_cors_allow_credentials = getValue("net_http_api_cors_allow_credentials", "false");
+		this.net_http_api_cors_allow_origin = getValue("net_http_api_cors_allow_origin", "*");
+		this.net_http_api_cors_allow_credentials = getValue("net_http_api_cors_allow_credentials", "true");
 
 		this.net_webapp_tcp_client_pool_size = getInt("net_webapp_tcp_client_pool_size", 12);
 		this.net_webapp_tcp_client_pool_timeout = getInt("net_webapp_tcp_client_pool_timeout", net_tcp_client_so_timeout_ms);
 
-		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", true);
+		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", false);
 		this.net_http_api_auth_ip_header_key = getValue("net_http_api_auth_ip_header_key", "");
-		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", true);
+		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", false);
 		this.net_http_api_session_timeout = getInt("net_http_api_session_timeout", 3600*24);
+		this.net_http_api_auth_bearer_token_enabled = getBoolean("net_http_api_auth_bearer_token_enabled", false);
 
 		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1");
 
@@ -380,6 +417,7 @@ public class Configure extends Thread {
 		this.temp_dir = getValue("temp_dir", "./tempdata");
 
 		this.object_deadtime_ms = getInt("object_deadtime_ms", 8000);
+		this.object_inactive_alert_level = getInt("object_inactive_alert_level", 0);
 
 		this.compress_xlog_enabled = getBoolean("compress_xlog_enabled", false);
 		this.compress_profile_enabled = getBoolean("compress_profile_enabled", false);
@@ -439,6 +477,17 @@ public class Configure extends Thread {
 		this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false);
 		this.mgr_text_db_daily_ua_enabled = getBoolean("mgr_text_db_daily_ua_enabled", false);
 
+		this._mgr_text_db_index_default_mb = getInt("_mgr_text_db_index_default_mb", 1);
+		this._mgr_text_db_index_service_mb = getInt("_mgr_text_db_index_service_mb", 1);
+		this._mgr_text_db_index_api_mb = getInt("_mgr_text_db_index_api_mb", 1);
+		this._mgr_text_db_index_ua_mb = getInt("_mgr_text_db_index_ua_mb", 1);
+		this._mgr_text_db_index_login_mb = getInt("_mgr_text_db_index_login_mb", 1);
+		this._mgr_text_db_index_desc_mb = getInt("_mgr_text_db_index_desc_mb", 1);
+		this._mgr_text_db_index_hmsg_mb = getInt("_mgr_text_db_index_hmsg_mb", 1);
+		this._mgr_text_db_daily_index_mb = getInt("_mgr_text_db_daily_index_mb", 1);
+
+		this._mgr_kv_store_index_default_mb = getInt("_mgr_kv_store_index_default_mb", 8);
+
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
 		this.geoip_data_city_file = getValue("geoip_data_city_file", CONF_DIR + "GeoLiteCity.dat");
 		this.geoip_enabled = getBoolean("geoip_enabled", true);
@@ -448,7 +497,7 @@ public class Configure extends Thread {
 
 		this.mgr_log_ignore_ids = getStringSet("mgr_log_ignore_ids", ",");
 
-		this.tagcnt_enabled = getBoolean("tagcnt_enabled", false);
+		this.tagcnt_enabled = getBoolean("tagcnt_enabled", true);
 		
 		this.visitor_hourly_count_enabled = getBoolean("visitor_hourly_count_enabled", true);
 		

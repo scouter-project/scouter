@@ -26,6 +26,7 @@ import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +45,13 @@ import scouterx.webapp.framework.filter.CorsFilter;
 import scouterx.webapp.framework.filter.LoggingInitServletFilter;
 import scouterx.webapp.framework.filter.NoCacheFilter;
 import scouterx.webapp.framework.filter.ReleaseResourceFilter;
+import scouterx.webapp.layer.websock.BasicSocket;
 import scouterx.webapp.swagger.Bootstrap;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.ServletException;
+import javax.websocket.DeploymentException;
+import javax.websocket.server.ServerContainer;
 import javax.ws.rs.core.Application;
 import java.io.File;
 import java.util.EnumSet;
@@ -90,6 +95,8 @@ public class WebAppMain extends Application {
         handlers.addHandler(servletContextHandler);
 
         server.setHandler(handlers);
+        setWebSocketServer(servletContextHandler);
+
 
         try {
             server.start();
@@ -97,6 +104,14 @@ public class WebAppMain extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void setWebSocketServer(ServletContextHandler servletContextHandler) throws ServletException, DeploymentException {
+        // Add javax.websocket support
+        ServerContainer container = WebSocketServerContainerInitializer.configureContext(servletContextHandler);
+        container.setDefaultMaxSessionIdleTimeout(7*24*3600*1000);
+        // Add echo endpoint to server container
+        container.addEndpoint(BasicSocket.class);
     }
 
     private static ServletContextHandler setWebHttpApiHandler () {
@@ -119,6 +134,7 @@ public class WebAppMain extends Application {
 
         servletContextHandler.addServlet(jerseyHolder, "/scouter/*");
         servletContextHandler.addServlet(setStaticContentHandler(), "/*");
+        servletContextHandler.addServlet(setExtWebStaticContentHandler(), "/extweb/*");
         servletContextHandler.addServlet(setSwaggerBootstrapHandler(), "/swagger");
 
         addFilter(servletContextHandler);
@@ -142,10 +158,19 @@ public class WebAppMain extends Application {
 
     private static ServletHolder setStaticContentHandler () {
         String resourceBase = WebAppMain.class.getClassLoader().getResource("webroot/").toExternalForm();
-
         ServletHolder holderHome = new ServletHolder(DefaultServlet.class);
         holderHome.setInitParameter("resourceBase", resourceBase);
         holderHome.setInitParameter("dirAllowed","false");
+        holderHome.setInitParameter("pathInfoOnly","true");
+
+        return holderHome;
+    }
+
+    private static ServletHolder setExtWebStaticContentHandler () {
+        String resourceBase = ConfigureManager.getConfigure().getNetHttpExtWebDir();
+        ServletHolder holderHome = new ServletHolder(DefaultServlet.class);
+        holderHome.setInitParameter("resourceBase", resourceBase);
+        holderHome.setInitParameter("dirAllowed","true");
         holderHome.setInitParameter("pathInfoOnly","true");
 
         return holderHome;
@@ -241,12 +266,14 @@ public class WebAppMain extends Application {
      * (This method also can be invoked from scouter.server's Http Server when this webapp runs as an embedded mode.)
      *
      */
-    public static ServletContextHandler setWebAppContext() {
+    public static ServletContextHandler setWebAppContext() throws ServletException, DeploymentException {
         //The case - embedded mode (run in-process of scouter server)
         if (!standAloneMode) {
             initializeLogDir();
             connectScouterCollector();
         }
-        return setWebHttpApiHandler();
+        ServletContextHandler handler = setWebHttpApiHandler();
+
+        return handler;
     }
 }

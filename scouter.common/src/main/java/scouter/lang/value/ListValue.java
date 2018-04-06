@@ -42,6 +42,14 @@ public class ListValue implements Value {
 		this.valueList = value;
 	}
 
+	public static ListValue ofStringValueList(List<String> orgList) {
+		ListValue lv = new ListValue();
+		for (String value : orgList) {
+			lv.add(value);
+		}
+		return lv;
+	}
+
 	public Value get(int i) {
 		return valueList.get(i);
 	}

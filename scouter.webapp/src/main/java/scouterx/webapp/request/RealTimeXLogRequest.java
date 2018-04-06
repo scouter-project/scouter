@@ -46,11 +46,11 @@ import java.util.Set;
 @AllArgsConstructor
 public class RealTimeXLogRequest {
     @Min(0)
-    @PathParam("offset1")
+    @PathParam("xlogLoop")
     long xLogLoop;
 
     @Min(0)
-    @PathParam("offset2")
+    @PathParam("xlogIndex")
     int xLogIndex;
 
     int serverId;

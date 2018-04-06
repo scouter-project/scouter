@@ -104,6 +104,7 @@ public class RequestCmd {
 	public static final String TRANX_LOAD_TIME = "TRANX_LOAD_TIME";
 	public static final String XLOG_READ_BY_TXID = "XLOG_READ_BY_TXID";
 	public static final String XLOG_READ_BY_GXID = "XLOG_READ_BY_GXID";
+	public static final String XLOG_LOAD_BY_TXIDS = "XLOG_LOAD_BY_TXIDS";
 	public static final String XLOG_LOAD_BY_GXID = "XLOG_LOAD_BY_GXID";
 	public static final String TRANX_PROFILE = "TRANX_PROFILE";
 	public static final String TRANX_PROFILE_FULL = "TRANX_PROFILE_FULL";
@@ -160,6 +161,17 @@ public class RequestCmd {
 	public static final String GET_TEXT_100 = "GET_TEXT_100";
 	public static final String GET_TEXT_PACK = "GET_TEXT_PACK";
 	public static final String GET_TEXT_ANY_TYPE= "GET_TEXT_ANY_TYPE";
+
+	public static final String GET_GLOBAL_KV = "GET_GLOBAL_KV";
+	public static final String SET_GLOBAL_KV = "SET_GLOBAL_KV";
+	public static final String SET_GLOBAL_TTL = "SET_GLOBAL_TTL";
+	public static final String GET_CUSTOM_KV = "GET_CUSTOM_KV";
+	public static final String SET_CUSTOM_KV = "SET_CUSTOM_KV";
+	public static final String SET_CUSTOM_TTL = "SET_CUSTOM_TTL";
+	public static final String GET_GLOBAL_KV_BULK = "GET_GLOBAL_KV_BULK";
+	public static final String SET_GLOBAL_KV_BULK = "SET_GLOBAL_KV_BULK";
+	public static final String GET_CUSTOM_KV_BULK = "GET_CUSTOM_KV_BULK";
+	public static final String SET_CUSTOM_KV_BULK = "SET_CUSTOM_KV_BULK";
 
 	public static final String GET_CONFIGURE_SERVER = "GET_CONFIGURE_SERVER";
 	public static final String SET_CONFIGURE_SERVER = "SET_CONFIGURE_SERVER";

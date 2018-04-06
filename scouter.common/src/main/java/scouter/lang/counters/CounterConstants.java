@@ -42,6 +42,9 @@ public class CounterConstants {
 	public final static String JBOSS = "jboss";
 	public final static String JETTY = "jetty";
 	public final static String RESIN = "resin";
+    public final static String WEBSPHERE = "websphere";
+    public final static String WEBLOGIC = "weblogic";
+    public final static String GLASSFISH = "glassfish";
 	
 	public final static String BATCH = "batch";
 
@@ -68,6 +71,7 @@ public class CounterConstants {
 	public final static String JAVA_GC_TIME = "GcTime";
 	public final static String JAVA_HEAP_TOT_USAGE = "HeapTotUsage";
 	public final static String JAVA_HEAP_USED = "HeapUsed";
+	public final static String JAVA_HEAP_TOTAL = "HeapTotal";
 	public final static String JAVA_CPU_TIME = "CpuTime";
 	public final static String JAVA_PERM_USED = "PermUsed";
 	public final static String JAVA_PERM_PERCENT = "PermPercent";

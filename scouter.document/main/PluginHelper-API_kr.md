@@ -1,5 +1,5 @@
 # PluginHelper Class
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](PluginHelper-API.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](PluginHelper-API.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](PluginHelper-API_kr.md)
 
 ### PluginHelper APIs (since v1.7.3)
 

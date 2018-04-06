@@ -140,6 +140,10 @@ public class TraceContext {
 	public boolean endHttpProcessingStarted = false;
 	public Throwable asyncThrowable;
 
+    public boolean alreadySetControllerName = false;
+
+    private Queue<ErrorEntity> errorQueue = new LinkedBlockingQueue<ErrorEntity>(10);
+
 	public ArrayList<String> plcGroupList = new ArrayList<String>();
 	public TraceContext createChild() {
 		TraceContext child = new TraceContext(this.isSummary);
@@ -196,6 +200,14 @@ public class TraceContext {
 			this.error = ctx.error;
 		}
 	}
+
+	public void offerErrorEntity(ErrorEntity errorEntity) {
+	    this.errorQueue.offer(errorEntity);
+    }
+
+    public ErrorEntity pollErrorEntity() {
+	    return this.errorQueue.poll();
+    }
 
 	public static void main(String[] args) {
 		java.lang.reflect.Field[] f = TraceContext.class.getFields();
