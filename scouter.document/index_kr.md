@@ -13,7 +13,7 @@
 - [Configuration - options](./main/Configuration_kr.md)
 
 ## How to use
-- [응답시간 분포도(XLog) 보는 방법](../client/Reading-XLog_kr.md)
+- [응답시간 분포도(XLog) 보는 방법](./client/Reading-XLog_kr.md)
 - [NON-HTTP 서비스 추적하기](./use-case/NON-HTTP-Service-Trace_kr.md)
 - [method 상세 프로파일](./use-case/Method-Profiling_kr.md)
 - [Scouter 확장 - Plugin guide](./main/Plugin-Guide_kr.md)
