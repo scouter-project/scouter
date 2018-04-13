@@ -105,7 +105,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
             AnnotationVisitor av = super.visitArray(name);
             if (av == null)
                 return av;
-            if ("value".equals(name)) {
+            if ("value".equals(name) || "path".equals(name)) {
                 return new SpringReqMapCVAVAV(av);
             }
             return av;
@@ -120,7 +120,10 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
         @Override
         public void visit(String name, Object value) {
             super.visit(name, value);
-            classRequestMappingUrl = (String) value;
+            String v = value.toString();
+            if (StringUtil.isNotEmpty(v)) {
+                classRequestMappingUrl = v;
+            }
         }
     }
 
@@ -153,6 +156,19 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
             AnnotationVisitor av = super.visitAnnotation(desc, visible);
             if (SpringReqMapASM.springRequestMappingAnnotations.contains(desc)) {
+                if (!desc.endsWith("RequestMapping;")) {
+                    String pkg = "web/bind/annotation/";
+                    String postfix = "Mapping;";
+                    int index = desc.indexOf(pkg);
+                    if (index > -1) {
+                        int startIndex = index + pkg.length();
+                        index = desc.lastIndexOf(postfix);
+                        if (index > startIndex) {
+                            int lastIndex = index;
+                            this.methodType = desc.substring(startIndex, lastIndex).toUpperCase();
+                        }
+                    }
+                }
                 return new SpringReqMapMVAV(av);
             }
             return av;
@@ -258,7 +274,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
                 AnnotationVisitor av = super.visitArray(name);
                 if (av == null)
                     return av;
-                if ("value".equals(name) || "method".equals(name)) {
+                if ("value".equals(name) || "method".equals(name) || "path".equals(name)) {
                     return new SpringReqMapMVAVAV(av, name);
                 }
                 return av;
@@ -277,7 +293,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
             public void visit(String name, Object value) {
                 super.visit(name, value);
 
-                if (!"value".equals(paramName)) {
+                if (!"value".equals(paramName) && !"path".equals(paramName)) {
                     return;
                 }
 
