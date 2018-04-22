@@ -73,6 +73,11 @@ public class StandAloneConfigureAdaptor implements ConfigureAdaptor {
     }
 
     @Override
+    public boolean isNetHttpApiGzipEnabled() {
+        return conf.net_http_api_gzip_enabled;
+    }
+
+    @Override
     public Set<String> getNetHttpApiAllowIps() {
         return Stream.of(conf.net_http_api_allow_ips.split(",")).collect(Collectors.toSet());
     }
