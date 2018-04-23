@@ -26,6 +26,7 @@ import scouterx.webapp.layer.service.CustomKvStoreService;
 import scouterx.webapp.view.CommonResultView;
 
 import javax.inject.Singleton;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -33,7 +34,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+
+import static scouter.lang.constants.ScouterConstants.SHORTENER_KEY_SPACE;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
@@ -43,7 +47,9 @@ import javax.ws.rs.core.MediaType;
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public class ShortenController {
-    public static final String SHORTENER_KEY_SPACE = "shortner";
+    @Context
+    HttpServletRequest servletRequest;
+
     private final CustomKvStoreService kvStoreService = new CustomKvStoreService();
 
     /**
@@ -58,7 +64,7 @@ public class ShortenController {
     }
 
     /**
-     * store url and return hashed key
+     * get shorten url
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -66,6 +72,8 @@ public class ShortenController {
         String hashed = Hexa32.toString32(HashUtil.hash(url));
         kvStoreService.set(SHORTENER_KEY_SPACE, hashed, url, ServerManager.getInstance().getServerIfNullDefault(serverId));
 
-        return CommonResultView.success(hashed);
+        String reqUrl = servletRequest.getRequestURL().toString();
+        String shortenerServiceUrl = reqUrl.substring(0, reqUrl.indexOf(servletRequest.getPathInfo()));
+        return CommonResultView.success(shortenerServiceUrl + "/s/" + hashed);
     }
 }

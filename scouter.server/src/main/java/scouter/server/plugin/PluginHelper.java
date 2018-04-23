@@ -24,21 +24,28 @@ import scouter.lang.conf.ParamDesc;
 import scouter.lang.pack.AlertPack;
 import scouter.server.Logger;
 import scouter.server.core.AlertCore;
+import scouter.server.db.KeyValueStoreRW;
 import scouter.server.db.TextRD;
-import scouter.server.plugin.alert.RealCounter;
+import scouter.util.HashUtil;
+import scouter.util.Hexa32;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static scouter.lang.constants.ScouterConstants.SHORTENER_KEY_SPACE;
 
 /**
  * Utility class for script plugin
@@ -64,6 +71,23 @@ public class PluginHelper {
 	@ConfigDesc("System.out.println")
 	public void println(Object c) {
 		System.out.println(c);
+	}
+
+	@ConfigDesc("url encoding")
+	public String urlEncode(String s) throws UnsupportedEncodingException {
+		return URLEncoder.encode(s, "UTF-8");
+	}
+
+	@ConfigDesc("url decoding")
+	public String urlDecode(String s) throws UnsupportedEncodingException {
+		return URLDecoder.decode(s, "UTF-8");
+	}
+
+	@ConfigDesc("make shorten url.")
+	public String toShortenUrl(String producerUrl, String urlToShortening) throws UnsupportedEncodingException {
+		String shorten = Hexa32.toString32(HashUtil.hash(urlToShortening));
+		KeyValueStoreRW.set(SHORTENER_KEY_SPACE, shorten, urlToShortening);
+		return producerUrl + "/" + shorten;
 	}
 
 	@ConfigDesc("get NumberFormatter set fraction 1")

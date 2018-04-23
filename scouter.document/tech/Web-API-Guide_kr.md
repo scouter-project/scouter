@@ -573,3 +573,11 @@ public int log_keep_days = 30;
      - `id` : (required)
      - `password` : (required)
    - `serverId` : (required)
+
+#### - `POST /v1/shortener`
+ - make shorten url. 
+   - You can make the url with a lot of parameters shorten in scouter web api.  
+ - **Auth** : required
+ - **Query params**
+    - `url` : url to shorten
+    - `serverId` : (optional if single server)
