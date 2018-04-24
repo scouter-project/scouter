@@ -17,13 +17,6 @@
  */
 package scouter.client.group.view;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -46,7 +39,6 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.Images;
 import scouter.client.group.GroupManager;
 import scouter.client.model.AgentModelThread;
@@ -75,6 +67,13 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 
 public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDialog.ITimeRange, CalendarDialog.ILoadCalendarDialog {
 
@@ -96,6 +95,15 @@ public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDi
 		String[] datas = secId.split("&");
 		grpName = datas[0];
 		objType = datas[1];
+	}
+
+	@Override
+	protected void openInExternalLink() {
+	}
+
+	@Override
+	protected void clipboardOfExternalLink() {
+
 	}
 
 	public void createPartControl(final Composite parent) {

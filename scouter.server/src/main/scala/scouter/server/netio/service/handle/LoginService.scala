@@ -74,6 +74,8 @@ class LoginService {
       m.put("menu", menuMv);
       menuMv.put("tag_count", new BooleanValue(Configure.getInstance().tagcnt_enabled));
       m.put("so_time_out", Configure.getInstance().net_tcp_client_so_timeout_ms);
+      m.put("ext_link_name", Configure.getInstance().ext_link_name);
+      m.put("ext_link_url_pattern", Configure.getInstance().ext_link_url_pattern);
       
     }
     dout.writeByte(TcpFlag.HasNEXT);

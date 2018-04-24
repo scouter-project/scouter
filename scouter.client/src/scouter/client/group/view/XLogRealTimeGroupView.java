@@ -17,15 +17,7 @@
  */
 package scouter.client.group.view;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.events.ControlEvent;
@@ -37,7 +29,6 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.Images;
 import scouter.client.group.GroupManager;
 import scouter.client.model.AgentModelThread;
@@ -58,14 +49,21 @@ import scouter.client.util.ImageUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.xlog.XLogUtil;
 import scouter.client.xlog.views.XLogViewCommon;
+import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.value.BooleanValue;
 import scouter.lang.value.ListValue;
-import scouter.io.DataInputX;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 
 public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable {
@@ -86,6 +84,15 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 		String[] datas = secId.split("&");
 		grpName = datas[0];
 		objType = datas[1];
+	}
+
+	@Override
+	protected void openInExternalLink() {
+	}
+
+	@Override
+	protected void clipboardOfExternalLink() {
+
 	}
 
 	public void createPartControl(final Composite parent) {
@@ -161,6 +168,7 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 		});
 	}
 
+	@Override
 	public void refresh() {
 		setDate(DateUtil.yyyymmdd(TimeUtil.getCurrentTime()));
 		collectObj();

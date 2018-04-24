@@ -17,15 +17,6 @@
  */
 package scouter.client.model;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import scouter.client.net.INetReader;
 import scouter.client.net.TcpProxy;
 import scouter.client.server.ServerManager;
@@ -35,6 +26,15 @@ import scouter.lang.pack.ObjectPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.ThreadUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class AgentModelThread extends Thread {
 
@@ -203,6 +203,23 @@ public class AgentModelThread extends Thread {
 			}
 		}
 		return set;
+	}
+
+	public String getLiveObjectHashString(int serverId, String objType) {
+		StringBuilder sb = new StringBuilder();
+		Iterator<Integer> keys = agentMap.keySet().iterator();
+		boolean first = true;
+		while (keys.hasNext()) {
+			AgentObject agent = agentMap.get(keys.next());
+			if (serverId == agent.getServerId() && agent.isAlive() && objType.equals(agent.getObjType())) {
+				if (!first) {
+					sb.append(',');
+					first = false;
+				}
+				sb.append(agent.getObjHash());
+			}
+		}
+		return sb.toString();
 	}
 	
 	public ListValue getLiveObjHashLV(int serverId, String objType) {

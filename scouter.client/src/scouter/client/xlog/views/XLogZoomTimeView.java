@@ -53,7 +53,16 @@ public class XLogZoomTimeView extends XLogViewCommon {
 			}
 		});
 	}
-	
+
+	@Override
+	protected void openInExternalLink() {
+	}
+
+	@Override
+	protected void clipboardOfExternalLink() {
+
+	}
+
 	public void refresh(){
 		viewPainter.build();
 		ExUtil.exec(canvas, new Runnable() {

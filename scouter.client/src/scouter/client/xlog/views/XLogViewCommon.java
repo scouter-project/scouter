@@ -22,10 +22,6 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.RTFTransfer;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -70,7 +66,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IObjectCheckListener {
+public abstract class XLogViewCommon extends ViewPart implements ITimeChange, IObjectCheckListener {
 	protected XLogViewPainter viewPainter;
 	protected XLogViewMouse mouse;
 	protected Canvas canvas;
@@ -98,8 +94,10 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 	protected ToolTip toolTip;
 	
 	Action onlySqlAction, onlyApicallAction, onlyErrorAction, helpAction;
-	
-	
+
+	protected abstract void openInExternalLink();
+	protected abstract void clipboardOfExternalLink();
+
 	public void create(Composite parent, IToolBarManager man) {
 
 		helpAction = new Action("help", ImageUtil.getImageDescriptor(Images.help)) {
@@ -269,27 +267,20 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 		extLinkItem.setMenu(extLinkMenu);
 
 		MenuItem openExternal = new MenuItem(extLinkMenu, SWT.PUSH);
-		openExternal.setText("Open in ?");
+		openExternal.setText("Open in 3rd party UI");
 		openExternal.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-
+				openInExternalLink();
 			}
 		});
 
 		MenuItem copyExternal = new MenuItem(extLinkMenu, SWT.PUSH);
-		copyExternal.setText("Copy to clip board for ?");
+		copyExternal.setText("Copy to clip board for 3rd party UI");
 		copyExternal.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				Clipboard clipboard = new Clipboard(getViewSite().getShell().getDisplay());
-				String plainText = "Hello World";
-				String rtfText = "{\\rtf1\\b Hello World}";
-				TextTransfer textTransfer = TextTransfer.getInstance();
-				RTFTransfer rftTransfer = RTFTransfer.getInstance();
-				clipboard.setContents(new String[]{plainText, rtfText}, new Transfer[]{textTransfer, rftTransfer});
-				clipboard.dispose();
+				clipboardOfExternalLink();
 			}
 		});
-
 
 	    new MenuItem(contextMenu, SWT.SEPARATOR);
 	    MenuItem summaryItem = new MenuItem(contextMenu, SWT.CASCADE);
