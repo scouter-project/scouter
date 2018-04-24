@@ -22,6 +22,10 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.RTFTransfer;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -257,6 +261,36 @@ abstract public class XLogViewCommon extends ViewPart implements ITimeChange, IO
 		    	 item.notifyListeners(SWT.Selection, new Event());
 	    	 }
 	    }
+
+		new MenuItem(filterMenu, SWT.SEPARATOR);
+		MenuItem extLinkItem = new MenuItem(contextMenu, SWT.CASCADE);
+		extLinkItem.setText("Open in 3rd-party UI");
+		Menu extLinkMenu = new Menu(contextMenu);
+		extLinkItem.setMenu(extLinkMenu);
+
+		MenuItem openExternal = new MenuItem(extLinkMenu, SWT.PUSH);
+		openExternal.setText("Open in ?");
+		openExternal.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+
+			}
+		});
+
+		MenuItem copyExternal = new MenuItem(extLinkMenu, SWT.PUSH);
+		copyExternal.setText("Copy to clip board for ?");
+		copyExternal.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				Clipboard clipboard = new Clipboard(getViewSite().getShell().getDisplay());
+				String plainText = "Hello World";
+				String rtfText = "{\\rtf1\\b Hello World}";
+				TextTransfer textTransfer = TextTransfer.getInstance();
+				RTFTransfer rftTransfer = RTFTransfer.getInstance();
+				clipboard.setContents(new String[]{plainText, rtfText}, new Transfer[]{textTransfer, rftTransfer});
+				clipboard.dispose();
+			}
+		});
+
+
 	    new MenuItem(contextMenu, SWT.SEPARATOR);
 	    MenuItem summaryItem = new MenuItem(contextMenu, SWT.CASCADE);
 	    summaryItem.setText("Summary");
