@@ -41,10 +41,13 @@ import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.ui.part.ViewPart;
 import scouter.client.Images;
 import scouter.client.constants.HelpConstants;
+import scouter.client.model.AgentModelThread;
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
 import scouter.client.preferences.PManager;
 import scouter.client.preferences.PreferenceConstants;
+import scouter.client.server.Server;
+import scouter.client.server.ServerManager;
 import scouter.client.threads.ObjectSelectManager;
 import scouter.client.threads.ObjectSelectManager.IObjectCheckListener;
 import scouter.client.util.ExUtil;
@@ -58,7 +61,9 @@ import scouter.client.xlog.dialog.XLogSummaryServiceDialog;
 import scouter.client.xlog.dialog.XLogSummaryUserAgentDialog;
 import scouter.client.xlog.dialog.XLogSummaryUserDialog;
 import scouter.client.xlog.views.XLogViewPainter.ITimeChange;
+import scouter.util.DateTimeHelper;
 import scouter.util.LongKeyLinkedMap;
+import scouter.util.StringUtil;
 
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -97,6 +102,30 @@ public abstract class XLogViewCommon extends ViewPart implements ITimeChange, IO
 
 	protected abstract void openInExternalLink();
 	protected abstract void clipboardOfExternalLink();
+
+	protected String makeExternalUrl(int serverId) {
+		Server server = ServerManager.getInstance().getServer(serverId);
+		String linkName = server.getExtLinkName();
+		String linkUrl = server.getExtLinkUrlPattern();
+
+		String objHashes = AgentModelThread.getInstance().getLiveObjectHashString(serverId, objType);
+		if (StringUtil.isEmpty(objHashes)) {
+			return "";
+		}
+
+		String from = viewPainter.lastDrawTimeStart > 0 ? String.valueOf(viewPainter.lastDrawTimeStart)
+				: String.valueOf(System.currentTimeMillis() - DateTimeHelper.MILLIS_PER_FIVE_MINUTE);
+
+		String to = viewPainter.lastDrawTimeStart > 0 ? String.valueOf(viewPainter.lastDrawTimeEnd)
+				: String.valueOf(System.currentTimeMillis());
+
+		linkUrl = linkUrl.replace("$[objHashes]", objHashes);
+		linkUrl = linkUrl.replace("$[from]", from);
+		linkUrl = linkUrl.replace("$[to]", to);
+		linkUrl = linkUrl.replace("$[objType]", objType);
+
+		return linkUrl;
+	}
 
 	public void create(Composite parent, IToolBarManager man) {
 

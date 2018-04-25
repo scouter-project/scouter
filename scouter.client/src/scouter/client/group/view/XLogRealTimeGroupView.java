@@ -20,8 +20,12 @@ package scouter.client.group.view;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -76,8 +80,9 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 	IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 	private Map<Integer, ListValue> serverObjMap = new HashMap<Integer, ListValue>();
 	private Map<Integer, MapPack> paramMap = new HashMap<Integer, MapPack>();
-	
-	
+
+	private int firstServerId;
+
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
 		String secId = site.getSecondaryId();
@@ -88,11 +93,15 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 
 	@Override
 	protected void openInExternalLink() {
+		Program.launch(makeExternalUrl(firstServerId));
 	}
 
 	@Override
 	protected void clipboardOfExternalLink() {
-
+		Clipboard clipboard = new Clipboard(getViewSite().getShell().getDisplay());
+		String linkUrl = makeExternalUrl(firstServerId);
+		clipboard.setContents(new String[]{linkUrl}, new Transfer[]{TextTransfer.getInstance()});
+		clipboard.dispose();
 	}
 
 	public void createPartControl(final Composite parent) {
@@ -150,6 +159,9 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 				continue;
 			}
 			int serverId = agentObj.getServerId();
+			if (firstServerId == 0) {
+				firstServerId = serverId;
+			}
 			ListValue lv = serverObjMap.get(serverId);
 			if (lv == null) {
 				lv = new ListValue();

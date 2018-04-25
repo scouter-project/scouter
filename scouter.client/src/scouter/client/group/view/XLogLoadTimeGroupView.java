@@ -29,8 +29,12 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
@@ -86,6 +90,8 @@ public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDi
 	
 	private long stime;
 	private long etime;
+
+	private int firstServerId;
 	
 	LoadXLogJob loadJob;
 	
@@ -99,11 +105,15 @@ public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDi
 
 	@Override
 	protected void openInExternalLink() {
+		Program.launch(makeExternalUrl(firstServerId));
 	}
 
 	@Override
 	protected void clipboardOfExternalLink() {
-
+		Clipboard clipboard = new Clipboard(getViewSite().getShell().getDisplay());
+		String linkUrl = makeExternalUrl(firstServerId);
+		clipboard.setContents(new String[]{linkUrl}, new Transfer[]{TextTransfer.getInstance()});
+		clipboard.dispose();
 	}
 
 	public void createPartControl(final Composite parent) {
@@ -203,6 +213,9 @@ public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDi
 				continue;
 			}
 			int serverId = agentObj.getServerId();
+			if (firstServerId == 0) {
+				firstServerId = serverId;
+			}
 			ListValue lv = serverObjMap.get(serverId);
 			if (lv == null) {
 				lv = new ListValue();

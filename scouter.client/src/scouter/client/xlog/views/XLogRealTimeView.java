@@ -65,7 +65,6 @@ import scouter.lang.value.BooleanValue;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
-import scouter.util.DateTimeHelper;
 import scouter.util.DateUtil;
 import scouter.util.StringUtil;
 
@@ -92,40 +91,15 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 		this.objType = ids[1];
 	}
 
-	private String makeExternalUrl() {
-		Server server = ServerManager.getInstance().getServer(serverId);
-		String linkName = server.getExtLinkName();
-		String linkUrl = server.getExtLinkUrlPattern();
-
-		String objHashes = AgentModelThread.getInstance().getLiveObjectHashString(serverId, objType);
-		if (StringUtil.isEmpty(objHashes)) {
-			return "";
-		}
-
-		String from = viewPainter.lastDrawTimeStart > 0 ? String.valueOf(viewPainter.lastDrawTimeStart)
-				: String.valueOf(System.currentTimeMillis() - DateTimeHelper.MILLIS_PER_FIVE_MINUTE);
-
-		String to = viewPainter.lastDrawTimeStart > 0 ? String.valueOf(viewPainter.lastDrawTimeEnd)
-				: String.valueOf(System.currentTimeMillis());
-
-		linkUrl = linkUrl.replace("$[objHashes]", objHashes);
-		linkUrl = linkUrl.replace("$[from]", from);
-		linkUrl = linkUrl.replace("$[to]", to);
-		linkUrl = linkUrl.replace("$[objType]", objType);
-
-		return linkUrl;
-	}
-
 	@Override
 	protected void openInExternalLink() {
-		Program.launch(makeExternalUrl());
+		Program.launch(makeExternalUrl(serverId));
 	}
 
 	@Override
 	protected void clipboardOfExternalLink() {
-
 		Clipboard clipboard = new Clipboard(getViewSite().getShell().getDisplay());
-		String linkUrl = makeExternalUrl();
+		String linkUrl = makeExternalUrl(serverId);
 		clipboard.setContents(new String[]{linkUrl}, new Transfer[]{TextTransfer.getInstance()});
 		clipboard.dispose();
 	}

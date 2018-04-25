@@ -17,11 +17,6 @@
  */
 package scouter.client.counter.views;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
 import org.csstudio.swt.xygraph.dataprovider.ISample;
 import org.csstudio.swt.xygraph.dataprovider.Sample;
@@ -41,12 +36,7 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -55,7 +45,6 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.Images;
 import scouter.client.model.AgentColorManager;
 import scouter.client.model.AgentModelThread;
@@ -81,15 +70,20 @@ import scouter.client.util.MenuUtil;
 import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.views.ScouterViewPart;
+import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
-import scouter.io.DataInputX;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 import scouter.util.HashUtil;
 import scouter.util.StringUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CounterTodayAllView extends ScouterViewPart implements Refreshable, IObjectCheckListener {
 	public static final String ID = CounterTodayAllView.class.getName();
@@ -359,7 +353,11 @@ public class CounterTodayAllView extends ScouterViewPart implements Refreshable,
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter);
+
+		long from = DateUtil.yyyymmdd(date);
+		long to = from + DateUtil.MILLIS_PER_DAY;
+
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter, from, to);
 		thread = new RefreshThread(this, 10000);
 		thread.setName(this.toString() + " - " + "objType:"+objType + ", counter:"+counter + ", serverId:"+serverId);
 		thread.start();

@@ -17,12 +17,6 @@
  */
 package scouter.client.counter.views;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
 import org.csstudio.swt.xygraph.dataprovider.ISample;
 import org.csstudio.swt.xygraph.dataprovider.Sample;
@@ -50,7 +44,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
-
 import scouter.client.Images;
 import scouter.client.listeners.RangeMouseListener;
 import scouter.client.model.AgentColorManager;
@@ -88,6 +81,12 @@ import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 import scouter.util.HashUtil;
 import scouter.util.StringUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class CounterRealTimeAllView extends ScouterViewPart implements Refreshable, IObjectCheckListener {
 	public static final String ID = CounterRealTimeAllView.class.getName();
@@ -268,7 +267,7 @@ public class CounterRealTimeAllView extends ScouterViewPart implements Refreshab
 			e1.printStackTrace();
 		}
 		
-		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter);
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter, 0, 0);
 		ObjectSelectManager.getInstance().addObjectCheckStateListener(this);
 		thread = new RefreshThread(this, 2000);
 		thread.setName(this.toString() + " - " + "objType:" + objType + ", counter:" + counter + ", serverId:" + serverId);

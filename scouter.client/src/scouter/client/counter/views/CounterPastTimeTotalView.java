@@ -17,12 +17,6 @@
  */
 package scouter.client.counter.views;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
 import org.csstudio.swt.xygraph.dataprovider.Sample;
 import org.csstudio.swt.xygraph.figures.Trace;
@@ -48,7 +42,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.Images;
 import scouter.client.counter.actions.OpenPastTimeTotalAction;
 import scouter.client.net.INetReader;
@@ -77,6 +70,12 @@ import scouter.lang.pack.Pack;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 public class CounterPastTimeTotalView extends ScouterViewPart implements CalendarDialog.ILoadCalendarDialog {
 	public static final String ID = CounterPastTimeTotalView.class.getName();
@@ -116,7 +115,7 @@ public class CounterPastTimeTotalView extends ScouterViewPart implements Calenda
 		sTimeText.setText(DateUtil.format(stime, "hh:mm a", Locale.ENGLISH));
 		eTimeText.setText(DateUtil.format(etime, "hh:mm a", Locale.ENGLISH));
 		
-		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter);
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter, stime, etime);
 		
 		traceDataProvider.setBufferSize((int) ((etime - stime) / TimeTypeEnum.getTime(TimeTypeEnum.REALTIME) + 10));
 		

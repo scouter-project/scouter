@@ -214,6 +214,7 @@ public class AgentModelThread extends Thread {
 			if (serverId == agent.getServerId() && agent.isAlive() && objType.equals(agent.getObjType())) {
 				if (!first) {
 					sb.append(',');
+				} else {
 					first = false;
 				}
 				sb.append(agent.getObjHash());
