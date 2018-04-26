@@ -69,10 +69,13 @@ public class StandAloneConfigure extends Thread {
 	public int net_http_api_session_timeout = 1*3600*24;
 	@ConfigDesc("Enable api access control by Bearer token(of Authorization http header) - get access token from /user/loginGetToken.")
 	public boolean net_http_api_auth_bearer_token_enabled = false;
+	@ConfigDesc("Enable gzip response on api call")
+	public boolean net_http_api_gzip_enabled = true;
 
 	@ConfigDesc("api access allow ip addresses")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String net_http_api_allow_ips = "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1";
+
 
 	@ConfigDesc("HTTP service port")
 	public int net_http_port = NetConstants.WEBAPP_HTTP_PORT;
@@ -183,6 +186,7 @@ public class StandAloneConfigure extends Thread {
 		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", false);
 		this.net_http_api_session_timeout = getInt("net_http_api_session_timeout", 3600*24);
 		this.net_http_api_auth_bearer_token_enabled = getBoolean("net_http_api_auth_bearer_token_enabled", false);
+		this.net_http_api_gzip_enabled = getBoolean("net_http_api_gzip_enabled", true);
 
 		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1");
 

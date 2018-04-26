@@ -32,6 +32,7 @@ public interface ConfigureAdaptor {
     boolean isNetHttpApiAuthIpEnabled();
     boolean isNetHttpApiAuthSessionEnabled();
     boolean isNetHttpApiAuthBearerTokenEnabled();
+    boolean isNetHttpApiGzipEnabled();
 
     Set<String> getNetHttpApiAllowIps();
     String getNetHttpApiAuthIpHeaderKey();

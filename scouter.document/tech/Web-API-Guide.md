@@ -89,6 +89,8 @@ public boolean net_http_api_auth_session_enabled = false;
 public int net_http_api_session_timeout = 1*3600*24;
 @ConfigDesc("Enable api access control by Bearer token(of Authorization http header) - get access token from /user/loginGetToken.")
 public boolean net_http_api_auth_bearer_token_enabled = false;
+@ConfigDesc("Enable gzip response on api call")
+public boolean net_http_api_gzip_enabled = true;
 
 @ConfigDesc("api access allow ip addresses")
 @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
