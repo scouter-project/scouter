@@ -49,6 +49,7 @@ import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -180,6 +181,16 @@ public class PluginHelper {
     @ParamDesc("int objHash, String objType, String title, String message")
     public void alertFatal(int objHash, String objType, String title, String message) {
         alert(AlertLevel.FATAL, objHash, objType, title, message);
+    }
+
+    @ConfigDesc("make hashMap easily")
+    @ParamDesc("String[] keyValueArray")
+    public HashMap<String, String> toMap(String[] keyValueArray) {
+        HashMap<String, String> map = new HashMap<String, String>();
+        for (int i = 0; i < keyValueArray.length; i+=2) {
+            map.put(keyValueArray[i], keyValueArray[i+1]);
+        }
+        return map;
     }
 
     @ConfigDesc("request http get")
