@@ -67,6 +67,9 @@ public class XLogViewPainter {
 	private double yValueMin = 0;
 	private boolean viewIsInAdditionalDataLoading = false;
 
+	public long lastDrawTimeStart = 0L;
+	public long lastDrawTimeEnd = 0L;
+
 	private XLogViewMouse mouse;
 	private PointMap pointMap = new PointMap();
 	private final LongKeyLinkedMap<XLogData> xLogPerfData;
@@ -268,7 +271,10 @@ public class XLogViewPainter {
 				gc.drawString(s, x - 25, chart_y + chart_h + 5 + 5);
 			}
 		}
-		
+
+		lastDrawTimeStart = time_start;
+		lastDrawTimeEnd = time_end;
+
 		drawXPerfData(gc, time_start, time_end, chart_x, chart_y, chart_w, chart_h);
 		drawChartBorder(gc, chart_x, chart_y, chart_w, chart_h);
 		drawYaxisDescription(gc, chart_x, chart_y);

@@ -76,7 +76,10 @@ public class LoginMgr{
 				String email = out.getText("email");
 				String timezone = out.getText("timezone");
 				int soTimeOut = out.getInt("so_time_out");
-				
+
+				String extLinkName = out.getText("ext_link_name");
+				String extLinkUrlPattern = out.getText("ext_link_url_pattern");
+
 				server.setSession(session);
 				server.setName(serverName);
 				server.setDelta(time);
@@ -88,6 +91,9 @@ public class LoginMgr{
 				server.setEmail(email);
 				server.setTimezone(timezone);
 				server.setSoTimeOut(soTimeOut);
+				server.setExtLinkName(extLinkName);
+				server.setExtLinkUrlPattern(extLinkUrlPattern);
+
 				Value value = out.get("policy");
 				if (value != null) {
 					MapValue mv = (MapValue) value;

@@ -199,7 +199,7 @@ public class CounterRealTimeTotalView extends ScouterViewPart implements Refresh
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter);
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter, 0, 0);
 		thread = new RefreshThread(this, 2000);
 		thread.setName(this.toString() + " - "	+ "objType:"+objType + ", counter:"+counter + ", serverId:"+serverId);
 		thread.start();

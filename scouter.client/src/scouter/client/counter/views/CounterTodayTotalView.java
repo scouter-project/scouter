@@ -17,11 +17,6 @@
  */
 package scouter.client.counter.views;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
-
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
 import org.csstudio.swt.xygraph.dataprovider.Sample;
 import org.csstudio.swt.xygraph.figures.Trace;
@@ -44,7 +39,6 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.Images;
 import scouter.client.model.RefreshThread;
 import scouter.client.model.RefreshThread.Refreshable;
@@ -64,14 +58,19 @@ import scouter.client.util.MenuUtil;
 import scouter.client.util.ScouterUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.views.ScouterViewPart;
+import scouter.io.DataInputX;
 import scouter.lang.TimeTypeEnum;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
-import scouter.io.DataInputX;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.StringUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
 public class CounterTodayTotalView extends ScouterViewPart implements Refreshable {
 	public static final String ID = CounterTodayTotalView.class.getName();
@@ -297,7 +296,11 @@ public class CounterTodayTotalView extends ScouterViewPart implements Refreshabl
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter);
+
+		long from = DateUtil.yyyymmdd(date);
+		long to = from + DateUtil.MILLIS_PER_DAY;
+
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter, from, to);
 		thread = new RefreshThread(this, 10000);
 		thread.setName(this.toString() + " - " + "objType:"+objType + ", counter:"+counter + ", serverId:"+serverId);
 		thread.start();

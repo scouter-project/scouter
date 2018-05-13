@@ -137,8 +137,11 @@ public class Configure extends Thread {
     public String profile_http_parameter_url_prefix = "/";
     @ConfigDesc("spring controller method parameter profile")
     public boolean profile_spring_controller_method_parameter_enabled = false;
-    @ConfigDesc("Activating profile summary function")
-    public boolean profile_summary_mode_enabled = false;
+
+//    @Deprecated
+//    @ConfigDesc("Activating profile summary function")
+//    public boolean profile_summary_mode_enabled = false;
+
     @ConfigDesc("Calculating CPU time by profile")
     public boolean profile_thread_cputime_enabled = false;
     @ConfigDesc("ThreadStack profile for open socket")
@@ -743,7 +746,7 @@ public class Configure extends Thread {
         this.profile_http_header_enabled = getBoolean("profile_http_header_enabled", false);
         this.profile_http_parameter_enabled = getBoolean("profile_http_parameter_enabled", false);
         this.profile_spring_controller_method_parameter_enabled = getBoolean("profile_spring_controller_method_parameter_enabled", false);
-        this.profile_summary_mode_enabled = getBoolean("profile_summary_mode_enabled", false);
+        //this.profile_summary_mode_enabled = getBoolean("profile_summary_mode_enabled", false);
 
         this.profile_http_parameter_url_prefix = getValue("profile_http_parameter_url_prefix", "/");
         this.profile_http_header_url_prefix = getValue("profile_http_header_url_prefix", "/");
