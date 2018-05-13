@@ -34,7 +34,7 @@ public class CounterView {
     private final int objHash;
     private final String objName;
     private final long startTimeMillis;
-    private final long endTimeMillis;
+    private long endTimeMillis;
     private final String name;
     private final String displayName;
     private final String unit;

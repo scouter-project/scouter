@@ -23,6 +23,7 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
+import scouter.util.DateUtil;
 import scouterx.webapp.framework.client.model.AgentModelThread;
 import scouterx.webapp.framework.client.model.AgentObject;
 import scouterx.webapp.framework.client.net.TcpProxy;
@@ -40,7 +41,9 @@ import scouterx.webapp.view.CounterView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -98,16 +101,39 @@ public class CounterConsumer {
         MapPack paramPack = new MapPack();
         if (request instanceof CounterRequestByType) {
             paramPack.put(ParamConstant.OBJ_TYPE, ((CounterRequestByType) request).getObjType());
+
         } else if (request instanceof CounterRequestByObjHashes) {
             ListValue objHashLv = paramPack.newList(ParamConstant.OBJ_HASH);
             for (Integer objHash : ((CounterRequestByObjHashes) request).getObjHashes()) {
                 objHashLv.add(objHash);
             }
         }
-        paramPack.put(ParamConstant.COUNTER, request.getCounter());
-        paramPack.put(ParamConstant.STIME, request.getStartTimeMillis());
-        paramPack.put(ParamConstant.ETIME, request.getEndTimeMillis());
 
+        paramPack.put(ParamConstant.COUNTER, request.getCounter());
+
+        Map<Integer, CounterView> counterViewMap = new HashMap<>();
+
+        long startDateUnit = DateUtil.getDateUnit(request.getStartTimeMillis());
+        for (long dateUnit = startDateUnit; DateUtil.dateUnitToTimeMillis(dateUnit) < request.getEndTimeMillis(); dateUnit++) {
+            paramPack.put(ParamConstant.STIME, Math.max(DateUtil.dateUnitToTimeMillis(dateUnit) + 1000, request.getStartTimeMillis()));
+            paramPack.put(ParamConstant.ETIME, Math.min(DateUtil.dateUnitToTimeMillis(dateUnit) + DateUtil.MILLIS_PER_DAY - 1000, request.getEndTimeMillis()));
+            List<CounterView> counterViews = retrieveCounterInDay(request, server, paramPack);
+            for (CounterView counterView : counterViews) {
+                CounterView counterViewInMap = counterViewMap.get(counterView.getObjHash());
+                if (counterViewInMap == null) {
+                    counterViewMap.put(counterView.getObjHash(), counterView);
+                } else {
+                    counterViewInMap.getTimeList().addAll(counterView.getTimeList());
+                    counterViewInMap.getValueList().addAll(counterView.getValueList());
+                    counterViewInMap.setEndTimeMillis(counterView.getEndTimeMillis());
+                }
+            }
+        }
+
+        return new ArrayList<>(counterViewMap.values());
+    }
+
+    private List<CounterView> retrieveCounterInDay(CounterRequest request, Server server, MapPack paramPack) {
         List<CounterView> counterViewList = new ArrayList<>();
         try(TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             tcpProxy.process(RequestCmd.COUNTER_PAST_TIME_ALL, paramPack, in -> {
