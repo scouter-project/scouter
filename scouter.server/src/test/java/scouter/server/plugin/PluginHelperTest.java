@@ -16,29 +16,25 @@
  *
  */
 
-package scouterx.webapp.view;
+package scouter.server.plugin;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import org.junit.Test;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 28.
+ * @author Gun Lee (gunlee01@gmail.com) on 2018. 5. 4.
  */
-@Getter
-@Setter
-@Builder
-public class CounterView {
-    private final int objHash;
-    private final String objName;
-    private final long startTimeMillis;
-    private long endTimeMillis;
-    private final String name;
-    private final String displayName;
-    private final String unit;
-    final private List<Long> timeList;
-    final private List<Double> valueList;
+public class PluginHelperTest {
+    PluginHelper pluginHelper = PluginHelper.getInstance();
 
+    @Test
+    public void httpGetTest() {
+        Map<String, String> paramMap = new HashMap<String, String>();
+        paramMap.put("a", "1");
+        paramMap.put("b", "2");
+
+        pluginHelper.httpGet("http://requestbin.fullcontact.com", paramMap);
+    }
 }

@@ -332,6 +332,22 @@ public class XLogFilterDialog extends Dialog {
 		applyBtn.setText("&Apply");
 		applyBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
+				String startHmsFrom = startHmsFromTxt.getText();
+				if(startHmsFrom.length() > 0 && startHmsFrom.length() < 6) {
+					for(int i = startHmsFrom.length(); i < 6; i++) {
+						startHmsFrom += '0';
+					}
+					startHmsFromTxt.setText(startHmsFrom);
+				}
+
+				String startHmsTo = startHmsToTxt.getText();
+				if(startHmsTo.length() > 0 && startHmsTo.length() < 6) {
+					for(int i = startHmsTo.length(); i < 6; i++) {
+						startHmsTo += '0';
+					}
+					startHmsToTxt.setText(startHmsTo);
+				}
+
 				view.setFilter(newStatus);
 				filterHash = newStatus.hashCode();
 				compareHash();

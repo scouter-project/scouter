@@ -27,6 +27,7 @@ import scouter.server.plugin.PlugInManager
 import scouter.server.util.{EnumerScala, ThreadScala}
 import scouter.util.{CompareUtil, DateUtil, HashUtil}
 import scouter.lang.counters.{CounterConstants, CounterEngine}
+import scala.collection.JavaConversions._
 
 object AgentManager {
     private val counterEngine = scouter.server.CounterManager.getInstance().getCounterEngine();
@@ -236,6 +237,10 @@ object AgentManager {
             agents.add(a.objHash);
         }
         return agents;
+    }
+
+    def getObjHashListAsString(objType: String): String = {
+        return getObjHashList(objType).mkString(",")
     }
 
     def getObjList(objType: String): List[ObjectPack] = {

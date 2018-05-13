@@ -22,6 +22,7 @@ import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -92,11 +93,19 @@ public class WebAppMain extends Application {
         handlers.addHandler(requestLogHandler);
 
         ServletContextHandler servletContextHandler = setWebAppContext();
-        handlers.addHandler(servletContextHandler);
+
+        if (conf.isNetHttpApiGzipEnabled()) {
+            GzipHandler gzipHandler = new GzipHandler();
+            gzipHandler.setIncludedMethods("GET", "POST", "PUT", "DELETE");
+            gzipHandler.setMinGzipSize(1024);
+            gzipHandler.setHandler(servletContextHandler);
+            handlers.addHandler(gzipHandler);
+        } else {
+            handlers.addHandler(servletContextHandler);
+        }
 
         server.setHandler(handlers);
         setWebSocketServer(servletContextHandler);
-
 
         try {
             server.start();
@@ -134,6 +143,7 @@ public class WebAppMain extends Application {
 
         servletContextHandler.addServlet(jerseyHolder, "/scouter/*");
         servletContextHandler.addServlet(setStaticContentHandler(), "/*");
+        servletContextHandler.addServlet(setExtWebStaticContentHandler(), "/extweb/*");
         servletContextHandler.addServlet(setSwaggerBootstrapHandler(), "/swagger");
 
         addFilter(servletContextHandler);
@@ -157,10 +167,19 @@ public class WebAppMain extends Application {
 
     private static ServletHolder setStaticContentHandler () {
         String resourceBase = WebAppMain.class.getClassLoader().getResource("webroot/").toExternalForm();
-
         ServletHolder holderHome = new ServletHolder(DefaultServlet.class);
         holderHome.setInitParameter("resourceBase", resourceBase);
         holderHome.setInitParameter("dirAllowed","false");
+        holderHome.setInitParameter("pathInfoOnly","true");
+
+        return holderHome;
+    }
+
+    private static ServletHolder setExtWebStaticContentHandler () {
+        String resourceBase = ConfigureManager.getConfigure().getNetHttpExtWebDir();
+        ServletHolder holderHome = new ServletHolder(DefaultServlet.class);
+        holderHome.setInitParameter("resourceBase", resourceBase);
+        holderHome.setInitParameter("dirAllowed","true");
         holderHome.setInitParameter("pathInfoOnly","true");
 
         return holderHome;

@@ -137,6 +137,8 @@ public class Configure extends Thread {
 	public boolean net_http_server_enabled = false;
 	@ConfigDesc("Http Port")
 	public int net_http_port = NetConstants.SERVER_HTTP_PORT;
+	@ConfigDesc("user extension web root")
+	public String net_http_extweb_dir = "./extweb";
 	@ConfigDesc("Activating Scouter API")
 	public boolean net_http_api_enabled = false;
 	@ConfigDesc("Enable a swagger for HTTP API.")
@@ -164,6 +166,8 @@ public class Configure extends Thread {
 	public int net_http_api_session_timeout = 3600*24;
 	@ConfigDesc("Enable api access control by Bearer token(of Authorization http header) - get access token from /user/loginGetToken.")
 	public boolean net_http_api_auth_bearer_token_enabled = false;
+	@ConfigDesc("Enable gzip response on api call")
+	public boolean net_http_api_gzip_enabled = true;
 
 	@ConfigDesc("api access allow ip addresses")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
@@ -268,6 +272,18 @@ public class Configure extends Thread {
 	@ConfigDesc("change default memory size of key value store index.(MB)" +
 			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
 	public int _mgr_kv_store_index_default_mb = 8;
+
+	//external-link
+	@ConfigDesc("name of 3rd party ui")
+	public String ext_link_name = "scouter-paper";
+	@ConfigDesc("outgoing link pattern for a 3rd party UI.(client restart required)\n" +
+			"Context menu in any chart shows the menu 'Open with 3rd-party UI.'\n" +
+			"* variable patterns : \n" +
+			"   $[objHashes] : comma separated objHash values\n" +
+			"   $[objType] : object type\n" +
+			"   $[from] : start time in chart by millis\n" +
+			"   $[to] : end time in chart by millis")
+	public String ext_link_url_pattern = "http://my-scouter-paper-ip:6188/index.html#/paper?&address=localhost&port=6188&realtime=false&xlogElapsedTime=8000&instances=$[objHashes]&from=$[from]&to=$[to]&layout=my-layout-template-01";
 
 	//XLog
 	@ConfigDesc("XLog Writer Queue Size")
@@ -389,6 +405,7 @@ public class Configure extends Thread {
 		this.net_tcp_get_agent_connection_wait_ms = getInt("net_tcp_get_agent_connection_wait_ms", 1000);
 		this.net_http_server_enabled = getBoolean("net_http_server_enabled", false);
 		this.net_http_port = getInt("net_http_port", NetConstants.SERVER_HTTP_PORT);
+		this.net_http_extweb_dir = getValue("net_http_extweb_dir", "./extweb");
 		this.net_http_api_enabled = getBoolean("net_http_api_enabled", false);
 		this.net_http_api_swagger_enabled = getBoolean("net_http_api_swagger_enabled", false);
 		this.net_http_api_swagger_host_ip = getValue("net_http_api_swagger_host_ip", "");
@@ -403,6 +420,7 @@ public class Configure extends Thread {
 		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", false);
 		this.net_http_api_session_timeout = getInt("net_http_api_session_timeout", 3600*24);
 		this.net_http_api_auth_bearer_token_enabled = getBoolean("net_http_api_auth_bearer_token_enabled", false);
+		this.net_http_api_gzip_enabled = getBoolean("net_http_api_gzip_enabled", true);
 
 		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1");
 
@@ -484,6 +502,9 @@ public class Configure extends Thread {
 		this._mgr_text_db_daily_index_mb = getInt("_mgr_text_db_daily_index_mb", 1);
 
 		this._mgr_kv_store_index_default_mb = getInt("_mgr_kv_store_index_default_mb", 8);
+
+		this.ext_link_name = getValue("ext_link_name", "scouter-paper");
+		this.ext_link_url_pattern = getValue("ext_link_url_pattern", "http://my-scouter-paper-ip:6188/index.html#/paper?&address=localhost&port=6188&realtime=false&xlogElapsedTime=8000&instances=$[objHashes]&from=$[from]&to=$[to]&layout=my-layout-template-01");
 
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
 		this.geoip_data_city_file = getValue("geoip_data_city_file", CONF_DIR + "GeoLiteCity.dat");

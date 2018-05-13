@@ -18,25 +18,24 @@
 
 package scouterx.webapp.framework.filter;
 
-import org.junit.Ignore;
+import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
 public class AuthFilterTest {
-    AuthFilter authFilter = new AuthFilter();
 
     @Test
-    @Ignore
-    public void filter_test() throws Exception {
-//        ConfigureAdaptor mockConfigureAdaptor = mock(ConfigureAdaptor.class);
-//        when(mockConfigureAdaptor.isNetHttpApiAuthSessionEnabled()).thenReturn(true);
-//        when(mockConfigureAdaptor.getNetHttpApiAllowIps())
-//                .thenReturn(Arrays.asList("127.0.0.1", "0:0:0:0:0:0:0:1").stream().collect(Collectors.toSet()));
-//
-//        ContainerRequestContext mockContainerRequestContext = mock(ContainerRequestContext.class);
-
-        //authFilter.filter(getRequestContext());
+    public void ip_allow_test() {
+        List<String> allows = Arrays.asList("localhost", "127.0.0.1", "0:0:0:0:0:0:0:1");
+        Assert.assertFalse(allows.stream().anyMatch(ip -> "0.0.0.0".contains(ip)));
+        Assert.assertFalse(allows.stream().anyMatch(ip -> "10.0.0.1".contains(ip)));
+        Assert.assertFalse(allows.stream().anyMatch(ip -> "192.155.23.1".contains(ip)));
+        Assert.assertTrue(allows.stream().anyMatch(ip -> "127.0.0.1".contains(ip)));
+        Assert.assertTrue(allows.stream().anyMatch(ip -> "localhost".contains(ip)));
     }
 }

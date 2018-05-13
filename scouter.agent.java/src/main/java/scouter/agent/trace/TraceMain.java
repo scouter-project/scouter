@@ -228,7 +228,7 @@ public class TraceMain {
         }
 
         Configure conf = Configure.getInstance();
-        TraceContext ctx = new TraceContext(conf.profile_summary_mode_enabled);
+        TraceContext ctx = new TraceContext(false);
         ctx.thread = Thread.currentThread();
         ctx.txid = KeyGen.next();
         ctx.startTime = System.currentTimeMillis();
@@ -589,7 +589,7 @@ public class TraceMain {
             }
 
             Configure conf = Configure.getInstance();
-            ctx = new TraceContext(conf.profile_summary_mode_enabled);
+            ctx = new TraceContext(false);
             String service_name = AgentCommonConstant.normalizeHashCode(name);
             ctx.thread = Thread.currentThread();
             ctx.serviceHash = HashUtil.hash(service_name);

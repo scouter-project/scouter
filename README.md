@@ -62,6 +62,10 @@ SCOUTER can help you.
 - **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-project/scouter-pulse)
   - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : gathering performance metrics of EC2, RDS, ELB from cloudwatch in AWS.
 
+### 3rd-party UIs
+- **scouter paper** : [scouter-paper](https://github.com/mindplates/scouter-paper)
+![scouter-pater](https://3.bp.blogspot.com/-OqQ9sxQKAXU/Wsncf-NgbAI/AAAAAAAAdn4/yhLAgU46y1YaAfantShxxlFdVKA_1xBHwCLcBGAs/s1600/scouter-pager-img.png)
+
 ### Plugins
 - **Server plugin**
   - **Sample**
@@ -102,7 +106,8 @@ SCOUTER can help you.
  - [Opensource performance monitoring, Scouter configurations : by SUN](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fwww.popit.kr%2Fscouter-open-source-apm-config%2F)
  - [Scouter, InfluxDB, Grafana](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=https%3A%2F%2Fgunleeblog.wordpress.com%2F2016%2F04%2F01%2Fopen-source-apm-scouter-influxdb-grafana-%25EC%2597%25B0%25EB%258F%2599-step-by-step%2F)
  - [Build my own agents by scouter pulse](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=https%3A%2F%2Fgunleeblog.wordpress.com%2F2016%2F09%2F07%2Fscouter-pulse%25EB%25A5%25BC-%25EC%259D%25B4%25EC%259A%25A9%25ED%2595%2598%25EC%2597%25AC-%25EB%2582%2598%25EB%25A7%258C%25EC%259D%2598-agent-%25EB%25A7%258C%25EB%2593%25A4%25EA%25B8%25B0%2F)
- 
+ - [Quick installation of scouter paper UI](https://gunsdevlog.blogspot.kr/2018/04/scouter-web-ui-paper.html)
+
 <br>
  
 ## License

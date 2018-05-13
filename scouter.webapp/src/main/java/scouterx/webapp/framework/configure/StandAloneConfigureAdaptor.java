@@ -53,6 +53,11 @@ public class StandAloneConfigureAdaptor implements ConfigureAdaptor {
     }
 
     @Override
+    public String getNetHttpExtWebDir() {
+        return conf.net_http_extweb_dir;
+    }
+
+    @Override
     public boolean isNetHttpApiAuthIpEnabled() {
         return conf.net_http_api_auth_ip_enabled;
     }
@@ -65,6 +70,11 @@ public class StandAloneConfigureAdaptor implements ConfigureAdaptor {
     @Override
     public boolean isNetHttpApiAuthBearerTokenEnabled() {
         return conf.net_http_api_auth_bearer_token_enabled;
+    }
+
+    @Override
+    public boolean isNetHttpApiGzipEnabled() {
+        return conf.net_http_api_gzip_enabled;
     }
 
     @Override

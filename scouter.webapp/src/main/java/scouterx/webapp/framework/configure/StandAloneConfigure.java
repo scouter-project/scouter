@@ -54,7 +54,7 @@ public class StandAloneConfigure extends Thread {
 	public String net_collector_ip_port_id_pws = "127.0.0.1:6100:admin:admin";
 
 	@ConfigDesc("size of webapp connection pool to collector")
-	public int net_webapp_tcp_client_pool_size = 12;
+	public int net_webapp_tcp_client_pool_size = 100;
 	@ConfigDesc("timeout of web app connection pool to collector(It depends on net_tcp_client_so_timeout_ms)")
 	public int net_webapp_tcp_client_pool_timeout = 15000;
 
@@ -69,13 +69,19 @@ public class StandAloneConfigure extends Thread {
 	public int net_http_api_session_timeout = 1*3600*24;
 	@ConfigDesc("Enable api access control by Bearer token(of Authorization http header) - get access token from /user/loginGetToken.")
 	public boolean net_http_api_auth_bearer_token_enabled = false;
+	@ConfigDesc("Enable gzip response on api call")
+	public boolean net_http_api_gzip_enabled = true;
 
 	@ConfigDesc("api access allow ip addresses")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String net_http_api_allow_ips = "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1";
 
+
 	@ConfigDesc("HTTP service port")
 	public int net_http_port = NetConstants.WEBAPP_HTTP_PORT;
+
+	@ConfigDesc("user extension web root")
+	public String net_http_extweb_dir = "./extweb";
 
 	@ConfigDesc("HTTP API swagger enable option")
 	public boolean net_http_api_swagger_enabled = false;
@@ -171,7 +177,7 @@ public class StandAloneConfigure extends Thread {
 
 		this.net_collector_ip_port_id_pws = getValue("net_collector_ip_port_id_pws", "127.0.0.1:6100:admin:admin");
 
-		this.net_webapp_tcp_client_pool_size = getInt("net_webapp_tcp_client_pool_size", 12);
+		this.net_webapp_tcp_client_pool_size = getInt("net_webapp_tcp_client_pool_size", 100);
 		this.net_webapp_tcp_client_pool_timeout = getInt("net_webapp_tcp_client_pool_timeout", 15000);
 
 		this.net_http_api_auth_ip_enabled = getBoolean("net_http_api_auth_ip_enabled", false);
@@ -180,10 +186,12 @@ public class StandAloneConfigure extends Thread {
 		this.net_http_api_auth_session_enabled = getBoolean("net_http_api_auth_session_enabled", false);
 		this.net_http_api_session_timeout = getInt("net_http_api_session_timeout", 3600*24);
 		this.net_http_api_auth_bearer_token_enabled = getBoolean("net_http_api_auth_bearer_token_enabled", false);
+		this.net_http_api_gzip_enabled = getBoolean("net_http_api_gzip_enabled", true);
 
 		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1");
 
 		this.net_http_port = getInt("net_http_port", NetConstants.WEBAPP_HTTP_PORT);
+		this.net_http_extweb_dir = getValue("net_http_extweb_dir", "./extweb");
 
 		this.net_http_api_swagger_enabled = getBoolean("net_http_api_swagger_enabled", false);
 		this.net_http_api_swagger_host_ip = getValue("net_http_api_swagger_host_ip", "");

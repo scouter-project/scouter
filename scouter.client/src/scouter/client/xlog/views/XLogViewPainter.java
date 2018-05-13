@@ -67,6 +67,9 @@ public class XLogViewPainter {
 	private double yValueMin = 0;
 	private boolean viewIsInAdditionalDataLoading = false;
 
+	public long lastDrawTimeStart = 0L;
+	public long lastDrawTimeEnd = 0L;
+
 	private XLogViewMouse mouse;
 	private PointMap pointMap = new PointMap();
 	private final LongKeyLinkedMap<XLogData> xLogPerfData;
@@ -268,7 +271,10 @@ public class XLogViewPainter {
 				gc.drawString(s, x - 25, chart_y + chart_h + 5 + 5);
 			}
 		}
-		
+
+		lastDrawTimeStart = time_start;
+		lastDrawTimeEnd = time_end;
+
 		drawXPerfData(gc, time_start, time_end, chart_x, chart_y, chart_w, chart_h);
 		drawChartBorder(gc, chart_x, chart_y, chart_w, chart_h);
 		drawYaxisDescription(gc, chart_x, chart_y);
@@ -798,10 +804,14 @@ public class XLogViewPainter {
 		descMat = new StrMatch(status.desc);
 		userAgentMat = new StrMatch(status.userAgent);
 
-		long dateMillis = DateUtil.dateUnitToTimeMillis(DateUtil.getDateUnit(paintedEndTime));
-		long startFrom = dateMillis + LocalTime.parse(status.startHmsFrom, hmsFormatter).toSecondOfDay() * 1000;
-		long startTo = dateMillis + LocalTime.parse(status.startHmsTo, hmsFormatter).toSecondOfDay() * 1000;
+		if (status.startHmsFrom.length() == 6 && status.startHmsTo.length() == 6) {
+			long dateMillis = DateUtil.dateUnitToTimeMillis(DateUtil.getDateUnit(paintedEndTime));
+			long startFrom = dateMillis + LocalTime.parse(status.startHmsFrom, hmsFormatter).toSecondOfDay() * 1000;
+			long startTo = dateMillis + LocalTime.parse(status.startHmsTo, hmsFormatter).toSecondOfDay() * 1000;
 
-		startFromToMat = new Pair<>(startFrom, startTo);
+			startFromToMat = new Pair<>(startFrom, startTo);
+		} else {
+			startFromToMat = new Pair<>(0L, 0L);
+		}
 	}
 }
