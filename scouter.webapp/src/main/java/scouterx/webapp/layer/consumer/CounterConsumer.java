@@ -204,7 +204,7 @@ public class CounterConsumer {
         paramPack.put(ParamConstant.EDATE, request.getEndYmd());
         paramPack.put(ParamConstant.COUNTER, request.getCounter());
 
-        List<AvgCounterView> counterViewList = new ArrayList<>();
+        Map<Integer, AvgCounterView> counterViewMap = new HashMap<>();
         Server server = ServerManager.getInstance().getServerIfNullDefault(request.getServerId());
 
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
@@ -234,11 +234,18 @@ public class CounterConsumer {
                         .valueList(valueToDoubleList)
                         .build();
 
-                counterViewList.add(counterView);
+                AvgCounterView counterViewInMap = counterViewMap.get(counterView.getObjHash());
+
+                if (counterViewInMap == null) {
+                    counterViewMap.put(counterView.getObjHash(), counterView);
+                } else {
+                    counterViewInMap.getTimeList().addAll(counterView.getTimeList());
+                    counterViewInMap.getValueList().addAll(counterView.getValueList());
+                }
             });
         }
 
-        return counterViewList;
+        return new ArrayList<>(counterViewMap.values());
     }
 
 
