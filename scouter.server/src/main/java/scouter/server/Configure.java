@@ -275,14 +275,15 @@ public class Configure extends Thread {
 
 	//external-link
 	@ConfigDesc("name of 3rd party ui")
-	public String ext_link_name = "scotuer-paper";
-	@ConfigDesc("outgoing link pattern for a 3rd pary UI.\n" +
+	public String ext_link_name = "scouter-paper";
+	@ConfigDesc("outgoing link pattern for a 3rd party UI.(client restart required)\n" +
+			"Context menu in any chart shows the menu 'Open with 3rd-party UI.'\n" +
 			"* variable patterns : \n" +
 			"   $[objHashes] : comma separated objHash values\n" +
 			"   $[objType] : object type\n" +
 			"   $[from] : start time in chart by millis\n" +
 			"   $[to] : end time in chart by millis")
-	public String ext_link_url_pattern = "http://localhost:3000/#/paper?&address=localhost&port=6188&realtime=false&longterm=false&xlogElapsedTime=10000&instances=$[objHashes]&from=$[from]&to=$[to]&layout=template1";
+	public String ext_link_url_pattern = "http://my-scouter-paper-ip:6188/index.html#/paper?&address=localhost&port=6188&realtime=false&xlogElapsedTime=8000&instances=$[objHashes]&from=$[from]&to=$[to]&layout=my-layout-template-01";
 
 	//XLog
 	@ConfigDesc("XLog Writer Queue Size")
@@ -502,8 +503,8 @@ public class Configure extends Thread {
 
 		this._mgr_kv_store_index_default_mb = getInt("_mgr_kv_store_index_default_mb", 8);
 
-		this.ext_link_name = getValue("ext_link_name", "scotuer-paper");
-		this.ext_link_url_pattern = getValue("ext_link_url_pattern", "http://localhost:3000/#/paper?&address=localhost&port=6188&realtime=false&longterm=false&xlogElapsedTime=10000&instances=$[objHashes]&from=$[from]&to=$[to]&layout=template1");
+		this.ext_link_name = getValue("ext_link_name", "scouter-paper");
+		this.ext_link_url_pattern = getValue("ext_link_url_pattern", "http://my-scouter-paper-ip:6188/index.html#/paper?&address=localhost&port=6188&realtime=false&xlogElapsedTime=8000&instances=$[objHashes]&from=$[from]&to=$[to]&layout=my-layout-template-01");
 
 		this._net_udp_worker_thread_count = getInt("_net_udp_worker_thread_count", 3);
 		this.geoip_data_city_file = getValue("geoip_data_city_file", CONF_DIR + "GeoLiteCity.dat");
