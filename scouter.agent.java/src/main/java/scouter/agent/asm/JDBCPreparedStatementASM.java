@@ -72,7 +72,8 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		target.add("com/mysql/jdbc/PreparedStatement");
         target.add("cubrid/jdbc/driver/CUBRIDPreparedStatement");
 		target.add("Altibase/jdbc/driver/AltibasePreparedStatement");
-		
+		target.add("Altibase/jdbc/driver/ABPreparedStatement");
+
 		// MySql Connector/j 6.X
                 target.add("com/mysql/cj/jdbc/PreparedStatement");
 
