@@ -100,7 +100,9 @@ SCOUTER can help you.
 ## Blogging & Posts
  - [Scouter series #1 - Installation](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=https%3A%2F%2Fgunsdevlog.blogspot.kr%2F2017%2F07%2Fscouter-apm-1.html)
  - [Scouter series #2 - basic monitoring(1/2)](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=https%3A%2F%2Fgunsdevlog.blogspot.kr%2F2017%2F07%2Fscouter-apm-2-12.html)
- - [Scouter series #3 - basic monitoring(2/2)](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=https%3A%2F%2Fgunsdevlog.blogspot.kr%2F2017%2F07%2Fscouter-apm-basic-monitoring-2.html)
+ - [Scouter series #2.1 - basic monitoring(2/2)](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=https%3A%2F%2Fgunsdevlog.blogspot.kr%2F2017%2F07%2Fscouter-apm-basic-monitoring-2.html)
+ - [Scouter series #3 - Active service & XLog](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fgunsdevlog.blogspot.kr%2F2018%2F05%2Fscouter-apm-xlog-howto.html)
+ - [Scouter series #4 - XLog details](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fgunsdevlog.blogspot.kr%2F2018%2F05%2Fscouter-apm-active-service-xlog.html)
  - [Applying Scouter APM to my service : by Kingbbode](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fkingbbode.tistory.com%2F12)
  - [Effective monitoring by Scouter : by TMON](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fblog.naver.com%2FPostView.nhn%3FblogId%3Dtmondev%26logNo%3D220870505665)
  - [Opensource performance monitoring, Scouter configurations : by SUN](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fwww.popit.kr%2Fscouter-open-source-apm-config%2F)
@@ -115,3 +117,5 @@ Licensed under the Apache License, Version 2.0
 <br>
 
 
+https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fgunsdevlog.blogspot.kr%2F2018%2F05%2Fscouter-apm-xlog-howto.html&sandbox=1
+https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fgunsdevlog.blogspot.kr%2F2018%2F05%2Fscouter-apm-active-service-xlog.html&sandbox=1
