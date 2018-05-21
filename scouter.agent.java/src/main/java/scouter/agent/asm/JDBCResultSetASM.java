@@ -64,6 +64,8 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 		target.add("com/tmax/tibero/jdbc/TbResultSetBase"); //tibero5
 		target.add("com/tmax/tibero/jdbc/driver/TbResultSetBase"); //tibero6
 
+		target.add("Altibase/jdbc/driver/ABResultSet"); //tibero6
+
 		//only close
 		String alti1 = "Altibase/jdbc/driver/AltibaseResultSet";
 		target.add(alti1); onlyCloseTarget.add(alti1);
