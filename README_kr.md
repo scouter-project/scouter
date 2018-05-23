@@ -103,6 +103,7 @@
  - [Scouter 소소한 시리즈 #2.1 - 기본 항목 모니터링(2/2)](http://gunsdevlog.blogspot.kr/2017/07/scouter-apm-basic-monitoring-2.html)
  - [Scouter 소소한 시리즈 #3 - Active service & XLog](http://gunsdevlog.blogspot.kr/2018/05/scouter-apm-active-service-xlog.html)
  - [Scouter 소소한 시리즈 #4 - XLog 활용 - 상세 기능](http://gunsdevlog.blogspot.kr/2018/05/scouter-apm-xlog-howto.html)
+ - [Scouter 소소한 시리즈 #5 - 사용자 정의 알림 활용](http://gunsdevlog.blogspot.kr/2018/05/scouter-customizable-alert.html)
  - [내 서비스에 Scouter APM을 적용해보기](http://kingbbode.tistory.com/12)
  - [배치 모니터링, Scouter로 편하고 효율적으로! by TMON](http://blog.naver.com/PostView.nhn?blogId=tmondev&logNo=220870505665)
  - [오픈소스 성능 모니터링 도구 Scouter 설정 by SUN](http://www.popit.kr/scouter-open-source-apm-config/)
