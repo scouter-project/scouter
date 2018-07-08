@@ -60,6 +60,18 @@ public int mgr_purge_xlog_keep_days = 30;
 @ConfigDesc("Retaining date for automatic deletion")
 public int mgr_purge_counter_keep_days = 70;
 
+//external-link
+@ConfigDesc("name of 3rd party ui")
+public String ext_link_name = "scouter-paper";
+@ConfigDesc("outgoing link pattern for a 3rd party UI.(client restart required)\n" +
+        "Context menu in any chart shows the menu 'Open with 3rd-party UI.'\n" +
+        "* variable patterns : \n" +
+        "   $[objHashes] : comma separated objHash values\n" +
+        "   $[objType] : object type\n" +
+        "   $[from] : start time in chart by millis\n" +
+        "   $[to] : end time in chart by millis")
+public String ext_link_url_pattern = "http://my-scouter-paper-ip:6188/index.html#/paper?&address=localhost&port=6188&realtime=false&xlogElapsedTime=8000&instances=$[objHashes]&from=$[from]&to=$[to]&layout=my-layout-template-01";
+
 //GeoIP
 @ConfigDesc("Activating IP-based city/country extraction")
 public boolean geoip_enabled = true;
@@ -351,6 +363,8 @@ public int sfa_dump_interval_ms = 10000;
 //miscellaneous
 @ConfigDesc("User ID based(0 : Remote Address, 1 : JSessionID, 2 : Scouter Cookie)")
 public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:SetCookie
+@ConfigDesc("Setting a cookie path for SCOUTER cookie when trace_user_mode is 2")
+public String trace_user_cookie_path = "/";
 
 @ConfigDesc("Path to file creation directory of process ID file")
 public String counter_object_registry_path = "/tmp/scouter";

@@ -17,14 +17,17 @@
  */
 package scouter.client.xlog.views;
 
-import java.io.IOException;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -34,7 +37,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.Images;
 import scouter.client.model.AgentDailyListProxy;
 import scouter.client.model.AgentModelThread;
@@ -66,6 +68,8 @@ import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.StringUtil;
 
+import java.io.IOException;
+
 
 public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 
@@ -87,13 +91,34 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 		this.objType = ids[1];
 	}
 
+	@Override
+	protected void openInExternalLink() {
+		Program.launch(makeExternalUrl(serverId));
+	}
+
+	@Override
+	protected void clipboardOfExternalLink() {
+		Clipboard clipboard = new Clipboard(getViewSite().getShell().getDisplay());
+		String linkUrl = makeExternalUrl(serverId);
+		clipboard.setContents(new String[]{linkUrl}, new Transfer[]{TextTransfer.getInstance()});
+		clipboard.dispose();
+	}
+
 	public void createPartControl(final Composite parent) {
 		display = Display.getCurrent();
 		shell = new Shell(display);
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
 
 		create(parent, man);
-		
+
+		Action searchOpenAction = new Action("search", ImageUtil.getImageDescriptor(Images.search)) {
+			public void run() {
+				new OpenSearchXLogDialogAction(PlatformUI.getWorkbench().getActiveWorkbenchWindow(), serverId, objType).run();
+			}
+		};
+		man.add(searchOpenAction);
+		man.add(new Separator());
+		;
 		man.add(new Action("zoom in", ImageUtil.getImageDescriptor(Images.zoomin)) {
 			public void run() {
 				viewPainter.keyPressed(16777259);

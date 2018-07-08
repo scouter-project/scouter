@@ -21,6 +21,7 @@ import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import scouter.server.Configure;
@@ -93,8 +94,29 @@ public class HttpServer extends Thread {
             context.addServlet(new ServletHolder(CounterServlet.class), "/counter/*");
             context.addServlet(new ServletHolder(RegisterServlet.class), "/register/*");
 
-            handlers.addHandler(context);
+            if (conf.net_http_api_gzip_enabled) {
+                GzipHandler gzipHandler = new GzipHandler();
+                gzipHandler.setIncludedMethods("GET", "POST", "PUT", "DELETE");
+                gzipHandler.setMinGzipSize(1024);
+                gzipHandler.setHandler(context);
+                handlers.addHandler(gzipHandler);
+            } else {
+                handlers.addHandler(context);
+            }
+
             server.setHandler(handlers);
+
+            if (conf.net_http_api_enabled) {
+                try {
+                    Class c = Class.forName("scouterx.webapp.main.WebAppMain");
+                    c.getMethod("setWebSocketServer", ServletContextHandler.class).invoke(null, context);
+                } catch (Throwable e) {
+                    Logger.println("Error while setWebSocketServer!");
+                    System.out.println("Error while setWebSocketServer!");
+                    Logger.printStackTrace(e);
+                    e.printStackTrace();
+                }
+            }
 
             try {
                 server.start();

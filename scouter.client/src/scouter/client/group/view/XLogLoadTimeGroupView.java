@@ -17,13 +17,6 @@
  */
 package scouter.client.group.view;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -36,8 +29,12 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
@@ -46,7 +43,6 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.Images;
 import scouter.client.group.GroupManager;
 import scouter.client.model.AgentModelThread;
@@ -75,6 +71,13 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 
 public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDialog.ITimeRange, CalendarDialog.ILoadCalendarDialog {
 
@@ -87,6 +90,8 @@ public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDi
 	
 	private long stime;
 	private long etime;
+
+	private int firstServerId;
 	
 	LoadXLogJob loadJob;
 	
@@ -96,6 +101,19 @@ public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDi
 		String[] datas = secId.split("&");
 		grpName = datas[0];
 		objType = datas[1];
+	}
+
+	@Override
+	protected void openInExternalLink() {
+		Program.launch(makeExternalUrl(firstServerId));
+	}
+
+	@Override
+	protected void clipboardOfExternalLink() {
+		Clipboard clipboard = new Clipboard(getViewSite().getShell().getDisplay());
+		String linkUrl = makeExternalUrl(firstServerId);
+		clipboard.setContents(new String[]{linkUrl}, new Transfer[]{TextTransfer.getInstance()});
+		clipboard.dispose();
 	}
 
 	public void createPartControl(final Composite parent) {
@@ -195,6 +213,9 @@ public class XLogLoadTimeGroupView extends XLogViewCommon implements TimeRangeDi
 				continue;
 			}
 			int serverId = agentObj.getServerId();
+			if (firstServerId == 0) {
+				firstServerId = serverId;
+			}
 			ListValue lv = serverObjMap.get(serverId);
 			if (lv == null) {
 				lv = new ListValue();

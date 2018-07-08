@@ -112,6 +112,11 @@ public class RealCounter {
 		return _objType;
 	}
 
+	@ConfigDesc("get comma separated object hashes string of the given object type.")
+	public String getObjHashListString(String objType) {
+		return AgentManager.getObjHashListAsString(objType);
+	}
+
 	@Deprecated
 	public String objType() {
 		return getObjType();

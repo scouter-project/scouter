@@ -50,9 +50,25 @@
  - **demo**
     - [http://demo.scouterapm.com:6180/swagger/index.html](http://demo.scouterapm.com:6180/swagger/index.html)
 
+## Counter widget
+Provides a widget that simply charts the performance counter API's response.
+Passing the (url encoded) url of the counter api to be looked up in this widget, the result is charted.
+If you include this widget path when setting up a custom alarm, you can use it more easily.
+ - [alarm sample](../main/Alert-Plugin-Guide.md)
+
+ - **URL : `/widget/simple/counter.html`**
+   - **parameters**
+     - **source** : url encoded counter(or counter stat) api
+       - if the source value doesn't start with `slash(/)`, then append `/scouter/v1/counter/` ahead of it by defaults.
+ - **usage example**
+   - belows are equivalent. (**counter api** : `/scouter/v1/counter/HeapUsed/latest/300/ofType/tomcat`)
+     - `http://127.0.0.1:6180/widget/simple/counter.html?source=%2Fscouter%2Fv1%2Fcounter%2FHeapUsed%2Flatest%2F300%2FofType%2Ftomcat`
+     - `http://127.0.0.1:6180/widget/simple/counter.html?source=HeapUsed%2Flatest%2F300%2FofType%2Ftomcat`
+
 ## Configuration
 ```java
 
+//Network
 @ConfigDesc("Collector connection infos - eg) host:6100:id:pw,host2:6100:id2:pw2")
 @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 public String net_collector_ip_port_id_pws = "127.0.0.1:6100:admin:admin";
@@ -63,14 +79,18 @@ public int net_webapp_tcp_client_pool_size = 12;
 public int net_webapp_tcp_client_pool_timeout = 15000;
 
 @ConfigDesc("Enable api access control by client ip")
-public boolean net_http_api_auth_ip_enabled = true;
+public boolean net_http_api_auth_ip_enabled = false;
 @ConfigDesc("If get api caller's ip from http header.")
 public String net_http_api_auth_ip_header_key;
 
-@ConfigDesc("Enable api access control by JSESSIONID of Cookie")
-public boolean net_http_api_auth_session_enabled = true;
-@ConfigDesc("api http session timeout")
-public int net_http_api_session_timeout = 3600*24;
+@ConfigDesc("Enable api access control by JSESSIONID of Cookie - get session from /user/login.")
+public boolean net_http_api_auth_session_enabled = false;
+@ConfigDesc("api http session timeout(sec)")
+public int net_http_api_session_timeout = 1*3600*24;
+@ConfigDesc("Enable api access control by Bearer token(of Authorization http header) - get access token from /user/loginGetToken.")
+public boolean net_http_api_auth_bearer_token_enabled = false;
+@ConfigDesc("Enable gzip response on api call")
+public boolean net_http_api_gzip_enabled = true;
 
 @ConfigDesc("api access allow ip addresses")
 @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
@@ -79,19 +99,24 @@ public String net_http_api_allow_ips = "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1"
 @ConfigDesc("HTTP service port")
 public int net_http_port = NetConstants.WEBAPP_HTTP_PORT;
 
+@ConfigDesc("user extension web root")
+public String net_http_extweb_dir = "./extweb";
+
 @ConfigDesc("HTTP API swagger enable option")
 public boolean net_http_api_swagger_enabled = false;
+
 @ConfigDesc("Swagger option of host's ip or domain to call APIs.")
 public String net_http_api_swagger_host_ip = "";
 @ConfigDesc("API CORS support for Access-Control-Allow-Origin")
-public String net_http_api_cors_allow_origin = "";
+public String net_http_api_cors_allow_origin = "*";
 @ConfigDesc("Access-Control-Allow-Credentials")
-public String net_http_api_cors_allow_credentials = "false";
+public String net_http_api_cors_allow_credentials = "true";
 
 @ConfigDesc("Log directory")
 public String log_dir = "./logs";
 @ConfigDesc("Keeping period of log")
 public int log_keep_days = 30;
+
 ```
 
 ## APIs
@@ -305,6 +330,15 @@ public int log_keep_days = 30;
    - `objHashes` : object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
    - `serverId` : (optional if single server)
 
+#### - `GET /v1/xlog-data/{yyyymmdd}/multi/{txidList}`
+ - request xlogs by txids
+ - **Auth** : required
+ - **Path params**
+   - `yyyymmdd` : date to search xlogs
+   - `txidList` : xlog txid list(by comma separator)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
 #### - `GET /v1/profile-data/{yyyymmdd}/{txid}`
  - get profile data(decoded) from txid
  - **Auth** : required
@@ -391,6 +425,160 @@ public int log_keep_days = 30;
  - **Query params**
    - `serverId` : (optional if single server)
 
+#### - `GET /v1/kv-private/{key}`
+ - get value of given key from the scouter server's key-value store. (in user-scope private key space for logon user)
+ - **Auth** : required
+ - **Path params**
+   - `key` : (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
 
+#### - `PUT /v1/kv-private`
+ - store it to the scouter server's key-value store. (in user-scope private key space for logon user)
+ - **Auth** : required
+ - **Request body (type : application/json)**
+   - `key` : (required)
+   - `value` : (required)
+   - `ttl` : (optional) time to live as seconds
+   - `serverId` : (required)
 
+#### - `PUT /v1/kv-private/{key}/:ttl`
+ - store it to the scouter server's key-value store. (in user-scope private key space for logon user)
+ - **Auth** : required
+ - **Path params**
+    - `key` : (required)
+ - **Request body (type : application/json)**
+   - `ttl` : (required) time to live as seconds
+   - `serverId` : (required)
 
+#### - `GET /v1/kv-private/{keys}/:bulk`
+ - get values of given keys from the scouter server's key-value store. (in user-scope private key space for logon user)
+ - **Auth** : required
+ - **Path params**
+   - `keys` : (required) keys by comma separator. also allowed with bracket. eg) mykey-1,mykey2 or [mykey-1,mykey2]
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `PUT /v1/kv-private/:bulk`
+ - store key&values to the scouter server's key-value store. (in user-scope private key space for logon user)
+ - **Auth** : required
+ - **Request body (type : application/json)**
+   - `ttl` : (optional) time to live as seconds
+   - `kvList` : (required) array of key & value
+      - `key` : (required)
+      - `value` : (required)
+   - `serverId` : (required)
+
+#### - `GET /v1/kv/{key}`
+ - get value of given key from the scouter server's key-value store. (in the global key space)
+ - **Auth** : required
+ - **Path params**
+   - `key` : (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `PUT /v1/kv`
+ - store it to the scouter server's key-value store. (in the global key space)
+ - **Auth** : required
+ - **Request body (type : application/json)**
+   - `key` : (required)
+   - `value` : (required)
+   - `ttl` : (optional) time to live as seconds
+   - `serverId` : (required)
+
+#### - `PUT /v1/kv/{key}/:ttl`
+ - store it to the scouter server's key-value store. (in the global key space)
+ - **Auth** : required
+ - **Path params**
+    - `key` : (required)
+ - **Request body (type : application/json)**
+   - `ttl` : (required) time to live as seconds
+   - `serverId` : (required)
+
+#### - `GET /v1/kv/{keys}/:bulk`
+ - get values of given keys from the scouter server's key-value store. (in the global key space)
+ - **Auth** : required
+ - **Path params**
+   - `keys` : (required) keys by comma separator. also allowed with bracket. eg) mykey-1,mykey2 or [mykey-1,mykey2]
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `PUT /v1/kv/:bulk`
+ - store key&values to the scouter server's key-value store. (in the global key space)
+ - **Auth** : required
+ - **Request body (type : application/json)**
+   - `ttl` : (optional) time to live as seconds
+   - `kvList` : (required) array of key & value
+      - `key` : (required)
+      - `value` : (required)
+   - `serverId` : (required)
+
+#### - `GET /v1/kv/space/{keySpace}/{key}`
+ - get value of given key from the key space of scouter server's key-value store.
+ - **Auth** : required
+ - **Path params**
+   - `keySpace` : (required)
+   - `key` : (required)
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `PUT /v1/kv/space/{keySpace}`
+ - store it to the key space of scouter server's key-value store
+ - **Auth** : required
+ - **Path params**
+    - `keySpace` : (required)
+ - **Request body (type : application/json)**
+   - `key` : (required)
+   - `value` : (required)
+   - `ttl` : (optional) time to live as seconds
+   - `serverId` : (required)
+
+#### - `GET /v1/kv/space/{keySpace}/{keys}/:bulk`
+ - get values of given keys from the key space of scouter server's key-value store
+ - **Auth** : required
+ - **Path params**
+   - `keySpace` : (required)
+   - `keys` : (required) keys by comma separator. also allowed with bracket. eg) mykey-1,mykey2 or [mykey-1,mykey2]
+ - **Query params**
+   - `serverId` : (optional if single server)
+
+#### - `PUT /v1/kv/space/{keySpace}/:bulk`
+ - store key&values to the key space of scouter server's key-value store
+ - **Auth** : required
+ - **Path params**
+    - `keySpace` : (required)
+ - **Request body (type : application/json)**
+   - `ttl` : (optional) time to live as seconds
+   - `kvList` : (required) array of key & value
+      - `key` : (required)
+      - `value` : (required)
+   - `serverId` : (required)
+
+#### - `POST /v1/user/loginGetToken`
+ - login with id & password, and get bearer token.
+   - this token required on Authorization header for authorized request.
+     - auth header example : `Authorization: Bearer V1.B3R4FSGEF3POJ.me`
+ - **Auth** : none
+ - **Request body (type : application/json)**
+   - `user` : (required)
+     - `id` : (required)
+     - `password` : (required)
+   - `serverId` : (required)
+
+#### - `POST /v1/user/login`
+ - login with id & password for traditional web application.
+   - this api is answered including with SET-COOKIE response header.
+ - **Auth** : none
+ - **Request body (type : application/json)**
+   - `user` : (required)
+     - `id` : (required)
+     - `password` : (required)
+   - `serverId` : (required)
+
+#### - `POST /v1/shortener`
+ - make shorten url. 
+   - You can make the url with a lot of parameters shorten in scouter web api.  
+ - **Auth** : required
+ - **Query params**
+    - `url` : url to shorten
+    - `serverId` : (optional if single server)

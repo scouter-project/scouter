@@ -140,7 +140,7 @@ public class HttpTrace implements IHttpTrace {
                     }
                     break;
                 case 2:
-                    ctx.userid = UseridUtil.getUserid(request, response);
+                    ctx.userid = UseridUtil.getUserid(request, response, conf.trace_user_cookie_path);
                     break;
                 case 1:
                     ctx.userid = UseridUtil.getUseridCustom(request, response, conf.trace_user_session_key);

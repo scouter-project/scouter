@@ -140,19 +140,21 @@ public class SQLSimpleParser {
 		ArrayList<String> tempList = new ArrayList<String>();
 		SQLNode node = sqlNode;
 		do {
-			for (int i = 0; i < node.tableList.size(); i++) {
-				StringBuffer s = new StringBuffer();
-				String tblInfo = s.append(node.tableList.get(i)).append("(").append(node.type.toString())
-						.append(")").toString();
-				if (!tempList.contains(tblInfo)) {
-					if (sb.length() > 0) {
-						sb.append(",");
-					}
-					sb.append(tblInfo);
-					tempList.add(tblInfo);
-				}
-			}
-			node = node.nextNode;
+		    if (node != null && node.tableList != null) {
+                for (int i = 0; i < node.tableList.size(); i++) {
+                    StringBuffer s = new StringBuffer();
+                    String tblInfo = s.append(node.tableList.get(i)).append("(").append(node.type.toString())
+                            .append(")").toString();
+                    if (!tempList.contains(tblInfo)) {
+                        if (sb.length() > 0) {
+                            sb.append(",");
+                        }
+                        sb.append(tblInfo);
+                        tempList.add(tblInfo);
+                    }
+                }
+                node = node.nextNode;
+            }
 		} while (node != null);
 		// printCRUD() ;
 		release();

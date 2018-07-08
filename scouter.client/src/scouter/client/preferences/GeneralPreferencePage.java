@@ -33,7 +33,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-
 import scouter.Version;
 import scouter.client.Activator;
 import scouter.client.Images;
@@ -54,7 +53,7 @@ public class GeneralPreferencePage extends FieldEditorPreferencePage implements 
 	
 	Combo /*addrCombo,*/ hostCombo,javaeeCombo;
 	
-	Text file, color, maxText,  alertDialogTimeout;
+	Text file, color, maxText,  alertDialogTimeout, txtLinkName, txtLinkPattern;
 	
 	String filePath = "";
 	String colorRgb = "";
@@ -84,8 +83,6 @@ public class GeneralPreferencePage extends FieldEditorPreferencePage implements 
 		Label versionLabel = new Label(parent, SWT.NONE);
 		versionLabel.setText(" - Current Version : "+Version.getClientFullVersion());
 		versionLabel.setLayoutData(UIUtil.gridData(SWT.FILL));
-		
-	
 	    
 		// ----Default Object Type----
 		Group layoutGroup = new Group(parent, SWT.NONE);
@@ -146,7 +143,35 @@ public class GeneralPreferencePage extends FieldEditorPreferencePage implements 
 		Label label = new Label(layoutGroup, SWT.NONE);
         label.setText("Max Block count:");
 		label.setLayoutData(UIUtil.formData(null, -1, null, -1, maxText, -5, null, -1, 100));
-		
+
+		// ----external link----
+//		layoutGroup = new Group(parent, SWT.NONE);
+//		layoutGroup.setText("External link setting(for connecting 3rd party UI)");
+//		layoutGroup.setLayout(UIUtil.formLayout(5, 5));
+//		layoutGroup.setLayoutData(UIUtil.gridData(SWT.FILL));
+//
+//		txtLinkName = new Text(layoutGroup, SWT.BORDER | SWT.RIGHT);
+//		txtLinkName.setText("");
+//		txtLinkName.setBackground(ColorUtil.getInstance().getColor("white"));
+//		txtLinkName.setLayoutData(UIUtil.formData(null, -1, 0, -2, 100, -5, null, -1, 265));
+//
+//		Label lblLinkTitle = new Label(layoutGroup, SWT.NONE);
+//		lblLinkTitle.setText("* Link title");
+//		lblLinkTitle.setLayoutData(UIUtil.formData(null, -1, null,-1, txtLinkName, -5, null, -1, 100));
+//
+//		Label lblLinkPattern = new Label(layoutGroup, SWT.NONE);
+//		lblLinkPattern.setText("* Link url pattern");
+//		lblLinkPattern.setLayoutData(UIUtil.formData(null, 0, lblLinkTitle, 10, null, 0, null, -1, 100));
+//
+//		txtLinkPattern = new Text(layoutGroup, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+//		txtLinkPattern.setText("");
+//		txtLinkPattern.setBackground(ColorUtil.getInstance().getColor("white"));
+//		txtLinkPattern.setLayoutData(UIUtil.formData(null, 0, lblLinkPattern, 3, null, 0, null, -1, 365, 45));
+//
+//		Label lblPatternHint = new Label(layoutGroup, SWT.NONE);
+//		lblPatternHint.setText("   - variables: ${from}, ${to}, ${objHashes}, ${objType}");
+//		lblPatternHint.setLayoutData(UIUtil.formData(null, 0, txtLinkPattern, 0, null, 0, null, -1, 365));
+
 //		layoutGroup = new Group(parent, SWT.NONE);
 //	    layoutGroup.setText("Alert");
 //		layoutGroup.setLayout(UIUtil.formLayout(5, 5));

@@ -137,8 +137,11 @@ public class Configure extends Thread {
     public String profile_http_parameter_url_prefix = "/";
     @ConfigDesc("spring controller method parameter profile")
     public boolean profile_spring_controller_method_parameter_enabled = false;
-    @ConfigDesc("Activating profile summary function")
-    public boolean profile_summary_mode_enabled = false;
+
+//    @Deprecated
+//    @ConfigDesc("Activating profile summary function")
+//    public boolean profile_summary_mode_enabled = false;
+
     @ConfigDesc("Calculating CPU time by profile")
     public boolean profile_thread_cputime_enabled = false;
     @ConfigDesc("ThreadStack profile for open socket")
@@ -167,6 +170,12 @@ public class Configure extends Thread {
     public boolean profile_fullstack_sql_commit_enabled = false;
     @ConfigDesc("Stack profile in occurrence of sql error")
     public boolean profile_fullstack_hooked_exception_enabled = false;
+
+    @ConfigDesc("Stack profile in occurrence of redis error")
+    public boolean profile_fullstack_redis_error_enabled = false;
+    @ConfigDesc("make unknown redis key stringify by force. (using new String(byte[])")
+    public boolean profile_redis_key_forcibly_stringify_enabled = false;
+
     @ConfigDesc("Number of stack profile lines in occurrence of error")
     public int profile_fullstack_max_lines = 0;
 
@@ -182,6 +191,9 @@ public class Configure extends Thread {
     //Trace
     @ConfigDesc("User ID based(0 : Remote Address, 1 : Cookie, 2 : Scouter Cookie, 2 : Header) \n - able to set value for 1.Cookie and 3.Header \n - refer to 'trace_user_session_key'")
     public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:Scouter Cookie, 3:Header
+    @ConfigDesc("Setting a cookie path for SCOUTER cookie when trace_user_mode is 2")
+    public String trace_user_cookie_path = "/";
+
     @ConfigDesc("Tracing background thread socket")
     public boolean trace_background_socket_enabled = true;
     @ConfigDesc("Adding assigned header value to the service name")
@@ -307,6 +319,8 @@ public class Configure extends Thread {
     public boolean xlog_error_on_sqlexception_enabled = true;
     @ConfigDesc("mark as error on xlog flag if Api call errors are occured.")
     public boolean xlog_error_on_apicall_exception_enabled = true;
+    @ConfigDesc("mark as error on xlog flag if redis error is occured.")
+    public boolean xlog_error_on_redis_exception_enabled = true;
 
     //XLog hard sampling options
     @ConfigDesc("XLog hard sampling mode enabled\n - for the best performance but it affects all statistics data")
@@ -363,6 +377,8 @@ public class Configure extends Thread {
     @ConfigDesc("XLog discard service patterns\nNo XLog data, but apply to TPS and summary.\neg) /user/{userId}<GET>,/device/*")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String xlog_discard_service_patterns = "";
+    @ConfigDesc("Do not discard error even if it's discard pattern.")
+    public boolean xlog_discard_service_show_error = true;
 
     //Alert
     @ConfigDesc("Limited length of alert message")
@@ -413,6 +429,11 @@ public class Configure extends Thread {
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_connection_open_patterns = "";
 
+    @ConfigDesc("Method set for getconnection hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String hook_get_connection_patterns = "";
+
+    
     @ConfigDesc("IntialContext Class Set")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_context_classes = "javax/naming/InitialContext";
@@ -521,6 +542,10 @@ public class Configure extends Thread {
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_async_callrunnable_scan_package_prefixes = "";
 
+    @ConfigDesc("redis key setting patterns.\n refer to org.springframework.data.redis.core.AbstractOperations#rawKey")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String _hook_redis_set_key_patterns = "";
+
     @ConfigDesc("PRE-released option before stable release!\nhook threadpool executor for tracing async processing.")
     public boolean hook_async_thread_pool_executor_enabled = false;
 
@@ -548,9 +573,13 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public boolean _hook_usertx_enabled = true;
     @ConfigDesc("")
-    public String _hook_direct_patch_classes = "";
-    @ConfigDesc("")
     public boolean _hook_spring_rest_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_redis_enabled = true;
+
+    @ConfigDesc("")
+    public String _hook_direct_patch_classes = "";
+
     @ConfigDesc("")
     public String _hook_boot_prefix = null;
     @ConfigDesc("for warning a big Map type object that have a lot of entities.\n It may increase system load. be careful to enable this option.")
@@ -717,7 +746,7 @@ public class Configure extends Thread {
         this.profile_http_header_enabled = getBoolean("profile_http_header_enabled", false);
         this.profile_http_parameter_enabled = getBoolean("profile_http_parameter_enabled", false);
         this.profile_spring_controller_method_parameter_enabled = getBoolean("profile_spring_controller_method_parameter_enabled", false);
-        this.profile_summary_mode_enabled = getBoolean("profile_summary_mode_enabled", false);
+        //this.profile_summary_mode_enabled = getBoolean("profile_summary_mode_enabled", false);
 
         this.profile_http_parameter_url_prefix = getValue("profile_http_parameter_url_prefix", "/");
         this.profile_http_header_url_prefix = getValue("profile_http_header_url_prefix", "/");
@@ -789,7 +818,8 @@ public class Configure extends Thread {
         this.hook_return_patterns = getValue("hook_return_patterns", "");
         this.hook_constructor_patterns = getValue("hook_constructor_patterns", "");
         this.hook_connection_open_patterns = getValue("hook_connection_open_patterns", "");
-
+        this.hook_get_connection_patterns = getValue("hook_get_connection_patterns","");
+        
         this._log_datasource_lookup_enabled = getBoolean("_log_datasource_lookup_enabled", true);
         this.profile_connection_open_enabled = getBoolean("profile_connection_open_enabled", true);
         this._summary_connection_leak_fullstack_enabled = getBoolean("_summary_connection_leak_fullstack_enabled", false);
@@ -848,6 +878,8 @@ public class Configure extends Thread {
 
         this.hook_async_callrunnable_scan_package_prefixes = getValue("hook_async_callrunnable_scan_package_prefixes", "");
 
+        this._hook_redis_set_key_patterns = getValue("_hook_redis_set_key_patterns", "");
+
         this.hook_async_thread_pool_executor_enabled = getBoolean("hook_async_thread_pool_executor_enabled", false);
 
         this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", false);
@@ -880,6 +912,8 @@ public class Configure extends Thread {
         this.profile_fullstack_sql_error_enabled = getBoolean("profile_fullstack_sql_error_enabled", false);
         this.profile_fullstack_sql_commit_enabled = getBoolean("profile_fullstack_sql_commit_enabled", false);
         this.profile_fullstack_hooked_exception_enabled = getBoolean("profile_fullstack_hooked_exception_enabled", false);
+        this.profile_fullstack_redis_error_enabled = getBoolean("profile_fullstack_redis_error_enabled", false);
+        this.profile_redis_key_forcibly_stringify_enabled = getBoolean("profile_redis_key_forcibly_stringify_enabled", false);
 
         this.profile_fullstack_max_lines = getInt("profile_fullstack_max_lines", 0);
         this.profile_fullstack_rs_leak_enabled = getBoolean("profile_fullstack_rs_leak_enabled", false);
@@ -896,6 +930,7 @@ public class Configure extends Thread {
         this.profile_connection_open_fullstack_enabled = getBoolean("profile_connection_open_fullstack_enabled", false);
         this.profile_connection_autocommit_status_enabled = getBoolean("profile_connection_autocommit_status_enabled", false);
         this.trace_user_mode = getInt("trace_user_mode", 2);
+        this.trace_user_cookie_path = getValue("trace_user_cookie_path", "/");
         this.trace_user_session_key = getValue("trace_user_session_key", "JSESSIONID");
         this._trace_auto_service_enabled = getBoolean("_trace_auto_service_enabled", false);
         this._trace_auto_service_backstack_enabled = getBoolean("_trace_auto_service_backstack_enabled", true);
@@ -910,7 +945,11 @@ public class Configure extends Thread {
         this._hook_async_enabled = getBoolean("_hook_async_enabled", true);
         this.trace_db2_enabled = getBoolean("trace_db2_enabled", true);
         this._hook_usertx_enabled = getBoolean("_hook_usertx_enabled", true);
+        this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", true);
+        this._hook_redis_enabled = getBoolean("_hook_redis_enabled", true);
+
         this._hook_direct_patch_classes = getValue("_hook_direct_patch_classes", "");
+
         this._hook_boot_prefix = getValue("_hook_boot_prefix");
         this._hook_map_impl_enabled = getBoolean("_hook_map_impl_enabled", false);
         this._hook_map_impl_warning_size = getInt("_hook_map_impl_warning_size", 50000);
@@ -963,7 +1002,6 @@ public class Configure extends Thread {
         this.__ip_dummy_test = getBoolean("__ip_dummy_test", false);
 
         this.alert_perm_warning_pct = getInt("alert_perm_warning_pct", 90);
-        this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", true);
         this.alert_message_length = getInt("alert_message_length", 3000);
         this.alert_send_interval_ms = getInt("alert_send_interval_ms", 10000);
 
@@ -971,6 +1009,7 @@ public class Configure extends Thread {
         this.xlog_error_sql_time_max_ms = getInt("xlog_error_sql_time_max_ms", 30000);
         this.xlog_error_on_sqlexception_enabled = getBoolean("xlog_error_on_sqlexception_enabled", true);
         this.xlog_error_on_apicall_exception_enabled = getBoolean("xlog_error_on_apicall_exception_enabled", true);
+        this.xlog_error_on_redis_exception_enabled = getBoolean("xlog_error_on_redis_exception_enabled", true);
 
         this._log_asm_enabled = getBoolean("_log_asm_enabled", false);
         this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
@@ -1014,6 +1053,7 @@ public class Configure extends Thread {
         this.xlog_patterned_sampling_over_rate_pct = getInt("xlog_patterned_sampling_over_rate_pct", 100);
 
         this.xlog_discard_service_patterns = getValue("xlog_discard_service_patterns", "");
+        this.xlog_discard_service_show_error = getBoolean("xlog_discard_service_show_error", true);
 
         resetObjInfo();
         setStaticContents();

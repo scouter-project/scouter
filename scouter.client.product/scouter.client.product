@@ -23,7 +23,8 @@
       <programArgsWin>-data
 @user.home/scouter
       </programArgsWin>
-      <vmArgs>--add-modules=java.se.ee
+      <vmArgs>-XX:+IgnoreUnrecognizedVMOptions
+--add-modules=java.se.ee
 -Xms128m
 -Xmx768m
 -XX:+UseG1GC
@@ -50,6 +51,7 @@
       </win>
    </launcher>
 
+
    <vm>
    </vm>
 
@@ -67,5 +69,12 @@
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>

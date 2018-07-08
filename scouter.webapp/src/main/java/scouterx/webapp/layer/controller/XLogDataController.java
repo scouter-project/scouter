@@ -37,6 +37,7 @@ import scouterx.webapp.layer.service.XLogService;
 import scouterx.webapp.model.XLogData;
 import scouterx.webapp.model.XLogPackWrapper;
 import scouterx.webapp.request.GxidXLogRequest;
+import scouterx.webapp.request.MultiXLogRequest;
 import scouterx.webapp.request.PageableXLogRequest;
 import scouterx.webapp.request.RealTimeXLogDataRequest;
 import scouterx.webapp.request.SearchXLogRequest;
@@ -120,6 +121,9 @@ public class XLogDataController {
         Consumer<JsonGenerator> realTimeXLogHandlerConsumer = jsonGenerator -> {
             try {
                 XLogCountBucket countBucket = new XLogCountBucket();
+                countBucket.setLoop(xLogRequest.getXLogLoop());
+                countBucket.setIndex(xLogRequest.getXLogIndex());
+
                 jsonGenerator.writeArrayFieldStart("xlogs");
 
                 XLogLoopCache.getOf(server.getId()).getAndHandleRealTimeXLog(
@@ -174,7 +178,7 @@ public class XLogDataController {
 
     /**
      * request xlog by txid
-     * uri : /xlog-data/{yyyymmdd}/{txid} @see {@link SingleXLogRequest}
+     * uri : /{yyyymmdd}/{txid} @see {@link SingleXLogRequest}
      *
      * @param singleXlogRequest
      */
@@ -189,6 +193,21 @@ public class XLogDataController {
     }
 
     /**
+     * request xlog by txid
+     * uri : /{yyyymmdd}/multi @see {@link MultiXLogRequest}
+     *
+     * @param multiXLogRequest
+     */
+    @GET
+    @Path("/{yyyymmdd}/multi/{txidList}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<XLogData>> retrieveXLogDataListByTxids(@Valid @BeanParam MultiXLogRequest multiXLogRequest) {
+        List<XLogData> xLogs = xLogService.retrieveXLogDataListByTxids(multiXLogRequest);
+
+        return CommonResultView.success(xLogs);
+    }
+
+    /**
      * request xlogs by gxid
      * uri : /{yyyymmdd}/gxid/{gxid} @see {@link GxidXLogRequest}
      *
@@ -197,9 +216,9 @@ public class XLogDataController {
     @GET
     @Path("/{yyyymmdd}/gxid/{gxid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public CommonResultView<List<XLogData>> retrieveXLogDatasByGxid(@Valid @BeanParam GxidXLogRequest gxidRequest) {
+    public CommonResultView<List<XLogData>> retrieveXLogDataListByGxid(@Valid @BeanParam GxidXLogRequest gxidRequest) {
         gxidRequest.validate();
-        List<XLogData> xLogs = xLogService.retrieveXLogDatasByGxid(gxidRequest);
+        List<XLogData> xLogs = xLogService.retrieveXLogDataListByGxid(gxidRequest);
 
         return CommonResultView.success(xLogs);
     }

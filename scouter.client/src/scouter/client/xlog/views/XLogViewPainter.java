@@ -38,8 +38,17 @@ import scouter.client.xlog.ImageCache;
 import scouter.client.xlog.XLogFilterStatus;
 import scouter.client.xlog.XLogYAxisEnum;
 import scouter.lang.pack.XLogPack;
-import scouter.util.*;
+import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
+import scouter.util.HashUtil;
+import scouter.util.IPUtil;
+import scouter.util.LongKeyLinkedMap;
+import scouter.util.Pair;
+import scouter.util.StrMatch;
+import scouter.util.StringUtil;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -58,6 +67,9 @@ public class XLogViewPainter {
 	private double yValueMin = 0;
 	private boolean viewIsInAdditionalDataLoading = false;
 
+	public long lastDrawTimeStart = 0L;
+	public long lastDrawTimeEnd = 0L;
+
 	private XLogViewMouse mouse;
 	private PointMap pointMap = new PointMap();
 	private final LongKeyLinkedMap<XLogData> xLogPerfData;
@@ -74,6 +86,7 @@ public class XLogViewPainter {
 	public StrMatch objNameMat;
 	public StrMatch serviceMat;
 	public StrMatch ipMat;
+	public Pair<Long, Long> startFromToMat;
 	public StrMatch loginMat;
 	public StrMatch descMat;
 	public StrMatch text1Mat;
@@ -163,10 +176,10 @@ public class XLogViewPainter {
 			onGoing = false;
 		}
 	}
-	
+
 	int chart_x;
 	long paintedEndTime;
-	
+
 	public long getLastTime() {
 		return paintedEndTime;
 	}
@@ -258,7 +271,10 @@ public class XLogViewPainter {
 				gc.drawString(s, x - 25, chart_y + chart_h + 5 + 5);
 			}
 		}
-		
+
+		lastDrawTimeStart = time_start;
+		lastDrawTimeEnd = time_end;
+
 		drawXPerfData(gc, time_start, time_end, chart_x, chart_y, chart_w, chart_h);
 		drawChartBorder(gc, chart_x, chart_y, chart_w, chart_h);
 		drawYaxisDescription(gc, chart_x, chart_y);
@@ -614,6 +630,7 @@ public class XLogViewPainter {
 		return isObjNameFilterOk(d)
 				&& isServiceFilterOk(d)
 				&& isIpFilterOk(d.p)
+				&& isStartTimeFilterOk(d.p)
 				&& isLoginFilterOk(d)
 				&& isDescFilterOk(d)
 				&& isText1FilterOk(d)
@@ -658,6 +675,14 @@ public class XLogViewPainter {
 		}
 		String value = IPUtil.toString(p.ipaddr);
 		return ipMat.include(value);
+	}
+
+	public boolean isStartTimeFilterOk(XLogPack p) {
+		if (StringUtil.isEmpty(filterStatus.startHmsFrom) || StringUtil.isEmpty(filterStatus.startHmsTo)) {
+			return true;
+		}
+		long start = p.endTime - p.elapsed;
+		return startFromToMat.getLeft() <= start && start <= startFromToMat.getRight();
 	}
 
 	public boolean isLoginFilterOk(XLogData d) {
@@ -761,13 +786,15 @@ public class XLogViewPainter {
 		this.yValueMax = yAxis.getDefaultMax();
 		this.yValueMin = 0;
 	}
-	
+
+	private DateTimeFormatter hmsFormatter = DateTimeFormatter.ofPattern("HHmmss");
 	public void setFilterStatus(XLogFilterStatus status) {
 		this.filterStatus = status;
 		filter_hash = filterStatus.hashCode();
 		objNameMat = new StrMatch(status.objName);
 		serviceMat = new StrMatch(status.service);
 		ipMat = new StrMatch(status.ip);
+
 		loginMat = new StrMatch(status.login);
 		text1Mat = new StrMatch(status.text1);
 		text2Mat = new StrMatch(status.text2);
@@ -776,5 +803,15 @@ public class XLogViewPainter {
 		text5Mat = new StrMatch(status.text5);
 		descMat = new StrMatch(status.desc);
 		userAgentMat = new StrMatch(status.userAgent);
+
+		if (status.startHmsFrom.length() == 6 && status.startHmsTo.length() == 6) {
+			long dateMillis = DateUtil.dateUnitToTimeMillis(DateUtil.getDateUnit(paintedEndTime));
+			long startFrom = dateMillis + LocalTime.parse(status.startHmsFrom, hmsFormatter).toSecondOfDay() * 1000;
+			long startTo = dateMillis + LocalTime.parse(status.startHmsTo, hmsFormatter).toSecondOfDay() * 1000;
+
+			startFromToMat = new Pair<>(startFrom, startTo);
+		} else {
+			startFromToMat = new Pair<>(0L, 0L);
+		}
 	}
 }

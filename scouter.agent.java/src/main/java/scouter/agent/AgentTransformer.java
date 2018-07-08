@@ -16,16 +16,51 @@
  */
 package scouter.agent;
 
-import scouter.agent.asm.*;
+import scouter.agent.asm.AddFieldASM;
+import scouter.agent.asm.ApicallASM;
+import scouter.agent.asm.ApicallInfoASM;
+import scouter.agent.asm.ApicallSpringHttpAccessorASM;
+import scouter.agent.asm.CapArgsASM;
+import scouter.agent.asm.CapReturnASM;
+import scouter.agent.asm.CapThisASM;
+import scouter.agent.asm.HttpServiceASM;
+import scouter.agent.asm.IASM;
+import scouter.agent.asm.InitialContextASM;
+import scouter.agent.asm.JDBCConnectionOpenASM;
+import scouter.agent.asm.JDBCDriverASM;
+import scouter.agent.asm.JDBCGetConnectionASM;
+import scouter.agent.asm.JDBCPreparedStatementASM;
+import scouter.agent.asm.JDBCResultSetASM;
+import scouter.agent.asm.JDBCStatementASM;
+import scouter.agent.asm.JspServletASM;
+import scouter.agent.asm.MapImplASM;
+import scouter.agent.asm.MethodASM;
+import scouter.agent.asm.ScouterClassWriter;
+import scouter.agent.asm.ServiceASM;
+import scouter.agent.asm.SocketASM;
+import scouter.agent.asm.SpringReqMapASM;
+import scouter.agent.asm.SqlMapASM;
+import scouter.agent.asm.UserExceptionASM;
+import scouter.agent.asm.UserExceptionHandlerASM;
+import scouter.agent.asm.UserTxASM;
 import scouter.agent.asm.asyncsupport.AsyncContextDispatchASM;
 import scouter.agent.asm.asyncsupport.CallRunnableASM;
+import scouter.agent.asm.asyncsupport.HystrixCommandASM;
 import scouter.agent.asm.asyncsupport.RequestStartAsyncASM;
 import scouter.agent.asm.asyncsupport.executor.ExecutorServiceASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM;
+import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionAspectSupportDoSubmitASM;
+import scouter.agent.asm.redis.JedisConnectionASM;
+import scouter.agent.asm.redis.RedisCacheKeyASM;
+import scouter.agent.asm.redis.RedisKeyASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
-import scouter.org.objectweb.asm.*;
+import scouter.org.objectweb.asm.AnnotationVisitor;
+import scouter.org.objectweb.asm.ClassReader;
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.ClassWriter;
+import scouter.org.objectweb.asm.Opcodes;
 import scouter.util.FileUtil;
 import scouter.util.IntSet;
 
@@ -72,7 +107,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new JDBCStatementASM());
         temp.add(new SqlMapASM());
         temp.add(new UserTxASM());
-
+        temp.add(new JDBCGetConnectionASM());
         temp.add(new JDBCConnectionOpenASM());
         temp.add(new JDBCDriverASM());
         temp.add(new InitialContextASM());
@@ -86,10 +121,17 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new ApicallInfoASM());
         temp.add(new ApicallSpringHttpAccessorASM());
         temp.add(new SpringAsyncExecutionASM());
+        temp.add(new SpringAsyncExecutionAspectSupportDoSubmitASM());
         temp.add(new CallRunnableASM());
         temp.add(new ExecutorServiceASM());
 
+        temp.add(new RedisKeyASM());
+        temp.add(new RedisCacheKeyASM());
+        temp.add(new JedisConnectionASM());
+
         temp.add(new SpringReqMapASM());
+        temp.add(new HystrixCommandASM());
+
         temp.add(new SocketASM());
         temp.add(new JspServletASM());
         temp.add(new MapImplASM());

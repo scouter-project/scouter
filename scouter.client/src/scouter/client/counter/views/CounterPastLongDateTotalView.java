@@ -17,11 +17,6 @@
  */
 package scouter.client.counter.views;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
-
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
 import org.csstudio.swt.xygraph.dataprovider.Sample;
 import org.csstudio.swt.xygraph.figures.Trace;
@@ -50,7 +45,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.Images;
 import scouter.client.counter.actions.OpenPastLongDateTotalAction;
 import scouter.client.net.INetReader;
@@ -78,6 +72,11 @@ import scouter.lang.pack.Pack;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.DateUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
 public class CounterPastLongDateTotalView extends ScouterViewPart implements DualCalendarDialog.ILoadDualCounterDialog {
 	public static final String ID = CounterPastLongDateTotalView.class.getName();
@@ -133,7 +132,7 @@ public class CounterPastLongDateTotalView extends ScouterViewPart implements Dua
 		buffer = (int) ((etime - stime) / DateUtil.MILLIS_PER_FIVE_MINUTE);
 		traceDataProvider.setBufferSize(buffer);
 		
-		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter);
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter, stime, etime);
 		
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {

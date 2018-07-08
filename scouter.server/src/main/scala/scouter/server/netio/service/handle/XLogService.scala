@@ -357,6 +357,32 @@ class XLogService {
         }
     }
 
+    @ServiceHandler(RequestCmd.XLOG_LOAD_BY_TXIDS)
+    def loadByTxIds(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack()
+        val date = param.getText("date")
+        val txidLv = param.getList("txid")
+
+        var loadCount = 0
+        try {
+            EnumerScala.foreach(txidLv, (txidValue: DecimalValue) => {
+                loadCount += 1;
+
+                if (loadCount >= Configure.getInstance().req_search_xlog_max_count) {
+                    return;
+                }
+                val xbytes = XLogRD.getByTxid(date, txidValue.longValue())
+                if(xbytes != null) {
+                    dout.writeByte(TcpFlag.HasNEXT)
+                    dout.write(xbytes)
+                    dout.flush()
+                }
+            })
+        } catch {
+            case e: Exception => {}
+        }
+    }
+
     @ServiceHandler(RequestCmd.XLOG_LOAD_BY_GXID)
     def loadByGxId(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readMapPack();

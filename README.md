@@ -62,6 +62,10 @@ SCOUTER can help you.
 - **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-project/scouter-pulse)
   - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : gathering performance metrics of EC2, RDS, ELB from cloudwatch in AWS.
 
+### 3rd-party UIs
+- **scouter paper** : [scouter-paper](https://github.com/mindplates/scouter-paper)
+![scouter-pater](https://3.bp.blogspot.com/-OqQ9sxQKAXU/Wsncf-NgbAI/AAAAAAAAdn4/yhLAgU46y1YaAfantShxxlFdVKA_1xBHwCLcBGAs/s1600/scouter-pager-img.png)
+
 ### Plugins
 - **Server plugin**
   - **Sample**
@@ -96,17 +100,20 @@ SCOUTER can help you.
 ## Blogging & Posts
  - [Scouter series #1 - Installation](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=https%3A%2F%2Fgunsdevlog.blogspot.kr%2F2017%2F07%2Fscouter-apm-1.html)
  - [Scouter series #2 - basic monitoring(1/2)](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=https%3A%2F%2Fgunsdevlog.blogspot.kr%2F2017%2F07%2Fscouter-apm-2-12.html)
- - [Scouter series #3 - basic monitoring(2/2)](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=https%3A%2F%2Fgunsdevlog.blogspot.kr%2F2017%2F07%2Fscouter-apm-basic-monitoring-2.html)
+ - [Scouter series #2.1 - basic monitoring(2/2)](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=https%3A%2F%2Fgunsdevlog.blogspot.kr%2F2017%2F07%2Fscouter-apm-basic-monitoring-2.html)
+ - [Scouter series #3 - Active service & XLog](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fgunsdevlog.blogspot.kr%2F2018%2F05%2Fscouter-apm-xlog-howto.html)
+ - [Scouter series #4 - XLog details](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fgunsdevlog.blogspot.kr%2F2018%2F05%2Fscouter-apm-active-service-xlog.html)
+ - [Scouter series #5 - Customizable alert](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fgunsdevlog.blogspot.kr%2F2018%2F05%2Fscouter-customizable-alert.html)
  - [Applying Scouter APM to my service : by Kingbbode](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fkingbbode.tistory.com%2F12)
  - [Effective monitoring by Scouter : by TMON](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fblog.naver.com%2FPostView.nhn%3FblogId%3Dtmondev%26logNo%3D220870505665)
  - [Opensource performance monitoring, Scouter configurations : by SUN](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=http%3A%2F%2Fwww.popit.kr%2Fscouter-open-source-apm-config%2F)
  - [Scouter, InfluxDB, Grafana](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=https%3A%2F%2Fgunleeblog.wordpress.com%2F2016%2F04%2F01%2Fopen-source-apm-scouter-influxdb-grafana-%25EC%2597%25B0%25EB%258F%2599-step-by-step%2F)
  - [Build my own agents by scouter pulse](https://translate.google.co.kr/translate?hl=ko&sl=ko&tl=en&u=https%3A%2F%2Fgunleeblog.wordpress.com%2F2016%2F09%2F07%2Fscouter-pulse%25EB%25A5%25BC-%25EC%259D%25B4%25EC%259A%25A9%25ED%2595%2598%25EC%2597%25AC-%25EB%2582%2598%25EB%25A7%258C%25EC%259D%2598-agent-%25EB%25A7%258C%25EB%2593%25A4%25EA%25B8%25B0%2F)
- 
+ - [Quick installation of scouter paper UI](https://gunsdevlog.blogspot.kr/2018/04/scouter-web-ui-paper.html)
+
 <br>
  
 ## License
 Licensed under the Apache License, Version 2.0
 <br>
-
 

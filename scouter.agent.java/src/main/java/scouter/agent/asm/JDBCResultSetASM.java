@@ -34,7 +34,16 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 	public final HashSet<String> onlyNextTarget = new HashSet<String>();
 
 	public JDBCResultSetASM() {
+		
+		//mariadb older
 		target.add("org/mariadb/jdbc/MySQLResultSet");
+		//mariadb 1.5.9
+		target.add("org/mariadb/jdbc/internal/queryresults/resultset/MariaSelectResultSet");
+		//mariadb 1.6.5
+		target.add("org/mariadb/jdbc/internal/com/read/resultset/SelectResultSet");
+		//mariadb 1.7.1
+		target.add("org/mariadb/jdbc/internal/com/read/resultset/UpdatableResultSet");
+		
 		target.add("oracle/jdbc/driver/OracleResultSetImpl");
 		target.add("com/mysql/jdbc/ResultSetImpl");
 
@@ -54,6 +63,8 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 
 		target.add("com/tmax/tibero/jdbc/TbResultSetBase"); //tibero5
 		target.add("com/tmax/tibero/jdbc/driver/TbResultSetBase"); //tibero6
+
+		target.add("Altibase/jdbc/driver/ABResultSet"); //tibero6
 
 		//only close
 		String alti1 = "Altibase/jdbc/driver/AltibaseResultSet";

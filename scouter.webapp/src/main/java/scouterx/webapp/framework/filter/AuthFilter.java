@@ -19,43 +19,80 @@
 package scouterx.webapp.framework.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import scouterx.webapp.framework.exception.ErrorState;
+import scouter.util.StringUtil;
 import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
+import scouterx.webapp.framework.exception.ErrorState;
+import scouterx.webapp.framework.session.UserToken;
+import scouterx.webapp.framework.session.WebRequestContext;
 import scouterx.webapp.framework.util.ZZ;
+import scouterx.webapp.layer.service.UserTokenService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
-import java.io.IOException;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
 @Slf4j
 public class AuthFilter implements ContainerRequestFilter {
+    private static final String BEARER_PREFIX = "bearer ";
+
     @Context
     private HttpServletRequest servletRequest;
 
+    UserTokenService userTokenService = new UserTokenService();
+
     @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
+    public void filter(ContainerRequestContext requestContext) {
+        WebRequestContext.clearUserToken();
         ConfigureAdaptor conf = ConfigureManager.getConfigure();
 
+        boolean violation = false;
         //Check IP
         if (conf.isNetHttpApiAuthIpEnabled()) {
             if (conf.getNetHttpApiAllowIps().stream().anyMatch(ip -> ZZ.getRequestIp(servletRequest).contains(ip))) {
                 return;
+            } else {
+                violation = true;
+            }
+        }
+
+        //Check token
+        if (conf.isNetHttpApiAuthBearerTokenEnabled()) {
+            String authHeader = servletRequest.getHeader("Authorization");
+            if (StringUtil.isNotEmpty(authHeader)) {
+                UserToken token = UserToken.fromBearerToken(trimToken(authHeader));
+                userTokenService.validateToken(token);
+                WebRequestContext.setUserToken(token);
+                return;
+            } else {
+                if (!conf.isNetHttpApiAuthSessionEnabled()) {
+                    throw ErrorState.SESSION_EXPIRED.newBizException();
+                }
             }
         }
 
         //Check session
         if (conf.isNetHttpApiAuthSessionEnabled()) {
             HttpSession session = servletRequest.getSession();
-            if(session == null || session.getAttribute("user") == null) {
+            if(session == null || session.getAttribute("userId") == null) {
                 throw ErrorState.LOGIN_REQUIRED.newBizException();
             }
+            UserToken userToken = UserToken.fromSessionId((String) session.getAttribute("userId"));
+            WebRequestContext.setUserToken(userToken);
         }
+
+        if (violation) {
+            throw ErrorState.SESSION_EXPIRED.newBizException();
+        }
+    }
+
+    private String trimToken(String authHeader) {
+        return StringUtil.limiting(authHeader, BEARER_PREFIX.length()).toLowerCase().equals(BEARER_PREFIX)
+                ? authHeader.substring(7) : authHeader;
     }
 }

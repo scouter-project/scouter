@@ -40,15 +40,20 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 	public final HashSet<String> noField = new HashSet<String>();
 
 	public JDBCPreparedStatementASM() {
+		
+		target.add("oracle/jdbc/driver/OraclePreparedStatement");
+		
+		//mariadb older
+		target.add("org/mariadb/jdbc/MySQLPreparedStatement");
 		//mariadb 1.5.9
 		target.add("org/mariadb/jdbc/AbstractPrepareStatement");
-
 		target.add("org/mariadb/jdbc/AbstractMariaDbPrepareStatement");
 		target.add("org/mariadb/jdbc/MariaDbClientPreparedStatement");
 		target.add("org/mariadb/jdbc/MariaDbServerPreparedStatement");
-		target.add("org/mariadb/jdbc/MySQLPreparedStatement");
-		target.add("oracle/jdbc/driver/OraclePreparedStatement");
-
+		//mariadb 1.6.4, 1.7.1
+		target.add("org/mariadb/jdbc/MariaDbPreparedStatementClient");
+		target.add("org/mariadb/jdbc/MariaDbPreparedStatementServer");
+		
 		target.add("org/postgresql/jdbc2/AbstractJdbc2Statement");
 		//pg driver 42+
 		target.add("org/postgresql/jdbc/PgPreparedStatement");
@@ -67,7 +72,8 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		target.add("com/mysql/jdbc/PreparedStatement");
         target.add("cubrid/jdbc/driver/CUBRIDPreparedStatement");
 		target.add("Altibase/jdbc/driver/AltibasePreparedStatement");
-		
+		target.add("Altibase/jdbc/driver/ABPreparedStatement");
+
 		// MySql Connector/j 6.X
                 target.add("com/mysql/cj/jdbc/PreparedStatement");
 
@@ -128,6 +134,9 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 				} else if (desc.startsWith("(Ljava/lang/String;)")) {
 					return new StExecuteMV(access, desc, mv, owner, name);
 				}
+			} else if (PsExecuteMV.isTarget(name, desc)) {
+				return new PsExecuteMV(access, desc, mv, owner, name);
+
 			} else if ("clearParameters".equals(name) && "()V".equals(desc)) {
 				return new PsClearParametersMV(access, desc, mv, owner);
 
