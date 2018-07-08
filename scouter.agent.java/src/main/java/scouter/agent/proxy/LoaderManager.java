@@ -56,6 +56,10 @@ public class LoaderManager {
 		return createLoader(parent, "scouter.http");
 	}
 
+	public static ClassLoader getJdbcLoader(ClassLoader parent) {
+		return createLoader(parent, "scouter.jdbc");
+	}
+
 	public static ClassLoader getDB2Loader(ClassLoader parent) {
 		return createLoader(parent, "scouter.jdbc");
 	}

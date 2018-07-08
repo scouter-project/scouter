@@ -2,30 +2,37 @@
  *  Copyright 2015 the original author or authors. 
  *  @https://github.com/scouter-project/scouter
  *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
+ *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
+ *
  */
-package scouter.agent.trace;
+package scouter.xtra.jdbc;
 
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterSQL;
+import scouter.agent.error.CONNECTION_OPEN_FAIL;
+import scouter.agent.error.SLOW_SQL;
+import scouter.agent.error.TOO_MANY_RECORDS;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.PluginJdbcPoolTrace;
 import scouter.agent.proxy.ITraceSQL;
-import scouter.agent.proxy.TraceSQLFactory;
 import scouter.agent.summary.ServiceSummary;
-import scouter.jdbc.DetectConnection;
-import scouter.jdbc.WrConnection;
+import scouter.agent.trace.AlertProxy;
+import scouter.agent.trace.ErrorEntity;
+import scouter.agent.trace.LocalContext;
+import scouter.agent.trace.SqlParameter;
+import scouter.agent.trace.TraceContext;
+import scouter.agent.trace.TraceContextManager;
 import scouter.lang.AlertLevel;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
@@ -42,6 +49,7 @@ import scouter.util.ThreadUtil;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
@@ -50,27 +58,10 @@ import java.sql.Statement;
  * @author Gun Lee (gunlee01@gmail.com)
  * @author Eunsu Kim
  */
-public class TraceSQL {
+public class TraceSQL0 implements ITraceSQL {
     private static Configure conf = Configure.getInstance();
-	private static ClassLoader jdbcClassLoader;
-	private static ITraceSQL traceSQL0;
 
-	static {
-		try
-		{
-			Method m = ClassLoader.class.getDeclaredMethod("getPlatformClassLoader", new Class[0]);
-			jdbcClassLoader = (ClassLoader) m.invoke(null, new Object[0]);
-
-		} catch (Exception ignored) {}
-
-		traceSQL0 = TraceSQLFactory.create(jdbcClassLoader);
-	}
-
-	private static Exception slowSqlException = traceSQL0.getSlowSqlException();
-	private static Exception tooManyRecordException = traceSQL0.getTooManyRecordException();
-	private static Exception connectionOpenFailException = traceSQL0.getConnectionOpenFailException();
-
-	public final static int MAX_STRING = 20;
+    public final static int MAX_STRING = 20;
 
     // JDBC_REDEFINED==false
     public final static String PSTMT_PARAM_FIELD = "_param_";
@@ -79,10 +70,29 @@ public class TraceSQL {
     private static IntLinkedSet noLiteralSql = new IntLinkedSet().setMax(10000);
     private static IntKeyLinkedMap<ParsedSql> checkedSql = new IntKeyLinkedMap<ParsedSql>().setMax(1001);
 
+    private static SQLException slowSqlException = new SLOW_SQL("Slow SQL", "SLOW_SQL");
+    private static SQLException tooManyRecordException = new TOO_MANY_RECORDS("TOO_MANY_RECORDS", "TOO_MANY_RECORDS");
+    private static SQLException connectionOpenFailException = new CONNECTION_OPEN_FAIL("CONNECTION_OPEN_FAIL", "CONNECTION_OPEN_FAIL");
+
     static IntKeyLinkedMap<DBURL> urlTable = new IntKeyLinkedMap<DBURL>().setMax(500);
     static DBURL unknown = new DBURL(0, null);
 
-    public static void set(int idx, boolean p) {
+	@Override
+	public Exception getSlowSqlException() {
+		return slowSqlException;
+	}
+
+	@Override
+	public Exception getTooManyRecordException() {
+		return tooManyRecordException;
+	}
+
+	@Override
+	public Exception getConnectionOpenFailException() {
+		return connectionOpenFailException;
+	}
+
+	public static void set(int idx, boolean p) {
 		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx != null) {
 			ctx.sql.put(idx, Boolean.toString(p));
@@ -653,7 +663,7 @@ public class TraceSQL {
 		return dbUrl;
 	}
 
-	public static java.sql.Connection dbcOpenEnd(java.sql.Connection conn, Object stat) {
+	public static Connection dbcOpenEnd(Connection conn, Object stat) {
 		if (stat == null)
 			return conn;
 		LocalContext lctx = (LocalContext) stat;
