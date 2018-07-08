@@ -83,7 +83,7 @@ public class ServerSessionObserver extends Thread {
                     }
                 }
             } catch (Throwable t) {
-                t.printStackTrace();
+                log.error("[Error][ServerSessionObserver] error:{}", t.getMessage());
             }
             ThreadUtil.sleep(CHECK_INTERVAL);
         }
