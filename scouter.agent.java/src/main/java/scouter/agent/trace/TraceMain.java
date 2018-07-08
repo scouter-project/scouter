@@ -37,6 +37,7 @@ import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
 import scouter.agent.trace.enums.XLogDiscard;
 import scouter.agent.wrapper.async.WrTask;
+import scouter.agent.wrapper.async.WrTaskCallable;
 import scouter.lang.AlertLevel;
 import scouter.lang.TextTypes;
 import scouter.lang.enumeration.ParameterizedMessageLevel;
@@ -1183,6 +1184,7 @@ public class TraceMain {
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null) return;
         if (callRunnable == null) return;
+        if (callRunnable instanceof WrTaskCallable) return;
 
         ctx.lastThreadCallName = callRunnable.getClass().getName();
     }
@@ -1192,6 +1194,7 @@ public class TraceMain {
             TraceContext ctx = TraceContextManager.getContext();
             if (ctx == null) return;
             if (callRunnable == null) return;
+            if (callRunnable instanceof WrTaskCallable) return;
 
             if (TransferMap.get(System.identityHashCode(callRunnable)) != null) {
                 return;
@@ -1347,6 +1350,14 @@ public class TraceMain {
             TransferMap.put(System.identityHashCode(callRunnableObj), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
         } catch (Throwable t) {
             Logger.println("B1203", "Exception: callRunnableInitInvoked", t);
+        }
+    }
+
+    public static Callable wrap1stParamAsWrTaskCallable(Callable callable) {
+        if (callable.getClass().getName().contains("$Lambda")) {
+            return new WrTaskCallable(callable);
+        } else {
+            return callable;
         }
     }
 
