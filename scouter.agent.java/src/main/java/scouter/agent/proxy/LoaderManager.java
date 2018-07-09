@@ -35,6 +35,7 @@ import java.util.jar.JarFile;
 
 /**
  * @author Paul S.J. Kim(sjkim@whatap.io)
+ * @author Gun Lee(gunlee01@gmail.com)
  */
 
 public class LoaderManager {
@@ -44,12 +45,14 @@ public class LoaderManager {
 	public synchronized static ClassLoader getToolsLoader() {
 		if (toolsLoader == null) {
 			try {
-				File tools = ManifestUtil.getToolsFile();
-				toolsLoader = new URLClassLoader(new URL[] { tools.toURI().toURL() });
+				if (JavaAgent.isJava9plus()) {
+					toolsLoader = ClassLoader.getSystemClassLoader();
+				} else {
+					File tools = ManifestUtil.getToolsFile();
+					toolsLoader = new URLClassLoader(new URL[] { tools.toURI().toURL() });
+				}
 			} catch (Throwable e) {
 				Logger.println("A134", e);
-				//TODO test for java 9 (should be removed)
-				toolsLoader = ClassLoader.getSystemClassLoader();
 			}
 		}
 
