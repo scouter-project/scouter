@@ -53,10 +53,6 @@ public class TraceSQL0 implements ITraceSQL {
     private static SQLException tooManyRecordException = new TOO_MANY_RECORDS("TOO_MANY_RECORDS", "TOO_MANY_RECORDS");
     private static SQLException connectionOpenFailException = new CONNECTION_OPEN_FAIL("CONNECTION_OPEN_FAIL", "CONNECTION_OPEN_FAIL");
 
-    public TraceSQL0() {
-		System.out.println("[scouter] Loading TraceSQL0");
-	}
-
 	@Override
 	public Exception getSlowSqlException() {
 		return slowSqlException;

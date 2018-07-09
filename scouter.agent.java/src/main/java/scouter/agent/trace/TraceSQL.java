@@ -526,17 +526,25 @@ public class TraceSQL {
 		try {
 			Method m = pool.getClass().getMethod("getUrl", new Class[0]);
 			if (m != null) {
-				String u = "OPEN-DBC " + m.invoke(pool, new Object[0]);
+				String u = "OPEN-DBC " + m.invoke(pool, new Object[0]) + " (" + msg + ")";
 				dbUrl = new DBURL(HashUtil.hash(u), u);
 			}
 		} catch (Exception e) {
 			try {
-				String u = PluginJdbcPoolTrace.url(ctx, msg, pool);
-				if (u != null) {
-					u = "OPEN-DBC " + u;
+				Method m = pool.getClass().getMethod("getJdbcUrl", new Class[0]);
+				if (m != null) {
+					String u = "OPEN-DBC " + m.invoke(pool, new Object[0]) + " (" + msg + ")";
 					dbUrl = new DBURL(HashUtil.hash(u), u);
 				}
-			} catch (Throwable ignore) {
+			} catch (Exception e1) {
+				try {
+					String u = PluginJdbcPoolTrace.url(ctx, msg, pool);
+					if (u != null) {
+						u = "OPEN-DBC " + u;
+						dbUrl = new DBURL(HashUtil.hash(u), u);
+					}
+				} catch (Throwable ignore) {
+				}
 			}
 		}
 		if (dbUrl == null) {

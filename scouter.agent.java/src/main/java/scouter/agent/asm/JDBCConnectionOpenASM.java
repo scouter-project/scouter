@@ -30,7 +30,6 @@ import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.Pair;
-import scouter.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,7 +97,7 @@ class DbcOpenCV extends ClassVisitor implements Opcodes {
 			return mv;
 		}
 
-		String fullname = "OPEN " + StringUtil.cutLastString(className, '/') + "." + name;
+		String fullname = className.replace('/', '.') + "#" + name;
 		int fullname_hash = DataProxy.sendMethodName(fullname);
 
 		return new DbcOpenMV(access, desc, mv, fullname, fullname_hash);
