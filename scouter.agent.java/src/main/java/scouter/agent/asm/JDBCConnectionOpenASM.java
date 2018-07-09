@@ -17,14 +17,18 @@
 
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceSQL;
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.Label;
+import scouter.org.objectweb.asm.MethodVisitor;
+import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
+import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.Pair;
 import scouter.util.StringUtil;
 
@@ -48,6 +52,7 @@ public class JDBCConnectionOpenASM implements IASM, Opcodes {
 		AsmUtil.add(reserved, "org/apache/tomcat/dbcp/dbcp/BasicDataSource", "getConnection");
 		AsmUtil.add(reserved, "org/apache/tomcat/jdbc/pool/DataSourceProxy", "getConnection");
         AsmUtil.add(reserved, "org/apache/commons/dbcp2/BasicDataSource", "getConnection");
+		AsmUtil.add(reserved, "com/zaxxer/hikari/HikariDataSource", "getConnection");
 
         for(int i = JDBCTargetRegister.klassMethod.size() - 1; i >= 0; i--) {
             AsmUtil.add(reserved, JDBCTargetRegister.klassMethod.get(i).getLeft(), JDBCTargetRegister.klassMethod.get(i).getRight());
@@ -106,7 +111,7 @@ class DbcOpenMV extends LocalVariablesSorter implements Opcodes {
 	private final static String START_METHOD = "dbcOpenStart";
 	private static final String START_SIGNATURE = "(ILjava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;";
 	private final static String END_METHOD = "dbcOpenEnd";
-	private static final String END_SIGNATURE = "(Ljava/sql/Connection;Ljava/lang/Object;)Ljava/sql/Connection;";
+	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;";
 	private static final String END_SIGNATURE2 = "(Ljava/lang/Object;Ljava/lang/Throwable;)V";
 
 	private Label startFinally = new Label();

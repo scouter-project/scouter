@@ -18,8 +18,16 @@
 
 package scouter.agent.proxy;
 
+import scouter.agent.trace.SqlParameter;
+
 public interface ITraceSQL {
     Exception getSlowSqlException();
     Exception getTooManyRecordException();
     Exception getConnectionOpenFailException();
+    Object start(Object o, String sql, byte methodType);
+    Object start(Object o, SqlParameter args, byte methodType);
+    Object driverConnect(Object conn, String url);
+    Object getConnection(Object conn);
+    Object dbcOpenEnd(Object conn, Object stat);
+    void ctxLookup(Object this1, Object ctx);
 }

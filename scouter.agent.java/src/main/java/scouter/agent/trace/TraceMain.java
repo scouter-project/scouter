@@ -983,21 +983,6 @@ public class TraceMain {
         ctx.profile.add(p);
     }
 
-    public static void ctxLookup(Object this1, Object ctx) {
-        if (TraceContextManager.isForceDiscarded()) {
-            return;
-        }
-
-        try {
-            Class<?> clazzDs = Class.forName("javax.sql.DataSource", false, Thread.currentThread().getContextClassLoader());
-            if (clazzDs.isAssignableFrom(ctx.getClass())) {
-                LoadedContext.put(ctx);
-            }
-        } catch (ClassNotFoundException e) {
-            System.out.println("[SCOUTER][DEBUG]DsLookup" + e.getMessage());
-        }
-    }
-
     public static void endRequestAsyncStart(Object asyncContext) {
         if (http == null) return;
         TraceContext traceContext = TraceContextManager.getContext();

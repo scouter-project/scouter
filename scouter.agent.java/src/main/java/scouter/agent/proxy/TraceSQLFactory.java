@@ -18,16 +18,51 @@
 package scouter.agent.proxy;
 
 import scouter.agent.Logger;
+import scouter.agent.trace.SqlParameter;
 
 public class TraceSQLFactory {
 	private static final String TRACE_SQL = "scouter.xtra.jdbc.TraceSQL0";
 
 	public static final ITraceSQL dummy = new ITraceSQL() {
+		@Override
+		public Exception getSlowSqlException() {
+			return null;
+		}
+		@Override
+		public Exception getTooManyRecordException() {
+			return null;
+		}
+		@Override
+		public Exception getConnectionOpenFailException() {
+			return null;
+		}
+		@Override
+		public Object start(Object o, String sql, byte methodType) {
+			return null;
+		}
+		@Override
+		public Object start(Object o, SqlParameter args, byte methodType) {
+			return null;
+		}
+		@Override
+		public Object driverConnect(Object conn, String url) {
+			return null;
+		}
+		@Override
+		public Object getConnection(Object conn) {
+			return null;
+		}
+		@Override
+		public Object dbcOpenEnd(Object conn, Object stat) {
+			return null;
+		}
+		@Override
+		public void ctxLookup(Object this1, Object ctx) { }
 	};
 
 	public static ITraceSQL create(ClassLoader parent) {
 		try {
-			ClassLoader loader = LoaderManager.getHttpLoader(parent);
+			ClassLoader loader = LoaderManager.getJdbcLoader(parent);
 			if (loader == null) {
 				return dummy;
 			}
@@ -40,5 +75,4 @@ public class TraceSQLFactory {
 			return dummy;
 		}
 	}
-
 }

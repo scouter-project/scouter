@@ -19,38 +19,27 @@ package scouter.xtra.jdbc;
 
 import scouter.agent.Configure;
 import scouter.agent.Logger;
-import scouter.agent.counter.meter.MeterSQL;
-import scouter.agent.error.CONNECTION_OPEN_FAIL;
-import scouter.agent.error.SLOW_SQL;
-import scouter.agent.error.TOO_MANY_RECORDS;
 import scouter.agent.netio.data.DataProxy;
-import scouter.agent.plugin.PluginJdbcPoolTrace;
 import scouter.agent.proxy.ITraceSQL;
-import scouter.agent.summary.ServiceSummary;
-import scouter.agent.trace.AlertProxy;
-import scouter.agent.trace.ErrorEntity;
+import scouter.agent.trace.LoadedContext;
 import scouter.agent.trace.LocalContext;
 import scouter.agent.trace.SqlParameter;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
-import scouter.lang.AlertLevel;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.SqlStep3;
 import scouter.lang.step.SqlXType;
-import scouter.util.EscapeLiteralSQL;
-import scouter.util.HashUtil;
-import scouter.util.IntKeyLinkedMap;
-import scouter.util.IntLinkedSet;
-import scouter.util.StringUtil;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 
-import java.lang.reflect.Method;
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import static scouter.agent.trace.TraceSQL.escapeLiteral;
 
 /**
  * Trace SQL
@@ -60,22 +49,13 @@ import java.sql.Statement;
  */
 public class TraceSQL0 implements ITraceSQL {
     private static Configure conf = Configure.getInstance();
-
-    public final static int MAX_STRING = 20;
-
-    // JDBC_REDEFINED==false
-    public final static String PSTMT_PARAM_FIELD = "_param_";
-    private static int RESULT_SET_FETCH = 0;
-
-    private static IntLinkedSet noLiteralSql = new IntLinkedSet().setMax(10000);
-    private static IntKeyLinkedMap<ParsedSql> checkedSql = new IntKeyLinkedMap<ParsedSql>().setMax(1001);
-
     private static SQLException slowSqlException = new SLOW_SQL("Slow SQL", "SLOW_SQL");
     private static SQLException tooManyRecordException = new TOO_MANY_RECORDS("TOO_MANY_RECORDS", "TOO_MANY_RECORDS");
     private static SQLException connectionOpenFailException = new CONNECTION_OPEN_FAIL("CONNECTION_OPEN_FAIL", "CONNECTION_OPEN_FAIL");
 
-    static IntKeyLinkedMap<DBURL> urlTable = new IntKeyLinkedMap<DBURL>().setMax(500);
-    static DBURL unknown = new DBURL(0, null);
+    public TraceSQL0() {
+		System.out.println("[scouter] Loading TraceSQL0");
+	}
 
 	@Override
 	public Exception getSlowSqlException() {
@@ -92,97 +72,8 @@ public class TraceSQL0 implements ITraceSQL {
 		return connectionOpenFailException;
 	}
 
-	public static void set(int idx, boolean p) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx != null) {
-			ctx.sql.put(idx, Boolean.toString(p));
-		}
-	}
-
-	public static void set(int idx, int p) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx != null) {
-			ctx.sql.put(idx, Integer.toString(p));
-		}
-	}
-
-	public static void set(int idx, float p) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx != null) {
-			ctx.sql.put(idx, Float.toString(p));
-		}
-	}
-
-	public static void set(int idx, long p) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx != null) {
-			ctx.sql.put(idx, Long.toString(p));
-		}
-	}
-
-	public static void set(int idx, double p) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx != null) {
-			ctx.sql.put(idx, Double.toString(p));
-		}
-	}
-
-	public static void set(int idx, String p) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx != null) {
-			if (p == null) {
-				ctx.sql.put(idx, "null");
-			} else {
-				p = StringUtil.truncate(p, MAX_STRING);
-				ctx.sql.put(idx, "'" + p + "'");
-			}
-		}
-	}
-
-	public static void set(int idx, Object p) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx != null) {
-			if (p == null) {
-				ctx.sql.put(idx, "null");
-			} else {
-				String s = StringUtil.truncate(p.toString(), MAX_STRING);
-				ctx.sql.put(idx, s);
-			}
-		}
-	}
-
-	public static void clear(Object o) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx != null) {
-			ctx.sql.clear();
-		}
-	}
-
-	public static Object start(Object o) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx == null) {
-			return null;
-		}
-		SqlStep3 step = new SqlStep3();
-		step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		if (ctx.profile_thread_cputime) {
-			step.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-		}
-		step.xtype = SqlXType.DYNA;
-		ctx.sqlActiveArgs = ctx.sql;
-		String sql = "unknown";
-		sql = ctx.sql.getSql();
-		sql = escapeLiteral(sql, step);
-		step.param = ctx.sql.toString(step.param);
-		if (sql != null) {
-			step.hash = DataProxy.sendSqlText(sql);
-		}
-		ctx.profile.push(step);
-		ctx.sqltext = sql;
-		return new LocalContext(ctx, step);
-	}
-
-	public static Object start(Object o, String sql, byte methodType) {
+	@Override
+	public Object start(Object o, String sql, byte methodType) {
 		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx == null) {
 			if (conf._log_background_sql) {
@@ -230,253 +121,9 @@ public class TraceSQL0 implements ITraceSQL {
 		ctx.sqltext = sql;
 		return new LocalContext(ctx, step);
 	}
-	private static class ParsedSql {
-		public ParsedSql(String sql, String param) {
-			this.sql = sql;
-			this.param = param;
-		}
-		String sql;
-		String param;
-	}
 
-    private static String escapeLiteral(String sql, SqlStep3 step) {
-		if (conf.profile_sql_escape_enabled == false)
-			return sql;
-	    try {
-		    int sqlHash = sql.hashCode();
-		    if (noLiteralSql.contains(sqlHash)) {
-			    return sql;
-		    }
-		    ParsedSql psql = checkedSql.get(sqlHash);
-		    if (psql != null) {
-			    step.param = psql.param;
-			    return psql.sql;
-		    }
-		    EscapeLiteralSQL els = new EscapeLiteralSQL(sql);
-		    els.process();
-		    String parsed = els.getParsedSql();
-		    if (parsed.hashCode() == sqlHash) {
-			    noLiteralSql.put(sqlHash);
-		    } else {
-			    psql = new ParsedSql(parsed, els.getParameter());
-			    checkedSql.put(sqlHash, psql);
-			    step.param = psql.param;
-		    }
-		    return parsed;
-	    } catch (Throwable t) {
-		    Logger.println("B102", "fail to escape literal", t);
-		    return sql;
-	    }
-    }
-
-    public static void end(Object stat, Throwable thr, int updatedCount) {
-		if (stat == null) {
-			if (conf._log_background_sql && thr != null) {
-				Logger.println("BG-SQL:" + thr);
-			}
-			return;
-		}
-
-        LocalContext lCtx = (LocalContext) stat;
-        TraceContext tCtx = lCtx.context;
-
-        //Logger.trace("affected row = " + updatedCount);
-
-        SqlStep3 step = (SqlStep3) lCtx.stepSingle;
-        tCtx.lastSqlStep = step;
-
-		step.elapsed = (int) (System.currentTimeMillis() - tCtx.startTime) - step.start_time;
-		step.updated = updatedCount;
-		if (tCtx.profile_thread_cputime) {
-			step.cputime = (int) (SysJMX.getCurrentThreadCPU() - tCtx.startCpu) - step.start_cpu;
-		}
-		if (thr != null) {
-			String msg = thr.toString();
-			if (conf.profile_fullstack_sql_error_enabled) {
-				StringBuffer sb = new StringBuffer();
-				sb.append(msg).append("\n");
-				ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-				thr = thr.getCause();
-				while (thr != null) {
-					sb.append("\nCause...\n");
-					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-					thr = thr.getCause();
-				}
-				msg = sb.toString();
-			}
-			int hash = DataProxy.sendError(msg);
-			if (tCtx.error == 0 && conf.xlog_error_on_sqlexception_enabled) {
-				tCtx.error = hash;
-			}
-			step.error = hash;
-			tCtx.offerErrorEntity(ErrorEntity.of(thr, hash, step.hash, 0));
-		} else if (step.elapsed > conf.xlog_error_sql_time_max_ms) {
-			String msg = "warning slow sql, over " + conf.xlog_error_sql_time_max_ms + " ms";
-			int hash = DataProxy.sendError(msg);
-			if (tCtx.error == 0) {
-				tCtx.error = hash;
-			}
-			tCtx.offerErrorEntity(ErrorEntity.of(slowSqlException, hash, step.hash, 0));
-		}
-		tCtx.sqltext = null;
-		tCtx.sqlActiveArgs = null;
-		tCtx.sqlCount++;
-		tCtx.sqlTime += step.elapsed;
-		ServiceSummary.getInstance().process(step);
-		MeterSQL.getInstance().add(step.elapsed, step.error != 0);
-		tCtx.profile.pop(step);
-	}
-	public static void prepare(Object o, String sql) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx != null) {
-			ctx.sql.clear();
-			ctx.sql.setSql(sql);
-		}
-	}
-	public static boolean rsnext(boolean b) {
-		TraceContext c = TraceContextManager.getContext();
-		if (c != null) {
-			if (b) {
-				if (c.rs_start == 0) {
-					c.rs_start = System.currentTimeMillis();
-				}
-				c.rs_count++;
-			}
-		}
-		return b;
-	}
-
-	private static void fetch(TraceContext c) {
-		HashedMessageStep p = new HashedMessageStep();
-		long time = System.currentTimeMillis() - c.rs_start;
-		p.start_time = (int) (System.currentTimeMillis() - c.startTime);
-		if (c.profile_thread_cputime) {
-			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - c.startCpu);
-		}
-		if (RESULT_SET_FETCH == 0) {
-			RESULT_SET_FETCH = DataProxy.sendHashedMessage("RESULT-SET-FETCH");
-		}
-		p.hash = RESULT_SET_FETCH;
-		p.value = c.rs_count;
-		p.time = (int) time;
-		c.profile.add(p);
-		if (c.rs_count > conf.xlog_error_jdbc_fetch_max) {
-			String msg = "warning too many resultset, over #" + conf.xlog_error_jdbc_fetch_max;
-			int hash = DataProxy.sendError(msg);
-			if (c.error == 0) {
-				c.error = hash;
-			}
-			c.offerErrorEntity(ErrorEntity.of(tooManyRecordException, hash, 0,0));
-		}
-	}
-
-    public static void stmtInit(Object stmt) {
-        TraceContext ctx = TraceContextManager.getContext();
-        if (ctx != null) {
-            if(conf.trace_stmt_leak_enabled) {
-                if(conf.profile_fullstack_stmt_leak_enabled) {
-                    ctx.unclosedStmtMap.put(System.identityHashCode(stmt), ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2));
-                } else {
-                    ctx.unclosedStmtMap.put(System.identityHashCode(stmt), "");
-                }
-            }
-        }
-    }
-
-    public static void stmtClose(Object stmt) {
-        TraceContext ctx = TraceContextManager.getContext();
-        if (ctx != null) {
-            if(conf.trace_stmt_leak_enabled) {
-                ctx.unclosedStmtMap.remove(System.identityHashCode(stmt));
-            }
-        }
-    }
-
-	public static void rsInit(Object rs) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx != null) {
-            if(conf.trace_rs_leak_enabled) {
-                if(conf.profile_fullstack_rs_leak_enabled) {
-                    ctx.unclosedRsMap.put(System.identityHashCode(rs), ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2));
-                } else {
-                    ctx.unclosedRsMap.put(System.identityHashCode(rs), "");
-                }
-            }
-		}
-	}
-
-	public static void rsclose(Object rs) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx != null) {
-			if (ctx.rs_start != 0) {
-                if(conf.trace_rs_leak_enabled) {
-                    ctx.unclosedRsMap.remove(System.identityHashCode(rs));
-                }
-				fetch(ctx);
-			}
-			ctx.rs_start = 0;
-			ctx.rs_count = 0;
-		}
-	}
-
-	public static void set(SqlParameter args, int idx, boolean p) {
-		if (args != null) {
-			args.put(idx, Boolean.toString(p));
-		}
-	}
-	public static void set(SqlParameter args, int idx, int p) {
-		if (args != null) {
-			args.put(idx, Integer.toString(p));
-		}
-	}
-	public static void set(SqlParameter args, int idx, float p) {
-		if (args != null) {
-			args.put(idx, Float.toString(p));
-		}
-	}
-	public static void set(SqlParameter args, int idx, long p) {
-		if (args != null) {
-			args.put(idx, Long.toString(p));
-		}
-	}
-	public static void set(SqlParameter args, int idx, double p) {
-		if (args != null) {
-			args.put(idx, Double.toString(p));
-		}
-	}
-	public static void set(SqlParameter args, int idx, String p) {
-		if (args != null) {
-			if (p == null) {
-				args.put(idx, "null");
-			} else {
-				if (p.length() > MAX_STRING) {
-					p = p.substring(0, MAX_STRING);
-				}
-				args.put(idx, "'" + p + "'");
-			}
-		}
-	}
-	public static void set(SqlParameter args, int idx, Object p) {
-		if (args != null) {
-			if (p == null) {
-				args.put(idx, "null");
-			} else {
-				String s = p.toString();
-				if (s.length() > MAX_STRING) {
-					s = s.substring(0, MAX_STRING);
-				}
-				args.put(idx, s);
-			}
-		}
-	}
-
-	public static void clear(Object o, SqlParameter args) {
-		if (args != null) {
-			args.clear();
-		}
-	}
-
-	public static Object start(Object o, SqlParameter args, byte methodType) {
+	@Override
+	public Object start(Object o, SqlParameter args, byte methodType) {
 		TraceContext ctx = TraceContextManager.getContext();
 		if (ctx == null) {
 			if (conf._log_background_sql && args != null) {
@@ -529,141 +176,28 @@ public class TraceSQL0 implements ITraceSQL {
 		return new LocalContext(ctx, step);
 	}
 
-	public static void prepare(Object o, SqlParameter args, String sql) {
-		if (args != null) {
-			args.setSql(sql);
-		}
-		// @skyworker : debug code 2015.09.18
-		// TraceContext ctx = TraceContextManager.getLocalContext();
-		// if (ctx != null) {
-		// MessageStep m = new MessageStep();
-		// m.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		// m.message =
-		// ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace());
-		// ctx.profile.add(m);
-		// }
-	}
-
-	public static Connection driverConnect(Connection conn, String url) {
+	@Override
+	public Object driverConnect(Object conn, String url) {
 		if (conn == null)
 			return conn;
 		if (conf.trace_db2_enabled == false)
 			return conn;
 		if (conn instanceof WrConnection)
 			return conn;
-		return new WrConnection(conn);
+		return new WrConnection((Connection) conn);
 	}
 
-	public static void driverConnect(String url, Throwable thr) {
-		AlertProxy.sendAlert(AlertLevel.ERROR, "CONNECT", url + " " + thr);
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx != null) {
-		    ctx.offerErrorEntity(ErrorEntity.of(connectionOpenFailException, 0, 0, 0));
-		}
-	}
-
-	public static Connection getConnection(Connection conn) {
+	@Override
+	public Object getConnection(Object conn) {
 		if (conn == null)
 			return conn;
 		if (conn instanceof WrConnection) 
 			return conn;
-		return new WrConnection(conn);
-	}
-	
-	public static void userTxOpen() {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx == null)
-			return;
-		ctx.userTransaction++;
-		MessageStep ms = new MessageStep("utx-begin");
-		ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		ctx.profile.add(ms);
+		return new WrConnection((Connection) conn);
 	}
 
-	public static void userTxClose(String method) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx == null)
-			return;
-		if (ctx.userTransaction > 0) {
-			ctx.userTransaction--;
-		}
-		MessageStep ms = new MessageStep("utx-" + method);
-		ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		ctx.profile.add(ms);
-	}
-
-	public static Object dbcOpenStart(int hash, String msg, Object pool) {
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx == null)
-			return null;
-		if (conf.profile_connection_open_enabled == false)
-			return null;
-		MethodStep p = new MethodStep();
-		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		if (ctx.profile_thread_cputime) {
-			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-		}
-		DBURL dbUrl = getUrl(ctx, msg, pool);
-		if (dbUrl != unknown) {
-			hash = DataProxy.sendMethodName(dbUrl.url);
-		}
-		p.hash = hash;
-		ctx.profile.push(p);
-		if (conf.profile_connection_open_fullstack_enabled) {
-			String stack = ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2);
-			MessageStep ms = new MessageStep(stack);
-			ms.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-			ctx.profile.add(ms);
-		}
-		LocalContext lctx = new LocalContext(ctx, p);
-		return lctx;
-	}
-
-	static class DBURL {
-		int hash;
-		String url;
-		public DBURL(int hash, String url) {
-			this.hash = hash;
-			this.url = url;
-		}
-	}
-
-	public static void clearUrlMap() {
-        urlTable.clear();
-	}
-
-    private static DBURL getUrl(TraceContext ctx, String msg, Object pool) {
-		if (pool == null)
-			return unknown;
-		int key = System.identityHashCode(pool);
-		DBURL dbUrl = urlTable.get(key);
-		if (dbUrl != null) {
-			return dbUrl;
-		}
-		try {
-			Method m = pool.getClass().getMethod("getUrl", new Class[0]);
-			if (m != null) {
-				String u = "OPEN-DBC " + m.invoke(pool, new Object[0]);
-				dbUrl = new DBURL(HashUtil.hash(u), u);
-			}
-		} catch (Exception e) {
-			try {
-				String u = PluginJdbcPoolTrace.url(ctx, msg, pool);
-				if (u != null) {
-					u = "OPEN-DBC " + u;
-					dbUrl = new DBURL(HashUtil.hash(u), u);
-				}
-			} catch (Throwable ignore) {
-			}
-		}
-		if (dbUrl == null) {
-			dbUrl = unknown;
-		}
-		urlTable.put(key, dbUrl);
-		return dbUrl;
-	}
-
-	public static Connection dbcOpenEnd(Connection conn, Object stat) {
+	@Override
+	public Object dbcOpenEnd(Object conn, Object stat) {
 		if (stat == null)
 			return conn;
 		LocalContext lctx = (LocalContext) stat;
@@ -673,6 +207,8 @@ public class TraceSQL0 implements ITraceSQL {
 		TraceContext tctx = lctx.context;
 		if (tctx == null)
 			return conn;
+
+		Connection conn0 = (Connection) conn;
 		step.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
 		if (tctx.profile_thread_cputime) {
 			step.cputime = (int) (SysJMX.getCurrentThreadCPU() - tctx.startCpu) - step.start_cpu;
@@ -681,7 +217,7 @@ public class TraceSQL0 implements ITraceSQL {
 		if (conf.profile_connection_autocommit_status_enabled) {
 			HashedMessageStep ms = new HashedMessageStep();
 			try {
-				ms.hash = DataProxy.sendHashedMessage("AutoCommit : " + conn.getAutoCommit());
+				ms.hash = DataProxy.sendHashedMessage("AutoCommit : " + conn0.getAutoCommit());
 			} catch (Exception e) {
 				ms.hash = DataProxy.sendHashedMessage("AutoCommit : " + e);
 			}
@@ -694,106 +230,17 @@ public class TraceSQL0 implements ITraceSQL {
 		if (conn instanceof DetectConnection)
 			return conn;
 		else
-			return new DetectConnection(conn);
+			return new DetectConnection(conn0);
 	}
 
-	public static void dbcOpenEnd(Object stat, Throwable thr) {
-		if (stat == null)
+	@Override
+	public void ctxLookup(Object this1, Object ctx) {
+		if (TraceContextManager.isForceDiscarded()) {
 			return;
-		LocalContext lctx = (LocalContext) stat;
-		MethodStep step = (MethodStep) lctx.stepSingle;
-		if (step == null)
-			return;
-		TraceContext tctx = lctx.context;
-		if (tctx == null)
-			return;
-		step.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
-		if (tctx.profile_thread_cputime) {
-			step.cputime = (int) (SysJMX.getCurrentThreadCPU() - tctx.startCpu) - step.start_cpu;
 		}
-		if (thr != null) {
-			String msg = thr.toString();
-			int hash = DataProxy.sendError(msg);
-			if (tctx.error == 0) {
-				tctx.error = hash;
-			}
-			tctx.offerErrorEntity(ErrorEntity.of(connectionOpenFailException, hash, 0, 0));
+
+		if (ctx instanceof DataSource) {
+			LoadedContext.put(ctx);
 		}
-		tctx.profile.pop(step);
 	}
-
-	/**
-	 * profile sqlMap
-	 * 
-	 * @param methodName
-	 *            sqlMap method name
-	 * @param sqlname
-	 *            sqlMap name
-	 */
-	public static void sqlMap(String methodName, String sqlname) {
-		if (Configure.getInstance().profile_sqlmap_name_enabled == false)
-			return;
-		TraceContext ctx = TraceContextManager.getContext();
-		if (ctx == null)
-			return;
-		HashedMessageStep p = new HashedMessageStep();
-		p.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-		p.time = -1;
-		if (ctx.profile_thread_cputime) {
-            p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-        }
-		p.hash = DataProxy.sendHashedMessage(new StringBuilder(40).append("SQLMAP ").append(methodName).append(" { ")
-				.append(sqlname).append(" }").toString());
-		ctx.profile.add(p);
-	}
-
-	/**
-	 * used for tracing the return of xxx.execute()
-	 * @param b true for resultSet, false for no result or update count
-	 * @return resultSet case -1, update count case -2
-     */
-	public static int toInt(boolean b) {
-		//return b?1:0;
-        return b ? -1 : -2;
-	}
-
-	/**
-	 * sum of int array
-	 * @param arr
-	 * @return
-	 */
-	public static int getIntArraySum(int[] arr) {
-		int sum = 0;
-		for(int i=arr.length-1; i>=0; i--) {
-			sum += arr[i];
-		}
-        Logger.trace("executeBatch-count=" + sum);
-        return sum;
-	}
-
-    /**
-     * apply update count
-     * @param cnt
-     * @return
-     */
-    public static int incUpdateCount(int cnt) {
-        Logger.trace("stmt.getUpdateCount()=" + cnt);
-        TraceContext ctx = TraceContextManager.getContext();
-        if (ctx == null) {
-            return cnt;
-        }
-        SqlStep3 lastSqlStep = (SqlStep3)ctx.lastSqlStep;
-        if(lastSqlStep == null) {
-            return cnt;
-        }
-        int lastCnt = lastSqlStep.updated;
-        if(lastCnt == -2 && cnt > 0) { // -2 : execute & the return is the case of update-count
-            lastCnt = cnt;
-            lastSqlStep.updated = lastCnt;
-        } else if(lastCnt >= 0 && cnt > 0) {
-            lastCnt += cnt;
-            lastSqlStep.updated = lastCnt;
-        }
-        return cnt;
-    }
 }

@@ -18,15 +18,15 @@
 package scouter.agent.asm;
 
 
+import scouter.agent.ClassDesc;
+import scouter.agent.Configure;
+import scouter.agent.asm.util.HookingSet;
+import scouter.agent.trace.TraceSQL;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
-import scouter.agent.ClassDesc;
-import scouter.agent.Configure;
-import scouter.agent.asm.util.HookingSet;
-import scouter.agent.trace.TraceMain;
 
 import java.util.Set;
 
@@ -70,7 +70,7 @@ class InitialContextCV extends ClassVisitor implements Opcodes {
 
 // ///////////////////////////////////////////////////////////////////////////
 class InitialContextMV extends LocalVariablesSorter implements Opcodes {
-	private static final String CLASS = TraceMain.class.getName().replace('.', '/');
+	private static final String CLASS = TraceSQL.class.getName().replace('.', '/');
 	private static final String METHOD = "ctxLookup";
 	private static final String SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Object;)V";
 

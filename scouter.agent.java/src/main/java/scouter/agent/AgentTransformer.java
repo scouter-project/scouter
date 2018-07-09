@@ -25,6 +25,13 @@ import scouter.agent.asm.CapReturnASM;
 import scouter.agent.asm.CapThisASM;
 import scouter.agent.asm.HttpServiceASM;
 import scouter.agent.asm.IASM;
+import scouter.agent.asm.InitialContextASM;
+import scouter.agent.asm.JDBCConnectionOpenASM;
+import scouter.agent.asm.JDBCDriverASM;
+import scouter.agent.asm.JDBCGetConnectionASM;
+import scouter.agent.asm.JDBCPreparedStatementASM;
+import scouter.agent.asm.JDBCResultSetASM;
+import scouter.agent.asm.JDBCStatementASM;
 import scouter.agent.asm.JspServletASM;
 import scouter.agent.asm.MapImplASM;
 import scouter.agent.asm.MethodASM;
@@ -32,8 +39,10 @@ import scouter.agent.asm.ScouterClassWriter;
 import scouter.agent.asm.ServiceASM;
 import scouter.agent.asm.SocketASM;
 import scouter.agent.asm.SpringReqMapASM;
+import scouter.agent.asm.SqlMapASM;
 import scouter.agent.asm.UserExceptionASM;
 import scouter.agent.asm.UserExceptionHandlerASM;
+import scouter.agent.asm.UserTxASM;
 import scouter.agent.asm.asyncsupport.AsyncContextDispatchASM;
 import scouter.agent.asm.asyncsupport.CallRunnableASM;
 import scouter.agent.asm.asyncsupport.HystrixCommandASM;
@@ -94,15 +103,16 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new AsyncContextDispatchASM());
 
         //TODO temporary block
-//        temp.add(new JDBCPreparedStatementASM());
-//        temp.add(new JDBCResultSetASM());
-//        temp.add(new JDBCStatementASM());
-//        temp.add(new SqlMapASM());
-//        temp.add(new UserTxASM());
-//        temp.add(new JDBCGetConnectionASM());
-//        temp.add(new JDBCConnectionOpenASM());
-//        temp.add(new JDBCDriverASM());
-//        temp.add(new InitialContextASM());
+        temp.add(new JDBCPreparedStatementASM());
+        temp.add(new JDBCResultSetASM());
+        temp.add(new JDBCStatementASM());
+        temp.add(new SqlMapASM());
+        temp.add(new UserTxASM());
+
+        temp.add(new JDBCGetConnectionASM());
+        temp.add(new JDBCConnectionOpenASM());
+        temp.add(new JDBCDriverASM());
+        temp.add(new InitialContextASM());
 
         temp.add(new CapArgsASM());
         temp.add(new CapReturnASM());

@@ -26,9 +26,13 @@ import scouter.util.HashUtil;
 import scouter.util.IntKeyLinkedMap;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.jar.JarFile;
+
 /**
  * @author Paul S.J. Kim(sjkim@whatap.io)
  */
@@ -56,6 +60,7 @@ public class LoaderManager {
 		return createLoader(parent, "scouter.http");
 	}
 
+	//TODO del
 	public static ClassLoader getJdbcLoader(ClassLoader parent) {
 		return createLoader(parent, "scouter.jdbc");
 	}
@@ -85,6 +90,38 @@ public class LoaderManager {
 			}
 		}
 		return loader;
+	}
+
+	public static ClassLoader appendToSystemOrBootLoader(String key) {
+		if (JavaAgent.isJava9plus()) {
+			appendToSystemLoader(JavaAgent.getInstrumentation(), key);
+			return ClassLoader.getSystemClassLoader();
+		} else {
+			appendToSystemLoader(JavaAgent.getInstrumentation(), key);
+			return null;
+		}
+	}
+
+	private static void appendToSystemLoader(Instrumentation inst, String key) {
+		byte[] bytes = deployJarBytes(key);
+		try {
+			File tempJar = FileUtil.saveAsTemp(key, ".jar", bytes);
+			inst.appendToSystemClassLoaderSearch(new JarFile(tempJar));
+		} catch (IOException e) {
+			Logger.println("A138", "Error on load " + key + ".jar " + e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static void appendToBootLoader(Instrumentation inst, String key) {
+		byte[] bytes = deployJarBytes(key);
+		try {
+			File tempJar = FileUtil.saveAsTemp(key, ".jar", bytes);
+			inst.appendToBootstrapClassLoaderSearch(new JarFile(tempJar));
+		} catch (IOException e) {
+			Logger.println("A138", "Error on load " + key + ".jar " + e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	private static byte[] deployJarBytes(String jarname) {
