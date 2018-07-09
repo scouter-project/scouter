@@ -1,66 +1,45 @@
-/*
- *  Copyright 2015 the original author or authors.
- *  @https://github.com/scouter-project/scouter
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- */
-
-/***
- * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2011 INRIA, France Telecom
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
- */
+// ASM: a very small and fast Java bytecode manipulation framework
+// Copyright (c) 2000-2011 INRIA, France Telecom
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. Neither the name of the copyright holders nor the names of its
+//    contributors may be used to endorse or promote products derived from
+//    this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+// THE POSSIBILITY OF SUCH DAMAGE.
 package scouter.org.objectweb.asm.util;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import scouter.org.objectweb.asm.Attribute;
-import scouter.org.objectweb.asm.ClassReader;
 import scouter.org.objectweb.asm.Handle;
 import scouter.org.objectweb.asm.Label;
+import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.TypePath;
 import scouter.org.objectweb.asm.TypeReference;
 import scouter.org.objectweb.asm.signature.SignatureReader;
-
-import java.io.FileInputStream;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A {@link Printer} that prints a disassembled view of the classes it visits.
@@ -69,1546 +48,1548 @@ import java.util.Map;
  */
 public class Textifier extends Printer {
 
-    /**
-     * Constant used in {@link #appendDescriptor appendDescriptor} for internal
-     * type names in bytecode notation.
-     */
-    public static final int INTERNAL_NAME = 0;
+  /** The type of internal names. See {@link #appendDescriptor}. */
+  public static final int INTERNAL_NAME = 0;
 
-    /**
-     * Constant used in {@link #appendDescriptor appendDescriptor} for field
-     * descriptors, formatted in bytecode notation
-     */
-    public static final int FIELD_DESCRIPTOR = 1;
+  /** The type of field descriptors. See {@link #appendDescriptor}. */
+  public static final int FIELD_DESCRIPTOR = 1;
 
-    /**
-     * Constant used in {@link #appendDescriptor appendDescriptor} for field
-     * signatures, formatted in bytecode notation
-     */
-    public static final int FIELD_SIGNATURE = 2;
+  /** The type of field signatures. See {@link #appendDescriptor}. */
+  public static final int FIELD_SIGNATURE = 2;
 
-    /**
-     * Constant used in {@link #appendDescriptor appendDescriptor} for method
-     * descriptors, formatted in bytecode notation
-     */
-    public static final int METHOD_DESCRIPTOR = 3;
+  /** The type of method descriptors. See {@link #appendDescriptor}. */
+  public static final int METHOD_DESCRIPTOR = 3;
 
-    /**
-     * Constant used in {@link #appendDescriptor appendDescriptor} for method
-     * signatures, formatted in bytecode notation
-     */
-    public static final int METHOD_SIGNATURE = 4;
+  /** The type of method signatures. See {@link #appendDescriptor}. */
+  public static final int METHOD_SIGNATURE = 4;
 
-    /**
-     * Constant used in {@link #appendDescriptor appendDescriptor} for class
-     * signatures, formatted in bytecode notation
-     */
-    public static final int CLASS_SIGNATURE = 5;
+  /** The type of class signatures. See {@link #appendDescriptor}. */
+  public static final int CLASS_SIGNATURE = 5;
 
-    /**
-     * Constant used in {@link #appendDescriptor appendDescriptor} for field or
-     * method return value signatures, formatted in default Java notation
-     * (non-bytecode)
-     */
-    public static final int TYPE_DECLARATION = 6;
+  /** @deprecated */
+  @Deprecated public static final int TYPE_DECLARATION = 6;
 
-    /**
-     * Constant used in {@link #appendDescriptor appendDescriptor} for class
-     * signatures, formatted in default Java notation (non-bytecode)
-     */
-    public static final int CLASS_DECLARATION = 7;
+  /** @deprecated */
+  @Deprecated public static final int CLASS_DECLARATION = 7;
 
-    /**
-     * Constant used in {@link #appendDescriptor appendDescriptor} for method
-     * parameter signatures, formatted in default Java notation (non-bytecode)
-     */
-    public static final int PARAMETERS_DECLARATION = 8;
+  /** @deprecated */
+  @Deprecated public static final int PARAMETERS_DECLARATION = 8;
 
-    /**
-     * Constant used in {@link #appendDescriptor appendDescriptor} for handle
-     * descriptors, formatted in bytecode notation
-     */
-    public static final int HANDLE_DESCRIPTOR = 9;
+  /** The type of method handle descriptors. See {@link #appendDescriptor}. */
+  public static final int HANDLE_DESCRIPTOR = 9;
 
-    /**
-     * Tab for class members.
-     */
-    protected String tab = "  ";
+  private static final String CLASS_SUFFIX = ".class";
+  private static final String DEPRECATED = "// DEPRECATED\n";
+  private static final String INVISIBLE = " // invisible\n";
 
-    /**
-     * Tab for bytecode instructions.
-     */
-    protected String tab2 = "    ";
+  /** The indentation of class members at depth level 1 (e.g. fields, methods). */
+  protected String tab = "  ";
 
-    /**
-     * Tab for table and lookup switch instructions.
-     */
-    protected String tab3 = "      ";
+  /** The indentation of class elements at depth level 2 (e.g. bytecode instructions in methods). */
+  protected String tab2 = "    ";
 
-    /**
-     * Tab for labels.
-     */
-    protected String ltab = "   ";
+  /** The indentation of class elements at depth level 3 (e.g. switch cases in methods). */
+  protected String tab3 = "      ";
 
-    /**
-     * The label names. This map associate String values to Label keys.
-     */
-    protected Map<Label, String> labelNames;
+  /** The indentation of labels. */
+  protected String ltab = "   ";
 
-    /**
-     * Class access flags
-     */
-    private int access;
+  /** The names of the labels. */
+  protected Map<Label, String> labelNames;
 
-    private int valueNumber = 0;
+  /** The access flags of the visited class. */
+  private int access;
 
-    /**
-     * Constructs a new {@link Textifier}. <i>Subclasses must not use this
-     * constructor</i>. Instead, they must use the {@link #Textifier(int)}
-     * version.
-     *
-     * @throws IllegalStateException
-     *             If a subclass calls this constructor.
-     */
-    public Textifier() {
-        this(Opcodes.ASM6);
-        if (getClass() != Textifier.class) {
-            throw new IllegalStateException();
-        }
+  /** The number of annotation values visited so far. */
+  private int numAnnotationValues;
+
+  /**
+   * Constructs a new {@link Textifier}. <i>Subclasses must not use this constructor</i>. Instead,
+   * they must use the {@link #Textifier(int)} version.
+   *
+   * @throws IllegalStateException If a subclass calls this constructor.
+   */
+  public Textifier() {
+    this(Opcodes.ASM6);
+    if (getClass() != Textifier.class) {
+      throw new IllegalStateException();
+    }
+  }
+
+  /**
+   * Constructs a new {@link Textifier}.
+   *
+   * @param api the ASM API version implemented by this visitor. Must be one of {@link
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
+   */
+  protected Textifier(final int api) {
+    super(api);
+  }
+
+  /**
+   * Prints a disassembled view of the given class to the standard output.
+   *
+   * <p>Usage: Textifier [-debug] &lt;binary class name or class file name &gt;
+   *
+   * @param args the command line arguments.
+   * @throws IOException if the class cannot be found, or if an IOException occurs.
+   */
+  public static void main(final String[] args) throws IOException {
+    String usage =
+        "Prints a disassembled view of the given class.\n"
+            + "Usage: Textifier [-debug] <fully qualified class name or class file name>";
+    main(usage, new Textifier(), args);
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Classes
+  // -----------------------------------------------------------------------------------------------
+
+  @Override
+  public void visit(
+      final int version,
+      final int access,
+      final String name,
+      final String signature,
+      final String superName,
+      final String[] interfaces) {
+    if ((access & Opcodes.ACC_MODULE) != 0) {
+      // Modules are printed in visitModule.
+      return;
+    }
+    this.access = access;
+    int majorVersion = version & 0xFFFF;
+    int minorVersion = version >>> 16;
+    stringBuilder.setLength(0);
+    stringBuilder
+        .append("// class version ")
+        .append(majorVersion)
+        .append('.')
+        .append(minorVersion)
+        .append(" (")
+        .append(version)
+        .append(")\n");
+    if ((access & Opcodes.ACC_DEPRECATED) != 0) {
+      stringBuilder.append(DEPRECATED);
+    }
+    appendRawAccess(access);
+
+    appendDescriptor(CLASS_SIGNATURE, signature);
+    if (signature != null) {
+      appendJavaDeclaration(signature);
     }
 
-    /**
-     * Constructs a new {@link Textifier}.
-     *
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
-     */
-    protected Textifier(final int api) {
-        super(api);
+    appendAccess(access & ~(Opcodes.ACC_SUPER | Opcodes.ACC_MODULE));
+    if ((access & Opcodes.ACC_ANNOTATION) != 0) {
+      stringBuilder.append("@interface ");
+    } else if ((access & Opcodes.ACC_INTERFACE) != 0) {
+      stringBuilder.append("interface ");
+    } else if ((access & Opcodes.ACC_ENUM) == 0) {
+      stringBuilder.append("class ");
+    }
+    appendDescriptor(INTERNAL_NAME, name);
+
+    if (superName != null && !"java/lang/Object".equals(superName)) {
+      stringBuilder.append(" extends ");
+      appendDescriptor(INTERNAL_NAME, superName);
+      stringBuilder.append(' ');
+    }
+    if (interfaces != null && interfaces.length > 0) {
+      stringBuilder.append(" implements ");
+      for (int i = 0; i < interfaces.length; ++i) {
+        appendDescriptor(INTERNAL_NAME, interfaces[i]);
+        stringBuilder.append(' ');
+      }
+    }
+    stringBuilder.append(" {\n\n");
+
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitSource(final String file, final String debug) {
+    stringBuilder.setLength(0);
+    if (file != null) {
+      stringBuilder.append(tab).append("// compiled from: ").append(file).append('\n');
+    }
+    if (debug != null) {
+      stringBuilder.append(tab).append("// debug info: ").append(debug).append('\n');
+    }
+    if (stringBuilder.length() > 0) {
+      text.add(stringBuilder.toString());
+    }
+  }
+
+  @Override
+  public Printer visitModule(final String name, final int access, final String version) {
+    stringBuilder.setLength(0);
+    if ((access & Opcodes.ACC_OPEN) != 0) {
+      stringBuilder.append("open ");
+    }
+    stringBuilder
+        .append("module ")
+        .append(name)
+        .append(" { ")
+        .append(version == null ? "" : "// " + version)
+        .append("\n\n");
+    text.add(stringBuilder.toString());
+    return addNewTextifier(null);
+  }
+
+  @Override
+  public void visitNestHostExperimental(final String nestHost) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("NESTHOST ");
+    appendDescriptor(INTERNAL_NAME, nestHost);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitOuterClass(final String owner, final String name, final String descriptor) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("OUTERCLASS ");
+    appendDescriptor(INTERNAL_NAME, owner);
+    stringBuilder.append(' ');
+    if (name != null) {
+      stringBuilder.append(name).append(' ');
+    }
+    appendDescriptor(METHOD_DESCRIPTOR, descriptor);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public Textifier visitClassAnnotation(final String descriptor, final boolean visible) {
+    text.add("\n");
+    return visitAnnotation(descriptor, visible);
+  }
+
+  @Override
+  public Printer visitClassTypeAnnotation(
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    text.add("\n");
+    return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
+  }
+
+  @Override
+  public void visitClassAttribute(final Attribute attribute) {
+    text.add("\n");
+    visitAttribute(attribute);
+  }
+
+  @Override
+  public void visitNestMemberExperimental(final String nestMember) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("NESTMEMBER ");
+    appendDescriptor(INTERNAL_NAME, nestMember);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitInnerClass(
+      final String name, final String outerName, final String innerName, final int access) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab);
+    appendRawAccess(access & ~Opcodes.ACC_SUPER);
+    stringBuilder.append(tab);
+    appendAccess(access);
+    stringBuilder.append("INNERCLASS ");
+    appendDescriptor(INTERNAL_NAME, name);
+    stringBuilder.append(' ');
+    appendDescriptor(INTERNAL_NAME, outerName);
+    stringBuilder.append(' ');
+    appendDescriptor(INTERNAL_NAME, innerName);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public Textifier visitField(
+      final int access,
+      final String name,
+      final String descriptor,
+      final String signature,
+      final Object value) {
+    stringBuilder.setLength(0);
+    stringBuilder.append('\n');
+    if ((access & Opcodes.ACC_DEPRECATED) != 0) {
+      stringBuilder.append(tab).append(DEPRECATED);
+    }
+    stringBuilder.append(tab);
+    appendRawAccess(access);
+    if (signature != null) {
+      stringBuilder.append(tab);
+      appendDescriptor(FIELD_SIGNATURE, signature);
+      stringBuilder.append(tab);
+      appendJavaDeclaration(signature);
     }
 
-    /**
-     * Prints a disassembled view of the given class to the standard output.
-     * <p>
-     * Usage: Textifier [-debug] &lt;binary class name or class file name &gt;
-     *
-     * @param args
-     *            the command line arguments.
-     *
-     * @throws Exception
-     *             if the class cannot be found, or if an IO exception occurs.
-     */
-    public static void main(final String[] args) throws Exception {
-        int i = 0;
-        int flags = ClassReader.SKIP_DEBUG;
+    stringBuilder.append(tab);
+    appendAccess(access);
 
-        boolean ok = true;
-        if (args.length < 1 || args.length > 2) {
-            ok = false;
-        }
-        if (ok && "-debug".equals(args[0])) {
-            i = 1;
-            flags = 0;
-            if (args.length != 2) {
-                ok = false;
-            }
-        }
-        if (!ok) {
-            System.err
-                    .println("Prints a disassembled view of the given class.");
-            System.err.println("Usage: Textifier [-debug] "
-                    + "<fully qualified class name or class file name>");
-            return;
-        }
-        ClassReader cr;
-        if (args[i].endsWith(".class") || args[i].indexOf('\\') > -1
-                || args[i].indexOf('/') > -1) {
-            cr = new ClassReader(new FileInputStream(args[i]));
-        } else {
-            cr = new ClassReader(args[i]);
-        }
-        cr.accept(new TraceClassVisitor(new PrintWriter(System.out)), flags);
+    appendDescriptor(FIELD_DESCRIPTOR, descriptor);
+    stringBuilder.append(' ').append(name);
+    if (value != null) {
+      stringBuilder.append(" = ");
+      if (value instanceof String) {
+        stringBuilder.append('\"').append(value).append('\"');
+      } else {
+        stringBuilder.append(value);
+      }
     }
 
-    // ------------------------------------------------------------------------
-    // Classes
-    // ------------------------------------------------------------------------
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+    return addNewTextifier(null);
+  }
 
-    @Override
-    public void visit(final int version, final int access, final String name,
-            final String signature, final String superName,
-            final String[] interfaces) {
-        if ((access & Opcodes.ACC_MODULE) != 0) {
-            // visitModule will print the module
-            return;
-        }
-        this.access = access;
-        int major = version & 0xFFFF;
-        int minor = version >>> 16;
-        buf.setLength(0);
-        buf.append("// class version ").append(major).append('.').append(minor)
-                .append(" (").append(version).append(")\n");
-        if ((access & Opcodes.ACC_DEPRECATED) != 0) {
-            buf.append("// DEPRECATED\n");
-        }
-        buf.append("// access flags 0x")
-                .append(Integer.toHexString(access).toUpperCase()).append('\n');
+  @Override
+  public Textifier visitMethod(
+      final int access,
+      final String name,
+      final String descriptor,
+      final String signature,
+      final String[] exceptions) {
+    stringBuilder.setLength(0);
+    stringBuilder.append('\n');
+    if ((access & Opcodes.ACC_DEPRECATED) != 0) {
+      stringBuilder.append(tab).append(DEPRECATED);
+    }
+    stringBuilder.append(tab);
+    appendRawAccess(access);
 
-        appendDescriptor(CLASS_SIGNATURE, signature);
-        if (signature != null) {
-            TraceSignatureVisitor sv = new TraceSignatureVisitor(access);
-            SignatureReader r = new SignatureReader(signature);
-            r.accept(sv);
-            buf.append("// declaration: ").append(name)
-                    .append(sv.getDeclaration()).append('\n');
-        }
-
-        appendAccess(access & ~(Opcodes.ACC_SUPER | Opcodes.ACC_MODULE));
-        if ((access & Opcodes.ACC_ANNOTATION) != 0) {
-            buf.append("@interface ");
-        } else if ((access & Opcodes.ACC_INTERFACE) != 0) {
-            buf.append("interface ");
-        } else if ((access & Opcodes.ACC_ENUM) == 0) {
-            buf.append("class ");
-        }
-        appendDescriptor(INTERNAL_NAME, name);
-
-        if (superName != null && !"java/lang/Object".equals(superName)) {
-            buf.append(" extends ");
-            appendDescriptor(INTERNAL_NAME, superName);
-            buf.append(' ');
-        }
-        if (interfaces != null && interfaces.length > 0) {
-            buf.append(" implements ");
-            for (int i = 0; i < interfaces.length; ++i) {
-                appendDescriptor(INTERNAL_NAME, interfaces[i]);
-                buf.append(' ');
-            }
-        }
-        buf.append(" {\n\n");
-
-        text.add(buf.toString());
+    if (signature != null) {
+      stringBuilder.append(tab);
+      appendDescriptor(METHOD_SIGNATURE, signature);
+      stringBuilder.append(tab);
+      appendJavaDeclaration(signature);
     }
 
-    @Override
-    public void visitSource(final String file, final String debug) {
-        buf.setLength(0);
-        if (file != null) {
-            buf.append(tab).append("// compiled from: ").append(file)
-                    .append('\n');
-        }
-        if (debug != null) {
-            buf.append(tab).append("// debug info: ").append(debug)
-                    .append('\n');
-        }
-        if (buf.length() > 0) {
-            text.add(buf.toString());
-        }
+    stringBuilder.append(tab);
+    appendAccess(access & ~(Opcodes.ACC_VOLATILE | Opcodes.ACC_TRANSIENT));
+    if ((access & Opcodes.ACC_NATIVE) != 0) {
+      stringBuilder.append("native ");
     }
-    
-    @Override
-    public Printer visitModule(final String name, final int access,
-            final String version) {
-        buf.setLength(0);
-        if ((access & Opcodes.ACC_OPEN) != 0) {
-            buf.append("open ");
-        }
-        buf.append("module ")
-           .append(name)
-           .append(" { ")
-           .append(version == null ? "" : "// " + version)
-           .append("\n\n");
-        text.add(buf.toString());
-        Textifier t = createTextifier();
-        text.add(t.getText());
-        return t;
+    if ((access & Opcodes.ACC_VARARGS) != 0) {
+      stringBuilder.append("varargs ");
+    }
+    if ((access & Opcodes.ACC_BRIDGE) != 0) {
+      stringBuilder.append("bridge ");
+    }
+    if ((this.access & Opcodes.ACC_INTERFACE) != 0
+        && (access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_STATIC)) == 0) {
+      stringBuilder.append("default ");
     }
 
-    @Override
-    public void visitOuterClass(final String owner, final String name,
-            final String desc) {
-        buf.setLength(0);
-        buf.append(tab).append("OUTERCLASS ");
-        appendDescriptor(INTERNAL_NAME, owner);
-        buf.append(' ');
-        if (name != null) {
-            buf.append(name).append(' ');
-        }
-        appendDescriptor(METHOD_DESCRIPTOR, desc);
-        buf.append('\n');
-        text.add(buf.toString());
+    stringBuilder.append(name);
+    appendDescriptor(METHOD_DESCRIPTOR, descriptor);
+    if (exceptions != null && exceptions.length > 0) {
+      stringBuilder.append(" throws ");
+      for (int i = 0; i < exceptions.length; ++i) {
+        appendDescriptor(INTERNAL_NAME, exceptions[i]);
+        stringBuilder.append(' ');
+      }
     }
 
-    @Override
-    public Textifier visitClassAnnotation(final String desc,
-            final boolean visible) {
-        text.add("\n");
-        return visitAnnotation(desc, visible);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+    return addNewTextifier(null);
+  }
+
+  @Override
+  public void visitClassEnd() {
+    text.add("}\n");
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Modules
+  // -----------------------------------------------------------------------------------------------
+
+  @Override
+  public void visitMainClass(final String mainClass) {
+    stringBuilder.setLength(0);
+    stringBuilder.append("  // main class ").append(mainClass).append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitPackage(final String packaze) {
+    stringBuilder.setLength(0);
+    stringBuilder.append("  // package ").append(packaze).append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitRequire(final String require, final int access, final String version) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("requires ");
+    if ((access & Opcodes.ACC_TRANSITIVE) != 0) {
+      stringBuilder.append("transitive ");
+    }
+    if ((access & Opcodes.ACC_STATIC_PHASE) != 0) {
+      stringBuilder.append("static ");
+    }
+    stringBuilder.append(require).append(';');
+    appendRawAccess(access);
+    if (version != null) {
+      stringBuilder.append("  // version ").append(version).append('\n');
+    }
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitExport(final String export, final int access, final String... modules) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("exports ");
+    stringBuilder.append(export);
+    if (modules != null && modules.length > 0) {
+      stringBuilder.append(" to");
+    } else {
+      stringBuilder.append(';');
+    }
+    appendRawAccess(access);
+    if (modules != null && modules.length > 0) {
+      for (int i = 0; i < modules.length; ++i) {
+        stringBuilder.append(tab2).append(modules[i]);
+        stringBuilder.append(i != modules.length - 1 ? ",\n" : ";\n");
+      }
+    }
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitOpen(final String export, final int access, final String... modules) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("opens ");
+    stringBuilder.append(export);
+    if (modules != null && modules.length > 0) {
+      stringBuilder.append(" to");
+    } else {
+      stringBuilder.append(';');
+    }
+    appendRawAccess(access);
+    if (modules != null && modules.length > 0) {
+      for (int i = 0; i < modules.length; ++i) {
+        stringBuilder.append(tab2).append(modules[i]);
+        stringBuilder.append(i != modules.length - 1 ? ",\n" : ";\n");
+      }
+    }
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitUse(final String use) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("uses ");
+    appendDescriptor(INTERNAL_NAME, use);
+    stringBuilder.append(";\n");
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitProvide(final String provide, final String... providers) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("provides ");
+    appendDescriptor(INTERNAL_NAME, provide);
+    stringBuilder.append(" with\n");
+    for (int i = 0; i < providers.length; ++i) {
+      stringBuilder.append(tab2);
+      appendDescriptor(INTERNAL_NAME, providers[i]);
+      stringBuilder.append(i != providers.length - 1 ? ",\n" : ";\n");
+    }
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitModuleEnd() {
+    // Nothing to do.
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Annotations
+  // -----------------------------------------------------------------------------------------------
+
+  @Override
+  public void visit(final String name, final Object value) {
+    visitAnnotationValue(name);
+    if (value instanceof String) {
+      visitString((String) value);
+    } else if (value instanceof Type) {
+      visitType((Type) value);
+    } else if (value instanceof Byte) {
+      visitByte(((Byte) value).byteValue());
+    } else if (value instanceof Boolean) {
+      visitBoolean(((Boolean) value).booleanValue());
+    } else if (value instanceof Short) {
+      visitShort(((Short) value).shortValue());
+    } else if (value instanceof Character) {
+      visitChar(((Character) value).charValue());
+    } else if (value instanceof Integer) {
+      visitInt(((Integer) value).intValue());
+    } else if (value instanceof Float) {
+      visitFloat(((Float) value).floatValue());
+    } else if (value instanceof Long) {
+      visitLong(((Long) value).longValue());
+    } else if (value instanceof Double) {
+      visitDouble(((Double) value).doubleValue());
+    } else if (value.getClass().isArray()) {
+      stringBuilder.append('{');
+      if (value instanceof byte[]) {
+        byte[] byteArray = (byte[]) value;
+        for (int i = 0; i < byteArray.length; i++) {
+          maybeAppendComma(i);
+          visitByte(byteArray[i]);
+        }
+      } else if (value instanceof boolean[]) {
+        boolean[] booleanArray = (boolean[]) value;
+        for (int i = 0; i < booleanArray.length; i++) {
+          maybeAppendComma(i);
+          visitBoolean(booleanArray[i]);
+        }
+      } else if (value instanceof short[]) {
+        short[] shortArray = (short[]) value;
+        for (int i = 0; i < shortArray.length; i++) {
+          maybeAppendComma(i);
+          visitShort(shortArray[i]);
+        }
+      } else if (value instanceof char[]) {
+        char[] charArray = (char[]) value;
+        for (int i = 0; i < charArray.length; i++) {
+          maybeAppendComma(i);
+          visitChar(charArray[i]);
+        }
+      } else if (value instanceof int[]) {
+        int[] intArray = (int[]) value;
+        for (int i = 0; i < intArray.length; i++) {
+          maybeAppendComma(i);
+          visitInt(intArray[i]);
+        }
+      } else if (value instanceof long[]) {
+        long[] longArray = (long[]) value;
+        for (int i = 0; i < longArray.length; i++) {
+          maybeAppendComma(i);
+          visitLong(longArray[i]);
+        }
+      } else if (value instanceof float[]) {
+        float[] floatArray = (float[]) value;
+        for (int i = 0; i < floatArray.length; i++) {
+          maybeAppendComma(i);
+          visitFloat(floatArray[i]);
+        }
+      } else if (value instanceof double[]) {
+        double[] doubleArray = (double[]) value;
+        for (int i = 0; i < doubleArray.length; i++) {
+          maybeAppendComma(i);
+          visitDouble(doubleArray[i]);
+        }
+      }
+      stringBuilder.append('}');
+    }
+    text.add(stringBuilder.toString());
+  }
+
+  private void visitInt(final int value) {
+    stringBuilder.append(value);
+  }
+
+  private void visitLong(final long value) {
+    stringBuilder.append(value).append('L');
+  }
+
+  private void visitFloat(final float value) {
+    stringBuilder.append(value).append('F');
+  }
+
+  private void visitDouble(final double value) {
+    stringBuilder.append(value).append('D');
+  }
+
+  private void visitChar(final char value) {
+    stringBuilder.append("(char)").append((int) value);
+  }
+
+  private void visitShort(final short value) {
+    stringBuilder.append("(short)").append(value);
+  }
+
+  private void visitByte(final byte value) {
+    stringBuilder.append("(byte)").append(value);
+  }
+
+  private void visitBoolean(final boolean value) {
+    stringBuilder.append(value);
+  }
+
+  private void visitString(final String value) {
+    appendString(stringBuilder, value);
+  }
+
+  private void visitType(final Type value) {
+    stringBuilder.append(value.getClassName()).append(CLASS_SUFFIX);
+  }
+
+  @Override
+  public void visitEnum(final String name, final String descriptor, final String value) {
+    visitAnnotationValue(name);
+    appendDescriptor(FIELD_DESCRIPTOR, descriptor);
+    stringBuilder.append('.').append(value);
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public Textifier visitAnnotation(final String name, final String descriptor) {
+    visitAnnotationValue(name);
+    stringBuilder.append('@');
+    appendDescriptor(FIELD_DESCRIPTOR, descriptor);
+    stringBuilder.append('(');
+    text.add(stringBuilder.toString());
+    return addNewTextifier(")");
+  }
+
+  @Override
+  public Textifier visitArray(final String name) {
+    visitAnnotationValue(name);
+    stringBuilder.append('{');
+    text.add(stringBuilder.toString());
+    return addNewTextifier("}");
+  }
+
+  @Override
+  public void visitAnnotationEnd() {
+    // Nothing to do.
+  }
+
+  private void visitAnnotationValue(final String name) {
+    stringBuilder.setLength(0);
+    maybeAppendComma(numAnnotationValues++);
+    if (name != null) {
+      stringBuilder.append(name).append('=');
+    }
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Fields
+  // -----------------------------------------------------------------------------------------------
+
+  @Override
+  public Textifier visitFieldAnnotation(final String descriptor, final boolean visible) {
+    return visitAnnotation(descriptor, visible);
+  }
+
+  @Override
+  public Printer visitFieldTypeAnnotation(
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
+  }
+
+  @Override
+  public void visitFieldAttribute(final Attribute attribute) {
+    visitAttribute(attribute);
+  }
+
+  @Override
+  public void visitFieldEnd() {
+    // Nothing to do.
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Methods
+  // -----------------------------------------------------------------------------------------------
+
+  @Override
+  public void visitParameter(final String name, final int access) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("// parameter ");
+    appendAccess(access);
+    stringBuilder.append(' ').append((name == null) ? "<no name>" : name).append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public Textifier visitAnnotationDefault() {
+    text.add(tab2 + "default=");
+    return addNewTextifier("\n");
+  }
+
+  @Override
+  public Textifier visitMethodAnnotation(final String descriptor, final boolean visible) {
+    return visitAnnotation(descriptor, visible);
+  }
+
+  @Override
+  public Printer visitMethodTypeAnnotation(
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
+  }
+
+  @Override
+  public Textifier visitAnnotableParameterCount(final int parameterCount, final boolean visible) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("// annotable parameter count: ");
+    stringBuilder.append(parameterCount);
+    stringBuilder.append(visible ? " (visible)\n" : " (invisible)\n");
+    text.add(stringBuilder.toString());
+    return this;
+  }
+
+  @Override
+  public Textifier visitParameterAnnotation(
+      final int parameter, final String descriptor, final boolean visible) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append('@');
+    appendDescriptor(FIELD_DESCRIPTOR, descriptor);
+    stringBuilder.append('(');
+    text.add(stringBuilder.toString());
+
+    stringBuilder.setLength(0);
+    stringBuilder
+        .append(visible ? ") // parameter " : ") // invisible, parameter ")
+        .append(parameter)
+        .append('\n');
+    return addNewTextifier(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitMethodAttribute(final Attribute attribute) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("ATTRIBUTE ");
+    appendDescriptor(-1, attribute.type);
+
+    if (attribute instanceof Textifiable) {
+      StringBuffer stringBuffer = new StringBuffer();
+      ((Textifiable) attribute).textify(stringBuffer, labelNames);
+      stringBuilder.append(stringBuffer.toString());
+    } else {
+      stringBuilder.append(" : unknown\n");
     }
 
-    @Override
-    public Printer visitClassTypeAnnotation(int typeRef, TypePath typePath,
-            String desc, boolean visible) {
-        text.add("\n");
-        return visitTypeAnnotation(typeRef, typePath, desc, visible);
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitCode() {
+    // Nothing to do.
+  }
+
+  @Override
+  public void visitFrame(
+      final int type,
+      final int nLocal,
+      final Object[] local,
+      final int nStack,
+      final Object[] stack) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(ltab);
+    stringBuilder.append("FRAME ");
+    switch (type) {
+      case Opcodes.F_NEW:
+      case Opcodes.F_FULL:
+        stringBuilder.append("FULL [");
+        appendFrameTypes(nLocal, local);
+        stringBuilder.append("] [");
+        appendFrameTypes(nStack, stack);
+        stringBuilder.append(']');
+        break;
+      case Opcodes.F_APPEND:
+        stringBuilder.append("APPEND [");
+        appendFrameTypes(nLocal, local);
+        stringBuilder.append(']');
+        break;
+      case Opcodes.F_CHOP:
+        stringBuilder.append("CHOP ").append(nLocal);
+        break;
+      case Opcodes.F_SAME:
+        stringBuilder.append("SAME");
+        break;
+      case Opcodes.F_SAME1:
+        stringBuilder.append("SAME1 ");
+        appendFrameTypes(1, stack);
+        break;
+      default:
+        throw new IllegalArgumentException();
     }
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
 
-    @Override
-    public void visitClassAttribute(final Attribute attr) {
-        text.add("\n");
-        visitAttribute(attr);
+  @Override
+  public void visitInsn(final int opcode) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append(OPCODES[opcode]).append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitIntInsn(final int opcode, final int operand) {
+    stringBuilder.setLength(0);
+    stringBuilder
+        .append(tab2)
+        .append(OPCODES[opcode])
+        .append(' ')
+        .append(opcode == Opcodes.NEWARRAY ? TYPES[operand] : Integer.toString(operand))
+        .append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitVarInsn(final int opcode, final int var) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ').append(var).append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitTypeInsn(final int opcode, final String type) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ');
+    appendDescriptor(INTERNAL_NAME, type);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitFieldInsn(
+      final int opcode, final String owner, final String name, final String descriptor) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ');
+    appendDescriptor(INTERNAL_NAME, owner);
+    stringBuilder.append('.').append(name).append(" : ");
+    appendDescriptor(FIELD_DESCRIPTOR, descriptor);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  /** @deprecated */
+  @Deprecated
+  @Override
+  public void visitMethodInsn(
+      final int opcode, final String owner, final String name, final String descriptor) {
+    if (api >= Opcodes.ASM5) {
+      super.visitMethodInsn(opcode, owner, name, descriptor);
+      return;
     }
+    doVisitMethodInsn(opcode, owner, name, descriptor, opcode == Opcodes.INVOKEINTERFACE);
+  }
 
-    @Override
-    public void visitInnerClass(final String name, final String outerName,
-            final String innerName, final int access) {
-        buf.setLength(0);
-        buf.append(tab).append("// access flags 0x");
-        buf.append(
-                Integer.toHexString(access & ~Opcodes.ACC_SUPER).toUpperCase())
-                .append('\n');
-        buf.append(tab);
-        appendAccess(access);
-        buf.append("INNERCLASS ");
-        appendDescriptor(INTERNAL_NAME, name);
-        buf.append(' ');
-        appendDescriptor(INTERNAL_NAME, outerName);
-        buf.append(' ');
-        appendDescriptor(INTERNAL_NAME, innerName);
-        buf.append('\n');
-        text.add(buf.toString());
+  @Override
+  public void visitMethodInsn(
+      final int opcode,
+      final String owner,
+      final String name,
+      final String descriptor,
+      final boolean isInterface) {
+    if (api < Opcodes.ASM5) {
+      super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+      return;
     }
+    doVisitMethodInsn(opcode, owner, name, descriptor, isInterface);
+  }
 
-    @Override
-    public Textifier visitField(final int access, final String name,
-            final String desc, final String signature, final Object value) {
-        buf.setLength(0);
-        buf.append('\n');
-        if ((access & Opcodes.ACC_DEPRECATED) != 0) {
-            buf.append(tab).append("// DEPRECATED\n");
-        }
-        buf.append(tab).append("// access flags 0x")
-                .append(Integer.toHexString(access).toUpperCase()).append('\n');
-        if (signature != null) {
-            buf.append(tab);
-            appendDescriptor(FIELD_SIGNATURE, signature);
-
-            TraceSignatureVisitor sv = new TraceSignatureVisitor(0);
-            SignatureReader r = new SignatureReader(signature);
-            r.acceptType(sv);
-            buf.append(tab).append("// declaration: ")
-                    .append(sv.getDeclaration()).append('\n');
-        }
-
-        buf.append(tab);
-        appendAccess(access);
-
-        appendDescriptor(FIELD_DESCRIPTOR, desc);
-        buf.append(' ').append(name);
-        if (value != null) {
-            buf.append(" = ");
-            if (value instanceof String) {
-                buf.append('\"').append(value).append('\"');
-            } else {
-                buf.append(value);
-            }
-        }
-
-        buf.append('\n');
-        text.add(buf.toString());
-
-        Textifier t = createTextifier();
-        text.add(t.getText());
-        return t;
+  private void doVisitMethodInsn(
+      final int opcode,
+      final String owner,
+      final String name,
+      final String descriptor,
+      final boolean isInterface) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ');
+    appendDescriptor(INTERNAL_NAME, owner);
+    stringBuilder.append('.').append(name).append(' ');
+    appendDescriptor(METHOD_DESCRIPTOR, descriptor);
+    if (isInterface) {
+      stringBuilder.append(" (itf)");
     }
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
 
-    @Override
-    public Textifier visitMethod(final int access, final String name,
-            final String desc, final String signature, final String[] exceptions) {
-        buf.setLength(0);
-        buf.append('\n');
-        if ((access & Opcodes.ACC_DEPRECATED) != 0) {
-            buf.append(tab).append("// DEPRECATED\n");
-        }
-        buf.append(tab).append("// access flags 0x")
-                .append(Integer.toHexString(access).toUpperCase()).append('\n');
-
-        if (signature != null) {
-            buf.append(tab);
-            appendDescriptor(METHOD_SIGNATURE, signature);
-
-            TraceSignatureVisitor v = new TraceSignatureVisitor(0);
-            SignatureReader r = new SignatureReader(signature);
-            r.accept(v);
-            String genericDecl = v.getDeclaration();
-            String genericReturn = v.getReturnType();
-            String genericExceptions = v.getExceptions();
-
-            buf.append(tab).append("// declaration: ").append(genericReturn)
-                    .append(' ').append(name).append(genericDecl);
-            if (genericExceptions != null) {
-                buf.append(" throws ").append(genericExceptions);
-            }
-            buf.append('\n');
-        }
-
-        buf.append(tab);
-        appendAccess(access & ~(Opcodes.ACC_VOLATILE | Opcodes.ACC_TRANSIENT));
-        if ((access & Opcodes.ACC_NATIVE) != 0) {
-            buf.append("native ");
-        }
-        if ((access & Opcodes.ACC_VARARGS) != 0) {
-            buf.append("varargs ");
-        }
-        if ((access & Opcodes.ACC_BRIDGE) != 0) {
-            buf.append("bridge ");
-        }
-        if ((this.access & Opcodes.ACC_INTERFACE) != 0
-                && (access & Opcodes.ACC_ABSTRACT) == 0
-                && (access & Opcodes.ACC_STATIC) == 0) {
-            buf.append("default ");
-        }
-
-        buf.append(name);
-        appendDescriptor(METHOD_DESCRIPTOR, desc);
-        if (exceptions != null && exceptions.length > 0) {
-            buf.append(" throws ");
-            for (int i = 0; i < exceptions.length; ++i) {
-                appendDescriptor(INTERNAL_NAME, exceptions[i]);
-                buf.append(' ');
-            }
-        }
-
-        buf.append('\n');
-        text.add(buf.toString());
-
-        Textifier t = createTextifier();
-        text.add(t.getText());
-        return t;
-    }
-
-    @Override
-    public void visitClassEnd() {
-        text.add("}\n");
-    }
-
-    // ------------------------------------------------------------------------
-    // Module
-    // ------------------------------------------------------------------------
-    
-    @Override
-    public void visitMainClass(String mainClass) {
-        buf.setLength(0);
-        buf.append("  // main class ").append(mainClass).append('\n');
-        text.add(buf.toString());
-    }
-    
-    @Override
-    public void visitPackage(String packaze) {
-        buf.setLength(0);
-        buf.append("  // package ").append(packaze).append('\n');
-        text.add(buf.toString());
-    }
-    
-    @Override
-    public void visitRequire(String require, int access, String version) {
-        buf.setLength(0);
-        buf.append(tab).append("requires ");
-        if ((access & Opcodes.ACC_TRANSITIVE) != 0) {
-            buf.append("transitive ");
-        }
-        if ((access & Opcodes.ACC_STATIC_PHASE) != 0) {
-            buf.append("static ");
-        }
-        buf.append(require)
-           .append(";  // access flags 0x")
-           .append(Integer.toHexString(access).toUpperCase())
-           .append('\n');
-        if (version != null) {
-            buf.append("  // version ")
-               .append(version)
-               .append('\n');
-        }
-        text.add(buf.toString());
-    }
-    
-    @Override
-    public void visitExport(String export, int access, String... modules) {
-        buf.setLength(0);
-        buf.append(tab).append("exports ");
-        buf.append(export);
-        if (modules != null && modules.length > 0) {
-            buf.append(" to");
-        } else {
-            buf.append(';');
-        }
-        buf.append("  // access flags 0x")
-           .append(Integer.toHexString(access).toUpperCase())
-           .append('\n');
-        if (modules != null && modules.length > 0) {
-            for (int i = 0; i < modules.length; ++i) {
-                buf.append(tab2).append(modules[i]);
-                buf.append(i != modules.length - 1 ? ",\n": ";\n");
-            }
-        }
-        text.add(buf.toString());
-    }
-    
-    @Override
-    public void visitOpen(String export, int access, String... modules) {
-        buf.setLength(0);
-        buf.append(tab).append("opens ");
-        buf.append(export);
-        if (modules != null && modules.length > 0) {
-            buf.append(" to");
-        } else {
-            buf.append(';');
-        }
-        buf.append("  // access flags 0x")
-           .append(Integer.toHexString(access).toUpperCase())
-           .append('\n');
-        if (modules != null && modules.length > 0) {
-            for (int i = 0; i < modules.length; ++i) {
-                buf.append(tab2).append(modules[i]);
-                buf.append(i != modules.length - 1 ? ",\n": ";\n");
-            }
-        }
-        text.add(buf.toString());
-    }
-    
-    @Override
-    public void visitUse(String use) {
-        buf.setLength(0);
-        buf.append(tab).append("uses ");
-        appendDescriptor(INTERNAL_NAME, use);
-        buf.append(";\n");
-        text.add(buf.toString());
-    }
-    
-    @Override
-    public void visitProvide(String provide, String... providers) {
-        buf.setLength(0);
-        buf.append(tab).append("provides ");
-        appendDescriptor(INTERNAL_NAME, provide);
-        buf.append(" with\n");
-        for (int i = 0; i < providers.length; ++i) {
-            buf.append(tab2);
-            appendDescriptor(INTERNAL_NAME, providers[i]);
-            buf.append(i != providers.length - 1 ? ",\n": ";\n");
-        }
-        text.add(buf.toString());
-    }
-    
-    @Override
-    public void visitModuleEnd() {
-        // empty
-    }
-    
-    // ------------------------------------------------------------------------
-    // Annotations
-    // ------------------------------------------------------------------------
-
-    @Override
-    public void visit(final String name, final Object value) {
-        buf.setLength(0);
-        appendComa(valueNumber++);
-
-        if (name != null) {
-            buf.append(name).append('=');
-        }
-
+  @Override
+  public void visitInvokeDynamicInsn(
+      final String name,
+      final String descriptor,
+      final Handle bootstrapMethodHandle,
+      final Object... bootstrapMethodArguments) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("INVOKEDYNAMIC").append(' ');
+    stringBuilder.append(name);
+    appendDescriptor(METHOD_DESCRIPTOR, descriptor);
+    stringBuilder.append(" [");
+    stringBuilder.append('\n');
+    stringBuilder.append(tab3);
+    appendHandle(bootstrapMethodHandle);
+    stringBuilder.append('\n');
+    stringBuilder.append(tab3).append("// arguments:");
+    if (bootstrapMethodArguments.length == 0) {
+      stringBuilder.append(" none");
+    } else {
+      stringBuilder.append('\n');
+      for (int i = 0; i < bootstrapMethodArguments.length; i++) {
+        stringBuilder.append(tab3);
+        Object value = bootstrapMethodArguments[i];
         if (value instanceof String) {
-            visitString((String) value);
+          Printer.appendString(stringBuilder, (String) value);
         } else if (value instanceof Type) {
-            visitType((Type) value);
-        } else if (value instanceof Byte) {
-            visitByte(((Byte) value).byteValue());
-        } else if (value instanceof Boolean) {
-            visitBoolean(((Boolean) value).booleanValue());
-        } else if (value instanceof Short) {
-            visitShort(((Short) value).shortValue());
-        } else if (value instanceof Character) {
-            visitChar(((Character) value).charValue());
-        } else if (value instanceof Integer) {
-            visitInt(((Integer) value).intValue());
-        } else if (value instanceof Float) {
-            visitFloat(((Float) value).floatValue());
-        } else if (value instanceof Long) {
-            visitLong(((Long) value).longValue());
-        } else if (value instanceof Double) {
-            visitDouble(((Double) value).doubleValue());
-        } else if (value.getClass().isArray()) {
-            buf.append('{');
-            if (value instanceof byte[]) {
-                byte[] v = (byte[]) value;
-                for (int i = 0; i < v.length; i++) {
-                    appendComa(i);
-                    visitByte(v[i]);
-                }
-            } else if (value instanceof boolean[]) {
-                boolean[] v = (boolean[]) value;
-                for (int i = 0; i < v.length; i++) {
-                    appendComa(i);
-                    visitBoolean(v[i]);
-                }
-            } else if (value instanceof short[]) {
-                short[] v = (short[]) value;
-                for (int i = 0; i < v.length; i++) {
-                    appendComa(i);
-                    visitShort(v[i]);
-                }
-            } else if (value instanceof char[]) {
-                char[] v = (char[]) value;
-                for (int i = 0; i < v.length; i++) {
-                    appendComa(i);
-                    visitChar(v[i]);
-                }
-            } else if (value instanceof int[]) {
-                int[] v = (int[]) value;
-                for (int i = 0; i < v.length; i++) {
-                    appendComa(i);
-                    visitInt(v[i]);
-                }
-            } else if (value instanceof long[]) {
-                long[] v = (long[]) value;
-                for (int i = 0; i < v.length; i++) {
-                    appendComa(i);
-                    visitLong(v[i]);
-                }
-            } else if (value instanceof float[]) {
-                float[] v = (float[]) value;
-                for (int i = 0; i < v.length; i++) {
-                    appendComa(i);
-                    visitFloat(v[i]);
-                }
-            } else if (value instanceof double[]) {
-                double[] v = (double[]) value;
-                for (int i = 0; i < v.length; i++) {
-                    appendComa(i);
-                    visitDouble(v[i]);
-                }
-            }
-            buf.append('}');
-        }
-
-        text.add(buf.toString());
-    }
-
-    private void visitInt(final int value) {
-        buf.append(value);
-    }
-
-    private void visitLong(final long value) {
-        buf.append(value).append('L');
-    }
-
-    private void visitFloat(final float value) {
-        buf.append(value).append('F');
-    }
-
-    private void visitDouble(final double value) {
-        buf.append(value).append('D');
-    }
-
-    private void visitChar(final char value) {
-        buf.append("(char)").append((int) value);
-    }
-
-    private void visitShort(final short value) {
-        buf.append("(short)").append(value);
-    }
-
-    private void visitByte(final byte value) {
-        buf.append("(byte)").append(value);
-    }
-
-    private void visitBoolean(final boolean value) {
-        buf.append(value);
-    }
-
-    private void visitString(final String value) {
-        appendString(buf, value);
-    }
-
-    private void visitType(final Type value) {
-        buf.append(value.getClassName()).append(".class");
-    }
-
-    @Override
-    public void visitEnum(final String name, final String desc,
-            final String value) {
-        buf.setLength(0);
-        appendComa(valueNumber++);
-        if (name != null) {
-            buf.append(name).append('=');
-        }
-        appendDescriptor(FIELD_DESCRIPTOR, desc);
-        buf.append('.').append(value);
-        text.add(buf.toString());
-    }
-
-    @Override
-    public Textifier visitAnnotation(final String name, final String desc) {
-        buf.setLength(0);
-        appendComa(valueNumber++);
-        if (name != null) {
-            buf.append(name).append('=');
-        }
-        buf.append('@');
-        appendDescriptor(FIELD_DESCRIPTOR, desc);
-        buf.append('(');
-        text.add(buf.toString());
-        Textifier t = createTextifier();
-        text.add(t.getText());
-        text.add(")");
-        return t;
-    }
-
-    @Override
-    public Textifier visitArray(final String name) {
-        buf.setLength(0);
-        appendComa(valueNumber++);
-        if (name != null) {
-            buf.append(name).append('=');
-        }
-        buf.append('{');
-        text.add(buf.toString());
-        Textifier t = createTextifier();
-        text.add(t.getText());
-        text.add("}");
-        return t;
-    }
-
-    @Override
-    public void visitAnnotationEnd() {
-    }
-
-    // ------------------------------------------------------------------------
-    // Fields
-    // ------------------------------------------------------------------------
-
-    @Override
-    public Textifier visitFieldAnnotation(final String desc,
-            final boolean visible) {
-        return visitAnnotation(desc, visible);
-    }
-
-    @Override
-    public Printer visitFieldTypeAnnotation(int typeRef, TypePath typePath,
-            String desc, boolean visible) {
-        return visitTypeAnnotation(typeRef, typePath, desc, visible);
-    }
-
-    @Override
-    public void visitFieldAttribute(final Attribute attr) {
-        visitAttribute(attr);
-    }
-
-    @Override
-    public void visitFieldEnd() {
-    }
-
-    // ------------------------------------------------------------------------
-    // Methods
-    // ------------------------------------------------------------------------
-
-    @Override
-    public void visitParameter(final String name, final int access) {
-        buf.setLength(0);
-        buf.append(tab2).append("// parameter ");
-        appendAccess(access);
-        buf.append(' ').append((name == null) ? "<no name>" : name)
-                .append('\n');
-        text.add(buf.toString());
-    }
-
-    @Override
-    public Textifier visitAnnotationDefault() {
-        text.add(tab2 + "default=");
-        Textifier t = createTextifier();
-        text.add(t.getText());
-        text.add("\n");
-        return t;
-    }
-
-    @Override
-    public Textifier visitMethodAnnotation(final String desc,
-            final boolean visible) {
-        return visitAnnotation(desc, visible);
-    }
-
-    @Override
-    public Printer visitMethodTypeAnnotation(int typeRef, TypePath typePath,
-            String desc, boolean visible) {
-        return visitTypeAnnotation(typeRef, typePath, desc, visible);
-    }
-
-    @Override
-    public Textifier visitParameterAnnotation(final int parameter,
-            final String desc, final boolean visible) {
-        buf.setLength(0);
-        buf.append(tab2).append('@');
-        appendDescriptor(FIELD_DESCRIPTOR, desc);
-        buf.append('(');
-        text.add(buf.toString());
-        Textifier t = createTextifier();
-        text.add(t.getText());
-        text.add(visible ? ") // parameter " : ") // invisible, parameter ");
-        text.add(parameter);
-        text.add("\n");
-        return t;
-    }
-
-    @Override
-    public void visitMethodAttribute(final Attribute attr) {
-        buf.setLength(0);
-        buf.append(tab).append("ATTRIBUTE ");
-        appendDescriptor(-1, attr.type);
-
-        if (attr instanceof Textifiable) {
-            ((Textifiable) attr).textify(buf, labelNames);
+          Type type = (Type) value;
+          if (type.getSort() == Type.METHOD) {
+            appendDescriptor(METHOD_DESCRIPTOR, type.getDescriptor());
+          } else {
+            visitType(type);
+          }
+        } else if (value instanceof Handle) {
+          appendHandle((Handle) value);
         } else {
-            buf.append(" : unknown\n");
+          stringBuilder.append(value);
         }
+        stringBuilder.append(", \n");
+      }
+      stringBuilder.setLength(stringBuilder.length() - 3);
+    }
+    stringBuilder.append('\n');
+    stringBuilder.append(tab2).append("]\n");
+    text.add(stringBuilder.toString());
+  }
 
-        text.add(buf.toString());
+  @Override
+  public void visitJumpInsn(final int opcode, final Label label) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append(OPCODES[opcode]).append(' ');
+    appendLabel(label);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitLabel(final Label label) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(ltab);
+    appendLabel(label);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitLdcInsn(final Object value) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("LDC ");
+    if (value instanceof String) {
+      Printer.appendString(stringBuilder, (String) value);
+    } else if (value instanceof Type) {
+      stringBuilder.append(((Type) value).getDescriptor()).append(CLASS_SUFFIX);
+    } else {
+      stringBuilder.append(value);
+    }
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitIincInsn(final int var, final int increment) {
+    stringBuilder.setLength(0);
+    stringBuilder
+        .append(tab2)
+        .append("IINC ")
+        .append(var)
+        .append(' ')
+        .append(increment)
+        .append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitTableSwitchInsn(
+      final int min, final int max, final Label dflt, final Label... labels) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("TABLESWITCH\n");
+    for (int i = 0; i < labels.length; ++i) {
+      stringBuilder.append(tab3).append(min + i).append(": ");
+      appendLabel(labels[i]);
+      stringBuilder.append('\n');
+    }
+    stringBuilder.append(tab3).append("default: ");
+    appendLabel(dflt);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitLookupSwitchInsn(final Label dflt, final int[] keys, final Label[] labels) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("LOOKUPSWITCH\n");
+    for (int i = 0; i < labels.length; ++i) {
+      stringBuilder.append(tab3).append(keys[i]).append(": ");
+      appendLabel(labels[i]);
+      stringBuilder.append('\n');
+    }
+    stringBuilder.append(tab3).append("default: ");
+    appendLabel(dflt);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitMultiANewArrayInsn(final String descriptor, final int numDimensions) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("MULTIANEWARRAY ");
+    appendDescriptor(FIELD_DESCRIPTOR, descriptor);
+    stringBuilder.append(' ').append(numDimensions).append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public Printer visitInsnAnnotation(
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    return visitTypeAnnotation(typeRef, typePath, descriptor, visible);
+  }
+
+  @Override
+  public void visitTryCatchBlock(
+      final Label start, final Label end, final Label handler, final String type) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("TRYCATCHBLOCK ");
+    appendLabel(start);
+    stringBuilder.append(' ');
+    appendLabel(end);
+    stringBuilder.append(' ');
+    appendLabel(handler);
+    stringBuilder.append(' ');
+    appendDescriptor(INTERNAL_NAME, type);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public Printer visitTryCatchAnnotation(
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("TRYCATCHBLOCK @");
+    appendDescriptor(FIELD_DESCRIPTOR, descriptor);
+    stringBuilder.append('(');
+    text.add(stringBuilder.toString());
+
+    stringBuilder.setLength(0);
+    stringBuilder.append(") : ");
+    appendTypeReference(typeRef);
+    stringBuilder.append(", ").append(typePath);
+    stringBuilder.append(visible ? "\n" : INVISIBLE);
+    return addNewTextifier(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitLocalVariable(
+      final String name,
+      final String descriptor,
+      final String signature,
+      final Label start,
+      final Label end,
+      final int index) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("LOCALVARIABLE ").append(name).append(' ');
+    appendDescriptor(FIELD_DESCRIPTOR, descriptor);
+    stringBuilder.append(' ');
+    appendLabel(start);
+    stringBuilder.append(' ');
+    appendLabel(end);
+    stringBuilder.append(' ').append(index).append('\n');
+
+    if (signature != null) {
+      stringBuilder.append(tab2);
+      appendDescriptor(FIELD_SIGNATURE, signature);
+      stringBuilder.append(tab2);
+      appendJavaDeclaration(signature);
+    }
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public Printer visitLocalVariableAnnotation(
+      final int typeRef,
+      final TypePath typePath,
+      final Label[] start,
+      final Label[] end,
+      final int[] index,
+      final String descriptor,
+      final boolean visible) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("LOCALVARIABLE @");
+    appendDescriptor(FIELD_DESCRIPTOR, descriptor);
+    stringBuilder.append('(');
+    text.add(stringBuilder.toString());
+
+    stringBuilder.setLength(0);
+    stringBuilder.append(") : ");
+    appendTypeReference(typeRef);
+    stringBuilder.append(", ").append(typePath);
+    for (int i = 0; i < start.length; ++i) {
+      stringBuilder.append(" [ ");
+      appendLabel(start[i]);
+      stringBuilder.append(" - ");
+      appendLabel(end[i]);
+      stringBuilder.append(" - ").append(index[i]).append(" ]");
+    }
+    stringBuilder.append(visible ? "\n" : INVISIBLE);
+    return addNewTextifier(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitLineNumber(final int line, final Label start) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("LINENUMBER ").append(line).append(' ');
+    appendLabel(start);
+    stringBuilder.append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitMaxs(final int maxStack, final int maxLocals) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("MAXSTACK = ").append(maxStack).append('\n');
+    text.add(stringBuilder.toString());
+
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab2).append("MAXLOCALS = ").append(maxLocals).append('\n');
+    text.add(stringBuilder.toString());
+  }
+
+  @Override
+  public void visitMethodEnd() {
+    // Nothing to do.
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Common methods
+  // -----------------------------------------------------------------------------------------------
+
+  /**
+   * Prints a disassembled view of the given annotation.
+   *
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible <tt>true</tt> if the annotation is visible at runtime.
+   * @return a visitor to visit the annotation values.
+   */
+  public Textifier visitAnnotation(final String descriptor, final boolean visible) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append('@');
+    appendDescriptor(FIELD_DESCRIPTOR, descriptor);
+    stringBuilder.append('(');
+    text.add(stringBuilder.toString());
+    return addNewTextifier(visible ? ")\n" : ") // invisible\n");
+  }
+
+  /**
+   * Prints a disassembled view of the given type annotation.
+   *
+   * @param typeRef a reference to the annotated type. See {@link TypeReference}.
+   * @param typePath the path to the annotated type argument, wildcard bound, array element type, or
+   *     static inner type within 'typeRef'. May be <tt>null</tt> if the annotation targets
+   *     'typeRef' as a whole.
+   * @param descriptor the class descriptor of the annotation class.
+   * @param visible <tt>true</tt> if the annotation is visible at runtime.
+   * @return a visitor to visit the annotation values.
+   */
+  public Textifier visitTypeAnnotation(
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append('@');
+    appendDescriptor(FIELD_DESCRIPTOR, descriptor);
+    stringBuilder.append('(');
+    text.add(stringBuilder.toString());
+
+    stringBuilder.setLength(0);
+    stringBuilder.append(") : ");
+    appendTypeReference(typeRef);
+    stringBuilder.append(", ").append(typePath);
+    stringBuilder.append(visible ? "\n" : INVISIBLE);
+    return addNewTextifier(stringBuilder.toString());
+  }
+
+  /**
+   * Prints a disassembled view of the given attribute.
+   *
+   * @param attribute an attribute.
+   */
+  public void visitAttribute(final Attribute attribute) {
+    stringBuilder.setLength(0);
+    stringBuilder.append(tab).append("ATTRIBUTE ");
+    appendDescriptor(-1, attribute.type);
+
+    if (attribute instanceof Textifiable) {
+      StringBuffer stringBuffer = new StringBuffer();
+      ((Textifiable) attribute).textify(stringBuffer, null);
+      stringBuilder.append(stringBuffer.toString());
+    } else {
+      stringBuilder.append(" : unknown\n");
     }
 
-    @Override
-    public void visitCode() {
-    }
+    text.add(stringBuilder.toString());
+  }
 
-    @Override
-    public void visitFrame(final int type, final int nLocal,
-            final Object[] local, final int nStack, final Object[] stack) {
-        buf.setLength(0);
-        buf.append(ltab);
-        buf.append("FRAME ");
-        switch (type) {
-        case Opcodes.F_NEW:
-        case Opcodes.F_FULL:
-            buf.append("FULL [");
-            appendFrameTypes(nLocal, local);
-            buf.append("] [");
-            appendFrameTypes(nStack, stack);
-            buf.append(']');
-            break;
-        case Opcodes.F_APPEND:
-            buf.append("APPEND [");
-            appendFrameTypes(nLocal, local);
-            buf.append(']');
-            break;
-        case Opcodes.F_CHOP:
-            buf.append("CHOP ").append(nLocal);
-            break;
-        case Opcodes.F_SAME:
-            buf.append("SAME");
-            break;
-        case Opcodes.F_SAME1:
-            buf.append("SAME1 ");
-            appendFrameTypes(1, stack);
-            break;
-        }
-        buf.append('\n');
-        text.add(buf.toString());
-    }
+  // -----------------------------------------------------------------------------------------------
+  // Utility methods
+  // -----------------------------------------------------------------------------------------------
 
-    @Override
-    public void visitInsn(final int opcode) {
-        buf.setLength(0);
-        buf.append(tab2).append(OPCODES[opcode]).append('\n');
-        text.add(buf.toString());
+  /**
+   * Appends a string representation of the given access flags to {@link #stringBuilder}.
+   *
+   * @param accessFlags some access flags.
+   */
+  private void appendAccess(final int accessFlags) {
+    if ((accessFlags & Opcodes.ACC_PUBLIC) != 0) {
+      stringBuilder.append("public ");
     }
-
-    @Override
-    public void visitIntInsn(final int opcode, final int operand) {
-        buf.setLength(0);
-        buf.append(tab2)
-                .append(OPCODES[opcode])
-                .append(' ')
-                .append(opcode == Opcodes.NEWARRAY ? TYPES[operand] : Integer
-                        .toString(operand)).append('\n');
-        text.add(buf.toString());
+    if ((accessFlags & Opcodes.ACC_PRIVATE) != 0) {
+      stringBuilder.append("private ");
     }
-
-    @Override
-    public void visitVarInsn(final int opcode, final int var) {
-        buf.setLength(0);
-        buf.append(tab2).append(OPCODES[opcode]).append(' ').append(var)
-                .append('\n');
-        text.add(buf.toString());
+    if ((accessFlags & Opcodes.ACC_PROTECTED) != 0) {
+      stringBuilder.append("protected ");
     }
-
-    @Override
-    public void visitTypeInsn(final int opcode, final String type) {
-        buf.setLength(0);
-        buf.append(tab2).append(OPCODES[opcode]).append(' ');
-        appendDescriptor(INTERNAL_NAME, type);
-        buf.append('\n');
-        text.add(buf.toString());
+    if ((accessFlags & Opcodes.ACC_FINAL) != 0) {
+      stringBuilder.append("final ");
     }
-
-    @Override
-    public void visitFieldInsn(final int opcode, final String owner,
-            final String name, final String desc) {
-        buf.setLength(0);
-        buf.append(tab2).append(OPCODES[opcode]).append(' ');
-        appendDescriptor(INTERNAL_NAME, owner);
-        buf.append('.').append(name).append(" : ");
-        appendDescriptor(FIELD_DESCRIPTOR, desc);
-        buf.append('\n');
-        text.add(buf.toString());
+    if ((accessFlags & Opcodes.ACC_STATIC) != 0) {
+      stringBuilder.append("static ");
     }
-
-    @Deprecated
-    @Override
-    public void visitMethodInsn(final int opcode, final String owner,
-            final String name, final String desc) {
-        if (api >= Opcodes.ASM5) {
-            super.visitMethodInsn(opcode, owner, name, desc);
-            return;
-        }
-        doVisitMethodInsn(opcode, owner, name, desc,
-                opcode == Opcodes.INVOKEINTERFACE);
+    if ((accessFlags & Opcodes.ACC_SYNCHRONIZED) != 0) {
+      stringBuilder.append("synchronized ");
     }
-
-    @Override
-    public void visitMethodInsn(final int opcode, final String owner,
-            final String name, final String desc, final boolean itf) {
-        if (api < Opcodes.ASM5) {
-            super.visitMethodInsn(opcode, owner, name, desc, itf);
-            return;
-        }
-        doVisitMethodInsn(opcode, owner, name, desc, itf);
+    if ((accessFlags & Opcodes.ACC_VOLATILE) != 0) {
+      stringBuilder.append("volatile ");
     }
-
-    private void doVisitMethodInsn(final int opcode, final String owner,
-            final String name, final String desc, final boolean itf) {
-        buf.setLength(0);
-        buf.append(tab2).append(OPCODES[opcode]).append(' ');
-        appendDescriptor(INTERNAL_NAME, owner);
-        buf.append('.').append(name).append(' ');
-        appendDescriptor(METHOD_DESCRIPTOR, desc);
-        buf.append('\n');
-        text.add(buf.toString());
+    if ((accessFlags & Opcodes.ACC_TRANSIENT) != 0) {
+      stringBuilder.append("transient ");
     }
+    if ((accessFlags & Opcodes.ACC_ABSTRACT) != 0) {
+      stringBuilder.append("abstract ");
+    }
+    if ((accessFlags & Opcodes.ACC_STRICT) != 0) {
+      stringBuilder.append("strictfp ");
+    }
+    if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0) {
+      stringBuilder.append("synthetic ");
+    }
+    if ((accessFlags & Opcodes.ACC_MANDATED) != 0) {
+      stringBuilder.append("mandated ");
+    }
+    if ((accessFlags & Opcodes.ACC_ENUM) != 0) {
+      stringBuilder.append("enum ");
+    }
+  }
 
-    @Override
-    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm,
-            Object... bsmArgs) {
-        buf.setLength(0);
-        buf.append(tab2).append("INVOKEDYNAMIC").append(' ');
-        buf.append(name);
-        appendDescriptor(METHOD_DESCRIPTOR, desc);
-        buf.append(" [");
-        buf.append('\n');
-        buf.append(tab3);
-        appendHandle(bsm);
-        buf.append('\n');
-        buf.append(tab3).append("// arguments:");
-        if (bsmArgs.length == 0) {
-            buf.append(" none");
+  /**
+   * Appends the hexadecimal value of the given access flags to {@link #stringBuilder}.
+   *
+   * @param accessFlags some access flags.
+   */
+  private void appendRawAccess(final int accessFlags) {
+    stringBuilder
+        .append("// access flags 0x")
+        .append(Integer.toHexString(accessFlags).toUpperCase())
+        .append('\n');
+  }
+
+  /**
+   * Appends an internal name, a type descriptor or a type signature to {@link #stringBuilder}.
+   *
+   * @param type the type of 'value'. Must be one of {@link #INTERNAL_NAME}, {@link
+   *     #FIELD_DESCRIPTOR}, {@link #FIELD_SIGNATURE}, {@link #METHOD_DESCRIPTOR}, {@link
+   *     #METHOD_SIGNATURE}, {@link #CLASS_SIGNATURE}, {@link #TYPE_DECLARATION}, {@link
+   *     #CLASS_DECLARATION}, {@link #PARAMETERS_DECLARATION} of {@link #HANDLE_DESCRIPTOR}.
+   * @param value an internal name, type descriptor or a type signature. May be <tt>null</tt>.
+   */
+  protected void appendDescriptor(final int type, final String value) {
+    if (type == CLASS_SIGNATURE || type == FIELD_SIGNATURE || type == METHOD_SIGNATURE) {
+      if (value != null) {
+        stringBuilder.append("// signature ").append(value).append('\n');
+      }
+    } else {
+      stringBuilder.append(value);
+    }
+  }
+
+  /**
+   * Appends the Java generic type declaration corresponding to the given signature.
+   *
+   * @param signature a class, field or method signature.
+   */
+  private void appendJavaDeclaration(final String signature) {
+    TraceSignatureVisitor traceSignatureVisitor = new TraceSignatureVisitor(access);
+    new SignatureReader(signature).accept(traceSignatureVisitor);
+    stringBuilder.append("// declaration: ");
+    if (traceSignatureVisitor.getReturnType() != null) {
+      stringBuilder.append(traceSignatureVisitor.getReturnType());
+      stringBuilder.append(' ');
+    }
+    stringBuilder.append(traceSignatureVisitor.getDeclaration());
+    if (traceSignatureVisitor.getExceptions() != null) {
+      stringBuilder.append(" throws ").append(traceSignatureVisitor.getExceptions());
+    }
+    stringBuilder.append('\n');
+  }
+
+  /**
+   * Appends the name of the given label to {@link #stringBuilder}. Constructs a new label name if
+   * the given label does not yet have one.
+   *
+   * @param label a label.
+   */
+  protected void appendLabel(final Label label) {
+    if (labelNames == null) {
+      labelNames = new HashMap<Label, String>();
+    }
+    String name = labelNames.get(label);
+    if (name == null) {
+      name = "L" + labelNames.size();
+      labelNames.put(label, name);
+    }
+    stringBuilder.append(name);
+  }
+
+  /**
+   * Appends a string representation of the given handle to {@link #stringBuilder}.
+   *
+   * @param handle a handle.
+   */
+  protected void appendHandle(final Handle handle) {
+    int tag = handle.getTag();
+    stringBuilder.append("// handle kind 0x").append(Integer.toHexString(tag)).append(" : ");
+    boolean isMethodHandle = false;
+    switch (tag) {
+      case Opcodes.H_GETFIELD:
+        stringBuilder.append("GETFIELD");
+        break;
+      case Opcodes.H_GETSTATIC:
+        stringBuilder.append("GETSTATIC");
+        break;
+      case Opcodes.H_PUTFIELD:
+        stringBuilder.append("PUTFIELD");
+        break;
+      case Opcodes.H_PUTSTATIC:
+        stringBuilder.append("PUTSTATIC");
+        break;
+      case Opcodes.H_INVOKEINTERFACE:
+        stringBuilder.append("INVOKEINTERFACE");
+        isMethodHandle = true;
+        break;
+      case Opcodes.H_INVOKESPECIAL:
+        stringBuilder.append("INVOKESPECIAL");
+        isMethodHandle = true;
+        break;
+      case Opcodes.H_INVOKESTATIC:
+        stringBuilder.append("INVOKESTATIC");
+        isMethodHandle = true;
+        break;
+      case Opcodes.H_INVOKEVIRTUAL:
+        stringBuilder.append("INVOKEVIRTUAL");
+        isMethodHandle = true;
+        break;
+      case Opcodes.H_NEWINVOKESPECIAL:
+        stringBuilder.append("NEWINVOKESPECIAL");
+        isMethodHandle = true;
+        break;
+      default:
+        throw new IllegalArgumentException();
+    }
+    stringBuilder.append('\n');
+    stringBuilder.append(tab3);
+    appendDescriptor(INTERNAL_NAME, handle.getOwner());
+    stringBuilder.append('.');
+    stringBuilder.append(handle.getName());
+    if (!isMethodHandle) {
+      stringBuilder.append('(');
+    }
+    appendDescriptor(HANDLE_DESCRIPTOR, handle.getDesc());
+    if (!isMethodHandle) {
+      stringBuilder.append(')');
+    }
+    if (handle.isInterface()) {
+      stringBuilder.append(" itf");
+    }
+  }
+
+  /**
+   * Appends a comma to {@link #stringBuilder} if the given number is strictly positive.
+   *
+   * @param numValues a number of 'values visited so far', for instance the number of annotation
+   *     values visited so far in an annotation visitor.
+   */
+  private void maybeAppendComma(final int numValues) {
+    if (numValues > 0) {
+      stringBuilder.append(", ");
+    }
+  }
+
+  /**
+   * Appends a string representation of the given type reference to {@link #stringBuilder}.
+   *
+   * @param typeRef a type reference. See {@link TypeReference}.
+   */
+  private void appendTypeReference(final int typeRef) {
+    TypeReference typeReference = new TypeReference(typeRef);
+    switch (typeReference.getSort()) {
+      case TypeReference.CLASS_TYPE_PARAMETER:
+        stringBuilder.append("CLASS_TYPE_PARAMETER ").append(typeReference.getTypeParameterIndex());
+        break;
+      case TypeReference.METHOD_TYPE_PARAMETER:
+        stringBuilder
+            .append("METHOD_TYPE_PARAMETER ")
+            .append(typeReference.getTypeParameterIndex());
+        break;
+      case TypeReference.CLASS_EXTENDS:
+        stringBuilder.append("CLASS_EXTENDS ").append(typeReference.getSuperTypeIndex());
+        break;
+      case TypeReference.CLASS_TYPE_PARAMETER_BOUND:
+        stringBuilder
+            .append("CLASS_TYPE_PARAMETER_BOUND ")
+            .append(typeReference.getTypeParameterIndex())
+            .append(", ")
+            .append(typeReference.getTypeParameterBoundIndex());
+        break;
+      case TypeReference.METHOD_TYPE_PARAMETER_BOUND:
+        stringBuilder
+            .append("METHOD_TYPE_PARAMETER_BOUND ")
+            .append(typeReference.getTypeParameterIndex())
+            .append(", ")
+            .append(typeReference.getTypeParameterBoundIndex());
+        break;
+      case TypeReference.FIELD:
+        stringBuilder.append("FIELD");
+        break;
+      case TypeReference.METHOD_RETURN:
+        stringBuilder.append("METHOD_RETURN");
+        break;
+      case TypeReference.METHOD_RECEIVER:
+        stringBuilder.append("METHOD_RECEIVER");
+        break;
+      case TypeReference.METHOD_FORMAL_PARAMETER:
+        stringBuilder
+            .append("METHOD_FORMAL_PARAMETER ")
+            .append(typeReference.getFormalParameterIndex());
+        break;
+      case TypeReference.THROWS:
+        stringBuilder.append("THROWS ").append(typeReference.getExceptionIndex());
+        break;
+      case TypeReference.LOCAL_VARIABLE:
+        stringBuilder.append("LOCAL_VARIABLE");
+        break;
+      case TypeReference.RESOURCE_VARIABLE:
+        stringBuilder.append("RESOURCE_VARIABLE");
+        break;
+      case TypeReference.EXCEPTION_PARAMETER:
+        stringBuilder.append("EXCEPTION_PARAMETER ").append(typeReference.getTryCatchBlockIndex());
+        break;
+      case TypeReference.INSTANCEOF:
+        stringBuilder.append("INSTANCEOF");
+        break;
+      case TypeReference.NEW:
+        stringBuilder.append("NEW");
+        break;
+      case TypeReference.CONSTRUCTOR_REFERENCE:
+        stringBuilder.append("CONSTRUCTOR_REFERENCE");
+        break;
+      case TypeReference.METHOD_REFERENCE:
+        stringBuilder.append("METHOD_REFERENCE");
+        break;
+      case TypeReference.CAST:
+        stringBuilder.append("CAST ").append(typeReference.getTypeArgumentIndex());
+        break;
+      case TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT:
+        stringBuilder
+            .append("CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT ")
+            .append(typeReference.getTypeArgumentIndex());
+        break;
+      case TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT:
+        stringBuilder
+            .append("METHOD_INVOCATION_TYPE_ARGUMENT ")
+            .append(typeReference.getTypeArgumentIndex());
+        break;
+      case TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT:
+        stringBuilder
+            .append("CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT ")
+            .append(typeReference.getTypeArgumentIndex());
+        break;
+      case TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT:
+        stringBuilder
+            .append("METHOD_REFERENCE_TYPE_ARGUMENT ")
+            .append(typeReference.getTypeArgumentIndex());
+        break;
+      default:
+        throw new IllegalArgumentException();
+    }
+  }
+
+  /**
+   * Appends the given stack map frame types to {@link #stringBuilder}.
+   *
+   * @param nTypes the number of stack map frame types in 'frameTypes'.
+   * @param frameTypes an array of stack map frame types, in the format described in {@link
+   *     MethodVisitor#visitFrame}.
+   */
+  private void appendFrameTypes(final int nTypes, final Object[] frameTypes) {
+    for (int i = 0; i < nTypes; ++i) {
+      if (i > 0) {
+        stringBuilder.append(' ');
+      }
+      if (frameTypes[i] instanceof String) {
+        String descriptor = (String) frameTypes[i];
+        if (descriptor.startsWith("[")) {
+          appendDescriptor(FIELD_DESCRIPTOR, descriptor);
         } else {
-            buf.append('\n');
-            for (int i = 0; i < bsmArgs.length; i++) {
-                buf.append(tab3);
-                Object cst = bsmArgs[i];
-                if (cst instanceof String) {
-                    appendString(buf, (String) cst);
-                } else if (cst instanceof Type) {
-                    Type type = (Type) cst;
-                    if(type.getSort() == Type.METHOD){
-                        appendDescriptor(METHOD_DESCRIPTOR, type.getDescriptor());
-                    } else {
-                        buf.append(type.getDescriptor()).append(".class");
-                    }
-                } else if (cst instanceof Handle) {
-                    appendHandle((Handle) cst);
-                } else {
-                    buf.append(cst);
-                }
-                buf.append(", \n");
-            }
-            buf.setLength(buf.length() - 3);
+          appendDescriptor(INTERNAL_NAME, descriptor);
         }
-        buf.append('\n');
-        buf.append(tab2).append("]\n");
-        text.add(buf.toString());
+      } else if (frameTypes[i] instanceof Integer) {
+        switch (((Integer) frameTypes[i]).intValue()) {
+          case 0:
+            appendDescriptor(FIELD_DESCRIPTOR, "T");
+            break;
+          case 1:
+            appendDescriptor(FIELD_DESCRIPTOR, "I");
+            break;
+          case 2:
+            appendDescriptor(FIELD_DESCRIPTOR, "F");
+            break;
+          case 3:
+            appendDescriptor(FIELD_DESCRIPTOR, "D");
+            break;
+          case 4:
+            appendDescriptor(FIELD_DESCRIPTOR, "J");
+            break;
+          case 5:
+            appendDescriptor(FIELD_DESCRIPTOR, "N");
+            break;
+          case 6:
+            appendDescriptor(FIELD_DESCRIPTOR, "U");
+            break;
+          default:
+            throw new IllegalArgumentException();
+        }
+      } else {
+        appendLabel((Label) frameTypes[i]);
+      }
     }
+  }
 
-    @Override
-    public void visitJumpInsn(final int opcode, final Label label) {
-        buf.setLength(0);
-        buf.append(tab2).append(OPCODES[opcode]).append(' ');
-        appendLabel(label);
-        buf.append('\n');
-        text.add(buf.toString());
+  /**
+   * Creates and adds to {@link #text} a new {@link Textifier}, followed by the given string.
+   *
+   * @param endText the text to add to {@link #text} after the textifier. May be <tt>null</tt>.
+   * @return the newly created {@link Textifier}.
+   */
+  private Textifier addNewTextifier(final String endText) {
+    Textifier textifier = createTextifier();
+    text.add(textifier.getText());
+    if (endText != null) {
+      text.add(endText);
     }
+    return textifier;
+  }
 
-    @Override
-    public void visitLabel(final Label label) {
-        buf.setLength(0);
-        buf.append(ltab);
-        appendLabel(label);
-        buf.append('\n');
-        text.add(buf.toString());
-    }
-
-    @Override
-    public void visitLdcInsn(final Object cst) {
-        buf.setLength(0);
-        buf.append(tab2).append("LDC ");
-        if (cst instanceof String) {
-            appendString(buf, (String) cst);
-        } else if (cst instanceof Type) {
-            buf.append(((Type) cst).getDescriptor()).append(".class");
-        } else {
-            buf.append(cst);
-        }
-        buf.append('\n');
-        text.add(buf.toString());
-    }
-
-    @Override
-    public void visitIincInsn(final int var, final int increment) {
-        buf.setLength(0);
-        buf.append(tab2).append("IINC ").append(var).append(' ')
-                .append(increment).append('\n');
-        text.add(buf.toString());
-    }
-
-    @Override
-    public void visitTableSwitchInsn(final int min, final int max,
-            final Label dflt, final Label... labels) {
-        buf.setLength(0);
-        buf.append(tab2).append("TABLESWITCH\n");
-        for (int i = 0; i < labels.length; ++i) {
-            buf.append(tab3).append(min + i).append(": ");
-            appendLabel(labels[i]);
-            buf.append('\n');
-        }
-        buf.append(tab3).append("default: ");
-        appendLabel(dflt);
-        buf.append('\n');
-        text.add(buf.toString());
-    }
-
-    @Override
-    public void visitLookupSwitchInsn(final Label dflt, final int[] keys,
-            final Label[] labels) {
-        buf.setLength(0);
-        buf.append(tab2).append("LOOKUPSWITCH\n");
-        for (int i = 0; i < labels.length; ++i) {
-            buf.append(tab3).append(keys[i]).append(": ");
-            appendLabel(labels[i]);
-            buf.append('\n');
-        }
-        buf.append(tab3).append("default: ");
-        appendLabel(dflt);
-        buf.append('\n');
-        text.add(buf.toString());
-    }
-
-    @Override
-    public void visitMultiANewArrayInsn(final String desc, final int dims) {
-        buf.setLength(0);
-        buf.append(tab2).append("MULTIANEWARRAY ");
-        appendDescriptor(FIELD_DESCRIPTOR, desc);
-        buf.append(' ').append(dims).append('\n');
-        text.add(buf.toString());
-    }
-
-    @Override
-    public Printer visitInsnAnnotation(int typeRef, TypePath typePath,
-            String desc, boolean visible) {
-        return visitTypeAnnotation(typeRef, typePath, desc, visible);
-    }
-
-    @Override
-    public void visitTryCatchBlock(final Label start, final Label end,
-            final Label handler, final String type) {
-        buf.setLength(0);
-        buf.append(tab2).append("TRYCATCHBLOCK ");
-        appendLabel(start);
-        buf.append(' ');
-        appendLabel(end);
-        buf.append(' ');
-        appendLabel(handler);
-        buf.append(' ');
-        appendDescriptor(INTERNAL_NAME, type);
-        buf.append('\n');
-        text.add(buf.toString());
-    }
-
-    @Override
-    public Printer visitTryCatchAnnotation(int typeRef, TypePath typePath,
-            String desc, boolean visible) {
-        buf.setLength(0);
-        buf.append(tab2).append("TRYCATCHBLOCK @");
-        appendDescriptor(FIELD_DESCRIPTOR, desc);
-        buf.append('(');
-        text.add(buf.toString());
-        Textifier t = createTextifier();
-        text.add(t.getText());
-        buf.setLength(0);
-        buf.append(") : ");
-        appendTypeReference(typeRef);
-        buf.append(", ").append(typePath);
-        buf.append(visible ? "\n" : " // invisible\n");
-        text.add(buf.toString());
-        return t;
-    }
-
-    @Override
-    public void visitLocalVariable(final String name, final String desc,
-            final String signature, final Label start, final Label end,
-            final int index) {
-        buf.setLength(0);
-        buf.append(tab2).append("LOCALVARIABLE ").append(name).append(' ');
-        appendDescriptor(FIELD_DESCRIPTOR, desc);
-        buf.append(' ');
-        appendLabel(start);
-        buf.append(' ');
-        appendLabel(end);
-        buf.append(' ').append(index).append('\n');
-
-        if (signature != null) {
-            buf.append(tab2);
-            appendDescriptor(FIELD_SIGNATURE, signature);
-
-            TraceSignatureVisitor sv = new TraceSignatureVisitor(0);
-            SignatureReader r = new SignatureReader(signature);
-            r.acceptType(sv);
-            buf.append(tab2).append("// declaration: ")
-                    .append(sv.getDeclaration()).append('\n');
-        }
-        text.add(buf.toString());
-    }
-
-    @Override
-    public Printer visitLocalVariableAnnotation(int typeRef, TypePath typePath,
-            Label[] start, Label[] end, int[] index, String desc,
-            boolean visible) {
-        buf.setLength(0);
-        buf.append(tab2).append("LOCALVARIABLE @");
-        appendDescriptor(FIELD_DESCRIPTOR, desc);
-        buf.append('(');
-        text.add(buf.toString());
-        Textifier t = createTextifier();
-        text.add(t.getText());
-        buf.setLength(0);
-        buf.append(") : ");
-        appendTypeReference(typeRef);
-        buf.append(", ").append(typePath);
-        for (int i = 0; i < start.length; ++i) {
-            buf.append(" [ ");
-            appendLabel(start[i]);
-            buf.append(" - ");
-            appendLabel(end[i]);
-            buf.append(" - ").append(index[i]).append(" ]");
-        }
-        buf.append(visible ? "\n" : " // invisible\n");
-        text.add(buf.toString());
-        return t;
-    }
-
-    @Override
-    public void visitLineNumber(final int line, final Label start) {
-        buf.setLength(0);
-        buf.append(tab2).append("LINENUMBER ").append(line).append(' ');
-        appendLabel(start);
-        buf.append('\n');
-        text.add(buf.toString());
-    }
-
-    @Override
-    public void visitMaxs(final int maxStack, final int maxLocals) {
-        buf.setLength(0);
-        buf.append(tab2).append("MAXSTACK = ").append(maxStack).append('\n');
-        text.add(buf.toString());
-
-        buf.setLength(0);
-        buf.append(tab2).append("MAXLOCALS = ").append(maxLocals).append('\n');
-        text.add(buf.toString());
-    }
-
-    @Override
-    public void visitMethodEnd() {
-    }
-
-    // ------------------------------------------------------------------------
-    // Common methods
-    // ------------------------------------------------------------------------
-
-    /**
-     * Prints a disassembled view of the given annotation.
-     *
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
-     * @return a visitor to visit the annotation values.
-     */
-    public Textifier visitAnnotation(final String desc, final boolean visible) {
-        buf.setLength(0);
-        buf.append(tab).append('@');
-        appendDescriptor(FIELD_DESCRIPTOR, desc);
-        buf.append('(');
-        text.add(buf.toString());
-        Textifier t = createTextifier();
-        text.add(t.getText());
-        text.add(visible ? ")\n" : ") // invisible\n");
-        return t;
-    }
-
-    /**
-     * Prints a disassembled view of the given type annotation.
-     *
-     * @param typeRef
-     *            a reference to the annotated type. See {@link TypeReference}.
-     * @param typePath
-     *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static inner type within 'typeRef'. May be
-     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
-     * @return a visitor to visit the annotation values.
-     */
-    public Textifier visitTypeAnnotation(final int typeRef,
-            final TypePath typePath, final String desc, final boolean visible) {
-        buf.setLength(0);
-        buf.append(tab).append('@');
-        appendDescriptor(FIELD_DESCRIPTOR, desc);
-        buf.append('(');
-        text.add(buf.toString());
-        Textifier t = createTextifier();
-        text.add(t.getText());
-        buf.setLength(0);
-        buf.append(") : ");
-        appendTypeReference(typeRef);
-        buf.append(", ").append(typePath);
-        buf.append(visible ? "\n" : " // invisible\n");
-        text.add(buf.toString());
-        return t;
-    }
-
-    /**
-     * Prints a disassembled view of the given attribute.
-     *
-     * @param attr
-     *            an attribute.
-     */
-    public void visitAttribute(final Attribute attr) {
-        buf.setLength(0);
-        buf.append(tab).append("ATTRIBUTE ");
-        appendDescriptor(-1, attr.type);
-
-        if (attr instanceof Textifiable) {
-            ((Textifiable) attr).textify(buf, null);
-        } else {
-            buf.append(" : unknown\n");
-        }
-
-        text.add(buf.toString());
-    }
-
-    // ------------------------------------------------------------------------
-    // Utility methods
-    // ------------------------------------------------------------------------
-
-    /**
-     * Creates a new TraceVisitor instance.
-     *
-     * @return a new TraceVisitor.
-     */
-    protected Textifier createTextifier() {
-        return new Textifier();
-    }
-
-    /**
-     * Appends an internal name, a type descriptor or a type signature to
-     * {@link #buf buf}.
-     *
-     * @param type
-     *            indicates if desc is an internal name, a field descriptor, a
-     *            method descriptor, a class signature, ...
-     * @param desc
-     *            an internal name, type descriptor, or type signature. May be
-     *            <tt>null</tt>.
-     */
-    protected void appendDescriptor(final int type, final String desc) {
-        if (type == CLASS_SIGNATURE || type == FIELD_SIGNATURE
-                || type == METHOD_SIGNATURE) {
-            if (desc != null) {
-                buf.append("// signature ").append(desc).append('\n');
-            }
-        } else {
-            buf.append(desc);
-        }
-    }
-
-    /**
-     * Appends the name of the given label to {@link #buf buf}. Creates a new
-     * label name if the given label does not yet have one.
-     *
-     * @param l
-     *            a label.
-     */
-    protected void appendLabel(final Label l) {
-        if (labelNames == null) {
-            labelNames = new HashMap<Label, String>();
-        }
-        String name = labelNames.get(l);
-        if (name == null) {
-            name = "L" + labelNames.size();
-            labelNames.put(l, name);
-        }
-        buf.append(name);
-    }
-
-    /**
-     * Appends the information about the given handle to {@link #buf buf}.
-     *
-     * @param h
-     *            a handle, non null.
-     */
-    protected void appendHandle(final Handle h) {
-        int tag = h.getTag();
-        buf.append("// handle kind 0x").append(Integer.toHexString(tag))
-                .append(" : ");
-        boolean isMethodHandle = false;
-        switch (tag) {
-        case Opcodes.H_GETFIELD:
-            buf.append("GETFIELD");
-            break;
-        case Opcodes.H_GETSTATIC:
-            buf.append("GETSTATIC");
-            break;
-        case Opcodes.H_PUTFIELD:
-            buf.append("PUTFIELD");
-            break;
-        case Opcodes.H_PUTSTATIC:
-            buf.append("PUTSTATIC");
-            break;
-        case Opcodes.H_INVOKEINTERFACE:
-            buf.append("INVOKEINTERFACE");
-            isMethodHandle = true;
-            break;
-        case Opcodes.H_INVOKESPECIAL:
-            buf.append("INVOKESPECIAL");
-            isMethodHandle = true;
-            break;
-        case Opcodes.H_INVOKESTATIC:
-            buf.append("INVOKESTATIC");
-            isMethodHandle = true;
-            break;
-        case Opcodes.H_INVOKEVIRTUAL:
-            buf.append("INVOKEVIRTUAL");
-            isMethodHandle = true;
-            break;
-        case Opcodes.H_NEWINVOKESPECIAL:
-            buf.append("NEWINVOKESPECIAL");
-            isMethodHandle = true;
-            break;
-        }
-        buf.append('\n');
-        buf.append(tab3);
-        appendDescriptor(INTERNAL_NAME, h.getOwner());
-        buf.append('.');
-        buf.append(h.getName());
-        if (!isMethodHandle) {
-            buf.append('(');
-        }
-        appendDescriptor(HANDLE_DESCRIPTOR, h.getDesc());
-        if (!isMethodHandle) {
-            buf.append(')');
-        }
-        if (h.isInterface()) {
-            buf.append(" itf");
-        }
-    }
-
-    /**
-     * Appends a string representation of the given access modifiers to
-     * {@link #buf buf}.
-     *
-     * @param access
-     *            some access modifiers.
-     */
-    private void appendAccess(final int access) {
-        if ((access & Opcodes.ACC_PUBLIC) != 0) {
-            buf.append("public ");
-        }
-        if ((access & Opcodes.ACC_PRIVATE) != 0) {
-            buf.append("private ");
-        }
-        if ((access & Opcodes.ACC_PROTECTED) != 0) {
-            buf.append("protected ");
-        }
-        if ((access & Opcodes.ACC_FINAL) != 0) {
-            buf.append("final ");
-        }
-        if ((access & Opcodes.ACC_STATIC) != 0) {
-            buf.append("static ");
-        }
-        if ((access & Opcodes.ACC_SYNCHRONIZED) != 0) {
-            buf.append("synchronized ");
-        }
-        if ((access & Opcodes.ACC_VOLATILE) != 0) {
-            buf.append("volatile ");
-        }
-        if ((access & Opcodes.ACC_TRANSIENT) != 0) {
-            buf.append("transient ");
-        }
-        if ((access & Opcodes.ACC_ABSTRACT) != 0) {
-            buf.append("abstract ");
-        }
-        if ((access & Opcodes.ACC_STRICT) != 0) {
-            buf.append("strictfp ");
-        }
-        if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
-            buf.append("synthetic ");
-        }
-        if ((access & Opcodes.ACC_MANDATED) != 0) {
-            buf.append("mandated ");
-        }
-        if ((access & Opcodes.ACC_ENUM) != 0) {
-            buf.append("enum ");
-        }
-    }
-
-    private void appendComa(final int i) {
-        if (i != 0) {
-            buf.append(", ");
-        }
-    }
-
-    private void appendTypeReference(final int typeRef) {
-        TypeReference ref = new TypeReference(typeRef);
-        switch (ref.getSort()) {
-        case TypeReference.CLASS_TYPE_PARAMETER:
-            buf.append("CLASS_TYPE_PARAMETER ").append(
-                    ref.getTypeParameterIndex());
-            break;
-        case TypeReference.METHOD_TYPE_PARAMETER:
-            buf.append("METHOD_TYPE_PARAMETER ").append(
-                    ref.getTypeParameterIndex());
-            break;
-        case TypeReference.CLASS_EXTENDS:
-            buf.append("CLASS_EXTENDS ").append(ref.getSuperTypeIndex());
-            break;
-        case TypeReference.CLASS_TYPE_PARAMETER_BOUND:
-            buf.append("CLASS_TYPE_PARAMETER_BOUND ")
-                    .append(ref.getTypeParameterIndex()).append(", ")
-                    .append(ref.getTypeParameterBoundIndex());
-            break;
-        case TypeReference.METHOD_TYPE_PARAMETER_BOUND:
-            buf.append("METHOD_TYPE_PARAMETER_BOUND ")
-                    .append(ref.getTypeParameterIndex()).append(", ")
-                    .append(ref.getTypeParameterBoundIndex());
-            break;
-        case TypeReference.FIELD:
-            buf.append("FIELD");
-            break;
-        case TypeReference.METHOD_RETURN:
-            buf.append("METHOD_RETURN");
-            break;
-        case TypeReference.METHOD_RECEIVER:
-            buf.append("METHOD_RECEIVER");
-            break;
-        case TypeReference.METHOD_FORMAL_PARAMETER:
-            buf.append("METHOD_FORMAL_PARAMETER ").append(
-                    ref.getFormalParameterIndex());
-            break;
-        case TypeReference.THROWS:
-            buf.append("THROWS ").append(ref.getExceptionIndex());
-            break;
-        case TypeReference.LOCAL_VARIABLE:
-            buf.append("LOCAL_VARIABLE");
-            break;
-        case TypeReference.RESOURCE_VARIABLE:
-            buf.append("RESOURCE_VARIABLE");
-            break;
-        case TypeReference.EXCEPTION_PARAMETER:
-            buf.append("EXCEPTION_PARAMETER ").append(
-                    ref.getTryCatchBlockIndex());
-            break;
-        case TypeReference.INSTANCEOF:
-            buf.append("INSTANCEOF");
-            break;
-        case TypeReference.NEW:
-            buf.append("NEW");
-            break;
-        case TypeReference.CONSTRUCTOR_REFERENCE:
-            buf.append("CONSTRUCTOR_REFERENCE");
-            break;
-        case TypeReference.METHOD_REFERENCE:
-            buf.append("METHOD_REFERENCE");
-            break;
-        case TypeReference.CAST:
-            buf.append("CAST ").append(ref.getTypeArgumentIndex());
-            break;
-        case TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT:
-            buf.append("CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT ").append(
-                    ref.getTypeArgumentIndex());
-            break;
-        case TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT:
-            buf.append("METHOD_INVOCATION_TYPE_ARGUMENT ").append(
-                    ref.getTypeArgumentIndex());
-            break;
-        case TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT:
-            buf.append("CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT ").append(
-                    ref.getTypeArgumentIndex());
-            break;
-        case TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT:
-            buf.append("METHOD_REFERENCE_TYPE_ARGUMENT ").append(
-                    ref.getTypeArgumentIndex());
-            break;
-        }
-    }
-
-    private void appendFrameTypes(final int n, final Object[] o) {
-        for (int i = 0; i < n; ++i) {
-            if (i > 0) {
-                buf.append(' ');
-            }
-            if (o[i] instanceof String) {
-                String desc = (String) o[i];
-                if (desc.startsWith("[")) {
-                    appendDescriptor(FIELD_DESCRIPTOR, desc);
-                } else {
-                    appendDescriptor(INTERNAL_NAME, desc);
-                }
-            } else if (o[i] instanceof Integer) {
-                switch (((Integer) o[i]).intValue()) {
-                case 0:
-                    appendDescriptor(FIELD_DESCRIPTOR, "T");
-                    break;
-                case 1:
-                    appendDescriptor(FIELD_DESCRIPTOR, "I");
-                    break;
-                case 2:
-                    appendDescriptor(FIELD_DESCRIPTOR, "F");
-                    break;
-                case 3:
-                    appendDescriptor(FIELD_DESCRIPTOR, "D");
-                    break;
-                case 4:
-                    appendDescriptor(FIELD_DESCRIPTOR, "J");
-                    break;
-                case 5:
-                    appendDescriptor(FIELD_DESCRIPTOR, "N");
-                    break;
-                case 6:
-                    appendDescriptor(FIELD_DESCRIPTOR, "U");
-                    break;
-                }
-            } else {
-                appendLabel((Label) o[i]);
-            }
-        }
-    }
+  /**
+   * Creates a new {@link Textifier}.
+   *
+   * @return a new {@link Textifier}.
+   */
+  protected Textifier createTextifier() {
+    return new Textifier();
+  }
 }

@@ -1,326 +1,262 @@
-/*
- *  Copyright 2015 the original author or authors.
- *  @https://github.com/scouter-project/scouter
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- */
-
-/***
- * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2011 INRIA, France Telecom
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
- */
+// ASM: a very small and fast Java bytecode manipulation framework
+// Copyright (c) 2000-2011 INRIA, France Telecom
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. Neither the name of the copyright holders nor the names of its
+//    contributors may be used to endorse or promote products derived from
+//    this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+// THE POSSIBILITY OF SUCH DAMAGE.
 package scouter.org.objectweb.asm.tree;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.Attribute;
 import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.FieldVisitor;
 import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.TypePath;
-
-import java.util.ArrayList;
-import java.util.List;
+import scouter.org.objectweb.asm.Type;
 
 /**
  * A node that represents a field.
- * 
+ *
  * @author Eric Bruneton
  */
 public class FieldNode extends FieldVisitor {
 
-    /**
-     * The field's access flags (see {@link Opcodes}). This
-     * field also indicates if the field is synthetic and/or deprecated.
-     */
-    public int access;
+  /**
+   * The field's access flags (see {@link Opcodes}). This field also indicates if
+   * the field is synthetic and/or deprecated.
+   */
+  public int access;
 
-    /**
-     * The field's name.
-     */
-    public String name;
+  /** The field's name. */
+  public String name;
 
-    /**
-     * The field's descriptor (see {@link Type}).
-     */
-    public String desc;
+  /** The field's descriptor (see {@link Type}). */
+  public String desc;
 
-    /**
-     * The field's signature. May be <tt>null</tt>.
-     */
-    public String signature;
+  /** The field's signature. May be <tt>null</tt>. */
+  public String signature;
 
-    /**
-     * The field's initial value. This field, which may be <tt>null</tt> if the
-     * field does not have an initial value, must be an {@link Integer}, a
-     * {@link Float}, a {@link Long}, a {@link Double} or a {@link String}.
-     */
-    public Object value;
+  /**
+   * The field's initial value. This field, which may be <tt>null</tt> if the field does not have an
+   * initial value, must be an {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double} or
+   * a {@link String}.
+   */
+  public Object value;
 
-    /**
-     * The runtime visible annotations of this field. This list is a list of
-     * {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
-     * @associates AnnotationNode
-     * @label visible
-     */
-    public List<AnnotationNode> visibleAnnotations;
+  /** The runtime visible annotations of this field. May be <tt>null</tt>. */
+  public List<AnnotationNode> visibleAnnotations;
 
-    /**
-     * The runtime invisible annotations of this field. This list is a list of
-     * {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
-     * @associates AnnotationNode
-     * @label invisible
-     */
-    public List<AnnotationNode> invisibleAnnotations;
+  /** The runtime invisible annotations of this field. May be <tt>null</tt>. */
+  public List<AnnotationNode> invisibleAnnotations;
 
-    /**
-     * The runtime visible type annotations of this field. This list is a list
-     * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
-     * 
-     * @associates TypeAnnotationNode
-     * @label visible
-     */
-    public List<TypeAnnotationNode> visibleTypeAnnotations;
+  /** The runtime visible type annotations of this field. May be <tt>null</tt>. */
+  public List<TypeAnnotationNode> visibleTypeAnnotations;
 
-    /**
-     * The runtime invisible type annotations of this field. This list is a list
-     * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
-     * 
-     * @associates TypeAnnotationNode
-     * @label invisible
-     */
-    public List<TypeAnnotationNode> invisibleTypeAnnotations;
+  /** The runtime invisible type annotations of this field. May be <tt>null</tt>. */
+  public List<TypeAnnotationNode> invisibleTypeAnnotations;
 
-    /**
-     * The non standard attributes of this field. This list is a list of
-     * {@link Attribute} objects. May be <tt>null</tt>.
-     * 
-     * @associates Attribute
-     */
-    public List<Attribute> attrs;
+  /** The non standard attributes of this field. * May be <tt>null</tt>. */
+  public List<Attribute> attrs;
 
-    /**
-     * Constructs a new {@link FieldNode}. <i>Subclasses must not use this
-     * constructor</i>. Instead, they must use the
-     * {@link #FieldNode(int, int, String, String, String, Object)} version.
-     * 
-     * @param access
-     *            the field's access flags (see
-     *            {@link Opcodes}). This parameter also
-     *            indicates if the field is synthetic and/or deprecated.
-     * @param name
-     *            the field's name.
-     * @param desc
-     *            the field's descriptor (see {@link Type
-     *            Type}).
-     * @param signature
-     *            the field's signature.
-     * @param value
-     *            the field's initial value. This parameter, which may be
-     *            <tt>null</tt> if the field does not have an initial value,
-     *            must be an {@link Integer}, a {@link Float}, a {@link Long}, a
-     *            {@link Double} or a {@link String}.
-     * @throws IllegalStateException
-     *             If a subclass calls this constructor.
-     */
-    public FieldNode(final int access, final String name, final String desc,
-            final String signature, final Object value) {
-        this(Opcodes.ASM6, access, name, desc, signature, value);
-        if (getClass() != FieldNode.class) {
-            throw new IllegalStateException();
-        }
+  /**
+   * Constructs a new {@link FieldNode}. <i>Subclasses must not use this constructor</i>. Instead,
+   * they must use the {@link #FieldNode(int, int, String, String, String, Object)} version.
+   *
+   * @param access the field's access flags (see {@link Opcodes}). This parameter
+   *     also indicates if the field is synthetic and/or deprecated.
+   * @param name the field's name.
+   * @param descriptor the field's descriptor (see {@link Type}).
+   * @param signature the field's signature.
+   * @param value the field's initial value. This parameter, which may be <tt>null</tt> if the field
+   *     does not have an initial value, must be an {@link Integer}, a {@link Float}, a {@link
+   *     Long}, a {@link Double} or a {@link String}.
+   * @throws IllegalStateException If a subclass calls this constructor.
+   */
+  public FieldNode(
+      final int access,
+      final String name,
+      final String descriptor,
+      final String signature,
+      final Object value) {
+    this(Opcodes.ASM6, access, name, descriptor, signature, value);
+    if (getClass() != FieldNode.class) {
+      throw new IllegalStateException();
     }
+  }
 
-    /**
-     * Constructs a new {@link FieldNode}. <i>Subclasses must not use this
-     * constructor</i>.
-     * 
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
-     * @param access
-     *            the field's access flags (see
-     *            {@link Opcodes}). This parameter also
-     *            indicates if the field is synthetic and/or deprecated.
-     * @param name
-     *            the field's name.
-     * @param desc
-     *            the field's descriptor (see {@link Type
-     *            Type}).
-     * @param signature
-     *            the field's signature.
-     * @param value
-     *            the field's initial value. This parameter, which may be
-     *            <tt>null</tt> if the field does not have an initial value,
-     *            must be an {@link Integer}, a {@link Float}, a {@link Long}, a
-     *            {@link Double} or a {@link String}.
-     */
-    public FieldNode(final int api, final int access, final String name,
-            final String desc, final String signature, final Object value) {
-        super(api);
-        this.access = access;
-        this.name = name;
-        this.desc = desc;
-        this.signature = signature;
-        this.value = value;
+  /**
+   * Constructs a new {@link FieldNode}. <i>Subclasses must not use this constructor</i>.
+   *
+   * @param api the ASM API version implemented by this visitor. Must be one of {@link Opcodes#ASM4}
+   *     or {@link Opcodes#ASM5}.
+   * @param access the field's access flags (see {@link Opcodes}). This parameter
+   *     also indicates if the field is synthetic and/or deprecated.
+   * @param name the field's name.
+   * @param descriptor the field's descriptor (see {@link Type}).
+   * @param signature the field's signature.
+   * @param value the field's initial value. This parameter, which may be <tt>null</tt> if the field
+   *     does not have an initial value, must be an {@link Integer}, a {@link Float}, a {@link
+   *     Long}, a {@link Double} or a {@link String}.
+   */
+  public FieldNode(
+      final int api,
+      final int access,
+      final String name,
+      final String descriptor,
+      final String signature,
+      final Object value) {
+    super(api);
+    this.access = access;
+    this.name = name;
+    this.desc = descriptor;
+    this.signature = signature;
+    this.value = value;
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Implementation of the FieldVisitor abstract class
+  // -----------------------------------------------------------------------------------------------
+
+  @Override
+  public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
+    AnnotationNode annotation = new AnnotationNode(descriptor);
+    if (visible) {
+      if (visibleAnnotations == null) {
+        visibleAnnotations = new ArrayList<AnnotationNode>(1);
+      }
+      visibleAnnotations.add(annotation);
+    } else {
+      if (invisibleAnnotations == null) {
+        invisibleAnnotations = new ArrayList<AnnotationNode>(1);
+      }
+      invisibleAnnotations.add(annotation);
     }
+    return annotation;
+  }
 
-    // ------------------------------------------------------------------------
-    // Implementation of the FieldVisitor abstract class
-    // ------------------------------------------------------------------------
-
-    @Override
-    public AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
-        AnnotationNode an = new AnnotationNode(desc);
-        if (visible) {
-            if (visibleAnnotations == null) {
-                visibleAnnotations = new ArrayList<AnnotationNode>(1);
-            }
-            visibleAnnotations.add(an);
-        } else {
-            if (invisibleAnnotations == null) {
-                invisibleAnnotations = new ArrayList<AnnotationNode>(1);
-            }
-            invisibleAnnotations.add(an);
-        }
-        return an;
+  @Override
+  public AnnotationVisitor visitTypeAnnotation(
+      final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+    TypeAnnotationNode typeAnnotation = new TypeAnnotationNode(typeRef, typePath, descriptor);
+    if (visible) {
+      if (visibleTypeAnnotations == null) {
+        visibleTypeAnnotations = new ArrayList<TypeAnnotationNode>(1);
+      }
+      visibleTypeAnnotations.add(typeAnnotation);
+    } else {
+      if (invisibleTypeAnnotations == null) {
+        invisibleTypeAnnotations = new ArrayList<TypeAnnotationNode>(1);
+      }
+      invisibleTypeAnnotations.add(typeAnnotation);
     }
+    return typeAnnotation;
+  }
 
-    @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-                                                 TypePath typePath, String desc, boolean visible) {
-        TypeAnnotationNode an = new TypeAnnotationNode(typeRef, typePath, desc);
-        if (visible) {
-            if (visibleTypeAnnotations == null) {
-                visibleTypeAnnotations = new ArrayList<TypeAnnotationNode>(1);
-            }
-            visibleTypeAnnotations.add(an);
-        } else {
-            if (invisibleTypeAnnotations == null) {
-                invisibleTypeAnnotations = new ArrayList<TypeAnnotationNode>(1);
-            }
-            invisibleTypeAnnotations.add(an);
-        }
-        return an;
+  @Override
+  public void visitAttribute(final Attribute attribute) {
+    if (attrs == null) {
+      attrs = new ArrayList<Attribute>(1);
     }
+    attrs.add(attribute);
+  }
 
-    @Override
-    public void visitAttribute(final Attribute attr) {
-        if (attrs == null) {
-            attrs = new ArrayList<Attribute>(1);
-        }
-        attrs.add(attr);
+  @Override
+  public void visitEnd() {
+    // Nothing to do.
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Accept methods
+  // -----------------------------------------------------------------------------------------------
+
+  /**
+   * Checks that this field node is compatible with the given ASM API version. This method checks
+   * that this node, and all its children recursively, do not contain elements that were introduced
+   * in more recent versions of the ASM API than the given version.
+   *
+   * @param api an ASM API version. Must be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5},
+   *     {@link Opcodes#ASM6} or {@link Opcodes#ASM7_EXPERIMENTAL}.
+   */
+  public void check(final int api) {
+    if (api == Opcodes.ASM4) {
+      if (visibleTypeAnnotations != null && !visibleTypeAnnotations.isEmpty()) {
+        throw new UnsupportedClassVersionException();
+      }
+      if (invisibleTypeAnnotations != null && !invisibleTypeAnnotations.isEmpty()) {
+        throw new UnsupportedClassVersionException();
+      }
     }
+  }
 
-    @Override
-    public void visitEnd() {
+  /**
+   * Makes the given class visitor visit this field.
+   *
+   * @param classVisitor a class visitor.
+   */
+  public void accept(final ClassVisitor classVisitor) {
+    FieldVisitor fieldVisitor = classVisitor.visitField(access, name, desc, signature, value);
+    if (fieldVisitor == null) {
+      return;
     }
-
-    // ------------------------------------------------------------------------
-    // Accept methods
-    // ------------------------------------------------------------------------
-
-    /**
-     * Checks that this field node is compatible with the given ASM API version.
-     * This methods checks that this node, and all its nodes recursively, do not
-     * contain elements that were introduced in more recent versions of the ASM
-     * API than the given version.
-     * 
-     * @param api
-     *            an ASM API version. Must be one of {@link Opcodes#ASM4},
-     *            {@link Opcodes#ASM5} or {@link Opcodes#ASM6}.
-     */
-    public void check(final int api) {
-        if (api == Opcodes.ASM4) {
-            if (visibleTypeAnnotations != null
-                    && visibleTypeAnnotations.size() > 0) {
-                throw new RuntimeException();
-            }
-            if (invisibleTypeAnnotations != null
-                    && invisibleTypeAnnotations.size() > 0) {
-                throw new RuntimeException();
-            }
-        }
+    // Visit the annotations.
+    if (visibleAnnotations != null) {
+      for (int i = 0, n = visibleAnnotations.size(); i < n; ++i) {
+        AnnotationNode annotation = visibleAnnotations.get(i);
+        annotation.accept(fieldVisitor.visitAnnotation(annotation.desc, true));
+      }
     }
-
-    /**
-     * Makes the given class visitor visit this field.
-     * 
-     * @param cv
-     *            a class visitor.
-     */
-    public void accept(final ClassVisitor cv) {
-        FieldVisitor fv = cv.visitField(access, name, desc, signature, value);
-        if (fv == null) {
-            return;
-        }
-        int i, n;
-        n = visibleAnnotations == null ? 0 : visibleAnnotations.size();
-        for (i = 0; i < n; ++i) {
-            AnnotationNode an = visibleAnnotations.get(i);
-            an.accept(fv.visitAnnotation(an.desc, true));
-        }
-        n = invisibleAnnotations == null ? 0 : invisibleAnnotations.size();
-        for (i = 0; i < n; ++i) {
-            AnnotationNode an = invisibleAnnotations.get(i);
-            an.accept(fv.visitAnnotation(an.desc, false));
-        }
-        n = visibleTypeAnnotations == null ? 0 : visibleTypeAnnotations.size();
-        for (i = 0; i < n; ++i) {
-            TypeAnnotationNode an = visibleTypeAnnotations.get(i);
-            an.accept(fv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc,
-                    true));
-        }
-        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations
-                .size();
-        for (i = 0; i < n; ++i) {
-            TypeAnnotationNode an = invisibleTypeAnnotations.get(i);
-            an.accept(fv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc,
-                    false));
-        }
-        n = attrs == null ? 0 : attrs.size();
-        for (i = 0; i < n; ++i) {
-            fv.visitAttribute(attrs.get(i));
-        }
-        fv.visitEnd();
+    if (invisibleAnnotations != null) {
+      for (int i = 0, n = invisibleAnnotations.size(); i < n; ++i) {
+        AnnotationNode annotation = invisibleAnnotations.get(i);
+        annotation.accept(fieldVisitor.visitAnnotation(annotation.desc, false));
+      }
     }
+    if (visibleTypeAnnotations != null) {
+      for (int i = 0, n = visibleTypeAnnotations.size(); i < n; ++i) {
+        TypeAnnotationNode typeAnnotation = visibleTypeAnnotations.get(i);
+        typeAnnotation.accept(
+            fieldVisitor.visitTypeAnnotation(
+                typeAnnotation.typeRef, typeAnnotation.typePath, typeAnnotation.desc, true));
+      }
+    }
+    if (invisibleTypeAnnotations != null) {
+      for (int i = 0, n = invisibleTypeAnnotations.size(); i < n; ++i) {
+        TypeAnnotationNode typeAnnotation = invisibleTypeAnnotations.get(i);
+        typeAnnotation.accept(
+            fieldVisitor.visitTypeAnnotation(
+                typeAnnotation.typeRef, typeAnnotation.typePath, typeAnnotation.desc, false));
+      }
+    }
+    // Visit the non standard attributes.
+    if (attrs != null) {
+      for (int i = 0, n = attrs.size(); i < n; ++i) {
+        fieldVisitor.visitAttribute(attrs.get(i));
+      }
+    }
+    fieldVisitor.visitEnd();
+  }
 }

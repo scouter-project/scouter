@@ -1,32 +1,30 @@
-/***
- * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2011 INRIA, France Telecom
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
- */
+// ASM: a very small and fast Java bytecode manipulation framework
+// Copyright (c) 2000-2011 INRIA, France Telecom
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. Neither the name of the copyright holders nor the names of its
+//    contributors may be used to endorse or promote products derived from
+//    this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+// THE POSSIBILITY OF SUCH DAMAGE.
 
 package scouter.org.objectweb.asm.commons;
 
@@ -34,46 +32,72 @@ import scouter.org.objectweb.asm.AnnotationVisitor;
 import scouter.org.objectweb.asm.Opcodes;
 
 /**
- * An {@link AnnotationVisitor} adapter for type remapping.
- * 
+ * An {@link AnnotationVisitor} that remaps types with a {@link Remapper}.
+ *
  * @author Eugene Kuleshov
  */
 public class AnnotationRemapper extends AnnotationVisitor {
 
-    protected final Remapper remapper;
+  /** The remapper used to remap the types in the visited annotation. */
+  protected final Remapper remapper;
 
-    public AnnotationRemapper(final AnnotationVisitor av,
-            final Remapper remapper) {
-        this(Opcodes.ASM6, av, remapper);
-    }
+  /**
+   * Constructs a new {@link AnnotationRemapper}. <i>Subclasses must not use this constructor</i>.
+   * Instead, they must use the {@link #AnnotationRemapper(int,AnnotationVisitor,Remapper)} version.
+   *
+   * @param annotationVisitor the annotation visitor this remapper must deleted to.
+   * @param remapper the remapper to use to remap the types in the visited annotation.
+   */
+  public AnnotationRemapper(final AnnotationVisitor annotationVisitor, final Remapper remapper) {
+    this(Opcodes.ASM6, annotationVisitor, remapper);
+  }
 
-    protected AnnotationRemapper(final int api, final AnnotationVisitor av,
-            final Remapper remapper) {
-        super(api, av);
-        this.remapper = remapper;
-    }
+  /**
+   * Constructs a new {@link AnnotationRemapper}.
+   *
+   * @param api the ASM API version supported by this remapper. Must be one of {@link
+   *     Opcodes#ASM4}, {@link Opcodes#ASM5} or {@link
+   *     Opcodes#ASM6}.
+   * @param annotationVisitor the annotation visitor this remapper must deleted to.
+   * @param remapper the remapper to use to remap the types in the visited annotation.
+   */
+  protected AnnotationRemapper(
+      final int api, final AnnotationVisitor annotationVisitor, final Remapper remapper) {
+    super(api, annotationVisitor);
+    this.remapper = remapper;
+  }
 
-    @Override
-    public void visit(String name, Object value) {
-        av.visit(name, remapper.mapValue(value));
-    }
+  @Override
+  public void visit(final String name, final Object value) {
+    super.visit(name, remapper.mapValue(value));
+  }
 
-    @Override
-    public void visitEnum(String name, String desc, String value) {
-        av.visitEnum(name, remapper.mapDesc(desc), value);
-    }
+  @Override
+  public void visitEnum(final String name, final String descriptor, final String value) {
+    super.visitEnum(name, remapper.mapDesc(descriptor), value);
+  }
 
-    @Override
-    public AnnotationVisitor visitAnnotation(String name, String desc) {
-        AnnotationVisitor v = av.visitAnnotation(name, remapper.mapDesc(desc));
-        return v == null ? null : (v == av ? this : new AnnotationRemapper(v,
-                remapper));
+  @Override
+  public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
+    AnnotationVisitor annotationVisitor = super.visitAnnotation(name, remapper.mapDesc(descriptor));
+    if (annotationVisitor == null) {
+      return null;
+    } else {
+      return annotationVisitor == av
+          ? this
+          : new AnnotationRemapper(api, annotationVisitor, remapper);
     }
+  }
 
-    @Override
-    public AnnotationVisitor visitArray(String name) {
-        AnnotationVisitor v = av.visitArray(name);
-        return v == null ? null : (v == av ? this : new AnnotationRemapper(v,
-                remapper));
+  @Override
+  public AnnotationVisitor visitArray(final String name) {
+    AnnotationVisitor annotationVisitor = super.visitArray(name);
+    if (annotationVisitor == null) {
+      return null;
+    } else {
+      return annotationVisitor == av
+          ? this
+          : new AnnotationRemapper(api, annotationVisitor, remapper);
     }
+  }
 }

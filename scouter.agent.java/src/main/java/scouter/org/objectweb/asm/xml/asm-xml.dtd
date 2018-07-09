@@ -30,7 +30,7 @@
 
 <!--
   This DTD must be used to create XML documents to be processed by
-  ASMContentHandler
+  org.objectweb.asm.xml.ASMContentHandler
 -->
 
 <!--
