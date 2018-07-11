@@ -380,6 +380,10 @@ public class Configure extends Thread {
     @ConfigDesc("Do not discard error even if it's discard pattern.")
     public boolean xlog_discard_service_show_error = true;
 
+    @ConfigDesc("XLog fully discard service patterns\nNo XLog data, No apply to TPS and summary.\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String xlog_fully_discard_service_patterns = "";
+
     //Alert
     @ConfigDesc("Limited length of alert message")
     public int alert_message_length = 3000;
@@ -1054,6 +1058,7 @@ public class Configure extends Thread {
 
         this.xlog_discard_service_patterns = getValue("xlog_discard_service_patterns", "");
         this.xlog_discard_service_show_error = getBoolean("xlog_discard_service_show_error", true);
+        this.xlog_fully_discard_service_patterns = getValue("xlog_fully_discard_service_patterns", "");
 
         resetObjInfo();
         setStaticContents();

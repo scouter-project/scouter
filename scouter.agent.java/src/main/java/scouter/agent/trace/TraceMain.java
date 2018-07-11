@@ -234,7 +234,6 @@ public class TraceMain {
         ctx.txid = KeyGen.next();
         ctx.startTime = System.currentTimeMillis();
         ctx.startCpu = SysJMX.getCurrentThreadCPU();
-        ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
         ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
         ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
 
@@ -246,8 +245,16 @@ public class TraceMain {
         ctx.profile.add(step);
 
         http.start(ctx, req, res);
-        if (ctx.serviceName == null)
+        if (ctx.isFullyDiscardService) {
+            return null;
+        }
+
+        if (ctx.serviceName == null) {
             ctx.serviceName = "Non-URI";
+        }
+
+        ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
+
         Stat stat = new Stat(ctx, req, res);
         stat.isStaticContents = ctx.isStaticContents;
 

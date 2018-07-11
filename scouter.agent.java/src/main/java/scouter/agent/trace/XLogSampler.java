@@ -16,14 +16,18 @@ public class XLogSampler {
     private Configure conf;
     private String currentDiscardServicePatterns;
     private String currentSamplingServicePatterns;
+    private String currentFullyDiscardServicePatterns;
     private CommaSeparatedChainedStrMatcher discardPatternMatcher;
     private CommaSeparatedChainedStrMatcher samplingPatternMatcher;
+    private CommaSeparatedChainedStrMatcher fullyDiscardPatternMatcher;
 
     private XLogSampler() {
         conf = Configure.getInstance();
         currentDiscardServicePatterns = conf.xlog_discard_service_patterns;
+        currentFullyDiscardServicePatterns = conf.xlog_fully_discard_service_patterns;
         currentSamplingServicePatterns = conf.xlog_patterned_sampling_service_patterns;
         discardPatternMatcher = new CommaSeparatedChainedStrMatcher(currentDiscardServicePatterns);
+        fullyDiscardPatternMatcher = new CommaSeparatedChainedStrMatcher(currentFullyDiscardServicePatterns);
         samplingPatternMatcher = new CommaSeparatedChainedStrMatcher(currentSamplingServicePatterns);
 
         ConfObserver.add("XLogSampler.StrMatch", new Runnable() {
@@ -33,6 +37,10 @@ public class XLogSampler {
                 if (sampler.currentDiscardServicePatterns.equals(conf.xlog_discard_service_patterns) == false) {
                     sampler.currentDiscardServicePatterns = conf.xlog_discard_service_patterns;
                     sampler.discardPatternMatcher = new CommaSeparatedChainedStrMatcher(conf.xlog_discard_service_patterns);
+                }
+                if (sampler.currentFullyDiscardServicePatterns.equals(conf.xlog_fully_discard_service_patterns) == false) {
+                    sampler.currentFullyDiscardServicePatterns = conf.xlog_fully_discard_service_patterns;
+                    sampler.fullyDiscardPatternMatcher = new CommaSeparatedChainedStrMatcher(conf.xlog_fully_discard_service_patterns);
                 }
                 if (sampler.currentSamplingServicePatterns.equals(conf.xlog_patterned_sampling_service_patterns) == false) {
                     sampler.currentSamplingServicePatterns = conf.xlog_patterned_sampling_service_patterns;
@@ -101,6 +109,17 @@ public class XLogSampler {
             return false;
         }
         if (discardPatternMatcher.isMatch(serviceName)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isFullyDiscardServicePattern(String serviceName) {
+        if (StringUtil.isEmpty(conf.xlog_fully_discard_service_patterns)) {
+            return false;
+        }
+        if (fullyDiscardPatternMatcher.isMatch(serviceName)) {
             return true;
         } else {
             return false;

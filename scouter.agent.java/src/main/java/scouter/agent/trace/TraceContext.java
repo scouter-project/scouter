@@ -30,6 +30,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TraceContext {
 	private boolean isSummary;
 	public boolean isStaticContents;
+	public boolean isFullyDiscardService;
 
 	protected TraceContext() {
 	}
