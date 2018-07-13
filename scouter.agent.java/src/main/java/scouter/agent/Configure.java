@@ -184,6 +184,8 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public boolean _profile_fullstack_sql_connection_enabled = false;
     @ConfigDesc("")
+    public boolean _profile_fullstack_sql_execute_debug_enabled = false;
+    @ConfigDesc("")
     public boolean profile_fullstack_rs_leak_enabled = false;
     @ConfigDesc("")
     public boolean profile_fullstack_stmt_leak_enabled = false;
@@ -1015,6 +1017,7 @@ public class Configure extends Thread {
         this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
         this.jmx_counter_enabled = getBoolean("jmx_counter_enabled", true);
         this._profile_fullstack_sql_connection_enabled = getBoolean("_profile_fullstack_sql_connection_enabled", false);
+        this._profile_fullstack_sql_execute_debug_enabled = getBoolean("_profile_fullstack_sql_execute_debug_enabled", false);
         this._trace_fullstack_socket_open_port = getInt("_trace_fullstack_socket_open_port", 0);
         this._trace_sql_parameter_max_count = getInt("_trace_sql_parameter_max_count", 128);
         this.log_dir = getValue("log_dir", "");

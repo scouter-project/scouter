@@ -127,8 +127,24 @@ public class TraceSQL0 implements ITraceSQL {
 			}
 			return null;
 		}
-		// to debug
-		if (conf._profile_fullstack_sql_connection_enabled && ctx.debug_sql_call == false) {
+
+		//debug sql call
+		if (conf._profile_fullstack_sql_execute_debug_enabled) {
+			StringBuffer sb = new StringBuffer();
+			if (o instanceof Statement) {
+				try {
+					Connection c = ((Statement) o).getConnection();
+					sb.append(c).append("\n");
+					sb.append("Connection = ").append(c.getClass().getName()).append("\n");
+					sb.append("AutoCommit = ").append(c.getAutoCommit()).append("\n");
+				} catch (Exception e) {
+					sb.append(e).append("\n");
+				}
+			}
+			sb.append(ThreadUtil.getThreadStack());
+			ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), sb.toString()));
+
+		} else if (conf._profile_fullstack_sql_connection_enabled && ctx.debug_sql_call == false) {
 			ctx.debug_sql_call = true;
 			StringBuffer sb = new StringBuffer();
 			if (o instanceof Statement) {
@@ -144,6 +160,7 @@ public class TraceSQL0 implements ITraceSQL {
 			sb.append(ThreadUtil.getThreadStack());
 			ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), sb.toString()));
 		}
+
 		// Looking for the position of calling SQL COMMIT
 		if (conf.profile_fullstack_sql_commit_enabled) {
 			if ("commit".equalsIgnoreCase(args.getSql())) {
