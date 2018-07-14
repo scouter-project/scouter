@@ -141,7 +141,7 @@ public class TraceSQL0 implements ITraceSQL {
 					sb.append(e).append("\n");
 				}
 			}
-			sb.append(ThreadUtil.getThreadStack());
+			sb.append(ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2));
 			ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), sb.toString()));
 
 		} else if (conf._profile_fullstack_sql_connection_enabled && ctx.debug_sql_call == false) {
@@ -157,7 +157,7 @@ public class TraceSQL0 implements ITraceSQL {
 					sb.append(e).append("\n");
 				}
 			}
-			sb.append(ThreadUtil.getThreadStack());
+			sb.append(ThreadUtil.getStackTrace(Thread.currentThread().getStackTrace(), 2));
 			ctx.profile.add(new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), sb.toString()));
 		}
 

@@ -75,7 +75,10 @@ public class SysJMX {
 			return 0;
 		}
 	}
-	public static long getCurrentThreadAllocBytes() {
+	public static long getCurrentThreadAllocBytes(boolean ok) {
+		if (!ok) {
+			return 0;
+		}
 		if (sunThreadMX ==false)
 			return 0;
 		try {

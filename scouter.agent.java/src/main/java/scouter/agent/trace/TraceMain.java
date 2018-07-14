@@ -62,7 +62,7 @@ import scouter.util.ObjectUtil;
 import scouter.util.StringUtil;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
-import javax.sql.DataSource;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
@@ -234,7 +234,7 @@ public class TraceMain {
         ctx.startTime = System.currentTimeMillis();
         ctx.startCpu = SysJMX.getCurrentThreadCPU();
         ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
-        ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
+        ctx.bytes = SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled);
         ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
 
         HashedMessageStep step = new HashedMessageStep();
@@ -295,7 +295,7 @@ public class TraceMain {
                 flushErrorSummary(ctx);
                 TraceContextManager.end(ctx.threadId);
                 ctx.latestCpu = SysJMX.getCurrentThreadCPU();
-                ctx.latestBytes = SysJMX.getCurrentThreadAllocBytes();
+                ctx.latestBytes = SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled);
                 TraceContextManager.toDeferred(ctx);
             }
         } catch (Throwable throwable) {
@@ -401,7 +401,7 @@ public class TraceMain {
             if (ctx.latestBytes > 0) {
                 pack.kbytes = (int) ((ctx.latestBytes - ctx.bytes) / 1024.0d);
             } else {
-                pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
+                pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled) - ctx.bytes) / 1024.0d);
             }
             pack.status = ctx.status;
             pack.sqlCount = ctx.sqlCount;
@@ -598,7 +598,7 @@ public class TraceMain {
             ctx.startCpu = SysJMX.getCurrentThreadCPU();
             ctx.txid = KeyGen.next();
             ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
-            ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
+            ctx.bytes = SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled);
             ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
             ctx.xType = xType;
 
@@ -683,7 +683,7 @@ public class TraceMain {
             pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
             pack.xType = ctx.xType;
             pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-            pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
+            pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled) - ctx.bytes) / 1024.0d);
             pack.status = ctx.status;
             pack.sqlCount = ctx.sqlCount;
             pack.sqlTime = ctx.sqlTime;
