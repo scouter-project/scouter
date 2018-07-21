@@ -100,7 +100,7 @@ public class LoaderManager {
 			appendToSystemLoader(JavaAgent.getInstrumentation(), key);
 			return ClassLoader.getSystemClassLoader();
 		} else {
-			appendToSystemLoader(JavaAgent.getInstrumentation(), key);
+			appendToBootLoader(JavaAgent.getInstrumentation(), key);
 			return null;
 		}
 	}
