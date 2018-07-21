@@ -17,17 +17,19 @@
 
 package scouter.xtra.tools;
 
+import scouter.agent.proxy.IToolsMain;
+import scouter.agent.trace.AlertProxy;
+import scouter.lang.AlertLevel;
+import scouter.util.FileUtil;
+import scouter.util.SysJMX;
+import sun.tools.attach.HotSpotVirtualMachine;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-
-import scouter.agent.proxy.IToolsMain;
-import scouter.util.FileUtil;
-import scouter.util.SysJMX;
-import sun.tools.attach.HotSpotVirtualMachine;
 
 public class ToolsMain implements IToolsMain {
 	private static JVM jvm = null;
@@ -62,6 +64,7 @@ public class ToolsMain implements IToolsMain {
 		} catch (Exception e) {
 			jvm = null;
 			e.printStackTrace();
+			sendAlert();
 			throw new RuntimeException(getJvmErrMsg());
 		}
 	}
@@ -105,6 +108,7 @@ public class ToolsMain implements IToolsMain {
 		} catch (Exception e) {
 			jvm = null;
 			e.printStackTrace();
+			sendAlert();
 			throw new RuntimeException(getJvmErrMsg());
 		}
 	}
@@ -139,6 +143,7 @@ public class ToolsMain implements IToolsMain {
 		} catch (Exception e) {
 			jvm = null;
 			e.printStackTrace();
+			sendAlert();
 			throw new RuntimeException(getJvmErrMsg());
 		}
 	}
@@ -178,8 +183,15 @@ public class ToolsMain implements IToolsMain {
 		} catch (Exception e) {
 			jvm = null;
 			e.printStackTrace();
+			sendAlert();
 			throw new RuntimeException(getJvmErrMsg());
 		}
+	}
+
+	private void sendAlert() {
+		AlertProxy.sendAlert(AlertLevel.WARN, "Fail to JVM attachment", "Can not attach to the JVM. \n" +
+				"Add this command line option for getting thread dump, heap histo and some another abilities " +
+				"if your java version is 9+ : -Djdk.attach.allowAttachSelf=true");
 	}
 
 	private String getJvmErrMsg() {

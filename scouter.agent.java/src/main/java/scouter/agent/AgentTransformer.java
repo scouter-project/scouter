@@ -102,11 +102,13 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new RequestStartAsyncASM());
         temp.add(new AsyncContextDispatchASM());
 
+        //TODO temporary block
         temp.add(new JDBCPreparedStatementASM());
         temp.add(new JDBCResultSetASM());
         temp.add(new JDBCStatementASM());
         temp.add(new SqlMapASM());
         temp.add(new UserTxASM());
+
         temp.add(new JDBCGetConnectionASM());
         temp.add(new JDBCConnectionOpenASM());
         temp.add(new JDBCDriverASM());

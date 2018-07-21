@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>1.8.7.SNAPSHOT</version>
+        <version>1.9.0.SNAPSHOT</version>
     </parent>
 
     <artifactId>scouter-agent-java</artifactId>
@@ -17,6 +17,7 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scouter.http.jar>scouter.http.jar</scouter.http.jar>
+        <scouter.jdbc.jar>scouter.jdbc.jar</scouter.jdbc.jar>
         <scouter.httpclient.jar>scouter.httpclient.jar</scouter.httpclient.jar>
         <scouter.tools.jar>scouter.tools.jar</scouter.tools.jar>
 
@@ -188,6 +189,11 @@
                                         <include name="scouter/xtra/http/*.class" />
                                     </fileset>
                                 </jar>
+                                <jar destfile="${project.build.directory}/${scouter.jdbc.jar}">
+                                    <fileset dir="${project.build.outputDirectory}">
+                                        <include name="scouter/xtra/jdbc/*.class" />
+                                    </fileset>
+                                </jar>
                                 <jar destfile="${project.build.directory}/${scouter.httpclient.jar}">
                                     <fileset dir="${project.build.outputDirectory}">
                                         <include name="scouter/xtra/httpclient/*.class" />
@@ -215,6 +221,7 @@
                                 <jar destfile="${final.jar.name.xtra}">
                                     <fileset dir="${project.build.directory}">
                                         <include name="${scouter.http.jar}" />
+                                        <include name="${scouter.jdbc.jar}" />
                                         <include name="${scouter.httpclient.jar}" />
                                         <include name="${scouter.tools.jar}" />
                                     </fileset>
@@ -232,6 +239,7 @@
                                 <copy file="${final.jar.name}" tofile="${final.jar.name.shade}" overwrite="true" verbose="true" />
                                 <copy file="${final.jar.name.xtra}" tofile="${final.jar.name}" overwrite="true" verbose="true" />
                                 <delete file="${project.build.directory}/${scouter.http.jar}" />
+                                <delete file="${project.build.directory}/${scouter.jdbc.jar}" />
                                 <delete file="${project.build.directory}/${scouter.httpclient.jar}" />
                                 <delete file="${project.build.directory}/${scouter.tools.jar}" />
 

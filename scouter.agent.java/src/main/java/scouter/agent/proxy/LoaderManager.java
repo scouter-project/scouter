@@ -16,11 +16,6 @@
  */
 package scouter.agent.proxy;
 
-import java.io.File;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
-
 import scouter.agent.JavaAgent;
 import scouter.agent.Logger;
 import scouter.agent.util.ManifestUtil;
@@ -29,8 +24,18 @@ import scouter.util.BytesClassLoader;
 import scouter.util.FileUtil;
 import scouter.util.HashUtil;
 import scouter.util.IntKeyLinkedMap;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.instrument.Instrumentation;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.jar.JarFile;
+
 /**
  * @author Paul S.J. Kim(sjkim@whatap.io)
+ * @author Gun Lee(gunlee01@gmail.com)
  */
 
 public class LoaderManager {
@@ -40,8 +45,12 @@ public class LoaderManager {
 	public synchronized static ClassLoader getToolsLoader() {
 		if (toolsLoader == null) {
 			try {
-				File tools = ManifestUtil.getToolsFile();
-				toolsLoader = new URLClassLoader(new URL[] { tools.toURI().toURL() });
+				if (JavaAgent.isJava9plus()) {
+					toolsLoader = ClassLoader.getSystemClassLoader();
+				} else {
+					File tools = ManifestUtil.getToolsFile();
+					toolsLoader = new URLClassLoader(new URL[] { tools.toURI().toURL() });
+				}
 			} catch (Throwable e) {
 				Logger.println("A134", e);
 			}
@@ -52,6 +61,11 @@ public class LoaderManager {
 
 	public static ClassLoader getHttpLoader(ClassLoader parent) {
 		return createLoader(parent, "scouter.http");
+	}
+
+	//TODO del
+	public static ClassLoader getJdbcLoader(ClassLoader parent) {
+		return createLoader(parent, "scouter.jdbc");
 	}
 
 	public static ClassLoader getDB2Loader(ClassLoader parent) {
@@ -79,6 +93,38 @@ public class LoaderManager {
 			}
 		}
 		return loader;
+	}
+
+	public static ClassLoader appendToSystemOrBootLoader(String key) {
+		if (JavaAgent.isJava9plus()) {
+			appendToSystemLoader(JavaAgent.getInstrumentation(), key);
+			return ClassLoader.getSystemClassLoader();
+		} else {
+			appendToBootLoader(JavaAgent.getInstrumentation(), key);
+			return null;
+		}
+	}
+
+	private static void appendToSystemLoader(Instrumentation inst, String key) {
+		byte[] bytes = deployJarBytes(key);
+		try {
+			File tempJar = FileUtil.saveAsTemp(key, ".jar", bytes);
+			inst.appendToSystemClassLoaderSearch(new JarFile(tempJar));
+		} catch (IOException e) {
+			Logger.println("A138", "Error on load " + key + ".jar " + e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static void appendToBootLoader(Instrumentation inst, String key) {
+		byte[] bytes = deployJarBytes(key);
+		try {
+			File tempJar = FileUtil.saveAsTemp(key, ".jar", bytes);
+			inst.appendToBootstrapClassLoaderSearch(new JarFile(tempJar));
+		} catch (IOException e) {
+			Logger.println("A138", "Error on load " + key + ".jar " + e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	private static byte[] deployJarBytes(String jarname) {
