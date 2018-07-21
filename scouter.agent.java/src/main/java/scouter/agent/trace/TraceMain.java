@@ -37,6 +37,7 @@ import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.summary.ServiceSummary;
 import scouter.agent.trace.enums.XLogDiscard;
 import scouter.agent.wrapper.async.WrTask;
+import scouter.agent.wrapper.async.WrTaskCallable;
 import scouter.lang.AlertLevel;
 import scouter.lang.TextTypes;
 import scouter.lang.enumeration.ParameterizedMessageLevel;
@@ -62,7 +63,6 @@ import scouter.util.StringUtil;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 
-import javax.sql.DataSource;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
@@ -234,7 +234,7 @@ public class TraceMain {
         ctx.startTime = System.currentTimeMillis();
         ctx.startCpu = SysJMX.getCurrentThreadCPU();
         ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
-        ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
+        ctx.bytes = SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled);
         ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
 
         HashedMessageStep step = new HashedMessageStep();
@@ -245,8 +245,16 @@ public class TraceMain {
         ctx.profile.add(step);
 
         http.start(ctx, req, res);
-        if (ctx.serviceName == null)
+        if (ctx.isFullyDiscardService) {
+            return null;
+        }
+
+        if (ctx.serviceName == null) {
             ctx.serviceName = "Non-URI";
+        }
+
+        ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
+
         Stat stat = new Stat(ctx, req, res);
         stat.isStaticContents = ctx.isStaticContents;
 
@@ -295,7 +303,7 @@ public class TraceMain {
                 flushErrorSummary(ctx);
                 TraceContextManager.end(ctx.threadId);
                 ctx.latestCpu = SysJMX.getCurrentThreadCPU();
-                ctx.latestBytes = SysJMX.getCurrentThreadAllocBytes();
+                ctx.latestBytes = SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled);
                 TraceContextManager.toDeferred(ctx);
             }
         } catch (Throwable throwable) {
@@ -401,7 +409,7 @@ public class TraceMain {
             if (ctx.latestBytes > 0) {
                 pack.kbytes = (int) ((ctx.latestBytes - ctx.bytes) / 1024.0d);
             } else {
-                pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
+                pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled) - ctx.bytes) / 1024.0d);
             }
             pack.status = ctx.status;
             pack.sqlCount = ctx.sqlCount;
@@ -598,7 +606,7 @@ public class TraceMain {
             ctx.startCpu = SysJMX.getCurrentThreadCPU();
             ctx.txid = KeyGen.next();
             ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
-            ctx.bytes = SysJMX.getCurrentThreadAllocBytes();
+            ctx.bytes = SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled);
             ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
             ctx.xType = xType;
 
@@ -683,7 +691,7 @@ public class TraceMain {
             pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
             pack.xType = ctx.xType;
             pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
-            pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes() - ctx.bytes) / 1024.0d);
+            pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled) - ctx.bytes) / 1024.0d);
             pack.status = ctx.status;
             pack.sqlCount = ctx.sqlCount;
             pack.sqlTime = ctx.sqlTime;
@@ -983,16 +991,6 @@ public class TraceMain {
         ctx.profile.add(p);
     }
 
-    public static void ctxLookup(Object this1, Object ctx) {
-        if (TraceContextManager.isForceDiscarded()) {
-            return;
-        }
-
-        if (ctx instanceof DataSource) {
-            LoadedContext.put((DataSource) ctx);
-        }
-    }
-
     public static void endRequestAsyncStart(Object asyncContext) {
         if (http == null) return;
         TraceContext traceContext = TraceContextManager.getContext();
@@ -1183,6 +1181,7 @@ public class TraceMain {
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null) return;
         if (callRunnable == null) return;
+        if (callRunnable instanceof WrTaskCallable) return;
 
         ctx.lastThreadCallName = callRunnable.getClass().getName();
     }
@@ -1192,6 +1191,7 @@ public class TraceMain {
             TraceContext ctx = TraceContextManager.getContext();
             if (ctx == null) return;
             if (callRunnable == null) return;
+            if (callRunnable instanceof WrTaskCallable) return;
 
             if (TransferMap.get(System.identityHashCode(callRunnable)) != null) {
                 return;
@@ -1347,6 +1347,14 @@ public class TraceMain {
             TransferMap.put(System.identityHashCode(callRunnableObj), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
         } catch (Throwable t) {
             Logger.println("B1203", "Exception: callRunnableInitInvoked", t);
+        }
+    }
+
+    public static Callable wrap1stParamAsWrTaskCallable(Callable callable) {
+        if (callable.getClass().getName().contains("$Lambda")) {
+            return new WrTaskCallable(callable);
+        } else {
+            return callable;
         }
     }
 

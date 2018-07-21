@@ -72,7 +72,8 @@ class JDBCDriverCV extends ClassVisitor implements Opcodes {
 class JDBCDriverMV extends LocalVariablesSorter implements Opcodes {
 	private static final String TRACE_SQL = TraceSQL.class.getName().replace('.', '/');
 	private final static String CONNECT_METHOD = "driverConnect";
-	private static final String CONNECT_SIGNATURE = "(Ljava/sql/Connection;Ljava/lang/String;)Ljava/sql/Connection;";
+	private static final String CONNECT_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;";
+
 	private static final String ERR_SIGNATURE = "(Ljava/lang/String;Ljava/lang/Throwable;)V";
 	
 	private Label startFinally = new Label();
