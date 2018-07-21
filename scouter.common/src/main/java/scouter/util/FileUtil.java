@@ -131,6 +131,13 @@ public class FileUtil {
 		return null;
 	}
 
+	public static File saveAsTemp(String prefix, String postfix, byte[] b) throws IOException {
+		File file = File.createTempFile(prefix, postfix);
+		file.deleteOnExit();
+		save(file, b);
+		return file;
+	}
+
 	public static void save(String file, byte[] b) {
 		save(new File(file), b);
 

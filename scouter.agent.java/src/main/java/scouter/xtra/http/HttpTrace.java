@@ -97,6 +97,11 @@ public class HttpTrace implements IHttpTrace {
             return;
         }
 
+        if (XLogSampler.getInstance().isFullyDiscardServicePattern(ctx.serviceName)) {
+            ctx.isFullyDiscardService = true;
+            return;
+        }
+
         ctx.isStaticContents = TraceMain.isStaticContents(ctx.serviceName);
 
         ctx.http_method = request.getMethod();

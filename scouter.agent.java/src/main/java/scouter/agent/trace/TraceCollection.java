@@ -3,7 +3,6 @@ package scouter.agent.trace;
 import scouter.agent.Configure;
 import scouter.agent.error.TOO_MANY_COLLECTION_MEMBERS;
 import scouter.agent.netio.data.DataProxy;
-import scouter.agent.summary.ServiceSummary;
 import scouter.lang.AlertLevel;
 import scouter.lang.TextTypes;
 import scouter.lang.pack.AlertPack;
@@ -11,7 +10,6 @@ import scouter.lang.step.HashedMessageStep;
 import scouter.lang.value.MapValue;
 import scouter.util.ThreadUtil;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -19,7 +17,7 @@ import java.util.Map;
  */
 public class TraceCollection {
     private static Configure conf = Configure.getInstance();
-    private static SQLException tooManyCollectionMemebers = new TOO_MANY_COLLECTION_MEMBERS("TOO_MANY_COLLECTION_MEMBERS", "TOO_MANY_COLLECTION_MEMBERS");
+    private static IllegalStateException tooManyCollectionMemebers = new TOO_MANY_COLLECTION_MEMBERS("TOO_MANY_COLLECTION_MEMBERS");
 
     public static void endPut(Map map) {
         int size = map.size();

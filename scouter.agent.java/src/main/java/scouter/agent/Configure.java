@@ -142,8 +142,10 @@ public class Configure extends Thread {
 //    @ConfigDesc("Activating profile summary function")
 //    public boolean profile_summary_mode_enabled = false;
 
-    @ConfigDesc("Calculating CPU time by profile")
+    @ConfigDesc("Profiling the memory usage of each method")
     public boolean profile_thread_cputime_enabled = false;
+    @ConfigDesc("Profiling the memory usage of each service")
+    public boolean profile_thread_memory_usage_enabled = true;
     @ConfigDesc("ThreadStack profile for open socket")
     public boolean profile_socket_open_fullstack_enabled = false;
     @ConfigDesc("ThreadStack profile for a certain port of open socket")
@@ -183,6 +185,8 @@ public class Configure extends Thread {
     public boolean profile_sql_escape_enabled = true;
     @ConfigDesc("")
     public boolean _profile_fullstack_sql_connection_enabled = false;
+    @ConfigDesc("")
+    public boolean _profile_fullstack_sql_execute_debug_enabled = false;
     @ConfigDesc("")
     public boolean profile_fullstack_rs_leak_enabled = false;
     @ConfigDesc("")
@@ -379,6 +383,10 @@ public class Configure extends Thread {
     public String xlog_discard_service_patterns = "";
     @ConfigDesc("Do not discard error even if it's discard pattern.")
     public boolean xlog_discard_service_show_error = true;
+
+    @ConfigDesc("XLog fully discard service patterns\nNo XLog data, No apply to TPS and summary.\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String xlog_fully_discard_service_patterns = "";
 
     //Alert
     @ConfigDesc("Limited length of alert message")
@@ -792,6 +800,7 @@ public class Configure extends Thread {
 
         this.mgr_static_content_extensions = getValue("mgr_static_content_extensions", "js, htm, html, gif, png, jpg, css");
         this.profile_thread_cputime_enabled = getBoolean("profile_thread_cputime_enabled", false);
+        this.profile_thread_memory_usage_enabled = getBoolean("profile_thread_memory_usage_enabled", true);
         this.profile_socket_open_fullstack_enabled = getBoolean("profile_socket_open_fullstack_enabled", false);
         this.trace_background_socket_enabled = getBoolean("trace_background_socket_enabled", true);
         this.profile_socket_open_fullstack_port = getInt("profile_socket_open_fullstack_port", 0);
@@ -1015,6 +1024,7 @@ public class Configure extends Thread {
         this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
         this.jmx_counter_enabled = getBoolean("jmx_counter_enabled", true);
         this._profile_fullstack_sql_connection_enabled = getBoolean("_profile_fullstack_sql_connection_enabled", false);
+        this._profile_fullstack_sql_execute_debug_enabled = getBoolean("_profile_fullstack_sql_execute_debug_enabled", false);
         this._trace_fullstack_socket_open_port = getInt("_trace_fullstack_socket_open_port", 0);
         this._trace_sql_parameter_max_count = getInt("_trace_sql_parameter_max_count", 128);
         this.log_dir = getValue("log_dir", "");
@@ -1054,6 +1064,7 @@ public class Configure extends Thread {
 
         this.xlog_discard_service_patterns = getValue("xlog_discard_service_patterns", "");
         this.xlog_discard_service_show_error = getBoolean("xlog_discard_service_show_error", true);
+        this.xlog_fully_discard_service_patterns = getValue("xlog_fully_discard_service_patterns", "");
 
         resetObjInfo();
         setStaticContents();

@@ -43,6 +43,14 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 		return target.contains(name);
 	}
 
+	public static boolean isTarget(String name, String desc) {
+		//for mysql prepared statement
+		if ("executeBatchedInserts".equals(name) && desc.startsWith("(I)")) {
+			return true;
+		}
+		return false;
+	}
+
 	private final static String TRACESQL = TraceSQL.class.getName().replace('.', '/');
 	private final static String START_METHOD = "start";
 	private static final String START_SIGNATURE = "(Ljava/lang/Object;Lscouter/agent/trace/SqlParameter;B)Ljava/lang/Object;";

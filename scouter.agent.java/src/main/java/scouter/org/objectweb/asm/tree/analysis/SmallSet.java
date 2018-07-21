@@ -1,32 +1,30 @@
-/***
- * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (c) 2000-2011 INRIA, France Telecom
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holders nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
- */
+// ASM: a very small and fast Java bytecode manipulation framework
+// Copyright (c) 2000-2011 INRIA, France Telecom
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. Neither the name of the copyright holders nor the names of its
+//    contributors may be used to endorse or promote products derived from
+//    this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+// THE POSSIBILITY OF SUCH DAMAGE.
 package scouter.org.objectweb.asm.tree.analysis;
 
 import java.util.AbstractSet;
@@ -36,99 +34,157 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * A set of at most two elements.
- * 
+ * An immutable set of at most two elements, optimized for speed compared to a generic set
+ * implementation.
+ *
  * @author Eric Bruneton
  */
-class SmallSet<E> extends AbstractSet<E> implements Iterator<E> {
+final class SmallSet<T> extends AbstractSet<T> {
 
-    // if e1 is null, e2 must be null; otherwise e2 must be different from e1
+  /** The first element of this set, maybe <tt>null</tt>. */
+  private final T element1;
 
-    E e1, e2;
+  /**
+   * The second element of this set, maybe <tt>null</tt>. If {@link #element1} is <tt>null</tt> then
+   * this field must be <tt>null</tt>, otherwise it must be different from {@link #element1}.
+   */
+  private final T element2;
 
-    static final <T> Set<T> emptySet() {
-        return new SmallSet<T>(null, null);
+  // -----------------------------------------------------------------------------------------------
+  // Constructors
+  // -----------------------------------------------------------------------------------------------
+
+  /** Constructs an empty set. */
+  SmallSet() {
+    this.element1 = null;
+    this.element2 = null;
+  }
+
+  /**
+   * Constructs a set with exactly one element.
+   *
+   * @param element the unique set element.
+   */
+  SmallSet(final T element) {
+    this.element1 = element;
+    this.element2 = null;
+  }
+
+  /**
+   * Constructs a new {@link SmallSet}.
+   *
+   * @param element1 see {@link #element1}.
+   * @param element2 see {@link #element2}.
+   */
+  private SmallSet(final T element1, final T element2) {
+    this.element1 = element1;
+    this.element2 = element2;
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Implementation of the inherited abstract methods
+  // -----------------------------------------------------------------------------------------------
+
+  @Override
+  public Iterator<T> iterator() {
+    return new IteratorImpl<T>(element1, element2);
+  }
+
+  static class IteratorImpl<T> implements Iterator<T> {
+
+    /** The next element to return in {@link #next}. Maybe <tt>null</tt>. */
+    private T firstElement;
+
+    /**
+     * The element to return in {@link #next}, after {@link #firstElement} is returned. If {@link
+     * #firstElement} is <tt>null</tt> then this field must be <tt>null</tt>, otherwise it must be
+     * different from {@link #firstElement}.
+     */
+    private T secondElement;
+
+    IteratorImpl(final T firstElement, final T secondElement) {
+      this.firstElement = firstElement;
+      this.secondElement = secondElement;
     }
-
-    SmallSet(final E e1, final E e2) {
-        this.e1 = e1;
-        this.e2 = e2;
-    }
-
-    // -------------------------------------------------------------------------
-    // Implementation of inherited abstract methods
-    // -------------------------------------------------------------------------
-
-    @Override
-    public Iterator<E> iterator() {
-        return new SmallSet<E>(e1, e2);
-    }
-
-    @Override
-    public int size() {
-        return e1 == null ? 0 : (e2 == null ? 1 : 2);
-    }
-
-    // -------------------------------------------------------------------------
-    // Implementation of the Iterator interface
-    // -------------------------------------------------------------------------
 
     public boolean hasNext() {
-        return e1 != null;
+      return firstElement != null;
     }
 
-    public E next() {
-        if (e1 == null) {
-            throw new NoSuchElementException();
-        }
-        E e = e1;
-        e1 = e2;
-        e2 = null;
-        return e;
+    public T next() {
+      if (firstElement == null) {
+        throw new NoSuchElementException();
+      }
+      T element = firstElement;
+      firstElement = secondElement;
+      secondElement = null;
+      return element;
     }
 
+    @Override
     public void remove() {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  @Override
+  public int size() {
+    return element1 == null ? 0 : (element2 == null ? 1 : 2);
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Utility methods
+  // -----------------------------------------------------------------------------------------------
+
+  /**
+   * Returns the union of this set and of the given set.
+   *
+   * @param otherSet another small set.
+   * @return the union of this set and of otherSet.
+   */
+  Set<T> union(final SmallSet<T> otherSet) {
+    // If the two sets are equal, return this set.
+    if ((otherSet.element1 == element1 && otherSet.element2 == element2)
+        || (otherSet.element1 == element2 && otherSet.element2 == element1)) {
+      return this;
+    }
+    // If one set is empty, return the other.
+    if (otherSet.element1 == null) {
+      return this;
+    }
+    if (element1 == null) {
+      return otherSet;
     }
 
-    // -------------------------------------------------------------------------
-    // Utility methods
-    // -------------------------------------------------------------------------
-
-    Set<E> union(final SmallSet<E> s) {
-        if ((s.e1 == e1 && s.e2 == e2) || (s.e1 == e2 && s.e2 == e1)) {
-            return this; // if the two sets are equal, return this
-        }
-        if (s.e1 == null) {
-            return this; // if s is empty, return this
-        }
-        if (e1 == null) {
-            return s; // if this is empty, return s
-        }
-        if (s.e2 == null) { // s contains exactly one element
-            if (e2 == null) {
-                return new SmallSet<E>(e1, s.e1); // necessarily e1 != s.e1
-            } else if (s.e1 == e1 || s.e1 == e2) { // s is included in this
-                return this;
-            }
-        }
-        if (e2 == null) { // this contains exactly one element
-            // if (s.e2 == null) { // cannot happen
-            // return new SmallSet(e1, s.e1); // necessarily e1 != s.e1
-            // } else
-            if (e1 == s.e1 || e1 == s.e2) { // this in included in s
-                return s;
-            }
-        }
-        // here we know that there are at least 3 distinct elements
-        HashSet<E> r = new HashSet<E>(4);
-        r.add(e1);
-        if (e2 != null) {
-            r.add(e2);
-        }
-        r.add(s.e1);
-        if (s.e2 != null) {
-            r.add(s.e2);
-        }
-        return r;
+    // At this point we know that the two sets are non empty and are different.
+    // If otherSet contains exactly one element:
+    if (otherSet.element2 == null) {
+      // If this set also contains exactly one element, we have two distinct elements.
+      if (element2 == null) {
+        return new SmallSet<T>(element1, otherSet.element1);
+      }
+      // If otherSet is included in this set, return this set.
+      if (otherSet.element1 == element1 || otherSet.element1 == element2) {
+        return this;
+      }
     }
+    // If this set contains exactly one element, then otherSet contains two elements (because of the
+    // above tests). Thus, if otherSet contains this set, return otherSet:
+    if (element2 == null && (element1 == otherSet.element1 || element1 == otherSet.element2)) {
+      return otherSet;
+    }
+
+    // At this point we know that there are at least 3 distinct elements, so we need a generic set
+    // to store the result.
+    HashSet<T> result = new HashSet<T>(4);
+    result.add(element1);
+    if (element2 != null) {
+      result.add(element2);
+    }
+    result.add(otherSet.element1);
+    if (otherSet.element2 != null) {
+      result.add(otherSet.element2);
+    }
+    return result;
+  }
 }
