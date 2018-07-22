@@ -49,7 +49,7 @@ public class CounterEngine {
 	public static final String TAG_FAMILY = "Family";
 	public static final String TAG_COUNTER = "Counter";
 	public static final String TAG_OBJECT_TYPE = "ObjectType";
-	
+
 	public static final String ATTR_NAME = "name";
 	public static final String ATTR_MASTER = "master";
 	public static final String ATTR_DISPLAY = "disp";
