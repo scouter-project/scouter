@@ -19,7 +19,6 @@ package scouter.agent;
 import scouter.Version;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.util.JarUtil;
-import scouter.lang.Counter;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueType;
@@ -45,7 +44,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -710,23 +708,6 @@ public class Configure extends Thread {
     private int enduser_perf_endpoint_hash = HashUtil.hash(enduser_trace_endpoint_url);
     private StringSet custom_jmx_set = new StringSet();
 
-    //telegraf input internal variables
-    private static final String TELEGRAF_INPUT_MEASUREMENT_PREFIX = "input_telegraf_$";
-    private static final int TELEGRAF_INPUT_MEASUREMENT_PREFIX_LENGTH = TELEGRAF_INPUT_MEASUREMENT_PREFIX.length();
-    private static final String TELEGRAF_INPUT_MEASUREMENT_ENABLED_POSTFIX = "_enabled";
-    private static final String TELEGRAF_INPUT_MEASUREMENT_DEBUG_ENABLED_POSTFIX = "_debug_enabled";
-
-    private static final String TELEGRAF_INPUT_MEASUREMENT_COUNTER_MAPPINGS_POSTFIX = "_counter_mappings";
-    private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_BASE_POSTFIX = "_objType_base";
-    private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_APPEND_TAGS_POSTFIX = "_objType_append_tags";
-    private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_BASE_POSTFIX = "_objName_base";
-    private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_APPEND_TAGS_POSTFIX = "_objName_append_tags";
-    private static final String TELEGRAF_INPUT_MEASUREMENT_HOST_TAG_POSTFIX = "_host_tag";
-    private static final String TELEGRAF_INPUT_MEASUREMENT_HOST_MAPPINGS_POSTFIX = "_host_mappings";
-
-    //telegraf config
-    public Map<String, TelegrafMasurementConfig> telegrafInputConfigMap = new HashMap<String, TelegrafMasurementConfig>();
-
     /**
      * sometimes call by sample application, at that time normally set some
      * properties directly
@@ -797,8 +778,6 @@ public class Configure extends Thread {
     }
 
     private void apply() {
-        //Telegraf input config
-        applyTelegrafInputConfig();
 
         this.profile_http_querystring_enabled = getBoolean("profile_http_querystring_enabled", false);
         this.profile_http_header_enabled = getBoolean("profile_http_header_enabled", false);
@@ -1118,114 +1097,6 @@ public class Configure extends Thread {
 
         resetObjInfo();
         setStaticContents();
-    }
-
-    protected void applyTelegrafInputConfig() {
-        for (Map.Entry<Object, Object> e : property.entrySet()) {
-            String key = (String) e.getKey();
-            String value = (String) e.getValue();
-            if(value == null) {
-                continue;
-            }
-
-            //eg) input_telegraf_$redis_keyspace$_enabled
-            if (key.startsWith(TELEGRAF_INPUT_MEASUREMENT_PREFIX)) { //start with "input_telegraf_$"
-                String simplifiedKey = key.substring(TELEGRAF_INPUT_MEASUREMENT_PREFIX_LENGTH); //redis_keyspace$_enabled
-                int secondDollar = simplifiedKey.indexOf("$_");
-                String measurement = simplifiedKey.substring(0, secondDollar); //redis_keyspace
-                String postfix = simplifiedKey.substring(secondDollar + 1);
-
-                TelegrafMasurementConfig tConfig = telegrafInputConfigMap.get(measurement);
-                if (tConfig == null) {
-                    tConfig = new TelegrafMasurementConfig(measurement);
-                    telegrafInputConfigMap.put(measurement, tConfig);
-                }
-
-                if (TELEGRAF_INPUT_MEASUREMENT_ENABLED_POSTFIX.equals(postfix)) {
-                    try {
-                        tConfig.setEnabled(Boolean.parseBoolean(value));
-                    } catch (Exception ignored) {}
-
-                } else if (TELEGRAF_INPUT_MEASUREMENT_DEBUG_ENABLED_POSTFIX.equals(postfix)) {
-                    try {
-                        tConfig.setDebugEnabled(Boolean.parseBoolean(value));
-                    } catch (Exception ignored) {}
-
-                } else if (TELEGRAF_INPUT_MEASUREMENT_COUNTER_MAPPINGS_POSTFIX.equals(postfix)) {
-                    String[] counterMappings = StringUtil.split(value, ',');
-                    if (counterMappings == null || counterMappings.length == 0) {
-                        continue;
-                    }
-                    //format: {line-protocol field name}:{scouter counter name}:{display name?}:{unit?}:{hasTotal?}
-                    Map<String, Counter> counterMappingMap = new HashMap<String, Counter>();
-                    for (String counterMapping : counterMappings) {
-                        Counter counter = new Counter();
-                        String[] split = StringUtil.split(counterMapping, ':');
-                        if (split.length >= 2) {
-                            counterMappingMap.put(split[0], counter);
-                            counter.setName(split[1]);
-                        }
-                        if (split.length >= 3) {
-                            counter.setDisplayName(split[2]);
-                        } else {
-                            counter.setDisplayName(split[1]);
-                        }
-                        if (split.length >= 4) {
-                            counter.setUnit(split[3]);
-                        } else {
-                            counter.setUnit("");
-                        }
-                        if (split.length >= 5) {
-                            try {
-                                counter.setTotal(Boolean.parseBoolean(split[4]));
-                            } catch (Exception ignored) {}
-                        }
-                    }
-
-                    if (counterMappingMap.size() > 0) {
-                        tConfig.setCounterMapping(counterMappingMap);
-                    }
-
-                } else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_BASE_POSTFIX.equals(postfix)) {
-                    tConfig.setObjTypeBase(value);
-
-                } else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_APPEND_TAGS_POSTFIX.equals(postfix)) {
-                    String[] tags = StringUtil.split(value, ',');
-                    if (tags == null || tags.length == 0) {
-                        continue;
-                    }
-                    tConfig.setObjTypeAppendTags(Arrays.asList(tags));
-
-                } else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_BASE_POSTFIX.equals(postfix)) {
-                    tConfig.setObjNameBase(value);
-
-                } else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_APPEND_TAGS_POSTFIX.equals(postfix)) {
-                    String[] tags = StringUtil.split(value, ',');
-                    if (tags == null || tags.length == 0) {
-                        continue;
-                    }
-                    tConfig.setObjNameAppendTags(Arrays.asList(tags));
-
-                } else if (TELEGRAF_INPUT_MEASUREMENT_HOST_TAG_POSTFIX.equals(postfix)) {
-                    tConfig.setHostTag(value);
-
-                } else if (TELEGRAF_INPUT_MEASUREMENT_HOST_MAPPINGS_POSTFIX.equals(postfix)) {
-                    String[] hostMappings = StringUtil.split(value, ',');
-                    if (hostMappings == null || hostMappings.length == 0) {
-                        continue;
-                    }
-                    Map<String, String> hostMappingMap = new HashMap<String, String>();
-                    for (String hostAndMap : hostMappings) {
-                        String[] split = StringUtil.split(hostAndMap, ':');
-                        if (split.length == 2) {
-                            hostMappingMap.put(split[0], split[1]);
-                        }
-                    }
-                    tConfig.setHostMapping(hostMappingMap);
-
-                }
-            }
-        }
     }
 
     public String getObjExtType() {

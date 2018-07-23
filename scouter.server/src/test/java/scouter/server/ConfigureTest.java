@@ -16,7 +16,7 @@
  *
  */
 
-package scouter.agent;
+package scouter.server;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,12 +25,12 @@ import scouter.lang.Counter;
 import java.util.Map;
 
 /**
- * @author Gun Lee (gunlee01@gmail.com) on 2018. 7. 22.
+ * @author Gun Lee (gunlee01@gmail.com) on 2018. 7. 23.
  */
 public class ConfigureTest {
 
     @Test
-    public void applyTelegrafInputConfig_test() {
+    public void applyTelegrafInputConfig() {
         System.setProperty("scouter.config", "./conf/testcase-scouter.conf");
         System.setProperty("input_telegraf_$xpu_space$_enabled", "true");
         System.setProperty("input_telegraf_$xpu_space$_debug_enabled", "true");

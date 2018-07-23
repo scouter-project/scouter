@@ -16,7 +16,7 @@
  *
  */
 
-package scouter.agent;
+package scouter.server;
 
 import scouter.lang.Counter;
 
@@ -117,4 +117,5 @@ public class TelegrafMasurementConfig {
     public void setHostMapping(Map<String, String> hostMapping) {
         this.hostMapping = hostMapping;
     }
+
 }
