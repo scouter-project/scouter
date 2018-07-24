@@ -38,7 +38,7 @@ public class InfluxSingleLine {
     private String objType;
     private String objName;
     private int objHash;
-    long receviedTime;
+    long receivedTime;
     long timestampOrigin;
 
     Map<String, String> tags;
@@ -48,12 +48,12 @@ public class InfluxSingleLine {
                              String measuement,
                              Map<String, String> tags,
                              Map<String, String> fields,
-                             long receviedTime,
+                             long receivedTime,
                              long timestampOrigin) {
 
         this.measuement = measuement;
         this.tags = tags;
-        this.receviedTime = receviedTime;
+        this.receivedTime = receivedTime;
         this.timestampOrigin = timestampOrigin;
 
         this.host = tags.get(tConfig.getHostTag());
@@ -66,7 +66,7 @@ public class InfluxSingleLine {
             }
         }
 
-        StringBuilder objTypeSb = new StringBuilder(tConfig.getObjTypeBase()).append('_');
+        StringBuilder objTypeSb = new StringBuilder(tConfig.getObjTypeBase());
         for (String tagKey : tConfig.getObjTypeAppendTags()) {
             objTypeSb.append('_').append(tags.get(tagKey));
         }
@@ -269,8 +269,8 @@ public class InfluxSingleLine {
         return objHash;
     }
 
-    public long getReceviedTime() {
-        return receviedTime;
+    public long getReceivedTime() {
+        return receivedTime;
     }
 
     public long getTimestampOrigin() {

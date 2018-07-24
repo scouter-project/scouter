@@ -66,8 +66,27 @@ public class TelegrafInputHandler extends Thread {
     }
 
     @Override
-    public void start() {
-        //TODO register job
+    public void run() {
+        while (true) {
+            try {
+                while (true) {
+                    InfluxSingleLine line = registerObjTypeQueue.get(1000);
+                    if (line == null) {
+                        break;
+                    }
+                    registerNewObjType0(line);
+                }
+                while (true) {
+                    AddCounterParam addCounterParam = addCounterQueue.get(1000);
+                    if (addCounterParam == null) {
+                        break;
+                    }
+                    addCounter0(addCounterParam);
+                }
+            } catch (Exception e) {
+                Logger.println("TGI-003", 60, "TelegrafInputHandler Error:" + e.getMessage(), e);
+            }
+        }
     }
 
     public void handlerRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -96,7 +115,7 @@ public class TelegrafInputHandler extends Thread {
         }
     }
 
-    public void count(InfluxSingleLine line) {
+    protected void count(InfluxSingleLine line) {
         ObjectType objectType = counterManager.getCounterEngine().getObjectType(line.getObjType());
         if (objectType == null) {
             registerNewObjType(line);
@@ -127,7 +146,7 @@ public class TelegrafInputHandler extends Thread {
         addCounterQueue.put(new AddCounterParam(objectType, counter));
     }
 
-    private synchronized void registerNewObjType0(InfluxSingleLine line) {
+    private void registerNewObjType0(InfluxSingleLine line) {
         ObjectType objectTypeDoubleCheck = counterManager.getCounterEngine().getObjectType(line.getObjType());
         if (objectTypeDoubleCheck != null) {
             return;
@@ -150,8 +169,8 @@ public class TelegrafInputHandler extends Thread {
                 family.addCounter(counter);
                 if (firstCounter) {
                     family.setMaster(counter.getName());
+                    firstCounter = false;
                 }
-                firstCounter = false;
             }
 
             boolean success0 = counterManager.safelyAddFamily(family);
@@ -166,13 +185,16 @@ public class TelegrafInputHandler extends Thread {
         }
     }
 
-    private synchronized void addCounter0(ObjectType objectType, Counter counter) {
+    private void addCounter0(AddCounterParam param) {
+        ObjectType objectType = param.objectType;
+        Counter counter = param.counter;
         Counter counterDoubleCheck = objectType.getCounter(counter.getName());
         if (counterDoubleCheck != null) {
             return;
         }
-        objectType.addCounter(counter);
-        boolean success = counterManager.safelyAddObjectType(objectType);
+        Family family = objectType.getFamily();
+        family.addCounter(counter);
+        boolean success = counterManager.safelyAddFamily(family);
         if (success) {
             RegisterHandler.notifyAllClients();
         }

@@ -19,6 +19,7 @@
 package scouter.server.http.model;
 
 import org.junit.Test;
+import scouter.server.Configure;
 
 import static org.junit.Assert.*;
 
@@ -36,7 +37,7 @@ public class InfluxSingleLineTest {
 
     @Test
     public void of_test() {
-        InfluxSingleLine.of("mem,host=GunMac.skbroadband,region=seoul used=11656097792i,free=1467994112i,cached=0i,buffered=0i,wired=2481405952i,slab=0i,available_percent=32.152581214904785,total=17179869184i,available=5523771392i,active=8165543936i,inactive=4055777280i,used_percent=67.84741878509521 1532269780000000000");
+        InfluxSingleLine.of("mem,host=GunMac.skbroadband,region=seoul used=11656097792i,free=1467994112i,cached=0i,buffered=0i,wired=2481405952i,slab=0i,available_percent=32.152581214904785,total=17179869184i,available=5523771392i,active=8165543936i,inactive=4055777280i,used_percent=67.84741878509521 1532269780000000000", Configure.getInstance(), System.currentTimeMillis());
     }
 
     @Test
@@ -45,19 +46,19 @@ public class InfluxSingleLineTest {
 
         long start = System.currentTimeMillis();
         for (int i = 0; i < 300000; i++) {
-            InfluxSingleLine.of(metric);
+            InfluxSingleLine.of(metric, Configure.getInstance(), start);
         }
         System.out.println("[of millis]" + (System.currentTimeMillis() - start));
 
         start = System.currentTimeMillis();
         for (int i = 0; i < 300000; i++) {
-            InfluxSingleLine.of(metric);
+            InfluxSingleLine.of(metric, Configure.getInstance(), start);
         }
         System.out.println("[of millis]" + (System.currentTimeMillis() - start));
 
         start = System.currentTimeMillis();
         for (int i = 0; i < 300000; i++) {
-            InfluxSingleLine.of(metric);
+            InfluxSingleLine.of(metric, Configure.getInstance(), start);
         }
         System.out.println("[of millis]" + (System.currentTimeMillis() - start));
     }

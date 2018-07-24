@@ -29,15 +29,16 @@ import java.util.Map;
  * @author Gun Lee (gunlee01@gmail.com) on 2018. 7. 22.
  */
 public class TelegrafMasurementConfig {
+    private final String TG = "TG$";
     private String measurement;
 
     private boolean enabled = true;
     private boolean debugEnabled = false;
 
     private Map<String, Counter> counterMapping;
-    private String objTypeBase;
+    private String objTypeBase = TG;
     private List<String> objTypeAppendTags = new ArrayList<String>();
-    private String objNameBase;
+    private String objNameBase = "";
     private List<String> objNameAppendTags = new ArrayList<String>();
     private String hostTag;
     private Map<String, String> hostMapping = new HashMap<String, String>();
@@ -75,7 +76,7 @@ public class TelegrafMasurementConfig {
     }
 
     public void setObjTypeBase(String objTypeBase) {
-        this.objTypeBase = objTypeBase;
+        this.objTypeBase = TG + objTypeBase;
     }
 
     public List<String> getObjTypeAppendTags() {

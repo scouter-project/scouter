@@ -657,34 +657,6 @@ public class Configure extends Thread {
     @ConfigDesc("Path to jsp to collect enduser data")
     public String enduser_trace_endpoint_url = "/_scouter_browser.jsp";
 
-    //telegraf sample config for help
-    @ConfigDesc("Telegraf http input enabled")
-    private boolean input_telegraf_enabled = true;
-    @ConfigDesc("print telegraf line protocol to STDOUT")
-    private boolean input_telegraf_debug_enabled = false;
-    @ConfigDesc("Telegraf http input of the $measurement$ enabled.\n$measurement$ is a variable to the measurement name of the line protocol.\n eg) input_telegraf_$redis_keyspace$_enabled=true")
-    private boolean input_telegraf_$measurement$_enabled = true;
-    @ConfigDesc("print telegraf line protocol of the $measurement$ to STDOUT")
-    private boolean input_telegraf_$measurement$_debug_enabled = false;
-    @ConfigDesc("which fields of $measurement$ are mapped to scouter's counter.\nformat: {line-protocol field name}:{scouter counter name}:{display name?}:{unit?}:{hasTotal?}\nIt can have multiple values.\neg)used_memory:tg-redis-used-memory,used_memory_rss:redis-used-memory-rss,redis used rss,bytes,true")
-    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
-    private String input_telegraf_$measurement$_counter_mappings = "";
-    @ConfigDesc("define an objectType prefix. objectType is defined with some tags.\nsee input_telegraf_$measurement$_objType_append_tags option.")
-    private String input_telegraf_$measurement$_objType_base = "";
-    @ConfigDesc("this tags's value is appended to objType_base.\nIt can have multiple values. eg)tag1,tag2")
-    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
-    private String input_telegraf_$measurement$_objType_append_tags = "";
-    @ConfigDesc("define an objectName prefix. objectName is defined with some tags.\nsee input_telegraf_$measurement$_objName_append_tags option.")
-    private String input_telegraf_$measurement$_objName_base = "";
-    @ConfigDesc("this tags's value is appended to objName_base.\nIt can have multiple values. eg)tag1,tag2")
-    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
-    private String input_telegraf_$measurement$_objName_append_tags = "";
-    @ConfigDesc("tag name to define host")
-    private String input_telegraf_$measurement$_host_tag = "";
-    @ConfigDesc("which host value defined with $measurement$_host_tag option is mapped to scouter's host.\nIt can have multiple values. eg)hostValue1:scouterHost1,hostValue2:scouterHost2")
-    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
-    private String input_telegraf_$measurement$_host_mappings = "";
-
     //Experimental(ignoreset)
     public boolean __experimental = false;
     public boolean __control_connection_leak_autoclose_enabled = false;

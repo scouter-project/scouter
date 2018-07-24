@@ -118,6 +118,16 @@ public class CounterManager {
 		newElement.setAttribute(CounterEngine.ATTR_MASTER, family.getMaster());
 		Element oldElement = findElementByTypeAndName(CounterEngine.TAG_FAMILY, family.getName());
 		Element familiesElement = (Element) unsafeDoc.getElementsByTagName(CounterEngine.TAG_FAMILYS).item(0);
+		for (Counter counter : family.listCounters()) {
+			Element counterElement = unsafeDoc.createElement(CounterEngine.TAG_COUNTER);
+			counterElement.setAttribute(CounterEngine.ATTR_NAME, counter.getName());
+			counterElement.setAttribute(CounterEngine.ATTR_DISPLAY, counter.getDisplayName());
+			counterElement.setAttribute(CounterEngine.ATTR_UNIT, counter.getUnit());
+			counterElement.setAttribute(CounterEngine.ATTR_ICON, counter.getIcon());
+			counterElement.setAttribute(CounterEngine.ATTR_ALL, counter.isAll() ? "true" : "false");
+			counterElement.setAttribute(CounterEngine.ATTR_TOTAL, counter.isTotal() ? "true" : "false");
+			newElement.appendChild(counterElement);
+		}
 		if (oldElement == null) {
 			familiesElement.appendChild(newElement);
 		} else {
