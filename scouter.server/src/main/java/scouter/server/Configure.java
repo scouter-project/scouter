@@ -17,7 +17,6 @@
 
 package scouter.server;
 
-import scouter.lang.Counter;
 import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueType;
 import scouter.lang.conf.ConfigValueUtil;
@@ -25,6 +24,7 @@ import scouter.lang.conf.ValueType;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
+import scouter.server.http.model.CounterProtocol;
 import scouter.util.DateUtil;
 import scouter.util.FileUtil;
 import scouter.util.StringEnumer;
@@ -41,12 +41,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Configure extends Thread {
 
@@ -59,6 +62,7 @@ public class Configure extends Thread {
 	private static final String TELEGRAF_INPUT_MEASUREMENT_ENABLED_POSTFIX = "_enabled";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_DEBUG_ENABLED_POSTFIX = "_debug_enabled";
 
+	private static final String TELEGRAF_INPUT_MEASUREMENT_TAG_FILTER_POSTFIX = "_tag_filter";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_COUNTER_MAPPINGS_POSTFIX = "_counter_mappings";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_BASE_POSTFIX = "_objType_base";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_APPEND_TAGS_POSTFIX = "_objType_append_tags";
@@ -68,7 +72,7 @@ public class Configure extends Thread {
 	private static final String TELEGRAF_INPUT_MEASUREMENT_HOST_MAPPINGS_POSTFIX = "_host_mappings";
 
 	//telegraf config
-	public Map<String, TelegrafMasurementConfig> telegrafInputConfigMap = new HashMap<String, TelegrafMasurementConfig>();
+	public Map<String, TgMeasurementConfig> telegrafInputConfigMap = new ConcurrentHashMap<String, TgMeasurementConfig>();
 
 	public final static synchronized Configure getInstance() {
 		if (instance == null) {
@@ -80,6 +84,16 @@ public class Configure extends Thread {
 		return instance;
 	}
 
+	public final static synchronized Configure newInstanceForTestCase() {
+		if (instance != null) {
+			instance.running = false;
+		}
+		instance = new Configure();
+		instance.setDaemon(true);
+		instance.setName(ThreadUtil.getName(instance));
+		instance.start();
+		return instance;
+	}
 
 	//SERVER
 	@ConfigDesc("Server ID")
@@ -340,31 +354,62 @@ public class Configure extends Thread {
 
     //telegraf sample config for help
     @ConfigDesc("Telegraf http input enabled")
-    private boolean input_telegraf_enabled = true;
+	public boolean input_telegraf_enabled = true;
     @ConfigDesc("print telegraf line protocol to STDOUT")
-    private boolean input_telegraf_debug_enabled = false;
-    @ConfigDesc("Telegraf http input of the $measurement$ enabled.\n$measurement$ is a variable to the measurement name of the line protocol.\n eg) input_telegraf_$redis_keyspace$_enabled=true")
-    private boolean input_telegraf_$measurement$_enabled = true;
-    @ConfigDesc("print telegraf line protocol of the $measurement$ to STDOUT")
-    private boolean input_telegraf_$measurement$_debug_enabled = false;
-    @ConfigDesc("which fields of $measurement$ are mapped to scouter's counter.\nformat: {line-protocol field name}:{scouter counter name}:{display name?}:{unit?}:{hasTotal?}\nIt can have multiple values.\neg)used_memory:tg-redis-used-memory,used_memory_rss:redis-used-memory-rss,redis used rss,bytes,true")
+	public boolean input_telegraf_debug_enabled = false;
+	@ConfigDesc("Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
+	public int telegraf_object_deadtime_ms = 35000;
+
+    @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"Telegraf http input of the $measurement$ enabled.\n" +
+			"$measurement$ is a variable to the measurement name of the line protocol.\n" +
+			"eg) input_telegraf_$redis_keyspace$_enabled=true")
+	public boolean input_telegraf_$measurement$_enabled = true;
+    @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"print telegraf line protocol of the $measurement$ to STDOUT")
+	public boolean input_telegraf_$measurement$_debug_enabled = false;
+
+	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"If set, only the metric matching to this tag value is handled.\n" +
+			"It can have multiple values. comma separator means 'or' condition. eg) cpu:cpu-total,cpu:cpu0\n" +
+			"It also have not(!) condition. eg) cpu:!cpu-total")
+	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+	public String input_telegraf_$measurement$_tag_filter = "";
+	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"which fields of $measurement$ are mapped to scouter's counter.\n" +
+			"format: {line-protocol field name}:{scouter counter name}:{display name?}:{unit?}:{hasTotal?}\n" +
+			"It can have multiple values.\n" +
+			"{scouter counter name} can be defined in combination with the line protocol's tag variables.\n" +
+			"For example, if the value of 'tag1' is 'disk01' and the value of 'tag2' is 'bin', the counter name defined as 'scouter-du-$tag1$-$tag2$' is 'scouter-du-disk01-bin'.\n" +
+			"eg)used_memory:tg-redis-used-memory,used_memory_rss:redis-used-memory-rss,redis used rss,bytes,true\n" +
+			"eg)cpu:cpu-$cpu-no$ -- this example shows counter definition with tag value.")
+	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+	public String input_telegraf_$measurement$_counter_mappings = "";
+    @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"define an objectType prefix. objectType is defined with some tags.\n" +
+			"see input_telegraf_$measurement$_objType_append_tags option.")
+	public String input_telegraf_$measurement$_objType_base = "";
+    @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"this tags's value is appended to objType_base.\nIt can have multiple values. eg)tag1,tag2")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
-    private String input_telegraf_$measurement$_counter_mappings = "";
-    @ConfigDesc("define an objectType prefix. objectType is defined with some tags.\nsee input_telegraf_$measurement$_objType_append_tags option.")
-    private String input_telegraf_$measurement$_objType_base = "";
-    @ConfigDesc("this tags's value is appended to objType_base.\nIt can have multiple values. eg)tag1,tag2")
+	public String input_telegraf_$measurement$_objType_append_tags = "";
+    @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"define an objectName prefix. objectName is defined with some tags.\n" +
+			"see input_telegraf_$measurement$_objName_append_tags option.")
+	public String input_telegraf_$measurement$_objName_base = "";
+    @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"this tags's value is appended to objName_base.\n" +
+			"It can have multiple values. eg)tag1,tag2")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
-    private String input_telegraf_$measurement$_objType_append_tags = "";
-    @ConfigDesc("define an objectName prefix. objectName is defined with some tags.\nsee input_telegraf_$measurement$_objName_append_tags option.")
-    private String input_telegraf_$measurement$_objName_base = "";
-    @ConfigDesc("this tags's value is appended to objName_base.\nIt can have multiple values. eg)tag1,tag2")
+	public String input_telegraf_$measurement$_objName_append_tags = "";
+    @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"tag name to define host")
+	public String input_telegraf_$measurement$_host_tag = "";
+    @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"which host value defined with $measurement$_host_tag option is mapped to scouter's host.\n" +
+			"It can have multiple values. eg)hostValue1:scouterHost1,hostValue2:scouterHost2")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
-    private String input_telegraf_$measurement$_objName_append_tags = "";
-    @ConfigDesc("tag name to define host")
-    private String input_telegraf_$measurement$_host_tag = "";
-    @ConfigDesc("which host value defined with $measurement$_host_tag option is mapped to scouter's host.\nIt can have multiple values. eg)hostValue1:scouterHost1,hostValue2:scouterHost2")
-    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
-    private String input_telegraf_$measurement$_host_mappings = "";
+	public String input_telegraf_$measurement$_host_mappings = "";
 
 	//Visitor Hourly
 	public boolean visitor_hourly_count_enabled = true;
@@ -572,7 +617,22 @@ public class Configure extends Thread {
 		this.net_tcp_service_pool_size = getInt("net_tcp_service_pool_size", 100);
 
 		this.req_search_xlog_max_count = getInt("req_search_xlog_max_count", 500);
-		
+
+		this.input_telegraf_enabled = getBoolean("input_telegraf_enabled", true);
+		this.input_telegraf_debug_enabled = getBoolean("input_telegraf_debug_enabled", false);
+        this.telegraf_object_deadtime_ms = getInt("telegraf_object_deadtime_ms", 35000);
+
+		this.input_telegraf_$measurement$_enabled = getBoolean("input_telegraf_$measurement$_enabled", true);
+		this.input_telegraf_$measurement$_debug_enabled = getBoolean("input_telegraf_$measurement$_debug_enabled", false);
+		this.input_telegraf_$measurement$_tag_filter = getValue("input_telegraf_$measurement$_tag_filter", "");
+		this.input_telegraf_$measurement$_counter_mappings = getValue("input_telegraf_$measurement$_counter_mappings", "");
+		this.input_telegraf_$measurement$_objType_base = getValue("input_telegraf_$measurement$_objType_base", "");
+		this.input_telegraf_$measurement$_objType_append_tags = getValue("input_telegraf_$measurement$_objType_append_tags", "");
+		this.input_telegraf_$measurement$_objName_base = getValue("input_telegraf_$measurement$_objName_base", "");
+		this.input_telegraf_$measurement$_objName_append_tags = getValue("input_telegraf_$measurement$_objName_append_tags", "");
+		this.input_telegraf_$measurement$_host_tag = getValue("input_telegraf_$measurement$_host_tag", "");
+		this.input_telegraf_$measurement$_host_mappings = getValue("input_telegraf_$measurement$_host_mappings", "");
+
 		ConfObserver.exec();
 	}
 
@@ -580,6 +640,8 @@ public class Configure extends Thread {
 	 * Configuration for telegraf input
 	 */
 	protected void applyTelegrafInputConfig() {
+		Map<String, TgMeasurementConfig> tConfigMap = new HashMap<String, TgMeasurementConfig>();
+
 		for (Map.Entry<Object, Object> e : property.entrySet()) {
 			String key = (String) e.getKey();
 			String value = (String) e.getValue();
@@ -594,10 +656,11 @@ public class Configure extends Thread {
 				String measurement = simplifiedKey.substring(0, secondDollar); //redis_keyspace
 				String postfix = simplifiedKey.substring(secondDollar + 1);
 
-				TelegrafMasurementConfig tConfig = telegrafInputConfigMap.get(measurement);
+
+				TgMeasurementConfig tConfig = tConfigMap.get(measurement);
 				if (tConfig == null) {
-					tConfig = new TelegrafMasurementConfig(measurement);
-					telegrafInputConfigMap.put(measurement, tConfig);
+					tConfig = new TgMeasurementConfig(measurement);
+					tConfigMap.put(measurement, tConfig);
 				}
 
 				if (TELEGRAF_INPUT_MEASUREMENT_ENABLED_POSTFIX.equals(postfix)) {
@@ -610,15 +673,37 @@ public class Configure extends Thread {
 						tConfig.setDebugEnabled(Boolean.parseBoolean(value));
 					} catch (Exception ignored) {}
 
+				} else if (TELEGRAF_INPUT_MEASUREMENT_TAG_FILTER_POSTFIX.equals(postfix)) {
+					String[] mappings = StringUtil.split(value, ',');
+					if (mappings == null || mappings.length == 0) {
+						continue;
+					}
+
+					Map<String, List<String>> tagFilterMap = new HashMap<String, List<String>>();
+					for (String mapping : mappings) {
+						String[] kv = StringUtil.split(mapping, ':');
+						if (kv.length != 2) {
+							Logger.println("CFG003", "Abnormal line protocol tag mapping config.");
+							continue;
+						}
+						List list = tagFilterMap.get(kv[0]);
+						if (list == null) {
+							list = new ArrayList();
+							tagFilterMap.put(kv[0], list);
+						}
+						list.add(kv[1]);
+					}
+					tConfig.setTagFilter(tagFilterMap);
+
 				} else if (TELEGRAF_INPUT_MEASUREMENT_COUNTER_MAPPINGS_POSTFIX.equals(postfix)) {
 					String[] counterMappings = StringUtil.split(value, ',');
 					if (counterMappings == null || counterMappings.length == 0) {
 						continue;
 					}
 					//format: {line-protocol field name}:{scouter counter name}:{display name?}:{unit?}:{hasTotal?}
-					Map<String, Counter> counterMappingMap = new HashMap<String, Counter>();
+					Map<String, CounterProtocol> counterMappingMap = new HashMap<String, CounterProtocol>();
 					for (String counterMapping : counterMappings) {
-						Counter counter = new Counter();
+						CounterProtocol counter = new CounterProtocol();
 						String[] split = StringUtil.splitByWholeSeparatorPreserveAllTokens(counterMapping, ':');
 						if (split.length >= 2) {
 							counterMappingMap.put(split[0], counter);
@@ -640,10 +725,7 @@ public class Configure extends Thread {
 							} catch (Exception ignored) {}
 						}
 					}
-
-					if (counterMappingMap.size() > 0) {
-						tConfig.setCounterMapping(counterMappingMap);
-					}
+					tConfig.setCounterMapping(counterMappingMap);
 
 				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_BASE_POSTFIX.equals(postfix)) {
 					tConfig.setObjTypeBase(value);
@@ -684,6 +766,10 @@ public class Configure extends Thread {
 
 				}
 			}
+		}
+
+		for (Map.Entry<String, TgMeasurementConfig> tConfigEntry : tConfigMap.entrySet()) {
+			telegrafInputConfigMap.put(tConfigEntry.getKey(), tConfigEntry.getValue());
 		}
 	}
 
@@ -775,6 +861,7 @@ public class Configure extends Thread {
 
 	static {
 		ignoreSet.add("property");
+        ignoreSet.add("telegrafInputConfigMap");
 	}
 
 	public MapValue getKeyValueInfo() {

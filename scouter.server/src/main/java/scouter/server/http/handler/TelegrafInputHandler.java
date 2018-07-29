@@ -18,20 +18,28 @@
 
 package scouter.server.http.handler;
 
+import scouter.io.DataOutputX;
 import scouter.lang.Counter;
 import scouter.lang.Family;
 import scouter.lang.ObjectType;
+import scouter.lang.pack.Pack;
 import scouter.lang.value.NumberValue;
+import scouter.net.NetCafe;
 import scouter.server.Configure;
 import scouter.server.CounterManager;
 import scouter.server.Logger;
+import scouter.server.http.HttpServer;
+import scouter.server.http.model.CounterProtocol;
 import scouter.server.http.model.InfluxSingleLine;
+import scouter.server.netio.data.NetDataProcessor;
+import scouter.util.IPUtil;
 import scouter.util.RequestQueue;
 import scouter.util.ThreadUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,52 +98,86 @@ public class TelegrafInputHandler extends Thread {
     }
 
     public void handlerRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (!configure.input_telegraf_enabled) {
+            return;
+        }
 
-        //TODO counter를 가지고 일정 수 이상이 누적되면 204 응답하자. 204일때 telegraf 에서 어떻게 처리하는지를 확인해 봐야한다. 재전송 안하는지...
         long receivedTime = System.currentTimeMillis();
         Map<String, String> uniqueLineString = new HashMap<String, String>();
         int lineCount = 0;
+        boolean earlyResponse = false;
         while (true) {
-            if (lineCount++ > 500) {
-                //TODO 응답 주고 끝내자.
+            if (lineCount++ > 200) {
+                earlyResponse = true;
+                break;
             }
-
             String lineString = request.getReader().readLine();
             if (lineString == null) {
                 break;
             }
+            if (configure.input_telegraf_debug_enabled) {
+                Logger.println("TG002", "[line protocol received] " + lineString);
+            }
             uniqueLineString.put(InfluxSingleLine.toLineStringKey(lineString), lineString);
+        }
+
+        if (earlyResponse) {
+            Logger.println("TG010", "Too many line protocol in payload. fast return working.");
+            return;
         }
 
         for (Map.Entry<String, String> lineStringEntry : uniqueLineString.entrySet()) {
             InfluxSingleLine line = InfluxSingleLine.of(lineStringEntry.getValue(), configure, receivedTime);
+            if (configure.input_telegraf_debug_enabled) {
+                Logger.println("TG003", "[line protocol] " + lineStringEntry.getValue() + " [line parsed] " + line);
+
+            } else if (line != null && line.isDebug()) {
+                Logger.println("TG004", "[line protocol] " + lineStringEntry.getValue() + " [line parsed] " + line);
+            }
+
             if (line == null) {
                 continue;
             }
+            count(line, HttpServer.getRemoteAddr(request));
         }
     }
 
-    protected void count(InfluxSingleLine line) {
+    protected void count(InfluxSingleLine line, String remoteAddress) throws IOException {
         ObjectType objectType = counterManager.getCounterEngine().getObjectType(line.getObjType());
         if (objectType == null) {
             registerNewObjType(line);
             return;
         }
 
-        Map<Counter, NumberValue> numberFields = line.getNumberFields();
-        boolean dirty = false;
-        for (Counter counter : numberFields.keySet()) {
-            Counter counterInternal = objectType.getCounter(counter.getName());
+        if (hasNewCounterThenRegister(objectType, line)) {
+            return;
+        }
+
+        InetAddress address = InetAddress.getByAddress(IPUtil.toBytes(remoteAddress));
+        NetDataProcessor.add(line.toObjectPack(remoteAddress, configure.telegraf_object_deadtime_ms), address);
+        NetDataProcessor.add(line.toPerfCounterPack(), address);
+    }
+
+    private boolean hasNewCounterThenRegister(ObjectType objectType, InfluxSingleLine line) {
+        Map<CounterProtocol, NumberValue> numberFields = line.getNumberFields();
+        boolean hasNew = false;
+
+        for (CounterProtocol counterProtocol : numberFields.keySet()) {
+            Counter counterInternal = objectType.getCounter(counterProtocol.getTaggingName(line.getTags()));
             if (counterInternal == null) {
-                dirty = true;
-                addCounter(objectType, counter);
+                hasNew = true;
+                addCounter(objectType, counterProtocol.toNormalCounter(line.getTags()));
                 continue;
             }
         }
-        if (dirty) {
-            return;
-        }
-        //TODO counter action
+        return hasNew;
+    }
+
+    private static void passToNetDataProcessor(Pack pack, InetAddress addr) throws IOException {
+        DataOutputX out = new DataOutputX();
+        out.write(NetCafe.CAFE);
+        out.write(new DataOutputX().writePack(pack).toByteArray());
+        NetDataProcessor.add(out.toByteArray(), addr);
     }
 
     private void registerNewObjType(InfluxSingleLine line) {
@@ -163,9 +205,10 @@ public class TelegrafInputHandler extends Thread {
             objectType.setFamily(family);
             family.setName(objTypeName);
 
-            Map<Counter, NumberValue> numberFields = line.getNumberFields();
+            Map<CounterProtocol, NumberValue> numberFields = line.getNumberFields();
             boolean firstCounter = true;
-            for (Counter counter : numberFields.keySet()) {
+            for (CounterProtocol counterProtocol : numberFields.keySet()) {
+                Counter counter = counterProtocol.toNormalCounter(line.getTags());
                 family.addCounter(counter);
                 if (firstCounter) {
                     family.setMaster(counter.getName());

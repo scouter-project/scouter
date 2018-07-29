@@ -28,8 +28,11 @@ import scouter.server.Configure;
 import scouter.server.Logger;
 import scouter.server.http.servlet.CounterServlet;
 import scouter.server.http.servlet.RegisterServlet;
+import scouter.server.http.servlet.TelegrafInputServlet;
+import scouter.util.StringUtil;
 import scouter.util.ThreadUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.TimeZone;
 
 public class HttpServer extends Thread {
@@ -49,7 +52,6 @@ public class HttpServer extends Thread {
         }
         return instance;
     }
-
 
     @Override
     public void run() {
@@ -93,6 +95,7 @@ public class HttpServer extends Thread {
             }
             context.addServlet(new ServletHolder(CounterServlet.class), "/counter/*");
             context.addServlet(new ServletHolder(RegisterServlet.class), "/register/*");
+            context.addServlet(new ServletHolder(TelegrafInputServlet.class), "/telegraf/*");
 
             if (conf.net_http_api_gzip_enabled) {
                 GzipHandler gzipHandler = new GzipHandler();
@@ -127,4 +130,17 @@ public class HttpServer extends Thread {
         }
     }
 
+    public static String getRemoteAddr(HttpServletRequest request) {
+        String ip = request.getHeader("X-FORWARDED-FOR");
+        if (ip == null) {
+            return request.getRemoteAddr();
+        } else {
+            String[] ips = StringUtil.split(ip, ',');
+            if (ips.length > 0) {
+                return ips[0];
+            } else {
+                return request.getRemoteAddr();
+            }
+        }
+    }
 }

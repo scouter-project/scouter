@@ -47,7 +47,8 @@ object AgentManager {
         while (en.hasMoreElements()) {
             val objPack = en.nextElement();
             if(!CounterConstants.BATCH.equals(objPack.objType)){
-	            if (now > objPack.wakeup + deadtime) {
+                var adjustDeadTime = if (objPack.getDeadTime() == 0) deadtime else objPack.getDeadTime();
+	            if (now > objPack.wakeup + adjustDeadTime) {
 	                inactive(objPack.objHash);
 	            } else if (counterEngine.isPrimaryObject(objPack.objType)) {
 	                primaryObjCount += 1;
@@ -81,7 +82,7 @@ object AgentManager {
             ObjectWR.add(objPack);
             Logger.println("S104", "New " + objPack);
         } else {
-            if(!objPack.alive && counterEngine.isPrimaryObject(objPack.objType)) {
+            if (!objPack.alive && counterEngine.isPrimaryObject(objPack.objType)) {
                 alertReactiveObject(objPack);
             }
 
@@ -92,6 +93,7 @@ object AgentManager {
             }
             objPack.wakeup();
             objPack.tags = p.tags;
+
             if (CompareUtil.equals(p.address, objPack.address) == false) {
                 save = true;
             }

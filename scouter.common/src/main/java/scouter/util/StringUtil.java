@@ -148,6 +148,27 @@ public class StringUtil {
 		return arr.toArray(new String[arr.size()]);
 	}
 
+	public static ArrayList<String> splitAsList(String s, char c) {
+		ArrayList<String> arr = new ArrayList<String>();
+
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			if (s.charAt(i) == c) {
+				if (sb.length() > 0) {
+					arr.add(sb.toString());
+					sb = new StringBuilder();
+				}
+			} else {
+				sb.append(s.charAt(i));
+			}
+		}
+		if (sb.length() > 0) {
+			arr.add(sb.toString());
+			sb = new StringBuilder();
+		}
+		return arr;
+	}
+
 	public static String[] splitByWholeSeparatorPreserveAllTokens(String s, char c) {
 		ArrayList<String> arr = new ArrayList<String>();
 

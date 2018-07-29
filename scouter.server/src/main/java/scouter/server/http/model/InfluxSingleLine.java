@@ -18,12 +18,16 @@
 
 package scouter.server.http.model;
 
-import scouter.lang.Counter;
+import scouter.lang.TimeTypeEnum;
+import scouter.lang.pack.ObjectPack;
+import scouter.lang.pack.PerfCounterPack;
 import scouter.lang.value.DecimalValue;
 import scouter.lang.value.FloatValue;
+import scouter.lang.value.MapValue;
 import scouter.lang.value.NumberValue;
 import scouter.server.Configure;
-import scouter.server.TelegrafMasurementConfig;
+import scouter.server.Logger;
+import scouter.server.TgMeasurementConfig;
 import scouter.util.HashUtil;
 
 import java.util.HashMap;
@@ -33,71 +37,58 @@ import java.util.Map;
  * @author Gun Lee (gunlee01@gmail.com) on 2018. 7. 22.
  */
 public class InfluxSingleLine {
-    private String measuement;
+    private String measurement;
     private String host;
     private String objType;
     private String objName;
     private int objHash;
     long receivedTime;
     long timestampOrigin;
+    boolean debug;
 
     Map<String, String> tags;
-    Map<Counter, NumberValue> numberFields = new HashMap<Counter, NumberValue>();
+    Map<CounterProtocol, NumberValue> numberFields = new HashMap<CounterProtocol, NumberValue>();
 
-    private InfluxSingleLine(TelegrafMasurementConfig tConfig,
-                             String measuement,
+    private InfluxSingleLine(TgMeasurementConfig tConfig,
+                             String measurement,
                              Map<String, String> tags,
                              Map<String, String> fields,
                              long receivedTime,
-                             long timestampOrigin) {
+                             long timestampOrigin,
+                             boolean debug) {
 
-        this.measuement = measuement;
+        this.measurement = measurement;
         this.tags = tags;
         this.receivedTime = receivedTime;
         this.timestampOrigin = timestampOrigin;
-
-        this.host = tags.get(tConfig.getHostTag());
-        if (this.host == null) {
-            this.host = "unknown";
-        } else {
-            String mappedHost = tConfig.getHostMapping().get(this.host);
-            if (mappedHost != null) {
-                this.host = mappedHost;
-            }
-        }
-
-        StringBuilder objTypeSb = new StringBuilder(tConfig.getObjTypeBase());
-        for (String tagKey : tConfig.getObjTypeAppendTags()) {
-            objTypeSb.append('_').append(tags.get(tagKey));
-        }
-        this.objType = objTypeSb.toString();
-
-        StringBuilder objNamSb = new StringBuilder(40).append('/').append(host).append('/').append(tConfig.getObjNameBase());
-        for (String tagKey : tConfig.getObjNameAppendTags()) {
-            objNamSb.append('_').append(tags.get(tagKey));
-        }
-        this.objName = objNamSb.toString();
+        this.host = tConfig.toHost(tags);
+        this.objType = tConfig.toObjType(tags);
+        this.objName = tConfig.toObjName(host, tags);
         this.objHash = HashUtil.hash(objName);
+        this.debug = debug;
 
-        Map<String, Counter> counterMapping = tConfig.getCounterMapping();
         for (Map.Entry<String, String> field : fields.entrySet()) {
-            Counter counter = counterMapping.get(field.getKey());
-            if (counter == null) {
-                continue;
-            }
-            String valueStr = field.getValue();
-            int valueLen = valueStr.length();
-            char lastChar = valueStr.charAt(valueLen - 1);
+            addNumField(tConfig, field);
+        }
+    }
 
-            if (lastChar == 'i') { //long
-                long value = Long.parseLong(valueStr.substring(0, valueLen - 1));
-                numberFields.put(counter, new DecimalValue(value));
-            } else if (lastChar >= '0' && lastChar <= '9') { //float
-                numberFields.put(counter, new FloatValue(Float.parseFloat(valueStr)));
-            } else {
-                //skip - boolean or string
-                continue;
-            }
+    private void addNumField(TgMeasurementConfig tConfig, Map.Entry<String, String> field) {
+        CounterProtocol counterProtocol = tConfig.getCounterProtocol(field.getKey());
+        if (counterProtocol == null) {
+            return;
+        }
+
+        String valueStr = field.getValue();
+        char lastChar = valueStr.charAt(valueStr.length() - 1);
+
+        if (lastChar == 'i') { //long
+            long value = Long.parseLong(valueStr.substring(0, valueStr.length() - 1));
+            numberFields.put(counterProtocol, new DecimalValue(value));
+        } else if (lastChar >= '0' && lastChar <= '9') { //float
+            numberFields.put(counterProtocol, new FloatValue(Float.parseFloat(valueStr)));
+        } else {
+            //skip - boolean or string
+            return;
         }
     }
 
@@ -208,16 +199,16 @@ public class InfluxSingleLine {
                             }
                             break;
                         case '=':
-                            tagKeyMode = false;
+                            fieldKeyMode = false;
                             break;
                         case ',':
-                            tagKeyMode = true;
+                            fieldKeyMode = true;
                             fields.put(fieldKeySb.toString(), fieldValueSb.toString());
                             fieldKeySb = new StringBuilder();
                             fieldValueSb = new StringBuilder();
                             break;
                         default:
-                            if (tagKeyMode) {
+                            if (fieldKeyMode) {
                                 fieldKeySb.append(c);
                             } else {
                                 fieldValueSb.append(c);
@@ -232,25 +223,31 @@ public class InfluxSingleLine {
         }
 
         String measurement = measurementSb.toString();
-        TelegrafMasurementConfig tConfig = configure.telegrafInputConfigMap.get(measurement);
+        TgMeasurementConfig tConfig = configure.telegrafInputConfigMap.get(measurement);
+
         if (tConfig == null) {
             return null;
+        }
+        if (!configure.input_telegraf_debug_enabled && tConfig.isDebugEnabled()) {
+            Logger.println("TG006", "[line protocol received] " + lineStr);
         }
         if (!tConfig.isEnabled()) {
             return null;
         }
-
+        if (!tConfig.isTagFilterMatching(tags)) {
+            return null;
+        }
 
         try {
-            return new InfluxSingleLine(tConfig, measurement, tags, fields, receivedTime, Long.parseLong(timestampSb.toString()));
+            return new InfluxSingleLine(tConfig, measurement, tags, fields, receivedTime, Long.parseLong(timestampSb.toString()), tConfig.isDebugEnabled());
         } catch (Throwable t) {
             t.printStackTrace();
             return null;
         }
     }
 
-    public String getMeasuement() {
-        return measuement;
+    public String getMeasurement() {
+        return measurement;
     }
 
     public String getHost() {
@@ -281,7 +278,50 @@ public class InfluxSingleLine {
         return tags;
     }
 
-    public Map<Counter, NumberValue> getNumberFields() {
+    public Map<CounterProtocol, NumberValue> getNumberFields() {
         return numberFields;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public ObjectPack toObjectPack(String address, int deadTime) {
+        ObjectPack objPack = new ObjectPack();
+        objPack.objHash = this.objHash;
+        objPack.objName = this.objName;
+        objPack.objType = this.objType;
+        objPack.address = address;
+        MapValue tagMap = new MapValue();
+        tagMap.put(ObjectPack.TAG_KEY_DEAD_TIME, deadTime);
+        objPack.tags = tagMap;
+
+        return objPack;
+    }
+
+    public PerfCounterPack toPerfCounterPack() {
+        PerfCounterPack perfPack = new PerfCounterPack();
+        perfPack.time = this.receivedTime;
+        perfPack.timetype = TimeTypeEnum.REALTIME;
+        perfPack.objName = this.objName;
+        for (Map.Entry<CounterProtocol, NumberValue> counterValueEntry : numberFields.entrySet()) {
+            perfPack.data.put(counterValueEntry.getKey().getTaggingName(tags), counterValueEntry.getValue());
+        }
+        return perfPack;
+    }
+
+    @Override
+    public String toString() {
+        return "InfluxSingleLine{" +
+                "measurement='" + measurement + '\'' +
+                ", host='" + host + '\'' +
+                ", objType='" + objType + '\'' +
+                ", objName='" + objName + '\'' +
+                ", objHash=" + objHash +
+                ", receivedTime=" + receivedTime +
+                ", timestampOrigin=" + timestampOrigin +
+                ", tags=" + tags +
+                ", numberFields=" + numberFields +
+                '}';
     }
 }

@@ -16,9 +16,10 @@
  *
  */
 package scouter.server.netio.data
+import java.io.IOException
 import java.net.InetAddress
 
-import scouter.io.DataInputX
+import scouter.io.{DataInputX, DataOutputX}
 import scouter.lang.{TextTypes, TimeTypeEnum}
 import scouter.lang.counters.CounterConstants
 import scouter.lang.pack.AlertPack
@@ -72,12 +73,22 @@ object NetDataProcessor {
     }
     val queue = new RequestQueue[NetData](2048)
     val conf = Configure.getInstance()
+
     def add(data: Array[Byte], addr: InetAddress) {
         val ok = queue.putNotifySingle(new NetData(data, addr))
         if (ok == false) {
             Logger.println("S158", 10, "overflow recv queue!!")
         }
     }
+
+    @throws[IOException]
+    def add(pack: Pack, addr: InetAddress): Unit = {
+        val out = new DataOutputX
+        out.write(NetCafe.CAFE)
+        out.write(new DataOutputX().writePack(pack).toByteArray)
+        add(out.toByteArray, addr)
+    }
+
     def process(p: NetData) {
         try {
             val in = new DataInputX(p.data)

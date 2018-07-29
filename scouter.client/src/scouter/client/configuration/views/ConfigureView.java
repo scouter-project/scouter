@@ -300,7 +300,7 @@ public class ConfigureView extends ViewPart {
 					int end = selectedY;
 					while(start > 0) {
 						char c = contents.charAt(--start);
-						if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' || c == '-') {
+						if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' || c == '-' || c == '$') {
 							//expand backward
 						} else {
 							start++;
@@ -309,7 +309,7 @@ public class ConfigureView extends ViewPart {
 					}
 					while(end < contents.length()) {
 						char c = contents.charAt(end++);
-						if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' || c == '-') {
+						if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_' || c == '-' || c == '$') {
 							//expand ahead
 						} else {
 							end--;

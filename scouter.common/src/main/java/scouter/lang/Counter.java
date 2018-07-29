@@ -27,7 +27,12 @@ public class Counter implements Comparable<Counter> {
 	private boolean all = true;
 	private boolean total = true;
 	private StringKeyLinkedMap<String> attrMap = new StringKeyLinkedMap<String>();
-	
+
+	public Counter() {}
+
+	public Counter(String name) {
+		this.name = name;
+	}
 	public String getName() {
 		return name;
 	}
@@ -105,5 +110,19 @@ public class Counter implements Comparable<Counter> {
 	
 	public int compareTo(Counter o) {
 		return this.name.compareTo(o.getName());
+	}
+
+	public Counter clone() {
+		Counter clone = new Counter();
+		clone.name = this.name;
+		clone.displayName = this.displayName;
+		clone.unit = this.unit;
+		clone.icon = this.icon;
+		clone.all = this.all;
+		clone.total = this.total;
+		//TODO deep clone
+		clone.attrMap = this.attrMap;
+
+		return clone;
 	}
 }
