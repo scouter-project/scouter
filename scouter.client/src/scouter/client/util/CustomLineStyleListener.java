@@ -17,15 +17,16 @@
  */
 package scouter.client.util;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.LineStyleEvent;
 import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
+import scouter.client.configuration.views.ConfigureView;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class CustomLineStyleListener implements LineStyleListener{
 	
@@ -34,6 +35,7 @@ public class CustomLineStyleListener implements LineStyleListener{
 	boolean isConfig;
 	Display display;
 	ArrayList<ColoringWord> keywordArray;
+	ArrayList<ColoringWord> taggedKeywordArray;
 	boolean keywordBold;
 	
 	boolean searchBold;
@@ -43,6 +45,15 @@ public class CustomLineStyleListener implements LineStyleListener{
 		super();
 		this.isConfig = isConfig;
 		this.keywordArray = keywordArray;
+		this.keywordBold = keywordBold;
+	}
+
+	public CustomLineStyleListener(boolean isConfig, ArrayList<ColoringWord> keywordArray,
+								   ArrayList<ColoringWord> taggedKeywordArray, boolean keywordBold) {
+		super();
+		this.isConfig = isConfig;
+		this.keywordArray = keywordArray;
+		this.taggedKeywordArray = taggedKeywordArray;
 		this.keywordBold = keywordBold;
 	}
 	
@@ -65,6 +76,10 @@ public class CustomLineStyleListener implements LineStyleListener{
 	
 	public void setKeywordArray(ArrayList<ColoringWord> keywordArray) {
 		this.keywordArray = keywordArray;
+	}
+
+	public void setTaggedKeywordArray(ArrayList<ColoringWord> taggedKeywordArray) {
+		this.taggedKeywordArray = taggedKeywordArray;
 	}
 
 	public void setSearchString(String searchString){
@@ -95,6 +110,18 @@ public class CustomLineStyleListener implements LineStyleListener{
 			}
 		}
 		if(isConfig){
+			//taggedKeyword map을 루프를 돌며 $xx$를 뺀 넘과 같으면 하일라이트. 길이는 뭐.. 음. word.length + (원본 - $$ 제거의 차이)
+			if (taggedKeywordArray != null) {
+				for (ColoringWord word : taggedKeywordArray) {
+					String normalizedLine = ConfigureView.removeVariableString(line);
+					int pos = normalizedLine.indexOf(word.getWord());
+					if (pos >= 0) {
+						int len = word.getWord().length() + (line.length() - normalizedLine.length());
+						list.add(getDefaultHighlightStyle(event.lineOffset + pos, len, Display.getCurrent().getSystemColor(word.getColor()), word.isBold()));
+					}
+				}
+			}
+
 			if(line.startsWith("#")){
 				list.add(getDefaultHighlightStyle(event.lineOffset, line.length(), Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN), false));
 			}

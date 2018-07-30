@@ -97,6 +97,7 @@ public class ConfigureView extends ViewPart {
     public final static String ID = ConfigureView.class.getName();
 
     private ArrayList<ColoringWord> defaultHighlightings;
+    private ArrayList<ColoringWord> defaultTaggedHighlightings;
     private HashSet<String> configKeyNames = new HashSet<>();
 
     private StyledText text;
@@ -312,7 +313,7 @@ public class ConfigureView extends ViewPart {
         text = new StyledText(comp, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
         text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-        listener = new CustomLineStyleListener(true, defaultHighlightings, false);
+        listener = new CustomLineStyleListener(true, defaultHighlightings, defaultTaggedHighlightings, false);
         text.addLineStyleListener(listener);
         text.addKeyListener(new KeyListener() {
             public void keyReleased(KeyEvent e) {
@@ -448,7 +449,7 @@ public class ConfigureView extends ViewPart {
         return valueType;
     }
 
-    private String removeVariableString(String text) {
+    public static String removeVariableString(String text) {
         StringBuilder resultBuilder = new StringBuilder(text.length());
         char[] org = text.toCharArray();
         boolean sink = false;
@@ -578,8 +579,12 @@ public class ConfigureView extends ViewPart {
                     ListValue configKey = mpack.getList("configKey");
 
                     defaultHighlightings = new ArrayList<ColoringWord>();
+                    defaultTaggedHighlightings = new ArrayList<ColoringWord>();
                     for (int inx = 0; configKey != null && inx < configKey.size(); inx++) {
                         defaultHighlightings.add(new ColoringWord(configKey.getString(inx), SWT.COLOR_BLUE, true));
+                        if (configKey.getString(inx).contains("$")) {
+                            defaultTaggedHighlightings.add(new ColoringWord(removeVariableString(configKey.getString(inx)), SWT.COLOR_BLUE, true));
+                        }
                         configKeyNames.add(configKey.getString(inx));
                     }
                     defaultHighlightings.add(new ColoringWord(";", SWT.COLOR_RED, true));
@@ -593,6 +598,7 @@ public class ConfigureView extends ViewPart {
                 ExUtil.exec(text, new Runnable() {
                     public void run() {
                         listener.setKeywordArray(defaultHighlightings);
+                        listener.setTaggedKeywordArray(defaultTaggedHighlightings);
                         text.setText(content);
                     }
                 });
