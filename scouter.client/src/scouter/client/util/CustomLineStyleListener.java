@@ -110,13 +110,14 @@ public class CustomLineStyleListener implements LineStyleListener{
 			}
 		}
 		if(isConfig){
-			//taggedKeyword map을 루프를 돌며 $xx$를 뺀 넘과 같으면 하일라이트. 길이는 뭐.. 음. word.length + (원본 - $$ 제거의 차이)
 			if (taggedKeywordArray != null) {
 				for (ColoringWord word : taggedKeywordArray) {
-					String normalizedLine = ConfigureView.removeVariableString(line);
-					int pos = normalizedLine.indexOf(word.getWord());
+					String[] keywords = line.split("=");
+					String normalizedKeyword = ConfigureView.removeVariableString(keywords[0]);
+					int pos = normalizedKeyword.indexOf(word.getWord());
 					if (pos >= 0) {
-						int len = word.getWord().length() + (line.length() - normalizedLine.length());
+						//int len = word.getWord().length() + (line.length() - normalizedKeyword.length());
+						int len = keywords[0].length();
 						list.add(getDefaultHighlightStyle(event.lineOffset + pos, len, Display.getCurrent().getSystemColor(word.getColor()), word.isBold()));
 					}
 				}
