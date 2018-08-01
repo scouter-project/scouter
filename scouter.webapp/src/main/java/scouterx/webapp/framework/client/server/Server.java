@@ -192,6 +192,10 @@ public class Server {
 	public CounterEngine getCounterEngine() {
 		return counterEngine;
 	}
+
+	public void setCounterEngine(CounterEngine counterEngine) {
+		this.counterEngine = counterEngine;
+	}
 	
 	public long getUsedMemory() {
 		return usedMemory;
