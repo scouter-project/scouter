@@ -40,6 +40,7 @@ public class InfluxSingleLine {
     private String measurement;
     private String host;
     private String objType;
+    private String objTypeIcon;
     private String objName;
     private int objHash;
     long receivedTime;
@@ -63,6 +64,7 @@ public class InfluxSingleLine {
         this.timestampOrigin = timestampOrigin;
         this.host = tConfig.toHost(tags);
         this.objType = tConfig.toObjType(tags);
+        this.objTypeIcon = tConfig.getObjTypeIcon();
         this.objName = tConfig.toObjName(host, tags);
         this.objHash = HashUtil.hash(objName);
         this.debug = debug;
@@ -256,6 +258,10 @@ public class InfluxSingleLine {
 
     public String getObjType() {
         return objType;
+    }
+
+    public String getObjTypeIcon() {
+        return objTypeIcon;
     }
 
     public String getObjName() {

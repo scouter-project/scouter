@@ -39,6 +39,7 @@ public class TgMeasurementConfig {
     private Map<String, CounterProtocol> counterMapping = new HashMap<String, CounterProtocol>();
     private String objTypeBase = TG;
     private List<String> objTypeAppendTags = new ArrayList<String>();
+    private String objTypeIcon = "";
     private String objNameBase = TG;
     private List<String> objNameAppendTags = new ArrayList<String>();
     private String hostTag = "host";
@@ -87,6 +88,14 @@ public class TgMeasurementConfig {
 
     public void setObjTypeAppendTags(List<String> objTypeAppendTags) {
         this.objTypeAppendTags = objTypeAppendTags;
+    }
+
+    public String getObjTypeIcon() {
+        return objTypeIcon;
+    }
+
+    public void setObjTypeIcon(String objTypeIcon) {
+        this.objTypeIcon = objTypeIcon;
     }
 
     public String getObjNameBase() {

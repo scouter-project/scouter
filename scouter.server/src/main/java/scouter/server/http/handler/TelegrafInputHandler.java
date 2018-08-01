@@ -199,7 +199,7 @@ public class TelegrafInputHandler extends Thread {
             ObjectType objectType = new ObjectType();
             objectType.setName(objTypeName);
             objectType.setDisplayName(objTypeName);
-            objectType.setIcon("");
+            objectType.setIcon(line.getObjTypeIcon());
 
             Family family = new Family();
             objectType.setFamily(family);

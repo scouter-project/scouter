@@ -66,6 +66,8 @@ public class Configure extends Thread {
 	private static final String TELEGRAF_INPUT_MEASUREMENT_COUNTER_MAPPINGS_POSTFIX = "_counter_mappings";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_BASE_POSTFIX = "_objType_base";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_APPEND_TAGS_POSTFIX = "_objType_append_tags";
+	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_ICON_POSTFIX = "_objType_icon";
+
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_BASE_POSTFIX = "_objName_base";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_APPEND_TAGS_POSTFIX = "_objName_append_tags";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_HOST_TAG_POSTFIX = "_host_tag";
@@ -365,6 +367,7 @@ public class Configure extends Thread {
 			"$measurement$ is a variable to the measurement name of the line protocol.\n" +
 			"eg) input_telegraf_$redis_keyspace$_enabled=true")
 	public boolean input_telegraf_$measurement$_enabled = true;
+
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"print telegraf line protocol of the $measurement$ to STDOUT")
 	public boolean input_telegraf_$measurement$_debug_enabled = false;
@@ -375,6 +378,7 @@ public class Configure extends Thread {
 			"It also have not(!) condition. eg) cpu:!cpu-total")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String input_telegraf_$measurement$_tag_filter = "";
+
 	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"which fields of $measurement$ are mapped to scouter's counter.\n" +
 			"format: {line-protocol field name}:{scouter counter name}:{display name?}:{unit?}:{hasTotal?}\n" +
@@ -385,26 +389,36 @@ public class Configure extends Thread {
 			"eg)cpu:cpu-$cpu-no$ -- this example shows counter definition with tag value.")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String input_telegraf_$measurement$_counter_mappings = "";
+
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"define an objectType prefix. objectType is defined with some tags.\n" +
 			"see input_telegraf_$measurement$_objType_append_tags option.")
 	public String input_telegraf_$measurement$_objType_base = "";
+
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"this tags's value is appended to objType_base.\nIt can have multiple values. eg)tag1,tag2")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String input_telegraf_$measurement$_objType_append_tags = "";
+
+	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"this tags's value is object type's icon file name that the scouter client have. eg)redis")
+	public String input_telegraf_$measurement$_objType_icon = "";
+
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"define an objectName prefix. objectName is defined with some tags.\n" +
 			"see input_telegraf_$measurement$_objName_append_tags option.")
 	public String input_telegraf_$measurement$_objName_base = "";
+
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"this tags's value is appended to objName_base.\n" +
 			"It can have multiple values. eg)tag1,tag2")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String input_telegraf_$measurement$_objName_append_tags = "";
+
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"tag name to define host")
-	public String input_telegraf_$measurement$_host_tag = "";
+	public String input_telegraf_$measurement$_host_tag = "host";
+
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"which host value defined with $measurement$_host_tag option is mapped to scouter's host.\n" +
 			"It can have multiple values. eg)hostValue1:scouterHost1,hostValue2:scouterHost2")
@@ -628,9 +642,10 @@ public class Configure extends Thread {
 		this.input_telegraf_$measurement$_counter_mappings = getValue("input_telegraf_$measurement$_counter_mappings", "");
 		this.input_telegraf_$measurement$_objType_base = getValue("input_telegraf_$measurement$_objType_base", "");
 		this.input_telegraf_$measurement$_objType_append_tags = getValue("input_telegraf_$measurement$_objType_append_tags", "");
+		this.input_telegraf_$measurement$_objType_icon = getValue("input_telegraf_$measurement$_objType_icon", "");
 		this.input_telegraf_$measurement$_objName_base = getValue("input_telegraf_$measurement$_objName_base", "");
 		this.input_telegraf_$measurement$_objName_append_tags = getValue("input_telegraf_$measurement$_objName_append_tags", "");
-		this.input_telegraf_$measurement$_host_tag = getValue("input_telegraf_$measurement$_host_tag", "");
+		this.input_telegraf_$measurement$_host_tag = getValue("input_telegraf_$measurement$_host_tag", "host");
 		this.input_telegraf_$measurement$_host_mappings = getValue("input_telegraf_$measurement$_host_mappings", "");
 
 		ConfObserver.exec();
@@ -736,6 +751,9 @@ public class Configure extends Thread {
 						continue;
 					}
 					tConfig.setObjTypeAppendTags(Arrays.asList(tags));
+
+				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_ICON_POSTFIX.equals(postfix)) {
+					tConfig.setObjTypeIcon(value);
 
 				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_BASE_POSTFIX.equals(postfix)) {
 					tConfig.setObjNameBase(value);
