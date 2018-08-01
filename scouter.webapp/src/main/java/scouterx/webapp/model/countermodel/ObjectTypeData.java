@@ -30,5 +30,6 @@ public class ObjectTypeData {
     String name;
     String familyName;
     String displayName;
+    String icon;
     boolean isSubObject;
 }

@@ -90,6 +90,7 @@ public class CounterModelData {
                     .displayName(objType.getDisplayName())
                     .familyName(objType.getFamily().getName())
                     .isSubObject(objType.isSubObject())
+                    .icon(objType.getIcon())
                     .build();
 
             objTypes.add(objectTypeData);
