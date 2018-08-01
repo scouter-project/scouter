@@ -41,7 +41,7 @@ public class TgMeasurementConfig {
     private List<String> objTypeAppendTags = new ArrayList<String>();
     private String objNameBase = TG;
     private List<String> objNameAppendTags = new ArrayList<String>();
-    private String hostTag;
+    private String hostTag = "host";
     private Map<String, String> hostMapping = new HashMap<String, String>();
     private Map<String, List<String>> tagFilter = new HashMap<String, List<String>>();
 
