@@ -525,6 +525,14 @@ public class CounterEngine {
 	public String[] getFamilyNames() {
 		return familyMap.keyArray();
 	}
+
+	public StringKeyLinkedMap<ObjectType> getRawObjectTypeMap() {
+		return objTypeMap;
+	}
+
+	public StringKeyLinkedMap<Family> getRawFamilyMap() {
+		return familyMap;
+	}
 	
 	public static void main(String[] args) {
 
