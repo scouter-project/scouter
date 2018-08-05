@@ -62,33 +62,37 @@ public class XLogRetrieveThread extends Thread {
     public void run() {
         while (true) {
             ThreadUtil.sleep(CHECK_INTERVAL);
-            if (server.isOpen() == false || server.getSession() == 0) {
-                continue;
-            }
+            process();
+        }
+    }
 
-            try {
-                RealTimeXLogRequest realTimeXLogRequest = new RealTimeXLogRequest(loop, index, server.getId(), Collections.emptySet());
-                xLogConsumer.handleRealTimeXLog(realTimeXLogRequest, in -> {
-                    Pack p = in.readPack();
-                    if (p.getPackType() == PackEnum.MAP) { //meta data arrive ahead of xlog pack
-                        MapPack metaPack = (MapPack) p;
-                        index = metaPack.getInt(ParamConstant.OFFSET_INDEX);
-                        loop = metaPack.getInt(ParamConstant.OFFSET_LOOP);
-                    } else {
-                        xLogLoopCache.add((XLogPack) p);
-                    }
-                });
+    private void process() {
+        if (server.isOpen() == false || server.getSession() == 0) {
+            return;
+        }
 
-            } catch (Throwable t) {
-                if (t.getMessage() != null && t.getMessage().equals(lastError) && System.currentTimeMillis() < (lastTime + EXEPTION_IGNORE_TIME)) {
-                    //ignore
+        try {
+            RealTimeXLogRequest realTimeXLogRequest = new RealTimeXLogRequest(loop, index, server.getId(), Collections.emptySet());
+            xLogConsumer.handleRealTimeXLog(realTimeXLogRequest, in -> {
+                Pack p = in.readPack();
+                if (p.getPackType() == PackEnum.MAP) { //meta data arrive ahead of xlog pack
+                    MapPack metaPack = (MapPack) p;
+                    index = metaPack.getInt(ParamConstant.OFFSET_INDEX);
+                    loop = metaPack.getInt(ParamConstant.OFFSET_LOOP);
                 } else {
-                    lastError = t.getMessage();
-                    lastTime = System.currentTimeMillis();
-                    log.error("[XLogThread] at {}, error:{}", server, t.getMessage());
+                    xLogLoopCache.add((XLogPack) p);
                 }
-                continue;
+            });
+
+        } catch (Throwable t) {
+            if (t.getMessage() != null && t.getMessage().equals(lastError) && System.currentTimeMillis() < (lastTime + EXEPTION_IGNORE_TIME)) {
+                //ignore
+            } else {
+                lastError = t.getMessage();
+                lastTime = System.currentTimeMillis();
+                log.error("[XLogThread] at {}, error:{}", server, t.getMessage());
             }
+            return;
         }
     }
 }
