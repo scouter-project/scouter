@@ -72,6 +72,9 @@ public class ServiceSummary {
 	public ErrorData process(Throwable thr, int message, int service, long txid, int sql, int api) {
 		if (conf.summary_enabled == false)
 			return null;
+		if (thr == null)
+			return null;
+
 		String errName = thr.getClass().getName();
 
 		int errHash = DataProxy.sendError(errName);

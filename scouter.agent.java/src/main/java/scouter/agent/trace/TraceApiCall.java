@@ -147,11 +147,11 @@ public class TraceApiCall {
 					StringBuffer sb = new StringBuffer();
 					sb.append(msg).append("\n");
 					ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-					thr = thr.getCause();
-					while (thr != null) {
+					Throwable cause = thr.getCause();
+					while (cause != null) {
 						sb.append("\nCause...\n");
-						ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-						thr = thr.getCause();
+						ThreadUtil.getStackTrace(sb, cause, conf.profile_fullstack_max_lines);
+						cause = cause.getCause();
 					}
 					msg = sb.toString();
 				}
