@@ -52,29 +52,20 @@ public class ServerSessionObserver extends Thread {
     public void run() {
         ThreadUtil.sleep(CHECK_INTERVAL);
         while (true) {
-            try {
-                Set<Integer> idSet = ServerManager.getInstance().getOpenServerIdList();
-                for (int serverId : idSet) {
-                    Server server = ServerManager.getInstance().getServer(serverId);
-                    if (server == null) {
-                        continue;
-                    }
-                    if (server.getSession() == 0) {
-                        LoginRequest result = LoginMgr.login(server);
-                        if (result.success) {
-                            log.info("Success re-login to {}", server.getName());
-                        } else {
-                            log.error("Failed re-login to {} : {}", server.getName(), result.getErrorMessage());
-                        }
-                    }
-                }
+            process();
+            ThreadUtil.sleep(CHECK_INTERVAL);
+        }
+    }
 
-                Set<Integer> closedSet = ServerManager.getInstance().getClosedServerIdList();
-                for (int serverId : closedSet) {
-                    Server server = ServerManager.getInstance().getServer(serverId);
-                    if (server == null) {
-                        continue;
-                    }
+    private void process() {
+        try {
+            Set<Integer> idSet = ServerManager.getInstance().getOpenServerIdList();
+            for (int serverId : idSet) {
+                Server server = ServerManager.getInstance().getServer(serverId);
+                if (server == null) {
+                    continue;
+                }
+                if (server.getSession() == 0) {
                     LoginRequest result = LoginMgr.login(server);
                     if (result.success) {
                         log.info("Success re-login to {}", server.getName());
@@ -82,10 +73,23 @@ public class ServerSessionObserver extends Thread {
                         log.error("Failed re-login to {} : {}", server.getName(), result.getErrorMessage());
                     }
                 }
-            } catch (Throwable t) {
-                t.printStackTrace();
             }
-            ThreadUtil.sleep(CHECK_INTERVAL);
+
+            Set<Integer> closedSet = ServerManager.getInstance().getClosedServerIdList();
+            for (int serverId : closedSet) {
+                Server server = ServerManager.getInstance().getServer(serverId);
+                if (server == null) {
+                    continue;
+                }
+                LoginRequest result = LoginMgr.login(server);
+                if (result.success) {
+                    log.info("Success re-login to {}", server.getName());
+                } else {
+                    log.error("Failed re-login to {} : {}", server.getName(), result.getErrorMessage());
+                }
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 }
