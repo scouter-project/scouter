@@ -221,7 +221,9 @@ public class DataProxy {
 		// udp.add(pk);
 		sendDirect(pk);
 	}
-	public static void sendCounter(PerfCounterPack[] p) {
+
+	//only for counterPack & interactionCounterPack
+	public static void sendCounter(Pack[] p) {
 		// udp.add(p);
 		try {
 			List<byte[]> buff = new ArrayList<byte[]>();
@@ -243,6 +245,7 @@ public class DataProxy {
 		} catch (Exception e) {
 		}
 	}
+
 	public static void sendHeartBeat(ObjectPack p) {
 		udpCollect.add(p);
 		if (conf._log_udp_object_enabled) {

@@ -15,21 +15,32 @@
  *  limitations under the License. 
  */
 package scouter.agent.counter;
+
+import scouter.agent.Configure;
+import scouter.agent.Logger;
+import scouter.agent.counter.anotation.Counter;
+import scouter.agent.counter.anotation.InteractionCounter;
+import scouter.agent.netio.data.DataProxy;
+import scouter.lang.pack.PerfCounterPack;
+import scouter.util.ThreadUtil;
+import scouter.util.scan.Scanner;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import scouter.agent.Configure;
-import scouter.agent.Logger;
-import scouter.agent.counter.anotation.Counter;
-import scouter.agent.netio.data.DataProxy;
-import scouter.lang.pack.PerfCounterPack;
-import scouter.util.ThreadUtil;
-import scouter.util.scan.Scanner;
 public class CounterExecutingManager extends Thread {
+
+	Configure conf = Configure.getInstance();
 	private static CounterExecutingManager instance;
+	private List<CountStat> countStatList = new ArrayList<CountStat>();
+	private List<CountStat> interactionCountStatList = new ArrayList<CountStat>();
+
+	private CounterExecutingManager() {
+	}
+
 	public final static synchronized CounterExecutingManager getInstance() {
 		if (instance == null) {
 			instance = new CounterExecutingManager();
@@ -39,8 +50,7 @@ public class CounterExecutingManager extends Thread {
 		}
 		return instance;
 	}
-	
-	Configure conf = Configure.getInstance();
+
 	public void run() {
 		while (true) {
 			ThreadUtil.sleep(1000);
@@ -48,62 +58,63 @@ public class CounterExecutingManager extends Thread {
 				continue;
 			}
 			long now = System.currentTimeMillis();
-			CounterBasket pw = new CounterBasket();
-			for (int i = 0; i < taskSec.size(); i++) {
-				CountStat r = taskSec.get(i);
-				try {
-					if (r.counter.interval() <= now - r.xtime) {
-						r.xtime = now;
-						r.counter.process(pw);
-					}
-				} catch (Throwable t) {
-					t.printStackTrace();
-				}
-			}
-			//
-			PerfCounterPack[] pks = pw.getList();
-			DataProxy.sendCounter(pks);
+			gatherAndSendCounter(now);
+			gatherAndSendInteractionCounter(now);
 		}
 	}
-	private CounterExecutingManager() {
-	}
-	private List<CountStat> taskSec = new ArrayList<CountStat>();
-	static class CountStat {
-		Invocation counter;
-		long xtime;
-		CountStat(Invocation counter) {
-			this.counter = counter;
-		}
-	}
-	public void put(Invocation counter) {
-		taskSec.add(new CountStat(counter));
-	}
-	protected static class Invocation {
-		Object object;
-		Method method;
-		long time;
-		public Invocation(Object object, Method method, long interval) {
-			this.object = object;
-			this.method = method;
-			this.time=interval;
-		}
-		public void process(CounterBasket pw) throws Throwable {
+
+	private void gatherAndSendCounter(long now) {
+		CounterBasket basket = new CounterBasket();
+		for (int i = 0; i < countStatList.size(); i++) {
+			CountStat r = countStatList.get(i);
 			try {
-				method.invoke(object, pw);
-			} catch (Exception e) {
-				Logger.println("A111", object.getClass() + " " + method + " " + e);
+				if (r.counter.interval() <= now - r.xtime) {
+					r.xtime = now;
+					r.counter.process(basket);
+				}
+			} catch (Throwable t) {
+				t.printStackTrace();
 			}
 		}
-		public long interval() {
-			return this.time;
-		}
+
+		PerfCounterPack[] packs = basket.getList();
+		DataProxy.sendCounter(packs);
 	}
+
+	private void gatherAndSendInteractionCounter(long now) {
+		InteractionCounterBasket basket = new InteractionCounterBasket();
+		for (int i = 0; i < interactionCountStatList.size(); i++) {
+			CountStat r = interactionCountStatList.get(i);
+			try {
+				if (r.counter.interval() <= now - r.xtime) {
+					r.xtime = now;
+					r.counter.process(basket);
+				}
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
+		}
+
+		//TODO Enable after scouter server working
+//		InteractionPerfCounterPack[] packs = basket.getList();
+//		DataProxy.sendCounter(packs);
+	}
+
+	public void putCounter(Invocation counter) {
+		countStatList.add(new CountStat(counter));
+	}
+
+	public void putInteractionCounter(Invocation counter) {
+		interactionCountStatList.add(new CountStat(counter));
+	}
+
 	public static void load() {
 		Set<String> defaultTasks = new Scanner("scouter.agent.counter.task").process();
 		Set<String> customTasks = new Scanner(System.getProperty("scouter.task")).process();
 		defaultTasks.addAll(customTasks);
-		
-		int n = 0;
+
+		int counterCount = 0;
+		int interactionCounterCount = 0;
 		Iterator<String> itr = defaultTasks.iterator();
 		while (itr.hasNext()) {
 			try {
@@ -112,20 +123,84 @@ public class CounterExecutingManager extends Thread {
 					continue;
 				Method[] m = c.getDeclaredMethods();
 				for (int i = 0; i < m.length; i++) {
-					Counter mapAn = (Counter) m[i].getAnnotation(Counter.class);
-					if (mapAn == null)
-						continue;
-					int interval=mapAn.interval();
-					CounterExecutingManager.getInstance().put(new Invocation(c.newInstance(), m[i], interval));
-					n++;
+					Counter cntAn = m[i].getAnnotation(Counter.class);
+					if (cntAn != null) {
+						int interval=cntAn.interval();
+						CounterExecutingManager.getInstance().putCounter(new Invocation(c.newInstance(), m[i], interval));
+						counterCount++;
+					}
+
+					InteractionCounter icntAnot = m[i].getAnnotation(InteractionCounter.class);
+					if (icntAnot != null) {
+						int interval=icntAnot.interval();
+						CounterExecutingManager.getInstance().putInteractionCounter(new Invocation(c.newInstance(), m[i], interval));
+						interactionCounterCount++;
+					}
 				}
 			} catch (Throwable t) {
 				scouter.agent.Logger.println("A112", ThreadUtil.getStackTrace(t));
 			}
 		}
-		scouter.agent.Logger.println("A113", "Counter Collector Started (#" + n + ")");
+		scouter.agent.Logger.println("A113", "Counter Collector Started (#" + counterCount + ")");
+		scouter.agent.Logger.println("A113", "InteractionCounter Collector Started (#" + counterCount + ")");
 	}
-	public static void main(String[] args) {
-		load();
+
+
+	protected static class Invocation {
+		Object object;
+		Method method;
+		long time;
+
+		public Invocation(Object object, Method method, long interval) {
+			this.object = object;
+			this.method = method;
+			this.time=interval;
+		}
+
+		public void process(CounterBasket pw) throws Throwable {
+			try {
+				method.invoke(object, pw);
+			} catch (Exception e) {
+				Logger.println("A111", object.getClass() + " " + method + " " + e);
+			}
+		}
+
+		public void process(InteractionCounterBasket pw) throws Throwable {
+			try {
+				method.invoke(object, pw);
+			} catch (Exception e) {
+				Logger.println("A111-1", object.getClass() + " " + method + " " + e);
+			}
+		}
+
+		public long interval() {
+			return this.time;
+		}
+	}
+
+	static class CountStat {
+		Invocation counter;
+		long xtime;
+
+		CountStat(Invocation counter) {
+			this.counter = counter;
+		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
