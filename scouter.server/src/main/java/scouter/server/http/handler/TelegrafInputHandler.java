@@ -107,7 +107,7 @@ public class TelegrafInputHandler extends Thread {
         int lineCount = 0;
         boolean earlyResponse = false;
         while (true) {
-            if (lineCount++ > 200) {
+            if (lineCount++ > 1000) {
                 earlyResponse = true;
                 break;
             }
@@ -122,7 +122,7 @@ public class TelegrafInputHandler extends Thread {
         }
 
         if (earlyResponse) {
-            Logger.println("TG010", "Too many line protocol in payload. fast return working.");
+            Logger.println("TG010", "[WARN] Too many line protocol in payload. fast return working. some line could be dropped!");
             return;
         }
 

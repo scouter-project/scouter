@@ -95,10 +95,67 @@ public class InfluxSingleLine {
     }
 
     /**
-     * line string key is measurement + tag values
+     * line string key is measurement + tag values + measurement keys
      */
     public static String toLineStringKey(String lineString) {
-        return lineString.substring(0, lineString.indexOf(' '));
+        char[] chars = lineString.toCharArray();
+        char sink = '\0';
+        int mode = 0; //0: measurement, 1: tags, 2: fields
+
+        StringBuilder lineKey = new StringBuilder(80);
+        for (int pos = 0; pos < lineString.length(); pos++) {
+            char c = chars[pos];
+            if (mode == 0) { //measurement, tags
+                if (sink == '\\') {
+                    lineKey.append(c);
+                    sink = '\0';
+
+                } else {
+                    switch (c) {
+                        case '\\':
+                            sink = '\\';
+                            break;
+                        case ' ':
+                            lineKey.append(' ');
+                            mode++;
+                            break;
+                        default:
+                            lineKey.append(c);
+                            break;
+                    }
+                }
+
+            } else if (mode == 1) { //fields
+                if (sink == '\\') {
+                    lineKey.append(c);
+                    sink = '\0';
+
+                } else {
+                    switch (c) {
+                        case '\\':
+                            sink = '\\';
+                            break;
+                        case ' ':
+                            mode++;
+                            break;
+                        case '=':
+                            mode++;
+                            break;
+                        case ',':
+                            mode++;
+                            break;
+                        default:
+                            lineKey.append(c);
+                            break;
+                    }
+                }
+            } else {
+                break;
+            }
+
+        }
+
+        return lineKey.toString();
     }
 
     public static InfluxSingleLine of(String lineStr, Configure configure, long receivedTime) {
