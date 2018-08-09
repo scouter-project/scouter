@@ -18,13 +18,10 @@
 
 package scouter.server.http.handler;
 
-import scouter.io.DataOutputX;
 import scouter.lang.Counter;
 import scouter.lang.Family;
 import scouter.lang.ObjectType;
-import scouter.lang.pack.Pack;
 import scouter.lang.value.NumberValue;
-import scouter.net.NetCafe;
 import scouter.server.Configure;
 import scouter.server.CounterManager;
 import scouter.server.Logger;
@@ -41,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -163,21 +161,27 @@ public class TelegrafInputHandler extends Thread {
         boolean hasNew = false;
 
         for (CounterProtocol counterProtocol : numberFields.keySet()) {
-            Counter counterInternal = objectType.getCounter(counterProtocol.getTaggingName(line.getTags()));
-            if (counterInternal == null) {
+            boolean isNewCounter = false;
+            if (counterProtocol.hasNormalCounter()) {
+                if (objectType.getCounter(counterProtocol.getTaggedName(line.getTags())) == null) {
+                    isNewCounter = true;
+                }
+            }
+            if (counterProtocol.hasDeltaCounter()) {
+                if (objectType.getCounter(counterProtocol.getTaggedDelataName(line.getTags())) == null) {
+                    isNewCounter = true;
+                }
+            }
+
+            if (isNewCounter) {
                 hasNew = true;
-                addCounter(objectType, counterProtocol.toNormalCounter(line.getTags()));
+                for (Counter counter : counterProtocol.toCounters(line.getTags())) {
+                    addCounter(objectType, counter);
+                }
                 continue;
             }
         }
         return hasNew;
-    }
-
-    private static void passToNetDataProcessor(Pack pack, InetAddress addr) throws IOException {
-        DataOutputX out = new DataOutputX();
-        out.write(NetCafe.CAFE);
-        out.write(new DataOutputX().writePack(pack).toByteArray());
-        NetDataProcessor.add(out.toByteArray(), addr);
     }
 
     private void registerNewObjType(InfluxSingleLine line) {
@@ -208,11 +212,13 @@ public class TelegrafInputHandler extends Thread {
             Map<CounterProtocol, NumberValue> numberFields = line.getNumberFields();
             boolean firstCounter = true;
             for (CounterProtocol counterProtocol : numberFields.keySet()) {
-                Counter counter = counterProtocol.toNormalCounter(line.getTags());
-                family.addCounter(counter);
-                if (firstCounter) {
-                    family.setMaster(counter.getName());
-                    firstCounter = false;
+                List<Counter> counters = counterProtocol.toCounters(line.getTags());
+                for (Counter counter : counters) {
+                    family.addCounter(counter);
+                    if (firstCounter) {
+                        family.setMaster(counter.getName());
+                        firstCounter = false;
+                    }
                 }
             }
 

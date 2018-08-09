@@ -19,6 +19,7 @@
 package scouter.server.http.model;
 
 import scouter.lang.Counter;
+import scouter.lang.DeltaType;
 import scouter.util.StringUtil;
 
 import java.util.ArrayList;
@@ -29,11 +30,21 @@ import java.util.Map;
 public class CounterProtocol extends Counter {
 	private List<String> nameTags = new ArrayList<String>();
 	private List<String> displayNameTags = new ArrayList<String>();
+	private DeltaType deltaType = DeltaType.NONE;
 
 	public CounterProtocol() {}
 
 	public CounterProtocol(String name) {
 		super(name);
+	}
+
+	public void setDeltaType(DeltaType deltaType) {
+		this.deltaType = deltaType
+		;
+	}
+
+	public DeltaType getDeltaType() {
+		return deltaType;
 	}
 
 	//TODO test case
@@ -96,15 +107,23 @@ public class CounterProtocol extends Counter {
 		}
 	}
 
-	public String getTaggingName(Map<String, String> tagMap) {
-		return makeValueWithTag(this.getName(), this.nameTags, tagMap);
+	public String getTaggedName(Map<String, String> tagMap) {
+		return generateTaggedName(this.getName(), this.nameTags, tagMap);
 	}
 
-	public String getTaggingDisplayName(Map<String, String> tagMap) {
-		return makeValueWithTag(this.getDisplayName(), this.displayNameTags, tagMap);
+	public String getTaggedDelataName(Map<String, String> tagMap) {
+		return generateTaggedDeltaName(this.getName(), this.nameTags, tagMap);
 	}
 
-	private String makeValueWithTag(String name, List<String> tags, Map<String, String> tagMap) {
+	public String getTaggedDisplayName(Map<String, String> tagMap) {
+		return generateTaggedName(this.getDisplayName(), this.displayNameTags, tagMap);
+	}
+
+	private String generateTaggedDeltaName(String name, List<String> tags, Map<String, String> tagMap) {
+		return generateTaggedName(name, tags, tagMap) + "_$delta";
+	}
+
+	private String generateTaggedName(String name, List<String> tags, Map<String, String> tagMap) {
 		if (tags == null || tags.size() == 0) {
 			return name;
 		}
@@ -126,11 +145,47 @@ public class CounterProtocol extends Counter {
 	}
 
 	//TODO test case
+	public List<Counter> toCounters(Map<String, String> tagMap) {
+		List<Counter> counters = new ArrayList<Counter>();
+
+		if (hasNormalCounter()) {
+			counters.add(toNormalCounter(tagMap));
+		}
+
+		if (hasDeltaCounter()) {
+			counters.add(toDeltaCounter(tagMap));
+		}
+		return counters;
+	}
+
 	public Counter toNormalCounter(Map<String, String> tagMap) {
+		if (!hasNormalCounter()) {
+			return null;
+		}
 		Counter normalCounter = this.clone();
-		normalCounter.setName(makeValueWithTag(this.getName(), this.nameTags, tagMap));
-		normalCounter.setDisplayName(makeValueWithTag(this.getDisplayName(), this.displayNameTags, tagMap));
+		normalCounter.setName(generateTaggedName(this.getName(), this.nameTags, tagMap));
+		normalCounter.setDisplayName(generateTaggedName(this.getDisplayName(), this.displayNameTags, tagMap));
 
 		return normalCounter;
+	}
+
+	public Counter toDeltaCounter(Map<String, String> tagMap) {
+		if (!hasDeltaCounter()) {
+			return null;
+		}
+		Counter deltaCounter = this.clone();
+		deltaCounter.setName(generateTaggedDeltaName(this.getName(), this.nameTags, tagMap));
+		deltaCounter.setDisplayName(generateTaggedDeltaName(this.getDisplayName(), this.displayNameTags, tagMap));
+		deltaCounter.setUnit(deltaCounter.getUnit() + "/s");
+
+		return deltaCounter;
+	}
+
+	public boolean hasDeltaCounter() {
+		return (this.getDeltaType() == DeltaType.DELTA || this.getDeltaType() == DeltaType.BOTH);
+	}
+
+	public boolean hasNormalCounter() {
+		return (this.getDeltaType() != DeltaType.DELTA);
 	}
 }

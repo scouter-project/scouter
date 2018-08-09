@@ -17,6 +17,7 @@
 
 package scouter.server;
 
+import scouter.lang.DeltaType;
 import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueType;
 import scouter.lang.conf.ConfigValueUtil;
@@ -721,7 +722,18 @@ public class Configure extends Thread {
 						CounterProtocol counter = new CounterProtocol();
 						String[] split = StringUtil.splitByWholeSeparatorPreserveAllTokens(counterMapping, ':');
 						if (split.length >= 2) {
-							counterMappingMap.put(split[0], counter);
+							String originName = split[0];
+							String originName0 = originName;
+							if (originName.charAt(0) == '&') {
+                                if (originName.charAt(1) == '&') {
+									counter.setDeltaType(DeltaType.BOTH);
+									originName0 = originName.substring(2);
+                                } else {
+									counter.setDeltaType(DeltaType.DELTA);
+									originName0 = originName.substring(1);
+								}
+							}
+							counterMappingMap.put(originName0, counter);
 							counter.setName(split[1]);
 						}
 						if (split.length >= 3) {
