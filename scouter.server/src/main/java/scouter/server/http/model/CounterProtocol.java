@@ -26,11 +26,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-//TODO test case
 public class CounterProtocol extends Counter {
 	private List<String> nameTags = new ArrayList<String>();
 	private List<String> displayNameTags = new ArrayList<String>();
+	private int normalizeSec = 0;
+
 	private DeltaType deltaType = DeltaType.NONE;
+
 
 	public CounterProtocol() {}
 
@@ -45,6 +47,20 @@ public class CounterProtocol extends Counter {
 
 	public DeltaType getDeltaType() {
 		return deltaType;
+	}
+
+	public void setNormalizeSec(int normalizeSec) {
+		if (normalizeSec < MIN_NORMALIZE_SEC) {
+			this.normalizeSec = 0;
+		} else if (normalizeSec > MAX_NORMALIZE_SEC) {
+			this.normalizeSec = MAX_NORMALIZE_SEC;
+		} else {
+			this.normalizeSec = normalizeSec;
+		}
+	}
+
+	public int getNormalizeSec() {
+		return normalizeSec;
 	}
 
 	//TODO test case

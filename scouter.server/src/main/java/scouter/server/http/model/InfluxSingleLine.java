@@ -24,6 +24,7 @@ import scouter.lang.TimeTypeEnum;
 import scouter.lang.pack.ObjectPack;
 import scouter.lang.pack.PerfCounterPack;
 import scouter.lang.value.DecimalValue;
+import scouter.lang.value.DoubleValue;
 import scouter.lang.value.FloatValue;
 import scouter.lang.value.MapValue;
 import scouter.lang.value.NumberValue;
@@ -31,6 +32,8 @@ import scouter.lang.value.ValueEnum;
 import scouter.server.Configure;
 import scouter.server.Logger;
 import scouter.server.TgMeasurementConfig;
+import scouter.server.core.app.MeterCounter;
+import scouter.server.core.app.MeterCounterManager;
 import scouter.server.core.cache.CounterTimeCache;
 import scouter.util.HashUtil;
 
@@ -41,6 +44,7 @@ import java.util.Map;
  * @author Gun Lee (gunlee01@gmail.com) on 2018. 7. 22.
  */
 public class InfluxSingleLine {
+
     private String measurement;
     private String host;
     private String objType;
@@ -380,7 +384,15 @@ public class InfluxSingleLine {
             NumberValue counterValue = counterValueEntry.getValue();
 
             if (normalCounter != null) {
-                perfPack.data.put(normalCounter.getName(), counterValue);
+                if (counterProtocol.getNormalizeSec() > 0 && !counterProtocol.hasDeltaCounter()) {
+                    MeterCounter meterCounter = MeterCounterManager.getInstance().getMeterCounter(objHash, normalCounter.getName());
+                    meterCounter.add(counterValue.doubleValue());
+                    double valueNormalized = (meterCounter.getAvg(counterProtocol.getNormalizeSec()));
+
+                    perfPack.data.put(normalCounter.getName(), new DoubleValue(valueNormalized));
+                } else {
+                    perfPack.data.put(normalCounter.getName(), counterValue);
+                }
             }
 
             Counter deltaCounter = counterProtocol.toDeltaCounter(tags);
@@ -389,7 +401,7 @@ public class InfluxSingleLine {
                 NumberValueWithTime prev = CounterTimeCache.get(counterKey);
 
                 if (prev != null) {
-                    float deltaPerSec = 0;
+                    float deltaPerSec;
 
                     switch (counterValue.getValueType()) {
                         case ValueEnum.DECIMAL:
@@ -400,6 +412,20 @@ public class InfluxSingleLine {
                             float delta_f = counterValue.floatValue() - prev.getValue().floatValue();
                             deltaPerSec = delta_f * 1000.0f / (this.timestampOrigin - prev.getTime());
                             break;
+                    }
+
+                    if (counterProtocol.getNormalizeSec() > 0) {
+                        MeterCounter meterCounter = MeterCounterManager.getInstance().getMeterCounter(objHash, deltaCounter.getName());
+                        meterCounter.add(deltaPerSec);
+                        deltaPerSec = (float) (meterCounter.getAvg(counterProtocol.getNormalizeSec()));
+
+                    } else {
+                        Configure conf = Configure.getInstance();
+                        if (conf.input_telegraf_delta_counter_normalize_default) {
+                            MeterCounter meterCounter = MeterCounterManager.getInstance().getMeterCounter(objHash, deltaCounter.getName());
+                            meterCounter.add(deltaPerSec);
+                            deltaPerSec = (float) (meterCounter.getAvg(conf.input_telegraf_delta_counter_normalize_default_seconds));
+                        }
                     }
 
                     perfPack.data.put(deltaCounter.getName(), new FloatValue(deltaPerSec));

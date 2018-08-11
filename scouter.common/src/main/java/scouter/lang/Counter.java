@@ -20,12 +20,16 @@ package scouter.lang;
 import scouter.util.StringKeyLinkedMap;
 
 public class Counter implements Comparable<Counter> {
+	public static final int MIN_NORMALIZE_SEC = 4;
+	public static final int MAX_NORMALIZE_SEC = 60;
+
 	private String name;
 	private String displayName;
 	private String unit;
 	private String icon;
 	private boolean all = true;
 	private boolean total = true;
+
 	private StringKeyLinkedMap<String> attrMap = new StringKeyLinkedMap<String>();
 
 	public Counter() {}
@@ -69,7 +73,7 @@ public class Counter implements Comparable<Counter> {
 	public void setTotal(boolean total) {
 		this.total = total;
 	}
-	
+
 	public String setAttribute(String key, String value) {
 		return attrMap.put(key, value);
 	}

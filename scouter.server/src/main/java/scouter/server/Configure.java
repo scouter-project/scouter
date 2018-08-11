@@ -360,6 +360,13 @@ public class Configure extends Thread {
 	public boolean input_telegraf_enabled = true;
     @ConfigDesc("print telegraf line protocol to STDOUT")
 	public boolean input_telegraf_debug_enabled = false;
+
+	@ConfigDesc("telegraf delta-counter normalize")
+	public boolean input_telegraf_delta_counter_normalize_default = true;
+	@ConfigDesc("telegraf delta-counter normalize seconds.(avgerage in sec)\n" +
+			"normalize per metric can be set in the option input_telegraf_$measurement$_counter_mappings")
+	public int input_telegraf_delta_counter_normalize_default_seconds = 30;
+
 	@ConfigDesc("Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
 	public int telegraf_object_deadtime_ms = 35000;
 
@@ -382,12 +389,16 @@ public class Configure extends Thread {
 
 	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"which fields of $measurement$ are mapped to scouter's counter.\n" +
-			"format: {line-protocol field name}:{scouter counter name}:{display name?}:{unit?}:{hasTotal?}\n" +
+			"format: {line-protocol field name}:{scouter counter name}:{display name?}:{unit?}:{hasTotal?}:{normalize sec?}\n" +
 			"It can have multiple values.\n" +
-			"{scouter counter name} can be defined in combination with the line protocol's tag variables.\n" +
+			" - {scouter counter name} can be defined in combination with the line protocol's tag variables.\n" +
 			"For example, if the value of 'tag1' is 'disk01' and the value of 'tag2' is 'bin', the counter name defined as 'scouter-du-$tag1$-$tag2$' is 'scouter-du-disk01-bin'.\n" +
-			"eg)used_memory:tg-redis-used-memory,used_memory_rss:redis-used-memory-rss,redis used rss,bytes,true\n" +
-			"eg)cpu:cpu-$cpu-no$ -- this example shows counter definition with tag value.")
+			" eg)used_memory:tg-redis-used-memory,used_memory_rss:redis-used-memory-rss,redis used rss,bytes:true\n" +
+			" eg)cpu:cpu-$cpu-no$ -- this example shows counter definition with tag value.\n" +
+			"If {line-protocol field name} is started with '&' or '&&', then It works as delta counter\n" +
+			"When specified as a delta type, the difference in values per second is stored. and the counter name ends with '_delta'\n" +
+			"double '&&' means BOTH type. AS BOTH type, the value and the difference value both are stored.\n" +
+			" - {normalize sec} applies only to a delta counter if the counter is a 'BOTH' type counter. (This value can have min 4 to max 60)")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String input_telegraf_$measurement$_counter_mappings = "";
 
@@ -635,6 +646,10 @@ public class Configure extends Thread {
 
 		this.input_telegraf_enabled = getBoolean("input_telegraf_enabled", true);
 		this.input_telegraf_debug_enabled = getBoolean("input_telegraf_debug_enabled", false);
+
+		this.input_telegraf_delta_counter_normalize_default = getBoolean("input_telegraf_delta_counter_normalize", true);
+		this.input_telegraf_delta_counter_normalize_default_seconds = getInt("input_telegraf_delta_counter_normalize_seconds", 30);
+
         this.telegraf_object_deadtime_ms = getInt("telegraf_object_deadtime_ms", 35000);
 
 		this.input_telegraf_$measurement$_enabled = getBoolean("input_telegraf_$measurement$_enabled", true);
@@ -737,7 +752,11 @@ public class Configure extends Thread {
 							counter.setName(split[1]);
 						}
 						if (split.length >= 3) {
-							counter.setDisplayName(split[2]);
+							if (StringUtil.isNotEmpty(split[2])) {
+								counter.setDisplayName(split[2]);
+							} else {
+								counter.setDisplayName(split[1]);
+							}
 						} else {
 							counter.setDisplayName(split[1]);
 						}
@@ -750,6 +769,13 @@ public class Configure extends Thread {
 							try {
 								counter.setTotal(Boolean.parseBoolean(split[4]));
 							} catch (Exception ignored) {}
+						}
+						if (split.length >= 6) {
+							int normalizeSec = 0;
+							try {
+								normalizeSec = Integer.valueOf(split[5]);
+							} catch (Exception ignored) {}
+							counter.setNormalizeSec(normalizeSec);
 						}
 					}
 					tConfig.setCounterMapping(counterMappingMap);
