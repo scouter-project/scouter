@@ -257,28 +257,45 @@ public class InfluxSingleLine {
                 } else {
                     switch (c) {
                         case '\\':
-                            sink = '\\';
+                            if (sink != '"') {
+                                sink = '\\';
+                            }
+                            break;
+                        case '"':
+                            if (sink == '"') {
+                                sink = '\0';
+                            } else {
+                                sink = '"';
+                            }
                             break;
                         case ' ':
-                            mode++;
-                            if (fieldKeySb.length() > 0) {
-                                fields.put(fieldKeySb.toString(), fieldValueSb.toString());
+                            if (sink != '"') {
+                                mode++;
+                                if (fieldKeySb.length() > 0) {
+                                    fields.put(fieldKeySb.toString(), fieldValueSb.toString());
+                                }
                             }
                             break;
                         case '=':
-                            fieldKeyMode = false;
+                            if (sink != '"') {
+                                fieldKeyMode = false;
+                            }
                             break;
                         case ',':
-                            fieldKeyMode = true;
-                            fields.put(fieldKeySb.toString(), fieldValueSb.toString());
-                            fieldKeySb = new StringBuilder();
-                            fieldValueSb = new StringBuilder();
+                            if (sink != '"') {
+                                fieldKeyMode = true;
+                                fields.put(fieldKeySb.toString(), fieldValueSb.toString());
+                                fieldKeySb = new StringBuilder();
+                                fieldValueSb = new StringBuilder();
+                            }
                             break;
                         default:
-                            if (fieldKeyMode) {
-                                fieldKeySb.append(c);
-                            } else {
-                                fieldValueSb.append(c);
+                            if (sink != '"') {
+                                if (fieldKeyMode) {
+                                    fieldKeySb.append(c);
+                                } else {
+                                    fieldValueSb.append(c);
+                                }
                             }
                             break;
                     }

@@ -297,6 +297,29 @@ public class InfluxSingleLineTest {
     }
 
     @Test
+    public void of_test_InfluxSingleLine_can_parse_quoted_value() {
+        System.setProperty("input_telegraf_$mem$_counter_mappings"
+                , "used:tg-mem-used" +
+                        ",active:active:active:byte:false" +
+                        ",available:available:available:byte:false" +
+                        ",available_percent:tg-mem-free-pct:memory percent:%:false");
+
+        System.setProperty("input_telegraf_$mem$_objType_base", "HOST-METRIC");
+        System.setProperty("input_telegraf_$mem$_objName_base", "HOST-METRIC");
+        System.setProperty("input_telegraf_$mem$_host_tag", "host");
+        Configure.newInstanceForTestCase();
+
+        String protocol = "mem,host=vm0.us,os=aix,key=memory1" +
+                " used=11656097792i,free=1467994112i,quoted=\"It is quoted\",cached=0i,buffered=0i,wired=2481405952i" +
+                ",slab=0i,available_percent=32.152581214904785,total=17179869184i,available=5523771392i" +
+                ",active=8165543936i,inactive=4055777280i,used_percent=67.84741878509521" +
+                " 1532269780000000000";
+
+        InfluxSingleLine line = InfluxSingleLine.of(protocol, Configure.getInstance(), System.currentTimeMillis());
+        assertEquals(line.timestampOrigin, 1532269780000d, 1000);
+    }
+
+    @Test
     @Ignore
     public void perf_test() {
         String metric = "mem,host=GunMac.skbroadband,region=seoul used=11656097792i,free=1467994112i,cached=0i,buffered=0i,wired=2481405952i,slab=0i,available_percent=32.152581214904785,total=17179869184i,available=5523771392i,active=8165543936i,inactive=4055777280i,used_percent=67.84741878509521 1532269780000000000";

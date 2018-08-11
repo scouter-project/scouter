@@ -648,7 +648,7 @@ public class Configure extends Thread {
 		this.input_telegraf_debug_enabled = getBoolean("input_telegraf_debug_enabled", false);
 
 		this.input_telegraf_delta_counter_normalize_default = getBoolean("input_telegraf_delta_counter_normalize_default", true);
-		this.input_telegraf_delta_counter_normalize_default_seconds = getInt("input_telegraf_delta_counter_normalize_seconds", 30);
+		this.input_telegraf_delta_counter_normalize_default_seconds = getInt("input_telegraf_delta_counter_normalize_default_seconds", 30);
 
         this.telegraf_object_deadtime_ms = getInt("telegraf_object_deadtime_ms", 35000);
 
