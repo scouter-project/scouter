@@ -385,7 +385,6 @@ public class InfluxSingleLine {
 
             if (normalCounter != null) {
                 if (counterProtocol.getNormalizeSec() > 0 && !counterProtocol.hasDeltaCounter()) {
-                    Logger.trace("[normalize1] " + counterProtocol.getNormalizeSec());
                     MeterCounter meterCounter = MeterCounterManager.getInstance().getMeterCounter(objHash, normalCounter.getName());
                     meterCounter.add(counterValue.doubleValue());
                     double valueNormalized = (meterCounter.getAvg(counterProtocol.getNormalizeSec()));
@@ -416,7 +415,6 @@ public class InfluxSingleLine {
                     }
 
                     if (counterProtocol.getNormalizeSec() > 0) {
-                        Logger.trace("[normalize2] " + counterProtocol.getNormalizeSec());
                         MeterCounter meterCounter = MeterCounterManager.getInstance().getMeterCounter(objHash, deltaCounter.getName());
                         meterCounter.add(deltaPerSec);
                         deltaPerSec = (float) (meterCounter.getAvg(counterProtocol.getNormalizeSec()));
@@ -424,7 +422,6 @@ public class InfluxSingleLine {
                     } else {
                         Configure conf = Configure.getInstance();
                         if (conf.input_telegraf_delta_counter_normalize_default) {
-                            Logger.trace("[normalize3] " + conf.input_telegraf_delta_counter_normalize_default);
                             MeterCounter meterCounter = MeterCounterManager.getInstance().getMeterCounter(objHash, deltaCounter.getName());
                             meterCounter.add(deltaPerSec);
                             deltaPerSec = (float) (meterCounter.getAvg(conf.input_telegraf_delta_counter_normalize_default_seconds));
