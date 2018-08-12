@@ -29,6 +29,7 @@ import scouter.server.http.HttpServer;
 import scouter.server.http.model.CounterProtocol;
 import scouter.server.http.model.InfluxSingleLine;
 import scouter.server.netio.data.NetDataProcessor;
+import scouter.util.CacheTable;
 import scouter.util.IPUtil;
 import scouter.util.RequestQueue;
 import scouter.util.ThreadUtil;
@@ -51,6 +52,8 @@ public class TelegrafInputHandler extends Thread {
 
     private RequestQueue<InfluxSingleLine> registerObjTypeQueue = new RequestQueue<InfluxSingleLine>(1024);
     private RequestQueue<AddCounterParam> addCounterQueue = new RequestQueue<AddCounterParam>(1024);
+
+    private CacheTable<String, Counter> prevAddedCounter = new CacheTable<String, Counter>().setMaxRow(10000);
 
     private static class AddCounterParam {
         ObjectType objectType;
@@ -158,30 +161,19 @@ public class TelegrafInputHandler extends Thread {
 
     private boolean hasNewCounterThenRegister(ObjectType objectType, InfluxSingleLine line) {
         Map<CounterProtocol, NumberValue> numberFields = line.getNumberFields();
-        boolean hasNew = false;
+        boolean hasAnyNewCounter = false;
 
         for (CounterProtocol counterProtocol : numberFields.keySet()) {
-            boolean isNewCounter = false;
-            if (counterProtocol.hasNormalCounter()) {
-                if (objectType.getCounter(counterProtocol.getTaggedName(line.getTags())) == null) {
-                    isNewCounter = true;
-                }
-            }
-            if (counterProtocol.hasDeltaCounter()) {
-                if (objectType.getCounter(counterProtocol.getTaggedDelataName(line.getTags())) == null) {
-                    isNewCounter = true;
-                }
-            }
-
+            boolean isNewCounter = counterProtocol.isNewOrChangedCounter(objectType, line);
             if (isNewCounter) {
-                hasNew = true;
+                hasAnyNewCounter = true;
                 for (Counter counter : counterProtocol.toCounters(line.getTags())) {
                     addCounter(objectType, counter);
                 }
                 continue;
             }
         }
-        return hasNew;
+        return hasAnyNewCounter;
     }
 
     private void registerNewObjType(InfluxSingleLine line) {
@@ -237,10 +229,12 @@ public class TelegrafInputHandler extends Thread {
     private void addCounter0(AddCounterParam param) {
         ObjectType objectType = param.objectType;
         Counter counter = param.counter;
-        Counter counterDoubleCheck = objectType.getCounter(counter.getName());
-        if (counterDoubleCheck != null) {
+
+        if (counter.someContentsEquals(prevAddedCounter.get(counter.getName()))) {
             return;
         }
+
+        prevAddedCounter.put(counter.getName(), counter);
         Family family = objectType.getFamily();
         family.addCounter(counter);
         boolean success = counterManager.safelyAddFamily(family);

@@ -112,6 +112,7 @@ public class CounterManager {
 		if (unsafeDoc == null) {
 			return false;
 		}
+		Logger.trace("Family added or modified in Custom counter xml. Family - " + family.getName());
 
 		Element newElement = unsafeDoc.createElement(CounterEngine.TAG_FAMILY);
 		newElement.setAttribute(CounterEngine.ATTR_NAME, family.getName());

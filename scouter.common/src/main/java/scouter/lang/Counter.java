@@ -111,7 +111,39 @@ public class Counter implements Comparable<Counter> {
 			return false;
 		return true;
 	}
-	
+
+	public boolean someContentsEquals(Counter other) {
+		if (other == null)
+			return false;
+
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name)) {
+			return false;
+		}
+
+		if (displayName == null) {
+			if (other.displayName != null)
+				return false;
+		} else if (!displayName.equals(other.displayName)) {
+			return false;
+		}
+
+		if (unit == null) {
+			if (other.unit != null)
+				return false;
+		} else if (!unit.equals(other.unit)) {
+			return false;
+		}
+
+		if (total != other.total) {
+			return false;
+		}
+
+		return true;
+	}
+
 	public int compareTo(Counter o) {
 		return this.name.compareTo(o.getName());
 	}

@@ -20,6 +20,7 @@ package scouter.server.http.model;
 
 import scouter.lang.Counter;
 import scouter.lang.DeltaType;
+import scouter.lang.ObjectType;
 import scouter.util.StringUtil;
 
 import java.util.ArrayList;
@@ -27,6 +28,10 @@ import java.util.List;
 import java.util.Map;
 
 public class CounterProtocol extends Counter {
+	private static final long KEEP_FRESH_MILLIS = 15 * 1000L;
+	private boolean fresh = true;
+	private long initTimestamp = System.currentTimeMillis();
+
 	private List<String> nameTags = new ArrayList<String>();
 	private List<String> displayNameTags = new ArrayList<String>();
 	private int normalizeSec = 0;
@@ -38,6 +43,12 @@ public class CounterProtocol extends Counter {
 
 	public CounterProtocol(String name) {
 		super(name);
+	}
+
+	private void setFreshFalse() {
+		if (System.currentTimeMillis() - initTimestamp > KEEP_FRESH_MILLIS) {
+			this.fresh = false;
+		}
 	}
 
 	public void setDeltaType(DeltaType deltaType) {
@@ -135,6 +146,10 @@ public class CounterProtocol extends Counter {
 		return generateTaggedName(this.getDisplayName(), this.displayNameTags, tagMap);
 	}
 
+	public String getTaggedDelateDisplayName(Map<String, String> tagMap) {
+		return generateTaggedDeltaName(this.getDisplayName(), this.displayNameTags, tagMap);
+	}
+
 	private String generateTaggedDeltaName(String name, List<String> tags, Map<String, String> tagMap) {
 		return generateTaggedName(name, tags, tagMap) + "_$delta";
 	}
@@ -160,7 +175,6 @@ public class CounterProtocol extends Counter {
 		return sb.toString();
 	}
 
-	//TODO test case
 	public List<Counter> toCounters(Map<String, String> tagMap) {
 		List<Counter> counters = new ArrayList<Counter>();
 
@@ -203,5 +217,65 @@ public class CounterProtocol extends Counter {
 
 	public boolean hasNormalCounter() {
 		return (this.getDeltaType() != DeltaType.DELTA);
+	}
+
+	public boolean isNewOrChangedCounter(ObjectType objectType, InfluxSingleLine line) {
+		boolean isNew;
+		isNew = checkNewOrChanged4NormalCounter(objectType, line);
+
+		if (!isNew) {
+			isNew = checkNewOrChanged4DeltaCounter(objectType, line);
+		}
+
+		setFreshFalse();
+		return isNew;
+	}
+
+	private boolean checkNewOrChanged4NormalCounter(ObjectType objectType, InfluxSingleLine line) {
+		if (!hasNormalCounter()) {
+			return false;
+		}
+
+		Counter counter = objectType.getCounter(getTaggedName(line.getTags()));
+		if (counter == null) {
+			return true;
+		}
+
+		String taggedDisplayName = getTaggedDisplayName(line.getTags());
+		if (checkChangedDeeper(counter, taggedDisplayName)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean checkNewOrChanged4DeltaCounter(ObjectType objectType, InfluxSingleLine line) {
+		if (!hasDeltaCounter()) {
+			return false;
+		}
+
+		Counter counter = objectType.getCounter(getTaggedDelataName(line.getTags()));
+		if (counter == null) {
+			return true;
+		}
+
+		String taggedDisplayName = getTaggedDelateDisplayName(line.getTags());
+		if (checkChangedDeeper(counter, taggedDisplayName)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean checkChangedDeeper(Counter counter, String taggedDisplayName) {
+		if (this.fresh) { //deep search
+			if (!taggedDisplayName.equals(counter.getDisplayName())
+					|| !getUnit().equals(counter.getUnit())
+					|| isTotal() != counter.isTotal())
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }
