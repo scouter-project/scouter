@@ -35,6 +35,7 @@ public class ConfigureTest {
         System.setProperty("input_telegraf_$xpu_space$_enabled", "true");
         System.setProperty("input_telegraf_$xpu_space$_debug_enabled", "true");
         System.setProperty("input_telegraf_$xpu_space$_counter_mappings", "xpu1:Sxpu1,xpu2:Sxpu2:S of xpu 2:%:false");
+        System.setProperty("input_telegraf_$xpu_space$_objFamily_base", "TGFAMILY01");
         System.setProperty("input_telegraf_$xpu_space$_objType_base", "TGTYPE01");
         System.setProperty("input_telegraf_$xpu_space$_objType_append_tags", "t1,t2");
         System.setProperty("input_telegraf_$xpu_space$_objName_base", "TGNAME01");
@@ -47,7 +48,8 @@ public class ConfigureTest {
 
         Assert.assertEquals(tConfig.isEnabled(), true);
         Assert.assertEquals(tConfig.isDebugEnabled(), true);
-        Assert.assertEquals(tConfig.getObjTypeBase(), TgMeasurementConfig.getPrefix() + System.getProperty("input_telegraf_$xpu_space$_objType_base"));
+        Assert.assertEquals(tConfig.getObjFamilyBase(), TgMeasurementConfig.getPrefix() + System.getProperty("input_telegraf_$xpu_space$_objFamily_base"));
+        Assert.assertEquals(tConfig.getObjTypeBase(), System.getProperty("input_telegraf_$xpu_space$_objType_base"));
         Assert.assertEquals(tConfig.getObjNameBase(), TgMeasurementConfig.getPrefix() + System.getProperty("input_telegraf_$xpu_space$_objName_base"));
         Assert.assertEquals(tConfig.getHostTag(), System.getProperty("input_telegraf_$xpu_space$_host_tag"));
 

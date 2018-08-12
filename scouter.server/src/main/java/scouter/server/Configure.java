@@ -65,12 +65,17 @@ public class Configure extends Thread {
 
 	private static final String TELEGRAF_INPUT_MEASUREMENT_TAG_FILTER_POSTFIX = "_tag_filter";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_COUNTER_MAPPINGS_POSTFIX = "_counter_mappings";
+
+	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_FAMILY_BASE_POSTFIX = "_objFamily_base";
+	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_FAMILY_APPEND_TAGS_POSTFIX = "_objFamily_append_tags";
+
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_BASE_POSTFIX = "_objType_base";
+	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_PREPEND_TAGS_POSTFIX = "_objType_prepend_tags";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_APPEND_TAGS_POSTFIX = "_objType_append_tags";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_ICON_POSTFIX = "_objType_icon";
 
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_BASE_POSTFIX = "_objName_base";
-	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_APPEND_TAGS_POSTFIX = "_objName_append_tags";
+	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_APPEND_TAGS = "_objName_append_tags";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_HOST_TAG_POSTFIX = "_host_tag";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_HOST_MAPPINGS_POSTFIX = "_host_mappings";
 
@@ -402,10 +407,25 @@ public class Configure extends Thread {
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String input_telegraf_$measurement$_counter_mappings = "";
 
+	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"define an obj Family prefix. objectType is defined with some tags.\n" +
+			"see input_telegraf_$measurement$_objFamily_append_tags option.")
+	public String input_telegraf_$measurement$_objFamily_base = "";
+
+	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"this tags's value is appended to objFamily_base.\nIt can have multiple values. eg)tag1,tag2")
+	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+	public String input_telegraf_$measurement$_objFamily_append_tags = "";
+
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"define an objectType prefix. objectType is defined with some tags.\n" +
-			"see input_telegraf_$measurement$_objType_append_tags option.")
+			"see input_telegraf_$measurement$_objType_prepend(or append)_tags option.")
 	public String input_telegraf_$measurement$_objType_base = "";
+
+	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"this tags's value is prepended to objType_base.\nIt can have multiple values. eg)tag1,tag2")
+	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+	public String input_telegraf_$measurement$_objType_prepend_tags = "scouter_obj_type_prefix";
 
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"this tags's value is appended to objType_base.\nIt can have multiple values. eg)tag1,tag2")
@@ -656,7 +676,10 @@ public class Configure extends Thread {
 		this.input_telegraf_$measurement$_debug_enabled = getBoolean("input_telegraf_$measurement$_debug_enabled", false);
 		this.input_telegraf_$measurement$_tag_filter = getValue("input_telegraf_$measurement$_tag_filter", "");
 		this.input_telegraf_$measurement$_counter_mappings = getValue("input_telegraf_$measurement$_counter_mappings", "");
+		this.input_telegraf_$measurement$_objFamily_base = getValue("input_telegraf_$measurement$_objFamily_base", "");
+		this.input_telegraf_$measurement$_objFamily_append_tags = getValue("input_telegraf_$measurement$_objFamily_append_tags", "");
 		this.input_telegraf_$measurement$_objType_base = getValue("input_telegraf_$measurement$_objType_base", "");
+		this.input_telegraf_$measurement$_objType_prepend_tags = getValue("input_telegraf_$measurement$_objType_prepend_tags", "scouter_obj_type_prefix");
 		this.input_telegraf_$measurement$_objType_append_tags = getValue("input_telegraf_$measurement$_objType_append_tags", "");
 		this.input_telegraf_$measurement$_objType_icon = getValue("input_telegraf_$measurement$_objType_icon", "");
 		this.input_telegraf_$measurement$_objName_base = getValue("input_telegraf_$measurement$_objName_base", "");
@@ -780,8 +803,28 @@ public class Configure extends Thread {
 					}
 					tConfig.setCounterMapping(counterMappingMap);
 
+				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_FAMILY_BASE_POSTFIX.equals(postfix)) {
+					tConfig.setObjFamilyBase(value);
+
+				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_FAMILY_APPEND_TAGS_POSTFIX.equals(postfix)) {
+					String[] tags = StringUtil.split(value, ',');
+					if (tags == null || tags.length == 0) {
+						continue;
+					}
+					tConfig.setObjFamilyAppendTags(Arrays.asList(tags));
+
 				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_BASE_POSTFIX.equals(postfix)) {
 					tConfig.setObjTypeBase(value);
+
+				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_PREPEND_TAGS_POSTFIX.equals(postfix)) {
+					if (StringUtil.isEmpty(value)) {
+						value = input_telegraf_$measurement$_objType_prepend_tags; //default
+					}
+					String[] tags = StringUtil.split(value, ',');
+					if (tags == null || tags.length == 0) {
+						continue;
+					}
+					tConfig.setObjTypePrependTags(Arrays.asList(tags));
 
 				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_APPEND_TAGS_POSTFIX.equals(postfix)) {
 					String[] tags = StringUtil.split(value, ',');
@@ -796,7 +839,7 @@ public class Configure extends Thread {
 				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_BASE_POSTFIX.equals(postfix)) {
 					tConfig.setObjNameBase(value);
 
-				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_APPEND_TAGS_POSTFIX.equals(postfix)) {
+				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_APPEND_TAGS.equals(postfix)) {
 					String[] tags = StringUtil.split(value, ',');
 					if (tags == null || tags.length == 0) {
 						continue;

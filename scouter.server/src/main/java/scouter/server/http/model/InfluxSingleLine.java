@@ -47,6 +47,7 @@ public class InfluxSingleLine {
 
     private String measurement;
     private String host;
+    private String family;
     private String objType;
     private String objTypeIcon;
     private String objName;
@@ -71,6 +72,7 @@ public class InfluxSingleLine {
         this.receivedTime = receivedTime;
         this.timestampOrigin = timestampOrigin;
         this.host = tConfig.toHost(tags);
+        this.family = tConfig.toFamily(tags);
         this.objType = tConfig.toObjType(tags);
         this.objTypeIcon = tConfig.getObjTypeIcon();
         this.objName = tConfig.toObjName(host, tags);
@@ -318,6 +320,9 @@ public class InfluxSingleLine {
         if (!tConfig.isEnabled()) {
             return null;
         }
+        if (!tConfig.isValidConfig()) {
+            return null;
+        }
         if (!tConfig.isTagFilterMatching(tags)) {
             return null;
         }
@@ -337,6 +342,10 @@ public class InfluxSingleLine {
 
     public String getHost() {
         return host;
+    }
+
+    public String getFamily() {
+        return family;
     }
 
     public String getObjType() {

@@ -56,12 +56,14 @@ public class InfluxSingleLineTest {
                 , "used:tg-mem-used" +
                         ",free:tg-mem-free:memory free::false" +
                         ",available_percent:tg-mem-free-pct:memory percent:%:false");
+        System.setProperty("input_telegraf_$mem$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_objType_base", "HOST-METRIC");
+        System.setProperty("input_telegraf_$mem$_objType_prepend_tags", "scouter_obj_type_prefix");
         System.setProperty("input_telegraf_$mem$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_host_tag", "host");
         Configure.newInstanceForTestCase();
 
-        String protocol = "mem,host=vm0.us,os=aix,key=memory1" +
+        String protocol = "mem,host=vm0.us,os=aix,scouter_obj_type_prefix=TESTPREFIX,key=memory1" +
                 " used=11656097792i,free=1467994112i,cached=0i,buffered=0i,wired=2481405952i" +
                 ",slab=0i,available_percent=32.152581214904785,total=17179869184i,available=5523771392i" +
                 ",active=8165543936i,inactive=4055777280i,used_percent=67.84741878509521" +
@@ -69,7 +71,7 @@ public class InfluxSingleLineTest {
 
         InfluxSingleLine line = InfluxSingleLine.of(protocol, Configure.getInstance(), System.currentTimeMillis());
         
-        assertEquals(TgMeasurementConfig.getPrefix() + "HOST-METRIC", line.getObjType());
+        assertEquals("TESTPREFIX_HOST-METRIC", line.getObjType());
         assertEquals("vm0.us", line.getHost());
         assertEquals("/" + line.getHost() + "/" + TgMeasurementConfig.getPrefix() + "HOST-METRIC", line.getObjName());
         assertTrue(line.getNumberFields().keySet().contains(new CounterProtocol("tg-mem-used")));
@@ -100,6 +102,7 @@ public class InfluxSingleLineTest {
                 , "used:tg-mem-used" +
                         ",free:tg-mem-free:memory free::false" +
                         ",available_percent:tg-mem-free-pct:memory percent:%:false");
+        System.setProperty("input_telegraf_$mem$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_objType_append_tags", "os");
         System.setProperty("input_telegraf_$mem$_objName_base", "HOST-METRIC");
@@ -116,7 +119,7 @@ public class InfluxSingleLineTest {
 
         InfluxSingleLine line = InfluxSingleLine.of(protocol, Configure.getInstance(), System.currentTimeMillis());
 
-        assertEquals(TgMeasurementConfig.getPrefix() + "HOST-METRIC_aix", line.getObjType());
+        assertEquals("HOST-METRIC_aix", line.getObjType());
         assertEquals("myvm0", line.getHost());
         assertEquals("/" + line.getHost() + "/" + TgMeasurementConfig.getPrefix() + "HOST-METRIC_memory1", line.getObjName());
     }
@@ -127,6 +130,7 @@ public class InfluxSingleLineTest {
         System.setProperty("input_telegraf_$cpu$_counter_mappings"
                 , "usage_user:tg-$cpu$-user:$cpu$ user:%:false" +
                         ",usage_system:tg-$cpu$-sys:$cpu$ sys:%:false");
+        System.setProperty("input_telegraf_$cpu$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_host_tag", "host");
@@ -157,6 +161,7 @@ public class InfluxSingleLineTest {
     public void of_test_InfluxSingleLine_can_parse_line_protocol_with_tag_filter_unmatching_case() {
         Configure.newInstanceForTestCase();
         System.setProperty("input_telegraf_$cpu$_counter_mappings", "usage_user:tg-$cpu$-user:$cpu$ user:%:false" + ",usage_system:tg-$cpu$-sys:$cpu$ sys:%:false");
+        System.setProperty("input_telegraf_$cpu$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_host_tag", "host");
@@ -180,6 +185,7 @@ public class InfluxSingleLineTest {
     public void of_test_InfluxSingleLine_can_parse_line_protocol_with_tag_filter_unmatching_case_in_not_condition() {
         Configure.newInstanceForTestCase();
         System.setProperty("input_telegraf_$cpu$_counter_mappings", "usage_user:tg-$cpu$-user:$cpu$ user:%:false" + ",usage_system:tg-$cpu$-sys:$cpu$ sys:%:false");
+        System.setProperty("input_telegraf_$cpu$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_host_tag", "host");
@@ -203,6 +209,7 @@ public class InfluxSingleLineTest {
     public void of_test_InfluxSingleLine_can_parse_line_protocol_with_tag_filter_matching_case() {
         Configure.newInstanceForTestCase();
         System.setProperty("input_telegraf_$cpu$_counter_mappings", "usage_user:tg-$cpu$-user:$cpu$ user:%:false" + ",usage_system:tg-$cpu$-sys:$cpu$ sys:%:false");
+        System.setProperty("input_telegraf_$cpu$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_host_tag", "host");
@@ -226,6 +233,7 @@ public class InfluxSingleLineTest {
     public void of_test_InfluxSingleLine_can_parse_line_protocol_with_tag_filter_matching_case_in_not_condition() {
         Configure.newInstanceForTestCase();
         System.setProperty("input_telegraf_$cpu$_counter_mappings", "usage_user:tg-$cpu$-user:$cpu$ user:%:false" + ",usage_system:tg-$cpu$-sys:$cpu$ sys:%:false");
+        System.setProperty("input_telegraf_$cpu$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_host_tag", "host");
@@ -253,6 +261,7 @@ public class InfluxSingleLineTest {
                         ",&&available:available:available:byte:false" +
                         ",available_percent:tg-mem-free-pct:memory percent:%:false");
 
+        System.setProperty("input_telegraf_$mem$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_host_tag", "host");
@@ -304,6 +313,7 @@ public class InfluxSingleLineTest {
                         ",available:available:available:byte:false" +
                         ",available_percent:tg-mem-free-pct:memory percent:%:false");
 
+        System.setProperty("input_telegraf_$mem$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_host_tag", "host");

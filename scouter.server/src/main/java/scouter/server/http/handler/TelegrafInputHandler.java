@@ -192,14 +192,15 @@ public class TelegrafInputHandler extends Thread {
 
         try {
             String objTypeName = line.getObjType();
+
+            Family family = new Family();
+            family.setName(line.getFamily());
+
             ObjectType objectType = new ObjectType();
             objectType.setName(objTypeName);
             objectType.setDisplayName(objTypeName);
             objectType.setIcon(line.getObjTypeIcon());
-
-            Family family = new Family();
             objectType.setFamily(family);
-            family.setName(objTypeName);
 
             Map<CounterProtocol, NumberValue> numberFields = line.getNumberFields();
             boolean firstCounter = true;
