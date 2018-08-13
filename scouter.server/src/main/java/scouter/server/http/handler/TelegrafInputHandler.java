@@ -18,13 +18,10 @@
 
 package scouter.server.http.handler;
 
-import scouter.io.DataOutputX;
 import scouter.lang.Counter;
 import scouter.lang.Family;
 import scouter.lang.ObjectType;
-import scouter.lang.pack.Pack;
 import scouter.lang.value.NumberValue;
-import scouter.net.NetCafe;
 import scouter.server.Configure;
 import scouter.server.CounterManager;
 import scouter.server.Logger;
@@ -32,6 +29,7 @@ import scouter.server.http.HttpServer;
 import scouter.server.http.model.CounterProtocol;
 import scouter.server.http.model.InfluxSingleLine;
 import scouter.server.netio.data.NetDataProcessor;
+import scouter.util.CacheTable;
 import scouter.util.IPUtil;
 import scouter.util.RequestQueue;
 import scouter.util.ThreadUtil;
@@ -41,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,6 +52,8 @@ public class TelegrafInputHandler extends Thread {
 
     private RequestQueue<InfluxSingleLine> registerObjTypeQueue = new RequestQueue<InfluxSingleLine>(1024);
     private RequestQueue<AddCounterParam> addCounterQueue = new RequestQueue<AddCounterParam>(1024);
+
+    private CacheTable<String, Counter> prevAddedCounter = new CacheTable<String, Counter>().setMaxRow(10000);
 
     private static class AddCounterParam {
         ObjectType objectType;
@@ -107,7 +108,7 @@ public class TelegrafInputHandler extends Thread {
         int lineCount = 0;
         boolean earlyResponse = false;
         while (true) {
-            if (lineCount++ > 200) {
+            if (lineCount++ > 1000) {
                 earlyResponse = true;
                 break;
             }
@@ -122,7 +123,7 @@ public class TelegrafInputHandler extends Thread {
         }
 
         if (earlyResponse) {
-            Logger.println("TG010", "Too many line protocol in payload. fast return working.");
+            Logger.println("TG010", "[WARN] Too many line protocol in payload. fast return working. some line could be dropped!");
             return;
         }
 
@@ -160,24 +161,19 @@ public class TelegrafInputHandler extends Thread {
 
     private boolean hasNewCounterThenRegister(ObjectType objectType, InfluxSingleLine line) {
         Map<CounterProtocol, NumberValue> numberFields = line.getNumberFields();
-        boolean hasNew = false;
+        boolean hasAnyNewCounter = false;
 
         for (CounterProtocol counterProtocol : numberFields.keySet()) {
-            Counter counterInternal = objectType.getCounter(counterProtocol.getTaggingName(line.getTags()));
-            if (counterInternal == null) {
-                hasNew = true;
-                addCounter(objectType, counterProtocol.toNormalCounter(line.getTags()));
+            boolean isNewCounter = counterProtocol.isNewOrChangedCounter(objectType, line);
+            if (isNewCounter) {
+                hasAnyNewCounter = true;
+                for (Counter counter : counterProtocol.toCounters(line.getTags())) {
+                    addCounter(objectType, counter);
+                }
                 continue;
             }
         }
-        return hasNew;
-    }
-
-    private static void passToNetDataProcessor(Pack pack, InetAddress addr) throws IOException {
-        DataOutputX out = new DataOutputX();
-        out.write(NetCafe.CAFE);
-        out.write(new DataOutputX().writePack(pack).toByteArray());
-        NetDataProcessor.add(out.toByteArray(), addr);
+        return hasAnyNewCounter;
     }
 
     private void registerNewObjType(InfluxSingleLine line) {
@@ -196,23 +192,26 @@ public class TelegrafInputHandler extends Thread {
 
         try {
             String objTypeName = line.getObjType();
+
+            Family family = new Family();
+            family.setName(line.getFamily());
+
             ObjectType objectType = new ObjectType();
             objectType.setName(objTypeName);
             objectType.setDisplayName(objTypeName);
             objectType.setIcon(line.getObjTypeIcon());
-
-            Family family = new Family();
             objectType.setFamily(family);
-            family.setName(objTypeName);
 
             Map<CounterProtocol, NumberValue> numberFields = line.getNumberFields();
             boolean firstCounter = true;
             for (CounterProtocol counterProtocol : numberFields.keySet()) {
-                Counter counter = counterProtocol.toNormalCounter(line.getTags());
-                family.addCounter(counter);
-                if (firstCounter) {
-                    family.setMaster(counter.getName());
-                    firstCounter = false;
+                List<Counter> counters = counterProtocol.toCounters(line.getTags());
+                for (Counter counter : counters) {
+                    family.addCounter(counter);
+                    if (firstCounter) {
+                        family.setMaster(counter.getName());
+                        firstCounter = false;
+                    }
                 }
             }
 
@@ -231,10 +230,12 @@ public class TelegrafInputHandler extends Thread {
     private void addCounter0(AddCounterParam param) {
         ObjectType objectType = param.objectType;
         Counter counter = param.counter;
-        Counter counterDoubleCheck = objectType.getCounter(counter.getName());
-        if (counterDoubleCheck != null) {
+
+        if (counter.someContentsEquals(prevAddedCounter.get(counter.getName()))) {
             return;
         }
+
+        prevAddedCounter.put(counter.getName(), counter);
         Family family = objectType.getFamily();
         family.addCounter(counter);
         boolean success = counterManager.safelyAddFamily(family);

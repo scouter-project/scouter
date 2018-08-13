@@ -17,6 +17,7 @@
 
 package scouter.server;
 
+import scouter.lang.DeltaType;
 import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueType;
 import scouter.lang.conf.ConfigValueUtil;
@@ -64,12 +65,17 @@ public class Configure extends Thread {
 
 	private static final String TELEGRAF_INPUT_MEASUREMENT_TAG_FILTER_POSTFIX = "_tag_filter";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_COUNTER_MAPPINGS_POSTFIX = "_counter_mappings";
+
+	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_FAMILY_BASE_POSTFIX = "_objFamily_base";
+	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_FAMILY_APPEND_TAGS_POSTFIX = "_objFamily_append_tags";
+
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_BASE_POSTFIX = "_objType_base";
+	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_PREPEND_TAGS_POSTFIX = "_objType_prepend_tags";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_APPEND_TAGS_POSTFIX = "_objType_append_tags";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_ICON_POSTFIX = "_objType_icon";
 
 	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_BASE_POSTFIX = "_objName_base";
-	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_APPEND_TAGS_POSTFIX = "_objName_append_tags";
+	private static final String TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_APPEND_TAGS = "_objName_append_tags";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_HOST_TAG_POSTFIX = "_host_tag";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_HOST_MAPPINGS_POSTFIX = "_host_mappings";
 
@@ -359,6 +365,13 @@ public class Configure extends Thread {
 	public boolean input_telegraf_enabled = true;
     @ConfigDesc("print telegraf line protocol to STDOUT")
 	public boolean input_telegraf_debug_enabled = false;
+
+	@ConfigDesc("telegraf delta-counter normalize")
+	public boolean input_telegraf_delta_counter_normalize_default = true;
+	@ConfigDesc("telegraf delta-counter normalize seconds.(avgerage in sec)\n" +
+			"normalize per metric can be set in the option input_telegraf_$measurement$_counter_mappings")
+	public int input_telegraf_delta_counter_normalize_default_seconds = 30;
+
 	@ConfigDesc("Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
 	public int telegraf_object_deadtime_ms = 35000;
 
@@ -381,19 +394,38 @@ public class Configure extends Thread {
 
 	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"which fields of $measurement$ are mapped to scouter's counter.\n" +
-			"format: {line-protocol field name}:{scouter counter name}:{display name?}:{unit?}:{hasTotal?}\n" +
+			"format: {line-protocol field name}:{scouter counter name}:{display name?}:{unit?}:{hasTotal?}:{normalize sec?}\n" +
 			"It can have multiple values.\n" +
-			"{scouter counter name} can be defined in combination with the line protocol's tag variables.\n" +
+			" - {scouter counter name} can be defined in combination with the line protocol's tag variables.\n" +
 			"For example, if the value of 'tag1' is 'disk01' and the value of 'tag2' is 'bin', the counter name defined as 'scouter-du-$tag1$-$tag2$' is 'scouter-du-disk01-bin'.\n" +
-			"eg)used_memory:tg-redis-used-memory,used_memory_rss:redis-used-memory-rss,redis used rss,bytes,true\n" +
-			"eg)cpu:cpu-$cpu-no$ -- this example shows counter definition with tag value.")
+			" eg)used_memory:tg-redis-used-memory,used_memory_rss:redis-used-memory-rss,redis used rss,bytes:true\n" +
+			" eg)cpu:cpu-$cpu-no$ -- this example shows counter definition with tag value.\n" +
+			"If {line-protocol field name} is started with '&' or '&&', then It works as delta counter\n" +
+			"When specified as a delta type, the difference in values per second is stored. and the counter name ends with '_delta'\n" +
+			"double '&&' means BOTH type. AS BOTH type, the value and the difference value both are stored.\n" +
+			" - {normalize sec} applies only to a delta counter if the counter is a 'BOTH' type counter. (This value can have min 4 to max 60)")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String input_telegraf_$measurement$_counter_mappings = "";
 
+	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"define an obj Family prefix. objectType is defined with some tags.\n" +
+			"see input_telegraf_$measurement$_objFamily_append_tags option.")
+	public String input_telegraf_$measurement$_objFamily_base = "";
+
+	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"this tags's value is appended to objFamily_base.\nIt can have multiple values. eg)tag1,tag2")
+	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+	public String input_telegraf_$measurement$_objFamily_append_tags = "";
+
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"define an objectType prefix. objectType is defined with some tags.\n" +
-			"see input_telegraf_$measurement$_objType_append_tags option.")
+			"see input_telegraf_$measurement$_objType_prepend(or append)_tags option.")
 	public String input_telegraf_$measurement$_objType_base = "";
+
+	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
+			"this tags's value is prepended to objType_base.\nIt can have multiple values. eg)tag1,tag2")
+	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+	public String input_telegraf_$measurement$_objType_prepend_tags = "scouter_obj_type_prefix";
 
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"this tags's value is appended to objType_base.\nIt can have multiple values. eg)tag1,tag2")
@@ -634,13 +666,20 @@ public class Configure extends Thread {
 
 		this.input_telegraf_enabled = getBoolean("input_telegraf_enabled", true);
 		this.input_telegraf_debug_enabled = getBoolean("input_telegraf_debug_enabled", false);
+
+		this.input_telegraf_delta_counter_normalize_default = getBoolean("input_telegraf_delta_counter_normalize_default", true);
+		this.input_telegraf_delta_counter_normalize_default_seconds = getInt("input_telegraf_delta_counter_normalize_default_seconds", 30);
+
         this.telegraf_object_deadtime_ms = getInt("telegraf_object_deadtime_ms", 35000);
 
 		this.input_telegraf_$measurement$_enabled = getBoolean("input_telegraf_$measurement$_enabled", true);
 		this.input_telegraf_$measurement$_debug_enabled = getBoolean("input_telegraf_$measurement$_debug_enabled", false);
 		this.input_telegraf_$measurement$_tag_filter = getValue("input_telegraf_$measurement$_tag_filter", "");
 		this.input_telegraf_$measurement$_counter_mappings = getValue("input_telegraf_$measurement$_counter_mappings", "");
+		this.input_telegraf_$measurement$_objFamily_base = getValue("input_telegraf_$measurement$_objFamily_base", "");
+		this.input_telegraf_$measurement$_objFamily_append_tags = getValue("input_telegraf_$measurement$_objFamily_append_tags", "");
 		this.input_telegraf_$measurement$_objType_base = getValue("input_telegraf_$measurement$_objType_base", "");
+		this.input_telegraf_$measurement$_objType_prepend_tags = getValue("input_telegraf_$measurement$_objType_prepend_tags", "scouter_obj_type_prefix");
 		this.input_telegraf_$measurement$_objType_append_tags = getValue("input_telegraf_$measurement$_objType_append_tags", "");
 		this.input_telegraf_$measurement$_objType_icon = getValue("input_telegraf_$measurement$_objType_icon", "");
 		this.input_telegraf_$measurement$_objName_base = getValue("input_telegraf_$measurement$_objName_base", "");
@@ -721,11 +760,26 @@ public class Configure extends Thread {
 						CounterProtocol counter = new CounterProtocol();
 						String[] split = StringUtil.splitByWholeSeparatorPreserveAllTokens(counterMapping, ':');
 						if (split.length >= 2) {
-							counterMappingMap.put(split[0], counter);
+							String originName = split[0];
+							String originName0 = originName;
+							if (originName.charAt(0) == '&') {
+                                if (originName.charAt(1) == '&') {
+									counter.setDeltaType(DeltaType.BOTH);
+									originName0 = originName.substring(2);
+                                } else {
+									counter.setDeltaType(DeltaType.DELTA);
+									originName0 = originName.substring(1);
+								}
+							}
+							counterMappingMap.put(originName0, counter);
 							counter.setName(split[1]);
 						}
 						if (split.length >= 3) {
-							counter.setDisplayName(split[2]);
+							if (StringUtil.isNotEmpty(split[2])) {
+								counter.setDisplayName(split[2]);
+							} else {
+								counter.setDisplayName(split[1]);
+							}
 						} else {
 							counter.setDisplayName(split[1]);
 						}
@@ -739,11 +793,38 @@ public class Configure extends Thread {
 								counter.setTotal(Boolean.parseBoolean(split[4]));
 							} catch (Exception ignored) {}
 						}
+						if (split.length >= 6) {
+							int normalizeSec = 0;
+							try {
+								normalizeSec = Integer.valueOf(split[5]);
+							} catch (Exception ignored) {}
+							counter.setNormalizeSec(normalizeSec);
+						}
 					}
 					tConfig.setCounterMapping(counterMappingMap);
 
+				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_FAMILY_BASE_POSTFIX.equals(postfix)) {
+					tConfig.setObjFamilyBase(value);
+
+				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_FAMILY_APPEND_TAGS_POSTFIX.equals(postfix)) {
+					String[] tags = StringUtil.split(value, ',');
+					if (tags == null || tags.length == 0) {
+						continue;
+					}
+					tConfig.setObjFamilyAppendTags(Arrays.asList(tags));
+
 				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_BASE_POSTFIX.equals(postfix)) {
 					tConfig.setObjTypeBase(value);
+
+				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_PREPEND_TAGS_POSTFIX.equals(postfix)) {
+					if (StringUtil.isEmpty(value)) {
+						value = input_telegraf_$measurement$_objType_prepend_tags; //default
+					}
+					String[] tags = StringUtil.split(value, ',');
+					if (tags == null || tags.length == 0) {
+						continue;
+					}
+					tConfig.setObjTypePrependTags(Arrays.asList(tags));
 
 				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_TYPE_APPEND_TAGS_POSTFIX.equals(postfix)) {
 					String[] tags = StringUtil.split(value, ',');
@@ -758,7 +839,7 @@ public class Configure extends Thread {
 				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_BASE_POSTFIX.equals(postfix)) {
 					tConfig.setObjNameBase(value);
 
-				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_APPEND_TAGS_POSTFIX.equals(postfix)) {
+				} else if (TELEGRAF_INPUT_MEASUREMENT_OBJ_NAME_APPEND_TAGS.equals(postfix)) {
 					String[] tags = StringUtil.split(value, ',');
 					if (tags == null || tags.length == 0) {
 						continue;

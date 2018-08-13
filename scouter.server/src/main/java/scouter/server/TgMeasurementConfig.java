@@ -19,6 +19,7 @@
 package scouter.server;
 
 import scouter.server.http.model.CounterProtocol;
+import scouter.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +30,7 @@ import java.util.Map;
  * @author Gun Lee (gunlee01@gmail.com) on 2018. 7. 22.
  */
 public class TgMeasurementConfig {
-    public static final String TG = "TG$";
+    public static final String X = "X$";
 
     private String measurement;
 
@@ -37,11 +38,18 @@ public class TgMeasurementConfig {
     private boolean debugEnabled = false;
 
     private Map<String, CounterProtocol> counterMapping = new HashMap<String, CounterProtocol>();
-    private String objTypeBase = TG;
+
+    private String objFamilyBase = X;
+    private List<String> objFamilyAppendTags = new ArrayList<String>();
+
+    private String objTypeBase = X;
+    private List<String> objTypePrependTags = new ArrayList<String>();
     private List<String> objTypeAppendTags = new ArrayList<String>();
     private String objTypeIcon = "";
-    private String objNameBase = TG;
+
+    private String objNameBase = X;
     private List<String> objNameAppendTags = new ArrayList<String>();
+
     private String hostTag = "host";
     private Map<String, String> hostMapping = new HashMap<String, String>();
     private Map<String, List<String>> tagFilter = new HashMap<String, List<String>>();
@@ -74,12 +82,36 @@ public class TgMeasurementConfig {
         this.counterMapping = counterMapping;
     }
 
+    public String getObjFamilyBase() {
+        return objFamilyBase;
+    }
+
+    public void setObjFamilyBase(String objFamilyBase) {
+        this.objFamilyBase = X + objFamilyBase;
+    }
+
+    public List<String> getObjFamilyAppendTags() {
+        return objFamilyAppendTags;
+    }
+
+    public void setObjFamilyAppendTags(List<String> objFamilyAppendTags) {
+        this.objFamilyAppendTags = objFamilyAppendTags;
+    }
+
     public String getObjTypeBase() {
         return objTypeBase;
     }
 
     public void setObjTypeBase(String objTypeBase) {
-        this.objTypeBase = TG + objTypeBase;
+        this.objTypeBase = objTypeBase;
+    }
+
+    public List<String> getObjTypePrependTags() {
+        return objTypePrependTags;
+    }
+
+    public void setObjTypePrependTags(List<String> objTypePrependTags) {
+        this.objTypePrependTags = objTypePrependTags;
     }
 
     public List<String> getObjTypeAppendTags() {
@@ -103,7 +135,7 @@ public class TgMeasurementConfig {
     }
 
     public void setObjNameBase(String objNameBase) {
-        this.objNameBase = TG + objNameBase;
+        this.objNameBase = X + objNameBase;
     }
 
     public List<String> getObjNameAppendTags() {
@@ -131,7 +163,7 @@ public class TgMeasurementConfig {
     }
 
     public static String getPrefix() {
-        return TG;
+        return X;
     }
 
     public Map<String, List<String>> getTagFilter() {
@@ -142,8 +174,26 @@ public class TgMeasurementConfig {
         this.tagFilter = tagFilter;
     }
 
+    public String toFamily(Map<String, String> tags) {
+        StringBuilder objFamilySb = new StringBuilder(objFamilyBase);
+        for (String tagKey : objFamilyAppendTags) {
+            objFamilySb.append('_').append(tags.get(tagKey));
+        }
+        return objFamilySb.toString();
+    }
+
     public String toObjType(Map<String, String> tags) {
-        StringBuilder objTypeSb = new StringBuilder(objTypeBase);
+        StringBuilder objTypeSb = new StringBuilder();
+
+        for (String tagKey : objTypePrependTags) {
+            String prependValue = tags.get(tagKey);
+            if (StringUtil.isNotEmpty(prependValue)) {
+                objTypeSb.append(prependValue).append('_');
+            }
+        }
+
+        objTypeSb.append(objTypeBase);
+
         for (String tagKey : objTypeAppendTags) {
             objTypeSb.append('_').append(tags.get(tagKey));
         }
@@ -206,5 +256,12 @@ public class TgMeasurementConfig {
             }
         }
         return matching;
+    }
+
+    public boolean isValidConfig() {
+        if (StringUtil.isEmpty(objFamilyBase) || objFamilyBase.equals(X)) {
+            return false;
+        }
+        return true;
     }
 }

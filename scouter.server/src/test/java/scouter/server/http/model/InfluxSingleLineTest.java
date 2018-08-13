@@ -21,8 +21,11 @@ package scouter.server.http.model;
 import org.junit.Ignore;
 import org.junit.Test;
 import scouter.lang.Counter;
+import scouter.lang.DeltaType;
 import scouter.server.Configure;
 import scouter.server.TgMeasurementConfig;
+
+import java.util.HashMap;
 
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertNull;
@@ -53,12 +56,14 @@ public class InfluxSingleLineTest {
                 , "used:tg-mem-used" +
                         ",free:tg-mem-free:memory free::false" +
                         ",available_percent:tg-mem-free-pct:memory percent:%:false");
+        System.setProperty("input_telegraf_$mem$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_objType_base", "HOST-METRIC");
+        System.setProperty("input_telegraf_$mem$_objType_prepend_tags", "scouter_obj_type_prefix");
         System.setProperty("input_telegraf_$mem$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_host_tag", "host");
         Configure.newInstanceForTestCase();
 
-        String protocol = "mem,host=vm0.us,os=aix,key=memory1" +
+        String protocol = "mem,host=vm0.us,os=aix,scouter_obj_type_prefix=TESTPREFIX,key=memory1" +
                 " used=11656097792i,free=1467994112i,cached=0i,buffered=0i,wired=2481405952i" +
                 ",slab=0i,available_percent=32.152581214904785,total=17179869184i,available=5523771392i" +
                 ",active=8165543936i,inactive=4055777280i,used_percent=67.84741878509521" +
@@ -66,7 +71,7 @@ public class InfluxSingleLineTest {
 
         InfluxSingleLine line = InfluxSingleLine.of(protocol, Configure.getInstance(), System.currentTimeMillis());
         
-        assertEquals(TgMeasurementConfig.getPrefix() + "HOST-METRIC", line.getObjType());
+        assertEquals("TESTPREFIX_HOST-METRIC", line.getObjType());
         assertEquals("vm0.us", line.getHost());
         assertEquals("/" + line.getHost() + "/" + TgMeasurementConfig.getPrefix() + "HOST-METRIC", line.getObjName());
         assertTrue(line.getNumberFields().keySet().contains(new CounterProtocol("tg-mem-used")));
@@ -97,6 +102,7 @@ public class InfluxSingleLineTest {
                 , "used:tg-mem-used" +
                         ",free:tg-mem-free:memory free::false" +
                         ",available_percent:tg-mem-free-pct:memory percent:%:false");
+        System.setProperty("input_telegraf_$mem$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$mem$_objType_append_tags", "os");
         System.setProperty("input_telegraf_$mem$_objName_base", "HOST-METRIC");
@@ -113,7 +119,7 @@ public class InfluxSingleLineTest {
 
         InfluxSingleLine line = InfluxSingleLine.of(protocol, Configure.getInstance(), System.currentTimeMillis());
 
-        assertEquals(TgMeasurementConfig.getPrefix() + "HOST-METRIC_aix", line.getObjType());
+        assertEquals("HOST-METRIC_aix", line.getObjType());
         assertEquals("myvm0", line.getHost());
         assertEquals("/" + line.getHost() + "/" + TgMeasurementConfig.getPrefix() + "HOST-METRIC_memory1", line.getObjName());
     }
@@ -124,6 +130,7 @@ public class InfluxSingleLineTest {
         System.setProperty("input_telegraf_$cpu$_counter_mappings"
                 , "usage_user:tg-$cpu$-user:$cpu$ user:%:false" +
                         ",usage_system:tg-$cpu$-sys:$cpu$ sys:%:false");
+        System.setProperty("input_telegraf_$cpu$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_host_tag", "host");
@@ -154,6 +161,7 @@ public class InfluxSingleLineTest {
     public void of_test_InfluxSingleLine_can_parse_line_protocol_with_tag_filter_unmatching_case() {
         Configure.newInstanceForTestCase();
         System.setProperty("input_telegraf_$cpu$_counter_mappings", "usage_user:tg-$cpu$-user:$cpu$ user:%:false" + ",usage_system:tg-$cpu$-sys:$cpu$ sys:%:false");
+        System.setProperty("input_telegraf_$cpu$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_host_tag", "host");
@@ -177,6 +185,7 @@ public class InfluxSingleLineTest {
     public void of_test_InfluxSingleLine_can_parse_line_protocol_with_tag_filter_unmatching_case_in_not_condition() {
         Configure.newInstanceForTestCase();
         System.setProperty("input_telegraf_$cpu$_counter_mappings", "usage_user:tg-$cpu$-user:$cpu$ user:%:false" + ",usage_system:tg-$cpu$-sys:$cpu$ sys:%:false");
+        System.setProperty("input_telegraf_$cpu$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_host_tag", "host");
@@ -200,6 +209,7 @@ public class InfluxSingleLineTest {
     public void of_test_InfluxSingleLine_can_parse_line_protocol_with_tag_filter_matching_case() {
         Configure.newInstanceForTestCase();
         System.setProperty("input_telegraf_$cpu$_counter_mappings", "usage_user:tg-$cpu$-user:$cpu$ user:%:false" + ",usage_system:tg-$cpu$-sys:$cpu$ sys:%:false");
+        System.setProperty("input_telegraf_$cpu$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_host_tag", "host");
@@ -223,6 +233,7 @@ public class InfluxSingleLineTest {
     public void of_test_InfluxSingleLine_can_parse_line_protocol_with_tag_filter_matching_case_in_not_condition() {
         Configure.newInstanceForTestCase();
         System.setProperty("input_telegraf_$cpu$_counter_mappings", "usage_user:tg-$cpu$-user:$cpu$ user:%:false" + ",usage_system:tg-$cpu$-sys:$cpu$ sys:%:false");
+        System.setProperty("input_telegraf_$cpu$_objFamily_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objType_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_objName_base", "HOST-METRIC");
         System.setProperty("input_telegraf_$cpu$_host_tag", "host");
@@ -240,6 +251,82 @@ public class InfluxSingleLineTest {
         InfluxSingleLine line = InfluxSingleLine.of(protocol, Configure.getInstance(), System.currentTimeMillis());
 
         assertNotNull(line);
+    }
+
+    @Test
+    public void of_test_InfluxSingleLine_can_parse_line_protocol_with_delta_field() {
+        System.setProperty("input_telegraf_$mem$_counter_mappings"
+                       , "used:tg-mem-used" +
+                        ",&active:active:active:byte:false" +
+                        ",&&available:available:available:byte:false" +
+                        ",available_percent:tg-mem-free-pct:memory percent:%:false");
+
+        System.setProperty("input_telegraf_$mem$_objFamily_base", "HOST-METRIC");
+        System.setProperty("input_telegraf_$mem$_objType_base", "HOST-METRIC");
+        System.setProperty("input_telegraf_$mem$_objName_base", "HOST-METRIC");
+        System.setProperty("input_telegraf_$mem$_host_tag", "host");
+        Configure.newInstanceForTestCase();
+
+        String protocol = "mem,host=vm0.us,os=aix,key=memory1" +
+                " used=11656097792i,free=1467994112i,cached=0i,buffered=0i,wired=2481405952i" +
+                ",slab=0i,available_percent=32.152581214904785,total=17179869184i,available=5523771392i" +
+                ",active=8165543936i,inactive=4055777280i,used_percent=67.84741878509521" +
+                " 1532269780000000000";
+
+        InfluxSingleLine line = InfluxSingleLine.of(protocol, Configure.getInstance(), System.currentTimeMillis());
+
+        for (CounterProtocol counterProtocol : line.getNumberFields().keySet()) {
+
+            HashMap<String, String> tagMap = new HashMap<String, String>();
+            if (counterProtocol.getName().equals("active")) {
+                assertEquals(DeltaType.DELTA, counterProtocol.getDeltaType());
+                assertEquals(1, counterProtocol.toCounters(tagMap).size());
+                assertNull(counterProtocol.toNormalCounter(tagMap));
+                assertNotNull(counterProtocol.toDeltaCounter(tagMap));
+
+                Counter deltaCounter = counterProtocol.toDeltaCounter(tagMap);
+                assertEquals(deltaCounter.getName(), counterProtocol.getName() + "_$delta");
+                assertEquals(deltaCounter.getUnit(), counterProtocol.getUnit() + "/s");
+
+            } else if (counterProtocol.getName().equals("available")) {
+                assertEquals(DeltaType.BOTH, counterProtocol.getDeltaType());
+                assertEquals(2, counterProtocol.toCounters(tagMap).size());
+                assertNotNull(counterProtocol.toNormalCounter(tagMap));
+                assertNotNull(counterProtocol.toDeltaCounter(tagMap));
+
+                Counter normalCounter = counterProtocol.toNormalCounter(tagMap);
+                assertEquals(normalCounter.getName(), counterProtocol.getName());
+                assertEquals(normalCounter.getUnit(), counterProtocol.getUnit());
+
+                Counter deltaCounter = counterProtocol.toDeltaCounter(tagMap);
+                assertEquals(deltaCounter.getName(), counterProtocol.getName() + "_$delta");
+                assertEquals(deltaCounter.getUnit(), counterProtocol.getUnit() + "/s");
+            }
+        }
+    }
+
+    @Test
+    public void of_test_InfluxSingleLine_can_parse_quoted_value() {
+        System.setProperty("input_telegraf_$mem$_counter_mappings"
+                , "used:tg-mem-used" +
+                        ",active:active:active:byte:false" +
+                        ",available:available:available:byte:false" +
+                        ",available_percent:tg-mem-free-pct:memory percent:%:false");
+
+        System.setProperty("input_telegraf_$mem$_objFamily_base", "HOST-METRIC");
+        System.setProperty("input_telegraf_$mem$_objType_base", "HOST-METRIC");
+        System.setProperty("input_telegraf_$mem$_objName_base", "HOST-METRIC");
+        System.setProperty("input_telegraf_$mem$_host_tag", "host");
+        Configure.newInstanceForTestCase();
+
+        String protocol = "mem,host=vm0.us,os=aix,key=memory1" +
+                " used=11656097792i,free=1467994112i,quoted=\"It is quoted\",cached=0i,buffered=0i,wired=2481405952i" +
+                ",slab=0i,available_percent=32.152581214904785,total=17179869184i,available=5523771392i" +
+                ",active=8165543936i,inactive=4055777280i,used_percent=67.84741878509521" +
+                " 1532269780000000000";
+
+        InfluxSingleLine line = InfluxSingleLine.of(protocol, Configure.getInstance(), System.currentTimeMillis());
+        assertEquals(line.timestampOrigin, 1532269780000d, 1000);
     }
 
     @Test
