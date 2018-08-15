@@ -222,6 +222,10 @@ public class Configure extends Thread {
     public String _trace_interservice_callee_header_key = "X-Scouter-Callee";
     @ConfigDesc("")
     public String _trace_interservice_caller_header_key = "X-Scouter-Caller";
+    @ConfigDesc("")
+    public String _trace_interservice_caller_obj_header_key = "X-Scouter-Caller-Obj";
+    @ConfigDesc("")
+    public String _trace_interservice_callee_obj_header_key = "X-Scouter-Callee-Obj";
     @ConfigDesc("JSession key for user ID")
     public String trace_user_session_key = "JSESSIONID";
     @ConfigDesc("")
@@ -937,6 +941,8 @@ public class Configure extends Thread {
         this._trace_interservice_gxid_header_key = getValue("_trace_interservice_gxid_header_key", "X-Scouter-Gxid");
         this._trace_interservice_callee_header_key = getValue("_trace_interservice_callee_header_key", "X-Scouter-Callee");
         this._trace_interservice_caller_header_key = getValue("_trace_interservice_caller_header_key", "X-Scouter-Caller");
+        this._trace_interservice_caller_obj_header_key = getValue("_trace_interservice_caller_obj_header_key", "X-Scouter-Caller-Obj");
+        this._trace_interservice_callee_obj_header_key = getValue("_trace_interservice_callee_obj_header_key", "X-Scouter-Callee-Obj");
         this.profile_connection_open_fullstack_enabled = getBoolean("profile_connection_open_fullstack_enabled", false);
         this.profile_connection_autocommit_status_enabled = getBoolean("profile_connection_autocommit_status_enabled", false);
         this.trace_user_mode = getInt("trace_user_mode", 2);

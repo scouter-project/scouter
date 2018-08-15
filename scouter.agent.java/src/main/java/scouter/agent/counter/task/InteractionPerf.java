@@ -23,25 +23,38 @@ import scouter.agent.counter.InteractionCounterBasket;
 import scouter.agent.counter.anotation.InteractionCounter;
 import scouter.agent.counter.meter.MeterInteraction;
 import scouter.agent.counter.meter.MeterInteractionManager;
+import scouter.lang.counters.CounterConstants;
 import scouter.lang.pack.InteractionPerfCounterPack;
+import scouter.util.LinkedMap;
+
+import java.util.Enumeration;
 
 public class InteractionPerf {
 
 	private Configure conf = Configure.getInstance();
 
-	@InteractionCounter
-	public void getInteractionCounter(InteractionCounterBasket basket) {
+	@InteractionCounter(interval = 2000)
+	public void collectApiIncomingInteractionCounter(InteractionCounterBasket basket) {
+		String interactionType = CounterConstants.INTR_API_INCOMING;
 
-		MeterInteraction apiOutgoingMeter = MeterInteractionManager.getApiOutgoingMeter();
-		InteractionPerfCounterPack pack = basket.getPack(apiOutgoingMeter.getInteractionName());
+		LinkedMap<MeterInteractionManager.Key, MeterInteraction> apiIncomingMeterMap = MeterInteractionManager.getInstance().getApiIncomingMeterMap();
+		Enumeration<LinkedMap.LinkedEntry<MeterInteractionManager.Key, MeterInteraction>> entries = apiIncomingMeterMap.entries();
 
-		int period = 30;
-		int count = apiOutgoingMeter.getCount(period);
-		int errorCount = apiOutgoingMeter.getErrorCount(period);
-		long totalElapsed = apiOutgoingMeter.getSumTime(period);
+		while (entries.hasMoreElements()) {
+			LinkedMap.LinkedEntry<MeterInteractionManager.Key, MeterInteraction> entry = entries.nextElement();
+			MeterInteractionManager.Key key = entry.getKey();
+			MeterInteraction meterInteraction = entry.getValue();
 
+			InteractionPerfCounterPack pack = new InteractionPerfCounterPack(conf.getObjName(), interactionType);
+			pack.fromHash = key.fromHash;
+			pack.toHash = key.toHash;
+			int periodSec = 30;
+			pack.period = periodSec;
+			pack.count = meterInteraction.getCount(periodSec);
+			pack.errorCount = meterInteraction.getErrorCount(periodSec);
+			pack.totalElapsed = meterInteraction.getSumTime(periodSec);
 
+			basket.add(interactionType, pack);
+		}
 	}
-
-
 }

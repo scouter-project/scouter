@@ -25,9 +25,11 @@ import scouter.util.MeteringUtil.Handler;
 
 public class MeterInteraction {
 
+	private String interactionType;
 	private String interactionName;
 
-	public MeterInteraction(String interactionName) {
+	public MeterInteraction(String interactionType, String interactionName) {
+		this.interactionType = interactionType;
 		this.interactionName = interactionName;
 	}
 
@@ -127,4 +129,5 @@ public class MeterInteraction {
 		});
 		return (float) ((cnt.value == 0) ? 0 : (((double) err.value / cnt.value) * 100.0));
 	}
+
 }

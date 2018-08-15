@@ -18,31 +18,47 @@
 
 package scouter.agent.counter;
 
-import scouter.agent.Configure;
 import scouter.lang.pack.InteractionPerfCounterPack;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class InteractionCounterBasket {
 
-	private Map<String, InteractionPerfCounterPack> table = new HashMap<String, InteractionPerfCounterPack>();
+	private Map<String, List<InteractionPerfCounterPack>> packListMap = new HashMap<String, List<InteractionPerfCounterPack>>();
 
-	public InteractionPerfCounterPack getPack(String objName, String interactionType) {
-		String key = objName + interactionType;
-		InteractionPerfCounterPack p = table.get(key);
-		if (p == null) {
-			p = new InteractionPerfCounterPack(objName, interactionType);
-			table.put(key, p);
+	public void add(String interactionType, InteractionPerfCounterPack pack) {
+		List<InteractionPerfCounterPack> packList = getList(interactionType);
+		if (packList == null) {
+			packList = new ArrayList<InteractionPerfCounterPack>();
+			packListMap.put(interactionType, packList);
 		}
-		return p;
+		packList.add(pack);
 	}
 
-	public InteractionPerfCounterPack getPack(String interactionType) {
-		return getPack(Configure.getInstance().getObjName(), interactionType);
+	public List<InteractionPerfCounterPack> getList(String interactionType) {
+		return packListMap.get(interactionType);
 	}
 
-	public InteractionPerfCounterPack[] getList() {
-		return (InteractionPerfCounterPack[]) table.values().toArray(new InteractionPerfCounterPack[table.size()]);
+	public InteractionPerfCounterPack[] geAllAsArray() {
+		Collection<List<InteractionPerfCounterPack>> valueCollection = packListMap.values();
+
+		int size = 0;
+		for (List<InteractionPerfCounterPack> list : valueCollection) {
+			size += list.size();
+		}
+
+		InteractionPerfCounterPack[] packs = new InteractionPerfCounterPack[size];
+		int index = 0;
+		for (List<InteractionPerfCounterPack> list : valueCollection) {
+			for (InteractionPerfCounterPack pack : list) {
+				packs[index++] = pack;
+			}
+		}
+
+		return packs;
 	}
 }

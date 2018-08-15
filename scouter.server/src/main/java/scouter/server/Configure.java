@@ -118,6 +118,8 @@ public class Configure extends Thread {
 	public boolean log_udp_packet = false;
 	@ConfigDesc("Logging incoming CounterPack")
 	public boolean log_udp_counter = false;
+	@ConfigDesc("Logging incoming PerfInteractionCounterPack")
+	public boolean log_udp_interaction_counter = false;
 	@ConfigDesc("Logging incoming XLogPack")
 	public boolean log_udp_xlog = false;
 	@ConfigDesc("Logging incoming ProfilePack")
@@ -594,6 +596,7 @@ public class Configure extends Thread {
 		this.log_udp_multipacket = getBoolean("log_udp_multipacket", false);
 		this.log_udp_packet = getBoolean("log_udp_packet", false);
 		this.log_udp_counter = getBoolean("log_udp_counter", false);
+		this.log_udp_interaction_counter = getBoolean("log_udp_interaction_counter", false);
 		this.log_udp_xlog = getBoolean("log_udp_xlog", false);
 		this.log_udp_profile = getBoolean("log_udp_profile", false);
 		this.log_udp_text = getBoolean("log_udp_text", false);

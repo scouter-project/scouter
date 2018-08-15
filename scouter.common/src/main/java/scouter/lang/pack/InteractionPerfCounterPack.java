@@ -45,10 +45,8 @@ public class InteractionPerfCounterPack implements Pack {
 	 */
 	public String interactionType;
 
-	public String fromName;
-	public String fromTextType;
-	public String toName;
-	public String toTextType;
+	public int fromHash;
+	public int toHash;
 
 	public int period;
 	public int count;
@@ -57,22 +55,24 @@ public class InteractionPerfCounterPack implements Pack {
 
 	public MapValue customData = new MapValue();
 
+	public InteractionPerfCounterPack() {
+	}
+
 	public InteractionPerfCounterPack(String objName, String interactionType) {
 		this.objName = objName;
 		this.interactionType = interactionType;
 	}
 
 	public byte getPackType() {
-		return PackEnum.PERF_COUNTER;
+		return PackEnum.PERF_INTERACTION_COUNTER;
 	}
 
 	public void write(DataOutputX dout) throws IOException {
 		dout.writeLong(time);
 		dout.writeText(objName);
-		dout.writeText(fromName);
-		dout.writeText(fromTextType);
-		dout.writeText(toName);
-		dout.writeText(toTextType);
+		dout.writeText(interactionType);
+		dout.writeInt(fromHash);
+		dout.writeInt(toHash);
 		dout.writeInt(period);
 		dout.writeInt(count);
 		dout.writeInt(errorCount);
@@ -83,10 +83,9 @@ public class InteractionPerfCounterPack implements Pack {
 	public Pack read(DataInputX din) throws IOException {
 		this.time = din.readLong();
 		this.objName = din.readText();
-		this.fromName = din.readText();
-		this.fromTextType = din.readText();
-		this.toName = din.readText();
-		this.toTextType = din.readText();
+		this.interactionType = din.readText();
+		this.fromHash = din.readInt();
+		this.toHash = din.readInt();
 		this.period = din.readInt();
 		this.count = din.readInt();
 		this.errorCount = din.readInt();
@@ -120,10 +119,8 @@ public class InteractionPerfCounterPack implements Pack {
 				"time=" + time +
 				", objName='" + objName + '\'' +
 				", interactionType='" + interactionType + '\'' +
-				", fromName='" + fromName + '\'' +
-				", fromTextType='" + fromTextType + '\'' +
-				", toName='" + toName + '\'' +
-				", toTextType='" + toTextType + '\'' +
+				", fromHash='" + fromHash + '\'' +
+				", toHash='" + toHash + '\'' +
 				", period=" + period +
 				", count=" + count +
 				", errorCount=" + errorCount +

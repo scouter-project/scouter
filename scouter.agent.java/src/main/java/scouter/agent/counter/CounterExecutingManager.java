@@ -21,6 +21,7 @@ import scouter.agent.Logger;
 import scouter.agent.counter.anotation.Counter;
 import scouter.agent.counter.anotation.InteractionCounter;
 import scouter.agent.netio.data.DataProxy;
+import scouter.lang.pack.InteractionPerfCounterPack;
 import scouter.lang.pack.PerfCounterPack;
 import scouter.util.ThreadUtil;
 import scouter.util.scan.Scanner;
@@ -66,11 +67,11 @@ public class CounterExecutingManager extends Thread {
 	private void gatherAndSendCounter(long now) {
 		CounterBasket basket = new CounterBasket();
 		for (int i = 0; i < countStatList.size(); i++) {
-			CountStat r = countStatList.get(i);
+			CountStat stat = countStatList.get(i);
 			try {
-				if (r.counter.interval() <= now - r.xtime) {
-					r.xtime = now;
-					r.counter.process(basket);
+				if (stat.counter.interval() <= now - stat.xtime) {
+					stat.xtime = now;
+					stat.counter.process(basket);
 				}
 			} catch (Throwable t) {
 				t.printStackTrace();
@@ -84,20 +85,21 @@ public class CounterExecutingManager extends Thread {
 	private void gatherAndSendInteractionCounter(long now) {
 		InteractionCounterBasket basket = new InteractionCounterBasket();
 		for (int i = 0; i < interactionCountStatList.size(); i++) {
-			CountStat r = interactionCountStatList.get(i);
+			CountStat stat = interactionCountStatList.get(i);
 			try {
-				if (r.counter.interval() <= now - r.xtime) {
-					r.xtime = now;
-					r.counter.process(basket);
+				if (stat.counter.interval() <= now - stat.xtime) {
+					stat.xtime = now;
+					stat.counter.process(basket);
 				}
 			} catch (Throwable t) {
 				t.printStackTrace();
 			}
 		}
 
-		//TODO Enable after scouter server working
-//		InteractionPerfCounterPack[] packs = basket.getList();
-//		DataProxy.sendCounter(packs);
+		InteractionPerfCounterPack[] packs = basket.geAllAsArray();
+		if (packs != null && packs.length > 0) {
+			DataProxy.sendCounter(packs);
+		}
 	}
 
 	public void putCounter(Invocation counter) {

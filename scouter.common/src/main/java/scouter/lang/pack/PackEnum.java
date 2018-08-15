@@ -83,6 +83,8 @@ public abstract class PackEnum {
                 return new SummaryPack();
             case BATCH:
             	return new BatchPack();
+            case PERF_INTERACTION_COUNTER:
+                return new InteractionPerfCounterPack();
             default:
                 return null;
         }

@@ -103,6 +103,7 @@ public class TraceContext {
 	public boolean is_child_tx;
 	public long caller;
 	public long callee;
+	public int callerObjHash;
 
 	public String login;
 	public String desc;

@@ -18,14 +18,11 @@
 
 package scouter.agent.counter.meter;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
 import scouter.agent.Configure;
+import scouter.util.LinkedMap;
 import scouter.util.Pair;
 import scouter.util.RequestQueue;
 import scouter.util.ThreadUtil;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static scouter.lang.counters.CounterConstants.INTR_API_INCOMING;
 import static scouter.lang.counters.CounterConstants.INTR_API_OUTGOING;
@@ -39,15 +36,10 @@ public class MeterInteractionManager extends Thread {
 
     private RequestQueue<Pair<String, Key>> queue = new RequestQueue<Pair<String, Key>>(1024);
 
-    private static Map<Key, MeterInteraction> apiOutgoingMeterMap = new ConcurrentHashMap<Key, MeterInteraction>();
-    private static Map<Key, MeterInteraction> apiIncomingMeterMap = new ConcurrentHashMap<Key, MeterInteraction>();
-    private static Map<Key, MeterInteraction> dbCallMeterMap = new ConcurrentHashMap<Key, MeterInteraction>();
-    private static Map<Key, MeterInteraction> redisCallMeterMap = new ConcurrentHashMap<Key, MeterInteraction>();
-
-    //	private static MeterInteraction redisCallMeter = new MeterInteraction(INTR_REDIS_CALL);
-    //	private static MeterInteraction dbCallMeter = new MeterInteraction(INTR_DB_CALL);
-    //	private static MeterInteraction apiIncomingMeter = new MeterInteraction(INTR_API_INCOMING);
-    //	private static MeterInteraction apiOutgoingMeter = new MeterInteraction(INTR_API_OUTGOING);
+    private static LinkedMap<Key, MeterInteraction> apiOutgoingMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
+    private static LinkedMap<Key, MeterInteraction> apiIncomingMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
+    private static LinkedMap<Key, MeterInteraction> dbCallMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
+    private static LinkedMap<Key, MeterInteraction> redisCallMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
 
     private MeterInteractionManager() {
     }
@@ -65,15 +57,27 @@ public class MeterInteractionManager extends Thread {
     public void run() {
         while (true) {
             Pair<String, Key> pair = queue.get();
-            //TODO create meter from key - At!! type??
+            String type = pair.getLeft();
+            Key key = pair.getRight();
+            MeterInteraction meterInteraction = new MeterInteraction(type, type + "_" + key.fromHash + "_" + key.toHash);
+
+            if (INTR_API_OUTGOING.equals(type)) {
+                apiOutgoingMeterMap.put(key, meterInteraction);
+            } else if (INTR_API_INCOMING.equals(type)) {
+                apiIncomingMeterMap.put(key, meterInteraction);
+            } else if (INTR_DB_CALL.equals(type)) {
+                dbCallMeterMap.put(key, meterInteraction);
+            } else if (INTR_REDIS_CALL.equals(type)) {
+                redisCallMeterMap.put(key, meterInteraction);
+            }
         }
     }
 
     /**
      * @return nullable
      */
-    public MeterInteraction getApiOutgoingMeter(String fromName, String toName) {
-        Key key = new Key(fromName, toName);
+    public MeterInteraction getApiOutgoingMeter(int fromHash, int toHash) {
+        Key key = new Key(fromHash, toHash);
         MeterInteraction meter = apiOutgoingMeterMap.get(key);
         if (meter == null) {
             queue.put(new Pair<String, Key>(INTR_API_OUTGOING, key));
@@ -84,8 +88,8 @@ public class MeterInteractionManager extends Thread {
     /**
      * @return nullable
      */
-    public MeterInteraction getApiIncomingMeter(String fromName, String toName) {
-        Key key = new Key(fromName, toName);
+    public MeterInteraction getApiIncomingMeter(int fromHash, int toHash) {
+        Key key = new Key(fromHash, toHash);
         MeterInteraction meter = apiIncomingMeterMap.get(key);
         if (meter == null) {
             queue.put(new Pair<String, Key>(INTR_API_INCOMING, key));
@@ -96,8 +100,8 @@ public class MeterInteractionManager extends Thread {
     /**
      * @return nullable
      */
-    public MeterInteraction getDbCallMeter(String fromName, String toName) {
-        Key key = new Key(fromName, toName);
+    public MeterInteraction getDbCallMeter(int fromHash, int toHash) {
+        Key key = new Key(fromHash, toHash);
         MeterInteraction meter = dbCallMeterMap.get(key);
         if (meter == null) {
             queue.put(new Pair<String, Key>(INTR_DB_CALL, key));
@@ -108,8 +112,8 @@ public class MeterInteractionManager extends Thread {
     /**
      * @return nullable
      */
-    public MeterInteraction getRedisCallMeter(String fromName, String toName) {
-        Key key = new Key(fromName, toName);
+    public MeterInteraction getRedisCallMeter(int fromHash, int toHash) {
+        Key key = new Key(fromHash, toHash);
         MeterInteraction meter = redisCallMeterMap.get(key);
         if (meter == null) {
             queue.put(new Pair<String, Key>(INTR_REDIS_CALL, key));
@@ -117,45 +121,43 @@ public class MeterInteractionManager extends Thread {
         return meter;
     }
 
-    public Map<Key, MeterInteraction> getApiOutgoingMeterMap() {
+    public LinkedMap<Key, MeterInteraction> getApiOutgoingMeterMap() {
         return apiOutgoingMeterMap;
     }
 
-    public Map<Key, MeterInteraction> getApiIncomingMeterMap() {
+    public LinkedMap<Key, MeterInteraction> getApiIncomingMeterMap() {
         return apiIncomingMeterMap;
     }
 
-    public Map<Key, MeterInteraction> getDbCallMeterMap() {
+    public LinkedMap<Key, MeterInteraction> getDbCallMeterMap() {
         return dbCallMeterMap;
     }
 
-    public Map<Key, MeterInteraction> getRedisCallMeterMap() {
+    public LinkedMap<Key, MeterInteraction> getRedisCallMeterMap() {
         return redisCallMeterMap;
     }
 
     public static class Key {
-        private String fromName;
-        private String toName;
+        public int fromHash;
+        public int toHash;
 
-        public Key(String fromName, String toName) {
-            this.fromName = fromName;
-            this.toName = toName;
+        public Key(int fromHash, int toHash) {
+            this.fromHash = fromHash;
+            this.toHash = toHash;
         }
+
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Key key = (Key) o;
-            return new EqualsBuilder()
-                    .append(fromName, key.fromName)
-                    .append(toName, key.toName)
-                    .isEquals();
+            return this.fromHash == key.fromHash && this.toHash == key.toHash;
         }
 
         @Override
         public int hashCode() {
-            return fromName.hashCode() ^ toName.hashCode();
+            return fromHash ^ toHash;
         }
     }
 }

@@ -295,6 +295,7 @@ public class TraceApiCall {
 				httpclient.addHeader(oRtn, conf._trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
 				httpclient.addHeader(oRtn, conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
 				httpclient.addHeader(oRtn, conf._trace_interservice_callee_header_key, Hexa32.toString32(ctx.lastApiCallStep.txid));
+				httpclient.addHeader(oRtn, conf._trace_interservice_caller_obj_header_key, String.valueOf(conf.getObjHash()));
 				
 				PluginHttpCallTrace.call(ctx, httpclient, oRtn);
 

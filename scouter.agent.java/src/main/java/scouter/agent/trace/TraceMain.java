@@ -20,6 +20,8 @@ import scouter.agent.AgentCommonConstant;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.UserExceptionHandlerASM;
+import scouter.agent.counter.meter.MeterInteraction;
+import scouter.agent.counter.meter.MeterInteractionManager;
 import scouter.agent.counter.meter.MeterService;
 import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.error.REQUEST_REJECT;
@@ -508,6 +510,14 @@ public class TraceMain {
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
+            if (ctx.callerObjHash != 0) {
+                MeterInteraction meterInteraction = MeterInteractionManager.getInstance()
+                        .getApiIncomingMeter(ctx.callerObjHash, conf.getObjHash());
+                if (meterInteraction != null) {
+                    meterInteraction.add(pack.elapsed, pack.error > 0);
+                }
+            }
+
             if (discardMode != XLogDiscard.DISCARD_ALL) {
                 DataProxy.sendXLog(pack);
             }
