@@ -69,6 +69,19 @@ public class DataProxy {
 		serviceName.put(hash);
 		udpCollect.add(new TextPack(TextTypes.SERVICE, hash, service));
 	}
+	private static IntLinkedSet objName = new IntLinkedSet().setMax(10000);
+	public static int sendObjName(String objName) {
+		int hash = HashUtil.hash(objName);
+		sendServiceName(hash,objName);
+		return hash;
+	}
+	public static void sendObjName(int hash, String objName) {
+		if (serviceName.contains(hash)) {
+			return ;
+		}
+		serviceName.put(hash);
+		udpCollect.add(new TextPack(TextTypes.OBJECT, hash, objName));
+	}
 	private static IntLinkedSet referer = new IntLinkedSet().setMax(1000);
 	public static int sendReferer(String text) {
 		int hash = HashUtil.hash(text);
@@ -91,7 +104,7 @@ public class DataProxy {
 		return hash;
 	}
 	private static IntLinkedSet methodName = new IntLinkedSet().setMax(10000);
-	public static int sendMethodName( String name) {
+	public static int sendMethodName(String name) {
 		int hash = HashUtil.hash(name);
 		if (methodName.contains(hash)) {
 			return hash;

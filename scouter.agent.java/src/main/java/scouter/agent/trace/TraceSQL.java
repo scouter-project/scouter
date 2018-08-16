@@ -18,6 +18,8 @@ package scouter.agent.trace;
 
 import scouter.agent.Configure;
 import scouter.agent.Logger;
+import scouter.agent.counter.meter.MeterInteraction;
+import scouter.agent.counter.meter.MeterInteractionManager;
 import scouter.agent.counter.meter.MeterSQL;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.PluginJdbcPoolTrace;
@@ -31,7 +33,6 @@ import scouter.lang.step.MethodStep;
 import scouter.lang.step.SqlStep3;
 import scouter.lang.step.SqlXType;
 import scouter.util.EscapeLiteralSQL;
-import scouter.util.HashUtil;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.IntLinkedSet;
 import scouter.util.StringUtil;
@@ -77,7 +78,7 @@ public class TraceSQL {
     private static IntKeyLinkedMap<ParsedSql> checkedSql = new IntKeyLinkedMap<ParsedSql>().setMax(1001);
 
     static IntKeyLinkedMap<DBURL> urlTable = new IntKeyLinkedMap<DBURL>().setMax(500);
-    static DBURL unknown = new DBURL(0, null);
+    static DBURL unknown = new DBURL(null, null);
 
     public static void set(int idx, boolean p) {
 		TraceContext ctx = TraceContextManager.getContext();
@@ -266,6 +267,10 @@ public class TraceSQL {
 		tCtx.sqlTime += step.elapsed;
 		ServiceSummary.getInstance().process(step);
 		MeterSQL.getInstance().add(step.elapsed, step.error != 0);
+		MeterInteraction meter = MeterInteractionManager.getInstance().getDbCallMeter(conf.getObjHash(), tCtx.lastDbUrl);
+		if (meter != null) {
+			meter.add(step.elapsed, step.error != 0);
+		}
 		tCtx.profile.pop(step);
 	}
 	public static void prepare(Object o, String sql) {
@@ -488,8 +493,13 @@ public class TraceSQL {
 		}
 		DBURL dbUrl = getUrl(ctx, msg, pool);
 		if (dbUrl != unknown) {
-			hash = DataProxy.sendMethodName(dbUrl.url);
+			hash = DataProxy.sendMethodName(dbUrl.description);
+			int urlHash = DataProxy.sendObjName(dbUrl.url);
+			ctx.lastDbUrl = urlHash;
+		} else {
+			ctx.lastDbUrl = 0;
 		}
+
 		p.hash = hash;
 		ctx.profile.push(p);
 		if (conf.profile_connection_open_fullstack_enabled) {
@@ -503,11 +513,13 @@ public class TraceSQL {
 	}
 
 	static class DBURL {
-		int hash;
+		String description;
 		String url;
-		public DBURL(int hash, String url) {
-			this.hash = hash;
+
+
+		public DBURL(String url, String description) {
 			this.url = url;
+			this.description = description;
 		}
 	}
 
@@ -526,22 +538,24 @@ public class TraceSQL {
 		try {
 			Method m = pool.getClass().getMethod("getUrl", new Class[0]);
 			if (m != null) {
-				String u = "OPEN-DBC " + m.invoke(pool, new Object[0]) + " (" + msg + ")";
-				dbUrl = new DBURL(HashUtil.hash(u), u);
+				String url = (String) m.invoke(pool, new Object[0]);
+				String description = "OPEN-DBC " + url + " (" + msg + ")";
+				dbUrl = new DBURL(url, description);
 			}
 		} catch (Exception e) {
 			try {
 				Method m = pool.getClass().getMethod("getJdbcUrl", new Class[0]);
 				if (m != null) {
-					String u = "OPEN-DBC " + m.invoke(pool, new Object[0]) + " (" + msg + ")";
-					dbUrl = new DBURL(HashUtil.hash(u), u);
+					String url = (String) m.invoke(pool, new Object[0]);
+					String description = "OPEN-DBC " + url + " (" + msg + ")";
+					dbUrl = new DBURL(url, description);
 				}
 			} catch (Exception e1) {
 				try {
-					String u = PluginJdbcPoolTrace.url(ctx, msg, pool);
-					if (u != null) {
-						u = "OPEN-DBC " + u;
-						dbUrl = new DBURL(HashUtil.hash(u), u);
+					String url = PluginJdbcPoolTrace.url(ctx, msg, pool);
+					if (url != null) {
+						String description = "OPEN-DBC " + url + " (" + msg + ")";
+						dbUrl = new DBURL(url, description);
 					}
 				} catch (Throwable ignore) {
 				}

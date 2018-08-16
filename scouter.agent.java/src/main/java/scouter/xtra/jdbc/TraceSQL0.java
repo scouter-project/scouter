@@ -221,6 +221,7 @@ public class TraceSQL0 implements ITraceSQL {
 		if (tctx == null)
 			return conn;
 
+		tctx.lastDbUrl = 0;
 		Connection conn0 = (Connection) conn;
 		step.elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
 		if (tctx.profile_thread_cputime) {

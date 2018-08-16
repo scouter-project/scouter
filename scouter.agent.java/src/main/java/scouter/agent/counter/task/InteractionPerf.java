@@ -35,9 +35,23 @@ public class InteractionPerf {
 
 	@InteractionCounter(interval = 2000)
 	public void collectApiIncomingInteractionCounter(InteractionCounterBasket basket) {
-		String interactionType = CounterConstants.INTR_API_INCOMING;
 
+		int periodSec = 30;
+		String interactionType = CounterConstants.INTR_API_INCOMING;
 		LinkedMap<MeterInteractionManager.Key, MeterInteraction> apiIncomingMeterMap = MeterInteractionManager.getInstance().getApiIncomingMeterMap();
+		addInteractionsToBasket(basket, interactionType, apiIncomingMeterMap, periodSec);
+	}
+
+	@InteractionCounter(interval = 2000)
+	public void collectDbCallInteractionCounter(InteractionCounterBasket basket) {
+
+		int periodSec = 30;
+		String interactionType = CounterConstants.INTR_DB_CALL;
+		LinkedMap<MeterInteractionManager.Key, MeterInteraction> dbCallMeterMap = MeterInteractionManager.getInstance().getDbCallMeterMap();
+		addInteractionsToBasket(basket, interactionType, dbCallMeterMap, periodSec);
+	}
+
+	private void addInteractionsToBasket(InteractionCounterBasket basket, String interactionType, LinkedMap<MeterInteractionManager.Key, MeterInteraction> apiIncomingMeterMap, int periodSec) {
 		Enumeration<LinkedMap.LinkedEntry<MeterInteractionManager.Key, MeterInteraction>> entries = apiIncomingMeterMap.entries();
 
 		while (entries.hasMoreElements()) {
@@ -48,7 +62,6 @@ public class InteractionPerf {
 			InteractionPerfCounterPack pack = new InteractionPerfCounterPack(conf.getObjName(), interactionType);
 			pack.fromHash = key.fromHash;
 			pack.toHash = key.toHash;
-			int periodSec = 30;
 			pack.period = periodSec;
 			pack.count = meterInteraction.getCount(periodSec);
 			pack.errorCount = meterInteraction.getErrorCount(periodSec);

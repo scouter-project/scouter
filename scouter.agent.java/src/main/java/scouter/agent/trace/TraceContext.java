@@ -28,7 +28,7 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TraceContext {
-	private boolean isSummary;
+    private boolean isSummary;
 	public boolean isStaticContents;
 	public boolean isFullyDiscardService;
 
@@ -134,6 +134,7 @@ public class TraceContext {
 
 	public SqlStep lastSqlStep;
 	public ApiCallStep lastApiCallStep;
+	public int lastDbUrl;
 
     public Queue<DumpStep> temporaryDumpSteps = new LinkedBlockingQueue<DumpStep>(5);
 	public boolean hasDumpStack;
