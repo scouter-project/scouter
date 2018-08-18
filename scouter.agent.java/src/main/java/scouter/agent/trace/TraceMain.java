@@ -1470,6 +1470,19 @@ public class TraceMain {
     private static String JEDIS_COMMAND_MSG = "[REDIS]%s: %s";
     private static String JEDIS_COMMAND_ERROR_MSG = "[REDIS][ERROR]%s: %s [Exception:%s] %s";
 
+    public static void setTraceJedisHostPort(String host, int port) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null) {
+            return;
+        }
+        if (TraceContextManager.isForceDiscarded()) {
+            return;
+        }
+
+        ctx.lastRedisConnHost = host;
+        ctx.lastRedisConnPort = port;
+    }
+
     public static void setRedisKey(byte[] barr, Object key) {
         redisKeyMap.put(barr, key.toString());
     }
@@ -1521,16 +1534,17 @@ public class TraceMain {
         String command = new String(cmd);
 
 
-        step.setElapsed((int) (System.currentTimeMillis() - tctx.startTime) - step.start_time);
+        int elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
+        step.setElapsed(elapsed);
+
         if (thr == null) {
             step.setMessage(DataProxy.sendHashedMessage(JEDIS_COMMAND_MSG), command, key);
             step.setLevel(ParameterizedMessageLevel.INFO);
-            tctx.profile.pop(step);
+
         } else {
             String msg = thr.toString();
             step.setMessage(DataProxy.sendHashedMessage(JEDIS_COMMAND_ERROR_MSG), command, key, thr.getClass().getName(), msg);
             step.setLevel(ParameterizedMessageLevel.ERROR);
-            tctx.profile.pop(step);
 
             if (tctx.error == 0 && conf.xlog_error_on_redis_exception_enabled) {
                 if (conf.profile_fullstack_redis_error_enabled) {
@@ -1550,9 +1564,22 @@ public class TraceMain {
                 tctx.error = hash;
             }
         }
+
+        tctx.profile.pop(step);
+
+        String redisName = "redis";
+        if (StringUtil.isNotEmpty(tctx.lastRedisConnHost)) {
+            redisName = tctx.lastRedisConnHost + ":" + tctx.lastRedisConnPort;
+        }
+        int redisHash = DataProxy.sendObjName(redisName);
+        MeterInteraction meterInteraction = MeterInteractionManager.getInstance().getRedisCallMeter(conf.getObjHash(), redisHash);
+        if (meterInteraction != null) {
+            meterInteraction.add(elapsed, thr != null);
+        }
     }
 
     public static void endSendRedisCommand(Object localContext, Throwable thr) {
         System.out.println(localContext);
     }
+
 }

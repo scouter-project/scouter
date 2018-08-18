@@ -94,7 +94,7 @@ public class MeterInteraction {
 				sum.value += b.time;
 			}
 		});
-		return  ((period == 0) ? 0 : sum.value / period);
+		return  sum.value;
 	}
 
 	public int getCount(int period) {

@@ -69,17 +69,17 @@ public class DataProxy {
 		serviceName.put(hash);
 		udpCollect.add(new TextPack(TextTypes.SERVICE, hash, service));
 	}
-	private static IntLinkedSet objName = new IntLinkedSet().setMax(10000);
+	private static IntLinkedSet objNameSet = new IntLinkedSet().setMax(10000);
 	public static int sendObjName(String objName) {
 		int hash = HashUtil.hash(objName);
-		sendServiceName(hash,objName);
+		sendObjName(hash,objName);
 		return hash;
 	}
 	public static void sendObjName(int hash, String objName) {
-		if (serviceName.contains(hash)) {
+		if (objNameSet.contains(hash)) {
 			return ;
 		}
-		serviceName.put(hash);
+		objNameSet.put(hash);
 		udpCollect.add(new TextPack(TextTypes.OBJECT, hash, objName));
 	}
 	private static IntLinkedSet referer = new IntLinkedSet().setMax(1000);

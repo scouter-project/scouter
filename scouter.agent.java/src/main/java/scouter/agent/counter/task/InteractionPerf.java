@@ -33,7 +33,7 @@ public class InteractionPerf {
 
 	private Configure conf = Configure.getInstance();
 
-	@InteractionCounter(interval = 2000)
+	@InteractionCounter(interval = 5000)
 	public void collectApiIncomingInteractionCounter(InteractionCounterBasket basket) {
 
 		int periodSec = 30;
@@ -42,13 +42,22 @@ public class InteractionPerf {
 		addInteractionsToBasket(basket, interactionType, apiIncomingMeterMap, periodSec);
 	}
 
-	@InteractionCounter(interval = 2000)
+	@InteractionCounter(interval = 5000)
 	public void collectDbCallInteractionCounter(InteractionCounterBasket basket) {
 
 		int periodSec = 30;
 		String interactionType = CounterConstants.INTR_DB_CALL;
 		LinkedMap<MeterInteractionManager.Key, MeterInteraction> dbCallMeterMap = MeterInteractionManager.getInstance().getDbCallMeterMap();
 		addInteractionsToBasket(basket, interactionType, dbCallMeterMap, periodSec);
+	}
+
+	@InteractionCounter(interval = 5000)
+	public void collectRedisCallInteractionCounter(InteractionCounterBasket basket) {
+
+		int periodSec = 30;
+		String interactionType = CounterConstants.INTR_REDIS_CALL;
+		LinkedMap<MeterInteractionManager.Key, MeterInteraction> redisCallMeterMap = MeterInteractionManager.getInstance().getRedisCallMeterMap();
+		addInteractionsToBasket(basket, interactionType, redisCallMeterMap, periodSec);
 	}
 
 	private void addInteractionsToBasket(InteractionCounterBasket basket, String interactionType, LinkedMap<MeterInteractionManager.Key, MeterInteraction> apiIncomingMeterMap, int periodSec) {

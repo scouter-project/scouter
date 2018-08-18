@@ -135,6 +135,8 @@ public class TraceContext {
 	public SqlStep lastSqlStep;
 	public ApiCallStep lastApiCallStep;
 	public int lastDbUrl;
+	public String lastRedisConnHost;
+	public int lastRedisConnPort;
 
     public Queue<DumpStep> temporaryDumpSteps = new LinkedBlockingQueue<DumpStep>(5);
 	public boolean hasDumpStack;
