@@ -33,6 +33,10 @@ public class ForSAPTemp implements ApiCallTraceHelper.IHelper {
 		return step;
 	}
 
+	public void processEnd(TraceContext ctx, Object rtn, HookArgs hookPoint) {
+		return;
+	}
+
 	public void apiEnd(TraceContext ctx, HookArgs hookPoint, Object returnValue, Throwable thr) {
 	}
 

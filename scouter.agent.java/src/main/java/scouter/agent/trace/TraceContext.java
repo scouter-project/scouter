@@ -134,6 +134,7 @@ public class TraceContext {
 
 	public SqlStep lastSqlStep;
 	public ApiCallStep lastApiCallStep;
+	public int lastCalleeObjHash;
 	public int lastDbUrl;
 	public String lastRedisConnHost;
 	public int lastRedisConnPort;

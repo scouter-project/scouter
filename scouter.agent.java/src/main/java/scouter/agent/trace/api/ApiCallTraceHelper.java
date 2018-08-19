@@ -27,9 +27,11 @@ import java.util.Map;
 public class ApiCallTraceHelper {
 	static interface IHelper {
 		public ApiCallStep process(TraceContext ctx, HookArgs hookPoint);
+		public void processEnd(TraceContext ctx, Object rtn, HookArgs hookPoint);
 	}
 
 	static Map<String, IHelper> handlers = new HashMap<String, IHelper>();
+	static ForHttpClient43 forHttpClient43 = new ForHttpClient43();
 
 	static void put(String name, IHelper o) {
 		name = name.replace('.', '/');
@@ -62,4 +64,14 @@ public class ApiCallTraceHelper {
 		return plug.process(ctx, hookPoint);
 	}
 
+	public static void end(TraceContext ctx, Object rtn, HookArgs hookPoint) {
+		IHelper plug = handlers.get(hookPoint.class1);
+		if (plug == null)
+			defaultObj.processEnd(ctx, rtn, hookPoint);
+		plug.processEnd(ctx, rtn, hookPoint);
+	}
+
+	public static void setCalleeToCtxInHttpClientResponse(TraceContext ctx, Object _this, Object response) {
+		forHttpClient43.processSetCalleeToCtx(ctx, _this, response);
+	}
 }

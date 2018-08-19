@@ -57,4 +57,8 @@ public class ForSpringAsyncRestTemplate implements ApiCallTraceHelper.IHelper {
 		ctx.lastApiCallStep = step;
 		return step;
 	}
+
+	public void processEnd(TraceContext ctx, Object rtn, HookArgs hookPoint) {
+		return;
+	}
 }

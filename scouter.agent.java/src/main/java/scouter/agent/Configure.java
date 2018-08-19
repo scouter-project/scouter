@@ -620,6 +620,8 @@ public class Configure extends Thread {
     public String counter_object_registry_path = "/tmp/scouter";
     @ConfigDesc("Activating custom jmx")
     public boolean counter_custom_jmx_enabled = false;
+    @ConfigDesc("Activating interaction counter")
+    public boolean counter_interaction_enabled = true;
 
     // SFA(Stack Frequency Analyzer)
     @ConfigDesc("Activating period threaddump function")
@@ -973,6 +975,7 @@ public class Configure extends Thread {
         this.counter_recentuser_valid_ms = getLong("counter_recentuser_valid_ms", DateUtil.MILLIS_PER_FIVE_MINUTE);
         this.counter_object_registry_path = getValue("counter_object_registry_path", "/tmp/scouter");
         this.counter_custom_jmx_enabled = getBoolean("counter_custom_jmx_enabled", false);
+        this.counter_interaction_enabled = getBoolean("counter_interaction_enabled", true);
         this.custom_jmx_set = getStringSet("custom_jmx_set", "||");
         this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);
         this.sfa_dump_interval_ms = getInt("sfa_dump_interval_ms", 10000);

@@ -34,4 +34,8 @@ public class ForJCOClient implements ApiCallTraceHelper.IHelper {
 		return step;
 	}
 
+	public void processEnd(TraceContext ctx, Object rtn, HookArgs hookPoint) {
+		return;
+	}
+
 }

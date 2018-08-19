@@ -16,11 +16,11 @@
  */
 package scouter.agent.trace.api;
 
-import java.lang.reflect.Method;
-
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
+
+import java.lang.reflect.Method;
 
 public class ForHttpClient  implements ApiCallTraceHelper.IHelper{
 
@@ -45,4 +45,7 @@ public class ForHttpClient  implements ApiCallTraceHelper.IHelper{
 		return step;
 	}
 
+	public void processEnd(TraceContext ctx, Object rtn, HookArgs hookPoint) {
+		return;
+	}
 }

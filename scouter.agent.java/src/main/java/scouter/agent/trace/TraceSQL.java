@@ -267,9 +267,11 @@ public class TraceSQL {
 		tCtx.sqlTime += step.elapsed;
 		ServiceSummary.getInstance().process(step);
 		MeterSQL.getInstance().add(step.elapsed, step.error != 0);
-		MeterInteraction meter = MeterInteractionManager.getInstance().getDbCallMeter(conf.getObjHash(), tCtx.lastDbUrl);
-		if (meter != null) {
-			meter.add(step.elapsed, step.error != 0);
+		if (conf.counter_interaction_enabled) {
+			MeterInteraction meter = MeterInteractionManager.getInstance().getDbCallMeter(conf.getObjHash(), tCtx.lastDbUrl);
+			if (meter != null) {
+				meter.add(step.elapsed, step.error != 0);
+			}
 		}
 		tCtx.profile.pop(step);
 	}

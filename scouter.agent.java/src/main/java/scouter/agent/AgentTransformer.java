@@ -17,6 +17,7 @@
 package scouter.agent;
 
 import scouter.agent.asm.AddFieldASM;
+import scouter.agent.asm.ApiCallResponseObjectASM;
 import scouter.agent.asm.ApicallASM;
 import scouter.agent.asm.ApicallInfoASM;
 import scouter.agent.asm.ApicallSpringHttpAccessorASM;
@@ -121,6 +122,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new MethodASM());
         temp.add(new ApicallASM());
         temp.add(new ApicallInfoASM());
+        temp.add(new ApiCallResponseObjectASM());
         temp.add(new ApicallSpringHttpAccessorASM());
         temp.add(new SpringAsyncExecutionASM());
         temp.add(new SpringAsyncExecutionAspectSupportDoSubmitASM());

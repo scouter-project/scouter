@@ -27,6 +27,8 @@ import scouter.util.ThreadUtil;
 import static scouter.lang.counters.CounterConstants.INTR_API_INCOMING;
 import static scouter.lang.counters.CounterConstants.INTR_API_OUTGOING;
 import static scouter.lang.counters.CounterConstants.INTR_DB_CALL;
+import static scouter.lang.counters.CounterConstants.INTR_NORMAL_INCOMING;
+import static scouter.lang.counters.CounterConstants.INTR_NORMAL_OUTGOING;
 import static scouter.lang.counters.CounterConstants.INTR_REDIS_CALL;
 
 public class MeterInteractionManager extends Thread {
@@ -37,7 +39,9 @@ public class MeterInteractionManager extends Thread {
     private RequestQueue<Pair<String, Key>> queue = new RequestQueue<Pair<String, Key>>(1024);
 
     private static LinkedMap<Key, MeterInteraction> apiOutgoingMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
+    private static LinkedMap<Key, MeterInteraction> normalOutgoingMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
     private static LinkedMap<Key, MeterInteraction> apiIncomingMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
+    private static LinkedMap<Key, MeterInteraction> normalIncomingMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(100);
     private static LinkedMap<Key, MeterInteraction> dbCallMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
     private static LinkedMap<Key, MeterInteraction> redisCallMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
 
@@ -63,10 +67,19 @@ public class MeterInteractionManager extends Thread {
 
             if (INTR_API_OUTGOING.equals(type)) {
                 apiOutgoingMeterMap.put(key, meterInteraction);
+
+            } else if (INTR_NORMAL_OUTGOING.equals(type)) {
+                normalOutgoingMeterMap.put(key, meterInteraction);
+
             } else if (INTR_API_INCOMING.equals(type)) {
                 apiIncomingMeterMap.put(key, meterInteraction);
+
+            } else if (INTR_NORMAL_INCOMING.equals(type)) {
+                normalIncomingMeterMap.put(key, meterInteraction);
+
             } else if (INTR_DB_CALL.equals(type)) {
                 dbCallMeterMap.put(key, meterInteraction);
+
             } else if (INTR_REDIS_CALL.equals(type)) {
                 redisCallMeterMap.put(key, meterInteraction);
             }
@@ -88,6 +101,19 @@ public class MeterInteractionManager extends Thread {
     /**
      * @return nullable
      */
+    public MeterInteraction getNormalOutgoingMeter(int fromHash, int toHash) {
+        Key key = new Key(fromHash, toHash);
+        MeterInteraction meter = normalOutgoingMeterMap.get(key);
+        if (meter == null) {
+            queue.put(new Pair<String, Key>(INTR_NORMAL_OUTGOING, key));
+        }
+        return meter;
+    }
+
+
+    /**
+     * @return nullable
+     */
     public MeterInteraction getApiIncomingMeter(int fromHash, int toHash) {
         Key key = new Key(fromHash, toHash);
         MeterInteraction meter = apiIncomingMeterMap.get(key);
@@ -96,6 +122,19 @@ public class MeterInteractionManager extends Thread {
         }
         return meter;
     }
+
+    /**
+     * @return nullable
+     */
+    public MeterInteraction getNormalIncomingMeter(int fromHash, int toHash) {
+        Key key = new Key(fromHash, toHash);
+        MeterInteraction meter = normalIncomingMeterMap.get(key);
+        if (meter == null) {
+            queue.put(new Pair<String, Key>(INTR_NORMAL_INCOMING, key));
+        }
+        return meter;
+    }
+
 
     /**
      * @return nullable
@@ -125,8 +164,16 @@ public class MeterInteractionManager extends Thread {
         return apiOutgoingMeterMap;
     }
 
+    public LinkedMap<Key, MeterInteraction> getNormalOutgoingMeterMap() {
+        return normalOutgoingMeterMap;
+    }
+
     public LinkedMap<Key, MeterInteraction> getApiIncomingMeterMap() {
         return apiIncomingMeterMap;
+    }
+
+    public LinkedMap<Key, MeterInteraction> getNormalIncomingMeterMap() {
+        return normalIncomingMeterMap;
     }
 
     public LinkedMap<Key, MeterInteraction> getDbCallMeterMap() {

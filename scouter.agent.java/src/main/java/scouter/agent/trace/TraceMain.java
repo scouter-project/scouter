@@ -510,13 +510,7 @@ public class TraceMain {
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
-            if (ctx.callerObjHash != 0) {
-                MeterInteraction meterInteraction = MeterInteractionManager.getInstance()
-                        .getApiIncomingMeter(ctx.callerObjHash, conf.getObjHash());
-                if (meterInteraction != null) {
-                    meterInteraction.add(pack.elapsed, pack.error > 0);
-                }
-            }
+            meteringInteraction(ctx, pack);
 
             if (discardMode != XLogDiscard.DISCARD_ALL) {
                 DataProxy.sendXLog(pack);
@@ -731,12 +725,47 @@ public class TraceMain {
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
+            meteringInteraction(ctx, pack);
 
             if (discardMode != XLogDiscard.DISCARD_ALL) {
                 DataProxy.sendXLog(pack);
             }
         } catch (Throwable t) {
             Logger.println("A148", "service end error", t);
+        }
+    }
+
+
+    private static void meteringInteraction(TraceContext ctx, XLogPack pack) {
+        switch (pack.xType) {
+            case XLogTypes.WEB_SERVICE:
+            case XLogTypes.APP_SERVICE:
+                meteringInteraction0(ctx, pack);
+                break;
+            case XLogTypes.BACK_THREAD:
+            case XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE:
+            case XLogTypes.BACK_THREAD2:
+                break;
+            default:
+                break;
+        }
+    }
+
+    private static void meteringInteraction0(TraceContext ctx, XLogPack pack) {
+        if (conf.counter_interaction_enabled) {
+            if (ctx.callerObjHash != 0) {
+                MeterInteraction meterInteraction = MeterInteractionManager.getInstance()
+                        .getApiIncomingMeter(ctx.callerObjHash, conf.getObjHash());
+                if (meterInteraction != null) {
+                    meterInteraction.add(pack.elapsed, pack.error > 0);
+                }
+            } else {
+                MeterInteraction meterInteraction = MeterInteractionManager.getInstance()
+                        .getNormalIncomingMeter(0, conf.getObjHash());
+                if (meterInteraction != null) {
+                    meterInteraction.add(pack.elapsed, pack.error > 0);
+                }
+            }
         }
     }
 
@@ -1567,19 +1596,17 @@ public class TraceMain {
 
         tctx.profile.pop(step);
 
-        String redisName = "redis";
-        if (StringUtil.isNotEmpty(tctx.lastRedisConnHost)) {
-            redisName = tctx.lastRedisConnHost + ":" + tctx.lastRedisConnPort;
+        if (conf.counter_interaction_enabled) {
+            String redisName = "redis";
+            if (StringUtil.isNotEmpty(tctx.lastRedisConnHost)) {
+                redisName = tctx.lastRedisConnHost + ":" + tctx.lastRedisConnPort;
+            }
+            int redisHash = DataProxy.sendObjName(redisName);
+            MeterInteraction meterInteraction = MeterInteractionManager.getInstance().getRedisCallMeter(conf.getObjHash(), redisHash);
+            if (meterInteraction != null) {
+                meterInteraction.add(elapsed, thr != null);
+            }
         }
-        int redisHash = DataProxy.sendObjName(redisName);
-        MeterInteraction meterInteraction = MeterInteractionManager.getInstance().getRedisCallMeter(conf.getObjHash(), redisHash);
-        if (meterInteraction != null) {
-            meterInteraction.add(elapsed, thr != null);
-        }
-    }
-
-    public static void endSendRedisCommand(Object localContext, Throwable thr) {
-        System.out.println(localContext);
     }
 
 }

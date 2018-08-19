@@ -58,6 +58,10 @@ public class ForNettyHttpRequest implements ApiCallTraceHelper.IHelper {
 		return step;
 	}
 
+	public void processEnd(TraceContext ctx, Object rtn, HookArgs hookPoint) {
+		return;
+	}
+
 	private IHttpClient getProxy(HookArgs hookPoint) {
 		int key = System.identityHashCode(hookPoint.this1.getClass());
 		IHttpClient httpclient = httpclients.get(key);

@@ -1,5 +1,7 @@
 package scouter.xtra.httpclient;
 
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import scouter.agent.proxy.IHttpClient;
@@ -30,6 +32,17 @@ public class SpringRestTemplateHttpRequest implements IHttpClient {
 			List<String> headerValues = chr.getHeaders().get(key);
 			if(headerValues != null && headerValues.size() > 0) {
 				return headerValues.get(0);
+			}
+		}
+		return null;
+	}
+
+	public String getResponseHeader(Object o, String key) {
+		if (o instanceof HttpResponse) {
+			HttpResponse res = (HttpResponse) o;
+			Header h = res.getFirstHeader(key);
+			if (h != null) {
+				return h.getValue();
 			}
 		}
 		return null;

@@ -29,6 +29,7 @@ import scouter.util.KeyGen;
 public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 	private boolean ok = true;
 	private static IntKeyLinkedMap<IHttpClient> httpclients = new IntKeyLinkedMap<IHttpClient>().setMax(5);
+
 	public ApiCallStep process(TraceContext ctx, HookArgs hookPoint) {
 		ApiCallStep step = new ApiCallStep();
 		try {
@@ -53,6 +54,11 @@ public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 			ctx.apicall_name = hookPoint.class1;
 		return step;
 	}
+
+	public void processEnd(TraceContext ctx, Object rtn, HookArgs hookPoint) {
+		return;
+	}
+
 	private IHttpClient getProxy(HookArgs hookPoint) {
 		int key = System.identityHashCode(hookPoint.this1.getClass());
 		IHttpClient httpclient = httpclients.get(key);
@@ -64,6 +70,7 @@ public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 		}
 		return httpclient;
 	}
+
 	private void transfer(IHttpClient httpclient, TraceContext ctx, Object host, Object req, long calleeTxid) {
 		Configure conf = Configure.getInstance();
 		if (conf.trace_interservice_enabled) {

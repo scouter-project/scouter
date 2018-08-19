@@ -19,6 +19,8 @@ package scouter.agent.trace;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterAPI;
+import scouter.agent.counter.meter.MeterInteraction;
+import scouter.agent.counter.meter.MeterInteractionManager;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.plugin.PluginHttpCallTrace;
 import scouter.agent.plugin.PluginHttpServiceTrace;
@@ -39,6 +41,7 @@ import java.net.SocketAddress;
 import java.util.*;
 
 public class TraceApiCall {
+	private static Configure conf = Configure.getInstance();
 	private static Object lock = new Object();
 	private static IntKeyLinkedMap<IHttpClient> restTemplateHttpRequests = new IntKeyLinkedMap<IHttpClient>().setMax(5);
 
@@ -114,15 +117,15 @@ public class TraceApiCall {
 		ctx.apicall_name = name;
 		return new LocalContext(ctx, step);
 	}
+
 	public static void endApicall(Object stat, Object returnValue, Throwable thr) {
 		if (stat == null)
 			return;
 		try {
 			LocalContext lctx = (LocalContext) stat;
-			TraceContext tctx = (TraceContext) lctx.context;
+			TraceContext tctx = lctx.context;
 			ApiCallStep step = (ApiCallStep) lctx.stepSingle;
-			// System.out.println("apicall end: " +tctx.apicall_name +
-			// " target="+tctx.apicall_target);
+
 			if (step.address == null) {
 				step.address = tctx.apicall_target;
 			}
@@ -137,6 +140,7 @@ public class TraceApiCall {
 			}
 			tctx.apicall_count++;
 			tctx.apicall_time += step.elapsed;
+
 			if (thr != null) {
 				String msg = thr.getMessage();
 				if(msg == null){
@@ -162,10 +166,36 @@ public class TraceApiCall {
 				tctx.offerErrorEntity(ErrorEntity.of(thr, step.error, 0, step.hash));
 			}
 
+			Object hookArgs = lctx.option;
+			if (hookArgs instanceof HookArgs) {
+				ApiCallTraceHelper.end(tctx, returnValue, (HookArgs) hookArgs);
+			}
+
 			if(step instanceof ApiCallStep2 && ((ApiCallStep2) step).async == 1) {
 				//skip api metering
 			} else {
 				MeterAPI.getInstance().add(step.elapsed, step.error != 0);
+				if (conf.counter_interaction_enabled) {
+					int toHash = tctx.lastCalleeObjHash;
+					tctx.lastCalleeObjHash = 0;
+					if (toHash == 0) {
+						if (StringUtil.isEmpty(step.address)) {
+							step.address = "unknown";
+						}
+						toHash = DataProxy.sendObjName(step.address);
+						MeterInteraction meterInteraction = MeterInteractionManager.getInstance()
+								.getNormalOutgoingMeter(conf.getObjHash(), toHash);
+						if (meterInteraction != null) {
+							meterInteraction.add(step.elapsed, step.error != 0);
+						}
+					} else {
+						MeterInteraction meterInteraction = MeterInteractionManager.getInstance()
+								.getApiOutgoingMeter(conf.getObjHash(), toHash);
+						if (meterInteraction != null) {
+							meterInteraction.add(step.elapsed, step.error != 0);
+						}
+					}
+				}
 			}
 
 			ServiceSummary.getInstance().process(step);
@@ -254,11 +284,18 @@ public class TraceApiCall {
 		public String getHeader(Object o, String key) {
 			return null;
 		}
+		public String getResponseHeader(Object o, String key) {
+			return null;
+		}
 		public void addHeader(Object o, String key, String value) {
 		}
 	};
 
 	public static void endCreateSpringRestTemplateRequest(Object _this, Object oRtn) {
+		if (!conf.trace_interservice_enabled) {
+			return;
+		}
+
 		TraceContext ctx = TraceContextManager.getContext();
 		if(ctx == null) return;
 		if(ctx.lastApiCallStep == null) return;
@@ -285,25 +322,35 @@ public class TraceApiCall {
 			}
 		}
 
-		if (conf.trace_interservice_enabled) {
-			try {
-				if (ctx.gxid == 0) {
-					ctx.gxid = ctx.txid;
-				}
-				ctx.lastApiCallStep.txid = KeyGen.next();
-
-				httpclient.addHeader(oRtn, conf._trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
-				httpclient.addHeader(oRtn, conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
-				httpclient.addHeader(oRtn, conf._trace_interservice_callee_header_key, Hexa32.toString32(ctx.lastApiCallStep.txid));
-				httpclient.addHeader(oRtn, conf._trace_interservice_caller_obj_header_key, String.valueOf(conf.getObjHash()));
-				
-				PluginHttpCallTrace.call(ctx, httpclient, oRtn);
-
-			} catch (Exception e) {
-
+		try {
+			if (ctx.gxid == 0) {
+				ctx.gxid = ctx.txid;
 			}
+			ctx.lastApiCallStep.txid = KeyGen.next();
+
+			httpclient.addHeader(oRtn, conf._trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
+			httpclient.addHeader(oRtn, conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
+			httpclient.addHeader(oRtn, conf._trace_interservice_callee_header_key, Hexa32.toString32(ctx.lastApiCallStep.txid));
+			httpclient.addHeader(oRtn, conf._trace_interservice_caller_obj_header_key, String.valueOf(conf.getObjHash()));
+
+			PluginHttpCallTrace.call(ctx, httpclient, oRtn);
+
+		} catch (Exception e) {
+
 		}
 	}
+
+	public static void setTraceApiCallResponseHeader(Object _this, Object res) {
+		if (!conf.trace_interservice_enabled) {
+			return;
+		}
+
+		TraceContext ctx = TraceContextManager.getContext();
+		if(ctx == null) return;
+
+		ApiCallTraceHelper.setCalleeToCtxInHttpClientResponse(ctx, _this, res);
+	}
+
 
 	public static Set<String> getAllExtendedOrImplementedTypesRecursively(Class clazz) {
 		List<String> res = new ArrayList<String>();

@@ -84,6 +84,10 @@ public class ForHttpURLConnection implements ApiCallTraceHelper.IHelper {
 		return step;
 	}
 
+	public void processEnd(TraceContext ctx, Object rtn, HookArgs hookPoint) {
+		return;
+	}
+
 	private void transfer(TraceContext ctx, HttpURLConnection urlCon, long calleeTxid) {
 
 		Configure conf = Configure.getInstance();

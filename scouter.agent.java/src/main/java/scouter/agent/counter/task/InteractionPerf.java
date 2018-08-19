@@ -35,6 +35,9 @@ public class InteractionPerf {
 
 	@InteractionCounter(interval = 5000)
 	public void collectApiIncomingInteractionCounter(InteractionCounterBasket basket) {
+		if (!conf.counter_interaction_enabled) {
+			return;
+		}
 
 		int periodSec = 30;
 		String interactionType = CounterConstants.INTR_API_INCOMING;
@@ -43,7 +46,46 @@ public class InteractionPerf {
 	}
 
 	@InteractionCounter(interval = 5000)
+	public void collectNormalIncomingInteractionCounter(InteractionCounterBasket basket) {
+		if (!conf.counter_interaction_enabled) {
+			return;
+		}
+
+		int periodSec = 30;
+		String interactionType = CounterConstants.INTR_NORMAL_INCOMING;
+		LinkedMap<MeterInteractionManager.Key, MeterInteraction> normalIncomingMeterMap = MeterInteractionManager.getInstance().getNormalIncomingMeterMap();
+		addInteractionsToBasket(basket, interactionType, normalIncomingMeterMap, periodSec);
+	}
+
+	@InteractionCounter(interval = 5000)
+	public void collectApiOutgoingInteractionCounter(InteractionCounterBasket basket) {
+		if (!conf.counter_interaction_enabled) {
+			return;
+		}
+
+		int periodSec = 30;
+		String interactionType = CounterConstants.INTR_API_OUTGOING;
+		LinkedMap<MeterInteractionManager.Key, MeterInteraction> apiOutgoingMeterMap = MeterInteractionManager.getInstance().getApiOutgoingMeterMap();
+		addInteractionsToBasket(basket, interactionType, apiOutgoingMeterMap, periodSec);
+	}
+
+	@InteractionCounter(interval = 5000)
+	public void collectNormalOutgoingInteractionCounter(InteractionCounterBasket basket) {
+		if (!conf.counter_interaction_enabled) {
+			return;
+		}
+
+		int periodSec = 30;
+		String interactionType = CounterConstants.INTR_NORMAL_OUTGOING;
+		LinkedMap<MeterInteractionManager.Key, MeterInteraction> normalOutgoingMeterMap = MeterInteractionManager.getInstance().getNormalOutgoingMeterMap();
+		addInteractionsToBasket(basket, interactionType, normalOutgoingMeterMap, periodSec);
+	}
+
+	@InteractionCounter(interval = 5000)
 	public void collectDbCallInteractionCounter(InteractionCounterBasket basket) {
+		if (!conf.counter_interaction_enabled) {
+			return;
+		}
 
 		int periodSec = 30;
 		String interactionType = CounterConstants.INTR_DB_CALL;
@@ -53,6 +95,9 @@ public class InteractionPerf {
 
 	@InteractionCounter(interval = 5000)
 	public void collectRedisCallInteractionCounter(InteractionCounterBasket basket) {
+		if (!conf.counter_interaction_enabled) {
+			return;
+		}
 
 		int periodSec = 30;
 		String interactionType = CounterConstants.INTR_REDIS_CALL;

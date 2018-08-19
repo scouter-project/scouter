@@ -45,12 +45,14 @@ public class ApicallASM implements IASM, Opcodes {
         AsmUtil.add(reserved, "sun/net/www/protocol/http/HttpURLConnection", "getInputStream()Ljava/io/InputStream;");
         AsmUtil.add(reserved, "sun/net/www/protocol/http/HttpURLConnection", "connect()V");
         AsmUtil.add(reserved, "org/apache/commons/httpclient/HttpClient", "executeMethod("
-                + "Lorg/apache/commons/httpclient/HostConfiguration;" + "Lorg/apache/commons/httpclient/HttpMethod;"
+                + "Lorg/apache/commons/httpclient/HostConfiguration;"
+                + "Lorg/apache/commons/httpclient/HttpMethod;"
                 + "Lorg/apache/commons/httpclient/HttpState;" + ")I");
         AsmUtil.add(reserved, "org/apache/http/impl/client/InternalHttpClient", "doExecute");
         AsmUtil.add(reserved, "sun/net/www/http/HttpClient", "parseHTTP");
         AsmUtil.add(reserved, "org/apache/http/impl/client/AbstractHttpClient",//
-                "execute(Lorg/apache/http/HttpHost;" + "Lorg/apache/http/HttpRequest;"
+                "execute(Lorg/apache/http/HttpHost;"
+                        + "Lorg/apache/http/HttpRequest;"
                         + "Lorg/apache/http/protocol/HttpContext;)Lorg/apache/http/HttpResponse;");
         // JCO CLIENT 추가..
         AsmUtil.add(reserved, "com/sap/mw/jco/JCO$Client", "execute(Ljava/lang/String;" + //
