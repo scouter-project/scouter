@@ -42,7 +42,7 @@ public class ApiCallResponseObjectASM implements IASM, Opcodes {
         hookingClasses.add("org/apache/http/impl/client/CloseableHttpResponseProxy");
     }
     public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-        if (conf._hook_methods_enabled == false)
+        if (conf._hook_apicall_enabled == false)
             return cv;
 
         if (hookingClasses.contains(className)) {
@@ -77,7 +77,7 @@ class ApiCallResponseObjectCV extends ClassVisitor implements Opcodes {
 
 class ApiCallResponseObjectInitMV extends LocalVariablesSorter implements Opcodes {
     private static final String TRACE = TraceApiCall.class.getName().replace('.', '/');
-    private static final String START_METHOD = "setTraceApiCallResponseHeader";
+    private static final String START_METHOD = "setCalleeToCtxInHttpClientResponse";
     private static final String START_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Object;)V";
 
     private String className;

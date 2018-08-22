@@ -56,7 +56,7 @@ public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
 		return step;
 	}
 
-	public void processEnd(TraceContext ctx, Object rtn, HookArgs hookPoint) {
+	public void processEnd(TraceContext ctx, ApiCallStep step, Object rtn, HookArgs hookPoint) {
 		IHttpClient httpclient = getProxy(hookPoint.this1);
 		String calleeObjHashStr = httpclient.getResponseHeader(rtn, conf._trace_interservice_callee_obj_header_key);
 		if (calleeObjHashStr != null) {

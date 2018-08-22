@@ -84,7 +84,7 @@ public class ApicallASM implements IASM, Opcodes {
     }
 
     public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-        if (Configure.getInstance()._hook_methods_enabled == false) {
+        if (Configure.getInstance()._hook_apicall_enabled == false) {
             return cv;
         }
         HookingSet mset = reserved.get(className);

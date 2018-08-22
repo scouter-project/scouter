@@ -23,6 +23,7 @@ import scouter.io.DataOutputX;
 import java.io.IOException;
 
 public class ApiCallStep2 extends ApiCallStep {
+	public long start;
 	public byte async;
 
 	public byte getStepType() {

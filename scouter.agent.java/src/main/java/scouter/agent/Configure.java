@@ -577,6 +577,8 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public boolean _hook_methods_enabled = true;
     @ConfigDesc("")
+    public boolean _hook_apicall_enabled = true;
+    @ConfigDesc("")
     public boolean _hook_socket_enabled = true;
     @ConfigDesc("")
     public boolean _hook_jsp_enabled = true;
@@ -958,6 +960,7 @@ public class Configure extends Thread {
         this._hook_dbconn_enabled = getBoolean("_hook_dbconn_enabled", true);
         this._hook_cap_enabled = getBoolean("_hook_cap_enabled", true);
         this._hook_methods_enabled = getBoolean("_hook_methods_enabled", true);
+        this._hook_apicall_enabled = getBoolean("_hook_apicall_enabled", true);
         this._hook_socket_enabled = getBoolean("_hook_socket_enabled", true);
         this._hook_jsp_enabled = getBoolean("_hook_jsp_enabled", true);
         this._hook_async_enabled = getBoolean("_hook_async_enabled", true);
