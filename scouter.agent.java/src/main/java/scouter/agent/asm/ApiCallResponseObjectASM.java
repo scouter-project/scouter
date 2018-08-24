@@ -25,6 +25,7 @@ import scouter.org.objectweb.asm.ClassVisitor;
 import scouter.org.objectweb.asm.Label;
 import scouter.org.objectweb.asm.MethodVisitor;
 import scouter.org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.Type;
 import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 
 import java.util.HashSet;
@@ -77,13 +78,14 @@ class ApiCallResponseObjectCV extends ClassVisitor implements Opcodes {
 
 class ApiCallResponseObjectInitMV extends LocalVariablesSorter implements Opcodes {
     private static final String TRACE = TraceApiCall.class.getName().replace('.', '/');
-    private static final String START_METHOD = "setCalleeToCtxInHttpClientResponse";
-    private static final String START_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Object;)V";
+    private static final String END_METHOD = "setCalleeToCtxInHttpClientResponse";
+    private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Object;)V";
 
     private String className;
     private String name;
     private String desc;
     private int statIdx;
+    private Type returnType;
     private Label startFinally = new Label();
 
     public ApiCallResponseObjectInitMV(String className, int access, String name, String desc, MethodVisitor mv) {
@@ -91,14 +93,16 @@ class ApiCallResponseObjectInitMV extends LocalVariablesSorter implements Opcode
         this.className = className;
         this.name = name;
         this.desc = desc;
+        this.returnType = Type.getReturnType(desc);
     }
 
     @Override
-    public void visitCode() {
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE, START_METHOD, START_SIGNATURE, false);
-
-        mv.visitCode();
+    public void visitInsn(int opcode) {
+        if ((opcode >= IRETURN && opcode <= RETURN)) {
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACE, END_METHOD, END_SIGNATURE, false);
+        }
+        mv.visitInsn(opcode);
     }
 }

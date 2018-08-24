@@ -347,7 +347,11 @@ public class TraceApiCall {
 		TraceContext ctx = TraceContextManager.getContext();
 		if(ctx == null) return;
 
-		ApiCallTraceHelper.setCalleeToCtxInHttpClientResponse(ctx, _this, res);
+		try {
+			ApiCallTraceHelper.setCalleeToCtxInHttpClientResponse(ctx, _this, res);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void setCalleeToCtxInSpringClientHttpResponse(Object _this, Object res) {
@@ -370,36 +374,40 @@ public class TraceApiCall {
 			}
 		}
 
-		ApiCallTraceHelper.setCalleeToCtxInSpringClientHttpResponse(ctx, _this, res);
+		try {
+			ApiCallTraceHelper.setCalleeToCtxInSpringClientHttpResponse(ctx, _this, res);
 
-		if (step != null && step.async == 1) {
-			ctx.apicall_time -= step.elapsed;
-			step.elapsed = (int) (System.currentTimeMillis() - ctx.startTime) - step.start_time;
-			ctx.apicall_time += step.elapsed;
+			if (step != null && step.async == 1) {
+				ctx.apicall_time -= step.elapsed;
+				step.elapsed = (int) (System.currentTimeMillis() - ctx.startTime) - step.start_time;
+				ctx.apicall_time += step.elapsed;
 
-			MeterAPI.getInstance().add(step.elapsed, step.error != 0);
+				MeterAPI.getInstance().add(step.elapsed, step.error != 0);
 
-			if (conf.counter_interaction_enabled) {
-				int toHash = ctx.lastCalleeObjHash;
-				ctx.lastCalleeObjHash = 0;
-				if (toHash == 0) {
-					if (StringUtil.isEmpty(step.address)) {
-						step.address = "unknown";
-					}
-					toHash = DataProxy.sendObjName(step.address);
-					MeterInteraction meterInteraction = MeterInteractionManager.getInstance()
-							.getNormalOutgoingMeter(conf.getObjHash(), toHash);
-					if (meterInteraction != null) {
-						meterInteraction.add(step.elapsed, step.error != 0);
-					}
-				} else {
-					MeterInteraction meterInteraction = MeterInteractionManager.getInstance()
-							.getApiOutgoingMeter(conf.getObjHash(), toHash);
-					if (meterInteraction != null) {
-						meterInteraction.add(step.elapsed, step.error != 0);
+				if (conf.counter_interaction_enabled) {
+					int toHash = ctx.lastCalleeObjHash;
+					ctx.lastCalleeObjHash = 0;
+					if (toHash == 0) {
+						if (StringUtil.isEmpty(step.address)) {
+							step.address = "unknown";
+						}
+						toHash = DataProxy.sendObjName(step.address);
+						MeterInteraction meterInteraction = MeterInteractionManager.getInstance()
+								.getNormalOutgoingMeter(conf.getObjHash(), toHash);
+						if (meterInteraction != null) {
+							meterInteraction.add(step.elapsed, step.error != 0);
+						}
+					} else {
+						MeterInteraction meterInteraction = MeterInteractionManager.getInstance()
+								.getApiOutgoingMeter(conf.getObjHash(), toHash);
+						if (meterInteraction != null) {
+							meterInteraction.add(step.elapsed, step.error != 0);
+						}
 					}
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
