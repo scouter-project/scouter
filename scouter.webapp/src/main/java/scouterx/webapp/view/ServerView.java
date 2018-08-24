@@ -33,4 +33,5 @@ public class ServerView {
     final private String name;
     final private boolean connected;
     final private long serverTime;
+    final private String version;
 }
