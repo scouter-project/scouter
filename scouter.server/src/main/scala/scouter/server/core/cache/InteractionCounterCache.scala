@@ -20,7 +20,6 @@ package scouter.server.core.cache
 
 import java.util
 
-import scouter.lang.CounterKey
 import scouter.lang.pack.InteractionPerfCounterPack
 import scouter.server.util.{EnumerScala, ThreadScala}
 import scouter.util.{CacheTable, ThreadUtil}
@@ -29,6 +28,7 @@ import scouter.util.{CacheTable, ThreadUtil}
   * Singleton object of the memory cache for counter data.
   */
 object InteractionCounterCache {
+    val dummyTable = new CacheTable[InteractionCounterCacheKey, InteractionPerfCounterPack]()
     val objCacheMap = new util.HashMap[Int, CacheTable[InteractionCounterCacheKey, InteractionPerfCounterPack]]()
     val keepTime = 10000
 
@@ -59,5 +59,13 @@ object InteractionCounterCache {
             return null
         }
         cache.get(key)
+    }
+
+    def getCacheTable(objHash: Int): CacheTable[InteractionCounterCacheKey, InteractionPerfCounterPack] = {
+        val table = objCacheMap.get(objHash)
+        if(table == null) {
+            return dummyTable
+        }
+        return table
     }
 }
