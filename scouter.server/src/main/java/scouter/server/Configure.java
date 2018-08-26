@@ -22,6 +22,7 @@ import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueType;
 import scouter.lang.conf.ConfigValueUtil;
 import scouter.lang.conf.ValueType;
+import scouter.lang.conf.ValueTypeDesc;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
@@ -391,7 +392,10 @@ public class Configure extends Thread {
 			"If set, only the metric matching to this tag value is handled.\n" +
 			"It can have multiple values. comma separator means 'or' condition. eg) cpu:cpu-total,cpu:cpu0\n" +
 			"It also have not(!) condition. eg) cpu:!cpu-total")
-	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    @ConfigValueType(value = ValueType.COMMA_COLON_SEPARATED_VALUE,
+            strings = {"filtering tag name(reqiured)", "filtering tag value(reqiured)"},
+            booleans = {true, true}
+    )
 	public String input_telegraf_$measurement$_tag_filter = "";
 
 	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
@@ -406,7 +410,10 @@ public class Configure extends Thread {
 			"When specified as a delta type, the difference in values per second is stored. and the counter name ends with '_delta'\n" +
 			"double '&&' means BOTH type. AS BOTH type, the value and the difference value both are stored.\n" +
 			" - {normalize sec} applies only to a delta counter if the counter is a 'BOTH' type counter. (This value can have min 4 to max 60)")
-	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+	@ConfigValueType(value = ValueType.COMMA_COLON_SEPARATED_VALUE,
+			strings = {"line protocol field\n(reqiured)", "mapping counter name\n(reqiured)", "display name", "unit", "totalizable\ndefault true", "norm. sec.\ndefault 30"},
+			booleans = {true, true, false, false, false, false}
+			)
 	public String input_telegraf_$measurement$_counter_mappings = "";
 
 	@ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
@@ -993,6 +1000,10 @@ public class Configure extends Thread {
 
 	public StringKeyLinkedMap<ValueType> getConfigureValueType() {
 		return ConfigValueUtil.getConfigValueTypeMap(this);
+	}
+
+	public StringKeyLinkedMap<ValueTypeDesc> getConfigureValueTypeDesc() {
+		return ConfigValueUtil.getConfigValueTypeDescMap(this);
 	}
 
 	public static StringLinkedSet toOrderSet(String values, String deli) {

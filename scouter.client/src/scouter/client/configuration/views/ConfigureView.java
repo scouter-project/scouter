@@ -78,8 +78,10 @@ import scouter.client.util.CustomLineStyleListener;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.lang.conf.ValueType;
+import scouter.lang.conf.ValueTypeDesc;
 import scouter.lang.pack.MapPack;
 import scouter.lang.value.ListValue;
+import scouter.lang.value.MapValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 import scouter.util.StringUtil;
@@ -126,6 +128,7 @@ public class ConfigureView extends ViewPart {
 
     HashMap<String, String> descMap = new HashMap<String, String>();
     HashMap<String, ValueType> valueTypeMap = new HashMap<String, ValueType>();
+    HashMap<String, ValueTypeDesc> valueTypeDescMap = new HashMap<String, ValueTypeDesc>();
 
     public void createPartControl(Composite parent) {
         parent.setLayout(new FillLayout());
@@ -287,6 +290,7 @@ public class ConfigureView extends ViewPart {
             loadConfigList(RequestCmd.LIST_CONFIGURE_SERVER, null);
             loadConfigDesc(new MapPack());
             loadConfigValueType(new MapPack());
+            loadConfigValueTypeDesc(new MapPack());
         }
     }
 
@@ -389,7 +393,8 @@ public class ConfigureView extends ViewPart {
                         final String valuef = value;
                         ExUtil.exec(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay(), () -> {
                             ConfigureItemDialog dialog = new ConfigureItemDialog(parent.getShell(), selectedText, valuef, displayName,
-                                    getInDescMap(selectedText), getInValueTypeMap(selectedText), objHash == 0 ? true : false, objHash);
+                                    getInDescMap(selectedText), getInValueTypeMap(selectedText), getInValueTypeDescMap(selectedText),
+                                    objHash == 0 ? true : false, objHash);
                             if (dialog.open() == Window.OK) {
                                 setTheConfig(selectedText, dialog.getValue(), dialog.getApplyScope());
                             }
@@ -447,6 +452,14 @@ public class ConfigureView extends ViewPart {
             valueType = valueTypeMap.get(removeVariableString(text));
         }
         return valueType;
+    }
+
+    private ValueTypeDesc getInValueTypeDescMap(String text) {
+        ValueTypeDesc valueTypeDesc = valueTypeDescMap.get(text);
+        if (valueTypeDesc == null) {
+            valueTypeDesc = valueTypeDescMap.get(removeVariableString(text));
+        }
+        return valueTypeDesc;
     }
 
     public static String removeVariableString(String text) {
@@ -690,6 +703,32 @@ public class ConfigureView extends ViewPart {
                         valueTypeMap.put(key, ValueType.of(pack.getInt(key)));
                         if (key.contains("$")) {
                             valueTypeMap.put(removeVariableString(key), ValueType.of(pack.getInt(key)));
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void loadConfigValueTypeDesc(final MapPack param) {
+        ExUtil.asyncRun(new Runnable() {
+            public void run() {
+                MapPack pack = null;
+                TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
+                try {
+                    pack = (MapPack) tcp.getSingle(RequestCmd.CONFIGURE_VALUE_TYPE_DESC, param);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    TcpProxy.putTcpProxy(tcp);
+                }
+                if (pack != null) {
+                    Iterator<String> keys = pack.keys();
+                    while (keys.hasNext()) {
+                        String key = keys.next();
+                        valueTypeDescMap.put(key, ValueTypeDesc.of((MapValue) pack.get(key)));
+                        if (key.contains("$")) {
+                            valueTypeDescMap.put(removeVariableString(key), ValueTypeDesc.of((MapValue) pack.get(key)));
                         }
                     }
                 }

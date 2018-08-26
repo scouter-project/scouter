@@ -184,6 +184,7 @@ public class RequestCmd {
 	public static final String REDEFINE_CLASSES = "REDEFINE_CLASSES";
 	public static final String CONFIGURE_DESC = "CONFIGURE_DESC";
 	public static final String CONFIGURE_VALUE_TYPE = "CONFIGURE_VALUE_TYPE";
+	public static final String CONFIGURE_VALUE_TYPE_DESC = "CONFIGURE_VALUE_TYPE_DESC";
 
 	public static final String GET_ALERT_SCRIPTING_CONTETNS = "GET_ALERT_SCRIPTING_CONTETNS";
 	public static final String GET_ALERT_SCRIPTING_CONFIG_CONTETNS = "GET_ALERT_SCRIPTING_CONFIG_CONTETNS";
