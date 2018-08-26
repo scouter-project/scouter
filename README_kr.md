@@ -28,7 +28,7 @@
   - 자원 : Cpu, Memory, Network and Heap usage, Connection pool 등.
 
 ## 소개 동영상(클릭)
-[![Demo gif](https://j.gifs.com/yDqbAa.gif)](https://youtu.be/iuArTzsD7Ws)
+[![Demo gif](./scouter.document/img/main/scouter-movie.gif)](https://youtu.be/iuArTzsD7Ws)
 
 ## Documents
  - [Document Home](./scouter.document/index_kr.md)
