@@ -96,7 +96,119 @@ public class CounterManager {
 	public byte[] getXmlCustomContent() {
 		return xmlCustomContent;
 	}
-	
+
+	/**
+	 * Memory cache of custom counter xml
+	 */
+	private Document unsafeDoc;
+
+	/**
+	 * Add family to custom counter xml (if exist replace it)
+	 * @param family
+	 * @return success or not
+	 */
+	public synchronized boolean safelyAddFamily(Family family) {
+		initUnsafeDoc();
+		if (unsafeDoc == null) {
+			return false;
+		}
+		Logger.trace("Family added or modified in Custom counter xml. Family - " + family.getName());
+
+		Element newElement = unsafeDoc.createElement(CounterEngine.TAG_FAMILY);
+		newElement.setAttribute(CounterEngine.ATTR_NAME, family.getName());
+		newElement.setAttribute(CounterEngine.ATTR_MASTER, family.getMaster());
+		Element oldElement = findElementByTypeAndName(CounterEngine.TAG_FAMILY, family.getName());
+		Element familiesElement = (Element) unsafeDoc.getElementsByTagName(CounterEngine.TAG_FAMILYS).item(0);
+		for (Counter counter : family.listCounters()) {
+			Element counterElement = unsafeDoc.createElement(CounterEngine.TAG_COUNTER);
+			counterElement.setAttribute(CounterEngine.ATTR_NAME, counter.getName());
+			counterElement.setAttribute(CounterEngine.ATTR_DISPLAY, counter.getDisplayName());
+			counterElement.setAttribute(CounterEngine.ATTR_UNIT, counter.getUnit());
+			counterElement.setAttribute(CounterEngine.ATTR_ICON, counter.getIcon());
+			counterElement.setAttribute(CounterEngine.ATTR_ALL, counter.isAll() ? "true" : "false");
+			counterElement.setAttribute(CounterEngine.ATTR_TOTAL, counter.isTotal() ? "true" : "false");
+			newElement.appendChild(counterElement);
+		}
+		if (oldElement == null) {
+			familiesElement.appendChild(newElement);
+		} else {
+			familiesElement.replaceChild(newElement, oldElement);
+		}
+		saveCustomContent();
+		return true;
+	}
+
+	/**
+	 * Add object type to custom counter xml (if exist replace it)
+	 * @param objType
+	 * @return success or not
+	 */
+	public synchronized boolean safelyAddObjectType(ObjectType objType) {
+		initUnsafeDoc();
+		if (unsafeDoc == null) {
+			return false;
+		}
+
+		Element newElement = unsafeDoc.createElement(CounterEngine.TAG_OBJECT_TYPE);
+		setObjectTypeAttribute(unsafeDoc, newElement, objType);
+		Element oldElement = findElementByTypeAndName(CounterEngine.TAG_OBJECT_TYPE, objType.getName());
+		Element typesElements = (Element) unsafeDoc.getElementsByTagName(CounterEngine.TAG_TYPES).item(0);
+		if (oldElement == null) {
+			typesElements.appendChild(newElement);
+		} else {
+			typesElements.replaceChild(newElement, oldElement);
+		}
+		saveCustomContent();
+		return true;
+	}
+
+	private Element findElementByTypeAndName(String elementTagName, String nameAttrValue) {
+		NodeList list = unsafeDoc.getElementsByTagName(elementTagName);
+		if (list != null && list.getLength() > 0) {
+			for (int i = 0; i <  list.getLength(); i++) {
+				Node node = list.item(i);
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					Element element = (Element) node;
+					String name = element.getAttribute(CounterEngine.ATTR_NAME);
+					if (nameAttrValue.equals(name)) {
+						return element;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	private void saveCustomContent() {
+		XmlUtil.writeXmlFileWithIndent(unsafeDoc, customFile, 2);
+		xmlCustomContent = FileUtil.readAll(customFile);
+		reloadEngine();
+	}
+
+	private void initUnsafeDoc() {
+		if (unsafeDoc == null) {
+			unsafeDoc = getCustomDocument();
+			if (unsafeDoc == null) {
+				return;
+			}
+			Element rootElement = (Element) unsafeDoc.getElementsByTagName(CounterEngine.TAG_COUNTERS).item(0);
+			Element familiesElement = (Element) unsafeDoc.getElementsByTagName(CounterEngine.TAG_FAMILYS).item(0);
+			Element typesElements = (Element) unsafeDoc.getElementsByTagName(CounterEngine.TAG_TYPES).item(0);
+			if (rootElement == null) {
+				rootElement = unsafeDoc.createElement(CounterEngine.TAG_COUNTERS);
+				unsafeDoc.appendChild(rootElement);
+			}
+			if (familiesElement == null) {
+				familiesElement = unsafeDoc.createElement(CounterEngine.TAG_FAMILYS);
+				rootElement.appendChild(familiesElement);
+			}
+			if (typesElements == null) {
+				typesElements = unsafeDoc.createElement(CounterEngine.TAG_TYPES);
+				rootElement.appendChild(typesElements);
+			}
+		}
+	}
+
 	public synchronized boolean addFamily(Family family) {
 		Document doc = appendFamily(family, getCustomDocument());
 		if (doc != null) {

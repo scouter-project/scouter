@@ -77,6 +77,8 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		// MySql Connector/j 6.X
                 target.add("com/mysql/cj/jdbc/PreparedStatement");
 
+        target.add("org/h2/jdbc/JdbcPreparedStatement"); // h2
+
         // @skyworker - MySQL ServerPreparedStatement는 특별히 필드를 추가하지 않음
         noField.add("com/mysql/jdbc/ServerPreparedStatement");
 		noField.add("jdbc/FakePreparedStatement2");

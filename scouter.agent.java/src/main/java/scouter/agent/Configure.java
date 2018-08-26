@@ -750,6 +750,7 @@ public class Configure extends Thread {
     }
 
     private void apply() {
+
         this.profile_http_querystring_enabled = getBoolean("profile_http_querystring_enabled", false);
         this.profile_http_header_enabled = getBoolean("profile_http_header_enabled", false);
         this.profile_http_parameter_enabled = getBoolean("profile_http_parameter_enabled", false);

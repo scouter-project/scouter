@@ -174,7 +174,7 @@ public class RegisterHandler {
 		return false;
 	}
 	
-	private static void notifyAllClients() {
+	public static void notifyAllClients() {
 		AsyncRun.getInstance().add(new Runnable() {
 			public void run() {
 				RemoteControl control = new RemoteControl("REFETCH_COUNTER_XML", System.currentTimeMillis(), new MapPack(), 0);

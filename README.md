@@ -1,4 +1,4 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent/badge.svg?t=1)](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/scouter-project/scouter/issues)
 
 
@@ -29,7 +29,7 @@ SCOUTER can help you.
   - Metrics about resources : Cpu, Memory, Network and Heap usage, Connection pools etc.
 
 ## At a glance(Click to watch the video)
-[![Demo gif](https://j.gifs.com/yDqbAa.gif)](https://youtu.be/iuArTzsD7Ws)
+[![Demo gif](./scouter.document/img/main/scouter-movie.gif)](https://youtu.be/iuArTzsD7Ws)
 
 ## Documents
  - [Document home](./scouter.document/index.md)
@@ -64,7 +64,7 @@ SCOUTER can help you.
 
 ### 3rd-party UIs
 - **scouter paper** : [scouter-paper](https://github.com/mindplates/scouter-paper)
-![scouter-pater](https://3.bp.blogspot.com/-OqQ9sxQKAXU/Wsncf-NgbAI/AAAAAAAAdn4/yhLAgU46y1YaAfantShxxlFdVKA_1xBHwCLcBGAs/s1600/scouter-pager-img.png)
+![scouter-pater](./scouter.document/img/main/scouter-paper.png)
 
 ### Plugins
 - **Server plugin**
