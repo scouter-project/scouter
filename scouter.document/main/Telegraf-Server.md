@@ -46,11 +46,11 @@ The scouter processes the request every 2 seconds and mainly be used with the re
 
 ### 3. Set counter mapping to Scouter Collector
 You must map fields of measurement that is passed in telegraf to the scouter counter.  
-There are a few things you need to do.  
-  - Set line protocol measurement to the monitoring family of scouter counter.
-  - Set object type.
-  - Set object name.
-  - Map fields of line protocol to counters
+There are a few things you need to do.
+  - Set line protocol measurement to the monitoring family of scouter counter.
+  - Set object type.
+  - Set object name.
+  - Map fields of line protocol to counters
   
 Set the following items and replace the $measurement$ part with the actual measurement name.  
 The value on the right side of the equal sign indicates the default value.  
@@ -82,7 +82,6 @@ input_telegraf_$redis$_objFamily_base=redis
 ```
 
 #### 3.2. Host Mapping Settings
-일반적으로 설정을 변경할 필요는 없으나 간혹 특정 line protocol이 host tag를 가지지 않을 수 있으니 이런 경우는 다음 내용을 참고하여 설정하도록 한다.  
 Usually, performance information is transmitted from several VMs, so it is necessary to identify the host name.  
 Generally, it is not necessary to change the setting, but sometimes a certain line protocol may not have a host tag.  
   
@@ -183,8 +182,8 @@ Likewise, it is easier to configure via the client screen.
 
 #### 3.6. Counter mapping - tag filter
 It can only be collected if the tag has a certain tag value.  
-For example, when collecting cpu information of a VM with 4 cpu, the usage amount of each cpu and the usage amount of the entire cpu are all collected and can be classified by a specific tag value._
-_f you want to collect only if the value of `cpu` tag is `cpu-total` or `cpu-0`, set it as follows.
+For example, when collecting cpu information of a VM with 4 cpu, the usage amount of each cpu and the usage amount of the entire cpu are all collected and can be classified by a specific tag value.  
+if you want to collect only if the value of `cpu` tag is `cpu-total` or `cpu-0`, set it as follows.
 ```properties
 input_telegraf_$cpu$_tag_filter=cpu:cpu-total,cpu:cpu-0
 ```
