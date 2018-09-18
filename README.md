@@ -15,7 +15,7 @@ SCOUTER is an open source APM like new relic and appdynamics.
    - OS - Linux, Windows, Unix
 
  - **Monitoring target (to-be : contributing welcome)**
-   - Redis, Apach HTTPD, nginX, Nodejs ...
+   - Redis, Apache HTTPD, nginX, Nodejs ...
 
 ![Screen](./scouter.document/img/main/dashboard-sample-1.png)
 
