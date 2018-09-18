@@ -463,7 +463,10 @@ public class Configure extends Thread {
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
 			"which host value defined with $measurement$_host_tag option is mapped to scouter's host.\n" +
 			"It can have multiple values. eg)hostValue1:scouterHost1,hostValue2:scouterHost2")
-    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+	@ConfigValueType(value = ValueType.COMMA_COLON_SEPARATED_VALUE,
+			strings = {"telegraf host name(reqiured)", "scouter host name(reqiured)"},
+			booleans = {true, true}
+	)
 	public String input_telegraf_$measurement$_host_mappings = "";
 
 	//Visitor Hourly
@@ -724,6 +727,7 @@ public class Configure extends Thread {
 				TgMeasurementConfig tConfig = tConfigMap.get(measurement);
 				if (tConfig == null) {
 					tConfig = new TgMeasurementConfig(measurement);
+					tConfig.setObjTypePrependTags(Arrays.asList(input_telegraf_$measurement$_objType_prepend_tags));
 					tConfigMap.put(measurement, tConfig);
 				}
 
