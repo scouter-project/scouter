@@ -30,7 +30,7 @@ cd ./scouter/server
  |____/ \___\___/ \__,_|\__\___|_|
  Scouter version 0.0.1 ${date}
  Open Source Performance Monitoring
- System JRE version : 1.7.0_51
+ System JRE version : 1.8.0_175
 ```
 
 ### 1.3. Network ports used by Collector server
