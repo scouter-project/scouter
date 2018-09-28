@@ -100,6 +100,9 @@ public class ProfileCollector implements IProfileCollector {
             StepSingle[] newSteps = new StepSingle[pos];
             System.arraycopy(steps, 0, newSteps, 0, pos);
             DataProxy.sendProfile(newSteps, context);
+        } else {
+            TraceContext context = TraceContextManager.getContext();
+            context.profileCount = context.profileCount * -1; //already sent profile size.(set minus.)
         }
     }
 

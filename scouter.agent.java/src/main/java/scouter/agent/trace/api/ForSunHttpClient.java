@@ -16,12 +16,12 @@
  */
 package scouter.agent.trace.api;
 
-import java.lang.reflect.Field;
-import java.net.URL;
-
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
+
+import java.lang.reflect.Field;
+import java.net.URL;
 
 public class ForSunHttpClient implements ApiCallTraceHelper.IHelper {
 	static Class sunHttpClass = null;
@@ -59,6 +59,10 @@ public class ForSunHttpClient implements ApiCallTraceHelper.IHelper {
 		if (ctx.apicall_name == null)
 			ctx.apicall_name = hookPoint.class1;
 		return step;
+	}
+
+	public void processEnd(TraceContext ctx, ApiCallStep step, Object rtn, HookArgs hookPoint) {
+		return;
 	}
 
 }

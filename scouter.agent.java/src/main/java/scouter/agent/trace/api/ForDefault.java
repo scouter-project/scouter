@@ -27,4 +27,9 @@ public class ForDefault implements ApiCallTraceHelper.IHelper {
 		ctx.apicall_name = hookPoint.class1;
 		return step;
 	}
+
+	public void processEnd(TraceContext ctx, ApiCallStep step, Object rtn, HookArgs hookPoint) {
+		return;
+	}
+
 }

@@ -5,6 +5,7 @@ scouter.common/bin/*
 scouter.common/bin-test/*
 scouter.server/bin/*
 scouter.server/bin-test/*
+scouter.server/conf/*
 scouter.deploy/out
 scouter.server.boot/testlib
 */.cache

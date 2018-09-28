@@ -19,10 +19,10 @@ package scouter.xtra.httpclient;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
-
 import scouter.agent.proxy.IHttpClient;
 
 public class HttpClient43 implements IHttpClient {
@@ -46,6 +46,17 @@ public class HttpClient43 implements IHttpClient {
 		if (o instanceof HttpRequest) {
 			HttpRequest req = (HttpRequest) o;
 			Header h = req.getFirstHeader(key);
+			if (h != null) {
+				return h.getValue();
+			}
+		}
+		return null;
+	}
+
+	public String getResponseHeader(Object o, String key) {
+		if (o instanceof HttpResponse) {
+			HttpResponse res = (HttpResponse) o;
+			Header h = res.getFirstHeader(key);
 			if (h != null) {
 				return h.getValue();
 			}

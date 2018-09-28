@@ -20,14 +20,23 @@ package scouter.lang;
 import scouter.util.StringKeyLinkedMap;
 
 public class Counter implements Comparable<Counter> {
+	public static final int MIN_NORMALIZE_SEC = 4;
+	public static final int MAX_NORMALIZE_SEC = 60;
+
 	private String name;
 	private String displayName;
 	private String unit;
 	private String icon;
 	private boolean all = true;
 	private boolean total = true;
+
 	private StringKeyLinkedMap<String> attrMap = new StringKeyLinkedMap<String>();
-	
+
+	public Counter() {}
+
+	public Counter(String name) {
+		this.name = name;
+	}
 	public String getName() {
 		return name;
 	}
@@ -64,7 +73,7 @@ public class Counter implements Comparable<Counter> {
 	public void setTotal(boolean total) {
 		this.total = total;
 	}
-	
+
 	public String setAttribute(String key, String value) {
 		return attrMap.put(key, value);
 	}
@@ -102,8 +111,54 @@ public class Counter implements Comparable<Counter> {
 			return false;
 		return true;
 	}
-	
+
+	public boolean someContentsEquals(Counter other) {
+		if (other == null)
+			return false;
+
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name)) {
+			return false;
+		}
+
+		if (displayName == null) {
+			if (other.displayName != null)
+				return false;
+		} else if (!displayName.equals(other.displayName)) {
+			return false;
+		}
+
+		if (unit == null) {
+			if (other.unit != null)
+				return false;
+		} else if (!unit.equals(other.unit)) {
+			return false;
+		}
+
+		if (total != other.total) {
+			return false;
+		}
+
+		return true;
+	}
+
 	public int compareTo(Counter o) {
 		return this.name.compareTo(o.getName());
+	}
+
+	public Counter clone() {
+		Counter clone = new Counter();
+		clone.name = this.name;
+		clone.displayName = this.displayName;
+		clone.unit = this.unit;
+		clone.icon = this.icon;
+		clone.all = this.all;
+		clone.total = this.total;
+		//TODO deep clone
+		clone.attrMap = this.attrMap;
+
+		return clone;
 	}
 }

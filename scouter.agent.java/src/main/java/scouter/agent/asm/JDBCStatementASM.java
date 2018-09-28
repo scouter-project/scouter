@@ -59,6 +59,7 @@ public class JDBCStatementASM implements IASM, Opcodes {
 		target.add("cubrid/jdbc/driver/CUBRIDStatement");
 		target.add("Altibase/jdbc/driver/AltibaseStatement");
 		target.add("Altibase/jdbc/driver/ABStatement");
+        target.add("org/h2/jdbc/JdbcStatement"); //h2
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

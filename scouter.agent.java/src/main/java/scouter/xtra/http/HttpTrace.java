@@ -189,7 +189,19 @@ public class HttpTrace implements IHttpTrace {
                     ctx.caller = Hexa32.toLong32(caller);
                     ctx.is_child_tx = true;
                 }
+                String callerObjHashStr = request.getHeader(conf._trace_interservice_caller_obj_header_key);
+                if (callerObjHashStr != null) {
+                    try {
+                        ctx.callerObjHash = Integer.parseInt(callerObjHashStr);
+                    } catch (NumberFormatException e) {
+                    }
+                    ctx.is_child_tx = true;
+                }
             } catch (Throwable t) {
+            }
+
+            if (ctx.is_child_tx) {
+                response.setHeader(conf._trace_interservice_callee_obj_header_key, String.valueOf(conf.getObjHash()));
             }
         }
 

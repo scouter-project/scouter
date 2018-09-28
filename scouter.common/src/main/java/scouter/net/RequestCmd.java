@@ -139,6 +139,8 @@ public class RequestCmd {
 	public static final String COUNTER_REAL_TIME_GROUP = "COUNTER_REAL_TIME_GROUP";
 	public static final String COUNTER_REAL_TIME_ALL_MULTI = "COUNTER_REAL_TIME_ALL_MULTI";
 
+	public static final String INTR_COUNTER_REAL_TIME_BY_OBJ = "INTR_COUNTER_REAL_TIME_BY_OBJ";
+
 	public static final String COUNTER_TODAY = "COUNTER_TODAY";
 	public static final String COUNTER_TODAY_ALL = "COUNTER_TODAY_ALL";
 	public static final String COUNTER_TODAY_TOT = "COUNTER_TODAY_TOT";
@@ -182,6 +184,7 @@ public class RequestCmd {
 	public static final String REDEFINE_CLASSES = "REDEFINE_CLASSES";
 	public static final String CONFIGURE_DESC = "CONFIGURE_DESC";
 	public static final String CONFIGURE_VALUE_TYPE = "CONFIGURE_VALUE_TYPE";
+	public static final String CONFIGURE_VALUE_TYPE_DESC = "CONFIGURE_VALUE_TYPE_DESC";
 
 	public static final String GET_ALERT_SCRIPTING_CONTETNS = "GET_ALERT_SCRIPTING_CONTETNS";
 	public static final String GET_ALERT_SCRIPTING_CONFIG_CONTETNS = "GET_ALERT_SCRIPTING_CONFIG_CONTETNS";

@@ -1,9 +1,9 @@
 package scouter.xtra.httpclient;
 
-import io.reactivex.netty.protocol.http.client.HttpClientRequest;
-import scouter.agent.proxy.IHttpClient;
-
 import com.netflix.loadbalancer.Server;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import scouter.agent.proxy.IHttpClient;
 
 public class NettyHttpClient implements IHttpClient {
 	public String getHost(Object o) {
@@ -31,6 +31,16 @@ public class NettyHttpClient implements IHttpClient {
 		}
 		return null;
 	}
+
+	public String getResponseHeader(Object o, String key) {
+		if (o instanceof HttpClientResponse) {
+			HttpClientResponse res = (HttpClientResponse) o;
+			String headerValue = res.getHeaders().get(key);
+			return headerValue;
+		}
+		return null;
+	}
+
 
 	public String getURI(Object o) {
 		if (o instanceof HttpClientRequest) {
