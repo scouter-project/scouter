@@ -38,6 +38,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import scouter.client.Images;
+import scouter.client.constants.HelpConstants;
 import scouter.client.xlog.XLogFilterStatus;
 import scouter.client.xlog.views.XLogViewCommon;
 import scouter.util.StringUtil;
@@ -74,6 +76,17 @@ public class XLogFilterDialog extends Dialog {
 		newStatus = status.clone();
 		this.filterHash = status.hashCode();
 		container.setLayout(new GridLayout(1, true));
+
+		Button helpBtn = new Button(container, SWT.PUSH);
+		helpBtn.setText("Help");
+		helpBtn.setImage(Images.help);
+		helpBtn.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, true, false));
+		helpBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				org.eclipse.swt.program.Program.launch(HelpConstants.HELP_URL_XLOG_FILTER_VIEW);
+			}
+		});
+
 		Group filterGrp = new Group(container, SWT.NONE);
 		filterGrp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		filterGrp.setLayout(new GridLayout(2, false));
