@@ -17,21 +17,20 @@
 
 package scouter.util;
 
+import scouter.lang.pack.MapPack;
+import scouter.lang.value.DecimalValue;
+import scouter.lang.value.ListValue;
+import scouter.lang.value.TextValue;
+
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import scouter.lang.pack.MapPack;
-import scouter.lang.value.DecimalValue;
-import scouter.lang.value.ListValue;
-import scouter.lang.value.TextValue;
 
 public class ThreadUtil {
 	public static void sleep(long tm) {
@@ -158,6 +157,9 @@ public class ThreadUtil {
 
 		for (int i = 0; i < thread.length; i++) {
 			ThreadInfo fo = tmb.getThreadInfo(thread[i]);
+			if (fo == null) {
+				continue;
+			}
 			id.add(fo.getThreadId());
 			name.add(fo.getThreadName());
 			stat.add(fo.getThreadState().toString());

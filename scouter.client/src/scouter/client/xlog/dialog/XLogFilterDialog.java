@@ -38,6 +38,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import scouter.client.Images;
+import scouter.client.constants.HelpConstants;
 import scouter.client.xlog.XLogFilterStatus;
 import scouter.client.xlog.views.XLogViewCommon;
 import scouter.util.StringUtil;
@@ -49,7 +51,7 @@ import java.time.format.DateTimeParseException;
 public class XLogFilterDialog extends Dialog {
 	
 	Combo objCombo;
-	Text serviceTxt, ipTxt, startHmsFromTxt, startHmsToTxt, userAgentTxt, loginText, descText, text1Text, text2Text, text3Text, text4Text, text5Text;
+	Text serviceTxt, ipTxt, startHmsFromTxt, startHmsToTxt, userAgentTxt, loginText, descText, text1Text, text2Text, text3Text, text4Text, text5Text, profileSizeText;
 	Button onlySqlBtn, onlyApiBtn, onlyErrorBtn;
 	Button clearBtn, applyBtn;
 	
@@ -74,6 +76,17 @@ public class XLogFilterDialog extends Dialog {
 		newStatus = status.clone();
 		this.filterHash = status.hashCode();
 		container.setLayout(new GridLayout(1, true));
+
+		Button helpBtn = new Button(container, SWT.PUSH);
+		helpBtn.setText("Help");
+		helpBtn.setImage(Images.help);
+		helpBtn.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, true, false));
+		helpBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				org.eclipse.swt.program.Program.launch(HelpConstants.HELP_URL_XLOG_FILTER_VIEW);
+			}
+		});
+
 		Group filterGrp = new Group(container, SWT.NONE);
 		filterGrp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		filterGrp.setLayout(new GridLayout(2, false));
@@ -256,6 +269,19 @@ public class XLogFilterDialog extends Dialog {
 				compareHash();
 			}
 		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("PROFILE-SIZE");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		profileSizeText = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		profileSizeText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		profileSizeText.setText(status.profileSizeText);
+		profileSizeText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.profileSizeText = profileSizeText.getText();
+				compareHash();
+			}
+		});
 		
 		Group checkGroup = new Group(filterGrp, SWT.NONE);
 		checkGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1));
@@ -321,6 +347,7 @@ public class XLogFilterDialog extends Dialog {
 				onlySqlBtn.setSelection(false);
 				onlyApiBtn.setSelection(false);
 				onlyErrorBtn.setSelection(false);
+				profileSizeText.setText("");
 				newStatus = new XLogFilterStatus();
 				if (newStatus.hashCode() != filterHash) {
 					applyBtn.setEnabled(true);

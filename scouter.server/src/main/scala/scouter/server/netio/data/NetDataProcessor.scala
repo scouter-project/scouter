@@ -22,35 +22,14 @@ import java.net.InetAddress
 import scouter.io.{DataInputX, DataOutputX}
 import scouter.lang.{TextTypes, TimeTypeEnum}
 import scouter.lang.counters.CounterConstants
-import scouter.lang.pack.AlertPack
-import scouter.lang.pack.ObjectPack
-import scouter.lang.pack.Pack
-import scouter.lang.pack.PackEnum
-import scouter.lang.pack.PerfCounterPack
-import scouter.lang.pack.StackPack
-import scouter.lang.pack.StatusPack
-import scouter.lang.pack.TextPack
-import scouter.lang.pack.XLogPack
-import scouter.lang.pack.BatchPack
-import scouter.lang.pack.XLogProfilePack
+import scouter.lang.pack._
 import scouter.net.NetCafe
 import scouter.server.Configure
 import scouter.server.Logger
-import scouter.server.core.AgentManager
-import scouter.server.core.AlertCore
-import scouter.server.core.PerfCountCore
-import scouter.server.core.ProfileCore
-import scouter.server.core.XLogCore
-import scouter.server.core.StackAnalyzerCore
-import scouter.server.core.StatusCore
-import scouter.server.core.TextCore
-import scouter.server.core.BatchCore
+import scouter.server.core._
 import scouter.server.core.cache.TextCache
 import scouter.server.util.ThreadScala
 import scouter.util.{BytesUtil, HashUtil, RequestQueue, StringUtil}
-import scouter.server.core.SummaryCore
-import scouter.lang.pack.SummaryPack
-import scouter.lang.pack.SummaryPack
 import scouter.lang.value.DecimalValue
 object NetDataProcessor {
     class NetData(_data: Array[Byte], _addr: InetAddress) {
@@ -170,6 +149,13 @@ object NetDataProcessor {
                 PerfCountCore.add(counterPack)
                 if (conf.log_udp_counter) {
                     System.out.println("DEBUG UDP COUNTER: " + p)
+                }
+            case PackEnum.PERF_INTERACTION_COUNTER =>
+                val counterPack = p.asInstanceOf[InteractionPerfCounterPack]
+                InteractionPerfCountCore.add(counterPack)
+
+                if (conf.log_udp_interaction_counter) {
+                    System.out.println("DEBUG UDP INTERACTION COUNTER: " + p)
                 }
             case PackEnum.XLOG =>
                 XLogCore.add(p.asInstanceOf[XLogPack])

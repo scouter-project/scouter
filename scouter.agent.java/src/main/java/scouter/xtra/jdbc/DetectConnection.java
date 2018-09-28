@@ -128,6 +128,7 @@ public class DetectConnection implements java.sql.Connection {
         if (ctx == null)
             return;
 
+        ctx.lastDbUrl = 0;
         MethodStep p = new MethodStep();
         p.hash = HASH_CLOSE;
         p.start_time = (int) (stime - ctx.startTime);

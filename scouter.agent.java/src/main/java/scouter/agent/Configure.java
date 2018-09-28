@@ -222,6 +222,10 @@ public class Configure extends Thread {
     public String _trace_interservice_callee_header_key = "X-Scouter-Callee";
     @ConfigDesc("")
     public String _trace_interservice_caller_header_key = "X-Scouter-Caller";
+    @ConfigDesc("")
+    public String _trace_interservice_caller_obj_header_key = "X-Scouter-Caller-Obj";
+    @ConfigDesc("")
+    public String _trace_interservice_callee_obj_header_key = "X-Scouter-Callee-Obj";
     @ConfigDesc("JSession key for user ID")
     public String trace_user_session_key = "JSESSIONID";
     @ConfigDesc("")
@@ -573,6 +577,8 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public boolean _hook_methods_enabled = true;
     @ConfigDesc("")
+    public boolean _hook_apicall_enabled = true;
+    @ConfigDesc("")
     public boolean _hook_socket_enabled = true;
     @ConfigDesc("")
     public boolean _hook_jsp_enabled = true;
@@ -616,6 +622,8 @@ public class Configure extends Thread {
     public String counter_object_registry_path = "/tmp/scouter";
     @ConfigDesc("Activating custom jmx")
     public boolean counter_custom_jmx_enabled = false;
+    @ConfigDesc("Activating interaction counter")
+    public boolean counter_interaction_enabled = false;
 
     // SFA(Stack Frequency Analyzer)
     @ConfigDesc("Activating period threaddump function")
@@ -937,6 +945,8 @@ public class Configure extends Thread {
         this._trace_interservice_gxid_header_key = getValue("_trace_interservice_gxid_header_key", "X-Scouter-Gxid");
         this._trace_interservice_callee_header_key = getValue("_trace_interservice_callee_header_key", "X-Scouter-Callee");
         this._trace_interservice_caller_header_key = getValue("_trace_interservice_caller_header_key", "X-Scouter-Caller");
+        this._trace_interservice_caller_obj_header_key = getValue("_trace_interservice_caller_obj_header_key", "X-Scouter-Caller-Obj");
+        this._trace_interservice_callee_obj_header_key = getValue("_trace_interservice_callee_obj_header_key", "X-Scouter-Callee-Obj");
         this.profile_connection_open_fullstack_enabled = getBoolean("profile_connection_open_fullstack_enabled", false);
         this.profile_connection_autocommit_status_enabled = getBoolean("profile_connection_autocommit_status_enabled", false);
         this.trace_user_mode = getInt("trace_user_mode", 2);
@@ -950,6 +960,7 @@ public class Configure extends Thread {
         this._hook_dbconn_enabled = getBoolean("_hook_dbconn_enabled", true);
         this._hook_cap_enabled = getBoolean("_hook_cap_enabled", true);
         this._hook_methods_enabled = getBoolean("_hook_methods_enabled", true);
+        this._hook_apicall_enabled = getBoolean("_hook_apicall_enabled", true);
         this._hook_socket_enabled = getBoolean("_hook_socket_enabled", true);
         this._hook_jsp_enabled = getBoolean("_hook_jsp_enabled", true);
         this._hook_async_enabled = getBoolean("_hook_async_enabled", true);
@@ -967,6 +978,7 @@ public class Configure extends Thread {
         this.counter_recentuser_valid_ms = getLong("counter_recentuser_valid_ms", DateUtil.MILLIS_PER_FIVE_MINUTE);
         this.counter_object_registry_path = getValue("counter_object_registry_path", "/tmp/scouter");
         this.counter_custom_jmx_enabled = getBoolean("counter_custom_jmx_enabled", false);
+        this.counter_interaction_enabled = getBoolean("counter_interaction_enabled", false);
         this.custom_jmx_set = getStringSet("custom_jmx_set", "||");
         this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);
         this.sfa_dump_interval_ms = getInt("sfa_dump_interval_ms", 10000);

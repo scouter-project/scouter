@@ -17,8 +17,10 @@
 package scouter.agent;
 
 import scouter.agent.asm.AddFieldASM;
+import scouter.agent.asm.ApiCallResponseObjectASM;
 import scouter.agent.asm.ApicallASM;
 import scouter.agent.asm.ApicallInfoASM;
+import scouter.agent.asm.ApicallSpringHandleResponseASM;
 import scouter.agent.asm.ApicallSpringHttpAccessorASM;
 import scouter.agent.asm.CapArgsASM;
 import scouter.agent.asm.CapReturnASM;
@@ -50,7 +52,8 @@ import scouter.agent.asm.asyncsupport.RequestStartAsyncASM;
 import scouter.agent.asm.asyncsupport.executor.ExecutorServiceASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionAspectSupportDoSubmitASM;
-import scouter.agent.asm.redis.JedisConnectionASM;
+import scouter.agent.asm.redis.JedisCommandASM;
+import scouter.agent.asm.redis.JedisProtocolASM;
 import scouter.agent.asm.redis.RedisCacheKeyASM;
 import scouter.agent.asm.redis.RedisKeyASM;
 import scouter.agent.asm.util.AsmUtil;
@@ -102,7 +105,6 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new RequestStartAsyncASM());
         temp.add(new AsyncContextDispatchASM());
 
-        //TODO temporary block
         temp.add(new JDBCPreparedStatementASM());
         temp.add(new JDBCResultSetASM());
         temp.add(new JDBCStatementASM());
@@ -121,15 +123,19 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new MethodASM());
         temp.add(new ApicallASM());
         temp.add(new ApicallInfoASM());
+        temp.add(new ApiCallResponseObjectASM());
+        temp.add(new ApicallSpringHandleResponseASM());
         temp.add(new ApicallSpringHttpAccessorASM());
+
         temp.add(new SpringAsyncExecutionASM());
         temp.add(new SpringAsyncExecutionAspectSupportDoSubmitASM());
         temp.add(new CallRunnableASM());
         temp.add(new ExecutorServiceASM());
 
+        temp.add(new JedisCommandASM());
         temp.add(new RedisKeyASM());
         temp.add(new RedisCacheKeyASM());
-        temp.add(new JedisConnectionASM());
+        temp.add(new JedisProtocolASM());
 
         temp.add(new SpringReqMapASM());
         temp.add(new HystrixCommandASM());

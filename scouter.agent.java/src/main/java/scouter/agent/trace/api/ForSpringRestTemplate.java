@@ -57,4 +57,9 @@ public class ForSpringRestTemplate implements ApiCallTraceHelper.IHelper {
 
 		return step;
 	}
+
+	public void processEnd(TraceContext ctx, ApiCallStep step, Object rtn, HookArgs hookPoint) {
+
+		return;
+	}
 }

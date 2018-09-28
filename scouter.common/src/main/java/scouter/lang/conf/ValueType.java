@@ -24,6 +24,7 @@ public enum ValueType {
 	NUM(2),
 	BOOL(3),
 	COMMA_SEPARATED_VALUE(4),
+	COMMA_COLON_SEPARATED_VALUE(5),
 	;
 
 	int type;
