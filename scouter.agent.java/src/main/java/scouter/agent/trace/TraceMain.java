@@ -475,6 +475,8 @@ public class TraceMain {
             }
 
             ctx.profile.close(discardMode == XLogDiscard.NONE ? true : false);
+            pack.profileCount = ctx.profileCount;
+
             if (ctx.group != null) {
                 pack.group = DataProxy.sendGroup(ctx.group);
             }
@@ -690,6 +692,8 @@ public class TraceMain {
             XLogDiscard discardMode = pack.error != 0 ? XLogDiscard.NONE : XLogSampler.getInstance().evaluateXLogDiscard(pack.elapsed, ctx.serviceName);
 
             ctx.profile.close(discardMode == XLogDiscard.NONE ? true : false);
+            pack.profileCount = ctx.profileCount;
+
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
             pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);

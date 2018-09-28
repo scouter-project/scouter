@@ -20,6 +20,7 @@ public class XLogFilterStatus {
 	public boolean onlySql;
 	public boolean onlyApicall;
 	public boolean onlyError;
+	public String profileSizeText = "";
 	
 	@Override
 	public int hashCode() {
@@ -38,7 +39,8 @@ public class XLogFilterStatus {
 		filter_hash ^= HashUtil.hash(userAgent);
 		filter_hash ^= HashUtil.hash(onlyError ? "onlyError" : "");
 		filter_hash ^= HashUtil.hash(onlySql ? "onlySql" : "");
-		filter_hash ^=  HashUtil.hash(onlyApicall ? "onlyApicall" : "");
+		filter_hash ^= HashUtil.hash(onlyApicall ? "onlyApicall" : "");
+		filter_hash ^= HashUtil.hash(profileSizeText);
 		return filter_hash;
 	}
 	

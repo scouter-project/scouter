@@ -222,6 +222,7 @@ public class DataProxy {
 		pk.profile = Step.toBytes(p);
 		pk.service = context.serviceHash;
 		pk.elapsed = (int) (System.currentTimeMillis() - context.startTime);
+		context.profileCount += p.length;
 		sendDirect(pk);
 	}
 	public static void sendProfile(List<Step> p, TraceContext x) {
@@ -231,6 +232,7 @@ public class DataProxy {
 		pk.txid = x.txid;
 		pk.objHash = conf.getObjHash();
 		pk.profile = Step.toBytes(p);
+		x.profileCount += p.size();
 		// udp.add(pk);
 		sendDirect(pk);
 	}

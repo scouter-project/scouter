@@ -95,6 +95,7 @@ public class XLogViewPainter {
 	public StrMatch text4Mat;
 	public StrMatch text5Mat;
 	public StrMatch userAgentMat;
+	public String profileSizeExpr;
 	
 	public String yyyymmdd;
 	ITimeChange callback;
@@ -641,7 +642,8 @@ public class XLogViewPainter {
 				&& isUserAgentFilterOk(d)
 				&& isErrorFilterOk(d.p)
 				&& isApicallFilterOk(d.p)
-				&& isSqlFilterOk(d.p);
+				&& isSqlFilterOk(d.p)
+				&& isProfileSizeFilterOk(d.p);
 	}
 	
 	public boolean isObjNameFilterOk(XLogData d) {
@@ -755,7 +757,42 @@ public class XLogViewPainter {
 			return userAgentMat.include(userAgent);
 		}
 	}
-	
+
+	public boolean isProfileSizeFilterOk(XLogPack p) {
+		if (StringUtil.isEmpty(filterStatus.profileSizeText)) {
+			return true;
+		}
+		String exp = filterStatus.profileSizeText.trim();
+		char sign0 = exp.charAt(0);
+		char sign1 = exp.length() >= 2 ? exp.charAt(1) : '\0';
+		try {
+			if (sign0 == '>') {
+				if(sign1 == '=') {
+					return p.profileCount >= Integer.parseInt(exp.substring(2));
+				} else {
+					return p.profileCount > Integer.parseInt(exp.substring(1));
+				}
+			} else if (sign0 == '<') {
+				if(sign1 == '=') {
+					return p.profileCount <= Integer.parseInt(exp.substring(2));
+				} else {
+					return p.profileCount < Integer.parseInt(exp.substring(1));
+				}
+			} else if (sign0 == '=') {
+				if(sign1 == '=') {
+					return p.profileCount == Integer.parseInt(exp.substring(2));
+				} else {
+					return p.profileCount == Integer.parseInt(exp.substring(1));
+				}
+			} else {
+				return p.profileCount == Integer.parseInt(exp);
+			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+
 	public boolean isErrorFilterOk(XLogPack p) {
 		if (filterStatus.onlyError) {
 			return p.error != 0;
@@ -803,6 +840,8 @@ public class XLogViewPainter {
 		text5Mat = new StrMatch(status.text5);
 		descMat = new StrMatch(status.desc);
 		userAgentMat = new StrMatch(status.userAgent);
+
+		profileSizeExpr = status.profileSizeText;
 
 		if (status.startHmsFrom.length() == 6 && status.startHmsTo.length() == 6) {
 			long dateMillis = DateUtil.dateUnitToTimeMillis(DateUtil.getDateUnit(paintedEndTime));

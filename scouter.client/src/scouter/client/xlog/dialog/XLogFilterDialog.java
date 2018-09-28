@@ -49,7 +49,7 @@ import java.time.format.DateTimeParseException;
 public class XLogFilterDialog extends Dialog {
 	
 	Combo objCombo;
-	Text serviceTxt, ipTxt, startHmsFromTxt, startHmsToTxt, userAgentTxt, loginText, descText, text1Text, text2Text, text3Text, text4Text, text5Text;
+	Text serviceTxt, ipTxt, startHmsFromTxt, startHmsToTxt, userAgentTxt, loginText, descText, text1Text, text2Text, text3Text, text4Text, text5Text, profileSizeText;
 	Button onlySqlBtn, onlyApiBtn, onlyErrorBtn;
 	Button clearBtn, applyBtn;
 	
@@ -256,6 +256,19 @@ public class XLogFilterDialog extends Dialog {
 				compareHash();
 			}
 		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("PROFILE-SIZE");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		profileSizeText = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		profileSizeText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		profileSizeText.setText(status.profileSizeText);
+		profileSizeText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.profileSizeText = profileSizeText.getText();
+				compareHash();
+			}
+		});
 		
 		Group checkGroup = new Group(filterGrp, SWT.NONE);
 		checkGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1));
@@ -321,6 +334,7 @@ public class XLogFilterDialog extends Dialog {
 				onlySqlBtn.setSelection(false);
 				onlyApiBtn.setSelection(false);
 				onlyErrorBtn.setSelection(false);
+				profileSizeText.setText("");
 				newStatus = new XLogFilterStatus();
 				if (newStatus.hashCode() != filterHash) {
 					applyBtn.setEnabled(true);
