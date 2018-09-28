@@ -581,3 +581,21 @@ public int log_keep_days = 30;
  - **Query params**
     - `url` : url to shorten
     - `serverId` : (optional if single server)
+
+#### - `GET /v1/interactionCounter/realTime`
+ - get interaction counter values. 
+   - 여러 jvm과 db, redis, 외부 호출등 연관된 시스템간의 성능 정보를 가져올 수 있다.
+   - 예를 들면 각 구성 요소간 단위 시간당 호출 건수, 응답시간의 합, 에러의 총합 등의 정보를 제공해준다.
+   - this counter is activated when the option `counter_interaction_enabled` is set `true` from java agent.     
+ - **Auth** : required
+ - **Query params**
+    - `objHashes` : object hashes by comma separator also allowed with bracket. eg) 10011,10012 or [10011,10012]
+    - `serverId` : (optional if single server)
+
+#### - `GET /v1/interactionCounter/realTime/ofType/{objType}`
+ - Same as above  
+ - **Auth** : required
+ - **Path params**
+    - `objType` : (required) 
+ - **Query params**
+    - `serverId` : (optional if single server)
