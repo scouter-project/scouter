@@ -10,12 +10,12 @@
 SCOUTER is an open source APM like new relic and appdynamics.
 (APM means application performance monitoring or application performance management.)
 
- - **Monitoring target (currently)**
+ - **Monitoring target (scouter agent)**
    - Java application - Web applications (on Tomcat, JBoss, Resin...), Standalone java applications
    - OS - Linux, Windows, Unix
 
- - **Monitoring target (to-be : contributing welcome)**
-   - Redis, Apache HTTPD, nginX, Nodejs ...
+ - **Monitoring target (telegraf agent support)**
+   - Redis, nginX, apache httpd, haproxy, Kafka, MySQL, MongoDB, RabbitMQ, ElasticSearch, Kube, Mesos ...
 
 ![Screen](./scouter.document/img/main/dashboard-sample-1.png)
 
@@ -38,6 +38,7 @@ SCOUTER can help you.
  - [Live demo](./scouter.document/main/Live-Demo.md)
  - [How to analyze XLog View](./scouter.document/client/Reading-XLog.md)
  - [Customizable alarm - Alert plugins guide](./scouter.document/main/Alert-Plugin-Guide.md)
+ - [Telegraf server feature](./scouter.document/main/Telegraf-Server.md)
  - [Client screen help](./scouter.document/client/How-To-Use-Client.md)
 
 ## Download
@@ -63,8 +64,8 @@ SCOUTER can help you.
   - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : gathering performance metrics of EC2, RDS, ELB from cloudwatch in AWS.
 
 ### 3rd-party UIs
-- **scouter paper** : [scouter-paper](https://github.com/mindplates/scouter-paper)
-![scouter-pater](./scouter.document/img/main/scouter-paper.png)
+- **scouter paper** : [scouter-paper](https://mindplates.github.io/scouter-paper/)
+![scouter-pater](https://mindplates.github.io/scouter-paper/img/img12.png)
 
 ### Plugins
 - **Server plugin**

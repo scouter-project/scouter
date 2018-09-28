@@ -10,11 +10,11 @@
 
 오픈소스 APM인 Scouter는 JVM(WAS, Standalone application)을 사용하는 어플리케이션 및 OS 자원에 대한 모니터링 모니터링 기능을 제공한다.
  - **APM** : Application performance montoring / application performance management
- - 모니터링 대상 (현재)
+ - 모니터링 대상 (전용 agent)
    - Java application - Web application (on Tomcat, JBoss, Resin ...), Standalone java application
    - OS - LInux, Windows, Unix
- - 모니터링 대상 (TOBE)
-   - Redis, Apach HTTPD, nginX, Nodejs...
+ - 모니터링 대상 (Telegraf agent)
+   - Redis, nginX, apache httpd, haproxy, Kafka, MySQL, MongoDB, RabbitMQ, ElasticSearch, Kube, Mesos ...
 
 
 ![Screen](./scouter.document/img/main/dashboard-sample-1.png)
@@ -37,6 +37,7 @@
  - [Live demo 접속](./scouter.document/main/Live-Demo_kr.md)
  - [XLog 로 분석하기](./scouter.document/client/Reading-XLog_kr.md)
  - [사용자 정의 알람 스크립팅 - Alert plugins guide](./scouter.document/main/Alert-Plugin-Guide_kr.md)
+ - [Telegraf server feature](./scouter.document/main/Telegraf-Server_kr.md)
  - [Client 화면 설명](./scouter.document/client/How-To-Use-Client_kr.md)
 
 ## Download
@@ -63,8 +64,8 @@
   - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : AWS의 Cloudwatch에서 EC2/RDS/ELB의 성능 카운터 정보를 수집
 
 ### 3rd-party UIs
-- **scouter paper** : [scouter-paper](https://github.com/mindplates/scouter-paper)
-![scouter-pater](./scouter.document/img/main/scouter-paper.png)
+- **scouter paper** : [scouter-paper](https://mindplates.github.io/scouter-paper/)
+![scouter-pater](https://mindplates.github.io/scouter-paper/img/img12.png)
 
 ### Plugins
 - **Server plugin**
