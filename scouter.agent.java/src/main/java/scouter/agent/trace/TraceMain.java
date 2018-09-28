@@ -20,6 +20,8 @@ import scouter.agent.AgentCommonConstant;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.UserExceptionHandlerASM;
+import scouter.agent.counter.meter.MeterInteraction;
+import scouter.agent.counter.meter.MeterInteractionManager;
 import scouter.agent.counter.meter.MeterService;
 import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.error.REQUEST_REJECT;
@@ -473,6 +475,8 @@ public class TraceMain {
             }
 
             ctx.profile.close(discardMode == XLogDiscard.NONE ? true : false);
+            pack.profileCount = ctx.profileCount;
+
             if (ctx.group != null) {
                 pack.group = DataProxy.sendGroup(ctx.group);
             }
@@ -508,6 +512,8 @@ public class TraceMain {
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
+            meteringInteraction(ctx, pack);
+
             if (discardMode != XLogDiscard.DISCARD_ALL) {
                 DataProxy.sendXLog(pack);
             }
@@ -686,6 +692,8 @@ public class TraceMain {
             XLogDiscard discardMode = pack.error != 0 ? XLogDiscard.NONE : XLogSampler.getInstance().evaluateXLogDiscard(pack.elapsed, ctx.serviceName);
 
             ctx.profile.close(discardMode == XLogDiscard.NONE ? true : false);
+            pack.profileCount = ctx.profileCount;
+
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
             pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
@@ -721,12 +729,47 @@ public class TraceMain {
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
+            meteringInteraction(ctx, pack);
 
             if (discardMode != XLogDiscard.DISCARD_ALL) {
                 DataProxy.sendXLog(pack);
             }
         } catch (Throwable t) {
             Logger.println("A148", "service end error", t);
+        }
+    }
+
+
+    private static void meteringInteraction(TraceContext ctx, XLogPack pack) {
+        switch (pack.xType) {
+            case XLogTypes.WEB_SERVICE:
+            case XLogTypes.APP_SERVICE:
+                meteringInteraction0(ctx, pack);
+                break;
+            case XLogTypes.BACK_THREAD:
+            case XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE:
+            case XLogTypes.BACK_THREAD2:
+                break;
+            default:
+                break;
+        }
+    }
+
+    private static void meteringInteraction0(TraceContext ctx, XLogPack pack) {
+        if (conf.counter_interaction_enabled) {
+            if (ctx.callerObjHash != 0) {
+                MeterInteraction meterInteraction = MeterInteractionManager.getInstance()
+                        .getApiIncomingMeter(ctx.callerObjHash, conf.getObjHash());
+                if (meterInteraction != null) {
+                    meterInteraction.add(pack.elapsed, pack.error > 0);
+                }
+            } else {
+                MeterInteraction meterInteraction = MeterInteractionManager.getInstance()
+                        .getNormalIncomingMeter(0, conf.getObjHash());
+                if (meterInteraction != null) {
+                    meterInteraction.add(pack.elapsed, pack.error > 0);
+                }
+            }
         }
     }
 
@@ -1460,6 +1503,19 @@ public class TraceMain {
     private static String JEDIS_COMMAND_MSG = "[REDIS]%s: %s";
     private static String JEDIS_COMMAND_ERROR_MSG = "[REDIS][ERROR]%s: %s [Exception:%s] %s";
 
+    public static void setTraceJedisHostPort(String host, int port) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null) {
+            return;
+        }
+        if (TraceContextManager.isForceDiscarded()) {
+            return;
+        }
+
+        ctx.lastRedisConnHost = host;
+        ctx.lastRedisConnPort = port;
+    }
+
     public static void setRedisKey(byte[] barr, Object key) {
         redisKeyMap.put(barr, key.toString());
     }
@@ -1511,27 +1567,28 @@ public class TraceMain {
         String command = new String(cmd);
 
 
-        step.setElapsed((int) (System.currentTimeMillis() - tctx.startTime) - step.start_time);
+        int elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
+        step.setElapsed(elapsed);
+
         if (thr == null) {
             step.setMessage(DataProxy.sendHashedMessage(JEDIS_COMMAND_MSG), command, key);
             step.setLevel(ParameterizedMessageLevel.INFO);
-            tctx.profile.pop(step);
+
         } else {
             String msg = thr.toString();
             step.setMessage(DataProxy.sendHashedMessage(JEDIS_COMMAND_ERROR_MSG), command, key, thr.getClass().getName(), msg);
             step.setLevel(ParameterizedMessageLevel.ERROR);
-            tctx.profile.pop(step);
 
             if (tctx.error == 0 && conf.xlog_error_on_redis_exception_enabled) {
                 if (conf.profile_fullstack_redis_error_enabled) {
                     StringBuffer sb = new StringBuffer();
                     sb.append(msg).append("\n");
                     ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                    thr = thr.getCause();
-                    while (thr != null) {
+                    Throwable cause = thr.getCause();
+                    while (cause != null) {
                         sb.append("\nCause...\n");
-                        ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                        thr = thr.getCause();
+                        ThreadUtil.getStackTrace(sb, cause, conf.profile_fullstack_max_lines);
+                        cause = cause.getCause();
                     }
                     msg = sb.toString();
                 }
@@ -1540,9 +1597,20 @@ public class TraceMain {
                 tctx.error = hash;
             }
         }
+
+        tctx.profile.pop(step);
+
+        if (conf.counter_interaction_enabled) {
+            String redisName = "redis";
+            if (StringUtil.isNotEmpty(tctx.lastRedisConnHost)) {
+                redisName = tctx.lastRedisConnHost + ":" + tctx.lastRedisConnPort;
+            }
+            int redisHash = DataProxy.sendObjName(redisName);
+            MeterInteraction meterInteraction = MeterInteractionManager.getInstance().getRedisCallMeter(conf.getObjHash(), redisHash);
+            if (meterInteraction != null) {
+                meterInteraction.add(elapsed, thr != null);
+            }
+        }
     }
 
-    public static void endSendRedisCommand(Object localContext, Throwable thr) {
-        System.out.println(localContext);
-    }
 }

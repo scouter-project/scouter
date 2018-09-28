@@ -208,6 +208,24 @@ public class ListValue implements Value {
 		}
 		return this;
 	}
+
+	public ListValue add(boolean[] booleans) {
+		if (booleans == null)
+			return this;
+		for (boolean s : booleans) {
+			this.add(s);
+		}
+		return this;
+	}
+
+	public ListValue add(int[] ints) {
+		if (ints == null)
+			return this;
+		for (int s : ints) {
+			this.add(s);
+		}
+		return this;
+	}
 	
 	public Iterator<Value> iterator() {
 		return this.valueList.iterator();

@@ -17,7 +17,9 @@
 package scouter.agent.proxy;
 import scouter.agent.Logger;
 public class HttpClient43Factory {
+
 	private static final String HTTP_CLIENT43 = "scouter.xtra.httpclient.HttpClient43";
+
 	public static final IHttpClient dummy = new IHttpClient() {
 		public String getURI(Object o) {
 			return null;
@@ -28,9 +30,13 @@ public class HttpClient43Factory {
 		public String getHeader(Object o, String key) {
 			return null;
 		}
+		public String getResponseHeader(Object o, String key) {
+			return null;
+		}
 		public void addHeader(Object o, String key, String value) {
 		}
 	};
+
 	public static IHttpClient create(ClassLoader parent) {
 		try {
 			ClassLoader loader = LoaderManager.getHttpClient(parent);

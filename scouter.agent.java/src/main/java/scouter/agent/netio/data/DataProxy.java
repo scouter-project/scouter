@@ -69,6 +69,19 @@ public class DataProxy {
 		serviceName.put(hash);
 		udpCollect.add(new TextPack(TextTypes.SERVICE, hash, service));
 	}
+	private static IntLinkedSet objNameSet = new IntLinkedSet().setMax(10000);
+	public static int sendObjName(String objName) {
+		int hash = HashUtil.hash(objName);
+		sendObjName(hash,objName);
+		return hash;
+	}
+	public static void sendObjName(int hash, String objName) {
+		if (objNameSet.contains(hash)) {
+			return ;
+		}
+		objNameSet.put(hash);
+		udpCollect.add(new TextPack(TextTypes.OBJECT, hash, objName));
+	}
 	private static IntLinkedSet referer = new IntLinkedSet().setMax(1000);
 	public static int sendReferer(String text) {
 		int hash = HashUtil.hash(text);
@@ -91,7 +104,7 @@ public class DataProxy {
 		return hash;
 	}
 	private static IntLinkedSet methodName = new IntLinkedSet().setMax(10000);
-	public static int sendMethodName( String name) {
+	public static int sendMethodName(String name) {
 		int hash = HashUtil.hash(name);
 		if (methodName.contains(hash)) {
 			return hash;
@@ -209,6 +222,7 @@ public class DataProxy {
 		pk.profile = Step.toBytes(p);
 		pk.service = context.serviceHash;
 		pk.elapsed = (int) (System.currentTimeMillis() - context.startTime);
+		context.profileCount += p.length;
 		sendDirect(pk);
 	}
 	public static void sendProfile(List<Step> p, TraceContext x) {
@@ -218,10 +232,13 @@ public class DataProxy {
 		pk.txid = x.txid;
 		pk.objHash = conf.getObjHash();
 		pk.profile = Step.toBytes(p);
+		x.profileCount += p.size();
 		// udp.add(pk);
 		sendDirect(pk);
 	}
-	public static void sendCounter(PerfCounterPack[] p) {
+
+	//only for counterPack & interactionCounterPack
+	public static void sendCounter(Pack[] p) {
 		// udp.add(p);
 		try {
 			List<byte[]> buff = new ArrayList<byte[]>();
@@ -243,6 +260,7 @@ public class DataProxy {
 		} catch (Exception e) {
 		}
 	}
+
 	public static void sendHeartBeat(ObjectPack p) {
 		udpCollect.add(p);
 		if (conf._log_udp_object_enabled) {

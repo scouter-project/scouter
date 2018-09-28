@@ -17,10 +17,17 @@
  */
 package scouter.client.xlog;
 
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
+
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
 import scouter.client.model.XLogProxy;
@@ -32,14 +39,38 @@ import scouter.client.util.SqlMakerUtil;
 import scouter.client.xlog.views.XLogProfileView;
 import scouter.lang.CountryCode;
 import scouter.lang.enumeration.ParameterizedMessageLevel;
-import scouter.lang.step.*;
-import scouter.util.*;
-
-import java.io.BufferedReader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import scouter.lang.step.ApiCallStep;
+import scouter.lang.step.ApiCallStep2;
+import scouter.lang.step.ApiCallSum;
+import scouter.lang.step.DispatchStep;
+import scouter.lang.step.DumpStep;
+import scouter.lang.step.HashedMessageStep;
+import scouter.lang.step.MessageStep;
+import scouter.lang.step.MethodStep;
+import scouter.lang.step.MethodStep2;
+import scouter.lang.step.MethodSum;
+import scouter.lang.step.ParameterizedMessageStep;
+import scouter.lang.step.SocketStep;
+import scouter.lang.step.SocketSum;
+import scouter.lang.step.SqlStep;
+import scouter.lang.step.SqlStep2;
+import scouter.lang.step.SqlStep3;
+import scouter.lang.step.SqlSum;
+import scouter.lang.step.SqlXType;
+import scouter.lang.step.Step;
+import scouter.lang.step.StepControl;
+import scouter.lang.step.StepEnum;
+import scouter.lang.step.StepSingle;
+import scouter.lang.step.StepSummary;
+import scouter.lang.step.ThreadCallPossibleStep;
+import scouter.lang.step.ThreadSubmitStep;
+import scouter.util.CastUtil;
+import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
+import scouter.util.Hexa32;
+import scouter.util.IPUtil;
+import scouter.util.SortUtil;
+import scouter.util.StringUtil;
 
 public class ProfileText {
 	
@@ -201,6 +232,7 @@ public class ProfileText {
         if (StringUtil.isNotEmpty(xperf.p.text5)) {
             sb.append("\n► text5=" + xperf.p.text5);
         }
+        sb.append("\n► profileSize=" + xperf.p.profileCount);
         if (xperf.p.hasDump == 1) {
             sb.append("\n► dump=Y");
         }

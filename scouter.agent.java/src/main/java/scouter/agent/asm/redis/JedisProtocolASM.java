@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2018. 3. 20.
  */
-public class JedisConnectionASM implements IASM, Opcodes {
+public class JedisProtocolASM implements IASM, Opcodes {
     private Configure conf = Configure.getInstance();
 
     private static List<String> hookingPattern = new ArrayList<String>();
@@ -46,7 +46,7 @@ public class JedisConnectionASM implements IASM, Opcodes {
     }
     private List<HookingSet> targetList;
 
-    public JedisConnectionASM() {
+    public JedisProtocolASM() {
         targetList = HookingSet.getHookingMethodSet(HookingSet.buildPatterns("", hookingPattern));
     }
 
@@ -57,7 +57,7 @@ public class JedisConnectionASM implements IASM, Opcodes {
         for (int i = 0; i < targetList.size(); i++) {
             HookingSet mset = targetList.get(i);
             if (mset.classMatch.include(className)) {
-                return new JedisConnectionCV(cv, mset, className);
+                return new JedisProtocolCV(cv, mset, className);
             }
         }
 
@@ -65,11 +65,11 @@ public class JedisConnectionASM implements IASM, Opcodes {
     }
 }
 
-class JedisConnectionCV extends ClassVisitor implements Opcodes {
+class JedisProtocolCV extends ClassVisitor implements Opcodes {
     String className;
     HookingSet mset;
 
-    public JedisConnectionCV(ClassVisitor cv, HookingSet mset, String className) {
+    public JedisProtocolCV(ClassVisitor cv, HookingSet mset, String className) {
         super(ASM5, cv);
         this.mset = mset;
         this.className = className;

@@ -1,4 +1,4 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent/badge.svg?t=1)](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/scouter-project/scouter/issues)
 
 
@@ -10,12 +10,12 @@
 SCOUTER is an open source APM like new relic and appdynamics.
 (APM means application performance monitoring or application performance management.)
 
- - **Monitoring target (currently)**
+ - **Monitoring target (scouter agent)**
    - Java application - Web applications (on Tomcat, JBoss, Resin...), Standalone java applications
    - OS - Linux, Windows, Unix
 
- - **Monitoring target (to-be : contributing welcome)**
-   - Redis, Apach HTTPD, nginX, Nodejs ...
+ - **Monitoring target (telegraf agent support)**
+   - Redis, nginX, apache httpd, haproxy, Kafka, MySQL, MongoDB, RabbitMQ, ElasticSearch, Kube, Mesos ...
 
 ![Screen](./scouter.document/img/main/dashboard-sample-1.png)
 
@@ -29,7 +29,7 @@ SCOUTER can help you.
   - Metrics about resources : Cpu, Memory, Network and Heap usage, Connection pools etc.
 
 ## At a glance(Click to watch the video)
-[![Demo gif](https://j.gifs.com/yDqbAa.gif)](https://youtu.be/iuArTzsD7Ws)
+[![Demo gif](./scouter.document/img/main/scouter-movie.gif)](https://youtu.be/iuArTzsD7Ws)
 
 ## Documents
  - [Document home](./scouter.document/index.md)
@@ -38,6 +38,7 @@ SCOUTER can help you.
  - [Live demo](./scouter.document/main/Live-Demo.md)
  - [How to analyze XLog View](./scouter.document/client/Reading-XLog.md)
  - [Customizable alarm - Alert plugins guide](./scouter.document/main/Alert-Plugin-Guide.md)
+ - [Telegraf server feature](./scouter.document/main/Telegraf-Server.md)
  - [Client screen help](./scouter.document/client/How-To-Use-Client.md)
 
 ## Download
@@ -63,8 +64,8 @@ SCOUTER can help you.
   - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : gathering performance metrics of EC2, RDS, ELB from cloudwatch in AWS.
 
 ### 3rd-party UIs
-- **scouter paper** : [scouter-paper](https://github.com/mindplates/scouter-paper)
-![scouter-pater](https://3.bp.blogspot.com/-OqQ9sxQKAXU/Wsncf-NgbAI/AAAAAAAAdn4/yhLAgU46y1YaAfantShxxlFdVKA_1xBHwCLcBGAs/s1600/scouter-pager-img.png)
+- **scouter paper** : [scouter-paper](https://mindplates.github.io/scouter-paper/)
+![scouter-pater](https://mindplates.github.io/scouter-paper/img/img12.png)
 
 ### Plugins
 - **Server plugin**

@@ -157,4 +157,12 @@ public class CounterConstants {
 	public static final String BATCH_START = "BatchStart";
 	public static final String BATCH_END = "BatchEnd";
 	public static final String BATCH_ENDNOSIGNAL = "BatchEndNoSignal";
+
+	// interaction counters
+	public static final String INTR_API_OUTGOING = "INTR_API_OUTGOING";
+	public static final String INTR_NORMAL_OUTGOING = "INTR_NORMAL_OUTGOING";
+	public static final String INTR_API_INCOMING = "INTR_API_INCOMING";
+	public static final String INTR_NORMAL_INCOMING = "INTR_NORMAL_INCOMING";
+	public static final String INTR_DB_CALL = "INTR_DB_CALL";
+	public static final String INTR_REDIS_CALL = "INTR_REDIS_CALL";
 }

@@ -23,4 +23,14 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ConfigValueType {
   ValueType value() default ValueType.VALUE;
+
+  String[] strings() default {};
+  String[] strings1() default {};
+  String[] strings2() default {};
+  String[] strings3() default {};
+
+  boolean[] booleans() default {};
+  boolean[] booleans1() default {};
+  int[] ints() default {};
+  int[] ints1() default {};
 }
