@@ -34,7 +34,7 @@ public enum UpdateCheckScheduler {
 	}
 
 	private void process() throws IOException {
-		final String recommendedVersion = getRecommendedVersion();
+		final String recommendedVersion = UpdateCheckScheduler.getRecommendedVersion();
 		final String clientVersion = Version.getVersion();
 		
 		if(Version.versionCompare(recommendedVersion, clientVersion) > 0) {
@@ -51,15 +51,15 @@ public enum UpdateCheckScheduler {
 		}
 	}
 
-	private String getRecommendedVersion() {
+	public static String getRecommendedVersion() {
 		return ServerManager.getInstance().getOpenServerList().stream()
 				.map(ServerManager.getInstance()::getServer)
 				.map(s -> StringUtil.isNotEmpty(s.getRecommendedClientVersion()) ? s.getRecommendedClientVersion() : s.getVersion())
-				.map(this::getVersionOnly)
+				.map(UpdateCheckScheduler::getVersionOnly)
 				.max(Version::versionCompare).orElse("");
 	}
 
-	private String getVersionOnly(String buildIncludedVersion) {
+	private static String getVersionOnly(String buildIncludedVersion) {
 		String[] parts = buildIncludedVersion.split(" ");
 		return parts[0];
 	}
