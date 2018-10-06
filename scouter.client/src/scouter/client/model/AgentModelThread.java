@@ -222,6 +222,27 @@ public class AgentModelThread extends Thread {
 		}
 		return sb.toString();
 	}
+
+	public String getLiveObjectHashStringWithParent(int serverId, String objType) {
+		StringBuilder sb = new StringBuilder();
+		Iterator<Integer> keys = agentMap.keySet().iterator();
+		boolean first = true;
+		while (keys.hasNext()) {
+			AgentObject agent = agentMap.get(keys.next());
+			if (serverId == agent.getServerId() && agent.isAlive() && objType.equals(agent.getObjType())) {
+				if (!first) {
+					sb.append(',');
+				} else {
+					first = false;
+				}
+				sb.append(agent.getObjHash());
+				if(agent.getParent() instanceof AgentObject) {
+					sb.append(',').append(((AgentObject) agent.getParent()).getObjHash());
+				}
+			}
+		}
+		return sb.toString();
+	}
 	
 	public ListValue getLiveObjHashLV(int serverId, String objType) {
 		ListValue lv = new ListValue();
