@@ -511,7 +511,7 @@ public class MenuUtil implements IMenuCreator{
 		String linkName = server.getExtLinkName();
 		String linkUrl = server.getExtLinkUrlPattern();
 
-		String objHashes = AgentModelThread.getInstance().getLiveObjectHashString(serverId, objType);
+		String objHashes = AgentModelThread.getInstance().getLiveObjectHashStringWithParent(serverId, objType);
 		if (StringUtil.isEmpty(objHashes)) {
 			return "";
 		}
