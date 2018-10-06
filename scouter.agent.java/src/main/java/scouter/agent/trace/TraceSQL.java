@@ -16,6 +16,9 @@
  */
 package scouter.agent.trace;
 
+import java.lang.reflect.Method;
+import java.util.Properties;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterInteraction;
@@ -38,8 +41,6 @@ import scouter.util.IntLinkedSet;
 import scouter.util.StringUtil;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
-
-import java.lang.reflect.Method;
 
 /**
  * Trace SQL
@@ -549,6 +550,16 @@ public class TraceSQL {
 				Method m = pool.getClass().getMethod("getJdbcUrl", new Class[0]);
 				if (m != null) {
 					String url = (String) m.invoke(pool, new Object[0]);
+					if(url == null) {
+						Method m2 = pool.getClass().getMethod("getDataSourceProperties", new Class[0]);
+						if (m2 != null) {
+							Properties prop =(Properties) m2.invoke(pool, new Object[0]);
+							url = prop.getProperty("url");
+							if(url == null && "".equals(url)){
+								url = prop.getProperty("serverName") + ":" + prop.getProperty("port") + "/" + prop.getProperty("databaseName");
+							}
+						}
+					}
 					String description = "OPEN-DBC " + url + " (" + msg + ")";
 					dbUrl = new DBURL(url, description);
 				}
