@@ -8,22 +8,22 @@ You can use the following search expression, including * (asta) for most entries
 The search speed is fast when there is no asta.  
 \* Can be used at the beginning, end, and middle of the search term.  
 
-* If you enter /order/\* in the Service field, the following types of services are searched.
-  * /order/1<GET>
-  * /order/100/products<POST>
+* If you enter `/order/\*` in the Service field, the following types of services are searched.
+  * `/order/1<GET>`
+  * `/order/100/products<POST>`
 
-* If you enter \*/order/\* in the Service field, the following types of services are searched.
-  * /order/1<GET>
-  * v1/order/100/products<POST>
-  * /global/v1/order/100/products<POST>
+* If you enter `\*/order/\*` in the Service field, the following types of services are searched.
+  * `/order/1<GET>`
+  * `v1/order/100/products<POST>`
+  * `/global/v1/order/100/products<POST>`
  
 ## StartHMS
 Filter by duration of start time.  
 It is usually used to find the cause of the delay and search in the following format.  
-* start hhmmss ~ end hhmmss
-  * 101030 ~ 101032 (Search xlog between 10:10 30s and 10:10 32s.)   
+* start `hhmmss` ~ end `hhmmss`
+  * `101030` ~ `101032` (Search xlog between 10:10 30s and 10:10 32s.)   
 
 ## Profile Size
 It is usually used to identify requests that are too large for the Scouter's storage disk because the Profile size is too large.  
 Use an expression with an inequality before the number.
-* "> 300" : Filter requests with a Profile size greater than 300 (row).  
+* `"> 300"` : Filter requests with a Profile size greater than 300 (row).  
