@@ -480,7 +480,12 @@ public class XLogSearchDialog implements CalendarDialog.ILoadCalendarDialog{
 		param.put("date", date);
 		String id = txidText.getText();
 		try {
-			long txid = Hexa32.toLong32(id);
+			long txid = 0L;
+			try {
+				txid = Long.parseLong(id.trim());
+			} catch (NumberFormatException e) {
+				txid = Hexa32.toLong32(id.trim());
+			}
 			param.put(txidCombo.getText(), txid);
 			new SearchXLogJob(param).schedule();
 			dialog.close();
