@@ -235,7 +235,6 @@ public class TraceMain {
         ctx.txid = KeyGen.next();
         ctx.startTime = System.currentTimeMillis();
         ctx.startCpu = SysJMX.getCurrentThreadCPU();
-        ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
         ctx.bytes = SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled);
         ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
 
@@ -243,10 +242,10 @@ public class TraceMain {
         step.time = -1;
         ctx.threadName = ctx.thread.getName();
         step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.threadName);
-
         ctx.profile.add(step);
 
         http.start(ctx, req, res);
+
         if (ctx.isFullyDiscardService) {
             return null;
         }
