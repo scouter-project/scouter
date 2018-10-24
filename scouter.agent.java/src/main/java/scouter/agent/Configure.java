@@ -590,6 +590,8 @@ public class Configure extends Thread {
     public boolean _hook_spring_rest_enabled = true;
     @ConfigDesc("")
     public boolean _hook_redis_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_kafka_enabled = true;
 
     @ConfigDesc("")
     public String _hook_direct_patch_classes = "";
