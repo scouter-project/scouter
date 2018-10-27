@@ -1,45 +1,46 @@
 /*
- *  Copyright 2015 the original author or authors. 
+ *  Copyright 2015 the original author or authors.
  *  @https://github.com/scouter-project/scouter
  *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
+ *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 
-package scouter.server.db;
+package scouter.server.db
 
 import java.io.File
 
 import scouter.server.core.ServerStat
-import scouter.server.db.xlog.{XLogDataWriter, XLogIndex}
+import scouter.server.db.span.{ZipkinSpanDataWriter, ZipkinSpanIndex}
 import scouter.server.util.{OftenAction, ThreadScala}
 import scouter.server.{Configure, Logger}
 import scouter.util.{DateUtil, FileUtil, RequestQueue, ThreadUtil}
 
 import scala.collection.mutable
 
-object XLogWR {
-    case class XLogData(time: Long, txid: Long, gxid: Long, elapsed: Int, data: Array[Byte])
-    case class StorageContainer(idleLimit: Long, var lastAccess: Long, index: XLogIndex, writer: XLogDataWriter)
+
+object ZipkinSpanWR {
+    case class SpanData(time: Long, gxid: Long, data: Array[Byte])
+    case class StorageContainer(idleLimit: Long, lastAccess: Long, index: ZipkinSpanIndex, writer: ZipkinSpanDataWriter)
 
     val MAX_IDLE = 30 * 60 * 1000L
-    val dir = "/xlog"
-    val prefix = "xlog"
+    val SPAN_DIR = "/span"
+    val SPAN_PREFIX = "span"
 
-    val queue = new RequestQueue[XLogData](Configure.getInstance().xlog_queue_size)
+    val queue = new RequestQueue[SpanData](Configure.getInstance().span_queue_size)
     val dailyContainer = mutable.Map[Long, StorageContainer]()
 
-    ThreadScala.start("scouter.server.db.XLogDataFileWatcher") {
+    ThreadScala.start("scouter.server.db.ZipkinSpanDataFileWatcher") {
         while (DBCtr.running) {
             ThreadUtil.sleep(5 * 60 * 1000)
             val now = System.currentTimeMillis()
@@ -49,11 +50,11 @@ object XLogWR {
         }
     }
 
-    ThreadScala.start("scouter.server.db.XLogWR") {
+    ThreadScala.start("scouter.server.db.ZipkinSpanWR") {
         while (DBCtr.running) {
             val m = queue.get()
 
-            ServerStat.put("xlog.db.queue",queue.size())
+            ServerStat.put("zipkin-span.db.queue", queue.size())
             try {
                 val currentDateUnit = DateUtil.getDateUnit(m.time)
                 val container = dailyContainer.getOrElseUpdate(currentDateUnit, {
@@ -62,17 +63,15 @@ object XLogWR {
                 })
 
                 if (container.index == null) {
-                    OftenAction.act("XLoWR", 10) {
+                    OftenAction.act("ZipkinSpanWR", 10) {
                         dailyContainer.remove(currentDateUnit)
                         queue.clear()
                     }
-                    Logger.println("SZ143", 10, "can't open XLoWR")
+                    Logger.println("SZ143", 10, "can't open ZipkinSpanWR")
 
                 } else {
-                    container.lastAccess = System.currentTimeMillis()
                     val location = container.writer.write(m.data)
                     container.index.setByTime(m.time, location)
-                    container.index.setByTxid(m.txid, location)
                     container.index.setByGxid(m.gxid, location)
                 }
 
@@ -83,10 +82,10 @@ object XLogWR {
         closeAll()
     }
 
-    def add(time: Long, tid: Long, gid: Long, elapsed: Int, data: Array[Byte]): Unit = {
-        val ok = queue.put(XLogData(time, tid, gid, elapsed, data))
+    def add(time: Long, gid: Long, data: Array[Byte]): Unit = {
+        val ok = queue.put(SpanData(time, gid, data))
         if (!ok) {
-            Logger.println("S144", 10, "queue exceeded!!")
+            Logger.println("SZ144", 10, "queue exceeded!! - ZipkinSpanWR")
         }
     }
 
@@ -106,16 +105,16 @@ object XLogWR {
         dailyContainer.remove(time)
     }
 
-    def open(time: Long): (XLogIndex, XLogDataWriter) = {
+    def open(time: Long): (ZipkinSpanIndex, ZipkinSpanDataWriter) = {
         val date = DateUtil.yyyymmdd(time)
 
         try {
             val path = getDBPath(date)
             val f = new File(path)
             if (!f.exists()) f.mkdirs()
-            val file = path + "/" + prefix
-            val index = XLogIndex.open(file)
-            val writer = XLogDataWriter.open(date, file)
+            val file = path + "/" + SPAN_PREFIX
+            val index = ZipkinSpanIndex.open(file)
+            val writer = ZipkinSpanDataWriter.open(date, file)
 
             return (index, writer)
 
@@ -132,7 +131,7 @@ object XLogWR {
     def getDBPath(date: String): String = {
         val sb = new StringBuffer()
         sb.append(DBCtr.getRootPath())
-        sb.append("/").append(date).append(dir)
+        sb.append("/").append(date).append(SPAN_DIR)
         sb.toString
     }
 }
