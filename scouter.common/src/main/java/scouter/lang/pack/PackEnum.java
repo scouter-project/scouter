@@ -89,6 +89,10 @@ public abstract class PackEnum {
             	return new BatchPack();
             case PERF_INTERACTION_COUNTER:
                 return new InteractionPerfCounterPack();
+            case SPAN:
+                return new SpanPack();
+            case SPAN_CONTAINER:
+                return new SpanContainerPack();
             default:
                 return null;
         }

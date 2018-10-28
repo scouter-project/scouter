@@ -36,15 +36,15 @@ object SpanCore {
     val queue = new RequestQueue[SpanContainerPack](conf.span_queue_size)
 
     ThreadScala.startDaemon("scouter.server.core.SpanCore", {CoreRun.running}) {
-        val spanPack = queue.get()
+        val spanContainerPack = queue.get()
         ServerStat.put("span.core.queue", queue.size());
 
         if (Configure.WORKABLE) {
             //TODO plugin
             //PlugInManager.xlog(spanPack)
 
-            val spanBytes = new DataOutputX().writePack(spanPack).toByteArray
-            ZipkinSpanWR.add(spanPack.timestamp, spanPack.gxid, spanBytes)
+            val spanContainerBytes = new DataOutputX().writePack(spanContainerPack).toByteArray
+            ZipkinSpanWR.add(spanContainerPack.timestamp, spanContainerPack.gxid, spanContainerBytes)
         }
     }
 

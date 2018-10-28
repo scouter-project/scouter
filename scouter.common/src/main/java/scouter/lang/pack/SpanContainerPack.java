@@ -49,7 +49,7 @@ public class SpanContainerPack implements Pack {
 
 	public void write(DataOutputX dout) throws IOException {
 		dout.writeLong(gxid);
-		dout.writeLong(spanCount);
+		dout.writeDecimal(spanCount);
 		dout.writeLong(timestamp);
 		dout.writeBlob(spans);
 	}

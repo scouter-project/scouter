@@ -26,6 +26,8 @@ import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 27/10/2018
@@ -48,13 +50,13 @@ public class SpanPack implements Pack {
 	public byte[] remoteEndpointIp;
 	public short remoteEndpointPort;
 
-	boolean debug;
-	boolean shared;
+	public boolean debug;
+	public boolean shared;
 
-	ListValue annotationTimestamps;
-	ListValue annotationValues;
+	public ListValue annotationTimestamps;
+	public ListValue annotationValues;
 
-	MapValue tags;
+	public MapValue tags;
 
 	public byte getPackType() {
 		return PackEnum.SPAN;
@@ -68,8 +70,8 @@ public class SpanPack implements Pack {
 		sb.append(" gxid=").append(Hexa32.toString32(gxid));
 		sb.append(" txid=").append(Hexa32.toString32(txid));
 		sb.append(" caller=").append(Hexa32.toString32(caller));
-		sb.append(" spanType=").append(Hexa32.toString32(spanType));
-		sb.append(" elapsed=").append(Hexa32.toString32(elapsed));
+		sb.append(" spanType=").append(spanType);
+		sb.append(" elapsed=").append(elapsed);
 		return sb.toString();
 	}
 
@@ -123,4 +125,95 @@ public class SpanPack implements Pack {
 		return this;
 	}
 
+	public static byte[] toBytes(SpanPack[] pack) {
+		if (pack == null)
+			return null;
+
+		try {
+			DataOutputX dout = new DataOutputX(pack.length * 300);
+			for (int i = 0; i < pack.length; i++) {
+				dout.writePack(pack[i]);
+			}
+			return dout.toByteArray();
+
+		} catch (IOException e) {
+		}
+
+		return null;
+	}
+
+	public static byte[] toBytes(List<SpanPack> packs) {
+		if (packs == null)
+			return null;
+
+		try {
+			int size = packs.size();
+			DataOutputX dout = new DataOutputX(size * 300);
+			for (int i = 0; i < size; i++) {
+				dout.writePack(packs.get(i));
+			}
+			return dout.toByteArray();
+
+		} catch (IOException e) {
+		}
+		return null;
+	}
+
+	public static List<byte[]> toBytesList(List<SpanPack> packs, int maxBytes) {
+		if (packs == null)
+			return null;
+
+		try {
+			List<byte[]> byteResultList = new ArrayList<byte[]>();
+
+			int maxLen = Math.max(maxBytes - 18000, 18000);
+			int size = packs.size();
+			DataOutputX dout = new DataOutputX(Math.min(size * 500, maxBytes));
+
+			for (SpanPack pack : packs) {
+				dout.writePack(pack);
+				if (dout.getWriteSize() > maxLen) {
+					byteResultList.add(dout.toByteArray());
+					dout = new DataOutputX(Math.min(size * 500, maxBytes));
+				}
+			}
+
+			if (dout.getWriteSize() > 0) {
+				byteResultList.add(dout.toByteArray());
+			}
+			return byteResultList;
+
+		} catch (IOException e) {
+		}
+		return null;
+	}
+
+	public static SpanPack[] toObjects(byte[] buff) throws IOException {
+		if (buff == null)
+			return null;
+
+		ArrayList<SpanPack> arr = new ArrayList<SpanPack>();
+		DataInputX din = new DataInputX(buff);
+		while (din.available() > 0) {
+			arr.add((SpanPack) din.readPack());
+		}
+		return (SpanPack[]) arr.toArray(new SpanPack[arr.size()]);
+	}
+
+	public static List<SpanPack> toObjectList(byte[] buff) {
+		if (buff == null)
+			return null;
+
+		ArrayList<SpanPack> arr = new ArrayList<SpanPack>();
+		DataInputX din = new DataInputX(buff);
+		try {
+			while (din.available() > 0) {
+				arr.add((SpanPack) din.readPack());
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		return arr;
+	}
 }
