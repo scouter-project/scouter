@@ -564,6 +564,9 @@ public class Configure extends Thread {
     @ConfigDesc("Experimental! test it on staging environment of your system before enable this option.\n enable lambda expressioned class hook for detecting asyncronous processing. \nOnly classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
     public boolean hook_lambda_instrumentation_strategy_enabled = false;
 
+    @ConfigDesc("hystrix execution hook enabled")
+    public boolean hook_hystrix_enabled = false;
+
     @ConfigDesc("")
     public String hook_add_fields = "";
     @ConfigDesc("")
@@ -903,6 +906,7 @@ public class Configure extends Thread {
         this.hook_async_thread_pool_executor_enabled = getBoolean("hook_async_thread_pool_executor_enabled", false);
 
         this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", false);
+        this.hook_hystrix_enabled = getBoolean("hook_hystrix_enabled", true);
 
         this.hook_add_fields = getValue("hook_add_fields", "");
         this.hook_context_classes = getValue("hook_context_classes", "javax/naming/InitialContext");
