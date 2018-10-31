@@ -42,19 +42,29 @@ object AgentManager {
     ThreadScala.startDaemon("scouter.server.core.AgentManager", { CoreRun.running }, 1000) {
         val now = System.currentTimeMillis();
         val deadtime = Configure.getInstance().object_deadtime_ms;
+        val zipkinDeadTime = Configure.getInstance().object_zipkin_deadtime_ms;
         val en = objMap.objects();
         var primaryObjCount = 0;
+
         while (en.hasMoreElements()) {
             val objPack = en.nextElement();
+
             if(!CounterConstants.BATCH.equals(objPack.objType)){
-                var adjustDeadTime = if (objPack.getDeadTime() == 0) deadtime else objPack.getDeadTime();
-	            if (now > objPack.wakeup + adjustDeadTime) {
-	                inactive(objPack.objHash);
-	            } else if (counterEngine.isPrimaryObject(objPack.objType)) {
-	                primaryObjCount += 1;
-	            }
+                var adjustDeadTime = 30000;
+                if (CounterConstants.ZIPKIN.equals(objPack.objType)) {
+                    adjustDeadTime = if (objPack.getDeadTime() == 0) zipkinDeadTime else objPack.getDeadTime();
+                } else {
+                    adjustDeadTime = if (objPack.getDeadTime() == 0) deadtime else objPack.getDeadTime();
+                }
+
+                if (now > objPack.wakeup + adjustDeadTime) {
+                    inactive(objPack.objHash);
+                } else if (counterEngine.isPrimaryObject(objPack.objType)) {
+                    primaryObjCount += 1;
+                }
             }
         }
+
         this.primaryObjCount = primaryObjCount;
     }
 

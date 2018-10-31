@@ -41,6 +41,8 @@ public class SpanPack implements Pack {
 	public int elapsed;
 	public byte spanType;
 	public int name;
+	public int objHash;
+	public int error;
 
 	public int localEndpointServiceName;
 	public byte[] localEndpointIp;
@@ -67,6 +69,7 @@ public class SpanPack implements Pack {
 		sb.append("SpanPack ");
 		sb.append(DateUtil.timestamp(timestamp));
 		sb.append(" name=").append(Hexa32.toString32(name));
+		sb.append(" error=").append(Hexa32.toString32(error));
 		sb.append(" gxid=").append(Hexa32.toString32(gxid));
 		sb.append(" txid=").append(Hexa32.toString32(txid));
 		sb.append(" caller=").append(Hexa32.toString32(caller));
@@ -83,6 +86,8 @@ public class SpanPack implements Pack {
 		dout.writeDecimal(elapsed);
 		dout.writeByte(spanType);
 		dout.writeDecimal(name);
+		dout.writeDecimal(objHash);
+		dout.writeDecimal(error);
 
 		dout.writeDecimal(localEndpointServiceName);
 		dout.writeBlob(localEndpointIp);
@@ -107,6 +112,8 @@ public class SpanPack implements Pack {
 		this.elapsed = (int) din.readDecimal();
 		this.spanType = din.readByte();
 		this.name = (int) din.readDecimal();
+		this.objHash = (int) din.readDecimal();
+		this.error = (int) din.readDecimal();
 
 		this.localEndpointServiceName = (int) din.readDecimal();
 		this.localEndpointIp = din.readBlob();

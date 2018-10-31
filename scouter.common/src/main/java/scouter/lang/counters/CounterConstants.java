@@ -25,6 +25,7 @@ public class CounterConstants {
 	public final static String FAMILY_JAVAEE = "javaee";
 	public final static String FAMILY_DATABASE = "database";
 	public final static String FAMILY_DATASOURCE = "datasource";
+	public final static String FAMILY_TRACING = "tracing";
 	public final static String FAMILY_REQUEST_PROCESS = "reqproc";
 	public final static String FAMILY_MARIA = "maria";
 	public final static String FAMILY_BATCH = "batch";
@@ -47,6 +48,7 @@ public class CounterConstants {
     public final static String GLASSFISH = "glassfish";
 	
 	public final static String BATCH = "batch";
+	public final static String ZIPKIN = "zipkin";
 
 	public final static String DATASOURCE = "datasource";
 	public final static String CONTEXT = "context";

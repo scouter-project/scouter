@@ -239,6 +239,9 @@ public class Configure extends Thread {
 	@ConfigDesc("inactive object warning level. default 0.(0:info, 1:warn, 2:error, 3:fatal)")
 	public int object_inactive_alert_level = 0;
 
+	@ConfigDesc("Zipkin Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
+	public int object_zipkin_deadtime_ms = 90 * 1000;
+
 	//Compress
 	@ConfigDesc("Activating XLog data in zip file")
 	public boolean compress_xlog_enabled = false;
@@ -592,6 +595,7 @@ public class Configure extends Thread {
 
 		this.object_deadtime_ms = getInt("object_deadtime_ms", 8000);
 		this.object_inactive_alert_level = getInt("object_inactive_alert_level", 0);
+		this.object_zipkin_deadtime_ms = getInt("object_zipkin_deadtime_ms", 90 * 1000);
 
 		this.compress_xlog_enabled = getBoolean("compress_xlog_enabled", false);
 		this.compress_profile_enabled = getBoolean("compress_profile_enabled", false);

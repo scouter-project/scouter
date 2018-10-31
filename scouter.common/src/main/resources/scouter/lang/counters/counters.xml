@@ -74,6 +74,8 @@
             <Counter name="Mem" disp="Memory" unit="%" icon="memory.png" total="false"/>
             <Counter name="RequestCount" disp="Request Count" unit="cnt" icon="req_count.gif" />
         </Family>
+		<Family name="tracing">
+		</Family>
 	</Familys>
 	<Types>
 		<ObjectType name="linux" family="host" disp="Linux" />
@@ -87,6 +89,7 @@
 		<ObjectType name="resin" family="javaee" disp="Resin" />
 		<ObjectType name="batch" family="batch" disp="Batch" />
         <ObjectType name="aws" family="aws" disp="AWS" />
+		<ObjectType name="zipkin" family="tracing" disp="Zipkin" />
 		<ObjectType name="datasource" family="datasource" disp="DataSource" sub-object="true" />
 		<ObjectType name="reqproc" family="reqproc" disp="RequestProc" sub-object="true"/>
 	</Types>
