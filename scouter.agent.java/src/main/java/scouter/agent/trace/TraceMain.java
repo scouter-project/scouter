@@ -1615,8 +1615,8 @@ public class TraceMain {
     }
 
     static IKafkaTracer kafkaTracer;
-    private static String KAFKA_COMMAND_MSG = "[KAFKA]%s -> %s";
-    private static String KAFKA_COMMAND_ERROR_MSG = "[KAFKA][ERROR]%s -> %s [Exception:%s] %s";
+    private static String KAFKA_COMMAND_MSG = "[KAFKA] bootstrap : %s, topic : %s";
+    private static String KAFKA_COMMAND_ERROR_MSG = "[KAFKA][ERROR] bootstrap : %s, topic : %s [Exception:%s] %s";
 
     public static Object startKafkaProducer(Object producerConfig, String topic) {
         TraceContext ctx = TraceContextManager.getContext();
@@ -1654,6 +1654,9 @@ public class TraceMain {
         String bootstrapServer = step.getTempMessage("bootstrap");
         String topic = step.getTempMessage("topic");
 
+        if (StringUtil.isEmpty(bootstrapServer)) bootstrapServer = "-";
+        if (StringUtil.isEmpty(topic)) topic = "-";
+
         if (thr == null) {
             step.setMessage(DataProxy.sendHashedMessage(KAFKA_COMMAND_MSG), bootstrapServer, topic);
             step.setLevel(ParameterizedMessageLevel.INFO);
@@ -1665,6 +1668,54 @@ public class TraceMain {
 
         tctx.profile.pop(step);
 
+    }
+
+    private static String RABBIT_COMMAND_MSG = "[RABBIT] exchange : %s, routing key : %s";
+    private static String RABBIT_COMMAND_ERROR_MSG = "[RABBIT][ERROR] exchange : %s, routing key : %s [Exception:%s] %s";
+
+    public static Object startRabbitPublish(String exchange, String routingKey) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null) {
+            return null;
+        }
+
+        ParameterizedMessageStep step = new ParameterizedMessageStep();
+        step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        step.putTempMessage("exchange", exchange);
+        step.putTempMessage("routingKey", routingKey);
+        ctx.profile.push(step);
+        return new LocalContext(ctx, step);
+    }
+
+    public static void endRabbitPublish(Object localContext, Throwable thr) {
+        if (localContext == null)
+            return;
+        LocalContext lctx = (LocalContext) localContext;
+        ParameterizedMessageStep step = (ParameterizedMessageStep) lctx.stepSingle;
+        if (step == null) return;
+
+        TraceContext tctx = lctx.context;
+        if (tctx == null) return;
+
+        int elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
+        step.setElapsed(elapsed);
+
+        String exchange = step.getTempMessage("exchange");
+        String routingKey = step.getTempMessage("routingKey");
+
+        if (StringUtil.isEmpty(exchange)) exchange = "-";
+        if (StringUtil.isEmpty(routingKey)) routingKey = "-";
+
+        if (thr == null) {
+            step.setMessage(DataProxy.sendHashedMessage(RABBIT_COMMAND_MSG), exchange, routingKey);
+            step.setLevel(ParameterizedMessageLevel.INFO);
+        } else {
+            String msg = thr.toString();
+            step.setMessage(DataProxy.sendHashedMessage(RABBIT_COMMAND_ERROR_MSG), exchange, routingKey, thr.getClass().getName(), msg);
+            step.setLevel(ParameterizedMessageLevel.ERROR);
+        }
+
+        tctx.profile.pop(step);
     }
 
 }

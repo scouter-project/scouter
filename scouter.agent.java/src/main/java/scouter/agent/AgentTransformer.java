@@ -53,6 +53,7 @@ import scouter.agent.asm.asyncsupport.executor.ExecutorServiceASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionAspectSupportDoSubmitASM;
 import scouter.agent.asm.kafka.KafkaProducerASM;
+import scouter.agent.asm.rabbit.RabbitPublisherASM;
 import scouter.agent.asm.redis.JedisCommandASM;
 import scouter.agent.asm.redis.JedisProtocolASM;
 import scouter.agent.asm.redis.RedisCacheKeyASM;
@@ -138,6 +139,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new RedisCacheKeyASM());
         temp.add(new JedisProtocolASM());
         temp.add(new KafkaProducerASM());
+        temp.add(new RabbitPublisherASM());
 
         temp.add(new SpringReqMapASM());
         temp.add(new HystrixCommandASM());
