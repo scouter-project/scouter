@@ -18,60 +18,54 @@
 
 package scouter.server.netio.service.handle;
 
-import scouter.util.StringUtil
+import scouter.io.{DataInputX, DataOutputX}
 import scouter.lang.TextTypes
-import scouter.lang.pack.MapPack
-import scouter.lang.pack.Pack
-import scouter.lang.pack.PackEnum
-import scouter.lang.pack.XLogPack
-import scouter.lang.pack.XLogProfilePack
-import scouter.lang.value._
-import scouter.io.DataInputX
-import scouter.io.DataOutputX
-import scouter.net.RequestCmd
-import scouter.net.TcpFlag
-import scouter.server.Configure
-import scouter.server.Logger
-import scouter.server.core.cache.CacheOut
-import scouter.server.core.cache.TextCache
-import scouter.server.core.cache.XLogCache
-import scouter.server.db.XLogProfileRD
-import scouter.server.db.XLogRD
-import scouter.server.netio.service.anotation.ServiceHandler
-import scouter.util.DateUtil
-import scouter.util.IPUtil
-import scouter.util.IntSet
-import scouter.util.StrMatch
-import java.io.IOException
-
 import scouter.lang.constants.ParamConstant
-import scouter.server.db.TextRD
+import scouter.lang.pack._
+import scouter.lang.step.Step
+import scouter.lang.value._
+import scouter.net.{RequestCmd, TcpFlag}
+import scouter.server.Configure
+import scouter.server.core.app.SpanStepBuilder
+import scouter.server.core.cache.XLogCache
+import scouter.server.db.{TextRD, XLogProfileRD, XLogRD, ZipkinSpanRD}
+import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.server.util.EnumerScala
-import sun.security.provider.certpath.ForwardBuilder
-import scouter.util.CastUtil
+import scouter.util._
+
+import scala.collection.mutable
 
 class XLogService {
 
     @ServiceHandler(RequestCmd.TRANX_PROFILE)
-    def getProfile(din: DataInputX, dout: DataOutputX, login: Boolean) {
-        val param = din.readMapPack();
+    def getProfile(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
+        val param = din.readMapPack()
 
-        var date = param.getText("date");
-        val txid = param.getLong("txid");
-        val max = param.getInt("max");
+        var date = param.getText("date")
+        val txid = param.getLong("txid")
+        var gxid = param.getLong("gxid")
+        var xlogType = param.getInt("xlogType")
+        val max = param.getInt("max")
         if (StringUtil.isEmpty(date)) {
-            date = DateUtil.yyyymmdd(System.currentTimeMillis());
+            date = DateUtil.yyyymmdd()
         }
+
         try {
-            val profilePacket = XLogProfileRD.getProfile(date, txid, max);
-            if (profilePacket != null) {
-                dout.writeByte(TcpFlag.HasNEXT);
-                val p = new XLogProfilePack();
-                p.profile = profilePacket;
-                dout.writePack(p); // ProfilePacket
+            if (gxid == 0) {
+                val din = new DataInputX(XLogRD.getByTxid(date, txid))
+                val xlog = din.readPack().asInstanceOf[XLogPack];
+                gxid = xlog.gxid
+                xlogType = xlog.xType
             }
+
+            if(xlogType == XLogTypes.ZIPKIN_SPAN) {
+                processGetSpansAsProfile(dout, date, gxid, txid)
+            } else {
+                processGetProfile(dout, date, txid, max)
+            }
+
         } catch {
-            case e: Exception => e.printStackTrace();
+            case e: Exception => e.printStackTrace()
         }
     }
 
@@ -81,14 +75,77 @@ class XLogService {
 
         var date = param.getText("date");
         val txid = param.getLong("txid");
+        var gxid = param.getLong("gxid")
+        var xlogType = param.getInt("xlogType")
         val max = -1;
         if (StringUtil.isEmpty(date)) {
             date = DateUtil.yyyymmdd();
         }
 
+        if (gxid == 0) {
+            val din = new DataInputX(XLogRD.getByTxid(date, txid))
+            val xlog = din.readPack().asInstanceOf[XLogPack];
+            gxid = xlog.gxid
+            xlogType = xlog.xType
+        }
+
+        if(xlogType == XLogTypes.ZIPKIN_SPAN) {
+            processGetSpansAsSteps(dout, date, gxid, txid)
+        } else {
+            processGetProfile(dout, date, txid, max)
+        }
+    }
+
+    private def processGetSpansAsProfile(dout: DataOutputX, date: String, gxid: Long, txid: Long): Unit = {
+        val (stepList, mySpanPck) = getStepsFromSpans(date, gxid, txid)
+
+        import collection.JavaConverters._
+        val profilePack = new XLogProfilePack
+        profilePack.txid = txid
+        profilePack.objHash = mySpanPck.objHash
+        profilePack.profile = Step.toBytes(stepList.asJava)
+        profilePack.service = mySpanPck.name
+        profilePack.elapsed = mySpanPck.elapsed
+
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writePack(profilePack)
+    }
+
+    private def processGetSpansAsSteps(dout: DataOutputX, date: String, gxid: Long, txid: Long): Unit = {
+        val (stepList, mySpanPck) = getStepsFromSpans(date, gxid, txid)
+
+        import collection.JavaConverters._
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writeBlob(Step.toBytes(stepList.asJava))
+    }
+
+    private def getStepsFromSpans(date: String, gxid: Long, txid: Long): (List[Step], SpanPack) = {
+        import collection.JavaConverters._
+        val spanBuffer = new mutable.ListBuffer[SpanPack]
+        val spanContainerPackList = ZipkinSpanRD.getByGxid(date, gxid)
+        spanContainerPackList.foreach(bytes => {
+            val din = new DataInputX(bytes)
+            val container = din.readPack.asInstanceOf[SpanContainerPack]
+            spanBuffer ++= SpanPack.toObjectList(container.spans).asScala
+        })
+
+        SpanStepBuilder.toSteps(gxid, txid, spanBuffer.toList)
+    }
+
+    private def processGetProfile(dout: DataOutputX, date: String, txid: Long, max: Int): Unit = {
+        val profilePacket = XLogProfileRD.getProfile(date, txid, max)
+        if (profilePacket != null) {
+            dout.writeByte(TcpFlag.HasNEXT)
+            val p = new XLogProfilePack()
+            p.profile = profilePacket
+            dout.writePack(p) // ProfilePacket
+        }
+    }
+
+    private def processGetFullProfile(dout: DataOutputX, date: String, txid: Long, max: Int): Unit = {
         XLogProfileRD.getFullProfile(date, txid, max, (data: Array[Byte]) => {
-            dout.writeByte(TcpFlag.HasNEXT);
-            dout.writeBlob(data);
+            dout.writeByte(TcpFlag.HasNEXT)
+            dout.writeBlob(data)
         })
     }
 
@@ -348,6 +405,7 @@ class XLogService {
         try {
             val xbytes = XLogRD.getByTxid(date, txid);
             if (xbytes != null) {
+                //TODO adjust caller in the case of Sapn
                 dout.writeByte(TcpFlag.HasNEXT);
                 dout.write(xbytes);
                 dout.flush();
@@ -373,6 +431,7 @@ class XLogService {
                 }
                 val xbytes = XLogRD.getByTxid(date, txidValue.longValue())
                 if(xbytes != null) {
+                    //TODO adjust caller in the case of Sapn
                     dout.writeByte(TcpFlag.HasNEXT)
                     dout.write(xbytes)
                     dout.flush()
@@ -395,6 +454,7 @@ class XLogService {
             val list = XLogRD.getByGxid(date, gxid);
 
             EnumerScala.forward(list, (xlog: Array[Byte]) => {
+                //TODO adjust caller in the case of Sapn
                 dout.writeByte(TcpFlag.HasNEXT);
                 dout.write(xlog);
                 dout.flush();
@@ -408,6 +468,7 @@ class XLogService {
                 val list = XLogRD.getByGxid(date2, gxid);
 
                 EnumerScala.forward(list, (xlog: Array[Byte]) => {
+                    //TODO adjust caller in the case of Sapn
                     dout.writeByte(TcpFlag.HasNEXT);
                     dout.write(xlog);
                     dout.flush();
@@ -429,6 +490,7 @@ class XLogService {
             try {
                 val xbytes = XLogRD.getByTxid(date, txid);
                 if (xbytes != null) {
+                    //TODO adjust caller in the case of Sapn
                     dout.writeByte(TcpFlag.HasNEXT);
                     dout.write(xbytes);
                     dout.flush();
@@ -444,6 +506,7 @@ class XLogService {
                     return ;
                 for (i <- 0 to list.size() - 1) {
                     val xlog = list.get(i);
+                    //TODO adjust caller in the case of Sapn
                     dout.writeByte(TcpFlag.HasNEXT);
                     dout.write(xlog);
                     dout.flush();
@@ -562,6 +625,7 @@ class XLogService {
             }
 
             if (ok) {
+                //TODO adjust caller in the case of Sapn
                 dout.writeByte(TcpFlag.HasNEXT);
                 dout.write(data);
                 dout.flush();

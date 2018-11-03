@@ -27,6 +27,8 @@ import scouter.server.db.io.IndexTimeFile
 import scouter.server.db.span.{ZipkinSpanDataReader, ZipkinSpanIndex}
 import scouter.util.FileUtil
 
+import scala.collection.mutable
+
 object ZipkinSpanRD {
 
     /**
@@ -36,7 +38,7 @@ object ZipkinSpanRD {
         val path = ZipkinSpanWR.getDBPath(date)
 
         if (new File(path).canRead()) {
-            val file = path + "/" + XLogWR.prefix
+            val file = path + "/" + ZipkinSpanWR.SPAN_PREFIX
             var reader: ZipkinSpanDataReader = null
             var table: IndexTimeFile = null
             try {
@@ -56,10 +58,10 @@ object ZipkinSpanRD {
     }
 
     def readByTime(date: String, fromTime: Long, toTime: Long, handler: (Long, Array[Byte]) => Any): Unit = {
-        val path = XLogWR.getDBPath(date)
+        val path = ZipkinSpanWR.getDBPath(date)
 
         if (new File(path).canRead()) {
-            val file = path + "/" + XLogWR.prefix
+            val file = path + "/" + ZipkinSpanWR.SPAN_PREFIX
             var reader: ZipkinSpanDataReader = null
             var table: IndexTimeFile = null
             try {
@@ -82,7 +84,7 @@ object ZipkinSpanRD {
         val path = ZipkinSpanWR.getDBPath(date)
 
         if (new File(path).canRead()) {
-            val file = path + "/" + XLogWR.prefix
+            val file = path + "/" + ZipkinSpanWR.SPAN_PREFIX
             var reader: ZipkinSpanDataReader = null
             var table: IndexTimeFile = null
             try {
@@ -168,16 +170,16 @@ object ZipkinSpanRD {
 
     }
 
-    def getByGxid(date: String, guid: Long): Vector[Array[Byte]] = {
+    def getByGxid(date: String, guid: Long): List[Array[Byte]] = {
 
-        var vector = new util.Vector[Array[Byte]]()
-        val path = XLogWR.getDBPath(date)
+        var spanList = new util.ArrayList[Array[Byte]]()
+        val path = ZipkinSpanWR.getDBPath(date)
 
         if (!new File(path).canRead()) {
             return null;
         }
 
-        val file = path + "/" + XLogWR.prefix
+        val file = path + "/" + ZipkinSpanWR.SPAN_PREFIX
         var result: java.util.List[Long] = null
         var idx: ZipkinSpanIndex = null
         try {
@@ -198,7 +200,7 @@ object ZipkinSpanRD {
             for (i <- 0 until result.size()) {
                 val buff = reader.read(result.get(i).longValue())
                 if (buff != null) {
-                    vector.add(buff)
+                    spanList.add(buff)
                 }
             }
 
@@ -209,7 +211,8 @@ object ZipkinSpanRD {
             FileUtil.close(reader)
         }
 
-        return vector
+        import scala.collection.JavaConversions._
+        spanList.toList
     }
 
 }

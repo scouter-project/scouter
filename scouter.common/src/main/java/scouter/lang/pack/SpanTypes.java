@@ -48,5 +48,23 @@ public class SpanTypes {
 			return UNKNOWN;
 		}
 	}
+
+	public static boolean isXLoggable(byte typeByte) {
+		SpanTypes.Type type = Type.of(typeByte);
+		return type == Type.SERVER || type == Type.CONSUMER;
+	}
+
+	public static boolean isApiable(byte typeByte) {
+		SpanTypes.Type type = Type.of(typeByte);
+		return type == Type.CLIENT || type == Type.PRODUCER;
+	}
+
+	public static boolean isXLoggable(SpanTypes.Type type) {
+		return type == Type.SERVER || type == Type.CONSUMER;
+	}
+
+	public static boolean isApiable(SpanTypes.Type type) {
+		return type == Type.CLIENT || type == Type.PRODUCER;
+	}
 }
 

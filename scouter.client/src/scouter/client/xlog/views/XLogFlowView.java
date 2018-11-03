@@ -320,6 +320,7 @@ public class XLogFlowView extends ViewPart {
 			switch (step.getStepType()) {
 			case StepEnum.APICALL:
 			case StepEnum.APICALL2:
+			case StepEnum.SPANCALL:
 				ApiCallStep apicallstep = (ApiCallStep) step;
 				DependencyElement apiElement = new DependencyElement(ElementType.API_CALL, apicallstep.txid + apicallstep.hash);
 				apiElement.elapsed = apicallstep.elapsed;

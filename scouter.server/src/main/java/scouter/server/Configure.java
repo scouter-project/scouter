@@ -240,7 +240,7 @@ public class Configure extends Thread {
 	public int object_inactive_alert_level = 0;
 
 	@ConfigDesc("Zipkin Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
-	public int object_zipkin_deadtime_ms = 90 * 1000;
+	public int object_zipkin_deadtime_ms = 180 * 1000;
 
 	//Compress
 	@ConfigDesc("Activating XLog data in zip file")

@@ -19,9 +19,8 @@
 package scouter.server.core
 
 import scouter.io.DataOutputX
-import scouter.lang.pack.{SpanContainerPack, XLogPack}
-import scouter.server.db.{XLogWR, ZipkinSpanWR}
-import scouter.server.plugin.PlugInManager
+import scouter.lang.pack.SpanContainerPack
+import scouter.server.db.ZipkinSpanWR
 import scouter.server.util.ThreadScala
 import scouter.server.{Configure, Logger}
 import scouter.util.RequestQueue

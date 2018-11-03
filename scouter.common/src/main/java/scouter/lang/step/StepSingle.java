@@ -19,6 +19,7 @@ package scouter.lang.step;
 
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+import scouter.lang.pack.SpanPack;
 
 import java.io.IOException;
 
@@ -29,6 +30,9 @@ abstract public class StepSingle extends Step {
 
 	public int start_time;
 	public int start_cpu;
+
+	//for span
+	public SpanPack spanPack;
 
 	@Override
 	public int getOrder() {

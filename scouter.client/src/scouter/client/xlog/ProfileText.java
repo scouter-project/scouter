@@ -17,17 +17,10 @@
  */
 package scouter.client.xlog;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
-
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
 import scouter.client.model.XLogProxy;
@@ -52,6 +45,8 @@ import scouter.lang.step.MethodSum;
 import scouter.lang.step.ParameterizedMessageStep;
 import scouter.lang.step.SocketStep;
 import scouter.lang.step.SocketSum;
+import scouter.lang.step.SpanCallStep;
+import scouter.lang.step.SpanStep;
 import scouter.lang.step.SqlStep;
 import scouter.lang.step.SqlStep2;
 import scouter.lang.step.SqlStep3;
@@ -71,6 +66,12 @@ import scouter.util.Hexa32;
 import scouter.util.IPUtil;
 import scouter.util.SortUtil;
 import scouter.util.StringUtil;
+
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 public class ProfileText {
 	
@@ -445,6 +446,17 @@ public class ProfileText {
                         sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
                     }
                     break;
+                case StepEnum.SPAN:
+                    slen = sb.length();
+                    toString(sb, (SpanStep) stepSingle);
+                    sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
+                    MethodStep2 spanStep = (SpanStep) stepSingle;
+                    if (spanStep.error != 0) {
+                        slen = sb.length();
+                        sb.append("\n").append(TextProxy.error.getText(spanStep.error));
+                        sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
+                    }
+                    break;
                 case StepEnum.SQL:
                 case StepEnum.SQL2:
                 case StepEnum.SQL3:
@@ -519,6 +531,19 @@ public class ProfileText {
                         sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
                     }
                     break;
+                case StepEnum.SPANCALL:
+                    SpanCallStep spanCall = (SpanCallStep) stepSingle;
+                    slen = sb.length();
+                    toString(sb, spanCall);
+                    sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
+                    if (spanCall.error != 0) {
+                        slen = sb.length();
+                        sb.append("\n").append(TextProxy.error.getText(spanCall.error));
+                        sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
+                    }
+                    break;
+
+
                 case StepEnum.SOCKET:
                     SocketStep socket = (SocketStep) stepSingle;
                     slen = sb.length();
@@ -829,6 +854,21 @@ public class ProfileText {
         }
     }
 
+    public static void toString(StringBuffer sb, SpanCallStep p) {
+        String m = TextProxy.service.getText(p.hash);
+        if (m == null)
+            m = Hexa32.toString32(p.hash);
+        sb.append("call: ").append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
+        if (p.txid != 0) {
+            if(p.address != null) {
+                sb.append(" [" + p.address + "]");
+            }
+        }
+        if (p.txid != 0) {
+            sb.append(" <" + Hexa32.toString32(p.txid) + ">");
+        }
+    }
+
     public static void toString(StringBuffer sb, DispatchStep step) {
         String m = TextProxy.apicall.getText(step.hash);
         if (m == null)
@@ -1038,6 +1078,14 @@ public class ProfileText {
             sb.append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
             return m.indexOf('.');
         }
+    }
+
+    public static void toString(StringBuffer sb, SpanStep p) {
+        String m = TextProxy.service.getText(p.hash);
+        if (m == null) {
+            m = Hexa32.toString32(p.hash);
+        }
+        sb.append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
     }
 
     public static String simplifyMethod(String method) {
