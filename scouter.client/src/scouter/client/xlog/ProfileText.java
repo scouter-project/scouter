@@ -35,6 +35,7 @@ import scouter.lang.enumeration.ParameterizedMessageLevel;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ApiCallStep2;
 import scouter.lang.step.ApiCallSum;
+import scouter.lang.step.CommonSpanStep;
 import scouter.lang.step.DispatchStep;
 import scouter.lang.step.DumpStep;
 import scouter.lang.step.HashedMessageStep;
@@ -72,6 +73,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 public class ProfileText {
 	
@@ -449,12 +451,28 @@ public class ProfileText {
                 case StepEnum.SPAN:
                     slen = sb.length();
                     toString(sb, (SpanStep) stepSingle);
-                    sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
-                    MethodStep2 spanStep = (SpanStep) stepSingle;
+                    sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
+                    SpanStep spanStep = (SpanStep) stepSingle;
                     if (spanStep.error != 0) {
                         slen = sb.length();
                         sb.append("\n").append(TextProxy.error.getText(spanStep.error));
                         sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
+                    }
+                    if (spanStep.localEndpointServiceName != 0) {
+                        slen = sb.length();
+                        StringBuilder tempSb = appendSpanEndpoints(date, serverId, spanStep);
+                        sb.append(spacingToNewLine(tempSb.toString(), lineHead + 4));
+                        sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
+                    }
+                    if (spanStep.tags.size() > 0) {
+                        slen = sb.length();
+                        appendSpanTags(sb, lineHead, spanStep);
+                        sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
+                    }
+                    if (spanStep.annotationTimestamps.size() > 0) {
+                        slen = sb.length();
+                        appendSpanAnnotations(sb, lineHead, spanStep);
+                        sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
                     }
                     break;
                 case StepEnum.SQL:
@@ -541,6 +559,22 @@ public class ProfileText {
                         sb.append("\n").append(TextProxy.error.getText(spanCall.error));
                         sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
                     }
+                    if (spanCall.localEndpointServiceName != 0) {
+                        slen = sb.length();
+                        StringBuilder tempSb = appendSpanEndpoints(date, serverId, spanCall);
+                        sb.append(spacingToNewLine(tempSb.toString(), lineHead + 4));
+                        sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
+                    }
+                    if (spanCall.tags.size() > 0) {
+                        slen = sb.length();
+                        appendSpanTags(sb, lineHead, spanCall);
+                        sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
+                    }
+                    if (spanCall.annotationTimestamps.size() > 0) {
+                        slen = sb.length();
+                        appendSpanAnnotations(sb, lineHead, spanCall);
+                        sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
+                    }
                     break;
 
 
@@ -584,6 +618,39 @@ public class ProfileText {
         text.setText(sb.toString());
         text.setStyleRanges(sr.toArray(new StyleRange[sr.size()]));
 
+    }
+
+    private static void appendSpanAnnotations(StringBuffer sb, int lineHead, CommonSpanStep spanStep) {
+        try {
+            sb.append(spacingToNewLine(">[annotations]", lineHead + 4));
+            for (int annotCount = 0; annotCount < spanStep.annotationTimestamps.size(); annotCount++) {
+                String annotMessage = FormatUtil.print(new Date(spanStep.annotationTimestamps.getLong(annotCount)), "HH:mm:ss.SSS")
+                        + " " + spanStep.annotationValues.getString(annotCount);
+                sb.append(spacing(annotMessage, lineHead + 11));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    private static void appendSpanTags(StringBuffer sb, int lineHead, CommonSpanStep spanStep) {
+        String tagsString = spanStep.tags.keySet().stream()
+                .map(k -> k + ": " + spanStep.tags.getText(k))
+                .collect(Collectors.joining("\n"));
+
+        sb.append(spacingToNewLine(">[tags]", lineHead + 4));
+        sb.append(spacing(tagsString, lineHead + 11));
+    }
+
+    private static StringBuilder appendSpanEndpoints(String date, int serverId, CommonSpanStep spanStep) {
+        StringBuilder tempSb = new StringBuilder();
+        tempSb.append(">[LE]").append(TextProxy.object.getLoadText(date, spanStep.localEndpointServiceName, serverId))
+                .append(":").append(IPUtil.toString(spanStep.localEndpointIp))
+                .append(":").append(spanStep.localEndpointPort);
+        if (spanStep.remoteEndpointServiceName != 0) {
+            tempSb.append("[RE]").append(TextProxy.object.getLoadText(date, spanStep.localEndpointServiceName, serverId))
+                    .append(":").append(IPUtil.toString(spanStep.remoteEndpointIp))
+                    .append(":").append(spanStep.remoteEndpointPort);
+        }
+        return tempSb;
     }
 
     public static void buildThreadProfile(XLogData data, StyledText text, Step[] profiles) {
@@ -1029,6 +1096,24 @@ public class ProfileText {
                     sb.append(s);
                 }
 
+            }
+        } catch (Exception e) {
+        }
+        return sb.toString();
+    }
+
+    public static String spacingToNewLine(String m, int lineHead) {
+        if (m == null)
+            return m;
+        String dummy = StringUtil.leftPad("", lineHead);
+        StringBuffer sb = new StringBuffer();
+        try {
+            BufferedReader sr = new BufferedReader(new StringReader(m));
+            String s = null;
+            while ((s = sr.readLine()) != null) {
+                if (s.length() > 0) {
+                    sb.append("\n").append(dummy).append(s);
+                }
             }
         } catch (Exception e) {
         }

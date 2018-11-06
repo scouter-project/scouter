@@ -320,7 +320,6 @@ public class XLogFlowView extends ViewPart {
 			switch (step.getStepType()) {
 			case StepEnum.APICALL:
 			case StepEnum.APICALL2:
-			case StepEnum.SPANCALL:
 				ApiCallStep apicallstep = (ApiCallStep) step;
 				DependencyElement apiElement = new DependencyElement(ElementType.API_CALL, apicallstep.txid + apicallstep.hash);
 				apiElement.elapsed = apicallstep.elapsed;
@@ -339,6 +338,27 @@ public class XLogFlowView extends ViewPart {
 					}
 				} else {
 					serviceElement.addChild(apiElement);
+				}
+				break;
+			case StepEnum.SPANCALL:
+				SpanCallStep spanCallstep = (SpanCallStep) step;
+				DependencyElement spanCallElement = new DependencyElement(ElementType.API_CALL, spanCallstep.txid + spanCallstep.hash);
+				spanCallElement.elapsed = spanCallstep.elapsed;
+				spanCallElement.error = spanCallstep.error;
+				spanCallElement.name = TextProxy.apicall.getLoadText(date, spanCallstep.hash, serverId);
+				spanCallElement.tags.put("serverId", serverId);
+				spanCallElement.address = spanCallstep.address;
+
+				if (spanCallstep.txid != 0) {
+					DependencyElement calledService = serviceMap.get(spanCallstep.txid);
+					if (calledService != null) {
+						calledService.address = spanCallstep.address;
+						serviceElement.addChild(calledService);
+					} else {
+						serviceElement.addChild(spanCallElement);
+					}
+				} else {
+					serviceElement.addChild(spanCallElement);
 				}
 				break;
 			case StepEnum.DISPATCH:

@@ -49,6 +49,7 @@ public class CounterConstants {
 	
 	public final static String BATCH = "batch";
 	public final static String ZIPKIN = "zipkin";
+	public final static String ZIPKIN_TYPE_PREFIX = "z$";
 
 	public final static String DATASOURCE = "datasource";
 	public final static String CONTEXT = "context";

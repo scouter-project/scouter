@@ -595,7 +595,7 @@ public class Configure extends Thread {
 
 		this.object_deadtime_ms = getInt("object_deadtime_ms", 8000);
 		this.object_inactive_alert_level = getInt("object_inactive_alert_level", 0);
-		this.object_zipkin_deadtime_ms = getInt("object_zipkin_deadtime_ms", 90 * 1000);
+		this.object_zipkin_deadtime_ms = getInt("object_zipkin_deadtime_ms", 300 * 1000);
 
 		this.compress_xlog_enabled = getBoolean("compress_xlog_enabled", false);
 		this.compress_profile_enabled = getBoolean("compress_profile_enabled", false);

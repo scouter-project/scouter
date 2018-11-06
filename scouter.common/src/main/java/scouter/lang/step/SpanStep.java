@@ -21,33 +21,10 @@ package scouter.lang.step;
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.lang.pack.SpanPack;
-import scouter.lang.value.ListValue;
-import scouter.lang.value.MapValue;
 
 import java.io.IOException;
 
-public class SpanStep extends MethodStep2 {
-
-	public String nameDebug;
-
-	public long timestamp;
-	public byte spanType;
-
-	public int localEndpointServiceName;
-	public byte[] localEndpointIp;
-	public short localEndpointPort;
-
-	public int remoteEndpointServiceName;
-	public byte[] remoteEndpointIp;
-	public short remoteEndpointPort;
-
-	public boolean debug;
-	public boolean shared;
-
-	public ListValue annotationTimestamps;
-	public ListValue annotationValues;
-
-	public MapValue tags;
+public class SpanStep extends CommonSpanStep {
 
 	public byte getStepType() {
 		return StepEnum.SPAN;
@@ -55,12 +32,10 @@ public class SpanStep extends MethodStep2 {
 
 	public void write(DataOutputX out) throws IOException {
 		super.write(out);
-		out.writeValue(tags);
 	}
 
 	public Step read(DataInputX in) throws IOException {
 		super.read(in);
-		this.tags = (MapValue) in.readValue();
 		return this;
 	}
 
@@ -83,6 +58,8 @@ public class SpanStep extends MethodStep2 {
 		step.remoteEndpointPort = pack.remoteEndpointPort;
 		step.debug = pack.debug;
 		step.shared = pack.shared;
+		step.annotationTimestamps = pack.annotationTimestamps;
+		step.annotationValues = pack.annotationValues;
 		return step;
 	}
 }

@@ -51,7 +51,7 @@ object AgentManager {
 
             if(!CounterConstants.BATCH.equals(objPack.objType)){
                 var adjustDeadTime = 30000;
-                if (CounterConstants.ZIPKIN.equals(objPack.objType)) {
+                if (CounterConstants.ZIPKIN.equals(objPack.objType) || objPack.objType.startsWith(CounterConstants.ZIPKIN_TYPE_PREFIX)) {
                     adjustDeadTime = if (objPack.getDeadTime() == 0) zipkinDeadTime else objPack.getDeadTime();
                 } else {
                     adjustDeadTime = if (objPack.getDeadTime() == 0) deadtime else objPack.getDeadTime();
