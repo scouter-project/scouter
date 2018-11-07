@@ -28,6 +28,7 @@ import java.util.HashSet;
 public class XLogUtil {
 
 	public static void loadStepText(int serverId, String yyyymmdd, Step[] p) {
+		HashSet<Integer> spanSet = new HashSet<Integer>();
 		HashSet<Integer> methodSet = new HashSet<Integer>();
 		HashSet<Integer> sqlSet = new HashSet<Integer>();
 		HashSet<Integer> subcallSet = new HashSet<Integer>();
@@ -73,6 +74,16 @@ public class XLogUtil {
 			case StepEnum.METHOD2:
 				if (TextProxy.method.getText(((MethodStep) p[i]).hash) == null) {
 					methodSet.add(((MethodStep) p[i]).hash);
+				}
+				break;
+			case StepEnum.SPAN:
+				if (TextProxy.service.getText(((SpanStep) p[i]).hash) == null) {
+					spanSet.add(((SpanStep) p[i]).hash);
+				}
+				break;
+			case StepEnum.SPANCALL:
+				if (TextProxy.service.getText(((SpanCallStep) p[i]).hash) == null) {
+					spanSet.add(((SpanCallStep) p[i]).hash);
 				}
 				break;
 			case StepEnum.METHOD_SUM:
@@ -124,6 +135,7 @@ public class XLogUtil {
 			}
 		}
 
+		TextProxy.service.load(yyyymmdd, spanSet, serverId);
 		TextProxy.method.load(yyyymmdd, methodSet, serverId);
 		TextProxy.sql.load(yyyymmdd, sqlSet, serverId);
 		TextProxy.apicall.load(yyyymmdd, subcallSet, serverId);

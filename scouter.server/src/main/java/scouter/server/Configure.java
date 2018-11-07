@@ -141,6 +141,8 @@ public class Configure extends Thread {
 	public boolean log_udp_batch = false;	
 	@ConfigDesc("Logging all request handlers in starting")	
 	public boolean log_service_handler_list = false;
+	@ConfigDesc("Logging incoming SpanPack")
+	public boolean log_udp_span = false;
 
 	@ConfigDesc("Logging when index traversal is too heavy.")
 	public int log_index_traversal_warning_count = 100;
@@ -237,6 +239,9 @@ public class Configure extends Thread {
 	@ConfigDesc("inactive object warning level. default 0.(0:info, 1:warn, 2:error, 3:fatal)")
 	public int object_inactive_alert_level = 0;
 
+	@ConfigDesc("Zipkin Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
+	public int object_zipkin_deadtime_ms = 180 * 1000;
+
 	//Compress
 	@ConfigDesc("Activating XLog data in zip file")
 	public boolean compress_xlog_enabled = false;
@@ -330,6 +335,10 @@ public class Configure extends Thread {
 			"   $[from] : start time in chart by millis\n" +
 			"   $[to] : end time in chart by millis")
 	public String ext_link_url_pattern = "http://my-scouter-paper-ip:6188/index.html#/paper?&address=localhost&port=6188&realtime=false&xlogElapsedTime=8000&instances=$[objHashes]&from=$[from]&to=$[to]&layout=my-layout-template-01";
+
+	//Span
+	@ConfigDesc("Span Queue Size")
+	public int span_queue_size = 1000;
 
 	//XLog
 	@ConfigDesc("XLog Writer Queue Size")
@@ -586,6 +595,7 @@ public class Configure extends Thread {
 
 		this.object_deadtime_ms = getInt("object_deadtime_ms", 8000);
 		this.object_inactive_alert_level = getInt("object_inactive_alert_level", 0);
+		this.object_zipkin_deadtime_ms = getInt("object_zipkin_deadtime_ms", 300 * 1000);
 
 		this.compress_xlog_enabled = getBoolean("compress_xlog_enabled", false);
 		this.compress_profile_enabled = getBoolean("compress_profile_enabled", false);
@@ -617,6 +627,7 @@ public class Configure extends Thread {
 		this.log_udp_summary = getBoolean("log_udp_summary", false);
 		this.log_udp_batch = getBoolean("log_udp_batch", false);
 		this.log_service_handler_list = getBoolean("log_service_handler_list", false);
+		this.log_udp_span = getBoolean("log_udp_span", false);
 
 		this.log_index_traversal_warning_count = getInt("log_index_traversal_warning_count", 100);
 

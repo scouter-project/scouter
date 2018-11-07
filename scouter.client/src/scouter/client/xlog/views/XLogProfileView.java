@@ -201,7 +201,7 @@ public class XLogProfileView extends ViewPart {
 								String[] tokens = StringUtil.tokenizer(fulltxt, " =\n");
 								String txIdStr = tokens[tokens.length - 1];
 								long txid = Hexa32.toLong32(txIdStr);
-								new OpenXLogProfileJob(XLogProfileView.this.getViewSite().getShell().getDisplay(), DateUtil.yyyymmdd(item.p.endTime), txid).schedule();
+								new OpenXLogProfileJob(XLogProfileView.this.getViewSite().getShell().getDisplay(), DateUtil.yyyymmdd(item.p.endTime), txid, item.p.gxid).schedule();
 							} else if (fulltxt.endsWith(">") && fulltxt.contains("call:")) {
 								if (preventDupleEventTable.get("call") != null) return;
 								synchronized (preventDupleEventTable) {
@@ -213,7 +213,7 @@ public class XLogProfileView extends ViewPart {
 									int endIndex = fulltxt.lastIndexOf(">");
 									String txIdStr = fulltxt.substring(startIndex + 1, endIndex);
 									long txid = Hexa32.toLong32(txIdStr);
-									new OpenXLogProfileJob(XLogProfileView.this.getViewSite().getShell().getDisplay(), DateUtil.yyyymmdd(item.p.endTime), txid).schedule();
+									new OpenXLogProfileJob(XLogProfileView.this.getViewSite().getShell().getDisplay(), DateUtil.yyyymmdd(item.p.endTime), txid, item.p.gxid).schedule();
 								}
 							}else if (fulltxt.endsWith(">") && fulltxt.contains("thread:")) {
 								if (preventDupleEventTable.get("thread") != null) return;

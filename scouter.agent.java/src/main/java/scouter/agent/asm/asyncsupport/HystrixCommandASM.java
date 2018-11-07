@@ -42,13 +42,13 @@ public class HystrixCommandASM implements IASM, Opcodes {
 	private List<HookingSet> receiveTarget = HookingSet.getHookingMethodSet("");
 	private Map<String, HookingSet> prepareReserved = new HashMap<String, HookingSet>();
 	private Map<String, HookingSet> receiveReserved = new HashMap<String, HookingSet>();
+	private Map<String, HookingSet> receiveReservedSuperType = new HashMap<String, HookingSet>();
 
 	public HystrixCommandASM() {
-		if(true) {
+		if (conf.hook_hystrix_enabled) {
 			AsmUtil.add(prepareReserved, "com/netflix/hystrix/HystrixCommand", "execute()Ljava/lang/Object;");
-		}
-		if(true) {
 			AsmUtil.add(receiveReserved, "com/netflix/hystrix/contrib/javanica/command/GenericCommand", "run()Ljava/lang/Object;");
+			AsmUtil.add(receiveReservedSuperType, "com/netflix/hystrix/HystrixCommand", "run()Ljava/lang/Object;");
 		}
 	}
 
@@ -58,6 +58,10 @@ public class HystrixCommandASM implements IASM, Opcodes {
 			return new HystrixCommandPrepareCV(cv, mset, className);
 		}
 		mset = receiveReserved.get(className);
+		if (mset != null){
+			return new HystrixCommandReceiveCV(cv, mset, className);
+		}
+		mset = receiveReservedSuperType.get(classDesc.superName);
 		if (mset != null){
 			return new HystrixCommandReceiveCV(cv, mset, className);
 		}
