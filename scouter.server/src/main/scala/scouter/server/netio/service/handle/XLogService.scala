@@ -92,7 +92,7 @@ class XLogService {
         if(xlogType == XLogTypes.ZIPKIN_SPAN) {
             processGetSpansAsSteps(dout, date, gxid, txid)
         } else {
-            processGetProfile(dout, date, txid, max)
+            processGetFullProfile(dout, date, txid, max)
         }
     }
 
@@ -130,6 +130,18 @@ class XLogService {
         })
 
         SpanStepBuilder.toSteps(gxid, txid, spanBuffer.toList)
+    }
+
+    private def getSpansMap(date: String, gxid: Long): Map[Long, SpanPack] = {
+        import collection.JavaConverters._
+        val spanMap = mutable.HashMap[Long, SpanPack]()
+        val spanContainerPackList = ZipkinSpanRD.getByGxid(date, gxid)
+        spanContainerPackList.foreach(bytes => {
+            val din = new DataInputX(bytes)
+            val container = din.readPack.asInstanceOf[SpanContainerPack]
+            spanMap ++= SpanPack.toObjectList(container.spans).asScala.map(p => (p.txid, p))
+        })
+        spanMap.toMap
     }
 
     private def processGetProfile(dout: DataOutputX, date: String, txid: Long, max: Int): Unit = {
@@ -399,20 +411,53 @@ class XLogService {
 
     @ServiceHandler(RequestCmd.XLOG_READ_BY_TXID)
     def readByTxId(din: DataInputX, dout: DataOutputX, login: Boolean) {
-        val param = din.readMapPack();
-        val date = param.getText("date");
-        val txid = param.getLong("txid");
+        val param = din.readMapPack()
+        val date = param.getText("date")
+        val txid = param.getLong("txid")
+        val gxid = param.getLong("gxid")
         try {
-            val xbytes = XLogRD.getByTxid(date, txid);
+            var xbytes = XLogRD.getByTxid(date, txid)
+            var xbytesChecked = false
+
+            if (xbytes == null && gxid != 0) {
+                val spanMap = getSpansMap(date, gxid)
+                if (spanMap.nonEmpty) {
+                    val superTxId = getXLoggableParent(txid, spanMap)
+                    xbytes = XLogRD.getByTxid(date, superTxId)
+                    xbytesChecked = true
+                }
+            }
+
             if (xbytes != null) {
-                //TODO adjust caller in the case of Sapn
-                dout.writeByte(TcpFlag.HasNEXT);
-                dout.write(xbytes);
-                dout.flush();
+                if (!xbytesChecked) {
+                    val xlog = new DataInputX(xbytes).readPack().asInstanceOf[XLogPack]
+                    if (xlog.xType == XLogTypes.ZIPKIN_SPAN && xlog.caller != 0 && xlog.caller != xlog.gxid) {
+                        val spanMap = getSpansMap(date, xlog.gxid)
+                        xlog.caller = getXLoggableParent(xlog.caller, spanMap)
+                        xbytes = new DataOutputX().writePack(xlog).toByteArray
+                    }
+                }
+                dout.writeByte(TcpFlag.HasNEXT)
+                dout.write(xbytes)
+                dout.flush()
             }
         } catch {
             case e: Exception => {}
         }
+    }
+
+    private def getXLoggableParent(caller: Long, map: Map[Long, SpanPack]): Long = {
+        if (!map.contains(caller)) {
+            0
+        } else {
+            val pack = map(caller)
+            if (SpanTypes.isParentXLoggable(pack.spanType)) {
+                caller
+            } else {
+                getXLoggableParent(pack.caller, map)
+            }
+        }
+
     }
 
     @ServiceHandler(RequestCmd.XLOG_LOAD_BY_TXIDS)
