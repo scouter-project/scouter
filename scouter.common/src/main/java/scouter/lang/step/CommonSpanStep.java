@@ -20,7 +20,6 @@ package scouter.lang.step;
 
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
-import scouter.lang.pack.SpanPack;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 
@@ -104,5 +103,133 @@ public class CommonSpanStep extends StepSingle {
 		this.annotationValues = (ListValue) in.readValue();
 		this.tags = (MapValue) in.readValue();
 		return this;
+	}
+
+	public int getHash() {
+		return hash;
+	}
+
+	public void setHash(int hash) {
+		this.hash = hash;
+	}
+
+	public int getElapsed() {
+		return elapsed;
+	}
+
+	public void setElapsed(int elapsed) {
+		this.elapsed = elapsed;
+	}
+
+	public int getError() {
+		return error;
+	}
+
+	public void setError(int error) {
+		this.error = error;
+	}
+
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public byte getSpanType() {
+		return spanType;
+	}
+
+	public void setSpanType(byte spanType) {
+		this.spanType = spanType;
+	}
+
+	public int getLocalEndpointServiceName() {
+		return localEndpointServiceName;
+	}
+
+	public void setLocalEndpointServiceName(int localEndpointServiceName) {
+		this.localEndpointServiceName = localEndpointServiceName;
+	}
+
+	public byte[] getLocalEndpointIp() {
+		return localEndpointIp;
+	}
+
+	public void setLocalEndpointIp(byte[] localEndpointIp) {
+		this.localEndpointIp = localEndpointIp;
+	}
+
+	public short getLocalEndpointPort() {
+		return localEndpointPort;
+	}
+
+	public void setLocalEndpointPort(short localEndpointPort) {
+		this.localEndpointPort = localEndpointPort;
+	}
+
+	public int getRemoteEndpointServiceName() {
+		return remoteEndpointServiceName;
+	}
+
+	public void setRemoteEndpointServiceName(int remoteEndpointServiceName) {
+		this.remoteEndpointServiceName = remoteEndpointServiceName;
+	}
+
+	public byte[] getRemoteEndpointIp() {
+		return remoteEndpointIp;
+	}
+
+	public void setRemoteEndpointIp(byte[] remoteEndpointIp) {
+		this.remoteEndpointIp = remoteEndpointIp;
+	}
+
+	public short getRemoteEndpointPort() {
+		return remoteEndpointPort;
+	}
+
+	public void setRemoteEndpointPort(short remoteEndpointPort) {
+		this.remoteEndpointPort = remoteEndpointPort;
+	}
+
+	public boolean isDebug() {
+		return debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
+
+	public boolean isShared() {
+		return shared;
+	}
+
+	public void setShared(boolean shared) {
+		this.shared = shared;
+	}
+
+	public ListValue getAnnotationTimestamps() {
+		return annotationTimestamps;
+	}
+
+	public void setAnnotationTimestamps(ListValue annotationTimestamps) {
+		this.annotationTimestamps = annotationTimestamps;
+	}
+
+	public ListValue getAnnotationValues() {
+		return annotationValues;
+	}
+
+	public void setAnnotationValues(ListValue annotationValues) {
+		this.annotationValues = annotationValues;
+	}
+
+	public MapValue getTags() {
+		return tags;
+	}
+
+	public void setTags(MapValue tags) {
+		this.tags = tags;
 	}
 }
