@@ -17,11 +17,11 @@
 
 package scouter.agent.batch;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
+import scouter.org.objectweb.asm.AnnotationVisitor;
+import scouter.org.objectweb.asm.ClassReader;
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.ClassWriter;
+import scouter.org.objectweb.asm.Opcodes;
 import scouter.agent.ClassDesc;
 import scouter.agent.ObjTypeDetector;
 import scouter.agent.asm.IASM;
@@ -70,7 +70,7 @@ public class AgentTransformer implements ClassFileTransformer {
             ObjTypeDetector.check(className);
             final ClassDesc classDesc = new ClassDesc();
             ClassReader cr = new ClassReader(classfileBuffer);
-            cr.accept(new ClassVisitor(Opcodes.ASM7) {
+            cr.accept(new ClassVisitor(Opcodes.ASM5) {
                 public void visit(int version, int access, String name, String signature, String superName,
                                   String[] interfaces) {
                     classDesc.set(version, access, name, signature, superName, interfaces);
