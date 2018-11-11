@@ -10,13 +10,18 @@
 SCOUTER is an open source APM like new relic and appdynamics.
 (APM means application performance monitoring or application performance management.)
 
- - **Monitoring target (scouter agent)**
-   - Java application - Web applications (on Tomcat, JBoss, Resin...), Standalone java applications
-   - OS - Linux, Windows, Unix
+ - **Monitoring targets (from scouter agent)**
+   - Java Agent : Web application (on Tomcat, JBoss, Resin ...), Standalone java application
+   - Host Agent : Linux, Windows, Unix
 
- - **Monitoring target (telegraf agent support)**
+ - **Monitoring targets (from Telegraf support)**
    - Redis, nginX, apache httpd, haproxy, Kafka, MySQL, MongoDB, RabbitMQ, ElasticSearch, Kube, Mesos ...
 
+ - **Monitoring targets (from Zipkin-Scouter storage)**
+   - Any zipkin instrumentations(C#, Go, Python, Javascript, PHP...) can be shown in a XLog(Scatter) chart. 
+   - see the [zipkin-scouter-storage](https://github.com/scouter-project/zipkin-scouter) documentation.
+   - see the [zipkin instrumentations.](https://zipkin.io/pages/existing_instrumentations.html)  
+  
 ![Screen](./scouter.document/img/main/dashboard-sample-1.png)
 
 Users use application services on a system and the services use resources on the system.
@@ -52,20 +57,17 @@ SCOUTER can help you.
   - **Host Agent (OS Agent)** : gathering performance metrics of Linux, Windows and OSX...
   - **MariaDB Agent** : [to be announced]
 
-- **Server (Collector)** : save the performance metrics from agents. The data is streamed to clients.
+- **Server (Collector)** : save the performance metrics from scouter agents or telegraf. The data is streamed to scouter client.
 
 - **Client (Viewer)** : client program based on RCP.
 
 - **Web API (Since @1.8.0)** : scouter web apis to get counters, XLogs, profiles and another performance metrics via HTTP protocol.
   - [Web API Guide](./scouter.document/tech/Web-API-Guide.md)
 
-### 3rd-party Agent
-- **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-project/scouter-pulse)
-  - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : gathering performance metrics of EC2, RDS, ELB from cloudwatch in AWS.
-
 ### 3rd-party UIs
-- **scouter paper** : [scouter-paper](https://mindplates.github.io/scouter-paper/)
-![scouter-pater](https://mindplates.github.io/scouter-paper/img/img12.png)
+- **scouter paper** : [scouter paper homepage](https://mindplates.github.io/scouter-paper/)
+  - **showcase** : [scouter paper overview (youtube)](https://www.youtube.com/watch?v=NjJ0dGhdIbU)  
+[![scouter-pater](https://mindplates.github.io/scouter-paper/img/img12.png)](https://www.youtube.com/watch?v=NjJ0dGhdIbU)
 
 ### Plugins
 - **Server plugin**
@@ -84,6 +86,11 @@ SCOUTER can help you.
 
 - **Agent plugin**
   - TBD
+
+### 3rd-party Agent
+- **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-project/scouter-pulse)
+  - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : gathering performance metrics of EC2, RDS, ELB from cloudwatch in AWS.
+
 <br>
 
 ## Facebook
