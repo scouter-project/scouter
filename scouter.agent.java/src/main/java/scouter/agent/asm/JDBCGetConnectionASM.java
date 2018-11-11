@@ -27,11 +27,11 @@ import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceSQL;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class JDBCGetConnectionASM implements IASM, Opcodes {
 	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_get_connection_patterns);
@@ -67,7 +67,7 @@ class DataSourceCV extends ClassVisitor implements Opcodes {
 	private HookingSet mset;
 
 	public DataSourceCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.mset = mset;
 		this.className = className;
 		
@@ -98,7 +98,7 @@ class DataSourceMV extends LocalVariablesSorter implements Opcodes {
 	private String methodDesc; 
 
 	public DataSourceMV(int access, String desc, MethodVisitor mv, String className, String methodName) {
-		super(ASM5,access, desc, mv);
+		super(ASM7,access, desc, mv);
 		this.returnType = Type.getReturnType(desc);
 		this.className = className;
 		this.methodName = methodName;

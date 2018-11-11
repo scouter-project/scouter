@@ -16,11 +16,11 @@
  */
 package scouter.agent.asm.asyncsupport;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.IASM;
@@ -68,7 +68,7 @@ class RequestCV extends ClassVisitor implements Opcodes {
 	HookingSet mset;
 
 	public RequestCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -96,7 +96,7 @@ class StartAsyncMV extends LocalVariablesSorter implements Opcodes {
 	private Type returnType;
 
 	public StartAsyncMV(int access, String desc, MethodVisitor mv) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		returnType = Type.getReturnType(desc);
 	}
 

@@ -17,9 +17,9 @@
 package scouter.agent.batch.asm.jdbc;
 
 
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import scouter.agent.batch.trace.TraceSQL;
 
 public class RsNextMV extends MethodVisitor implements Opcodes {
@@ -28,7 +28,7 @@ public class RsNextMV extends MethodVisitor implements Opcodes {
 	private static final String SIGNATURE = "()V";
 
 	public RsNextMV(String owner, MethodVisitor mv) {
-		super(ASM5, mv);
+		super(ASM7, mv);
 		this.owner = owner;
 	}
 	private String owner;

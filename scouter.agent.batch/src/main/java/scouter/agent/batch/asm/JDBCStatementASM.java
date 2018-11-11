@@ -16,10 +16,10 @@
  */
 package scouter.agent.batch.asm;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import scouter.agent.ClassDesc;
 import scouter.agent.asm.IASM;
 import scouter.agent.asm.util.HookingSet;
@@ -68,7 +68,7 @@ public class JDBCStatementASM implements IASM, Opcodes {
 class StatementCV extends ClassVisitor implements Opcodes {
 	private String owner;
 	public StatementCV(ClassVisitor cv) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 	}
 	
 	@Override

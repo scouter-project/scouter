@@ -16,9 +16,9 @@
 
 package scouter.agent.asm.jdbc;
 
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.trace.TraceSQL;
 
 public class PsClearParametersMV extends LocalVariablesSorter implements Opcodes {
@@ -28,7 +28,7 @@ public class PsClearParametersMV extends LocalVariablesSorter implements Opcodes
 
 	// /////////////////////////////////////////////////////////////////
 	public PsClearParametersMV(int access, String desc, MethodVisitor mv, String owner) {
-		super(ASM5,access, desc, mv);
+		super(ASM7,access, desc, mv);
 		this.owner = owner;
 	}
 

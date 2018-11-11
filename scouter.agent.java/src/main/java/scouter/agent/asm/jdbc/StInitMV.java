@@ -17,9 +17,9 @@
 package scouter.agent.asm.jdbc;
 
 import scouter.agent.trace.TraceSQL;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 
 public class StInitMV extends LocalVariablesSorter implements Opcodes {
 	
@@ -28,7 +28,7 @@ public class StInitMV extends LocalVariablesSorter implements Opcodes {
 	private final static String SIGNATURE_INIT = "(Ljava/lang/Object;)V";
 
 	public StInitMV(int access, String desc, MethodVisitor mv) {
-		super(ASM5,access, desc, mv);
+		super(ASM7,access, desc, mv);
 	}
 
 	@Override

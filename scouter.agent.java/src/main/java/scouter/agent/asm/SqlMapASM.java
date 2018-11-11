@@ -17,11 +17,11 @@
 
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
@@ -74,7 +74,7 @@ class SqlMapCV extends ClassVisitor implements Opcodes {
 	public String className;
 
 	public SqlMapCV(ClassVisitor cv, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.className = className;
 	}
 
@@ -106,7 +106,7 @@ class SqlMapMV extends LocalVariablesSorter implements Opcodes {
 
 	public SqlMapMV(int access, String desc, MethodVisitor mv, Type[] paramTypes, boolean isStatic, String classname,
 			String methodname, String methoddesc) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.paramTypes = paramTypes;
 		this.isStatic = isStatic;
 		this.methodName = methodname;
