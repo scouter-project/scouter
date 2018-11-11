@@ -20,8 +20,8 @@ import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.IASM;
 import scouter.agent.trace.TraceMain;
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 7. 29.
@@ -51,7 +51,7 @@ class ThreadPoolExecutorCV extends ClassVisitor implements Opcodes {
     String className;
 
     public ThreadPoolExecutorCV(ClassVisitor cv, String className) {
-        super(ASM5, cv);
+        super(ASM7, cv);
         this.className = className;
     }
 
@@ -81,7 +81,7 @@ class ThreadPoolExecutorExecuteMV extends LocalVariablesSorter implements Opcode
     String desc;
 
     public ThreadPoolExecutorExecuteMV(int access, String name, String desc, MethodVisitor mv) {
-        super(ASM5, access, desc, mv);
+        super(ASM7, access, desc, mv);
         this.name = name;
         this.desc = desc;
     }
@@ -99,7 +99,7 @@ class AbstractExecutorServiceCV extends ClassVisitor implements Opcodes {
     String className;
 
     public AbstractExecutorServiceCV(ClassVisitor cv, String className) {
-        super(ASM5, cv);
+        super(ASM7, cv);
         this.className = className;
     }
 
@@ -122,7 +122,7 @@ class AbstraceExecutorServiceSubmitMV extends LocalVariablesSorter implements Op
     String desc;
 
     public AbstraceExecutorServiceSubmitMV(int access, String name, String desc, MethodVisitor mv) {
-        super(ASM5, access, desc, mv);
+        super(ASM7, access, desc, mv);
         this.name = name;
         this.desc = desc;
     }
@@ -145,7 +145,7 @@ class ThreadPoolExecutorGetTaskMV extends LocalVariablesSorter implements Opcode
     String desc;
 
     public ThreadPoolExecutorGetTaskMV(int access, String name, String desc, MethodVisitor mv) {
-        super(ASM5, access, desc, mv);
+        super(ASM7, access, desc, mv);
         this.name = name;
         this.desc = desc;
     }

@@ -18,7 +18,7 @@
 package scouter.agent.asm;
 
 
-import scouter.org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassVisitor;
 import scouter.agent.ClassDesc;
 
 public interface IASM {

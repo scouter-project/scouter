@@ -17,7 +17,11 @@
 
 package scouter.agent.batch;
 
-import scouter.org.objectweb.asm.*;
+import scouter.org.objectweb.asm.AnnotationVisitor;
+import scouter.org.objectweb.asm.ClassReader;
+import scouter.org.objectweb.asm.ClassVisitor;
+import scouter.org.objectweb.asm.ClassWriter;
+import scouter.org.objectweb.asm.Opcodes;
 import scouter.agent.ClassDesc;
 import scouter.agent.ObjTypeDetector;
 import scouter.agent.asm.IASM;

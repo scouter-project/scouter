@@ -61,11 +61,11 @@ import scouter.agent.asm.redis.RedisKeyASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
-import scouter.org.objectweb.asm.AnnotationVisitor;
-import scouter.org.objectweb.asm.ClassReader;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.ClassWriter;
-import scouter.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 import scouter.util.FileUtil;
 import scouter.util.IntSet;
 
@@ -203,7 +203,7 @@ public class AgentTransformer implements ClassFileTransformer {
             ObjTypeDetector.check(className);
             final ClassDesc classDesc = new ClassDesc();
             ClassReader cr = new ClassReader(classfileBuffer);
-            cr.accept(new ClassVisitor(Opcodes.ASM5) {
+            cr.accept(new ClassVisitor(Opcodes.ASM7) {
                 public void visit(int version, int access, String name, String signature, String superName,
                                   String[] interfaces) {
                     classDesc.set(version, access, name, signature, superName, interfaces);

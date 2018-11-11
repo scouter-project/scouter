@@ -16,9 +16,9 @@
  */
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -76,7 +76,7 @@ public class JDBCStatementASM implements IASM, Opcodes {
 class StatementCV extends ClassVisitor implements Opcodes {
 	private String owner;
 	public StatementCV(ClassVisitor cv) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 	}
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {

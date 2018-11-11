@@ -1,10 +1,10 @@
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -33,7 +33,7 @@ class MapImplCV extends ClassVisitor implements Opcodes {
 
     private String className;
     public MapImplCV(ClassVisitor cv, String className) {
-        super(ASM5, cv);
+        super(ASM7, cv);
         this.className = className;
     }
     @Override
@@ -58,7 +58,7 @@ class MapImplMV extends LocalVariablesSorter implements Opcodes {
     private String className;
 
     public MapImplMV(int access, String desc, MethodVisitor mv, String className) {
-        super(ASM5, access, desc, mv);
+        super(ASM7, access, desc, mv);
         this.className = className;
     }
 

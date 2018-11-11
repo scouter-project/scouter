@@ -23,12 +23,12 @@ import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.trace.TraceSQL;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.Pair;
 
 import java.util.ArrayList;
@@ -84,7 +84,7 @@ class DbcOpenCV extends ClassVisitor implements Opcodes {
 	private HookingSet mset;
 
 	public DbcOpenCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -118,7 +118,7 @@ class DbcOpenMV extends LocalVariablesSorter implements Opcodes {
 	private Label startFinally = new Label();
 
 	public DbcOpenMV(int access, String desc, MethodVisitor mv, String fullname, int fullname_hash) {
-		super(Opcodes.ASM5, access, desc, mv);
+		super(Opcodes.ASM7, access, desc, mv);
 		this.fullname = fullname;
 		this.fullname_hash = fullname_hash;
 		this.isStatic = (access & ACC_STATIC) != 0;

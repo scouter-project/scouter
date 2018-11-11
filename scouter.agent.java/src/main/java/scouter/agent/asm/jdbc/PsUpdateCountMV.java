@@ -16,8 +16,8 @@
 
 package scouter.agent.asm.jdbc;
 
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import scouter.agent.trace.TraceSQL;
 
 
@@ -32,7 +32,7 @@ public class PsUpdateCountMV extends MethodVisitor implements Opcodes {
     private static final String SIGNATURE = "(I)I";
 
     public PsUpdateCountMV(MethodVisitor mv) {
-        super(ASM5, mv);
+        super(ASM7, mv);
     }
 
     @Override

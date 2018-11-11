@@ -7,8 +7,8 @@ import scouter.agent.asm.IASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceMain;
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 
 import java.util.HashMap;
 import java.util.Map;

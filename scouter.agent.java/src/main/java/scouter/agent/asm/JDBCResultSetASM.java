@@ -16,9 +16,9 @@
  */
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -116,7 +116,7 @@ class ResultSetCV extends ClassVisitor implements Opcodes {
 	JDBCResultSetASM.Scope scope;
 
 	public ResultSetCV(ClassVisitor cv, JDBCResultSetASM.Scope scope) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.scope = scope;
 	}
 	@Override
