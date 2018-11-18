@@ -23,6 +23,8 @@ import scouter.lang.enumeration.ParameterizedMessageLevel;
 import scouter.util.StringUtil;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * ParamaterizedMessageStep is a class for message step of formatted text.
@@ -36,6 +38,7 @@ public class ParameterizedMessageStep extends StepSingle {
 	private int elapsed = -1;
 	private byte level = 0; //0:debug, 1:info, 2:warn, 3:error
 	private String paramString;
+	private transient Map<String, String> tempMap = new HashMap<String, String>();
 
 	public byte getStepType() {
 		return StepEnum.PARAMETERIZED_MESSAGE;
@@ -86,6 +89,14 @@ public class ParameterizedMessageStep extends StepSingle {
 	public ParameterizedMessageLevel getLevel() {
 		return ParameterizedMessageLevel.of(this.level);
 	}
+
+	public void putTempMessage(String key, String message) {
+	    this.tempMap.put(key, message);
+    }
+
+    public String getTempMessage(String key) {
+	    return this.tempMap.get(key);
+    }
 
 	public void setMessage(int hash, String... params) {
 		this.hash = hash;

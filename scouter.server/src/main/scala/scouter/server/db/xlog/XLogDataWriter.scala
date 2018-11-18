@@ -36,7 +36,7 @@ object XLogDataWriter {
         table.synchronized {
             var writer = table.get(file);
             if (writer != null) {
-                writer.refrence += 1;
+                writer.reference += 1;
             } else {
                 writer = new XLogDataWriter(date, file);
                 table.put(file, writer);
@@ -47,7 +47,7 @@ object XLogDataWriter {
 
 }
 class XLogDataWriter(date: String, file: String) extends IClose {
-    var refrence = 0;
+    var reference = 0;
     val conf = Configure.getInstance()
 
     var gzip = conf.compress_xlog_enabled
@@ -67,8 +67,8 @@ class XLogDataWriter(date: String, file: String) extends IClose {
      if(gzip==false){
          out=new RealDataFile(file + ".service");
      }
-   
-     
+
+
     def write(bytes: Array[Byte]): Long = {
         if (gzip) {
             return GZipStore.getInstance().write(date, bytes);
@@ -84,11 +84,11 @@ class XLogDataWriter(date: String, file: String) extends IClose {
 
     override def close() {
         XLogDataWriter.table.synchronized {
-            if (this.refrence == 0) {
+            if (this.reference == 0) {
                 XLogDataWriter.table.remove(this.file);
                 FileUtil.close(out);
             } else {
-                this.refrence -= 1
+                this.reference -= 1
             }
         }
     }

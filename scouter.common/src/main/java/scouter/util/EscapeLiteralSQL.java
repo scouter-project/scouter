@@ -224,6 +224,7 @@ public class EscapeLiteralSQL {
 				status = STAT.COMMENT;
 			} else {
 				parsedSql.append(chars[pos]);
+				status = STAT.NORMAL;
 			}
 		}
 	}
@@ -316,6 +317,18 @@ public class EscapeLiteralSQL {
 		System.out.println("PARAM: " + ec.param);
 
 		s = "select 1 / 2 from dual";
+		ec = new EscapeLiteralSQL(s).process();
+		System.out.println("SQL Orgin: " + s);
+		System.out.println("SQL Parsed: " + ec.getParsedSql());
+		System.out.println("PARAM: " + ec.param);
+
+		s = "select 1/2 from dual";
+		ec = new EscapeLiteralSQL(s).process();
+		System.out.println("SQL Orgin: " + s);
+		System.out.println("SQL Parsed: " + ec.getParsedSql());
+		System.out.println("PARAM: " + ec.param);
+
+		s = "select 1/2 /* 3/4 3 / 4*/ from dual";
 		ec = new EscapeLiteralSQL(s).process();
 		System.out.println("SQL Orgin: " + s);
 		System.out.println("SQL Parsed: " + ec.getParsedSql());

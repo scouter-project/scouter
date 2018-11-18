@@ -18,9 +18,9 @@ package scouter.agent;
 
 import java.io.File;
 
-import scouter.org.objectweb.asm.ClassReader;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Opcodes;
 import scouter.util.FileUtil;
 import scouter.util.StringKeyLinkedMap;
 import scouter.util.StringUtil;
@@ -51,7 +51,7 @@ public class DirectPatch {
 		try {
 			final ClassDesc classDesc = new ClassDesc();
 			ClassReader cr = new ClassReader(bytes);
-			cr.accept(new ClassVisitor(Opcodes.ASM5) {
+			cr.accept(new ClassVisitor(Opcodes.ASM7) {
 				public void visit(int version, int access, String name, String signature, String superName,
 						String[] interfaces) {
 					classDesc.set(version, access, name, signature, superName, interfaces);

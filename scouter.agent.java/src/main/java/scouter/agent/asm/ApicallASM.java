@@ -16,8 +16,8 @@
  */
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
@@ -105,7 +105,7 @@ class ApicallExtCV extends ClassVisitor implements Opcodes {
     private HookingSet mset;
 
     public ApicallExtCV(ClassVisitor cv, HookingSet mset, String className) {
-        super(ASM5, cv);
+        super(ASM7, cv);
         this.mset = mset;
         this.className = className;
     }
@@ -135,7 +135,7 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 
     public ApicallExtMV(int access, String desc, MethodVisitor mv, Type[] paramTypes, boolean isStatic,
                         String classname, String methodname, String methoddesc) {
-        super(ASM5, access, desc, mv);
+        super(ASM7, access, desc, mv);
         this.paramTypes = paramTypes;
         this.returnType = Type.getReturnType(desc);
         this.isStatic = isStatic;

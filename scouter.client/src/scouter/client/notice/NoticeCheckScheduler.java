@@ -8,7 +8,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.eclipse.ui.PlatformUI;
-
+import scouter.Version;
+import scouter.client.misc.UpdateCheckScheduler;
 import scouter.client.util.ExUtil;
 import scouter.client.util.RCPUtil;
 import scouter.util.DateUtil;
@@ -19,7 +20,10 @@ import scouter.util.ThreadUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public enum NoticeCheckScheduler {
 
@@ -73,6 +77,15 @@ public enum NoticeCheckScheduler {
 		HttpClient httpClient = HttpClientBuilder.create().build();
 		HttpGet httpGet = new HttpGet(NOTICE_URL);
 		httpGet.addHeader("X-SCCH", getClientHash());
+
+		try {
+			final String recommendedVersion = UpdateCheckScheduler.getRecommendedVersion();
+			final String clientVersion = Version.getVersion();
+			httpGet.addHeader("X-SCV", recommendedVersion + "::" + clientVersion);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		HttpResponse response = null;
 		response = httpClient.execute(httpGet);
 		System.out.println("Notice Response Code : "

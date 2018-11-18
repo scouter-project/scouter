@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>2.0.0</version>
+        <version>2.5.0</version>
     </parent>
 
     <artifactId>scouter-server</artifactId>
@@ -42,7 +42,7 @@
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
-            <version>3.18.0-GA</version>
+            <version>3.24.0-GA</version>
         </dependency>
         <dependency>
             <groupId>com.maxmind.geoip</groupId>

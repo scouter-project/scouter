@@ -11,11 +11,14 @@
 오픈소스 APM인 Scouter는 JVM(WAS, Standalone application)을 사용하는 어플리케이션 및 OS 자원에 대한 모니터링 모니터링 기능을 제공한다.
  - **APM** : Application performance montoring / application performance management
  - 모니터링 대상 (전용 agent)
-   - Java application - Web application (on Tomcat, JBoss, Resin ...), Standalone java application
-   - OS - LInux, Windows, Unix
- - 모니터링 대상 (Telegraf agent)
+   - Java Agent : Web application (on Tomcat, JBoss, Resin ...), Standalone java application
+   - Host Agent : Linux, Windows, Unix
+ - 모니터링 대상 (Telegraf support)
    - Redis, nginX, apache httpd, haproxy, Kafka, MySQL, MongoDB, RabbitMQ, ElasticSearch, Kube, Mesos ...
-
+- 모니터링 대상 (Zipkin-Scouter storage)
+  - zipkin instrumentations (C#, Go, Python, Javascript, PHP...)를 XLog 차트를 통해 디스플레이합니다.
+  - see the [zipkin-scouter-storage](https://github.com/scouter-project/zipkin-scouter) documentation.
+  - see the [zipkin instrumentations.](https://zipkin.io/pages/existing_instrumentations.html)  
 
 ![Screen](./scouter.document/img/main/dashboard-sample-1.png)
 
@@ -58,14 +61,11 @@
 - **Web API (Since @1.8.0)** : 성능 카운터, XLog, 프로파일등의 정보를 HTTP 프로토콜을 통해 제공
   - [Web API Guide](./scouter.document/tech/Web-API-Guide_kr.md)
 
-
-### 3rd-party Agents
-- **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-project/scouter-pulse)
-  - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : AWS의 Cloudwatch에서 EC2/RDS/ELB의 성능 카운터 정보를 수집
-
 ### 3rd-party UIs
-- **scouter paper** : [scouter-paper](https://mindplates.github.io/scouter-paper/)
-![scouter-pater](https://mindplates.github.io/scouter-paper/img/img12.png)
+- **scouter paper** : [scouter-paper homepage](https://mindplates.github.io/scouter-paper/)
+  - **showcase** : [scouter paper overview](https://www.youtube.com/watch?v=NjJ0dGhdIbU)  
+[![scouter-pater](https://mindplates.github.io/scouter-paper/img/img12.png)](https://www.youtube.com/watch?v=NjJ0dGhdIbU)
+  
 
 ### Plugins
 - **Server plugin**
@@ -85,6 +85,10 @@
 
 - **Agent plugin**
   - TBD
+
+### 3rd-party Agents
+- **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-project/scouter-pulse)
+  - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : AWS의 Cloudwatch에서 EC2/RDS/ELB의 성능 카운터 정보를 수집
 
 ## Facebook
  - [Scouter APM 사용자 모임 - Facebook 그룹](https://www.facebook.com/groups/scouterapm/)

@@ -23,10 +23,10 @@ import scouter.agent.asm.jdbc.*;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.SqlParameter;
 import scouter.agent.trace.TraceSQL;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.util.HashSet;
 
@@ -103,7 +103,7 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
     private String owner;
 
     public PreparedStatementCV(ClassVisitor cv, HashSet<String> noField) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.noField = noField;
 	}
 

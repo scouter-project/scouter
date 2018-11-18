@@ -511,7 +511,7 @@ public class MenuUtil implements IMenuCreator{
 		String linkName = server.getExtLinkName();
 		String linkUrl = server.getExtLinkUrlPattern();
 
-		String objHashes = AgentModelThread.getInstance().getLiveObjectHashString(serverId, objType);
+		String objHashes = AgentModelThread.getInstance().getLiveObjectHashStringWithParent(serverId, objType);
 		if (StringUtil.isEmpty(objHashes)) {
 			return "";
 		}
@@ -575,9 +575,14 @@ public class MenuUtil implements IMenuCreator{
 			mgr.add(new OpenUniqueTotalVisitorAction(win, serverId, objType));
 			mgr.add(new OpenTypeSummaryAction(win, serverId, objType));
 			mgr.add(new OpenRTPairAllAction(win, "File Descriptor", serverId, objType, CounterConstants.JAVA_FD_USAGE));
+
 		} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_DATASOURCE)) {
 			mgr.add(new Separator());
 			mgr.add(new OpenRTPairAllAction2(win, "Pool Chart", serverId, objType, CounterConstants.DATASOURCE_CONN_MAX, CounterConstants.DATASOURCE_CONN_ACTIVE));
+
+		} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_TRACING)) {
+			mgr.add(new Separator());
+			mgr.add(new OpenXLogRealTimeAction(win, MenuStr.XLOG, objType, Images.star, serverId));
 		}
 	}
 	

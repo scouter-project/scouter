@@ -1,9 +1,9 @@
 package scouter.agent.asm.asyncsupport.spring;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.IASM;
@@ -57,7 +57,7 @@ class SpringAsyncExecutionCV extends ClassVisitor implements Opcodes {
 	HookingSet mset;
 
 	public SpringAsyncExecutionCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -88,7 +88,7 @@ class SubmitMV extends LocalVariablesSorter implements Opcodes {
 	String desc;
 
 	public SubmitMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 	}
@@ -111,7 +111,7 @@ class DetermineMV extends LocalVariablesSorter implements Opcodes {
 	String desc;
 
 	public DetermineMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 	}

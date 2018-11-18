@@ -16,17 +16,23 @@
  */
 package scouter.agent.asm.asyncsupport;
 
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.IASM;
 import scouter.agent.trace.TraceMain;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.StringUtil;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 2. 21.
@@ -34,14 +40,29 @@ import java.util.List;
 public class CallRunnableASM implements IASM, Opcodes {
 
 	private Configure conf = Configure.getInstance();
-	private static final String CALLABLE = "java/util/concurrent/Callable";
-	private static final String RUNNABLE = "java/lang/Runnable";
+//	private static final String CALLABLE = "java/util/concurrent/Callable";
+//	private static final String RUNNABLE = "java/lang/Runnable";
+//	private static final String MONO_CALLABLE = ("reactor/core/publisher/MonoCallable");
+//	private static final String MONO_RUNNABLE = ("reactor/core/publisher/MonoRunnable");
+
+	private static final Set<String> callRunnableMap = new HashSet<String>();
+	static {
+		callRunnableMap.add("java/util/concurrent/Callable");
+		callRunnableMap.add("java/lang/Runnable");
+		callRunnableMap.add("reactor/core/publisher/MonoCallable");
+		callRunnableMap.add("reactor/core/publisher/MonoRunnable");
+		callRunnableMap.add("reactor/core/publisher/MonoSupplier");
+		callRunnableMap.add("reactor/core/publisher/FluxCallable");
+	}
+
 	private static List<String> scanScopePrefix = new ArrayList<String>();
 
 
 	public CallRunnableASM() {
 		if(conf.hook_spring_async_enabled) {
 			scanScopePrefix.add("org/springframework/aop/interceptor/AsyncExecutionInterceptor");
+			scanScopePrefix.add("reactor/core/publisher/Mono");
+			scanScopePrefix.add("reactor/core/publisher/Flux");
 		}
 		if(conf.hook_async_callrunnable_enabled) {
 			String[] prefixes = StringUtil.split(conf.hook_async_callrunnable_scan_package_prefixes, ',');
@@ -56,7 +77,7 @@ public class CallRunnableASM implements IASM, Opcodes {
 		String[] interfaces = classDesc.interfaces;
 
 		for (int inx = 0; inx < interfaces.length; inx++) {
-			if (CALLABLE.equals(interfaces[inx]) || RUNNABLE.equals(interfaces[inx])) {
+			if (callRunnableMap.contains(interfaces[inx])) {
 				for (int jnx = 0; jnx < scanScopePrefix.size(); jnx++) {
 					if(className.indexOf(scanScopePrefix.get(jnx)) == 0) {
 						return new CallRunnableCV(cv, className);
@@ -73,7 +94,7 @@ class CallRunnableCV extends ClassVisitor implements Opcodes {
 	String className;
 
 	public CallRunnableCV(ClassVisitor cv, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.className = className;
 	}
 
@@ -115,7 +136,7 @@ class CallOrRunMV extends LocalVariablesSorter implements Opcodes {
 	private int statIdx;
 
 	public CallOrRunMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 		this.returnType = Type.getReturnType(desc);
@@ -196,7 +217,7 @@ class InitMV extends LocalVariablesSorter implements Opcodes {
 	String desc;
 
 	public InitMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 	}

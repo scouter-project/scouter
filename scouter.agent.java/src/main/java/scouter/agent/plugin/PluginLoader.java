@@ -22,7 +22,7 @@ import scouter.agent.Logger;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.HookReturn;
 import scouter.agent.trace.TraceSQL;
-import scouter.javassist.*;
+import javassist.*;
 import scouter.lang.pack.PerfCounterPack;
 import scouter.util.FileUtil;
 import scouter.util.Hexa32;

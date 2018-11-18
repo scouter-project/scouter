@@ -36,6 +36,8 @@ import scouter.agent.plugin.PluginHttpServiceTrace;
 import scouter.agent.plugin.PluginSpringControllerCaptureTrace;
 import scouter.agent.proxy.HttpTraceFactory;
 import scouter.agent.proxy.IHttpTrace;
+import scouter.agent.proxy.IKafkaTracer;
+import scouter.agent.proxy.KafkaTraceFactory;
 import scouter.agent.summary.ServiceSummary;
 import scouter.agent.trace.enums.XLogDiscard;
 import scouter.agent.wrapper.async.WrTask;
@@ -235,7 +237,6 @@ public class TraceMain {
         ctx.txid = KeyGen.next();
         ctx.startTime = System.currentTimeMillis();
         ctx.startCpu = SysJMX.getCurrentThreadCPU();
-        ctx.threadId = TraceContextManager.start(ctx.thread, ctx);
         ctx.bytes = SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled);
         ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
 
@@ -243,10 +244,10 @@ public class TraceMain {
         step.time = -1;
         ctx.threadName = ctx.thread.getName();
         step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.threadName);
-
         ctx.profile.add(step);
 
         http.start(ctx, req, res);
+
         if (ctx.isFullyDiscardService) {
             return null;
         }
@@ -1611,6 +1612,110 @@ public class TraceMain {
                 meterInteraction.add(elapsed, thr != null);
             }
         }
+    }
+
+    static IKafkaTracer kafkaTracer;
+    private static String KAFKA_COMMAND_MSG = "[KAFKA] bootstrap : %s, topic : %s";
+    private static String KAFKA_COMMAND_ERROR_MSG = "[KAFKA][ERROR] bootstrap : %s, topic : %s [Exception:%s] %s";
+
+    public static Object startKafkaProducer(Object producerConfig, String topic) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null) {
+            return null;
+        }
+
+        if (kafkaTracer == null) {
+            kafkaTracer = KafkaTraceFactory.create(producerConfig.getClass().getClassLoader());
+        }
+
+        String bootstrapServer = kafkaTracer.getBootstrapServer(producerConfig);
+
+        ParameterizedMessageStep step = new ParameterizedMessageStep();
+        step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        step.putTempMessage("bootstrap", bootstrapServer);
+        step.putTempMessage("topic", topic);
+        ctx.profile.push(step);
+        return new LocalContext(ctx, step);
+    }
+
+    public static void endKafkaProducer(Object localContext, Throwable thr) {
+        if (localContext == null)
+            return;
+        LocalContext lctx = (LocalContext) localContext;
+        ParameterizedMessageStep step = (ParameterizedMessageStep) lctx.stepSingle;
+        if (step == null) return;
+
+        TraceContext tctx = lctx.context;
+        if (tctx == null) return;
+
+        int elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
+        step.setElapsed(elapsed);
+
+        String bootstrapServer = step.getTempMessage("bootstrap");
+        String topic = step.getTempMessage("topic");
+
+        if (StringUtil.isEmpty(bootstrapServer)) bootstrapServer = "-";
+        if (StringUtil.isEmpty(topic)) topic = "-";
+
+        if (thr == null) {
+            step.setMessage(DataProxy.sendHashedMessage(KAFKA_COMMAND_MSG), bootstrapServer, topic);
+            step.setLevel(ParameterizedMessageLevel.INFO);
+        } else {
+            String msg = thr.toString();
+            step.setMessage(DataProxy.sendHashedMessage(KAFKA_COMMAND_ERROR_MSG), bootstrapServer, topic, thr.getClass().getName(), msg);
+            step.setLevel(ParameterizedMessageLevel.ERROR);
+        }
+
+        tctx.profile.pop(step);
+
+    }
+
+    private static String RABBIT_COMMAND_MSG = "[RABBIT] exchange : %s, routing key : %s";
+    private static String RABBIT_COMMAND_ERROR_MSG = "[RABBIT][ERROR] exchange : %s, routing key : %s [Exception:%s] %s";
+
+    public static Object startRabbitPublish(String exchange, String routingKey) {
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null) {
+            return null;
+        }
+
+        ParameterizedMessageStep step = new ParameterizedMessageStep();
+        step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        step.putTempMessage("exchange", exchange);
+        step.putTempMessage("routingKey", routingKey);
+        ctx.profile.push(step);
+        return new LocalContext(ctx, step);
+    }
+
+    public static void endRabbitPublish(Object localContext, Throwable thr) {
+        if (localContext == null)
+            return;
+        LocalContext lctx = (LocalContext) localContext;
+        ParameterizedMessageStep step = (ParameterizedMessageStep) lctx.stepSingle;
+        if (step == null) return;
+
+        TraceContext tctx = lctx.context;
+        if (tctx == null) return;
+
+        int elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
+        step.setElapsed(elapsed);
+
+        String exchange = step.getTempMessage("exchange");
+        String routingKey = step.getTempMessage("routingKey");
+
+        if (StringUtil.isEmpty(exchange)) exchange = "-";
+        if (StringUtil.isEmpty(routingKey)) routingKey = "-";
+
+        if (thr == null) {
+            step.setMessage(DataProxy.sendHashedMessage(RABBIT_COMMAND_MSG), exchange, routingKey);
+            step.setLevel(ParameterizedMessageLevel.INFO);
+        } else {
+            String msg = thr.toString();
+            step.setMessage(DataProxy.sendHashedMessage(RABBIT_COMMAND_ERROR_MSG), exchange, routingKey, thr.getClass().getName(), msg);
+            step.setLevel(ParameterizedMessageLevel.ERROR);
+        }
+
+        tctx.profile.pop(step);
     }
 
 }

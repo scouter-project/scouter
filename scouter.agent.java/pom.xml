@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>2.0.0</version>
+        <version>2.5.0</version>
     </parent>
 
     <artifactId>scouter-agent-java</artifactId>
@@ -20,6 +20,7 @@
         <scouter.jdbc.jar>scouter.jdbc.jar</scouter.jdbc.jar>
         <scouter.httpclient.jar>scouter.httpclient.jar</scouter.httpclient.jar>
         <scouter.tools.jar>scouter.tools.jar</scouter.tools.jar>
+        <scouter.kafka.jar>scouter.kafka.jar</scouter.kafka.jar>
 
         <provided.tools.jar>${project.basedir}/lib/provided/tools.jar</provided.tools.jar>
         <final.jar.name>${project.build.directory}/${project.build.finalName}.jar</final.jar.name>
@@ -36,6 +37,21 @@
             <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+            <version>7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.23.1-GA</version>
         </dependency>
 
         <!-- local lib -->
@@ -86,13 +102,19 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>4.3.7.RELEASE</version>
+            <version>4.3.18.RELEASE</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>4.3.7.RELEASE</version>
+            <version>4.3.18.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>0.10.1.0</version>
             <scope>provided</scope>
         </dependency>
         <!-- test -->
@@ -150,7 +172,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -170,6 +192,16 @@
                                     </excludes>
                                 </filter>
                             </filters>
+                            <relocations>
+                                <relocation>
+                                    <pattern>javassist</pattern>
+                                    <shadedPattern>scouter.javassist</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.objectweb.asm</pattern>
+                                    <shadedPattern>scouter.org.objectweb.asm</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
@@ -204,6 +236,11 @@
                                         <include name="scouter/xtra/tools/*.class" />
                                     </fileset>
                                 </jar>
+                                <jar destfile="${project.build.directory}/${scouter.kafka.jar}">
+                                    <fileset dir="${project.build.outputDirectory}">
+                                        <include name="scouter/xtra/kafka/*.class" />
+                                    </fileset>
+                                </jar>
                             </target>
                         </configuration>
                         <goals>
@@ -224,6 +261,7 @@
                                         <include name="${scouter.jdbc.jar}" />
                                         <include name="${scouter.httpclient.jar}" />
                                         <include name="${scouter.tools.jar}" />
+                                        <include name="${scouter.kafka.jar}" />
                                     </fileset>
                                     <zipfileset src="${final.jar.name}" />
 
@@ -242,6 +280,7 @@
                                 <delete file="${project.build.directory}/${scouter.jdbc.jar}" />
                                 <delete file="${project.build.directory}/${scouter.httpclient.jar}" />
                                 <delete file="${project.build.directory}/${scouter.tools.jar}" />
+                                <delete file="${project.build.directory}/${scouter.kafka.jar}" />
 
                                 <!-- for constant name file -->
                                 <jar destfile="${project.build.directory}/${scouter.agent.file.name}">

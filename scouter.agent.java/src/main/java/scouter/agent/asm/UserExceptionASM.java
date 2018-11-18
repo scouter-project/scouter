@@ -17,9 +17,9 @@
 
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
@@ -58,7 +58,7 @@ class UserExceptionCV extends ClassVisitor implements Opcodes {
 	private String className;
 
 	public UserExceptionCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -83,7 +83,7 @@ class UserExceptionConsturtorMV extends MethodVisitor implements Opcodes {
 	private String methodDesc;
 
 	public UserExceptionConsturtorMV(String classname, String methoddesc, MethodVisitor mv) {
-		super(ASM5, mv);
+		super(ASM7, mv);
 		this.className = classname;
 		this.methodDesc = methoddesc;
 	}
