@@ -39,11 +39,12 @@ public class SpanStep extends CommonSpanStep {
 		return this;
 	}
 
-	public static SpanStep fromPack(SpanPack pack, int index) {
+	public static SpanStep fromPack(SpanPack pack, int index, long initialTime) {
 		SpanStep step = new SpanStep();
 		step.spanPack = pack;
 
 		step.index = index;
+		step.start_time = (int) (pack.timestamp - initialTime);
 		step.tags = pack.tags;
 		step.elapsed = pack.elapsed;
 		step.error = pack.error;
@@ -61,5 +62,10 @@ public class SpanStep extends CommonSpanStep {
 		step.annotationTimestamps = pack.annotationTimestamps;
 		step.annotationValues = pack.annotationValues;
 		return step;
+	}
+
+	@Override
+	public String toString() {
+		return "SpanStep{}=" + super.toString();
 	}
 }

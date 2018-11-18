@@ -60,11 +60,12 @@ public class SpanCallStep extends CommonSpanStep {
 		return this;
 	}
 
-	public static SpanCallStep fromPack(SpanPack pack, int index) {
+	public static SpanCallStep fromPack(SpanPack pack, int index, long initialTime) {
 		SpanCallStep step = new SpanCallStep();
 		step.spanPack = pack;
 
 		step.index = index;
+		step.start_time = (int) (pack.timestamp - initialTime);
 		step.tags = pack.tags;
 		step.elapsed = pack.elapsed;
 		step.error = pack.error;

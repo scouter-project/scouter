@@ -59,6 +59,11 @@ public class SpanTypes {
 		return type == Type.CLIENT || type == Type.PRODUCER;
 	}
 
+	public static boolean isBoundary(byte typeByte) { // CLIENT, SERVER Share there ID.
+		SpanTypes.Type type = Type.of(typeByte);
+		return type == Type.SERVER || type == Type.CONSUMER || type == Type.CLIENT || type == Type.PRODUCER;
+	}
+
 	public static boolean isParentXLoggable(byte typeByte) { // CLIENT, SERVER Share there ID.
 		SpanTypes.Type type = Type.of(typeByte);
 		return type == Type.SERVER || type == Type.CONSUMER || type == Type.CLIENT || type == Type.PRODUCER;

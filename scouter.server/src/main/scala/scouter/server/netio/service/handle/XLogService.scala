@@ -22,7 +22,7 @@ import scouter.io.{DataInputX, DataOutputX}
 import scouter.lang.TextTypes
 import scouter.lang.constants.ParamConstant
 import scouter.lang.pack._
-import scouter.lang.step.Step
+import scouter.lang.step.{Step, StepSingle}
 import scouter.lang.value._
 import scouter.net.{RequestCmd, TcpFlag}
 import scouter.server.Configure
@@ -34,6 +34,7 @@ import scouter.server.util.EnumerScala
 import scouter.util._
 
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 class XLogService {
 
@@ -97,15 +98,15 @@ class XLogService {
     }
 
     private def processGetSpansAsProfile(dout: DataOutputX, date: String, gxid: Long, txid: Long): Unit = {
-        val (stepList, mySpanPck) = getStepsFromSpans(date, gxid, txid)
+        val (stepList, mySpanPack) = getStepsFromSpans(date, gxid, txid)
 
         import collection.JavaConverters._
         val profilePack = new XLogProfilePack
         profilePack.txid = txid
-        profilePack.objHash = mySpanPck.objHash
-        profilePack.profile = Step.toBytes(stepList.asJava)
-        profilePack.service = mySpanPck.name
-        profilePack.elapsed = mySpanPck.elapsed
+        profilePack.objHash = mySpanPack.objHash
+        profilePack.profile = Step.toBytes(stepList.map(_.asInstanceOf[Step]).asJava)
+        profilePack.service = mySpanPack.name
+        profilePack.elapsed = mySpanPack.elapsed
 
         dout.writeByte(TcpFlag.HasNEXT)
         dout.writePack(profilePack)
@@ -116,10 +117,10 @@ class XLogService {
 
         import collection.JavaConverters._
         dout.writeByte(TcpFlag.HasNEXT)
-        dout.writeBlob(Step.toBytes(stepList.asJava))
+        dout.writeBlob(Step.toBytes(stepList.map(_.asInstanceOf[Step]).asJava))
     }
 
-    private def getStepsFromSpans(date: String, gxid: Long, txid: Long): (List[Step], SpanPack) = {
+    private def getStepsFromSpans(date: String, gxid: Long, txid: Long): (ListBuffer[StepSingle], SpanPack) = {
         import collection.JavaConverters._
         val spanBuffer = new mutable.ListBuffer[SpanPack]
         val spanContainerPackList = ZipkinSpanRD.getByGxid(date, gxid)
@@ -129,7 +130,7 @@ class XLogService {
             spanBuffer ++= SpanPack.toObjectList(container.spans).asScala
         })
 
-        SpanStepBuilder.toSteps(gxid, txid, spanBuffer.toList)
+        SpanStepBuilder.toSteps(gxid, txid, spanBuffer)
     }
 
     private def getSpansMap(date: String, gxid: Long): Map[Long, SpanPack] = {

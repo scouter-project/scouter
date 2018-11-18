@@ -22,40 +22,95 @@ import scouter.lang.TextTypes
 import scouter.lang.pack.{SpanPack, SpanTypes}
 import scouter.lang.step._
 import scouter.server.db.TextRD
+import scouter.server.{Configure, Logger}
+import scouter.util.{Hexa32, IPUtil}
 
-import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 object SpanStepBuilder {
+    val conf = Configure.getInstance()
 
-    def toSteps(gxid: Long, txid: Long, packList: List[SpanPack]): (List[Step], SpanPack) = {
+    case class SpanRelation(pack: SpanPack) {
+        object SpanRelationOrdering extends Ordering[SpanRelation] {
+            def compare(element1: SpanRelation, element2: SpanRelation): Int = {
+                if (element1.pack.timestamp < element2.pack.timestamp) -1
+                else if (element1.pack.timestamp == element2.pack.timestamp) 0
+                else 1
+            }
+        }
+        val children: mutable.TreeSet[SpanRelation] = mutable.TreeSet()(SpanRelationOrdering)
+    }
+
+    def toSteps(gxid: Long, txid: Long, packList: ListBuffer[SpanPack]): (ListBuffer[StepSingle], SpanPack) = {
         var txidSpanPack: SpanPack = null
-        val parentMap = mutable.Map[Long, Long]()
-        val levelMap = mutable.Map[Long, Int]()
-
+        val spanRelationMap = mutable.Map[Long, SpanRelation]()
+        val xLoggableSpanRelationMap = mutable.Map[Long, SpanRelation]()
         packList.foreach(pack => {
-            parentMap.put(pack.txid, pack.caller)
-            if(pack.txid == txid) {
+            if (pack.txid == txid) {
                 txidSpanPack = pack
+            }
+            if (SpanTypes.isXLoggable(pack.spanType)) {
+                xLoggableSpanRelationMap.put(pack.txid, SpanRelation(pack))
+            } else {
+                spanRelationMap.put(pack.txid, SpanRelation(pack))
             }
         })
 
-        val stepList = packList.sortBy(_.timestamp).zipWithIndex.map {
-            case (span, index) => spanToStep(span, index)
-        }
+        packList.foreach(pack => {
+            if (pack.caller != 0 && spanRelationMap.contains(pack.caller)) {
+                spanRelationMap(pack.caller).children += spanRelationMap(pack.txid)
+            }
 
-        val (filteredList, mapByTxid) = filter4Txid(stepList, txid)
-        filteredList.foreach(step => {
-            step.parent = getParentIndex(step, mapByTxid)
-            //step.caller = getValidCaller(step, mapByTxid)
+            if (pack.caller != 0 && xLoggableSpanRelationMap.contains(pack.caller)) {
+                xLoggableSpanRelationMap(pack.caller).children += spanRelationMap(pack.txid)
+            }
         })
 
-        (filteredList, txidSpanPack)
+        val arrangedPackList = establishSpanPackHierarchy(txid, xLoggableSpanRelationMap(txid))
+
+        if (arrangedPackList.isEmpty) {
+            return (null, null)
+        }
+
+        val initialTime = arrangedPackList(0).timestamp
+        val stepList = arrangedPackList.zipWithIndex.map {
+            case (span, index) => spanToStep(span, index, initialTime)
+        }
+
+        if (conf._trace) {
+            Logger.println(s"=========== all span pack [$txid] =============")
+            packList.foreach(pack => Logger.println(s"[all span pack][$txid] : $pack"))
+
+            Logger.println(s"=========== span steps to profile [$txid] =============")
+            stepList.foreach(s => Logger.println(s"[span steps to profile][$txid] : " +
+                    spanStepDebugString(s.asInstanceOf[CommonSpanStep])))
+        }
+
+        val txidStepMap = stepList.map(step => (step.spanPack.txid, step)).toMap
+        stepList.foreach(step => {
+            step.parent = getParentIndex(step, txidStepMap)
+        })
+
+        (stepList, xLoggableSpanRelationMap(txid).pack)
+    }
+
+
+    private def establishSpanPackHierarchy(startTxid: Long, spanRelation: SpanRelation): ListBuffer[SpanPack] = {
+        val spanPacks = mutable.ListBuffer[SpanPack]()
+        val isInitial = startTxid == spanRelation.pack.txid
+        var profileEnd = !isInitial && SpanTypes.isBoundary(spanRelation.pack.spanType)
+        spanPacks += spanRelation.pack
+        if (!profileEnd) {
+            for (childSpanRelation <- spanRelation.children) {
+                spanPacks ++= establishSpanPackHierarchy(startTxid, childSpanRelation)
+            }
+        }
+        spanPacks
     }
 
     private def getParentIndex(step: StepSingle, mapByTxid: Map[Long, StepSingle]): Int = {
-        if(mapByTxid.contains(step.spanPack.caller)) {
+        if (mapByTxid.contains(step.spanPack.caller)) {
             val parentStep = mapByTxid(step.spanPack.caller)
             parentStep.index
         } else {
@@ -63,77 +118,68 @@ object SpanStepBuilder {
         }
     }
 
-    @tailrec
-    private def getValidCaller(step: StepSingle, mapByTxid: Map[Long, StepSingle]): Long = {
-        if(mapByTxid.contains(step.spanPack.caller)) {
-            val parentStep = mapByTxid(step.spanPack.caller)
-            if(SpanTypes.isXLoggable(parentStep.spanPack.spanType)) {
-                step.spanPack.caller
-            } else {
-                getValidCaller(parentStep, mapByTxid)
-            }
-        } else {
-            0
-        }
-    }
-
-    private def filter4Txid(stepList: List[StepSingle], txid: Long): (List[StepSingle], Map[Long, StepSingle]) = {
-        val adjustList = ListBuffer[StepSingle]()
-        val filteredMapByTxid = mutable.Map[Long, StepSingle]()
-        val ignoreIds = mutable.Set[Long]()
-        val validParentIds = mutable.Set[Long]()
-
-        var txStartTime = 0L
-        var txIndex = 0
-
-        stepList.foreach(step => {
-            if (txStartTime == 0) {
-                if (step.spanPack.txid == txid && SpanTypes.isXLoggable(step.spanPack.spanType)) {
-                    txStartTime = step.spanPack.timestamp
-                    txIndex = step.index
-                    step.start_time = 0
-                    step.index = 0
-                    adjustList += step
-                    filteredMapByTxid.put(step.spanPack.txid, step)
-                    validParentIds.add(step.spanPack.txid)
-                }
-            } else {
-                if (step.spanPack.txid != txid &&
-                        (SpanTypes.isXLoggable(step.spanPack.spanType) || ignoreIds.contains(step.spanPack.caller))) {
-
-                    ignoreIds.add(step.spanPack.txid)
-
-                } else if (validParentIds.contains(step.spanPack.caller)) {
-                    validParentIds.add(step.spanPack.txid)
-                    step.start_time = (step.spanPack.timestamp - txStartTime).toInt
-                    step.index = step.index - txIndex
-                    adjustList += step
-                    filteredMapByTxid.put(step.spanPack.txid, step)
-                }
-            }
-        })
-
-        (adjustList.toList, filteredMapByTxid.toMap)
-    }
-
-    private def spanToStep(span: SpanPack, index: Int): StepSingle = {
+    private def spanToStep(span: SpanPack, index: Int, initialTime: Long): StepSingle = {
         span match {
             case s if SpanTypes.isXLoggable(s.spanType) => {
-                val step = SpanStep.fromPack(span, index)
-                step.nameDebug = TextRD.getString("20181103", TextTypes.SERVICE, s.name)
+                val step = SpanStep.fromPack(span, index, initialTime)
+                step.nameDebug = TextRD.getString("00000000", TextTypes.SERVICE, s.name)
                 step
             }
             case s if SpanTypes.isApiable(s.spanType) => {
-                val step = SpanCallStep.fromPack(span, index)
-                step.nameDebug = TextRD.getString("20181103", TextTypes.SERVICE, s.name)
+                val step = SpanCallStep.fromPack(span, index, initialTime)
+                step.nameDebug = TextRD.getString("00000000", TextTypes.SERVICE, s.name)
                 step
             }
             case s => {
-                val step = SpanStep.fromPack(span, index)
-                step.nameDebug = TextRD.getString("20181103", TextTypes.SERVICE, s.name)
+                val step = SpanStep.fromPack(span, index, initialTime)
+                step.nameDebug = TextRD.getString("00000000", TextTypes.SERVICE, s.name)
                 step
             }
         }
+    }
+
+    def spanStepDebugString(step: CommonSpanStep): String = {
+        val stepString =
+            s"""SpanStep{nameDebug='${step.nameDebug}'
+            , hash=${TextRD.getString("00000000", TextTypes.SERVICE, step.hash)}
+            , hash=${step.hash}
+            , parent=${step.parent}
+            , index=${step.index}
+            , start_time=${step.start_time}
+            , elapsed=${step.elapsed}
+            , error=${step.error}
+            , timestamp=${step.timestamp}
+            , spanType=${step.spanType}
+            , localEndpointServiceName=${TextRD.getString("00000000", TextTypes.OBJECT, step.localEndpointServiceName)}
+            , localEndpointIp=${IPUtil.toString(step.localEndpointIp)}
+            , localEndpointPort=${step.localEndpointPort}
+            , remoteEndpointServiceName=${TextRD.getString("00000000", TextTypes.OBJECT, step.remoteEndpointServiceName)}
+            , remoteEndpointIp=${IPUtil.toString(step.remoteEndpointIp)}
+            , remoteEndpointPort=${step.remoteEndpointPort}
+            , debug=${step.debug}
+            , shared=${step.shared}
+            , annotationTimestamps=${step.annotationTimestamps}
+            , annotationValues=${step.annotationValues}
+            , tags=${step.tags}
+           }""".split("\n")
+                    .filter(_.nonEmpty)
+                    .map(_.trim)
+                    .mkString("", "", "")
+
+        val span = step.spanPack
+        val spanString = if (span == null) "" else
+            s"""
+            SpanPack{gxid=${span.gxid}-${Hexa32.toString32(span.gxid)},
+            , txid=${span.txid}-${Hexa32.toString32(span.txid)},
+            , caller=${span.caller}-${Hexa32.toString32(span.caller)},
+            , name=${TextRD.getString("00000000", TextTypes.SERVICE, span.name)}
+            , objHash=${span.objHash}
+            }'""".split("\n")
+                    .filter(_.nonEmpty)
+                    .map(_.trim)
+                    .mkString("", "", "")
+
+        s"$stepString, span=$spanString"
     }
 }
 

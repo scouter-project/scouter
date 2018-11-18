@@ -22,8 +22,7 @@ import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
-import scouter.util.DateUtil;
-import scouter.util.Hexa32;
+import scouter.util.IPUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,18 +63,30 @@ public class SpanPack implements Pack {
 		return PackEnum.SPAN;
 	}
 
+	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SpanPack ");
-		sb.append(DateUtil.timestamp(timestamp));
-		sb.append(" name=").append(Hexa32.toString32(name));
-		sb.append(" error=").append(Hexa32.toString32(error));
-		sb.append(" gxid=").append(Hexa32.toString32(gxid));
-		sb.append(" txid=").append(Hexa32.toString32(txid));
-		sb.append(" caller=").append(Hexa32.toString32(caller));
-		sb.append(" spanType=").append(spanType);
-		sb.append(" elapsed=").append(elapsed);
-		return sb.toString();
+		return "SpanPack{" +
+				"gxid=" + gxid +
+				", txid=" + txid +
+				", caller=" + caller +
+				", timestamp=" + timestamp +
+				", elapsed=" + elapsed +
+				", spanType=" + spanType +
+				", name=" + name +
+				", objHash=" + objHash +
+				", error=" + error +
+				", localEndpointServiceName=" + localEndpointServiceName +
+				", localEndpointIp=" + IPUtil.toString(localEndpointIp) +
+				", localEndpointPort=" + localEndpointPort +
+				", remoteEndpointServiceName=" + remoteEndpointServiceName +
+				", remoteEndpointIp=" + IPUtil.toString(remoteEndpointIp) +
+				", remoteEndpointPort=" + remoteEndpointPort +
+				", debug=" + debug +
+				", shared=" + shared +
+				", annotationTimestamps=" + annotationTimestamps +
+				", annotationValues=" + annotationValues +
+				", tags=" + tags +
+				'}';
 	}
 
 	public void write(DataOutputX dout) throws IOException {

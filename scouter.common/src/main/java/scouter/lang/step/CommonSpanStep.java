@@ -22,6 +22,8 @@ import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
+import scouter.util.DateUtil;
+import scouter.util.IPUtil;
 
 import java.io.IOException;
 
@@ -231,5 +233,32 @@ public class CommonSpanStep extends StepSingle {
 
 	public void setTags(MapValue tags) {
 		this.tags = tags;
+	}
+
+	@Override
+	public String toString() {
+		return "CommonSpanStep{" +
+				"nameDebug='" + nameDebug + '\'' +
+				", hash=" + hash +
+				", parent=" + parent +
+				", index=" + index +
+				", start_time=" + start_time +
+				", elapsed=" + elapsed +
+				", error=" + error +
+				", timestamp=" + timestamp +
+				", timestampDt=" + DateUtil.timestamp(timestamp / 1000) +
+				", spanType=" + spanType +
+				", localEndpointServiceName=" + localEndpointServiceName +
+				", localEndpointIp=" + IPUtil.toString(localEndpointIp) +
+				", localEndpointPort=" + localEndpointPort +
+				", remoteEndpointServiceName=" + remoteEndpointServiceName +
+				", remoteEndpointIp=" + IPUtil.toString(remoteEndpointIp) +
+				", remoteEndpointPort=" + remoteEndpointPort +
+				", debug=" + debug +
+				", shared=" + shared +
+				", annotationTimestamps=" + annotationTimestamps +
+				", annotationValues=" + annotationValues +
+				", tags=" + tags +
+				"}";
 	}
 }
