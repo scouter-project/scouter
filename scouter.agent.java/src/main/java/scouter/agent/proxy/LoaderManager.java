@@ -76,6 +76,10 @@ public class LoaderManager {
 		return createLoader(parent, "scouter.httpclient");
 	}
 
+	public static ClassLoader getKafkaClient(ClassLoader parent) {
+		return createLoader(parent, "scouter.kafka");
+	}
+
 	private synchronized static ClassLoader createLoader(ClassLoader parent, String key) {
 
 		int hashKey = (parent == null ? 0 : System.identityHashCode(parent));

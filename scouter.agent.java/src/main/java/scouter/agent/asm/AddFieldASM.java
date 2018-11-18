@@ -16,10 +16,10 @@
  */
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.FieldVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -46,7 +46,7 @@ class AddFieldCV extends ClassVisitor implements Opcodes {
 	private String field;
 	private String className;
 	public AddFieldCV(ClassVisitor cv, String className, String field) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.field = field;
 		this.className = className;
 	}

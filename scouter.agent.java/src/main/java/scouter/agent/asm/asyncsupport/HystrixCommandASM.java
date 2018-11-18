@@ -22,12 +22,12 @@ import scouter.agent.asm.IASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceMain;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,13 +42,13 @@ public class HystrixCommandASM implements IASM, Opcodes {
 	private List<HookingSet> receiveTarget = HookingSet.getHookingMethodSet("");
 	private Map<String, HookingSet> prepareReserved = new HashMap<String, HookingSet>();
 	private Map<String, HookingSet> receiveReserved = new HashMap<String, HookingSet>();
+	private Map<String, HookingSet> receiveReservedSuperType = new HashMap<String, HookingSet>();
 
 	public HystrixCommandASM() {
-		if(true) {
+		if (conf.hook_hystrix_enabled) {
 			AsmUtil.add(prepareReserved, "com/netflix/hystrix/HystrixCommand", "execute()Ljava/lang/Object;");
-		}
-		if(true) {
 			AsmUtil.add(receiveReserved, "com/netflix/hystrix/contrib/javanica/command/GenericCommand", "run()Ljava/lang/Object;");
+			AsmUtil.add(receiveReservedSuperType, "com/netflix/hystrix/HystrixCommand", "run()Ljava/lang/Object;");
 		}
 	}
 
@@ -61,6 +61,10 @@ public class HystrixCommandASM implements IASM, Opcodes {
 		if (mset != null){
 			return new HystrixCommandReceiveCV(cv, mset, className);
 		}
+		mset = receiveReservedSuperType.get(classDesc.superName);
+		if (mset != null){
+			return new HystrixCommandReceiveCV(cv, mset, className);
+		}
 		return cv;
 	}
 }
@@ -70,7 +74,7 @@ class HystrixCommandPrepareCV extends ClassVisitor implements Opcodes {
 	private HookingSet mset;
 
 	public HystrixCommandPrepareCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -93,7 +97,7 @@ class HystrixCommandReceiveCV extends ClassVisitor implements Opcodes {
 	private HookingSet mset;
 
 	public HystrixCommandReceiveCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -130,7 +134,7 @@ class HystrixCommandReceiveMV extends LocalVariablesSorter implements Opcodes {
 	private int statIdx;
 
 	public HystrixCommandReceiveMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 		this.returnType = Type.getReturnType(desc);
@@ -211,7 +215,7 @@ class HystrixCommandPrepareMV extends LocalVariablesSorter implements Opcodes {
 	String desc;
 
 	public HystrixCommandPrepareMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 	}

@@ -6,6 +6,7 @@ public class XLogTypes {
 	public final static byte BACK_THREAD = 2;
 	public final static byte ASYNCSERVLET_DISPATCHED_SERVICE = 3;
 	public final static byte BACK_THREAD2 = 4;
+	public final static byte ZIPKIN_SPAN = 5;
 
 	public final static byte UNKNOWN = 99;
 
@@ -15,6 +16,7 @@ public class XLogTypes {
 		BACK_THREAD(XLogTypes.BACK_THREAD),
 		ASYNCSERVLET_DISPATCHED_SERVICE(XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE),
 		BACK_THREAD2(XLogTypes.BACK_THREAD2),
+		ZIPKIN_SPAN(XLogTypes.ZIPKIN_SPAN),
 		UNKNOWN(XLogTypes.UNKNOWN),
 		;
 

@@ -33,9 +33,9 @@
 
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.ClassReader;
-import scouter.org.objectweb.asm.ClassWriter;
-import scouter.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 import scouter.agent.AgentTransformer;
 
 import java.io.IOException;

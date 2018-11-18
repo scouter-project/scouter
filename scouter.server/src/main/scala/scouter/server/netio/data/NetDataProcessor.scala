@@ -206,6 +206,11 @@ object NetDataProcessor {
                 if (conf.log_udp_batch) {
                     System.out.println("DEBUG UDP Batch: " + p)
                 }
+            case PackEnum.SPAN_CONTAINER =>
+                SpanCore.add(p.asInstanceOf[SpanContainerPack])
+                if (conf.log_udp_span) {
+                    System.out.println("DEBUG UDP SPAN CONTAINER: " + p)
+                }
             case _ =>
                 PackExtProcessChain.doChain(p)
                 //System.out.println(p)

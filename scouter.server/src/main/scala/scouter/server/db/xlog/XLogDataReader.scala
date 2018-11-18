@@ -34,7 +34,7 @@ object XLogDataReader {
         table.synchronized {
             var reader = table.get(file);
             if (reader != null) {
-                reader.refrence += 1;
+                reader.reference += 1;
             } else {
                 reader = new XLogDataReader(date, file);
                 table.put(file, reader);
@@ -46,7 +46,7 @@ object XLogDataReader {
 }
 class XLogDataReader(date: String, file: String) extends IClose {
 
-    var refrence = 0;
+    var reference = 0;
     val conf = Configure.getInstance()
     var pointFile: RandomAccessFile = null
     var gzip = conf.compress_xlog_enabled
@@ -84,11 +84,11 @@ class XLogDataReader(date: String, file: String) extends IClose {
 
     override def close() {
         XLogDataReader.table.synchronized {
-            if (this.refrence == 0) {
+            if (this.reference == 0) {
                 XLogDataReader.table.remove(this.file);
                 pointFile = FileUtil.close(pointFile);
             } else {
-                this.refrence -= 1;
+                this.reference -= 1;
             }
         }
     }

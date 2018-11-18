@@ -16,8 +16,8 @@
  */
 package scouter.agent.asm.asyncsupport;
 
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.ILASM;
@@ -47,7 +47,7 @@ class LambdaFormCV extends ClassVisitor implements Opcodes {
 	String factoryMethodDesc;
 
 	public LambdaFormCV(ClassVisitor cv, String className, String lambdaMethodName, String lambdaMethodDesc, String factoryMethodName, String factoryMethodDesc) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.className = className;
 		this.lambdaMethodName = lambdaMethodName;
 		this.lambdaMethodDesc = lambdaMethodDesc;
@@ -107,7 +107,7 @@ class LambdaMV extends LocalVariablesSorter implements Opcodes {
 
 	public LambdaMV(int access, String name, String desc, MethodVisitor mv,
 					String fullName, Type[] paramTypes, String className) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 
@@ -217,7 +217,7 @@ class FacotoryMV extends LocalVariablesSorter implements Opcodes {
 	private Type returnType;
 
 	public FacotoryMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 		this.returnType = Type.getReturnType(desc);

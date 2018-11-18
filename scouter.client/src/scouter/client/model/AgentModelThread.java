@@ -224,6 +224,7 @@ public class AgentModelThread extends Thread {
 	}
 
 	public String getLiveObjectHashStringWithParent(int serverId, String objType) {
+
 		StringBuilder sb = new StringBuilder();
 		Iterator<Integer> keys = agentMap.keySet().iterator();
 		boolean first = true;
@@ -236,8 +237,17 @@ public class AgentModelThread extends Thread {
 					first = false;
 				}
 				sb.append(agent.getObjHash());
-				if(agent.getParent() instanceof AgentObject) {
-					sb.append(',').append(((AgentObject) agent.getParent()).getObjHash());
+
+				String parentName = agent.getObjName().contains("/") ?
+						agent.getObjName().substring(0, agent.getObjName().indexOf("/", 1)) : null;
+
+				if (parentName != null) {
+					agentMap.values().stream()
+							.filter(anyAgent -> anyAgent.getObjName().equals(parentName))
+							.findFirst()
+							.ifPresent(parent -> {
+								sb.append(',').append(parent.getObjHash());
+							});
 				}
 			}
 		}

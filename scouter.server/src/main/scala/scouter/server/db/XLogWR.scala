@@ -20,101 +20,119 @@ package scouter.server.db;
 
 import java.io.File
 
-import scouter.server.Configure
-import scouter.server.Logger
 import scouter.server.core.ServerStat
-import scouter.server.db.xlog.XLogDataWriter
-import scouter.server.db.xlog.XLogIndex
-import scouter.server.util.OftenAction
-import scouter.server.util.ThreadScala
-import scouter.util.DateUtil
-import scouter.util.FileUtil
-import scouter.util.RequestQueue
+import scouter.server.db.xlog.{XLogDataWriter, XLogIndex}
+import scouter.server.util.{OftenAction, ThreadScala}
+import scouter.server.{Configure, Logger}
+import scouter.util.{DateUtil, FileUtil, RequestQueue, ThreadUtil}
+
+import scala.collection.mutable
 
 object XLogWR {
+    case class XLogData(time: Long, txid: Long, gxid: Long, elapsed: Int, data: Array[Byte])
+    case class StorageContainer(idleLimit: Long, var lastAccess: Long, index: XLogIndex, writer: XLogDataWriter)
 
+    val MAX_IDLE = 30 * 60 * 1000L
     val dir = "/xlog"
     val prefix = "xlog"
 
-    val queue = new RequestQueue[Data](Configure.getInstance().xlog_queue_size);
+    val queue = new RequestQueue[XLogData](Configure.getInstance().xlog_queue_size)
+    val dailyContainer = mutable.Map[Long, StorageContainer]()
 
-    var currentDateUnit: Long = 0
-    var index: XLogIndex = null
-    var writer: XLogDataWriter = null
+    ThreadScala.start("scouter.server.db.XLogDataFileWatcher") {
+        while (DBCtr.running) {
+            ThreadUtil.sleep(5 * 60 * 1000)
+            val now = System.currentTimeMillis()
+            dailyContainer
+                    .filter(kv => now - kv._2.lastAccess > kv._2.idleLimit)
+                    .keys.foreach(k => close(k))
+        }
+    }
 
     ThreadScala.start("scouter.server.db.XLogWR") {
         while (DBCtr.running) {
-            val m = queue.get();
-            
-            ServerStat.put("xlog.db.queue",queue.size());
+            val m = queue.get()
+
+            ServerStat.put("xlog.db.queue",queue.size())
             try {
-                if (currentDateUnit != DateUtil.getDateUnit(m.time)) {
-                    currentDateUnit = DateUtil.getDateUnit(m.time);
-                    close();
-                    open(DateUtil.yyyymmdd(m.time));
-                }
-                if (index == null) {
+                val currentDateUnit = DateUtil.getDateUnit(m.time)
+                val container = dailyContainer.getOrElseUpdate(currentDateUnit, {
+                    val (index, writer) = open(m.time)
+                    StorageContainer(MAX_IDLE, System.currentTimeMillis(), index, writer)
+                })
+
+                if (container.index == null) {
                     OftenAction.act("XLoWR", 10) {
-                        queue.clear();
-                        currentDateUnit = 0;
+                        dailyContainer.remove(currentDateUnit)
+                        queue.clear()
                     }
-                    Logger.println("S143", 10, "can't open ");
+                    Logger.println("SZ143", 10, "can't open XLoWR")
+
                 } else {
-                    val location = writer.write(m.data);
-                    index.setByTime(m.time, location);
-                    index.setByTxid(m.txid, location);
-                    index.setByGxid(m.gxid, location);
+                    container.lastAccess = System.currentTimeMillis()
+                    val location = container.writer.write(m.data)
+                    container.index.setByTime(m.time, location)
+                    container.index.setByTxid(m.txid, location)
+                    container.index.setByGxid(m.gxid, location)
                 }
+
             } catch {
                 case t: Throwable => t.printStackTrace()
             }
         }
-        close()
+        closeAll()
     }
 
-    def add(time: Long, tid: Long, gid: Long, elapsed: Int, data: Array[Byte]) {
-        val ok = queue.put(new Data(time, tid, gid, elapsed, data));
-        if (ok == false) {
-            Logger.println("S144", 10, "queue exceeded!!");
+    def add(time: Long, tid: Long, gid: Long, elapsed: Int, data: Array[Byte]): Unit = {
+        val ok = queue.put(XLogData(time, tid, gid, elapsed, data))
+        if (!ok) {
+            Logger.println("S144", 10, "queue exceeded!!")
         }
     }
 
-    class Data(_time: Long, _txid: Long, _gxid: Long, _elapsed: Int, _data: Array[Byte]) {
-        val time = _time;
-        val txid = _txid;
-        val gxid = _gxid;
-        val elapsed = _elapsed;
-        val data = _data;
+    def closeAll(): Unit = {
+        dailyContainer.values.foreach (container => {
+            FileUtil.close(container.index)
+            FileUtil.close(container.writer)
+        })
+        dailyContainer.clear()
     }
 
-    def close() {
-        FileUtil.close(index);
-        FileUtil.close(writer);
-        index = null;
-        writer = null;
+    def close(time: Long): Unit = {
+        dailyContainer.get(time).foreach(container => {
+            FileUtil.close(container.index)
+            FileUtil.close(container.writer)
+        })
+        dailyContainer.remove(time)
     }
 
-    def open(date: String) {
+    def open(time: Long): (XLogIndex, XLogDataWriter) = {
+        val date = DateUtil.yyyymmdd(time)
+
         try {
-            val path = getDBPath(date);
-            val f = new File(path);
-            if (f.exists() == false)
-                f.mkdirs();
-            val file = path + "/" + prefix;
-            index = XLogIndex.open(file);
-            writer = XLogDataWriter.open(date, file);
+            val path = getDBPath(date)
+            val f = new File(path)
+            if (!f.exists()) f.mkdirs()
+            val file = path + "/" + prefix
+            val index = XLogIndex.open(file)
+            val writer = XLogDataWriter.open(date, file)
+
+            return (index, writer)
+
         } catch {
             case e: Throwable => {
-                e.printStackTrace();
-                close()
+                e.printStackTrace()
+                close(time)
             }
         }
+
+        (null, null)
     }
 
     def getDBPath(date: String): String = {
-        val sb = new StringBuffer();
-        sb.append(DBCtr.getRootPath());
-        sb.append("/").append(date).append(dir);
-        return sb.toString();
+        val sb = new StringBuffer()
+        sb.append(DBCtr.getRootPath())
+        sb.append("/").append(date).append(dir)
+        sb.toString
     }
 }

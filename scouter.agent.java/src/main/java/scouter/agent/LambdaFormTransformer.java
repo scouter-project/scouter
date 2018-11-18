@@ -20,10 +20,10 @@ import scouter.agent.asm.ILASM;
 import scouter.agent.asm.ScouterClassWriter;
 import scouter.agent.asm.asyncsupport.LambdaFormASM;
 import scouter.agent.asm.util.AsmUtil;
-import scouter.org.objectweb.asm.ClassReader;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.ClassWriter;
-import scouter.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 import scouter.util.StringUtil;
 
 import java.lang.instrument.IllegalClassFormatException;
@@ -71,7 +71,7 @@ public class LambdaFormTransformer {
 
             final ClassDesc classDesc = new ClassDesc();
             ClassReader cr = new ClassReader(classfileBuffer);
-            cr.accept(new ClassVisitor(Opcodes.ASM5) {
+            cr.accept(new ClassVisitor(Opcodes.ASM7) {
                 public void visit(int version, int access, String name, String signature, String superName,
                                   String[] interfaces) {
                     classDesc.set(version, access, name, signature, superName, interfaces);
