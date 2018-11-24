@@ -58,11 +58,11 @@ object SpanStepBuilder {
         })
 
         packList.foreach(pack => {
-            if (pack.caller != 0 && spanRelationMap.contains(pack.caller)) {
+            if (pack.caller != 0 && spanRelationMap.contains(pack.caller) && spanRelationMap.contains(pack.txid)) {
                 spanRelationMap(pack.caller).children += spanRelationMap(pack.txid)
             }
 
-            if (pack.caller != 0 && xLoggableSpanRelationMap.contains(pack.caller)) {
+            if (pack.caller != 0 && xLoggableSpanRelationMap.contains(pack.caller) && spanRelationMap.contains(pack.txid)) {
                 xLoggableSpanRelationMap(pack.caller).children += spanRelationMap(pack.txid)
             }
         })

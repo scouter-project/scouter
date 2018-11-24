@@ -17,10 +17,21 @@
 
 package scouter.util;
 
+import com.google.common.primitives.UnsignedLongs;
+import scouter.util.zipkin.HexCodec;
+
 public class Hexa32 {
 
 	private static final char PLUS = 'x';
 	private static final char MINUS = 'z';
+
+	public static String toUnsignedLongHex(long num) {
+		return UnsignedLongs.toString(num, 16);
+	}
+
+	public static long fromUnsignedLongHex(String str) {
+		return UnsignedLongs.parseUnsignedLong(str, 16);
+	}
 
 	public static String toString32(long num) {
 		boolean minus = num < 0;
@@ -58,5 +69,15 @@ public class Hexa32 {
 	public static void main(String[] args) {
 		System.out.println(Hexa32.toLong32("z6eq8mqkdkpt7c"));
 		System.out.println(Hexa32.toString32(100000001L));
+
+		System.out.println(Long.toHexString(792539709424970410L));
+
+		System.out.println("=================================================");
+		System.out.println(Long.toHexString(-342343233040343034L));
+		System.out.println(UnsignedLongs.toString(-342343233040343034L, 16));
+		System.out.println(UnsignedLongs.parseUnsignedLong("fb3fc0a4b35f2006", 16));
+
+		System.out.println("=================================================");
+		System.out.println(HexCodec.lowerHexToUnsignedLong("fb3fc0a4b35f2006"));
 	}
 }

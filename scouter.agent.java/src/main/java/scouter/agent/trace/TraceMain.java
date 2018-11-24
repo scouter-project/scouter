@@ -511,6 +511,8 @@ public class TraceMain {
             pack.text4 = ctx.text4;
             pack.text5 = ctx.text5;
 
+            pack.b3Mode = ctx.b3Mode;
+
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
             meteringInteraction(ctx, pack);

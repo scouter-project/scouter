@@ -18,6 +18,7 @@
 package scouter.xtra.http;
 
 import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.proxy.IHttpTrace;
@@ -27,10 +28,12 @@ import scouter.agent.summary.EndUserNavigationData;
 import scouter.agent.summary.EndUserSummary;
 import scouter.agent.trace.*;
 import scouter.lang.conf.ConfObserver;
+import scouter.lang.constants.B3Constant;
 import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
 import scouter.util.*;
+import scouter.util.zipkin.HexCodec;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -175,29 +178,47 @@ public class HttpTrace implements IHttpTrace {
         dump(ctx.profile, request, ctx);
         if (conf.trace_interservice_enabled && transferId == null) {
             try {
+                boolean b3ModeValid = false;
+                String b3TraceId = request.getHeader(B3Constant.B3_HEADER_TRACEID);
                 String gxid = request.getHeader(conf._trace_interservice_gxid_header_key);
+
                 if (gxid != null) {
                     ctx.gxid = Hexa32.toLong32(gxid);
-                }
-                String txid = request.getHeader(conf._trace_interservice_callee_header_key);
-                if (txid != null) {
-                    ctx.txid = Hexa32.toLong32(txid);
-                    ctx.is_child_tx = true;
-                }
-                String caller = request.getHeader(conf._trace_interservice_caller_header_key);
-                if (caller != null) {
-                    ctx.caller = Hexa32.toLong32(caller);
-                    ctx.is_child_tx = true;
-                }
-                String callerObjHashStr = request.getHeader(conf._trace_interservice_caller_obj_header_key);
-                if (callerObjHashStr != null) {
-                    try {
-                        ctx.callerObjHash = Integer.parseInt(callerObjHashStr);
-                    } catch (NumberFormatException e) {
+                } else {
+                    if (b3TraceId != null && !b3TraceId.equals("0")) {
+                        b3ModeValid = true;
                     }
-                    ctx.is_child_tx = true;
+                }
+
+                if (b3ModeValid) {
+                    ctx.gxid = HexCodec.lowerHexToUnsignedLong(b3TraceId);
+                    ctx.txid = HexCodec.lowerHexToUnsignedLong(request.getHeader(B3Constant.B3_HEADER_SPANID));
+                    ctx.caller = HexCodec.lowerHexToUnsignedLong(request.getHeader(B3Constant.B3_HEADER_PARENTSPANID));
+                    ctx.b3Mode = true;
+                    ctx.b3Traceid = b3TraceId;
+
+                } else {
+                    String txid = request.getHeader(conf._trace_interservice_callee_header_key);
+                    if (txid != null) {
+                        ctx.txid = Hexa32.toLong32(txid);
+                        ctx.is_child_tx = true;
+                    }
+                    String caller = request.getHeader(conf._trace_interservice_caller_header_key);
+                    if (caller != null) {
+                        ctx.caller = Hexa32.toLong32(caller);
+                        ctx.is_child_tx = true;
+                    }
+                    String callerObjHashStr = request.getHeader(conf._trace_interservice_caller_obj_header_key);
+                    if (callerObjHashStr != null) {
+                        try {
+                            ctx.callerObjHash = Integer.parseInt(callerObjHashStr);
+                        } catch (NumberFormatException e) {
+                        }
+                        ctx.is_child_tx = true;
+                    }
                 }
             } catch (Throwable t) {
+                Logger.println("Z101", "check propergation: " + t.getMessage());
             }
 
             if (ctx.is_child_tx) {
