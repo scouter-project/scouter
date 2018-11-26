@@ -47,7 +47,11 @@ class LoginService {
     val ip = m.getText("ip");
     val name = m.getText("hostname");
     val clientVer = m.getText("version");
-    val session = LoginManager.login(id, passwd, ip);
+    val internal = m.getText("internal");
+    val internalMode = if (internal != null && internal.equalsIgnoreCase("true")) true else false;
+
+    val session = LoginManager.login(id, passwd, ip, internalMode);
+
     m.put("session", session);
     if (session == 0) {
       m.put("error", "login fail");

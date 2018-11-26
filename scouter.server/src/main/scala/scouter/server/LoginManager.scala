@@ -30,7 +30,9 @@ object LoginManager {
             ThreadUtil.sleep(5000);
         }
     }
-    def login(id: String, pwd: String, ip: String): Long = {
+    private val INTERNAL_USER_TIMEOUT = DateUtil.MILLIS_PER_DAY * 7
+
+    def login(id: String, pwd: String, ip: String, internal: Boolean): Long = {
         var account : Account = null
 
         if(NetConstants.LOCAL_ID.equals(id)) {
@@ -55,14 +57,28 @@ object LoginManager {
         u.logintime = System.currentTimeMillis();
         val key = KeyGen.next();
         u.session = key;
-        sessionTable.put(key, u);
+        if (internal) {
+            u.internal = true;
+            sessionTable.put(key, u, INTERNAL_USER_TIMEOUT);
+        } else {
+            sessionTable.put(key, u);
+        }
         return key;
     }
     def getUser(session: Long): LoginUser = {
         return sessionTable.get(session);
     }
     def okSession(key: Long): Boolean = {
-        return sessionTable.getKeepAlive(key) != null
+        val session = sessionTable.get(key)
+        if (session != null) {
+            if (session.internal) {
+                sessionTable.getKeepAlive(key, INTERNAL_USER_TIMEOUT) != null
+            } else {
+                sessionTable.getKeepAlive(key) != null
+            }
+        } else {
+            false
+        }
     }
     def validSession(key: Long): Int = {
         val u = sessionTable.getKeepAlive(key);
