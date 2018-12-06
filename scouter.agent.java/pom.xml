@@ -21,6 +21,7 @@
         <scouter.httpclient.jar>scouter.httpclient.jar</scouter.httpclient.jar>
         <scouter.tools.jar>scouter.tools.jar</scouter.tools.jar>
         <scouter.kafka.jar>scouter.kafka.jar</scouter.kafka.jar>
+        <scouter.redis.jar>scouter.redis.jar</scouter.redis.jar>
 
         <provided.tools.jar>${project.basedir}/lib/provided/tools.jar</provided.tools.jar>
         <final.jar.name>${project.build.directory}/${project.build.finalName}.jar</final.jar.name>
@@ -115,6 +116,12 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>0.10.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <version>5.0.2.RELEASE</version>
             <scope>provided</scope>
         </dependency>
         <!-- test -->
@@ -241,6 +248,11 @@
                                         <include name="scouter/xtra/kafka/*.class" />
                                     </fileset>
                                 </jar>
+                                <jar destfile="${project.build.directory}/${scouter.redis.jar}">
+                                    <fileset dir="${project.build.outputDirectory}">
+                                        <include name="scouter/xtra/redis/*.class" />
+                                    </fileset>
+                                </jar>
                             </target>
                         </configuration>
                         <goals>
@@ -262,6 +274,7 @@
                                         <include name="${scouter.httpclient.jar}" />
                                         <include name="${scouter.tools.jar}" />
                                         <include name="${scouter.kafka.jar}" />
+                                        <include name="${scouter.redis.jar}" />
                                     </fileset>
                                     <zipfileset src="${final.jar.name}" />
 
@@ -281,6 +294,7 @@
                                 <delete file="${project.build.directory}/${scouter.httpclient.jar}" />
                                 <delete file="${project.build.directory}/${scouter.tools.jar}" />
                                 <delete file="${project.build.directory}/${scouter.kafka.jar}" />
+                                <delete file="${project.build.directory}/${scouter.redis.jar}" />
 
                                 <!-- for constant name file -->
                                 <jar destfile="${project.build.directory}/${scouter.agent.file.name}">
