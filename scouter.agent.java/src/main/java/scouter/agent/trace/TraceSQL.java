@@ -69,7 +69,7 @@ public class TraceSQL {
 		connectionOpenFailException = traceSQL0.getConnectionOpenFailException();
 	}
 
-	public final static int MAX_STRING = 20;
+	private final static int MAX_STRING = conf.trace_sql_parameter_max_length;
 
     // JDBC_REDEFINED==false
     public final static String PSTMT_PARAM_FIELD = "_param_";
