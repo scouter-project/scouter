@@ -555,7 +555,7 @@ public class TraceSQL {
 						if (m2 != null) {
 							Properties prop =(Properties) m2.invoke(pool, new Object[0]);
 							url = prop.getProperty("url");
-							if(url == null && "".equals(url)){
+							if(url == null || "".equals(url)){
 								url = prop.getProperty("serverName") + ":" + prop.getProperty("port") + "/" + prop.getProperty("databaseName");
 							}
 						}
