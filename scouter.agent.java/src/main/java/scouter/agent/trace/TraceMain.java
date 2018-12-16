@@ -1668,6 +1668,15 @@ public class TraceMain {
 
         tctx.profile.pop(step);
 
+        //[KAFKA] bootstrap : [localhost:9092], topic : scouter-topic2 [0 ms]
+        if (conf.counter_interaction_enabled) {
+            String kafka = (bootstrapServer.length() > 1) ? bootstrapServer : "kafka";
+            int kafkaHash = DataProxy.sendObjName(kafka);
+            MeterInteraction meterInteraction = MeterInteractionManager.getInstance().getKafkaCallMeter(conf.getObjHash(), kafkaHash);
+            if (meterInteraction != null) {
+                meterInteraction.add(elapsed, thr != null);
+            }
+        }
     }
 
     private static String RABBIT_COMMAND_MSG = "[RABBIT] exchange : %s, routing key : %s";
@@ -1716,6 +1725,15 @@ public class TraceMain {
         }
 
         tctx.profile.pop(step);
+
+        if (conf.counter_interaction_enabled) {
+            String rabbitmq = (exchange.length() > 1) ? exchange : "rabbitmq";
+            int rabbitmqHash = DataProxy.sendObjName(rabbitmq);
+            MeterInteraction meterInteraction = MeterInteractionManager.getInstance().getRabbitmqCallMeter(conf.getObjHash(), rabbitmqHash);
+            if (meterInteraction != null) {
+                meterInteraction.add(elapsed, thr != null);
+            }
+        }
     }
 
     static ILettuceTrace lettuceTracer;
