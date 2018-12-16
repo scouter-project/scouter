@@ -20,6 +20,7 @@ import scouter.agent.Configure;
 import scouter.agent.plugin.PluginHttpCallTrace;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
+import scouter.lang.constants.B3Constant;
 import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
 import scouter.util.KeyGen;
@@ -101,7 +102,10 @@ public class ForHttpURLConnection implements ApiCallTraceHelper.IHelper {
 				urlCon.setRequestProperty(conf._trace_interservice_callee_header_key, Hexa32.toString32(calleeTxid));
 				urlCon.setRequestProperty(conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
 				urlCon.setRequestProperty(conf._trace_interservice_caller_obj_header_key, String.valueOf(conf.getObjHash()));
-				
+
+				urlCon.setRequestProperty(B3Constant.B3_HEADER_TRACEID, Hexa32.toUnsignedLongHex(ctx.gxid));
+				urlCon.setRequestProperty(B3Constant.B3_HEADER_PARENTSPANID, Hexa32.toUnsignedLongHex(ctx.txid));
+				urlCon.setRequestProperty(B3Constant.B3_HEADER_SPANID, Hexa32.toUnsignedLongHex(calleeTxid));
 				PluginHttpCallTrace.call(ctx, urlCon);
 			} catch (Throwable t) {
 			}
