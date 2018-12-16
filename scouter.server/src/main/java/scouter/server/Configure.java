@@ -644,7 +644,7 @@ public class Configure extends Thread {
 		this.mgr_purge_disk_usage_pct = getInt("mgr_purge_disk_usage_pct", 80);
 
 		this.mgr_purge_keep_days = getInt("mgr_purge_keep_days", 10);
-		this.mgr_purge_profile_keep_days = getInt("mgr_purge_keep_days", 10);
+		this.mgr_purge_profile_keep_days = getInt("mgr_purge_profile_keep_days", 10);
 		if(mgr_purge_profile_keep_days == 0) mgr_purge_profile_keep_days = this.mgr_purge_keep_days;
 
 		this.mgr_purge_xlog_without_profile_keep_days = getInt("mgr_purge_xlog_without_profile_keep_days", mgr_purge_profile_keep_days*3);

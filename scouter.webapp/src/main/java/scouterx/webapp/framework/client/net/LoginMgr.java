@@ -44,6 +44,7 @@ public class LoginMgr{
 			param.put("pass", encPassword);
 			param.put("version", Version.getClientFullVersion());
 			param.put("hostname", SysJMX.getHostName());
+			param.put("internal", "true");
 			
 			MapPack out = TcpProxy.loginByCleanConnection(server.getId(), param);
 			if (out == null) {

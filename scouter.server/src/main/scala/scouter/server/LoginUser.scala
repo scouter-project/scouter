@@ -26,4 +26,5 @@ class LoginUser {
     var hostname = ""
     var version = ""
     var group = ""
+    var internal = false
 }
