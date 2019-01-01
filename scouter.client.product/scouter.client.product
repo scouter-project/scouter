@@ -23,10 +23,8 @@
       <programArgsWin>-data
 @user.home/scouter
       </programArgsWin>
-      <vmArgs>-XX:+IgnoreUnrecognizedVMOptions
---add-modules=java.se.ee
--Xms128m
--Xmx768m
+      <vmArgs>-Xms128m
+-Xmx1024m
 -XX:+UseG1GC
 -Dosgi.requiredJavaVersion=1.8
       </vmArgs>
@@ -50,7 +48,6 @@
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>

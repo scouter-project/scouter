@@ -367,15 +367,6 @@
             <artifactId>asm-commons</artifactId>
             <version>7.0</version>
         </dependency>
-<<<<<<< HEAD
-
-=======
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>3.23.1-GA</version>
-        </dependency>
->>>>>>> feature/xlog-span-coprocessing
         <!-- local lib -->
         <dependency>
             <groupId>com.github.scouter-project</groupId>
