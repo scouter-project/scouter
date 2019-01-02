@@ -51,7 +51,7 @@ import java.time.format.DateTimeParseException;
 public class XLogFilterDialog extends Dialog {
 	
 	Combo objCombo;
-	Text serviceTxt, ipTxt, startHmsFromTxt, startHmsToTxt, userAgentTxt, loginText, descText, text1Text, text2Text, text3Text, text4Text, text5Text, profileSizeText;
+	Text serviceTxt, ipTxt, startHmsFromTxt, startHmsToTxt, resTimeFromTxt, resTimeToTxt, userAgentTxt, loginText, descText, text1Text, text2Text, text3Text, text4Text, text5Text, profileSizeText;
 	Button onlySqlBtn, onlyApiBtn, onlyErrorBtn;
 	Button clearBtn, applyBtn;
 	
@@ -130,6 +130,45 @@ public class XLogFilterDialog extends Dialog {
 				compareHash();
 			}
 		});
+
+		//=============== respons time ==============================
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("Response(ms)");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+
+		Composite resTimeComposite = new Composite(filterGrp, SWT.NONE);
+		resTimeComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+
+		FillLayout resTimeFilllayout = new FillLayout();
+		resTimeFilllayout.marginWidth = 0;
+		resTimeFilllayout.marginHeight = 0;
+		resTimeComposite.setLayout(resTimeFilllayout);
+
+
+		resTimeFromTxt = new Text(resTimeComposite, SWT.BORDER | SWT.SINGLE);
+		resTimeFromTxt.setTextLimit(6);
+		resTimeFromTxt.setText(status.responseTimeFrom);
+		resTimeFromTxt.addVerifyListener(numberListener);
+		resTimeFromTxt.addModifyListener(arg0 -> {
+			newStatus.responseTimeFrom = resTimeFromTxt.getText();
+			compareHash();
+		});
+
+
+		label = new Label(resTimeComposite, SWT.CENTER);
+		label.setText(" ~ ");
+
+		resTimeToTxt = new Text(resTimeComposite, SWT.BORDER | SWT.SINGLE);
+		resTimeToTxt.setTextLimit(6);
+		resTimeToTxt.setText(status.responseTimeTo);
+		resTimeToTxt.addVerifyListener(numberListener);
+		resTimeToTxt.addModifyListener(arg0 -> {
+			newStatus.responseTimeTo = resTimeToTxt.getText();
+			compareHash();
+		});
+
+		//=============================================
 
 		label = new Label(filterGrp, SWT.NONE);
 		label.setText("StartHMS");
@@ -336,6 +375,8 @@ public class XLogFilterDialog extends Dialog {
 				ipTxt.setText("");
 				startHmsFromTxt.setText("");
 				startHmsToTxt.setText("");
+				resTimeFromTxt.setText("");
+				resTimeToTxt.setText("");
 				loginText.setText("");
 				descText.setText("");
 				text1Text.setText("");
@@ -434,5 +475,12 @@ public class XLogFilterDialog extends Dialog {
 			e.doit = false;
 		}
 
+	};
+
+	VerifyListener numberListener = e -> {
+		if (!StringUtil.isInteger(e.text) && !StringUtil.isEmpty(e.text)) {
+			e.doit = false;
+			return;
+		}
 	};
 }
