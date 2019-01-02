@@ -23,6 +23,7 @@ import scouter.agent.proxy.HttpClient43Factory;
 import scouter.agent.proxy.IHttpClient;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
+import scouter.lang.constants.B3Constant;
 import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
@@ -107,6 +108,10 @@ public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
 				httpclient.addHeader(req, conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
 				httpclient.addHeader(req, conf._trace_interservice_callee_header_key, Hexa32.toString32(calleeTxid));
 				httpclient.addHeader(req, conf._trace_interservice_caller_obj_header_key, String.valueOf(conf.getObjHash()));
+
+				httpclient.addHeader(req, B3Constant.B3_HEADER_TRACEID, Hexa32.toUnsignedLongHex(ctx.gxid));
+				httpclient.addHeader(req, B3Constant.B3_HEADER_PARENTSPANID, Hexa32.toUnsignedLongHex(ctx.txid));
+				httpclient.addHeader(req, B3Constant.B3_HEADER_SPANID, Hexa32.toUnsignedLongHex(calleeTxid));
 				PluginHttpCallTrace.call(ctx, req);
 			} catch (Exception e) {
 				Logger.println("A178", e);

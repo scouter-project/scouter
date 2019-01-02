@@ -27,6 +27,8 @@ import scouter.util.ThreadUtil;
 import static scouter.lang.counters.CounterConstants.INTR_API_INCOMING;
 import static scouter.lang.counters.CounterConstants.INTR_API_OUTGOING;
 import static scouter.lang.counters.CounterConstants.INTR_DB_CALL;
+import static scouter.lang.counters.CounterConstants.INTR_KAFKA_CALL;
+import static scouter.lang.counters.CounterConstants.INTR_RABBITMQ_CALL;
 import static scouter.lang.counters.CounterConstants.INTR_NORMAL_INCOMING;
 import static scouter.lang.counters.CounterConstants.INTR_NORMAL_OUTGOING;
 import static scouter.lang.counters.CounterConstants.INTR_REDIS_CALL;
@@ -44,6 +46,8 @@ public class MeterInteractionManager extends Thread {
     private static LinkedMap<Key, MeterInteraction> normalIncomingMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(100);
     private static LinkedMap<Key, MeterInteraction> dbCallMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
     private static LinkedMap<Key, MeterInteraction> redisCallMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
+    private static LinkedMap<Key, MeterInteraction> kafkaCallMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
+    private static LinkedMap<Key, MeterInteraction> rabbitmqCallMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
 
     private MeterInteractionManager() {
     }
@@ -82,6 +86,12 @@ public class MeterInteractionManager extends Thread {
 
             } else if (INTR_REDIS_CALL.equals(type)) {
                 redisCallMeterMap.put(key, meterInteraction);
+
+            } else if (INTR_KAFKA_CALL.equals(type)) {
+                kafkaCallMeterMap.put(key, meterInteraction);
+
+            } else if (INTR_RABBITMQ_CALL.equals(type)) {
+                rabbitmqCallMeterMap.put(key, meterInteraction);
             }
         }
     }
@@ -160,6 +170,30 @@ public class MeterInteractionManager extends Thread {
         return meter;
     }
 
+    /**
+     * @return nullable
+     */
+    public MeterInteraction getKafkaCallMeter(int fromHash, int toHash) {
+        Key key = new Key(fromHash, toHash);
+        MeterInteraction meter = kafkaCallMeterMap.get(key);
+        if (meter == null) {
+            queue.put(new Pair<String, Key>(INTR_KAFKA_CALL, key));
+        }
+        return meter;
+    }
+
+    /**
+     * @return nullable
+     */
+    public MeterInteraction getRabbitmqCallMeter(int fromHash, int toHash) {
+        Key key = new Key(fromHash, toHash);
+        MeterInteraction meter = rabbitmqCallMeterMap.get(key);
+        if (meter == null) {
+            queue.put(new Pair<String, Key>(INTR_RABBITMQ_CALL, key));
+        }
+        return meter;
+    }
+
     public LinkedMap<Key, MeterInteraction> getApiOutgoingMeterMap() {
         return apiOutgoingMeterMap;
     }
@@ -183,6 +217,15 @@ public class MeterInteractionManager extends Thread {
     public LinkedMap<Key, MeterInteraction> getRedisCallMeterMap() {
         return redisCallMeterMap;
     }
+
+    public LinkedMap<Key, MeterInteraction> getKafkaCallMeterMap() {
+        return kafkaCallMeterMap;
+    }
+
+    public LinkedMap<Key, MeterInteraction> getRabbitmqCallMeterMap() {
+        return rabbitmqCallMeterMap;
+    }
+
 
     public static class Key {
         public int fromHash;
