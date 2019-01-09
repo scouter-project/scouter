@@ -218,4 +218,27 @@ class ConfigureService {
         dout.writeByte(TcpFlag.HasNEXT)
         dout.writePack(p)
     }
+
+    @ServiceHandler(RequestCmd.GET_CONFIGURE_TELEGRAF)
+    def getConfigureTelegraf(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        var result = new MapPack()
+        result.put("tgConfigContents", Configure.getInstance().getTgConfigContents())
+
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writePack(result)
+    }
+
+    @ServiceHandler(RequestCmd.SET_CONFIGURE_TELEGRAF)
+    def setConfigureTelegraf(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readPack().asInstanceOf[MapPack];
+        val setConfig = param.getText("tgConfigContents")
+        val success = Configure.getInstance().saveTgConfigContents(setConfig)
+        if (success) {
+            Configure.getInstance().reload(true)
+        }
+        val result = new MapPack()
+        result.put("result", String.valueOf(success))
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writePack(result)
+    }
 }

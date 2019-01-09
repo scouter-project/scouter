@@ -1031,6 +1031,14 @@
                 name="Batch Active List"
                 restorable="false">
         </view>
+        <view
+              allowMultiple="true"
+              class="scouter.client.configuration.views.TelegrafConfigView"
+              id="scouter.client.configuration.views.TelegrefConfigView"
+              icon="icons/config.png"
+              name="Telegraf Config"
+              restorable="false">
+        </view>
     </extension>
     <extension point="org.eclipse.ui.commands">
         <category id="scouter.client.category" name="Scouter"/>

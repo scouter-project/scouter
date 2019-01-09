@@ -31,7 +31,7 @@ import scouter.lang.value.NumberValue;
 import scouter.lang.value.ValueEnum;
 import scouter.server.Configure;
 import scouter.server.Logger;
-import scouter.server.TgMeasurementConfig;
+import scouter.server.ScouterTgMtConfig;
 import scouter.server.core.app.MeterCounter;
 import scouter.server.core.app.MeterCounterManager;
 import scouter.server.core.cache.CounterTimeCache;
@@ -59,7 +59,7 @@ public class InfluxSingleLine {
     Map<String, String> tags;
     Map<CounterProtocol, NumberValue> numberFields = new HashMap<CounterProtocol, NumberValue>();
 
-    private InfluxSingleLine(TgMeasurementConfig tConfig,
+    private InfluxSingleLine(ScouterTgMtConfig tConfig,
                              String measurement,
                              Map<String, String> tags,
                              Map<String, String> fields,
@@ -84,7 +84,7 @@ public class InfluxSingleLine {
         }
     }
 
-    private void addNumField(TgMeasurementConfig tConfig, Map.Entry<String, String> field) {
+    private void addNumField(ScouterTgMtConfig tConfig, Map.Entry<String, String> field) {
         CounterProtocol counterProtocol = tConfig.getCounterProtocol(field.getKey());
         if (counterProtocol == null) {
             return;
@@ -309,7 +309,7 @@ public class InfluxSingleLine {
         }
 
         String measurement = measurementSb.toString();
-        TgMeasurementConfig tConfig = configure.telegrafInputConfigMap.get(measurement);
+        ScouterTgMtConfig tConfig = configure.telegrafInputConfigMap.get(measurement);
 
         if (tConfig == null) {
             return null;

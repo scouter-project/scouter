@@ -73,6 +73,7 @@ import scouter.client.configuration.actions.ListAccountAction;
 import scouter.client.configuration.actions.OpenAlertScriptingAction;
 import scouter.client.configuration.actions.OpenGroupPolicyAction;
 import scouter.client.configuration.actions.OpenServerConfigureAction;
+import scouter.client.configuration.actions.OpenTelegrafConfigureAction;
 import scouter.client.constants.MenuStr;
 import scouter.client.context.actions.CloseServerAction;
 import scouter.client.context.actions.OpenAPIDebugViewAction;
@@ -587,9 +588,10 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 				mgr.add(new OpenAlertDetailListAction(win, serverId));
 
 				mgr.add(new Separator());
-				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
+				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE)) {
 					mgr.add(new OpenServerConfigureAction(win, MenuStr.CONFIGURE, Images.config, serverId));
-
+					mgr.add(new OpenTelegrafConfigureAction(win, MenuStr.TELEGRAF_CONFIGURE, serverId));
+				}
 
 				MenuManager alertMenuManager = new MenuManager(MenuStr.ALERT_SCRIPTING, ImageUtil.getImageDescriptor(Images.alert), MenuStr.ALERT_SCRIPTING_ID);
 				mgr.add(alertMenuManager);

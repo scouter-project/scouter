@@ -235,11 +235,11 @@ public class TelegrafInputHandler extends Thread {
             return;
         }
 
-        prevAddedCounter.put(counter.getName(), counter);
         Family family = objectType.getFamily();
         family.addCounter(counter);
         boolean success = counterManager.safelyAddFamily(family);
         if (success) {
+            prevAddedCounter.put(counter.getName(), counter);
             RegisterHandler.notifyAllClients();
         }
     }

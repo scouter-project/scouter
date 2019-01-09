@@ -14,11 +14,18 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.zest.core,
  org.eclipse.zest.layouts,
  org.apache.httpcomponents.httpclient,
- org.apache.httpcomponents.httpcore
+ org.apache.httpcomponents.httpcore,
+ org.eclipse.core.databinding,
+ org.eclipse.core.databinding.beans,
+ org.eclipse.core.databinding.observable,
+ org.eclipse.core.databinding.property,
+ org.eclipse.jface.databinding,
+ com.ibm.icu
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  lib/scouter.common.jar,
+ lib/scouter.server.jar,
  lib/hibernate-core-3.3.2.GA.jar,
  lib/opencsv-2.4.jar,
  lib/opal-1.0.3.jar

@@ -176,6 +176,8 @@ public class MenuStr {
 	public static final String CONFIGURE                          = "Configure";
 	public static final String CONFIGURE_ID                       = "scouter.client.contextmenu.agentobject.configure";
 
+	public static final String TELEGRAF_CONFIGURE                 = "Telegraf Configure";
+
 	public static final String ALERT_SCRIPTING                    = "Customizable Alert";
 	public static final String ALERT_SCRIPTING_ID                 = "scouter.client.alertScripting";
 	
