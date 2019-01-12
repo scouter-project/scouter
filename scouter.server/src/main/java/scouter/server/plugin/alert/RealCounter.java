@@ -38,6 +38,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RealCounter {
 	private static List<Desc> realCounterDesc;
@@ -115,6 +116,22 @@ public class RealCounter {
 	@ConfigDesc("get comma separated object hashes string of the given object type.")
 	public String getObjHashListString(String objType) {
 		return AgentManager.getObjHashListAsString(objType);
+	}
+
+	@ConfigDesc("get comma separated object hashes string of the given object type.")
+	public String getObjHashListWithParentsString(String objType) {
+		String[] hashes = getObjHashListString(objType).split(",");
+		List<Integer> hashesWithParents = new ArrayList<>();
+		for (String hash : hashes) {
+			int objHash = Integer.parseInt(hash);
+			hashesWithParents.add(objHash);
+			ObjectPack objectPack = AgentManager.getAgent(objHash);
+			String objName = objectPack.objName;
+			if (objName.lastIndexOf('/') > 0) {
+				hashesWithParents.add(HashUtil.hash(objName.substring(0, objName.lastIndexOf('/'))));
+			}
+		}
+		return hashesWithParents.stream().map(String::valueOf).collect(Collectors.joining(","));
 	}
 
 	@Deprecated
