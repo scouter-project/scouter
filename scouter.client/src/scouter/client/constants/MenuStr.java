@@ -176,7 +176,12 @@ public class MenuStr {
 	public static final String CONFIGURE                          = "Configure";
 	public static final String CONFIGURE_ID                       = "scouter.client.contextmenu.agentobject.configure";
 
+	public static final String SERVER_CONFIGURES                  = "Configures";
+	public static final String SERVER_CONFIGURES_ID               = "scouter.client.contextmenu.server.configures";
+
 	public static final String TELEGRAF_CONFIGURE                 = "Telegraf Configure";
+	public static final String TELEGRAF_FILE_CONFIGURE            = "Edit telegraf file directly";
+	public static final String COUNTERS_SITE_FILE_CONFIGURE       = "Edit counters.site.xml file";
 
 	public static final String ALERT_SCRIPTING                    = "Customizable Alert";
 	public static final String ALERT_SCRIPTING_ID                 = "scouter.client.alertScripting";

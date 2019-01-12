@@ -23,6 +23,7 @@ package scouter.server.netio.service.handle
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.lang.conf.{ValueType, ValueTypeDesc}
+import scouter.lang.counters.CounterEngine
 import scouter.lang.pack.MapPack
 import scouter.lang.pack.ObjectPack
 import scouter.lang.pack.Pack
@@ -236,6 +237,28 @@ class ConfigureService {
         if (success) {
             Configure.getInstance().reload(true)
         }
+        val result = new MapPack()
+        result.put("result", String.valueOf(success))
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writePack(result)
+    }
+
+    @ServiceHandler(RequestCmd.GET_CONFIGURE_COUNTERS_SITE)
+    def getConfigureCountersSite(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        var result = new MapPack()
+        result.put("contents", CounterManager.getInstance().readCountersSiteXml())
+
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writePack(result)
+    }
+
+    @ServiceHandler(RequestCmd.SET_CONFIGURE_COUNTERS_SITE)
+    def setConfigureCountersSite(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readPack().asInstanceOf[MapPack];
+        val contents = param.getText("contents")
+        val success = new CounterEngine().parse(contents.getBytes("utf-8")) &&
+                CounterManager.getInstance().saveAndReloadCountersSiteXml(contents)
+
         val result = new MapPack()
         result.put("result", String.valueOf(success))
         dout.writeByte(TcpFlag.HasNEXT)

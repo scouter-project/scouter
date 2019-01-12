@@ -143,7 +143,7 @@ public class TelegrafConfigView extends ViewPart {
     List<SingleString> m_objTypeAppendTags;
     List<SingleString> m_objNameAppendTags;
 
-    public static final String ID = "scouter.client.configuration.views.TelegrefConfigView"; //$NON-NLS-1$
+    public static final String ID = "scouter.client.configuration.views.TelegrafConfigView"; //$NON-NLS-1$
     private Action saveAction;
     private Action helpAction;
     private Action reloadAction;
@@ -1246,7 +1246,6 @@ public class TelegrafConfigView extends ViewPart {
                 }
                 if (mpack != null) {
                     String tgConfigContents = mpack.getText("tgConfigContents");
-                    System.out.println(tgConfigContents);
 
                     if (StringUtil.isEmpty(tgConfigContents)) {
                         return;
