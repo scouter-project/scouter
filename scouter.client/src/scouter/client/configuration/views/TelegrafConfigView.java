@@ -36,6 +36,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -62,6 +63,7 @@ import scouter.client.configuration.views.sub.HostTelegrafEditingSupport;
 import scouter.client.configuration.views.sub.SingleColumnEditingSupport;
 import scouter.client.configuration.views.sub.TagMappingTagEditingSupport;
 import scouter.client.configuration.views.sub.TagMappingValueEditingSupport;
+import scouter.client.constants.HelpConstants;
 import scouter.client.net.TcpProxy;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
@@ -1076,7 +1078,7 @@ public class TelegrafConfigView extends ViewPart {
     private void createCounterMappingColumn(TableViewer tv, TableColumnLayout tbl) {
         TableViewerColumn vcolTgFieldName = new TableViewerColumn(tv, SWT.NONE);
         TableColumn colTgFieldName = vcolTgFieldName.getColumn();
-        tbl.setColumnData(colTgFieldName, new ColumnWeightData(10, 30, true));
+        tbl.setColumnData(colTgFieldName, new ColumnWeightData(15, 30, true));
         colTgFieldName.setAlignment(SWT.LEFT);
         colTgFieldName.setText("Tg-Field");
         vcolTgFieldName.setLabelProvider(new ColumnLabelProvider() {
@@ -1089,7 +1091,7 @@ public class TelegrafConfigView extends ViewPart {
 
         TableViewerColumn vcolCounterName = new TableViewerColumn(tv, SWT.NONE);
         TableColumn colCounterName = vcolCounterName.getColumn();
-        tbl.setColumnData(colCounterName, new ColumnWeightData(10, 30, true));
+        tbl.setColumnData(colCounterName, new ColumnWeightData(20, 30, true));
         colCounterName.setAlignment(SWT.LEFT);
         colCounterName.setText("Counter");
         vcolCounterName.setLabelProvider(new ColumnLabelProvider() {
@@ -1115,7 +1117,7 @@ public class TelegrafConfigView extends ViewPart {
 
         TableViewerColumn vcolDisplayName = new TableViewerColumn(tv, SWT.NONE);
         TableColumn colDisplayName = vcolDisplayName.getColumn();
-        tbl.setColumnData(colDisplayName, new ColumnWeightData(10, 30, true));
+        tbl.setColumnData(colDisplayName, new ColumnWeightData(20, 15, true));
         colDisplayName.setAlignment(SWT.LEFT);
         colDisplayName.setText("Display Name");
         vcolDisplayName.setLabelProvider(new ColumnLabelProvider() {
@@ -1128,7 +1130,7 @@ public class TelegrafConfigView extends ViewPart {
 
         TableViewerColumn vcolUnit = new TableViewerColumn(tv, SWT.NONE);
         TableColumn colUnit = vcolUnit.getColumn();
-        tbl.setColumnData(colUnit, new ColumnWeightData(10, 30, true));
+        tbl.setColumnData(colUnit, new ColumnWeightData(5, 12, true));
         colUnit.setAlignment(SWT.LEFT);
         colUnit.setText("Unit");
         vcolUnit.setLabelProvider(new ColumnLabelProvider() {
@@ -1141,7 +1143,7 @@ public class TelegrafConfigView extends ViewPart {
 
         TableViewerColumn vcolNormalizeSec = new TableViewerColumn(tv, SWT.NONE);
         TableColumn colNormalizeSec = vcolNormalizeSec.getColumn();
-        tbl.setColumnData(colNormalizeSec, new ColumnWeightData(10, 30, true));
+        tbl.setColumnData(colNormalizeSec, new ColumnWeightData(5, 15, true));
         colNormalizeSec.setAlignment(SWT.LEFT);
         colNormalizeSec.setText("Normalize(sec)");
         vcolNormalizeSec.setLabelProvider(new ColumnLabelProvider() {
@@ -1154,7 +1156,7 @@ public class TelegrafConfigView extends ViewPart {
 
         TableViewerColumn vcolTotalizable = new TableViewerColumn(tv, SWT.NONE);
         TableColumn colTotalizable = vcolTotalizable.getColumn();
-        tbl.setColumnData(colTotalizable, new ColumnWeightData(10, 30, true));
+        tbl.setColumnData(colTotalizable, new ColumnWeightData(5, 12, true));
         colTotalizable.setAlignment(SWT.LEFT);
         colTotalizable.setText("Totalizable");
         vcolTotalizable.setLabelProvider(new ColumnLabelProvider() {
@@ -1186,12 +1188,18 @@ public class TelegrafConfigView extends ViewPart {
         {
             saveAction = new Action("Save", ImageUtil.getImageDescriptor(Images.save)) {
             	public void run() {
-                    saveConfig();
+            		mainContainer.notifyListeners(SWT.FocusOut, new Event());
+            		tblCounterMapping.notifyListeners(SWT.FocusOut, new Event());
+                    ExUtil.exec(mainContainer, new Runnable() {
+                        public void run() {
+                            saveConfig();
+                        }
+                    });
                 }
             };
             helpAction = new Action("Help", ImageUtil.getImageDescriptor(Images.help)) {
                 public void run() {
-                    //org.eclipse.swt.program.Program.launch(HelpConstants.HELP_URL_XLOG_PROFILE_VIEW);
+                    org.eclipse.swt.program.Program.launch(HelpConstants.HELP_URL_TG_CONFIG_VIEW);
                 }
             };
             reloadAction = new Action("Reload", ImageUtil.getImageDescriptor(Images.refresh)) {
@@ -1273,6 +1281,9 @@ public class TelegrafConfigView extends ViewPart {
     }
 
     private void saveConfig() {
+        if (MessageDialog.openConfirm(mainContainer.getShell(), "Save Telegraf Config", "Do you want to save telegraf config?")) {
+        }
+
         syncGeneralToModel();
         syncMeasurementToModel();
         TcpProxy tcp = TcpProxy.getTcpProxy(serverId);

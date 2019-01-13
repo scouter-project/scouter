@@ -35,6 +35,7 @@ import scouter.net.TcpFlag
 import scouter.server.Configure
 import scouter.server.CounterManager
 import scouter.server.core.AgentManager
+import scouter.server.http.handler.RegisterHandler
 import scouter.server.netio.AgentCall
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.util.StringKeyLinkedMap.StringKeyLinkedEntry
@@ -259,6 +260,7 @@ class ConfigureService {
         val success = new CounterEngine().parse(contents.getBytes("utf-8")) &&
                 CounterManager.getInstance().saveAndReloadCountersSiteXml(contents)
 
+        if (success) RegisterHandler.notifyAllClients()
         val result = new MapPack()
         result.put("result", String.valueOf(success))
         dout.writeByte(TcpFlag.HasNEXT)

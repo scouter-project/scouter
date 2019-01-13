@@ -52,8 +52,9 @@ public class TelegrafInputHandler extends Thread {
 
     private RequestQueue<InfluxSingleLine> registerObjTypeQueue = new RequestQueue<InfluxSingleLine>(1024);
     private RequestQueue<AddCounterParam> addCounterQueue = new RequestQueue<AddCounterParam>(1024);
+    private RequestQueue<Integer> changeNotifyQueue = new RequestQueue<Integer>(10);
 
-    private CacheTable<String, Counter> prevAddedCounter = new CacheTable<String, Counter>().setMaxRow(10000);
+    private CacheTable<String, Counter> prevAddedCounter = new CacheTable<String, Counter>().setMaxRow(10000).setDefaultKeepTime(5000);
 
     private static class AddCounterParam {
         ObjectType objectType;
@@ -78,19 +79,33 @@ public class TelegrafInputHandler extends Thread {
     public void run() {
         while (true) {
             try {
+                int notifyCount = 0;
                 while (true) {
-                    InfluxSingleLine line = registerObjTypeQueue.get(1000);
+                    InfluxSingleLine line = registerObjTypeQueue.get(100);
                     if (line == null) {
                         break;
                     }
                     registerNewObjType0(line);
+                    ThreadUtil.sleep(100);
                 }
                 while (true) {
-                    AddCounterParam addCounterParam = addCounterQueue.get(1000);
+                    AddCounterParam addCounterParam = addCounterQueue.get(100);
                     if (addCounterParam == null) {
                         break;
                     }
                     addCounter0(addCounterParam);
+                    ThreadUtil.sleep(100);
+                }
+                while (true) {
+                    Integer anyNum = changeNotifyQueue.get(100);
+                    if (anyNum == null) {
+                        if (notifyCount > 0) {
+                            notifyCount = 0;
+                            RegisterHandler.notifyAllClients();
+                        }
+                        break;
+                    }
+                    notifyCount++;
                 }
             } catch (Exception e) {
                 Logger.println("TGI-003", 60, "TelegrafInputHandler Error:" + e.getMessage(), e);
@@ -231,7 +246,12 @@ public class TelegrafInputHandler extends Thread {
         ObjectType objectType = param.objectType;
         Counter counter = param.counter;
 
-        if (counter.someContentsEquals(prevAddedCounter.get(counter.getName()))) {
+        Logger.println("[counter+]Trying to add new counter : " + objectType.getFamily().getName()
+                + " - " + counter.getName());
+
+        //TODO login check
+        if (counter.semanticEquals(prevAddedCounter.get(counter.getName()))) {
+            Logger.println("[counter+] ignored by equals");
             return;
         }
 
@@ -240,7 +260,7 @@ public class TelegrafInputHandler extends Thread {
         boolean success = counterManager.safelyAddFamily(family);
         if (success) {
             prevAddedCounter.put(counter.getName(), counter);
-            RegisterHandler.notifyAllClients();
+            changeNotifyQueue.put(1);
         }
     }
 }

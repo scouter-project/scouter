@@ -1044,7 +1044,7 @@
                 class="scouter.client.configuration.views.TelegrafFileConfigView"
                 id="scouter.client.configuration.views.TelegrafFileConfigView"
                 icon="icons/config.png"
-                name="Edit telegraf file directiry"
+                name="Edit scouter-telegraf config file directly"
                 restorable="false">
         </view>
         <view
@@ -1052,7 +1052,7 @@
                 class="scouter.client.configuration.views.CountersSiteFileConfigView"
                 id="scouter.client.configuration.views.CountersSiteFileConfigView"
                 icon="icons/config.png"
-                name="Edit counters-site.xml file directiry"
+                name="Edit counters-site.xml file directly"
                 restorable="false">
         </view>
     </extension>

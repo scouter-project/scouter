@@ -64,7 +64,7 @@ public class CounterProtocol extends Counter {
         return counter;
     }
 
-    private void setFreshFalse() {
+    private void setFreshFalseIfIntervalExpired() {
         if (System.currentTimeMillis() - initTimestamp > KEEP_FRESH_MILLIS) {
             this.fresh = false;
         }
@@ -259,7 +259,7 @@ public class CounterProtocol extends Counter {
             Logger.println("New Telegraf Counter : " + this.getTaggedName(line.getTags()));
         }
 
-        setFreshFalse();
+        setFreshFalseIfIntervalExpired();
         return isNew;
     }
 
@@ -267,14 +267,11 @@ public class CounterProtocol extends Counter {
         if (!hasNormalCounter()) {
             return false;
         }
-
         Counter counter = objectType.getCounter(getTaggedName(line.getTags()));
         if (counter == null) {
             return true;
         }
-
-        String taggedDisplayName = getTaggedDisplayName(line.getTags());
-        if (checkChangedDeeper(counter, taggedDisplayName, getUnit())) {
+        if (checkChangedDeeper(false, counter, line, getUnit(), getIcon())) {
             return true;
         }
 
@@ -291,18 +288,19 @@ public class CounterProtocol extends Counter {
             return true;
         }
 
-        String taggedDisplayName = getTaggedDeltaDisplayName(line.getTags());
-        if (checkChangedDeeper(counter, taggedDisplayName, generateDeltaUnit(getUnit()))) {
+        if (checkChangedDeeper(true, counter, line, generateDeltaUnit(getUnit()), getIcon())) {
             return true;
         }
 
         return false;
     }
 
-    private boolean checkChangedDeeper(Counter counter, String taggedDisplayName, String unit) {
+    private boolean checkChangedDeeper(boolean isDeltaCounter, Counter counter, InfluxSingleLine line, String unit, String icon) {
         if (this.fresh) { //deep search
+            String taggedDisplayName = isDeltaCounter ? getTaggedDeltaDisplayName(line.getTags()) : getTaggedDisplayName(line.getTags());
             if (!taggedDisplayName.equals(counter.getDisplayName())
                     || !unit.equals(counter.getUnit())
+                    || !icon.equals(counter.getIcon())
                     || isTotal() != counter.isTotal()) {
                 return true;
             }
