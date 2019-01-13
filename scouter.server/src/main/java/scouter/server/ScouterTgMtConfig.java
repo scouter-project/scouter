@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2018. 7. 22.
  */
-public class TgMeasurementConfig {
+public class ScouterTgMtConfig {
     public static final String X = "X$";
 
     private String measurement;
@@ -54,7 +54,7 @@ public class TgMeasurementConfig {
     private Map<String, String> hostMapping = new HashMap<String, String>();
     private Map<String, List<String>> tagFilter = new HashMap<String, List<String>>();
 
-    public TgMeasurementConfig(String measurement) {
+    public ScouterTgMtConfig(String measurement) {
         this.measurement = measurement;
     }
 

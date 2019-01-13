@@ -23,7 +23,7 @@ import org.junit.Test;
 import scouter.lang.Counter;
 import scouter.lang.DeltaType;
 import scouter.server.Configure;
-import scouter.server.TgMeasurementConfig;
+import scouter.server.ScouterTgMtConfig;
 
 import java.util.HashMap;
 
@@ -73,7 +73,7 @@ public class InfluxSingleLineTest {
         
         assertEquals("TESTPREFIX_HOST-METRIC", line.getObjType());
         assertEquals("vm0.us", line.getHost());
-        assertEquals("/" + line.getHost() + "/" + TgMeasurementConfig.getPrefix() + "HOST-METRIC", line.getObjName());
+        assertEquals("/" + line.getHost() + "/" + ScouterTgMtConfig.getPrefix() + "HOST-METRIC", line.getObjName());
         assertTrue(line.getNumberFields().keySet().contains(new CounterProtocol("tg-mem-used")));
         assertTrue(line.getNumberFields().keySet().contains(new CounterProtocol("tg-mem-free")));
         assertTrue(line.getNumberFields().keySet().contains(new CounterProtocol("tg-mem-free-pct")));
@@ -121,7 +121,7 @@ public class InfluxSingleLineTest {
 
         assertEquals("HOST-METRIC_aix", line.getObjType());
         assertEquals("myvm0", line.getHost());
-        assertEquals("/" + line.getHost() + "/" + TgMeasurementConfig.getPrefix() + "HOST-METRIC_memory1", line.getObjName());
+        assertEquals("/" + line.getHost() + "/" + ScouterTgMtConfig.getPrefix() + "HOST-METRIC_memory1", line.getObjName());
     }
 
     @Test

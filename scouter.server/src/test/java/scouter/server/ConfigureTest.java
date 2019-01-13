@@ -43,14 +43,14 @@ public class ConfigureTest {
         System.setProperty("input_telegraf_$xpu_space$_host_tag", "tg_host");
         System.setProperty("input_telegraf_$xpu_space$_host_mappings", "h1:Sh1,h2:Sh2");
 
-        Map<String, TgMeasurementConfig> configMap =  Configure.getInstance().telegrafInputConfigMap;
-        TgMeasurementConfig tConfig = configMap.get("xpu_space");
+        Map<String, ScouterTgMtConfig> configMap =  Configure.getInstance().telegrafInputConfigMap;
+        ScouterTgMtConfig tConfig = configMap.get("xpu_space");
 
         Assert.assertEquals(tConfig.isEnabled(), true);
         Assert.assertEquals(tConfig.isDebugEnabled(), true);
-        Assert.assertEquals(tConfig.getObjFamilyBase(), TgMeasurementConfig.getPrefix() + System.getProperty("input_telegraf_$xpu_space$_objFamily_base"));
+        Assert.assertEquals(tConfig.getObjFamilyBase(), ScouterTgMtConfig.getPrefix() + System.getProperty("input_telegraf_$xpu_space$_objFamily_base"));
         Assert.assertEquals(tConfig.getObjTypeBase(), System.getProperty("input_telegraf_$xpu_space$_objType_base"));
-        Assert.assertEquals(tConfig.getObjNameBase(), TgMeasurementConfig.getPrefix() + System.getProperty("input_telegraf_$xpu_space$_objName_base"));
+        Assert.assertEquals(tConfig.getObjNameBase(), ScouterTgMtConfig.getPrefix() + System.getProperty("input_telegraf_$xpu_space$_objName_base"));
         Assert.assertEquals(tConfig.getHostTag(), System.getProperty("input_telegraf_$xpu_space$_host_tag"));
 
         Counter xpu1Counter = tConfig.getCounterMapping().get("xpu1");

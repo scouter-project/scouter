@@ -1,0 +1,74 @@
+/*
+ *  Copyright 2015 the original author or authors.
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
+package scouter.client.configuration.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @author Gun Lee (gunlee01@gmail.com) on 03/01/2019
+ */
+public class TreeModel {
+
+    public TreeModel parent;
+    public List<TreeModel> child = new ArrayList<>();
+
+    public String displayName;
+    public Object element;
+
+    public TreeModel(TreeModel parent, String displayName) {
+        this(parent, displayName, new Object());
+    }
+
+    public TreeModel(TreeModel parent, String displayName, Object element) {
+        this.parent = parent;
+        this.displayName = displayName;
+        if (parent != null) {
+            parent.addChild(this);
+        }
+        this.element = element;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public Object getElement() {
+        return element;
+    }
+
+    public void setElement(Object element) {
+        this.element = element;
+    }
+
+    private void addChild(TreeModel model) {
+        child.add(model);
+    }
+
+    public void removeMe() {
+        if (parent == null) {
+            throw new IllegalStateException("Root Node!");
+        }
+        parent.child.remove(this);
+    }
+}

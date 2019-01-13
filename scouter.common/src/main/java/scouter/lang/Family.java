@@ -17,11 +17,11 @@
 
 package scouter.lang;
 
+import scouter.util.StringKeyLinkedMap;
+
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-
-import scouter.util.StringKeyLinkedMap;
 
 public class Family {
 	private String name;
@@ -61,7 +61,7 @@ public class Family {
 	public Counter addCounter(Counter counter) {
 		return counterMap.put(counter.getName(), counter);
 	}
-	
+
 	protected Counter getCounter(String counter) {
 		return counterMap.get(counter);
 	}
