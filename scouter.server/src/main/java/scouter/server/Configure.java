@@ -580,7 +580,10 @@ public class Configure extends Thread {
         if (tgFile.exists() && tgFile.canRead()) {
             String tgContents = FileUtil.load(tgFile, "utf-8");
             return tgContents;
-        }
+
+        } else if (!tgFile.exists()) {
+			return TgConfig.getSampleContents();
+		}
         return "";
     }
 
