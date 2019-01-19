@@ -32,6 +32,7 @@ import scouter.util.FileUtil;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 import static scouter.lang.constants.ScouterConstants.TAG_OBJ_DETECTED_TYPE;
@@ -452,9 +453,28 @@ public class CounterManager {
 		System.out.println(f.getParent());
 	}
 	
-	private void reloadEngine() {
+	private boolean reloadEngine() {
 		engine.clear();
-		engine.parse(xmlContent);
-		engine.parse(xmlCustomContent);
+		return engine.parse(xmlContent) && engine.parse(xmlCustomContent);
+	}
+
+	public String readCountersSiteXml() {
+		if (customFile.exists() && customFile.canRead()) {
+			String contents = FileUtil.load(customFile, "utf-8");
+			return contents;
+		}
+		return "";
+	}
+
+	public boolean saveAndReloadCountersSiteXml(String contents) {
+		try {
+			if (FileUtil.saveText(new File(customFile.getCanonicalPath()), contents)) {
+				xmlCustomContent = FileUtil.readAll(new File(customFile.getCanonicalPath()));
+				return reloadEngine();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 }

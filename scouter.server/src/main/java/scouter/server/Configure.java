@@ -27,6 +27,8 @@ import scouter.lang.value.ListValue;
 import scouter.lang.value.MapValue;
 import scouter.net.NetConstants;
 import scouter.server.http.model.CounterProtocol;
+import scouter.server.support.telegraf.TgConfig;
+import scouter.server.support.telegraf.TgmConfig;
 import scouter.util.DateUtil;
 import scouter.util.FileUtil;
 import scouter.util.StringEnumer;
@@ -38,6 +40,10 @@ import scouter.util.SysJMX;
 import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -52,13 +58,28 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class Configure extends Thread {
 
 	private static Configure instance = null;
 	public final static String CONF_DIR = "./conf/";
 
-	//telegraf input internal variables
+    private static JAXBContext jaxbContext;
+    private static Marshaller marshaller;
+    private static Unmarshaller unmarshaller;
+
+    static {
+        try {
+            jaxbContext = JAXBContext.newInstance(TgConfig.class);
+            marshaller = jaxbContext.createMarshaller();
+            unmarshaller = jaxbContext.createUnmarshaller();
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //telegraf input internal variables
 	private static final String TELEGRAF_INPUT_MEASUREMENT_PREFIX = "input_telegraf_$";
 	private static final int TELEGRAF_INPUT_MEASUREMENT_PREFIX_LENGTH = TELEGRAF_INPUT_MEASUREMENT_PREFIX.length();
 	private static final String TELEGRAF_INPUT_MEASUREMENT_ENABLED_POSTFIX = "_enabled";
@@ -80,8 +101,13 @@ public class Configure extends Thread {
 	private static final String TELEGRAF_INPUT_MEASUREMENT_HOST_TAG_POSTFIX = "_host_tag";
 	private static final String TELEGRAF_INPUT_MEASUREMENT_HOST_MAPPINGS_POSTFIX = "_host_mappings";
 
-	//telegraf config
-	public Map<String, TgMeasurementConfig> telegrafInputConfigMap = new ConcurrentHashMap<String, TgMeasurementConfig>();
+	//telegraf config (arranged)
+	public Map<String, ScouterTgMtConfig> telegrafInputConfigMap = new ConcurrentHashMap<String, ScouterTgMtConfig>();
+	@Deprecated
+	public Map<String, ScouterTgMtConfig> telegrafInputConfigMapDeprecated = new ConcurrentHashMap<String, ScouterTgMtConfig>();
+
+	//telegraf config (original)
+	public TgConfig telegrafOriginalConfig = new TgConfig();
 
 	public final static synchronized Configure getInstance() {
 		if (instance == null) {
@@ -372,19 +398,18 @@ public class Configure extends Thread {
 	@ConfigDesc("search xlog service option - max xlog count to search per request")
 	public int req_search_xlog_max_count = 500;
 
-    //telegraf sample config for help
-    @ConfigDesc("Telegraf http input enabled")
+	@ConfigDesc("Path to telegraf config xml file")
+	public String input_telegraf_config_file = CONF_DIR + "scouter-telegraf.xml";
+
+    @ConfigDesc("Deprecated use the telegraf config view instead. This value may be ignored.")
 	public boolean input_telegraf_enabled = true;
-    @ConfigDesc("print telegraf line protocol to STDOUT")
+    @ConfigDesc("Deprecated use the telegraf config view instead. This value may be ignored.")
 	public boolean input_telegraf_debug_enabled = false;
-
-	@ConfigDesc("telegraf delta-counter normalize")
+	@ConfigDesc("Deprecated use the telegraf config view instead. This value may be ignored.")
 	public boolean input_telegraf_delta_counter_normalize_default = true;
-	@ConfigDesc("telegraf delta-counter normalize seconds.(avgerage in sec)\n" +
-			"normalize per metric can be set in the option input_telegraf_$measurement$_counter_mappings")
+	@ConfigDesc("Deprecated use the telegraf config view instead. This value may be ignored.")
 	public int input_telegraf_delta_counter_normalize_default_seconds = 30;
-
-	@ConfigDesc("Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
+	@ConfigDesc("Deprecated use the telegraf config view instead. This value may be ignored.")
 	public int telegraf_object_deadtime_ms = 35000;
 
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
@@ -492,6 +517,8 @@ public class Configure extends Thread {
 	}
 
 	private long last_load_time = -1;
+	private long last_load_time_tg = -1;
+
 	public Properties property = new Properties();
 
 	private boolean running = true;
@@ -514,45 +541,87 @@ public class Configure extends Thread {
 		return propertyFile;
 	}
 
-	long last_check = 0;
-
-	public synchronized boolean reload(boolean force) {
-		long now = System.currentTimeMillis();
-		if (force == false && now < last_check + 3000)
-			return false;
-		last_check = now;
-
-		File file = getPropertyFile();
-
-		if (file.lastModified() == last_load_time) {
-			return false;
-		}
-
-		last_load_time = file.lastModified();
-
-		Properties temp = new Properties();
-		if (file.canRead()) {
-			FileInputStream in = null;
-			try {
-				in = new FileInputStream(file);
-				temp.load(in);
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				FileUtil.close(in);
-			}
-		}
-		property = ConfigValueUtil.replaceSysProp(temp);
-
-		apply();
-		applyTelegrafInputConfig();
-
-		return true;
+	public File getTgFile() {
+		return new File(input_telegraf_config_file);
 	}
 
-	public static boolean WORKABLE = true;
+	long last_check = 0;
 
-	private void apply() {
+	public synchronized void reload(boolean force) {
+		long now = System.currentTimeMillis();
+		if (force == false && now < last_check + 3000) return;
+		last_check = now;
+
+        boolean configRenewed = reloadConfig();
+        reloadTgConfig(configRenewed);
+    }
+
+    private void reloadTgConfig(boolean configRenewed) {
+        File tgFile = getTgFile();
+        if (!tgFile.exists() || tgFile.lastModified() != last_load_time_tg) {
+            //for backward compatibility
+            if (!tgFile.exists() && configRenewed) {
+                telegrafInputConfigMap = telegrafInputConfigMapDeprecated;
+
+            } else if (tgFile.canRead()) {
+                try {
+                    telegrafOriginalConfig = (TgConfig) unmarshaller.unmarshal(tgFile);
+                    last_load_time_tg = tgFile.lastModified();
+                } catch (JAXBException e) {
+                    e.printStackTrace();
+                }
+                applyTelegrafInputConfigNew();
+            }
+        }
+    }
+
+    public String getTgConfigContents() {
+        File tgFile = getTgFile();
+        if (tgFile.exists() && tgFile.canRead()) {
+            String tgContents = FileUtil.load(tgFile, "utf-8");
+            return tgContents;
+
+        } else if (!tgFile.exists()) {
+			return TgConfig.getSampleContents();
+		}
+        return "";
+    }
+
+    public boolean saveTgConfigContents(String text) {
+        File tgFile = getTgFile();
+        return FileUtil.saveText(tgFile, text);
+    }
+
+    private boolean reloadConfig() {
+        File file = getPropertyFile();
+        if (file.lastModified() == last_load_time) {
+            return false;
+        }
+        last_load_time = file.lastModified();
+
+        Properties temp = new Properties();
+        if (file.canRead()) {
+            FileInputStream in = null;
+            try {
+                in = new FileInputStream(file);
+                temp.load(in);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                FileUtil.close(in);
+            }
+            property = ConfigValueUtil.replaceSysProp(temp);
+            applyConfig();
+            applyTelegrafInputConfig();
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean WORKABLE = true;
+
+	private void applyConfig() {
 		this.xlog_queue_size = getInt("xlog_queue_size", 10000);
 		this.profile_queue_size = getInt("profile_queue_size", 1000);
 		this.log_tcp_action_enabled = getBoolean("log_tcp_action_enabled", false);
@@ -718,7 +787,7 @@ public class Configure extends Thread {
 	 * Configuration for telegraf input
 	 */
 	protected void applyTelegrafInputConfig() {
-		Map<String, TgMeasurementConfig> tConfigMap = new HashMap<String, TgMeasurementConfig>();
+		Map<String, ScouterTgMtConfig> tConfigMap = new HashMap<String, ScouterTgMtConfig>();
 
 		for (Map.Entry<Object, Object> e : property.entrySet()) {
 			String key = (String) e.getKey();
@@ -735,9 +804,9 @@ public class Configure extends Thread {
 				String postfix = simplifiedKey.substring(secondDollar + 1);
 
 
-				TgMeasurementConfig tConfig = tConfigMap.get(measurement);
+				ScouterTgMtConfig tConfig = tConfigMap.get(measurement);
 				if (tConfig == null) {
-					tConfig = new TgMeasurementConfig(measurement);
+					tConfig = new ScouterTgMtConfig(measurement);
 					tConfig.setObjTypePrependTags(Arrays.asList(input_telegraf_$measurement$_objType_prepend_tags));
 					tConfigMap.put(measurement, tConfig);
 				}
@@ -754,7 +823,7 @@ public class Configure extends Thread {
 
 				} else if (TELEGRAF_INPUT_MEASUREMENT_TAG_FILTER_POSTFIX.equals(postfix)) {
 					String[] mappings = StringUtil.split(value, ',');
-					if (mappings == null || mappings.length == 0) {
+					if (mappings.length == 0) {
 						continue;
 					}
 
@@ -892,9 +961,86 @@ public class Configure extends Thread {
 			}
 		}
 
-		for (Map.Entry<String, TgMeasurementConfig> tConfigEntry : tConfigMap.entrySet()) {
-			telegrafInputConfigMap.put(tConfigEntry.getKey(), tConfigEntry.getValue());
+        telegrafInputConfigMapDeprecated = tConfigMap;
+//		for (Map.Entry<String, ScouterTgMtConfig> tConfigEntry : tConfigMap.entrySet()) {
+//			telegrafInputConfigMapDeprecated.put(tConfigEntry.getKey(), tConfigEntry.getValue());
+//		}
+	}
+
+	/**
+	 * Configuration for telegraf input
+	 */
+	protected void applyTelegrafInputConfigNew() {
+		Map<String, ScouterTgMtConfig> tConfigMap = new HashMap<>();
+		if (telegrafOriginalConfig == null) {
+			return;
 		}
+
+		/*
+		 overwrite to old options for backward compatability
+		 */
+		input_telegraf_enabled = telegrafOriginalConfig.enabled;
+        if (input_telegraf_enabled) {
+            net_http_server_enabled = true;
+        }
+		input_telegraf_debug_enabled = telegrafOriginalConfig.debugEnabled;
+		input_telegraf_delta_counter_normalize_default = telegrafOriginalConfig.deltaCounterNormalizeDefault;
+		input_telegraf_delta_counter_normalize_default_seconds = telegrafOriginalConfig.deltaCounterNormalizeDefaultSeconds;
+		telegraf_object_deadtime_ms = telegrafOriginalConfig.objectDeadtimeMs;
+
+		for (TgmConfig baseMtConfig : telegrafOriginalConfig.measurements) {
+			String measurementName = baseMtConfig.measurementName;
+			ScouterTgMtConfig scouterMtConfig = tConfigMap.get(measurementName);
+			if (scouterMtConfig == null) {
+				scouterMtConfig = new ScouterTgMtConfig(measurementName);
+				tConfigMap.put(measurementName, scouterMtConfig);
+			}
+
+			scouterMtConfig.setEnabled(baseMtConfig.enabled);
+			scouterMtConfig.setDebugEnabled(baseMtConfig.debugEnabled);
+
+			scouterMtConfig.setTagFilter(baseMtConfig.tagFilters.stream().collect(Collectors.toMap(
+			        f -> f.tag,
+                    f -> f.match,
+                    (v1, v2) -> { v1.addAll(v2); return v1; },
+                    HashMap::new))
+			);
+
+            baseMtConfig.tagFilters.stream()
+                    .collect(Collectors.groupingBy(f -> f.tag))
+                    .entrySet().stream()
+                    .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()))
+            ;
+
+            scouterMtConfig.setObjFamilyBase(baseMtConfig.objFamilyBase);
+			scouterMtConfig.setObjFamilyAppendTags(baseMtConfig.objFamilyAppendTags);
+
+			scouterMtConfig.setObjTypeBase(baseMtConfig.objTypeBase);
+			scouterMtConfig.setObjTypePrependTags(baseMtConfig.objTypePrependTags);
+			scouterMtConfig.setObjTypeAppendTags(baseMtConfig.objTypeAppendTags);
+			scouterMtConfig.setObjTypeIcon(baseMtConfig.objTypeIcon);
+
+			scouterMtConfig.setObjNameBase(baseMtConfig.objNameBase);
+			scouterMtConfig.setObjNameAppendTags(baseMtConfig.objNameAppendTags);
+
+			scouterMtConfig.setHostTag(baseMtConfig.hostTag);
+			scouterMtConfig.setHostMapping(baseMtConfig.hostMappings.stream()
+					.collect(Collectors.toMap(m -> m.telegraf, m -> m.scouter))
+			);
+
+            scouterMtConfig.setCounterMapping(baseMtConfig.counterMappings.stream()
+                    .collect(Collectors.toMap(m -> m.tgFieldName, CounterProtocol::of))
+            );
+        }
+
+		//for backward compatability
+		for (Map.Entry<String, ScouterTgMtConfig> deprecatedConfigEntry : telegrafInputConfigMapDeprecated.entrySet()) {
+			if (!tConfigMap.containsKey(deprecatedConfigEntry.getKey())) {
+                tConfigMap.put(deprecatedConfigEntry.getKey(), deprecatedConfigEntry.getValue());
+			}
+		}
+
+        telegrafInputConfigMap = tConfigMap;
 	}
 
 	private StringSet getStringSet(String key, String deli) {

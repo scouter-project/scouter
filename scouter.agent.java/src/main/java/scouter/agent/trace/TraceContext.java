@@ -49,6 +49,8 @@ public class TraceContext {
 	public Thread thread;
 	public long threadId;
 	public long gxid;
+	public String b3Traceid;
+	public boolean b3Mode;
 
 	// profile
 	public IProfileCollector profile;

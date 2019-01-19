@@ -23,6 +23,7 @@ package scouter.server.netio.service.handle
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.lang.conf.{ValueType, ValueTypeDesc}
+import scouter.lang.counters.CounterEngine
 import scouter.lang.pack.MapPack
 import scouter.lang.pack.ObjectPack
 import scouter.lang.pack.Pack
@@ -34,6 +35,7 @@ import scouter.net.TcpFlag
 import scouter.server.Configure
 import scouter.server.CounterManager
 import scouter.server.core.AgentManager
+import scouter.server.http.handler.RegisterHandler
 import scouter.server.netio.AgentCall
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.util.StringKeyLinkedMap.StringKeyLinkedEntry
@@ -217,5 +219,51 @@ class ConfigureService {
         }
         dout.writeByte(TcpFlag.HasNEXT)
         dout.writePack(p)
+    }
+
+    @ServiceHandler(RequestCmd.GET_CONFIGURE_TELEGRAF)
+    def getConfigureTelegraf(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        var result = new MapPack()
+        result.put("tgConfigContents", Configure.getInstance().getTgConfigContents())
+
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writePack(result)
+    }
+
+    @ServiceHandler(RequestCmd.SET_CONFIGURE_TELEGRAF)
+    def setConfigureTelegraf(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readPack().asInstanceOf[MapPack];
+        val setConfig = param.getText("tgConfigContents")
+        val success = Configure.getInstance().saveTgConfigContents(setConfig)
+        if (success) {
+            Configure.getInstance().reload(true)
+        }
+        val result = new MapPack()
+        result.put("result", String.valueOf(success))
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writePack(result)
+    }
+
+    @ServiceHandler(RequestCmd.GET_CONFIGURE_COUNTERS_SITE)
+    def getConfigureCountersSite(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        var result = new MapPack()
+        result.put("contents", CounterManager.getInstance().readCountersSiteXml())
+
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writePack(result)
+    }
+
+    @ServiceHandler(RequestCmd.SET_CONFIGURE_COUNTERS_SITE)
+    def setConfigureCountersSite(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readPack().asInstanceOf[MapPack];
+        val contents = param.getText("contents")
+        val success = new CounterEngine().parse(contents.getBytes("utf-8")) &&
+                CounterManager.getInstance().saveAndReloadCountersSiteXml(contents)
+
+        if (success) RegisterHandler.notifyAllClients()
+        val result = new MapPack()
+        result.put("result", String.valueOf(success))
+        dout.writeByte(TcpFlag.HasNEXT)
+        dout.writePack(result)
     }
 }

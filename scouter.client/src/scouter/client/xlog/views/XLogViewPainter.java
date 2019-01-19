@@ -87,6 +87,7 @@ public class XLogViewPainter {
 	public StrMatch serviceMat;
 	public StrMatch ipMat;
 	public Pair<Long, Long> startFromToMat;
+	public Pair<Integer, Integer> resFromToMat;
 	public StrMatch loginMat;
 	public StrMatch descMat;
 	public StrMatch text1Mat;
@@ -632,6 +633,7 @@ public class XLogViewPainter {
 				&& isServiceFilterOk(d)
 				&& isIpFilterOk(d.p)
 				&& isStartTimeFilterOk(d.p)
+				&& isResponseTimeFilterOk(d.p)
 				&& isLoginFilterOk(d)
 				&& isDescFilterOk(d)
 				&& isText1FilterOk(d)
@@ -685,6 +687,13 @@ public class XLogViewPainter {
 		}
 		long start = p.endTime - p.elapsed;
 		return startFromToMat.getLeft() <= start && start <= startFromToMat.getRight();
+	}
+
+	public boolean isResponseTimeFilterOk(XLogPack p) {
+		if (StringUtil.isEmpty(filterStatus.responseTimeFrom) || StringUtil.isEmpty(filterStatus.responseTimeTo)) {
+			return true;
+		}
+		return resFromToMat.getLeft() <= p.elapsed && p.elapsed <= resFromToMat.getRight();
 	}
 
 	public boolean isLoginFilterOk(XLogData d) {
@@ -843,6 +852,7 @@ public class XLogViewPainter {
 
 		profileSizeExpr = status.profileSizeText;
 
+		resFromToMat = new Pair<>(Integer.parseInt(status.responseTimeFrom), Integer.parseInt(status.responseTimeTo));
 		if (status.startHmsFrom.length() == 6 && status.startHmsTo.length() == 6) {
 			long dateMillis = DateUtil.dateUnitToTimeMillis(DateUtil.getDateUnit(paintedEndTime));
 			long startFrom = dateMillis + LocalTime.parse(status.startHmsFrom, hmsFormatter).toSecondOfDay() * 1000;

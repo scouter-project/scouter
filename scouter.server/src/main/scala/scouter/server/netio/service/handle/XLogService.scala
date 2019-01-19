@@ -432,7 +432,7 @@ class XLogService {
             if (xbytes != null) {
                 if (!xbytesChecked) {
                     val xlog = new DataInputX(xbytes).readPack().asInstanceOf[XLogPack]
-                    if (xlog.xType == XLogTypes.ZIPKIN_SPAN && xlog.caller != 0 && xlog.caller != xlog.gxid) {
+                    if ((xlog.xType == XLogTypes.ZIPKIN_SPAN || xlog.b3Mode) && xlog.caller != 0 && xlog.caller != xlog.gxid) {
                         val spanMap = getSpansMap(date, xlog.gxid)
                         xlog.caller = getXLoggableParent(xlog.caller, spanMap)
                         xbytes = new DataOutputX().writePack(xlog).toByteArray

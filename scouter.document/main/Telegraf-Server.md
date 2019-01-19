@@ -1,31 +1,32 @@
 # Telegraf Server Feature
 [![English](https://img.shields.io/badge/language-English-orange.svg)](Telegraf-Server.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Telegraf-Server_kr.md)
 
-It can be integrated with Telegraf using the Telegraf Server feature of the Scouter collector.  
-
+The Scouter-telegraf Server function allows you to integrate data from Telegraf into the Scouter.  
 The Scouter collector is now interoperable with the HTTP output of Telegraf and will be provided with dedicated telegraf-scouter output later.  
   - [Telegraf HTTP Output plugin](https://github.com/influxdata/telegraf/tree/master/plugins/outputs/http)
 
-You can monitor the performance information of various products through Telegraf's Input Plugin. Refer to the telegraf  plugin page for current input.  
+You can monitor the performance information of various products through Telegraf's Input Plugin. Refer to the telegraf plugin page for current inputs.
   - [Telegraf Input plugins](https://github.com/influxdata/telegraf/tree/master/plugins/inputs)
 
 
-## Apply Telegraf Server function
+## Apply Telegraf server funtion
 
-### 1. Enable the Telegraf Server option
-First, the Collector's http server must be enabled.  
-  - `net_http_server_enabled=true`
-
-And enable telegraf server function.  
-  - `input_telegraf_enabled=true`
+### 1. Enabling the telegraf Server option on the Scouter
+First, enable the http server option of the Collector server on the Scouter Client screen.
+  - Menu : **Collector > Configures > Configure**
+    - `net_http_server_enabled=true`
 
 If you want to change the http port, set it to `net_http_port=xxx`. The default value is 6180.  
-If you changed the above option, you must restart the collector.  
+If you change any of the above options, you must restart the Collector.  
 
-If the requested data needs to be checked, set `input_telegraf_debug_enabled=true' to log all the requested data.
+Next, activate the Telegraf setting.
+  - Menu : **Colellector > Configures > Telegraf > Telegraf Configure**
+    - In the General tree, check `Enabled` to enable the Telegraf Server function.
 
-### 2. Telegraf Http output settings
-Set the end point of the Telegraf http output to the scouter server set above.  
+If you need to check the requested data, check `Debug Enabled 'to log all the requested data.
+
+### 2. Configure data transfer to the scouter via the Http output of Telegraf
+Set the end point of the Telegraf http output to the scouter server set above.
 ```javascript
   [[outputs.http]]
     url = "http://my-scouter-server:6180/telegraf/metric"
@@ -34,8 +35,7 @@ Set the end point of the Telegraf http output to the scouter server set above.
     data_format = "influx"
 ```
 
-The scouter processes the request every 2 seconds and mainly be used with the real time chart, so the request interval of telegraf is also adjusted to be between 2 seconds and 10 seconds.  
-
+The scouter processes the request every 2 seconds and mainly uses the real time chart, so the request interval of the telegraf is also adjusted between 2 seconds and 10 seconds.  
 ```javascript
 [agent]
   ...
@@ -45,163 +45,147 @@ The scouter processes the request every 2 seconds and mainly be used with the re
 ```
 
 ### 3. Set counter mapping to Scouter Collector
-You must map fields of measurement that is passed in telegraf to the scouter counter.  
+You must map the field of measurement that is passed in telegraf to the scouter counter.  
 There are a few things you need to do.
-  - Set line protocol measurement to the monitoring family of scouter counter.
-  - Set object type.
-  - Set object name.
-  - Map fields of line protocol to counters
-  
-Set the following items and replace the $measurement$ part with the actual measurement name.  
-The value on the right side of the equal sign indicates the default value.  
-```properties
-input_telegraf_$measurement$_debug_enabled=false
-input_telegraf_$measurement$_objFamily_base=
-input_telegraf_$measurement$_host_tag=host
-input_telegraf_$measurement$_host_mappings=
-input_telegraf_$measurement$_objName_base=
-input_telegraf_$measurement$_objName_append_tags=
-input_telegraf_$measurement$_objType_base=
-input_telegraf_$measurement$_objType_prepend_tags=scouter_obj_type_prefix
-input_telegraf_$measurement$_objType_append_tags=
-input_telegraf_$measurement$_tag_filter=
-input_telegraf_$measurement$_counter_mappings=
-```
-For example, if the measurement name is redis, `input_telegraf_$measurement$_debug_enabled` becomes` input_telegraf_$redis$_debug_enabled`.  
-  
-Let's take an example of telegraf's redis input.  
+ - measurement registration
+ - Host mapping setting(optional)
+ - object type setting
+ - object name setting
+ - Map each field of the line protocol to the counter of the scouter
+    
+The configuration can be done through the telegraf configure screen of the scouter client and refer to the following.  
+(Or you can modify the scouter-telegraf.xml file directly.)
 
-#### 3.1. Family Settings
-Family can be thought of as a name that refers to a collection that has the same performance monitoring items.  
+#### 3.1. Measurement registration
+If this is your first time using the Scouter-telegraf's feature, it's a good idea to enable the debug option and watch the incoming log.  
+Register the measurement you want to monitor from the line protocol displayed on the log.
+![tg-conf-add-measurement.png](../img/main/tg-conf-add-measurement.png)
+
+#### 3.1. Host Mapping setting
+Usually, performance information is transmitted from several devices, so it is necessary to identify the host information.  
+In general, it is not necessary to change this setting, but in some cases, a certain line protocol may not have a host tag.  
+  
+The host name information is transmitted to the `host` tag of the line protocol. If the tag containing the host information is not`host`, it can be changed.
+If the transmitted host name is different from the host name set in the scouter, you can also configure the mapping.
+(Usually the same.)
+![tg-conf-host-tag.png](../img/main/tg-conf-host-tag.png)
+
+#### 3.2. Family setting
+A family is a name that refers to a collection that has the same performance monitoring items.  
 For example, the Host Family has performance information such as cpu, memory, and disk io.  
-  
-Here we set Family to redis.
-```properties
-# In case of setting as below, Family is registered as X$redis internally to prevent duplication of name with already provided family.
-input_telegraf_$redis$_objFamily_base=redis
-```
+  
+In the example below, set Family to redis.  
+In this configuration, Family is registered as `X$redis` internally to prevent duplication of names with the built-in families of scouter.
 
-#### 3.2. Host Mapping Settings
-Usually, performance information is transmitted from several VMs, so it is necessary to identify the host name.  
-Generally, it is not necessary to change the setting, but sometimes a certain line protocol may not have a host tag.  
-  
-The host name is sent to the `host` tag of the line protocol. If the tag that identifies host name is not `host`, you can change it with the following option.
-  - `input_telegraf_$redis$_host_tag`
-
-If the transmitted host name is different from the host name set in the scouter, you can also configure the mappings.  
-(Usually the same.)  
-  - `input_telegraf_$redis$_counter_mappings`
-    - eg) `input_telegraf_$redis$_counter_mappings=hostname1:hostname-S1,hostname2:hostname-S2`
-If you configure as above, you can also configure easily by using the screen of Scouter client.  
-  - Enter `input_telegraf_$redis$_counter_mappings =` on the client's configuration input screen and double click on it, the following input window will pop up.  
-
-![configure-widow-hostmapping.png](../img/main/configure-widow-hostmapping.png)
-
-#### 3.3. Object name settings
-The scouter calls the monitored things **object**.  
-Now let's set the name of this object.  
-  
-The object name is the actually set to `/host-name/object-name`, so if the host is different, the same object name is OK.
-
-```properties
-input_telegraf_$redis$_objName_base=redis
-input_telegraf_$redis$_objName_append_tags=port
-```
-I have set `port` in` input_telegraf_$redis$_objName_append_tags`, assuming there are multiple redis in one host.  
-The incoming data(line protocol) is shown below.
-  
->redis,**host**=sc-api-demo-s01.localdomain,**port**=30779,**scouter_obj_type_prefix**=SC-DEMO,**server**=172-0-0-0.internal  keyspace_hits=5507814i,expired_keys=1694047i,total_commands_processed=17575212i 1535289664000000000
-
-The first `redis` is **measurement**, followed by` host`, `port`,` obj_type_prefix`, and `server` are **tag**.  
-
-The following numeric information is called **field** in the line protocol. There are `keyspace_hits`,` expired_keys`, and `total_commands_processed` fields.  
+#### 3.3. Object type setting
+An object type is a set of objects that are monitored at one time by the scouter.  
+Since it is usually monitored on a system-by-system basis, **the same families in a particular system** can be considered as one object type.  
   
-The object name defined by the above setting will eventually become **redis_30779**.  
-If you set `input_telegraf_$redis$_objName_append_tags` to `server,port`, the object name will be **redis_172-0-0-0.internal_30779**.  
+For example, multiple redis instances of the ordering system may be targets that need to be monitored at one time.
+This is called **object type** in scouter.
+So if you specify the object type of these redis instances, you can set it like `ORDER_SYSTEM_redis`.
+Here, prefixes such as ORDER_SYSTEM which precedes them are added to the telegraf tag, and the scouter combines them to determine the object type.
+For the setting example, refer to the following figure.
 
-#### 3.4. Object type settings
-Object type is a set of objects that are monitored at one time by the scouter.  
-Generally, you can think of the same families in a system.  
+![tg-config-objtype.png](../img/main/tg-config-objtype.png)
+
   
-For example, multiple redis instances of the Order system might be targets that you need to monitor at once.  
-These units are called **object type** in the scouter.  
-Therefore, if you specify the object type of these redis instances, you can set them like **ORDER\_SYSTEM\_redis**.  
-Here, prefixes such as `ORDER_SYSTEM` which precedes them are added to the telegraf's tag, and the scouter combines them to determine the object type.  
-This tag name is `scouter_obj_type_prefix` and this value can be changed by setting `input_telegraf_$redis$_objType_prepend_tags=xxx`  
-  
-```properties
-input_telegraf_$redis$_objType_base=redis
-#input_telegraf_$redis$_objType_prepend_tags=scouter_obj_type_prefix
-#input_telegraf_$redis$_objType_append_tags=
-```
-This sets the object type to **X$SC-DEMO_redis**.  
-  
 There are many ways to add tags to telegraf. The easiest way is to set them with global tags.  
-Or you can add tags to each input, and you can set it up in various ways.  
-  
+Or you can add tags for each input, and you can set it up in various ways.  
+(For more information, see the telegraf manual.)
 ```javascript
 [global_tags]
-  ## To prevent overlap with the built-in object types, 'X$' is automatically added by the scouter.
-  scouter_obj_type_prefix = "SC-DEMO"
+  scouter_obj_type_prefix = "ORDER_SYSTEM"
 ```
 
-#### 3.5. Counter mapping settings
-Finally, set the field of the line protocol to the counter of the scouter.
-```properties
-input_telegraf_$redis$_counter_mappings=keyspace_hits:ks-hits:ks-hits:ea:true,&expired_keys:expired::ea:true
-```
-Specify the comma-separated information for the field to be monitored as above.  
-Fields that are not set here are discarded, so it is better to avoid fields that are not being monitored, so that they are discarded in the telegraf and are not forwarded to the scouter.  
-The setting items of each field are separated by a colon.  
+The value `scouter_obj_type_prefix` set in the above example is the default value of objtype_prepend_tag.  
+If there is no value in the `scouter_obj_type_prefix` tag, the object type of all performance metrics imported into redis measurement is just **X$redis**.  
+(`X$` is added automatically by the scouter to prevent overlap with the built-in object type.)  
+Therefore, you can ignore this setting if you want to manage all redis in one type without system distinction.
 
- - `fn:cn:cd?:u?:t?:s?`
-   - `fn` - field name, **required**
+#### 3.4. Object name setting
+Scouter calls an individual object to be monitored. Here we set the name of this object (`object_name`).  
+The full name of object_name is internally registered as `/{host-name}/object-name`, so object name may be duplicated if host name is different.  
+![tg-config-objname.png](../img/main/tg-config-objname.png)
+
+In the above figure, objName_append_tag is set to `port`, which is a case where there are multiple redis in one host.  
+(If you do this, the object name will be `redis_30779`,` redis_30789`, and so on.)
+
+The input values through telegraf are as follows
+
+>redis,**host**=sc-api-demo-s01.localdomain,**port**=30779,**scouter_obj_type_prefix**=ORDER_SYSTEM,**server**=172-0-0-0.internal  keyspace_hits=5507814i,expired_keys=1694047i,total_commands_processed=17575212i 1535289664000000000
+
+The first `redis` is **measurement**, followed by `host`, `port`, `obj_type_prefix`, and `server` are **tag**.  
+The following numeric information is called **field** in the line protocol. There are `keyspace_hits`, `expired_keys`, and `total_commands_processed` fields.  
+  
+The object name defined by the above setting will eventually become **redis_30779**.  
+If you set objname_append_tag to `server` and `port`, the object name will be **redis_172-0-0-0.internal_30779**.  
+  
+The result of setting up to now can be summarized as follows.  
+```javascript
+family = X$redis
+object_type = X$ORDER_SYSTEM_redis
+object_name = redis_30779
+```
+
+#### 3.5. Counter mapping setting
+Finally, set the field of the line protocol to the counter of the scouter. The counter is the performance information that the family can have.  
+(In this example, it is defined by mapping the performance information that a family named X$redis can have.)  
+  
+Fields that are not set here are discarded without being stored. Naturally, fields that are not to be monitored should be handled by the telegraf client so that they are not transmitted to the scouter.  
+Each mapping setting item is as follows.  
+   - Tg-field, **required**
      - The field name passed in the line protocol.
-     - If you precede this name with &, it is designated as a delta counter.
-       - The delta counter is a counter showing the amount of change per second.
-       - If delta counter is specified, **_$delta** is added to name and **/s** is added to unit.
-     - If you put 2-&('&&') before this name, you have both normal and delta counters.
-   - `cn` - counter name, **required**
+   - Counter, **required**
      - It is the counter name in the scouter.
-   - `cd` - counter desc - optional, default : counter name
+     - **A counter name must not be duplicated within scouter**
+   - Delta Type, **required**
+     - The delta counter is a counter showing the amount of change per second.
+     - If delta counter is specified, _$delta is added to name and /s is added to unit.
+     - If you specify `Both`, you will have both a normal counter and a delta counter.
+   - counter desc - optional, default : counter name
      - This value is used when the scouter displays the counter on the screen.
-   - `u` - unit - optional
+   - unit - optional
      - It is the unit of the value.
-   - `t` - totalizable - optional, default : true
+   - totalizable - optional, default : true
      - Whether this value can be summarized.
      - For example, throughput is true and memory utilization percent is false (it is strange to sum the memory usage percent of several VMs)
      - If this value is true, you can open the total chart on the screen of the scouter.
-   - `s` - nomalizing seconds
+   - nomalizing seconds
      - This is the size of the time window to obtain the mean value of the counter.
      - default 0s for normal counter, default 30s for delta counter.
 
-Likewise, it is easier to configure via the client screen.  
-
-![configure-widow-countermapping](../img/main/configure-widow-countermapping.png)
+The screen below is an example of the telegraf setting screen.
+![tg-config-countermapping](../img/main/tg-config-countermapping.png)
 
 
 #### 3.6. Counter mapping - tag filter
 It can only be collected if the tag has a certain tag value.  
-For example, when collecting cpu information of a VM with 4 cpu, the usage amount of each cpu and the usage amount of the entire cpu are all collected and can be classified by a specific tag value.  
-if you want to collect only if the value of `cpu` tag is `cpu-total` or `cpu-0`, set it as follows.
-```properties
-input_telegraf_$cpu$_tag_filter=cpu:cpu-total,cpu:cpu-0
-```
+For example, when collecting cpu information of a VM with four cpu, the usage amount of each cpu and the usage amount of the entire cpu are all collected and can be classified by a specific tag value.  
+If you want to collect only if the value of `cpu` tag is cpu-total, cpu-0, set it as follows.  
 
-If you want to collect only the value of `cpu` tag except `cpu-total`, set this.
+![tg-config-tagfilter](../img/main/tg-config-tagfilter.png)
+
+If you want to collect only the value of the `cpu` tag except cpu-total, set it to `!cpu-toal`.
+
 ```properties
 input_telegraf_$cpu$_tag_filter=cpu:!cpu-total
 ```
+####3.7. scouter-telegaf.xml
+All of the above settings can be modified directly in the xml configuration file using the Scouter client.
+ - Menu : **Collector > Configures > Telegraf Config > Edit scouter-telegraf config file directly**
 
+> When you install the Scouter collector, there is a sample file in scouter-telegraf.xml in the ./conf directory.
+> This sample file contains examples for the redis, nginx, and mysql metrics.
 
-### 4. check counters.site.xml  
-If the telegraf performance information is requested to the scouter collector after setting up as above, the meta information about the counter is automatically registered in counters.site.xml.  
-However, even if you delete it from the configuration, the counter meta information is not deleted.  
-To delete it, you have to delete it directly in counters.site.xml. Especially, if you modify the same counter many times, garbage of the same type may remain. Check this in counters.site.xml and modify it appropriately.  
-(If you modify counters.site.xml, you must restart the collector server.)  
-  
-counters.site.xml is located in the collector's conf directory.  
-  - counters-site.xml Example (Below are the automatically registered counters. The contents were briefly revised.)
+### 4. check counters.site.xml 
+
+Once the above configuration is done, if telegraf performance information is requested by the scouter collector, meta information about the counter is automatically registered in counters.site.xml.  
+However, if you delete it from the configuration, the counter meta information is not deleted.  
+To delete it, you have to delete it directly in counters.site.xml. Especially, if you modify the same counter delta type several times, there may be a duplicate counter definition with the same name (`name`) in the same family. Check it in the counters.site.xml and make sure to modify it appropriately.  
+ - Menu : Collectors > Config > Edit counters.site.xml
+
+The following is a simplified example of counters.site.xml.
 ```xml
 <Counters>
 <Types>
@@ -227,4 +211,4 @@ counters.site.xml is located in the collector's conf directory.
   </Familys>
 </Counters>
 ```
-
+   

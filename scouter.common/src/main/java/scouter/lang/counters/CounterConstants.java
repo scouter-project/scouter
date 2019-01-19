@@ -168,4 +168,6 @@ public class CounterConstants {
 	public static final String INTR_NORMAL_INCOMING = "INTR_NORMAL_INCOMING";
 	public static final String INTR_DB_CALL = "INTR_DB_CALL";
 	public static final String INTR_REDIS_CALL = "INTR_REDIS_CALL";
+	public static final String INTR_KAFKA_CALL = "INTR_KAFKA_CALL";
+	public static final String INTR_RABBITMQ_CALL = "INTR_RABBITMQ_CALL";
 }
