@@ -15,6 +15,7 @@
  *  limitations under the License. 
  */
 package scouter.agent.trace.api;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.plugin.PluginHttpCallTrace;
@@ -22,6 +23,7 @@ import scouter.agent.proxy.HttpClient43Factory;
 import scouter.agent.proxy.IHttpClient;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
+import scouter.lang.constants.B3Constant;
 import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
@@ -82,6 +84,11 @@ public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 				httpclient.addHeader(req, conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
 				httpclient.addHeader(req, conf._trace_interservice_callee_header_key, Hexa32.toString32(calleeTxid));
 				httpclient.addHeader(req, conf._trace_interservice_caller_obj_header_key, String.valueOf(conf.getObjHash()));
+
+				httpclient.addHeader(req, B3Constant.B3_HEADER_TRACEID, Hexa32.toUnsignedLongHex(ctx.gxid));
+				httpclient.addHeader(req, B3Constant.B3_HEADER_PARENTSPANID, Hexa32.toUnsignedLongHex(ctx.txid));
+				httpclient.addHeader(req, B3Constant.B3_HEADER_SPANID, Hexa32.toUnsignedLongHex(calleeTxid));
+				//httpclient.addHeader(oRtn, B3Constant.B3_HEADER_SAMPLED, "1"); omit means defer
 				PluginHttpCallTrace.call(ctx, req);
 			} catch (Throwable e) {
 				Logger.println("A001", e);

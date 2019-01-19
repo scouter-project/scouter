@@ -261,6 +261,8 @@ public class Configure extends Thread {
     public int _trace_fullstack_socket_open_port = 0;
     @ConfigDesc("")
     public int _trace_sql_parameter_max_count = 128;
+    @ConfigDesc("max length of bound sql parameter on profile view(< 500)")
+    public int trace_sql_parameter_max_length = 20;
     @ConfigDesc("")
     public String trace_delayed_service_mgr_filename = "setting_delayed_service.properties";
     @ConfigDesc("")
@@ -1050,6 +1052,7 @@ public class Configure extends Thread {
         this._profile_fullstack_sql_execute_debug_enabled = getBoolean("_profile_fullstack_sql_execute_debug_enabled", false);
         this._trace_fullstack_socket_open_port = getInt("_trace_fullstack_socket_open_port", 0);
         this._trace_sql_parameter_max_count = getInt("_trace_sql_parameter_max_count", 128);
+        this.trace_sql_parameter_max_length = Math.min(getInt("trace_sql_parameter_max_length", 20), 500);
         this.log_dir = getValue("log_dir", "");
         this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
         this.log_keep_days = getInt("log_keep_days", 7);

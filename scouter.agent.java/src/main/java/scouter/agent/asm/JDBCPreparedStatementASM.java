@@ -75,7 +75,10 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		target.add("Altibase/jdbc/driver/ABPreparedStatement");
 
 		// MySql Connector/j 6.X
-                target.add("com/mysql/cj/jdbc/PreparedStatement");
+        target.add("com/mysql/cj/jdbc/PreparedStatement");
+		// MySql Connector/j 8.X
+		target.add("com/mysql/cj/jdbc/ServerPreparedStatement");
+		target.add("com/mysql/cj/jdbc/ClientPreparedStatement");
 
         target.add("org/h2/jdbc/JdbcPreparedStatement"); // h2
 
@@ -84,6 +87,7 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		noField.add("jdbc/FakePreparedStatement2");
         noField.add("org/mariadb/jdbc/MariaDbClientPreparedStatement");
         noField.add("org/mariadb/jdbc/MariaDbServerPreparedStatement");
+		target.add("com/mysql/cj/jdbc/ServerPreparedStatement");
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

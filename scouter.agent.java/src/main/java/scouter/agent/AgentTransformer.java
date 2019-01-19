@@ -16,6 +16,11 @@
  */
 package scouter.agent;
 
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 import scouter.agent.asm.AddFieldASM;
 import scouter.agent.asm.ApiCallResponseObjectASM;
 import scouter.agent.asm.ApicallASM;
@@ -56,16 +61,12 @@ import scouter.agent.asm.kafka.KafkaProducerASM;
 import scouter.agent.asm.rabbit.RabbitPublisherASM;
 import scouter.agent.asm.redis.JedisCommandASM;
 import scouter.agent.asm.redis.JedisProtocolASM;
+import scouter.agent.asm.redis.LettuceASM;
 import scouter.agent.asm.redis.RedisCacheKeyASM;
 import scouter.agent.asm.redis.RedisKeyASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
 import scouter.util.FileUtil;
 import scouter.util.IntSet;
 
@@ -138,6 +139,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new RedisKeyASM());
         temp.add(new RedisCacheKeyASM());
         temp.add(new JedisProtocolASM());
+        temp.add(new LettuceASM());
         temp.add(new KafkaProducerASM());
         temp.add(new RabbitPublisherASM());
 

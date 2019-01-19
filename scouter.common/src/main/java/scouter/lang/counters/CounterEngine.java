@@ -63,7 +63,7 @@ public class CounterEngine {
 	private StringKeyLinkedMap<Family> familyMap = new StringKeyLinkedMap<Family>();
 	private StringKeyLinkedMap<ObjectType> objTypeMap = new StringKeyLinkedMap<ObjectType>();
 	
-	public void parse(byte[] content) {
+	public boolean parse(byte[] content) {
 		try {
 			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -218,7 +218,9 @@ public class CounterEngine {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 	
 	public synchronized void clear() {

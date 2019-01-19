@@ -14,10 +14,10 @@ SCOUTER is an open source APM like new relic and appdynamics.
    - Java Agent : Web application (on Tomcat, JBoss, Resin ...), Standalone java application
    - Host Agent : Linux, Windows, Unix
 
- - **Monitoring targets (from Telegraf support)**
+ - **Monitoring targets (from Telegraf support) Since @2.0.0**
    - Redis, nginX, apache httpd, haproxy, Kafka, MySQL, MongoDB, RabbitMQ, ElasticSearch, Kube, Mesos ...
 
- - **Monitoring targets (from Zipkin-Scouter storage)**
+ - **Monitoring targets (from Zipkin-Scouter storage) Since @2.5.0**
    - Any zipkin instrumentations(C#, Go, Python, Javascript, PHP...) can be shown in a XLog(Scatter) chart. 
    - see the [zipkin-scouter-storage](https://github.com/scouter-project/zipkin-scouter) documentation.
    - see the [zipkin instrumentations.](https://zipkin.io/pages/existing_instrumentations.html)  

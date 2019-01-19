@@ -14,6 +14,7 @@ if [ -z "$MVN" ]; then
     echo maven not found.
 	exit 1
 else
-    $MVN -Dmaven.test.skip=true clean package
+    $MVN -Dmaven.test.skip=true clean install
+    $MVN -Dmaven.test.skip=true -f ./scouter.agent.java/pom.xml -Pjava-legacy clean package
     $MVN -Dmaven.test.skip=true -f ./scouter.deploy/pom.xml clean package
 fi
