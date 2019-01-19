@@ -171,7 +171,7 @@ If you want to collect only the value of the `cpu` tag except cpu-total, set it 
 ```properties
 input_telegraf_$cpu$_tag_filter=cpu:!cpu-total
 ```
-####3.7. scouter-telegaf.xml
+#### 3.7. scouter-telegaf.xml
 All of the above settings can be modified directly in the xml configuration file using the Scouter client.
  - Menu : **Collector > Configures > Telegraf Config > Edit scouter-telegraf config file directly**
 
