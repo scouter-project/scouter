@@ -172,7 +172,7 @@ object_name = redis_30779
 만약 `cpu` tag의 값이 cpu-total만 제외하고 수집하고 싶다면 `!cpu-total` 이라고 설정한다.
 
 
-####3.7. scouter-telegaf.xml
+#### 3.7. scouter-telegaf.xml
 위 모든 설정은 Scouter client를 이용해 xml 설정 파일을 직접 수정할 수도 있다.
  - 메뉴 : **Collector > Configures > Telegraf Config > Edit scouter-telegraf config file directly**
 
