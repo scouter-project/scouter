@@ -138,7 +138,7 @@ Each mapping setting item is as follows.
      - The field name passed in the line protocol.
    - Counter, **required**
      - It is the counter name in the scouter.
-     - **A counter name must not be duplicated within the same Family**
+     - **A counter name must not be duplicated within scouter**
    - Delta Type, **required**
      - The delta counter is a counter showing the amount of change per second.
      - If delta counter is specified, _$delta is added to name and /s is added to unit.

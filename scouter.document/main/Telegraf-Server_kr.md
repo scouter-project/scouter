@@ -141,7 +141,7 @@ object_name = redis_30779
      - line protocol에서 전달되는 telegraf field명이다.
    - Counter, **required**
      - scouter에서의 counter 명이다.
-     - **counter 명은 동일한 Family 내에서 중복되어서는 안된다!**
+     - **counter 명은 중복되어서는 않된다.!**
    - Delta Type, **required**
      - Delta counter는 초당 변경량을 보여주는 counter이다.
      - Delta counter로 지정되면 name에 **_$delta**가 추가되며 unit에는 **/s**가 추가된다..
