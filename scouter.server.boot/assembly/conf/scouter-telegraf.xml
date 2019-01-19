@@ -96,7 +96,7 @@
             <counterMappings>
                 <counterMapping>
                     <tgFieldName>used_percent</tgFieldName>
-                    <counterName>mem-used_percent</counterName>
+                    <counterName>mem_used_percent</counterName>
                     <displayName>mem_used_percent</displayName>
                     <unit>%</unit>
                     <totalizable>false</totalizable>
@@ -105,7 +105,7 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>free</tgFieldName>
-                    <counterName>mem-free</counterName>
+                    <counterName>mem_free</counterName>
                     <displayName>mem_free</displayName>
                     <unit>byte</unit>
                     <totalizable>false</totalizable>
@@ -114,7 +114,7 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>total</tgFieldName>
-                    <counterName>mem-total</counterName>
+                    <counterName>mem_total</counterName>
                     <displayName>mem_total</displayName>
                     <unit>byte</unit>
                     <totalizable>false</totalizable>
@@ -145,7 +145,7 @@
             <counterMappings>
                 <counterMapping>
                     <tgFieldName>keyspace_hits</tgFieldName>
-                    <counterName>keyspace_hits</counterName>
+                    <counterName>redis_keyspace_hits</counterName>
                     <displayName>keyspace_hits</displayName>
                     <unit>ea</unit>
                     <totalizable>false</totalizable>
@@ -154,7 +154,7 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>used_memory</tgFieldName>
-                    <counterName>used_memory</counterName>
+                    <counterName>redis_used_memory</counterName>
                     <displayName>used_memory</displayName>
                     <unit>bytes</unit>
                     <totalizable>false</totalizable>
@@ -163,7 +163,7 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>expired_keys</tgFieldName>
-                    <counterName>expired_keys</counterName>
+                    <counterName>redis_expired_keys</counterName>
                     <displayName>expired_keys</displayName>
                     <unit>ea</unit>
                     <totalizable>false</totalizable>
@@ -172,7 +172,7 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>evicted_keys</tgFieldName>
-                    <counterName>evicted_keys</counterName>
+                    <counterName>redis_evicted_keys</counterName>
                     <displayName>expired_keys</displayName>
                     <unit>ea</unit>
                     <totalizable>false</totalizable>
@@ -181,7 +181,7 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>total_connections_received</tgFieldName>
-                    <counterName>total_connections_received</counterName>
+                    <counterName>redis_total_connections_received</counterName>
                     <displayName>total_connections_received</displayName>
                     <unit>ea</unit>
                     <totalizable>false</totalizable>
@@ -190,7 +190,7 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>total_commands_processed</tgFieldName>
-                    <counterName>total_commands_processed</counterName>
+                    <counterName>redis_total_commands_processed</counterName>
                     <displayName>total_commands_processed</displayName>
                     <unit>ea</unit>
                     <totalizable>false</totalizable>
@@ -221,7 +221,7 @@
             <counterMappings>
                 <counterMapping>
                     <tgFieldName>keys</tgFieldName>
-                    <counterName>keys-$database$</counterName>
+                    <counterName>redis_keys-$database$</counterName>
                     <displayName>keys-$database$</displayName>
                     <unit>ea</unit>
                     <totalizable>false</totalizable>
@@ -230,7 +230,7 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>expires</tgFieldName>
-                    <counterName>expires-$database$</counterName>
+                    <counterName>redis_expires-$database$</counterName>
                     <displayName>expires-$database$</displayName>
                     <unit>ea</unit>
                     <totalizable>false</totalizable>
@@ -261,8 +261,8 @@
             <counterMappings>
                 <counterMapping>
                     <tgFieldName>active</tgFieldName>
-                    <counterName>active</counterName>
-                    <displayName>active-connections</displayName>
+                    <counterName>nginx_active</counterName>
+                    <displayName>nginx-active-connections</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -270,8 +270,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>reading</tgFieldName>
-                    <counterName>reading</counterName>
-                    <displayName>active-conn-header-reading</displayName>
+                    <counterName>nginx_reading</counterName>
+                    <displayName>nginx-active-conn-header-reading</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -279,8 +279,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>writing</tgFieldName>
-                    <counterName>writing</counterName>
-                    <displayName>active-conn-working</displayName>
+                    <counterName>nginx_writing</counterName>
+                    <displayName>nginx-active-conn-working</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -288,8 +288,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>waiting</tgFieldName>
-                    <counterName>waiting</counterName>
-                    <displayName>keepalived-connections</displayName>
+                    <counterName>nginx_waiting</counterName>
+                    <displayName>nginx-keepalived-connections</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -297,8 +297,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>accepts</tgFieldName>
-                    <counterName>accepts</counterName>
-                    <displayName>accepted-connections</displayName>
+                    <counterName>nginx_accepts</counterName>
+                    <displayName>nginx-accepted-connections</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -306,8 +306,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>handled</tgFieldName>
-                    <counterName>handled</counterName>
-                    <displayName>handled-connections</displayName>
+                    <counterName>nginx_handled</counterName>
+                    <displayName>nginx-handled-connections</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -315,8 +315,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>requests</tgFieldName>
-                    <counterName>requests</counterName>
-                    <displayName>request-count</displayName>
+                    <counterName>nginx_requests</counterName>
+                    <displayName>nginx-request-count</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -346,8 +346,8 @@
             <counterMappings>
                 <counterMapping>
                     <tgFieldName>connections</tgFieldName>
-                    <counterName>connections</counterName>
-                    <displayName>connections</displayName>
+                    <counterName>mysql_connections</counterName>
+                    <displayName>mysql_connections</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -355,8 +355,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>bytes_received</tgFieldName>
-                    <counterName>bytes_received</counterName>
-                    <displayName>bytes_received</displayName>
+                    <counterName>mysql_bytes_received</counterName>
+                    <displayName>mysql_bytes_received</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -364,8 +364,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>bytes_sent</tgFieldName>
-                    <counterName>bytes_sent</counterName>
-                    <displayName>bytes_sent</displayName>
+                    <counterName>mysql_bytes_sent</counterName>
+                    <displayName>mysql_bytes_sent</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -373,8 +373,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>com_commit</tgFieldName>
-                    <counterName>com_commit</counterName>
-                    <displayName>com_commit</displayName>
+                    <counterName>mysql_com_commit</counterName>
+                    <displayName>mysql_com_commit</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -382,8 +382,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>com_insert</tgFieldName>
-                    <counterName>com_insert</counterName>
-                    <displayName>com_insert</displayName>
+                    <counterName>mysql_com_insert</counterName>
+                    <displayName>mysql_com_insert</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -391,8 +391,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>com_update</tgFieldName>
-                    <counterName>com_update</counterName>
-                    <displayName>com_update</displayName>
+                    <counterName>mysql_com_update</counterName>
+                    <displayName>mysql_com_update</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -400,8 +400,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>com_select</tgFieldName>
-                    <counterName>com_select</counterName>
-                    <displayName>com_select</displayName>
+                    <counterName>mysql_com_select</counterName>
+                    <displayName>mysql_com_select</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -409,8 +409,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>innodb_data_reads</tgFieldName>
-                    <counterName>innodb_data_reads</counterName>
-                    <displayName>innodb_data_reads</displayName>
+                    <counterName>mysql_innodb_data_reads</counterName>
+                    <displayName>mysql_innodb_data_reads</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -418,8 +418,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>innodb_data_writes</tgFieldName>
-                    <counterName>innodb_data_writes</counterName>
-                    <displayName>innodb_data_writes</displayName>
+                    <counterName>mysql_innodb_data_writes</counterName>
+                    <displayName>mysql_innodb_data_writes</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -427,8 +427,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>innodb_row_lock_waits</tgFieldName>
-                    <counterName>innodb_row_lock_waits</counterName>
-                    <displayName>innodb_row_lock_waits</displayName>
+                    <counterName>mysql_innodb_row_lock_waits</counterName>
+                    <displayName>mysql_innodb_row_lock_waits</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -436,8 +436,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>innodb_buffer_pool_pages_total</tgFieldName>
-                    <counterName>innodb_buffer_pool_pages_dirty</counterName>
-                    <displayName>innodb_buffer_pool_pages_dirty</displayName>
+                    <counterName>mysql_innodb_buffer_pool_pages_dirty</counterName>
+                    <displayName>mysql_innodb_buffer_pool_pages_dirty</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -445,8 +445,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>innodb_buffer_pool_pages_dirty</tgFieldName>
-                    <counterName>innodb_buffer_pool_pages_dirty</counterName>
-                    <displayName>innodb_buffer_pool_pages_dirty</displayName>
+                    <counterName>mysql_innodb_buffer_pool_pages_dirty</counterName>
+                    <displayName>mysql_innodb_buffer_pool_pages_dirty</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -454,8 +454,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>innodb_buffer_pool_pages_free</tgFieldName>
-                    <counterName>innodb_buffer_pool_pages_free</counterName>
-                    <displayName>innodb_buffer_pool_pages_free</displayName>
+                    <counterName>mysql_innodb_buffer_pool_pages_free</counterName>
+                    <displayName>mysql_innodb_buffer_pool_pages_free</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -463,8 +463,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>innodb_data_pending_fsyncs</tgFieldName>
-                    <counterName>innodb_data_pending_fsyncs</counterName>
-                    <displayName>innodb_data_pending_fsyncs</displayName>
+                    <counterName>mysql_innodb_data_pending_fsyncs</counterName>
+                    <displayName>mysql_innodb_data_pending_fsyncs</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -472,8 +472,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>innodb_data_pending_reads</tgFieldName>
-                    <counterName>innodb_data_pending_reads</counterName>
-                    <displayName>innodb_data_pending_reads</displayName>
+                    <counterName>mysql_innodb_data_pending_reads</counterName>
+                    <displayName>mysql_innodb_data_pending_reads</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -481,8 +481,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>innodb_data_pending_writes</tgFieldName>
-                    <counterName>innodb_data_pending_writes</counterName>
-                    <displayName>innodb_data_pending_writes</displayName>
+                    <counterName>mysql_innodb_data_pending_writes</counterName>
+                    <displayName>mysql_innodb_data_pending_writes</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -490,8 +490,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>innodb_row_lock_current_waits</tgFieldName>
-                    <counterName>innodb_row_lock_current_waits</counterName>
-                    <displayName>innodb_row_lock_current_waits</displayName>
+                    <counterName>mysql_innodb_row_lock_current_waits</counterName>
+                    <displayName>mysql_innodb_row_lock_current_waits</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -521,8 +521,8 @@
             <counterMappings>
                 <counterMapping>
                     <tgFieldName>dml_deletes</tgFieldName>
-                    <counterName>dml_deletes</counterName>
-                    <displayName>dml_deletes</displayName>
+                    <counterName>mysql_inno_dml_deletes</counterName>
+                    <displayName>mysql_inno_dml_deletes</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -530,8 +530,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>dml_updates</tgFieldName>
-                    <counterName>dml_updates</counterName>
-                    <displayName>dml_updates</displayName>
+                    <counterName>mysql_inno_dml_updates</counterName>
+                    <displayName>mysql_inno_dml_updates</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -539,8 +539,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>dml_inserts</tgFieldName>
-                    <counterName>dml_inserts</counterName>
-                    <displayName>dml_inserts</displayName>
+                    <counterName>mysql_inno_dml_inserts</counterName>
+                    <displayName>mysql_inno_dml_inserts</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
@@ -548,8 +548,8 @@
                 </counterMapping>
                 <counterMapping>
                     <tgFieldName>dml_reads</tgFieldName>
-                    <counterName>dml_reads</counterName>
-                    <displayName>dml_reads</displayName>
+                    <counterName>mysql_inno_dml_reads</counterName>
+                    <displayName>mysql_inno_dml_reads</displayName>
                     <unit></unit>
                     <totalizable>false</totalizable>
                     <normalizeSeconds>30</normalizeSeconds>
