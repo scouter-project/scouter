@@ -62,9 +62,9 @@
   - [Web API Guide](./scouter.document/tech/Web-API-Guide_kr.md)
 
 ### 3rd-party UIs
-- **scouter paper** : [scouter-paper homepage](https://mindplates.github.io/scouter-paper/)
+- **scouter paper** : [scouter-paper homepage](https://scouter-contrib.github.io/scouter-paper/)
   - **showcase** : [scouter paper overview](https://www.youtube.com/watch?v=NjJ0dGhdIbU)  
-[![scouter-pater](https://mindplates.github.io/scouter-paper/img/img12.png)](https://www.youtube.com/watch?v=NjJ0dGhdIbU)
+[![scouter-pater](https://scouter-contrib.github.io/scouter-paper/img/img12.png)](https://www.youtube.com/watch?v=NjJ0dGhdIbU)
   
 
 ### Plugins
