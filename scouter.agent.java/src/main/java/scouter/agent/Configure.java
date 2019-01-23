@@ -52,7 +52,7 @@ import java.util.Set;
 
 public class Configure extends Thread {
     public static boolean JDBC_REDEFINED = false;
-    private static Configure instance = null;
+    private static final Configure instance;
     private long last_load_time = -1;
     public Properties property = new Properties();
     private boolean running = true;
@@ -67,15 +67,14 @@ public class Configure extends Thread {
         } else {
             agent_dir_path = jarFile.getParent();
         }
+
+        instance = new Configure();
+        instance.setDaemon(true);
+        instance.setName(ThreadUtil.getName(instance));
+        instance.start();
     }
 
-    public final static synchronized Configure getInstance() {
-        if (instance == null) {
-            instance = new Configure();
-            instance.setDaemon(true);
-            instance.setName(ThreadUtil.getName(instance));
-            instance.start();
-        }
+    public static final Configure getInstance() {
         return instance;
     }
 
