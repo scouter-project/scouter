@@ -25,6 +25,11 @@ import scouter.lang.pack.InteractionPerfCounterPack;
 import scouterx.webapp.framework.client.model.TextLoader;
 import scouterx.webapp.framework.client.model.TextProxy;
 import scouterx.webapp.framework.client.model.TextTypeEnum;
+import scouterx.webapp.model.scouter.CounterValue;
+import scouterx.webapp.model.scouter.SCounter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 29.
@@ -39,8 +44,10 @@ public class InteractionCounterData {
 
     public int fromObjHash;
     public String fromObjName;
+    public List<CounterValue> fromObjCounters = new ArrayList<>();
     public int toObjHash;
     public String toObjName;
+    public List<CounterValue> toObjCounters = new ArrayList<>();
 
     public int period;
     public int count;
@@ -61,6 +68,8 @@ public class InteractionCounterData {
                 .count(p.count)
                 .errorCount(p.errorCount)
                 .totalElapsed(p.totalElapsed)
+                .fromObjCounters(new ArrayList<>())
+                .toObjCounters(new ArrayList<>())
                 .build();
     }
 
@@ -70,5 +79,17 @@ public class InteractionCounterData {
         loader.addTextHash(TextTypeEnum.OBJECT, pack.toHash);
 
         loader.loadAll();
+    }
+
+    public void addFromObjCounter(SCounter counter) {
+        if (counter != null) {
+            fromObjCounters.add(CounterValue.of(counter));
+        }
+    }
+
+    public void addToObjCounter(SCounter counter) {
+        if (counter != null) {
+            toObjCounters.add(CounterValue.of(counter));
+        }
     }
 }

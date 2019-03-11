@@ -22,6 +22,7 @@ import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
 import scouter.util.StringUtil;
 import scouterx.webapp.framework.client.model.AgentModelThread;
+import scouterx.webapp.framework.client.model.AgentObject;
 import scouterx.webapp.model.enums.ActiveServiceMode;
 
 import java.util.ArrayList;
@@ -51,7 +52,11 @@ public class SActiveService {
 		for (Pack pack : activeServicePackList) {
 			MapPack mapPack = (MapPack) pack;
 			int objHash = mapPack.getInt("objHash");
-			String objName = AgentModelThread.getInstance().getAgentObject(objHash).getObjName();
+			AgentObject agentObject = AgentModelThread.getInstance().getAgentObject(objHash);
+			if (agentObject == null) {
+				continue;
+			}
+			String objName = agentObject.getObjName();
 
 			ListValue idLv = mapPack.getList("id");
 			ListValue nameLv = mapPack.getList("name");

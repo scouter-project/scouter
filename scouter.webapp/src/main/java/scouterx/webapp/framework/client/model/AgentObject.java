@@ -17,9 +17,11 @@
  */
 package scouterx.webapp.framework.client.model;
 
+import org.apache.commons.lang3.StringUtils;
 import scouter.lang.pack.ObjectPack;
 import scouter.lang.value.Value;
 import scouter.util.CastUtil;
+import scouter.util.HashUtil;
 import scouter.util.StringUtil;
 
 public class AgentObject {
@@ -76,6 +78,18 @@ public class AgentObject {
 		if (objPack == null)
 			return false;
 		return objPack.alive;
+	}
+
+	public String getParentName() {
+		int pos = StringUtils.lastIndexOf(objName, "/");
+		if (pos <= 0) {
+			return "/";
+		}
+		return StringUtils.substring(objName, 0, pos);
+	}
+
+	public int getParentHash() {
+		return HashUtil.hash(getParentName());
 	}
 
 	@Override
