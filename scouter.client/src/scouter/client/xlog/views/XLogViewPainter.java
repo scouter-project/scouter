@@ -67,6 +67,9 @@ public class XLogViewPainter {
 	private double yValueMin = 0;
 	private boolean viewIsInAdditionalDataLoading = false;
 
+	public long lastDrawTimeStart = 0L;
+	public long lastDrawTimeEnd = 0L;
+
 	private XLogViewMouse mouse;
 	private PointMap pointMap = new PointMap();
 	private final LongKeyLinkedMap<XLogData> xLogPerfData;
@@ -84,6 +87,7 @@ public class XLogViewPainter {
 	public StrMatch serviceMat;
 	public StrMatch ipMat;
 	public Pair<Long, Long> startFromToMat;
+	public Pair<Integer, Integer> resFromToMat;
 	public StrMatch loginMat;
 	public StrMatch descMat;
 	public StrMatch text1Mat;
@@ -92,6 +96,7 @@ public class XLogViewPainter {
 	public StrMatch text4Mat;
 	public StrMatch text5Mat;
 	public StrMatch userAgentMat;
+	public String profileSizeExpr;
 	
 	public String yyyymmdd;
 	ITimeChange callback;
@@ -268,7 +273,10 @@ public class XLogViewPainter {
 				gc.drawString(s, x - 25, chart_y + chart_h + 5 + 5);
 			}
 		}
-		
+
+		lastDrawTimeStart = time_start;
+		lastDrawTimeEnd = time_end;
+
 		drawXPerfData(gc, time_start, time_end, chart_x, chart_y, chart_w, chart_h);
 		drawChartBorder(gc, chart_x, chart_y, chart_w, chart_h);
 		drawYaxisDescription(gc, chart_x, chart_y);
@@ -625,6 +633,7 @@ public class XLogViewPainter {
 				&& isServiceFilterOk(d)
 				&& isIpFilterOk(d.p)
 				&& isStartTimeFilterOk(d.p)
+				&& isResponseTimeFilterOk(d.p)
 				&& isLoginFilterOk(d)
 				&& isDescFilterOk(d)
 				&& isText1FilterOk(d)
@@ -635,7 +644,8 @@ public class XLogViewPainter {
 				&& isUserAgentFilterOk(d)
 				&& isErrorFilterOk(d.p)
 				&& isApicallFilterOk(d.p)
-				&& isSqlFilterOk(d.p);
+				&& isSqlFilterOk(d.p)
+				&& isProfileSizeFilterOk(d.p);
 	}
 	
 	public boolean isObjNameFilterOk(XLogData d) {
@@ -677,6 +687,13 @@ public class XLogViewPainter {
 		}
 		long start = p.endTime - p.elapsed;
 		return startFromToMat.getLeft() <= start && start <= startFromToMat.getRight();
+	}
+
+	public boolean isResponseTimeFilterOk(XLogPack p) {
+		if (StringUtil.isEmpty(filterStatus.responseTimeFrom) || StringUtil.isEmpty(filterStatus.responseTimeTo)) {
+			return true;
+		}
+		return resFromToMat.getLeft() <= p.elapsed && p.elapsed <= resFromToMat.getRight();
 	}
 
 	public boolean isLoginFilterOk(XLogData d) {
@@ -749,7 +766,42 @@ public class XLogViewPainter {
 			return userAgentMat.include(userAgent);
 		}
 	}
-	
+
+	public boolean isProfileSizeFilterOk(XLogPack p) {
+		if (StringUtil.isEmpty(filterStatus.profileSizeText)) {
+			return true;
+		}
+		String exp = filterStatus.profileSizeText.trim();
+		char sign0 = exp.charAt(0);
+		char sign1 = exp.length() >= 2 ? exp.charAt(1) : '\0';
+		try {
+			if (sign0 == '>') {
+				if(sign1 == '=') {
+					return p.profileCount >= Integer.parseInt(exp.substring(2));
+				} else {
+					return p.profileCount > Integer.parseInt(exp.substring(1));
+				}
+			} else if (sign0 == '<') {
+				if(sign1 == '=') {
+					return p.profileCount <= Integer.parseInt(exp.substring(2));
+				} else {
+					return p.profileCount < Integer.parseInt(exp.substring(1));
+				}
+			} else if (sign0 == '=') {
+				if(sign1 == '=') {
+					return p.profileCount == Integer.parseInt(exp.substring(2));
+				} else {
+					return p.profileCount == Integer.parseInt(exp.substring(1));
+				}
+			} else {
+				return p.profileCount == Integer.parseInt(exp);
+			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+
 	public boolean isErrorFilterOk(XLogPack p) {
 		if (filterStatus.onlyError) {
 			return p.error != 0;
@@ -798,6 +850,9 @@ public class XLogViewPainter {
 		descMat = new StrMatch(status.desc);
 		userAgentMat = new StrMatch(status.userAgent);
 
+		profileSizeExpr = status.profileSizeText;
+
+		resFromToMat = new Pair<>(Integer.parseInt(status.responseTimeFrom), Integer.parseInt(status.responseTimeTo));
 		if (status.startHmsFrom.length() == 6 && status.startHmsTo.length() == 6) {
 			long dateMillis = DateUtil.dateUnitToTimeMillis(DateUtil.getDateUnit(paintedEndTime));
 			long startFrom = dateMillis + LocalTime.parse(status.startHmsFrom, hmsFormatter).toSecondOfDay() * 1000;

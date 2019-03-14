@@ -16,7 +16,6 @@
  */
 package scouter.agent.proxy;
 import scouter.agent.Logger;
-import scouter.agent.trace.TraceContext;
 public class NettyHttpClientFactory {
 	private static final String CLIENT = "scouter.xtra.httpclient.NettyHttpClient";
 	public static final IHttpClient dummy = new IHttpClient() {
@@ -27,6 +26,9 @@ public class NettyHttpClientFactory {
 			return null;
 		}
 		public String getHeader(Object o, String key) {
+			return null;
+		}
+		public String getResponseHeader(Object o, String key) {
 			return null;
 		}
 		public void addHeader(Object o, String key, String value) {

@@ -39,7 +39,7 @@ import java.time.format.DateTimeFormatter;
 @Setter
 @ToString
 public class CounterRequest {
-    private final long limitRangeSec = 60 * 60; //1 hour
+    private final long limitRangeSec = 6 * 60 * 60; //6 hour
 
     private int serverId;
 

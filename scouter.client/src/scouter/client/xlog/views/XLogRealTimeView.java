@@ -22,8 +22,12 @@ import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -85,6 +89,19 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 		String[] ids = StringUtil.split(secId, "&");
 		this.serverId = CastUtil.cint(ids[0]);
 		this.objType = ids[1];
+	}
+
+	@Override
+	protected void openInExternalLink() {
+		Program.launch(makeExternalUrl(serverId));
+	}
+
+	@Override
+	protected void clipboardOfExternalLink() {
+		Clipboard clipboard = new Clipboard(getViewSite().getShell().getDisplay());
+		String linkUrl = makeExternalUrl(serverId);
+		clipboard.setContents(new String[]{linkUrl}, new Transfer[]{TextTransfer.getInstance()});
+		clipboard.dispose();
 	}
 
 	public void createPartControl(final Composite parent) {

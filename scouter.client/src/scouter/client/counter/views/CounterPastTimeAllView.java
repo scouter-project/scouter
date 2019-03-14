@@ -17,15 +17,7 @@
  */
 package scouter.client.counter.views;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
+import au.com.bytecode.opencsv.CSVWriter;
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
 import org.csstudio.swt.xygraph.dataprovider.ISample;
 import org.csstudio.swt.xygraph.dataprovider.Sample;
@@ -63,8 +55,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-
-import au.com.bytecode.opencsv.CSVWriter;
 import scouter.client.Images;
 import scouter.client.counter.actions.OpenPastTimeAllAction;
 import scouter.client.model.AgentColorManager;
@@ -96,6 +86,15 @@ import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 import scouter.util.StringUtil;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class CounterPastTimeAllView extends ScouterViewPart implements CalendarDialog.ILoadCalendarDialog {
 	public static final String ID = CounterPastTimeAllView.class.getName();
@@ -146,7 +145,7 @@ public class CounterPastTimeAllView extends ScouterViewPart implements CalendarD
 		}
 		traces.clear();
 		
-		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter);
+		MenuUtil.createCounterContextMenu(ID, canvas, serverId, objType, counter, stime, etime);
 
 		ExUtil.asyncRun(new Runnable() {
 			public void run() {

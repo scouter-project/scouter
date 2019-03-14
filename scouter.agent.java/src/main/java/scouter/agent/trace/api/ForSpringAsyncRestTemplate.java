@@ -16,7 +16,10 @@
  */
 package scouter.agent.trace.api;
 
+import scouter.agent.Configure;
 import scouter.agent.proxy.IHttpClient;
+import scouter.agent.proxy.SpringRestTemplateHttpRequestFactory;
+import scouter.agent.trace.ApiCallTransferMap;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
@@ -27,6 +30,7 @@ import java.net.URI;
 
 public class ForSpringAsyncRestTemplate implements ApiCallTraceHelper.IHelper {
 
+	private Configure conf = Configure.getInstance();
 	private boolean ok = true;
 	private static IntKeyLinkedMap<IHttpClient> httpclients = new IntKeyLinkedMap<IHttpClient>().setMax(5);
 
@@ -56,5 +60,36 @@ public class ForSpringAsyncRestTemplate implements ApiCallTraceHelper.IHelper {
 
 		ctx.lastApiCallStep = step;
 		return step;
+	}
+
+	public void processEnd(TraceContext ctx, ApiCallStep step, Object rtn, HookArgs hookPoint) {
+		if (step instanceof ApiCallStep2) {
+			ApiCallTransferMap.put(System.identityHashCode(rtn), ctx, (ApiCallStep2) step);
+		}
+	}
+
+	public void processSetCalleeToCtx(TraceContext ctx, Object _this, Object response) {
+		IHttpClient httpclient = getProxy(_this);
+		String calleeObjHashStr = httpclient.getResponseHeader(response, conf._trace_interservice_callee_obj_header_key);
+		if (calleeObjHashStr != null) {
+			try {
+				ctx.lastCalleeObjHash = Integer.parseInt(calleeObjHashStr);
+			} catch (NumberFormatException e) {
+			}
+		} else {
+			ctx.lastCalleeObjHash = 0;
+		}
+	}
+
+	private IHttpClient getProxy(Object _this) {
+		int key = System.identityHashCode(_this.getClass());
+		IHttpClient httpclient = httpclients.get(key);
+		if (httpclient == null) {
+			synchronized (this) {
+				httpclient = SpringRestTemplateHttpRequestFactory.create(_this.getClass().getClassLoader());
+				httpclients.put(key, httpclient);
+			}
+		}
+		return httpclient;
 	}
 }

@@ -16,8 +16,8 @@
  */
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -52,7 +52,7 @@ class HttpServiceCV extends ClassVisitor implements Opcodes {
 	private static String TARGET_SIGNATURE = "(Ljavax/servlet/ServletRequest;Ljavax/servlet/ServletResponse;";
 	private String className;
 	public HttpServiceCV(ClassVisitor cv, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.className = className;
 	}
 	@Override
@@ -86,7 +86,7 @@ class HttpServiceMV extends LocalVariablesSorter implements Opcodes {
 	private Label startFinally = new Label();
 	private boolean httpservlet;
 	public HttpServiceMV(int access, String desc, MethodVisitor mv, boolean httpservlet) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.httpservlet = httpservlet;
 	}
 	private int statIdx;

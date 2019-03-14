@@ -18,15 +18,15 @@
 package scouter.agent.asm;
 
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.HookingSet;
-import scouter.agent.trace.TraceMain;
+import scouter.agent.trace.TraceSQL;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 
 import java.util.Set;
 
@@ -50,7 +50,7 @@ class InitialContextCV extends ClassVisitor implements Opcodes {
 
 	public String className;
 	public InitialContextCV(ClassVisitor cv, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.className = className;
 	}
 
@@ -70,7 +70,7 @@ class InitialContextCV extends ClassVisitor implements Opcodes {
 
 // ///////////////////////////////////////////////////////////////////////////
 class InitialContextMV extends LocalVariablesSorter implements Opcodes {
-	private static final String CLASS = TraceMain.class.getName().replace('.', '/');
+	private static final String CLASS = TraceSQL.class.getName().replace('.', '/');
 	private static final String METHOD = "ctxLookup";
 	private static final String SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Object;)V";
 
@@ -78,7 +78,7 @@ class InitialContextMV extends LocalVariablesSorter implements Opcodes {
 
 	public InitialContextMV(int access, String desc, MethodVisitor mv, String classname, String methodname,
 			String methoddesc) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.returnType = Type.getReturnType(desc);
 	}
 

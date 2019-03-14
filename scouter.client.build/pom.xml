@@ -11,16 +11,25 @@
 		<module>../scouter.client.product</module>
 	</modules>
 	<properties>
-		<tycho-version>0.26.0</tycho-version>
-		<neon.repo-url>http://download.eclipse.org/releases/neon</neon.repo-url>
+		<tycho-version>1.3.0</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<repositories>
+<!-- 		<repository> -->
+<!-- 	      <id>eclipse-simultaneous</id> -->
+<!-- 	      <layout>p2</layout> -->
+<!-- 	      <url>http://download.eclipse.org/releases/2018-12/</url> -->
+<!-- 	   </repository> -->
 		<repository>
-			<id>eclipse-neon</id>
-			<layout>p2</layout>
-			<url>${neon.repo-url}</url>
-		</repository>
+	      <id>eclipse-simultaneous-2018-09</id>
+	      <layout>p2</layout>
+	      <url>http://download.eclipse.org/releases/2018-09/</url>
+	   </repository>
+<!-- 	   <repository> -->
+<!-- 	      <id>eclipse-photon</id> -->
+<!-- 	      <layout>p2</layout> -->
+<!-- 	      <url>http://download.eclipse.org/releases/photon</url> -->
+<!-- 	   </repository> -->
 	</repositories>
 	<build>
 		<plugins>

@@ -18,7 +18,9 @@ package scouter.agent.proxy;
 import scouter.agent.Logger;
 
 public class SpringRestTemplateHttpRequestFactory {
+
 	private static final String CLIENT = "scouter.xtra.httpclient.SpringRestTemplateHttpRequest";
+
 	public static final IHttpClient dummy = new IHttpClient() {
 		public String getURI(Object o) {
 			return null;
@@ -29,9 +31,13 @@ public class SpringRestTemplateHttpRequestFactory {
 		public String getHeader(Object o, String key) {
 			return null;
 		}
+		public String getResponseHeader(Object o, String key) {
+			return null;
+		}
 		public void addHeader(Object o, String key, String value) {
 		}
 	};
+
 	public static IHttpClient create(ClassLoader parent) {
 		try {
 			ClassLoader loader = LoaderManager.getHttpClient(parent);
@@ -40,6 +46,7 @@ public class SpringRestTemplateHttpRequestFactory {
 			}
 			Class c = Class.forName(CLIENT, true, loader);
 			return (IHttpClient) c.newInstance();
+
 		} catch (Throwable e) {
 			e.printStackTrace();
 			Logger.println("A140", "fail to create", e);

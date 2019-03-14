@@ -17,18 +17,20 @@
 
 package scouter.lang.pack;
 
-import java.io.IOException;
-import java.sql.Timestamp;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.lang.value.MapValue;
 import scouter.util.Hexa32;
 
+import java.io.IOException;
+import java.sql.Timestamp;
+
 /**
  * Object that contains one agent(called object) information
  */
 public class ObjectPack implements Pack {
+
+	public static final String TAG_KEY_DEAD_TIME = "deadTime";
 
 	/**
 	 * Object type
@@ -90,6 +92,14 @@ public class ObjectPack implements Pack {
 	public void wakeup() {
 		this.wakeup = System.currentTimeMillis();
 		this.alive = true;
+	}
+
+	public void setDeadTime(int deadTime) {
+		this.tags.put(TAG_KEY_DEAD_TIME, deadTime);
+	}
+
+	public int getDeadTime() {
+		return tags.getInt(TAG_KEY_DEAD_TIME);
 	}
 
 	public byte getPackType() {

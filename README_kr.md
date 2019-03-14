@@ -1,4 +1,4 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent/badge.svg?t=1)](https://maven-badges.herokuapp.com/maven-central/io.github.scouter-project/scouter-parent)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/scouter-project/scouter/issues)
 
  
@@ -10,12 +10,15 @@
 
 오픈소스 APM인 Scouter는 JVM(WAS, Standalone application)을 사용하는 어플리케이션 및 OS 자원에 대한 모니터링 모니터링 기능을 제공한다.
  - **APM** : Application performance montoring / application performance management
- - 모니터링 대상 (현재)
-   - Java application - Web application (on Tomcat, JBoss, Resin ...), Standalone java application
-   - OS - LInux, Windows, Unix
- - 모니터링 대상 (TOBE)
-   - Redis, Apach HTTPD, nginX, Nodejs...
-
+ - 모니터링 대상 (전용 agent)
+   - Java Agent : Web application (on Tomcat, JBoss, Resin ...), Standalone java application
+   - Host Agent : Linux, Windows, Unix
+ - 모니터링 대상 (Telegraf support)
+   - Redis, nginX, apache httpd, haproxy, Kafka, MySQL, MongoDB, RabbitMQ, ElasticSearch, Kube, Mesos ...
+- 모니터링 대상 (Zipkin-Scouter storage)
+  - zipkin instrumentations (C#, Go, Python, Javascript, PHP...)를 XLog 차트를 통해 디스플레이합니다.
+  - see the [zipkin-scouter-storage](https://github.com/scouter-project/zipkin-scouter) documentation.
+  - see the [zipkin instrumentations.](https://zipkin.io/pages/existing_instrumentations.html)  
 
 ![Screen](./scouter.document/img/main/dashboard-sample-1.png)
 
@@ -28,7 +31,7 @@
   - 자원 : Cpu, Memory, Network and Heap usage, Connection pool 등.
 
 ## 소개 동영상(클릭)
-[![Demo gif](https://j.gifs.com/yDqbAa.gif)](https://youtu.be/iuArTzsD7Ws)
+[![Demo gif](./scouter.document/img/main/scouter-movie.gif)](https://youtu.be/iuArTzsD7Ws)
 
 ## Documents
  - [Document Home](./scouter.document/index_kr.md)
@@ -37,6 +40,7 @@
  - [Live demo 접속](./scouter.document/main/Live-Demo_kr.md)
  - [XLog 로 분석하기](./scouter.document/client/Reading-XLog_kr.md)
  - [사용자 정의 알람 스크립팅 - Alert plugins guide](./scouter.document/main/Alert-Plugin-Guide_kr.md)
+ - [Telegraf server feature](./scouter.document/main/Telegraf-Server_kr.md)
  - [Client 화면 설명](./scouter.document/client/How-To-Use-Client_kr.md)
 
 ## Download
@@ -57,14 +61,11 @@
 - **Web API (Since @1.8.0)** : 성능 카운터, XLog, 프로파일등의 정보를 HTTP 프로토콜을 통해 제공
   - [Web API Guide](./scouter.document/tech/Web-API-Guide_kr.md)
 
-
-### 3rd-party Agents
-- **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-project/scouter-pulse)
-  - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : AWS의 Cloudwatch에서 EC2/RDS/ELB의 성능 카운터 정보를 수집
-
 ### 3rd-party UIs
-- **scouter paper** : [scouter-paper](https://github.com/mindplates/scouter-paper)
-![scouter-pater](https://3.bp.blogspot.com/-OqQ9sxQKAXU/Wsncf-NgbAI/AAAAAAAAdn4/yhLAgU46y1YaAfantShxxlFdVKA_1xBHwCLcBGAs/s1600/scouter-pager-img.png)
+- **scouter paper** : [scouter-paper homepage](https://scouter-contrib.github.io/scouter-paper/)
+  - **showcase** : [scouter paper overview](https://www.youtube.com/watch?v=NjJ0dGhdIbU)  
+[![scouter-pater](https://scouter-contrib.github.io/scouter-paper/img/img12.png)](https://www.youtube.com/watch?v=NjJ0dGhdIbU)
+  
 
 ### Plugins
 - **Server plugin**
@@ -85,6 +86,10 @@
 - **Agent plugin**
   - TBD
 
+### 3rd-party Agents
+- **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-project/scouter-pulse)
+  - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : AWS의 Cloudwatch에서 EC2/RDS/ELB의 성능 카운터 정보를 수집
+
 ## Facebook
  - [Scouter APM 사용자 모임 - Facebook 그룹](https://www.facebook.com/groups/scouterapm/)
 
@@ -100,7 +105,10 @@
 ## Blogging & Posts
  - [Scouter 소소한 시리즈 #1 - 설치](http://gunsdevlog.blogspot.kr/2017/07/scouter-apm-1.html)
  - [Scouter 소소한 시리즈 #2 - 기본 항목 모니터링(1/2)](http://gunsdevlog.blogspot.kr/2017/07/scouter-apm-2-12.html)
- - [Scouter 소소한 시리즈 #3 - 기본 항목 모니터링(2/2)](http://gunsdevlog.blogspot.kr/2017/07/scouter-apm-basic-monitoring-2.html)
+ - [Scouter 소소한 시리즈 #2.1 - 기본 항목 모니터링(2/2)](http://gunsdevlog.blogspot.kr/2017/07/scouter-apm-basic-monitoring-2.html)
+ - [Scouter 소소한 시리즈 #3 - Active service & XLog](http://gunsdevlog.blogspot.kr/2018/05/scouter-apm-active-service-xlog.html)
+ - [Scouter 소소한 시리즈 #4 - XLog 활용 - 상세 기능](http://gunsdevlog.blogspot.kr/2018/05/scouter-apm-xlog-howto.html)
+ - [Scouter 소소한 시리즈 #5 - 사용자 정의 알림 활용](http://gunsdevlog.blogspot.kr/2018/05/scouter-customizable-alert.html)
  - [내 서비스에 Scouter APM을 적용해보기](http://kingbbode.tistory.com/12)
  - [배치 모니터링, Scouter로 편하고 효율적으로! by TMON](http://blog.naver.com/PostView.nhn?blogId=tmondev&logNo=220870505665)
  - [오픈소스 성능 모니터링 도구 Scouter 설정 by SUN](http://www.popit.kr/scouter-open-source-apm-config/)

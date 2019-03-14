@@ -17,8 +17,8 @@
 
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
@@ -91,7 +91,7 @@ class MethodCV extends ClassVisitor implements Opcodes {
 	private List<HookingSet> excludeTarget;
 
 	public MethodCV(ClassVisitor cv, HookingSet mset, List<HookingSet> excludeTarget, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.mset = mset;
 		this.excludeTarget = excludeTarget;
 		this.className = className;
@@ -168,7 +168,7 @@ class MethodMV extends LocalVariablesSorter implements Opcodes {
 	private Label startFinally = new Label();
 
 	public MethodMV(int access, String desc, MethodVisitor mv, String fullname, int fullname_hash) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.fullname = fullname;
 		this.fullname_hash = fullname_hash;
 	}

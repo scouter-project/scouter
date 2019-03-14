@@ -22,6 +22,7 @@ import scouter.lang.TextTypes;
 public class StepEnum {
 	public final static byte METHOD = 1;
 	public final static byte METHOD2 = 10;
+	public final static byte SPAN = 51;
 	public final static byte SQL = 2;
 	public final static byte SQL2 = 8;
 	public final static byte SQL3 = 16;
@@ -29,6 +30,7 @@ public class StepEnum {
 	public final static byte SOCKET = 5;
 	public final static byte APICALL = 6;
 	public final static byte APICALL2 = 15;
+	public final static byte SPANCALL = 52;
 	public final static byte THREAD_SUBMIT = 7;
 	public final static byte HASHED_MESSAGE = 9;
 	public final static byte PARAMETERIZED_MESSAGE = 17;
@@ -65,6 +67,8 @@ public class StepEnum {
 		SOCKET_SUM(StepEnum.SOCKET_SUM, SocketSum.class, null),
 		APICALL_SUM(StepEnum.APICALL_SUM, ApiCallSum.class, TextTypes.APICALL),
 		CONTROL(StepEnum.CONTROL, StepControl.class, null),
+		SPAN(StepEnum.SPAN, SpanStep.class, TextTypes.SERVICE),
+		SPANCALL(StepEnum.SPANCALL, SpanCallStep.class, TextTypes.SERVICE),
 		;
 
 		byte code;

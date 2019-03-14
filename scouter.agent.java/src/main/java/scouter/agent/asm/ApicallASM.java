@@ -16,8 +16,8 @@
  */
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
@@ -45,12 +45,14 @@ public class ApicallASM implements IASM, Opcodes {
         AsmUtil.add(reserved, "sun/net/www/protocol/http/HttpURLConnection", "getInputStream()Ljava/io/InputStream;");
         AsmUtil.add(reserved, "sun/net/www/protocol/http/HttpURLConnection", "connect()V");
         AsmUtil.add(reserved, "org/apache/commons/httpclient/HttpClient", "executeMethod("
-                + "Lorg/apache/commons/httpclient/HostConfiguration;" + "Lorg/apache/commons/httpclient/HttpMethod;"
+                + "Lorg/apache/commons/httpclient/HostConfiguration;"
+                + "Lorg/apache/commons/httpclient/HttpMethod;"
                 + "Lorg/apache/commons/httpclient/HttpState;" + ")I");
         AsmUtil.add(reserved, "org/apache/http/impl/client/InternalHttpClient", "doExecute");
         AsmUtil.add(reserved, "sun/net/www/http/HttpClient", "parseHTTP");
         AsmUtil.add(reserved, "org/apache/http/impl/client/AbstractHttpClient",//
-                "execute(Lorg/apache/http/HttpHost;" + "Lorg/apache/http/HttpRequest;"
+                "execute(Lorg/apache/http/HttpHost;"
+                        + "Lorg/apache/http/HttpRequest;"
                         + "Lorg/apache/http/protocol/HttpContext;)Lorg/apache/http/HttpResponse;");
         // JCO CLIENT 추가..
         AsmUtil.add(reserved, "com/sap/mw/jco/JCO$Client", "execute(Ljava/lang/String;" + //
@@ -82,7 +84,7 @@ public class ApicallASM implements IASM, Opcodes {
     }
 
     public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-        if (Configure.getInstance()._hook_methods_enabled == false) {
+        if (Configure.getInstance()._hook_apicall_enabled == false) {
             return cv;
         }
         HookingSet mset = reserved.get(className);
@@ -103,7 +105,7 @@ class ApicallExtCV extends ClassVisitor implements Opcodes {
     private HookingSet mset;
 
     public ApicallExtCV(ClassVisitor cv, HookingSet mset, String className) {
-        super(ASM5, cv);
+        super(ASM7, cv);
         this.mset = mset;
         this.className = className;
     }
@@ -133,7 +135,7 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
 
     public ApicallExtMV(int access, String desc, MethodVisitor mv, Type[] paramTypes, boolean isStatic,
                         String classname, String methodname, String methoddesc) {
-        super(ASM5, access, desc, mv);
+        super(ASM7, access, desc, mv);
         this.paramTypes = paramTypes;
         this.returnType = Type.getReturnType(desc);
         this.isStatic = isStatic;

@@ -42,18 +42,29 @@ object AgentManager {
     ThreadScala.startDaemon("scouter.server.core.AgentManager", { CoreRun.running }, 1000) {
         val now = System.currentTimeMillis();
         val deadtime = Configure.getInstance().object_deadtime_ms;
+        val zipkinDeadTime = Configure.getInstance().object_zipkin_deadtime_ms;
         val en = objMap.objects();
         var primaryObjCount = 0;
+
         while (en.hasMoreElements()) {
             val objPack = en.nextElement();
+
             if(!CounterConstants.BATCH.equals(objPack.objType)){
-	            if (now > objPack.wakeup + deadtime) {
-	                inactive(objPack.objHash);
-	            } else if (counterEngine.isPrimaryObject(objPack.objType)) {
-	                primaryObjCount += 1;
-	            }
+                var adjustDeadTime = 30000;
+                if (CounterConstants.ZIPKIN.equals(objPack.objType) || objPack.objType.startsWith(CounterConstants.ZIPKIN_TYPE_PREFIX)) {
+                    adjustDeadTime = if (objPack.getDeadTime() == 0) zipkinDeadTime else objPack.getDeadTime();
+                } else {
+                    adjustDeadTime = if (objPack.getDeadTime() == 0) deadtime else objPack.getDeadTime();
+                }
+
+                if (now > objPack.wakeup + adjustDeadTime) {
+                    inactive(objPack.objHash);
+                } else if (counterEngine.isPrimaryObject(objPack.objType)) {
+                    primaryObjCount += 1;
+                }
             }
         }
+
         this.primaryObjCount = primaryObjCount;
     }
 
@@ -81,7 +92,7 @@ object AgentManager {
             ObjectWR.add(objPack);
             Logger.println("S104", "New " + objPack);
         } else {
-            if(!objPack.alive && counterEngine.isPrimaryObject(objPack.objType)) {
+            if (!objPack.alive && counterEngine.isPrimaryObject(objPack.objType)) {
                 alertReactiveObject(objPack);
             }
 
@@ -92,6 +103,7 @@ object AgentManager {
             }
             objPack.wakeup();
             objPack.tags = p.tags;
+
             if (CompareUtil.equals(p.address, objPack.address) == false) {
                 save = true;
             }

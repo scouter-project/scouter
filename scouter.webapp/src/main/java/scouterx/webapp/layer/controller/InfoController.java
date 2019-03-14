@@ -20,7 +20,9 @@ package scouterx.webapp.layer.controller;
 
 import io.swagger.annotations.Api;
 import scouterx.webapp.framework.annotation.NoAuth;
+import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
+import scouterx.webapp.model.countermodel.CounterModelData;
 import scouterx.webapp.view.CommonResultView;
 import scouterx.webapp.view.ServerView;
 
@@ -29,6 +31,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,9 +54,26 @@ public class InfoController {
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List<ServerView>> retrieveServers() {
         List<ServerView> serverList = ServerManager.getInstance().getAllServerList().stream()
-                .map(s -> new ServerView(s.getId(), s.getName(), s.getSession() != 0, System.currentTimeMillis()-s.getDelta()))
+                .map(s -> new ServerView(s.getId(),
+                        s.getName(),
+                        s.getSession() != 0,
+                        System.currentTimeMillis()-s.getDelta(),
+                        s.getVersion()))
                 .collect(Collectors.toList());
 
         return CommonResultView.success(serverList);
+    }
+
+    /**
+     * get counter information
+     *
+     */
+    @GET @Path("/counter-model")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<CounterModelData> retrieveCounterModel(@QueryParam("serverId") int serverId) {
+        Server server = ServerManager.getInstance().getServerIfNullDefault(serverId);
+        CounterModelData counterModelData = CounterModelData.of(server.getCounterEngine());
+
+        return CommonResultView.success(counterModelData);
     }
 }

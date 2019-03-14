@@ -17,7 +17,6 @@
 
 package scouter.util;
 
-import java.io.File;
 /**
  * bugfix :  parse error for '*' by 2016.08.12 Paul S.J.Kim
  */
@@ -223,6 +222,9 @@ public class EscapeLiteralSQL {
 				comment_su++;
 				parsedSql.append("/*");
 				status = STAT.COMMENT;
+			} else {
+				parsedSql.append(chars[pos]);
+				status = STAT.NORMAL;
 			}
 		}
 	}
@@ -312,7 +314,25 @@ public class EscapeLiteralSQL {
 		//FileUtil.save("d:/tmp/sample-query2.out", ec.parsedSql.toString().getBytes());
 		System.out.println("SQL Orgin: " + s);
 		System.out.println("SQL Parsed: " + ec.getParsedSql());
-			System.out.println("PARAM: " + ec.param);
+		System.out.println("PARAM: " + ec.param);
+
+		s = "select 1 / 2 from dual";
+		ec = new EscapeLiteralSQL(s).process();
+		System.out.println("SQL Orgin: " + s);
+		System.out.println("SQL Parsed: " + ec.getParsedSql());
+		System.out.println("PARAM: " + ec.param);
+
+		s = "select 1/2 from dual";
+		ec = new EscapeLiteralSQL(s).process();
+		System.out.println("SQL Orgin: " + s);
+		System.out.println("SQL Parsed: " + ec.getParsedSql());
+		System.out.println("PARAM: " + ec.param);
+
+		s = "select 1/2 /* 3/4 3 / 4*/ from dual";
+		ec = new EscapeLiteralSQL(s).process();
+		System.out.println("SQL Orgin: " + s);
+		System.out.println("SQL Parsed: " + ec.getParsedSql());
+		System.out.println("PARAM: " + ec.param);
 	}
 
 	public String getParsedSql() {

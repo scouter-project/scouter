@@ -29,6 +29,8 @@ import scouter.lang.step.MessageStep;
 import scouter.lang.step.MethodStep;
 import scouter.lang.step.ParameterizedMessageStep;
 import scouter.lang.step.SocketStep;
+import scouter.lang.step.SpanCallStep;
+import scouter.lang.step.SpanStep;
 import scouter.lang.step.SqlStep;
 import scouter.lang.step.Step;
 import scouter.lang.step.StepEnum;
@@ -38,6 +40,9 @@ import scouter.util.IPUtil;
 import scouterx.webapp.framework.client.model.TextLoader;
 import scouterx.webapp.framework.client.model.TextModel;
 import scouterx.webapp.framework.client.model.TextTypeEnum;
+import scouterx.webapp.model.scouter.step.SCommonSpanStep;
+import scouterx.webapp.model.scouter.step.SSpanCallStep;
+import scouterx.webapp.model.scouter.step.SSpanStep;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,7 +69,7 @@ public class ProfileStepData {
         DataInputX din = new DataInputX(buff);
         try {
             while (din.available() > 0) {
-                Step step = din.readStep();
+                Step step = convert(din.readStep());
                 stepList.add(step);
                 addToTextLoader(step, textLoader);
             }
@@ -86,6 +91,18 @@ public class ProfileStepData {
         TextModel.endScope();
 
         return profileStepDataList;
+    }
+
+    private static Step convert(Step step) {
+        if (step instanceof SpanStep) {
+            return SSpanStep.of((SpanStep) step);
+
+        } else if (step instanceof SpanCallStep) {
+            return SSpanCallStep.of((SpanCallStep) step);
+
+        } else {
+            return step;
+        }
     }
 
     public static ProfileStepData of(Step step, long date, int serverId) {
@@ -137,6 +154,10 @@ public class ProfileStepData {
             case THREAD_CALL_POSSIBLE:
                 mainValue = textTypeEnum.getTextModel().getTextIfNullDefault(date, ((ThreadCallPossibleStep) step).getHash(), serverId);
                 break;
+            case SPAN:
+            case SPANCALL:
+                mainValue = textTypeEnum.getTextModel().getTextIfNullDefault(date, ((SCommonSpanStep) step).getHash(), serverId);
+                break;
             case DUMP:
                 break;
             case MESSAGE:
@@ -161,6 +182,14 @@ public class ProfileStepData {
                 for (int stackHash : dumpStep.stacks) {
                     valueList.add(TextTypeEnum.STACK_ELEMENT.getTextModel().getTextIfNullDefault(date, stackHash, serverId));
                 }
+                break;
+            case SPAN:
+            case SPANCALL:
+                SCommonSpanStep spanStep = (SCommonSpanStep) step;
+                String localEndpointName = TextTypeEnum.OBJECT.getTextModel().getTextIfNullDefault(date, spanStep.getLocalEndpoint().getHash(), serverId);
+                String remoteEndpointName = TextTypeEnum.OBJECT.getTextModel().getTextIfNullDefault(date, spanStep.getRemoteEndpoint().getHash(), serverId);
+                spanStep.getLocalEndpoint().setServiceName(localEndpointName);
+                spanStep.getRemoteEndpoint().setServiceName(remoteEndpointName);
                 break;
 
             default:
@@ -208,6 +237,10 @@ public class ProfileStepData {
                 break;
             case THREAD_CALL_POSSIBLE:
                 textLoader.addTextHash(textTypeEnum, ((ThreadCallPossibleStep) step).getHash());
+                break;
+            case SPAN:
+            case SPANCALL:
+                textLoader.addTextHash(textTypeEnum, ((SCommonSpanStep) step).getHash());
                 break;
             case DUMP:
                 break;

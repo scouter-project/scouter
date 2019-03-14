@@ -81,12 +81,12 @@ public class MeterSQL {
 
 	public long getSumTime(int period) {
 		final LONG sum = new LONG();
-		period = meter.search(period, new Handler<MeterSQL.Bucket>() {
+		meter.search(period, new Handler<MeterSQL.Bucket>() {
 			public void process(Bucket b) {
 				sum.value += b.time;
 			}
 		});
-		return  ((period == 0) ? 0 : sum.value / period);
+		return  sum.value;
 	}
 	
 

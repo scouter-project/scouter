@@ -23,6 +23,7 @@ import java.util.Set;
 public class RequestCmd {
 	public static final String CLOSE = "CLOSE";
 	public static final String LOGIN = "LOGIN";
+	public static final String INTERNAL_LOGIN = "INTERNAL_LOGIN";
 	public static final String CHECK_LOGIN = "CHECK_LOGIN";
 	public static final String CHECK_SESSION = "CHECK_SESSION";
 	public static final String GET_LOGIN_LIST = "GET_LOGIN_LIST";
@@ -139,6 +140,8 @@ public class RequestCmd {
 	public static final String COUNTER_REAL_TIME_GROUP = "COUNTER_REAL_TIME_GROUP";
 	public static final String COUNTER_REAL_TIME_ALL_MULTI = "COUNTER_REAL_TIME_ALL_MULTI";
 
+	public static final String INTR_COUNTER_REAL_TIME_BY_OBJ = "INTR_COUNTER_REAL_TIME_BY_OBJ";
+
 	public static final String COUNTER_TODAY = "COUNTER_TODAY";
 	public static final String COUNTER_TODAY_ALL = "COUNTER_TODAY_ALL";
 	public static final String COUNTER_TODAY_TOT = "COUNTER_TODAY_TOT";
@@ -182,6 +185,11 @@ public class RequestCmd {
 	public static final String REDEFINE_CLASSES = "REDEFINE_CLASSES";
 	public static final String CONFIGURE_DESC = "CONFIGURE_DESC";
 	public static final String CONFIGURE_VALUE_TYPE = "CONFIGURE_VALUE_TYPE";
+	public static final String CONFIGURE_VALUE_TYPE_DESC = "CONFIGURE_VALUE_TYPE_DESC";
+	public static final String GET_CONFIGURE_TELEGRAF = "GET_CONFIGURE_TELEGRAF";
+	public static final String SET_CONFIGURE_TELEGRAF = "SET_CONFIGURE_TELEGRAF";
+	public static final String GET_CONFIGURE_COUNTERS_SITE = "GET_CONFIGURE_COUNTERS_SITE";
+	public static final String SET_CONFIGURE_COUNTERS_SITE = "SET_CONFIGURE_COUNTERS_SITE";
 
 	public static final String GET_ALERT_SCRIPTING_CONTETNS = "GET_ALERT_SCRIPTING_CONTETNS";
 	public static final String GET_ALERT_SCRIPTING_CONFIG_CONTETNS = "GET_ALERT_SCRIPTING_CONFIG_CONTETNS";

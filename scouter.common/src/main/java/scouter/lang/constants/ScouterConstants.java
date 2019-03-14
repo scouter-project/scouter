@@ -13,5 +13,5 @@ public class ScouterConstants {
 
     public static final String TAG_OBJ_DETECTED_TYPE = "detected";
 
-
+    public static final String SHORTENER_KEY_SPACE = "shortner";
 }

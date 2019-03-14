@@ -28,8 +28,9 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TraceContext {
-	private boolean isSummary;
+    private boolean isSummary;
 	public boolean isStaticContents;
+	public boolean isFullyDiscardService;
 
 	protected TraceContext() {
 	}
@@ -48,9 +49,13 @@ public class TraceContext {
 	public Thread thread;
 	public long threadId;
 	public long gxid;
+	public String b3Traceid;
+	public boolean b3Mode;
 
 	// profile
 	public IProfileCollector profile;
+	public int profileCount;
+
 	public long startTime;
 	public long startCpu;
 	public long latestCpu;
@@ -84,6 +89,7 @@ public class TraceContext {
 	public int apicall_time;
 	public String apicall_target;
 
+
 	//thread dispatch
 	public String lastThreadCallName;
 
@@ -102,6 +108,7 @@ public class TraceContext {
 	public boolean is_child_tx;
 	public long caller;
 	public long callee;
+	public int callerObjHash;
 
 	public String login;
 	public String desc;
@@ -132,6 +139,10 @@ public class TraceContext {
 
 	public SqlStep lastSqlStep;
 	public ApiCallStep lastApiCallStep;
+	public int lastCalleeObjHash;
+	public int lastDbUrl;
+	public String lastRedisConnHost;
+	public int lastRedisConnPort;
 
     public Queue<DumpStep> temporaryDumpSteps = new LinkedBlockingQueue<DumpStep>(5);
 	public boolean hasDumpStack;

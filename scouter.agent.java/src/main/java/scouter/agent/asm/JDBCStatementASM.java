@@ -16,9 +16,9 @@
  */
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -58,6 +58,8 @@ public class JDBCStatementASM implements IASM, Opcodes {
 		target.add("org/hsqldb/jdbc/JDBCStatement");
 		target.add("cubrid/jdbc/driver/CUBRIDStatement");
 		target.add("Altibase/jdbc/driver/AltibaseStatement");
+		target.add("Altibase/jdbc/driver/ABStatement");
+        target.add("org/h2/jdbc/JdbcStatement"); //h2
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
@@ -74,7 +76,7 @@ public class JDBCStatementASM implements IASM, Opcodes {
 class StatementCV extends ClassVisitor implements Opcodes {
 	private String owner;
 	public StatementCV(ClassVisitor cv) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 	}
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {

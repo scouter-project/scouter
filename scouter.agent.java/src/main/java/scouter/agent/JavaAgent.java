@@ -24,11 +24,23 @@ import scouter.util.logo.Logo;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Method;
 
 import static scouter.agent.Logger.conf;
 
 public class JavaAgent {
 	private static Instrumentation instrumentation;
+	private static boolean java9plus;
+	private static ClassLoader platformClassLoader;
+
+	static {
+		try
+		{
+			Method m = ClassLoader.class.getDeclaredMethod("getPlatformClassLoader", new Class[0]);
+			platformClassLoader = (ClassLoader) m.invoke(null, new Object[0]);
+			java9plus = true;
+		} catch (Exception ignored) {}
+	}
 
 	public static void premain(String options, Instrumentation instrum) {
 		preStart(options, instrum, new AgentTransformer());
@@ -122,5 +134,11 @@ public class JavaAgent {
 
 	public static Instrumentation getInstrumentation() {
 		return instrumentation;
+	}
+	public static boolean isJava9plus() {
+		return java9plus;
+	}
+	public static ClassLoader getPlatformClassLoader() {
+		return platformClassLoader;
 	}
 }

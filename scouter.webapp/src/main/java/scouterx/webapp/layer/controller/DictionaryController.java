@@ -51,7 +51,7 @@ public class DictionaryController {
 
 	/**
 	 * get text values from dictionary keys requested
-	 * uri : /dictionary/{yyyymmdd}?texts=[service:10001,service:10002,obj:20001,sql:55555] (bracket is optional)
+	 * uri : /dictionary/{yyyymmdd}?dictKeys=[service:10001,service:10002,obj:20001,sql:55555] (bracket is optional)
 	 *
 	 * @param dictionaryRequest @see {@link DictionaryRequest}
 	 * @return

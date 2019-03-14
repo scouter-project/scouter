@@ -137,10 +137,15 @@ public class Configure extends Thread {
     public String profile_http_parameter_url_prefix = "/";
     @ConfigDesc("spring controller method parameter profile")
     public boolean profile_spring_controller_method_parameter_enabled = false;
-    @ConfigDesc("Activating profile summary function")
-    public boolean profile_summary_mode_enabled = false;
-    @ConfigDesc("Calculating CPU time by profile")
+
+//    @Deprecated
+//    @ConfigDesc("Activating profile summary function")
+//    public boolean profile_summary_mode_enabled = false;
+
+    @ConfigDesc("Profiling the memory usage of each method")
     public boolean profile_thread_cputime_enabled = false;
+    @ConfigDesc("Profiling the memory usage of each service")
+    public boolean profile_thread_memory_usage_enabled = true;
     @ConfigDesc("ThreadStack profile for open socket")
     public boolean profile_socket_open_fullstack_enabled = false;
     @ConfigDesc("ThreadStack profile for a certain port of open socket")
@@ -181,6 +186,8 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public boolean _profile_fullstack_sql_connection_enabled = false;
     @ConfigDesc("")
+    public boolean _profile_fullstack_sql_execute_debug_enabled = false;
+    @ConfigDesc("")
     public boolean profile_fullstack_rs_leak_enabled = false;
     @ConfigDesc("")
     public boolean profile_fullstack_stmt_leak_enabled = false;
@@ -215,6 +222,10 @@ public class Configure extends Thread {
     public String _trace_interservice_callee_header_key = "X-Scouter-Callee";
     @ConfigDesc("")
     public String _trace_interservice_caller_header_key = "X-Scouter-Caller";
+    @ConfigDesc("")
+    public String _trace_interservice_caller_obj_header_key = "X-Scouter-Caller-Obj";
+    @ConfigDesc("")
+    public String _trace_interservice_callee_obj_header_key = "X-Scouter-Callee-Obj";
     @ConfigDesc("JSession key for user ID")
     public String trace_user_session_key = "JSESSIONID";
     @ConfigDesc("")
@@ -250,6 +261,8 @@ public class Configure extends Thread {
     public int _trace_fullstack_socket_open_port = 0;
     @ConfigDesc("")
     public int _trace_sql_parameter_max_count = 128;
+    @ConfigDesc("max length of bound sql parameter on profile view(< 500)")
+    public int trace_sql_parameter_max_length = 20;
     @ConfigDesc("")
     public String trace_delayed_service_mgr_filename = "setting_delayed_service.properties";
     @ConfigDesc("")
@@ -376,6 +389,10 @@ public class Configure extends Thread {
     public String xlog_discard_service_patterns = "";
     @ConfigDesc("Do not discard error even if it's discard pattern.")
     public boolean xlog_discard_service_show_error = true;
+
+    @ConfigDesc("XLog fully discard service patterns\nNo XLog data, No apply to TPS and summary.\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String xlog_fully_discard_service_patterns = "";
 
     //Alert
     @ConfigDesc("Limited length of alert message")
@@ -549,6 +566,9 @@ public class Configure extends Thread {
     @ConfigDesc("Experimental! test it on staging environment of your system before enable this option.\n enable lambda expressioned class hook for detecting asyncronous processing. \nOnly classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
     public boolean hook_lambda_instrumentation_strategy_enabled = false;
 
+    @ConfigDesc("hystrix execution hook enabled")
+    public boolean hook_hystrix_enabled = false;
+
     @ConfigDesc("")
     public String hook_add_fields = "";
     @ConfigDesc("")
@@ -562,6 +582,8 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public boolean _hook_methods_enabled = true;
     @ConfigDesc("")
+    public boolean _hook_apicall_enabled = true;
+    @ConfigDesc("")
     public boolean _hook_socket_enabled = true;
     @ConfigDesc("")
     public boolean _hook_jsp_enabled = true;
@@ -573,6 +595,10 @@ public class Configure extends Thread {
     public boolean _hook_spring_rest_enabled = true;
     @ConfigDesc("")
     public boolean _hook_redis_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_kafka_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_rabbit_enabled = true;
 
     @ConfigDesc("")
     public String _hook_direct_patch_classes = "";
@@ -605,6 +631,8 @@ public class Configure extends Thread {
     public String counter_object_registry_path = "/tmp/scouter";
     @ConfigDesc("Activating custom jmx")
     public boolean counter_custom_jmx_enabled = false;
+    @ConfigDesc("Activating interaction counter")
+    public boolean counter_interaction_enabled = false;
 
     // SFA(Stack Frequency Analyzer)
     @ConfigDesc("Activating period threaddump function")
@@ -739,11 +767,12 @@ public class Configure extends Thread {
     }
 
     private void apply() {
+
         this.profile_http_querystring_enabled = getBoolean("profile_http_querystring_enabled", false);
         this.profile_http_header_enabled = getBoolean("profile_http_header_enabled", false);
         this.profile_http_parameter_enabled = getBoolean("profile_http_parameter_enabled", false);
         this.profile_spring_controller_method_parameter_enabled = getBoolean("profile_spring_controller_method_parameter_enabled", false);
-        this.profile_summary_mode_enabled = getBoolean("profile_summary_mode_enabled", false);
+        //this.profile_summary_mode_enabled = getBoolean("profile_summary_mode_enabled", false);
 
         this.profile_http_parameter_url_prefix = getValue("profile_http_parameter_url_prefix", "/");
         this.profile_http_header_url_prefix = getValue("profile_http_header_url_prefix", "/");
@@ -789,6 +818,7 @@ public class Configure extends Thread {
 
         this.mgr_static_content_extensions = getValue("mgr_static_content_extensions", "js, htm, html, gif, png, jpg, css");
         this.profile_thread_cputime_enabled = getBoolean("profile_thread_cputime_enabled", false);
+        this.profile_thread_memory_usage_enabled = getBoolean("profile_thread_memory_usage_enabled", true);
         this.profile_socket_open_fullstack_enabled = getBoolean("profile_socket_open_fullstack_enabled", false);
         this.trace_background_socket_enabled = getBoolean("trace_background_socket_enabled", true);
         this.profile_socket_open_fullstack_port = getInt("profile_socket_open_fullstack_port", 0);
@@ -880,6 +910,7 @@ public class Configure extends Thread {
         this.hook_async_thread_pool_executor_enabled = getBoolean("hook_async_thread_pool_executor_enabled", false);
 
         this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", false);
+        this.hook_hystrix_enabled = getBoolean("hook_hystrix_enabled", true);
 
         this.hook_add_fields = getValue("hook_add_fields", "");
         this.hook_context_classes = getValue("hook_context_classes", "javax/naming/InitialContext");
@@ -924,6 +955,8 @@ public class Configure extends Thread {
         this._trace_interservice_gxid_header_key = getValue("_trace_interservice_gxid_header_key", "X-Scouter-Gxid");
         this._trace_interservice_callee_header_key = getValue("_trace_interservice_callee_header_key", "X-Scouter-Callee");
         this._trace_interservice_caller_header_key = getValue("_trace_interservice_caller_header_key", "X-Scouter-Caller");
+        this._trace_interservice_caller_obj_header_key = getValue("_trace_interservice_caller_obj_header_key", "X-Scouter-Caller-Obj");
+        this._trace_interservice_callee_obj_header_key = getValue("_trace_interservice_callee_obj_header_key", "X-Scouter-Callee-Obj");
         this.profile_connection_open_fullstack_enabled = getBoolean("profile_connection_open_fullstack_enabled", false);
         this.profile_connection_autocommit_status_enabled = getBoolean("profile_connection_autocommit_status_enabled", false);
         this.trace_user_mode = getInt("trace_user_mode", 2);
@@ -937,6 +970,7 @@ public class Configure extends Thread {
         this._hook_dbconn_enabled = getBoolean("_hook_dbconn_enabled", true);
         this._hook_cap_enabled = getBoolean("_hook_cap_enabled", true);
         this._hook_methods_enabled = getBoolean("_hook_methods_enabled", true);
+        this._hook_apicall_enabled = getBoolean("_hook_apicall_enabled", true);
         this._hook_socket_enabled = getBoolean("_hook_socket_enabled", true);
         this._hook_jsp_enabled = getBoolean("_hook_jsp_enabled", true);
         this._hook_async_enabled = getBoolean("_hook_async_enabled", true);
@@ -944,6 +978,8 @@ public class Configure extends Thread {
         this._hook_usertx_enabled = getBoolean("_hook_usertx_enabled", true);
         this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", true);
         this._hook_redis_enabled = getBoolean("_hook_redis_enabled", true);
+        this._hook_kafka_enabled = getBoolean("_hook_kafka_enabled", true);
+        this._hook_rabbit_enabled = getBoolean("_hook_rabbit_enabled", true);
 
         this._hook_direct_patch_classes = getValue("_hook_direct_patch_classes", "");
 
@@ -954,6 +990,7 @@ public class Configure extends Thread {
         this.counter_recentuser_valid_ms = getLong("counter_recentuser_valid_ms", DateUtil.MILLIS_PER_FIVE_MINUTE);
         this.counter_object_registry_path = getValue("counter_object_registry_path", "/tmp/scouter");
         this.counter_custom_jmx_enabled = getBoolean("counter_custom_jmx_enabled", false);
+        this.counter_interaction_enabled = getBoolean("counter_interaction_enabled", false);
         this.custom_jmx_set = getStringSet("custom_jmx_set", "||");
         this.sfa_dump_enabled = getBoolean("sfa_dump_enabled", false);
         this.sfa_dump_interval_ms = getInt("sfa_dump_interval_ms", 10000);
@@ -1012,8 +1049,10 @@ public class Configure extends Thread {
         this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
         this.jmx_counter_enabled = getBoolean("jmx_counter_enabled", true);
         this._profile_fullstack_sql_connection_enabled = getBoolean("_profile_fullstack_sql_connection_enabled", false);
+        this._profile_fullstack_sql_execute_debug_enabled = getBoolean("_profile_fullstack_sql_execute_debug_enabled", false);
         this._trace_fullstack_socket_open_port = getInt("_trace_fullstack_socket_open_port", 0);
         this._trace_sql_parameter_max_count = getInt("_trace_sql_parameter_max_count", 128);
+        this.trace_sql_parameter_max_length = Math.min(getInt("trace_sql_parameter_max_length", 20), 500);
         this.log_dir = getValue("log_dir", "");
         this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
         this.log_keep_days = getInt("log_keep_days", 7);
@@ -1051,6 +1090,7 @@ public class Configure extends Thread {
 
         this.xlog_discard_service_patterns = getValue("xlog_discard_service_patterns", "");
         this.xlog_discard_service_show_error = getBoolean("xlog_discard_service_show_error", true);
+        this.xlog_fully_discard_service_patterns = getValue("xlog_fully_discard_service_patterns", "");
 
         resetObjInfo();
         setStaticContents();

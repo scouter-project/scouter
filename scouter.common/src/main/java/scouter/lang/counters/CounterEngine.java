@@ -49,7 +49,7 @@ public class CounterEngine {
 	public static final String TAG_FAMILY = "Family";
 	public static final String TAG_COUNTER = "Counter";
 	public static final String TAG_OBJECT_TYPE = "ObjectType";
-	
+
 	public static final String ATTR_NAME = "name";
 	public static final String ATTR_MASTER = "master";
 	public static final String ATTR_DISPLAY = "disp";
@@ -63,7 +63,7 @@ public class CounterEngine {
 	private StringKeyLinkedMap<Family> familyMap = new StringKeyLinkedMap<Family>();
 	private StringKeyLinkedMap<ObjectType> objTypeMap = new StringKeyLinkedMap<ObjectType>();
 	
-	public void parse(byte[] content) {
+	public boolean parse(byte[] content) {
 		try {
 			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -218,7 +218,9 @@ public class CounterEngine {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 	
 	public synchronized void clear() {
@@ -524,6 +526,14 @@ public class CounterEngine {
 	
 	public String[] getFamilyNames() {
 		return familyMap.keyArray();
+	}
+
+	public StringKeyLinkedMap<ObjectType> getRawObjectTypeMap() {
+		return objTypeMap;
+	}
+
+	public StringKeyLinkedMap<Family> getRawFamilyMap() {
+		return familyMap;
 	}
 	
 	public static void main(String[] args) {

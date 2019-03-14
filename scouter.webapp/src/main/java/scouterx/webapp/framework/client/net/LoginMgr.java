@@ -44,6 +44,7 @@ public class LoginMgr{
 			param.put("pass", encPassword);
 			param.put("version", Version.getClientFullVersion());
 			param.put("hostname", SysJMX.getHostName());
+			param.put("internal", "true");
 			
 			MapPack out = TcpProxy.loginByCleanConnection(server.getId(), param);
 			if (out == null) {
@@ -88,17 +89,7 @@ public class LoginMgr{
 				server.getConnectionPool().initPool(server.getId());
 				server.setOpen(true);
 
-				CounterEngine counterEngine = server.getCounterEngine();
-				MapPack m = getCounterXmlServer(server);
-				if (m != null) {
-					counterEngine.clear();
-					Value v1 = m.get("default");
-					counterEngine.parse(((BlobValue)v1).value);
-					v1 = m.get("custom");
-					if (v1 != null) {
-						counterEngine.parse(((BlobValue)v1).value);
-					}
-				}
+				refreshCounterEngine(server);
 				result.success = true;
 			}
 		} catch(Exception e){
@@ -108,7 +99,7 @@ public class LoginMgr{
 		}
 		return result;
 	}
-	
+
 	public static MapPack getCounterXmlServer(Server server) {
 		TcpProxy tcp = TcpProxy.getTcpProxy(server);
 		Pack p = null;
@@ -121,6 +112,20 @@ public class LoginMgr{
 			TcpProxy.close(tcp);
 		}
 		return (MapPack) p;
+	}
+
+	public static void refreshCounterEngine(Server server) {
+		CounterEngine counterEngine = new CounterEngine();
+		MapPack m = getCounterXmlServer(server);
+		if (m != null) {
+			Value v1 = m.get("default");
+			counterEngine.parse(((BlobValue)v1).value);
+			v1 = m.get("custom");
+			if (v1 != null) {
+				counterEngine.parse(((BlobValue)v1).value);
+			}
+			server.setCounterEngine(counterEngine);
+		}
 	}
 	
 }
