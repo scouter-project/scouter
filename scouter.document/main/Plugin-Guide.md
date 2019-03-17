@@ -130,7 +130,7 @@ Scouter distribution includes sample plugin files and the file name can not be m
 |**httpservice.plug**    | Invoked at begin and end of http service. |
 |**service.plug**        | Invoked at begin and end of user defined service. (The services are set by ```hook_service_patterns``` option) |
 |**httpcall.plug**       | Invoked at calling to another service using httpclients library |
-|**capture.plug**        | Invoked at init, start, end of methods that are set by options ```hook_method_patterns``` or ```hook_constructor_patterns```  |
+|**capture.plug**        | Invoked at init, start, end of methods that are set by options ```hook_args_patterns``` or ```hook_constructor_patterns```  |
 |**jdbcpoolplug**        | Invoked at calling DB connection URL |
 
 Refer to the link for details **[Scripting plugin java agent API](JavaAgent-Plugin-Scripting.md)**
