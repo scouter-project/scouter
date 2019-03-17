@@ -20,6 +20,7 @@ package scouter.agent.trace;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.DumpStep;
 import scouter.lang.step.SqlStep;
+import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.util.IntKeyMap;
 import scouter.util.SysJMX;
 
@@ -139,6 +140,7 @@ public class TraceContext {
 
 	public SqlStep lastSqlStep;
 	public ApiCallStep lastApiCallStep;
+	public ThreadCallPossibleStep lastThreadCallPossibleStep;
 	public int lastCalleeObjHash;
 	public int lastDbUrl;
 	public String lastRedisConnHost;
