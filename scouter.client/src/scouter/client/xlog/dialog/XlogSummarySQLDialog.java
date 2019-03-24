@@ -17,12 +17,6 @@
  */
 package scouter.client.xlog.dialog;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -37,7 +31,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
 import scouter.client.popup.SQLFormatDialog;
@@ -50,6 +43,12 @@ import scouter.lang.step.StepEnum;
 import scouter.lang.step.StepSingle;
 import scouter.util.FormatUtil;
 import scouter.util.Hexa32;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class XlogSummarySQLDialog extends Dialog {
 	private Table   sqlTable;
@@ -122,6 +121,9 @@ public class XlogSummarySQLDialog extends Dialog {
 				Collections.sort(list, new BindSumDataComp());
 				
 				String sqlText = sqlMap.get(hash).sqlText;
+				if (sqlText != null) {
+					sqlText = sqlText.replaceAll("(\r\n|\r|\n|\n\r)", " ");
+				}
 				TableItem bindItem;
 		    	for(BindSumData value : list){
 		    		bindItem = new TableItem(bindTable, SWT.BORDER);
@@ -211,6 +213,9 @@ public class XlogSummarySQLDialog extends Dialog {
 					sqlSumData = new SQLSumData();
 					sqlSumData.hash = sql.hash;
 					sqlSumData.sqlText = TextProxy.sql.getText(sql.hash);
+					if (sqlSumData.sqlText != null) {
+						sqlSumData.sqlText = sqlSumData.sqlText.replaceAll("(\r\n|\r|\n|\n\r)", " ");
+					}
 					sqlMap.put(sql.hash, sqlSumData);
 				}
 				sqlSumData.execs++;
