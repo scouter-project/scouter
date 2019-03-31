@@ -52,7 +52,7 @@ import java.util.Set;
 
 public class Configure extends Thread {
     public static boolean JDBC_REDEFINED = false;
-    private static Configure instance = null;
+    private static final Configure instance;
     private long last_load_time = -1;
     public Properties property = new Properties();
     private boolean running = true;
@@ -67,15 +67,14 @@ public class Configure extends Thread {
         } else {
             agent_dir_path = jarFile.getParent();
         }
+
+        instance = new Configure();
+        instance.setDaemon(true);
+        instance.setName(ThreadUtil.getName(instance));
+        instance.start();
     }
 
-    public final static synchronized Configure getInstance() {
-        if (instance == null) {
-            instance = new Configure();
-            instance.setDaemon(true);
-            instance.setName(ThreadUtil.getName(instance));
-            instance.start();
-        }
+    public static final Configure getInstance() {
         return instance;
     }
 
@@ -136,7 +135,7 @@ public class Configure extends Thread {
     @ConfigDesc("Service URL prefix for Http parameter profile")
     public String profile_http_parameter_url_prefix = "/";
     @ConfigDesc("spring controller method parameter profile")
-    public boolean profile_spring_controller_method_parameter_enabled = false;
+    public boolean profile_spring_controller_method_parameter_enabled = true;
 
 //    @Deprecated
 //    @ConfigDesc("Activating profile summary function")
@@ -560,8 +559,8 @@ public class Configure extends Thread {
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String _hook_redis_set_key_patterns = "";
 
-    @ConfigDesc("PRE-released option before stable release!\nhook threadpool executor for tracing async processing.")
-    public boolean hook_async_thread_pool_executor_enabled = false;
+    @ConfigDesc("hook threadpool executor for tracing async processing.")
+    public boolean hook_async_thread_pool_executor_enabled = true;
 
     @ConfigDesc("Experimental! test it on staging environment of your system before enable this option.\n enable lambda expressioned class hook for detecting asyncronous processing. \nOnly classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
     public boolean hook_lambda_instrumentation_strategy_enabled = false;
@@ -771,7 +770,7 @@ public class Configure extends Thread {
         this.profile_http_querystring_enabled = getBoolean("profile_http_querystring_enabled", false);
         this.profile_http_header_enabled = getBoolean("profile_http_header_enabled", false);
         this.profile_http_parameter_enabled = getBoolean("profile_http_parameter_enabled", false);
-        this.profile_spring_controller_method_parameter_enabled = getBoolean("profile_spring_controller_method_parameter_enabled", false);
+        this.profile_spring_controller_method_parameter_enabled = getBoolean("profile_spring_controller_method_parameter_enabled", true);
         //this.profile_summary_mode_enabled = getBoolean("profile_summary_mode_enabled", false);
 
         this.profile_http_parameter_url_prefix = getValue("profile_http_parameter_url_prefix", "/");
@@ -907,7 +906,7 @@ public class Configure extends Thread {
 
         this._hook_redis_set_key_patterns = getValue("_hook_redis_set_key_patterns", "");
 
-        this.hook_async_thread_pool_executor_enabled = getBoolean("hook_async_thread_pool_executor_enabled", false);
+        this.hook_async_thread_pool_executor_enabled = getBoolean("hook_async_thread_pool_executor_enabled", true);
 
         this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", false);
         this.hook_hystrix_enabled = getBoolean("hook_hystrix_enabled", true);

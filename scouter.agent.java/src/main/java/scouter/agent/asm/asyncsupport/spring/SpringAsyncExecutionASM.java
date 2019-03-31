@@ -19,7 +19,8 @@ import static scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM.METH
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 3. 9.
  */
-public class SpringAsyncExecutionASM implements IASM, Opcodes {
+public class
+SpringAsyncExecutionASM implements IASM, Opcodes {
 	private static List<String> asyncSubmitPatterns = new ArrayList<String>();
 
 	private List<HookingSet> asyncExecutionTarget;
