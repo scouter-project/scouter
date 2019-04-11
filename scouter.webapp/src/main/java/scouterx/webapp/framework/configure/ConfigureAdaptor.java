@@ -18,6 +18,8 @@
 
 package scouterx.webapp.framework.configure;
 
+import scouter.util.StrMatch;
+
 import java.util.List;
 import java.util.Set;
 
@@ -35,6 +37,9 @@ public interface ConfigureAdaptor {
     boolean isNetHttpApiGzipEnabled();
 
     Set<String> getNetHttpApiAllowIps();
+    Set<String> getNetHttpApiAllowIpExact();
+    List<StrMatch> getNetHttpApiAllowIpMatch();
+
     String getNetHttpApiAuthIpHeaderKey();
     int getNetHttpApiSessionTimeout();
     List<ServerConfig> getServerConfigs();

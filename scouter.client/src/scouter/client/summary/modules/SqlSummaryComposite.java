@@ -1,10 +1,5 @@
 package scouter.client.summary.modules;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -16,7 +11,6 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-
 import scouter.client.model.TextProxy;
 import scouter.client.net.TcpProxy;
 import scouter.client.popup.SQLFormatDialog;
@@ -27,6 +21,11 @@ import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SqlSummaryComposite extends AbstractSummaryComposite {
 	
@@ -44,7 +43,11 @@ public class SqlSummaryComposite extends AbstractSummaryComposite {
 					@Override
 					public String getText(Object element) {
 						if (element instanceof SummaryData) {
-							return TextProxy.sql.getText(((SummaryData) element).hash);
+							String sqlText = TextProxy.sql.getText(((SummaryData) element).hash);
+							if (sqlText != null) {
+								sqlText = sqlText.replaceAll("(\r\n|\r|\n|\n\r)", " ");
+							}
+							return sqlText;
 						}
 						return null;
 					}

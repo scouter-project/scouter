@@ -154,6 +154,8 @@ public class SXLog {
     private int queuing2ndHostHash;
     private int queuing2ndTime;
 
+    private int profileCount;
+
     public static SXLog of(XLogPack p) {
         return SXLog.builder()
                 .endTime(p.endTime)
@@ -191,6 +193,7 @@ public class SXLog {
                 .queuingTime(p.queuingTime)
                 .queuing2ndHostHash(p.queuing2ndHostHash)
                 .queuing2ndTime(p.queuing2ndTime)
+                .profileCount(p.profileCount)
                 .build();
     }
 }

@@ -31,6 +31,7 @@ import scouter.server.support.telegraf.TgConfig;
 import scouter.server.support.telegraf.TgmConfig;
 import scouter.util.DateUtil;
 import scouter.util.FileUtil;
+import scouter.util.StrMatch;
 import scouter.util.StringEnumer;
 import scouter.util.StringKeyLinkedMap;
 import scouter.util.StringLinkedSet;
@@ -51,14 +52,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Configure extends Thread {
 
@@ -246,6 +250,8 @@ public class Configure extends Thread {
 	@ConfigDesc("api access allow ip addresses")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String net_http_api_allow_ips = "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1";
+	public Set<String> allowIpExact;
+	public List<StrMatch> allowIpMatch;
 
 	//Dir
 	@ConfigDesc("Store directory of database")
@@ -654,6 +660,12 @@ public class Configure extends Thread {
 		this.net_http_api_gzip_enabled = getBoolean("net_http_api_gzip_enabled", true);
 
 		this.net_http_api_allow_ips = getValue("net_http_api_allow_ips", "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1");
+		this.allowIpExact = Stream.of(net_http_api_allow_ips.split(",")).collect(Collectors.toSet());
+		if (allowIpExact.size() > 0) {
+			this.allowIpMatch = this.allowIpExact.stream().filter(v -> v.contains("*")).map(StrMatch::new).collect(Collectors.toList());
+		} else {
+			this.allowIpMatch = Collections.emptyList();
+		}
 
 		this.server_id = getValue("server_id", SysJMX.getHostName());
 		this.db_dir = getValue("db_dir", "./database");
@@ -1132,6 +1144,8 @@ public class Configure extends Thread {
 	static {
 		ignoreSet.add("property");
         ignoreSet.add("telegrafInputConfigMap");
+		ignoreSet.add("allowIpExact");
+		ignoreSet.add("allowIpMatch");
 	}
 
 	public MapValue getKeyValueInfo() {
