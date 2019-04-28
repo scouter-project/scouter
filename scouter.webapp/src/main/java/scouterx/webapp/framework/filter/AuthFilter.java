@@ -54,11 +54,14 @@ public class AuthFilter implements ContainerRequestFilter {
         boolean violation = false;
         //Check IP
         if (conf.isNetHttpApiAuthIpEnabled()) {
-            if (conf.getNetHttpApiAllowIps().stream().anyMatch(ip -> ZZ.getRequestIp(servletRequest).contains(ip))) {
+            String ip = ZZ.getRequestIp(servletRequest);
+            if (conf.getNetHttpApiAllowIpExact().contains(ip)) {
                 return;
-            } else {
-                violation = true;
             }
+            if (conf.getNetHttpApiAllowIpMatch().stream().anyMatch(match -> match.include(ip))) {
+                return;
+            }
+            violation = true;
         }
 
         //Check token
