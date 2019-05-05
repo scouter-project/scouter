@@ -63,7 +63,11 @@ public class VisitorConsumer {
             value = tcpProxy.getSingleValue(RequestCmd.VISITOR_REALTIME_GROUP, param);
         }
 
-        return ((DecimalValue) value).value;
+        if (value != null) {
+            return ((DecimalValue) value).value;
+        } else {
+            return 0;
+        }
     }
 
     public long retrieveVisitorByObj(int objHash, String date, final Server server) {

@@ -71,11 +71,14 @@ public class SAlert {
         Map<String, Object> tagMap = p.tags.toMap().entrySet().stream()
                 .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().toJavaObject()));
 
+        String objName = AgentModelThread.getInstance().getAgentObject(p.objHash) == null ? "UNKNOWN"
+                : AgentModelThread.getInstance().getAgentObject(p.objHash).getObjName();
+
         return SAlert.builder()
                 .time(p.time)
                 .objType(p.objType)
                 .objHash(p.objHash)
-                .objName(AgentModelThread.getInstance().getAgentObject(p.objHash).getObjName())
+                .objName(objName)
                 .level(AlertLevelEnum.of(p.level))
                 .title(p.title)
                 .message(p.message)

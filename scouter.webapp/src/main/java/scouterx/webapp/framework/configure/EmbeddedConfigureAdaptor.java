@@ -20,6 +20,7 @@ package scouterx.webapp.framework.configure;
 
 import scouter.net.NetConstants;
 import scouter.server.Configure;
+import scouter.util.StrMatch;
 
 import java.util.Arrays;
 import java.util.List;
@@ -83,6 +84,16 @@ public class EmbeddedConfigureAdaptor implements ConfigureAdaptor {
     @Override
     public Set<String> getNetHttpApiAllowIps() {
         return Stream.of(conf.net_http_api_allow_ips.split(",")).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<String> getNetHttpApiAllowIpExact() {
+        return conf.allowIpExact;
+    }
+
+    @Override
+    public List<StrMatch> getNetHttpApiAllowIpMatch() {
+        return conf.allowIpMatch;
     }
 
     @Override

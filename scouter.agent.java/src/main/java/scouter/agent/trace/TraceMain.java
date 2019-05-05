@@ -981,7 +981,7 @@ public class TraceMain {
             int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
             for (int i = 0; i < arg.length; i++) {
                 if (arg[i] == null) continue;
-                String value = new StringBuilder().append("param: ").append(StringUtil.limiting(arg[i].toString(), 1024)).toString();
+                String value = "param: " + StringUtil.limiting(arg[i].toString(), 1024);
 
                 MessageStep step = new MessageStep(value);
                 step.start_time = start_time;
@@ -1206,6 +1206,7 @@ public class TraceMain {
             threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
             threadCallPossibleStep.nameTemp = threadCallName;
             ctx.profile.add(threadCallPossibleStep);
+            ctx.lastThreadCallPossibleStep = threadCallPossibleStep;
 
             TransferMap.put(System.identityHashCode(callable), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
         } catch (Throwable t) {
@@ -1236,6 +1237,10 @@ public class TraceMain {
             if (ctx == null) return;
             if (callRunnable == null) return;
             if (callRunnable instanceof WrTaskCallable) return;
+            if (ctx.lastThreadCallPossibleStep != null) {
+                ctx.lastThreadCallPossibleStep = null;
+                return;
+            }
 
             if (TransferMap.get(System.identityHashCode(callRunnable)) != null) {
                 return;
@@ -1359,10 +1364,10 @@ public class TraceMain {
             Logger.println("S269", "Hystrix hooking failed. check scouter supporting hystrix version.", e);
         }
 
-        callRunnableInitInvoked(hystrixCommand);
+        callRunnableInitInvoked(hystrixCommand, true);
     }
 
-    public static void callRunnableInitInvoked(Object callRunnableObj) {
+    public static void callRunnableInitInvoked(Object callRunnableObj, boolean addStepToCtx) {
         try {
             TraceContext ctx = TraceContextManager.getContext();
             if (ctx == null) return;
@@ -1387,11 +1392,18 @@ public class TraceMain {
             threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
             threadCallPossibleStep.nameTemp = threadCallName;
             ctx.profile.add(threadCallPossibleStep);
+            if (addStepToCtx) {
+                ctx.lastThreadCallPossibleStep = threadCallPossibleStep;
+            }
 
             TransferMap.put(System.identityHashCode(callRunnableObj), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
         } catch (Throwable t) {
             Logger.println("B1203", "Exception: callRunnableInitInvoked", t);
         }
+    }
+
+    public static void callRunnableInitInvoked(Object callRunnableObj) {
+        callRunnableInitInvoked(callRunnableObj, false);
     }
 
     public static Callable wrap1stParamAsWrTaskCallable(Callable callable) {

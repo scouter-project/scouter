@@ -56,7 +56,9 @@ public class AlertConsumer {
 
 				} else {
 					AlertPack alertPack = (AlertPack) packet;
-					alertList.add(SAlert.of(alertPack));
+					if (packet != null) {
+						alertList.add(SAlert.of(alertPack));
+					}
 				}
 			});
 		}
