@@ -4,6 +4,7 @@ import io.swagger.annotations.*;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.layer.service.HostObjectRequestService;
+import scouterx.webapp.model.HostDiskData;
 import scouterx.webapp.model.ProcessObject;
 import scouterx.webapp.view.CommonResultView;
 
@@ -23,6 +24,10 @@ import java.util.List;
 
 /**
  * @author leekyoungil (leekyoungil@gmail.com) on 2017. 10. 14.
+ *
+ * Modified by David Kim (david100gom@gmail.com) on 2019. 5. 12.
+ *
+ *
  */
 @Path("/v1/object/host")
 @Api("Host object request")
@@ -53,6 +58,22 @@ public class HostObjectRequestController {
 
         final List<ProcessObject> processObjects = this.objectRequestService.retrieveRealTimeTopByObjType(objHash, server);
 
+        return CommonResultView.success(processObjects);
+    }
+
+    @GET
+    @ApiOperation(value = "/realTime/disk/ofObject/{objHash}", notes = "Get disk usage information")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK - Json Data"),
+            @ApiResponse(code = 500, message = "Server error")
+    })
+    @Path("/realTime/disk/ofObject/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<HostDiskData>> retrieveRealTimeDiskByObjType(
+            @PathParam("objHash") @Valid @NotNull final int objHash, @QueryParam("serverId") final int serverId) {
+
+        Server server = ServerManager.getInstance().getServerIfNullDefault(serverId);
+        List<HostDiskData> processObjects = this.objectRequestService.retrieveRealTimeDiskByObjType(objHash, server);
         return CommonResultView.success(processObjects);
     }
 }
