@@ -15,7 +15,7 @@
 ### 1.2. Collector Server Installation
 1. download the latest version of scouter-yyyyMMdd.tar.gz.
  - [Release Page](https://github.com/scouter-project/scouter/releases)
-2. Extract the file.(You can see the dircetory ./scouter/server)
+2. Extract the file.(You can see the directory ./scouter/server)
 3. execute start script.
 ```bash
 cd ./scouter/server
@@ -35,7 +35,7 @@ cd ./scouter/server
 
 ### 1.3. Network ports used by Collector server
 * UDP Receive Port : 6100 (This port is used for gathering performance metrics.)
-* TCP Service Port : 6100 (This port is used for commuication with scouter client and agents.)
+* TCP Service Port : 6100 (This port is used for communication with scouter client and agents.)
 
 ### 1.4. Configuration
 
