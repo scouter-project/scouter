@@ -9,7 +9,7 @@ You can monitor the performance information of various products through Telegraf
   - [Telegraf Input plugins](https://github.com/influxdata/telegraf/tree/master/plugins/inputs)
 
 
-## Apply Telegraf server funtion
+## Apply Telegraf server function
 
 ### 1. Enabling the telegraf Server option on the Scouter
 First, enable the http server option of the Collector server on the Scouter Client screen.
@@ -20,7 +20,7 @@ If you want to change the http port, set it to `net_http_port=xxx`. The default 
 If you change any of the above options, you must restart the Collector.  
 
 Next, activate the Telegraf setting.
-  - Menu : **Colellector > Configures > Telegraf > Telegraf Configure**
+  - Menu : **Collector > Configures > Telegraf > Telegraf Configure**
     - In the General tree, check `Enabled` to enable the Telegraf Server function.
 
 If you need to check the requested data, check `Debug Enabled 'to log all the requested data.

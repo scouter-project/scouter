@@ -41,7 +41,7 @@ If you want to another configuration file, uses -Dscouter.config=<file path> opt
 ### How to communicate between Server and Client
 Scouter Client uses TCP 6100 port to request monitoring data, same as Agent does.
 ```
-Clinet ——-> Server 
+Client ——-> Server 
      TCP 6100
 ```
 TCP 6100 port are used by both Agent and Client. User should specify Server's endpoint information when Client program run at first.
