@@ -125,7 +125,3 @@ SCOUTER can help you.
 Licensed under the Apache License, Version 2.0
 <br>
 
-<<<<<<< HEAD
-## commit 
-=======
->>>>>>> 4cf22a34efc1fefba9196ced95e7e8494be2679a
