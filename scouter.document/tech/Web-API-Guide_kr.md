@@ -8,7 +8,9 @@
     - `net_http_server_enabled` : set `true`
     - `net_http_api_enabled` : set `true`
     - `net_http_port` : default value `6180`
-    - `net_http_api_allow_ips` : default value `localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1`;
+    - `net_http_api_allow_ips` : default value `localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1`
+    - `net_collector_ip_port_id_pws` : default value 127.0.0.1:6100:admin:admin
+       - format : {host}:{port}:{id}:{pw},{host}:{port}:{id}:{pw}
 
 ### StandAlone Mode로 실행
  - Web API는 Servlet을 통해 서비스 되면 HTTP 프로토콜이나 JSON 파싱 등 부가적인 작업이 필요하기 때문에 기본 수집서버에 비해 자원 사용량이 높다.
