@@ -8,7 +8,9 @@
     - `net_http_server_enabled` : set `true`
     - `net_http_api_enabled` : set `true`
     - `net_http_port` : default value `6180`
-    - `net_http_api_allow_ips` : default value `localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1`;
+    - `net_http_api_allow_ips` : default value `localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1`
+    - `net_collector_ip_port_id_pws` : default value 127.0.0.1:6100:admin:admin
+       - format : {host}:{port}:{id}:{pw},{host}:{port}:{id}:{pw}
 
 ### StandAlone Mode Run
  - Web api needs much more memory and cpu usage than scouter collector server because of servlet processing, JSON parsing and another workings.
