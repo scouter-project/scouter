@@ -424,6 +424,14 @@ public int log_keep_days = 30;
    - `objHash` : (required)
  - **Query params**
    - `serverId` : (optional if single server)
+   
+#### - `GET /v1/object/host/realTime/disk/ofObject/{objHash}`
+- retrieve all disk usage of the given object
+- **Auth** : required
+- **Path params**
+  - `objHash` : object id (required)
+- **Query params**
+  - `serverId` : server id (optional if single server)
 
 #### - `GET /v1/kv-private/{key}`
  - get value of given key from the scouter server's key-value store. (in user-scope private key space for logon user)
