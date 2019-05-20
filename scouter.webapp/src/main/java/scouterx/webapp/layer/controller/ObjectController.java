@@ -19,6 +19,7 @@
 package scouterx.webapp.layer.controller;
 
 import io.swagger.annotations.Api;
+import scouterx.webapp.framework.client.model.AgentModelThread;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.layer.service.ObjectService;
 import scouterx.webapp.model.scouter.SObject;
@@ -37,6 +38,8 @@ import java.util.List;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
+ *
+ * Modified by David Kim (david100gom@gmail.com) on 2019. 5. 20.
  */
 @Path("/v1/object")
 @Api("Object")
@@ -61,8 +64,23 @@ public class ObjectController {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List<SObject>> retrieveObjectList(@QueryParam("serverId") int serverId) {
+
         List<SObject> agentList = agentService.retrieveObjectList(ServerManager.getInstance().getServer(serverId));
 
         return CommonResultView.success(agentList);
     }
+
+    /**
+     *
+     * remove inactive object.
+     *
+     * @return
+     */
+    @GET
+    @Path("/remove/inactive")
+    public CommonResultView removeInactive() {
+        AgentModelThread.removeInactive();
+        return CommonResultView.success();
+    }
+
 }
