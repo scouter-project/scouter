@@ -135,6 +135,10 @@ public int log_keep_days = 30;
  - **Query params**
     - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
 
+#### - `GET /v1/object/remove/inactive`
+ - remove inactive object.
+ - **Auth** : required
+
 #### - `GET /v1/counter/realTime/{counters}/ofType/{objType}`
  - get real time counter value by object type
  - **Auth** : required
