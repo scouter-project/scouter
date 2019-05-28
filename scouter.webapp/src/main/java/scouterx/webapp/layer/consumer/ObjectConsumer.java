@@ -18,8 +18,6 @@
 
 package scouterx.webapp.layer.consumer;
 
-import org.slf4j.LoggerFactory;
-
 import scouter.lang.constants.ParamConstant;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.ObjectPack;
@@ -27,7 +25,6 @@ import scouter.lang.value.BlobValue;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
-import scouter.util.DateTimeHelper;
 import scouter.util.DateUtil;
 import scouter.util.IPUtil;
 import scouter.util.StringUtil;
@@ -35,20 +32,14 @@ import scouterx.webapp.framework.client.model.TextProxy;
 import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
-import scouterx.webapp.framework.dto.DateAndMapPack;
-import scouterx.webapp.layer.controller.ObjectController;
 import scouterx.webapp.model.HeapHistogramData;
 import scouterx.webapp.model.SocketObjectData;
 import scouterx.webapp.model.ThreadObjectData;
 import scouterx.webapp.model.VariableData;
 import scouterx.webapp.model.scouter.SObject;
-import scouterx.webapp.model.summary.ServiceSummaryItem;
-import scouterx.webapp.model.summary.Summary;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -62,8 +53,6 @@ import java.util.stream.Collectors;
  *
  */
 public class ObjectConsumer {
-
-    org.slf4j.Logger Logger = LoggerFactory.getLogger(ObjectConsumer.class);
 
     /**
      * retrieve object(agent) list from collector server
@@ -95,24 +84,21 @@ public class ObjectConsumer {
 
             MapPack mapPack = (MapPack) tcp.getSingle(RequestCmd.OBJECT_THREAD_LIST, param);
 
-            Logger.info(" thread list : {}", mapPack);
-
-
             List<String> threadKeys = Arrays.asList("id", "name", "stat", "cpu", "txid", "elapsed", "service");
 
-            Map<String, ListValue> map = new HashMap<>();
+            Map<String, ListValue> threadObjectMap = new HashMap<>();
             threadKeys.forEach(key -> {
-                map.put(key, mapPack.getList(key));
+                threadObjectMap.put(key, mapPack.getList(key));
             });
 
             int count = 0;
 
-            if (map.containsKey("id")) {
-                count = map.get("id").size();
+            if (threadObjectMap.containsKey("id")) {
+                count = threadObjectMap.get("id").size();
             }
 
             for (int i = 0; i < count; i++) {
-                dataList.add(new ThreadObjectData(map, i));
+                dataList.add(new ThreadObjectData(threadObjectMap, i));
             }
 
         }
