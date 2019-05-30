@@ -19,17 +19,30 @@
 package scouterx.webapp.layer.controller;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import scouterx.webapp.framework.client.model.AgentModelThread;
+import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.layer.service.ObjectService;
+import scouterx.webapp.model.HeapHistogramData;
+import scouterx.webapp.model.SocketObjectData;
+import scouterx.webapp.model.ThreadObjectData;
+import scouterx.webapp.model.VariableData;
 import scouterx.webapp.model.scouter.SObject;
 import scouterx.webapp.view.CommonResultView;
 
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -39,7 +52,7 @@ import java.util.List;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  *
- * Modified by David Kim (david100gom@gmail.com) on 2019. 5. 20.
+ * Modified by David Kim (david100gom@gmail.com) on 2019. 5. 26.
  */
 @Path("/v1/object")
 @Api("Object")
@@ -55,13 +68,15 @@ public class ObjectController {
         this.agentService = new ObjectService();
     }
 
-    /**
-     * get agent list that is monitored by scouter
-     *
-     * @param serverId optional if web instance just connected one collector server.
-     * @return
-     */
     @GET
+    @ApiOperation(value = "/", notes = "get agent list that is monitored by scouter")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "serverId", value = "server id", dataType = "int", paramType = "query")
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK - Json Data"),
+            @ApiResponse(code = 500, message = "Server error")
+    })
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<List<SObject>> retrieveObjectList(@QueryParam("serverId") int serverId) {
 
@@ -70,17 +85,121 @@ public class ObjectController {
         return CommonResultView.success(agentList);
     }
 
-    /**
-     *
-     * remove inactive object.
-     *
-     * @return
-     */
     @GET
+    @ApiOperation(value = "/remove/inactive", notes = "remove inactive object.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK - Json Data"),
+            @ApiResponse(code = 500, message = "Server error")
+    })
     @Path("/remove/inactive")
     public CommonResultView removeInactive() {
         AgentModelThread.removeInactive();
         return CommonResultView.success();
+    }
+
+    @GET
+    @ApiOperation(value = "/threadList/{objHash}", notes = "get agent thread list that is monitored by scouter")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "objHash", value = "object type", required = true, dataType = "int", paramType = "path"),
+            @ApiImplicitParam(name = "serverId", value = "server id", dataType = "int", paramType = "query")
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK - Json Data"),
+            @ApiResponse(code = 500, message = "Server error")
+    })
+    @Path("/threadList/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<ThreadObjectData>> retrieveThreadList(@PathParam("objHash") @Valid @NotNull int objHash,
+                                                                       @QueryParam("serverId") int serverId) {
+
+        Server server = ServerManager.getInstance().getServerIfNullDefault(serverId);
+        List<ThreadObjectData> list = agentService.retrieveThreadList(objHash, server);
+        return CommonResultView.success(list);
+
+    }
+
+    @GET
+    @ApiOperation(value = "/threadDump/{objHash}", notes = "get agent thread dump that is monitored by scouter")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "objHash", value = "object type", required = true, dataType = "int", paramType = "path"),
+            @ApiImplicitParam(name = "serverId", value = "server id", dataType = "int", paramType = "query")
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK - Json Data"),
+            @ApiResponse(code = 500, message = "Server error")
+    })
+    @Path("/threadDump/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<String> retrieveThreadDump(@PathParam("objHash") @Valid @NotNull int objHash,
+                                                                   @QueryParam("serverId") int serverId) {
+
+        Server server = ServerManager.getInstance().getServerIfNullDefault(serverId);
+        String dump = agentService.retrieveThreadDump(objHash, server);
+        return CommonResultView.success(dump);
+
+    }
+
+    @GET
+    @ApiOperation(value = "/heapHistogram/{objHash}", notes = "get agent Heap histogram that is monitored by scouter")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "objHash", value = "object type", required = true, dataType = "int", paramType = "path"),
+            @ApiImplicitParam(name = "serverId", value = "server id", dataType = "int", paramType = "query")
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK - Json Data"),
+            @ApiResponse(code = 500, message = "Server error")
+    })
+    @Path("/heapHistogram/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<HeapHistogramData>> retrieveHeapHistogram(@PathParam("objHash") @Valid @NotNull final int objHash,
+                                                                           @QueryParam("serverId") int serverId) {
+
+        Server server = ServerManager.getInstance().getServerIfNullDefault(serverId);
+        List<HeapHistogramData> list = agentService.retrieveHeapHistogram(objHash, server);
+        return CommonResultView.success(list);
+
+    }
+
+    @GET
+    @ApiOperation(value = "/env/{objHash}", notes = "get agent environment info that is monitored by scouter")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "objHash", value = "object type", required = true, dataType = "int", paramType = "path"),
+            @ApiImplicitParam(name = "serverId", value = "server id", dataType = "int", paramType = "query")
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK - Json Data"),
+            @ApiResponse(code = 500, message = "Server error")
+    })
+    @Path("/env/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<VariableData>> retrieveEnv(@PathParam("objHash") @Valid @NotNull int objHash,
+                                                                           @QueryParam("serverId") int serverId) {
+
+        Server server = ServerManager.getInstance().getServerIfNullDefault(serverId);
+        List<VariableData> list = agentService.retrieveEnv(objHash, server);
+
+        return CommonResultView.success(list);
+
+    }
+
+    @GET
+    @ApiOperation(value = "/socket/{objHash}", notes = "get agent socket info that is monitored by scouter")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "objHash", value = "object type", required = true, dataType = "int", paramType = "path"),
+            @ApiImplicitParam(name = "serverId", value = "server id", dataType = "int", paramType = "query")
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK - Json Data"),
+            @ApiResponse(code = 500, message = "Server error")
+    })
+    @Path("/socket/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<List<SocketObjectData>> retrieveSocket(@PathParam("objHash") @Valid @NotNull int objHash,
+                                                            @QueryParam("serverId") int serverId) {
+
+        List<SocketObjectData> list = agentService.retrieveSocket(objHash, serverId);
+        return CommonResultView.success(list);
+
     }
 
 }

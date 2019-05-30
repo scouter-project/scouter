@@ -140,6 +140,46 @@ public int log_keep_days = 30;
  - remove inactive object.
  - **Auth** : required
  
+#### - `GET /v1/object/threadList/{objHash}`
+ - get agent thread list
+ - **Auth** : required - register api client's ip to `net_http_api_allow_ips` configuration.
+ - **Path params**
+    - `objHash` : object id (required)
+ - **Query params**
+    - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
+ 
+#### - `GET /v1/object/threadDump/{objHash}`
+ - get agent thread dump info
+ - **Auth** : required - register api client's ip to `net_http_api_allow_ips` configuration.
+ - **Path params**
+    - `objHash` : object id (required)
+ - **Query params**
+    - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
+ 
+#### - `GET /v1/object/heapHistogram/{objHash}`
+ - get agent heap histogram info
+ - **Auth** : required - register api client's ip to `net_http_api_allow_ips` configuration.
+ - **Path params**
+    - `objHash` : object id (required)
+ - **Query params**
+    - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
+ 
+#### - `GET /v1/object/env/{objHash}`
+ - get agent environment info
+ - **Auth** : required - register api client's ip to `net_http_api_allow_ips` configuration.
+ - **Path params**
+    - `objHash` : object id (required)
+ - **Query params**
+    - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
+
+#### - `GET /v1/object/socket/{objHash}`
+ - get agent socket info
+ - **Auth** : required - register api client's ip to `net_http_api_allow_ips` configuration.
+ - **Path params**
+    - `objHash` : object id (required)
+ - **Query params**
+    - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
+
 #### - `GET /v1/counter/realTime/{counters}/ofType/{objType}`
  - get real time counter value by object type
  - **Auth** : required
