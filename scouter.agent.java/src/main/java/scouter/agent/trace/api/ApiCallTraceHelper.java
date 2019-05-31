@@ -54,6 +54,7 @@ public class ApiCallTraceHelper {
 		put("io/reactivex/netty/protocol/http/client/HttpClientImpl", new ForNettyHttpRequest());
 		put("org/springframework/web/client/RestTemplate", new ForSpringRestTemplate());
 		put("org/springframework/web/client/AsyncRestTemplate", new ForSpringAsyncRestTemplate());
+		put("jdk/internal/net/http/HttpClientImpl", new ForJavaNetHttpClient());
 	}
 
 	private static IHelper defaultObj = new ForDefault();
