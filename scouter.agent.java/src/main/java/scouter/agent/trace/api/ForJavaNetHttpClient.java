@@ -18,11 +18,16 @@ package scouter.agent.trace.api;
 
 import scouter.agent.Configure;
 import scouter.agent.JavaAgent;
-import scouter.agent.proxy.HttpClient43Factory;
+import scouter.agent.Logger;
+import scouter.agent.plugin.PluginHttpCallTrace;
 import scouter.agent.proxy.IHttpClient;
+import scouter.agent.proxy.JavaNetHttpFactory;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
+import scouter.lang.constants.B3Constant;
 import scouter.lang.step.ApiCallStep;
+import scouter.util.Hexa32;
+import scouter.util.KeyGen;
 
 public class ForJavaNetHttpClient implements ApiCallTraceHelper.IHelper {
 
@@ -36,8 +41,7 @@ public class ForJavaNetHttpClient implements ApiCallTraceHelper.IHelper {
 			try {
 				if (hookPoint.args != null && hookPoint.args.length > 0) {
 					IHttpClient httpclient = getProxy();
-					//step.txid = KeyGen.next();
-					//transfer(httpclient, ctx, hookPoint.args[0], hookPoint.args[1], step.txid);
+					step.txid = ctx.lastCalleeId;
 					String host = httpclient.getHost(hookPoint.args[0]);
 					step.opt = 1;
 					step.address = host;
@@ -47,6 +51,8 @@ public class ForJavaNetHttpClient implements ApiCallTraceHelper.IHelper {
 				}
 			} catch (Exception e) {
 				this.ok = false;
+			} finally {
+				ctx.lastCalleeId = 0;
 			}
 		}
 		if (ctx.apicall_name == null)
@@ -62,10 +68,35 @@ public class ForJavaNetHttpClient implements ApiCallTraceHelper.IHelper {
 		if (httpClient == null) {
 			synchronized (this) {
 				if (httpClient == null) {
-					httpClient = HttpClient43Factory.create(JavaAgent.getPlatformClassLoader());
+					httpClient = JavaNetHttpFactory.create(JavaAgent.getPlatformClassLoader());
 				}
 			}
 		}
 		return httpClient;
+	}
+
+	void transfer(TraceContext ctx, Object requestBuilder) {
+		Configure conf = Configure.getInstance();
+		if (conf.trace_interservice_enabled) {
+			try {
+				IHttpClient httpclient = getProxy();
+				if (ctx.gxid == 0) {
+					ctx.gxid = ctx.txid;
+				}
+				ctx.lastCalleeId = KeyGen.next();
+				httpclient.addHeader(requestBuilder, conf._trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
+				httpclient.addHeader(requestBuilder, conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
+				httpclient.addHeader(requestBuilder, conf._trace_interservice_callee_header_key, Hexa32.toString32(ctx.lastCalleeId));
+				httpclient.addHeader(requestBuilder, conf._trace_interservice_caller_obj_header_key, String.valueOf(conf.getObjHash()));
+
+				httpclient.addHeader(requestBuilder, B3Constant.B3_HEADER_TRACEID, Hexa32.toUnsignedLongHex(ctx.gxid));
+				httpclient.addHeader(requestBuilder, B3Constant.B3_HEADER_PARENTSPANID, Hexa32.toUnsignedLongHex(ctx.txid));
+				httpclient.addHeader(requestBuilder, B3Constant.B3_HEADER_SPANID, Hexa32.toUnsignedLongHex(ctx.lastCalleeId));
+				PluginHttpCallTrace.call(ctx, requestBuilder);
+			} catch (Exception e) {
+				Logger.println("A178", e);
+				ok = false;
+			}
+		}
 	}
 }

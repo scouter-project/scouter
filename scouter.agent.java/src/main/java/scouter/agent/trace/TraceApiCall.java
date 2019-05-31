@@ -417,6 +417,21 @@ public class TraceApiCall {
 		}
 	}
 
+	public static void initImmutableJavaHttpRequest(Object requestBuilder) {
+		if (!conf.trace_interservice_enabled) {
+			return;
+		}
+
+		TraceContext ctx = TraceContextManager.getContext();
+		if(ctx == null) return;
+
+		try {
+			ApiCallTraceHelper.setCalleeToCtxJavaHttpRequest(ctx, requestBuilder);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	public static Set<String> getAllExtendedOrImplementedTypesRecursively(Class clazz) {
 		List<String> res = new ArrayList<String>();

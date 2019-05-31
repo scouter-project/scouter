@@ -33,6 +33,7 @@ public class ApiCallTraceHelper {
 	static Map<String, IHelper> handlers = new HashMap<String, IHelper>();
 	static ForHttpClient43 forHttpClient43 = new ForHttpClient43();
 	static ForSpringAsyncRestTemplate forSpringAsyncRestTemplate = new ForSpringAsyncRestTemplate();
+	static ForJavaNetHttpClient forJavaNetHttpClient = new ForJavaNetHttpClient();
 
 	static void put(String name, IHelper o) {
 		name = name.replace('.', '/');
@@ -79,5 +80,9 @@ public class ApiCallTraceHelper {
 
 	public static void setCalleeToCtxInSpringClientHttpResponse(TraceContext ctx, Object _this, Object response) {
 		forSpringAsyncRestTemplate.processSetCalleeToCtx(ctx, _this, response);
+	}
+
+	public static void setCalleeToCtxJavaHttpRequest(TraceContext ctx, Object requestBuilder) {
+		forJavaNetHttpClient.transfer(ctx, requestBuilder);
 	}
 }
