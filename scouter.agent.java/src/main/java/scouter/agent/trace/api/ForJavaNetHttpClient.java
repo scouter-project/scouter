@@ -61,7 +61,16 @@ public class ForJavaNetHttpClient implements ApiCallTraceHelper.IHelper {
 	}
 
 	public void processEnd(TraceContext ctx, ApiCallStep step, Object rtn, HookArgs hookPoint) {
-
+		IHttpClient httpclient = getProxy();
+		String calleeObjHashStr = httpclient.getResponseHeader(rtn, conf._trace_interservice_callee_obj_header_key);
+		if (calleeObjHashStr != null) {
+			try {
+				ctx.lastCalleeObjHash = Integer.parseInt(calleeObjHashStr);
+			} catch (NumberFormatException e) {
+			}
+		} else {
+			ctx.lastCalleeObjHash = 0;
+		}
 	}
 
 	private IHttpClient getProxy() {
