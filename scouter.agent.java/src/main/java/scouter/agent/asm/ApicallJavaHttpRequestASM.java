@@ -13,7 +13,7 @@ import scouter.agent.trace.TraceApiCall;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class ApicallJavaHttpRequestASM implements IASM, Opcodes {
+public class ApicallJavaHttpRequestASM implements IASM, Opcodes {
     private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
     public ApicallJavaHttpRequestASM() {
         AsmUtil.add(reserved, "jdk.internal.net.http.ImmutableHttpRequest", "<init>(Ljdk/internal/net/http/HttpRequestBuilderImpl;)V");
