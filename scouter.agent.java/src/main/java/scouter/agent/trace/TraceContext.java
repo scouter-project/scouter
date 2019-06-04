@@ -145,6 +145,7 @@ public class TraceContext {
 	public int lastDbUrl;
 	public String lastRedisConnHost;
 	public int lastRedisConnPort;
+	public long lastCalleeId;
 
     public Queue<DumpStep> temporaryDumpSteps = new LinkedBlockingQueue<DumpStep>(5);
 	public boolean hasDumpStack;

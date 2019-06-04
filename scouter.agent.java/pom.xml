@@ -342,6 +342,7 @@
         <scouter.redis.jar>scouter.redis.jar</scouter.redis.jar>
 
         <provided.tools.jar>${project.basedir}/lib/provided/tools.jar</provided.tools.jar>
+        <java.net.http.jar>${project.basedir}/lib/provided/java.net.http.jar</java.net.http.jar>
         <final.jar.name>${project.build.directory}/${project.build.finalName}.jar</final.jar.name>
         <final.jar.name.xtra>${project.build.directory}/xtra-${project.build.finalName}.jar</final.jar.name.xtra>
         <final.jar.name.shade>${project.build.directory}/shade-${project.build.finalName}.jar</final.jar.name.shade>
@@ -379,6 +380,13 @@
             <version>tools-0.0.0</version>
             <scope>system</scope>
             <systemPath>${provided.tools.jar}</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>java.net.http</groupId>
+            <artifactId>jdk11-httpclient</artifactId>
+            <version>0.0.0</version>
+            <scope>system</scope>
+            <systemPath>${java.net.http.jar}</systemPath>
         </dependency>
 
         <!-- provided -->
