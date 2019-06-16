@@ -1364,10 +1364,10 @@ public class TraceMain {
             Logger.println("S269", "Hystrix hooking failed. check scouter supporting hystrix version.", e);
         }
 
-        callRunnableInitInvoked(hystrixCommand, true);
+        callRunnableInitInvoked(hystrixCommand, true, true);
     }
 
-    public static void callRunnableInitInvoked(Object callRunnableObj, boolean addStepToCtx) {
+    public static void callRunnableInitInvoked(Object callRunnableObj, boolean addStepToCtx, boolean isIgnoreIfNoThreaded) {
         try {
             TraceContext ctx = TraceContextManager.getContext();
             if (ctx == null) return;
@@ -1391,6 +1391,9 @@ public class TraceMain {
 
             threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
             threadCallPossibleStep.nameTemp = threadCallName;
+            if (isIgnoreIfNoThreaded) {
+                threadCallPossibleStep.isIgnoreIfNoThreaded = true;
+            }
             ctx.profile.add(threadCallPossibleStep);
             if (addStepToCtx) {
                 ctx.lastThreadCallPossibleStep = threadCallPossibleStep;
@@ -1403,7 +1406,7 @@ public class TraceMain {
     }
 
     public static void callRunnableInitInvoked(Object callRunnableObj) {
-        callRunnableInitInvoked(callRunnableObj, false);
+        callRunnableInitInvoked(callRunnableObj, false, false);
     }
 
     public static Callable wrap1stParamAsWrTaskCallable(Callable callable) {
