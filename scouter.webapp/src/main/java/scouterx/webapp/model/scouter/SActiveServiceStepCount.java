@@ -39,9 +39,12 @@ public class SActiveServiceStepCount {
     private int step3Count;
 
     public static SActiveServiceStepCount of(MapPack mapPack) {
+        String objName = AgentModelThread.getInstance().getAgentObject(mapPack.getInt(ParamConstant.OBJ_HASH)) == null
+                ? "UNKNOWN" : AgentModelThread.getInstance().getAgentObject(mapPack.getInt(ParamConstant.OBJ_HASH)).getObjName();
+
         return new SActiveServiceStepCount(
                 mapPack.getInt(ParamConstant.OBJ_HASH),
-                AgentModelThread.getInstance().getAgentObject(mapPack.getInt(ParamConstant.OBJ_HASH)).getObjName(),
+                objName,
                 mapPack.getInt(ParamConstant.ACTIVE_SERVICE_STEP1),
                 mapPack.getInt(ParamConstant.ACTIVE_SERVICE_STEP2),
                 mapPack.getInt(ParamConstant.ACTIVE_SERVICE_STEP3));

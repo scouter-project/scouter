@@ -356,6 +356,10 @@ public class Configure extends Thread {
 			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
 	public int _mgr_kv_store_index_default_mb = 8;
 
+	@ConfigDesc("change default memory size of xlog txid/gxid index.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_xlog_id_index_mb = 1;
+
 	//external-link
 	@ConfigDesc("name of 3rd party ui")
 	public String ext_link_name = "scouter-paper";
@@ -748,6 +752,7 @@ public class Configure extends Thread {
 		this._mgr_text_db_daily_index_mb = getInt("_mgr_text_db_daily_index_mb", 1);
 
 		this._mgr_kv_store_index_default_mb = getInt("_mgr_kv_store_index_default_mb", 8);
+		this._mgr_xlog_id_index_mb = getInt("_mgr_xlog_id_index_mb", 1);
 
 		this.ext_link_name = getValue("ext_link_name", "scouter-paper");
 		this.ext_link_url_pattern = getValue("ext_link_url_pattern", "http://my-scouter-paper-ip:6188/index.html#/paper?&address=localhost&port=6188&realtime=false&xlogElapsedTime=8000&instances=$[objHashes]&from=$[from]&to=$[to]&layout=my-layout-template-01");
