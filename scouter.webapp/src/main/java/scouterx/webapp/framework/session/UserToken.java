@@ -77,6 +77,9 @@ public class UserToken {
 
     public static UserToken fromStoreValue(String token, int serverId) {
         String arr[] = StringUtils.split(token, ".", 4);
+        if (arr.length < 4) {
+            return null;
+        }
         UserToken stored = new UserToken(arr[3], arr[2], serverId);
         stored.setFootprintSec(Long.parseLong(arr[1]));
         return stored;
