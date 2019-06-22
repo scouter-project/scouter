@@ -16,35 +16,12 @@
  */
 package scouter.agent;
 
-import scouter.agent.asm.AddFieldASM;
-import scouter.agent.asm.ApiCallResponseObjectASM;
-import scouter.agent.asm.ApicallASM;
-import scouter.agent.asm.ApicallInfoASM;
-import scouter.agent.asm.ApicallSpringHandleResponseASM;
-import scouter.agent.asm.ApicallSpringHttpAccessorASM;
-import scouter.agent.asm.CapArgsASM;
-import scouter.agent.asm.CapReturnASM;
-import scouter.agent.asm.CapThisASM;
-import scouter.agent.asm.HttpServiceASM;
-import scouter.agent.asm.IASM;
-import scouter.agent.asm.InitialContextASM;
-import scouter.agent.asm.JDBCConnectionOpenASM;
-import scouter.agent.asm.JDBCDriverASM;
-import scouter.agent.asm.JDBCGetConnectionASM;
-import scouter.agent.asm.JDBCPreparedStatementASM;
-import scouter.agent.asm.JDBCResultSetASM;
-import scouter.agent.asm.JDBCStatementASM;
-import scouter.agent.asm.JspServletASM;
-import scouter.agent.asm.MapImplASM;
-import scouter.agent.asm.MethodASM;
-import scouter.agent.asm.ScouterClassWriter;
-import scouter.agent.asm.ServiceASM;
-import scouter.agent.asm.SocketASM;
-import scouter.agent.asm.SpringReqMapASM;
-import scouter.agent.asm.SqlMapASM;
-import scouter.agent.asm.UserExceptionASM;
-import scouter.agent.asm.UserExceptionHandlerASM;
-import scouter.agent.asm.UserTxASM;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import scouter.agent.asm.*;
 import scouter.agent.asm.asyncsupport.AsyncContextDispatchASM;
 import scouter.agent.asm.asyncsupport.CallRunnableASM;
 import scouter.agent.asm.asyncsupport.HystrixCommandASM;
@@ -56,16 +33,12 @@ import scouter.agent.asm.kafka.KafkaProducerASM;
 import scouter.agent.asm.rabbit.RabbitPublisherASM;
 import scouter.agent.asm.redis.JedisCommandASM;
 import scouter.agent.asm.redis.JedisProtocolASM;
+import scouter.agent.asm.redis.LettuceASM;
 import scouter.agent.asm.redis.RedisCacheKeyASM;
 import scouter.agent.asm.redis.RedisKeyASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
 import scouter.util.FileUtil;
 import scouter.util.IntSet;
 
@@ -128,6 +101,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new ApiCallResponseObjectASM());
         temp.add(new ApicallSpringHandleResponseASM());
         temp.add(new ApicallSpringHttpAccessorASM());
+        temp.add(new ApicallJavaHttpRequestASM());
 
         temp.add(new SpringAsyncExecutionASM());
         temp.add(new SpringAsyncExecutionAspectSupportDoSubmitASM());
@@ -138,6 +112,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new RedisKeyASM());
         temp.add(new RedisCacheKeyASM());
         temp.add(new JedisProtocolASM());
+        temp.add(new LettuceASM());
         temp.add(new KafkaProducerASM());
         temp.add(new RabbitPublisherASM());
 

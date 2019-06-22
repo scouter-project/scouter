@@ -43,6 +43,7 @@ import scouter.client.server.GroupPolicyConstants;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.util.ConsoleProxy;
+import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.xlog.ProfileText;
 import scouter.client.xlog.SaveProfileJob;
@@ -236,6 +237,8 @@ public class XLogProfileView extends ViewPart {
 				}
 			}
 		});
+		
+		text.redraw();
 	}
 	
 	public void setFocus() {

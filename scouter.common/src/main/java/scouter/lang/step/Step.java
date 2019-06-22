@@ -52,7 +52,16 @@ abstract public class Step implements Comparable<Step> {
 		try {
 			DataOutputX dout = new DataOutputX(p.length * 30);
 			for (int i = 0; i < p.length; i++) {
-				dout.writeStep(p[i]);
+				if (p[i] instanceof ThreadCallPossibleStep) {
+					ThreadCallPossibleStep tstep = (ThreadCallPossibleStep) p[i];
+					if (tstep.threaded != 1 && tstep.isIgnoreIfNoThreaded) {
+						//skip
+					} else {
+						dout.writeStep(p[i]);
+					}
+				} else {
+					dout.writeStep(p[i]);
+				}
 			}
 			return dout.toByteArray();
 		} catch (IOException e) {

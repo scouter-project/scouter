@@ -9,8 +9,11 @@ public class XLogFilterStatus {
 	public String ip = "";
 	public String startHmsFrom = "";
 	public String startHmsTo = "";
+	public String responseTimeFrom = "";
+	public String responseTimeTo = "";
 	public String login = "";
 	public String desc = "";
+	public String hasDumpYn = "";
 	public String text1 = "";
 	public String text2 = "";
 	public String text3 = "";
@@ -29,8 +32,11 @@ public class XLogFilterStatus {
 		filter_hash ^= HashUtil.hash(ip);
 		filter_hash ^= HashUtil.hash(startHmsFrom);
 		filter_hash ^= HashUtil.hash(startHmsTo);
+		filter_hash ^= HashUtil.hash(responseTimeFrom);
+		filter_hash ^= HashUtil.hash(responseTimeTo);
 		filter_hash ^= HashUtil.hash(login);
 		filter_hash ^= HashUtil.hash(desc);
+		filter_hash ^= HashUtil.hash(hasDumpYn);
 		filter_hash ^= HashUtil.hash(text1);
 		filter_hash ^= HashUtil.hash(text2);
 		filter_hash ^= HashUtil.hash(text3);
@@ -51,8 +57,11 @@ public class XLogFilterStatus {
 		status.ip = ip;
 		status.startHmsFrom = startHmsFrom;
 		status.startHmsTo = startHmsTo;
+		status.responseTimeFrom = responseTimeFrom;
+		status.responseTimeTo = responseTimeTo;
 		status.login = login;
 		status.desc = desc;
+		status.hasDumpYn = hasDumpYn;
 		status.text1 = text1;
 		status.text2 = text2;
 		status.text3 = text3;

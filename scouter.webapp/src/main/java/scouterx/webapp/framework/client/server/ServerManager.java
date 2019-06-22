@@ -23,6 +23,8 @@ import scouter.util.HashUtil;
 import scouter.util.LinkedMap;
 import scouter.util.ThreadUtil;
 import scouterx.webapp.framework.client.net.TcpProxy;
+import scouterx.webapp.framework.exception.ErrorState;
+import scouterx.webapp.framework.exception.ErrorStateBizException;
 
 import javax.validation.ValidationException;
 import java.util.ArrayList;
@@ -58,7 +60,11 @@ public class ServerManager extends Thread {
 	}
 	
 	public Server getDefaultServer() {
-		return serverMap.getFirstValue();
+		Server firstValue = serverMap.getFirstValue();
+		if (firstValue == null) {
+			throw new ErrorStateBizException(ErrorState.COLLECTOR_NOT_CONNECTED);
+		}
+		return firstValue;
 	}
 	
 	public boolean setDefaultServer(Server server) {

@@ -4,7 +4,7 @@
 
     <groupId>io.github.scouter-project</groupId>
     <artifactId>scouter-parent</artifactId>
-    <version>2.5.0</version>
+    <version>2.7.0</version>
     <packaging>pom</packaging>
 
     <name>SCOUTER APM</name>
@@ -31,6 +31,8 @@
         <scouter.webapp.assembly.name>scouter-webapp-assembly</scouter.webapp.assembly.name>
 
         <scouter.whole.packaging.prepare.dir>${project.basedir}/../target/whole-pack-working</scouter.whole.packaging.prepare.dir>
+        <scouter.agent.java.legacy.dir.name>agent.java_6_7</scouter.agent.java.legacy.dir.name>
+
         <scouter.product.name>scouter-all-${project.version}</scouter.product.name>
         <scouter.product.min.name>scouter-min-${project.version}</scouter.product.min.name>
 

@@ -69,7 +69,7 @@ public class TraceSQL {
 		connectionOpenFailException = traceSQL0.getConnectionOpenFailException();
 	}
 
-	public final static int MAX_STRING = 20;
+	private final static int MAX_STRING = conf.trace_sql_parameter_max_length;
 
     // JDBC_REDEFINED==false
     public final static String PSTMT_PARAM_FIELD = "_param_";
@@ -555,7 +555,7 @@ public class TraceSQL {
 						if (m2 != null) {
 							Properties prop =(Properties) m2.invoke(pool, new Object[0]);
 							url = prop.getProperty("url");
-							if(url == null && "".equals(url)){
+							if(url == null || "".equals(url)){
 								url = prop.getProperty("serverName") + ":" + prop.getProperty("port") + "/" + prop.getProperty("databaseName");
 							}
 						}

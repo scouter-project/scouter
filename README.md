@@ -4,7 +4,7 @@
 
 ![scouter](./scouter.document/img/main/scouter-logo-w200.png)
 
-[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](README.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](README_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](README.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](README_kr.md)
 
 ## Application Performance Monitoring for Open Source S/Ws.
 SCOUTER is an open source APM like new relic and appdynamics.
@@ -14,13 +14,13 @@ SCOUTER is an open source APM like new relic and appdynamics.
    - Java Agent : Web application (on Tomcat, JBoss, Resin ...), Standalone java application
    - Host Agent : Linux, Windows, Unix
 
- - **Monitoring targets (from Telegraf support)**
+ - **Monitoring targets (from Telegraf support) Since @2.0.0**
    - Redis, nginX, apache httpd, haproxy, Kafka, MySQL, MongoDB, RabbitMQ, ElasticSearch, Kube, Mesos ...
 
- - **Monitoring targets (from Zipkin-Scouter storage)**
+ - **Monitoring targets (from Zipkin-Scouter storage) Since @2.5.0**
    - Any zipkin instrumentations(C#, Go, Python, Javascript, PHP...) can be shown in a XLog(Scatter) chart. 
    - see the [zipkin-scouter-storage](https://github.com/scouter-project/zipkin-scouter) documentation.
-   - see the [zipkin instrumentations.](https://zipkin.io/pages/existing_instrumentations.html)  
+   - see the [zipkin instrumentations.](https://zipkin.io/pages/extensions_choices.html)  
   
 ![Screen](./scouter.document/img/main/dashboard-sample-1.png)
 
@@ -65,9 +65,9 @@ SCOUTER can help you.
   - [Web API Guide](./scouter.document/tech/Web-API-Guide.md)
 
 ### 3rd-party UIs
-- **scouter paper** : [scouter paper homepage](https://mindplates.github.io/scouter-paper/)
+- **scouter paper** : [scouter paper homepage](https://scouter-contrib.github.io/scouter-paper/)
   - **showcase** : [scouter paper overview (youtube)](https://www.youtube.com/watch?v=NjJ0dGhdIbU)  
-[![scouter-pater](https://mindplates.github.io/scouter-paper/img/img12.png)](https://www.youtube.com/watch?v=NjJ0dGhdIbU)
+[![scouter-pater](https://scouter-contrib.github.io/scouter-paper/img/img12.png)](https://www.youtube.com/watch?v=NjJ0dGhdIbU)
 
 ### Plugins
 - **Server plugin**
@@ -75,20 +75,20 @@ SCOUTER can help you.
     - **[scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)** : sample plugin prints out data collected
   
   - **Alert**
-    - **[scouter-plugin-server-email](https://github.com/scouter-project/scouter-plugin-server-alert-email)** : emails alerts from Scouter
-    - **[scouter-plugin-server-telegram](https://github.com/scouter-project/scouter-plugin-server-alert-telegram)** : transfer alerts from Scouter to telegram
-    - **[scouter-plugin-server-slack](https://github.com/scouter-project/scouter-plugin-server-alert-slack)** : transfer alerts from Scouter to slack
-    - **[scouter-plugin-server-line](https://github.com/scouter-project/scouter-plugin-server-alert-line)** : transfer alerts from Scouter to line
-    - **[scouter-plugin-server-dingtalk](https://github.com/scouter-project/scouter-plugin-server-alert-dingtalk)** : transfer alerts from Scouter to dingtalk
+    - **[scouter-plugin-server-email](https://github.com/scouter-contrib/scouter-plugin-server-alert-email)** : emails alerts from Scouter
+    - **[scouter-plugin-server-telegram](https://github.com/scouter-contrib/scouter-plugin-server-alert-telegram)** : transfer alerts from Scouter to telegram
+    - **[scouter-plugin-server-slack](https://github.com/scouter-contrib/scouter-plugin-server-alert-slack)** : transfer alerts from Scouter to slack
+    - **[scouter-plugin-server-line](https://github.com/scouter-contrib/scouter-plugin-server-alert-line)** : transfer alerts from Scouter to line
+    - **[scouter-plugin-server-dingtalk](https://github.com/scouter-contrib/scouter-plugin-server-alert-dingtalk)** : transfer alerts from Scouter to dingtalk
     
   - **Counter** 
-    - **[scouter-plugin-server-influxdb](https://github.com/scouter-project/scouter-plugin-server-influxdb)** : transfer performance data from Scouter to influxDB(time series DB)  
+    - **[scouter-plugin-server-influxdb](https://github.com/scouter-contrib/scouter-plugin-server-influxdb)** : transfer performance data from Scouter to influxDB(time series DB)  
 
 - **Agent plugin**
   - TBD
 
 ### 3rd-party Agent
-- **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-project/scouter-pulse)
+- **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-contrib/scouter-pulse)
   - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : gathering performance metrics of EC2, RDS, ELB from cloudwatch in AWS.
 
 <br>

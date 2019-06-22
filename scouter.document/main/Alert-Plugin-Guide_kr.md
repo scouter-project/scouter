@@ -168,7 +168,7 @@ Alert script file is can be edited from scouter client ui or directly in scouter
 | intValue(String anotherCounterName)        | get another counter's current value by the name   |
 
 ## Counter names
- * [counters.xml](https://github.com/scouter-project/scouter/blob/fe74bdb73a34be2f390f8476991d59a5de6ea204/scouter.common/src/main/resources/scouter/lang/counters/counters.xml)
+ * [counters.xml](https://github.com/scouter-contrib/scouter/blob/fe74bdb73a34be2f390f8476991d59a5de6ea204/scouter.common/src/main/resources/scouter/lang/counters/counters.xml)
 
 ## $$ (PluginHelper) API
  - Refer to **[PluginHelper API](./PluginHelper-API_kr.md)**

@@ -1031,6 +1031,30 @@
                 name="Batch Active List"
                 restorable="false">
         </view>
+        <view
+              allowMultiple="true"
+              class="scouter.client.configuration.views.TelegrafConfigView"
+              id="scouter.client.configuration.views.TelegrafConfigView"
+              icon="icons/config.png"
+              name="Telegraf Config"
+              restorable="false">
+        </view>
+        <view
+                allowMultiple="true"
+                class="scouter.client.configuration.views.TelegrafFileConfigView"
+                id="scouter.client.configuration.views.TelegrafFileConfigView"
+                icon="icons/config.png"
+                name="Edit scouter-telegraf config file directly"
+                restorable="false">
+        </view>
+        <view
+                allowMultiple="true"
+                class="scouter.client.configuration.views.CountersSiteFileConfigView"
+                id="scouter.client.configuration.views.CountersSiteFileConfigView"
+                icon="icons/config.png"
+                name="Edit counters-site.xml file directly"
+                restorable="false">
+        </view>
     </extension>
     <extension point="org.eclipse.ui.commands">
         <category id="scouter.client.category" name="Scouter"/>

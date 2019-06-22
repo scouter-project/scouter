@@ -8,7 +8,9 @@
     - `net_http_server_enabled` : set `true`
     - `net_http_api_enabled` : set `true`
     - `net_http_port` : default value `6180`
-    - `net_http_api_allow_ips` : default value `localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1`;
+    - `net_http_api_allow_ips` : default value `localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1`
+    - `net_collector_ip_port_id_pws` : default value 127.0.0.1:6100:admin:admin
+       - format : {host}:{port}:{id}:{pw},{host}:{port}:{id}:{pw}
 
 ### StandAlone Mode로 실행
  - Web API는 Servlet을 통해 서비스 되면 HTTP 프로토콜이나 JSON 파싱 등 부가적인 작업이 필요하기 때문에 기본 수집서버에 비해 자원 사용량이 높다.
@@ -132,6 +134,50 @@ public int log_keep_days = 30;
 #### - `GET /v1/object`
  - get monitoring object list
  - **Auth** : required - register api client's ip to `net_http_api_allow_ips` configuration.
+ - **Query params**
+    - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
+
+#### - `GET /v1/object/remove/inactive`
+ - remove inactive object.
+ - **Auth** : required
+ 
+#### - `GET /v1/object/threadList/{objHash}`
+ - get agent thread list
+ - **Auth** : required - register api client's ip to `net_http_api_allow_ips` configuration.
+ - **Path params**
+    - `objHash` : object id (required)
+ - **Query params**
+    - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
+ 
+#### - `GET /v1/object/threadDump/{objHash}`
+ - get agent thread dump info
+ - **Auth** : required - register api client's ip to `net_http_api_allow_ips` configuration.
+ - **Path params**
+    - `objHash` : object id (required)
+ - **Query params**
+    - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
+ 
+#### - `GET /v1/object/heapHistogram/{objHash}`
+ - get agent heap histogram info
+ - **Auth** : required - register api client's ip to `net_http_api_allow_ips` configuration.
+ - **Path params**
+    - `objHash` : object id (required)
+ - **Query params**
+    - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
+ 
+#### - `GET /v1/object/env/{objHash}`
+ - get agent environment info
+ - **Auth** : required - register api client's ip to `net_http_api_allow_ips` configuration.
+ - **Path params**
+    - `objHash` : object id (required)
+ - **Query params**
+    - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
+
+#### - `GET /v1/object/socket/{objHash}`
+ - get agent socket info
+ - **Auth** : required - register api client's ip to `net_http_api_allow_ips` configuration.
+ - **Path params**
+    - `objHash` : object id (required)
  - **Query params**
     - `serverId` : If the webapp connect to single collector then it's optional.(optional if single server)
 
@@ -424,6 +470,14 @@ public int log_keep_days = 30;
  - **Query params**
    - `serverId` : (optional if single server)
 
+#### - `GET /v1/object/host/realTime/disk/ofObject/{objHash}`
+- retrieve all disk usage of the given object
+- **Auth** : required
+- **Path params**
+  - `objHash` : object id (required)
+- **Query params**
+  - `serverId` : server id (optional if single server)
+   
 #### - `GET /v1/kv-private/{key}`
  - get value of given key from the scouter server's key-value store. (in user-scope private key space for logon user)
  - **Auth** : required

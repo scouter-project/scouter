@@ -28,6 +28,7 @@ import scouter.agent.proxy.IHttpClient;
 import scouter.agent.proxy.SpringRestTemplateHttpRequestFactory;
 import scouter.agent.summary.ServiceSummary;
 import scouter.agent.trace.api.ApiCallTraceHelper;
+import scouter.lang.constants.B3Constant;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.ApiCallStep2;
 import scouter.lang.step.MessageStep;
@@ -332,6 +333,11 @@ public class TraceApiCall {
 			httpclient.addHeader(oRtn, conf._trace_interservice_callee_header_key, Hexa32.toString32(ctx.lastApiCallStep.txid));
 			httpclient.addHeader(oRtn, conf._trace_interservice_caller_obj_header_key, String.valueOf(conf.getObjHash()));
 
+			httpclient.addHeader(oRtn, B3Constant.B3_HEADER_TRACEID, Hexa32.toUnsignedLongHex(ctx.gxid));
+			httpclient.addHeader(oRtn, B3Constant.B3_HEADER_PARENTSPANID, Hexa32.toUnsignedLongHex(ctx.txid));
+			httpclient.addHeader(oRtn, B3Constant.B3_HEADER_SPANID, Hexa32.toUnsignedLongHex(ctx.lastApiCallStep.txid));
+			//httpclient.addHeader(oRtn, B3Constant.B3_HEADER_SAMPLED, "1"); omit means defer
+
 			PluginHttpCallTrace.call(ctx, httpclient, oRtn);
 
 		} catch (Exception e) {
@@ -406,6 +412,21 @@ public class TraceApiCall {
 					}
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void initImmutableJavaHttpRequest(Object requestBuilder) {
+		if (!conf.trace_interservice_enabled) {
+			return;
+		}
+
+		TraceContext ctx = TraceContextManager.getContext();
+		if(ctx == null) return;
+
+		try {
+			ApiCallTraceHelper.setCalleeToCtxJavaHttpRequest(ctx, requestBuilder);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

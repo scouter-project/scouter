@@ -80,6 +80,10 @@ public class LoaderManager {
 		return createLoader(parent, "scouter.kafka");
 	}
 
+	public static ClassLoader getRedisClient(ClassLoader parent) {
+		return createLoader(parent, "scouter.redis");
+	}
+
 	private synchronized static ClassLoader createLoader(ClassLoader parent, String key) {
 
 		int hashKey = (parent == null ? 0 : System.identityHashCode(parent));

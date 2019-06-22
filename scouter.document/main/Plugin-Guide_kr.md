@@ -17,14 +17,14 @@ Scouter의 프로파일은 collector server에 적용 가능한 **server plugin*
   - **[scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)** : 수집데이터를 단순히 출력해 주는 sample plugin
 
 - **Alert**
-  - **[scouter-plugin-server-email](https://github.com/scouter-project/scouter-plugin-server-alert-email)** : Scouter에서 발생하는 alert를 email로 전송하는 plugin
-  - **[scouter-plugin-server-telegram](https://github.com/scouter-project/scouter-plugin-server-alert-telegram)** : Scouter에서 발생하는 alert를 telegram으로 전송하는 plugin
-  - **[scouter-plugin-server-slack](https://github.com/scouter-project/scouter-plugin-server-alert-slack)** : Scouter에서 발생하는 alert를 slack으로 전송하는 plugin
-  - **[scouter-plugin-server-line](https://github.com/scouter-project/scouter-plugin-server-alert-line)** : Scouter에서 발생하는 alert를 line으로 전송하는 plugin
-  - **[scouter-plugin-server-dingtalk](https://github.com/scouter-project/scouter-plugin-server-alert-dingtalk)** : Scouter에서 발생하는 alert를 dingtalk으로 전송하는 plugin
+  - **[scouter-plugin-server-email](https://github.com/scouter-contrib/scouter-plugin-server-alert-email)** : Scouter에서 발생하는 alert를 email로 전송하는 plugin
+  - **[scouter-plugin-server-telegram](https://github.com/scouter-contrib/scouter-plugin-server-alert-telegram)** : Scouter에서 발생하는 alert를 telegram으로 전송하는 plugin
+  - **[scouter-plugin-server-slack](https://github.com/scouter-contrib/scouter-plugin-server-alert-slack)** : Scouter에서 발생하는 alert를 slack으로 전송하는 plugin
+  - **[scouter-plugin-server-line](https://github.com/scouter-contrib/scouter-plugin-server-alert-line)** : Scouter에서 발생하는 alert를 line으로 전송하는 plugin
+  - **[scouter-plugin-server-dingtalk](https://github.com/scouter-contrib/scouter-plugin-server-alert-dingtalk)** : Scouter에서 발생하는 alert를 dingtalk으로 전송하는 plugin
     
 - **Counter**
-  - **[scouter-plugin-server-influxdb](https://github.com/scouter-project/scouter-plugin-server-influxdb)** : Scouter의 성능 counter 데이터를 시계열 DB인 influxDB로 연동하는 plugin
+  - **[scouter-plugin-server-influxdb](https://github.com/scouter-contrib/scouter-plugin-server-influxdb)** : Scouter의 성능 counter 데이터를 시계열 DB인 influxDB로 연동하는 plugin
 
 #### 2. agent plugins
 * TBD
@@ -115,7 +115,7 @@ Scouter의 설치본에는 이에 대한 샘플이 포함되어 있으며 해당
 |**httpservice.plug**    | Http Service 시작점, Http Service이 종료시점에 호출됨. 특정 Service는 사용자가 정의한 조건에 따라 reject할 수 있는 기능을 제공 |
 |**service.plug**        | Service의 시작점, 종료 시점에 호출됨 (```hook_service_patterns```를 통해 설정된 서비스가 대상이 됨) |
 |**httpcall.plug**       | HttpClient등을 통해 http call을 사용하는 시점에 호출됨   |
-|**capture.plug**        | ```hook_method_patterns```나 ```hook_constructor_patterns```등을 통해 설정됨 method에 대해 해당 method의 시작 시점, 종료시점, Constructor 생성 시점에 호출됨 |
+|**capture.plug**        | ```hook_args_patterns```나 ```hook_constructor_patterns```등을 통해 설정됨 method에 대해 해당 method의 시작 시점, 종료시점, Constructor 생성 시점에 호출됨 |
 |**jdbcpoolplug**        | DB connection URL 요청 시점에 호출됨 |
 
 이에 대한 상세 내용은 **[Scripting plugin java agent API 설명 페이지](JavaAgent-Plugin-Scripting_kr.md)**를 참고한다.

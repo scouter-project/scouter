@@ -34,10 +34,7 @@ import scouter.agent.plugin.PluginBackThreadTrace;
 import scouter.agent.plugin.PluginCaptureTrace;
 import scouter.agent.plugin.PluginHttpServiceTrace;
 import scouter.agent.plugin.PluginSpringControllerCaptureTrace;
-import scouter.agent.proxy.HttpTraceFactory;
-import scouter.agent.proxy.IHttpTrace;
-import scouter.agent.proxy.IKafkaTracer;
-import scouter.agent.proxy.KafkaTraceFactory;
+import scouter.agent.proxy.*;
 import scouter.agent.summary.ServiceSummary;
 import scouter.agent.trace.enums.XLogDiscard;
 import scouter.agent.wrapper.async.WrTask;
@@ -69,6 +66,7 @@ import scouter.util.ThreadUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -510,6 +508,8 @@ public class TraceMain {
             pack.text3 = ctx.text3;
             pack.text4 = ctx.text4;
             pack.text5 = ctx.text5;
+
+            pack.b3Mode = ctx.b3Mode;
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
             metering(pack);
@@ -981,7 +981,7 @@ public class TraceMain {
             int start_time = (int) (System.currentTimeMillis() - ctx.startTime);
             for (int i = 0; i < arg.length; i++) {
                 if (arg[i] == null) continue;
-                String value = new StringBuilder().append("param: ").append(StringUtil.limiting(arg[i].toString(), 1024)).toString();
+                String value = "param: " + StringUtil.limiting(arg[i].toString(), 1024);
 
                 MessageStep step = new MessageStep(value);
                 step.start_time = start_time;
@@ -1206,6 +1206,7 @@ public class TraceMain {
             threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
             threadCallPossibleStep.nameTemp = threadCallName;
             ctx.profile.add(threadCallPossibleStep);
+            ctx.lastThreadCallPossibleStep = threadCallPossibleStep;
 
             TransferMap.put(System.identityHashCode(callable), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
         } catch (Throwable t) {
@@ -1236,6 +1237,10 @@ public class TraceMain {
             if (ctx == null) return;
             if (callRunnable == null) return;
             if (callRunnable instanceof WrTaskCallable) return;
+            if (ctx.lastThreadCallPossibleStep != null) {
+                ctx.lastThreadCallPossibleStep = null;
+                return;
+            }
 
             if (TransferMap.get(System.identityHashCode(callRunnable)) != null) {
                 return;
@@ -1359,10 +1364,10 @@ public class TraceMain {
             Logger.println("S269", "Hystrix hooking failed. check scouter supporting hystrix version.", e);
         }
 
-        callRunnableInitInvoked(hystrixCommand);
+        callRunnableInitInvoked(hystrixCommand, true, true);
     }
 
-    public static void callRunnableInitInvoked(Object callRunnableObj) {
+    public static void callRunnableInitInvoked(Object callRunnableObj, boolean addStepToCtx, boolean isIgnoreIfNoThreaded) {
         try {
             TraceContext ctx = TraceContextManager.getContext();
             if (ctx == null) return;
@@ -1386,12 +1391,22 @@ public class TraceMain {
 
             threadCallPossibleStep.hash = DataProxy.sendApicall(threadCallName);
             threadCallPossibleStep.nameTemp = threadCallName;
+            if (isIgnoreIfNoThreaded) {
+                threadCallPossibleStep.isIgnoreIfNoThreaded = true;
+            }
             ctx.profile.add(threadCallPossibleStep);
+            if (addStepToCtx) {
+                ctx.lastThreadCallPossibleStep = threadCallPossibleStep;
+            }
 
             TransferMap.put(System.identityHashCode(callRunnableObj), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
         } catch (Throwable t) {
             Logger.println("B1203", "Exception: callRunnableInitInvoked", t);
         }
+    }
+
+    public static void callRunnableInitInvoked(Object callRunnableObj) {
+        callRunnableInitInvoked(callRunnableObj, false, false);
     }
 
     public static Callable wrap1stParamAsWrTaskCallable(Callable callable) {
@@ -1668,6 +1683,15 @@ public class TraceMain {
 
         tctx.profile.pop(step);
 
+        //[KAFKA] bootstrap : [localhost:9092], topic : scouter-topic2 [0 ms]
+        if (conf.counter_interaction_enabled) {
+            String kafka = (bootstrapServer.length() > 1) ? bootstrapServer : "kafka";
+            int kafkaHash = DataProxy.sendObjName(kafka);
+            MeterInteraction meterInteraction = MeterInteractionManager.getInstance().getKafkaCallMeter(conf.getObjHash(), kafkaHash);
+            if (meterInteraction != null) {
+                meterInteraction.add(elapsed, thr != null);
+            }
+        }
     }
 
     private static String RABBIT_COMMAND_MSG = "[RABBIT] exchange : %s, routing key : %s";
@@ -1716,6 +1740,114 @@ public class TraceMain {
         }
 
         tctx.profile.pop(step);
+
+        if (conf.counter_interaction_enabled) {
+            String rabbitmq = (exchange.length() > 1) ? exchange : "rabbitmq";
+            int rabbitmqHash = DataProxy.sendObjName(rabbitmq);
+            MeterInteraction meterInteraction = MeterInteractionManager.getInstance().getRabbitmqCallMeter(conf.getObjHash(), rabbitmqHash);
+            if (meterInteraction != null) {
+                meterInteraction.add(elapsed, thr != null);
+            }
+        }
+    }
+
+    static ILettuceTrace lettuceTracer;
+
+    public static Object startLettuceCommand(Object channel, Object redisCommand) {
+        if (TraceContextManager.isForceDiscarded()) {
+            return null;
+        }
+
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null) {
+            return null;
+        }
+
+        if(redisCommand instanceof Collection) {
+            return null;
+        }
+
+        if (lettuceTracer == null) {
+            lettuceTracer = LettuceTraceFactory.create(channel.getClass().getClassLoader());
+        }
+
+        String command = lettuceTracer.getCommand(redisCommand);
+        if (command == null) return null;
+
+        lettuceTracer.startRedis(ctx, channel);
+        String args = lettuceTracer.parseArgs(redisCommand);
+
+        ParameterizedMessageStep step = new ParameterizedMessageStep();
+        step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        step.putTempMessage("command", command);
+        step.putTempMessage("args", args);
+        ctx.profile.push(step);
+
+        return new LocalContext(ctx, step);
+
+    }
+
+    public static void endLettuceCommand(Object localContext, Throwable thr) {
+        if (localContext == null)
+            return;
+
+        LocalContext lctx = (LocalContext) localContext;
+
+        ParameterizedMessageStep step = (ParameterizedMessageStep) lctx.stepSingle;
+        if (step == null) return;
+
+        TraceContext tctx = lctx.context;
+        if (tctx == null) return;
+
+        int elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
+        step.setElapsed(elapsed);
+
+        String command = step.getTempMessage("command");
+        String args = step.getTempMessage("args");
+        if (StringUtil.isEmpty(command)) command = "-";
+        if (StringUtil.isEmpty(args)) args = "-";
+
+        if (thr == null) {
+            step.setMessage(DataProxy.sendHashedMessage(JEDIS_COMMAND_MSG), command, args);
+            step.setLevel(ParameterizedMessageLevel.INFO);
+
+        } else {
+            String msg = thr.toString();
+            step.setMessage(DataProxy.sendHashedMessage(JEDIS_COMMAND_ERROR_MSG), command, args, thr.getClass().getName(), msg);
+            step.setLevel(ParameterizedMessageLevel.ERROR);
+
+            if (tctx.error == 0 && conf.xlog_error_on_redis_exception_enabled) {
+                if (conf.profile_fullstack_redis_error_enabled) {
+                    StringBuffer sb = new StringBuffer();
+                    sb.append(msg).append("\n");
+                    ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+                    Throwable cause = thr.getCause();
+                    while (cause != null) {
+                        sb.append("\nCause...\n");
+                        ThreadUtil.getStackTrace(sb, cause, conf.profile_fullstack_max_lines);
+                        cause = cause.getCause();
+                    }
+                    msg = sb.toString();
+                }
+
+                int hash = DataProxy.sendError(msg);
+                tctx.error = hash;
+            }
+        }
+
+        tctx.profile.pop(step);
+
+        if (conf.counter_interaction_enabled) {
+            String redisName = "redis";
+            if (StringUtil.isNotEmpty(tctx.lastRedisConnHost)) {
+                redisName = tctx.lastRedisConnHost ;
+            }
+            int redisHash = DataProxy.sendObjName(redisName);
+            MeterInteraction meterInteraction = MeterInteractionManager.getInstance().getRedisCallMeter(conf.getObjHash(), redisHash);
+            if (meterInteraction != null) {
+                meterInteraction.add(elapsed, thr != null);
+            }
+        }
     }
 
 }

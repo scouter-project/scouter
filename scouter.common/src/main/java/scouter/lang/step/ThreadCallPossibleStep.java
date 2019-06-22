@@ -30,6 +30,8 @@ public class ThreadCallPossibleStep extends StepSingle {
 	public byte threaded;
 	public String nameTemp;
 
+	public boolean isIgnoreIfNoThreaded;
+
 	public byte getStepType() {
 		return StepEnum.THREAD_CALL_POSSIBLE;
 	}

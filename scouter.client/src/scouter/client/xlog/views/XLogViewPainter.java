@@ -87,6 +87,7 @@ public class XLogViewPainter {
 	public StrMatch serviceMat;
 	public StrMatch ipMat;
 	public Pair<Long, Long> startFromToMat;
+	public Pair<Integer, Integer> resFromToMat;
 	public StrMatch loginMat;
 	public StrMatch descMat;
 	public StrMatch text1Mat;
@@ -96,6 +97,7 @@ public class XLogViewPainter {
 	public StrMatch text5Mat;
 	public StrMatch userAgentMat;
 	public String profileSizeExpr;
+	public String txtHasDump;
 	
 	public String yyyymmdd;
 	ITimeChange callback;
@@ -632,8 +634,10 @@ public class XLogViewPainter {
 				&& isServiceFilterOk(d)
 				&& isIpFilterOk(d.p)
 				&& isStartTimeFilterOk(d.p)
+				&& isResponseTimeFilterOk(d.p)
 				&& isLoginFilterOk(d)
 				&& isDescFilterOk(d)
+				&& isDumpYnOk(d)
 				&& isText1FilterOk(d)
 				&& isText2FilterOk(d)
 				&& isText3FilterOk(d)
@@ -687,6 +691,13 @@ public class XLogViewPainter {
 		return startFromToMat.getLeft() <= start && start <= startFromToMat.getRight();
 	}
 
+	public boolean isResponseTimeFilterOk(XLogPack p) {
+		if (StringUtil.isEmpty(filterStatus.responseTimeFrom) || StringUtil.isEmpty(filterStatus.responseTimeTo)) {
+			return true;
+		}
+		return resFromToMat.getLeft() <= p.elapsed && p.elapsed <= resFromToMat.getRight();
+	}
+
 	public boolean isLoginFilterOk(XLogData d) {
 		if (StringUtil.isEmpty(filterStatus.login)) {
 			return true;
@@ -708,6 +719,17 @@ public class XLogViewPainter {
 		} else {
 			String desc = TextProxy.desc.getLoadText(yyyymmdd, d.p.desc, d.serverId);
 			return descMat.include(desc);
+		}
+	}
+
+	public boolean isDumpYnOk(XLogData d) {
+		if (StringUtil.isEmpty(filterStatus.hasDumpYn)) {
+			return true;
+		}
+		if (filterStatus.hasDumpYn.equals("Y")) {
+			return d.p.hasDump == 1;
+		} else {
+			return d.p.hasDump == 0;
 		}
 	}
 
@@ -840,8 +862,16 @@ public class XLogViewPainter {
 		text5Mat = new StrMatch(status.text5);
 		descMat = new StrMatch(status.desc);
 		userAgentMat = new StrMatch(status.userAgent);
+		txtHasDump = status.hasDumpYn;
 
 		profileSizeExpr = status.profileSizeText;
+
+		if (status.startHmsFrom.length() >= 1 && status.startHmsTo.length() >= 1) {
+			try {
+				resFromToMat = new Pair<>(Integer.parseInt(status.responseTimeFrom), Integer.parseInt(status.responseTimeTo));
+			} catch (NumberFormatException ignored) {
+			}
+		}
 
 		if (status.startHmsFrom.length() == 6 && status.startHmsTo.length() == 6) {
 			long dateMillis = DateUtil.dateUnitToTimeMillis(DateUtil.getDateUnit(paintedEndTime));

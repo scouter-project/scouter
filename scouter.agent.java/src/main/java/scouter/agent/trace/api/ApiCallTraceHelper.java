@@ -33,6 +33,7 @@ public class ApiCallTraceHelper {
 	static Map<String, IHelper> handlers = new HashMap<String, IHelper>();
 	static ForHttpClient43 forHttpClient43 = new ForHttpClient43();
 	static ForSpringAsyncRestTemplate forSpringAsyncRestTemplate = new ForSpringAsyncRestTemplate();
+	static ForJavaNetHttpClient forJavaNetHttpClient = new ForJavaNetHttpClient();
 
 	static void put(String name, IHelper o) {
 		name = name.replace('.', '/');
@@ -54,6 +55,7 @@ public class ApiCallTraceHelper {
 		put("io/reactivex/netty/protocol/http/client/HttpClientImpl", new ForNettyHttpRequest());
 		put("org/springframework/web/client/RestTemplate", new ForSpringRestTemplate());
 		put("org/springframework/web/client/AsyncRestTemplate", new ForSpringAsyncRestTemplate());
+		put("jdk/internal/net/http/HttpClientImpl", new ForJavaNetHttpClient());
 	}
 
 	private static IHelper defaultObj = new ForDefault();
@@ -78,5 +80,9 @@ public class ApiCallTraceHelper {
 
 	public static void setCalleeToCtxInSpringClientHttpResponse(TraceContext ctx, Object _this, Object response) {
 		forSpringAsyncRestTemplate.processSetCalleeToCtx(ctx, _this, response);
+	}
+
+	public static void setCalleeToCtxJavaHttpRequest(TraceContext ctx, Object requestBuilder) {
+		forJavaNetHttpClient.transfer(ctx, requestBuilder);
 	}
 }

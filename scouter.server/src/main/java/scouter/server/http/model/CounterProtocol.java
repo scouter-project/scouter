@@ -21,6 +21,8 @@ package scouter.server.http.model;
 import scouter.lang.Counter;
 import scouter.lang.DeltaType;
 import scouter.lang.ObjectType;
+import scouter.server.Logger;
+import scouter.server.support.telegraf.TgCounterMapping;
 import scouter.util.StringUtil;
 
 import java.util.ArrayList;
@@ -46,7 +48,23 @@ public class CounterProtocol extends Counter {
         super(name);
     }
 
-    private void setFreshFalse() {
+    public static CounterProtocol of(TgCounterMapping mapping) {
+        CounterProtocol counter = new CounterProtocol();
+        counter.setName(mapping.counterName);
+        counter.setDeltaType(mapping.deltaType);
+        if (StringUtil.isNotEmpty(mapping.displayName)) {
+            counter.setDisplayName(mapping.displayName);
+        } else {
+            counter.setDisplayName(mapping.counterName);
+        }
+        counter.setUnit(mapping.unit);
+        counter.setTotal(mapping.totalizable);
+        counter.setNormalizeSec(mapping.normalizeSeconds);
+
+        return counter;
+    }
+
+    private void setFreshFalseIfIntervalExpired() {
         if (System.currentTimeMillis() - initTimestamp > KEEP_FRESH_MILLIS) {
             this.fresh = false;
         }
@@ -147,7 +165,7 @@ public class CounterProtocol extends Counter {
         return generateTaggedName(this.getDisplayName(), this.displayNameTags, tagMap);
     }
 
-    public String getTaggedDelateDisplayName(Map<String, String> tagMap) {
+    public String getTaggedDeltaDisplayName(Map<String, String> tagMap) {
         return generateTaggedDeltaName(this.getDisplayName(), this.displayNameTags, tagMap);
     }
 
@@ -235,13 +253,13 @@ public class CounterProtocol extends Counter {
         if (!isNew) {
             isNew = checkNewOrChanged4DeltaCounter(objectType, line);
             if (isNew) {
-                System.out.println("##### is New Delta ");
+                Logger.println("New Telegraf Delta Counter : " + this.getTaggedDelataName(line.getTags()));
             }
         } else {
-            System.out.println("##### is New Normal counter");
+            Logger.println("New Telegraf Counter : " + this.getTaggedName(line.getTags()));
         }
 
-        setFreshFalse();
+        setFreshFalseIfIntervalExpired();
         return isNew;
     }
 
@@ -249,14 +267,11 @@ public class CounterProtocol extends Counter {
         if (!hasNormalCounter()) {
             return false;
         }
-
         Counter counter = objectType.getCounter(getTaggedName(line.getTags()));
         if (counter == null) {
             return true;
         }
-
-        String taggedDisplayName = getTaggedDisplayName(line.getTags());
-        if (checkChangedDeeper(counter, taggedDisplayName, getUnit())) {
+        if (checkChangedDeeper(false, counter, line, getUnit(), getIcon())) {
             return true;
         }
 
@@ -273,18 +288,19 @@ public class CounterProtocol extends Counter {
             return true;
         }
 
-        String taggedDisplayName = getTaggedDelateDisplayName(line.getTags());
-        if (checkChangedDeeper(counter, taggedDisplayName, generateDeltaUnit(getUnit()))) {
+        if (checkChangedDeeper(true, counter, line, generateDeltaUnit(getUnit()), getIcon())) {
             return true;
         }
 
         return false;
     }
 
-    private boolean checkChangedDeeper(Counter counter, String taggedDisplayName, String unit) {
+    private boolean checkChangedDeeper(boolean isDeltaCounter, Counter counter, InfluxSingleLine line, String unit, String icon) {
         if (this.fresh) { //deep search
+            String taggedDisplayName = isDeltaCounter ? getTaggedDeltaDisplayName(line.getTags()) : getTaggedDisplayName(line.getTags());
             if (!taggedDisplayName.equals(counter.getDisplayName())
                     || !unit.equals(counter.getUnit())
+                    || !icon.equals(counter.getIcon())
                     || isTotal() != counter.isTotal()) {
                 return true;
             }

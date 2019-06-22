@@ -105,6 +105,30 @@ public class InteractionPerf {
 		addInteractionsToBasket(basket, interactionType, redisCallMeterMap, periodSec);
 	}
 
+	@InteractionCounter(interval = 5000)
+	public void collectKafkaCallInteractionCounter(InteractionCounterBasket basket) {
+		if (!conf.counter_interaction_enabled) {
+			return;
+		}
+
+		int periodSec = 30;
+		String interactionType = CounterConstants.INTR_KAFKA_CALL;
+		LinkedMap<MeterInteractionManager.Key, MeterInteraction> kafkaCallMeterMap = MeterInteractionManager.getInstance().getKafkaCallMeterMap();
+		addInteractionsToBasket(basket, interactionType, kafkaCallMeterMap, periodSec);
+	}
+
+	@InteractionCounter(interval = 5000)
+	public void collecRabbitmqCallInteractionCounter(InteractionCounterBasket basket) {
+		if (!conf.counter_interaction_enabled) {
+			return;
+		}
+
+		int periodSec = 30;
+		String interactionType = CounterConstants.INTR_RABBITMQ_CALL;
+		LinkedMap<MeterInteractionManager.Key, MeterInteraction> rabbitmqCallMeterMap = MeterInteractionManager.getInstance().getRabbitmqCallMeterMap();
+		addInteractionsToBasket(basket, interactionType, rabbitmqCallMeterMap, periodSec);
+	}
+
 	private void addInteractionsToBasket(InteractionCounterBasket basket, String interactionType, LinkedMap<MeterInteractionManager.Key, MeterInteraction> apiIncomingMeterMap, int periodSec) {
 		Enumeration<LinkedMap.LinkedEntry<MeterInteractionManager.Key, MeterInteraction>> entries = apiIncomingMeterMap.entries();
 
