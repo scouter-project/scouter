@@ -494,6 +494,9 @@ public class CounterEngine {
 	}
 
 	public String getFamilyNameFromObjType(String objType) {
+		if (objTypeMap.get(objType) == null) {
+			return "UNKNOWN";
+		}
 		return objTypeMap.get(objType).getFamily().getName();
 	}
 	
