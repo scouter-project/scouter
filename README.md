@@ -4,7 +4,7 @@
 
 ![scouter](./scouter.document/img/main/scouter-logo-w200.png)
 
-[![Englsh](https://img.shields.io/badge/language-English-orange.svg)](README.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](README_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](README.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](README_kr.md)
 
 ## Application Performance Monitoring for Open Source S/Ws.
 SCOUTER is an open source APM like new relic and appdynamics.

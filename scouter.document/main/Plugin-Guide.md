@@ -52,7 +52,7 @@ refer to the link for details.
 refer to **[Scripting plugin Server API](Server-Plugin-Scripting.md)**.
 
 ### 2. Built-in (type) Plugin
-Builing scripting plugin is very simple and can be dynamically loaded on runtime environment.  
+Building scripting plugin is very simple and can be dynamically loaded on runtime environment.  
 On the other hand if you need the function permanently, it's too easy to fragile.
 So scouter provides another plugin type which allow you can attach pre-built compiled plugin and it's called as **Built-in Plugin**.
 

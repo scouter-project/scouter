@@ -642,11 +642,11 @@
     public int xlog_error_sql_time_max_ms = 30000;
     @ConfigDesc("Leave an error message at XLog when UserTransaction's begin/end unpaired")
     public boolean xlog_error_check_user_transaction_enabled = true;
-    @ConfigDesc("mark as error on xlog flag if SqlException is occured.")
+    @ConfigDesc("mark as error on xlog flag if SqlException is occurred.")
     public boolean xlog_error_on_sqlexception_enabled = true;
-    @ConfigDesc("mark as error on xlog flag if Api call errors are occured.")
+    @ConfigDesc("mark as error on xlog flag if Api call errors are occurred.")
     public boolean xlog_error_on_apicall_exception_enabled = true;
-    @ConfigDesc("mark as error on xlog flag if redis error is occured.")
+    @ConfigDesc("mark as error on xlog flag if redis error is occurred.")
     public boolean xlog_error_on_redis_exception_enabled = true;
 
     //XLog hard sampling options
@@ -765,7 +765,7 @@
     public String hook_get_connection_patterns = "";
 
     
-    @ConfigDesc("IntialContext Class Set")
+    @ConfigDesc("InitialContext Class Set")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_context_classes = "javax/naming/InitialContext";
 
@@ -777,7 +777,7 @@
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_method_ignore_prefixes = "get,set";
 
-    @ConfigDesc("Class set without Method hookingt")
+    @ConfigDesc("Class set without Method hooking")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_method_ignore_classes = "";
 
@@ -812,7 +812,7 @@
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_jsp_patterns = "";
 
-    @ConfigDesc("Method set for preparestatement hooking")
+    @ConfigDesc("Method set for preparedstatement hooking")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_jdbc_pstmt_classes = "";
 
@@ -866,7 +866,7 @@
     @ConfigDesc("Deprecated. use hook_async_callrunnable_enabled")
     public boolean hook_async_callrunnable_enable = true;
 
-    @ConfigDesc("Hook callable and runnable for tracing async processing.\n It hook only 'hook_async_callrunnable_scan_prefixes' option contains pacakage or classes")
+    @ConfigDesc("Hook callable and runnable for tracing async processing.\n It hook only 'hook_async_callrunnable_scan_prefixes' option contains package or classes")
     public boolean hook_async_callrunnable_enabled = true;
 
     @ConfigDesc("scanning range prefixes for hooking callable, runnable implementations and lambda expressions.\n usually your application package.\n 2 or more packages can be separated by commas.")
@@ -880,13 +880,13 @@
     @ConfigDesc("PRE-released option before stable release!\nhook threadpool executor for tracing async processing.")
     public boolean hook_async_thread_pool_executor_enabled = false;
 
-    @ConfigDesc("Experimental! test it on staging environment of your system before enable this option.\n enable lambda expressioned class hook for detecting asyncronous processing. \nOnly classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
+    @ConfigDesc("Experimental! test it on staging environment of your system before enable this option.\n enable lambda expressioned class hook for detecting asynchronous processing. \nOnly classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
     public boolean hook_lambda_instrumentation_strategy_enabled = false;
 
     @ConfigDesc("")
     public String hook_add_fields = "";
     @ConfigDesc("")
-    public boolean _hook_serivce_enabled = true;
+    public boolean _hook_service_enabled = true;
     @ConfigDesc("")
     public boolean _hook_dbsql_enabled = true;
     @ConfigDesc("")
@@ -950,7 +950,7 @@
     @ConfigDesc("SFA thread dump Interval(ms)")
     public int sfa_dump_interval_ms = 10000;
 
-    //PSTS(Preiodical Stacktrace Step)
+    //PSTS(Periodical Stacktrace Step)
     @ConfigDesc("Activating periodical stacktrace step (write fixed interval thread dump on a profile)")
     public boolean _psts_enabled = false;
     @ConfigDesc("PSTS(periodical stacktrace step) thread dump Interval(ms) - hard min limit 2000")
@@ -965,7 +965,7 @@
 
    * example
    ```properties
-   net_colector_ip = 127.0.0.1
+   net_collector_ip = 127.0.0.1
    cpu_alert_enabled = false
    ```
    
@@ -1016,7 +1016,7 @@
 	@ConfigDesc("")
 	public boolean log_udp_object = false;
 	@ConfigDesc("Retaining log according to date")
-	public boolean log_rotation_enalbed = true;
+	public boolean log_rotation_enabled = true;
 	@ConfigDesc("Log directory")
 	public String log_dir = "./logs";
 	@ConfigDesc("Keeping period of log")
