@@ -31,6 +31,7 @@ import scouterx.webapp.model.scouter.SUser;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -99,6 +100,7 @@ public class UserTokenService {
         String tokens = customKvStoreService.get(SESSION_STORE, userToken.getUserId(), ServerManager.getInstance().getServerIfNullDefault(userToken.getServerId()));
         Map<String, UserToken> userTokenMap = Arrays.stream(tokens.split(":"))
                 .map(v -> UserToken.fromStoreValue(v, 0))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toMap(UserToken::getToken, Function.identity()));
 
         return userTokenMap.get(userToken.getToken());
