@@ -20,7 +20,7 @@ SCOUTER is an open source APM like new relic and appdynamics.
  - **Monitoring targets (from Zipkin-Scouter storage) Since @2.5.0**
    - Any zipkin instrumentations(C#, Go, Python, Javascript, PHP...) can be shown in a XLog(Scatter) chart. 
    - see the [zipkin-scouter-storage](https://github.com/scouter-project/zipkin-scouter) documentation.
-   - see the [zipkin instrumentations.](https://zipkin.io/pages/existing_instrumentations.html)  
+   - see the [zipkin instrumentations.](https://zipkin.io/pages/extensions_choices.html)  
   
 ![Screen](./scouter.document/img/main/dashboard-sample-1.png)
 
@@ -75,20 +75,20 @@ SCOUTER can help you.
     - **[scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)** : sample plugin prints out data collected
   
   - **Alert**
-    - **[scouter-plugin-server-email](https://github.com/scouter-project/scouter-plugin-server-alert-email)** : emails alerts from Scouter
-    - **[scouter-plugin-server-telegram](https://github.com/scouter-project/scouter-plugin-server-alert-telegram)** : transfer alerts from Scouter to telegram
-    - **[scouter-plugin-server-slack](https://github.com/scouter-project/scouter-plugin-server-alert-slack)** : transfer alerts from Scouter to slack
-    - **[scouter-plugin-server-line](https://github.com/scouter-project/scouter-plugin-server-alert-line)** : transfer alerts from Scouter to line
-    - **[scouter-plugin-server-dingtalk](https://github.com/scouter-project/scouter-plugin-server-alert-dingtalk)** : transfer alerts from Scouter to dingtalk
+    - **[scouter-plugin-server-email](https://github.com/scouter-contrib/scouter-plugin-server-alert-email)** : emails alerts from Scouter
+    - **[scouter-plugin-server-telegram](https://github.com/scouter-contrib/scouter-plugin-server-alert-telegram)** : transfer alerts from Scouter to telegram
+    - **[scouter-plugin-server-slack](https://github.com/scouter-contrib/scouter-plugin-server-alert-slack)** : transfer alerts from Scouter to slack
+    - **[scouter-plugin-server-line](https://github.com/scouter-contrib/scouter-plugin-server-alert-line)** : transfer alerts from Scouter to line
+    - **[scouter-plugin-server-dingtalk](https://github.com/scouter-contrib/scouter-plugin-server-alert-dingtalk)** : transfer alerts from Scouter to dingtalk
     
   - **Counter** 
-    - **[scouter-plugin-server-influxdb](https://github.com/scouter-project/scouter-plugin-server-influxdb)** : transfer performance data from Scouter to influxDB(time series DB)  
+    - **[scouter-plugin-server-influxdb](https://github.com/scouter-contrib/scouter-plugin-server-influxdb)** : transfer performance data from Scouter to influxDB(time series DB)  
 
 - **Agent plugin**
   - TBD
 
 ### 3rd-party Agent
-- **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-project/scouter-pulse)
+- **Pulse type agent** : [scouter-pulse-library](https://github.com/scouter-contrib/scouter-pulse)
   - **[aws-monitor](https://github.com/nices96/scouter-pulse-aws-monitor)** : gathering performance metrics of EC2, RDS, ELB from cloudwatch in AWS.
 
 <br>
