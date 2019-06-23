@@ -53,6 +53,10 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		//mariadb 1.6.4, 1.7.1
 		target.add("org/mariadb/jdbc/MariaDbPreparedStatementClient");
 		target.add("org/mariadb/jdbc/MariaDbPreparedStatementServer");
+
+		// mariadb 1.8.0 and 2.0.x
+		target.add("org/mariadb/jdbc/ClientSidePreparedStatement");
+		target.add("org/mariadb/jdbc/ServerSidePreparedStatement");
 		
 		target.add("org/postgresql/jdbc2/AbstractJdbc2Statement");
 		//pg driver 42+
