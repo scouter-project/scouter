@@ -71,19 +71,18 @@ public class BatchMonitor extends Thread {
 			long lastCheckGCTime = 0L;
 			long currentTime;
 
-			long [] gcInfo;
 			while(!config.scouter_stop){
 				currentTime = System.currentTimeMillis();
 				if(stackWriter != null){
 					if((currentTime - lastStackDumpTime) >= config.sfa_dump_interval_ms){
 						lastStackDumpTime = currentTime;
 						ThreadDumpHandler.processDump(stackFile, stackWriter, indexWriter, config.sfa_dump_filter, config.sfa_dump_header_exists);
-						UdpLocalAgent.sendRunningInfo(traceContext);
 					}
 				}
 				if((currentTime - lastCheckGCTime) >= 5000L){
 					lastCheckGCTime = currentTime;
 					traceContext.caculateResource();
+					UdpLocalAgent.sendRunningInfo(traceContext);
 				}
 				if((currentTime - lastCheckThreadTime) >= config.thread_check_interval_ms){
 					lastCheckThreadTime = currentTime;
