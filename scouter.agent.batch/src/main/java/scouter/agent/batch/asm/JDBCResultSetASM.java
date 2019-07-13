@@ -33,10 +33,25 @@ import java.util.HashSet;
 public class JDBCResultSetASM implements IASM, Opcodes {
 	public final HashSet<String> target = HookingSet.getHookingClassSet(Configure.getInstance().hook_jdbc_rs_classes);
 	public JDBCResultSetASM() {
+		//mariadb older
 		target.add("org/mariadb/jdbc/MySQLResultSet");
+		//mariadb 1.5.9
+		target.add("org/mariadb/jdbc/internal/queryresults/resultset/MariaSelectResultSet");
+		//mariadb 1.6.5
+		target.add("org/mariadb/jdbc/internal/com/read/resultset/SelectResultSet");
+		//mariadb 1.7.1
+		target.add("org/mariadb/jdbc/internal/com/read/resultset/UpdatableResultSet");
+		
 		target.add("oracle/jdbc/driver/OracleResultSetImpl");
 		target.add("com/mysql/jdbc/ResultSetImpl");
+
+		//mysql 1.8x
+		target.add("com/mysql/cj/jdbc/result/ResultSetImpl");
+
 		target.add("org/postgresql/jdbc2/AbstractJdbc2ResultSet");
+		//pg driver 42+
+		target.add("org/postgresql/jdbc/PgResultSet");
+
 		target.add("org/apache/derby/client/am/ResultSet");
 		target.add("jdbc/FakeResultSet");
 		target.add("net/sourceforge/jtds/jdbc/JtdsResultSet");
@@ -49,6 +64,10 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 
 		target.add("com/tmax/tibero/jdbc/TbResultSetBase"); //tibero5
 		target.add("com/tmax/tibero/jdbc/driver/TbResultSetBase"); //tibero6
+
+		target.add("Altibase/jdbc/driver/ABResultSet"); //tibero6
+
+        target.add("org/h2/jdbc/JdbcResultSet"); //h2
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

@@ -42,16 +42,24 @@ public class JDBCStatementASM implements IASM, Opcodes {
 		target.add("org/mariadb/jdbc/MariaDbStatement");
 		target.add("org/mariadb/jdbc/MySQLStatement");
 		target.add("oracle/jdbc/driver/OracleStatement");
+
+		//pg driver 42+
+		target.add("org/postgresql/jdbc/PgStatement");
+
 		target.add("com/mysql/jdbc/StatementImpl");
 		target.add("org/apache/derby/client/am/Statement");
 		target.add("jdbc/FakeStatement");
 		target.add("net/sourceforge/jtds/jdbc/JtdsStatement");
 		target.add("com/microsoft/sqlserver/jdbc/SQLServerStatement");
-		target.add("org/hsqldb/jdbc/JDBCStatement");
-		target.add("cubrid/jdbc/driver/CUBRIDStatement");
 
 		target.add("com/tmax/tibero/jdbc/TbStatement"); //tibero5
 		target.add("com/tmax/tibero/jdbc/driver/TbStatement"); //tibero6
+
+		target.add("org/hsqldb/jdbc/JDBCStatement");
+		target.add("cubrid/jdbc/driver/CUBRIDStatement");
+		target.add("Altibase/jdbc/driver/AltibaseStatement");
+		target.add("Altibase/jdbc/driver/ABStatement");
+        target.add("org/h2/jdbc/JdbcStatement"); //h2
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
