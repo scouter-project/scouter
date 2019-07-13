@@ -152,7 +152,7 @@ object BatchDB {
     }
     protected def appendX(path: String, time: Long, pos: Long) {
         val file = new File(path + "/batch.idx")
-        val offset = file.length();
+        //val offset = file.length();
         val out = new FileOutputStream(file, true);
         out.write(new DataOutputX().writeLong(time).writeLong5(pos).toByteArray())
         out.close();

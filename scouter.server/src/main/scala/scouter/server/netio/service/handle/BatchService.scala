@@ -69,15 +69,13 @@ class BatchService {
     def readDetail(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
         val param = din.readPack().asInstanceOf[MapPack]
         val objHash = param.getInt("objHash")
-        val time = param.getLong("time")
-        val position = param.getLong("position")
         val objInfo = AgentManager.getAgent(objHash)
         if(objInfo == null){
           return;
         }
         val objName = objInfo.objName
 
-        val data = BatchDB.read(objName, time, position)
+        val data = BatchDB.read(objName, (param.getLong("startTime") + param.getLong("elapsedTime")), param.getLong("position"))
         if(data != null){
         	val ins = new DataInputX(data)
         	val pack = ins.readPack();
@@ -90,15 +88,13 @@ class BatchService {
     def readStack(din: DataInputX, dout: DataOutputX, login: Boolean): Unit = {
         val param = din.readPack().asInstanceOf[MapPack]
         val objHash = param.getInt("objHash")
-        val time = param.getLong("time")
-        val filename = param.getText("filename")
         val objInfo = AgentManager.getAgent(objHash)
         if(objInfo == null){
           return;
         }
         val objName = objInfo.objName
         
-        BatchZipDB.read(objName, time, filename, dout) 
+        BatchZipDB.read(objName, param.getLong("time"), param.getText("filename"), dout) 
 	}
     
   @ServiceHandler(RequestCmd.OBJECT_BATCH_ACTIVE_LIST)

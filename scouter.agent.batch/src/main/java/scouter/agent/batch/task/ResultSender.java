@@ -63,7 +63,7 @@ public class ResultSender extends Thread {
 							UdpLocalAgent.sendDumpFileInfo(traceContext);
 						}
 					}
-					if(config.sfa_dump_enabled && config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms > elapsedTime){
+					if(config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms > elapsedTime){
 						deleteFiles(traceContext);
 					}
 					UdpLocalAgent.sendEndInfo(traceContext);
