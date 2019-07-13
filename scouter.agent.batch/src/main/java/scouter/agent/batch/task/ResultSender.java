@@ -42,7 +42,7 @@ public class ResultSender extends Thread {
 			if(config.batch_log_send_elapsed_ms <= elapsedTime){
 				traceContext.caculateLast();
 				String result = traceContext.toString();
-				if(config.scouter_standalone){
+				if(config.scouter_standalone || config.sbr_log_make){
 					saveStandAloneResult(traceContext, result);
 				}
 				Logger.println(result);

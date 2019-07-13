@@ -173,6 +173,8 @@ public class Configure {
 	public boolean log_rotation_enabled =true;
     @ConfigDesc("Keeping period of log")
 	public int log_keep_days =7;
+    @ConfigDesc("Leave sbr log even when not in standalone mode")
+	public boolean sbr_log_make = false;
     @ConfigDesc("")
 	public boolean _trace = false;
     @ConfigDesc("")
@@ -340,7 +342,8 @@ public class Configure {
 		this.log_dir = getValue("log_dir", ".");
 		this.log_rotation_enabled = getBoolean("log_rotation_enabled", true);
 		this.log_keep_days = getInt("log_keep_days", 7, 1);
-
+		this.sbr_log_make = getBoolean("sbr_log_make", false);
+		
 		this._trace = getBoolean("_trace", false);
         this._trace_use_logger = getBoolean("_trace_use_logger", false);
 		this.log_ignore_set = getStringSet("mgr_log_ignore_ids", ",");

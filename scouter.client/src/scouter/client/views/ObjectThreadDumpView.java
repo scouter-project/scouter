@@ -372,6 +372,9 @@ public class ObjectThreadDumpView extends ViewPart {
 		if(lists == null){
 			return;
 		}
+		if(table.getItemCount() > 0){
+			table.removeAll();
+		}
 		ExUtil.exec(table, new Runnable() {
 			public void run() {
 				List<Long> time = lists[0];

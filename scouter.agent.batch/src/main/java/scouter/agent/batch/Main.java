@@ -39,44 +39,46 @@ public class Main {
 		Logo.print(true);
 		System.out.println("Scouter Batch Agent Version " + Version.getServerFullVersion());
 		Logger.println("A01", "Scouter Batch Agent Version " + Version.getServerFullVersion());
-		
-		ReqestHandlingProxy.load(ReqestHandlingProxy.class);
-		UdpLocalServer.getInstance();
-		TcpRequestMgr.getInstance();
-		
-		File exit = new File(SysJMX.getProcessPID() + ".scouter");
 		try {
-			exit.createNewFile();
-		} catch (Exception e) {
-			String tmp = System.getProperty("user.home", "/tmp");
-			exit = new File(tmp, SysJMX.getProcessPID() + ".scouter.run");
+			ReqestHandlingProxy.load(ReqestHandlingProxy.class);
+			UdpLocalServer.getInstance();
+			TcpRequestMgr.getInstance();
+			
+			File exit = new File(SysJMX.getProcessPID() + ".scouter");
 			try {
 				exit.createNewFile();
-			} catch (Exception k) {
-				System.exit(1);
+			} catch (Exception e) {
+				String tmp = System.getProperty("user.home", "/tmp");
+				exit = new File(tmp, SysJMX.getProcessPID() + ".scouter.run");
+				try {
+					exit.createNewFile();
+				} catch (Exception k) {
+					System.exit(1);
+				}
 			}
+			exit.deleteOnExit();
+			long startTime = System.currentTimeMillis();
+			long currentTime;
+	
+			LogMonitor.getInstance();
+				
+			StatusSender statusSender = new StatusSender();
+			while (true) {
+				currentTime = System.currentTimeMillis();
+				if((currentTime - startTime) >= 10000){
+					UdpLocalAgent.sendUdpPackToServer(getObjectPack());
+					startTime = currentTime;
+				}
+				if (exit.exists() == false) {
+					System.exit(0);
+				}
+				statusSender.sendBatchService(currentTime);
+				ThreadUtil.sleep(1000);
+				
+			}
+		}catch(Throwable th){
+			Logger.println("E001", "Abnormal stop:" + th.getMessage(), th);
 		}
-		exit.deleteOnExit();
-		long startTime = System.currentTimeMillis();
-		long currentTime;
-
-		LogMonitor.getInstance();
-			
-		StatusSender statusSender = new StatusSender();
-		while (true) {
-			currentTime = System.currentTimeMillis();
-			if((currentTime - startTime) >= 10000){
-				UdpLocalAgent.sendUdpPackToServer(getObjectPack());
-				startTime = currentTime;
-			}
-			if (exit.exists() == false) {
-				System.exit(0);
-			}
-			statusSender.sendBatchService(currentTime);
-			ThreadUtil.sleep(1000);
-			
-		}
-
 	}
 	
 	static public ObjectPack getObjectPack(){
