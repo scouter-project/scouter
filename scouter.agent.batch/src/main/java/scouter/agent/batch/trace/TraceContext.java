@@ -183,7 +183,11 @@ public class TraceContext {
 				buffer.append(String.format("%5s", index)).append(' ');
 				buffer.append(String.format("%,13d", traceSql.runs)).append(' ');
 				buffer.append(String.format("%,13d", traceSql.getTotalTimeByMillis())).append(' ');
-				buffer.append(String.format("%,13d", traceSql.getMinTimeByMillis())).append(' ');
+				if(traceSql.runs == 0 && traceSql.minTime == Long.MAX_VALUE){
+					buffer.append(String.format("%,13d", 0)).append(' ');
+				}else{
+					buffer.append(String.format("%,13d", traceSql.getMinTimeByMillis())).append(' ');
+				}
 				buffer.append(String.format("%,13d", traceSql.getMaxTimeByMillis())).append(' ');
 				buffer.append(String.format("%,13d", traceSql.processedRows)).append(' ').append(String.format("%10s", traceSql.rowed)).append(' ');
 				buffer.append(sdf.format(new Date(traceSql.startTime))).append(' ');
@@ -418,7 +422,12 @@ public class TraceContext {
 				value.put("startTime", traceSql.startTime);
 				value.put("endTime", traceSql.endTime);
 				value.put("totalTime", traceSql.totalTime);
-				value.put("minTime", traceSql.minTime);
+				if(traceSql.runs == 0 && traceSql.minTime == Long.MAX_VALUE){
+					value.put("minTime", 0);					
+				}else{
+					value.put("minTime", traceSql.minTime);
+				}
+				
 				value.put("maxTime", traceSql.maxTime);
 				value.put("processedRows", traceSql.processedRows);
 				value.put("rowed", new BooleanValue(traceSql.rowed));
