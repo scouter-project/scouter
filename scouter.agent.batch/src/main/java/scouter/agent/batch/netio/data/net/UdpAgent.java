@@ -27,43 +27,53 @@ import scouter.agent.batch.Configure;
 
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
+import scouter.lang.pack.Pack;
 import scouter.net.NetCafe;
 import scouter.util.KeyGen;
 
 public class UdpAgent {
-	static public boolean sendUdp(String IPAddress, int port, byte [] byteArray){
+	static public boolean sendUdpPackToServer(String IPAddress, int port, Pack pack){
 		InetAddress server = null;
+		Configure conf = Configure.getInstance();
 		try {
 			server = InetAddress.getByName(IPAddress);
-			return sendUdp(server, port, byteArray);
+			byte [] byteArray = new DataOutputX().writePack(pack).toByteArray();
+			
+			if(byteArray.length > conf.net_udp_packet_max_bytes){
+				return sendMTU(server, port, byteArray, conf.net_udp_packet_max_bytes);			
+			}else{
+				return sendUdpDirect(server, port, new DataOutputX().write(NetCafe.CAFE).write(byteArray).toByteArray());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}	
+	
+	static public boolean sendUdp(String ip, int port, byte [] byteArray){
+		InetAddress server;
+		try {
+			server = InetAddress.getByName(ip);
+			return sendUdp(server, port, byteArray);	
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return false;
 	}
 	
-	static public boolean sendUdp(InetAddress IPAddress, int port, byte [] byteArray){
-		DatagramSocket datagram = null;
-		try {
-			Configure conf = Configure.getInstance();
-			if (byteArray.length > conf.net_udp_packet_max_bytes) {
-				return sendMTU(IPAddress, port, byteArray, conf.net_udp_packet_max_bytes);
+	static public boolean sendUdp(InetAddress server, int port, byte [] byteArray){
+		Configure conf = Configure.getInstance();
+		try {		
+			if(byteArray.length > conf.net_udp_packet_max_bytes){
+				return sendMTU(server, port, byteArray, conf.net_udp_packet_max_bytes);			
+			}else{
+				return sendUdpDirect(server, port, byteArray);
 			}
-			datagram = new DatagramSocket();
-			DatagramPacket packet = new DatagramPacket(byteArray, byteArray.length);
-			packet.setAddress(IPAddress);
-			packet.setPort(port);
-			datagram.send(packet);
-			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally{
-			if(datagram != null){
-				try { datagram.close(); } catch(Exception ex){}
-			}
 		}
 		return false;
-	}
+	}	
 	
 	static public boolean sendMTU(InetAddress IPAddress, int port, byte[] data, int packetSize) {
 		try {
@@ -84,10 +94,10 @@ public class UdpAgent {
 			}
 			
 			for (num = 0; (isSuccess && num < total); num++) {
-				isSuccess = SendMTU(IPAddress, port, pkid, totalPacketCnt, num, availPacketSize, DataInputX.get(data, num * availPacketSize, availPacketSize));
+				isSuccess = SendMTUDirect(IPAddress, port, pkid, totalPacketCnt, num, availPacketSize, DataInputX.get(data, num * availPacketSize, availPacketSize));
 			}
 			if (isSuccess && remainder > 0) {
-				isSuccess = SendMTU(IPAddress, port, pkid, totalPacketCnt, num, remainder, DataInputX.get(data, data.length - remainder, remainder));
+				isSuccess = SendMTUDirect(IPAddress, port, pkid, totalPacketCnt, num, remainder, DataInputX.get(data, data.length - remainder, remainder));
 			}
 			return isSuccess;
 		} catch (IOException e) {
@@ -96,7 +106,26 @@ public class UdpAgent {
 		return false;
 	}
 	
-	static private boolean SendMTU(InetAddress IPAddress, int port, long pkid, int total, int num, int packetSize, byte[] data) throws IOException {
+	static public boolean sendUdpDirect(InetAddress IPAddress, int port, byte [] byteArray){
+		DatagramSocket datagram = null;
+		try {
+			datagram = new DatagramSocket();
+			DatagramPacket packet = new DatagramPacket(byteArray, byteArray.length);
+			packet.setAddress(IPAddress);
+			packet.setPort(port);
+			datagram.send(packet);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally{
+			if(datagram != null){
+				try { datagram.close(); } catch(Exception ex){}
+			}
+		}
+		return false;
+	}
+	
+	static private boolean SendMTUDirect(InetAddress IPAddress, int port, long pkid, int total, int num, int packetSize, byte[] data) throws IOException {
 		Configure conf = Configure.getInstance();
 		DataOutputX out = new DataOutputX();
 		out.write(NetCafe.CAFE_MTU);
@@ -106,6 +135,6 @@ public class UdpAgent {
 		out.writeShort(num);
 		out.writeBlob(data);
 				
-		return sendUdp(IPAddress, port, out.toByteArray());
+		return sendUdpDirect(IPAddress, port, out.toByteArray());
 	}
 }
