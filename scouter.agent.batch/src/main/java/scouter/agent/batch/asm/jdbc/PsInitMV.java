@@ -16,10 +16,10 @@
 
 package scouter.agent.batch.asm.jdbc;
 
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.batch.trace.TraceContextManager;

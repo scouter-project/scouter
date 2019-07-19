@@ -23,7 +23,6 @@ import scouter.agent.batch.trace.TraceContext;
 import scouter.io.DataOutputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
-import scouter.net.NetCafe;
 
 public class UdpLocalAgent {
 	static public void sendUdpPackToServer(Pack pack){
