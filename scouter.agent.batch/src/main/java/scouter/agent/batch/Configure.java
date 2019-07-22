@@ -16,7 +16,7 @@
  */
 package scouter.agent.batch;
 
-import scouter.agent.util.JarUtil;
+import scouter.agent.batch.util.JarUtil;
 import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueType;
 import scouter.lang.conf.ConfigValueUtil;

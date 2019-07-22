@@ -19,7 +19,7 @@ package scouter.agent.batch.netio.request.handle;
 
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.JavaAgent;
-import scouter.agent.netio.request.anotation.RequestHandler;
+import scouter.agent.batch.netio.request.anotation.RequestHandler;
 import scouter.lang.conf.ValueType;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;

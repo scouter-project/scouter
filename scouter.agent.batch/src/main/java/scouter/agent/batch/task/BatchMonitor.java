@@ -91,6 +91,7 @@ public class BatchMonitor extends Thread {
 				Thread.sleep(100L);
 			}
 		}catch(Throwable ex){
+			ex.printStackTrace();
 			Logger.println("ERROR: " + ex.getMessage());
 		}finally{
 			if(stackWriter != null){

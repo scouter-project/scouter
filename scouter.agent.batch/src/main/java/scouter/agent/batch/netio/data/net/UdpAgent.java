@@ -22,7 +22,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-import scouter.agent.Logger;
+import scouter.agent.batch.Logger;
 import scouter.agent.batch.Configure;
 
 import scouter.io.DataInputX;

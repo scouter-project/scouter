@@ -22,11 +22,11 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import scouter.agent.ClassDesc;
-import scouter.agent.ObjTypeDetector;
-import scouter.agent.asm.IASM;
-import scouter.agent.asm.ScouterClassWriter;
-import scouter.agent.asm.util.AsmUtil;
+import scouter.agent.batch.ClassDesc;
+import scouter.agent.batch.ObjTypeDetector;
+import scouter.agent.batch.asm.IASM;
+import scouter.agent.batch.asm.ScouterClassWriter;
+import scouter.agent.batch.asm.util.AsmUtil;
 import scouter.agent.batch.asm.JDBCPreparedStatementASM;
 import scouter.agent.batch.asm.JDBCResultSetASM;
 import scouter.agent.batch.asm.JDBCStatementASM;
@@ -40,6 +40,7 @@ import java.util.List;
 
 public class AgentTransformer implements ClassFileTransformer {
 	private static List<String> filters = new ArrayList<String>();
+	public static ThreadLocal<ClassLoader> hookingCtx = new ThreadLocal<ClassLoader>();
 	private static List<IASM> asms = new ArrayList<IASM>();
     // hook 관련 설정이 변경되면 자동으로 변경된다.
  
@@ -58,6 +59,8 @@ public class AgentTransformer implements ClassFileTransformer {
     public byte[] transform(ClassLoader loader, String className, Class classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
+        	hookingCtx.set(loader);
+        	
         	if(!conf.sql_enabled || className == null){
         		return null;
         	}
@@ -110,6 +113,8 @@ public class AgentTransformer implements ClassFileTransformer {
         } catch (Throwable t) {
             Logger.println("A101", "Transformer Error", t);
             t.printStackTrace();
+        }finally {
+            hookingCtx.set(null);
         }
         return null;
     }
