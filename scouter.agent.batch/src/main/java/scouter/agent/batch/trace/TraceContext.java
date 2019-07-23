@@ -150,32 +150,41 @@ public class TraceContext {
 		if(this.isStackLogFile){
 			buffer.append("Stack   Dump: ").append(this.getLogFullFilename()).append(lineSeparator);
 		}
+		long elapsedTime = this.endTime - this.startTime;
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append(lineSeparator);
 		buffer.append("Stop    Time: ").append(sdf.format(new Date(this.endTime))).append(lineSeparator);
-		buffer.append("Elapsed Time: ").append((this.endTime - this.startTime)).append("ms").append(lineSeparator);
+		buffer.append("Elapsed Time: ").append(String.format("%,13d",elapsedTime)).append(" ms").append(lineSeparator);
 		if(this.getCPUTimeByMillis() > 0){
-			buffer.append("CPU     Time: ").append(this.getCPUTimeByMillis()).append("ms").append(lineSeparator);
+			buffer.append("CPU     Time: ").append(String.format("%,13d",this.getCPUTimeByMillis())).append(" ms").append(lineSeparator);
 		}
 		if(this.gcCount > 0){
-			buffer.append("GC     Count: ").append(this.gcCount).append(lineSeparator);
-			buffer.append("GC      Time: ").append(this.gcTime).append("ms").append(lineSeparator);
+			buffer.append("GC     Count: ").append(String.format("%,13d",this.gcCount)).append(lineSeparator);
+			buffer.append("GC      Time: ").append(String.format("%,13d",this.gcTime)).append(" ms ");
+			if(elapsedTime > 0){
+				buffer.append(String.format("%.2f", ((float)(this.gcTime * 100F)/elapsedTime))).append(" %");
+			}
+			buffer.append(lineSeparator);
 		}
 		
 		if(sqlMap.size() > 0){
-			buffer.append("SQL     Time: ").append((sqlTotalTime/1000000L)).append("ms").append(lineSeparator);
-			buffer.append("SQL     Type: ").append(sqlMap.size()).append(lineSeparator);
-			buffer.append("SQL     Runs: ").append(sqlTotalRuns).append(lineSeparator);
+			buffer.append("SQL     Time: ").append(String.format("%,13d",(sqlTotalTime/1000000L))).append(" ms ");
+			if(elapsedTime > 0){
+				buffer.append(String.format("%.2f", ((float)((sqlTotalTime / 1000000F) * 100F)/elapsedTime))).append(" %");
+			}
+			buffer.append(lineSeparator);
+			buffer.append("SQL     Type: ").append(String.format("%,13d",sqlMap.size())).append(lineSeparator);
+			buffer.append("SQL     Runs: ").append(String.format("%,13d",sqlTotalRuns)).append(lineSeparator);
 		}
 		if(threadCnt > 0){
-			buffer.append("Thread Count: ").append(this.threadCnt).append(lineSeparator);
+			buffer.append("Thread Count: ").append(String.format("%,13d",this.threadCnt)).append(lineSeparator);
 		}
 		
 		if(sqlMap.size() > 0){
 			buffer.append(lineSeparator).append("<SQLs>").append(lineSeparator);
 			int index = 0;
-			buffer.append("Index          Runs     TotalTime       MinTime       MaxTime          Rows (Measured) StartTime               EndTime").append(lineSeparator);
-			buffer.append("--------------------------------------------------------------------------------------------------------------------------------------");
+			buffer.append("Index          Runs     TotalTime        Rate       MinTime       AvgTime       MaxTime          Rows (Measured) StartTime               EndTime").append(lineSeparator);
+			buffer.append("----------------------------------------------------------------------------------------------------------------------------------------------------------------");
 			List<TraceSQL> list = sortTraceSQLList();
 			for(TraceSQL traceSql : list){
 				index++;
@@ -183,17 +192,27 @@ public class TraceContext {
 				buffer.append(String.format("%5s", index)).append(' ');
 				buffer.append(String.format("%,13d", traceSql.runs)).append(' ');
 				buffer.append(String.format("%,13d", traceSql.getTotalTimeByMillis())).append(' ');
+				if(elapsedTime == 0){
+					buffer.append(String.format("%,10.2f", 0F)).append("% ");					
+				}else{
+					buffer.append(String.format("%,10.2f", ((100F * (traceSql.getTotalTimeByMillis()/1000000L))/elapsedTime))).append("% ");					
+				}
 				if(traceSql.runs == 0 && traceSql.minTime == Long.MAX_VALUE){
 					buffer.append(String.format("%,13d", 0)).append(' ');
 				}else{
 					buffer.append(String.format("%,13d", traceSql.getMinTimeByMillis())).append(' ');
+				}
+				if(traceSql.runs == 0){
+					buffer.append(String.format("%,13d", 0)).append(' ');					
+				}else{
+					buffer.append(String.format("%,13d", (traceSql.getTotalTimeByMillis()/traceSql.runs))).append(' ');					
 				}
 				buffer.append(String.format("%,13d", traceSql.getMaxTimeByMillis())).append(' ');
 				buffer.append(String.format("%,13d", traceSql.processedRows)).append(' ').append(String.format("%10s", traceSql.rowed)).append(' ');
 				buffer.append(sdf.format(new Date(traceSql.startTime))).append(' ');
 				buffer.append(sdf.format(new Date(traceSql.endTime)));
 			}
-			buffer.append(lineSeparator).append("--------------------------------------------------------------------------------------------------------------------------------------").append(lineSeparator);
+			buffer.append(lineSeparator).append("----------------------------------------------------------------------------------------------------------------------------------------------------------------").append(lineSeparator);
 
 			buffer.append(lineSeparator).append("<SQL Texts>").append(lineSeparator);
 			index = 0;
@@ -400,7 +419,8 @@ public class TraceContext {
 		pack.elapsedTime =  (this.endTime - this.startTime);
 		pack.threadCnt =  this.threadCnt;
 		pack.cpuTime =  (this.endCpu - this.startCpu);
-		
+		pack.gcCount = this.gcCount;
+		pack.gcTime = this.gcTime;
 		
 		pack.sqlTotalCnt =  this.sqlTotalCnt;
 		pack.sqlTotalTime =  this.sqlTotalTime;
