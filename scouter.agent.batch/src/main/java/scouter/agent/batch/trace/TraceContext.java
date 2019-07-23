@@ -195,7 +195,7 @@ public class TraceContext {
 				if(elapsedTime == 0){
 					buffer.append(String.format("%,10.2f", 0F)).append("% ");					
 				}else{
-					buffer.append(String.format("%,10.2f", ((100F * (traceSql.getTotalTimeByMillis()/1000000L))/elapsedTime))).append("% ");					
+					buffer.append(String.format("%,10.2f", ((100F * traceSql.getTotalTimeByMillis())/elapsedTime))).append("% ");					
 				}
 				if(traceSql.runs == 0 && traceSql.minTime == Long.MAX_VALUE){
 					buffer.append(String.format("%,13d", 0)).append(' ');
