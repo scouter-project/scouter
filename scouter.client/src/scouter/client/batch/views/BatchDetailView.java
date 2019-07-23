@@ -45,6 +45,7 @@ import scouter.client.util.ImageUtil;
 import scouter.lang.pack.BatchPack;
 import scouter.lang.value.MapValue;
 import scouter.util.SystemUtil;
+import scouter.util.TimeFormatUtil;
 
 public class BatchDetailView extends ViewPart {
 	public static final String ID = BatchDetailView.class.getName();
@@ -125,7 +126,9 @@ public class BatchDetailView extends ViewPart {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		buffer.append("Start   Time: ").append(sdf.format(new Date(pack.startTime))).append(lineSeparator);
 		buffer.append("Stop    Time: ").append(sdf.format(new Date(pack.startTime + pack.elapsedTime))).append(lineSeparator);
-		buffer.append("Elapsed Time: ").append(String.format("%,13d",pack.elapsedTime)).append(" ms").append(lineSeparator);
+		buffer.append("Elapsed Time: ").append(String.format("%,13d",pack.elapsedTime)).append(" ms ");
+		buffer.append(TimeFormatUtil.elapsedTime(pack.elapsedTime));
+		buffer.append(lineSeparator);
 		if(pack.cpuTime > 0){
 			buffer.append("CPU     Time: ").append(String.format("%,13d",pack.cpuTime/1000000L)).append(" ms").append(lineSeparator);
 		}

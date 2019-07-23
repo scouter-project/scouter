@@ -35,6 +35,7 @@ import scouter.lang.pack.MapPack;
 import scouter.lang.value.BooleanValue;
 import scouter.lang.value.MapValue;
 import scouter.util.SysJMX;
+import scouter.util.TimeFormatUtil;
 
 public class TraceContext {
 	private static final String SQL_OTHERS = "Others";
@@ -154,9 +155,15 @@ public class TraceContext {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		buffer.append("Start   Time: ").append(sdf.format(new Date(this.startTime))).append(lineSeparator);
 		buffer.append("Stop    Time: ").append(sdf.format(new Date(this.endTime))).append(lineSeparator);
-		buffer.append("Elapsed Time: ").append(String.format("%,13d",elapsedTime)).append(" ms").append(lineSeparator);
+		buffer.append("Elapsed Time: ").append(String.format("%,13d",elapsedTime)).append(" ms ");
+		buffer.append(TimeFormatUtil.elapsedTime(elapsedTime));
+		buffer.append(lineSeparator);
 		if(this.getCPUTimeByMillis() > 0){
-			buffer.append("CPU     Time: ").append(String.format("%,13d",this.getCPUTimeByMillis())).append(" ms").append(lineSeparator);
+			buffer.append("CPU     Time: ").append(String.format("%,13d",this.getCPUTimeByMillis())).append(" ms ");
+			if(elapsedTime > 0){
+				buffer.append(String.format("%.2f", ((float)(this.getCPUTimeByMillis() * 100F)/elapsedTime))).append(" %");
+			}
+			buffer.append(lineSeparator);
 		}
 		if(this.gcCount > 0){
 			buffer.append("GC     Count: ").append(String.format("%,13d",this.gcCount)).append(lineSeparator);
