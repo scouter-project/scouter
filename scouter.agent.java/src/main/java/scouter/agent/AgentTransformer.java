@@ -190,7 +190,7 @@ public class AgentTransformer implements ClassFileTransformer {
 
                 @Override
                 public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-                    classDesc.anotation += desc;
+                    classDesc.annotation += desc;
                     return super.visitAnnotation(desc, visible);
                 }
             }, 0);

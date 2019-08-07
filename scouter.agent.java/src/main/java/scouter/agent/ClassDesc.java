@@ -24,7 +24,7 @@ public class ClassDesc {
 	public String signature;
 	public String superName;
 	public String[] interfaces;
-	public String anotation;
+	public String annotation;
 	public Class classBeingRedefined;
 	public boolean isMapImpl;
 
