@@ -21,14 +21,18 @@ import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import scouter.server.Configure;
 import scouter.server.Logger;
 import scouter.server.http.servlet.CounterServlet;
 import scouter.server.http.servlet.RegisterServlet;
+import scouter.server.http.servlet.TelegrafInputServlet;
+import scouter.util.StringUtil;
 import scouter.util.ThreadUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.TimeZone;
 
 public class HttpServer extends Thread {
@@ -48,7 +52,6 @@ public class HttpServer extends Thread {
         }
         return instance;
     }
-
 
     @Override
     public void run() {
@@ -92,9 +95,31 @@ public class HttpServer extends Thread {
             }
             context.addServlet(new ServletHolder(CounterServlet.class), "/counter/*");
             context.addServlet(new ServletHolder(RegisterServlet.class), "/register/*");
+            context.addServlet(new ServletHolder(TelegrafInputServlet.class), "/telegraf/*");
 
-            handlers.addHandler(context);
+            if (conf.net_http_api_gzip_enabled) {
+                GzipHandler gzipHandler = new GzipHandler();
+                gzipHandler.setIncludedMethods("GET", "POST", "PUT", "DELETE");
+                gzipHandler.setMinGzipSize(1024);
+                gzipHandler.setHandler(context);
+                handlers.addHandler(gzipHandler);
+            } else {
+                handlers.addHandler(context);
+            }
+
             server.setHandler(handlers);
+
+            if (conf.net_http_api_enabled) {
+                try {
+                    Class c = Class.forName("scouterx.webapp.main.WebAppMain");
+                    c.getMethod("setWebSocketServer", ServletContextHandler.class).invoke(null, context);
+                } catch (Throwable e) {
+                    Logger.println("Error while setWebSocketServer!");
+                    System.out.println("Error while setWebSocketServer!");
+                    Logger.printStackTrace(e);
+                    e.printStackTrace();
+                }
+            }
 
             try {
                 server.start();
@@ -105,4 +130,17 @@ public class HttpServer extends Thread {
         }
     }
 
+    public static String getRemoteAddr(HttpServletRequest request) {
+        String ip = request.getHeader("X-FORWARDED-FOR");
+        if (ip == null) {
+            return request.getRemoteAddr();
+        } else {
+            String[] ips = StringUtil.split(ip, ',');
+            if (ips.length > 0) {
+                return ips[0];
+            } else {
+                return request.getRemoteAddr();
+            }
+        }
+    }
 }

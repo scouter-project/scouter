@@ -169,6 +169,9 @@ public class XLogPack implements Pack {
 	public String text3;
 	public String text4;
 	public String text5;
+
+	public int profileCount;
+	public boolean b3Mode;
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -237,6 +240,8 @@ public class XLogPack implements Pack {
 		o.writeText(text4);
 		o.writeText(text5);
 
+		o.writeDecimal(profileCount);
+		o.writeBoolean(b3Mode);
 
 		out.writeBlob(o.toByteArray());
 	}
@@ -304,6 +309,14 @@ public class XLogPack implements Pack {
 			this.text3 = d.readText();
 			this.text4 = d.readText();
 			this.text5 = d.readText();
+		}
+
+		if (d.available() >0) {
+			this.profileCount = (int) d.readDecimal();
+		}
+
+		if (d.available() >0) {
+			this.b3Mode = d.readBoolean();
 		}
 
 		return this;

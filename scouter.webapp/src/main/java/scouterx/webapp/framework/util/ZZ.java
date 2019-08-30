@@ -19,6 +19,7 @@
 package scouterx.webapp.framework.util;
 
 import org.apache.commons.lang3.StringUtils;
+import scouter.util.StringUtil;
 import scouterx.webapp.framework.configure.ConfigureAdaptor;
 import scouterx.webapp.framework.configure.ConfigureManager;
 
@@ -38,7 +39,16 @@ public class ZZ {
 
     public static String getRequestIp(HttpServletRequest request) {
         if (StringUtils.isNotBlank(conf.getNetHttpApiAuthIpHeaderKey())) {
-            return request.getHeader(conf.getNetHttpApiAuthIpHeaderKey());
+            String ipString = request.getHeader(conf.getNetHttpApiAuthIpHeaderKey());
+            if (StringUtil.isEmpty(ipString)) {
+                return request.getRemoteAddr();
+            }
+            if (ipString.contains(",")) {
+                return StringUtil.split(ipString, ',')[0].trim();
+            }
+
+            StringUtil.split(ipString, ',');
+            return ipString;
         } else {
             return request.getRemoteAddr();
         }
@@ -92,6 +102,12 @@ public class ZZ {
         org = stripFirstLastBracket(org);
         String[] items = StringUtils.split(org, COMMA);
         return Arrays.stream(items).map(Integer::parseInt).collect(Collectors.toList());
+    }
+
+    public static List<Long> splitParamAsLong(String org) {
+        org = stripFirstLastBracket(org);
+        String[] items = StringUtils.split(org, COMMA);
+        return Arrays.stream(items).map(Long::parseLong).collect(Collectors.toList());
     }
 
     public static Set<Integer> splitParamAsIntegerSet(String org) {

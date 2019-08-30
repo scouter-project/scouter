@@ -22,6 +22,7 @@ import scouter.lang.pack.ObjectPack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
 import scouter.util.ThreadUtil;
+import scouterx.webapp.framework.client.net.LoginMgr;
 import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
@@ -63,7 +64,7 @@ public class AgentModelThread extends Thread {
 		while (brun) {
 			fetchObjectList();
 			for (int i = 0; i < 20 && brun; i++) {
-				ThreadUtil.sleep(100);
+				ThreadUtil.sleep(500);
 			}
 		}
 	}
@@ -72,7 +73,7 @@ public class AgentModelThread extends Thread {
 		Map<Integer, AgentObject> tempAgentMap = new HashMap<Integer, AgentObject>();
 		ArrayList<ObjectPack> objectPackList = new ArrayList<ObjectPack>();
 		boolean existUnknownType = false;
-		existServerset.clear();
+		existServerSet.clear();
 		Set<Integer> serverIdSet = ServerManager.getInstance().getOpenServerIdList();
 		if (serverIdSet.size() > 0) {
 			Integer[] serverIds = serverIdSet.toArray(new Integer[serverIdSet.size()]);
@@ -81,6 +82,7 @@ public class AgentModelThread extends Thread {
 				if (server.isOpen() == false || server.getSession() == 0) {
 					continue;
 				}
+				LoginMgr.refreshCounterEngine(server);
 				CounterEngine counterEngine = server.getCounterEngine();
 				TcpProxy proxy = TcpProxy.getTcpProxy(serverId);
 				try {
@@ -109,7 +111,7 @@ public class AgentModelThread extends Thread {
 						}
 					}
 					if (agentList.size() > 0) {
-						existServerset.add(serverId);
+						existServerSet.add(serverId);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -124,10 +126,10 @@ public class AgentModelThread extends Thread {
 		this.existUnknownType = existUnknownType;
 	}
 	
-	private Set<Integer> existServerset = new HashSet<Integer>();
+	private Set<Integer> existServerSet = new HashSet<Integer>();
 	
 	public Set<Integer> existServerSet() {
-		return existServerset;
+		return existServerSet;
 	}
 	
 	public AgentObject getAgentObject(int objHash) {

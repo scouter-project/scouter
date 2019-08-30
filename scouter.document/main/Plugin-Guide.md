@@ -1,5 +1,5 @@
 ﻿# Scouter Plugin Guide
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Plugin-Guide_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Plugin-Guide.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Plugin-Guide_kr.md)
 
 This article explains plugin functions which enable scouter's extensibility. 
 
@@ -21,14 +21,14 @@ Below are the list of official plugins from scouter project and from contributor
   - **[scouter-plugin-server-null](https://github.com/scouter-project/scouter-plugin-server-null)** : sample plugin prints out data collected
 
 - **Alert**
-  - **[scouter-plugin-server-email](https://github.com/scouter-project/scouter-plugin-server-alert-email)** : emails alters from Scouter
-  - **[scouter-plugin-server-telegram](https://github.com/scouter-project/scouter-plugin-server-alert-telegram)** : transfer altert from Scouter to telegram
-  - **[scouter-plugin-server-slack](https://github.com/scouter-project/scouter-plugin-server-alert-slack)** : transfer altert from Scouter to slack
-  - **[scouter-plugin-server-line](https://github.com/scouter-project/scouter-plugin-server-alert-line)** : transfer altert from Scouter to line
-  - **[scouter-plugin-server-dingtalk](https://github.com/scouter-project/scouter-plugin-server-alert-dingtalk)** : transfer altert from Scouter to dingtalk
+  - **[scouter-plugin-server-email](https://github.com/scouter-contrib/scouter-plugin-server-alert-email)** : emails alters from Scouter
+  - **[scouter-plugin-server-telegram](https://github.com/scouter-contrib/scouter-plugin-server-alert-telegram)** : transfer altert from Scouter to telegram
+  - **[scouter-plugin-server-slack](https://github.com/scouter-contrib/scouter-plugin-server-alert-slack)** : transfer altert from Scouter to slack
+  - **[scouter-plugin-server-line](https://github.com/scouter-contrib/scouter-plugin-server-alert-line)** : transfer altert from Scouter to line
+  - **[scouter-plugin-server-dingtalk](https://github.com/scouter-contrib/scouter-plugin-server-alert-dingtalk)** : transfer altert from Scouter to dingtalk
   
 - **Counter**
-  - **[scouter-plugin-server-influxdb](https://github.com/scouter-project/scouter-plugin-server-influxdb)** : transfer performance data from Scouter to influxDB(time series DB)
+  - **[scouter-plugin-server-influxdb](https://github.com/scouter-contrib/scouter-plugin-server-influxdb)** : transfer performance data from Scouter to influxDB(time series DB)
 
 #### 2. agent plugins
 * TBD
@@ -52,7 +52,7 @@ refer to the link for details.
 refer to **[Scripting plugin Server API](Server-Plugin-Scripting.md)**.
 
 ### 2. Built-in (type) Plugin
-Builing scripting plugin is very simple and can be dynamically loaded on runtime environment.  
+Building scripting plugin is very simple and can be dynamically loaded on runtime environment.  
 On the other hand if you need the function permanently, it's too easy to fragile.
 So scouter provides another plugin type which allow you can attach pre-built compiled plugin and it's called as **Built-in Plugin**.
 
@@ -130,7 +130,7 @@ Scouter distribution includes sample plugin files and the file name can not be m
 |**httpservice.plug**    | Invoked at begin and end of http service. |
 |**service.plug**        | Invoked at begin and end of user defined service. (The services are set by ```hook_service_patterns``` option) |
 |**httpcall.plug**       | Invoked at calling to another service using httpclients library |
-|**capture.plug**        | Invoked at init, start, end of methods that are set by options ```hook_method_patterns``` or ```hook_constructor_patterns```  |
+|**capture.plug**        | Invoked at init, start, end of methods that are set by options ```hook_args_patterns``` or ```hook_constructor_patterns```  |
 |**jdbcpoolplug**        | Invoked at calling DB connection URL |
 
 Refer to the link for details **[Scripting plugin java agent API](JavaAgent-Plugin-Scripting.md)**

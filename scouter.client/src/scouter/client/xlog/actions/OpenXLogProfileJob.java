@@ -17,8 +17,6 @@
  */
 package scouter.client.xlog.actions;
 
-import java.util.Set;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -27,7 +25,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.model.TextProxy;
 import scouter.client.model.XLogData;
 import scouter.client.model.XLogProxy;
@@ -45,27 +42,32 @@ import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
 
+import java.util.Set;
+
 public class OpenXLogProfileJob extends Job {
 
 	Display display;
 	XLogData data;
 	String date;
 	long txid;
+	long gxid;
 	int serverId;
 	String secId = "profileview";
 	
-	public OpenXLogProfileJob(Display display, String date, long txid) {
+	public OpenXLogProfileJob(Display display, String date, long txid, long gxid) {
 		super("Load XLog Profile");
 		this.display = display;
 		this.date = date;
 		this.txid = txid;
+		this.gxid = gxid;
 	}
 	
-	public OpenXLogProfileJob(Display display, String date, long txid, int serverId) {
+	public OpenXLogProfileJob(Display display, String date, long txid, long gxid, int serverId) {
 		super("Load XLog Profile");
 		this.display = display;
 		this.date = date;
 		this.txid = txid;
+		this.gxid = gxid;
 		this.serverId =serverId;
 	}
 	
@@ -75,16 +77,17 @@ public class OpenXLogProfileJob extends Job {
 		this.data = xlogData;
 		this.date = DateUtil.yyyymmdd(xlogData.p.endTime);
 		this.txid = xlogData.p.txid;
+		this.gxid = xlogData.p.gxid;
 		this.serverId = serverId;
 	}
 
 	protected IStatus run(IProgressMonitor monitor) {
 		monitor.beginTask("Load Profile....", IProgressMonitor.UNKNOWN);
-		if (data == null) {
+		if (data == null || (gxid != 0 && txid != gxid)) {
 			if (serverId == 0) {
 				Set<Integer> serverSet = ServerManager.getInstance().getOpenServerList();
 				for (int serverId : serverSet) {
-					data = getXLogData(serverId, date, txid);
+					data = getXLogData(serverId, date, txid, gxid);
 					if (data != null) {
 						this.serverId = serverId;
 						secId = Hexa32.toString32(txid);
@@ -92,7 +95,7 @@ public class OpenXLogProfileJob extends Job {
 					}
 				}
 			} else {
-				data = getXLogData(serverId, date, txid);
+				data = getXLogData(serverId, date, txid, gxid);
 				secId = Hexa32.toString32(txid);
 			}
 		}
@@ -118,12 +121,13 @@ public class OpenXLogProfileJob extends Job {
 	}
 	
 	
-	private XLogData getXLogData(int serverId, String date, long txid) {
+	private XLogData getXLogData(int serverId, String date, long txid, long gxid) {
 		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
 		try {
 			MapPack param = new MapPack();
 			param.put("date", date);
 			param.put("txid", txid);
+			param.put("gxid", gxid);
 			Pack p = tcp.getSingle(RequestCmd.XLOG_READ_BY_TXID, param);
 			if (p != null) {
 				XLogPack xp = XLogUtil.toXLogPack(p);

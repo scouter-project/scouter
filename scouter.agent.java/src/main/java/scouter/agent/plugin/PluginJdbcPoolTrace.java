@@ -30,7 +30,7 @@ public class PluginJdbcPoolTrace {
 	public static String url(TraceContext ctx, String msg, Object pool) {
 		if (plugIn != null) {
 			try {
-				return plugIn.url(new WrContext(ctx),msg, pool);
+				return plugIn.url(new WrContext(ctx), msg, pool);
 			} catch (Throwable t) {
 			}
 		}

@@ -52,11 +52,13 @@ public class AlertConsumer {
 				if (packet instanceof MapPack) {
 					MapPack metaPack = (MapPack) packet;
 					alertView.setOffset1(metaPack.getLong(ParamConstant.OFFSET_LOOP));
-					alertView.setOffset1(metaPack.getInt(ParamConstant.OFFSET_INDEX));
+					alertView.setOffset2(metaPack.getInt(ParamConstant.OFFSET_INDEX));
 
 				} else {
 					AlertPack alertPack = (AlertPack) packet;
-					alertList.add(SAlert.of(alertPack));
+					if (packet != null) {
+						alertList.add(SAlert.of(alertPack));
+					}
 				}
 			});
 		}

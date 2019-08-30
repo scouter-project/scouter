@@ -1,5 +1,5 @@
 # XLog Case2 - Understanding Waterfalls
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](XLog-Case2_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](XLog-Case2.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](XLog-Case2_kr.md)
 
 It is no good sign to make some patterns on XLog(response scatter chart). The most common case is Vertical line occurring.
 

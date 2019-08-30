@@ -1,5 +1,5 @@
 ﻿# Alert Plugin Guide
-[![English](https://img.shields.io/badge/language-English-orange.svg)](Alert-Plugin-Guide.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Alert-Plugin-Guide.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Alert-Plugin-Guide_kr.md)
 
 We can build our own alarm rules by handling alert scripting plugins which are able to compose various performance metrics.   
 
@@ -46,7 +46,36 @@ Alert script file is can be edited from scouter client ui or directly in scouter
          $counter.fatal("gc time fatal", "gc time:" + respTime + "ms");
       }
       ```
-   
+
+   * sample1-1 (**GcTime.alert & latest counter's chart link**)
+     * alert when ```GcTime``` is over than 2 sec
+     ```java
+     // void process(RealCounter $counter, PluginHelper $$)
+     String objType = $counter.objType();
+     String objName = $counter.objName();
+
+     String widgetUrl = "http://127.0.0.1:6180/widget/simple/counter.html?source="
+
+     String counterApi5Min = "TPS/ofType/" + objType;
+     counterApi5Min += "?startTimeMillis=" + (System.currentTimeMillis()-300*1000);
+     counterApi5Min += "?endTimeMillis=" + System.currentTimeMillis();
+
+     String counterApiLatest5Min = "TPS/latest/300/ofType" + objType;
+
+     int gcTime = $counter.intValue();
+     if(gcTime > 2000) {
+        String message = "gc time:" + respTime + "ms";
+
+        message = "\n[Check TPS]\n";
+        message += widgetUrl + java.net.UrlEncoder.encode(counterApi5Min) + "\n";
+
+        message += "[Current 5 min TPS]\n";
+        message += widgetUrl + java.net.UrlEncoder.encode(counterApiLatest5Min) + "\n";
+
+        $counter.fatal("gc time fatal", message);
+     }
+     ```
+
    * sample2 (**Elasped90%.alert**)
      * alert when ```Elasped90%``` is over than 1.5 sec (ignore when TPS is lower than 3 sec.)
       ```java
@@ -139,7 +168,7 @@ Alert script file is can be edited from scouter client ui or directly in scouter
 | intValue(String anotherCounterName)        | get another counter's current value by the name   |
 
 ## Counter names
- * [counters.xml](https://github.com/scouter-project/scouter/blob/fe74bdb73a34be2f390f8476991d59a5de6ea204/scouter.common/src/main/resources/scouter/lang/counters/counters.xml)
+ * [counters.xml](https://github.com/scouter-contrib/scouter/blob/fe74bdb73a34be2f390f8476991d59a5de6ea204/scouter.common/src/main/resources/scouter/lang/counters/counters.xml)
 
 ## $$ (PluginHelper) API
- - Refer to **[PluginHelper API](./PluginHelper-API.md)**
+ - Refer to **[PluginHelper API](./PluginHelper-API_kr.md)**

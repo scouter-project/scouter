@@ -34,21 +34,25 @@ public class HeapUsage {
 	public void getHeapUsage(CounterBasket pw) {
 		long total = Runtime.getRuntime().totalMemory();
 		long free = Runtime.getRuntime().freeMemory();
-		float used = (float) ((total - free) / 1024. / 1024.);
+
+		float tatalMb = (float) (total / 1024. / 1024.);
+		float usedMb = (float) ((total - free) / 1024. / 1024.);
 
 		heapmin.add(total - free);
-		float usedmin = (float) (heapmin.getAvg(300) / 1024. / 1024.);
+		float used5MinAvgMb = (float) (heapmin.getAvg(300) / 1024. / 1024.);
 
 		ListValue heapValues = new ListValue();
-		heapValues.add((float) (total / 1024. / 1024.));
-		heapValues.add(used);
+		heapValues.add(tatalMb);
+		heapValues.add(usedMb);
 		
 		PerfCounterPack p = pw.getPack(TimeTypeEnum.REALTIME);
 		p.put(CounterConstants.JAVA_HEAP_TOT_USAGE, heapValues);
-		p.put(CounterConstants.JAVA_HEAP_USED, new FloatValue(used));
+		p.put(CounterConstants.JAVA_HEAP_USED, new FloatValue(usedMb));
+		p.put(CounterConstants.JAVA_HEAP_TOTAL, new FloatValue(tatalMb));
 
 		p = pw.getPack(TimeTypeEnum.FIVE_MIN);
-		p.put(CounterConstants.JAVA_HEAP_USED, new FloatValue(usedmin));
+		p.put(CounterConstants.JAVA_HEAP_USED, new FloatValue(used5MinAvgMb));
+		p.put(CounterConstants.JAVA_HEAP_TOTAL, new FloatValue(tatalMb));
 
 	}
 }

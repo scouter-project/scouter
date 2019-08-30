@@ -21,10 +21,13 @@ package scouter.server.db.text;
 import java.util.Hashtable
 
 import scouter.io.DataOutputX
+import scouter.server.Configure
 import scouter.server.db.io.IndexKeyFile
 import scouter.util.{FileUtil, HashUtil, ICloseDB}
 
 object TextTable {
+    val conf = Configure.getInstance()
+    val INDEX_KEY_SIZE_MB = conf._mgr_text_db_daily_index_mb
     val table = new Hashtable[String, TextTable]();
 
     def open(filePath: String): TextTable = {
@@ -43,45 +46,48 @@ object TextTable {
 }
 
 class TextTable(_file: String) extends ICloseDB {
-
     val file = _file
-    var refrence = 0;
+    var refrence = 0
     var index: IndexKeyFile = null
 
     var lastActive = 0L
     def getLastActive(): Long = {
-        return lastActive;
+        return lastActive
     }
     def setActive(time: Long) {
-        lastActive = time;
+        lastActive = time
     }
 
     def set(div: String, key: Int, value: Array[Byte]) {
         if (this.index == null) {
-            this.index = new IndexKeyFile(file);
+            this.index = newIndexKeyFile()
         }
-        this.index.put(new DataOutputX().writeInt(HashUtil.hash(div)).writeInt(key).toByteArray(), value);
+        this.index.put(new DataOutputX().writeInt(HashUtil.hash(div)).writeInt(key).toByteArray(), value)
     }
 
     def get(div: String, key: Int): Array[Byte] = {
         if (this.index == null) {
-            this.index = new IndexKeyFile(file);
+            this.index = newIndexKeyFile()
         }
-        return this.index.get(new DataOutputX().writeInt(HashUtil.hash(div)).writeInt(key).toByteArray());
+        return this.index.get(new DataOutputX().writeInt(HashUtil.hash(div)).writeInt(key).toByteArray())
     }
 
     def hasKey(div: String, key: Int): Boolean = {
         if (this.index == null) {
-            this.index = new IndexKeyFile(file);
+            this.index = newIndexKeyFile()
         }
-        return this.index.hasKey(new DataOutputX().writeInt(HashUtil.hash(div)).writeInt(key).toByteArray());
+        return this.index.hasKey(new DataOutputX().writeInt(HashUtil.hash(div)).writeInt(key).toByteArray())
     }
 
     def read(handler: (Array[Byte], Array[Byte]) => Any) {
         if (this.index == null) {
-            this.index = new IndexKeyFile(file);
+            this.index = newIndexKeyFile()
         }
-        this.index.read(handler);
+        this.index.read(handler)
+    }
+
+    def newIndexKeyFile(): IndexKeyFile = {
+        return new IndexKeyFile(file, TextTable.INDEX_KEY_SIZE_MB);
     }
 
     override def close() {

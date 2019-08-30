@@ -47,7 +47,11 @@ class LoginService {
     val ip = m.getText("ip");
     val name = m.getText("hostname");
     val clientVer = m.getText("version");
-    val session = LoginManager.login(id, passwd, ip);
+    val internal = m.getText("internal");
+    val internalMode = if (internal != null && internal.equalsIgnoreCase("true")) true else false;
+
+    val session = LoginManager.login(id, passwd, ip, internalMode);
+
     m.put("session", session);
     if (session == 0) {
       m.put("error", "login fail");
@@ -74,6 +78,8 @@ class LoginService {
       m.put("menu", menuMv);
       menuMv.put("tag_count", new BooleanValue(Configure.getInstance().tagcnt_enabled));
       m.put("so_time_out", Configure.getInstance().net_tcp_client_so_timeout_ms);
+      m.put("ext_link_name", Configure.getInstance().ext_link_name);
+      m.put("ext_link_url_pattern", Configure.getInstance().ext_link_url_pattern);
       
     }
     dout.writeByte(TcpFlag.HasNEXT);

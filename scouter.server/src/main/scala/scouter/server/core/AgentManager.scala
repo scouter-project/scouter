@@ -26,7 +26,8 @@ import scouter.server.db.{AlertWR, ObjectRD, ObjectWR}
 import scouter.server.plugin.PlugInManager
 import scouter.server.util.{EnumerScala, ThreadScala}
 import scouter.util.{CompareUtil, DateUtil, HashUtil}
-import scouter.lang.counters.CounterConstants
+import scouter.lang.counters.{CounterConstants, CounterEngine}
+import scala.collection.JavaConversions._
 
 object AgentManager {
     private val counterEngine = scouter.server.CounterManager.getInstance().getCounterEngine();
@@ -41,18 +42,29 @@ object AgentManager {
     ThreadScala.startDaemon("scouter.server.core.AgentManager", { CoreRun.running }, 1000) {
         val now = System.currentTimeMillis();
         val deadtime = Configure.getInstance().object_deadtime_ms;
+        val zipkinDeadTime = Configure.getInstance().object_zipkin_deadtime_ms;
         val en = objMap.objects();
         var primaryObjCount = 0;
+
         while (en.hasMoreElements()) {
             val objPack = en.nextElement();
+
             if(!CounterConstants.BATCH.equals(objPack.objType)){
-	            if (now > objPack.wakeup + deadtime) {
-	                inactive(objPack.objHash);
-	            } else if (counterEngine.isPrimaryObject(objPack.objType)) {
-	                primaryObjCount += 1;
-	            }
+                var adjustDeadTime = 30000;
+                if (CounterConstants.ZIPKIN.equals(objPack.objType) || objPack.objType.startsWith(CounterConstants.ZIPKIN_TYPE_PREFIX)) {
+                    adjustDeadTime = if (objPack.getDeadTime() == 0) zipkinDeadTime else objPack.getDeadTime();
+                } else {
+                    adjustDeadTime = if (objPack.getDeadTime() == 0) deadtime else objPack.getDeadTime();
+                }
+
+                if (now > objPack.wakeup + adjustDeadTime) {
+                    inactive(objPack.objHash);
+                } else if (counterEngine.isPrimaryObject(objPack.objType)) {
+                    primaryObjCount += 1;
+                }
             }
         }
+
         this.primaryObjCount = primaryObjCount;
     }
 
@@ -69,6 +81,7 @@ object AgentManager {
         CounterManager.getInstance().addObjectTypeIfNotExist(p);
 
         PlugInManager.active(p);
+
         var objPack = objMap.getObject(p.objHash);
         if (objPack == null) {
             objPack = p;
@@ -79,6 +92,10 @@ object AgentManager {
             ObjectWR.add(objPack);
             Logger.println("S104", "New " + objPack);
         } else {
+            if (!objPack.alive && counterEngine.isPrimaryObject(objPack.objType)) {
+                alertReactiveObject(objPack);
+            }
+
             var save = false;
             if (DateUtil.getDateUnit(objPack.wakeup) != DateUtil.getDateUnit(System.currentTimeMillis())) {
                 objPack.updated = 0;
@@ -86,6 +103,7 @@ object AgentManager {
             }
             objPack.wakeup();
             objPack.tags = p.tags;
+
             if (CompareUtil.equals(p.address, objPack.address) == false) {
                 save = true;
             }
@@ -122,10 +140,21 @@ object AgentManager {
 
     private def alertInactiveObject(objPack: ObjectPack) {
         val p = new AlertPack();
-        p.level = AlertLevel.WARN;
+        p.level = Configure.getInstance().object_inactive_alert_level.asInstanceOf[Byte];
         p.objHash = objPack.objHash;
         p.title = "INACTIVE_OBJECT";
         p.message = objPack.objName + " is not running. " + objPack;
+        p.time = System.currentTimeMillis();
+        p.objType = "scouter";
+        AlertCore.add(p);
+    }
+
+    private def alertReactiveObject(objPack: ObjectPack) {
+        val p = new AlertPack();
+        p.level = Configure.getInstance().object_inactive_alert_level.asInstanceOf[Byte];
+        p.objHash = objPack.objHash;
+        p.title = "ACTIVATED_OBJECT";
+        p.message = objPack.objName + " is running now. " + objPack;
         p.time = System.currentTimeMillis();
         p.objType = "scouter";
         AlertCore.add(p);
@@ -220,6 +249,10 @@ object AgentManager {
             agents.add(a.objHash);
         }
         return agents;
+    }
+
+    def getObjHashListAsString(objType: String): String = {
+        return getObjHashList(objType).mkString(",")
     }
 
     def getObjList(objType: String): List[ObjectPack] = {

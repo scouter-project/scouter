@@ -23,10 +23,9 @@
       <programArgsWin>-data
 @user.home/scouter
       </programArgsWin>
-      <vmArgs>--add-modules=java.se.ee
--Xms128m
--Xmx768m
--XX:+UseG1G
+      <vmArgs>-Xms128m
+-Xmx1024m
+-XX:+UseG1GC
 -Dosgi.requiredJavaVersion=1.8
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
@@ -67,5 +66,12 @@
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>

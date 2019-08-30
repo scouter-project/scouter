@@ -23,10 +23,10 @@ import scouter.agent.asm.jdbc.*;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.SqlParameter;
 import scouter.agent.trace.TraceSQL;
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.util.HashSet;
 
@@ -40,15 +40,24 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 	public final HashSet<String> noField = new HashSet<String>();
 
 	public JDBCPreparedStatementASM() {
+		
+		target.add("oracle/jdbc/driver/OraclePreparedStatement");
+		
+		//mariadb older
+		target.add("org/mariadb/jdbc/MySQLPreparedStatement");
 		//mariadb 1.5.9
 		target.add("org/mariadb/jdbc/AbstractPrepareStatement");
-
 		target.add("org/mariadb/jdbc/AbstractMariaDbPrepareStatement");
 		target.add("org/mariadb/jdbc/MariaDbClientPreparedStatement");
 		target.add("org/mariadb/jdbc/MariaDbServerPreparedStatement");
-		target.add("org/mariadb/jdbc/MySQLPreparedStatement");
-		target.add("oracle/jdbc/driver/OraclePreparedStatement");
+		//mariadb 1.6.4, 1.7.1
+		target.add("org/mariadb/jdbc/MariaDbPreparedStatementClient");
+		target.add("org/mariadb/jdbc/MariaDbPreparedStatementServer");
 
+		// mariadb 1.8.0 and 2.0.x
+		target.add("org/mariadb/jdbc/ClientSidePreparedStatement");
+		target.add("org/mariadb/jdbc/ServerSidePreparedStatement");
+		
 		target.add("org/postgresql/jdbc2/AbstractJdbc2Statement");
 		//pg driver 42+
 		target.add("org/postgresql/jdbc/PgPreparedStatement");
@@ -67,12 +76,22 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		target.add("com/mysql/jdbc/PreparedStatement");
         target.add("cubrid/jdbc/driver/CUBRIDPreparedStatement");
 		target.add("Altibase/jdbc/driver/AltibasePreparedStatement");
+		target.add("Altibase/jdbc/driver/ABPreparedStatement");
+
+		// MySql Connector/j 6.X
+        target.add("com/mysql/cj/jdbc/PreparedStatement");
+		// MySql Connector/j 8.X
+		target.add("com/mysql/cj/jdbc/ServerPreparedStatement");
+		target.add("com/mysql/cj/jdbc/ClientPreparedStatement");
+
+        target.add("org/h2/jdbc/JdbcPreparedStatement"); // h2
 
         // @skyworker - MySQL ServerPreparedStatement는 특별히 필드를 추가하지 않음
         noField.add("com/mysql/jdbc/ServerPreparedStatement");
 		noField.add("jdbc/FakePreparedStatement2");
         noField.add("org/mariadb/jdbc/MariaDbClientPreparedStatement");
         noField.add("org/mariadb/jdbc/MariaDbServerPreparedStatement");
+		target.add("com/mysql/cj/jdbc/ServerPreparedStatement");
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
@@ -92,7 +111,7 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
     private String owner;
 
     public PreparedStatementCV(ClassVisitor cv, HashSet<String> noField) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.noField = noField;
 	}
 
@@ -125,6 +144,9 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
 				} else if (desc.startsWith("(Ljava/lang/String;)")) {
 					return new StExecuteMV(access, desc, mv, owner, name);
 				}
+			} else if (PsExecuteMV.isTarget(name, desc)) {
+				return new PsExecuteMV(access, desc, mv, owner, name);
+
 			} else if ("clearParameters".equals(name) && "()V".equals(desc)) {
 				return new PsClearParametersMV(access, desc, mv, owner);
 

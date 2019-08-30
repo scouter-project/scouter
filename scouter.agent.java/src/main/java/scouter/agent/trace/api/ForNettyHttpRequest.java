@@ -22,6 +22,7 @@ import scouter.agent.proxy.IHttpClient;
 import scouter.agent.proxy.NettyHttpClientFactory;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
+import scouter.lang.constants.B3Constant;
 import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
@@ -58,6 +59,10 @@ public class ForNettyHttpRequest implements ApiCallTraceHelper.IHelper {
 		return step;
 	}
 
+	public void processEnd(TraceContext ctx, ApiCallStep step, Object rtn, HookArgs hookPoint) {
+		return;
+	}
+
 	private IHttpClient getProxy(HookArgs hookPoint) {
 		int key = System.identityHashCode(hookPoint.this1.getClass());
 		IHttpClient httpclient = httpclients.get(key);
@@ -82,9 +87,11 @@ public class ForNettyHttpRequest implements ApiCallTraceHelper.IHelper {
 				httpclient.addHeader(req, conf._trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
 				httpclient.addHeader(req, conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
 				httpclient.addHeader(req, conf._trace_interservice_callee_header_key, Hexa32.toString32(calleeTxid));
-				httpclient.addHeader(req, "scouter_caller_url", ctx.serviceName);
-				httpclient.addHeader(req, "scouter_caller_name", conf.getObjName());
-				httpclient.addHeader(req, "scouter_thread_id", Long.toString(ctx.threadId));
+				httpclient.addHeader(req, conf._trace_interservice_caller_obj_header_key, String.valueOf(conf.getObjHash()));
+
+				httpclient.addHeader(req, B3Constant.B3_HEADER_TRACEID, Hexa32.toUnsignedLongHex(ctx.gxid));
+				httpclient.addHeader(req, B3Constant.B3_HEADER_PARENTSPANID, Hexa32.toUnsignedLongHex(ctx.txid));
+				httpclient.addHeader(req, B3Constant.B3_HEADER_SPANID, Hexa32.toUnsignedLongHex(calleeTxid));
 
 				PluginHttpCallTrace.call(ctx, httpclient, req);
 

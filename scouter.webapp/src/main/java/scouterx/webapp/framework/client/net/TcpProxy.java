@@ -143,6 +143,23 @@ public class TcpProxy implements AutoCloseable {
             return values.get(0);
     }
 
+    public Value getSingleValue(String cmd, Value param) {
+        List<Value> values = processValues(cmd, param);
+        if (values == null || values.size() == 0)
+            return null;
+        else
+            return values.get(0);
+    }
+
+    public List<Value> processValues(String cmd, Value param) {
+        final List<Value> list = new ArrayList<Value>();
+        process(cmd, param, in -> {
+            Value v = in.readValue();
+            list.add(v);
+        });
+        return list;
+    }
+
     public List<Value> processValues(String cmd, Pack param) {
         final List<Value> list = new ArrayList<Value>();
         process(cmd, param, in -> {

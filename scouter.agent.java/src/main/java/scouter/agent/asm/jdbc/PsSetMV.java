@@ -16,10 +16,10 @@
 
 package scouter.agent.asm.jdbc;
 
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.trace.TraceSQL;
 
@@ -62,7 +62,7 @@ public class PsSetMV extends LocalVariablesSorter implements Opcodes {
 	private final static String TRACESQL = TraceSQL.class.getName().replace('.', '/');
 
 	public PsSetMV(int access, String name, String desc, MethodVisitor mv, String owner) {
-		super(ASM5,access, desc, mv);
+		super(ASM7,access, desc, mv);
 
 		this.owner = owner;
 		this.args = Type.getArgumentTypes(desc);

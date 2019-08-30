@@ -42,7 +42,7 @@ public class ResultSender extends Thread {
 			if(config.batch_log_send_elapsed_ms <= elapsedTime){
 				traceContext.caculateLast();
 				String result = traceContext.toString();
-				if(config.scouter_standalone){
+				if(config.scouter_standalone || config.sbr_log_make){
 					saveStandAloneResult(traceContext, result);
 				}
 				Logger.println(result);
@@ -63,7 +63,7 @@ public class ResultSender extends Thread {
 							UdpLocalAgent.sendDumpFileInfo(traceContext);
 						}
 					}
-					if(config.sfa_dump_enabled && config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms > elapsedTime){
+					if(config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms > elapsedTime){
 						deleteFiles(traceContext);
 					}
 					UdpLocalAgent.sendEndInfo(traceContext);

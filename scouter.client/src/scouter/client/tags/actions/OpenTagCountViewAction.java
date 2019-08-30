@@ -43,10 +43,8 @@ public class OpenTagCountViewAction extends Action implements ICalendarCallback 
 
 	public void onPressedOk(String date, String objType) {
 		try {
-			TagCountView v = (TagCountView) window.getActivePage().showView(TagCountView.ID, serverId + "", IWorkbenchPage.VIEW_ACTIVATE);
-			if (v != null) {
-				v.setInput(date, objType);
-			}
+			TagCountView v = (TagCountView) window.getActivePage().showView(TagCountView.ID, serverId + "-" + objType + "-" + date, IWorkbenchPage.VIEW_ACTIVATE);
+			v.setInput(date, objType, serverId);
 		} catch (Exception e) {
 			MessageDialog.openError(window.getShell(), "Error", "Error opening view:" + e.getMessage());
 		}

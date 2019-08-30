@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import scouter.agent.batch.trace.TraceContext;
-import scouter.agent.proxy.IToolsMain;
-import scouter.agent.proxy.LoaderManager;
+import scouter.agent.batch.proxy.IToolsMain;
+import scouter.agent.batch.proxy.LoaderManager;
 import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
 
@@ -134,8 +134,7 @@ public class ThreadDumpHandler {
 
 		ClassLoader loader = LoaderManager.getToolsLoader();
 		if (loader == null) {
-			out =  ThreadUtil.getThreadDumpList();
-			
+			out =  ThreadUtil.getThreadDumpList();	
 			return out;
 		}
 		

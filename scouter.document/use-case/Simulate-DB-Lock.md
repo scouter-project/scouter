@@ -1,5 +1,5 @@
 # Simulate DB Lock
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Simulate-DB-Lock_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Simulate-DB-Lock.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Simulate-DB-Lock_kr.md)
 
 This article describes how to simulate and monitor DB update lock with Scouter environment. Installation and configuration guide is [here](../main/Getting-Start-Profile-SQL.md).
 

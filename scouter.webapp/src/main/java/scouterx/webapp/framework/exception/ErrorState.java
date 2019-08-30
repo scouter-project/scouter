@@ -36,8 +36,11 @@ public enum ErrorState {
 	COLLECTOR_NOT_CONNECTED(Response.Status.INTERNAL_SERVER_ERROR, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), "scouter collector not connected"),
 	COLLECTOR_INVALID_SESSION(Response.Status.INTERNAL_SERVER_ERROR, Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), "internal server error"),
 
-	LOGIN_REQUIRED(Response.Status.FORBIDDEN, Response.Status.FORBIDDEN.getStatusCode(), "login required."),
-	LOGIN_FAIL(Response.Status.UNAUTHORIZED, Response.Status.UNAUTHORIZED.getStatusCode(), "id or password is incorrect."),
+	ILLEGAL_KEY_ACCESS(Response.Status.BAD_REQUEST, Response.Status.BAD_REQUEST.getStatusCode(), "illegal key access error"),
+
+	LOGIN_REQUIRED(Response.Status.UNAUTHORIZED, Response.Status.UNAUTHORIZED.getStatusCode(), "login required."),
+	LOGIN_FAIL(Response.Status.NOT_FOUND, Response.Status.NOT_FOUND.getStatusCode(), "id or password is incorrect."),
+	SESSION_EXPIRED(Response.Status.UNAUTHORIZED, Response.Status.UNAUTHORIZED.getStatusCode(), "authorization token or session is expired."),
 	NOT_IMPLEMENTED(Response.Status.NOT_IMPLEMENTED, Response.Status.NOT_IMPLEMENTED.getStatusCode(), "This API is not yet implemented."),
 	VALIDATE_ERROR(Response.Status.BAD_REQUEST, Response.Status.BAD_REQUEST.getStatusCode(), "fail to validate input parameters. : "),
 	;

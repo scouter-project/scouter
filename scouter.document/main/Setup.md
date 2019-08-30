@@ -1,5 +1,5 @@
 # Setup
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Setup_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Setup.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Setup_kr.md)
 
 - Outgoing Links
   - Blogging
@@ -10,14 +10,12 @@
 ## 1. Collector Server Installation
 
 ### 1.1. Prerequisite
-* JDK 1.6+ : scouter java agent, host agent (1.8 recommended)
-* JDK 1.6+ : scouter server (will support only 1.8+ on next version)
-* JDK 1.8+ : scouter web api
+* JDK 1.8+ : scouter server
 
 ### 1.2. Collector Server Installation
 1. download the latest version of scouter-yyyyMMdd.tar.gz.
  - [Release Page](https://github.com/scouter-project/scouter/releases)
-2. Extract the file.(You can see the dircetory ./scouter/server)
+2. Extract the file.(You can see the directory ./scouter/server)
 3. execute start script.
 ```bash
 cd ./scouter/server
@@ -32,12 +30,12 @@ cd ./scouter/server
  |____/ \___\___/ \__,_|\__\___|_|
  Scouter version 0.0.1 ${date}
  Open Source Performance Monitoring
- System JRE version : 1.7.0_51
+ System JRE version : 1.8.0_175
 ```
 
 ### 1.3. Network ports used by Collector server
 * UDP Receive Port : 6100 (This port is used for gathering performance metrics.)
-* TCP Service Port : 6100 (This port is used for commuication with scouter client and agents.)
+* TCP Service Port : 6100 (This port is used for communication with scouter client and agents.)
 
 ### 1.4. Configuration
 
@@ -66,7 +64,7 @@ All options and default values are available from the scouter client's **Collect
 
 ## 2. Host Agent
 ### 2.1. Prerequisite
-* JDK 1.5+(Required), 1.6+(Recommended)
+* JDK 1.6+
 
 ### 2.2. Download and start Host agent
 1. Download scouter-yyyyMMdd.tar.gz 
@@ -85,7 +83,7 @@ All options and default values are available from the scouter client's **Host > 
 
 ## 3. Tomcat Agent
 ### 3.1. Prerequisite
-* JDK 1.5+(Required), 1.6+(Recommended)
+* JDK 1.6+
 
 ### 3.2. Start Tomcat with Scouter agent
 1. Download scouter-yyyyMMdd.tar.gz 

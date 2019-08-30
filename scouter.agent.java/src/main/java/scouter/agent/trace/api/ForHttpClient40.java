@@ -15,6 +15,7 @@
  *  limitations under the License. 
  */
 package scouter.agent.trace.api;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.plugin.PluginHttpCallTrace;
@@ -22,6 +23,7 @@ import scouter.agent.proxy.HttpClient43Factory;
 import scouter.agent.proxy.IHttpClient;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
+import scouter.lang.constants.B3Constant;
 import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
@@ -29,6 +31,7 @@ import scouter.util.KeyGen;
 public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 	private boolean ok = true;
 	private static IntKeyLinkedMap<IHttpClient> httpclients = new IntKeyLinkedMap<IHttpClient>().setMax(5);
+
 	public ApiCallStep process(TraceContext ctx, HookArgs hookPoint) {
 		ApiCallStep step = new ApiCallStep();
 		try {
@@ -53,6 +56,11 @@ public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 			ctx.apicall_name = hookPoint.class1;
 		return step;
 	}
+
+	public void processEnd(TraceContext ctx, ApiCallStep step, Object rtn, HookArgs hookPoint) {
+		return;
+	}
+
 	private IHttpClient getProxy(HookArgs hookPoint) {
 		int key = System.identityHashCode(hookPoint.this1.getClass());
 		IHttpClient httpclient = httpclients.get(key);
@@ -64,6 +72,7 @@ public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 		}
 		return httpclient;
 	}
+
 	private void transfer(IHttpClient httpclient, TraceContext ctx, Object host, Object req, long calleeTxid) {
 		Configure conf = Configure.getInstance();
 		if (conf.trace_interservice_enabled) {
@@ -74,6 +83,12 @@ public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 				httpclient.addHeader(req, conf._trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
 				httpclient.addHeader(req, conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
 				httpclient.addHeader(req, conf._trace_interservice_callee_header_key, Hexa32.toString32(calleeTxid));
+				httpclient.addHeader(req, conf._trace_interservice_caller_obj_header_key, String.valueOf(conf.getObjHash()));
+
+				httpclient.addHeader(req, B3Constant.B3_HEADER_TRACEID, Hexa32.toUnsignedLongHex(ctx.gxid));
+				httpclient.addHeader(req, B3Constant.B3_HEADER_PARENTSPANID, Hexa32.toUnsignedLongHex(ctx.txid));
+				httpclient.addHeader(req, B3Constant.B3_HEADER_SPANID, Hexa32.toUnsignedLongHex(calleeTxid));
+				//httpclient.addHeader(oRtn, B3Constant.B3_HEADER_SAMPLED, "1"); omit means defer
 				PluginHttpCallTrace.call(ctx, req);
 			} catch (Throwable e) {
 				Logger.println("A001", e);

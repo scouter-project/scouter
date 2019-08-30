@@ -148,6 +148,51 @@ public class StringUtil {
 		return arr.toArray(new String[arr.size()]);
 	}
 
+	public static ArrayList<String> splitAsList(String s, char c) {
+		ArrayList<String> arr = new ArrayList<String>();
+
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			if (s.charAt(i) == c) {
+				if (sb.length() > 0) {
+					arr.add(sb.toString());
+					sb = new StringBuilder();
+				}
+			} else {
+				sb.append(s.charAt(i));
+			}
+		}
+		if (sb.length() > 0) {
+			arr.add(sb.toString());
+			sb = new StringBuilder();
+		}
+		return arr;
+	}
+
+	public static String[] splitByWholeSeparatorPreserveAllTokens(String s, char c) {
+		ArrayList<String> arr = new ArrayList<String>();
+
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			if (s.charAt(i) == c) {
+				if (sb.length() > 0) {
+					arr.add(sb.toString());
+					sb = new StringBuilder();
+				} else {
+					arr.add("");
+					sb = new StringBuilder();
+				}
+			} else {
+				sb.append(s.charAt(i));
+			}
+		}
+		if (sb.length() > 0) {
+			arr.add(sb.toString());
+			sb = new StringBuilder();
+		}
+		return arr.toArray(new String[arr.size()]);
+	}
+
 	public static HashSet<String> splitAndTrimToSet(String s, char c, boolean toUpper) {
 		HashSet<String> set = new HashSet<String>();
 
@@ -369,5 +414,17 @@ public class StringUtil {
 		} else {
 			return text;
 		}
+	}
+
+	public static boolean isInteger(String s) {
+		try {
+			Integer.parseInt(s);
+		} catch(NumberFormatException e) {
+			return false;
+		} catch(NullPointerException e) {
+			return false;
+		}
+		// only got here if we didn't return false
+		return true;
 	}
 }

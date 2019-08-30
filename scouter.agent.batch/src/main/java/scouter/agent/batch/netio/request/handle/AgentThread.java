@@ -19,7 +19,7 @@ package scouter.agent.batch.netio.request.handle;
 import java.util.Enumeration;
 
 import scouter.agent.batch.Main;
-import scouter.agent.netio.request.anotation.RequestHandler;
+import scouter.agent.batch.netio.request.anotation.RequestHandler;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.BooleanValue;

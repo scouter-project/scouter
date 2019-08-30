@@ -33,12 +33,12 @@ public class MultiPacketProcessor extends Thread{
 	public void run() {
         while (true) {
             ThreadUtil.sleep(1000);
-            if (buffer.size() > 0) {
-                try {
-                    checkExpired();
-                } catch(Exception ex) {
-                	ex.printStackTrace();
-                }
+            try {
+	            if (buffer.size() > 0) {
+	                    checkExpired();
+	            }
+            } catch(Exception ex) {
+            	ex.printStackTrace();
             }
         }
 	}

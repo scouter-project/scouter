@@ -16,18 +16,6 @@
  */
 package scouter.client.tags;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.csstudio.swt.xygraph.dataprovider.CircularBufferDataProvider;
 import org.csstudio.swt.xygraph.dataprovider.Sample;
 import org.csstudio.swt.xygraph.figures.Trace;
@@ -72,10 +60,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
-
 import scouter.client.Images;
 import scouter.client.model.CounterColorManager;
 import scouter.client.net.INetReader;
@@ -98,12 +83,23 @@ import scouter.lang.value.MapValue;
 import scouter.lang.value.NullValue;
 import scouter.lang.value.Value;
 import scouter.net.RequestCmd;
-import scouter.util.CastUtil;
 import scouter.util.DateUtil;
 import scouter.util.FormatUtil;
 import scouter.util.LinkedMap;
 import scouter.util.LinkedMap.LinkedEntry;
 import scouter.util.StringUtil;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class TagCountView extends ViewPart {
 	
@@ -154,14 +150,6 @@ public class TagCountView extends ViewPart {
 	double rangeX2;
 	boolean zoomMode = false;
 	
-
-	@Override
-	public void init(IViewSite site) throws PartInitException {
-		super.init(site);
-		String secId = site.getSecondaryId();
-		serverId = CastUtil.cint(secId);
-	}
-
 	@Override
 	public void createPartControl(Composite parent) {
 		this.parent = parent; 
@@ -569,6 +557,12 @@ public class TagCountView extends ViewPart {
 
 	@Override
 	public void setFocus() {
+	}
+
+	public void setInput(String date, String objType, int serverId) {
+		setPartName("TagCount" + "-" + objType);
+		this.serverId = serverId;
+		setInput(date, objType);
 	}
 
 	public void setInput(String date, String objType) {

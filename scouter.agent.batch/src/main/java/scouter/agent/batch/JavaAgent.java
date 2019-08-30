@@ -17,6 +17,7 @@
 package scouter.agent.batch;
 
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Method;
 
 import scouter.util.logo.Logo;
 import scouter.agent.batch.AgentTransformer;
@@ -24,7 +25,18 @@ import scouter.agent.batch.task.BatchMonitor;
 
 public class JavaAgent {
 	private static Instrumentation instrumentation;
+	private static boolean java9plus;
+	private static ClassLoader platformClassLoader;
 
+	static {
+		try
+		{
+			Method m = ClassLoader.class.getDeclaredMethod("getPlatformClassLoader", new Class[0]);
+			platformClassLoader = (ClassLoader) m.invoke(null, new Object[0]);
+			java9plus = true;
+		} catch (Exception ignored) {}
+	}
+	
 	public static void premain(String options, Instrumentation instrum) {
 		if (JavaAgent.instrumentation != null) {
 			return;
@@ -68,5 +80,12 @@ public class JavaAgent {
 
 	public static Instrumentation getInstrumentation() {
 		return instrumentation;
+	}
+	
+	public static boolean isJava9plus() {
+		return java9plus;
+	}	
+	public static ClassLoader getPlatformClassLoader() {
+		return platformClassLoader;
 	}
 }

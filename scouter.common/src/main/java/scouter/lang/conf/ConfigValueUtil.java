@@ -122,6 +122,36 @@ public class ConfigValueUtil {
 		return valueTypeMap;
 	}
 
+	public static StringKeyLinkedMap<ValueTypeDesc> getConfigValueTypeDescMap(Object o) {
+		StringKeyLinkedMap<ValueTypeDesc> valueTypeDescMap = new StringKeyLinkedMap<ValueTypeDesc>();
+		Field[] fields = o.getClass().getFields();
+		for (int i = 0; i < fields.length; i++) {
+			int mod = fields[i].getModifiers();
+			if (Modifier.isStatic(mod) == false && Modifier.isPublic(mod)) {
+				try {
+					ConfigValueType annotation = fields[i].getAnnotation(ConfigValueType.class);
+					if (annotation == null || annotation.value() != ValueType.COMMA_COLON_SEPARATED_VALUE) {
+						continue;
+					}
+					ValueTypeDesc valueTypeDesc = new ValueTypeDesc();
+					valueTypeDesc.setStrings(annotation.strings());
+					valueTypeDesc.setStrings1(annotation.strings1());
+					valueTypeDesc.setStrings2(annotation.strings2());
+					valueTypeDesc.setStrings3(annotation.strings3());
+					valueTypeDesc.setBooleans(annotation.booleans());
+					valueTypeDesc.setBooleans1(annotation.booleans1());
+					valueTypeDesc.setInts(annotation.ints());
+					valueTypeDesc.setInts1(annotation.ints1());
+
+					valueTypeDescMap.put(fields[i].getName(), valueTypeDesc);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return valueTypeDescMap;
+	}
+
 	public static Value toValue(Object o) {
 		if (o == null)
 			return new NullValue();

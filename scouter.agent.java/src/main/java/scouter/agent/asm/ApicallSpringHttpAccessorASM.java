@@ -16,11 +16,11 @@
  */
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
@@ -39,7 +39,7 @@ public class ApicallSpringHttpAccessorASM implements IASM, Opcodes {
 
 	@Override
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-		if (Configure.getInstance()._hook_methods_enabled == false) {
+		if (Configure.getInstance()._hook_apicall_enabled == false) {
 			return cv;
 		}
 
@@ -54,7 +54,7 @@ class HttpAccessorCV extends ClassVisitor implements Opcodes {
 	public String className;
 	private HookingSet mset;
 	public HttpAccessorCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -84,7 +84,7 @@ class CreateRequestMV extends LocalVariablesSorter implements Opcodes {
 	private Type returnType;
 
 	public CreateRequestMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 		this.returnType = Type.getReturnType(desc);

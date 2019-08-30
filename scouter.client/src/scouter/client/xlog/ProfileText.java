@@ -32,14 +32,48 @@ import scouter.client.util.SqlMakerUtil;
 import scouter.client.xlog.views.XLogProfileView;
 import scouter.lang.CountryCode;
 import scouter.lang.enumeration.ParameterizedMessageLevel;
-import scouter.lang.step.*;
-import scouter.util.*;
+import scouter.lang.step.ApiCallStep;
+import scouter.lang.step.ApiCallStep2;
+import scouter.lang.step.ApiCallSum;
+import scouter.lang.step.CommonSpanStep;
+import scouter.lang.step.DispatchStep;
+import scouter.lang.step.DumpStep;
+import scouter.lang.step.HashedMessageStep;
+import scouter.lang.step.MessageStep;
+import scouter.lang.step.MethodStep;
+import scouter.lang.step.MethodStep2;
+import scouter.lang.step.MethodSum;
+import scouter.lang.step.ParameterizedMessageStep;
+import scouter.lang.step.SocketStep;
+import scouter.lang.step.SocketSum;
+import scouter.lang.step.SpanCallStep;
+import scouter.lang.step.SpanStep;
+import scouter.lang.step.SqlStep;
+import scouter.lang.step.SqlStep2;
+import scouter.lang.step.SqlStep3;
+import scouter.lang.step.SqlSum;
+import scouter.lang.step.SqlXType;
+import scouter.lang.step.Step;
+import scouter.lang.step.StepControl;
+import scouter.lang.step.StepEnum;
+import scouter.lang.step.StepSingle;
+import scouter.lang.step.StepSummary;
+import scouter.lang.step.ThreadCallPossibleStep;
+import scouter.lang.step.ThreadSubmitStep;
+import scouter.util.CastUtil;
+import scouter.util.DateUtil;
+import scouter.util.FormatUtil;
+import scouter.util.Hexa32;
+import scouter.util.IPUtil;
+import scouter.util.SortUtil;
+import scouter.util.StringUtil;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 public class ProfileText {
 	
@@ -201,6 +235,7 @@ public class ProfileText {
         if (StringUtil.isNotEmpty(xperf.p.text5)) {
             sb.append("\n► text5=" + xperf.p.text5);
         }
+        sb.append("\n► profileSize=" + xperf.p.profileCount);
         if (xperf.p.hasDump == 1) {
             sb.append("\n► dump=Y");
         }
@@ -413,6 +448,33 @@ public class ProfileText {
                         sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
                     }
                     break;
+                case StepEnum.SPAN:
+                    slen = sb.length();
+                    toString(sb, (SpanStep) stepSingle);
+                    sr.add(style(slen, sb.length() - slen, dgreen, SWT.NORMAL));
+                    SpanStep spanStep = (SpanStep) stepSingle;
+                    if (spanStep.error != 0) {
+                        slen = sb.length();
+                        sb.append("\n").append(TextProxy.error.getText(spanStep.error));
+                        sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
+                    }
+                    if (spanStep.localEndpointServiceName != 0) {
+                        slen = sb.length();
+                        StringBuilder tempSb = appendSpanEndpoints(date, serverId, spanStep);
+                        sb.append(spacingToNewLine(tempSb.toString(), lineHead + 4));
+                        sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
+                    }
+                    if (spanStep.tags.size() > 0) {
+                        slen = sb.length();
+                        appendSpanTags(sb, lineHead, spanStep);
+                        sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
+                    }
+                    if (spanStep.annotationTimestamps.size() > 0) {
+                        slen = sb.length();
+                        appendSpanAnnotations(sb, lineHead, spanStep);
+                        sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
+                    }
+                    break;
                 case StepEnum.SQL:
                 case StepEnum.SQL2:
                 case StepEnum.SQL3:
@@ -487,6 +549,35 @@ public class ProfileText {
                         sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
                     }
                     break;
+                case StepEnum.SPANCALL:
+                    SpanCallStep spanCall = (SpanCallStep) stepSingle;
+                    slen = sb.length();
+                    toString(sb, spanCall);
+                    sr.add(underlineStyle(slen, sb.length() - slen, dmagenta, SWT.NORMAL, SWT.UNDERLINE_LINK));
+                    if (spanCall.error != 0) {
+                        slen = sb.length();
+                        sb.append("\n").append(TextProxy.error.getText(spanCall.error));
+                        sr.add(style(slen, sb.length() - slen, red, SWT.NORMAL));
+                    }
+                    if (spanCall.localEndpointServiceName != 0) {
+                        slen = sb.length();
+                        StringBuilder tempSb = appendSpanEndpoints(date, serverId, spanCall);
+                        sb.append(spacingToNewLine(tempSb.toString(), lineHead + 4));
+                        sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
+                    }
+                    if (spanCall.tags.size() > 0) {
+                        slen = sb.length();
+                        appendSpanTags(sb, lineHead, spanCall);
+                        sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
+                    }
+                    if (spanCall.annotationTimestamps.size() > 0) {
+                        slen = sb.length();
+                        appendSpanAnnotations(sb, lineHead, spanCall);
+                        sr.add(style(slen, sb.length() - slen, dyellow, SWT.NORMAL));
+                    }
+                    break;
+
+
                 case StepEnum.SOCKET:
                     SocketStep socket = (SocketStep) stepSingle;
                     slen = sb.length();
@@ -527,6 +618,39 @@ public class ProfileText {
         text.setText(sb.toString());
         text.setStyleRanges(sr.toArray(new StyleRange[sr.size()]));
 
+    }
+
+    private static void appendSpanAnnotations(StringBuffer sb, int lineHead, CommonSpanStep spanStep) {
+        try {
+            sb.append(spacingToNewLine(">[annotations]", lineHead + 4));
+            for (int annotCount = 0; annotCount < spanStep.annotationTimestamps.size(); annotCount++) {
+                String annotMessage = FormatUtil.print(new Date(spanStep.annotationTimestamps.getLong(annotCount)), "HH:mm:ss.SSS")
+                        + " " + spanStep.annotationValues.getString(annotCount);
+                sb.append(spacing(annotMessage, lineHead + 11));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    private static void appendSpanTags(StringBuffer sb, int lineHead, CommonSpanStep spanStep) {
+        String tagsString = spanStep.tags.keySet().stream()
+                .map(k -> k + ": " + spanStep.tags.getText(k))
+                .collect(Collectors.joining("\n"));
+
+        sb.append(spacingToNewLine(">[tags]", lineHead + 4));
+        sb.append(spacing(tagsString, lineHead + 11));
+    }
+
+    private static StringBuilder appendSpanEndpoints(String date, int serverId, CommonSpanStep spanStep) {
+        StringBuilder tempSb = new StringBuilder();
+        tempSb.append(">[LE]").append(TextProxy.object.getLoadText(date, spanStep.localEndpointServiceName, serverId))
+                .append(":").append(IPUtil.toString(spanStep.localEndpointIp))
+                .append(":").append(spanStep.localEndpointPort);
+        if (spanStep.remoteEndpointServiceName != 0) {
+            tempSb.append("[RE]").append(TextProxy.object.getLoadText(date, spanStep.localEndpointServiceName, serverId))
+                    .append(":").append(IPUtil.toString(spanStep.remoteEndpointIp))
+                    .append(":").append(spanStep.remoteEndpointPort);
+        }
+        return tempSb;
     }
 
     public static void buildThreadProfile(XLogData data, StyledText text, Step[] profiles) {
@@ -797,6 +921,21 @@ public class ProfileText {
         }
     }
 
+    public static void toString(StringBuffer sb, SpanCallStep p) {
+        String m = TextProxy.service.getText(p.hash);
+        if (m == null)
+            m = Hexa32.toString32(p.hash);
+        sb.append("call: ").append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
+        if (p.txid != 0) {
+            if(p.address != null) {
+                sb.append(" [" + p.address + "]");
+            }
+        }
+        if (p.txid != 0) {
+            sb.append(" <" + Hexa32.toString32(p.txid) + ">");
+        }
+    }
+
     public static void toString(StringBuffer sb, DispatchStep step) {
         String m = TextProxy.apicall.getText(step.hash);
         if (m == null)
@@ -838,10 +977,10 @@ public class ProfileText {
             message = pmStep.buildMessasge(messageFormat);
         }
 
-        if(pmStep.getElapsed() != -1) {
-            sb.append("[").append(FormatUtil.print(pmStep.getElapsed(), "#,##0")).append(" ms] ");
-        }
         sb.append(message);
+        if(pmStep.getElapsed() != -1) {
+            sb.append(" [").append(FormatUtil.print(pmStep.getElapsed(), "#,##0")).append(" ms]");
+        }
     }
 
     public static void toString(StringBuffer sb, DumpStep p, int lineHead) {
@@ -963,6 +1102,24 @@ public class ProfileText {
         return sb.toString();
     }
 
+    public static String spacingToNewLine(String m, int lineHead) {
+        if (m == null)
+            return m;
+        String dummy = StringUtil.leftPad("", lineHead);
+        StringBuffer sb = new StringBuffer();
+        try {
+            BufferedReader sr = new BufferedReader(new StringReader(m));
+            String s = null;
+            while ((s = sr.readLine()) != null) {
+                if (s.length() > 0) {
+                    sb.append("\n").append(dummy).append(s);
+                }
+            }
+        } catch (Exception e) {
+        }
+        return sb.toString();
+    }
+
     public static void toString(StringBuffer sb, SqlSum p, int serverId) {
         String m = TextProxy.sql.getText(p.hash);
         if (m == null)
@@ -1006,6 +1163,14 @@ public class ProfileText {
             sb.append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
             return m.indexOf('.');
         }
+    }
+
+    public static void toString(StringBuffer sb, SpanStep p) {
+        String m = TextProxy.service.getText(p.hash);
+        if (m == null) {
+            m = Hexa32.toString32(p.hash);
+        }
+        sb.append(m).append(" ").append(FormatUtil.print(p.elapsed, "#,##0")).append(" ms");
     }
 
     public static String simplifyMethod(String method) {

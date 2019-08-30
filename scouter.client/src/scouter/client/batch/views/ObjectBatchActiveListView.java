@@ -349,7 +349,7 @@ public class ObjectBatchActiveListView extends ViewPart implements Refreshable {
 				} else if (columnIndex == ColumnEnum.ELAPSEDTIME.getIndex()) {
 					return FormatUtil.print(((BatchData) element).elapsedTime, "#,##0");
 				} else if (columnIndex == ColumnEnum.CPUTIME.getIndex()) {
-					return FormatUtil.print(((BatchData) element).cPUTime, "#,##0");
+					return FormatUtil.print((((BatchData) element).cPUTime/1000000L), "#,##0");
 				} else if (columnIndex == ColumnEnum.SQLTOTALTIME.getIndex()) {
 					return FormatUtil.print((((BatchData) element).sqlTotalTime / 1000000L), "#,##0");
 				} else if (columnIndex == ColumnEnum.SQLTOTALROWS.getIndex()) {

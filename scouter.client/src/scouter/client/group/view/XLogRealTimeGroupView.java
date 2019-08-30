@@ -17,19 +17,15 @@
  */
 package scouter.client.group.view;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -37,7 +33,6 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.Images;
 import scouter.client.group.GroupManager;
 import scouter.client.model.AgentModelThread;
@@ -58,14 +53,21 @@ import scouter.client.util.ImageUtil;
 import scouter.client.util.TimeUtil;
 import scouter.client.xlog.XLogUtil;
 import scouter.client.xlog.views.XLogViewCommon;
+import scouter.io.DataInputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.value.BooleanValue;
 import scouter.lang.value.ListValue;
-import scouter.io.DataInputX;
 import scouter.net.RequestCmd;
 import scouter.util.DateUtil;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 
 public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable {
@@ -78,14 +80,28 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 	IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 	private Map<Integer, ListValue> serverObjMap = new HashMap<Integer, ListValue>();
 	private Map<Integer, MapPack> paramMap = new HashMap<Integer, MapPack>();
-	
-	
+
+	private int firstServerId;
+
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
 		String secId = site.getSecondaryId();
 		String[] datas = secId.split("&");
 		grpName = datas[0];
 		objType = datas[1];
+	}
+
+	@Override
+	protected void openInExternalLink() {
+		Program.launch(makeExternalUrl(firstServerId));
+	}
+
+	@Override
+	protected void clipboardOfExternalLink() {
+		Clipboard clipboard = new Clipboard(getViewSite().getShell().getDisplay());
+		String linkUrl = makeExternalUrl(firstServerId);
+		clipboard.setContents(new String[]{linkUrl}, new Transfer[]{TextTransfer.getInstance()});
+		clipboard.dispose();
 	}
 
 	public void createPartControl(final Composite parent) {
@@ -143,6 +159,9 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 				continue;
 			}
 			int serverId = agentObj.getServerId();
+			if (firstServerId == 0) {
+				firstServerId = serverId;
+			}
 			ListValue lv = serverObjMap.get(serverId);
 			if (lv == null) {
 				lv = new ListValue();
@@ -161,6 +180,7 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 		});
 	}
 
+	@Override
 	public void refresh() {
 		setDate(DateUtil.yyyymmdd(TimeUtil.getCurrentTime()));
 		collectObj();
@@ -177,23 +197,27 @@ public class XLogRealTimeGroupView extends XLogViewCommon implements Refreshable
 					param = new MapPack();
 					paramMap.put(serverId, param);
 				}
-				param.put("objHash", serverObjMap.get(serverId));
-				param.put("limit", limit);
-				tcp.process(RequestCmd.TRANX_REAL_TIME_GROUP, param, new INetReader() {
-					public void process(DataInputX in) throws IOException {
-						Pack p = in.readPack();
-						if (p instanceof MapPack) {
-							MapPack param = (MapPack) p;
-							paramMap.put(serverId, param);
-						} else {
-							XLogPack x = XLogUtil.toXLogPack(p);
-							tempSet.add(new XLogData(x, serverId));
-							while (tempSet.size() >= max) {
-								tempSet.pollFirst();
+				ListValue objHashLv = serverObjMap.get(serverId);
+				if (objHashLv.size() > 0) {
+					param.put("objHash", objHashLv);
+					param.put("limit", limit);
+					tcp.process(RequestCmd.TRANX_REAL_TIME_GROUP, param, new INetReader() {
+						public void process(DataInputX in) throws IOException {
+							Pack p = in.readPack();
+							if (p instanceof MapPack) {
+								MapPack param = (MapPack) p;
+								paramMap.put(serverId, param);
+							} else {
+								XLogPack x = XLogUtil.toXLogPack(p);
+								tempSet.add(new XLogData(x, serverId));
+								while (tempSet.size() >= max) {
+									tempSet.pollFirst();
+								}
 							}
 						}
 					}
-				});
+				);
+				}
 			} catch(Exception e){
 				ConsoleProxy.errorSafe(e.toString());
 			} finally {

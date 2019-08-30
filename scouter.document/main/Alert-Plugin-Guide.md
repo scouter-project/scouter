@@ -1,5 +1,5 @@
 ﻿# Alert Plugin Guide
-[![English](https://img.shields.io/badge/language-English-orange.svg)](Alert-Plugin-Guide.md) ![Korean](https://img.shields.io/badge/language-Korean-blue.svg)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](Alert-Plugin-Guide.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Alert-Plugin-Guide_kr.md)
 
 We can build our own alarm rules by handling alert scripting plugins which are able to compose various performance metrics.
 
@@ -47,6 +47,47 @@ Alert script file can be edited from scouter client ui or directly in scouter se
       }
       ```
 
+   * sample1-1 (**GcTime.alert & latest counter's chart link**)
+     * alert when ```GcTime``` is over than 2 sec
+      ```java
+      // void process(RealCounter $counter, PluginHelper $$)
+      //################ widget chart url setting ####################
+      String counterName = "TPS";
+      String objType = $counter.objType();
+      String objName = $counter.objName();
+
+      java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyyMMdd");
+      long now = System.currentTimeMillis();
+      String today = dateFormat.format(new java.util.Date(now));
+      String yesterday = dateFormat.format(new java.util.Date(now-24*60*60*1000));
+
+      String widgetUrl = "http://127.0.0.1:6180/widget/simple/counter.html?source=";
+
+      String counterApi = counterName + "/ofType/" + objType;
+      counterApi += "?startTimeMillis=" + (now-600*1000L);
+      counterApi += "&endTimeMillis=" + now;
+
+      String counterApiLatest = counterName + "/latest/600/ofType/" + objType;
+
+      String statApi = "stat/" + counterName + "/ofType/" + objType;
+      statApi += "?startYmd=" + yesterday;
+      statApi += "&endYmd=" + today;
+      //##############################################################
+
+      int gcTime = $counter.intValue();
+      if(gcTime > 2000) {
+        String message = "gc time:" + respTime + "ms\n";
+
+        message = "[On-time chart]\n";
+        message += widgetUrl + java.net.URLEncoder.encode(counterApi) + "\n";
+        message += "[Current chart]\n";
+        message += widgetUrl + java.net.URLEncoder.encode(counterApiLatest) + "\n";
+        message += "[Daily chart]\n";
+        message += widgetUrl + java.net.URLEncoder.encode(statApi) + "\n";
+
+        $counter.fatal("gc time fatal", message);
+      }
+      ```
    * sample2 (**Elasped90%.alert**)
      * alert when ```Elasped90%``` is over than 1.5 sec (ignore when TPS is lower than 3 sec.)
       ```java

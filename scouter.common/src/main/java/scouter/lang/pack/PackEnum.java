@@ -35,12 +35,17 @@ public abstract class PackEnum {
 	public final static byte MAP = 10;
 	public final static byte XLOG = 21;
 	public final static byte XLOG_PROFILE = 26;
+
+	public final static byte SPAN = 31;
+    public final static byte SPAN_CONTAINER = 32;
+
 	public final static byte TEXT = 50;
 	public final static byte PERF_COUNTER = 60;
 	public final static byte PERF_STATUS = 61;
 	public final static byte STACK = 62;
 	public final static byte SUMMARY = 63;
 	public final static byte BATCH = 64;
+    public final static byte PERF_INTERACTION_COUNTER = 65;
 
 	public final static byte ALERT = 70;
 	public final static byte OBJECT = 80;
@@ -82,6 +87,12 @@ public abstract class PackEnum {
                 return new SummaryPack();
             case BATCH:
             	return new BatchPack();
+            case PERF_INTERACTION_COUNTER:
+                return new InteractionPerfCounterPack();
+            case SPAN:
+                return new SpanPack();
+            case SPAN_CONTAINER:
+                return new SpanContainerPack();
             default:
                 return null;
         }

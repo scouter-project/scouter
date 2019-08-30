@@ -16,9 +16,9 @@
  */
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -34,9 +34,21 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 	public final HashSet<String> onlyNextTarget = new HashSet<String>();
 
 	public JDBCResultSetASM() {
+		
+		//mariadb older
 		target.add("org/mariadb/jdbc/MySQLResultSet");
+		//mariadb 1.5.9
+		target.add("org/mariadb/jdbc/internal/queryresults/resultset/MariaSelectResultSet");
+		//mariadb 1.6.5
+		target.add("org/mariadb/jdbc/internal/com/read/resultset/SelectResultSet");
+		//mariadb 1.7.1
+		target.add("org/mariadb/jdbc/internal/com/read/resultset/UpdatableResultSet");
+		
 		target.add("oracle/jdbc/driver/OracleResultSetImpl");
 		target.add("com/mysql/jdbc/ResultSetImpl");
+
+		//mysql 1.8x
+		target.add("com/mysql/cj/jdbc/result/ResultSetImpl");
 
 		target.add("org/postgresql/jdbc2/AbstractJdbc2ResultSet");
 		//pg driver 42+
@@ -54,6 +66,10 @@ public class JDBCResultSetASM implements IASM, Opcodes {
 
 		target.add("com/tmax/tibero/jdbc/TbResultSetBase"); //tibero5
 		target.add("com/tmax/tibero/jdbc/driver/TbResultSetBase"); //tibero6
+
+		target.add("Altibase/jdbc/driver/ABResultSet"); //tibero6
+
+        target.add("org/h2/jdbc/JdbcResultSet"); //h2
 
 		//only close
 		String alti1 = "Altibase/jdbc/driver/AltibaseResultSet";
@@ -103,7 +119,7 @@ class ResultSetCV extends ClassVisitor implements Opcodes {
 	JDBCResultSetASM.Scope scope;
 
 	public ResultSetCV(ClassVisitor cv, JDBCResultSetASM.Scope scope) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.scope = scope;
 	}
 	@Override

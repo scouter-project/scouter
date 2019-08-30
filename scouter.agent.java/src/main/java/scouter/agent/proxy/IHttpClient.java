@@ -22,4 +22,6 @@ public interface IHttpClient {
 	void addHeader(Object o, String key, String value);
 	String getURI(Object o);
 	String getHeader(Object o, String key);
+
+	String getResponseHeader(Object o, String key);
 }

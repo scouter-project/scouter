@@ -49,6 +49,9 @@ public class Server {
 	private boolean dirty = false;
 	
 	private int soTimeOut = 8000;
+
+	private String extLinkName;
+	private String extLinkUrlPattern;
 	
 	private MapValue groupPolicyMap = new MapValue();
 	private MapValue menuEnableMap = new MapValue();
@@ -240,7 +243,23 @@ public class Server {
 	public void setSoTimeOut(int soTimeOut) {
 		this.soTimeOut = soTimeOut;
 	}
-	
+
+	public String getExtLinkName() {
+		return extLinkName;
+	}
+
+	public void setExtLinkName(String extLinkName) {
+		this.extLinkName = extLinkName;
+	}
+
+	public String getExtLinkUrlPattern() {
+		return extLinkUrlPattern;
+	}
+
+	public void setExtLinkUrlPattern(String extLinkUrlPattern) {
+		this.extLinkUrlPattern = extLinkUrlPattern;
+	}
+
 	public boolean isSecureMode() {
 		return secureMode;
 	}

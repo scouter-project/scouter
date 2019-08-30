@@ -27,9 +27,13 @@ import java.util.Map;
 public class ApiCallTraceHelper {
 	static interface IHelper {
 		public ApiCallStep process(TraceContext ctx, HookArgs hookPoint);
+		public void processEnd(TraceContext ctx, ApiCallStep step, Object rtn, HookArgs hookPoint);
 	}
 
 	static Map<String, IHelper> handlers = new HashMap<String, IHelper>();
+	static ForHttpClient43 forHttpClient43 = new ForHttpClient43();
+	static ForSpringAsyncRestTemplate forSpringAsyncRestTemplate = new ForSpringAsyncRestTemplate();
+	static ForJavaNetHttpClient forJavaNetHttpClient = new ForJavaNetHttpClient();
 
 	static void put(String name, IHelper o) {
 		name = name.replace('.', '/');
@@ -51,6 +55,7 @@ public class ApiCallTraceHelper {
 		put("io/reactivex/netty/protocol/http/client/HttpClientImpl", new ForNettyHttpRequest());
 		put("org/springframework/web/client/RestTemplate", new ForSpringRestTemplate());
 		put("org/springframework/web/client/AsyncRestTemplate", new ForSpringAsyncRestTemplate());
+		put("jdk/internal/net/http/HttpClientImpl", new ForJavaNetHttpClient());
 	}
 
 	private static IHelper defaultObj = new ForDefault();
@@ -62,4 +67,22 @@ public class ApiCallTraceHelper {
 		return plug.process(ctx, hookPoint);
 	}
 
+	public static void end(TraceContext ctx, ApiCallStep step, Object rtn, HookArgs hookPoint) {
+		IHelper plug = handlers.get(hookPoint.class1);
+		if (plug == null)
+			defaultObj.processEnd(ctx, step, rtn, hookPoint);
+		plug.processEnd(ctx, step, rtn, hookPoint);
+	}
+
+	public static void setCalleeToCtxInHttpClientResponse(TraceContext ctx, Object _this, Object response) {
+		forHttpClient43.processSetCalleeToCtx(ctx, _this, response);
+	}
+
+	public static void setCalleeToCtxInSpringClientHttpResponse(TraceContext ctx, Object _this, Object response) {
+		forSpringAsyncRestTemplate.processSetCalleeToCtx(ctx, _this, response);
+	}
+
+	public static void setCalleeToCtxJavaHttpRequest(TraceContext ctx, Object requestBuilder) {
+		forJavaNetHttpClient.transfer(ctx, requestBuilder);
+	}
 }

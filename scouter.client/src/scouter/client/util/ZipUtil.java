@@ -85,7 +85,7 @@ public class ZipUtil {
         FileInputStream fis = null;
         try {
             String zipName = file.getPath().replace(root + "\\", "");
-            zipName = file.getPath().replace(root + "/", "");
+            zipName = zipName.replace(root + "/", "");
 
             System.out.println("zipname:" + zipName);
             // 파일을 읽어드림

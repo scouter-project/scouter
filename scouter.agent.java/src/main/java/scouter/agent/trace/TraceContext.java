@@ -20,6 +20,7 @@ package scouter.agent.trace;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.DumpStep;
 import scouter.lang.step.SqlStep;
+import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.util.IntKeyMap;
 import scouter.util.SysJMX;
 
@@ -28,8 +29,9 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TraceContext {
-	private boolean isSummary;
+    private boolean isSummary;
 	public boolean isStaticContents;
+	public boolean isFullyDiscardService;
 
 	protected TraceContext() {
 	}
@@ -48,9 +50,13 @@ public class TraceContext {
 	public Thread thread;
 	public long threadId;
 	public long gxid;
+	public String b3Traceid;
+	public boolean b3Mode;
 
 	// profile
 	public IProfileCollector profile;
+	public int profileCount;
+
 	public long startTime;
 	public long startCpu;
 	public long latestCpu;
@@ -84,6 +90,7 @@ public class TraceContext {
 	public int apicall_time;
 	public String apicall_target;
 
+
 	//thread dispatch
 	public String lastThreadCallName;
 
@@ -102,6 +109,7 @@ public class TraceContext {
 	public boolean is_child_tx;
 	public long caller;
 	public long callee;
+	public int callerObjHash;
 
 	public String login;
 	public String desc;
@@ -132,6 +140,12 @@ public class TraceContext {
 
 	public SqlStep lastSqlStep;
 	public ApiCallStep lastApiCallStep;
+	public ThreadCallPossibleStep lastThreadCallPossibleStep;
+	public int lastCalleeObjHash;
+	public int lastDbUrl;
+	public String lastRedisConnHost;
+	public int lastRedisConnPort;
+	public long lastCalleeId;
 
     public Queue<DumpStep> temporaryDumpSteps = new LinkedBlockingQueue<DumpStep>(5);
 	public boolean hasDumpStack;
@@ -139,6 +153,10 @@ public class TraceContext {
 	public boolean asyncServletStarted = false;
 	public boolean endHttpProcessingStarted = false;
 	public Throwable asyncThrowable;
+
+    public boolean alreadySetControllerName = false;
+
+    private Queue<ErrorEntity> errorQueue = new LinkedBlockingQueue<ErrorEntity>(10);
 
 	public ArrayList<String> plcGroupList = new ArrayList<String>();
 	public TraceContext createChild() {
@@ -196,6 +214,14 @@ public class TraceContext {
 			this.error = ctx.error;
 		}
 	}
+
+	public void offerErrorEntity(ErrorEntity errorEntity) {
+	    this.errorQueue.offer(errorEntity);
+    }
+
+    public ErrorEntity pollErrorEntity() {
+	    return this.errorQueue.poll();
+    }
 
 	public static void main(String[] args) {
 		java.lang.reflect.Field[] f = TraceContext.class.getFields();

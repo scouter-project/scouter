@@ -26,12 +26,14 @@ import java.util.Iterator
 import java.util.List
 import java.util.Map
 import java.util.Set
+
 import scouter.server.db.io.IndexKeyFile
 import scouter.server.db.io.IndexTimeFile
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
+import scouter.server.Configure
 import scouter.util.FileUtil
-import scouter.util.IClose;
+import scouter.util.IClose
 import scouter.server.util.EnumerScala
 
 object XLogIndex {
@@ -57,16 +59,17 @@ object XLogIndex {
 }
 
 class XLogIndex(_file: String) extends IClose {
+    val ID_INDEX_MB = Configure.getInstance()._mgr_xlog_id_index_mb
 
     val file = _file
-    var refrence = 0;
+    var refrence = 0
     var txidIndex: IndexKeyFile = null
     var gxidIndex: IndexKeyFile = null
     var timeIndex: IndexTimeFile = null
 
     def setByTxid(txid: Long, pos: Long) {
         if (this.txidIndex == null) {
-            this.txidIndex = new IndexKeyFile(file + XLogIndex.POSTFIX_TID);
+            this.txidIndex = new IndexKeyFile(file + XLogIndex.POSTFIX_TID, ID_INDEX_MB);
         }
         this.txidIndex.put(DataOutputX.toBytes(txid), DataOutputX.toBytes5(pos));
     }
@@ -75,7 +78,7 @@ class XLogIndex(_file: String) extends IClose {
         if (gxid == 0)
             return ;
         if (this.gxidIndex == null) {
-            this.gxidIndex = new IndexKeyFile(file + XLogIndex.POSTFIX_GID);
+            this.gxidIndex = new IndexKeyFile(file + XLogIndex.POSTFIX_GID, ID_INDEX_MB);
         }
         this.gxidIndex.put(DataOutputX.toBytes(gxid), DataOutputX.toBytes5(pos));
     }

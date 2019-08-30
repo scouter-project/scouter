@@ -64,7 +64,7 @@ public class TraceSQL {
 			processedRows += rows;
 		}
 	}
-
+	
 	public void addRows(int [] rows){
 		if(rows == null || rows.length < 1)
 			return;

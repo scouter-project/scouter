@@ -1,0 +1,111 @@
+/*
+ *  Copyright 2015 the original author or authors. 
+ *  @https://github.com/scouter-project/scouter
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License"); 
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License. 
+ */
+package scouter.agent.trace.api;
+
+import scouter.agent.Configure;
+import scouter.agent.JavaAgent;
+import scouter.agent.Logger;
+import scouter.agent.plugin.PluginHttpCallTrace;
+import scouter.agent.proxy.IHttpClient;
+import scouter.agent.proxy.JavaNetHttpFactory;
+import scouter.agent.trace.HookArgs;
+import scouter.agent.trace.TraceContext;
+import scouter.lang.constants.B3Constant;
+import scouter.lang.step.ApiCallStep;
+import scouter.util.Hexa32;
+import scouter.util.KeyGen;
+
+public class ForJavaNetHttpClient implements ApiCallTraceHelper.IHelper {
+
+	private static IHttpClient httpClient = null;
+	private static Configure conf = Configure.getInstance();
+	private boolean ok = true;
+
+	public ApiCallStep process(TraceContext ctx, HookArgs hookPoint) {
+		ApiCallStep step = new ApiCallStep();
+		if (ok) {
+			try {
+				if (hookPoint.args != null && hookPoint.args.length > 0) {
+					IHttpClient httpclient = getProxy();
+					step.txid = ctx.lastCalleeId;
+					String host = httpclient.getHost(hookPoint.args[0]);
+					step.opt = 1;
+					step.address = host;
+					if (host != null)
+						ctx.apicall_target = host;
+					ctx.apicall_name = httpclient.getURI(hookPoint.args[0]);
+				}
+			} catch (Exception e) {
+				this.ok = false;
+			} finally {
+				ctx.lastCalleeId = 0;
+			}
+		}
+		if (ctx.apicall_name == null)
+			ctx.apicall_name = hookPoint.class1;
+		return step;
+	}
+
+	public void processEnd(TraceContext ctx, ApiCallStep step, Object rtn, HookArgs hookPoint) {
+		IHttpClient httpclient = getProxy();
+		String calleeObjHashStr = httpclient.getResponseHeader(rtn, conf._trace_interservice_callee_obj_header_key);
+		if (calleeObjHashStr != null) {
+			try {
+				ctx.lastCalleeObjHash = Integer.parseInt(calleeObjHashStr);
+			} catch (NumberFormatException e) {
+			}
+		} else {
+			ctx.lastCalleeObjHash = 0;
+		}
+	}
+
+	private IHttpClient getProxy() {
+		if (httpClient == null) {
+			synchronized (this) {
+				if (httpClient == null) {
+					httpClient = JavaNetHttpFactory.create(JavaAgent.getPlatformClassLoader());
+				}
+			}
+		}
+		return httpClient;
+	}
+
+	void transfer(TraceContext ctx, Object requestBuilder) {
+		Configure conf = Configure.getInstance();
+		if (conf.trace_interservice_enabled) {
+			try {
+				IHttpClient httpclient = getProxy();
+				if (ctx.gxid == 0) {
+					ctx.gxid = ctx.txid;
+				}
+				ctx.lastCalleeId = KeyGen.next();
+				httpclient.addHeader(requestBuilder, conf._trace_interservice_gxid_header_key, Hexa32.toString32(ctx.gxid));
+				httpclient.addHeader(requestBuilder, conf._trace_interservice_caller_header_key, Hexa32.toString32(ctx.txid));
+				httpclient.addHeader(requestBuilder, conf._trace_interservice_callee_header_key, Hexa32.toString32(ctx.lastCalleeId));
+				httpclient.addHeader(requestBuilder, conf._trace_interservice_caller_obj_header_key, String.valueOf(conf.getObjHash()));
+
+				httpclient.addHeader(requestBuilder, B3Constant.B3_HEADER_TRACEID, Hexa32.toUnsignedLongHex(ctx.gxid));
+				httpclient.addHeader(requestBuilder, B3Constant.B3_HEADER_PARENTSPANID, Hexa32.toUnsignedLongHex(ctx.txid));
+				httpclient.addHeader(requestBuilder, B3Constant.B3_HEADER_SPANID, Hexa32.toUnsignedLongHex(ctx.lastCalleeId));
+				PluginHttpCallTrace.call(ctx, requestBuilder);
+			} catch (Exception e) {
+				Logger.println("A178", e);
+				ok = false;
+			}
+		}
+	}
+}

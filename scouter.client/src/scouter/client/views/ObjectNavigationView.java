@@ -71,8 +71,11 @@ import scouter.client.configuration.actions.AddAccountAction;
 import scouter.client.configuration.actions.EditAccountAction;
 import scouter.client.configuration.actions.ListAccountAction;
 import scouter.client.configuration.actions.OpenAlertScriptingAction;
+import scouter.client.configuration.actions.OpenCountersSiteFileConfigureAction;
 import scouter.client.configuration.actions.OpenGroupPolicyAction;
 import scouter.client.configuration.actions.OpenServerConfigureAction;
+import scouter.client.configuration.actions.OpenTelegrafConfigureAction;
+import scouter.client.configuration.actions.OpenTelegrafFileConfigureAction;
 import scouter.client.constants.MenuStr;
 import scouter.client.context.actions.CloseServerAction;
 import scouter.client.context.actions.OpenAPIDebugViewAction;
@@ -117,6 +120,8 @@ import scouter.util.HashUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -585,9 +590,19 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 				mgr.add(new OpenAlertDetailListAction(win, serverId));
 
 				mgr.add(new Separator());
-				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
-					mgr.add(new OpenServerConfigureAction(win, MenuStr.CONFIGURE, Images.config, serverId));
+				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE)) {
+					MenuManager configMenuManager = new MenuManager(MenuStr.SERVER_CONFIGURES, ImageUtil.getImageDescriptor(Images.config), MenuStr.SERVER_CONFIGURES_ID);
+					mgr.add(configMenuManager);
 
+					configMenuManager.add(new OpenServerConfigureAction(win, MenuStr.CONFIGURE, Images.config, serverId));
+
+					MenuManager telegrafMenuManager = new MenuManager("Telegraf Config", ImageUtil.getImageDescriptor(Images.config), "scouter.client.contextmenu.server.telegraf.configure");
+					configMenuManager.add(telegrafMenuManager);
+
+					telegrafMenuManager.add(new OpenTelegrafConfigureAction(win, MenuStr.TELEGRAF_CONFIGURE, serverId));
+					telegrafMenuManager.add(new OpenTelegrafFileConfigureAction(win, MenuStr.TELEGRAF_FILE_CONFIGURE, serverId));
+					configMenuManager.add(new OpenCountersSiteFileConfigureAction(win, MenuStr.COUNTERS_SITE_FILE_CONFIGURE, serverId));
+				}
 
 				MenuManager alertMenuManager = new MenuManager(MenuStr.ALERT_SCRIPTING, ImageUtil.getImageDescriptor(Images.alert), MenuStr.ALERT_SCRIPTING_ID);
 				mgr.add(alertMenuManager);
@@ -687,13 +702,24 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 	
 	private void addExistObjectTypeMenus(IWorkbenchWindow win, IMenuManager mgr, CounterEngine counterEngine, Map<String, Action> actionMap, int serverId) {
 		Set<String> agentTypeList = agentThread.getCurrentObjectTypeList(serverId);
+		List<ObjectType> objTypeList = new ArrayList<>(); 
 		for(String objType : agentTypeList){
 			ObjectType type = counterEngine.getObjectType(objType);
-			/*if (type.isSubObject()) {
-				// DataSource, RequestProcessor.....etc.
-				continue;
-			}*/
-			if (type == null) return;
+			if (type != null) {
+				objTypeList.add(type);
+			}
+		}
+		Collections.sort(objTypeList, new Comparator<ObjectType>() {
+
+			@Override
+			public int compare(ObjectType o1, ObjectType o2) {
+				return o1.getDisplayName().compareTo(o2.getDisplayName());
+			}
+			
+		});
+
+		for(ObjectType type : objTypeList){
+			String objType = type.getName();
 			String displayName = type.getDisplayName();
 			ImageDescriptor objImage = Images.getObjectImageDescriptor(objType, true, serverId);
 			MenuManager objTitle = new MenuManager(displayName, objImage, "scouter.menu.id."+displayName);

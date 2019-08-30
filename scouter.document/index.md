@@ -1,5 +1,5 @@
 # Document
-![English](https://img.shields.io/badge/language-English-orange.svg) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](index_kr.md)
+[![English](https://img.shields.io/badge/language-English-orange.svg)](index.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](index_kr.md)
 
 ## Getting Started
 - [Quick Start Guide (Quick Installation of demo system)](./main/Quick-Start.md)
@@ -18,6 +18,7 @@
 - [Scouter plugins guide](./main/Plugin-Guide.md)
 - [Customizable alarm - Alert plugins guide](./main/Alert-Plugin-Guide.md)
 - [Web api guide](./tech/Web-API-Guide.md)
+- [Telegraf server feature](./main/Telegraf-Server.md)
 - [How to trace NON-HTTP service](./use-case/NON-HTTP-Service-Trace.md)
 - [Stand-alone Java Batch Agent](./main/Stand-alone-Java-Batch-Agent.md)
 - [TagCounting Analysis](./use-case/TagCounting-Analysis.md)

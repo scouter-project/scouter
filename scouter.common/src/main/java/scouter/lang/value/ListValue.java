@@ -42,6 +42,14 @@ public class ListValue implements Value {
 		this.valueList = value;
 	}
 
+	public static ListValue ofStringValueList(List<String> orgList) {
+		ListValue lv = new ListValue();
+		for (String value : orgList) {
+			lv.add(value);
+		}
+		return lv;
+	}
+
 	public Value get(int i) {
 		return valueList.get(i);
 	}
@@ -196,6 +204,24 @@ public class ListValue implements Value {
 		if (str == null)
 			return this;
 		for (String s : str) {
+			this.add(s);
+		}
+		return this;
+	}
+
+	public ListValue add(boolean[] booleans) {
+		if (booleans == null)
+			return this;
+		for (boolean s : booleans) {
+			this.add(s);
+		}
+		return this;
+	}
+
+	public ListValue add(int[] ints) {
+		if (ints == null)
+			return this;
+		for (int s : ints) {
 			this.add(s);
 		}
 		return this;

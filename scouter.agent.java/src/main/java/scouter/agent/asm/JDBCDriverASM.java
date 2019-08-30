@@ -16,8 +16,8 @@
  */
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -49,7 +49,7 @@ class JDBCDriverCV extends ClassVisitor implements Opcodes {
 	public String className;
 	private HookingSet mset;
 	public JDBCDriverCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -72,12 +72,13 @@ class JDBCDriverCV extends ClassVisitor implements Opcodes {
 class JDBCDriverMV extends LocalVariablesSorter implements Opcodes {
 	private static final String TRACE_SQL = TraceSQL.class.getName().replace('.', '/');
 	private final static String CONNECT_METHOD = "driverConnect";
-	private static final String CONNECT_SIGNATURE = "(Ljava/sql/Connection;Ljava/lang/String;)Ljava/sql/Connection;";
+	private static final String CONNECT_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;";
+
 	private static final String ERR_SIGNATURE = "(Ljava/lang/String;Ljava/lang/Throwable;)V";
 	
 	private Label startFinally = new Label();
 	public JDBCDriverMV(int access, String desc, MethodVisitor mv, String fullname) {
-		super(ASM5,access, desc, mv);
+		super(ASM7,access, desc, mv);
 		this.strArgIdx = AsmUtil.getStringIdx(access, desc);
 	}
 	private int strArgIdx;

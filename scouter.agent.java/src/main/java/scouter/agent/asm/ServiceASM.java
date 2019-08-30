@@ -17,8 +17,8 @@
 
 package scouter.agent.asm;
 
-import scouter.org.objectweb.asm.*;
-import scouter.org.objectweb.asm.commons.LocalVariablesSorter;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.asm.util.AsmUtil;
@@ -74,7 +74,7 @@ class ServiceCV extends ClassVisitor implements Opcodes {
 	private byte xType;
 
 	public ServiceCV(ClassVisitor cv, HookingSet mset, String className,byte xType) {
-		super(ASM5, cv);
+		super(ASM7, cv);
 		this.mset = mset;
 		this.className = className;
 		this.xType=xType;
@@ -124,7 +124,7 @@ class ServiceMV extends LocalVariablesSorter implements Opcodes {
 
 	public ServiceMV(int access, String desc, MethodVisitor mv, String fullname,Type[] paramTypes,
 			boolean isStatic,byte xType,String classname, String methodname, String methoddesc) {
-		super(ASM5, access, desc, mv);
+		super(ASM7, access, desc, mv);
 		this.fullname = fullname;
 		this.paramTypes = paramTypes;
 		this.strArgIdx = AsmUtil.getStringIdx(access, desc);

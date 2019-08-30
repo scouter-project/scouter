@@ -24,7 +24,6 @@ import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-
 import scouter.client.model.XLogData;
 import scouter.client.util.ExUtil;
 import scouter.client.xlog.XLogYAxisEnum;
@@ -53,7 +52,15 @@ public class XLogZoomTimeView extends XLogViewCommon {
 			}
 		});
 	}
-	
+
+	@Override
+	protected void openInExternalLink() {
+	}
+
+	@Override
+	protected void clipboardOfExternalLink() {
+	}
+
 	public void refresh(){
 		viewPainter.build();
 		ExUtil.exec(canvas, new Runnable() {
