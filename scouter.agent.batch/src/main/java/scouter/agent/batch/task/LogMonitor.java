@@ -90,8 +90,7 @@ public class LogMonitor extends Thread {
 				}
 			}
 		}catch(Exception ex){
-			ex.printStackTrace();
-			Logger.println("ERROR: LogDelete - " + ex.getMessage());			
+			Logger.println("ERROR: LogDelete - " + ex.getMessage());
 		}
 		if(listSize == deleteSize){
 			return true;

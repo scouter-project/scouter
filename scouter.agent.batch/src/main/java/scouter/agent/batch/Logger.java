@@ -104,7 +104,9 @@ public class Logger {
 				}
 			}
 		} catch (Throwable e) {
-			pw = (PrintWriter) FileUtil.close(pw);
+			try {
+				pw = (PrintWriter) FileUtil.close(pw);
+			}catch(Throwable ex){}
 			if (sysout) {
 				System.out.println(msg);
 			}
