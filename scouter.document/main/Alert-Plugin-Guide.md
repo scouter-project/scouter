@@ -89,7 +89,7 @@ Alert script file can be edited from scouter client ui or directly in scouter se
       }
       ```
    * sample2 (**Elapsed90%.alert**)
-     * alert when ```Elasped90%``` is over than 1.5 sec (ignore when TPS is lower than 3 sec.)
+     * alert when ```Elapsed90%``` is over than 1.5 sec (ignore when TPS is lower than 3 sec.)
       ```java
       // void process(RealCounter $counter, PluginHelper $$)
       int warn = 1500;
