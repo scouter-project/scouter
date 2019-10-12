@@ -88,7 +88,7 @@ Alert script file can be edited from scouter client ui or directly in scouter se
         $counter.fatal("gc time fatal", message);
       }
       ```
-   * sample2 (**Elasped90%.alert**)
+   * sample2 (**Elapsed90%.alert**)
      * alert when ```Elasped90%``` is over than 1.5 sec (ignore when TPS is lower than 3 sec.)
       ```java
       // void process(RealCounter $counter, PluginHelper $$)

@@ -197,7 +197,7 @@ public class HyperLogLog {
 	}
 
 	/*
-	 * This method is modified by Souter-project
+	 * This method is modified by Scouter-project
 	 * 
 	 */
 	public byte[] getBytes() throws IOException {

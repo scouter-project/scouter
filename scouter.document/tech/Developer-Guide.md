@@ -18,7 +18,7 @@
     - build server & agent first then it makes scouter.common.jar and register it for client project library.
     - use "import existing maven project"
        - select the directory, ./scouter.client.build/pom.xml (It's parent pom)
-    - If your eclipse doesn't have ZEST plugin, you should install it.
+    - If your eclipse dosen't have ZEST plugin, you should install it.
        - Help > Install New Software : Work with : http://download.eclipse.org/tools/gef/updates/legacy/releases/
          - And then install GEF(Graphical Editing Framework)
 

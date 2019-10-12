@@ -5,7 +5,7 @@ XLOG chart is for realtime transaction monitoring. Each marker represents indivi
 
 ![XLog](../img/client/xlog.png)
 
-XLog chart is a kind of point chart, response-time-ditribution chart. XLog was developed in 2004. XLog is summarising current status of system with a perspective of response time. XLOG charting and analysis is very effective to tune application's performance, while sorting high response time.
+XLog chart is a kind of point chart, response-time-distribution chart. XLog was developed in 2004. XLog is summarising current status of system with a perspective of response time. XLOG charting and analysis is very effective to tune application's performance, while sorting high response time.
 
 ![TxList](../img/client/xlog_txlist.png)
 ![Profile](../img/client/xlog_profile.png)
