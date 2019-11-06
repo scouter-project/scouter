@@ -105,9 +105,9 @@ JAVA_OPTS=" ${JAVA_OPTS} -Dobj_name=myFirstTomcat1"
 #### 3.2.2 Java Option example ( Windows Service Option )
 Append below java options in **${TOMCAT_DIR}/bin/tomcat${version}w.exe 
 ```bash
-JAVA_OPTS=" ${JAVA_OPTS} -javaagent:${SCOUTER_INSTALL_DIR}/scouter.agent.jar"
-JAVA_OPTS=" ${JAVA_OPTS} -Dscouter.config=${SCOUTER_INSTALL_DIR}/conf/scouter1.conf"
-JAVA_OPTS=" ${JAVA_OPTS} -Dobj_name=myFirstTomcat1"
+-javaagent:${SCOUTER_INSTALL_DIR}/scouter.agent.jar"
+-Dscouter.config=${SCOUTER_INSTALL_DIR}/conf/scouter1.conf"
+-Dobj_name=myFirstTomcat1"
 ```
 * **${SCOUTER_INSTALL_DIR}** means the directory that contains scouter.agent.jar file.
 * **윈도우 서비스를 통해 Tomcat을 실행하는 경우 tomcat${version}w.exe 옵션에 추가해야 한다.**
