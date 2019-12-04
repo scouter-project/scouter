@@ -149,7 +149,11 @@ class ServiceMV extends LocalVariablesSorter implements Opcodes {
 	public void visitCode() {
 		int sidx = isStatic ? 0 : 1;
 		if (strArgIdx >= 0) {
-			mv.visitVarInsn(Opcodes.ALOAD, strArgIdx);
+			if (Configure.getInstance().hook_service_name_use_1st_string_enabled) {
+				mv.visitVarInsn(Opcodes.ALOAD, strArgIdx);
+			} else {
+				AsmUtil.PUSH(mv, fullname);
+			}
 		} else {
 			AsmUtil.PUSH(mv, fullname);
 		}
