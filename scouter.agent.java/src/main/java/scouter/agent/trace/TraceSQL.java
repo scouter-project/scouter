@@ -408,7 +408,7 @@ public class TraceSQL {
 	}
 	public static void set(SqlParameter args, int idx, Object p) {
 		if (args != null) {
-			if (p == null) {
+			if (p == null || p.toString() == null) {
 				args.put(idx, "null");
 			} else {
 				String s = p.toString();
