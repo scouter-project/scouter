@@ -70,7 +70,7 @@ All options and default values are available from the scouter client's **Collect
 1. Download scouter-yyyyMMdd.tar.gz 
  - [Release Page](https://github.com/scouter-project/scouter/releases)
 2. Extract the file.(you can see the directory ./scouter/agent.host for running host monitoring agent.)
-3. Run it.
+3. Run it. (In some cases, root permission may be required.)
 
 ```bash
 cd ./scouter/agent.host
