@@ -40,6 +40,7 @@ public class Main {
 	public static void main(String[] args) throws IOException, Exception {
 		Logo.print(true);
 		Logger.println("Scouter Server Version " + Version.getServerFullVersion());
+		Logger.println("[PID]" + java.lang.management.ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
 		Logo.print(Logger.pw(), true);
 		Configure.getInstance();
 		if(DBCtr.createLock()==false){
