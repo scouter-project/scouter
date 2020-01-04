@@ -104,6 +104,18 @@ JAVA_OPTS=" ${JAVA_OPTS} -Dobj_name=myFirstTomcat1"
   * You can specify the conf file through the -Dscouter.config environment variable as in the example above.
   * Also, in this case, you should specify the name through the obj_name option so that the name of the monitored object is not duplicated in one VM.
   
+#### 3.2.2 Java Option example ( Windows Service Option )
+Append below java options in **${TOMCAT_DIR}/bin/tomcat${version}w.exe**
+```bash
+-javaagent:${SCOUTER_INSTALL_DIR}/scouter.agent.jar"
+-Dscouter.config=${SCOUTER_INSTALL_DIR}/conf/scouter1.conf"
+-Dobj_name=myFirstTomcat1"
+```
+* **${SCOUTER_INSTALL_DIR}** means the directory that contains scouter.agent.jar file.
+* **If you run Tomcat through a Windows service, you need to add it to the tomcat ${version}w.exe option.**
+  * This Option tomcat${version}w.exe ( ex)tomcat9w.exe ) > Java > Java Options. 
+  
+  
 ### 3.3. Configuration
 
 #### 3.3.1. Configuration example
