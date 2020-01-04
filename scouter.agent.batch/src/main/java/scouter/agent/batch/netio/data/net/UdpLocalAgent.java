@@ -23,13 +23,12 @@ import scouter.agent.batch.trace.TraceContext;
 import scouter.io.DataOutputX;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
-import scouter.net.NetCafe;
 
 public class UdpLocalAgent {
 	static public void sendUdpPackToServer(Pack pack){
 		Configure conf = Configure.getInstance();
 		try {
-			UdpAgent.sendUdp(conf.net_collector_ip, conf.net_collector_udp_port, new DataOutputX().write(NetCafe.CAFE).writePack(pack).toByteArray());
+			UdpAgent.sendUdpPackToServer(conf.net_collector_ip, conf.net_collector_udp_port, pack);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

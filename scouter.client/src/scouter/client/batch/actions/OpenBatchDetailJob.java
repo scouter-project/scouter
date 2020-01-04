@@ -74,7 +74,8 @@ public class OpenBatchDetailJob extends Job {
 		try {
 			MapPack param = new MapPack();
 			param.put("objHash", input.objHash);
-			param.put("time", input.startTime);
+			param.put("startTime", input.startTime);
+			param.put("elapsedTime", input.elapsedTime);
 			param.put("position", input.position);
 			Pack p = tcp.getSingle(RequestCmd.BATCH_HISTORY_DETAIL, param);
 			if (p != null) {

@@ -42,13 +42,13 @@ public class ResultSender extends Thread {
 			if(config.batch_log_send_elapsed_ms <= elapsedTime){
 				traceContext.caculateLast();
 				String result = traceContext.toString();
-				if(config.scouter_standalone){
+				if(config.scouter_standalone || config.sbr_log_make){
 					saveStandAloneResult(traceContext, result);
 				}
 				Logger.println(result);
 			}
-		}catch(Exception ex){
-			ex.printStackTrace();
+		}catch(Throwable ex){
+			Logger.println("Scouter ResultSender(run) Exception: " + ex.getMessage());
 		}finally{
 			try {
 				if(config != null && traceContext != null){
@@ -63,7 +63,7 @@ public class ResultSender extends Thread {
 							UdpLocalAgent.sendDumpFileInfo(traceContext);
 						}
 					}
-					if(config.sfa_dump_enabled && config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms > elapsedTime){
+					if(config.sfa_dump_enabled && config.sfa_dump_send_elapsed_ms > elapsedTime){
 						deleteFiles(traceContext);
 					}
 					UdpLocalAgent.sendEndInfo(traceContext);
@@ -83,8 +83,8 @@ public class ResultSender extends Thread {
 		try {
 			writer = new FileWriter(resultFile);
 			writer.write(result);
-		}catch(Exception ex){
-			Logger.println(ex.toString());
+		}catch(Throwable ex){
+			Logger.println("Scouter ResultSender(save) Exception: " + ex.getMessage());
 		}finally{
 			if(writer != null){
 				try{ writer.close(); }catch(Exception ex){}
@@ -99,8 +99,8 @@ public class ResultSender extends Thread {
 			file.delete();
 			file = new File(filename + ".inx");
 			file.delete();
-		}catch(Exception ex){
-			ex.printStackTrace();
+		}catch(Throwable ex){
+			Logger.println("Scouter ResultSender(delete) Exception: " + ex.getMessage());
 		}
 	}
 }

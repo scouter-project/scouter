@@ -16,12 +16,12 @@
  */
 package scouter.agent.asm;
 
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
-import org.objectweb.asm.*;
-import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.util.StringUtil;
 
 import java.util.HashSet;
@@ -52,9 +52,9 @@ public class SpringReqMapASM implements IASM, Opcodes {
     public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
         if (conf._hook_spring_rest_enabled == false)
             return cv;
-        if (classDesc.anotation != null) {
+        if (classDesc.annotation != null) {
             for (int i = 0; i < SpringReqMapASM.springControllerNames.length; i++) {
-                if (classDesc.anotation.indexOf(SpringReqMapASM.springControllerNames[i]) > 0) {
+                if (classDesc.annotation.contains(SpringReqMapASM.springControllerNames[i])) {
                     return new SpringReqMapCV(cv, className);
                 }
             }

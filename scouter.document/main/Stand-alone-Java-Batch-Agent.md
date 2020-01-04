@@ -10,9 +10,9 @@ Scouter batch agent provides the following functions.
 
 ## Installation Instructions
 If Scouter's server and client is installed, it is possible to monitor Java Batch witch three steps below.
-####1. Download and install Java Batch Agent(scouter.agent.tar.gz - scouter/agent.batch directory)
-####2. Add scouter option to Java Batch process (Note: Java option)
-####3. Run the Scouter Batch daemon (note: The difference between Java agent and Java batch agent)
+   1. Download and install Java Batch Agent(scouter.agent.tar.gz - scouter/agent.batch directory)  
+   2. Add scouter option to Java Batch process (Note: Java option)  
+   3. Run the Scouter Batch daemon (note: The difference between Java agent and Java batch agent)  
 
 ## Java option
 The default installation method of the scouter batch agent is the same as the WAS based Java agent.	

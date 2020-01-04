@@ -16,13 +16,13 @@
  */
 package scouter.agent.batch.asm;
 
-import scouter.org.objectweb.asm.ClassVisitor;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
-import scouter.org.objectweb.asm.Type;
-import scouter.agent.ClassDesc;
-import scouter.agent.asm.IASM;
-import scouter.agent.asm.util.HookingSet;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import scouter.agent.batch.ClassDesc;
+import scouter.agent.batch.asm.IASM;
+import scouter.agent.batch.asm.util.HookingSet;
 import scouter.agent.batch.Configure;
 import scouter.agent.batch.Logger;
 import scouter.agent.batch.asm.jdbc.PsExecuteMV;
@@ -43,24 +43,51 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 	public final HashSet<String> noField = new HashSet<String>();
 
 	public JDBCPreparedStatementASM() {
+		target.add("oracle/jdbc/driver/OraclePreparedStatement");
+		
+		//mariadb older
+		target.add("org/mariadb/jdbc/MySQLPreparedStatement");
+		//mariadb 1.5.9
+		target.add("org/mariadb/jdbc/AbstractPrepareStatement");
 		target.add("org/mariadb/jdbc/AbstractMariaDbPrepareStatement");
 		target.add("org/mariadb/jdbc/MariaDbClientPreparedStatement");
 		target.add("org/mariadb/jdbc/MariaDbServerPreparedStatement");
-		target.add("org/mariadb/jdbc/MySQLPreparedStatement");
-		target.add("oracle/jdbc/driver/OraclePreparedStatement");
+		//mariadb 1.6.4, 1.7.1
+		target.add("org/mariadb/jdbc/MariaDbPreparedStatementClient");
+		target.add("org/mariadb/jdbc/MariaDbPreparedStatementServer");
+
+		// mariadb 1.8.0 and 2.0.x
+		target.add("org/mariadb/jdbc/ClientSidePreparedStatement");
+		target.add("org/mariadb/jdbc/ServerSidePreparedStatement");
+		
 		target.add("org/postgresql/jdbc2/AbstractJdbc2Statement");
+		//pg driver 42+
+		target.add("org/postgresql/jdbc/PgPreparedStatement");
+
 		target.add("org/apache/derby/client/am/PreparedStatement");
 		target.add("net/sourceforge/jtds/jdbc/JtdsPreparedStatement");
 		target.add("jdbc/FakePreparedStatement");
 		target.add("jdbc/FakePreparedStatement2");
 		target.add("com/microsoft/sqlserver/jdbc/SQLServerPreparedStatement");
-		target.add("org/hsqldb/jdbc/JDBCPreparedStatement");
-		target.add("com/mysql/jdbc/ServerPreparedStatement");
-		target.add("com/mysql/jdbc/PreparedStatement");
-        target.add("cubrid/jdbc/driver/CUBRIDPreparedStatement");
 
 		target.add("com/tmax/tibero/jdbc/TbPreparedStatement"); //tibero5
 		target.add("com/tmax/tibero/jdbc/driver/TbPreparedStatement"); //tibero6
+
+		target.add("org/hsqldb/jdbc/JDBCPreparedStatement");
+		target.add("com/mysql/jdbc/ServerPreparedStatement");
+		target.add("com/mysql/jdbc/PreparedStatement");
+		target.add("com/mysql/cj/jdbc/ServerPreparedStatement");
+        target.add("cubrid/jdbc/driver/CUBRIDPreparedStatement");
+		target.add("Altibase/jdbc/driver/AltibasePreparedStatement");
+		target.add("Altibase/jdbc/driver/ABPreparedStatement");
+
+		// MySql Connector/j 6.X
+        target.add("com/mysql/cj/jdbc/PreparedStatement");
+		// MySql Connector/j 8.X
+		target.add("com/mysql/cj/jdbc/ServerPreparedStatement");
+		target.add("com/mysql/cj/jdbc/ClientPreparedStatement");
+
+        target.add("org/h2/jdbc/JdbcPreparedStatement"); // h2
 
         // @skyworker - MySQL ServerPreparedStatement는 특별히 필드를 추가하지 않음
         noField.add("com/mysql/jdbc/ServerPreparedStatement");

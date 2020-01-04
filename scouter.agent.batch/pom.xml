@@ -19,13 +19,33 @@
         <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
         <final.jar.name>${project.build.directory}/${project.build.finalName}.jar</final.jar.name>
         <scouter.agent.file.name>scouter.agent.batch.jar</scouter.agent.file.name>
+        <scouter.tools.jar>scouter.tools.jar</scouter.tools.jar>
+
+        <provided.tools.jar>${project.basedir}/lib/provided/tools.jar</provided.tools.jar>
     </properties>
 
     <dependencies>
         <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+            <version>7.0</version>
+        </dependency>        
+        <dependency>
             <groupId>io.github.scouter-project</groupId>
-            <artifactId>scouter-agent-java</artifactId>
-            <version>2.0.0</version>
+            <artifactId>scouter-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jdk.tools</groupId>
+            <artifactId>jdk.tools</artifactId>
+            <version>tools-0.0.0</version>
+            <scope>system</scope>
+            <systemPath>${provided.tools.jar}</systemPath>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -87,6 +107,12 @@
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <createSourcesJar>true</createSourcesJar>
                             <shadeSourcesContent>true</shadeSourcesContent>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.objectweb.asm</pattern>
+                                    <shadedPattern>scouter.org.objectweb.asm</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
@@ -97,12 +123,31 @@
                 <version>1.8</version>
                 <executions>
                     <execution>
+                        <id>make-ext-jar</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <jar destfile="${project.build.directory}/${scouter.tools.jar}">
+                                    <fileset dir="${project.build.outputDirectory}">
+                                        <include name="scouter/xtra/tools/*.class" />
+                                    </fileset>
+                                </jar>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>                
+                    <execution>
                         <id>make-assembly</id>
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <!-- for constant name file -->
+                            	<!-- for constant name file -->
                                 <jar destfile="${project.build.directory}/${scouter.agent.file.name}">
+                                    <fileset dir="${project.build.directory}">
+                                        <include name="${scouter.tools.jar}" />
+                                    </fileset>
                                     <zipfileset src="${final.jar.name}"/>
                                     <manifest>
                                         <attribute name="Premain-Class" value="scouter.agent.batch.JavaAgent"/>
@@ -122,6 +167,9 @@
                                 <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh" eol="lf"
                                          eof="remove"/>
 
+                                <copy file="${project.build.directory}/${scouter.tools.jar}" tofile="${final.jar.name}" overwrite="true" verbose="true" />
+                                <delete file="${project.build.directory}/${scouter.tools.jar}"/>
+                                        
                                 <tar destfile="${project.build.directory}/${scouter.agent.batch.assembly.name}.tar">
                                     <tarfileset dir="${scouter.assembly.working.dir}" mode="755">
                                         <include name="**/*.sh"/>

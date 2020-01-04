@@ -45,6 +45,7 @@ import scouter.client.util.ImageUtil;
 import scouter.lang.pack.BatchPack;
 import scouter.lang.value.MapValue;
 import scouter.util.SystemUtil;
+import scouter.util.TimeFormatUtil;
 
 public class BatchDetailView extends ViewPart {
 	public static final String ID = BatchDetailView.class.getName();
@@ -125,28 +126,38 @@ public class BatchDetailView extends ViewPart {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		buffer.append("Start   Time: ").append(sdf.format(new Date(pack.startTime))).append(lineSeparator);
 		buffer.append("Stop    Time: ").append(sdf.format(new Date(pack.startTime + pack.elapsedTime))).append(lineSeparator);
-		buffer.append("Elapsed Time: ").append(String.format("%,d",pack.elapsedTime)).append("ms").append(lineSeparator);
+		buffer.append("Elapsed Time: ").append(String.format("%,13d",pack.elapsedTime)).append(" ms ");
+		buffer.append(TimeFormatUtil.elapsedTime(pack.elapsedTime));
+		buffer.append(lineSeparator);
 		if(pack.cpuTime > 0){
-			buffer.append("CPU     Time: ").append(String.format("%,d",pack.cpuTime/1000000L)).append("ms").append(lineSeparator);
+			buffer.append("CPU     Time: ").append(String.format("%,13d",pack.cpuTime/1000000L)).append(" ms").append(lineSeparator);
 		}
 		if(pack.gcCount > 0){
-			buffer.append("GC     Count: ").append(pack.gcCount).append(lineSeparator);
-			buffer.append("GC      Time: ").append(pack.gcTime).append("ms").append(lineSeparator);
+			buffer.append("GC     Count: ").append(String.format("%,13d",pack.gcCount)).append(lineSeparator);
+			buffer.append("GC      Time: ").append(String.format("%,13d",pack.gcTime)).append(" ms ");
+			if(pack.elapsedTime > 0){
+				buffer.append(String.format("%.2f", ((float)(pack.gcTime * 100F)/pack.elapsedTime))).append(" %");
+			}
+			buffer.append(lineSeparator);
 		}
 		if(pack.sqlTotalCnt > 0){
-			buffer.append("SQL     Time: ").append(String.format("%,d",(pack.sqlTotalTime/1000000L))).append("ms").append(lineSeparator);
-			buffer.append("SQL     Type: ").append(pack.sqlTotalCnt).append(lineSeparator);
-			buffer.append("SQL     Runs: ").append(String.format("%,d",pack.sqlTotalRuns)).append(lineSeparator);
+			buffer.append("SQL     Time: ").append(String.format("%,13d",(pack.sqlTotalTime/1000000L))).append(" ms ");
+			if(pack.elapsedTime > 0){
+				buffer.append(String.format("%.2f", ((float)((pack.sqlTotalTime / 1000000F) * 100F)/pack.elapsedTime))).append(" %");
+			}
+			buffer.append(lineSeparator);
+			buffer.append("SQL     Type: ").append(String.format("%,13d",pack.sqlTotalCnt)).append(lineSeparator);
+			buffer.append("SQL     Runs: ").append(String.format("%,13d",pack.sqlTotalRuns)).append(lineSeparator);
 		}
 		if(pack.threadCnt > 0){
-			buffer.append("Thread Count: ").append(pack.threadCnt).append(lineSeparator);
+			buffer.append("Thread Count: ").append(String.format("%,13d",pack.threadCnt)).append(lineSeparator);
 		}
 			
 		if(pack.sqlTotalCnt > 0){
 			buffer.append(lineSeparator).append("<SQLs>").append(lineSeparator);
 			int index = 0;
-			buffer.append("Index          Runs     TotalTime       MinTime       MaxTime          Rows (Measured) StartTime               EndTime").append(lineSeparator);
-			buffer.append("--------------------------------------------------------------------------------------------------------------------------------------");
+			buffer.append("Index          Runs     TotalTime        Rate       MinTime       AvgTime       MaxTime          Rows (Measured) StartTime               EndTime").append(lineSeparator);
+			buffer.append("----------------------------------------------------------------------------------------------------------------------------------------------------------------");
 			List<MapValue> stats = pack.sqlStats;
 			for(MapValue mapValue : stats){
 				index++;
@@ -154,13 +165,27 @@ public class BatchDetailView extends ViewPart {
 				buffer.append(String.format("%5s", index)).append(' ');
 				buffer.append(String.format("%,13d", mapValue.getLong("runs"))).append(' ');
 				buffer.append(String.format("%,13d", (mapValue.getLong("totalTime")/1000000L))).append(' ');
-				buffer.append(String.format("%,13d", (mapValue.getLong("minTime")/1000000L))).append(' ');
+				if((mapValue.getLong("totalTime")/1000000L) == 0){
+					buffer.append(String.format("%,10.2f", 0F)).append("% ");					
+				}else{
+					buffer.append(String.format("%,10.2f", ((100F * (mapValue.getLong("totalTime")/1000000L))/pack.elapsedTime))).append("% ");					
+				}
+				if(mapValue.getLong("runs") == 0 && mapValue.getLong("minTime") == Long.MAX_VALUE){
+					buffer.append(String.format("%,13d", 0)).append(' ');
+				}else{
+					buffer.append(String.format("%,13d", (mapValue.getLong("minTime")/1000000L))).append(' ');
+				}
+				if(mapValue.getLong("runs") == 0){
+					buffer.append(String.format("%,13d", 0)).append(' ');
+				}else{
+					buffer.append(String.format("%,13d", ((mapValue.getLong("totalTime")/mapValue.getLong("runs"))/1000000L))).append(' ');
+				}
 				buffer.append(String.format("%,13d", (mapValue.getLong("maxTime")/1000000L))).append(' ');
 				buffer.append(String.format("%,13d", mapValue.getLong("processedRows"))).append(' ').append(String.format("%10s", mapValue.getBoolean("rowed"))).append(' ');
 				buffer.append(sdf.format(new Date(mapValue.getLong("startTime")))).append(' ');
 				buffer.append(sdf.format(new Date(mapValue.getLong("endTime"))));
 			}
-			buffer.append(lineSeparator).append("--------------------------------------------------------------------------------------------------------------------------------------").append(lineSeparator);
+			buffer.append(lineSeparator).append("----------------------------------------------------------------------------------------------------------------------------------------------------------------").append(lineSeparator);
 
 			buffer.append(lineSeparator).append("<SQL Texts>").append(lineSeparator);
 			index = 0;

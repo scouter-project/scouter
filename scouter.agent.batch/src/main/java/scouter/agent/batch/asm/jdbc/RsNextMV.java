@@ -17,9 +17,9 @@
 package scouter.agent.batch.asm.jdbc;
 
 
-import scouter.org.objectweb.asm.Label;
-import scouter.org.objectweb.asm.MethodVisitor;
-import scouter.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import scouter.agent.batch.trace.TraceSQL;
 
 public class RsNextMV extends MethodVisitor implements Opcodes {

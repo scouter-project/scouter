@@ -482,6 +482,9 @@ public class Configure extends Thread {
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_service_patterns = "";
 
+    @ConfigDesc("hooking service name use a 1st string parameter or class & method name")
+    public boolean hook_service_name_use_1st_string_enabled = true;
+
     @ConfigDesc("Method set for apicall hooking")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_apicall_patterns = "";
@@ -867,6 +870,7 @@ public class Configure extends Thread {
                 this.hook_method_ignore_classes.replace('.', '/'), ","));
         this.profile_method_enabled = getBoolean("profile_method_enabled", true);
         this.hook_service_patterns = getValue("hook_service_patterns", "");
+        this.hook_service_name_use_1st_string_enabled = getBoolean("hook_service_name_use_1st_string_enabled", true);
         this.hook_apicall_patterns = getValue("hook_apicall_patterns", "");
         this.hook_apicall_info_patterns = getValue("hook_apicall_info_patterns", "");
         this.hook_jsp_patterns = getValue("hook_jsp_patterns", "");

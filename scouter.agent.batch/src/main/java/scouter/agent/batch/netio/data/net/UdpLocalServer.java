@@ -21,6 +21,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 import scouter.agent.batch.Configure;
+import scouter.agent.batch.Logger;
 import scouter.agent.batch.Main;
 import scouter.agent.batch.netio.mtu.MultiPacketProcessor;
 import scouter.io.DataInputX;
@@ -143,6 +144,7 @@ public class UdpLocalServer extends Thread{
 			}
 			Main.batchMap.put(key, mapPack);
 		}catch(Exception ex){
+			Logger.println("E011", "Exception in processRunningInfo", ex);
 			ex.printStackTrace();
 		}
 	}
@@ -155,6 +157,7 @@ public class UdpLocalServer extends Thread{
 			endBatchs++;
 			Main.batchMap.remove(key);
 		}catch(Exception ex){
+			Logger.println("E012", "Exception in processEndInfo", ex);
 			ex.printStackTrace();
 		}
 	}

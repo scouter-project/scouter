@@ -26,7 +26,7 @@ import scouter.agent.batch.Logger;
 import scouter.agent.batch.Main;
 import scouter.agent.batch.netio.data.net.UdpAgent;
 import scouter.agent.batch.netio.data.net.UdpLocalServer;
-import scouter.agent.counter.CounterBasket;
+import scouter.agent.batch.counter.CounterBasket;
 import scouter.io.DataOutputX;
 import scouter.lang.TimeTypeEnum;
 import scouter.lang.counters.CounterConstants;
@@ -82,17 +82,21 @@ public class StatusSender {
 		if(!isCheck){
 			return;
 		}
-		
-		MapPack map;
-		long stdTime = conf.sfa_dump_interval_ms * 3;
-		long gapTime;
-		for(String key : Main.batchMap.keySet()){
-			map = Main.batchMap.get(key);
-			gapTime = currentTime - (map.getLong("startTime") + map.getLong("elapsedTime"));
-			if(gapTime >= stdTime){
-				Main.batchMap.remove(key);
-				UdpLocalServer.getInstance().addEndNoSignalBatchs();
+		try{
+			MapPack map;
+			long stdTime = conf.sfa_dump_interval_ms * 5;
+			long gapTime;
+			for(String key : Main.batchMap.keySet()){
+				map = Main.batchMap.get(key);
+				gapTime = currentTime - (map.getLong("startTime") + map.getLong("elapsedTime"));
+				if(gapTime >= stdTime){
+					Main.batchMap.remove(key);
+					UdpLocalServer.getInstance().addEndNoSignalBatchs();
+					Logger.println("remove " + key + " in batchMap");
+				}
 			}
+		}catch(Throwable th){
+			Logger.println("E002","Exception to check batchMap", th);
 		}
 	}
 	
@@ -103,8 +107,8 @@ public class StatusSender {
 			for (int k = 0; k < p.length; k++) {
 				byte[] b = new DataOutputX().writePack(p[k]).toByteArray();
 				if (bytes + b.length >= conf.net_udp_packet_max_bytes) {
-					sendDirect(buff); // buff.size가 0일수도 있다.
-					bytes = 0;// bytes 값 초기화..
+					sendDirect(buff); // buff.size媛� 0�씪�닔�룄 �엳�떎.
+					bytes = 0;// bytes 媛� 珥덇린�솕..
 					buff.clear();
 				}
 				bytes += b.length;

@@ -198,13 +198,15 @@ public class ObjectBatchHistoryView extends ViewPart {
 	private void createUpperMenu(Composite composite) {
 		Group parentGroup = new Group(composite, SWT.NONE);
 		parentGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		GridLayout layout = new GridLayout(9, false);
+		GridLayout layout = new GridLayout(10, false);
 		parentGroup.setLayout(layout);
 		
+		Label label = new Label(parentGroup, SWT.CENTER);
+		label.setText("End Time");
 		date = new DateTime(parentGroup, SWT.DATE);
 		fromTime = new DateTime(parentGroup, SWT.TIME);
 		fromTime.setTime(0, 0, 0);
-		Label label = new Label(parentGroup, SWT.CENTER);
+		label = new Label(parentGroup, SWT.CENTER);
 		label.setText(" ~ ");
 		toTime = new DateTime(parentGroup, SWT.TIME);
 		toTime.setTime(23, 59, 59);
