@@ -229,9 +229,11 @@ public class Configure extends Thread {
 	public String net_http_api_cors_allow_credentials = "true";
 
 	@ConfigDesc("size of webapp connection pool to collector")
-	public int net_webapp_tcp_client_pool_size = 12;
-	@ConfigDesc("timeout of web app connection pool to collector(It depends on net_tcp_client_so_timeout_ms)")
-	public int net_webapp_tcp_client_pool_timeout = net_tcp_client_so_timeout_ms;
+	public int net_webapp_tcp_client_pool_size = 30;
+	@ConfigDesc("timeout of web app connection pool to collector")
+	public int net_webapp_tcp_client_pool_timeout = 60000;
+	@ConfigDesc("So timeout of web app to collector")
+	public int net_webapp_tcp_client_so_timeout = 30000;
 
 	@ConfigDesc("Enable api access control by client ip")
 	public boolean net_http_api_auth_ip_enabled = false;
@@ -314,6 +316,13 @@ public class Configure extends Thread {
 
 	@ConfigDesc("Retaining date for automatic deletion")
 	public int mgr_purge_counter_keep_days = 70;
+
+	@ConfigDesc("Retaining date for automatic deletion. realtime-counter only.")
+	public int mgr_purge_realtime_counter_keep_days = mgr_purge_counter_keep_days;
+	@ConfigDesc("Retaining date for automatic deletion. tag-counter only.")
+	public int mgr_purge_tag_counter_keep_days = mgr_purge_counter_keep_days;
+	@ConfigDesc("Retaining date for automatic deletion. visitor-counter only")
+	public int mgr_purge_visitor_counter_keep_days = mgr_purge_counter_keep_days;
 
 	@ConfigDesc("Ignored log ID set")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
@@ -733,10 +742,14 @@ public class Configure extends Thread {
 		if(mgr_purge_profile_keep_days == 0) mgr_purge_profile_keep_days = this.mgr_purge_keep_days;
 
 		this.mgr_purge_xlog_without_profile_keep_days = getInt("mgr_purge_xlog_without_profile_keep_days", mgr_purge_profile_keep_days*3);
-		this.mgr_purge_xlog_keep_days = getInt("mgr_purge_xlog_keep_days", mgr_purge_profile_keep_days*3);
+		this.mgr_purge_xlog_keep_days = getInt("mgr_purge_xlog_keep_days", mgr_purge_profile_keep_days * 3);
 		if(mgr_purge_xlog_keep_days == 0) mgr_purge_xlog_keep_days = this.mgr_purge_xlog_without_profile_keep_days;
 
-		this.mgr_purge_counter_keep_days = getInt("mgr_purge_counter_keep_days", mgr_purge_keep_days*7);
+		this.mgr_purge_counter_keep_days = getInt("mgr_purge_counter_keep_days", mgr_purge_keep_days * 7);
+
+		this.mgr_purge_realtime_counter_keep_days = getInt("mgr_purge_realtime_counter_keep_days", mgr_purge_counter_keep_days);
+		this.mgr_purge_tag_counter_keep_days = getInt("mgr_purge_tag_counter_keep_days", mgr_purge_counter_keep_days);
+		this.mgr_purge_visitor_counter_keep_days = getInt("mgr_purge_visitor_counter_keep_days", mgr_purge_counter_keep_days);
 
 		this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false);
 		this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false);
