@@ -317,6 +317,13 @@ public class Configure extends Thread {
 	@ConfigDesc("Retaining date for automatic deletion")
 	public int mgr_purge_counter_keep_days = 70;
 
+	@ConfigDesc("Retaining date for automatic deletion. realtime-counter only.")
+	public int mgr_purge_realtime_counter_keep_days = mgr_purge_counter_keep_days;
+	@ConfigDesc("Retaining date for automatic deletion. tag-counter only.")
+	public int mgr_purge_tag_counter_keep_days = mgr_purge_counter_keep_days;
+	@ConfigDesc("Retaining date for automatic deletion. visitor-counter only")
+	public int mgr_purge_visitor_counter_keep_days = mgr_purge_counter_keep_days;
+
 	@ConfigDesc("Ignored log ID set")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public StringSet mgr_log_ignore_ids = new StringSet();
@@ -735,10 +742,14 @@ public class Configure extends Thread {
 		if(mgr_purge_profile_keep_days == 0) mgr_purge_profile_keep_days = this.mgr_purge_keep_days;
 
 		this.mgr_purge_xlog_without_profile_keep_days = getInt("mgr_purge_xlog_without_profile_keep_days", mgr_purge_profile_keep_days*3);
-		this.mgr_purge_xlog_keep_days = getInt("mgr_purge_xlog_keep_days", mgr_purge_profile_keep_days*3);
+		this.mgr_purge_xlog_keep_days = getInt("mgr_purge_xlog_keep_days", mgr_purge_profile_keep_days * 3);
 		if(mgr_purge_xlog_keep_days == 0) mgr_purge_xlog_keep_days = this.mgr_purge_xlog_without_profile_keep_days;
 
-		this.mgr_purge_counter_keep_days = getInt("mgr_purge_counter_keep_days", mgr_purge_keep_days*7);
+		this.mgr_purge_counter_keep_days = getInt("mgr_purge_counter_keep_days", mgr_purge_keep_days * 7);
+
+		this.mgr_purge_realtime_counter_keep_days = getInt("mgr_purge_realtime_counter_keep_days", mgr_purge_counter_keep_days);
+		this.mgr_purge_tag_counter_keep_days = getInt("mgr_purge_tag_counter_keep_days", mgr_purge_counter_keep_days);
+		this.mgr_purge_visitor_counter_keep_days = getInt("mgr_purge_visitor_counter_keep_days", mgr_purge_counter_keep_days);
 
 		this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false);
 		this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false);

@@ -183,8 +183,18 @@
 	@ConfigDesc("Deprecated : use mgr_purge_xlog_keep_days")
 	public int mgr_purge_xlog_without_profile_keep_days = mgr_purge_xlog_keep_days;
 
-	@ConfigDesc("Retaining date for automatic deletion")
+	@ConfigDesc("Retaining date for automatic deletion. all counter data.")
 	public int mgr_purge_counter_keep_days = 70;
+
+	@ConfigDesc("Retaining date for automatic deletion. realtime-counter only.")
+	public int mgr_purge_realtime_counter_keep_days = mgr_purge_counter_keep_days;
+
+	@ConfigDesc("Retaining date for automatic deletion. tag-counter only.")
+	public int mgr_purge_tag_counter_keep_days = mgr_purge_counter_keep_days;
+
+	@ConfigDesc("Retaining date for automatic deletion. visitor-counter only")
+	public int mgr_purge_visitor_counter_keep_days = mgr_purge_counter_keep_days;
+
 
 	@ConfigDesc("Ignored log ID set")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
