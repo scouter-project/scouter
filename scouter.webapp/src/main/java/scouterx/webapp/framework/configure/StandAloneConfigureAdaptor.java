@@ -130,6 +130,11 @@ public class StandAloneConfigureAdaptor implements ConfigureAdaptor {
     }
 
     @Override
+    public int getNetWebappTcpClientSoTimeout() {
+        return conf.net_webapp_tcp_client_so_timeout;
+    }
+
+    @Override
     public boolean isNetHttpApiSwaggerEnabled() {
         return conf.net_http_api_swagger_enabled;
     }
