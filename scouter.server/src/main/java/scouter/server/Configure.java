@@ -324,6 +324,9 @@ public class Configure extends Thread {
 	@ConfigDesc("Retaining date for automatic deletion. visitor-counter only")
 	public int mgr_purge_visitor_counter_keep_days = mgr_purge_counter_keep_days;
 
+	@ConfigDesc("Retaining date for automatic deletion. daily text dictionary only")
+	public int mgr_purge_daily_text_days = Math.max(mgr_purge_tag_counter_keep_days * 2, mgr_purge_xlog_keep_days * 2);
+
 	@ConfigDesc("Ignored log ID set")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public StringSet mgr_log_ignore_ids = new StringSet();
@@ -750,6 +753,9 @@ public class Configure extends Thread {
 		this.mgr_purge_realtime_counter_keep_days = getInt("mgr_purge_realtime_counter_keep_days", mgr_purge_counter_keep_days);
 		this.mgr_purge_tag_counter_keep_days = getInt("mgr_purge_tag_counter_keep_days", mgr_purge_counter_keep_days);
 		this.mgr_purge_visitor_counter_keep_days = getInt("mgr_purge_visitor_counter_keep_days", mgr_purge_counter_keep_days);
+
+		this.mgr_purge_daily_text_days = getInt("mgr_purge_visitor_counter_keep_days",
+				Math.max(mgr_purge_tag_counter_keep_days * 2, mgr_purge_xlog_keep_days * 2));
 
 		this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false);
 		this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false);
