@@ -116,7 +116,7 @@ public class Configure extends Thread {
     @ConfigDesc("Redefining DS, RP type according to main object")
     public boolean obj_type_inherit_to_child_enabled = false;
     @ConfigDesc("Activating collect sub counters using JMX")
-    public boolean jmx_counter_enabled = true;
+    public boolean jmx_counter_enabled = false;
 
     //profile
     @ConfigDesc("Http Query String profile")
@@ -1050,7 +1050,7 @@ public class Configure extends Thread {
 
         this._log_asm_enabled = getBoolean("_log_asm_enabled", false);
         this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
-        this.jmx_counter_enabled = getBoolean("jmx_counter_enabled", true);
+        this.jmx_counter_enabled = getBoolean("jmx_counter_enabled", false);
         this._profile_fullstack_sql_connection_enabled = getBoolean("_profile_fullstack_sql_connection_enabled", false);
         this._profile_fullstack_sql_execute_debug_enabled = getBoolean("_profile_fullstack_sql_execute_debug_enabled", false);
         this._trace_fullstack_socket_open_port = getInt("_trace_fullstack_socket_open_port", 0);
