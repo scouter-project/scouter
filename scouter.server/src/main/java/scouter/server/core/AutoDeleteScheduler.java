@@ -20,7 +20,7 @@ import java.util.Set;
 
 public class AutoDeleteScheduler extends Thread {
 	enum Mode {
-		PROFILE, XLOG, TAG, VISITOR, REAL_COUNTER, TEXT, ALL,;
+		PROFILE, XLOG, TAG, VISITOR, REAL_COUNTER, TEXT, SUM, ALL,;
 	}
 
 	private static AutoDeleteScheduler instance = null;
@@ -35,6 +35,7 @@ public class AutoDeleteScheduler extends Thread {
 	int retainVisitorCounterDays;
 	int retainTagCounterDays;
 	int retainTextDays;
+	int retainSumDays;
 
 	Set<String> deletedProfileDays = new HashSet<String>();
 	Set<String> deletedXLogDays = new HashSet<String>();
@@ -44,6 +45,7 @@ public class AutoDeleteScheduler extends Thread {
 	Set<String> deletedTagCounterDays = new HashSet<String>();
 	Set<String> deletedVisitorCounterDays = new HashSet<String>();
 	Set<String> deletedTextDays = new HashSet<String>();
+	Set<String> deletedSumDays = new HashSet<String>();
 
 	public final static synchronized AutoDeleteScheduler getInstance() {
 		if (instance == null) {
@@ -71,6 +73,7 @@ public class AutoDeleteScheduler extends Thread {
 					|| conf.mgr_purge_visitor_counter_keep_days != retainVisitorCounterDays
 					|| conf.mgr_purge_tag_counter_keep_days != retainTagCounterDays
 					|| conf.mgr_purge_daily_text_days != retainTextDays
+					|| conf.mgr_purge_sum_data_days != retainSumDays
 				) {
 
 					applyConf();
@@ -92,6 +95,7 @@ public class AutoDeleteScheduler extends Thread {
 		retainVisitorCounterDays = conf.mgr_purge_visitor_counter_keep_days;
 		retainTagCounterDays = conf.mgr_purge_tag_counter_keep_days;
 		retainTextDays = conf.mgr_purge_daily_text_days;
+		retainSumDays = conf.mgr_purge_sum_data_days;
 	}
 
 	public void run() {
@@ -287,6 +291,27 @@ public class AutoDeleteScheduler extends Thread {
 		}
 	}
 
+	private void purgeSum(String today) {
+		int retainDays = conf.mgr_purge_sum_data_days;
+
+		if (retainDays > 0) {
+			int lastDeleteDate = CastUtil.cint(DateUtil.yyyymmdd(System.currentTimeMillis() - (DateUtil.MILLIS_PER_DAY * retainDays)));
+			while (true) {
+				String yyyymmdd = getLongAgoDate(deletedSumDays);
+				if (yyyymmdd == null || today.equals(yyyymmdd)) {
+					break;
+				}
+				if (CastUtil.cint(yyyymmdd) > lastDeleteDate) {
+					break;
+				}
+				deleteData(yyyymmdd, Mode.SUM);
+				deletedSumDays.add(yyyymmdd);
+				Logger.println("S206-5", "[purge sum data by][day limit]" + yyyymmdd);
+				Logger.println("S206-5", "* option : retainDays of sum data : " + retainDays);
+			}
+		}
+	}
+
 	private void purgeProfile(String today) {
 		int retainProfileDays = conf.mgr_purge_profile_keep_days;
 		if (retainProfileDays > 0) {
@@ -333,6 +358,9 @@ public class AutoDeleteScheduler extends Thread {
 				deleteFiles(f);
 			} else if (mode == Mode.TEXT) {
 				f = new File(dbDir, yyyymmdd + "/text");
+				deleteFiles(f);
+			} else if (mode == Mode.SUM) {
+				f = new File(dbDir, yyyymmdd + "/sum");
 				deleteFiles(f);
 			} else if (mode == Mode.REAL_COUNTER) {
 				f = new File(dbDir, yyyymmdd + "/counter/real.data");
