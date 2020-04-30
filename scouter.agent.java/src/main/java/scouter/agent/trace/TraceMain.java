@@ -1267,6 +1267,7 @@ public class TraceMain {
             ctx.profile.add(threadCallPossibleStep);
 
             TransferMap.put(System.identityHashCode(callRunnable), gxid, ctx.txid, callee, ctx.xType, Thread.currentThread().getId(), threadCallPossibleStep);
+
         } catch (Throwable t) {
             Logger.println("B1204", "Exception: executorServiceExecuted", t);
         }
@@ -1294,7 +1295,7 @@ public class TraceMain {
                 if (ctx.txid == id.caller) {
                     return null;
                 } else {
-                    Logger.trace("B110 - recevieAsyncPossibleStep -> caller txid : "
+                    Logger.trace("B110 - receiveAsyncPossibleStep -> caller txid : "
                             + id.caller + "=" + Hexa32.toString32(id.caller)
                             + " ctx.txid : " + ctx.txid + "=" + Hexa32.toString32(ctx.txid)
                             + " id.callee : " + id.callee + "=" + Hexa32.toString32(id.callee)

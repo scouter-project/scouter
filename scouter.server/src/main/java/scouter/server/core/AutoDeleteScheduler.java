@@ -166,7 +166,7 @@ public class AutoDeleteScheduler extends Thread {
 	}
 
 	private void purgeAllCounter(String today) {
-		int retainCounterDays = conf.mgr_purge_realtime_counter_keep_days;
+		int retainCounterDays = conf.mgr_purge_counter_keep_days;
 		if (retainCounterDays > 0) {
 			int lastDeleteDate = CastUtil.cint(DateUtil.yyyymmdd(System.currentTimeMillis() - (DateUtil.MILLIS_PER_DAY * retainCounterDays)));
 			while (true) {
@@ -179,8 +179,8 @@ public class AutoDeleteScheduler extends Thread {
 				}
 				deleteData(yyyymmdd, Mode.ALL);
 				deletedDays.add(yyyymmdd);
-				Logger.println("S206-6", "[purge counters by][day limit]" + yyyymmdd);
-				Logger.println("S206-6", "* option : conf.mgr_purge_counter_keep_days : " + conf.mgr_purge_counter_keep_days);
+				Logger.println("S206-9", "[purge counters by][day limit]" + yyyymmdd + ", [lastDeleteDate]" + lastDeleteDate);
+				Logger.println("S206-9", "* option : conf.mgr_purge_counter_keep_days : " + conf.mgr_purge_counter_keep_days);
 			}
 		}
 	}
