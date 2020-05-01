@@ -15,13 +15,20 @@
  *  limitations under the License. 
  */
 package scouter.agent.netio.data;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.net.DataUdpAgent;
 import scouter.agent.trace.TraceContext;
 import scouter.io.DataOutputX;
 import scouter.lang.TextTypes;
-import scouter.lang.pack.*;
+import scouter.lang.pack.AlertPack;
+import scouter.lang.pack.ObjectPack;
+import scouter.lang.pack.Pack;
+import scouter.lang.pack.SummaryPack;
+import scouter.lang.pack.TextPack;
+import scouter.lang.pack.XLogPack;
+import scouter.lang.pack.XLogProfilePack;
 import scouter.lang.step.Step;
 import scouter.lang.value.MapValue;
 import scouter.util.HashUtil;
@@ -212,10 +219,36 @@ public class DataProxy {
 			break;
 		}
 	}
-	static DataUdpAgent udpDirect = DataUdpAgent.getInstance();
+
 	public static void sendProfile(Step[] p, TraceContext context) {
 		if (p == null || p.length == 0)
 			return;
+
+		int bulkSize = conf.profile_step_max_count;
+		int count = p.length / bulkSize;
+
+		if (count == 0) {
+			sendProfile0(p, context);
+			return;
+		}
+
+		int remainder = p.length % bulkSize;
+		for (int i = 0; i < count; i++) {
+			Step[] parts = new Step[bulkSize];
+			System.arraycopy(p, i * bulkSize, parts, 0, bulkSize);
+			sendProfile0(parts, context);
+		}
+		if (remainder > 0) {
+			Step[] parts = new Step[remainder];
+			System.arraycopy(p, count * bulkSize, parts, 0, remainder);
+			sendProfile0(parts, context);
+		}
+	}
+
+	public static void sendProfile0(Step[] p, TraceContext context) {
+		if (p == null || p.length == 0)
+			return;
+
 		XLogProfilePack pk = new XLogProfilePack();
 		pk.txid = context.txid;
 		pk.objHash = conf.getObjHash();
@@ -225,6 +258,7 @@ public class DataProxy {
 		context.profileCount += p.length;
 		sendDirect(pk);
 	}
+
 	public static void sendProfile(List<Step> p, TraceContext x) {
 		if (p == null || p.size() == 0)
 			return;

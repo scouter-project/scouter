@@ -161,6 +161,8 @@ public class Configure extends Thread {
     public boolean profile_method_enabled = true;
     @ConfigDesc("Profile Buffer Size")
     public int profile_step_max_count = 1024;
+    @ConfigDesc("Profile Buffer Size")
+    public int profile_step_max_keep_in_memory_count = 20480;
     @ConfigDesc("Stack profile in occurrence of service error")
     public boolean profile_fullstack_service_error_enabled = false;
     @ConfigDesc("Stack profile in occurrence of apicall error")
@@ -356,6 +358,27 @@ public class Configure extends Thread {
     public int xlog_sampling_step3_rate_pct = 30;
     @ConfigDesc("XLog sampling over step3 percentage(%)")
     public int xlog_sampling_over_rate_pct = 100;
+
+    //XLog soft sampling options for another sampling group
+    @ConfigDesc("XLog sampling mode enabled")
+    public boolean xlog_sampling2_enabled = false;
+    @ConfigDesc("XLog sampling but discard profile only not XLog.")
+    public boolean xlog_sampling2_only_profile = false;
+    @ConfigDesc("XLog sampling bound millisecond - step1(lowest : range - from 0 to here)")
+    public int xlog_sampling2_step1_ms = 100;
+    @ConfigDesc("XLog sampling step1 percentage(%)")
+    public int xlog_sampling2_step1_rate_pct = 3;
+    @ConfigDesc("XLog sampling bound millisecond - step2(range - from step1 to here)")
+    public int xlog_sampling2_step2_ms = 1000;
+    @ConfigDesc("XLog sampling step2 percentage(%)")
+    public int xlog_sampling2_step2_rate_pct = 10;
+    @ConfigDesc("XLog sampling bound millisecond - step3(highest : range - from step2 to here)")
+    public int xlog_sampling2_step3_ms = 3000;
+    @ConfigDesc("XLog sampling step3 percentage(%)")
+    public int xlog_sampling2_step3_rate_pct = 30;
+    @ConfigDesc("XLog sampling over step3 percentage(%)")
+    public int xlog_sampling2_over_rate_pct = 100;
+
 
     //XLog sampling for service patterns options
     @ConfigDesc("XLog patterned sampling mode enabled")
@@ -935,8 +958,13 @@ public class Configure extends Thread {
         this.control_reject_redirect_url = getValue("control_reject_redirect_url", "/error.html");
 
         this.profile_step_max_count = getInt("profile_step_max_count", 1024);
-        if (this.profile_step_max_count < 100)
-            this.profile_step_max_count = 100;
+        if (this.profile_step_max_count < 128)
+            this.profile_step_max_count = 128;
+
+        profile_step_max_keep_in_memory_count = getInt("profile_step_max_keep_in_memory_count", 20480);
+        if (this.profile_step_max_count < 1024)
+            this.profile_step_max_count = 1024;
+
         this._log_background_sql = getBoolean("_log_background_sql", false);
         this.profile_fullstack_service_error_enabled = getBoolean("profile_fullstack_service_error_enabled", false);
         this.profile_fullstack_apicall_error_enabled = getBoolean("profile_fullstack_apicall_error_enabled", false);
@@ -1079,6 +1107,16 @@ public class Configure extends Thread {
         this.xlog_sampling_step3_ms = getInt("xlog_sampling_step3_ms", 3000);
         this.xlog_sampling_step3_rate_pct = getInt("xlog_sampling_step3_rate_pct", 30);
         this.xlog_sampling_over_rate_pct = getInt("xlog_sampling_over_rate_pct", 100);
+
+        this.xlog_sampling2_enabled = getBoolean("xlog_sampling2_enabled", false);
+        this.xlog_sampling2_only_profile = getBoolean("xlog_sampling2_only_profile", false);
+        this.xlog_sampling2_step1_ms = getInt("xlog_sampling2_step1_ms", 100);
+        this.xlog_sampling2_step1_rate_pct = getInt("xlog_sampling2_step1_rate_pct", 3);
+        this.xlog_sampling2_step2_ms = getInt("xlog_sampling2_step2_ms", 1000);
+        this.xlog_sampling2_step2_rate_pct = getInt("xlog_sampling2_step2_rate_pct", 10);
+        this.xlog_sampling2_step3_ms = getInt("xlog_sampling2_step3_ms", 3000);
+        this.xlog_sampling2_step3_rate_pct = getInt("xlog_sampling2_step3_rate_pct", 30);
+        this.xlog_sampling2_over_rate_pct = getInt("xlog_sampling2_over_rate_pct", 100);
 
         this.xlog_patterned_sampling_enabled = getBoolean("xlog_patterned_sampling_enabled", false);
         this.xlog_patterned_sampling_service_patterns = getValue("xlog_patterned_sampling_service_patterns", "");
