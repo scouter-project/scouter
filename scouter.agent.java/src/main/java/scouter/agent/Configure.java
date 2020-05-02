@@ -162,7 +162,7 @@ public class Configure extends Thread {
     @ConfigDesc("Profile Buffer Size")
     public int profile_step_max_count = 1024;
     @ConfigDesc("Profile Buffer Size")
-    public int profile_step_max_keep_in_memory_count = 20480;
+    public int profile_step_max_keep_in_memory_count = 2048;
     @ConfigDesc("Stack profile in occurrence of service error")
     public boolean profile_fullstack_service_error_enabled = false;
     @ConfigDesc("Stack profile in occurrence of apicall error")
@@ -988,9 +988,9 @@ public class Configure extends Thread {
         if (this.profile_step_max_count < 128)
             this.profile_step_max_count = 128;
 
-        profile_step_max_keep_in_memory_count = getInt("profile_step_max_keep_in_memory_count", 20480);
-        if (this.profile_step_max_count < 1024)
-            this.profile_step_max_count = 1024;
+        profile_step_max_keep_in_memory_count = getInt("profile_step_max_keep_in_memory_count", 2048);
+        if (this.profile_step_max_count < 128)
+            this.profile_step_max_count = 128;
 
         this._log_background_sql = getBoolean("_log_background_sql", false);
         this.profile_fullstack_service_error_enabled = getBoolean("profile_fullstack_service_error_enabled", false);

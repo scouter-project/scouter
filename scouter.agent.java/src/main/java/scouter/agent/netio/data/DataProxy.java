@@ -256,6 +256,7 @@ public class DataProxy {
 		pk.service = context.serviceHash;
 		pk.elapsed = (int) (System.currentTimeMillis() - context.startTime);
 		context.profileCount += p.length;
+		context.profileSize += pk.profile.length;
 		sendDirect(pk);
 	}
 
@@ -267,6 +268,7 @@ public class DataProxy {
 		pk.objHash = conf.getObjHash();
 		pk.profile = Step.toBytes(p);
 		x.profileCount += p.size();
+		x.profileSize += pk.profile.length;
 		// udp.add(pk);
 		sendDirect(pk);
 	}

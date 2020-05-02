@@ -56,6 +56,7 @@ public class TraceContext {
 	// profile
 	public IProfileCollector profile;
 	public int profileCount;
+	public int profileSize;
 
 	public long startTime;
 	public long startCpu;

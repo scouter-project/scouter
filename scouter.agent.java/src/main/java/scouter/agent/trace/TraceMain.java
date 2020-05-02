@@ -475,6 +475,7 @@ public class TraceMain {
 
             ctx.profile.close(discardMode == XLogDiscard.NONE ? true : false);
             pack.profileCount = ctx.profileCount;
+            pack.profileSize = ctx.profileSize;
 
             if (ctx.group != null) {
                 pack.group = DataProxy.sendGroup(ctx.group);
@@ -694,6 +695,7 @@ public class TraceMain {
 
             ctx.profile.close(discardMode == XLogDiscard.NONE ? true : false);
             pack.profileCount = ctx.profileCount;
+            pack.profileSize = ctx.profileSize;
 
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;

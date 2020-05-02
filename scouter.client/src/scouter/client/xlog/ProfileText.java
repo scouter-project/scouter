@@ -235,7 +235,8 @@ public class ProfileText {
         if (StringUtil.isNotEmpty(xperf.p.text5)) {
             sb.append("\n► text5=" + xperf.p.text5);
         }
-        sb.append("\n► profileSize=" + xperf.p.profileCount);
+        sb.append("\n► profileCount=" + xperf.p.profileCount);
+        sb.append("\n► profileSize=" + xperf.p.profileSize);
         if (xperf.p.hasDump == 1) {
             sb.append("\n► dump=Y");
         }

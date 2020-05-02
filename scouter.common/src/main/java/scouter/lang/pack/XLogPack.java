@@ -172,7 +172,8 @@ public class XLogPack implements Pack {
 
 	public int profileCount;
 	public boolean b3Mode;
-	
+	public int profileSize;
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("XLOG ");
@@ -242,6 +243,7 @@ public class XLogPack implements Pack {
 
 		o.writeDecimal(profileCount);
 		o.writeBoolean(b3Mode);
+		o.writeDecimal(profileSize);
 
 		out.writeBlob(o.toByteArray());
 	}
@@ -288,35 +290,32 @@ public class XLogPack implements Pack {
 		if (d.available() >0) {
 			this.hasDump = d.readByte();
 		}
-
 		if (d.available() >0) {
 			this.threadNameHash = (int) d.readDecimal();
 		}
-
 		if (d.available() >0) {
 			this.text1 = d.readText();
 			this.text2 = d.readText();
 		}
-
 		if (d.available() >0) {
 			this.queuingHostHash = (int) d.readDecimal();
 			this.queuingTime = (int) d.readDecimal();
 			this.queuing2ndHostHash = (int) d.readDecimal();
 			this.queuing2ndTime = (int) d.readDecimal();
 		}
-
 		if (d.available() >0) {
 			this.text3 = d.readText();
 			this.text4 = d.readText();
 			this.text5 = d.readText();
 		}
-
 		if (d.available() >0) {
 			this.profileCount = (int) d.readDecimal();
 		}
-
 		if (d.available() >0) {
 			this.b3Mode = d.readBoolean();
+		}
+		if (d.available() >0) {
+			this.profileSize = (int) d.readDecimal();
 		}
 
 		return this;
