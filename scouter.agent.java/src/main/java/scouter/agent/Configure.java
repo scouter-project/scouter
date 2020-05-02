@@ -432,6 +432,54 @@ public class Configure extends Thread {
     @ConfigDesc("XLog patterned sampling over step3 percentage(%)")
     public int xlog_patterned3_sampling_over_rate_pct = 100;
 
+    //XLog patterned sampling options for another sampling group
+    @ConfigDesc("XLog patterned sampling mode enabled")
+    public boolean xlog_patterned4_sampling_enabled = false;
+    @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String xlog_patterned4_sampling_service_patterns = "";
+
+    @ConfigDesc("XLog patterned sampling but discard profile only not XLog.")
+    public boolean xlog_patterned4_sampling_only_profile = false;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step1(lowest : range - from 0 to here)")
+    public int xlog_patterned4_sampling_step1_ms = 100;
+    @ConfigDesc("XLog patterned sampling step1 percentage(%)")
+    public int xlog_patterned4_sampling_step1_rate_pct = 3;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step2(range - from step1 to here)")
+    public int xlog_patterned4_sampling_step2_ms = 1000;
+    @ConfigDesc("XLog patterned sampling step2 percentage(%)")
+    public int xlog_patterned4_sampling_step2_rate_pct = 10;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step3(highest : range - from step2 to here)")
+    public int xlog_patterned4_sampling_step3_ms = 3000;
+    @ConfigDesc("XLog patterned sampling step3 percentage(%)")
+    public int xlog_patterned4_sampling_step3_rate_pct = 30;
+    @ConfigDesc("XLog patterned sampling over step3 percentage(%)")
+    public int xlog_patterned4_sampling_over_rate_pct = 100;
+
+    //XLog patterned sampling options for another sampling group
+    @ConfigDesc("XLog patterned sampling mode enabled")
+    public boolean xlog_patterned5_sampling_enabled = false;
+    @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String xlog_patterned5_sampling_service_patterns = "";
+
+    @ConfigDesc("XLog patterned sampling but discard profile only not XLog.")
+    public boolean xlog_patterned5_sampling_only_profile = false;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step1(lowest : range - from 0 to here)")
+    public int xlog_patterned5_sampling_step1_ms = 100;
+    @ConfigDesc("XLog patterned sampling step1 percentage(%)")
+    public int xlog_patterned5_sampling_step1_rate_pct = 3;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step2(range - from step1 to here)")
+    public int xlog_patterned5_sampling_step2_ms = 1000;
+    @ConfigDesc("XLog patterned sampling step2 percentage(%)")
+    public int xlog_patterned5_sampling_step2_rate_pct = 10;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step3(highest : range - from step2 to here)")
+    public int xlog_patterned5_sampling_step3_ms = 3000;
+    @ConfigDesc("XLog patterned sampling step3 percentage(%)")
+    public int xlog_patterned5_sampling_step3_rate_pct = 30;
+    @ConfigDesc("XLog patterned sampling over step3 percentage(%)")
+    public int xlog_patterned5_sampling_over_rate_pct = 100;
+
     //XLog discard options
     @ConfigDesc("XLog discard service patterns\nNo XLog data, but apply to TPS and summary.\neg) /user/{userId}<GET>,/device/*")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
@@ -1167,6 +1215,28 @@ public class Configure extends Thread {
         this.xlog_patterned3_sampling_step3_ms = getInt("xlog_patterned3_sampling_step3_ms", 3000);
         this.xlog_patterned3_sampling_step3_rate_pct = getInt("xlog_patterned3_sampling_step3_rate_pct", 30);
         this.xlog_patterned3_sampling_over_rate_pct = getInt("xlog_patterned3_sampling_over_rate_pct", 100);
+
+        this.xlog_patterned4_sampling_enabled = getBoolean("xlog_patterned4_sampling_enabled", false);
+        this.xlog_patterned4_sampling_service_patterns = getValue("xlog_patterned4_sampling_service_patterns", "");
+        this.xlog_patterned4_sampling_only_profile = getBoolean("xlog_patterned4_sampling_only_profile", false);
+        this.xlog_patterned4_sampling_step1_ms = getInt("xlog_patterned4_sampling_step1_ms", 100);
+        this.xlog_patterned4_sampling_step1_rate_pct = getInt("xlog_patterned4_sampling_step1_rate_pct", 3);
+        this.xlog_patterned4_sampling_step2_ms = getInt("xlog_patterned4_sampling_step2_ms", 1000);
+        this.xlog_patterned4_sampling_step2_rate_pct = getInt("xlog_patterned4_sampling_step2_rate_pct", 10);
+        this.xlog_patterned4_sampling_step3_ms = getInt("xlog_patterned4_sampling_step3_ms", 3000);
+        this.xlog_patterned4_sampling_step3_rate_pct = getInt("xlog_patterned4_sampling_step3_rate_pct", 30);
+        this.xlog_patterned4_sampling_over_rate_pct = getInt("xlog_patterned4_sampling_over_rate_pct", 100);
+
+        this.xlog_patterned5_sampling_enabled = getBoolean("xlog_patterned5_sampling_enabled", false);
+        this.xlog_patterned5_sampling_service_patterns = getValue("xlog_patterned5_sampling_service_patterns", "");
+        this.xlog_patterned5_sampling_only_profile = getBoolean("xlog_patterned5_sampling_only_profile", false);
+        this.xlog_patterned5_sampling_step1_ms = getInt("xlog_patterned5_sampling_step1_ms", 100);
+        this.xlog_patterned5_sampling_step1_rate_pct = getInt("xlog_patterned5_sampling_step1_rate_pct", 3);
+        this.xlog_patterned5_sampling_step2_ms = getInt("xlog_patterned5_sampling_step2_ms", 1000);
+        this.xlog_patterned5_sampling_step2_rate_pct = getInt("xlog_patterned5_sampling_step2_rate_pct", 10);
+        this.xlog_patterned5_sampling_step3_ms = getInt("xlog_patterned5_sampling_step3_ms", 3000);
+        this.xlog_patterned5_sampling_step3_rate_pct = getInt("xlog_patterned5_sampling_step3_rate_pct", 30);
+        this.xlog_patterned5_sampling_over_rate_pct = getInt("xlog_patterned5_sampling_over_rate_pct", 100);
 
         this.xlog_discard_service_patterns = getValue("xlog_discard_service_patterns", "");
         this.xlog_discard_service_show_error = getBoolean("xlog_discard_service_show_error", true);
