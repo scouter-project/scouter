@@ -466,11 +466,11 @@ public class TraceMain {
             XLogDiscard discardMode = findXLogDiscard(ctx, conf, pack);
 
             pack.discardType = discardMode.byteFlag;
-            pack.profileCount = ctx.profileCount;
-            pack.profileSize = ctx.profileSize;
-
             ctx.discardType = discardMode;
             ctx.profile.close(discardMode == XLogDiscard.NONE || !pack.isDriving());
+
+            pack.profileSize = ctx.profileSize;
+            pack.profileCount = ctx.profileCount;
 
             if (ctx.group != null) {
                 pack.group = DataProxy.sendGroup(ctx.group);
@@ -704,11 +704,11 @@ public class TraceMain {
             //check xlog sampling
             XLogDiscard discardMode = findXLogDiscard(ctx, conf, pack);
             pack.discardType = discardMode.byteFlag;
-            pack.profileCount = ctx.profileCount;
-            pack.profileSize = ctx.profileSize;
-
             ctx.discardType = discardMode;
             ctx.profile.close(discardMode == XLogDiscard.NONE || !pack.isDriving());
+
+            pack.profileCount = ctx.profileCount;
+            pack.profileSize = ctx.profileSize;
 
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;

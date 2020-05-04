@@ -18,7 +18,7 @@
 package scouter.agent;
 
 import scouter.Version;
-import scouter.agent.netio.data.DataProxy;
+import scouter.agent.netio.data.HostAgentDataProxy;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.conf.ConfigDesc;
 import scouter.lang.conf.ConfigValueType;
@@ -170,7 +170,7 @@ public class Configure extends Thread {
 			long nowUnit = DateUtil.getDateUnit();
 			if (dateUnit != nowUnit) {
 				dateUnit = nowUnit;
-				DataProxy.reset();
+				HostAgentDataProxy.reset();
 			}
 			ThreadUtil.sleep(3000);
 		}
