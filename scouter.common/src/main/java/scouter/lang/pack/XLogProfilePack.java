@@ -17,12 +17,12 @@
 
 package scouter.lang.pack;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
+
+import java.io.IOException;
 
 /**
  * Object that contains a part of full profile
@@ -53,6 +53,11 @@ public class XLogProfilePack implements Pack {
 	 * Byte array of profile steps
 	 */
 	public byte[] profile;
+	public long gxid;
+	public byte xType;
+	public byte discardType;
+	public boolean ignoreGlobalConsequentSampling;
+
 
 	public byte getPackType() {
 		return PackEnum.XLOG_PROFILE;
@@ -64,8 +69,13 @@ public class XLogProfilePack implements Pack {
 		sb.append(DateUtil.timestamp(time));
 		sb.append(" objHash=").append(Hexa32.toString32(objHash));
 		sb.append(" txid=").append(Hexa32.toString32(txid));
+		sb.append(" gxid=").append(Hexa32.toString32(gxid));
 		sb.append(" profile=").append(profile == null ? null : profile.length);
 		return sb.toString();
+	}
+
+	public boolean isDriving() {
+		return (gxid == txid) || gxid == 0;
 	}
 
 	public void write(DataOutputX dout) throws IOException {
@@ -74,6 +84,10 @@ public class XLogProfilePack implements Pack {
 		dout.writeDecimal(service);
 		dout.writeLong(txid);
 		dout.writeBlob(profile);
+		dout.writeLong(gxid);
+		dout.writeByte(xType);
+		dout.writeByte(discardType);
+		dout.writeBoolean(ignoreGlobalConsequentSampling);
 	}
 
 	public Pack read(DataInputX din) throws IOException {
@@ -82,6 +96,12 @@ public class XLogProfilePack implements Pack {
 		this.service= (int) din.readDecimal();
 		this.txid = din.readLong();
 		this.profile = din.readBlob();
+		if (din.available() > 0) {
+			this.gxid = din.readLong();
+			this.xType = din.readByte();
+			this.discardType = din.readByte();
+			this.ignoreGlobalConsequentSampling = din.readBoolean();
+		}
 		return this;
 	}
 

@@ -158,14 +158,24 @@ object NetDataProcessor {
                     System.out.println("DEBUG UDP INTERACTION COUNTER: " + p)
                 }
             case PackEnum.XLOG =>
-                XLogCore.add(p.asInstanceOf[XLogPack])
+                XLogPreCore.add(p.asInstanceOf[XLogPack])
                 if (conf.log_udp_xlog) {
                     System.out.println("DEBUG UDP XLOG: " + p)
                 }
             case PackEnum.XLOG_PROFILE =>
-                ProfileCore.add(p.asInstanceOf[XLogProfilePack])
+                ProfilePreCore.add(p.asInstanceOf[XLogProfilePack])
                 if (conf.log_udp_profile) {
                     System.out.println("DEBUG UDP PROFILE: " + p)
+                }
+            case PackEnum.DROPPED_XLOG =>
+                val droppedXLogPack = p.asInstanceOf[DroppedXLogPack]
+                val xLogPack = new XLogPack();
+                xLogPack.gxid = droppedXLogPack.gxid;
+                xLogPack.txid = droppedXLogPack.txid;
+
+                XLogPreCore.add(xLogPack)
+                if (conf.log_udp_xlog) {
+                    System.out.println("DEBUG UDP DROPPED XLOG: " + p)
                 }
             case PackEnum.TEXT =>
                 TextCore.add(p.asInstanceOf[TextPack])

@@ -1,8 +1,8 @@
 package scouter.agent.trace;
 
 import scouter.agent.Configure;
-import scouter.agent.trace.enums.XLogDiscard;
 import scouter.lang.conf.ConfObserver;
+import scouter.lang.pack.XLogDiscardTypes.XLogDiscard;
 import scouter.util.KeyGen;
 import scouter.util.StringUtil;
 import scouter.util.matcher.CommaSeparatedChainedStrMatcher;

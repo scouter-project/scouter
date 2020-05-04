@@ -405,6 +405,18 @@ public class Configure extends Thread {
 	@ConfigDesc("Profile Writer Queue Size")
 	public int profile_queue_size = 1000;
 
+	@ConfigDesc("gxid keeping count in memory for XLog consequent sampling")
+	public int xlog_sampling_matcher_gxid_keep_memory_count = 500000;
+	@ConfigDesc("xlog keeping count in memory for XLog consequent sampling")
+	public int xlog_sampling_matcher_xlog_keep_memory_count = 100000;
+	@ConfigDesc("max keeping millis of xlog for XLog consequent sampling")
+	public int xlog_sampling_matcher_xlog_keep_memory_millis = 5000;
+
+	@ConfigDesc("profile keeping count (in one bucket, 500ms) in memory for XLog consequent sampling")
+	public int xlog_sampling_matcher_profile_keep_memory_count = 5000;
+	@ConfigDesc("max keeping seconds of profile for XLog consequent sampling")
+	public int xlog_sampling_matcher_profile_keep_memory_secs = 5;
+
 	//GeoIP
 	@ConfigDesc("Activating IP-based city/country extraction")
 	public boolean geoip_enabled = true;
@@ -650,6 +662,13 @@ public class Configure extends Thread {
 		this.xlog_queue_size = getInt("xlog_queue_size", 10000);
 		this.profile_queue_size = getInt("profile_queue_size", 1000);
 		this.log_tcp_action_enabled = getBoolean("log_tcp_action_enabled", false);
+
+		this.xlog_sampling_matcher_gxid_keep_memory_count = getInt("xlog_sampling_matcher_gxid_keep_memory_count", 500000);
+		this.xlog_sampling_matcher_xlog_keep_memory_count = getInt("xlog_sampling_matcher_xlog_keep_memory_count", 100000);
+		this.xlog_sampling_matcher_xlog_keep_memory_millis = getInt("xlog_sampling_matcher_xlog_keep_memory_millis", 5000);
+
+		this.xlog_sampling_matcher_profile_keep_memory_count = getInt("xlog_sampling_matcher_profile_keep_memory_count", 5000);
+		this.xlog_sampling_matcher_profile_keep_memory_secs = getInt("xlog_sampling_matcher_profile_keep_memory_secs", 5);
 
 		this.net_udp_listen_ip = getValue("net_udp_listen_ip", "0.0.0.0");
 		this.net_udp_listen_port = getInt("net_udp_listen_port", NetConstants.SERVER_UDP_PORT);

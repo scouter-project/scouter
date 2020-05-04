@@ -96,7 +96,8 @@ public class ProfileCollector implements IProfileCollector {
      */
     public void close(boolean ok) {
         checkDumpStep();
-        if (ok && pos > 0) {
+
+        if (pos > 0 && ok) {
             StepSingle[] newSteps = new StepSingle[pos];
             System.arraycopy(steps, 0, newSteps, 0, pos);
             DataProxy.sendProfile(newSteps, context);

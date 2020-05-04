@@ -23,10 +23,12 @@ import scouter.agent.trace.TraceContext;
 import scouter.io.DataOutputX;
 import scouter.lang.TextTypes;
 import scouter.lang.pack.AlertPack;
+import scouter.lang.pack.DroppedXLogPack;
 import scouter.lang.pack.ObjectPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.pack.SummaryPack;
 import scouter.lang.pack.TextPack;
+import scouter.lang.pack.XLogDiscardTypes;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogProfilePack;
 import scouter.lang.step.Step;
@@ -191,6 +193,13 @@ public class DataProxy {
 	}
 	public static void sendXLog(XLogPack p) {
 		p.objHash = conf.getObjHash();
+		p.ignoreGlobalConsequentSampling = conf.ignore_global_consequent_sampling;
+		sendDirect(p);
+		if (conf._log_udp_xlog_enabled) {
+			Logger.println(p.toString());
+		}
+	}
+	public static void sendDroppedXLog(DroppedXLogPack p) {
 		sendDirect(p);
 		if (conf._log_udp_xlog_enabled) {
 			Logger.println(p.toString());
@@ -250,7 +259,11 @@ public class DataProxy {
 			return;
 
 		XLogProfilePack pk = new XLogProfilePack();
+		pk.ignoreGlobalConsequentSampling = conf.ignore_global_consequent_sampling;
 		pk.txid = context.txid;
+		pk.gxid = context.gxid;
+		pk.xType = context.xType;
+		pk.discardType = context.discardType == null ? XLogDiscardTypes.DISCARD_NONE : context.discardType.byteFlag;
 		pk.objHash = conf.getObjHash();
 		pk.profile = Step.toBytes(p);
 		pk.service = context.serviceHash;
@@ -264,7 +277,11 @@ public class DataProxy {
 		if (p == null || p.size() == 0)
 			return;
 		XLogProfilePack pk = new XLogProfilePack();
+		pk.ignoreGlobalConsequentSampling = conf.ignore_global_consequent_sampling;
 		pk.txid = x.txid;
+		pk.gxid = x.gxid;
+		pk.xType = x.xType;
+		pk.discardType = x.discardType == null ? XLogDiscardTypes.DISCARD_NONE : x.discardType.byteFlag;
 		pk.objHash = conf.getObjHash();
 		pk.profile = Step.toBytes(p);
 		x.profileCount += p.size();
