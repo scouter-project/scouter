@@ -36,6 +36,7 @@ public abstract class PackEnum {
 	public final static byte XLOG = 21;
 	public final static byte DROPPED_XLOG = 22;
 	public final static byte XLOG_PROFILE = 26;
+	public final static byte XLOG_PROFILE2 = 27;
 
 	public final static byte SPAN = 31;
     public final static byte SPAN_CONTAINER = 32;
@@ -74,6 +75,8 @@ public abstract class PackEnum {
                 return new StatusPack();
             case XLOG_PROFILE:
                 return new XLogProfilePack();
+	        case XLOG_PROFILE2:
+		        return new XLogProfilePack2();
             case XLOG:
                 return new XLogPack();
 	        case DROPPED_XLOG:

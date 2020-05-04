@@ -17,7 +17,7 @@ package scouter.server.core.cache;
  */
 
 import scouter.lang.pack.XLogPack;
-import scouter.lang.pack.XLogProfilePack;
+import scouter.lang.pack.XLogProfilePack2;
 import scouter.server.Configure;
 import scouter.server.Logger;
 import scouter.server.core.ProfileDelayingsRecoverCore;
@@ -45,10 +45,10 @@ public final class ProfileDelayingCache {
 	private int lastMaxSize = 0;
 	private long lastTime = System.currentTimeMillis() / BUCKET_MILLIS;
 
-	private final ReferenceQueue<LongKeyLinkedMap<List<XLogProfilePack>>> referenceQueue;
+	private final ReferenceQueue<LongKeyLinkedMap<List<XLogProfilePack2>>> referenceQueue;
 
-	private LongKeyLinkedMap<List<XLogProfilePack>> gxidProfiles;
-	private final LinkedList<SoftReference<LongKeyLinkedMap<List<XLogProfilePack>>>> gxidProfilesOld;
+	private LongKeyLinkedMap<List<XLogProfilePack2>> gxidProfiles;
+	private final LinkedList<SoftReference<LongKeyLinkedMap<List<XLogProfilePack2>>>> gxidProfilesOld;
 
 	private ProfileDelayingCache() {
 		this.gxidProfiles = newMap();
@@ -64,9 +64,9 @@ public final class ProfileDelayingCache {
 	}
 
 	static class ReferenceQueueHandler extends Thread {
-		private final ReferenceQueue<LongKeyLinkedMap<List<XLogProfilePack>>> referenceQueue;
+		private final ReferenceQueue<LongKeyLinkedMap<List<XLogProfilePack2>>> referenceQueue;
 
-		ReferenceQueueHandler(ReferenceQueue<LongKeyLinkedMap<List<XLogProfilePack>>> referenceQueue) {
+		ReferenceQueueHandler(ReferenceQueue<LongKeyLinkedMap<List<XLogProfilePack2>>> referenceQueue) {
 			this.referenceQueue = referenceQueue;
 			this.setName("SCOUTER-ProfileDelayingCache-ReferenceQueueHandler");
 			this.setDaemon(true);
@@ -77,7 +77,7 @@ public final class ProfileDelayingCache {
 			try {
 				while (true) {
 					try {
-						Reference<? extends LongKeyLinkedMap<List<XLogProfilePack>>> reference = referenceQueue.remove();
+						Reference<? extends LongKeyLinkedMap<List<XLogProfilePack2>>> reference = referenceQueue.remove();
 						Logger.println("S0101", "Consider heap increase, ProfileDelayingCache purged by GC, reference=" + reference);
 
 					} catch (InterruptedException e) {
@@ -91,7 +91,7 @@ public final class ProfileDelayingCache {
 		}
 	}
 
-	public void addDelaying(XLogProfilePack profilePack) {
+	public void addDelaying(XLogProfilePack2 profilePack) {
 		if (profilePack.discardType == 0) { //in case of old version. (no discard type)
 			return;
 		}
@@ -102,11 +102,11 @@ public final class ProfileDelayingCache {
 			int maxBucketCount = conf.xlog_sampling_matcher_profile_keep_memory_secs * 1000 / BUCKET_MILLIS;
 			if (gxidProfilesOld.size() >= maxBucketCount) {
 				for (int inx = gxidProfilesOld.size(); inx >= maxBucketCount; inx--) {
-					SoftReference<LongKeyLinkedMap<List<XLogProfilePack>>> packsRef = gxidProfilesOld.removeFirst();
+					SoftReference<LongKeyLinkedMap<List<XLogProfilePack2>>> packsRef = gxidProfilesOld.removeFirst();
 					if (packsRef == null) {
 						continue;
 					}
-					LongKeyLinkedMap<List<XLogProfilePack>> profilesInOld = packsRef.get();
+					LongKeyLinkedMap<List<XLogProfilePack2>> profilesInOld = packsRef.get();
 					if (profilesInOld == null) {
 						continue;
 					}
@@ -118,7 +118,7 @@ public final class ProfileDelayingCache {
 			gxidProfiles = newMap();
 		}
 
-		List<XLogProfilePack> profilePacks = gxidProfiles.get(profilePack.gxid);
+		List<XLogProfilePack2> profilePacks = gxidProfiles.get(profilePack.gxid);
 		if (profilePacks == null) {
 			profilePacks = new ArrayList<>();
 			gxidProfiles.put(profilePack.gxid, profilePacks);
@@ -129,8 +129,8 @@ public final class ProfileDelayingCache {
 	public void removeDelayingChildren(XLogPack drivingXLogPack) {
 		if (drivingXLogPack.isDriving()) {
 			gxidProfiles.remove(drivingXLogPack.txid);
-			for (SoftReference<LongKeyLinkedMap<List<XLogProfilePack>>> profilesRef : gxidProfilesOld) {
-				LongKeyLinkedMap<List<XLogProfilePack>> profilesInOld = profilesRef.get();
+			for (SoftReference<LongKeyLinkedMap<List<XLogProfilePack2>>> profilesRef : gxidProfilesOld) {
+				LongKeyLinkedMap<List<XLogProfilePack2>> profilesInOld = profilesRef.get();
 				if (profilesInOld == null) {
 					continue;
 				}
@@ -139,23 +139,23 @@ public final class ProfileDelayingCache {
 		}
 	}
 
-	public List<XLogProfilePack> popDelayingChildren(XLogPack drivingXLogPack) {
+	public List<XLogProfilePack2> popDelayingChildren(XLogPack drivingXLogPack) {
 		if (!drivingXLogPack.isDriving()) {
 			return Collections.emptyList();
 		}
-		List<XLogProfilePack> children = gxidProfiles.get(drivingXLogPack.txid);
+		List<XLogProfilePack2> children = gxidProfiles.get(drivingXLogPack.txid);
 		if (children != null) {
 			gxidProfiles.remove(drivingXLogPack.txid);
 		} else {
 			children = new ArrayList<>();
 		}
 
-		for (SoftReference<LongKeyLinkedMap<List<XLogProfilePack>>> profilesRef : gxidProfilesOld) {
-			LongKeyLinkedMap<List<XLogProfilePack>> profilesInOld = profilesRef.get();
+		for (SoftReference<LongKeyLinkedMap<List<XLogProfilePack2>>> profilesRef : gxidProfilesOld) {
+			LongKeyLinkedMap<List<XLogProfilePack2>> profilesInOld = profilesRef.get();
 			if (profilesInOld == null) {
 				continue;
 			}
-			List<XLogProfilePack> childrenInOld = profilesInOld.get(drivingXLogPack.txid);
+			List<XLogProfilePack2> childrenInOld = profilesInOld.get(drivingXLogPack.txid);
 			if (childrenInOld != null) {
 				profilesInOld.remove(drivingXLogPack.txid);
 				children.addAll(childrenInOld);
@@ -164,14 +164,14 @@ public final class ProfileDelayingCache {
 		return children;
 	}
 
-	private LongKeyLinkedMap<List<XLogProfilePack>> newMap() {
+	private LongKeyLinkedMap<List<XLogProfilePack2>> newMap() {
 		int initSize = 0;
 		if (lastMaxSize == 0) {
 			initSize = 5 * 1000;
 		} else {
 			initSize = (int) (lastMaxSize * 1.5f);
 		}
-		LongKeyLinkedMap<List<XLogProfilePack>> map = new LongKeyLinkedMap<>(initSize, 0.75f);
+		LongKeyLinkedMap<List<XLogProfilePack2>> map = new LongKeyLinkedMap<>(initSize, 0.75f);
 		map.setMax(conf.xlog_sampling_matcher_profile_keep_memory_count);
 		return map;
 	}

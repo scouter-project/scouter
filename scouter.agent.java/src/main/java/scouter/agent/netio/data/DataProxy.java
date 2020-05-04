@@ -30,7 +30,7 @@ import scouter.lang.pack.SummaryPack;
 import scouter.lang.pack.TextPack;
 import scouter.lang.pack.XLogDiscardTypes;
 import scouter.lang.pack.XLogPack;
-import scouter.lang.pack.XLogProfilePack;
+import scouter.lang.pack.XLogProfilePack2;
 import scouter.lang.step.Step;
 import scouter.lang.value.MapValue;
 import scouter.util.HashUtil;
@@ -258,7 +258,7 @@ public class DataProxy {
 		if (p == null || p.length == 0)
 			return;
 
-		XLogProfilePack pk = new XLogProfilePack();
+		XLogProfilePack2 pk = new XLogProfilePack2();
 		pk.ignoreGlobalConsequentSampling = conf.ignore_global_consequent_sampling;
 		pk.txid = context.txid;
 		pk.gxid = context.gxid;
@@ -276,7 +276,7 @@ public class DataProxy {
 	public static void sendProfile(List<Step> p, TraceContext x) {
 		if (p == null || p.size() == 0)
 			return;
-		XLogProfilePack pk = new XLogProfilePack();
+		XLogProfilePack2 pk = new XLogProfilePack2();
 		pk.ignoreGlobalConsequentSampling = conf.ignore_global_consequent_sampling;
 		pk.txid = x.txid;
 		pk.gxid = x.gxid;

@@ -167,6 +167,11 @@ object NetDataProcessor {
                 if (conf.log_udp_profile) {
                     System.out.println("DEBUG UDP PROFILE: " + p)
                 }
+            case PackEnum.XLOG_PROFILE2 =>
+                ProfilePreCore.add(p.asInstanceOf[XLogProfilePack2])
+                if (conf.log_udp_profile) {
+                    System.out.println("DEBUG UDP PROFILE: " + p)
+                }
             case PackEnum.DROPPED_XLOG =>
                 val droppedXLogPack = p.asInstanceOf[DroppedXLogPack]
                 val xLogPack = new XLogPack();

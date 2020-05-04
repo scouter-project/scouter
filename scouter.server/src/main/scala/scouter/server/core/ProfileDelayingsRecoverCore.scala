@@ -21,7 +21,7 @@ package scouter.server.core
 import java.util
 import java.util.function.Consumer
 
-import scouter.lang.pack.{XLogDiscardTypes, XLogPack, XLogProfilePack}
+import scouter.lang.pack.{XLogDiscardTypes, XLogPack, XLogProfilePack, XLogProfilePack2}
 import scouter.server.util.ThreadScala
 import scouter.server.{Configure, Logger}
 import scouter.util.{LongKeyLinkedMap, RequestQueue}
@@ -29,7 +29,7 @@ import scouter.util.{LongKeyLinkedMap, RequestQueue}
 object ProfileDelayingsRecoverCore {
 
     val conf = Configure.getInstance();
-    val queue = new RequestQueue[LongKeyLinkedMap[util.List[XLogProfilePack]]](5);
+    val queue = new RequestQueue[LongKeyLinkedMap[util.List[XLogProfilePack2]]](5);
 
     ThreadScala.startDaemon("scouter.server.core.ProfileDelayingRecoverCore", {CoreRun.running}) {
         val packsMap = queue.get();
@@ -39,8 +39,8 @@ object ProfileDelayingsRecoverCore {
             val enumeration = packsMap.values();
             while(enumeration.hasMoreElements) {
                 val packs = enumeration.nextElement();
-                packs.forEach(new Consumer[XLogProfilePack] {
-                    override def accept(pack: XLogProfilePack): Unit = {
+                packs.forEach(new Consumer[XLogProfilePack2] {
+                    override def accept(pack: XLogProfilePack2): Unit = {
                         if (pack.discardType == XLogDiscardTypes.DISCARD_NONE) {
                             ProfileCore.add(pack);
                         }
@@ -50,7 +50,7 @@ object ProfileDelayingsRecoverCore {
         }
     }
 
-    def add(packsMap: LongKeyLinkedMap[util.List[XLogProfilePack]]) {
+    def add(packsMap: LongKeyLinkedMap[util.List[XLogProfilePack2]]) {
         val ok = queue.put(packsMap);
         if (!ok) {
             Logger.println("S110-1", 10, "queue exceeded!!");

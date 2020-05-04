@@ -20,7 +20,7 @@ package scouter.server.core
 
 import java.util.function.Consumer
 
-import scouter.lang.pack.{XLogDiscardTypes, XLogPack, XLogProfilePack, XLogTypes}
+import scouter.lang.pack.{PackEnum, XLogDiscardTypes, XLogPack, XLogProfilePack, XLogProfilePack2, XLogTypes}
 import scouter.server.core.ProfileCore.queue
 import scouter.server.core.ProfilePreCore.canProcess
 import scouter.server.core.XLogPreCore.processDelayingChildren
@@ -36,21 +36,41 @@ object ProfilePreCore {
     val conf = Configure.getInstance();
     val queue = new RequestQueue[XLogProfilePack](conf.profile_queue_size);
 
-    ThreadScala.startDaemon("scouter.server.core.ProfilePreCore", { CoreRun.running }) {
+    ThreadScala.startDaemon("scouter.server.core.ProfilePreCore", {
+        CoreRun.running
+    }) {
         val pack = queue.get();
         ServerStat.put("profile.core0.queue", queue.size());
         if (BytesUtil.getLength(pack.profile) > 0) {
             if (canProcess(pack)) {
                 processOnCondition(pack);
             } else {
-                waitOnMemory(pack);
+                waitOnMemory(pack.asInstanceOf[XLogProfilePack2]);
             }
         }
     }
 
+    def canProcess(pack: XLogProfilePack): Boolean = {
+        if (pack.getPackType() == PackEnum.XLOG_PROFILE2) {
+            val pack2 = pack.asInstanceOf[XLogProfilePack2];
+            return (pack2.isDriving()
+                    || pack2.ignoreGlobalConsequentSampling
+                    || (XLogTypes.isService(pack2.xType) && XLogDiscardTypes.isAliveProfile(pack2.discardType))
+                    || XLogTypes.isZipkin(pack2.xType)
+                    || XLogDelayingCache.instance.isProcessedGxidWithProfile(pack2.gxid)
+                    || pack2.discardType == 0)
+        }
+        return true;
+    }
+
     def processOnCondition(pack: XLogProfilePack): Unit = {
-        if (pack.ignoreGlobalConsequentSampling) {
-            if (XLogDiscardTypes.isAliveProfile(pack.discardType)) {
+        if (pack.getPackType() == PackEnum.XLOG_PROFILE2) {
+            val pack2 = pack.asInstanceOf[XLogProfilePack2];
+            if (pack2.ignoreGlobalConsequentSampling) {
+                if (XLogDiscardTypes.isAliveProfile(pack2.discardType)) {
+                    ProfileCore.add(pack);
+                }
+            } else {
                 ProfileCore.add(pack);
             }
         } else {
@@ -58,17 +78,8 @@ object ProfilePreCore {
         }
     }
 
-    def canProcess(pack: XLogProfilePack): Boolean = {
-        (pack.isDriving()
-                || pack.ignoreGlobalConsequentSampling
-                || (XLogTypes.isService(pack.xType) && XLogDiscardTypes.isAliveProfile(pack.discardType))
-                || XLogTypes.isZipkin(pack.xType)
-                || XLogDelayingCache.instance.isProcessedGxidWithProfile(pack.gxid)
-                || pack.discardType == 0); //discardType 0 means intelligent sampling unsupported version.
-    }
-
-    def waitOnMemory(pack: XLogProfilePack): Unit = {
-        ProfileDelayingCache.instance.addDelaying(pack);
+    def waitOnMemory(pack2: XLogProfilePack2): Unit = {
+        ProfileDelayingCache.instance.addDelaying(pack2);
     }
 
     def doNothing() {}
