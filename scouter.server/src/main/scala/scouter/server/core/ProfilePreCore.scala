@@ -41,16 +41,67 @@ object ProfilePreCore {
     }) {
         val pack = queue.get();
         ServerStat.put("profile.core0.queue", queue.size());
-        if (BytesUtil.getLength(pack.profile) > 0) {
+
+        val pack2 = pack match {
+            case _pack: XLogProfilePack2 => _pack
+            case _ => null
+        };
+
+        //Drop profile Pack by txid
+        if (pack2 != null && pack2.isForDrop) {
+            ProfileDelayingCache.instance.removeDelayingChildren(pack2);
+
+        //Process delaying profile Pack by txid
+        } else if (pack2 != null && pack2.isForProcessDelayingChildren) {
+            processDelayingProfiles(pack2)
+
+        } else if (BytesUtil.getLength(pack.profile) > 0) {
             if (canProcess(pack)) {
                 processOnCondition(pack);
             } else {
+                //it must be XLogProfilePack2 type. (by canProcess() results false)
                 waitOnMemory(pack.asInstanceOf[XLogProfilePack2]);
             }
         }
     }
 
-    def canProcess(pack: XLogProfilePack): Boolean = {
+    def add(p: XLogProfilePack) {
+        p.time = System.currentTimeMillis();
+
+        val ok = queue.put(p)
+        if (!ok) {
+            Logger.println("S110-0", 10, "queue exceeded!!");
+        }
+    }
+
+    def addAsDropped(p: XLogPack): Unit = {
+        val profilePack = XLogProfilePack2.forInternalDropProcessing(p);
+        val ok = queue.put(profilePack)
+        if (!ok) {
+            Logger.println("S110-0-1", 10, "queue exceeded!!");
+        }
+    }
+
+    def addAsProcessDelayingChildren(p: XLogPack): Unit = {
+        val profilePack = XLogProfilePack2.forInternalDelayingChildrenProcessing(p);
+        val ok = queue.put(profilePack)
+        if (!ok) {
+            Logger.println("S110-0-2", 10, "queue exceeded!!");
+        }
+    }
+
+    private def processDelayingProfiles(pack2: XLogProfilePack2) = {
+        val profileList = ProfileDelayingCache.instance.popDelayingChildren(pack2);
+        profileList.forEach(new Consumer[XLogProfilePack] {
+            override def accept(delayingPack: XLogProfilePack): Unit = {
+                if (pack2.discardType != XLogDiscardTypes.DISCARD_ALL) {
+                    ProfileCore.add(delayingPack)
+                }
+            }
+        });
+    }
+
+    private def canProcess(pack: XLogProfilePack): Boolean = {
         if (pack.getPackType() == PackEnum.XLOG_PROFILE2) {
             val pack2 = pack.asInstanceOf[XLogProfilePack2];
             return (pack2.isDriving()
@@ -63,7 +114,7 @@ object ProfilePreCore {
         return true;
     }
 
-    def processOnCondition(pack: XLogProfilePack): Unit = {
+    private def processOnCondition(pack: XLogProfilePack): Unit = {
         if (pack.getPackType() == PackEnum.XLOG_PROFILE2) {
             val pack2 = pack.asInstanceOf[XLogProfilePack2];
             if (pack2.ignoreGlobalConsequentSampling) {
@@ -78,18 +129,9 @@ object ProfilePreCore {
         }
     }
 
-    def waitOnMemory(pack2: XLogProfilePack2): Unit = {
+    private def waitOnMemory(pack2: XLogProfilePack2): Unit = {
         ProfileDelayingCache.instance.addDelaying(pack2);
     }
 
-    def doNothing() {}
-
-    def add(p: XLogProfilePack) {
-        p.time = System.currentTimeMillis();
-
-        val ok = queue.put(p)
-        if (!ok) {
-            Logger.println("S110-0", 10, "queue exceeded!!");
-        }
-    }
+    private def doNothing() {}
 }

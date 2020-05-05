@@ -37,10 +37,10 @@ object XLogPreCore {
         val pack = queue.get();
         ServerStat.put("xlog.core0.queue", queue.size());
         if (Configure.WORKABLE) {
-            if (pack.isDropped()) {
+            if (pack.isDropped) {
                 //discard dropped in delaying
                 XLogDelayingCache.instance.removeDelayingChildren(pack);
-                ProfileDelayingCache.instance.removeDelayingChildren(pack);
+                ProfilePreCore.addAsDropped(pack);
 
             } else {
                 if (canProcess(pack)) {
@@ -52,7 +52,18 @@ object XLogPreCore {
         }
     }
 
-    def processOnCondition(pack: XLogPack): Unit = {
+    def add(pack: XLogPack) {
+        if (pack.endTime == 0) {
+            pack.endTime = System.currentTimeMillis();
+        }
+
+        val ok = queue.put(pack);
+        if (!ok) {
+            Logger.println("S116-0", 10, "queue exceeded!!");
+        }
+    }
+
+    private def processOnCondition(pack: XLogPack): Unit = {
         if (pack.ignoreGlobalConsequentSampling) {
             if (XLogDiscardTypes.isAliveXLog(pack.discardType)) {
                 process0(pack);
@@ -62,13 +73,13 @@ object XLogPreCore {
         }
     }
 
-    def process0(pack: XLogPack) {
+    private def process0(pack: XLogPack) {
         XLogDelayingCache.instance.addProcessed(pack);
         processDelayingChildren(pack);
         XLogCore.add(pack);
     }
 
-    def canProcess(pack: XLogPack): Boolean = {
+    private def canProcess(pack: XLogPack): Boolean = {
         if (pack.isDriving()
                 || pack.ignoreGlobalConsequentSampling
                 || pack.discardType == 0
@@ -83,16 +94,11 @@ object XLogPreCore {
         }
     }
 
-    def processDelayingChildren(pack: XLogPack): Unit = {
-        val profileList = ProfileDelayingCache.instance.popDelayingChildren(pack);
-        profileList.forEach(new Consumer[XLogProfilePack] {
-            override def accept(delayingPack: XLogProfilePack): Unit = {
-                if (pack.discardType != XLogDiscardTypes.DISCARD_ALL) {
-                    ProfileCore.add(delayingPack)
-                }
-            }
-        });
+    private def processDelayingChildren(pack: XLogPack): Unit = {
+        //for profile
+        ProfilePreCore.addAsProcessDelayingChildren(pack);
 
+        //for xlog
         val xLogList = XLogDelayingCache.instance.popDelayingChildren(pack);
         xLogList.forEach(new Consumer[XLogPack] {
             override def accept(delayingPack: XLogPack): Unit = {
@@ -103,20 +109,8 @@ object XLogPreCore {
         });
     }
 
-    def waitOnMemory(pack: XLogPack): Unit = {
+    private def waitOnMemory(pack: XLogPack): Unit = {
         XLogDelayingCache.instance.addDelaying(pack);
-    }
-
-
-    def add(pack: XLogPack) {
-        if (pack.endTime == 0) {
-            pack.endTime = System.currentTimeMillis();
-        }
-
-        val ok = queue.put(pack);
-        if (!ok) {
-            Logger.println("S116-0", 10, "queue exceeded!!");
-        }
     }
 
 }

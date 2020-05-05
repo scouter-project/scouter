@@ -16,7 +16,6 @@ package scouter.server.core.cache;
  *  limitations under the License.
  */
 
-import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogProfilePack2;
 import scouter.server.Configure;
 import scouter.server.Logger;
@@ -126,26 +125,26 @@ public final class ProfileDelayingCache {
 		profilePacks.add(profilePack);
 	}
 
-	public void removeDelayingChildren(XLogPack drivingXLogPack) {
-		if (drivingXLogPack.isDriving()) {
-			gxidProfiles.remove(drivingXLogPack.txid);
+	public void removeDelayingChildren(XLogProfilePack2 drivingPack) {
+		if (drivingPack.isDriving()) {
+			gxidProfiles.remove(drivingPack.txid);
 			for (SoftReference<LongKeyLinkedMap<List<XLogProfilePack2>>> profilesRef : gxidProfilesOld) {
 				LongKeyLinkedMap<List<XLogProfilePack2>> profilesInOld = profilesRef.get();
 				if (profilesInOld == null) {
 					continue;
 				}
-				profilesInOld.remove(drivingXLogPack.txid);
+				profilesInOld.remove(drivingPack.txid);
 			}
 		}
 	}
 
-	public List<XLogProfilePack2> popDelayingChildren(XLogPack drivingXLogPack) {
-		if (!drivingXLogPack.isDriving()) {
+	public List<XLogProfilePack2> popDelayingChildren(XLogProfilePack2 drivingPack) {
+		if (!drivingPack.isDriving()) {
 			return Collections.emptyList();
 		}
-		List<XLogProfilePack2> children = gxidProfiles.get(drivingXLogPack.txid);
+		List<XLogProfilePack2> children = gxidProfiles.get(drivingPack.txid);
 		if (children != null) {
-			gxidProfiles.remove(drivingXLogPack.txid);
+			gxidProfiles.remove(drivingPack.txid);
 		} else {
 			children = new ArrayList<>();
 		}
@@ -155,9 +154,9 @@ public final class ProfileDelayingCache {
 			if (profilesInOld == null) {
 				continue;
 			}
-			List<XLogProfilePack2> childrenInOld = profilesInOld.get(drivingXLogPack.txid);
+			List<XLogProfilePack2> childrenInOld = profilesInOld.get(drivingPack.txid);
 			if (childrenInOld != null) {
-				profilesInOld.remove(drivingXLogPack.txid);
+				profilesInOld.remove(drivingPack.txid);
 				children.addAll(childrenInOld);
 			}
 		}

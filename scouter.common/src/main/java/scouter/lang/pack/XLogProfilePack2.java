@@ -29,6 +29,9 @@ import java.io.IOException;
  */
 public class XLogProfilePack2 extends XLogProfilePack implements Pack {
 
+	private boolean _forDrop;
+	private boolean _forProcessDelayingChildren;
+
 	public long gxid;
 	public byte xType;
 	public byte discardType;
@@ -69,6 +72,30 @@ public class XLogProfilePack2 extends XLogProfilePack implements Pack {
 		this.ignoreGlobalConsequentSampling = din.readBoolean();
 
 		return this;
+	}
+
+	public static XLogProfilePack2 forInternalDropProcessing(XLogPack xLogPack) {
+		XLogProfilePack2 pack = new XLogProfilePack2();
+		pack.gxid = xLogPack.gxid;
+		pack.txid = xLogPack.txid;
+		pack._forDrop = true;
+		return pack;
+	}
+
+	public static XLogProfilePack2 forInternalDelayingChildrenProcessing(XLogPack xLogPack) {
+		XLogProfilePack2 pack = new XLogProfilePack2();
+		pack.gxid = xLogPack.gxid;
+		pack.txid = xLogPack.txid;
+		pack._forProcessDelayingChildren = true;
+		return pack;
+	}
+
+	public boolean isForDrop() {
+		return _forDrop;
+	}
+
+	public boolean isForProcessDelayingChildren() {
+		return _forProcessDelayingChildren;
 	}
 
 }
