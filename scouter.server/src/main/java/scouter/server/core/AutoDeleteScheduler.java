@@ -20,7 +20,7 @@ import java.util.Set;
 
 public class AutoDeleteScheduler extends Thread {
 	enum Mode {
-		PROFILE, XLOG, TAG, VISITOR, REAL_COUNTER, ALL,;
+		PROFILE, XLOG, TAG, VISITOR, REAL_COUNTER, TEXT, SUM, ALL,;
 	}
 
 	private static AutoDeleteScheduler instance = null;
@@ -34,6 +34,8 @@ public class AutoDeleteScheduler extends Thread {
 	int retainRealtimeCounterDays;
 	int retainVisitorCounterDays;
 	int retainTagCounterDays;
+	int retainTextDays;
+	int retainSumDays;
 
 	Set<String> deletedProfileDays = new HashSet<String>();
 	Set<String> deletedXLogDays = new HashSet<String>();
@@ -42,7 +44,9 @@ public class AutoDeleteScheduler extends Thread {
 	Set<String> deletedRealtimeCounterDays = new HashSet<String>();
 	Set<String> deletedTagCounterDays = new HashSet<String>();
 	Set<String> deletedVisitorCounterDays = new HashSet<String>();
-	
+	Set<String> deletedTextDays = new HashSet<String>();
+	Set<String> deletedSumDays = new HashSet<String>();
+
 	public final static synchronized AutoDeleteScheduler getInstance() {
 		if (instance == null) {
 			instance = new AutoDeleteScheduler();
@@ -68,6 +72,8 @@ public class AutoDeleteScheduler extends Thread {
 					|| conf.mgr_purge_realtime_counter_keep_days != retainRealtimeCounterDays
 					|| conf.mgr_purge_visitor_counter_keep_days != retainVisitorCounterDays
 					|| conf.mgr_purge_tag_counter_keep_days != retainTagCounterDays
+					|| conf.mgr_purge_daily_text_days != retainTextDays
+					|| conf.mgr_purge_sum_data_days != retainSumDays
 				) {
 
 					applyConf();
@@ -88,6 +94,8 @@ public class AutoDeleteScheduler extends Thread {
 		retainRealtimeCounterDays = conf.mgr_purge_realtime_counter_keep_days;
 		retainVisitorCounterDays = conf.mgr_purge_visitor_counter_keep_days;
 		retainTagCounterDays = conf.mgr_purge_tag_counter_keep_days;
+		retainTextDays = conf.mgr_purge_daily_text_days;
+		retainSumDays = conf.mgr_purge_sum_data_days;
 	}
 
 	public void run() {
@@ -100,6 +108,7 @@ public class AutoDeleteScheduler extends Thread {
 				purgeProfile(today);
 				purgeXlog(today);
 				purgeTagCounter(today);
+				purgeText(today);
 				purgeVisitorCounter(today);
 				purgeRealtimeCounter(today);
 				purgeAllCounter(today);
@@ -161,7 +170,7 @@ public class AutoDeleteScheduler extends Thread {
 	}
 
 	private void purgeAllCounter(String today) {
-		int retainCounterDays = conf.mgr_purge_realtime_counter_keep_days;
+		int retainCounterDays = conf.mgr_purge_counter_keep_days;
 		if (retainCounterDays > 0) {
 			int lastDeleteDate = CastUtil.cint(DateUtil.yyyymmdd(System.currentTimeMillis() - (DateUtil.MILLIS_PER_DAY * retainCounterDays)));
 			while (true) {
@@ -174,8 +183,8 @@ public class AutoDeleteScheduler extends Thread {
 				}
 				deleteData(yyyymmdd, Mode.ALL);
 				deletedDays.add(yyyymmdd);
-				Logger.println("S206-6", "[purge counters by][day limit]" + yyyymmdd);
-				Logger.println("S206-6", "* option : conf.mgr_purge_counter_keep_days : " + conf.mgr_purge_counter_keep_days);
+				Logger.println("S206-9", "[purge counters by][day limit]" + yyyymmdd + ", [lastDeleteDate]" + lastDeleteDate);
+				Logger.println("S206-9", "* option : conf.mgr_purge_counter_keep_days : " + conf.mgr_purge_counter_keep_days);
 			}
 		}
 	}
@@ -260,6 +269,49 @@ public class AutoDeleteScheduler extends Thread {
 		}
 	}
 
+	private void purgeText(String today) {
+		int retainDays = Math.max(conf.mgr_purge_daily_text_days,
+				Math.max(conf.mgr_purge_tag_counter_keep_days, conf.mgr_purge_xlog_keep_days));
+
+		if (retainDays > 0) {
+			int lastDeleteDate = CastUtil.cint(DateUtil.yyyymmdd(System.currentTimeMillis() - (DateUtil.MILLIS_PER_DAY * retainDays)));
+			while (true) {
+				String yyyymmdd = getLongAgoDate(deletedTextDays);
+				if (yyyymmdd == null || today.equals(yyyymmdd)) {
+					break;
+				}
+				if (CastUtil.cint(yyyymmdd) > lastDeleteDate) {
+					break;
+				}
+				deleteData(yyyymmdd, Mode.TEXT);
+				deletedTextDays.add(yyyymmdd);
+				Logger.println("S206-5", "[purge text by][day limit]" + yyyymmdd);
+				Logger.println("S206-5", "* option : retainDays of text : " + retainDays);
+			}
+		}
+	}
+
+	private void purgeSum(String today) {
+		int retainDays = conf.mgr_purge_sum_data_days;
+
+		if (retainDays > 0) {
+			int lastDeleteDate = CastUtil.cint(DateUtil.yyyymmdd(System.currentTimeMillis() - (DateUtil.MILLIS_PER_DAY * retainDays)));
+			while (true) {
+				String yyyymmdd = getLongAgoDate(deletedSumDays);
+				if (yyyymmdd == null || today.equals(yyyymmdd)) {
+					break;
+				}
+				if (CastUtil.cint(yyyymmdd) > lastDeleteDate) {
+					break;
+				}
+				deleteData(yyyymmdd, Mode.SUM);
+				deletedSumDays.add(yyyymmdd);
+				Logger.println("S206-5", "[purge sum data by][day limit]" + yyyymmdd);
+				Logger.println("S206-5", "* option : retainDays of sum data : " + retainDays);
+			}
+		}
+	}
+
 	private void purgeProfile(String today) {
 		int retainProfileDays = conf.mgr_purge_profile_keep_days;
 		if (retainProfileDays > 0) {
@@ -303,6 +355,12 @@ public class AutoDeleteScheduler extends Thread {
 				deleteFiles(f);
 			} else if (mode == Mode.TAG) {
 				f = new File(dbDir, yyyymmdd + "/tagcnt");
+				deleteFiles(f);
+			} else if (mode == Mode.TEXT) {
+				f = new File(dbDir, yyyymmdd + "/text");
+				deleteFiles(f);
+			} else if (mode == Mode.SUM) {
+				f = new File(dbDir, yyyymmdd + "/sum");
 				deleteFiles(f);
 			} else if (mode == Mode.REAL_COUNTER) {
 				f = new File(dbDir, yyyymmdd + "/counter/real.data");

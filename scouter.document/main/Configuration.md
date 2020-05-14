@@ -195,6 +195,11 @@
 	@ConfigDesc("Retaining date for automatic deletion. visitor-counter only")
 	public int mgr_purge_visitor_counter_keep_days = mgr_purge_counter_keep_days;
 
+    @ConfigDesc("Retaining date for automatic deletion. daily text dictionary only")
+    public int mgr_purge_daily_text_days = Math.max(mgr_purge_tag_counter_keep_days * 2, mgr_purge_xlog_keep_days * 2);
+
+    @ConfigDesc("Retaining date for automatic deletion. summary(stat) data only")
+	public int mgr_purge_sum_data_days = 60;
 
 	@ConfigDesc("Ignored log ID set")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)

@@ -51,7 +51,8 @@ import java.time.format.DateTimeParseException;
 public class XLogFilterDialog extends Dialog {
 	
 	Combo objCombo;
-	Text serviceTxt, ipTxt, startHmsFromTxt, startHmsToTxt, resTimeFromTxt, resTimeToTxt, userAgentTxt, loginText, descText, hasDumpYn, text1Text, text2Text, text3Text, text4Text, text5Text, profileSizeText;
+	Text serviceTxt, ipTxt, startHmsFromTxt, startHmsToTxt, resTimeFromTxt, resTimeToTxt, userAgentTxt, loginText, descText;
+	Text hasDumpYn, text1Text, text2Text, text3Text, text4Text, text5Text, profileSizeText, profileByteText;
 	Button onlySqlBtn, onlyApiBtn, onlyErrorBtn;
 	Button clearBtn, applyBtn;
 	
@@ -335,6 +336,19 @@ public class XLogFilterDialog extends Dialog {
 				compareHash();
 			}
 		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("PROFILE-BYTE");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		profileByteText = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		profileByteText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		profileByteText.setText(status.profileBytesText);
+		profileByteText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.profileBytesText = profileByteText.getText();
+				compareHash();
+			}
+		});
 		
 		Group checkGroup = new Group(filterGrp, SWT.NONE);
 		checkGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1));
@@ -404,6 +418,7 @@ public class XLogFilterDialog extends Dialog {
 				onlyApiBtn.setSelection(false);
 				onlyErrorBtn.setSelection(false);
 				profileSizeText.setText("");
+				profileByteText.setText("");
 				newStatus = new XLogFilterStatus();
 				if (newStatus.hashCode() != filterHash) {
 					applyBtn.setEnabled(true);
