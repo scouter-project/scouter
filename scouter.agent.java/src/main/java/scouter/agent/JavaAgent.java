@@ -93,6 +93,9 @@ public class JavaAgent {
 			redefineClasses.put("java.util.HashTable");
 		}
 
+		redefineClasses.put("java.util.concurrent.AbstractExecutorService");
+		redefineClasses.put("java.util.concurrent.ThreadPoolExecutor");
+
 		//java.lang.invoke.LambdaMetafactory.*,java.lang.invoke.CallSite.*,
 		//java.lang.invoke.ConstantCallSite.*,
 		//java.lang.invoke.MutableCallSite.*,

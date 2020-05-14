@@ -72,13 +72,14 @@ If you include this widget path when setting up a custom alarm, you can use it m
 
 //Network
 @ConfigDesc("Collector connection infos - eg) host:6100:id:pw,host2:6100:id2:pw2")
-@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 public String net_collector_ip_port_id_pws = "127.0.0.1:6100:admin:admin";
 
 @ConfigDesc("size of webapp connection pool to collector")
-public int net_webapp_tcp_client_pool_size = 12;
-@ConfigDesc("timeout of web app connection pool to collector(It depends on net_tcp_client_so_timeout_ms)")
-public int net_webapp_tcp_client_pool_timeout = 15000;
+public int net_webapp_tcp_client_pool_size = 100;
+@ConfigDesc("timeout of web app connection pool to collector")
+public int net_webapp_tcp_client_pool_timeout = 60000;
+@ConfigDesc("So timeout of web app to collector")
+public int net_webapp_tcp_client_so_timeout = 30000;
 
 @ConfigDesc("Enable api access control by client ip")
 public boolean net_http_api_auth_ip_enabled = false;
@@ -95,7 +96,6 @@ public boolean net_http_api_auth_bearer_token_enabled = false;
 public boolean net_http_api_gzip_enabled = true;
 
 @ConfigDesc("api access allow ip addresses")
-@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 public String net_http_api_allow_ips = "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1";
 
 @ConfigDesc("HTTP service port")
@@ -118,6 +118,9 @@ public String net_http_api_cors_allow_credentials = "true";
 public String log_dir = "./logs";
 @ConfigDesc("Keeping period of log")
 public int log_keep_days = 30;
+
+@ConfigDesc("temp dir")
+public String temp_dir = "./tempdata";
 
 ```
 

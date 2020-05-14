@@ -97,6 +97,7 @@ public class XLogViewPainter {
 	public StrMatch text5Mat;
 	public StrMatch userAgentMat;
 	public String profileSizeExpr;
+	public String profileByteExpr;
 	public String txtHasDump;
 	
 	public String yyyymmdd;
@@ -647,7 +648,9 @@ public class XLogViewPainter {
 				&& isErrorFilterOk(d.p)
 				&& isApicallFilterOk(d.p)
 				&& isSqlFilterOk(d.p)
-				&& isProfileSizeFilterOk(d.p);
+				&& isProfileSizeFilterOk(d.p)
+				&& isProfileByteFilterOk(d.p)
+				;
 	}
 	
 	public boolean isObjNameFilterOk(XLogData d) {
@@ -815,6 +818,41 @@ public class XLogViewPainter {
 		return true;
 	}
 
+	public boolean isProfileByteFilterOk(XLogPack p) {
+		if (StringUtil.isEmpty(filterStatus.profileBytesText)) {
+			return true;
+		}
+		String exp = filterStatus.profileBytesText.trim();
+		char sign0 = exp.charAt(0);
+		char sign1 = exp.length() >= 2 ? exp.charAt(1) : '\0';
+		try {
+			if (sign0 == '>') {
+				if(sign1 == '=') {
+					return p.profileSize >= Integer.parseInt(exp.substring(2));
+				} else {
+					return p.profileSize > Integer.parseInt(exp.substring(1));
+				}
+			} else if (sign0 == '<') {
+				if(sign1 == '=') {
+					return p.profileSize <= Integer.parseInt(exp.substring(2));
+				} else {
+					return p.profileSize < Integer.parseInt(exp.substring(1));
+				}
+			} else if (sign0 == '=') {
+				if(sign1 == '=') {
+					return p.profileSize == Integer.parseInt(exp.substring(2));
+				} else {
+					return p.profileSize == Integer.parseInt(exp.substring(1));
+				}
+			} else {
+				return p.profileSize == Integer.parseInt(exp);
+			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+
 	public boolean isErrorFilterOk(XLogPack p) {
 		if (filterStatus.onlyError) {
 			return p.error != 0;
@@ -865,6 +903,7 @@ public class XLogViewPainter {
 		txtHasDump = status.hasDumpYn;
 
 		profileSizeExpr = status.profileSizeText;
+		profileByteExpr = status.profileBytesText;
 
 		if (status.startHmsFrom.length() >= 1 && status.startHmsTo.length() >= 1) {
 			try {

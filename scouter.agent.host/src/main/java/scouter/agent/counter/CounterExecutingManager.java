@@ -25,7 +25,7 @@ import java.util.Set;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.anotation.Counter;
-import scouter.agent.netio.data.DataProxy;
+import scouter.agent.netio.data.HostAgentDataProxy;
 import scouter.lang.pack.PerfCounterPack;
 import scouter.util.ThreadUtil;
 import scouter.util.scan.Scanner;
@@ -63,7 +63,7 @@ public class CounterExecutingManager extends Thread {
 			}
 			//
 			PerfCounterPack[] pks = pw.getList();
-			DataProxy.sendCounter(pks);
+			HostAgentDataProxy.sendCounter(pks);
 		}
 	}
 	private CounterExecutingManager() {

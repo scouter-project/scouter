@@ -16,12 +16,15 @@
  */
 package scouter.agent.asm.asyncsupport.executor;
 
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.agent.asm.IASM;
 import scouter.agent.trace.TraceMain;
-import org.objectweb.asm.*;
-import org.objectweb.asm.commons.LocalVariablesSorter;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 7. 29.
@@ -37,9 +40,12 @@ public class ExecutorServiceASM implements IASM, Opcodes {
         if (conf.hook_async_thread_pool_executor_enabled == false) {
             return cv;
         }
+        Logger.trace("[SCTRACE]className IN ExecutorServiceASM : " + className);
         if (THREAD_POOL_EXECUTOR_CLASS_NAME.equals(className)) {
+            Logger.trace("[SCTRACE]transform ThreadPoolExecutor");
             return new ThreadPoolExecutorCV(cv, className);
         } else if (ABSTRACT_EXECUTOR_SERVICE_CLASS_NAME.equals(className)) {
+            Logger.trace("[SCTRACE]transform AbstractExecutorService");
             return new AbstractExecutorServiceCV(cv, className);
         }
 
@@ -107,6 +113,7 @@ class AbstractExecutorServiceCV extends ClassVisitor implements Opcodes {
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
         if ("submit".equals(name)) {
+            Logger.trace("[SCTRACE]AbstractExecutorServiceCV.visitMethod:submit(), class:" + className + ", " + name + ", " + signature);
             return new AbstraceExecutorServiceSubmitMV(access, name, desc, mv);
         }
         return mv;

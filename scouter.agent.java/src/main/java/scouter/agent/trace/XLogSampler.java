@@ -1,8 +1,8 @@
 package scouter.agent.trace;
 
 import scouter.agent.Configure;
-import scouter.agent.trace.enums.XLogDiscard;
 import scouter.lang.conf.ConfObserver;
+import scouter.lang.pack.XLogDiscardTypes.XLogDiscard;
 import scouter.util.KeyGen;
 import scouter.util.StringUtil;
 import scouter.util.matcher.CommaSeparatedChainedStrMatcher;
@@ -16,9 +16,17 @@ public class XLogSampler {
     private Configure conf;
     private String currentDiscardServicePatterns;
     private String currentSamplingServicePatterns;
+    private String currentSampling2ServicePatterns;
+    private String currentSampling3ServicePatterns;
+    private String currentSampling4ServicePatterns;
+    private String currentSampling5ServicePatterns;
     private String currentFullyDiscardServicePatterns;
     private CommaSeparatedChainedStrMatcher discardPatternMatcher;
     private CommaSeparatedChainedStrMatcher samplingPatternMatcher;
+    private CommaSeparatedChainedStrMatcher sampling2PatternMatcher;
+    private CommaSeparatedChainedStrMatcher sampling3PatternMatcher;
+    private CommaSeparatedChainedStrMatcher sampling4PatternMatcher;
+    private CommaSeparatedChainedStrMatcher sampling5PatternMatcher;
     private CommaSeparatedChainedStrMatcher fullyDiscardPatternMatcher;
 
     private XLogSampler() {
@@ -26,9 +34,17 @@ public class XLogSampler {
         currentDiscardServicePatterns = conf.xlog_discard_service_patterns;
         currentFullyDiscardServicePatterns = conf.xlog_fully_discard_service_patterns;
         currentSamplingServicePatterns = conf.xlog_patterned_sampling_service_patterns;
+        currentSampling2ServicePatterns = conf.xlog_patterned2_sampling_service_patterns;
+        currentSampling3ServicePatterns = conf.xlog_patterned3_sampling_service_patterns;
+        currentSampling4ServicePatterns = conf.xlog_patterned4_sampling_service_patterns;
+        currentSampling5ServicePatterns = conf.xlog_patterned5_sampling_service_patterns;
         discardPatternMatcher = new CommaSeparatedChainedStrMatcher(currentDiscardServicePatterns);
         fullyDiscardPatternMatcher = new CommaSeparatedChainedStrMatcher(currentFullyDiscardServicePatterns);
         samplingPatternMatcher = new CommaSeparatedChainedStrMatcher(currentSamplingServicePatterns);
+        sampling2PatternMatcher = new CommaSeparatedChainedStrMatcher(currentSampling2ServicePatterns);
+        sampling3PatternMatcher = new CommaSeparatedChainedStrMatcher(currentSampling3ServicePatterns);
+        sampling4PatternMatcher = new CommaSeparatedChainedStrMatcher(currentSampling4ServicePatterns);
+        sampling5PatternMatcher = new CommaSeparatedChainedStrMatcher(currentSampling5ServicePatterns);
 
         ConfObserver.add("XLogSampler.StrMatch", new Runnable() {
             @Override public void run() {
@@ -45,6 +61,22 @@ public class XLogSampler {
                 if (sampler.currentSamplingServicePatterns.equals(conf.xlog_patterned_sampling_service_patterns) == false) {
                     sampler.currentSamplingServicePatterns = conf.xlog_patterned_sampling_service_patterns;
                     sampler.samplingPatternMatcher = new CommaSeparatedChainedStrMatcher(conf.xlog_patterned_sampling_service_patterns);
+                }
+                if (sampler.currentSampling2ServicePatterns.equals(conf.xlog_patterned2_sampling_service_patterns) == false) {
+                    sampler.currentSampling2ServicePatterns = conf.xlog_patterned2_sampling_service_patterns;
+                    sampler.sampling2PatternMatcher = new CommaSeparatedChainedStrMatcher(conf.xlog_patterned2_sampling_service_patterns);
+                }
+                if (sampler.currentSampling3ServicePatterns.equals(conf.xlog_patterned3_sampling_service_patterns) == false) {
+                    sampler.currentSampling3ServicePatterns = conf.xlog_patterned3_sampling_service_patterns;
+                    sampler.sampling3PatternMatcher = new CommaSeparatedChainedStrMatcher(conf.xlog_patterned3_sampling_service_patterns);
+                }
+                if (sampler.currentSampling4ServicePatterns.equals(conf.xlog_patterned4_sampling_service_patterns) == false) {
+                    sampler.currentSampling4ServicePatterns = conf.xlog_patterned4_sampling_service_patterns;
+                    sampler.sampling4PatternMatcher = new CommaSeparatedChainedStrMatcher(conf.xlog_patterned4_sampling_service_patterns);
+                }
+                if (sampler.currentSampling5ServicePatterns.equals(conf.xlog_patterned5_sampling_service_patterns) == false) {
+                    sampler.currentSampling5ServicePatterns = conf.xlog_patterned5_sampling_service_patterns;
+                    sampler.sampling5PatternMatcher = new CommaSeparatedChainedStrMatcher(conf.xlog_patterned5_sampling_service_patterns);
                 }
             }
         });
@@ -63,42 +95,157 @@ public class XLogSampler {
 
         boolean isSamplingServicePattern = false;
         if (conf.xlog_patterned_sampling_enabled && (isSamplingServicePattern = isSamplingServicePattern(serviceName))) {
-            if (elapsed < conf.xlog_patterned_sampling_step1_ms) {
-                if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned_sampling_step1_rate_pct) {
-                    discardMode = conf.xlog_patterned_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
-                }
-            } else if (elapsed < conf.xlog_patterned_sampling_step2_ms) {
-                if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned_sampling_step2_rate_pct) {
-                    discardMode = conf.xlog_patterned_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
-                }
-            } else if (elapsed < conf.xlog_patterned_sampling_step3_ms) {
-                if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned_sampling_step3_rate_pct) {
-                    discardMode = conf.xlog_patterned_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
-                }
-            } else {
-                if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned_sampling_over_rate_pct) {
-                    discardMode = conf.xlog_patterned_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
-                }
-            }
+            discardMode = samplingPatterned1(elapsed, discardMode);
+        }
+        if (!isSamplingServicePattern &&
+                conf.xlog_patterned2_sampling_enabled && (isSamplingServicePattern = isSampling2ServicePattern(serviceName))) {
+
+            discardMode = samplingPatterned2(elapsed, discardMode);
+        }
+        if (!isSamplingServicePattern &&
+                conf.xlog_patterned3_sampling_enabled && (isSamplingServicePattern = isSampling3ServicePattern(serviceName))) {
+
+            discardMode = samplingPatterned3(elapsed, discardMode);
+        }
+        if (!isSamplingServicePattern &&
+                conf.xlog_patterned4_sampling_enabled && (isSamplingServicePattern = isSampling4ServicePattern(serviceName))) {
+
+            discardMode = samplingPatterned4(elapsed, discardMode);
+        }
+        if (!isSamplingServicePattern &&
+                conf.xlog_patterned5_sampling_enabled && (isSamplingServicePattern = isSampling5ServicePattern(serviceName))) {
+
+            discardMode = samplingPatterned5(elapsed, discardMode);
         }
 
         if (!isSamplingServicePattern && conf.xlog_sampling_enabled) {
-            if (elapsed < conf.xlog_sampling_step1_ms) {
-                if (Math.abs(KeyGen.next() % 100) >= conf.xlog_sampling_step1_rate_pct) {
-                    discardMode = conf.xlog_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
-                }
-            } else if (elapsed < conf.xlog_sampling_step2_ms) {
-                if (Math.abs(KeyGen.next() % 100) >= conf.xlog_sampling_step2_rate_pct) {
-                    discardMode = conf.xlog_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
-                }
-            } else if (elapsed < conf.xlog_sampling_step3_ms) {
-                if (Math.abs(KeyGen.next() % 100) >= conf.xlog_sampling_step3_rate_pct) {
-                    discardMode = conf.xlog_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
-                }
-            } else {
-                if (Math.abs(KeyGen.next() % 100) >= conf.xlog_sampling_over_rate_pct) {
-                    discardMode = conf.xlog_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
-                }
+            discardMode = sampling4Elapsed(elapsed, discardMode);
+        }
+
+        return discardMode;
+    }
+
+    private XLogDiscard sampling4Elapsed(int elapsed, XLogDiscard discardMode) {
+        if (elapsed < conf.xlog_sampling_step1_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_sampling_step1_rate_pct) {
+                discardMode = conf.xlog_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else if (elapsed < conf.xlog_sampling_step2_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_sampling_step2_rate_pct) {
+                discardMode = conf.xlog_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else if (elapsed < conf.xlog_sampling_step3_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_sampling_step3_rate_pct) {
+                discardMode = conf.xlog_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_sampling_over_rate_pct) {
+                discardMode = conf.xlog_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        }
+        return discardMode;
+    }
+
+    private XLogDiscard samplingPatterned5(int elapsed, XLogDiscard discardMode) {
+        if (elapsed < conf.xlog_patterned5_sampling_step1_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned5_sampling_step1_rate_pct) {
+                discardMode = conf.xlog_patterned5_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else if (elapsed < conf.xlog_patterned5_sampling_step2_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned5_sampling_step2_rate_pct) {
+                discardMode = conf.xlog_patterned5_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else if (elapsed < conf.xlog_patterned5_sampling_step3_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned5_sampling_step3_rate_pct) {
+                discardMode = conf.xlog_patterned5_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned5_sampling_over_rate_pct) {
+                discardMode = conf.xlog_patterned5_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        }
+        return discardMode;
+    }
+
+    private XLogDiscard samplingPatterned4(int elapsed, XLogDiscard discardMode) {
+        if (elapsed < conf.xlog_patterned4_sampling_step1_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned4_sampling_step1_rate_pct) {
+                discardMode = conf.xlog_patterned4_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else if (elapsed < conf.xlog_patterned4_sampling_step2_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned4_sampling_step2_rate_pct) {
+                discardMode = conf.xlog_patterned4_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else if (elapsed < conf.xlog_patterned4_sampling_step3_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned4_sampling_step3_rate_pct) {
+                discardMode = conf.xlog_patterned4_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned4_sampling_over_rate_pct) {
+                discardMode = conf.xlog_patterned4_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        }
+        return discardMode;
+    }
+
+    private XLogDiscard samplingPatterned3(int elapsed, XLogDiscard discardMode) {
+        if (elapsed < conf.xlog_patterned3_sampling_step1_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned3_sampling_step1_rate_pct) {
+                discardMode = conf.xlog_patterned3_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else if (elapsed < conf.xlog_patterned3_sampling_step2_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned3_sampling_step2_rate_pct) {
+                discardMode = conf.xlog_patterned3_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else if (elapsed < conf.xlog_patterned3_sampling_step3_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned3_sampling_step3_rate_pct) {
+                discardMode = conf.xlog_patterned3_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned3_sampling_over_rate_pct) {
+                discardMode = conf.xlog_patterned3_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        }
+        return discardMode;
+    }
+
+    private XLogDiscard samplingPatterned2(int elapsed, XLogDiscard discardMode) {
+        if (elapsed < conf.xlog_patterned2_sampling_step1_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned2_sampling_step1_rate_pct) {
+                discardMode = conf.xlog_patterned2_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else if (elapsed < conf.xlog_patterned2_sampling_step2_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned2_sampling_step2_rate_pct) {
+                discardMode = conf.xlog_patterned2_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else if (elapsed < conf.xlog_patterned2_sampling_step3_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned2_sampling_step3_rate_pct) {
+                discardMode = conf.xlog_patterned2_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned2_sampling_over_rate_pct) {
+                discardMode = conf.xlog_patterned2_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        }
+        return discardMode;
+    }
+
+    private XLogDiscard samplingPatterned1(int elapsed, XLogDiscard discardMode) {
+        if (elapsed < conf.xlog_patterned_sampling_step1_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned_sampling_step1_rate_pct) {
+                discardMode = conf.xlog_patterned_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else if (elapsed < conf.xlog_patterned_sampling_step2_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned_sampling_step2_rate_pct) {
+                discardMode = conf.xlog_patterned_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else if (elapsed < conf.xlog_patterned_sampling_step3_ms) {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned_sampling_step3_rate_pct) {
+                discardMode = conf.xlog_patterned_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
+            }
+        } else {
+            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned_sampling_over_rate_pct) {
+                discardMode = conf.xlog_patterned_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         }
         return discardMode;
@@ -131,6 +278,50 @@ public class XLogSampler {
             return false;
         }
         if (samplingPatternMatcher.isMatch(serviceName)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isSampling2ServicePattern(String serviceName) {
+        if (StringUtil.isEmpty(conf.xlog_patterned2_sampling_service_patterns)) {
+            return false;
+        }
+        if (sampling2PatternMatcher.isMatch(serviceName)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isSampling3ServicePattern(String serviceName) {
+        if (StringUtil.isEmpty(conf.xlog_patterned3_sampling_service_patterns)) {
+            return false;
+        }
+        if (sampling3PatternMatcher.isMatch(serviceName)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isSampling4ServicePattern(String serviceName) {
+        if (StringUtil.isEmpty(conf.xlog_patterned4_sampling_service_patterns)) {
+            return false;
+        }
+        if (sampling4PatternMatcher.isMatch(serviceName)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isSampling5ServicePattern(String serviceName) {
+        if (StringUtil.isEmpty(conf.xlog_patterned5_sampling_service_patterns)) {
+            return false;
+        }
+        if (sampling5PatternMatcher.isMatch(serviceName)) {
             return true;
         } else {
             return false;

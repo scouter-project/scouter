@@ -155,6 +155,7 @@ public class SXLog {
     private int queuing2ndTime;
 
     private int profileCount;
+    private int profileSize;
 
     public static SXLog of(XLogPack p) {
         return SXLog.builder()
@@ -194,6 +195,7 @@ public class SXLog {
                 .queuing2ndHostHash(p.queuing2ndHostHash)
                 .queuing2ndTime(p.queuing2ndTime)
                 .profileCount(p.profileCount)
+                .profileSize(p.profileSize)
                 .build();
     }
 }

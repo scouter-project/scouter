@@ -15,13 +15,22 @@
  *  limitations under the License. 
  */
 package scouter.agent.netio.data;
+
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.net.DataUdpAgent;
 import scouter.agent.trace.TraceContext;
 import scouter.io.DataOutputX;
 import scouter.lang.TextTypes;
-import scouter.lang.pack.*;
+import scouter.lang.pack.AlertPack;
+import scouter.lang.pack.DroppedXLogPack;
+import scouter.lang.pack.ObjectPack;
+import scouter.lang.pack.Pack;
+import scouter.lang.pack.SummaryPack;
+import scouter.lang.pack.TextPack;
+import scouter.lang.pack.XLogDiscardTypes;
+import scouter.lang.pack.XLogPack;
+import scouter.lang.pack.XLogProfilePack2;
 import scouter.lang.step.Step;
 import scouter.lang.value.MapValue;
 import scouter.util.HashUtil;
@@ -184,6 +193,13 @@ public class DataProxy {
 	}
 	public static void sendXLog(XLogPack p) {
 		p.objHash = conf.getObjHash();
+		p.ignoreGlobalConsequentSampling = conf.ignore_global_consequent_sampling;
+		sendDirect(p);
+		if (conf._log_udp_xlog_enabled) {
+			Logger.println(p.toString());
+		}
+	}
+	public static void sendDroppedXLog(DroppedXLogPack p) {
 		sendDirect(p);
 		if (conf._log_udp_xlog_enabled) {
 			Logger.println(p.toString());
@@ -212,27 +228,64 @@ public class DataProxy {
 			break;
 		}
 	}
-	static DataUdpAgent udpDirect = DataUdpAgent.getInstance();
+
 	public static void sendProfile(Step[] p, TraceContext context) {
 		if (p == null || p.length == 0)
 			return;
-		XLogProfilePack pk = new XLogProfilePack();
+
+		int bulkSize = conf.profile_step_max_count;
+		int count = p.length / bulkSize;
+
+		if (count == 0) {
+			sendProfile0(p, context);
+			return;
+		}
+
+		int remainder = p.length % bulkSize;
+		for (int i = 0; i < count; i++) {
+			Step[] parts = new Step[bulkSize];
+			System.arraycopy(p, i * bulkSize, parts, 0, bulkSize);
+			sendProfile0(parts, context);
+		}
+		if (remainder > 0) {
+			Step[] parts = new Step[remainder];
+			System.arraycopy(p, count * bulkSize, parts, 0, remainder);
+			sendProfile0(parts, context);
+		}
+	}
+
+	public static void sendProfile0(Step[] p, TraceContext context) {
+		if (p == null || p.length == 0)
+			return;
+
+		XLogProfilePack2 pk = new XLogProfilePack2();
+		pk.ignoreGlobalConsequentSampling = conf.ignore_global_consequent_sampling;
 		pk.txid = context.txid;
+		pk.gxid = context.gxid;
+		pk.xType = context.xType;
+		pk.discardType = context.discardType == null ? XLogDiscardTypes.DISCARD_NONE : context.discardType.byteFlag;
 		pk.objHash = conf.getObjHash();
 		pk.profile = Step.toBytes(p);
 		pk.service = context.serviceHash;
 		pk.elapsed = (int) (System.currentTimeMillis() - context.startTime);
 		context.profileCount += p.length;
+		context.profileSize += pk.profile.length;
 		sendDirect(pk);
 	}
+
 	public static void sendProfile(List<Step> p, TraceContext x) {
 		if (p == null || p.size() == 0)
 			return;
-		XLogProfilePack pk = new XLogProfilePack();
+		XLogProfilePack2 pk = new XLogProfilePack2();
+		pk.ignoreGlobalConsequentSampling = conf.ignore_global_consequent_sampling;
 		pk.txid = x.txid;
+		pk.gxid = x.gxid;
+		pk.xType = x.xType;
+		pk.discardType = x.discardType == null ? XLogDiscardTypes.DISCARD_NONE : x.discardType.byteFlag;
 		pk.objHash = conf.getObjHash();
 		pk.profile = Step.toBytes(p);
 		x.profileCount += p.size();
+		x.profileSize += pk.profile.length;
 		// udp.add(pk);
 		sendDirect(pk);
 	}

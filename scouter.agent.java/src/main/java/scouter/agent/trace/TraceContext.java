@@ -17,6 +17,7 @@
 
 package scouter.agent.trace;
 
+import scouter.lang.pack.XLogDiscardTypes;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.DumpStep;
 import scouter.lang.step.SqlStep;
@@ -56,6 +57,7 @@ public class TraceContext {
 	// profile
 	public IProfileCollector profile;
 	public int profileCount;
+	public int profileSize;
 
 	public long startTime;
 	public long startCpu;
@@ -67,6 +69,7 @@ public class TraceContext {
 
 	// service
 	public byte xType;
+	public XLogDiscardTypes.XLogDiscard discardType;
 
 	public int serviceHash;
 	public String serviceName;
