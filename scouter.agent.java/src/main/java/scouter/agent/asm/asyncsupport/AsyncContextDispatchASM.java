@@ -70,7 +70,7 @@ class AsyncContextCV extends ClassVisitor implements Opcodes {
 	HookingSet mset;
 
 	public AsyncContextCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM7, cv);
+		super(ASM8, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -104,7 +104,7 @@ class DispatchMV extends LocalVariablesSorter implements Opcodes {
 	String desc;
 
 	public DispatchMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM7, access, desc, mv);
+		super(ASM8, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 	}

@@ -74,7 +74,7 @@ class HystrixCommandPrepareCV extends ClassVisitor implements Opcodes {
 	private HookingSet mset;
 
 	public HystrixCommandPrepareCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM7, cv);
+		super(ASM8, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -97,7 +97,7 @@ class HystrixCommandReceiveCV extends ClassVisitor implements Opcodes {
 	private HookingSet mset;
 
 	public HystrixCommandReceiveCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM7, cv);
+		super(ASM8, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -134,7 +134,7 @@ class HystrixCommandReceiveMV extends LocalVariablesSorter implements Opcodes {
 	private int statIdx;
 
 	public HystrixCommandReceiveMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM7, access, desc, mv);
+		super(ASM8, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 		this.returnType = Type.getReturnType(desc);
@@ -215,7 +215,7 @@ class HystrixCommandPrepareMV extends LocalVariablesSorter implements Opcodes {
 	String desc;
 
 	public HystrixCommandPrepareMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM7, access, desc, mv);
+		super(ASM8, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 	}

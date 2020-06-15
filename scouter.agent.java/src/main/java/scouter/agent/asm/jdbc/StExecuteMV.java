@@ -51,7 +51,7 @@ public class StExecuteMV extends LocalVariablesSorter implements Opcodes {
 	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;I)V";
 
 	public StExecuteMV(int access, String desc, MethodVisitor mv, String owner, String name) {
-		super(ASM7, access, desc, mv);
+		super(ASM8, access, desc, mv);
 		this.returnType = Type.getReturnType(desc);
         this.desc = desc;
 		this.methodType = methodType(name);

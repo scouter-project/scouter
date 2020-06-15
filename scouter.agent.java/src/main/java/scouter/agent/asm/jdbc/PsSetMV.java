@@ -62,7 +62,7 @@ public class PsSetMV extends LocalVariablesSorter implements Opcodes {
 	private final static String TRACESQL = TraceSQL.class.getName().replace('.', '/');
 
 	public PsSetMV(int access, String name, String desc, MethodVisitor mv, String owner) {
-		super(ASM7,access, desc, mv);
+		super(ASM8,access, desc, mv);
 
 		this.owner = owner;
 		this.args = Type.getArgumentTypes(desc);

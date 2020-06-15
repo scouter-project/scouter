@@ -58,7 +58,7 @@ class RestTemplateResponseHandlerCV extends ClassVisitor implements Opcodes {
 	public String className;
 	private HookingSet mset;
 	public RestTemplateResponseHandlerCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM7, cv);
+		super(ASM8, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -86,7 +86,7 @@ class RestTemplateResponseHandlerMV extends LocalVariablesSorter implements Opco
 	int respIdx;
 
 	public RestTemplateResponseHandlerMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM7, access, desc, mv);
+		super(ASM8, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 		this.respIdx = AsmUtil.getIdxByType(access, desc, Type.getType("Lorg/springframework/http/client/ClientHttpResponse;"));

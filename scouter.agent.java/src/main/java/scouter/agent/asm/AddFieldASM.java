@@ -46,7 +46,7 @@ class AddFieldCV extends ClassVisitor implements Opcodes {
 	private String field;
 	private String className;
 	public AddFieldCV(ClassVisitor cv, String className, String field) {
-		super(ASM7, cv);
+		super(ASM8, cv);
 		this.field = field;
 		this.className = className;
 	}
