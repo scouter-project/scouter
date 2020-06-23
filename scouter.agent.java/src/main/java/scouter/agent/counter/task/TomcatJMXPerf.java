@@ -182,9 +182,13 @@ public class TomcatJMXPerf {
                 } catch (Exception e) {
                 }
             } else if ("DataSource".equals(type) && connectionpool == null) { // datasource
-                String name = mbean.getKeyProperty("name");
-                if (StringUtil.isNotEmpty(name)) {
-                    try {
+                try {
+                    String modelerType = CastUtil.cString(server.getAttribute(mbean, "modelerType"));
+                    if ("com.zaxxer.hikari.HikariDataSource".equals(modelerType)) {
+                        continue;
+                    }
+                    String name = mbean.getKeyProperty("name");
+                    if (StringUtil.isNotEmpty(name)) {
                         String context = mbean.getKeyProperty("context");
                         if (context != null && context.length() > 0) {
                             context = context.substring(1);
@@ -195,36 +199,33 @@ public class TomcatJMXPerf {
                         String objName = conf.getObjName() + "/" + checkObjName(name);
                         String objType = getDataSourceType();
                         AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
-                        
-                        String modelerType = CastUtil.cString(server.getAttribute(mbean, "modelerType"));
-                        if ("com.zaxxer.hikari.HikariDataSource".equals(modelerType)) {
-                            boolean registerMbeans = CastUtil.cBoolean(server.getAttribute(mbean, "registerMbeans"));
-                            if (!registerMbeans) {
-                                Logger.println("A902", "You must set the pool property registerMbeans=true.");
-                                continue;
-                            }
-                            String poolName = CastUtil.cString(server.getAttribute(mbean, "poolName"));
-                            ObjectName hikariMBean = new ObjectName("com.zaxxer.hikari:type=Pool (" + poolName + ")");
-                            add(objName, hikariMBean, objType, ValueEnum.DECIMAL, "ActiveConnections",
-                                    CounterConstants.DATASOURCE_CONN_ACTIVE);
-                            add(objName, hikariMBean, objType, ValueEnum.DECIMAL, "IdleConnections",
-                                    CounterConstants.DATASOURCE_CONN_IDLE);
-                            add(objName, hikariMBean, objType, ValueEnum.DECIMAL, "TotalConnections",
-                                    CounterConstants.DATASOURCE_CONN_MAX);
-                        } else {
-                            add(objName, mbean, objType, ValueEnum.DECIMAL, "numActive",
-                                    CounterConstants.DATASOURCE_CONN_ACTIVE);
-                            add(objName, mbean, objType, ValueEnum.DECIMAL, "numIdle",
-                                    CounterConstants.DATASOURCE_CONN_IDLE);
-                            add(objName, mbean, objType, ValueEnum.DECIMAL, "maxActive",
-                                    CounterConstants.DATASOURCE_CONN_MAX);
-                            // for tomcat 5.5 +
-                            // attribute name is changed from maxActive to maxTotal. (reported from zeroty : https://github.com/zeroty)
-                            add(objName, mbean, objType, ValueEnum.DECIMAL, "maxTotal",
-                                    CounterConstants.DATASOURCE_CONN_MAX);
-                        }
-                    } catch (Exception e) {
+                        add(objName, mbean, objType, ValueEnum.DECIMAL, "numActive",
+                                CounterConstants.DATASOURCE_CONN_ACTIVE);
+                        add(objName, mbean, objType, ValueEnum.DECIMAL, "numIdle",
+                                CounterConstants.DATASOURCE_CONN_IDLE);
+                        add(objName, mbean, objType, ValueEnum.DECIMAL, "maxActive",
+                                CounterConstants.DATASOURCE_CONN_MAX);
+                        // for tomcat 5.5 +
+                        // attribute name is changed from maxActive to maxTotal. (reported from zeroty : https://github.com/zeroty)
+                        add(objName, mbean, objType, ValueEnum.DECIMAL, "maxTotal",
+                                CounterConstants.DATASOURCE_CONN_MAX);
                     }
+                } catch (Exception e) {
+                }
+            } else if ("com.zaxxer.hikari".equals(mbean.getDomain()) && type.startsWith("PoolConfig (")) {
+                try {
+                    final String poolName = CastUtil.cString(server.getAttribute(mbean, "PoolName"));
+                    final String objName = conf.getObjName() + "/" + checkObjName(poolName);
+                    final String objType = getDataSourceType();
+                    AgentHeartBeat.addObject(objType, HashUtil.hash(objName), objName);
+                    ObjectName hikariMBean = new ObjectName("com.zaxxer.hikari:type=Pool (" + poolName + ")");
+                    add(objName, hikariMBean, objType, ValueEnum.DECIMAL, "ActiveConnections",
+                            CounterConstants.DATASOURCE_CONN_ACTIVE);
+                    add(objName, hikariMBean, objType, ValueEnum.DECIMAL, "IdleConnections",
+                            CounterConstants.DATASOURCE_CONN_IDLE);
+                    add(objName, hikariMBean, objType, ValueEnum.DECIMAL, "TotalConnections",
+                            CounterConstants.DATASOURCE_CONN_MAX);
+                } catch (Exception e) {
                 }
             }
         }
