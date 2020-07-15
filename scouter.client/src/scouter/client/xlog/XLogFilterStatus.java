@@ -23,6 +23,8 @@ public class XLogFilterStatus {
 	public boolean onlySql;
 	public boolean onlyApicall;
 	public boolean onlyError;
+	public boolean onlySync;
+	public boolean onlyAsync;
 	public String profileSizeText = "";
 	public String profileBytesText = "";
 
@@ -47,6 +49,8 @@ public class XLogFilterStatus {
 		filter_hash ^= HashUtil.hash(onlyError ? "onlyError" : "");
 		filter_hash ^= HashUtil.hash(onlySql ? "onlySql" : "");
 		filter_hash ^= HashUtil.hash(onlyApicall ? "onlyApicall" : "");
+		filter_hash ^= HashUtil.hash(onlySync ? "onlySync" : "");
+		filter_hash ^= HashUtil.hash(onlyAsync ? "onlyAsync" : "");
 		filter_hash ^= HashUtil.hash(profileSizeText);
 		filter_hash ^= HashUtil.hash(profileBytesText);
 		return filter_hash;
@@ -73,6 +77,8 @@ public class XLogFilterStatus {
 		status.onlySql = onlySql;
 		status.onlyApicall = onlyApicall;
 		status.onlyError = onlyError;
+		status.onlySync = onlySync;
+		status.onlyAsync = onlyAsync;
 		return status;
 	}
 }
