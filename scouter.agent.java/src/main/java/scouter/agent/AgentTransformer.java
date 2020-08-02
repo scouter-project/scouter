@@ -31,6 +31,7 @@ import scouter.agent.asm.ApicallSpringHttpAccessorASM;
 import scouter.agent.asm.CapArgsASM;
 import scouter.agent.asm.CapReturnASM;
 import scouter.agent.asm.CapThisASM;
+import scouter.agent.asm.HttpReactiveServiceASM;
 import scouter.agent.asm.HttpServiceASM;
 import scouter.agent.asm.IASM;
 import scouter.agent.asm.InitialContextASM;
@@ -53,8 +54,11 @@ import scouter.agent.asm.UserExceptionHandlerASM;
 import scouter.agent.asm.UserTxASM;
 import scouter.agent.asm.asyncsupport.AsyncContextDispatchASM;
 import scouter.agent.asm.asyncsupport.CallRunnableASM;
+import scouter.agent.asm.asyncsupport.CoroutineThreadNameASM;
 import scouter.agent.asm.asyncsupport.HystrixCommandASM;
+import scouter.agent.asm.asyncsupport.MonoKtASM;
 import scouter.agent.asm.asyncsupport.RequestStartAsyncASM;
+import scouter.agent.asm.asyncsupport.ThreadASM;
 import scouter.agent.asm.asyncsupport.executor.ExecutorServiceASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionAspectSupportDoSubmitASM;
@@ -103,8 +107,12 @@ public class AgentTransformer implements ClassFileTransformer {
     public static void reload() {
         Configure conf = Configure.getInstance();
         List<IASM> temp = new ArrayList<IASM>();
+        temp.add(new ThreadASM());
         temp.add(new HttpServiceASM());
         temp.add(new ServiceASM());
+        temp.add(new HttpReactiveServiceASM());
+        temp.add(new CoroutineThreadNameASM());
+        temp.add(new MonoKtASM());
 
         temp.add(new RequestStartAsyncASM());
         temp.add(new AsyncContextDispatchASM());

@@ -702,6 +702,14 @@ public class Configure extends Thread {
     public boolean _hook_kafka_enabled = true;
     @ConfigDesc("")
     public boolean _hook_rabbit_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_reactive_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_coroutine_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_coroutine_debugger_hook_enabled = false;
+    @ConfigDesc("")
+    public boolean _hook_thread_name_enabled = false;
 
     @ConfigDesc("")
     public String _hook_direct_patch_classes = "";
@@ -1089,6 +1097,10 @@ public class Configure extends Thread {
         this._hook_redis_enabled = getBoolean("_hook_redis_enabled", true);
         this._hook_kafka_enabled = getBoolean("_hook_kafka_enabled", true);
         this._hook_rabbit_enabled = getBoolean("_hook_rabbit_enabled", true);
+        this._hook_reactive_enabled = getBoolean("_hook_reactive_enabled", true);
+        this._hook_coroutine_enabled = getBoolean("_hook_coroutine_enabled", true);
+        this._hook_coroutine_debugger_hook_enabled = getBoolean("_hook_coroutine_debugger_hook_enabled", false);
+        this._hook_thread_name_enabled = getBoolean("_hook_thread_name_enabled", false);
 
         this._hook_direct_patch_classes = getValue("_hook_direct_patch_classes", "");
 

@@ -115,14 +115,15 @@ public class TpsRush {
 		ctx.txid=txid;
 		ctx.serviceHash=serviceHash;
 		ctx.startTime=System.currentTimeMillis();
+		ctx.thread = Thread.currentThread();
 		
-		long key = TraceContextManager.start(Thread.currentThread(), ctx);
+		TraceContextManager.start(ctx);
 		
 		AnyTrace.message("profile 1");
 		AnyTrace.message("profile 2");
 		
 		ctx.profile.close(true);
-		TraceContextManager.end(key);
+		TraceContextManager.end(ctx);
 	}
 
 	private static int next(Random r, int max) {

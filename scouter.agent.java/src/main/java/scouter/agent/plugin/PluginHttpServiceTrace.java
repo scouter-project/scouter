@@ -16,6 +16,7 @@
  */
 package scouter.agent.plugin;
 
+import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.trace.TraceContext;
 
 public class PluginHttpServiceTrace {
@@ -26,19 +27,27 @@ public class PluginHttpServiceTrace {
 		PluginLoader.getInstance();
 	}
 
-	public static void start(TraceContext ctx, Object req, Object res) {
+	public static void start(TraceContext ctx, Object req, Object res, IHttpTrace http0, boolean isReactive) {
 		if (plugIn != null) {
 			try {
-				plugIn.start(new WrContext(ctx), new WrRequest(req), new WrResponse(res));
+				if (isReactive) {
+					plugIn.start(new WrContext(ctx), new WrRequestReactive(req, http0), new WrResponseReactive(res));
+				} else {
+					plugIn.start(new WrContext(ctx), new WrRequest(req), new WrResponse(res));
+				}
 			} catch (Throwable t) {
 			}
 		}
 	}
 
-	public static void end(TraceContext ctx, Object req, Object res) {
+	public static void end(TraceContext ctx, Object req, Object res, IHttpTrace http0, boolean isReactive) {
 		if (plugIn != null) {
 			try {
-				plugIn.end(new WrContext(ctx), new WrRequest(req), new WrResponse(res));
+				if (isReactive) {
+					plugIn.end(new WrContext(ctx), new WrRequestReactive(req, http0), new WrResponseReactive(res));
+				} else {
+					plugIn.end(new WrContext(ctx), new WrRequest(req), new WrResponse(res));
+				}
 			} catch (Throwable t) {
 			}
 		}
@@ -47,7 +56,11 @@ public class PluginHttpServiceTrace {
 	public static boolean reject(TraceContext ctx, Object req, Object res) {
 		if (plugIn != null) {
 			try {
-				return plugIn.reject(new WrContext(ctx), new WrRequest(req), new WrResponse(res));
+				if (ctx.isReactiveStarted) {
+					plugIn.end(new WrContext(ctx), new WrRequestReactive(req, ctx.http), new WrResponseReactive(res));
+				} else {
+					plugIn.reject(new WrContext(ctx), new WrRequest(req), new WrResponse(res));
+				}
 			} catch (Throwable t) {
 			}
 		}

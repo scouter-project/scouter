@@ -17,6 +17,7 @@
 
 package scouter.agent.trace;
 
+import scouter.agent.proxy.IHttpTrace;
 import scouter.lang.pack.XLogDiscardTypes;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.DumpStep;
@@ -30,9 +31,23 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TraceContext {
+	public enum GetBy {
+		ThreadLocal,
+		ThreadLocalTxid,
+		ThreadLocalTxidByCoroutine,
+		CoroutineLocal
+	}
+	public GetBy getBy; //0: threadLocal, 1: by thradLocal txid, 2: by txidByCoroutine, 3: coroutineLocal
+
     private boolean isSummary;
 	public boolean isStaticContents;
 	public boolean isFullyDiscardService;
+
+	public boolean isReactiveStarted;
+	public boolean isReactiveTxidMarked;
+	public long exchangeHashCode;
+	public boolean isCoroutineStarted;
+	public boolean isOnCoroutineIdUpdating;
 
 	protected TraceContext() {
 	}
@@ -45,6 +60,10 @@ public class TraceContext {
 			this.profile = new ProfileCollector(this);
 		}
 	}
+
+	public Object req;
+	public Object res;
+	public IHttpTrace http;
 
 	public TraceContext parent;
 	public long txid;

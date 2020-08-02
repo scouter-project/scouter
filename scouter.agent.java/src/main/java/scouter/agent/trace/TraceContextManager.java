@@ -18,30 +18,46 @@
 package scouter.agent.trace;
 
 import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.util.KeyGen;
+import scouter.util.LongKeyLinkedMap;
 import scouter.util.LongKeyMap;
 
 import java.util.Enumeration;
 
+import static scouter.agent.trace.TraceContext.GetBy.*;
+
 public class TraceContextManager {
 	private static Configure conf = Configure.getInstance();
 
-	private static LongKeyMap<TraceContext> entry = new LongKeyMap<TraceContext>();
+	private static LongKeyMap<TraceContext> entryByThreadId = new LongKeyMap<TraceContext>();
+	private static LongKeyLinkedMap<TraceContext> entryByTxid = new LongKeyLinkedMap<TraceContext>();
+
 	private static ThreadLocal<TraceContext> local = new ThreadLocal<TraceContext>();
+	private static ThreadLocal<Long> txidLocal = new ThreadLocal<Long>();
+	public static ThreadLocal<Long> txidByCoroutine = new ThreadLocal<Long>();
+
+	private static CoroutineDebuggingLocal<TraceContext> coroutineDebuggingLocal = new CoroutineDebuggingLocal<TraceContext>();
+
+
 	private static LongKeyMap<TraceContext> deferredEntry = new LongKeyMap<TraceContext>();
 
 	//pass = 1, discard = 2, end-processing-with-path = -1, end-processing-with-path = -2
 	private static ThreadLocal<Integer> forceDiscard = new ThreadLocal<Integer>();
 
+	static {
+		entryByTxid.setMax(20000);
+	}
+
 	public static int size() {
-		return entry.size();
+		return entryByThreadId.size();
 	}
 
 	public static int[] getActiveCount() {
 		int[] act = new int[3];
 		try {
 			long now = System.currentTimeMillis();
-			Enumeration<TraceContext> en = entry.values();
+			Enumeration<TraceContext> en = entryByThreadId.values();
 			while (en.hasMoreElements()) {
 				TraceContext ctx = en.nextElement();
 				long tm = now - ctx.startTime;
@@ -72,23 +88,63 @@ public class TraceContextManager {
 	}
 
 	public static Enumeration<TraceContext> getContextEnumeration() {
-		return entry.values();
+		return entryByThreadId.values();
 	}
 
 	public static Enumeration<TraceContext> getDeferredContextEnumeration() {
 		return deferredEntry.values();
 	}
 
+	public static TraceContext getContext() {
+		Long txid = txidLocal.get();
+		TraceContext traceContext = txid == null ? null : entryByTxid.get(txid);
+
+		if (traceContext != null) {
+			traceContext.getBy = ThreadLocalTxid;
+			return traceContext;
+		}
+
+		txid = txidByCoroutine.get();
+		traceContext = txid == null ? null : entryByTxid.get(txid);
+
+		if (traceContext != null) {
+			traceContext.getBy = ThreadLocalTxidByCoroutine;
+			return traceContext;
+		}
+
+		traceContext = local.get();
+		if (traceContext != null) {
+			traceContext.getBy = ThreadLocal;
+			return traceContext;
+		}
+
+		traceContext = getCoroutineContext();
+		if (traceContext != null) {
+			traceContext.getBy = CoroutineLocal;
+			return traceContext;
+		}
+
+		return null;
+	}
+
 	public static TraceContext getContext(long key) {
-		return entry.get(key);
+		return entryByThreadId.get(key);
 	}
 
 	public static TraceContext getDeferredContext(long key) {
 		return deferredEntry.get(key);
 	}
 
-	public static TraceContext getContext() {
-		return  local.get();
+	public static TraceContext getCoroutineContext() {
+		return  coroutineDebuggingLocal.get();
+	}
+
+	public static TraceContext getCoroutineContext(long id) {
+		return  coroutineDebuggingLocal.get(id);
+	}
+
+	public static Long getLocalTxid() {
+		return txidLocal.get();
 	}
 
 	public static void clearForceDiscard() {
@@ -145,18 +201,32 @@ public class TraceContextManager {
 		return discard;
 	}
 
-
-	public static long start(Thread thread, TraceContext o) {
-		long key = thread.getId();
+	public static void start(TraceContext o) {
 		local.set(o);
-		entry.put(key, o);
-		return key;
+		txidLocal.set(o.txid);
+		entryByTxid.put(o.txid, o);
+
+		if (!o.isReactiveStarted) {
+			entryByThreadId.put(o.threadId, o);
+		}
 	}
 
-	public static void end(long key) {
+	public static void startByCoroutine(TraceContext o) {
+		txidByCoroutine.set(o.txid);
+	}
+
+	public static void end(TraceContext o) {
+		clearAllContext(o);
+	}
+
+	public static void setTxidLocal(Long txid) {
+		txidLocal.set(txid);
+	}
+
+	public static void asCoroutineDebuggingMode(Long coroutineId, TraceContext o) {
+		CoroutineDebuggingLocal.setCoroutineDebuggingId(coroutineId);
+		coroutineDebuggingLocal.put(o);
 		local.set(null);
-		entry.remove(key);
-		clearForceDiscard();
 	}
 
 	public static void toDeferred(TraceContext o) {
@@ -165,5 +235,24 @@ public class TraceContextManager {
 
 	public static void completeDeferred(TraceContext o) {
 		deferredEntry.remove(o.txid);
+	}
+
+	public static void clearAllContext(TraceContext o) {
+		local.set(null);
+		coroutineDebuggingLocal.clear(); //it should be prev of txidLocal clear
+
+		entryByTxid.remove(o.txid);
+		if (!o.isReactiveStarted) {
+			entryByThreadId.remove(o.threadId);
+		}
+
+		txidByCoroutine.set(null);
+		Long localTxid = txidLocal.get();
+		txidLocal.set(null);
+
+		if (localTxid != null && o.txid != localTxid) {
+			Logger.println("G243", "unintended status on ending trace. o.txid is not localTxid : " + o.txid + " : " + localTxid);
+		}
+		clearForceDiscard();
 	}
 }
