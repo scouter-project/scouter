@@ -385,7 +385,17 @@ public class TraceMain {
     }
 
     public static void endCanceledHttpService(TraceContext traceContext) {
-        endHttpService(new Stat(traceContext), new Exception("reactive stream canceled!"));
+        if (traceContext != null) {
+            traceContext.error += 1;
+
+            ParameterizedMessageStep step = new ParameterizedMessageStep();
+            step.setMessage(DataProxy.sendHashedMessage("reactive stream canceled!"), new String[0]);
+            step.setLevel(ParameterizedMessageLevel.ERROR);
+            step.start_time = (int) (System.currentTimeMillis() - traceContext.startTime);
+            traceContext.profile.add(step);
+
+            endHttpService(new Stat(traceContext), null);
+        }
     }
 
     public static void endHttpService(Object stat, Throwable thr) {
@@ -527,27 +537,46 @@ public class TraceMain {
             } else {
                 pack.hasDump = 0;
             }
-            // ////////////////////////////////////////////////////////
             if (ctx.error != 0) {
                 pack.error = ctx.error;
+
             } else if (thr != null) {
                 if (thr == REJECT) {
                     Logger.println("A145", ctx.serviceName);
                     String emsg = conf.control_reject_text;
                     pack.error = DataProxy.sendError(emsg);
                     ServiceSummary.getInstance().process(thr, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
+
                 } else {
                     String emsg = thr.toString();
                     if (conf.profile_fullstack_service_error_enabled) {
                         StringBuffer sb = new StringBuffer();
                         sb.append(emsg).append("\n");
                         ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+                        Throwable[] suppressed = thr.getSuppressed();
+                        if (suppressed != null) {
+                            for (Throwable sup : suppressed) {
+                                sb.append("\nSuppressed...\n");
+                                sb.append(sup.toString()).append("\n");
+                                ThreadUtil.getStackTrace(sb, sup, conf.profile_fullstack_max_lines);
+                            }
+                        }
+
                         Throwable thrCause = thr.getCause();
                         if (thrCause != null) {
                             thr = thrCause;
                             while (thr != null) {
                                 sb.append("\nCause...\n");
                                 ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+                                Throwable[] suppressed2 = thr.getSuppressed();
+                                if (suppressed2 != null) {
+                                    for (Throwable sup : suppressed2) {
+                                        sb.append("\nSuppressed...\n");
+                                        sb.append(sup.toString()).append("\n");
+                                        ThreadUtil.getStackTrace(sb, sup, conf.profile_fullstack_max_lines);
+                                    }
+                                }
+
                                 thr = thr.getCause();
                             }
                         }
@@ -1649,10 +1678,26 @@ public class TraceMain {
         if (conf.profile_fullstack_hooked_exception_enabled) {
             sb.append("\n");
             ThreadUtil.getStackTrace(sb, t, conf.profile_fullstack_max_lines);
+            Throwable[] suppressed = t.getSuppressed();
+            if (suppressed != null) {
+                for (Throwable sup : suppressed) {
+                    sb.append("\nSuppressed...\n");
+                    sb.append(sup.toString()).append("\n");
+                    ThreadUtil.getStackTrace(sb, sup, conf.profile_fullstack_max_lines);
+                }
+            }
             Throwable cause = t.getCause();
             while (cause != null) {
                 sb.append("\nCause...\n");
                 ThreadUtil.getStackTrace(sb, cause, conf.profile_fullstack_max_lines);
+                Throwable[] suppressed2 = t.getSuppressed();
+                if (suppressed2 != null) {
+                    for (Throwable sup : suppressed2) {
+                        sb.append("\nSuppressed...\n");
+                        sb.append(sup.toString()).append("\n");
+                        ThreadUtil.getStackTrace(sb, sup, conf.profile_fullstack_max_lines);
+                    }
+                }
                 cause = cause.getCause();
             }
         }

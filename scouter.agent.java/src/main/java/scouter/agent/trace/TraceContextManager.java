@@ -127,7 +127,11 @@ public class TraceContextManager {
 		return null;
 	}
 
-	public static TraceContext getContext(long key) {
+	public static TraceContext getContextByTxid(long txid) {
+		return entryByTxid.get(txid);
+	}
+
+	public static TraceContext getContextByThreadId(long key) {
 		return entryByThreadId.get(key);
 	}
 

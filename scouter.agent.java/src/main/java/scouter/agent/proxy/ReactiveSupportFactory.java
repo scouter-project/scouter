@@ -20,11 +20,11 @@ import scouter.agent.Logger;
 import scouter.agent.trace.TraceContext;
 
 public class ReactiveSupportFactory {
-	private static final String REACTIVE_SUPPORT = "scouter.xtra.http.ReactiveSupport";
+	private static final String REACTIVE_SUPPORT = "scouter.xtra.reactive.ReactiveSupport";
 
 	public static final IReactiveSupport dummy = new IReactiveSupport() {
 		public Object subscriptOnContext(Object mono0, TraceContext traceContext) {
-			return null;
+			return mono0;
 		}
 		public void contextOperatorHook() {
 		}
@@ -37,7 +37,7 @@ public class ReactiveSupportFactory {
 
 	public static IReactiveSupport create(ClassLoader parent) {
 		try {
-			ClassLoader loader = LoaderManager.getHttpLoader(parent);
+			ClassLoader loader = LoaderManager.getReactiveClient(parent);
 			if (loader == null) {
 				return dummy;
 			}

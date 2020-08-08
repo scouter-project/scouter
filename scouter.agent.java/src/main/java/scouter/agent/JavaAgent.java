@@ -43,7 +43,8 @@ public class JavaAgent {
 	}
 
 	public static void premain(String options, Instrumentation instrum) {
-		if (System.getProperty("kotlinx.coroutines.debug") == null) {
+		Configure conf = Configure.getInstance();
+		if (conf._hook_coroutine_debugger_hook_enabled && System.getProperty("kotlinx.coroutines.debug") == null) {
 			System.setProperty("kotlinx.coroutines.debug", "");
 		}
 		preStart(options, instrum, new AgentTransformer());

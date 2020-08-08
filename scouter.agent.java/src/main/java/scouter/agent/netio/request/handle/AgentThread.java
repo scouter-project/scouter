@@ -50,7 +50,7 @@ public class AgentThread {
 
 		if(thread != 0L) {
 			p = ThreadUtil.getThreadDetail(thread);
-			ctx = TraceContextManager.getContext(thread);
+			ctx = TraceContextManager.getContextByThreadId(thread);
 
 			if (ctx != null) {
 				p.put("Service Txid", new TextValue(Hexa32.toString32(ctx.txid)));
@@ -94,7 +94,7 @@ public class AgentThread {
 		long thread = ((MapPack) param).getLong("id");
 		String action = ((MapPack) param).getText("action");
 		// 쓰레드 상세 화면에서 쓰레드를 제어한다.
-		TraceContext ctx = TraceContextManager.getContext(thread);
+		TraceContext ctx = TraceContextManager.getContextByThreadId(thread);
 		try {
 			if (ctx != null) {
 				if ("interrupt".equalsIgnoreCase(action)) {
@@ -135,7 +135,7 @@ public class AgentThread {
 		ListValue service = mpack.newList("service");
 		for (int i = 0; i < ids.size(); i++) {
 			long tid = CastUtil.clong(ids.get(i));
-			TraceContext ctx = TraceContextManager.getContext(tid);
+			TraceContext ctx = TraceContextManager.getContextByThreadId(tid);
 			if (ctx != null) {
 				txid.add(new TextValue(Hexa32.toString32(ctx.txid)));
 				service.add(new TextValue(ctx.serviceName));

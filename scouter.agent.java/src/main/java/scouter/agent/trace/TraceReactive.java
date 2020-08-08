@@ -71,7 +71,6 @@ public class TraceReactive {
 
 
 
-
     private static Object[] coroutineJobParams = null;
     private static Method coroutineJobGetMethod = null;
     private static Method jobIsActiveMethod = null;
