@@ -163,7 +163,8 @@ public class CounterExecutingManager extends Thread {
 			try {
 				method.invoke(object, pw);
 			} catch (Exception e) {
-				Logger.println("A111", object.getClass() + " " + method + " " + e);
+				Logger.println("A111", object.getClass() + " " + method + " " + e.getMessage(), e);
+				e.printStackTrace();
 			}
 		}
 

@@ -25,4 +25,6 @@ public interface IReactiveSupport {
 	void contextOperatorHook();
 
 	Object monoCoroutineContextHook(Object coroutineContext, TraceContext traceContext);
+
+	String dumpScannable(TraceContext traceContext, TraceContext.TimedScannable timedScannable, long now);
 }

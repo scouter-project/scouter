@@ -137,6 +137,7 @@ public class DumpUtil extends Thread {
 		try {
 			File file = DumpUtil.getDumpFile("scouter.activeservice");
 			out = new PrintWriter(new FileWriter(file));
+			//TODO reactive support
 			Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
 			for (int n = 0; en.hasMoreElements(); n++) {
 				TraceContext ctx = en.nextElement();

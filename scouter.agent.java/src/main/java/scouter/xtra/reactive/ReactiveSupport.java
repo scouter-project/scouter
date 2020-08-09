@@ -33,12 +33,14 @@ import reactor.core.publisher.ScouterOptimizableOperatorProxy;
 import reactor.core.publisher.SignalType;
 import reactor.util.context.Context;
 import scouter.agent.AgentCommonConstant;
+import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.proxy.IReactiveSupport;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
 import scouter.agent.trace.TraceMain;
-import scouter.lang.step.HashedMessageStep;
+import scouter.lang.enumeration.ParameterizedMessageLevel;
+import scouter.lang.step.ParameterizedMessageStep;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -150,45 +152,75 @@ public class ReactiveSupport implements IReactiveSupport {
         @Override
         public void onSubscribe(Subscription subs) {
             try {
-                checkPoint(scannable, coreSubscriber.currentContext(), ReactorCheckPointType.ON_SUBSCRIBE);
+                TraceContext traceContext = getTraceContext(scannable, coreSubscriber.currentContext());
+                if (traceContext != null) {
+                    traceContext.scannables.put(scannable.hashCode(),
+                            new TraceContext.TimedScannable(System.currentTimeMillis(), scannable));
+                    profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_SUBSCRIBE, null);
+                }
             } catch (Exception e) {
-                e.printStackTrace();
+                Logger.println("[R109]", "reactive support onSubscribe error.", e);
             }
             this.orgSubs = subs;
             coreSubscriber.onSubscribe(this);
         }
-        private void checkPoint(Scannable scannable, Context currentContext, ReactorCheckPointType type) {
-            if (scannable == null || currentContext == null) {
-                return;
-            }
-            TraceContext traceContext;
-            Long txid = currentContext.getOrDefault(AgentCommonConstant.TRACE_ID, null);
-            if (txid == null) {
-                traceContext = TraceContextManager.getContext();
-            } else {
-                traceContext = TraceContextManager.getContextByTxid(txid);
-            }
-            if (traceContext == null) {
-                return;
-            }
 
-            if (scannable.isScanAvailable()) {
-                String checkpointDesc = ScouterOptimizableOperatorProxy.nameOnCheckpoint(scannable);
-                if (!"".equals(checkpointDesc)) {
-                    String message = new StringBuilder(300)
-                            .append("[reactor hint][")
-                            .append(type.name())
-                            .append("] ")
-                            .append(checkpointDesc).toString();
+        @Override
+        public void onNext(T t) {
+            copyToThread(coreSubscriber.currentContext());
+            coreSubscriber.onNext(t);
+        }
 
-                    HashedMessageStep step = new HashedMessageStep();
-                    step.hash = DataProxy.sendHashedMessage(message);
-                    step.start_time = (int) (System.currentTimeMillis() - traceContext.startTime);
-                    step.time = -1;
-                    traceContext.profile.add(step);
-                    System.out.println(">>>>>scouter>>>>> " + message);
+        @Override
+        public void onError(Throwable throwable) {
+            try {
+                TraceContext traceContext = getTraceContext(scannable, coreSubscriber.currentContext());
+                if (traceContext != null) {
+                    TraceContext.TimedScannable timedScannable = traceContext.scannables.remove(scannable.hashCode());
+                    profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_ERROR, timedScannable);
                 }
+            } catch (Exception e) {
+                Logger.println("[R110]", "reactive support onError error.", e);
             }
+            coreSubscriber.onError(throwable);
+        }
+
+        @Override
+        public void onComplete() {
+            try {
+                TraceContext traceContext = getTraceContext(scannable, coreSubscriber.currentContext());
+                if (traceContext != null) {
+                    TraceContext.TimedScannable timedScannable = traceContext.scannables.remove(scannable.hashCode());
+                    profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_COMPLETE, timedScannable);
+                }
+            } catch (Exception e) {
+                Logger.println("[R111]", "reactive support onComplete error.", e);
+            }
+            coreSubscriber.onComplete();
+        }
+
+        @Override
+        public void request(long n) {
+            this.orgSubs.request(n);
+        }
+
+        @Override
+        public void cancel() {
+            try {
+                TraceContext traceContext = getTraceContext(scannable, coreSubscriber.currentContext());
+                if (traceContext != null) {
+                    TraceContext.TimedScannable timedScannable = traceContext.scannables.remove(scannable.hashCode());
+                    profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_CANCEL, timedScannable);
+                }
+            } catch (Exception e) {
+                Logger.println("[R112]", "reactive support onCancel error.", e);
+            }
+            this.orgSubs.cancel();
+        }
+
+        @Override
+        public Context currentContext() {
+            return coreSubscriber.currentContext();
         }
 
         @Override
@@ -201,51 +233,82 @@ public class ReactiveSupport implements IReactiveSupport {
             }
         }
 
-        @Override
-        public void onNext(T t) {
-            copyToThread(coreSubscriber.currentContext());
-            coreSubscriber.onNext(t);
-        }
-
-        @Override
-        public void onError(Throwable throwable) {
-            checkPoint(scannable, coreSubscriber.currentContext(), ReactorCheckPointType.ON_ERROR);
-            coreSubscriber.onError(throwable);
-        }
-
-        @Override
-        public void onComplete() {
-            checkPoint(scannable, coreSubscriber.currentContext(), ReactorCheckPointType.ON_COMPLETE);
-            coreSubscriber.onComplete();
-        }
-
-        @Override
-        public Context currentContext() {
-            return coreSubscriber.currentContext();
-        }
-
-        @Override
-        public void request(long n) {
-            this.orgSubs.request(n);
-        }
-
-        @Override
-        public void cancel() {
-            checkPoint(scannable, coreSubscriber.currentContext(), ReactorCheckPointType.ON_CANCEL);
-            this.orgSubs.cancel();
-        }
-
-        void copyToThread(Context context) {
+        private void copyToThread(Context context) {
             if (context != null && !context.isEmpty()) {
                 Long txid = context.getOrDefault(AgentCommonConstant.TRACE_ID,  null);
                 if (txid != null) {
                     TraceContextManager.setTxidLocal(txid);
                 } else {
-                    System.out.println("!!! copy to thread of txid is null, thread : " + Thread.currentThread().getName());
+                    Logger.println("R113", "copy to thread of txid is null, thread : " + Thread.currentThread().getName());
                 }
             } else {
                 TraceContextManager.setTxidLocal(null);
             }
         }
+
+        private TraceContext getTraceContext(Scannable scannable, Context currentContext) {
+            if (scannable == null || currentContext == null) {
+                return null;
+            }
+            TraceContext traceContext;
+            Long txid = currentContext.getOrDefault(AgentCommonConstant.TRACE_ID, null);
+            if (txid == null) {
+                traceContext = TraceContextManager.getContext();
+            } else {
+                traceContext = TraceContextManager.getContextByTxid(txid);
+            }
+            return traceContext;
+        }
+
+        private void profileCheckPoint(Scannable scannable, TraceContext traceContext, ReactorCheckPointType type,
+                                       TraceContext.TimedScannable timedScannable) {
+
+            if (scannable.isScanAvailable()) {
+                String checkpointDesc = ScouterOptimizableOperatorProxy.nameOnCheckpoint(scannable);
+                if (!"".equals(checkpointDesc)) {
+                    String duration;
+                    StringBuilder messageBuilder = new StringBuilder(300)
+                            .append("[")
+                            .append(type.name());
+
+                    if (timedScannable != null) {
+                        messageBuilder.append("(%sms): ");
+                        duration = String.valueOf(System.currentTimeMillis() - timedScannable.start);
+                    } else {
+                        messageBuilder.append(": ");
+                        duration = "";
+                    }
+
+                    String message = messageBuilder.append(scannable.name())
+                            .append("] ")
+                            .append(checkpointDesc).toString();
+
+                    ParameterizedMessageStep step = new ParameterizedMessageStep();
+                    step.setMessage(DataProxy.sendHashedMessage(message), duration);
+                    step.start_time = (int) (System.currentTimeMillis() - traceContext.startTime);
+
+                    if (checkpointDesc.startsWith("checkpoint")) {
+                        step.setLevel(ParameterizedMessageLevel.INFO);
+                    } else {
+                        step.setLevel(ParameterizedMessageLevel.DEBUG);
+                    }
+                    traceContext.profile.add(step);
+                }
+            }
+        }
+    }
+
+    public String dumpScannable(TraceContext traceContext, TraceContext.TimedScannable timedScannable, long now) {
+
+        if (traceContext == null || timedScannable == null) {
+            return null;
+        }
+        Scannable scannable = (Scannable) timedScannable.scannable;
+        long duration = now - timedScannable.start;
+        StringBuilder builder = new StringBuilder(1000)
+                .append(scannable.name()).append(" ").append(duration).append("ms");
+
+        ScouterOptimizableOperatorProxy.appendSources4Dump(scannable, builder);
+        return builder.toString();
     }
 }

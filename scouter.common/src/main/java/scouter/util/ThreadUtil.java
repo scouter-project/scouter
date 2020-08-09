@@ -72,6 +72,11 @@ public class ThreadUtil {
 	public static MapPack getThreadDetail(long thread_id) {
 
 		MapPack m = new MapPack();
+		return appendThreadDetail(thread_id, m);
+	}
+
+	public static MapPack appendThreadDetail(long thread_id, MapPack m) {
+
 		if (thread_id == 0)
 			return m;
 		ThreadMXBean tmb = ManagementFactory.getThreadMXBean();

@@ -24,6 +24,7 @@ import scouter.lang.step.DumpStep;
 import scouter.lang.step.SqlStep;
 import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.util.IntKeyMap;
+import scouter.util.LongKeyLinkedMap;
 import scouter.util.SysJMX;
 
 import java.util.ArrayList;
@@ -31,13 +32,23 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TraceContext {
+	public static class TimedScannable {
+		public long start;
+		public Object scannable;
+
+		public TimedScannable(long start, Object scannable) {
+			this.start = start;
+			this.scannable = scannable;
+		}
+	}
 	public enum GetBy {
 		ThreadLocal,
 		ThreadLocalTxid,
 		ThreadLocalTxidByCoroutine,
 		CoroutineLocal
 	}
-	public GetBy getBy; //0: threadLocal, 1: by thradLocal txid, 2: by txidByCoroutine, 3: coroutineLocal
+	public GetBy getBy;
+	public LongKeyLinkedMap<TimedScannable> scannables;
 
     private boolean isSummary;
 	public boolean isStaticContents;
@@ -59,6 +70,11 @@ public class TraceContext {
 		} else {
 			this.profile = new ProfileCollector(this);
 		}
+	}
+
+	public void initScannables() {
+		scannables = new LongKeyLinkedMap<TimedScannable>();
+		scannables.setMax(10000);
 	}
 
 	public Object req;
@@ -183,6 +199,11 @@ public class TraceContext {
 	public ArrayList<String> plcGroupList = new ArrayList<String>();
 	public TraceContext createChild() {
 		TraceContext child = new TraceContext(this.isSummary);
+		if (this.isReactiveStarted) {
+			child.initScannables();
+			child.isReactiveStarted = true;
+			child.exchangeHashCode = this.exchangeHashCode;
+		}
 		child.parent = this;
 		child.txid = this.txid;
 		child.thread = this.thread;

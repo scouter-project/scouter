@@ -362,4 +362,13 @@ public class DataProxy {
 		udpCollect.add(new TextPack(TextTypes.STACK_ELEMENT, hash, ste.toString()));
 		return hash;
 	}
+	public static int sendStackElement(String ste) {
+		int hash = ste.hashCode();
+		if (stackElement.contains(hash)) {
+			return hash;
+		}
+		stackElement.put(hash);
+		udpCollect.add(new TextPack(TextTypes.STACK_ELEMENT, hash, ste));
+		return hash;
+	}
 }

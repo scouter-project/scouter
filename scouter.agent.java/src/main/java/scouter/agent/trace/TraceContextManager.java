@@ -18,20 +18,23 @@
 package scouter.agent.trace;
 
 import scouter.agent.Configure;
-import scouter.agent.Logger;
 import scouter.util.KeyGen;
 import scouter.util.LongKeyLinkedMap;
 import scouter.util.LongKeyMap;
+import scouter.util.LongLongLinkedMap;
 
 import java.util.Enumeration;
 
-import static scouter.agent.trace.TraceContext.GetBy.*;
+import static scouter.agent.trace.TraceContext.GetBy.CoroutineLocal;
+import static scouter.agent.trace.TraceContext.GetBy.ThreadLocal;
+import static scouter.agent.trace.TraceContext.GetBy.ThreadLocalTxid;
+import static scouter.agent.trace.TraceContext.GetBy.ThreadLocalTxidByCoroutine;
 
 public class TraceContextManager {
 	private static Configure conf = Configure.getInstance();
 
 	private static LongKeyMap<TraceContext> entryByThreadId = new LongKeyMap<TraceContext>();
-	private static LongKeyLinkedMap<TraceContext> entryByTxid = new LongKeyLinkedMap<TraceContext>();
+	private static LongKeyLinkedMap<TraceContext> entryByTxid = new LongKeyLinkedMap<TraceContext>().setMax(10000);
 
 	private static ThreadLocal<TraceContext> local = new ThreadLocal<TraceContext>();
 	private static ThreadLocal<Long> txidLocal = new ThreadLocal<Long>();
@@ -39,40 +42,22 @@ public class TraceContextManager {
 
 	private static CoroutineDebuggingLocal<TraceContext> coroutineDebuggingLocal = new CoroutineDebuggingLocal<TraceContext>();
 
-
 	private static LongKeyMap<TraceContext> deferredEntry = new LongKeyMap<TraceContext>();
 
 	//pass = 1, discard = 2, end-processing-with-path = -1, end-processing-with-path = -2
 	private static ThreadLocal<Integer> forceDiscard = new ThreadLocal<Integer>();
 
-	static {
-		entryByTxid.setMax(20000);
-	}
-
 	public static int size() {
-		return entryByThreadId.size();
+		return entryByTxid.size();
 	}
 
 	public static int[] getActiveCount() {
 		int[] act = new int[3];
 		try {
 			long now = System.currentTimeMillis();
-			Enumeration<TraceContext> en = entryByThreadId.values();
+			Enumeration<TraceContext> en = entryByTxid.values();
 			while (en.hasMoreElements()) {
 				TraceContext ctx = en.nextElement();
-				long tm = now - ctx.startTime;
-				if (tm < conf.trace_activeserivce_yellow_time) {
-					act[0]++;
-				} else if (tm < conf.trace_activeservice_red_time) {
-					act[1]++;
-				} else {
-					act[2]++;
-				}
-			}
-
-			Enumeration<TraceContext> enDeferred = deferredEntry.values();
-			while (enDeferred.hasMoreElements()) {
-				TraceContext ctx = enDeferred.nextElement();
 				long tm = now - ctx.startTime;
 				if (tm < conf.trace_activeserivce_yellow_time) {
 					act[0]++;
@@ -88,6 +73,10 @@ public class TraceContextManager {
 	}
 
 	public static Enumeration<TraceContext> getContextEnumeration() {
+		return entryByTxid.values();
+	}
+
+	public static Enumeration<TraceContext> getThreadingContextEnumeration() {
 		return entryByThreadId.values();
 	}
 
@@ -223,8 +212,31 @@ public class TraceContextManager {
 		clearAllContext(o);
 	}
 
+	private static LongLongLinkedMap threadTxidMap = new LongLongLinkedMap().setMax(2000);
+	private static LongLongLinkedMap txidThreadMap = new LongLongLinkedMap().setMax(2000);
+
 	public static void setTxidLocal(Long txid) {
 		txidLocal.set(txid);
+		if (txid != null && conf._psts_progressive_reactor_thread_trace_enabled) {
+			long threadId = Thread.currentThread().getId();
+			txidThreadMap.put(txid, threadId);
+			threadTxidMap.put(threadId, txid);
+		}
+	}
+
+	public static long getReactiveThreadId(long txid) {
+		if (!conf._psts_progressive_reactor_thread_trace_enabled) {
+			return 0;
+		}
+		long threadId = txidThreadMap.get(txid);
+		if (threadId == 0) {
+			return 0;
+		}
+		long txid0 = threadTxidMap.get(threadId);
+		if (txid0 == txid) {
+			return threadId;
+		}
+		return 0;
 	}
 
 	public static void asCoroutineDebuggingMode(Long coroutineId, TraceContext o) {
@@ -246,17 +258,18 @@ public class TraceContextManager {
 		coroutineDebuggingLocal.clear(); //it should be prev of txidLocal clear
 
 		entryByTxid.remove(o.txid);
-		if (!o.isReactiveStarted) {
+		if (conf._psts_progressive_reactor_thread_trace_enabled) {
+			txidThreadMap.remove(o.txid);
+		} else {
 			entryByThreadId.remove(o.threadId);
 		}
 
 		txidByCoroutine.set(null);
-		Long localTxid = txidLocal.get();
-		txidLocal.set(null);
 
-		if (localTxid != null && o.txid != localTxid) {
-			Logger.println("G243", "unintended status on ending trace. o.txid is not localTxid : " + o.txid + " : " + localTxid);
-		}
+		//do not clear txidLocal
+		//Long localTxid = txidLocal.get();
+		//txidLocal.set(null);
+
 		clearForceDiscard();
 	}
 }

@@ -33,6 +33,11 @@ public class ReactiveSupportFactory {
 		public Object monoCoroutineContextHook(Object coroutineContext, TraceContext traceContext) {
 			return coroutineContext;
 		}
+
+		@Override
+		public String dumpScannable(TraceContext traceContext, TraceContext.TimedScannable timedScannable, long now) {
+			return null;
+		}
 	};
 
 	public static IReactiveSupport create(ClassLoader parent) {

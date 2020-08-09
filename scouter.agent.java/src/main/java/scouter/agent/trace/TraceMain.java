@@ -160,9 +160,7 @@ public class TraceMain {
 
             TraceContext ctx = TraceContextManager.getContext();
             if (ctx != null && ctx.exchangeHashCode != exchange.hashCode()) {
-                Logger.println("G177", "unintended status on srtating trace. exchange hash is different on context : "
-                        + exchange.hashCode() + " : " + ctx.exchangeHashCode);
-
+                //Logger.trace("exchange hash is different on context : " + exchange.hashCode() + " : " + ctx.exchangeHashCode);
                 ctx = null;
             }
             if (ctx != null) {
@@ -303,6 +301,7 @@ public class TraceMain {
         Configure conf = Configure.getInstance();
         TraceContext ctx = new TraceContext(false);
         if (isReactive) {
+            ctx.initScannables();
             ctx.isReactiveStarted = true;
             ctx.exchangeHashCode = exchange.hashCode();
         }

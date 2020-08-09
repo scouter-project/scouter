@@ -28,6 +28,9 @@ public class ScouterOptimizableOperatorProxy {
     public static String nameOnCheckpoint(Object candidate) {
         if (candidate instanceof OptimizableOperator) {
             OptimizableOperator<?, ?> operator = ((OptimizableOperator<?, ?>) candidate).nextOptimizableSource();
+            if (operator == null) {
+                return EMPTY;
+            }
             if (operator instanceof MonoOnAssembly) {
                 FluxOnAssembly.AssemblySnapshot snapshot = ((MonoOnAssembly) operator).stacktrace;
                 if (snapshot != null && snapshot.checkpointed) {
@@ -41,5 +44,22 @@ public class ScouterOptimizableOperatorProxy {
             }
         }
         return EMPTY;
+    }
+
+    public static void appendSources4Dump(Object candidate, StringBuilder builder) {
+        if (candidate instanceof OptimizableOperator) {
+            OptimizableOperator<?, ?> operator = ((OptimizableOperator<?, ?>) candidate).nextOptimizableSource();
+            if (operator == null) {
+                return;
+            }
+            String p1 = operator.toString();
+            builder.append(" (<-) ").append(p1);
+            if (p1.startsWith("checkpoint")) {
+                OptimizableOperator<?, ?> operator2 = operator.nextOptimizableSource();
+                if (operator2 != null) {
+                    builder.append(" (<-) ").append(operator2.toString());
+                }
+            }
+        }
     }
 }

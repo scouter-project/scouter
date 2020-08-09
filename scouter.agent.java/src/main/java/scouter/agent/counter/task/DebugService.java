@@ -17,12 +17,6 @@
 
 package scouter.agent.counter.task;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Enumeration;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.CounterBasket;
@@ -36,6 +30,12 @@ import scouter.util.DateUtil;
 import scouter.util.FileUtil;
 import scouter.util.Hexa32;
 import scouter.util.SysJMX;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Enumeration;
 
 public class DebugService {
 	
@@ -53,6 +53,7 @@ public class DebugService {
 				lastCheckStuckTime = now;
 			}
 			StringBuilder stuckMsg = new StringBuilder();
+			//TODO reactive support
 			Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
 			while (en.hasMoreElements()) {
 				TraceContext ctx = en.nextElement();
@@ -71,6 +72,7 @@ public class DebugService {
 	}
 	
 	private void checkStcukService(TraceContext ctx, PrintWriter out, StringBuilder msg) {
+		//TODO reactive support
 		if (conf.autodump_stuck_thread_ms <= 0) return;
 		long etime = System.currentTimeMillis() - ctx.startTime;
 		if (etime > conf.autodump_stuck_thread_ms) {
