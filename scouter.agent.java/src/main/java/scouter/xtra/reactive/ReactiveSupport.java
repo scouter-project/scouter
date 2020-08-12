@@ -33,6 +33,7 @@ import reactor.core.publisher.ScouterOptimizableOperatorProxy;
 import reactor.core.publisher.SignalType;
 import reactor.util.context.Context;
 import scouter.agent.AgentCommonConstant;
+import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.DataProxy;
 import scouter.agent.proxy.IReactiveSupport;
@@ -41,12 +42,15 @@ import scouter.agent.trace.TraceContextManager;
 import scouter.agent.trace.TraceMain;
 import scouter.lang.enumeration.ParameterizedMessageLevel;
 import scouter.lang.step.ParameterizedMessageStep;
+import scouter.util.StringUtil;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ReactiveSupport implements IReactiveSupport {
+
+    static Configure configure = Configure.getInstance();
 
     @Override
     public Object subscriptOnContext(Object mono0, final TraceContext traceContext) {
@@ -59,7 +63,8 @@ public class ReactiveSupport implements IReactiveSupport {
                 @Override
                 public Context apply(Context context) {
                     traceContext.isReactiveTxidMarked = true;
-                    return context.put(AgentCommonConstant.TRACE_ID, traceContext.txid);
+                    return context.put(TraceContext.class, traceContext);
+                    //return context.put(AgentCommonConstant.TRACE_ID, traceContext.txid);
                 }
             }).doOnSuccess(new Consumer<Object>() {
                 @Override
@@ -110,12 +115,28 @@ public class ReactiveSupport implements IReactiveSupport {
                     if (scannable instanceof Fuseable.ScalarCallable) {
                         return subscriber;
                     }
-                    return new TxidLifter(subscriber, scannable, null);
+                    //TODO reactor context : parent child 관계 (depth) 생성 (ScopePassingSpanSubscriber 참고)
+                    Context context = subscriber.currentContext();
+                    TraceContext traceContext = getTraceContext(scannable, context);
+
+                    if (traceContext != null) {
+                        //걍 이걸 txidlifter로 넘기자
+                        return new TxidLifter(subscriber, scannable, null, traceContext);
+                    } else {
+                        return subscriber;
+                    }
                 }
             }));
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private TraceContext getTraceContext(Scannable scannable, Context currentContext) {
+        if (scannable == null || currentContext == null) {
+            return null;
+        }
+        return currentContext.getOrDefault(TraceContext.class, null);
     }
 
     @Override
@@ -129,11 +150,16 @@ public class ReactiveSupport implements IReactiveSupport {
         return coroutineContext.plus(threadContextElement);
     }
 
+    public static class SubscribeDepth {}
     public static class TxidLifter<T> implements SpanSubscription<T>, Scannable {
 
         private final CoreSubscriber<T> coreSubscriber;
+        private final Context ctx;
         private final Scannable scannable;
         private final Publisher publisher;
+        private final TraceContext traceContext;
+        private final String checkpointDesc;
+        private final Integer depth;
         private Subscription orgSubs;
 
         private enum ReactorCheckPointType {
@@ -143,21 +169,37 @@ public class ReactiveSupport implements IReactiveSupport {
             ON_CANCEL
         }
 
-        public TxidLifter(CoreSubscriber<T> coreSubscriber, Scannable scannable, Publisher publisher) {
+        public TxidLifter(CoreSubscriber<T> coreSubscriber, Scannable scannable, Publisher publisher,
+                          TraceContext traceContext) {
             this.coreSubscriber = coreSubscriber;
+            Context context = coreSubscriber.currentContext();
             this.scannable = scannable;
             this.publisher = publisher;
+            this.traceContext = traceContext;
+
+            checkpointDesc = ScouterOptimizableOperatorProxy.nameOnCheckpoint(scannable);
+            Integer parentDepth = context.getOrDefault(SubscribeDepth.class, 0);
+            depth = (!"".equals(checkpointDesc)) ? parentDepth + 1 : parentDepth;
+            this.ctx = context.put(SubscribeDepth.class, depth);
+
+            //todo parent something
+//            this.ctx = parent != null
+//                    && !parent.equals(ctx.getOrDefault(TraceContext.class, null))
+//                    ? ctx.put(TraceContext.class, parent) : ctx;
         }
 
         @Override
         public void onSubscribe(Subscription subs) {
+            copyToThread(currentContext(), traceContext);
             try {
-                TraceContext traceContext = getTraceContext(scannable, coreSubscriber.currentContext());
-                if (traceContext != null) {
-                    traceContext.scannables.put(scannable.hashCode(),
-                            new TraceContext.TimedScannable(System.currentTimeMillis(), scannable));
-                    profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_SUBSCRIBE, null);
-                }
+                //TODO 생성자로..
+//                    Integer depth = context.getOrDefault(AgentCommonConstant.SUBS_DEPTH, -1);
+//                    depth = depth + 1;
+//                    context.put(AgentCommonConstant.SUBS_DEPTH, depth);
+//                    System.out.println(">>>>>>>>> depth: " + depth + ", scannable:" + scannable);
+                traceContext.scannables.put(scannable.hashCode(),
+                        new TraceContext.TimedScannable(System.currentTimeMillis(), scannable));
+                profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_SUBSCRIBE, null);
             } catch (Exception e) {
                 Logger.println("[R109]", "reactive support onSubscribe error.", e);
             }
@@ -167,18 +209,16 @@ public class ReactiveSupport implements IReactiveSupport {
 
         @Override
         public void onNext(T t) {
-            copyToThread(coreSubscriber.currentContext());
+            copyToThread(currentContext(), traceContext);
             coreSubscriber.onNext(t);
         }
 
         @Override
         public void onError(Throwable throwable) {
+            copyToThread(currentContext(), traceContext);
             try {
-                TraceContext traceContext = getTraceContext(scannable, coreSubscriber.currentContext());
-                if (traceContext != null) {
-                    TraceContext.TimedScannable timedScannable = traceContext.scannables.remove(scannable.hashCode());
-                    profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_ERROR, timedScannable);
-                }
+                TraceContext.TimedScannable timedScannable = traceContext.scannables.remove(scannable.hashCode());
+                profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_ERROR, timedScannable);
             } catch (Exception e) {
                 Logger.println("[R110]", "reactive support onError error.", e);
             }
@@ -187,12 +227,10 @@ public class ReactiveSupport implements IReactiveSupport {
 
         @Override
         public void onComplete() {
+            copyToThread(currentContext(), traceContext);
             try {
-                TraceContext traceContext = getTraceContext(scannable, coreSubscriber.currentContext());
-                if (traceContext != null) {
-                    TraceContext.TimedScannable timedScannable = traceContext.scannables.remove(scannable.hashCode());
-                    profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_COMPLETE, timedScannable);
-                }
+                TraceContext.TimedScannable timedScannable = traceContext.scannables.remove(scannable.hashCode());
+                profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_COMPLETE, timedScannable);
             } catch (Exception e) {
                 Logger.println("[R111]", "reactive support onComplete error.", e);
             }
@@ -206,12 +244,10 @@ public class ReactiveSupport implements IReactiveSupport {
 
         @Override
         public void cancel() {
+            copyToThread(currentContext(), traceContext);
             try {
-                TraceContext traceContext = getTraceContext(scannable, coreSubscriber.currentContext());
-                if (traceContext != null) {
-                    TraceContext.TimedScannable timedScannable = traceContext.scannables.remove(scannable.hashCode());
-                    profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_CANCEL, timedScannable);
-                }
+                TraceContext.TimedScannable timedScannable = traceContext.scannables.remove(scannable.hashCode());
+                profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_CANCEL, timedScannable);
             } catch (Exception e) {
                 Logger.println("[R112]", "reactive support onCancel error.", e);
             }
@@ -220,7 +256,7 @@ public class ReactiveSupport implements IReactiveSupport {
 
         @Override
         public Context currentContext() {
-            return coreSubscriber.currentContext();
+            return ctx;
         }
 
         @Override
@@ -233,16 +269,12 @@ public class ReactiveSupport implements IReactiveSupport {
             }
         }
 
-        private void copyToThread(Context context) {
-            if (context != null && !context.isEmpty()) {
-                Long txid = context.getOrDefault(AgentCommonConstant.TRACE_ID,  null);
-                if (txid != null) {
-                    TraceContextManager.setTxidLocal(txid);
-                } else {
-                    Logger.println("R113", "copy to thread of txid is null, thread : " + Thread.currentThread().getName());
-                }
-            } else {
-                TraceContextManager.setTxidLocal(null);
+        private void copyToThread(Context context, TraceContext traceContext) {
+            Long threadLocalTxid = TraceContextManager.getLocalTxid();
+            if (threadLocalTxid == null) {
+                TraceContextManager.setTxidLocal(traceContext.txid);
+            } else if (threadLocalTxid != traceContext.txid) {
+                TraceContextManager.setTxidLocal(traceContext.txid);
             }
         }
 
@@ -250,24 +282,17 @@ public class ReactiveSupport implements IReactiveSupport {
             if (scannable == null || currentContext == null) {
                 return null;
             }
-            TraceContext traceContext;
-            Long txid = currentContext.getOrDefault(AgentCommonConstant.TRACE_ID, null);
-            if (txid == null) {
-                traceContext = TraceContextManager.getContext();
-            } else {
-                traceContext = TraceContextManager.getContextByTxid(txid);
-            }
-            return traceContext;
+            return currentContext.getOrDefault(TraceContext.class, null);
         }
 
         private void profileCheckPoint(Scannable scannable, TraceContext traceContext, ReactorCheckPointType type,
                                        TraceContext.TimedScannable timedScannable) {
 
             if (scannable.isScanAvailable()) {
-                String checkpointDesc = ScouterOptimizableOperatorProxy.nameOnCheckpoint(scannable);
                 if (!"".equals(checkpointDesc)) {
                     String duration;
                     StringBuilder messageBuilder = new StringBuilder(300)
+                            .append(StringUtil.padding((depth - 1) * 2, ' '))
                             .append("[")
                             .append(type.name());
 

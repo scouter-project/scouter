@@ -96,7 +96,6 @@ public class MakeStack {
             }
         }
         long elapsed = (System.currentTimeMillis() - now);
-        Logger.trace("[ASTS Elasped]" + elapsed);
     }
 
     private void stepDump(ThreadMXBean tmxBean, TraceContext ctx) {

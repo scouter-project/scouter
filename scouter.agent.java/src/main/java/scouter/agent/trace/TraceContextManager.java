@@ -36,9 +36,9 @@ public class TraceContextManager {
 	private static LongKeyMap<TraceContext> entryByThreadId = new LongKeyMap<TraceContext>();
 	private static LongKeyLinkedMap<TraceContext> entryByTxid = new LongKeyLinkedMap<TraceContext>().setMax(10000);
 
-	private static ThreadLocal<TraceContext> local = new ThreadLocal<TraceContext>();
-	private static ThreadLocal<Long> txidLocal = new ThreadLocal<Long>();
-	public static ThreadLocal<Long> txidByCoroutine = new ThreadLocal<Long>();
+	private static final ThreadLocal<TraceContext> local = new ThreadLocal<TraceContext>();
+	private static final ThreadLocal<Long> txidLocal = new ThreadLocal<Long>();
+	public static final ThreadLocal<Long> txidByCoroutine = new ThreadLocal<Long>();
 
 	private static CoroutineDebuggingLocal<TraceContext> coroutineDebuggingLocal = new CoroutineDebuggingLocal<TraceContext>();
 
@@ -215,9 +215,11 @@ public class TraceContextManager {
 	private static LongLongLinkedMap threadTxidMap = new LongLongLinkedMap().setMax(2000);
 	private static LongLongLinkedMap txidThreadMap = new LongLongLinkedMap().setMax(2000);
 
+	private static LongKeyMap map = new LongKeyMap();
+
 	public static void setTxidLocal(Long txid) {
 		txidLocal.set(txid);
-		if (txid != null && conf._psts_progressive_reactor_thread_trace_enabled) {
+		if (txid != null && conf._psts_enabled && conf._psts_progressive_reactor_thread_trace_enabled) {
 			long threadId = Thread.currentThread().getId();
 			txidThreadMap.put(txid, threadId);
 			threadTxidMap.put(threadId, txid);
@@ -265,10 +267,9 @@ public class TraceContextManager {
 		}
 
 		txidByCoroutine.set(null);
-
-		//do not clear txidLocal
-		//Long localTxid = txidLocal.get();
-		//txidLocal.set(null);
+		if (!o.isReactiveStarted) { //do not clear txidLocal in reactive
+			txidLocal.set(null);
+		}
 
 		clearForceDiscard();
 	}

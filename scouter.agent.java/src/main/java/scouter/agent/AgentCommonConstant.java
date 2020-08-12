@@ -13,6 +13,8 @@ public class AgentCommonConstant {
     public static final String REQUEST_ATTRIBUTE_ALL_DISPATCHED_TRACE_CONTEXT = "__scouter__adtc__";
     public static final String REQUEST_ATTRIBUTE_SELF_DISPATCHED = "__scouter__sd__";
     public static final String TRACE_ID = "__scouter__txid__";
+    public static final String TRACE_CONTEXT = "__scouter__tctx__";
+    public static final String SUBS_DEPTH = "__scouter__subdepth__";
 
     public static final String ASYNC_SERVLET_DISPATCHED_PREFIX = "f>";
 

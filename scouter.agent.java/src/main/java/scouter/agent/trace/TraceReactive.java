@@ -26,7 +26,7 @@ public class TraceReactive {
      */
 
     public static void threadSetName(Thread thread, String name) {
-        System.out.println(">> Thread setname " + Thread.currentThread().getId() + " : " + Thread.currentThread().getName() + " -> " + name);
+        //System.out.println(">> Thread setname " + Thread.currentThread().getId() + " : " + Thread.currentThread().getName() + " -> " + name);
     }
 
     public static void startCoroutineIdUpdateThreadContext(long coroutineId) {
