@@ -15,6 +15,7 @@ public class AgentCommonConstant {
     public static final String TRACE_ID = "__scouter__txid__";
     public static final String TRACE_CONTEXT = "__scouter__tctx__";
     public static final String SUBS_DEPTH = "__scouter__subdepth__";
+    public static final String SCOUTER_ADDED_FIELD = "__scouter__added__";
 
     public static final String ASYNC_SERVLET_DISPATCHED_PREFIX = "f>";
 

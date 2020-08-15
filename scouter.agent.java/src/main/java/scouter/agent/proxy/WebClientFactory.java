@@ -17,9 +17,9 @@
 package scouter.agent.proxy;
 import scouter.agent.Logger;
 
-public class JavaNetHttpFactory {
+public class WebClientFactory {
 
-	private static final String HTTP_JAVA_CLIENT = "scouter.xtra.httpclient.JavaNetHttpClient";
+	private static final String CLIENT = "scouter.xtra.httpclient.WebClient";
 
 	public static IHttpClient create(ClassLoader parent) {
 		try {
@@ -27,11 +27,12 @@ public class JavaNetHttpFactory {
 			if (loader == null) {
 				return HttpClient43Factory.dummy;
 			}
-			Class c = Class.forName(HTTP_JAVA_CLIENT, true, loader);
+			Class c = Class.forName(CLIENT, true, loader);
 			return (IHttpClient) c.newInstance();
+
 		} catch (Throwable e) {
 			e.printStackTrace();
-			Logger.println("A138", "fail to create", e);
+			Logger.println("A140f", "fail to create", e);
 			return HttpClient43Factory.dummy;
 		}
 	}

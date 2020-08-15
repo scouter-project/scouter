@@ -28,6 +28,8 @@ import scouter.agent.asm.ApicallInfoASM;
 import scouter.agent.asm.ApicallJavaHttpRequestASM;
 import scouter.agent.asm.ApicallSpringHandleResponseASM;
 import scouter.agent.asm.ApicallSpringHttpAccessorASM;
+import scouter.agent.asm.ApicallWebClientInfoASM;
+import scouter.agent.asm.ApicallWebClientResponseASM;
 import scouter.agent.asm.CapArgsASM;
 import scouter.agent.asm.CapReturnASM;
 import scouter.agent.asm.CapThisASM;
@@ -113,6 +115,8 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new HttpReactiveServiceASM());
         temp.add(new CoroutineThreadNameASM());
         temp.add(new MonoKtASM());
+        temp.add(new ApicallWebClientInfoASM());
+        temp.add(new ApicallWebClientResponseASM());
 
         temp.add(new RequestStartAsyncASM());
         temp.add(new AsyncContextDispatchASM());

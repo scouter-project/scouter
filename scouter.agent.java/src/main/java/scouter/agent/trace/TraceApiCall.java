@@ -287,6 +287,9 @@ public class TraceApiCall {
 		public String getResponseHeader(Object o, String key) {
 			return null;
 		}
+		public int getResponseStatusCode(Object o) {
+			return 200;
+		}
 		public void addHeader(Object o, String key, String value) {
 		}
 	};
@@ -343,6 +346,30 @@ public class TraceApiCall {
 		} catch (Exception e) {
 
 		}
+	}
+
+	public static void webClientInfo(Object bodyInserter, Object clientHttpRequest) {
+		if (!conf.trace_interservice_enabled) {
+			return;
+		}
+		ApiCallTraceHelper.webClientInfo(bodyInserter, clientHttpRequest);
+	}
+
+	public static void endWebClientApicall(Object exchangeFunction, Object clientResponse) {
+		if (!conf.trace_interservice_enabled) {
+			return;
+		}
+		LocalContext localContext = ApiCallTraceHelper.webClientProcessEnd(exchangeFunction, clientResponse);
+		Object option = localContext.option;
+		localContext.option = null;
+		Throwable throwable = null;
+		if (option instanceof Integer) {
+			int statusCode = (Integer) option;
+			if (statusCode >= 400) {
+				throwable = new RuntimeException("WebClient response code: " + statusCode);
+			}
+		}
+		endApicall(localContext, clientResponse, throwable);
 	}
 
 	public static void setCalleeToCtxInHttpClientResponse(Object _this, Object res) {
@@ -426,7 +453,7 @@ public class TraceApiCall {
 		if(ctx == null) return;
 
 		try {
-			ApiCallTraceHelper.setCalleeToCtxJavaHttpRequest(ctx, requestBuilder);
+			ApiCallTraceHelper.setTransferToCtxJavaHttpRequest(ctx, requestBuilder);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
