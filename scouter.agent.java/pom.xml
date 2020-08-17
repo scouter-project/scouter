@@ -84,6 +84,11 @@
                                                 <include name="scouter/xtra/reactive/*.class" />
                                             </fileset>
                                         </jar>
+                                        <jar destfile="${project.build.directory}/${scouter.java8.jar}">
+                                            <fileset dir="${project.build.outputDirectory}">
+                                                <include name="scouter/xtra/java8/*.class" />
+                                            </fileset>
+                                        </jar>
                                     </target>
                                 </configuration>
                                 <goals>
@@ -107,6 +112,7 @@
                                                 <include name="${scouter.kafka.jar}" />
                                                 <include name="${scouter.redis.jar}" />
                                                 <include name="${scouter.reactive.jar}" />
+                                                <include name="${scouter.java8.jar}" />
                                             </fileset>
                                             <zipfileset src="${final.jar.name}" />
 
@@ -128,6 +134,7 @@
                                         <delete file="${project.build.directory}/${scouter.kafka.jar}" />
                                         <delete file="${project.build.directory}/${scouter.redis.jar}" />
                                         <delete file="${project.build.directory}/${scouter.reactive.jar}" />
+                                        <delete file="${project.build.directory}/${scouter.java8.jar}" />
 
                                         <!-- for constant name file -->
                                         <jar destfile="${project.build.directory}/${scouter.agent.file.name}">
@@ -351,6 +358,7 @@
         <scouter.kafka.jar>scouter.kafka.jar</scouter.kafka.jar>
         <scouter.redis.jar>scouter.redis.jar</scouter.redis.jar>
         <scouter.reactive.jar>scouter.reactive.jar</scouter.reactive.jar>
+        <scouter.java8.jar>scouter.java8.jar</scouter.java8.jar>
 
         <provided.tools.jar>${project.basedir}/lib/provided/tools.jar</provided.tools.jar>
         <java.net.http.jar>${project.basedir}/lib/provided/java.net.http.jar</java.net.http.jar>
@@ -473,6 +481,13 @@
             <version>0.10.1.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-client</artifactId>
+            <version>6.8.10</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>

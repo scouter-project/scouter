@@ -88,6 +88,10 @@ public class LoaderManager {
 		return createLoader(parent, "scouter.reactive");
 	}
 
+	public static ClassLoader getOnlyForJava8Plus(ClassLoader parent) {
+		return createLoader(parent, "scouter.java8");
+	}
+
 	private synchronized static ClassLoader createLoader(ClassLoader parent, String key) {
 
 		int hashKey = (parent == null ? 0 : System.identityHashCode(parent));
