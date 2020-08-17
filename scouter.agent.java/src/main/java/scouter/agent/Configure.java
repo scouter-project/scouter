@@ -348,6 +348,9 @@ public class Configure extends Thread {
     @ConfigDesc("XLog sampling - ignore global consequent sampling. the commencement service's sampling option affects it's children.")
     public boolean ignore_global_consequent_sampling = false;
 
+    @ConfigDesc("XLog sampling exclude patterns.")
+    public String xlog_sampling_exclude_patterns = "";
+
     @ConfigDesc("XLog sampling mode enabled")
     public boolean xlog_sampling_enabled = false;
     @ConfigDesc("XLog sampling but discard profile only not XLog.")
@@ -1202,6 +1205,8 @@ public class Configure extends Thread {
         this._xlog_hard_sampling_rate_pct = getInt("_xlog_hard_sampling_rate_pct", 10);
 
         this.ignore_global_consequent_sampling = getBoolean("ignore_global_consequent_sampling", false);
+
+        this.xlog_sampling_exclude_patterns = getValue("xlog_sampling_exclude_patterns", "");
 
         this.xlog_sampling_enabled = getBoolean("xlog_sampling_enabled", false);
         this.xlog_sampling_only_profile = getBoolean("xlog_sampling_only_profile", false);
