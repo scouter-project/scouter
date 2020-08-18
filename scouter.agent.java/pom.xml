@@ -79,6 +79,16 @@
                                                 <include name="scouter/xtra/redis/*.class" />
                                             </fileset>
                                         </jar>
+                                        <jar destfile="${project.build.directory}/${scouter.reactive.jar}">
+                                            <fileset dir="${project.build.outputDirectory}">
+                                                <include name="scouter/xtra/reactive/*.class" />
+                                            </fileset>
+                                        </jar>
+                                        <jar destfile="${project.build.directory}/${scouter.java8.jar}">
+                                            <fileset dir="${project.build.outputDirectory}">
+                                                <include name="scouter/xtra/java8/*.class" />
+                                            </fileset>
+                                        </jar>
                                     </target>
                                 </configuration>
                                 <goals>
@@ -101,6 +111,8 @@
                                                 <include name="${scouter.tools.jar}" />
                                                 <include name="${scouter.kafka.jar}" />
                                                 <include name="${scouter.redis.jar}" />
+                                                <include name="${scouter.reactive.jar}" />
+                                                <include name="${scouter.java8.jar}" />
                                             </fileset>
                                             <zipfileset src="${final.jar.name}" />
 
@@ -121,6 +133,8 @@
                                         <delete file="${project.build.directory}/${scouter.tools.jar}" />
                                         <delete file="${project.build.directory}/${scouter.kafka.jar}" />
                                         <delete file="${project.build.directory}/${scouter.redis.jar}" />
+                                        <delete file="${project.build.directory}/${scouter.reactive.jar}" />
+                                        <delete file="${project.build.directory}/${scouter.java8.jar}" />
 
                                         <!-- for constant name file -->
                                         <jar destfile="${project.build.directory}/${scouter.agent.file.name}">
@@ -206,6 +220,9 @@
                             <compilerVersion>1.6</compilerVersion>
                             <source>1.6</source>
                             <target>1.6</target>
+                            <excludes>
+                                <exclude>**/scouter/xtra/reactive/*.java</exclude>
+                            </excludes>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -340,6 +357,8 @@
         <scouter.tools.jar>scouter.tools.jar</scouter.tools.jar>
         <scouter.kafka.jar>scouter.kafka.jar</scouter.kafka.jar>
         <scouter.redis.jar>scouter.redis.jar</scouter.redis.jar>
+        <scouter.reactive.jar>scouter.reactive.jar</scouter.reactive.jar>
+        <scouter.java8.jar>scouter.java8.jar</scouter.java8.jar>
 
         <provided.tools.jar>${project.basedir}/lib/provided/tools.jar</provided.tools.jar>
         <java.net.http.jar>${project.basedir}/lib/provided/java.net.http.jar</java.net.http.jar>
@@ -423,13 +442,37 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>4.3.18.RELEASE</version>
+            <version>5.2.8.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+            <version>5.2.8.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.3.8.RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-reactor</artifactId>
+            <version>1.3.8</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <version>1.3.72</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>4.3.19.RELEASE</version>
+            <version>5.2.8.RELEASE</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -438,6 +481,13 @@
             <version>0.10.1.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-client</artifactId>
+            <version>6.8.10</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>

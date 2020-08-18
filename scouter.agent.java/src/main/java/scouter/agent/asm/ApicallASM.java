@@ -16,10 +16,15 @@
  */
 package scouter.agent.asm;
 
-import org.objectweb.asm.*;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.util.HookingSet;
 import scouter.agent.trace.TraceApiCall;
@@ -27,12 +32,15 @@ import scouter.util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ApicallASM implements IASM, Opcodes {
     private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_apicall_patterns);
     private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
+    protected static Set<String> onlyStartClass = new HashSet<String>();
 
     public static class ApiCallTargetRegister {
         public static final List<Pair<String,String>> klassMethod = new ArrayList<Pair<String,String>>();
@@ -83,9 +91,13 @@ public class ApicallASM implements IASM, Opcodes {
                 "Ljava/net/http/HttpResponse$BodyHandler;" +
                 ")Ljava/net/http/HttpResponse;");
 
+        AsmUtil.add(reserved, "org/springframework/web/reactive/function/client/ExchangeFunctions$DefaultExchangeFunction", "exchange(" +
+                "Lorg/springframework/web/reactive/function/client/ClientRequest;" +
+                ")Lreactor/core/publisher/Mono;");
         for(int i = ApiCallTargetRegister.klassMethod.size() - 1; i >= 0; i--) {
             AsmUtil.add(reserved, ApiCallTargetRegister.klassMethod.get(i).getLeft(), ApiCallTargetRegister.klassMethod.get(i).getRight());
         }
+        onlyStartClass.add("org/springframework/web/reactive/function/client/ExchangeFunctions$DefaultExchangeFunction");
     }
 
     public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
@@ -124,7 +136,7 @@ class ApicallExtCV extends ClassVisitor implements Opcodes {
         if (AsmUtil.isSpecial(methodName)) {
             return mv;
         }
-        //Logger.println("apicall: " + className + "." + methodName + desc);
+        Logger.println("apicall: " + className + "." + methodName + desc);
         return new ApicallExtMV(access, desc, mv, Type.getArgumentTypes(desc), (access & ACC_STATIC) != 0, className,
                 methodName, desc);
     }
@@ -234,6 +246,9 @@ class ApicallExtMV extends LocalVariablesSorter implements Opcodes {
     }
 
     private void capReturn() {
+        if (ApicallASM.onlyStartClass.contains(className)) {
+            return;
+        }
         Type tp = returnType;
         if (tp == null || tp.equals(Type.VOID_TYPE)) {
             mv.visitVarInsn(Opcodes.ALOAD, statIdx);

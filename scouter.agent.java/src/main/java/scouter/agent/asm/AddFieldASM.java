@@ -26,9 +26,14 @@ import scouter.agent.Logger;
 import scouter.agent.asm.util.HookingSet;
 
 import java.util.Map;
+
+import static scouter.agent.AgentCommonConstant.SCOUTER_ADDED_FIELD;
+
 public class AddFieldASM implements IASM, Opcodes {
 	public final Map<String, String> target = HookingSet.getClassFieldSet(Configure.getInstance().hook_add_fields);
 	public AddFieldASM() {
+		target.put("org/springframework/web/reactive/function/client/DefaultClientRequestBuilder$BodyInserterRequest",
+				SCOUTER_ADDED_FIELD);
 	}
 	Configure conf = Configure.getInstance();
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

@@ -41,6 +41,14 @@ public class NettyHttpClient implements IHttpClient {
 		return null;
 	}
 
+	public int getResponseStatusCode(Object o) {
+		if (o instanceof HttpClientResponse) {
+			HttpClientResponse res = (HttpClientResponse) o;
+			return res.getStatus().code();
+		}
+		return 0;
+	}
+
 
 	public String getURI(Object o) {
 		if (o instanceof HttpClientRequest) {

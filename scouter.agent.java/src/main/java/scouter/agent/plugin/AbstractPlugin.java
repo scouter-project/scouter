@@ -39,8 +39,6 @@ public class AbstractPlugin {
 
 	public static Object invokeMethod(Object o, String methodName, Object[] args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		int argsSize = args.length;
-		StringBuilder signature = new StringBuilder(o.getClass().getName()).append(":").append(methodName).append("():");
-
 		Class[] argClazzes = new Class[argsSize];
 
 		for(int i=0; i<argsSize; i++) {

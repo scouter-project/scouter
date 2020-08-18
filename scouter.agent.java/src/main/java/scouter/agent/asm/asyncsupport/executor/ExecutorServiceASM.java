@@ -40,12 +40,9 @@ public class ExecutorServiceASM implements IASM, Opcodes {
         if (conf.hook_async_thread_pool_executor_enabled == false) {
             return cv;
         }
-        Logger.trace("[SCTRACE]className IN ExecutorServiceASM : " + className);
         if (THREAD_POOL_EXECUTOR_CLASS_NAME.equals(className)) {
-            Logger.trace("[SCTRACE]transform ThreadPoolExecutor");
             return new ThreadPoolExecutorCV(cv, className);
         } else if (ABSTRACT_EXECUTOR_SERVICE_CLASS_NAME.equals(className)) {
-            Logger.trace("[SCTRACE]transform AbstractExecutorService");
             return new AbstractExecutorServiceCV(cv, className);
         }
 

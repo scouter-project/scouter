@@ -27,6 +27,7 @@ import scouter.util.ThreadUtil;
 import static scouter.lang.counters.CounterConstants.INTR_API_INCOMING;
 import static scouter.lang.counters.CounterConstants.INTR_API_OUTGOING;
 import static scouter.lang.counters.CounterConstants.INTR_DB_CALL;
+import static scouter.lang.counters.CounterConstants.INTR_ELASTICSEARCH_CALL;
 import static scouter.lang.counters.CounterConstants.INTR_KAFKA_CALL;
 import static scouter.lang.counters.CounterConstants.INTR_RABBITMQ_CALL;
 import static scouter.lang.counters.CounterConstants.INTR_NORMAL_INCOMING;
@@ -48,6 +49,7 @@ public class MeterInteractionManager extends Thread {
     private static LinkedMap<Key, MeterInteraction> redisCallMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
     private static LinkedMap<Key, MeterInteraction> kafkaCallMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
     private static LinkedMap<Key, MeterInteraction> rabbitmqCallMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
+    private static LinkedMap<Key, MeterInteraction> elasticSearchCallMeterMap = new LinkedMap<Key, MeterInteraction>().setMax(1000);
 
     private MeterInteractionManager() {
     }
@@ -92,6 +94,9 @@ public class MeterInteractionManager extends Thread {
 
             } else if (INTR_RABBITMQ_CALL.equals(type)) {
                 rabbitmqCallMeterMap.put(key, meterInteraction);
+
+            } else if (INTR_ELASTICSEARCH_CALL.equals(type)) {
+                elasticSearchCallMeterMap.put(key, meterInteraction);
             }
         }
     }
@@ -194,6 +199,18 @@ public class MeterInteractionManager extends Thread {
         return meter;
     }
 
+    /**
+     * @return nullable
+     */
+    public MeterInteraction getElasticSearchCallMeter(int fromHash, int toHash) {
+        Key key = new Key(fromHash, toHash);
+        MeterInteraction meter = elasticSearchCallMeterMap.get(key);
+        if (meter == null) {
+            queue.put(new Pair<String, Key>(INTR_ELASTICSEARCH_CALL, key));
+        }
+        return meter;
+    }
+
     public LinkedMap<Key, MeterInteraction> getApiOutgoingMeterMap() {
         return apiOutgoingMeterMap;
     }
@@ -224,6 +241,10 @@ public class MeterInteractionManager extends Thread {
 
     public LinkedMap<Key, MeterInteraction> getRabbitmqCallMeterMap() {
         return rabbitmqCallMeterMap;
+    }
+
+    public LinkedMap<Key, MeterInteraction> getElasticSearchCallMeterMap() {
+        return elasticSearchCallMeterMap;
     }
 
 

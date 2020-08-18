@@ -33,6 +33,10 @@ public class HttpClient43Factory {
 		public String getResponseHeader(Object o, String key) {
 			return null;
 		}
+		public int getResponseStatusCode(Object o) {
+			return 0;
+		}
+
 		public void addHeader(Object o, String key, String value) {
 		}
 	};

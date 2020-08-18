@@ -24,4 +24,5 @@ public interface IHttpClient {
 	String getHeader(Object o, String key);
 
 	String getResponseHeader(Object o, String key);
+	int getResponseStatusCode(Object o);
 }

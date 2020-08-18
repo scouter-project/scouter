@@ -43,6 +43,10 @@ public class JavaAgent {
 	}
 
 	public static void premain(String options, Instrumentation instrum) {
+		Configure conf = Configure.getInstance();
+		if (conf._hook_coroutine_debugger_hook_enabled && System.getProperty("kotlinx.coroutines.debug") == null) {
+			System.setProperty("kotlinx.coroutines.debug", "");
+		}
 		preStart(options, instrum, new AgentTransformer());
 	}
 
@@ -95,6 +99,7 @@ public class JavaAgent {
 
 		redefineClasses.put("java.util.concurrent.AbstractExecutorService");
 		redefineClasses.put("java.util.concurrent.ThreadPoolExecutor");
+		redefineClasses.put("java.lang.Thread");
 
 		//java.lang.invoke.LambdaMetafactory.*,java.lang.invoke.CallSite.*,
 		//java.lang.invoke.ConstantCallSite.*,
