@@ -18,6 +18,8 @@
 
 package reactor.core.publisher;
 
+import scouter.agent.Logger;
+
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2020/08/08
  */
@@ -26,40 +28,49 @@ public class ScouterOptimizableOperatorProxy {
     public static final String EMPTY = "";
 
     public static String nameOnCheckpoint(Object candidate) {
-        if (candidate instanceof OptimizableOperator) {
-            OptimizableOperator<?, ?> operator = ((OptimizableOperator<?, ?>) candidate).nextOptimizableSource();
-            if (operator == null) {
-                return EMPTY;
-            }
-            if (operator instanceof MonoOnAssembly) {
-                FluxOnAssembly.AssemblySnapshot snapshot = ((MonoOnAssembly) operator).stacktrace;
-                if (snapshot != null && snapshot.checkpointed) {
-                    return snapshot.cached;
+        try {
+            if (candidate instanceof OptimizableOperator) {
+                OptimizableOperator<?, ?> operator = ((OptimizableOperator<?, ?>) candidate).nextOptimizableSource();
+                if (operator == null) {
+                    return EMPTY;
                 }
-            } else if (operator instanceof FluxOnAssembly) {
-                FluxOnAssembly.AssemblySnapshot snapshot = ((FluxOnAssembly) operator).snapshotStack;
-                if (snapshot != null && snapshot.checkpointed) {
-                    return snapshot.cached;
+                if (operator instanceof MonoOnAssembly) {
+                    FluxOnAssembly.AssemblySnapshot snapshot = ((MonoOnAssembly) operator).stacktrace;
+                    if (snapshot != null && snapshot.checkpointed) {
+                        return snapshot.cached;
+                    }
+                } else if (operator instanceof FluxOnAssembly) {
+                    FluxOnAssembly.AssemblySnapshot snapshot = ((FluxOnAssembly) operator).snapshotStack;
+                    if (snapshot != null && snapshot.checkpointed) {
+                        return snapshot.cached;
+                    }
                 }
             }
+            return EMPTY;
+        } catch (Throwable e) {
+
+            return EMPTY;
         }
-        return EMPTY;
     }
 
     public static void appendSources4Dump(Object candidate, StringBuilder builder) {
-        if (candidate instanceof OptimizableOperator) {
-            OptimizableOperator<?, ?> operator = ((OptimizableOperator<?, ?>) candidate).nextOptimizableSource();
-            if (operator == null) {
-                return;
-            }
-            String p1 = operator.toString();
-            builder.append(" (<-) ").append(p1);
-            if (p1.startsWith("checkpoint")) {
-                OptimizableOperator<?, ?> operator2 = operator.nextOptimizableSource();
-                if (operator2 != null) {
-                    builder.append(" (<-) ").append(operator2.toString());
+        try {
+            if (candidate instanceof OptimizableOperator) {
+                OptimizableOperator<?, ?> operator = ((OptimizableOperator<?, ?>) candidate).nextOptimizableSource();
+                if (operator == null) {
+                    return;
+                }
+                String p1 = operator.toString();
+                builder.append(" (<-) ").append(p1);
+                if (p1.startsWith("checkpoint")) {
+                    OptimizableOperator<?, ?> operator2 = operator.nextOptimizableSource();
+                    if (operator2 != null) {
+                        builder.append(" (<-) ").append(operator2.toString());
+                    }
                 }
             }
+        } catch (Exception e) {
+            Logger.println("R01o2", e.getMessage(), e);
         }
     }
 }

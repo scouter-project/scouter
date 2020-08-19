@@ -99,8 +99,8 @@ public class ReactiveSupport implements IReactiveSupport {
                 public void run() {
                 }
             });
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            Logger.println("R201", e.getMessage(), e);
             return mono0;
         }
     }
@@ -112,23 +112,26 @@ public class ReactiveSupport implements IReactiveSupport {
                     new BiFunction<Scannable, CoreSubscriber<? super Object>, CoreSubscriber<? super Object>>() {
                 @Override
                 public CoreSubscriber<? super Object> apply(Scannable scannable, CoreSubscriber<? super Object> subscriber) {
-                    if (scannable instanceof Fuseable.ScalarCallable) {
-                        return subscriber;
-                    }
-                    //TODO reactor context : parent child 관계 (depth) 생성 (ScopePassingSpanSubscriber 참고)
-                    Context context = subscriber.currentContext();
-                    TraceContext traceContext = getTraceContext(scannable, context);
+                    try {
+                        if (scannable instanceof Fuseable.ScalarCallable) {
+                            return subscriber;
+                        }
+                        Context context = subscriber.currentContext();
+                        TraceContext traceContext = getTraceContext(scannable, context);
 
-                    if (traceContext != null) {
-                        //걍 이걸 txidlifter로 넘기자
-                        return new TxidLifter(subscriber, scannable, null, traceContext);
-                    } else {
+                        if (traceContext != null) {
+                            return new TxidLifter(subscriber, scannable, null, traceContext);
+                        } else {
+                            return subscriber;
+                        }
+                    } catch (Exception e) {
+                        Logger.println("R1660", e.getMessage(), e);
                         return subscriber;
                     }
                 }
             }));
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            Logger.println("R166", e.getMessage(), e);
         }
     }
 
@@ -141,13 +144,18 @@ public class ReactiveSupport implements IReactiveSupport {
 
     @Override
     public Object monoCoroutineContextHook(Object _coroutineContext, TraceContext traceContext) {
-        CoroutineContext coroutineContext = (CoroutineContext) _coroutineContext;
+        try {
+            CoroutineContext coroutineContext = (CoroutineContext) _coroutineContext;
 
-        TraceContextManager.startByCoroutine(traceContext);
+            TraceContextManager.startByCoroutine(traceContext);
 
-        ThreadContextElement<Long> threadContextElement = ThreadContextElementKt
-                .asContextElement(TraceContextManager.txidByCoroutine, traceContext.txid);
-        return coroutineContext.plus(threadContextElement);
+            ThreadContextElement<Long> threadContextElement = ThreadContextElementKt
+                    .asContextElement(TraceContextManager.txidByCoroutine, traceContext.txid);
+            return coroutineContext.plus(threadContextElement);
+        } catch (Exception e) {
+            Logger.println("R167p", e.getMessage(), e);
+            return _coroutineContext;
+        }
     }
 
     public static class SubscribeDepth {}
@@ -192,15 +200,10 @@ public class ReactiveSupport implements IReactiveSupport {
         public void onSubscribe(Subscription subs) {
             copyToThread(currentContext(), traceContext);
             try {
-                //TODO 생성자로..
-//                    Integer depth = context.getOrDefault(AgentCommonConstant.SUBS_DEPTH, -1);
-//                    depth = depth + 1;
-//                    context.put(AgentCommonConstant.SUBS_DEPTH, depth);
-//                    System.out.println(">>>>>>>>> depth: " + depth + ", scannable:" + scannable);
                 traceContext.scannables.put(scannable.hashCode(),
                         new TraceContext.TimedScannable(System.currentTimeMillis(), scannable));
                 profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_SUBSCRIBE, null);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Logger.println("[R109]", "reactive support onSubscribe error.", e);
             }
             this.orgSubs = subs;
@@ -219,7 +222,7 @@ public class ReactiveSupport implements IReactiveSupport {
             try {
                 TraceContext.TimedScannable timedScannable = traceContext.scannables.remove(scannable.hashCode());
                 profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_ERROR, timedScannable);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Logger.println("[R110]", "reactive support onError error.", e);
             }
             coreSubscriber.onError(throwable);
@@ -231,7 +234,7 @@ public class ReactiveSupport implements IReactiveSupport {
             try {
                 TraceContext.TimedScannable timedScannable = traceContext.scannables.remove(scannable.hashCode());
                 profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_COMPLETE, timedScannable);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Logger.println("[R111]", "reactive support onComplete error.", e);
             }
             coreSubscriber.onComplete();
@@ -248,7 +251,7 @@ public class ReactiveSupport implements IReactiveSupport {
             try {
                 TraceContext.TimedScannable timedScannable = traceContext.scannables.remove(scannable.hashCode());
                 profileCheckPoint(scannable, traceContext, ReactorCheckPointType.ON_CANCEL, timedScannable);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Logger.println("[R112]", "reactive support onCancel error.", e);
             }
             this.orgSubs.cancel();
@@ -276,13 +279,6 @@ public class ReactiveSupport implements IReactiveSupport {
             } else if (threadLocalTxid != traceContext.txid) {
                 TraceContextManager.setTxidLocal(traceContext.txid);
             }
-        }
-
-        private TraceContext getTraceContext(Scannable scannable, Context currentContext) {
-            if (scannable == null || currentContext == null) {
-                return null;
-            }
-            return currentContext.getOrDefault(TraceContext.class, null);
         }
 
         private void profileCheckPoint(Scannable scannable, TraceContext traceContext, ReactorCheckPointType type,

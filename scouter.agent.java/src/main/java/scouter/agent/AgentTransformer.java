@@ -73,6 +73,7 @@ import scouter.agent.asm.redis.JedisProtocolASM;
 import scouter.agent.asm.redis.LettuceASM;
 import scouter.agent.asm.redis.RedisCacheKeyASM;
 import scouter.agent.asm.redis.RedisKeyASM;
+import scouter.agent.asm.test.ReactorModifyASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
@@ -111,6 +112,8 @@ public class AgentTransformer implements ClassFileTransformer {
     public static void reload() {
         Configure conf = Configure.getInstance();
         List<IASM> temp = new ArrayList<IASM>();
+        temp.add(new ReactorModifyASM());
+
         temp.add(new ThreadASM());
         temp.add(new HttpServiceASM());
         temp.add(new ServiceASM());
@@ -238,8 +241,11 @@ public class AgentTransformer implements ClassFileTransformer {
                     return super.visitAnnotation(desc, visible);
                 }
             }, 0);
-            if (AsmUtil.isInterface(classDesc.access)) {
+            if (AsmUtil.isInterface(classDesc.access) && !"reactor/core/publisher/OptimizableOperator".equals(className)) {
                 return null;
+            }
+            if ("reactor/core/publisher/OptimizableOperator".equals(className)) {
+                System.out.println("reactor/core/publisher/OptimizableOperator meets.");
             }
             classDesc.classBeingRedefined = classBeingRedefined;
             ClassWriter cw = getClassWriter(classDesc);

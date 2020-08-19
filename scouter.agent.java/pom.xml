@@ -82,6 +82,7 @@
                                         <jar destfile="${project.build.directory}/${scouter.reactive.jar}">
                                             <fileset dir="${project.build.outputDirectory}">
                                                 <include name="scouter/xtra/reactive/*.class" />
+                                                <include name="reactor/**/*.class" />
                                             </fileset>
                                         </jar>
                                         <jar destfile="${project.build.directory}/${scouter.java8.jar}">
@@ -221,7 +222,8 @@
                             <source>1.6</source>
                             <target>1.6</target>
                             <excludes>
-                                <exclude>**/scouter/xtra/reactive/*.java</exclude>
+                                <exclude>/scouter/xtra/reactive/*.java</exclude>
+                                <exclude>/reactor/**/*.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -455,7 +457,7 @@
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
             <version>3.3.8.RELEASE</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
@@ -532,7 +534,8 @@
                         </manifestEntries>
                     </archive>
                     <excludes>
-                        <exclude>**/scouter/xtra/**</exclude>
+                        <exclude>/scouter/xtra/**</exclude>
+                        <exclude>/reactor/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
