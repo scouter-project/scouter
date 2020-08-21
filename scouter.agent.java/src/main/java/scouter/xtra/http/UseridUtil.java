@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 public class UseridUtil {
 	private static final String SCOUTE_R = "SCOUTER";
-	public static long getUserid(HttpServletRequest req, HttpServletResponse res, String cookiePath) {
+	public static long getUserid(HttpServletRequest req, HttpServletResponse res, String cookiePath, int maxAge) {
 		try {
 			String cookie = req.getHeader("Cookie");
 			if (cookie != null) {
@@ -48,14 +48,14 @@ public class UseridUtil {
 			if ( cookiePath != null && cookiePath.trim().length() > 0 ) {
 				c.setPath(cookiePath);
 			}
-			c.setMaxAge(Integer.MAX_VALUE);
+			c.setMaxAge(maxAge);
 			res.addCookie(c);
 		} catch (Throwable t) {
 			Logger.println("A153", t.toString());
 		}
 		return 0;
 	}
-	public static long getUseridCustom(HttpServletRequest req, HttpServletResponse res, String key) {
+	public static long getUseridCustom(HttpServletRequest req, String key) {
 		if (key == null || key.length() == 0)
 			return 0;
 		try {
@@ -81,7 +81,7 @@ public class UseridUtil {
 		return 0;
 	}
 
-	public static long getUseridFromHeader(HttpServletRequest req, HttpServletResponse res, String key) {
+	public static long getUseridFromHeader(HttpServletRequest req, String key) {
 		if (key == null || key.length() == 0)
 			return 0;
 		try {
