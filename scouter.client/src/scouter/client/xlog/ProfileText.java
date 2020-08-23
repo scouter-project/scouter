@@ -90,9 +90,9 @@ public class ProfileText {
     public static Color getColor(ParameterizedMessageLevel level) {
         switch (level) {
             case DEBUG:
-                return ColorUtil.getInstance().getColor("gray2");
-            case INFO:
                 return ColorUtil.getInstance().getColor("gray3");
+            case INFO:
+                return ColorUtil.getInstance().getColor("maroon");
             case WARN:
                 return ColorUtil.getInstance().getColor("dark orange");
             case ERROR:

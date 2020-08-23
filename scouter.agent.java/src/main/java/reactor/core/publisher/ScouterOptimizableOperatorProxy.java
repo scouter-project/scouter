@@ -26,9 +26,25 @@ import scouter.agent.Logger;
 public class ScouterOptimizableOperatorProxy {
 
     public static final String EMPTY = "";
+    public static boolean accessible = false;
+    public static boolean first = true;
 
     public static String nameOnCheckpoint(Object candidate) {
         try {
+            if (!accessible && first) {
+                try {
+                    Class checker = Class.forName("reactor.core.publisher.OptimizableOperator");
+                    accessible = true;
+                } catch (ClassNotFoundException e) {
+                    accessible = false;
+                    Logger.println("reactor.core.publisher.OptimizableOperator not accessible. reactor checkpoint processing will be disabled.");
+                }
+                first = false;
+            }
+            if (!accessible) {
+                return EMPTY;
+            }
+
             if (candidate instanceof OptimizableOperator) {
                 OptimizableOperator<?, ?> operator = ((OptimizableOperator<?, ?>) candidate).nextOptimizableSource();
                 if (operator == null) {
@@ -55,6 +71,20 @@ public class ScouterOptimizableOperatorProxy {
 
     public static void appendSources4Dump(Object candidate, StringBuilder builder) {
         try {
+            if (!accessible && first) {
+                try {
+                    Class checker = Class.forName("reactor.core.publisher.OptimizableOperator");
+                    accessible = true;
+                } catch (ClassNotFoundException e) {
+                    accessible = false;
+                    Logger.println("reactor.core.publisher.OptimizableOperator not accessible. reactor checkpoint processing will be disabled.");
+                }
+                first = false;
+            }
+            if (!accessible) {
+                return;
+            }
+
             if (candidate instanceof OptimizableOperator) {
                 OptimizableOperator<?, ?> operator = ((OptimizableOperator<?, ?>) candidate).nextOptimizableSource();
                 if (operator == null) {

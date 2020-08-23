@@ -59,12 +59,11 @@ public class ReactiveSupport implements IReactiveSupport {
                 return mono0;
             }
             Mono<?> mono = (Mono<?>) mono0;
+            traceContext.isReactiveTxidMarked = true;
             return mono.subscriberContext(new Function<Context, Context>() {
                 @Override
                 public Context apply(Context context) {
-                    traceContext.isReactiveTxidMarked = true;
                     return context.put(TraceContext.class, traceContext);
-                    //return context.put(AgentCommonConstant.TRACE_ID, traceContext.txid);
                 }
             }).doOnSuccess(new Consumer<Object>() {
                 @Override
@@ -87,14 +86,6 @@ public class ReactiveSupport implements IReactiveSupport {
                     TraceContextManager.clearAllContext(traceContext);
                 }
             }).doAfterTerminate(new Runnable() {
-                @Override
-                public void run() {
-                }
-            }).doOnNext(new Consumer<Object>() {
-                @Override
-                public void accept(Object o) {
-                }
-            }).doFirst(new Runnable() {
                 @Override
                 public void run() {
                 }

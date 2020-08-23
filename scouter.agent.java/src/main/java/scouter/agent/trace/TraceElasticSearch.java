@@ -55,7 +55,7 @@ public class TraceElasticSearch {
             ParameterizedMessageStep step = new ParameterizedMessageStep();
             step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
             step.putTempMessage("desc", esRequestDesc);
-            ctx.profile.push(step);
+            ctx.profile.add(step);
             StepTransferMap.put(System.identityHashCode(httpRequestBase), ctx, step);
         } catch (Throwable e) {
             Logger.println("ES001", e.getMessage(), e);
@@ -115,7 +115,7 @@ public class TraceElasticSearch {
                 }
                 //TODO not yet error summary processing for es : ctx.offerErrorEntity(ErrorEntity.of(throwable, ctx.error, 0, 0));
             }
-            ctx.profile.pop(step);
+//            ctx.profile.pop(step);
 
             if (conf.counter_interaction_enabled) {
                 String node = tracer.getNode(ctx, hostOrNode);

@@ -67,6 +67,7 @@ import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionAspectSupportDo
 import scouter.agent.asm.elasticsearch.HttpNioEntityASM;
 import scouter.agent.asm.elasticsearch.RestClientASM;
 import scouter.agent.asm.kafka.KafkaProducerASM;
+import scouter.agent.asm.mongodb.MongoCommandProtocolASM;
 import scouter.agent.asm.rabbit.RabbitPublisherASM;
 import scouter.agent.asm.redis.JedisCommandASM;
 import scouter.agent.asm.redis.JedisProtocolASM;
@@ -113,6 +114,7 @@ public class AgentTransformer implements ClassFileTransformer {
         Configure conf = Configure.getInstance();
         List<IASM> temp = new ArrayList<IASM>();
         temp.add(new ReactorModifyASM());
+        temp.add(new MongoCommandProtocolASM());
 
         temp.add(new ThreadASM());
         temp.add(new HttpServiceASM());
@@ -241,7 +243,9 @@ public class AgentTransformer implements ClassFileTransformer {
                     return super.visitAnnotation(desc, visible);
                 }
             }, 0);
-            if (AsmUtil.isInterface(classDesc.access) && !"reactor/core/publisher/OptimizableOperator".equals(className)) {
+            if (AsmUtil.isInterface(classDesc.access)
+                    && !"reactor/core/publisher/OptimizableOperator".equals(className)
+            ) {
                 return null;
             }
             if ("reactor/core/publisher/OptimizableOperator".equals(className)) {

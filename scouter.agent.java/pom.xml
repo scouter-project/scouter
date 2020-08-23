@@ -489,6 +489,12 @@
             <version>6.8.10</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-core</artifactId>
+            <version>4.0.5</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>io.lettuce</groupId>
@@ -536,6 +542,7 @@
                     <excludes>
                         <exclude>/scouter/xtra/**</exclude>
                         <exclude>/reactor/**</exclude>
+                        <exclude>/com/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
