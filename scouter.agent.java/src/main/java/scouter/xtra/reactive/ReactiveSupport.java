@@ -274,9 +274,18 @@ public class ReactiveSupport implements IReactiveSupport {
 
         private void profileCheckPoint(Scannable scannable, TraceContext traceContext, ReactorCheckPointType type,
                                        TraceContext.TimedScannable timedScannable) {
-
+            if (!configure.profile_reactor_checkpoint_enabled) {
+                return;
+            }
             if (scannable.isScanAvailable()) {
                 if (!"".equals(checkpointDesc)) {
+                    boolean important = false;
+                    if (checkpointDesc.startsWith("checkpoint")) {
+                        important = true;
+                    }
+                    if (!configure.profile_reactor_more_checkpoint_enabled && !important) {
+                        return;
+                    }
                     String duration;
                     StringBuilder messageBuilder = new StringBuilder(300)
                             .append(StringUtil.padding((depth - 1) * 2, ' '))
@@ -292,14 +301,14 @@ public class ReactiveSupport implements IReactiveSupport {
                     }
 
                     String message = messageBuilder.append(scannable.name())
-                            .append("] ")
+                            .append("] close checkpoint -> ")
                             .append(checkpointDesc).toString();
 
                     ParameterizedMessageStep step = new ParameterizedMessageStep();
                     step.setMessage(DataProxy.sendHashedMessage(message), duration);
                     step.start_time = (int) (System.currentTimeMillis() - traceContext.startTime);
 
-                    if (checkpointDesc.startsWith("checkpoint")) {
+                    if (important) {
                         step.setLevel(ParameterizedMessageLevel.INFO);
                     } else {
                         step.setLevel(ParameterizedMessageLevel.DEBUG);

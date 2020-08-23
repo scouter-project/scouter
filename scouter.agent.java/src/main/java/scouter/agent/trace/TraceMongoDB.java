@@ -30,9 +30,53 @@ public class TraceMongoDB {
 
     public static final String V405 = "v405";
     public static final String V382 = "v382";
+    public static final String V364 = "v364";
 
     static IMongoDbTracer tracer;
     static Configure conf = Configure.getInstance();
+
+    public static Object startExecute(Object _this, Object connection, Object namespace, Object command,
+                                    Object readPreference, Object payload, String version) {
+
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null) {
+            return null;
+        }
+
+        try {
+            if (tracer == null) {
+                tracer = MongoDbTraceFactory.create(namespace.getClass().getClassLoader(), version);
+            }
+            StepTransferMap.ID id = tracer.generateAndTransferMongoQueryStep(ctx, _this, connection);
+            if (id == null) {
+                return null;
+            }
+            Object callback = tracer.genCallback(id, namespace, command, readPreference, payload);
+            if (callback == null) {
+                return null;
+            }
+            return callback;
+
+        } catch (Throwable t) {
+            Logger.println("MTC01", t.getMessage(), t);
+            return null;
+        }
+    }
+
+    public static void endExecute(Object callback, Throwable throwable) {
+        if (callback == null) {
+            return;
+        }
+        if (tracer == null) {
+            return;
+        }
+        try {
+            tracer.doCallback(callback, null, throwable);
+
+        } catch (Throwable t) {
+            Logger.println("MTC02", t.getMessage(), t);
+        }
+    }
 
     public static Object startExecuteAsync(Object _this, Object connection, Object namespace, Object command,
                                            Object readPreference, Object payload, Object callback, String version) {
@@ -51,7 +95,7 @@ public class TraceMongoDB {
             return tracer.wrapCallback(id, namespace, command, readPreference, payload, callback);
 
         } catch (Throwable e) {
-            Logger.println("MG001", e.getMessage(), e);
+            Logger.println("MTC03", e.getMessage(), e);
             return callback;
         }
     }

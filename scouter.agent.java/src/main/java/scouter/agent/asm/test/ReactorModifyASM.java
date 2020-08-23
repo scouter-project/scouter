@@ -32,6 +32,10 @@ public class ReactorModifyASM implements IASM, Opcodes {
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
+		if (conf._hook_reactive_enabled == false) {
+			return cv;
+		}
+
 		if ("reactor/core/publisher/OptimizableOperator".equals(className)) {
 			return new OptimizableOperatorCV(cv, className);
 		}

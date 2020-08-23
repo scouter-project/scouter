@@ -19,6 +19,7 @@
 package scouter.xtra.java8;
 
 import com.mongodb.internal.async.SingleResultCallback;
+import com.mongodb.internal.connection.InternalConnection;
 import com.mongodb.internal.connection.SplittablePayload;
 import org.bson.BsonDocument;
 import scouter.agent.Configure;
@@ -28,6 +29,7 @@ import scouter.agent.trace.StepTransferMap;
 import scouter.agent.trace.TraceContext;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2020/08/16
@@ -38,7 +40,46 @@ public class MongoDbTracer405 implements IMongoDbTracer {
 
     @Override
     public StepTransferMap.ID generateAndTransferMongoQueryStep(TraceContext ctx, Object _this, Object connection) {
-        return MongoDbTracer.generateAndTransferMongoQueryStep(ctx, _this, connection);
+        String connectionDesc = null;
+        if (connection instanceof InternalConnection) {
+            connectionDesc = ((InternalConnection) connection).getDescription().getServerAddress().toString();
+        }
+
+        return MongoDbTracer.generateAndTransferMongoQueryStep(ctx, _this, connectionDesc);
+    }
+
+    @Override
+    public Object genCallback(StepTransferMap.ID id, Object namespace, Object command, Object readPreference, Object payload) {
+        try {
+            List<BsonDocument> payload0 = null;
+            if (payload instanceof SplittablePayload) {
+                payload0 = ((SplittablePayload) payload).getPayload();
+            }
+
+            ScMongoSingleResultCallback405 callback =
+                    new ScMongoSingleResultCallback405(id, null, namespace, command, readPreference, payload0);
+
+            return new BiConsumer<Object, Throwable>() {
+                @Override
+                public void accept(Object o, Throwable throwable) {
+                    callback.endMongoQueryStep(throwable);
+                }
+            };
+        } catch (Throwable t) {
+            Logger.println("MDp03", t.getMessage(), t);
+            return null;
+        }
+    }
+
+    @Override
+    public void doCallback(Object callback, Object o, Throwable t) {
+        try {
+            if (callback instanceof BiConsumer) {
+                ((BiConsumer) callback).accept(o, t);
+            }
+        } catch (Throwable throwable) {
+            Logger.println("MDp04", throwable.getMessage(), throwable);
+        }
     }
 
     @Override
@@ -76,7 +117,9 @@ public class MongoDbTracer405 implements IMongoDbTracer {
         @Override
         public void onResult(T result, Throwable t) {
             endMongoQueryStep(t);
-            inner.onResult(result, t);
+            if (inner != null) {
+                inner.onResult(result, t);
+            }
         }
     }
 }

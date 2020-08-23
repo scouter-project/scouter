@@ -19,8 +19,8 @@
 package scouter.xtra.java8;
 
 import com.mongodb.async.SingleResultCallback;
+import com.mongodb.connection.InternalConnection;
 import com.mongodb.connection.SplittablePayload;
-import com.mongodb.internal.connection.InternalConnection;
 import org.bson.BsonDocument;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -34,7 +34,7 @@ import java.util.function.BiConsumer;
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2020/08/16
  */
-public class MongoDbTracer382 implements IMongoDbTracer {
+public class MongoDbTracer364 implements IMongoDbTracer {
 
     static Configure conf = Configure.getInstance();
 
@@ -55,8 +55,8 @@ public class MongoDbTracer382 implements IMongoDbTracer {
             payload0 = ((SplittablePayload) payload).getPayload();
         }
 
-        ScMongoSingleResultCallback382 callback =
-                new ScMongoSingleResultCallback382(id, null, namespace, command, readPreference, payload0);
+        ScMongoSingleResultCallback364 callback =
+                new ScMongoSingleResultCallback364(id, null, namespace, command, readPreference, payload0);
 
         return new BiConsumer<Object, Throwable>() {
             @Override
@@ -84,7 +84,7 @@ public class MongoDbTracer382 implements IMongoDbTracer {
                 if (payload instanceof SplittablePayload) {
                     payload0 = ((SplittablePayload) payload).getPayload();
                 }
-                return new ScMongoSingleResultCallback382(id, (SingleResultCallback) callback, namespace, command, readPreference, payload0);
+                return new ScMongoSingleResultCallback364(id, (SingleResultCallback) callback, namespace, command, readPreference, payload0);
             } else {
                 return callback;
             }
@@ -94,13 +94,13 @@ public class MongoDbTracer382 implements IMongoDbTracer {
         }
     }
 
-    public static class ScMongoSingleResultCallback382<T> extends MongoDbTracer.ScMongoSingleResultCallback<T>
+    public static class ScMongoSingleResultCallback364<T> extends MongoDbTracer.ScMongoSingleResultCallback<T>
             implements SingleResultCallback<T> {
 
         public SingleResultCallback<T> inner;
 
-        public ScMongoSingleResultCallback382(StepTransferMap.ID id, SingleResultCallback<T> callback, Object namespace,
-                                           Object command, Object readPreference, List<BsonDocument> payload) {
+        public ScMongoSingleResultCallback364(StepTransferMap.ID id, SingleResultCallback<T> callback, Object namespace,
+                                              Object command, Object readPreference, List<BsonDocument> payload) {
             super(id, namespace, command, readPreference, payload);
             this.inner = callback;
         }

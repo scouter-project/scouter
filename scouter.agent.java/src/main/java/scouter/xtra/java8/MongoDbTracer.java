@@ -20,7 +20,6 @@ package scouter.xtra.java8;
 
 import com.mongodb.MongoNamespace;
 import com.mongodb.ReadPreference;
-import com.mongodb.internal.connection.InternalConnection;
 import org.bson.BsonDocument;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
@@ -47,7 +46,7 @@ public class MongoDbTracer {
 
     static Configure conf = Configure.getInstance();
 
-    public static StepTransferMap.ID generateAndTransferMongoQueryStep(TraceContext ctx, Object _this, Object connection) {
+    public static StepTransferMap.ID generateAndTransferMongoQueryStep(TraceContext ctx, Object _this, String connectionDesc) {
         if (ctx == null) {
             return null;
         }
@@ -56,8 +55,8 @@ public class MongoDbTracer {
             step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
             ctx.profile.push(step);
 
-            if (connection instanceof InternalConnection) {
-                step.putTempMessage("connectionDesc", ((InternalConnection) connection).getDescription().getServerAddress().toString());
+            if (connectionDesc != null) {
+                step.putTempMessage("connectionDesc", connectionDesc);
             }
             return StepTransferMap.makeID(ctx, step);
 

@@ -41,7 +41,11 @@ public class ApicallWebClientResponseASM implements IASM, Opcodes {
 
 	@Override
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-		if (!Configure.getInstance()._hook_apicall_enabled) {
+		Configure conf = Configure.getInstance();
+		if (!conf._hook_apicall_enabled) {
+			return cv;
+		}
+		if (conf._hook_reactive_enabled == false) {
 			return cv;
 		}
 

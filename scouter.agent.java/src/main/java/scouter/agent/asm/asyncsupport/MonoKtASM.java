@@ -38,6 +38,9 @@ public class MonoKtASM implements IASM, Opcodes {
 		if (conf._hook_coroutine_enabled == false) {
 			return cv;
 		}
+		if (conf._hook_reactive_enabled == false) {
+			return cv;
+		}
 
 		if ("kotlinx/coroutines/reactor/MonoKt".equals(className)) {
 			return new MonoKtCV(cv, className);

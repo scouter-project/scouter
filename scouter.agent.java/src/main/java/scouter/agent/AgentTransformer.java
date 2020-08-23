@@ -74,6 +74,7 @@ import scouter.agent.asm.redis.JedisProtocolASM;
 import scouter.agent.asm.redis.LettuceASM;
 import scouter.agent.asm.redis.RedisCacheKeyASM;
 import scouter.agent.asm.redis.RedisKeyASM;
+import scouter.agent.asm.test.MongoModifyASM;
 import scouter.agent.asm.test.ReactorModifyASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
@@ -114,6 +115,7 @@ public class AgentTransformer implements ClassFileTransformer {
         Configure conf = Configure.getInstance();
         List<IASM> temp = new ArrayList<IASM>();
         temp.add(new ReactorModifyASM());
+        temp.add(new MongoModifyASM());
         temp.add(new MongoCommandProtocolASM());
 
         temp.add(new ThreadASM());
@@ -245,12 +247,11 @@ public class AgentTransformer implements ClassFileTransformer {
             }, 0);
             if (AsmUtil.isInterface(classDesc.access)
                     && !"reactor/core/publisher/OptimizableOperator".equals(className)
+                    && !"com/mongodb/connection/InternalConnection".equals(className)
             ) {
                 return null;
             }
-            if ("reactor/core/publisher/OptimizableOperator".equals(className)) {
-                System.out.println("reactor/core/publisher/OptimizableOperator meets.");
-            }
+
             classDesc.classBeingRedefined = classBeingRedefined;
             ClassWriter cw = getClassWriter(classDesc);
             ClassVisitor cv = cw;
