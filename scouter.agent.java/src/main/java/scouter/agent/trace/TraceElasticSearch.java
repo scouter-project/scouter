@@ -19,6 +19,7 @@
 package scouter.agent.trace;
 
 import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterInteraction;
 import scouter.agent.counter.meter.MeterInteractionManager;
 import scouter.agent.netio.data.DataProxy;
@@ -48,13 +49,17 @@ public class TraceElasticSearch {
             tracer = ElasticSearchTraceFactory.create(httpRequestBase.getClass().getClassLoader());
         }
 
-        String esRequestDesc = tracer.getRequestDescription(ctx, httpRequestBase);
+        try {
+            String esRequestDesc = tracer.getRequestDescription(ctx, httpRequestBase);
 
-        ParameterizedMessageStep step = new ParameterizedMessageStep();
-        step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-        step.putTempMessage("desc", esRequestDesc);
-        ctx.profile.push(step);
-        StepTransferMap.put(System.identityHashCode(httpRequestBase), ctx, step);
+            ParameterizedMessageStep step = new ParameterizedMessageStep();
+            step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+            step.putTempMessage("desc", esRequestDesc);
+            ctx.profile.add(step);
+            StepTransferMap.put(System.identityHashCode(httpRequestBase), ctx, step);
+        } catch (Throwable e) {
+            Logger.println("ES001", e.getMessage(), e);
+        }
     }
 
     public static void endRequest(Object httpUriRequest, Object httpHost, Object httpResponse) {
@@ -70,54 +75,58 @@ public class TraceElasticSearch {
             return;
         }
 
-        int requestBaseHash = System.identityHashCode(httpRequestBase);
-        StepTransferMap.ID id = StepTransferMap.get(requestBaseHash);
-        if (id == null) {
-            return;
-        }
-        StepTransferMap.remove(requestBaseHash);
-
-        TraceContext ctx = id.ctx;
-        ParameterizedMessageStep step = (ParameterizedMessageStep) id.step;
-        if (ctx == null || step == null) return;
-
-        if (tracer == null) {
-            tracer = ElasticSearchTraceFactory.create(httpRequestBase.getClass().getClassLoader());
-        }
-        if (throwable == null && httpResponseBase != null) {
-            throwable = tracer.getResponseError(httpRequestBase, httpResponseBase);
-        }
-
-        int elapsed = (int) (System.currentTimeMillis() - ctx.startTime) - step.start_time;
-        step.setElapsed(elapsed);
-
-        String desc = step.getTempMessage("desc");
-
-        if (StringUtil.isEmpty(desc)) desc = "-";
-
-        if (throwable == null) {
-            step.setMessage(DataProxy.sendHashedMessage(ES_COMMAND_MSG), desc);
-            step.setLevel(ParameterizedMessageLevel.INFO);
-
-        } else {
-            String msg = throwable.toString();
-            step.setMessage(DataProxy.sendHashedMessage(ES_COMMAND_ERROR_MSG), desc, throwable.getClass().getName(), msg);
-            step.setLevel(ParameterizedMessageLevel.ERROR);
-
-            if (ctx.error == 0 && conf.xlog_error_on_elasticsearch_exception_enabled) {
-                ctx.error = DataProxy.sendError(msg);
+        try {
+            int requestBaseHash = System.identityHashCode(httpRequestBase);
+            StepTransferMap.ID id = StepTransferMap.get(requestBaseHash);
+            if (id == null) {
+                return;
             }
-            //TODO not yet error summary processing for es : ctx.offerErrorEntity(ErrorEntity.of(throwable, ctx.error, 0, 0));
-        }
-        ctx.profile.pop(step);
+            StepTransferMap.remove(requestBaseHash);
 
-        if (conf.counter_interaction_enabled) {
-            String node = tracer.getNode(ctx, hostOrNode);
-            int nodeHash = DataProxy.sendObjName(node);
-            MeterInteraction meterInteraction = MeterInteractionManager.getInstance().getElasticSearchCallMeter(conf.getObjHash(), nodeHash);
-            if (meterInteraction != null) {
-                meterInteraction.add(elapsed, throwable != null);
+            TraceContext ctx = id.ctx;
+            ParameterizedMessageStep step = (ParameterizedMessageStep) id.step;
+            if (ctx == null || step == null) return;
+
+            if (tracer == null) {
+                tracer = ElasticSearchTraceFactory.create(httpRequestBase.getClass().getClassLoader());
             }
+            if (throwable == null && httpResponseBase != null) {
+                throwable = tracer.getResponseError(httpRequestBase, httpResponseBase);
+            }
+
+            int elapsed = (int) (System.currentTimeMillis() - ctx.startTime) - step.start_time;
+            step.setElapsed(elapsed);
+
+            String desc = step.getTempMessage("desc");
+
+            if (StringUtil.isEmpty(desc)) desc = "-";
+
+            if (throwable == null) {
+                step.setMessage(DataProxy.sendHashedMessage(ES_COMMAND_MSG), desc);
+                step.setLevel(ParameterizedMessageLevel.INFO);
+
+            } else {
+                String msg = throwable.toString();
+                step.setMessage(DataProxy.sendHashedMessage(ES_COMMAND_ERROR_MSG), desc, throwable.getClass().getName(), msg);
+                step.setLevel(ParameterizedMessageLevel.ERROR);
+
+                if (ctx.error == 0 && conf.xlog_error_on_elasticsearch_exception_enabled) {
+                    ctx.error = DataProxy.sendError(msg);
+                }
+                //TODO not yet error summary processing for es : ctx.offerErrorEntity(ErrorEntity.of(throwable, ctx.error, 0, 0));
+            }
+//            ctx.profile.pop(step);
+
+            if (conf.counter_interaction_enabled) {
+                String node = tracer.getNode(ctx, hostOrNode);
+                int nodeHash = DataProxy.sendObjName(node);
+                MeterInteraction meterInteraction = MeterInteractionManager.getInstance().getElasticSearchCallMeter(conf.getObjHash(), nodeHash);
+                if (meterInteraction != null) {
+                    meterInteraction.add(elapsed, throwable != null);
+                }
+            }
+        } catch (Throwable e) {
+            Logger.println("ES002", e.getMessage(), e);
         }
     }
 }

@@ -37,6 +37,9 @@ public class StepTransferMap {
 
 	private static IntKeyLinkedMap<ID> map = new IntKeyLinkedMap<ID>().setMax(2001);
 
+	public static ID makeID(TraceContext ctx, Step step) {
+		return new ID(ctx, step, null);
+	}
 	public static void put(int hash, TraceContext ctx, Step step) {
 		map.put(hash, new ID(ctx,step, null));
 	}

@@ -84,6 +84,8 @@ public class ColorUtil {
 
 		rgb.put("gray2", new Color(null, 150, 150, 180));
 		rgb.put("gray3",  new Color(null, 120, 120, 180));
+		rgb.put("brown",  new Color(null, 165, 42, 42));
+		rgb.put("maroon",  new Color(null, 128, 0, 0));
 		rgb.put("dark orange",  new Color(null, 238, 140, 20));
 	}
 

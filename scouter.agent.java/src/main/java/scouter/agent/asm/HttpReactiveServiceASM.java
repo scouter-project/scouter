@@ -80,30 +80,32 @@ class HttpReactiveServiceCV extends ClassVisitor implements Opcodes {
 			Logger.println("A103", "HTTP-REACTIVE " + className);
 			return new HttpReactiveServiceMV(access, desc, mv);
 
-		} else if (loading.equals(name) && loading_class.equals(className)) {
-			Logger.println("A103", "HTTP-REACTIVE INIT" + className);
-			return new HttpReactiveInitMV(access, desc, mv);
 		}
+//		else if (loading.equals(name) && loading_class.equals(className)) {
+//			Logger.println("A103", "HTTP-REACTIVE INIT" + className);
+//			return new HttpReactiveInitMV(access, desc, mv);
+//		}
 		return mv;
 	}
 }
 
-class HttpReactiveInitMV extends LocalVariablesSorter implements Opcodes {
-	private static final String TRACEMAIN = TraceMain.class.getName().replace('.', '/');
-	private final static String START = "startReactiveInit";
-	private static final String START_SIGNATURE = "(Ljava/lang/Object;)V";
-
-	public HttpReactiveInitMV(int access, String desc, MethodVisitor mv) {
-		super(ASM8, access, desc, mv);
-	}
-
-	@Override
-	public void visitCode() {
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START, START_SIGNATURE, false);
-		mv.visitCode();
-	}
-}
+//class HttpReactiveInitMV extends LocalVariablesSorter implements Opcodes {
+//	private static final String TRACEMAIN = TraceMain.class.getName().replace('.', '/');
+//	private final static String START = "startReactiveInit";
+//	private static final String START_SIGNATURE = "(Ljava/lang/Object;)V";
+//
+//	public HttpReactiveInitMV(int access, String desc, MethodVisitor mv) {
+//		super(ASM8, access, desc, mv);
+//	}
+//
+//	@Override
+//	public void visitCode() {
+//		mv.visitVarInsn(ALOAD, 0);
+//		mv.visitTypeInsn(CHECKCAST, "java/lang/Object");
+//		mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START, START_SIGNATURE, false);
+//		mv.visitCode();
+//	}
+//}
 
 class HttpReactiveServiceMV extends LocalVariablesSorter implements Opcodes {
 	private static final String TRACEMAIN = TraceMain.class.getName().replace('.', '/');
@@ -129,6 +131,7 @@ class HttpReactiveServiceMV extends LocalVariablesSorter implements Opcodes {
 	public void visitInsn(int opcode) {
 		if ((opcode >= IRETURN && opcode <= RETURN)) {
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_RETURN, START_RETURN_SIGNATUER, false);
+			mv.visitTypeInsn(CHECKCAST, "reactor/core/publisher/Mono");
 		}
 		mv.visitInsn(opcode);
 	}

@@ -23,7 +23,7 @@ public class ElasticSearchTracer implements IElasticSearchTracer {
 
     @Override
     public String getRequestDescription(TraceContext ctx, Object httpRequestBase0) {
-        return getRequestDescription0(httpRequestBase0, !conf.elasticsearch_full_query_enabled);
+        return getRequestDescription0(httpRequestBase0, !conf.profile_elasticsearch_full_query_enabled);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class ElasticSearchTracer implements IElasticSearchTracer {
 
         } else {
             String url = httpRequestBase0.toString();
-            if (!conf.elasticsearch_full_query_enabled) {
+            if (!conf.profile_elasticsearch_full_query_enabled) {
                 return StringUtil.limiting(url, 45);
             }
             return url;

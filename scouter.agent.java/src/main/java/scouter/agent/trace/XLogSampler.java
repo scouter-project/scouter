@@ -33,6 +33,7 @@ public class XLogSampler {
 
     private XLogSampler() {
         conf = Configure.getInstance();
+        currentExcludeSamplingPattern = conf.xlog_sampling_exclude_patterns;
         currentDiscardServicePatterns = conf.xlog_discard_service_patterns;
         currentFullyDiscardServicePatterns = conf.xlog_fully_discard_service_patterns;
         currentSamplingServicePatterns = conf.xlog_patterned_sampling_service_patterns;

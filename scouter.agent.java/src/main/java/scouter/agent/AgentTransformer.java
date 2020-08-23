@@ -67,12 +67,15 @@ import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionAspectSupportDo
 import scouter.agent.asm.elasticsearch.HttpNioEntityASM;
 import scouter.agent.asm.elasticsearch.RestClientASM;
 import scouter.agent.asm.kafka.KafkaProducerASM;
+import scouter.agent.asm.mongodb.MongoCommandProtocolASM;
 import scouter.agent.asm.rabbit.RabbitPublisherASM;
 import scouter.agent.asm.redis.JedisCommandASM;
 import scouter.agent.asm.redis.JedisProtocolASM;
 import scouter.agent.asm.redis.LettuceASM;
 import scouter.agent.asm.redis.RedisCacheKeyASM;
 import scouter.agent.asm.redis.RedisKeyASM;
+import scouter.agent.asm.test.MongoModifyASM;
+import scouter.agent.asm.test.ReactorModifyASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
@@ -111,6 +114,10 @@ public class AgentTransformer implements ClassFileTransformer {
     public static void reload() {
         Configure conf = Configure.getInstance();
         List<IASM> temp = new ArrayList<IASM>();
+        temp.add(new ReactorModifyASM());
+        temp.add(new MongoModifyASM());
+        temp.add(new MongoCommandProtocolASM());
+
         temp.add(new ThreadASM());
         temp.add(new HttpServiceASM());
         temp.add(new ServiceASM());
@@ -238,9 +245,13 @@ public class AgentTransformer implements ClassFileTransformer {
                     return super.visitAnnotation(desc, visible);
                 }
             }, 0);
-            if (AsmUtil.isInterface(classDesc.access)) {
+            if (AsmUtil.isInterface(classDesc.access)
+                    && !"reactor/core/publisher/OptimizableOperator".equals(className)
+                    && !"com/mongodb/connection/InternalConnection".equals(className)
+            ) {
                 return null;
             }
+
             classDesc.classBeingRedefined = classBeingRedefined;
             ClassWriter cw = getClassWriter(classDesc);
             ClassVisitor cv = cw;

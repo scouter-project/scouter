@@ -194,7 +194,12 @@ public class Configure extends Thread {
     public boolean profile_fullstack_stmt_leak_enabled = false;
 
     @ConfigDesc("Profile elastic search full query.\nIt need more payload and disk usage.")
-    public boolean elasticsearch_full_query_enabled = false;
+    public boolean profile_elasticsearch_full_query_enabled = false;
+
+    @ConfigDesc("profile reactor's important checkpoint")
+    public boolean profile_reactor_checkpoint_enabled = true;
+    @ConfigDesc("profile reactor's another checkpoints")
+    public boolean profile_reactor_more_checkpoint_enabled = false;
 
     //Trace
     @ConfigDesc("User ID based(0 : Remote Address, 1 : Cookie, 2 : Scouter Cookie, 2 : Header) \n - able to set value for 1.Cookie and 3.Header \n - refer to 'trace_user_session_key'")
@@ -335,8 +340,10 @@ public class Configure extends Thread {
     public boolean xlog_error_on_apicall_exception_enabled = true;
     @ConfigDesc("mark as error on xlog flag if redis error is occured.")
     public boolean xlog_error_on_redis_exception_enabled = true;
-    @ConfigDesc("mark as error on xlog flag if redis error is occured.")
+    @ConfigDesc("mark as error on xlog flag if elasticsearc error is occured.")
     public boolean xlog_error_on_elasticsearch_exception_enabled = true;
+    @ConfigDesc("mark as error on xlog flag if mongodb error is occured.")
+    public boolean xlog_error_on_mongodb_exception_enabled = true;
 
     //XLog hard sampling options
     @ConfigDesc("XLog hard sampling mode enabled\n - for the best performance but it affects all statistics data")
@@ -711,6 +718,8 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public boolean _hook_elasticsearch_enabled = true;
     @ConfigDesc("")
+    public boolean hook_mongodb_enabled = false;
+    @ConfigDesc("")
     public boolean _hook_rabbit_enabled = true;
     @ConfigDesc("")
     public boolean _hook_reactive_enabled = true;
@@ -1075,7 +1084,10 @@ public class Configure extends Thread {
         this.profile_fullstack_rs_leak_enabled = getBoolean("profile_fullstack_rs_leak_enabled", false);
         this.profile_fullstack_stmt_leak_enabled = getBoolean("profile_fullstack_stmt_leak_enabled", false);
 
-        this.elasticsearch_full_query_enabled = getBoolean("elasticsearch_full_query_enabled", false);
+        this.profile_elasticsearch_full_query_enabled = getBoolean("profile_elasticsearch_full_query_enabled", false);
+
+        this.profile_reactor_checkpoint_enabled = getBoolean("profile_reactor_checkpoint_enabled", true);
+        this.profile_reactor_more_checkpoint_enabled = getBoolean("profile_reactor_more_checkpoint_enabled", false);
 
         this.net_udp_collection_interval_ms = getInt("net_udp_collection_interval_ms", 100);
 
@@ -1110,6 +1122,7 @@ public class Configure extends Thread {
         this._hook_redis_enabled = getBoolean("_hook_redis_enabled", true);
         this._hook_kafka_enabled = getBoolean("_hook_kafka_enabled", true);
         this._hook_elasticsearch_enabled = getBoolean("_hook_elasticsearch_enabled", true);
+        this.hook_mongodb_enabled = getBoolean("hook_mongodb_enabled", false);
         this._hook_rabbit_enabled = getBoolean("_hook_rabbit_enabled", true);
         this._hook_reactive_enabled = getBoolean("_hook_reactive_enabled", true);
         this._hook_coroutine_enabled = getBoolean("_hook_coroutine_enabled", true);
@@ -1181,6 +1194,7 @@ public class Configure extends Thread {
         this.xlog_error_on_apicall_exception_enabled = getBoolean("xlog_error_on_apicall_exception_enabled", true);
         this.xlog_error_on_redis_exception_enabled = getBoolean("xlog_error_on_redis_exception_enabled", true);
         this.xlog_error_on_elasticsearch_exception_enabled = getBoolean("xlog_error_on_elasticsearch_exception_enabled", true);
+        this.xlog_error_on_mongodb_exception_enabled = getBoolean("xlog_error_on_mongodb_exception_enabled", true);
 
         this._log_asm_enabled = getBoolean("_log_asm_enabled", false);
         this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);

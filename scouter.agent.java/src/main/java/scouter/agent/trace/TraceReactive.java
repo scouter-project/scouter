@@ -19,12 +19,6 @@ package scouter.agent.trace;
 import java.lang.reflect.Method;
 
 public class TraceReactive {
-    //TODO
-    /*
-    Active Service 코루틴에 맞추기
-    child 코루틴과 연결 가능한지 테스트하기.
-     */
-
     public static void threadSetName(Thread thread, String name) {
         //System.out.println(">> Thread setname " + Thread.currentThread().getId() + " : " + Thread.currentThread().getName() + " -> " + name);
     }

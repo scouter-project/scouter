@@ -82,6 +82,9 @@ import java.util.concurrent.ConcurrentMap;
 import static scouter.lang.pack.XLogDiscardTypes.XLogDiscard;
 
 public class TraceMain {
+
+    public static final String[] EMPTY_PARAM = new String[0];
+
     public static class Stat {
         public TraceContext ctx;
         public Object req;
@@ -144,16 +147,16 @@ public class TraceMain {
     }
 
     public static void startReactiveInit(Object obj) {
+    }
+
+    public static void startReactiveHttpService(Object exchange) {
         try {
             if (reactiveSupport == null) {
-                initReactiveSupport(obj);
+                initReactiveSupport(exchange);
             }
         } catch (Throwable t) {
             Logger.println("A143", "fail to deploy ", t);
         }
-    }
-
-    public static void startReactiveHttpService(Object exchange) {
         try {
             Object req = AbstractPlugin.invokeMethod(exchange, "getRequest");
             Object res = AbstractPlugin.invokeMethod(exchange, "getResponse");
@@ -384,12 +387,12 @@ public class TraceMain {
     }
 
     public static void endCanceledHttpService(TraceContext traceContext) {
-        if (traceContext != null) {
-            traceContext.error += 1;
+        if (traceContext != null && !traceContext.endHttpProcessingStarted) {
+//            traceContext.error += 1;
 
             ParameterizedMessageStep step = new ParameterizedMessageStep();
-            step.setMessage(DataProxy.sendHashedMessage("reactive stream canceled!"), new String[0]);
-            step.setLevel(ParameterizedMessageLevel.ERROR);
+            step.setMessage(DataProxy.sendHashedMessage("reactive stream canceled finish"), EMPTY_PARAM);
+            step.setLevel(ParameterizedMessageLevel.INFO);
             step.start_time = (int) (System.currentTimeMillis() - traceContext.startTime);
             traceContext.profile.add(step);
 

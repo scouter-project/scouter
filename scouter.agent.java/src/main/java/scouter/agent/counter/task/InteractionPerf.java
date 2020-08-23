@@ -141,6 +141,18 @@ public class InteractionPerf {
 		addInteractionsToBasket(basket, interactionType, esMeterMap, periodSec);
 	}
 
+	@InteractionCounter(interval = 5000)
+	public void collectMongoDbCallInteractionCounter(InteractionCounterBasket basket) {
+		if (!conf.counter_interaction_enabled) {
+			return;
+		}
+
+		int periodSec = 30;
+		String interactionType = CounterConstants.INTR_MONGODB_CALL;
+		LinkedMap<MeterInteractionManager.Key, MeterInteraction> meterMap = MeterInteractionManager.getInstance().getMongoDbCallMeterMap();
+		addInteractionsToBasket(basket, interactionType, meterMap, periodSec);
+	}
+
 	private void addInteractionsToBasket(InteractionCounterBasket basket, String interactionType, LinkedMap<MeterInteractionManager.Key, MeterInteraction> apiIncomingMeterMap, int periodSec) {
 		Enumeration<LinkedMap.LinkedEntry<MeterInteractionManager.Key, MeterInteraction>> entries = apiIncomingMeterMap.entries();
 
