@@ -204,6 +204,12 @@ public class TraceContextManager {
 		}
 	}
 
+	public static void takeoverTxid(TraceContext o, long oldTxid) {
+		txidLocal.set(o.txid);
+		entryByTxid.remove(oldTxid);
+		entryByTxid.put(o.txid, o);
+	}
+
 	public static void startByCoroutine(TraceContext o) {
 		txidByCoroutine.set(o.txid);
 	}
@@ -262,13 +268,12 @@ public class TraceContextManager {
 		entryByTxid.remove(o.txid);
 		if (conf._psts_progressive_reactor_thread_trace_enabled) {
 			txidThreadMap.remove(o.txid);
-		} else {
-			entryByThreadId.remove(o.threadId);
 		}
 
 		txidByCoroutine.set(null);
 		if (!o.isReactiveStarted) { //do not clear txidLocal in reactive
 			txidLocal.set(null);
+			entryByThreadId.remove(o.threadId);
 		}
 
 		clearForceDiscard();
