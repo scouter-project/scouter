@@ -92,7 +92,7 @@ public class ProfileText {
             case DEBUG:
                 return ColorUtil.getInstance().getColor("gray3");
             case INFO:
-                return ColorUtil.getInstance().getColor("maroon");
+                return ColorUtil.getInstance().getColor("gunlee2");
             case WARN:
                 return ColorUtil.getInstance().getColor("dark orange");
             case ERROR:
