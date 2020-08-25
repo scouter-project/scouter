@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>2.10.0-SNAPSHOT</version>
+        <version>2.10.0-M2-SNAPSHOT</version>
     </parent>
 
     <artifactId>scouter-agent-java</artifactId>
@@ -151,7 +151,7 @@
 
                                         <!-- for min file -->
                                         <jar destfile="${project.build.directory}/${scouter.agent.min.file.name}">
-                                            <zipfileset src="${final.jar.name}" excludes="scouter/repack/net/bytebuddy/**/*" />
+                                            <zipfileset src="${final.jar.name}"/>
                                             <manifest>
                                                 <attribute name="Premain-Class" value="scouter.agent.JavaAgent" />
                                                 <attribute name="Agent-Class" value="scouter.agent.JavaAgent" />
@@ -222,8 +222,10 @@
                             <source>1.6</source>
                             <target>1.6</target>
                             <excludes>
-                                <exclude>/scouter/xtra/reactive/*.java</exclude>
-                                <exclude>/reactor/**/*.java</exclude>
+                                <exclude>scouter/xtra/reactive/*.java</exclude>
+                                <exclude>scouter/xtra/java8/*.java</exclude>
+                                <exclude>reactor/**/*.java</exclude>
+                                <exclude>com/**/*.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -391,11 +393,6 @@
         </dependency>
         <!-- local lib -->
         <dependency>
-            <groupId>com.github.scouter-project</groupId>
-            <artifactId>byte-buddy-nodep-scouter-repack</artifactId>
-            <version>1.7.1.RC1</version>
-        </dependency>
-        <dependency>
             <groupId>jdk.tools</groupId>
             <artifactId>jdk.tools</artifactId>
             <version>tools-0.0.0</version>
@@ -540,9 +537,9 @@
                         </manifestEntries>
                     </archive>
                     <excludes>
-                        <exclude>/scouter/xtra/**</exclude>
-                        <exclude>/reactor/**</exclude>
-                        <exclude>/com/**</exclude>
+                        <exclude>scouter/xtra/**</exclude>
+                        <exclude>reactor/**</exclude>
+                        <exclude>com/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>
