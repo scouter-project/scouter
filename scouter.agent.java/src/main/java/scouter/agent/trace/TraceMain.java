@@ -1322,7 +1322,11 @@ public class TraceMain {
             }
             localContext.service = true;
             if (id.gxid != 0) localContext.context.gxid = id.gxid;
-            if (id.callee != 0) localContext.context.txid = id.callee;
+            if (id.callee != 0) {
+                long oldTxid = localContext.context.txid;
+                localContext.context.txid = id.callee;
+                TraceContextManager.takeoverTxid(localContext.context, oldTxid);
+            }
             if (id.caller != 0) localContext.context.caller = id.caller;
 
             String serviceName = StringUtil.removeLastString(className, '/') + "#" + methodName + "() -- " + fullName;
@@ -1492,7 +1496,11 @@ public class TraceMain {
             }
             localContext.service = true;
             if (id.gxid != 0) localContext.context.gxid = id.gxid;
-            if (id.callee != 0) localContext.context.txid = id.callee;
+            if (id.callee != 0) {
+                long oldTxid = localContext.context.txid;
+                localContext.context.txid = id.callee;
+                TraceContextManager.takeoverTxid(localContext.context, oldTxid);
+            }
             if (id.caller != 0) localContext.context.caller = id.caller;
 
             return localContext;
