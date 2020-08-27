@@ -360,6 +360,9 @@ public class TraceApiCall {
 			return;
 		}
 		LocalContext localContext = ApiCallTraceHelper.webClientProcessEnd(exchangeFunction, clientResponse);
+		if (localContext == null) {
+			return;
+		}
 		Object option = localContext.option;
 		localContext.option = null;
 		Throwable throwable = null;
