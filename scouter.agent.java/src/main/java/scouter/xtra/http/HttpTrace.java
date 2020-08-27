@@ -144,16 +144,16 @@ public class HttpTrace implements IHttpTrace {
         try {
             switch (conf.trace_user_mode) {
                 case 3:
-                    ctx.userid = UseridUtil.getUseridFromHeader(request, response, conf.trace_user_session_key);
+                    ctx.userid = UseridUtil.getUseridFromHeader(request, conf.trace_user_session_key);
                     if (ctx.userid == 0 && ctx.remoteIp != null) {
                         ctx.userid = HashUtil.hash(ctx.remoteIp);
                     }
                     break;
                 case 2:
-                    ctx.userid = UseridUtil.getUserid(request, response, conf.trace_user_cookie_path);
+                    ctx.userid = UseridUtil.getUserid(request, response, conf.trace_user_cookie_path, conf.trace_scouter_cookie_max_age);
                     break;
                 case 1:
-                    ctx.userid = UseridUtil.getUseridCustom(request, response, conf.trace_user_session_key);
+                    ctx.userid = UseridUtil.getUseridCustom(request, conf.trace_user_session_key);
                     if (ctx.userid == 0 && ctx.remoteIp != null) {
                         ctx.userid = HashUtil.hash(ctx.remoteIp);
                     }
@@ -271,7 +271,7 @@ public class HttpTrace implements IHttpTrace {
                 if (startTime != null) {
                     int t = startTime.indexOf("t=");
                     int ts = startTime.indexOf("ts=");
-                    long startMillis = 0l;
+                    long startMillis = 0L;
                     if (t >= 0) {
                         startMillis = Long.parseLong(startTime.substring(t + 2).trim())/1000;
                     } else if (ts >= 0) {
@@ -288,7 +288,7 @@ public class HttpTrace implements IHttpTrace {
                 if (startTime != null) {
                     int t = startTime.indexOf("t=");
                     int ts = startTime.indexOf("ts=");
-                    long startMillis = 0l;
+                    long startMillis = 0L;
                     if (t >= 0) {
                         startMillis = Long.parseLong(startTime.substring(t + 2).trim())/1000;
                     } else if (ts >= 0) {

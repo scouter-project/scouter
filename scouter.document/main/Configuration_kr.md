@@ -377,9 +377,11 @@ public boolean sfa_dump_enabled = false;
 @ConfigDesc("SFA thread dump Interval(ms)")
 public int sfa_dump_interval_ms = 10000;
 
-//miscellaneous
-@ConfigDesc("User ID based(0 : Remote Address, 1 : JSessionID, 2 : Scouter Cookie)")
-public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:SetCookie
+//Trace
+@ConfigDesc("User ID based(0 : Remote IP Address, 1 : Cookie(JSESSIONID), 2 : Cookie(SCOUTER), 3 : Header) \n - able to set value for 1.Cookie and 3.Header \n - refer to 'trace_user_session_key'")
+public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:Scouter Cookie, 3:Header
+@ConfigDesc("Setting a cookie expired time for SCOUTER cookie when trace_user_mode is 2")
+public int trace_scouter_cookie_max_age = Integer.MAX_VALUE;
 @ConfigDesc("Setting a cookie path for SCOUTER cookie when trace_user_mode is 2")
 public String trace_user_cookie_path = "/";
 
