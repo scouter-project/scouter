@@ -4,7 +4,7 @@
 
     <groupId>io.github.scouter-project</groupId>
     <artifactId>scouter-parent</artifactId>
-    <version>2.10.0-M2-SNAPSHOT</version>
+    <version>2.10.0-M3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>SCOUTER APM</name>

@@ -354,6 +354,8 @@ public class Configure extends Thread {
     //XLog soft sampling options
     @ConfigDesc("XLog sampling - ignore global consequent sampling. the commencement service's sampling option affects it's children.")
     public boolean ignore_global_consequent_sampling = false;
+    @ConfigDesc("XLog sampling - The service of this patterns can be unsampled by the sampling rate even if parent call is sampled and on tracing.")
+    public String xlog_consequent_sampling_ignore_patterns= "";
 
     @ConfigDesc("XLog sampling exclude patterns.")
     public String xlog_sampling_exclude_patterns = "";
@@ -1215,6 +1217,7 @@ public class Configure extends Thread {
         this._xlog_hard_sampling_rate_pct = getInt("_xlog_hard_sampling_rate_pct", 10);
 
         this.ignore_global_consequent_sampling = getBoolean("ignore_global_consequent_sampling", false);
+        this.xlog_consequent_sampling_ignore_patterns = getValue("xlog_consequent_sampling_ignore_patterns", "");
 
         this.xlog_sampling_exclude_patterns = getValue("xlog_sampling_exclude_patterns", "");
 

@@ -603,7 +603,7 @@ public class TraceMain {
 
             pack.discardType = discardMode.byteFlag;
             ctx.discardType = discardMode;
-            ctx.profile.close(discardMode == XLogDiscard.NONE || !pack.isDriving());
+            ctx.profile.close(discardMode == XLogDiscard.NONE || (!pack.isDriving() && !discardMode.isForceDiscard()));
 
             pack.profileSize = ctx.profileSize;
             pack.profileCount = ctx.profileCount;
@@ -647,7 +647,8 @@ public class TraceMain {
             meteringInteraction(ctx, pack);
 
             //send all child xlogs, and check it again on the collector server. (follows parent's discard type)
-            if (discardMode != XLogDiscard.DISCARD_ALL || !pack.isDriving()) {
+            if ((discardMode != XLogDiscard.DISCARD_ALL && discardMode != XLogDiscard.DISCARD_ALL_FORCE)
+                    || (!pack.isDriving() && discardMode == XLogDiscard.DISCARD_ALL)) {
                 if (!ctx.isReactiveStarted) {
                     if (ctx.latestCpu > 0) {
                         pack.cpu = (int) (ctx.latestCpu - ctx.startCpu);
@@ -847,7 +848,7 @@ public class TraceMain {
             XLogDiscard discardMode = findXLogDiscard(ctx, conf, pack);
             pack.discardType = discardMode.byteFlag;
             ctx.discardType = discardMode;
-            ctx.profile.close(discardMode == XLogDiscard.NONE || !pack.isDriving());
+            ctx.profile.close(discardMode == XLogDiscard.NONE || (!pack.isDriving() && !discardMode.isForceDiscard()));
 
             pack.profileCount = ctx.profileCount;
             pack.profileSize = ctx.profileSize;
@@ -893,7 +894,9 @@ public class TraceMain {
             meteringInteraction(ctx, pack);
 
             //send all child xlogs, and check it again on the collector server. (follows parent's discard type)
-            if (discardMode != XLogDiscard.DISCARD_ALL || !pack.isDriving()) {
+            if ((discardMode != XLogDiscard.DISCARD_ALL && discardMode != XLogDiscard.DISCARD_ALL_FORCE)
+                    || (!pack.isDriving() && discardMode == XLogDiscard.DISCARD_ALL)) {
+
                 pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
                 pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled) - ctx.bytes) / 1024.0d);
                 DataProxy.sendXLog(pack);
@@ -1167,7 +1170,7 @@ public class TraceMain {
         XLogDiscard discardMode = pack.error != 0 ? XLogDiscard.NONE : XLogSampler.getInstance().evaluateXLogDiscard(pack.elapsed, ctx.serviceName);
         //check xlog discard pattern
         if (XLogSampler.getInstance().isDiscardServicePattern(ctx.serviceName)) {
-            discardMode = XLogDiscard.DISCARD_ALL;
+            discardMode = XLogDiscard.DISCARD_ALL_FORCE;
             if (pack.error != 0 && conf.xlog_discard_service_show_error) {
                 discardMode = XLogDiscard.NONE;
             }
