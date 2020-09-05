@@ -41,6 +41,8 @@ public class XLogSampler {
         currentSampling3ServicePatterns = conf.xlog_patterned3_sampling_service_patterns;
         currentSampling4ServicePatterns = conf.xlog_patterned4_sampling_service_patterns;
         currentSampling5ServicePatterns = conf.xlog_patterned5_sampling_service_patterns;
+
+        excludeSamplingPatternMatcher  = new CommaSeparatedChainedStrMatcher(currentExcludeSamplingPattern);
         discardPatternMatcher = new CommaSeparatedChainedStrMatcher(currentDiscardServicePatterns);
         fullyDiscardPatternMatcher = new CommaSeparatedChainedStrMatcher(currentFullyDiscardServicePatterns);
         samplingPatternMatcher = new CommaSeparatedChainedStrMatcher(currentSamplingServicePatterns);

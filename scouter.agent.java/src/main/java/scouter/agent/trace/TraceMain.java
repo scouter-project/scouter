@@ -445,7 +445,7 @@ public class TraceMain {
         //prevent duplication invoke
         synchronized (ctx) {
             if (ctx.endHttpProcessingStarted) {
-                Logger.println("[warn] duplicated endHttpServiceFinal() called !!! : " + ctx.serviceName);
+                Logger.println("[info] duplicated endHttpServiceFinal() called.: " + ctx.serviceName);
                 return;
             }
             ctx.endHttpProcessingStarted = true;
@@ -666,7 +666,7 @@ public class TraceMain {
                 DataProxy.sendDroppedXLog(new DroppedXLogPack(pack.gxid, pack.txid));
             }
         } catch (Throwable e) {
-            Logger.println("A146", e);
+            Logger.println("A146", e.getMessage(), e);
         }
     }
 
