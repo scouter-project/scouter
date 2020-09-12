@@ -139,6 +139,8 @@ public class Configure extends Thread {
 	public String server_id = SysJMX.getHostName();
 
 	//Log
+	public int log_test_rate = 0;
+
 	@ConfigDesc("Logging TCP connection related event")
 	public boolean log_tcp_action_enabled = false;
 	@ConfigDesc("Logging incoming MultiPacket")
@@ -659,6 +661,8 @@ public class Configure extends Thread {
     public static boolean WORKABLE = true;
 
 	private void applyConfig() {
+		this.log_test_rate = getInt("log_test_rate", 0);
+
 		this.xlog_queue_size = getInt("xlog_queue_size", 10000);
 		this.profile_queue_size = getInt("profile_queue_size", 1000);
 		this.log_tcp_action_enabled = getBoolean("log_tcp_action_enabled", false);
